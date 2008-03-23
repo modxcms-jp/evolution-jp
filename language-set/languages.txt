@@ -1,0 +1,250 @@
+Volume      :
+Folder Path :  modx-0961p2
+Total Size  :  8,980 KByte
+
+[modx-0961p2]
+ ├ [assets]
+ │  ├ [modules]
+ │  │  ├ [docmanager]
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ francais-utf8.inc.php
+ │  │  ├ [quick_edit]
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ japanese-utf8.inc.php
+ │  ├ [plugins]
+ │  │  ├ [tinymce212]
+ │  │  │  ├ [jscripts]
+ │  │  │  │  └ [tiny_mce]
+ │  │  │  │      ├ [langs]
+ │  │  │  │      │  ├ en.js
+ │  │  │  │      │  ├ ja.js
+ │  │  │  │      │  ├ ja_utf-8.js
+ │  │  │  │      ├ [plugins]
+ │  │  │  │      │  ├ [_template]
+ │  │  │  │      │  │  └ [langs]
+ │  │  │  │      │  │      ├ en.js なし★
+ │  │  │  │      │  │      ├ ja.js
+ │  │  │  │      │  │      ├ ja_utf-8.js
+ │  │  │  │      │  ├ [advhr]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [advimage]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [advlink]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [autosave]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [devkit]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  └ en.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js　★なし
+ │  │  │  │      │  ├ [directionality]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [emotions]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [flash]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [fullpage]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [fullscreen]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [iespell]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [insertdatetime]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [layer]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [media]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [nonbreaking]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ ja_utf-8.js　★なし
+ │  │  │  │      │  │  │  └ en.js
+ │  │  │  │      │  ├ [paste]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [preview]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [print]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ es.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [save]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [searchreplace]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [spellchecker]
+ │  │  │  │      │  │  └ [langs]
+ │  │  │  │      │  │      ├ en.js ★なし
+ │  │  │  │      │  │      ├ ja.js
+ │  │  │  │      │  │      ├ ja_utf-8.js
+ │  │  │  │      │  ├ [style]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ es.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [table]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      │  ├ [template]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ ja_utf-8.js　★なし
+ │  │  │  │      │  │  │  └ en.js
+ │  │  │  │      │  ├ [visualchars]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ ja_utf-8.js　★なし
+ │  │  │  │      │  │  │  └ en.js
+ │  │  │  │      │  ├ [xhtmlxtras]
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  │      ├ [themes]
+ │  │  │  │      │  ├ [advanced]
+ │  │  │  │      │  │  ├ [docs]
+ │  │  │  │      │  │  │  └ [en]　→　★ja用作る？
+ │  │  │  │      │  │  │      ├ [images]
+ │  │  │  │      │  │  │      │  ├ insert_anchor_window.gif
+ │  │  │  │      │  │  │      │  ├ insert_image_window.gif
+ │  │  │  │      │  │  │      │  ├ insert_link_window.gif
+ │  │  │  │      │  │  │      │  └ insert_table_window.gif
+ │  │  │  │      │  │  │      ├ about.htm
+ │  │  │  │      │  │  │      ├ common_buttons.htm
+ │  │  │  │      │  │  │      ├ create_accessible_content.htm
+ │  │  │  │      │  │  │      ├ index.htm
+ │  │  │  │      │  │  │      ├ insert_anchor_button.htm
+ │  │  │  │      │  │  │      ├ insert_image_button.htm
+ │  │  │  │      │  │  │      ├ insert_link_button.htm
+ │  │  │  │      │  │  │      ├ insert_table_button.htm
+ │  │  │  │      │  │  │      └ style.css
+ │  │  │  │      │  │  ├ [langs]
+ │  │  │  │      │  │  │  ├ en.js
+ │  │  │  │      │  │  │  ├ ja.js
+ │  │  │  │      │  │  │  ├ ja_utf-8.js
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ japanese-utf8.inc.php
+ │  ├ [snippets]
+ │  │  ├ [AjaxSearch]
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ japanese-utf8.inc.php
+ │  │  ├ [ditto]
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ japanese-utf8.inc.php
+ │  │  ├ [eform]
+ │  │  │  ├ [docs] →　★日本訳必要？一応うちのサイトに少しある
+ │  │  │  │  ├ eform.htm
+ │  │  │  │  ├ eform_example_events.htm
+ │  │  │  │  ├ eform_example_multiple_forms.htm
+ │  │  │  │  ├ eform_examples.htm
+ │  │  │  │  ├ eform_history.htm
+ │  │  │  │  ├ example_2_form_1.gif
+ │  │  │  │  ├ example_2_form_2.gif
+ │  │  │  │  ├ form1.gif
+ │  │  │  │  └ logo.png
+ │  │  │  ├ [lang]
+ │  │  │  │  ├ english.inc.php
+ │  │  │  │  ├ japanese-utf8.inc.php
+
+ ├ [install]
+ │  ├ [lang]
+ │  │  ├ [english]
+ │  │  │  ├ [images]
+ │  │  │  │  ├ img_box.png
+ │  │  │  │  └ img_splash.gif
+ │  │  │  └ english.inc.php
+ │  │  ├ [japanese-utf8] ★　同梱済みたぶん
+ │  │  │  ├ [images]
+ │  │  │  │  ├ img_box.png
+ │  │  │  │  └ img_splash.gif
+ │  │  │  └ japanese-utf8.inc.php
+ │  │  ├ [french]
+ │  │  │  └ french.inc.php
+ │  │  ├ [german]
+ │  │  │  └ german.inc.php
+ │  │  ├ [russian]
+ │  │  │  └ russian.inc.php
+ │  │  ├ [spanish]
+ │  │  │  └ spanish.inc.php
+ │  │  └ [svenska]
+ │  │      └ svenska.inc.php
+ │  ├ lang.php　★変更済みのはず
+ │  ├ setup.data.sql
+ │  ├ setup.sql
+ ├ [manager]
+ │  ├ [includes]
+ │  │  ├ [lang]
+ │  │  │  ├ [country]
+ │  │  │  │  ├ english_country.inc.php
+ │  │  │  │  ├ japanese-utf8_country.inc.php
+ │  │  │  ├ english.inc.php
+ │  │  │  ├ japanese-utf8.inc.php
+ │  ├ [media]
+ │  │  ├ [browser]
+ │  │  │  └ [mcpuk]
+ │  │  │      ├ [connectors]
+ │  │  │      │  └ [php]
+ │  │  │      │      ├ [dtd]
+ │  │  │      │      │  └ iso-lat1.ent  ？　★これってなに？
+ │  │  │  ├ [lang]
+ │  │  │  │  └ en.js
+ │  │  │  │  └ ja.js　★なし
+
