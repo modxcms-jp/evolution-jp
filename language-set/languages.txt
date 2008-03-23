@@ -8,7 +8,7 @@ Total Size  :  8,980 KByte
  Да  Да  Де [docmanager]
  Да  Да  Да  Де [lang]
  Да  Да  Да  Да  Де english.inc.php
- Да  Да  Да  Да  Де francais-utf8.inc.php
+ Да  Да  Да  Да  Де japanese-utf8.inc.php
  Да  Да  Де [quick_edit]
  Да  Да  Да  Де [lang]
  Да  Да  Да  Да  Де english.inc.php
