@@ -1,0 +1,21 @@
+install/action.options.php differ
+install/action.summary.php differ
+install/changelog.txt differ
+install/instprocessor.php differ
+install/plugin.searchhighlight.tpl differ
+install/setup.info.php differ
+install/setup.sql differ
+install/sqlparser.class.php differ
+install/style.css differ
+install/lang/french/french.inc.php differ
+install/lang/german/german.inc.php differ
+install/lang/russian/russian.inc.php differ
+install/lang/japanese-utf8 add
+install/lang.php differ
+	install\lang\japanese-utf8\images\ add 
+	install\lang\japanese-utf8\images\img_box.png add 
+	install\lang\japanese-utf8\images\img_splash.gif add
+	install\lang\japanese-utf8\japanese-utf8.inc.php add
+
+assets/plugins/tinymce212/jscripts/tiny_mce/plugins/visualchars/langs/ja_utf-8.js add
+assets/plugins/tinymce212/jscripts/tiny_mce/plugins/nonbreaking/langs/ja_utf-8.js add
