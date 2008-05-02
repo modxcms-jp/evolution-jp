@@ -13,7 +13,7 @@
 //-- JAPANESE LANGUAGE FILE ENCODED IN UTF-8
 include_once(dirname(__FILE__).'/english.inc.php'); // fall back to English defaults if needed
 /* Set locale to Japanese */
-setlocale (LC_ALL, "ja_JP.UTF-8");
+setlocale (LC_ALL, 'ja_JP');
 
 $_lang['language'] = "japanese-utf8";
 

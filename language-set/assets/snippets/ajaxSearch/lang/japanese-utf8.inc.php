@@ -10,7 +10,7 @@ Description: Language strings for AjaxSearch
 //-- JAPANESE LANGUAGE FILE ENCODED IN UTF-8
 include_once(dirname(__FILE__).'/english.inc.php'); // fall back to English defaults if needed
 /* Set locale to Japanese */
-setlocale (LC_ALL, "ja_JP.UTF-8");
+setlocale (LC_ALL, 'ja_JP');
 
 $_lang['as_resultsIntroFailure'] = 'There were no search results. Please try using more general terms to get more results.';
 $_lang['as_searchButtonText'] = '検索';
