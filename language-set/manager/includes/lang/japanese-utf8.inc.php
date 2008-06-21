@@ -24,6 +24,7 @@ $_lang["access_permissions_add_document_group"] = 'ドキュメントグルー�
 $_lang["access_permissions_add_user_group"] = 'ユーザグループの作成';
 $_lang["access_permissions_docs_message"] = 'このドキュメントを所属させたいドキュメントグループを選択してください';
 $_lang["access_permissions_documents_in_group"] = '<strong>グループ内ドキュメント:</strong> ';
+
 $_lang["access_permissions_documents_tab"] = 'ドキュメントグループの設定を一覧することができます。グループの作成、リネーム、削除もここで操作します。 また、ドキュメントがどのグループに属しているかを閲覧することもできます(ドキュメント名を表示するには、idの上にマウスポインタを乗せてください)。 ドキュメントをグループに追加したり、グループから削除するには、ドキュメントを直接編集してください。';
 $_lang["access_permissions_document_groups"] = 'ドキュメントグループ';
 $_lang["access_permissions_introtext"] = 'ここでアクセスパーミッションのためのユーザグループとドキュメントグループを管理することができます。ユーザをグループに追加するには、ユーザ編集の画面でメンバーとして追加するグループを選択してください。ドキュメントをユーザグループに追加するには、ドキュメント編集の画面で属させたいドキュメントグループを選択してください。';
@@ -34,14 +35,17 @@ $_lang["access_permissions_no_users_in_group"] = '無し';
 $_lang["access_permissions_off"] = '<span class="warning">アクセス権限設定が無効になっています。</span> This means any changes made here will not have any effect until Access Permissions are activated.';
 $_lang["access_permissions_users_in_group"] = '<strong>グループ内ユーザ:</strong> ';
 $_lang["access_permissions_users_tab"] = 'ユーザグループの設定一覧を表示します。グループの作成、リネーム、削除もここで操作します。また、ユーザがどのグループのメンバーになっているかを閲覧することができます。ユーザをグループに追加したり、グループから削除するには、ユーザを直接編集してください。管理者(権限ID 1が割り当てられているユーザ)は、常に全てのドキュメントにアクセスすることができます。ですから、管理者をグループに追加する必要はありません。';
-$_lang["access_permissions_user_group"] = 'ユーザグループ:';
+
+$_lang["access_permissions_user_groups"] = 'ユーザグループ:';
 $_lang["access_permissions_user_message"] = 'このユーザを所属させたいユーザグループを選択してください:';
 $_lang["access_permission_denied"] = 'このドキュメントにアクセスする権限がありません。';
 $_lang["access_permission_parent_denied"] = 'ここにドキュメントを作成する権限がありません!';
+
 $_lang["account_email"] = 'あなたのメールアドレス';
 $_lang["actioncomplete"] = '<strong>処理が正常に完了しました!</strong><br /> - クリーンアップ処理中です。お待ちください。';
 $_lang["activity_message"] = '最近作成または編集したドキュメント一覧を表示しています:';
 $_lang["activity_title"] = '最近編集/作成されたドキュメント';
+
 $_lang["add"] = '追加';
 $_lang["add_chunk"] = 'チャンクの追加';
 $_lang["add_doc"] = 'ドキュメントの追加';
@@ -56,6 +60,7 @@ $_lang["add_weblink"] = 'ウェブリンクの作成';
 $_lang["administrator_role_message"] = 'この権限は編集、削除できません。';
 $_lang["after_saving"] = '保存後は';
 $_lang["alert_delete_self"] = '自分自身を削除することはできません!';
+
 $_lang["alias"] = 'エイリアス';
 $_lang["allow_mgr_access"] = 'マネージャへのアクセス';
 $_lang["allow_mgr_access_message"] = 'このオプションは管理画面へのアクセスをユーザに許可するかしないかを選択するものです。<strong>注意: このオプションを「いいえ」に設定すると、ユーザは上記の「マネージャログイン開始ページ」か、それが空白ならサイトスタートのページへリダイレクトされます。</strong>';
@@ -66,9 +71,11 @@ $_lang["already_deleted"] = 'は既に削除されています';
 $_lang["attachment"] = 'Attachment';
 $_lang["automatic_alias_message"] = '「はい」を選択すると、ドキュメントの保存のときドキュメントタイトルを元にシステムが自動的にエイリアスを作成します。<br />※日本語環境での使用は推奨しません。';
 $_lang["automatic_alias_title"] = '自動エイリアス生成:';
+
 $_lang["backup"] = 'バックアップ';
 $_lang["bk_manager"] = 'バックアップマネージャ';
 $_lang["blocked_minutes_message"] = '上記の「ログイン失敗の回数」で指定した回数ログインに失敗したユーザのアカウントをロックする期間を分単位で指定します。必ず数字のみを入力してください。（カンマやスペースも駄目です。）';
+
 $_lang["blocked_minutes_title"] = 'アカウントロックの時間:';
 $_lang["block_message"] = 'データを保存した後、このユーザのアクセスは拒否されます!';
 $_lang["cache_files_deleted"] = '次のファイルが削除されました:';
@@ -78,6 +85,7 @@ $_lang["captcha_message"] = 'この設定を行うと、機械的(およびscrip
 $_lang["captcha_title"] = 'CAPTCHAコードの使用:';
 $_lang["captcha_words_message"] = '「CAPTCHAコードの使用」を「はい」にした場合に使用されるCAPTCHAワードリストを入力してください。CAPTCHAワードはカンマで区切って入力します。このフィールドには、255文字まで入力することができます。';
 $_lang["captcha_words_title"] = 'CAPTCHA用ワード';
+
 $_lang["category_heading"] = 'カテゴリ';
 $_lang["category_msg"] = '<h3 style="font-weight:bold;">全リソースの一覧</h3><p>このページではカテゴリでグループ化したリソースを一覧・編集できます。</p>';
 $_lang["change_name"] = '名前の変更';
@@ -86,6 +94,7 @@ $_lang["change_password_confirm"] = 'パスワードをもう一度';
 $_lang["change_password_message"] = '新しいパスワードを入力した後、確認のためパスワードをもう一度入力してください。パスワードの長さは6～15文字の間にしてください。';
 $_lang["change_password_new"] = '新しいパスワード';
 $_lang["charset_message"] = 'マネージャで使用したいエンコードを選択してください。日本語も含め、ほとんどの言語ではデフォルト設定のUTF-8が利用できます。<br />※EUCを選択する場合はEUC版のlangファイルをフォーラムより入手しインストールする必要があります。またShiftJISは十分に検証されていません。';
+
 $_lang["charset_title"] = 'エンコード:';
 $_lang["chunk"] = 'チャンク';
 $_lang["chunk_code"] = 'チャンク コード (html)';
@@ -93,7 +102,9 @@ $_lang["cleaningup"] = 'クリーンアップ処理中';
 $_lang["clear_log"] = 'ログをクリア';
 $_lang["click_to_context"] = 'クリックするとコンテキストメニュー';
 $_lang["click_to_edit_title"] = '編集はここをクリック';
+
 $_lang["click_to_view_details"] = '詳細を見る';
+
 $_lang["close"] = '閉じる';
 $_lang["collapse_tree"] = 'ツリーの縮小';
 $_lang["comment"] = 'コメント';
@@ -101,29 +112,37 @@ $_lang["configcheck_admin"] = 'システム管理者に連絡をとり、この�
 $_lang["configcheck_cache"] = 'キャッシュディレクトリに書き込みができません';
 $_lang["configcheck_cache_msg"] = 'キャッシュディレクトリにキャッシュファイルを保存できませんでした。MODxは問題なく動作しますが、キャッシュが利用できないため、レスポンスの向上を期待できないでしょう。この問題を解消するには、 /_cache/ ディレクトリを書き込み可能にしてください。';
 $_lang["configcheck_configinc"] = '設定ファイルがまだ書き込み可能になっています';
+
 $_lang["configcheck_configinc_msg"] = '悪意ある人があなたのサイトや関連するあらゆるものを壊すことができてしまう状態です。。<strong>本当です！</strong> 設定ファイル (/manager/includes/config.inc.php)のパーミッションを404などに設定し、書込み不可にしてください。';
 $_lang["configcheck_default_msg"] = '不明な警告が見つかりました。';
 $_lang["configcheck_errorpage_unavailable"] = 'あなたが設定した「エラーページ」は利用できません';
 $_lang["configcheck_errorpage_unavailable_msg"] = 'これは、あなたが設定した「エラーページ」が一般的なエンドユーザからアクセスできないページ（private）かあるいは存在しないことを意味しています。これはシステムがループ状態を陥り、多くのエラーメッセージをエラーログに刻むでしょう。「エラーページ」には存在するページでかつ、公開ページ、かつ「public」なページを指定してください。';
 $_lang["configcheck_errorpage_unpublished"] = 'MODx設定で設定されたエラーページは公開されていません。';
 $_lang["configcheck_errorpage_unpublished_msg"] = 'これはあなたが設定したエラーページが誰でも見られるようにはなっていないことを意味します。エラーページは全ての人(Public)に公開するようにしてください。';
+
 $_lang["configcheck_images"] = 'イメージディレクトリに書き込みができません';
 $_lang["configcheck_images_msg"] = 'イメージディレクトリが書き込み可能でないか、またはイメージディレクトリが存在していません。エディタのイメージマネージャ機能が動作しません';
 $_lang["configcheck_installer"] = 'インストーラが残されています';
 $_lang["configcheck_installer_msg"] = 'install/ ディレクトリにMODxのインストーラが残されています。悪意ある攻撃を受ける可能性がありますので、早急にこのディレクトリを削除してください';
+
+
+
 $_lang["configcheck_lang_difference"] = '言語ファイルのエントリ数が異なります';
 $_lang["configcheck_lang_difference_msg"] = '現在選択されている言語ファイルのエントリ数がデフォルト言語ファイルのエントリと異なります。特に問題ではありませんが、言語ファイルをアップデートする必要があります。';
+
 $_lang["configcheck_notok"] = '<span style="font-weight:bold;color:red;">動作環境に問題があります。</span>';
 $_lang["configcheck_ok"] = '確認OK - 警告はありません。';
+
 $_lang["configcheck_register_globals"] = '"register_globals" が "ON" に設定されておりセキュリティ上問題があります';
 $_lang["configcheck_register_globals_msg"] = 'この状態は、クロスサイトスクリプティング攻撃(XSS)を受けやすい脆弱性があります。XSS攻撃はMODx本体に限らず、サードパーティによって開発されるスニペットやプラグインも対象となります。register_globals on の環境を特に必要としない場合は、.htaccessまたはphp.iniによって OFF にしてください';
-$_lang["access_permissions_user_groups"] = 'ユーザグループ';
-$_lang["access_permissions_user_group_access"] = 'このユーザグループがアクセス可能なドキュメントグループ:';
+
 $_lang["configcheck_title"] = '設定チェック';
 $_lang["configcheck_unauthorizedpage_unavailable"] = 'あなたのサイトの「権限外告知のページ」は公開されていないか、存在しません';
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'これは、あなたが設定した「権限外告知のページ」が一般的なエンドユーザからアクセスできないページ（private）かあるいは存在しないことを意味しています。システムがループ状態に陥り、多くのエラーメッセージをエラーログに刻むでしょう。「権限外告知のページ」には存在するページでかつ、公開ページ、かつ「public」なページを指定してください。';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'MODx設定で設定された権限外告知のページは公開されていません。';
+
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていない事を意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
+
 $_lang["configcheck_warning"] = '警告:';
 $_lang["configcheck_what"] = 'どういう意味ですか?';
 $_lang["confirm_block"] = '本当にこのユーザをアクセス拒否してもよろしいですか?';
@@ -131,6 +150,7 @@ $_lang["confirm_delete_document"] = '本当にこのドキュメントを削除�
 $_lang["confirm_delete_eventlog"] = '本当にこのログエントリを削除してもよろしいですか?';
 $_lang["confirm_delete_file"] = '本当にこのファイルを削除してもよろしいですか?\n\n削除することでサイトが正常に動作しない場合もあります! 他に影響を及ぼさないことを理解している場合のみ削除してください。';
 $_lang["confirm_delete_htmlsnippet"] = '本当にこのチャンクを削除してもよろしいですか?';
+
 $_lang["confirm_delete_keywords"] = '本当にこれらのキーワードを削除してもよろしいですか?';
 $_lang["confirm_delete_module"] = '本当にこのモジュールを削除してもよろしいですか?';
 $_lang["confirm_delete_plugin"] = '本当にこのプラグインを削除してもよろしいですか?';
