@@ -4,7 +4,7 @@
 * Function:       Language file.
 * Encoding:       UTF-8
 * Author:         Japanese community
-* Date:           2007/04/25
+* Date:           2008/08/1
 * Version:        2.12
 * MODx version:   0.9.6.2
 */
@@ -191,8 +191,8 @@ $_lang["credits_shouts_title"] = '<strong>さらなる感謝:</strong>';
 $_lang["credits_webfx"] = 'MODx は Webfx の JavaScripts を多く利用しています。すばらしいスクリプトです!';
 $_lang["custom_contenttype_message"] = 'ドキュメントが使用するコンテントタイプに独自のものを追加できます。新しいタイプを追加するにはテキストボックスに入力して「追加」ボタンをクリックします。';
 $_lang["custom_contenttype_title"] = 'カスタムコンテントタイプ:';
-$_lang["database_collation"] = 'Database Collation Charset';
-$_lang["database_charset"] = 'Database Charset';
+$_lang["database_collation"] = 'データベース照合順序';
+$_lang["database_charset"] = 'データベース文字コード';
 $_lang["database_name"] = 'データベース名';
 $_lang["database_server"] = 'データベースサーバ';
 $_lang["database_tables"] = 'テーブル一覧';
@@ -688,9 +688,8 @@ $_lang["rb_base_url_message"] = 'リソースディレクトリへの仮想パ�
 $_lang["rb_base_url_title"] = 'リソースURL:';
 $_lang["rb_message"] = '「はい」を選択するとリソースブラウザを使用できます。これによりユーザはサーバ上の画像やフラッシュなどのメディアファイルをブラウズしたり、ファイルをサーバにアップロードする事がきるようになります。';
 $_lang["rb_title"] = 'リソースブラウザを使用:';
-$_lang["rb_webuser_title"] = 'Web Users?';
-$_lang["rb_webuser_message"] = 'Do you want to allow a web user the ability to use the resource browser? <b>WARNING:</b> Allowing web users the use of the resource browser exposes the files available to manager users.  Only use this option for trusted web users.';
-$_lang["rb_webuser_title"] = 'Web Users?';
+$_lang["rb_webuser_message"] = 'ウェブユーザにリソースブラウザの利用を許可するかどうかを選択します。 <strong>警告:</strong> ウェブユーザにリソースブラウザの利用を許可するということは、マネージャユーザが利用するファイルを彼らに見せることになります。従って、本当に信用できるウェブユーザにのみ、許可するべきでしょう。';
+$_lang["rb_webuser_title"] = 'ウェブユーザに関して';
 $_lang["recent_docs"] = '最近のドキュメント';
 $_lang["refresh_cache"] = 'キャッシュ: キャシュディレクトリに <strong>%s</strong>個のキャッシュファイルが見つかりました。<strong>%d</strong>個のキャッシュファイルが削除されました。<p>ページがリクエストされた時点で、新しいキャッシュファイルが生成されます。';
 $_lang["refresh_published"] = '<strong>%s</strong>件のドキュメントが公開されました。';
@@ -1010,6 +1009,8 @@ $_lang["use_alias_path_message"] = 'このオプションを「はい」に設�
 $_lang["use_alias_path_title"] = 'エイリアスパスを使用:';
 $_lang["use_editor_message"] = 'リッチテキストエディタを使用しますか? HTMLを直接書いた方が良いのでしたら「いいえ」を選択してエディタを使わない設定にすることもできます。この設定は全てのドキュメントおよび全てのユーザに適用されますので注意してください!';
 $_lang["use_editor_title"] = 'エディタの使用:';
+$_lang["validate_referer_title"] = 'HTTP_REFERER チェック';
+$_lang["validate_referer_message"] = '「はい」を選択すると、HTTP_REFERER チェックを行い、認証されないHTTP_REFERERヘッダからの要求を拒否します。これは、あなたが、マネージャにログイン中に意図しない動作をさせられてしまう脅威 (CSRF=Cross Site Request Forgery)をある程度軽減するでしょう。ただし、HTTP_REFERERを無効にしているサーバーには、有効な手段ではありません。完全な回避策が出るまでは、マネージャにログイン中には、不用意に外部リンクをクリックしない、こまめにログアウトをするなどして十分注意してください';
 $_lang["value"] = '値';
 $_lang["version_codename"] = "コードネーム";
 $_lang["view"] = 'ここをクリック';
@@ -1027,6 +1028,7 @@ $_lang["webpwdreminder_title"] = 'ウェブリクエストメール:';
 $_lang["websignupemail_message"] = 'ウェブユーザアカウントを作成した時に、ユーザに送信されるメッセージを設定してください。MODxはユーザ名とパスワードを記載したメールを送信します。<strong>注意:</strong> 下記の差し込み語は送信時にMODxによって置き換えられます。<br /><br />[+sname+] - サイトの名前, <br />[+saddr+] - サイトのeメールアドレス, <br />[+surl+] - サイトのURL, <br />[+uid+] - ユーザのログイン名, <br />[+pwd+] - ユーザのパスワード, <br />[+ufn+] - ユーザのフルネーム. <br /><br /><strong>[+uid+]と[+pwd+]は残しておきましょう。削除してしまうとメールに記述されないため、ユーザはログイン名やパスワードを確認する機会をなくしてしまいます!</strong>';
 $_lang["websignupemail_title"] = 'ウェブサインアップメール:';
 $_lang["web_access_permissions"] = 'ウェブアクセス許可';
+$_lang["web_access_permissions_user_groups"] = 'ウェブユーザグループ';
 $_lang["web_permissions"] = 'ウェブからのアクセス許可';
 $_lang["web_users"] = 'ウェブユーザ';
 $_lang["web_user_management_msg"] = '編集したいウェブユーザを選択します。ウェブユーザはウェブサイトにのみログインできるユーザを意味します。';
