@@ -4,7 +4,7 @@
  *
  * @author MEGU, yamamoto
  * @package MODx
- * @version 1.0
+ * @version 1.0.1
  * 
  * Filename:       /install/lang/japanese/japanese-utf8.inc.php
  * Language:       Japanese
