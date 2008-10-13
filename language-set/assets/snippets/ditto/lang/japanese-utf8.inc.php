@@ -13,7 +13,7 @@
 //-- JAPANESE LANGUAGE FILE ENCODED IN UTF-8
 include_once(dirname(__FILE__).'/english.inc.php'); // fall back to English defaults if needed
 /* Set locale to Japanese */
-setlocale (LC_ALL, 'ja_JP');
+setlocale (LC_ALL, "ja_JP.UTF-8");
 
 $_lang['language'] = "japanese-utf8";
 
@@ -33,7 +33,7 @@ $_lang['default_template'] = <<<TPL
 
 TPL;
 
-$_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チャンク)にプレースホルダーが含まれていません。上記のテンプレートの内容を確認してください。</p>";
+$_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チャンク)にプレースホルダが含まれていません。上記のテンプレートの内容を確認してください。</p>";
 
 $_lang['no_documents'] = '<p>記事がありません。</p>';
 
@@ -53,7 +53,7 @@ $_lang['none'] = "なし";
 
 $_lang['edit'] = "編集";
 
-$_lang['dateFormat'] = "%y-%b-%d %H:%M";
+$_lang['dateFormat'] = "%Y/%m/%d %H:%M";
 
 // Debug Tab Names
 
@@ -73,7 +73,7 @@ $_lang['retrieved_data'] = "取得済みデータ";
 
 // Debug Text
 
-$_lang['placeholders'] = "プレースホルダー";
+$_lang['placeholders'] = "プレースホルダ";
 
 $_lang['params'] = "パラメーター";
 

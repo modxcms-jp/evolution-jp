@@ -7,7 +7,7 @@
 //-- JAPANESE LANGUAGE FILE ENCODED IN UTF-8
 include_once(dirname(__FILE__).'/english.inc.php'); // fall back to English defaults if needed
 /* Set locale to Japanese */
-setlocale (LC_ALL, 'ja_JP');
+setlocale (LC_ALL, "ja_JP.UTF-8");
 
 $_lang["ef_thankyou_message"] = "<h3>ありがとうございます。</h3><p>入力された情報を受け付けました。</p>";
 $_lang["ef_no_doc"] = "テンプレートのドキュメントまたはチャンクが見つかりません。 id=";
@@ -47,6 +47,6 @@ $_lang['ef_multiple_submit'] = "<p>This form was already submitted succesfully. 
 $_lang['ef_submit_time_limit'] = "<p>This form was already submitted succesfully. Re-submission of the form is disabled for ".($submitLimit/60)." minutes.</p>";
 $_lang['ef_version_error'] = "<strong>WARNING!</strong> The version of the eForm snippet (version:&nbsp;$version) is different from the included eForm file (version:&nbsp;$fileVersion). Please make sure you use the same version for both.";
 $_lang['ef_thousands_separator'] = ''; //leave empty to use (php) locale, only needed if you want to overide locale setting!
-$_lang['ef_date_format'] = '%Y/%b/%d - %H:%M:%S';
+$_lang['ef_date_format'] = '%Y/%m/%d - %H:%M:%S';
 $_lang['ef_mail_error'] = 'Mailer was unable to send mail';
 ?>

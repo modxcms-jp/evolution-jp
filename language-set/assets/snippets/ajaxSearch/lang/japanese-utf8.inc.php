@@ -14,7 +14,7 @@ Modified by PMS on 21/09/08 to include translations for as_resultsFoundTextSingl
 //-- JAPANESE LANGUAGE FILE ENCODED IN UTF-8
 include_once(dirname(__FILE__).'/english.inc.php'); // fall back to English defaults if needed
 /* Set locale to Japanese */
-setlocale (LC_ALL, 'ja_JP');
+setlocale (LC_ALL, "ja_JP.UTF-8");
 
 $_lang['as_resultsIntroFailure'] = '一致する検索結果がありませんでした。より一般的な単語で再度検索してみてください';
 $_lang['as_searchButtonText'] = '検索';
