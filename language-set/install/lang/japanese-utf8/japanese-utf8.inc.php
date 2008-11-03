@@ -4,7 +4,7 @@
  *
  * @author MEGU, yamamoto
  * @package MODx
- * @version 1.0.1
+ * @version 1.0.2
  * 
  * Filename:       /install/lang/japanese/japanese-utf8.inc.php
  * Language:       Japanese
@@ -72,6 +72,7 @@ $_lang["status_passed_database_created"] = 'データベースを作成できま
 $_lang["status_checking_database"] = '...    データベースとの接続テストの結果: ';
 $_lang["status_failed_could_not_select_database"] = '接続できません - データベース名を確認 - ';
 $_lang["status_failed_could_not_create_database"] = 'データベースを作成できません';
+$_lang["status_failed_database_collation_does_not_match"] = 'failed - データベース側の照合順序のデフォルト値が「%s」になっています。データベース側の設定を「utf8_general_ci」に変更してからインストールを再試行するか、接続方法として「SET NAMES」を選択する必要があります。phpMyAdminが利用できる場合は、該当データベースの「操作」タブで照合順序のデフォルト値を変更できます。';
 $_lang["status_failed_table_prefix_already_in_use"] = '接続できません - このTableプリフィクスはすでに使われています。異なるTableプリフィクスを指定するか、phpMyAdminなどを利用し関連Tableを削除してください。';
 $_lang["welcome_message_welcome"] = 'MODxのインストールを開始します。';
 $_lang["welcome_message_text"] = '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。特殊な条件のサーバでない限り、マニュアルに頼る必要はありません。分かりやすいインストーラとあなたの好奇心が、このプロセスを先に進めます。<br /><br />このインストーラの手順に従うことにより、他のCMSとのデータベースの共有設定や、サンプルコンテンツ及び、推奨される拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。また、すでにインストール済みのMODxをアップデートしたり、データベースの設定を変更することもできます。';
@@ -86,10 +87,10 @@ $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><
 $_lang["installation_upgrade_advanced_note"] = 'データベース設定の変更を伴うアップデートが必要な場合はこちらを選んでください。<br />';
 $_lang["connection_screen_connection_information"] = 'データベース設定';
 $_lang["connection_screen_server_connection_information"] = 'データベースホストへの接続';
-$_lang["connection_screen_server_connection_note"] = 'ホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。この時、MySQLのバージョンが<strong style="color:#f00;">4.1未満</strong>だとWarningが出力されます。インストールを進めることはできますが、ajaxsearchなど一部のスニペットは4.1未満をサポートしないため、ご注意ください。';
+$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />※MySQL4.1未満ではAjaxSearchなど一部のアドオンが使えません。ご注意ください。';
 $_lang["connection_screen_server_test_connection"] = 'ここをクリックすると正常に接続できるかどうかを確認できます';
 $_lang["connection_screen_database_connection_information"] = 'データベース設定';
-$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、指定に従ってデータベースが作成されます。日本語環境で使う場合、接続方法は「SET CHARACTER SET」・接続照合順序は「utf8_general_ci」をおすすめします(セキュリティ対策をより万全にするため)。しかし稀にサーバ側の接続照合順序設定のデフォルト値がutf8_general_ciになってない場合があり、この場合は文字化けが発生し、これはMODx側では回避できません。この場合は「SET NAMES」を選んでください。';
+$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、指定に従ってデータベースが作成されます。<br />日本語環境で使う場合は、接続方法は「SET CHARACTER SET」(よりよいセキュリティ対策として)・接続照合順序は「utf8_general_ci」をおすすめします。<br />※なおMySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。';
 $_lang["connection_screen_database_test_connection"] = 'ここをクリックしてデータベースを作成します。または指定条件での選択をテストできます';
 $_lang["connection_screen_database_name"] = 'データベース名:';
 $_lang["connection_screen_table_prefix"] = 'Tableプリフィクス:';
@@ -171,8 +172,8 @@ $_lang["testing_connection"] = '接続テスト中...';
 $_lang["btnback_value"] = '戻る';
 $_lang["btnnext_value"] = '進む';
 $_lang["retry"] = '再チェック';
-$_lang["alert_enter_host"] = 'You need to enter a value for database host!';
-$_lang["alert_enter_login"] = 'You need to enter your database login name!';
+$_lang["alert_enter_host"] = 'DBのホスト名を入力してください';
+$_lang["alert_enter_login"] = 'DBのログイン名を入力してください';
 $_lang["alert_server_test_connection"] = 'You need to test your server connection!';
 $_lang["alert_server_test_connection_failed"] = 'The test of your server connection has failed!';
 $_lang["alert_enter_database_name"] = 'You need to enter a value for database name!';
