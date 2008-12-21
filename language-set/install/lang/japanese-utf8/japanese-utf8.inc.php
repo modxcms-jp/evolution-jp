@@ -6,7 +6,7 @@
  * @package MODx
  * @version 1.0.2
  * 
- * Filename:       /install/lang/japanese/japanese-utf8.inc.php
+ * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
  * Encoding:       utf-8
  */
@@ -66,16 +66,16 @@ $_lang["loading"] = '処理中...';
 $_lang["Begin"] = '開始';
 $_lang["status_connecting"] = ' DBホストとの接続テストの結果: ';
 $_lang["status_failed"] = '接続できません';
-$_lang["status_passed"] = '接続できます';
+$_lang["status_passed"] = '問題ありません';
 $_lang["status_passed_server"] = '接続できます';
 $_lang["status_passed_database_created"] = 'データベースを作成できます';
-$_lang["status_checking_database"] = '...    データベースとの接続テストの結果: ';
+$_lang["status_checking_database"] = '...    データベースとのマッチング: ';
 $_lang["status_failed_could_not_select_database"] = '接続できません - データベース名を確認 - ';
 $_lang["status_failed_could_not_create_database"] = 'データベースを作成できません';
-$_lang["status_failed_database_collation_does_not_match"] = 'failed - データベース側の照合順序のデフォルト値が「%s」になっています。データベース側の設定を「utf8_general_ci」に変更してからインストールを再試行するか、接続方法として「SET NAMES」を選択する必要があります。phpMyAdminが利用できる場合は、該当データベースの「操作」タブで照合順序のデフォルト値を変更できます。';
+$_lang["status_failed_database_collation_does_not_match"] = '問題があります - データベース側の照合順序のデフォルト値が「%s」になっています。日本語環境で運用する場合は、データベース側の照合順序の設定を「utf8_general_ci」などutf8系の値で合わせてからインストールを再試行してください。phpMyAdminが利用できる場合は、該当データベースの「操作」タブで照合順序のデフォルト値を変更できます。';
 $_lang["status_failed_table_prefix_already_in_use"] = '接続できません - このTableプリフィクスはすでに使われています。異なるTableプリフィクスを指定するか、phpMyAdminなどを利用し関連Tableを削除してください。';
 $_lang["welcome_message_welcome"] = 'MODxのインストールを開始します。';
-$_lang["welcome_message_text"] = '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。特殊な条件のサーバでない限り、マニュアルに頼る必要はありません。分かりやすいインストーラとあなたの好奇心が、このプロセスを先に進めます。<br /><br />このインストーラの手順に従うことにより、他のCMSとのデータベースの共有設定や、サンプルコンテンツ及び、推奨される拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。また、すでにインストール済みのMODxをアップデートしたり、データベースの設定を変更することもできます。';
+$_lang["welcome_message_text"] = '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。特殊な条件のサーバでない限り、マニュアルに頼る必要はありません。分かりやすいインストーラとあなたの好奇心が、このプロセスを先に進めます。<br /><br />このインストーラの手順に従うことにより、他のCMSとのデータベースの共有設定(Tableプリフィクス)や、サンプルコンテンツ及び、推奨される拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。また、すでに運用中のMODxをアップデートしたり、データベースの設定を変更することもできます。';
 $_lang["welcome_message_select_begin_button"] = 'まずは使用許諾を確認しましょう。「開始」ボタンをクリックしてください。';
 $_lang["installation_mode"] = 'インストールの選択';
 $_lang["installation_new_installation"] = '新規インストール';
@@ -87,15 +87,15 @@ $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><
 $_lang["installation_upgrade_advanced_note"] = 'データベース設定の変更を伴うアップデートが必要な場合はこちらを選んでください。<br />';
 $_lang["connection_screen_connection_information"] = 'データベース設定';
 $_lang["connection_screen_server_connection_information"] = 'データベースホストへの接続';
-$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />※MySQL4.1未満ではAjaxSearchなど一部のアドオンが使えません。ご注意ください。';
+$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />※MODx本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど一部のアドオンが使えません。ご注意ください。';
 $_lang["connection_screen_server_test_connection"] = 'ここをクリックすると正常に接続できるかどうかを確認できます';
 $_lang["connection_screen_database_connection_information"] = 'データベース設定';
-$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、指定に従ってデータベースが作成されます。<br />日本語環境で使う場合は、接続方法は「SET CHARACTER SET」(よりよいセキュリティ対策として)・接続照合順序は「utf8_general_ci」をおすすめします。<br />※なおMySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。';
-$_lang["connection_screen_database_test_connection"] = 'ここをクリックしてデータベースを作成します。または指定条件での選択をテストできます';
+$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、指定に従ってデータベースが作成されます。<br />DB接続時の文字セットの扱いは「SET CHARACTER SET」、照合順序は速度と正確さのバランスがよい「utf8_general_ci」をおすすめします。照合順序の設定は文字セットの指定も兼ねています。<br />※なおMySQL4.1未満ではこれらの文字セット設定を無視して日本語を扱います。';
+$_lang["connection_screen_database_test_connection"] = 'ここをクリックして指定条件による既存データベースとのマッチングを確認できます。権限がある場合は、ここで条件を指定しデータベースを新規に作成できます';
 $_lang["connection_screen_database_name"] = 'データベース名:';
 $_lang["connection_screen_table_prefix"] = 'Tableプリフィクス:';
-$_lang["connection_screen_collation"] = '文字セットの接続照合順序:';
-$_lang["connection_screen_connection_method"] = '接続方法:';
+$_lang["connection_screen_collation"] = '照合順序(文字セット指定含む):';
+$_lang["connection_screen_connection_method"] = 'DB接続時の文字セットの扱い:';
 $_lang["connection_screen_character_set"] = '文字セット(character set):';
 $_lang["connection_screen_database_host"] = 'データベースホスト名:';
 $_lang["connection_screen_database_login"] = 'データベース接続ログイン名:';
@@ -127,9 +127,10 @@ $_lang["summary_setup_check"] = '<strong>インストール実行前の最終チ
 $_lang["checking_php_version"] = "PHPのバージョンチェック: ";
 $_lang["failed"] = '確認してください';
 $_lang["ok"] = '問題なし';
+$_lang["warning"] = '警告 ';
 $_lang["you_running_php"] = ' - You are running on PHP ';
-$_lang["modx_requires_php"] = ', and MODx requires PHP 4.1.0 or later';
-$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らず様々なPHPアプリを通じて多数の攻撃にさらされてきました。脆弱性からサイトを守る上で最低限必要とされるPHPのバージョンは4.3.8以上とされており、この機会にPHPのアップデートをおすすめします。</p>';
+$_lang["modx_requires_php"] = ', and MODx requires PHP 4.2.0 or later';
+$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らず様々なPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
 $_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされます。非常に危険ですので、特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
@@ -224,6 +225,6 @@ $_lang["install"] = 'インストール実行';
 $_lang["remove_install_folder_auto"] = 'インストールディレクトリを自動的に削除する<br />&nbsp;(この操作はサーバ設定によっては実行されないことがあります。削除できなかった場合は、管理画面ログイン時に太文字で警告が表示されますので、手作業で削除してください).';
 $_lang["remove_install_folder_manual"] = 'Please remember to remove the &quot;<b>install</b>&quot; folder before you log into the Content Manager.';
 $_lang["install_results"] = 'インストールを完了しました。おつかれさまでした！';
-$_lang["installation_note"] = '<strong>はじめに:</strong>管理画面に無事にログインできたら、適当なページを編集・保存し、文字化けが起きないかどうかを確認してください。もし文字化けが発生した場合は<a href="http://modxcms.com/forums/index.php#10">フォーラム</a>にご報告ください。ご協力をお願いします。';
+$_lang["installation_note"] = '<strong>はじめに:</strong>管理画面に無事にログインできたら、ドキュメント及び各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを必ず確認してください。';
 $_lang["upgrade_note"] = '<strong>Note:</strong> Before browsing your site you should log into the manager with an administrative account, then review and save your System Configuration settings.';
 ?>
