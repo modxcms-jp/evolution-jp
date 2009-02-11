@@ -4,7 +4,7 @@
 * Function:       Language file.
 * Encoding:       UTF-8
 * Author:         MODx CMS JAPAN
-* Date:           2008/11/21
+* Date:           2009/1/31
 * Version:        2.17
 * MODx version:   0.9.6.3
 */
@@ -64,7 +64,7 @@ $_lang["all_usr_groups"] = '全ユーザーグループ(Public)';
 $_lang["already_deleted"] = 'は既に削除されています';
 $_lang["attachment"] = 'Attachment';
 $_lang["automatic_alias_message"] = '「はい」を選択すると、ドキュメントの保存のときドキュメントタイトルを元にシステムが自動的にエイリアスを作成します。<br />※日本語環境での使用は推奨しません。';
-$_lang["automatic_alias_title"] = 'エイリアス自動生成(日本語環境では推奨しません):';
+$_lang["automatic_alias_title"] = 'エイリアス自動生成<br />(日本語環境では推奨しません):';
 $_lang["backup"] = 'バックアップ';
 $_lang["bk_manager"] = 'バックアップマネージャー';
 $_lang["blocked_minutes_message"] = '上記の「ログイン失敗の回数」で指定した回数ログインに失敗したユーザーのアカウントをロックする期間を分単位で指定します。必ず数字のみを入力してください。（カンマやスペースも駄目です。）';
@@ -124,7 +124,7 @@ $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外�
 $_lang["configcheck_warning"] = '警告:';
 $_lang["configcheck_what"] = 'どういう意味ですか?';
 $_lang["confirm_block"] = 'このユーザーをアクセス拒否してもよろしいですか?';
-$_lang["confirm_delete_document"] = 'このドキュメントを削除してもよろしいですか?\n全てのサブドキュメントも同時に削除されます。';
+$_lang["confirm_delete_document"] = 'このドキュメントを削除してもよろしいですか?\n同時にサブドキュメントも全て削除されます。';
 $_lang["confirm_delete_eventlog"] = 'このログエントリーを削除してもよろしいですか?';
 $_lang["confirm_delete_file"] = 'このファイルを削除してもよろしいですか?\n\n削除することでサイトが正常に動作しない場合もあります! 他に影響を及ぼさないことを理解している場合のみ削除してください。';
 $_lang["confirm_delete_htmlsnippet"] = 'このチャンクを削除してもよろしいですか?';
@@ -187,7 +187,7 @@ $_lang["datechanged"] = '編集日時';
 $_lang["defaultcache_message"] = '新しく作成するドキュメントをデフォルトでキャッシュ可能にする場合は「はい」を選択してください。';
 $_lang["defaultcache_title"] = 'キャッシュデフォルト';
 $_lang["defaultmenuindex_message"] = 'メニューインデックスを自動的に増分する場合は「はい」を選択してください。';
-$_lang["defaultmenuindex_title"] = 'メニューインデックス自動増分';
+$_lang["defaultmenuindex_title"] = 'メニューインデックス<br />自動増分';
 $_lang["defaultpublish_message"] = '新しく作成するドキュメントをデフォルトで公開に設定する場合は「はい」を選択してください。';
 $_lang["defaultpublish_title"] = '公開デフォルト';
 $_lang["defaultsearch_message"] = '新しく作成するドキュメントをデフォルトで検索可能にする場合は「はい」を選択してください。';
@@ -203,13 +203,13 @@ $_lang["deselect_keywords"] = 'キーワードの選択解除';
 $_lang["deselect_metatags"] = 'METAタグのクリア';
 $_lang["disabled"] = '停止';
 $_lang["document"] = 'ドキュメント';
-$_lang["document_alias"] = 'ドキュメントエイリアス';
+$_lang["document_alias"] = 'エイリアス';
 $_lang["document_alias_help"] = 'このドキュメントのエイリアスを指定することができます。フレンドリーURL機能が有効な場合、次のようにドキュメントにアクセスできます:\n\nhttp://yourserver/エイリアス\n\nMODxタグ：[*alias*]';
 $_lang["document_content"] = '内容 ( MODxタグ：[*content*] )';
-$_lang["document_description"] = '説明';
+$_lang["document_description"] = '説明(description)';
 $_lang["document_description_help"] = 'ドキュメントに関する任意の説明をここに入力することができます。MODxタグ：[*description*]';
 $_lang["document_long_title_help"] = 'ドキュメントに長いタイトルを付けたいときに利用します。この値をwebページのタイトルや、ヘッダーなどで利用すれば、サーチエンジンに対して効果があるでしょう。MODxタグ：[*longtitle*]';
-$_lang["document_metatag_help"] = 'このドキュメントに付加したいMETAタグやキーワードを選択してください。CTRLキーを押しながらクリックと複数のタグやキーワードを選択できます。選択元とするMETAタグ・キーワードの作成・管理は「リソース」→<a href="index.php?a=81" target="_self">「METAタグとキーワードの管理」</a>で行ないます。';
+$_lang["document_metatag_help"] = 'このドキュメントに付加したいMETAタグやキーワードを選択してください。CTRLキーを押しながらクリックすると複数のタグやキーワードを選択できます。選択元とするMETAタグ・キーワードの作成・管理は「リソース」→<a href="index.php?a=81" target="_self">「METAタグとキーワードの管理」</a>で行ないます。';
 $_lang["document_opt_contentdispo"] = '内容の配置';
 $_lang["document_opt_contentdispo_help"] = 'この内容の配置フィールドを用いてウェブブラウザがこのドキュメントをどう扱うかを指定できます。「Attachment」を選択するとドキュメントをダウンロードファイルとみなします。';
 $_lang["document_opt_emptycache"] = '更新時にキャッシュをクリア';
@@ -233,7 +233,7 @@ $_lang["document_parent_help"] = '上のフォルダアイコンをクリック�
 $_lang["document_setting"] = 'ドキュメント設定';
 $_lang["document_summary"] = '要約（序説）';
 $_lang["document_summary_help"] = 'ドキュメントの要約を入力します。MODxタグ：[*introtext*]';
-$_lang["document_title"] = 'タイトル';
+$_lang["document_title"] = 'ドキュメント名';
 $_lang["document_title_help"] = 'ドキュメントの名称/タイトルを入力してください。バックスラッシュは使用できません。(MODxタグ：[*pagetitle*])';
 $_lang["document_to_be_moved"] = '移動対象ドキュメント';
 $_lang["document_weblink_help"] = 'ウェブリンクで参照したい対象のURLを入力してください。';
@@ -253,7 +253,7 @@ $_lang["editor_css_path_title"] = 'CSSファイルへのパス:';
 $_lang["edit_document"] = 'ドキュメントの編集';
 $_lang["edit_document_title"] = 'ドキュメントの作成/編集';
 $_lang["edit_settings"] = 'グローバル設定';
-$_lang["email"] = 'email';
+$_lang["email"] = 'メールアドレス';
 $_lang["emailsender_message"] = 'ユーザー名とパスワードを送信時の送信元メールアドレスを指定してください。';
 $_lang["emailsender_title"] = '送信者メールアドレス:';
 $_lang["emailsubject_message"] = 'サインアップメールの件名を指定してください。';
@@ -363,7 +363,7 @@ $_lang["go"] = '実行';
 $_lang["group_access_permissions"] = 'ユーザーグループのアクセス';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'ヘルプ';
-$_lang["help_msg"] = '<p><a href="http://modxcms.com/forums" target="_blank">MODx フォーラム</a>にてコミュニティによるサポートが得られます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODxドキュメントとガイド（英語）</a>があり、MODx のほぼすべてに関して記されています。</p> <p>また、MODxの有償サポートサービスの提供が計画されています。興味がある方は<a href="mailto:modx@vertexworks.com?subject=MODx Commercial Support Inquiry">email</a>にてお問い合わせください。</p>';
+$_lang["help_msg"] = '<p><a href="http://modxcms.com/forums/index.php#10" target="_blank">MODxフォーラム</a>にてコミュニティによるサポートが得られます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODxドキュメントとガイド（英語）</a>があり、MODx のほぼすべてに関して記されています。</p> <p>また、MODxの有償サポートサービスの提供が計画されています(※ただし現時点では英語圏)。興味がある方は<a href="mailto:modx@vertexworks.com?subject=MODx Commercial Support Inquiry">email</a>にてお問い合わせください。</p>';
 $_lang["help_title"] = 'ヘルプ';
 $_lang["hide_tree"] = 'ツリーを非表示';
 $_lang["home"] = 'ホーム';
@@ -372,7 +372,7 @@ $_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャン�
 $_lang["htmlsnippet_msg"] = 'チャンクを追加・編集することができます。チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。ドキュメントやテンプレートから手軽に呼び出すことができます。PHPコードを記述する場合はスニペットを利用してください。';
 $_lang["htmlsnippet_name"] = 'チャンク名';
 $_lang["htmlsnippet_title"] = 'チャンクの作成/編集';
-$_lang["icon"] = 'アイコン';
+$_lang["icon"] = '操作';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = '親の指定:\n\nドキュメントは選択ドキュメントのサブドキュメントです。';
 $_lang["illegal_parent_self"] = '親の指定:\n\n自分自身を親に割り当てることはできません。';
