@@ -420,6 +420,21 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$message = str_replace("[+saddr+]", $emailsender, $message);
 	$message = str_replace("[+semail+]", $emailsender, $message);
 	$message = str_replace("[+surl+]", $site_url, $message);
+	include_once dirname(__FILE__)."/../includes/controls/modxmailer.inc.php";
+	$mail = new MODxMailer();
+	$mail->IsMail();
+	$mail->IsHTML(0);
+	$mail->From		= $emailsender;
+	$mail->FromName	= $modx->config['site_name'];
+	$mail->Subject	=  $emailsubject;
+	$mail->Body		= $message;
+	$mail->AddAddress($email);
+	if ($mail->Send() === false) //ignore mail errors in this cas
+	{
+		webAlert("Error while sending mail to $email");
+		exit;
+	}
+/*
 	if (ini_get('safe_mode') == FALSE) {
 		if (!mail($email, $emailsubject, $message, "From: " . $emailsender . "\r\n" . "X-Mailer: Content Manager - PHP/" . phpversion(), "-f $emailsender")) {
 			webAlert("Error while sending mail to $mailto");
@@ -429,6 +444,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 		webAlert("Error while sending mail to $email");
 		exit;
 	}
+*/
 }
 
 // Save User Settings
