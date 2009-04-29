@@ -3,7 +3,7 @@
 # Original created by: Raymond Irving 15-Dec-2004.
 # Extended by: Jelle Jager (TobyL) September 2006
 # -----------------------------------------------------
-# local revision: $Id: eform.inc.php,v 1.3 2006/11/22 14:48:50 jelle Exp $
+# local revision: $Id: eform.inc.php 58 2009-03-01 07:31:59Z devzero $
 #
 # Captcha image support - thanks to Djamoer
 # Multi checkbox, radio, select support - thanks to Djamoer
@@ -37,12 +37,15 @@
 # bugfix: Validation css class isn't being added to labels.
 ##
 
+#----------------------------------------------------------
+# Modify ZeRo(http://www.petit-power.com) $Revision: 58 $
+# $Date: 2009-03-01 16:31:59 +0900 (日, 01 3 2009) $ 
+#----------------------------------------------------------
 $GLOBALS['optionsName'] = "eform"; //name of pseudo attribute used for format settings
 function eForm($modx,$params) {
 global $_lang;
 global $debugText;
 global $formats,$fields;
-
 
 $fields = array(); //reset fields array - needed in case of multiple forms
 
@@ -89,6 +92,7 @@ $_dfnMaxlength = 6;
 	# check for valid form key
 	if ($formid=="") return $_lang['ef_error_formid'];
 
+
 	// try to get formid from <form> tag id
 	preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches);
 	$form_id = isset($matches[1])?$matches[1]:'';
@@ -98,7 +102,7 @@ $_dfnMaxlength = 6;
 			$tpl = str_replace('</form>',"<input type=\"hidden\" name=\"formid\" value=\"$form_id\" /></form>",$tpl);
 	}
 
-	$validFormId = ($formid==$_POST['formid']);
+	$validFormId = ($formid==$_POST['formid'])?1:0;
 
 	# check if postback mode
 	$isPostBack	= ($validFormId && count($_POST)>0)? true:false;
@@ -344,9 +348,16 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					foreach($fields as $key => $value)
 						$body .= "<tr><td>$key</td><td><pre>$value</pre></td></tr>";
 					$body .="</table>";
-					include_once "manager/includes/controls/class.phpmailer.php";
+				#	include_once "manager/includes/controls/class.phpmailer.php";
 				# send abuse alert
-					$mail = new PHPMailer();
+				#	$mail = new PHPMailer();
+					$ctl_path =  $modx->config['base_path']."manager/includes/controls/";
+					if (file_exists($ctl_path."modxmailer.inc.php")) {
+						include_once $ctl_path."modxmailer.inc.php";
+					} else {
+					    include_once $snipPath."modxmailer.inc.php";
+					}
+					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $modx->config['emailsender'];
@@ -430,17 +441,24 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$replyto = ( $fields[$replyto] && strstr($fields[$replyto],'@') )?$fields[$replyto]:$from;
 
 				# include PHP Mailer
-				include_once "manager/includes/controls/class.phpmailer.php";
-
+				# include_once "manager/includes/controls/class.phpmailer.php";
+				$ctl_path =  $modx->config['base_path']."manager/includes/controls/";
+				if (file_exists($ctl_path."modxmailer.inc.php")) {
+					include_once $ctl_path."modxmailer.inc.php";
+				} else {
+				    include_once $snipPath."modxmailer.inc.php";
+				}
+	
 				# send form
 				//defaults to html so only test sendasText
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'report'))?false:true;
 
 				if(!$noemail) {
 					if($sendirect) $to = $fields['email'];
-					$mail = new PHPMailer();
+#					$mail = new PHPMailer();
+					$mail = new MODxMailer();
 					$mail->IsMail();
-					$mail->CharSet = $modx->config['modx_charset'];
+# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -456,9 +474,10 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				# send user a copy of the report
 				if($ccsender && $fields['email']) {
-					$mail = new PHPMailer();
+#					$mail = new PHPMailer();
+					$mail = new MODxMailer();
 					$mail->IsMail();
-					$mail->CharSet = $modx->config['modx_charset'];
+# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -474,9 +493,10 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext'))?false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
-					$mail = new PHPMailer();
+#					$mail = new PHPMailer();
+					$mail = new MODxMailer();
 					$mail->IsMail();
-					$mail->CharSet = $modx->config['modx_charset'];
+# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= ($autosender)? $autosender:$from;
 					$mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
@@ -491,9 +511,10 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
-					$mail = new PHPMailer();
+#					$mail = new PHPMailer();
+					$mail = new MODxMailer();
 					$mail->IsMail();
-					$mail->CharSet = $modx->config['modx_charset'];
+# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -676,13 +697,13 @@ function AttachFilesToMailer(&$mail,&$attachFiles) {
 
 /*--- Form Parser stuff----------------------*/
 function  eFormParseTemplate($tpl, $isDebug=false ){
-	global $formats,$optionsName,$_lang,$debugText,$fields;
+	global $modx,$formats,$optionsName,$_lang,$debugText,$fields,$validFormId;
 
 	$formats =""; //clear formats so values don't persist through multiple snippet calls
 	$labels = "";
 
 	# check if postback mode
-	$isPostBack	= (count($_POST)>0)? 1:0;
+	$isPostBack	= (count($_POST)>0 && $modx->event->params['formid']==$_POST['formid'] )? 1:0;
 
 	$regExpr = "#(<label[^>]*?>)(.*?)</label>#si";;
 	preg_match_all($regExpr,$tpl,$matches);
@@ -770,10 +791,13 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 				$validValues = array();
 				foreach($matches[1] as $option){
 					$attr = attr2array($option);
+//* debug */ print __LINE__.': <pre>'.print_r($attr,true) .'</pre><br />';
 					$value = substr($attr['value'],1,-1); //strip outer quotes
 					if( trim($value)!='' ) $validValues[] = $value;
 					$newTag = buildTagPlaceholder('option',$attr,$name);
 					$newSelect = str_replace($option,$newTag,$newSelect);
+					//if no postback, retain any checked values
+					if(!$isPostBack && !empty($attr['selected'])) $fields[$name][]=$value;
 				}
 				//replace complete select block
 				$tpl = str_replace($select,$newSelect,$tpl);
@@ -809,7 +833,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 						$formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
 					}
 					if($formats[$name] && !$formats[$name][2]) $formats[$name][2]=($fieldType=='text')?"string":$fieldType;
-					//populate automatic validation values for hidden, checbox and radio fields
+					//populate automatic validation values for hidden, checkbox and radio fields
 					if($fieldType=='hidden'){
 						if(!$isDebug) $formats[$name][1] = "[undefined]"; //do not want to disclose hidden field names
 						if(!isset($formats[$name][4])) $formats[$name][4]= $_lang['ef_tamper_attempt'];
@@ -820,7 +844,13 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 						//convert embedded comma's in values!
 						$formats[$name][5] .= str_replace(',','&#44;',stripTagQuotes($tagAttributes['value']));
 						//store the id as well
+						//if no postback, retain any checked values
+						if(!$isPostBack && !empty($tagAttributes['checked'])) $fields[$name][]=stripTagQuotes($tagAttributes['value']);
+						//
 						$formats[$name][6] .= ( isset($formats[$name][6])?",":"").stripTagQuotes($tagAttributes['id']);
+					}else{ //plain old text input field
+						//retain default value set in form template
+						$fields[$name] = stripTagQuotes($tagAttributes['value']);
 					}
 
 				$tpl = str_replace($fieldTags[$i],$newTag,$tpl);
@@ -926,9 +956,10 @@ function validateField($value,$fld,&$vMsg,$isDebug=false){
 
 			case "#LIST":		// List of comma separated values (not case sensitive)
 				//added in 1.4 - file upload filetype test
+//FS#960 - removed trimming of $param - values with leading or trailing spaces would always fail validation
 				if($fld[2]=='file')$value = substr($value,strrpos($value,'.')+1); //file extension
 				if(!isset($vlist)){
-					$vlist = 	explode(',',strtolower(trim($param))); //cached
+					$vlist = 	explode(',',strtolower($param)); //cached
 					foreach($vlist as $k =>$v ) $vlist[$k]=str_replace('&#44;',',',$v);
 
 				} //changes to make sure embedded commma's in values are recognized
