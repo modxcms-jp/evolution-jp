@@ -11,6 +11,7 @@
 # Documentation: http://wiki.modxcms.com/index.php/Jot (wiki)
 #
 ####*/
+include_once dirname(__FILE__)."/../../../manager/includes/controls/modxmailer.inc.php";
 
 class CJot {
 	var $name;
@@ -671,7 +672,16 @@ class CJot {
 							$tpl->AddVar('siteurl',"http://".$_SERVER["SERVER_NAME"]);
 							$tpl->AddVar('recipient',$user);
 							$message = $tpl->Render();
-							mail($user["email"], $this->config["subject"]["subscribe"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+//							mail($user["email"], $this->config["subject"]["subscribe"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+                        	$mail = new MODxMailer();
+                        	$mail->IsMail();
+                        	$mail->IsHTML(0);
+                        	$mail->From		= $modx->config['emailsender'].
+                        	$mail->FromName	= $modx->config['site_name'];
+                        	$mail->Subject	= $this->config["subject"]["subscribe"];
+                        	$mail->Body		= $message;
+                        	$mail->AddAddress($user["email"]);
+                        	$mail->Send() ;         //ignore mail errors in this cas
 						}
 				}
 		}
@@ -697,7 +707,16 @@ class CJot {
 				$tpl->AddVar('siteurl',"http://".$_SERVER["SERVER_NAME"]);
 				$tpl->AddVar('recipient',$user);
 				$message = $tpl->Render();
-				mail($user["email"], $this->config["subject"]["moderate"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+//				mail($user["email"], $this->config["subject"]["moderate"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+            	$mail = new MODxMailer();
+            	$mail->IsMail();
+            	$mail->IsHTML(0);
+            	$mail->From		= $modx->config['emailsender'].
+            	$mail->FromName	= $modx->config['site_name'];
+            	$mail->Subject	= $this->config["subject"]["moderate"];
+            	$mail->Body		= $message;
+            	$mail->AddAddress($user["email"]);
+            	$mail->Send() ;         //ignore mail errors in this cas
 			}
 		}
 	}
@@ -730,7 +749,16 @@ class CJot {
 			$tpl->AddVar('recipient',$user);
 			$message = $tpl->Render();
 			
-			mail($user["email"], $this->config["subject"]["author"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+			//mail($user["email"], $this->config["subject"]["author"], $message, "From: ".$modx->config['emailsender']."\r\n"."X-Mailer: Content Manager - PHP/".phpversion());
+        	$mail = new MODxMailer();
+        	$mail->IsMail();
+        	$mail->IsHTML(0);
+        	$mail->From		= $modx->config['emailsender'].
+        	$mail->FromName	= $modx->config['site_name'];
+        	$mail->Subject	= $this->config["subject"]["author"];
+        	$mail->Body		= $message;
+        	$mail->AddAddress($user["email"]);
+        	$mail->Send() ;         //ignore mail errors in this cas
 			
 		}
 		
