@@ -154,16 +154,16 @@ if (!class_exists("truncate")) {
 		   $tag_counter = 0;
 		   $quotes_on = FALSE;
 		   // Check if the text is too long
-		   if (strlen($posttext) > $minimum_length && $truncChars != 1) {
+		   if (mb_strlen($posttext) > $minimum_length && $truncChars != 1) {
 
 		       // Reset the tag_counter and pass through (part of) the entire text
 		       $c = 0;
-		       for ($i = 0; $i < strlen($posttext); $i++) {
+		       for ($i = 0; $i < mb_strlen($posttext); $i++) {
 		           // Load the current character and the next one
 		           // if the string has not arrived at the last character
-		           $current_char = substr($posttext,$i,1);
+		           $current_char = mb_substr($posttext,$i,1);
 		           if ($i < strlen($posttext) - 1) {
-		               $next_char = substr($posttext,$i + 1,1);
+		               $next_char = mb_substr($posttext,$i + 1,1);
 		           }
 		           else {
 		               $next_char = "";
@@ -203,7 +203,7 @@ if (!class_exists("truncate")) {
 		           // Check if the counter has reached the minimum length yet,
 		           // then wait for the tag_counter to become 0, and chop the string there
 		           if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
-		               $posttext = substr($posttext,0,$i + 1);
+		               $posttext = mb_substr($posttext,0,$i + 1);
 		               return $posttext;
 		           }
 		       }
@@ -214,11 +214,11 @@ if (!class_exists("truncate")) {
 	  	// Original PHP code from The Art of Web: www.the-art-of-web.com
 
 	    // return with no change if string is shorter than $limit
-	    if(strlen($string) <= $limit) return $string;
+	    if(mb_strlen($string) <= $limit) return $string;
 
-	    $string = substr($string, 0, $limit);
-	    if(false !== ($breakpoint = strrpos($string, $break))) {
-	      $string = substr($string, 0, $breakpoint+1);
+	    $string = mb_substr($string, 0, $limit);
+	    if(false !== ($breakpoint = mb_strrpos($string, $break))) {
+	      $string = mb_substr($string, 0, $breakpoint+1);
 	    }
 
 	    return $string;
@@ -303,7 +303,7 @@ if (!class_exists("truncate")) {
 				$this->summaryType = "content";
 		
 				// fall back to the summary text
-			} else if (strlen($resource['introtext']) > 0) {
+			} else if (mb_strlen($resource['introtext']) > 0) {
 					$summary = $resource['introtext'];
 					$this->link = '[~' . $resource['id'] . '~]';
 					$this->summaryType = "introtext";
