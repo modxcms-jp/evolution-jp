@@ -186,7 +186,12 @@ EOD;
 
 						// One checkbox and not a binding
 						if ($cv_obj->type == 'checkbox' && !strpos($cv_obj->elements, '||') && substr($cv_obj->elements, 0, 1) != '@') {
-							$class = 'checkbox'.($cv_obj->content ? ' checked' : '');
+							if ($cv_obj->id == 'hidemenu' && $cv_obj->name == 'hidemenu') {
+								$class = 'checkbox'.($cv_obj->content ? '' : ' checked');
+							} else {
+								$class = 'checkbox'.($cv_obj->content ? ' checked' : '');
+							}
+
 							$change_value = ($cv_obj->content ? '' : (strpos($cv_obj->elements, '==') ? substr(strstr($cv_obj->elements, '=='), 2) : $cv_obj->elements));
 							$menus[$menu][] .=<<<EOD
 <a class="{$class}" href="#" onclick="qe.ajaxSave('{$cv_obj->id}', '{$cv_obj->name}', '{$change_value}');return false;" title="{$QE_lang['edit']} {$cv_obj->description}">{$cv_obj->caption}</a>
