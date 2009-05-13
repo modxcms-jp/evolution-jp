@@ -34,6 +34,6 @@ $_lang['ef_regex_error'] = '正規表現のエラー ';
 $_lang['ef_debug_warning'] = '<p style="color:red;"><span style="font-size:1.5em;font-weight:bold;">警告 - デバッギングが有効</span><br />このフォームを公開する前にデバッギングを無効にしてください！</p>';
 $_lang['ef_mail_abuse_subject'] = 'メールフォーム悪用の可能性を検出';
 $_lang['ef_mail_abuse_message'] = '<p>メールインジェクション攻撃の可能性がある題名です。送信データの詳細は以下に表示されます。疑わしいテキストは\[..]\タグの中に埋め込まれています。</p> ';
-$_lang['ef_mail_abuse_error'] = '<strong>フォームの中に不正または安全でない入力が検出されました。</strong>.';
+$_lang['ef_mail_abuse_error'] = '<strong>フォームから不正または安全でない入力が検出されました。</strong>.';
 $_lang['ef_eval_deprecated'] = '#EVALルールは将来のバージョンで動作しなくなる可能性があります。代わりに#FUNCTIONを使用してください。';
 ?>
