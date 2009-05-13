@@ -27,13 +27,13 @@ $_lang["ef_failed_upload"] = "有効なファイルタイプではありませ�
 $_lang["ef_error_validation_rule"] = "ルールが正しくありません";
 $_lang["ef_tamper_attempt"] = "不正な変更の試みを発見しました!";
 $_lang["ef_error_formid"] = "フォームIDまたはフォーム名が無効です";
-$_lang["ef_debug_info"] = "Debug info: ";
-$_lang["ef_is_own_id"] = "<span class=\"ef-form-error\">Form template set to id of page containing snippet call! You can not have the form in the same document as the snippet call.</span> id=";
-$_lang["ef_sql_no_result"] = " silently passed validation. <span style=\"color:red;\"> SQL returned no result!</span> ";
-$_lang['ef_regex_error'] = 'error in regular expression ';
-$_lang['ef_debug_warning'] = '<p style="color:red;"><span style="font-size:1.5em;font-weight:bold;">WARNING - DEBUGGING IS ON</span> <br />Make sure you turn debugging off before making this form live!</p>';
-$_lang['ef_mail_abuse_subject'] = 'Potential email form abuse detected for form id';
-$_lang['ef_mail_abuse_message'] = '<p>A form on your website may have been the subject of an email injection attempt. The details of the posted values are printed below. Suspected text has been embedded in \[..]\ tags.  </p>';
-$_lang['ef_mail_abuse_error'] = '<strong>Invalid or insecure entries were detected in your form</strong>.';
-$_lang['ef_eval_deprecated'] = 'The #EVAL rule is deprecated and may not work in future versions. Use #FUNCTION instead.';
+$_lang["ef_debug_info"] = "デバッグ情報: ";
+$_lang["ef_is_own_id"] = "<span class=\"ef-form-error\">フォームテンプレートとして、スニペットコールを含むページのIDが設定されています！スニペットコールと同じドキュメントにフォームを設置することはできません。</span> ID=";
+$_lang["ef_sql_no_result"] = " 検証を通過しました。<span style=\"color:red;\">SQLは結果を返しませんでした！</span> ";
+$_lang['ef_regex_error'] = '正規表現のエラー ';
+$_lang['ef_debug_warning'] = '<p style="color:red;"><span style="font-size:1.5em;font-weight:bold;">警告 - デバッギングが有効</span><br />このフォームを公開する前にデバッギングを無効にしてください！</p>';
+$_lang['ef_mail_abuse_subject'] = 'メールフォーム悪用の可能性を検出';
+$_lang['ef_mail_abuse_message'] = '<p>メールインジェクション攻撃の可能性がある題名です。送信データの詳細は以下に表示されます。疑わしいテキストは\[..]\タグの中に埋め込まれています。</p> ';
+$_lang['ef_mail_abuse_error'] = '<strong>フォームの中に不正または安全でない入力が検出されました。</strong>.';
+$_lang['ef_eval_deprecated'] = '#EVALルールは将来のバージョンで動作しなくなる可能性があります。代わりに#FUNCTIONを使用してください。';
 ?>
