@@ -1,0 +1,61 @@
+@charset "UTF-8";
+
+body.mceContentBody, td, th
+{
+	font-family:		'メイリオ',Meiryo,'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','ＭＳ Ｐゴシック',sans-serif !important;
+	font-size:			12px;
+	font-style: normal;
+}
+
+body.mceContentBody {
+	line-height: 1.5;
+	color: #333333;
+	background-color: #FFFFFF;
+	background-attachment: fixed;
+	background-repeat:repeat-x !important;
+	background-image : url(textareabg.gif) !important;
+	text-align: left;
+	}
+
+h1,h2,h3,h4,h5,h6 {	letter-spacing:2px;}
+
+ul {
+	line-height:1.5;
+	list-style-type:square;
+	margin:0 0 0.5em 20px;
+	padding:0;
+	list-style-image:url(bullet.gif);
+}
+
+body.mceContentBody ol {
+	line-height:1.5;
+	margin:0 0 0.5em 18px;
+	padding:0;
+	color:black;
+	list-style-image:none;
+}
+
+body.mceContentBody ol li {margin-left:7px;}
+
+ol {list-style-type:decimal}
+ol ol {list-style-type:upper-roman}
+ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol {list-style-type:lower-greek}
+
+body.mceContentBody blockquote {
+	border-left:2px solid gray;
+	padding-left:7px;
+	margin-left:3px;
+	background-color:#f3f3f3;
+}
+
+table {margin-bottom:8px;}
+td,th {padding:4px !important;}
+th {color:#1d5eb3 !important;background-color:#f5f5f5;text-align:left;}
+
+a:hover {
+	color: #7fa2ff;
+	}
+.imgleft {padding:7px; float:left; margin-right:12px;clear:both;margin-bottom:5px;}
+.imgright {padding:7px; float:right; margin-left:12px;clear:both;margin-bottom:5px;}
+.floatclear {clear:both;}

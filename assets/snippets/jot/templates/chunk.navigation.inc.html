@@ -1,0 +1,12 @@
+<a name="jotnav[+jot.id+]"></a>
+<div class="jot-nav">
+	[+jot.page.current:gt=`1`:then=`
+	<a href="[+jot.link.navigation:esc+][+jot.querykey.navigation+]=1#jotnav[+jot.id+]">初めへ</a> |
+	<a href="[+jot.link.navigation:esc+][+jot.querykey.navigation+]=[+jot.page.current:math=`?-1`+]#jotnav[+jot.id+]">前へ</a> | 
+	`+]
+	<b>[+jot.nav.total+]</b>件中<b>[+jot.nav.start+]</b>件から <b>[+jot.nav.end+]</b>件のコメントを見る
+	[+jot.page.current:lt=`[+jot.page.total+]`:then=`
+	| <a href="[+jot.link.navigation:esc+][+jot.querykey.navigation+]=[+jot.page.current:math=`?+1`+]#jotnav[+jot.id+]">次へ</a>
+	| <a href="[+jot.link.navigation:esc+][+jot.querykey.navigation+]=[+jot.page.total+]#jotnav[+jot.id+]">最後へ</a>
+	`+]
+</div>
