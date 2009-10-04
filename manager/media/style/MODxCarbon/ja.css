@@ -1,0 +1,44 @@
+html { /overflow-x: hidden; /overflow-y: auto;} /* for IE7, IE6 */
+body {font-size: 75% !important;color:#333 !important;margin-bottom: 0 !important;}
+span.warning, td.warning {color: #444;}
+td.comment, span.comment {font-size:12px;}
+body #supplementalNav {	font-size: 12px;}
+body .dynamic-tab-pane-control .tab-row .tab { font-size: 12px;}
+body .dynamic-tab-pane-control .tab-row .tab span {font-size: 12px;}
+body .custom-title {font-size: 12px;}
+body .custom-text {font-size: 12px;}
+
+body .dp_cal select {font-size: 12px;}
+body .dp_cal th, body .dp_cal td {font-size: 12px;}
+body h1 {font-weight:bold;font-size: 144%;letter-spacing:2px;}
+div.sectionBody h1 {font-weight:normal;font-size: 164%;letter-spacing:1px;}
+i, em {font-style:normal;}
+small {font-size:12px;}
+
+a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decoration:none;cursor:pointer;padding: 2px 4px;color:#333;}
+div#floater {padding:8px;border:1px solid #ccc;}
+
+td input.button {cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
+
+input.inputBox, textarea.inputBox, input.text {border:1px solid #ccc;padding:3px;background: #fff url(images/misc/input-bg.gif) repeat-x top left;}
+
+div.sectionHeader {border: 1px solid #e3e3e3;border-bottom:none;}
+div.sectionBody  {border-top: 1px solid #e3e3e3;}
+input.DatePicker {border-color:#b4cde4 !important;}
+
+div.sectionBody #ta, .tmplvars textarea {
+background: #fff url(images/misc/input-bg.gif) repeat-x top left;
+}
+
+ul#nav li a {border-left: 1px solid #526376;}
+ul#nav li.active ul.subnav {border-bottom: 1px solid #7b8c9f;}
+ul#nav li.active ul.subnav a {border-bottom: 1px solid #7b8c9f;}
+
+div#actions ul.actionButtons {margin-top:2px;}
+ul.actionButtons a {background-color:#c7ced2;color:#222c36;}
+
+ul#nav li.active ul.subnav,
+ul#nav li.active ul.subnav a:visited,
+ul#nav li.active ul.subnav a:link
+{background: #657587 url(images/misc/longbarbg.png) repeat-x top;}
+ul#nav li.active ul.subnav a:hover {background-color:#748394;background-image:none;}
