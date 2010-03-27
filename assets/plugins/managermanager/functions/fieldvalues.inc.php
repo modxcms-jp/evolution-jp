@@ -28,15 +28,16 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 		$new_value = ($eval) ? eval($value) : $value;
 		
 		$output = " // ----------- Change defaults -------------- \n";
+		$date_format = $modx->toDateFormat(null, 'formatOnly');
 		
 		switch ($field) {
 			case 'pub_date':
-				$new_value = ($new_value=='') ? date("d-m-Y H:i:s") : $new_value;
+				$new_value = ($new_value=='') ? strftime($date_format . ' %H:%M:%S') : $new_value;
 				$output .= '$j("input[name=pub_date]").val("'.jsSafe($new_value).'"); '."\n";
 			break;
 			
 			case 'unpub_date':
-				$new_value = ($new_value=='') ? date("d-m-Y H:i:s") : $new_value;
+				$new_value = ($new_value=='') ? strftime($date_format . ' %H:%M:%S') : $new_value;
 				$output .= '$j("input[name=unpub_date]").val("'.jsSafe($new_value).'"); '."\n";
 			break;
 			
@@ -215,6 +216,7 @@ function mm_inherit($fields, $roles='', $templates='') {
 			// dbname $dbname			
 			// newvalue $newvalue 	
 				";
+			$date_format = $modx->toDateFormat(null, 'formatOnly');
  						 
 			switch ($field) {
 				
@@ -234,7 +236,7 @@ function mm_inherit($fields, $roles='', $templates='') {
 				
 				case 'pub_date':
 				case 'unpub_date':
-					$output .=  '$j("input[name='.$fieldname.']").val("'.date('d-m-Y H:i:s', $newvalue).'"); ';
+					$output .=  '$j("input[name='.$fieldname.']").val("'.strftime($date_format . ' %H:%M:%S', $newvalue).'"); ';
 				break;					
 						
 				default:
