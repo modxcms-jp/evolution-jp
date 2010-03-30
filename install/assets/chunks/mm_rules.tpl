@@ -12,7 +12,7 @@
 // PHP *is* allowed
 
 // mm_default('pub_date'); // pub_dateの既定値をセットします
-mm_requireFields('pagetitle'); 必須入力フィールドを設定します。カンマで区切って複数設定できます。
+mm_requireFields('pagetitle');      // 必須入力フィールドを設定します。カンマで区切って複数設定できます。
 mm_widget_tags('documentTags',' '); // MODx Evolution 及びVer0.9系以前に実装されていたMETAタグ機能の代わりに用いるとよいでしょう
 mm_widget_showimagetvs(); // Imageタイプのテンプレート変数の画像をプレビューします
 
