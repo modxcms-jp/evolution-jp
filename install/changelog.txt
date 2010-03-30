@@ -1,13 +1,14 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.3 ($Rev: 6624 $ - $Date: 2010-03-30 01:47:15 +0900 (火, 30 3 2010) $)
+MODx Evolution 1.0.3 ($Rev: 6625 $ - $Date: 2010-03-30 20:44:05 +0900 (火, 30 3 2010) $)
 ===================================
 --------------------------------------------
 Security:
 --------------------------------------------
 * [#MODX-1758] Fix issue described in JVN#46669729, XSS possibility with searchHighlight plugin
 * [#MODX-1793] TinyMCE link lists are not secured if manager session does not exist
+* [#ADDON-136] SQL injection on Weblogin
 
 --------------------------------------------
 Bugfixes:
