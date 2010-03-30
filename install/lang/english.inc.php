@@ -174,6 +174,7 @@ $_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the select
 $_lang["templates"] = 'Templates';
 $_lang["to_log_into_content_manager"] = 'To log into the Content Manager (manager/index.php) you can click on the `Close` button.';
 $_lang["toggle"] = 'Toggle';
+$_lang['tvs'] = 'Template Variables';
 $_lang["unable_install_chunk"] = 'Unable to install chunk.  File';
 $_lang["unable_install_module"] = 'Unable to install module.  File';
 $_lang["unable_install_plugin"] = 'Unable to install plugin.  File';

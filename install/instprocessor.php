@@ -352,6 +352,73 @@ if (isset ($_POST['template'])) {
 	}
 }
 
+// Install Template Variables
+if (isset ($_POST['tv'])) {
+    echo "<h3>" . $_lang['tvs'] . ":</h3> ";
+    $selTVs = $_POST['tv'];
+    foreach ($selTVs as $si) {
+        $si = (int) trim($si);
+        $name = mysql_real_escape_string($moduleTVs[$si][0]);
+        $caption = mysql_real_escape_string($moduleTVs[$si][1]);
+        $desc = mysql_real_escape_string($moduleTVs[$si][2]);
+        $input_type = mysql_real_escape_string($moduleTVs[$si][3]);
+        $input_options = mysql_real_escape_string($moduleTVs[$si][4]);
+        $input_default = mysql_real_escape_string($moduleTVs[$si][5]);
+        $output_widget = mysql_real_escape_string($moduleTVs[$si][6]);
+        $output_widget_params = mysql_real_escape_string($moduleTVs[$si][7]);
+        $filecontent = $moduleTVs[$si][8];
+        $assignments = $moduleTVs[$si][9];
+        $category = mysql_real_escape_string($moduleTVs[$si][10]);
+        $locked = mysql_real_escape_string($moduleTVs[$si][11]);
+        
+
+        // Create the category if it does not already exist
+        if( $category ){                
+            $rs = mysql_query("REPLACE INTO $dbase.`" . $table_prefix . "categories` (`id`,`category`) ( SELECT MIN(`id`), '$category' FROM ( SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category' UNION SELECT (CASE COUNT(*) WHEN 0 THEN 1 ELSE MAX(`id`)+1 END ) `id` FROM $dbase.`" . $table_prefix . "categories` ) AS _tmp )", $sqlParser->conn);
+        }
+        $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_tmplvars` WHERE name='$name'", $sqlParser->conn);
+        if (mysql_num_rows($rs)) {
+            $insert = true;
+            while($row = mysql_fetch_assoc($rs)) {
+                if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};", $sqlParser->conn)) {
+                    echo "<p>" . mysql_error() . "</p>";
+                    return;
+                }
+                $insert = false;
+            }
+            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+        } else {
+            if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',(SELECT (CASE COUNT(*) WHEN 0 THEN 0 ELSE `id` END) `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'),$locked,'$input_options','$output_widget','$output_widget_params','$input_default');", $sqlParser->conn)) {
+                echo "<p>" . mysql_error() . "</p>";
+                return;
+            }
+            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+        }
+      
+        // add template assignements
+        $assignments = explode(',', $assignments);
+        
+        if (count($assignments) > 0) {
+            foreach ($assignments as $assignment) {
+                $template = mysql_real_escape_string($assignment);
+                $ts = mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_templates` WHERE templatename='$template';",$sqlParser->conn);
+                $ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+                if ($ds && $ts) {
+                    $tRow = mysql_fetch_assoc($ts);
+                    $row = mysql_fetch_assoc($ds);
+                    $templateId = $tRow['id'];
+                    $id = $row["id"];
+                    // remove existing tv -> template assignements
+                    mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_tmplvar_templates` WHERE tmplvarid = \'' . $id . '\'');
+                    // add existing tv -> template assignements
+                    mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES($id, $templateId)");
+               }
+            }
+        }
+        
+    }
+}
+
 // Install Chunks
 if (isset ($_POST['chunk'])) {
 	echo "<h3>" . $_lang['chunks'] . ":</h3> ";

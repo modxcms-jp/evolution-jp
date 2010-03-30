@@ -1,7 +1,7 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.3 ($Rev: 6622 $ - $Date: 2010-03-28 01:07:16 +0900 (日, 28 3 2010) $)
+MODx Evolution 1.0.3 ($Rev: 6624 $ - $Date: 2010-03-30 01:47:15 +0900 (火, 30 3 2010) $)
 ===================================
 --------------------------------------------
 Security:
@@ -86,6 +86,7 @@ Additional Improvements & Updates:
 * [#MODX-1761] Remove Templates from SQL install files
 * [#MODX-1767] Improve Evo installer to remove leading/trailing elements surrounding opening docblock
 * [#MODX-1760] ManagerManager updated to version 0.3.8
+* Allow TV definitions to be installed via the MODx installer
 
 MODx Evolution 1.0.2 (Nov 4, 2009)
 ===================================

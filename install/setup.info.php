@@ -42,7 +42,7 @@
 		$d->close();
 	}
 
-/*	// setup Template Variable template files
+	// setup Template Variable template files
 	$mtv = &$moduleTVs;
 	if(is_dir($tvPath) && is_readable($tvPath))
 	{
@@ -54,26 +54,26 @@
 			if(is_array($params) && (count($params)>0))
 			{
 				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-				$mt[] = array
+				$mtv[] = array
 				(
 					$params['name'],
-					$param['caption'],
+					$params['caption'],
 					$description,
-					$params['type'],
 					$params['input_type'],
 					$params['input_options'],
 					$params['input_default'],
 					$params['output_widget'],
 					$params['output_widget_params'],
-					"$templatePath/{$params['filename']}",
-					$params['template_assignments'],
-					$params['modx_category']
+					"$templatePath/{$params['filename']}", /* not currently used */
+					$params['template_assignments'], /* comma-separated list of template names */
+					$params['modx_category'],
+					$params['lock_tv']  /* value should be 1 or 0 */
 				);
 			}
 		}
 		$d->close();
 	}
-*/
+
 	// setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
 	$mc = &$moduleChunks;
 	if(is_dir($chunkPath) && is_readable($chunkPath)) {

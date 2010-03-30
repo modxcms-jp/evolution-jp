@@ -2,7 +2,7 @@
 /**
  * MODx language File
  *
- * @author MODx Japanese Community
+ * @author MODx CMS JAPAN
  * @package MODx
  * @version 1.0.2
  * 
@@ -174,6 +174,7 @@ $_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the select
 $_lang["templates"] = 'テンプレート';
 $_lang["to_log_into_content_manager"] = 'おつかれさまでした。「インストール終了」ボタンをクリックすると、管理画面のログインページ(manager/index.php)にアクセスします。';
 $_lang["toggle"] = '選択状態を反転';
+$_lang['tvs'] = 'テンプレート変数';
 $_lang["unable_install_chunk"] = 'チャンクをインストールできませんでした。';
 $_lang["unable_install_module"] = 'モジュールをインストールできませんでした';
 $_lang["unable_install_plugin"] = 'プラグインをインストールできませんでした。';
