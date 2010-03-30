@@ -4,9 +4,9 @@
  * Function:       Language file.
  * Encoding:       UTF8
  * Author:         MODx CMS JAPAN
- * Date:           2009/10/28
- * Version:        2.0.4
- * MODx version:   Evolution 1.0.2
+ * Date:           2010/03/30
+ * Version:        2.0.5
+ * MODx version:   Evolution 1.0.3
 */
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
@@ -240,7 +240,7 @@ $_lang["element_selector_title"] = 'エレメントセレクタ';
 $_lang["elements"] = 'エレメント';
 $_lang["email"] = 'メールアドレス';
 $_lang["email_sent"] = 'パスワード再発行メールを送信しました。';
-$_lang["emailsender_message"] = 'このサイトからメールを送信する場合の「送信元メールアドレス」を指定してください。<br />セッティング変数：[(emailsender)]';
+$_lang["emailsender_message"] = 'このサイトからメールを送信する場合の「送信元メールアドレス」を指定してください。<br />コンフィグ変数：[(emailsender)]';
 $_lang["emailsender_title"] = '送信者メールアドレス:';
 $_lang["emailsubject_default"] = 'ログイン情報のお知らせ';
 $_lang["emailsubject_message"] = 'サインアップメールの件名を指定してください。';
@@ -407,7 +407,7 @@ $_lang["lock_htmlsnippet"] = 'チャンクの編集をロック';
 $_lang["lock_htmlsnippet_msg"] = '管理者(ロールID 1)のみ編集できます。';
 $_lang["lock_module"] = 'モジュールをロック';
 $_lang["lock_module_msg"] = '管理者(ロールID 1)のみ編集できます。';
-$_lang["lock_msg"] = '%s が %s を今編集中です。他のユーザーが終了するまでしばらくお待ちの上再度操作願います。';
+$_lang["lock_msg"] = '%s さんが %s を編集中です。作業が終わるまで待つか、ロックを解除してください。';
 $_lang["lock_plugin"] = 'プラグインをロック';
 $_lang["lock_plugin_msg"] = '管理者(ロールID 1)のみ編集できます。';
 $_lang["lock_settings_msg"] = '%s が設定を編集中です。他のユーザーが終了するまでしばらくお待ちください。';
@@ -660,8 +660,8 @@ $_lang["recommend_setting_change_title"] = '設定を確認してください。
 $_lang["recommend_setting_change_description"] = 'リファラチェック設定が無効になっているため、意図しない管理画面操作による<a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">CSRF攻撃 (Cross Site Request Forgery attack)</a>を受ける恐れがあります。グローバル設定をご確認ください。ただしこの設定により管理画面にアクセスできなくなる可能性があります。その場合はパソコン側のセキュリティソフトの設定をチェックするか、他のパソコンからのアクセスを試してみてください。';
 $_lang["refresh_cache"] = 'キャッシュ: キャシュディレクトリに <strong>%s</strong>個のキャッシュファイルが見つかりました。<strong>%d</strong>個のキャッシュファイルが削除されました。<p>ページがリクエストされた時点で、新しいキャッシュファイルが生成されます。';
 $_lang["refresh_published"] = '<strong>%s</strong>件のリソースが公開されました。';
-$_lang["refresh_site"] = 'キャッシュをクリア';
-$_lang["refresh_title"] = 'サイトのリフレッシュ';
+$_lang["refresh_site"] = 'サイトをリフレッシュ';
+$_lang["refresh_title"] = 'サイトをリフレッシュ';
 $_lang["refresh_tree"] = 'サイトツリーの再描画';
 $_lang["refresh_unpublished"] = '<strong>%s</strong>件のリソースが非公開に戻りました。';
 $_lang["remember_username"] = 'ログイン情報を記憶する';
@@ -724,7 +724,7 @@ $_lang["role_about"] = '「MODxについて」ページの表示';
 $_lang["role_access_persmissions"] = 'アクセス許可';
 $_lang["role_actionok"] = '処理完了ページの表示';
 $_lang["role_bk_manager"] = 'バックアップマネージャーの使用';
-$_lang["role_cache_refresh"] = 'キャッシュをクリア';
+$_lang["role_cache_refresh"] = 'サイトをリフレッシュ';
 $_lang["role_change_password"] = 'パスワードの変更';
 $_lang["role_chunk_management"] = 'チャンクの管理';
 $_lang["role_config_management"] = '設定管理';
@@ -737,7 +737,7 @@ $_lang["role_create_template"] = 'テンプレートの作成';
 $_lang["role_credits"] = '著作権表示/謝辞の表示';
 $_lang["role_delete_chunk"] = 'チャンクを削除';
 $_lang["role_delete_doc"] = 'リソースの削除';
-$_lang["role_delete_eventlog"] = 'システムログを削除';
+$_lang["role_delete_eventlog"] = 'イベントログを削除';
 $_lang["role_delete_module"] = 'モジュールの削除';
 $_lang["role_delete_plugin"] = 'プラグインの削除';
 $_lang["role_delete_role"] = 'ロールの削除';
@@ -796,7 +796,7 @@ $_lang["role_title"] = 'ロールの作成/編集';
 $_lang["role_udperms"] = 'アクセス許可管理';
 $_lang["role_user_management"] = 'ユーザー管理';
 $_lang["role_view_docdata"] = 'リソースデータの表示';
-$_lang["role_view_eventlog"] = 'システムログを見る';
+$_lang["role_view_eventlog"] = 'イベントログを見る';
 $_lang["role_view_logs"] = 'システムログの閲覧';
 $_lang["role_view_unpublished"] = '未公開のリソースの閲覧';
 $_lang["role_web_access_persmissions"] = 'ウェブアクセス許可';
@@ -865,17 +865,17 @@ $_lang["show_meta"] = 'META Keywordsタブを表示';
 $_lang["show_meta_message"] = 'リソース編集画面にMETA Keywordsタブを表示します。過去のMODxとの互換性が必要な場合を除き、当設定は使い勝手の問題により推奨しません。';
 $_lang["show_tree"] = 'サイトツリーの表示';
 $_lang["showing"] = '表示中';
-$_lang["signupemail_message"] = 'ユーザ管理画面でユーザーアカウントを作成した時に、ユーザー名とパスワードを記載したメールを送信することができます。このメールの内容を設定してください。<br /><strong>参考:</strong> 下記の差し込み文字列は送信時に自動的に置き換えられます。<br /><br />[+sname+] - サイトの名前, <br />[+saddr+] - サイト管理者のメールアドレス, <br />[+surl+] - サイトのURL, <br />[+uid+] - ユーザーのログイン名, <br />[+pwd+] - ユーザーのパスワード, <br />[+ufn+] - ユーザーのフルネーム. ';
+$_lang["signupemail_message"] = 'ユーザ管理画面でユーザーアカウントを作成した時に、ユーザー名とパスワードを記載したメールを送信することができます。このメールの内容は変更できます<br /><strong>参考:</strong> 下記の差し込み文字列は送信時に自動的に置き換えられます。<br /><br />[+sname+] - サイトの名前, <br />[+saddr+] - サイト管理者のメールアドレス, <br />[+surl+] - サイトのURL, <br />[+uid+] - ユーザーのログイン名, <br />[+pwd+] - ユーザーのパスワード, <br />[+ufn+] - ユーザーのフルネーム. ';
 $_lang["signupemail_title"] = 'サインアップメール:';
 $_lang["site"] = 'メイン';
 $_lang["site_schedule"] = '公開状態の一覧';
-$_lang["sitename_message"] = 'サイト名を入力してください。title要素などで [*pagetitle*] などと組み合わせて用います。<br />セッティング変数： [(site_name)]';
+$_lang["sitename_message"] = 'サイト名を入力してください。title要素などで [*pagetitle*] などと組み合わせて用います。<br />コンフィグ変数： [(site_name)]';
 $_lang["sitename_title"] = 'サイト名:';
 $_lang["sitestart_message"] = 'トップページとして使用するリソースのIDを入力してください。<br /><strong>注意: 既に存在するリソースのIDを入力してください。リソースは公開されている必要があります。</strong>';
 $_lang["sitestart_title"] = 'サイトスタート:';
 $_lang["sitestatus_message"] = 'このサイトをウェブ上に公開するには「オンライン」を選択してください。「メンテナンスモード」を選択すると、訪問者には「メンテナンス中ページ」または「メンテナンス中メッセージ」が表示されます。';
 $_lang["sitestatus_title"] = '公開ステータス:';
-$_lang["siteunavailable_message"] = 'サイトがメンテナンスモード中、またはエラー発生時に表示するメッセージです。<br />セッティング変数：[(site_unavailable_message)]<br /><strong>注意: このメッセージはメンテナンス中ページが設定されていないときのみ表示されます。</strong>';
+$_lang["siteunavailable_message"] = 'サイトがメンテナンスモード中、またはエラー発生時に表示するメッセージです。<br />コンフィグ変数：[(site_unavailable_message)]<br /><strong>注意: このメッセージはメンテナンス中ページが設定されていないときのみ表示されます。</strong>';
 $_lang["siteunavailable_message_default"] = 'ただいま調整中です。しばらくお待ちください。';
 $_lang["siteunavailable_page_message"] = 'メンテナンスモード設定時に表示するリソースのIDをここに入力してください。<br /><strong>注意: 既に存在するリソースのIDを入力してください。リソースは公開されている必要があります。</strong>';
 $_lang["siteunavailable_page_title"] = 'メンテナンス中ページ:';
@@ -937,7 +937,7 @@ $_lang["tmplvars_elements"] = '入力時のオプション値';
 $_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>リソース変数を追加・管理できます。これは「テンプレート変数」と呼ばれるもので、一般的なCMSで言うところのカスタムフィールドに相当します。「タイトル」や「内容」などの既定の項目に加え、自由に項目を追加できます。</p>';
 $_lang["tmplvars_msg"] = 'テンプレート変数を作成・編集します。このテンプレート変数を使用するテンプレートを「テンプレートへのアクセス」で関連付けてください。';
 $_lang["tmplvars_name"] = '変数名';
-$_lang["tmplvars_novars"] = 'テンプレート変数が見つかりません。';
+$_lang["tmplvars_novars"] = 'テンプレート変数はありません。';
 $_lang["tmplvars_rank"] = '並べ替え順';
 $_lang["tmplvars_reset_params"] = 'パラメータのリセット';
 $_lang["tmplvars_title"] = 'テンプレート変数を編集';
@@ -983,7 +983,7 @@ $_lang["uploadable_flash_title"] = 'アップロード可能なフラッシュ:'
 $_lang["uploadable_images_message"] = 'ファイルブラウザを使用して「assets/images/ 」にアップロードできる画像ファイルの一覧を入力してください。拡張子をカンマで区切って入力してください。';
 $_lang["uploadable_images_title"] = 'アップロード可能な画像タイプ:';
 $_lang["uploadable_media_message"] = 'ファイルブラウザを使用して「assets/media/ 」にアップロードできるメディアファイルの一覧を入力してください。拡張子をカンマで区切って入力してください。';
-$_lang["uploadable_media_title"] = 'アップロード可能なマルチメディアタイプ:';
+$_lang["uploadable_media_title"] = 'アップロード可能なメディアタイプ:';
 $_lang["use_alias_path_message"] = 'このオプションを「はい」に設定すると、リソースのエイリアスがパスとして表示されます。例えば、「child」というエイリアスを持ったリソース「parent」というエイリアスのリソースの下に配置されていると、エイリアスパスは「/parent/child.html」になります。<br /><strong>注意: このオプションを「はい」にするとき、つまりエイリアスパスを使用するときは、リソースから参照するものは（画像・CSS・JavaScriptなど）絶対パスで指定する必要があります。例えば、assets/imagesに対しては/assets/imagesと指定します。または、<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用すると、相対パス記述でも正しく参照できます。</strong>';
 $_lang["use_alias_path_title"] = 'エイリアスパスを使用:';
 $_lang["use_editor_message"] = 'リッチテキストエディター(RTE)の使用を設定します。「いいえ」を選択するとRTEを利用できなくなります。この設定は全てのリソース・全てのユーザーに一括で適用されるためご注意ください。';
@@ -1012,7 +1012,7 @@ $_lang["user_mobile"] = '携帯電話番号';
 $_lang["user_phone"] = '電話番号';
 $_lang["user_photo"] = 'ユーザーの写真';
 $_lang["user_photo_message"] = 'このユーザーの写真イメージファイルのURLを入力してください。または、挿入ボタンをクリックしファイルマネージャーでファイルを選択してください。';
-$_lang["user_prevlogin"] = '最終ログイン';
+$_lang["user_prevlogin"] = '前回のログイン日時';
 $_lang["user_role"] = 'ロール(役割)';
 $_lang["user_state"] = '住所';
 $_lang["user_title"] = 'ユーザーの作成/編集';
@@ -1057,7 +1057,7 @@ $_lang["xhtml_urls_title"] = 'XHTML形式のURL';
 $_lang["yes"] = 'はい';
 $_lang["you_got_mail"] = 'メッセージが届いています。';
 $_lang["yourinfo_message"] = '自分自身に関する情報を表示しています:';
-$_lang["yourinfo_previous_login"] = '最終ログイン日時は:';
+$_lang["yourinfo_previous_login"] = '前回のログイン日時は:';
 $_lang["yourinfo_role"] = '所属ロール(役割):';
 $_lang["yourinfo_title"] = 'あなたの情報';
 $_lang["yourinfo_total_logins"] = '合計ログイン回数は:';

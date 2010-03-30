@@ -140,9 +140,9 @@ $_lang['DM_select_tree'] ='ツリー表示からリソースを選択します';
 $_lang['DM_process_noselection'] = '必要な指定がされていません。';
 $_lang['DM_process_novalues'] = '値が指定されていませんでした。';
 $_lang['DM_process_limits_error'] = '上限が下限よりも小さいです:';
-$_lang['DM_process_invalid_error'] = '値が変でした:';
+$_lang['DM_process_invalid_error'] = '値がイレギュラーです ';
 $_lang['DM_process_update_success'] = '変更は無事完了しました。';
-$_lang['DM_process_update_error'] = '変更は完了しましたがエラーがありました:';
+$_lang['DM_process_update_error'] = '変更は完了しましたが、エラーがありました:';
 $_lang['DM_process_back'] = '戻る';
 
 //-- manager access logging
