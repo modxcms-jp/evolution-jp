@@ -890,7 +890,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('friendly_url_prefix',''),
 ('friendly_url_suffix','.html'),
 ('friendly_alias_urls','1'),
-('use_alias_path','0'),
+('use_alias_path','1'),
 ('use_udperms','1'),
 ('udperms_allowroot','0'),
 ('failed_login_attempts','3'),
@@ -912,7 +912,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('fck_editor_autolang','0'),
 ('editor_css_path',''),
 ('editor_css_selectors',''),
-('strip_image_paths','1'),
+('strip_image_paths','0'),
 ('upload_images','bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff'),
 ('upload_media','au,avi,mp3,mp4,mpeg,mpg,wav,wmv'),
 ('upload_flash','fla,flv,swf'),
@@ -939,8 +939,8 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('validate_referer', '1'),
 ('datepicker_offset','-10'),
 ('xhtml_urls','1'),
-('allow_duplicate_alias','0'),
-('automatic_alias','1'),
+('allow_duplicate_alias','1'),
+('automatic_alias','0'),
 ('datetime_format','YYYY/mm/dd');
 
 

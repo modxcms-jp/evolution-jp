@@ -18,13 +18,13 @@ $_lang['default_template'] = <<<TPL
     </div>
 TPL;
 $_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チャンク)にプレースホルダが含まれていません。上記のテンプレートの内容を確認してください。</p>";
-$_lang['no_documents'] = '<p>記事がありません。</p>';
+$_lang['no_documents'] = '<p>記事はありません。</p>';
 $_lang['resource_array_error'] = 'リソース配列エラー';
  
 $_lang['prev'] = "&lt; 戻る";
 $_lang['next'] = "次へ &gt;";
 $_lang['button_splitter'] = "|";
-$_lang['default_copyright'] = "[(site_name)] 2009";
+$_lang['default_copyright'] = "[(site_name)] 2010";
 $_lang['invalid_class'] = "Dittoクラスが不正です。classesディレクトリ内のファイルを確認してください。";
 $_lang['none'] = "なし";
 $_lang['edit'] = "編集";
