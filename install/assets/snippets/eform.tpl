@@ -7,7 +7,7 @@
  * @category 	snippet
  * @version 	1.4.4.6
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &language=言語;string;japanese-utf8
+ * @internal	@properties &language=言語;string;japanese-utf8 &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
  */
 
