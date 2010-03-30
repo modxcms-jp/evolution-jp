@@ -137,7 +137,7 @@ hr {
 	border: 0;
 }
 .split {
-	background: #821517 url(images/misc/line.gif) repeat-x;
+	background: #556476 url(images/misc/line.gif) repeat-x;
 	height: 1px;
 	font-size: 0;
 	clear: both;
@@ -946,7 +946,7 @@ a.hometblink:hover {
 
 #mx_contextmenu #nameHolder {
 	color: #fff;
-	text-align: right;
+	text-align: left;
 	cursor: default;
 	font-weight: bold;
 	padding: 2px;

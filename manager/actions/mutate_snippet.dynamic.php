@@ -380,7 +380,8 @@ function decode(s){
 		  </tr>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</td>
-			<td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox" style="width:300px;" onChange="showParameters(this);documentDirty=true;"></td>
+			<td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox" style="width:300px;" onChange="showParameters(this);documentDirty=true;">
+			<input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>

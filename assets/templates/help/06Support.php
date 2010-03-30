@@ -27,6 +27,7 @@ $info = array(
               'mysql_get_client_info' => mysql_get_client_info(),
               'MODxのバージョン' => $modx_version,
               'サイトのURL'  => $modx->config['site_url'],
+              'ホスト名' => gethostbyaddr(getenv('SERVER_ADDR')),
               'MODX_BASE_URL' => MODX_BASE_URL,
               'upload_tmp_dir' => ini_get('upload_tmp_dir'),
               'memory_limit' => ini_get('memory_limit'),

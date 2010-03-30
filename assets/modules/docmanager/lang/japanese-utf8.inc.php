@@ -115,7 +115,7 @@ $_lang['DM_adjust_authors_noselection'] = '変更なし';
 
  //-- labels
 $_lang['DM_date_pubdate'] = '公開日時:';
-$_lang['DM_date_unpubdate'] = '非公開日時:';
+$_lang['DM_date_unpubdate'] = '公開終了日時:';
 $_lang['DM_date_createdon'] = '作成日時:';
 $_lang['DM_date_editedon'] = '編集日時:';
 //$_lang['DM_date_deletedon'] = 'Deleted On Date';

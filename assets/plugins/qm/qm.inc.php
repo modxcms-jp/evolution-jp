@@ -293,7 +293,7 @@ class Qm {
                         
                     $head .= '    
                         {                      
-                    		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false});
+                    		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.6, transition:"fade"});
                     	
                         	// Bindings
                         	$().bind("cbox_open", function(){$("body").css({"overflow":"hidden"}); $("html").css({"overflow":"hidden"}); $("#qmEditor").css({"display":"none"});});

@@ -78,7 +78,7 @@ $_lang["database_connection_failed_note"] = 'データベースのログイン�
 $_lang["database_use_failed"] = 'データベースを選択できません';
 $_lang["database_use_failed_note"] = 'データベースのユーザー権限を再確認してください。';
 $_lang["default_language"] = '管理画面で使用する言語';
-$_lang["default_language_description"] = '管理画面で使用する言語を選択してください。';
+$_lang["default_language_description"] = '管理画面で使用する言語を選択してください。(※Japanese-eucを選択するとプリインストールされるサンプルコンテンツやアドオンの説明文は文字化けしますのでご注意ください。アドオンの機能は利用できます。)';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
 $_lang["encoding"] = 'utf-8';	//charset encoding for html header
 $_lang["error"] = 'エラー';
@@ -108,7 +108,7 @@ $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';	// for html element e.g. <html xml:lang="ja" lang="ja">
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
-$_lang["modx_footer1"] = '&copy; 2005-2009 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005-2010 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
 $_lang["modx_install"] = 'MODx &raquo; インストール';
 $_lang["modx_requires_php"] = ', and MODx requires PHP 4.2.0 or later';

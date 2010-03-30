@@ -9,6 +9,8 @@
 // For example rules, also see the default.mm_rules.inc.php and the documentation. PHP is allowed.
 
 
+// Hide some fields
+mm_hideFields('link_attributes');
 
 
 // ------------------------ END OF RULES --------------------

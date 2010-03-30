@@ -119,11 +119,11 @@ function showParameters(ctrl) {
 			if (dt) {
 				switch(dt) {
 				case 'int':
-					c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
+					c = '<input type="text" name="prop_'+key+'" id="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
 					break;
 				case 'menu':
 					value = ar[3];
-					c = '<select name="prop_'+key+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+					c = '<select name="prop_'+key+'" id="prop_'+key+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
 					ls = (ar[2]+'').split(",");
 					if(currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
 					for(i=0;i<ls.length;i++){
@@ -135,7 +135,7 @@ function showParameters(ctrl) {
 					value = ar[3];
 					ls = (ar[2]+'').split(",");
 					if(currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
-					c = '<select name="prop_'+key+'" size="'+ls.length+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+					c = '<select name="prop_'+key+'" id="prop_'+key+'" size="'+ls.length+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
 					for(i=0;i<ls.length;i++){
 						c += '<option value="'+ls[i]+'"'+((ls[i]==value)? ' selected="selected"':'')+'>'+ls[i]+'</option>';
 					}
@@ -146,7 +146,7 @@ function showParameters(ctrl) {
 					arrValue = value.split(",")
 					ls = (ar[2]+'').split(",");
 					if(currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
-					c = '<select name="prop_'+key+'" size="'+ls.length+'" multiple="multiple" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+					c = '<select name="prop_'+key+'" id="prop_'+key+'" size="'+ls.length+'" multiple="multiple" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
 					for(i=0;i<ls.length;i++){
 						if(arrValue.length){
 							for(j=0;j<arrValue.length;j++){
@@ -163,10 +163,10 @@ function showParameters(ctrl) {
 					c += '</select>';
 					break;
 				case 'textarea':
-					c = '<textarea name="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
+					c = '<textarea name="prop_'+key+'" id="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
 					break;
 				default:  // string
-					c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
+					c = '<input type="text" name="prop_'+key+'" id="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
 					break;
 
 				}
@@ -248,6 +248,156 @@ function decode(s){
 	return s;
 }
 
+
+// Using Mootools
+window.addEvent('domready', function() {
+
+	// Try and populate config fields from the text that is pasted in the PHP box
+	$('phptextarea').addEvent('blur', function() {
+		
+		// Get the value of the php text field
+		var src = $('phptextarea').value;
+		
+		
+		// Is  something in there?
+		if (src == '') { 			
+			$$('input[name^=sysevents]').removeProperty('checked'); // Untick all sys events
+			$('pluginName').setProperty('value', '');
+			$('pluginDescription').setProperty('value', '');
+			$('propertiesBox').value = '';
+			$('newcategory').setProperty('value', '');
+			$$('#categoryid option').removeProperty('selected')
+			showParameters($('propertiesBox'));
+			return; 
+		}
+		
+		var find_block = /\/\*\*([\s\S]*)\*\//;
+		var theBlock = find_block.exec(src);
+		if (theBlock == null) {
+			return;
+		} else {
+			src = theBlock[1];	
+		}
+		
+		
+		
+		var theParams = {};
+		
+		// Go through each line and transform into something useful
+		var lines = src.split(/\n/);
+		lines.each( function(theLine, index) {
+			
+			//theLine = theLine.search(/\s\*\s([A-Za-z0-9])/);
+			var docblock_regexp = /\s\*\s(.+)/;
+			theLine = docblock_regexp.exec(theLine);
+						
+			if (theLine != null) { // Does it have words on it?
+				if (!theParams.name) { // The first non-null line we come across should be the name
+					theParams.name = theLine[1];
+				} else if (!theParams.description ) { // The second non-null line we come across should be the description
+					theParams.description = theLine[1];
+				} else {
+					
+					var line_regexp = /@([A-Za-z_]+)\s+(.*)/;
+					var theLineDetail = line_regexp.exec(theLine[1]);
+					
+					if (theLineDetail) {
+						switch (theLineDetail[1]) {
+							case 'internal':
+								var theInternalLineDetail = line_regexp.exec(theLineDetail[2]);
+								theParams[theInternalLineDetail[1]] = theInternalLineDetail[2];
+							break;	
+							default:
+								theParams[theLineDetail[1]] = theLineDetail[2];
+							break;
+						}
+					}
+				}
+			} 
+			
+		});
+		
+			
+		// Populate the events
+		if (theParams.events) {
+			var events = theParams.events.split(',');
+			
+			// Untick all sys events
+			$$('input[name^=sysevents]').removeProperty('checked');
+			
+			events.each( function(i) {
+				$(i.trim()).setProperty('checked','checked');
+			});
+		}
+		
+		
+		// Populate the name
+		if (theParams.name) $('pluginName').setProperty('value', theParams.name);
+
+		// Populate the description
+		var version =  (theParams.version)  ? '<strong>'+theParams.version+'</strong> ' : '';
+		if (theParams.description) $('pluginDescription').setProperty('value', version+theParams.description);
+		
+		// If old param values are set, keep a record of them
+		var oldParams = currentParams;
+		
+		// Set new default params
+		if (theParams.properties) {
+			$('propertiesBox').value = theParams.properties;
+			showParameters($('propertiesBox'));
+		}
+			
+			
+		// Populate the properties from any old existing values
+		if (oldParams) {		
+			
+			// Go through each old param, and set its value if it exists
+			$each(oldParams, function(oldParam, oldName) {
+				
+				var theField = $('prop_'+oldName);
+				
+				if (!theField) return;
+							
+					switch (oldParam[1]) {
+						case 'list':
+						case 'menu':		
+							var oldValue = oldParam[3];						
+							theField.setProperty('value', oldValue);
+							setParameter(oldName, oldParam[1], theField);								
+						break;
+						
+						case 'list-multi':		
+							// Not supporting list-multi yet, as it is broken anyway							
+						break;
+										
+						default:
+							var oldValue = oldParam[2];	
+							theField.setProperty('value', oldValue);
+							setParameter(oldName, oldParam[1], theField);
+						break;
+					}
+				
+				});
+		}
+		
+		// Select the correct dropdown value
+		var modx_category_found = false;
+		$$('#categoryid option').removeProperty('selected').each( function(opt) {
+			if(opt.text.trim() == theParams.modx_category.trim()) {
+				opt.setProperty('selected', 'selected');
+				modx_category_found = true;
+			}
+		}); 
+		
+		
+		// If not found in the dropdown, create a new category
+		if (!modx_category_found && theParams.modx_category) {
+			$('newcategory').setProperty('value', theParams.modx_category);
+		}
+		
+	});
+});
+
 </script>
 
 <form name="mutate" method="post" action="index.php?a=103">
@@ -301,11 +451,11 @@ function decode(s){
 		<table border="0" cellspacing="0" cellpadding="0">
 		  <tr>
 			<td align="left"><?php echo $_lang['plugin_name']; ?>:</td>
-			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'>&nbsp;</span></td>
+			<td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'>&nbsp;</span></td>
 		  </tr>
 		  <tr>
 			<td align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</td>
-			<td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description'];?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+			<td align="left"><input id="pluginDescription" name="description" type="text" maxlength="255" value="<?php echo $content['description'];?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
 		  </tr>
 		  <tr>
 			<td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled']==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $content['disabled']==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span>":$_lang['plugin_disabled']; ?></td>
@@ -320,7 +470,7 @@ function decode(s){
 		    	<span style="float:left;color:#707070;font-weight:bold; padding:3px">&nbsp;<?php echo $_lang['plugin_code']; ?></span>
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" <?php echo $content['wrap']== 1 ? "checked='checked'" : "" ;?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		</div>
-			<textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? "soft" : "off" ;?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
+			<textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? "soft" : "off" ;?>" onchange="documentDirty=true;" id="phptextarea"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
 		</div>
 		<!-- PHP text editor end -->
 		</div>
@@ -332,7 +482,7 @@ function decode(s){
 		<table width="90%" border="0" cellspacing="0" cellpadding="0">
           <tr>
 			<td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
-			<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+			<td align="left"><select name="categoryid" id="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 				<option>&nbsp;</option>
 				<?php
 		            include_once "categories.inc.php";
@@ -346,7 +496,7 @@ function decode(s){
 		  </tr>
           <tr>
 			<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
-			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" id="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
 		  </tr>
           <tr>
 			<td align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</td>
@@ -373,7 +523,7 @@ function decode(s){
 		  </tr>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</td>
-			<td align="left" valign="top"><textarea name="properties" onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" /></td>
+			<td align="left" valign="top"><textarea name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>
@@ -451,7 +601,7 @@ function decode(s){
 				echo "<tr><td colspan='2'><div class='split' style='margin:10px 0;'></div></td></tr>";
 				echo "<tr><td colspan='2'><b>".$row['groupname']."</b></td></tr>";
 		}
-		$evtnames[] = '<input name="sysevents[]" type="checkbox"'.(in_array($row[id],$evts) ? " checked='checked' " : "").'class="inputBox" value="'.$row['id'].'" />'.$row['name'];
+		$evtnames[] = '<input name="sysevents[]" type="checkbox"'.(in_array($row[id],$evts) ? " checked='checked' " : "").' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name'].'">'.$row['name'].'</label>'."\n";
 		if(count($evtnames)==2) echoEventRows($evtnames);
 	}
 	if(count($evtnames)>0) echoEventRows($evtnames);

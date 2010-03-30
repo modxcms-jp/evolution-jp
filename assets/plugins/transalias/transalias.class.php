@@ -154,7 +154,7 @@ class TransAlias {
         if (!empty($this->_useTable)) {
             $alias = strtr($alias, $this->_tables[$this->_useTable]);
         }
-        $alias = preg_replace('/[^\x01-\x7E\._]/', 'x', $alias);
+        $alias = preg_replace('/[^\x01-\x7E\._]{2,3}/', 'x', $alias);
 
         $alias = strip_tags($alias); // strip HTML
         if($char_restrict=='lowercase alphanumeric') {
