@@ -6,12 +6,13 @@
  * @category	chunk
  * @version 	1.0.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal 	@modx_category Demo Content
+ * @internal 	@modx_category Manager and Admin
  */
 
 // PHP *is* allowed
 
 // mm_default('pub_date'); // pub_dateの既定値をセットします
+mm_requireFields('pagetitle'); 必須入力フィールドを設定します。カンマで区切って複数設定できます。
 mm_widget_tags('documentTags',' '); // MODx Evolution 及びVer0.9系以前に実装されていたMETAタグ機能の代わりに用いるとよいでしょう
 mm_widget_showimagetvs(); // Imageタイプのテンプレート変数の画像をプレビューします
 
@@ -68,6 +69,10 @@ mm_renameField($field, $newlabel, $roles, $templates, $newhelp)
 mm_hideFields($fields, $roles, $templates)
 例：mm_hideFields('alias', '1', '3');
 
+# 任意のフィールドを入力必須とする
+mm_requireFields($fields, $roles, $templates)
+例：mm_requireFields('pagetitle');
+必須入力フィールドを設定します。カンマで区切って複数設定できます。
 
 # フィールド右側のチップヘルプの内容を書き換える
 mm_changeFieldHelp($field, $helptext, $roles, $templates)
@@ -88,7 +93,7 @@ mm_inherit($fields, $roles, $templates)
 mm_default($field, $value, $roles, $templates, $eval)
 例：mm_default('pub_date')
 このルールは通常、フィールド名のみを記述します(mm_default('pub_date')で今日の日付)
-$eval をtrueにセットすると $value をphp文として解釈します(例：return date("Y/m/d H:i:s");)
+$eval をtrueにセットすると $value をphp文として解釈します(例：return date("H時i分");)
 たとえば return date("Y/m/d H:i:s", now()+(60*60*24*365*100))などの値を与えて
 100年後の日付をセットすることができます
 
