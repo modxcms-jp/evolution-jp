@@ -610,3 +610,5 @@ text-indent:-9999px;
 top:0;
 width:228px;
 }
+
+input, select {font-family:Verdana;letter-spacing:1px;}
