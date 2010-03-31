@@ -27,6 +27,8 @@ AJAXSEARCH-57 : CentOS - ajaxsearch 1.8.4 fails with a preg_replace() - lookbehi
 AJAXSEARCH-58 : Remove possibility of XSS attempts being passed in the URL of advSearch_Highlight and 
                 Search_Highlight plugins (JVN #46669729)
 
+AJAXSEARCH-43 : Unable to get custom tv content (i.e. image link or other text) in template chunk
+
 
 ==== New language files
     The Icelandic and Indonesian language files have been added
