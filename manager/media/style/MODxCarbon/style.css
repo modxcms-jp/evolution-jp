@@ -1128,9 +1128,6 @@ a.hometblink, a.hometblink img {
 }
 /* -------------------------[ New sortable table class ]--- */
 .sortabletable {
-	font: Icon;
-	border: 0 solid ThreeDShadow;
-	color: WindowText;
 }
 .sortabletable thead tr {
 	background-color: #86919e;
