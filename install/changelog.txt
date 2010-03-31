@@ -1,7 +1,7 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.3 ($Rev: 6625 $ - $Date: 2010-03-30 20:44:05 +0900 (火, 30 3 2010) $)
+MODx Evolution 1.0.3 ($Rev: 6631 $ - $Date: 2010-03-31 03:11:28 +0900 (水, 31 3 2010) $)
 ===================================
 --------------------------------------------
 Security:
@@ -58,6 +58,7 @@ Bugfixes:
 * [#MODX-1775] Remove blank line stripping from cache processor, can cause unwanted changes to chunks
 * [#MODX-1460] ManagerManager mm_renameSection for 'tvs' renames the 'content' section instead
 * [#MODX-1462] Date Picker is not displaying the current date 'green box' or correct month when re-editing a date
+* [#MODX-1799] $modx->addEventListener() doesn't operate because of the syntax error
 
 --------------------------------------------
 Additional Improvements & Updates:
@@ -88,6 +89,10 @@ Additional Improvements & Updates:
 * [#MODX-1767] Improve Evo installer to remove leading/trailing elements surrounding opening docblock
 * [#MODX-1760] ManagerManager updated to version 0.3.8
 * Allow TV definitions to be installed via the MODx installer
+* [#MODX-1756] mcpuk internal file browser hard coding strings pattern
+* [#MODX-1795] tuning context menu order
+* [#MODX-1800] Finnish language file for Evolution 1.0.3
+
 
 MODx Evolution 1.0.2 (Nov 4, 2009)
 ===================================

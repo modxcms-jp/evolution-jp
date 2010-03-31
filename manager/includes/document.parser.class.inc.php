@@ -2332,7 +2332,7 @@ class DocumentParser {
     function addEventListener($evtName, $pluginName) {
 	    if (!$evtName || !$pluginName)
 		    return false;
-	    if (!array_key_exists($this->pluginEvent[$evtName]))
+	    if (!array_key_exists($evtName,$this->pluginEvent))
 		    $this->pluginEvent[$evtName] = array();
 	    return array_push($this->pluginEvent[$evtName], $pluginName); // return array count
     }
