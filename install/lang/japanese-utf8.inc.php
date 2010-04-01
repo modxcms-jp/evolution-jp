@@ -90,7 +90,7 @@ $_lang["help_title"] = 'インストールで困ったらココをチェック(M
 $_lang["iagree_box"] = '<b><a href="../assets/docs/license.txt" target="_blank">このライセンス(GPL2)</a>で規定される諸条件に同意します。</b></p><p><a href="http://www.opensource.jp/gpl/gpl.ja.html" target="_blank">GPL2ライセンスの日本語訳はこちらにあります。</a>この翻訳には法的効力はないため、<b>厳密な法的検証が必要な場合</b>は必ず英語の原文をご確認ください。';
 $_lang["install"] = 'インストール';
 $_lang["install_overwrite"] = 'インストール - ';
-$_lang["install_results"] = 'インストールを完了しました。おつかれさまでした！';
+$_lang["install_results"] = 'インストールを実行しました。';
 $_lang["install_update"] = '';
 $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_copy"] = '新規インストールします';
@@ -98,7 +98,7 @@ $_lang["installation_install_new_note"] = 'すでにMODxをインストールし
 $_lang["installation_mode"] = 'インストールの選択';
 $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面に無事にログインできたら、リソース(旧称・ドキュメント)および各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを必ず確認してください。';
-$_lang["installation_successful"] = 'インストールは無事に成功しました。';
+$_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">インストールは無事に成功しました。</span>';
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定を変更できます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベース設定の変更を伴うアップデートが必要な場合はこちらを選んでください。<br />';
 $_lang["installation_upgrade_existing"] = '通常アップデート';
