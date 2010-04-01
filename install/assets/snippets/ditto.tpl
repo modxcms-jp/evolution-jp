@@ -7,7 +7,7 @@
  * @category 	snippet
  * @version 	2.1.0
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &language=言語;string;japanese-utf8
+ * @internal	@properties 
  * @internal	@modx_category Content
  */
 
@@ -54,7 +54,11 @@ $GLOBALS["dittoID"] = $dittoID;
     Default:
     "" - blank
 */      
-$language = (isset($language))? $language : "english";
+$language = (isset($language))? $language : $modx->config['manager_language'];
+if(!file_exists($ditto_base."lang/".$language.".inc.php"))
+{
+    $language ="english";
+}
 /*
     Param: language
 
