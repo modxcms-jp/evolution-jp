@@ -832,7 +832,7 @@ UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' W
 
 
 REPLACE INTO `{PREFIX}site_templates` 
-(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('3','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','[*content*]','0');
+(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('3','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n    <title>[*pagetitle*] | [(site_name)]</title>         <!--リソース変数pagetitleとコンフィグ変数site_name-->\r\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=[(modx_charset)]\" /> <!--コンフィグ変数modx_charset-->\r\n  <base href=\"[(site_url)]\" />               <!--コンフィグ変数site_url-->\r\n</head>\r\n<body>\r\n    <h1>[*pagetitle*]</h1>                    <!--リソース変数pagetitle-->\r\n     [*content*]                                         <!--リソース変数content-->\r\n</body>\r\n</html>\r\n','0');
 
 
 # Default Site Documents
