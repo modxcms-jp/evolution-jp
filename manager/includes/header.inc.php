@@ -23,6 +23,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             <?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>;
         };
 
+		function reset_path(elementName) {
+	  		document.getElementById(elementName).value = document.getElementById('default_' + elementName).innerHTML;
+		}
+
         var dontShowWorker = false;
         function document_onunload() {
             if(!dontShowWorker) {
