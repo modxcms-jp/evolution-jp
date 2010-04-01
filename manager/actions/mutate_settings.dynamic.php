@@ -1051,8 +1051,7 @@ function confirmLangChange(el, lkey, elupd){
 				}
 			  
 			  echo $_lang['default']. ' ' .getResourceBaseDir();
-			  ?>
-			  <br />
+			  ?><br />
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="rb_base_dir" value="<?php echo isset($rb_base_dir) ? $rb_base_dir : getResourceBaseDir() ; ?>" />
               </td>
           </tr>
