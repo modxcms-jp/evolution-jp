@@ -1,12 +1,13 @@
 /**
  * mm_rules
  * 
- * ManagerManager用のカスタマイズルール
+ * ManagerManager用のカスタマイズルール <span style="font-weight:bold;color:red;">【注意】</span> 1.0.2からのアップデートの場合はチャンク名が変わっているため中身をコピーしてください。
  * 
  * @category	chunk
  * @version 	1.0.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Manager and Admin
+ * @internal    @legacy_names mm_demo_rules
  */
 
 // PHP *is* allowed
