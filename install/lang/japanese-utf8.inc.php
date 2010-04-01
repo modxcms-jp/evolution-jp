@@ -4,24 +4,24 @@
  *
  * @author MODx CMS JAPAN
  * @package MODx
- * @version 1.0.2
+ * @version 1.0.3
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
  * Encoding:       utf-8
  */
 $_lang["agree_to_terms"] = 'ライセンスが規定する諸条件を確認しインストールを実行してください';
-$_lang["alert_database_test_connection"] = 'データベースを生成するか、もしくはデータベースのテストを行う必要があります';
+$_lang["alert_database_test_connection"] = 'データベースを作成、またはデータベースの接続テストを行う必要があります';
 $_lang["alert_database_test_connection_failed"] = 'データベースに接続できません。';
 $_lang["alert_enter_adminconfirm"] = '管理者パスワードと確認パスワードが一致しません。';
-$_lang["alert_enter_adminlogin"] = 'システム管理者のユーザー名を入力してください';
-$_lang["alert_enter_adminpassword"] = 'システム管理者のパスワードを入力してください';
-$_lang["alert_enter_database_name"] = 'データベース名の入力をしてください';
-$_lang["alert_enter_host"] = 'DBのホスト名を入力してください';
-$_lang["alert_enter_login"] = 'DBのログイン名を入力してください';
+$_lang["alert_enter_adminlogin"] = '管理者のユーザー名を入力してください';
+$_lang["alert_enter_adminpassword"] = '管理者のパスワードを入力してください';
+$_lang["alert_enter_database_name"] = 'データベース名を入力してください';
+$_lang["alert_enter_host"] = 'データベースサーバのホスト名を入力してください';
+$_lang["alert_enter_login"] = 'データベースのユーザー名を入力してください';
 $_lang["alert_server_test_connection"] = 'サーバー接続をテストしてください';
 $_lang["alert_server_test_connection_failed"] = 'サーバー接続テストが失敗しました';
-$_lang["alert_table_prefixes"] = 'データベーステーブルのプリフィクスは文字から始めなければいけません。';
+$_lang["alert_table_prefixes"] = 'テーブルのプリフィクスはアルファベットのみ使えます。';
 $_lang["all"] = '全て選択';
 $_lang["and_try_again"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。';
 $_lang["and_try_again_plural"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。'; //Plural form
@@ -29,7 +29,7 @@ $_lang["begin"] = '開始';
 $_lang["btnback_value"] = '戻る';
 $_lang["btnclose_value"] = 'インストール終了';
 $_lang["btnnext_value"] = '進む';
-$_lang["cant_write_config_file"] = 'MODxは設定ファイルを記述できませんでした。以下をコピーして設定ファイルに反映してください ';
+$_lang["cant_write_config_file"] = 'MODxは設定ファイルを生成できませんでした。以下をコピーしてconfig.inc.phpに反映してください ';
 $_lang["cant_write_config_file_note"] = '実行後は、あなたのサイト名/manager/ にアクセスすることで管理画面にログインできます。';
 $_lang["checkbox_select_options"] = '拡張機能の選択:';
 $_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span>ディレクトリの存在チェック(なければ転送に失敗しています): ';
@@ -50,10 +50,10 @@ $_lang["checking_sessions"] = 'セッション情報が正常に構成される�
 $_lang["checking_table_prefix"] = 'Tableプリフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
 $_lang["config_permissions_note"] = '<span class="mono">config.inc.php</span>という名前の空ファイルを作って<span class="mono">/manager/includes/</span>ディレクトリに転送するか、すでに転送済みのconfig.inc.php.blankをリネームするなどし、パーミッションを606などに設定してください。';
-$_lang["connection_screen_collation"] = '照合順序(文字セット指定含む):';
+$_lang["connection_screen_collation"] = '照合順序(エンコード指定含む):';
 $_lang["connection_screen_connection_method"] = '接続時の文字セットの扱い:';
 $_lang["connection_screen_database_connection_information"] = 'データベース設定';
-$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、指定に従ってデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※なおMySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。';
+$_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、ここで指定した名前でデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※MySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。';
 $_lang["connection_screen_database_host"] = 'データベースホスト名:';
 $_lang["connection_screen_database_info"] = 'データベース設定';
 $_lang["connection_screen_database_login"] = 'データベース接続ログイン名:';
@@ -75,8 +75,8 @@ $_lang["creating_database_connection"] = 'データベース接続: ';
 $_lang["database_alerts"] = 'データベースの警告';
 $_lang["database_connection_failed"] = 'データベース接続に異常があります';
 $_lang["database_connection_failed_note"] = 'データベースのログイン設定を確認し、再びチェックを試してください。';
-$_lang["database_use_failed"] = 'データベースを選択できません';
-$_lang["database_use_failed_note"] = 'データベースのユーザー権限を再確認してください。';
+$_lang["database_use_failed"] = 'データベースを選択できません。データベース名を確認してください。';
+$_lang["database_use_failed_note"] = 'データベースのユーザー権限を確認してください。';
 $_lang["default_language"] = '管理画面で使用する言語';
 $_lang["default_language_description"] = '管理画面で使用する言語を選択してください。(※Japanese-eucを選択するとプリインストールされるサンプルコンテンツやアドオンの説明文は文字化けしますのでご注意ください。アドオンの機能は利用できます。)';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
@@ -92,7 +92,7 @@ $_lang["install"] = 'インストール';
 $_lang["install_overwrite"] = 'インストール - ';
 $_lang["install_results"] = 'インストールを完了しました。おつかれさまでした！';
 $_lang["install_update"] = '';
-$_lang["installation_error_occured"] = 'インストール中に以下のエラーが発生しました';
+$_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_copy"] = '新規インストールします';
 $_lang["installation_install_new_note"] = 'すでにMODxをインストールしている場合はデータを上書きします。<br />※Tableプリフィクスが異なる場合を除く';
 $_lang["installation_mode"] = 'インストールの選択';
@@ -113,15 +113,15 @@ $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creativ
 $_lang["modx_install"] = 'MODx &raquo; インストール';
 $_lang["modx_requires_php"] = ', and MODx requires PHP 4.2.0 or later';
 $_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
-$_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。アップデートをおすすめします。';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします。';
 $_lang["mysql_version_is"] = ' Version ';
 $_lang["no"] = 'いいえ';
 $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = 'not found';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
-$_lang["optional_items_note"] = 'オプションを選択してください:<br /><br />初めてMODxを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古いうえに十分に検証されていません。参考程度にお試しください。';
-$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らず様々なPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
+$_lang["optional_items_note"] = 'オプションを選択してください:<br /><br />初めてMODxを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。';
+$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form
 $_lang["plugins"] = 'プラグイン';
@@ -136,8 +136,8 @@ $_lang["running_database_updates"] = '実行中のデータベースのアップ
 $_lang["sample_web_site"] = 'サンプルサイト';
 $_lang["sample_web_site_note"] = '<span style="font-style:normal;">新規インストールの場合は問題ありませんが、すでにMODxでサイトを構成している場合は<strong style="color:#CC0000;">上書き</strong>されます。ご注意ください。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
-$_lang["session_problem_try_again"] = '再試行しますか?'; 
-$_lang["setup_cannot_continue"] = '上記理由のため、セットアップは現在継続できません。';
+$_lang["session_problem_try_again"] = '再試行しますか？'; 
+$_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
 $_lang["setup_couldnt_install"] = 'MODx setup couldn\'t install/alter some tables inside the selected database.';
 $_lang["setup_database"] = 'セットアップ結果<br />';
 $_lang["setup_database_create_connection"] = 'データベース接続: ';
@@ -145,12 +145,12 @@ $_lang["setup_database_create_connection_failed"] = 'データベース接続に
 $_lang["setup_database_create_connection_failed_note"] = 'データベースのログイン情報を確認して再試行してください。';
 $_lang["setup_database_creating_tables"] = '必要なテーブルの作成: ';
 $_lang["setup_database_creation"] = 'Creating database `';
-$_lang["setup_database_creation_failed"] = 'データベース生成に失敗しました';
-$_lang["setup_database_creation_failed_note"] = ' - データベース生成ができませんでした';
-$_lang["setup_database_creation_failed_note2"] = 'セットアップ時にデータベースの生成ができず、同名のデータベースも見つかりませんでした。ホスティング会社がデータベース生成スクリプトを許可していないようです。ホスティング会社の手順に従い、データベースを生成後セットアップを再開してください。';
+$_lang["setup_database_creation_failed"] = 'データベース作成に失敗しました';
+$_lang["setup_database_creation_failed_note"] = ' - データベースを作成できませんでした';
+$_lang["setup_database_creation_failed_note2"] = '指定の名前のデータベースが見つからなかったためデータベースの作成を試みましたが、作成できませんでした。ホスティング会社がデータベースの作成を許可していないようです。ホスティング会社の手順に従ってデータベースを作成し、セットアップを再開してください。';
 $_lang["setup_database_selection"] = 'データベース選択 `';
 $_lang["setup_database_selection_failed"] = 'データベース選択が失敗しました';
-$_lang["setup_database_selection_failed_note"] = 'データベースが存在しません。データベース生成を試行します。';
+$_lang["setup_database_selection_failed_note"] = 'データベースが存在しません。データベースの作成を試行します。';
 $_lang["snippets"] = 'スニペット';
 $_lang["some_tables_not_updated"] = 'いくつかのテーブルはアップデートされませんでした。修正などに起因しているようです。';
 $_lang["status_checking_database"] = '...    データベースとのマッチング: ';
