@@ -184,7 +184,7 @@ class DataGrid {
 		$this->_coltypes = explode((strstr($this->colTypes,"||")!==false ? "||":","),$this->colTypes);
 		$this->_colcount = count($this->_colnames);
 		if(!$this->_isDataset) {
-			$this->ds = explode((strstr($this->ds,"||")!==false ? "||":","),$this->ds);
+			$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
 			$this->ds = array_chunk($this->ds, $this->_colcount);
 		}
 		$tblColHdr ="<tr><thead>";
