@@ -511,7 +511,7 @@ a img {
 	color: #333;
 }
 .row2 {
-	background-color: #C8DAA2;
+	background-color: #ece7dd;
 }
 .row3 {
 	background-color: #F4F4F4;
@@ -1129,6 +1129,18 @@ a.hometblink, a.hometblink img {
 /* -------------------------[ New sortable table class ]--- */
 .sortabletable {
 }
+table.sortabletable {
+border-collapse:collapse;
+width:100%;
+}
+table.sortabletable td,table.sortabletable th {
+border:1px solid #ccc;
+padding:4px;
+}
+.sortabletable a {
+display:block;
+}
+
 .sortabletable thead tr {
 	background-color: #86919e;
 }

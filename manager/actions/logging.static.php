@@ -251,7 +251,7 @@ if(isset($_REQUEST['log_submit'])) {
 		// only the results you would like...
 		?>
 		<script type="text/javascript" src="media/script/tablesort.js"></script>
-		<table border="0" cellpadding="2" cellspacing="1" bgcolor="#707070" class="sortabletable rowstyle-even" id="table-1" width="%100">
+		<table class="sortabletable rowstyle-even" id="table-1">
 		<thead><tr>
 			<th class="sortable"><b><?php echo $_lang["mgrlog_username"]; ?></b></th>
 			<th class="sortable"><b><?php echo $_lang["mgrlog_actionid"]; ?></b></th>
