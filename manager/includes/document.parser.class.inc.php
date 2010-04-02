@@ -738,7 +738,7 @@ class DocumentParser {
     // evalPlugin
     function evalPlugin($pluginCode, $params) {
         $etomite= $modx= & $this;
-        $modx->event->params= & $params; // store params inside event object
+        $modx->event->params= $params; // store params inside event object
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
