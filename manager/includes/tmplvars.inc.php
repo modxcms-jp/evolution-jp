@@ -16,7 +16,8 @@
 			case "rawtext"; // non-htmlentity converted text boxes
 			case "email": // handles email input fields
 			case "number": // handles the input of numbers
-				$field_html .=  '<input type="text" class="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' tvtype="'.$field_type.'" onchange="documentDirty=true;" style="width:100%" />';
+				if($field_type=='text') $field_type = '';
+				$field_html .=  '<input type="text" class="text ' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' tvtype="'.$field_type.'" onchange="documentDirty=true;" style="width:100%" />';
 				break;
 			case "textareamini": // handler for textarea mini boxes
 				$field_html .=  '<textarea id="tv'.$field_id.'" name="tv'.$field_id.'" cols="40" rows="5" onchange="documentDirty=true;" style="width:100%">' . htmlspecialchars($field_value) .'</textarea>';
