@@ -17,6 +17,12 @@ mm_requireFields('pagetitle');      // 必須入力フィールドを設定し�
 mm_widget_tags('documentTags',' '); // MODx Evolution 及びVer0.9系以前に実装されていたMETAタグ機能の代わりに用いるとよいでしょう
 mm_widget_showimagetvs(); // Imageタイプのテンプレート変数の画像をプレビューします
 
+if($modx->config['track_visitors']==='0')
+{
+    mm_hideFields('log');
+}
+
+
 
 // 以下、全てコメントアウトしています。サンプルとして参考にしてみてください。
 
