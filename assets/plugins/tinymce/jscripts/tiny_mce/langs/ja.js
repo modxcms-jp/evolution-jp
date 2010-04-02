@@ -120,7 +120,9 @@ col:"\u5217",
 cell:"\u30BB\u30EB"
 },
 autosave:{
-unload_msg:"\u4ED6\u306E\u30DA\u30FC\u30B8\u3078\u79FB\u52D5\u3059\u308B\u3068\u7DE8\u96C6\u30C7\u30FC\u30BF\u306F\u3059\u3079\u3066\u7834\u68C4\u3055\u308C\u307E\u3059\u3002"
+unload_msg:"\u4ED6\u306E\u30DA\u30FC\u30B8\u3078\u79FB\u52D5\u3059\u308B\u3068\u7DE8\u96C6\u30C7\u30FC\u30BF\u306F\u3059\u3079\u3066\u7834\u68C4\u3055\u308C\u307E\u3059\u3002",
+restore_content: "Restore auto-saved content",
+warning_message: "If you restore the saved content, you will lose all the content that is currently in the editor.\n\nAre you sure you want to restore the saved content?"
 },
 fullscreen:{
 desc:"\u30D5\u30EB\u30B9\u30AF\u30EA\u30FC\u30F3"
@@ -151,4 +153,17 @@ no_mpell:"\u30B9\u30DA\u30EB\u30DF\u30B9\u306F\u898B\u3064\u304B\u308A\u307E\u30
 },
 pagebreak:{
 desc:"\u6539\u30DA\u30FC\u30B8\u633F\u5165"
-}}});
+},
+advlist : {
+	types : 'Types',
+	def : 'Default',
+	lower_alpha : "Lower alpha",
+	lower_greek : "Lower greek",
+	lower_roman : "Lower roman",
+	upper_alpha : "Upper alpha",
+	upper_roman : "Upper roman",
+	circle : "Circle",
+	disc : "Disc",
+	square : "Square"
+}
+}});

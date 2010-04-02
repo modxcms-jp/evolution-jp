@@ -1,6 +1,6 @@
 <?php
 /**
- * Qm+ — QuickManager+
+ * Qm+ QuickManager+
  *  
  * @author      Mikko Lammi, www.maagit.fi (based on QuickManager by Urique Dertlian, urique@unix.am)
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
@@ -311,7 +311,7 @@ class Qm {
                         
                     $head .= '    
                         {                      
-                    		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.6, transition:"fade"});
+                    		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
                     	
                         	// Bindings
                         	$().bind("cbox_open", function(){
