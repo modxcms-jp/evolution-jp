@@ -238,7 +238,12 @@ switch ($_POST['mode']) {
 			<div class="sectionBody">
 			<div id="disp">
 			<p>
-			<?php echo sprintf($_lang["password_msg"], $newusername, $newpassword); ?>
+			<?php
+			if($_POST['passwordgenmethod'] !== 'spec')
+				echo sprintf($_lang["password_msg"], $newusername, $newpassword);
+			else
+				echo sprintf($_lang["password_msg"], $newusername, '**************');
+			?>
 			</p>
 			</div>
 			</div>

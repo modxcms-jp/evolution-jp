@@ -12,7 +12,8 @@ ul {margin-bottom:15px;}
 <div class="sectionBody" style="padding:10px 20px;">
 <h3>サポートに必要な情報</h3>
 <p>
-<a href="http://modxcms-jp.com/bb/" target="_blank">公式フォーラム</a>でサポートを受けることができます。以下の情報を付記いただくと解決の助けとなります。
+<a href="http://modxcms-jp.com/bb/" target="_blank">公式フォーラム</a>でサポートを受けることができます。以下の情報を付記いただくと解決の助けとなります。<br />
+<a href="index.php?a=114">イベントログ</a>に重要なヒントが記録されていることもあります。
 </p>
 <?php
 
@@ -24,7 +25,7 @@ $info = array(
               'php_sapi_name'  => php_sapi_name(),
               'MySQLのバージョン'=>mysql_get_server_info(),
               'MySQLホスト情報' => mysql_get_host_info(),
-              'mysql_get_client_info' => mysql_get_client_info(),
+//              'mysql_get_client_info' => mysql_get_client_info(),
               'MODxのバージョン' => $modx_version,
               'サイトのURL'  => $modx->config['site_url'],
               'ホスト名' => gethostbyaddr(getenv('SERVER_ADDR')),

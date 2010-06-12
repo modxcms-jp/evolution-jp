@@ -58,7 +58,11 @@ if($modx->config['track_visitors']==='0')
 
 
 /* ==========================================================
+/assets/plugins/managermanager/docs/index.htm
+詳細については同梱ドキュメントをご覧ください。
+
 以下、簡易リファレンスです。
+
 
 $field            - フィールド名をひとつだけ指定できる
 $fields           - カンマで区切ってフィールド名を複数指定可
@@ -66,11 +70,9 @@ $roles            - このルールを有効とするロールをIDで指定(複
 $templates または $tplIds  - このルールを有効とするテンプレートをIDで指定(複数指定可)
 
 
-
 # フィールド名を変更する
 mm_renameField($field, $newlabel, $roles, $templates, $newhelp)
 例：mm_renameField('longtitle', '長い長い長い長い長いタイトル', '', '3');
-
 
 # フィールドを表示しない
 mm_hideFields($fields, $roles, $templates)
@@ -78,7 +80,7 @@ mm_hideFields($fields, $roles, $templates)
 
 # 任意のフィールドを入力必須とする
 mm_requireFields($fields, $roles, $templates)
-例：mm_requireFields('pagetitle');
+例：mm_requireFields('pagetitle,pub_date');
 必須入力フィールドを設定します。カンマで区切って複数設定できます。
 
 # フィールド右側のチップヘルプの内容を書き換える

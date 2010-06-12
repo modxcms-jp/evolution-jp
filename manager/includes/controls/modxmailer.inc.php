@@ -16,7 +16,7 @@
 if (file_exists(dirname(__FILE__)."/class.phpmailer.php")) {
 	include_once dirname(__FILE__)."/class.phpmailer.php";
 } else {
-	include_once "manager/includes/controls/class.phpmailer.php";
+	include_once MODX_BASE_PATH . 'manager/includes/controls/class.phpmailer.php';
 }
 
 /* ------------------------------------------------------------------

@@ -203,10 +203,8 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 <script type="text/javascript">
 language ='<?php echo $install_language?>';
 installMode ='<?php echo $installMode ?>';
-passed ='<?php echo $_lang["status_passed_server"]?>';
-passed_db = '<?php echo $_lang["status_passed"] . ' ' . $_lang["status_passed_database_created"];?>';
-
 </script>
+
 <script type="text/javascript">
 /* <![CDATA[ */
   // validate

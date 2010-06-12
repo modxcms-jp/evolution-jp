@@ -579,10 +579,10 @@ if(!$handle) {
 
 if($_REQUEST['mode']=="edit") {
 ?>
-
+<br />
 <ul class="actionButtons">
 	<li><a href="#" onclick="document.editFile.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save']?></a></li>
-	<td id="Button2"><a href="index.php?a=31&path=<?php echo urlencode($_REQUEST['path'])?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+	<li><a href="index.php?a=31&path=<?php echo urlencode($_REQUEST['path'])?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 </ul>
 <?php } ?>
 </div>

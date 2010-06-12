@@ -393,7 +393,7 @@ $j(document).ready(function() {
 		$j("#template optgroup").each( function() {
 			var $this = $j(this);
 			var $visibleOptions = $this.find("option:visible");
-			if ($visibleOptions.length == 0) {
+			if ($visibleOptions.length == 0 && jQuery.browser.opera !== true) {
 				$this.hide();	
 			}
 		});

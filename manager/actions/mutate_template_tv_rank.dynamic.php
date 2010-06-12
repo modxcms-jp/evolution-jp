@@ -108,8 +108,7 @@ $header .= '
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
     		
-    	window.addEvent(\'domready\', function()
-    	{
+        window.addEvent(\'domready\', function() {
 			new Sortables($(\'sortlist\'),
 			{
 				initialize: function()

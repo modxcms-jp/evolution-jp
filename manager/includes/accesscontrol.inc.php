@@ -112,7 +112,11 @@ if(!isset($_SESSION['mgrValidated'])){
 	$modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
 	// load template file
-    $tplFile = $base_path.'assets/templates/manager/login.html';
+	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
+	if(file_exists($tplFile)==false)
+	{
+		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
+	}
     $handle = fopen($tplFile, "r");
 	$tpl = fread($handle, filesize($tplFile));
 	fclose($handle);
@@ -138,11 +142,11 @@ if(!isset($_SESSION['mgrValidated'])){
 	
 	$_SESSION['ip'] = $ip;
 
-	$itemid = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+    $itemid = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
 	$lasthittime = time();
-	$action = isset($_REQUEST['a']) ? $_REQUEST['a'] : '1';
+    $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
-	if($action != '1') {
+    if($action !== 1) {
 		if (!intval($itemid)) $itemid= null;
 		$sql = sprintf('REPLACE INTO %s (internalKey, username, lasthit, action, id, ip)
 			VALUES (%d, \'%s\', \'%d\', \'%s\', %s, \'%s\')',

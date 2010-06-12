@@ -1,67 +1,61 @@
 <?php
-/*
- * ajaxSearchPopup.php
- * Version: 1.8.5 - refactored by coroico (coroico@wangba.fr)
- *
- * Created by: KyleJ (kjaebker@muddydogpaws.com)
- * Created on: 01/03/2007
- *
- * Description: This code is called from the ajax request. It returns the search results.
- *
- * 29/03/2009 - mootools1.2, jquery, maxWords, mbstring parameters, search logs
- * 02/10/2008 - whereSearch, withTvs, new sql query, debug, subSearch
- * 24/07/2008 - Added rank, order & filter, breadcrumbs, tvPhx, cleardefault parameters
- * O2/07/2008 - New extract algorithm, search in tv, jot and maxygallery
- * O2/07/2008 - Added Phx templating & chunk parameters
- * 06/03/2008 - Added Hidden from menu and advanced search
- * 01/02/2008 - Added several fixes and a security patch
- * 17/11/2007 - Added IDs document selection
- * 06/11/2007 - Encoding troubles corrected
- *
- * 01/22/07 - Added templating/language/mootools support
- * 01/03/07 - Added fixes/updates from forum
- * 09/18/06 - Added user permissions to searching
- * 03/20/06 - All variables are set in the main snippet & snippet call
+/** ---------------------------------------------------------------------------
+* Snippet: AjaxSearch
+* -----------------------------------------------------------------------------
+* ajaxSearchPopup.php
+*
+* @author       Coroico - www.modx.wangba.fr
+* @version      1.9.0
+* @date         18/05/2010
+*
 */
 
-if ($_POST['search']) {
+if (isset($_POST['search'])) {
 
-  define('AS_VERSION' , '1.8.5');
-  define ('AS_SPATH' , 'assets/snippets/ajaxSearch/');
-  define('AS_PATH' , MODX_BASE_PATH . AS_SPATH);
+    define('AS_VERSION', '1.9.0');
+    define('AS_SPATH', 'assets/snippets/ajaxSearch/');
+    define('AS_PATH', MODX_BASE_PATH . AS_SPATH);
 
-  require_once(MODX_MANAGER_PATH . '/includes/protect.inc.php');
+    require_once (MODX_MANAGER_PATH . '/includes/protect.inc.php');
+    if (!isset($_POST['as_version']) || ($_POST['as_version'] != AS_VERSION)) {
+        $output = "AjaxSearch version obsolete. <br />Please check the snippet code in MODx manager.";
+    }
+    else {
+        include_once AS_PATH . "classes/ajaxSearch.class.inc.php";
 
-  if (!isset($_POST['as_version']) || ($_POST['as_version'] != AS_VERSION )) {
-    $output = "AjaxSearch version obsolete. <br />Please check the snippet code in MODx manager.";
-  }
-  else {
-    // include the ajaxSearchPopup class
-    include_once AS_PATH."classes/ajaxSearchPopup.class.inc.php";
+        define('MODX_API_MODE', true);
+        include_once (MODX_MANAGER_PATH . '/includes/document.parser.class.inc.php');
+        $modx = new DocumentParser;
+        $modx->db->connect();
+        $modx->getSettings();
+        startCMSSession();
 
-    // Setup the MODx API
-    define('MODX_API_MODE', true);
-    // initiate a new document parser
-    include_once(MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php');
-    $modx = new DocumentParser;
-
-    $modx->db->connect();
-    $modx->getSettings();
-
-    // Load the default configuration $dcfg to get the default values
-    $as_default = AS_PATH . 'configs/default.config.php';
-    if (file_exists($as_default)) include $as_default;
-    else return  "<h3> $as_default not found !<br />Check the existing of this file!</h3>";
-    if (!isset($dcfg)) return  "<h3> default configuration array not defined in $as_default!<br /> Check the content of this file!</h3>";
-
-    // get the user configuration string
-    $ucfg = $_POST['ucfg'];
-
-    $asp = new ajaxSearchPopup(AS_VERSION,$dcfg,$ucfg);
-    $output = $asp->run();
-  }
-
-  echo $output;
-
+        $tstart = $modx->getMicroTime();
+        $default = AS_PATH . 'configs/default.config.php';
+        if (file_exists($default)) include $default;
+        else return "<h3>AjaxSearch error: $default not found !<br />Check the existing of this file!</h3>";
+        if (!isset($dcfg)) return "<h3>AjaxSearch error: default configuration array not defined in $default!<br /> Check the content of this file!</h3>";
+        $ucfg = parseUserConfig($_POST['ucfg']);
+        // Load the custom functions of the custom configuration file if needed
+        if ($ucfg['config']) {
+            $config = $ucfg['config'];
+            $lconfig = (substr($config, 0, 5) != "@FILE") ? AS_PATH . "configs/$config.config.php" : $modx->config['base_path'] . trim(substr($config, 5));
+            if (file_exists($lconfig)) include $lconfig;
+            else return "<h3>AjaxSearch error: " . $lconfig . " not found !<br />Check your config parameter or your config file name!</h3>";
+        }
+        $as = new AjaxSearch();
+        $output = $as->run($tstart, $dcfg);
+    }
+    echo $output;
+}
+/*!
+* parseUserConfig : parse the non default configuration from string
+*/
+function parseUserConfig($strUcfg) {
+    $ucfg = array();
+    $pattern = '/&([^=]*)=`([^`]*)`/';
+    preg_match_all($pattern, $strUcfg, $out);
+    foreach ($out[1] as $key => $values) $ucfg[$out[1][$key]] = $out[2][$key];
+    return $ucfg;
 }
 ?>

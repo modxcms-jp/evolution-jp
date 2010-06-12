@@ -1,7 +1,7 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch($_REQUEST['a']) {
+switch((int) $_REQUEST['a']) {
   case 88:
     if(!$modx->hasPermission('edit_web_user')) {
       $e->setError(3);
@@ -38,7 +38,7 @@ if($limit>1) {
 }
 // end check for lock
 
-if($_REQUEST['a']==88) {
+if($_REQUEST['a']=='88') {
 	// get user attributes
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_user_attributes` WHERE $dbase.`".$table_prefix."web_user_attributes`.internalKey = ".$user.";";
 	$rs = mysql_query($sql);
@@ -252,7 +252,7 @@ function showHide(what, onoff){
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="webUserPane">
 	<script type="text/javascript">
-		tpUser = new WebFXTabPane(document.getElementById( "webUserPane" ),false);
+		tpUser = new WebFXTabPane(document.getElementById( "webUserPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
 	</script>
     <div class="tab-page" id="tabGeneral">
     	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>

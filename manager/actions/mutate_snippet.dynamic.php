@@ -1,7 +1,7 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch($_REQUEST['a']) {
+switch((int) $_REQUEST['a']) {
   case 22:
     if(!$modx->hasPermission('edit_snippet')) {
       $e->setError(3);
@@ -300,7 +300,7 @@ function decode(s){
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="snipetPane">
 	<script type="text/javascript">
-		tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"),false);
+		tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
 	</script>
 
 	<!-- General -->
@@ -379,8 +379,7 @@ function decode(s){
 		  </tr>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</td>
-			<td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox" style="width:300px;" onChange="showParameters(this);documentDirty=true;">
-			<input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
+			<td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox" style="width:300px;" onChange="showParameters(this);documentDirty=true;"></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>

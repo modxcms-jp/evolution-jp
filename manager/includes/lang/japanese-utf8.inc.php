@@ -4,10 +4,11 @@
  * Function:       Language file.
  * Encoding:       UTF8
  * Author:         MODx CMS JAPAN
- * Date:           2010/03/30
+ * Date:           2010/05/19
  * Version:        2.0.5
- * MODx version:   Evolution 1.0.3
+ * MODx version:   Evolution 1.0.4
 */
+//$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
 define('MAGPIE_OUTPUT_ENCODING', 'UTF-8');
@@ -53,6 +54,7 @@ $_lang["add_template"] = 'テンプレートの追加';
 $_lang["add_tv"] = 'テンプレート変数の追加';
 $_lang["add_weblink"] = 'ウェブリンクの作成';
 $_lang["administrator_role_message"] = 'このロールは編集・削除できません。';
+$_lang['administrators'] = '管理者のみ(Administrator)';
 $_lang["after_saving"] = '保存後は';
 $_lang["alert_delete_self"] = '自分自身を削除することはできません。';
 $_lang["alias"] = 'エイリアス';
@@ -79,7 +81,7 @@ $_lang["captcha_words_default"] = 'isono,fuguta,sazae,masuo,katsuo,wakame,tarao,
 $_lang["captcha_words_message"] = '「CAPTCHAコードの使用」を「はい」にした場合に使用されるCAPTCHAワードリストを入力してください。CAPTCHAワードはカンマで区切って入力します。このフィールドには、255文字まで入力することができます。';
 $_lang["captcha_words_title"] = 'CAPTCHA用ワード';
 $_lang["category_heading"] = 'カテゴリー';
-$_lang["category_msg"] = '<h3 style="font-weight:bold;">全エレメントの一覧</h3><p>このページではカテゴリーでグループ化したエレメントを一覧・編集できます。</p>';
+$_lang["category_msg"] = '<h3 style="font-weight:bold;">全エレメントの一覧</h3><p>カテゴリーでグループ化したエレメントを一覧・編集できます。不要なカテゴリーの削除もこちらで。カテゴリー名が削除されるだけで、エレメントは「カテゴリーなし」に移動します。</p>';
 $_lang["cfg_base_path"] = 'MODX_BASE_PATH';
 $_lang["cfg_base_url"] = 'MODX_BASE_URL';
 $_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
@@ -133,7 +135,7 @@ $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限�
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていないことを意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
 $_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
-$_lang["configcheck_validate_referer_msg"] = "<a href=\"index.php?a=17\">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。<br /><a href=\"javascript:hideHeaderVerificationWarning();\"><em>今後この警告を表示しない</em></a>";
+$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。<br /><a href="javascript:hideHeaderVerificationWarning();"><em>今後この警告を表示しない</em></a>';
 $_lang["configcheck_warning"] = '警告 ';
 $_lang["configcheck_what"] = 'どういう意味ですか?';
 $_lang["confirm_block"] = 'このユーザーをアクセス拒否してもよろしいですか?';
@@ -181,7 +183,7 @@ $_lang["database_server"] = 'データベースサーバー';
 $_lang["database_table_clickbackup"] = '選択したテーブルをバックアップ・ダウンロード';
 $_lang["database_table_clickhere"] = 'ここをクリック';
 $_lang["database_table_datasize"] = 'データサイズ';
-$_lang["database_table_droptablestatements"] = 'DROP文を生成';
+$_lang["database_table_droptablestatements"] = 'DROP文を生成(※推奨)';
 $_lang["database_table_effectivesize"] = '有効サイズ';
 $_lang["database_table_indexsize"] = 'インデックス';
 $_lang["database_table_overhead"] = 'オーバーヘッド';
@@ -260,6 +262,7 @@ $_lang["event_id"] = 'イベントID';
 $_lang["eventlog"] = 'イベントログ';
 $_lang["eventlog_msg"] = 'イベントログはMODxのシステムが出力する告知・警告・エラーの各メッセージを記録するものです。';
 $_lang["eventlog_viewer"] = 'イベントログ';
+$_lang["everybody"] = '全メンバー';
 $_lang["existing_category"] = '既存のカテゴリー';
 $_lang["expand_tree"] = 'サイトツリーを展開';
 $_lang["export_site"] = 'サイトのエクスポート';
@@ -271,8 +274,8 @@ $_lang["export_site_failed_no_retrieve"] = 'リソースが見つかりません
 $_lang["export_site_failed_no_write"] = 'ファイルを書き込めません。';
 $_lang["export_site_html"] = 'サイト全体を静的HTMLとしてエクスポート';
 $_lang["export_site_maxtime"] = '最大エクスポート時間 ';
-$_lang["export_site_maxtime_message"] = 'エクスポート処理の制限時間を秒数で指定してください(PHPの設定を上書きします)。0を入力すると無制限に設定できますが、通常は制限時間を設定するようおすすめします。';
-$_lang["export_site_message"] = '<p>サイト全体をHTMLファイルとしてエクスポート(一括書き出し)できます。書き出したファイルをまとめてサーバ上に転送すれば、通常のサイトと同様の運用が可能です。</p><ul><li>エクスポートファイルは静的なhtmlファイルなので、動的なスニペットは動作しません。</li><li>リソースにリダイレクトヘッダを送信するスニペットが含まれている場合、エクスポートプロセスが失敗する場合があります。</li></ul><p>フォームに必要事項を入力して「エクスポートの開始」をクリックすると処理を開始します。作成されたファイルは、リソースエイリアスをファイル名として、指定した場所に保存されます。サイトをエクスポートする場合、グローバル設定で「フレンドリエイリアス」を「はい」にすることをお勧めします。サイトのサイズにより、エクスポートにしばらく時間を要する場合もあります。</p><p><em>ファイル名が同じ場合、新しいファイルは既存のファイルに上書きされます</em></p>';
+$_lang["export_site_maxtime_message"] = 'エクスポート処理の制限時間を秒数で指定してください(<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの設定</a>を上書きします)。0を入力すると無制限に設定できますが、通常は制限時間を設定するようおすすめします。';
+$_lang["export_site_message"] = '<p>サイト全体をHTMLファイルとしてエクスポート(一括書き出し)できます。書き出したファイルをまとめてサーバ上に転送すれば、通常のサイトと同様の運用が可能です。</p><ul><li>エクスポートファイルは静的なhtmlファイルなので、動的なスニペットは動作しません。</li><li>リソースにリダイレクトヘッダを送信するスニペットが含まれている場合、エクスポートが失敗する場合があります。</li><li>exportディレクトリ内のファイルは処理の直前に全て消去されます。</li></ul><p><a href="index.php?a=17">グローバル設定</a>で「フレンドリーURLの使用」を「はい」にしてください。サイトの規模によっては、エクスポートにしばらく時間を要する場合もあります。</p><p><em>ファイル名が同じ場合、新しいファイルは既存のファイルに上書きされます</em></p>';
 $_lang["export_site_numberdocs"] = '<p><strong>%s 個のエクスポート対象リソースが見つかりました...</strong><p/>';
 $_lang["export_site_prefix"] = 'ファイル名の接頭辞 ';
 $_lang["export_site_start"] = 'エクスポートの開始';
@@ -379,8 +382,8 @@ $_lang["import_site_failed_no_retrieve_file"] = 'ファイルが見つかりま�
 $_lang["import_site_html"] = 'HTMLからサイトをインポート';
 $_lang["import_site_importing_document"] = 'インポート中のファイル <strong>%s</strong> ';
 $_lang["import_site_maxtime"] = 'インポート時間の上限 ';
-$_lang["import_site_maxtime_message"] = 'MODxがサイトのインポート処理に使用できる最大秒数を指定します。（PHPの指定処理秒数を上書きします）0は処理時間の制限なしを意味します。0や大きな数字を指定することはサーバーに負荷をかけ問題を起こしやすくなるため、お勧めできません。';
-$_lang["import_site_message"] = 'この機能を使うと、HTMLで記述されたサイトを丸ごとデータベースにインポートすることができます。まずインポートするファイルやディレクトリをassets/importディレクトリにコピーします。</p><p>「インポート開始」ボタンをクリックすればスタートします。インポートしたファイルのデータはサイトツリーの選択した場所に格納されます。ファイル名はエイリアスになり、ページタイトルはリソース名(pagetitle)になります。</p><p>&lt;body&gt;要素の内側がそのまま取り込まれます。&lt;head&gt;要素は&lt;title&gt;要素のみ取り込みます。';
+$_lang["import_site_maxtime_message"] = 'MODxがサイトのインポート処理に使用できる最大秒数を指定します。（<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの指定処理秒数</a>を上書きします）「0」を指定すると処理時間を制限しませんが、想定外の負荷が発生する恐れがあるため注意してください。';
+$_lang["import_site_message"] = 'HTMLで記述されたサイトを丸ごとデータベースにインポートします。htmlファイルをディレクトリごと /assets/import/ ディレクトリにコピーし、「インポート開始」ボタンをクリックすればスタートします。ファイル名はエイリアスになり、&lt;title&gt;要素はリソース名 [*pagetitle*] になります。</p><p>&lt;body&gt;要素の内側がそのまま取り込まれます。&lt;head&gt;要素は&lt;title&gt;要素のみ取り込みます。<br />左側のサイトツリー上の任意のリソースをクリックすると<b>「親リソース」</b>(インポート先)を変更できます。';
 $_lang["import_site_skip"] = '処理をスキップしました';
 $_lang["import_site_start"] = 'インポート開始';
 $_lang["import_site_success"] = '成功';
@@ -664,6 +667,8 @@ $_lang["refresh_site"] = 'サイトをリフレッシュ';
 $_lang["refresh_title"] = 'サイトをリフレッシュ';
 $_lang["refresh_tree"] = 'サイトツリーの再描画';
 $_lang["refresh_unpublished"] = '<strong>%s</strong>件のリソースが非公開に戻りました。';
+$_lang["remember_last_tab"] = 'アクティブなタブを記憶する';
+$_lang["remember_last_tab_message"] = 'タブ構成のページ(投稿画面・エレメント編集画面・グローバル設定など)において、最後に開いたタブを記憶します。';
 $_lang["remember_username"] = 'ログイン情報を記憶する';
 $_lang["remove"] = '削除';
 $_lang["remove_date"] = '日付を削除';
@@ -778,6 +783,7 @@ $_lang["role_new_user"] = 'ユーザーの作成';
 $_lang["role_new_web_user"] = 'ウェブユーザーの作成';
 $_lang["role_plugin_management"] = 'プラグイン管理';
 $_lang["role_publish_doc"] = 'リソースの公開';
+$_lang['role_remove_locks'] = 'ロックの解除';
 $_lang["role_role_management"] = 'ロール管理';
 $_lang["role_run_module"] = 'モジュールの実行';
 $_lang["role_save_chunk"] = 'チャンクの保存';
@@ -903,7 +909,7 @@ $_lang["sysinfo_userid"] = 'ユーザー';
 $_lang["system_email_signup"] = "こんにちは [+uid+] さん\n\n「[+sname+] ([+surl+])」のコンテント管理システムへのログイン情報について下記のとおりお知らせします。\n\nログインユーザー名: [+uid+]\nパスワード: [+pwd+]\n\nコンテント管理システムへログインすれば、自分のパスワードは自由に変更できます。\n\n以上、よろしくお願いします。\nサイト管理者より";
 $_lang["system_email_webreminder"] = "こんにちは [+uid+] さん\n\n新しいパスワードを有効にするためには、下記のリンクをクリックしてください。\n\n[+surl+]\n\n処理完了後、下記のパスワードをログインに使用できるようになります。\n\nパスワード:[+pwd+]\n\nこのメールに覚えが無いときは無視して下さい。\n\n以上、よろしくお願いします。\nサイト管理者より";
 $_lang["system_email_websignup"] = "こんにちは [+uid+] さん\n\n「[+sname+] ([+surl+])」へのログイン情報について下記のとおりお知らせします。\n\nログインユーザー名: [+uid+]\nパスワード: [+pwd+]\n\n [+sname+]へログインすれば、自分のパスワードは自由に変更できます。\n\n以上、よろしくお願いします。\nサイト管理者より";
-$_lang["table_hoverinfo"] = 'テーブル名にマウスカーソルを重ねると簡単な説明文を表示します（一部のテーブルのみ）。';
+$_lang["table_hoverinfo"] = 'ここで取得したSQLファイルを用いて、サイトをリストアできます。phpMyAdminなどを用いてSQLファイルをインポートします。「DROP文を生成」にチェックを入れておくと、インポート時にテーブルを作り直すため、より確実にサイトを再現できます。<br /><strong style="color:red;">【注意】</strong>_event_logテーブルと_manager_logテーブルのサイズに注意してください。SQLファイルのサイズがあまりにも大きいとインポートに失敗することがありますが、この2つのテーブルが肥大の原因になっていることが多いです。「データサイズ」のリンクをクリックしてログをリセットするか、これら2つのテーブルをバックアップ対象から外すとよいでしょう。';
 $_lang["table_prefix"] = 'テーブル接頭辞';
 $_lang["tag"] = 'タグ';
 $_lang["template"] = 'テンプレート';
@@ -934,7 +940,7 @@ $_lang["tmplvars_caption"] = '見出し';
 $_lang["tmplvars_default"] = '既定値';
 $_lang["tmplvars_description"] = '説明';
 $_lang["tmplvars_elements"] = '入力時のオプション値';
-$_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>リソース変数を追加・管理できます。これは「テンプレート変数」と呼ばれるもので、一般的なCMSで言うところのカスタムフィールドに相当します。「タイトル」や「内容」などの既定の項目に加え、自由に項目を追加できます。</p>';
+$_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>一般的なCMSで言うところのカスタムフィールドに相当します。「タイトル」や「内容」などの既定の項目に加え、投稿画面上に自由に項目を追加できます。</p>';
 $_lang["tmplvars_msg"] = 'テンプレート変数を作成・編集します。このテンプレート変数を使用するテンプレートを「テンプレートへのアクセス」で関連付けてください。';
 $_lang["tmplvars_name"] = '変数名';
 $_lang["tmplvars_novars"] = 'テンプレート変数はありません。';
@@ -1034,6 +1040,8 @@ $_lang["view_logging"] = '管理操作ログ';
 $_lang["view_sysinfo"] = 'システム情報';
 $_lang["warning"] = '警告 ';
 $_lang["warning_not_saved"] = '変更が保存されていません。変更を保存するためには「キャンセル」をクリックし現在のページに戻ってください。また、「OK」をクリックして全ての変更を破棄することもできます。';
+$_lang["warning_visibility"] = 'ダッシュボードの警告表示';
+$_lang["warning_visibility_message"] = 'ダッシュボードの警告を表示する<a href="index.php?a=86">対象ロール</a>を設定します。';
 $_lang["web_access_permissions"] = 'サイト上のアクセス許可';
 $_lang["web_access_permissions_user_groups"] = 'ウェブユーザーグループ';
 $_lang["web_permissions"] = 'サイト上のアクセス許可';
@@ -1064,5 +1072,4 @@ $_lang["yourinfo_role"] = '所属ロール(役割) ';
 $_lang["yourinfo_title"] = 'あなたの情報';
 $_lang["yourinfo_total_logins"] = '合計ログイン回数は ';
 $_lang["yourinfo_username"] = 'ログイン名は ';
-
 ?>

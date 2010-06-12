@@ -102,7 +102,7 @@ a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;paddin
 <p><img src="install/img/install_begin.png" /></p>
 <p>MODxがインストールされていないか設定ファイルが見つかりません。</p>
 <p>今すぐインストールしますか？</p>
-<p><a href="install/index.php?action=mode">はい</a> / <a href="http://modxcms-jp.com/news/159.html">いいえ</a></p>
+<p><a href="install/index.php?action=mode">はい</a> / <a href="http://modxcms-jp.com/news/163.html">いいえ</a></p>
 </div>';
 		exit;
 	}

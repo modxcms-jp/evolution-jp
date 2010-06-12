@@ -102,6 +102,7 @@ if($limit<1) {
 
 			for ($i = 0; $i < $limit; $i++) { 
 				$logentry = $modx->db->getRow($rs);
+
 	// figure out the icon for the document...
 	$icon = "";
 		if ($logentry['type']=='reference') {
