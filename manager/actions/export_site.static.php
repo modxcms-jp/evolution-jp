@@ -303,7 +303,6 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 	$totaltime = ($exportend - $exportstart);
 	printf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
 ?>
-<p />
 <ul class="actionButtons">
 	<li><a href="#" onclick="reloadTree();"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
 </ul>

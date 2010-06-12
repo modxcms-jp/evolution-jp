@@ -120,7 +120,6 @@ function deletedocument() {
     		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
-</div>
 
 <?php if ($_REQUEST['a'] == 16) { ?>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
@@ -139,10 +138,10 @@ function deletedocument() {
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
 	<?php } ?>
 
-	<?php echo $_lang['template_msg']; ?><p />
+	<?php echo $_lang['template_msg']; ?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
 	  <tr>
-	    <td align="left"><img src="media/style/<?php echo $manager_theme; ?>/images/_tx_.gif" width="100" height="1"></td>
+	    <td align="left"><img src="<?php echo $_style['tx']; ?>" width="100" height="1" /></td>
 	    <td align="left">&nbsp;</td>
 	  </tr>
 	  <tr>
@@ -198,7 +197,7 @@ $limit = $modx->db->getRecordCount($rs);
 	?>
 	</div>
 	<div class="tab-page" id="tabAssignedTVs">
-    	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2><p />
+    	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
     	<p><?php if ($limit > 0) echo $_lang['template_tv_msg']; ?></p>
     	<p><?php if($modx->hasPermission('save_template') && $limit > 1) { ?><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a><?php } ?></p>

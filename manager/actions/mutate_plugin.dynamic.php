@@ -434,7 +434,6 @@ window.addEvent('domready', function() {
     		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
-</div>
 
 <div class="sectionBody">
 <p><?php echo $_lang['plugin_msg']; ?></p>

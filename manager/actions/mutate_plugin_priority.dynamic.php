@@ -107,11 +107,11 @@ $header = '
 		ul.sortableList li {
 			font-weight: bold;
 			cursor: move;
-			color: grey;
+			color: #5F5F5F;
 			padding: 2px 2px;
 			margin: 4px 0px;
-			border: 1px solid #000000;
-			background-image: url("media/style/'.$useTheme.'images/bg/grid_hdr.gif");
+			border: 1px solid #CFCFCF;
+			background-image: url("media/style/'.$useTheme.'images/misc/tabareabg.gif");
 			background-repeat: repeat-x;
 		}
 

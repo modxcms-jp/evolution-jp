@@ -170,7 +170,7 @@ if(!$modx->hasPermission('logs')) {
 
 <!-- database -->
 <div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div><div class="sectionBody" id="lyr4">
-		<p><?php echo $_lang['table_hoverinfo']; ?><p />
+		<p><?php echo $_lang['table_hoverinfo']; ?></p>
 		<table class="grid">
 		 <thead>
 		 <tr>
@@ -254,7 +254,6 @@ if(!$modx->hasPermission('logs')) {
 	if($totaloverhead>0) { ?>
 		<p><?php echo $_lang['database_overhead']; ?></p>
 		<?php } ?>
-</form>
 </div>
 
 <!-- online users -->

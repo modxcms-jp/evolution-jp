@@ -594,7 +594,7 @@ if (is_array($evtOut))
 						$thisCategory = $_lang["no_category"];
 					}
 					if($thisCategory != $currentCategory) {
-						if($thisCategory != '') {
+						if($closeOptGroup) {
 							echo "\t\t\t\t\t</optgroup>\n";							
 						}
 						echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";

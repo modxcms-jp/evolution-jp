@@ -301,7 +301,7 @@ class synccache{
 			printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
 			$limit = count($deletedfiles);
 			if($limit > 0) {
-				echo '<p />'.$_lang['cache_files_deleted'].'<ul>';
+				echo '</p>'.$_lang['cache_files_deleted'].'<ul>';
 				for($i=0;$i<$limit; $i++) {
 					echo '<li>',$deletedfiles[$i],'</li>';
 				}

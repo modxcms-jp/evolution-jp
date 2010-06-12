@@ -141,7 +141,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
         $html = "<p>".$_lang['no_active_users_found']."</p>";
     } else {
         $html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
-                <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#707070">
+                <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#CCCCCC">
                   <thead>
                     <tr>
                       <td><b>'.$_lang["onlineusers_user"].'</b></td>
@@ -157,7 +157,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
             $activeusers = mysql_fetch_assoc($rs);
             $currentaction = getAction($activeusers['action'], $activeusers['id']);
             $webicon = ($activeusers['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":"";
-            $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>$webicon&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>$currentaction</td></tr>";
+            $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>{$webicon}&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
         }
         $html.= '
                 </tbody>

@@ -21,7 +21,7 @@ if (ini_get('register_globals')==TRUE) {
     $warnings[] = array($_lang['configcheck_register_globals']);
 }
 
-if (!extension_loaded('gd') || !extension_loaded('zip')) {
+if (!extension_loaded('gd')) {
 	$warningspresent = 1;
 	$warnings[] = array($_lang['configcheck_php_gdzip']);
 }

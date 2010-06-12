@@ -102,7 +102,7 @@ $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">�
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定を変更できます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベース設定の変更を伴うアップデートが必要な場合はこちらを選んでください。<br />';
 $_lang["installation_upgrade_existing"] = '通常アップデート';
-$_lang["installation_upgrade_existing_note"] = 'コアファイル・リソースファイルの両方とデータベースをアップデートします。';
+$_lang["installation_upgrade_existing_note"] = '通常のアップデートはこのオプションを。コアファイル・リソースファイルの両方とデータベースをアップデートします。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';	// for html element e.g. <html xml:lang="ja" lang="ja">

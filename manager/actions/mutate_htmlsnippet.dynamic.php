@@ -197,7 +197,6 @@ if (is_array($evtOut))
 					}
 				}
 ?>	</select>
-		</div>
 </div><!-- end .sectionBody -->
 <?php
 

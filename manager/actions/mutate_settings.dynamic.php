@@ -161,7 +161,7 @@ function confirmLangChange(el, lkey, elupd){
 }
 
 </script>
-<form name="settings" action="index.php?a=30" method="post" />
+<form name="settings" action="index.php?a=30" method="post">
 
 	<h1><?php echo $_lang['settings_title']; ?></h1>
 
@@ -532,7 +532,7 @@ function confirmLangChange(el, lkey, elupd){
               <td colspan="2"><div class='split'></div></td>
             </tr>
 			<tr>
-              <td nowrap class="warning"><?php echo $_lang["rss_url_news_title"] ?></b></td>
+              <td nowrap class="warning"><?php echo $_lang["rss_url_news_title"] ?></td>
               <td ><input onchange="documentDirty=true;" type='text' maxlength='350' style="width: 350px;" name="rss_url_news" value="<?php echo isset($rss_url_news) ? $rss_url_news : $_lang["rss_url_news_default"] ; ?>" /></td>
             </tr>
 			<tr>
@@ -543,7 +543,7 @@ function confirmLangChange(el, lkey, elupd){
               <td colspan="2"><div class='split'></div></td>
             </tr>
 			<tr>
-              <td nowrap class="warning"><?php echo $_lang["rss_url_security_title"] ?></b></td>
+              <td nowrap class="warning"><?php echo $_lang["rss_url_security_title"] ?></td>
               <td ><input onchange="documentDirty=true;" type='text' maxlength='350' style="width: 350px;" name="rss_url_security" value="<?php echo isset($rss_url_security) ? $rss_url_security : $_lang["rss_url_security_default"] ; ?>" /></td>
             </tr>
 			<tr>
@@ -887,6 +887,20 @@ function confirmLangChange(el, lkey, elupd){
               <td width="200">&nbsp;</td>
               <td class='comment'><?php echo $_lang["manager_theme_message"]?></td>
             </tr>
+            <tr>
+              <td colspan="2"><div class='split'></div></td>
+            </tr>
+             <tr>
+      		   <td nowrap class="warning"><b><?php echo $_lang["tree_page_click"] ?></b></td>
+      		   <td> <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo ($tree_page_click=='27' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
+      			 <?php echo $_lang["edit_resource"]?><br />
+      			 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo ($tree_page_click=='3') ? 'checked="checked"' : ""; ?> />
+      			 <?php echo $_lang["doc_data_title"]?></td>
+      		 </tr>
+             <tr>
+               <td width="200">&nbsp;</td>
+               <td class='comment'><?php echo $_lang["tree_page_click_message"]?></td>
+             </tr>
             <tr>
               <td colspan="2"><div class='split'></div></td>
             </tr>

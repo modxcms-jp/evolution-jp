@@ -3,146 +3,7 @@
 <html>
 <head>
 	<title>eForm example</title>
-		<style type="text/css">
-
-*{
-font-family:arial, helvetica, sans-serif;
-font-size:10pt;
-border-width:1px;
-border-color:#003399;
-}
-
-body{
-background-color:#a4d1f9;
-}
-
-h1, h2, h3{
-margin-bottom:0;
-color:#003399;
-}
-
-h1{
-margin-top:0;
-margin-bottom:20px;
-font-size:20pt;
-text-align:center;
-border-bottom-style:solid;
-border-color:#e78900;
-}
-
-h2{
-font-size:12pt;
-}
-
-hr{
-color:#ffffff;
-border-style:none none solid none;
-border-color:#e78900;
-}
-
-p{
-margin-top:0;
-}
-
-ul{
-margin:0 0 0 10px;
-padding:0;
-list-style-type:square;
-}
-
-code{
-font-family:monospace;
-color:#666666;
-}
-
-a{
-color:#e78900;
-text-decoration:none;
-}
-
-a:hover{
-border-bottom-style:dashed;
-}
-
-#qe_logo{
-float:right;
-margin:0 57px 20px 57px;
-}
-
-#qe_toc{
-width:200px;
-margin:0 0 20px 20px;
-padding:20px;
-float:right;
-clear:right;
-border-style:solid;
-background-color:#eaf9ff;
-}
-
-#qe_toc h1{
-margin-top:0;
-font-size:12pt;
-text-align:center;
-}
-
-div.qe_box{
-margin:30px;
-padding:30px;
-border-style:solid;
-background-color:#ffffff;
-}
-
-div.qe_level_2{
-margin-left:20px;
-margin-right:20px;
-}
-
-.qe_salutation{
-margin-left:30px;
-}
-
-.qe_signature{
-font-family:cursive;
-font-size:14pt;
-}
-
-.qe_param_list li{
-	margin:2px;
-	color:#333;
-}
-.qe_param_list li strong{
-	color:#036;
-	font-size:1.02em
-}
-.new{
-	color:#c00;
-	font-weight:bold;
-}
-.codeblock{
-	margin:10px 0;
-	padding:5px;
-	background:#eaeaea;
-	border:1px solid #999;
-	font-family:monospace;
-	white-space: nowrap;
-	overflow: auto;
-	max-height: 24em;
-	clear:right;
-}
-
-.qe_param_list li{
-	margin:2px;
-	color:#333;
-}
-.qe_param_list li strong{
-	color:#036;
-	font-size:1.02em
-}
-.new{
-	color:#c00;
-	font-weight:bold;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="style.css" />
 <SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript">
 <!--
 function toggleImage(i){
@@ -182,7 +43,7 @@ function toggleImage(i){
 <h2>The Job Request Form</h2>
 <p>As you'll see I've kept the form and the report template fairly simple. The only thing of note in the form perhaps is the file upload field.  Notice that we don't have to do anything special, eForm will automatically attach the uploaded file to the email it sends out. With eForm 1.4 you can restrict the types of files that are accepted by the #LIST validation rule. As you can see in the source belwo we're using that to restrict the upload to files that have an extension of 'pdf','txt' and 'doc'.</p>
 
-<p><a href="#" onclick="toggleImage('myImage');">View or hide</a> an image of the form.<br /><img id="myImage" src="example_2_form_1.gif" width="510" height="553" alt="" border="0" title="" style="display:none;" />
+<p><a href="#" onclick="toggleImage('myImage');">View or hide</a> an image of the form.<br /><img id="myImage" src="example_2_form_1.png" width="510" height="553" alt="" border="0" title="" style="display:none;" />
 </p>
 
 <h3 style="clear:both">The form Template</h3>
@@ -283,7 +144,7 @@ If you are using eForm 1.4 you can instead use the <strong>id</strong> attribute
 <h2>Our second (e)Form - The Status Request Form</h2>
 <p><br />Let's add a second eForm call on the page. Pretty much the same scenario, different form template, report and snippet call. eForm will know which form to process using the <code>&formid</code> parameter which is set in the snippet call and as a hidden field in the forms. As of 1.4 you actually don't have to have a hidden field for this. You can instead assign an id to the form tag itself i.e. <code>&lt;form id=&quot;jobRequest&quot; ... &gt;</code></p>
 <h3>The status request form</h3>
-<p><img src="example_2_form_2.gif" width="510" height="167" alt=""  border="0" title=""/></p>
+<p><img src="example_2_form_2.png" width="510" height="167" alt=""  border="0" title=""/></p>
 
 </div>
 <h3>The form template</h3>

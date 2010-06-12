@@ -718,7 +718,7 @@ a.hometblink:hover {
 	z-index: 10000;
 }
 .cntxMnuItem {
-	background-image: url(images/_tx_.gif);
+	background-image: url(images/misc/_tx_.gif);
 	cursor: pointer;
 	color: #333;
 	padding: 3px 16px 3px 2px;
