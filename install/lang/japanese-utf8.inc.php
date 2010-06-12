@@ -68,7 +68,7 @@ $_lang["connection_screen_default_admin_password_confirm"] = 'パスワード(�
 $_lang["connection_screen_default_admin_user"] = 'デフォルトの管理アカウント作成';
 $_lang["connection_screen_defaults"] = '管理アカウントの初期設定';
 $_lang["connection_screen_server_connection_information"] = 'データベースホストへの接続';
-$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※MODx本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。';
+$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※MODx本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。<br />※通常の運用ではWebサーバがデータベースサーバを兼ねるためホスト名は<a href="http://www.google.com/search?q=localhost&lr=lang_ja" target="_blank">「localhost」</a>となりますが、さくらインターネット・ロリポップ・エックスサーバーなどメジャーなレンタルサーバでは専用のサーバを指定するケースが多いです。ご確認ください。';
 $_lang["connection_screen_server_test_connection"] = 'ここをクリックして、接続テストを行ってください。';
 $_lang["connection_screen_table_prefix"] = 'Tableプリフィクス:';
 $_lang["creating_database_connection"] = 'データベース接続: ';
@@ -120,7 +120,7 @@ $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = 'not found';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
-$_lang["optional_items_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。<br /><b style="color:red;">【アップデート時の注意】</b> ここで選択したものは全てインストールされます。<b style="color:red;">同じ名前・同じバージョンのものはそのまま上書きされます</b>ので、mm_rulesやWebLoginSidebarなどのチャンクをカスタマイズしている場合は<b style="color:red;">チェックを外してください。</b><br />バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。<br />※今回より<b style="color:red;">AjaxSearch</b>の出力や機能・パラメータ形式などの仕様が一部変更になっています。すでにAjaxSearchを運用している場合はご注意ください。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。同時にインストールされるeForm用テンプレートチャンクなどは、初めてMODxを試す場合は参考になります。';
+$_lang["optional_items_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。<br /><b style="color:red;">【アップデート時の注意】</b> ここで選択したものは全てインストールされます。<b style="color:red;">同じ名前・同じバージョンのものはそのまま上書きされます</b>ので、mm_rulesやWebLoginSidebarなどのチャンクをカスタマイズしている場合は<b style="color:red;">チェックを外してください。</b><br />バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。<br />※1.0.3J-r2より<b style="color:red;">AjaxSearch</b>の出力や機能・パラメータ形式などの仕様が一部変更になっています。すでにAjaxSearchを運用している場合はご注意ください。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。同時にインストールされるeForm用テンプレートチャンクなどは、初めてMODxを試す場合は参考になります。';
 $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form

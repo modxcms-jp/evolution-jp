@@ -1,7 +1,7 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.4 ($Rev: 6869 $ - $Date: 2010-05-25 06:11:14 +0900 (火, 25 5 2010) $)
+MODx Evolution 1.0.4 ($Rev: 6978 $ - $Date: 2010-06-07 14:14:12 -0500 (Mon, 07 Jun 2010) $)
 ===================================
 --------------------------------------------
 Security:
@@ -11,6 +11,8 @@ Security:
 --------------------------------------------
 Bugfixes:
 --------------------------------------------
+* [#MODX-1957] Danish language file update
+* [#MODX-2018] Fix Multiple TinyMCE plugins activated after upgrade
 * [#MODX-1865] 1.02 to 1.03 Upgrade Error with mySQL STRICT mode, "Templates: Incorrect integer value"
 * [#MODX-1883] WebLoginSideBar chunk "forget" typo
 * [#MODX-1880] Superfluous single quote in tree.php
@@ -41,7 +43,7 @@ Bugfixes:
 * [#MODX-1963] DocManager, after tree sorting, can show document tree JS alert
 * [#MODX-1947] and [#MODX-1956] Allow $modx->getDocumentObject() to get other documents than the currently requested
 * [#MODX-1927] Manager Log fails to display when there are too many log entries
-* [#MODX-1990] Update common transliteration table for TransAlias plugin [#ADDON-152]
+* [#MODX-1990] Update common transliteration table for TransAlias plugin [#ADDON-152], update InheritTemplate plugin to include Sibling option
 
 --------------------------------------------
 Additional Improvements & Updates:
@@ -56,6 +58,7 @@ Additional Improvements & Updates:
 * [#MODX-1935] Style tweaks to table bgcolor in various places
 * [#MODX-1888] Add setting for allowing control over remembering the last tab viewed or not
 * [#MODX-1977] When previewing, use friendly URLs (if enabled)
+* [#MODX-2009] Clean up handling of 'a' variable in Manager (and related type casting changes)
 
 MODx Evolution 1.0.3 (Apr 1, 2010)
 ===================================
@@ -187,7 +190,6 @@ Bugfixes:
 * [#MODX-1338] Alias field accepts percent character
 * [#MODX-1215] Unixtime widget uses wrong pattern for MySQL date string
 * [#MODX-1364] Add check for tokenizer extension in cache_sync processor
-* [#MODX-1367] SQL duplicate id when duplicating minimal template
 
 --------------------------------------------
 Additional Improvements & Updates:

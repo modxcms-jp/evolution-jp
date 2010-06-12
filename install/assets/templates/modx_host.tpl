@@ -56,7 +56,7 @@
           <div id="content">
             <div class="post">
               <h2>[*longtitle*]</h2>
-              [*content*] </div>
+              [*#content*] </div>
             <!-- close .post (main column content) -->
           </div>
           <!-- close #content -->

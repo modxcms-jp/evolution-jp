@@ -648,7 +648,7 @@ class AjaxSearchResults {
     function cleanText($text, $stripOutput) {
         global $modx;
         if (($stripOutput) && function_exists($stripOutput)) $text = $stripOutput($text);
-        else $text = $this->asOutput->defaultStripOutput($text);
+        else $text = $this->defaultStripOutput($text);
 
         return $text;
     }
@@ -687,6 +687,7 @@ class AjaxSearchResults {
         $globalDelimiter = '|';
         $localDelimiter = ',';
 
+        $results = $this->_doFilterTags($results, $searchString, $advSearch);
 
         $filter = $this->asCfg->cfg['filter'];
         if ($filter) {
@@ -732,7 +733,6 @@ class AjaxSearchResults {
         }
         return $results;
     }
-
     /*
     *  Do basic comparison filtering
     */
@@ -857,6 +857,40 @@ class AjaxSearchResults {
         return $Ids;
     }
     /*
+    *  Filter the search results when the search terms are found inside HTML or MODx tags
+    */
+    function _doFilterTags($results, $searchString, $advSearch) {
+        $filteredResults = array();
+        $nbr = count($results);
+        for($i=0;$i<$nbr;$i++) {
+            if ($advSearch === NOWORDS) $found = true;
+            else {
+                $text = implode(' ',$results[$i]);
+                $text = $this->defaultStripOutput($text);
+                $found = true;
+                if ($searchString !== '') {
+                    if (($this->asCfg->dbCharset == 'utf8') && ($this->asCfg->cfg['mbstring'])) {
+                        $text = $this->_html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+                        $mbStrpos = 'mb_stripos';
+                        mb_internal_encoding('UTF-8');
+                    }
+                    else {
+                        $text = html_entity_decode($text, ENT_QUOTES);
+                        $mbStrpos = 'stripos';
+                    }
+
+                    $searchList = $this->asCtrl->getSearchWords($searchString, $advSearch);
+                    foreach ($searchList as $searchTerm) {
+                        $found = $mbStrpos($text, $searchTerm);
+                        if ($found !== false) break;
+                    }
+                }
+            }
+            if ($found) $filteredResults[] = $results[$i];
+        }
+        return $filteredResults;
+    }
+    /*
     * Get the array of categories found
     */
     function getResultsCateg() {
@@ -908,6 +942,69 @@ class AjaxSearchResults {
             }
         }
         return array("name" => $resTagName, "nb" => $resTagNb, "restag" => $resResTag);
+    }
+    /*
+    * Default ouput strip function
+    */
+    function defaultStripOutput($text) {
+        if ($text !== '') {
+            // $text = $modx->parseDocumentSource($text); // parse document
+
+            $text = $this->stripLineBreaking($text);
+
+            $text = $this->stripTags($text);
+
+            $text = $this->stripJscripts($text);
+
+            $text = $this->stripHTML($text);
+        }
+        return $text;
+    }
+    /*
+    *  stripLineBreaking : replace line breaking tags with whitespace
+    */
+    function stripLineBreaking($text) {
+
+        $text = preg_replace("'<(br[^/>]*?/|hr[^/>]*?/|/(div|h[1-6]|li|p|td))>'si", ' ', $text);
+        return $text;
+    }
+    /*
+    *  stripTags : Remove MODx sensitive tags
+    */
+    function stripTags($text) {
+
+        $modRegExArray[] = '~\[\[(.*?)\]\]~';
+        $modRegExArray[] = '~\[!(.*?)!\]~';
+        $modRegExArray[] = '!\[\~(.*?)\~\]!is';
+        $modRegExArray[] = '~\[\((.*?)\)\]~';
+        $modRegExArray[] = '~{{(.*?)}}~';
+        $modRegExArray[] = '~\[\*(.*?)\*\]~';
+        $modRegExArray[] = '~\[\+(.*?)\+\]~';
+
+        foreach ($modRegExArray as $mReg) $text = preg_replace($mReg, '', $text);
+        return $text;
+    }
+    /*
+    *  stripJscript : Remove jscript
+    */
+    function stripJscripts($text) {
+
+        $text = preg_replace("'<script[^>]*>.*?</script>'si", "", $text);
+        $text = preg_replace('/{.+?}/', '', $text);
+        return $text;
+    }
+    /*
+    *  stripHtml : Remove HTML sensitive tags
+    */
+    function stripHtml($text) {
+        return strip_tags($text);
+    }
+    /*
+    *  stripHtmlExceptImage : Remove HTML sensitive tags except image tag
+    */
+    function stripHtmlExceptImage($text) {
+        $text = strip_tags($text, '<img>');
+        return $text;
     }
     function getSearchContext() {
         // return the search context

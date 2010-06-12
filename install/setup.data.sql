@@ -218,6 +218,9 @@ REPLACE INTO `{PREFIX}site_tmplvar_templates` VALUES ('3','4','0');
 REPLACE INTO `{PREFIX}site_tmplvar_templates` VALUES ('3','1','0');
 
 
+REPLACE INTO `{PREFIX}site_tmplvar_templates` VALUES ('3','5','0');
+
+
 #
 # Dumping data for table `system_settings`
 #

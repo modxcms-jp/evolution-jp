@@ -65,7 +65,8 @@ ul {margin-bottom:15px;}
 <p>
 スニペットはプラグインと違い、html上の任意の場所に動的出力を実装します。プラグインの実装対象を限定し扱いやすくしたものと考えることもできます。ブログパーツ感覚の手軽さが特長で、プログラミング初心者がphpに親しむにはちょうどいいでしょう。便利なスニペットがすでに多数配布されていますが、ぜひ自作に挑戦し、MODxを通じてプログラミングの楽しさを体感してみてください。</p>
 <p>
-デザインワークとの親和性の高さもスニペットの特長のひとつで、CMSとしてのMODxを象徴する「Ditto」「Wayfinder」などの代表的なアドオンはスニペットとして構成されています。ぜひお試しください。</p>
+デザインワークとの親和性の高さもスニペットの特長のひとつで、CMSとしてのMODxを象徴する「Ditto」「Wayfinder」などの代表的なアドオンはスニペットとして構成されています。ぜひお試しください。<br />
+※上記の例では初心者が理解しやすいecho文を使っていますが、できればreturn文で最後にまとめて値を返すのがよいでしょう。</p>
 
 <h3>プラグインを作ってみよう</h3>
 <p>最もシンプルなプラグインの作例を以下に示します。</p>
@@ -75,12 +76,13 @@ $now = date(ただいまH時i分s秒です。);
 $output = str_replace('現在時刻を表示' , $now, $output);
 </pre>
 <p>システムイベント「OnParseDocument」にチェックを入れ、プラグイン名「現在時刻」として保存します。リソースまたはテンプレート中に「<strong>現在時刻を表示</strong>」という文字列を記述すると、これを現在時刻に変換して出力します。呼び出し場所の記述が必要なスニペットと違い、プラグインはMODxの機能(イベント)に関連付けてプログラムを実行します。一般的なCMSのプラグイン機能のイメージに近いものと言えます。</p>
-<p>MODxの機能を拡張する上で、スニペット以上に自由度が高く対象を幅広く持つ実装が可能です。もともとMODxにはプラグイン機能はなく、コアファイルを改造する形で機能を拡張していましたが、より安全で手間のかからない拡張を実現するためにプラグイン機能が実装されました。スニペットと違い管理画面の拡張も可能で、TinyMCEやManagerManagerなどはプラグインとして構成されています。</p>
+<p>MODxの機能を拡張する上で、スニペット以上に自由度が高く対象を幅広く持つ実装が可能です。もともとMODxにはプラグイン機能はなく、コアファイルを改造する形で機能を拡張していましたが、より安全で手間のかからない拡張を実現するためにプラグイン機能が実装されました。スニペットと違い管理画面の拡張も可能で、TinyMCEやManagerManagerなどはプラグインとして構成されています。<br />
+※スニペットのように値を返す場合は$modx->Event->output(返す値)メソッドを用います。</p>
 
 <h3>基本的なAPI</h3>
 <ul>
-<li><b>$modx->documentObject['フィールド名']</b> - カレントリソース上の任意のフィールドの値を参照します。テンプレート変数の値にアクセスするには['フィールド名'][1]とします。</li>
-<li><b>$modx->config['設定名']</b> - グローバル設定上の任意の設定名を参照します。サイト名(site_name)などを参照できます。</li>
+<li><b>$modx->documentObject[フィールド名]</b> - カレントリソース上の任意のフィールドの値を参照します。テンプレート変数の値にアクセスするには[フィールド名][1]とします。</li>
+<li><b>$modx->config[設定名]</b> - グローバル設定上の任意の設定名を参照します。サイト名(site_name)などを参照できます。</li>
 <li><b>$modx->documentIdentifier</b> - カレントリソースのidを参照します。</li>
 <li><b>$modx->getDocumentObject(メソッド, ID)</b> - 任意のリソース上のフィールドの値を参照します。テンプレート変数の場合は要素[1]を参照します。$method はid・aliasいずれかを指定しますが、通常はidを指定するとよいでしょう。</li>
 <li><b>$modx->getChunk(チャンク名)</b> - 任意のチャンクの内容を参照します。</li>
@@ -98,6 +100,75 @@ $output = str_replace('現在時刻を表示' , $now, $output);
 <p>
 その他、SQL文を簡潔に記述するDBAPIが使用できます。
 </p>
+
+<h3>モジュールを作ってみよう(上級者向け)</h3>
+<p>
+モジュールを作ること自体は簡単にできます。
+</p>
+<pre>
+echo 'これは自作モジュールです';
+</pre>
+<p>
+上記のように書くだけで実行できます。
+</p>
+<pre>
+global $modx_lang_attribute,$modx_textdir, $manager_theme, $modx_manager_charset;
+global $_lang, $_style, $e,$SystemAlertMsgQueque,$incPath,$content;
+
+include($incPath . 'header.inc.php');
+?&gt;
+&lt;h1&gt;自作モジュール&lt;/h1&gt;
+&lt;script type=&quot;text/javascript&quot; src=&quot;media/script/tabpane.js&quot;&gt;&lt;/script&gt;
+&lt;div class=&quot;sectionHeader&quot;&gt;チュートリアル&lt;/div&gt;
+&lt;div class=&quot;sectionBody&quot; style=&quot;padding:10px 20px;&quot;&gt;
+これは自作モジュールです
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;?php
+include($incPath .'footer.inc.php');
+</pre>
+<p>
+MODxの管理画面スタイルに合わせたい場合は上記のように記述します。
+</p>
+
+<h3>サイトツリーからリソースIDを取得する(モジュール作成)</h3>
+<p>
+サイトツリーのリソースをクリックした時、JavaScriptでsetMoveValueメソッドが実行されます。このsetMoveValueメソッドの処理内容をモジュール側で実装します。リソースID・リソース名を値として受け取ることができます。同梱モジュールDocManagerが参考になります。
+</p>
+
+<h3>MODxのAPIを外部PHPアプリから利用する(上級者向け)</h3>
+<pre>
+define('MODX_API_MODE', true);
+include('/real_path/manager/includes/config.inc.php');
+include(MODX_MANAGER_PATH . 'includes/document.parser.class.inc.php');
+startCMSSession();
+$modx = new DocumentParser;
+$modx-&gt;db-&gt;connect();
+$modx-&gt;getSettings();
+</pre>
+<p>
+上記のように記述することで、$modx オブジェクトに自由にアクセスできるようになります。任意のチャンクやリソースの参照・スニペットの実行など、MODxの拡張機能と同等の機能を外部PHPアプリに持たせることができます。<br />
+※<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=api+library" target="_blank">MODxAPI Library</a>を用いると、さらに手軽・具体的に実装できます。全APIにアクセスできるため、独自の管理画面・投稿画面を作ることも可能です。
+</p>
+
+<h3>Ajax処理を組み込む(スニペット作成)</h3>
+<p>
+MODxインストールディレクトリに配置されているindex-ajax.phpを、任意のスニペットなどに持たせたAjaxハンドラのエントリーポイントとして用いることができます。<a href="http://www.google.com/search?q=xmlhttp&lr=lang_ja" target="_blank">xmlHttpオブジェクト</a>を用いて簡易に実装することもできますが、具体的な活用例として公式ドキュメント<a href="http://wiki.modxcms.com/index.php/Use_AJAX_with_modxAPI" target="_blank">「Use AJAX with modxAPI」</a>(英語)が参考になります。同梱スニペットではajaxSearchがこのメソッドを利用しています。</p>
+<pre>
+var url    = MODX_BASE_URL . 'index-ajax.php';
+var params = 'q=entry.php';
+xmlHttp.open('POST',url,true);
+xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+xmlHttp.setRequestHeader('Content-length', params.length);
+xmlHttp.setRequestHeader('Connection', 'close');
+xmlHttp.send(params);
+</pre>
+<p>
+たとえば接続部分に関しては上記のように記述します。任意のボタンをクリックした時などに、この処理を実行させます。entry.phpの内部では実際の処理内容を記述しますが、スニペットを埋め込んだリソースを用いると、よりスマートに実装でき、メンテナンス性にも優れます。</p>
+<p>
+Ajax実装は技巧的には難しくありませんが、PHP・JavaScript・MySQL各種の技術を組み合わせるため複雑になりがちです。MODxが持つ各種メソッドを活用すると、シンプルにまとめることができます。
+</p>
+
 <h3>スニペット・プラグイン製作の参考情報</h3>
 <ul>
 <li><a href="http://wiki.modxcms.com/index.php/Ja:MODx%E3%81%AE%E3%82%B9%E3%83%8B%E3%83%9A%E3%83%83%E3%83%88%E9%96%8B%E7%99%BA%E3%81%AE%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3" target="_blank">MODxのスニペット開発のガイドライン</a> (プラグイン・モジュールも共通)</li>

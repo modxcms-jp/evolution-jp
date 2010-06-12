@@ -32,10 +32,10 @@ ul {margin-bottom:15px;}
 <p>
 標準で同梱されているWayfinderを利用します。テンプレート中に[[Wayfinder]]と記述するだけで、とりあえずその時点で作られているリソースのリンク一覧を動的に出力します。</p>
 <pre>
-[[Wayfinder&startId=0&hideSubMenus=true]]
+[[Wayfinder?startId=0&hideSubMenus=true]]
 </pre>
 <p>
-一般的にはこのように記述します。Wayfinderには他にも豊富なオプションがあり、親子関係の表現なども自由自在です。ナビゲーションに関してはなんでもできる万能型のスニペットです。サイトマップも作れます。詳細については<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=wayfinder" target="_blank">ドキュメント</a>を確認してください。<br />
+一般的にはこのように記述します。Wayfinderには他にも豊富なオプションがあり、親子関係の表現なども自由にできます。ナビゲーションに関してはなんでもできる万能型のスニペットです。サイトマップも作れます。詳細については<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=wayfinder" target="_blank">ドキュメント</a>を確認してください。<br />
 ※規模が小さく構成変更も少ないサイトなら、スニペットを利用せず静的にナビゲーションを記述するのもよいでしょう。
 </p>
 <h3>パン屑リストを設置する</h3>
@@ -59,7 +59,7 @@ ul {margin-bottom:15px;}
 <p>
 標準で同梱されているeFormスニペットが利用できます。</p>
 <pre>
-[!eForm&formid=form1&tpl=form&report=mailtpl!]
+[!eForm?formid=form1&tpl=form&report=mailtpl!]
 </pre>
 <ul>
 <li><b>formid</b> … フォームを識別するためのID。ページ内にフォームをひとつしか設置しない場合でも必ず記述します。</li>
@@ -72,7 +72,7 @@ ul {margin-bottom:15px;}
 <p>さらに高機能なスニペットとしては<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=cfformmailer" target="_blank">cfFormMailer</a>が知られています。eFormでは実装が難しい確認画面を作ることもできます。
 </p>
 
-<h3>投稿画面をカスタマイズする</h3>
+<h3>投稿画面をカスタマイズする(1)</h3>
 <p>
 標準で同梱されているManagerManagerプラグインを用いると投稿画面を自由にカスタマイズできます。カスタマイズルールを設定用のチャンク(デフォルトではmm_rules)に記述します。</p>
 <pre>
@@ -83,6 +83,18 @@ mm_hideFields('is_folder,is_richtext,log,searchable,cacheable,clear_cache');
 mm_hideFields('resource_type,content_type,content_dispo');
 </pre>
 <p>たとえば上記のように記述すると「リソース名」「内容(本文)」以外のほとんどのフィールドを隠すことができます。フィールド名の変更や他タブへの移動・デフォルト値のセットなど、他にも18種類のコマンドを利用できます。詳細については<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=ManagerManager" target="_blank">ドキュメント</a>を確認してください。</p>
+
+<h3>投稿画面をカスタマイズする(2)</h3>
+<p>
+プラグインを自作します。
+</p>
+<pre>
+$css = $modx->getChunk('管理画面用スタイルシート');
+$modx->Event->output($css);
+</pre>
+<p>
+プラグイン新規作成画面を開いて上記のようなコードを書き、システムイベントは「OnDocFormPrerender」にチェックを入れてプラグインを新規保存します。プラグイン名はなんでもかまいません。次に「管理画面用スタイルシート」という名前のチャンクを作り、スタイルシートを任意に記述します。OnDocFormPrerenderは投稿画面に関連付けられたシステムイベントなので、投稿画面のhtmlソースを参考にスタイルを記述します。
+</p>
 
 <h3>配布されているアドオン(スニペット・プラグイン)をインストールする</h3>
 <p>
@@ -221,11 +233,6 @@ Dreamweaverなどでhtmlを組みテンプレート編集画面に貼り付け�
 <p>実験的なスニペットとして<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=dwtinc" target="_blank">dwtinc</a>というものもあります。</p>
 <p>
 テンプレート製作にDreamweaverを用いる場合は<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=MODx+for+Dreamweaver" target="_blank">MODx for Dreamweaver</a>を利用すると便利です。
-</p>
-
-<h3>配布テンプレートを手軽に適用</h3>
-<p>
-モジュール「SkinGraft 」を利用すると、テンプレートを手軽にインストールすることができます。ただし対象テンプレートがSkinGraft に対応している必要があります。基本的な構成ルールが細部まで定まっているブログ型CMSと違い、オーサリングツールに近いMODxはあらゆる形態の運用が想定されるため、汎用的に利用できるテンプレートを作りにくいという事情もあります。
 </p>
 
 <h3>サイトをバックアップ・リストアしたい</h3>
