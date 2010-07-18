@@ -4,6 +4,7 @@ $host = $_POST['host'];
 $uid = $_POST['uid'];
 $pwd = $_POST['pwd'];
 $database_collation = $_POST['database_collation'];
+$database_collation = htmlspecialchars($database_collation, ENT_QUOTES);
 
 $output = '<select id="database_collation" name="database_collation">
 <option value="'.$database_collation.'" selected >'.$database_collation.'</option></select>';
