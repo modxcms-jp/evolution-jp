@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+if($_REQUEST['id'] > 0) {
 	$id = $_REQUEST['id'];
 	// check to see the template editor isn't locked
 	$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=16 AND $dbase.`".$table_prefix."active_users`.id=$id";
@@ -37,11 +37,11 @@ if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
 	}
 	// end check for lock
 } else {
-	$id='';
+	$id= 0;
 }
 
 $content = array();
-if(isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
+if($id > 0) {
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."site_templates` WHERE $dbase.`".$table_prefix."site_templates`.id = $id;";
 	$rs = mysql_query($sql);
 	$limit = mysql_num_rows($rs);

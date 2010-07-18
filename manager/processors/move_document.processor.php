@@ -8,11 +8,11 @@ if(!$modx->hasPermission('edit_document')) {
 // ok, two things to check.
 // first, document cannot be moved to itself
 // second, new parent must be a folder. If not, set it to folder.
-if($_REQUEST['id']==$_REQUEST['new_parent']) {
+if($_REQUEST['id']== (int) $_REQUEST['new_parent']) {
 		$e->setError(600);
 		$e->dumpError();
 }
-if($_REQUEST['id']=="") {
+if($_REQUEST['id']==0) {
 		$e->setError(601);
 		$e->dumpError();
 }

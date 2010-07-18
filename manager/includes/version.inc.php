@@ -2,7 +2,7 @@
 if (!function_exists('getSVNRev')) {
     function getSVNRev() {
         // SVN property required to be set, e.g. $Rev: 6966 $
-        $svnrev = '$Rev: 6966 $';
+        $svnrev = '$Rev: 6995 $';
         $svnrev = substr($svnrev, 6);
         return intval(substr($svnrev, 0, strlen($svnrev) - 2));
     }

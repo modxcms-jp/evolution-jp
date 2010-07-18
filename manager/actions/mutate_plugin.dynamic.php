@@ -19,8 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
-
+$id = $_REQUEST['id'];
 
 // check to see the plugin editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=102 AND $dbase.`".$table_prefix."active_users`.id=$id";

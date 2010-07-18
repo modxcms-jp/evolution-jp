@@ -6,9 +6,7 @@ if (!$modx->hasPermission('edit_module')) {
 	$e->dumpError();
 }
 
-if (isset($_REQUEST['id']))
-        $id = (int)$_REQUEST['id'];
-else    $id = 0;
+$id = $_REQUEST['id'];
 
 if ($manager_theme)
         $manager_theme .= '/';

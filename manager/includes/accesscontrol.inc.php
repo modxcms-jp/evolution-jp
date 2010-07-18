@@ -142,7 +142,7 @@ if(!isset($_SESSION['mgrValidated'])){
 	
 	$_SESSION['ip'] = $ip;
 
-    $itemid = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
+    $itemid = $_REQUEST['id'] > 0 ? $_REQUEST['id'] : '';
 	$lasthittime = time();
     $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
