@@ -2,9 +2,9 @@
 /**
  * MODx language File
  *
- * @author MODx CMS JAPAN
+ * @author MEGU, yamamoto, TxO
  * @package MODx
- * @version 1.0.3
+ * @version 1.0.4J-r1
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
@@ -21,7 +21,7 @@ $_lang["alert_enter_host"] = 'データベースサーバのホスト名を入�
 $_lang["alert_enter_login"] = 'データベースのユーザー名を入力してください';
 $_lang["alert_server_test_connection"] = 'サーバー接続をテストしてください';
 $_lang["alert_server_test_connection_failed"] = 'サーバー接続テストが失敗しました';
-$_lang["alert_table_prefixes"] = 'テーブルのプリフィクスはアルファベットのみ使えます。';
+$_lang["alert_table_prefixes"] = 'テーブルのプリフィックスはアルファベットのみ使えます。';
 $_lang["all"] = '全て選択';
 $_lang["and_try_again"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。';
 $_lang["and_try_again_plural"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。'; //Plural form
@@ -29,8 +29,8 @@ $_lang["begin"] = '開始';
 $_lang["btnback_value"] = '戻る';
 $_lang["btnclose_value"] = 'インストール終了';
 $_lang["btnnext_value"] = '進む';
-$_lang["cant_write_config_file"] = 'MODxは設定ファイルを生成できませんでした。以下をコピーしてconfig.inc.phpに反映してください ';
-$_lang["cant_write_config_file_note"] = '実行後は、あなたのサイト名/manager/ にアクセスすることで管理画面にログインできます。';
+$_lang["cant_write_config_file"] = '設定ファイルを生成できませんでした。以下をコピーしてconfig.inc.phpに反映してください ';
+$_lang["cant_write_config_file_note"] = '実行後は、サイト名/manager/ にアクセスすることで管理画面にログインできます。';
 $_lang["checkbox_select_options"] = '拡張機能の選択:';
 $_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span>ディレクトリの存在チェック(なければ転送に失敗しています): ';
 $_lang["checking_if_cache_file_writable"] = 'ファイル<span class="mono">/assets/cache/siteCache.idx.php</span>の書き込み属性(606などに設定): ';
@@ -45,7 +45,7 @@ $_lang["checking_mysql_strict_mode"] = 'Checking MySQL for strict mode: ';
 $_lang["checking_mysql_version"] = 'MySQLのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
-$_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされるため非常に危険です。特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされるため非常に危険です。特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。';
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプリフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
@@ -105,19 +105,19 @@ $_lang["installation_upgrade_existing"] = '通常アップデート';
 $_lang["installation_upgrade_existing_note"] = '通常のアップデートはこのオプションを。コアファイル・リソースファイルの両方とデータベースをアップデートします。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
-$_lang["language_code"] = 'ja';	// for html element e.g. <html xml:lang="ja" lang="ja">
+$_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
 $_lang["modx_footer1"] = '&copy; 2005-2010 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
 $_lang["modx_install"] = 'MODx &raquo; インストール';
-$_lang["modx_requires_php"] = ', and MODx requires PHP 4.2.0 or later';
+$_lang["modx_requires_php"] = ', PHP4.3.8以上を推奨します(4.2.0以上であれば動作可)';
 $_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
 $_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします。';
 $_lang["mysql_version_is"] = ' Version ';
 $_lang["no"] = 'いいえ';
 $_lang["none"] = '全ての選択を解除';
-$_lang["not_found"] = 'not found';
+$_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
 $_lang["optional_items_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。<br /><b style="color:red;">【アップデート時の注意】</b> ここで選択したものは全てインストールされます。<b style="color:red;">同じ名前・同じバージョンのものはそのまま上書きされます</b>ので、mm_rulesやWebLoginSidebarなどのチャンクをカスタマイズしている場合は<b style="color:red;">チェックを外してください。</b><br />バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。<br />※1.0.3J-r2より<b style="color:red;">AjaxSearch</b>の出力や機能・パラメータ形式などの仕様が一部変更になっています。すでにAjaxSearchを運用している場合はご注意ください。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。同時にインストールされるeForm用テンプレートチャンクなどは、初めてMODxを試す場合は参考になります。';
@@ -138,7 +138,7 @@ $_lang["sample_web_site_note"] = '<span style="font-style:normal;"><b style="col
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか？'; 
 $_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
-$_lang["setup_couldnt_install"] = 'MODx setup couldn\'t install/alter some tables inside the selected database.';
+$_lang["setup_couldnt_install"] = '選択されたテーブルをインストール/変更できませんでした。';
 $_lang["setup_database"] = 'セットアップ結果<br />';
 $_lang["setup_database_create_connection"] = 'データベース接続: ';
 $_lang["setup_database_create_connection_failed"] = 'データベース接続に失敗しました!';
@@ -167,19 +167,19 @@ $_lang["strict_mode_error"] = 'ストリクトモードが無効である必要�
 $_lang["summary_setup_check"] = '<strong>インストール実行前の最終チェックです。</strong>';
 $_lang["system_configuration"] = 'System Configuration';
 $_lang["system_configuration_validate_referer_description"] = 'The <strong>Validate HTTP_REFERER headers</strong> setting is recommended and can protect your site from CSRF attacks, but in some server configurations, can make your manager inaccessible.';
-$_lang["table_prefix_already_inuse"] = ' - このテーブルプリフィクスはすでに使われています。';
+$_lang["table_prefix_already_inuse"] = ' - このテーブルプリフィックスはすでに使われています。';
 $_lang["table_prefix_already_inuse_note"] = '異なるテーブルプリフィクスを指定するか、phpMyAdminなどを利用し関連テーブルを削除し、再びインストールを試してみてください。';
-$_lang["table_prefix_not_exist"] = ' - データベーステーブルのプリフィクスがTable prefix does not exist in this database!';
+$_lang["table_prefix_not_exist"] = ' - 指定されたテーブルプリフィックスがデータベース内に存在していなかったため、インストールが完了しませんでした。正しいテーブルプリフィックスを指定し、再度実行してください。';
 $_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the selected database, as it does not contain existing tables with the prefix you specified to be upgraded. Please choose an existing table prefix, and run Setup again.';
 $_lang["templates"] = 'テンプレート';
 $_lang["to_log_into_content_manager"] = 'おつかれさまでした。「インストール終了」ボタンをクリックすると、管理画面のログインページ(manager/index.php)にアクセスします。';
 $_lang["toggle"] = '選択状態を反転';
 $_lang['tvs'] = 'テンプレート変数';
-$_lang["unable_install_chunk"] = 'チャンクをインストールできませんでした。';
-$_lang["unable_install_module"] = 'モジュールをインストールできませんでした';
-$_lang["unable_install_plugin"] = 'プラグインをインストールできませんでした。';
-$_lang["unable_install_snippet"] = 'スニペットをインストールできませんでした。';
-$_lang["unable_install_template"] = 'テンプレートをインストールできませんでした。';
+$_lang["unable_install_chunk"] = 'チャンクをインストールできません';
+$_lang["unable_install_module"] = 'モジュールをインストールできません';
+$_lang["unable_install_plugin"] = 'プラグインをインストールできません';
+$_lang["unable_install_snippet"] = 'スニペットをインストールできません';
+$_lang["unable_install_template"] = 'テンプレートをインストールできません';
 $_lang["upgrade_note"] = '<strong>注意:</strong>管理画面に無事にログインできたら、リソース(旧称・ドキュメント)および各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを必ず確認してください。また管理画面内の「イベントログ」を開き、エラーの有無をご確認ください。';
 $_lang["upgraded"] = 'アップデートしました';
 $_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
