@@ -3,10 +3,10 @@
  * Filename:       includes/lang/japanese-utf8.inc.php
  * Function:       Language file.
  * Encoding:       UTF8
- * Author:         MODx CMS JAPAN
- * Date:           2010/05/19
- * Version:        2.0.5
- * MODx version:   Evolution 1.0.4
+ * Author:         eastbind, MEGU, yamamoto
+ * Date:           2010/07/19
+ * Version:        2.0.6
+ * MODx version:   Evolution 1.0.0-
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -109,7 +109,7 @@ $_lang["collapse_tree"] = 'サイトツリーを縮小';
 $_lang["comment"] = 'コメント';
 $_lang["configcheck_admin"] = 'このメッセージをシステム管理者に報告してください';
 $_lang["configcheck_cache"] = 'キャッシュディレクトリに書き込みできません';
-$_lang["configcheck_cache_msg"] = 'キャッシュファイルを保存できませんでした。MODxは動作しますが、キャッシュが利用できないため、軽快なレスポンスを得られません。この問題を解消するには、 /cache/ ディレクトリを書き込み可能にしてください。';
+$_lang["configcheck_cache_msg"] = 'キャッシュファイルを保存できません。MODxは動作しますが、キャッシュが利用できないため軽快なレスポンスを得られません。キャッシュを有効にするためには /cache/ ディレクトリを書き込み可能にしてください。';
 $_lang["configcheck_configinc"] = '設定ファイルがまだ書き込み可能になっています';
 $_lang["configcheck_configinc_msg"] = '今の状態では、悪意ある人がこのサイトを壊すことができてしまいます。設定ファイル (/manager/includes/config.inc.php)のパーミッションを404などに設定し、書込み不可にしてください。';
 $_lang["configcheck_default_msg"] = '原因不明のエラーが存在します。';
@@ -357,13 +357,13 @@ $_lang["go"] = '実行';
 $_lang["group_access_permissions"] = 'ユーザーグループのアクセス';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'ヘルプ';
-$_lang["help_msg"] = '<p><a href="http://modxcms-jp.com/bb/" target="_blank">MODx日本公式フォーラム</a>にてコミュニティによるサポートが得られます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODxドキュメントとガイド（英語）</a>があり、MODx のほぼすべてに関して記されています。</p> <p>また、MODxの有償サポートサービスの提供が計画されています(※ただし現時点では英語圏)。興味がある方は<a href="mailto:modx@vertexworks.com?subject=MODx Commercial Support Inquiry">email</a>にてお問い合わせください。</p>';
+$_lang["help_msg"] = '<p><a href="http://modxcms-jp.com/bb/" target="_blank">MODx日本公式フォーラム</a>でサポートを得ることができます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODxドキュメントとガイド（英語）</a>があり、MODx のほぼすべてに関して記されています。</p>';
 $_lang["help_title"] = 'サポート';
 $_lang["hide_tree"] = 'サイトツリーを非表示';
 $_lang["home"] = 'ダッシュボード';
 $_lang["htmlsnippet_desc"] = 'チャンクの説明';
-$_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャンクの管理</h3><p>編集したいチャンクを選択してください。チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。リソースやテンプレートから手軽に呼び出すことができます。PHPコードを記述する場合はスニペットを利用してください。</p>';
-$_lang["htmlsnippet_msg"] = 'チャンクを追加・編集することができます。チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。リソースやテンプレートから手軽に呼び出すことができます。PHPコードを記述する場合はスニペットを利用してください。';
+$_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャンクの管理</h3><p>編集したいチャンクを選択してください。チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。 <strong>{{チャンク名}}</strong> と記述するだけで、リソースやテンプレートから手軽に呼び出すことができます。詳しくは<a href="index.php?a=9">ヘルプ</a>を参照してください。</p>';
+$_lang["htmlsnippet_msg"] = '<p>チャンク名には日本語を用いることができます(※スニペット内からは日本語チャンク名では呼び出せないことがあります)。チャンクの使い方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。</p>';
 $_lang["htmlsnippet_name"] = 'チャンク名';
 $_lang["htmlsnippet_title"] = 'チャンクの作成/編集';
 $_lang["icon"] = 'Icon';
@@ -510,8 +510,8 @@ $_lang["module_disabled"] = 'モジュールを停止';
 $_lang["module_edit_click_title"] = 'このモジュールを編集';
 $_lang["module_group_access_msg"] = '管理画面内でこのモジュールを実行できるユーザーグループを選択してください。';
 $_lang["module_management"] = 'モジュール管理';
-$_lang["module_management_msg"] = '実行や変更をしたいモジュールを選択します。モジュールを実行するにはグリッドの中のアイコンをクリックしてください。モジュールを変更するにはモジュール名をクリックしてください。';
-$_lang["module_msg"] = 'ここでモジュールの追加・編集ができます。モジュールは任意のエレメントの機能を管理するためのインターフェイスです。多くの場合、実際の機能はプラグインやスニペット側で実装します。';
+$_lang["module_management_msg"] = 'アイコンをクリックして操作を選択してください。モジュールは管理画面を拡張する形で機能を追加できます。追加する機能自体はプラグインやスニペットで作り、これをモジュール側のフォームでコントロールする実装を推奨します。';
+$_lang["module_msg"] = 'モジュール名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は不要です。モジュールの作り方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。';
 $_lang["module_name"] = 'モジュール名';
 $_lang["module_resource_msg"] = 'このモジュールに関連付けるエレメントを追加・削除します。新しいエレメントを追加するには下のボタンのひとつをクリックします。';
 $_lang["module_resource_title"] = 'モジュール関連付け';
@@ -635,8 +635,8 @@ $_lang["plugin_config"] = 'プラグイン設定';
 $_lang["plugin_desc"] = '説明';
 $_lang["plugin_disabled"] = 'プラグインの停止';
 $_lang["plugin_event_msg"] = 'このプラグインが使用するイベントを選択してください。';
-$_lang["plugin_management_msg"] = '<h3 style="font-weight:bold;">プラグインの管理</h3><p>編集したいプラグインを選択します。</p>';
-$_lang["plugin_msg"] = 'プラグインの追加や編集をすることができます。プラグインは選択したシステムイベントの発生時に実行されるPHPのコード群です。';
+$_lang["plugin_management_msg"] = '<h3 style="font-weight:bold;">プラグインの管理</h3><p>プラグインはシステム寄りの拡張機能で、実行するためには任意のシステムイベントに関連付ける必要があります。詳しくは<a href="index.php?a=9">ヘルプ</a>をご覧ください。</p>';
+$_lang["plugin_msg"] = 'プラグイン名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は不要です。プラグインを実行するためには、必ず任意のシステムイベントと関連付けてください。プラグインの作り方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。';
 $_lang["plugin_name"] = 'プラグイン名';
 $_lang["plugin_priority"] = 'イベント発生時のプラグインの実行順を編集';
 $_lang["plugin_priority_instructions"] = 'プラグインの実行順を変更するには、各イベント名の下にあるプラグインをドラッグしてください。最初に実行するプラグインは最上位にしてください。';
@@ -890,8 +890,8 @@ $_lang["snippet"] = 'スニペット';
 $_lang["snippet_code"] = 'スニペット コード (php)';
 $_lang["snippet_desc"] = '説明';
 $_lang["snippet_execonsave"] = '保存後にスニペットを実行';
-$_lang["snippet_management_msg"] = '<h3 style="font-weight:bold;">スニペットの管理</h3><p>編集したいスニペットを選択してください。</p>';
-$_lang["snippet_msg"] = 'スニペットを追加・編集することができます。スニペットは「生の」PHPコードです。スニペットの出力をテンプレートの特定の場所に表示したい場合は、テンプレート内にスニペット名を記述する必要があります - 基本的に、スニペットのアウトプットはスニペット自身と同じ名前で保存された変数を必要とします。';
+$_lang["snippet_management_msg"] = '<h3 style="font-weight:bold;">スニペットの管理</h3><p>スニペットは主にリソースやテンプレートから呼び出すことを想定した簡易の拡張機能です。リソースまたはテンプレート内の任意の場所に <strong>[[スニペット名]]</strong> または <strong>[!スニペット名!]</strong> (キャッシュ無効)と記述するだけで手軽に呼び出せます。詳しくは<a href="index.php?a=9">ヘルプ</a>をご覧ください。</p>';
+$_lang["snippet_msg"] = '<p>スニペット名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は必須です。省略した場合は自動的に追加されます。スニペットの作り方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。</p>';
 $_lang["snippet_name"] = 'スニペット名';
 $_lang["snippet_properties"] = '既定のプロパティ';
 $_lang["snippet_title"] = 'スニペットの作成/編集';
@@ -917,7 +917,7 @@ $_lang["template_assignedtv_tab"] = '定義されているテンプレート変�
 $_lang["template_code"] = 'テンプレート コード (html)';
 $_lang["template_desc"] = '説明';
 $_lang["template_edit_tab"] = 'テンプレートの編集';
-$_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレートデザインの管理</h3><p>テンプレートはいくつでも作成でき、リソースごとに自由に割り当てることができます。</p>';
+$_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレートデザインの管理</h3><p>テンプレートはいくつでも作成でき、各ページ(リソース)ごとに自由に割り当てることができます。</p>';
 $_lang["template_msg"] = 'テンプレートを作成/編集できます。作成・変更されたテンプレートは、キャッシュがクリアされるまで見れないかもしれません。しかし、プレビュー機能を使用してテンプレートの動作を確認することができます。';
 $_lang["template_name"] = 'テンプレート名';
 $_lang["template_no_tv"] = 'テンプレート変数は定義されていません。';
@@ -939,9 +939,9 @@ $_lang["tmplvars_binding_msg"] = 'このフィールドはアットバインデ�
 $_lang["tmplvars_caption"] = '見出し';
 $_lang["tmplvars_default"] = '既定値';
 $_lang["tmplvars_description"] = '説明';
-$_lang["tmplvars_elements"] = '入力時のオプション値';
-$_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>一般的なCMSで言うところのカスタムフィールドに相当します。「タイトル」や「内容」などの既定の項目に加え、投稿画面上に自由に項目を追加できます。</p>';
-$_lang["tmplvars_msg"] = 'テンプレート変数を作成・編集します。このテンプレート変数を使用するテンプレートを「テンプレートへのアクセス」で関連付けてください。';
+$_lang["tmplvars_elements"] = '入力時のオプション値<br />※詳しくは<a href="index.php?a=9">ヘルプ</a>参照';
+$_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>一般的なCMSでいうところのカスタムフィールドに相当します。「タイトル」や「内容」などの既定の項目に加え、投稿画面上に自由に項目を追加できます。テンプレート内の任意の場所に <strong>[*テンプレート変数名*]</strong> と記述すると値を出力できます。詳しくは<a href="index.php?a=9">ヘルプ</a>を参照してください。</p>';
+$_lang["tmplvars_msg"] = 'テンプレート変数名には日本語を用いることができます。このテンプレート変数を使用するテンプレートを<strong>「テンプレートとの関連付け」で関連付けてください。</strong>';
 $_lang["tmplvars_name"] = '変数名';
 $_lang["tmplvars_novars"] = 'テンプレート変数はありません。';
 $_lang["tmplvars_rank"] = '並べ替え順';
