@@ -67,7 +67,7 @@ $allow_duplicate_alias    = (is_null($allow_duplicate_alias)) ? '1' : $allow_dup
 $automatic_alias          = (is_null($automatic_alias)) ? '0' : $automatic_alias;
 $datetime_format          = (is_null($datetime_format)) ? 'YYYY/mm/dd' : $datetime_format;
 $warning_visibility       = (is_null($warning_visibility)) ? '0' : $warning_visibility;
-$remember_last_tab        = (is_null($remember_last_tab)) ? '0' : $remember_last_tab;
+$remember_last_tab        = (is_null($remember_last_tab)) ? '1' : $remember_last_tab;
 $modx_charset             = (is_null($modx_charset)) ? 'UTF-8' : $modx_charset;
 
 // $old_template             = (is_null($old_template)) ? '' : $old_template;
@@ -82,3 +82,21 @@ $tinymce_custom_plugins   = (empty($tinymce_custom_plugins)) ? 'save,advlist,cle
 $tinymce_custom_buttons1  = (empty($tinymce_custom_buttons1)) ? 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help' : $tinymce_custom_buttons1;
 $tinymce_custom_buttons2  = (empty($tinymce_custom_buttons2)) ? 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat' : $tinymce_custom_buttons2;
 $tinymce_css_selectors    = (is_null($tinymce_css_selectors)) ? '左寄せ=justifyleft;右寄せ=justifyright' : $tinymce_css_selectors;
+
+$data = $modx->db->getTableMetaData($modx->getFullTableName('user_roles'));
+if($data['remove_locks'] == false)
+{
+	$sql = 'ALTER TABLE ' . $modx->getFullTableName(user_roles)
+	     . " ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
+	$modx->db->query($sql);
+}
+
+$sql = 'REPLACE INTO ' . $modx->getFullTableName('system_eventnames')
+       . ' (id,name,service,groupname) VALUES '
+       . "('100', 'OnStripAlias',             '1','Documents'),
+          ('201', 'OnManagerWelcomePrerender','2',''),
+          ('202', 'OnManagerWelcomeHome',     '2',''),
+          ('203', 'OnManagerWelcomeRender',   '2',''),
+          ('204', 'OnBeforeDocDuplicate',     '1','Documents'),
+          ('205', 'OnDocDuplicate',           '1','Documents')";
+$modx->db->query($sql);
