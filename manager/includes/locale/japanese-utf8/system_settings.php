@@ -89,6 +89,9 @@ if($data['remove_locks'] == false)
 	$sql = 'ALTER TABLE ' . $modx->getFullTableName(user_roles)
 	     . " ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
 	$modx->db->query($sql);
+	$sql = 'UPDATE '      . $modx->getFullTableName(user_roles)
+	     . " SET `remove_locks` = '1' WHERE `id` =1";
+	$modx->db->query($sql);
 }
 
 $sql = 'REPLACE INTO ' . $modx->getFullTableName('system_eventnames')
