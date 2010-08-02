@@ -4,7 +4,6 @@
 tinyMCE.init({
 	theme                            : 'advanced',
 	mode                             : 'exact',
-	skin                             : 'cirkuit',
 	elements                         : '[+elmList+]',
 	width                            : '[+width+]',
 	height                           : '[+height+]',
