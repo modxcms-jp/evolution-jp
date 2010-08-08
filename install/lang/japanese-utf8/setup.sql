@@ -92,6 +92,6 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('automatic_alias','0'),
 ('datetime_format','YYYY/mm/dd'),
 ('warning_visibility', '0'),
-('remember_last_tab', '0');
+('remember_last_tab', '1');
 
 
