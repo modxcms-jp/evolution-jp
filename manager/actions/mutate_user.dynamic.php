@@ -479,17 +479,18 @@ while ($row = mysql_fetch_assoc($rs)) {
 	  <tr>
 	    <td class='warning'><?php echo $_lang["language_title"] ?></td>
 	    <td> <select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
-	    <option value=""> </option>
+	    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
 	    <?php
-$activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : $manager_language;
+$activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : '';
 $dir = dir("includes/lang");
 while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
-		$languagename = substr($file, 0, $endpos);
-		$selectedtext = $languagename == $activelang ? "selected='selected'" : "";
+		$languagename = trim(substr($file, 0, $endpos));
+		$languagename = ucwords(str_replace("_", " ", $languagename));
+		$selectedtext = ($languagename == $activelang) ? "selected='selected'" : "";
 ?> 
-                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
+                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo $languagename; ?></option> 
                 <?php
 
 	}
@@ -566,7 +567,7 @@ $dir->close();
           <tr>
           <td nowrap class="warning"><b><?php echo $_lang["manager_theme"]?></b></td>
             <td> <select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date())">
-		<option value=""> </option>
+		<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
 		$dir = dir("media/style/");
 		while ($file = $dir->read()) {
@@ -675,7 +676,7 @@ $dir->close();
             <td nowrap class="warning"><b><?php echo $_lang["which_editor_title"]?></b></td>
             <td>
 				<select name="which_editor" onchange="documentDirty=true;">
-				<option value=""> </option>
+				<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 					<?php
 
 $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
