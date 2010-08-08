@@ -1028,7 +1028,7 @@ $_lang["user_upload_message"] = ' このユーザーに対してこのカテゴ�
 $_lang["user_use_config"] = 'グローバル設定を使用';
 $_lang["user_zip"] = '郵便番号';
 $_lang["username"] = 'ユーザー名';
-$_lang["users"] = 'ユーザー';
+$_lang["users"] = '権限管理';
 $_lang["validate_referer_message"] = '「はい」を選択すると、リファラチェック(参照元チェック)を行い、不正な参照元からのURLによる要求を拒否します。これにより、管理画面にログイン中に意図しない動作をさせられてしまう脅威 <a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">(CSRF=Cross Site Request Forgery)</a>をある程度軽減できます。ただしリファラは偽装が可能なため注意が必要です。よりよい回避策が実装されるまでは、管理画面にログイン中は、不用意に外部リンクをクリックしない・こまめにログアウトをするなど習慣づけてください。';
 $_lang["validate_referer_title"] = '管理画面操作のリファラチェック';
 $_lang["value"] = '値';
