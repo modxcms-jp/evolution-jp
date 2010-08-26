@@ -34,14 +34,7 @@ class TinyMCE
 		}
 		
 		$ph = $_lang;
-		switch($_SESSION['browser'])
-		{
-			case 'ie':
-				$ph['display'] = 'block';
-				break;
-			default:
-				$ph['display'] = 'table-row';
-		}
+		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
 		
 		$ph['theme_options']       = $theme_options;
