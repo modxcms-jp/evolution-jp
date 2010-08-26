@@ -29,10 +29,10 @@ $_lang['DM_publish'] = '公開/非公開';
 $_lang['DM_other'] = 'その他のプロパティ';
 
 //-- buttons
-$_lang['DM_close'] = 'Doc Managerを閉じる';
+$_lang['DM_close'] = '閉じる';
 $_lang['DM_cancel'] = '戻る';
 $_lang['DM_go'] = 'Go';
-$_lang['DM_save'] = '保存';
+$_lang['DM_save'] = '更新';
 $_lang['DM_sort_another'] = '別の整列';
 
 //-- templates tab
@@ -68,9 +68,9 @@ $_lang['DM_doc_skip_message1'] = 'リソースID';
 $_lang['DM_doc_skip_message2'] = 'は選択したリソースグループに既に含まれています。(スキップ)';
 
 //-- sort menu tab
-$_lang['DM_sort_pick_item'] = 'サイトルートか、整列したい範囲の親リソース(コンテナ)をクリックしてください。';
+$_lang['DM_sort_pick_item'] = 'メニューの並び順(menuindex)をマウス操作でまとめて変更できます。<br />サイトルートか、並べ替えたい範囲の親リソース(コンテナ)をクリックしてください。';
 $_lang['DM_sort_updating'] = '更新中 ...';
-$_lang['DM_sort_updated'] = '更新';
+$_lang['DM_sort_updated'] = '更新しました。「閉じる」または「戻る」ボタンをクリックしてください。';
 $_lang['DM_sort_nochildren'] = 'このリソースにはサブリソースがありません。';
 $_lang['DM_sort_noid']='リソースが選択されていません。戻ってリソースを選択してください。';
 
