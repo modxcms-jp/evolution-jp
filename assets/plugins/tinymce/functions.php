@@ -36,13 +36,11 @@ class TinyMCE
 		$ph = $_lang;
 		switch($_SESSION['browser'])
 		{
-			case 'mz':
-			case 'sf':
-			case 'op':
-				$ph['display'] = 'table-row';
+			case 'ie':
+				$ph['display'] = 'block';
 				break;
 			default:
-				$ph['display'] = 'block';
+				$ph['display'] = 'table-row';
 		}
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
 		
