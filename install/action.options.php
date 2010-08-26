@@ -69,7 +69,14 @@ elseif ($installMode == 1) {
 $setupPath = realpath(dirname(__FILE__));
 include "{$setupPath}/setup.info.php";
 
-echo "<h2>" . $_lang['optional_items'] . "</h2><p>" . $_lang['optional_items_note'] . "</p>";
+if($_POST['installmode'] === '0')
+{
+    echo "<h2>" . $_lang['optional_items'] . "</h2><p>" . $_lang['optional_items_new_note'] . "</p>";
+}
+else
+{
+    echo "<h2>" . $_lang['optional_items'] . "</h2><p>" . $_lang['optional_items_upd_note'] . "</p>";
+}
 
 $chk = isset ($_POST['installdata']) ? 'checked="checked"' : "";
 echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
