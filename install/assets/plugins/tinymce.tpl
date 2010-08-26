@@ -12,9 +12,9 @@
  * @internal	@modx_category Manager and Admin
  * @internal    @legacy_names TinyMCE
  *
- * Written By Jeff Whitfield
- * and Mikko Lammi / updated: 03/09/2010
- * and yama  / updated: 2010/7/29
+ * @author Jeff Whitfield
+ * @author Mikko Lammi / updated: 03/09/2010
+ * @author yama  / updated: 2010/7/29
  */
 
 // Set the name of the plugin folder

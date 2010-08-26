@@ -169,7 +169,15 @@ class TinyMCE
 		$ph['terminate']               = (!empty($params['customparams'])) ? ',' : '';
 		$ph['customparams']            = rtrim($params['customparams'], ',');
 		$content_css[] = $params['mce_url'] . 'style/content.css';
-		if ($params['editor_css_path']!=='') $content_css[] = MODX_BASE_URL . $params['editor_css_path'];
+		if     (preg_match('@^/@', $params['editor_css_path']) > 0)
+		{
+			$content_css[] = $params['editor_css_path'];
+		}
+		elseif (preg_match('@^http://@', $params['editor_css_path']) > 0)
+		{
+			$content_css[] = $params['editor_css_path'];
+		}
+		elseif ($params['editor_css_path']!=='') $content_css[] = MODX_BASE_URL . $params['editor_css_path'];
 			$ph['content_css']         = join(',', $content_css);
 		$ph['link_list']               = ($params['link_list']=='enabled')? "'" . $params['mce_url'] . 'inc/tinymce.linklist.php' . "'" : 'false';
 	
