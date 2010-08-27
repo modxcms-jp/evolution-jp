@@ -2,12 +2,12 @@
 /**
  * Inherit Parent Template
  * 
- * リソース新規作成時に親リソースのテンプレート選択を継承
+ * リソース新規作成時のテンプレート指定を自動化
  *
  * @category 	plugin
  * @version     1.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal    @properties &inheritTemplate=Inherit Template;list;From Parent,From First Sibling;From Parent
+ * @internal    @properties &inheritTemplate=Inherit Template;list;From Parent,From First Sibling;From First Sibling
  * @internal	@events OnDocFormPrerender 
  * @internal	@modx_category Manager and Admin
  */
