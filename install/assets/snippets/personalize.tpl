@@ -2,13 +2,16 @@
 /**
  * Personalize
  * 
- * ウェブユーザーのための基本的なパーソナライズ機能
+ * ユーザーのログイン状態によって出力内容を変更
  *
  * @category 	snippet
- * @version 	2.0
+ * @version 	2.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties 
  * @internal	@modx_category Login
+ * @author  	Created By Ryan Thrash (modx@vertexworks.com)
+ * @author  	powered up by kudo (kudo@kudolink.com)
+ * @author  	powered up by yama(yamamoto@kyms.ne.jp)
  */
 
 #::::::::::::::::::::::::::::::::::::::::
@@ -22,6 +25,7 @@
 # Jun 19, 06 -- updated description
 # Jul 19, 06 -- hacked by kudo to output chunks
 # Aug 03, 06 -- added placeholder for username
+# Aug 27, 10 -- powered up all code
 #
 #::::::::::::::::::::::::::::::::::::::::
 # Description: 	
@@ -43,6 +47,8 @@
 #		Placeholder for placing the username
 #		ATTENTION!: place this ph only in yesChunk!
 #	
+#	&context [string] (optional) 
+#		web|mgr
 #
 # Example Usage:
 #
@@ -54,21 +60,85 @@
 #::::::::::::::::::::::::::::::::::::::::
 
 # prepare params and variables
-$o = '';
+
+if     ($this->isFrontend() && isset ($_SESSION['webValidated'])) $current_context = 'web';
+elseif ($this->isBackend()  && isset ($_SESSION['mgrValidated'])) $current_context = 'mgr';
+
+$output = '';
 $yesChunk = (isset($yesChunk))? $yesChunk : '';
-$noChunk = (isset($noChunk))? $noChunk : '';
+$noChunk  = (isset($noChunk)) ? $noChunk  : '';
+$ph       = (isset($ph))      ? $ph       : 'username';
+$context  = (isset($context)) ? $context     : $current_context;
 
-# do the work
-$test = $modx->getLoginUserName();
-if ($test) {
-    $o = $modx->getChunk($yesChunk);
-  } else {
-    $o = $modx->getChunk($noChunk);
-}
+$referer = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+$ua =      htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+$ip =      htmlspecialchars($_SERVER['REMOTE_ADDR'], ENT_QUOTES);
+$host =    htmlspecialchars($_SERVER['REMOTE_HOST'], ENT_QUOTES);
 
-if (isset($ph)) {
-	$modx->setPlaceholder($ph,$test);
-	return $o;
-} else {
-	return $o;
+$ua_strtolower = strtolower($_SERVER['HTTP_USER_AGENT']);
+if    (strpos($ua_strtolower, 'firefox') !== false)     $browser = 'firefox';
+elseif(strpos($ua_strtolower, 'trident/4.0') !== false) $browser = 'internet explorer 8';
+elseif(strpos($ua_strtolower, 'msie') !== false)        $browser = 'internet explorer';
+elseif(strpos($ua_strtolower, 'chrome') !== false)      $browser = 'chrome';
+elseif(strpos($ua_strtolower, 'safari') !== false)      $browser = 'safari';
+elseif(strpos($ua_strtolower, 'opera') !== false)       $browser = 'opera';
+else $browser = 'other';
+
+$modx->setPlaceholder('referer', $referer);
+$modx->setPlaceholder('ua',      $ua);
+$modx->setPlaceholder('browser', $browser);
+$modx->setPlaceholder('ip',      $ip);
+$modx->setPlaceholder('host',    $host);
+
+switch($context)
+{
+    case 'web':
+        $username   = $_SESSION['webShortname'];
+        $short_name = $_SESSION['webShortname'];
+        $full_name  = $_SESSION['webFullname'];
+        $email      = $_SESSION['webEmail'];
+        $last_login = $_SESSION['webLastlogin'];
+        break;
+    case 'mgr':
+    case 'manager':
+        $username   = $_SESSION['mgrShortname'];
+        $short_name = $_SESSION['mgrShortname'];
+        $full_name  = $_SESSION['mgrFullname'];
+        $email      = $_SESSION['mgrEmail'];
+        $last_login = $_SESSION['mgrLastlogin'];
+        break;
+    default:
+        $username = '';
 }
+if (!empty($context))
+{
+    if($yesChunk!=='')
+    {
+        $output = $modx->getChunk($yesChunk);
+    }
+    else
+    {
+        $output = 'username : ' . $username;
+    }
+    
+    if(empty($last_login)) $last_login_text = 'first login';
+    else                   $last_login_text = $modx->toDateFormat($last_login);
+    
+    $modx->setPlaceholder($ph,$username);
+    $modx->setPlaceholder('short_name',  $short_name);
+    $modx->setPlaceholder('full_name',   $full_name);
+    $modx->setPlaceholder('email',       $email);
+    $modx->setPlaceholder('last_login', $last_login_text);
+}
+else
+{
+    if($noChunk!=='')
+    {
+        $output = $modx->getChunk($noChunk);
+    }
+    else
+    {
+        $output = 'guest';
+    }
+}
+return $output;
