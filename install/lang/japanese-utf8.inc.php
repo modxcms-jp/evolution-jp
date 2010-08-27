@@ -120,8 +120,8 @@ $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
-$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。<br />※「サンプルサイト」は内容が古く検証も不十分なので、現状ではMODxの仕組みの理解にはあまり役立ちません。テスト目的など必要に応じてお試しください。';
-$_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b style="color:red;">【アップデート時の注意】</b> ここで選択したものは全てインストールされます。<b style="color:red;">同じ名前・同じバージョンのものはそのまま上書きされます</b>ので、mm_rulesやWebLoginSidebarなどのチャンクをカスタマイズしている場合は<b style="color:red;">チェックを外してください。</b><br />バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。<br />※1.0.3J-r2より<b style="color:red;">AjaxSearch</b>の出力や機能・パラメータ形式などの仕様が一部変更になっています。すでにAjaxSearchを運用している場合はご注意ください。';
+$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。';
+$_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b style="color:red;">【アップデート時の注意】</b> ここで選択したものは全てインストールされます。<b style="color:red;">同じ名前・同じバージョンのものはそのまま上書きされます</b>ので、<b>mm_rules</b>やWebLoginSidebarなどのチャンクをカスタマイズしている場合は<b style="color:red;">チェックを外してください。</b><br />スニペット・プラグインに関しては、バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。<br />※1.0.3J-r2より<b style="color:red;">AjaxSearch</b>の出力や機能・パラメータ形式などの仕様が一部変更になっています。すでにAjaxSearchを運用している場合はご注意ください。';
 $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form
@@ -135,7 +135,7 @@ $_lang["remove_install_folder_manual"] = '管理画面にログインする前�
 $_lang["retry"] = '再チェック';
 $_lang["running_database_updates"] = '実行中のデータベースのアップデート: ';
 $_lang["sample_web_site"] = 'サンプルサイト';
-$_lang["sample_web_site_note"] = '<span style="font-style:normal;"><b style="color:red;">【アップデート時の注意】</b> すでにMODxでサイトを構成している場合はリソースIDごとに<strong style="color:#CC0000;">上書き</strong>されます。ご注意ください。</span>';
+$_lang["sample_web_site_note"] = '<span style="font-style:normal;"><b style="color:red;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODxの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなど、必要に応じてお試しください。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか？'; 
 $_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
