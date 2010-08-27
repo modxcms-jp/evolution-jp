@@ -70,6 +70,7 @@ $noChunk  = (isset($noChunk)) ? $noChunk  : '';
 $ph       = (isset($ph))      ? $ph       : 'username';
 $context  = (isset($context)) ? $context     : $current_context;
 
+/*
 $referer = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
 $ua =      htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
 $ip =      htmlspecialchars($_SERVER['REMOTE_ADDR'], ENT_QUOTES);
@@ -89,6 +90,7 @@ $modx->setPlaceholder('ua',      $ua);
 $modx->setPlaceholder('browser', $browser);
 $modx->setPlaceholder('ip',      $ip);
 $modx->setPlaceholder('host',    $host);
+*/
 
 switch($context)
 {
