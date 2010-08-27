@@ -135,7 +135,7 @@ $_lang["remove_install_folder_manual"] = '管理画面にログインする前�
 $_lang["retry"] = '再チェック';
 $_lang["running_database_updates"] = '実行中のデータベースのアップデート: ';
 $_lang["sample_web_site"] = 'サンプルサイト';
-$_lang["sample_web_site_note"] = '<span style="font-style:normal;"><b style="color:red;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODxの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなど、必要に応じてお試しください。</span>';
+$_lang["sample_web_site_note"] = '<span style="font-style:normal;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODxの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなどとして、必要に応じてお試しください。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか？'; 
 $_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
