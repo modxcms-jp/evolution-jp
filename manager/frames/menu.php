@@ -298,11 +298,11 @@ if($modx->hasPermission('new_role') || $modx->hasPermission('edit_role') || $mod
 	// roles
 	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=86" target="main">'.$_lang['role_management_title'].'</a></li>';
 }
-if($modx->hasPermission('access_permissions')) {
+if($modx->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) {
 	// manager-perms
 	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=40" target="main">'.$_lang['manager_permissions'].'</a></li>';
 }
-if($modx->hasPermission('web_access_permissions')) {
+if($modx->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) {
 	// web-user-perms
 	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=91" target="main">'.$_lang['web_permissions'].'</a></li>';
 }
