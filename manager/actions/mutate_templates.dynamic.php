@@ -130,7 +130,7 @@ function deletedocument() {
 <?php if ($_REQUEST['a'] == '16') { ?>
 <div class="tab-pane" id="templatesPane">
 	<script type="text/javascript">
-		tpResources = new WebFXTabPane( document.getElementById( "templatesPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+		tpResources = new WebFXTabPane( document.getElementById( "templatesPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 
 	<div class="tab-page" id="tabTemplate">

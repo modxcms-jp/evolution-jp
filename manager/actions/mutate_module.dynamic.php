@@ -362,7 +362,7 @@ function SetUrl(url, width, height, alt) {
 
 <div class="tab-pane" id="modulePane">
 	<script type="text/javascript">
-	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 
 	<!-- General -->

@@ -198,7 +198,7 @@ function confirmLangChange(el, lkey, elupd){
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <div class="tab-pane" id="settingsPane">
       <script type="text/javascript">
-		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
 	</script>
 
 	<!-- Site Settings -->
@@ -928,11 +928,29 @@ function confirmLangChange(el, lkey, elupd){
             <tr>
               <td colspan="2"><div class='split'></div></td>
             </tr>
+            <?php
+                $remember_last_tab_checked2 = '';
+                $remember_last_tab_checked1 = '';
+                $remember_last_tab_checked0 = '';
+                switch($remember_last_tab)
+                {
+                    case '2':
+                    $remember_last_tab_checked2 = 'checked="checked"';
+                    break;
+                    case '1':
+                    $remember_last_tab_checked1 = 'checked="checked"';
+                    break;
+                    default:
+                    $remember_last_tab_checked0 = 'checked="checked"';
+                }
+            ?>
              <tr>
                <td nowrap class="warning"><b><?php echo $_lang["remember_last_tab"] ?></b></td>
-               <td> <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="1" <?php echo $remember_last_tab=='1' ? 'checked="checked"' : ""; ?> />
-                 <?php echo $_lang["yes"]?><br />
-                 <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="0" <?php echo (!isset($remember_last_tab) || $remember_last_tab=='0') ? 'checked="checked"' : ""; ?> />
+               <td> <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="2" <?php echo $remember_last_tab_checked2; ?> />
+                 <?php echo $_lang["yes"]?> (Full)<br />
+ <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="1" <?php echo $remember_last_tab_checked1; ?> />
+                 <?php echo $_lang["yes"]?> (Stay mode)<br />
+                 <input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="0" <?php echo $remember_last_tab_checked0; ?> />
                  <?php echo $_lang["no"]?></td>
              </tr>
              <tr>
