@@ -37,10 +37,10 @@
 #	
 #	
 # Params:
-#	&yesChunk [string] [REQUIRED]
+#	&yesChunk [string] (optional)
 #		Output for LOGGED users
 #
-#	&noChunk [string] [REQUIRED] 
+#	&noChunk [string] (optional)
 #		Output for NOT logged users
 #
 #	&ph [string] (optional) 
@@ -49,6 +49,12 @@
 #	
 #	&context [string] (optional) 
 #		web|mgr
+#
+#	&yesTV [string] (optional)
+#		Output for LOGGED users
+#
+#	&noTV [string] (optional)
+#		Output for NOT logged users
 #
 # Example Usage:
 #
@@ -69,6 +75,8 @@ $yesChunk = (isset($yesChunk))? $yesChunk : '';
 $noChunk  = (isset($noChunk)) ? $noChunk  : '';
 $ph       = (isset($ph))      ? $ph       : 'username';
 $context  = (isset($context)) ? $context     : $current_context;
+$yesTV    = (isset($yesTV))   ? $yesTV : '';
+$noTV     = (isset($noTV))    ? $noTV  : '';
 
 /*
 $referer = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
@@ -95,7 +103,6 @@ $modx->setPlaceholder('host',    $host);
 switch($context)
 {
     case 'web':
-        $username   = $_SESSION['webShortname'];
         $short_name = $_SESSION['webShortname'];
         $full_name  = $_SESSION['webFullname'];
         $email      = $_SESSION['webEmail'];
@@ -103,30 +110,41 @@ switch($context)
         break;
     case 'mgr':
     case 'manager':
-        $username   = $_SESSION['mgrShortname'];
         $short_name = $_SESSION['mgrShortname'];
         $full_name  = $_SESSION['mgrFullname'];
         $email      = $_SESSION['mgrEmail'];
         $last_login = $_SESSION['mgrLastlogin'];
         break;
     default:
-        $username = '';
+        $short_name = '';
 }
 if (!empty($context))
 {
-    if($yesChunk!=='')
+    if($yesTV !== '')
+    {
+        $pre_output = $modx->documentObject[$yesTV];
+        if(is_array($pre_output))
+        {
+            $output = $pre_output[1];
+        }
+        else
+        {
+            $output = $pre_output;
+        }
+    }
+    elseif($yesChunk !== '')
     {
         $output = $modx->getChunk($yesChunk);
     }
     else
     {
-        $output = 'username : ' . $username;
+        $output = 'username : ' . $short_name;
     }
     
     if(empty($last_login)) $last_login_text = 'first login';
     else                   $last_login_text = $modx->toDateFormat($last_login);
     
-    $modx->setPlaceholder($ph,$username);
+    $modx->setPlaceholder($ph,$short_name);
     $modx->setPlaceholder('short_name',  $short_name);
     $modx->setPlaceholder('full_name',   $full_name);
     $modx->setPlaceholder('email',       $email);
@@ -134,7 +152,19 @@ if (!empty($context))
 }
 else
 {
-    if($noChunk!=='')
+    if($noTV !== '')
+    {
+        $pre_output = $modx->documentObject[$noTV];
+        if(is_array($pre_output))
+        {
+            $output = $pre_output[1];
+        }
+        else
+        {
+            $output = $pre_output;
+        }
+    }
+    elseif($noChunk!=='')
     {
         $output = $modx->getChunk($noChunk);
     }
