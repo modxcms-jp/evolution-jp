@@ -1,14 +1,22 @@
 /**
- * mm_rules
+ * mm_demo_rules
  * 
- * ManagerManager用のカスタマイズルール <span style="font-weight:bold;color:red;">【アップデート時の上書きに注意】</span>
+ * ManagerManager用のカスタマイズルール(サンプル)
  * 
  * @category	chunk
  * @version 	1.0.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Manager and Admin
- * @internal    @legacy_names mm_demo_rules
  */
+
+
+/* ****************
+【ご注意】
+実運用の際は、必ずこのチャンクの名前を変更し(たとえばmm_rulesなど)、ManagerManagerプラグインの「Configuration Chunk」で新しいチャンク名を設定してください。
+
+このチャンク名(mm_demo_rules)のまま運用していると、MODxのアップデート時にルールをまるごと上書きし、失う恐れがあります。
+**************** */
+
 
 // PHP *is* allowed
 
