@@ -59,8 +59,8 @@ define("IN_MANAGER_MODE", "true");  // we use this to make sure files are access
 require_once('./includes/protect.inc.php');
 
 // sanitize id variable passed by client, ensuring it's an integer
-$_REQUEST['id'] = (int) $_REQUEST['id'];
-$_POST['id'] = (int) $_POST['id'];
+$_REQUEST['id'] = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
+$_POST['id'] = isset($_POST['id']) ? (int) $_POST['id'] : 0;
 if(isset($_GET['id'])) {
     $_GET['id'] = (int) $_GET['id'];
 }
