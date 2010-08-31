@@ -94,7 +94,15 @@ mm_hideFields('is_folder,is_richtext,log,searchable,cacheable,clear_cache');
 mm_hideFields('resource_type,content_type,content_dispo');
 </pre>
 <p>たとえば上記のように記述すると「リソース名」「内容(本文)」以外のほとんどのフィールドを隠すことができます。フィールド名の変更や他タブへの移動・デフォルト値のセットなど、他にも18種類のコマンドを利用できます。詳細については<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=ManagerManager" target="_blank">ドキュメント</a>を確認してください。</p>
-
+<p>
+カスタマイズルールのほとんどはテンプレート別・ロール別の制御が可能ですが、ルールはphp文による制御が可能ですので、独自の条件を設けることができます。
+</p>
+	<pre>
+if($_REQUEST['id'] == '23') mm_hideFields('pub_date,unpub_date');
+	</pre>
+	<p>
+たとえば上記のように記述すると、IDが23のリソースのみに対して公開開始日時と公開終了日時の入力フィールドを隠すことができます。その他、曜日や時間帯ごとのカスタマイズなど、様々なアイデアを用いることができます。
+	</p>
 <h3>投稿画面をカスタマイズする(2)</h3>
 <p>
 プラグインを自作します。
@@ -336,7 +344,7 @@ MODxシステム面での注意点としては、たとえばCSS・JavaScriptど
 </p>
 <p>
 <b>metaタグのkeywords属性を使う</b>
-metaタグのkeywords属性を使いたい場合は、[*キーワード*] などとして専用にテンプレート変数を作りましょう。この場合、ManagerManagerプラグインのmm_widget_tagsルールを用いると便利です。また、グローバル設定の「META Keywordsタブを表示」を「はい」に設定することで、専用の管理インターフェイスを利用することもできます。
+metaタグのkeywords属性を使いたい場合は、[*キーワード*] などとして専用にテンプレート変数を作りましょう。グローバル設定の「META Keywordsタブを表示」を「はい」に設定することで、専用の管理インターフェイスを利用することもできます。
 </p>
 <p>
 <b>SEO Strict URLsプラグインを使う</b>

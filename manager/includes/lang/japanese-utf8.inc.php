@@ -693,7 +693,7 @@ $_lang["resource_metatag_help"] = 'このリソースに付加したいMETAタ�
 $_lang["resource_opt_contentdispo"] = 'リソースの出力';
 $_lang["resource_opt_contentdispo_help"] = 'ウェブブラウザがこのリソースをどう扱うかを指定できます。「ファイルとしてダウンロード」を選択するとリソースをダウンロードファイルとみなします。';
 $_lang["resource_opt_emptycache"] = '更新時にキャッシュを<br />削除(記憶されません)';
-$_lang["resource_opt_emptycache_help"] = 'このオプションのチェックを外すと、キャッシュを更新しません。設定の戻し忘れなどの事故を防ぐために、この設定は記憶されませんので、ご注意ください。';
+$_lang["resource_opt_emptycache_help"] = 'このオプションのチェックを外すと、キャッシュを削除しません。設定の戻し忘れなどの事故を防ぐために、この設定は記憶されませんので、ご注意ください。';
 $_lang["resource_opt_folder"] = 'コンテナとして扱う';
 $_lang["resource_opt_folder_help"] = 'このリソースをコンテナとして明示的に扱いたい場合にチェックしてください。通常はサブリソースの有無により自動的に判定されます';
 $_lang["resource_opt_menu_index"] = 'メニューオーダー';
@@ -917,7 +917,7 @@ $_lang["template_assignedtv_tab"] = '定義されているテンプレート変�
 $_lang["template_code"] = 'テンプレート コード (html)';
 $_lang["template_desc"] = '説明';
 $_lang["template_edit_tab"] = 'テンプレートの編集';
-$_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレートデザインの管理</h3><p>テンプレートはいくつでも作成でき、各ページ(リソース)ごとに自由に割り当てることができます。</p>';
+$_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレートデザインの管理</h3><p>テンプレートはいくつでも作成でき、各ページ(リソース)ごとに自由に割り当てることができます。カッコ内の数字はテンプレートIDです。</p>';
 $_lang["template_msg"] = 'テンプレートを作成/編集します。通常のhtmlに埋め込む独自タグとして、テンプレート変数(リソース変数含む)・コンフィグ変数・リンクタグ・スニペット・チャンク・ベンチマークタグなどを記述できます。詳しくは<a href="index.php?a=9">ヘルプ</a>を参照してください。';
 $_lang["template_name"] = 'テンプレート名';
 $_lang["template_no_tv"] = 'テンプレート変数は定義されていません。';
