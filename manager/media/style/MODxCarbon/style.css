@@ -263,8 +263,7 @@ input, select, textarea, td {
 		text-align: right;
 	}
 #ta, .tmplvars textarea {
-	font-size: 130%;
-	font-family: monospace;
+	font:inherit;
 }
 form input[type=text],
 form textarea {
