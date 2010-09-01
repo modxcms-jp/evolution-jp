@@ -105,10 +105,10 @@ $_style['icons_tooltip']            = $style_path.'icons/b02.gif';
 $_style['icons_tooltip_over']       = $style_path.'icons/b02_trans.gif';
 
 // Large Icons
-$_style['icons_backup_large']       = $style_path.'icons/backup.gif';
+$_style['icons_backup_large']       = $style_path.'icons/backup.png';
 $_style['icons_mail_large']         = $style_path.'icons/mail_generic.gif';
 $_style['icons_modules_large']      = $style_path.'icons/modules.gif';
-$_style['icons_resources_large']    = $style_path.'icons/resources.gif';
+$_style['icons_resources_large']    = $style_path.'icons/resources.png';
 $_style['icons_security_large']     = $style_path.'icons/security.gif';
 $_style['icons_webusers_large']     = $style_path.'icons/web_users.gif';
 
