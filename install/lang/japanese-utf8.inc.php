@@ -50,7 +50,7 @@ $_lang["checking_sessions"] = 'セッション情報が正常に構成される�
 $_lang["checking_table_prefix"] = 'Tableプリフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
 $_lang["config_permissions_note"] = '<span class="mono">config.inc.php</span>という名前の空ファイルを作って<span class="mono">/manager/includes/</span>ディレクトリに転送するか、すでに転送済みのconfig.inc.php.blankをリネームするなどし、パーミッションを606などに設定してください。';
-$_lang["connection_screen_collation"] = '照合順序(エンコード指定含む):';
+$_lang["connection_screen_collation"] = '照合順序(エンコード指定含む):<br />※utf8_general_ciを<br />おすすめします';
 $_lang["connection_screen_connection_method"] = '接続時の文字セットの扱い:';
 $_lang["connection_screen_database_connection_information"] = 'データベース設定';
 $_lang["connection_screen_database_connection_note"] = 'データベース名を入力してください。データベース作成権限がある場合は、ここで指定した名前でデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※MySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。';
