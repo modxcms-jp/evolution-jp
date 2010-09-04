@@ -912,8 +912,8 @@ class DocumentParser {
         if ($docgrp= $this->getUserDocGroups())
             $docgrp= implode(",", $docgrp);
         // get document
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
+        $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
+         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
         $sql= "SELECT sc.*
               FROM $tblsc sc
               LEFT JOIN $tbldg dg ON dg.document = sc.id
@@ -2138,20 +2138,22 @@ class DocumentParser {
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
     function getUserDocGroups($resolveIds= false) {
-        if ($this->isFrontend() && isset ($_SESSION['webDocgroups']) && isset ($_SESSION['webValidated'])) {
+        $dg= array();
+        $dgn= array();
+        if ($this->isFrontend() && isset ($_SESSION['webDocgroups']) && !empty($_SESSION['webDocgroups']) && isset ($_SESSION['webValidated'])) {
             $dg= $_SESSION['webDocgroups'];
-            $dgn= isset ($_SESSION['webDocgrpNames']) ? $_SESSION['webDocgrpNames'] : false;
-        } else
-            if ($this->isBackend() && isset ($_SESSION['mgrDocgroups']) && isset ($_SESSION['mgrValidated'])) {
-                $dg= $_SESSION['mgrDocgroups'];
-                $dgn= $_SESSION['mgrDocgrpNames'];
-            } else {
-                $dg= '';
+            $dgn= isset ($_SESSION['webDocgrpNames']) ? $_SESSION['webDocgrpNames'] : array();
+        }
+        if (isset ($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset ($_SESSION['mgrValidated'])) {
+            $dg= array_merge($dg, $_SESSION['mgrDocgroups']);
+            if (isset($_SESSION['mgrDocgrpNames']) ){
+                $dgn= array_merge($dgn, $_SESSION['mgrDocgrpNames']);
             }
+        }
         if (!$resolveIds)
             return $dg;
         else
-            if (is_array($dgn))
+            if (!empty($dgn) || empty($dg))
                 return $dgn;
             else
                 if (is_array($dg)) {
