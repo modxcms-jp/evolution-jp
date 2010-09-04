@@ -373,8 +373,9 @@ class DocumentParser {
                 return $a[0]; // return only document content
             else {
                 $docObj= unserialize($a[0]); // rebuild document object
-                // check page security
-                if ($docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
+                // check page security(admin(mgrRole=1) is pass)
+                if (!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole']== 1) 
+                    && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
                     $pass= false;
                     $usrGrps= $this->getUserDocGroups();
                     $docGrps= explode(",", $docObj['__MODxDocGroups__']);
