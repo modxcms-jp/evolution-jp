@@ -88,7 +88,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('validate_referer', '1'),
 ('datepicker_offset','-10'),
 ('xhtml_urls','1'),
-('allow_duplicate_alias','1'),
+('allow_duplicate_alias','0'),
 ('automatic_alias','0'),
 ('datetime_format','YYYY/mm/dd'),
 ('warning_visibility', '0'),
