@@ -905,9 +905,9 @@ class DocumentParser {
 				{
 					$docid = intval($pieces[$idx]);
 					if($docid == intval($this->config['site_start']))
-						$documentSource .= $this->config['base_url'];
+						$documentSource .= 'index.php';
 					else
-						$documentSource .= $this->config['base_url'] . 'index.php?id=' . $docid;
+						$documentSource .= 'index.php?id=' . $docid;
 				}
 			}
         }
