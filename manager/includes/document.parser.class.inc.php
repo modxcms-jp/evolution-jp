@@ -874,29 +874,44 @@ class DocumentParser {
         $alias = array_pop($Alias);
         $dir = implode('/', $Alias);
         unset($Alias);
+//        if(strstr($alias, '.') !== false) $suff = '';//yama
         return ($dir != '' ? "$dir/" : '') . $pre . $alias . $suff;
     }
 
     function rewriteUrls($documentSource) {
         // rewrite the urls
-        if ($this->config['friendly_urls'] == 1) {
-            $aliases= array ();
-            foreach ($this->aliasListing as $item) {
-                $aliases[$item['id']]= (strlen($item['path']) > 0 ? $item['path'] . '/' : '') . $item['alias'];
-            }
-            $in= '!\[\~([0-9]+)\~\]!ise'; // Use preg_replace with /e to make it evaluate PHP
-            $isfriendly= ($this->config['friendly_alias_urls'] == 1 ? 1 : 0);
-            $pref= $this->config['friendly_url_prefix'];
-            $suff= $this->config['friendly_url_suffix'];
-            $thealias= '$aliases[\\1]';
-            $found_friendlyurl= "\$this->makeFriendlyURL('$pref','$suff',$thealias)";
-            $not_found_friendlyurl= "\$this->makeFriendlyURL('$pref','$suff','" . '\\1' . "')";
-            $out= "({$isfriendly} && isset({$thealias}) ? {$found_friendlyurl} : {$not_found_friendlyurl})";
-            $documentSource= preg_replace($in, $out, $documentSource);
-        } else {
 			$pieces = preg_split('/(\[~|~\])/',$documentSource);
 			$maxidx = sizeof($pieces);
 			$documentSource = '';
+		
+		if ($this->config['friendly_urls'] == 1)
+		{
+			$aliases= array ();
+			foreach ($this->aliasListing as $doc)
+			{
+				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
+			}
+			$use_alias = $this->config['friendly_alias_urls'];
+			$prefix    = $this->config['friendly_url_prefix'];
+			$suffix    = $this->config['friendly_url_suffix'];
+			
+			for ($idx = 0; $idx < $maxidx; $idx++)
+			{
+				$documentSource .= $pieces[$idx];
+				$idx++;
+				if ($idx < $maxidx)
+				{
+					$docid = intval($pieces[$idx]);
+					if(!is_numeric($pieces[$idx]))         $path = '[~' . $pieces[$idx] . '~]';
+					elseif($aliases[$docid] && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$docid]);
+					else                                   $path = $this->makeFriendlyURL($prefix, $suffix, $docid);
+					$documentSource .= $path;
+				}
+			}
+			unset($aliases);
+		}
+		else
+		{
 			for ($idx = 0; $idx < $maxidx; $idx++)
 			{
 				$documentSource .= $pieces[$idx];
