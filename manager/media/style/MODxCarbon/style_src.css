@@ -1596,4 +1596,10 @@ a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decor
 
 td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
 
-input.number {ime-mode:disabled;}
+form#mutate input.text {width:300px;}
+form#mutate textarea.inputBox {width:300px;height:80px;}
+form#mutate textarea {width:90%;height:240px;}
+form#mutate textarea.textareamini {height:120px;}
+form#mutate input.number,input.email {ime-mode:disabled;}
+form#mutate input.number {width:80px !important;text-align:right;}
+form#mutate label {display:block;}

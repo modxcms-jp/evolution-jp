@@ -764,7 +764,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 						echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
 						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
 						     "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:' . $dp_z_index . ';' : ''),'">',"\n",
-						     "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, ' style="width:300px;"'),"\n",
+						     "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV),"\n",
 						     "\t\t</td></tr>\n";
 					}
 					echo "\t</table>\n";
