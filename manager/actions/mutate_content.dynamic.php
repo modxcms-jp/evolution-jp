@@ -147,8 +147,8 @@ if ($formRestored == true || isset ($_REQUEST['newtemplate'])) {
 }
 
 // increase menu index if this is a new document
-if (!isset ($_REQUEST['id'])) {
-	if (!isset ($auto_menuindex) || $auto_menuindex) {
+if (empty($_REQUEST['id'])) {
+	if (is_null($auto_menuindex) || $auto_menuindex) {
 		$pid = intval($_REQUEST['pid']);
 		$sql = 'SELECT count(*) FROM '.$tbl_site_content.' WHERE parent=\''.$pid.'\'';
 		$content['menuindex'] = $modx->db->getValue($sql);
