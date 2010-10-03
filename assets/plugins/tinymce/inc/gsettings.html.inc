@@ -3,7 +3,7 @@ textarea.mce {width:95%;height:40px;display:block;}
 </style>
 <table id="editorRow_TinyMCE" style="width:inherit;" border="0" cellspacing="0" cellpadding="3">
   <tr class="row1" style="display: [+display+];">
-    <td colspan="2" class="warning" style="color:#707070; background-color:#eeeeee"><h4>[+tinymce_settings+]</h4></td>
+    <td colspan="2" class="warning" style="color:#707070; background-color:#eeeeee"><h4 style="margin:3px;">[+tinymce_settings+]</h4></td>
   </tr>
   <tr class="row1" style="display: [+display+];">
     <td nowrap class="warning"><b>[+tinymce_editor_theme_title+]</b></td>
