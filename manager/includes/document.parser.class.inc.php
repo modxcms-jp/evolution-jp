@@ -894,9 +894,22 @@ class DocumentParser {
             $out= "({$isfriendly} && isset({$thealias}) ? {$found_friendlyurl} : {$not_found_friendlyurl})";
             $documentSource= preg_replace($in, $out, $documentSource);
         } else {
-            $in= '!\[\~([0-9]+)\~\]!is';
-            $out= "index.php?id=" . '\1';
-            $documentSource= preg_replace($in, $out, $documentSource);
+			$pieces = preg_split('/(\[~|~\])/',$documentSource);
+			$maxidx = sizeof($pieces);
+			$documentSource = '';
+			for ($idx = 0; $idx < $maxidx; $idx++)
+			{
+				$documentSource .= $pieces[$idx];
+				$idx++;
+				if ($idx < $maxidx)
+				{
+					$docid = intval($pieces[$idx]);
+					if($docid == intval($this->config['site_start']))
+						$documentSource .= $this->config['base_url'];
+					else
+						$documentSource .= $this->config['base_url'] . 'index.php?id=' . $docid;
+				}
+			}
         }
         return $documentSource;
     }
