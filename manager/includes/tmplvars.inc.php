@@ -53,8 +53,9 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox": // handler for select boxes
-				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" onchange="documentDirty=true;" size="8">';	
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" onchange="documentDirty=true;" size="' . $count . '">';	
 				while (list($item, $itemvalue) = each ($index_list))
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
@@ -64,9 +65,10 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox-multiple": // handler for select boxes where you can choose multiple items
-				$field_value = explode("||",$field_value);
-				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" onchange="documentDirty=true;" size="8">';
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_value = explode("||",$field_value);
+				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" onchange="documentDirty=true;" size="' . $count . '">';
 				while (list($item, $itemvalue) = each ($index_list))
 				{
 					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
