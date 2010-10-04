@@ -20,7 +20,7 @@ ul {margin-bottom:15px;}
 <li>フレンドリーURLの接尾辞 →「 .html」</li>
 <li>フレンドリエイリアス →「はい」</li>
 <li>エイリアスパスを使用 →「はい」</li>
-<li>重複エイリアスを許可 →「はい」</li>
+<li>重複エイリアスを許可 →「いいえ」</li>
 <li>エイリアス自動生成 →「いいえ」</li>
 </ul>
 <p>
@@ -123,6 +123,22 @@ form#mutate div.tmplvars label {display:inline;}
 <p>
 たとえば上記のようなスタイルを書けば、チェックボックス・ラジオボタンタイプのテンプレート変数の選択肢を横並びにできます。選択肢が多い場合に便利です。<br />
 ※一行目の「 ?&gt; 」はphpの処理を抜けてhtmlをそのまま出力させるための記述です。詳細はphpの入門書などを参照してください。
+</p>
+
+<h3>投稿画面をカスタマイズする(3)</h3>
+<p>
+/assets/plugins/tinymce/style/content.cssを編集することで、TinyMCE(本文のテキストエリア)のスタイルシートをカスタマイズできます。また、グローバル設定の「CSSファイルへのパス」で自作のスタイルシートを指定することもできます。</p>
+<p>
+サイトの表示に用いるスタイルシートと共用したい場合は、まずコンテンツ領域専用にCSSファイルを作り、これを「CSSファイルへのパス」で指定します。次に、TinyMCEプラグイン設定の「Custom Parameters」に<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/body_id" target="_blank">body_idパラメータ</a>を追記し、サイトと投稿画面のセレクタを揃えます。
+<pre>
+body_id:"content",
+</pre>
+id=contentのdiv要素内で記事を表示している場合は、上記のように指定します。セレクタとしてclassを用いている場合は<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/body_class" target="_blank">body_classオプション</a>を使用してください。
+</p>
+
+<h3>投稿画面をカスタマイズする(4)</h3>
+<p>
+TinyMCEのツールバーの機能をカスタマイズできます。グローバル設定の「TinyMCEの設定 - カスタムボタン」で機能を任意に選び、「テーマ」で「カスタム」を選択してください。機能を利用する場合はプラグイン(TinyMCE用)の読み込みが必要なものもありますので、動かない場合は確認してください。実装できるボタンについては、TinyMCE開発元の<a href="http://tinymce.moxiecode.com/examples/full.php" target="_blank">サンプル</a>と<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference" target="_blank">ドキュメント</a>を参考にしてください。なお、MODx同梱のTinyMCEではいくつかのプラグインを同梱してませんので(printやspellcheckerなど)、ボタンが実装できない場合は確認し、足りないものはTinyMCE開発元から入手してください。
 </p>
 
 <h3>日付タイプのリソース変数の出力書式を変更する</h3>
