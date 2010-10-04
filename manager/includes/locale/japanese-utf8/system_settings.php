@@ -79,7 +79,7 @@ $modx_charset             = set_default('UTF-8', $modx_charset);
 $manager_layout           = set_default('4', $manager_layout);
 $manager_direction        = set_default('ltr', $manager_direction);
 $tinymce_editor_theme     = set_default('editor', $tinymce_editor_theme);
-$tinymce_custom_plugins   = set_default('autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table', $tinymce_custom_plugins);
+$tinymce_custom_plugins   = set_default('inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table', $tinymce_custom_plugins);
 $tinymce_custom_buttons1  = set_default('undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help', $tinymce_custom_buttons1);
 $tinymce_custom_buttons2  = set_default('image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat', $tinymce_custom_buttons2);
 $tinymce_css_selectors    = set_default('左寄せ=justifyleft;右寄せ=justifyright', $tinymce_css_selectors);
