@@ -1068,20 +1068,6 @@ function confirmLangChange(el, lkey, elupd){
             <td colspan="2"><div class='split'></div></td>
           </tr>
           <tr>
-            <td nowrap class="warning"><b><?php echo $_lang["settings_strip_image_paths_title"]?></b></td>
-            <td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
-              <?php echo $_lang["yes"]?><br />
-              <input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo ($strip_image_paths=='0' || !isset($strip_image_paths)) ? 'checked="checked"' : "" ; ?> />
-              <?php echo $_lang["no"]?> </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["settings_strip_image_paths_message"]?></td>
-          </tr>
-          <tr>
-            <td colspan="2"><div class='split'></div></td>
-          </tr>
-          <tr>
             <td nowrap class="warning"><b><?php echo $_lang["rb_title"]?></b></td>
             <td> <input onchange="documentDirty=true;" type="radio" name="use_browser" value="1" <?php echo ($use_browser=='1' || !isset($use_browser)) ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 1);" />
               <?php echo $_lang["yes"]?><br />
@@ -1093,6 +1079,21 @@ function confirmLangChange(el, lkey, elupd){
             <td class='comment'><?php echo $_lang["rb_message"]?></td>
           </tr>
           <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          
+          <tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <td nowrap class="warning"><b><?php echo $_lang["settings_strip_image_paths_title"]?></b></td>
+            <td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
+              <?php echo $_lang["yes"]?><br />
+              <input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo ($strip_image_paths=='0' || !isset($strip_image_paths)) ? 'checked="checked"' : "" ; ?> />
+              <?php echo $_lang["no"]?> </td>
+          </tr>
+          <tr id='rbRow20' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["settings_strip_image_paths_message"]?></td>
+          </tr>
+          <tr id='rbRow21' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
           

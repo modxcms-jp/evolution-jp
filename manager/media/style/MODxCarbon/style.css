@@ -514,6 +514,9 @@ a img {
 .row3 {
 	background-color: #F4F4F4;
 }
+.row3 td.warning {
+	padding-left:25px;
+}
 .treeframebody {
 	background-color: #f4f4f4;
 }
