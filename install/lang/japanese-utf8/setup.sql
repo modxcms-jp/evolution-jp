@@ -78,7 +78,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('mail_check_timeperiod','60'),
 ('manager_direction','ltr'),
 ('tinymce_editor_theme','editor'),
-('tinymce_custom_plugins','autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table'),
+('tinymce_custom_plugins','inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table'),
 ('tinymce_custom_buttons1','undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help'),
 ('tinymce_custom_buttons2','image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat'),
 ('tinymce_css_selectors', '左寄せ=justifyleft;右寄せ=justifyright'),
