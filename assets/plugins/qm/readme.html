@@ -18,6 +18,8 @@
 
 
 
+
+
   
   <meta content="text/html; charset=UTF-8" http-equiv="content-type"><title>QuickManager+</title></head><body style="font-family: verdana,helvetica; line-height: 20px; font-size: 14px;">
 <h1 style="border-bottom: 1px solid rgb(0, 0, 0); padding-bottom: 12px;">QuickManager+</h1>
@@ -27,7 +29,7 @@
 @license GNU General Public
 License (GPL v3),&nbsp;<a href="http://www.gnu.org/copyleft/gpl.html" target="_blank">www.gnu.org/copyleft/gpl.html</a><br>
 
-@version 1.5.1 updated 02/08/2010<br>
+@version 1.5.2 updated 14/09/2010<br>
 
 @requirements MODx 1.0.0+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,7 +53,7 @@ NOTICE: If you are using Mac OS X don't extract files to the site root or you wi
 <ul>
 
   <li>Name: QuickManager+ </li>
-  <li>Description: &lt;strong&gt;1.5.1&lt;/strong&gt; Enables front-end
+  <li>Description: &lt;strong&gt;1.5.2&lt;/strong&gt; Enables front-end
 content editing<br>
 </li>
 </ul>
@@ -65,7 +67,7 @@ content editing<br>
 &nbsp;*<br>
 &nbsp;* @author Mikko Lammi, www.maagit.fi/quickmanager-plus<br>
 &nbsp;* @license GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html<br>
-&nbsp;* @version 1.5.1 updated 02/08/2010&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;* @version 1.5.2 updated 14/09/2010&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
 &nbsp;*/<br>
       <br>
 $show = TRUE;<br>
@@ -196,7 +198,7 @@ With: <br>
 
 <span style="font-family: Courier New,Courier,monospace;">if(isset($forfrontend)||($modx-&gt;isFrontend()
 &amp;&amp; (intval($_GET['quickmanagertv'] != 1) &amp;&amp;
-!(isset($_SESSION['mrgValidated']))))){</span><br>
+!(isset($_SESSION['mgrValidated']))))){</span><br>
 
 <br>
 
@@ -218,7 +220,7 @@ Replace line:<br>
 
 With:<br>
 
-<span style="font-family: Courier New,Courier,monospace;">if($modx-&gt;isBackend() || (intval($_GET['quickmanagertv']) == 1 &amp;&amp; isset($_SESSION['mrgValidated'])))</span><br>
+<span style="font-family: Courier New,Courier,monospace;">if($modx-&gt;isBackend() || (intval($_GET['quickmanagertv']) == 1 &amp;&amp; isset($_SESSION['mgrValidated'])))</span><br>
 
 
 <h2>Configuration</h2>
@@ -608,7 +610,16 @@ Dertlian</li>
 </ul>
 
 
-<h2>Changelog</h2>1.5.1 - 02/08/2010<br>
+<h2>Changelog</h2>1.5.2 - 14/09/2010<br>
+
+<ul>
+<li>Added: CSS classes to toolbar buttons, also li elements: qmCustom, qmManager, qmLogout</li>
+  <li>Changed: Inline buttons div =&gt; span, validates correctly<br>
+  </li>
+<li>Fixed: Inline template variable editing when TV type is checkbox<br>
+</li>
+</ul>
+1.5.1 - 02/08/2010<br>
 <ul>
   <li>Added: CSS classes to toolbar buttons: qmCustom, qmManager, qmLogout<br>
   </li>

@@ -4,7 +4,7 @@
  *  
  * @author      Mikko Lammi, www.maagit.fi 
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.1 updated 2/08/2010                
+ * @version     1.5.2 updated 14/09/2010                
  */
 
 if(!class_exists('Qm')) {
@@ -344,7 +344,7 @@ class Qm {
                         // Edit button
                         
                         $editButton = '
-                        <li>
+                        <li class="qmEdit">
                         <a class="qmButton qmEdit colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id='.$docID.'&amp;quickmanager=1"><span> '.$_lang['edit_resource'].'</span></a>
                         </li>
                         ';
@@ -358,7 +358,7 @@ class Qm {
                         if ($this->addbutton == 'true' && $access) {                    
                             // Add button
                             $addButton = '
-                            <li>
+                            <li class="qmAdd">
                             <a class="qmButton qmAdd colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid='.$docID.'&amp;quickmanager=1"><span>'.$_lang['create_resource_here'].'</span></a>
                             </li>
                             ';
@@ -418,7 +418,7 @@ class Qm {
                                     {
                                         case 'new':
                                             $customButton = '
-                                            <li class="qm-custom-'.$i.'">
+                                            <li class="qm-custom-'.$i.' qmCustom">
                                             <a class="qmButton qmCustom colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid='.$buttonParentId.'&amp;quickmanager=1&amp;customaddtplid='.$buttonTplId.'"><span>'.$buttonTitle.'</span></a>
                                             </li>
                                             ';
@@ -426,7 +426,7 @@ class Qm {
                                     
                                         case 'link':
                                             $customButton  = '
-                                            <li class="qm-custom-'.$i.'">
+                                            <li class="qm-custom-'.$i.' qmCustom">
                                             <a class="qmButton qmCustom" href="'.$buttonParentId.'" ><span>'.$buttonTitle.'</span></a>
                                             </li>
                                             ';    
@@ -434,7 +434,7 @@ class Qm {
                                         
                                         case 'modal':
                                             $customButton  = '
-                                            <li class="qm-custom-'.$i.'">
+                                            <li class="qm-custom-'.$i.' qmCustom">
                                             <a class="qmButton qmCustom colorbox" href="'.$buttonParentId.'" ><span>'.$buttonTitle.'</span></a>
                                             </li>
                                             ';   
@@ -448,7 +448,7 @@ class Qm {
                         // Go to Manager button
                         if ($this->managerbutton == 'true') {
                             $managerButton  = '
-                            <li>
+                            <li class="qmManager">
                             <a class="qmButton qmManager" title="'.$_lang['manager'].'" href="'.$this->modx->config['site_url'].'manager/" ><span>'.$_lang['manager'].'</span></a>
                             </li>
                             ';
@@ -458,7 +458,7 @@ class Qm {
                         // Logout button
                         $logout = $this->modx->config['site_url'].'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid='.$docID;     
                         $logoutButton  = '
-                        <li>
+                        <li class="qmLogout">
                         <a id="qmLogout" class="qmButton qmLogout" title="'.$_lang['logout'].'" href="'.$logout.'" ><span>'.$_lang['logout'].'</span></a>
                         </li>
                         ';
@@ -539,7 +539,7 @@ class Qm {
                             
                         $head .= '    
                             {                      
-                    		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
+                        		$("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false});
                         	
                             	// Bindings
                             	$().bind("cbox_open", function(){
@@ -602,12 +602,12 @@ class Qm {
                         
                         // Search and create edit buttons in to the content
                         if ($this->editbuttons == 'true' && $access) {
-                            $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([A-Za-z0-9&:;_\- ]+)\' -->/', '<div class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></div>', $output);
+                            $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([A-Za-z0-9&:;_\- ]+)\' -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></span>', $output);
                         }
                         
                         // Search and create new document buttons in to the content
                         if ($this->newbuttons == 'true' && $access) {
-                            $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([A-Za-z0-9&:;_\- ]+)\' -->/', '<div class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></div>', $output);
+                            $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([A-Za-z0-9&:;_\- ]+)\' -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></span>', $output);
                         }
                         
                         // Search and create new document buttons in to the content
@@ -856,7 +856,7 @@ class Qm {
 	    
 	    // Return TV button link if access
 	    if ($access && $caption != '') {
-	        return '<div class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></div>';
+	        return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></span>';
         } 
     }
     
@@ -972,9 +972,19 @@ class Qm {
         $user = $_SESSION['mgrInternalKey'];      
         $tvId = isset($_POST['tvid']) ? intval($_POST['tvid']) : '';
         $tvContent = isset($_POST['tv'.$tvName]) ? $_POST['tv'.$tvName] : '';
+        $tvContentTemp = '';
         
         // Invoke OnBeforeDocFormSave event
         $this->modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd', 'id'=>$pageId));
+        
+        // Handle checkboxes and other arrays, TV to be saved must be e.g. value1||value2||value3
+        if (is_array($tvContent)) {
+            foreach($tvContent as $key => $value) {
+                $tvContentTemp .= $value . '||';
+            }
+            $tvContentTemp = substr($tvContentTemp, 0, -2);  // Remove last ||
+            $tvContent = $tvContentTemp;
+        }
         
         // Save TV
         if ($tvId != '') {
