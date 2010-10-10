@@ -366,8 +366,7 @@ class DocumentParser {
         $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
-            $flContent= implode("", file($cacheFile));
-            $flContent= substr($flContent, 37); // remove php header
+            $flContent= file_get_contents($cacheFile, false, NULL, 37);
             $a= explode("<!--__MODxCacheSpliter__-->", $flContent, 2);
             if (count($a) == 1)
                 return $a[0]; // return only document content
