@@ -770,11 +770,13 @@ class DocumentParser {
         ob_start();
         $snip= eval ($snippet);
         $msg= ob_get_contents();
+        $request_uri = getenv('REQUEST_URI');
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         ob_end_clean();
         if ($msg && isset ($php_errormsg)) {
             if (strpos(strtolower($php_errormsg), 'deprecated')===false) { // ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->currentSnippet . " - Snippet");
+                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg<br />REQUEST_URI = $request_uri<br />ID = $this->documentIdentifier", $this->currentSnippet . " - Snippet");
                 if ($this->isBackend())
                     $this->Event->alert("An error occurred while loading. Please see the event log for more information<p />$msg");
             }
@@ -2669,6 +2671,8 @@ class DocumentParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
         $code_name= isset ($GLOBALS['code_name']) ? $GLOBALS['code_name'] : '';
+        $request_uri = getenv('REQUEST_URI');
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $parsedMessageString= "
               <html><head><title>MODx Content Manager $version &raquo; $code_name</title>
               <style>TD, BODY { font-size: 11px; font-family:verdana; }</style>
@@ -2693,6 +2697,9 @@ class DocumentParser {
                     <tr><td colspan='3'>The MODx parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
         }
+        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; REQUEST_URI : ' . $request_uri . '&raquo;</b></td></tr>';
+        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; ID : ' . $this->documentIdentifier . '&raquo;</b></td></tr>';
+        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; currentSnippet : ' . $this->currentSnippet . '&raquo;</b></td></tr>';
 
         if (!empty ($query)) {
             $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 9px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
