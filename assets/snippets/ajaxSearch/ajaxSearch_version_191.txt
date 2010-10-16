@@ -1,11 +1,47 @@
 
-                              AjaxSearch - version 1.9.0
+                              AjaxSearch - version 1.9.1
 
                            Coroico - http://www.modx.wangba.fr
 
-                                18th of May 2010
+                                30th of August 2010
 
+The release 1.9.1 provide the correction of the following issues:
+
+==== AJAXSEARCH-65 : search-result numbers starting new at 1 on each search-result page
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-65
+
+==== AJAXSEARCH-66 : Implement legacy support for parameters changes in 1.9.0.
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-66
+
+==== AJAXSEARCH-67 : stripos and mb_stripos error
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-67
+
+==== AJAXSEARCH-68 : With Jquery and Safari, the page is reloaded when "enter" is typed
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-68
+
+==== AJAXSEARCH-69 : AjaxSearch returns ALL images from Maxigallery
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-69
+
+==== AJAXSEARCH-72 : Search terms not found with the "exact phrase" option
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-72
+
+==== AJAXSEARCH-73 : Illegal character encoding - mb_convert_string issues
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-73
+
+==== AJAXSEARCH-74 : AjaxSearch doesn't run with a friendly url
+http://svn.modxcms.com/jira/browse/AJAXSEARCH-74
+
+And the following languages files are added for version 1.9:
+
+- Slovak language files for AjaxSearch v1.9
+
+
+No new functions are provided with this release.
+
+=====================================================================================                               
+                               
 Previous versions :
+ - 1.9.0 delivered the 18th of May 2010 (provided with MODx 1.0.4)
  - 1.8.5 delivered the 20th of March 2010 (provided with MODx 1.0.3)
  - 1.8.4 delivered the 20th of October 2009 (provided with MODx1.0.1)
  - 1.8.3a delivered the 12th of July 2009 (provided with MODx1.0.0)
@@ -466,3 +502,4 @@ http://svn.modxcms.com/jira/browse/AJAXSEARCH-61
 
 ==== AJAXSEARCH-62 : mb_internal_encoding("UTF-8") missing
 http://svn.modxcms.com/jira/browse/AJAXSEARCH-62
+

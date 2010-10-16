@@ -5,8 +5,8 @@
 * @package  AjaxSearchConfig
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.0
-* @date         18/05/2010
+* @version      1.9.1
+* @date         30/08/2010
 *
 * Purpose:
 *    The AjaxSearchConfig class contains all functions and data used to manage configuration context
@@ -56,7 +56,7 @@ class AjaxSearchConfig {
 
             $this->isAjax = true;
 
-            $this->ucfg = $this->parseUserConfig($_POST['ucfg']);
+            $this->ucfg = $this->parseUserConfig(strip_tags($_POST['ucfg']));
 
             $this->bcfg = array_merge($this->dcfg, (array)$this->ucfg);
 

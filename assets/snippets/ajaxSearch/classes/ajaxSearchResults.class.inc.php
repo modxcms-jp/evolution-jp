@@ -5,8 +5,8 @@
 * @package  AjaxSearchResults
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.0
-* @date         18/05/2010
+* @version      1.9.1
+* @date         30/08/2010
 *
 * Purpose:
 *    The AjaxSearchResults class contains all functions and data used to manage Results
@@ -524,15 +524,16 @@ class AjaxSearchResults {
             $extractLength = $this->asCfg->cfg['extractLength'];
             $extractLength2 = $extractLength / 2;
             $searchList = $this->asCtrl->getSearchWords($searchString, $advSearch);
-
             foreach ($searchList as $searchTerm) {
                 $rank++;
                 $wordLength = $mbStrlen($searchTerm);
                 $wordLength2 = $wordLength / 2;
                 // $pattern = '/' . preg_quote($searchTerm, '/') . $lookAhead . '/' . $pcreModifier;
-                $pattern = '/' . preg_quote($searchTerm, '/') . '/' . $pcreModifier;
+                if ($advSearch == EXACTPHRASE) $pattern = '/\b' . preg_quote($searchTerm, '/') . '\b/' . $pcreModifier;
+                else $pattern = '/' . preg_quote($searchTerm, '/') . '/' . $pcreModifier;
                 $matches = array();
                 $nbr = preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE);
+
                 for($i=0;$i<$nbr && $i<$this->extractNb;$i++) {
                     $wordLeft = $mbStrlen(substr($text,0,$matches[0][$i][1]));
                     $wordRight = $wordLeft + $wordLength - 1;
@@ -591,7 +592,8 @@ class AjaxSearchResults {
                 if ($this->asCfg->cfg['highlightResult']) {
                     $rank = $extracts[$i]['rank'];
                     $searchTerm = $searchList[$rank - 1];
-                    $pattern = '/' . preg_quote($searchTerm, '/') . '/' . $pcreModifier;
+                    if ($advSearch == EXACTPHRASE) $pattern = '/\b' . preg_quote($searchTerm, '/') . '\b/' . $pcreModifier;
+                    else $pattern = '/' . preg_quote($searchTerm, '/') . '/' . $pcreModifier;
                     $subject = '<span class="' . $highlightClass . ' ' . $highlightClass . $rank . '">\0</span>';
                     $extract = preg_replace($pattern, $subject, $extract);
                 }
@@ -871,18 +873,19 @@ class AjaxSearchResults {
                 if ($searchString !== '') {
                     if (($this->asCfg->dbCharset == 'utf8') && ($this->asCfg->cfg['mbstring'])) {
                         $text = $this->_html_entity_decode($text, ENT_QUOTES, 'UTF-8');
-                        $mbStrpos = 'mb_stripos';
-                        mb_internal_encoding('UTF-8');
                     }
                     else {
                         $text = html_entity_decode($text, ENT_QUOTES);
-                        $mbStrpos = 'stripos';
                     }
 
                     $searchList = $this->asCtrl->getSearchWords($searchString, $advSearch);
+                    $pcreModifier = $this->asCfg->pcreModifier;
                     foreach ($searchList as $searchTerm) {
-                        $found = $mbStrpos($text, $searchTerm);
-                        if ($found !== false) break;
+                        if ($advSearch == EXACTPHRASE) $pattern = '/\b' . preg_quote($searchTerm, '/') . '\b/' . $pcreModifier;
+                        else $pattern = '/' . preg_quote($searchTerm, '/') . '/' . $pcreModifier;
+                        $matches = array();
+                        $found = preg_match($pattern, $text, $matches, PREG_OFFSET_CAPTURE);
+                        if ($found) break;
                     }
                 }
             }

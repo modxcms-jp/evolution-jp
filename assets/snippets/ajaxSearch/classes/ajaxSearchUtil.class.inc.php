@@ -5,8 +5,8 @@
 * @package  AjaxSearchUtil
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.0
-* @date         18/05/2010
+* @version      1.9.1
+* @date         30/08/2010
 *
 * Purpose:
 *    The AjaxSearchUtil class contains some util methods
@@ -44,8 +44,8 @@ class AjaxSearchUtil {
             if ($isWriteable) {
                 $dbgFile = AS_DBGDIR . '/' . AS_DBGFILE;
                 $this->_dbgFd = fopen($dbgFile, 'w+');
-            $this->dbgRecord($header);
-            fclose($this->_dbgFd);
+                $this->dbgRecord($header);
+                fclose($this->_dbgFd);
                 $this->_dbgFd = fopen($dbgFile, 'a+');
             }
             else {
@@ -87,11 +87,8 @@ class AjaxSearchUtil {
     * @return string Returns the elapsed time
     */
     function getElapsedTime($start=0) {
-
-        $mtime= microtime();
-        $mtime= explode(" ", $mtime);
-        $mtime= $mtime[1] + $mtime[0];
-        $tend= $mtime;
+        list($usec, $sec)= explode(' ', microtime());
+        $tend= (float) $usec + (float) $sec;
         if ($start) $eTime= ($tend - $start);
         else $eTime= ($tend - $this->tstart);
         $etime = sprintf("%.4fs",$eTime);

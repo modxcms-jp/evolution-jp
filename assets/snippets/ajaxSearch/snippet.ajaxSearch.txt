@@ -5,13 +5,13 @@
  * Ajax and non-Ajax search that supports results highlighting
  *
  * @category    snippet
- * @version     1.9.0
+ * @version     1.9.1
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal    @properties
  * @internal    @modx_category Search
  *
  * @author      Coroico <coroico@wangba.fr>
- * @date        18/05/2010
+ * @date        30/08/2010
  * -----------------------------------------------------------------------------
  */
 /**
@@ -71,7 +71,7 @@ MORE : See the ajaxSearch.readme.txt file for more informations.
 ----------------------------------------------------------------------------- */
 
 // ajaxSearch version being executed
-define('AS_VERSION', '1.9.0');
+define('AS_VERSION', '1.9.1');
 // Path where ajaxSearch is installed
 define('AS_SPATH', 'assets/snippets/ajaxSearch/');
 //include snippet file
@@ -89,6 +89,13 @@ if (file_exists($default)) include $default;
 else return "<h3>AjaxSearch error: $default not found !<br />Check the existing of this file!</h3>";
 if (!isset($dcfg)) return "<h3>AjaxSearch error: default configuration array not defined in $default!<br /> Check the content of this file!</h3>";
 $cfg = array(); // current configuration
+
+// check the possible use of deprecated parameters (since 1.8.5)
+if (isset($searchWordList)) return "<h3>AjaxSearch error: searchWordList is a deprecated parameter. Read ajaxSearch_version_191.txt file.</h3>";
+if (isset($resultsPage)) return "<h3>AjaxSearch error: resultsPage is a deprecated parameter. Read ajaxSearch_version_191.txt file.</h3>";
+if (isset($AS_showForm)) return "<h3>AjaxSearch error: AS_showForm parameter has been renamed showInputForm. Read ajaxSearch_version_191.txt file.</h3>";
+if (isset($AS_landing)) return "<h3>AjaxSearch error: AS_landing parameter has been renamed landingPage. Read ajaxSearch_version_191.txt file.</h3>";
+if (isset($AS_showResults)) return "<h3>AjaxSearch error: AS_showResults parameter has been renamed showResults. Read ajaxSearch_version_191.txt file.</h3>";
 
 // Load a custom configuration file if required
 // config_name - Other config installed in the configs folder or in any folder within the MODx base path via @FILE

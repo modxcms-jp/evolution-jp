@@ -5,13 +5,11 @@
 * @package  AjaxSearchOutput
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.0
-* @date         18/05/20100
+* @version      1.9.1
+* @date         30/08/2010
 *
 * Purpose:
 *    The AjaxSearchOutput class contains all functions and data used to display output
-*
-*    Version: 1.9  - Coroico (coroico@wangba.fr)
 *
 */
 
@@ -235,7 +233,7 @@ class AjaxSearchOutput {
             unset($this->chkResults);
 
             // UTF-8 conversion is required if mysql character set is different of 'utf8'
-            if ($this->_needsConvert) $outputResults = mb_convert_encoding($outputResults,"UTF-8",$this->pgCharset);
+            if ($this->_needsConvert) $outputResults = mb_convert_encoding($outputResults,"UTF-8",$this->asCfg->pgCharset);
 
             $this->logIds = $logIds;
         }
@@ -257,7 +255,7 @@ class AjaxSearchOutput {
         $prefix = ($this->asCfg->cfg['asId']) ? $this->asCfg->cfg['asId'] . "_" : '';
         $this->varGrpResult['grpResultId'] = $prefix . 'grpResult_' . $this->_getCleanCssId($subsite);
 
-        $listResults = $this->_displayListResults($site, $subsite, $display, $nbrs, $searchResults, $found);
+        $listResults = $this->_displayListResults($site, $subsite, $display, $nbrs, $searchResults, $found, $offset);
         $this->varGrpResult['listResults'] = ASPHX;
 
         $this->varGrpResult['footerGrpResult'] = $this->_displayFooterGrpResult($ig, $nbrs,  $offset, $nbMax);
@@ -296,7 +294,7 @@ class AjaxSearchOutput {
     /*
     * Display the list of results
     */
-    function _displayListResults($site, $subsite, $display, $nbrs, $searchResults, & $found) {
+    function _displayListResults($site, $subsite, $display, $nbrs, $searchResults, & $found, $offset) {
         $nb = count($searchResults);
         $listResults = '';
 
@@ -311,7 +309,7 @@ class AjaxSearchOutput {
 
             $this->_setResultBreadcrumbs($searchResults[$i]);
 
-            $this->_setResultNumber($this->offset + $i + 1);
+            $this->_setResultNumber($offset + $i + 1);
 
 
             $this->chkResult->AddVar("as", $this->varResult);
@@ -488,28 +486,29 @@ class AjaxSearchOutput {
     * Get the parameters to set up an URL
     */
     function _getParamsUrl() {
+        global $modx;
+        $firstarg = $modx->config['friendly_urls'] ? '?' : '&';
+        $url = '';
+
+        if ($this->asCfg->cfg['asId']) $url = $firstarg . 'asid=' . urlencode($this->asCfg->cfg['asId']);
 
         if ($this->asCtrl->searchString) {
-            $searchStringUrl = '&search=' . urlencode($this->asCtrl->searchString);
-            $advSearchUrl = '&amp;advsearch=' . urlencode($this->asCtrl->advSearch);
+            if ($url) $url .= '&search=' . urlencode($this->asCtrl->searchString) . '&amp;advsearch=' . urlencode($this->asCtrl->advSearch);
+            else $url = $firstarg . 'search=' . urlencode($this->asCtrl->searchString) . '&amp;advsearch=' . urlencode($this->asCtrl->advSearch);
         }
-        else {
-            $searchStringUrl = '';
-            $advSearchUrl = '';
+        if ($this->asCtrl->subSearch) {
+            if ($url) $url .=  '&amp;subsearch=' . urlencode($this->asCtrl->subSearch);
+            else $url = $firstarg . 'subsearch=' . urlencode($this->asCtrl->subSearch);
         }
-        $asIdUrl = ($this->asCfg->cfg['asId']) ? '&asid=' . urlencode($this->asCfg->cfg['asId']) : '';
-        $subSearchUrl = ($this->asCtrl->subSearch) ? '&amp;subsearch=' . urlencode($this->asCtrl->subSearch) : '';
         if ($this->asCtrl->asf) {
-            $asfUrl = '&amp;asf=' . urlencode($this->asCtrl->asf);
+            if ($url) $url .=  '&amp;asf=' . urlencode($this->asCtrl->asf);
+            else $url = $firstarg . 'asf=' . urlencode($this->asCtrl->asf);
             foreach($this->asCtrl->fParams as $key =>$value) {
-                $asfUrl .= '&amp;' . $key . '=' . urlencode($value);
+                $url .= '&amp;' . $key . '=' . urlencode($value);
             }
         }
-        else $asfUrl = '';
-        $url = $asIdUrl . $searchStringUrl . $advSearchUrl . $subSearchUrl . $asfUrl;
         return $url;
     }
-
     /*
     * Initialize common chunks variables
     */
@@ -963,7 +962,7 @@ EOD;
                 $moreOffset = 0;
                 $moreNbMax = $offset + $nbRes;
                 $header = $this->_displayHeaderGrpResult($site, $subsite, $display, $nbrs, $searchResults, $moreOffset, $moreNbMax);
-                $listResults = $this->_displayListResults($site, $subsite, $display, $nbrs, $searchResults, $found);
+                $listResults = $this->_displayListResults($site, $subsite, $display, $nbrs, $searchResults, $found, $offset);
                 $footer = $this->_displayFooterGrpResult($ig, $nbrs, $moreOffset, $moreNbMax);
 
                 $this->asResults->groupResults[$ig]['found'] = implode(' ',$found);
@@ -983,7 +982,7 @@ EOD;
         return $outputResults;
     }
     /*
-    * Send back categories
+    * Send back categories & tags
     */
     function _updateAsfPaginate($ig, & $jsonPairs) {
 
