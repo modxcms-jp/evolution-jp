@@ -79,7 +79,7 @@ li, dd, blockquote {
 }
 /* -------------------------[ Headers and Paragraphs ]--- */
 h1, h2, h3, h4, h5, h6, .subTitle {
-	font-weight: normal;
+	font-weight: bold;
 }
 h1 {
 	font-size: 218%;
@@ -769,7 +769,7 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-	background: #e4e4e4 url(images/misc/menubg.png);
+	background: #131d28 url(images/misc/menubg.png);
 }
 #Navcontainer {
 	padding: 0 10px;
