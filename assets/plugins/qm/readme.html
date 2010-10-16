@@ -20,6 +20,9 @@
 
 
 
+
+
+
   
   <meta content="text/html; charset=UTF-8" http-equiv="content-type"><title>QuickManager+</title></head><body style="font-family: verdana,helvetica; line-height: 20px; font-size: 14px;">
 <h1 style="border-bottom: 1px solid rgb(0, 0, 0); padding-bottom: 12px;">QuickManager+</h1>
@@ -29,7 +32,7 @@
 @license GNU General Public
 License (GPL v3),&nbsp;<a href="http://www.gnu.org/copyleft/gpl.html" target="_blank">www.gnu.org/copyleft/gpl.html</a><br>
 
-@version 1.5.2 updated 14/09/2010<br>
+@version 1.5.3 updated 12/10/2010<br>
 
 @requirements MODx 1.0.0+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -67,44 +70,50 @@ content editing<br>
 &nbsp;*<br>
 &nbsp;* @author Mikko Lammi, www.maagit.fi/quickmanager-plus<br>
 &nbsp;* @license GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html<br>
-&nbsp;* @version 1.5.2 updated 14/09/2010&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;* @version 1.5.3 updated 12/10/2010&nbsp;&nbsp;&nbsp;&nbsp; <br>
 &nbsp;*/<br>
       <br>
-$show = TRUE;<br>
+// In manager<br>
+if (isset($_SESSION['mgrValidated'])) {<br>
       <br>
-if ($disabled&nbsp; != '') {<br>
-&nbsp;&nbsp;&nbsp; $arr = explode(",", $disabled );<br>
-&nbsp;&nbsp;&nbsp; if (in_array($modx-&gt;documentIdentifier, $arr)) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $show = FALSE;<br>
+&nbsp;&nbsp;&nbsp; $show = TRUE;<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; if ($disabled&nbsp; != '') {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $arr = explode(",", $disabled );<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (in_array($modx-&gt;documentIdentifier, $arr)) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $show = FALSE;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
 &nbsp;&nbsp;&nbsp; }<br>
-}<br>
-      <br>
-if ($show) {<br>
-&nbsp;&nbsp;&nbsp; // Replace [*#tv*] with QM+ edit TV button placeholders<br>
-&nbsp;&nbsp;&nbsp; if ($tvbuttons == 'true') {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $e = $modx-&gt;Event;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($e-&gt;name == 'OnParseDocument') {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; if ($show) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Replace [*#tv*] with QM+ edit TV button placeholders<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($tvbuttons == 'true') {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $e = $modx-&gt;Event;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($e-&gt;name == 'OnParseDocument') {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 $output =
-&amp;$modx-&gt;documentOutput;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;$modx-&gt;documentOutput;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 $output = preg_replace('~\[\*#(.*?)\*\]~', '&lt;!-- '.$tvbclass.' $1
---&gt;[*$1*]', $output);&nbsp;&nbsp;&nbsp; <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $modx-&gt;documentOutput = $output;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp; <br>
-&nbsp;&nbsp;&nbsp;&nbsp; }<br>
-&nbsp;&nbsp;&nbsp; // In manager<br>
-&nbsp;&nbsp;&nbsp; if (isset($_SESSION['mgrValidated'])) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; include_once($modx-&gt;config['base_path'].'assets/plugins/qm/qm.inc.php');<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $qm = new Qm($modx, $jqpath,
-$loadmanagerjq, $loadfrontendjq, $noconflictjq, $loadtb, $tbwidth,
-$tbheight, $hidefields, $hidetabs, $hidesections, $addbutton, $tpltype,
-$tplid, $custombutton, $managerbutton, $logout, $autohide,
-$editbuttons, $editbclass, $newbuttons, $newbclass, $tvbuttons,
-$tvbclass);<br>
+--&gt;[*$1*]', $output);&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$modx-&gt;documentOutput = $output;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // In manager<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (isset($_SESSION['mgrValidated'])) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+include_once($modx-&gt;config['base_path'].'assets/plugins/qm/qm.inc.php');<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $qm
+= new Qm($modx, $jqpath, $loadmanagerjq, $loadfrontendjq,
+$noconflictjq, $loadtb, $tbwidth, $tbheight, $hidefields, $hidetabs,
+$hidesections, $addbutton, $tpltype, $tplid, $custombutton,
+$managerbutton, $logout, $autohide, $editbuttons, $editbclass,
+$newbuttons, $newbclass, $tvbuttons, $tvbclass);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
 &nbsp;&nbsp;&nbsp; }<br>
-}</span><span style="font-family: Courier New,Courier,monospace;"></span></td>
+}</span><span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span></td>
     </tr>
   </tbody>
 </table>
@@ -610,7 +619,17 @@ Dertlian</li>
 </ul>
 
 
-<h2>Changelog</h2>1.5.2 - 14/09/2010<br>
+<h2><a name="changelog"></a>Changelog</h2>1.5.3 - 12/10/2010<br>
+
+
+<ul>
+<li>Changed: Plugin code checks immeditally at start if user is in manager to save processing time<br>
+</li>
+  <li>Fixed: Inline template variable edit/save was causing error if "'" mark was used<br>
+  </li>
+
+</ul>
+1.5.2 - 14/09/2010<br>
 
 <ul>
 <li>Added: CSS classes to toolbar buttons, also li elements: qmCustom, qmManager, qmLogout</li>
