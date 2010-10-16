@@ -58,8 +58,8 @@ function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $ro
 				// Get the new URL
 				$j(this).addClass("imageField");
 				var url = $j(this).val();
+				url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
 				url = (url != "" && url.search(/http:\/\//i) == -1) ? ("'.$site.'" + url) : url;
-				
 				';
 				
 				// If we have a PHPThumb URL
