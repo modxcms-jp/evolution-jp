@@ -2673,17 +2673,12 @@ class DocumentParser {
         $code_name= isset ($GLOBALS['code_name']) ? $GLOBALS['code_name'] : '';
         $request_uri = getenv('REQUEST_URI');
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
         $parsedMessageString= "
               <html><head><title>MODx Content Manager $version &raquo; $code_name</title>
-              <style>TD, BODY { font-size: 11px; font-family:verdana; }</style>
-              <script type='text/javascript'>
-              function copyToClip()
-              {
-                holdtext.innerText = sqlHolder.innerText;
-                Copied = holdtext.createTextRange();
-                Copied.execCommand('Copy');
-              }
-            </script>
+              <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+              <style>TD, BODY { font-size: 12px; font-family:Verdana; }</style>
               </head><body>
               ";
         if ($is_error) {
@@ -2697,13 +2692,10 @@ class DocumentParser {
                     <tr><td colspan='3'>The MODx parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
         }
-        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; REQUEST_URI : ' . $request_uri . '&raquo;</b></td></tr>';
-        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; ID : ' . $this->documentIdentifier . '&raquo;</b></td></tr>';
-        $parsedMessageString .= '<tr><td colspan="3"><b>&laquo; currentSnippet : ' . $this->currentSnippet . '&raquo;</b></td></tr>';
 
         if (!empty ($query)) {
-            $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 9px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
-                    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:copyToClip();' style='color:#821517;font-size: 9px; text-decoration: none'>[Copy SQL to ClipBoard]</a><textarea id='holdtext' style='display:none;'></textarea></td></tr>";
+            $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
+                    </td></tr>";
         }
 
         if ($text != '') {
@@ -2723,14 +2715,14 @@ class DocumentParser {
 
             );
 
-            $parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+            $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 
             $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
             $parsedMessageString .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
             $parsedMessageString .= "</tr>";
 
             $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
-            $parsedMessageString .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</b></td><td>&nbsp;</td>";
+            $parsedMessageString .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td>&nbsp;</td>";
             $parsedMessageString .= "</tr>";
 
             $parsedMessageString .= "<tr><td>&nbsp;&nbsp;File: </td>";
@@ -2747,7 +2739,39 @@ class DocumentParser {
             }
         }
 
-        $parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>Parser timing</b></td></tr>";
+        $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
+
+        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;REQUEST_URI: </td>";
+        $parsedMessageString .= "<td colspan='3'>$request_uri</td>";
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;ID: </td>";
+        $parsedMessageString .= "<td colspan='3'>" . $this->documentIdentifier . "</td>";
+        $parsedMessageString .= "</tr>";
+
+        if(!empty($this->currentSnippet))
+        {
+            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Snippet: </td>";
+            $parsedMessageString .= '<td colspan="3">' . $this->currentSnippet . '</td>';
+            $parsedMessageString .= "</tr>";
+        }
+
+        if(!empty($this->event->activePlugin))
+        {
+            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Plugin: </td>";
+            $parsedMessageString .= '<td colspan="3">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
+            $parsedMessageString .= "</tr>";
+        }
+
+        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Referer: </td>";
+        $parsedMessageString .= '<td colspan="3">' . $referer . '</td>';
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;User Agent: </td>";
+        $parsedMessageString .= '<td colspan="3">' . $ua . '</td>';
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= '<tr><td colspan="3">&nbsp;</td></tr><tr><td colspan="3"><b>Parser timing</b></td></tr>';
 
         $parsedMessageString .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
         $parsedMessageString .= "<td><i>[^qt^]</i></td><td>(<i>[^q^] Requests</i>)</td>";
@@ -2781,7 +2805,8 @@ class DocumentParser {
         header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        echo $parsedMessageString;
+        if (isset($_SESSION['mgrValidated'])) echo $parsedMessageString;
+        else  echo 'Error. Check event log.';
         ob_end_flush();
 
         // Log error
