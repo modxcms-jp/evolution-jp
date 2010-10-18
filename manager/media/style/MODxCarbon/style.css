@@ -614,6 +614,7 @@ a img {
 	color: #fff;
 	font-weight: bold;
 	background-color: #88939E;
+	white-space:nowrap;
 }
 .gridItem {
 	background-color: #fff;
