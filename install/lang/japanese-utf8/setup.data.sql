@@ -16,7 +16,7 @@ REPLACE INTO `{PREFIX}site_content` VALUES (6, 'document', 'text/html', 'お問�
 REPLACE INTO `{PREFIX}site_content` VALUES (7, 'document', 'text/html', '404 - Document Not Found', 'お探しのページが見当たりません (Page Not Found)', '', 'doc-not-found', '', 1, 0, 0, 0, 0, '', '<p>\r\n存在しないページへアクセスしたようです。 ログインするか、 以下のページにアクセスしてください:\r\n</p>\r\n[[Wayfinder? &startId=`0` &showDescription=`1`]]\r\n\r\n<h3>または、サイト上部の検索機能を使ってお探しのページを検索してください。</h3>\r\n\r\n', 1, 4, 4, 0, 1, 1, 1144904400, 1, 1159301173, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
 
-REPLACE INTO `{PREFIX}site_content` VALUES (8, 'document', 'text/html', '検索結果', '検索結果', '', 'search-results', '', 1, 0, 0, 0, 0, '', '[!AjaxSearch? &AS_showForm=`0` &ajaxSearch=`0`!]', 0, 4, 5, 0, 0, 1, 1144904400, 1, 1158613055, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 1);
+REPLACE INTO `{PREFIX}site_content` VALUES (8, 'document', 'text/html', '検索結果', '検索結果', '', 'search-results', '', 1, 0, 0, 0, 0, '', '[!AjaxSearch? &showInputForm=`0` &ajaxSearch=`0`!]', 0, 4, 5, 0, 0, 1, 1144904400, 1, 1158613055, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 1);
 
 REPLACE INTO `{PREFIX}site_content` VALUES (11, 'document', 'application/rss+xml', 'RSS フィード', '[(site_name)] RSSフィード', '', 'feed.rss', '', 1, 0, 0, 0, 0, '', '[[Ditto? &parents=`2` &format=`rss` &display=`20` &total=`20` &removeChunk=`Comments`]]', 0, 0, 6, 0, 0, 1, 1144904400, 1, 1160062859, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
