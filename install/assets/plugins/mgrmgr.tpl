@@ -5,7 +5,7 @@
  * 投稿画面を自由自在にカスタマイズ。
  *
  * @category    plugin
- * @version     0.3.8
+ * @version     0.3.8(j1)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal    @properties &config_chunk=Configuration Chunk;text;mm_demo_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes &which_jquery=jQuery source;list;local (assets/js),remote (google code),manual url (specify below);local (assets/js) &js_src_type=jQuery URL override;text;
  * @internal    @events OnDocFormRender,OnDocFormPrerender,OnPluginFormRender,OnTVFormRender
@@ -30,8 +30,8 @@
 // or specify a URL to a custom location.
 // Here we set some default values, because this is a convenient place to change them if we need to,
 // but you should configure your preference via the Configuration tab.
-$js_default_url_local = MODX_SITE_URL . 'assets/js/jquery-1.3.2.min.js';
-$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js';
+$js_default_url_local = MODX_SITE_URL . 'assets/js/jquery-1.4.2.min.js';
+$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js';
 
 // You don't need to change anything else from here onwards
 //-------------------------------------------------------
