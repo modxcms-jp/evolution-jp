@@ -1,5 +1,7 @@
 @charset "UTF-8";
 
+body.mceContentBody {margin:8px;}
+
 body,
 td,
 th,
@@ -14,8 +16,8 @@ body {
 	color                : #333333;
 	background-color     : #FFFFFF;
 	background-attachment: fixed;
-	background-repeat:repeat-x !important;
-	background-image     : url(textareabg.gif) !important;
+	background-repeat:repeat-x;
+	background-image     : url(textareabg.gif);
 	text-align           : left;
 }
 
