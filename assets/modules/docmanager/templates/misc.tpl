@@ -60,6 +60,6 @@
 		<option value="0">&nbsp;-</option>
   </select>
   <br /><br />
-  <input type="radio" name="choice" value = "1" />&nbsp;<label for="choice" id="choice_label_1">[+lang.DM_other_publish_radio1+]</label>
-  <input type="radio" name="choice" value = "0" />&nbsp;<label for="choice" id="choice_label_2">[+lang.DM_other_publish_radio2+]</label>
+  <input type="radio" name="choice" value = "1" id="choice_1" />&nbsp;<label for="choice_1" id="choice_label_1">[+lang.DM_other_publish_radio1+]</label>
+  <input type="radio" name="choice" value = "0" id="choice_2" />&nbsp;<label for="choice_2" id="choice_label_2">[+lang.DM_other_publish_radio2+]</label>
 </form>
