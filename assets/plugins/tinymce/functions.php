@@ -58,7 +58,7 @@ class TinyMCE
 		switch($params['theme'])
 		{
 		case 'simple':
-			$plugins  = 'emotions,advimage,advlink,paste,contextmenu';
+			$plugins  = 'inlinepopups,save,emotions,advimage,advlink,paste,contextmenu';
 			$buttons1 = 'undo,redo,|,bold,strikethrough,|,justifyleft,justifycenter,justifyright,|,link,unlink,image,emotions,|,hr,|,help';
 			$buttons2 = '';
 		    break;
