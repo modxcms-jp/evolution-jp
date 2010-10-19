@@ -363,9 +363,7 @@ class DocumentParser {
     }
 
     function checkCache($id) {
-        if($id == $this->config['error_page']) $id = 'error';
-        else                                   $id = md5($_SERVER['REQUEST_URI']);
-        $cacheFile= MODX_BASE_PATH . 'assets/cache/docid_' . $id . '.pageCache.php';
+        $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
             $flContent = file_get_contents($cacheFile, false);
@@ -601,9 +599,7 @@ class DocumentParser {
             $basepath= $this->config["base_path"] . "assets/cache";
             // invoke OnBeforeSaveWebPageCache event
             $this->invokeEvent("OnBeforeSaveWebPageCache");
-            if($id == $this->config['error_page']) $id = 'error';
-            else                                   $id = md5($_SERVER['REQUEST_URI']);
-            if ($fp= @ fopen($basepath . "/docid_" . $id . ".pageCache.php", "w")) {
+            if ($fp= @ fopen($basepath . "/docid_" . $this->documentIdentifier . ".pageCache.php", "w")) {
                 // get and store document groups inside document object. Document groups will be used to check security on cache pages
                 $sql= "SELECT document_group FROM " . $this->getFullTableName("document_groups") . " WHERE document='" . $this->documentIdentifier . "'";
                 $docGroups= $this->db->getColumn("document_group", $sql);
