@@ -166,7 +166,7 @@ class AjaxSearchInput {
 
             if ($advSearch == EXACTPHRASE) {
 
-                if ($mbStrlen($searchString) < $this->asCfg->cfg['minChars']) {
+                if ($mbStrlen($searchString) < $this->asCfg->cfg['minChars'] && preg_match('/^[ -~]*$/', $searchString)) {
                     $msgErr = sprintf($this->asCfg->lang['as_minChars'], $this->asCfg->cfg['minChars']);
                     return false;
                 }
@@ -177,7 +177,7 @@ class AjaxSearchInput {
             } else {
                 //oneword, allwords or nowords
                 foreach ($words_array as $word) {
-                    if ($mbStrlen($word) < $this->asCfg->cfg['minChars']) {
+                    if ($mbStrlen($word) < $this->asCfg->cfg['minChars'] && preg_match('/^[ -~]*$/', $searchString)) {
                         $msgErr = sprintf($this->asCfg->lang['as_minChars'], $this->asCfg->cfg['minChars']);
                         return false;
                     }
