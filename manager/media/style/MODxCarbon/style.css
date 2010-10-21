@@ -802,7 +802,7 @@ a.hometblink:hover {
 	}
 #nav li {
 	list-style: none;
-	background: #d4d4d4 url(images/misc/tab.gif) 100% 100%;
+	background: #323c52 url(images/misc/tab.gif) 100% 100%;
 	float: left;
 	width: auto;
 	margin: 0 3px 0 0;
@@ -1609,3 +1609,5 @@ form#mutate textarea.textareamini {height:120px;}
 form#mutate input.number,input.email {ime-mode:disabled;}
 form#mutate input.number {width:80px !important;text-align:right;}
 form#mutate div.tmplvars label {display:block;}
+
+textarea.phptextarea {font-family: 'Courier New','Courier', monospace;}
