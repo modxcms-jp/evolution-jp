@@ -57,7 +57,6 @@ code {
 }
 .commentTitle span {
     text-transform: uppercase;
-    font-size: 86%;
 }
 .commentTitle strong {
     color: #693;
@@ -269,17 +268,14 @@ code {
 .ditto_summaryPost .ditto_info {
     background-color: #F8F8F8;
     padding: 5px !important;
-    font-size: 0.8em;
     color: black;
 }
 .ditto_link {
-    font-size: 76%;
     text-align: right;
 }
 .ditto_paging {
     border-top: 1px solid #ccc;
     padding: 10px; 
-    font-size: 86%;
     color: #618100;
 }
 #ditto_pages .ditto_currentpage {
