@@ -1600,8 +1600,7 @@ a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decor
 td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
 
 form#mutate input.text,
-div#userPane input.inputBox,
-div#webUserPane input.inputBox,
+input.inputBox,
 form#mutate input.imageField {width:300px;}
 form#mutate textarea.inputBox {width:300px;height:80px;}
 form#mutate textarea {width:90%;height:240px;}
