@@ -12,6 +12,8 @@ $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $resourcefile = $modx->db->escape($_POST['resourcefile']);
 $enable_resource = $_POST['enable_resource']=='on' ? 1 : 0 ;
+if(($_POST['icon']!=='') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', $_POST['icon'])==1))
+    $_POST['icon'] = '../' . $_POST['icon'];
 $icon = $modx->db->escape($_POST['icon']);
 //$category = intval($_POST['category']);
 $disabled = $_POST['disabled']=='on' ? 1 : 0 ;
