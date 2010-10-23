@@ -1608,4 +1608,4 @@ form#mutate input.number,input.email {ime-mode:disabled;}
 form#mutate input.number {width:80px !important;text-align:right;}
 form#mutate div.tmplvars label {display:block;}
 
-textarea.phptextarea {font-family: 'Courier New','Courier', monospace;}
+.phptextarea {font-family: 'Courier New','Courier', monospace;}
