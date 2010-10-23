@@ -262,7 +262,6 @@ input, select, textarea, td {
 		text-align: right;
 	}
 #ta, .tmplvars textarea {
-	font:inherit;
 }
 form input[type=text],
 form textarea {

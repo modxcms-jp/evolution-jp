@@ -470,7 +470,7 @@ window.addEvent('domready', function() {
 		<div style="width:100%;position:relative">
 		    <div style="padding:1px; width:100%; height:16px;background-color:#eeeeee; border-top:1px solid #e0e0e0;margin-top:5px">
 		    	<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['plugin_code']; ?></span>
-		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked='checked' class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		</div>
 			<textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" onchange="documentDirty=true;" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
 		</div>
@@ -525,7 +525,7 @@ window.addEvent('domready', function() {
 		  </tr>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</td>
-			<td align="left" valign="top"><textarea name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
+			<td align="left" valign="top"><textarea class="phptextarea" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>
