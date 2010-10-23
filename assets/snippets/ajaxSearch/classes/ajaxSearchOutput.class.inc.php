@@ -858,7 +858,7 @@ class AjaxSearchOutput {
                 $jsInclude = AS_SPATH . AJAXSEARCH_JSDIR . $typeAs . '/ajaxSearch-mootools2.js';
             } else {
                 if ($this->asCfg->cfg['addJscript']) $modx->regClientStartupScript($this->asCfg->cfg['jsMooTools']);
-                $jsInclude = AS_SPATH . AJAXSEARCH_JSDIR . $typeAs . '/ajaxSearch.js';
+                $jsInclude = MODX_BASE_URL . AS_SPATH . AJAXSEARCH_JSDIR . $typeAs . '/ajaxSearch.js';
             }
             $modx->regClientStartupScript($jsInclude);
 

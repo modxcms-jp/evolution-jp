@@ -58,7 +58,7 @@ $dcfg['stripOutput'] = 'defaultStripOutput';
 $dcfg['searchWordList'] = '';
 $dcfg['breadcrumbs'] = '';
 $dcfg['clearDefault'] = 0;
-$dcfg['jsClearDefault'] = AS_SPATH . 'js/clearDefault/clearDefault.js';
+$dcfg['jsClearDefault'] = MODX_BASE_URL . AS_SPATH . 'js/clearDefault/clearDefault.js';
 $dcfg['mbstring'] = 1;
 $dcfg['asLog'] = '0:0:200';
 
@@ -73,9 +73,9 @@ $dcfg['tplAjaxResult'] = '@FILE:' . AS_SPATH . 'templates/ajaxResult.tpl.html';
 $dcfg['tplPaging2'] = '@FILE:' . AS_SPATH . 'templates/paging2.tpl.html';
 $dcfg['jscript'] = 'mootools';
 $dcfg['addJscript'] = 1;
-$dcfg['jsMooTools'] = 'manager/media/script/mootools/mootools.js';
-$dcfg['jsMooTools2'] = AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
-$dcfg['jsJquery'] = AS_SPATH . 'js/jQuery/jquery-1.4.2.min.js';
+$dcfg['jsMooTools'] = MODX_BASE_URL . 'manager/media/script/mootools/mootools.js';
+$dcfg['jsMooTools2'] = MODX_BASE_URL . AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
+$dcfg['jsJquery'] = MODX_BASE_URL . AS_SPATH . 'js/jQuery/jquery-1.4.2.min.js';
 
 // For a global parameter initialisation use the following syntax $__param = 'value';
 // To overwrite parameter snippet call use $param = 'value';
