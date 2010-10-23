@@ -2,7 +2,7 @@
 /**
  * AjaxSearch
  *
- * Ajax and non-Ajax search that supports results highlighting
+ * 検索結果のハイライト表示とAjax機能が利用可能な多機能検索フォーム
  *
  * @category    snippet
  * @version     1.9.1

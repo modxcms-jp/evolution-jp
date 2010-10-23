@@ -1,6 +1,10 @@
 
 ==== documentation folder
 
+    http://www.modx.wangba.fr/index.php?id=142
+    AjaxSearchの最新のチートシートは日本語版では同梱していません。
+    上記でダウンロードできます。(AjaxSearch191_v1.pdf)
+    
     in the documentation folder, the cheatSheet ajaxSearch190.pdf give a quick
     overview of AjaxSearch parameters. Thanks to Goldsky for this contribution.
 
