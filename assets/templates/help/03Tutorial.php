@@ -140,11 +140,12 @@ global $_lang, $_style, $e,$SystemAlertMsgQueque,$incPath,$content;
 
 include($incPath . 'header.inc.php');
 ?&gt;
-&lt;h1&gt;自作モジュール&lt;/h1&gt;
+&lt;h1&gt;&lt;?php echo $content['name']?&gt;&lt;/h1&gt;
 &lt;script type=&quot;text/javascript&quot; src=&quot;media/script/tabpane.js&quot;&gt;&lt;/script&gt;
 &lt;div class=&quot;sectionHeader&quot;&gt;チュートリアル&lt;/div&gt;
 &lt;div class=&quot;sectionBody&quot; style=&quot;padding:10px 20px;&quot;&gt;
-これは自作モジュールです
+これは自作モジュールです。&lt;br /&gt;
+モジュール名は「&lt;?php echo $content['name']?&gt;」・モジュールIDは「&lt;?php echo $content['id']?&gt;」です。
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;?php
