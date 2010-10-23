@@ -51,6 +51,29 @@ if($modx->hasPermission('bk_manager')) {
     $modx->setPlaceholder('BackupIcon',$icon);
 }
 
+// setup modules
+if($modx->hasPermission('exec_module')) {
+	// Each module
+	if ($_SESSION['mgrRole'] != 1) {
+		// Display only those modules the user can execute
+		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, mg.member
+				FROM '.$modx->getFullTableName('site_modules').' AS sm
+				LEFT JOIN '.$modx->getFullTableName('site_module_access').' AS sma ON sma.module = sm.id
+				LEFT JOIN '.$modx->getFullTableName('member_groups').' AS mg ON sma.usergroup = mg.user_group
+				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1');
+	} else {
+		// Admins get the entire list
+		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1');
+	}
+	while ($content = $modx->db->getRow($rs)) {
+		if(empty($content['icon'])) $content['icon'] = $_style['icons_modules'];
+		$modulemenu[] = '<span class="wm_button" style="margin-top:10px;margin-bottom:10px;border:0"><a class="hometblink" href="index.php?a=112&amp;id='.$content['id'].'">' . '<img src="'.$content['icon'].'" width="32" height="32" alt="'.$content['name'].'" /><br />' .$content['name'].'</a></span>';
+	}
+}
+$modules = '';
+if(count($modulemenu)>0) $modules = join("\n",$modulemenu);
+$modx->setPlaceholder('Modules',$modules);
+
 // do some config checks
 if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1) {
     include_once "config_check.inc.php";
