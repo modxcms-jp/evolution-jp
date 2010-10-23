@@ -1,7 +1,26 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.4r1 ($Rev: 6995 $ - $Date: 2010-06-15 03:56:24 +0900
+MODx Evolution 1.0.4J-r4 (Date: 2010-10-31 00:00:00 +0900)
+===================================
+--------------------------------------------
+Security:
+--------------------------------------------
+* [#MODX-1035] fix XSS vulnerability in installer
+
+--------------------------------------------
+Bugfixes:
+--------------------------------------------
+* [#MODX-2245] 3 events not firing: OnWebChangePassword, OnManagerSaveUser, OnManagerChangePassword 
+* [#MODX-1331] Resources in tree unclickable if pagetitle contains line break 
+
+--------------------------------------------
+Additional Improvements & Updates:
+--------------------------------------------
+* [#MODX-1734] Add context parameter to the getLoginUserName() API function
+
+
+MODx Evolution 1.0.4 (Jun 8, 2010)
 ===================================
 --------------------------------------------
 Security:
@@ -11,7 +30,7 @@ Security:
 --------------------------------------------
 Bugfixes:
 --------------------------------------------
-* [#MODX-2065] View Template manager page can show error message if user tampers with URL
+* [#MODX-1957] Danish language file update
 * [#MODX-2018] Fix Multiple TinyMCE plugins activated after upgrade
 * [#MODX-1865] 1.02 to 1.03 Upgrade Error with mySQL STRICT mode, "Templates: Incorrect integer value"
 * [#MODX-1883] WebLoginSideBar chunk "forget" typo
@@ -190,7 +209,6 @@ Bugfixes:
 * [#MODX-1338] Alias field accepts percent character
 * [#MODX-1215] Unixtime widget uses wrong pattern for MySQL date string
 * [#MODX-1364] Add check for tokenizer extension in cache_sync processor
-* [#MODX-1367] SQL duplicate id when duplicating minimal template
 
 --------------------------------------------
 Additional Improvements & Updates:

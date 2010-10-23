@@ -312,14 +312,12 @@ if (isset ($_POST['template'])) {
 		$desc = mysql_real_escape_string($moduleTemplates[$si][1]);
 		$category = mysql_real_escape_string($moduleTemplates[$si][4]);
 		$locked = mysql_real_escape_string($moduleTemplates[$si][5]);
-		$locked = ($locked=='') ? 0 : $locked;
 		$filecontent = $moduleTemplates[$si][3];
 		if (!file_exists($filecontent)) {
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 		} else {
 			// Create the category if it does not already exist
-			if($category)
-			{
+			if($category) {
 				$sql ="SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'";
 				$rs = mysql_query($sql, $sqlParser->conn);
 				$row = mysql_fetch_assoc($rs);
@@ -375,7 +373,6 @@ if (isset ($_POST['tv'])) {
         $assignments = $moduleTVs[$si][9];
         $category = mysql_real_escape_string($moduleTVs[$si][10]);
         $locked = mysql_real_escape_string($moduleTVs[$si][11]);
-        $locked = ($locked=='') ? 0 : $locked;
         
 
         // Create the category if it does not already exist
@@ -441,8 +438,7 @@ if (isset ($_POST['chunk'])) {
 		else {
 			
 			// Create the category if it does not already exist
-			if($category)
-			{
+			if($category) {
 				$sql ="SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'";
 				$rs = mysql_query($sql, $sqlParser->conn);
 				$row = mysql_fetch_assoc($rs);
@@ -494,8 +490,7 @@ if (isset ($_POST['module'])) {
 		else {
 			
 			// Create the category if it does not already exist
-			if($category)
-			{
+			if($category) {
 				$sql ="SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'";
 				$rs = mysql_query($sql, $sqlParser->conn);
 				$row = mysql_fetch_assoc($rs);
@@ -532,12 +527,10 @@ if (isset ($_POST['module'])) {
 }
 
 // Install Plugins
-if (isset ($_POST['plugin']))
-{
+if (isset ($_POST['plugin'])) {
 	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
 	$selPlugs = $_POST['plugin'];
-	foreach ($selPlugs as $si)
-	{
+	foreach ($selPlugs as $si) {
 		$si = (int) trim($si);
 		$name = mysql_real_escape_string($modulePlugins[$si][0]);
 		$desc = mysql_real_escape_string($modulePlugins[$si][1]);
@@ -548,25 +541,22 @@ if (isset ($_POST['plugin']))
 		$guid = mysql_real_escape_string($modulePlugins[$si][5]);
 		$category = mysql_real_escape_string($modulePlugins[$si][6]);
 		$leg_names = '';
-		if(array_key_exists(7, $modulePlugins[$si]))
-		{
+		if(array_key_exists(7, $modulePlugins[$si])) {
 		    // parse comma-separated legacy names and prepare them for sql IN clause
     		$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', mysql_real_escape_string($modulePlugins[$si][7]))) . "'";
 		}
 		if (!file_exists($filecontent))
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else
-		{
+		else {
+
 		    // disable legacy versions based on legacy_names provided
-		    if(!empty($leg_names))
-		    {
+		    if(!empty($leg_names)) {
 		        $update_query = "UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE name IN ($leg_names);";
     		    $rs = mysql_query($update_query, $sqlParser->conn);
 		    }
 
 			// Create the category if it does not already exist
-			if($category)
-			{
+			if($category) {
 				$sql ="SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'";
 				$rs = mysql_query($sql, $sqlParser->conn);
 				$row = mysql_fetch_assoc($rs);
@@ -583,55 +573,41 @@ if (isset ($_POST['plugin']))
 			$plugin = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $plugin, 1);
 			$plugin = mysql_real_escape_string($plugin);
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'", $sqlParser->conn);
-            if (mysql_num_rows($rs))
-            {
+            if (mysql_num_rows($rs)) {
                 $insert = true;
-                while($row = mysql_fetch_assoc($rs))
-                {
+                while($row = mysql_fetch_assoc($rs)) {
                     $props = propUpdate($properties,$row['properties']);
-                    if($row['description'] == $desc_raw)
-                    {
-                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn))
-                        {
+                    if($row['description'] == $desc_raw) {
+                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn)) {
                             echo "<p>" . mysql_error() . "</p>";
                             return;
                         }
                         $insert = false;
-                    }
-                    else
-                    {
-                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn))
-                        {
+                    } else {
+                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn)) {
                             echo "<p>".mysql_error()."</p>";
                             return;
                         }
                     }
                 }
-                if($insert === true)
-                {
-                    if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0','$catid');",$sqlParser->conn))
-                    {
+                if($insert === true) {
+                    if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0','$catid');",$sqlParser->conn)) {
                         echo "<p>".mysql_error()."</p>";
                         return;
                     }
                 }
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-            }
-            else
-            {
-                if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid','$catid');", $sqlParser->conn))
-                {
+            } else {
+                if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid','$catid');", $sqlParser->conn)) {
                     echo "<p>" . mysql_error() . "</p>";
                     return;
                 }
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
             }
 			// add system events
-			if (count($events) > 0)
-			{
+			if (count($events) > 0) {
 				$ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
-				if ($ds)
-				{
+				if ($ds) {
 					$row = mysql_fetch_assoc($ds);
 					$id = $row["id"];
 					// remove existing events
@@ -666,8 +642,7 @@ if (isset ($_POST['snippet'])) {
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 		else {			
 			// Create the category if it does not already exist
-			if($category)
-			{
+			if($category) {
 				$sql ="SELECT `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'";
 				$rs = mysql_query($sql, $sqlParser->conn);
 				$row = mysql_fetch_assoc($rs);

@@ -1637,7 +1637,6 @@ class DocumentParser {
     function getVersionData() {
         include $this->config["base_path"] . "manager/includes/version.inc.php";
         $v= array ();
-        $v['code_name']= $code_name;
         $v['version']= $modx_version;
         $v['branch']= $modx_branch;
         $v['release_date']= $modx_release_date;
@@ -2111,8 +2110,11 @@ class DocumentParser {
     }
 
     # Returns current user name
-    function getLoginUserName() {
-        if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
+    function getLoginUserName($context= '') {
+        if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
+            return $_SESSION[$context . 'Shortname'];
+        }
+        elseif ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
             return $_SESSION['webShortname'];
         }
         elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
@@ -2670,13 +2672,13 @@ class DocumentParser {
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '') {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
-        $code_name= isset ($GLOBALS['code_name']) ? $GLOBALS['code_name'] : '';
+		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = getenv('REQUEST_URI');
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
         $parsedMessageString= "
-              <html><head><title>MODx Content Manager $version &raquo; $code_name</title>
+              <html><head><title>MODx Content Manager $version &raquo; $release_date</title>
               <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
               <style>TD, BODY { font-size: 12px; font-family:Verdana; }</style>
               </head><body>

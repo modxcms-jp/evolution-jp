@@ -4,9 +4,9 @@
  * Function:       Language file.
  * Encoding:       UTF8
  * Author:         eastbind, MEGU, yamamoto
- * Date:           2010/07/19
- * Version:        2.0.6
- * MODx version:   Evolution 1.0.0-
+ * Date:           2010/10/31
+ * Version:        2.0.7
+ * MODx version:   Evolution 1.0.4J-r4
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -54,7 +54,7 @@ $_lang["add_template"] = 'テンプレートの追加';
 $_lang["add_tv"] = 'テンプレート変数の追加';
 $_lang["add_weblink"] = 'ウェブリンクの作成';
 $_lang["administrator_role_message"] = '全ての権限を持ちます。このロールは編集・削除できません。';
-$_lang['administrators'] = '管理者のみ(Administrator)';
+$_lang["administrators"] = '管理者のみ(Administrator)';
 $_lang["after_saving"] = '保存後は';
 $_lang["alert_delete_self"] = '自分自身を削除することはできません。';
 $_lang["alias"] = 'エイリアス';
@@ -667,6 +667,7 @@ $_lang["refresh_site"] = 'サイトをリフレッシュ';
 $_lang["refresh_title"] = 'サイトをリフレッシュ';
 $_lang["refresh_tree"] = 'サイトツリーの再描画';
 $_lang["refresh_unpublished"] = '<strong>%s</strong>件のリソースが非公開に戻りました。';
+$_lang["release_date"] = 'リリース日';
 $_lang["remember_last_tab"] = 'アクティブなタブを記憶する';
 $_lang["remember_last_tab_message"] = 'タブ構成のページ(投稿画面・エレメント編集画面・グローバル設定など)において、最後に開いたタブを記憶します。「Stay mode」を選択すると「保存後に続けて編集」を実行した時と一部の管理画面でタブ選択を記憶します。';
 $_lang["remember_username"] = 'ログイン状態を保持する';
@@ -783,7 +784,7 @@ $_lang["role_new_user"] = 'ユーザーを作成';
 $_lang["role_new_web_user"] = 'ウェブユーザーを作成';
 $_lang["role_plugin_management"] = 'プラグイン管理';
 $_lang["role_publish_doc"] = 'リソースの公開';
-$_lang['role_remove_locks'] = 'ロックの解除';
+$_lang["role_remove_locks"] = 'ロックの解除';
 $_lang["role_role_management"] = 'ロール管理';
 $_lang["role_run_module"] = 'モジュールの実行';
 $_lang["role_save_chunk"] = 'チャンクの保存';
@@ -1032,7 +1033,6 @@ $_lang["users"] = '権限管理';
 $_lang["validate_referer_message"] = '「はい」を選択すると、リファラチェック(参照元チェック)を行い、不正な参照元からのURLによる要求を拒否します。これにより、管理画面にログイン中に意図しない動作をさせられてしまう脅威 <a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">(CSRF=Cross Site Request Forgery)</a>をある程度軽減できます。ただしリファラは偽装が可能なため注意が必要です。よりよい回避策が実装されるまでは、管理画面にログイン中は、不用意に外部リンクをクリックしない・こまめにログアウトをするなど習慣づけてください。';
 $_lang["validate_referer_title"] = '管理画面操作のリファラチェック';
 $_lang["value"] = '値';
-$_lang["version_codename"] = 'コードネーム';
 $_lang["view"] = 'ここをクリック';
 $_lang["view_child_resources_in_container"] = 'サブリソースを表示';
 $_lang["view_log"] = 'ログを見る';
