@@ -50,6 +50,11 @@ if($modx->hasPermission('bk_manager')) {
     $icon = '<a class="hometblink" href="index.php?a=93"><img src="'.$_style['icons_backup_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang['backup'].'</a>';
     $modx->setPlaceholder('BackupIcon',$icon);
 }
+if($modx->hasPermission('help')) {
+    $icon = '<a class="hometblink" href="index.php?a=9"><img src="'.$_style['icons_help_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang["help"].'</a>';
+    $modx->setPlaceholder('HelpIcon',$icon);
+}
+
 
 // setup modules
 if($modx->hasPermission('exec_module')) {
