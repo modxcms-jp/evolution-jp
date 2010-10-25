@@ -269,6 +269,11 @@ if(isset($_REQUEST['log_submit'])) {
 		$logentries = array();
 		$i = 0;
 		while ($logentry = mysql_fetch_assoc($rs)) {
+			if($logentry['action']==3||$logentry['action']==27)
+			{
+				$logentry['itemname'] = '<a href="index.php?a=3&amp;id=' . $logentry['itemid'] . '">'
+				                      . $logentry['itemname'] . '</a>';
+			}
 			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
 			<td><?php echo '<a href="index.php?a=12&amp;id='.$logentry['internalKey'].'">'.$logentry['username'].'</a>'; ?></td>
 			<td><?php echo $logentry['action']; ?></td>
