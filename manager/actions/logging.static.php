@@ -272,7 +272,7 @@ if(isset($_REQUEST['log_submit'])) {
 			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
 			<td><?php echo '<a href="index.php?a=12&amp;id='.$logentry['internalKey'].'">'.$logentry['username'].'</a>'; ?></td>
 			<td><?php echo $logentry['action']; ?></td>
-			<td><?php echo $logentry['itemid']=="-" ? "" : $logentry['itemid'] ; ?></td>
+			<td><?php echo $logentry['itemid']=="" ? "-" : $logentry['itemid'] ; ?></td>
 			<td><?php echo $logentry['itemname']; ?></td>
 			<td><?php echo $logentry['message']; ?></td>
 			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
