@@ -118,7 +118,7 @@ $modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_n
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
-$sql = "SELECT id, pagetitle, description FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
+$sql = "SELECT id, pagetitle, description, editedon, editedby FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
@@ -129,7 +129,19 @@ if($limit<1) {
         if($i==0) {
             $syncid = $content['id'];
         }
-        $html.='<li><span style="width: 40px; text-align:right;">'.$content['id'].'</span> - <span style="width: 200px;"><a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a></span>'.($content['description']!='' ? ' - '.$content['description'] : '').'</li>';
+        
+        $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=".$content['editedby'];
+        $rs2 = mysql_query($sql);
+        $limit2 = mysql_num_rows($rs2);
+        if($limit2==0) $user = '-';
+        else
+        {
+            $r = mysql_fetch_assoc($rs2);
+            $user = $r['username'];
+        }
+        
+        $html.='<li>'.$content['id'].' - <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
+        .' (' . $modx->toDateFormat($content['editedon']). ' / ' . $user . ')</li>';
     }
 }
 $html.='</ul>';
