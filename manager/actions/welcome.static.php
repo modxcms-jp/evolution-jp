@@ -189,10 +189,11 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
     $sql = "SELECT * FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.lasthit>'$timetocheck' ORDER BY username ASC";
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);
-    if($limit<1) {
+    if($limit<2) {
         $html = "<p>".$_lang['no_active_users_found']."</p>";
     } else {
-        $html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
+        $html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
+        $html .= '
                 <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
                   <thead>
                     <tr>
