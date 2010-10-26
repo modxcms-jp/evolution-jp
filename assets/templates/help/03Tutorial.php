@@ -157,7 +157,7 @@ MODxの管理画面スタイルに合わせたい場合は上記のように記�
 
 <h3>サイトツリーからリソースIDを取得する(モジュール作成)</h3>
 <p>
-サイトツリーのリソースをクリックした時、JavaScriptでsetMoveValueメソッドが実行されます。このsetMoveValueメソッドの処理内容をモジュール側で実装します。リソースID・リソース名を値として受け取ることができます。同梱モジュールDocManagerが参考になります。
+サイトツリーのリソースをクリックした時に実行する処理の内容を独自に実装できます。parent.tree.caフラグにparent・move・linkいずれかの値をセットすることで、それぞれsetMoveValue・setParent・setLinkの各メソッドを呼び分け、リソースID・リソース名を値として渡すことができます。詳しくは manager/frames/tree.php の treeActionメソッドを参照してください。
 </p>
 
 <h3>MODxのAPIを外部PHPアプリから利用する(上級者向け)</h3>
