@@ -188,9 +188,10 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$date = filemtime($filepath);
 					$createdon = $date;
 					$editedon  = $date;
+					$pagetitle = $modx->db->escape($pagetitle);
 					$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
                    (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
-						   ('document', 'text/html', '".$modx->db->escape($pagetitle)."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 1, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
+						   ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 1, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 					$rs = $modx->db->query($sql);
             if($rs) $new_parent = mysql_insert_id(); // get new parent id
             else
@@ -244,9 +245,10 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$date = filemtime($filepath);
 				$createdon = $date;
 				$editedon = $date;
+				$pagetitle = $modx->db->escape($pagetitle);
 				$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
 				       (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
-				       ('document', 'text/html', '".$modx->db->escape($pagetitle)."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 0, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
+				       ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 0, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 				$rs = $modx->db->query($sql);
                 if(!$rs)
                 {
@@ -302,20 +304,16 @@ function getFiles($directory,$listing = array(), $count = 0){
     return ($listing);
 }
 
-function getFileContent($file) {
+function getFileContent($filepath)
+{
     global $_lang;
     // get the file
-    if(@$handle = fopen($file, "r")) {
-        $buffer = "";
-        while (!feof ($handle)) {
-           $buffer .= fgets($handle, 4096);
-        }
-        fclose ($handle);
+    if(!$buffer=file_get_contents($filepath))
+    {
+		echo '<p><span class="fail">' . $_lang['import_site_failed']."</span> "
+	     .$_lang["import_site_failed_no_retrieve_file"].$filepath.".</p>";
     }
-    else {
-		echo '<p><span class="fail">' . $_lang['import_site_failed']."</span> ".$_lang["import_site_failed_no_retrieve_file"].$file.".</p>";
-    }
-    return $buffer;
+	else return $buffer;
 }
 
 /**
