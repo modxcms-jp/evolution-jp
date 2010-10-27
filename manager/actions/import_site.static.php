@@ -168,7 +168,7 @@ function importFiles($parent,$filepath,$files,$mode) {
 					$file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
 					if (preg_match("@<title>(.*)</title>@i",$file,$matches))
 					{
-						$pagetitle = $matches[1];
+						$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
 					}
 					else $pagetitle = $id;
 					if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
@@ -181,6 +181,7 @@ function importFiles($parent,$filepath,$files,$mode) {
 						$pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
 						$replace = '$1' . $modx->config['modx_charset'] . '$2';
 						$content = preg_replace($pattern, $replace, $content);
+						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 					}
 					$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
                    (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon) VALUES
@@ -216,7 +217,7 @@ function importFiles($parent,$filepath,$files,$mode) {
                 $file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
                 if (preg_match("@<title>(.*)</title>@i",$file,$matches))
                 {
-                    $pagetitle = $matches[1];
+                    $pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
                 }
                 else $pagetitle = $value;
                 if(!$pagetitle) $pagetitle = $value;
@@ -230,6 +231,7 @@ function importFiles($parent,$filepath,$files,$mode) {
                 $pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
                 $replace = '$1' . $modx->config['modx_charset'] . '$2';
                 $content = preg_replace($pattern, $replace, $content);
+                $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
                 }
 				$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
                        (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon) VALUES
@@ -301,7 +303,8 @@ function getFileContent($file) {
  * @deprecated Use $modx->stripAlias()
  */
 function stripAlias($alias) {
-    return $GLOBALS['modx']->stripAlias($alias);
+    global $modx;
+    return $modx->stripAlias($alias);
 }
 
 function cmp($a, $b)
