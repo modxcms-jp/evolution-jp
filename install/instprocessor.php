@@ -411,8 +411,6 @@ if (isset ($_POST['tv'])) {
                     $row = mysql_fetch_assoc($ds);
                     $templateId = $tRow['id'];
                     $id = $row["id"];
-                    // remove existing tv -> template assignements
-                    mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_tmplvar_templates` WHERE tmplvarid = \'' . $id . '\'');
                     // add existing tv -> template assignements
                     mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES($id, $templateId)");
                }
