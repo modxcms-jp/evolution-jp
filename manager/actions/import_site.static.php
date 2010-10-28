@@ -15,6 +15,10 @@ $allowedfiles = array('html','htm','shtml','xml');
     function setParent(pId, pName) {
         document.importFrm.parent.value=pId;
         document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
+        if(pId!=0)
+        document.getElementById('reset').disabled=true;
+        else
+        document.getElementById('reset').disabled=false;
     }
     function reloadTree() {
         // redirect to welcome
@@ -53,7 +57,7 @@ if(!isset($_POST['import'])) {
   <tr>
 	<td nowrap="nowrap" valign="top"><b>サイトツリーをリセットする</b></td>
     <td>&nbsp;</td>
-    <td><input type="checkbox" name="reset" value="on" />
+    <td><input type="checkbox" id="reset" name="reset" value="on" />
         <br />
 		<small>サイトツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。</small>
     </td>
