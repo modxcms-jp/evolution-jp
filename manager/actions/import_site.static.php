@@ -157,7 +157,7 @@ function importFiles($parent,$filedir,$files,$mode) {
         if(is_array($value))
         {
             // create folder
-			$alias = ($modx->config['allow_duplicate_alias']=='1') ? $id:$id.'-'.substr(uniqid(''),-3);
+            $alias = !isset($modx->documentListing[$id]) ? $id:$id.'-'.substr(uniqid(''),-3);
             $modx->documentListing[$alias] = true;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $id);
 			foreach(array('index.html','index.htm') as $filename)
@@ -215,7 +215,7 @@ function importFiles($parent,$filedir,$files,$mode) {
             $value = $fparts[0];
             $ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
             printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
-			$alias = ($modx->config['allow_duplicate_alias']=='1') ? $value:$value.'-'.substr(uniqid(''),-3);
+            $alias = !isset($modx->documentListing[$value]) ? $value:$value.'-'.substr(uniqid(''),-3);
             $modx->documentListing[$alias] = true;
 			
 			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . PHP_EOL;
