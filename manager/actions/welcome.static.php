@@ -152,6 +152,12 @@ $modx->setPlaceholder('RecentInfo',$html);
 // user info
 $modx->setPlaceholder('info',$_lang['info']);
 $modx->setPlaceholder('yourinfo_title',$_lang['yourinfo_title']);
+if(!empty($_SESSION['mgrLastlogin']))
+{
+     $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time);
+}
+else $Lastlogin = '-';
+
 $html = '
     <p>'.$_lang["yourinfo_message"].'</p>
     <table border="0" cellspacing="0" cellpadding="0">
@@ -168,7 +174,7 @@ $html = '
       <tr>
         <td>'.$_lang["yourinfo_previous_login"].'</td>
         <td>&nbsp;</td>
-        <td><b>'.$modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time).'</b></td>
+        <td><b>' . $Lastlogin . '</b></td>
       </tr>
       <tr>
         <td>'.$_lang["yourinfo_total_logins"].'</td>
