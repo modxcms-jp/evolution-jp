@@ -1313,8 +1313,8 @@ form#mutate input.disabled {
 }
 
 form#mutate select.inputBox,
-form#mutate input,
-form#mutate textarea {
+form#mutate input
+ {
 	width: 300px;
 }
 form#mutate input.inputBox,
