@@ -274,10 +274,11 @@ if($modx->hasPermission('exec_module')) {
 				FROM '.$modx->getFullTableName('site_modules').' AS sm
 				LEFT JOIN '.$modx->getFullTableName('site_module_access').' AS sma ON sma.module = sm.id
 				LEFT JOIN '.$modx->getFullTableName('member_groups').' AS mg ON sma.usergroup = mg.user_group
-				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1');
+				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1
+				ORDER BY sm.editedon DESC');
 	} else {
 		// Admins get the entire list
-		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1');
+		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
 	while ($content = $modx->db->getRow($rs)) {
 		$modulemenu[] = '<li><a onclick="this.blur();" href="index.php?a=112&amp;id='.$content['id'].'" target="main">'.$content['name'].'</a></li>';
