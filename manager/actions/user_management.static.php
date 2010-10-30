@@ -131,7 +131,7 @@ echo $cm->render();
 	} else {
 	    $sql .= (!empty($sqlQuery) ? "WHERE (mu.username LIKE '$sqlQuery%') OR (mua.fullname LIKE '%$sqlQuery%') OR (mua.email LIKE '$sqlQuery%') ":"");
 	}
-	$sql .= "ORDER BY username";
+	$sql .= "ORDER BY mua.blocked ASC, mua.thislogin DESC";
 
 	$ds = mysql_query($sql);
 	include_once $base_path."manager/includes/controls/datagrid.class.php";
