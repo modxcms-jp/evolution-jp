@@ -13,19 +13,15 @@
 			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabhome" ) );</script>
 			<div class="sectionHeader">[+welcome_title+]</div>
 			<div class="sectionBody">
+                <h3 style="margin:0;font-weight:normal;margin:7px;">[+site_name+]</h3>
                 <table border="0" cellpadding="5">
-                  <tr>
-                    <td colspan="2">
-                        <h3 style="margin:0">[+site_name+]</h3>
-                    </td>
-                  </tr>
                   <tr>
                     <td width="100" align="right">
                         <img src='media/style/[+theme+]/images/misc/logo.png' alt='[+logo_slogan+]' />
                         <br /><br />
                     </td>
                     <td valign="top">
-[+OnManagerWelcomeHome+]
+                        [+OnManagerWelcomeHome+]
                         <span class="wm_button" style="border:0">[+SecurityIcon+]</span>
                         <span class="wm_button" style="border:0">[+WebUserIcon+]</span>
                         <span class="wm_button" style="border:0">[+ModulesIcon+]</span>
@@ -51,38 +47,32 @@
 			</div>
 		</div>
 		
-		<!-- modx news -->
 		<div class="tab-page" id="tabNews" style="padding-left:0; padding-right:0">
+		<!-- modx news -->
 			<h2 class="tab">[+modx_news+]</h2>
 			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabNews" ) );</script>
-			<div class="sectionHeader">[+modx_news_title+]</div><div class="sectionBody">
+			<div class="sectionHeader">[+modx_news_title+]</div>
+			<div class="sectionBody">
 				[+modx_news_content+]
 			</div>
-		</div>	
-
 		<!-- security notices -->
-		<div class="tab-page" id="tabSecurityNotices" style="padding-left:0; padding-right:0">
-			<h2 class="tab">[+modx_security_notices+]</h2>
-			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabSecurityNotices" ) );</script>
-			<div class="sectionHeader">[+modx_security_notices_title+]</div><div class="sectionBody">
+			<div class="sectionHeader">[+modx_security_notices_title+]</div>
+			<div class="sectionBody">
 				[+modx_security_notices_content+]
 			</div>
 		</div>
 
+		<div class="tab-page" id="tabYour" style="padding-left:0; padding-right:0">
+			<h2 class="tab">[+yourinfo_title+]</h2>
+			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabYour" ) );</script>
 		<!-- recent activities -->
-		<div class="tab-page" id="tabAct" style="padding-left:0; padding-right:0">
-			<h2 class="tab">[+recent_docs+]</h2>
-			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabAct" ) );</script>
-			<div class="sectionHeader">[+activity_title+]</div><div class="sectionBody">
+			<div class="sectionHeader">[+activity_title+]</div>
+			<div class="sectionBody">
 				[+RecentInfo+]
 			</div>
-		</div>
-
 		<!-- user info -->
-		<div class="tab-page" id="tabYour" style="padding-left:0; padding-right:0">
-			<h2 class="tab">[+info+]</h2>
-			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabYour" ) );</script>
-			<div class="sectionHeader">[+yourinfo_title+]</div><div class="sectionBody">
+			<div class="sectionHeader">[+yourinfo_title+]</div>
+			<div class="sectionBody">
 				[+UserInfo+]
 			</div>
 		</div>
