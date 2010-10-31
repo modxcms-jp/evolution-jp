@@ -131,18 +131,8 @@ if($limit<1) {
             $syncid = $content['id'];
         }
         
-        $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=".$content['editedby'];
-        $rs2 = mysql_query($sql);
-        $limit2 = mysql_num_rows($rs2);
-        if($limit2==0) $user = '-';
-        else
-        {
-            $r = mysql_fetch_assoc($rs2);
-            $user = $r['username'];
-        }
-        
         $html.='<li>'.$content['id'].' - <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
-        .' (' . $modx->toDateFormat($content['editedon']). ' / ' . $user . ')</li>';
+        .' (' . $modx->toDateFormat($content['editedon']) . ')</li>';
     }
 }
 $html.='</ul>';
