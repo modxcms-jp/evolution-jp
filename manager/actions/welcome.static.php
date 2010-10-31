@@ -131,8 +131,8 @@ if($limit<1) {
             $syncid = $content['id'];
         }
         
-        $html.='<li>'.$content['id'].' - <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
-        .' (' . $modx->toDateFormat($content['editedon']) . ')</li>';
+        $html.='<li><b>' . $modx->toDateFormat($content['editedon']) . '</b> - [' . $content['id'] .'] <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
+        .'</li>';
     }
 }
 $html.='</ul>';

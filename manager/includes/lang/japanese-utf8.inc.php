@@ -22,7 +22,7 @@ $_lang["access_permissions_add_user_group"] = 'ユーザーグループを作成
 $_lang["access_permissions_docs_collision"] = 'ウェブユーザーグループとマネージャーユーザーグループの設定に問題があるため、このリソースは公開されます。詳細については管理者へお問い合わせください。';
 $_lang["access_permissions_docs_message"] = 'このリソースを所属させたい<a href="index.php?a=40">リソースグループ</a>を選択してください。グループで制限する必要がなければ「グループ制限なし」にチェックを入れます。または<a href="index.php?a=17">「グローバル設定」</a>の「詳細設定」で「グループ管理機能を使用する」を「いいえ」にします。';
 $_lang["access_permissions_group_link"] = 'グループリンクを新規作成';
-$_lang["access_permissions_introtext"] = 'ここでユーザーグループまたはリソースグループを作ると、ユーザ編集画面またはリソース編集画面で所属グループを選択できるようになります。グループ機能を利用するためには、ユーザーグループとリソースグループを必ず関連付ける必要があります。<br />※<a href="index.php?a=17">グローバル設定</a>の「グループ管理機能を使用する(詳細設定タブ)」を「いいえ」にすると、この画面の設定は無効になります。';
+$_lang["access_permissions_introtext"] = 'ここでユーザーグループまたはリソースグループを作ると、ユーザ編集画面またはリソース編集画面で所属グループを選択できるようになります。グループ機能を利用するためには、ユーザーグループとリソースグループを必ず関連付ける必要があります。また、個別のユーザー及びリソースをそれぞれ直接関連付けることはできません。<br />※<a href="index.php?a=17">グローバル設定</a>の「グループ管理機能を使用する(詳細設定タブ)」を「いいえ」にすると、この画面の設定は無効になります。';
 $_lang["access_permissions_link_to_group"] = 'リソースグループ';
 $_lang["access_permissions_link_user_group"] = 'ユーザーグループ';
 $_lang["access_permissions_links"] = 'グループリンク';
@@ -40,7 +40,7 @@ $_lang["access_permissions_users_tab"] = '管理画面を扱うユーザのグ�
 $_lang["account_email"] = 'メールアドレス';
 $_lang["actioncomplete"] = '<strong>処理が正常に完了しました。</strong><br /> - クリーンアップ処理中です。お待ちください。';
 $_lang["activity_message"] = '自分が編集したリソースの一覧(最新順に10件まで)';
-$_lang["activity_title"] = '最近編集/作成されたリソース';
+$_lang["activity_title"] = '最近編集したリソース';
 $_lang["add"] = '追加';
 $_lang["add_chunk"] = 'チャンクの追加';
 $_lang["add_doc"] = 'リソースの追加';
@@ -644,8 +644,8 @@ $_lang["plugin_title"] = 'プラグインの作成/編集';
 $_lang["preview"] = 'プレビュー';
 $_lang["preview_msg"] = 'ここには最後に保存した内容をプレビューしています。<a href="#" onclick="saveRefreshPreview();"><img src="media/images/icons/save.gif" align="absmiddle" height="12"> 保存と再描画</a>を行うにはここをクリックしてください。';
 $_lang["preview_resource"] = 'プレビュー(別窓)';
-$_lang["private"] = 'プライベート';
-$_lang["public"] = 'パブリック';
+$_lang["private"] = 'グループ設定';
+$_lang["public"] = 'グループ制限なし';
 $_lang["publish_date"] = '公開日付';
 $_lang["publish_events"] = '公開を予定しているリソースの一覧';
 $_lang["publish_resource"] = '公開する';

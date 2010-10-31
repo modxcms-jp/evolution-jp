@@ -79,7 +79,7 @@ li, dd, blockquote {
 }
 /* -------------------------[ Headers and Paragraphs ]--- */
 h1, h2, h3, h4, h5, h6, .subTitle {
-	font-weight: normal;
+	font-weight: bold;
 }
 h1 {
 	font-size: 218%;
@@ -262,7 +262,6 @@ input, select, textarea, td {
 		text-align: right;
 	}
 #ta, .tmplvars textarea {
-	font:inherit;
 }
 form input[type=text],
 form textarea {
@@ -514,6 +513,9 @@ a img {
 .row3 {
 	background-color: #F4F4F4;
 }
+.row3 td.warning {
+	padding-left:25px;
+}
 .treeframebody {
 	background-color: #f4f4f4;
 }
@@ -611,6 +613,7 @@ a img {
 	color: #fff;
 	font-weight: bold;
 	background-color: #88939E;
+	white-space:nowrap;
 }
 .gridItem {
 	background-color: #fff;
@@ -766,7 +769,7 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-	background: #e4e4e4 url(images/misc/menubg.png);
+	background: #ffffff url(images/misc/menubg.png);
 }
 #Navcontainer {
 	padding: 0 10px;
@@ -798,7 +801,7 @@ a.hometblink:hover {
 	}
 #nav li {
 	list-style: none;
-	background: #d4d4d4 url(images/misc/tab.gif) 100% 100%;
+	background: #323c52 url(images/misc/tab.gif) 100% 100%;
 	float: left;
 	width: auto;
 	margin: 0 3px 0 0;
@@ -1596,10 +1599,14 @@ a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decor
 
 td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
 
-form#mutate input.text {width:300px;}
+form#mutate input.text,
+input.inputBox,
+form#mutate input.imageField {width:300px;}
 form#mutate textarea.inputBox {width:300px;height:80px;}
 form#mutate textarea {width:90%;height:240px;}
 form#mutate textarea.textareamini {height:120px;}
 form#mutate input.number,input.email {ime-mode:disabled;}
 form#mutate input.number {width:80px !important;text-align:right;}
-form#mutate label {display:block;}
+form#mutate div.tmplvars label {display:block;}
+
+.phptextarea {font-family: 'Courier New','Courier', monospace;}
