@@ -11,7 +11,7 @@ class DocumentParser {
     var $pluginEvent;
 
     var $config= null;
-    var $rs, $result, $sql, $table_prefix, $debug, $documentIdentifier, $documentMethod, $documentGenerated, $documentContent, $tstart, $minParserPasses, $maxParserPasses, $documentObject, $templateObject, $snippetObjects, $stopOnNotice, $executedQueries, $queryTime, $currentSnippet, $documentName, $aliases, $visitor, $entrypage, $documentListing, $dumpSnippets, $chunkCache, $snippetCache, $contentTypes, $dumpSQL, $queryCode, $virtualDir, $placeholders, $sjscripts, $jscripts, $loadedjscripts, $documentMap;
+    var $rs, $result, $sql, $table_prefix, $debug, $documentIdentifier, $documentMethod, $documentGenerated, $documentContent, $tstart, $minParserPasses, $maxParserPasses, $documentObject, $templateObject, $snippetObjects, $stopOnNotice, $executedQueries, $queryTime, $currentSnippet, $documentName, $aliases, $visitor, $entrypage, $documentListing, $dumpSnippets, $chunkCache, $snippetCache, $contentTypes, $dumpSQL, $queryCode, $virtualDir, $placeholders, $sjscripts, $jscripts, $loadedjscripts, $documentMap,$referenceListing;
     var $forwards= 3;
 
     // constructor
@@ -885,14 +885,30 @@ class DocumentParser {
 			$pieces = preg_split('/(\[~|~\])/',$documentSource);
 			$maxidx = sizeof($pieces);
 			$documentSource = '';
+		if(empty($this->referenceListing))
+		{
+			$this->referenceListing = array();
+			$res = $this->db->select('id,content', $this->getFullTableName('site_content'), "type='reference'");
+			$rows = $this->db->makeArray($res);
+			foreach($rows as $row)
+			{
+				extract($row);
+				$this->referenceListing[$id] = $content;
+			}
+		}
 		
 		if ($this->config['friendly_urls'] == 1)
 		{
+			if(empty($this->aliases))
+			{
 			$aliases= array ();
 			foreach ($this->aliasListing as $doc)
 			{
 				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
 			}
+				$this->aliases = $aliases;
+			}
+			$aliases = $this->aliases;
 			$use_alias = $this->config['friendly_alias_urls'];
 			$prefix    = $this->config['friendly_url_prefix'];
 			$suffix    = $this->config['friendly_url_suffix'];
@@ -903,10 +919,14 @@ class DocumentParser {
 				$idx++;
 				if ($idx < $maxidx)
 				{
-					$docid = intval($pieces[$idx]);
-					if(!is_numeric($pieces[$idx]))         $path = '[~' . $pieces[$idx] . '~]';
-					elseif($aliases[$docid] && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$docid]);
-					else                                   $path = $this->makeFriendlyURL($prefix, $suffix, $docid);
+					$target = trim($pieces[$idx]);
+					if(preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
+						$target = $this->referenceListing[$target];
+					
+					if(preg_match('@^https?://@', $this->referenceListing[$target]))
+					                                        $path = $this->referenceListing[$target];
+					elseif($aliases[$target] && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$target]);
+					else                                    $path = $this->makeFriendlyURL($prefix, $suffix, $target);
 					$documentSource .= $path;
 				}
 			}
@@ -920,11 +940,17 @@ class DocumentParser {
 				$idx++;
 				if ($idx < $maxidx)
 				{
-					$docid = intval($pieces[$idx]);
-					if($docid == intval($this->config['site_start']))
-						$documentSource .= 'index.php';
+					$target = trim($pieces[$idx]);
+					if(preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
+						$target = $this->referenceListing[$target];
+					
+					if($target === $this->config['site_start'])
+						$path = 'index.php';
+					elseif(preg_match('@^https?://@', $this->referenceListing[$target]))
+						$path = $this->referenceListing[$target];
 					else
-						$documentSource .= 'index.php?id=' . $docid;
+						$path = 'index.php?id=' . $target;
+					$documentSource .= $path;
 				}
 			}
         }
