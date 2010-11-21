@@ -698,7 +698,7 @@ class DocumentParser {
                 if (isset ($this->chunkCache[$matches[1][$i]])) {
                     $replace[$i]= $this->chunkCache[$matches[1][$i]];
                 } else {
-                    $sql= "SELECT * FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".name='" . $this->db->escape($matches[1][$i]) . "';";
+                    $sql= "SELECT snippet FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".name='" . $this->db->escape($matches[1][$i]) . "';";
                     $result= $this->dbQuery($sql);
                     $limit= $this->recordCount($result);
                     if ($limit < 1) {
@@ -811,7 +811,7 @@ class DocumentParser {
                         $snippets[$i]['properties']= $this->snippetCache[$matches[1][$i] . "Props"];
                 } else {
                     // get from db and store a copy inside cache
-                    $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . $this->db->escape($matches[1][$i]) . "';";
+                    $sql= "SELECT name,snippet,properties FROM " . $this->getFullTableName("site_snippets") . " WHERE name='" . $this->db->escape($matches[1][$i]) . "'";
                     $result= $this->dbQuery($sql);
                     if ($this->recordCount($result) == 1) {
                         $row= $this->fetchRow($result);
@@ -1235,7 +1235,7 @@ class DocumentParser {
             if (!$this->documentObject['template'])
                 $this->documentContent= "[*content*]"; // use blank template
             else {
-                $sql= "SELECT * FROM " . $this->getFullTableName("site_templates") . " WHERE " . $this->getFullTableName("site_templates") . ".id = '" . $this->documentObject['template'] . "';";
+                $sql= "SELECT content FROM " . $this->getFullTableName("site_templates") . " WHERE id = '" . $this->documentObject['template'] . "';";
                 $result= $this->dbQuery($sql);
                 $rowCount= $this->recordCount($result);
                 if ($rowCount > 1) {
@@ -1767,7 +1767,7 @@ class DocumentParser {
             $snippet= $this->snippetCache[$snippetName];
             $properties= $this->snippetCache[$snippetName . "Props"];
         } else { // not in cache so let's check the db
-            $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . $this->db->escape($snippetName) . "';";
+            $sql= "SELECT name,snippet,properties FROM " . $this->getFullTableName("site_snippets") . " WHERE name='" . $this->db->escape($snippetName) . "'";
             $result= $this->dbQuery($sql);
             if ($this->recordCount($result) == 1) {
                 $row= $this->fetchRow($result);
@@ -2243,7 +2243,7 @@ class DocumentParser {
         $rt= false;
         if ($_SESSION["webValidated"] == 1) {
             $tbl= $this->getFullTableName("web_users");
-            $ds= $this->dbQuery("SELECT * FROM $tbl WHERE id='" . $this->getLoginUserID() . "'");
+            $ds= $this->dbQuery("SELECT id,username,password FROM $tbl WHERE id='" . $this->getLoginUserID() . "'");
             $limit= mysql_num_rows($ds);
             if ($limit == 1) {
                 $row= $this->fetchRow($ds);
@@ -2447,7 +2447,7 @@ class DocumentParser {
                     $pluginCode= $this->pluginCache[$pluginName];
                     $pluginProperties= $this->pluginCache[$pluginName . "Props"];
                 } else {
-                    $sql= "SELECT * FROM " . $this->getFullTableName("site_plugins") . " WHERE name='" . $pluginName . "' AND disabled=0;";
+                    $sql= "SELECT name,plugincode,properties FROM " . $this->getFullTableName("site_plugins") . " WHERE name='" . $pluginName . "' AND disabled=0;";
                     $result= $this->dbQuery($sql);
                     if ($this->recordCount($result) == 1) {
                         $row= $this->fetchRow($result);
