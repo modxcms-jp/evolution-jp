@@ -117,8 +117,13 @@ class DBAPI {
    }
 
    function escape($s) {
-      if (function_exists('mysql_real_escape_string') && $this->conn) {
+      if (function_exists('mysql_real_escape_string') && function_exists('mysql_set_charset') && $this->conn) {
+         mysql_set_charset($this->config['charset']);
          $s = mysql_real_escape_string($s, $this->conn);
+      } elseif (function_exists('mysql_real_escape_string') && $this->config['charset']=='utf8' && $this->conn) {
+         $s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
+         $s = mysql_real_escape_string($s, $this->conn);
+         $s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
       } else {
          $s = mysql_escape_string($s);
       }
