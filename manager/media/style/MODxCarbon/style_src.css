@@ -604,24 +604,28 @@ a img {
 	text-decoration: line-through;
 }
 /* -------------------------[ grid style ]--- */
-.grid {
+table.grid {
 	width: 100%;
 	background-color: #fff;
-	border: 1px solid silver;
+	border-collapse:collapse;
+	margin-bottom:20px;
 }
-.gridHeader {
-	color: #fff;
+table.grid th, table.grid td {
+	border:1px solid #ccc;
+	padding:4px;
+}
+table.grid th, .gridHeader {
+	color: #333;
 	font-weight: bold;
-	background-color: #88939E;
+	background-color: #d2d2d2;
 	white-space:nowrap;
+	text-align:left;
 }
-.gridItem {
+table.grid td.odd, .gridItem {
 	background-color: #fff;
-	padding: 3px;
 }
-.gridAltItem {
+table.grid td.even, .gridAltItem {
 	background-color: #eeeeee;
-	padding: 3px;
 }
 .gridRowIcon:hover {
 	background-color: #f5f5dc;
