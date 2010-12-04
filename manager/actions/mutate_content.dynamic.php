@@ -1080,7 +1080,7 @@ if ($use_udperms == 1) {
 		foreach ($inputAttributes as $k => $v) $inputString[] = $k.'="'.$v.'"';
 
 		// Make the <input> HTML
-		$inputHTML = '<input '.implode(' ', $inputString). (($id==$modx->config['site_start']) ? ' disabled' : '') . ' />';
+		$inputHTML = '<input '.implode(' ', $inputString) . ' />';
 
 		// does user have this permission?
 		$sql = "SELECT COUNT(mg.id) FROM {$tbl_membergroup_access} mga, {$tbl_member_groups} mg
