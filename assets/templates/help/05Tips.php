@@ -9,6 +9,11 @@ ul {margin-bottom:15px;}
 
 <div class="sectionHeader">知っておくと便利</div>
 <div class="sectionBody" style="padding:10px 20px;">
+<h3>パスワードを忘れたのでリセットしたい</h3>
+<p>
+<a href="http://www.google.com/search?hl=ja&q=modx+password+123456" target="_blank">「modx password 123456」</a>でググってみてください。パスワードとメールアドレスの両方を忘れて管理画面にログインできなくなった場合はこのヘルプを見ることもできないと思いますが、調べ方だけでも記憶にとどめておくとよいでしょう。
+</p>
+
 <h3>システムをアップデートする</h3>
 <p>
 MODx最新版に含まれるファイルをそのまま全て上書きし、インストーラが示す手順に沿ってアップデートしてください。拡張機能をアップデートする必要がない場合は、managerフォルダのみを上書きしてからそのまま管理画面にログインし、グローバル設定を空更新するだけでアップデートが完了します。
@@ -16,10 +21,10 @@ MODx最新版に含まれるファイルをそのまま全て上書きし、イ�
 
 <h3>サイトをバックアップ・リストアする</h3>
 <p>
-<a href="index.php?a=93">バックアップマネージャー</a>を用いてデータベースをバックアップします。この時、データサイズの総計に気をつけてください。100MB以上のサイズに及ぶ場合はリストアに失敗することがありますし、いざという時にテキストエディタで開いて内容を確認・編集することもできません。データが肥大する原因としてはログ情報が考えられます。この場合はevent_logテーブルとmanager_logテーブルをバックアップ対象から外すか、いったんログをクリアするとよいでしょう。</p>
+<a href="index.php?a=93">バックアップマネージャー</a>を用いてデータベースをバックアップします。この時、データサイズの総計に気をつけてください。サイズが大き過ぎるとリストアに失敗することがありますし、いざという時にテキストエディタで開いて内容を確認・編集することもできません。データが肥大する原因としてはログ情報が考えられます。この場合はevent_logテーブルとmanager_logテーブルをバックアップ対象から外すか、いったんログをクリアするとよいでしょう。</p>
 <p>サイト全体のページ数が多い時は、それでもサイズが大きいことがあります。この場合は複数のtableごとに分けてバックアップファイルを取得すると安全です。バックアップファイルはテキストファイルなので、テキストエディタで分割編集することもできます。
 </p>
-<p>バックアップしたデータを用いてサイトをリストアするには、<a href="http://www.google.com/search?hl=ja&q=phpmyadmin+%E3%82%A4%E3%83%B3%E3%83%9D%E3%83%BC%E3%83%88" target="_blank">phpMyAdminのインポート機能</a>を用いてください。
+<p>バックアップしたデータを用いてサイトをリストアするには、<a href="http://www.google.com/search?hl=ja&q=phpmyadmin+%E3%82%A4%E3%83%B3%E3%83%9D%E3%83%BC%E3%83%88" target="_blank">phpMyAdminのインポート機能</a>を用いてください。データのサイズが大き過ぎてインポートに失敗する場合は、<a href="http://www.google.com/search?hl=ja&q=bigdump" target="_blank">BigDump</a>などのインポート専用ツールをお試しください。
 </p>
 <p>
 データベースを通じてリストアされるデータには、拡張機能も含まれる点にご注意ください。最新のMODxをインストールしてから、データのみインポートしてサイトを復旧させるケースにおいては、拡張機能のバージョンもリストア元のバージョンに戻ります。このため、関連ファイルをassetsディレクトリ内に持つ拡張機能は、整合性に問題が生じることがあります。問題が生じた場合は、MODxのインストーラを用いて拡張機能を上書きでアップデートし直すと、最新の状態で整合性を復旧することができます。
@@ -57,13 +62,17 @@ MODxのサイト移管は簡単です。インストーラを用いず、ファ�
 
 <h3>相対パスを利用する</h3>
 <p>
-同梱のTinyMCEプラグインに関する設定です。MODxのリンクタグは、常にMODx稼働ルートディレクトリ基準の相対URLを出力します。このためフレンドリーURL設定でサイト運用を行なっている場合は、サイト内のページや画像にリンクを張った時にディレクトリずれが発生します。これを防ぐために、TinyMCE側では「絶対パス自動補完オプション」により、基準となるパスを自動的に補うようになっています。パスを補う際の判定基準は「パスの先頭がスラッシュまたはhttp:で始まっているかどうか」となっています。このような設定になっていることで、既存のオーサリングツールによるサイト構築スキルをそのまま生かしてテンプレートを作ることができます。
+同梱のTinyMCEプラグインに関する設定です。MODxのリンクタグは、常にMODx稼働ルートディレクトリ基準の相対URLを出力します。このためフレンドリーURL設定でサイト運用を行なっている場合は、サイト内のページや画像にリンクを張った時にディレクトリずれが発生します。これを防ぐために、TinyMCE側では「絶対パス自動補完オプション」により、基準となるパスを自動的に補うようになっています。パスを補う際の判定基準は「パスの先頭がスラッシュまたはhttp:で始まっているかどうか」となっています。
 </p>
 <p>
-より高度な使い方として、<a href="http://www.google.com/search?hl=ja&q=base+html" target="_blank">baseタグ</a>の利用を推奨します。これにより、論理的にクリーンな状態でサイトを運用することができます。この場合はTinyMCEプラグインの「Path Options」設定で「rootrelative」を選択します。具体的なメリットとしては、リンクの内容(srcまたはhrefの値)をスニペットやチャンクで抽象化するなどしてコントロールしやすくなります。スニペットやチャンクが出力する値が常に相対パスであれば問題ありませんが、httpから始まるURLを出力したいこともあるでしょう。そのような場合、TinyMCEの絶対パス自動補完オプションが障壁になることがあります。
+パスの自動補完をオフにすると、より高度にリソースを活用できます。この場合は<a href="http://www.google.com/search?hl=ja&q=base+html" target="_blank">baseタグ</a>の併用を推奨します。パスの自動変換をオフにするには、TinyMCEプラグインの「Path Options」設定で「rootrelative」を選択します。
+<pre>
+&lt;a href=&quot;{{今月のおすすめサイト}}&quot;&gt;今月のおすすめサイト&lt;/a&gt;
+</pre>
+たとえば上記のように、リンクの内容(srcまたはhrefの値)をチャンクやスニペットで抽象化するなどしてコントロールしやすくなります。抽象化することで、サイト全体に同じように張られた複数のリンクを一度に変更することができます。
 </p>
 <p>
-相対パスをbaseタグでコントロールする場合のデメリットとしては、アンカータグによるサイト内移動の場合に多少の工夫が必要になることが挙げられます。baseタグで補われるのはルートURLのみなので、<a href="http://www.google.com/search?hl=ja&q=modx+%22Base+URL+Same-Page-Link+Fix%22" target="_blank">Base URL Same-Page-Link Fix</a>プラグインなどを用いて、アンカーに関してはアクセスしているページのURLごと補わないと、常にトップページにリンクが張られることになります。また、baseタグを解釈しない一部のクローラーが404ログを残していくことがあります。
+相対パスをbaseタグでコントロールする場合のデメリットとして、アンカータグによるサイト内移動の場合に多少の工夫が必要になるため注意が必要です。baseタグで補われるのはルートURLのみなので、<a href="http://www.google.com/search?hl=ja&q=modx+%22Base+URL+Same-Page-Link+Fix%22" target="_blank">Base URL Same-Page-Link Fix</a>プラグインなどを用いて、アンカーに関してはアクセスしているページのURLごと補わないと、常にトップページにリンクが張られることになります。また、baseタグを解釈しない一部のクローラーが404ログを残していくことがあります。
 </p>
 
 <h3>ナビゲーションを設置する</h3>
@@ -311,6 +320,40 @@ Googleマップを貼り付ける方法はもうひとつあります。MODx投�
 
 <h3>改行はシフト＋エンターキーで</h3>
 <p>TinyMCEやCKEditorでリソース編集画面を開いている場合、エンターキーを押すとp要素で段落整形されるため、意図しない空行が挿入されたように見えることがあります。Validな文書を作るには便利な機能ですが、改行のみですませたいこともあります。シフトを押しながらエンターキーを押すと、改行(&lt;br /&gt;)のみが挿入されます。</p>
+
+<h3>文字化けを防ぐ</h3>
+<pre>
+php_value   mbstring.detect_order       UTF-8,SJIS-win,eucJP-win,JIS,ASCII
+php_flag  output_buffering              Off
+php_value output_handler                NULL
+php_value default_charset               UTF-8
+php_value mbstring.language             none
+php_flag  mbstring.encoding_translation Off
+php_value mbstring.http_input           pass
+php_value mbstring.http_output          pass
+php_value mbstring.internal_encoding    none
+php_value mbstring.substitute_character none
+</pre>
+<p>
+.htaccessに上記のように記述してください。サーバ側の自動変換処理をほぼ無効にする設定です。古い設定のサーバでは日本語を正しく処理する目的でEUC-JPに変換していることがあり、これが原因で文字化けが発生するケースが多いです。
+</p>
+<pre>
+mbstring.detect_order         = UTF-8,SJIS-win,eucJP-win,JIS,ASCII
+output_buffering              = Off
+output_handler                = none
+default_charset               = UTF-8
+mbstring.language             = none
+mbstring.internal_encoding    = none
+mbstring.http_input           = pass
+mbstring.http_output          = pass
+mbstring.encoding_translation = Off
+mbstring.substitute_character = none
+</pre>
+<p>
+.htaccessによるディレクティブ指定(php_value・php_flag)ができないレンタルサーバ(さくらインターネット・CPIなど)ではphp.iniを上記のようにセットしてください。
+</p>
+<p>上記では文字化けを防ぐ設定を紹介しましたが、よりセキュアな運用のために、あえてUTF-8変換処理(mbstring.http_input)を通してデータを正規化すべきという考え方もあります。
+</p>
 
 <h3>文字コードeuc-jpで運用する</h3>
 <p>

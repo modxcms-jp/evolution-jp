@@ -154,6 +154,31 @@ include($incPath .'footer.inc.php');
 <p>
 MODxの管理画面スタイルに合わせたい場合は上記のように記述します。
 </p>
+<pre>
+&lt;script type=&quot;text/javascript&quot; src=&quot;media/script/tabpane.js&quot;&gt;&lt;/script&gt;
+</pre>
+<p>
+タブを実装したい場合は上記のように<a href="http://webfx.eae.net/dhtml/tabpane/tabpane.html" target="_blank">tabpane.js</a>を読み込んでから、
+</p>
+<pre>
+&lt;h1&gt;&lt;?php echo $content['name']?&gt;&lt;/h1&gt;
+&lt;div class=&quot;tab-pane&quot; id=&quot;<b>pane1</b>&quot;&gt;
+  <span style="color:#db500b;">&lt;script type=&quot;text/javascript&quot;&gt;
+    <b>pane1</b> = new WebFXTabPane(document.getElementById(&quot;<b>pane1</b>&quot;),false);
+  &lt;/script&gt;</span>
+  &lt;div class=&quot;tab-page&quot; id=&quot;<b>tab1</b>&quot;&gt;
+    &lt;h2 class=&quot;tab&quot;&gt;タブ1&lt;/h2&gt;
+    <span style="color:#db500b;">&lt;script type=&quot;text/javascript&quot;&gt;<b>pane1</b>.addTabPage(document.getElementById(&quot;<b>tab1</b>&quot;));&lt;/script&gt;</span>
+    &lt;div class=&quot;sectionHeader&quot;&gt;チュートリアル&lt;/div&gt;
+    &lt;div class=&quot;sectionBody&quot; style=&quot;padding:10px 20px;&quot;&gt;
+    これは自作モジュールです。
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p>
+上記のように記述します。JavaScriptに慣れていない場合は難しく感じられるかもしれませんが、new WebFXTabPaneで処理実行インスタンスを作り(※複数作ることができます)、getElementByIdで対象要素の内容をまるごと取得して書き換え処理を行なっている点がポイントです。構成については、<span style="color:#db500b;">script要素</span>をコメントアウトした状態でイメージすると分かりやすいです。セクション表現が不要な場合はsectionHeader・sectionBodyブロックを記述する必要はありません。
+</p>
 
 <h3>サイトツリーからリソースIDを取得する(モジュール作成)</h3>
 <p>
