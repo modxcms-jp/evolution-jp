@@ -28,6 +28,9 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 		$new_value = ($eval) ? eval($value) : $value;
 		
 		$output = " // ----------- Change defaults -------------- \n";
+		
+		
+		// Work out the correct date time format based on the config setting
 		$date_format = $modx->toDateFormat(null, 'formatOnly');
 		
 		switch ($field) {
