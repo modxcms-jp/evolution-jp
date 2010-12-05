@@ -210,13 +210,14 @@ if (!class_exists("truncate")) {
 		   }  return $this->textTrunc($posttext, $minimum_length + $length_offset);
 		}
 
-		function textTrunc($string, $limit, $break=". ") {
+		function textTrunc($string, $limit, $break="。") {
+			global $modx;
 	  	// Original PHP code from The Art of Web: www.the-art-of-web.com
-
+		    mb_internal_encoding($modx->config['modx_charset']);
 	    // return with no change if string is shorter than $limit
-	    if(mb_strlen($string) <= $limit) return $string;
+		    if(mb_strwidth($string) <= $limit) return $string;
 
-	    $string = mb_substr($string, 0, $limit);
+		    $string = mb_strimwidth($string, 0, $limit);
 	    if(false !== ($breakpoint = mb_strrpos($string, $break))) {
 	      $string = mb_substr($string, 0, $breakpoint+1);
 	    }
