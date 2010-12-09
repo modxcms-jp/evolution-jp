@@ -237,7 +237,7 @@ function moveContent(e)
     }
 }
 
-//Code add for constraints by Frédéric Klee <fklee@isuisse.com>
+//Code add for constraints by Fré¦˜é§»ic Klee <fklee@isuisse.com>
 function moveHandle(e) 
 {
     if (dragapproved)

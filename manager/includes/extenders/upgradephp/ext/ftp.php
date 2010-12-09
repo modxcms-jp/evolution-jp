@@ -7,7 +7,7 @@
    support, then simply let your text editor replace all occourences
    of "ftp_" into "xftp_" or something similar.
 
-   Public Domain, 2004, milky*users·sf·net
+   Public Domain, 2004, milky*usersï½·sfï½·net
 */
 
 if (!function_exists("ftp_connect")) {
@@ -120,8 +120,8 @@ if (!function_exists("ftp_connect")) {
 
        #-- done
        if (FTP_DEBUG) {
-          echo "»»» $command";
-          echo "««« $r";
+          echo "ï½»ï½»ï½» $command";
+          echo "ï½«ï½«ï½« $r";
        }
        return($r);
     }
