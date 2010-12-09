@@ -6,7 +6,7 @@
  * Author:         yama
  * Date:           2010/07/29
  * Version:        2.1.1
- * MODx version:   0.9.5-1.0.4
+ * MODx version:   0.9.5-1.0.5
 */
 
 $_lang['tinymce_editor_theme_title'] = 'テーマ:';
