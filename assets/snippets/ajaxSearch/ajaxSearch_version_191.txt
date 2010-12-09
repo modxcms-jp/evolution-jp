@@ -100,7 +100,7 @@ Previous versions :
 ==== Accented characters - search html entities too
 
     The html entity version of the search terms are also searched.
-    e.g: "ph&eactute;nom&egrave;ne" and "phénomène" are searched when "phénomène" is searched.
+    e.g: "ph&eactute;nom&egrave;ne" and "phé§­oméˆ©e" are searched when "phé§­oméˆ©e" is searched.
 
 
 ==== advSearch - exactphrase
