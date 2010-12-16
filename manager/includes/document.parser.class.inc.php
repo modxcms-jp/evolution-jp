@@ -775,7 +775,7 @@ class DocumentParser {
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         ob_end_clean();
         if ($msg && isset ($php_errormsg)) {
-            if (strpos(strtolower($php_errormsg), 'deprecated')===false) { // ignore php5 strict errors
+            if (!stripos($php_errormsg, 'deprecated')) { // ignore php5 strict errors
                 // log error
                 $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg<br />REQUEST_URI = $request_uri<br />ID = $this->documentIdentifier", $this->currentSnippet . " - Snippet");
                 if ($this->isBackend())

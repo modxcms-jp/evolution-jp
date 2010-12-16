@@ -13,8 +13,8 @@ html {
 }
 body {
 	font-size: 62.5%;
-	font-size: 75%;
 	font-size: 68.75%;
+	font-size: 75%;
 	height: 100%;
 	color:#333333;
 	background: #f7f7f7;
@@ -62,6 +62,7 @@ li, dd, blockquote {
 .warning {
 	color: #444444;
 	font-weight: bold;
+	font-size:12px;
 }
 .success {
 	color: #090;
@@ -219,7 +220,7 @@ hr {
 #supplementalNav {
 	float: right;
 	background: transparent;
-	font-size: 11px;
+	font-size: 12px;
 	padding: 0 0 30px;
 	margin: 0;
 	color: #89939E;
@@ -324,7 +325,7 @@ form input.hidden {
 		text-align: left;
 	}
 form textarea {
-	height: 80px;
+	height: 75px;
 	width: 300px;
 	margin-top: 0;
 }
@@ -442,7 +443,7 @@ input.submit {
 		padding: 5px 18px 5px 3px;
 	}
 .comment {
-	font-size: 10px;
+	font-size: 12px;
 	color: #333;
 }
 thead, .fancyrow {
@@ -773,7 +774,7 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-	background: #ffffff url(images/misc/menubg.png);
+	background: #e4e4e4 url(images/misc/menubg.png);
 }
 #Navcontainer {
 	padding: 0 10px;
@@ -1017,7 +1018,7 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row .tab {
 	color: #313131;
 	font-weight: bold;
-	font-size: 11px;
+	font-size: 12px;
 	cursor: pointer;
 	display: inline;
 	margin: 3px -3px 1px 5px;
@@ -1053,7 +1054,7 @@ a.hometblink:hover {
 }
 .dynamic-tab-pane-control .tab-row .tab span {
 	font-weight: bold;
-	font-size: 11px;
+	font-size: 12px;
 	color: #999;
 	text-decoration: none;
 }
@@ -1450,7 +1451,7 @@ form#mutate select.tv_url_select {
 
 .custom-title {
 	font-weight: bold;
-	font-size: 11px;
+	font-size: 12px;
 	margin: 0;
 	color: #fff;
 	padding: 6px 6px 4px;
@@ -1458,7 +1459,7 @@ form#mutate select.tv_url_select {
 }
 
 .custom-text {
-	font-size: 11px;
+	font-size: 12px;
 	padding: 4px 8px 8px;
 	background: #fff;
 }
@@ -1530,7 +1531,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 .dp_cal select {
 	margin: 2px 3px;
-	font-size: 11px;
+	font-size: 12px;
 }
 .dp_cal select option {
 	padding: 1px 3px;
@@ -1539,7 +1540,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .dp_cal td {
 	width: 14.2857%;
 	text-align: center;
-	font-size: 11px;
+	font-size: 12px;
 	padding: 2px 0;
 }
 .dp_cal th {
@@ -1586,7 +1587,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 /* modx-ja
 ---------------------------------------------------------- */
-body {font-size: 75% !important;}
 td.comment, span.comment,
 body #supplementalNav,
 body .dynamic-tab-pane-control .tab-row .tab,
