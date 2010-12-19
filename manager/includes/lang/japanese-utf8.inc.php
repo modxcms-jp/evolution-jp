@@ -4,9 +4,9 @@
  * Function:       Language file.
  * Encoding:       UTF8
  * Author:         eastbind, MEGU, yamamoto
- * Date:           2010/10/31
+ * Date:           2010/12/19
  * Version:        2.0.7
- * MODx version:   Evolution 1.0.4J-r4
+ * MODx version:   Evolution 1.0.5J
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -98,6 +98,8 @@ $_lang["chunk_code"] = 'チャンク コード (html)';
 $_lang["chunk_multiple_id"] = 'エラー: 複数のチャンクが一つのユニークIDを利用しています。';
 $_lang["chunk_no_exist"] = 'チャンクが存在しません。';
 $_lang["cleaningup"] = 'クリーンアップ処理中';
+$_lang["clean_uploaded_filename"] = 'Use Transliteration for File Uploads';
+$_lang["clean_uploaded_filename_message"] = 'Use the default or transalias settings for the file name to clean special characters from uploaded file names, preserving dot-characters (periods)';
 $_lang["clear_log"] = 'ログをクリア';
 $_lang["click_to_context"] = 'クリックするとコンテキストメニュー';
 $_lang["click_to_edit_title"] = '編集はここをクリック';
@@ -116,6 +118,7 @@ $_lang["configcheck_errorpage_unavailable"] = '設定した「エラーページ
 $_lang["configcheck_errorpage_unavailable_msg"] = '設定した「エラーページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。この場合、システムがループ状態に陥り、多くのエラーメッセージをエラーログに記録してしまいます。「エラーページ」には存在するページでかつ、公開ページ、かつ「public」なページを指定してください。';
 $_lang["configcheck_errorpage_unpublished"] = 'グローバル設定で設定されたエラーページは公開されていません。';
 $_lang["configcheck_errorpage_unpublished_msg"] = '設定したエラーページが誰でも見られるようにはなっていないことを意味します。エラーページは全ての人(Public)に公開するようにしてください。';
+$_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>';
 $_lang["configcheck_images"] = 'イメージディレクトリに書き込みできません';
 $_lang["configcheck_images_msg"] = 'イメージディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません';
 $_lang["configcheck_installer"] = 'インストーラーが残されています';
@@ -129,6 +132,10 @@ $_lang["configcheck_php_gdzip_msg"] = 'このサーバでは<a href="http://www.
 $_lang["configcheck_register_globals"] = '「register_globals」が「ON」に設定されており、セキュリティ上問題があります。';
 $_lang["configcheck_register_globals_msg"] = 'クロスサイトスクリプティング攻撃(XSS)を受けやすい脆弱性があります。XSS攻撃はMODx本体に限らず、サードパーティによって開発されるスニペットやプラグインも攻撃対象となります。register_globals on の環境を特に必要としない場合は、.htaccessまたはphp.iniによって OFF にすることを強くおすすめします。';
 $_lang["configcheck_title"] = '設定チェック';
+$_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
+$_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">Delete TemplateSwitcher</a>';
+$_lang["configcheck_templateswitcher_present_disable"] = '<a href="javascript:disableTemplateSwitcher();">Disable TemplateSwitcher</a>';
+$_lang["configcheck_templateswitcher_present_msg"] = 'The TemplateSwitcher plugin has been found to cause caching and performance problems, and should be used only the functionality is required in your site.';
 $_lang["configcheck_unauthorizedpage_unavailable"] = '「権限外告知のページ」が公開されていないか、存在しません';
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限外告知のページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。システムがループ状態に陥り、多数のエラーをエラーログに蓄積します。権限フリーの公開ページを「権限外告知のページ」に指定してください。';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
@@ -209,6 +216,12 @@ $_lang["defaultsearch_message"] = '新しく作成するリソースをデフォ
 $_lang["defaultsearch_title"] = '検索可能デフォルト';
 $_lang["defaulttemplate_message"] = '新規に作成するリソースのデフォルトテンプレートを指定します。テンプレートはリソース単位で自由に選択できます。';
 $_lang["defaulttemplate_title"] = 'デフォルトテンプレート';
+$_lang["defaulttemplate_logic_title"] = 'Automatic Template Assignment';
+$_lang["defaulttemplate_logic_general_message"] = 'New Resources will have the following templates, falling back to higher levels if not found:';
+$_lang["defaulttemplate_logic_system_message"] = '<strong>System</strong>: the System Default Template.';
+$_lang["defaulttemplate_logic_parent_message"] = '<strong>Parent</strong>: the same Template as the parent container.';
+$_lang["defaulttemplate_logic_sibling_message"] = '<strong>Sibling</strong>: the same Template as other Resources in the same container.';
+
 $_lang["delete"] = '削除';
 $_lang["delete_resource"] = '削除する';
 $_lang["delete_tags"] = 'タグの削除';
@@ -677,10 +690,9 @@ $_lang["rename"] = 'リネーム';
 $_lang["reports"] = 'レポート';
 $_lang["require_tagname"] = 'タグ名が必要です。';
 $_lang["require_tagvalue"] = 'タグの値が必要です';
+$_lang["reserved_name_warning"] = 'You have used a reserved name.';
 $_lang["reset"] = 'リセット';
 $_lang["reset_failedlogins"] = 'リセット';
-$_lang["resolve_hostnames_message"] = '訪問者がこのサイトを訪れた時、MODxでIPアドレスからホスト名への解決を行いますか? ホスト名の解決を行うことによりサーバーの負荷が多少増加します。しかし、ビジターがこのことに気付くことはありません。';
-$_lang["resolve_hostnames_title"] = 'ホスト名の解決';
 $_lang["resource"] = 'リソース';
 $_lang["resource_alias"] = 'エイリアス';
 $_lang["resource_alias_help"] = "このリソースのエイリアスを指定することができます。フレンドリーURL機能が有効な場合、次のようにリソースにアクセスできます:\n\nhttp://yourserver/エイリアス\n\nリソース変数：[*alias*]";
