@@ -9,7 +9,8 @@
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnInterfaceSettingsRender 
  * @internal	@modx_category Manager and Admin
- *
+ * @internal    @installset base, sample
+  *
  * @author yama  / created: 2010/10/03
  */
 

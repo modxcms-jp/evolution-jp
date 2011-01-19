@@ -68,7 +68,7 @@ switch ($e->name)
 		$params['use_browser']     = $modx->config['use_browser'];
 		$params['editor_css_path'] = $modx->config['editor_css_path'];
 		
-		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mrgValidated'])))
+		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mgrValidated'])))
 		{
 			$params['theme']           = $modx->config['tinymce_editor_theme'];
 			$params['language']        = get_mce_lang($modx->config['manager_language']);

@@ -9,6 +9,7 @@
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
+ * @internal    @installset base, sample
  */
 
 # eForm 1.4.4.6 - Electronic Form Snippet

@@ -7,14 +7,14 @@
  * @category	snippet
  * @version 	1.0.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties 
+ * @internal	@properties
  * @internal	@modx_category Navigation
+ * @internal    @installset base, sample
  */
 
 /*
  * This snippet shows the path through the various levels of site structure. It
  * is NOT necessarily the path the user took to arrive at a given page.
- * Version: 1.0.2
  */
 
 /* -----------------------------------------------------------------------------
@@ -296,7 +296,7 @@ if ( $showCurrentCrumb )
 
 // Iterate through parents till we hit root or a reason to stop
 $loopSafety = 0;
-while ( $parent && $loopSafety < 1000 )
+while ( $parent && $parent!=$modx->config['site_start'] && $loopSafety < 1000 )
 {
     // Get next crumb
     $tempCrumb = $modx->getPageInfo($parent,0,"id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu");
@@ -338,7 +338,7 @@ while ( $parent && $loopSafety < 1000 )
 
 // Home crumb ------------------------------------------------------------------
 
-if ( $showHomeCrumb && $homeCrumb = $modx->getPageInfo($homeId,0,"id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu") )
+if ( $showHomeCrumb && $homeId != $modx->documentObject['id'] && $homeCrumb = $modx->getPageInfo($homeId,0,"id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu") )
 {
     $crumbs[] = array(
     'id' => $homeCrumb['id'],
@@ -420,10 +420,8 @@ foreach ( $crumbs as $c )
             }
         }
 
-if(intval($c['id'])!==intval($homeId)) $url = $modx->makeUrl($c['id']);
-else $url = $modx->config['site_url'];
 
-        $pretemplateCrumb .= '<a class="'.$crumbClass.'" href="'. $url .'" title="'.$title.'">'.$text.'</a>';
+        $pretemplateCrumb .= '<a class="'.$crumbClass.'" href="'.($c['id'] == $modx->config['site_start'] ? $modx->config['base_url'] : $modx->makeUrl($c['id'])).'" title="'.$title.'">'.$text.'</a>';
     }
     else
     // Make a span instead of a link

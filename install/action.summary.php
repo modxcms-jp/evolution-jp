@@ -208,7 +208,7 @@ if ($conn) {
         //$modes = array("STRICT_TRANS_TABLES"); // for testing
         // print_r($modes);
         foreach ($modes as $mode) {
-            if (strtoupper($mode) == "STRICT_TRANS_TABLES") {
+            if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
                 echo "<span class=\"notok\">" . $_lang['warning'] . "</span></b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
                 echo "<p><span class=\"notok\">" . $_lang['strict_mode_error'] . "</span></p>";
             } else {
@@ -235,6 +235,9 @@ if (is_writable("../assets/cache")) {
     @ fclose($hnd);
 }
 
+if($installMode > 0 && $_POST['installdata'] == "1") {
+    echo "<p class=\"notes\"><strong>{$_lang['sample_web_site']}:</strong> {$_lang['sample_web_site_note']}</p>\n";
+}
 
 if ($errors > 0) {
 ?>
@@ -294,7 +297,7 @@ foreach ($plugins as $i => $plugin) echo "<input type=\"hidden\" name=\"plugin[]
 $modules = isset ($_POST['module']) ? $_POST['module'] : array ();
 foreach ($modules as $i => $module) echo "<input type=\"hidden\" name=\"module[]\" value=\"$module\" />\n";
 ?>
-  </div>
+</div>
 
 <h2><?php echo $_lang['agree_to_terms'];?></h2>
 <p>

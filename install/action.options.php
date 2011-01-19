@@ -81,7 +81,7 @@ else
     echo "<h2>" . $_lang['optional_items'] . "</h2><p>" . $_lang['optional_items_upd_note'] . "</p>";
 }
 
-$chk = isset ($_POST['installdata']) ? 'checked="checked"' : "";
+$chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : "";
 if($installMode == 0)
 {
 echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
@@ -92,7 +92,7 @@ echo '<hr />';
 
 // toggle options
 echo "<h4>" . $_lang['checkbox_select_options'] . "</h4>
-	<p class=\"actions\"><a href=\"javascript:Checkboxes.checkAll('toggle');\">" . $_lang['all'] . "</a> <a href=\"javascript:Checkboxes.uncheckAll('toggle');\">" . $_lang['none'] . "</a> <a href=\"javascript:Checkboxes.toggle('toggle');\">" . $_lang['toggle'] . "</a></p>
+    <p class=\"actions\"><a id=\"toggle_check_all\" href=\"#\">" . $_lang['all'] . "</a> <a id=\"toggle_check_none\" href=\"#\">" . $_lang['none'] . "</a> <a id=\"toggle_check_toggle\" href=\"#\">" . $_lang['toggle'] . "</a></p>
 	<br class=\"clear\" />
 	<div id=\"installChoices\">";
 
@@ -102,10 +102,15 @@ $options_selected = isset ($_POST['options_selected']);
 $templates = isset ($_POST['template']) ? $_POST['template'] : array ();
 $limit = count($moduleTemplates);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['templates'] . "</h3><br />";
+    $tplOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        $class = !in_array('sample', $moduleTemplates[$i][6]) ? 'toggle' : 'toggle demo';
         $chk = in_array($i, $templates) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"template[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTemplates[$i][0] . "</span> - " . $moduleTemplates[$i][1] . "<hr />";
+        $tplOutput .= "<input type=\"checkbox\" name=\"template[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTemplates[$i][0] . "</span> - " . $moduleTemplates[$i][1] . "<hr />\n";
+    }
+    if($tplOutput !== '') {
+        echo "<h3>" . $_lang['templates'] . "</h3><br />";
+        echo $tplOutput;
     }
 }
 
@@ -113,10 +118,15 @@ if ($limit > 0) {
 $tvs = isset ($_POST['tv']) ? $_POST['tv'] : array ();
 $limit = count($moduleTVs);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['tvs'] . "</h3><br />";
+    $tvOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        $class = !in_array('sample', $moduleTVs[$i][12]) ? "toggle" : "toggle demo";
         $chk = in_array($i, $tvs) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"tv[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "<hr />";
+        $tvOutput .= "<input type=\"checkbox\" name=\"tv[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "<hr />\n";
+    }
+    if($tvOutput != '') {
+        echo "<h3>" . $_lang['tvs'] . "</h3><br />\n";
+        echo $tvOutput;
     }
 }
 
@@ -124,10 +134,15 @@ if ($limit > 0) {
 $chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : array ();
 $limit = count($moduleChunks);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['chunks'] . "</h3>";
+    $chunkOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        $class = !in_array('sample', $moduleChunks[$i][5]) ? "toggle" : "toggle demo";
         $chk = in_array($i, $chunks) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"chunk[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleChunks[$i][0] . "</span> - " . $moduleChunks[$i][1] . "<hr />";
+        $chunkOutput .= "<input type=\"checkbox\" name=\"chunk[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleChunks[$i][0] . "</span> - " . $moduleChunks[$i][1] . "<hr />";
+    }
+    if($chunkOutput != '') {
+        echo "<h3>" . $_lang['chunks'] . "</h3>";
+        echo $chunkOutput;
     }
 }
 
@@ -135,10 +150,15 @@ if ($limit > 0) {
 $modules = isset ($_POST['module']) ? $_POST['module'] : array ();
 $limit = count($moduleModules);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['modules'] . "</h3>";
+    $moduleOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        $class = !in_array('sample', $moduleModules[$i][7]) ? "toggle" : "toggle demo";
         $chk = in_array($i, $modules) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"module[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleModules[$i][0] . "</span> - " . $moduleModules[$i][1] . "<hr />";
+        $moduleOutput .= "<input type=\"checkbox\" name=\"module[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleModules[$i][0] . "</span> - " . $moduleModules[$i][1] . "<hr />";
+    }
+    if($moduleOutput != '') {
+        echo "<h3>" . $_lang['modules'] . "</h3>";
+        echo $moduleOutput;
     }
 }
 
@@ -146,10 +166,19 @@ if ($limit > 0) {
 $plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : array ();
 $limit = count($modulePlugins);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['plugins'] . "</h3>";
+    $pluginOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        if(is_array($modulePlugins[$i][8]))
+        {
+        $class = !in_array('sample', $modulePlugins[$i][8]) ? "toggle" : "toggle demo";
+        }
+        else $class = 'toggle';
         $chk = in_array($i, $plugins) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"plugin[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $modulePlugins[$i][0] . "</span> - " . $modulePlugins[$i][1] . "<hr />";
+        $pluginOutput .= "<input type=\"checkbox\" name=\"plugin[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $modulePlugins[$i][0] . "</span> - " . $modulePlugins[$i][1] . "<hr />";
+    }
+    if($pluginOutput != '') {
+        echo "<h3>" . $_lang['plugins'] . "</h3>";
+        echo $pluginOutput;
     }
 }
 
@@ -157,10 +186,19 @@ if ($limit > 0) {
 $snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : array ();
 $limit = count($moduleSnippets);
 if ($limit > 0) {
-    echo "<h3>" . $_lang['snippets'] . "</h3>";
+    $snippetOutput = '';
     for ($i = 0; $i < $limit; $i++) {
+        if(is_array($moduleSnippets[$i][5]))
+        {
+        $class = !in_array('sample', $moduleSnippets[$i][5]) ? "toggle" : "toggle demo";
+        }
+        else $class = 'toggle';
         $chk = in_array($i, $snippets) || (!$options_selected) ? 'checked="checked"' : "";
-        echo "<input type=\"checkbox\" name=\"snippet[]\" value=\"$i\" class=\"toggle\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleSnippets[$i][0] . "</span> - " . $moduleSnippets[$i][1] . "<hr />";
+        $snippetOutput .= "<input type=\"checkbox\" name=\"snippet[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleSnippets[$i][0] . "</span> - " . $moduleSnippets[$i][1] . "<hr />";
+    }
+    if($snippetOutput != '') {
+        echo "<h3>" . $_lang['snippets'] . "</h3>";
+        echo $snippetOutput;
     }
 }
 ?>
@@ -171,60 +209,47 @@ if ($limit > 0) {
     </p>
 
 </form>
+<script type="text/javascript" src="../assets/js/jquery-1.4.4.min.js"></script>
 <script type="text/javascript">
-/* <![CDATA[ */
-var Checkboxes = {
-  // checks all the checkboxes of a given class name
-  checkAll: function(className) {
-    Checkboxes.setChecking(className, true);
-  },
+    $(document).ready(function(){
 
-  // unchecks all the checkboxes of a given class name
-  uncheckAll: function(className) {
-    Checkboxes.setChecking(className, false);
-  },
+        jQuery('#toggle_check_all').click(function(evt){
+            evt.preventDefault();
+            demo = jQuery('#installdata_field').attr('checked');
+            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', true);
+        });
+        jQuery('#toggle_check_none').click(function(evt){
+            evt.preventDefault();
+            demo = jQuery('#installdata_field').attr('checked');
+            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', false);
+        });
+        jQuery('#toggle_check_toggle').click(function(evt){
+            evt.preventDefault();
+            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', function(){
+                return !jQuery(this).attr('checked');
+            });
+        });
+        jQuery('#installdata_field').click(function(evt){
+            handleSampleDataCheckbox();
+        });
 
-  // toggles the value of the checkboxes of a given class name
-  toggle: function(className) {
-    Checkboxes.setChecking(className, 'toggle');
-  },
-
-  // sets the checked value of elements of a given class name
-  setChecking: function(className, value) {
-    var boxes = getElementsByClassName(document, "*", className);
-    var cur_value = false;
-    for (var i=0, boxes_len=boxes.length; i<boxes_len; i++) {
-      if (value == 'toggle') {
-        cur_value = boxes[i].checked;
-        if (cur_value == true) {
-          boxes[i].checked = '';
+        var handleSampleDataCheckbox = function(){
+            demo = jQuery('#installdata_field').attr('checked');
+            jQuery('input:checkbox.toggle.demo').each(function(ix, el){
+                if(demo) {
+                    jQuery(this)
+                        .attr('checked', true)
+                        .attr('disabled', true)
+                    ;
         } else {
-          boxes[i].checked = 'checked';
-        }
-      } else {
-        boxes[i].checked = value;
+                    jQuery(this)
+                        .attr('disabled', false)
+                    ;
       }
+            });
     }
-  }
-}
 
-/*
-Written by Jonathan Snook, http://www.snook.ca/jonathan
-Add-ons by Robert Nyman, http://www.robertnyman.com
-*/
-function getElementsByClassName(oElm, strTagName, strClassName){
-  var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
-  var arrReturnElements = new Array();
-  strClassName = strClassName.replace(/-/g, "\-");
-  var oRegExp = new RegExp("(^|\s)" + strClassName + "(\s|$)");
-  var oElement;
-  for(var i=0; i<arrElements.length; i++){
-    oElement = arrElements[i];
-    if(oRegExp.test(oElement.className)){
-      arrReturnElements.push(oElement);
-    }
-  }
-  return (arrReturnElements)
-}
-/* ]]> */
+        // handle state of demo content checkbox on page load
+        handleSampleDataCheckbox();
+    });
 </script>
