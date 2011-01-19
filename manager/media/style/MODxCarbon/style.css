@@ -62,7 +62,6 @@ li, dd, blockquote {
 .warning {
 	color: #444444;
 	font-weight: bold;
-	font-size:12px;
 }
 .success {
 	color: #090;
@@ -1144,7 +1143,6 @@ border:1px solid #ccc;
 padding:4px;
 }
 .sortabletable a {
-display:block;
 }
 
 .sortabletable thead tr {
