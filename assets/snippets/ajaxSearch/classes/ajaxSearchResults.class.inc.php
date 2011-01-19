@@ -5,8 +5,8 @@
 * @package  AjaxSearchResults
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/10/2010
 *
 * Purpose:
 *    The AjaxSearchResults class contains all functions and data used to manage Results
@@ -124,7 +124,7 @@ class AjaxSearchResults {
         return true;
     }
     /*
-    *  Get the list of subsites from $_POST['subsearch'] and $_GET['subsearch']
+    *  Get the list of subsites from subsearch parameter
     */
     function _getSubsiteList($site, &$msgErr) {
         $subsiteList = array();
@@ -959,7 +959,7 @@ class AjaxSearchResults {
 
             $text = $this->stripJscripts($text);
 
-            $text = $this->stripHTML($text);
+            $text = $this->stripHtml($text);
         }
         return $text;
     }
@@ -976,13 +976,13 @@ class AjaxSearchResults {
     */
     function stripTags($text) {
 
-        $modRegExArray[] = '~\[\[(.*?)\]\]~';
-        $modRegExArray[] = '~\[!(.*?)!\]~';
-        $modRegExArray[] = '!\[\~(.*?)\~\]!is';
-        $modRegExArray[] = '~\[\((.*?)\)\]~';
-        $modRegExArray[] = '~{{(.*?)}}~';
-        $modRegExArray[] = '~\[\*(.*?)\*\]~';
-        $modRegExArray[] = '~\[\+(.*?)\+\]~';
+        $modRegExArray[] = '~\[\[(.*?)\]\]~s';
+        $modRegExArray[] = '~\[\!(.*?)\!\]~s';
+        $modRegExArray[] = '#\[\~(.*?)\~\]#s';
+        $modRegExArray[] = '~\[\((.*?)\)\]~s';
+        $modRegExArray[] = '~{{(.*?)}}~s';
+        $modRegExArray[] = '~\[\*(.*?)\*\]~s';
+        $modRegExArray[] = '~\[\+(.*?)\+\]~s';
 
         foreach ($modRegExArray as $mReg) $text = preg_replace($mReg, '', $text);
         return $text;

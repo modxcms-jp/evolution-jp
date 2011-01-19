@@ -5,8 +5,8 @@
 * ajaxSearchPopup.php
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 */
 
@@ -22,7 +22,7 @@ if (!function_exists('parseUserConfig')) {
 
 if (isset($_POST['search'])) {
 
-    define('AS_VERSION', '1.9.1');
+    define('AS_VERSION', '1.9.2');
     define('AS_SPATH', 'assets/snippets/ajaxSearch/');
     define('AS_PATH', MODX_BASE_PATH . AS_SPATH);
 
@@ -48,13 +48,15 @@ if (isset($_POST['search'])) {
         $config = parseUserConfig((strip_tags($_POST['ucfg'])));
         // Load the custom functions of the custom configuration file if needed
         if ($config) {
-            $lconfig = (substr($config, 0, 5) != "@FILE") ? AS_PATH . "configs/$config.config.php" : $modx->config['base_path'] . trim(substr($config, 5));
+            $lconfig = (substr($config, 0, 6) != "@FILE:") ? AS_PATH . "configs/$config.config.php" : $modx->config['base_path'] . trim(substr($config, 6, strlen($config)-6));
             if (file_exists($lconfig)) include $lconfig;
             else return "<h3>AjaxSearch error: " . $lconfig . " not found !<br />Check your config parameter or your config file name!</h3>";
         }
+		if ($dcfg['version'] != AS_VERSION) return "<h3>AjaxSearch error: Version number mismatch. Check the content of the default configuration file!</h3>";
         $as = new AjaxSearch();
         $output = $as->run($tstart, $dcfg);
     }
     echo $output;
 }
+
 ?>

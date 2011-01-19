@@ -5,8 +5,8 @@
 * @package  AjaxSearchUtil
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 * Purpose:
 *    The AjaxSearchUtil class contains some util methods

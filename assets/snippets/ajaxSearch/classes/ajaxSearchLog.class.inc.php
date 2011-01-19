@@ -5,8 +5,8 @@
 * @package  AjaxSearchLog
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 * Purpose:
 *    The AjaxSearchLog class contains all functions used to Log AjaxSearch requests
@@ -104,7 +104,7 @@ class AjaxSearchLog {
     function setLogRecord($rs) {
         global $modx;
         if ($this->_purge) $this->_purgeLogs();
-        $asString = $rs['searchString'];
+        $asString = mysql_real_escape_string($rs['searchString']);
         $asNbResults = $rs['nbResults'];
         $asResults = trim($rs['results']);
         $asCmt = '';

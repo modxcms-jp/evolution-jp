@@ -1,5 +1,5 @@
 
-AjaxSearch Readme version 1.9.1
+AjaxSearch Readme version 1.9.2
 
 ---------------------------------------------------------------
 :: Snippet: AjaxSearch
@@ -8,7 +8,7 @@ AjaxSearch Readme version 1.9.1
         Ajax-driven & Flexible Search form
 
   Version:
-        1.9.1  - 30/08/2010
+        1.9.2  - 05/12/2010
 
   Created by:  Coroico - (coroico@wangba.fr)
   
@@ -45,7 +45,9 @@ Many fixes/additions were contributed by mikkelwe/identity/Perrine
 ----------------------------------------------------------------
 :: Changelog:  for more details see www.modx.wangba.fr
 ----------------------------------------------------------------
-  30-august-10 (1.9.1)
+  05-december-10 (1.9.2)
+    -- Bug fixing
+  30-august-10 (1.9.2)
     -- Bug fixing
 
   18-may-10 (1.9.0)
@@ -190,7 +192,7 @@ The simplest snippet call is [!Ajaxsearch!] without any parameters.
 ---- &config [config_name | "default"] (optional)
 
         Load a custom configuration
-        config_name - Other config installed in the configs folder or in any folder within the MODx base path via @FILE
+        config_name - Other config installed in the configs folder or in any folder within the MODx base path via @FILE:
         Configuration files are named in the form: <config_name>.config.php
 
         To limit the number of javascript variables, the default parameters are stored in the default.config.inc.php file.

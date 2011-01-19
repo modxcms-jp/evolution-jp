@@ -5,8 +5,8 @@
 * @package  AjaxSearchConfig
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 * Purpose:
 *    The AjaxSearchConfig class contains all functions and data used to manage configuration context
@@ -163,7 +163,7 @@ class AjaxSearchConfig {
     function getUserConfig() {
         $ucfg = array();
         foreach ($this->cfg as $key => $value) {
-            if ($key != 'advSearch' && $key != 'subSearch' && $value != $this->dcfg[$key]) $ucfg[$key] = $this->cfg[$key];
+            if ($key != 'subSearch' && $value != $this->dcfg[$key]) $ucfg[$key] = $this->cfg[$key];
         }
         return $ucfg;
     }

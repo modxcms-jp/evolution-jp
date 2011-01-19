@@ -6,6 +6,7 @@
  * @category 	plugin
  * @version 	1.5
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal	@properties
  * @internal	@events OnWebPagePrerender
  * @internal	@modx_category Search
  * @internal    @legacy_names AdvSearch Highlighting

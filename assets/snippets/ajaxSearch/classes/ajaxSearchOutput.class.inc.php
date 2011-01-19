@@ -5,8 +5,8 @@
 * @package  AjaxSearchOutput
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 * Purpose:
 *    The AjaxSearchOutput class contains all functions and data used to display output
@@ -142,6 +142,8 @@ class AjaxSearchOutput {
         $nbFoundResults = 0;
         $nbDisplayedResults = 0;
         $logIds = array();
+        $asCall = $this->_getAsCall($this->asCfg->setAsCall($this->asCfg->getUserConfig()));
+        $select = $this->asResults->_asRequest->asSelect;
         if ($this->asCfg->cfg['showResults']) {
             if ($validSearch) {
                 if (!$this->asCfg->isAjax) $this->_setOffset();
@@ -171,7 +173,7 @@ class AjaxSearchOutput {
 
                         $listGrpResults .= $this->_displayGrpResult($ig, $site, $subsite, $display, $nbrs, $searchResults, $offset, $nbMax);
 
-                        $lid = $this->_setLogInfos($ig);
+                        $lid = $this->_setSuccessfullSearches($ig);
                         if ($lid) $logIds[] = $lid;
                     }
 
@@ -213,11 +215,13 @@ class AjaxSearchOutput {
                         $this->varResults['noResults'] = 1;
                         $this->varResults['noResultClass'] = INTROFAILURE_CLASS;
                         $this->varResults['noResultText'] = $this->asCfg->lang['as_resultsIntroFailure'];
+                        $this->_setFailedSearches($asCall,$select);
                     }
                 } else {
                     $this->varResults['noResults'] = 1;
                     $this->varResults['noResultClass'] = INTROFAILURE_CLASS;
                     $this->varResults['noResultText'] = $this->asCfg->lang['as_resultsIntroFailure'];
+                    $this->_setFailedSearches($asCall,$select);
                 }
             }
             else {
@@ -513,6 +517,8 @@ class AjaxSearchOutput {
     * Initialize common chunks variables
     */
     function _initCommonChunks() {
+        global $modx;
+
         if (!class_exists('AsPhxParser')) include_once AS_PATH . "classes/asPhxParser.class.inc.php";
         if (!$this->asCfg->isAjax) {
 
@@ -521,8 +527,25 @@ class AjaxSearchOutput {
         } else {
 
             $tplResults = $this->asCfg->cfg['tplAjaxResults'];
+            // if @FILE binding was passed in via ajax processor, verify the path is safe
+            if(stristr($tplResults, '@FILE:') !== false) {
+                $path = substr($tplResults, 6);
+                $frombase = $modx->config['base_path'] . $path;
+                $dirname = dirname($frombase);
+                $as_expected_dirname = $modx->config['base_path'] . AS_SPATH . 'templates';
+                if(strpos($dirname, $as_expected_dirname) === false) {
+                    $path = str_replace('..', '', $path);
+                    $path = str_replace('\\', '/', $path);
+                    if(substr($path, 0, 1) == '/') $path = substr($path, 1);
+                    $tplResults = '@FILE:templates/' . $path;
+                }
+                if(!file_exists($as_expected_dirname . '/' . $path)) {
+                    $tplResults = '';
+                }
+            }
             if ($tplResults == '') $tplResults = "@FILE:" . AS_SPATH . 'templates/ajaxResults.tpl.html';
         }
+
         $this->chkResults = new AsPhxParser($tplResults);
         if ($this->dbgTpl) {
             $this->asUtil->dbgRecord($this->chkResults->getTemplate($tplResults), "tplResults template" . $tplResults);
@@ -587,21 +610,34 @@ class AjaxSearchOutput {
         $this->_initBreadcrumbs();
     }
     /*
-    * Set log infos into DB
+    * Set log infos into DB for failed searches
     */
-    function _setLogInfos($ig) {
+    function _setFailedSearches($asCall = '', $select = '') {
         $logid = '';
-        if ($this->log) {
+        if ($this->log >= 1 ) {
             $logInfo = array();
-
-            if (($this->log == 2) || ($nbrs == 0)) {
-                $logInfo['searchString'] = $this->asCtrl->searchString;
-                $logInfo['nbResults'] = $this->asResults->groupResults[$ig]['length'];
-                $logInfo['results'] = $this->asResults->groupResults[$ig]['found'];
-                $logInfo['asCall'] = $this->_getAsCall($this->asResults->groupResults[$ig]['ucfg']);
-                $logInfo['asSelect'] = mysql_real_escape_string($this->asResults->groupResults[$ig]['select']);
-                $logid = $this->asLog->setLogRecord($logInfo);
-            }
+            $logInfo['searchString'] = $this->asCtrl->searchString;
+            $logInfo['nbResults'] = 0;
+            $logInfo['results'] = '';
+            $logInfo['asCall'] = $asCall;
+            $logInfo['asSelect'] = mysql_real_escape_string($select);
+            $logid = $this->asLog->setLogRecord($logInfo);
+        }
+        return $logid;
+    }
+    /*
+    * Set log infos into DB for successfull searches
+    */
+    function _setSuccessfullSearches($ig) {
+        $logid = '';
+        if ($this->log == 2) {
+            $logInfo = array();
+            $logInfo['searchString'] = $this->asCtrl->searchString;
+            $logInfo['nbResults'] = $this->asResults->groupResults[$ig]['length'];
+            $logInfo['results'] = $this->asResults->groupResults[$ig]['found'];
+            $logInfo['asCall'] = $this->_getAsCall($this->asResults->groupResults[$ig]['ucfg']);
+            $logInfo['asSelect'] = mysql_real_escape_string($this->asResults->groupResults[$ig]['select']);
+            $logid = $this->asLog->setLogRecord($logInfo);
         }
         return $logid;
     }

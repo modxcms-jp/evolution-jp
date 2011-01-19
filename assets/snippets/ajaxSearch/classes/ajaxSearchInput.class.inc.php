@@ -5,8 +5,8 @@
 * @package  AjaxSearchInput
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.1
-* @date         30/08/2010
+* @version      1.9.2
+* @date         05/12/2010
 *
 * Purpose:
 *    The AjaxSearchInput class contains all functions and data used to manage Input form
@@ -166,7 +166,7 @@ class AjaxSearchInput {
 
             if ($advSearch == EXACTPHRASE) {
 
-                if ($mbStrlen($searchString) < $this->asCfg->cfg['minChars'] && preg_match('/^[ -~]*$/', $searchString)) {
+                if ($mbStrlen($searchString) < $this->asCfg->cfg['minChars']) {
                     $msgErr = sprintf($this->asCfg->lang['as_minChars'], $this->asCfg->cfg['minChars']);
                     return false;
                 }
@@ -177,7 +177,7 @@ class AjaxSearchInput {
             } else {
                 //oneword, allwords or nowords
                 foreach ($words_array as $word) {
-                    if ($mbStrlen($word) < $this->asCfg->cfg['minChars'] && preg_match('/^[ -~]*$/', $searchString)) {
+                    if ($mbStrlen($word) < $this->asCfg->cfg['minChars']) {
                         $msgErr = sprintf($this->asCfg->lang['as_minChars'], $this->asCfg->cfg['minChars']);
                         return false;
                     }

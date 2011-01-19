@@ -3,7 +3,7 @@
 // Default configuration file - AjaxSearch 1.9
 // Keep care all these values are required
 
-$dcfg['version'] = '1.9.1';
+$dcfg['version'] = '1.9.2';
 $dcfg['config'] = '';
 $dcfg['debug'] = 0;
 $dcfg['timeLimit'] = 60;
@@ -75,7 +75,7 @@ $dcfg['jscript'] = 'mootools';
 $dcfg['addJscript'] = 1;
 $dcfg['jsMooTools'] = MODX_BASE_URL . 'manager/media/script/mootools/mootools.js';
 $dcfg['jsMooTools2'] = MODX_BASE_URL . AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
-$dcfg['jsJquery'] = MODX_BASE_URL . AS_SPATH . 'js/jQuery/jquery-1.4.2.min.js';
+$dcfg['jsJquery'] = MODX_BASE_URL . AS_SPATH . 'js/jQuery/jquery-1.4.4.min.js';
 
 // For a global parameter initialisation use the following syntax $__param = 'value';
 // To overwrite parameter snippet call use $param = 'value';
