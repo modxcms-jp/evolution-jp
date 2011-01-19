@@ -3,7 +3,7 @@
 ::::::::::::::::::::::::::::::::::::::::
  Snippet name: Wayfinder
  Short Desc: builds site navigation
- Version: 2.0
+ Version: 2.0.1
  Authors: 
 	Kyle Jaebker (muddydogpaws.com)
 	Ryan Thrash (vertexworks.com)
@@ -303,8 +303,34 @@ class Wayfinder {
 	//Get all of the documents from the database
 	function getData() {
 		global $modx;
+		$depth = !empty($this->_config['level']) ? $this->_config['level'] : 10;
 		$ids = array();
-		$ids = $modx->getChildIds($this->_config['id'],$this->_config['level']);
+		if (!$this->_config['hideSubMenus']) {
+			$ids = $modx->getChildIds($this->_config['id'],$depth);
+		} else { // then hideSubMenus is checked, we don`t need all children
+			// first we always included the chilren of startId document
+			// this fix problem with site root chidrens,
+			// because site root not included in $modx->getParentIds
+			$ids = $modx->getChildIds($this->_config['id'], 1, $ids);
+
+			$parents = array($modx->documentIdentifier);
+			$parents += $modx->getParentIds($modx->documentIdentifier);
+
+			// if startId not in parents, only show children of startId
+			if ($this->_config['id'] == 0 || in_array($this->_config['id'], $parents)){
+
+				//remove parents higher than startId(including startId)
+				$startId_parents = array($this->_config['id']);
+				$startId_parents += $modx->getParentIds($this->_config['id']);
+				$parents = array_diff($parents, $startId_parents);
+
+				//remove parents lower than level of startId + level depth
+				$parents = array_slice(array_reverse($parents), 0, $depth-1);
+
+				foreach($parents as $p)
+					$ids = $modx->getChildIds($p, 1, $ids);
+			}
+		}
 		//Get all of the ids for processing
 		if ($this->_config['displayStart'] && $this->_config['id'] !== 0) {
 			$ids[] = $this->_config['id'];

@@ -40,7 +40,7 @@ class DocManagerBackend {
     	$resource = array();
 
     	if (is_numeric($id)) {
-			$query = 'SELECT id , pagetitle , parent , menuindex, hidemenu, published FROM '. $this->modx->getFullTableName('site_content') .' WHERE parent=' . $id . ' ORDER BY menuindex ASC';
+			$query = 'SELECT id , pagetitle , parent , menuindex, published, hidemenu, deleted  FROM '. $this->modx->getFullTableName('site_content') .' WHERE parent=' . $id . ' ORDER BY menuindex ASC';
 			if (!$rs = $this->modx->db->query($query)) {
 				return false;
 			}
@@ -63,10 +63,15 @@ class DocManagerBackend {
 				$this->dm->ph['sort.message'] =  $this->dm->lang['DM_sort_nochildren'];
 			} else {
 				foreach ($resource as $item) {
-					$hidemenu  = ($item['hidemenu']==1)  ? ' hidemenu'  : '';
-					$published = ($item['published']==0) ? ' unpublished' : '';
-					$this->dm->ph['sort.options'] .= '<li id="item_' . $item['id'] . '" class="sort' . $hidemenu . $published . '">' . $item['pagetitle'] . '</li>';
-	
+                    // Add classes to determine whether it's published, deleted, not in the menu
+                    // or has children.
+                    // Use class names which match the classes in the document tree
+                    $classes = '';
+                    $classes .= ($item['hidemenu']) ? ' notInMenuNode ' : ' inMenuNode' ;
+                    $classes .= ($item['published']) ? ' publishedNode ' : ' unpublishedNode ' ;
+                    $classes = ($item['deleted']) ? ' deletedNode ' : $classes ;
+                    $classes .= (count($this->modx->getChildIds($item['id'], 1)) > 0) ? ' hasChildren ' : ' noChildren ';
+                    $this->dm->ph['sort.options'] .= '<li id="item_' . $item['id'] . '" class="sort '.$classes.'">' . $item['pagetitle'] . '</li>';
 				}
 			}
 		}
@@ -121,6 +126,7 @@ class DocManagerBackend {
 	function changeTemplateVariables($pids) {	
 		$updateError = '';
 	
+		/*
 		$ignoreList = array();
 		if (trim($_POST['ignoreTV']) <> '') {
 			$ignoreList = explode(',', $_POST['ignoreTV']);
@@ -128,6 +134,7 @@ class DocManagerBackend {
 				$ignoreList[$key] = trim($value);
 			}
 		}
+		 */
 	
 		$results = $this->processRange($pids, 'id', 0);
 		$pids = $results[0];
@@ -136,11 +143,11 @@ class DocManagerBackend {
 		if (count($pids) > 0) {
 			$tmplVars = array ();
 			foreach ($_POST as $key => $value) {
-				if (substr($key, 0, 2) == 'tv') {
-					echo $key;
-					$tvKeyName = substr($key, 2);
-					if (strpos($key,'_prefix') !== false)
-						continue;
+				if (substr($key, 0, 10) == 'update_tv_' && $value == 'yes') {
+					//echo $key;
+					$tvKeyName = substr($key, 10);
+					//if (strpos($key,'_prefix') !== false)
+					//	continue;
 					
 					$typeSQL = $this->modx->db->select('*', $this->modx->getFullTableName('site_tmplvars'), 'id=' . $tvKeyName . '');
 					$row = $this->modx->db->getRow($typeSQL);
@@ -176,9 +183,10 @@ class DocManagerBackend {
 				if ($this->modx->db->getRecordCount($tempSQL) > 0) {
 					$row = $this->modx->db->getRow($tempSQL);
 					if ($row['template'] == $_POST['template_id']) {
-						$tvID = $this->getTemplateVarIds($tmplVars,$docID,$ignoreList);
+						$tvID = $this->getTemplateVarIds($tmplVars,$docID);
 						if (count($tvID) > 0) {
 							foreach ($tvID as $tvIndex => $tvValue) {
+                                if($_POST['update_tv_' . $tvIndex] == 'yes') {
 								$checkSQL = $this->modx->db->select('value', $this->modx->getFullTableName('site_tmplvar_contentvalues'), 'contentid="' . $docID . '" AND tmplvarid="' . $tvValue . '"');
 								$checkCount = $this->modx->db->getRecordCount($checkSQL);
 								if ($checkCount) {
@@ -210,6 +218,8 @@ class DocManagerBackend {
 									$this->modx->db->insert($fields, $this->modx->getFullTableName('site_tmplvar_contentvalues'));
 									$updated = true;
 								}
+                                }
+                                unset($noUpdate);
 							}
 						}
 					} else {
