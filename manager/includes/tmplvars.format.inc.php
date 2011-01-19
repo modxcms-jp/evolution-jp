@@ -4,8 +4,8 @@
  * Created by Raymond Irving Feb, 2005
  */
 
-	// Added by Raymond 20-Jan-2005
-	function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$docid="", $sep='') {
+// Added by Raymond 20-Jan-2005
+function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$docid="", $sep='') {
 
 		global $modx;
 
@@ -74,16 +74,7 @@
 
 			case "date":
 				if ($value !='' || $params['default']=='Yes') {
-					$value = parseInput($value);
-					// Check for MySQL style date - Adam Crownoble 8/3/2005
-					$date_match = '/^([0-9]{2})-([0-9]{2})-([0-9]{4})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
-					$matches= array();
-					if(strpos($value,'-')!==false && preg_match($date_match, $value, $matches)) {
-						$timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[1], $matches[3]);
-					}
-					else { // If it's not a MySQL style date, then use strtotime to figure out the date
-						$timestamp = strtotime($value);
-					}
+                $timestamp = getUnixtimeFromDateString($value);
 					$p = $params['format'] ? $params['format']:"%A %d, %B %Y";
 					$o = strftime($p,$timestamp);
 				} else {
@@ -234,16 +225,7 @@
 
 			case "unixtime":
 				$value = parseInput($value);
-				// Check for MySQL style date - Adam Crownoble 8/3/2005
-				$date_match = '/^([0-9]{4})([0-9]{2})-([0-9]{2})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
-				$matches= array();
-				if(strpos($value,'-')!==false && preg_match($date_match, $value, $matches)) {
-					$timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
-				}
-				else { // If it's not a MySQL style date, then use strtotime to figure out the date
-					$timestamp = strtotime($value);
-				}
-				$o = $timestamp;
+            $o = getUnixtimeFromDateString($value);
 				break;
 
 			case "viewport":
@@ -328,6 +310,23 @@
 				$o = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
 				break;
 
+        case 'custom_widget':
+            $widget_output = '';
+            /* If we are loading a file */
+            if(substr($params['output'], 0, 6) == "@FILE:") {
+                $file_name = MODX_BASE_PATH.trim(substr($params['output'], 6));
+                if( !file_exists($file_name) ) {
+                    $widget_output = "$file_name does not exist";
+                } else {
+                    /* The included file needs to set $widget_output. Can be string, array, object */
+                    include $file_name;
+                }
+            } else {
+                $widget_output = str_replace('[+value+]', $value, $params['output']);
+            }
+            $o = $widget_output;
+            break;
+
 			default:
 				$value = parseInput($value);
 				if($tvtype=='checkbox'||$tvtype=='listbox-multiple') {
@@ -339,16 +338,16 @@
 				break;
 		}
 		return $o;
-	}
+}
 
-	function decodeParamValue($s){
+function decodeParamValue($s){
 		$s = str_replace("%3D",'=',$s); // =
 		$s = str_replace("%26",'&',$s); // &
 		return $s;
-	}
+}
 
-	// returns an array if a delimiter is present. returns array is a recordset is present
-	function parseInput($src, $delim="||", $type="string", $columns=true) { // type can be: string, array
+// returns an array if a delimiter is present. returns array is a recordset is present
+function parseInput($src, $delim="||", $type="string", $columns=true) { // type can be: string, array
 		if (is_resource($src)) {
 			// must be a recordset
 			$rows = array();
@@ -361,6 +360,25 @@
 			if($type=="array") return explode($delim,$src);
 			else return $src;
 		}
-	}
+}
 
+function getUnixtimeFromDateString($value) {
+    $timestamp = false;
+    // Check for MySQL or legacy style date
+    $date_match_1 = '/^([0-9]{2})-([0-9]{2})-([0-9]{4})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
+    $date_match_2 = '/^([0-9]{4})-([0-9]{2})-([0-9]{2})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
+    $matches= array();
+    if(strpos($value,'-')!==false) {
+        if(preg_match($date_match_1, $value, $matches)) {
+            $timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[1], $matches[3]);
+        } elseif(preg_match($date_match_2, $value, $matches)) {
+            $timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
+        }
+    }
+    // If those didn't work, use strtotime to figure out the date
+    if($timestamp === false || $timestamp === -1) {
+        $timestamp = strtotime($value);
+	}
+    return $timestamp;
+}
 ?>

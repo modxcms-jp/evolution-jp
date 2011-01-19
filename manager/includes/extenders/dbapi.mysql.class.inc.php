@@ -101,6 +101,10 @@ class DBAPI {
          if ($modx->dumpSQL) {
             $modx->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection was created in %2.4f s", $totaltime) . "</fieldset><br />";
          }
+         if (function_exists('mysql_set_charset'))
+         {
+             mysql_set_charset($this->config['charset']);
+         }
          $this->isConnected = true;
          // FIXME (Fixed by line below):
          // this->queryTime = this->queryTime + $totaltime;
@@ -117,25 +121,14 @@ class DBAPI {
    }
 
    function escape($s) {
-      if ($this->isConnected!==true)
+      if (function_exists('mysql_set_charset') && $this->conn)
       {
-         $this->connect();
-      }
-      $mysql_var = implode('.', array_map('intval', explode('.', mysql_get_server_info($this->conn))));
-      $conn_charset = mysql_client_encoding($this->conn);
-      if ($mysql_var >= '5.0.7' && function_exists('mysql_set_charset'))
-      {
-         mysql_set_charset($this->config['charset']);
          $s = mysql_real_escape_string($s, $this->conn);
       }
-      elseif ($this->config['charset']=='utf8' && $conn_charset=='utf8')
-      {
-        $s = mysql_real_escape_string($s, $this->conn);
-      }
-      elseif ($this->config['charset']=='utf8' && $conn_charset=='ujis')
+      elseif ($this->config['charset']=='utf8' && $this->conn)
       {
          $s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
-        $s = mysql_real_escape_string($s, $this->conn);
+         $s = mysql_real_escape_string($s, $this->conn);
          $s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
       }
       else

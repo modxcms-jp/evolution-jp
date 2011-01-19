@@ -6,6 +6,10 @@ $_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.
 $_lang['settings_after_install'] .= '<br /><strong style="color:red;">また、QuidkEditプラグイン・Bottom button barプラグインを無効にすることをおすすめします。</strong>';
 }
 
+$simple_version = str_replace('.','',$settings_version);
+$simple_version = substr($simple_version,0,3);
+run_update($simple_version);
+
 $manager_theme            = set_default('MODxCarbon',$manager_theme,strstr($settings_version, '0.9.')!==false);
 $show_meta                = set_default('0', $show_meta);
 $server_offset_time       = set_default('0', $server_offset_time);
@@ -70,6 +74,8 @@ $datetime_format          = set_default('YYYY/mm/dd', $datetime_format);
 $warning_visibility       = set_default('0', $warning_visibility);
 $remember_last_tab        = set_default('1', $remember_last_tab);
 $modx_charset             = set_default('UTF-8', $modx_charset);
+$auto_template_logic      = set_default('sibling', $auto_template_logic);
+
 
 // $old_template             = set_default('', $old_template);
 // $fck_editor_toolbar       = set_default('standard', $fck_editor_toolbar);
@@ -87,10 +93,10 @@ $tinymce_css_selectors    = set_default('左寄せ=justifyleft;右寄せ=justify
 $data = $modx->db->getTableMetaData($modx->getFullTableName('user_roles'));
 if($data['remove_locks'] == false)
 {
-	$sql = 'ALTER TABLE ' . $modx->getFullTableName(user_roles)
+	$sql = 'ALTER TABLE ' . $modx->getFullTableName('user_roles')
 	     . " ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
 	$modx->db->query($sql);
-	$sql = 'UPDATE '      . $modx->getFullTableName(user_roles)
+	$sql = 'UPDATE '      . $modx->getFullTableName('user_roles')
 	     . " SET `remove_locks` = '1' WHERE `id` =1";
 	$modx->db->query($sql);
 }
@@ -116,4 +122,75 @@ function set_default($default_value,$current_value,$flag = false)
 		$value = $current_value;
 	}
 	return $value;
+}
+
+function run_update($version)
+{
+	global $modx;
+
+	$version = intval($version);
+	if($version<105)
+	{
+		$sql = "
+		ALTER TABLE " . $modx->getFullTableName('user_attributes') . "
+		  MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+		  MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+		  MODIFY COLUMN `comment` text;
+		";
+		$modx->db->query($sql);
+		
+		$sql = "
+		ALTER TABLE " . $modx->getFullTableName('web_user_attributes') . "
+		  MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+		  MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+		  MODIFY COLUMN `comment` text;
+		";
+		$modx->db->query($sql);
+		
+		$sql = "
+		ALTER TABLE " . $modx->getFullTableName('member_groups') . "
+		  ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
+		";
+		$modx->db->query($sql);
+		
+		$sql = "
+		ALTER TABLE  . $modx->getFullTableName('web_groups') . "
+		  ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
+		";
+		$modx->db->query($sql);
+		
+		
+		$sql = 'UPDATE ' . $modx->getFullTableName('site_plugins')    . " SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
+		$modx->db->query($sql);
+		
+		$sql = 'UPDATE ' . $modx->getFullTableName('system_settings') . " SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
+		$modx->db->query($sql);
+		
+		$rs = $modx->db->query('SELECT properties, disabled FROM ' . getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
+		$row = mysql_fetch_row($rs);
+		
+		global $auto_template_logic;
+		if(!$row)
+		{
+		    $auto_template_logic = 'system'; // not installed
+		}
+		else
+		{
+		if($row[1] == 1)
+		{
+			$auto_template_logic = 'system'; // installed but disabled
+		}
+		else
+		{
+			// installed, enabled .. see how it's configured
+			$properties = parseProperties($row[0]);
+			if(isset($properties['inheritTemplate']))
+			{
+				if($properties['inheritTemplate'] == 'From First Sibling')
+				{
+					$auto_template_logic = 'sibling';
+				}
+			}
+		}
+	}
 }

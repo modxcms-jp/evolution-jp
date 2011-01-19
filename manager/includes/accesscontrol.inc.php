@@ -142,7 +142,7 @@ if(!isset($_SESSION['mgrValidated'])){
 	
 	$_SESSION['ip'] = $ip;
 
-    $itemid = $_REQUEST['id'] > 0 ? $_REQUEST['id'] : '';
+    $itemid = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
 	$lasthittime = time();
     $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
@@ -155,7 +155,7 @@ if(!isset($_SESSION['mgrValidated'])){
 			$_SESSION['mgrShortname'],
 			$lasthittime,
 			(string)$action,
-			var_export($itemid, true),
+			$itemid == null ? var_export(null, true) : $itemid,
 			$ip
 		);
 		if(!$rs = mysql_query($sql)) {

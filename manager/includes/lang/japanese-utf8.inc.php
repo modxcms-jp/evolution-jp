@@ -1,11 +1,11 @@
 <?php
 /**
  * Filename:       includes/lang/japanese-utf8.inc.php
- * Function:       Language file.
+ * Function:       Japanese language file.
  * Encoding:       UTF8
  * Author:         eastbind, MEGU, yamamoto
- * Date:           2010/12/19
- * Version:        2.0.7
+ * Date:           2011/01/19
+ * Version:        2.0.5
  * MODx version:   Evolution 1.0.5J
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
@@ -141,7 +141,7 @@ $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限�
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていないことを意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
 $_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
-$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。<br /><a href="javascript:hideHeaderVerificationWarning();"><em>今後この警告を表示しない</em></a>';
+$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。';
 $_lang["configcheck_warning"] = '警告 ';
 $_lang["configcheck_what"] = 'どういう意味ですか?';
 $_lang["confirm_block"] = 'このアカウントを休止してもよろしいですか?';
@@ -221,7 +221,6 @@ $_lang["defaulttemplate_logic_general_message"] = 'New Resources will have the f
 $_lang["defaulttemplate_logic_system_message"] = '<strong>System</strong>: the System Default Template.';
 $_lang["defaulttemplate_logic_parent_message"] = '<strong>Parent</strong>: the same Template as the parent container.';
 $_lang["defaulttemplate_logic_sibling_message"] = '<strong>Sibling</strong>: the same Template as other Resources in the same container.';
-
 $_lang["delete"] = '削除';
 $_lang["delete_resource"] = '削除する';
 $_lang["delete_tags"] = 'タグの削除';
