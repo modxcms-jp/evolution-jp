@@ -58,13 +58,6 @@ define("IN_MANAGER_MODE", "true");  // we use this to make sure files are access
 // harden it
 require_once('./includes/protect.inc.php');
 
-// sanitize id variable passed by client, ensuring it's an integer
-$_REQUEST['id'] = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
-$_POST['id'] = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-if(isset($_GET['id'])) {
-    $_GET['id'] = (int) $_GET['id'];
-}
-
 // send anti caching headers
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -233,7 +226,7 @@ if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
 $modx->manager->action = $action;
 
 // attempt to foil some simple types of CSRF attacks
-if (isset($modx->config['validate_referer']) && $modx->config['validate_referer']) {
+if (isset($modx->config['validate_referer']) && intval($modx->config['validate_referer'])) {
     if (isset($_SERVER['HTTP_REFERER'])) {
         $referer = $_SERVER['HTTP_REFERER'];
 

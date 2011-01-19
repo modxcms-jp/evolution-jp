@@ -19,9 +19,9 @@ RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
 RewriteRule .* - [F,L]
 
 # Rewrite domain.com -> www.domain.com -- used with SEO Strict URLs plugin
-# RewriteCond %{HTTP_HOST} .
-# RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
-# RewriteRule (.*) http://www.example.com/$1 [R=301,L]
+#RewriteCond %{HTTP_HOST} .
+#RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
+#RewriteRule (.*) http://www.example.com/$1 [R=301,L]
 # wwwの有無を統一する便利設定。MODxとは直接関係ありません。
 
 # Exclude /assets and /manager directories and images from rewrite rules
