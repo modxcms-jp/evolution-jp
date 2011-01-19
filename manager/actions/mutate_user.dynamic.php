@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();  
 }
 
-$user = $_REQUEST['id'];
+$user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`" . $table_prefix . "active_users` WHERE $dbase.`" . $table_prefix . "active_users`.action=12 AND $dbase.`" . $table_prefix . "active_users`.id=$user";
@@ -345,16 +345,13 @@ $rs = mysql_query($sql);
 		<?php
 
 while ($row = mysql_fetch_assoc($rs)) {
-	if ($_REQUEST['a']=='11')
-	{
-		$selectedtext = $row['id'] == '1' ? 'selected="selected"' : '';
-	}
-	else
-	{
-		$selectedtext = $row['id'] == $userdata['role'] ? 'selected="selected"' : '';
+    if ($_REQUEST['a']=='11') {
+        $selectedtext = $row['id'] == '1' ? ' selected="selected"' : '';
+    } else {
+		$selectedtext = $row['id'] == $userdata['role'] ? ' selected="selected"' : '';
 	}
 ?>
-			<option value="<?php echo $row['id']; ?>" <?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
+			<option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
 		<?php
 
 }
@@ -494,10 +491,9 @@ while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
 		$languagename = trim(substr($file, 0, $endpos));
-		$languagename = ucwords(str_replace("_", " ", $languagename));
-		$selectedtext = ($languagename == $activelang) ? "selected='selected'" : "";
+		$selectedtext = $languagename == $activelang ? "selected='selected'" : "";
 ?> 
-                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo $languagename; ?></option> 
+                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
                 <?php
 
 	}

@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-if($_REQUEST['id'] > 0) {
+if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
 	// check to see the template editor isn't locked
 	$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=16 AND $dbase.`".$table_prefix."active_users`.id=$id";
@@ -37,11 +37,11 @@ if($_REQUEST['id'] > 0) {
 	}
 	// end check for lock
 } else {
-	$id= 0;
+    $id='';
 }
 
 $content = array();
-if($id > 0) {
+if(isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."site_templates` WHERE $dbase.`".$table_prefix."site_templates`.id = $id;";
 	$rs = mysql_query($sql);
 	$limit = mysql_num_rows($rs);
@@ -136,9 +136,9 @@ function deletedocument() {
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
-	<?php } ?>
+<?php } ?>
 
-	<?php echo $_lang['template_msg']; ?>
+<?php echo "\t" . $_lang['template_msg']; ?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
 	  <tr>
 	    <td align="left"><img src="<?php echo $_style['tx']; ?>" width="100" height="1" /></td>
@@ -179,22 +179,22 @@ function deletedocument() {
 	    <div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border:1px solid #e0e0e0;margin-top:5px">
 	    	<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['template_code']; ?></span>
 		</div>
-		<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height: 370px;" onChange='documentDirty=true;'><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
+        <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;" onChange='documentDirty=true;'><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
 		</div>
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
 
 <?php if ($_REQUEST['a'] == '16') {
-	$sql = "SELECT tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'".$_lang['no_category']."',cat.category) as category
+$sql = "SELECT tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'".$_lang['no_category']."',cat.category) as category
 	FROM ".$modx->getFullTableName('site_tmplvar_templates')." tr
 	INNER JOIN ".$modx->getFullTableName('site_tmplvars')." tv ON tv.id = tr.tmplvarid
 	LEFT JOIN ".$modx->getFullTableName('categories')." cat ON tv.category = cat.id
-	WHERE tr.templateid='".$_REQUEST['id']."' ORDER BY tr.rank ASC";
+    WHERE tr.templateid='{$id}' ORDER BY tr.rank, tv.rank, tv.id";
 
 
 $rs = $modx->db->query($sql);
 $limit = $modx->db->getRecordCount($rs);
-	?>
+?>
 	</div>
 	<div class="tab-page" id="tabAssignedTVs">
     	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
@@ -220,9 +220,9 @@ echo $tvList;
 <?php } ?>
 
 <?php
-	// invoke OnTempFormRender event
-	$evtOut = $modx->invokeEvent("OnTempFormRender",array("id" => $id));
-	if(is_array($evtOut)) echo implode("",$evtOut);
+// invoke OnTempFormRender event
+$evtOut = $modx->invokeEvent("OnTempFormRender",array("id" => $id));
+if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
 </div>

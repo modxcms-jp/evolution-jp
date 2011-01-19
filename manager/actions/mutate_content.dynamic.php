@@ -34,7 +34,9 @@ switch ($_REQUEST['a']) {
 }
 
 
-$id = $_REQUEST['id'];
+if (isset($_REQUEST['id']))
+        $id = (int)$_REQUEST['id'];
+else    $id = 0;
 
 if ($manager_theme)
         $manager_theme .= '/';
@@ -498,7 +500,6 @@ function decode(s) {
 
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <?php
-
 // invoke OnDocFormPrerender event
 $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
 	'id' => $id
@@ -521,7 +522,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 	  <ul class="actionButtons">
 		  <li id="Button1">
 			<a href="#" onclick="documentDirty=false; document.mutate.save.click();">
-			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
+              <img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
 			</a><span class="and"> + </span>
 			<select id="stay" name="stay">
 			  <?php if ($modx->hasPermission('new_document')) { ?>		
@@ -533,16 +534,17 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 		  </li>
 		  <?php
 			if ($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') { ?>
-		  <li id="Button2" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
+          <li id="Button2" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
 		  <?php } else { ?>
-		  <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a></li>
-		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
+          <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
+          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
 		  <?php } ?>	
-		  <li id="Button4"><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id';"?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-		  <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>
+          <li id="Button4"><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id';"?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+          <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img alt="icons_preview_resource" src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>
 	  </ul>
 </div>
 
+<!-- start main wrapper -->
 <div class="sectionBody">
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 
@@ -575,14 +577,14 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				
 <?php if ($content['type'] == 'reference' || $_REQUEST['a'] == '72') { // Web Link specific ?>
 
-			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['weblink']?></span> <img name="llock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" /></td>
+            <tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['weblink']?></span> <img name="llock" src="<?php echo $_style["tree_folder"] ?>" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" /></td>
 				<td><input name="ta" type="text" maxlength="255" value="<?php echo !empty($content['content']) ? stripslashes($content['content']) : "http://"?>" class="inputBox" onchange="documentDirty=true;" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_weblink_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 				
 <?php } ?>
 
 			<tr style="height: 24px;"><td valign="top" width="100" align="left"><span class="warning"><?php echo $_lang['resource_summary']?></span></td>
-				<td valign="top"><textarea name="introtext" class="inputBox" rows="3" onchange="documentDirty=true;"><?php echo htmlspecialchars(stripslashes($content['introtext']))?></textarea>
+                <td valign="top"><textarea name="introtext" class="inputBox" rows="3" cols="" onchange="documentDirty=true;"><?php echo htmlspecialchars(stripslashes($content['introtext']))?></textarea>
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_summary_help']?>" onclick="alert(this.alt);" style="cursor:help;" spellcheck="true"/></td></tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_template']?></span></td>
 				<td><select id="template" name="template" class="inputBox" onchange="templateWarning();" style="width:308px">
@@ -609,9 +611,33 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					if (isset($_REQUEST['newtemplate'])) {
 						$selectedtext = $row['id'] == $_REQUEST['newtemplate'] ? ' selected="selected"' : '';
 					} else {
-						if (isset ($content['template']))
+                        if (isset ($content['template'])) {
 						        $selectedtext = $row['id'] == $content['template'] ? ' selected="selected"' : '';
-						else    $selectedtext = $row['id'] == $default_template ? ' selected="selected"' : '';
+                        } else {
+                            switch($auto_template_logic) {
+                                case 'sibling':
+
+                                    if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1)) {
+                                        $default_template = $sibl[0]['template'];
+                                        break;
+                                    } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1)) {
+                                        $default_template = $sibl[0]['template'];
+                                        break;
+                                    }
+
+                                case 'parent':
+
+                                    if ($parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template')) {
+                                        $default_template = $parent['template'];
+                                        break;
+                                    }
+
+                                case 'system':
+                                default:
+                                    // default_template is already set
+                            }
+                            $selectedtext = $row['id'] == $default_template ? ' selected="selected"' : '';
+                        }
 					}
 					echo "\t\t\t\t\t".'<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
 					$currentCategory = $thisCategory;
@@ -671,26 +697,27 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					$parentrs = mysql_fetch_assoc($rs);
 					$parentname = $parentrs['pagetitle'];
 				}
-				?>&nbsp;<img name="plock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" /> <b><span id="parentName"><?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
+                ?>&nbsp;<img alt="tree_folder" name="plock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" /> <b><span id="parentName"><?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
 	&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_parent_help']?>" onclick="alert(this.alt);" style="cursor:help;" />
 				<input type="hidden" name="parent" value="<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?>" onchange="documentDirty=true;" />
 				</td></tr>
 		</table>
 		
-		<?php if ($content['type'] == 'document' || $_REQUEST['a'] == '4') { ?>
+<?php if ($content['type'] == 'document' || $_REQUEST['a'] == '4') { ?>
 		<!-- Content -->
 			<div class="sectionHeader" id="content_header"><?php echo $_lang['resource_content']?></div>
 			<div class="sectionBody" id="content_body">
-			<?php
+<?php
 			if (($content['richtext'] == 1 || $_REQUEST['a'] == '4') && $use_editor == 1) {
-			?>
+                $htmlContent = $content['content'];
+?>
 				<div style="width:100%">
-					<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['content'])?></textarea>
+                    <textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;" onchange="documentDirty=true;"><?php echo htmlspecialchars($htmlContent)?></textarea>
 					<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 
 					<select id="which_editor" name="which_editor" onchange="changeRTE();">
 						<option value="none"><?php echo $_lang['none']?></option>
-			<?php
+<?php
 						// invoke OnRichTextEditorRegister event
 						$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
 						if (is_array($evtOut)) {
@@ -699,24 +726,25 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 								echo "\t\t\t",'<option value="',$editor,'"',($which_editor == $editor ? ' selected="selected"' : ''),'>',$editor,"</option>\n";
 							}
 						}
-			?>		</select>
+?>
+                        </select>
 				</div>
-			<?php
+<?php
 				$replace_richtexteditor = array(
 					'ta',
 				);
 			} else {
-				echo "\t".'<div style="width:100%"><textarea id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
+                echo "\t".'<div style="width:100%"><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
 			}
-			?>
+?>
 			</div><!-- end .sectionBody -->
-		<?php } ?>
+<?php } ?>
 
-		<?php if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type'] == 'reference' || $_REQUEST['a'] == 72)) { ?>
+<?php if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type'] == 'reference' || $_REQUEST['a'] == 72)) { ?>
 		<!-- Template Variables -->
 			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
 			<div class="sectionBody tmplvars" id="tv_body">
-			<?php
+<?php
 				$template = $default_template;
 				if (isset ($_REQUEST['newtemplate'])) {
 					$template = $_REQUEST['newtemplate'];
@@ -732,7 +760,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				       'LEFT JOIN '.$tbl_site_tmplvar_access.' AS tva ON tva.tmplvarid=tv.id '.
 				       'WHERE tvtpl.templateid=\''.$template.'\' AND (1=\''.$_SESSION['mgrRole'].'\' OR ISNULL(tva.documentgroup)'.
 				       (!$docgrp ? '' : ' OR tva.documentgroup IN ('.$docgrp.')').
-				       ') ORDER BY tvtpl.rank,tv.rank';
+                       ') ORDER BY tvtpl.rank,tv.rank, tv.id';
 				$rs = mysql_query($sql);
 				$limit = mysql_num_rows($rs);
 				if ($limit > 0) {
@@ -758,13 +786,22 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 						if ($i > 0 && $i < $limit)
 							echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 
-						$tvPBV = array_key_exists('tv'.$row['id'], $_POST) ? $_POST['tv'.$row['id']] : $row['value']; // post back value
-//						$tvPBV = ProcessTVCommand($tvPBV, $row['name'], $content['id']); //yama
-						$dp_z_index = 500 - $i;
+                        // post back value
+                        if(array_key_exists('tv'.$row['id'], $_POST)) {
+                            if($row['type'] == 'listbox-multiple') {
+                                $tvPBV = implode('||', $_POST['tv'.$row['id']]);
+                            } else {
+                                $tvPBV = $_POST['tv'.$row['id']];
+                            }
+                        } else {
+                            $tvPBV = $row['value'];
+                        }
+
+                        $zindex = $row['type'] == 'date' ? '100' : '500';
 						echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
 						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
-						     "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:' . $dp_z_index . ';' : ''),'">',"\n",
-						     "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV),"\n",
+                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
+                             "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
 						     "\t\t</td></tr>\n";
 					}
 					echo "\t</table>\n";
@@ -796,7 +833,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
 				<td><input id="pub_date" <?php echo $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?php echo $content['pub_date']=="0" || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])?>" onblur="documentDirty=true;" />
-				<a onclick="document.mutate.pub_date.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
+                <a href="javascript:void(0);" onclick="javascript:document.mutate.pub_date.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']?>" /></a>
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['page_data_publishdate_help']?>" onclick="alert(this.alt);" style="cursor:help;" />
 				</td>
@@ -828,8 +865,8 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
 				<td><select name="type" class="inputBox" onchange="documentDirty=true;" style="width:200px">
 
-					<option name="type" value="document"<?php echo (($content['type'] == "document" || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "").'>'.$_lang["resource_type_webpage"]."</option>";?> 
-					<option name="type" value="reference"<?php echo (($content['type'] == "reference" || $_REQUEST['a'] == '72') ? ' selected="selected"' : "").'>'.$_lang["resource_type_weblink"]."</option>";?> 
+                    <option value="document"<?php echo (($content['type'] == "document" || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
+                    <option value="reference"<?php echo (($content['type'] == "reference" || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
 					</select>
 					&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_type_message']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 
@@ -1002,10 +1039,9 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 		</tr>
 		</table>
 	</div><!-- end #tabMeta -->
-<?php } ?>
-
-
 <?php
+}
+
 /*******************************
  * Document Access Permissions */
 if ($use_udperms == 1) {
@@ -1080,7 +1116,7 @@ if ($use_udperms == 1) {
 		foreach ($inputAttributes as $k => $v) $inputString[] = $k.'="'.$v.'"';
 
 		// Make the <input> HTML
-		$inputHTML = '<input '.implode(' ', $inputString) . ' />';
+        $inputHTML = '<input '.implode(' ', $inputString).' />';
 
 		// does user have this permission?
 		$sql = "SELECT COUNT(mg.id) FROM {$tbl_membergroup_access} mga, {$tbl_member_groups} mg
@@ -1138,15 +1174,12 @@ if ($use_udperms == 1) {
 	<ul>
 	<?php echo implode("\n", $permissions)."\n"; ?>
 	</ul>
-</div>
-
-</div><!-- end .sectionBody -->
+</div><!--div class="tab-page" id="tabAccess"-->
 <?php
 	} // !empty($permissions)
 	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0) && ($_SESSION['mgrPermissions']['access_permissions'] == 1 || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)) {
 ?>
 	<p><?php echo $_lang["access_permissions_docs_collision"];?></p>
-</div>
 <?php
 
 	}
@@ -1164,12 +1197,14 @@ $evtOut = $modx->invokeEvent('OnDocFormRender', array(
 ));
 if (is_array($evtOut)) echo implode('', $evtOut);
 ?>
+</div><!--div class="tab-pane" id="documentPane"-->
+</div><!--div class="sectionBody"-->
 </fieldset>
 </form>
 
 <script type="text/javascript">
-	//setTimeout('showParameters()',10);
-	storeCurTemplate();</script>
+    storeCurTemplate();
+</script>
 <?php
 	if (($content['richtext'] == 1 || $_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') && $use_editor == 1) {
 		if (is_array($replace_richtexteditor)) {

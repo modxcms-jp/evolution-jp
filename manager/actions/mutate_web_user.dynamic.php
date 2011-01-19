@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$user = $_REQUEST['id'];
+$user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the snippet editor isn't locked

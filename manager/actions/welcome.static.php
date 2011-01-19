@@ -8,6 +8,25 @@ if($modx->hasPermission('settings') && (!isset($settings_version) || $settings_v
     exit;
 }
 
+$script = <<<JS
+        <script type="text/javascript">
+        function hideConfigCheckWarning(key){
+            var myAjax = new Ajax('index.php?a=118', {
+                method: 'post',
+                data: 'action=setsetting&key=_hide_configcheck_' + key + '&value=1'
+            });
+            myAjax.addEvent('onComplete', function(resp){
+                fieldset = $(key + '_warning_wrapper').getParent().getParent();
+                var sl = new Fx.Slide(fieldset);
+                sl.slideOut();
+            });
+            myAjax.request();
+        }
+        </script>
+
+JS;
+$modx->regClientScript($script);
+
 // set placeholders
 $modx->setPlaceholder('theme',$manager_theme ? $manager_theme : '');
 $modx->setPlaceholder('home', $_lang["home"]);
@@ -17,11 +36,9 @@ $modx->setPlaceholder('welcome_title',$_lang['welcome_title']);
 
 // setup message info
 if($modx->hasPermission('messages')) {
-	if (!isset($_SESSION['nrtotalmessages']) || !isset($_SESSION['nrnewmessages'])) {
 		include_once MODX_MANAGER_PATH.'includes/messageCount.inc.php';
 		$_SESSION['nrtotalmessages'] = $nrtotalmessages;
 		$_SESSION['nrnewmessages'] = $nrnewmessages;
-	}
 
     $msg = '<a href="index.php?a=10"><img src="'.$_style['icons_mail_large'].'" /></a>
     <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />';

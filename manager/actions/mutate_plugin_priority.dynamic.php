@@ -22,7 +22,6 @@ if(isset($_POST['listSubmitted'])) {
 
 	foreach ($_POST as $listName=>$listValue) {
         if ($listName == 'listSubmitted') continue;
-	    if ($listName == 'id') continue;
     	$orderArray = explode(',', $listValue);
     	$listName = ltrim($listName, 'list_');
     	if (count($orderArray) > 0) {

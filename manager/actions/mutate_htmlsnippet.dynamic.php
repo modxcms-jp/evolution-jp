@@ -19,7 +19,9 @@ switch ((int) $_REQUEST['a']) {
 		$e->dumpError();
 }
 
-$id = $_REQUEST['id'];
+if (isset($_REQUEST['id']))
+        $id = (int)$_REQUEST['id'];
+else    $id = 0;
 
 if ($manager_theme)
         $manager_theme .= '/';
@@ -45,7 +47,7 @@ if ($limit > 1) {
 }
 
 $content = array();
-if ($id > 0) {
+if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
 	$sql = 'SELECT * FROM '.$tbl_site_htmlsnippets.' WHERE id=\''.$id.'\'';
 	$rs = mysql_query($sql);
 	$limit = mysql_num_rows($rs);
@@ -162,14 +164,15 @@ if (is_array($evtOut))
 			<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 				<option>&nbsp;</option>
 <?php
-			include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
-			$ds = getCategories();
-			if ($ds) {
+include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
+$ds = getCategories();
+if ($ds) {
 				foreach ($ds as $n => $v) {
 				echo "\t\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] || (empty($content['category']) && $_POST['categoryid'] == $v['id']) ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
 				}
-			}
-?>			</select></td></tr>
+}
+?>
+            </select></td></tr>
 		<tr><td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
 			<td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td></tr>
 		<tr><td align="left" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 || $content['locked'] == 'on' ? ' checked="checked"' : ''?> class="inputBox" value="on" /> <?php echo $_lang['lock_htmlsnippet']?>
@@ -180,21 +183,22 @@ if (is_array($evtOut))
 		<div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border:1px solid #e0e0e0; margin-top:5px;">
 			<span style="font-weight:bold;">&nbsp;<?php echo $_lang['chunk_code']?></span>
 		</div>
-		<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" onChange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" onChange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
 		</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 			<select id="which_editor" name="which_editor" onchange="changeRTE();">
 				<option value="none"<?php echo $which_editor == 'none' ? ' selected="selected"' : ''?>><?php echo $_lang['none']?></option>
-				<?php
-				// invoke OnRichTextEditorRegister event
-				$evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
-				if (is_array($evtOut)) {
+<?php
+// invoke OnRichTextEditorRegister event
+$evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
+if (is_array($evtOut)) {
 					foreach ($evtOut as $i => $editor) {
 						echo "\t".'<option value="'.$editor.'"'.($which_editor == $editor ? ' selected="selected"' : '').'>'.$editor."</option>\n";
 					}
-				}
-?>	</select>
+}
+?>
+            </select>
 </div><!-- end .sectionBody -->
 <?php
 

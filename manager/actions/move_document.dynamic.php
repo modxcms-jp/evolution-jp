@@ -5,8 +5,8 @@ if(!$modx->hasPermission('save_document')) {
     $e->dumpError();
 }
 
-if($_REQUEST['id'] > 0) {
-    $id = $_REQUEST['id'];
+if(isset($_REQUEST['id'])) {
+    $id = intval($_REQUEST['id']);
 } else {
     $e->setError(2);
     $e->dumpError();

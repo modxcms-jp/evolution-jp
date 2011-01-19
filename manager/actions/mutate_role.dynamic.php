@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$role = $_REQUEST['id'];
+$role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the role editor isn't locked

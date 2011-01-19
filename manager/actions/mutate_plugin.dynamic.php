@@ -19,7 +19,8 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$id = $_REQUEST['id'];
+$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+
 
 // check to see the plugin editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=102 AND $dbase.`".$table_prefix."active_users`.id=$id";
@@ -166,7 +167,7 @@ function showParameters(ctrl) {
 					c += '</select>';
 					break;
 				case 'textarea':
-					c = '<textarea name="prop_'+key+'" id="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
+					c = '<textarea class="phptextarea" name="prop_'+key+'" id="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
 					break;
 				default:  // string
 					c = '<input type="text" name="prop_'+key+'" id="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
@@ -405,9 +406,9 @@ window.addEvent('domready', function() {
 
 <form name="mutate" method="post" action="index.php?a=103">
 <?php
-	// invoke OnPluginFormPrerender event
-	$evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));
-	if(is_array($evtOut)) echo implode("",$evtOut);
+// invoke OnPluginFormPrerender event
+$evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));
+if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 	<input type="hidden" name="id" value="<?php echo $content['id'];?>">
 	<input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
@@ -549,7 +550,7 @@ window.addEvent('domready', function() {
 		  				<td valign="top">&nbsp;&nbsp;</td>
 		  				<td>
 	<table width="100%" border="0">
-	<?php
+<?php
 
 	// get selected events
 	if(is_numeric($id) && $id > 0) {
@@ -612,7 +613,7 @@ window.addEvent('domready', function() {
 		echo "<tr><td>".implode("</td><td>",$evtnames)."</td></tr>";
 		$evtnames = array();
 	}
-	?>
+?>
 	</table>
 		  				</td>
 		  			</tr>
@@ -626,11 +627,11 @@ window.addEvent('domready', function() {
 <input type="submit" name="save" style="display:none">
 </div>
 <?php
-	// invoke OnPluginFormRender event
-	$evtOut = $modx->invokeEvent("OnPluginFormRender",array("id" => $id));
-	if(is_array($evtOut)) echo implode("",$evtOut);
+// invoke OnPluginFormRender event
+$evtOut = $modx->invokeEvent("OnPluginFormRender",array("id" => $id));
+if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
 <script type="text/javascript">
-	setTimeout('showParameters()',10);
+setTimeout('showParameters()',10);
 </script>

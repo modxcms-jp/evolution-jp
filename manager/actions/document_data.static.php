@@ -1,7 +1,9 @@
 <?php
 if (IN_MANAGER_MODE!='true') die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-$id = $_REQUEST['id'];
+if (isset($_REQUEST['id']))
+        $id = (int)$_REQUEST['id'];
+else    $id = 0;
 
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 

@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$id = $_REQUEST['id'];
+$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 if ($manager_theme)
         $manager_theme .= '/';
@@ -172,7 +172,7 @@ function showParameters(ctrl) {
 					c += '</select>';
 					break;
 				case 'textarea':
-					c = '<textarea name="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
+                    c = '<textarea class="phptextarea" name="prop_'+key+'" cols="50" rows="4" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">'+value+'</textarea>';
 					break;
 				default:  // string
 					c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
@@ -391,12 +391,12 @@ function decode(s){
 		<input type="submit" name="save" style="display:none">
 	</div>
 <?php
-	// invoke OnSnipFormRender event
-	$evtOut = $modx->invokeEvent("OnSnipFormRender",array("id" => $id));
-	if(is_array($evtOut)) echo implode("",$evtOut);
+// invoke OnSnipFormRender event
+$evtOut = $modx->invokeEvent("OnSnipFormRender",array("id" => $id));
+if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
 
 <script type="text/javascript">
-	setTimeout('showParameters();',10);
+setTimeout('showParameters();',10);
 </script>
