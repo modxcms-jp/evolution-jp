@@ -147,6 +147,8 @@ function run_update($version)
 		";
 		$modx->db->query($sql);
 		
+		
+		/*
 		$sql = "
 		ALTER TABLE " . $modx->getFullTableName('member_groups') . "
 		  ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
@@ -154,10 +156,11 @@ function run_update($version)
 		$modx->db->query($sql);
 		
 		$sql = "
-		ALTER TABLE  . $modx->getFullTableName('web_groups') . "
+		ALTER TABLE  " . $modx->getFullTableName('web_groups') . "
 		  ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
 		";
 		$modx->db->query($sql);
+		*/
 		
 		
 		$sql = 'UPDATE ' . $modx->getFullTableName('site_plugins')    . " SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
@@ -166,7 +169,7 @@ function run_update($version)
 		$sql = 'UPDATE ' . $modx->getFullTableName('system_settings') . " SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
 		$modx->db->query($sql);
 		
-		$rs = $modx->db->query('SELECT properties, disabled FROM ' . getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
+		$rs = $modx->db->query('SELECT properties, disabled FROM ' . $modx->getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
 		$row = mysql_fetch_row($rs);
 		
 		global $auto_template_logic;
@@ -176,19 +179,20 @@ function run_update($version)
 		}
 		else
 		{
-		if($row[1] == 1)
-		{
-			$auto_template_logic = 'system'; // installed but disabled
-		}
-		else
-		{
-			// installed, enabled .. see how it's configured
-			$properties = parseProperties($row[0]);
-			if(isset($properties['inheritTemplate']))
+			if($row[1] == 1)
 			{
-				if($properties['inheritTemplate'] == 'From First Sibling')
+				$auto_template_logic = 'system'; // installed but disabled
+			}
+			else
+			{
+				// installed, enabled .. see how it's configured
+				$properties = parseProperties($row[0]);
+				if(isset($properties['inheritTemplate']))
 				{
-					$auto_template_logic = 'sibling';
+					if($properties['inheritTemplate'] == 'From First Sibling')
+					{
+						$auto_template_logic = 'sibling';
+					}
 				}
 			}
 		}
