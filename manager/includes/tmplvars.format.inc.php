@@ -42,10 +42,11 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 							'src' => $src,
 							'id' => ($params['id'] ? $params['id'] : ''),
 							'alt' => htmlspecialchars($params['alttext']),
-							'style' => $params['style'],
-						    'align' => $params['align']
+                        'style' => $params['style']
 						);
-						if($attr['align'] == 'none') $attr['align'] = '';
+                    if(isset($params['align']) && $params['align'] != 'none') {
+                        $attr['align'] = $params['align'];
+                    }
 						foreach ($attr as $k => $v) $attributes.= ($v ? ' '.$k.'="'.$v.'"' : '');
 						$attributes .= ' '.$params['attrib'];
 
@@ -312,19 +313,40 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
         case 'custom_widget':
             $widget_output = '';
+            $o = '';
             /* If we are loading a file */
-            if(substr($params['output'], 0, 6) == "@FILE:") {
-                $file_name = MODX_BASE_PATH.trim(substr($params['output'], 6));
+            if(substr($params['output'], 0, 5) == "@FILE") {
+                $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
                 if( !file_exists($file_name) ) {
-                    $widget_output = "$file_name does not exist";
+                    $widget_output = $file_name . ' does not exist';
+                } else {
+                    $widget_output = file_get_contents($file_name);
+                }
+            } elseif(substr($params['output'], 0, 8) == '@INCLUDE') {
+                $file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
+                if( !file_exists($file_name) ) {
+                    $widget_output = $file_name . ' does not exist';
                 } else {
                     /* The included file needs to set $widget_output. Can be string, array, object */
                     include $file_name;
                 }
+            } elseif(substr($params['output'], 0, 6) == '@CHUNK' && $value !== '') {
+                $chunk_name = trim(substr($params['output'], 7));
+                $widget_output = $modx->getChunk($chunk_name);
+            } elseif(substr($params['output'], 0, 5) == '@EVAL' && $value !== '') {
+                $eval_str = trim(substr($params['output'], 6));
+                $widget_output = eval($eval_str);
+            } elseif($value !== '') {
+                $widget_output = $params['output'];
             } else {
-                $widget_output = str_replace('[+value+]', $value, $params['output']);
+                $widget_output = '';
             }
+            if(is_string($widget_output)) {
+                $widget_output = str_replace('[+value+]', $value, $widget_output);
+                $o = $modx->parseDocumentSource($widget_output);
+            } else {
             $o = $widget_output;
+            }
             break;
 
 			default:

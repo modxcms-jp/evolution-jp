@@ -175,7 +175,7 @@ $_lang["could_not_find_user"] = 'ユーザーが見つかりません';
 $_lang["create_folder_here"] = 'コンテナの作成';
 $_lang["create_resource_here"] = 'ここに新規作成';
 $_lang["create_resource_title"] = 'リソースの作成';
-$_lang["create_weblink_here"] = '新規作成 (ウェブリンク)';
+$_lang["create_weblink_here"] = '新規作成(ウェブリンク)';
 $_lang["createdon"] = '作成日時';
 $_lang["credits"] = '著作権表示/謝辞';
 $_lang["credits_shouts_msg"] = '<p>MODx is managed and maintained at <a href="http://modxcms.com/about/" target="_blank">MODxCMS.com</a>.</p>';
