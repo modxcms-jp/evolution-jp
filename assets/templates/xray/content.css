@@ -2,7 +2,7 @@
 .content a:visited         {color:#75828b;}
 
 .content p                 {line-height:1.6;}
-.content h2                {font-size:1.2em;color:#fff;background-color:#6b7881;padding:3px 5px;}
+.content h2                {font-size:1.2em;color:#fff;background-color:#75828b;padding:3px 5px;}
 .content h3                {border-left:8px solid;padding-left:8px;}
 
 .content img.justifyleft   {margin-right:10px;float:left;}
@@ -25,7 +25,7 @@
 .content textarea,
 .content select            {font:inherit;}
 
-.content fieldset          {border:1px solid #ccc;padding:30px;}
+.content fieldset          {border:1px solid #ccc;padding:15px 30px;}
 .content label             {display:block;}
 .content label input,
 .content select,

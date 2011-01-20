@@ -4,6 +4,8 @@ body                        {font-size: 78.5%;}
 img, h1, ul, li             {margin: 0;padding: 0;}
 img                         {border: none;}
 input, select, textarea     {font: inherit;}
+body                        {text-align: center;}
+div.wrap                    {text-align: left;}
 
 /*width *******/
 div.wrap                    {width: 798px;}
@@ -15,10 +17,10 @@ div.navi ul li a:link,
 div.navi ul li a:visited,
 div.footer,
 div.footer a:visited,
-div.footer a:link           {color: #FFFFFF;}
+div.footer a:link           {color: #ffffff;}
 
 /*background color********/
-body,div.wrap               {background-color: #FFFFFF;}
+body,div.wrap               {background-color: #ffffff;}
 div.navi                    {background-color: #8c969c;}
 div.navi ul li.active       {background-color: #404d56;}
 div.footer                  {background-color: #6b7881;}
@@ -36,10 +38,8 @@ div.content                 {
 /*block layout********/
 div.wrap                    {border: 1px solid #ddd;}
 
-body                        {text-align: center;}
 div.wrap                    {
                              margin: 10px auto;
-                             text-align: left;
                              box-shadow: 0 0 15px #cdcdcd;
                              -moz-box-shadow: 0 0 15px #cdcdcd;
                              -webkit-box-shadow: 0 0 20px #e5e5e5;
@@ -51,10 +51,13 @@ div.navi ul                  {
 div.navi ul li               {
                               float: left;
                               letter-spacing: 1px;
-                              padding: 8px;
                              }
 div.navi ul li a:link,
-div.navi ul li a:visited     {text-decoration: none;}
+div.navi ul li a:visited     {
+                              text-decoration: none;
+                              display:block;
+                              padding: 8px;
+                             }
 
 div.content                  {
                               overflow: hidden;zoom:1;

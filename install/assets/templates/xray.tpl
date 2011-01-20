@@ -1,7 +1,7 @@
 /**
- * xGray
+ * xRay
  *
- * 「xGray」学習用途向きのシンプルなテンプレート
+ * 「xRay」学習用途向きのシンプルなテンプレート
  *
  * @category	template
  * @version 	1.0
@@ -16,13 +16,13 @@
   <base href="[(site_url)]" />
   <title>[*pagetitle*]|[(site_name)]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="stylesheet" type="text/css" href="assets/templates/xgray/style.css" />
-  <link rel="stylesheet" type="text/css" href="assets/templates/xgray/content.css" />
+  <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css" />
+  <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css" />
 </head>
 <body>
 <div class="wrap">
-	<div>
-	    <h1><img src="assets/templates/xgray/images/header_image.png" alt="[(site_name)]" /></h1>
+	<div class="header">
+	    <h1><img src="assets/templates/xray/images/header_image.png" alt="[(site_name)]" /></h1>
 	</div>
 	<div class="navi">
 	    [[Wayfinder?startId=0&hideSubMenus=true&level=1]]

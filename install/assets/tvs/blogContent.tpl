@@ -12,7 +12,7 @@
  * @internal        @output_widget RichText
  * @internal        @output_widget_params &w=383px&h=450px&edt=TinyMCE
  * @internal        @lock_tv 0
- * @internal        @template_assignments xGray
+ * @internal        @template_assignments xRay
  * @internal        @modx_category Demo Content
  * @internal        @installset sample
  */
