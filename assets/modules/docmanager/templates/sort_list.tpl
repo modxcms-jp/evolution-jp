@@ -37,12 +37,13 @@
     <style type="text/css">        
         li {
             cursor:move;
-            border: 1px solid #666;
+            border: 1px solid #ccc;
             background: #eee no-repeat 2px center;
-            margin: 2px 0;
+            margin: 2px 0 5px;
             list-style: none;
             padding: 1px 4px 1px 24px;
             min-height: 20px;
+            width:50%;
         }
         li.noChildren {
             background-image: url(media/style[+theme+]/images/tree/page.gif);
@@ -50,6 +51,8 @@
         li.hasChildren {
             background-image: url(media/style[+theme+]/images/tree/folder.gif);
         }
+        li.inMenuNode      {font-weight:bold;}
+        li.unpublishedNode {background-color:#f6f3ea;}
     </style>
 </head>
 <body>
