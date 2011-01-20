@@ -904,10 +904,13 @@ a.hometblink:hover {
 	height: auto;
 	visibility: hidden;
 	z-index: 10000;
-	width: 170px;
-	background: #fff;
+	width: 165px;
+	background-color: #fff;
+	background-image:url(images/misc/tabareabg.gif);
+	background-repeat:repeat-x;
+	background-position:0 20px;
 	margin: 0;
-	padding: 2px;
+	padding-bottom:10px;
 	border: 1px solid #ededed;
 	border-right-color: #dcdcdc;
 	border-bottom-color: #dcdcdc;
@@ -917,7 +920,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink {
 	cursor: pointer;
 	color: #222;
-	padding: 3px 16px 3px 2px;
+	padding: 3px 5px 3px 4px;
 }
 #mx_contextmenu .menuLink:hover {
 	background: #DDE4EB;
@@ -928,7 +931,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink:hover,
 #mx_contextmenu .menuLinkDisabled {
 	cursor: pointer;
-	padding: 2px 15px 2px 1px;
+	padding: 2px 4px 2px 3px;
 }
 #mx_contextmenu .menuLinkDisabled {
 	cursor: default;
@@ -937,7 +940,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
 #mx_contextmenu .menuLinkDisabled img {
-	margin-right: 8px;
+	margin-right: 5px;
 }
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLinkDisabled img {
@@ -954,12 +957,11 @@ a.hometblink:hover {
 	text-align: left;
 	cursor: default;
 	font-weight: bold;
-	padding: 2px;
-	margin-bottom: 2px;
-	border: 1px solid #fdfdfd;
-	border-right-color: #dcdcdc;
-	border-bottom-color: #dcdcdc;
-	background: #86939E;
+	padding: 6px 4px;
+	margin-bottom: 3px;
+	background-color: #86939E;
+	background-image:url(images/misc/contextmenubg.png);
+	background-repeat:repeat-x;
 }
 #mx_contextmenu .seperator {
 	font-size: 0;
