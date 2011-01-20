@@ -108,6 +108,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? '<div id="onManagerMain
 		/* ]]> */
     </script>
 </head>
-<body ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
+<body id="mainpane" ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
 
 <div id="preLoader"><table width="100%" border="0" cellpadding="0"><tr><td align="center"><div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div></td></tr></table></div>
