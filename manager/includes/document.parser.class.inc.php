@@ -385,7 +385,7 @@ class DocumentParser {
         if ($this->config['use_alias_path'] == 1) {
             $this->virtualDir= dirname($q);
             $this->virtualDir= ($this->virtualDir == '.' ? '' : $this->virtualDir);
-            $q= basename($q);
+            $q= end(explode('/', $q));
         } else {
             $this->virtualDir= '';
         }
