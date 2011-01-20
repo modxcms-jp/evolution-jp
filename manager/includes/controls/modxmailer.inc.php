@@ -62,11 +62,11 @@ var $charset_array = array(
 	global $modx;
 
 		if (!empty($this->mb_config))
-		{	mb_language($this->mb_config['lang']);
+		{	mb_language('ja');
 			mb_internal_encoding($modx->config['modx_charset']);
-			$this->FromName	= mb_encode_mimeheader($this->FromName,$this->CharSet,"B",$this->LE);
-			$this->Subject	= mb_convert_encoding($this->Subject,$this->CharSet,$modx->config['modx_charset']);
-			$this->Body= mb_convert_encoding($this->Body,$this->CharSet,$modx->config['modx_charset']);
+			$this->FromName	= mb_encode_mimeheader(mb_convert_encoding($this->FromName,'JIS',$modx->config['modx_charset']));
+			$this->Subject	= mb_encode_mimeheader(mb_convert_encoding($this->Subject,'JIS',$modx->config['modx_charset']));
+			$this->Body= mb_convert_encoding($this->Body,'JIS',$modx->config['modx_charset']);
 		}
 		return parent::Send();
 	}
