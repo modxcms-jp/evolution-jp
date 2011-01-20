@@ -916,6 +916,9 @@ a.hometblink:hover {
 	border-bottom-color: #dcdcdc;
 	overflow: hidden;
 	line-height: 11px;
+	box-shadow: 2px 2px 15px #eaeaea;
+	-moz-box-shadow: 2px 2px 15px #eaeaea;
+	-webkit-box-shadow: 2px 2px 20px #eaeaea;
 }
 #mx_contextmenu .menuLink {
 	cursor: pointer;
