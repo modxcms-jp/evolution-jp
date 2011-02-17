@@ -48,7 +48,8 @@ class synccache{
 	}
 
     function emptyCache($modx = null) {
-        $instance_name = get_class($modx);
+        $instance_name = '';
+        if(is_object($modx)) $instance_name = get_class($modx);
         $instance_name = strtolower($instance_name);
         if($instance_name!=='documentparser') global $modx;
         
