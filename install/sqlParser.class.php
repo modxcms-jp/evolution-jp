@@ -78,6 +78,7 @@ class SqlParser {
 		$idata = str_replace('{FILEMANAGERPATH}', $this->fileManagerPath, $idata);
 		$idata = str_replace('{MANAGERLANGUAGE}', $this->managerlanguage, $idata);
 		$idata = str_replace('{AUTOTEMPLATELOGIC}', $this->autoTemplateLogic, $idata);
+		$idata = str_replace('{DATE_NOW}', time(), $idata);
 		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
 
 		$sql_array = explode("\n\n", $idata);
