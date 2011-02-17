@@ -105,6 +105,7 @@ class TinyMCE
 			$buttons1 = $params['custom_buttons1'];
 			$buttons2 = $params['custom_buttons2'];
 			$buttons3 = $params['custom_buttons3'];
+			$buttons4 = $params['custom_buttons4'];
 		    break;
 		}
 		
