@@ -17,6 +17,6 @@ function goHome() {
 	document.location.href="index.php?a=2";
 <?php } ?>
 }
-x=window.setTimeout('goHome()',2000);
+x=window.setTimeout('goHome()',300);
 </script>
 </div>
