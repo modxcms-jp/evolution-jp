@@ -16,6 +16,7 @@
   <base href="[(site_url)]" />
   <title>[*pagetitle*]|[(site_name)]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="[*キーワード*]" />
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css" />
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css" />
 </head>
