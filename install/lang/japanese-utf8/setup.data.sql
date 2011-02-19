@@ -44,29 +44,7 @@ REPLACE INTO `{PREFIX}site_content` VALUES (46, 'document', 'text/html', 'あり
 
 REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (4, 'FormSignup', 'ウェブサインアップフォーム', 0, 2, 0, '<!-- #declare:separator <hr> --> \r\n<!-- login form section-->\r\n<form id=\"websignupfrm\" method=\"post\" name=\"websignupfrm\" action=\"[+action+]\">\r\n    <fieldset>\r\n        <h3>ユーザー情報</h3>\r\n        <p> * : 必須</p>\r\n		<label for=\"su_username\">ユーザーID:* <input type=\"text\" name=\"username\" id=\"su_username\" class=\"inputBox\" size=\"20\" maxlength=\"30\" value=\"[+username+]\" /></label>\r\n        <label for=\"fullname\">フルネーム: <input type=\"text\" name=\"fullname\" id=\"fullname\" class=\"inputBox\" size=\"20\" maxlength=\"100\" value=\"[+fullname+]\" /></label>\r\n		<label for=\"email\">メールアドレス:* <input type=\"text\" name=\"email\" id=\"email\" class=\"inputBox\" size=\"20\" value=\"[+email+]\" /></label>\r\n	</fieldset>\r\n	\r\n	<fieldset>\r\n	    <h3>パスワード</h3>\r\n	    <label for=\"su_password\">パスワード:* <input type=\"password\" name=\"password\" id=\"su_password\" class=\"inputBox\" size=\"20\" /></label>\r\n	    <label for=\"confirmpassword\">パスワード（確認）:* <input type=\"password\" name=\"confirmpassword\" id=\"confirmpassword\" class=\"inputBox\" size=\"20\" /></label>\r\n	</fieldset>\r\n	\r\n	<fieldset>\r\n		<h3>オプションプロフィール</h3>\r\n		<label for=\"country\">Country:</label>\r\n		<select size=\"1\" name=\"country\" id=\"country\">\r\n			<option value=\"\" selected=\"selected\">&nbsp;</option>\r\n			<option value=\"107\">Japan</option>\r\n			<option value=\"223\">United States</option>\r\n			<option value=\"224\">United States Minor Outlying Islands</option>\r\n			</select>\r\n        </fieldset>\r\n        \r\n        <fieldset>\r\n            <h3>画像認証</h3>\r\n            <p>見えている文字を入力してください。読みづらい場合は、画像をクリックするとコードを変えることができます。</p>\r\n            <p><a href=\"[+action+]\"><img align=\"top\" src=\"manager/includes/veriword.php\" width=\"148\" height=\"60\" alt=\"If you have trouble reading the code, click on the code itself to generate a new random code.\" style=\"border: 1px solid #039\" /></a></p>\r\n        <label>認証コード:* \r\n            <input type=\"text\" name=\"formcode\" class=\"inputBox\" size=\"20\" /></label>\r\n            </fieldset>\r\n        \r\n        <fieldset>\r\n            <input type=\"submit\" value=\"登録\" name=\"cmdwebsignup\" />\r\n	</fieldset>\r\n</form>\r\n\r\n<script language=\"javascript\" type=\"text/javascript\"> \r\n	var id = \"[+country+]\";\r\n	var f = document.websignupfrm;\r\n	var i = parseInt(id);	\r\n	if (!isNaN(i)) f.country.options[i].selected = true;\r\n</script>\r\n<hr>\r\n<!-- notification section -->\r\n<p class=\"message\">登録完了！<br />アカウントは正しく作成されました。 登録された情報をあなたのメールアドレスに送信しました。</p>\r\n', 0);
 
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (6, 'nl_sidebar', 'Ditto用のデフォルトTPLテンプレート', 0, 1, 0, '<strong><a href="[~[+id+]~]" title="[+title+]">[+title+]</a></strong><br />\r\n[+longtitle+]<br /><br />', 0);
-
 REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (8, 'ditto_blog', 'ブログテンプレート', 0, 1, 0, '<div class="ditto_summaryPost">\r\n\  <h3><a href="[~[+id+]~]" title="[+title+]">[+title+]</a></h3>\r\n  <div class="ditto_info" >By <strong>[+author+]</strong> on [+date+]. <a  href="[~[+id+]~]#commentsAnchor">Comments\r\n  ([!Jot?&docid=`[+id+]`&action=`count-comments`!])</a></div><div class="ditto_tags">Tags: [+tagLinks+]</div>\r\n  [+summary+]\r\n  <p class="ditto_link">[+link+]</p>\r\n</div>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (9, 'footer', 'サイトテンプレートのフッター', 0, 1, 0, '[(site_name)] is powered by <a href="http://modx.com/" title="Powered by MODx, Do more with less.">MODx CMS</a> |\r\n      <span id="andreas">Design by <a href="http://andreasviklund.com/">Andreas Viklund</a></span>\r\n<span id="zi" style="display: none">Designed by <a href="http://ziworks.com/" target="_blank" title="E-Business &amp; webdesign solutions">ziworks</a></span>\r\n\r\n<!-- the modx icon -->\r\n\r\n<div id="modxicon"><h6><a href="http://modxcms.com" title="MODx - The XHTML, CSS and Ajax CMS and PHP Application Framework" id="modxicon32">MODx - The XHTML, CSS and Ajax CMS and PHP Application Framework</a></h6></div>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (10, 'meta', 'サイトテンプレートのメタ情報', 0, 1, 0, '<p><a href="http://validator.w3.org/check/referer" title="This page validates as XHTML 1.0 Transitional">Valid <abbr title="eXtensible HyperText Markup Language">XHTML</abbr></a></p>                	<p><a href="http://jigsaw.w3.org/css-validator/check/referer" title="This page uses valid Cascading Stylesheets" rel="external">Valid <abbr title="W3C Cascading Stylesheets">css</abbr></a></p>				    <p><a href="http://modx.com/" title="Powered by MODx, Do more with less.">MOD<strong>x</strong></a></p>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (11, 'mh.InnerRowTpl', 'ModxHostのトップメニュー用の内枠の行テンプレート', 0, 1, 0, '<li[+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+wf.wrapper+]</li>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (12, 'mh.InnerTpl', 'ModxHostのトップメニュー用の内枠の入れ子テンプレート', 0, 1, 0, '<ul style="display:none">\r\n  [+wf.wrapper+]\r\n</ul>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (13, 'mh.OuterTpl', 'ModxHostのトップメニュー用の外枠の入れ子テンプレート', 0, 1, 0, '  <ul id="myajaxmenu">\r\n    [+wf.wrapper+]\r\n  </ul>', 0);
-
-
-REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (14, 'mh.RowTpl', 'ModxHostのトップメニュー用の行テンプレート', 0, 1, 0, '<li class="category [+wf.classnames+]"><a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+wf.wrapper+]</li>', 0);
-
 
 REPLACE INTO `{PREFIX}site_htmlsnippets` VALUES (15, 'Comments', 'ブログエントリーの下に表示するコメント(Jot)', 0, 1, 0, '<div id="commentsAnchor">\r\n[!Jot? &customfields=`name,email` &subscribe=`1` &pagination=`4` &badwords=`dotNet` &canmoderate=`Site Admins` !]\r\n</div>', 0);
 
