@@ -33,7 +33,7 @@ class SqlParser {
 		$this->dbVersion = 3.23; // assume version 3.23
 		if(function_exists("mysql_get_server_info")) {
 			$ver = mysql_get_server_info();
-			$this->dbMODx 	 = version_compare($ver,"4.0.2");
+			$this->dbMODx 	 = version_compare($ver,"4.0.20");
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
 
