@@ -33,7 +33,7 @@
     along with MODx (located in "/assets/docs/"); if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-    For more information on MODx please visit http://modxcms.com/
+    For more information on MODx please visit http://modx.com/
 
 **************************************************************************
     Originally based on Etomite by Alex Butter

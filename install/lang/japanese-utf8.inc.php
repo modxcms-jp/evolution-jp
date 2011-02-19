@@ -68,7 +68,7 @@ $_lang["connection_screen_default_admin_password_confirm"] = 'パスワード(�
 $_lang["connection_screen_default_admin_user"] = 'デフォルトの管理アカウント作成';
 $_lang["connection_screen_defaults"] = '管理アカウントの初期設定';
 $_lang["connection_screen_server_connection_information"] = 'データベースホストへの接続';
-$_lang["connection_screen_server_connection_note"] = 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※MODx本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。<br />※通常の運用ではWebサーバがデータベースサーバを兼ねるためホスト名は<a href="http://www.google.com/search?q=localhost&lr=lang_ja" target="_blank">「localhost」</a>となりますが、さくらインターネット・ロリポップ・エックスサーバーなどメジャーなレンタルサーバでは専用のサーバを指定するケースが多いです。ご確認ください。';
+$_lang["connection_screen_server_connection_note"] = 'ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※MODx本体はMySQL4.0.20以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。<br />※Webサーバがデータベースサーバを兼ねる場合はホスト名を<a href="http://www.google.com/search?q=localhost&lr=lang_ja" target="_blank">「localhost」</a>とします。さくらインターネット・ロリポップ・エックスサーバーなど一部のレンタルサーバでは専用のサーバを指定するケースがあります。';
 $_lang["connection_screen_server_test_connection"] = 'ここをクリックして、接続テストを行ってください。';
 $_lang["connection_screen_table_prefix"] = 'Tableプリフィクス:';
 $_lang["creating_database_connection"] = 'データベース接続: ';
@@ -108,7 +108,7 @@ $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
-$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
 $_lang["modx_install"] = 'MODx &raquo; インストール';
 $_lang["modx_requires_php"] = ', PHP5.0.0以上を推奨します(4.3.8以上であれば動作しますがセキュリティ面に問題があります)';

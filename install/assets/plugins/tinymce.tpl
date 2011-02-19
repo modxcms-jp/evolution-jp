@@ -119,7 +119,7 @@ switch ($e->name)
 		$params['use_editor']       = $modx->config['base_url'].$modx->config['use_editor'];
         $params['editor_css_path']  = $modx->config['editor_css_path'];
 		$params['theme']            = $mce_settings['tinymce_editor_theme'];
-		$params['css_selectors']              = $mce_settings['tinymce_css_selectors'];
+		$params['css_selectors']    = $mce_settings['tinymce_css_selectors'];
 		$params['custom_plugins']   = $mce_settings['tinymce_custom_plugins'];
 		$params['custom_buttons1']  = $mce_settings['tinymce_custom_buttons1'];
 		$params['custom_buttons2']  = $mce_settings['tinymce_custom_buttons2'];
