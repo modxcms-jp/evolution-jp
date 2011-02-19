@@ -117,6 +117,6 @@ function setColor(){
 		window.setTimeout("$('setCollation').style.backgroundColor = '#ffffff';", 1000);
 		Slider1Scroll = new Fx.Scroll(window);
 		Slider1Scroll.toElement('databasestatus');
-		$('database_name').focus();
+//		$('database_name').focus();
     }
 }
