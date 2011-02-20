@@ -34,7 +34,8 @@
 	    [*content*]
 	</div>
 	<div class="footer">
-	    (c)2011 [(site_name)]
+	    (c)2011 [(site_name)]<br />
+	    MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document retrieved from [^s^].
 	</div>
 </div>
 </body>
