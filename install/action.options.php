@@ -23,7 +23,7 @@ elseif ($installMode == 1) {
         }
     }
     if (empty ($database_collation)) {
-        $database_collation = 'utf8_unicode_ci';
+        $database_collation = 'utf8_general_ci';
     }
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
     if (!isset ($database_connection_charset) || empty ($database_connection_charset)) {
