@@ -861,7 +861,7 @@ REPLACE INTO `{PREFIX}site_templates`
 # Default Site Documents
 
 
-REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODxへようこそ。</h3>\r\n<p><img src=\"assets/images/logo.png\" /><br />MODxの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\r\n\r\n<h3>MODxの使い方</h3>\r\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\r\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
+REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\r\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\r\n\r\n<h3>MODXの使い方</h3>\r\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\r\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
 
 
 REPLACE INTO `{PREFIX}manager_users` 
