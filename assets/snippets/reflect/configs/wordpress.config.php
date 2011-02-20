@@ -9,7 +9,7 @@ $showItems=0;
 $groupByYears=0;
 $tplMonth = '@CODE 
 	<li class="reflect_month">
-		<a href="[+url+]" title="[+month+] [+year+]" class="reflect_month_link">[+month+] [+year+]</a>
+		<a href="[+url+]" title="[+year+]/[+month+]" class="reflect_month_link">[+year+]/[+month+]</a>
 		[+wrapper+]
 	</li>
 ';
