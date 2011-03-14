@@ -97,7 +97,7 @@ function setDefaults(){
 		Slider2FX.start({'opacity':[0,1]});
 		window.setTimeout("$('AUH').style.backgroundColor = '#ffffff';", 1000);
 		Slider2Scroll = new Fx.Scroll(window);
-		Slider2Scroll.toElement('managerlanguage_select');
+		Slider2Scroll.toElement('cmspassword');
 	}
 }
 
