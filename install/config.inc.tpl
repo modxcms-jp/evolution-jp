@@ -3,20 +3,21 @@
  *	MODx Configuration file
  */
 setlocale (LC_TIME, 'ja_JP.UTF-8');
-$database_type = '[+database_type+]';
-$database_server = '[+database_server+]';
-$database_user = '[+database_user+]';
-$database_password = '[+database_password+]';
+if(function_exists("date_default_timezone_set") date_default_timezone_set('Asia/Tokyo');
+
+$database_type               = '[+database_type+]';
+$database_server             = '[+database_server+]';
+$database_user               = '[+database_user+]';
+$database_password           = '[+database_password+]';
 $database_connection_charset = '[+database_connection_charset+]';
-$database_connection_method = '[+database_connection_method+]';
-$dbase = '`[+dbase+]`';
-$table_prefix = '[+table_prefix+]';
+$database_connection_method  = '[+database_connection_method+]';
+$dbase                       = '`[+dbase+]`';
+$table_prefix                = '[+table_prefix+]';
 error_reporting(E_ALL & ~E_NOTICE);
 
-$lastInstallTime = [+lastInstallTime+];
-
-$site_sessionname = '[+site_sessionname+]';
-$https_port = '[+https_port+]';
+$lastInstallTime             = [+lastInstallTime+];
+$site_sessionname            = '[+site_sessionname+]';
+$https_port                  = '[+https_port+]';
 
 // automatically assign base_path and base_url
 if(empty($base_path)||empty($base_url)||$_REQUEST['base_path']||$_REQUEST['base_url']) {
