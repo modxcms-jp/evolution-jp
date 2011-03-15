@@ -172,7 +172,7 @@ function importFiles($parent,$filedir,$files,$mode) {
         if(is_array($value))
         {
 			// create folder
-			$alias = !isset($modx->documentListing[$id]) ? $id:$id.'-'.substr(uniqid(''),-3);
+			$alias = $id;
 			$modx->documentListing[$alias] = true;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $id);
 			foreach(array('index.html','index.htm') as $filename)
