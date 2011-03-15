@@ -8,6 +8,18 @@ if(!$modx->hasPermission('import_static'))
 
 // Files to upload
 $allowedfiles = array('html','htm','shtml','xml');
+
+if($_REQUEST['mode']=='refresh')
+{
+	include_once (MODX_BASE_PATH . 'manager/processors/cache_sync.class.processor.php');
+	$sync = new synccache();
+	$sync->setCachepath(MODX_BASE_PATH . '/assets/cache/');
+	$sync->setReport(false);
+	$sync->emptyCache(); // first empty the cache
+	$header = "Location: index.php?r=1&a=95";
+	header($header);
+	exit;
+}
 ?>
 
 <script type="text/javascript">
@@ -21,8 +33,7 @@ $allowedfiles = array('html','htm','shtml','xml');
         document.getElementById('reset').disabled=false;
     }
     function reloadTree() {
-        // redirect to welcome
-        document.location.href = "index.php?r=1&a=7";
+        document.location.href = "index.php?mode=refresh&a=95";
     }
 </script>
 
