@@ -188,6 +188,12 @@ function importFiles($parent,$filedir,$files,$mode) {
 					}
 					else $pagetitle = $id;
 					
+					if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
+					{
+						$description = ($matches[1]!=='') ? $matches[1] : $filename;
+					}
+					else $description = '';
+					
 					if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
 					{
 						$content = $matches[1];
@@ -205,8 +211,8 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$editedon  = $date;
 					$pagetitle = $modx->db->escape($pagetitle);
 					$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
-                   (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
-						   ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 1, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
+			       (type, contentType, pagetitle, longtitle, description, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
+						   ('document', 'text/html', '".$pagetitle."', '".$pagetitle."', '".$description."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 1, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 					$rs = $modx->db->query($sql);
 			if($rs) $new_parent = mysql_insert_id(); // get new parent id
 			else
@@ -244,6 +250,11 @@ function importFiles($parent,$filedir,$files,$mode) {
 			    }
 			    else $pagetitle = $alias;
 			    if(!$pagetitle) $pagetitle = $alias;
+				if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
+				{
+					$description = ($matches[1]!=='') ? $matches[1] : $filename;
+				}
+				else $description = '';
 			    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
 			    {
 			        $content = $matches[1];
@@ -261,8 +272,8 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$editedon = $date;
 				$pagetitle = $modx->db->escape($pagetitle);
 				$sql = 'INSERT INTO ' . $modx->getFullTableName('site_content') . "
-				       (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
-				       ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 0, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
+				       (type, contentType, pagetitle, longtitle, description, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
+				       ('document', 'text/html', '".$pagetitle."', '".$pagetitle."', '".$description."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 0, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 				$rs = $modx->db->query($sql);
 			    if(!$rs)
 			    {
