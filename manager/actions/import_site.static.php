@@ -118,7 +118,7 @@ uasort($files, 'cmp');
 	if(count($files)>0)
 	{
 		$sql = 'UPDATE ' . $modx->getFullTableName('site_content')
-               . ' SET isfolder=1 WHERE id=' . $parent . ';';
+			   . ' SET isfolder=1 WHERE id=' . $parent . ';';
 					$rs = $modx->db->query($sql);
 		importFiles($parent,$filedir,$files,'root');
     }
@@ -160,9 +160,9 @@ function importFiles($parent,$filedir,$files,$mode) {
     {
         if(is_array($value))
         {
-            // create folder
-            $alias = !isset($modx->documentListing[$id]) ? $id:$id.'-'.substr(uniqid(''),-3);
-            $modx->documentListing[$alias] = true;
+			// create folder
+			$alias = !isset($modx->documentListing[$id]) ? $id:$id.'-'.substr(uniqid(''),-3);
+			$modx->documentListing[$alias] = true;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $id);
 			foreach(array('index.html','index.htm') as $filename)
 			{
@@ -197,55 +197,55 @@ function importFiles($parent,$filedir,$files,$mode) {
                    (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
 						   ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 1, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 					$rs = $modx->db->query($sql);
-            if($rs) $new_parent = mysql_insert_id(); // get new parent id
-            else
-            {
+			if($rs) $new_parent = mysql_insert_id(); // get new parent id
+			else
+			{
 						echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
 						     .$_lang["import_site_failed_db_error"].mysql_error();
-                exit;
-            }
+			    exit;
+			}
 					echo '<span class="success">'.$_lang["import_site_success"].'</span><br />' . PHP_EOL;
 					importFiles($new_parent, $filedir . $id . '/',$value,'sub');
 					break;
 				}
-        }
-        }
-        else
-        {
-            // create dcoument
+			}
+		}
+		else
+		{
+			// create dcoument
 			if($mode=='sub' && $value == 'index.html') continue;
-            $filename = $value;
-            $fparts = explode(".",$value);
+			$filename = $value;
+			$fparts = explode(".",$value);
             $value = $fparts[0];
-            $ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
-            printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
+			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
+			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
             $alias = !isset($modx->documentListing[$value]) ? $value:$value.'-'.substr(uniqid(''),-3);
             $modx->documentListing[$alias] = true;
 			
 			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . PHP_EOL;
-            else
-            {
+			else
+			{
 				$filepath = $filedir . '/' . $filename;
 				$file = getFileContent($filepath);
-                $file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
-                if (preg_match("@<title>(.*)</title>@i",$file,$matches))
-                {
-                    $pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
-                }
+			    $file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
+			    if (preg_match("@<title>(.*)</title>@i",$file,$matches))
+			    {
+			        $pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
+			    }
                 else $pagetitle = $value;
                 if(!$pagetitle) $pagetitle = $value;
-                if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
-                {
-                    $content = $matches[1];
-                }
-                else
-                {
-                $content = $file;
-                $pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
-                $replace = '$1' . $modx->config['modx_charset'] . '$2';
-                $content = preg_replace($pattern, $replace, $content);
-                $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
-                }
+			    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
+			    {
+			        $content = $matches[1];
+			    }
+			    else
+			    {
+			    $content = $file;
+			    $pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
+			    $replace = '$1' . $modx->config['modx_charset'] . '$2';
+			    $content = preg_replace($pattern, $replace, $content);
+			    $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
+			    }
 				$date = filemtime($filepath);
 				$createdon = $date;
 				$editedon = $date;
@@ -254,12 +254,12 @@ function importFiles($parent,$filedir,$files,$mode) {
 				       (type, contentType, pagetitle, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
 				       ('document', 'text/html', '".$pagetitle."', '".$modx->stripAlias($alias)."', ".$publish_default.", '$parent', 0, '".$modx->db->escape($content)."', '".$richtext."', '".$default_template."', 0, ".$search_default.", ".$cache_default.", $createdby, $createdon, $editedon);";
 				$rs = $modx->db->query($sql);
-                if(!$rs)
-                {
+			    if(!$rs)
+			    {
 					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
 					     .$_lang["import_site_failed_db_error"].mysql_error();
-                    exit;
-                }
+			        exit;
+			    }
 				
 				$is_site_start = false;
 				if($filename == 'index.html') $is_site_start = true;
@@ -271,7 +271,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$modx->db->query($sql);
 				}
 				echo ' - <span class="success">'.$_lang["import_site_success"]."</span><br />" . PHP_EOL;
-            }
+			}
         }
     }
 }
@@ -284,19 +284,19 @@ function getFiles($directory,$listing = array(), $count = 0){
     {
         while ($file = readdir($handle))
         {
-            if ($file=='.' || $file=='..') continue;
-            elseif ($h = @opendir($directory.$file."/"))
-            {
-                closedir($h);
-                $count = -1;
-                $listing[$file] = getFiles($directory.$file."/",array(), $count + 1);
-            }
-            else
-            {
-                $listing[$dummy] = $file;
-                $dummy = $dummy + 1;
-                $filesfound++;
-            }
+			if ($file=='.' || $file=='..') continue;
+			elseif ($h = @opendir($directory.$file."/"))
+			{
+			    closedir($h);
+			    $count = -1;
+			    $listing[$file] = getFiles($directory.$file."/",array(), $count + 1);
+			}
+			else
+			{
+			    $listing[$dummy] = $file;
+			    $dummy = $dummy + 1;
+			    $filesfound++;
+			}
         }
     }
     else
