@@ -227,11 +227,10 @@ function importFiles($parent,$filedir,$files,$mode) {
 			if($mode=='sub' && $value == 'index.html') continue;
 			$filename = $value;
 			$fparts = explode(".",$value);
-            $value = $fparts[0];
+			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
 			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
-            $alias = !isset($modx->documentListing[$value]) ? $value:$value.'-'.substr(uniqid(''),-3);
-            $modx->documentListing[$alias] = true;
+			$modx->documentListing[$alias] = true;
 			
 			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . PHP_EOL;
 			else
@@ -243,8 +242,8 @@ function importFiles($parent,$filedir,$files,$mode) {
 			    {
 			        $pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
 			    }
-                else $pagetitle = $value;
-                if(!$pagetitle) $pagetitle = $value;
+			    else $pagetitle = $alias;
+			    if(!$pagetitle) $pagetitle = $alias;
 			    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
 			    {
 			        $content = $matches[1];
