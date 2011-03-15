@@ -195,7 +195,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 					else
 					{
 						$content = $file;
-						$pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
+						$pattern = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
 						$replace = '$1' . $modx->config['modx_charset'] . '$2';
 						$content = preg_replace($pattern, $replace, $content);
 						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
@@ -252,7 +252,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			    else
 			    {
 			    $content = $file;
-			    $pattern = '/(<meta[^>]+charset\s*=+)[^>"\'=]+(.+>)/i';
+			    $pattern = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
 			    $replace = '$1' . $modx->config['modx_charset'] . '$2';
 			    $content = preg_replace($pattern, $replace, $content);
 			    $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
