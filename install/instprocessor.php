@@ -185,7 +185,7 @@ $sqlParser->connect();
 echo "<p>" . $_lang['setup_database_creating_tables'];
 if ($moduleSQLBaseFile) {
 	$sqlParser->process($moduleSQLBaseFile);
-	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLBaseFile);
+//	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLBaseFile);
 	// display database results
 	if ($sqlParser->installFailed == true) {
 		$errors += 1;
@@ -621,7 +621,7 @@ if (isset ($_POST['snippet']) || $installData) {
 if ($installData && $moduleSQLDataFile) {
     echo "<p>" . $_lang['installing_demo_site'];
     $sqlParser->process($moduleSQLDataFile);
-	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
+//	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
     // display database results
     if ($sqlParser->installFailed == true) {
         $errors += 1;
