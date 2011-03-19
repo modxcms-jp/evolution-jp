@@ -3,7 +3,7 @@
  *	MODx Configuration file
  */
 setlocale (LC_TIME, 'ja_JP.UTF-8');
-if(function_exists("date_default_timezone_set") date_default_timezone_set('Asia/Tokyo');
+if(function_exists('date_default_timezone_set')) date_default_timezone_set('Asia/Tokyo');
 
 $database_type               = '[+database_type+]';
 $database_server             = '[+database_server+]';
