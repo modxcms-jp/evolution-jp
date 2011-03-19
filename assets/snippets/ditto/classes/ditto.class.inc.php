@@ -295,7 +295,7 @@ class ditto {
 			    $timestamp[1] = is_int($timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
                 $timestamp = $timestamp[1] + $timestamp[0];
             }   
-			$placeholders['date'] = strftime($dateFormat,$timestamp);
+			$placeholders['date'] = $modx->mb_strftime($dateFormat,$timestamp);
 		}
 		
 		if (in_array("content",$this->fields["display"]["db"]) && $this->format != "html") {
