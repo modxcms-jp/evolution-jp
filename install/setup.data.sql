@@ -31,9 +31,6 @@ REPLACE INTO `{PREFIX}site_content` VALUES (6, 'document', 'text/html', 'Contact
 REPLACE INTO `{PREFIX}site_content` VALUES (7, 'document', 'text/html', '404 - Document Not Found', '', '', 'doc-not-found', '', 1, 0, 0, 0, 0, '', '-', 1, 4, 4, 0, 1, 1, 1144904400, 1, 1159301173, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
 
-REPLACE INTO `{PREFIX}site_content` VALUES (8, 'document', 'text/html', 'Search Results', 'Your Search Results', '', 'search-results', '', 1, 0, 0, 0, 0, '', '-', 0, 4, 5, 0, 0, 1, 1144904400, 1, 1158613055, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 1);
-
-
 REPLACE INTO `{PREFIX}site_content` VALUES (9, 'document', 'text/html', 'Mini-Blog HOWTO', 'How to Start Posting with MODx Mini-Blogs', '', 'article-1126081344', '', 1, 0, 0, 2, 0, '', '<p>Setting up a mini-blog is relatively simple. Here''s what you need to do to get started with making new posts:</p>\r\n<ol>\r\n    <li>Login to the <a href="[(site_url)]manager/">MODx Control Panel</a>.</li>\r\n    <li>Press the plus-sign next to the Blog(2) container resource to see the blog entries posted there.</li>\r\n    <li>To make a new Blog entry, simply right-click the Blog container document and choose the "Create Resource here" menu option. To edit an existing blog article, right click the entry and choose the "Edit Resource" menu option.</li>\r\n    <!-- splitter -->\r\n    <li>Write or edit the content and press save, making sure the document is published.</li>\r\n    <li>Everything else is automatic; you''re done!</li>\r\n</ol>\r\n', 1, 4, 0, 1, 1, -1, 1144904400, 1, 1160171764, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
 
