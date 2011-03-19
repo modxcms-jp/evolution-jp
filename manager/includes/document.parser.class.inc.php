@@ -1924,6 +1924,25 @@ class DocumentParser {
         return $timeStamp;
     }
 
+    function mb_strftime($format='%Y/%m/%d', $timestamp='') {
+        $a = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+        $A = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+        if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
+        if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
+        $peaces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,-1,2);
+        $w         = strftime('%w', $timestamp);
+        
+        $result    = '';
+        foreach($peaces as $v)
+        {
+          if    ($v == '%a') $result .= $a[$w];
+          elseif($v == '%A') $result .= $A[$w];
+          elseif(strpos($v, '%')!==false) $result .= strftime($v, $timestamp);
+          else $result .= $v;
+        }
+        return $result;
+    }
+
     #::::::::::::::::::::::::::::::::::::::::
     # Added By: Raymond Irving - MODx
     #
