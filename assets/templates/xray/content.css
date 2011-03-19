@@ -1,7 +1,7 @@
 .content a:link            {color:#003557;}
 .content a:visited         {color:#75828b;}
 
-.content p                 {line-height:1.6;}
+.content p                 {line-height:1.6;text-align:justify;text-justify:inter-ideograph;}
 .content h2                {font-size:1.2em;color:#fff;background-color:#75828b;padding:3px 5px;}
 .content h3                {border-left:8px solid;padding-left:8px;}
 
