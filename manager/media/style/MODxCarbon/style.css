@@ -1,43 +1,185 @@
 /* -------------------------[ Neutralize styles, fonts and viewport ]--- */
 html { /overflow-x: hidden; /overflow-y: auto;} /* for IE7, IE6 */
-html, body, form, fieldset {
-	margin: 0;
-	padding: 0;
-}
+html, body, img, form, fieldset,tbody, thead, tr {margin:0;padding:0;border: 0;}
 html {
 	font-size: 100.01%;
 	line-height: 1.5;
-	font-family: Helvetica, Arial, sans-serif !important;
-	font-family: Arial, Tahoma, Helvetica, sans-serif;
-	color: #111;
+	font-family: Helvetica, Arial, sans-serif;
 }
+
 body {
 	font-size: 62.5%;
 	font-size: 68.75%;
 	font-size: 75%;
 	height: 100%;
-	color:#333333;
-	background: #f7f7f7;
+	background-color: #f7f7f7;
 }
+
+
+/* -------------------------[ font size ]--- */
+h1                         {font-size: 1.4em;}
+h2                         {font-size: 1.3em;}
+h3                         {font-size: 1.2em;}
+h4                         {font-size: 1.1em;}
+h5                         {font-size: 1em;}
+h6                         {font-size: 1em;}
+p.caption, p.comment       {font-size: 1em;}
+h2#edit_document_title     {font-size: 1.4em;}
+.sectionBody fieldset h3   {font-size: 1.2em;}
+.settings th               {font-size: 1.2em;}
+h2.tab                     {font-size: 1em;}
+
+/* -------------------------[ font color ]--- */
+body                 {color:#333333;}
+a, a:active, a:visited, a:link
+                     {color:#1a32c7;}
+a:hover              {color:#0f1e76;}
+.fail                {color:#900;}
+.warning             {color:#444444;}
+.success             {color:#090;}
+p.caption, p.comment {color:#888;}
+button               {color:#821517;}
+hr                   {color:#777;}
+.messageRead         {color:#333;}
+.messageUnread       {color:#3CB371;}
+.right               {color:#333;}
+
+#topbar              {color:#333;}
+#topbar a,
+#topbar a:link,
+#topbar a:visited    {color:#AAB1B9;}
+#topbar a:hover      {color:#fff;}
+
+#tocText,
+#buildText,
+#workText            {color:#fff;}
+#supplementalNav     {color:#89939E;}
+.form legend         {color:#04C;}
+.sectionBody fieldset h3
+                     {color:#789;}
+.sectionHeader, .showHideVisible
+                     {color:#333;}
+.comment             {color:#333;}
+thead, .fancyrow,thead td
+                     {color:#333;}
+.fancyrow2           {color:#fff;}
+.row1, .row2, .row3,
+.rootNode, .treeNode, .treeNodeHover,
+.treeNodeSelected, .emptyNode,.publishedNode
+                     {color:#333;}
+.unpublishedNode,.emptyNode,.protectedNode
+                     {color:#aaa;}
+.deletedNode         {color:#A52A2A;}
+.notInMenuNode       {color:#777;}
+
+.disabledPlugin a    {color:#aaa;}
+table.grid th, .gridHeader,
+a.hometblink, a.hometblink:active, a.hometblink:visited,
+a.hometblink:link, .hometblink
+                     {color:#333;}
+a.hometblink:hover   {color: Gray;}
+.notice              {color:#707070;}
+.cntxMnuItem, .cntxMnuItemOver
+                     {color:#333;}
+.cntxMnuItemDisabled {color:#111;}
+#Navcontainer        {color:#fff;}
+#nav li a            {color:#919fae;}
+#nav a:active, #nav a:hover, #nav li.active a,
+#nav li.active ul.subnav a, #nav li.active ul.subnav a:hover
+                     {color:#fff;}
+
+#nav li.active ul.subnav a:active
+                     {color:#ccc;}
+#mx_contextmenu .menuLink
+                     {color:#222;}
+#mx_contextmenu .menuLink:hover
+                     {color:#333;}
+#mx_contextmenu .menuLinkDisabled
+                     {color:#787878;}
+#mx_contextmenu #nameHolder
+                     {color:#fff;}
+.settings th         {color:#555;}
+.dynamic-tab-pane-control .tab-row .tab
+                     {color:#313131;}
+.dynamic-tab-pane-control .tab-row .tab.hover
+                     {color:#222;}
+.dynamic-tab-pane-control .tab-row .tab.selected
+                     {color:#333;}
+.dynamic-tab-pane-control .tab-row .tab.selected span
+                     {color:#111;}
+.dynamic-tab-pane-control .tab-row .tab span
+                     {color:#999;}
+
+.treeButton          {color:#333;}
+.treeButtonDisabled  {color:#777;}
+.sortabletable th,.sortabletable th a
+                     {color:#f3f3f3;}
+
+#pagination li a     {color:#333;}
+#pagination li.currentPage a, #pagination li a:hover
+                     {color:#060;}
+
+h2#edit_document_title
+                     {color:#f5f5f5;}
+.actionButtons a     {color:#222c36;}
+.actionButtons a.disabled
+                     {color:#777;}
+.actionButtons .and  {color:#3b454f;}
+form#mutate dt label,
+form#mutate dt h3.label
+                     {color:#821517!important;}
+.custom-tip          {color:#333;}
+.custom-title        {color:#fff;}
+
+.dp_cal th           {color:#797774;}
+.dp_cal td.dp_roll   {color:#333;}
+.dp_selected         {color:#fff;}
+.cbBox h3            {color:#000;}
+
+/* -------------------------[ font weight ]--- */
+.fail, .warning, .success, .subTitle,
+button,
+.messageUnread,
+.right,
+#topbar a,
+#topbar a:link,
+#topbar a:visited,
+#tocText,
+#buildText,
+#workText,
+.form legend,
+.sectionBody fieldset h3,
+.sectionHeader, .showHideVisible,
+table.grid th, .gridHeader,
+a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink,
+#nav li a, #nav li.active ul.subnav a,
+#mx_contextmenu #nameHolder,
+.dynamic-tab-pane-control .tab-row .tab,
+.dynamic-tab-pane-control .tab-row .tab span,
+.actionButtons a,
+.actionButtons .and,
+form#mutate dt label,
+form#mutate dt h3.label,
+.custom-title,
+.dp_cal th,
+.cbBox h3
+                           {font-weight:bold;}
+
+
 body#mainpane,
 body.treeframebody {
 	background-image :url(images/misc/mainbg.png);
 	background-repeat:repeat-x;
 	border-top:1px solid #f5f5f5;
 }
-img, a img {
-	border: 0 !important;
-	text-decoration: none;
-	padding: 0;
-	margin: 0;
-}
+
 h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
 	margin: 0 0 .5em;
 	padding: 0;
-	font-weight: normal;
 }
+
 li, dd, blockquote {
-	margin: 0 0  0 1em;
+	margin: 0 0 0 1em;
 }
 	.rtl li, .rtl dd, .rtl blockquote {
 		margin: 0 1em 0 0;
@@ -57,21 +199,10 @@ li, dd, blockquote {
 	margin: 0;
 	font-size: 1px;
 	overflow: hidden;
+	zoom:1;
 }
 .clear {
 	clear: both;
-}
-.fail {
-	color: #900;
-	font-weight: bold;
-}
-.warning {
-	color: #444444;
-	font-weight: bold;
-}
-.success {
-	color: #090;
-	font-weight: bold;
 }
 .contentPad {
 	height: 20px !important;
@@ -84,12 +215,7 @@ li, dd, blockquote {
 	display: inline;
 }
 /* -------------------------[ Headers and Paragraphs ]--- */
-h1, h2, h3, h4, h5, h6, .subTitle {
-	font-weight: bold;
-}
 h1 {
-	font-size: 218%;
-	font-size: 164%;
 	line-height: 40px;
 	margin-left: 10px;
 	letter-spacing:1px;
@@ -97,30 +223,7 @@ h1 {
 	.rtl h1 {
 		margin-right: 10px;
 	}
-h2 {
-	font-size: 164%;
-}
-h3 {
-	font-size: 145%;
-}
-h4 {
-	font-size: 118%;
-}
-h5 {
-	font-size: 100%;
-	font-weight: bold;
-}
-h6 {
-	font-size: 86%;
-	font-weight: bold;
-}
-p.caption, p.comment {
-	font-size: 86%;
-	color: #888;
-}
 button {
-	color: #821517;
-	font-weight: bold;
 	width: 112px;
 	margin: 0 5px 0 0;
 	cursor: pointer;
@@ -129,14 +232,11 @@ button {
 		margin: 0 0 0 5px;
 	}
 a, a:active, a:visited, a:link {
-	color: #1a32c7;
 	text-decoration: underline;
 }
 a:hover {
-	color: #0f1e76;
 }
 hr {
-	color: #777;
 	background-color: #777;
 	height: 1px;
 	border: 0;
@@ -153,15 +253,8 @@ hr {
 	height: 400px;
 }
 .messageRead {
-	color: #333;
-}
-.messageUnread {
-	color: #3CB371;
-	font-weight: bold;
 }
 .right {
-	font-weight: bold;
-	color: #333;
 	float: left;
 	padding: 0 20px 20px;
 }
@@ -172,7 +265,6 @@ hr {
 /* -------------------------[ Topbar ]--- */
 #topbar {
 	margin: 0;
-	color: #333;
 	padding: 0 5px;
 }
 #topbar * {
@@ -181,12 +273,9 @@ hr {
 #topbar a,
 #topbar a:link,
 #topbar a:visited {
-	font-weight: bold;
-	color: #AAB1B9;
 	text-decoration: none;
 }
 #topbar a:hover {
-	color: #fff;
 	text-decoration: underline;
 }
 #tocText {
@@ -204,10 +293,8 @@ hr {
 #tocText,
 #buildText,
 #workText {
-	font-weight: bold;
 	line-height: 16px;
 	margin: 0 15px;
-	color: #FFF;
 }
 #tocText,
 #buildText img,
@@ -225,10 +312,8 @@ hr {
 #supplementalNav {
 	float: right;
 	background: transparent;
-	font-size: 12px;
 	padding: 0 0 30px;
 	margin: 0;
-	color: #89939E;
 }
 	.rtl #supplementalNav {
 		float: left;
@@ -246,11 +331,6 @@ hr {
 }
 
 /* -------------------------[ Forms ]--- */
-tbody, thead, tr {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
 form label {
 	cursor: pointer;
 }
@@ -314,6 +394,9 @@ form input.hidden {
 	display: block;
 	float: left;
 	vertical-align: middle;
+	height: 75px;
+	width: 300px;
+	margin-top: 0;
 }
 .form label {
 	padding-right: 20px;
@@ -329,14 +412,8 @@ form input.hidden {
 		padding-left: 20px;
 		text-align: left;
 	}
-form textarea {
-	height: 75px;
-	width: 300px;
-	margin-top: 0;
-}
+
 .form legend {
-	color: #04C;
-	font-weight: bold;
 	padding: 5px;
 }
 .form select {
@@ -393,21 +470,15 @@ input.submit {
 .sectionBody fieldset {
 	border: 0;
 	background: #fff;
-	font-size: 12px;
 	padding: 10px;
 }
 .sectionBody fieldset h3 {
-	font-size: 14px;
-	color: #789;
-	font-weight: bold;
 	padding-bottom: 0;
 	margin-bottom: 0;
 }
 .sectionHeader, .showHideVisible {
 	margin: 0 10px;
 	padding: 5px 3px 5px;
-	font-weight: bold;
-	color: #333;
 	border: 1px solid #e3e3e3;
 	border-bottom:none;
 }
@@ -448,16 +519,12 @@ input.submit {
 		padding: 5px 18px 5px 3px;
 	}
 .comment {
-	font-size: 12px;
-	color: #333;
 }
 thead, .fancyrow {
-	color: #333;
 	height: 18px !important;
 	background-color: #E4E4E4;
 }
 thead td {
-	color: #333;
 	border-top: 1px solid #fff;
 }
 .fancyrow2 {
@@ -466,7 +533,6 @@ thead td {
 	background-position: top;
 	background-repeat: repeat-x;
 	border-bottom: 1px solid #fff;
-	color: #fff;
 }
 li {
 	padding: 0;
@@ -511,7 +577,6 @@ a img {
 	}
 .row1, .row2, .row3 {
 	background-color: #fff;
-	color: #333;
 }
 .row2 {
 	background-color: #ece7dd;
@@ -557,7 +622,6 @@ a img {
 		right: 4px
 	}
 .rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
-	color: #333;
 	padding: 2px;
 	cursor: pointer;
 	width: auto;
@@ -569,31 +633,24 @@ a img {
 }
 .treeNodeSelected {
 	background-color: #fff;
-	color: #333;
 	border: 1px solid #c8c8d4;
 	padding: 1px;
 }
 .unpublishedNode {
-	color: #aaa;
 	font-style: italic;
 }
 .deletedNode {
-	color: #A52A2A;
 	text-decoration: line-through;
 }
 .publishedNode {
-	color: #333;
 }
 .emptyNode {
-	color: #aaa;
 	cursor: default;
 }
 .notInMenuNode {
-	color: #777;
 	text-decoration: none;
 }
 .protectedNode {
-	color: #aaa;
 }
 
 #treeSplitter {
@@ -606,7 +663,6 @@ a img {
 		left: -10px;
 	}
 .disabledPlugin a {
-	color: #aaa;
 	text-decoration: line-through;
 }
 /* -------------------------[ grid style ]--- */
@@ -621,8 +677,6 @@ table.grid th, table.grid td {
 	padding:4px;
 }
 table.grid th, .gridHeader {
-	color: #333;
-	font-weight: bold;
 	background-color: #d2d2d2;
 	white-space:nowrap;
 	text-align:left;
@@ -689,19 +743,15 @@ table.grid td.even, .gridAltItem {
 /* -------------------------[ home page main links ]--- */
 a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
 	text-decoration: underline;
-	color: #333;
-	font-weight: bold;
 }
 a.hometblink:hover {
 	text-decoration: underline;
-	color: Gray;
 }
 .notice {
 	width: 100%;
 	padding: 5px;
 	border: 1px solid #eee;
 	background-color: #F4F4F4;
-	color: #707070;
 }
 #preLoader {
 	position: absolute;
@@ -731,7 +781,6 @@ a.hometblink:hover {
 .cntxMnuItem {
 	background-image: url(images/misc/_tx_.gif);
 	cursor: pointer;
-	color: #333;
 	padding: 3px 16px 3px 2px;
 }
 	.rtl .cntxMnuItem,
@@ -741,11 +790,9 @@ a.hometblink:hover {
 .cntxMnuItemDisabled {
 	cursor: default;
 	padding: 3px 16px 3px 2px;
-	color: #111;
 }
 .cntxMnuItemOver {
 	cursor: pointer;
-	color: #333;
 	background: #e3e3e3;
 	padding: 2px 15px 2px 1px;
 	border: 1px solid #c0c0c0;
@@ -783,7 +830,6 @@ a.hometblink:hover {
 }
 #Navcontainer {
 	padding: 0 10px;
-	color: #fff;
 }
 #nav {
 	margin: 0;
@@ -823,9 +869,7 @@ a.hometblink:hover {
 	}
 #nav li a {
 	border-left: 1px solid #2c3d50;
-	color: #919fae;
 	height: 25px;
-	font-weight: bold;
 	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
@@ -849,16 +893,13 @@ a.hometblink:hover {
 	}
 
 #nav a:hover {
-	color: #fff;
 }
 #nav a:active {
-	color: #fff;
 }
 #nav li.active {
 	background: #758ca2 url(images/misc/tab.gif) 100% 0;
 }
 #nav li.active a {
-	color: #fff;
 	position: relative;
 	z-index: 999999;
 	border-bottom: 1px solid #657587;
@@ -881,7 +922,6 @@ a.hometblink:hover {
 	    right: 0;
 	}
 #nav li.active ul.subnav a {
-	color: #fff;
 	font-weight: normal;
 	border-bottom: 1px solid #7b8c9f;
 	background: #657587;
@@ -892,12 +932,8 @@ a.hometblink:hover {
 	margin: 0;
 }
 #nav li.active ul.subnav a:hover {
-	color: #fff;
 	background-color: #5d6c7d;
 	background-image:none;
-}
-#nav li.active ul.subnav a:active {
-	color: #ccc;
 }
 #nav li.active ul.subnav,
 #nav li.active ul.subnav a {
@@ -928,14 +964,12 @@ a.hometblink:hover {
 }
 #mx_contextmenu .menuLink {
 	cursor: pointer;
-	color: #222;
 	padding: 3px 5px 3px 4px;
 }
 #mx_contextmenu .menuLink:hover {
 	background: #DDE4EB;
 	border: 1px solid #fdfdfd;
 	border-bottom-color: #dcdcdc;
-	color: #333;
 }
 #mx_contextmenu .menuLink:hover,
 #mx_contextmenu .menuLinkDisabled {
@@ -944,7 +978,6 @@ a.hometblink:hover {
 }
 #mx_contextmenu .menuLinkDisabled {
 	cursor: default;
-	color: #787878;
 }
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
@@ -962,10 +995,8 @@ a.hometblink:hover {
 }
 
 #mx_contextmenu #nameHolder {
-	color: #fff;
 	text-align: left;
 	cursor: default;
-	font-weight: bold;
 	padding: 6px 4px;
 	margin-bottom: 3px;
 	background-color: #86939E;
@@ -1010,8 +1041,6 @@ a.hometblink:hover {
 .settings th {
 	width: 200px !important;
 	text-align: left;
-	color: #555;
-	font-size: 120%;
 }
 	.rtl .settings th {text-align: right;}
 .filelist td {
@@ -1026,9 +1055,6 @@ a.hometblink:hover {
 		direction: rtl;
 	}
 .dynamic-tab-pane-control .tab-row .tab {
-	color: #313131;
-	font-weight: bold;
-	font-size: 12px;
 	cursor: pointer;
 	display: inline;
 	margin: 3px -3px 1px 5px;
@@ -1047,25 +1073,17 @@ a.hometblink:hover {
 	}
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
-	color: #222;
 	background: #fff;
 	text-decoration: none;
 }
 .dynamic-tab-pane-control .tab-row .tab.selected {
-	color: #333;
 	z-index: 3;
 	top: 0;
 	background: #fff;
 	border: 1px solid #e4e4e4;
-	border-color: #e0e0e0 #c0c0c0 #fff #e0e0e0;
-}
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-	color: #111;
+	border-color: #ffcc72 #c0c0c0 #fff #e0e0e0;
 }
 .dynamic-tab-pane-control .tab-row .tab span {
-	font-weight: bold;
-	font-size: 12px;
-	color: #999;
 	text-decoration: none;
 }
 .dynamic-tab-pane-control .tab-page {
@@ -1096,7 +1114,6 @@ a.hometblink:hover {
 .treeButton {
 	display: block;
 	cursor: default;
-	color: #333;
 	border: 1px;
 	border-bottom-color: #809c47;
 	padding: 3px 5px;
@@ -1112,7 +1129,6 @@ a.hometblink:hover {
 	cursor: default;
 	border: 1px solid #657587;
 	padding: 2px 4px;
-	color: #777;
 	border-width: 0;
 	opacity: .5;
 	filter: alpha(opacity=50);
@@ -1172,14 +1188,12 @@ padding:4px;
 .sortabletable th {
 	text-align: left;
 	cursor: pointer;
-	color: #f3f3f3;
 }
 	.rtl .sortabletable th {
 		text-align: right;
 	}
 .sortabletable th a {
 	text-decoration: none;
-	color: #f3f3f3;
 }
 .sortabletable th:active {
 	background: #ccc;
@@ -1209,10 +1223,8 @@ padding:4px;
 	padding: 3px;
 	border: 1px solid #D9E7C2;
 	text-decoration: none;
-	color: #333;
 }
 #pagination li.currentPage a, #pagination li a:hover {
-	color: #060;
 	border: 1px solid #060;
 }
 
@@ -1220,8 +1232,6 @@ fieldset.tab-page {
 	border: 1px solid #e4e4e4!important;
 }
 h2#edit_document_title {
-	font-size: 15px;
-	color: #f5f5f5;
 	width: 100%;
 	border-bottom: none;
 	padding: 5px 10px;
@@ -1260,9 +1270,6 @@ ul.actionButtons {
 	margin-top: 1px;
 }
 .actionButtons a {
-	color: #222c36;
-	font-weight: bold;
-	font-size: 12px;
 	background: #c7ced2 url(images/misc/button-gradient.png) repeat-x top left;
 	padding: 4px 6px;
 	white-space: nowrap;
@@ -1294,7 +1301,6 @@ ul.actionButtons {
 .actionButtons a.disabled {
 	border: 1px solid #657587;
 	padding: 2px 4px;
-	color: #777;
 	border-width: 0;
 }
 .actionButtons a.disabled img {
@@ -1303,8 +1309,6 @@ ul.actionButtons {
 }
 .actionButtons .and{
     margin:0 2px 0 5px;
-    color: #3b454f;
-	font-weight: bold;
 }
 		/*
 * Generic styles for all form elements
@@ -1315,12 +1319,9 @@ form#mutate dd {
 	}
 form#mutate dt label,
 form#mutate dt h3.label {
-	font-size: 12px;
 	display: inline;
 	float: left;
 	width: 200px;
-	color: #821517!important;
-	font-weight: bold;
 	}
 form#mutate dd {
 	margin-left: 210px;
@@ -1408,7 +1409,6 @@ fieldset#preview iframe {
 fieldset#document_content textarea#ta {
 	width: 100%;
 	height: 400px;
-	font-size: 12px;
 }
 
 /*
@@ -1450,7 +1450,6 @@ form#mutate select.tv_url_select {
 */
 
 .custom-tip {
-	color: #333;
 	width: 175px;
 	z-index: 13000;
 	border: 1px solid #cccccc;
@@ -1459,16 +1458,12 @@ form#mutate select.tv_url_select {
 }
 
 .custom-title {
-	font-weight: bold;
-	font-size: 12px;
 	margin: 0;
-	color: #fff;
 	padding: 6px 6px 4px;
 	background: #758CA2 url(images/misc/tab.gif);
 }
 
 .custom-text {
-	font-size: 12px;
 	padding: 4px 8px 8px;
 	background: #fff;
 }
@@ -1498,7 +1493,6 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 	width: 150px;
 	padding: 3px 3px 3px 24px;
 	border: 1px solid #b4cde4;
-	font-size: 13px;
 	background: #fff url(images/icons/datenofocus.gif) no-repeat top left;
 	cursor: pointer;
 }
@@ -1540,7 +1534,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 .dp_cal select {
 	margin: 2px 3px;
-	font-size: 12px;
 }
 .dp_cal select option {
 	padding: 1px 3px;
@@ -1549,46 +1542,41 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .dp_cal td {
 	width: 14.2857%;
 	text-align: center;
-	font-size: 12px;
 	padding: 2px 0;
 }
 .dp_cal th {
 	border: solid #aad4f2;
 	border-width: 1px 0;
-	color: #797774;
-	background: #daf2e6;
-	font-weight: bold;
+	background-color: #daf2e6;
 }
 .dp_cal td {
 	cursor: pointer;
 }
 .dp_cal thead th {
-	background: #d9eefc;
+	background-color: #d9eefc;
 }
 .dp_cal td.dp_roll {
-	color: #333;
-	background: #fff6bf;
+	background-color: #fff6bf;
 }
 /* -------------------------[ must have this for the IE6 select box hiding ]--- */
 .dp_hide {
 	visibility: hidden;
 }
 .dp_empty {
-	background: #eee;
+	background-color: #eee;
 }
 .dp_today {
-	background: #daf2e6;
+	background-color: #daf2e6;
 }
 .dp_selected {
-	color: #fff;
-	background: #328dcf;
+	background-color: #328dcf;
 }
 
 /* System Alert Box
 ---------------------------------------------------------- */
 .cbOverlay {background-color: #000;z-index: 50000;}
 .cbContainer {padding:5px;background-color:white;z-index: 50000;}
-.cbBox h3 {color:#000;background: #bee860 url(images/misc/fade.gif) repeat-x top;padding:5px;font-weight:bold;}
+.cbBox h3 {background: #bee860 url(images/misc/fade.gif) repeat-x top;padding:5px;font-weight:bold;}
 .cbBox p {margin:3px;}
 .cbBox .cbButtons {text-align:center;}
 .sysAlert {width: 500px;height: 330px;white-space: nowrap;overflow: auto;}
@@ -1596,19 +1584,12 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 /* modx-ja
 ---------------------------------------------------------- */
-td.comment, span.comment,
-body #supplementalNav,
-body .dynamic-tab-pane-control .tab-row .tab,
-body .dynamic-tab-pane-control .tab-row .tab span,
-body .custom-title,body .custom-text,
-body .dp_cal select,
-body .dp_cal th, body .dp_cal td,
 small {font-size:12px;}
-body h1 {font-weight:bold;font-size: 144%;}
-div.sectionBody h1 {font-weight:normal;font-size: 164%;}
+body h1 {font-weight:bold;}
+div.sectionBody h1 {font-weight:normal;}
 i, em {font-style:normal;}
 
-a#button7 {margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decoration:none;cursor:pointer;padding: 2px 4px;color:#333;}
+a#button7 {color:#333;margin:7px 3px;border:1px solid #ccc;background-color:#eee;text-decoration:none;cursor:pointer;padding: 2px 4px;}
 
 td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; background-color:#f5f5f5;margin-left:5px; margin-bottom: 3px; padding:2px 5px;}
 
