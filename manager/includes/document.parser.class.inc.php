@@ -1929,18 +1929,18 @@ class DocumentParser {
         $A = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
         if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
         if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
-        $peaces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,-1,2);
+        $peaces    = preg_split('@(%\-?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
         $w         = strftime('%w', $timestamp);
         
-        $result    = '';
+        $str    = '';
         foreach($peaces as $v)
         {
-          if    ($v == '%a') $result .= $a[$w];
-          elseif($v == '%A') $result .= $A[$w];
-          elseif(strpos($v, '%')!==false) $result .= strftime($v, $timestamp);
-          else $result .= $v;
+          if    ($v == '%a')              $str .= $a[$w];
+          elseif($v == '%A')              $str .= $A[$w];
+          elseif(strpos($v, '%')!==false) $str .= strftime($v, $timestamp);
+          else                            $str .= $v;
         }
-        return $result;
+        return $str;
     }
 
     #::::::::::::::::::::::::::::::::::::::::
