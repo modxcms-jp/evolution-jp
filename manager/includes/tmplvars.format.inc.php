@@ -74,6 +74,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				break;
 
 			case "date":
+			case "dateonly":
 				if ($value !='' || $params['default']=='Yes') {
                 $timestamp = getUnixtimeFromDateString($value);
 					$p = $params['format'] ? $params['format']:"%A %d, %B %Y";

@@ -44,6 +44,19 @@
 				$field_html .=  '</script>';
 
 				break;
+			case "dateonly":
+				$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
+                if($field_value=='') $field_value=0;
+				$field_html .=  '<input id="tv'.$field_id.'" name="tv'.$field_id.'" class="DatePicker" type="text" value="' . ($field_value==0 || !isset($field_value) ? "" : $field_value) . '" onblur="documentDirty=true;" />';
+				$field_html .=  ' <a onclick="document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].value=\'\';document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].onblur(); return true;" onmouseover="window.status=\'clear the date\'; return true;" onmouseout="window.status=\'\'; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/'.($manager_theme ? "$manager_theme/":"").'images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date"></a>';
+
+				$field_html .=  '<script type="text/javascript">';
+				$field_html .=  '	window.addEvent(\'domready\', function() {';
+				$field_html .=  '   	new DatePicker($(\'tv'.$field_id.'\'), {\'yearOffset\' : '.$modx->config['datepicker_offset']. ", 'format' : " . "'" . $modx->config['datetime_format'] . "'" . '});';
+				$field_html .=  '});';
+				$field_html .=  '</script>';
+
+				break;
 			case "dropdown": // handler for select boxes
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="1" onchange="documentDirty=true;">';
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
