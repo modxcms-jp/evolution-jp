@@ -101,6 +101,7 @@ class DataGrid {
 	
 	// format column values
 	function formatColumnValue($row,$value,$type,&$align){
+		global $modx;
 		if(strpos($type,":")!==false) list($type,$type_format) = explode(":",$type,2);
 		switch (strtolower($type)) {
 			case "integer":
@@ -126,7 +127,7 @@ class DataGrid {
 				if($align=="") $align="right";			
 				if(!is_numeric($value)) $value = strtotime($value);
 				if(!$type_format) $type_format = "%A %d, %B %Y";
-				$value = strftime($type_format,$value);
+				$value = $modx->mb_strftime($type_format,$value);
 				}
 				else
 				{
