@@ -30,7 +30,7 @@ $installData = $_POST['installdata'] == "1" ? 1 : 0;
 $database_server = $_POST['databasehost'];
 $database_user = $_SESSION['databaseloginname'];
 $database_password = $_SESSION['databaseloginpassword'];
-$database_collation = $_POST['database_collation'];
+$database_collation = ($_POST['database_collation']!=='') ? $_POST['database_collation'] : 'utf8_general_ci';
 $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 $database_connection_charset = $_POST['database_connection_charset'];
 $database_connection_method = $_POST['database_connection_method'];
