@@ -55,14 +55,8 @@ class SqlParser {
 			return false;
 		}
 
-		$fh = fopen($filename, 'r');
-		$idata = '';
+		$idata = file_get_contents($filename);
 
-		while (!feof($fh)) {
-			$idata .= fread($fh, 1024);
-		}
-
-		fclose($fh);
 		$idata = str_replace("\r", '', $idata);
 
 		// check if in upgrade mode
@@ -73,10 +67,9 @@ class SqlParser {
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
 		
-		$ver = mysql_get_server_info();
 		$char_collate = '';
-		if(version_compare($ver,'4.1.0', '>='))
-			$char_collate = 'DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation;
+		if(version_compare($this->dbVersion,'4.1.0', '>='))
+			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation;
 		
 		// replace {} tags
 		$idata = str_replace('{PREFIX}', $this->prefix, $idata);
@@ -92,13 +85,11 @@ class SqlParser {
 		$idata = str_replace('{CHAR_COLLATE}', $char_collate, $idata);
 		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
 
-		$sql_array = explode("\n\n", $idata);
+		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 
 		$num = 0;
 		foreach($sql_array as $sql_entry) {
 			$sql_do = trim($sql_entry, "\r\n; ");
-
-			if (preg_match('/^\#/', $sql_do)) continue;
 
 			// strip out comments and \n for mysql 3.x
 			if ($this->dbVersion <4.0) {
@@ -106,7 +97,6 @@ class SqlParser {
 				$sql_do = str_replace('\r', "", $sql_do);
 				$sql_do = str_replace('\n', "", $sql_do);
 			}
-
 
 			$num = $num + 1;
 			if ($sql_do) mysql_query($sql_do, $this->conn);

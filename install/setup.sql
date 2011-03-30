@@ -1,8 +1,5 @@
 # MODx Database Script for New/Upgrade Installations
 # MODx was created By Raymond Irving - Nov 2004 
-#
-# Each sql command is separated by double lines \n\n 
-
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}active_users` (
   `internalKey` int(9) NOT NULL default '0',
@@ -12,15 +9,13 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}active_users` (
   `action` varchar(10) NOT NULL default '',
   `ip` varchar(20) NOT NULL default '',
   PRIMARY KEY  (`internalKey`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data about active users.';
-
+) ENGINE=MyISAM COMMENT='Contains data about active users.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}categories` (
   `id` integer NOT NULL AUTO_INCREMENT,
   `category` varchar(45) NOT NULL DEFAULT '',
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Categories to be used snippets,tv,chunks, etc';
-
+) ENGINE=MyISAM COMMENT='Categories to be used snippets,tv,chunks, etc'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups` (
   `id` int(10) NOT NULL auto_increment,
@@ -29,8 +24,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups` (
   PRIMARY KEY  (`id`),
   KEY `document` (document),
   KEY `document_group` (document_group)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names` (
   `id` int(10) NOT NULL auto_increment,
@@ -39,8 +33,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names` (
   `private_webgroup` tinyint DEFAULT 0 COMMENT 'determines whether the document is private to web users',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}event_log` (
   `id` integer NOT NULL AUTO_INCREMENT,
@@ -53,17 +46,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}event_log` (
   `description` text,
   PRIMARY KEY(`id`),
   KEY `user`(`user`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Stores event and error logs';
-
+) ENGINE=MyISAM COMMENT='Stores event and error logs'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}keyword_xref` (
   `content_id` int(11) NOT NULL default '0',
   `keyword_id` int(11) NOT NULL default '0',
   KEY `content_id` (`content_id`),
   KEY `keyword_id` (`keyword_id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Cross reference bewteen keywords and content';
-
-
+) ENGINE=MyISAM COMMENT='Cross reference bewteen keywords and content'{CHAR_COLLATE};
 CREATE TABLE IF NOT EXISTS `{PREFIX}manager_log` (
   `id` int(10) NOT NULL auto_increment,
   `timestamp` int(20) NOT NULL default '0',
@@ -74,8 +64,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}manager_log` (
   `itemname` varchar(255) default NULL,
   `message` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains a record of user interaction.';
-
+) ENGINE=MyISAM COMMENT='Contains a record of user interaction.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}manager_users` (
   `id` int(10) NOT NULL auto_increment,
@@ -83,8 +72,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}manager_users` (
   `password` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains login information for backend users.';
-
+) ENGINE=MyISAM COMMENT='Contains login information for backend users.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}member_groups` (
   `id` int(10) NOT NULL auto_increment,
@@ -92,24 +80,21 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}member_groups` (
   `member` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   UNIQUE INDEX `ix_group_member` (`user_group`,`member`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_access` (
   `id` int(10) NOT NULL auto_increment,
   `membergroup` int(10) NOT NULL default '0',
   `documentgroup` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_names` (
   `id` int(10) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `id` int(10) NOT NULL auto_increment,
@@ -154,16 +139,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY `parent` (`parent`),
   KEY aliasidx (alias),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains the site document tree.';
-
+) ENGINE=MyISAM COMMENT='Contains the site document tree.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_content_metatags` (
   `content_id` int(11) NOT NULL default '0',
   `metatag_id` int(11) NOT NULL default '0',
   KEY `content_id` (`content_id`),
   KEY `metatag_id` (`metatag_id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Reference table between meta tags and content';
-
+) ENGINE=MyISAM COMMENT='Reference table between meta tags and content'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
   `id` int(10) NOT NULL auto_increment,
@@ -175,16 +158,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
   `snippet` mediumtext,
   `locked` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains the site chunks.';
-
+) ENGINE=MyISAM COMMENT='Contains the site chunks.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_keywords` (
   `id` int(11) NOT NULL auto_increment,
   `keyword` varchar(40) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `keyword` (`keyword`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site keyword list';
-
+) ENGINE=MyISAM COMMENT='Site keyword list'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_metatags` (
   `id` integer NOT NULL AUTO_INCREMENT,
@@ -193,8 +174,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_metatags` (
   `tagvalue` varchar(255) NOT NULL DEFAULT '',
   `http_equiv` tinyint NOT NULL DEFAULT 0 COMMENT '1 - use http_equiv tag style, 0 - use name',
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site meta tags';
-
+) ENGINE=MyISAM COMMENT='Site meta tags'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_modules` (
   `id` integer NOT NULL AUTO_INCREMENT,
@@ -215,8 +195,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_modules` (
   `properties` text,
   `modulecode` mediumtext COMMENT 'module boot up code',
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site Modules';
-
+) ENGINE=MyISAM COMMENT='Site Modules'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_module_depobj` (
   `id` integer NOT NULL AUTO_INCREMENT,
@@ -224,16 +203,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_module_depobj` (
   `resource` integer NOT NULL DEFAULT 0,
   `type` integer(2) NOT NULL DEFAULT 0 COMMENT '10-chunks, 20-docs, 30-plugins, 40-snips, 50-tpls, 60-tvs',
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Module Dependencies';
-
+) ENGINE=MyISAM COMMENT='Module Dependencies'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_module_access` (
   `id` integer UNSIGNED NOT NULL AUTO_INCREMENT,
   `module` integer NOT NULL DEFAULT 0,
   `usergroup` integer NOT NULL DEFAULT 0,
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Module users group access permission';
-
+) ENGINE=MyISAM COMMENT='Module users group access permission'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugins` (
   `id` int(10) NOT NULL auto_increment,
@@ -248,15 +225,13 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugins` (
   `disabled` tinyint NOT NULL DEFAULT '0' COMMENT 'Disables the plugin',
   `moduleguid` varchar(32) NOT NULL default '' COMMENT 'GUID of module from which to import shared parameters',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains the site plugins.';
-
+) ENGINE=MyISAM COMMENT='Contains the site plugins.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugin_events` (
   `pluginid` INT(10) NOT NULL,
   `evtid` INT(10) NOT NULL default 0,
   `priority` INT(10) NOT NULL default 0 COMMENT 'determines plugin run order'
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Links to system events';
-
+) ENGINE=MyISAM COMMENT='Links to system events'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_snippets` (
   `id` int(10) NOT NULL auto_increment,
@@ -270,8 +245,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_snippets` (
   `properties` text COMMENT 'Default Properties',  
   `moduleguid` varchar(32) NOT NULL default '' COMMENT 'GUID of module from which to import shared parameters',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains the site snippets.';
-
+) ENGINE=MyISAM COMMENT='Contains the site snippets.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   `id` int(10) NOT NULL auto_increment,
@@ -284,8 +258,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   `content` mediumtext,
   `locked` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains the site templates.';
-
+) ENGINE=MyISAM COMMENT='Contains the site templates.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}system_eventnames` (
   `id` INT(10) NOT NULL AUTO_INCREMENT,
@@ -293,23 +266,20 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}system_eventnames` (
   `service` tinyint NOT NULL default '0' COMMENT 'System Service number',
   `groupname` varchar(20) NOT NULL default '',
   PRIMARY KEY(`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='System Event Names.';
-
+) ENGINE=MyISAM COMMENT='System Event Names.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings` (
   `setting_name` varchar(50) NOT NULL default '',
   `setting_value` text,
   UNIQUE KEY `setting_name` (`setting_name`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains Content Manager settings.';
-
+) ENGINE=MyISAM COMMENT='Contains Content Manager settings.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_access` (
   `id` int(10) NOT NULL auto_increment,
   `tmplvarid` int(10) NOT NULL default '0',
   `documentgroup` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for template variable access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for template variable access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	`id` int(11) NOT NULL auto_increment,
@@ -319,16 +289,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	PRIMARY KEY  (id),
 	KEY idx_tmplvarid (tmplvarid),
 	KEY idx_id (contentid)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site Template Variables Content Values Link Table';
-
+) ENGINE=MyISAM COMMENT='Site Template Variables Content Values Link Table'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates` (
 	`tmplvarid` int(10) NOT NULL default '0' COMMENT 'Template Variable id',
 	`templateid` int(11) NOT NULL default '0',
 	`rank` int(11) NOT NULL default '0',
 	PRIMARY KEY (`tmplvarid`, `templateid`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site Template Variables Templates Link Table';
-
+) ENGINE=MyISAM COMMENT='Site Template Variables Templates Link Table'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvars` (
 	`id` INT(11) NOT NULL auto_increment,
@@ -346,8 +314,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvars` (
 	`default_text` text,
 	PRIMARY KEY  (id),
 	KEY `indx_rank`(`rank`)	
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Site Template Variables';
-
+) ENGINE=MyISAM COMMENT='Site Template Variables'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_attributes` (
   `id` int(10) NOT NULL auto_increment,
@@ -375,8 +342,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_attributes` (
   `comment` varchar(255) NOT NULL default '' COMMENT 'short comment',  
   PRIMARY KEY  (`id`),
   KEY `userid` (`internalKey`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains information about the backend users.';
-
+) ENGINE=MyISAM COMMENT='Contains information about the backend users.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_messages` (
   `id` int(10) NOT NULL auto_increment,
@@ -389,8 +355,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_messages` (
   `postdate` int(20) NOT NULL default '0',
   `messageread` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains messages for the Content Manager messaging system.';
-
+) ENGINE=MyISAM COMMENT='Contains messages for the Content Manager messaging system.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles` (
   `id` int(10) NOT NULL auto_increment,
@@ -465,8 +430,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles` (
   `export_static` int(1) NOT NULL default '0',
   `remove_locks` int(1) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains information describing the user roles.';
-
+) ENGINE=MyISAM COMMENT='Contains information describing the user roles.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_settings` (
   `user` integer NOT NULL,
@@ -474,8 +438,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_settings` (
   `setting_value` text,
   KEY `setting_name` (`setting_name`),
   KEY `user` (`user`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains backend user settings.';
-
+) ENGINE=MyISAM COMMENT='Contains backend user settings.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}web_groups` (
   `id` int(10) NOT NULL auto_increment,
@@ -483,24 +446,21 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_groups` (
   `webuser` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for web access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for web access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_access` (
   `id` int(10) NOT NULL auto_increment,
   `webgroup` int(10) NOT NULL default '0',
   `documentgroup` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for web access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for web access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_names` (
   `id` int(10) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains data used for web access permissions.';
-
+) ENGINE=MyISAM COMMENT='Contains data used for web access permissions.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_attributes` (
   `id` int(10) NOT NULL auto_increment,
@@ -528,8 +488,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_attributes` (
   `comment` varchar(255) NOT NULL default '' COMMENT 'short comment',  
   PRIMARY KEY  (`id`),
   KEY `userid` (`internalKey`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains information for web users.';
-
+) ENGINE=MyISAM COMMENT='Contains information for web users.'{CHAR_COLLATE};
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}web_users` (
   `id` int(10) NOT NULL auto_increment,
@@ -540,41 +499,26 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_users` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=MyISAM {CHAR_COLLATE};
 
-
 CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
   `webuser` integer NOT NULL,
   `setting_name` varchar(50) NOT NULL default '',
   `setting_value` text,
   KEY `setting_name` (`setting_name`),
   KEY `webuserid` (`webuser`)
-) ENGINE=MyISAM {CHAR_COLLATE} COMMENT='Contains web user settings.';
-
+) ENGINE=MyISAM COMMENT='Contains web user settings.'{CHAR_COLLATE};
 
 # upgrade-able[[ - This block of code will be executed during upgrades
 
 # For backward compatibilty with early versions
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-
 ALTER TABLE `{PREFIX}web_users` ADD COLUMN `cachepwd` varchar(100) NOT NULL default '' COMMENT 'Store new unconfirmed password' AFTER `password`;
-
-
 ALTER TABLE `{PREFIX}site_tmplvars` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`;
-
-
 ALTER TABLE `{PREFIX}site_tmplvars` MODIFY COLUMN `name` varchar(50) NOT NULL default '';
-
-
 ALTER TABLE `{PREFIX}site_tmplvars` ADD INDEX `indx_rank`(`rank`);
-
-
 ALTER TABLE `{PREFIX}site_content` ADD INDEX `aliasidx` (alias);
-
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `introtext` text COMMENT 'Used to provide quick summary of the document' AFTER `isfolder`;
-
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `menutitle` varchar(255) NOT NULL default '' COMMENT 'Menu title' AFTER `deletedby`,
  ADD COLUMN `donthit` tinyint(1) NOT NULL default '0' COMMENT 'Disable page hit count' AFTER `menutitle`,
  ADD COLUMN `haskeywords` tinyint(1) NOT NULL default '0' COMMENT 'has links to keywords' AFTER `donthit`,
@@ -582,88 +526,50 @@ ALTER TABLE `{PREFIX}site_content` ADD COLUMN `menutitle` varchar(255) NOT NULL 
  ADD COLUMN `privateweb` tinyint(1) NOT NULL default '0' COMMENT 'Private web document' AFTER `hasmetatags`,
  ADD COLUMN `privatemgr` tinyint(1) NOT NULL default '0' COMMENT 'Private manager document' AFTER `privateweb`;
 
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `content_dispo` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-inline, 1-attachment' AFTER `privatemgr`;
-
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu' AFTER `content_dispo`;
-
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedon` int(20) NOT NULL DEFAULT '0' COMMENT 'Date the document was published' AFTER `deletedby`;
-
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedby` int(10) NOT NULL DEFAULT '0' COMMENT 'ID of user who published the document' AFTER `publishedon`;
-
-
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
 
-
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `disabled` tinyint NOT NULL DEFAULT '0' COMMENT 'Disables the plugin' AFTER `properties`;
-
-
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `moduleguid` varchar(32) NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters' AFTER `disabled`;
-
-
 ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
-
 
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
 
-
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `properties` varchar(255) NOT NULL default '' COMMENT 'Default Properties' AFTER `locked`;
-
-
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `moduleguid` varchar(32) NOT NULL default '' COMMENT 'GUID of module from which to import shared parameters' AFTER `properties`;
-
-
 ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
  ADD COLUMN `icon` varchar(255) NOT NULL default '' COMMENT 'url to icon file' AFTER `category`,
  ADD COLUMN `template_type` integer NOT NULL DEFAULT '0' COMMENT '0-page,1-content' AFTER `icon`;
 
-
 ALTER TABLE `{PREFIX}document_groups` DROP INDEX `indx_doc_groups`;
-
-
 ALTER TABLE `{PREFIX}document_groups` ADD INDEX `document` (`document`);
-
-
 ALTER TABLE `{PREFIX}document_groups` ADD INDEX `document_group` (`document_group`);
-
-
 ALTER TABLE `{PREFIX}system_settings` MODIFY COLUMN `setting_value` text;
-
-
 ALTER TABLE `{PREFIX}site_plugins` MODIFY COLUMN `properties` text;
-
-
 ALTER TABLE `{PREFIX}site_snippets` MODIFY COLUMN `properties` text;
-
-
 ALTER TABLE `{PREFIX}system_eventnames` ADD COLUMN `groupname` varchar(20) NOT NULL default '' AFTER `service`;
-
-
 ALTER TABLE `{PREFIX}documentgroup_names` 
  ADD COLUMN `private_memgroup` tinyint DEFAULT '0' COMMENT 'determine whether the document group is private to manager users' AFTER `name`,
  ADD COLUMN `private_webgroup` tinyint DEFAULT '0' COMMENT 'determines whether the document is private to web users' AFTER `private_memgroup`;
 
-
 ALTER TABLE `{PREFIX}user_roles`
  ADD COLUMN `bk_manager` int(1) NOT NULL DEFAULT '0' AFTER `access_permissions`;
-
 
 ALTER TABLE `{PREFIX}user_roles`
  ADD COLUMN `new_plugin` int(1) NOT NULL DEFAULT '0' AFTER `bk_manager`,
  ADD COLUMN `edit_plugin` int(1) NOT NULL DEFAULT '0' AFTER `new_plugin`,
  ADD COLUMN `save_plugin` int(1) NOT NULL DEFAULT '0' AFTER `edit_plugin`,
  ADD COLUMN `delete_plugin` int(1) NOT NULL DEFAULT '0' AFTER `save_plugin`;
-
 
 ALTER TABLE `{PREFIX}user_roles` 
  ADD COLUMN `new_module` int(1) NOT NULL DEFAULT '0' AFTER `delete_plugin`,
@@ -672,20 +578,17 @@ ALTER TABLE `{PREFIX}user_roles`
  ADD COLUMN `delete_module` int(1) NOT NULL DEFAULT '0' AFTER `save_module`,
  ADD COLUMN `exec_module` int(1) NOT NULL DEFAULT '0' AFTER `delete_module`;
 
-
 ALTER TABLE `{PREFIX}user_roles` 
  ADD COLUMN `view_eventlog` int(1) NOT NULL DEFAULT '0' AFTER `exec_module`,
  ADD COLUMN `delete_eventlog` int(1) NOT NULL DEFAULT '0' AFTER `view_eventlog`,
  ADD COLUMN `manage_metatags` int(1) NOT NULL DEFAULT '0' AFTER `delete_eventlog`,
  ADD COLUMN `edit_doc_metatags` int(1) NOT NULL DEFAULT '0' AFTER `manage_metatags`;
 
-
 ALTER TABLE `{PREFIX}user_roles` 
  ADD COLUMN `new_web_user` int(1) NOT NULL DEFAULT '0' AFTER `edit_doc_metatags`,
  ADD COLUMN `edit_web_user` int(1) NOT NULL DEFAULT '0' AFTER `new_web_user`,
  ADD COLUMN `save_web_user` int(1) NOT NULL DEFAULT '0' AFTER `edit_web_user`,
  ADD COLUMN `delete_web_user` int(1) NOT NULL DEFAULT '0' AFTER `save_web_user`;
-
 
 ALTER TABLE `{PREFIX}user_roles` 
  ADD COLUMN `web_access_permissions` int(1) NOT NULL DEFAULT '0' AFTER `delete_web_user`,
@@ -694,22 +597,18 @@ ALTER TABLE `{PREFIX}user_roles`
 ALTER TABLE `{PREFIX}user_roles` 
  ADD COLUMN `publish_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
 
-
 ALTER TABLE `{PREFIX}user_roles`
  ADD COLUMN `new_chunk` int(1) NOT NULL DEFAULT '0' AFTER `delete_snippet`,
  ADD COLUMN `edit_chunk` int(1) NOT NULL DEFAULT '0' AFTER `new_chunk`,
  ADD COLUMN `save_chunk` int(1) NOT NULL DEFAULT '0' AFTER `edit_chunk`,
  ADD COLUMN `delete_chunk` int(1) NOT NULL DEFAULT '0' AFTER `save_chunk`;
 
-
 ALTER TABLE `{PREFIX}user_roles`
  ADD COLUMN `import_static` int(1) NOT NULL DEFAULT '0' AFTER `view_unpublished`,
  ADD COLUMN `export_static` int(1) NOT NULL DEFAULT '0' AFTER `import_static`;
 
-
 ALTER TABLE `{PREFIX}user_roles`
   ADD COLUMN `empty_trash` int(1) NOT NULL DEFAULT '0' AFTER `delete_document`;
-
 
 ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `dob` integer(10) NOT NULL DEFAULT 0 AFTER `sessionid`,
  ADD COLUMN `gender` integer(1) NOT NULL DEFAULT 0 COMMENT '0 - unknown, 1 - Male 2 - female' AFTER `dob`,
@@ -721,10 +620,7 @@ ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `dob` integer(10) NOT NULL DEFA
  ADD COLUMN `photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'link to photo' AFTER `fax`,
  ADD COLUMN `comment` varchar(255) NOT NULL DEFAULT '' COMMENT 'short comment' AFTER `photo`;
 
-
-ALTER TABLE `{PREFIX}web_users` 
- MODIFY COLUMN `username` varchar(100) NOT NULL DEFAULT '';
-
+ALTER TABLE `{PREFIX}web_users` MODIFY COLUMN `username` varchar(100) NOT NULL DEFAULT '';
 
 ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `dob` integer(10) NOT NULL DEFAULT 0 AFTER `sessionid`,
  ADD COLUMN `gender` integer(1) NOT NULL DEFAULT 0 COMMENT '0 - unknown, 1 - Male 2 - female' AFTER `dob`,
@@ -738,67 +634,41 @@ ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `dob` integer(10) NOT NULL 
  MODIFY COLUMN `state` varchar(25) NOT NULL DEFAULT '',
  MODIFY COLUMN `zip` varchar(25) NOT NULL DEFAULT '';
 
-
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_unpublished` int(1) NOT NULL DEFAULT '0' AFTER `web_access_permissions`;
-
-ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_tmplvarid`,
+ALTER TABLE `{PREFIX}site_tmplvar_templates`
+ DROP INDEX `idx_tmplvarid`,
  DROP INDEX `idx_templateid`,
  ADD PRIMARY KEY ( `tmplvarid` , `templateid` );
-
 
 ALTER TABLE `{PREFIX}site_content` 
   MODIFY COLUMN `pagetitle` varchar(255) NOT NULL default '',
   MODIFY COLUMN `alias` varchar(255) default '',
   MODIFY COLUMN `menutitle` varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu title';
 
-
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `link_attributes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link attriubtes' AFTER `alias`;
-
-
 ALTER TABLE `{PREFIX}site_plugin_events` ADD COLUMN `priority` INT(10) NOT NULL default 0 COMMENT 'determines the run order of the plugin' AFTER `evtid`;
-
-
 ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD COLUMN `rank` integer(11) NOT NULL DEFAULT '0' AFTER `templateid`;
-
-
 ALTER TABLE `{PREFIX}manager_users` MODIFY COLUMN `username` varchar(100) NOT NULL DEFAULT '';
-
-
 ALTER TABLE `{PREFIX}user_settings` MODIFY COLUMN `setting_value` text;
-
-
 ALTER TABLE `{PREFIX}web_user_settings` MODIFY COLUMN `setting_value` text;
-
-
 ALTER TABLE `{PREFIX}user_attributes` 
   MODIFY COLUMN `state` varchar(25) NOT NULL default '',
   MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
   MODIFY COLUMN `comment` text;
-
 
 ALTER TABLE `{PREFIX}site_metatags` 
   MODIFY COLUMN `name` varchar(50) NOT NULL DEFAULT '',
   MODIFY COLUMN `tag` varchar(50) NOT NULL DEFAULT '' COMMENT 'tag name',
   MODIFY COLUMN `tagvalue` varchar(255) NOT NULL DEFAULT '';
 
-
 ALTER TABLE `{PREFIX}web_user_attributes`
   MODIFY COLUMN `state` varchar(25) NOT NULL default '',
   MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
   MODIFY COLUMN `comment` text;
 
-
-ALTER TABLE `{PREFIX}user_roles`
-  ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0';
-
-
-ALTER TABLE `{PREFIX}member_groups`
-  ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
-
-
-ALTER TABLE `{PREFIX}web_groups`
-  ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
-
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0';
+ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
+ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
 
 # Set the private manager group flag
 UPDATE {PREFIX}documentgroup_names AS dgn
@@ -807,85 +677,48 @@ UPDATE {PREFIX}documentgroup_names AS dgn
   SET dgn.private_memgroup = (mga.membergroup IS NOT NULL),
       dgn.private_webgroup = (wga.webgroup IS NOT NULL);
 
-
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Bottom Button Bar');
-
-
 UPDATE `{PREFIX}site_plugins` SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template');
-
-
 UPDATE `{PREFIX}system_settings` SET `setting_value` = '' WHERE `setting_name` = 'settings_version';
-
-
 UPDATE `{PREFIX}system_settings` SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00';
 
-
 # start related to #MODX-1321
-
-
 UPDATE `{PREFIX}site_content` SET `type`='reference', `contentType`='text/html' WHERE `type`='' AND `content` REGEXP '^https?://([-\w\.]+)+(:\d+)?/?';
-
-
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/xml' WHERE `type`='' AND `alias` REGEXP '[.period.](rss|xml)$';
-
-
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/javascript' WHERE `type`='' AND `alias` REGEXP '[.period.]js$';
-
-
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/css' WHERE `type`='' AND `alias` REGEXP '[.period.]css$';
-
-
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' WHERE `type`='';
 
-
 # end related to #MODX-1321
-
-
 # ]]upgrade-able
-
 
 # Insert / Replace system records
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-
 # non-upgrade-able[[ - This block of code will not be executed during upgrades
 
-
 # Default Site Template
-
 
 REPLACE INTO `{PREFIX}site_templates` 
 (id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n    <title>[*pagetitle*] | [(site_name)]</title>         <!--リソース変数pagetitleとコンフィグ変数site_name-->\r\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=[(modx_charset)]\" /> <!--コンフィグ変数modx_charset-->\r\n  <base href=\"[(site_url)]\" />               <!--コンフィグ変数site_url-->\r\n</head>\r\n<body>\r\n    <h1>[*pagetitle*]</h1>                    <!--リソース変数pagetitle-->\r\n     [*content*]                                         <!--リソース変数content-->\r\n</body>\r\n</html>\r\n','0');
 
-
 # Default Site Documents
-
 
 REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\r\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\r\n\r\n<h3>MODXの使い方</h3>\r\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\r\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
 
-
-REPLACE INTO `{PREFIX}manager_users` 
-(id, username, password)VALUES 
-(1, '{ADMIN}', MD5('{ADMINPASS}'));
-
-
+REPLACE INTO `{PREFIX}manager_users` (id, username, password)VALUES (1, '{ADMIN}', MD5('{ADMINPASS}'));
 REPLACE INTO `{PREFIX}user_attributes` 
 (id, internalKey, fullname, role, email, phone, mobilephone, blocked, blockeduntil, blockedafter, logincount, lastlogin, thislogin, failedlogincount, sessionid, dob, gender, country, state, zip, fax, photo, comment) VALUES 
 (1, 1, 'Default admin account', 1, '{ADMINEMAIL}', '', '', 0, 0, 0, 0, 0, 0, 0, '', 0, 0, '', '', '', '', '', '');
-
 
 REPLACE INTO `{PREFIX}user_roles` 
 (id,name,description,frames,home,view_document,new_document,save_document,publish_document,delete_document,empty_trash,action_ok,logout,help,messages,new_user,edit_user,logs,edit_parser,save_parser,edit_template,settings,credits,new_template,save_template,delete_template,edit_snippet,new_snippet,save_snippet,delete_snippet,edit_chunk,new_chunk,save_chunk,delete_chunk,empty_cache,edit_document,change_password,error_dialog,about,file_manager,save_user,delete_user,save_password,edit_role,save_role,delete_role,new_role,access_permissions,bk_manager,new_plugin,edit_plugin,save_plugin,delete_plugin,new_module,edit_module,save_module,exec_module,delete_module,view_eventlog,delete_eventlog,manage_metatags,edit_doc_metatags,new_web_user,edit_web_user,save_web_user,delete_web_user,web_access_permissions,view_unpublished,import_static,export_static,remove_locks) VALUES 
 (2,'投稿者','記事投稿専用に権限を制限したロール',1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1),
 (3,'編集者','記事管理担当者用のロール。グローバル設定なども変更可',1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,0,1,0,0,1);
 
-
 # ]]non-upgrade-able
 
-
 # Default Site Settings
-
-
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
 ('manager_theme','MODxCarbon'),
@@ -975,7 +808,6 @@ REPLACE INTO `{PREFIX}user_roles`
 
 
 # 1 - "Parser Service Events", 2 -  "Manager Access Events", 3 - "Web Access Service Events", 4 - "Cache Service Events", 5 - "Template Service Events", 6 - Custom Events
-
 
 REPLACE INTO `{PREFIX}system_eventnames` 
 (id,name,service,groupname) VALUES 
@@ -1089,13 +921,10 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 
-
 # ^ I don't think we need more than 1000 built-in events. Custom events will start at 1001
-
 
 # Update System Tables 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 
 UPDATE `{PREFIX}user_roles` SET 
 	bk_manager=1,
@@ -1129,15 +958,7 @@ UPDATE `{PREFIX}user_roles` SET
 	remove_locks = 1
 	WHERE `id`=1;
 
-
 # Update any invalid Manager Themes in User Settings and reset the default theme
 
-
-UPDATE `{PREFIX}user_settings` SET
-  `setting_value`='MODxCarbon'
-  WHERE `setting_name`='manager_theme';
-
-
+UPDATE `{PREFIX}user_settings` SET `setting_value`='MODxCarbon' WHERE `setting_name`='manager_theme';
 REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','MODxCarbon');
-
-
