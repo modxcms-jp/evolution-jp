@@ -618,7 +618,9 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
                             switch($auto_template_logic) {
                                 case 'sibling':
 
-                                    if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1)) {
+                                    if (!isset($_GET['pid'])) {
+                                        break; // default_template is already set
+                                    } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1)) {
                                         $default_template = $sibl[0]['template'];
                                         break;
                                     } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1)) {
