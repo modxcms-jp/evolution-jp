@@ -70,7 +70,7 @@ if (mysql_num_rows($rs) < 1) {
 		<tr><td><b><?php echo $_lang['access_permissions_add_user_group']?></b></td></tr>
 		</thead>
 		<tr class="row1"><td>
-			<form method="post" action="index.php" name="accesspermissions" style="margin: 0px;">
+			<form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">
 				<input type="hidden" name="a" value="41" />
 				<input type="hidden" name="operation" value="add_user_group" />
 				<input type="text" value="" name="newusergroup" />&nbsp;
@@ -91,7 +91,7 @@ if (mysql_num_rows($rs) < 1) {
 				if ($pid != '') echo "</li></ul></li>\n"; // close previous one
 
 				// display the current user group with a rename/delete form
-				echo '<li><form method="post" action="index.php" name="accesspermissions" style="margin-top: 0.5em;">'."\n".
+				echo '<li><form method="post" action="index.php" name="accesspermissions" style="margin-top: 0.5em;" enctype="multipart/form-data">'."\n".
 				     "\t".'<input type="hidden" name="a" value="41" />'."\n".
 				     "\t".'<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
 				     "\t".'<input type="hidden" name="operation" value="rename_user_group" />'."\n".
@@ -139,7 +139,7 @@ if (mysql_num_rows($rs) < 1) {
 		<tr><td><b><?php echo $_lang['access_permissions_add_resource_group']?></b></td></tr>
 		</thead>
 		<tr class="row1"><td>
-			<form method="post" action="index.php" name="accesspermissions" style="margin: 0px;">
+			<form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">
 				<input type="hidden" name="a" value="41" />
 				<input type="hidden" name="operation" value="add_document_group" />
 				<input type="text" value="" name="newdocgroup" />&nbsp;
@@ -162,7 +162,7 @@ if (mysql_num_rows($rs) < 1) {
 			if ($row['id'] !== $pid) {
 				if ($pid != '') echo "</td></tr>\n"; // close previous one
 
-				echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" style="margin: 0px;">'."\n".
+				echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">'."\n".
 				     "\t".'<input type="hidden" name="a" value="41" />'."\n".
 				     "\t".'<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
 				     "\t".'<input type="hidden" name="operation" value="rename_document_group" />'."\n".

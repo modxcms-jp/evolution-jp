@@ -404,7 +404,7 @@ window.addEvent('domready', function() {
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=103">
+<form name="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
 <?php
 // invoke OnPluginFormPrerender event
 $evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));

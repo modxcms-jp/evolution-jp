@@ -165,7 +165,7 @@ function confirmLangChange(el, lkey, elupd){
 }
 
 </script>
-<form name="settings" action="index.php?a=30" method="post">
+<form name="settings" action="index.php?a=30" method="post" enctype="multipart/form-data">
 
 	<h1><?php echo $_lang['settings_title']; ?></h1>
 

@@ -318,7 +318,7 @@ function SetUrl(url, width, height, alt) {
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css?<?php echo $theme_refresher?>" />
 
-<form name="mutate" id="mutate" class="module" method="post" action="index.php?a=109">
+<form name="mutate" id="mutate" class="module" method="post" action="index.php?a=109" enctype="multipart/form-data">
 <?php
     // invoke OnModFormPrerender event
     $evtOut = $modx->invokeEvent('OnModFormPrerender', array('id' => $id));

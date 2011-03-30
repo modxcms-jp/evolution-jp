@@ -243,7 +243,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=302">
+<form name="mutate" method="post" action="index.php?a=302" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
