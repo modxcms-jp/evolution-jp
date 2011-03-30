@@ -46,12 +46,13 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # php_flag  output_buffering              Off
 # php_value output_handler                none
 # php_value default_charset               UTF-8
-# php_value mbstring.language             Japanese
+# php_value mbstring.language             neutral
 # php_flag  mbstring.encoding_translation Off
 # php_value mbstring.http_input           pass
 # php_value mbstring.http_output          pass
 # php_value mbstring.internal_encoding    UTF-8
 # php_value mbstring.substitute_character none
+# php_value mbstring.detect_order         eucJP-win,UTF-8,SJIS-win,jis
 
 # For EUC-JP
 # php_flag  output_buffering              Off
@@ -63,3 +64,4 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # php_value mbstring.http_output          EUC-JP
 # php_value mbstring.internal_encoding    EUC-JP
 # php_value mbstring.substitute_character none
+# php_value mbstring.detect_order         eucJP-win,UTF-8,SJIS-win,jis
