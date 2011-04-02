@@ -217,16 +217,17 @@ $limit = $modx->db->getRecordCount($rs);
 	<div class="tab-page" id="tabAssignedTVs">
     	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
+    	<ul style="margin-bottom:15px;"><li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li></ul>
     	<p><?php if ($limit > 0) echo $_lang['template_tv_msg']; ?></p>
-    	<p><?php if($modx->hasPermission('save_template') && $limit > 1) { ?><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a><?php } ?></p>
+    	<?php if($modx->hasPermission('save_template') && $limit > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
 <?php
 $tvList = '';
 
 if($limit>0) {
     for ($i=0;$i<$limit;$i++) {
         $row = $modx->db->getRow($rs);
-        if ($i == 0 ) $tvList .= '<br /><ul>';
-        $tvList .= '<li><strong>'.$row['name'].'</strong> ('.$row['category'].')</li>';
+        if ($i == 0 ) $tvList .= '<ul>';
+        $tvList .= '<li><strong><a href="index.php?id=' . $row['id'] . '&amp;a=301">'.$row['name'].'</a></strong> ('.$row['category'].')</li>';
     }
     $tvList .= '</ul>';
 
