@@ -15,7 +15,6 @@ $tbl_event_log    = $modx->getFullTableName('event_log');
 // Backup Manager by Raymond:
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
-
 function callBack(&$dumpstring) {
 	global $modx;
 	$today = $modx->toDateFormat(time(),'dateOnly');
@@ -45,7 +44,14 @@ function nicesize($size) {
 	else    return round($size,2).' '.$a[$pos];
 }
 
-if ($mode=='backup') {
+if ($mode=='restore')
+{
+	$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
+	import_sql($source);
+	exit;
+}
+elseif ($mode=='backup')
+{
 	$tables = isset($_POST['chk']) ? $_POST['chk'] : '';
 	if (!is_array($tables)) {
 		echo '<html><body>'.
@@ -94,12 +100,21 @@ if ($mode=='backup') {
 		f.submit();
 		return false;
 	}
+	<?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>;
+	}
 
 </script>
+<script type="text/javascript" src="media/script/tabpane.js"></script>
 <h1><?php echo $_lang['bk_manager']?></h1>
-
-<div class="sectionHeader"><?php echo $_lang['database_tables']?></div>
+<div class="sectionHeader"><?php echo $_lang['bk_manager']?></div>
 <div class="sectionBody" id="lyr4">
+	<div class="tab-pane" id="dbmPane"> 
+	<script type="text/javascript"> 
+	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane')); 
+	</script>
+	<div class="tab-page" id="tabBackup">  
+	    <h2 class="tab">バックアップ</h2>  
+	    <script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabBackup'));</script>
 	<form name="frmdb" method="post">
 	<input type="hidden" name="mode" value="" />
 	<p><?php echo $_lang['table_hoverinfo']?></p>
@@ -186,6 +201,25 @@ if ($totaloverhead > 0) {
 </div>
 <!-- This iframe is used when downloading file backup file -->
 <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+<div class="tab-page" id="tabRestore">  
+	<h2 class="tab">リストア</h2>
+	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
+	<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />
+	※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />
+	仮製作領域から本番サイトに移行するために使用する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>
+	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
+	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="mode" value="restore" />
+	<input type="file" name="sqlfile" size="70" /><br />
+	<div class="actionButtons" style="margin-top:10px;">
+	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> リストア実行</a>
+	</div>
+	<input type="submit" name="save" style="display:none;" />
+	</form>
+</div>
+</div>
+
+</div>
 
 <?php include_once "footer.inc.php"; // send footer ?>
 
@@ -356,4 +390,23 @@ class Mysqldumper {
 	}
 }
 
-?>
+
+function import_sql($source)
+{
+	global $modx;
+	$sql_array = preg_split('@;[ \t]*\n@', $source);
+	foreach($sql_array as $sql_entry)
+	{
+		$sql_entry = trim($sql_entry, "\r\n; ");
+		if(empty($sql_entry)) continue;
+		$rs = $modx->db->query($sql_entry);
+	}
+	include_once MODX_BASE_PATH . "manager/processors/cache_sync.class.processor.php";
+	$sync = new synccache();
+	$sync->setCachepath(MODX_BASE_PATH . "assets/cache/");
+	$sync->setReport(false);
+	$sync->emptyCache(); // first empty the cache		
+	// finished emptying cache - redirect
+	$header="Location: index.php?r=1&a=93";
+	header($header);
+}
