@@ -81,7 +81,8 @@ if ($handle = opendir($widget_dir)) {
 // Set variables
 global $content,$default_template, $mm_current_page, $mm_fields;
 $mm_current_page = array();
-$mm_current_page['template'] = isset($_POST['template']) ? $_POST['template'] : isset($content['template']) ? $content['template'] : isset($_GET['newtemplate']) ? $_GET['newtemplate'] : $default_template;
+if(!isset($_GET['newtemplate'])) $_GET['newtemplate']='';
+$mm_current_page['template'] = isset($_POST['template']) ? $_POST['template'] : isset($content['template']) ? $content['template'] : $_GET['newtemplate'] ? $_GET['newtemplate'] : $default_template;
 $mm_current_page['role'] = $_SESSION['mgrRole'];
 
 
