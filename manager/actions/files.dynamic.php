@@ -414,7 +414,6 @@ if($startpath == $filemanager_path || $startpath.'/' == $filemanager_path) {
 } else {
 	echo '<a href="index.php?a=31&mode=drill&path=',urlencode($uponelevel),'"><img src="media/style/',$manager_theme,'images/tree/folder.gif" border="0" align="absmiddle" alt="" /> <b>',$_lang['files_up_level'],'</b></a><br />';
 }
-echo '<br />';
 
 
 $filesize = 0;
@@ -505,7 +504,7 @@ function ls($curpath) {
 
 	return;
 }
-echo '<br /><br />';
+echo '<br />';
 ?>
 <table>
 <tr>
