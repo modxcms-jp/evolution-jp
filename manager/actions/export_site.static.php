@@ -119,7 +119,7 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 	function writeAPage($baseURL, $docid, $filepath) {
 		global $_lang;
 		global $base;
-		if(@$handle = fopen($baseURL."/index.php?id=".$docid, "r")) {
+		if(@$handle = fopen($baseURL."index.php?id=".$docid, "r")) {
 			$buffer = "";
 			while (!feof ($handle)) {
 				$buffer .= fgets($handle, 4096);
