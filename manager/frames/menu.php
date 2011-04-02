@@ -170,11 +170,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		top.mainMenu.stopWork();
 	}
 
-	function openCredits() {
-		parent.main.document.location.href = "index.php?a=18";
-		xwwd = window.setTimeout('stopIt()', 2000);
-	}
-
 	function NavToggle(element) {
 		// This gives the active tab its look
 		var navid = document.getElementById('nav');
