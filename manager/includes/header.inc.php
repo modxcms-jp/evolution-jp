@@ -64,7 +64,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? '<div id="onManagerMain
                 rr = r;
                 top.mainMenu.startrefresh(rr);
             } catch(oException) {
-                vv = window.setTimeout('doRefresh()',1000);
+                vv = window.setTimeout('doRefresh()',500);
             }
         }
         var documentDirty=false;
