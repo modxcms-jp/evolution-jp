@@ -2916,7 +2916,7 @@ class DocumentParser {
         ob_end_flush();
 
         // Log error
-        $this->logEvent(0, 3, $parsedMessageString, $source= 'Parser');
+        $this->logEvent(0, 3, $parsedMessageString);
 
         // Make sure and die!
         exit();
