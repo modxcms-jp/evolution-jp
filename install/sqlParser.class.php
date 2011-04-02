@@ -69,7 +69,7 @@ class SqlParser {
 		
 		$char_collate = '';
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
-			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation;
+			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation . ' ';
 		
 		// replace {} tags
 		$idata = str_replace('{PREFIX}', $this->prefix, $idata);
@@ -82,7 +82,7 @@ class SqlParser {
 		$idata = str_replace('{MANAGERLANGUAGE}', $this->managerlanguage, $idata);
 		$idata = str_replace('{AUTOTEMPLATELOGIC}', $this->autoTemplateLogic, $idata);
 		$idata = str_replace('{DATE_NOW}', time(), $idata);
-		$idata = str_replace('{CHAR_COLLATE}', $char_collate, $idata);
+		$idata = str_replace('ENGINE=MyISAM', 'ENGINE=MyISAM' . $char_collate, $idata);
 		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
 
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
