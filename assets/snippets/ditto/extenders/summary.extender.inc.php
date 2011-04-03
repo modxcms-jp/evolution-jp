@@ -9,6 +9,8 @@
 $placeholders['summary'] = array("introtext,content","determineSummary","@GLOBAL ditto_summary_type");
 $placeholders['link'] = array("id","determineLink");
 
+$strip_tags = isset($strip_tags) ? $strip_tags : 0;
+
 $trunc = isset($trunc) ? $trunc : 1;
  /*
 	Param: trunc
@@ -96,7 +98,7 @@ $trunc_tpl = isset($tplTrunc)? template::fetch($tplTrunc) : false;
 	&truncText
 */
 $GLOBALS['ditto_summary_link'] = "";
-$GLOBALS['ditto_summary_params'] = compact("trunc","splitter","length","offset","text","trunc_tpl");
+$GLOBALS['ditto_summary_params'] = compact("trunc","splitter","length","offset","text","trunc_tpl","strip_tags");
 $GLOBALS['ditto_object'] = $ditto;
 // ---------------------------------------------------
 // Truncate Functions
@@ -126,7 +128,7 @@ if (!function_exists("determineSummary")) {
 		global $ditto_summary_params;
 		$trunc = new truncate();
 		$p = $ditto_summary_params;
-		$output = $trunc->execute($resource, $p['trunc'], $p['splitter'], $p['text'], $p['length'], $p['offset'], $p['splitter'], true);
+		$output = $trunc->execute($resource, $p['trunc'], $p['splitter'], $p['text'], $p['length'], $p['offset'], $p['splitter'], true,$p['strip_tags']);
 		$GLOBALS['ditto_summary_link'] = $trunc->link;
 		$GLOBALS['ditto_summary_type'] = $trunc->summaryType;
 		return $output;
@@ -283,12 +285,17 @@ if (!class_exists("truncate")) {
 			return $text . $endTags;
 		}
 
-		function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars) {
+		function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars,$strip_tags) {
 			$summary = '';
 			$this->summaryType = "content";
 			$this->link = false;
 			$closeTags = true;
 			// summary is turned off
+			
+			if($strip_tags == 1)
+			{
+				$resource['content'] = strip_tags($resource['content'],'<p>');
+			}
 
 			if ((strstr($resource['content'], $splitter)) && $truncsplit) {
 				$summary = array ();
