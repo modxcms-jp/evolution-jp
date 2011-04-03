@@ -100,8 +100,7 @@ elseif ($mode=='backup')
 		f.submit();
 		return false;
 	}
-	<?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>;
-	}
+	<?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>
 
 </script>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
