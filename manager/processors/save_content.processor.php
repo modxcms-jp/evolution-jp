@@ -44,10 +44,7 @@ if (trim($pagetitle == "")) {
 		$pagetitle = $_lang['untitled_resource'];
 	}
 }
-if($_FILES)
-{
-	foreach($_FILES as $k=>$v) $_POST[$k] = $_FILES[$k]['name'];
-}
+
 // get table names
 $tbl_document_groups            = $modx->getFullTableName('document_groups');
 $tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
