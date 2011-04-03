@@ -5,7 +5,7 @@
  * シンプルかつカスタマイズの自由度が高いメニュービルダー
  *
  * @category 	snippet
- * @version 	2.0.1
+ * @version 	2.0.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -38,10 +38,11 @@ Example Usage:
 $wayfinder_base = $modx->config['base_path']."assets/snippets/wayfinder/";
 
 //Include a custom config file if specified
-$config = (isset($config)) ? "{$wayfinder_base}configs/{$config}.config.php" : "{$wayfinder_base}configs/default.config.php";
-if (file_exists($config)) {
-	include_once("$config");
-}
+$config = (!isset($config)) ? 'default' : $config;
+$config_path = $wayfinder_base . 'configs/' . $config . '.config.php';
+if($modx->getChunk($config))      eval('?>' . $modx->getChunk($config));
+elseif(file_exists($config_path)) include_once($config_path);
+else                              include_once($wayfinder_base . 'configs/default.config.php');
 
 include_once("{$wayfinder_base}wayfinder.inc.php");
 
