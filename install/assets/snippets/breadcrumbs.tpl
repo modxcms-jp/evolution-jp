@@ -5,7 +5,7 @@
  * カスタマイズの自由度が高いパン屑リスト
  * 
  * @category	snippet
- * @version 	1.0.3
+ * @version 	1.0.4
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -86,7 +86,12 @@
  * will default to defaultString which replicates the output of previous
  * versions.
  */
-( isset($templateSet) ) ? $templateSet : $templateSet = 'defaultString';
+if(isset($tpl)) $templateSet = $tpl;
+$templateSet = (!isset($templateSet) ) ? 'defaultString' : $templateSet;
+if($templateSet !== 'defaultString' && $templateSet !== 'defaultList')
+{
+	$templates[$templateSet] = eval($modx->getChunk($templateSet));
+}
 
 /* $crumbGap [ string ]
  * String to be shown to represent gap if there are more crumbs in trail than
@@ -196,22 +201,20 @@
  * prefixed with defaultString, and defaultList. You can create as many more as
  * you like, each set with it's own prefix
  */
-$templates = array(
-    'defaultString' => array(
-        'crumb' => '[+crumb+]',
-        'separator' => ' &raquo; ',
-        'crumbContainer' => '<span class="[+crumbBoxClass+]">[+crumbs+]</span>',
-        'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
-        'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
-    ),
-    'defaultList' => array(
-        'crumb' => '<li>[+crumb+]</li>',
-        'separator' => '',
-        'crumbContainer' => '<ul class="[+crumbBoxClass+]">[+crumbs+]</ul>',
-        'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
-        'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
-    ),
-);
+$templates['defaultString'] = array(
+	'crumb' => '[+crumb+]',
+	'separator' => ' &raquo; ',
+	'crumbContainer' => '<span class="[+crumbBoxClass+]">[+crumbs+]</span>',
+	'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
+	'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
+    );
+$templates['defaultList'] = array(
+	'crumb' => '<li>[+crumb+]</li>',
+	'separator' => '',
+	'crumbContainer' => '<ul class="[+crumbBoxClass+]">[+crumbs+]</ul>',
+	'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
+	'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
+    );
 
 
 /* -----------------------------------------------------------------------------
