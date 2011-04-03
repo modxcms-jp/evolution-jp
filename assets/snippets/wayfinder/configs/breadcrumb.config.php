@@ -1,29 +1,21 @@
 <?php
-	$hideSubMenus = !isset($hideSubMenus) ? 1 : $hideSubMenus;
-	$ignoreHidden = !isset($ignoreHidden) ? true : $ignoreHidden;
+	$hideSubMenus = 1;
 	
-	if ($modx->config['site_start'] == $modx->documentIdentifier)
-	{
+	if ($modx->config['site_start'] == $modx->documentObject['id']) {
 		$homeLink = '';
-	}
-	else 
-	{
-		$home = $modx->getDocumentObject('id', $modx->config['site_start']);
-		$home_title = $home['menutitle'] ? $home['menutitle'] : $home['pagetitle'];
-		$homeLink = '<a href="' . $modx->config['site_url'] . '" title="' . $home_title . '">' . $home_title . '</a> &raquo; ';
+	} else {
+		$homeLink = "<a href=\"{$modx->config['site_url']}\" title=\"home\">Home</a> &raquo; ";
 	}
 	
-	if ($modx->config['site_start'] !== $modx->documentIdentifier)
-	{
-		$outerTpl = '@CODE:<div id="breadcrumbnav">' . $homeLink . '[+wf.wrapper+]</div>';
-	}
-	else
-	{
-		$outerTpl = '@CODE: ';
-	}
+	$outerTpl = "@CODE:<div id=\"breadcrumbnav\">
+		{$homeLink}[+wf.wrapper+]
+	</div>";
 	
 	$innerTpl = '@CODE:[+wf.wrapper+]';
-	$rowTpl   = '@CODE: ';
-	$hereTpl  = '@CODE:[+wf.linktext+]';
+	
+	$rowTpl = '@CODE: ';
+	
 	$activeParentRowTpl = '@CODE:<a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a> &raquo; [+wf.wrapper+]';
+	
+	$hereTpl = '@CODE:[+wf.linktext+]';
 ?>
