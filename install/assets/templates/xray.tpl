@@ -29,7 +29,7 @@
 	    [[Wayfinder?startId=0&hideSubMenus=true&level=1]]
 	</div>
 	<div class="content">
-	    [[Breadcrumbs]]
+	    [[Wayfinder? &startId=`0` &config=`breadcrumb`]]
 	    <h2>[*pagetitle*]</h2>
 	    [*content*]
 	</div>
