@@ -76,7 +76,7 @@ $_lang["cancel"] = 'キャンセル';
 $_lang["captcha_code"] = 'セキュリティコード';
 $_lang["captcha_message"] = 'ランダムな文字列を画像で表示し、ユーザーに目視させて入力を求めます。これによりセキュリティを強化できます。';
 $_lang["captcha_title"] = 'CAPTCHAコードの使用 ';
-$_lang["captcha_words_default"] = 'isono,fuguta,sazae,masuo,katsuo,wakame,tarao,namihei,fune,tama,mokuzu,umihei,norisuke,taiko,ikura,sakeo,norio,isasaka,hanazawa,hanako,anago';
+$_lang["captcha_words_default"] = 'pyonkichi,hiroshi,kyouko,ume,minami,yoshiko,goriraimo,goro,mogura,machida';
 $_lang["captcha_words_message"] = '「CAPTCHAコードの使用」を「はい」にした場合に使用されるCAPTCHAワードリストを入力してください。CAPTCHAワードはカンマで区切って入力します。このフィールドには、255文字まで入力することができます。';
 $_lang["captcha_words_title"] = 'CAPTCHA用ワード';
 $_lang["category_heading"] = 'カテゴリー';
@@ -919,7 +919,7 @@ $_lang["sysinfo_activity_message"] = '最近編集されたリソースの一覧
 $_lang["sysinfo_userid"] = 'ユーザー';
 $_lang["system_email_signup"] = "こんにちは [+uid+] さん\n\n「[+sname+] ( [+surl+] )」の管理画面へのログイン情報について下記のとおりお知らせします。\n\nログイン名: [+uid+]\nパスワード: [+pwd+]\n\n管理画面にログインすれば、パスワードを自由に変更できます。\n\n以上、よろしくお願いします。\nサイト管理者より";
 $_lang["system_email_webreminder"] = "こんにちは [+uid+] さん\n\nパスワードを有効にするためには、下記のリンクをクリックしてください。\n\n[+surl+]\n\n処理完了後、下記のパスワードをログインに使用できるようになります。\n\nパスワード:[+pwd+]\n\nこのメールに覚えが無いときは無視して下さい。\n\n以上、よろしくお願いします。\nサイト管理者より";
-$_lang["system_email_websignup"] = "こんにちは [+uid+] さん\n\n「[+sname+] ([+surl+])」へのログイン情報について下記のとおりお知らせします。\n\nログイン名: [+uid+]\nパスワード: [+pwd+]\n\n [+sname+]へログインすれば、自分のパスワードは自由に変更できます。\n\n以上、よろしくお願いします。\nサイト管理者より";
+$_lang["system_email_websignup"] = "こんにちは [+uid+] さん\n\n「[+sname+] ( [+surl+] )」へのログイン情報について下記のとおりお知らせします。\n\nログイン名: [+uid+]\nパスワード: [+pwd+]\n\n [+sname+]へログインすれば、自分のパスワードは自由に変更できます。\n\n以上、よろしくお願いします。\nサイト管理者より";
 $_lang["table_hoverinfo"] = 'ここで取得したSQLファイルを用いて、サイトをリストアできます。「DROP文を生成」にチェックを入れておくと、インポート時にテーブルを作り直すため、より確実にサイトを再現できます。<br /><strong style="color:red;">【注意1】</strong>SQLファイルのサイズが大き過ぎるとリストア(インポート)に失敗しやすくなるためご注意ください。特に_event_logテーブルと_manager_logテーブルが肥大の原因になっていることが多いです。「データサイズ」のリンクをクリックしてログをリセットするか、これら2つのテーブルをバックアップ対象から外すとよいでしょう。それでもまだ大きい場合は<a href="http://www.google.com/search?hl=ja&q=BigDump" target="_blank">BigDump</a>などのツールを試してみてください。<br /><strong style="color:red;">【注意2】</strong> データをリストアする時、リストア元とリストア先のMODXのバージョンが違う場合は注意が必要です。リストアすると、拡張機能のバージョンも元の状態に戻ります。問題を回避するには、MODXのバージョンを揃えてリストアするか、リストア後にもう一度MODXをインストーラを用いて最新状態にアップデートするとよいでしょう。';
 $_lang["table_prefix"] = 'テーブル接頭辞';
 $_lang["tag"] = 'タグ';
