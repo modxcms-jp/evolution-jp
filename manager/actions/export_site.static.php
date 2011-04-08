@@ -308,7 +308,7 @@ else
 			$row=mysql_fetch_assoc($rs);
 
 			$id = $row['id'];
-			printf($_lang['export_site_exporting_document'], $i, $limit, $row['pagetitle'], $id);
+			printf($_lang['export_site_exporting_document'], $i+1, $limit, $row['pagetitle'], $id);
 			$alias = $row['alias'];
 		
 			if(empty($alias))
