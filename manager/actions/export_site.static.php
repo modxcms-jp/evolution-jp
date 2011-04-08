@@ -325,9 +325,9 @@ else
 			if(@$somecontent = file_get_contents($base . 'index.php?id=' . $id))
 			{
 				// save it
-				$filepath = $filepath . $filename;
+				$filename = $filepath . $filename;
 				// Write $somecontent to our opened file.
-				if(file_put_contents($filepath, $somecontent) === FALSE)
+				if(file_put_contents($filename, $somecontent) === FALSE)
 				{
 					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
 					exit;
