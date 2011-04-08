@@ -126,12 +126,16 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 			}
 			fclose ($handle);
 			$somecontent = $buffer;
-			if (!$handle = fopen($filepath, 'w')) {
+			if (!$handle = fopen($filepath, 'w'))
+			{
 				echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filepath"].'</p>';
 				return FALSE;
-			} else {
+			}
+			else
+			{
 				// Write $somecontent to our opened file.
-				if(fwrite($handle, $somecontent) === FALSE) {
+				if(fwrite($handle, $somecontent) === FALSE)
+				{
 					echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_write"].'</p>';
 					return FALSE;
 				}
@@ -197,32 +201,44 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon FROM $dbase.`".$table_prefix."site_content` WHERE $dbname.`".$table_prefix."site_content`.parent = ".$dirid." AND ".$sqlcond;
 		$rs = mysql_query($sql);
 		$dircontent = array();
-		while($row = mysql_fetch_assoc($rs)) {
-			if (!$row['wasNull']) { // needs writing a document
+		while($row = mysql_fetch_assoc($rs))
+		{
+			if (!$row['wasNull'])
+			{ // needs writing a document
 				$docname = getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
 				printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
 				$filename = $dirpath.$docname;
-				if (is_dir($filename)) {
+				if (is_dir($filename))
+				{
 					removeDirectoryAll($filename);
 				}
-				if (!file_exists($filename) || (filemtime($filename) < $row['editedon'])) {
+				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']))
+				{
 					if (!writeAPage($base, $row['id'], $filename)) exit;
-				} else {
+				}
+				else
+				{
 					echo '<p><span class="success">'.$_lang['export_site_success']."</span> ".$_lang["export_site_success_skip_doc"].'</p>';
 				}
 				$dircontent[] = $docname;
 			}
-			if ($row['isfolder']) { // needs making a folder
+			if ($row['isfolder'])
+			{ // needs making a folder
 				$dirname = $dirpath.$row['alias'];
-				if (!is_dir($dirname)) {
+				if (!is_dir($dirname))
+				{
 					if (file_exists($dirname)) @unlink($dirname);
 					mkdir($dirname);
-					if ($row['wasNull']) {
+					if ($row['wasNull'])
+					{
 						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
 						echo '<p class="success">'.$_lang['export_site_success'].'</p>';
 					}
-				} else {
-					if ($row['wasNull']) {
+				}
+				else
+				{
+					if ($row['wasNull'])
+					{
 						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
 						echo '<p><span class="success">'.$_lang['export_site_success'].$_lang["export_site_success_skip_dir"].'</p>';
 					}
@@ -255,25 +271,30 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		$limit = mysql_num_rows($rs);
 		printf($_lang['export_site_numberdocs'], $limit);
 
-		for($i=0; $i<$limit; $i++) {
-
+		for($i=0; $i<$limit; $i++)
+		{
 			$row=mysql_fetch_assoc($rs);
 
 			$id = $row['id'];
 			printf($_lang['export_site_exporting_document'], $i, $limit, $row['pagetitle'], $id);
 			$alias = $row['alias'];
 		
-			if(empty($alias)) {
+			if(empty($alias))
+			{
 				$filename = $prefix.$id.$suffix;
-			} else {
+			}
+			else
+			{
 				$pa = pathinfo($alias); // get path info array
 				$tsuffix = !empty($pa[extension]) ? '':$suffix;
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
-			if(@$handle = fopen("$base/index.php?id=$id", "r")) {
+			if(@$handle = fopen("$base/index.php?id=$id", "r"))
+			{
 				$buffer = "";
-				while (!feof ($handle)) {
+				while (!feof ($handle))
+				{
 					$buffer .= fgets($handle, 4096);
 				}
 				fclose ($handle);
@@ -282,19 +303,25 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 				$filename = "$filepath$filename";
 				$somecontent = $buffer;
 
-				if(!$handle = fopen($filename, 'w')) {
+				if(!$handle = fopen($filename, 'w'))
+				{
 					echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filename"].'</p>';
 					exit;
-				} else {
+				}
+				else
+				{
 					// Write $somecontent to our opened file.
-					if(fwrite($handle, $somecontent) === FALSE) {
+					if(fwrite($handle, $somecontent) === FALSE)
+					{
 						echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'</p>';
 						exit;
 					}
 					fclose($handle);
 					echo '<p class="success">'.$_lang['export_site_success'].'</p>';
 				}
-			} else {
+			}
+			else
+			{
 				echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</p>';
 			}
 		}
@@ -308,4 +335,3 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </ul>
 <?php
 }
-?>
