@@ -12,19 +12,20 @@ $base = MODX_SITE_URL;
 ?>
 
 <script type="text/javascript">
-function reloadTree() {
+function reloadTree()
+{
 	// redirect to welcome
 	document.location.href = "index.php?r=1&a=7";
 }
 </script>
 
 <h1><?php echo $_lang['export_site_html']; ?></h1>
-
 <div class="sectionBody">
 <?php
 
-if(!isset($_POST['export'])) {
-echo '<p>'.$_lang['export_site_message'].'</p>';
+if(!isset($_POST['export']))
+{
+	echo '<p>'.$_lang['export_site_message'].'</p>';
 ?>
 
 <fieldset style="padding:10px"><legend><?php echo $_lang['export_site']; ?></legend>
@@ -65,18 +66,18 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </fieldset>
 
 <?php
-} else {
-
+}
+else
+{
 	$maxtime = $_POST['maxtime'];
-	if(!is_numeric($maxtime)) {
-		$maxtime = 30;
-	}
+	if(!is_numeric($maxtime))  $maxtime = 30;
 
 	@set_time_limit($maxtime);
 	$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $exportstart = $mtime;
 
 	$filepath = "../assets/export/";
-	if(!is_writable($filepath)) {
+	if(!is_writable($filepath))
+	{
 		echo $_lang['export_site_target_unwritable'];
 		include "footer.inc.php";
 		exit;
@@ -88,27 +89,32 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 	$noncache = $_POST['includenoncache']==1 ? "" : "AND $dbase.`".$table_prefix."site_content`.cacheable=1";
 
 	// Support export alias path  
-	function removeDirectoryAll($directory) {
+	function removeDirectoryAll($directory)
+	{
 		// if the path has a slash at the end, remove it
-		if(substr($directory,-1) == '/') {
+		if(substr($directory,-1) == '/')
+		{
 			$directory = substr($directory,0,-1);
 		}
 		// if the path is not valid or is not a directory ...
-		if(!file_exists($directory) || !is_dir($directory)) {
+		if(!file_exists($directory) || !is_dir($directory))
+		{
 			return FALSE;
-		} elseif(!is_readable($directory)) {
+		}
+		elseif(!is_readable($directory))
+		{
 			return FALSE;
-		} else {
+		}
+		else
+		{
 			$dh = opendir($directory);
-			while (FALSE !== ($file = @readdir($dh))) {
-				if($file != '.' && $file != '..') {
+			while (FALSE !== ($file = @readdir($dh)))
+			{
+				if($file != '.' && $file != '..')
+				{
 					$path = $directory.'/'.$file;
-					if(is_dir($path)) {
-						// call myself
-						removeDirectoryAll($path);
-					} else {
-						@unlink($path);
-					}
+					if(is_dir($path)) removeDirectoryAll($path);// call myself
+					else              @unlink($path);
 				}
 			}
 			closedir($dh);
@@ -116,12 +122,15 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		return (@rmdir($directory));
 	}
 
-	function writeAPage($baseURL, $docid, $filepath) {
+	function writeAPage($baseURL, $docid, $filepath)
+	{
 		global $_lang;
 		global $base;
-		if(@$handle = fopen($baseURL."index.php?id=".$docid, "r")) {
+		if(@$handle = fopen($baseURL."index.php?id=".$docid, "r"))
+		{
 			$buffer = "";
-			while (!feof ($handle)) {
+			while (!feof ($handle))
+			{
 				$buffer .= fgets($handle, 4096);
 			}
 			fclose ($handle);
@@ -142,17 +151,23 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 				fclose($handle);
 				echo '<p class="success">'.$_lang["export_site_success"].'</p>';
 			}
-		} else {
+		}
+		else
+		{
 			echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</p>';
 //			return FALSE;
 		}
 		return TRUE;
 	}
 
-	function getPageName($docid, $alias, $prefix, $suffix) {
-		if(empty($alias)) {
+	function getPageName($docid, $alias, $prefix, $suffix)
+	{
+		if(empty($alias))
+		{
 			$filename = $prefix.$docid.$suffix;
-		} else {
+		}
+		else
+		{
 			$pa = pathinfo($alias); // get path info array
 			$tsuffix = !empty($pa['extension']) ? '':$suffix;
 			$filename = $prefix.$alias.$tsuffix;
@@ -160,25 +175,38 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		return $filename;
 	}
 
-	function scanDirectory($path, $files) {
+	function scanDirectory($path, $files)
+	{
 		// if the path has a slash at the end, remove it
-		if(substr($path, -1) == '/') {
+		if(substr($path, -1) == '/')
+		{
 			$path = substr($path, 0, -1);
 		}
 		// if the path is not valid or is not a directory ...
-		if(!file_exists($path) || !is_dir($path)) {
+		if(!file_exists($path) || !is_dir($path))
+		{
 			return FALSE;
-		} elseif(!is_readable($path)) {
+		}
+		elseif(!is_readable($path))
+		{
 			return FALSE;
-		} else {
+		}
+		else
+		{
 			$dh = opendir($path);
-			while (FALSE !== ($filename = @readdir($dh))) {
-				if($filename != '.' && $filename != '..' && substr($filename, 1) != '.') {
-					if (!in_array($filename, $files)) {
+			while (FALSE !== ($filename = @readdir($dh)))
+			{
+				if($filename != '.' && $filename != '..' && substr($filename, 1) != '.')
+				{
+					if (!in_array($filename, $files))
+					{
 						$file = $path."/".$filename;
-						if (is_dir($file)) {
+						if (is_dir($file))
+						{
 							removeDirectoryAll($file);
-						} else {
+						}
+						else
+						{
 							@unlink($file);
 						}
 					}
@@ -189,7 +217,8 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		}
 	}
 
-	function exportDir($dirid, $dirpath, &$i) {
+	function exportDir($dirid, $dirpath, &$i)
+	{
 		global $_lang;
 		global $base;
 		global $modx;
@@ -252,7 +281,8 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 //		print_r ($dircontent);
 	}
 
-	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1) {
+	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
+	{
 		$sqlcond = "$dbase.`".$table_prefix."site_content`.deleted=0 AND (($dbase.`".$table_prefix."site_content`.published=1 AND $dbase.`".$table_prefix."site_content`.type='document') OR ($dbase.`".$table_prefix."site_content`.isfolder=1)) $noncache";
 		$sql = "SELECT count(*) as count1 FROM $dbase.`".$table_prefix."site_content` WHERE ".$sqlcond;
 		$rs = mysql_query($sql);
@@ -264,7 +294,9 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		$n = 1;
 		exportDir(0, $filepath, $n);
 
-	} else {
+	}
+	else
+	{
 	// Modified for export alias path  2006/3/24 end
 		$sql = "SELECT id, alias, pagetitle FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND $dbase.`".$table_prefix."site_content`.published=1 AND $dbase.`".$table_prefix."site_content`.type='document' $noncache";
 		$rs = mysql_query($sql);
@@ -293,27 +325,18 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 			if(@$somecontent = file_get_contents($base . 'index.php?id=' . $id))
 			{
 				// save it
-				$filename = $filepath . $filename;
-				if(!$handle = fopen($filename, 'w'))
+				$filepath = $filepath . $filename;
+				// Write $somecontent to our opened file.
+				if(file_put_contents($filepath, $somecontent) === FALSE)
 				{
-					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filename"].'<br />';
+					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
 					exit;
 				}
-				else
-				{
-					// Write $somecontent to our opened file.
-					if(fwrite($handle, $somecontent) === FALSE)
-					{
-						echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
-						exit;
-					}
-					fclose($handle);
-					echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
-				}
+				echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 			}
 			else
 			{
-				echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</p>';
+				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
 			}
 		}
 	}
