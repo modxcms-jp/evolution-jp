@@ -4,7 +4,7 @@
 # and especially for the first three commented out rules
 
 #php_flag register_globals Off
-#AddDefaultCharset utf-8
+#AddDefaultCharset Off
 #php_value date.timezone Asia/Tokyo
 # PHP5環境などのため日付関係でエラーが出る場合は上記のコメントを外してください
 
@@ -43,6 +43,7 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 
 # サーバの日本語設定が不安定な場合は下記のコメントを外して有効にしてください
 # For UTF-8
+# AddDefaultCharset                       Off
 # php_flag  output_buffering              Off
 # php_value output_handler                none
 # php_value default_charset               UTF-8
@@ -55,6 +56,7 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # php_value mbstring.detect_order         eucJP-win,UTF-8,SJIS-win,jis
 
 # For EUC-JP
+# AddDefaultCharset                       Off
 # php_flag  output_buffering              Off
 # php_value output_handler                none
 # php_value default_charset               EUC-JP
