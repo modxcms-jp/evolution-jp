@@ -278,7 +278,7 @@ $_lang["existing_category"] = '既存のカテゴリー';
 $_lang["expand_tree"] = 'サイトツリーを展開';
 $_lang["export_site"] = 'サイトのエクスポート';
 $_lang["export_site_cacheable"] = '非キャッシュファイルを含む ';
-$_lang["export_site_exporting_document"] = 'エクスポートファイル <strong>%s</strong>個 (<strong>%s</strong>個中)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><i>%s</i>, id %s</small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+$_lang["export_site_exporting_document"] = '%s/%s - %s(index.php?id=%s)';
 $_lang["export_site_failed"] = '失敗';
 $_lang["export_site_failed_no_open"] = 'ファイルを開けません: ';
 $_lang["export_site_failed_no_retrieve"] = 'リソースが見つかりません。';

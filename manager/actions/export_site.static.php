@@ -305,7 +305,7 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 
 				if(!$handle = fopen($filename, 'w'))
 				{
-					echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filename"].'</p>';
+					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filename"].'<br />';
 					exit;
 				}
 				else
@@ -313,11 +313,11 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 					// Write $somecontent to our opened file.
 					if(fwrite($handle, $somecontent) === FALSE)
 					{
-						echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'</p>';
+						echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
 						exit;
 					}
 					fclose($handle);
-					echo '<p class="success">'.$_lang['export_site_success'].'</p>';
+					echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 				}
 			}
 			else
