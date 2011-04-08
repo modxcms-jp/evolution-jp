@@ -290,19 +290,10 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
-			if(@$handle = fopen("$base/index.php?id=$id", "r"))
+			if(@$somecontent = file_get_contents($base . 'index.php?id=' . $id))
 			{
-				$buffer = "";
-				while (!feof ($handle))
-				{
-					$buffer .= fgets($handle, 4096);
-				}
-				fclose ($handle);
-
 				// save it
-				$filename = "$filepath$filename";
-				$somecontent = $buffer;
-
+				$filename = $filepath . $filename;
 				if(!$handle = fopen($filename, 'w'))
 				{
 					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filename"].'<br />';
