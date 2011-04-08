@@ -28,7 +28,7 @@ if(!isset($_POST['export']))
 	echo '<p>'.$_lang['export_site_message'].'</p>';
 ?>
 
-<fieldset style="padding:10px"><legend><?php echo $_lang['export_site']; ?></legend>
+<fieldset style="padding:10px;border:1px solid #ccc;"><legend style="font-weight:bold;"><?php echo $_lang['export_site']; ?></legend>
 <form action="index.php" method="post" name="exportFrm">
 <input type="hidden" name="export" value="export" />
 <input type="hidden" name="a" value="83" />
@@ -39,7 +39,7 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 <table class="settings" cellspacing="0" cellpadding="2">
   <tr>
     <td class="head"><?php echo $_lang['export_site_cacheable']; ?></td>
-    <td><input type="radio" name="includenoncache" value="1" checked="checked"><?php echo $_lang['yes'];?><br />
+    <td><input type="radio" name="includenoncache" value="1" checked="checked"><?php echo $_lang['yes'];?>
 		<input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></td>
   </tr>
   <tr>
