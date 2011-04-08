@@ -137,7 +137,7 @@ else
 			$somecontent = $buffer;
 			if (!$handle = fopen($filepath, 'w'))
 			{
-				echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filepath"].'</p>';
+				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filepath"].'</span><br />';
 				return FALSE;
 			}
 			else
@@ -145,16 +145,16 @@ else
 				// Write $somecontent to our opened file.
 				if(fwrite($handle, $somecontent) === FALSE)
 				{
-					echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_write"].'</p>';
+					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_write"].'</span><br />';
 					return FALSE;
 				}
 				fclose($handle);
-				echo '<p class="success">'.$_lang["export_site_success"].'</p>';
+				echo ' <span class="success">'.$_lang["export_site_success"].'</span><br />';
 			}
 		}
 		else
 		{
-			echo '<p><span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</p>';
+			echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</span><br />';
 //			return FALSE;
 		}
 		return TRUE;
@@ -247,7 +247,7 @@ else
 				}
 				else
 				{
-					echo '<p><span class="success">'.$_lang['export_site_success']."</span> ".$_lang["export_site_success_skip_doc"].'</p>';
+					echo ' <span class="success">'.$_lang['export_site_success']."</span> ".$_lang["export_site_success_skip_doc"].'<br />';
 				}
 				$dircontent[] = $docname;
 			}
@@ -261,7 +261,7 @@ else
 					if ($row['wasNull'])
 					{
 						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
-						echo '<p class="success">'.$_lang['export_site_success'].'</p>';
+						echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 					}
 				}
 				else
@@ -269,7 +269,7 @@ else
 					if ($row['wasNull'])
 					{
 						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
-						echo '<p><span class="success">'.$_lang['export_site_success'].$_lang["export_site_success_skip_dir"].'</p>';
+						echo ' <span class="success">'.$_lang['export_site_success'].$_lang["export_site_success_skip_dir"].'</span><br />';
 					}
 				}
 				exportDir($row['id'], $dirname."/", $i);
