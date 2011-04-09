@@ -109,6 +109,7 @@ $xml_tpl = <<<TPL
 		<item>
 			<title>[+xml_pagetitle+]</title>
 			<link>[(site_url)][~[+id+]~]</link>
+			<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
 			<summary><![CDATA[ [+xml_introtext+] ]]></summary>
 			<date>[+xml_createdon+]</date>
 			<createdon>[+xml_createdon+]</createdon>
