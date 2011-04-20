@@ -11,7 +11,7 @@
  * @internal	@events OnParseDocument,OnWebPagePrerender,OnDocFormPrerender,OnDocFormSave,OnManagerLogout 
  * @internal	@modx_category Manager and Admin
  * @internal    @legacy_names QM+,QuickEdit
- * @internal    @installset base, sample
+ * @internal    @installset base
  */
 
 
