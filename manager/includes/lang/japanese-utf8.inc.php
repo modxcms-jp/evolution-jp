@@ -4,9 +4,9 @@
  * Function:       Japanese language file.
  * Encoding:       UTF8
  * Author:         eastbind, MEGU, yamamoto
- * Date:           2011/01/19
+ * Date:           2011/04/20
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.5J-r1
+ * MODX version:   Evolution 1.0.0 - 1.0.5J-r3
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -762,16 +762,16 @@ $_lang["role_delete_template"] = 'テンプレートの削除';
 $_lang["role_delete_user"] = 'ユーザーの削除';
 $_lang["role_delete_web_user"] = 'ウェブユーザーの削除';
 $_lang["role_edit_chunk"] = 'チャンクを編集';
-$_lang["role_edit_doc"] = 'リソースの編集';
-$_lang["role_edit_doc_metatags"] = 'METAタグとキーワードの編集';
-$_lang["role_edit_module"] = 'モジュールの編集';
-$_lang["role_edit_plugin"] = 'プラグインの編集';
-$_lang["role_edit_role"] = 'ロールの編集';
+$_lang["role_edit_doc"] = 'リソース編集画面を開く';
+$_lang["role_edit_doc_metatags"] = 'METAタグとキーワード編集画面を開く';
+$_lang["role_edit_module"] = 'モジュール編集画面を開く';
+$_lang["role_edit_plugin"] = 'プラグイン編集画面を開く';
+$_lang["role_edit_role"] = 'ロール編集画面を開く';
 $_lang["role_edit_settings"] = 'サイト設定の変更';
-$_lang["role_edit_snippet"] = 'スニペットの編集';
-$_lang["role_edit_template"] = 'テンプレートの編集';
-$_lang["role_edit_user"] = 'ユーザーの編集';
-$_lang["role_edit_web_user"] = 'ウェブユーザーの編集';
+$_lang["role_edit_snippet"] = 'スニペット編集画面を開く';
+$_lang["role_edit_template"] = 'テンプレート編集画面を開く';
+$_lang["role_edit_user"] = 'ユーザー編集画面を開く';
+$_lang["role_edit_web_user"] = 'ウェブユーザー編集画面を開く';
 $_lang["role_empty_trash"] = '全ての削除済みリソースを完全に消去する';
 $_lang["role_errors"] = 'エラーダイアログの表示';
 $_lang["role_eventlog_management"] = 'イベントログ管理';
@@ -826,7 +826,7 @@ $_lang["rss_url_security_message"] = '管理画面トップの「MODX Security�
 $_lang["rss_url_security_title"] = 'RSS セキュリティ情報フィード';
 $_lang["run_module"] = 'モジュールの実行';
 $_lang["saturday"] = '土';
-$_lang["save"] = '更新';
+$_lang["save"] = '保存';
 $_lang["save_all_changes"] = '全ての変更を更新';
 $_lang["save_tag"] = 'タグ更新';
 $_lang["saving"] = '更新中です。お待ちください';
@@ -993,7 +993,7 @@ $_lang["untitled_resource"] = 'タイトルがありません';
 $_lang["untitled_weblink"] = 'タイトルがありません';
 $_lang["update_params"] = 'パラメータ表示の更新';
 $_lang["update_settings_from_language"] = '置き換え ';
-$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズを入力してください。サイズはバイト単位で入力します。<br /><strong>※サーバ側で設けられている上限サイズを超える設定はできません。</strong>';
+$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズ。サイズはバイト単位です。<br /><strong>※この設定は現在は無効です。PHP4.2.3以降ではプログラム側で設定を変更できないようになっているためです。.htaccessやphp.iniでupload_max_filesizeの設定を変更してください。</strong>';
 $_lang["upload_maxsize_title"] = 'アップロードサイズの上限';
 $_lang["uploadable_files_message"] = '<a href="index.php?a=31" target="_self">ファイル管理</a>画面でアップロードできるファイルタイプの拡張子を入力してください。カンマで区切って複数指定できます。この設定はファイルブラウザも参照します。';
 $_lang["uploadable_files_title"] = 'アップロード可能なファイルタイプ ';
