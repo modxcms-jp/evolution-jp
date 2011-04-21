@@ -1614,7 +1614,10 @@ td input.button {width:30px !important;cursor:pointer;border:1px solid #ccc; bac
 
 form#mutate input.text,
 input.inputBox,
-form#mutate input.imageField {width:300px;}
+form#mutate input.imageField,
+#displayparams input[type=text],
+#displayparams select
+{width:300px;}
 form#mutate textarea.inputBox {width:300px;height:80px;}
 form#mutate textarea {width:90%;height:240px;}
 form#mutate textarea.textareamini {height:120px;}
