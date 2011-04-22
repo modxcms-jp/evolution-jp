@@ -1336,7 +1336,7 @@ form#mutate input
 }
 form#mutate input.inputBox,
 form#mutate textarea,
-div.tmplvars input {
+div.tmplvars input[type=text] {
 	background: #fff url(images/misc/input-bg.gif) repeat-x top left;
 }
 form#mutate textarea.tv_textareamini {
