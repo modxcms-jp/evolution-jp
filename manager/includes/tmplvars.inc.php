@@ -191,7 +191,7 @@ EOT;
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
 					$field_html .= <<< EOT
-					<script type="text/javascript\>
+					<script type="text/javascript">
 							var lastImageCtrl;
 							var lastFileCtrl;
 							function OpenServerBrowser(url, width, height ) {
