@@ -35,7 +35,11 @@ function FindDangerValue($value, $found = false) {
 }
 
 $gpc = array_merge($_GET, $_POST, $_COOKIE);
-FindDangerValue($gpc);
+if(FindDangerValue($gpc)!==false)
+{
+	header('Status: 422 Unprocessable Entity');
+	die();
+}
 
 /*
 // php bug 53632 (php 4 <= 4.4.9 and php 5 <= 5.3.4)
