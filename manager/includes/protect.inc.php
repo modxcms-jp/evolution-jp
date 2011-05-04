@@ -3,7 +3,7 @@
  *    Protect against some common security flaws
  */
 
-function strip_magic_quotes(& $array)
+function strip_magic_quotes($array)
 {
 	if(get_magic_quotes_gpc())
 	{
@@ -15,8 +15,8 @@ function strip_magic_quotes(& $array)
 		return $array;
 	}
 }
-$_POST    = strip_magic_quotes($_POST);
 $_GET     = strip_magic_quotes($_GET);
+$_POST    = strip_magic_quotes($_POST);
 $_COOKIE  = strip_magic_quotes($_COOKIE);
 $_REQUEST = strip_magic_quotes($_REQUEST);
 
