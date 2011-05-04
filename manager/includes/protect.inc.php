@@ -4,27 +4,34 @@
  */
 
 function FindDangerValue($value, $found = false) {
-   if ($found || (strpos(str_replace('.', '', serialize($value)), '22250738585072011') !== false)) {
-     //文字列の中に問題の数字が埋め込まれているケースを排除する by @enogu
-     if (is_array($value)) {
-       foreach ($value as $item) {
-         if (FindDangerValue($item, true)) {
-           return true;
-         }
-       }
-     }
-     else {
-       $item = strval($value);
-       $matches = '';
-       if (preg_match('/^([0.]*2[0125738.]{15,16}10*)e(-[0-9]+)$/i', $item, $matches)) {
-         $exp = intval($matches[2]) + 1;
-         if (2.2250738585072011e-307 === floatval("{$matches[1]}e{$exp}")) {
-           return true;
-         }
-       }
-     }
-   }
-   return false;
+	if($found || (strpos(str_replace('.', '', serialize($value)), '22250738585072011') !== false))
+	{
+		//文字列の中に問題の数字が埋め込まれているケースを排除する by @enogu
+		if (is_array($value))
+		{
+			foreach ($value as $item)
+			{
+				if(FindDangerValue($item, true))
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			$item = strval($value);
+			$matches = '';
+			if (preg_match('/^([0.]*2[0125738.]{15,16}10*)e(-[0-9]+)$/i', $item, $matches))
+			{
+				$exp = intval($matches[2]) + 1;
+				if (2.2250738585072011e-307 === floatval("{$matches[1]}e{$exp}"))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 $gpc = array_merge($_GET, $_POST, $_COOKIE);
