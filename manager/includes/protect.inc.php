@@ -12,12 +12,13 @@ function strip_magic_quotes(& $array)
 			if(!is_array($value)) $array[$key] = stripslashes($value);
 			else                  $array[$key] = array_map('strip_magic_quotes', $value);
 		}
+		return $array;
 	}
 }
-strip_magic_quotes($_GET);
-strip_magic_quotes($_POST);
-strip_magic_quotes($_COOKIE);
-strip_magic_quotes($_REQUEST);
+$_POST    = strip_magic_quotes($_POST);
+$_GET     = strip_magic_quotes($_GET);
+$_COOKIE  = strip_magic_quotes($_COOKIE);
+$_REQUEST = strip_magic_quotes($_REQUEST);
 
 function FindDangerValue($value, $found = false) {
 	if($found || (strpos(str_replace('.', '', serialize($value)), '22250738585072011') !== false))
