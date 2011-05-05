@@ -31,8 +31,8 @@
 // or specify a URL to a custom location.
 // Here we set some default values, because this is a convenient place to change them if we need to,
 // but you should configure your preference via the Configuration tab.
-$js_default_url_local = $modx->config['site_url']. 'assets/js/jquery-1.5.2.min.js';
-$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js';
+$js_default_url_local = $modx->config['site_url']. 'assets/js/jquery-1.6.min.js';
+$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js';
 
 // You don't need to change anything else from here onwards
 //-------------------------------------------------------
