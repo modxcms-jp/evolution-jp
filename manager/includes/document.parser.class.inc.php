@@ -927,7 +927,7 @@ class DocumentParser {
 					{
 						if(strpos($tempSnippetParams[$x], '=', 0))
 						{
-							if($parameterTemp= explode('=', $tempSnippetParams[$x]))
+							if($parameterTemp= explode('=', $tempSnippetParams[$x],2))
 							{
 								$parameterTemp[0] = trim($parameterTemp[0]);
 								$parameterTemp[1] = trim($parameterTemp[1]);
