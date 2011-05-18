@@ -844,7 +844,7 @@ class DocumentParser {
 			{
 				if(strpos($snip_calls[$i], '?') !== false)
 				{
-					list($names,$params) = explode('?',$snip_calls[$i]);
+					list($names,$params) = explode('?',$snip_calls[$i],2);
 					$snip_name[$i]  = $names;
 					$snip_param[$i] = '?' . $params;
 				}
@@ -914,8 +914,7 @@ class DocumentParser {
 				$currentSnippetParams = $snip_param[$i];
 				if(!empty($currentSnippetParams))
 				{
-					$tempSnippetParams = str_replace('?', '', $currentSnippetParams);
-					$splitter = '&';
+					$tempSnippetParams = preg_replace('@^\?@', '', $currentSnippetParams);
 					if(strpos($tempSnippetParams, '&amp;') !== false)
 					{
 					
