@@ -831,96 +831,127 @@ class DocumentParser {
         return $msg . $snip;
     }
 
-    function evalSnippets($documentSource) {
-        preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
-
-        $etomite= & $this;
-
-        if ($matchCount= count($matches[1])) {
-            for ($i= 0; $i < $matchCount; $i++) {
-                $spos= strpos($matches[1][$i], '?', 0);
-                if ($spos !== false) {
-                    $params= substr($matches[1][$i], $spos, strlen($matches[1][$i]));
-                } else {
-                    $params= '';
-                }
-                $matches[1][$i]= str_replace($params, '', $matches[1][$i]);
-                $snippetParams[$i]= $params;
-            }
-            $nrSnippetsToGet= $matchCount;
-            for ($i= 0; $i < $nrSnippetsToGet; $i++) { // Raymond: Mod for Snippet props
-                if (isset ($this->snippetCache[$matches[1][$i]])) {
-                    $snippets[$i]['name']= $matches[1][$i];
-                    $snippets[$i]['snippet']= $this->snippetCache[$matches[1][$i]];
-                    if (array_key_exists($matches[1][$i] . "Props", $this->snippetCache))
-                        $snippets[$i]['properties']= $this->snippetCache[$matches[1][$i] . "Props"];
-                } else {
-                    // get from db and store a copy inside cache
-                    $sql= "SELECT `name`, `snippet`, `properties` FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".`name`='" . $this->db->escape($matches[1][$i]) . "';";
-                    $result= $this->db->query($sql);
-                    $added = false;
-                    if ($this->db->getRecordCount($result) == 1) {
-                        $row= $this->db->getRow($result);
-                        if($row['name'] == $matches[1][$i]) {
-                        $snippets[$i]['name']= $row['name'];
-                        $snippets[$i]['snippet']= $this->snippetCache[$row['name']]= $row['snippet'];
-                        $snippets[$i]['properties']= $this->snippetCache[$row['name'] . "Props"]= $row['properties'];
-                            $added = true;
-                        }
-                    }
-                    if(!$added) {
-                        $snippets[$i]['name']= $matches[1][$i];
-                        $snippets[$i]['snippet']= $this->snippetCache[$matches[1][$i]]= "return false;";
-                        $snippets[$i]['properties']= '';
-                    }
-                }
-            }
-
-            for ($i= 0; $i < $nrSnippetsToGet; $i++) {
-                $parameter= array ();
-                $snippetName= $this->currentSnippet= $snippets[$i]['name'];
-                // FIXME Undefined index: properties
-                if (array_key_exists('properties', $snippets[$i])) {
-                    $snippetProperties= $snippets[$i]['properties'];
-                } else {
-                    $snippetProperties= '';
-                }
-                // load default params/properties - Raymond
-                // FIXME Undefined variable: snippetProperties
-                $parameter= $this->parseProperties($snippetProperties);
-                // current params
-                $currentSnippetParams= $snippetParams[$i];
-                if (!empty ($currentSnippetParams)) {
-                    $tempSnippetParams= str_replace("?", "", $currentSnippetParams);
-                    $splitter= "&";
-                    if (strpos($tempSnippetParams, "&amp;") > 0)
-                        $tempSnippetParams= str_replace("&amp;", "&", $tempSnippetParams);
-                    //$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
-                    $tempSnippetParams= explode($splitter, $tempSnippetParams);
-                    $snippetParamCount= count($tempSnippetParams);
-                    for ($x= 0; $x < $snippetParamCount; $x++) {
-                        if (strpos($tempSnippetParams[$x], '=', 0)) {
-                            if ($parameterTemp= explode("=", $tempSnippetParams[$x])) {
-                                $parameterTemp[0] = trim($parameterTemp[0]);
-                                $parameterTemp[1] = trim($parameterTemp[1]);
-                                $fp= strpos($parameterTemp[1], '`');
-                                $lp= strrpos($parameterTemp[1], '`');
-                                if (!($fp === false && $lp === false))
-                                    $parameterTemp[1]= substr($parameterTemp[1], $fp +1, $lp -1);
-                                $parameter[$parameterTemp[0]]= $parameterTemp[1];
-                            }
-                        }
-                    }
-                }
-                $executedSnippets[$i]= $this->evalSnippet($snippets[$i]['snippet'], $parameter);
-                if ($this->dumpSnippets == 1) {
-                    echo "<fieldset><legend><b>$snippetName</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset><br />";
-                }
-                $documentSource= str_replace("[[" . $snippetName . $currentSnippetParams . "]]", $executedSnippets[$i], $documentSource);
-            }
-        }
-        return $documentSource;
-    }
+	function evalSnippets($documentSource)
+	{
+		$etomite= & $this;
+		
+		preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
+		$snip_calls = $matches[1];
+		
+		if($matchCount= count($snip_calls))
+		{
+			for ($i= 0; $i < $matchCount; $i++)
+			{
+				if(strpos($snip_calls[$i], '?') !== false)
+				{
+					list($names,$params) = explode('?',$snip_calls[$i]);
+					$snip_name[$i]  = $names;
+					$snip_param[$i] = '?' . $params;
+				}
+				else
+				{
+					$snip_name[$i]    = $snip_calls[$i];
+					$snip_param[$i] = '';
+				}
+				
+			}
+			for ($i= 0; $i < $matchCount; $i++)
+			{ // Raymond: Mod for Snippet props
+				if(isset ($this->snippetCache[$snip_name[$i]]))
+				{
+					$snippets[$i]['name']    = $snip_name[$i];
+					$snippets[$i]['snippet'] = $this->snippetCache[$snip_name[$i]];
+					if(array_key_exists($snip_name[$i] . "Props", $this->snippetCache))
+					{
+						$snippets[$i]['properties']= $this->snippetCache[$snip_name[$i] . "Props"];
+					}
+				}
+				else
+				{
+					$tbl_snippets  = $this->getFullTableName('site_snippets');
+					$esc_snip_name = $this->db->escape($snip_name[$i]);
+					// get from db and store a copy inside cache
+					$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
+					$result= $this->db->query($sql);
+					$added = false;
+					if($this->db->getRecordCount($result) == 1)
+					{
+						$row= $this->db->getRow($result);
+						if($row['name'] == $snip_name[$i])
+						{
+							$snippets[$i]['name']       = $row['name'];
+							$snippets[$i]['snippet']    = $this->snippetCache[$row['name']]           = $row['snippet'];
+							$snippets[$i]['properties'] = $this->snippetCache[$row['name'] . 'Props'] = $row['properties'];
+							$added = true;
+						}
+					}
+					if(!$added)
+					{
+						$snippets[$i]['name']       = $snip_name[$i];
+						$snippets[$i]['snippet']    = $this->snippetCache[$snip_name[$i]] = 'return false;';
+						$snippets[$i]['properties'] = '';
+					}
+				}
+			}
+			
+			for ($i= 0; $i < $matchCount; $i++)
+			{
+				$parameter= array ();
+				$snippetName= $this->currentSnippet= $snippets[$i]['name'];
+				// FIXME Undefined index: properties
+				if(array_key_exists('properties', $snippets[$i]))
+				{
+					$snippetProperties= $snippets[$i]['properties'];
+				}
+				else
+				{
+					$snippetProperties= '';
+				}
+				// load default params/properties - Raymond
+				// FIXME Undefined variable: snippetProperties
+				$parameter = $this->parseProperties($snippetProperties);
+				// current params
+				$currentSnippetParams= $snip_param[$i];
+				if(!empty($currentSnippetParams))
+				{
+					$tempSnippetParams= str_replace('?', '', $currentSnippetParams);
+					$splitter= "&";
+					if(strpos($tempSnippetParams, "&amp;") > 0)
+					{
+						$tempSnippetParams= str_replace("&amp;", "&", $tempSnippetParams);
+						//$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
+					}
+					$tempSnippetParams= explode($splitter, $tempSnippetParams);
+					$snippetParamCount= count($tempSnippetParams);
+					for ($x= 0; $x < $snippetParamCount; $x++)
+					{
+						if(strpos($tempSnippetParams[$x], '=', 0))
+						{
+							if($parameterTemp= explode("=", $tempSnippetParams[$x]))
+							{
+								$parameterTemp[0] = trim($parameterTemp[0]);
+								$parameterTemp[1] = trim($parameterTemp[1]);
+								$fp= strpos($parameterTemp[1], '`');
+								$lp= strrpos($parameterTemp[1], '`');
+								if(!($fp === false && $lp === false))
+								{
+									$parameterTemp[1]= substr($parameterTemp[1], $fp +1, $lp -1);
+								}
+								$parameter[$parameterTemp[0]]= $parameterTemp[1];
+							}
+						}
+					}
+				}
+				$executedSnippets[$i]= $this->evalSnippet($snippets[$i]['snippet'], $parameter);
+				if($this->dumpSnippets == 1)
+				{
+					echo "<fieldset><legend><b>$snippetName</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset><br />";
+				}
+				$documentSource= str_replace("[[" . $snippetName . $currentSnippetParams . "]]", $executedSnippets[$i], $documentSource);
+			}
+		}
+		return $documentSource;
+	}
 
     function makeFriendlyURL($pre, $suff, $alias) {
         $Alias = explode('/',$alias);
