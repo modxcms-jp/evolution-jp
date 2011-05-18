@@ -918,25 +918,21 @@ class DocumentParser {
 					$splitter = '&';
 					if(strpos($tempSnippetParams, '&amp;') !== false)
 					{
+					
 						$tempSnippetParams = str_replace('&amp;', '&', $tempSnippetParams);
 						//$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
 					}
-					$tempSnippetParams = explode($splitter, $tempSnippetParams);
-					$snippetParamCount = count($tempSnippetParams);
+					$tempSnippetParams_array = explode('&', $tempSnippetParams);
+					$snippetParamCount = count($tempSnippetParams_array);
 					for ($x= 0; $x < $snippetParamCount; $x++)
 					{
-						if(strpos($tempSnippetParams[$x], '=', 0))
+						if(strpos($tempSnippetParams_array[$x], '=', 0))
 						{
-							if($parameterTemp= explode('=', $tempSnippetParams[$x],2))
+							if($parameterTemp= explode('=', $tempSnippetParams_array[$x],2))
 							{
 								$parameterTemp[0] = trim($parameterTemp[0]);
 								$parameterTemp[1] = trim($parameterTemp[1]);
-								$fp = strpos($parameterTemp[1], '`');
-								$lp = strrpos($parameterTemp[1], '`');
-								if(!($fp === false && $lp === false))
-								{
-									$parameterTemp[1]= substr($parameterTemp[1], $fp +1, $lp -1);
-								}
+								$parameterTemp[1] = trim($parameterTemp[1],'`');
 								$parameter[$parameterTemp[0]]= $parameterTemp[1];
 							}
 						}
