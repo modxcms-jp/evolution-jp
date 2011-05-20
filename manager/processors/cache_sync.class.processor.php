@@ -61,7 +61,7 @@ class synccache{
 		$deletedfilesincache = 0;
 		if (function_exists('glob')) {
 			// New and improved!
-			$files = glob(realpath($this->cachePath).'/*');
+			$files = glob(realpath($this->cachePath).'/*.pageCache.php');
 			$filesincache = count($files);
 			$deletedfiles = array();
 			while ($file = array_shift($files)) {
