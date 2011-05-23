@@ -393,6 +393,7 @@ class Mysqldumper {
 function import_sql($source)
 {
 	global $modx;
+	$source = str_replace(array("\r\n","\r"),"\n",$source);
 	$sql_array = preg_split('@;[ \t]*\n@', $source);
 	foreach($sql_array as $sql_entry)
 	{
