@@ -373,18 +373,15 @@ class DocumentParser {
     }
 
     function cleanDocumentIdentifier($qOrig) {
-        (!empty($qOrig)) or $qOrig = $this->config['site_start'];
-        $q = $qOrig;
-        /* First remove any / before or after */
-        if ($q[strlen($q) - 1] == '/') $q = substr($q, 0, -1);
-        if ($q[0] == '/')              $q = substr($q, 1);
+        if(empty($qOrig)) $qOrig = $this->config['site_start'];
+        $q = trim($qOrig,'/');
         /* Save path if any */
         /* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
         if ($this->config['use_alias_path'] == 1)
         {
-            $this->virtualDir= dirname($q);
-            $this->virtualDir= ($this->virtualDir == '.' ? '' : $this->virtualDir);
-            $q= end(explode('/', $q));
+            $this->virtualDir = dirname($q);
+            $this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+            $q = end(explode('/', $q));
         }
         else
         {
