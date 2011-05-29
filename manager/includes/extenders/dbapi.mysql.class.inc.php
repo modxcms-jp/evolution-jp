@@ -121,6 +121,10 @@ class DBAPI {
    }
 
    function escape($s) {
+      if (empty ($this->conn) || !is_resource($this->conn))
+      {
+         $this->connect();
+      }
       if (function_exists('mysql_set_charset') && $this->conn)
       {
          $s = mysql_real_escape_string($s, $this->conn);
