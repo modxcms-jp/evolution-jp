@@ -156,7 +156,7 @@ if (is_array($evtOut))
 	<p><?php echo $_lang['htmlsnippet_msg']?></p>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr><td align="left"><?php echo $_lang['htmlsnippet_name']?>:</td>
-			<td align="left"><span style="font-family:'Courier New', Courier, mono">{{</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:140px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">}}</span><span class="warning" id="savingMessage">&nbsp;</span></td></tr>
+			<td align="left"><span style="font-family:'Courier New', Courier, mono">{{</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">}}</span><span class="warning" id="savingMessage">&nbsp;</span></td></tr>
 		<tr><td align="left"><?php echo $_lang['htmlsnippet_desc']?>:&nbsp;&nbsp;</td>
 			<td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="description" type="text" maxlength="255" value="<?php echo htmlspecialchars($content['description'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td></tr>
 		<tr><td align="left"><?php echo $_lang['existing_category']?>:&nbsp;&nbsp;</td>
