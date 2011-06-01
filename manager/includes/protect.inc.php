@@ -12,8 +12,8 @@ function strip_magic_quotes($array)
 			if(!is_array($value)) $array[$key] = stripslashes($value);
 			else                  $array[$key] = array_map('strip_magic_quotes', $value);
 		}
-		return $array;
 	}
+	return $array;
 }
 $_GET     = strip_magic_quotes($_GET);
 $_POST    = strip_magic_quotes($_POST);
