@@ -746,7 +746,7 @@ class DocumentParser {
         if (preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches)) {
             $settingsCount= count($matches[1]);
             for ($i= 0; $i < $settingsCount; $i++) {
-                if (array_key_exists($matches[1][$i], $this->config))
+                if (isset($this->config[$matches[1][$i]]))
                     $replace[$i]= $this->config[$matches[1][$i]];
             }
 
@@ -791,7 +791,7 @@ class DocumentParser {
             for ($i= 0; $i < $cnt; $i++) {
                 $v= '';
                 $key= $matches[1][$i];
-                if (is_array($this->placeholders) && array_key_exists($key, $this->placeholders))
+                if (is_array($this->placeholders) && isset($this->placeholders[$key]))
                     $v= $this->placeholders[$key];
                 if ($v === '')
                     unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
@@ -882,7 +882,7 @@ class DocumentParser {
 				{
 					$snippets[$i]['name']    = $snip_name[$i];
 					$snippets[$i]['snippet'] = $this->snippetCache[$snip_name[$i]];
-					if(array_key_exists($snip_name[$i] . 'Props', $this->snippetCache))
+					if(isset($this->snippetCache[$snip_name[$i] . 'Props']))
 					{
 						$snippets[$i]['properties'] = $this->snippetCache[$snip_name[$i] . 'Props'];
 					}
@@ -920,7 +920,7 @@ class DocumentParser {
 				$parameter   = array ();
 				$snippetName = $this->currentSnippet = $snippets[$i]['name'];
 				// FIXME Undefined index: properties
-				if(array_key_exists('properties', $snippets[$i]))
+				if(isset($snippets[$i]['properties']))
 				{
 					$snippetProperties = $snippets[$i]['properties'];
 				}
@@ -1069,7 +1069,7 @@ class DocumentParser {
             $identifier = $this->cleanDocumentIdentifier($identifier);
             $method = $this->documentMethod;
         }
-        if($method == 'alias' && $this->config['use_alias_path'] && array_key_exists($identifier, $this->documentListing)) {
+        if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier])) {
             $method = 'id';
             $identifier = $this->documentListing[$identifier];
         }
@@ -1257,7 +1257,7 @@ class DocumentParser {
             // Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
             if ($this->config['use_alias_path'] == 1) {
                 $alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
-                if (array_key_exists($alias, $this->documentListing)) {
+                if (isset($this->documentListing[$alias])) {
                     $this->documentIdentifier= $this->documentListing[$alias];
                 } else {
                     $this->sendErrorPage();
@@ -2529,7 +2529,7 @@ class DocumentParser {
     function addEventListener($evtName, $pluginName) {
 	    if (!$evtName || !$pluginName)
 		    return false;
-	    if (!array_key_exists($evtName,$this->pluginEvent))
+	    if (!isset($this->pluginEvent[$evtName]))
 		    $this->pluginEvent[$evtName] = array();
 	    return array_push($this->pluginEvent[$evtName], $pluginName); // return array count
     }
