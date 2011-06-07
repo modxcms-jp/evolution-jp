@@ -240,7 +240,7 @@ class DocumentParser {
                 $rebuilt = $cache->buildCache($this);
                 $included = false;
                 if($rebuilt && $included= file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-                    $included= include MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
+                    $included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
                 }
                 if(!$included) {
                 $result= $this->db->query('SELECT setting_name, setting_value FROM ' . $this->getFullTableName('system_settings'));
@@ -595,7 +595,7 @@ class DocumentParser {
 
     function checkPublishStatus() {
         $cacheRefreshTime= 0;
-        @include $this->config["base_path"] . "assets/cache/sitePublishing.idx.php";
+        include_once($this->config["base_path"] . "assets/cache/sitePublishing.idx.php");
         $timeNow= time() + $this->config['server_offset_time'];
         if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0) {
             // now, check for documents that need publishing
@@ -1761,7 +1761,7 @@ class DocumentParser {
     }
 
     function getVersionData() {
-        include $this->config["base_path"] . "manager/includes/version.inc.php";
+        include_once($this->config["base_path"] . "manager/includes/version.inc.php");
         $v= array ();
         $v['version']= $modx_version;
         $v['branch']= $modx_branch;
@@ -1906,7 +1906,7 @@ class DocumentParser {
     }
 
     function getUserData() {
-        include $this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php";
+        include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
         return $tmpArray;
     }
 
