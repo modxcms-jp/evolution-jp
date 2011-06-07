@@ -1394,7 +1394,7 @@ class DocumentParser {
         static $documentMap_cache = array();
         if (!count($documentMap_cache)) {
             foreach ($this->documentMap as $document) {
-                foreach ($document as $p => $c) {
+                foreach ($document as $p => &$c) {
                     $documentMap_cache[$p][] = $c;
                 }
             }
@@ -1899,7 +1899,7 @@ class DocumentParser {
             return false;
         }
         $chunk= $this->getChunk($chunkName);
-        foreach ($chunkArr as $key => $value) {
+        foreach ($chunkArr as $key => &$value) {
             $chunk= str_replace($prefix . $key . $suffix, $value, $chunk);
         }
         return $chunk;
@@ -2037,7 +2037,7 @@ class DocumentParser {
 
                 // get default/built-in template variables
                 ksort($docRow);
-                foreach ($docRow as $key => $value) {
+                foreach ($docRow as $key => &$value) {
                     if ($tvidnames == "*" || in_array($key, $tvidnames))
                         array_push($tvs, array (
                             "name" => $key,
@@ -2118,7 +2118,7 @@ class DocumentParser {
 
             // get default/built-in template variables
             ksort($docRow);
-            foreach ($docRow as $key => $value) {
+            foreach ($docRow as $key => &$value) {
                 if ($idnames == "*" || in_array($key, $idnames))
                     array_push($result, array (
                         "name" => $key,
@@ -2177,7 +2177,7 @@ class DocumentParser {
             $subject= get_object_vars($subject);
         }
         if (is_array($subject)) {
-            foreach ($subject as $key => $value) {
+            foreach ($subject as $key => &$value) {
                 $this->toPlaceholder($key, $value, $prefix);
             }
         }
