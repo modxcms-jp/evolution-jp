@@ -1501,7 +1501,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1528,7 +1528,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1558,7 +1558,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1589,7 +1589,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
@@ -2032,21 +2032,21 @@ class DocumentParser {
                 $rs= $this->db->query($sql);
                 $limit= @ $this->db->getRecordCount($rs);
                 for ($x= 0; $x < $limit; $x++) {
-                    array_push($tvs, @ $this->db->getRow($rs));
+                    $tvs[] = @ $this->db->getRow($rs);
                 }
 
                 // get default/built-in template variables
                 ksort($docRow);
                 foreach ($docRow as $key => &$value) {
                     if ($tvidnames == "*" || in_array($key, $tvidnames))
-                        array_push($tvs, array (
+                        $tvs[] = array (
                             "name" => $key,
                             "value" => $value
-                        ));
+                        );
                 }
 
                 if (count($tvs))
-                    array_push($result, $tvs);
+                    $result[] = $tvs;
             }
             return $result;
         }
@@ -2113,17 +2113,17 @@ class DocumentParser {
                 $sql .= " ORDER BY $sort $dir ";
             $rs= $this->db->query($sql);
             for ($i= 0; $i < @ $this->db->getRecordCount($rs); $i++) {
-                array_push($result, @ $this->db->getRow($rs));
+                $result[] = @ $this->db->getRow($rs);
             }
 
             // get default/built-in template variables
             ksort($docRow);
             foreach ($docRow as $key => &$value) {
                 if ($idnames == "*" || in_array($key, $idnames))
-                    array_push($result, array (
+                    $result[] = array (
                         "name" => $key,
                         "value" => $value
-                    ));
+                    );
             }
 
             return $result;
@@ -2531,7 +2531,7 @@ class DocumentParser {
 		    return false;
 	    if (!isset($this->pluginEvent[$evtName]))
 		    $this->pluginEvent[$evtName] = array();
-	    return array_push($this->pluginEvent[$evtName], $pluginName); // return array count
+	    return $this->pluginEvent[$evtName][] = $pluginName; // return array count
     }
 
     # remove event listner - only for use within the current execution cycle
@@ -2639,7 +2639,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
@@ -2704,7 +2704,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
