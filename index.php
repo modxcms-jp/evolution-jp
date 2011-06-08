@@ -112,7 +112,7 @@ a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;paddin
 startCMSSession();
 
 // initiate a new document parser
-include_once(MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php');
+include_once(MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 
