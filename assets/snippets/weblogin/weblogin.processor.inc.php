@@ -191,6 +191,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
                                 ));
 
         // redirect to first authorized logout page
+        $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($loHomeId);
         $modx->sendRedirect($url,0,'REDIRECT_REFRESH');
         return;
@@ -431,6 +432,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
             $alias = substr($alias, 0, $aliasLength);
             $url = $modx->config['base_url'] . $alias;
         } elseif (intval($targetPageId)) {
+            $modx->config['xhtml_urls'] = '0';
             $url = preserveUrl($targetPageId);
         } else {
             $url = urldecode($_REQUEST['refurl']);
@@ -439,6 +441,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
     }
     else {
         // login home page
+        $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($id);
         $modx->sendRedirect($url);
     }
