@@ -9,20 +9,23 @@ $dbase        = $modx->db->config['dbase'];
 $table_prefix = $modx->db->config['table_prefix'];
 
 # process password activation
-    if ($isPWDActivate==1){
-        $id = $_REQUEST['wli'];
+    if ($isPWDActivate==1)
+    {
+        $id     = $_REQUEST['wli'];
         $pwdkey = $_REQUEST['wlk'];
 
         $sql = "SELECT wu.*
                 FROM $dbase.`".$table_prefix."web_users` wu
                 WHERE wu.id='".$modx->db->escape($id)."'";
-        $ds = $modx->db->query($sql);
+        $ds  = $modx->db->query($sql);
         $limit = $modx->recordCount($ds);
-        if($limit==1) {
+        if($limit==1)
+        {
             $row = $modx->db->getRow($ds,'assoc');
-            $username = $row["username"];
-            list($newpwd,$newpwdkey) = explode("|",$row['cachepwd']);
-            if($newpwdkey!=$pwdkey) {
+            $username = $row['username'];
+            list($newpwd, $newpwdkey) = explode('|',$row['cachepwd']);
+            if($newpwdkey != $pwdkey)
+            {
                 $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
                 return;
             }
@@ -50,13 +53,15 @@ $table_prefix = $modx->db->config['table_prefix'];
 
             if(!$ds || !$ds2) $output = webLoginAlert("Error while activating password.");
             else if(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
-            else {
+            else
+            {
                 // redirect to password activation notification page
                 $url = $modx->makeURL($pwdActId);
                 $modx->sendRedirect($url,0,'REDIRECT_REFRESH');
             }
         }
-        else {
+        else
+        {
             // error
             $output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
         }
@@ -70,8 +75,8 @@ $table_prefix = $modx->db->config['table_prefix'];
         $email = $_POST['txtwebemail'];
         $webpwdreminder_message = $modx->config['webpwdreminder_message'];
         $emailsubject = $modx->config['emailsubject'];
-        $emailsender = $modx->config['emailsender'];
-        $site_name = $modx->config['site_name'];
+        $emailsender  = $modx->config['emailsender'];
+        $site_name    = $modx->config['site_name'];
         // lookup account
         $sql = "SELECT wu.*, wua.fullname
                 FROM $dbase.`".$table_prefix."web_users` wu
