@@ -5,8 +5,8 @@
 
 defined('IN_PARSER_MODE') or die();
 
-$dbase = $modx->dbConfig['dbase'];
-$table_prefix = $modx->dbConfig['table_prefix'];
+$dbase        = $modx->db->config['dbase'];
+$table_prefix = $modx->db->config['table_prefix'];
 
 # process password activation
     if ($isPWDActivate==1){
@@ -19,7 +19,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
         $ds = $modx->db->query($sql);
         $limit = $modx->recordCount($ds);
         if($limit==1) {
-            $row = $modx->fetchRow($ds);
+            $row = $modx->db->getRow($ds,'assoc');
             $username = $row["username"];
             list($newpwd,$newpwdkey) = explode("|",$row['cachepwd']);
             if($newpwdkey!=$pwdkey) {
