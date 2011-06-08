@@ -6,7 +6,7 @@
 defined('IN_PARSER_MODE') or die();
 
 # load tpl
-if(is_numeric($tpl)) $tpl = ($doc=$modx->getDocuments($tpl)) ? $doc['content']:"Document '$tpl' not found.";
+if(is_numeric($tpl)) $tpl = ($doc=$modx->getDocument($tpl)) ? $doc['content']:"Document '$tpl' not found.";
 else if($tpl) $tpl = ($chunk=$modx->getChunk($tpl)) ? $chunk:"Chunk '$tpl' not found.";
 if(!$tpl) $tpl = getWebLogintpl();
 
