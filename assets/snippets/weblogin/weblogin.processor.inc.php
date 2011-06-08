@@ -126,11 +126,11 @@ $table_prefix = $modx->db->config['table_prefix'];
 			$sent = $mail->Send() ;         //ignore mail errors in this cas
             if(!$sent) {
                 // error
-                $output =  webLoginAlert('Error while sending mail to [+email+]. Please contact the Site Administrator',array('email'=>$email));
+                $output =  webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator",array('email'=>$email));
                 return;
             }
             
-            if(!$pwdReqId) $output = webLoginAlert('Please check your email account ([+email+]) for login instructions.',array('email'=>$email));
+            if(!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.",array('email'=>$email));
             else {
                 // redirect to password request notification page
                 $url = $modx->makeURL($pwdReqId);
