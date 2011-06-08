@@ -66,7 +66,7 @@ $table_prefix = $modx->db->config['table_prefix'];
 
 # process password reminder
     if ($isPWDReminder==1) {
-    include_once dirname(__FILE__)."/../../../manager/includes/controls/modxmailer.inc.php";
+    include_once MODX_MANAGER_PATH . 'includes/controls/modxmailer.inc.php';
         $email = $_POST['txtwebemail'];
         $webpwdreminder_message = $modx->config['webpwdreminder_message'];
         $emailsubject = $modx->config['emailsubject'];
