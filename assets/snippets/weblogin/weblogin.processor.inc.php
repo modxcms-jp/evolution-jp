@@ -115,7 +115,7 @@ $table_prefix = $modx->db->config['table_prefix'];
 			$mail->From		= $emailsender;
 			$mail->FromName	= $site_name;
 
-			$mail->Subject	=  "New Password Activation for $site_name";
+			$mail->Subject	=  $emailsubject;
 			$mail->Body		= $message;
 			$mail->AddAddress($email);
 			$sent = $mail->Send() ;         //ignore mail errors in this cas
