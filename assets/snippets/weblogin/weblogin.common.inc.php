@@ -26,6 +26,7 @@
     // show javascript alert    
     function webLoginAlert($msg){
     	global $modx;
+    	$msg = lang($msg);
         return "<script>window.setTimeout(\"alert('".addslashes($modx->db->escape($msg))."')\",10);</script>";
     }
 
@@ -103,5 +104,23 @@
 		}
 		return $modx->makeUrl($docid, $alias, $url);
 	}
-
+	
+	function lang($key,$ph=array())
+	{
+		$_lang['Invalid password activation key. Your password was NOT activated.'] = 'アクティベーションキーが無効になっています。';
+		$_lang['Your new password was successfully activated.'] = 'アクティベーションしました。新しいパスワードでログインできます。';
+		$_lang['Incorrect username or password entered!'] = 'メールアドレスまたはパスワードが間違っています。';
+		$_lang['You are blocked and cannot log in!'] = 'メールアドレスまたはパスワードが間違っています。';
+		
+		$value = ($_lang[$key]) ? $_lang[$key] : $key;
+		if(!empty($ph))
+		{
+			foreach($ph as $k=>$v)
+			{
+				$k = '[+' . $k . '+]';
+				$value = str_replace($k,$v,$value);
+			}
+		}
+		return $value;
+	}
 ?>
