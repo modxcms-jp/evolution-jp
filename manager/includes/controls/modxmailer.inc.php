@@ -67,7 +67,7 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
-	    if(function_exists(mb_language))
+	    if(extension_loaded('mbstring'))
 		{
 			mb_language($this->mb_language);
 			mb_internal_encoding($modx->config['modx_charset']);
