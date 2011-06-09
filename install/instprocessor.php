@@ -531,7 +531,7 @@ if (isset ($_POST['plugin']) || $installData)
 				// remove installer docblock
 				$plugin = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugin, 1);
 				$plugin = modx_escape($plugin);
-				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'", $sqlParser->conn);
+				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name' AND disabled='0'", $sqlParser->conn);
 				if(mysql_num_rows($rs))
 				{
 					$insert = true;
@@ -558,6 +558,7 @@ if (isset ($_POST['plugin']) || $installData)
 					}
 					if($insert === true)
 					{
+						if($props) $properties = $props;
 						if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn))
 						{
 							echo "<p>".mysql_error()."</p>";
