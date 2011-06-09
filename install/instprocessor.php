@@ -574,47 +574,57 @@ if (isset ($_POST['plugin']) || $installData) {
 }
 
 // Install Snippets
-if (isset ($_POST['snippet']) || $installData) {
+if (isset ($_POST['snippet']) || $installData)
+{
 	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
 	$selSnips = $_POST['snippet'];
-    foreach ($moduleSnippets as $k=>$moduleSnippet) {
-        $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
-        if(in_array($k, $selSnips) || $installSample) {
-            $name = modx_escape($moduleSnippet[0]);
-            $desc = modx_escape($moduleSnippet[1]);
-            $filecontent = $moduleSnippet[2];
-            $properties = modx_escape($moduleSnippet[3]);
-            $category = modx_escape($moduleSnippet[4]);
-		if (!file_exists($filecontent))
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else {			
-
-			// Create the category if it does not already exist
-                $category = getCreateDbCategory($category, $sqlParser);
-			
-			$snippet = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent)));
-			// remove installer docblock
-			$snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $snippet, 1);
-                $snippet = modx_escape($snippet);
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
-			if (mysql_num_rows($rs)) {
-			    $row = mysql_fetch_assoc($rs);
-			    $props = propUpdate($properties,$row['properties']);
-			    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_snippets` SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+	foreach ($moduleSnippets as $k=>$moduleSnippet)
+	{
+		$installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
+		if(in_array($k, $selSnips) || $installSample)
+		{
+			$name = modx_escape($moduleSnippet[0]);
+			$desc = modx_escape($moduleSnippet[1]);
+			$filecontent = $moduleSnippet[2];
+			$properties  = modx_escape($moduleSnippet[3]);
+			$category    = modx_escape($moduleSnippet[4]);
+			if (!file_exists($filecontent))
+			{
+				echo '<p>&nbsp;&nbsp;' . $name . ': <span class="notok">' . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . '.</span></p>';
+			}
+			else
+			{
+				// Create the category if it does not already exist
+				$category = getCreateDbCategory($category, $sqlParser);
+				
+				$snippet = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent)));
+				// remove installer docblock
+				$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
+				$snippet = modx_escape($snippet);
+				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
+				if (mysql_num_rows($rs))
+				{
+					$row = mysql_fetch_assoc($rs);
+					$props = propUpdate($properties,$row['properties']);
+					if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_snippets` SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-			} else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+				else
+				{
+					if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 			}
 		}
 	}
-    }
 }
 
 // install data
@@ -623,7 +633,8 @@ if ($installData && $moduleSQLDataFile) {
     $sqlParser->process($moduleSQLDataFile);
 //	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
     // display database results
-    if ($sqlParser->installFailed == true) {
+    if ($sqlParser->installFailed == true)
+    {
         $errors += 1;
         echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
         echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
@@ -634,7 +645,9 @@ if ($installData && $moduleSQLDataFile) {
         echo "</p>";
         echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
         return;
-    } else {
+    }
+    else
+    {
         echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
     }
 }
