@@ -10,7 +10,7 @@ function strip_magic_quotes($array)
 		foreach ($array as $key=>$value)
 		{
 			if(!is_array($value)) $array[$key] = stripslashes($value);
-			else                  $array[$key] = array_map('strip_magic_quotes', $value);
+			else                  $array[$key] = $value;
 		}
 	}
 	return $array;
