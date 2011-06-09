@@ -751,7 +751,7 @@ function propUpdate($new,$old)
 	{
 		$return .= "&$k=$v ";
 	}
-	return $return;
+	return modx_escape($return);
 }
 
 function getCreateDbCategory($category, $sqlParser) {
