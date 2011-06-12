@@ -104,7 +104,7 @@ switch ($_REQUEST['op']) {
 				if ($cp) $modx->dbQuery('UPDATE '.$tbl_site_plugins.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $plids).') AND moduleguid=\''.$guid.'\'');
 				if ($cs) $modx->dbQuery('UPDATE '.$tbl_site_snippets.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $snids).') AND moduleguid=\''.$guid.'\'');
 				// reset cache
-				include_once $base_path."/manager/processors/cache_sync.class.processor.php";
+				include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
 				$sync = new synccache();
 				$sync->setCachepath("../assets/cache/");
 				$sync->setReport(false);

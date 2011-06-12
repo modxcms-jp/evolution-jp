@@ -233,9 +233,9 @@ class DocumentParser {
                 $included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
             }
             if (!$included || !is_array($this->config) || empty ($this->config)) {
-                include_once MODX_BASE_PATH . "/manager/processors/cache_sync.class.processor.php";
+                include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
                 $cache = new synccache();
-                $cache->setCachepath(MODX_BASE_PATH . "/assets/cache/");
+                $cache->setCachepath(MODX_BASE_PATH . "assets/cache/");
                 $cache->setReport(false);
                 $rebuilt = $cache->buildCache($this);
                 $included = false;
@@ -1304,7 +1304,7 @@ class DocumentParser {
                     $this->sendErrorPage();
                 } else {
                     // Inculde the necessary files to check document permissions
-                    include_once ($this->config['base_path'] . '/manager/processors/user_documents_permissions.class.php');
+                    include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
                     $udperms= new udperms();
                     $udperms->user= $this->getLoginUserID();
                     $udperms->document= $this->documentIdentifier;
