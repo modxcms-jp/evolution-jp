@@ -969,13 +969,13 @@ class DocumentParser {
 		return $documentSource;
 	}
 
-    function makeFriendlyURL($pre, $suff, $alias) {
-        $Alias = explode('/',$alias);
-        $alias = array_pop($Alias);
-        $dir = implode('/', $Alias);
-        unset($Alias);
-//        if(strstr($alias, '.') !== false) $suff = '';//yama
-        return ($dir != '' ? "$dir/" : '') . $pre . $alias . $suff;
+    function makeFriendlyURL($pre, $suff, $path) {
+        $elements = explode('/',$path);
+        $alias    = array_pop($elements);
+        $dir      = implode('/', $elements);
+        unset($elements);
+//        if(strpos($alias, '.') !== false) $suff = '';
+        return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
     function rewriteUrls($documentSource) {
