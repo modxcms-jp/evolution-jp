@@ -89,6 +89,8 @@ class DocManagerBackend {
     			}
     		}
     		$this->logDocumentChange('sortmenu');
+    		
+			$this->modx->clearCache();
     	}
     	$this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_updated'];
     	$this->dm->ph['sort.save'] = 'none';
