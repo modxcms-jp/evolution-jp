@@ -506,7 +506,7 @@ class DocumentParser {
         }
 
         // check for non-cached snippet output
-        if (strpos($this->documentOutput, '[!') > -1) {
+        if (strpos($this->documentOutput, '[!') !== false) {
             $this->documentOutput= str_replace('[!', '[[', $this->documentOutput);
             $this->documentOutput= str_replace('!]', ']]', $this->documentOutput);
 
