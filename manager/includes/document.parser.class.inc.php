@@ -1159,17 +1159,17 @@ class DocumentParser {
             $source= $this->documentOutput;
 
             // combine template and document variables
-            $source= $this->mergeDocumentContent($source);
+            if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
             // replace settings referenced in document
             $source= $this->mergeSettingsContent($source);
             // replace HTMLSnippets in document
-            $source= $this->mergeChunkContent($source);
-	    // insert META tags & keywords
-	    $source= $this->mergeDocumentMETATags($source);
+            if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
+            // insert META tags & keywords
+            $source= $this->mergeDocumentMETATags($source);
             // find and merge snippets
             $source= $this->evalSnippets($source);
             // find and replace Placeholders (must be parsed last) - Added by Raymond
-            $source= $this->mergePlaceholderContent($source);
+            if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
             if ($this->dumpSnippets == 1) {
                 echo "</div></fieldset><br />";
             }
