@@ -1667,24 +1667,16 @@ class DocumentParser {
     }
 
     function clearCache() {
-        $basepath= $this->config["base_path"] . "assets/cache";
-        if (@ $handle= opendir($basepath)) {
-            $filesincache= 0;
-            $deletedfilesincache= 0;
-            while (false !== ($file= readdir($handle))) {
-                if ($file != "." && $file != "..") {
-                    $filesincache += 1;
-                    if (preg_match("/\.pageCache/", $file)) {
-                        $deletedfilesincache += 1;
-                        unlink($basepath . "/" . $file);
-                    }
-                }
-            }
-            closedir($handle);
-            return true;
-        } else {
-            return false;
-        }
+    	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
+    	{
+			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
+			$sync = new synccache();
+			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+			$sync->setReport(false);
+			$sync->emptyCache(); // first empty the cache
+			return true;
+		}
+		else return false;
     }
 
     function makeUrl($id, $alias= '', $args= '', $scheme= '') {
