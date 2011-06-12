@@ -974,7 +974,7 @@ class DocumentParser {
         $alias    = array_pop($elements);
         $dir      = implode('/', $elements);
         unset($elements);
-//        if(strpos($alias, '.') !== false) $suff = '';
+        if(strpos($alias, '.') !== false) $suff = '';
         return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
