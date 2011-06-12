@@ -388,8 +388,8 @@ class DocumentParser {
             $this->virtualDir= '';
         }
         
-        $q = str_replace($this->config['friendly_url_prefix'], '', $q);
-        $q = str_replace($this->config['friendly_url_suffix'], '', $q);
+        $q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
+        $q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
         if (is_numeric($q) && !$this->documentListing[$q])
         { /* we got an ID returned, check to make sure it's not an alias */
             /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
