@@ -3,23 +3,6 @@
  *    Protect against some common security flaws
  */
 
-function strip_magic_quotes($array)
-{
-	if(get_magic_quotes_gpc())
-	{
-		foreach ($array as $key=>$value)
-		{
-			if(!is_array($value)) $array[$key] = stripslashes($value);
-			else                  $array[$key] = $value;
-		}
-	}
-	return $array;
-}
-$_GET     = strip_magic_quotes($_GET);
-$_POST    = strip_magic_quotes($_POST);
-$_COOKIE  = strip_magic_quotes($_COOKIE);
-$_REQUEST = strip_magic_quotes($_REQUEST);
-
 function FindDangerValue($value, $found = false) {
 	if($found || (strpos(str_replace('.', '', serialize($value)), '22250738585072011') !== false))
 	{
