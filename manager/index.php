@@ -85,7 +85,7 @@ if (version_compare(phpversion(), "5.3") < 0) {
     @set_magic_quotes_runtime(0);
 
     // include_once the magic_quotes_gpc workaround
-    include_once "quotes_stripper.inc.php";
+    if(get_magic_quotes_gpc()) include_once "quotes_stripper.inc.php";
 }
 
 if (!defined("ENT_COMPAT")) define("ENT_COMPAT", 2);
