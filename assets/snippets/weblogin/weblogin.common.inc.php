@@ -24,9 +24,9 @@
     }
 
     // show javascript alert    
-    function webLoginAlert($msg){
+    function webLoginAlert($msg, $ph=array()){
     	global $modx;
-    	$msg = lang($msg);
+    	$msg = lang($msg,$ph);
         return "<script>window.setTimeout(\"alert('".addslashes($modx->db->escape($msg))."')\",10);</script>";
     }
 
