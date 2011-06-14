@@ -585,15 +585,13 @@ function saveUserSettings($id) {
 
 	$usrTable = $modx->getFullTableName('user_settings');
 
-	mysql_query('DELETE FROM '.$usrTable.' WHERE user='.$id);
-
 	$savethese = array();
 	foreach ($settings as $k => $v) {
 	    if(is_array($v)) $v = implode(',', $v);
 	    $savethese[] = '('.$id.', \''.$k.'\', \''.$modx->db->escape($v).'\')';
 	}
 
-	$sql = 'INSERT INTO '.$usrTable.' (user, setting_name, setting_value)
+	$sql = 'REPLACE INTO '.$usrTable.' (user, setting_name, setting_value)
 		VALUES '.implode(', ', $savethese);
 	if (!@$rs = $modx->db->query($sql)) {
 		die('Failed to update user settings!');
