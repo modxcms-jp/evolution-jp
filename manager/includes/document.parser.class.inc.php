@@ -1161,13 +1161,13 @@ class DocumentParser {
             // combine template and document variables
             if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
             // replace settings referenced in document
-            $source= $this->mergeSettingsContent($source);
+            if(strpos($source,'[(')!==false) $source= $this->mergeSettingsContent($source);
             // replace HTMLSnippets in document
             if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
             // insert META tags & keywords
             $source= $this->mergeDocumentMETATags($source);
             // find and merge snippets
-            $source= $this->evalSnippets($source);
+            if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
             // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
             if ($this->dumpSnippets == 1) {
@@ -1179,7 +1179,7 @@ class DocumentParser {
                 if ($st != $et)
                     $passes++; // if content change then increase passes because
             } // we have not yet reached maxParserPasses
-            $source = $this->rewriteUrls($source);//yama
+            if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
         }
         return $source;
     }
