@@ -160,7 +160,8 @@ class DBAPI {
          $totaltime = $tend - $tstart;
          $modx->queryTime = $modx->queryTime + $totaltime;
          if ($modx->dumpSQL) {
-            $modx->queryCode .= "<fieldset style='text-align:left'><legend>Query " . ($this->executedQueries + 1) . " - " . sprintf("%2.4f s", $totaltime) . "</legend>" . $sql . "</fieldset>";
+         $backtraces = debug_backtrace();
+            $modx->queryCode .= '<fieldset style="text-align:left"><legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>' . $sql . '<br />src : ' . $backtraces[0]['file'] . '<br />line : ' . $backtraces[0]['line'] . '</fieldset>';
          }
          $modx->executedQueries = $modx->executedQueries + 1;
          return $result;
