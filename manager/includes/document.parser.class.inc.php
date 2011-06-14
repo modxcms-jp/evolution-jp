@@ -961,7 +961,7 @@ class DocumentParser {
 				$executedSnippets[$i] = $this->evalSnippet($snippets[$i]['snippet'], $parameter);
 				if($this->dumpSnippets == 1)
 				{
-					echo "<fieldset><legend><b>{$snippetName}</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset><br />";
+					echo "<fieldset><legend><b>{$snippetName}</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset>";
 				}
 				$documentSource = str_replace('[[' . $snippetName . $currentSnippetParams . ']]', $executedSnippets[$i], $documentSource);
 			}
@@ -2759,7 +2759,7 @@ class DocumentParser {
             $tend= $this->getMicroTime();
             $totaltime= $tend - $tstart;
             if ($this->dumpSQL) {
-                $this->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection to %s was created in %2.4f s", $dbase, $totaltime) . "</fieldset><br />";
+                $this->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection to %s was created in %2.4f s", $dbase, $totaltime) . "</fieldset>";
             }
             $this->queryTime= $this->queryTime + $totaltime;
         }
