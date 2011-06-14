@@ -436,6 +436,7 @@ class DocumentParser {
     }
 
     function checkCache($id) {
+        if(isset($this->config['cacheable']) && $this->config['cacheable'] == 0) return '';
         $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
