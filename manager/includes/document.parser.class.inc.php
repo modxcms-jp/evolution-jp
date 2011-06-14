@@ -1171,7 +1171,7 @@ class DocumentParser {
             // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
             if ($this->dumpSnippets == 1) {
-                echo "</div></fieldset><br />";
+                echo "</div></fieldset>";
             }
             if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1)) {
                 // check if source length was changed
