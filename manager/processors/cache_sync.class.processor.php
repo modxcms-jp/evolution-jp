@@ -59,15 +59,19 @@ class synccache{
 		}
 		$filesincache = 0;
 		$deletedfilesincache = 0;
-		$files = glob(realpath($this->cachePath).'/*.pageCache.php');
-		$filesincache = count($files);
+		$pattern = realpath($this->cachePath).'/*.pageCache.php';
+		$files = glob($pattern,GLOB_NOCHECK);
+		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
 		$deletedfiles = array();
-		while ($file = array_shift($files)) {
-			$name = basename($file);
-			if (preg_match('/\.pageCache/',$name) && !in_array($name, $deletedfiles)) {
-				$deletedfilesincache++;
-				$deletedfiles[] = $name;
-				unlink($file);
+		if(is_array($files) && 0 < $filesincache)
+		{
+			while ($file = array_shift($files)) {
+				$name = basename($file);
+				if (preg_match('/\.pageCache/',$name) && !in_array($name, $deletedfiles)) {
+					$deletedfilesincache++;
+					$deletedfiles[] = $name;
+					unlink($file);
+				}
 			}
 		}
 
