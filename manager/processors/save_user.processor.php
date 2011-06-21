@@ -569,7 +569,7 @@ function saveUserSettings($id) {
 	$settings= array ();
 	foreach ($_POST as $n => $v) {
 		if(is_array($v)) $v = implode(',', $v);
-		if (in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
+		if(in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
 
 		//if ($config[$n] == $v) continue; // ignore commonalities in base config
 
@@ -585,13 +585,14 @@ function saveUserSettings($id) {
 
 	$usrTable = $modx->getFullTableName('user_settings');
 
+	mysql_query('DELETE FROM '.$usrTable.' WHERE user='.$id);
+
 	$savethese = array();
 	foreach ($settings as $k => $v) {
-	    if(is_array($v)) $v = implode(',', $v);
 	    $savethese[] = '('.$id.', \''.$k.'\', \''.$modx->db->escape($v).'\')';
 	}
 
-	$sql = 'REPLACE INTO '.$usrTable.' (user, setting_name, setting_value)
+	$sql = 'INSERT INTO '.$usrTable.' (user, setting_name, setting_value)
 		VALUES '.implode(', ', $savethese);
 	if (!@$rs = $modx->db->query($sql)) {
 		die('Failed to update user settings!');
