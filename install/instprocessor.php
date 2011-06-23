@@ -143,7 +143,6 @@ if(!function_exists('parseProperties')) {
 }
 
 // check status of Inherit Parent Template plugin
-$auto_template_logic = 'sibling';
 if ($installMode != 0)
 {
 	$rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
@@ -174,6 +173,7 @@ if ($installMode != 0)
 		}
 	}
 }
+if(!isset($auto_template_logic)) $auto_template_logic = 'sibling';
 
 // open db connection
 $setupPath = realpath(dirname(__FILE__));
