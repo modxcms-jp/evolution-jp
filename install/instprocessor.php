@@ -143,27 +143,36 @@ if(!function_exists('parseProperties')) {
 }
 
 // check status of Inherit Parent Template plugin
-$auto_template_logic = 'parent';
-if ($installMode != 0) {
-    $rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
-    $row = mysql_fetch_row($rs);
-    if(!$row) {
-        // not installed
-        $auto_template_logic = 'system';
-    } else {
-        if($row[1] == 1) {
-            // installed but disabled
-            $auto_template_logic = 'system';
-        } else {
-            // installed, enabled .. see how it's configured
-            $properties = parseProperties($row[0]);
-            if(isset($properties['inheritTemplate'])) {
-                if($properties['inheritTemplate'] == 'From First Sibling') {
-                    $auto_template_logic = 'sibling';
-                }
-            }
-        }
-    }
+$auto_template_logic = 'sibling';
+if ($installMode != 0)
+{
+	$rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
+	$row = mysql_fetch_assoc($rs);
+	if(!$row)
+	{
+		// not installed
+		$auto_template_logic = 'sibling';
+	}
+	else
+	{
+		if($row['disabled'] == 1)
+		{
+			// installed but disabled
+			$auto_template_logic = 'sibling';
+		}
+		else
+		{
+			// installed, enabled .. see how it's configured
+			$properties = parseProperties($row['properties']);
+			if(isset($properties['inheritTemplate']))
+			{
+				if($properties['inheritTemplate'] == 'From First Sibling')
+				{
+					$auto_template_logic = 'sibling';
+				}
+			}
+		}
+	}
 }
 
 // open db connection

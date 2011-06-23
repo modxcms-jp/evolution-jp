@@ -163,10 +163,10 @@ function run_update($version)
 		$rs = $modx->db->query('SELECT properties, disabled FROM ' . $modx->getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
 		$row = mysql_fetch_row($rs);
 		global $auto_template_logic;
-		if(!$row) $auto_template_logic = 'system'; // not installed
+		if(!$row || !isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling'; // not installed
 		else
 		{
-			if($row[1] == 1) $auto_template_logic = 'system'; // installed but disabled
+			if($row[1] == 1) $auto_template_logic = 'sibling'; // installed but disabled
 			else
 			{
 				// installed, enabled .. see how it's configured
