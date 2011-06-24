@@ -436,7 +436,7 @@ class DocumentParser {
     }
 
     function checkCache($id) {
-        if(isset($this->config['cacheable']) && $this->config['cacheable'] == 0) return '';
+        if(isset($this->config['cacheable']) && $this->config['cacheable'] == 0) return ''; // jp-edition only
         $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
@@ -975,7 +975,7 @@ class DocumentParser {
         $alias    = array_pop($elements);
         $dir      = implode('/', $elements);
         unset($elements);
-        if(strpos($alias, '.') !== false) $suff = '';
+        if((strpos($alias, '.') !== false) && (isset($this->config['smart_suffix']) && $this->config['smart_alias']==1)) $suff = ''; // jp-edition only
         return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
