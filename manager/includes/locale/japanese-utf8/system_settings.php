@@ -36,58 +36,43 @@ function set_default($default_value,$current_value,$flag = false)
 function run_update($version)
 {
 	global $modx;
-
+	
 	$version = intval($version);
 	
-	update_custom_contenttype();
+	if($version < 100)
+	{
+		update_tbl_system_eventnames('100');
+	}
+	
+	if($version < 102)
+	{
+		update_tbl_system_eventnames('102');
+	}
+	
+	if($version < 104)
+	{
+		update_tbl_user_roles();
+	}
 	
 	if($version < 105)
 	{
-		$tbl_system_eventnames   = $modx->getFullTableName('system_eventnames');
-		$tbl_user_attributes     = $modx->getFullTableName('user_attributes');
-		$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
-		$tbl_member_groups       = $modx->getFullTableName('member_groups');
-		$tbl_web_groups          = $modx->getFullTableName('web_groups');
-		$tbl_system_settings     = $modx->getFullTableName('system_settings');
-		
-		$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
-		          ('100', 'OnStripAlias',             '1','Documents'),
-		          ('201', 'OnManagerWelcomePrerender','2',''),
-		          ('202', 'OnManagerWelcomeHome',     '2',''),
-		          ('203', 'OnManagerWelcomeRender',   '2',''),
-		          ('204', 'OnBeforeDocDuplicate',     '1','Documents'),
-		          ('205', 'OnDocDuplicate',           '1','Documents')";
-		$modx->db->query($sql);
-		
-		$sql = "ALTER TABLE {$tbl_user_attributes} 
-		        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
-		        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-		        MODIFY COLUMN `comment` text;";
-		$modx->db->query($sql);
-		
-		$sql = "ALTER TABLE {$tbl_web_user_attributes} 
-		        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
-		        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-		        MODIFY COLUMN `comment` text;";
-		$modx->db->query($sql);
-		
-/*
-		$sql = "ALTER TABLE {$tbl_member_groups} ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`)";
-		$modx->db->query($sql);
-		
-		$sql = "ALTER TABLE {$tbl_web_groups} ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)";
-		$modx->db->query($sql);
-		
-*/
-		$sql = "UPDATE {$tbl_system_settings} SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
-		$modx->db->query($sql);
-		
-		set_remove_locks_perm();
-		set_default_template_method();
+		update_tbl_system_eventnames('105');
+		update_tbl_user_attributes();
+		update_tbl_web_user_attributes();
+		update_tbl_member_groups();
+		update_tbl_web_groups();
+		update_tbl_system_settings();
+	}
+	
+	if($version < 106)
+	{
+		update_config_custom_contenttype();
+		update_config_default_template_method();
+		update_tbl_member_groups();
 	}
 }
 
-function update_custom_contenttype()
+function update_config_custom_contenttype()
 {
 	global $modx,$custom_contenttype;
 	
@@ -101,7 +86,7 @@ function update_custom_contenttype()
 	}
 }
 
-function set_default_template_method()
+function update_config_default_template_method()
 {
 	global $modx,$auto_template_logic;
 	
@@ -132,11 +117,11 @@ function set_default_template_method()
 	}
 }
 
-function set_remove_locks_perm()
+function update_tbl_user_roles()
 {
 	global $modx;
-	
 	$tbl_user_roles = $modx->getFullTableName('user_roles');
+	
 	$data = $modx->db->getTableMetaData($tbl_user_roles);
 	if($data['remove_locks'] == false)
 	{
@@ -145,4 +130,104 @@ function set_remove_locks_perm()
 		$sql = "UPDATE {$tbl_user_roles} SET `remove_locks` = '1' WHERE `id` =1";
 		$modx->db->query($sql);
 	}
+}
+
+function update_tbl_member_groups()
+{
+	global $modx;
+	$tbl_member_groups = $modx->getFullTableName('member_groups');
+	
+	$sql = "SHOW INDEX FROM {$tbl_member_groups}";
+	$rs = $modx->db->query($sql);
+	$find_index = 'notfind';
+	while($row = $modx->db->getRow($rs))
+	{
+		if($row['Key_name']=='ix_group_member') $find_index = 'find';
+	}
+	if($find_index=='notfind')
+	{
+		$sql = "ALTER TABLE {$tbl_member_groups} ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`)";
+		$modx->db->query($sql);
+	}
+}
+
+function update_tbl_web_groups()
+{
+	global $modx;
+	$tbl_web_groups = $modx->getFullTableName('web_groups');
+	
+	$sql = "SHOW INDEX FROM {$tbl_web_groups}";
+	$rs = $modx->db->query($sql);
+	$find_index = 'notfind';
+	while($row = $modx->db->getRow($rs))
+	{
+		if($row['Key_name']=='ix_group_user') $find_index = 'find';
+	}
+	if($find_index=='notfind')
+	{
+		$sql = "ALTER TABLE {$tbl_web_groups} ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)";
+		$modx->db->query($sql);
+	}
+}
+
+function update_tbl_system_eventnames($version)
+{
+	global $modx;
+	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+	
+	switch($version)
+	{
+		case '100':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('100', 'OnStripAlias',             '1','Documents'),
+			          ('201', 'OnManagerWelcomePrerender','2',''),
+			          ('202', 'OnManagerWelcomeHome',     '2',''),
+			          ('203', 'OnManagerWelcomeRender',   '2','')";
+			break;
+		case '102':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('204', 'OnBeforeDocDuplicate',     '1','Documents'),
+			          ('205', 'OnDocDuplicate',           '1','Documents')";
+			break;
+		case '105':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('9','OnWebChangePassword','3',''),
+			          ('14','OnManagerSaveUser','2',''),
+			          ('16','OnManagerChangePassword','2','')";
+			break;
+	}
+	$modx->db->query($sql);
+}
+
+function update_tbl_user_attributes()
+{
+	global $modx;
+	$tbl_user_attributes     = $modx->getFullTableName('user_attributes');
+	
+	$sql = "ALTER TABLE {$tbl_user_attributes} 
+	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `comment` text;";
+	$modx->db->query($sql);
+}
+
+function update_tbl_web_user_attributes()
+{
+	global $modx;
+	$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
+	
+	$sql = "ALTER TABLE {$tbl_web_user_attributes} 
+	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `comment` text;";
+	$modx->db->query($sql);
+}
+
+function update_tbl_system_settings()
+{
+	global $modx;
+	$tbl_system_settings     = $modx->getFullTableName('system_settings');
+	
+	$sql = "UPDATE {$tbl_system_settings} SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
+	$modx->db->query($sql);
 }
