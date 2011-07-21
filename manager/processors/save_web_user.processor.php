@@ -466,14 +466,15 @@ function saveUserSettings($id) {
 		"allowed_days"
 	);
 
+	mysql_query("DELETE FROM $dbase.`" . $table_prefix . "web_user_settings` WHERE webuser='$id'");
+
 	for ($i = 0; $i < count($settings); $i++) {
 		$n = $settings[$i];
 		$vl = $_POST[$n];
 		if (is_array($vl))
 			$vl = implode(",", $vl);
 		if ($vl != '')
-			$vl = $modx->db->escape($vl);
-			mysql_query("REPLACE INTO {$dbase}.`{$table_prefix}web_user_settings` (webuser,setting_name,setting_value) VALUES({$id},'{$n}','{$vl}')");
+			mysql_query("INSERT INTO $dbase.`" . $table_prefix . "web_user_settings` (webuser,setting_name,setting_value) VALUES($id,'$n','" . $modx->db->escape($vl) . "')");
 	}
 }
 
