@@ -93,7 +93,7 @@ function fetch_rss ($url) {
     // initialize constants
     init();
     
-    if ( !isset($url) ) {
+    if ( !isset($url) || empty($url)) {
         error("fetch_rss called without a url");
         return false;
     }
