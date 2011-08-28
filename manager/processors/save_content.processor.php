@@ -58,21 +58,30 @@ $tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentv
 $tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 $tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
 
-$actionToTake = "new";
-if ($_POST['mode'] == '73' || $_POST['mode'] == '27') {
-	$actionToTake = "edit";
+switch($_POST['mode'])
+{
+	case '73':
+	case '27':
+		$actionToTake = 'edit';
+		break;
+	default:
+		$actionToTake = 'new';
 }
 
 // friendly url alias checks
-if ($friendly_urls) {
-	// auto assign alias
-	if (!$alias && $automatic_alias) {
+if ($modx->config['friendly_urls'])
+{	// auto assign alias
+	if (!$alias && $modx->config['automatic_alias'])
+	{
 		$alias = strtolower($modx->stripAlias(trim($pagetitle)));
-		if(!$allow_duplicate_alias) {
-			if ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND alias='$alias'") != 0) {
+		if(!$modx->config['allow_duplicate_alias'])
+		{
+			if($modx->db->getValue("SELECT COUNT(id) FROM {$tbl_site_content} WHERE id<>'{$id}' AND alias='{$alias}'") != 0)
+			{
 				$cnt = 1;
 				$tempAlias = $alias;
-				while ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND alias='$tempAlias'") != 0) {
+				while($modx->db->getValue("SELECT COUNT(id) FROM {$tbl_site_content} WHERE id<>'{$id}' AND alias='{$tempAlias}'") != 0)
+				{
 					$tempAlias = $alias;
 					$tempAlias .= $cnt;
 					$cnt++;
@@ -81,9 +90,9 @@ if ($friendly_urls) {
 			}
 		}
 	}
-
 	// check for duplicate alias name if not allowed
-	elseif ($alias && !$allow_duplicate_alias) {
+	elseif ($alias && !$allow_duplicate_alias)
+	{
 		$alias = $modx->stripAlias($alias);
 		if ($use_alias_path) {
 			// only check for duplicates on the same level if alias_path is on
