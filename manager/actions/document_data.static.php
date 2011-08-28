@@ -248,7 +248,7 @@ function movedocument() {
 			<tr><td valign="top"><?php echo $_lang['type']?>: </td>
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['resource_alias']?>: </td>
-				<td><?php echo $content['alias']!='' ? $content['alias'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
+				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)
