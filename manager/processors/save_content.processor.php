@@ -135,8 +135,16 @@ if (empty ($pub_date)) {
 	$pub_date = 0;
 } else {
 	$pub_date = $modx->toTimeStamp($pub_date);
-
-	if ($pub_date < $currentdate) {
+	if(empty($pub_date))
+	{
+		$modx->manager->saveFormValues(27);
+		$url = "index.php?a=27&id=" . $id;
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif($pub_date < $currentdate) {
 		$published = 1;
 	}
 	elseif ($pub_date > $currentdate) {
@@ -148,7 +156,16 @@ if (empty ($unpub_date)) {
 	$unpub_date = 0;
 } else {
 	$unpub_date = $modx->toTimeStamp($unpub_date);
-	if ($unpub_date < $currentdate) {
+	if(empty($unpub_date))
+	{
+		$modx->manager->saveFormValues(27);
+		$url = "index.php?a=27&id=" . $id;
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif ($unpub_date < $currentdate) {
 		$published = 0;
 	}
 }
