@@ -307,6 +307,7 @@ class EXPORT_SITE
 			}
 			if ($row['isfolder'])
 			{ // needs making a folder
+				if(empty($row['alias'])) $row['alias'] = $row['id'];
 				$dirname = $dirpath . $row['alias'];
 				if (!is_dir($dirname))
 				{
