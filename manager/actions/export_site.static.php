@@ -279,7 +279,7 @@ class EXPORT_SITE
 		$noncache = $_POST['includenoncache']==1 ? '' : "AND {$tbl_site_content}.cacheable=1";
 		$sqlcond = "{$tbl_site_content}.deleted=0 AND (({$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document') OR ({$tbl_site_content}.isfolder=1)) $noncache";
 		
-		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent = ".$dirid." AND ".$sqlcond;
+		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent = ".$dirid." AND ".$sqlcond;
 		$rs = mysql_query($sql);
 		$dircontent = array();
 		while($row = mysql_fetch_assoc($rs))
@@ -297,7 +297,14 @@ class EXPORT_SITE
 				}
 				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']) || $_POST['target']=='1')
 				{
-					if (!$this->writeAPage($row['id'], $filename)) exit;
+					if($row['published']==1)
+					{
+						if (!$this->writeAPage($row['id'], $filename)) exit;
+					}
+					else
+					{
+						echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
+					}
 				}
 				else
 				{
