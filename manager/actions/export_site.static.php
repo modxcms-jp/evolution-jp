@@ -331,7 +331,7 @@ class EXPORT_SITE
 					if ($row['wasNull'])
 					{
 						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
-						echo ' <span class="success">'.$_lang['export_site_success'].$_lang["export_site_success_skip_dir"].'</span><br />';
+						echo ' <span class="success">' . $_lang['export_site_success'] . '</span>' . $_lang["export_site_success_skip_dir"] . '<br />';
 					}
 				}
 				$this->exportDir($row['id'], $dirname . '/', $i, $total);
