@@ -81,4 +81,25 @@ class logHandler {
 			return true;
 		}
 	}
+	
+	function purge_manager_log($limit=1000, $trim=100)
+	{
+		global $modx;
+		
+		if($limit < $trim) $trim = $limit;
+		
+		$tbl_manager_log = $modx->getFullTableName("manager_log");
+		$sql = "SELECT COUNT(id) as count FROM {$tbl_manager_log}";
+		$rs = $modx->db->query($sql);
+		if($rs) $row = $modx->db->getRow($rs);
+		$over = $row['count'] - $limit;
+		if(0 < $over)
+		{
+			$trim = ($over + $trim);
+			$sql = "DELETE FROM {$tbl_manager_log} LIMIT {$trim}";
+			$modx->db->query($sql);
+			$sql = "OPTIMIZE TABLE {$tbl_manager_log}";
+			$modx->db->query($sql);
+		}
+	}
 }
