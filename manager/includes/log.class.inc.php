@@ -80,6 +80,15 @@ class logHandler {
 			$this->logError("Couldn't save log to table! ".mysql_error());
 			return true;
 		}
+		else
+		{
+			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 1000;
+			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
+			if(($insert_id % $trim) == 0)
+			{
+				$this->purge_manager_log($limit,$trim);
+			}
+		}
 	}
 	
 	function purge_manager_log($limit=1000, $trim=100)
