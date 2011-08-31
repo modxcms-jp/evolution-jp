@@ -1501,6 +1501,15 @@ class DocumentParser {
 			$this->db->query($sql);
 		}
 	}
+	
+	function remove_locks($action=27,$limit_time=86400)
+	{
+		$limit_time = time() - $limit_time;
+		$action     = intval($action);
+		$tbl_active_users = $this->getFullTableName('active_users');
+		$sql = "DELETE FROM {$tbl_active_users} WHERE action={$action} and lasthit < {$limit_time}";
+		$this->db->query($sql);
+	}
 
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
