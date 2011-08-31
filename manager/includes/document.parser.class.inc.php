@@ -1475,6 +1475,25 @@ class DocumentParser {
         }
     }
 
+	function purge_event_log($limit=1000, $trim=100)
+	{
+		if($limit < $trim) $trim = $limit;
+		
+		$tbl_event_log = $this->getFullTableName("event_log");
+		$sql = "SELECT COUNT(id) as count FROM {$tbl_event_log}";
+		$rs = $this->db->query($sql);
+		if($rs) $row = $this->db->getRow($rs);
+		$over = $row['count'] - $limit;
+		if(0 < $over)
+		{
+			$trim = ($over + $trim);
+			$sql = "DELETE FROM {$tbl_event_log} LIMIT {$trim}";
+			$this->db->query($sql);
+			$sql = "OPTIMIZE TABLE {$tbl_event_log}";
+			$this->db->query($sql);
+		}
+	}
+
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
         return $this->insideManager() ? true : false;
