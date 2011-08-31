@@ -48,7 +48,9 @@ class logHandler {
 	// writes it to the logging table
 	function writeToLog() {
 		global $modx;
-
+		
+		$tbl_manager_log = $modx->getFullTableName('manager_log');
+		
 		if($this->entry['internalKey'] == "") {
 			$this->logError("internalKey not set.");
 			return;
@@ -65,18 +67,16 @@ class logHandler {
 				return;
 			}
 		}
-
-		$sql = 'INSERT INTO '.$modx->getFullTableName('manager_log').'
-			(timestamp, internalKey, username, action, itemid, itemname, message) VALUES
-			(\''.time().'\',
-			 \''.$modx->db->escape($this->entry['internalKey']).'\',
-			 \''.$modx->db->escape($this->entry['username']).'\',
-             \''.$this->entry['action'].'\',
-             \''.$this->entry['itemId'].'\',
-			 \''.$modx->db->escape($this->entry['itemName']).'\',
-			 \''.$modx->db->escape($this->entry['msg']).'\')';
-
-		if(!$rs=$modx->db->query($sql)) {
+		
+		$fields['timestamp']   = time();
+		$fields['internalKey'] = $modx->db->escape($this->entry['internalKey']);
+		$fields['username']    = $modx->db->escape($this->entry['username']);
+		$fields['action']      = $this->entry['action'];
+		$fields['itemid']      = $this->entry['itemId'];
+		$fields['itemname']    = $modx->db->escape($this->entry['itemName']);
+		$fields['message']     = $modx->db->escape($this->entry['msg']);
+		
+		if(!$insert_id = $modx->db->insert($fields,$tbl_manager_log)) {
 			$this->logError("Couldn't save log to table! ".mysql_error());
 			return true;
 		}
