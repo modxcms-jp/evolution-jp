@@ -8,6 +8,7 @@ switch ($_REQUEST['a']) {
 			$e->setError(3);
 			$e->dumpError();
 		}
+		$modx->remove_locks();
 		break;
 	case 85:
 	case 72:
