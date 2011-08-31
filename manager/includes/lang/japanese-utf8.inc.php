@@ -283,7 +283,7 @@ $_lang["export_site_cacheable"] = '非キャッシュファイルを含む';
 $_lang["export_site_exporting_document"] = '%s/%s - %s(index.php?id=%s)';
 $_lang["export_site_failed"] = 'スキップ';
 $_lang["export_site_failed_no_open"] = 'ファイルを開けません:';
-$_lang["export_site_failed_no_retrieve"] = '非公開コンテナのためエクスポートしません。';
+$_lang["export_site_failed_no_retrieve"] = '非公開リソースのためエクスポートしません。';
 $_lang["export_site_failed_no_write"] = 'ファイルを更新できません。パーミッションを確認してください。';
 $_lang["export_site_html"] = 'サイト全体を静的HTMLとしてエクスポート';
 $_lang["export_site_maxtime"] = '最大エクスポート時間(秒)';
