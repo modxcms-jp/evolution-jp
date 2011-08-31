@@ -1473,6 +1473,14 @@ class DocumentParser {
             echo "Error while inserting event log into database.";
             exit();
         }
+        else {
+            $trim  = ($this->config['event_log_trim'])  ? intval($this->config['event_log_trim']) : 100;
+            if(($insert_id % $trim) == 0)
+            {
+                $limit = ($this->config['event_log_limit']) ? intval($this->config['event_log_limit']) : 1000;
+                $this->purge_event_log($limit,$trim);
+            }
+        }
     }
 
 	function purge_event_log($limit=1000, $trim=100)
