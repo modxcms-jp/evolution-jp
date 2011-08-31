@@ -1462,10 +1462,14 @@ class DocumentParser {
         elseif ($type > 3) {
             $type= 3; // Types: 1 = information, 2 = warning, 3 = error
         }
-        $sql= "INSERT INTO " . $this->getFullTableName("event_log") . " (eventid,type,createdon,source,description,user) " .
-	"VALUES($evtid,$type," . time() . ",'$source','$msg','" . $LoginUserID . "')";
-        $ds= @$this->db->query($sql);
-        if (!$ds) {
+        $fields['eventid']     = $evtid;
+        $fields['type']        = $type;
+        $fields['createdon']   = time();
+        $fields['source']      = $source;
+        $fields['description'] = $msg;
+        $fields['user']        = $LoginUserID;
+        $insert_id = @$this->db->insert($fields,$this->getFullTableName("event_log"));
+        if (!$insert_id) {
             echo "Error while inserting event log into database.";
             exit();
         }
