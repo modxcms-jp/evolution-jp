@@ -537,7 +537,7 @@ class DocumentParser {
                 $this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
         }
 
-        $this->documentOutput= $this->rewriteUrls($this->documentOutput);
+        if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
 
         // send out content-type and content-disposition headers
         if (IN_PARSER_MODE == "true") {
