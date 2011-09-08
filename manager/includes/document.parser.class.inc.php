@@ -2654,6 +2654,12 @@ class DocumentParser {
                 }
             }
         }
+        foreach($parameter as $k=>$v)
+        {
+            $v = str_replace('%3D','=',$v);
+            $v = str_replace('%26','&',$v);
+            $parameter[$k] = $v;
+        }
         return $parameter;
     }
 
