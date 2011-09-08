@@ -1021,6 +1021,8 @@ class DocumentParser {
 					$target = trim($pieces[$idx]);
 					if(preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
 						$target = $this->referenceListing[$target];
+					elseif(preg_match("/^[0-9]+$/",$target))
+						$target = $aliases[$target];
 					else $target = $this->parseDocumentSource($target);
 					
 					if(preg_match('@^https?://@', $this->referenceListing[$target]))
