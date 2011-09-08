@@ -2635,17 +2635,22 @@ class DocumentParser {
     # parses a resource property string and returns the result as an array
     function parseProperties($propertyString) {
         $parameter= array ();
-        if (!empty ($propertyString)) {
-            $tmpParams= explode("&", $propertyString);
-            for ($x= 0; $x < count($tmpParams); $x++) {
-                if (strpos($tmpParams[$x], '=', 0)) {
-                    $pTmp= explode("=", $tmpParams[$x]);
-                    $pvTmp= explode(";", trim($pTmp[1]));
-                    if ($pvTmp[1] == 'list' && $pvTmp[3] != "")
-                        $parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
-                    else
-                        if ($pvTmp[1] != 'list' && $pvTmp[2] != "")
-                            $parameter[trim($pTmp[0])]= $pvTmp[2];
+        if (empty($propertyString)) return $parameter;
+        
+        $tmpParams= explode('&', $propertyString);
+        foreach ($tmpParams as $tmpParam)
+        {
+            if (strpos($tmpParam, '=') !== false)
+            {
+                $pTmp  = explode('=', $tmpParam);
+                $pvTmp = explode(';', trim($pTmp[1]));
+                if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+                {
+                    $parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
+                }
+                elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+                {
+                    $parameter[trim($pTmp[0])]= $pvTmp[2];
                 }
             }
         }
