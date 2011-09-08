@@ -370,8 +370,10 @@ class Qm {
                         // Custom add buttons if not empty and enough permissions
                         if ($this->custombutton != '') {  
                             
-                            // Replace [*id*] with current doc id
-                            $this->custombutton = str_replace("[*id*]", $docID, $this->custombutton); 
+                            $this->custombutton = $this->modx->mergeDocumentContent($this->custombutton);
+                            $this->custombutton = $this->modx->mergeSettingsContent($this->custombutton);
+                            $this->custombutton = $this->modx->mergeChunkContent($this->custombutton);
+                            $this->custombutton = $this->modx->evalSnippets($this->custombutton);
                             
                             // Handle [~id~] links
                             $this->custombutton = $this->modx->rewriteUrls($this->custombutton);
