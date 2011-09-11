@@ -146,6 +146,7 @@ function showParameters(ctrl) {
             value = decode((currentParams[key]) ? currentParams[key]:(dt=='list') ? ar[3] : (ar[2])? ar[2]:'');
             if (value!=currentParams[key]) currentParams[key] = value;
             value = (value+'').replace(/^\s|\s$/,""); // trim
+	    value = value.replace(/&/g,"&amp;"); // replace & with &quot;
 	    value = value.replace(/\"/g,"&quot;"); // replace double quotes with &quot;
             if (dt) {
                 switch(dt) {
