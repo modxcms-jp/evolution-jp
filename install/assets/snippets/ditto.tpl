@@ -185,7 +185,7 @@ $files = array (
     "filter_class" => $ditto_base."classes/filter.class.inc.php",
     "format" => $ditto_base."formats/$format.format.inc.php",
     "config" => $ditto_base."configs/default.config.php",
-    "user_config" => (substr($config, 0, 5) != "@FILE") ? $ditto_base."configs/$config.config.php" : $modx->config['base_path'].trim(substr($config, 5))
+    "user_config" => (substr($config, 0, 5) != "@FILE") ? $ditto_base."configs/$config.config.php" : $modx->config['base_path'].trim(substr($config, 6))
 );
 
 if ($phx == 1) {
