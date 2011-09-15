@@ -48,6 +48,10 @@ elseif($modx->getChunk($config))
 {
 	eval('?>' . $modx->getChunk($config));
 }
+elseif(substr($config, 0, 5) == '@FILE')
+{
+	include_once($modx->config['base_path'] . trim(substr($config, 6)));
+}
 elseif(file_exists($wf_base_path . 'configs/' . $config . '.config.php'))
 {
 	include_once($wf_base_path . 'configs/' . $config . '.config.php');
