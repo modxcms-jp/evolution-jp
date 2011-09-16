@@ -129,7 +129,7 @@ class TinyMCE
 		$ph['document_base_url'] = MODX_SITE_URL;
 		switch($params['pathoptions'])
 		{
-			case 'siteconfig':
+			case 'Site config':
 				if($modx->config['strip_image_paths']==1)
 				{
 					$ph['relative_urls']      = 'true';
@@ -143,17 +143,17 @@ class TinyMCE
 					$ph['convert_urls']       = 'true';
 				}
 				break;
-			case 'docrelative':
+			case 'Root relative':
 				$ph['relative_urls']      = 'true';
 				$ph['remove_script_host'] = 'true';
 				$ph['convert_urls']       = 'true';
 				break;
-			case 'rootrelative':
+			case 'Absolute path':
 				$ph['relative_urls']      = 'false';
 				$ph['remove_script_host'] = 'true';
 				$ph['convert_urls']       = 'true';
 				break;
-			case 'fullpathurl':
+			case 'URL':
 				$ph['relative_urls']      = 'false';
 				$ph['remove_script_host'] = 'false';
 				$ph['convert_urls']       = 'true';
