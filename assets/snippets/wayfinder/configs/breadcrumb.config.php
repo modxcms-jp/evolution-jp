@@ -5,18 +5,19 @@
 	if(!isset($startId))      $startId      = 0;
 	
 ////////////////// template
+$wfbc = new WFBC();
 	if(!isset($outerTpl)) $outerTpl = '<div id="breadcrumbnav">[+home+][+wf.wrapper+]</div>';
-	else                  $outerTpl = fetch($outerTpl);
+	else                  $outerTpl = $wfbc->fetch($outerTpl);
 	if(!isset($innerTpl)) $innerTpl = '[+wf.wrapper+]';
-	else                  $innerTpl = fetch($innerTpl);
+	else                  $innerTpl = $wfbc->fetch($innerTpl);
 	if(!isset($rowTpl))   $rowTpl   = ' ';
-	else                  $rowTpl = fetch($rowTpl);
+	else                  $rowTpl = $wfbc->fetch($rowTpl);
 	if(!isset($hereTpl))  $hereTpl  = '[+wf.linktext+]';
-	else                  $hereTpl = fetch($hereTpl);
+	else                  $hereTpl = $wfbc->fetch($hereTpl);
 	if(!isset($delim))    $delim    = ' &raquo; ';
-	else                  $delim = fetch($delim);
+	else                  $delim = $wfbc->fetch($delim);
 	if(!isset($activeParentRowTpl)) $activeParentRowTpl = '<a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+delim+][+wf.wrapper+]';
-	else                  $activeParentRowTpl = fetch($activeParentRowTpl);
+	else                  $activeParentRowTpl = $wfbc->fetch($activeParentRowTpl);
 	
 ////////////////// build
 	$activeParentRowTpl = str_replace('[+delim+]',$delim,$activeParentRowTpl);
@@ -46,7 +47,12 @@
 	$activeParentRowTpl = '@CODE:' . $activeParentRowTpl;
 
 
-
+class WFBC
+{
+	function WFBC()
+	{
+	}
+	
 	function fetch($tpl)
 	{
 		global $modx;
@@ -69,3 +75,4 @@
 		}
 		return $template;
 	}
+}
