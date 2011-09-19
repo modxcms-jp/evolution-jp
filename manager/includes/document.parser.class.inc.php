@@ -939,9 +939,9 @@ class DocumentParser {
 					$tempSnippetParams = preg_replace('@^\?@', '', $currentSnippetParams);
 					if(strpos($tempSnippetParams, '&amp;') !== false)
 					{
-					
 						$tempSnippetParams = str_replace('&amp;', '&', $tempSnippetParams);
-						//$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
+						//$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']);
+						//FS#334 and FS#456
 					}
 					$tempSnippetParams_array = explode('&', $tempSnippetParams);
 					$snippetParamCount = count($tempSnippetParams_array);
