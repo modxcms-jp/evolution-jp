@@ -945,13 +945,14 @@ class DocumentParser {
 					}
 					$tempSnippetParams_array = explode('&', $tempSnippetParams);
 					$snippetParamCount = count($tempSnippetParams_array);
-					for($i=$snippetParamCount; 0<$i; $i--)
+					while(0 < $snippetParamCount)
 					{
 						if(substr_count($tempSnippetParams_array[$i],'`') == 1)
 						{
 							$tempSnippetParams_array[$i-1] .= '&' . $tempSnippetParams_array[$i];
 							array_splice($tempSnippetParams_array, $i, 1);
 						}
+						$snippetParamCount--;
 					}
 					$snippetParamCount = count($tempSnippetParams_array);
 					for ($x= 0; $x < $snippetParamCount; $x++)
