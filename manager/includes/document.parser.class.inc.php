@@ -947,10 +947,10 @@ class DocumentParser {
 					$snippetParamCount = count($tempSnippetParams_array);
 					while(0 < $snippetParamCount)
 					{
-						if(substr_count($tempSnippetParams_array[$i],'`') == 1)
+						if(substr_count($tempSnippetParams_array[$snippetParamCount],'`') == 1)
 						{
-							$tempSnippetParams_array[$i-1] .= '&' . $tempSnippetParams_array[$i];
-							array_splice($tempSnippetParams_array, $i, 1);
+							$tempSnippetParams_array[$snippetParamCount-1] .= '&' . $tempSnippetParams_array[$snippetParamCount];
+							array_splice($tempSnippetParams_array, $snippetParamCount, 1);
 						}
 						$snippetParamCount--;
 					}
