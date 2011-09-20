@@ -2584,10 +2584,21 @@ class DocumentParser {
     }
 
     # remove event listner - only for use within the current execution cycle
-    function removeEventListener($evtName) {
+    function removeEventListener($evtName, $pluginName='') {
         if (!$evtName)
             return false;
-        unset ($this->pluginEvent[$evtName]);
+        if ( $pluginName == '' ){
+            unset ($this->pluginEvent[$evtName]);
+            return true;
+        }else{
+            foreach($this->pluginEvent[$evtName] as $key => $val){
+                if ($this->pluginEvent[$evtName][$key] == $pluginName){
+                    unset ($this->pluginEvent[$evtName][$key]);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     # remove all event listners - only for use within the current execution cycle
