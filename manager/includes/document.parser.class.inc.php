@@ -876,11 +876,21 @@ class DocumentParser {
 					{
 						list($snip_name,$params_str) = explode('?',$call,2);
 					}
+					elseif((strpos($call, '&') !== false) && (strpos($call, '=') !== false) && (strpos($call, '?') === false))
+					{
+						list($snip_name,$params_str) = explode("&",$call,2);
+						$params_str = '&' . $params_str;
+					}
+					elseif(strpos($call, "\n") !== false)
+					{
+						list($snip_name,$params_str) = explode("\n",$call,2);
+					}
 					else
 					{
 						$snip_name = $call;
 						$params_str = '';
 					}
+					$snip_name = trim($snip_name);
 					
 					if(isset($this->snippetCache[$snip_name]))
 					{
