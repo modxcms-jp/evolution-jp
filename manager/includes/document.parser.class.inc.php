@@ -952,35 +952,32 @@ class DocumentParser {
 						while(!empty($temp_remain) && $i < $limit)
 						{
 							list($temp_pname,$temp_remain) = explode('=',$temp_remain,2);
-							$temp_pname  = str_replace('&amp;', '&', $temp_pname);
-							$temp_pname  = trim($temp_pname);
 							$temp_remain = trim($temp_remain);
 							$delim = substr($temp_remain, 0, 1);
 							$temp_params = array();
-							if(
-									$delim=='`'
-										||
-									$delim=='"'
-										||
-									$delim=="'"
-							  )
+							switch($delim)
 							{
+								case '`':
+								case '"':
+								case "'":
 									$temp_params = explode($delim,$temp_remain,3);
 									$temp_pvalue = $temp_params['1'];
 									$temp_remain = $temp_params['2'];
+									break;
+								default:
+									if(strpos($temp_remain, '&')!==false)
+									{
+										$temp_params = explode('&',$temp_remain,2);
+										$temp_pvalue = $temp_params['0'];
+										$temp_remain = $temp_params['1'];
+									}
+									else $temp_pvalue = $temp_remain;
+									$temp_pvalue = trim($temp_pvalue);
 							}
-							else
-							{
-								if(strpos($temp_remain, '&')!==false)
-								{
-									$temp_params = explode('&',$temp_remain,2);
-									$temp_pvalue = $temp_params['0'];
-									$temp_remain = $temp_params['1'];
-								}
-								else $temp_pvalue = $temp_remain;
-								$temp_pvalue = trim($temp_pvalue);
-							}
-							$temp_pname  = str_replace('&', '', $temp_pname);
+							
+							$temp_pname  = str_replace('&amp;', '', $temp_pname);
+							$temp_pname  = trim($temp_pname);
+							$temp_pname  = trim($temp_pname,'&');
 							$params[$temp_pname] = $temp_pvalue;
 							$temp_remain = trim($temp_remain);
 							if($temp_remain!=='') $temp_remain = '&' . ltrim($temp_remain,'&');
