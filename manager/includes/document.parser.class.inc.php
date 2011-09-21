@@ -1508,13 +1508,13 @@ class DocumentParser {
             $trim  = ($this->config['event_log_trim'])  ? intval($this->config['event_log_trim']) : 100;
             if(($insert_id % $trim) == 0)
             {
-                $limit = ($this->config['event_log_limit']) ? intval($this->config['event_log_limit']) : 1000;
+                $limit = ($this->config['event_log_limit']) ? intval($this->config['event_log_limit']) : 2000;
                 $this->purge_event_log($limit,$trim);
             }
         }
     }
 
-	function purge_event_log($limit=1000, $trim=100)
+	function purge_event_log($limit=2000, $trim=100)
 	{
 		if($limit < $trim) $trim = $limit;
 		
