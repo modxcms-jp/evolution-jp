@@ -971,9 +971,14 @@ class DocumentParser {
 							}
 							else
 							{
+								if(strpos($temp_remain, '&')!==false)
+								{
 									$temp_params = explode('&',$temp_remain,2);
-									$temp_pvalue = trim($temp_params['0']);
+									$temp_pvalue = $temp_params['0'];
 									$temp_remain = $temp_params['1'];
+								}
+								else $temp_pvalue = $temp_remain;
+								$temp_pvalue = trim($temp_pvalue);
 							}
 							$temp_pname  = str_replace('&', '', $temp_pname);
 							$params[$temp_pname] = $temp_pvalue;
