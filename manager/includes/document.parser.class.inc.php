@@ -858,6 +858,7 @@ class DocumentParser {
 		$etomite= & $this;
 		
 		$stack = $documentSource;
+		unset($documentSource);
 		
 		$remain = 10;
 		while(strpos($stack,'[[')!==false && 0 < $remain)
