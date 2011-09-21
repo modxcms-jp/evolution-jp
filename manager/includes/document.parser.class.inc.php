@@ -865,9 +865,10 @@ class DocumentParser {
 			$peaces = array();
 			$peaces = explode('[[', $stack);
 			$stack = '';
-			foreach($peaces as $i=>$peace)
+			$loop_count = 0;
+			foreach($peaces as $peace)
 			{
-				if($i==0)                           $stack .= $peace;
+				if($loop_count < 1)                           $stack .= $peace;
 				elseif(strpos($peace,']]')===false) $stack .= '[[' . $peace;
 				else
 				{
@@ -945,31 +946,29 @@ class DocumentParser {
 						$params_str = ltrim($params_str, '?');
 						$params_str = str_replace('&amp;', '&', $params_str);
 						$temp_params = explode('&', $params_str);
-						$params_count = count($temp_params);
-						while(0 < $params_count)
+						$size_of_params = count($temp_params);
+						for(; 0<$size_of_params; $size_of_params--)
 						{
-							if(substr_count($temp_params[$params_count],'`') == 1)
+							if(substr_count($temp_params[$size_of_params],'`') == 1)
 							{
-								$temp_params[$params_count-1] .= '&' . $temp_params[$params_count];
-								array_splice($temp_params, $params_count, 1);
+								$temp_params[$size_of_params-1] .= '&' . $temp_params[$size_of_params];
+								array_splice($temp_params, $size_of_params, 1);
 							}
-							$params_count--;
 						}
 						
-						$params_count = count($temp_params);
-						$x= 0;
-						while($x < $params_count)
+						$size_of_params = count($temp_params);
+						for($i= 0; $i < $size_of_params; $i++)
 						{
-							if(strpos($temp_params[$x], '=') !== false)
+							if(strpos($temp_params[$i], '=') !== false)
 							{
-								list($temp_pname,$temp_pvalue) = explode('=', $temp_params[$x],2);
+								list($temp_pname,$temp_pvalue) = explode('=', $temp_params[$i],2);
 								$temp_pname  = trim($temp_pname);
 								$temp_pvalue = trim($temp_pvalue);
 								$temp_pvalue = trim($temp_pvalue,'`');
 								$params[$temp_pname]= $temp_pvalue;
 							}
-							$x++;
 						}
+						unset($temp_params);
 					}
 					$executedSnippets = $this->evalSnippet($snippets['content'], $params);
 					if($this->dumpSnippets == 1)
@@ -978,6 +977,7 @@ class DocumentParser {
 					}
 					$stack .= $executedSnippets . $content;
 				}
+				$loop_count++; // End of foreach loop
 			}
 			$remain--;
 		}
