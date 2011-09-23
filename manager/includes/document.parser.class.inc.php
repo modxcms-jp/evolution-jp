@@ -975,11 +975,14 @@ class DocumentParser {
 									else $temp_pvalue = $temp_remain;
 									$temp_pvalue = trim($temp_pvalue);
 							}
+							if($delim !== "'")
+							{
+								$temp_pvalue = (strpos($temp_pvalue,'[*')!==false) ? $this->mergeDocumentContent($temp_pvalue) : $temp_pvalue;
+							}
 							
 							$temp_pname  = str_replace('&amp;', '', $temp_pname);
 							$temp_pname  = trim($temp_pname);
 							$temp_pname  = trim($temp_pname,'&');
-							$temp_pvalue = (strpos($temp_pvalue,'[*')!==false) ? $this->mergeDocumentContent($temp_pvalue) : $temp_pvalue;
 							$params[$temp_pname] = $temp_pvalue;
 							$temp_remain = trim($temp_remain);
 							if($temp_remain!=='') $temp_remain = '&' . ltrim($temp_remain,'&');
