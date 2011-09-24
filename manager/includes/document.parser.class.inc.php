@@ -964,6 +964,11 @@ class DocumentParser {
 									$temp_params = explode($delim,$temp_remain,3);
 									$temp_pvalue = $temp_params['1'];
 									$temp_remain = $temp_params['2'];
+									$temp_remain = trim($temp_remain);
+									if(substr($temp_remain, 0, 2)==='//')
+									{
+										$temp_remain = strstr($temp_remain, "\n");
+									}
 									break;
 								default:
 									if(strpos($temp_remain, '&')!==false)
