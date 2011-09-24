@@ -2,7 +2,7 @@
 html                        {font-family:Helvetica,sans-serif;font-size:100.01%;overflow-y:scroll;}
 body                        {font-size:small;}
 img, h1, ul, li             {margin:0;padding:0;}
-img                         {border:none;}
+img                         {border:none;vertical-align:bottom;}
 input, select, textarea     {font:inherit;}
 body                        {text-align:center;}
 div.wrap                    {text-align:left;}

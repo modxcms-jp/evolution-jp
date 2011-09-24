@@ -4,38 +4,53 @@
  * 「xRay」学習用途向きのシンプルなテンプレート
  *
  * @category	template
- * @version 	1.0
+ * @version 	1.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@lock_template 0
  * @internal 	@modx_category Demo Content
  * @internal    @installset sample
  */
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
 <head>
-  <base href="[(site_url)]" />
+  <base href="[(site_url)]">
+  <meta charset="UTF-8">
   <title>[*pagetitle*]|[(site_name)]</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="keywords" content="[*キーワード*]" />
-  <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css" />
-  <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css" />
+  <meta name="description" content="[*description*]">
+  <meta name="keywords" content="[*キーワード*]">
+  <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css">
+  <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css">
 </head>
 <body>
 <div class="wrap">
 	<div class="header">
+	<header>
 	    <h1><img src="assets/templates/xray/images/header_image.png" alt="[(site_name)]" /></h1>
+	</header>
 	</div>
 	<div class="navi">
-	    [[Wayfinder?startId=0&hideSubMenus=true&level=1]]
+	<nav>
+	    [[Wayfinder
+	    	&startId = "0" // ルート階層のリソースが対象
+	    	&level   = "1" // １階層のみ
+	    ]]
+	</nav>
 	</div>
 	<div class="content">
-	    [[Wayfinder?config=breadcrumb]]
+	<nav>
+	    [[Wayfinder
+	    	&config=breadcrumb // /assets/snippets/wayfinder/configs/breadcrumb.config.phpを読む
+	    ]]
+	</nav>
+	<article>
 	    <h2>[*pagetitle*]</h2>
 	    [*content*]
+	</article>
 	</div>
 	<div class="footer">
+	<footer>
 	    (c)2011 [(site_name)]<br />
 	    MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document retrieved from [^s^].
+	</footer>
 	</div>
 </div>
 </body>
