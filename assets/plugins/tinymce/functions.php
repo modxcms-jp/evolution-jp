@@ -130,6 +130,7 @@ class TinyMCE
 		switch($params['pathoptions'])
 		{
 			case 'Site config':
+			case 'siteconfig':
 				if($modx->config['strip_image_paths']==1)
 				{
 					$ph['relative_urls']      = 'true';
@@ -144,16 +145,19 @@ class TinyMCE
 				}
 				break;
 			case 'Root relative':
+			case 'docrelative':
 				$ph['relative_urls']      = 'true';
 				$ph['remove_script_host'] = 'true';
 				$ph['convert_urls']       = 'true';
 				break;
 			case 'Absolute path':
+			case 'rootrelative':
 				$ph['relative_urls']      = 'false';
 				$ph['remove_script_host'] = 'true';
 				$ph['convert_urls']       = 'true';
 				break;
 			case 'URL':
+			case 'fullpathurl':
 				$ph['relative_urls']      = 'false';
 				$ph['remove_script_host'] = 'false';
 				$ph['convert_urls']       = 'true';
