@@ -162,6 +162,7 @@ class TinyMCE
 				$ph['remove_script_host'] = 'false';
 				$ph['convert_urls']       = 'true';
 				break;
+			case 'No convert':
 			default:
 				$ph['relative_urls']      = 'true';
 				$ph['remove_script_host'] = 'true';
