@@ -100,8 +100,8 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
-		$sql = "SELECT count(id) FROM {$tblsc} WHERE parent='{$pid}'";
-		$content['menuindex'] = $modx->db->getValue($sql);
+		$sql = "SELECT max(menuindex) FROM {$tblsc} WHERE parent='{$pid}'";
+		$content['menuindex'] = $modx->db->getValue($sql)+1;
 	}
 
 	// Duplicate the Document
