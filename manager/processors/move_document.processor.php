@@ -53,9 +53,17 @@ if (!array_search($newParentID, $children)) {
 		echo "An error occured while attempting to change the new parent to a folder.";
 	}
 
+	// increase menu index
+	if (is_null($auto_menuindex) || $auto_menuindex)
+	{
+		$sql = "SELECT max(menuindex) FROM {$tbl_site_content} WHERE parent='{$new_parent}'";
+		$menuindex = $modx->db->getValue($sql)+1;
+	}
+	else $menuindex = 0;
+
 	$user_id = $modx->getLoginUserID();
 	$now     = time();
-	$sql = "UPDATE {$tbl_site_content} SET parent={$new_parent}, editedby={$user_id}, editedon={$now} WHERE id={$doc_id};";
+	$sql = "UPDATE {$tbl_site_content} SET parent={$new_parent}, editedby={$user_id}, editedon={$now}, menuindex={$menuindex} WHERE id={$doc_id};";
 	$rs = mysql_query($sql);
 	if(!$rs){
 		echo "An error occured while attempting to move the document to the new parent.";
