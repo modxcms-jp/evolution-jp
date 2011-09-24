@@ -46,7 +46,7 @@ if ($oldparent != $newParentID) {
 $children= allChildren($doc_id);
 
 if (!array_search($newParentID, $children)) {
-	$new_parent       = $_REQUEST['new_parent'];
+	$new_parent       = intval($_REQUEST['new_parent']);
 	$sql = "UPDATE {$tbl_site_content} SET isfolder=1 WHERE id={$new_parent};";
 	$rs = mysql_query($sql);
 	if(!$rs){
