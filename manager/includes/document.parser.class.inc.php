@@ -863,17 +863,17 @@ class DocumentParser {
 		$remain = 10;
 		while(strpos($stack,'[[')!==false && 0 < $remain)
 		{
-			$peaces = array();
-			$peaces = explode('[[', $stack);
+			$pieces = array();
+			$pieces = explode('[[', $stack);
 			$stack = '';
 			$loop_count = 0;
-			foreach($peaces as $peace)
+			foreach($pieces as $piece)
 			{
-				if($loop_count < 1)                           $stack .= $peace;
-				elseif(strpos($peace,']]')===false) $stack .= '[[' . $peace;
+				if($loop_count < 1)                           $stack .= $piece;
+				elseif(strpos($piece,']]')===false) $stack .= '[[' . $piece;
 				else
 				{
-					list($call,$content) = explode(']]', $peace, 2);
+					list($call,$content) = explode(']]', $piece, 2);
 					if(strpos($call, '?') !== false)
 					{
 						list($snip_name,$params_str) = explode('?',$call,2);
@@ -2054,10 +2054,10 @@ class DocumentParser {
         $ampm = (strftime('%H', $timestamp) < 12) ? 'am' : 'pm';
         if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
         if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
-        $peaces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
+        $pieces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
         
         $str = '';
-        foreach($peaces as $v)
+        foreach($pieces as $v)
         {
           if    ($v == '%a')              $str .= $a[$w];
           elseif($v == '%A')              $str .= $A[$w];
