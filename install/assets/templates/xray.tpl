@@ -30,15 +30,15 @@
 	<div class="navi">
 	<nav>
 	    [[Wayfinder
-	    	&startId = "0" // ルート階層のリソースが対象
-	    	&level   = "1" // １階層のみ
+	    	&startId = `0` // ルート階層のリソースが対象
+	    	&level   = `1` // １階層のみ
 	    ]]
 	</nav>
 	</div>
 	<div class="content">
 	<nav>
 	    [[Wayfinder
-	    	&config=breadcrumb // /assets/snippets/wayfinder/configs/breadcrumb.config.phpを読む
+	    	&config=`breadcrumb` // /assets/snippets/wayfinder/configs/breadcrumb.config.phpを読む
 	    ]]
 	</nav>
 	<article>
