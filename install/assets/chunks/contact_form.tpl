@@ -15,6 +15,7 @@
 	label input, select,
 	label textarea {display:block;margin-top:8px;margin-bottom:15px;}
 	textarea       {width:500px;height:150px;}
+	div.errors     {color:#f00;}
 </style>
 <p class="error">[+validationmessage+]</p>
 <form method="post" action="[~[*id*]~]">
@@ -37,5 +38,4 @@
 		</label>
 		<input type="submit" name="contact" class="button" value="送信する" />
 	</fieldset>
-
 </form>
