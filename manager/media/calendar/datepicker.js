@@ -1,7 +1,7 @@
 /*
  * DatePicker
  * @author Rick Hopkins
- * @modified by Micah Nolte and Martin Va邸ina
+ * @modified by Micah Nolte and Martin Vašina
  * @version 0.3.2
  * @classDescription A date picker object. Created with the help of MooTools v1.11
  * MIT-style License.
@@ -172,7 +172,7 @@ var DatePicker = new Class({
 		} else {
 			var time = dp.time;
 		}
-		timeTextBox = new Element('input', {'id':dp.id + '_timeTextBox', 'class':'cal_timeTextBox', 'type':'text', 'value':time});
+		timeTextBox = new Element('input', {'id':dp.id + '_timeTextBox', 'class':'cal_timeTextBox', 'value':time});
 		
 		/* start creating calendar */
 		calTable = new Element('table');
@@ -320,6 +320,7 @@ var DatePicker = new Class({
 	
 	/* Remove the calendar from the page */
 	remove: function(dp){
+		$clear(dp.interval);
 		dp.active = false;
 		if (window.opera) dp.container.empty();
 		else if (dp.container) dp.container.remove();
