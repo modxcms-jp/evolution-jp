@@ -14,7 +14,7 @@ REPLACE INTO `{PREFIX}site_content` VALUES (3, 'document', 'text/html', 'お問�
 
 REPLACE INTO `{PREFIX}site_content` VALUES (4, 'document', 'text/html', '404 - Document Not Found', 'お探しのページが見当たりません (Page Not Found)', '', 'doc-not-found', '', 1, 0, 0, 0, 0, '', '<p>\r\n存在しないページへアクセスしたようです。 ログインするか、 以下のページにアクセスしてください:\r\n</p>\r\n<div>[[Wayfinder? &startId=`0` &showDescription=`1`]]</div>\r\n\r\n', 1, 2, 10, 0, 1, 1, 1144904400, 1, 1159301173, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
-REPLACE INTO `{PREFIX}site_content` VALUES (5, 'document', 'text/html', '新サービスのお知らせ', '新サービスのお知らせ', '', 'newservice', '', 1, 0, 0, 2, 0, '', '<p>新サービスのお知らせです。</p>\r\n', 1, 2, 0, 1, 1, -1, 1300505696, 1, 1300505697, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
+REPLACE INTO `{PREFIX}site_content` VALUES (5, 'document', 'text/html', '新サービスのお知らせ', '新サービスのお知らせ', '', 'newservice', '', 1, 0, 0, 2, 0, '', '<p>新サービスのお知らせです。</p>\r\n', 1, 2, 0, 1, 1, 1, 1300505696, 1, 1300505697, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
 REPLACE INTO `{PREFIX}site_content` VALUES (6, 'document', 'application/rss+xml', 'RSS フィード', '[(site_name)] RSSフィード', '', 'feed.rss', '', 1, 0, 0, 0, 0, '', '[[Ditto?\r\n   &parents=`2`\r\n   &format=`rss`\r\n   &display=`10`\r\n]]', 0, 0, 11, 0, 1, 1, 1144904400, 1, 1160062859, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
@@ -24,7 +24,7 @@ REPLACE INTO `{PREFIX}site_content` VALUES (8, 'document', 'text/html', 'MODXの
 
 REPLACE INTO `{PREFIX}site_content` VALUES (9, 'document', 'text/html', 'AjaxとWeb2.0', 'AjaxとWeb2.0', '', 'ajax', '', 1, 1159264800, 0, 8, 0, '', '<strong>Ajax技術との相性のよさ</strong>\r\n<p>\r\nコアが直接出力するhtmlコードがほとんどないMODXは、流行のAjaxテクニックを自由自在に扱うことができます。アクセシビリティの高い、正しいCSSレイアウトのサイト管理も簡単にできます。ウェブ標準に則ったサイト作成が簡単にできます。(もし必要なら、tableタグに依存したレイアウトも簡単です)\r\n</p>', 1, 2, 1, 1, 1, 1, 1144904400, 1, 1159307504, 0, 0, 0, 0, 0, 'AjaxとWeb2.0', 0, 0, 0, 0, 0, 0, 0);
 
-REPLACE INTO `{PREFIX}site_content` VALUES (10, 'document', 'text/html', 'サイトをオープンしました。', 'サイトをオープンしました', '', 'begin', '', 1, 0, 0, 2, 0, '', '<p>サイトをオープンしました。MODXで作りました。</p>\r\n', 1, 2, 2, 1, 1, -1, 1299728096, 1, 1299728097, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
+REPLACE INTO `{PREFIX}site_content` VALUES (10, 'document', 'text/html', 'サイトをオープンしました。', 'サイトをオープンしました', '', 'begin', '', 1, 0, 0, 2, 0, '', '<p>サイトをオープンしました。MODXで作りました。</p>\r\n', 1, 2, 2, 1, 1, 1, 1299728096, 1, 1299728097, 0, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0, 1);
 
 REPLACE INTO `{PREFIX}site_content` VALUES (11, 'document', 'text/html', 'メニューとリスト', '自由度が高いメニューとリスト', '', 'menus', '', 1, 1159178400, 0, 8, 0, '', '<h3>Your documents - listed how you want them</h3>\r\n<p>\r\n汎用CMSの評価の要となるのが、ナビゲーションコントロールと複数コンテンツのリスト表示。MODXでは、これらのコンテンツコントロールを2つの高機能スニペットに託しました。それがDitto（ディットー）とWayfinder（ウェイファインダー）です。\r\n</p>\r\n<h3>Wayfinder - メニュー生成スニペット</h3>\r\n<p>このサイトでは、Wayfinderはグローバルナビゲーションの生成に用いていますが、ドロップダウンなどあらゆるタイプのメニューを生成できます。サイトマップやパン屑リストの出力に用いることもできます。</p>\r\n<h3>Ditto（ディトゥー - 文章のリストアップスニペット）</h3>\r\n<p>新着情報の一覧を生成したり、サイトマップを作ったり、テンプレート変数との組み合わせで関連文書をリストアップしたり、RSSフィードの生成を行ったりします。Wayfinderとは異なるアプローチでナビゲーションを作ることもできます。このサイトでは、新着情報の記事一覧の表示に使われています。</p>\r\n<h3>カスタマイズは無限に可能</h3>\r\n<p>\r\nDittoとWayfinderのオプション、テンプレートを使用しても、満足のいくデザインや効果が得られない場合、独自の処理を作ることもできますし、<a href=\"http://modx.com/extras.html\">MODXのリポジトリ</a>から他のスニペットを探すこともできます。MODXのメニュータイトル、要約、メニューの場所、そのほか諸々は、APIを利用することによって思いどおりのデザインを作ることができます。\r\n</p>', 1, 2, 2, 1, 1, 1, 1144904400, 1, 1160148522, 0, 0, 0, 0, 0, 'メニューとリスト', 0, 0, 0, 0, 0, 0, 0);
 
