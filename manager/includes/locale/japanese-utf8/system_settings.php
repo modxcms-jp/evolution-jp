@@ -13,23 +13,23 @@ $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 run_update($simple_version);
 
-$manager_theme            = set_default('MODxCarbon',$manager_theme,strpos($settings_version, '0.9.')!==false);
-$show_meta                = set_default('0', $show_meta);
-$fe_editor_lang           = set_default('japanese-utf8', $fe_editor_lang);
-$rss_url_news             = set_default('http://feeds2.feedburner.com/modxjp', $rss_url_news);
-$rss_url_security         = set_default('http://feeds2.feedburner.com/modxjpsec', $rss_url_security);
-$validate_referer         = set_default('1', $validate_referer);
-$datepicker_offset        = set_default('-10', $datepicker_offset);
-$datetime_format          = set_default('YYYY/mm/dd', $datetime_format);
-$warning_visibility       = set_default('0', $warning_visibility);
-$remember_last_tab        = set_default('1', $remember_last_tab);
-$auto_template_logic      = set_default('sibling', $auto_template_logic);
-$manager_direction        = set_default('ltr', $manager_direction);
+$manager_theme       = set_default('MODxCarbon',$manager_theme,strpos($settings_version, '0.9.')!==false);
+$show_meta           = set_default('0', $show_meta);
+$fe_editor_lang      = set_default('japanese-utf8', $fe_editor_lang);
+$rss_url_news        = set_default('http://feeds2.feedburner.com/modxjp', $rss_url_news);
+$rss_url_security    = set_default('http://feeds2.feedburner.com/modxjpsec', $rss_url_security);
+$validate_referer    = set_default('1', $validate_referer);
+$datepicker_offset   = set_default('-10', $datepicker_offset);
+$datetime_format     = set_default('YYYY/mm/dd', $datetime_format);
+$warning_visibility  = set_default('0', $warning_visibility);
+$remember_last_tab   = set_default('1', $remember_last_tab);
+$auto_template_logic = set_default('sibling', $auto_template_logic);
+$manager_direction   = set_default('ltr', $manager_direction);
 
 function set_default($default_value,$current_value,$flag = false)
 {
 	if(!isset($current_value) || $flag == true) $value = $default_value;
-	else                                         $value = $current_value;
+	else                                        $value = $current_value;
 	return $value;
 }
 
