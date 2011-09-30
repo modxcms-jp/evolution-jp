@@ -280,7 +280,7 @@ class PHxParser {
 						$output = eval("return ".$filter.";");
 						break;
 					case "ifempty": if (empty($output)) $output = $modifier_value[$i]; break;
-					case "date": $output = strftime($modifier_value[$i],0+$output); break;
+					case "date": $output = $this->mb_strftime($modifier_value[$i],0+$output); break;
 					case "set":
 						$c = $i+1;
 						if ($count>$c&&$modifier_cmd[$c]=="value") $output = preg_replace("~([^a-zA-Z0-9])~","",$modifier_value[$i]);
@@ -361,12 +361,12 @@ class PHxParser {
 
 	// Simple log entry
 	function Log($string) {
-		if ($this->debug) {$this->debugLog = true; $this->console[] = (count($this->console)+1-$this->curPass). " [". strftime("%H:%M:%S",time()). "] " . $this->LogClean($string);}
+		if ($this->debug) {$this->debugLog = true; $this->console[] = (count($this->console)+1-$this->curPass). " [". $this->mb_strftime("%H:%M:%S",time()). "] " . $this->LogClean($string);}
 	}
 
 	// Log snippet output
 	function LogSnippet($string) {
-		if ($this->debug) {$this->debugLog = true; $this->console[] = (count($this->console)+1-$this->curPass). " [". strftime("%H:%M:%S",time()). "] " . "  |--- Returns: <div style='margin: 10px;'>".$this->LogClean($string)."</div>";}
+		if ($this->debug) {$this->debugLog = true; $this->console[] = (count($this->console)+1-$this->curPass). " [". $this->mb_strftime("%H:%M:%S",time()). "] " . "  |--- Returns: <div style='margin: 10px;'>".$this->LogClean($string)."</div>";}
 	}
 
 	// Log pass
@@ -441,6 +441,19 @@ class PHxParser {
     function setPHxVariable($name, $value) {
         if ($name != "phx") $this->placeholders[$name] = $value;
     }
-
+    
+	function mb_strftime($format='', $timestamp='')
+	{
+		global $modx;
+		
+		if(empty($format)) $format = $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';
+		
+		if(method_exists($modx,'mb_strftime'))
+		{
+			$str = $modx->mb_strftime($format,$timestamp);
+		}
+		else $str = strftime($format,$timestamp);
+	    return $str;
+	}
 }
 ?>
