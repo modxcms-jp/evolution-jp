@@ -203,7 +203,6 @@ if (!function_exists("make_changes")) {
 
 
 
-
 // Check the current event
 global $e;
 $e = &$modx->Event;
@@ -215,6 +214,11 @@ switch ($e->name) {
 
 
 // if it's the plugin config form, give us a copy of all the relevant values
+
+case 'OnManagerPageInit':
+	$modx->addEventListener('OnManagerMainFrameHeaderHTMLBlock', $e->activePlugin);
+	
+	break;
 
 case 'OnPluginFormRender':
 	
@@ -293,7 +297,12 @@ case 'OnPluginFormRender':
 	break;
 
 
-
+case 'OnManagerMainFrameHeaderHTMLBlock':
+	$output  = '<!-- Begin ManagerManager output -->' . "\n";
+	$output .= includeJs($js_url, 'html');
+	$e->output($output);
+	
+	break;
 
 case 'OnDocFormPrerender':
 
@@ -318,8 +327,12 @@ case 'OnDocFormPrerender':
 	
 
 	// Load the jquery library
-	echo '<!-- Begin ManagerManager output -->';
-	echo includeJs($js_url, 'html');	
+	echo '<!-- Begin ManagerManager output -->' . "\n";
+$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+$sql = "SELECT count(`name`) FROM {$tbl_system_eventnames} WHERE `name`='OnManagerMainFrameHeaderHTMLBlock'";
+$rs = $modx->db->query($sql);
+$count = $modx->db->getRow($rs);
+if($count<1) echo includeJs($js_url, 'html');
 
 	// Create a mask to cover the page while the fields are being rearranged
 	echo '		
