@@ -193,7 +193,8 @@ function update_tbl_system_eventnames($version)
 			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
 			          ('9','OnWebChangePassword','3',''),
 			          ('14','OnManagerSaveUser','2',''),
-			          ('16','OnManagerChangePassword','2','')";
+			          ('16','OnManagerChangePassword','2',''),
+			          ('206','OnManagerMainFrameHeaderHTMLBlock','')";
 			break;
 	}
 	$modx->db->query($sql);
