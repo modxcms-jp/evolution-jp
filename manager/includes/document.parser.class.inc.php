@@ -869,138 +869,83 @@ class DocumentParser {
 			$loop_count = 0;
 			foreach($pieces as $piece)
 			{
-				if($loop_count < 1)                           $stack .= $piece;
+				if($loop_count < 1)                 $stack .= $piece;
 				elseif(strpos($piece,']]')===false) $stack .= '[[' . $piece;
 				else
 				{
-					list($call,$content) = explode(']]', $piece, 2);
-					if(strpos($call, '?') !== false)
-					{
-						list($snip_name,$params_str) = explode('?',$call,2);
-					}
-					elseif((strpos($call, '&') !== false) && (strpos($call, '=') !== false) && (strpos($call, '?') === false))
-					{
-						list($snip_name,$params_str) = explode("&",$call,2);
-						$params_str = '&' . $params_str;
-					}
-					elseif(strpos($call, "\n") !== false)
-					{
-						list($snip_name,$params_str) = explode("\n",$call,2);
-					}
-					else
-					{
-						$snip_name = $call;
-						$params_str = '';
-					}
-					$snip_name = trim($snip_name);
+					$snip_call        = $this->_split_snip_call($piece);
+					$snip_name        = $snip_call['name'];
+					$except_snip_call = $snip_call['except_snip_call'];
 					
-					if(isset($this->snippetCache[$snip_name]))
-					{
-						$snippets['name']    = $snip_name;
-						$snippets['content'] = $this->snippetCache[$snip_name];
-						if(isset($this->snippetCache[$snip_name . 'Props']))
-						{
-							$snippets['properties'] = $this->snippetCache[$snip_name . 'Props'];
-						}
-					}
-					else
-					{
-						$tbl_snippets  = $this->getFullTableName('site_snippets');
-						$esc_snip_name = $this->db->escape($snip_name);
-						// get from db and store a copy inside cache
-						$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
-						$result= $this->db->query($sql);
-						$added = false;
-						if($this->db->getRecordCount($result) == 1)
-						{
-							$row = $this->db->getRow($result);
-							if($row['name'] == $snip_name)
-							{
-								$snippets['name']       = $row['name'];
-								$snippets['content']    = $this->snippetCache[$row['name']]           = $row['snippet'];
-								$snippets['properties'] = $this->snippetCache[$row['name'] . 'Props'] = $row['properties'];
-								$added = true;
-							}
-						}
-						if($added === false)
-						{
-							$snippets['name']       = $snip_name;
-							$snippets['content']    = $this->snippetCache[$snip_name] = 'return false;';
-							$snippets['properties'] = '';
-						}
-					}
+					$snippetObject = $this->_get_snip_properties($snip_call);
 					
 					$params   = array ();
-					$this->currentSnippet = $snippets['name'];
-					// FIXME Undefined index: properties
-					if(isset($snippets['properties']))
+					$this->currentSnippet = $snippetObject['name'];
+					
+					if(isset($snippetObject['properties']))
 					{
-						$params = $this->parseProperties($snippets['properties']);
+						$params = $this->parseProperties($snippetObject['properties']);
 					}
 					else
 					{
 						$params = '';
 					}
 					// current params
-					if(!empty($params_str))
+					if(!empty($snip_call['params']))
 					{
-						$params_str = ltrim($params_str, '?');
+						$snip_call['params'] = ltrim($snip_call['params'], '?');
 						
 						$i = 0;
 						$limit = 50;
-						$params = array();
-						$temp_remain = $params_str;
-						while(!empty($temp_remain) && $i < $limit)
+						$params_stack = $snip_call['params'];
+						while(!empty($params_stack) && $i < $limit)
 						{
-							list($temp_pname,$temp_remain) = explode('=',$temp_remain,2);
-							$temp_remain = trim($temp_remain);
-							$delim = substr($temp_remain, 0, 1);
+							list($pname,$params_stack) = explode('=',$params_stack,2);
+							$params_stack = trim($params_stack);
+							$delim = substr($params_stack, 0, 1);
 							$temp_params = array();
 							switch($delim)
 							{
 								case '`':
 								case '"':
 								case "'":
-									$temp_params = explode($delim,$temp_remain,3);
-									$temp_pvalue = $temp_params['1'];
-									$temp_remain = $temp_params['2'];
-									$temp_remain = trim($temp_remain);
-									if(substr($temp_remain, 0, 2)==='//')
+									$params_stack = substr($params_stack,1);
+									list($pvalue,$params_stack) = explode($delim,$params_stack,2);
+									$params_stack = trim($params_stack);
+									if(substr($params_stack, 0, 2)==='//')
 									{
-										$temp_remain = strstr($temp_remain, "\n");
+										$params_stack = strstr($params_stack, "\n");
 									}
 									break;
 								default:
-									if(strpos($temp_remain, '&')!==false)
+									if(strpos($params_stack, '&')!==false)
 									{
-										$temp_params = explode('&',$temp_remain,2);
-										$temp_pvalue = $temp_params['0'];
-										$temp_remain = $temp_params['1'];
+										list($pvalue,$params_stack) = explode('&',$params_stack,2);
 									}
-									else $temp_pvalue = $temp_remain;
-									$temp_pvalue = trim($temp_pvalue);
+									else $pvalue = $params_stack;
+									$pvalue = trim($pvalue);
 							}
 							if($delim !== "'")
 							{
-								$temp_pvalue = (strpos($temp_pvalue,'[*')!==false) ? $this->mergeDocumentContent($temp_pvalue) : $temp_pvalue;
+								$pvalue = (strpos($pvalue,'[*')!==false) ? $this->mergeDocumentContent($pvalue) : $pvalue;
 							}
 							
-							$temp_pname  = str_replace('&amp;', '', $temp_pname);
-							$temp_pname  = trim($temp_pname);
-							$temp_pname  = trim($temp_pname,'&');
-							$params[$temp_pname] = $temp_pvalue;
-							$temp_remain = trim($temp_remain);
-							if($temp_remain!=='') $temp_remain = '&' . ltrim($temp_remain,'&');
+							$pname  = str_replace('&amp;', '', $pname);
+							$pname  = trim($pname);
+							$pname  = trim($pname,'&');
+							$params[$pname] = $pvalue;
+							$params_stack = trim($params_stack);
+							if($params_stack!=='') $params_stack = '&' . ltrim($params_stack,'&');
 							$i++;
 						}
 						unset($temp_params);
 					}
-					$executedSnippets = $this->evalSnippet($snippets['content'], $params);
+					$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
 					if($this->dumpSnippets == 1)
 					{
-						echo '<fieldset><legend><b>' . $snippetName . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets) . '</textarea></fieldset>';
+						echo '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets) . '</textarea></fieldset>';
 					}
-					$stack .= $executedSnippets . $content;
+					$stack .= $executedSnippets . $except_snip_call;
 				}
 				$loop_count++; // End of foreach loop
 			}
@@ -1008,7 +953,74 @@ class DocumentParser {
 		}
 		return $stack;
 	}
-
+	
+	function _split_snip_call($src)
+	{
+		list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
+		if(strpos($call, '?') !== false)
+		{
+			list($snip['name'],$snip['params']) = explode('?',$call,2);
+		}
+		elseif((strpos($call, '&') !== false) && (strpos($call, '=') !== false) && (strpos($call, '?') === false))
+		{
+			list($snip['name'],$snip['params']) = explode("&",$call,2);
+			$snip['params'] = '&' . $snip['params'];
+		}
+		elseif(strpos($call, "\n") !== false)
+		{
+			list($snip['name'],$snip['params']) = explode("\n",$call,2);
+		}
+		else
+		{
+			$snip['name'] = $call;
+			$snip['params'] = '';
+		}
+		$snip['name'] = trim($snip['name']);
+		return $snip;
+	}
+	
+	function _get_snip_properties($snip_call)
+	{
+		$snip_name  = $snip_call['name'];
+		
+		if(isset($this->snippetCache[$snip_name]))
+		{
+			$snippetObject['name']    = $snip_name;
+			$snippetObject['content'] = $this->snippetCache[$snip_name];
+			if(isset($this->snippetCache[$snip_name . 'Props']))
+			{
+				$snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'];
+			}
+		}
+		else
+		{
+			$tbl_snippets  = $this->getFullTableName('site_snippets');
+			$esc_snip_name = $this->db->escape($snip_name);
+			// get from db and store a copy inside cache
+			$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
+			$result= $this->db->query($sql);
+			$added = false;
+			if($this->db->getRecordCount($result) == 1)
+			{
+				$row = $this->db->getRow($result);
+				if($row['name'] == $snip_name)
+				{
+					$snippetObject['name']       = $row['name'];
+					$snippetObject['content']    = $this->snippetCache[$snip_name]           = $row['snippet'];
+					$snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'] = $row['properties'];
+					$added = true;
+				}
+			}
+			if($added === false)
+			{
+				$snippetObject['name']       = $snip_name;
+				$snippetObject['content']    = $this->snippetCache[$snip_name] = 'return false;';
+				$snippetObject['properties'] = '';
+			}
+		}
+		return $snippetObject;
+	}
+	
     function makeFriendlyURL($pre, $suff, $path) {
         $elements = explode('/',$path);
         $alias    = array_pop($elements);
