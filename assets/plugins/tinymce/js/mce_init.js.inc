@@ -57,3 +57,6 @@ tinyMCE.init({
 })
 </script>
 
+<style type="text/css">
+.clearlooks2_modalBlocker {background-color:#333;}
+</style>
