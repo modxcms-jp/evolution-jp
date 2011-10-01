@@ -91,7 +91,7 @@ function update_config_default_template_method()
 	global $modx,$auto_template_logic;
 	
 	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
-	$rs = $modx->db->query("SELECT properties,disabled FROM {$tbl_site_plugins} WHERE name='Inherit Parent Template'");
+	$rs = $modx->db->query("SELECT properties,disabled FROM {$tbl_site_plugins} WHERE `name`='Inherit Parent Template'");
 	$row = mysql_fetch_assoc($rs);
 	if($row)
 	{
