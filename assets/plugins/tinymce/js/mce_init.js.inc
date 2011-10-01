@@ -51,6 +51,7 @@ tinyMCE.init({
 	plugin_insertdate_timeFormat     : '[+time_format+]',
 	entity_encoding                  : '[+entity_encoding+]',
 	file_browser_callback            : '[+file_browser_callback+]',
+	paste_text_sticky                : true,
 	onchange_callback                : [+onchange_callback+][+terminate+]
 	[+customparams+]
 })
