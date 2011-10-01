@@ -57,8 +57,3 @@ tinyMCE.init({
 })
 </script>
 
-<script language="javascript" type="text/javascript">
-function myCustomOnChangeHandler() {
-	documentDirty = true;
-}
-</script>
