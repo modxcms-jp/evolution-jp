@@ -756,15 +756,18 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					if (isset ($content['template']))
 						$template = $content['template'];
 				}
-
-				$sql = 'SELECT DISTINCT tv.*, IF(tvc.value!=\'\',tvc.value,tv.default_text) as value '.
-				       'FROM '.$tbl_site_tmplvars.' AS tv '.
-				       'INNER JOIN '.$tbl_site_tmplvar_templates.' AS tvtpl ON tvtpl.tmplvarid = tv.id '.
-				       'LEFT JOIN '.$tbl_site_tmplvar_contentvalues.' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\''.$id.'\' '.
-				       'LEFT JOIN '.$tbl_site_tmplvar_access.' AS tva ON tva.tmplvarid=tv.id '.
-				       'WHERE tvtpl.templateid=\''.$template.'\' AND (1=\''.$_SESSION['mgrRole'].'\' OR ISNULL(tva.documentgroup)'.
-				       (!$docgrp ? '' : ' OR tva.documentgroup IN ('.$docgrp.')').
-                       ') ORDER BY tvtpl.rank,tv.rank, tv.id';
+				$session_mgrRole = $_SESSION['mgrRole'];
+				$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
+				$sql = "
+					SELECT DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value 
+					FROM {$tbl_site_tmplvars} AS tv 
+					INNER JOIN {$tbl_site_tmplvar_templates}     AS tvtpl ON tvtpl.tmplvarid = tv.id 
+					LEFT  JOIN {$tbl_site_tmplvar_contentvalues} AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
+					LEFT  JOIN {$tbl_site_tmplvar_access}        AS tva   ON tva.tmplvarid   = tv.id 
+					WHERE tvtpl.templateid='{$template}'
+						AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
+					ORDER BY tvtpl.rank,tv.rank, tv.id
+					";
 				$rs = mysql_query($sql);
 				$limit = mysql_num_rows($rs);
 				if ($limit > 0) {
