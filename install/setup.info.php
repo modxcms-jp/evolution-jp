@@ -34,8 +34,8 @@ if(is_dir($templatePath) && is_readable($templatePath)) {
 					$params['type'],
 					"$templatePath/{$params['filename']}",
 					$params['modx_category'],
-                $params['lock_template'],
-                array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
+					$params['lock_template'],
+					array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
 				);
 			}
 		}
@@ -120,29 +120,35 @@ if(is_dir($snippetPath) && is_readable($snippetPath)) {
 
 // setup plugins template files - array : name, description, type - 0:file or 1:content, file or content,properties
 $mp = &$modulePlugins;
-if(is_dir($pluginPath) && is_readable($pluginPath)) {
-		$d = dir($pluginPath);
-		while (false !== ($tplfile = $d->read())) {
-			if(substr($tplfile, -4) != '.tpl') {
-				continue;
-			}
-			$params = parse_docblock($pluginPath, $tplfile);
-			if(is_array($params) && count($params) > 0) {
-				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $mp[] = array(
-                $params['name'],
-                $description,
-                "$pluginPath/{$params['filename']}",
-                $params['properties'],
-                $params['events'],
-                $params['guid'],
-                $params['modx_category'],
-                $params['legacy_names'],
-                array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-            );
-			}
+if(is_dir($pluginPath) && is_readable($pluginPath))
+{
+	$d = dir($pluginPath);
+	while (false !== ($tplfile = $d->read()))
+	{
+		if(substr($tplfile, -4) != '.tpl')
+		{
+			continue;
 		}
-		$d->close();
+		$params = parse_docblock($pluginPath, $tplfile);
+		if(is_array($params) && 0 < count($params))
+		{
+		
+			if(!empty($params['version'])) $description = "<strong>{$params['version']}</strong> {$params['description']}";
+			else                           $description = $params['description'];
+			$mp[] = array(
+				$params['name'],
+				$description,
+				"$pluginPath/{$params['filename']}",
+				$params['properties'],
+				$params['events'],
+				$params['guid'],
+				$params['modx_category'],
+				$params['legacy_names'],
+				array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
+			);
+		}
+	}
+	$d->close();
 }
 
 // setup modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid,enable_sharedparams
@@ -250,62 +256,83 @@ function clean_up($sqlParser) {
 		***/
 }
 
-function parse_docblock($element_dir, $filename) {
+function parse_docblock($element_dir, $filename)
+{
 	$params = array();
 	$fullpath = $element_dir . '/' . $filename;
-	if(is_readable($fullpath)) {
-		$tpl = @fopen($fullpath, "r");
-		if($tpl) {
+	if(is_readable($fullpath))
+	{
+		$tpl = @fopen($fullpath, 'r');
+		if($tpl)
+		{
 			$params['filename'] = $filename;
 			$docblock_start_found = false;
 			$name_found = false;
 			$description_found = false;
 			$docblock_end_found = false;
-
-			while(!feof($tpl)) {
+			
+			while(!feof($tpl))
+			{
 				$line = fgets($tpl);
-				if(!$docblock_start_found) {
+				if(!$docblock_start_found)
+				{
 					// find docblock start
-					if(strpos($line, '/**') !== false) {
+					if(strpos($line, '/**') !== false)
+					{
 						$docblock_start_found = true;
 					}
 					continue;
-				} elseif(!$name_found) {
+				}
+				elseif(!$name_found)
+				{
 					// find name
 					$ma = null;
-					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
+					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
+					{
 						$params['name'] = trim($ma[1]);
 						$name_found = !empty($params['name']);
 					}
 					continue;
-				} elseif(!$description_found) {
+				}
+				elseif(!$description_found)
+				{
 					// find description
 					$ma = null;
-					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
+					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
+					{
 						$params['description'] = trim($ma[1]);
 						$description_found = !empty($params['description']);
 					}
 					continue;
-				} else {
+				}
+				else
+				{
 					$ma = null;
-					if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma)) {
+					if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma))
+					{
 						$param = trim($ma[1]);
 						$val = trim($ma[2]);
-						if(!empty($param) && !empty($val)) {
-							if($param == 'internal') {
+						if(!empty($param) && !empty($val))
+						{
+							if($param == 'internal')
+							{
 								$ma = null;
-								if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma)) {
+								if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma))
+								{
 									$param = trim($ma[1]);
 									$val = trim($ma[2]);
 								}
-                                //if($val !== '0' && (empty($param) || empty($val))) {
-                                if(empty($param)) {
+								//if($val !== '0' && (empty($param) || empty($val))) {
+								if(empty($param))
+								{
 									continue;
 								}
 							}
 							$params[$param] = $val;
 						}
-					} elseif(preg_match("/^\s*\*\/\s*$/", $line)) {
+					}
+					elseif(preg_match("/^\s*\*\/\s*$/", $line))
+					{
 						$docblock_end_found = true;
 						break;
 					}
