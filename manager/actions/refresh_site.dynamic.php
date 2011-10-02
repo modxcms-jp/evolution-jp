@@ -7,12 +7,12 @@ $now = time();
 $tbl_sc = $modx->getFullTableName('site_content');
 
 $sql = "UPDATE {$tbl_sc} SET published=1 WHERE pub_date < {$now}  AND pub_date!=0    AND ({$now} < unpub_date or unpub_date=0)";
-$rs = mysql_query($sql);
-$num_rows_pub = mysql_affected_rows($modxDBConn);
+$rs = $modx->db->query($sql);
+$num_rows_pub = $modx->db->getAffectedRows();
 
 $sql = "UPDATE {$tbl_sc} SET published=0 WHERE unpub_date < {$now} AND unpub_date!=0 AND published=1";
-$rs = mysql_query($sql);
-$num_rows_unpub = mysql_affected_rows($modxDBConn);
+$rs = $modx->db->query($sql);
+$num_rows_unpub = $modx->db->getAffectedRows();
 
 ?>
 
