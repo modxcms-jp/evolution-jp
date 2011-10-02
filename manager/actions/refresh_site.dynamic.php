@@ -3,14 +3,14 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 
 // (un)publishing of documents, version 2!
 // first, publish document waiting to be published
-$ctime = time();
-$sctable = $modx->getFullTableName('site_content');
+$now = time();
+$tbl_sc = $modx->getFullTableName('site_content');
 
-$sql = "UPDATE $sctable SET published=1 WHERE pub_date < ".$ctime." AND pub_date!=0 AND (unpub_date > ".$ctime . ' or unpub_date=0)';
+$sql = "UPDATE {$tbl_sc} SET published=1 WHERE pub_date < {$now}  AND pub_date!=0    AND ({$now} < unpub_date or unpub_date=0)";
 $rs = mysql_query($sql);
 $num_rows_pub = mysql_affected_rows($modxDBConn);
 
-$sql = "UPDATE $sctable SET published=0 WHERE unpub_date < ".$ctime." AND unpub_date!=0 AND published=1";
+$sql = "UPDATE {$tbl_sc} SET published=0 WHERE unpub_date < {$now} AND unpub_date!=0 AND published=1";
 $rs = mysql_query($sql);
 $num_rows_unpub = mysql_affected_rows($modxDBConn);
 
@@ -21,12 +21,12 @@ doRefresh(1);
 </script>
 <h1><?php echo $_lang['refresh_title']; ?></h1>
 <div class="sectionBody">
-<?php printf("<p>".$_lang["refresh_published"]."</p>", $num_rows_pub) ?>
-<?php printf("<p>".$_lang["refresh_unpublished"]."</p>", $num_rows_unpub) ?>
+<?php printf('<p>'.$_lang["refresh_published"].'</p>', $num_rows_pub) ?>
+<?php printf('<p>'.$_lang["refresh_unpublished"].'</p>', $num_rows_unpub) ?>
 <?php
-include_once "./processors/cache_sync.class.processor.php";
+include_once MODX_BASE_PATH . 'manager/processors/cache_sync.class.processor.php';
 $sync = new synccache();
-$sync->setCachepath("../assets/cache/");
+$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 $sync->setReport(true);
 $sync->emptyCache();
 
