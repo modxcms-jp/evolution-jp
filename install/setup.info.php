@@ -15,6 +15,13 @@ $modulePath = $setupPath .'/assets/modules';
 $templatePath = $setupPath .'/assets/templates';
 $tvPath = $setupPath .'/assets/tvs';
 
+@ $conn = mysql_connect($database_server, $database_user, $database_password);
+if (function_exists('mysql_set_charset'))
+{
+	mysql_set_charset($database_connection_charset);
+}
+@ mysql_select_db(trim($dbase, '`'), $conn);
+
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
 $mt = &$moduleTemplates;
 if(is_dir($templatePath) && is_readable($templatePath)) {
@@ -26,6 +33,9 @@ if(is_dir($templatePath) && is_readable($templatePath)) {
 			if(is_array($params) && (count($params)>0))
 			{
 				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
+				
+				if($installMode===1 && compare_check($params)=='same') continue;
+					
 				$mt[] = array
 				(
 					$params['name'],
@@ -51,6 +61,9 @@ if(is_dir($tvPath) && is_readable($tvPath)) {
 			$params = parse_docblock($tvPath, $tplfile);
         if(is_array($params) && (count($params)>0)) {
 				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
+				
+				if($installMode===1 && compare_check($params)=='same') continue;
+					
             $mtv[] = array(
 					$params['name'],
 					$params['caption'],
@@ -81,6 +94,9 @@ if(is_dir($chunkPath) && is_readable($chunkPath)) {
 			}
 			$params = parse_docblock($chunkPath, $tplfile);
 			if(is_array($params) && count($params) > 0) {
+			
+				if($installMode===1 && compare_check($params)=='same') continue;
+				
             $mc[] = array(
                 $params['name'],
                 $params['description'],
@@ -105,6 +121,9 @@ if(is_dir($snippetPath) && is_readable($snippetPath)) {
 			$params = parse_docblock($snippetPath, $tplfile);
 			if(is_array($params) && count($params) > 0) {
 				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
+				
+				if($installMode===1 && compare_check($params)=='same') continue;
+				
             $ms[] = array(
                 $params['name'],
                 $description,
@@ -135,6 +154,9 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 		
 			if(!empty($params['version'])) $description = "<strong>{$params['version']}</strong> {$params['description']}";
 			else                           $description = $params['description'];
+			
+			if($installMode===1 && compare_check($params)=='same') continue;
+		
 			$mp[] = array(
 				$params['name'],
 				$description,
@@ -162,6 +184,9 @@ if(is_dir($modulePath) && is_readable($modulePath)) {
 			$params = parse_docblock($modulePath, $tplfile);
 			if(is_array($params) && count($params) > 0) {
 				$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
+				
+				if($installMode===1 && compare_check($params)=='same') continue;
+				
             $mm[] = array(
                 $params['name'],
                 $description,
@@ -343,3 +368,95 @@ function parse_docblock($element_dir, $filename)
 	}
 	return $params;
 }
+
+if(!function_exists('modx_escape'))
+{
+	function modx_escape($s)
+	{
+		global $database_connection_charset;
+		if (function_exists('mysql_set_charset'))
+		{
+			$s = mysql_real_escape_string($s);
+		}
+		elseif ($database_connection_charset=='utf8')
+		{
+			$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
+			$s = mysql_real_escape_string($s);
+			$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
+		}
+		else
+		{
+			$s = mysql_escape_string($s);
+		}
+		return $s;
+	}
+}
+
+function compare_check($params)
+{
+	global $table_prefix;
+	
+	$name_field  = 'name';
+	$name        = $params['name'];
+	$mode        = 'version_compare';
+	if($params['version'])
+	{
+		$new_version = $params['version'];
+	}
+	//print_r($params);
+	switch($params['category'])
+	{
+		case 'template':
+			$table = $table_prefix . 'site_templates';
+			$name_field = 'templatename';
+			$mode       = 'desc_compare';
+			break;
+		case 'tv':
+			$table = $table_prefix . 'site_tmplvars';
+			$mode  = 'desc_compare';
+			break;
+		case 'chunk':
+			$table = $table_prefix . 'site_htmlsnippets';
+			$mode  = 'desc_compare';
+			break;
+		case 'snippet':
+			$table = $table_prefix . 'site_snippets';
+			break;
+		case 'plugin':
+			$table = $table_prefix . 'site_plugins';
+			break;
+		case 'module':
+			$table = $table_prefix . 'site_modules';
+			break;
+	}
+	$sql = "SELECT * FROM `{$table}` WHERE `{$name_field}`='{$name}'";
+	$rs = mysql_query($sql);
+	if(!$rs) echo "An error occurred while executing a query: ".mysql_error();
+	else     $row = mysql_fetch_assoc($rs);
+	$count = mysql_num_rows($rs);
+	
+	if($count===1)
+	{
+		$new_desc    = $params['description'];
+		$old_desc    = modx_escape($row['description']);
+		$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
+		$old_version = strip_tags($old_version);
+/* debug
+echo '<br /><b>' . $name . '</b><br />';
+echo 'new-' . $new_desc . '<br />';
+echo 'old-' . $old_desc . '<br />';
+echo 'new-' . $new_version . '<br />';
+echo 'old-' . $old_version . '<br />';
+*/
+		if($mode == 'version_compare' && $old_version === $new_version)
+		{
+			                            $result = 'same';
+		}
+		elseif($old_desc === $new_desc) $result = 'same';
+		else                            $result = 'diff';
+	}
+	elseif($count < 1)                  $result = 'no exists';
+	
+	return $result;
+}
+
