@@ -194,7 +194,7 @@ function update_tbl_system_eventnames($version)
 			          ('9','OnWebChangePassword','3',''),
 			          ('14','OnManagerSaveUser','2',''),
 			          ('16','OnManagerChangePassword','2',''),
-			          ('206','OnManagerMainFrameHeaderHTMLBlock','')";
+			          ('206','OnManagerMainFrameHeaderHTMLBlock','2','')";
 			break;
 	}
 	$modx->db->query($sql);
