@@ -21,9 +21,11 @@ doRefresh(1);
 </script>
 <h1><?php echo $_lang['refresh_title']; ?></h1>
 <div class="sectionBody">
-<?php printf('<p>'.$_lang["refresh_published"].'</p>', $num_rows_pub) ?>
-<?php printf('<p>'.$_lang["refresh_unpublished"].'</p>', $num_rows_unpub) ?>
 <?php
+
+if(0<$num_rows_pub)   printf('<p>'.$_lang["refresh_published"].'</p>', $num_rows_pub);
+if(0<$num_rows_unpub) printf('<p>'.$_lang["refresh_unpublished"].'</p>', $num_rows_unpub);
+
 include_once MODX_BASE_PATH . 'manager/processors/cache_sync.class.processor.php';
 $sync = new synccache();
 $sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
