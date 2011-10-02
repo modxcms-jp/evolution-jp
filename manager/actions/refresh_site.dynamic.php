@@ -6,7 +6,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 $now = time();
 $tbl_sc = $modx->getFullTableName('site_content');
 
-$sql = "UPDATE {$tbl_sc} SET published=1 WHERE pub_date < {$now}  AND pub_date!=0    AND ({$now} < unpub_date or unpub_date=0)";
+$sql = "UPDATE {$tbl_sc} SET published=1 WHERE pub_date < {$now}   AND pub_date!=0   AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
 $rs = $modx->db->query($sql);
 $num_rows_pub = $modx->db->getAffectedRows();
 
