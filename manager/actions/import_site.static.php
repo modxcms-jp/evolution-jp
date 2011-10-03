@@ -284,7 +284,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$editedon = $date;
 				$pagetitle = $modx->db->escape($pagetitle);
 				$alias = $modx->stripAlias($alias);
-				$menuindex = 1;
+				$menuindex = ($alias=='index') ? 0 : 1;
 				$sql = "INSERT INTO {$tbl_site_content} 
 				(type, contentType, pagetitle, longtitle, description, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
 				('document', 'text/html', '{$pagetitle}', '{$pagetitle}', '{$description}', '{$alias}', $publish_default, '$parent', 0, '{$content}', '{$richtext}', '{$default_template}', $menuindex, $search_default, $cache_default, $createdby, $createdon, $editedon);";
