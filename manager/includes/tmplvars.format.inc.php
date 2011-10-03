@@ -58,7 +58,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
 			case "delim":	// display as delimitted list
 				$value = parseInput($value,"||");
-				$p = $params['format'] ? $params['format']:",";
+				$p = $params['delim'] ? $params['delim']:",";
 				if ($p=="\\n") $p = "\n";
 				$o = str_replace("||",$p,$value);
 				break;
@@ -133,7 +133,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				$style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
 				$o .= "\n<div id=\"".$id."\"".$class.$style.">\n";
 				if(!empty($value)){
-					$delim = ($params['delim'])? $params['delim']:"||";
+					$delim = ($params['msg_delim'])? $params['msg_delim']:"||";
 					if ($delim=="\\n") $delim = "\n";
 					$val = parseInput($value,$delim,"array",false);
 					if(count($val)>0){
