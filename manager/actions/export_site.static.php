@@ -46,6 +46,10 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		<input type="radio" name="target" value="1">全てのページ</td>
   </tr>
   <tr>
+    <td class="head">パス文字列の基準</td>
+    <td><input type="text" name="site_url" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
+  </tr>
+  <tr>
     <td class="head"><?php echo $_lang['export_site_prefix']; ?></td>
     <td><input type="text" name="prefix" value="<?php echo $modx->config['friendly_url_prefix']; ?>" /></td>
   </tr>
@@ -139,6 +143,8 @@ else
 				// save it
 				$filename = $filepath . $filename;
 				// Write $somecontent to our opened file.
+				$target_site_url = rtrim($_POST['site_url'],'/') . '/';
+				$somecontent = str_replace($modx->config['site_url'],$target_site_url,$somecontent);
 				if(file_put_contents($filename, $somecontent) === FALSE)
 				{
 					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
@@ -203,11 +209,13 @@ class EXPORT_SITE
 
 	function writeAPage($docid, $filepath)
 	{
-		global  $_lang;
+		global  $modx,$_lang;
 		
 		$src = @file_get_contents(MODX_SITE_URL . 'index.php?id=' . $docid);
 		if($src !== false)
 		{
+			$target_site_url = rtrim($_POST['site_url'],'/') . '/';
+			$src = str_replace($modx->config['site_url'],$target_site_url,$src);
 			$result = @file_put_contents($filepath,$src);
 			if($result !== false)
 			{
