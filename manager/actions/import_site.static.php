@@ -177,10 +177,10 @@ function importFiles($parent,$filedir,$files,$mode) {
 			// create folder
 			$alias = $id;
 			$modx->documentListing[$alias] = true;
-			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $id);
+			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $alias);
 			foreach(array('index.html','index.htm') as $filename)
 			{
-				$filepath = $filedir . $id . '/' . $filename;
+				$filepath = $filedir . $alias . '/' . $filename;
 				if(file_exists($filepath))
 				{
 					$file = getFileContent($filepath);
@@ -190,7 +190,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 						$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
 						$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
 					}
-					else $pagetitle = $id;
+					else $pagetitle = $alias;
 					
 					if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
 					{
@@ -230,7 +230,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 						exit;
 					}
 					echo '<span class="success">'.$_lang["import_site_success"].'</span><br />' . PHP_EOL;
-					importFiles($new_parent, $filedir . $id . '/',$value,'sub');
+					importFiles($new_parent, $filedir . $alias . '/',$value,'sub');
 					break;
 				}
 			}
