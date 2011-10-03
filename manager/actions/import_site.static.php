@@ -249,7 +249,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . PHP_EOL;
 			else
 			{
-				$filepath = $filedir . '/' . $filename;
+				$filepath = $filedir . $filename;
 				$file = getFileContent($filepath);
 				$file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
 				if (preg_match("@<title>(.*)</title>@i",$file,$matches))
