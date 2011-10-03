@@ -50,6 +50,10 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
     <td><input type="text" name="site_url" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
   <tr>
+    <td class="head">ファイルの出力先</td>
+    <td><input type="text" name="target_dir" value="<?php echo $modx->config['base_path']; ?>assets/export/" style="width:300px;" /></td>
+  </tr>
+  <tr>
     <td class="head"><?php echo $_lang['export_site_prefix']; ?></td>
     <td><input type="text" name="prefix" value="<?php echo $modx->config['friendly_url_prefix']; ?>" /></td>
   </tr>
@@ -83,10 +87,22 @@ else
 	$exportstart = $export->get_mtime();
 
 	$tbl_site_content = $modx->getFullTableName('site_content');
-	$filepath = MODX_BASE_PATH . 'assets/export/';
+	$filepath = rtrim($_POST['target_dir'],'/') . '/';
 	if(!is_writable($filepath))
 	{
 		echo $_lang['export_site_target_unwritable'];
+		include "footer.inc.php";
+		exit;
+	}
+	elseif(strpos($modx->config['base_path'],$filepath)===0 && 0 <= strlen(str_replace($filepath,'',$modx->config['base_path'])))
+	{
+		echo '/manager/ ディレクトリより上の階層にはファイルを出力できません。';
+		include "footer.inc.php";
+		exit;
+	}
+	elseif($modx->config['rb_base_dir'] === $filepath)
+	{
+		echo $modx->config['base_url'] . $modx->config['rb_base_url'] . ' ディレクトリにはファイルを出力できません。';
 		include "footer.inc.php";
 		exit;
 	}
