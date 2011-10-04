@@ -508,12 +508,26 @@ class DocumentParser {
 
         // check for non-cached snippet output
         if (strpos($this->documentOutput, '[!') !== false) {
-            $this->documentOutput= str_replace('[!', '[[', $this->documentOutput);
-            $this->documentOutput= str_replace('!]', ']]', $this->documentOutput);
 
-            // Parse document source
-            $this->documentOutput= $this->parseDocumentSource($this->documentOutput);
-    	}
+			// Parse document source
+			if(empty($this->minParserPasses)) $this->minParserPasses = 2;
+			if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
+			$passes = $this->minParserPasses;
+			
+			for ($i= 0; $i < $passes; $i++)
+			{
+				if($i == ($passes -1)) $st= md5($this->documentOutput);
+				
+				$this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
+				$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+				
+				if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+				{
+					$et = md5($this->documentOutput);
+					if($st != $et) $passes++;
+				}
+			}
+		}
 
     	// Moved from prepareResponse() by sirlancelot
     	// Insert Startup jscripts & CSS scripts into template - template must have a <head> tag
