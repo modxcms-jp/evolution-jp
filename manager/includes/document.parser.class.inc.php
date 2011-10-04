@@ -977,7 +977,15 @@ class DocumentParser {
 	function _split_snip_call($src)
 	{
 		list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
-		if(strpos($call, '?') !== false)
+		if(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, '?') < strpos($call, "\n"))
+		{
+			list($snip['name'],$snip['params']) = explode('?',$call,2);
+		}
+		elseif(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, "\n") < strpos($call, '?'))
+		{
+			list($snip['name'],$snip['params']) = explode("\n",$call,2);
+		}
+		elseif(strpos($call, '?') !== false)
 		{
 			list($snip['name'],$snip['params']) = explode('?',$call,2);
 		}
