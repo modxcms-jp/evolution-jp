@@ -874,9 +874,13 @@ class DocumentParser {
 		$stack = $documentSource;
 		unset($documentSource);
 		
-		while(strpos($stack,'[[')!==false)
+		if(empty($this->minParserPasses)) $this->minParserPasses = 2;
+		if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
+		$passes = $this->minParserPasses;
+		
+		for($i= 0; $i < $passes; $i++)
 		{
-			$st = md5($stack);
+			if($i == ($passes -1)) $st = md5($stack);
 			$pieces = array();
 			$pieces = explode('[[', $stack);
 			$stack = '';
@@ -890,8 +894,11 @@ class DocumentParser {
 				$stack .= $result;
 				$loop_count++; // End of foreach loop
 			}
-			$et = md5($stack);
-			if($st===$et) break;
+			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+			{
+				$et = md5($stack);
+				if($st != $et) $passes++;
+			}
 		}
 		return $stack;
 	}
