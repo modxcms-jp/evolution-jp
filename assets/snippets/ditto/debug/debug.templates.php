@@ -6,11 +6,11 @@ $dbg_templates["main"] = <<<TPL
 		<head>
         <title>[+title+]</title> 
 		<meta http-equiv="Content-Type" content="text/html; charset=[+charset+]" />
-		<link rel="stylesheet" type="text/css" href="[+base_url+]/media/style/[+theme+]/style.css" /> 
-		<link rel="stylesheet" type="text/css" href="[+base_url+]/media/style/[+theme+]/coolButtons2.css" /> 
-	    <link rel="stylesheet" type="text/css" href="[+base_url+]/media/style/[+theme+]/tabs.css"/> 
-		<script type="text/javascript" src="[+base_url+]/media/script/tabpane.js"></script>
-		<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]/debug/debug.template.css" />
+		<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/style.css" /> 
+		<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/coolButtons2.css" /> 
+	    <link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/tabs.css"/> 
+		<script type="text/javascript" src="[+base_url+]media/script/tabpane.js"></script>
+		<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]debug/debug.template.css" />
         </head>
 
         <body>
