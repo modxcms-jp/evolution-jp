@@ -8,7 +8,7 @@
 */
 
 class filter {
-	var $array_key, $filtertype, $filterValue, $filterArgs;
+	var $array_key, $filtertype, $filterValue, $flip_mode, $filterArgs;
 
 // ---------------------------------------------------
 // Function: execute
@@ -22,6 +22,9 @@ class filter {
 			if (is_array($currentFilter) && count($currentFilter) > 0)
 			{
 				$this->array_key = $currentFilter['source'];
+				
+				$this->flip_mode  = (substr($currentFilter['mode'],0,1)==='!' && substr($currentFilter['mode'],0,2)!=='!!') ? 1 : 0;
+				if($this->flip_mode) $currentFilter['mode'] = substr($currentFilter['mode'],1);
 				
 				switch($currentFilter['value'])
 				{
@@ -156,7 +159,8 @@ class filter {
 						$unset = 0;
 					break;
 		}
-			return $unset;
+		if($this->flip_mode) $unset = ($unset===1) ? 0 : 1;
+		return $unset;
 	}
 	
 }
