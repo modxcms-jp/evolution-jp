@@ -191,6 +191,8 @@ if ($limit > 0) {
         echo $snippetOutput;
     }
 }
+if(!count($moduleTemplates+$moduleTVs+$moduleChunks+$moduleModules+$modulePlugins+$moduleSnippets))
+echo '<strong>アップデート対象のエレメントはありません。</strong>';
 ?>
 	</div>
     <p class="buttonlinks">
