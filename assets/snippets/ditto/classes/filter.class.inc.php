@@ -49,6 +49,7 @@ class filter {
 			$unset = 1;
 			switch ($this->filtertype) {
 				case "!=" :
+				case '<>' :
 				case 1 :
 					if (!isset ($value[$this->array_key]) || $value[$this->array_key] != $this->filterValue)
 						$unset = 0;
@@ -80,6 +81,11 @@ class filter {
 					break;
 					
 				// Cases 7 & 8 created by MODx Testing Team Member ZAP
+				case '=~':
+					if (strpos($value[$this->array_key], $this->filterValue)!==FALSE)
+						$unset = 0;
+					break;
+				case '!~':
 				case 7 :
 					if (strpos($value[$this->array_key], $this->filterValue)===FALSE)
 						$unset = 0;
