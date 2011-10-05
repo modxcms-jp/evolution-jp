@@ -22,6 +22,37 @@ class filter {
 			if (is_array($currentFilter) && count($currentFilter) > 0)
 			{
 				$this->array_key = $currentFilter['source'];
+				
+				switch($currentFilter['value'])
+				{
+					case '>':
+						$currentFilter['value'] = $currentFilter['mode'];
+						$currentFilter['mode'] = '<';
+						break;
+					case '>=':
+						$currentFilter['value'] = $currentFilter['mode'];
+						$currentFilter['mode'] = '<=';
+						break;
+					case '<':
+						$currentFilter['value'] = $currentFilter['mode'];
+						$currentFilter['mode'] = '>';
+						break;
+					case '<=':
+						$currentFilter['value'] = $currentFilter['mode'];
+						$currentFilter['mode'] = '>=';
+						break;
+					case '!=':
+					case '<>':
+					case '==':
+					case '=~':
+					case '!~':
+						$t = $currentFilter['value'];
+						$currentFilter['value'] = $currentFilter['mode'];
+						$currentFilter['mode'] = $t;
+						unset($t);
+						break;
+				}
+				
 				if(substr($currentFilter['value'],0,5) === '@EVAL')
 				{
 					$eval_code = trim(substr($currentFilter['value'],6));
@@ -41,6 +72,7 @@ class filter {
 					$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
 				}
 				$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
+				
 				$resource = array_filter($resource, array($this, 'basicFilter'));
 			}
 		}
