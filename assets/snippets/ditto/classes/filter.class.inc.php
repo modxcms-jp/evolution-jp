@@ -26,21 +26,9 @@ class filter {
 				switch($currentFilter['value'])
 				{
 					case '>':
-						$currentFilter['value'] = $currentFilter['mode'];
-						$currentFilter['mode'] = '<';
-						break;
 					case '>=':
-						$currentFilter['value'] = $currentFilter['mode'];
-						$currentFilter['mode'] = '<=';
-						break;
 					case '<':
-						$currentFilter['value'] = $currentFilter['mode'];
-						$currentFilter['mode'] = '>';
-						break;
 					case '<=':
-						$currentFilter['value'] = $currentFilter['mode'];
-						$currentFilter['mode'] = '>=';
-						break;
 					case '!=':
 					case '<>':
 					case '==':
@@ -93,31 +81,39 @@ class filter {
 			switch ($this->filtertype) {
 				case '!=' :
 				case '<>' :
+				case 'ne' :
 				case 1 :
 					if (!isset ($value[$this->array_key]) || $value[$this->array_key] != $this->filterValue)
 						$unset = 0;
 					break;
 				case '==' :
+				case 'eq' :
 				case 2 :
 					if ($value[$this->array_key] == $this->filterValue)
 						$unset = 0;
 					break;
 				case '<' :
+				case 'lt' :
 				case 3 :
 					if ($value[$this->array_key] < $this->filterValue)
 						$unset = 0;
 					break;
 				case '>' :
+				case 'gt' :
 				case 4 :
 					if ($value[$this->array_key] > $this->filterValue)
 						$unset = 0;
 					break;
 				case '<=' :
+				case 'lte' :
+				case 'le' :
 				case 5 :
 					if (!($value[$this->array_key] < $this->filterValue))
 						$unset = 0;
 					break;
 				case '>=' :
+				case 'gte' :
+				case 'ge' :
 				case 6 :
 					if (!($value[$this->array_key] > $this->filterValue))
 						$unset = 0;
