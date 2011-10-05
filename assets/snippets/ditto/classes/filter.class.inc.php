@@ -76,78 +76,78 @@ class filter {
 // Do basic comparison filtering
 // ---------------------------------------------------
 	
-	function basicFilter ($value) {
+	function basicFilter ($options) {
 			$unset = 1;
 			switch ($this->filtertype) {
 				case '!=' :
 				case '<>' :
 				case 'ne' :
 				case 1 :
-					if (!isset ($value[$this->array_key]) || $value[$this->array_key] != $this->filterValue)
+					if (!isset ($options[$this->array_key]) || $options[$this->array_key] != $this->filterValue)
 						$unset = 0;
 					break;
 				case '==' :
 				case 'eq' :
 				case 2 :
-					if ($value[$this->array_key] == $this->filterValue)
+					if ($options[$this->array_key] == $this->filterValue)
 						$unset = 0;
 					break;
 				case '<' :
 				case 'lt' :
 				case 3 :
-					if ($value[$this->array_key] < $this->filterValue)
+					if ($options[$this->array_key] < $this->filterValue)
 						$unset = 0;
 					break;
 				case '>' :
 				case 'gt' :
 				case 4 :
-					if ($value[$this->array_key] > $this->filterValue)
+					if ($options[$this->array_key] > $this->filterValue)
 						$unset = 0;
 					break;
 				case '<=' :
 				case 'lte' :
 				case 'le' :
 				case 5 :
-					if (!($value[$this->array_key] < $this->filterValue))
+					if (!($options[$this->array_key] < $this->filterValue))
 						$unset = 0;
 					break;
 				case '>=' :
 				case 'gte' :
 				case 'ge' :
 				case 6 :
-					if (!($value[$this->array_key] > $this->filterValue))
+					if (!($options[$this->array_key] > $this->filterValue))
 						$unset = 0;
 					break;
 					
 				// Cases 7 & 8 created by MODx Testing Team Member ZAP
 				case '=~':
-					if (strpos($value[$this->array_key], $this->filterValue)!==FALSE)
+					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
 					break;
 				case '!~':
 				case 7 :
-					if (strpos($value[$this->array_key], $this->filterValue)===FALSE)
+					if (strpos($options[$this->array_key], $this->filterValue)===FALSE)
 						$unset = 0;
 					break;
 				case 8 :
-					if (strpos($value[$this->array_key], $this->filterValue)!==FALSE)
+					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
-					break;	
+					break;
 				
 				// Cases 9-11 created by highlander
 				case 9 : // case insenstive version of #7 - exclude records that do not contain the text of the criterion
-					if (strpos(strtolower($value[$this->array_key]), strtolower($this->filterValue))===FALSE)
+					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))===FALSE)
 						$unset = 0;
 					break;
 				case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-					if (strpos(strtolower($value[$this->array_key]), strtolower($this->filterValue))!==FALSE)
+					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))!==FALSE)
 						$unset = 0;
 					break;
 				case 11 : // checks leading character of the field
-					$firstChr = strtoupper(substr($value[$this->array_key], 0, 1));
+					$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
 					if ($firstChr!=$this->filterValue)
 						$unset = 0;
-					break;				
+					break;
 		}
 			return $unset;
 	}
