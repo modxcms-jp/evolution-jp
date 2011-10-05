@@ -969,7 +969,7 @@ class DocumentParser {
 		$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
 		if($this->dumpSnippets == 1)
 		{
-			echo '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets) . '</textarea></fieldset>';
+			echo '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config["modx_charset"]) . '</textarea></fieldset>';
 		}
 		return $executedSnippets . $except_snip_call;
 	}
