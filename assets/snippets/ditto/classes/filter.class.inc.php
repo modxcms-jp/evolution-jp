@@ -14,27 +14,38 @@ class filter {
 // Function: execute
 // Filter documents via either a custom filter or basic filter
 // ---------------------------------------------------
-	function execute($resource, $filter) {
+	function execute($resource, $filter)
+	{
 		global $modx;
-		foreach ($filter["basic"] AS $currentFilter) {
-			if (is_array($currentFilter) && count($currentFilter) > 0) {
+		foreach ($filter["basic"] AS $currentFilter)
+		{
+			if (is_array($currentFilter) && count($currentFilter) > 0)
+			{
 				$this->array_key = $currentFilter["source"];
-				if(substr($currentFilter["value"],0,5) != "@EVAL") {
+				if(substr($currentFilter["value"],0,5) != "@EVAL")
+				{
 					$this->filterValue = $currentFilter["value"];
-				} else {
-				$eval_code = trim(substr($currentFilter["value"],6));
-				$eval_code = trim($eval_code,';') . ';';
-				if(strpos($eval_code,'return')===false) $eval_code = 'return ' . $eval_code;
+				}
+				else
+				{
+					$eval_code = trim(substr($currentFilter["value"],6));
+					$eval_code = trim($eval_code,';') . ';';
+					if(strpos($eval_code,'return')===false)
+					{
+						$eval_code = 'return ' . $eval_code;
+					}
 					$this->filterValue = eval($eval_code);
 				}
-				if(strpos($this->filterValue,'[+') !== false) {
+				if(strpos($this->filterValue,'[+') !== false)
+				{
 					$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
 				}
 				$this->filtertype = (isset ($currentFilter["mode"])) ? $currentFilter["mode"] : 1;
 				$resource = array_filter($resource, array($this, "basicFilter"));
 			}
 		}
-		foreach ($filter["custom"] AS $currentFilter) {
+		foreach ($filter["custom"] AS $currentFilter)
+		{
 			$resource = array_filter($resource, $currentFilter);
 		}
 		return $resource;
