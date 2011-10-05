@@ -120,6 +120,8 @@ class filter {
 					break;
 					
 				// Cases 7 & 8 created by MODx Testing Team Member ZAP
+				case 'find':
+				case 'search':
 				case '=~':
 					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
@@ -146,6 +148,11 @@ class filter {
 				case 11 : // checks leading character of the field
 					$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
 					if ($firstChr!=$this->filterValue)
+						$unset = 0;
+					break;
+				case 'regex':
+				case 'preg':
+					if (preg_match($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
 					break;
 		}
