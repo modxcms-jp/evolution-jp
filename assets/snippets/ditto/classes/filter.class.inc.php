@@ -17,18 +17,14 @@ class filter {
 	function execute($resource, $filter)
 	{
 		global $modx;
-		foreach ($filter["basic"] AS $currentFilter)
+		foreach ($filter['basic'] AS $currentFilter)
 		{
 			if (is_array($currentFilter) && count($currentFilter) > 0)
 			{
-				$this->array_key = $currentFilter["source"];
-				if(substr($currentFilter["value"],0,5) != "@EVAL")
+				$this->array_key = $currentFilter['source'];
+				if(substr($currentFilter['value'],0,5) === '@EVAL')
 				{
-					$this->filterValue = $currentFilter["value"];
-				}
-				else
-				{
-					$eval_code = trim(substr($currentFilter["value"],6));
+					$eval_code = trim(substr($currentFilter['value'],6));
 					$eval_code = trim($eval_code,';') . ';';
 					if(strpos($eval_code,'return')===false)
 					{
@@ -36,15 +32,19 @@ class filter {
 					}
 					$this->filterValue = eval($eval_code);
 				}
+				else
+				{
+					$this->filterValue = $currentFilter['value'];
+				}
 				if(strpos($this->filterValue,'[+') !== false)
 				{
 					$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
 				}
-				$this->filtertype = (isset ($currentFilter["mode"])) ? $currentFilter["mode"] : 1;
-				$resource = array_filter($resource, array($this, "basicFilter"));
+				$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
+				$resource = array_filter($resource, array($this, 'basicFilter'));
 			}
 		}
-		foreach ($filter["custom"] AS $currentFilter)
+		foreach ($filter['custom'] AS $currentFilter)
 		{
 			$resource = array_filter($resource, $currentFilter);
 		}
@@ -59,33 +59,33 @@ class filter {
 	function basicFilter ($value) {
 			$unset = 1;
 			switch ($this->filtertype) {
-				case "!=" :
+				case '!=' :
 				case '<>' :
 				case 1 :
 					if (!isset ($value[$this->array_key]) || $value[$this->array_key] != $this->filterValue)
 						$unset = 0;
 					break;
-				case "==" :
+				case '==' :
 				case 2 :
 					if ($value[$this->array_key] == $this->filterValue)
 						$unset = 0;
 					break;
-				case "<" :
+				case '<' :
 				case 3 :
 					if ($value[$this->array_key] < $this->filterValue)
 						$unset = 0;
 					break;
-				case ">" :
+				case '>' :
 				case 4 :
 					if ($value[$this->array_key] > $this->filterValue)
 						$unset = 0;
 					break;
-				case "<=" :
+				case '<=' :
 				case 5 :
 					if (!($value[$this->array_key] < $this->filterValue))
 						$unset = 0;
 					break;
-				case ">=" :
+				case '>=' :
 				case 6 :
 					if (!($value[$this->array_key] > $this->filterValue))
 						$unset = 0;
