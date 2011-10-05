@@ -107,18 +107,24 @@ class filter {
 					if ($options[$this->array_key] > $this->filterValue)
 						$unset = 0;
 					break;
+				case 5 :
+					if (!($options[$this->array_key] < $this->filterValue))
+						$unset = 0;
+					break;
+				case 6 :
+					if (!($options[$this->array_key] > $this->filterValue))
+						$unset = 0;
+					break;
 				case '<=' :
 				case 'lte' :
 				case 'le' :
-				case 5 :
-					if (!($options[$this->array_key] < $this->filterValue))
+					if ($options[$this->array_key] <= $this->filterValue)
 						$unset = 0;
 					break;
 				case '>=' :
 				case 'gte' :
 				case 'ge' :
-				case 6 :
-					if (!($options[$this->array_key] > $this->filterValue))
+					if ($options[$this->array_key] >= $this->filterValue)
 						$unset = 0;
 					break;
 					
