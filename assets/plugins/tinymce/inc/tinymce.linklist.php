@@ -253,10 +253,9 @@ class LINKLIST
 		
 	    $result = $modx->db->query($sql);
 	    $resourceArray = array();
-	    for($i=0; $i < $modx->db->getRecordCount($result); $i++)
+	    while($par = $modx->db->getRow($result))
 	    {
-		  $par = $modx->db->getRow($result, 'assoc');
-	      array_push($resourceArray, $par);
+	      $resourceArray[] = $par;
 	    }
 		
 	    return $resourceArray;
