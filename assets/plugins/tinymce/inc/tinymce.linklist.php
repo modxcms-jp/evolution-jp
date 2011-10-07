@@ -173,27 +173,29 @@ class LINKLIST
 	function getAllPages($id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
 	{
 		global $modx;
+		
+		// modify field names to use sc. table reference
+		$fields = preg_replace('@\s*@','',$fields);
+		$fields = 'sc.'.implode(',sc.',explode(',',$fields));
+		$sort   = preg_replace('@\s*@','',$sort);
+		$sort   = 'sc.'.implode(',sc.',explode(',',$sort));
 	
 	    $tblsc = $modx->getFullTableName('site_content');
 	    $tbldg = $modx->getFullTableName('document_groups');
 	
-	    // modify field names to use sc. table reference
-	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
-	    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
 	
 	    $sql = "SELECT DISTINCT $fields FROM $tblsc sc
 	      LEFT JOIN $tbldg dg on dg.document = sc.id
 	      WHERE sc.published=1 AND sc.deleted=0
 	      ORDER BY $sort $dir;";
-		  
 		$resourceArray = $this->doSql($sql);
 		$count = count($resourceArray);
-	    for($i=0; $i<$count; $i++)
-	    {
+		for($i=0; $i<$count; $i++)
+		{
 			$p = $this->getAllParents($resourceArray[$i]['id']);
 			$resourceArray[$i]['parents'] = $p;
-	    }
-	
+		}
+		
 	    return $resourceArray;
 	}
 	
@@ -225,13 +227,12 @@ class LINKLIST
 			return $page_cache[$doc_id];
 		}
 		
-	
 	    $tblsc = $modx->getFullTableName('site_content');
 	    $tbldg = $modx->getFullTableName('document_groups');
 	
 	    // modify field names to use sc. table reference
-	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
-	    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
+//		$fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
+//		$sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
 	
 	    $sql = "SELECT sc.parent, sc.menutitle, sc.pagetitle, sc.menuindex, sc.published FROM $tblsc sc
 	      LEFT JOIN $tbldg dg on dg.document = sc.id
