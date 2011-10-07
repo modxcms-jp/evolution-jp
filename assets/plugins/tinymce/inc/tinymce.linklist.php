@@ -26,6 +26,8 @@ $charset             = 'UTF-8';
 $mode                = 'tree'; // breadcrumbs or tree
 $tree_style          = '1'; // What style should the tree use? Choose 1,2,3 or 4
 $sortby              = 'menuindex'; // Could be menuindex or menutitle
+$limit               = 0;
+$recent              = 0;
 
 /* That's it to config! */
 $tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
@@ -52,7 +54,7 @@ if ($modx->getLoginUserType() !== 'manager')
 }
 $linklist = new LINKLIST();
 
-$allpages = $linklist->getAllPages();
+$allpages = $linklist->getAllPages($limit,$recent);
 if (!is_array($allpages) ) {die();}
 
 $list = array();
@@ -170,7 +172,7 @@ class LINKLIST
 	{
 	}
 	
-	function getAllPages($id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
+	function getAllPages($limit=0,$recent=0,$id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
 	{
 		global $modx;
 		
@@ -180,14 +182,31 @@ class LINKLIST
 		$sort   = preg_replace('@\s*@','',$sort);
 		$sort   = 'sc.'.implode(',sc.',explode(',',$sort));
 	
-	    $tblsc = $modx->getFullTableName('site_content');
-	    $tbldg = $modx->getFullTableName('document_groups');
-	
+		if($recent!==0 && preg_match('@^[0-9]+$@',$recent))
+		{
+			$where_recent = time() - ($recent * 3600 * 24);
+			$where_recent = "AND {$where_recent} < sc.editedon";
+			$fields .= ',sc.editedon';
+		}
+		
+		if($limit!==0 && preg_match('@^[0-9]+$@',$limit))
+		{
+			$limit =  "LIMIT {$limit}";
+		}
+		else
+		{
+			$limit =  "LIMIT 2000";
+		}
+		
+		$tblsc = $modx->getFullTableName('site_content');
+		$tbldg = $modx->getFullTableName('document_groups');
 	
 	    $sql = "SELECT DISTINCT $fields FROM $tblsc sc
 	      LEFT JOIN $tbldg dg on dg.document = sc.id
-	      WHERE sc.published=1 AND sc.deleted=0
-	      ORDER BY $sort $dir;";
+	      WHERE sc.published=1 AND sc.deleted=0 {$where_recent}
+	      ORDER BY sc.editedon DESC, {$sort} {$dir}
+	      {$limit};";
+		
 		$resourceArray = $this->doSql($sql);
 		$count = count($resourceArray);
 		for($i=0; $i<$count; $i++)
