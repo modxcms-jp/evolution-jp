@@ -112,7 +112,7 @@ foreach($allpages as $page)
 		}
 		else
 		{	// breadcrumb mode
-			$caption = implode(': ', $breadcrumbs);
+			$caption = implode('&gt;', $breadcrumbs);
 		}
 		
 		$keyname = implode('-', $sortcrumbs);
