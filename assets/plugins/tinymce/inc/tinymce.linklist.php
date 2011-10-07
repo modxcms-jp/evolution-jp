@@ -50,7 +50,6 @@ if ($modx->getLoginUserType() !== 'manager')
     echo 'var tinyMCELinkList = new Array();';
     exit();
 }
-
 $linklist = new LINKLIST();
 
 $allpages = $linklist->getAllPages();
@@ -72,12 +71,12 @@ foreach($allpages as $page)
 			$p = $linklist->getPage($parent);
 			
 			// Assemble what will be displayed
-			$breadcrumbs[] = ($p['menutitle'])?htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
+			$breadcrumbs[] = ($p['menutitle']) ? htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
 			
 			// How will it be sorted?
 			if ($sortby == 'menuindex')
 			{
-				$more_sortby_types = array("menutitle","pagetitle");
+				$more_sortby_types = array('menutitle','pagetitle');
 				foreach ($more_sortby_types as $backup_sort_type)
 				{
 					if ( $page[$backup_sort_type] != '')
@@ -92,7 +91,7 @@ foreach($allpages as $page)
 				$sortcrumbs[] = $p[$sortby];
 			}
 			
-			if ($p['published'] != '1')
+			if ($p['published'] !== '1')
 			{
 				$published = 0;
 			}
