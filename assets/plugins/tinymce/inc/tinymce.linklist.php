@@ -21,11 +21,11 @@
 
 // Config options
 $templates_to_ignore = array();	// Template IDs to ignore from the link list
-$include_page_ids = false;
-$charset = 'UTF-8';
-$mode = 'tree'; // breadcrumbs or tree
-$tree_style = '1'; // What style should the tree use? Choose 1,2,3 or 4
-$sortby = 'menuindex'; // Could be menuindex or menutitle
+$include_page_ids    = false;
+$charset             = 'UTF-8';
+$mode                = 'tree'; // breadcrumbs or tree
+$tree_style          = '1'; // What style should the tree use? Choose 1,2,3 or 4
+$sortby              = 'menuindex'; // Could be menuindex or menutitle
 
 /* That's it to config! */
 $tree_styles = array("|--", "&#38;#x2516;&#38;#x2500;&nbsp;", "&#38;#x25B9;&nbsp;&nbsp;", "L&nbsp;&nbsp;");
@@ -38,7 +38,8 @@ startCMSSession();
 $modx = new DocumentParser;
 
 /* only display if manager user is logged in */
-if ($modx->getLoginUserType() !== 'manager') {
+if ($modx->getLoginUserType() !== 'manager')
+{
     // Make output a real JavaScript file!
     header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
     
@@ -46,7 +47,7 @@ if ($modx->getLoginUserType() !== 'manager') {
     header('pragma: no-cache');
     header('expires: 0'); // i.e. contents have already expired
     
-    echo "var tinyMCELinkList = new Array();";
+    echo 'var tinyMCELinkList = new Array();';
     exit();
 }
 
