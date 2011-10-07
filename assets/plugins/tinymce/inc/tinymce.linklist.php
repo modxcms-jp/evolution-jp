@@ -51,7 +51,9 @@ if ($modx->getLoginUserType() !== 'manager')
     exit();
 }
 
-$allpages = getAllPages();
+$linklist = new LINKLIST();
+
+$allpages = $linklist->getAllPages();
 if (!is_array($allpages) ) {die();}
 
 $list = array();
@@ -67,7 +69,7 @@ foreach($allpages as $page)
 		$published = $page['published'];
 		foreach ($page['parents'] as $parent)
 		{
-			$p = getPage($parent);
+			$p = $linklist->getPage($parent);
 			
 			// Assemble what will be displayed
 			$breadcrumbs[] = ($p['menutitle'])?htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
@@ -163,94 +165,100 @@ foreach($allpages as $page)
 		
 		echo $output;
 
-
-function getAllPages($id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
+class LINKLIST
 {
-	global $dbase;
-	global $table_prefix;	
-
-    $tblsc = $dbase.".`".$table_prefix."site_content`";
-    $tbldg = $dbase.".`".$table_prefix."document_groups`";
-
-    // modify field names to use sc. table reference
-    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
-    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
-
-    $sql = "SELECT DISTINCT $fields FROM $tblsc sc
-      LEFT JOIN $tbldg dg on dg.document = sc.id
-      WHERE sc.published=1 AND sc.deleted=0
-      ORDER BY $sort $dir;";
-	  
-	$resourceArray = doSql($sql);
-    for($i=0;$i<@count($resourceArray);$i++)  {
-		$p = getAllParents($resourceArray[$i]['id']);
-		$resourceArray[$i]['parents'] = $p;
-    }
-
-    return $resourceArray;
-}
-
-
-function getAllParents($doc_id) {
-	$return_array = array($doc_id);
-	while (getParent($doc_id) != 0) {
-		$doc_id = getParent($doc_id);
-		$return_array[] = $doc_id;
-	} 
-	return $return_array;
-}
-
-function getParent($doc_id) {
-	$r = getPage($doc_id);
-	return $r['parent'];
-}
-
-function getPage($doc_id)
-{
-	global $dbase;
-	global $table_prefix;	
-	
-	global $page_cache;
-	
-	// If already cached, return this instead of doing another MySQL query
-	if (isset($page_cache[$doc_id]))
+	function LINKLIST()
 	{
-		return $page_cache[$doc_id];
 	}
 	
-
-    $tblsc = $dbase.".".$table_prefix."site_content";
-    $tbldg = $dbase.".".$table_prefix."document_groups";
-
-    // modify field names to use sc. table reference
-    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
-    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
-
-    $sql = "SELECT sc.parent, sc.menutitle, sc.pagetitle, sc.menuindex, sc.published FROM $tblsc sc
-      LEFT JOIN $tbldg dg on dg.document = sc.id
-      WHERE sc.published=1 AND sc.deleted=0 AND sc.id=$doc_id;";
-	  
-	$resourceArray = doSql($sql);
+	function getAllPages($id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
+	{
+		global $dbase;
+		global $table_prefix;	
 	
-	// If we have got this far, it must not have been cached already, so lets do it now.
-	$page_cache[$doc_id] = $resourceArray[0];
-
-    return $resourceArray[0];
-}
-
-
-function doSql($sql)
-{
-	global $modx;
-	// Connecting, selecting database
+	    $tblsc = $dbase.".`".$table_prefix."site_content`";
+	    $tbldg = $dbase.".`".$table_prefix."document_groups`";
 	
-    $result = $modx->db->query($sql);
-    $resourceArray = array();
-    for($i=0; $i < $modx->db->getRecordCount($result); $i++)
-    {
-	  $par = $modx->db->getRow($result, 'assoc');
-      array_push($resourceArray, $par);
-    }
+	    // modify field names to use sc. table reference
+	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
+	    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
 	
-    return $resourceArray;
+	    $sql = "SELECT DISTINCT $fields FROM $tblsc sc
+	      LEFT JOIN $tbldg dg on dg.document = sc.id
+	      WHERE sc.published=1 AND sc.deleted=0
+	      ORDER BY $sort $dir;";
+		  
+		$resourceArray = $this->doSql($sql);
+	    for($i=0;$i<@count($resourceArray);$i++)  {
+			$p = $this->getAllParents($resourceArray[$i]['id']);
+			$resourceArray[$i]['parents'] = $p;
+	    }
+	
+	    return $resourceArray;
+	}
+	
+	
+	function getAllParents($doc_id) {
+		$return_array = array($doc_id);
+		while ($this->getParent($doc_id) != 0) {
+			$doc_id = $this->getParent($doc_id);
+			$return_array[] = $doc_id;
+		} 
+		return $return_array;
+	}
+	
+	function getParent($doc_id) {
+		$r = $this->getPage($doc_id);
+		return $r['parent'];
+	}
+	
+	function getPage($doc_id)
+	{
+		global $dbase;
+		global $table_prefix;	
+		
+		global $page_cache;
+		
+		// If already cached, return this instead of doing another MySQL query
+		if (isset($page_cache[$doc_id]))
+		{
+			return $page_cache[$doc_id];
+		}
+		
+	
+	    $tblsc = $dbase.".".$table_prefix."site_content";
+	    $tbldg = $dbase.".".$table_prefix."document_groups";
+	
+	    // modify field names to use sc. table reference
+	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
+	    $sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
+	
+	    $sql = "SELECT sc.parent, sc.menutitle, sc.pagetitle, sc.menuindex, sc.published FROM $tblsc sc
+	      LEFT JOIN $tbldg dg on dg.document = sc.id
+	      WHERE sc.published=1 AND sc.deleted=0 AND sc.id=$doc_id;";
+		  
+		$resourceArray = $this->doSql($sql);
+		
+		// If we have got this far, it must not have been cached already, so lets do it now.
+		$page_cache[$doc_id] = $resourceArray[0];
+	
+	    return $resourceArray[0];
+	}
+	
+	
+	function doSql($sql)
+	{
+		global $modx;
+		// Connecting, selecting database
+		
+	    $result = $modx->db->query($sql);
+	    $resourceArray = array();
+	    for($i=0; $i < $modx->db->getRecordCount($result); $i++)
+	    {
+		  $par = $modx->db->getRow($result, 'assoc');
+	      array_push($resourceArray, $par);
+	    }
+		
+	    return $resourceArray;
+	}
 }
