@@ -28,7 +28,7 @@ $tree_style          = '1'; // What style should the tree use? Choose 1,2,3 or 4
 $sortby              = 'menuindex'; // Could be menuindex or menutitle
 
 /* That's it to config! */
-$tree_styles = array("|--", "&#38;#x2516;&#38;#x2500;&nbsp;", "&#38;#x25B9;&nbsp;&nbsp;", "L&nbsp;&nbsp;");
+$tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
 $manage_path = realpath('../../../../manager/') . '/';
