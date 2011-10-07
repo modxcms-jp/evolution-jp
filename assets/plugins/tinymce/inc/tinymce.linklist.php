@@ -173,11 +173,10 @@ class LINKLIST
 	
 	function getAllPages($id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
 	{
-		global $dbase;
-		global $table_prefix;	
+		global $modx;
 	
-	    $tblsc = $dbase.".`".$table_prefix."site_content`";
-	    $tbldg = $dbase.".`".$table_prefix."document_groups`";
+	    $tblsc = $modx->getFullTableName('site_content');
+	    $tbldg = $modx->getFullTableName('document_groups');
 	
 	    // modify field names to use sc. table reference
 	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
@@ -214,8 +213,7 @@ class LINKLIST
 	
 	function getPage($doc_id)
 	{
-		global $dbase;
-		global $table_prefix;	
+		global $modx;
 		
 		global $page_cache;
 		
@@ -226,8 +224,8 @@ class LINKLIST
 		}
 		
 	
-	    $tblsc = $dbase.".".$table_prefix."site_content";
-	    $tbldg = $dbase.".".$table_prefix."document_groups";
+	    $tblsc = $modx->getFullTableName('site_content');
+	    $tbldg = $modx->getFullTableName('document_groups');
 	
 	    // modify field names to use sc. table reference
 	    $fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
