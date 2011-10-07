@@ -127,42 +127,42 @@ foreach($allpages as $page)
 		//$caption = $keyname;
 		
 		if (function_exists('mb_encode_numericentity'))
-			{
-				$convmap = array(0x0080, 0xffff, 0, 0xffff);
-				$encoding = $GLOBALS['database_connection_charset'];
-				$caption = mb_encode_numericentity($caption, $convmap, $encoding);
-			}
-				$output = '["' .$caption;
-				if ($include_page_ids)
-				{
-					$output .= ' (' . $page['id'] . ')';
-				}
-				$output .= '", "[~' . $page['id'] . '~]"]';
-				
-				if ($published == '1')
-				{
-					$list[$keyname] = $output;
-				}
-			}
+		{
+			$convmap = array(0x0080, 0xffff, 0, 0xffff);
+			$encoding = $GLOBALS['database_connection_charset'];
+			$caption = mb_encode_numericentity($caption, $convmap, $encoding);
 		}
+		$output = '["' .$caption;
+		if ($include_page_ids)
+		{
+			$output .= ' (' . $page['id'] . ')';
+		}
+		$output .= '", "[~' . $page['id'] . '~]"]';
 		
-		// Sort the list by it's keys
-		ksort($list);
-		
-		// Output the array separated by commas
-		$list_output = implode(", \n", $list);
-	
-		// Output as javascript
-		$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
-		
-		// Make output a real JavaScript file!
-		header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
-		
-		// prevent browser from caching
-		header('pragma: no-cache');
-		header('expires: 0'); // i.e. contents have already expired
-		
-		echo $output;
+		if ($published == '1')
+		{
+			$list[$keyname] = $output;
+		}
+	}
+}
+
+// Sort the list by it's keys
+ksort($list);
+
+// Output the array separated by commas
+$list_output = implode(", \n", $list);
+
+// Output as javascript
+$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
+
+// Make output a real JavaScript file!
+header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
+
+// prevent browser from caching
+header('pragma: no-cache');
+header('expires: 0'); // i.e. contents have already expired
+
+echo $output;
 
 class LINKLIST
 {
