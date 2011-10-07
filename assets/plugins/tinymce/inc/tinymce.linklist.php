@@ -188,7 +188,9 @@ class LINKLIST
 	      ORDER BY $sort $dir;";
 		  
 		$resourceArray = $this->doSql($sql);
-	    for($i=0;$i<@count($resourceArray);$i++)  {
+		$count = count($resourceArray);
+	    for($i=0; $i<$count; $i++)
+	    {
 			$p = $this->getAllParents($resourceArray[$i]['id']);
 			$resourceArray[$i]['parents'] = $p;
 	    }
@@ -199,8 +201,9 @@ class LINKLIST
 	
 	function getAllParents($doc_id) {
 		$return_array = array($doc_id);
-		while ($this->getParent($doc_id) != 0) {
-			$doc_id = $this->getParent($doc_id);
+		while ($doc_id = $this->getParent($doc_id))
+		{
+			if($doc_id===0) break;
 			$return_array[] = $doc_id;
 		} 
 		return $return_array;
