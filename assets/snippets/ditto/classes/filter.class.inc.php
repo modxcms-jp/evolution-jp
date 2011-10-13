@@ -131,15 +131,13 @@ class filter {
 				// Cases 7 & 8 created by MODx Testing Team Member ZAP
 				case 'find':
 				case 'search':
+				case 'strpos':
 				case '=~':
-					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
-						$unset = 0;
-					break;
-				case '!~':
 				case 7 :
 					if (strpos($options[$this->array_key], $this->filterValue)===FALSE)
 						$unset = 0;
 					break;
+				case '!~':
 				case 8 :
 					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
