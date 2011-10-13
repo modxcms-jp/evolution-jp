@@ -3095,6 +3095,8 @@ class DocumentParser {
 
         // Log error
         $this->logEvent(0, 3, $parsedMessageString);
+        if($nr == E_DEPRECATED) return true;
+
         // Set 500 response header
         header('HTTP/1.1 500 Internal Server Error');
 
