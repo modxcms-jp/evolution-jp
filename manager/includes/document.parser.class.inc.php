@@ -3093,6 +3093,8 @@ class DocumentParser {
         $parsedMessageString= str_replace("[^p^]", $phpTime, $parsedMessageString);
         $parsedMessageString= str_replace("[^t^]", $totalTime, $parsedMessageString);
 
+        // Log error
+        $this->logEvent(0, 3, $parsedMessageString);
         // Set 500 response header
         header('HTTP/1.1 500 Internal Server Error');
 
@@ -3100,9 +3102,6 @@ class DocumentParser {
         if (isset($_SESSION['mgrValidated'])) echo $parsedMessageString;
         else  echo 'Error. Check event log.';
         ob_end_flush();
-
-        // Log error
-        $this->logEvent(0, 3, $parsedMessageString);
 
         // Make sure and die!
         exit();
