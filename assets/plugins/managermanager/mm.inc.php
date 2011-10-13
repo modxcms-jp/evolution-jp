@@ -372,17 +372,19 @@ $j(document).ready(function() {
 	try {
 						   					
 	  // Change section index depending on Content History running or not                  
-      var sidx = ($j("div.sectionBody:eq(1)").attr("id") == "ch-body")?1:0;  //ch-body is the CH id name (currently at least)
-      
-      // Give IDs to the sections of the form
-      // This assumes they appear in a certain order
-      $j("div.sectionHeader:eq(sidx)").attr("id", "sectionContentHeader");
-      $j("div.sectionHeader:eq(sidx+1)").attr("id", "sectionTVsHeader");
-   
-      $j("div.sectionBody:eq(sidx+1)").attr("id", "sectionContentBody");
-      $j("div.sectionBody:eq(sidx+2)").attr("id", "sectionTVsBody");						   
-
-	'			
+	if(jQuery.bindReady())
+	{
+		var sidx = ($j("div.sectionBody:eq(1)").attr("id") == "ch-body")?1:0;  //ch-body is the CH id name (currently at least)
+		
+		// Give IDs to the sections of the form
+		// This assumes they appear in a certain order
+		$j("div.sectionHeader:eq(sidx)").attr("id", "sectionContentHeader");
+		$j("div.sectionHeader:eq(sidx+1)").attr("id", "sectionTVsHeader");
+		
+		$j("div.sectionBody:eq(sidx+1)").attr("id", "sectionContentBody");
+		$j("div.sectionBody:eq(sidx+2)").attr("id", "sectionTVsBody");
+	}
+	'
 			);
 	
 	
