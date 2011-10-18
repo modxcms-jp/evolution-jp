@@ -133,6 +133,7 @@
 				global $_lang;
 				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
+				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
 					$field_html .= <<< EOT
 					<script type="text/javascript">
@@ -165,6 +166,7 @@
 							}
 							
 							function SetUrl(url, width, height, alt){
+								{$url_convert}
 								if(lastFileCtrl) {
 									var c = document.mutate[lastFileCtrl];
 									if(c) c.value = url;
@@ -188,6 +190,7 @@ EOT;
                 global $_lang;
 				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
+				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
 					$field_html .= <<< EOT
@@ -222,6 +225,7 @@ EOT;
 							}
 							
 							function SetUrl(url, width, height, alt){
+								{$url_convert}
 								if(lastFileCtrl) {
 									var c = document.mutate[lastFileCtrl];
 									if(c) c.value = url;
@@ -306,5 +310,35 @@ EOT;
 		}
 		else $a = explode("||", $v);
 		return $a;
-	}	
+	}
+	
+	function get_js_trim_path_pattern()
+	{
+		global $modx;
+		$ph['surl'] = $modx->config['site_url'];
+		$ph['surl_ptn'] = '^' . $ph['surl'];
+		$ph['surl_ptn'] = str_replace('/','\\/',$ph['surl_ptn']);
+		$ph['burl'] = $modx->config['base_url'];
+		$ph['burl_ptn'] = '^' . $ph['burl'];
+		$ph['burl_ptn'] = str_replace('/','\\/',$ph['burl_ptn']);
+		$js_block[] = "var burl_ptn = new RegExp('[+burl_ptn+]');";
+		$js_block[] = "var surl_ptn = new RegExp('[+surl_ptn+]');";
+		if($modx->config['strip_image_paths']==='1')
+		{
+			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'');}";
+			$js_block[] = "else if(url.match(surl_ptn)){url = url.replace(surl_ptn,'');}";
+		}
+		else
+		{
+			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'[+surl+]');}";
+			$js_block[] = "else if(url.match(/^[^(http)]/)){url = surl + url;}";
+		}
+		$output = join("\n",$js_block);
+		foreach($ph as $k=>$v)
+		{
+			$k = '[+' . $k . '+]';
+			$output = str_replace($k, $v, $output);
+		}
+		return $output;
+	}
 ?>
