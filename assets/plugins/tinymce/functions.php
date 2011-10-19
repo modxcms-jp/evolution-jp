@@ -172,7 +172,7 @@ class TinyMCE
 		$ph['forced_root_block']       = ($action !== '78') ? 'p' : '';
 		$ph['force_p_newlines']        = ($action !== '78') ? 'true' : 'false';
 		$ph['toolbar_align']           = $params['toolbar_align'];
-		$ph['file_browser_callback']   = 'modx_fb';
+		$ph['file_browser_callback']   = 'mceOpenServerBrowser';
 		$ph['plugins']                 = $plugins;
 		$ph['buttons1']                = $buttons1;
 		$ph['buttons2']                = $buttons2;
