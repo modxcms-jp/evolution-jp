@@ -213,6 +213,9 @@ class TinyMCE
 	
 	function build_tiny_callback($params)
 	{
+		global $ResourceManagerLoaded;
+		if($ResourceManagerLoaded===true) return;
+		
 		$ph['cmsurl']  = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php?Connector=';
 		$ph['cmsurl'] .= MODX_BASE_URL . 'manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=';
 		$ph['cmsurl'] .= MODX_BASE_URL . '&editor=tinymce&editorpath=' . $params['mce_url'];
