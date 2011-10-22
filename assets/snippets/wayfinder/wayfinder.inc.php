@@ -373,8 +373,38 @@ class Wayfinder {
 	        // get document groups for current user
 	        if($docgrp = $modx->getUserDocGroups()) $docgrp = implode(",",$docgrp);
 	        // build query
-	        $access = ($modx->isFrontend() ? "sc.privateweb=0" : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0").(!$docgrp ? "" : " OR dg.document_group IN ({$docgrp})");
-			$sql = "SELECT DISTINCT {$fields} FROM {$tblsc} sc LEFT JOIN {$tbldg} dg ON dg.document = sc.id WHERE sc.published=1 AND sc.deleted=0 AND ({$access}){$menuWhere} AND sc.id IN (".implode(',',$ids).") GROUP BY sc.id ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};";
+			if($modx->isFrontend())
+			{
+				if(!$this->_config['showPrivate'])
+				{
+					$access = "sc.privateweb=0";
+				}
+			}
+			else
+			{
+				$access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+			}
+			if($access && $docgrp)
+			{
+				$access = "AND ({$access} OR dg.document_group IN ({$docgrp}))";
+			}
+			elseif($access)
+			{
+				$access = "AND {$access}";
+			}
+			elseif($docgrp)
+			{
+				$access = "AND (dg.document_group IN ({$docgrp}))";
+			}
+			else $access = '';
+			$joind_ids = implode(',',$ids);
+			$sql = "
+				SELECT DISTINCT {$fields} FROM {$tblsc} sc
+					LEFT JOIN {$tbldg} dg ON dg.document = sc.id
+					WHERE sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids})
+					GROUP BY sc.id
+					ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};
+				";
 			//run the query
 			$result = $modx->dbQuery($sql);
 	        $resourceArray = array();

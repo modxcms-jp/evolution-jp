@@ -5,7 +5,7 @@
  * シンプルかつカスタマイズの自由度が高いメニュービルダー
  *
  * @category 	snippet
- * @version 	2.0.3
+ * @version 	2.0.4
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -91,6 +91,7 @@ $wf->_config = array(
 	'textOfLinks' => isset($textOfLinks) ? $textOfLinks : 'menutitle',
 	'titleOfLinks' => isset($titleOfLinks) ? $titleOfLinks : 'pagetitle',
 	'displayStart' => isset($displayStart) ? $displayStart : FALSE,
+	'showPrivate' => isset($showPrivate) ? $showPrivate : FALSE,
 );
 
 //get user class definitions
