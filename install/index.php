@@ -15,7 +15,7 @@ $_SESSION['test'] = 1;
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
-require_once("lang.php");
+require_once('lang.php');
 require_once('../manager/includes/version.inc.php');
 require_once('functions.php');
 
@@ -56,13 +56,13 @@ $moduleRelease = $modx_release_date;
 $moduleSQLBaseFile = "setup.sql";
 $moduleSQLDataFile = "setup.data.sql";
 
-$moduleChunks = array (); // chunks - array : name, description, type - 0:file or 1:content, file or content
+$moduleChunks    = array (); // chunks    - array : name, description, type - 0:file or 1:content, file or content
 $moduleTemplates = array (); // templates - array : name, description, type - 0:file or 1:content, file or content
-$moduleSnippets = array (); // snippets - array : name, description, type - 0:file or 1:content, file or content,properties
-$modulePlugins = array (); // plugins - array : name, description, type - 0:file or 1:content, file or content,properties, events,guid
-$moduleModules = array (); // modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid
+$moduleSnippets  = array (); // snippets  - array : name, description, type - 0:file or 1:content, file or content,properties
+$modulePlugins   = array (); // plugins   - array : name, description, type - 0:file or 1:content, file or content,properties, events,guid
+$moduleModules   = array (); // modules   - array : name, description, type - 0:file or 1:content, file or content,properties, guid
 $moduleTemplates = array (); // templates - array : name, description, type - 0:file or 1:content, file or content,properties
-$moduleTVs = array (); // template variables - array : name, description, type - 0:file or 1:content, file or content,properties
+$moduleTVs       = array (); // TVs       - array : name, description, type - 0:file or 1:content, file or content,properties
 
 $errors= 0;
 
@@ -70,11 +70,6 @@ $errors= 0;
 $isPostBack = (count($_POST));
 
 $action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language';
-
-// make sure they agree to the license
-#if (!in_array($action, array ('language', 'welcome', 'connection', 'options', 'license', 'mode', 'summary'))) {
-#    if (!isset ($_POST['chkagree'])) $action= 'license';
-#}
 
 ob_start();
 include ('header.php');

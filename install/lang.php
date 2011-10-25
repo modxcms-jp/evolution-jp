@@ -10,7 +10,6 @@
  * Filename:       /install/lang.php
  */
 
-#default fallback language file - japanese-utf8
 $default_language = 'japanese-utf8';
 
 if    (isset($_POST['language'])) $install_language = $_POST['language'];
