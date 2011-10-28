@@ -71,17 +71,23 @@ $modxtags = array (
     '@\[\+(.*?)\+\]@si',
     '@\[\*(.*?)\*\]@si'
 );
-if (!function_exists('modx_sanitize_gpc')) {
-    function modx_sanitize_gpc(& $target, $modxtags, $limit= 3) {
-        foreach ($target as $key => $value) {
-            if (is_array($value) && $limit > 0) {
-                modx_sanitize_gpc($value, $modxtags, $limit - 1);
-            } else {
-                $target[$key] = preg_replace($modxtags, "", $value);
-            }
-        }
-        return $target;
-    }
+if (!function_exists('modx_sanitize_gpc'))
+{
+	function modx_sanitize_gpc(& $target, $modxtags, $limit= 3)
+	{
+		foreach ($target as $key => $value)
+		{
+			if (is_array($value) && $limit > 0)
+			{
+				modx_sanitize_gpc($value, $modxtags, $limit - 1);
+			}
+			else
+			{
+				$target[$key] = preg_replace($modxtags, "", $value);
+			}
+		}
+		return $target;
+	}
 }
 modx_sanitize_gpc($_GET, $modxtags);
 if (!defined('IN_MANAGER_MODE') || (defined('IN_MANAGER_MODE') && (!IN_MANAGER_MODE || IN_MANAGER_MODE == 'false'))) {
