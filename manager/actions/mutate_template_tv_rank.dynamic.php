@@ -95,10 +95,10 @@ $header .= '
 		ul.sortableList li {
 			font-weight: bold;
 			cursor: move;
-			color: grey;
-			padding: 2px 2px;
+			color: #444444;
+			padding: 3px 5px;
 			margin: 4px 0px;
-			border: 1px solid #000000;
+			border: 1px solid #CCCCCC;
 			background-image: url("media/style/'.$manager_theme.'images/misc/fade.gif");
 			background-repeat: repeat-x;
 		}
@@ -108,11 +108,26 @@ $header .= '
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
     		
-    	window.addEvent(\'domready\', function() {
-	       new Sortables($(\'sortlist\'), {
-	           onComplete: function() {
+    	window.addEvent(\'domready\', function()
+    	{
+			new Sortables($(\'sortlist\'),
+			{
+				initialize: function()
+				{
+			 		$$(\'li.sort\').each(function(el, i)
+			 		{
+						el.setStyle(\'padding\', \'3px 5px\');
+						el.setStyle(\'font-weight\', \'bold\');
+						el.setStyle(\'width\', \'300px\');
+						el.setStyle(\'background-color\', \'#ccc\');
+						el.setStyle(\'cursor\', \'move\');
+					});
+				},
+				onComplete: function()
+				{
 	               var list = \'\';
-	               $$(\'li.sort\').each(function(el, i) {
+					$$(\'li.sort\').each(function(el, i)
+					{
 	                   list += el.id + \';\';
 	               });
 	               $(\'list\').value = list;

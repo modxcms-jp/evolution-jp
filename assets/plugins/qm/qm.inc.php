@@ -65,7 +65,7 @@ class Qm {
         }
         
         // Get event
-        $e = $this->modx->Event;
+        $e = & $this->modx->Event;
         
         // Run plugin based on event
         switch ($e->name) {

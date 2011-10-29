@@ -111,7 +111,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
   <p class="labelHolder"><label for="database_collation"><?php echo $_lang['connection_screen_collation']?></label>
     <div id="collation" name="collation">
 		<select id="database_collation" name="database_collation">
-        	<option value="<?php echo isset($_POST['database_collation']) ? $_POST['database_collation']: $database_collation ?>" selected >
+        	<option value="<?php echo isset($_POST['database_collation']) ? $_POST['database_collation']: $database_collation ?>" selected="selected">
           	<?php echo isset($_POST['database_collation']) ? $_POST['database_collation']: $database_collation ?>
         	</option>
     	</select>

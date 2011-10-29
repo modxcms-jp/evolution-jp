@@ -312,7 +312,7 @@
                 parent.main.location.href="index.php?a=2";
             } else {
                 // parent.main.location.href="index.php?a=3&id=" + id + getFolderState(); //just added the getvar &opened=
-                parent.main.location.href="index.php?a=27&id=" + id; // edit as default action
+                parent.main.location.href="index.php?a=<?php echo (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>&id=" + id; // edit as default action
             }
         }
         if(ca=="parent") {

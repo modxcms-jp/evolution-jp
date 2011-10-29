@@ -507,7 +507,7 @@ echo $_lang['files_data'],': <b><span dir="ltr">',ufilesize($filesizes),'</span>
 echo $_lang['files_dirwritable'],' <b>',is_writable($startpath)==1 ? $_lang['yes'].'.' : $_lang['no'].'.'
 ?></b><br />
 <div align="center">
-<img src="media/style/<?php echo $manager_theme?>images/icons/_tx_.gif" id="imageviewer">
+<img src="<?php echo $_style['tx']; ?>" id="imageviewer" />
 </div>
 <br /><hr />
 <?php

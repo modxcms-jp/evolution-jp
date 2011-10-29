@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを再発行
  *
  * @category 	plugin
- * @version 	1.1.1
+ * @version 	1.1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin

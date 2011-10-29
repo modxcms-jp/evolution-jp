@@ -1,7 +1,26 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the 
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.3 ($Rev: 6653 $ - $Date: 2010-04-01 20:07:12 -0500 (Thu, 01 Apr 2010) $)
+MODx Evolution 1.0.3.x ($Rev: 6736 $ - $Date: 2010-04-29 13:39:46 +0900 (木, 29 4 2010) $)
+===================================
+--------------------------------------------
+Bugfixes:
+--------------------------------------------
+* [#MODX-1865] 1.02 to 1.03 Upgrade Error with mySQL STRICT mode, "Templates: Incorrect integer value"
+* [#MODX-1883] WebLoginSideBar chunk "forget" typo
+* [#MODX-1880] Superfluous single quote in tree.php
+* [#MODX-1878] Wrong path for _tx_.gif image in multiple files
+* [#MODX-1896] Can't properly execute logEvent function when user is not logged in (strict sql mode on)
+* [#MODX-1900] Fixes and tweaks for search.static.php
+* [#MODX-1905] Broken paths to images, non valid xhtml tags, unmatched tags
+
+--------------------------------------------
+Additional Improvements & Updates:
+--------------------------------------------
+* [#MODX-1458] Make default click behavior for the Tree menu a system option
+* [#MODX-1879] Mistake in the Netherlands language file
+
+MODx Evolution 1.0.3 (Apr 1, 2010)
 ===================================
 --------------------------------------------
 Security:
@@ -131,6 +150,7 @@ Bugfixes:
 * [#MODX-1338] Alias field accepts percent character
 * [#MODX-1215] Unixtime widget uses wrong pattern for MySQL date string
 * [#MODX-1364] Add check for tokenizer extension in cache_sync processor
+* [#MODX-1367] SQL duplicate id when duplicating minimal template
 
 --------------------------------------------
 Additional Improvements & Updates:

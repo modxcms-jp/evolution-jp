@@ -308,6 +308,7 @@ if (isset ($_POST['template'])) {
 		$desc = mysql_real_escape_string($moduleTemplates[$si][1]);
 		$category = mysql_real_escape_string($moduleTemplates[$si][4]);
 		$locked = mysql_real_escape_string($moduleTemplates[$si][5]);
+		$locked = ($locked=='') ? 0 : $locked;
 		$filecontent = $moduleTemplates[$si][3];
 		if (!file_exists($filecontent)) {
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
@@ -370,6 +371,7 @@ if (isset ($_POST['tv'])) {
         $assignments = $moduleTVs[$si][9];
         $category = mysql_real_escape_string($moduleTVs[$si][10]);
         $locked = mysql_real_escape_string($moduleTVs[$si][11]);
+        $locked = ($locked=='') ? 0 : $locked;
         
 
         // Create the category if it does not already exist

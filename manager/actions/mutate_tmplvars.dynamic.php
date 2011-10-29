@@ -362,7 +362,7 @@ function decode(s){
 <!-- Template Permission -->
 	<div class="sectionHeader"><?php echo $_lang['tmplvar_tmpl_access']; ?></div>
 	<div class="sectionBody">
-<?php echo $_lang['tmplvar_tmpl_access_msg']; ?><p />
+	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
 <table width="100%" cellspacing="0" cellpadding="0">
 	<?php
 	    $tbl = $dbase.".`".$table_prefix."site_templates`" ;

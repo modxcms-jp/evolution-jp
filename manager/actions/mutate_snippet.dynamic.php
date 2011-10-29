@@ -295,7 +295,7 @@ function decode(s){
 <h1><?php echo $_lang['snippet_title']?></h1>
 
 <div class="sectionBody">
-<?php echo $_lang['snippet_msg']?><p />
+<?php echo $_lang['snippet_msg']?>
 <link type="text/css" rel="stylesheet" href="media/style/<?php echo $manager_theme?>style.css<?php echo '?'.$theme_refresher?>" />
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="snipetPane">
@@ -318,7 +318,6 @@ function decode(s){
 		  </tr>
 		  <tr>
 			<td style="padding-top:10px" align="left" valign="top" colspan="2"><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : ""?> class="inputBox"> <?php echo $_lang['lock_snippet']?> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></td>
-			</td>
 		  </tr>
 		</table>
 		<!-- PHP text editor start -->

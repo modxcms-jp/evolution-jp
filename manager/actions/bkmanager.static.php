@@ -146,9 +146,9 @@ for ($i = 0; $i < $limit; $i++) {
 
 	if($modx->hasPermission('settings')) {
 		echo "\t\t\t\t".'<td align="right">'.($db_status['Data_free'] > 0 ?
-		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'"><span dir="ltr">'.nicesize($db_status['Data_free']).'</a>' :
+		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'">'.nicesize($db_status['Data_free']).'</a>' :
 		     '-').
-		     '</span></td>'."\n";
+		     '</td>'."\n";
 	} else {
 		echo '<td align="right">'.($db_status['Data_free'] > 0 ? nicesize($db_status['Data_free']) : '-').'</td>'."\n";
 	}
