@@ -1,7 +1,7 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-if($_REQUEST['a']!=8 && isset($_SESSION['mgrValidated'])){
+if($_REQUEST['a']!='8' && isset($_SESSION['mgrValidated'])){
     
     $homeurl = $modx->makeUrl($manager_login_startup>0 ? $manager_login_startup:$site_start);
     $logouturl = './index.php?a=8';
@@ -19,7 +19,11 @@ if($_REQUEST['a']!=8 && isset($_SESSION['mgrValidated'])){
     $modx->setPlaceholder('logouturl',$logouturl);
 
     // load template file
-    $tplFile = $base_path.'assets/templates/manager/manager.lockout.html';
+	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/manager.lockout.html';
+	if(file_exists($tplFile)==false)
+	{
+		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/manager.lockout.html';
+	}
     $handle = fopen($tplFile, "r");
     $tpl = fread($handle, filesize($tplFile));
     fclose($handle);

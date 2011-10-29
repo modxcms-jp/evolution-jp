@@ -168,12 +168,7 @@ class synccache{
 		$tmpPHP .= '$s = &$this->snippetCache;' . "\n";
         for ($i_tmp=0; $i_tmp<$limit_tmp; $i_tmp++) {
             $tmp1 = $modx->db->getRow($rs);
-            // clean comments from snippet code
-            $code = '<?php ' . trim($tmp1['snippet']);
-            $code = trim($tmp1['snippet']);
-            $code = extension_loaded('tokenizer') ? strip_tokens($code) : $code;
-            $code = str_replace('<?php ', '', $code);
-            $tmpPHP .= '$s[\''.$modx->db->escape($tmp1['name']).'\']'." = '".$this->escapeSingleQuotes($code)."';\n";
+           $tmpPHP .= '$s[\''.$modx->db->escape($tmp1['name']).'\']'." = '".$this->escapeSingleQuotes($tmp1['snippet'])."';\n";
             // Raymond: save snippet properties to cache
             if ($tmp1['properties']!=""||$tmp1['sharedproperties']!="") $tmpPHP .= '$s[\''.$tmp1['name'].'Props\']'." = '".$this->escapeSingleQuotes($tmp1['properties']." ".$tmp1['sharedproperties'])."';\n";
             // End mod
@@ -189,9 +184,7 @@ class synccache{
 		$tmpPHP .= '$p = &$this->pluginCache;' . "\n";
         for ($i_tmp=0; $i_tmp<$limit_tmp; $i_tmp++) {
             $tmp1 = $modx->db->getRow($rs);
-            $code =& $tmp1['plugincode'];
-            $code = extension_loaded('tokenizer') ? strip_tokens($code) : $code;
-            $tmpPHP .= '$p[\''.$modx->db->escape($tmp1['name']).'\']'." = '".$this->escapeSingleQuotes($code)."';\n";
+           $tmpPHP .= '$p[\''.$modx->db->escape($tmp1['name']).'\']'." = '".$this->escapeSingleQuotes($tmp1['plugincode'])."';\n";
             if ($tmp1['properties']!=''||$tmp1['sharedproperties']!='') $tmpPHP .= '$p[\''.$tmp1['name'].'Props\']'." = '".$this->escapeSingleQuotes($tmp1['properties'].' '.$tmp1['sharedproperties'])."';\n";
         }
 
@@ -219,6 +212,7 @@ class synccache{
         // close and write the file
         $tmpPHP .= '?>';
         $filename = $this->cachePath.'siteCache.idx.php';
+        $somecontent = $tmpPHP;
         
         // invoke OnBeforeCacheUpdate event
         if ($modx) $modx->invokeEvent('OnBeforeCacheUpdate');
@@ -229,12 +223,11 @@ class synccache{
         }
         
         // Write $somecontent to our opened file.
-        if (fwrite($handle, $tmpPHP) === FALSE) {
+        if (fwrite($handle, $somecontent) === FALSE) {
             echo 'Cannot write main MODx cache file! Make sure the assets/cache directory is writable!';
             exit;
         }
         fclose($handle);
-        unset($tmpPHP);
 
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
@@ -301,7 +294,7 @@ class synccache{
 			printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
 			$limit = count($deletedfiles);
 			if($limit > 0) {
-				echo '</p>'.$_lang['cache_files_deleted'].'<ul>';
+                echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
 				for($i=0;$i<$limit; $i++) {
 					echo '<li>',$deletedfiles[$i],'</li>';
 				}
@@ -310,50 +303,4 @@ class synccache{
 		}
 	}
 }
-
-/**
- * strip_tokens
- *
- * can be used to remove comments from php code
- * 
- * from http://www.php.net/manual/en/function.php-strip-whitespace.php#91065
- * 
- * @param string $code
- * @return string code with certain php tokens removed (defaults to comments)
- */
-function strip_tokens($code) {
-
-    $args = func_get_args();
-    $arg_count = count($args);
-   
-    // if no tokens to strip have been specified then strip comments by default
-    if( $arg_count === 1 ) {
-        $args[1] = T_COMMENT;
-        $args[2] = T_DOC_COMMENT;
-    }
-
-    // build a keyed array of tokens to strip
-    for( $i = 1; $i < count($args); ++$i )
-        $strip[ $args[$i] ] = true;
-
-    // set a keyed array of newline characters used to preserve line numbering
-    $newlines = array("\n" => true, "\r" => true);
-    $tokens = @token_get_all($code);
-    reset($tokens);
-    $return = '';
-    $token = current($tokens);
-    while( $token ) {
-        if( !is_array($token) )
-            $return.= $token;
-        elseif(    !isset($strip[ $token[0] ]) )
-            $return.= $token[1];
-        else {
-            // return only the token's newline characters to preserve line numbering
-            for( $i = 0, $token_length = strlen($token[1]); $i < $token_length; ++$i )
-                if( isset($newlines[ $token[1][$i] ]) )
-                    $return.= $token[1][$i];
-        }
-        $token = next($tokens);
-    } // while more tokens
-    return $return;
-}
+?>

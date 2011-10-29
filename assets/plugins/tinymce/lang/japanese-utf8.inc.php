@@ -12,9 +12,9 @@
 $_lang['tinymce_editor_theme_title'] = 'テーマ:';
 $_lang['tinymce_editor_theme_message'] = 'テーマを選択し、ツールバーアイコンのセットおよびエディタのデザインを変更できます。';
 $_lang['tinymce_editor_custom_plugins_title'] = 'カスタムテーマのプラグイン設定:';
-$_lang['tinymce_editor_custom_plugins_message'] = 'カスタムテーマを選択したときに利用するプラグインをカンマ（,）で区切って記述します。';
+$_lang['tinymce_editor_custom_plugins_message'] = 'カスタムテーマを選択したときに利用するプラグインをカンマ（,）で区切って記述します。<br />値を空にして更新するとデフォルト値をセットすることができます。';
 $_lang['tinymce_editor_custom_buttons_title'] = 'カスタムボタン:';
-$_lang['tinymce_editor_custom_buttons_message'] = 'カスタムテーマを選択したときに利用するボタンをカンマ（,）で区切ってそれぞれの行に記述します。セパレータは「separator」または「|」と記述します。プラグインによって機能が提供されるボタンは、プラグイン指定も必要です。詳細については<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Index" target="_blank">TinyMCE開発元の公式ドキュメント</a>の<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference" target="_blank">Control reference</a>のページをご確認ください。';
+$_lang['tinymce_editor_custom_buttons_message'] = 'カスタムテーマを選択したときに利用するボタンをカンマ（,）で区切ってそれぞれの行に記述します。セパレータは「separator」または「|」と記述します。プラグインによって機能が提供されるボタンは、プラグイン指定も必要です。詳細については<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Index" target="_blank">TinyMCE開発元の公式ドキュメント</a>の<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference" target="_blank">Control reference</a>のページをご確認ください。<br />値を空にして更新するとデフォルト値をセットすることができます。';
 $_lang['tinymce_editor_css_selectors_title'] = 'CSSスタイルセレクタ:';
 $_lang['tinymce_editor_css_selectors_message'] = 'class=xxxxxという形で任意のタグに割り当てる「CSSクラス」をここで設定できます。<br />書式：本のタイトル=booktitle;著者=author<br />上記のように、複数のクラスをセミコロンで区切って指定します。';
 $_lang['tinymce_settings'] = 'TinyMCEの設定';

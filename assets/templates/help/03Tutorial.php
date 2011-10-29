@@ -77,6 +77,27 @@ $output = str_replace('現在時刻を表示' , $now, $output);
 <p>システムイベント「OnParseDocument」にチェックを入れ、プラグイン名「現在時刻」として保存します。リソースまたはテンプレート中に「<strong>現在時刻を表示</strong>」という文字列を記述すると、これを現在時刻に変換して出力します。呼び出し場所の記述が必要なスニペットと違い、プラグインはMODxの機能(イベント)に関連付けてプログラムを実行します。一般的なCMSのプラグイン機能のイメージに近いものと言えます。</p>
 <p>MODxの機能を拡張する上で、スニペット以上に自由度が高く対象を幅広く持つ実装が可能です。もともとMODxにはプラグイン機能はなく、コアファイルを改造する形で機能を拡張していましたが、より安全で手間のかからない拡張を実現するためにプラグイン機能が実装されました。スニペットと違い管理画面の拡張も可能で、TinyMCEやManagerManagerなどはプラグインとして構成されています。</p>
 
+<h3>基本的なAPI</h3>
+<ul>
+<li><b>$modx->documentObject['フィールド名']</b> - カレントリソース上の任意のフィールドの値を参照します。テンプレート変数の値にアクセスするには['フィールド名'][1]とします。</li>
+<li><b>$modx->config['設定名']</b> - グローバル設定上の任意の設定名を参照します。サイト名(site_name)などを参照できます。</li>
+<li><b>$modx->documentIdentifier</b> - カレントリソースのidを参照します。</li>
+<li><b>$modx->getDocumentObject(メソッド, ID)</b> - 任意のリソース上のフィールドの値を参照します。テンプレート変数の場合は要素[1]を参照します。$method はid・aliasいずれかを指定しますが、通常はidを指定するとよいでしょう。</li>
+<li><b>$modx->getChunk(チャンク名)</b> - 任意のチャンクの内容を参照します。</li>
+<li><b>$modx->setPlaceholder(プレイスホルダー名, 値)</b> - プレイスホルダーを作ります。</li>
+<li><b>$modx->runSnippet(スニペット名,パラメータ)</b> - 任意のスニペットを実行し、その結果を取得します。パラメータは連想配列形式で指定する必要があります。</li>
+<li><b>$modx->getLoginUserID(mgrまたはweb)</b> - ログインしているかどうかを調べることができます。</li>
+<li><b>$modx->logEvent(イベントID,タイプ,メッセージ)</b> - イベントログを追加します。</li>
+<li><b>$modx->getUserData()</b> - アクセス解析などに用いると便利です。</li>
+<li><b>$modx->makeUrl(リソースID,エイリアス,付加するクエリ,形式)</b> - 与えられたリソースIDからURLを生成します。</li>
+<li><b>$modx->clearCache()</b> - キャッシュをクリアします。</li>
+<li><b>$modx->regClientCSS(文字列)</b> - head要素内にCSSを出力します。引数とする文字列が&lt;link・&lt;styleどちらで始まるかによって挙動が異なります。</li>
+<li><b>$modx->regClientStartupScript(文字列)</b> - head要素内に任意のJavaScriptを挿入します。引数とする文字列が&lt;scriptから始まるかどうかで挙動が異なります。</li>
+<li><b>$modx->regClientScript(文字列)</b> - &lt;/body&gt;タグの直前に任意のJavaScriptを挿入します。引数とする文字列が&lt;scriptから始まるかどうかで挙動が異なります。</li>
+</ul>
+<p>
+その他、SQL文を簡潔に記述するDBAPIが使用できます。
+</p>
 <h3>スニペット・プラグイン製作の参考情報</h3>
 <ul>
 <li><a href="http://wiki.modxcms.com/index.php/Ja:MODx%E3%81%AE%E3%82%B9%E3%83%8B%E3%83%9A%E3%83%83%E3%83%88%E9%96%8B%E7%99%BA%E3%81%AE%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3" target="_blank">MODxのスニペット開発のガイドライン</a> (プラグイン・モジュールも共通)</li>

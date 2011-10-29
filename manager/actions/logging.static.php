@@ -40,7 +40,7 @@ function convertdate($date) {
 	return $timestamp;
 }
 
-$sql = 'SELECT * FROM '.$modx->getFullTableName('manager_log');
+$sql = 'SELECT DISTINCT internalKey, username, action, itemid, itemname FROM '.$modx->getFullTableName('manager_log');
 $rs = $modx->db->query($sql);
 
 $logs = array();
@@ -203,13 +203,17 @@ if(isset($_REQUEST['log_submit'])) {
 		$_REQUEST['datefrom']."&nrresults=".$int_num_result."&log_submit=".$_REQUEST['log_submit']; // extra argv here (could be anything depending on your page)
 
 	// build the sql
+	$limit = $num_rows = $modx->db->getValue(
+	           'SELECT COUNT(*) FROM '.$modx->getFullTableName('manager_log').
+               (!empty($sqladd) ? ' WHERE '.implode(' AND ', $sqladd) : '')
+    );
+        
 	$sql = 'SELECT * FROM '.$modx->getFullTableName('manager_log').
 		(!empty($sqladd) ? ' WHERE '.implode(' AND ', $sqladd) : '').
-		' ORDER BY timestamp DESC';
-		//' LIMIT '.$int_cur_position.', '.$int_num_result;
+		' ORDER BY timestamp DESC'.
+		' LIMIT '.$int_cur_position.', '.$int_num_result;
 
 	$rs = mysql_query($sql);
-	$limit = $num_rows = mysql_num_rows($rs);
 	if($limit<1) {
 		echo '<p>'.$_lang["mgrlog_emptysrch"].'</p>';
 	} else {
@@ -263,12 +267,8 @@ if(isset($_REQUEST['log_submit'])) {
 		<?php
 		// grab the entire log file...
 		$logentries = array();
-		while ($row = mysql_fetch_assoc($rs)) $logentries[] = $row;
-
-		$start = ($int_cur_position);
-		$end = min($start + $int_num_result, $limit);
-		for ($i = $start; $i < $end; $i++) {
-			$logentry =& $logentries[$i];
+		$i = 0;
+		while ($logentry = mysql_fetch_assoc($rs)) {
 			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
 			<td><?php echo '<a href="index.php?a=12&amp;id='.$logentry['internalKey'].'">'.$logentry['username'].'</a>'; ?></td>
 			<td><?php echo $logentry['action']; ?></td>
@@ -278,6 +278,7 @@ if(isset($_REQUEST['log_submit'])) {
 			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
 		</tr>
 		<?php
+		$i++;
 		}
 		?>
 	</tbody>

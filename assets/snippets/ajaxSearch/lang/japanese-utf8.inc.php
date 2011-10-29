@@ -1,8 +1,8 @@
 <?php
 /*
-japanese-utf8.inc.php - for AjaxSearch 1.8.5
-Created by: KyleJ (kjaebker@muddydogpaws.com)
-Created on: 01/22/07
+japanese-utf8.inc.php - for AjaxSearch 1.9.0
+Created by: KyleJ (kjaebker@muddydogpaws.com), Modified by Coroico
+Created on: 01/22/07, Modified on 18/05/10
 Description: Language strings for AjaxSearch
 */
 $_lang['as_resultsIntroFailure'] = '一致する検索結果がありませんでした。類似する別の単語で再度検索してください。';
@@ -27,4 +27,10 @@ $_lang['as_cmtIntroMessage'] = '検索していたものが見つかりました
 $_lang['as_cmtSubmitText'] = '送信';
 $_lang['as_cmtResetText'] = '消去';
 $_lang['as_cmtThksMessage'] = 'コメントをありがとうございました。';
+$_lang['as_resultsTextSingle'] = '%d result found.';
+$_lang['as_resultsTextMultiple'] = '%d results found.';
+$_lang['as_grpResultsDisplayedText'] = '(Displaying %d - %d of %d)';
+$_lang['as_resultsDisplayed'] = 'Displayed: %d';
+$_lang['as_paging1Text'] = '%d - %d / %d';
+$_lang['as_paging2Text'] = 'Show more %d results';
 ?>

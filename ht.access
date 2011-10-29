@@ -6,23 +6,29 @@
 #php_flag register_globals Off
 #AddDefaultCharset utf-8
 #php_value date.timezone Asia/Tokyo
+# PHP5環境などのため日付関係でエラーが出る場合は上記のコメントを外してください
 
 # Options +FollowSymlinks
 RewriteEngine On
+
 RewriteBase /
+# MODxをサブディレクトリにインストールしている場合は「/modx」などに。
 
 # Fix Apache internal dummy connections from breaking [(site_url)] cache
 RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
 RewriteRule .* - [F,L]
 
 # Rewrite domain.com -> www.domain.com -- used with SEO Strict URLs plugin
-#RewriteCond %{HTTP_HOST} .
-#RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
-#RewriteRule (.*) http://www.example.com/$1 [R=301,L]
+# RewriteCond %{HTTP_HOST} .
+# RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
+# RewriteRule (.*) http://www.example.com/$1 [R=301,L]
+# wwwの有無を統一する便利設定。MODxとは直接関係ありません。
 
 # Exclude /assets and /manager directories and images from rewrite rules
 RewriteRule ^(manager|assets)/*$ - [L]
 RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
+# フレンドリーURLの解釈対象としないファイル名・ディレクトリ名を指定します。余計な処理が減るため負荷が多少軽くなります。
+# 実際に存在するファイル・ディレクトリはフレンドリーURLの解釈対象にする必要がありません。
 
 # For Friendly URLs
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -32,7 +38,10 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # Reduce server overhead by enabling output compression if supported.
 #php_flag zlib.output_compression On
 #php_value zlib.output_compression_level 5
+# サーバの圧縮転送設定を有効にしたい場合は上記のコメントを外してください。
+# デフォルトで有効になっているサーバが多いため通常は無視してかまいません。
 
+# サーバの日本語設定が不安定な場合は下記のコメントを外して有効にしてください
 # For UTF-8
 # php_flag  output_buffering              Off
 # php_value output_handler                none

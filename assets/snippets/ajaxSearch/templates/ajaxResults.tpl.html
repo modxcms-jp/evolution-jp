@@ -1,12 +1,10 @@
-[+as.showInfo:is=`1`:then=`
-  <p class="ajaxSearch_resultsInfo">[+as.resultInfoText+]</p>
-`+]
 [+as.noResults:is=`1`:then=`
   <div class="[+as.noResultClass+]">
     [+as.noResultText+]
   </div>
 `:else=`
-[+as.listResults+]
+<p class="AS_ajax_resultsInfos">[+as.resultsFoundText+]<span class="AS_ajax_resultsDisplayed">[+as.resultsDisplayedText+]</span></p>
+[+as.listGrpResults+]
 `+]
 [+as.moreResults:is=`1`:then=`
   <div class="[+as.moreClass+]">

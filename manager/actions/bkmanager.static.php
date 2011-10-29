@@ -17,11 +17,16 @@ $tbl_event_log    = $modx->getFullTableName('event_log');
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
 function callBack(&$dumpstring) {
-	$today = date("d_M_y");
+	global $modx;
+	$today = $modx->toDateFormat(time(),'dateOnly');
+	$today = str_replace('/', '-', $today);
 	$today = strtolower($today);
 	if(!headers_sent()) {
+	    header('Expires: 0');
+        header('Cache-Control: private');
+        header('Pragma: cache');
 		header('Content-type: application/download');
-		header('Content-Disposition: attachment; filename='.$today.'_database_backup.sql');
+		header('Content-Disposition: attachment; filename=' . $today . '_database_backup.sql');
 	}
 	echo $dumpstring;
 	return true;
@@ -100,8 +105,8 @@ if ($mode=='backup') {
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
 	<p style="width:100%;"><a href="#" onclick="submitForm();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
-	<p><input type="checkbox" name="droptables"><?php echo $_lang['database_table_droptablestatements']?></p>
-	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#707070">
+	<p><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></p>
+	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
 			<td width="160"><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></td>
 			<td width="40" align="right"><b><?php echo $_lang['database_table_records']?></b></td>

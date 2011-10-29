@@ -18,6 +18,7 @@ tinyMCE.init({
 	extended_valid_elements          : mce_extended_valid_elements,
 	invalid_elements                 : mce_invalid_elements,
 	popup_css_add                    : '[+mce_url+]style/popup_add.css',
+	theme_advanced_source_editor_height : 400,
 	accessibility_warnings : false,
 	theme_advanced_toolbar_location  : 'top',
 	theme_advanced_statusbar_location: 'bottom',

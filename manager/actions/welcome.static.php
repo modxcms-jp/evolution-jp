@@ -52,14 +52,18 @@ if($modx->hasPermission('bk_manager')) {
 }
 
 // do some config checks
-include_once "config_check.inc.php";
-$modx->setPlaceholder('settings_config',$_lang['settings_config']);
-$modx->setPlaceholder('configcheck_title',$_lang['configcheck_title']);
-if($config_check_results != $_lang['configcheck_ok']) {    
+if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1) {
+    include_once "config_check.inc.php";
+    $modx->setPlaceholder('settings_config',$_lang['settings_config']);
+    $modx->setPlaceholder('configcheck_title',$_lang['configcheck_title']);
+    if($config_check_results != $_lang['configcheck_ok']) {    
     $modx->setPlaceholder('config_check_results',$config_check_results);
     $modx->setPlaceholder('config_display','block');
-}
-else {
+    }
+    else {
+        $modx->setPlaceholder('config_display','none');
+    }
+} else {
     $modx->setPlaceholder('config_display','none');
 }
 
@@ -141,7 +145,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
         $html = "<p>".$_lang['no_active_users_found']."</p>";
     } else {
         $html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
-                <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#CCCCCC">
+                <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
                   <thead>
                     <tr>
                       <td><b>'.$_lang["onlineusers_user"].'</b></td>
@@ -157,7 +161,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
             $activeusers = mysql_fetch_assoc($rs);
             $currentaction = getAction($activeusers['action'], $activeusers['id']);
             $webicon = ($activeusers['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":"";
-            $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>{$webicon}&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
+            $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>$webicon&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>$currentaction</td></tr>";
         }
         $html.= '
                 </tbody>
@@ -188,7 +192,11 @@ if(is_array($evtOut)) {
 }
 
 // load template file
-$tplFile = $base_path.'assets/templates/manager/welcome.html';
+$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+if(file_exists($tplFile)==false)
+{
+	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+}
 $handle = fopen($tplFile, "r");
 $tpl = fread($handle, filesize($tplFile));
 fclose($handle);

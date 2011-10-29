@@ -27,13 +27,13 @@ class logHandler {
 	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname="") {
 		global $modx;
 		$this->entry['msg'] = $msg;	// writes testmessage to the object
-		$this->entry['action'] = $action == "" ? $_REQUEST['a'] : $action;	// writes the action to the object
+        $this->entry['action'] = empty($action)? (int) $_REQUEST['a'] : $action;    // writes the action to the object
 
 		// User Credentials
 		$this->entry['internalKey'] = $internalKey == "" ? $modx->getLoginUserID() : $internalKey;
 		$this->entry['username'] = $username == "" ? $modx->getLoginUserName() : $username;
 
-		$this->entry['itemId'] = $itemid == "" ? $_REQUEST['id'] : $itemid;	// writes the id to the object
+        $this->entry['itemId'] = empty($itemid) ? (int) $_REQUEST['id'] : $itemid;  // writes the id to the object
 		if($this->entry['itemId'] == 0) $this->entry['itemId'] = "-"; // to stop items having id 0
 
 		$this->entry['itemName'] = $itemname == "" ? $_SESSION['itemname'] : $itemname;	// writes the id to the object
@@ -53,7 +53,7 @@ class logHandler {
 			$this->logError("internalKey not set.");
 			return;
 		}
-		if($this->entry['action'] == "") {
+        if(empty($this->entry['action'])) {
 			$this->logError("action not set.");
 			return;
 		}
@@ -71,8 +71,8 @@ class logHandler {
 			(\''.time().'\',
 			 \''.$modx->db->escape($this->entry['internalKey']).'\',
 			 \''.$modx->db->escape($this->entry['username']).'\',
-			 \''.$modx->db->escape($this->entry['action']).'\',
-			 \''.$modx->db->escape($this->entry['itemId']).'\',
+             \''.$this->entry['action'].'\',
+             \''.$this->entry['itemId'].'\',
 			 \''.$modx->db->escape($this->entry['itemName']).'\',
 			 \''.$modx->db->escape($this->entry['msg']).'\')';
 
