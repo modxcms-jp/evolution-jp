@@ -140,8 +140,10 @@ if(substr($webstart_path,0,1)=='/') $webstart_path = '..'.$webstart_path;
 else $webstart_path = '../'.$webstart_path;
 
 ?>
-<br />
-<div class="sectionHeader"><?php echo $_lang['files_files']?></div><div class="sectionBody">
+
+<h1><?php echo $_lang['files_files']?></h1>
+
+<div class="sectionBody">
 <script type="text/javascript" src="media/script/multifile.js"></script>
 <script type="text/javascript">
 function viewfile(url) {
@@ -189,22 +191,22 @@ if(!empty($_FILES['userfile'])) {
   foreach((array)$userfiles as $userfile) {
 
 	// this seems to be an upload action.
-	printf($_lang['files_uploading'], $userfile['name'], substr($startpath, $len, strlen($startpath)));
-	echo $userfile['error']==0 ? $_lang['files_file_type'].$userfile['type'].", ".fsize($userfile['tmp_name']).'<br />' : '';
+	printf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, $len, strlen($startpath)));
+	echo $userfile['error']==0 ? "<p>".$_lang['files_file_type'].$userfile['type'].", ".fsize($userfile['tmp_name']).'</p>' : '';
 
 	$userfilename = $userfile['tmp_name'];
 
 	if (is_uploaded_file($userfilename)) {
 	  // file is uploaded file, process it!
 		if(!in_array(getExtension($userfile['name']), $uploadablefiles)) {
-			echo '<br /><span class="warning">'.$_lang['files_filetype_notok'].'</span><br />';
+			echo '<p><span class="warning">'.$_lang['files_filetype_notok'].'</span></p>';
 		} else {
 			if(@move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name'])) {
 					// Ryan: Repair broken permissions issue with file manager
 					if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN')
 						@chmod($_POST['path']."/".$userfile['name'], $new_file_permissions);
 					// Ryan: End
-					echo '<br /><span class="success">'.$_lang['files_upload_ok'].'</span><br />';
+					echo '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
 
 					// invoke OnFileManagerUpload event
 					$modx->invokeEvent('OnFileManagerUpload',
@@ -215,7 +217,7 @@ if(!empty($_FILES['userfile'])) {
 					// Log the change
 					logFileChange('upload', $_POST['path'].'/'.$userfile['name']);
 			} else {
-				echo '<br /><span class="warning">'.$_lang['files_upload_copyfailed'].'</span> Possible permission problems - the directory you want to upload to needs to be set to 0777 permissions.<br />';
+				echo '<p><span class="warning">'.$_lang['files_upload_copyfailed'].'</span> '.$_lang["files_upload_permissions_error"].'</p>';
 			}
 		}
 	}else{
@@ -408,7 +410,7 @@ if(strlen(MODX_BASE_PATH) < strlen($filemanager_path)) $len--;
 
 function ls($curpath) {
 	global $_lang;
-	global $excludes, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $manager_theme;
+	global $excludes, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $manager_theme, $modx;
 	$dircounter = 0;
 	$filecounter = 0;
 	$curpath = str_replace('//','/',$curpath.'/');
@@ -437,10 +439,10 @@ function ls($curpath) {
 				$files_array[$filecounter]['stats'] = lstat($newpath);
 				$files_array[$filecounter]['text'] = '<img src="media/style/'.$manager_theme.'images/tree/page-html.gif" border="0" align="absmiddle" alt="" />'.$file;
 				$files_array[$filecounter]['view'] = (in_array($type, $viewablefiles)) ?
-				'<span style="cursor:pointer; width:20px;" onclick="viewfile(\''.urlencode($webstart_path.substr($newpath, $len, strlen($newpath))).'\');"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" border="0" align="absmiddle" alt="'.$_lang['file_viewfile'].'" title="'.$_lang['file_viewfile'].'" /></span>' : (($enablefiledownload && in_array($type, $uploadablefiles))? '<a href="'.urlencode($webstart_path.substr($newpath, $len, strlen($newpath))).'" style="cursor:pointer; width:20px;"><img src="media/style/'.$manager_theme.'images/misc/ed_save.gif" border="0" align="absmiddle" alt="'.$_lang['file_download_file'].'" title="'.$_lang['file_download_file'].'" /></a>':'<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" border="0" align="absmiddle" alt="'.$_lang['file_viewfile'].'" title="'.$_lang['file_viewfile'].'" /></span>');
+				'<span style="cursor:pointer; width:20px;" onclick="viewfile(\''.$webstart_path.substr($newpath, $len, strlen($newpath)).'\');"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" border="0" align="absmiddle" alt="'.$_lang['file_viewfile'].'" title="'.$_lang['file_viewfile'].'" /></span>' : (($enablefiledownload && in_array($type, $uploadablefiles))? '<a href="'.urlencode($webstart_path.substr($newpath, $len, strlen($newpath))).'" style="cursor:pointer; width:20px;"><img src="media/style/'.$manager_theme.'images/misc/ed_save.gif" border="0" align="absmiddle" alt="'.$_lang['file_download_file'].'" title="'.$_lang['file_download_file'].'" /></a>':'<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" border="0" align="absmiddle" alt="'.$_lang['file_viewfile'].'" title="'.$_lang['file_viewfile'].'" /></span>');
 				$files_array[$filecounter]['view'] = (in_array($type, $inlineviewablefiles)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=view&path='.urlencode($newpath).'"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" border="0" align="absmiddle" alt="'.$_lang['file_viewfile'].'" title="'.$_lang['file_viewfile'].'" /></a></span>' : $files_array[$filecounter]['view'] ;
 				$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type=='.zip') ? '<span style="width:20px;"><a href="index.php?a=31&mode=unzip&path='.$curpath.'&file='.urlencode($file).'" onclick="return confirmUnzip();"><img src="media/style/'.$manager_theme.'images/icons/unzip.gif" border="0" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span>' : '' ;
-				$files_array[$filecounter]['edit'] = (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path='.urlencode($newpath).'#files_editfile"><img src="media/style/'.$manager_theme.'images/icons/save.gif" border="0" align="absmiddle" alt="'.$_lang['file_editfile'].'" title="'.$_lang['file_editfile'].'" /></a></span>' : '<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/save.gif" border="0" align="absmiddle" alt="'.$_lang['file_editfile'].'" title="'.$_lang['file_editfile'].'" /></span>';
+				$files_array[$filecounter]['edit'] = (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path='.urlencode($newpath).'#file_editfile"><img src="media/style/'.$manager_theme.'images/icons/save.png" border="0" align="absmiddle" alt="'.$_lang['file_editfile'].'" title="'.$_lang['file_editfile'].'" /></a></span>' : '<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/save.png" border="0" align="absmiddle" alt="'.$_lang['file_editfile'].'" title="'.$_lang['file_editfile'].'" /></span>';
 				$files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath) ? '<span style="width:20px;"><a href="index.php?a=31&mode=delete&path='.urlencode($newpath).'" onclick="return confirmDelete();"><img src="media/style/'.$manager_theme.'images/icons/delete.gif" border="0" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></a></span>' : '<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/delete.gif" border="0" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></span>';
 
 				// increment the counter
@@ -457,7 +459,7 @@ function ls($curpath) {
 		$filesizes += $dirs_array[$i]['stats']['7'];
 		echo '<tr style="cursor:default;" onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$dirs_array[$i]['text'],'</td>';
-		echo '<td>',strftime($_lang["format_datetime_full"], $dirs_array[$i]['stats']['9']),'</td>';
+		echo '<td>',$modx->toDateFormat($dirs_array[$i]['stats']['9']),'</td>';
 		echo '<td dir="ltr">',ufilesize($dirs_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $dirs_array[$i]['delete'];
@@ -472,7 +474,7 @@ function ls($curpath) {
 		$filesizes += $files_array[$i]['stats']['7'];
 		echo '<tr onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$files_array[$i]['text'],'</td>';
-		echo '<td>',strftime($_lang["format_datetime_full"], $files_array[$i]['stats']['9']),'</td>';
+		echo '<td>',$modx->toDateFormat($files_array[$i]['stats']['9']),'</td>';
 		echo '<td dir="ltr">',ufilesize($files_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $files_array[$i]['unzip'];
@@ -499,14 +501,14 @@ echo '<br /><br />';
 ls($startpath);
 echo "\n\n\n\n\n\n\n";
 if($folders==0 && $files==0) {
-	echo '<tr><td colspan="4"><img src="media/style/',$manager_theme,'images/tree/deletedfolder.gif" border="0" align="absmiddle"><span style="color:#888;cursor:default;"> This directory is empty.</span></td></tr>';
+	echo '<tr><td colspan="4"><img src="media/style/',$manager_theme,'images/tree/deletedfolder.gif" border="0" /><span style="color:#888;cursor:default;"> This directory is empty.</span></td></tr>';
 }
 ?></table><?php
 
 echo $_lang['files_directories'],': <b>',$folders,'</b><br />';
 echo $_lang['files_files'],': <b>',$files,'</b><br />';
-echo $_lang['files_data'],': <b><span dir="ltr">',ufilesize($filesizes),'</span></b><br/>';
-echo $_lang['files_dirwritable'],'<b>',is_writable($startpath)==1 ? $_lang['yes'].'.' : $_lang['no'].'.'
+echo $_lang['files_data'],': <b><span dir="ltr">',ufilesize($filesizes),'</span></b><br />';
+echo $_lang['files_dirwritable'],' <b>',is_writable($startpath)==1 ? $_lang['yes'].'.' : $_lang['no'].'.'
 ?></b><br />
 <div align="center">
 <img src="media/style/<?php echo $manager_theme?>images/icons/_tx_.gif" id="imageviewer">
@@ -536,7 +538,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 
 <?php
 } else {
-	echo $_lang['files_upload_inhibited_msg'];
+	echo "<p>".$_lang['files_upload_inhibited_msg']."</p>";
 }
 ?>
 
@@ -547,8 +549,10 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 
 if($_REQUEST['mode']=="edit" || $_REQUEST['mode']=="view") {
 ?>
-<a name="files_editfile" />
-<div class="sectionHeader"><?php echo $_REQUEST['mode']=="edit" ? $_lang['files_editfile'] : $_lang['files_viewfile']?></div><div class="sectionBody">
+
+<div class="sectionHeader" id="file_editfile"><?php echo $_REQUEST['mode']=="edit" ? $_lang['files_editfile'] : $_lang['files_viewfile']?></div>
+
+<div class="sectionBody">
 <?php
 $filename=$_REQUEST['path'];
 $handle = @fopen($filename, "r");
@@ -571,7 +575,7 @@ if(!$handle) {
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content"><?php echo htmlentities($buffer,ENT_COMPAT,$modx->config['modx_charset']);?></textarea></td>
+    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content"><?php echo htmlentities($buffer,ENT_COMPAT,$modx_manager_charset)?></textarea></td>
   </tr>
 </table>
 </form>
@@ -580,10 +584,10 @@ if(!$handle) {
 if($_REQUEST['mode']=="edit") {
 ?>
 
-<table cellpadding="0" cellspacing="0" class="actionButtons">
-	<td id="Button1"><a href="#" onclick="document.editFile.submit();"><img src="media/style/<?php echo $manager_theme?>images/icons/save.gif" align="absmiddle"> <?php echo $_lang['save']?></a></td>
-	<td id="Button2"><a href="index.php?a=31&path=<?php echo urlencode($_REQUEST['path'])?>"><img src="media/style/<?php echo $manager_theme?>images/icons/cancel.gif" align="absmiddle"> <?php echo $_lang['cancel']?></a></td>
-</table>
+<ul class="actionButtons">
+	<li><a href="#" onclick="document.editFile.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save']?></a></li>
+	<td id="Button2"><a href="index.php?a=31&path=<?php echo urlencode($_REQUEST['path'])?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+</ul>
 <?php } ?>
 </div>
 <?php

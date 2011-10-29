@@ -348,7 +348,8 @@ class DocumentParser {
                 } else { /* not a valid id in terms of virtualDir, treat as alias */
                     $this->documentMethod= 'alias';
                     return $q;
-                }            
+                }
+            } else {
                 $this->documentMethod= 'id';
                 return $q;
             }
@@ -695,7 +696,7 @@ class DocumentParser {
                 if (isset ($this->chunkCache[$matches[1][$i]])) {
                     $replace[$i]= $this->chunkCache[$matches[1][$i]];
                 } else {
-                    $sql= "SELECT * FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".name='" . mysql_escape_string($matches[1][$i]) . "';";
+                    $sql= "SELECT * FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".name='" . $this->db->escape($matches[1][$i]) . "';";
                     $result= $this->dbQuery($sql);
                     $limit= $this->recordCount($result);
                     if ($limit < 1) {
@@ -806,7 +807,7 @@ class DocumentParser {
                         $snippets[$i]['properties']= $this->snippetCache[$matches[1][$i] . "Props"];
                 } else {
                     // get from db and store a copy inside cache
-                    $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . mysql_escape_string($matches[1][$i]) . "';";
+                    $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . $this->db->escape($matches[1][$i]) . "';";
                     $result= $this->dbQuery($sql);
                     if ($this->recordCount($result) == 1) {
                         $row= $this->fetchRow($result);
@@ -841,13 +842,11 @@ class DocumentParser {
                     if (strpos($tempSnippetParams, "&amp;") > 0)
                         $tempSnippetParams= str_replace("&amp;", "&", $tempSnippetParams);
                     //$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
-                    $tempSnippetParams= split($splitter, $tempSnippetParams);
+                    $tempSnippetParams= explode($splitter, $tempSnippetParams);
                     $snippetParamCount= count($tempSnippetParams);
                     for ($x= 0; $x < $snippetParamCount; $x++) {
                         if (strpos($tempSnippetParams[$x], '=', 0)) {
                             if ($parameterTemp= explode("=", $tempSnippetParams[$x])) {
-                                $parameterTemp[0] = trim($parameterTemp[0]);
-                                $parameterTemp[1] = trim($parameterTemp[1]);
                                 $fp= strpos($parameterTemp[1], '`');
                                 $lp= strrpos($parameterTemp[1], '`');
                                 if (!($fp === false && $lp === false))
@@ -868,8 +867,11 @@ class DocumentParser {
     }
 
     function makeFriendlyURL($pre, $suff, $alias) {
-        $dir= dirname($alias);
-        return ($dir != '.' ? "$dir/" : "") . $pre . basename($alias) . $suff;
+        $Alias = explode('/',$alias);
+        $alias = array_pop($Alias);
+        $dir = implode('/', $Alias);
+        unset($Alias);
+        return ($dir != '' ? "$dir/" : '') . $pre . $alias . $suff;
     }
 
     function rewriteUrls($documentSource) {
@@ -1257,7 +1259,7 @@ class DocumentParser {
 
     # Displays a javascript alert message in the web browser
     function webAlert($msg, $url= "") {
-        $msg= addslashes(mysql_escape_string($msg));
+        $msg= addslashes($this->db->escape($msg));
         if (substr(strtolower($url), 0, 11) == "javascript:") {
             $act= "__WebAlert();";
             $fnc= "function __WebAlert(){" . substr($url, 11) . "};";
@@ -1283,8 +1285,8 @@ class DocumentParser {
 
     # Add an a alert message to the system event log
     function logEvent($evtid, $type, $msg, $source= 'Parser') {
-        $msg= mysql_escape_string($msg);
-        $source= mysql_escape_string($source);
+        $msg= $this->db->escape($msg);
+        $source= $this->db->escape($source);
         $evtid= intval($evtid);
         if ($type < 1) {
             $type= 1;
@@ -1485,7 +1487,7 @@ class DocumentParser {
     function getSnippetId() {
         if ($this->currentSnippet) {
             $tbl= $this->getFullTableName("site_snippets");
-            $rs= $this->dbQuery("SELECT id FROM $tbl WHERE name='" . mysql_escape_string($this->currentSnippet) . "' LIMIT 1");
+            $rs= $this->dbQuery("SELECT id FROM $tbl WHERE name='" . $this->db->escape($this->currentSnippet) . "' LIMIT 1");
             $row= @ $this->fetchRow($rs);
             if ($row['id'])
                 return $row['id'];
@@ -1695,7 +1697,7 @@ class DocumentParser {
             $snippet= $this->snippetCache[$snippetName];
             $properties= $this->snippetCache[$snippetName . "Props"];
         } else { // not in cache so let's check the db
-            $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . mysql_escape_string($snippetName) . "';";
+            $sql= "SELECT * FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".name='" . $this->db->escape($snippetName) . "';";
             $result= $this->dbQuery($sql);
             if ($this->recordCount($result) == 1) {
                 $row= $this->fetchRow($result);
@@ -1737,6 +1739,67 @@ class DocumentParser {
     function getUserData() {
         include $this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php";
         return $tmpArray;
+    }
+
+    function toDateFormat($timestamp = 0, $mode = '') {
+        $timestamp = trim($timestamp);
+        $timestamp = intval($timestamp);
+        
+        switch($this->config['datetime_format']) {
+            case 'YYYY/mm/dd':
+                $dateFormat = '%Y/%m/%d';
+                break;
+            case 'dd-mm-YYYY':
+                $dateFormat = '%d-%m-%Y';
+                break;
+            case 'mm/dd/YYYY':
+                $dateFormat = '%m/%d/%Y';
+                break;
+            /*
+            case 'dd-mmm-YYYY':
+                $dateFormat = '%e-%b-%Y';
+                break;
+            */
+        }
+        
+        if (empty($mode)) {
+            $strTime = strftime($dateFormat . " %H:%M:%S", $timestamp);
+        } elseif ($mode == 'dateOnly') {
+            $strTime = strftime($dateFormat, $timestamp);
+        } elseif ($mode == 'formatOnly') {
+        	$strTime = $dateFormat;
+        }
+        return $strTime;
+    }
+
+    function toTimeStamp($str) {
+        $str = trim($str);
+        if (empty($str)) {return '';}
+
+        switch($this->config['datetime_format']) {
+            case 'YYYY/mm/dd':
+            	if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {return '';}
+                list ($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
+                break;
+            case 'dd-mm-YYYY':
+            	if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {return '';}
+                list ($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
+                break;
+            case 'mm/dd/YYYY':
+            	if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {return '';}
+                list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
+                break;
+            /*
+            case 'dd-mmm-YYYY':
+            	if (!preg_match('/^[0-9]{2}-[0-9a-z]+-[0-9]{4}[0-9 :]*$/i', $str)) {return '';}
+            	list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d-%3s-%4d %2d:%2d:%2d');
+                break;
+            */
+        }
+        if (!$H && !$M && !$S) {$H = 0; $M = 0; $S = 0;}
+        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
+        $timeStamp = intval($timeStamp);
+        return $timeStamp;
     }
 
     #::::::::::::::::::::::::::::::::::::::::
@@ -1979,12 +2042,12 @@ class DocumentParser {
     // deprecated
     function insideManager() {
         $m= false;
-        if (IN_MANAGER_MODE == 'true') {
+        if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true') {
             $m= true;
-            if (SNIPPET_INTERACTIVE_MODE == 'true')
+            if (defined('SNIPPET_INTERACTIVE_MODE') && SNIPPET_INTERACTIVE_MODE == 'true')
                 $m= "interact";
             else
-                if (SNIPPET_INSTALL_MODE == 'true')
+                if (defined('SNIPPET_INSTALL_MODE') && SNIPPET_INSTALL_MODE == 'true')
                     $m= "install";
         }
         return $m;
@@ -2159,46 +2222,91 @@ class DocumentParser {
 
     # Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
     function regClientCSS($src, $media='') {
-        if (isset ($this->loadedjscripts[$src]) && $this->loadedjscripts[$src])
+        if (empty($src) || isset ($this->loadedjscripts[$src]))
             return '';
-        $this->loadedjscripts[$src]= true;
+        $nextpos= max(array_merge(array(0),array_keys($this->sjscripts)))+1;
+        $this->loadedjscripts[$src]['startup']= true;
+        $this->loadedjscripts[$src]['version']= '0';
+        $this->loadedjscripts[$src]['pos']= $nextpos;
         if (strpos(strtolower($src), "<style") !== false || strpos(strtolower($src), "<link") !== false) {
-            $this->sjscripts[count($this->sjscripts)]= $src;
+            $this->sjscripts[$nextpos]= $src;
         } else {
-            $this->sjscripts[count($this->sjscripts)]= "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.($media ? 'media="'.$media.'" ' : '').'/>';
+            $this->sjscripts[$nextpos]= "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.($media ? 'media="'.$media.'" ' : '').'/>';
         }
     }
 
     # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-    function regClientStartupScript($src, $plaintext= false) {
-        if (!empty ($src) && !array_key_exists($src, $this->loadedjscripts)) {
-            if ($this->loadedjscripts[$src])
-                return '';
-
-            $this->loadedjscripts[$src]= true;
-            if ($plaintext == true)
-                $this->sjscripts[count($this->sjscripts)]= $src;
-            elseif (strpos(strtolower($src), "<script") !== false) $this->sjscripts[count($this->sjscripts)]= $src;
-            else
-                $this->sjscripts[count($this->sjscripts)]= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
-        }
+    function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false)) {
+        $this->regClientScript($src, $options, true);
     }
 
-    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page
-    function regClientScript($src, $plaintext= false) {
-        if ($this->loadedjscripts[$src])
-            return '';
-        $this->loadedjscripts[$src]= true;
-        if ($plaintext == true)
-            $this->jscripts[count($this->jscripts)]= $src;
-        elseif (strpos(strtolower($src), "<script") !== false) $this->jscripts[count($this->jscripts)]= $src;
-        else
-            $this->jscripts[count($this->jscripts)]= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
+    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
+    function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false) {
+        if (empty($src))
+            return ''; // nothing to register
+        if (!is_array($options)) {
+            if (is_bool($options))  // backward compatibility with old plaintext parameter
+                $options=array('plaintext'=>$options);
+            elseif (is_string($options)) // Also allow script name as 2nd param
+                $options=array('name'=>$options);
+            else
+                $options=array();
+        }
+        $name= isset($options['name']) ? strtolower($options['name']) : '';
+        $version= isset($options['version']) ? $options['version'] : '0';
+        $plaintext= isset($options['plaintext']) ? $options['plaintext'] : false;
+        $key= !empty($name) ? $name : $src;
+        unset($overwritepos); // probably unnecessary--just making sure
+
+        $useThisVer= true;
+        if (isset($this->loadedjscripts[$key])) { // a matching script was found
+            // if existing script is a startup script, make sure the candidate is also a startup script
+            if ($this->loadedjscripts[$key]['startup'])
+                $startup= true;
+
+            if (empty($name)) {
+                $useThisVer= false; // if the match was based on identical source code, no need to replace the old one
+            } else {
+                $useThisVer = version_compare($this->loadedjscripts[$key]['version'], $version, '<');
+            }
+
+            if ($useThisVer) {
+                if ($startup==true && $this->loadedjscripts[$key]['startup']==false) {
+                    // remove old script from the bottom of the page (new one will be at the top)
+                    unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
+                } else {
+                    // overwrite the old script (the position may be important for dependent scripts)
+                    $overwritepos= $this->loadedjscripts[$key]['pos'];
+                }
+            } else { // Use the original version
+                if ($startup==true && $this->loadedjscripts[$key]['startup']==false) {
+                    // need to move the exisiting script to the head
+                    $version= $this->loadedjscripts[$key][$version];
+                    $src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
+                    unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
+                } else {
+                    return ''; // the script is already in the right place
+                }
+            }
+        }
+
+        if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
+            $src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
+        if ($startup) {
+            $pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
+            $this->sjscripts[$pos]= $src;
+        } else {
+            $pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
+            $this->jscripts[$pos]= $src;
+        }
+        $this->loadedjscripts[$key]['version']= $version;
+        $this->loadedjscripts[$key]['startup']= $startup;
+        $this->loadedjscripts[$key]['pos']= $pos;
     }
 
     # Registers Client-side Startup HTML block
     function regClientStartupHTMLBlock($html) {
-        $this->regClientStartupScript($html, true);
+        $this->regClientScript($html, true, true);
     }
 
     # Registers Client-side HTML block
@@ -2699,7 +2807,7 @@ class SystemEvent {
     }
 
     function stopPropagation() {
-        $_propagate= false;
+        $this->_propagate= false;
     }
 
     function _resetEventObject() {

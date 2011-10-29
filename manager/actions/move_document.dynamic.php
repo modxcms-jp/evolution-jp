@@ -65,16 +65,15 @@ function checkParentChildRelation(pId, pName) {
 
 
 
-<div class="subTitle">
-<span class="right"><?php echo $_lang['move_document_title']; ?></span>
+<h1><?php echo $_lang['move_document_title']; ?></h1>
 
-    <table cellpadding="0" cellspacing="0" class="actionButtons">
-        <tr>
-            <td id="Button1"><a href="#" onclick="document.newdocumentparent.submit();"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/save.gif" align="absmiddle"> <?php echo $_lang['save']; ?></a></td>
-            <td id="Button2"><a href="index.php?a=2"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cancel.gif" align="absmiddle"> <?php echo $_lang['cancel']; ?></a></td>
-        </tr>
-    </table>
+<div id="actions">
+	<ul class="actionButtons">
+	    <li><a href="#" onclick="document.newdocumentparent.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save'] ?></a></li>
+	    <li><a href="index.php?a=2"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
+	</ul>
 </div>
+
 
 <div class="sectionHeader"><?php echo $_lang['move_document_title']; ?></div><div class="sectionBody">
 <?php echo $_lang['move_document_message']; ?><p />
@@ -82,7 +81,7 @@ function checkParentChildRelation(pId, pName) {
 <input type="hidden" name="a" value="52">
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <input type="hidden" name="idshow" value="<?php echo $id; ?>"><?php echo $_lang['document_to_be_moved']; ?>: <b><?php echo $id; ?></b><br />
-<span id="parentName" class="warning"><?php echo $_lang['move_document_new_parent']; ?></span><br>
+<span id="parentName" class="warning"><?php echo $_lang['move_document_new_parent']; ?></span><br />
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
 <input type='save' value="Move" style="display:none">

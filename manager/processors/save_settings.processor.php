@@ -24,9 +24,8 @@ if (isset($_POST) && count($_POST) > 0) {
 			break;
 		}
 		$v = is_array($v) ? implode(",", $v) : $v;
-		if ($k == 'manager_lang_attribute' && trim($v) == '') $v = 'en';
 
-		$savethese[] = '(\''.mysql_escape_string($k).'\', \''.mysql_escape_string($v).'\')';
+		$savethese[] = '(\''.$modx->db->escape($k).'\', \''.$modx->db->escape($v).'\')';
 	}
 	
 	// Run a single query to save all the values

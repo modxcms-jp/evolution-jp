@@ -165,7 +165,7 @@ if ($numRecords > 0) {
 				'docid' =>  $children['id'],
 				'title' =>  $children['pagetitle'],
 				'status' => ($children['published'] == 0) ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>',
-				'edit' =>   '<a href="index.php?a=3&amp;id='.$children['id'].'"><img src="media/style/'.$manager_theme.'images/icons/context_view.gif" />'.$_lang['view'].'</a>'.(($modx->hasPermission('edit_document')) ? '&nbsp;<a href="index.php?a=27&amp;id='.$children['id'].'"><img src="media/style/'.$manager_theme.'images/icons/save.gif" />'.$_lang['edit'].'</a>&nbsp;<a href="index.php?a=51&amp;id='.$children['id'].'"><img src="media/style/'.$manager_theme.'images/icons/cancel.gif" />'.$_lang['move'].'</a>' : ''),
+				'edit' =>   '<a href="index.php?a=3&amp;id='.$children['id'].'"><img src="'. $_style["icons_preview_document"].'" />'.$_lang['view'].'</a>'.(($modx->hasPermission('edit_document')) ? '&nbsp;<a href="index.php?a=27&amp;id='.$children['id'].'"><img src="' . $_style["icons_save"] .'" />'.$_lang['edit'].'</a>&nbsp;<a href="index.php?a=51&amp;id='.$children['id'].'"><img src="' . $_style["icons_move_document"] .'" />'.$_lang['move'].'</a>' : ''),
 			);
 		}
 
@@ -174,7 +174,7 @@ if ($numRecords > 0) {
 	}
 } else {
 	// No Child documents
-	$children_output = $_lang['documents_in_container_no'];
+	$children_output = "<p>".$_lang['documents_in_container_no']."</p>";
 }
 
 ?>
@@ -199,16 +199,27 @@ function movedocument() {
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <script type="text/javascript" src="media/script/tablesort.js"></script>
 
-<div class="subTitle">
-	<span class="right"><?php echo $_lang['doc_data_title']?></span>
-
-	<table cellpadding="0" cellspacing="0" class="actionButtons"><tr>
-		<td id="Button1"><a href="#" onclick="editdocument();"><img src="media/style/<?php echo $manager_theme?>images/icons/save.gif" align="absmiddle"> <?php echo $_lang['edit']?></a></td>
-		<td id="Button2"><a href="#" onclick="movedocument();"><img src="media/style/<?php echo $manager_theme?>images/icons/cancel.gif" align="absmiddle"> <?php echo $_lang['move']?></a></td>
-		<td id="Button4"><a href="#" onclick="duplicatedocument();"><img src="media/style/<?php echo $manager_theme?>images/icons/copy.gif" align="absmiddle"> <?php echo $_lang['duplicate']?></a></td>
-		<td id="Button3"><a href="#" onclick="deletedocument();"><img src="media/style/<?php echo $manager_theme?>images/icons/delete.gif" align="absmiddle"> <?php echo $_lang['delete']?></a></td>
-	</tr></table>
-</div>
+	<h1><?php echo $_lang['doc_data_title']?></h1>
+	
+	<div id="actions">	
+	  <ul class="actionButtons">
+		  <li id="Button1">
+			<a href="#" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a>
+		  </li>
+		  <li id="Button2">
+			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
+		  </li>
+		  <li id="Button4">
+		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_duplicate_document"] ?>" /> <?php echo $_lang['duplicate']?></a>
+		  </li>
+		  <li id="Button3">
+		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
+		  </li>
+		  <li id="Button6">
+			<a href="#" onclick="<?php echo "window.open('../index.php?id=$id','previeWin')"?>"><img src="<?php echo $_style["icons_preview_document"]?>" /> <?php echo $_lang['preview']?></a>
+		  </li>
+	  </ul>
+	</div>
 
 <div class="sectionHeader"><?php echo $_lang['page_data_title']?></div>
 <div class="sectionBody">
@@ -229,43 +240,43 @@ function movedocument() {
 			<tr><td width="200" valign="top"><?php echo $_lang['document_title']?>: </td>
 				<td><b><?php echo $content['pagetitle']?></b></td></tr>
 			<tr><td width="200" valign="top"><?php echo $_lang['long_title']?>: </td>
-				<td><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<span class = \"notset\">".$_lang['notset']."</span>)"?></td></tr>
+				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td></tr>
 			<tr><td valign="top"><?php echo $_lang['document_description']?>: </td>
-				<td><?php echo $content['description']!='' ? $content['description'] : "(<span class = \"notset\">".$_lang['notset']."</span>)"?></td></tr>
+				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['document_summary']?>: </td>
-				<td><?php echo $content['introtext']!='' ? $content['introtext'] : "(<span class = \"notset\">".$_lang['notset']."</span>)"?></td></tr>
+				<td><?php echo $content['introtext']!='' ? $content['introtext'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['type']?>: </td>
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['document']?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['document_alias']?>: </td>
-				<td><?php echo $content['alias']!='' ? $content['alias'] : "(<span class = \"notset\">".$_lang['notset']."</span>)"?></td></tr>
+				<td><?php echo $content['alias']!='' ? $content['alias'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)
 					echo join($keywords, ", ");
-				else    echo "(<span class = \"notset\">".$_lang['notset']."</span>)";
+				else    echo "(<i>".$_lang['not_set']."</i>)";
 				?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['metatags']?>: </td>
 				<td><?php // META Tags
 				if(count($metatags_selected) != 0)
 					echo join($metatags_selected, "<br /> ");
-				else    echo "(<span class = \"notset\">".$_lang['notset']."</span>)";
+				else    echo "(<i>".$_lang['not_set']."</i>)";
 				?></td></tr>
 		<tr><td colspan="2">&nbsp;</td></tr>
 			<tr><td colspan="2"><b><?php echo $_lang['page_data_changes']?></b></td></tr>
 			<tr><td><?php echo $_lang['page_data_created']?>: </td>
-				<td><?php echo strftime("%d-%m-%Y %H:%M:%S", $content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td></tr>
+				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td></tr>
 <?php				if ($editedbyname != '') { ?>
 			<tr><td><?php echo $_lang['page_data_edited']?>: </td>
-				<td><?php echo strftime("%d-%m-%Y %H:%M:%S", $content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td></tr>
+				<td><?php echo $modx->toDateFormat($content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td></tr>
 <?php				} ?>
 		<tr><td colspan="2">&nbsp;</td></tr>
 			<tr><td colspan="2"><b><?php echo $_lang['page_data_status']?></b></td></tr>
 			<tr><td><?php echo $_lang['page_data_status']?>: </td>
 				<td><?php echo $content['published']==0 ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publisheddoc">'.$_lang['page_data_published'].'</span>'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_publishdate']?>: </td>
-				<td><?php echo $content['pub_date']==0 ? "(<span class = \"notset\">".$_lang['notset']."</span>)" : strftime("%d-%m-%Y %H:%M:%S", $content['pub_date'])?></td></tr>
+				<td><?php echo $content['pub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['pub_date'])?></td></tr>
 			<tr><td><?php echo $_lang['page_data_unpublishdate']?>: </td>
-				<td><?php echo $content['unpub_date']==0 ? "(<span class = \"notset\">".$_lang['notset']."</span>)" : strftime("%d-%m-%Y %H:%M:%S", $content['unpub_date'])?></td></tr>
+				<td><?php echo $content['unpub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['unpub_date'])?></td></tr>
 			<tr><td><?php echo $_lang['page_data_cacheable']?>: </td>
 				<td><?php echo $content['cacheable']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
 			<tr><td><?php echo $_lang['page_data_searchable']?>: </td>
@@ -295,10 +306,11 @@ function movedocument() {
 		<h2 class="tab"><?php echo $_lang['view_child_documents_in_container']?></h2>
 		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabChildren" ) );</script>
 <?php if ($modx->hasPermission('new_document')) { ?>
-			<table cellpadding="0" cellspacing="0" class="actionButtons"><tr>
-				<td><a href="index.php?a=4&amp;pid=<?php echo $content['id']?>"><img src="media/style/<?php echo $manager_theme?>images/icons/newdoc.gif" align="absmiddle"/> <?php echo $_lang['create_document_here']?></a></td>
-				<td><a href="index.php?a=72&amp;pid=<?php echo $content['id']?>"><img src="media/style/<?php echo $manager_theme?>images/icons/weblink.gif" align="absmiddle"> <?php echo $_lang['create_weblink_here']?></a></td>
-			</tr></table>
+	
+			<ul class="actionButtons"><tr>
+				<li><a href="index.php?a=4&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_document_here']?></a></li>
+				<li><a href="index.php?a=72&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
+			</ul>
 <?php }
 	if ($numRecords > 0)
 		echo '<h4><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['documents_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</h4>'."\n";

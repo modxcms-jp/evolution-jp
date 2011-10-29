@@ -109,6 +109,7 @@ if ($friendly_urls) {
 			}
 		}
 	}
+
 	// strip alias of special characters
 	elseif ($alias) {
 		$alias = $modx->stripAlias($alias);
@@ -124,8 +125,7 @@ $currentdate = time();
 if (empty ($pub_date)) {
 	$pub_date = 0;
 } else {
-	list ($d, $m, $Y, $H, $M, $S) = sscanf($pub_date, "%2d-%2d-%4d %2d:%2d:%2d");
-	$pub_date = mktime($H, $M, $S, $m, $d, $Y);
+	$pub_date = $modx->toTimeStamp($pub_date);
 
 	if ($pub_date < $currentdate) {
 		$published = 1;
@@ -138,8 +138,7 @@ if (empty ($pub_date)) {
 if (empty ($unpub_date)) {
 	$unpub_date = 0;
 } else {
-	list ($d, $m, $Y, $H, $M, $S) = sscanf($unpub_date, "%2d-%2d-%4d %2d:%2d:%2d");
-	$unpub_date = mktime($H, $M, $S, $m, $d, $Y);
+	$unpub_date = $modx->toTimeStamp($unpub_date);
 	if ($unpub_date < $currentdate) {
 		$published = 0;
 	}
@@ -190,13 +189,11 @@ $sql .= "LEFT JOIN $tbl_site_tmplvar_access tva ON tva.tmplvarid=tv.id  ";
 $sql .= "WHERE tvtpl.templateid = '" . $template . "' AND (1='" . $_SESSION['mgrRole'] . "' OR ISNULL(tva.documentgroup)" . ((!$docgrp) ? "" : " OR tva.documentgroup IN ($docgrp)") . ") ORDER BY tv.rank;";
 $rs = $modx->db->query($sql);
 while ($row = $modx->db->getRow($rs)) {
-	$additionalEncodings = array('-' => '%2D', '.' => '%2E', '_' => '%5F');
-	$row['name'] = str_replace(array_keys($additionalEncodings), array_values($additionalEncodings), rawurlencode($row['name']));
 	$tmplvar = '';
 	switch ($row['type']) {
 		case 'url':
-			$tmplvar = $_POST["tv" . $row['name']];
-			if ($_POST["tv" . $row['name'] . '_prefix'] != '--') {
+			$tmplvar = $_POST["tv" . $row['id']];
+			if ($_POST["tv" . $row['id'] . '_prefix'] != '--') {
 				$tmplvar = str_replace(array (
 					"feed://",
 					"ftp://",
@@ -204,29 +201,29 @@ while ($row = $modx->db->getRow($rs)) {
 					"https://",
 					"mailto:"
 				), "", $tmplvar);
-				$tmplvar = $_POST["tv" . $row['name'] . '_prefix'] . $tmplvar;
+				$tmplvar = $_POST["tv" . $row['id'] . '_prefix'] . $tmplvar;
 			}
 		break;
 		case 'file':
-			$tmplvar = $_POST["tv" . $row['name']];
+			$tmplvar = $_POST["tv" . $row['id']];
 		break;
 		default:
-			if (is_array($_POST["tv" . $row['name']])) {
+			if (is_array($_POST["tv" . $row['id']])) {
 				// handles checkboxes & multiple selects elements
 				$feature_insert = array ();
-				$lst = $_POST["tv" . $row['name']];
+				$lst = $_POST["tv" . $row['id']];
 				while (list ($featureValue, $feature_item) = each($lst)) {
 					$feature_insert[count($feature_insert)] = $feature_item;
 				}
 				$tmplvar = implode("||", $feature_insert);
 			} else {
-				$tmplvar = $_POST["tv" . $row['name']];
+				$tmplvar = $_POST["tv" . $row['id']];
 			}
 		break;
 	}
 	// save value if it was modified
 	if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text']) {
-		$tmplvars[$row['name']] = array (
+		$tmplvars[$row['id']] = array (
 			$row['id'],
 			$tmplvar
 		);

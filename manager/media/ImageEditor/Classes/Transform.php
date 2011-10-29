@@ -343,9 +343,9 @@ Class Image_Transform
         $id_length = strlen($id);
 
         while (false !== ($entry = $d->read())) {
-            if (is_file($dir.'/'.$entry) && substr($entry,0,1) == '.' && !ereg($entry, $this->image))
+            if (is_file($dir.'/'.$entry) && substr($entry,0,1) == '.' && !preg_match(preg_quote("/$entry/", '/'), $this->image))
             {
-                //echo filemtime($this->directory.'/'.$entry)."<br>"; 
+                //echo filemtime($this->directory.'/'.$entry)."<br />"; 
                 //echo time();
 
                 if (filemtime($dir.'/'.$entry) + $this->lapse_time < time())

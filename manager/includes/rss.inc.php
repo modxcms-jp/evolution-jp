@@ -10,13 +10,7 @@
  *  Name: kRSS
  *  Version (MODx Module): 1.0.72
  *  Version (Magpie): 0.72
- *  Description: A simple module to read RSS feeds: good to parse feeds from MODx Forums
- *                      Based on MagpieRSS (http://sourceforge.net/projects/magpierss/).
- *                      Item descriptions are limited to 200 chars.
- *  Installation: extract zip content to assets/modules/kRSS
- *                     Add/edit Feeds in Configuration (some lines under this).
  */
-
 
 /* Configuration
 ---------------------------------------------- */
@@ -26,31 +20,17 @@ $urls['modx_news_content'] = $rss_url_news;
 $urls['modx_security_notices_content'] = $rss_url_security;
 
 // How many items per Feed?
-$itemsNumber = '5';
+$itemsNumber = '3';
 
 /* End of configuration
 NO NEED TO EDIT BELOW THIS LINE
 ---------------------------------------------- */
 
-#$output = '';
-#$output .= '<html>';
-#$output .= '<head>';
-#$output .= '<title>MODx</title>';
-#$output .= '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />';
-#$output .= '<link rel="stylesheet" type="text/css" href="media/style/MODxLight/style.css?" />';
-#$output .= '<script type="text/javascript">var MODX_MEDIA_PATH = "media";</script>';
-#$output .= '<script type="text/javascript" language="JavaScript" src="media/script/modx.js"></script>';
-#$output .= '<div class="subTitle">';
-#$output .= '<span class="right">';
-#$output .= '<img src="media/style/MODx/images/_tx_.gif" width="1" height="5"><br />kRSS - RSS from MODx Forums';
-#$output .= '</span>';
-#$output .= '</div>';
-
 // include MagPieRSS
 $basePath = $modx->config['base_path'];
 require_once($basePath.'manager/media/rss/rss_fetch.inc');
 
-$feedData = array(); // pixelchutes
+$feedData = array();
 
 // create Feed
 foreach ($urls as $section=>$url) {
@@ -60,33 +40,23 @@ foreach ($urls as $section=>$url) {
     	$feedData[$section] = 'Failed to retrieve ' . $url;
     	continue;
 	}
-    #$output .= '<div class="sectionHeader">';
-    #$output .= '<img src="media/style/MODx/images/misc/dot.gif" alt="" />&nbsp;'.$rss->channel['title'];
-    #$output .= '</div>';
-    #$output .= '<div class="sectionBody" style="font-size: 11px;"><ul>';
-    $output .= '<ul>'; // pixelchutes
+    $output .= '<ul>';
 
     $items = array_slice($rss->items, 0, $itemsNumber);
     foreach ($items as $item) {
         $href = $item['link'];
         $title = $item['title'];
-        $pubdate = strtotime($item['pubdate']);
-        $pubdate = strftime($_lang["format_datetime_full"], $pubdate);
-
+        $pubdate = $item['pubdate'];
+        $pubdate = $modx->toDateFormat(strtotime($pubdate));
         $description = strip_tags($item['description']);
         if (strlen($description) > 199) {
             $description = substr($description, 0, 200);
             $description .= '...<br />Read <a href="'.$href.'" target="_blank">more</a>.';
         }
-        $output .= '<li><a href="'.$href.'" target="_blank">'.$title.'</a> - '.$pubdate.'<br />'.$description.'</li>';
+        $output .= '<li><a href="'.$href.'" target="_blank">'.$title.'</a> - <b>'.$pubdate.'</b><br />'.$description.'</li>';
     }
 
-    #$output .= '</ul></div>';
-    $output .= '</ul>'; // pixelchutes
+    $output .= '</ul>';
 	$feedData[$section] = $output;
 }
-
-#$output .= '</div></body></html>';
-#echo $output;
-
 ?>

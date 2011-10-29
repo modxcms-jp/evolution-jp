@@ -36,17 +36,17 @@ else{
 
 ?>
 
-<div class="subTitle">
-	<span class="right"><?php echo $_lang['eventlog']; ?></span>
-	<table cellpadding="0" cellspacing="0" class="actionButtons">
-		<tr>
+	<h1><?php echo $_lang['eventlog']; ?></h1>
+
+<div id="actions">
+	<ul class="actionButtons">
 <?php if($modx->hasPermission('delete_eventlog')) { ?>
-		<td id="Button3"><a href="#" onclick="deletelog();"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/delete.gif" align="absmiddle"> <?php echo $_lang['delete']; ?></a></td>
+		<li id="Button3"><a href="#" onclick="deletelog();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']; ?></a></li>
 <?php } ?>
-		<td id="Button4"><a href="index.php?a=114"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cancel.gif" align="absmiddle"> <?php echo $_lang['cancel']; ?></a></td>
-		</tr>
-	</table>
+		<li id="Button4"><a href="index.php?a=114"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
+	</ul>
 </div>
+
 <script language="JavaScript" type="text/javascript">
 	function deletelog() {
 		if(confirm("<?php echo $_lang['confirm_delete_eventlog']; ?>")==true) {
@@ -54,6 +54,7 @@ else{
 		}
 	}
 </script> 
+
 <form name="resource" method="get">
 <input type="hidden" name="id" value="<?php echo $id; ?>" />
 <input type="hidden" name="a" value="<?php echo $_REQUEST['a']; ?>" />
@@ -61,7 +62,7 @@ else{
 <input type="hidden" name="op" value="" />
 <div class="sectionHeader"><?php echo $content['source']." - ".$_lang['eventlog_viewer']; ?></div><div class="sectionBody">
 <?php
-$date = strftime("%d-%b-%Y %I:%M %p",$content["createdon"]);
+$date = $modx->toDateFormat($content["createdon"]);
 if($content["type"]==1) $msgtype = $_lang["information"];
 else if($content["type"]==2) $msgtype = $_lang["warning"];
 else if($content["type"]==3) $msgtype = $_lang["error"];
@@ -69,7 +70,7 @@ $useTheme = $manager_theme ? "$manager_theme/":"";
 echo <<<HTML
 	<table border="0" width="100%">
 	  <tr><td colspan="4">
-		<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.gif" align="absmiddle" /> {$msgtype}</div><br />
+		<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div><br />
 	  </td></tr>
 	  <tr>
 		<td width="25%" valign="top">{$_lang["event_id"]}:</td>

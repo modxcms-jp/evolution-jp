@@ -8,11 +8,14 @@ if(!$modx->hasPermission('edit_user')) {
 
 // get search string
 $query = $_REQUEST['search'];
-$sqlQuery = mysql_escape_string($query);
+$sqlQuery = $modx->db->escape($query);
 ?>
 <br />
 <!-- User Roles -->
-<div class="sectionHeader"><?php echo $_lang['role_management_title']; ?></div><div class="sectionBody">
+
+<h1><?php echo $_lang['role_management_title']; ?></h1>
+
+<div class="sectionBody">
 <p><?php echo $_lang['role_management_msg']; ?></p>
 
 <ul>

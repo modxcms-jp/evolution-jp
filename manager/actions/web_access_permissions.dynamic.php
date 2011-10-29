@@ -32,9 +32,9 @@ if (mysql_num_rows($rs) < 1) {
 
 ?>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
-<br />
 
-<div class="sectionHeader"><?php echo $_lang['web_access_permissions'] ;?></div>
+<h1><?php echo $_lang['web_access_permissions'] ;?></h1>
+
 <div class="sectionBody">
 <p><?php echo $_lang['access_permissions_introtext'];?></p><?php echo $use_udperms!=1 ? '<p>'.$_lang['access_permissions_off'].'</p>' : '' ;?>
 
@@ -59,7 +59,7 @@ if (mysql_num_rows($rs) < 1) {
 		'LEFT JOIN '.$modx->getFullTableName('web_users').' AS users ON users.id = groups.webuser '.
 		'ORDER BY groupnames.name';
 ?>
-	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
+	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#cccccc">
 		<thead>
 		<tr><td><b><?php echo $_lang['access_permissions_add_user_group'] ?></b></td></tr>
 		</thead>
@@ -132,7 +132,7 @@ if (mysql_num_rows($rs) < 1) {
 		'LEFT JOIN '.$modx->getFullTableName('site_content').' AS sc ON sc.id = dg.document '.
 		'ORDER BY dgnames.name, sc.id';
 ?>
-	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
+	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#cccccc">
 		<thead>
 		<tr><td><b><?php echo $_lang['access_permissions_add_document_group'] ?></b></td></tr>
 		</thead>
@@ -151,7 +151,7 @@ if (mysql_num_rows($rs) < 1) {
 	if (mysql_num_rows($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
-		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#000000">'."\n".
+		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#cccccc">'."\n".
 		'	<thead>'."\n".
 		'	<tr><td><b>'.$_lang['access_permissions_document_groups'].'</b></td></tr>'."\n".
 		'	</thead>'."\n";
@@ -208,7 +208,7 @@ if (mysql_num_rows($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
 	} else {
 		?>
-		<table border="0" cellspacing="1" cellpadding="3" bgcolor="#000000">
+		<table border="0" cellspacing="1" cellpadding="3" bgcolor="#cccccc">
 			<thead>
 			<tr><td><b><?php echo $_lang["access_permissions_group_link"] ?></b></td></tr>
 			</thead>

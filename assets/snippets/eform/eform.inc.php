@@ -1,9 +1,9 @@
 <?php
-# eForm 1.4.4.5 - Electronic Form Snippet
+# eForm 1.4.4.6 - Electronic Form Snippet
 # Original created by: Raymond Irving 15-Dec-2004.
 # Extended by: Jelle Jager (TobyL) September 2006
 # -----------------------------------------------------
-# local revision: $Id: eform.inc.php 58 2009-03-01 07:31:59Z devzero $
+#
 #
 # Captcha image support - thanks to Djamoer
 # Multi checkbox, radio, select support - thanks to Djamoer
@@ -39,13 +39,16 @@
 
 #----------------------------------------------------------
 # Modify ZeRo(http://www.petit-power.com) $Revision: 58 $
-# $Date: 2009-03-01 16:31:59 +0900 (日, 01 3 2009) $ 
+# $Date: 2009-07-27 16:31:59 +0900 (??, 01 3 2009) $ 
 #----------------------------------------------------------
+
 $GLOBALS['optionsName'] = "eform"; //name of pseudo attribute used for format settings
+$GLOBALS['efPostBack'] = false;
+
 function eForm($modx,$params) {
 global $_lang;
 global $debugText;
-global $formats,$fields;
+global $formats,$fields,$efPostBack;
 
 $fields = array(); //reset fields array - needed in case of multiple forms
 
@@ -105,9 +108,10 @@ $_dfnMaxlength = 6;
 	$validFormId = ($formid==$_POST['formid'])?1:0;
 
 	# check if postback mode
-	$isPostBack	= ($validFormId && count($_POST)>0)? true:false;
+	$efPostBack = ($validFormId && count($_POST)>0)? true:false; //retain old variable?
 
-	if($isPostBack){
+
+	if($efPostBack){
 		$report = (($tmp=efLoadTemplate($report))!==false)?$tmp:$_lang['ef_no_doc'] . " '$report'";
 		if($thankyou) $thankyou = (($tmp=efLoadTemplate($thankyou))!==false )?$tmp:$_lang['ef_no_doc'] . " '$thankyou'";
 		if($autotext) $autotext = (($tmp=efLoadTemplate($autotext))!==false )?$tmp:$_lang['ef_no_doc'] . " '$autotext'";
@@ -147,7 +151,7 @@ $_dfnMaxlength = 6;
 # parse form for formats and generate placeholders
 $tpl = eFormParseTemplate($tpl,$isDebug);
 
-	if ($isPostBack) {
+	if ($efPostBack) {
 
 		foreach($formats as $k => $discard)
 			if(!isset($fields[$k])) $fields[$k] = ""; // store dummy value inside $fields
@@ -161,9 +165,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
 		foreach($_POST as $name => $value){
 			if(is_array($value)){
 				//remove empty values
-				$value = array_flip($value);
-				unset($value['']);
-				$fields[$name] = array_flip($value);
+				$fields[$name] = array_filter($value,create_function('$v','return (!empty($v));'));
 			} else
 				$fields[$name]	= stripslashes(($allowhtml || $formats[$name][2]=='html')? $value:$modx->stripTags($value));
 		}
@@ -317,7 +319,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 							$value=str_replace("00:00:00","",$value);// remove trailing zero time values
 							break;
 						case "html":
-							// convert \n to <br>
+							// convert \n to <br />
 							if(!$sendAsText ) $value = preg_replace('#(\n<br[ /]*?>|<br[ /]*?>\n|\n)#i','<br />',$value);
 							break;
 						case "file":
@@ -348,15 +350,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					foreach($fields as $key => $value)
 						$body .= "<tr><td>$key</td><td><pre>$value</pre></td></tr>";
 					$body .="</table>";
-				#	include_once "manager/includes/controls/class.phpmailer.php";
+					include_once "manager/includes/controls/modxmailer.inc.php";
 				# send abuse alert
-				#	$mail = new PHPMailer();
-					$ctl_path =  $modx->config['base_path']."manager/includes/controls/";
-					if (file_exists($ctl_path."modxmailer.inc.php")) {
-						include_once $ctl_path."modxmailer.inc.php";
-					} else {
-					    include_once $snipPath."modxmailer.inc.php";
-					}
 					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
@@ -441,24 +436,16 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$replyto = ( $fields[$replyto] && strstr($fields[$replyto],'@') )?$fields[$replyto]:$from;
 
 				# include PHP Mailer
-				# include_once "manager/includes/controls/class.phpmailer.php";
-				$ctl_path =  $modx->config['base_path']."manager/includes/controls/";
-				if (file_exists($ctl_path."modxmailer.inc.php")) {
-					include_once $ctl_path."modxmailer.inc.php";
-				} else {
-				    include_once $snipPath."modxmailer.inc.php";
-				}
-	
+				include_once "manager/includes/controls/modxmailer.inc.php";
+
 				# send form
 				//defaults to html so only test sendasText
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'report'))?false:true;
 
 				if(!$noemail) {
 					if($sendirect) $to = $fields['email'];
-#					$mail = new PHPMailer();
 					$mail = new MODxMailer();
 					$mail->IsMail();
-# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -474,10 +461,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				# send user a copy of the report
 				if($ccsender && $fields['email']) {
-#					$mail = new PHPMailer();
 					$mail = new MODxMailer();
 					$mail->IsMail();
-# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -493,10 +478,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext'))?false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
-#					$mail = new PHPMailer();
 					$mail = new MODxMailer();
 					$mail->IsMail();
-# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= ($autosender)? $autosender:$from;
 					$mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
@@ -511,10 +494,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
-#					$mail = new PHPMailer();
 					$mail = new MODxMailer();
 					$mail->IsMail();
-# Delete MODxMailer	$mail->CharSet = $modx->config['modx_charset'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -541,7 +522,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 
 			if($isDebug){
-				$debugText .="<strong>Mail Headers:</strong><br>From: $from ($fromname)<br/>Reply-to:$replyto<br />To: $to<br/>Subject: $subject<br />CC: $cc<br /> BCC:$bcc<br />";
+				$debugText .="<strong>Mail Headers:</strong><br />From: $from ($fromname)<br />Reply-to:$replyto<br />To: $to<br />Subject: $subject<br />CC: $cc<br /> BCC:$bcc<br />";
 			if($isDebug>1){
 				$debugText .= "<br /><strong>Formats array:</strong><pre>". var_export($formats,true).'</pre>';
 				$debugText .= "<br /><strong>Fields array:</strong><pre>". var_export($fields,true).'</pre>';
@@ -698,12 +679,10 @@ function AttachFilesToMailer(&$mail,&$attachFiles) {
 /*--- Form Parser stuff----------------------*/
 function  eFormParseTemplate($tpl, $isDebug=false ){
 	global $modx,$formats,$optionsName,$_lang,$debugText,$fields,$validFormId;
+	global $efPostBack;
 
 	$formats =""; //clear formats so values don't persist through multiple snippet calls
 	$labels = "";
-
-	# check if postback mode
-	$isPostBack	= (count($_POST)>0 && $modx->event->params['formid']==$_POST['formid'] )? 1:0;
 
 	$regExpr = "#(<label[^>]*?>)(.*?)</label>#si";;
 	preg_match_all($regExpr,$tpl,$matches);
@@ -797,7 +776,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 					$newTag = buildTagPlaceholder('option',$attr,$name);
 					$newSelect = str_replace($option,$newTag,$newSelect);
 					//if no postback, retain any checked values
-					if(!$isPostBack && !empty($attr['selected'])) $fields[$name][]=$value;
+					if(!$efPostBack && !empty($attr['selected'])) $fields[$name][]=$value;
 				}
 				//replace complete select block
 				$tpl = str_replace($select,$newSelect,$tpl);
@@ -821,7 +800,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 				$regExp = "#<textarea [^>]*?name=" . $tagAttributes["name"] . "[^>]*?" . ">(.*?)</textarea>#si";
 				preg_match($regExp,$tpl,$matches);
 				//if nothing Posted retain the content between start/end tags
-				$placeholderValue = ($isPostBack)?"[+$name+]":$matches[1];
+				$placeholderValue = ($efPostBack)?"[+$name+]":$matches[1];
 
 				$tpl = str_replace($matches[0],$newTag.$placeholderValue."</textarea>",$tpl);
 				break;
@@ -845,11 +824,11 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 						$formats[$name][5] .= str_replace(',','&#44;',stripTagQuotes($tagAttributes['value']));
 						//store the id as well
 						//if no postback, retain any checked values
-						if(!$isPostBack && !empty($tagAttributes['checked'])) $fields[$name][]=stripTagQuotes($tagAttributes['value']);
+						if(!$efPostBack && !empty($tagAttributes['checked'])) $fields[$name][]=stripTagQuotes($tagAttributes['value']);
 						//
 						$formats[$name][6] .= ( isset($formats[$name][6])?",":"").stripTagQuotes($tagAttributes['id']);
-					}else{ //plain old text input field
-						//retain default value set in form template
+					}elseif(empty($fields[$name])){ //plain old text input field
+						//retain default value set in form template if not already set in code
 						$fields[$name] = stripTagQuotes($tagAttributes['value']);
 					}
 

@@ -91,9 +91,7 @@ if ($mode=='backup') {
 	}
 
 </script>
-<div class="subTitle">
-<span class="right"><img src="media/style/<?php echo $manager_theme?>images/_tx_.gif" width="1" height="5"><br /><?php echo $_lang['bk_manager']?></span>
-</div>
+<h1><?php echo $_lang['bk_manager']?></h1>
 
 <div class="sectionHeader"><?php echo $_lang['database_tables']?></div>
 <div class="sectionBody" id="lyr4">
@@ -101,11 +99,11 @@ if ($mode=='backup') {
 	<input type="hidden" name="mode" value="" />
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
-	<p style="width:100%;"><a href="#" onclick="submitForm();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" align="absmiddle"><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
+	<p style="width:100%;"><a href="#" onclick="submitForm();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
 	<p><input type="checkbox" name="droptables"><?php echo $_lang['database_table_droptablestatements']?></p>
-	<table border="0" cellpadding="2" cellspacing="1" width="100%" bgcolor="#707070">
+	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#707070">
 		<thead><tr>
-			<td width="230"><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></td>
+			<td width="160"><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></td>
 			<td width="40" align="right"><b><?php echo $_lang['database_table_records']?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang['database_table_datasize']?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang['database_table_overhead']?></b></td>
@@ -120,7 +118,7 @@ $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 for ($i = 0; $i < $limit; $i++) {
 	$db_status = mysql_fetch_assoc($rs);
-	$bgcolor = ($i % 2) ? '#f8f8f8' : '#FFFFFF';
+	$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
 	if (isset($tables))
 		$table_string = implode(',', $table);
@@ -165,12 +163,12 @@ for ($i = 0; $i < $limit; $i++) {
 }
 ?>
 
-			<tr bgcolor="#e1e1e1">
+			<tr bgcolor="#CCCCCC">
 				<td valign="top"><b><?php echo $_lang['database_table_totals']?></b></td>
 				<td colspan="2">&nbsp;</td>
-				<td dir="ltr" align="right" valign="top"><?php echo $totaloverhead>0 ? '<b style="color:#990033">'.nicesize($totaloverhead).'</b><br>('.number_format($totaloverhead).' B)' : '-'?></td>
+				<td dir="ltr" align="right" valign="top"><?php echo $totaloverhead>0 ? '<b style="color:#990033">'.nicesize($totaloverhead).'</b><br />('.number_format($totaloverhead).' B)' : '-'?></td>
 				<td colspan="2">&nbsp;</td>
-				<td dir="ltr" align="right" valign="top"><?php echo "<b>".nicesize($total)."</b><br>(".number_format($total)." B)"?></td>
+				<td dir="ltr" align="right" valign="top"><?php echo "<b>".nicesize($total)."</b><br />(".number_format($total)." B)"?></td>
 			</tr>
 		</tbody>
 	</table>

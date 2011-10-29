@@ -59,8 +59,8 @@ $IMConfig['base_dir'] = $rb_base_dir;
  for this directory (i.e. disable PHP, Perl, CGI). We only want to store assets
  in this directory and its subdirectories.
 */
-$rb_base_url = (preg_match('@^(http[s]?:)?/@', $rb_base_url)===1 ? '' : $base_url) . $rb_base_url;
 $IMConfig['base_url'] = $rb_base_url;
+//echo $IMConfig['base_url']."<br />";
 
 /*
   Possible values: true, false

@@ -8,9 +8,8 @@ html{
 html,body {
 	padding:0;
 	margin:0;
-	color:#444;
 	background-color: #333333;
-	font-size: 12px;
+	font-size: 11px;
 	font-family: "Trebuchet MS", verdana, sans-serif;
 
 }
@@ -279,59 +278,3 @@ img {
     background-color: rgb(97, 130, 0);
     color: rgb(255, 255, 255);
 }
-
-/* MODX CMS JP [start] */
-/******** Various classes ********/
-
-blockquote{
-	font-size:0.9em;
-	border:1px solid #bababa;
-	margin:20px 10px;
-	padding:8px;
-}
-
-blockquote p {margin:0;}
-
-.splitcontentleft {float:left; width:48%;}
-.splitcontentright {float:right; width:46%;}
-
-.important {
-	text-align:center;
-	color:#505050;
-	border:1px solid #bababa;
-	padding:2px;
-}
-
-.infobox{
-	width:240px;
-	float:right;
-	font-size:0.9em;
-	border:1px solid #bababa;
-	margin:0 0 5px 20px;
-	padding:5px;
-}
-
-.infobox p {margin:0;}
-.infobox ul{margin:0 0 0 25px;}
-.links a {font-weight:normal;}
-.links li {line-height:1.1em;}
-.left {float:left; margin:0 15px 4px 0;}
-.right {float:right; margin:0 0 4px 15px;}
-.textright {text-align:right;}
-.readmore {text-align:right; margin:-10px 10px 18px 0;}
-.center {text-align:center;}
-.blue {color:#559900;}
-.big {font-size:1.25em !important;}
-.small {font-size:0.8em !important;}
-.bold {font-weight:bold;}
-.clear {clear:both;}
-.hide {display:none;}
-
-.photo {
-	border:1px solid #bababa;
-	padding:2px;
-	background-color:#ffffff;
-	margin:6px 18px 2px 5px;
-}
-.green {color:#008000;}
-/* MODX CMS JP [end] */

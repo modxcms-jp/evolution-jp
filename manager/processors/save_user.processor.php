@@ -8,7 +8,6 @@ if (!$modx->hasPermission('save_user')) {
 ?>
 <?php
 
-
 // Web alert -  sends an alert to web browser
 function webAlert($msg) {
 	global $id, $modx;
@@ -36,23 +35,23 @@ function generate_password($length = 10) {
 $id = intval($_POST['id']);
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? $_POST['newusername'] : "New User";
-$fullname = mysql_escape_string($_POST['fullname']);
+$fullname = $modx->db->escape($_POST['fullname']);
 $genpassword = $_POST['newpassword'];
 $passwordgenmethod = $_POST['passwordgenmethod'];
 $passwordnotifymethod = $_POST['passwordnotifymethod'];
 $specifiedpassword = $_POST['specifiedpassword'];
-$email = mysql_escape_string($_POST['email']);
+$email = $modx->db->escape($_POST['email']);
 $oldemail = $_POST['oldemail'];
-$phone = mysql_escape_string($_POST['phone']);
-$mobilephone = mysql_escape_string($_POST['mobilephone']);
-$fax = mysql_escape_string($_POST['fax']);
+$phone = $modx->db->escape($_POST['phone']);
+$mobilephone = $modx->db->escape($_POST['mobilephone']);
+$fax = $modx->db->escape($_POST['fax']);
 $dob = !empty ($_POST['dob']) ? ConvertDate($_POST['dob']) : 0;
 $country = $_POST['country'];
-$state = mysql_escape_string($_POST['state']);
-$zip = mysql_escape_string($_POST['zip']);
+$state = $modx->db->escape($_POST['state']);
+$zip = $modx->db->escape($_POST['zip']);
 $gender = !empty ($_POST['gender']) ? $_POST['gender'] : 0;
-$photo = mysql_escape_string($_POST['photo']);
-$comment = mysql_escape_string($_POST['comment']);
+$photo = $modx->db->escape($_POST['photo']);
+$comment = $modx->db->escape($_POST['comment']);
 $roleid = !empty ($_POST['role']) ? $_POST['role'] : 0;
 $failedlogincount = $_POST['failedlogincount'];
 $blocked = !empty ($_POST['blocked']) ? $_POST['blocked'] : 0;
@@ -67,7 +66,7 @@ if ($passwordgenmethod == "spec" && $_POST['specifiedpassword'] != $_POST['confi
 }
 
 // verify email
-if ($email == '' || !ereg("^[-!#$%&'*+./0-9=?A-Z^_`a-z{|}~]+", $email)) {
+if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i", $email)) {
 	webAlert("E-mail address doesn't seem to be valid!");
 	exit;
 }
@@ -220,21 +219,20 @@ switch ($_POST['mode']) {
 		} else {
 			include_once "header.inc.php";
 ?>
-			<div class="subTitle">
-			<span class="right"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/_tx_.gif" width="1" height="5"><br /><?php echo $_lang['web_user_title']; ?></span>
-			<table cellpadding="0" cellspacing="0" class="actionButtons">
-				<tr>
-					<td id="Button1"><a href="index.php?a=75&r=2"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/save.gif" align="absmiddle"> <?php echo $_lang['close']; ?></a></td>
-					</td>
-				</tr>
-			</table>
+			<h1><?php echo $_lang['web_user_title']; ?></h1>
+
+			<div id="actions">
+			<ul class="actionButtons">
+				<li><a href="index.php?a=75&r=2"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
+			</ul>
 			</div>
-			<div class="sectionHeader"><img src='media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/misc/dot.gif' alt="." />&nbsp;<?php echo $_lang['web_user_title']; ?></div>
+
+			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
-			<p /><br />
+			<p>
 			<?php echo sprintf($_lang["password_msg"], $newusername, $newpassword); ?>
-			<p />
+			</p>
 			</div>
 			</div>
 		<?php
@@ -313,7 +311,6 @@ switch ($_POST['mode']) {
 			exit;
 		}
 
-		// Removed second mysql_escape_string from fullname - pixelchutes
 		$sql = "UPDATE $dbase.`" . $table_prefix . "user_attributes` SET
 					fullname='" . $fullname . "',
 					role='$roleid',
@@ -406,21 +403,20 @@ switch ($_POST['mode']) {
 		if ($genpassword == 1 && $passwordnotifymethod == 's') {
 			include_once "header.inc.php";
 ?>
-			<div class="subTitle">
-			<span class="right"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/_tx_.gif" width="1" height="5"><br /><?php echo $_lang['web_user_title']; ?></span>
-			<table cellpadding="0" cellspacing="0" class="actionButtons">
-				<tr>
-					<td id="Button1"><a href="<?php echo ($id == $modx->getLoginUserID()) ? 'index.php?a=8' : 'index.php?a=75&r=2'; ?>"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/save.gif" align="absmiddle"> <?php echo ($id == $modx->getLoginUserID()) ? $_lang['logout'] : $_lang['close']; ?></a></td>
-					</td>
-				</tr>
-			</table>
+			<h1><?php echo $_lang['web_user_title']; ?></h1>
+
+			<div id="actions">
+			<ul class="actionButtons">
+				<li><a href="<?php echo ($id == $modx->getLoginUserID()) ? 'index.php?a=8' : 'index.php?a=75&r=2'; ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo ($id == $modx->getLoginUserID()) ? $_lang['logout'] : $_lang['close']; ?></a></li>
+			</ul>
 			</div>
-			<div class="sectionHeader"><img src='media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/misc/dot.gif' alt="." />&nbsp;<?php echo $_lang['web_user_title']; ?></div>
+
+			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
-			<p /><br />
+			<p>
 			<?php echo sprintf($_lang["password_msg"], $newusername, $newpassword).(($id == $modx->getLoginUserID()) ? ' '.$_lang['user_changeddata'] : ''); ?>
-			<p />
+			</p>
 			</div>
 			</div>
 		<?php
@@ -440,6 +436,19 @@ switch ($_POST['mode']) {
 	default :
 		webAlert("Unauthorized access");
 		exit;
+}
+
+// in case any plugins include a quoted_printable function
+if(!function_exists('quoted_printable')) {
+	function quoted_printable($string) {
+		$crlf = "\n" ;
+		$string = preg_replace('!(\r\n|\r|\n)!', $crlf, $string) . $crlf ;
+		$f[] = '/([\000-\010\013\014\016-\037\075\177-\377])/e' ;
+		$r[] = "'=' . sprintf('%02X', ord('\\1'))" ; $f[] = '/([\011\040])' . $crlf . '/e' ;
+		$r[] = "'=' . sprintf('%02X', ord('\\1')) . '" . $crlf . "'" ;
+		$string = preg_replace($f, $r, $string) ;
+		return trim(wordwrap($string, 70, ' =' . $crlf)) ;
+	}
 }
 
 // Send an email to the user
@@ -542,14 +551,14 @@ function saveUserSettings($id) {
 	// get user setting field names
 	$settings= array ();
 	foreach ($_POST as $n => $v) {
-		if (in_array($n, $ignore) || empty($v)) continue; // ignore blacklist and empties
+		if (in_array($n, $ignore) || trim($v) == '') continue; // ignore blacklist and empties
 
 		//if ($config[$n] == $v) continue; // ignore commonalities in base config
 
 		$settings[$n] = $v; // this value should be saved
 	}
 	foreach ($defaults as $k) {
-		if (isset($settings['default_'.$k]) && $_settings['default_'.$k] == '1')
+		if (isset($settings['default_'.$k]) && $settings['default_'.$k] == '1')
 			unset($settings[$k]);
 		unset($settings['default_'.$k]);
 	}
@@ -561,7 +570,7 @@ function saveUserSettings($id) {
 	$savethese = array();
 	foreach ($settings as $k => $v) {
 	    if(is_array($v)) $v = implode(',', $v);
-	    $savethese[] = '('.$id.', \''.$k.'\', \''.mysql_escape_string($v).'\')';
+	    $savethese[] = '('.$id.', \''.$k.'\', \''.$modx->db->escape($v).'\')';
 	}
 
 	$sql = 'INSERT INTO '.$usrTable.' (user, setting_name, setting_value)
@@ -573,12 +582,8 @@ function saveUserSettings($id) {
 
 // converts date format dd-mm-yyyy to php date
 function ConvertDate($date) {
-	if ($date == "")
-		return "0";
-	list ($d, $m, $Y, $H, $M, $S) = sscanf($date, "%2d-%2d-%4d %2d:%2d:%2d");
-	if (!$H && !$M && !$S)
-		return strtotime("$m/$d/$Y");
-	else
-		return strtotime("$m/$d/$Y $H:$M:$S");
+	global $modx;
+	if ($date == "") {return "0";}
+	else {}          {return $modx->toTimeStamp($date);}
 }
 ?>

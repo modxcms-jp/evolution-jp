@@ -6,7 +6,7 @@
 class SqlParser {
 	var $host, $dbname, $prefix, $user, $password, $mysqlErrors;
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
-	var $mode, $fileManagerPath, $imgPath, $imgUrl;
+	var $mode, $fileManagerPath, $imgPath, $imgUrl, $base_url;
 	var $dbVersion;
     var $connection_charset, $connection_method;
 
@@ -74,14 +74,15 @@ class SqlParser {
 		$idata = str_replace('{IMAGEURL}', $this->imageUrl, $idata);
 		$idata = str_replace('{FILEMANAGERPATH}', $this->fileManagerPath, $idata);
 		$idata = str_replace('{MANAGERLANGUAGE}', $this->managerlanguage, $idata);
+		$idata = str_replace('{BASEURL}', $this->base_url, $idata);
 
-		$sql_array = split("\n\n", $idata);
+		$sql_array = explode("\n\n", $idata);
 
 		$num = 0;
 		foreach($sql_array as $sql_entry) {
 			$sql_do = trim($sql_entry, "\r\n; ");
 
-			if (ereg('^\#', $sql_do)) continue;
+			if (preg_match('/^\#/', $sql_do)) continue;
 
 			// strip out comments and \n for mysql 3.x
 			if ($this->dbVersion <4.0) {

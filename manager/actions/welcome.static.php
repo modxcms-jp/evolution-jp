@@ -38,7 +38,7 @@ if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) 
     $icon = '<a class="hometblink" href="index.php?a=99"><img src="media/style/[+theme+]/images/icons/web_users.gif" width="32" height="32" alt="'.$_lang['web_user_management_title'].'" /><br />'.$_lang['web_users'].'</a>';
     $modx->setPlaceholder('WebUserIcon',$icon);
 }
-if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module') || $modx->hasPermission('exec_module')) {
+if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
     $icon = '<a class="hometblink" href="index.php?a=106"><img src="media/style/[+theme+]/images/icons/modules.gif" width="32" height="32" alt="'.$_lang['manage_modules'].'" /><br />'.$_lang['modules'].'</a>';
     $modx->setPlaceholder('ModulesIcon',$icon);
 }
@@ -118,7 +118,7 @@ $html = '
       <tr>
         <td>'.$_lang["yourinfo_previous_login"].'</td>
         <td>&nbsp;</td>
-        <td><b>'.strftime($_lang["format_datetime"], $_SESSION['mgrLastlogin']+$server_offset_time).'</b></td>
+        <td><b>'.$modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time).'</b></td>
       </tr>
       <tr>
         <td>'.$_lang["yourinfo_total_logins"].'</td>
@@ -167,6 +167,27 @@ $html.= '
     </table>
 ';
 $modx->setPlaceholder('OnlineInfo',$html);
+
+// invoke event OnManagerWelcomePrerender
+$evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
+if(is_array($evtOut)) {
+    $output = implode("",$evtOut);
+    $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
+}
+
+// invoke event OnManagerWelcomeHome
+$evtOut = $modx->invokeEvent('OnManagerWelcomeHome');
+if(is_array($evtOut)) {
+    $output = implode("",$evtOut);
+    $modx->setPlaceholder('OnManagerWelcomeHome', $output);
+}
+
+// invoke event OnManagerWelcomeRender
+$evtOut = $modx->invokeEvent('OnManagerWelcomeRender');
+if(is_array($evtOut)) {
+    $output = implode("",$evtOut);
+    $modx->setPlaceholder('OnManagerWelcomeRender', $output);
+}
 
 // load template file
 $tplFile = $base_path.'assets/templates/manager/welcome.html';

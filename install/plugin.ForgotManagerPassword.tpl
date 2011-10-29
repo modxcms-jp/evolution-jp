@@ -1,3 +1,4 @@
+
 if(!class_exists('ForgotManagerPassword')) {
 class ForgotManagerPassword{
 

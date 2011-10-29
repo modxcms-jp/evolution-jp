@@ -2,6 +2,7 @@
 global $tinyLang;
 $tinyLang = array();
 
+$tinyLang[] = array("czech","cs");
 $tinyLang[] = array("danish","da");
 $tinyLang[] = array("english","en");
 $tinyLang[] = array("english-british","en");
@@ -11,6 +12,7 @@ $tinyLang[] = array("francais-utf8","fr");
 $tinyLang[] = array("german","de");
 $tinyLang[] = array("italian","it");
 $tinyLang[] = array("japanese-utf8","ja");
+$tinyLang[] = array("japanese-euc","ja");
 $tinyLang[] = array("nederlands","nl");
 $tinyLang[] = array("norsk","nn");
 $tinyLang[] = array("persian","fa");

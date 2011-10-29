@@ -13,7 +13,7 @@
 	$sysMsgs = "";
 	$limit = count($SystemAlertMsgQueque);
 	for($i=0;$i<$limit;$i++) {
-		$sysMsgs .= $SystemAlertMsgQueque[$i]."<hr>";
+		$sysMsgs .= $SystemAlertMsgQueque[$i]."<hr sys/>";
 	}
 	// reset message queque
 	unset($_SESSION['SystemAlertMsgQueque']);
@@ -24,19 +24,14 @@
 ?>	
 
 <?php // fetch the styles
-if (file_exists(MODX_BASE_PATH.'manager/media/style/'.$manager_theme.'/sysalert_style.php')) {
-	include_once ($modx->config['base_path'].'manager/media/style/'.$manager_theme.'/sysalert_style.php');
-	echo '<style type="text/css">';
-	echo $sysalert_style;
-	echo '</style>';
-} 
+	echo '<link rel="stylesheet" type="text/css" href="'.$modx->config['base_path'].'manager/media/style/'.$manager_theme.'/style.css'.'" />';
 ?>
 <script type="text/javascript">
 Window.onDomReady(function() {
 			var sysAlert = new Element('div').setProperties({
 				'class': 'sysAlert'
 			});
-			sysAlert.innerHTML = '<?php echo mysql_escape_string($sysMsgs);?>';
+			sysAlert.innerHTML = '<?php echo $modx->db->escape($sysMsgs);?>';
 			var boxHtml = new MooPrompt('<?php echo $_lang['sys_alert']; ?>', sysAlert, {
 				buttons: 1,
 				button1: 'Ok',

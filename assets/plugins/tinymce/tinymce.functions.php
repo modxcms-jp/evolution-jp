@@ -5,19 +5,23 @@
 if (!function_exists('getTinyMCESettings')) {
 	function getTinyMCESettings($_lang, $path, $manager_language='english', $use_editor, $theme, $css, $plugins, $buttons1, $buttons2, $buttons3, $buttons4, $displayStyle, $action) {
 		// language settings
-		include_once($path.'/lang/'.$manager_language.'.inc.php');
+		if (! @include_once($path.'/lang/'.$manager_language.'.inc.php')){
+		  include_once($path.'/lang/english.inc.php');
+		}
 		// Check for previous 'full' theme setting for backwards compatibility 
 		if($theme == "full"){
 		    $theme == "editor";
 		}
 		
 		if($action == 11 || $action == 12){ 
-		    $themeOptions .= "					<option value=\"\"></option>\n";
+		    $themeOptions .= "					<option value=\"\">".$_lang['tinymce_theme_global_settings']."</option>\n";
 		}
 		$arrThemes[] = array("simple",$_lang['tinymce_theme_simple']);
+		$arrThemes[] = array("editor",  $_lang['tinymce_theme_editor']);
+		$arrThemes[] = array("creative",$_lang['tinymce_theme_creative']);
+		$arrThemes[] = array("logic",   $_lang['tinymce_theme_logic']);
 		$arrThemes[] = array("advanced",$_lang['tinymce_theme_advanced']);
-		$arrThemes[] = array("editor",$_lang['tinymce_theme_editor']);
-		$arrThemes[] = array("custom",$_lang['tinymce_theme_custom']);
+		$arrThemes[] = array("custom",  $_lang['tinymce_theme_custom']);
 		$arrThemesCount = count($arrThemes);
 		for ($i=0;$i<$arrThemesCount;$i++) {
 				$themeOptions .= "					<option value=\"".$arrThemes[$i][0]."\"".($arrThemes[$i][0] == $theme ? " selected=\"selected\"" : "").">".$arrThemes[$i][1]."</option>\n";
@@ -90,7 +94,7 @@ TINYMCE_HTML;
 
 // getTinyMCEScript function
 if (!function_exists('getTinyMCEScript')) {
-	function getTinyMCEScript($elmList, $theme='simple', $width, $height, $language='en', $frontend, $base_url, $plugins, $buttons1, $buttons2, $buttons3, $buttons4, $disabledButtons, $blockFormats, $entity_encoding, $entities, $pathoptions, $cleanup, $resizing, $css_path, $css_selectors, $use_browser, $toolbar_align, $advimage_styles, $advlink_styles, $linklist, $customparams, $tinyURL, $webuser) {
+	function getTinyMCEScript($elmList, $theme='simple', $width, $height, $language='en', $frontend, $base_url, $plugins, $buttons1, $buttons2, $buttons3, $buttons4, $disabledButtons, $blockFormats, $entity_encoding, $entities, $pathoptions, $cleanup, $resizing, $css_path, $css_selectors, $use_browser, $toolbar_align, $advimage_styles, $advlink_styles, $linklist, $customparams, $site_url, $tinyURL, $webuser) {
 		// Set theme
 		if($theme == "editor" || $theme == "custom" || $theme == "full"){
 			$tinyTheme = "advanced";
@@ -102,7 +106,34 @@ if (!function_exists('getTinyMCEScript')) {
 				$buttons3 = ""; 
 				$buttons4 = ""; 			
 		    }
-		} else {
+		}
+		elseif($theme == "creative")
+		{
+			$tinyTheme = "advanced";
+			$blockFormats = "p,h2,h3,h4,h5,h6,div,blockquote,code,pre,address";
+			$plugins = "layer,safari,style,fullscreen,advimage,advhr,paste,advlink,media,contextmenu,table";
+			$buttons1 = "undo,undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,styleselect,fontsizeselect,code";
+			$buttons2 = "image,media,link,unlink,anchor,|,bullist,numlist,|,blockquote,outdent,indent,|,justifyleft,justifycenter,justifyright,|,advhr,|,styleprops,removeformat,|,pastetext,pasteword";
+			$buttons3 = "insertlayer,absolute,moveforward,movebackward,|,tablecontrols,|,fullscreen,help";
+		}
+		elseif($theme == "logic")
+		{
+			$tinyTheme = "advanced";
+			$blockFormats = "p,h2,h3,h4,h5,h6,div,blockquote,code,pre,address";
+			$plugins = "xhtmlxtras,safari,style,fullscreen,advimage,paste,advlink,media,contextmenu,table";
+			$buttons1 = "undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,styleselect,fontsizeselect,code,|,fullscreen,help";
+			$buttons2 = "image,media,link,unlink,anchor,|,bullist,numlist,|,blockquote,outdent,indent,|,justifyleft,justifycenter,justifyright,|,table,|,hr,|,styleprops,removeformat,|,pastetext,pasteword";
+			$buttons3 = "charmap,sup,sub,|,cite,ins,del,abbr,acronym,attribs";
+		}
+		elseif($theme == "simple")
+		{
+			$tinyTheme = "advanced";
+			$plugins = "emoddys,safari,advimage,advlink,paste,contextmenu";
+			$buttons1 = "undo,redo,|,bold,strikethrough,|,justifyleft,justifycenter,justifyright,|,link,unlink,image,emoddys,|,hr,|,help";
+			$buttons2 = "";
+		}
+		else
+		{
 			$tinyTheme = $theme;
 		}
 		
@@ -110,28 +141,31 @@ if (!function_exists('getTinyMCEScript')) {
 		switch($pathoptions){
 			case "rootrelative":
 				$relative_urls = "false";
-				$convert_urls = false;
+				$convert_urls = true;
 				$remove_script_host = "true";
+				$document_base_url = "		  document_base_url : \"".$site_url."\",\n";
 			break;
 			
 			case "docrelative":
 				$relative_urls = "true";
-				$document_base_url = "		  document_base_url : \"".$base_url."\",\n";
+				$convert_urls = true;
+				$document_base_url = "		  document_base_url : \"".$site_url."\",\n";
 				$remove_script_host = "true";
 			break;
 			
 			case "fullpathurl":
 				$relative_urls = "false";
+				$document_base_url = "		  document_base_url : \"".$site_url."\",\n";
 				$remove_script_host = "false";
 			break;
 			
 			default:
 				$relative_urls = "true";
-				$document_base_url = "		  document_base_url : \"".$base_url."\",\n";
+				$document_base_url = "		  document_base_url : \"".$site_url."\",\n";
 				$remove_script_host = "true";
 		}		
         		
-		$cssPath = !empty($css_path) ? "		  content_css : \"".$css_path."\",\n" : 'content_css : "' . $site_url . "assets/plugins/tinymce/style.css" . "\",\n";
+		$cssPath = !empty($css_path) ? "		  content_css : \"".$css_path."\",\n" : "";
 		$cssSelector = !empty($css_selectors) ? "		  theme_advanced_styles : \"".$css_selectors."\",\n" : "";
 		$elmList = !empty($elmList) ? "		  elements : \"".$elmList."\",\n" : "";
 		
@@ -139,11 +173,6 @@ if (!function_exists('getTinyMCEScript')) {
 		$tinymceInit .= "		  theme : \"".$tinyTheme."\",\n";
 		$tinymceInit .= "		  mode : \"exact\",\n";		
 		$tinymceInit .= $width ? "		  width : \"".str_replace("px", "", $width)."\",\n" : "";
-		$tinymceInit .= '		  fullscreen_new_window : true,' . "\n";
-		$tinymceInit .= '		  fullscreen_settings : {
-			  theme_advanced_disable : "table",
-			  theme_advanced_buttons3 : "tablecontrols"
-		  },' . "\n";
 		$tinymceInit .= $height ? "		  height : \"".str_replace("px", "", $height)."\",\n" : "";
 		$tinymceInit .= "		  relative_urls : ".$relative_urls.",\n";
 		$tinymceInit .= $document_base_url;
@@ -155,6 +184,7 @@ if (!function_exists('getTinyMCEScript')) {
 		$tinymceInit .= "		  extended_valid_elements : tinymce_extended_valid_elements,\n";
 		$tinymceInit .= "		  invalid_elements : tinymce_invalid_elements,\n";
 		$tinymceInit .= $cssPath;
+		$tinymceInit .= 'popup_css_add : "' . $tinyURL . '/popup_add.css"' . ",\n";
 		$tinymceInit .= "		  entity_encoding : \"".$entity_encoding."\",\n";
 		$tinymceInit .= ($entity_encoding == "named" && !empty($entities)) ? "		  entities : \"".$entities."\",\n" :"";
 		$tinymceInit .= "		  cleanup: ".(($cleanup == "enabled" || empty($cleanup)) ? "true" : "false").",\n";
@@ -163,27 +193,29 @@ if (!function_exists('getTinyMCEScript')) {
 		$tinymceInit .= "		  convert_fonts_to_spans : \"true\",\n";
 
 		// Advanced options		
-		if($theme == "editor" || $theme == "custom"){
-			if($frontend=='false' || ($frontend=='true' && $webuser)){
+		if($theme == "editor" || $theme == "custom" || $theme == "creative" || $theme == "logic" || $theme == "simple")
+		{
+			if($frontend=='false' || ($frontend=='true' && $webuser))
+			{
 				$tinymceInit .= ($use_browser==1 ? "		  file_browser_callback : \"myFileBrowser\",\n":"");
 
 $tinyCallback = <<<TINY_CALLBACK
-	function myFileBrowser (field_name, url, type, win) {		
-	if (type == 'media') {type = win.document.getElementById('media_type').value;}
+	function myFileBrowser (field_name, url, type, win) {
+	    if (type == 'media') {type = win.document.getElementById('media_type').value;}		
 		var cmsURL = '{$base_url}manager/media/browser/mcpuk/browser.php?Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}&editor=tinymce&editorpath={$tinyURL}';    // script URL - use an absolute path!
 		switch (type) {
 			case "image":
 				type = 'images';
 				break;
 			case "media":
-			case "qt":
-			case "wmp":
-			case "rmp":
-				type = 'media';
+            case "qt":
+            case "wmp":
+            case "rmp":
+                type = 'media';
 				break;
-			case "flash":
-			case "shockwave":
-				type = 'flash';
+            case "shockwave":
+			case "flash": 
+                type = 'flash';
 				break;
 			case "file":
 				type = 'files';
@@ -201,7 +233,7 @@ $tinyCallback = <<<TINY_CALLBACK
 		    cmsURL = cmsURL + "&type=" + type;
 		}
 		
-		tinyMCE.activeEditor.windowManager.open({
+		var windowManager = tinyMCE.activeEditor.windowManager.open({
 		    file : cmsURL,
 		    width : screen.width * 0.7,  // Your dimensions may differ - toy around with them!
 		    height : screen.height * 0.7,
@@ -212,6 +244,7 @@ $tinyCallback = <<<TINY_CALLBACK
 		    window : win,
 		    input : field_name
 		});
+		if (window.focus) {windowManager.focus()}
 		return false;
 	}
 TINY_CALLBACK;
@@ -240,7 +273,7 @@ TINY_CALLBACK;
 			$tinymceInit .= "		  plugin_insertdate_dateFormat : \"%Y-%m-%d\",\n";
 			$tinymceInit .= "		  plugin_insertdate_timeFormat : \"%H:%M:%S\",\n";
 			if(!empty($customparams)){
-			    $params = split(",",$customparams);
+			    $params = explode(",",$customparams);
 			    $paramsCount = count($params);
         		for ($i=0;$i<$paramsCount;$i++) {
         			if(!empty($params[$i])){

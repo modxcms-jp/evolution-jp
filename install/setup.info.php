@@ -3,8 +3,8 @@
 #:::::::::::::::::::::::::::::::::::::::::
 
 	$moduleName = "MODx";
-	$moduleVersion = "Evolution 1.0.0.0J";
-	$moduleRelease = "2009-05-13";
+	$moduleVersion = "Evolution 1.0.0J";
+	$moduleRelease = "30-Jul-2009";
 	$moduleSQLBaseFile = "setup.sql";
 	$moduleSQLDataFile = "setup.data.sql";
 	$moduleSQLUpdateFile = "setup.updates.sql";
@@ -15,15 +15,14 @@
 
 	# setup snippets template files - array : name, description, type - 0:file or 1:content, file or content,properties
 	$ms = &$moduleSnippets;
-	$ms[] = array("AjaxSearch","<strong>1.8.3</strong> 検索結果のハイライト表示とAjax機能が利用可能な検索フォーム",0,"$setupPath/snippet.ajaxSearch.tpl","");
+	$ms[] = array("AjaxSearch","<strong>1.8.3a</strong> 検索結果のハイライト表示とAjax機能が利用可能な検索フォーム",0,"$setupPath/snippet.ajaxSearch.tpl","");
 	$ms[] = array("Breadcrumbs","<strong>1.0.1</strong> 設定が変更可能なパンくずリスト",0,"$setupPath/snippet.breadcrumbs.tpl","");
 	$ms[] = array("Ditto","<strong>2.1</strong>+ ブログ、索引・目録、広報、履歴の一覧表示などのためにページを要約・一覧表示。ソートのバグとデフォルト表示の動作を修正するための2.1リリース後のパッチを含む",0,"$setupPath/snippet.ditto.tpl","");
-	$ms[] = array("eForm","<strong>1.4.4.5</strong> 検証機能、複数送信機能、フォームと通知用のチャンク・ページ、ファイルのアップロード機能が利用可能な多機能フォームパーサー・プロセッサー",0,"$setupPath/snippet.eform.tpl","");
+	$ms[] = array("eForm","<strong>1.4.4.6</strong> 検証機能、複数送信機能、フォームと通知用のチャンク・ページ、ファイルのアップロード機能が利用可能な多機能フォームパーサー・プロセッサー",0,"$setupPath/snippet.eform.tpl","");
 	$ms[] = array("FirstChildRedirect","<strong>1.0</strong> フォルダドキュメントの最初の子ドキュメントへ自動的にリダイレクト",0,"$setupPath/snippet.firstchild.tpl","");
 	$ms[] = array("Jot","<strong>1.1.4</strong> 承認機能とメール購読機能が利用可能なユーザーコメント",0,"$setupPath/snippet.jot.tpl","");
 	$ms[] = array("ListIndexer","<strong>1.0.1</strong> 最新のドキュメントを柔軟に表示",0,"$setupPath/snippet.listindexer.tpl","");
 	$ms[] = array("MemberCheck","<strong>1.0</strong> ウェブユーザーのログイン状態に基づいてチャンクを振り分けて表示",0,"$setupPath/snippet.membercheck.tpl","");
-	$ms[] = array("NewsPublisher","<strong>1.4</strong> ウェブから直接ニュース記事を投稿",0,"$setupPath/snippet.newspublisher.tpl","");
 	$ms[] = array("Personalize","<strong>2.0</strong> ウェブユーザーのための基本的なパーソナライズ化",0,"$setupPath/snippet.personalize.tpl","");
 	$ms[] = array("Reflect","<strong>2.1</strong> Ditto共に使用することで記事・ブログエントリー・イメージギャラリーなどのアーカーブを作成",0,"$setupPath/snippet.reflect.tpl","");
 	$ms[] = array("UltimateParent","<strong>2.0 beta</strong> - 指定されたドキュメントからドキュメントツリーを辿り、ルート直下の親ドキュメントを返す",0,"$setupPath/snippet.ultparent.tpl","");
@@ -34,19 +33,17 @@
 
 	# setup plugins template files - array : name, description, type - 0:file or 1:content, file or content,properties
 	$mp = &$modulePlugins;
-	$mp[] = array("Bottom Button Bar","各種設定画面の下端に更新ボタンセットを表示",0,"$setupPath/plugin.bottombuttonbar.tpl","","OnChunkFormRender,OnDocFormRender,OnModFormRender,OnPluginFormRender,OnSnipFormRender,OnTVFormRender,OnTempFormRender,OnUserFormRender,OnWUsrFormRender");
 	$mp[] = array("Forgot Manager Login","管理画面のログインパスワードを再発行",0,"$setupPath/plugin.ForgotManagerPassword.tpl","","OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender");
 	$mp[] = array("Inherit Parent Template","ドキュメント新規作成時に親フォルダのテンプレート設定を継承",0,"$setupPath/plugin.inherit-parent-tpl.tpl","","OnDocFormPrerender");
-	$mp[] = array("QuickEdit","表示しているページを手軽に編集するためのツールバー",0,"$setupPath/quickedit.plugin.tpl","","OnParseDocument,OnWebPagePrerender","f888bac76e1537ca8e0cbec772b4624a");
-	$mp[] = array("TinyMCE","<strong>3.2.4.1:</strong>TinyMCE リッチテキストエディター",0,"$setupPath/plugin.tinymce.tpl","&customparams=Custom Parameters;textarea; &tinyFormats=Block Formats;text;p,h1,h2,h3,h4,h5,h6,div,blockquote,code,pre,address &entity_encoding=Entity Encoding;list;named,numeric,raw;named &entities=Entities;text; &tinyPathOptions=Path Options;list;rootrelative,docrelative,fullpathurl;docrelative &tinyCleanup=Cleanup;list;enabled,disabled;enabled &tinyResizing=Advanced Resizing;list;true,false;true &advimage_styles=Advanced Image Styles;text; &advlink_styles=Advanced Link Styles;text; &disabledButtons=Disabled Buttons;text; &tinyLinkList=Link List;list;enabled,disabled;enabled &webtheme=Web Theme;list;simple,advanced,editor,custom;simple &webPlugins=Web Plugins;text;style,advimage,advlink,searchreplace,print,contextmenu,paste,fullscreen,nonbreaking,xhtmlxtras,visualchars,media &webButtons1=Web Buttons 1;text;undo,redo,selectall,separator,pastetext,pasteword,separator,search,replace,separator,nonbreaking,hr,charmap,separator,image,link,unlink,anchor,media,separator,cleanup,removeformat,separator,fullscreen,print,code,help &webButtons2=Web Buttons 2;text;bold,italic,underline,strikethrough,sub,sup,separator,separator,blockquote,bullist,numlist,outdent,indent,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,styleselect,formatselect,separator,styleprops &webButtons3=Web Buttons 3;text; &webButtons4=Web Buttons 4;text; &webAlign=Web Toolbar Alignment;list;ltr,rtl;ltr","OnRichTextEditorRegister,OnRichTextEditorInit,OnInterfaceSettingsRender");
+	$mp[] = array("QM+","<strong>1.1.1</strong> 管理画面へのアクセス不要。今開いているページからその場で編集ウィンドウを開きます。",0,"$setupPath/plugin.qm.tpl","&jqpath=Path to jQuery;text;assets/js/jquery-1.3.2.min.js &loadmanagerjq=Load jQuery in manager;list;true,false;false &loadfrontendjq=Load jQuery in front-end;list;true,false;true &loadtb=Load ThickBox in front-end;list;true,false;true &usemm=Use with ManagerManager plugin;list;true,false;true &tbwidth=ThickBox window width;int;800 &tbheight=ThickBox window height;int;500 &hidefields=Hide document fields from front-end editors;text;parent &addbutton=Show add document here button;list;true,false;true &tpltype=New document template type;list;parent,id,selected;parent &tplid=New document template id;int;3","OnWebPagePrerender,OnDocFormPrerender,OnDocFormSave,OnManagerPageInit");
+	$mp[] = array("TinyMCE","<strong>3.2.5:</strong>TinyMCE リッチテキストエディター",0,"$setupPath/plugin.tinymce.tpl","&customparams=Custom Parameters;textarea;accessibility_warnings : false, &tinyFormats=Block Formats;text;p,h2,h3,h4,h5,h6,div,blockquote,code,pre,address &entity_encoding=Entity Encoding;list;named,numeric,raw;named &entities=Entities;text; &tinyPathOptions=Path Options;list;rootrelative,docrelative,fullpathurl;rootrelative &tinyCleanup=Cleanup;list;enabled,disabled;enabled &tinyResizing=Advanced Resizing;list;true,false;true &advimage_styles=Advanced Image Styles;text; &advlink_styles=Advanced Link Styles;text; &disabledButtons=Disabled Buttons;text; &tinyLinkList=Link List;list;enabled,disabled;enabled &webtheme=Web Theme;list;simple,advanced,editor,custom;simple &webPlugins=Web Plugins;text;style,advimage,advlink,searchreplace,print,contextmenu,paste,fullscreen,nonbreaking,xhtmlxtras,visualchars,media &webButtons1=Web Buttons 1;text;undo,redo,selectall,separator,pastetext,pasteword,separator,search,replace,separator,nonbreaking,hr,charmap,separator,image,link,unlink,anchor,media,separator,cleanup,removeformat,separator,fullscreen,print,code,help &webButtons2=Web Buttons 2;text;bold,italic,underline,strikethrough,sub,sup,separator,separator,blockquote,bullist,numlist,outdent,indent,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,styleselect,formatselect,separator,styleprops &webButtons3=Web Buttons 3;text; &webButtons4=Web Buttons 4;text; &webAlign=Web Toolbar Alignment;list;ltr,rtl;ltr","OnRichTextEditorRegister,OnRichTextEditorInit,OnInterfaceSettingsRender");
 	$mp[] = array("Search Highlighting","<strong>1.4</strong> - 検索結果ページ中のキーワードを分かりやすくハイライト表示 (AjaxSearchが必要)",0,"$setupPath/plugin.searchhighlight.tpl","","OnWebPagePrerender");
 	$mp[] = array("Image TV Preview","<strong>1.2.0.4</strong> - イメージ入力用テンプレート変数に設定されたイメージをプレビュー",0,"$setupPath/plugin.imageTVpreview.tpl","","OnDocFormRender");
-    $mp[] = array("TransAlias", "<strong>1.0</strong> - Transliterate document alias",0,"$setupPath/transalias.plugin.tpl","&table_name=Name;text;common &override_tv=Override TV name;string;","OnStripAlias");
+    $mp[] = array("TransAlias", "<strong>1.0</strong> - Transliterate document alias",0,"$setupPath/plugin.transalias.tpl","&table_name=Name;list;common,russian;common &override_tv=Override TV name;string;","OnStripAlias");
 
 	# setup modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid,enable_sharedparams
 	$mm = &$moduleModules;
-	$mm[] = array("Doc Manager","テンプレート・権限・公開／非公開などのドキュメント設定を一括変更",0,"$setupPath/module.docmanager.tpl","","",1);
-	$mm[] = array("QuickEdit","表示しているページを手軽に編集するためのツールバー",0,"$setupPath/quickedit.module.tpl","&mod_path=Module Path (from site root);string;assets/modules/quick_edit &show_manager_link=Show Manager Link;int;1 &show_help_link=Show Help Link;int;1 &editable=Editable Fields;string;pagetitle,longtitle,description,content,alias,introtext,menutitle,published,hidemenu,menuindex,searchable,cacheable,template","f888bac76e1537ca8e0cbec772b4624a",1);
+	$mm[] = array("Doc Manager","<strong>1.0</strong> テンプレート・権限・公開／非公開などのドキュメント設定を一括変更",0,"$setupPath/module.docmanager.tpl","","",1);
 
 	# setup callback function
 	$callBackFnc = "clean_up";

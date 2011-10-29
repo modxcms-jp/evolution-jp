@@ -30,7 +30,10 @@ class MODxMailer extends PHPMailer
 var $mb_config = null;
 var $charset_array = array(
             'japanese-utf8' =>
-                array('charset' => 'iso-2022-jp','bit' => '7bit','lang' => 'japanese')
+                array('charset' => 'iso-2022-jp','bit' => '7bit','lang' => 'japanese'),
+            'japanese-euc' =>
+                array('charset' => 'iso-2022-jp','bit' => '7bit','lang' => 'japanese'),
+                
             );
 
 

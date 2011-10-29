@@ -17,7 +17,7 @@ if($_REQUEST['op']=='reset') {
 }
 else {
 	$query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
-	$sqlQuery = mysql_escape_string($query);
+	$sqlQuery = $modx->db->escape($query);
 	$_PAGE['vs']['search'] = $query;
 }
 
@@ -86,13 +86,15 @@ echo $cm->render();
 <input type="hidden" name="id" value="<?php echo $id; ?>" />
 <input type="hidden" name="listmode" value="<?php echo $listmode; ?>" />
 <input type="hidden" name="op" value="" />
-<br />
-<div class="sectionHeader"><?php echo $_lang['user_management_title']; ?></div><div class="sectionBody">
+
+<h1><?php echo $_lang['user_management_title']; ?></h1>
+
+<div class="sectionBody">
 	<p><?php echo $_lang['user_management_msg']; ?></p>
 	<div class="searchbar">
 		<table border="0" style="width:100%">
 			<tr>
-			<td><a class="searchtoolbarbtn" href="index.php?a=11"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/save.gif"  align="absmiddle" /> <?php echo $_lang['new_user']; ?></a></td>
+			<td><a class="searchtoolbarbtn" href="index.php?a=11"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['new_user']; ?></a></td>
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td><a href="#" class="searchbutton" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang['go']; ?></a></td>
@@ -140,7 +142,7 @@ echo $cm->render();
 	$grd->altItemClass="gridAltItem";
 	$grd->fields="id,username,fullname,role,email,gender,blocked";
 	$grd->columns=$_lang["icon"].",".$_lang["name"].",".$_lang["user_full_name"].",".$_lang['role'].",".$_lang["email"].",".$_lang["user_gender"].",".$_lang["user_block"];
-	$grd->colWidths=",,,,,,";
+	$grd->colWidths="34,,,,,40,34";
 	$grd->colAligns="center,,,,,center,center";
 	$grd->colTypes='template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="media/style/'.$manager_theme.'/images/icons/user.gif" width="18" height="18" /></a>||template:<a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a>';
 	if($listmode=='1') $grd->pageSize=0;

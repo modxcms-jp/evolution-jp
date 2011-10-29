@@ -105,9 +105,9 @@ $modx->manager->initPageViewState();
 		<td width="70%">
 		<table border="0" cellspacing="1">
 		  <tr>
-			<td valign="bottom"><?php echo $_lang['name'];?><br>
+			<td valign="bottom"><?php echo $_lang['name'];?><br />
 			<input type="text" name="tagname" size="15"></td>
-			<td valign="bottom"><?php echo $_lang['tag'];?><br>
+			<td valign="bottom"><?php echo $_lang['tag'];?><br />
 			<select size="1" name="tag">
         		<optgroup label="Named Meta Content">
         			<option value="abstract;0">abstract</option>
@@ -142,10 +142,10 @@ $modx->manager->initPageViewState();
         			<option value="set-cookie;1">set-cookie</option>
         		</optgroup>
 			</select></td>
-			<td valign="bottom"><?php echo $_lang['value'];?><br>
+			<td valign="bottom"><?php echo $_lang['value'];?><br />
 			<input type="text" name="tagvalue" size="20"></td>
-			<td nowrap="nowrap"><br>
-			<input type="button" class="button" value="<?php echo $_lang["add_tag"];?>" name="cmdsavetag" onclick="addTag()" /> <input style="visibility:hidden" type="button" value="<?php echo $_lang["cancel"];?>" name="cmdcanceltag" onclick="cancelTag()" /></td>
+			<td nowrap="nowrap"><br />
+			<input type="button" value="<?php echo $_lang["add_tag"];?>" name="cmdsavetag" onclick="addTag()" /> <input style="visibility:hidden" type="button" value="<?php echo $_lang["cancel"];?>" name="cmdcanceltag" onclick="cancelTag()" /></td>
 		  </tr>
 		  <tr>
 		      <td colspan="4"><p><?php echo $_lang['metatag_notice'];?></p></td>
@@ -182,7 +182,7 @@ $modx->manager->initPageViewState();
 		<tr><td colspan="5">&nbsp;</td></tr>
 		<tr>
 			<td align="right">
-				<input type="button" class="button" name="cmddeltag" value="<?php echo $_lang["delete_tags"];?>" onclick="deleteTag();" />
+				<input type="button" name="cmddeltag" value="<?php echo $_lang["delete_tags"];?>" onclick="deleteTag();" />
 			</td>
 		</tr>
 	</table>
@@ -213,7 +213,7 @@ $modx->manager->initPageViewState();
 		<tr><td colspan="5">&nbsp;</td></tr>
 		<tr>
 			<td>
-				<input type=submit class="button" value="<?php echo $_lang['save_all_changes']; ?>" onsubmit="return checkForm();" /> &nbsp;
+				<input type=submit value="<?php echo $_lang['save_all_changes']; ?>" onsubmit="return checkForm();" /> &nbsp;
 			</td>
 			<td align="right">&nbsp;<?php echo $_lang['new_keyword']; ?></td>
 			<td>

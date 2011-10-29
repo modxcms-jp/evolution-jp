@@ -58,14 +58,11 @@ display: none;
 }
 .button {width: auto !important; height: auto !important; padding: 2px !important; margin-top: 5px !important; margin-bottom: 5px !important;}
 
-#sidebarlogin fieldset { position: relative; }
-
 #sidebarlogin #forgotpsswd {
-	font-family: sans-serif;
-	font-size: 70%;
-	position: absolute;
-	right: 0;
-	bottom: 1.5em;
+	font-size: 80%;
+	display: block;
+	float: right;
+	margin: 10px 0 0 1px;
 }
 #search select {
 	border-top: 1px solid #75767B;
@@ -242,3 +239,7 @@ position: relative;
   padding: 0;
   font-weight: bold;
 }
+
+div.post label {display:block;width:430px;margin-bottom:8px;}
+div.post label input {position:absolute;left:170px;}
+div.post fieldset {border:none;}

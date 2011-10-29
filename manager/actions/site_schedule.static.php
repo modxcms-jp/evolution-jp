@@ -7,9 +7,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 ?>
 
 <script type="text/javascript" src="media/script/tablesort.js"></script>
-<div class="subTitle">
-<span class="right"><?php echo $_lang["site_schedule"]?></span>
-</div>
+<h1><?php echo $_lang["site_schedule"]?></h1>
 
 <div class="sectionHeader"><?php echo $_lang["publish_events"]?></div><div class="sectionBody" id="lyr1">
 <?php
@@ -36,7 +34,7 @@ if($limit<1) {
     <tr>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle']?></a></td>
 	  <td><?php echo $row['id'] ;?></td>
-      <td><?php echo strftime($_lang["format_datetime_full"], $row['pub_date']+$server_offset_time)?></td>
+      <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time)?></td>
     </tr>
 <?php
 	}
@@ -75,7 +73,7 @@ if($limit<1) {
     <tr>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
 	  <td><?php echo $row['id'] ;?></td>
-      <td><?php echo strftime($_lang["format_datetime_full"], $row['unpub_date']+$server_offset_time) ;?></td>
+      <td><?php echo $modx->toDateFormat($row['unpub_date']+$server_offset_time) ;?></td>
     </tr>
 <?php
 	}
@@ -114,8 +112,8 @@ if($limit<1) {
     <tr class="<?php echo ($i % 2 ? 'even' : '')?>">
 	<td><a href="index.php?a=3&id=<?php echo $row['id']?>"><?php echo $row['pagetitle']?></a></td>
 	<td><?php echo $row['id']?></td>
-	<td><?php echo $row['pub_date']==0 ? "" : strftime($_lang["format_datetime_full"], $row['pub_date']+$server_offset_time)?></td>
-	<td><?php echo $row['unpub_date']==0 ? "" : strftime($_lang["format_datetime_full"], $row['unpub_date']+$server_offset_time)?></td>
+	<td><?php echo $row['pub_date']==0 ? "" : $modx->toDateFormat($row['pub_date']+$server_offset_time)?></td>
+	<td><?php echo $row['unpub_date']==0 ? "" : $modx->toDateFormat($row['unpub_date']+$server_offset_time)?></td>
     </tr>
 <?php
 	}

@@ -35,19 +35,9 @@ function record_sort($array, $key) {
 
 // function to check date and convert to us date
 function convertdate($date) {
-	global $_lang;
-	list ($day, $month, $year) = split ("-", $date);
-	$date_valid = checkdate($month, $day, $year);
-	if($date_valid==false) {
-		echo $_lang["mgrlog_datecheckfalse"];
-		exit;
-	}
-	if (($timestamp = strtotime("$month/$day/$year")) === -1) {
-		echo $_lang["mgrlog_dateinvalid"];
-		exit;
-	} else {
-	   return $timestamp;
-	}
+	global $_lang, $modx;
+	$timestamp = $modx->toTimeStamp($date);
+	return $timestamp;
 }
 
 $sql = 'SELECT * FROM '.$modx->getFullTableName('manager_log');
@@ -57,9 +47,16 @@ $logs = array();
 while ($row = $modx->db->getRow($rs)) $logs[] = $row;
 
 ?>
-<div class="subTitle">
-<span class="right"><?php echo $_lang["mgrlog_view"]?></span>
-</div>
+<script type="text/javascript" src="media/calendar/datepicker.js"></script>
+<script type="text/javascript">
+window.addEvent('domready', function() {
+	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
+	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
+	new DatePicker($('datefrom'), {'yearOffset': dpOffset,'format':dpformat});
+	new DatePicker($('dateto'), {'yearOffset': dpOffset,'format':dpformat});
+});
+</script>
+<h1><?php echo $_lang["mgrlog_view"]?></h1>
 
 <div class="sectionHeader"><?php echo $_lang["mgrlog_query"]?></div><div class="sectionBody" id="lyr1">
 <p><?php echo $_lang["mgrlog_query_msg"]?></p>
@@ -138,62 +135,43 @@ while ($row = $modx->db->getRow($rs)) $logs[] = $row;
   <tr bgcolor="#ffffff">
     <td><b><?php echo $_lang["message_message"]; ?></b></td>
     <td align="right">
-      <input type=text name="message" class="inputbox" style="width:240px" value="<?php echo $_REQUEST['message']; ?>">
+      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $_REQUEST['message']; ?>" />
     </td>
   </tr>
-  <script language="JavaScript" src="media/script/datefunctions.js"></script>
   <tr bgcolor="#eeeeee">
     <td><b><?php echo $_lang["mgrlog_datefr"]; ?></b></td>
-        <td align="right"><input type="hidden" name="datefrom" class="inputbox" style="width:100px" value="<?php echo isset($_REQUEST['datefrom']) ? $_REQUEST['datefrom'] : "" ; ?>">
-          <span id="datefrom_show" style="font-weight: bold;"><?php echo isset($_REQUEST['datefrom']) ? $_REQUEST['datefrom'] : "<i>(not set)</i>" ; ?></span>
-		  <a href="javascript:cal1.popup();" onMouseover="window.status='Select a date'; return true;" onMouseout="window.status=''; return true;"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal.gif" width="16" height="16" border="0" align="absimddle"></a>
-		  <a onClick="document.logging.datefrom.value=''; document.getElementById('datefrom_show').innerHTML='(not set)'; return true;" onMouseover="window.status='Don\'t set a date'; return true;" onMouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date"></a>
+        <td align="right">
+        	<input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($_REQUEST['datefrom']) ? $_REQUEST['datefrom'] : "" ; ?>" />
+		  	<a onclick="document.logging.datefrom.value=''; return true;" onmouseover="window.status='Don\'t set a date'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date" /></a>
 	  </td>
   </tr>
   <tr bgcolor="#ffffff">
     <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
     <td align="right">
-		  <input type="hidden" name="dateto" class="inputbox" style="width:100px" value="<?php echo isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "" ; ?>">
-          <span id="dateto_show" style="font-weight: bold;"><?php echo isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "<i>(not set)</i>" ; ?></span>
-		  <a href="javascript:cal2.popup();" onMouseover="window.status='Select a date'; return true;" onMouseout="window.status=''; return true;"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal.gif" width="16" height="16" border="0" align="absimddle"></a>
-		  <a onClick="document.logging.dateto.value=''; document.getElementById('dateto_show').innerHTML='(not set)'; return true;" onMouseover="window.status='Don\'t set a date'; return true;" onMouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date"></a>
+		  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "" ; ?>" />
+		  <a onclick="document.logging.dateto.value=''; return true;" onmouseover="window.status='Don\'t set a date'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date" /></a>
 		 </td>
       </tr>
   </tr>
   <tr bgcolor="#eeeeee">
     <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
     <td align="right">
-      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($_REQUEST['nrresults']) ? $_REQUEST['nrresults'] : $number_of_logs; ?>"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/_tx_.gif" width="18" height="16" border="0">
+      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($_REQUEST['nrresults']) ? $_REQUEST['nrresults'] : $number_of_logs; ?>" /><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/_tx_.gif" width="18" height="16" border="0" />
     </td>
   </tr>
   <tr bgcolor="#FFFFFF">
     <td colspan="2">
-	<table cellpadding="0" cellspacing="0" class="actionButtons">
-		<tr>
-			<td id="Button1"><a href="#" onclick="document.logging.log_submit.click();"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/save.gif" align="absmiddle"> <?php echo $_lang['search']; ?></a></td>
-			<td id="Button2"><a href="index.php?a=13"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/cancel.gif" align="absmiddle"> <?php echo $_lang['cancel']; ?></span></a></td>
-		</tr>
-	</table>
-      <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none">
+	<ul class="actionButtons">
+		<li><a href="#" onclick="document.logging.log_submit.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search']; ?></a></li>
+		<li><a href="index.php?a=2"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></span></a></li>
+	</ul>
+      <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none;" />
     </td>
   </tr>
   </tbody>
 </table>
 </form>
 </div>
-
-<script type="text/javascript">
-    var cal1 = new calendar1(document.forms['logging'].elements['datefrom'], document.getElementById("datefrom_show"));
-    cal1.path="<?php echo str_replace("index.php", "media/", $_SERVER["PHP_SELF"]); ?>";
-    cal1.year_scroll = true;
-    cal1.time_comp = false;
-
-    var cal2 = new calendar1(document.forms['logging'].elements['dateto'], document.getElementById("dateto_show"));
-    cal2.path="<?php echo str_replace("index.php", "media/", $_SERVER["PHP_SELF"]); ?>";
-    cal1.year_scroll = true;
-    cal1.time_comp = false;
-</script>
-
 
 <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div><div class="sectionBody" id="lyr2">
 <?php
@@ -204,8 +182,8 @@ if(isset($_REQUEST['log_submit'])) {
 	if($_REQUEST['action']!=0)	$sqladd[] = "action=".intval($_REQUEST['action']);
 	if($_REQUEST['itemid']!=0 || $_REQUEST['itemid']=="-")
 					$sqladd[] = "itemid='".$_REQUEST['itemid']."'";
-	if($_REQUEST['itemname']!='0')	$sqladd[] = "itemname='".mysql_escape_string($_REQUEST['itemname'])."'";
-	if($_REQUEST['message']!="")	$sqladd[] = "message LIKE '%".mysql_escape_string($_REQUEST['message'])."%'";
+	if($_REQUEST['itemname']!='0')	$sqladd[] = "itemname='".$modx->db->escape($_REQUEST['itemname'])."'";
+	if($_REQUEST['message']!="")	$sqladd[] = "message LIKE '%".$modx->db->escape($_REQUEST['message'])."%'";
 	// date stuff
 	if($_REQUEST['datefrom']!="")	$sqladd[] = "timestamp>".convertdate($_REQUEST['datefrom']);
 	if($_REQUEST['dateto']!="")	$sqladd[] = "timestamp<".convertdate($_REQUEST['dateto']);
@@ -248,10 +226,10 @@ if(isset($_REQUEST['log_submit'])) {
 		$current_row = $int_cur_position/$int_num_result;
 
 		// Display the result as you like...
-		print $_lang["paging_showing"]." ". $array_paging['lower'];
+		print "<p>". $_lang["paging_showing"]." ". $array_paging['lower'];
 		print " ". $_lang["paging_to"] . " ". $array_paging['upper'];
 		print " (". $array_paging['total'] . " " . $_lang["paging_total"] . ")";
-		print "<br>". $array_paging['first_link'] . $_lang["paging_first"] . "</a> " ;
+		print "<br />". $array_paging['first_link'] . $_lang["paging_first"] . "</a> " ;
 		print $array_paging['previous_link'] . $_lang["paging_prev"] . "</a> " ;
 		$pagesfound = sizeof($array_row_paging);
 		if($pagesfound>6) {
@@ -266,13 +244,12 @@ if(isset($_REQUEST['log_submit'])) {
 			}
 		}
 		print $array_paging['next_link'] . $_lang["paging_next"] . "</a> ";
-		print $array_paging['last_link'] . $_lang["paging_last"] . "</a>";
+		print $array_paging['last_link'] . $_lang["paging_last"] . "</a></p>";
 		// The above exemple print somethings like:
 		// Results 1 to 20 of 597  <<< 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 >>>
 		// Of course you can now play with array_row_paging in order to print
 		// only the results you would like...
 		?>
-		<p>
 		<script type="text/javascript" src="media/script/tablesort.js"></script>
 		<table border="0" cellpadding="2" cellspacing="1" bgcolor="#707070" class="sortabletable rowstyle-even" id="table-1" width="%100">
 		<thead><tr>
@@ -299,7 +276,7 @@ if(isset($_REQUEST['log_submit'])) {
 			<td><?php echo $logentry['itemid']=="-" ? "" : $logentry['itemid'] ; ?></td>
 			<td><?php echo $logentry['itemname']; ?></td>
 			<td><?php echo $logentry['message']; ?></td>
-			<td><?php echo strftime($_lang["format_datetime_full"], $logentry['timestamp']+$server_offset_time); ?></td>
+			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
 		</tr>
 		<?php
 		}
