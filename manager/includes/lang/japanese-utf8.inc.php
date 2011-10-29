@@ -4,9 +4,9 @@
  * Function:       Language file.
  * Encoding:       UTF8
  * Author:         MODx CMS JAPAN
- * Date:           2009/10/23
+ * Date:           2009/10/28
  * Version:        2.0.4
- * MODx version:   Evolution 1.0.1
+ * MODx version:   Evolution 1.0.2
 */
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';

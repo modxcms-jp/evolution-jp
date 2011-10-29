@@ -68,7 +68,7 @@ $errors= 0;
 // get post back status
 $isPostBack = (count($_POST));
 
-$action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'mode';
+$action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language';
 
 // make sure they agree to the license
 #if (!in_array($action, array ('language', 'welcome', 'connection', 'options', 'license', 'mode', 'summary'))) {

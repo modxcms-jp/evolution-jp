@@ -48,7 +48,7 @@ $_style["tree_showtree"] = '<img src="'.$style_path.'images/tree/sitemap.png" wi
 $_style["tree_weblink"] = $style_path."images/tree/link_go.gif";
 
 $_style["tree_page_secure"] = $style_path."images/tree/application_key.gif";
-$_style["tree_page_blank_secure"] = $style_path."images/tree/application_html_secure.gif";
+$_style["tree_page_blank_secure"] = $style_path."images/tree/application_secure.gif";
 $_style["tree_page_css_secure"] = $style_path."images/tree/application_css_secure.gif";
 $_style["tree_page_html_secure"] = $style_path."images/tree/application_html_secure.gif";
 $_style["tree_page_xml_secure"] = $style_path."images/tree/application_xml_secure.gif";

@@ -89,6 +89,7 @@ if($database_user=="") {
 	$rt = @include_once(dirname(__FILE__).'/manager/includes/config.inc.php');
 	// Be sure config.inc.php is there and that it contains some important values
 	if(!$rt || !$database_type || !$database_server || !$database_user || !$dbase) {
+header('Content-Type: text/html; charset=UTF-8');
 	echo "
 <style type=\"text/css\">
 *{margin:0;padding:0}
@@ -99,7 +100,7 @@ a{font-size:200%;color:#f22;text-decoration:underline;margin-top: 30px;padding: 
 </style>
 <div class=\"install\">
 <p>MODxがインストールされていないか設定ファイルが見つかりません。</p>
-<p><a href=\"install/index.php\">今すぐインストール</a>しますか？</p>
+<p><a href=\"install/index.php?action=mode\">今すぐインストール</a>しますか？</p>
 </div>";
 		exit;
 	}

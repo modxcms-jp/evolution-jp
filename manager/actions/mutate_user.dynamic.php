@@ -347,10 +347,8 @@ $rs = mysql_query($sql);
 
 while ($row = mysql_fetch_assoc($rs)) {
 	$selectedtext = $row['id'] == $userdata['role'] ? "selected='selected'" : "";
-	if ($_REQUEST['a'] == 11)
-	{$selectedtext = ($row['id'] == '1') ? "selected='selected'" : "";}
 ?>
-			<option value="<?php echo $row['id']; ?>" <?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
+			<option value="<?php echo $row['id']; ?>" <?php echo $selectedtext; ?>><?php echo $row['name'] . ' (ID:' . $row['id'] . ')'; ?></option>
 		<?php
 
 }

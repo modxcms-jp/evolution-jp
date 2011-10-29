@@ -4,7 +4,7 @@
  *
  * @author MODx Japanese Community
  * @package MODx
- * @version 1.0.1
+ * @version 1.0.2
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
@@ -12,7 +12,7 @@
  */
 $_lang["agree_to_terms"] = 'ライセンスが規定する諸条件を確認しインストールを実行してください';
 $_lang["alert_database_test_connection"] = 'データベースを生成するか、もしくはデータベースのテストを行う必要があります';
-$_lang["alert_database_test_connection_failed"] = 'The test of your database selection has failed!';
+$_lang["alert_database_test_connection_failed"] = 'データベースに接続できません。';
 $_lang["alert_enter_adminconfirm"] = '管理者パスワードと確認パスワードが一致しません。';
 $_lang["alert_enter_adminlogin"] = 'システム管理者のユーザー名を入力してください';
 $_lang["alert_enter_adminpassword"] = 'システム管理者のパスワードを入力してください';
@@ -45,7 +45,7 @@ $_lang["checking_mysql_strict_mode"] = 'Checking MySQL for strict mode: ';
 $_lang["checking_mysql_version"] = 'MySQLのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
-$_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされます。非常に危険ですので、特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされるため非常に危険です。特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプリフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
@@ -120,7 +120,7 @@ $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = 'not found';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
-$_lang["optional_items_note"] = 'オプションを選択してください:<br /><br />初めてMODxを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」については、内容が古いうえに十分に検証されていません。参考程度にお試しください。';
+$_lang["optional_items_note"] = 'オプションを選択してください:<br /><br />初めてMODxを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古いうえに十分に検証されていません。参考程度にお試しください。';
 $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らず様々なPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form
@@ -130,11 +130,11 @@ $_lang["recommend_setting_change_title"] = 'Recommended Setting Change';
 $_lang["recommend_setting_change_validate_referer_confirmation"] = 'Setting change: <em>Validate HTTP_REFERER headers?</em>';
 $_lang["recommend_setting_change_validate_referer_description"] = 'Your site is not configured to validate the HTTP_REFERER of incoming requests to the Manager. We strongly recommend enabling this setting to reduce the risk of a CSRF (Cross Site Request Forgery) attack.';
 $_lang["remove_install_folder_auto"] = 'インストールディレクトリを自動的に削除する<br />※この操作はサーバ設定によっては実行されないことがあります。<br />削除できなかった場合は、管理画面ログイン時に太文字で警告が表示されますので、手作業で削除してください。';
-$_lang["remove_install_folder_manual"] = '管理画面にログインする前に、&quot;<b>install</b>&quot; フォルダを忘れずに削除してください。';
+$_lang["remove_install_folder_manual"] = '管理画面にログインする前に、&quot;<b>install</b>&quot; フォルダを必ず削除してください。';
 $_lang["retry"] = '再チェック';
 $_lang["running_database_updates"] = '実行中のデータベースのアップデート: ';
 $_lang["sample_web_site"] = 'サンプルサイト';
-$_lang["sample_web_site_note"] = '<span style="font-style:normal;">新規インストールの場合は関係ありませんが、すでにMODxでサイトを構成している場合は<strong style="color:#CC0000;">上書き</strong>されます。ご注意ください。</span>';
+$_lang["sample_web_site_note"] = '<span style="font-style:normal;">新規インストールの場合は問題ありませんが、すでにMODxでサイトを構成している場合は<strong style="color:#CC0000;">上書き</strong>されます。ご注意ください。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか?'; 
 $_lang["setup_cannot_continue"] = '上記理由のため、セットアップは現在継続できません。';
@@ -174,11 +174,11 @@ $_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the select
 $_lang["templates"] = 'テンプレート';
 $_lang["to_log_into_content_manager"] = 'おつかれさまでした。「インストール終了」ボタンをクリックすると、管理画面のログインページ(manager/index.php)にアクセスします。';
 $_lang["toggle"] = '選択状態を反転';
-$_lang["unable_install_chunk"] = 'Unable to install chunk.  File';
-$_lang["unable_install_module"] = 'Unable to install module.  File';
-$_lang["unable_install_plugin"] = 'Unable to install plugin.  File';
-$_lang["unable_install_snippet"] = 'Unable to install snippet.  File';
-$_lang["unable_install_template"] = 'Unable to install template.  File';
+$_lang["unable_install_chunk"] = 'チャンクをインストールできませんでした。';
+$_lang["unable_install_module"] = 'モジュールをインストールできませんでした';
+$_lang["unable_install_plugin"] = 'プラグインをインストールできませんでした。';
+$_lang["unable_install_snippet"] = 'スニペットをインストールできませんでした。';
+$_lang["unable_install_template"] = 'テンプレートをインストールできませんでした。';
 $_lang["upgrade_note"] = '<strong>注意:</strong>管理画面に無事にログインできたら、リソース(旧称・ドキュメント)および各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを必ず確認してください。また管理画面内の「イベントログ」を開き、エラーの有無をご確認ください。';
 $_lang["upgraded"] = 'アップデートしました';
 $_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';

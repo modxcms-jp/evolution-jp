@@ -24,7 +24,7 @@ ul {margin-bottom:15px;}
 <li>エイリアス自動生成 →「いいえ」</li>
 </ul>
 <p>
-一般的にはこのように設定します。拡張子を自由にコントロールしたい場合は「フレンドリーURLの接尾辞」を空白にしておいて、リソースのエイリアスで拡張子込みのファイル名を指定するとよいでしょう。たとえばCSSファイルやXMLファイルもリソースとして管理したいが、拡張子がhtmlになるのを避けたい場合に有効です。また、MODxのURLコントロール機能を補佐する<a href="http://www.google.com/search?hl=ja&q=modx+%22SEO+Strict+URLs%22" target="_blank">「SEO Strict URLs」</a>プラグインが知られています。
+一般的にはこのように設定します。拡張子を自由にコントロールしたい場合は「フレンドリーURLの接尾辞」を空白にしておいて、リソースのエイリアスで拡張子込みのファイル名を指定するとよいでしょう。たとえばCSSファイルやXMLファイルもリソースとして管理したいが、拡張子がhtmlになるのを避けたい場合に有効です。また、MODxのURLコントロール機能を補佐する<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=SEO+Strict+URLs&sa.x=38&sa.y=10" target="_blank">「SEO Strict URLs」</a>プラグインが知られています。
 </p>
 
 <h3>配布されているアドオン(スニペット・プラグイン)をインストールする</h3>
@@ -53,7 +53,7 @@ MODxはオーサリングツールのイメージに近いCMSなので、静的�
 
 <h3>問い合わせフォームを設置する</h3>
 <p>
-標準で同梱されているeFormスニペットが利用できます。さらに高機能なスニペットとしては<a href="http://www.google.com/search?hl=ja&q=cfformmailer" target="_blank">cfFormMailer</a>が知られています。
+標準で同梱されているeFormスニペットが利用できます。さらに高機能なスニペットとしては<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=cfformmailer&sa.x=42&sa.y=6" target="_blank">cfFormMailer</a>が知られています。
 </p>
 
 <h3>ブログ・フォーラム・通販カート・画像ギャラリーを設置する</h3>
@@ -78,12 +78,7 @@ MODxはシステムの扱いに慣れた管理者にとってはサイト構造�
 
 <h3>Googleマップを貼り付ける(2)</h3>
 <p>
-Googleマップを貼り付ける方法はもうひとつあります。MODxの投稿画面に標準で実装されているTinyMCEが、Googleマップで使われる一部のタグを自動的に消去してしまうために地図を貼り付けられません。自動的に消去しないように設定します。<a href="index.php?a=76">エレメント → エレメント管理</a>のTinyMCEプラグインをクリックしてください。「設定」タブでパラメータを設定できるので、「Custom Parameters」に「extended_valid_elements : '*[*]',」と入力して更新してください。末尾のコンマは必須です。こうすることで、すべての要素(*)のすべての属性([*])を受け入れることができるようになるため、通常の記事管理で使わないようなタグを利用するGoogleマップを貼り付けることができるようになります。GoogleマップのコードはTinyMCEツールバーの「HTMLソース編集」ボタンをクリックし開いたダイアログに貼り付けます。</p>
-
-<h3>画像貼り付け時のALT属性入力を求めないようにしたい</h3>
-<p>
-上記の「Googleマップを貼り付ける(2)」と同様、<a href="index.php?a=76">エレメント → エレメント管理</a>のTinyMCEプラグイン編集画面の「設定」タブに、「accessibility_warnings : false,」と記述して更新してください。末尾のコンマは必須です。次回からはALT属性の入力を求めなくなります。
-</p>
+Googleマップを貼り付ける方法はもうひとつあります。MODx投稿画面のTinyMCEツールバーの「HTMLソース編集」ボタンをクリックし、開いたダイアログに貼り付けます。</p>
 
 <h3>YouTubeの動画を貼り付ける</h3>
 <p>そのまま貼り付けられます。TinyMCEで開いている場合は「埋め込みメディアの挿入／編集」アイコンをクリックし、YouTubeの動画URLを貼り付けます。タイプは「Flash」を選んでください。HTMLソース編集ダイアログでプレイヤー展開コードをそのまま貼り付けることもできます。</p>
@@ -104,19 +99,19 @@ euc-jp運用はポイントさえ押さえていれば難しくありません�
 
 <h3>日常の運用で気をつけるべきこと</h3>
 <p>
-<a href="index.php?a=114">イベントログ</a>に時々目を通し、想定外のエラーが発生してないか確認しましょう。また、データベースのバックアップはできるだけ定期的にとるようにします。
+<a href="index.php?a=114">イベントログ</a>に時々目を通し、想定外のエラーが発生してないか確認しましょう。また、データベースのバックアップはできるだけ定期的にとるようにします。ログは蓄積される一方なので、時々削除しましょう。将来的には上限を設定できるようになる予定です。
 </p>
 
 <h3>投稿画面の入力項目の大半が不要なので整理したい</h3>
 
 <p>
-<a href="http://www.google.com/search?hl=ja&q=modx+ManagerManager" target="_blank">ManagerManager</a>というプラグインを利用すると、投稿画面の入力項目をすっきり整理することができます。項目名を変更することもできます。
+<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=ManagerManager&sa.x=20&sa.y=12" target="_blank">ManagerManager</a>というプラグインを利用すると、投稿画面の入力項目をすっきり整理できます。項目名を変更することもできます。MODx1.0.1からは標準で同梱されています。
 </p>
 
 <h3>携帯電話向けコンテンツを作る</h3>
 
 <p>
-<a href="http://www.google.com/search?hl=ja&q=modx+MobileConverter" target="_blank">MobileConverterプラグイン</a>が便利です。携帯電話向けに、エンコードや画像形式の変換などを行ないます。
+<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=MobileConverter&sa.x=32&sa.y=9" target="_blank">MobileConverterプラグイン</a>が便利です。携帯電話向けに、エンコードや画像形式の変換などを行ないます。
 
 <h3>投稿画面のtextareaのスタイルシートをカスタマイズする</h3>
 <p>
@@ -149,13 +144,43 @@ euc-jp運用はポイントさえ押さえていれば難しくありません�
 このような、属性が空のままのimg要素を出力してしまうことがありません。
 </p>
 
+<h3>より高度なウィジェット</h3>
+<p>
+標準実装のウィジェット機能は基本的な処理しかできません。しかしこれがMODxの限界ではありません。スニペットを通じてテンプレート変数にアクセスするとよいでしょう。
+</p>
+<pre>
+&lt;?php
+$imagePath = $modx-&gt;documentObject[$tv][1];
+$width = ($width) ? '&amp;w=' . $width : '';
+$height = ($height) ? '&amp;h=' . $height : '';
+if($imagePath &amp;&amp; file_exists(getenv('DOCUMENT_ROOT'). $imagePath))
+{
+	$site_url = rtrim($modx-&gt;getConfig('site_url'), '/');
+	$imagePath = str_replace($site_url, '', $imagePath);
+	$str  = '&lt;img src=&quot;/ajaxlib/phpthumb/phpThumb.php?src=';
+	$str .= $imagePath . $width . $height . '&amp;q=90&amp;fltr[]=usm|80|0.5|3&amp;fltr[]=wb';
+	$str .= '&quot; /&gt;';
+}
+return $str;
+?&gt;
+</pre>
+<p>
+たとえば上記のようなコードを「画像ウィジェット」というスニペット名で保存し、</p>
+<pre>
+[[画像ウィジェット? &tv=`テンプレート変数名` &width=`300` &height=`225`]]
+</pre>
+<p>
+このように呼び出すと、phpThumbライブラリを利用して横幅・縦幅を揃えつつガンマ調整・ホワイトバランス処理まで施す高度な画像処理を行なうウィジェットを実現できます。
+</p>
+
+
 <h3>Dreamweaverなどで作ったhtmlファイルをそのままテンプレートにする</h3>
 <p>
 Dreamweaverなどでhtmlを組みテンプレート編集画面に貼り付けるのは、細部の調整が続く場合は面倒に感じます。Dreamweaverの高度なテンプレート管理機能を利用して複数のテンプレートを一括管理している場合も、少しの変更のたびに全てのテンプレートを貼り付け直すのは手間がかかります。この場合、Dreamweaverで作ったhtmlファイルをそのまま読み込んでテンプレートとして解釈する方法を用いると便利です。残念ながらdwtファイルは解釈できませんが(スニペットを作ってパス変換すれば可能)、htmlファイルを読み込む前提で以下に方法を説明します。</p>
 <p>
 詳細は<a href="http://modxcms.com/forums/index.php/topic,10351.msg88947.html#msg88947" target="_blank">こちらのトピック</a>をご覧ください。テンプレート内にphpコードなどを書いて外部ファイルを直接呼び出すことはできないため、テンプレート変数の機能を経由します(<a href="http://modxcms.com/forums/index.php?topic=15438.0" target="_blank">スニペットを利用する方法</a>もあります)。MODxのテンプレート変数には<a href="http://wiki.modxcms.com/index.php/Bindings" target="_blank">「@ Bindings」(アットバインディング)</a>と呼ばれる機能があり、これを利用します。「@ Bindings」は、リソース編集画面でテンプレート変数に入力する値(通常は文字列)を、他のソースに差し替えるものです。「他のソース」としてどんなものがあるのかというと、htmlファイルやCSVファイルなどの「外部ファイル」、任意のリソース(旧称ドキュメント)、チャンク、php文のインライン実行結果、データベースからの抽出結果などが利用できるようになっています。つまりテキストを入力する代わりに、これらのソースから値を動的に引っ張ってくることができます。</p>
 <p>
-テンプレート製作にDreamweaverを用いる場合は<a href="http://www.google.com/search?hl=ja&q=%22MODx+for+Dreamweaver%22" target="_blank">MODx for Dreamweaver</a>を利用すると便利です。
+テンプレート製作にDreamweaverを用いる場合は<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=MODx+for+Dreamweaver&sa.x=12&sa.y=12" target="_blank">MODx for Dreamweaver</a>を利用すると便利です。
 </p>
 
 <h3>配布テンプレートを手軽に適用</h3>

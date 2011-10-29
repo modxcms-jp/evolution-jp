@@ -41,7 +41,7 @@ for($i=0; $i<$limit; $i++) {
 <?php
 	} else {
 ?>
-	<li><span style="width: 200px"><a href="index.php?id=<?php echo $row['id']; ?>&a=35"><?php echo $row['name']; ?></a></span> - <?php echo $row['description']; ?></li>
+	<li><span style="width: 200px"><a href="index.php?id=<?php echo $row['id']; ?>&a=35"><?php echo $row['name'] . ' (ID:' . $row['id'] . ')'; ?></a></span> - <?php echo $row['description']; ?></li>
 <?php
 	}
 }
