@@ -27,13 +27,30 @@ $charset = 'UTF-8';
 $mode = 'tree'; // breadcrumbs or tree
 $tree_style = '1'; // What style should the tree use? Choose 1,2,3 or 4
 $sortby = 'menuindex'; // Could be menuindex or menutitle
-$path_to_modx_config = '../../../manager/includes/config.inc.php';
 
 
 /* That's it to config! */
 $tree_styles = array("|--", "&#38;#x2516;&#38;#x2500;&nbsp;", "&#38;#x25B9;&nbsp;&nbsp;", "L&nbsp;&nbsp;");
+define('IN_MANAGER_MODE', true);
+define('MODX_API_MODE', true);
+$manage_path = '../../../manager/';
+include($manage_path . 'includes/config.inc.php');
+include($manage_path . 'includes/document.parser.class.inc.php');
+startCMSSession();
+$modx = new DocumentParser;
 
-include_once($path_to_modx_config);
+/* only display if manager user is logged in */
+if ($modx->getLoginUserType() !== 'manager') {
+    // Make output a real JavaScript file!
+    header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
+    
+    // prevent browser from caching
+    header('pragma: no-cache');
+    header('expires: 0'); // i.e. contents have already expired
+    
+    echo "var tinyMCELinkList = new Array();";
+    exit();
+}
 
 $allpages = getAllPages();
 if (!is_array($allpages) ) {
