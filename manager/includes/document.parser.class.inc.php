@@ -373,8 +373,9 @@ class DocumentParser {
                 return $a[0]; // return only document content
             else {
                 $docObj= unserialize($a[0]); // rebuild document object
-                // check page security
-                if ($docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
+                // check page security(admin(mgrRole=1) is pass)
+                if (!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole']== 1) 
+                    && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
                     $pass= false;
                     $usrGrps= $this->getUserDocGroups();
                     $docGrps= explode(",", $docObj['__MODxDocGroups__']);
@@ -873,29 +874,57 @@ class DocumentParser {
         $alias = array_pop($Alias);
         $dir = implode('/', $Alias);
         unset($Alias);
+//        if(strstr($alias, '.') !== false) $suff = '';//yama
         return ($dir != '' ? "$dir/" : '') . $pre . $alias . $suff;
     }
 
     function rewriteUrls($documentSource) {
         // rewrite the urls
-        if ($this->config['friendly_urls'] == 1) {
-            $aliases= array ();
-            foreach ($this->aliasListing as $item) {
-                $aliases[$item['id']]= (strlen($item['path']) > 0 ? $item['path'] . '/' : '') . $item['alias'];
-            }
-            $in= '!\[\~([0-9]+)\~\]!ise'; // Use preg_replace with /e to make it evaluate PHP
-            $isfriendly= ($this->config['friendly_alias_urls'] == 1 ? 1 : 0);
-            $pref= $this->config['friendly_url_prefix'];
-            $suff= $this->config['friendly_url_suffix'];
-            $thealias= '$aliases[\\1]';
-            $found_friendlyurl= "\$this->makeFriendlyURL('$pref','$suff',$thealias)";
-            $not_found_friendlyurl= "\$this->makeFriendlyURL('$pref','$suff','" . '\\1' . "')";
-            $out= "({$isfriendly} && isset({$thealias}) ? {$found_friendlyurl} : {$not_found_friendlyurl})";
-            $documentSource= preg_replace($in, $out, $documentSource);
-        } else {
-            $in= '!\[\~([0-9]+)\~\]!is';
-            $out= "index.php?id=" . '\1';
-            $documentSource= preg_replace($in, $out, $documentSource);
+			$pieces = preg_split('/(\[~|~\])/',$documentSource);
+			$maxidx = sizeof($pieces);
+			$documentSource = '';
+		
+		if ($this->config['friendly_urls'] == 1)
+		{
+			$aliases= array ();
+			foreach ($this->aliasListing as $doc)
+			{
+				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
+			}
+			$use_alias = $this->config['friendly_alias_urls'];
+			$prefix    = $this->config['friendly_url_prefix'];
+			$suffix    = $this->config['friendly_url_suffix'];
+			
+			for ($idx = 0; $idx < $maxidx; $idx++)
+			{
+				$documentSource .= $pieces[$idx];
+				$idx++;
+				if ($idx < $maxidx)
+				{
+					$docid = intval($pieces[$idx]);
+					if(!is_numeric($pieces[$idx]))         $path = '[~' . $pieces[$idx] . '~]';
+					elseif($aliases[$docid] && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$docid]);
+					else                                   $path = $this->makeFriendlyURL($prefix, $suffix, $docid);
+					$documentSource .= $path;
+				}
+			}
+			unset($aliases);
+		}
+		else
+		{
+			for ($idx = 0; $idx < $maxidx; $idx++)
+			{
+				$documentSource .= $pieces[$idx];
+				$idx++;
+				if ($idx < $maxidx)
+				{
+					$docid = intval($pieces[$idx]);
+					if($docid == intval($this->config['site_start']))
+						$documentSource .= 'index.php';
+					else
+						$documentSource .= 'index.php?id=' . $docid;
+				}
+			}
         }
         return $documentSource;
     }
@@ -912,8 +941,8 @@ class DocumentParser {
         if ($docgrp= $this->getUserDocGroups())
             $docgrp= implode(",", $docgrp);
         // get document
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
+        $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
+         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
         $sql= "SELECT sc.*
               FROM $tblsc sc
               LEFT JOIN $tbldg dg ON dg.document = sc.id
@@ -1016,7 +1045,7 @@ class DocumentParser {
                 if ($st != $et)
                     $passes++; // if content change then increase passes because
             } // we have not yet reached maxParserPasses
-//            $source = $this->rewriteUrls($source);//yama
+            $source = $this->rewriteUrls($source);//yama
         }
         return $source;
     }
@@ -1421,8 +1450,8 @@ class DocumentParser {
             // get document groups for current user
             if ($docgrp= $this->getUserDocGroups())
                 $docgrp= implode(",", $docgrp);
-            $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
+            $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
+             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
             $sql= "SELECT DISTINCT $fields FROM $tblsc sc
                     LEFT JOIN $tbldg dg on dg.document = sc.id
                     WHERE (sc.id IN (" . implode(",",$ids) . ") AND sc.published=$published AND sc.deleted=$deleted $where)
@@ -1533,13 +1562,15 @@ class DocumentParser {
     function makeUrl($id, $alias= '', $args= '', $scheme= '') {
         $url= '';
         $virtualDir= '';
+        $f_url_prefix = $this->config['friendly_url_prefix'];
+        $f_url_suffix = $this->config['friendly_url_suffix'];
         if (!is_numeric($id)) {
             $this->messageQuit('`' . $id . '` is not numeric and may not be passed to makeUrl()');
         }
         if ($args != '' && $this->config['friendly_urls'] == 1) {
             // add ? to $args if missing
             $c= substr($args, 0, 1);
-            if (strpos($this->config['friendly_url_prefix'], '?') === false) {
+            if (strpos($f_url_prefix, '?') === false) {
                 if ($c == '&')
                     $args= '?' . substr($args, 1);
                 elseif ($c != '?') $args= '?' . $args;
@@ -1557,7 +1588,8 @@ class DocumentParser {
             elseif ($c != '&') $args= '&' . $args;
         }
         if ($this->config['friendly_urls'] == 1 && $alias != '') {
-            $url= $this->config['friendly_url_prefix'] . $alias . $this->config['friendly_url_suffix'] . $args;
+        //        if(strstr($alias, '.') !== false) $f_url_suffix = '';//yama
+            $url= $f_url_prefix . $alias . $f_url_suffix . $args;
         }
         elseif ($this->config['friendly_urls'] == 1 && $alias == '') {
             $alias= $id;
@@ -1567,7 +1599,7 @@ class DocumentParser {
                 if ($al && $al['alias'])
                     $alias= $al['alias'];
             }
-            $alias= $alPath . $this->config['friendly_url_prefix'] . $alias . $this->config['friendly_url_suffix'];
+            $alias= $alPath . $f_url_prefix . $alias . $f_url_suffix;
             $url= $alias . $args;
         } else {
             $url= 'index.php?id=' . $id . $args;
@@ -2138,20 +2170,22 @@ class DocumentParser {
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
     function getUserDocGroups($resolveIds= false) {
-        if ($this->isFrontend() && isset ($_SESSION['webDocgroups']) && isset ($_SESSION['webValidated'])) {
+        $dg= array();
+        $dgn= array();
+        if ($this->isFrontend() && isset ($_SESSION['webDocgroups']) && !empty($_SESSION['webDocgroups']) && isset ($_SESSION['webValidated'])) {
             $dg= $_SESSION['webDocgroups'];
-            $dgn= isset ($_SESSION['webDocgrpNames']) ? $_SESSION['webDocgrpNames'] : false;
-        } else
-            if ($this->isBackend() && isset ($_SESSION['mgrDocgroups']) && isset ($_SESSION['mgrValidated'])) {
-                $dg= $_SESSION['mgrDocgroups'];
-                $dgn= $_SESSION['mgrDocgrpNames'];
-            } else {
-                $dg= '';
+            $dgn= isset ($_SESSION['webDocgrpNames']) ? $_SESSION['webDocgrpNames'] : array();
+        }
+        if (isset ($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset ($_SESSION['mgrValidated'])) {
+            $dg= array_merge($dg, $_SESSION['mgrDocgroups']);
+            if (isset($_SESSION['mgrDocgrpNames']) ){
+                $dgn= array_merge($dgn, $_SESSION['mgrDocgrpNames']);
             }
+        }
         if (!$resolveIds)
             return $dg;
         else
-            if (is_array($dgn))
+            if (!empty($dgn) || empty($dg))
                 return $dgn;
             else
                 if (is_array($dg)) {

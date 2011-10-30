@@ -5,7 +5,7 @@
  * カスタマイズの自由度が高いパン屑リスト
  * 
  * @category	snippet
- * @version 	1.0.2
+ * @version 	1.0.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties 
  * @internal	@modx_category Navigation
@@ -420,8 +420,10 @@ foreach ( $crumbs as $c )
             }
         }
 
+if(intval($c['id'])!==intval($homeId)) $url = $modx->makeUrl($c['id']);
+else $url = $modx->config['site_url'];
 
-        $pretemplateCrumb .= '<a class="'.$crumbClass.'" href="'.$modx->makeUrl($c['id']).'" title="'.$title.'">'.$text.'</a>';
+        $pretemplateCrumb .= '<a class="'.$crumbClass.'" href="'. $url .'" title="'.$title.'">'.$text.'</a>';
     }
     else
     // Make a span instead of a link

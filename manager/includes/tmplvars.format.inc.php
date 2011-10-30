@@ -45,6 +45,7 @@
 							'style' => $params['style'],
 						    'align' => $params['align']
 						);
+						if($attr['align'] == 'none') $attr['align'] = '';
 						foreach ($attr as $k => $v) $attributes.= ($v ? ' '.$k.'="'.$v.'"' : '');
 						$attributes .= ' '.$params['attrib'];
 

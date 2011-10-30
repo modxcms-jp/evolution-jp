@@ -131,7 +131,10 @@ class TinyMCE
 			case 'docrelative':
 				$ph['relative_urls']      = 'true';
 				$ph['remove_script_host'] = 'true';
-				$ph['convert_urls']       = 'true';
+				if($modx->config['strip_image_paths']==1)
+					$ph['convert_urls']   = 'false';
+				else
+					$ph['convert_urls']   = 'true';
 				break;
 			case 'rootrelative':
 				$ph['relative_urls']      = 'false';

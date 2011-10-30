@@ -1,7 +1,7 @@
 <?php
 
 $theme           = 'editor';
-$custom_plugins  = 'save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+$custom_plugins  = 'inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 $custom_buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help';
 $custom_buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat';
 $css_selectors   = 'align left=justifyleft;align right=justifyright';
