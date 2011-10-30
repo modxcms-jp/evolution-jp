@@ -58,6 +58,13 @@ define("IN_MANAGER_MODE", "true");  // we use this to make sure files are access
 // harden it
 require_once('./includes/protect.inc.php');
 
+// sanitize id variable passed by client, ensuring it's an integer
+$_REQUEST['id'] = (int) $_REQUEST['id'];
+$_POST['id'] = (int) $_POST['id'];
+if(isset($_GET['id'])) {
+    $_GET['id'] = (int) $_GET['id'];
+}
+
 // send anti caching headers
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");

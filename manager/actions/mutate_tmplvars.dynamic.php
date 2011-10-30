@@ -11,11 +11,7 @@ if(!$modx->hasPermission('new_template') && $_REQUEST['a']=='300') {
 
 
 
-if(isset($_REQUEST['id'])) {
-    $id = $_REQUEST['id'];
-} else {
-    $id=0;
-}
+$id = $_REQUEST['id'];
 
 
 // check to see the variable editor isn't locked

@@ -7,7 +7,7 @@ if(!$modx->hasPermission('messages')) {
 ?>
 <h1><?php echo $_lang['messages_title']; ?></h1>
 
-<?php if(isset($_REQUEST['id']) && $_REQUEST['m']=='r') { ?>
+<?php if($_REQUEST['id'] > 0 && $_REQUEST['m']=='r') { ?>
 <div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div><div class="sectionBody" id="lyr3">
 <?php
 $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.id=".$_REQUEST['id'];
@@ -195,7 +195,7 @@ if($dotablestuff==1) { ?>
 
 <div class="sectionHeader"><?php echo $_lang['messages_compose']; ?></div><div class="sectionBody">
 <?php
-if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($_REQUEST['id'])) {
+if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && $_REQUEST['id'] > 0) {
     $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.id=".$_REQUEST['id'];
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);

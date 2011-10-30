@@ -6,12 +6,7 @@ if(!$modx->hasPermission('view_eventlog')) {
 }
 
 // get id
-if(isset($_REQUEST['id'])) {
-	$id = intval($_REQUEST['id']);
-}
-else {
-	$id=0;
-}
+$id = $_REQUEST['id'];
 
 // make sure the id's a number
 if(!is_numeric($id)) {

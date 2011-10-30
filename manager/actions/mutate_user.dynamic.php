@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();  
 }
 
-$user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$user = $_REQUEST['id'];
 
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`" . $table_prefix . "active_users` WHERE $dbase.`" . $table_prefix . "active_users`.action=12 AND $dbase.`" . $table_prefix . "active_users`.id=$user";
