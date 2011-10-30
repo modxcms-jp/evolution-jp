@@ -7,12 +7,6 @@ else    $id = 0;
 
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
-$url = $modx->config['site_url'];
-
 // Get table names (alphabetical)
 $tbl_document_groups       = $modx->getFullTableName('document_groups');
 $tbl_keyword_xref          = $modx->getFullTableName('keyword_xref');
@@ -24,16 +18,16 @@ $tbl_site_metatags         = $modx->getFullTableName('site_metatags');
 $tbl_site_templates        = $modx->getFullTableName('site_templates');
 
 // Get access permissions
-if($_SESSION['mgrDocgroups'])
-	$docgrp = implode(",",$_SESSION['mgrDocgroups']);
-$access = "1='".$_SESSION['mgrRole']."' OR sc.privatemgr=0".(!$docgrp ? "":" OR dg.document_group IN ($docgrp)");
+if($_SESSION['mgrDocgroups']) $docgrp = implode(",",$_SESSION['mgrDocgroups']);
+$in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
+$access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
 // Get the document content
 $sql = 'SELECT DISTINCT sc.* '.
-       'FROM '.$tbl_site_content.' AS sc '.
-       'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document = sc.id '.
-       'WHERE sc.id =\''.$id.'\' '.
-       'AND ('.$access.')';
+       "FROM {$tbl_site_content} AS sc ".
+       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
+       "WHERE sc.id ='{$id}' ".
+       "AND ({$access})";
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if ($limit > 1) {
@@ -51,17 +45,17 @@ $content = mysql_fetch_assoc($rs);
  * "General" tab setup
  */
 // Get Creator's username
-$rs = mysql_query('SELECT username FROM '.$tbl_manager_users.' WHERE id=\''.$content['createdby'].'\'');
+$rs = mysql_query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['createdby']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$createdbyname = $row['username'];
 
 // Get Editor's username
-$rs = mysql_query('SELECT username FROM '.$tbl_manager_users.' WHERE id=\''.$content['editedby'].'\'');
+$rs = mysql_query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['editedby']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$editedbyname = $row['username'];
 
 // Get Template name
-$rs = mysql_query('SELECT templatename FROM '.$tbl_site_templates.' WHERE id=\''.$content['template'].'\'');
+$rs = mysql_query("SELECT templatename FROM {$tbl_site_templates} WHERE id='{$content['template']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$templatename = $row['templatename'];
 
@@ -107,20 +101,20 @@ if (!class_exists('makeTable')) include_once $modx->config['base_path'].'manager
 $childsTable = new makeTable();
 
 // Get child document count
-$sql = 'SELECT DISTINCT sc.id '.
-       'FROM '.$tbl_site_content.' AS sc '.
-       'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document = sc.id '.
-       'WHERE sc.parent=\''.$content['id'].'\' '.
-       'AND ('.$access.')';
+$sql = "SELECT DISTINCT sc.id ".
+       "FROM {$tbl_site_content} AS sc ".
+       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
+       "WHERE sc.parent='{$content['id']}' ".
+       "AND ({$access})";
 $rs = $modx->db->query($sql);
 $numRecords = $modx->db->getRecordCount($rs);
 
 // Get child documents (with paging)
 $sql = 'SELECT DISTINCT sc.* '.
-       'FROM '.$tbl_site_content.' AS sc '.
-       'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document = sc.id '.
-       'WHERE sc.parent=\''.$content['id'].'\' '.
-       'AND ('.$access.') '.
+       "FROM {$tbl_site_content} AS sc ".
+       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
+       "WHERE sc.parent='{$content['id']}' ".
+       "AND ({$access}) ".
        "ORDER BY sc.id DESC".
        $childsTable->handlePaging(); // add limit clause
 
@@ -133,7 +127,8 @@ if ($numRecords > 0) {
 		exit;
 	} else {
 		$resource = array();
-		while($row = $modx->fetchRow($rs)){
+		while($row = $modx->fetchRow($rs))
+		{
 			$resource[] = $row;
 		}
 
@@ -169,7 +164,6 @@ if ($numRecords > 0) {
 				'edit' =>   '<a href="index.php?a=3&amp;id='.$children['id'].'"><img src="'. $_style["icons_preview_resource"].'" />'.$_lang['preview'].'</a>'.(($modx->hasPermission('edit_document')) ? '&nbsp;<a href="index.php?a=27&amp;id='.$children['id'].'"><img src="' . $_style["icons_save"] .'" />'.$_lang['edit'].'</a>&nbsp;<a href="index.php?a=51&amp;id='.$children['id'].'"><img src="' . $_style["icons_move_document"] .'" />'.$_lang['move'].'</a>' : ''),
 			);
 		}
-
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id']);
 		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id']);
 	}
@@ -287,9 +281,9 @@ function movedocument() {
 			<tr><td><?php echo $_lang['resource_opt_show_menu']?>: </td>
 				<td><?php echo $content['hidemenu']==1 ? $_lang['no'] : $_lang['yes']?></td></tr>
 			<tr><td><?php echo $_lang['page_data_web_access']?>: </td>
-				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/'.$manager_theme.'images/icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
+				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="' . $style_path .'icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
-				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/'.$manager_theme.'images/icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
+				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="' . $style_path . 'icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
 		<tr><td colspan="2">&nbsp;</td>	</tr>
 			<tr><td colspan="2"><b><?php echo $_lang['page_data_markup']?></b></td></tr>
 			<tr><td><?php echo $_lang['page_data_template']?>: </td>
