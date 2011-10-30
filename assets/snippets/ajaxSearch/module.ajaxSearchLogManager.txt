@@ -4,7 +4,7 @@
 *
 * @author       Coroico - www.modx.wangba.fr
 * @version      1.9.0
-* @date         18/05/2010
+* @date         18/05/20100
 *
 * Purpose:
 *    To display the content of the AjaxSearch Log table in the manager

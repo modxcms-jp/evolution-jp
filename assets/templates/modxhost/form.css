@@ -59,7 +59,6 @@ display: none;
 .button {width: auto !important; height: auto !important; padding: 2px !important; margin-top: 5px !important; margin-bottom: 5px !important;}
 
 #sidebarlogin #forgotpsswd {
-	font-size: 80%;
 	display: block;
 	float: right;
 	margin: 10px 0 0 1px;
@@ -86,7 +85,7 @@ display: none;
     width: 57px;
     height: 21px;
     color: #ffffff;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 23px;
 }
 
@@ -96,7 +95,6 @@ display: none;
     left: 220px;
     width: 165px;
     height: 19px;
-    font-size:0.9em;
 }
 
 #ajaxSearch_submit {
@@ -159,7 +157,6 @@ display: none;
 }
 .ajaxSearch_resultsDisplayed, .AS_ajax_resultsDisplayed {
 color:#A3CB2C;
-font-size:95%;
 display:block;
 float:right;
 }
@@ -167,7 +164,6 @@ float:right;
 
 .ajaxSearch_grpResultsDisplayed, .AS_ajax_grpResultsDisplayed {
 color:#A3CB2C;
-font-size:95%;
 display:block;
 float:right;
 }
@@ -191,7 +187,7 @@ left: 0px;
 width: 118px;
 height: 21px;
 color: #4E5760;
-font-size: 13px;
+font-size: 12px;
 line-height: 23px;
 }
 
@@ -238,7 +234,7 @@ position: relative;
     height: 21px;
     }
 .AS_ajax_highlight1, .ajaxSearch_highlight1{
-  color : #CC0000;
+  color : #d96817;
   padding: 0;
   font-weight: bold;
 }

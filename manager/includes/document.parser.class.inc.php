@@ -366,8 +366,8 @@ class DocumentParser {
         $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
-            $flContent= implode("", file($cacheFile));
-            $flContent= substr($flContent, 37); // remove php header
+            $flContent = file_get_contents($cacheFile, false);
+            $flContent = substr($flContent, 37); // remove php header
             $a= explode("<!--__MODxCacheSpliter__-->", $flContent, 2);
             if (count($a) == 1)
                 return $a[0]; // return only document content
@@ -770,11 +770,13 @@ class DocumentParser {
         ob_start();
         $snip= eval ($snippet);
         $msg= ob_get_contents();
+        $request_uri = getenv('REQUEST_URI');
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         ob_end_clean();
         if ($msg && isset ($php_errormsg)) {
-            if (!strpos($php_errormsg, 'Deprecated')) { // ignore php5 strict errors
+            if (strpos(strtolower($php_errormsg), 'deprecated')===false) { // ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->currentSnippet . " - Snippet");
+                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg<br />REQUEST_URI = $request_uri<br />ID = $this->documentIdentifier", $this->currentSnippet . " - Snippet");
                 if ($this->isBackend())
                     $this->Event->alert("An error occurred while loading. Please see the event log for more information<p />$msg");
             }
@@ -1635,7 +1637,6 @@ class DocumentParser {
     function getVersionData() {
         include $this->config["base_path"] . "manager/includes/version.inc.php";
         $v= array ();
-        $v['code_name']= $code_name;
         $v['version']= $modx_version;
         $v['branch']= $modx_branch;
         $v['release_date']= $modx_release_date;
@@ -2109,8 +2110,11 @@ class DocumentParser {
     }
 
     # Returns current user name
-    function getLoginUserName() {
-        if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
+    function getLoginUserName($context= '') {
+        if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
+            return $_SESSION[$context . 'Shortname'];
+        }
+        elseif ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
             return $_SESSION['webShortname'];
         }
         elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
@@ -2668,18 +2672,15 @@ class DocumentParser {
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '') {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
-        $code_name= isset ($GLOBALS['code_name']) ? $GLOBALS['code_name'] : '';
+		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
+        $request_uri = getenv('REQUEST_URI');
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
         $parsedMessageString= "
-              <html><head><title>MODx Content Manager $version &raquo; $code_name</title>
-              <style>TD, BODY { font-size: 11px; font-family:verdana; }</style>
-              <script type='text/javascript'>
-              function copyToClip()
-              {
-                holdtext.innerText = sqlHolder.innerText;
-                Copied = holdtext.createTextRange();
-                Copied.execCommand('Copy');
-              }
-            </script>
+              <html><head><title>MODx Content Manager $version &raquo; $release_date</title>
+              <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+              <style>TD, BODY { font-size: 12px; font-family:Verdana; }</style>
               </head><body>
               ";
         if ($is_error) {
@@ -2695,8 +2696,8 @@ class DocumentParser {
         }
 
         if (!empty ($query)) {
-            $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 9px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
-                    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:copyToClip();' style='color:#821517;font-size: 9px; text-decoration: none'>[Copy SQL to ClipBoard]</a><textarea id='holdtext' style='display:none;'></textarea></td></tr>";
+            $parsedMessageString .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
+                    </td></tr>";
         }
 
         if ($text != '') {
@@ -2716,14 +2717,14 @@ class DocumentParser {
 
             );
 
-            $parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+            $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 
             $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
             $parsedMessageString .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
             $parsedMessageString .= "</tr>";
 
             $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
-            $parsedMessageString .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</b></td><td>&nbsp;</td>";
+            $parsedMessageString .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td>&nbsp;</td>";
             $parsedMessageString .= "</tr>";
 
             $parsedMessageString .= "<tr><td>&nbsp;&nbsp;File: </td>";
@@ -2740,7 +2741,39 @@ class DocumentParser {
             }
         }
 
-        $parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>Parser timing</b></td></tr>";
+        $parsedMessageString .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
+
+        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;REQUEST_URI: </td>";
+        $parsedMessageString .= "<td colspan='3'>$request_uri</td>";
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;ID: </td>";
+        $parsedMessageString .= "<td colspan='3'>" . $this->documentIdentifier . "</td>";
+        $parsedMessageString .= "</tr>";
+
+        if(!empty($this->currentSnippet))
+        {
+            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Snippet: </td>";
+            $parsedMessageString .= '<td colspan="3">' . $this->currentSnippet . '</td>';
+            $parsedMessageString .= "</tr>";
+        }
+
+        if(!empty($this->event->activePlugin))
+        {
+            $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Current Plugin: </td>";
+            $parsedMessageString .= '<td colspan="3">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
+            $parsedMessageString .= "</tr>";
+        }
+
+        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;Referer: </td>";
+        $parsedMessageString .= '<td colspan="3">' . $referer . '</td>';
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= "<tr><td>&nbsp;&nbsp;User Agent: </td>";
+        $parsedMessageString .= '<td colspan="3">' . $ua . '</td>';
+        $parsedMessageString .= "</tr>";
+
+        $parsedMessageString .= '<tr><td colspan="3">&nbsp;</td></tr><tr><td colspan="3"><b>Parser timing</b></td></tr>';
 
         $parsedMessageString .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
         $parsedMessageString .= "<td><i>[^qt^]</i></td><td>(<i>[^q^] Requests</i>)</td>";
@@ -2774,7 +2807,8 @@ class DocumentParser {
         header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        echo $parsedMessageString;
+        if (isset($_SESSION['mgrValidated'])) echo $parsedMessageString;
+        else  echo 'Error. Check event log.';
         ob_end_flush();
 
         // Log error

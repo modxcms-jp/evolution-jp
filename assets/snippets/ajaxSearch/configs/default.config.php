@@ -3,7 +3,7 @@
 // Default configuration file - AjaxSearch 1.9
 // Keep care all these values are required
 
-$dcfg['version'] = '1.9.0';
+$dcfg['version'] = '1.9.1';
 $dcfg['config'] = '';
 $dcfg['debug'] = 0;
 $dcfg['timeLimit'] = 60;
@@ -25,14 +25,14 @@ $dcfg['rank'] = '';
 $dcfg['maxWords'] = 5;
 $dcfg['minChars'] = 3;
 $dcfg['showInputForm'] = 1;
-$dcfg['showIntro'] = 1;
+$dcfg['showIntro'] = 0;
 $dcfg['resultsPage'] = 0;
 $dcfg['grabMax'] = 6;
 $dcfg['extract'] = '1:content,description,introtext,tv_value';
 $dcfg['extractLength'] = 200;
 $dcfg['extractEllips'] = '...';
 $dcfg['extractSeparator'] = '<br />';
-$dcfg['formatDate'] = 'd/m/y : H:i:s';
+$dcfg['formatDate'] = 'Y/m/d : H:M:s';
 $dcfg['highlightResult'] = 1;
 $dcfg['pagingType'] = 1;
 $dcfg['showPagingAlways'] = 0;
@@ -58,7 +58,7 @@ $dcfg['stripOutput'] = 'defaultStripOutput';
 $dcfg['searchWordList'] = '';
 $dcfg['breadcrumbs'] = '';
 $dcfg['clearDefault'] = 0;
-$dcfg['jsClearDefault'] = AS_SPATH . 'js/clearDefault/clearDefault.js';
+$dcfg['jsClearDefault'] = MODX_BASE_URL . AS_SPATH . 'js/clearDefault/clearDefault.js';
 $dcfg['mbstring'] = 1;
 $dcfg['asLog'] = '0:0:200';
 
@@ -73,9 +73,9 @@ $dcfg['tplAjaxResult'] = '@FILE:' . AS_SPATH . 'templates/ajaxResult.tpl.html';
 $dcfg['tplPaging2'] = '@FILE:' . AS_SPATH . 'templates/paging2.tpl.html';
 $dcfg['jscript'] = 'mootools';
 $dcfg['addJscript'] = 1;
-$dcfg['jsMooTools'] = 'manager/media/script/mootools/mootools.js';
-$dcfg['jsMooTools2'] = AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
-$dcfg['jsJquery'] = AS_SPATH . 'js/jQuery/jquery-1.4.2.min.js';
+$dcfg['jsMooTools'] = MODX_BASE_URL . 'manager/media/script/mootools/mootools.js';
+$dcfg['jsMooTools2'] = MODX_BASE_URL . AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
+$dcfg['jsJquery'] = MODX_BASE_URL . AS_SPATH . 'js/jQuery/jquery-1.4.2.min.js';
 
 // For a global parameter initialisation use the following syntax $__param = 'value';
 // To overwrite parameter snippet call use $param = 'value';

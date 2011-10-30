@@ -1,5 +1,5 @@
 
-AjaxSearch Readme version 1.9.0
+AjaxSearch Readme version 1.9.1
 
 ---------------------------------------------------------------
 :: Snippet: AjaxSearch
@@ -8,7 +8,7 @@ AjaxSearch Readme version 1.9.0
         Ajax-driven & Flexible Search form
 
   Version:
-        1.9.0  - 18/05/2010
+        1.9.1  - 30/08/2010
 
   Created by:  Coroico - (coroico@wangba.fr)
   
@@ -45,6 +45,9 @@ Many fixes/additions were contributed by mikkelwe/identity/Perrine
 ----------------------------------------------------------------
 :: Changelog:  for more details see www.modx.wangba.fr
 ----------------------------------------------------------------
+  30-august-10 (1.9.1)
+    -- Bug fixing
+
   18-may-10 (1.9.0)
     -- Completely refactored - MVC model implemented
     -- Defines categories and display of group of results
@@ -52,7 +55,7 @@ Many fixes/additions were contributed by mikkelwe/identity/Perrine
     -- parents (in / not in), documents (in / not in)
     -- Custom output
     -- Filtering search results by tv name
-    -- fFilter features (allow to set up specific search forms)
+    -- Filter features (allow to set up specific search forms)
     -- Bug fixing
 
   20-october-09 (1.8.4)

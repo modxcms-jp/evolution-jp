@@ -5,8 +5,8 @@
 * @package  AjaxSearchRequest
 *
 * @author       Coroico - www.modx.wangba.fr
-* @version      1.9.0
-* @date         18/05/2010
+* @version      1.9.1
+* @date         30/08/2010
 *
 * Purpose:
 *    The AjaxSearchRequest class contains all functions and data used to manage the search SQL Request
@@ -498,7 +498,14 @@ class AjaxSearchRequest {
             $whl[] = implode(' AND ', $where);
         }
 
-        $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause;
+        if ($joined['tb_alias'] != 'tv') {
+            $whl[] = '(' . $this->_getSearchTermsWhere($joined,$searchString,$advSearch). ')';
+            $whereClause = '(' . implode(' AND ',$whl). ')';
+            $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause . ' WHERE ' . $whereClause;
+        }
+        else {
+            $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause;
+        }
         return $subSelect;
     }
     function _getFilter($alias, $filter) {
@@ -536,6 +543,27 @@ class AjaxSearchRequest {
         if ($where != '') $where = '(' . $where . ')';
         return $where;
     }
+    function _getSearchTermsWhere($joined,$searchString,$advSearch){
+
+        $like = $this->_getWhereForm($advSearch);
+        $whereOper = $this->_getWhereOper($advSearch);
+        $type = ($advSearch == 'allwords') ? 'oneword' : $advSearch;
+        $whereStringOper = $this->_getWhereStringOper($type);
+
+        if (isset($joined['searchable']))
+          foreach($joined['searchable'] as $searchable) $whsc[] = '(' . $joined['tb_alias'] . '.' . $searchable . $like .')';
+        if (count($whsc)) $whereSubClause = implode($whereOper,$whsc);
+        else $whereSubClause = '';
+
+        $search = array();
+        if ($advSearch == 'exactphrase') $search[] = $searchString;
+        else $search = explode(' ',$searchString);
+
+        foreach($search as $searchTerm) $where[]=   preg_replace('/word/', preg_quote($searchTerm), $whereSubClause);
+
+        $whereClause = implode($whereStringOper,$where);
+        return $whereClause;
+    }
     function _getWhereForm($advSearch) {
         $whereForm = array('like' => " LIKE '%word%'", 'notlike' => " NOT LIKE '%word%'", 'regexp' => " REGEXP '[[:<:]]word[[:>:]]'");
         if ($advSearch == NOWORDS) return $whereForm['notlike'];
@@ -552,9 +580,6 @@ class AjaxSearchRequest {
         if ($advSearch == NOWORDS || $advSearch == ALLWORDS) return $whereStringOper['and'];
         else return $whereStringOper['or'];
     }
-    /*
-    * Get search terms from the input search string
-    */
     function _getSearchTerms($searchString, $advSearch) {
         $search = array();
         if ($advSearch == EXACTPHRASE) $search[] = $searchString;
@@ -617,10 +642,10 @@ class AjaxSearchRequest {
                 'tb_alias' => 'n'.$abrev,
                 'main' => 'id',
                 'join' => 'contentid',
-                    'displayed' => 'value',
-                    'searchable' => 'value',
-                    'sql' => $subselect,
-                    'name' => $name
+                'displayed' => 'value',
+                'searchable' => 'value',
+                'sql' => $subselect,
+                'name' => $name
             );
         }
         return $scTvs;

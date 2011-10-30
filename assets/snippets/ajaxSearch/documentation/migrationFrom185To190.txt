@@ -1,6 +1,6 @@
 How to migrate from AjaxSearch 1.8.5 to AjaxSearch 1.9.0
 
-1/ ============================  Deprecated parameters
+1/ === 1.9.0以降は推奨しないパラメータ
 
 searchWordList
 
@@ -14,7 +14,8 @@ For instance you could use a snippet to get some Tv values. Look at the toolbox/
 resultsPage
 
 1.8.5 :
-A very old parameter not really used. If used, Should be replaced by landingPage
+「resultsPage」は古いパラメータで、最近ではあまり使われてません。
+もし使いたい場合は「landingPage」を使ってください。
 
 
 showMoreResults
@@ -26,7 +27,7 @@ showMoreResults
 1.9.0 : this parameter is useless as soon as you define a moreResultsPage.
 
 
-2/ ============================  Renamed parameters
+2/ === 名前が変わったパラメータ
 
 For a better and a simpler undertstanding some parameters have been renamed
 
@@ -35,14 +36,14 @@ For a better and a simpler undertstanding some parameters have been renamed
     AS_showResults    =>      showResults
     
 
-3/ ============================  Renamed $_POST and $_GET variables
+3/ === Renamed $_POST and $_GET variables
 
 Some $_POST and $_GET variables have been renamed.
 
     AS_search   =>    search
 
     
-4/ ============================  Renamed parameter values
+4/ === Renamed parameter values
 
 tvPhx
     
@@ -113,7 +114,7 @@ With the ajax mode this disabled the pagination of results for a group of result
      Type 2 for ajax mode (Jquery only)
 
 
-6/ ============================ define the "init" css class to prevent javascript disabling
+6/ === define the "init" css class to prevent javascript disabling
 
 When using ajax mode, it's better to plan that javascript could be disabled.
 In this case you need to add a landingPage to see the search results and define the css class "init" to mask the ajaxSearch_output div when javascript is disabled. Simply add in your css file:
@@ -123,7 +124,7 @@ In this case you need to add a landingPage to see the search results and define 
         background-color: #FFF;
     }
     
-7/ ============================ Customize the look & field of your search results display
+7/ === Customize the look & field of your search results display
 
 For a better look & field of your results display define:
 
@@ -181,7 +182,7 @@ And if you use the pagingType parameter:
 look at documentation/someCssExamples/search.css for some examples. 
 
 
-8/ ============================ New labels added
+8/ === New labels added
 
 Six labels have been added. So may be some labels could be missing for your language.
 

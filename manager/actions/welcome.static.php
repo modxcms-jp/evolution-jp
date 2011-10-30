@@ -24,8 +24,16 @@ if($modx->hasPermission('messages')) {
 	}
 
     $msg = '<a href="index.php?a=10"><img src="'.$_style['icons_mail_large'].'" /></a>
-    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />
-    <span class="comment">'.sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'], "<span style='color:red;'>".$_SESSION['nrnewmessages']."</span>").'</span>';
+    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />';
+    if($_SESSION['nrnewmessages']>0)
+    {
+        $msg .= '<span class="comment">'
+             . sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'], "<span style='color:red;'>".$_SESSION['nrnewmessages']."</span>").'</span>';
+    }
+    else
+    {
+        $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
+    }
     $modx->setPlaceholder('MessageInfo',$msg);
 }
 
@@ -50,6 +58,35 @@ if($modx->hasPermission('bk_manager')) {
     $icon = '<a class="hometblink" href="index.php?a=93"><img src="'.$_style['icons_backup_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang['backup'].'</a>';
     $modx->setPlaceholder('BackupIcon',$icon);
 }
+if($modx->hasPermission('help')) {
+    $icon = '<a class="hometblink" href="index.php?a=9"><img src="'.$_style['icons_help_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang["help"].'</a>';
+    $modx->setPlaceholder('HelpIcon',$icon);
+}
+
+
+// setup modules
+if($modx->hasPermission('exec_module')) {
+	// Each module
+	if ($_SESSION['mgrRole'] != 1) {
+		// Display only those modules the user can execute
+		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, mg.member
+				FROM '.$modx->getFullTableName('site_modules').' AS sm
+				LEFT JOIN '.$modx->getFullTableName('site_module_access').' AS sma ON sma.module = sm.id
+				LEFT JOIN '.$modx->getFullTableName('member_groups').' AS mg ON sma.usergroup = mg.user_group
+				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1
+				ORDER BY sm.editedon DESC');
+	} else {
+		// Admins get the entire list
+		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+	}
+	while ($content = $modx->db->getRow($rs)) {
+		if(empty($content['icon'])) $content['icon'] = $_style['icons_modules'];
+		$modulemenu[] = '<span class="wm_button" style="margin-top:10px;margin-bottom:10px;border:0"><a class="hometblink" href="index.php?a=112&amp;id='.$content['id'].'">' . '<img src="'.$content['icon'].'" width="32" height="32" alt="'.$content['name'].'" /><br />' .$content['name'].'</a></span>';
+	}
+}
+$modules = '';
+if(count($modulemenu)>0) $modules = join("\n",$modulemenu);
+$modx->setPlaceholder('Modules',$modules);
 
 // do some config checks
 if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1) {
@@ -82,7 +119,7 @@ $modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_n
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
-$sql = "SELECT id, pagetitle, description FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
+$sql = "SELECT id, pagetitle, description, editedon, editedby FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
@@ -93,7 +130,9 @@ if($limit<1) {
         if($i==0) {
             $syncid = $content['id'];
         }
-        $html.='<li><span style="width: 40px; text-align:right;">'.$content['id'].'</span> - <span style="width: 200px;"><a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a></span>'.($content['description']!='' ? ' - '.$content['description'] : '').'</li>';
+        
+        $html.='<li><b>' . $modx->toDateFormat($content['editedon']) . '</b> - [' . $content['id'] .'] <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
+        .'</li>';
     }
 }
 $html.='</ul>';
@@ -104,6 +143,12 @@ $modx->setPlaceholder('RecentInfo',$html);
 // user info
 $modx->setPlaceholder('info',$_lang['info']);
 $modx->setPlaceholder('yourinfo_title',$_lang['yourinfo_title']);
+if(!empty($_SESSION['mgrLastlogin']))
+{
+     $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time);
+}
+else $Lastlogin = '-';
+
 $html = '
     <p>'.$_lang["yourinfo_message"].'</p>
     <table border="0" cellspacing="0" cellpadding="0">
@@ -120,7 +165,7 @@ $html = '
       <tr>
         <td>'.$_lang["yourinfo_previous_login"].'</td>
         <td>&nbsp;</td>
-        <td><b>'.$modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time).'</b></td>
+        <td><b>' . $Lastlogin . '</b></td>
       </tr>
       <tr>
         <td>'.$_lang["yourinfo_total_logins"].'</td>
@@ -141,10 +186,11 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
     $sql = "SELECT * FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.lasthit>'$timetocheck' ORDER BY username ASC";
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);
-    if($limit<1) {
+    if($limit<2) {
         $html = "<p>".$_lang['no_active_users_found']."</p>";
     } else {
-        $html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
+        $html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
+        $html .= '
                 <table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
                   <thead>
                     <tr>

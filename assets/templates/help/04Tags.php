@@ -32,6 +32,10 @@ ul {margin-bottom:15px;}
 <p>
 日時タイプのリソース変数の値を出力する場合は、当ヘルプの「Tips」内から「日付タイプのリソース変数の出力書式を変更する」を参照してください。
 </p>
+<p>
+id, type, contentType, pagetitle, longtitle, description, alias, link_attributes, published, pub_date, unpub_date, parent, isfolder, introtext, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedby, editedon, deleted, deletedon, deletedby, publishedon, publishedby, menutitle, donthit, haskeywords, hasmetatags, privateweb, privatemgr, content_dispo, hidemenu<br />
+全てのリソース変数名です。全部で37種類あります。リソース変数としてだけでなく、パラメータの値としてDittoやManagerManagerなどで用いることも多いので、把握しておくとよいでしょう。
+</p>
 
 <h3>テンプレート変数</h3>
 <p>テンプレート変数は、基本的にはリソース変数と同じ働きを持ちます。MODxが標準で備えている入力フィールドがリソース変数であるのに対し、管理者が自由に追加できるカスタムフィールドがテンプレート変数に相当します。リソース直接ではなく、テンプレートを介した紐づけである点にご注意ください。テンプレートを変更すると、そのリソースの投稿画面内で使用できる入力フィールド(テンプレート変数)の構成も変わります。</p>

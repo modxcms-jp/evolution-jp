@@ -4,6 +4,10 @@ if ($installMode == 0 || $installMode == 2) {
     $database_collation = isset($_POST['database_collation']) ? $_POST['database_collation'] : 'utf8_general_ci';
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
     $_POST['database_connection_charset'] = $database_charset;
+    if(empty($_SESSION['databaseloginpassword']))
+        $_SESSION['databaseloginpassword'] = $_POST['databaseloginpassword'];
+    if(empty($_SESSION['databaseloginname']))
+        $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
 }
 elseif ($installMode == 1) {
     include "../manager/includes/config.inc.php";
@@ -38,28 +42,26 @@ elseif ($installMode == 1) {
     $_POST['database_connection_charset'] = $database_connection_charset;
     $_POST['database_connection_method'] = $database_connection_method;
     $_POST['databasehost'] = $database_server;
-    $_POST['databaseloginname'] = $database_user;
-    $_POST['databaseloginpassword'] = $database_password;
+    $_SESSION['databaseloginname'] = $database_user;
+    $_SESSION['databaseloginpassword'] = $database_password;
 }
 ?>
 
 <form name="install" id="install_form" action="index.php?action=summary" method="post">
   <div>
-    <input type="hidden" value="<?php echo $install_language?>" name="language" />
-	<input type="hidden" value="<?php echo $manager_language?>" name="managerlanguage" />
-    <input type="hidden" value="<?php echo $installMode ?>" name="installmode" />
-    <input type="hidden" value="<?php echo trim($_POST['database_name'], '`') ?>" name="database_name" />
-    <input type="hidden" value="<?php echo $_POST['tableprefix'] ?>" name="tableprefix" />
-    <input type="hidden" value="<?php echo $_POST['database_collation'] ?>" name="database_collation" />
-    <input type="hidden" value="<?php echo $_POST['database_connection_charset'] ?>" name="database_connection_charset" />
-    <input type="hidden" value="<?php echo $_POST['database_connection_method'] ?>" name="database_connection_method" />
-    <input type="hidden" value="<?php echo $_POST['databasehost'] ?>" name="databasehost" />
-    <input type="hidden" value="<?php echo $_POST['databaseloginname'] ?>" name="databaseloginname" />
-    <input type="hidden" value="<?php echo $_POST['databaseloginpassword'] ?>" name="databaseloginpassword" />
-    <input type="hidden" value="<?php echo $_POST['cmsadmin'] ?>" name="cmsadmin" />
-    <input type="hidden" value="<?php echo $_POST['cmsadminemail'] ?>" name="cmsadminemail" />
-    <input type="hidden" value="<?php echo $_POST['cmspassword'] ?>" name="cmspassword" />
-    <input type="hidden" value="<?php echo $_POST['cmspasswordconfirm'] ?>" name="cmspasswordconfirm" />
+    <input type="hidden" value="<?php echo $install_language;?>" name="language" />
+	<input type="hidden" value="<?php echo $manager_language;?>" name="managerlanguage" />
+    <input type="hidden" value="<?php echo $installMode; ?>" name="installmode" />
+    <input type="hidden" value="<?php echo trim($_POST['database_name'], '`'); ?>" name="database_name" />
+    <input type="hidden" value="<?php echo $_POST['tableprefix']; ?>" name="tableprefix" />
+    <input type="hidden" value="<?php echo $_POST['database_collation']; ?>" name="database_collation" />
+    <input type="hidden" value="<?php echo $_POST['database_connection_charset']; ?>" name="database_connection_charset" />
+    <input type="hidden" value="<?php echo $_POST['database_connection_method']; ?>" name="database_connection_method" />
+    <input type="hidden" value="<?php echo $_POST['databasehost']; ?>" name="databasehost" />
+    <input type="hidden" value="<?php echo trim($_POST['cmsadmin']); ?>" name="cmsadmin" />
+    <input type="hidden" value="<?php echo trim($_POST['cmsadminemail']); ?>" name="cmsadminemail" />
+    <input type="hidden" value="<?php echo trim($_POST['cmspassword']); ?>" name="cmspassword" />
+    <input type="hidden" value="<?php echo trim($_POST['cmspasswordconfirm']); ?>" name="cmspasswordconfirm" />
     <input type="hidden" value="1" name="options_selected" />
   </div>
 
@@ -165,7 +167,7 @@ if ($limit > 0) {
 	</div>
     <p class="buttonlinks">
         <a href="javascript:document.getElementById('install_form').action='index.php?action=<?php echo (($installMode == 1) ? 'mode' : 'connection'); ?>';document.getElementById('install_form').submit();" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
-        <a href="javascript:document.getElementById('install_form').submit();" title="<?php echo $_lang['install']?>"><span><?php echo $_lang['install']?></span></a>
+        <a href="javascript:document.getElementById('install_form').submit();" title="<?php echo $_lang['btnnext_value']?>"><span><?php echo $_lang['btnnext_value']?></span></a>
     </p>
 
 </form>

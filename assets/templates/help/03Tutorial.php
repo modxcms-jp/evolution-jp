@@ -140,11 +140,12 @@ global $_lang, $_style, $e,$SystemAlertMsgQueque,$incPath,$content;
 
 include($incPath . 'header.inc.php');
 ?&gt;
-&lt;h1&gt;自作モジュール&lt;/h1&gt;
+&lt;h1&gt;&lt;?php echo $content['name']?&gt;&lt;/h1&gt;
 &lt;script type=&quot;text/javascript&quot; src=&quot;media/script/tabpane.js&quot;&gt;&lt;/script&gt;
 &lt;div class=&quot;sectionHeader&quot;&gt;チュートリアル&lt;/div&gt;
 &lt;div class=&quot;sectionBody&quot; style=&quot;padding:10px 20px;&quot;&gt;
-これは自作モジュールです
+これは自作モジュールです。&lt;br /&gt;
+モジュール名は「&lt;?php echo $content['name']?&gt;」・モジュールIDは「&lt;?php echo $content['id']?&gt;」です。
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;?php
@@ -156,7 +157,7 @@ MODxの管理画面スタイルに合わせたい場合は上記のように記�
 
 <h3>サイトツリーからリソースIDを取得する(モジュール作成)</h3>
 <p>
-サイトツリーのリソースをクリックした時、JavaScriptでsetMoveValueメソッドが実行されます。このsetMoveValueメソッドの処理内容をモジュール側で実装します。リソースID・リソース名を値として受け取ることができます。同梱モジュールDocManagerが参考になります。
+サイトツリーのリソースをクリックした時に実行する処理の内容を独自に実装できます。parent.tree.caフラグにparent・move・linkいずれかの値をセットすることで、それぞれsetMoveValue・setParent・setLinkの各メソッドを呼び分け、リソースID・リソース名を値として渡すことができます。詳しくは manager/frames/tree.php の treeActionメソッドを参照してください。
 </p>
 
 <h3>MODxのAPIを外部PHPアプリから利用する(上級者向け)</h3>
@@ -171,6 +172,7 @@ $modx-&gt;getSettings();
 </pre>
 <p>
 上記のように記述することで、$modx オブジェクトに自由にアクセスできるようになります。任意のチャンクやリソースの参照・スニペットの実行など、MODxの拡張機能と同等の機能を外部PHPアプリに持たせることができます。<br />
+※MODxとバッティングするグローバル変数がある場合は外部PHPアプリ側で先に宣言する必要があります。<br />
 ※<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=api+library" target="_blank">MODxAPI Library</a>を用いると、さらに手軽・具体的に実装できます。全APIにアクセスできるため、独自の管理画面・投稿画面を作ることも可能です。
 </p>
 
@@ -226,4 +228,24 @@ MODxのイメージをおおまかに把握できたら、実際にサイトを�
 <p>
 とりあえずこれだけ指定しておけば、サイトとしての最低限の構造を持つことができます。これをベースとしてサイトを構築していきます。
 </p>
+
+<h3>MODxのディレクトリ構造</h3>
+<h4><b>assets</b>ディレクトリ</h4>
+<ul>
+<li><b>images / files / flash / media</b> - コンテンツ(記事)で用いるデータが蓄積され、グローバル設定の「アセットディレクトリのパス(物理・相対)」の設定によりファイルブラウザから参照されます。</li>
+<li><b>templates</b> - テンプレートで用いるファイルをここで管理します。管理画面のダッシュボード・ログイン画面のデザイン、ヘルプの内容(今ご覧になっている内容)もここで管理されます。サイト構成に関してはシステム的な関連はありませんので、パス記述が長くなることを避けたい場合はあえてこのディレクトリを使う必要はありません。</li>
+<li><b>cache</b> - サイトキャッシュ・ページキャッシュを処理します。このディレクトリを移動または削除するとシステムが正常に動かなくなるためご注意ください(※グローバル設定のアセットディレクトリの設定とは連動していません)。</li>
+<li><b>import / export</b> - 静的htmlファイルで構成されたサイトをシステムにインポート・エクスポートするために用います。</li>
+<li><b>snippets / plugins / modules</b> - 拡張機能が用いるファイルを管理します。システム的な関連はありませんが、慣習的にこれらのディレクトリを利用することになっています。</li>
+<li><b>js</b> - サイトで用いるJavaScriptを管理します。システム的な関連はなく、慣習的な使い方も今のところ定まっていません。</li>
+<li><b>docs / site</b> - 歴史的な経緯により前身のEtomite時代から引き継がれていますが、現在特に使われていません。</li>
+</ul>
+<h4><b>manager</b>ディレクトリ</h4>
+<ul>
+<li><b>includes</b> - システム全体でシェアするファイルが格納されています。</li>
+<li><b>actions</b> - 管理画面を構成する各ページが格納されています。</li>
+<li><b>processors</b> - actionsディレクトリと連動し、データの入出力処理を行ないます。</li>
+<li><b>frames</b> - MODxの管理画面は3つのペインによるフレーム構成になっており、それぞれのペインの構成データがここにあります。ツリーからのデータの受け渡しの実装の参考にするとよいでしょう。</li>
+<li><b>media</b> - actionsディレクトリの働きを補います。データの入出力操作に必要なライブラリや、管理画面のテーマファイルが置かれます。</li>
+</ul>
 </div>
