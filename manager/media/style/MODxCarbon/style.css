@@ -1623,3 +1623,4 @@ form#mutate input.number {width:80px !important;text-align:right;}
 form#mutate div.tmplvars label {display:block;}
 
 .phptextarea {font-family: 'Courier New','Courier', monospace;}
+optgroup {font-style:normal;}

@@ -12,7 +12,7 @@
 RewriteEngine On
 
 RewriteBase /
-# MODxをサブディレクトリにインストールしている場合は「/modx」などに。
+# MODXをサブディレクトリにインストールしている場合は「/modx」などに。
 
 # Fix Apache internal dummy connections from breaking [(site_url)] cache
 RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
@@ -22,7 +22,7 @@ RewriteRule .* - [F,L]
 #RewriteCond %{HTTP_HOST} .
 #RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
 #RewriteRule (.*) http://www.example.com/$1 [R=301,L]
-# wwwの有無を統一する便利設定。MODxとは直接関係ありません。
+# wwwの有無を統一する便利設定。MODXとは直接関係ありません。
 
 # Exclude /assets and /manager directories and images from rewrite rules
 RewriteRule ^(manager|assets)/*$ - [L]

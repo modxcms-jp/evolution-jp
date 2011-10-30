@@ -18,7 +18,7 @@
 .content table.noborder td,
 .content table.noborder th {border:none;padding:0;}
 
-.content ul                {margin-left:2em;}
+.content ul                {margin-left:2em;list-style-type:square;}
 .content ul li             {margin-bottom:0.5em;}
 
 .content input,
@@ -41,3 +41,7 @@ textarea#cfMessage         {width:500px;height:150px;}
                             width:350px;
                            }
 .content input.button      {background-color:#6b7881;color:#fff;padding:5px;cursor:pointer;cursor:hand;border:1px solid #ccc;}
+
+td.mceToolbar,
+td.mceIframeContainer,
+td.mceStatusbar           {border:none;}

@@ -179,7 +179,7 @@ function clean_up($sqlParser) {
 		$mysqlVerOk = -1;
 
 		if(function_exists("mysql_get_server_info")) {
-			$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.2")>=0);
+			$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.20")>=0);
 		}	
 		
 		// secure web documents - privateweb 

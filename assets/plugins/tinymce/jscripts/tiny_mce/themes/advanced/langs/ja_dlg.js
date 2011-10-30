@@ -1,5 +1,5 @@
 tinyMCE.addI18n('ja.advanced_dlg',{
-about_title:"TinyMCE\u306B\u3064\u3044\u3066",
+about_title:"Ephox Enterprise TinyMCE\u306B\u3064\u3044\u3066",
 about_general:"\u8A73\u7D30",
 about_help:"\u30D8\u30EB\u30D7",
 about_license:"\u30E9\u30A4\u30BB\u30F3\u30B9",

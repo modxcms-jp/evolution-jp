@@ -58,25 +58,25 @@ class TinyMCE
 		switch($params['theme'])
 		{
 		case 'simple':
-			$plugins  = 'inlinepopups,save,emotions,advimage,advlink,paste,contextmenu';
+			$plugins  = 'autolink,inlinepopups,save,emotions,advimage,advlink,paste,contextmenu';
 			$buttons1 = 'undo,redo,|,bold,strikethrough,|,justifyleft,justifycenter,justifyright,|,link,unlink,image,emotions,|,hr,|,help';
 			$buttons2 = '';
 		    break;
 		case 'editor':
-			$plugins  = 'inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+			$plugins  = 'autolink,inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help';
 			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat';
 			$buttons3 = '';
 			$buttons4 = '';
 		    break;
 		case 'creative':
-			$plugins = 'inlinepopups,autosave,advlist,layer,style,fullscreen,advimage,advhr,paste,advlink,media,contextmenu,table';
+			$plugins = 'autolink,inlinepopups,autosave,advlist,layer,style,fullscreen,advimage,advhr,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,styleselect,fontsizeselect,code';
 			$buttons2 = 'image,media,link,unlink,anchor,|,bullist,numlist,|,blockquote,outdent,indent,|,justifyleft,justifycenter,justifyright,|,advhr,|,styleprops,removeformat,|,pastetext,pasteword';
 			$buttons3 = 'insertlayer,absolute,moveforward,movebackward,|,tablecontrols,|,fullscreen,help';
 		    break;
 		case 'logic':
-			$plugins = 'inlinepopups,autosave,advlist,xhtmlxtras,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+			$plugins = 'autolink,inlinepopups,autosave,advlist,xhtmlxtras,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,styleselect,fontsizeselect,code,|,fullscreen,help';
 			$buttons2 = 'image,media,link,unlink,anchor,|,bullist,numlist,|,blockquote,outdent,indent,|,justifyleft,justifycenter,justifyright,|,table,|,hr,|,styleprops,removeformat,|,pastetext,pasteword';
 			$buttons3 = 'charmap,sup,sub,|,cite,ins,del,abbr,acronym,attribs';
@@ -94,7 +94,7 @@ class TinyMCE
 			$buttons3 = 'hr,removeformat,visualaid,|,sub,sup,|,charmap';
 		    break;
 		case 'full':
-			$plugins  = 'pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount,advlist,autosave';
+			$plugins  = 'autolink,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount,advlist,autosave';
 			$buttons1 = 'save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect';
 			$buttons2 = 'cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor';
 			$buttons3 = 'tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen';
@@ -105,6 +105,7 @@ class TinyMCE
 			$buttons1 = $params['custom_buttons1'];
 			$buttons2 = $params['custom_buttons2'];
 			$buttons3 = $params['custom_buttons3'];
+			$buttons4 = $params['custom_buttons4'];
 		    break;
 		}
 		

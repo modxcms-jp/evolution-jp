@@ -156,7 +156,7 @@ $dateSource = isset($dateSource) ? $dateSource : "createdon";
     Related:
     - <dateFormat>
 */
-$dateFormat = isset($dateFormat) ? $dateFormat : "%d-%b-%y %H:%M";  
+$dateFormat = isset($dateFormat) ? $dateFormat : $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';  
 /*
     Param: dateFormat
 
@@ -451,7 +451,7 @@ function reflect($templatesDocumentID, $showItems, $groupByYears, $resource, $te
         $items = array();
         
         foreach ($months as $mon=>$month) {
-            $month_text = strftime("%B", mktime(10, 10, 10, $mon, 10, $year));
+            $month_text = strftime("%m", mktime(10, 10, 10, $mon, 10, $year));
             $month_url = $ditto->buildURL("month=".$mon."&year=".$year."&day=false&start=0",$templatesDocumentID,$id);
             $month_count = count($month);
             $year_count += $month_count;
