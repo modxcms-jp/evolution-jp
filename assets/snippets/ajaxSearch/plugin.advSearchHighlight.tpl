@@ -1,8 +1,9 @@
 /*
   ------------------------------------------------------------------------
-  Plugin: advSearch_Highlight v1.4
+  Plugin: advSearch_Highlight v1.4b
   ------------------------------------------------------------------------
   Changes:
+  17/03/10 - Remove possibility of XSS attempts being passed in the URL
   29/03/09 - Removed urldecode calls;
            - Added check for magic quotes - if set, remove slashes
            - Highlights terms searched for when target is a HTML entity
@@ -85,6 +86,10 @@ if (isset($_REQUEST['searched']) && isset($_REQUEST['highlight'])) {
   if ($advsearch != 'nowords') {
 
     $highlightClass = explode(' ',$highlight); // break out the highlight classes
+    /* remove possibility of XSS attempts being passed in URL */
+    foreach ($highlightClass as $key => $value) {
+       $highlightClass[$key] = preg_match('/[^A-Za-z0-9_-]/ms', $value) == 1 ? '' : $value;
+    }
 
     $searchArray = array();
     if ($advsearch == 'exactphrase') $searchArray[0] = $searched;
