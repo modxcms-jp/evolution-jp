@@ -3,6 +3,7 @@
   Plugin: Search_Highlight v1.4
   ------------------------------------------------------------------------
   Changes:
+  17/03/10 - Remove possibility of XSS attempts being passed in the URL
   29/03/09 - Removed urldecode calls;
            - Added check for magic quotes - if set, remove slashes
            - Highlights terms searched for when target is a HTML entity
@@ -102,6 +103,10 @@ if (isset($_REQUEST['searched']) && isset($_REQUEST['highlight'])) {
     $body = explode("<body", $output); // break out the head
 
     $highlightClass = explode(' ',$highlight); // break out the highlight classes
+    /* remove possibility of XSS attempts being passed in URL */
+    foreach ($highlightClass as $key => $value) {
+	   $highlightClass[$key] = preg_match('/[^A-Za-z0-9_-]/ms', $value) == 1 ? '' : $value;
+	}
 
     $pcreModifier = ($pgCharset == 'UTF-8') ? 'iu' : 'i';
     $lookBehind = '/(?<!&|&[^;]|&[^;][^;]|&[^;][^;][^;]|&[^;][^;][^;][^;]|&[^;][^;][^;][^;][^;])'; // avoid a match with a html entity
