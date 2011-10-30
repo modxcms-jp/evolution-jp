@@ -233,14 +233,14 @@ class DocumentParser {
                 $included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
             }
             if (!$included || !is_array($this->config) || empty ($this->config)) {
-                include_once MODX_BASE_PATH . "/manager/processors/cache_sync.class.processor.php";
+                include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
                 $cache = new synccache();
-                $cache->setCachepath(MODX_BASE_PATH . "/assets/cache/");
+                $cache->setCachepath(MODX_BASE_PATH . "assets/cache/");
                 $cache->setReport(false);
                 $rebuilt = $cache->buildCache($this);
                 $included = false;
                 if($rebuilt && $included= file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-                    $included= include MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
+                    $included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
                 }
                 if(!$included) {
                 $result= $this->db->query('SELECT setting_name, setting_value FROM ' . $this->getFullTableName('system_settings'));
@@ -373,40 +373,61 @@ class DocumentParser {
     }
 
     function cleanDocumentIdentifier($qOrig) {
-        (!empty($qOrig)) or $qOrig = $this->config['site_start'];
-        $q= $qOrig;
-        /* First remove any / before or after */
-        if ($q[strlen($q) - 1] == '/')
-            $q= substr($q, 0, -1);
-        if ($q[0] == '/')
-            $q= substr($q, 1);
+        if(empty($qOrig)) $qOrig = $this->config['site_start'];
+        $q = trim($qOrig,'/');
         /* Save path if any */
         /* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
-        if ($this->config['use_alias_path'] == 1) {
-            $this->virtualDir= dirname($q);
-            $this->virtualDir= ($this->virtualDir == '.' ? '' : $this->virtualDir);
-            $q= end(explode('/', $q));
-        } else {
+        if ($this->config['use_alias_path'] == 1)
+        {
+            $this->virtualDir = dirname($q);
+            $this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+            $q = end(explode('/', $q));
+        }
+        else
+        {
             $this->virtualDir= '';
         }
-        $q= str_replace($this->config['friendly_url_prefix'], "", $q);
-        $q= str_replace($this->config['friendly_url_suffix'], "", $q);
-        if (is_numeric($q) && !$this->documentListing[$q]) { /* we got an ID returned, check to make sure it's not an alias */
+        
+        $q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
+        $q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
+        if (is_numeric($q) && !$this->documentListing[$q])
+        { /* we got an ID returned, check to make sure it's not an alias */
             /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
-            if ($this->config['use_alias_path'] == 1) {
-                if ((($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q]) || ($this->virtualDir == '' && !$this->documentListing[$q])) && (($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1))) || ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1))))) {
-                    $this->documentMethod= 'id';
-                    return $q;
-                } else { /* not a valid id in terms of virtualDir, treat as alias */
-                    $this->documentMethod= 'alias';
-                    return $q;
-                }
-            } else {
-                $this->documentMethod= 'id';
+            if ($this->config['use_alias_path'] == 1)
+            {
+                if (
+                     (
+                         ($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q])
+                         ||
+                         ($this->virtualDir == '' && !$this->documentListing[$q])
+                     )
+                     &&
+                     (
+                         ($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1)))
+                         ||
+                         ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1)))
+                      )
+                    )
+                    {
+                        $this->documentMethod = 'id';
+                        return $q;
+                    }
+                    else
+                    { /* not a valid id in terms of virtualDir, treat as alias */
+                        $this->documentMethod = 'alias';
+                        return $q;
+                    }
+            }
+            else
+            {
+                $this->documentMethod = 'id';
                 return $q;
             }
-        } else { /* we didn't get an ID back, so instead we assume it's an alias */
-            if ($this->config['friendly_alias_urls'] != 1) {
+        }
+        else
+        { /* we didn't get an ID back, so instead we assume it's an alias */
+            if ($this->config['friendly_alias_urls'] != 1)
+            {
                 $q= $qOrig;
             }
             $this->documentMethod= 'alias';
@@ -415,6 +436,7 @@ class DocumentParser {
     }
 
     function checkCache($id) {
+        if(isset($this->config['cacheable']) && $this->config['cacheable'] == 0) return ''; // jp-edition only
         $cacheFile= "assets/cache/docid_" . $id . ".pageCache.php";
         if (file_exists($cacheFile)) {
             $this->documentGenerated= 0;
@@ -485,7 +507,7 @@ class DocumentParser {
         }
 
         // check for non-cached snippet output
-        if (strpos($this->documentOutput, '[!') > -1) {
+        if (strpos($this->documentOutput, '[!') !== false) {
             $this->documentOutput= str_replace('[!', '[[', $this->documentOutput);
             $this->documentOutput= str_replace('!]', ']]', $this->documentOutput);
 
@@ -574,7 +596,7 @@ class DocumentParser {
 
     function checkPublishStatus() {
         $cacheRefreshTime= 0;
-        @include $this->config["base_path"] . "assets/cache/sitePublishing.idx.php";
+        include_once($this->config["base_path"] . "assets/cache/sitePublishing.idx.php");
         $timeNow= time() + $this->config['server_offset_time'];
         if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0) {
             // now, check for documents that need publishing
@@ -725,7 +747,7 @@ class DocumentParser {
         if (preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches)) {
             $settingsCount= count($matches[1]);
             for ($i= 0; $i < $settingsCount; $i++) {
-                if (array_key_exists($matches[1][$i], $this->config))
+                if (isset($this->config[$matches[1][$i]]))
                     $replace[$i]= $this->config[$matches[1][$i]];
             }
 
@@ -770,7 +792,7 @@ class DocumentParser {
             for ($i= 0; $i < $cnt; $i++) {
                 $v= '';
                 $key= $matches[1][$i];
-                if (is_array($this->placeholders) && array_key_exists($key, $this->placeholders))
+                if (is_array($this->placeholders) && isset($this->placeholders[$key]))
                     $v= $this->placeholders[$key];
                 if ($v === '')
                     unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
@@ -831,104 +853,130 @@ class DocumentParser {
         return $msg . $snip;
     }
 
-    function evalSnippets($documentSource) {
-        preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
+	function evalSnippets($documentSource)
+	{
+		$etomite= & $this;
+		
+		preg_match_all('~\[\[(.*?)\]\]~ms', $documentSource, $matches);
+		$snip_calls = $matches[1];
+		
+		if($matchCount= count($snip_calls))
+		{
+			for ($i= 0; $i < $matchCount; $i++)
+			{
+				if(strpos($snip_calls[$i], '?') !== false)
+				{
+					list($names,$params) = explode('?',$snip_calls[$i],2);
+					$snip_name[$i]  = $names;
+					$snip_param[$i] = '?' . $params;
+				}
+				else
+				{
+					$snip_name[$i]  = $snip_calls[$i];
+					$snip_param[$i] = '';
+				}
+				
+			}
+			for ($i= 0; $i < $matchCount; $i++)
+			{ // Raymond: Mod for Snippet props
+				if(isset($this->snippetCache[$snip_name[$i]]))
+				{
+					$snippets[$i]['name']    = $snip_name[$i];
+					$snippets[$i]['snippet'] = $this->snippetCache[$snip_name[$i]];
+					if(isset($this->snippetCache[$snip_name[$i] . 'Props']))
+					{
+						$snippets[$i]['properties'] = $this->snippetCache[$snip_name[$i] . 'Props'];
+					}
+				}
+				else
+				{
+					$tbl_snippets  = $this->getFullTableName('site_snippets');
+					$esc_snip_name = $this->db->escape($snip_name[$i]);
+					// get from db and store a copy inside cache
+					$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
+					$result= $this->db->query($sql);
+					$added = false;
+					if($this->db->getRecordCount($result) == 1)
+					{
+						$row = $this->db->getRow($result);
+						if($row['name'] == $snip_name[$i])
+						{
+							$snippets[$i]['name']       = $row['name'];
+							$snippets[$i]['snippet']    = $this->snippetCache[$row['name']]           = $row['snippet'];
+							$snippets[$i]['properties'] = $this->snippetCache[$row['name'] . 'Props'] = $row['properties'];
+							$added = true;
+						}
+					}
+					if($added === false)
+					{
+						$snippets[$i]['name']       = $snip_name[$i];
+						$snippets[$i]['snippet']    = $this->snippetCache[$snip_name[$i]] = 'return false;';
+						$snippets[$i]['properties'] = '';
+					}
+				}
+			}
+			
+			for ($i= 0; $i < $matchCount; $i++)
+			{
+				$parameter   = array ();
+				$snippetName = $this->currentSnippet = $snippets[$i]['name'];
+				// FIXME Undefined index: properties
+				if(isset($snippets[$i]['properties']))
+				{
+					$snippetProperties = $snippets[$i]['properties'];
+				}
+				else
+				{
+					$snippetProperties = '';
+				}
+				// load default params/properties - Raymond
+				// FIXME Undefined variable: snippetProperties
+				$parameter = $this->parseProperties($snippetProperties);
+				// current params
+				$currentSnippetParams = $snip_param[$i];
+				if(!empty($currentSnippetParams))
+				{
+					$tempSnippetParams = preg_replace('@^\?@', '', $currentSnippetParams);
+					if(strpos($tempSnippetParams, '&amp;') !== false)
+					{
+					
+						$tempSnippetParams = str_replace('&amp;', '&', $tempSnippetParams);
+						//$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
+					}
+					$tempSnippetParams_array = explode('&', $tempSnippetParams);
+					$snippetParamCount = count($tempSnippetParams_array);
+					for ($x= 0; $x < $snippetParamCount; $x++)
+					{
+						if(strpos($tempSnippetParams_array[$x], '=', 0))
+						{
+							if($parameterTemp= explode('=', $tempSnippetParams_array[$x],2))
+							{
+								$parameterTemp[0] = trim($parameterTemp[0]);
+								$parameterTemp[1] = trim($parameterTemp[1]);
+								$parameterTemp[1] = trim($parameterTemp[1],'`');
+								$parameter[$parameterTemp[0]]= $parameterTemp[1];
+							}
+						}
+					}
+				}
+				$executedSnippets[$i] = $this->evalSnippet($snippets[$i]['snippet'], $parameter);
+				if($this->dumpSnippets == 1)
+				{
+					echo "<fieldset><legend><b>{$snippetName}</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset>";
+				}
+				$documentSource = str_replace('[[' . $snippetName . $currentSnippetParams . ']]', $executedSnippets[$i], $documentSource);
+			}
+		}
+		return $documentSource;
+	}
 
-        $etomite= & $this;
-
-        if ($matchCount= count($matches[1])) {
-            for ($i= 0; $i < $matchCount; $i++) {
-                $spos= strpos($matches[1][$i], '?', 0);
-                if ($spos !== false) {
-                    $params= substr($matches[1][$i], $spos, strlen($matches[1][$i]));
-                } else {
-                    $params= '';
-                }
-                $matches[1][$i]= str_replace($params, '', $matches[1][$i]);
-                $snippetParams[$i]= $params;
-            }
-            $nrSnippetsToGet= $matchCount;
-            for ($i= 0; $i < $nrSnippetsToGet; $i++) { // Raymond: Mod for Snippet props
-                if (isset ($this->snippetCache[$matches[1][$i]])) {
-                    $snippets[$i]['name']= $matches[1][$i];
-                    $snippets[$i]['snippet']= $this->snippetCache[$matches[1][$i]];
-                    if (array_key_exists($matches[1][$i] . "Props", $this->snippetCache))
-                        $snippets[$i]['properties']= $this->snippetCache[$matches[1][$i] . "Props"];
-                } else {
-                    // get from db and store a copy inside cache
-                    $sql= "SELECT `name`, `snippet`, `properties` FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".`name`='" . $this->db->escape($matches[1][$i]) . "';";
-                    $result= $this->db->query($sql);
-                    $added = false;
-                    if ($this->db->getRecordCount($result) == 1) {
-                        $row= $this->db->getRow($result);
-                        if($row['name'] == $matches[1][$i]) {
-                        $snippets[$i]['name']= $row['name'];
-                        $snippets[$i]['snippet']= $this->snippetCache[$row['name']]= $row['snippet'];
-                        $snippets[$i]['properties']= $this->snippetCache[$row['name'] . "Props"]= $row['properties'];
-                            $added = true;
-                        }
-                    }
-                    if(!$added) {
-                        $snippets[$i]['name']= $matches[1][$i];
-                        $snippets[$i]['snippet']= $this->snippetCache[$matches[1][$i]]= "return false;";
-                        $snippets[$i]['properties']= '';
-                    }
-                }
-            }
-
-            for ($i= 0; $i < $nrSnippetsToGet; $i++) {
-                $parameter= array ();
-                $snippetName= $this->currentSnippet= $snippets[$i]['name'];
-                // FIXME Undefined index: properties
-                if (array_key_exists('properties', $snippets[$i])) {
-                    $snippetProperties= $snippets[$i]['properties'];
-                } else {
-                    $snippetProperties= '';
-                }
-                // load default params/properties - Raymond
-                // FIXME Undefined variable: snippetProperties
-                $parameter= $this->parseProperties($snippetProperties);
-                // current params
-                $currentSnippetParams= $snippetParams[$i];
-                if (!empty ($currentSnippetParams)) {
-                    $tempSnippetParams= str_replace("?", "", $currentSnippetParams);
-                    $splitter= "&";
-                    if (strpos($tempSnippetParams, "&amp;") > 0)
-                        $tempSnippetParams= str_replace("&amp;", "&", $tempSnippetParams);
-                    //$tempSnippetParams = html_entity_decode($tempSnippetParams, ENT_NOQUOTES, $this->config['etomite_charset']); //FS#334 and FS#456
-                    $tempSnippetParams= explode($splitter, $tempSnippetParams);
-                    $snippetParamCount= count($tempSnippetParams);
-                    for ($x= 0; $x < $snippetParamCount; $x++) {
-                        if (strpos($tempSnippetParams[$x], '=', 0)) {
-                            if ($parameterTemp= explode("=", $tempSnippetParams[$x])) {
-                                $parameterTemp[0] = trim($parameterTemp[0]);
-                                $parameterTemp[1] = trim($parameterTemp[1]);
-                                $fp= strpos($parameterTemp[1], '`');
-                                $lp= strrpos($parameterTemp[1], '`');
-                                if (!($fp === false && $lp === false))
-                                    $parameterTemp[1]= substr($parameterTemp[1], $fp +1, $lp -1);
-                                $parameter[$parameterTemp[0]]= $parameterTemp[1];
-                            }
-                        }
-                    }
-                }
-                $executedSnippets[$i]= $this->evalSnippet($snippets[$i]['snippet'], $parameter);
-                if ($this->dumpSnippets == 1) {
-                    echo "<fieldset><legend><b>$snippetName</b></legend><textarea style='width:60%; height:200px'>" . htmlentities($executedSnippets[$i]) . "</textarea></fieldset><br />";
-                }
-                $documentSource= str_replace("[[" . $snippetName . $currentSnippetParams . "]]", $executedSnippets[$i], $documentSource);
-            }
-        }
-        return $documentSource;
-    }
-
-    function makeFriendlyURL($pre, $suff, $alias) {
-        $Alias = explode('/',$alias);
-        $alias = array_pop($Alias);
-        $dir = implode('/', $Alias);
-        unset($Alias);
-//        if(strstr($alias, '.') !== false) $suff = '';//yama
-        return ($dir != '' ? "$dir/" : '') . $pre . $alias . $suff;
+    function makeFriendlyURL($pre, $suff, $path) {
+        $elements = explode('/',$path);
+        $alias    = array_pop($elements);
+        $dir      = implode('/', $elements);
+        unset($elements);
+        if((strpos($alias, '.') !== false) && (isset($this->config['smart_suffix']) && $this->config['smart_suffix']==1)) $suff = ''; // jp-edition only
+        return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
     function rewriteUrls($documentSource) {
@@ -1022,7 +1070,7 @@ class DocumentParser {
             $identifier = $this->cleanDocumentIdentifier($identifier);
             $method = $this->documentMethod;
         }
-        if($method == 'alias' && $this->config['use_alias_path'] && array_key_exists($identifier, $this->documentListing)) {
+        if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier])) {
             $method = 'id';
             $identifier = $this->documentListing[$identifier];
         }
@@ -1112,19 +1160,19 @@ class DocumentParser {
             $source= $this->documentOutput;
 
             // combine template and document variables
-            $source= $this->mergeDocumentContent($source);
+            if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
             // replace settings referenced in document
-            $source= $this->mergeSettingsContent($source);
+            if(strpos($source,'[(')!==false) $source= $this->mergeSettingsContent($source);
             // replace HTMLSnippets in document
-            $source= $this->mergeChunkContent($source);
-	    // insert META tags & keywords
-	    $source= $this->mergeDocumentMETATags($source);
+            if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
+            // insert META tags & keywords
+            $source= $this->mergeDocumentMETATags($source);
             // find and merge snippets
-            $source= $this->evalSnippets($source);
+            if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
             // find and replace Placeholders (must be parsed last) - Added by Raymond
-            $source= $this->mergePlaceholderContent($source);
+            if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
             if ($this->dumpSnippets == 1) {
-                echo "</div></fieldset><br />";
+                echo "</div></fieldset>";
             }
             if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1)) {
                 // check if source length was changed
@@ -1132,7 +1180,7 @@ class DocumentParser {
                 if ($st != $et)
                     $passes++; // if content change then increase passes because
             } // we have not yet reached maxParserPasses
-            $source = $this->rewriteUrls($source);//yama
+            if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
         }
         return $source;
     }
@@ -1210,7 +1258,7 @@ class DocumentParser {
             // Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
             if ($this->config['use_alias_path'] == 1) {
                 $alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
-                if (array_key_exists($alias, $this->documentListing)) {
+                if (isset($this->documentListing[$alias])) {
                     $this->documentIdentifier= $this->documentListing[$alias];
                 } else {
                     $this->sendErrorPage();
@@ -1257,7 +1305,7 @@ class DocumentParser {
                     $this->sendErrorPage();
                 } else {
                     // Inculde the necessary files to check document permissions
-                    include_once ($this->config['base_path'] . '/manager/processors/user_documents_permissions.class.php');
+                    include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
                     $udperms= new udperms();
                     $udperms->user= $this->getLoginUserID();
                     $udperms->document= $this->documentIdentifier;
@@ -1454,7 +1502,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1481,7 +1529,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1511,7 +1559,7 @@ class DocumentParser {
         $result= $this->db->query($sql);
         $resourceArray= array ();
         for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            array_push($resourceArray, @ $this->db->getRow($result));
+            $resourceArray[] = @ $this->db->getRow($result);
         }
         return $resourceArray;
     }
@@ -1542,7 +1590,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
@@ -1620,24 +1668,16 @@ class DocumentParser {
     }
 
     function clearCache() {
-        $basepath= $this->config["base_path"] . "assets/cache";
-        if (@ $handle= opendir($basepath)) {
-            $filesincache= 0;
-            $deletedfilesincache= 0;
-            while (false !== ($file= readdir($handle))) {
-                if ($file != "." && $file != "..") {
-                    $filesincache += 1;
-                    if (preg_match("/\.pageCache/", $file)) {
-                        $deletedfilesincache += 1;
-                        unlink($basepath . "/" . $file);
-                    }
-                }
-            }
-            closedir($handle);
-            return true;
-        } else {
-            return false;
-        }
+    	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
+    	{
+			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
+			$sync = new synccache();
+			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+			$sync->setReport(false);
+			$sync->emptyCache(); // first empty the cache
+			return true;
+		}
+		else return false;
     }
 
     function makeUrl($id, $alias= '', $args= '', $scheme= '') {
@@ -1669,7 +1709,7 @@ class DocumentParser {
             elseif ($c != '&') $args= '&' . $args;
         }
         if ($this->config['friendly_urls'] == 1 && $alias != '') {
-        //        if(strstr($alias, '.') !== false) $f_url_suffix = '';//yama
+            if((strpos($alias, '.') !== false) && (isset($this->config['smart_suffix']) && $this->config['smart_suffix']==1)) $f_url_suffix = ''; // jp-edition only
             $url= $f_url_prefix . $alias . $f_url_suffix . $args;
         }
         elseif ($this->config['friendly_urls'] == 1 && $alias == '') {
@@ -1714,7 +1754,7 @@ class DocumentParser {
     }
 
     function getVersionData() {
-        include $this->config["base_path"] . "manager/includes/version.inc.php";
+        include_once($this->config["base_path"] . "manager/includes/version.inc.php");
         $v= array ();
         $v['version']= $modx_version;
         $v['branch']= $modx_branch;
@@ -1859,7 +1899,7 @@ class DocumentParser {
     }
 
     function getUserData() {
-        include $this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php";
+        include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
         return $tmpArray;
     }
 
@@ -1985,21 +2025,21 @@ class DocumentParser {
                 $rs= $this->db->query($sql);
                 $limit= @ $this->db->getRecordCount($rs);
                 for ($x= 0; $x < $limit; $x++) {
-                    array_push($tvs, @ $this->db->getRow($rs));
+                    $tvs[] = @ $this->db->getRow($rs);
                 }
 
                 // get default/built-in template variables
                 ksort($docRow);
                 foreach ($docRow as $key => $value) {
                     if ($tvidnames == "*" || in_array($key, $tvidnames))
-                        array_push($tvs, array (
+                        $tvs[] = array (
                             "name" => $key,
                             "value" => $value
-                        ));
+                        );
                 }
 
                 if (count($tvs))
-                    array_push($result, $tvs);
+                    $result[] = $tvs;
             }
             return $result;
         }
@@ -2066,17 +2106,17 @@ class DocumentParser {
                 $sql .= " ORDER BY $sort $dir ";
             $rs= $this->db->query($sql);
             for ($i= 0; $i < @ $this->db->getRecordCount($rs); $i++) {
-                array_push($result, @ $this->db->getRow($rs));
+                $result[] = @ $this->db->getRow($rs);
             }
 
             // get default/built-in template variables
             ksort($docRow);
             foreach ($docRow as $key => $value) {
                 if ($idnames == "*" || in_array($key, $idnames))
-                    array_push($result, array (
+                    $result[] = array (
                         "name" => $key,
                         "value" => $value
-                    ));
+                    );
             }
 
             return $result;
@@ -2482,9 +2522,9 @@ class DocumentParser {
     function addEventListener($evtName, $pluginName) {
 	    if (!$evtName || !$pluginName)
 		    return false;
-	    if (!array_key_exists($evtName,$this->pluginEvent))
+	    if (!isset($this->pluginEvent[$evtName]))
 		    $this->pluginEvent[$evtName] = array();
-	    return array_push($this->pluginEvent[$evtName], $pluginName); // return array count
+	    return $this->pluginEvent[$evtName][] = $pluginName; // return array count
     }
 
     # remove event listner - only for use within the current execution cycle
@@ -2592,7 +2632,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
@@ -2657,7 +2697,7 @@ class DocumentParser {
             $result= $this->db->query($sql);
             $resourceArray= array ();
             for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                array_push($resourceArray, @ $this->db->getRow($result));
+                $resourceArray[] = @ $this->db->getRow($result);
             }
             return $resourceArray;
         }
@@ -2720,7 +2760,7 @@ class DocumentParser {
             $tend= $this->getMicroTime();
             $totaltime= $tend - $tstart;
             if ($this->dumpSQL) {
-                $this->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection to %s was created in %2.4f s", $dbase, $totaltime) . "</fieldset><br />";
+                $this->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection to %s was created in %2.4f s", $dbase, $totaltime) . "</fieldset>";
             }
             $this->queryTime= $this->queryTime + $totaltime;
         }

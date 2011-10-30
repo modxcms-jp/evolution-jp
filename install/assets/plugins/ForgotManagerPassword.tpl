@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.2
+ * @version 	1.1.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin
@@ -87,37 +87,25 @@ EOD;
         /* Send an email with a link to login */
         function sendEmail($to) {
             global $modx, $_lang;
-
-            $emailsender = $modx->config['emailsender'];
-            $subject = $_lang['password_change_request'];
-            $headers  = "MIME-Version: 1.0\n".
-                "Content-type: text/html; charset=\"iso-2022-jp\"\n".
-                "Content-Transfer-Encoding: 7bit\n" .
-                "From: $emailsender\n".
-                "Reply-To: $emailsender\n".
-                "Date: " . date("r") . "\n" . 
-                "X-Mailer: MODx Admin";
-
+            
             $user = $this->getUser(0, '', $to);
-  
-            if($user['username']) {
-                $body = <<<EOD
+            if(!$user['username']) return;
+            
+            $body = <<< EOT
 <p>{$_lang['forgot_password_email_intro']} <a href="{$modx->config['site_url']}manager/processors/login.processor.php?username={$user['username']}&hash={$user['hash']}">{$_lang['forgot_password_email_link']}</a></p>
 <p>{$_lang['forgot_password_email_instructions']}</p>
-<p><small>{$_lang['forgot_password_email_fine_print']}</small></p>
-EOD;
-
-                /* For Japanese START -------------------- */	
-                mb_language("ja"); // add by MEGU
-                mb_internal_encoding($modx->config['modx_charset']); // add by MEGU
-                $subject = mb_encode_mimeheader($subject,"ISO-2022-JP","B");
-                $body = mb_convert_encoding($body,                                                 "ISO-2022-JP",$modx->config["modx_charset"]);
-                /* For Japanese END -------------------- */	
-                $mail = mail($to, $subject, $body, $headers);
-                if(!$mail) { $this->errors[] = $_lang['error_sending_email']; }
-   
-                return $mail;  
-            }
+<p>{$_lang['forgot_password_email_fine_print']}</p>
+EOT;
+            include_once MODX_MANAGER_PATH . "includes/controls/modxmailer.inc.php";
+            $mail = new MODxMailer();
+            $mail->Subject = $_lang['password_change_request'];
+            $mail->Body    = $body;
+            $mail->IsHTML(true);
+            $mail->AddAddress($to);
+            $result = $mail->send();
+            
+            if(!$result) $this->errors[] = $_lang['error_sending_email'];
+            return $result;
         }
 
         function unblockUser($user_id) {

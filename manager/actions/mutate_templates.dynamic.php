@@ -164,7 +164,7 @@ function deletedocument() {
 	  </tr>
 	  <tr>
 	    <td align="left"><?php echo $_lang['template_name']; ?>:&nbsp;&nbsp;</td>
-	    <td align="left"><input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'></span></td>
+	    <td align="left"><input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'></span></td>
 	  </tr>
 	    <tr>
 	    <td align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</td>

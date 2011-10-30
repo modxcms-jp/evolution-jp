@@ -13,7 +13,7 @@ if($_REQUEST['mode']=='refresh')
 {
 	include_once (MODX_BASE_PATH . 'manager/processors/cache_sync.class.processor.php');
 	$sync = new synccache();
-	$sync->setCachepath(MODX_BASE_PATH . '/assets/cache/');
+	$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 	$sync->setReport(false);
 	$sync->emptyCache(); // first empty the cache
 	$header = "Location: index.php?r=1&a=95";

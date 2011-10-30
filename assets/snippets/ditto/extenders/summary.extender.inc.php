@@ -285,18 +285,13 @@ if (!class_exists("truncate")) {
 			return $text . $endTags;
 		}
 
-		function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars,$strip_tags) {
+		function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars, $strip_tags) {
 			$summary = '';
 			$this->summaryType = "content";
 			$this->link = false;
 			$closeTags = true;
 			// summary is turned off
 			
-			if($strip_tags == 1)
-			{
-				$resource['content'] = strip_tags($resource['content'],'<p>');
-			}
-
 			if ((strstr($resource['content'], $splitter)) && $truncsplit) {
 				$summary = array ();
 
@@ -326,6 +321,10 @@ if (!class_exists("truncate")) {
 				$summary = $resource['content'];
 				$this->summaryType = "content";
 				$this->link = false;
+			}
+			if($strip_tags !== 0)
+			{
+				$summary = strip_tags($summary,$strip_tags);
 			}
 
 			// Post-processing to clean up summaries

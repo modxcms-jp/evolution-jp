@@ -99,7 +99,7 @@ class DBAPI {
          $tend = $modx->getMicroTime();
          $totaltime = $tend - $tstart;
          if ($modx->dumpSQL) {
-            $modx->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection was created in %2.4f s", $totaltime) . "</fieldset><br />";
+            $modx->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection was created in %2.4f s", $totaltime) . "</fieldset>";
          }
          if (function_exists('mysql_set_charset'))
          {
@@ -121,6 +121,10 @@ class DBAPI {
    }
 
    function escape($s) {
+      if (empty ($this->conn) || !is_resource($this->conn))
+      {
+         $this->connect();
+      }
       if (function_exists('mysql_set_charset') && $this->conn)
       {
          $s = mysql_real_escape_string($s, $this->conn);
@@ -156,7 +160,8 @@ class DBAPI {
          $totaltime = $tend - $tstart;
          $modx->queryTime = $modx->queryTime + $totaltime;
          if ($modx->dumpSQL) {
-            $modx->queryCode .= "<fieldset style='text-align:left'><legend>Query " . ($this->executedQueries + 1) . " - " . sprintf("%2.4f s", $totaltime) . "</legend>" . $sql . "</fieldset><br />";
+         $backtraces = debug_backtrace();
+            $modx->queryCode .= '<fieldset style="text-align:left"><legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>' . $sql . '<br />src : ' . $backtraces[0]['file'] . '<br />line : ' . $backtraces[0]['line'] . '</fieldset>';
          }
          $modx->executedQueries = $modx->executedQueries + 1;
          return $result;
@@ -453,7 +458,7 @@ class DBAPI {
       if (!is_resource($dsq))
          $dsq = $this->query($dsq);
       if ($dsq) {
-         include_once MODX_BASE_PATH . '/manager/includes/controls/datagrid.class.php';
+         include_once MODX_MANAGER_PATH . 'includes/controls/datagrid.class.php';
          $grd = new DataGrid('', $dsq);
 
          $grd->noRecordMsg = $params['noRecordMsg'];

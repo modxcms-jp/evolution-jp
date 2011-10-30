@@ -1,118 +1,34 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-if(strstr($settings_version, '0.9.')!==false)
+if(strpos($settings_version, '0.9.')!==false)
 {
-	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.9x系からのアップデートの場合はTinyMCEで画像の貼り付けができません。TinyMCEを最新にアップデートする必要があります。</strong>';
+	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.9x系からのアップデートの場合はTinyMCE(投稿画面)で画像の貼り付けができるかどうかを確認してください。できない場合は、TinyMCEのアップデートに問題がある可能性があります。</strong>';
+}
+if(!function_exists('mysql_set_charset'))
+{
+	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">この環境では日本語以外の文字(中国語・韓国語・一部の機種依存文字など)を入力できません。</strong>対応が必要な場合は、サーバ環境のUTF-8エンコードの扱いを整備したうえで、dbapi.mysql.class.inc.phpのescape関数の処理を書き換えてください。mb_convert_encodingの処理を行なっている行が2行ありますので、これを削除します。';
 }
 
 $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 run_update($simple_version);
 
-$manager_theme            = set_default('MODxCarbon',$manager_theme,strstr($settings_version, '0.9.')!==false);
+$manager_theme            = set_default('MODxCarbon',$manager_theme,strpos($settings_version, '0.9.')!==false);
 $show_meta                = set_default('0', $show_meta);
-$server_offset_time       = set_default('0', $server_offset_time);
-$server_protocol          = set_default('http', $server_protocol);
-$manager_language         = set_default('japanese-utf8', $manager_language);
-$site_name                = set_default('MODxサイト', $site_name);
-$site_start               = set_default('1', $site_start);
-$error_page               = set_default('1', $error_page);
-$unauthorized_page        = set_default('1', $unauthorized_page);
-$site_status              = set_default('1', $site_status);
-$site_unavailable_message = set_default('サイトは現在メンテナンス中です。しばらくお待ちください。', $site_unavailable_message);
-$track_visitors           = set_default('0', $track_visitors);
-$resolve_hostnames        = set_default('0', $resolve_hostnames);
-$top_howmany              = set_default('10',$top_howmany);
-$default_template         = set_default('3', $default_template);
-$publish_default          = set_default('1', $publish_default);
-$cache_default            = set_default('1', $cache_default);
-$search_default           = set_default('1', $search_default);
-$friendly_urls            = set_default('0', $friendly_urls);
-// $friendly_url_prefix      = set_default('', $friendly_url_prefix);
-$friendly_url_suffix      = set_default('.html', $friendly_url_suffix);
-$friendly_alias_urls      = set_default('1', $friendly_alias_urls);
-$use_alias_path           = set_default('1', $use_alias_path);
-$use_udperms              = set_default('0', $use_udperms);
-$udperms_allowroot        = set_default('0', $udperms_allowroot);
-$failed_login_attempts    = set_default('3', $failed_login_attempts);
-$blocked_minutes          = set_default('60', $blocked_minutes);
-$use_captcha              = set_default('0', $use_captcha);
-$captcha_words            = set_default('pyonkichi,hiroshi,kyouko,ume,minami,yoshiko,goriraimo,goro,mogura,machida', $captcha_words);
-$emailsender              = set_default('myname@example.com', $emailsender);
-$emailsubject             = set_default('ログイン情報のお知らせ', $emailsubject);
-$number_of_logs           = set_default('100', $number_of_logs);
-$number_of_messages       = set_default('30', $number_of_messages);
-$number_of_results        = set_default('20', $number_of_results);
-$use_editor               = set_default('1', $use_editor);
-$use_browser              = set_default('1', $use_browser);
-$rb_base_dir              = set_default(MODX_BASE_PATH, $rb_base_dir);
-$rb_base_url              = set_default('assets/', $rb_base_url);
-$which_editor             = set_default('TinyMCE', $which_editor);
 $fe_editor_lang           = set_default('japanese-utf8', $fe_editor_lang);
-$strip_image_paths        = set_default('0', $strip_image_paths);
-$upload_images            = set_default('bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff', $upload_images);
-$upload_media             = set_default('au,avi,mp3,mp4,mpeg,mpg,wav,wmv', $upload_media);
-$upload_flash             = set_default('fla,flv,swf', $upload_flash);
-$upload_files             = set_default('aac,au,avi,css,cache,csv,doc,docx,gz,gzip,htaccess,htm,html,js,mp3,mp4,mpeg,mpg,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,wav,wmv,xls,xlsx,xml,z,zip', $upload_files);
-$upload_maxsize           = set_default('1048576', $upload_maxsize);
-$new_file_permissions     = set_default('0644', $new_file_permissions);
-$new_folder_permissions   = set_default('0755', $new_folder_permissions);
-// $filemanager_path         = set_default('', $filemanager_path);
-$custom_contenttype       = set_default('application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain', $custom_contenttype);
-$auto_menuindex           = set_default('1', $auto_menuindex);
-$mail_check_timeperiod    = set_default('60', $mail_check_timeperiod);
-$tree_show_protected      = set_default('0', $tree_show_protected);
 $rss_url_news             = set_default('http://feeds2.feedburner.com/modxjp', $rss_url_news);
 $rss_url_security         = set_default('http://feeds2.feedburner.com/modxjpsec', $rss_url_security);
 $validate_referer         = set_default('1', $validate_referer);
 $datepicker_offset        = set_default('-10', $datepicker_offset);
-$xhtml_urls               = set_default('1', $xhtml_urls);
-$allow_duplicate_alias    = set_default('0', $allow_duplicate_alias);
-$automatic_alias          = set_default('0', $automatic_alias);
 $datetime_format          = set_default('YYYY/mm/dd', $datetime_format);
 $warning_visibility       = set_default('0', $warning_visibility);
 $remember_last_tab        = set_default('1', $remember_last_tab);
-$modx_charset             = set_default('UTF-8', $modx_charset);
 $auto_template_logic      = set_default('sibling', $auto_template_logic);
-
-
-// $old_template             = set_default('', $old_template);
-// $fck_editor_toolbar       = set_default('standard', $fck_editor_toolbar);
-// $fck_editor_autolang      = set_default('0', $fck_editor_autolang);
-// $editor_css_selectors     = set_default('', $editor_css_selectors);
-// $theme_refresher          = set_default('', $theme_refresher);
-$manager_layout           = set_default('4', $manager_layout);
 $manager_direction        = set_default('ltr', $manager_direction);
-$tinymce_editor_theme     = set_default('editor', $tinymce_editor_theme);
-$tinymce_custom_plugins   = set_default('inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table', $tinymce_custom_plugins);
-$tinymce_custom_buttons1  = set_default('undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help', $tinymce_custom_buttons1);
-$tinymce_custom_buttons2  = set_default('image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat', $tinymce_custom_buttons2);
-$tinymce_css_selectors    = set_default('左寄せ=justifyleft;右寄せ=justifyright', $tinymce_css_selectors);
-
-$data = $modx->db->getTableMetaData($modx->getFullTableName('user_roles'));
-if($data['remove_locks'] == false)
-{
-	$sql = 'ALTER TABLE ' . $modx->getFullTableName('user_roles')
-	     . " ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
-	$modx->db->query($sql);
-	$sql = 'UPDATE '      . $modx->getFullTableName('user_roles')
-	     . " SET `remove_locks` = '1' WHERE `id` =1";
-	$modx->db->query($sql);
-}
-
-$sql = 'REPLACE INTO ' . $modx->getFullTableName('system_eventnames')
-       . ' (id,name,service,groupname) VALUES '
-       . "('100', 'OnStripAlias',             '1','Documents'),
-          ('201', 'OnManagerWelcomePrerender','2',''),
-          ('202', 'OnManagerWelcomeHome',     '2',''),
-          ('203', 'OnManagerWelcomeRender',   '2',''),
-          ('204', 'OnBeforeDocDuplicate',     '1','Documents'),
-          ('205', 'OnDocDuplicate',           '1','Documents')";
-$modx->db->query($sql);
 
 function set_default($default_value,$current_value,$flag = false)
 {
-	if(is_null($current_value) || $flag == true) $value = $default_value;
+	if(!isset($current_value) || $flag == true) $value = $default_value;
 	else                                         $value = $current_value;
 	return $value;
 }
@@ -120,65 +36,198 @@ function set_default($default_value,$current_value,$flag = false)
 function run_update($version)
 {
 	global $modx;
-
+	
 	$version = intval($version);
-	if($version<105)
+	
+	if($version < 100)
 	{
-		$sql = "
-		ALTER TABLE " . $modx->getFullTableName('user_attributes') . "
-		  MODIFY COLUMN `state` varchar(25) NOT NULL default '',
-		  MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-		  MODIFY COLUMN `comment` text;
-		";
+		update_tbl_system_eventnames('100');
+	}
+	
+	if($version < 102)
+	{
+		update_tbl_system_eventnames('102');
+	}
+	
+	if($version < 104)
+	{
+		update_tbl_user_roles();
+	}
+	
+	if($version < 105)
+	{
+		update_tbl_system_eventnames('105');
+		update_tbl_user_attributes();
+		update_tbl_web_user_attributes();
+		update_tbl_member_groups();
+		update_tbl_web_groups();
+		update_tbl_system_settings();
+	}
+	
+	if($version < 106)
+	{
+		update_config_custom_contenttype();
+		update_config_default_template_method();
+		update_tbl_member_groups();
+	}
+}
+
+function update_config_custom_contenttype()
+{
+	global $modx,$custom_contenttype;
+	
+	$search[] = 'text/css,text/html,text/javascript,text/plain,text/xml';
+	$search[] = 'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain';
+	$replace  = 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain';
+	
+	foreach($search as $v)
+	{
+		if($v == $modx->config['custom_contenttype']) $custom_contenttype = $replace;
+	}
+}
+
+function update_config_default_template_method()
+{
+	global $modx,$auto_template_logic;
+	
+	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
+	$rs = $modx->db->query("SELECT properties,disabled FROM {$tbl_site_plugins} WHERE name='Inherit Parent Template'");
+	$row = mysql_fetch_assoc($rs);
+	if($row)
+	{
+		$sql = "UPDATE {$tbl_site_plugins} SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
 		$modx->db->query($sql);
-		
-		$sql = "
-		ALTER TABLE " . $modx->getFullTableName('web_user_attributes') . "
-		  MODIFY COLUMN `state` varchar(25) NOT NULL default '',
-		  MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
-		  MODIFY COLUMN `comment` text;
-		";
-		$modx->db->query($sql);
-		
-		
-		/*
-		$sql =
-		'ALTER TABLE ' . $modx->getFullTableName('member_groups')
-		 . ' ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`)';
-		$modx->db->query($sql);
-		
-		$sql =
-		'ALTER TABLE ' . $modx->getFullTableName('web_groups')
-		. ' ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)';
-		$modx->db->query($sql);
-		*/
-		
-		
-		$sql = 'UPDATE ' . $modx->getFullTableName('site_plugins') . " SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
-		$modx->db->query($sql);
-		
-		$sql = 'UPDATE ' . $modx->getFullTableName('system_settings') . " SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
-		$modx->db->query($sql);
-		
-		$rs = $modx->db->query('SELECT properties, disabled FROM ' . $modx->getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
-		$row = mysql_fetch_row($rs);
-		global $auto_template_logic;
-		if(!$row) $auto_template_logic = 'system'; // not installed
+	}
+	if(!$row || !isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling'; // not installed
+	else
+	{
+		if($row['disabled'] == 1) $auto_template_logic = 'sibling'; // installed but disabled
 		else
 		{
-			if($row[1] == 1) $auto_template_logic = 'system'; // installed but disabled
-			else
+			// installed, enabled .. see how it's configured
+			$properties = parseProperties($row['properties']);
+			if(isset($properties['inheritTemplate']))
 			{
-				// installed, enabled .. see how it's configured
-				$properties = parseProperties($row[0]);
-				if(isset($properties['inheritTemplate']))
+				if($properties['inheritTemplate'] == 'From First Sibling')
 				{
-					if($properties['inheritTemplate'] == 'From First Sibling')
-					{
-						$auto_template_logic = 'sibling';
-					}
+					$auto_template_logic = 'sibling';
 				}
 			}
 		}
 	}
+}
+
+function update_tbl_user_roles()
+{
+	global $modx;
+	$tbl_user_roles = $modx->getFullTableName('user_roles');
+	
+	$data = $modx->db->getTableMetaData($tbl_user_roles);
+	if($data['remove_locks'] == false)
+	{
+		$sql = "ALTER TABLE {$tbl_user_roles} ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
+		$modx->db->query($sql);
+		$sql = "UPDATE {$tbl_user_roles} SET `remove_locks` = '1' WHERE `id` =1";
+		$modx->db->query($sql);
+	}
+}
+
+function update_tbl_member_groups()
+{
+	global $modx;
+	$tbl_member_groups = $modx->getFullTableName('member_groups');
+	
+	$sql = "SHOW INDEX FROM {$tbl_member_groups}";
+	$rs = $modx->db->query($sql);
+	$find_index = 'notfind';
+	while($row = $modx->db->getRow($rs))
+	{
+		if($row['Key_name']=='ix_group_member') $find_index = 'find';
+	}
+	if($find_index=='notfind')
+	{
+		$sql = "ALTER TABLE {$tbl_member_groups} ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`)";
+		$modx->db->query($sql);
+	}
+}
+
+function update_tbl_web_groups()
+{
+	global $modx;
+	$tbl_web_groups = $modx->getFullTableName('web_groups');
+	
+	$sql = "SHOW INDEX FROM {$tbl_web_groups}";
+	$rs = $modx->db->query($sql);
+	$find_index = 'notfind';
+	while($row = $modx->db->getRow($rs))
+	{
+		if($row['Key_name']=='ix_group_user') $find_index = 'find';
+	}
+	if($find_index=='notfind')
+	{
+		$sql = "ALTER TABLE {$tbl_web_groups} ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)";
+		$modx->db->query($sql);
+	}
+}
+
+function update_tbl_system_eventnames($version)
+{
+	global $modx;
+	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+	
+	switch($version)
+	{
+		case '100':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('100', 'OnStripAlias',             '1','Documents'),
+			          ('201', 'OnManagerWelcomePrerender','2',''),
+			          ('202', 'OnManagerWelcomeHome',     '2',''),
+			          ('203', 'OnManagerWelcomeRender',   '2','')";
+			break;
+		case '102':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('204', 'OnBeforeDocDuplicate',     '1','Documents'),
+			          ('205', 'OnDocDuplicate',           '1','Documents')";
+			break;
+		case '105':
+			$sql = "REPLACE INTO {$tbl_system_eventnames} (id,name,service,groupname) VALUES
+			          ('9','OnWebChangePassword','3',''),
+			          ('14','OnManagerSaveUser','2',''),
+			          ('16','OnManagerChangePassword','2','')";
+			break;
+	}
+	$modx->db->query($sql);
+}
+
+function update_tbl_user_attributes()
+{
+	global $modx;
+	$tbl_user_attributes     = $modx->getFullTableName('user_attributes');
+	
+	$sql = "ALTER TABLE {$tbl_user_attributes} 
+	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `comment` text;";
+	$modx->db->query($sql);
+}
+
+function update_tbl_web_user_attributes()
+{
+	global $modx;
+	$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
+	
+	$sql = "ALTER TABLE {$tbl_web_user_attributes} 
+	        MODIFY COLUMN `state` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
+	        MODIFY COLUMN `comment` text;";
+	$modx->db->query($sql);
+}
+
+function update_tbl_system_settings()
+{
+	global $modx;
+	$tbl_system_settings     = $modx->getFullTableName('system_settings');
+	
+	$sql = "UPDATE {$tbl_system_settings} SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
+	$modx->db->query($sql);
 }

@@ -5,24 +5,27 @@
 
 defined('IN_PARSER_MODE') or die();
 
-$dbase = $modx->dbConfig['dbase'];
-$table_prefix = $modx->dbConfig['table_prefix'];
+$dbase        = $modx->db->config['dbase'];
+$table_prefix = $modx->db->config['table_prefix'];
 
 # process password activation
-    if ($isPWDActivate==1){
-        $id = $_REQUEST['wli'];
+    if ($isPWDActivate==1)
+    {
+        $id     = $_REQUEST['wli'];
         $pwdkey = $_REQUEST['wlk'];
 
         $sql = "SELECT wu.*
                 FROM $dbase.`".$table_prefix."web_users` wu
                 WHERE wu.id='".$modx->db->escape($id)."'";
-        $ds = $modx->db->query($sql);
+        $ds  = $modx->db->query($sql);
         $limit = $modx->recordCount($ds);
-        if($limit==1) {
-            $row = $modx->fetchRow($ds);
-            $username = $row["username"];
-            list($newpwd,$newpwdkey) = explode("|",$row['cachepwd']);
-            if($newpwdkey!=$pwdkey) {
+        if($limit==1)
+        {
+            $row = $modx->db->getRow($ds,'assoc');
+            $username = $row['username'];
+            list($newpwd, $newpwdkey) = explode('|',$row['cachepwd']);
+            if($newpwdkey != $pwdkey)
+            {
                 $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
                 return;
             }
@@ -50,13 +53,15 @@ $table_prefix = $modx->dbConfig['table_prefix'];
 
             if(!$ds || !$ds2) $output = webLoginAlert("Error while activating password.");
             else if(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
-            else {
+            else
+            {
                 // redirect to password activation notification page
                 $url = $modx->makeURL($pwdActId);
                 $modx->sendRedirect($url,0,'REDIRECT_REFRESH');
             }
         }
-        else {
+        else
+        {
             // error
             $output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
         }
@@ -66,12 +71,12 @@ $table_prefix = $modx->dbConfig['table_prefix'];
 
 # process password reminder
     if ($isPWDReminder==1) {
-    include_once dirname(__FILE__)."/../../../manager/includes/controls/modxmailer.inc.php";
+    include_once MODX_MANAGER_PATH . 'includes/controls/modxmailer.inc.php';
         $email = $_POST['txtwebemail'];
         $webpwdreminder_message = $modx->config['webpwdreminder_message'];
         $emailsubject = $modx->config['emailsubject'];
-        $emailsender = $modx->config['emailsender'];
-        $site_name = $modx->config['site_name'];
+        $emailsender  = $modx->config['emailsender'];
+        $site_name    = $modx->config['site_name'];
         // lookup account
         $sql = "SELECT wu.*, wua.fullname
                 FROM $dbase.`".$table_prefix."web_users` wu
@@ -79,11 +84,11 @@ $table_prefix = $modx->dbConfig['table_prefix'];
                 WHERE wua.email='".$modx->db->escape($email)."'";
 
         $ds = $modx->db->query($sql);
-        $limit = $modx->recordCount($ds);
+        $limit = $modx->db->getRecordCount($ds);
         if($limit==1) {
             $newpwd = webLoginGeneratePassword(8);
             $newpwdkey = webLoginGeneratePassword(8); // activation key
-            $row = $modx->fetchRow($ds);
+            $row = $modx->db->getRow($ds);
             //save new password
             $sql="UPDATE $dbase.`".$table_prefix."web_users`
                   SET cachepwd='".$newpwd."|".$newpwdkey."'
@@ -115,16 +120,17 @@ $table_prefix = $modx->dbConfig['table_prefix'];
 			$mail->From		= $emailsender;
 			$mail->FromName	= $site_name;
 
-			$mail->Subject	=  "New Password Activation for $site_name";
+			$mail->Subject	=  $emailsubject;
 			$mail->Body		= $message;
 			$mail->AddAddress($email);
 			$sent = $mail->Send() ;         //ignore mail errors in this cas
             if(!$sent) {
                 // error
-                $output =  webLoginAlert("Error while sending mail to $email. Please contact the Site Administrator");
+                $output =  webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator",array('email'=>$email));
                 return;
             }
-            if(!$pwdReqId) $output = webLoginAlert("Please check your email account ($email) for login instructions.");
+            
+            if(!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.",array('email'=>$email));
             else {
                 // redirect to password request notification page
                 $url = $modx->makeURL($pwdReqId);
@@ -191,6 +197,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
                                 ));
 
         // redirect to first authorized logout page
+        $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($loHomeId);
         $modx->sendRedirect($url,0,'REDIRECT_REFRESH');
         return;
@@ -241,7 +248,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
     // load user settings
     if($internalKey){
         $result = $modx->db->query("SELECT setting_name, setting_value FROM ".$dbase.".`".$table_prefix."web_user_settings` WHERE webuser='$internalKey'");
-        while ($row = $modx->fetchRow($result, 'both')) $modx->config[$row[0]] = $row[1];
+        while ($row = $modx->db->getRow($result, 'both')) $modx->config[$row[0]] = $row[1];
     }
 
     if($failedlogins>=$modx->config['failed_login_attempts'] && $blockeduntildate>time()) {    // blocked due to number of login errors.
@@ -431,6 +438,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
             $alias = substr($alias, 0, $aliasLength);
             $url = $modx->config['base_url'] . $alias;
         } elseif (intval($targetPageId)) {
+            $modx->config['xhtml_urls'] = '0';
             $url = preserveUrl($targetPageId);
         } else {
             $url = urldecode($_REQUEST['refurl']);
@@ -439,6 +447,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
     }
     else {
         // login home page
+        $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($id);
         $modx->sendRedirect($url);
     }

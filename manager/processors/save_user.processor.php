@@ -568,7 +568,8 @@ function saveUserSettings($id) {
 	// get user setting field names
 	$settings= array ();
 	foreach ($_POST as $n => $v) {
-		if (in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
+		if(is_array($v)) $v = implode(',', $v);
+		if(in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
 
 		//if ($config[$n] == $v) continue; // ignore commonalities in base config
 
@@ -588,7 +589,6 @@ function saveUserSettings($id) {
 
 	$savethese = array();
 	foreach ($settings as $k => $v) {
-	    if(is_array($v)) $v = implode(',', $v);
 	    $savethese[] = '('.$id.', \''.$k.'\', \''.$modx->db->escape($v).'\')';
 	}
 

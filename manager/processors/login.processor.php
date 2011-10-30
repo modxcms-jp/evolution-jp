@@ -2,11 +2,7 @@
 require_once(strtr(realpath(dirname(__FILE__)), '\\', '/').'/../includes/protect.inc.php');
 
 // set the include_once path
-if(version_compare(phpversion(), "4.3.0")>=0) {
-    set_include_path(get_include_path() . PATH_SEPARATOR . "../includes/");
-} else {
-    ini_set("include_path", "../includes/"); // include path the old way
-}
+set_include_path(get_include_path() . PATH_SEPARATOR . "../includes/");
 
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.

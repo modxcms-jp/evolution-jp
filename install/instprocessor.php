@@ -143,28 +143,37 @@ if(!function_exists('parseProperties')) {
 }
 
 // check status of Inherit Parent Template plugin
-$auto_template_logic = 'parent';
-if ($installMode != 0) {
-    $rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
-    $row = mysql_fetch_row($rs);
-    if(!$row) {
-        // not installed
-        $auto_template_logic = 'system';
-    } else {
-        if($row[1] == 1) {
-            // installed but disabled
-            $auto_template_logic = 'system';
-        } else {
-            // installed, enabled .. see how it's configured
-            $properties = parseProperties($row[0]);
-            if(isset($properties['inheritTemplate'])) {
-                if($properties['inheritTemplate'] == 'From First Sibling') {
-                    $auto_template_logic = 'sibling';
-                }
-            }
-        }
-    }
+if ($installMode != 0)
+{
+	$rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
+	$row = mysql_fetch_assoc($rs);
+	if(!$row)
+	{
+		// not installed
+		$auto_template_logic = 'sibling';
+	}
+	else
+	{
+		if($row['disabled'] == 1)
+		{
+			// installed but disabled
+			$auto_template_logic = 'sibling';
+		}
+		else
+		{
+			// installed, enabled .. see how it's configured
+			$properties = parseProperties($row['properties']);
+			if(isset($properties['inheritTemplate']))
+			{
+				if($properties['inheritTemplate'] == 'From First Sibling')
+				{
+					$auto_template_logic = 'sibling';
+				}
+			}
+		}
+	}
 }
+if(!isset($auto_template_logic)) $auto_template_logic = 'sibling';
 
 // open db connection
 $setupPath = realpath(dirname(__FILE__));
@@ -489,83 +498,105 @@ if (isset ($_POST['module']) || $installData) {
 }
 
 // Install Plugins
-if (isset ($_POST['plugin']) || $installData) {
+if (isset ($_POST['plugin']) || $installData)
+{
 	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
 	$selPlugs = $_POST['plugin'];
-    foreach ($modulePlugins as $k=>$modulePlugin) {
-        $installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
-        if(in_array($k, $selPlugs) || $installSample) {
-            $name = modx_escape($modulePlugin[0]);
-            $desc = modx_escape($modulePlugin[1]);
-            $filecontent = $modulePlugin[2];
-            $properties = modx_escape($modulePlugin[3]);
-            $events = explode(",", $modulePlugin[4]);
-            $guid = modx_escape($modulePlugin[5]);
-            $category = modx_escape($modulePlugin[6]);
-		$leg_names = '';
-            if(array_key_exists(7, $modulePlugin)) {
-		    // parse comma-separated legacy names and prepare them for sql IN clause
-                $leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
-		}
-		if (!file_exists($filecontent))
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else {
-
-		    // disable legacy versions based on legacy_names provided
-		    if(!empty($leg_names)) {
-		        $update_query = "UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE name IN ($leg_names);";
-    		    $rs = mysql_query($update_query, $sqlParser->conn);
-		    }
-
-			// Create the category if it does not already exist
-                $category = getCreateDbCategory($category, $sqlParser);
-			
-			$plugin = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
-			// remove installer docblock
-			$plugin = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $plugin, 1);
-                $plugin = modx_escape($plugin);
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'", $sqlParser->conn);
-            if (mysql_num_rows($rs)) {
-                $insert = true;
-                while($row = mysql_fetch_assoc($rs)) {
-                    $props = propUpdate($properties,$row['properties']);
-                        if($row['description'] == $desc){
-                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn)) {
-                            echo "<p>" . mysql_error() . "</p>";
-                            return;
-                        }
-                        $insert = false;
-                    } else {
-                        if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn)) {
-                            echo "<p>".mysql_error()."</p>";
-                            return;
-                        }
-                    }
-                }
-                if($insert === true) {
-                        if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn)) {
-                        echo "<p>".mysql_error()."</p>";
-                        return;
-                    }
-                }
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-            } else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);", $sqlParser->conn)) {
-                    echo "<p>" . mysql_error() . "</p>";
-                    return;
-                }
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
-            }
-			// add system events
-			if (count($events) > 0) {
+	foreach ($modulePlugins as $k=>$modulePlugin)
+	{
+		$installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
+		if(in_array($k, $selPlugs) || $installSample)
+		{
+			$name = modx_escape($modulePlugin[0]);
+			$desc = modx_escape($modulePlugin[1]);
+			$filecontent = $modulePlugin[2];
+			$properties = modx_escape($modulePlugin[3]);
+			$events = explode(",", $modulePlugin[4]);
+			$guid = modx_escape($modulePlugin[5]);
+			$category = modx_escape($modulePlugin[6]);
+			$leg_names = '';
+			if(array_key_exists(7, $modulePlugin))
+			{
+				// parse comma-separated legacy names and prepare them for sql IN clause
+				$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
+			}
+			if(!file_exists($filecontent))
+			{
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
+			}
+			else 
+			{
+				// disable legacy versions based on legacy_names provided
+				if(!empty($leg_names))
+				{
+					$update_query = "UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE name IN ($leg_names);";
+					$rs = mysql_query($update_query, $sqlParser->conn);
+				}
+				
+				// Create the category if it does not already exist
+				$category = getCreateDbCategory($category, $sqlParser);
+				
+				$plugin = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent), 2));
+				// remove installer docblock
+				$plugin = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugin, 1);
+				$plugin = modx_escape($plugin);
+				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name' AND disabled='0'", $sqlParser->conn);
+				if(mysql_num_rows($rs))
+				{
+					$insert = true;
+					while($row = mysql_fetch_assoc($rs))
+					{
+						$props = propUpdate($properties,$row['properties']);
+						if($row['description'] == $desc)
+						{
+							if(!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn))
+							{
+								echo "<p>" . mysql_error() . "</p>";
+								return;
+							}
+							$insert = false;
+						}
+						else
+						{
+							if(!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn))
+							{
+								echo "<p>".mysql_error()."</p>";
+								return;
+							}
+						}
+					}
+					if($insert === true)
+					{
+						if($props) $properties = $props;
+						if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn))
+						{
+							echo "<p>".mysql_error()."</p>";
+							return;
+						}
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+				}
+				else
+				{
+					if(!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+				}
+				// add system events
+				if(count($events) > 0)
+				{
 				$ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
-				if ($ds) {
-					$row = mysql_fetch_assoc($ds);
-					$id = $row["id"];
-					// remove existing events
-					mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_plugin_events` WHERE pluginid = \'' . $id . '\'');
-					// add new events
-                        mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid) SELECT '$id' as 'pluginid',se.id as 'evtid' FROM $dbase.`" . $table_prefix . "system_eventnames` se WHERE name IN ('" . implode("','", $events) . "')");
+					if($ds)
+					{
+						$row = mysql_fetch_assoc($ds);
+						$id = $row["id"];
+						// remove existing events
+						mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_plugin_events` WHERE pluginid = \'' . $id . '\'');
+						// add new events
+						mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid) SELECT '$id' as 'pluginid',se.id as 'evtid' FROM $dbase.`" . $table_prefix . "system_eventnames` se WHERE name IN ('" . implode("','", $events) . "')");
 					}
 				}
 			}
@@ -574,47 +605,57 @@ if (isset ($_POST['plugin']) || $installData) {
 }
 
 // Install Snippets
-if (isset ($_POST['snippet']) || $installData) {
+if (isset ($_POST['snippet']) || $installData)
+{
 	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
 	$selSnips = $_POST['snippet'];
-    foreach ($moduleSnippets as $k=>$moduleSnippet) {
-        $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
-        if(in_array($k, $selSnips) || $installSample) {
-            $name = modx_escape($moduleSnippet[0]);
-            $desc = modx_escape($moduleSnippet[1]);
-            $filecontent = $moduleSnippet[2];
-            $properties = modx_escape($moduleSnippet[3]);
-            $category = modx_escape($moduleSnippet[4]);
-		if (!file_exists($filecontent))
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else {			
-
-			// Create the category if it does not already exist
-                $category = getCreateDbCategory($category, $sqlParser);
-			
-			$snippet = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent)));
-			// remove installer docblock
-			$snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $snippet, 1);
-                $snippet = modx_escape($snippet);
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
-			if (mysql_num_rows($rs)) {
-			    $row = mysql_fetch_assoc($rs);
-			    $props = propUpdate($properties,$row['properties']);
-			    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_snippets` SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+	foreach ($moduleSnippets as $k=>$moduleSnippet)
+	{
+		$installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
+		if(in_array($k, $selSnips) || $installSample)
+		{
+			$name = modx_escape($moduleSnippet[0]);
+			$desc = modx_escape($moduleSnippet[1]);
+			$filecontent = $moduleSnippet[2];
+			$properties  = modx_escape($moduleSnippet[3]);
+			$category    = modx_escape($moduleSnippet[4]);
+			if (!file_exists($filecontent))
+			{
+				echo '<p>&nbsp;&nbsp;' . $name . ': <span class="notok">' . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . '.</span></p>';
+			}
+			else
+			{
+				// Create the category if it does not already exist
+				$category = getCreateDbCategory($category, $sqlParser);
+				
+				$snippet = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent)));
+				// remove installer docblock
+				$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
+				$snippet = modx_escape($snippet);
+				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
+				if (mysql_num_rows($rs))
+				{
+					$row = mysql_fetch_assoc($rs);
+					$props = propUpdate($properties,$row['properties']);
+					if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_snippets` SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-			} else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+				else
+				{
+					if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 			}
 		}
 	}
-    }
 }
 
 // install data
@@ -623,7 +664,8 @@ if ($installData && $moduleSQLDataFile) {
     $sqlParser->process($moduleSQLDataFile);
 //	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
     // display database results
-    if ($sqlParser->installFailed == true) {
+    if ($sqlParser->installFailed == true)
+    {
         $errors += 1;
         echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
         echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
@@ -634,7 +676,9 @@ if ($installData && $moduleSQLDataFile) {
         echo "</p>";
         echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
         return;
-    } else {
+    }
+    else
+    {
         echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
     }
 }
@@ -684,34 +728,39 @@ if ($installMode == 0) {
 }
 
 // Property Update function
-function propUpdate($new,$old){
-    // Split properties up into arrays
-    $returnArr = array();
-    $newArr = explode("&",$new);
-    $oldArr = explode("&",$old);
-
-    foreach ($newArr as $k => $v) {
-        if(!empty($v)){
-	        $tempArr = explode("=",trim($v));
-	        $returnArr[$tempArr[0]] = $tempArr[1];
-        }
-    }
-    foreach ($oldArr as $k => $v) {
-        if(!empty($v)){
-            $tempArr = explode("=",trim($v));
-            $returnArr[$tempArr[0]] = $tempArr[1];
-        }
-    }
-
-    // Make unique array
-    $returnArr = array_unique($returnArr);
-
-    // Build new string for new properties value
-    foreach ($returnArr as $k => $v) {
-        $return .= "&$k=$v ";
-    }
-
-    return $return;
+function propUpdate($new,$old)
+{
+	// Split properties up into arrays
+	$returnArr = array();
+	$newArr = explode("&",$new);
+	$oldArr = explode("&",$old);
+	
+	foreach ($newArr as $k => $v)
+	{
+		if(!empty($v))
+		{
+			$tempArr = explode("=",trim($v));
+			$returnArr[$tempArr[0]] = $tempArr[1];
+		}
+	}
+	foreach ($oldArr as $k => $v)
+	{
+		if(!empty($v))
+		{
+			$tempArr = explode("=",trim($v));
+			$returnArr[$tempArr[0]] = $tempArr[1];
+		}
+	}
+	
+	// Make unique array
+	$returnArr = array_unique($returnArr);
+	
+	// Build new string for new properties value
+	foreach ($returnArr as $k => $v)
+	{
+		$return .= "&$k=$v ";
+	}
+	return modx_escape($return);
 }
 
 function getCreateDbCategory($category, $sqlParser) {
