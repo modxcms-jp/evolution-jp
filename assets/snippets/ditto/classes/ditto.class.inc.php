@@ -295,7 +295,7 @@ class ditto {
 			    $timestamp[1] = is_int($timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
                 $timestamp = $timestamp[1] + $timestamp[0];
             }   
-			$placeholders['date'] = strftime($dateFormat,$timestamp);
+			$placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
 		}
 		
 		if (in_array("content",$this->fields["display"]["db"]) && $this->format != "html") {
@@ -1174,6 +1174,24 @@ class ditto {
 	// ---------------------------------------------------
 	function relToAbs($text, $base) {
 		return preg_replace('#(href|src)="([^:"]*)(?:")#','$1="'.$base.'$2"',$text);
+	}
+	function mb_strftime($format='%Y/%m/%d', $timestamp='') {
+	    $a = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+	    $A = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+	    if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
+	    if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
+	    $peaces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
+	    $w         = strftime('%w', $timestamp);
+	    
+	    $str = '';
+	    foreach($peaces as $v)
+	    {
+	      if    ($v == '%a')              $str .= $a[$w];
+	      elseif($v == '%A')              $str .= $A[$w];
+	      elseif(strpos($v, '%')!==false) $str .= strftime($v, $timestamp);
+	      else                            $str .= $v;
+	    }
+	    return $str;
 	}
 }
 ?>

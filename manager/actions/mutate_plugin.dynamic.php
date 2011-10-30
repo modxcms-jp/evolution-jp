@@ -526,7 +526,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		  </tr>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</td>
-			<td align="left" valign="top"><textarea class="phptextarea" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
+			<td align="left" valign="top"><textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>

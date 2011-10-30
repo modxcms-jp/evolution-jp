@@ -314,8 +314,9 @@ function decode(s){
 	            <option value="url" <?php       echo ($content['type']=='url')? "selected='selected'":""; ?>>URL</option>
 	            <option value="email" <?php     echo ($content['type']=='email')? "selected='selected'":""; ?>>Email</option>
 	            <option value="number" <?php    echo ($content['type']=='number')? "selected='selected'":""; ?>>Number</option>
-	            <option value="date" <?php      echo ($content['type']=='date')? "selected='selected'":""; ?>>Date</option>
-	            <option value="custom_tv" <?php      echo ($content['type']=='custom_tv')? "selected='selected'":""; ?>>Custom Input</option>
+	            <option value="date" <?php      echo ($content['type']=='date')? "selected='selected'":""; ?>>DateTime</option>
+	            <option value="dateonly" <?php  echo ($content['type']=='dateonly')? "selected='selected'":""; ?>>DateOnly</option>
+	            <option value="custom_tv" <?php echo ($content['type']=='custom_tv')? "selected='selected'":""; ?>>Custom Input</option>
 	        </select>
     </td>
   </tr>

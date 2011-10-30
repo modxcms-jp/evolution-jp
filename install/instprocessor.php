@@ -30,7 +30,7 @@ $installData = $_POST['installdata'] == "1" ? 1 : 0;
 $database_server = $_POST['databasehost'];
 $database_user = $_SESSION['databaseloginname'];
 $database_password = $_SESSION['databaseloginpassword'];
-$database_collation = $_POST['database_collation'];
+$database_collation = ($_POST['database_collation']!=='') ? $_POST['database_collation'] : 'utf8_general_ci';
 $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 $database_connection_charset = $_POST['database_connection_charset'];
 $database_connection_method = $_POST['database_connection_method'];
@@ -170,7 +170,7 @@ if ($installMode != 0) {
 $setupPath = realpath(dirname(__FILE__));
 include "{$setupPath}/setup.info.php";
 include "{$setupPath}/sqlParser.class.php";
-$sqlParser = new SqlParser($database_server, $database_user, $database_password, str_replace("`", "", $dbase), $table_prefix, $adminname, $adminemail, $adminpass, $database_connection_charset, $managerlanguage, $database_connection_method, $auto_template_logic);
+$sqlParser = new SqlParser($database_server, $database_user, $database_password, str_replace("`", "", $dbase), $table_prefix, $adminname, $adminemail, $adminpass, $database_connection_charset, $database_collation, $managerlanguage, $database_connection_method, $auto_template_logic);
 $sqlParser->mode = ($installMode < 1) ? "new" : "upd";
 /* image and file manager paths now handled via settings screen in Manager
 $sqlParser->imageUrl = 'http://' . $_SERVER['SERVER_NAME'] . $base_url . "assets/";
@@ -185,7 +185,7 @@ $sqlParser->connect();
 echo "<p>" . $_lang['setup_database_creating_tables'];
 if ($moduleSQLBaseFile) {
 	$sqlParser->process($moduleSQLBaseFile);
-	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLBaseFile);
+//	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLBaseFile);
 	// display database results
 	if ($sqlParser->installFailed == true) {
 		$errors += 1;
@@ -205,84 +205,25 @@ if ($moduleSQLBaseFile) {
 
 // write the config.inc.php file if new installation
 echo "<p>" . $_lang['writing_config_file'];
-$configString = '<?php
-/**
- *	MODx Configuration file
- */
-setlocale (LC_TIME, \'ja_JP.UTF-8\');
-$database_type = \'mysql\';
-$database_server = \'' . $database_server . '\';
-$database_user = \'' . modx_escape($database_user) . '\';
-$database_password = \'' . modx_escape($database_password) . '\';
-$database_connection_charset = \'' . $database_connection_charset . '\';
-$database_connection_method = \'' . $database_connection_method . '\';
-$dbase = \'`' . str_replace("`", "", $dbase) . '`\';
-$table_prefix = \'' . $table_prefix . '\';
-error_reporting(E_ALL & ~E_NOTICE);
+$configString = file_get_contents('config.inc.tpl');
+$ph['database_type']               = 'mysql';
+$ph['database_server']             = $database_server;
+$ph['database_user']               = modx_escape($database_user);
+$ph['database_password']           = modx_escape($database_password);
+$ph['database_connection_charset'] = $database_connection_charset;
+$ph['database_connection_method']  = $database_connection_method;
+$ph['dbase']                       = str_replace('`', '', $dbase);
+$ph['table_prefix']                = $table_prefix;
+$ph['lastInstallTime']             = time();
+$ph['site_sessionname']            = $site_sessionname;
+$ph['https_port']                  = '443';
 
-$lastInstallTime = '.time().';
-
-$site_sessionname = \'' . $site_sessionname . '\';
-$https_port = \'443\';
-
-// automatically assign base_path and base_url
-if(empty($base_path)||empty($base_url)||$_REQUEST[\'base_path\']||$_REQUEST[\'base_url\']) {
-    $sapi= \'undefined\';
-    if (!strstr($_SERVER[\'PHP_SELF\'], $_SERVER[\'SCRIPT_NAME\']) && ($sapi= @ php_sapi_name()) == \'cgi\') {
-        $script_name= $_SERVER[\'PHP_SELF\'];
-    } else {
-        $script_name= $_SERVER[\'SCRIPT_NAME\'];
-    }
-    $a= explode("/manager", str_replace("\\\\", "/", dirname($script_name)));
-    if (count($a) > 1)
-        array_pop($a);
-    $url= implode("manager", $a);
-    reset($a);
-    $a= explode("manager", str_replace("\\\\", "/", dirname(__FILE__)));
-    if (count($a) > 1)
-        array_pop($a);
-    $pth= implode("manager", $a);
-    unset ($a);
-    $base_url= $url . (substr($url, -1) != "/" ? "/" : "");
-    $base_path= $pth . (substr($pth, -1) != "/" && substr($pth, -1) != "\\\\" ? "/" : "");
+foreach($ph as $k=>$v)
+{
+	$src = '[+' . $k . '+]';
+	$configString = str_replace($src, $v, $configString);
 }
-// assign site_url
-$site_url= ((isset ($_SERVER[\'HTTPS\']) && strtolower($_SERVER[\'HTTPS\']) == \'on\') || $_SERVER[\'SERVER_PORT\'] == $https_port) ? \'https://\' : \'http://\';
-$site_url .= $_SERVER[\'HTTP_HOST\'];
-if ($_SERVER[\'SERVER_PORT\'] != 80)
-    $site_url= str_replace(\':\' . $_SERVER[\'SERVER_PORT\'], \'\', $site_url); // remove port from HTTP_HOST
-$site_url .= ($_SERVER[\'SERVER_PORT\'] == 80 || (isset ($_SERVER[\'HTTPS\']) && strtolower($_SERVER[\'HTTPS\']) == \'on\') || $_SERVER[\'SERVER_PORT\'] == $https_port) ? \'\' : \':\' . $_SERVER[\'SERVER_PORT\'];
-$site_url .= $base_url;
 
-if (!defined(\'MODX_BASE_PATH\')) define(\'MODX_BASE_PATH\', $base_path);
-if (!defined(\'MODX_BASE_URL\')) define(\'MODX_BASE_URL\', $base_url);
-if (!defined(\'MODX_SITE_URL\')) define(\'MODX_SITE_URL\', $site_url);
-if (!defined(\'MODX_MANAGER_PATH\')) define(\'MODX_MANAGER_PATH\', $base_path.\'manager/\');
-if (!defined(\'MODX_MANAGER_URL\')) define(\'MODX_MANAGER_URL\', $site_url.\'manager/\');
-
-// start cms session
-if(!function_exists(\'startCMSSession\')) {
-	function startCMSSession(){
-		global $site_sessionname;
-		session_name($site_sessionname);
-		session_start();
-		$cookieExpiration= 0;
-        if (isset ($_SESSION[\'mgrValidated\']) || isset ($_SESSION[\'webValidated\'])) {
-            $contextKey= isset ($_SESSION[\'mgrValidated\']) ? \'mgr\' : \'web\';
-            if (isset ($_SESSION[\'modx.\' . $contextKey . \'.session.cookie.lifetime\']) && is_numeric($_SESSION[\'modx.\' . $contextKey . \'.session.cookie.lifetime\'])) {
-                $cookieLifetime= intval($_SESSION[\'modx.\' . $contextKey . \'.session.cookie.lifetime\']);
-            }
-            if ($cookieLifetime) {
-                $cookieExpiration= time() + $cookieLifetime;
-            }
-			if (!isset($_SESSION[\'modx.session.created.time\'])) {
-			  $_SESSION[\'modx.session.created.time\'] = time();
-			}
-        }
-		setcookie(session_name(), session_id(), $cookieExpiration, MODX_BASE_URL);
-	}
-}';
-$configString .= "\n?>";
 $filename = '../manager/includes/config.inc.php';
 $configFileFailed = false;
 if (@ !$handle = fopen($filename, 'w')) {
@@ -680,7 +621,7 @@ if (isset ($_POST['snippet']) || $installData) {
 if ($installData && $moduleSQLDataFile) {
     echo "<p>" . $_lang['installing_demo_site'];
     $sqlParser->process($moduleSQLDataFile);
-	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
+//	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
     // display database results
     if ($sqlParser->installFailed == true) {
         $errors += 1;

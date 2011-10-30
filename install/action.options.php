@@ -12,17 +12,7 @@ if ($installMode == 0 || $installMode == 2) {
 elseif ($installMode == 1) {
     include "../manager/includes/config.inc.php";
 
-    if (@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
-        if (@ mysql_query("USE {$dbase}")) {
-            if (!$rs = @ mysql_query("show session variables like 'collation_database'")) {
-                $rs = @ mysql_query("show session variables like 'collation_server'");
-            }
-            if ($rs && $collation = mysql_fetch_row($rs)) {
-                $database_collation = trim($collation[1]);
-            }
-        }
-    }
-    if (empty ($database_collation)) {
+    if (empty($database_collation)) {
         $database_collation = 'utf8_general_ci';
     }
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
@@ -54,7 +44,7 @@ elseif ($installMode == 1) {
     <input type="hidden" value="<?php echo $installMode; ?>" name="installmode" />
     <input type="hidden" value="<?php echo trim($_POST['database_name'], '`'); ?>" name="database_name" />
     <input type="hidden" value="<?php echo $_POST['tableprefix']; ?>" name="tableprefix" />
-    <input type="hidden" value="<?php echo $_POST['database_collation']; ?>" name="database_collation" />
+    <input type="hidden" value="<?php echo $database_collation; ?>" name="database_collation" />
     <input type="hidden" value="<?php echo $_POST['database_connection_charset']; ?>" name="database_connection_charset" />
     <input type="hidden" value="<?php echo $_POST['database_connection_method']; ?>" name="database_connection_method" />
     <input type="hidden" value="<?php echo $_POST['databasehost']; ?>" name="databasehost" />

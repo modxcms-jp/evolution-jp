@@ -1885,9 +1885,9 @@ class DocumentParser {
         }
         
         if (empty($mode)) {
-            $strTime = strftime($dateFormat . " %H:%M:%S", $timestamp);
+            $strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
         } elseif ($mode == 'dateOnly') {
-            $strTime = strftime($dateFormat, $timestamp);
+            $strTime = $this->mb_strftime($dateFormat, $timestamp);
         } elseif ($mode == 'formatOnly') {
         	$strTime = $dateFormat;
         }
@@ -1922,6 +1922,30 @@ class DocumentParser {
         $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
         $timeStamp = intval($timeStamp);
         return $timeStamp;
+    }
+
+    function mb_strftime($format='%Y/%m/%d', $timestamp='') {
+        $a = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+        $A = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+        $w         = strftime('%w', $timestamp);
+        $p = array('am'=>'AM', 'pm'=>'PM');
+        $P = array('am'=>'am', 'pm'=>'pm');
+        $ampm = (strftime('%H', $timestamp) < 12) ? 'am' : 'pm';
+        if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
+        if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
+        $peaces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
+        
+        $str = '';
+        foreach($peaces as $v)
+        {
+          if    ($v == '%a')              $str .= $a[$w];
+          elseif($v == '%A')              $str .= $A[$w];
+          elseif($v == '%p')              $str .= $p[$ampm];
+          elseif($v == '%P')              $str .= $P[$ampm];
+          elseif(strpos($v, '%')!==false) $str .= strftime($v, $timestamp);
+          else                            $str .= $v;
+        }
+        return $str;
     }
 
     #::::::::::::::::::::::::::::::::::::::::
