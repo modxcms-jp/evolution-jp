@@ -1462,14 +1462,54 @@ class DocumentParser {
         elseif ($type > 3) {
             $type= 3; // Types: 1 = information, 2 = warning, 3 = error
         }
-        $sql= "INSERT INTO " . $this->getFullTableName("event_log") . " (eventid,type,createdon,source,description,user) " .
-	"VALUES($evtid,$type," . time() . ",'$source','$msg','" . $LoginUserID . "')";
-        $ds= @$this->db->query($sql);
-        if (!$ds) {
+        $fields['eventid']     = $evtid;
+        $fields['type']        = $type;
+        $fields['createdon']   = time();
+        $fields['source']      = $source;
+        $fields['description'] = $msg;
+        $fields['user']        = $LoginUserID;
+        $insert_id = @$this->db->insert($fields,$this->getFullTableName("event_log"));
+        if (!$insert_id) {
             echo "Error while inserting event log into database.";
             exit();
         }
+        else {
+            $trim  = ($this->config['event_log_trim'])  ? intval($this->config['event_log_trim']) : 100;
+            if(($insert_id % $trim) == 0)
+            {
+                $limit = ($this->config['event_log_limit']) ? intval($this->config['event_log_limit']) : 1000;
+                $this->purge_event_log($limit,$trim);
+            }
+        }
     }
+
+	function purge_event_log($limit=1000, $trim=100)
+	{
+		if($limit < $trim) $trim = $limit;
+		
+		$tbl_event_log = $this->getFullTableName("event_log");
+		$sql = "SELECT COUNT(id) as count FROM {$tbl_event_log}";
+		$rs = $this->db->query($sql);
+		if($rs) $row = $this->db->getRow($rs);
+		$over = $row['count'] - $limit;
+		if(0 < $over)
+		{
+			$trim = ($over + $trim);
+			$sql = "DELETE FROM {$tbl_event_log} LIMIT {$trim}";
+			$this->db->query($sql);
+			$sql = "OPTIMIZE TABLE {$tbl_event_log}";
+			$this->db->query($sql);
+		}
+	}
+	
+	function remove_locks($action=27,$limit_time=86400)
+	{
+		$limit_time = time() - $limit_time;
+		$action     = intval($action);
+		$tbl_active_users = $this->getFullTableName('active_users');
+		$sql = "DELETE FROM {$tbl_active_users} WHERE action={$action} and lasthit < {$limit_time}";
+		$this->db->query($sql);
+	}
 
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
@@ -2985,10 +3025,11 @@ class DocumentParser {
         } else {
             // default behavior: strip invalid characters and replace spaces with dashes.
             $alias = strip_tags($alias); // strip HTML
-            $alias = preg_replace('/[^\.A-Za-z0-9 _-]/', '', $alias); // strip non-alphanumeric characters
-            $alias = preg_replace('/\s+/', '-', $alias); // convert white-space to dash
-            $alias = preg_replace('/-+/', '-', $alias);  // convert multiple dashes to one
-            $alias = trim($alias, '-'); // trim excess
+//          $alias = preg_replace('/[^\.A-Za-z0-9 _-]/', '', $alias); // strip non-alphanumeric characters
+//          $alias = preg_replace('/\s+/', '-', $alias); // convert white-space to dash
+//          $alias = preg_replace('/-+/', '-', $alias);  // convert multiple dashes to one
+//          $alias = trim($alias, '-'); // trim excess
+            $alias = urlencode($alias);
             return $alias;
         }
     }

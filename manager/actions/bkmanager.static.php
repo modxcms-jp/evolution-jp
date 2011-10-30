@@ -84,6 +84,13 @@ elseif ($mode=='backup')
 	include_once "header.inc.php";  // start normal header
 }
 
+if(isset($_SESSION['import_result']) && $_SESSION['import_result'] === 'ok')
+{
+	$ph['import_result'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">リストアは正常に実行されました。</div>';
+	$_SESSION['import_result'] = '';
+}
+else $ph['import_result'] = '';
+
 ?>
 <script language="javascript">
 	function selectAll() {
@@ -107,7 +114,7 @@ elseif ($mode=='backup')
 <h1><?php echo $_lang['bk_manager']?></h1>
 <div class="sectionHeader"><?php echo $_lang['bk_manager']?></div>
 <div class="sectionBody" id="lyr4">
-	<div class="tab-pane" id="dbmPane"> 
+	<div class="tab-pane" id="dbmPane">
 	<script type="text/javascript"> 
 	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane')); 
 	</script>
@@ -202,6 +209,7 @@ if ($totaloverhead > 0) {
 <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
 <div class="tab-page" id="tabRestore">  
 	<h2 class="tab">リストア</h2>
+	<?php echo $ph['import_result']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
 	<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />
 	※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />
@@ -407,6 +415,7 @@ function import_sql($source)
 	$sync->setReport(false);
 	$sync->emptyCache(); // first empty the cache		
 	// finished emptying cache - redirect
+	$_SESSION['import_result'] = 'ok';
 	$header="Location: index.php?r=1&a=93";
 	header($header);
 }

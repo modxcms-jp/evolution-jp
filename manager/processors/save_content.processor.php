@@ -8,36 +8,36 @@ if (!$modx->hasPermission('save_document')) {
 }
 
 // preprocess POST values
-$id = is_numeric($_POST['id']) ? $_POST['id'] : '';
-$introtext = $modx->db->escape($_POST['introtext']);
-$content = $modx->db->escape($_POST['ta']);
-$pagetitle = $modx->db->escape($_POST['pagetitle']);
-$description = $modx->db->escape($_POST['description']);
-$alias = $modx->db->escape($_POST['alias']);
+$id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
+$introtext       = $modx->db->escape($_POST['introtext']);
+$content         = $modx->db->escape($_POST['ta']);
+$pagetitle       = $modx->db->escape($_POST['pagetitle']);
+$description     = $modx->db->escape($_POST['description']);
+$alias           = $modx->db->escape($_POST['alias']);
 $link_attributes = $modx->db->escape($_POST['link_attributes']);
-$isfolder = $_POST['isfolder'];
-$richtext = $_POST['richtext'];
-$published = $_POST['published'];
-$parent = $_POST['parent'] != '' ? $_POST['parent'] : 0;
-$template = $_POST['template'];
-$menuindex = !empty($_POST['menuindex']) ? $_POST['menuindex'] : 0;
-$searchable = $_POST['searchable'];
-$cacheable = $_POST['cacheable'];
-$syncsite = $_POST['syncsite'];
-$pub_date = $_POST['pub_date'];
-$unpub_date = $_POST['unpub_date'];
+$isfolder        = $_POST['isfolder'];
+$richtext        = $_POST['richtext'];
+$published       = $_POST['published'];
+$parent          = $_POST['parent'] != '' ? $_POST['parent'] : 0;
+$template        = $_POST['template'];
+$menuindex       = !empty($_POST['menuindex']) ? $_POST['menuindex'] : 0;
+$searchable      = $_POST['searchable'];
+$cacheable       = $_POST['cacheable'];
+$syncsite        = $_POST['syncsite'];
+$pub_date        = $_POST['pub_date'];
+$unpub_date      = $_POST['unpub_date'];
 $document_groups = (isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on') ? array() : $_POST['docgroups'];
-$type = $_POST['type'];
-$keywords = $_POST['keywords'];
-$metatags = $_POST['metatags'];
-$contentType = $modx->db->escape($_POST['contentType']);
-$contentdispo = intval($_POST['content_dispo']);
-$longtitle = $modx->db->escape($_POST['longtitle']);
-$donthit = intval($_POST['donthit']);
-$menutitle = $modx->db->escape($_POST['menutitle']);
-$hidemenu = intval($_POST['hidemenu']);
+$type            = $_POST['type'];
+$keywords        = $_POST['keywords'];
+$metatags        = $_POST['metatags'];
+$contentType     = $modx->db->escape($_POST['contentType']);
+$contentdispo    = intval($_POST['content_dispo']);
+$longtitle       = $modx->db->escape($_POST['longtitle']);
+$donthit         = intval($_POST['donthit']);
+$menutitle       = $modx->db->escape($_POST['menutitle']);
+$hidemenu        = intval($_POST['hidemenu']);
 
-if (trim($pagetitle == "")) {
+if (trim($pagetitle) == '') {
 	if ($type == "reference") {
 		$pagetitle = $_lang['untitled_weblink'];
 	} else {
@@ -58,21 +58,30 @@ $tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentv
 $tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 $tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
 
-$actionToTake = "new";
-if ($_POST['mode'] == '73' || $_POST['mode'] == '27') {
-	$actionToTake = "edit";
+switch($_POST['mode'])
+{
+	case '73':
+	case '27':
+		$actionToTake = 'edit';
+		break;
+	default:
+		$actionToTake = 'new';
 }
 
 // friendly url alias checks
-if ($friendly_urls) {
-	// auto assign alias
-	if (!$alias && $automatic_alias) {
+if ($modx->config['friendly_urls'])
+{	// auto assign alias
+	if (!$alias && $modx->config['automatic_alias'])
+	{
 		$alias = strtolower($modx->stripAlias(trim($pagetitle)));
-		if(!$allow_duplicate_alias) {
-			if ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND alias='$alias'") != 0) {
+		if(!$modx->config['allow_duplicate_alias'])
+		{
+			if($modx->db->getValue("SELECT COUNT(id) FROM {$tbl_site_content} WHERE id<>'{$id}' AND alias='{$alias}'") != 0)
+			{
 				$cnt = 1;
 				$tempAlias = $alias;
-				while ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND alias='$tempAlias'") != 0) {
+				while($modx->db->getValue("SELECT COUNT(id) FROM {$tbl_site_content} WHERE id<>'{$id}' AND alias='{$tempAlias}'") != 0)
+				{
 					$tempAlias = $alias;
 					$tempAlias .= $cnt;
 					$cnt++;
@@ -81,9 +90,9 @@ if ($friendly_urls) {
 			}
 		}
 	}
-
 	// check for duplicate alias name if not allowed
-	elseif ($alias && !$allow_duplicate_alias) {
+	elseif ($alias && !$allow_duplicate_alias)
+	{
 		$alias = $modx->stripAlias($alias);
 		if ($use_alias_path) {
 			// only check for duplicates on the same level if alias_path is on
@@ -126,8 +135,16 @@ if (empty ($pub_date)) {
 	$pub_date = 0;
 } else {
 	$pub_date = $modx->toTimeStamp($pub_date);
-
-	if ($pub_date < $currentdate) {
+	if(empty($pub_date))
+	{
+		$modx->manager->saveFormValues(27);
+		$url = "index.php?a=27&id=" . $id;
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif($pub_date < $currentdate) {
 		$published = 1;
 	}
 	elseif ($pub_date > $currentdate) {
@@ -139,7 +156,16 @@ if (empty ($unpub_date)) {
 	$unpub_date = 0;
 } else {
 	$unpub_date = $modx->toTimeStamp($unpub_date);
-	if ($unpub_date < $currentdate) {
+	if(empty($unpub_date))
+	{
+		$modx->manager->saveFormValues(27);
+		$url = "index.php?a=27&id=" . $id;
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif ($unpub_date < $currentdate) {
 		$published = 0;
 	}
 }

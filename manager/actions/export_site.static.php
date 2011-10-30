@@ -1,14 +1,12 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-if(!$modx->hasPermission('export_static')) {
+if(!$modx->hasPermission('export_static'))
+{
 	$e->setError(3);
 	$e->dumpError();
 }
 
 // figure out the base of the server, so we know where to get the documents in order to export them
-$base = MODX_SITE_URL;
-
-
 ?>
 
 <script type="text/javascript">
@@ -49,11 +47,11 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site_prefix']; ?></td>
-    <td><input type="text" name="prefix" value="<?php echo $friendly_url_prefix; ?>" /></td>
+    <td><input type="text" name="prefix" value="<?php echo $modx->config['friendly_url_prefix']; ?>" /></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site_suffix']; ?></td>
-    <td><input type="text" name="suffix" value="<?php echo $friendly_url_suffix; ?>" /></td>
+    <td><input type="text" name="suffix" value="<?php echo $modx->config['friendly_url_suffix']; ?>" /></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site_maxtime']; ?></td>
@@ -74,33 +72,115 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 }
 else
 {
-	$maxtime = $_POST['maxtime'];
-	if(!is_numeric($maxtime))  $maxtime = 30;
-
+	$export = new EXPORT_SITE();
+	
+	$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
 	@set_time_limit($maxtime);
-	$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $exportstart = $mtime;
+	$exportstart = $export->get_mtime();
 
-	$filepath = "../assets/export/";
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	$filepath = MODX_BASE_PATH . 'assets/export/';
 	if(!is_writable($filepath))
 	{
 		echo $_lang['export_site_target_unwritable'];
 		include "footer.inc.php";
 		exit;
 	}
+	
+	$noncache = $_POST['includenoncache']==1 ? '' : "AND {$tbl_site_content}.cacheable=1";
+	
+	// Support export alias path
+	
+	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
+	{
+		$sqlcond = "{$tbl_site_content}.deleted=0 AND (({$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document') OR ({$tbl_site_content}.isfolder=1)) $noncache";
+		$sql = "SELECT count(id) as total FROM {$tbl_site_content} WHERE {$sqlcond}";
+		$rs  = $modx->db->query($sql);
+		$row = mysql_fetch_assoc($rs);
+		$total = $row['total'];
+		printf($_lang['export_site_numberdocs'], $total);
+		$n = 1;
+		$export->exportDir(0, $filepath, $n, $total);
 
-	$prefix = $_POST['prefix'];
-	$suffix = $_POST['suffix'];
+	}
+	else
+	{
+		$prefix = $_POST['prefix'];
+		$suffix = $_POST['suffix'];
+	
+	// Modified for export alias path  2006/3/24 end
+		$sql = "SELECT id, alias, pagetitle FROM {$tbl_site_content} WHERE {$tbl_site_content}.deleted=0 AND {$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document' $noncache";
+		$rs = $modx->db->query($sql);
+		$total = mysql_num_rows($rs);
+		printf($_lang['export_site_numberdocs'], $total);
 
-	$noncache = $_POST['includenoncache']==1 ? "" : "AND $dbase.`".$table_prefix."site_content`.cacheable=1";
+		for($i=0; $i<$total; $i++)
+		{
+			$row=mysql_fetch_assoc($rs);
 
-	// Support export alias path  
+			$id = $row['id'];
+			printf($_lang['export_site_exporting_document'], $i+1, $total, $row['pagetitle'], $id);
+			$row['alias'] = urldecode($row['alias']);
+			$alias = $row['alias'];
+		
+			if(empty($alias))
+			{
+				$filename = $prefix.$id.$suffix;
+			}
+			else
+			{
+				$pa = pathinfo($alias); // get path info array
+				$tsuffix = !empty($pa[extension]) ? '':$suffix;
+				$filename = $prefix.$alias.$tsuffix;
+			}
+			// get the file
+			if(@$somecontent = file_get_contents(MODX_SITE_URL . 'index.php?id=' . $id))
+			{
+				// save it
+				$filename = $filepath . $filename;
+				// Write $somecontent to our opened file.
+				if(file_put_contents($filename, $somecontent) === FALSE)
+				{
+					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
+					exit;
+				}
+				echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
+			}
+			else
+			{
+				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
+			}
+		}
+	}
+	$exportend = $export->get_mtime();
+	$totaltime = ($exportend - $exportstart);
+	printf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
+?>
+<ul class="actionButtons">
+	<li><a href="#" onclick="reloadTree();"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
+</ul>
+<?php
+}
+
+
+
+class EXPORT_SITE
+{
+	function EXPORT_SITE()
+	{
+	}
+	
+	function get_mtime()
+	{
+		$mtime = microtime();
+		$mtime = explode(' ', $mtime);
+		$mtime = $mtime[1] + $mtime[0];
+		return $mtime;
+	}
+	
 	function removeDirectoryAll($directory)
 	{
-		// if the path has a slash at the end, remove it
-		if(substr($directory,-1) == '/')
-		{
-			$directory = substr($directory,0,-1);
-		}
+		$directory = rtrim($directory,'/');
 		// if the path is not valid or is not a directory ...
 		if(!file_exists($directory) || !is_dir($directory))
 		{
@@ -112,49 +192,31 @@ else
 		}
 		else
 		{
-			$dh = opendir($directory);
-			while (FALSE !== ($file = @readdir($dh)))
+			foreach(glob($directory . '/*') as $path)
 			{
-				if($file != '.' && $file != '..')
-				{
-					$path = $directory.'/'.$file;
-					if(is_dir($path)) removeDirectoryAll($path);// call myself
-					else              @unlink($path);
-				}
+				if(is_dir($path)) $this->removeDirectoryAll($path);// call myself
+				else              @unlink($path);
 			}
-			closedir($dh);
 		}
 		return (@rmdir($directory));
 	}
 
-	function writeAPage($baseURL, $docid, $filepath)
+	function writeAPage($docid, $filepath)
 	{
-		global $_lang;
-		global $base;
-		if(@$handle = fopen($baseURL."index.php?id=".$docid, "r"))
+		global  $_lang;
+		
+		$src = @file_get_contents(MODX_SITE_URL . 'index.php?id=' . $docid);
+		if($src !== false)
 		{
-			$buffer = "";
-			while (!feof ($handle))
+			$result = @file_put_contents($filepath,$src);
+			if($result !== false)
 			{
-				$buffer .= fgets($handle, 4096);
-			}
-			fclose ($handle);
-			$somecontent = $buffer;
-			if (!$handle = fopen($filepath, 'w'))
-			{
-				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_open_filepath"].'</span><br />';
-				return FALSE;
+				echo ' <span class="success">'.$_lang["export_site_success"].'</span><br />';
 			}
 			else
 			{
-				// Write $somecontent to our opened file.
-				if(fwrite($handle, $somecontent) === FALSE)
-				{
-					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_write"].'</span><br />';
-					return FALSE;
-				}
-				fclose($handle);
-				echo ' <span class="success">'.$_lang["export_site_success"].'</span><br />';
+				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> " . $_lang["export_site_failed_no_write"] . ' - ' . $filepath . '</span><br />';
+				return FALSE;
 			}
 		}
 		else
@@ -180,13 +242,10 @@ else
 		return $filename;
 	}
 
-	function scanDirectory($path, $files)
+	function scanDirectory($path, $docnames)
 	{
 		// if the path has a slash at the end, remove it
-		if(substr($path, -1) == '/')
-		{
-			$path = substr($path, 0, -1);
-		}
+		$path = rtrim($path,'/');
 		// if the path is not valid or is not a directory ...
 		if(!file_exists($path) || !is_dir($path))
 		{
@@ -198,57 +257,54 @@ else
 		}
 		else
 		{
-			$dh = opendir($path);
-			while (FALSE !== ($filename = @readdir($dh)))
+			foreach(glob($path . '/*') as $filepath)
 			{
-				if($filename != '.' && $filename != '..' && substr($filename, 1) != '.')
+				$filename = substr($filepath,strlen($path . '/'));
+				if(!in_array($filename, $docnames))
 				{
-					if (!in_array($filename, $files))
-					{
-						$file = $path."/".$filename;
-						if (is_dir($file))
-						{
-							removeDirectoryAll($file);
-						}
-						else
-						{
-							@unlink($file);
-						}
-					}
+					if(is_dir($filepath)) $this->removeDirectoryAll($filepath);
+					else                  @unlink($filepath);
 				}
 			}
-			closedir($dh);
 			return TRUE;
 		}
 	}
 
-	function exportDir($dirid, $dirpath, &$i)
+	function exportDir($dirid, $dirpath, &$i, $total)
 	{
 		global $_lang;
-		global $base;
 		global $modx;
-		global $limit;
-		global $dbase;
-		global $table_prefix;
-		global $sqlcond;
-
-		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon FROM $dbase.`".$table_prefix."site_content` WHERE $dbname.`".$table_prefix."site_content`.parent = ".$dirid." AND ".$sqlcond;
+		
+		$tbl_site_content = $modx->getFullTableName('site_content');
+		$noncache = $_POST['includenoncache']==1 ? '' : "AND {$tbl_site_content}.cacheable=1";
+		$sqlcond = "{$tbl_site_content}.deleted=0 AND (({$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document') OR ({$tbl_site_content}.isfolder=1)) $noncache";
+		
+		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent = ".$dirid." AND ".$sqlcond;
 		$rs = mysql_query($sql);
 		$dircontent = array();
 		while($row = mysql_fetch_assoc($rs))
 		{
+			$row['alias'] = urldecode($row['alias']);
+			
 			if (!$row['wasNull'])
 			{ // needs writing a document
-				$docname = getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
-				printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
+				$docname = $this->getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
+				printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
 				$filename = $dirpath.$docname;
 				if (is_dir($filename))
 				{
-					removeDirectoryAll($filename);
+					$this->removeDirectoryAll($filename);
 				}
 				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']) || $_POST['target']=='1')
 				{
-					if (!writeAPage($base, $row['id'], $filename)) exit;
+					if($row['published']==1)
+					{
+						if (!$this->writeAPage($row['id'], $filename)) exit;
+					}
+					else
+					{
+						echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
+					}
 				}
 				else
 				{
@@ -258,14 +314,15 @@ else
 			}
 			if ($row['isfolder'])
 			{ // needs making a folder
-				$dirname = $dirpath.$row['alias'];
+				if(empty($row['alias'])) $row['alias'] = $row['id'];
+				$dirname = $dirpath . $row['alias'];
 				if (!is_dir($dirname))
 				{
-					if (file_exists($dirname)) @unlink($dirname);
+					if(file_exists($dirname)) @unlink($dirname);
 					mkdir($dirname);
 					if ($row['wasNull'])
 					{
-						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
+						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
 						echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 					}
 				}
@@ -273,84 +330,15 @@ else
 				{
 					if ($row['wasNull'])
 					{
-						printf($_lang['export_site_exporting_document'], $i++, $limit, $row['pagetitle'], $row['id']);
-						echo ' <span class="success">'.$_lang['export_site_success'].$_lang["export_site_success_skip_dir"].'</span><br />';
+						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
+						echo ' <span class="success">' . $_lang['export_site_success'] . '</span>' . $_lang["export_site_success_skip_dir"] . '<br />';
 					}
 				}
-				exportDir($row['id'], $dirname."/", $i);
+				$this->exportDir($row['id'], $dirname . '/', $i, $total);
 				$dircontent[] = $row['alias'];
 			}
 		}
 		// remove No-MODx files/dirs 
-		if (!scanDirectory($dirpath, $dircontent)) exit;
-//		print_r ($dircontent);
+		if (!$this->scanDirectory($dirpath, $dircontent)) exit;
 	}
-
-	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
-	{
-		$sqlcond = "$dbase.`".$table_prefix."site_content`.deleted=0 AND (($dbase.`".$table_prefix."site_content`.published=1 AND $dbase.`".$table_prefix."site_content`.type='document') OR ($dbase.`".$table_prefix."site_content`.isfolder=1)) $noncache";
-		$sql = "SELECT count(*) as count1 FROM $dbase.`".$table_prefix."site_content` WHERE ".$sqlcond;
-		$rs = mysql_query($sql);
-		$row = mysql_fetch_row($rs);
-		$prefix = $modx->config['friendly_url_prefix'];
-		$suffix = $modx->config['friendly_url_suffix'];
-		$limit = $row[0];
-		printf($_lang['export_site_numberdocs'], $limit);
-		$n = 1;
-		exportDir(0, $filepath, $n);
-
-	}
-	else
-	{
-	// Modified for export alias path  2006/3/24 end
-		$sql = "SELECT id, alias, pagetitle FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND $dbase.`".$table_prefix."site_content`.published=1 AND $dbase.`".$table_prefix."site_content`.type='document' $noncache";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		printf($_lang['export_site_numberdocs'], $limit);
-
-		for($i=0; $i<$limit; $i++)
-		{
-			$row=mysql_fetch_assoc($rs);
-
-			$id = $row['id'];
-			printf($_lang['export_site_exporting_document'], $i+1, $limit, $row['pagetitle'], $id);
-			$alias = $row['alias'];
-		
-			if(empty($alias))
-			{
-				$filename = $prefix.$id.$suffix;
-			}
-			else
-			{
-				$pa = pathinfo($alias); // get path info array
-				$tsuffix = !empty($pa[extension]) ? '':$suffix;
-				$filename = $prefix.$alias.$tsuffix;
-			}
-			// get the file
-			if(@$somecontent = file_get_contents($base . 'index.php?id=' . $id))
-			{
-				// save it
-				$filename = $filepath . $filename;
-				// Write $somecontent to our opened file.
-				if(file_put_contents($filename, $somecontent) === FALSE)
-				{
-					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
-					exit;
-				}
-				echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
-			}
-			else
-			{
-				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
-			}
-		}
-	}
-	$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $exportend = $mtime;
-	$totaltime = ($exportend - $exportstart);
-	printf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
-?>
-<ul class="actionButtons">
-	<li><a href="#" onclick="reloadTree();"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
-</ul>
-<?php
 }

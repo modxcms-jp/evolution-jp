@@ -8,6 +8,7 @@ switch ($_REQUEST['a']) {
 			$e->setError(3);
 			$e->dumpError();
 		}
+		$modx->remove_locks();
 		break;
 	case 85:
 	case 72:
@@ -570,7 +571,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				<td><input name="description" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['description']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_description_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_alias']?></span></td>
-				<td><input name="alias" type="text" maxlength="100" value="<?php echo stripslashes($content['alias'])?>" class="inputBox" onchange="documentDirty=true;" />
+				<td><input name="alias" type="text" maxlength="100" value="<?php $content['alias'] = urldecode($content['alias']); echo stripslashes($content['alias'])?>" class="inputBox" onchange="documentDirty=true;" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_alias_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['link_attributes']?></span></td>
 				<td><input name="link_attributes" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['link_attributes']))?>" class="inputBox" onchange="documentDirty=true;" />
@@ -655,7 +656,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 			<tr style="height: 24px;"><td align="left" style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_index']?></span></td>
 				<td><table border="0" cellspacing="0" cellpadding="0" style="width:333px;"><tr>
-					<td><input name="menuindex" type="text" maxlength="3" value="<?php echo $content['menuindex']?>" class="inputBox number" style="width:30px;" onchange="documentDirty=true;" /><input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" /><input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
+					<td><input name="menuindex" type="text" maxlength="5" value="<?php echo $content['menuindex']?>" class="inputBox number" style="width:30px;" onchange="documentDirty=true;" /><input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" /><input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 					&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_index_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
 					<td align="right" style="text-align:right;"><span class="warning"><?php echo $_lang['resource_opt_show_menu']?></span>&nbsp;<input name="hidemenucheck" type="checkbox" class="checkbox" <?php echo $content['hidemenu']!=1 ? 'checked="checked"':''?> onclick="changestate(document.mutate.hidemenu);" /><input type="hidden" name="hidemenu" class="hidden" value="<?php echo ($content['hidemenu']==1) ? 1 : 0?>" />
 					&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_show_menu_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
