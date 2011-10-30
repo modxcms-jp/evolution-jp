@@ -62,31 +62,28 @@ if ($row = mysql_fetch_assoc($rs))
 // Set the item name for logging
 $_SESSION['itemname'] = $content['pagetitle'];
 
-// Get list of current keywords for this document
 $keywords = array();
-$sql = 'SELECT k.keyword FROM '.$tbl_site_keywords.' AS k, '.$tbl_keyword_xref.' AS x '.
-       'WHERE k.id = x.keyword_id AND x.content_id = \''.$id.'\' '.
-       'ORDER BY k.keyword ASC';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 0) {
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+$metatags_selected = array();
+if ($modx->config['show_meta'])
+{
+	// Get list of current keywords for this document
+	$sql = "SELECT k.keyword FROM {$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x ".
+	       "WHERE k.id = x.keyword_id AND x.content_id = '{$id}' ".
+	       "ORDER BY k.keyword ASC";
+	$rs = mysql_query($sql);
+	while($row = mysql_fetch_assoc($rs))
+	{
 		$keywords[$i] = $row['keyword'];
 	}
-}
-
-// Get list of selected site META tags for this document
-$metatags_selected = array();
-$sql = 'SELECT meta.id, meta.name, meta.tagvalue '.
-       'FROM '.$tbl_site_metatags.' AS meta '.
-       'LEFT JOIN '.$tbl_site_content_metatags.' AS sc ON sc.metatag_id = meta.id '.
-       'WHERE sc.content_id=\''.$content['id'].'\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 0) {
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+	
+	// Get list of selected site META tags for this document
+	$sql = "SELECT meta.id, meta.name, meta.tagvalue ".
+	       "FROM {$tbl_site_metatags} AS meta ".
+	       "LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id ".
+	       "WHERE sc.content_id='{$content['id']}'";
+	$rs = mysql_query($sql);
+	while($row = mysql_fetch_assoc($rs))
+	{
 		$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
 	}
 }
@@ -244,6 +241,7 @@ function movedocument() {
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td></tr>
 			<tr><td valign="top"><?php echo $_lang['resource_alias']?>: </td>
 				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
+			<?php if ($modx->config['show_meta']) {?>
 			<tr><td valign="top"><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)
@@ -256,6 +254,7 @@ function movedocument() {
 					echo join($metatags_selected, "<br /> ");
 				else    echo "(<i>".$_lang['not_set']."</i>)";
 				?></td></tr>
+			<?php } ?>
 		<tr><td colspan="2">&nbsp;</td></tr>
 			<tr><td colspan="2"><b><?php echo $_lang['page_data_changes']?></b></td></tr>
 			<tr><td><?php echo $_lang['page_data_created']?>: </td>
