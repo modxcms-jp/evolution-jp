@@ -119,19 +119,23 @@ $modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_n
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
-$sql = "SELECT id, pagetitle, description, editedon, editedby FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 AND ($dbase.`".$table_prefix."site_content`.editedby=".$modx->getLoginUserID()." OR $dbase.`".$table_prefix."site_content`.createdby=".$modx->getLoginUserID().") ORDER BY editedon DESC LIMIT 10";
+$sql  = 'SELECT id, pagetitle, description, editedon, editedby';
+$sql .= ' FROM ' . $modx->getFullTableName('site_content');
+//$sql .= ' LEFT JOIN ' . $modx->getFullTableName('manager_log') . ' AS mlog ON mlog.internalKey = editedby';
+$sql .= ' WHERE deleted=0 AND editedby=' . $modx->getLoginUserID();
+$sql .= ' ORDER BY editedon DESC LIMIT 10';
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
     $html .= '<li>'.$_lang['no_activity_message'].'</li>';
 } else {
     for ($i = 0; $i < $limit; $i++) {
-        $content = mysql_fetch_assoc($rs);
+        $row = mysql_fetch_assoc($rs);
         if($i==0) {
-            $syncid = $content['id'];
+            $syncid = $row['id'];
         }
         
-        $html.='<li><b>' . $modx->toDateFormat($content['editedon']) . '</b> - [' . $content['id'] .'] <a href="index.php?a=3&amp;id='.$content['id'].'">'.$content['pagetitle'].'</a>'.($content['description']!='' ? ' - '.$content['description'] : '')
+        $html.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
         .'</li>';
     }
 }

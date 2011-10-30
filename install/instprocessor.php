@@ -182,8 +182,8 @@ $configString = '<?php
 setlocale (LC_TIME, \'ja_JP.UTF-8\');
 $database_type = \'mysql\';
 $database_server = \'' . $database_server . '\';
-$database_user = \'' . mysql_real_escape_string($database_user) . '\';
-$database_password = \'' . mysql_real_escape_string($database_password) . '\';
+$database_user = \'' . modx_escape($database_user) . '\';
+$database_password = \'' . modx_escape($database_password) . '\';
 $database_connection_charset = \'' . $database_connection_charset . '\';
 $database_connection_method = \'' . $database_connection_method . '\';
 $dbase = \'`' . str_replace("`", "", $dbase) . '`\';
@@ -308,10 +308,10 @@ if (isset ($_POST['template'])) {
 	$selTemplates = $_POST['template'];
 	foreach ($selTemplates as $si) {
 		$si = (int) trim($si);
-		$name = mysql_real_escape_string($moduleTemplates[$si][0]);
-		$desc = mysql_real_escape_string($moduleTemplates[$si][1]);
-		$category = mysql_real_escape_string($moduleTemplates[$si][4]);
-		$locked = mysql_real_escape_string($moduleTemplates[$si][5]);
+		$name = modx_escape($moduleTemplates[$si][0]);
+		$desc = modx_escape($moduleTemplates[$si][1]);
+		$category = modx_escape($moduleTemplates[$si][4]);
+		$locked = modx_escape($moduleTemplates[$si][5]);
 		$filecontent = $moduleTemplates[$si][3];
 		if (!file_exists($filecontent)) {
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
@@ -331,7 +331,7 @@ if (isset ($_POST['template'])) {
 			
 			// Strip the first comment up top
 			$template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-			$template = mysql_real_escape_string($template);
+			$template = modx_escape($template);
 			
 			// See if the template already exists
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_templates` WHERE templatename='$name'", $sqlParser->conn);
@@ -361,18 +361,18 @@ if (isset ($_POST['tv'])) {
     $selTVs = $_POST['tv'];
     foreach ($selTVs as $si) {
         $si = (int) trim($si);
-        $name = mysql_real_escape_string($moduleTVs[$si][0]);
-        $caption = mysql_real_escape_string($moduleTVs[$si][1]);
-        $desc = mysql_real_escape_string($moduleTVs[$si][2]);
-        $input_type = mysql_real_escape_string($moduleTVs[$si][3]);
-        $input_options = mysql_real_escape_string($moduleTVs[$si][4]);
-        $input_default = mysql_real_escape_string($moduleTVs[$si][5]);
-        $output_widget = mysql_real_escape_string($moduleTVs[$si][6]);
-        $output_widget_params = mysql_real_escape_string($moduleTVs[$si][7]);
+        $name = modx_escape($moduleTVs[$si][0]);
+        $caption = modx_escape($moduleTVs[$si][1]);
+        $desc = modx_escape($moduleTVs[$si][2]);
+        $input_type = modx_escape($moduleTVs[$si][3]);
+        $input_options = modx_escape($moduleTVs[$si][4]);
+        $input_default = modx_escape($moduleTVs[$si][5]);
+        $output_widget = modx_escape($moduleTVs[$si][6]);
+        $output_widget_params = modx_escape($moduleTVs[$si][7]);
         $filecontent = $moduleTVs[$si][8];
         $assignments = $moduleTVs[$si][9];
-        $category = mysql_real_escape_string($moduleTVs[$si][10]);
-        $locked = mysql_real_escape_string($moduleTVs[$si][11]);
+        $category = modx_escape($moduleTVs[$si][10]);
+        $locked = modx_escape($moduleTVs[$si][11]);
         
 
         // Create the category if it does not already exist
@@ -403,7 +403,7 @@ if (isset ($_POST['tv'])) {
         
         if (count($assignments) > 0) {
             foreach ($assignments as $assignment) {
-                $template = mysql_real_escape_string($assignment);
+                $template = modx_escape($assignment);
                 $ts = mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_templates` WHERE templatename='$template';",$sqlParser->conn);
                 $ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
                 if ($ds && $ts) {
@@ -426,9 +426,9 @@ if (isset ($_POST['chunk'])) {
 	$selChunks = $_POST['chunk'];
 	foreach ($selChunks as $si) {
 		$si = (int) trim($si);
-		$name = mysql_real_escape_string($moduleChunks[$si][0]);
-		$desc = mysql_real_escape_string($moduleChunks[$si][1]);
-		$category = mysql_real_escape_string($moduleChunks[$si][3]);
+		$name = modx_escape($moduleChunks[$si][0]);
+		$desc = modx_escape($moduleChunks[$si][1]);
+		$category = modx_escape($moduleChunks[$si][3]);
 		
 		$filecontent = $moduleChunks[$si][2];
 		if (!file_exists($filecontent))
@@ -449,7 +449,7 @@ if (isset ($_POST['chunk'])) {
 			}
 			
 			$chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-			$chunk = mysql_real_escape_string($chunk);
+			$chunk = modx_escape($chunk);
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_htmlsnippets` WHERE name='$name'", $sqlParser->conn);
 			if (mysql_num_rows($rs)) {
 				if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_htmlsnippets` SET snippet='$chunk', description='$desc' WHERE name='$name';", $sqlParser->conn)) {
@@ -476,13 +476,13 @@ if (isset ($_POST['module'])) {
 	$selPlugs = $_POST['module'];
 	foreach ($selPlugs as $si) {
 		$si = (int) trim($si);
-		$name = mysql_real_escape_string($moduleModules[$si][0]);
-		$desc = mysql_real_escape_string($moduleModules[$si][1]);
+		$name = modx_escape($moduleModules[$si][0]);
+		$desc = modx_escape($moduleModules[$si][1]);
 		$filecontent = $moduleModules[$si][2];
-		$properties = mysql_real_escape_string($moduleModules[$si][3]);
-		$guid = mysql_real_escape_string($moduleModules[$si][4]);
-		$shared = mysql_real_escape_string($moduleModules[$si][5]);
-		$category = mysql_real_escape_string($moduleModules[$si][6]);
+		$properties = modx_escape($moduleModules[$si][3]);
+		$guid = modx_escape($moduleModules[$si][4]);
+		$shared = modx_escape($moduleModules[$si][5]);
+		$category = modx_escape($moduleModules[$si][6]);
 		if (!file_exists($filecontent))
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_module'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 		else {
@@ -503,7 +503,7 @@ if (isset ($_POST['module'])) {
 			$module = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
 			// remove installer docblock
 			$module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
-			$module = mysql_real_escape_string($module);
+			$module = modx_escape($module);
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_modules` WHERE name='$name'", $sqlParser->conn);
 			if (mysql_num_rows($rs)) {
 			    $row = mysql_fetch_assoc($rs);
@@ -530,18 +530,18 @@ if (isset ($_POST['plugin'])) {
 	$selPlugs = $_POST['plugin'];
 	foreach ($selPlugs as $si) {
 		$si = (int) trim($si);
-		$name = mysql_real_escape_string($modulePlugins[$si][0]);
-		$desc = mysql_real_escape_string($modulePlugins[$si][1]);
+		$name = modx_escape($modulePlugins[$si][0]);
+		$desc = modx_escape($modulePlugins[$si][1]);
 		$desc_raw = $modulePlugins[$si][1];
 		$filecontent = $modulePlugins[$si][2];
-		$properties = mysql_real_escape_string($modulePlugins[$si][3]);
+		$properties = modx_escape($modulePlugins[$si][3]);
 		$events = explode(",", $modulePlugins[$si][4]);
-		$guid = mysql_real_escape_string($modulePlugins[$si][5]);
-		$category = mysql_real_escape_string($modulePlugins[$si][6]);
+		$guid = modx_escape($modulePlugins[$si][5]);
+		$category = modx_escape($modulePlugins[$si][6]);
 		$leg_names = '';
 		if(array_key_exists(7, $modulePlugins[$si])) {
 		    // parse comma-separated legacy names and prepare them for sql IN clause
-    		$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', mysql_real_escape_string($modulePlugins[$si][7]))) . "'";
+    		$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugins[$si][7]))) . "'";
 		}
 		if (!file_exists($filecontent))
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
@@ -569,7 +569,7 @@ if (isset ($_POST['plugin'])) {
 			$plugin = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
 			// remove installer docblock
 			$plugin = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $plugin, 1);
-			$plugin = mysql_real_escape_string($plugin);
+			$plugin = modx_escape($plugin);
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'", $sqlParser->conn);
             if (mysql_num_rows($rs)) {
                 $insert = true;
@@ -631,11 +631,11 @@ if (isset ($_POST['snippet'])) {
 	$selSnips = $_POST['snippet'];
 	foreach ($selSnips as $si) {
 		$si = (int) trim($si);
-		$name = mysql_real_escape_string($moduleSnippets[$si][0]);
-		$desc = mysql_real_escape_string($moduleSnippets[$si][1]);
+		$name = modx_escape($moduleSnippets[$si][0]);
+		$desc = modx_escape($moduleSnippets[$si][1]);
 		$filecontent = $moduleSnippets[$si][2];
-		$properties = mysql_real_escape_string($moduleSnippets[$si][3]);
-		$category = mysql_real_escape_string($moduleSnippets[$si][4]);
+		$properties = modx_escape($moduleSnippets[$si][3]);
+		$category = modx_escape($moduleSnippets[$si][4]);
 		if (!file_exists($filecontent))
 			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 		else {			
@@ -655,7 +655,7 @@ if (isset ($_POST['snippet'])) {
 			$snippet = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent)));
 			// remove installer docblock
 			$snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $snippet, 1);
-			$snippet = mysql_real_escape_string($snippet);
+			$snippet = modx_escape($snippet);
 			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
 			if (mysql_num_rows($rs)) {
 			    $row = mysql_fetch_assoc($rs);
@@ -749,5 +749,19 @@ function propUpdate($new,$old){
     }
 
     return $return;
+}
+
+function modx_escape($s) {
+  if (function_exists('mysql_real_escape_string') && function_exists('mysql_set_charset')) {
+     mysql_set_charset('utf8');
+     $s = mysql_real_escape_string($s);
+  } elseif (function_exists('mysql_real_escape_string')) {
+     $s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
+     $s = mysql_real_escape_string($s);
+     $s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
+  } else {
+     $s = mysql_escape_string($s);
+  }
+  return $s;
 }
 ?>

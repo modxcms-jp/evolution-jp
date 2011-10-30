@@ -1,7 +1,7 @@
 /*
  * DatePicker
  * @author Rick Hopkins
- * @modified by Micah Nolte and Martin Vašina
+ * @modified by Micah Nolte and Martin Va邸ina
  * @version 0.3.2
  * @classDescription A date picker object. Created with the help of MooTools v1.11
  * MIT-style License.

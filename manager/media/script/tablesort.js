@@ -25,7 +25,7 @@
 
 var fdTableSort = {
 
-        regExp_Currency:        /^[£$€¥¤]/,
+        regExp_Currency:        /^[ï½£$Â€ï½¥ï½¤]/,
         regExp_Number:          /^(\-)?[0-9]+(\.[0-9]*)?$/,
         pos:                    -1,
         uniqueHash:             1,

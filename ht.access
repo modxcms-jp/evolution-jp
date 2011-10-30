@@ -46,10 +46,10 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # php_flag  output_buffering              Off
 # php_value output_handler                none
 # php_value default_charset               UTF-8
-# php_value mbstring.language             japanese
-# php_flag  mbstring.encoding_translation On
-# php_value mbstring.http_input           auto
-# php_value mbstring.http_output          UTF-8
+# php_value mbstring.language             Japanese
+# php_flag  mbstring.encoding_translation Off
+# php_value mbstring.http_input           pass
+# php_value mbstring.http_output          pass
 # php_value mbstring.internal_encoding    UTF-8
 # php_value mbstring.substitute_character none
 
@@ -57,7 +57,7 @@ RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
 # php_flag  output_buffering              Off
 # php_value output_handler                none
 # php_value default_charset               EUC-JP
-# php_value mbstring.language             japanese
+# php_value mbstring.language             Japanese
 # php_flag  mbstring.encoding_translation On
 # php_value mbstring.http_input           auto
 # php_value mbstring.http_output          EUC-JP

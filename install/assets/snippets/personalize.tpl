@@ -58,7 +58,7 @@
 #
 # Example Usage:
 #
-#	[[LoggedOrNot? &yesChunk=`Link` &noChunk=`Register` &ph=`name`]]
+#	[[Personalize? &yesChunk=`Link` &noChunk=`Register` &ph=`name`]]
 #
 #	Having Chunks named {{Link}} and another {{Register}}, the first will be
 #	published to registered user, the second to non-registered users.
