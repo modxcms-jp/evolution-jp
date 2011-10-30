@@ -8,9 +8,9 @@
  */
 
 // Get parameters
-if (isset($_GET['id'])) $id = $_GET['id'];
-if (isset($_GET['baseurl'])) $baseurl = $_GET['baseurl'];
-if (isset($_GET['action'])) $action = $_GET['action'];
+$id = isset($_GET['id']) && preg_match('/^[0-9]+$/',$_GET['id']) ? $_GET['id']:'1';
+$baseurl = isset($_GET['baseurl']) && !preg_match('/^[ \t]*https?:\/\//i',$_GET['baseurl']) ? htmlspecialchars($_GET['baseurl'],ENT_QUOTES):'/';
+$action = isset($_GET['action']) ? $_GET['action']:'';
 
 // Cancel => Remove ThickBox frame
 if ($action == "cancel") {
