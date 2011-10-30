@@ -2,8 +2,7 @@
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 if(strstr($settings_version, '0.9.')!==false)
 {
-$_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.9x系からのアップデートの場合はTinyMCEで画像の貼り付けができません。TinyMCEを最新にアップデートする必要があります。</strong><br />';
-$_lang['settings_after_install'] .= '<br /><strong style="color:red;">また、QuidkEditプラグイン・Bottom button barプラグインを無効にすることをおすすめします。</strong>';
+	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.9x系からのアップデートの場合はTinyMCEで画像の貼り付けができません。TinyMCEを最新にアップデートする必要があります。</strong>';
 }
 
 $simple_version = str_replace('.','',$settings_version);
@@ -23,7 +22,7 @@ $site_status              = set_default('1', $site_status);
 $site_unavailable_message = set_default('サイトは現在メンテナンス中です。しばらくお待ちください。', $site_unavailable_message);
 $track_visitors           = set_default('0', $track_visitors);
 $resolve_hostnames        = set_default('0', $resolve_hostnames);
-$top_howmany              = set_default('10', $top_howmany);
+$top_howmany              = set_default('10',$top_howmany);
 $default_template         = set_default('3', $default_template);
 $publish_default          = set_default('1', $publish_default);
 $cache_default            = set_default('1', $cache_default);
@@ -38,7 +37,7 @@ $udperms_allowroot        = set_default('0', $udperms_allowroot);
 $failed_login_attempts    = set_default('3', $failed_login_attempts);
 $blocked_minutes          = set_default('60', $blocked_minutes);
 $use_captcha              = set_default('0', $use_captcha);
-$captcha_words            = set_default('isono,fuguta,sazae,masuo,katsuo,wakame,tarao,namihei,fune,tama,mokuzu,umihei,norisuke,taiko,ikura,sakeo,norio,isasaka,hanazawa,hanako,anago', $captcha_words);
+$captcha_words            = set_default('pyonkichi,hiroshi,kyouko,ume,minami,yoshiko,goriraimo,goro,mogura,machida', $captcha_words);
 $emailsender              = set_default('myname@example.com', $emailsender);
 $emailsubject             = set_default('ログイン情報のお知らせ', $emailsubject);
 $number_of_logs           = set_default('100', $number_of_logs);
@@ -113,14 +112,8 @@ $modx->db->query($sql);
 
 function set_default($default_value,$current_value,$flag = false)
 {
-	if(is_null($current_value) || $flag == true)
-	{
-		$value = $default_value;
-	}
-	else
-	{
-		$value = $current_value;
-	}
+	if(is_null($current_value) || $flag == true) $value = $default_value;
+	else                                         $value = $current_value;
 	return $value;
 }
 
@@ -149,21 +142,19 @@ function run_update($version)
 		
 		
 		/*
-		$sql = "
-		ALTER TABLE " . $modx->getFullTableName('member_groups') . "
-		  ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
-		";
+		$sql =
+		'ALTER TABLE ' . $modx->getFullTableName('member_groups')
+		 . ' ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`)';
 		$modx->db->query($sql);
 		
-		$sql = "
-		ALTER TABLE  " . $modx->getFullTableName('web_groups') . "
-		  ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
-		";
+		$sql =
+		'ALTER TABLE ' . $modx->getFullTableName('web_groups')
+		. ' ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`)';
 		$modx->db->query($sql);
 		*/
 		
 		
-		$sql = 'UPDATE ' . $modx->getFullTableName('site_plugins')    . " SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
+		$sql = 'UPDATE ' . $modx->getFullTableName('site_plugins') . " SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
 		$modx->db->query($sql);
 		
 		$sql = 'UPDATE ' . $modx->getFullTableName('system_settings') . " SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
@@ -171,18 +162,11 @@ function run_update($version)
 		
 		$rs = $modx->db->query('SELECT properties, disabled FROM ' . $modx->getFullTableName('site_plugins') . " WHERE name='Inherit Parent Template'");
 		$row = mysql_fetch_row($rs);
-		
 		global $auto_template_logic;
-		if(!$row)
-		{
-		    $auto_template_logic = 'system'; // not installed
-		}
+		if(!$row) $auto_template_logic = 'system'; // not installed
 		else
 		{
-			if($row[1] == 1)
-			{
-				$auto_template_logic = 'system'; // installed but disabled
-			}
+			if($row[1] == 1) $auto_template_logic = 'system'; // installed but disabled
 			else
 			{
 				// installed, enabled .. see how it's configured

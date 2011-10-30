@@ -102,7 +102,7 @@ function showParameters(ctrl) {
 	dp = (f.properties.value) ? f.properties.value.split("&"):"";
 	if(!dp) tr.style.display='none';
 	else {
-		t='<table width="300" style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter']; ?></td><td width="50%"><?php echo $_lang['value']; ?></td></tr></thead>';
+		t='<table style="width:300px;margin-top:20px;margin-bottom:20px;">';
 		for(p = 0; p < dp.length; p++) {
 			dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
 			ar = dp[p].split("=");
@@ -123,7 +123,7 @@ function showParameters(ctrl) {
 					break;
 				case 'menu':
 					value = ar[3];
-					c = '<select name="prop_'+key+'" id="prop_'+key+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+					c = '<select name="prop_'+key+'" id="prop_'+key+'" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
 					ls = (ar[2]+'').split(",");
 					if(currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
 					for(i=0;i<ls.length;i++){
@@ -135,7 +135,7 @@ function showParameters(ctrl) {
 					value = ar[3];
 					ls = (ar[2]+'').split(",");
 					if(currentParams[key]==ar[2]) currentParams[key] = ls[0]; // use first list item as default
-					c = '<select name="prop_'+key+'" id="prop_'+key+'" size="'+ls.length+'" style="width:168px" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
+					c = '<select name="prop_'+key+'" id="prop_'+key+'" size="'+ls.length+'" onchange="setParameter(\''+key+'\',\''+dt+'\',this)">';
 					for(i=0;i<ls.length;i++){
 						c += '<option value="'+ls[i]+'"'+((ls[i]==value)? ' selected="selected"':'')+'>'+ls[i]+'</option>';
 					}
@@ -174,7 +174,7 @@ function showParameters(ctrl) {
 					break;
 
 				}
-				t +='<tr><td bgcolor="#FFFFFF" width="50%">'+desc+'</td><td bgcolor="#FFFFFF" width="50%">'+c+'</td></tr>';
+				t +='<tr><td><div>'+desc+'</div><div style="padding-bottom:10px;">'+c+'</div></td></tr>';
 			};
 		}
 		t+='</table>';
@@ -404,7 +404,7 @@ window.addEvent('domready', function() {
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=103">
+<form name="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
 <?php
 // invoke OnPluginFormPrerender event
 $evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));

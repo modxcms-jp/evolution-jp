@@ -414,7 +414,6 @@ if($startpath == $filemanager_path || $startpath.'/' == $filemanager_path) {
 } else {
 	echo '<a href="index.php?a=31&mode=drill&path=',urlencode($uponelevel),'"><img src="media/style/',$manager_theme,'images/tree/folder.gif" border="0" align="absmiddle" alt="" /> <b>',$_lang['files_up_level'],'</b></a><br />';
 }
-echo '<br />';
 
 
 $filesize = 0;
@@ -505,7 +504,7 @@ function ls($curpath) {
 
 	return;
 }
-echo '<br /><br />';
+echo '<br />';
 ?>
 <table>
 <tr>
@@ -592,7 +591,7 @@ if(!$handle) {
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content"><?php echo htmlentities($buffer,ENT_COMPAT,$modx_manager_charset)?></textarea></td>
+    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content" class="phptextarea"><?php echo htmlentities($buffer,ENT_COMPAT,$modx_manager_charset)?></textarea></td>
   </tr>
 </table>
 </form>

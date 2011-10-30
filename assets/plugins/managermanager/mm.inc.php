@@ -1,7 +1,7 @@
 <?php
 /*
     @name       ManagerManager
-    @version    0.3.9
+    @version    0.3.10dev
     
     @for        MODx Evolution 1.0.x
     
@@ -22,7 +22,7 @@
 	
 */
 
-$mm_version = '0.3.9'; 
+$mm_version = '0.3.10dev'; 
 
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
@@ -81,7 +81,8 @@ if ($handle = opendir($widget_dir)) {
 // Set variables
 global $content,$default_template, $mm_current_page, $mm_fields;
 $mm_current_page = array();
-$mm_current_page['template'] = isset($_POST['template']) ? $_POST['template'] : isset($content['template']) ? $content['template'] : $default_template;
+if(!isset($_GET['newtemplate'])) $_GET['newtemplate']='';
+$mm_current_page['template'] = isset($_POST['template']) ? $_POST['template'] : isset($content['template']) ? $content['template'] : $_GET['newtemplate'] ? $_GET['newtemplate'] : $default_template;
 $mm_current_page['role'] = $_SESSION['mgrRole'];
 
 
@@ -120,7 +121,7 @@ $mm_fields = array(
 
 
 // Add in TVs to the list of available fields
-$all_tvs = $modx->db->makeArray( $modx->db->select("name,type,id", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC')   );
+$all_tvs = $modx->db->makeArray( $modx->db->select("name,type,id,elements", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC')   );
 foreach ($all_tvs as $thisTv) {
 	
 	$n = $thisTv['name']; // What is the field name?
@@ -149,6 +150,20 @@ foreach ($all_tvs as $thisTv) {
 		case 'checkbox':
 			$t = 'input';
 			$fieldname_suffix = '[]';
+		break;
+		
+		case 'custom_tv':
+			if(strpos($thisTv['elements'],'tvtype="textarea"')!==false)
+				$t = 'textarea';
+			elseif(strpos($thisTv['elements'],'tvtype="select"')!==false)
+				$t = 'select';
+			elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false)
+			{
+				$t = 'input';
+				$fieldname_suffix = '[]';
+			}
+			else
+				$t = 'input';
 		break;
 		
 		default:

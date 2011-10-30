@@ -185,12 +185,14 @@ function importFiles($parent,$filedir,$files,$mode) {
 					if (preg_match("@<title>(.*)</title>@i",$file,$matches))
 					{
 						$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
+						$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
 					}
 					else $pagetitle = $id;
 					
 					if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
 					{
 						$description = ($matches[1]!=='') ? $matches[1] : $filename;
+						$description = str_replace('[*description*]','',$description);
 					}
 					else $description = '';
 					
@@ -206,6 +208,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 						$content = preg_replace($pattern, $replace, $content);
 						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 					}
+					$content = str_replace('[*content*]','',$content);
 					$date = filemtime($filepath);
 					$createdon = $date;
 					$editedon  = $date;
@@ -247,12 +250,14 @@ function importFiles($parent,$filedir,$files,$mode) {
 			    if (preg_match("@<title>(.*)</title>@i",$file,$matches))
 			    {
 			        $pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
+			        $pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
 			    }
 			    else $pagetitle = $alias;
 			    if(!$pagetitle) $pagetitle = $alias;
 				if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
 				{
 					$description = ($matches[1]!=='') ? $matches[1] : $filename;
+					$description = str_replace('[*description*]','',$description);
 				}
 				else $description = '';
 			    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
@@ -267,6 +272,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			    $content = preg_replace($pattern, $replace, $content);
 			    $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 			    }
+			    $content = str_replace('[*content*]','',$content);
 				$date = filemtime($filepath);
 				$createdon = $date;
 				$editedon = $date;

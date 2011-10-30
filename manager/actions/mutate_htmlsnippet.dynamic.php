@@ -109,7 +109,7 @@ function deletedocument() {
 }
 </script>
 
-<form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php">
+<form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
 
 // invoke OnChunkFormPrerender event

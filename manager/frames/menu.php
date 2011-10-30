@@ -66,7 +66,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo (!$modx_textdir ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
 		} catch(oException) {
-			x=window.setTimeout('hideTreeFrame()', 1000);
+			x=window.setTimeout('hideTreeFrame()', 500);
 		}
 	}
 
@@ -79,7 +79,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = defaultFrameWidth;
 			top.__hideTree = false;
 		} catch(oException) {
-			z=window.setTimeout('defaultTreeFrame()', 1000);
+			z=window.setTimeout('defaultTreeFrame()', 500);
 		}
 	}
 
@@ -89,7 +89,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.openAll();  // dtree
 		} catch(oException) {
-			zz=window.setTimeout('expandTree()', 1000);
+			zz=window.setTimeout('expandTree()', 500);
 		}
 	}
 
@@ -97,7 +97,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.closeAll();  // dtree
 		} catch(oException) {
-			yy=window.setTimeout('collapseTree()', 1000);
+			yy=window.setTimeout('collapseTree()', 500);
 		}
 	}
 
@@ -168,11 +168,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	function stopIt() {
 		top.mainMenu.stopWork();
-	}
-
-	function openCredits() {
-		parent.main.document.location.href = "index.php?a=18";
-		xwwd = window.setTimeout('stopIt()', 2000);
 	}
 
 	function NavToggle(element) {

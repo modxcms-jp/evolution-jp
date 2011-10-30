@@ -1,10 +1,10 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author MEGU, yamamoto, TxO
- * @package MODx
- * @version 1.0.4J-r1
+ * @package MODX
+ * @version 1.0.5J-r3
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
@@ -86,7 +86,7 @@ $_lang["errors"] = 'エラー'; //Plural form
 $_lang["failed"] = '確認してください';
 $_lang["help"] = 'Help!';
 $_lang["help_link"] = 'http://modx.jp/docs/install.html';
-$_lang["help_title"] = 'インストールで困ったらココをチェック(MODxフォーラム)';
+$_lang["help_title"] = 'インストールで困ったらココをチェック(MODXフォーラム)';
 $_lang["iagree_box"] = '<b><a href="../assets/docs/license.txt" target="_blank">このライセンス(GPL2)</a>で規定される諸条件に同意します。</b></p><p><a href="http://www.opensource.jp/gpl/gpl.ja.html" target="_blank">GPL2ライセンスの日本語訳はこちらにあります。</a>この翻訳には法的効力はないため、<b>厳密な法的検証が必要な場合</b>は必ず英語の原文をご確認ください。';
 $_lang["install"] = 'インストール';
 $_lang["install_overwrite"] = 'インストール - ';
@@ -94,7 +94,7 @@ $_lang["install_results"] = 'インストールを実行しました。';
 $_lang["install_update"] = '';
 $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_copy"] = '新規インストール - ';
-$_lang["installation_install_new_note"] = 'すでにMODxをインストールしている場合はデータを上書きします。<br />※Tableプレフィックスが異なる場合を除く';
+$_lang["installation_install_new_note"] = 'すでにMODXをインストールしている場合はデータを上書きします。<br />※Tableプレフィックスが異なる場合を除く';
 $_lang["installation_mode"] = 'インストールの選択';
 $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。';
@@ -108,9 +108,9 @@ $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
-$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
-$_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
-$_lang["modx_install"] = 'MODx &raquo; インストール';
+$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
+$_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
+$_lang["modx_install"] = 'MODX &raquo; インストール';
 $_lang["modx_requires_php"] = ', PHP5.0.0以上を推奨します(4.3.8以上であれば動作しますがセキュリティ面に問題があります)';
 $_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
 $_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします。';
@@ -120,9 +120,9 @@ $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
-$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODxを試す場合は、全てチェックを入れましょう。';
+$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODXを試す場合は、全てチェックを入れましょう。';
 $_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b>【アップデート時の注意】</b> ここで選択したものは全て上書きインストールされます。プラグインに関しては、バージョン(正確には説明文)が異なる場合は、元のエレメントを無効にしたうえで当インストーラが新しいものをインストールします。何か不具合があった場合は、無効になったエレメントを復活させてください。';
-$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
+$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODXの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODXに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form
 $_lang["plugins"] = 'プラグイン';
@@ -135,7 +135,7 @@ $_lang["remove_install_folder_manual"] = '管理画面にログインする前�
 $_lang["retry"] = '再チェック';
 $_lang["running_database_updates"] = '実行中のデータベースのアップデート: ';
 $_lang["sample_web_site"] = 'サンプルサイト';
-$_lang["sample_web_site_note"] = '<span style="font-style:normal;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODxの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなどとして、必要に応じてお試しください。</span>';
+$_lang["sample_web_site_note"] = '<span style="font-style:normal;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODXの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなどとして、必要に応じてお試しください。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか？'; 
 $_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
@@ -187,8 +187,8 @@ $_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
 $_lang["visit_forum"] = '';
 $_lang["warning"] = '注意 ';
 $_lang["welcome_message_start"] = '';
-$_lang["welcome_message_text"] = '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。MODxのインストールは簡単。インストーラの説明に従って進めてください。<br /><br />インストーラの手順に従うことにより、他のCMSとのデータベースの共有設定(Tableプレフィックス)や、サンプルコンテンツ及び、同梱の拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。すでに運用中のMODxをアップデートしたり、データベースの設定を変更することもできます。';
-$_lang["welcome_message_welcome"] = 'MODxのインストールを開始します。';
+$_lang["welcome_message_text"] = '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。MODXのインストールは簡単。インストーラの説明に従って進めてください。<br /><br />インストーラの手順に従うことにより、他のCMSとのデータベースの共有設定(Tableプレフィックス)や、サンプルコンテンツ及び、同梱の拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。すでに運用中のMODXをアップデートしたり、データベースの設定を変更することもできます。';
+$_lang["welcome_message_welcome"] = 'MODXのインストールを開始します。';
 $_lang["writing_config_file"] = 'config.inc.phpへの書き込み(設定情報): ';
 $_lang["yes"] = 'はい';
 $_lang["you_running_php"] = ' - You are running on PHP ';

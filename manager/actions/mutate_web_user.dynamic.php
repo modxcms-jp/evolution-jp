@@ -215,7 +215,7 @@ function showHide(what, onoff){
 </script>
 
 
-<form action="index.php?a=89" method="post" name="userform">
+<form action="index.php?a=89" method="post" name="userform" enctype="multipart/form-data">
 <?php
 	// invoke OnWUsrFormPrerender event
 	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender",array("id" => $user));

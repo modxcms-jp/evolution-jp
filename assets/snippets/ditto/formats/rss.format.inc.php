@@ -127,7 +127,7 @@ $rss_tpl = <<<TPL
 				<link>[(site_url)][~[+id+]~]</link>
 				<description><![CDATA[ [+summary+] ]]></description>
 				<pubDate>[+rss_date+]</pubDate>
-				<guid isPermaLink="false">[(site_url)][~[+id+]~]</guid>
+				<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
 				<dc:creator>[+rss_author+]</dc:creator>
 				[+tagLinks+]
 			</item>

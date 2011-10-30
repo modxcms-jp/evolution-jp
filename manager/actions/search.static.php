@@ -7,7 +7,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 
 <div class="sectionBody">
 
-<form action="index.php?a=71" method="post" name="searchform">
+<form action="index.php?a=71" method="post" name="searchform" enctype="multipart/form-data">
 <table width="100%" border="0">
   <tr>
     <td width="120"><?php echo $_lang['search_criteria_id']; ?></td>

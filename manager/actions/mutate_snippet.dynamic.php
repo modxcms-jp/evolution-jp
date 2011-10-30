@@ -259,7 +259,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=24">
+<form name="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
 <?php
 	// invoke OnSnipFormPrerender event
 	$evtOut = $modx->invokeEvent("OnSnipFormPrerender",array("id" => $id));

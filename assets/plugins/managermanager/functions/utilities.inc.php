@@ -83,9 +83,9 @@ function jsSafe($str) {
 	// HTML entity encoding in new label names, etc you will have to specify the
 	// actual character, not a pre-encoded version
 	if (version_compare(PHP_VERSION, '5.2.3') >= 0) {
-	   return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
+		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
 	} else {
-	return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset']); 
+		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset']);
 	}
 }
 
@@ -139,11 +139,9 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 
 // Create a MySQL-safe list from an array
 function makeSqlList($arr) {
-    global $modx;
-    
+	global $modx;
 	$arr = makeArray($arr);
 	foreach($arr as $k=>$tv) {
-        //if (substr($tv, 0, 2) == 'tv') {$tv=substr($tv,2);}
 		$arr[$k] = "'".$modx->db->escape($tv)."'"; // Escape them for MySQL
 	}
 	$sql = " (".implode(',',$arr).") ";

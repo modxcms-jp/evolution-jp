@@ -188,17 +188,16 @@ function mm_inherit($fields, $roles='', $templates='') {
 	if (useThisRule($roles, $templates)) {
 		
 		// Get the parent info
-		if (isset($_REQUEST['pid'])){
-			$parentID = $modx->getPageInfo($_REQUEST['pid'],0,'id');
-			$parentID = $parentID['id'];
+		if (isset($_REQUEST['pid']) && is_numeric($_REQUEST['pid'])){
+			$parentID = intval($_REQUEST['pid']);	
+		} else if (isset($_REQUEST['parent']) && is_numeric($_REQUEST['parent'])){
+			$parentID = intval($_REQUEST['parent']);
 		} else {
 			$parentID = 0;
 		}
 	
 		$output = " // ----------- Inherit (from page $parentID)-------------- \n";
-	
-		
-		
+			
 		foreach ($fields as $field) {
 			
 			// get some info about the field we are being asked to use
@@ -209,6 +208,9 @@ function mm_inherit($fields, $roles='', $templates='') {
 						
 						// Get this field data from the parent
 						$newArray = $modx->getDocument($parentID, $dbname);
+						if ( empty($newArray)) { // If no results, check if there is an unpublished doc
+							$newArray = $modx->getDocument($parentID, $dbname, 0);
+						}
 						$newvalue = $newArray[$dbname];
 			} else {
 				break;	 // If it's not something stored in the database, don't get the value

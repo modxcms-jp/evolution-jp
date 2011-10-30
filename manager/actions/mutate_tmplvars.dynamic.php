@@ -98,7 +98,7 @@ var widgetParams = {};          // name = description;datatype;default or list v
     widgetParams['datagrid']    = '&cols=Column Names;string &flds=Field Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;int;1 &cspace=Cell Spacing;int;1 &rowid=Row ID Field;string &rgf=Row Group Field;string &rgstyle = Row Group Style;string &rgclass = Row Group Class;string &rowsel=Row Select;string &rhigh=Row Hightlight;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
     widgetParams['richtext']    = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?php echo $RTEditors; ?>';
     widgetParams['image']       = '&alttext=Alternate Text;string &hspace=H Space;int &vspace=V Space;int &borsize=Border Size;int &align=Align;list;none,baseline,top,middle,bottom,texttop,absmiddle,absbottom,left,right &name=Name;string &class=Class;string &id=ID;string &style=Style;string &attrib=Attributes;string';
-    widgetParams['custom_widget']       = '&output=Output;textarea';
+    widgetParams['custom_widget']       = '&output=Output;textarea;[+value+]';
 
 // Current Params
 var currentParams = {};
@@ -165,7 +165,7 @@ function showParameters(ctrl) {
                         c += '</select>';
                         break;
                     case 'textarea':
-                        c = '<textarea name="prop_'+key+'" cols="25" style="width:220px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
+                        c = '<textarea class="inputBox phptextarea" name="prop_'+key+'" cols="25" style="width:220px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
                         break;
                     default:  // string
                         c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
@@ -243,7 +243,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=302">
+<form name="mutate" method="post" action="index.php?a=302" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
@@ -278,7 +278,15 @@ function decode(s){
     	  </ul>
     </div>
 
+<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="sectionBody">
+<div class="tab-pane" id="tmplvarsPane">
+	<script type="text/javascript">
+		tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
+	</script>
+	<div class="tab-page" id="tabGeneral">
+	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
+	<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 <p><?php echo $_lang['tmplvars_msg']; ?></p>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
   <tr>
@@ -322,11 +330,11 @@ function decode(s){
   </tr>
   <tr>
 	<td align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?>:  </td>
-	<td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="elements" maxlength="65535" class="inputBox textarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+	<td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="elements" maxlength="65535" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <td align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?>:&nbsp;&nbsp;</td>
-    <td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="default_text" type="text" class="inputBox" rows="5" style="width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+    <td align="left" nowrap="nowrap"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_widget']; ?>:&nbsp;&nbsp;</td>
@@ -370,6 +378,9 @@ function decode(s){
     	</div>
 
 <!-- Template Permission -->
+<div class="tab-page" id="tabInfo">
+<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
+<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabInfo" ) );</script>
 	<div class="sectionHeader"><?php echo $_lang['tmplvar_tmpl_access']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
@@ -489,7 +500,7 @@ function decode(s){
           </tr>
         </table>
             </div>
-
+</div>
 	<input type="submit" name="save" style="display:none">
 
 <?php
@@ -497,5 +508,7 @@ function decode(s){
     $evtOut = $modx->invokeEvent("OnTVFormRender",array("id" => $id));
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
+</div>
+</div>
 </form>
 <script type="text/javascript">setTimeout('showParameters()',10);</script>

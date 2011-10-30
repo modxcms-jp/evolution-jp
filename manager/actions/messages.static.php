@@ -247,7 +247,7 @@ function hideSpans(showSpan) {
     }
 }
 </script>
-<form action="index.php?a=66" method="post" name="messagefrm">
+<form action="index.php?a=66" method="post" name="messagefrm" enctype="multipart/form-data">
 <fieldset style="width: 600px;">
 <LEGEND><b><?php echo $_lang['messages_send_to']; ?>:</b></LEGEND>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">

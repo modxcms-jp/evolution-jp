@@ -129,13 +129,24 @@ class TinyMCE
 		$ph['document_base_url'] = MODX_SITE_URL;
 		switch($params['pathoptions'])
 		{
+			case 'siteconfig':
+				if($modx->config['strip_image_paths']==1)
+				{
+					$ph['relative_urls']      = 'true';
+					$ph['remove_script_host'] = 'true';
+					$ph['convert_urls']       = 'true';
+				}
+				else
+				{
+					$ph['relative_urls']      = 'false';
+					$ph['remove_script_host'] = 'false';
+					$ph['convert_urls']       = 'true';
+				}
+				break;
 			case 'docrelative':
 				$ph['relative_urls']      = 'true';
 				$ph['remove_script_host'] = 'true';
-				if($modx->config['strip_image_paths']==1)
-					$ph['convert_urls']   = 'false';
-				else
-					$ph['convert_urls']   = 'true';
+				$ph['convert_urls']       = 'true';
 				break;
 			case 'rootrelative':
 				$ph['relative_urls']      = 'false';

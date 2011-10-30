@@ -43,21 +43,3 @@ wfRow:
 
 <li[+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+wf.wrapper+]</li>
 
-
-***********************************************************************************************************
-For the revisited flyout and dropdown menu, you only need the following chunk                             *
-                                                                                                          *
-This chunk is meant for the menus that are in template_revisited.html !!                                  *
-                                                                                                          *
-wfParentRow:
-------------
-
-<li><a [+wf.classes+] href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]<!--[if IE 7]><!--></a><!--<![endif]-->
-<table><tr><td>
-
-[+wf.wrapper+]
-
-</td></tr></table>
-<!--[if lte IE 6]></a><![endif]-->
-
-</li>
