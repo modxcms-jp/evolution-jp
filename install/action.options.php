@@ -199,7 +199,7 @@ if ($limit > 0) {
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="../assets/js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
