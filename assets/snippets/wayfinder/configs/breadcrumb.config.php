@@ -1,16 +1,23 @@
 <?php
 ////////////////// default settings
-	$hideSubMenus = !isset($hideSubMenus) ? 1 : $hideSubMenus;
-	$ignoreHidden = !isset($ignoreHidden) ? true : $ignoreHidden;
-	$startId      = !isset($startId)      ? 0 : $startId;
+	if(!isset($hideSubMenus)) $hideSubMenus = 1;
+	if(!isset($ignoreHidden)) $ignoreHidden = true;
+	if(!isset($startId))      $startId      = 0;
 	
 ////////////////// template
-	$outerTpl = '<div id="breadcrumbnav">[+home+][+wf.wrapper+]</div>';
-	$innerTpl = '[+wf.wrapper+]';
-	$rowTpl   = ' ';
-	$hereTpl  = '[+wf.linktext+]';
-	$delim    = ' &raquo; ';
-	$activeParentRowTpl = '<a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+delim+][+wf.wrapper+]';
+$wfbc = new WFBC();
+	if(!isset($outerTpl)) $outerTpl = '<div id="breadcrumbnav">[+home+][+wf.wrapper+]</div>';
+	else                  $outerTpl = $wfbc->fetch($outerTpl);
+	if(!isset($innerTpl)) $innerTpl = '[+wf.wrapper+]';
+	else                  $innerTpl = $wfbc->fetch($innerTpl);
+	if(!isset($rowTpl))   $rowTpl   = ' ';
+	else                  $rowTpl = $wfbc->fetch($rowTpl);
+	if(!isset($hereTpl))  $hereTpl  = '[+wf.linktext+]';
+	else                  $hereTpl = $wfbc->fetch($hereTpl);
+	if(!isset($delim))    $delim    = ' &raquo; ';
+	else                  $delim = $wfbc->fetch($delim);
+	if(!isset($activeParentRowTpl)) $activeParentRowTpl = '<a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]</a>[+delim+][+wf.wrapper+]';
+	else                  $activeParentRowTpl = $wfbc->fetch($activeParentRowTpl);
 	
 ////////////////// build
 	$activeParentRowTpl = str_replace('[+delim+]',$delim,$activeParentRowTpl);
@@ -38,3 +45,34 @@
 	$rowTpl   = '@CODE:' . $rowTpl;
 	$hereTpl  = '@CODE:' . $hereTpl;
 	$activeParentRowTpl = '@CODE:' . $activeParentRowTpl;
+
+
+class WFBC
+{
+	function WFBC()
+	{
+	}
+	
+	function fetch($tpl)
+	{
+		global $modx;
+		$template = '';
+		if(substr($tpl, 0, 5) == "@FILE")
+		{
+			$template = file_get_contents(ltrim(substr($tpl, 6)));
+		}
+		elseif(substr($tpl, 0, 5) == "@CODE")
+		{
+			$template = substr($tpl, 6);
+		}
+		elseif ($modx->getChunk($tpl) != "")
+		{
+			$template = $modx->getChunk($tpl);
+		}
+		else
+		{
+			$template = $tpl;
+		}
+		return $template;
+	}
+}

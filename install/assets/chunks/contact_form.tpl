@@ -10,6 +10,13 @@
  * @internal    @overwrite false
  * @internal    @installset base, sample
  */
+<style type="text/css">
+	label          {display:block;}
+	label input, select,
+	label textarea {display:block;margin-top:8px;margin-bottom:15px;}
+	textarea       {width:500px;height:150px;}
+	div.errors     {color:#f00;}
+</style>
 <p class="error">[+validationmessage+]</p>
 <form method="post" action="[~[*id*]~]">
 <!-- formパーツのname値でemail/subject/formidの3つだけが特別な値。eform属性は入力必須項目などを設定します -->
@@ -31,5 +38,4 @@
 		</label>
 		<input type="submit" name="contact" class="button" value="送信する" />
 	</fieldset>
-
 </form>

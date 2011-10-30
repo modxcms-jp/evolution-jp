@@ -95,6 +95,15 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	$content['content'] = $modx->db->escape($content['content']);
 	$content['menutitle'] = $modx->db->escape($content['menutitle']);
 
+	// increase menu index
+	if (is_null($auto_menuindex) || $auto_menuindex)
+	{
+		$pid = $content['parent'];
+		$pid = intval($content['parent']);
+		$sql = "SELECT max(menuindex) FROM {$tblsc} WHERE parent='{$pid}'";
+		$content['menuindex'] = $modx->db->getValue($sql)+1;
+	}
+
 	// Duplicate the Document
 	$newparent = $modx->db->insert($content, $tblsc);
 

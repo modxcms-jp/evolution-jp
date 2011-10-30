@@ -5,7 +5,7 @@
  * シンプルかつカスタマイズの自由度が高いメニュービルダー
  *
  * @category 	snippet
- * @version 	2.0.2
+ * @version 	2.0.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -35,16 +35,34 @@ Example Usage:
 ::::::::::::::::::::::::::::::::::::::::
 */
 
-$wayfinder_base = $modx->config['base_path']."assets/snippets/wayfinder/";
+$wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
 
 //Include a custom config file if specified
 $config = (!isset($config)) ? 'default' : $config;
-$config_path = $wayfinder_base . 'configs/' . $config . '.config.php';
-if($modx->getChunk($config))      eval('?>' . $modx->getChunk($config));
-elseif(file_exists($config_path)) include_once($config_path);
-else                              include_once($wayfinder_base . 'configs/default.config.php');
+include_once("{$wf_base_path}configs/default.config.php");
 
-include_once("{$wayfinder_base}wayfinder.inc.php");
+if($modx->getChunk($config))
+{
+	eval('?>' . $modx->getChunk($config));
+}
+elseif(substr($config, 0, 5) == '@FILE')
+{
+	include_once($modx->config['base_path'] . trim(substr($config, 6)));
+}
+elseif(file_exists("{$wf_base_path}configs/{$config}.config.php"))
+{
+	include_once("{$wf_base_path}configs/{$config}.config.php");
+}
+elseif(file_exists("{$wf_base_path}configs/{$config}"))
+{
+	include_once("{$wf_base_path}configs/{$config}");
+}
+elseif(file_exists($modx->config['base_path'] . ltrim($config, '/')))
+{
+	include_once($modx->config['base_path'] . ltrim($config, '/'));
+}
+
+include_once($wf_base_path . 'wayfinder.inc.php');
 
 if (class_exists('Wayfinder')) {
    $wf = new Wayfinder();

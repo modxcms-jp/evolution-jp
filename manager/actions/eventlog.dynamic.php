@@ -123,7 +123,7 @@ echo $cm->render();
 	       "LEFT JOIN ".$tbl_manager_users." mu ON mu.id=el.user AND el.usertype=0 ".
 	       "LEFT JOIN ".$tbl_web_users." wu ON wu.id=el.user AND el.usertype=1 ".
 	       ($sqlQuery ? " WHERE ".(is_numeric($sqlQuery)?"(eventid='$sqlQuery') OR ":'')."(source LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')":"")." ".
-	       "ORDER BY createdon DESC";
+	       "ORDER BY el.id DESC";
 	$ds = mysql_query($sql);
 	include_once $base_path."manager/includes/controls/datagrid.class.php";
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items

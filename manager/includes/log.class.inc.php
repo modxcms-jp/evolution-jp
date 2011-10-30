@@ -82,7 +82,7 @@ class logHandler {
 		}
 		else
 		{
-			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 1000;
+			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 2000;
 			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
 			if(($insert_id % $trim) == 0)
 			{
@@ -91,7 +91,7 @@ class logHandler {
 		}
 	}
 	
-	function purge_manager_log($limit=1000, $trim=100)
+	function purge_manager_log($limit=2000, $trim=100)
 	{
 		global $modx;
 		
