@@ -2179,7 +2179,7 @@ class DocumentParser {
                     elseif ($newPwd == "") {
                         return "You didn't specify a password for this user!";
                     } else {
-                        $this->dbQuery("UPDATE $tbl SET password = md5('" . $newPwd . "') WHERE id='" . $this->getLoginUserID() . "'");
+                        $this->dbQuery("UPDATE $tbl SET password = md5('" . $this->db->escape($newPwd) . "') WHERE id='" . $this->getLoginUserID() . "'");
                         // invoke OnWebChangePassword event
                         $this->invokeEvent("OnWebChangePassword", array (
                             "userid" => $row["id"],
