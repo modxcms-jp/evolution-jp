@@ -6,6 +6,7 @@ h3 {font-weight:bold;letter-spacing:2px;font-size:1;margin-top:10px;}
 h4 {font-weight:bold;letter-spacing:2px;}
 pre {border:1px dashed #ccc;background-color:#fcfcfc;padding:15px;}
 ul {margin-bottom:15px;}
+td {vertical-align:top;padding-bottom:7px;}
 </style>
 
 <div class="sectionHeader">サポートに必要な情報</div>
@@ -30,11 +31,13 @@ $info = array(
               'サイトのURL'  => $modx->config['site_url'],
               'ホスト名' => gethostbyaddr(getenv('SERVER_ADDR')),
               'MODX_BASE_URL' => MODX_BASE_URL,
-              'upload_tmp_dir' => ini_get('upload_tmp_dir'),
-              'memory_limit' => ini_get('memory_limit'),
-              'post_max_size' => ini_get('post_max_size'),
-              'upload_max_filesize' => ini_get('upload_max_filesize'),
-              
+              'upload_tmp_dir' => ini_get('upload_tmp_dir') . '(ファイルアップロード処理のために一時的なファイル保存領域として用いるテンポラリディレクトリ。この値が空になっている時は、OSが認識するテンポラリディレクトリが用いられます)',
+              'memory_limit' => ini_get('memory_limit') . '(スクリプトが確保できる最大メモリ。通常はpost_max_sizeよりも大きい値にします)',
+              'post_max_size' => ini_get('post_max_size') . '(POSTデータに許可される最大サイズ。POSTには複数のデータが含まれるので、通常はupload_max_filesizeよりも大きい値にします)',
+              'upload_max_filesize' => ini_get('upload_max_filesize') . '(アップロードを受け付けるファイルの最大サイズ)',
+              'max_execution_time' => ini_get('max_execution_time') . '秒(PHP処理の制限時間。スクリプト暴走の継続を防止します)',
+              'max_input_time' => ini_get('max_input_time') . '秒(POST・GET・ファイルアップロードなどの入力を処理する制限時間。回線の太さの影響を受けることもあります)',
+              'session.save_path' => ini_get('session.save_path') . '(セッションデータを保存するディレクトリ。CGI版PHPの場合はユーザの違いが原因でここに書き込み権限がない場合があるため、注意が必要です)',
               );
 
 echo '<p>'.getenv('SERVER_SOFTWARE') .'</p>'. PHP_EOL . PHP_EOL;

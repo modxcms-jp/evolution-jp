@@ -157,7 +157,7 @@ switch ($_POST['mode']) {
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
 				header($header);
 			} else {
-				$header="Location: index.php?a=106&r=2";
+				$header="Location: index.php?a=7&r=10";
 				header($header);
 			}
 		}		

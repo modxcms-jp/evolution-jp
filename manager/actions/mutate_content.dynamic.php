@@ -548,7 +548,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-	tpSettings = new WebFXTabPane( document.getElementById( "documentPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+	tpSettings = new WebFXTabPane( document.getElementById( "documentPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 
 	<!-- General -->
@@ -759,6 +759,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 							echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 
 						$tvPBV = array_key_exists('tv'.$row['id'], $_POST) ? $_POST['tv'.$row['id']] : $row['value']; // post back value
+//						$tvPBV = ProcessTVCommand($tvPBV, $row['name'], $content['id']); //yama
 						$dp_z_index = 500 - $i;
 						echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
 						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
@@ -788,7 +789,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 		<?php $mx_can_pub = $modx->hasPermission('publish_document') ? '' : 'disabled="disabled" '; ?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
-				<td><input <?php echo $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? "checked" : ''?> onclick="changestate(document.mutate.published);" />
+				<td><input <?php echo $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? "checked" : ''?> onclick="changestate(document.mutate.published);" <?php if($id==$modx->config['site_start']) echo 'disabled ' ?>/>
 				<input type="hidden" name="published" value="<?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? 1 : 0?>" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_published_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
 			</tr>
@@ -1079,7 +1080,7 @@ if ($use_udperms == 1) {
 		foreach ($inputAttributes as $k => $v) $inputString[] = $k.'="'.$v.'"';
 
 		// Make the <input> HTML
-		$inputHTML = '<input '.implode(' ', $inputString).' />';
+		$inputHTML = '<input '.implode(' ', $inputString). (($id==$modx->config['site_start']) ? ' disabled' : '') . ' />';
 
 		// does user have this permission?
 		$sql = "SELECT COUNT(mg.id) FROM {$tbl_membergroup_access} mga, {$tbl_member_groups} mg

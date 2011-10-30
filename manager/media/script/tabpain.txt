@@ -1,0 +1,45 @@
+/*----------------------------------------------------------------------------\
+|                               Tab Pane 1.02                                 |
+|-----------------------------------------------------------------------------|
+|                         Created by Erik Arvidsson                           |
+|                  (http://webfx.eae.net/contact.html#erik)                   |
+|                      For WebFX (http://webfx.eae.net/)                      |
+|-----------------------------------------------------------------------------|
+|                  Copyright (c) 1998 - 2003 Erik Arvidsson                   |
+|-----------------------------------------------------------------------------|
+| This software is provided "as is", without warranty of any kind, express or |
+| implied, including  but not limited  to the warranties of  merchantability, |
+| fitness for a particular purpose and noninfringement. In no event shall the |
+| authors or  copyright  holders be  liable for any claim,  damages or  other |
+| liability, whether  in an  action of  contract, tort  or otherwise, arising |
+| from,  out of  or in  connection with  the software or  the  use  or  other |
+| dealings in the software.                                                   |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| This  software is  available under the  three different licenses  mentioned |
+| below.  To use this software you must chose, and qualify, for one of those. |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| The WebFX Non-Commercial License          http://webfx.eae.net/license.html |
+| Permits  anyone the right to use the  software in a  non-commercial context |
+| free of charge.                                                             |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| The WebFX Commercial license           http://webfx.eae.net/commercial.html |
+| Permits the  license holder the right to use  the software in a  commercial |
+| context. Such license must be specifically obtained, however it's valid for |
+| any number of  implementations of the licensed software.                    |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| GPL - The GNU General Public License    http://www.gnu.org/licenses/gpl.txt |
+| Permits anyone the right to use and modify the software without limitations |
+| as long as proper  credits are given  and the original  and modified source |
+| code are included. Requires  that the final product, software derivate from |
+| the original  source or any  software  utilizing a GPL  component, such  as |
+| this, is also licensed under the GPL license.                               |
+|-----------------------------------------------------------------------------|
+| 2002-01-?? | First working version                                          |
+| 2002-02-17 | Cleaned up for 1.0 public version                              |
+| 2003-02-18 | Changed from javascript uri for anchors to return false        |
+| 2003-03-03 | Added dispose methods to release IE memory                     |
+|-----------------------------------------------------------------------------|
+| Dependencies: *.css           a css file to define the layout               |
+|-----------------------------------------------------------------------------|
+| Created 2002-01-?? | All changes are in the log above. | Updated 2003-03-03 |
+\----------------------------------------------------------------------------*/

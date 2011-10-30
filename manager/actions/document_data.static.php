@@ -224,7 +224,7 @@ function movedocument() {
 
 <div class="tab-pane" id="childPane">
 	<script type="text/javascript">
-	docSettings = new WebFXTabPane( document.getElementById( "childPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+	docSettings = new WebFXTabPane( document.getElementById( "childPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
 	</script>
 
 	<!-- General -->

@@ -33,6 +33,10 @@ $_style['tree_globe']               = $style_path.'tree/globe.gif';
 $_style['tree_linkgo']              = $style_path.'tree/link_go.png';
 $_style['tree_minusnode']           = $style_path.'tree/minusnode.gif';
 $_style['tree_page']                = $style_path.'tree/application.gif';
+$_style['tree_page_home']           = $style_path.'tree/application_home.gif';
+$_style['tree_page_404']            = $style_path.'tree/application_404.gif';
+$_style['tree_page_hourglass']      = $style_path.'tree/application_hourglass.gif';
+$_style['tree_page_info']           = $style_path.'tree/application_info.gif';
 $_style['tree_page_blank']          = $style_path.'tree/application.gif';
 $_style['tree_page_css']            = $style_path.'tree/application_css.gif';
 $_style['tree_page_html']           = $style_path.'tree/application_html.gif';
@@ -89,7 +93,7 @@ $_style['icons_set_parent']         = $style_path.'icons/layout_go.gif';
 $_style['icons_table']              = $style_path.'icons/table.gif'; 
 $_style['icons_undelete_resource']  = $style_path.'icons/b092.gif';
 $_style['icons_unpublish_resource'] = $style_path.'icons/clock_stop.png';
-$_style['icons_user']               = $style_path.'icons/user.gif';
+$_style['icons_user']               = $style_path.'icons/user.png';
 $_style['icons_weblink']            = $style_path.'icons/world_link.png';
 $_style['icons_working']            = $style_path.'icons/exclamation.png'; // top bar
 
@@ -101,10 +105,10 @@ $_style['icons_tooltip']            = $style_path.'icons/b02.gif';
 $_style['icons_tooltip_over']       = $style_path.'icons/b02_trans.gif';
 
 // Large Icons
-$_style['icons_backup_large']       = $style_path.'icons/backup.gif';
+$_style['icons_backup_large']       = $style_path.'icons/backup.png';
 $_style['icons_mail_large']         = $style_path.'icons/mail_generic.gif';
 $_style['icons_modules_large']      = $style_path.'icons/modules.gif';
-$_style['icons_resources_large']    = $style_path.'icons/resources.gif';
+$_style['icons_resources_large']    = $style_path.'icons/resources.png';
 $_style['icons_security_large']     = $style_path.'icons/security.gif';
 $_style['icons_webusers_large']     = $style_path.'icons/web_users.gif';
 

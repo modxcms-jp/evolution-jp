@@ -541,6 +541,7 @@ if (isset ($_POST['plugin']))
 		$si = (int) trim($si);
 		$name = mysql_real_escape_string($modulePlugins[$si][0]);
 		$desc = mysql_real_escape_string($modulePlugins[$si][1]);
+		$desc_raw = $modulePlugins[$si][1];
 		$filecontent = $modulePlugins[$si][2];
 		$properties = mysql_real_escape_string($modulePlugins[$si][3]);
 		$events = explode(",", $modulePlugins[$si][4]);
@@ -588,7 +589,7 @@ if (isset ($_POST['plugin']))
                 while($row = mysql_fetch_assoc($rs))
                 {
                     $props = propUpdate($properties,$row['properties']);
-                    if($row['description'] == $desc)
+                    if($row['description'] == $desc_raw)
                     {
                         if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn))
                         {

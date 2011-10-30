@@ -8,7 +8,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 <div class="sectionBody">
     <div class="tab-pane" id="resourcesPane">
         <script type="text/javascript">
-            tpResources = new WebFXTabPane( document.getElementById( "resourcesPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+            tpResources = new WebFXTabPane( document.getElementById( "resourcesPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
         </script>
 <?php
 $help_dir = MODX_BASE_PATH . 'assets/templates/help';

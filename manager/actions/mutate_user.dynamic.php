@@ -114,7 +114,7 @@ if($manager_language!="english" && file_exists($modx->config['base_path']."manag
     include_once "lang/country/".$manager_language."_country.inc.php";
 }
 
-$displayStyle = (($_SESSION['browser'] == 'mz') || ($_SESSION['browser'] == 'op') || ($_SESSION['browser'] == 'sf')) ? "table-row" : "block";
+$displayStyle = ($_SESSION['browser'] !== 'ie') ? 'table-row' : 'block';
 ?>
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
@@ -267,7 +267,7 @@ if (is_array($evtOut))
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="userPane">
 	<script type="text/javascript">
-		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
     <div class="tab-page" id="tabGeneral">
     	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
@@ -281,7 +281,7 @@ if (is_array($evtOut))
 		  <?php if(!empty($userdata['id'])) { ?>
 		  <tr id="showname" style="display: <?php echo ($_GET['a']=='12' && (!isset($usernamedata['oldusername'])||$usernamedata['oldusername']==$usernamedata['username'])) ? $displayStyle : 'none';?> ">
 			<td colspan="3">
-				<img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/user.gif" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
+				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
 				<hr />
 			</td>
@@ -479,17 +479,18 @@ while ($row = mysql_fetch_assoc($rs)) {
 	  <tr>
 	    <td class='warning'><?php echo $_lang["language_title"] ?></td>
 	    <td> <select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
-	    <option value=""> </option>
+	    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
 	    <?php
-$activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : $manager_language;
+$activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : '';
 $dir = dir("includes/lang");
 while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
-		$languagename = substr($file, 0, $endpos);
-		$selectedtext = $languagename == $activelang ? "selected='selected'" : "";
+		$languagename = trim(substr($file, 0, $endpos));
+		$languagename = ucwords(str_replace("_", " ", $languagename));
+		$selectedtext = ($languagename == $activelang) ? "selected='selected'" : "";
 ?> 
-                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
+                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo $languagename; ?></option> 
                 <?php
 
 	}
@@ -566,7 +567,7 @@ $dir->close();
           <tr>
           <td nowrap class="warning"><b><?php echo $_lang["manager_theme"]?></b></td>
             <td> <select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date())">
-		<option value=""> </option>
+		<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
 		$dir = dir("media/style/");
 		while ($file = $dir->read()) {
@@ -675,7 +676,7 @@ $dir->close();
             <td nowrap class="warning"><b><?php echo $_lang["which_editor_title"]?></b></td>
             <td>
 				<select name="which_editor" onchange="documentDirty=true;">
-				<option value=""> </option>
+				<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 					<?php
 
 $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';

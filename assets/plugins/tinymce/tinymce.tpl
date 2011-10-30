@@ -14,7 +14,7 @@
  *
  * Written By Jeff Whitfield
  * and Mikko Lammi / updated: 03/09/2010
- * and yama  / updated: 05/19/2010
+ * and yama  / updated: 2010/7/29
  */
 
 // Set the name of the plugin folder
@@ -68,10 +68,10 @@ switch ($e->name)
 		$params['use_browser']     = $modx->config['use_browser'];
 		$params['editor_css_path'] = $modx->config['editor_css_path'];
 		
-		if($modx->isBackend())
+		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mrgValidated'])))
 		{
 			$params['theme']           = $modx->config['tinymce_editor_theme'];
-			$params['language']        = getTinyMCELang($modx->config['manager_language']);
+			$params['language']        = get_mce_lang($modx->config['manager_language']);
 			$params['frontend']        = false;
 			$params['custom_plugins']  = $modx->config['tinymce_custom_plugins'];
 			$params['custom_buttons1'] = $modx->config['tinymce_custom_buttons1'];
@@ -89,7 +89,7 @@ switch ($e->name)
 			$webuser = (isset($modx->config['rb_webuser']) ? $modx->config['rb_webuser'] : null);
 			
 			$params['webuser']         = $webuser;
-			$params['language']        = getTinyMCELang($frontend_language);
+			$params['language']        = get_mce_lang($frontend_language);
 			$params['frontend']        = true;
 			
 			$html = $mce->get_mce_script($params);

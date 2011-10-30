@@ -1,6 +1,6 @@
 <?php
 if(IN_MANAGER_MODE != 'true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.');
-if(!$modx->hasPermission('access_permissions')) {
+if(!$modx->hasPermission('access_permissions') || $modx->config['use_udperms'] == 0) {
 	$e->setError(3);
 	$e->dumpError();
 }
@@ -48,7 +48,7 @@ if (mysql_num_rows($rs) < 1) {
 <p><?php echo $_lang['access_permissions_introtext']?></p><?php echo $use_udperms!=1 ? '<p>'.$_lang['access_permissions_off'].'</p>' : ''?>
 
 <div class="tab-pane" id="tabPane1">
-<script type="text/javascript">tp1 = new WebFXTabPane( document.getElementById( "tabPane1" ), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );</script>
+<script type="text/javascript">tp1 = new WebFXTabPane( document.getElementById( "tabPane1" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );</script>
 
 
 <div class="tab-page" id="tabPage1">

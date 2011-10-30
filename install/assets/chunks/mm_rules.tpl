@@ -1,14 +1,22 @@
 /**
- * mm_rules
+ * mm_demo_rules
  * 
- * ManagerManager用のカスタマイズルール <span style="font-weight:bold;color:red;">【注意】</span> 1.0.2からのアップデートの場合はチャンク名が変わっているため中身をコピーしてください。
+ * ManagerManager用のカスタマイズルール(サンプル)
  * 
  * @category	chunk
- * @version 	1.0.1
+ * @version 	1.0.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Manager and Admin
- * @internal    @legacy_names mm_demo_rules
  */
+
+
+/* ****************
+【ご注意】
+実運用の際は、必ずこのチャンクの名前を変更し(たとえばmm_rulesなど)、ManagerManagerプラグインの「Configuration Chunk」で新しいチャンク名を設定してください。
+
+このチャンク名(mm_demo_rules)のまま運用していると、MODxのアップデート時にルールを誤って上書きする恐れがあります。
+**************** */
+
 
 // PHP *is* allowed
 
@@ -146,6 +154,15 @@ metatags・which_editorなど一部のフィールドは対応していません
 mm_renameSection($section, $newlabel, $roles, $templates)
 例：mm_renameSection('docsettings', 'ページ情報', '2');
 docsettings・content・tvs・access・historyの5つがあります
+
+
+# 「更新時にキャッシュを削除」の初期値をセット
+mm_set_clear_cache($value, $roles, $templates)
+例：mm_set_clear_cache();
+初期値を「いいえ」に設定
+
+例：mm_set_clear_cache('0', '', '3');
+テンプレートIDが3のテンプレートを適用しているリソースで初期値を「いいえ」
 
 
 # 任意のフィールドに「タグウィジェット」を適用します

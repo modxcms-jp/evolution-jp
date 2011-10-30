@@ -3,10 +3,10 @@
  * Filename:       assets/plugins/tinymce/lang/japanese-utf8.inc.php
  * Function:       Japanese language file for TinyMCE.
  * Encoding:       UTF-8
- * Author:         Japanese community
- * Date:           2009/07/29
- * Version:        2.1.0
- * MODx version:   0.9.5-1.0.2
+ * Author:         yama
+ * Date:           2010/07/29
+ * Version:        2.1.1
+ * MODx version:   0.9.5-1.0.4
 */
 
 $_lang['tinymce_editor_theme_title'] = 'テーマ:';

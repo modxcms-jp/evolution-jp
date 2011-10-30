@@ -66,5 +66,7 @@
 .mceContentBody a:hover {
 	color: #7fa2ff;
 	}
-.justifyleft  {float:left; margin-right:10px;margin-bottom:5px;}
-.justifyright {float:right; margin-left:10px;margin-bottom:5px;}
+.justifyleft  {text-align:left;}
+.justifyright {text-align:right;}
+img.justifyleft  {float:left; margin-right:10px;margin-bottom:5px;}
+img.justifyright {float:right; margin-left:10px;margin-bottom:5px;}
