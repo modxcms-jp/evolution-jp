@@ -112,7 +112,7 @@ $sql = 'SELECT DISTINCT sc.* '.
        "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
        "WHERE sc.parent='{$content['id']}' ".
        "AND ({$access}) ".
-       "ORDER BY sc.id DESC".
+       "ORDER BY sc.isfolder DESC, sc.id DESC".
        $childsTable->handlePaging(); // add limit clause
 
 if ($numRecords > 0) {
@@ -145,7 +145,7 @@ if ($numRecords > 0) {
 			'docid' =>  $_lang['id'],
 			'title' =>  $_lang['resource_title'],
 			'status' => $_lang['page_data_status'],
-			'edit' =>   $_lang['mgrlog_action'],
+			'action' => $_lang['mgrlog_action'],
 		);
 		$tbWidth = array('5%', '60%', '10%', '25%');
 		$childsTable->setColumnWidths($tbWidth);
@@ -153,12 +153,34 @@ if ($numRecords > 0) {
 		$limitClause = $childsTable->handlePaging();
 
 		$listDocs = array();
-		foreach($resource as $k => $children){
+		foreach($resource as $k => $children)
+		{
+			if($children['published'] == 0)
+			{
+				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
+			}
+			else
+			{
+				$status = '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>';
+			}
+			if($children['isfolder'] == 0)
+			{
+				$link = 'index.php?a=27&amp;id=' . $children['id'];
+				$pagetitle = '<img src="' . $_style['tree_page'] . '" />' . $children['pagetitle'];
+				$pagetitle = '<a href="' . $link . '" style="color:#333;">' . $pagetitle . '</a>';
+			}
+			else
+			{
+				$link = 'index.php?a=3&amp;id=' . $children['id'];
+				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $children['pagetitle'];
+				$pagetitle = '<a href="' . $link . '" style="color:#333;">' . $pagetitle . '</a>';
+			}
+			
 			$listDocs[] = array(
-				'docid' =>  $children['id'],
-				'title' =>  $children['pagetitle'],
-				'status' => ($children['published'] == 0) ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>',
-				'edit' =>   '<a href="index.php?a=3&amp;id='.$children['id'].'"><img src="'. $_style["icons_preview_resource"].'" />'.$_lang['preview'].'</a>'.(($modx->hasPermission('edit_document')) ? '&nbsp;<a href="index.php?a=27&amp;id='.$children['id'].'"><img src="' . $_style["icons_save"] .'" />'.$_lang['edit'].'</a>&nbsp;<a href="index.php?a=51&amp;id='.$children['id'].'"><img src="' . $_style["icons_move_document"] .'" />'.$_lang['move'].'</a>' : ''),
+				'docid'  => $children['id'],
+				'title'  => $pagetitle,
+				'status' => $status,
+				'action' => get_action_links($children)
 			);
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id']);
@@ -341,3 +363,31 @@ function movedocument() {
 	<iframe src="../index.php?id=<?php echo $id?>&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
 </div>
 <?php }
+
+function get_action_links($children)
+{
+	global $modx,$_style,$_lang;
+	
+	$action_links_tpl = '<a href="index.php?a=3&amp;id=[+docid+]"><img src="[+icons_preview_resource+]" />[+lang_view_details+]</a>[+action_links+]';
+	$ph = array();
+	if($modx->hasPermission('edit_document'))
+	{
+		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]"><img src="[+icons_save+]" />[+lang_edit+]</a>';
+		$ph['action_links'] .= '&nbsp;<a href="index.php?a=51&amp;id=[+docid+]"><img src="[+icons_move_document+]" />[+lang_move+]</a>';
+	}
+	else $ph['action_links'] = '';
+	$ph['docid']                  = $children['id'];
+	$ph['icons_preview_resource'] = $_style["icons_preview_resource"];
+	$ph['lang_view_details']      = $_lang['click_to_view_details'];
+	$ph['icons_save']             = $_style["icons_save"];
+	$ph['lang_edit']              = $_lang['edit'];
+	$ph['icons_move_document']    = $_style["icons_move_document"];
+	$ph['lang_move']              = $_lang['move'];
+	$action_links = $action_links_tpl;
+	foreach($ph as $k=>$v)
+	{
+		$k = '[+' . $k . '+]';
+		$action_links = str_replace($k,$v,$action_links);
+	}
+	return $action_links;
+}
