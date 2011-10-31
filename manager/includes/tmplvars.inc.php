@@ -137,6 +137,8 @@
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
 					$field_html .= <<< EOT
 					<script type="text/javascript">
+							var lastImageCtrl;
+							var lastFileCtrl;
 							function OpenServerBrowser(url, width, height ) {
 								var iLeft = (screen.width  - width) / 2 ;
 								var iTop  = (screen.height - height) / 2 ;
@@ -146,10 +148,9 @@
 								sOptions += ',height=' + height ;
 								sOptions += ',left=' + iLeft ;
 								sOptions += ',top=' + iTop ;
+
 								var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
 							}
-							var lastImageCtrl;
-							var lastFileCtrl;
 							function BrowseServer(ctrl) {
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
@@ -163,16 +164,8 @@
 								var h = screen.height * 0.7;
 								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
-					</script>
-EOT;
-					$ResourceManagerLoaded  = true;
-				}
-				if($SetUrlLoaded  !== true)
-				{
-					$field_html .= <<< EOT
-					<script type="text/javascript">
+							
 							function SetUrl(url, width, height, alt){
-								{$url_convert}
 								if(lastFileCtrl) {
 									var c = document.mutate[lastFileCtrl];
 									if(c) c.value = url;
@@ -187,7 +180,7 @@ EOT;
 							}
 					</script>
 EOT;
-					$SetUrlLoaded = true;
+					$ResourceManagerLoaded  = true;
 				}
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
 				break;
@@ -201,6 +194,8 @@ EOT;
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
 					$field_html .= <<< EOT
 					<script type="text/javascript">
+							var lastImageCtrl;
+							var lastFileCtrl;
 							function OpenServerBrowser(url, width, height ) {
 								var iLeft = (screen.width  - width) / 2 ;
 								var iTop  = (screen.height - height) / 2 ;
@@ -213,9 +208,8 @@ EOT;
 
 								var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
 							}
-							var lastImageCtrl;
-							var lastFileCtrl;
-							function BrowseServer(ctrl) {
+							
+								function BrowseServer(ctrl) {
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
@@ -228,16 +222,8 @@ EOT;
 								var h = screen.height * 0.7;
 								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 							}
-					</script>
-EOT;
-					$ResourceManagerLoaded  = true;
-				}
-				if($SetUrlLoaded  !== true)
-				{
-					$field_html .= <<< EOT
-					<script type="text/javascript">
+							
 							function SetUrl(url, width, height, alt){
-								{$url_convert}
 								if(lastFileCtrl) {
 									var c = document.mutate[lastFileCtrl];
 									if(c) c.value = url;
@@ -252,7 +238,7 @@ EOT;
 							}
 					</script>
 EOT;
-					$SetUrlLoaded = true;
+					$ResourceManagerLoaded  = true;					
 				} 
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
                 
