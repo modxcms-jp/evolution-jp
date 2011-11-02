@@ -5,6 +5,7 @@ if (IN_MANAGER_MODE != 'true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Ple
 switch ($_REQUEST['a']) {
 	case 27:
 		if (!$modx->hasPermission('edit_document')) {
+			$modx->config['remember_last_tab'] = 0;
 			$e->setError(3);
 			$e->dumpError();
 		}
