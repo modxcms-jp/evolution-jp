@@ -21,7 +21,7 @@ $_lang["access_permission_parent_denied"] = 'ここにリソースを作成す�
 $_lang["access_permissions"] = '所属グループ';
 $_lang["access_permissions_add_resource_group"] = 'リソースグループを作成';
 $_lang["access_permissions_add_user_group"] = 'ユーザーグループを作成';
-$_lang["access_permissions_docs_collision"] = 'ウェブユーザーグループとマネージャーユーザーグループの設定に問題があるため、このリソースは公開されます。詳細については管理者へお問い合わせください。';
+$_lang["access_permissions_docs_collision"] = '(所属グループ設定のタブは表示されません)';
 $_lang["access_permissions_docs_message"] = 'このリソースを所属させたい<a href="index.php?a=40">リソースグループ</a>を選択してください。グループで制限する必要がなければ「グループ制限なし」にチェックを入れます。または<a href="index.php?a=17">「グローバル設定」</a>の「詳細設定」で「グループ管理機能を使用する」を「いいえ」にします。';
 $_lang["access_permissions_group_link"] = 'グループリンクを新規作成';
 $_lang["access_permissions_introtext"] = 'ここでユーザーグループまたはリソースグループを作ると、ユーザ編集画面またはリソース編集画面で所属グループを選択できるようになります。グループ機能を利用するためには、ユーザーグループとリソースグループを必ず関連付ける必要があります。また、個別のユーザー及びリソースをそれぞれ直接関連付けることはできません。<br />※<a href="index.php?a=17">グローバル設定</a>の「グループ管理機能を使用する(詳細設定タブ)」を「いいえ」にすると、この画面の設定は無効になります。';
@@ -36,7 +36,7 @@ $_lang["access_permissions_resource_groups"] = 'リソースグループ';
 $_lang["access_permissions_resources_in_group"] = '<strong>グループ内リソース:</strong>';
 $_lang["access_permissions_resources_tab"] = 'IDの上にマウスポインタを重ねるとリソース名を確認できます。リソースをグループに加えるには、リソース編集画面を個別に開いて「所属グループ」タブで設定してください。管理画面とウェブページを区別して扱わないため、両方のグループを作る場合はグループ名を工夫するとよいでしょう。';
 $_lang["access_permissions_user_groups"] = 'ユーザーグループ';
-$_lang["access_permissions_user_message"] = 'このユーザーを所属させたいユーザーグループを選択してください。ユーザは所属しているグループに割り当てられたリソースのみを編集できます。';
+$_lang["access_permissions_user_message"] = 'このユーザーを所属させたいユーザーグループを選択してください。ユーザは所属しているグループに割り当てられたリソースとpublicリソースのみを編集できます。';
 $_lang["access_permissions_users_in_group"] = '<strong>グループ内ユーザー:</strong>';
 $_lang["access_permissions_users_tab"] = '管理画面を扱うユーザのグループと、ウェブページにアクセスする権限を持つユーザのグループは区別されます。ユーザーをグループに参加させるには、個々のユーザー設定で編集する必要があります。<br />※Administrator(ID=1のロールを持つユーザ)は常に全てのリソースにアクセスすることができるため、Administratorをグループに追加する必要はありません。';
 $_lang["account_email"] = 'メールアドレス';
@@ -896,7 +896,7 @@ $_lang["sitestatus_message"] = 'このサイトをウェブ上に公開するに
 $_lang["sitestatus_title"] = '公開ステータス';
 $_lang["siteunavailable_message"] = 'サイトがメンテナンスモード中、またはエラー発生時に表示するメッセージです。<br />コンフィグ変数：[(site_unavailable_message)]<br /><strong>※このメッセージはメンテナンス中ページが設定されていないときのみ表示されます。</strong>';
 $_lang["siteunavailable_message_default"] = 'ただいま調整中です。しばらくお待ちください。';
-$_lang["siteunavailable_page_message"] = 'メンテナンスモード設定時に表示するリソースのIDをここに入力してください。<br /><strong>※非公開またはウェブユーザ限定のリソースは指定できません。</strong>';
+$_lang["siteunavailable_page_message"] = 'メンテナンスモード設定時に表示するリソースのIDをここに入力してください。<br /><strong>※非公開またはウェブユーザー限定のリソースは指定できません。</strong>';
 $_lang["siteunavailable_page_title"] = 'メンテナンス中ページ';
 $_lang["siteunavailable_title"] = 'メンテナンス中メッセージ';
 $_lang["snippet"] = 'スニペット';
@@ -984,7 +984,7 @@ $_lang["udperms_message"] = '会員制サイトを運用する場合や、編集
 $_lang["udperms_title"] = 'グループ管理機能を使用する';
 $_lang["unable_set_link"] = 'リンクを設定できません。';
 $_lang["unable_set_parent"] = '新しい親リソースを設定できません。';
-$_lang["unauthorizedpage_message"] = 'ユーザーがアクセスを許可されていないリソースを要求したとき表示するリソースのIDを入力してください。<br /><strong>※非公開またはウェブユーザ限定のリソースは指定できません。</strong>';
+$_lang["unauthorizedpage_message"] = 'ユーザーがアクセスを許可されていないリソースを要求したとき表示するリソースのIDを入力してください。<br /><strong>※非公開またはウェブユーザー限定のリソースは指定できません。</strong>';
 $_lang["unauthorizedpage_title"] = '権限外告知のページ';
 $_lang["unblock_message"] = 'ユーザーデータを更新した後、このアカウントの休止設定は解除されます。';
 $_lang["undelete_resource"] = '削除から復活';
