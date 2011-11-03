@@ -264,7 +264,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
             } elseif(substr($params['output'], 0, 6) == '@CHUNK' && $value !== '') {
                 $chunk_name = trim(substr($params['output'], 7));
                 $widget_output = $modx->getChunk($chunk_name);
-            } elseif(substr($params['output'], 0, 5) == '@EVAL' && $value !== '') {
+            } elseif(substr($params['output'], 0, 5) == '@EVAL') {
                 $tvname = $name;
                 $eval_str = trim(substr($params['output'], 6));
                 $widget_output = eval($eval_str);
