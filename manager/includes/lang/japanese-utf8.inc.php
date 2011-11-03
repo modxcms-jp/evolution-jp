@@ -21,7 +21,7 @@ $_lang["access_permission_parent_denied"] = 'ここにリソースを作成す�
 $_lang["access_permissions"] = '所属グループ';
 $_lang["access_permissions_add_resource_group"] = 'リソースグループを作成';
 $_lang["access_permissions_add_user_group"] = 'ユーザーグループを作成';
-$_lang["access_permissions_docs_collision"] = '(所属グループ設定のタブは表示されません)';
+$_lang["access_permissions_docs_collision"] = '(権限がないため所属グループ設定のタブは表示されません)';
 $_lang["access_permissions_docs_message"] = 'このリソースを所属させたい<a href="index.php?a=40">リソースグループ</a>を選択してください。グループで制限する必要がなければ「グループ制限なし」にチェックを入れます。または<a href="index.php?a=17">「グローバル設定」</a>の「詳細設定」で「グループ管理機能を使用する」を「いいえ」にします。';
 $_lang["access_permissions_group_link"] = 'グループリンクを新規作成';
 $_lang["access_permissions_introtext"] = 'ここでユーザーグループまたはリソースグループを作ると、ユーザ編集画面またはリソース編集画面で所属グループを選択できるようになります。グループ機能を利用するためには、ユーザーグループとリソースグループを必ず関連付ける必要があります。また、個別のユーザー及びリソースをそれぞれ直接関連付けることはできません。<br />※<a href="index.php?a=17">グローバル設定</a>の「グループ管理機能を使用する(詳細設定タブ)」を「いいえ」にすると、この画面の設定は無効になります。';
