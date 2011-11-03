@@ -394,7 +394,7 @@ class Wayfinder {
 			}
 			elseif($docgrp)
 			{
-				$access = "AND (dg.document_group IN ({$docgrp}))";
+				$access = "AND (sc.privateweb=0 OR dg.document_group IN ({$docgrp}))";
 			}
 			else $access = '';
 			$joind_ids = implode(',',$ids);
