@@ -4,14 +4,7 @@
 	<title><?php echo $_lang['modx_install']?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $_lang['encoding']?>" />
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
-    <!--[if lt IE 7]>
-        <style type="text/css">
-            body { behavior: url(/assets/js/csshover3.htc) }
-        </style>
-        <script type="text/javascript" src="../assets/js/frankensleight.js"></script>
-    <![endif]-->
 </head>
-
 <body<?php echo $modx_textdir ? ' id="rtl"':''?>>
 <!-- start install screen-->
 <div id="header">
