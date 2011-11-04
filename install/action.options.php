@@ -201,7 +201,7 @@ echo '<strong>アップデート対象のエレメントはありません。</s
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="../assets/js/jquery-1.7.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
