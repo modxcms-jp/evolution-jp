@@ -2451,41 +2451,50 @@ class DocumentParser {
     # Returns an array of document groups that current user is assigned to.
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
-    function getUserDocGroups($resolveIds= false) {
-        $dg= array();// add so
-        $dgn= array();
-        if ($this->isFrontend() && isset ($_SESSION['webDocgroups']) && !empty($_SESSION['webDocgroups']) && isset ($_SESSION['webValidated'])) {
-            $dg= $_SESSION['webDocgroups'];
-            $dgn= isset ($_SESSION['webDocgrpNames']) ? $_SESSION['webDocgrpNames'] : array();//add so
-        }
-        if (isset ($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset ($_SESSION['mgrValidated'])) {
-            $dg= array_merge($dg, $_SESSION['mgrDocgroups']);
-            if (isset($_SESSION['mgrDocgrpNames']) ){
-                $dgn= array_merge($dgn, $_SESSION['mgrDocgrpNames']);
-            }
-        }
-        if (!$resolveIds)
-            return $dg;
-        else
-// add so
-            if (!empty($dgn) || empty($dg))
-                return $dgn;
-            else
-                if (is_array($dg)) {
-                    // resolve ids to names
-                    $dgn= array ();
-                    $tbl= $this->getFullTableName("documentgroup_names");
-                    $ds= $this->db->query("SELECT name FROM $tbl WHERE id IN (" . implode(",", $dg) . ")");
-                    while ($row= $this->db->getRow($ds))
-                        $dgn[count($dgn)]= $row['name'];
-                    // cache docgroup names to session
-                    if ($this->isFrontend())
-                        $_SESSION['webDocgrpNames']= $dgn;
-                    else
-                        $_SESSION['mgrDocgrpNames']= $dgn;
-                    return $dgn;
-                }
-    }
+	function getUserDocGroups($resolveIds= false)
+	{
+		$dg  = array(); // add so
+		$dgn = array();
+		if($this->isFrontend() && isset($_SESSION['webDocgroups']) && !empty($_SESSION['webDocgroups']) && isset($_SESSION['webValidated']))
+		{
+			$dg = $_SESSION['webDocgroups'];
+			if(isset($_SESSION['webDocgrpNames']))
+			{
+				$dgn = $_SESSION['webDocgrpNames']; //add so
+			}
+		}
+		if(isset($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset($_SESSION['mgrValidated']))
+		{
+			$dg = array_merge($dg, $_SESSION['mgrDocgroups']);
+			if(isset($_SESSION['mgrDocgrpNames']))
+			{
+				$dgn = array_merge($dgn, $_SESSION['mgrDocgrpNames']);
+			}
+		}
+		if(!$resolveIds)
+		{
+			return $dg;
+		}
+		elseif(!empty($dgn) || empty($dg))
+		{
+			return $dgn; // add so
+		}
+		elseif(is_array($dg))
+		{
+			// resolve ids to names
+			$dgn = array ();
+			$tbl = $this->getFullTableName('documentgroup_names');
+			$imploded_dg = implode(',', $dg);
+			$ds = $this->db->query("SELECT `name` FROM {$tbl} WHERE id IN ({$imploded_dg})");
+			while ($row= $this->db->getRow($ds))
+			$dgn[count($dgn)] = $row['name'];
+			// cache docgroup names to session
+			if($this->isFrontend()) $_SESSION['webDocgrpNames'] = $dgn;
+			else                    $_SESSION['mgrDocgrpNames'] = $dgn;
+			return $dgn;
+		}
+	}
+	
     function getDocGroups() {
         return $this->getUserDocGroups();
     } // deprecated
