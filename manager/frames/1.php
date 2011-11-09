@@ -6,6 +6,8 @@ $_SESSION['browser'] = $browser;
 $version = $client->property('version');
 $_SESSION['browser_version'] = $version;
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+if($_SESSION['mgrForgetPassword']) $action = '28';
+else                               $action = '2';
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
@@ -20,12 +22,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	?>
 	<frameset cols="260,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
 		<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">
-		<frame name="main" src="index.php?a=2"  scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
+		<frame name="main" src="index.php?a=<?php echo $action;?>"  scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
 <?php } else {
 	// Right-to-Left reading (sidebar on right)
 	?>
     	<frameset cols="*,260" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
-		<frame name="main" src="index.php?a=2" scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
+		<frame name="main" src="index.php?a=<?php echo $action;?>" scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
 		<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">
 <?php } ?>
 	</frameset>

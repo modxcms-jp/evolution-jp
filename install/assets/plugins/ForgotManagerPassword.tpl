@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.3
+ * @version 	1.1.4
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin
@@ -187,8 +187,14 @@ if($event_name == 'OnBeforeManagerLogin') {
 }
 
 if($event_name == 'OnManagerAuthentication' && $hash && $username) {
+    if($hash) $_SESSION['mgrForgetPassword'] = '1';
     $user = $forgot->getUser(false, $username, '', $hash);
-    $output = ($user !== null && count($forgot->errors) == 0) ? true : false;
+    if($user !== null && count($forgot->errors) == 0)
+    {
+        if(!$hash && $_SESSION['mgrForgetPassword']) unset($_SESSION['mgrForgetPassword']);
+        $output =  true;
+    }
+    else $output = false;
 }
 
 $modx->Event->output($output);
