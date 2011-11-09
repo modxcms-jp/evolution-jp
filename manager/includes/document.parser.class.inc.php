@@ -2483,11 +2483,13 @@ class DocumentParser {
 		{
 			// resolve ids to names
 			$dgn = array ();
-			$tbl = $this->getFullTableName('documentgroup_names');
+			$tbl_dgn = $this->getFullTableName('documentgroup_names');
 			$imploded_dg = implode(',', $dg);
-			$ds = $this->db->query("SELECT `name` FROM {$tbl} WHERE id IN ({$imploded_dg})");
-			while ($row= $this->db->getRow($ds))
-			$dgn[count($dgn)] = $row['name'];
+			$ds = $this->db->query("SELECT `name` FROM {$tbl_dgn} WHERE id IN ({$imploded_dg})");
+			while ($row = $this->db->getRow($ds))
+			{
+				$dgn[count($dgn)] = $row['name'];
+			}
 			// cache docgroup names to session
 			if($this->isFrontend()) $_SESSION['webDocgrpNames'] = $dgn;
 			else                    $_SESSION['mgrDocgrpNames'] = $dgn;
