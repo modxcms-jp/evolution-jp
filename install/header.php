@@ -3,6 +3,7 @@
 <head>
 	<title><?php echo $_lang['modx_install']?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $_lang['encoding']?>" />
+	<meta name="robots" content="noindex, nofollow" />
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
 </head>
 <body<?php echo $modx_textdir ? ' id="rtl"':''?>>
