@@ -130,7 +130,7 @@ $_lang["configcheck_lang_difference_msg"] = '現在選択されている言語�
 $_lang["configcheck_notok"] = '動作環境に問題があります。';
 $_lang["configcheck_ok"] = '問題なし - 警告はありません。';
 $_lang["configcheck_php_gdzip"] = 'GDライブラリが読み込まれてません。';
-$_lang["configcheck_php_gdzip_msg"] = 'このサーバでは<a href="http://www.google.com/search?q=gd+%22php.ini%22&lr=lang_ja" target="_blank">GDライブラリ</a>が読み込まれてません。<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=CAPTCHA&sa.x=26&sa.y=8&siteurl=modxcms-jp.com%2Fbb%2F" target="_blank">ログイン時の画像認証機能(CAPTCHA)</a>など画像まわりの処理に制限があります。';
+$_lang["configcheck_php_gdzip_msg"] = 'このサーバでは<a href="http://www.google.com/search?q=gd+%22php.ini%22&lr=lang_ja" target="_blank">GDライブラリ</a>が読み込まれてません。<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=CAPTCHA&sa.x=26&sa.y=8&siteurl=http:%2F%2Fforum.modx.jp%2F" target="_blank">ログイン時の画像認証機能(CAPTCHA)</a>など画像まわりの処理に制限があります。';
 $_lang["configcheck_register_globals"] = '「register_globals」が「ON」に設定されており、セキュリティ上問題があります。';
 $_lang["configcheck_register_globals_msg"] = 'クロスサイトスクリプティング攻撃(XSS)を受けやすい脆弱性があります。XSS攻撃はMODX本体に限らず、サードパーティによって開発されるスニペットやプラグインも攻撃対象となります。register_globals on の環境を特に必要としない場合は、.htaccessまたはphp.iniによって OFF にすることを強くおすすめします。';
 $_lang["configcheck_title"] = '設定チェック';
@@ -370,7 +370,7 @@ $_lang["go"] = '実行';
 $_lang["group_access_permissions"] = 'ユーザーグループのアクセス';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'ヘルプ';
-$_lang["help_msg"] = '<p><a href="http://modxcms-jp.com/bb/" target="_blank">MODX日本公式フォーラム</a>でサポートを得ることができます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODXドキュメントとガイド（英語）</a>があり、MODX のほぼすべてに関して記されています。</p>';
+$_lang["help_msg"] = '<p><a href="http://forum.modx.jp/" target="_blank">MODX日本公式フォーラム</a>でサポートを得ることができます。 また、逐次執筆が進められている<a href="http://modxcms.com/documentation" target="_blank">MODXドキュメントとガイド（英語）</a>があり、MODX のほぼすべてに関して記されています。</p>';
 $_lang["help_title"] = 'サポート';
 $_lang["hide_tree"] = 'サイトツリーを非表示';
 $_lang["home"] = 'ダッシュボード';
