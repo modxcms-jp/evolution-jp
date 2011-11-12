@@ -41,7 +41,7 @@ if($modx->hasPermission('messages')) {
 		$_SESSION['nrnewmessages'] = $nrnewmessages;
 
     $msg = '<a href="index.php?a=10"><img src="'.$_style['icons_mail_large'].'" /></a>
-    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages']."</span>)":"").'</span><br />';
+    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages'].'</span>)':'').'</span><br />';
     if($_SESSION['nrnewmessages']>0)
     {
         $msg .= '<span class="comment">'
@@ -55,31 +55,30 @@ if($modx->hasPermission('messages')) {
 }
 
 // setup icons
-if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) { 
-    $icon = '<a class="hometblink" href="index.php?a=75"><img src="'.$_style['icons_security_large'].'" width="32" height="32" alt="'.$_lang['user_management_title'].'" /><br />'.$_lang['security'].'</a>';     
-    $modx->setPlaceholder('SecurityIcon',$icon);
+if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) {
+	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
+	$modx->setPlaceholder('SecurityIcon',$src);
 }
 if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) { 
-    $icon = '<a class="hometblink" href="index.php?a=99"><img src="'.$_style['icons_webusers_large'].'" width="32" height="32" alt="'.$_lang['web_user_management_title'].'" /><br />'.$_lang['web_users'].'</a>';
-    $modx->setPlaceholder('WebUserIcon',$icon);
+	$src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
+	$modx->setPlaceholder('WebUserIcon',$src);
 }
 if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
-    $icon = '<a class="hometblink" href="index.php?a=106"><img src="'.$_style['icons_modules_large'].'" width="32" height="32" alt="'.$_lang['manage_modules'].'" /><br />'.$_lang['modules'].'</a>';
-    $modx->setPlaceholder('ModulesIcon',$icon);
+	$src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
+	$modx->setPlaceholder('ModulesIcon',$src);
 }
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
-    $icon = '<a class="hometblink" href="index.php?a=76"><img src="'.$_style['icons_resources_large'].'" width="32" height="32" alt="'.$_lang['element_management'].'" /><br />'.$_lang['elements'].'</a>';
-    $modx->setPlaceholder('ResourcesIcon',$icon);
+	$src = get_icon($_lang['elements'], 76, $_style['icons_resources_large'], $_lang['element_management']);
+	$modx->setPlaceholder('ResourcesIcon',$src);
 }
 if($modx->hasPermission('bk_manager')) {
-    $icon = '<a class="hometblink" href="index.php?a=93"><img src="'.$_style['icons_backup_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang['backup'].'</a>';
-    $modx->setPlaceholder('BackupIcon',$icon);
+	$src = get_icon($_lang['backup'], 93, $_style['icons_backup_large'], $_lang['bk_manager']);
+	$modx->setPlaceholder('BackupIcon',$src);
 }
 if($modx->hasPermission('help')) {
-    $icon = '<a class="hometblink" href="index.php?a=9"><img src="'.$_style['icons_help_large'].'" width="32" height="32" alt="'.$_lang['bk_manager'].'" /><br />'.$_lang["help"].'</a>';
-    $modx->setPlaceholder('HelpIcon',$icon);
+	$src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['bk_manager']);
+	$modx->setPlaceholder('HelpIcon',$src);
 }
-
 
 // setup modules
 if($modx->hasPermission('exec_module')) {
@@ -94,15 +93,17 @@ if($modx->hasPermission('exec_module')) {
 				ORDER BY sm.editedon DESC');
 	} else {
 		// Admins get the entire list
-		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+		$rs = $modx->db->select('id,name,icon', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
-	while ($content = $modx->db->getRow($rs)) {
+	while ($content = $modx->db->getRow($rs))
+	{
 		if(empty($content['icon'])) $content['icon'] = $_style['icons_modules'];
-		$modulemenu[] = '<span class="wm_button" style="margin-top:10px;margin-bottom:10px;border:0"><a class="hometblink" href="index.php?a=112&amp;id='.$content['id'].'">' . '<img src="'.$content['icon'].'" width="32" height="32" alt="'.$content['name'].'" /><br />' .$content['name'].'</a></span>';
+		$action = 'index.php?a=112&amp;id='.$content['id'];
+		$modulemenu[] = get_icon($content['name'], $action, $content['icon'], $content['name']);
 	}
 }
 $modules = '';
-if(count($modulemenu)>0) $modules = join("\n",$modulemenu);
+if(0<count($modulemenu)) $modules = join("\n",$modulemenu);
 $modx->setPlaceholder('Modules',$modules);
 
 // do some config checks
@@ -227,7 +228,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
         for ($i = 0; $i < $limit; $i++) {
             $activeusers = mysql_fetch_assoc($rs);
             $currentaction = getAction($activeusers['action'], $activeusers['id']);
-            $webicon = ($activeusers['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":"";
+            $webicon = ($activeusers['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":'';
             $html.= "<tr bgcolor='#FFFFFF'><td><b>".$activeusers['username']."</b></td><td>$webicon&nbsp;".abs($activeusers['internalKey'])."</td><td>".$activeusers['ip']."</td><td>".strftime('%H:%M:%S', $activeusers['lasthit']+$server_offset_time)."</td><td>$currentaction</td></tr>";
         }
         $html.= '
@@ -250,21 +251,21 @@ fclose($handle);
 // invoke event OnManagerWelcomePrerender
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
 if(is_array($evtOut)) {
-    $output = implode("",$evtOut);
+    $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
 // invoke event OnManagerWelcomeHome
 $evtOut = $modx->invokeEvent('OnManagerWelcomeHome');
 if(is_array($evtOut)) {
-    $output = implode("",$evtOut);
+    $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomeHome', $output);
 }
 
 // invoke event OnManagerWelcomeRender
 $evtOut = $modx->invokeEvent('OnManagerWelcomeRender');
 if(is_array($evtOut)) {
-    $output = implode("",$evtOut);
+    $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomeRender', $output);
 }
 
@@ -276,4 +277,13 @@ if ($js= $modx->getRegisteredClientScripts()) {
 }
 
 echo $tpl;
+
+
+
+function get_icon($title,$action,$icon_path,$alt='')
+{
+	if(is_int($action)) $action = 'index.php?a=' . $action;
+	$icon = '<a class="hometblink" href="'.$action.'" alt="'.$alt.'"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
+	return '<span class="wm_button" style="border:0">' . $icon . '</span>';
+}
 ?>
