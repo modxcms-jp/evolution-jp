@@ -165,14 +165,20 @@ if (isset ($_POST['which_editor'])) {
 	$which_editor = $_POST['which_editor'];
 }
 ?>
+<?php
+$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
+$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+?>
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
 window.addEvent('domready', function(){
 	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
 	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
-	new DatePicker($('pub_date'), {'yearOffset': dpOffset,'format':dpformat});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat});
+	var dayNames = <?php echo $dayNames;?>;
+	var monthNames = <?php echo $monthNames;?>;
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 
 	if( !window.ie6 ) {
 	    $$('img[src=<?php echo $_style["icons_tooltip_over"]?>]').each(function(help_img) {

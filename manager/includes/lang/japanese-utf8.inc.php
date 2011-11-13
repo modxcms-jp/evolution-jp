@@ -1083,4 +1083,7 @@ $_lang["yourinfo_role"] = '所属ロール(役割)';
 $_lang["yourinfo_title"] = 'あなたの情報';
 $_lang["yourinfo_total_logins"] = '合計ログイン回数';
 $_lang["yourinfo_username"] = 'ログイン名';
-?>
+
+// modx_ja
+$_lang["day_names"] = '日,月,火,水,木,金,土';
+$_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
