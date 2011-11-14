@@ -795,48 +795,59 @@ if (is_array($evtOut))
           </tr>
 		</table>
 	</div>
-</div>
-</div>
-
 <?php
-
-if ($use_udperms == 1) {
+if ($use_udperms == 1)
+{
 	$groupsarray = array ();
 
-	if ($_GET['a'] == '12') { // only do this bit if the user is being edited
+	if ($_GET['a'] == '12')
+	{ // only do this bit if the user is being edited
 		$sql = "SELECT * FROM $dbase.`" . $table_prefix . "member_groups` where member=" . $_GET['id'] . "";
 		$rs = mysql_query($sql);
 		$limit = mysql_num_rows($rs);
-		for ($i = 0; $i < $limit; $i++) {
+		for ($i = 0; $i < $limit; $i++)
+		{
 			$currentgroup = mysql_fetch_assoc($rs);
 			$groupsarray[$i] = $currentgroup['user_group'];
 		}
 	}
 
 	// retain selected doc groups between post
-	if (is_array($_POST['user_groups'])) {
+	if (is_array($_POST['user_groups']))
+	{
 		foreach ($_POST['user_groups'] as $n => $v)
+		{
 			$groupsarray[] = $v;
+		}
 	}
 ?>
-
-<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div><div class="sectionBody">
+	<!-- Access -->
+	<div class="tab-page" id="tabAccess">
+		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
+		<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
+		<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
+		<div class="sectionBody">
+		<?php
+			echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
+			$sql = "SELECT name, id FROM $dbase.`" . $table_prefix . "membergroup_names` ORDER BY name";
+			$rs = mysql_query($sql);
+			$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
+			while($row = mysql_fetch_assoc($rs))
+			{
+				$echo = $tpl;
+				$echo = str_replace('[+id+]', $row['id'], $echo);
+				$echo = str_replace('[+checked+]', (in_array($row['id'], $groupsarray) ? 'checked="checked"' : ''),$echo);
+				$echo = str_replace('[+name+]', $row['name'], $echo);
+				echo $echo;
+			}
+		?>
+		</div>
+	</div>
 <?php
-
-	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$sql = "SELECT name, id FROM $dbase.`" . $table_prefix . "membergroup_names` ORDER BY name";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
-		echo "<input type='checkbox' name='user_groups[]' value='" . $row['id'] . "'" . (in_array($row['id'], $groupsarray) ? " checked='checked'" : "") . " />" . $row['name'] . "<br />";
-	}
-?>
-</div>
-<?php
-
 }
 ?>
+</div>
+</div>
 <input type="submit" name="save" style="display:none">
 <?php
 
