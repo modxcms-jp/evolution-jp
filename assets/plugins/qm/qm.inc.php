@@ -13,9 +13,10 @@ class Qm {
 	var $modx;
 
     //_______________________________________________________
-	function Qm(&$modx, $jqpath='', $loadmanagerjq='', $loadfrontendjq='', $noconflictjq='', $loadtb='', $tbwidth='', $tbheight='', $hidefields='', $hidetabs='', $hidesections='', $addbutton='', $tpltype='', $tplid='', $custombutton='', $managerbutton='', $logout='', $autohide='', $editbuttons='', $editbclass='', $newbuttons='', $newbclass='', $tvbuttons='', $tvbclass='')
+	function Qm(&$modx, $params)
 	{
 		$this->modx = $modx;
+		extract($params);
 		
 		// Get plugin parameters
 		$this->jqpath = $jqpath;
