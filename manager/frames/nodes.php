@@ -199,6 +199,12 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 				$ph['pid']       = "'p{$id}'";
 				$ph['pad']       = $pad;
 				$ph['icon']      = $icon;
+				switch($modx->config['tree_page_click'])
+				{
+					case '27': $ph['ca'] = 'open';   break;
+					case '3' : $ph['ca'] = 'docinfo';break;
+					default  : $ph['ca'] = 'open';
+				}
 				$tpl = get_src_page_node();
 				$output .= parse_ph($ph,$tpl);
 			}
@@ -206,6 +212,12 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			{
 				$ph['fid']       = "'f{$id}'";
 				$ph['indent'] = $indent+1;
+				switch($modx->config['tree_page_click'])
+				{
+					case '27': $ph['ca'] = 'open';   break;
+					case '3' : $ph['ca'] = 'docinfo';break;
+					default  : $ph['ca'] = 'docinfo';
+				}
 				
 				if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
 				elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
@@ -287,7 +299,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
 />&nbsp;<span
 	p="[+parent+]"
-	onclick="treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -320,7 +332,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -354,7 +366,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"

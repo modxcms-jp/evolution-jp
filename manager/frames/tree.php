@@ -306,13 +306,18 @@
                 alert('<?php echo $_lang['unable_set_parent']; ?>');
             }
         }
-        if(ca=="open" || ca=="") {
+        if(ca=="open" || ca=="docinfo" || ca=="") {
+            <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
                 parent.main.location.href="index.php?a=2";
+            } else if(ca=="docinfo") {
+                parent.main.location.href="index.php?a=3&id=" + id;
+            } else if(ca=="open") {
+                parent.main.location.href="index.php?a=27&id=" + id;
             } else {
                 // parent.main.location.href="index.php?a=3&id=" + id + getFolderState(); //just added the getvar &opened=
-                parent.main.location.href="index.php?a=<?php echo (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>&id=" + id; // edit as default action
+                parent.main.location.href="index.php?a=<?php echo $action; ?>&id=" + id; // edit as default action
             }
         }
         if(ca=="parent") {
