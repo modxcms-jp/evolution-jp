@@ -243,10 +243,27 @@ function movedocument() {
 	docSettings = new WebFXTabPane( document.getElementById( "childPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
 	</script>
 
+	<!-- View Children -->
+	<div class="tab-page" id="tabChildren">
+		<h2 class="tab"><?php echo $_lang['view_child_resources_in_container']?></h2>
+		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabChildren" ) );</script>
+<?php if ($modx->hasPermission('new_document')) { ?>
+	
+			<ul class="actionButtons">
+				<li><a href="index.php?a=4&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
+				<li><a href="index.php?a=72&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
+			</ul>
+<?php }
+	if ($numRecords > 0)
+		echo '<h4><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</h4>'."\n";
+	echo $children_output."\n";
+?>
+	</div><!-- end tab-page -->
+
 	<!-- General -->
-	<div class="tab-page" id="tabdocGeneral">
-		<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocGeneral" ) );</script>
+	<div class="tab-page" id="tabdocInfo">
+		<h2 class="tab"><?php echo $_lang['information']?></h2>
+		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
 		<div class="sectionBody">
 
 		<table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -315,23 +332,6 @@ function movedocument() {
 				<td><?php echo $content['isfolder']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
 		</table>
 		</div><!-- end sectionBody -->
-	</div><!-- end tab-page -->
-
-	<!-- View Children -->
-	<div class="tab-page" id="tabChildren">
-		<h2 class="tab"><?php echo $_lang['view_child_resources_in_container']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabChildren" ) );</script>
-<?php if ($modx->hasPermission('new_document')) { ?>
-	
-			<ul class="actionButtons">
-				<li><a href="index.php?a=4&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
-				<li><a href="index.php?a=72&amp;pid=<?php echo $content['id']?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
-			</ul>
-<?php }
-	if ($numRecords > 0)
-		echo '<h4><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</h4>'."\n";
-	echo $children_output."\n";
-?>
 	</div><!-- end tab-page -->
 
 	<!-- Page Source -->
