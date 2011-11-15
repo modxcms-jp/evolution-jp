@@ -971,7 +971,7 @@ $_lang["total"] = '合計';
 $_lang["track_visitors_message"] = 'このサイトのアクセス解析データを蓄積します(※実際には蓄積されません。対応モジュールが必要)。';
 $_lang["track_visitors_title"] = 'アクセスログを記録';
 $_lang["tree_page_click"] = 'サイトツリークリック時の動作';
-$_lang["tree_page_click_message"] = 'サイトツリーを左クリックした時の既定の動作を設定します。';
+$_lang["tree_page_click_message"] = 'サイトツリーを左クリックした時の既定の動作を設定します。「自動」を選ぶとリソースがコンテナかどうかで判定します。';
 $_lang["tree_show_protected"] = '権限のないリソースの表示';
 $_lang["tree_show_protected_message"] = 'ログインしているユーザーが操作権限を持たないリソースも全てサイトツリーに表示します。Windowsフォルダオプションの「全てのファイルとフォルダを表示する」に似ています。権限の設定は<a href="index.php?a=40">「グループ管理」</a>で行ないます。';
 $_lang["truncate_table"] = 'このテーブルの内容を全削除するにはここをクリック';
@@ -1087,3 +1087,4 @@ $_lang["yourinfo_username"] = 'ログイン名';
 // modx_ja
 $_lang["day_names"] = '日,月,火,水,木,金,土';
 $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
+$_lang["tree_page_click_option_auto"] = '自動';

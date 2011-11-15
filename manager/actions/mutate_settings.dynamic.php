@@ -932,10 +932,14 @@ function confirmLangChange(el, lkey, elupd){
             </tr>
              <tr>
       		   <td nowrap class="warning"><b><?php echo $_lang["tree_page_click"] ?></b></td>
-      		   <td> <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo ($tree_page_click=='27' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
+      		   <td>
+      		     <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo ($tree_page_click=='27' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
       			 <?php echo $_lang["edit_resource"]?><br />
       			 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo ($tree_page_click=='3') ? 'checked="checked"' : ""; ?> />
-      			 <?php echo $_lang["doc_data_title"]?></td>
+      			 <?php echo $_lang["doc_data_title"]?><br />
+      			 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="auto" <?php echo ($tree_page_click=='auto') ? 'checked="checked"' : ""; ?> />
+      			 <?php echo $_lang["tree_page_click_option_auto"]?>
+      			</td>
       		 </tr>
              <tr>
                <td width="200">&nbsp;</td>
