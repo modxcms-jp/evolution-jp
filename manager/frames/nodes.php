@@ -316,7 +316,7 @@ EOT;
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;">[+spacer+]<img
 	id="s[+id+]"
 	align="absmiddle"
-	style="cursor: pointer"
+	style="cursor:pointer"
 	src="[+_style_tree_minusnode+]"
 	onclick="toggleNode(this,[+indent+],[+id+],0,[+private_status+]); return false;"
 	oncontextmenu="this.onclick(event); return false;"
