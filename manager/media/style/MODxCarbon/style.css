@@ -278,6 +278,9 @@ form textarea {
 	background: #fff url(images/misc/input-bg.gif) repeat-x top left;
 	vertical-align: baseline;
 }
+form input[type=text] {
+	line-height:1;
+}
 	.rtl form input[type=text],
 	.rtl form textarea {
 		padding: 2px 2px 2px 0;
