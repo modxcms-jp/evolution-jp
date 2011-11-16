@@ -186,8 +186,8 @@ if ($numRecords > 0) {
 				'action'   => get_action_links($children)
 			);
 		}
-		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id']);
-		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id']);
+		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
+		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
 	}
 } else {
 	// No Child documents
