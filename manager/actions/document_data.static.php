@@ -230,6 +230,21 @@ function movedocument() {
 		  <li id="Button3">
 		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
 		  </li>
+          <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
+          	 if(isset($content['parent']) && $content['parent']!=='0')
+          	 {
+          		echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
+          	 }
+          	 elseif($_GET['pid'])
+          	 {
+          	 	$_GET['pid'] = intval($_GET['pid']);
+          		echo "document.location.href='index.php?a=3&id={$_GET['pid']}&tab=0';";
+          	 }
+          	 else
+          	 {
+          		echo "document.location.href='index.php?a=2';";
+          	 }
+          	?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 		  <li id="Button6">
 			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
 		  </li>
