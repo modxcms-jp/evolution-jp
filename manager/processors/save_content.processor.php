@@ -671,6 +671,10 @@ switch ($actionToTake) {
 				}
 				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 			} else {
+				if($modx->config['remember_last_tab']!=='2')
+				{
+					setcookie('webfxtab_childPane', 1, time()+3600, MODX_BASE_URL);
+				}
 				$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
 			}
 		}

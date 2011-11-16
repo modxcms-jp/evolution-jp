@@ -22,6 +22,12 @@ if($_SESSION['mgrDocgroups']) $docgrp = implode(",",$_SESSION['mgrDocgroups']);
 $in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
+if($modx->config['remember_last_tab']!=='2')
+{
+	$tab = (isset($_GET['tab'])) ? intval($_GET['tab']) : '1';
+	setcookie('webfxtab_childPane', $tab, time()+3600, MODX_BASE_URL);
+}
+
 // Get the document content
 $sql = 'SELECT DISTINCT sc.* '.
        "FROM {$tbl_site_content} AS sc ".

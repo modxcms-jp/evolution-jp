@@ -312,7 +312,7 @@
                 // do nothing?
                 parent.main.location.href="index.php?a=2";
             } else if(ca=="docinfo") {
-                parent.main.location.href="index.php?a=3&id=" + id;
+                parent.main.location.href="index.php?a=3&id=" + id + '&tab=0';
             } else if(ca=="open") {
                 parent.main.location.href="index.php?a=27&id=" + id;
             } else {
