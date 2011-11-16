@@ -299,7 +299,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
 />&nbsp;<span
 	p="[+parent+]"
-	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -332,7 +332,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -366,7 +366,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"

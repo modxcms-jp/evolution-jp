@@ -177,7 +177,7 @@ if ($numRecords > 0) {
 			}
 			else
 			{
-				$link = 'index.php?a=3&amp;id=' . $children['id'];
+				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
 				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $children['pagetitle'];
 				$pagetitle = '<a href="' . $link . '" style="color:#333;">' . $pagetitle . '</a>';
 			}
