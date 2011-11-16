@@ -143,12 +143,13 @@ if ($numRecords > 0) {
 
 		// Table header
 		$listTableHeader = array(
-			'docid' =>  $_lang['id'],
-			'title' =>  $_lang['resource_title'],
-			'status' => $_lang['page_data_status'],
-			'action' => $_lang['mgrlog_action'],
+			'docid' =>    $_lang['id'],
+			'title' =>    $_lang['resource_title'],
+			'editedon' => $_lang['editedon'],
+			'status' =>   $_lang['page_data_status'],
+			'action' =>   $_lang['mgrlog_action'],
 		);
-		$tbWidth = array('5%', '60%', '10%', '25%');
+		$tbWidth = array('5%', '45%', '15%', '10%', '25%');
 		$childsTable->setColumnWidths($tbWidth);
 
 		$limitClause = $childsTable->handlePaging();
@@ -168,20 +169,21 @@ if ($numRecords > 0) {
 			{
 				$link = 'index.php?a=27&amp;id=' . $children['id'];
 				$pagetitle = '<img src="' . $_style['tree_page'] . '" />' . $children['pagetitle'];
-				$pagetitle = '<a href="' . $link . '" style="color:#333;">' . $pagetitle . '</a>';
+				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . '</a>';
 			}
 			else
 			{
 				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
 				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $children['pagetitle'];
-				$pagetitle = '<a href="' . $link . '" style="color:#333;">' . $pagetitle . '</a>';
+				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . '</a>';
 			}
 			
 			$listDocs[] = array(
-				'docid'  => $children['id'],
-				'title'  => $pagetitle,
-				'status' => $status,
-				'action' => get_action_links($children)
+				'docid'    => $children['id'],
+				'title'    => $pagetitle,
+				'editedon' => $modx->toDateFormat($children['editedon']),
+				'status'   => $status,
+				'action'   => get_action_links($children)
 			);
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id']);
