@@ -64,13 +64,17 @@ function checkParentChildRelation(pId, pName) {
 </script>
 
 
+<?php
+	$tblsc = $modx->getFullTableName('site_content');
+	$rs = $modx->db->select('parent', $tblsc, 'id='.$id);
+	$parent = $modx->db->getValue($rs);
+?>
 
 <h1><?php echo $_lang['move_resource_title']; ?></h1>
-
 <div id="actions">
 	<ul class="actionButtons">
-	    <li><a href="#" onclick="document.newdocumentparent.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save'] ?></a></li>
-	  <li><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id';"?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+	  <li><a href="#" onclick="document.newdocumentparent.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save'] ?></a></li>
+	  <li><a href="#" onclick="documentDirty=false;<?php echo $parent==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$parent';"?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 	</ul>
 </div>
 
