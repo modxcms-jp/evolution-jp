@@ -1,5 +1,10 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if($modx->config['remember_last_tab']!=='2')
+{
+	$tab = (isset($_GET['tab'])) ? intval($_GET['tab']) : '1';
+	setcookie('webfxtab_childPane', $tab, time()+3600, MODX_BASE_URL);
+}
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 // invoke OnManagerRegClientStartupHTMLBlock event
