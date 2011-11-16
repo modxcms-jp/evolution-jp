@@ -473,7 +473,7 @@ switch ($actionToTake) {
 		}
 		$row = $modx->db->getRow($rs);
 		if ($row['COUNT(id)'] > 0) {
-			$isfolder = 1;
+			$isfolder = '1';
 		}
 
 		// set publishedon and publishedby
@@ -659,23 +659,34 @@ switch ($actionToTake) {
 		
 		if ($_POST['refresh_preview'] == '1')
 			$header = "Location: ../index.php?id=$id&z=manprev";
-		else {
-			if ($_POST['stay'] != '') {
+		else
+		{
+			if ($_POST['stay'] != '')
+			{
 				$id = $_REQUEST['id'];
-				if ($type == "reference") {
+				if ($type == "reference")
+				{
 					// weblink
 					$a = ($_POST['stay'] == '2') ? "27&id=$id" : "72&pid=$parent";
-				} else {
+				}
+				else
+				{
 					// document
 					$a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parent";
 				}
 				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-			} else {
-				if($modx->config['remember_last_tab']!=='2')
-				{
-					setcookie('webfxtab_childPane', 1, time()+3600, MODX_BASE_URL);
-				}
-				$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+			}
+			elseif($isfolder==='1')
+			{
+				$header = "Location: index.php?a=3&r=1&id=$id&dv=1&tab=0";
+			}
+			elseif($parent!=='0')
+			{
+				$header = "Location: index.php?a=3&r=1&id=$parent&dv=1&tab=0";
+			}
+			else
+			{
+				$header = "Location: index.php?a=7&r=1&id=$id&dv=1";
 			}
 		}
 		header($header);
