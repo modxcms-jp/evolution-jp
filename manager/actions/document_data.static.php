@@ -165,17 +165,34 @@ if ($numRecords > 0) {
 			{
 				$status = '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>';
 			}
+			$description = $children['description'];
+			$len_title = mb_strlen($children['pagetitle'], 'UTF-8');
+			$len_desc  = mb_strlen($description, 'UTF-8');
+			$len_total = $len_title + $len_desc;
+			if($len_total < 30)
+			{
+				if(!empty($description)) $description = ' <span style="color:#777;">' . $description . '</span>';
+			}
+			else
+			{
+				$description = '<br /><div style="margin-left:20px;color:#777;">' . $description . '</div>';
+			}
+			$pagetitle = $children['pagetitle'];
+			if( $children['type']==='reference')
+			{
+				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
+			}
 			if($children['isfolder'] == 0)
 			{
 				$link = 'index.php?a=27&amp;id=' . $children['id'];
-				$pagetitle = '<img src="' . $_style['tree_page'] . '" />' . $children['pagetitle'];
-				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . '</a>';
+				$pagetitle = '<img src="' . $_style['tree_page'] . '" />' . $pagetitle;
+				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . $description . '</a>';
 			}
 			else
 			{
 				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
-				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $children['pagetitle'];
-				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . '</a>';
+				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $pagetitle;
+				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . $description . '</a>';
 			}
 			
 			$listDocs[] = array(
