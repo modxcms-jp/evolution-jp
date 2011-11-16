@@ -390,14 +390,14 @@ function get_action_links($children)
 	$ph = array();
 	if($modx->hasPermission('edit_document'))
 	{
-		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]"><img src="[+icons_save+]" />[+lang_edit+]</a>';
+		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]"><img src="[+icons_edit+]" />[+lang_edit+]</a>';
 		$ph['action_links'] .= '&nbsp;<a href="index.php?a=51&amp;id=[+docid+]"><img src="[+icons_move_document+]" />[+lang_move+]</a>';
 	}
 	else $ph['action_links'] = '';
 	$ph['docid']                  = $children['id'];
 	$ph['icons_preview_resource'] = $_style["icons_preview_resource"];
 	$ph['lang_view_details']      = $_lang['click_to_view_details'];
-	$ph['icons_save']             = $_style["icons_save"];
+	$ph['icons_edit']             = $_style["icons_edit_document"];
 	$ph['lang_edit']              = $_lang['edit'];
 	$ph['icons_move_document']    = $_style["icons_move_document"];
 	$ph['lang_move']              = $_lang['move'];
