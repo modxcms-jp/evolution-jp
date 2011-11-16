@@ -386,12 +386,12 @@ function get_action_links($children)
 {
 	global $modx,$_style,$_lang;
 	
-	$action_links_tpl = '<a href="index.php?a=3&amp;id=[+docid+]"><img src="[+icons_preview_resource+]" />[+lang_view_details+]</a>[+action_links+]';
+	$action_links_tpl = '<a href="index.php?a=3&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_preview_resource+]" />[+lang_view_details+]</a>[+action_links+]';
 	$ph = array();
 	if($modx->hasPermission('edit_document'))
 	{
-		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]"><img src="[+icons_edit+]" />[+lang_edit+]</a>';
-		$ph['action_links'] .= '&nbsp;<a href="index.php?a=51&amp;id=[+docid+]"><img src="[+icons_move_document+]" />[+lang_move+]</a>';
+		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_edit+]" />[+lang_edit+]</a>';
+		$ph['action_links'] .= '&nbsp;<a href="index.php?a=51&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_move_document+]" />[+lang_move+]</a>';
 	}
 	else $ph['action_links'] = '';
 	$ph['docid']                  = $children['id'];
