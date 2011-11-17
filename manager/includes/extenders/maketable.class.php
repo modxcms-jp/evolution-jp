@@ -379,7 +379,8 @@ class MakeTable {
 				
 				$table .= '</select>'.$_lang["pagination_table_perpage"].'</div>';
 				*/
-				$table .= '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$this->pageNav.'</ul></div>';
+				$pageNavBlock = '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$this->pageNav.'</ul></div>';
+				$table = $pageNavBlock . $table . $pageNavBlock;
 				//$table .= '<script language="javascript">function updatePageSize(size){window.location = \''.$this->prepareLink($linkpage).'pageSize=\'+size;}</script>';
 
 			}
