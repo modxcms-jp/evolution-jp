@@ -1218,7 +1218,7 @@ padding:4px;
 #pagination li.currentPage a, #pagination li a:hover {
 	color: #333;
 	border: 1px solid #999;
-	background-color:#eeeeee;
+	background-color:#dddddd;
 }
 
 fieldset.tab-page {
