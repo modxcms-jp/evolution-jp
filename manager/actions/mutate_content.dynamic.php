@@ -546,7 +546,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
           <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
           <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
 		  <?php } ?>	
-          <li id="Button4"><a href="#" onclick="documentDirty=false;<?php
+          <li id="Button4"><a href="#" onclick="<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
           	 {
           		echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
