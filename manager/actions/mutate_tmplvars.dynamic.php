@@ -19,7 +19,8 @@ if(isset($_REQUEST['id'])) {
 
 
 // check to see the variable editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE action=301 AND id=$id";
+$tbl_active_users = $modx->getFullTableName('active_users');
+$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=301 AND id=$id";
 $rs = mysql_query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
@@ -42,7 +43,8 @@ if(!is_numeric($id)) {
 }
 
 if(isset($_GET['id'])) {
-    $sql = "SELECT * FROM $dbase.`".$table_prefix."site_tmplvars` WHERE id = $id;";
+    $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+    $sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
     $rs = mysql_query($sql);
     $limit = mysql_num_rows($rs);
     if($limit>1) {
@@ -379,10 +381,13 @@ function decode(s){
 	<div class="sectionHeader"><?php echo $_lang['tmplvar_tmpl_access']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
+	<style type="text/css">
+		label {display:block;}
+	</style>
 <table width="100%" cellspacing="0" cellpadding="0">
 	<?php
-	    $tbl = $dbase.".`".$table_prefix."site_templates`" ;
-	    $tblsel = $dbase.".`".$table_prefix."site_tmplvar_templates`";
+	    $tbl = $modx->getFullTableName('site_templates');
+	    $tblsel = $modx->getFullTableName('site_tmplvar_templates');
 	    $sql = "SELECT id,templatename,tmplvarid FROM $tbl LEFT JOIN $tblsel ON $tblsel.templateid=$tbl.id AND $tblsel.tmplvarid=$id";
 	    $rs = mysql_query($sql);
 ?>
@@ -395,7 +400,7 @@ function decode(s){
 	    	} else {
 	    		$checked = $row['tmplvarid'];
 	    	}
-	        echo "<input type='checkbox' name='template[]' value='".$row['id']."'".($checked? "checked='checked'":'')." />".$row['templatename']."<br />";
+	        echo "<label><input type='checkbox' name='template[]' value='".$row['id']."'".($checked? "checked='checked'":'')." />".$row['templatename']."</label>";
 	    }
 	?>
     </td>
@@ -409,7 +414,8 @@ function decode(s){
 	    $groupsarray = array();
 
 	    // fetch permissions for the variable
-	    $sql = "SELECT * FROM $dbase.`".$table_prefix."site_tmplvar_access` where tmplvarid=".$id;
+	    $tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
+	    $sql = "SELECT * FROM {$tbl_site_tmplvar_access} where tmplvarid=".$id;
 	    $rs = mysql_query($sql);
 	    $limit = mysql_num_rows($rs);
 	    for ($i = 0; $i < $limit; $i++) {
@@ -448,7 +454,8 @@ function decode(s){
 		<?php
 		    }
 		    $chk ='';
-		    $sql = "SELECT name, id FROM $dbase.`".$table_prefix."documentgroup_names`";
+		    $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
+		    $sql = "SELECT name, id FROM {$tbl_documentgroup_names}";
 		    $rs = mysql_query($sql);
 		    $limit = mysql_num_rows($rs);
 		    if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
