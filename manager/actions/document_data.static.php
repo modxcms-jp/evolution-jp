@@ -290,56 +290,59 @@ function movedocument() {
 			</ul>
 <?php }
 	if ($numRecords > 0)
-		echo '<h4><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</h4>'."\n";
+		echo '<p><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</p>'."\n";
 	echo $children_output."\n";
 ?>
 	</div><!-- end tab-page -->
-
+<style type="text/css">
+h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
+</style>
 	<!-- General -->
 	<div class="tab-page" id="tabdocInfo">
 		<h2 class="tab"><?php echo $_lang['information']?></h2>
 		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
 		<div class="sectionBody">
-
-		<table width="100%" border="0" cellspacing="0" cellpadding="0">
-			<tr><td colspan="2"><b><?php echo $_lang['page_data_general']?></b></td></tr>
-			<tr><td width="200" valign="top"><?php echo $_lang['resource_title']?>: </td>
+		<h3><?php echo $_lang['page_data_general']?></h3>
+		<table>
+			<tr><td width="200"><?php echo $_lang['resource_title']?>: </td>
 				<td><b><?php echo $content['pagetitle']?></b></td></tr>
-			<tr><td width="200" valign="top"><?php echo $_lang['long_title']?>: </td>
+			<tr><td><?php echo $_lang['long_title']?>: </td>
 				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td></tr>
-			<tr><td valign="top"><?php echo $_lang['resource_description']?>: </td>
+			<tr><td><?php echo $_lang['resource_description']?>: </td>
 				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<tr><td valign="top"><?php echo $_lang['resource_summary']?>: </td>
+			<tr><td><?php echo $_lang['resource_summary']?>: </td>
 				<td><?php echo $content['introtext']!='' ? $content['introtext'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<tr><td valign="top"><?php echo $_lang['type']?>: </td>
+			<tr><td><?php echo $_lang['type']?>: </td>
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td></tr>
-			<tr><td valign="top"><?php echo $_lang['resource_alias']?>: </td>
+			<tr><td><?php echo $_lang['resource_alias']?>: </td>
 				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<?php if ($modx->config['show_meta']) {?>
-			<tr><td valign="top"><?php echo $_lang['keywords']?>: </td>
+			<tr><td><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)
 					echo join($keywords, ", ");
 				else    echo "(<i>".$_lang['not_set']."</i>)";
 				?></td></tr>
-			<tr><td valign="top"><?php echo $_lang['metatags']?>: </td>
+			<tr><td><?php echo $_lang['metatags']?>: </td>
 				<td><?php // META Tags
 				if(count($metatags_selected) != 0)
 					echo join($metatags_selected, "<br /> ");
 				else    echo "(<i>".$_lang['not_set']."</i>)";
 				?></td></tr>
 			<?php } ?>
-		<tr><td colspan="2">&nbsp;</td></tr>
-			<tr><td colspan="2"><b><?php echo $_lang['page_data_changes']?></b></td></tr>
-			<tr><td><?php echo $_lang['page_data_created']?>: </td>
+			</table>
+			<table>
+			<tr><td colspan="2"><h3><?php echo $_lang['page_data_changes']?></h3></td></tr>
+			<tr><td width="200"><?php echo $_lang['page_data_created']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td></tr>
 <?php				if ($editedbyname != '') { ?>
 			<tr><td><?php echo $_lang['page_data_edited']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td></tr>
 <?php				} ?>
-		<tr><td colspan="2">&nbsp;</td></tr>
-			<tr><td colspan="2"><b><?php echo $_lang['page_data_status']?></b></td></tr>
-			<tr><td><?php echo $_lang['page_data_status']?>: </td>
+		</table>
+		<table>
+			<tr><td colspan="2"><h3><?php echo $_lang['page_data_status']?></h3></td></tr>
+			<tr><td width="200"><?php echo $_lang['page_data_status']?>: </td>
 				<td><?php echo $content['published']==0 ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publisheddoc">'.$_lang['page_data_published'].'</span>'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_publishdate']?>: </td>
 				<td><?php echo $content['pub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['pub_date'])?></td></tr>
@@ -357,9 +360,10 @@ function movedocument() {
 				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="' . $style_path .'icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
 				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="' . $style_path . 'icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
-		<tr><td colspan="2">&nbsp;</td>	</tr>
-			<tr><td colspan="2"><b><?php echo $_lang['page_data_markup']?></b></td></tr>
-			<tr><td><?php echo $_lang['page_data_template']?>: </td>
+		</table>
+		<table>
+			<tr><td colspan="2"><h3><?php echo $_lang['page_data_markup']?></h3></td></tr>
+			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
 				<td><?php echo $templatename ?></td></tr>
 			<tr><td><?php echo $_lang['page_data_editor']?>: </td>
 				<td><?php echo $content['richtext']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
@@ -424,5 +428,5 @@ function get_action_links($children)
 		$k = '[+' . $k . '+]';
 		$action_links = str_replace($k,$v,$action_links);
 	}
-	return $action_links;
+	return '<span style="white-space:nowrap;">' . $action_links . '</span>';
 }
