@@ -149,7 +149,7 @@ if ($numRecords > 0) {
 			'status' =>   $_lang['page_data_status'],
 			'action' =>   $_lang['mgrlog_action'],
 		);
-		$tbWidth = array('5%', '45%', '15%', '10%', '25%');
+		$tbWidth = array('5%', '52%', '15%', '8%', '20%');
 		$childsTable->setColumnWidths($tbWidth);
 
 		$limitClause = $childsTable->handlePaging();
