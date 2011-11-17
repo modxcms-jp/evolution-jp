@@ -169,7 +169,7 @@ if ($numRecords > 0) {
 			$len_title = mb_strlen($children['pagetitle'], 'UTF-8');
 			$len_desc  = mb_strlen($description, 'UTF-8');
 			$len_total = $len_title + $len_desc;
-			if($len_total < 30)
+			if($len_total < 50)
 			{
 				if(!empty($description)) $description = ' <span style="color:#777;">' . $description . '</span>';
 			}
