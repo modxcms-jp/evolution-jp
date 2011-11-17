@@ -420,16 +420,28 @@ switch ($actionToTake) {
 		}
 
 		// redirect/stay options
-		if ($_POST['stay'] != '') {
-			// weblink
-			if ($_POST['mode'] == "72")
+		if ($_POST['stay'] != '')
+		{
+			if ($_POST['mode'] == "72") // weblink
+			{
 				$a = ($_POST['stay'] == '2') ? "27&id=$key" : "72&pid=$parent";
-			// document
-			if ($_POST['mode'] == "4")
+			}
+			elseif ($_POST['mode'] == "4") // document
+			{
 				$a = ($_POST['stay'] == '2') ? "27&id=$key" : "4&pid=$parent";
+			}
 			$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-		} else {
-			$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+		}
+		else
+		{
+			if($parent!=='0')
+			{
+				$header = "Location: index.php?a=3&r=1&id={$parent}&tab=0&dv=1";
+			}
+			else
+			{
+				$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+			}
 		}
 		header($header);
 
