@@ -198,7 +198,7 @@ if ($numRecords > 0) {
 			$listDocs[] = array(
 				'docid'    => $children['id'],
 				'title'    => $pagetitle,
-				'editedon' => $modx->toDateFormat($children['editedon']),
+				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
 				'status'   => $status,
 				'action'   => get_action_links($children)
 			);
