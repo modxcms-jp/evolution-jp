@@ -79,7 +79,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	if ($expandAll==2)
 	{
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$sql = "SELECT COUNT(*) FROM {$tbl_site_content} WHERE deleted=1";
+		$sql = "SELECT COUNT(id) FROM {$tbl_site_content} WHERE deleted=1";
 		$rs = mysql_query($sql);
 		$row = mysql_fetch_row($rs);
 		$count = $row[0];
