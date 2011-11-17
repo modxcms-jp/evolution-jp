@@ -79,7 +79,7 @@ if ($handle = opendir($widget_dir)) {
 
 
 // Set variables
-global $content,$default_template, $mm_current_page, $mm_fields;
+global $content,$default_template, $mm_current_page, $mm_fields, $splitter;
 $mm_current_page = array();
 
 if    (isset($_POST['template']))   $mm_current_page['template'] = $_POST['template'];

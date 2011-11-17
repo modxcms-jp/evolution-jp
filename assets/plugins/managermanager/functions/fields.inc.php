@@ -203,7 +203,7 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 //--------------------------------------------------------------------------------- 
 function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 
-	global $modx, $mm_fields;
+	global $modx, $mm_fields,$splitter;
 	$e = &$modx->Event;
 	
 	// if we've been supplied with a string, convert it into an array 
@@ -226,7 +226,11 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 		
 		// Make sure the new tab exists in the DOM
 		$output .= "if ( \$j('#tab".$newtab."').length > 0) { \n";
-		$output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
+		if(isset($splitter) && $splitter==='none')
+		{
+			 $output .= "var ruleHtml = ''; ";
+		}
+		else $output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
 		
 		// Try and identify any URL type TVs
 		$output .= '$j("select[id$=_prefix]").each( function() { $j(this).parents("tr:first").addClass("urltv"); }  ); ';
