@@ -177,7 +177,13 @@ if ($numRecords > 0) {
 			{
 				$description = '<br /><div style="margin-left:20px;color:#777;">' . $description . '</div>';
 			}
-			$pagetitle = $children['pagetitle'];
+			
+			$class = array();
+			if($children['deleted']==='1') $class[] = 'deletedNode';
+			if($children['published']==='0') $class[] = 'unpublishedNode';
+			if(0<count($class)) $class = ' class="' . join(' ',$class) . '"';
+			
+			$pagetitle = "<span{$class}>" . $children['pagetitle'] . '</span>';
 			if( $children['type']==='reference')
 			{
 				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
