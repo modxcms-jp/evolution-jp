@@ -113,7 +113,7 @@ $sql = 'SELECT DISTINCT sc.* '.
        "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
        "WHERE sc.parent='{$content['id']}' ".
        "AND ({$access}) ".
-       "ORDER BY sc.isfolder DESC, sc.createdon DESC".
+       "ORDER BY sc.isfolder DESC, sc.menuindex DESC".
        $childsTable->handlePaging(); // add limit clause
 
 if ($numRecords > 0) {
