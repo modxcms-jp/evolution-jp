@@ -143,13 +143,14 @@ if ($numRecords > 0) {
 
 		// Table header
 		$listTableHeader = array(
+			'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
 			'docid' =>    $_lang['id'],
 			'title' =>    $_lang['resource_title'],
 			'editedon' => $_lang['editedon'],
 			'status' =>   $_lang['page_data_status'],
 			'action' =>   $_lang['mgrlog_action'],
 		);
-		$tbWidth = array('5%', '52%', '15%', '8%', '20%');
+		$tbWidth = array('2%','3%', '52%', '15%', '8%', '20%');
 		$childsTable->setColumnWidths($tbWidth);
 
 		$limitClause = $childsTable->handlePaging();
@@ -202,6 +203,7 @@ if ($numRecords > 0) {
 			}
 			
 			$listDocs[] = array(
+				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
 				'docid'    => $children['id'],
 				'title'    => $pagetitle,
 				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
@@ -297,7 +299,22 @@ function movedocument() {
 <?php }
 	if ($numRecords > 0)
 		echo '<p><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].' (<strong>'.$content['pagetitle'].'</strong>)</p>'."\n";
-	echo $children_output."\n";
+		echo <<< EOT
+<script type="text/javascript">
+	function selectAll() {
+		var f = document.forms['mutate'];
+		var c = f.elements['batch[]'];
+		for(i=0;i<c.length;i++){
+			c[i].checked=f.chkselall.checked;
+		}
+	}
+</script>
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
+<input type="hidden" name="a" value="51" />
+{$children_output}
+<input type="submit" value="チェックしたリソースを移動" />
+</form>
+EOT;
 ?>
 	</div><!-- end tab-page -->
 <style type="text/css">
