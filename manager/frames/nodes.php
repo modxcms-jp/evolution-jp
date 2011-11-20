@@ -137,11 +137,29 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 		    GROUP BY sc.id
 		    ORDER BY {$orderby}";
 		$result = $modx->db->query($sql);
+		if(100<mysql_num_rows($result) && $modx->config['tree_page_click']==='auto')
+		{
+			$sql = "SELECT DISTINCT sc.id, pagetitle, parent, isfolder, published, deleted, type, menuindex, hidemenu, alias, contentType, privateweb, privatemgr,
+			    MAX(IF(1={$mgrRole} OR sc.privatemgr=0" . (!$docgrp ? "":" OR dg.document_group IN ({$docgrp})") . ", 1, 0)) AS has_access
+			    FROM {$tblsc} AS sc
+			    LEFT JOIN {$tbldg} dg on dg.document = sc.id
+			    WHERE (parent={$parent} AND isfolder=1)
+			    $access
+			    GROUP BY sc.id
+			    ORDER BY {$orderby}";
+			$result = $modx->db->query($sql);
+			$status = 'too_many';
+		}
 		if(mysql_num_rows($result)==0)
 		{
-			$output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$_lang['empty_folder'].'</span></div>';
+			if(isset($status) && $status==='too_many')
+			{
+				$msg = $_lang['too_many_resources'];
+			}
+			else $msg = $_lang['empty_folder'];
+			
+			$output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
-
 		// Make sure to pass in the $modx_textdir variable to the node builder
 		global $modx_textdir;
 
@@ -306,6 +324,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
 	title="[+alt+]">[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]</div>
+
 EOT;
 		return $src;
 	}
@@ -340,6 +359,7 @@ EOT;
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
 >[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:block">
+
 EOT;
 		return $src;
 	}
@@ -373,6 +393,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]">[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:none"></div></div>
+
 EOT;
 		return $src;
 	}

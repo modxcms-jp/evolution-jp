@@ -1088,3 +1088,4 @@ $_lang["yourinfo_username"] = 'ログイン名';
 $_lang["day_names"] = '日,月,火,水,木,金,土';
 $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
 $_lang["tree_page_click_option_auto"] = '自動(推奨)';
+$_lang["too_many_resources"] = 'リソース数が多いため非表示';
