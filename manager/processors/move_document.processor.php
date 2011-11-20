@@ -11,15 +11,18 @@ if($_REQUEST['new_parent']=='')              {$e->setError(602); $e->dumpError()
 
 $tbl_site_content = $modx->getFullTableName('site_content');
 $doc_id = $_REQUEST['id'];
+if(strpos($doc_id,','))
+{
+	$doc_ids = explode(',',$doc_id);
+	$doc_id = substr($doc_id,0,strpos($doc_id,','));
+}
 $sql = "SELECT parent FROM {$tbl_site_content} WHERE id={$doc_id};";
 $rs = mysql_query($sql);
 if(!$rs)
 {
 	echo "An error occured while attempting to find the document's current parent.";
 }
-$row = mysql_fetch_assoc($rs);
-
-$current_parent = $row['parent'];
+$current_parent = $modx->db->getValue($rs);
 $new_parent = intval($_REQUEST['new_parent']);
 
 // check user has permission to move document to chosen location
@@ -70,11 +73,17 @@ if (!array_search($new_parent, $children))
 
 	$user_id = $modx->getLoginUserID();
 	$now     = time();
-	$sql = "UPDATE {$tbl_site_content} SET parent={$new_parent}, editedby={$user_id}, editedon={$now}, menuindex={$menuindex} WHERE id={$doc_id};";
-	$rs = mysql_query($sql);
-	if(!$rs)
+	if(isset($doc_ids) || 0<count($doc_ids))
 	{
-		echo "An error occured while attempting to move the document to the new parent.";
+		foreach($doc_ids as $v)
+		{
+			update_parentid($v,$new_parent,$user_id,$menuindex,$now);
+			$menuindex++;
+		}
+	}
+	else
+	{
+		update_parentid($doc_id,$new_parent,$user_id,$menuindex,$now);
 	}
 
 	// finished moving the document, now check to see if the old_parent should no longer be a folder.
@@ -142,4 +151,16 @@ function allChildren($docid)
 		}
 	}
 	return $children;
+}
+
+function update_parentid($doc_id,$new_parent,$user_id,$menuindex,$now)
+{
+	global $modx;
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	$sql = "UPDATE {$tbl_site_content} SET parent={$new_parent}, editedby={$user_id}, menuindex={$menuindex} WHERE id={$doc_id};";
+	$rs = mysql_query($sql);
+	if(!$rs)
+	{
+		echo "An error occured while attempting to move the document to the new parent.";
+	}
 }
