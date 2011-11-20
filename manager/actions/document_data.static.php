@@ -179,10 +179,11 @@ if ($numRecords > 0) {
 				$description = '<br /><div style="margin-left:20px;color:#777;">' . $description . '</div>';
 			}
 			
-			$class = array();
-			if($children['deleted']==='1') $class[] = 'deletedNode';
-			if($children['published']==='0') $class[] = 'unpublishedNode';
-			if(0<count($class)) $class = ' class="' . join(' ',$class) . '"';
+			$classes = array();
+			if($children['deleted']==='1') $classes[] = 'deletedNode';
+			if($children['published']==='0') $classes[] = 'unpublishedNode';
+			if(0<count($classes)) $class = ' class="' . join(' ',$classes) . '"';
+			else $class = '';
 			
 			$pagetitle = "<span{$class}>" . $children['pagetitle'] . '</span>';
 			if( $children['type']==='reference')
