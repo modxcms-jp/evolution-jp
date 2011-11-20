@@ -84,13 +84,14 @@ if ($action == 27) {
 }
 
 // Check to see the document isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=27 AND id=\''.$id.'\'';
+$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=27 AND id='{$id}'";
 $rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID()) {
+if (1 < mysql_num_rows($rs))
+{
+	while($lock = mysql_fetch_assoc($rs))
+	{
+		if ($lock['internalKey'] != $modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'document');
 			$e->setError(5, $msg);
 			$e->dumpError();
