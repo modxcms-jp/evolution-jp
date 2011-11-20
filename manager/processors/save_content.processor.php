@@ -688,11 +688,15 @@ switch ($actionToTake) {
 				}
 				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 			}
-			elseif($isfolder==='1')
+			elseif($isfolder==='1' && $parent!=='0')
+			{
+				$header = "Location: index.php?a=3&r=1&id=$parent&dv=1&tab=0";
+			}
+			elseif($isfolder==='1' && $parent==='0')
 			{
 				$header = "Location: index.php?a=3&r=1&id=$id&dv=1&tab=0";
 			}
-			elseif($parent!=='0')
+			elseif($isfolder==='0' && $parent!=='0')
 			{
 				$header = "Location: index.php?a=3&r=1&id=$parent&dv=1&tab=0";
 			}
