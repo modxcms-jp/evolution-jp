@@ -213,6 +213,12 @@ function deletedocument() {
 	}
 }
 
+function undeletedocument() {
+	if (confirm("<?php echo $_lang['confirm_undelete']?>")==true) {
+		document.location.href="index.php?id=" + document.mutate.id.value + "&a=63";
+	}
+}
+
 function duplicatedocument(){
     if(confirm("<?php echo $_lang['confirm_resource_duplicate']?>")==true) {
         document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94";
@@ -545,7 +551,14 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
             if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
             { ?>
           <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
-          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
+          <?php
+          if($content['deleted'] === '0')
+          {
+          ?>
+          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']; ?></a></li>
+          <?php } else { ?>
+          <li id="Button3"><a href="#" onclick="undeletedocument();"><img src="<?php echo $_style["icons_undelete_resource"] ?>" alt="icons_undelete_document" /> <?php echo $_lang['undelete_resource']?></a></li>
+          <?php } ?>
 		  <?php } ?>	
           <li id="Button4"><a href="#" onclick="<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
