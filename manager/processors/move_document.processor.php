@@ -16,7 +16,7 @@ if(strpos($doc_id,','))
 	$doc_ids = explode(',',$doc_id);
 	$doc_id = substr($doc_id,0,strpos($doc_id,','));
 }
-$sql = "SELECT parent FROM {$tbl_site_content} WHERE id={$doc_id};";
+$sql = "SELECT parent FROM {$tbl_site_content} WHERE id='{$doc_id}';";
 $rs = mysql_query($sql);
 if(!$rs)
 {
