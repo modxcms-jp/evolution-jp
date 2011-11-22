@@ -176,7 +176,7 @@ if ($numRecords > 0) {
 			}
 			else
 			{
-				$description = '<br /><div style="margin-left:20px;color:#777;">' . $description . '</div>';
+				$description = '<br /><div style="color:#777;">' . $description . '</div>';
 			}
 			
 			$classes = array();
@@ -186,27 +186,28 @@ if ($numRecords > 0) {
 			else $class = '';
 			
 			$pagetitle = "<span{$class}>" . $children['pagetitle'] . '</span>';
-			if( $children['type']==='reference')
-			{
-				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
-			}
 			if($children['isfolder'] == 0)
 			{
 				$link = 'index.php?a=27&amp;id=' . $children['id'];
-				$pagetitle = '<img src="' . $_style['tree_page'] . '" />' . $pagetitle;
-				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . $description . '</a>';
+				$icon = '<img src="' . $_style['tree_page'] . '" />';
 			}
 			else
 			{
 				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
-				$pagetitle = '<img src="' . $_style['icons_folder'] . '" />' . $pagetitle;
-				$pagetitle = '<a href="' . $link . '" style="display:block;color:#333;">' . $pagetitle . $description . '</a>';
+				$icon = '<img src="' . $_style['icons_folder'] . '" />';
 			}
+			if( $children['type']==='reference')
+			{
+				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
+			}
+			$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:auto;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
+			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
+			                     array($icon,$link,$pagetitle,$description), $tpl);
 			
 			$listDocs[] = array(
 				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
 				'docid'    => $children['id'],
-				'title'    => $pagetitle,
+				'title'    => $title,
 				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
 				'status'   => $status,
 				'action'   => get_action_links($children)
