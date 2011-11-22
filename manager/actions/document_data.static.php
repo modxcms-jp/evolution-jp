@@ -141,17 +141,6 @@ if ($numRecords > 0) {
 		$childsTable->setRowRegularClass($rowRegularClass);
 		$childsTable->setRowAlternateClass($rowAlternateClass);
 
-		// Table header
-		$listTableHeader = array(
-			'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
-			'docid' =>    $_lang['id'],
-			'title' =>    $_lang['resource_title'],
-			'editedon' => $_lang['editedon'],
-			'status' =>   $_lang['page_data_status']
-		);
-		$tbWidth = array('2%','3%', '52%', '15%', '8%', '20%');
-		$childsTable->setColumnWidths($tbWidth);
-
 		$limitClause = $childsTable->handlePaging();
 		
 		// context menu
@@ -271,10 +260,33 @@ if ($numRecords > 0) {
 			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
 			                     array($icon,$link,$pagetitle,$description), $tpl);
 			
+			// Table header
+			$listTableHeader = array(
+				'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
+				'docid' =>    $_lang['id'],
+				'title' =>    $_lang['resource_title'],
+				'publishedon' => $_lang['publish_date'],
+				'editedon' => $_lang['editedon'],
+				'status' =>   $_lang['page_data_status']
+			);
+			$tbWidth = array('2%','3%', '72%', '15%', '8%');
+			$childsTable->setColumnWidths($tbWidth);
+			
+			if($children['publishedon']!=='0')
+			{
+				$publishedon = '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['publishedon']) . '</span>';
+			}
+			elseif(!empty($children['pub_date']))
+			{
+				$publishedon = '<span style="white-space:nowrap;color:#777;">' . $modx->toDateFormat($children['pub_Date']) . '</span>';
+			}
+			else $publishedon = '-';
+			
 			$listDocs[] = array(
 				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
 				'docid'    => $children['id'],
 				'title'    => $title,
+				'publishedon' => $publishedon,
 				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
 				'status'   => $status
 			);
