@@ -148,20 +148,21 @@ if ($numRecords > 0) {
 		$cm = new ContextMenu("cntxm", 150);
 		// $cm->addSeparator();
 		$cm->addItem($_lang["edit_resource"],       "js:menuAction(27)",$_style['icons_edit_document'],($modx->hasPermission('edit_document') ? 0:1));
-		//$cm->addItem($_lang["create_resource_here"],"js:menuAction(4)",$_style['icons_new_document'],($modx->hasPermission('new_document') ? 0:1));
+		$cm->addItem($_lang["create_resource_here"],"js:menuAction(4)",$_style['icons_new_document'],($modx->hasPermission('new_document') ? 0:1));
 		$cm->addItem($_lang["move_resource"],       "js:menuAction(51)",$_style['icons_move_document'],($modx->hasPermission('save_document') ? 0:1));
-		//$cm->addItem($_lang["resource_duplicate"],  "js:menuAction(94)",$_style['icons_resource_duplicate'],($modx->hasPermission('new_document') ? 0:1));
-		//$cm->addSeparator();
-		//$cm->addItem($_lang["publish_resource"],   "js:menuAction(61)",$_style['icons_publish_document'],($modx->hasPermission('publish_document') ? 0:1));
-		//$cm->addItem($_lang["unpublish_resource"], "js:menuAction(62)",$_style['icons_unpublish_resource'],($modx->hasPermission('publish_document') ? 0:1));
+		$cm->addItem($_lang["resource_duplicate"],  "js:menuAction(94)",$_style['icons_resource_duplicate'],($modx->hasPermission('new_document') ? 0:1));
+		$cm->addSeparator();
+		$cm->addItem($_lang["publish_resource"],   "js:menuAction(61)",$_style['icons_publish_document'],($modx->hasPermission('publish_document') ? 0:1));
+		$cm->addItem($_lang["unpublish_resource"], "js:menuAction(62)",$_style['icons_unpublish_resource'],($modx->hasPermission('publish_document') ? 0:1));
 		$cm->addItem($_lang["delete_resource"],    "js:menuAction(6)",$_style['icons_delete'],($modx->hasPermission('delete_document') ? 0:1));
 		$cm->addItem($_lang["undelete_resource"],  "js:menuAction(63)",$_style['icons_undelete_resource'],($modx->hasPermission('delete_document') ? 0:1));
-		//$cm->addSeparator();
-		//$cm->addItem($_lang["create_weblink_here"], "js:menuAction(72)",$_style['icons_weblink'],($modx->hasPermission('new_document') ? 0:1));
-		//$cm->addSeparator();
+		$cm->addSeparator();
+		$cm->addItem($_lang["create_weblink_here"], "js:menuAction(72)",$_style['icons_weblink'],($modx->hasPermission('new_document') ? 0:1));
+		$cm->addSeparator();
 		$cm->addItem($_lang["resource_overview"], "js:menuAction(3)",$_style['icons_resource_overview'],($modx->hasPermission('view_document') ? 0:1));
 		//$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
 		echo $cm->render();
+		$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
 ?>
 <script type="text/javascript">
 	var selectedItem;
@@ -178,23 +179,57 @@ if ($numRecords > 0) {
 	function menuAction(a) {
 		var id = selectedItem;
 		switch(a) {
-			case 27:		// run module
-				dontShowWorker = true; // prevent worker from being displayed
+			case 27:		// edit
 				window.location.href='index.php?a=27&id='+id;
 				break;
-			case 3:		// edit
-				window.location.href='index.php?a=3&id='+id;
+			case 4: 		// new Resource
+				window.location.href='index.php?a=4&pid='+id;
 				break;
-			case 51:		// duplicate
-				window.location.href='index.php?a=51&id='+id;
+			case 51:		// move
+				window.location.href='index.php?a=51&id='+id<?php echo $page; ?>;
 				break;
-			case 6:		// delete
-				if(confirm("<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
-					window.location.href='index.php?a=6&id='+id;
+			case 94:		// duplicate
+				if(confirm("<?php echo $_lang['confirm_resource_duplicate']; ?>")==true)
+				{
+					window.location.href='index.php?a=94&id='+id<?php echo $page; ?>;
+				}
+				break;
+			case 61:		// publish
+				if(confirm("<?php echo $_lang['confirm_publish']; ?>")==true)
+				{
+					window.location.href='index.php?a=61&id='+id<?php echo $page; ?>;
+				}
+				break;
+			case 62:		// unpublish
+				if (id != <?php echo $modx->config['site_start']?>)
+				{
+					if(confirm("<?php echo $_lang['confirm_unpublish']; ?>")==true)
+					{
+						window.location.href="index.php?a=62&id=" + id<?php echo $page; ?>;
+					}
+				}
+				else
+				{
+					alert('Document is linked to site_start variable and cannot be unpublished!');
+				}
+				break;
+			case 6: 		// delete
+				if(confirm("<?php echo $_lang['confirm_delete_resource']; ?>")==true)
+				{
+					window.location.href='index.php?a=6&id='+id<?php echo $page; ?>;
 				}
 				break;
 			case 63:		// undelete
-				window.location.href='index.php?a=63&id='+id;
+				if(confirm("<?php echo $_lang['confirm_undelete']; ?>")==true)
+				{
+					top.main.document.location.href="index.php?a=63&id=" + id<?php echo $page; ?>;
+				}
+				break;
+			case 72: 		// new Weblink
+				window.location.href='index.php?a=72&pid='+id;
+				break;
+			case 3:		// view
+				window.location.href='index.php?a=3&id='+id;
 				break;
 		}
 	}
