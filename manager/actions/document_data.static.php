@@ -147,8 +147,7 @@ if ($numRecords > 0) {
 			'docid' =>    $_lang['id'],
 			'title' =>    $_lang['resource_title'],
 			'editedon' => $_lang['editedon'],
-			'status' =>   $_lang['page_data_status'],
-			'action' =>   $_lang['mgrlog_action'],
+			'status' =>   $_lang['page_data_status']
 		);
 		$tbWidth = array('2%','3%', '52%', '15%', '8%', '20%');
 		$childsTable->setColumnWidths($tbWidth);
@@ -277,8 +276,7 @@ if ($numRecords > 0) {
 				'docid'    => $children['id'],
 				'title'    => $title,
 				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
-				'status'   => $status,
-				'action'   => get_action_links($children)
+				'status'   => $status
 			);
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
@@ -497,31 +495,3 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 	<iframe src="../index.php?id=<?php echo $id?>&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
 </div>
 <?php }
-
-function get_action_links($children)
-{
-	global $modx,$_style,$_lang;
-	
-	$action_links_tpl = '<a href="index.php?a=3&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_preview_resource+]" />[+lang_view_details+]</a>[+action_links+]';
-	$ph = array();
-	if($modx->hasPermission('edit_document'))
-	{
-		$ph['action_links']  = '&nbsp;<a href="index.php?a=27&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_edit+]" />[+lang_edit+]</a>';
-		$ph['action_links'] .= '&nbsp;<a href="index.php?a=51&amp;id=[+docid+]" style="color:#333;"><img src="[+icons_move_document+]" />[+lang_move+]</a>';
-	}
-	else $ph['action_links'] = '';
-	$ph['docid']                  = $children['id'];
-	$ph['icons_preview_resource'] = $_style["icons_preview_resource"];
-	$ph['lang_view_details']      = $_lang['click_to_view_details'];
-	$ph['icons_edit']             = $_style["icons_edit_document"];
-	$ph['lang_edit']              = $_lang['edit'];
-	$ph['icons_move_document']    = $_style["icons_move_document"];
-	$ph['lang_move']              = $_lang['move'];
-	$action_links = $action_links_tpl;
-	foreach($ph as $k=>$v)
-	{
-		$k = '[+' . $k . '+]';
-		$action_links = str_replace($k,$v,$action_links);
-	}
-	return '<span style="white-space:nowrap;">' . $action_links . '</span>';
-}
