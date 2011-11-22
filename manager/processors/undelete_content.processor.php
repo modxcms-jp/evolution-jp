@@ -56,7 +56,8 @@ else
 	// empty cache
 	$modx->clearCache();
 	// finished emptying cache - redirect
-	$header="Location: index.php?r=1&a=7";
+	$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
+	$header="Location: index.php?r=1&a=3&id={$pid}&tab=0";
 	header($header);
 }
 
