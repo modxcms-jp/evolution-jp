@@ -269,7 +269,7 @@ if ($numRecords > 0) {
 				'editedon' => $_lang['editedon'],
 				'status' =>   $_lang['page_data_status']
 			);
-			$tbWidth = array('2%','3%', '72%', '15%', '8%');
+			$tbWidth = array('2%','2%', '68%', '10%', '10%', '8%');
 			$childsTable->setColumnWidths($tbWidth);
 			
 			if($children['publishedon']!=='0')
