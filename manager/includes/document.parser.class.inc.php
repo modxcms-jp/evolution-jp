@@ -1503,34 +1503,39 @@ class DocumentParser {
         return $parents;
     }
 
-    function getChildIds($id, $depth= 10, $children= array ()) {
-
-        // Initialise a static array to index parents->children
-        static $documentMap_cache = array();
-        if (!count($documentMap_cache)) {
-            foreach ($this->documentMap as $document) {
-                foreach ($document as $p => $c) {
-                    $documentMap_cache[$p][] = $c;
-                }
-            }
-        }
-
-        // Get all the children for this parent node
-        if (isset($documentMap_cache[$id])) {
-        $depth--;
-
-            foreach ($documentMap_cache[$id] as $childId) {
-                $pkey = (strlen($this->aliasListing[$childId]['path']) ? "{$this->aliasListing[$childId]['path']}/" : '') . $this->aliasListing[$childId]['alias'];
-                if (!strlen($pkey)) $pkey = "{$childId}";
-                    $children[$pkey] = $childId;
-
-            if ($depth) {
-                    $children += $this->getChildIds($childId, $depth);
-                }
-            }
-        }
-        return $children;
-    }
+	function getChildIds($id, $depth= 10, $children= array ())
+	{
+		// Initialise a static array to index parents->children
+		static $documentMap_cache = array();
+		if (!count($documentMap_cache))
+		{
+			foreach ($this->documentMap as $document)
+			{
+				foreach ($document as $p => $c)
+				{
+					$documentMap_cache[$p][] = $c;
+				}
+			}
+		}
+		// Get all the children for this parent node
+		if (isset($documentMap_cache[$id]))
+		{
+			$depth--;
+			
+			foreach ($documentMap_cache[$id] as $childId)
+			{
+				$pkey = (strlen($this->aliasListing[$childId]['path']) ? "{$this->aliasListing[$childId]['path']}/" : '') . $this->aliasListing[$childId]['alias'];
+				if (!strlen($pkey)) $pkey = "{$childId}";
+				$children[$pkey] = $childId;
+				
+				if ($depth)
+				{
+					$children += $this->getChildIds($childId, $depth);
+				}
+			}
+		}
+		return $children;
+	}
 
     # Displays a javascript alert message in the web browser
     function webAlert($msg, $url= "") {
