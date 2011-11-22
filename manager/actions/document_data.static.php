@@ -154,7 +154,68 @@ if ($numRecords > 0) {
 		$childsTable->setColumnWidths($tbWidth);
 
 		$limitClause = $childsTable->handlePaging();
+		
+		// context menu
+		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
+		$cm = new ContextMenu("cntxm", 150);
+		// $cm->addSeparator();
+		$cm->addItem($_lang["edit_resource"],       "js:menuAction(27)",$_style['icons_edit_document'],($modx->hasPermission('edit_document') ? 0:1));
+		//$cm->addItem($_lang["create_resource_here"],"js:menuAction(4)",$_style['icons_new_document'],($modx->hasPermission('new_document') ? 0:1));
+		$cm->addItem($_lang["move_resource"],       "js:menuAction(51)",$_style['icons_move_document'],($modx->hasPermission('save_document') ? 0:1));
+		//$cm->addItem($_lang["resource_duplicate"],  "js:menuAction(94)",$_style['icons_resource_duplicate'],($modx->hasPermission('new_document') ? 0:1));
+		//$cm->addSeparator();
+		//$cm->addItem($_lang["publish_resource"],   "js:menuAction(61)",$_style['icons_publish_document'],($modx->hasPermission('publish_document') ? 0:1));
+		//$cm->addItem($_lang["unpublish_resource"], "js:menuAction(62)",$_style['icons_unpublish_resource'],($modx->hasPermission('publish_document') ? 0:1));
+		$cm->addItem($_lang["delete_resource"],    "js:menuAction(6)",$_style['icons_delete'],($modx->hasPermission('delete_document') ? 0:1));
+		$cm->addItem($_lang["undelete_resource"],  "js:menuAction(63)",$_style['icons_undelete_resource'],($modx->hasPermission('delete_document') ? 0:1));
+		//$cm->addSeparator();
+		//$cm->addItem($_lang["create_weblink_here"], "js:menuAction(72)",$_style['icons_weblink'],($modx->hasPermission('new_document') ? 0:1));
+		//$cm->addSeparator();
+		$cm->addItem($_lang["resource_overview"], "js:menuAction(3)",$_style['icons_resource_overview'],($modx->hasPermission('view_document') ? 0:1));
+		//$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
+		echo $cm->render();
+?>
+<script type="text/javascript">
+	var selectedItem;
+	var contextm = <?php echo $cm->getClientScriptObject(); ?>;
+	function showContentMenu(id,e){
+		selectedItem=id;
+		contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))<?php echo $modx_textdir ? '-190' : '';?>+"px"; //offset menu if RTL is selected
+		contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))+"px";
+		contextm.style.visibility = "visible";
+		e.cancelBubble=true;
+		return false;
+	};
 
+	function menuAction(a) {
+		var id = selectedItem;
+		switch(a) {
+			case 27:		// run module
+				dontShowWorker = true; // prevent worker from being displayed
+				window.location.href='index.php?a=27&id='+id;
+				break;
+			case 3:		// edit
+				window.location.href='index.php?a=3&id='+id;
+				break;
+			case 51:		// duplicate
+				window.location.href='index.php?a=51&id='+id;
+				break;
+			case 6:		// delete
+				if(confirm("<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
+					window.location.href='index.php?a=6&id='+id;
+				}
+				break;
+			case 63:		// undelete
+				window.location.href='index.php?a=63&id='+id;
+				break;
+		}
+	}
+
+	document.addEvent('click', function(){
+		contextm.style.visibility = "hidden";
+	});
+</script>
+<?php
 		$listDocs = array();
 		foreach($resource as $k => $children)
 		{
@@ -185,21 +246,28 @@ if ($numRecords > 0) {
 			if(0<count($classes)) $class = ' class="' . join(' ',$classes) . '"';
 			else $class = '';
 			
-			$pagetitle = "<span{$class}>" . $children['pagetitle'] . '</span>';
+			$tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
+			$pagetitle = str_replace(array('[+class+]','[+pagetitle+]','[+id+]'),
+			                         array($class,$children['pagetitle'],$children['id']),$tpl);
+			
 			if($children['isfolder'] == 0)
 			{
 				$link = 'index.php?a=27&amp;id=' . $children['id'];
-				$icon = '<img src="' . $_style['tree_page'] . '" />';
+				$iconpath = $_style['tree_page'];
 			}
 			else
 			{
 				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
-				$icon = '<img src="' . $_style['icons_folder'] . '" />';
+				$iconpath = $_style['icons_folder'];
 			}
+			
 			if( $children['type']==='reference')
 			{
 				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
 			}
+			$tpl = '';
+			$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
+			$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
 			$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:auto;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
 			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
 			                     array($icon,$link,$pagetitle,$description), $tpl);
@@ -216,7 +284,9 @@ if ($numRecords > 0) {
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
 		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
 	}
-} else {
+}
+else
+{
 	// No Child documents
 	$children_output = "<p>".$_lang['resources_in_container_no']."</p>";
 }
