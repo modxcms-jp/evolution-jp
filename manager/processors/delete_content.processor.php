@@ -81,7 +81,10 @@ else
 
 	// empty cache
 	$modx->clearCache();
-	$header="Location: index.php?r=1&a=7";
+	$sql = 'parent';
+	$where = "id='{$id}'";
+	$pid = $modx->db->getValue($modx->db->select($sql,$tbl_site_content,$where));
+	$header="Location: index.php?r=1&a=3&id={$pid}&tab=0";
 	header($header);
 }
 
