@@ -379,7 +379,7 @@ $_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャン�
 $_lang["htmlsnippet_msg"] = '<p>チャンク名には日本語を用いることができます(チャンクの使い方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。</p>';
 $_lang["htmlsnippet_name"] = 'チャンク名';
 $_lang["htmlsnippet_title"] = 'チャンクの作成/編集';
-$_lang["icon"] = 'Icon';
+$_lang["icon"] = 'Action';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = '親の指定:\n\nリソースは選択リソースのサブリソースです。';
 $_lang["illegal_parent_self"] = '親の指定:\n\n自分自身を親に割り当てることはできません。';
@@ -714,7 +714,7 @@ $_lang["resource_opt_menu_index_help"] = 'メニューオーダーは、メニ�
 $_lang["resource_opt_menu_title"] = 'メニュータイトル';
 $_lang["resource_opt_menu_title_help"] = 'メニュータイトルは、スニペットやモジュールで使用できる短いタイトルです。リソース変数：[*menutitle*]';
 $_lang["resource_opt_published"] = '公開ステータス';
-$_lang["resource_opt_published_help"] = 'このページを公開する場合はチェックしてください。<br />※「公開開始日時」「公開終了日時」の値と連動するためご注意ください。公開開始日時に達していない・公開終了日時を過ぎているなどの理由で、ここにチェックが入っていないと公開されません。';
+$_lang["resource_opt_published_help"] = 'このページを公開する場合はチェックしてください。<br />※「公開開始日時」及び「公開終了日時」がセットされている場合は、このチェックによる指定は無効になります。';
 $_lang["resource_opt_richtext"] = 'リッチテキストで編集';
 $_lang["resource_opt_richtext_help"] = '通常の記事を書く場合はここにチェックを入れたままとし、リッチテキストエディターでリソースを編集することをおすすめします。リソースがJavaScriptやフォームを含む場合は、チェックを外してプレーンテキストによる編集を行ってください。';
 $_lang["resource_opt_show_menu"] = 'メニューに表示';
