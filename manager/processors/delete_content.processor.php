@@ -43,7 +43,7 @@ if(count($children)>0)
 {
 	$docs_to_delete = implode(' ,', $children);
 	$deletedby = $modx->getLoginUserID();
-	$sql = "UPDATE {$tbl_site_content} SET deleted=1, deletedby='{$deletedby}', deletedon='{$deltime}' WHERE id IN({$docs_to_delete});";
+	$sql = "UPDATE {$tbl_site_content} SET deleted=1, deletedby='{$deletedby}', deletedon='{$deltime}' WHERE id IN({$docs_to_delete})";
 	$rs = @mysql_query($sql);
 	if(!$rs)
 	{
@@ -65,7 +65,7 @@ if($site_unavailable_page==$id)
 }
 
 //ok, 'delete' the document.
-$sql = "UPDATE {$tbl_site_content} SET deleted=1, deletedby=".$modx->getLoginUserID().", deletedon=$deltime WHERE id={$id};";
+$sql = "UPDATE {$tbl_site_content} SET deleted=1, deletedby=".$modx->getLoginUserID().", deletedon=$deltime WHERE id={$id}";
 $rs = mysql_query($sql);
 if(!$rs)
 {
@@ -93,7 +93,7 @@ function getChildren($parent)
 	
 	$tbl_site_content = $modx->getFullTableName('site_content');
 
-	$sql = "SELECT id FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent='{$parent}' AND deleted='0';";
+	$sql = "SELECT id FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent='{$parent}' AND deleted='0'";
 	$rs = mysql_query($sql);
 	$limit = mysql_num_rows($rs);
 	if($limit>0)
