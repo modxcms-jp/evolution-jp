@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}keyword_xref` (
   KEY `content_id` (`content_id`),
   KEY `keyword_id` (`keyword_id`)
 ) ENGINE=MyISAM COMMENT='Cross reference bewteen keywords and content';
+
 CREATE TABLE IF NOT EXISTS `{PREFIX}manager_log` (
   `id` int(10) NOT NULL auto_increment,
   `timestamp` int(20) NOT NULL default '0',
@@ -313,7 +314,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvars` (
 	`display_params` text COMMENT 'Display Control Properties',
 	`default_text` text,
 	PRIMARY KEY  (id),
-	KEY `indx_rank`(`rank`)	
+	KEY `indx_rank`(`rank`)
 ) ENGINE=MyISAM COMMENT='Site Template Variables';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_attributes` (
@@ -418,7 +419,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles` (
   `exec_module` int(1) NOT NULL DEFAULT 0,
   `view_eventlog` int(1) NOT NULL DEFAULT 0,
   `delete_eventlog` int(1) NOT NULL DEFAULT 0,
-  `manage_metatags` int(1) NOT NULL DEFAULT 0 COMMENT 'manage site meta tags and keywords',	
+  `manage_metatags` int(1) NOT NULL DEFAULT 0 COMMENT 'manage site meta tags and keywords',
   `edit_doc_metatags` int(1) NOT NULL DEFAULT 0 COMMENT 'edit document meta tags and keywords' ,
   `new_web_user` int(1) NOT NULL default '0',
   `edit_web_user` int(1) NOT NULL default '0',
