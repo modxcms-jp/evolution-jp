@@ -115,7 +115,7 @@ exit;
 
 
 
-function empty_cache($id,$new_parent)
+function empty_cache($id,$pid)
 {
 	// empty cache & sync site
 	include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
@@ -123,7 +123,8 @@ function empty_cache($id,$new_parent)
 	$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 	$sync->setReport(false);
 	$sync->emptyCache(); // first empty the cache
-	$header="Location: index.php?a=3&id={$new_parent}&tab=0&r=1";
+	if($pid!==0) $header="Location: index.php?a=3&id={$pid}&tab=0&r=1";
+	else           $header="Location: index.php?a=2&r=1";
 	header($header);
 }
 

@@ -39,8 +39,11 @@ include_once "cache_sync.class.processor.php";
 $sync = new synccache();
 $sync->setCachepath("../assets/cache/");
 $sync->setReport(false);
-$sync->emptyCache(); // first empty the cache		
-
-$header="Location: index.php?r=1&id=$id&a=7";
+$sync->emptyCache(); // first empty the cache
+$tbl_site_content = $modx->getFullTableName('site_content');
+$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
+$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
+if($pid!=='0') $header="Location: index.php?r=1&a=3&id={$pid}&tab=0{$page}";
+else           $header="Location: index.php?a=2&r=1";
 header($header);
 ?>
