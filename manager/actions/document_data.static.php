@@ -174,7 +174,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 	function showContentMenu(id,e){
 		selectedItem=id;
 		contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))<?php echo $modx_textdir ? '-190' : '';?>+"px"; //offset menu if RTL is selected
-		contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))+"px";
+		contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))-150 + 'px';
 		contextm.style.visibility = "visible";
 		e.cancelBubble=true;
 		return false;
