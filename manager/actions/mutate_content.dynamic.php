@@ -153,10 +153,11 @@ if ($formRestored == true || isset ($_REQUEST['newtemplate'])) {
 
 // increase menu index if this is a new document
 if (empty($_REQUEST['id'])) {
-	if (is_null($auto_menuindex) || $auto_menuindex) {
+	if (is_null($auto_menuindex) || $auto_menuindex)
+	{
 		$pid = intval($_REQUEST['pid']);
-		$sql = 'SELECT count(*) FROM '.$tbl_site_content.' WHERE parent=\''.$pid.'\'';
-		$content['menuindex'] = $modx->db->getValue($sql);
+		$sql = 'SELECT count(id) FROM '.$tbl_site_content.' WHERE parent=\''.$pid.'\'';
+		$content['menuindex'] = $modx->db->getValue($modx->db->select('count(id)',$tbl_site_content,"parent='{$pid}'")) + 1;
 	} else {
 		$content['menuindex'] = 0;
 	}

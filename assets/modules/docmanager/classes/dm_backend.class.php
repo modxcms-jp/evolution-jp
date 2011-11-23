@@ -82,6 +82,7 @@ class DocManagerBackend {
     	if (strlen($items) > 0) {
     		$items = explode(';', $items);
     		foreach ($items as $key => $value) {
+    			$key++;
     			$id = ltrim($value, 'item_');
     			if (is_numeric($id)) {
 	    			$sql = 'UPDATE '.$this->modx->getFullTableName('site_content') .' set menuindex=' . $key . ' WHERE id=' . $id;
