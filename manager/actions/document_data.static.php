@@ -164,6 +164,10 @@ if ($numRecords > 0) {
 		echo $cm->render();
 		$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
 ?>
+<style type="text/css">
+a span.withmenu {border:1px solid transparent;}
+a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
+</style>
 <script type="text/javascript">
 	var selectedItem;
 	var contextm = <?php echo $cm->getClientScriptObject(); ?>;
@@ -264,10 +268,10 @@ if ($numRecords > 0) {
 			}
 			
 			$classes = array();
+			$classes[] = 'withmenu';
 			if($children['deleted']==='1') $classes[] = 'deletedNode';
 			if($children['published']==='0') $classes[] = 'unpublishedNode';
-			if(0<count($classes)) $class = ' class="' . join(' ',$classes) . '"';
-			else $class = '';
+			$class = ' class="' . join(' ',$classes) . '"';
 			
 			$tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
 			$pagetitle = str_replace(array('[+class+]','[+pagetitle+]','[+id+]'),
