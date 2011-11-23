@@ -1,5 +1,5 @@
-# MODx Database Script for New/Upgrade Installations
-# MODx was created By Raymond Irving - Nov 2004 
+# MODX Database Script for New/Upgrade Installations
+# MODX was created By Raymond Irving - Nov 2004 
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}active_users` (
   `internalKey` int(9) NOT NULL default '0',
@@ -799,7 +799,8 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('automatic_alias','0'),
 ('datetime_format','YYYY/mm/dd'),
 ('warning_visibility', '0'),
-('remember_last_tab', '1');
+('remember_last_tab', '1'),
+('tree_page_click', 'auto');
 
 
 REPLACE INTO `{PREFIX}user_roles` 
