@@ -1,9 +1,5 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-if(strpos($settings_version, '0.9.')!==false)
-{
-	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">Version 0.9x系からのアップデートの場合はTinyMCE(投稿画面)で画像の貼り付けができるかどうかを確認してください。できない場合は、TinyMCEのアップデートに問題がある可能性があります。</strong>';
-}
 if(!function_exists('mysql_set_charset'))
 {
 	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">この環境では日本語以外の文字(中国語・韓国語・一部の機種依存文字など)を入力できません。</strong>対応が必要な場合は、サーバ環境のUTF-8エンコードの扱いを整備したうえで、dbapi.mysql.class.inc.phpのescape関数の処理を書き換えてください。mb_convert_encodingの処理を行なっている行が2行ありますので、これを削除します。';
@@ -13,25 +9,22 @@ $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 run_update($simple_version);
 
-$manager_theme       = set_default('MODxCarbon',$manager_theme,strpos($settings_version, '0.9.')!==false);
-$show_meta           = set_default('0', $show_meta);
-$fe_editor_lang      = set_default('japanese-utf8', $fe_editor_lang);
-$rss_url_news        = set_default('http://feeds2.feedburner.com/modxjp', $rss_url_news);
-$rss_url_security    = set_default('http://feeds2.feedburner.com/modxjpsec', $rss_url_security);
-$validate_referer    = set_default('1', $validate_referer);
-$datepicker_offset   = set_default('-10', $datepicker_offset);
-$datetime_format     = set_default('YYYY/mm/dd', $datetime_format);
-$warning_visibility  = set_default('0', $warning_visibility);
-$remember_last_tab   = set_default('1', $remember_last_tab);
-$auto_template_logic = set_default('sibling', $auto_template_logic);
-$manager_direction   = set_default('ltr', $manager_direction);
-
-function set_default($default_value,$current_value,$flag = false)
+if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9.')
 {
-	if(!isset($current_value) || $flag == true) $value = $default_value;
-	else                                        $value = $current_value;
-	return $value;
+	$manager_theme = 'MODxCarbon';
 }
+if(!isset($modx->config['show_meta']))           $show_meta = '0';
+if(!isset($modx->config['fe_editor_lang']))      $fe_editor_lang = 'japanese-utf8';
+if(!isset($modx->config['rss_url_news']))        $rss_url_news = 'http://feeds2.feedburner.com/modxjp';
+if(!isset($modx->config['rss_url_security']))    $rss_url_security = 'http://feeds2.feedburner.com/modxjpsec';
+if(!isset($modx->config['validate_referer']))    $validate_referer = '1';
+if(!isset($modx->config['datepicker_offset']))   $datepicker_offset = '-10';
+if(!isset($modx->config['datetime_format']))     $datetime_format = 'YYYY/mm/dd');
+if(!isset($modx->config['warning_visibility']))  $warning_visibility = '0';
+if(!isset($modx->config['remember_last_tab']))   $remember_last_tab = '1';
+if(!isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling';
+if(!isset($modx->config['manager_direction']))   $manager_direction = 'ltr';
+if(!isset($modx->config['tree_page_click']))     $tree_page_click = 'auto';
 
 function run_update($version)
 {
