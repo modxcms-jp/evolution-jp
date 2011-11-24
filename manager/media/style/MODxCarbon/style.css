@@ -744,7 +744,7 @@ a.hometblink:hover {
 .cntxMnuItemDisabled {
 	cursor: default;
 	padding: 3px 16px 3px 2px;
-	color: #111;
+	color: #787878;
 }
 .cntxMnuItemOver {
 	cursor: pointer;
