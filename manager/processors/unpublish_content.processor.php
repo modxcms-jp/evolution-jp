@@ -40,11 +40,7 @@ if(!$rs)
 // invoke OnDocUnPublished  event
 $modx->invokeEvent("OnDocUnPublished",array("docid"=>$id));
 
-include_once "cache_sync.class.processor.php";
-$sync = new synccache();
-$sync->setCachepath("../assets/cache/");
-$sync->setReport(false);
-$sync->emptyCache(); // first empty the cache
+$modx->clearCache();
 
 $pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
