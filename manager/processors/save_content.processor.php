@@ -489,21 +489,22 @@ switch ($actionToTake) {
 		}
 
 		// set publishedon and publishedby
-		$was_published = $modx->db->getValue("SELECT published FROM $tbl_site_content WHERE id='$id'");
+		$was = $modx->db->getRow($modx->db->select('published', $tbl_site_content, "id='$id'"));
 
 		// keep original publish state, if change is not permitted
-		if (!$modx->hasPermission('publish_document')) {
-			$published = $was_published;
-			$pub_date = 'pub_date';
-			$unpub_date = 'unpub_date';
+		if (!$modx->hasPermission('publish_document'))
+		{
+			$published  = $was['published'];
+			$pub_date   = $was['pub_date'];
+			$unpub_date = $was['unpub_date'];
 		}
 
 		// if it was changed from unpublished to published
-		if (!$was_published && $published) {
+		if (!$was['published'] && $published) {
 			$publishedon = time();
 			$publishedby = $modx->getLoginUserID();
 		}
-		elseif ($was_published && !$published) {
+		elseif ($was['published'] && !$published) {
 			$publishedon = 0;
 			$publishedby = 0;
 		} else {
