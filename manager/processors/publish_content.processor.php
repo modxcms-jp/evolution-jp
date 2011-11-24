@@ -25,10 +25,17 @@ if(!$udperms->checkPermissions()) {
 }
 
 // update the document
-$sql = "UPDATE $dbase.`".$table_prefix."site_content` SET published=1, pub_date=0, unpub_date=0, editedby=".$modx->getLoginUserID().", editedon=".time().", publishedby=".$modx->getLoginUserID().", publishedon=".time()." WHERE id=$id;";
-
-$rs = mysql_query($sql);
-if(!$rs){
+$field['published']   = 1;
+$field['pub_date']    = 0;
+$field['unpub_date']  = 0;
+$field['editedby']    = $modx->getLoginUserID();
+$field['editedon']    = time();
+$field['publishedby'] = $modx->getLoginUserID();
+$field['publishedon'] = time();
+$tbl_site_content     = $modx->getFullTableName('site_content');
+$rs = $modx->db->update($field,$tbl_site_content,"id={$id}");
+if(!$rs)
+{
 	echo "An error occured while attempting to publish the document.";
 }
 
@@ -40,7 +47,6 @@ $sync = new synccache();
 $sync->setCachepath("../assets/cache/");
 $sync->setReport(false);
 $sync->emptyCache(); // first empty the cache
-$tbl_site_content = $modx->getFullTableName('site_content');
 $pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 if($pid!=='0') $header="Location: index.php?r=1&a=3&id={$pid}&tab=0{$page}";
