@@ -489,7 +489,7 @@ switch ($actionToTake) {
 		}
 
 		// set publishedon and publishedby
-		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date', $tbl_site_content, "id='$id'"));
+		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby', $tbl_site_content, "id='$id'"));
 
 		// keep original publish state, if change is not permitted
 		if (!$modx->hasPermission('publish_document'))
@@ -500,16 +500,20 @@ switch ($actionToTake) {
 		}
 
 		// if it was changed from unpublished to published
-		if (!$was['published'] && $published) {
-			$publishedon = time();
-			$publishedby = $modx->getLoginUserID();
+		if (0<$was['publishedon'] && $published)
+		{
+			$publishedon = $was['publishedon'];
+			$publishedby = $was['publishedby'];
 		}
-		elseif ($was['published'] && !$published) {
+		elseif(!$published)
+		{
 			$publishedon = 0;
 			$publishedby = 0;
-		} else {
-			$publishedon = 'publishedon';
-			$publishedby = 'publishedby';
+		}
+		else
+		{
+			$publishedon = time();
+			$publishedby = $modx->getLoginUserID();
 		}
 
 		// invoke OnBeforeDocFormSave event
