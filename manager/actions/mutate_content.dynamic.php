@@ -343,7 +343,12 @@ function templateWarning() {
 	}
 	if (curTemplate == newTemplate) {return;}
 
-	if (confirm('<?php echo $_lang['tmplvar_change_template_msg']?>')) {
+	if (num_of_tv==0) {
+		documentDirty=false;
+		document.mutate.a.value = <?php echo $action?>;
+		document.mutate.newtemplate.value = newTemplate;
+		document.mutate.submit();
+	} else if (confirm('<?php echo $_lang['tmplvar_change_template_msg']?>')) {
 		documentDirty=false;
 		document.mutate.a.value = <?php echo $action?>;
 		document.mutate.newtemplate.value = newTemplate;
@@ -810,6 +815,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					");
 				$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
 				$num_of_tv = mysql_num_rows($rs);
+				echo '<script type="text/javascript">var num_of_tv=' . $num_of_tv . ';</script>';
 				if ($num_of_tv > 0)
 				{
 					echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
