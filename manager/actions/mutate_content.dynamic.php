@@ -343,7 +343,7 @@ function templateWarning() {
 	}
 	if (curTemplate == newTemplate) {return;}
 
-	if (num_of_tv==0) {
+	if ((num_of_tv==0) || (documentDirty==false)) {
 		documentDirty=false;
 		document.mutate.a.value = <?php echo $action?>;
 		document.mutate.newtemplate.value = newTemplate;
