@@ -436,11 +436,11 @@ switch ($actionToTake) {
 		{
 			if($parent!=='0')
 			{
-				$header = "Location: index.php?a=3&r=1&id={$parent}&tab=0&dv=1";
+				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
 			}
 			else
 			{
-				$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+				$header = "Location: index.php?a=3&id={$id}&r=1";
 			}
 		}
 		header($header);
@@ -699,30 +699,30 @@ switch ($actionToTake) {
 				if ($type == "reference")
 				{
 					// weblink
-					$a = ($_POST['stay'] == '2') ? "27&id=$id" : "72&pid=$parent";
+					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$parent}";
 				}
 				else
 				{
 					// document
-					$a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parent";
+					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$parent}";
 				}
 				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 			}
 			elseif($isfolder==='1' && $parent!=='0')
 			{
-				$header = "Location: index.php?a=3&r=1&id=$parent&dv=1&tab=0";
+				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
 			}
 			elseif($isfolder==='1' && $parent==='0')
 			{
-				$header = "Location: index.php?a=3&r=1&id=$id&dv=1&tab=0";
+				$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
 			}
 			elseif($isfolder==='0' && $parent!=='0')
 			{
-				$header = "Location: index.php?a=3&r=1&id=$parent&dv=1&tab=0";
+				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
 			}
 			else
 			{
-				$header = "Location: index.php?a=7&r=1&id=$id&dv=1";
+				$header = "Location: index.php?a=3&id={$id}&r=1";
 			}
 		}
 		header($header);
