@@ -6,7 +6,11 @@ if (file_exists('../manager/includes/config.inc.php'))
 	// Include the file so we can test its validity
 	include '../manager/includes/config.inc.php';
 	// We need to have all connection settings - tho prefix may be empty so we have to ignore it
-	if ($dbase)
+	if (!isset($lastInstallTime) || empty($lastInstallTime))
+	{
+		$upgradeable = 0;
+	}
+	elseif ($dbase)
 	{
 		if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
 		{
