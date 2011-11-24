@@ -1,22 +1,30 @@
 <?php
 // Determine upgradeability
 $upgradeable = 0;
-if (file_exists("../manager/includes/config.inc.php")) {
-    // Include the file so we can test its validity
-    include "../manager/includes/config.inc.php";
-    // We need to have all connection settings - tho prefix may be empty so we have to ignore it
-    if ($dbase) {
-        if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
-            $upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
-        }
-        elseif (!@ mysql_select_db(trim($dbase, '`'), $conn)) {
-            $upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
-        } else {
-            $upgradeable = 1;
-        }
-    } else {
-        $upgradeable= 2;
-    }
+if (file_exists('../manager/includes/config.inc.php'))
+{
+	// Include the file so we can test its validity
+	include '../manager/includes/config.inc.php';
+	// We need to have all connection settings - tho prefix may be empty so we have to ignore it
+	if ($dbase)
+	{
+		if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
+		{
+			$upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
+		}
+		elseif (!@ mysql_select_db(trim($dbase, '`'), $conn))
+		{
+			$upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
+		}
+		else
+		{
+			$upgradeable = 1;
+		}
+	}
+	else
+	{
+		$upgradeable= 2;
+	}
 }
 ?>
 <form name="install" id="install_form" action="index.php?action=connection" method="post">
