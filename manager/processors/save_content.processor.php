@@ -518,11 +518,35 @@ switch ($actionToTake) {
 		));
 
 		// update the document
-		$sql = "UPDATE $tbl_site_content SET introtext='$introtext', content='$content', pagetitle='$pagetitle', longtitle='$longtitle', type='$type', description='$description', alias='$alias', link_attributes='$link_attributes',
-				isfolder=$isfolder, richtext=$richtext, published=$published, pub_date=$pub_date, unpub_date=$unpub_date, parent=$parent, template=$template, menuindex='$menuindex',
-				searchable=$searchable, cacheable=$cacheable, editedby=" . $modx->getLoginUserID() . ", editedon=" . time() . ", publishedon=$publishedon, publishedby=$publishedby, contentType='$contentType', content_dispo='$contentdispo', donthit='$donthit', menutitle='$menutitle', hidemenu='$hidemenu'  WHERE id=$id;";
-
-		$rs = $modx->db->query($sql);
+		$fields = array();
+		$fields['introtext']       = $introtext;
+		$fields['content']         = $content;
+		$fields['pagetitle']       = $pagetitle;
+		$fields['longtitle']       = $longtitle;
+		$fields['type']            = $type;
+		$fields['description']     = $description;
+		$fields['alias']           = $alias;
+		$fields['link_attributes'] = $link_attributes;
+		$fields['isfolder']        = $isfolder;
+		$fields['richtext']        = $richtext;
+		$fields['published']       = $published;
+		$fields['pub_date']        = $pub_date;
+		$fields['unpub_date']      = $unpub_date;
+		$fields['parent']          = $parent;
+		$fields['template']        = $template;
+		$fields['menuindex']       = $menuindex;
+		$fields['searchable']      = $searchable;
+		$fields['cacheable']       = $cacheable;
+		$fields['editedby']        = $modx->getLoginUserID();
+		$fields['editedon']        = time();
+		$fields['publishedon']     = $publishedon;
+		$fields['publishedby']     = $publishedby;
+		$fields['contentType']     = $contentType;
+		$fields['content_dispo']   = $contentdispo;
+		$fields['donthit']         = $donthit;
+		$fields['menutitle']       = $menutitle;
+		$fields['hidemenu']        = $hidemenu;
+		$rs = $modx->db->update($fields,$tbl_site_content,"id='{$id}'");
 		if (!$rs) {
 			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> $sql </i>.";
 		}

@@ -84,8 +84,7 @@ if ($action == 27) {
 }
 
 // Check to see the document isn't locked
-$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=27 AND id='{$id}'";
-$rs = mysql_query($sql);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=27 AND id='{$id}'");
 if (1 < mysql_num_rows($rs))
 {
 	while($lock = mysql_fetch_assoc($rs))
@@ -107,11 +106,8 @@ if ($_SESSION['mgrDocgroups']) {
 if (!empty ($id)) {
 	$access = "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0" .
 		(!$docgrp ? '' : " OR dg.document_group IN ($docgrp)");
-	$sql = 'SELECT DISTINCT sc.* '.
-	       'FROM '.$tbl_site_content.' AS sc '.
-	       'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document=sc.id '.
-	       'WHERE sc.id=\''.$id.'\' AND ('.$access.')';
-	$rs = mysql_query($sql);
+	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document=sc.id";
+	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
 	$limit = mysql_num_rows($rs);
 	if ($limit > 1) {
 		$e->setError(6);
@@ -156,7 +152,6 @@ if (empty($_REQUEST['id'])) {
 	if (is_null($auto_menuindex) || $auto_menuindex)
 	{
 		$pid = intval($_REQUEST['pid']);
-		$sql = 'SELECT count(id) FROM '.$tbl_site_content.' WHERE parent=\''.$pid.'\'';
 		$content['menuindex'] = $modx->db->getValue($modx->db->select('count(id)',$tbl_site_content,"parent='{$pid}'")) + 1;
 	} else {
 		$content['menuindex'] = 0;
@@ -564,7 +559,14 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
           <li id="Button4"><a href="#" onclick="<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
           	 {
-          		echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
+          	 	if($content['isfolder']!=='1')
+          	 	{
+          			echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
+          	 	}
+          	 	else
+          	 	{
+          			echo "document.location.href='index.php?a=3&id={$id}&tab=0';";
+          	 	}
           	 }
           	 elseif($_GET['pid'])
           	 {
@@ -629,8 +631,8 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				<td><select id="template" name="template" class="inputBox" onchange="templateWarning();" style="width:308px">
 					<option value="0">(blank)</option>
 <?php
-				$sql = 'SELECT t.templatename, t.id, c.category FROM '.$tbl_site_templates.' t LEFT JOIN '.$tbl_categories.' c ON t.category = c.id ORDER BY c.category, t.templatename ASC';
-				$rs = mysql_query($sql);
+				$from = "{$tbl_site_templates} t LEFT JOIN {$tbl_categories} c ON t.category = c.id";
+				$rs = $modx->db->select('t.templatename, t.id, c.category',$from,'', 'c.category, t.templatename ASC');
 
 				$currentCategory = '';
 				while ($row = mysql_fetch_assoc($rs)) {
@@ -640,7 +642,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					}
 					if($thisCategory != $currentCategory) {
 						if($closeOptGroup) {
-							echo "\t\t\t\t\t</optgroup>\n";							
+							echo "\t\t\t\t\t</optgroup>\n";
 						}
 						echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";
 						$closeOptGroup = true;
@@ -728,8 +730,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					$content['parent'] = 0;
 				}
 				if($parentlookup !== false && is_numeric($parentlookup)) {
-					$sql = 'SELECT pagetitle FROM '.$tbl_site_content.' WHERE id=\''.$parentlookup.'\'';
-					$rs = mysql_query($sql);
+					$rs = $modx->db->select('pagetitle',$tbl_site_content,"id='{$parentlookup}'");
 					$limit = mysql_num_rows($rs);
 					if ($limit != 1) {
 						$e->setError(8);
@@ -795,23 +796,26 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				}
 				$session_mgrRole = $_SESSION['mgrRole'];
 				$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
-				$sql = "
-					SELECT DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value 
-					FROM {$tbl_site_tmplvars} AS tv 
+				
+				$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+				$from = trim("
+					{$tbl_site_tmplvars}                         AS tv 
 					INNER JOIN {$tbl_site_tmplvar_templates}     AS tvtpl ON tvtpl.tmplvarid = tv.id 
 					LEFT  JOIN {$tbl_site_tmplvar_contentvalues} AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
-					LEFT  JOIN {$tbl_site_tmplvar_access}        AS tva   ON tva.tmplvarid   = tv.id 
-					WHERE tvtpl.templateid='{$template}'
-						AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
-					ORDER BY tvtpl.rank,tv.rank, tv.id
-					";
-				$rs = mysql_query($sql);
-				$limit = mysql_num_rows($rs);
-				if ($limit > 0) {
+					LEFT  JOIN {$tbl_site_tmplvar_access}        AS tva   ON tva.tmplvarid   = tv.id
+					");
+				$where = trim("
+					tvtpl.templateid='{$template}'
+					AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
+					");
+				$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
+				$num_of_tv = mysql_num_rows($rs);
+				if ($num_of_tv > 0)
+				{
 					echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
 					require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
 					require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
-					for ($i = 0; $i < $limit; $i++) {
+					for ($i = 0; $i < $num_of_tv; $i++) {
 						// Go through and display all Template Variables
 						$row = mysql_fetch_assoc($rs);
 						if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
@@ -827,7 +831,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 							}
 						}
 						// splitter
-						if ($i > 0 && $i < $limit)
+						if ($i > 0 && $i < $num_of_tv)
 							echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 
                         // post back value
@@ -1095,8 +1099,7 @@ if ($use_udperms == 1) {
 	$documentId = ($_REQUEST['a'] == '27' ? $id : (!empty($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']));
 	if ($documentId > 0) {
 		// Load up, the permissions from the parent (if new document) or existing document
-		$sql = 'SELECT id, document_group FROM '.$tbl_document_groups.' WHERE document=\''.$documentId.'\'';
-		$rs = mysql_query($sql);
+		$rs = $modx->db->select('id, document_group',$tbl_document_groups,"document='{$documentId}'");
 		while ($currentgroup = mysql_fetch_assoc($rs))
 			$groupsarray[] = $currentgroup['document_group'].','.$currentgroup['id'];
 
