@@ -6,6 +6,7 @@ if(!$modx->hasPermission('save_document')||!$modx->hasPermission('publish_docume
 }
 
 $id = $_REQUEST['id'];
+$tbl_site_content     = $modx->getFullTableName('site_content');
 
 // check permissions on the document
 include_once "./processors/user_documents_permissions.class.php";
@@ -24,15 +25,16 @@ if(!$udperms->checkPermissions()) {
 	exit;	
 }
 
+$was = $modx->db->getRow($modx->db->select('editedby,editedon',$tbl_site_content,"id='{$id}'"));
+
 // update the document
 $field['published']   = 1;
 $field['pub_date']    = 0;
 $field['unpub_date']  = 0;
-$field['editedby']    = $modx->getLoginUserID();
-$field['editedon']    = time();
+$field['editedby']    = $was['editedby'];
+$field['editedon']    = $was['editedon'];
 $field['publishedby'] = $modx->getLoginUserID();
 $field['publishedon'] = time();
-$tbl_site_content     = $modx->getFullTableName('site_content');
 $rs = $modx->db->update($field,$tbl_site_content,"id={$id}");
 if(!$rs)
 {
