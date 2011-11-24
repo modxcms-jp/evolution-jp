@@ -15,34 +15,6 @@ $tbl_event_log    = $modx->getFullTableName('event_log');
 // Backup Manager by Raymond:
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
-function callBack(&$dumpstring) {
-	global $modx;
-	$today = $modx->toDateFormat(time(),'dateOnly');
-	$today = str_replace('/', '-', $today);
-	$today = strtolower($today);
-	if(!headers_sent()) {
-	    header('Expires: 0');
-        header('Cache-Control: private');
-        header('Pragma: cache');
-		header('Content-type: application/download');
-		header('Content-Disposition: attachment; filename=' . $today . '_database_backup.sql');
-	}
-	echo $dumpstring;
-	return true;
-}
-
-function nicesize($size) {
-	$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-
-	$pos = 0;
-	while ($size >= 1024) {
-		$size /= 1024;
-		$pos++;
-	}
-	if ($size==0)
-	        return '-';
-	else    return round($size,2).' '.$a[$pos];
-}
 
 if ($mode=='restore')
 {
@@ -80,7 +52,9 @@ elseif ($mode=='backup')
 	}
 
 	// MySQLdumper class can be found below
-} else {
+}
+else
+{
 	include_once "header.inc.php";  // start normal header
 }
 
@@ -419,3 +393,33 @@ function import_sql($source)
 	$header="Location: index.php?r=1&a=93";
 	header($header);
 }
+
+function callBack(&$dumpstring) {
+	global $modx;
+	$today = $modx->toDateFormat(time(),'dateOnly');
+	$today = str_replace('/', '-', $today);
+	$today = strtolower($today);
+	if(!headers_sent()) {
+	    header('Expires: 0');
+        header('Cache-Control: private');
+        header('Pragma: cache');
+		header('Content-type: application/download');
+		header("Content-Disposition: attachment; filename={$today}_database_backup.sql");
+	}
+	echo $dumpstring;
+	return true;
+}
+
+function nicesize($size) {
+	$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+
+	$pos = 0;
+	while ($size >= 1024) {
+		$size /= 1024;
+		$pos++;
+	}
+	if ($size==0)
+	        return '-';
+	else    return round($size,2).' '.$a[$pos];
+}
+
