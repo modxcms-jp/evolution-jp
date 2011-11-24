@@ -108,11 +108,11 @@ function assign_site_url($base_url)
 	}
 	if($_SERVER['SERVER_PORT'] == 80 || (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
 	{
-		$site_url = '';
+		$site_url .= '';
 	}
 	else
 	{
-		$site_url = $_SERVER['SERVER_PORT'];
+		$site_url .= $_SERVER['SERVER_PORT'];
 	}
 	return $site_url . $base_url;
 }
