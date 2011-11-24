@@ -489,7 +489,7 @@ switch ($actionToTake) {
 		}
 
 		// set publishedon and publishedby
-		$was = $modx->db->getRow($modx->db->select('published', $tbl_site_content, "id='$id'"));
+		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date', $tbl_site_content, "id='$id'"));
 
 		// keep original publish state, if change is not permitted
 		if (!$modx->hasPermission('publish_document'))
