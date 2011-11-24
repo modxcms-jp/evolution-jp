@@ -684,13 +684,9 @@ switch ($actionToTake) {
 		include $base_path . "manager/includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
 
-		if ($syncsite == 1) {
-			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache();
+		if ($syncsite == 1)
+		{
+			$modx->clearCache();
 		}
 		
 		if ($_POST['refresh_preview'] == '1')
