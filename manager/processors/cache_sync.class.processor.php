@@ -30,17 +30,20 @@ class synccache{
 
 	function getParents($id, $path = '') { // modx:returns child's parent
 		global $modx;
-		if(empty($this->aliases)) {
-			$sql = "SELECT id, IF(alias='', id, alias) AS alias, parent FROM ".$modx->getFullTableName('site_content');
-			$qh = $modx->db->query($sql);
-			if ($qh && $modx->db->getRecordCount($qh) > 0)	{
-				while ($row = $modx->db->getRow($qh)) {
+		if(empty($this->aliases))
+		{
+			$qh = $modx->db->select("SELECT id, IF(alias='', id, alias) AS alias, parent",$modx->getFullTableName('site_content'));
+			if ($qh && $modx->db->getRecordCount($qh) > 0)
+			{
+				while ($row = $modx->db->getRow($qh))
+				{
 					$this->aliases[$row['id']] = $row['alias'];
 					$this->parents[$row['id']] = $row['parent'];
 				}
 			}
 		}
-		if (isset($this->aliases[$id])) {
+		if (isset($this->aliases[$id]))
+		{
 			$path = $this->aliases[$id] . ($path != '' ? '/' : '') . $path;
 			return $this->getParents($this->parents[$id], $path);
 		}
@@ -90,59 +93,46 @@ class synccache{
 /****************************************************************************/
 		
 		// update publish time file
+		$tbl_site_content = $modx->getFullTableName('site_content');
 		$timesArr = array();
-		$sql = 'SELECT MIN(pub_date) AS minpub FROM '.$modx->getFullTableName('site_content').' WHERE pub_date>'.time();
-		if(@!$result = $modx->db->query($sql))
+		$current_time = time();
+		$result = $modx->db->select('MIN(pub_date) AS minpub',$tbl_site_content, "{$current_time} < pub_date");
+		if(!$result)
 		{
 			echo 'Couldn\'t determine next publish event!';
 		}
 		
-		$tmpRow = $modx->db->getRow($result);
-		$minpub = $tmpRow['minpub'];
+		$minpub = $modx->db->getValue($result);
 		if($minpub!=NULL)
 		{
 			$timesArr[] = $minpub;
 		}
 		
-		$sql = 'SELECT MIN(unpub_date) AS minunpub FROM '.$modx->getFullTableName('site_content').' WHERE unpub_date>'.time();
-		if(@!$result = $modx->db->query($sql))
+		$result = $modx->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content, "{$current_time} < unpub_date");
+		if(!$result)
 		{
 			echo 'Couldn\'t determine next unpublish event!';
 		}
-		$tmpRow = $modx->db->getRow($result);
-		$minunpub = $tmpRow['minunpub'];
+		$minunpub = $modx->db->getValue($result);
 		if($minunpub!=NULL)
 		{
 			$timesArr[] = $minunpub;
 		}
 		
-		if(count($timesArr)>0)
-		{
-			$nextevent = min($timesArr);
-		}
-		else
-		{
-			$nextevent = 0;
-		}
+		if(count($timesArr)>0) $nextevent = min($timesArr);
+		else                   $nextevent = 0;
 		
 		// write the file
-		$filename = $this->cachePath.'sitePublishing.idx.php';
-		$somecontent = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
+		$cache_path = $this->cachePath.'sitePublishing.idx.php';
+		$content = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
 		
-		if (!$handle = fopen($filename, 'w'))
+		$rs = file_put_contents($cache_path, $content);
+		
+		if (!$rs)
 		{
 			echo 'Cannot open file ('.$filename.')';
 			exit;
 		}
-		
-		// Write $somecontent to our opened file.
-		if (fwrite($handle, $somecontent) === FALSE)
-		{
-			echo 'Cannot write publishing info file! Make sure the assets/cache directory is writable!';
-			exit;
-		}
-		
-		fclose($handle);
 		
 /****************************************************************************/
 /*  END OF PUBLISH TIME FILE                                                */
