@@ -47,13 +47,18 @@ class synccache{
 		return $path;
 	}
 
-    function emptyCache($modx = null) {
-        $instance_name = '';
-        if(is_object($modx)) $instance_name = get_class($modx);
-        $instance_name = strtolower($instance_name);
-        if($instance_name!=='documentparser') global $modx;
-        
-		if(!isset($this->cachePath)) {
+	function emptyCache($modx = null)
+	{
+		$instance_name = '';
+		if(is_object($modx))
+		{
+			$instance_name = get_class($modx);
+		}
+		$instance_name = strtolower($instance_name);
+		if($instance_name!=='documentparser') global $modx;
+		
+		if(!isset($this->cachePath))
+		{
 			echo "Cache path not set.";
 			exit;
 		}
@@ -65,87 +70,100 @@ class synccache{
 		$deletedfiles = array();
 		if(is_array($files) && 0 < $filesincache)
 		{
-			while ($file = array_shift($files)) {
+			while ($file = array_shift($files))
+			{
 				$name = basename($file);
-				if (preg_match('/\.pageCache/',$name) && !in_array($name, $deletedfiles)) {
+				if (preg_match('/\.pageCache/',$name) && !in_array($name, $deletedfiles))
+				{
 					$deletedfilesincache++;
 					$deletedfiles[] = $name;
 					unlink($file);
 				}
 			}
 		}
-
-        $this->buildCache($modx);
-
+		
+		$this->buildCache($modx);
+		
 /****************************************************************************/
 /*  PUBLISH TIME FILE                                                       */
 /****************************************************************************/
-
-        // update publish time file
-        $timesArr = array();
-        $sql = 'SELECT MIN(pub_date) AS minpub FROM '.$modx->getFullTableName('site_content').' WHERE pub_date>'.time();
-        if(@!$result = $modx->db->query($sql)) {
-            echo 'Couldn\'t determine next publish event!';
-        }
-
-        $tmpRow = $modx->db->getRow($result);
-        $minpub = $tmpRow['minpub'];
-        if($minpub!=NULL) {
-            $timesArr[] = $minpub;
-        }
-
-        $sql = 'SELECT MIN(unpub_date) AS minunpub FROM '.$modx->getFullTableName('site_content').' WHERE unpub_date>'.time();
-        if(@!$result = $modx->db->query($sql)) {
-            echo 'Couldn\'t determine next unpublish event!';
-        }
-        $tmpRow = $modx->db->getRow($result);
-        $minunpub = $tmpRow['minunpub'];
-        if($minunpub!=NULL) {
-            $timesArr[] = $minunpub;
-        }
-
-        if(count($timesArr)>0) {
-            $nextevent = min($timesArr);
-        } else {
-            $nextevent = 0;
-        }
-
-        // write the file
-        $filename = $this->cachePath.'/sitePublishing.idx.php';
-        $somecontent = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
-
-        if (!$handle = fopen($filename, 'w')) {
-             echo 'Cannot open file ('.$filename.')';
-             exit;
-        }
-
-        // Write $somecontent to our opened file.
-        if (fwrite($handle, $somecontent) === FALSE) {
-           echo 'Cannot write publishing info file! Make sure the assets/cache directory is writable!';
-           exit;
-        }
-
-        fclose($handle);
-
-
+		
+		// update publish time file
+		$timesArr = array();
+		$sql = 'SELECT MIN(pub_date) AS minpub FROM '.$modx->getFullTableName('site_content').' WHERE pub_date>'.time();
+		if(@!$result = $modx->db->query($sql))
+		{
+			echo 'Couldn\'t determine next publish event!';
+		}
+		
+		$tmpRow = $modx->db->getRow($result);
+		$minpub = $tmpRow['minpub'];
+		if($minpub!=NULL)
+		{
+			$timesArr[] = $minpub;
+		}
+		
+		$sql = 'SELECT MIN(unpub_date) AS minunpub FROM '.$modx->getFullTableName('site_content').' WHERE unpub_date>'.time();
+		if(@!$result = $modx->db->query($sql))
+		{
+			echo 'Couldn\'t determine next unpublish event!';
+		}
+		$tmpRow = $modx->db->getRow($result);
+		$minunpub = $tmpRow['minunpub'];
+		if($minunpub!=NULL)
+		{
+			$timesArr[] = $minunpub;
+		}
+		
+		if(count($timesArr)>0)
+		{
+			$nextevent = min($timesArr);
+		}
+		else
+		{
+			$nextevent = 0;
+		}
+		
+		// write the file
+		$filename = $this->cachePath.'/sitePublishing.idx.php';
+		$somecontent = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
+		
+		if (!$handle = fopen($filename, 'w'))
+		{
+			echo 'Cannot open file ('.$filename.')';
+			exit;
+		}
+		
+		// Write $somecontent to our opened file.
+		if (fwrite($handle, $somecontent) === FALSE)
+		{
+			echo 'Cannot write publishing info file! Make sure the assets/cache directory is writable!';
+			exit;
+		}
+		
+		fclose($handle);
+		
 /****************************************************************************/
 /*  END OF PUBLISH TIME FILE                                                */
 /****************************************************************************/
-
-        // finished cache stuff.
-        if($this->showReport==true) {
-        global $_lang;
-            printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
-            $limit = count($deletedfiles);
-            if($limit > 0) {
-                echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
-                for($i=0;$i<$limit; $i++) {
-                    echo '<li>',$deletedfiles[$i],'</li>';
-                }
-                echo '</ul>';
-            }
-        }
-    }
+		
+		// finished cache stuff.
+		if($this->showReport==true)
+		{
+			global $_lang;
+			printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
+			$limit = count($deletedfiles);
+			if($limit > 0)
+			{
+				echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
+				for($i=0;$i<$limit; $i++)
+				{
+					echo '<li>',$deletedfiles[$i],'</li>';
+				}
+				echo '</ul>';
+			}
+		}
+	}
 
     /**
      * build siteCache file
