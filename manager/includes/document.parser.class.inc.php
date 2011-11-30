@@ -650,18 +650,18 @@ class DocumentParser {
 		if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0)
 		{
 			// now, check for documents that need publishing
-			$sql = "UPDATE ".$tbl_site_content." SET published=1, publishedon=".time()." WHERE ".$tbl_site_content.".pub_date <= $timeNow AND ".$tbl_site_content.".pub_date!=0 AND published=0";
-			if (@ !$result= $this->db->query($sql))
-			{
-				$this->messageQuit('Execution of a query to the database failed', $sql);
-			}
+			$fields = array();
+			$fields['published']   = '1';
+			$fields['publishedon'] = time();
+			$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+			$rs = $this->db->update($fields,$tbl_site_content,$where);
 			
 			// now, check for documents that need un-publishing
-			$sql= "UPDATE " . $tbl_site_content . " SET published=0, publishedon=0 WHERE " . $tbl_site_content . ".unpub_date <= $timeNow AND " . $tbl_site_content . ".unpub_date!=0 AND published=1";
-			if (@ !$result= $this->db->query($sql))
-			{
-				$this->messageQuit('Execution of a query to the database failed', $sql);
-			}
+			$fields = array();
+			$fields['published']   = '0';
+			$fields['publishedon'] = '0';
+			$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+			$rs = $this->db->update($fields,$tbl_site_content,$where);
 		
 			// clear the cache
 			$basepath= "{$this->config['base_path']}assets/cache/";
@@ -686,25 +686,15 @@ class DocumentParser {
 			
 			// update publish time file
 			$timesArr= array ();
-			$sql= "SELECT MIN(pub_date) AS minpub FROM " . $tbl_site_content . " WHERE pub_date>$timeNow";
-			if (@ !$result= $this->db->query($sql))
-			{
-				$this->messageQuit('Failed to find publishing timestamps', $sql);
-			}
-			$tmpRow= $this->db->getRow($result);
-			$minpub= $tmpRow['minpub'];
+			$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_content,"{$timeNow} < pub_date");
+			$minpub= $this->db->getValue($rs);
 			if ($minpub != NULL)
 			{
 				$timesArr[]= $minpub;
 			}
 			
-			$sql= "SELECT MIN(unpub_date) AS minunpub FROM " . $tbl_site_content . " WHERE unpub_date>$timeNow";
-			if (@ !$result= $this->db->query($sql))
-			{
-				$this->messageQuit('Failed to find publishing timestamps', $sql);
-			}
-			$tmpRow= $this->db->getRow($result);
-			$minunpub= $tmpRow['minunpub'];
+			$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content,"{$timeNow} < unpub_date");
+			$minunpub= $this->db->getValue($rs);
 			if ($minunpub != NULL)
 			{
 				$timesArr[]= $minunpub;
@@ -720,7 +710,7 @@ class DocumentParser {
 			}
 			
 			$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-			$content = '<?php $cacheRefreshTime=' . $nextevent . '; ?>';
+			$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
 			file_put_contents($cache_path, $content);
 		}
 	}
