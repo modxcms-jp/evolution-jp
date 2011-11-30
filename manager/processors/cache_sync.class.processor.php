@@ -87,11 +87,32 @@ class synccache{
 		}
 		
 		$this->buildCache($modx);
-		
-/****************************************************************************/
-/*  PUBLISH TIME FILE                                                       */
-/****************************************************************************/
-		
+		$this->publish_time_file($modx);
+		if($this->showReport==true) $this->showReport($filesincache,$deletedfilesincache,$deletedfiles);
+	}
+
+	function showReport($filesincache,$deletedfilesincache,$deletedfiles)
+	{
+		// finished cache stuff.
+		global $_lang;
+		printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
+		$limit = count($deletedfiles);
+		if($limit > 0)
+		{
+			echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
+			for($i=0;$i<$limit; $i++)
+			{
+				echo '<li>',$deletedfiles[$i],'</li>';
+			}
+			echo '</ul>';
+		}
+	}
+	
+	/****************************************************************************/
+	/*  PUBLISH TIME FILE                                                       */
+	/****************************************************************************/
+	function publish_time_file($modx)
+	{
 		// update publish time file
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$timesArr = array();
@@ -99,7 +120,7 @@ class synccache{
 		$result = $modx->db->select('MIN(pub_date) AS minpub',$tbl_site_content, "{$current_time} < pub_date");
 		if(!$result)
 		{
-			echo 'Couldn\'t determine next publish event!';
+			echo "Couldn't determine next publish event!";
 		}
 		
 		$minpub = $modx->db->getValue($result);
@@ -111,7 +132,7 @@ class synccache{
 		$result = $modx->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content, "{$current_time} < unpub_date");
 		if(!$result)
 		{
-			echo 'Couldn\'t determine next unpublish event!';
+			echo "Couldn't determine next unpublish event!";
 		}
 		$minunpub = $modx->db->getValue($result);
 		if($minunpub!=NULL)
@@ -124,38 +145,17 @@ class synccache{
 		
 		// write the file
 		$cache_path = $this->cachePath.'sitePublishing.idx.php';
-		$content = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
+		$content = '<?php $cacheRefreshTime='.$nextevent.';';
 		
 		$rs = file_put_contents($cache_path, $content);
 		
 		if (!$rs)
 		{
-			echo 'Cannot open file ('.$filename.')';
+			echo "Cannot open file ({$filename})";
 			exit;
 		}
-		
-/****************************************************************************/
-/*  END OF PUBLISH TIME FILE                                                */
-/****************************************************************************/
-		
-		// finished cache stuff.
-		if($this->showReport==true)
-		{
-			global $_lang;
-			printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
-			$limit = count($deletedfiles);
-			if($limit > 0)
-			{
-				echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
-				for($i=0;$i<$limit; $i++)
-				{
-					echo '<li>',$deletedfiles[$i],'</li>';
-				}
-				echo '</ul>';
-			}
-		}
 	}
-
+	
     /**
      * build siteCache file
      * @param  DocumentParser $modx
