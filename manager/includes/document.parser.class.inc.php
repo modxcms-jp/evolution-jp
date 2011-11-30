@@ -641,73 +641,89 @@ class DocumentParser {
         ob_end_flush();
     }
 
-    function checkPublishStatus() {
-        $cacheRefreshTime= 0;
-        include_once($this->config["base_path"] . "assets/cache/sitePublishing.idx.php");
-        $timeNow= time() + $this->config['server_offset_time'];
-        if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0) {
-            // now, check for documents that need publishing
-            $sql = "UPDATE ".$this->getFullTableName("site_content")." SET published=1, publishedon=".time()." WHERE ".$this->getFullTableName("site_content").".pub_date <= $timeNow AND ".$this->getFullTableName("site_content").".pub_date!=0 AND published=0";
-            if (@ !$result= $this->db->query($sql)) {
-                $this->messageQuit("Execution of a query to the database failed", $sql);
-            }
-
-            // now, check for documents that need un-publishing
-            $sql= "UPDATE " . $this->getFullTableName("site_content") . " SET published=0, publishedon=0 WHERE " . $this->getFullTableName("site_content") . ".unpub_date <= $timeNow AND " . $this->getFullTableName("site_content") . ".unpub_date!=0 AND published=1";
-            if (@ !$result= $this->db->query($sql)) {
-                $this->messageQuit("Execution of a query to the database failed", $sql);
-            }
-
-            // clear the cache
-            $basepath= $this->config["base_path"] . "assets/cache/";
-            if ($handle= opendir($basepath)) {
-                $filesincache= 0;
-                $deletedfilesincache= 0;
-                while (false !== ($file= readdir($handle))) {
-                    if ($file != "." && $file != "..") {
-                        $filesincache += 1;
-                        if (preg_match("/\.pageCache/", $file)) {
-                            $deletedfilesincache += 1;
-                            while (!unlink($basepath . "/" . $file));
-                        }
-                    }
-                }
-                closedir($handle);
-            }
-
-            // update publish time file
-            $timesArr= array ();
-            $sql= "SELECT MIN(pub_date) AS minpub FROM " . $this->getFullTableName("site_content") . " WHERE pub_date>$timeNow";
-            if (@ !$result= $this->db->query($sql)) {
-                $this->messageQuit("Failed to find publishing timestamps", $sql);
-            }
-            $tmpRow= $this->db->getRow($result);
-            $minpub= $tmpRow['minpub'];
-            if ($minpub != NULL) {
-                $timesArr[]= $minpub;
-            }
-
-            $sql= "SELECT MIN(unpub_date) AS minunpub FROM " . $this->getFullTableName("site_content") . " WHERE unpub_date>$timeNow";
-            if (@ !$result= $this->db->query($sql)) {
-                $this->messageQuit("Failed to find publishing timestamps", $sql);
-            }
-            $tmpRow= $this->db->getRow($result);
-            $minunpub= $tmpRow['minunpub'];
-            if ($minunpub != NULL) {
-                $timesArr[]= $minunpub;
-            }
-
-            if (count($timesArr) > 0) {
-                $nextevent= min($timesArr);
-            } else {
-                $nextevent= 0;
-            }
-
-            $cache_path= $this->config["base_path"] . 'assets/cache/sitePublishing.idx.php';
-            $content = '<?php $cacheRefreshTime=' . $nextevent . '; ?>';
-            file_put_contents($cache_path, $content);
-        }
-    }
+	function checkPublishStatus()
+	{
+		$tbl_site_content = $this->getFullTableName('site_content');
+		$cacheRefreshTime= 0;
+		include_once("{$this->config['base_path']}assets/cache/sitePublishing.idx.php");
+		$timeNow= time() + $this->config['server_offset_time'];
+		if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0)
+		{
+			// now, check for documents that need publishing
+			$sql = "UPDATE ".$tbl_site_content." SET published=1, publishedon=".time()." WHERE ".$tbl_site_content.".pub_date <= $timeNow AND ".$tbl_site_content.".pub_date!=0 AND published=0";
+			if (@ !$result= $this->db->query($sql))
+			{
+				$this->messageQuit('Execution of a query to the database failed', $sql);
+			}
+			
+			// now, check for documents that need un-publishing
+			$sql= "UPDATE " . $tbl_site_content . " SET published=0, publishedon=0 WHERE " . $tbl_site_content . ".unpub_date <= $timeNow AND " . $tbl_site_content . ".unpub_date!=0 AND published=1";
+			if (@ !$result= $this->db->query($sql))
+			{
+				$this->messageQuit('Execution of a query to the database failed', $sql);
+			}
+		
+			// clear the cache
+			$basepath= "{$this->config['base_path']}assets/cache/";
+			if ($handle= opendir($basepath))
+			{
+				$filesincache= 0;
+				$deletedfilesincache= 0;
+				while (($file= readdir($handle)) !== false)
+				{
+					if ($file != '.' && $file != '..')
+					{
+						$filesincache += 1;
+						if (preg_match("/\.pageCache/", $file))
+						{
+							$deletedfilesincache += 1;
+							while (!unlink($basepath . '/' . $file));
+						}
+					}
+				}
+				closedir($handle);
+			}
+			
+			// update publish time file
+			$timesArr= array ();
+			$sql= "SELECT MIN(pub_date) AS minpub FROM " . $tbl_site_content . " WHERE pub_date>$timeNow";
+			if (@ !$result= $this->db->query($sql))
+			{
+				$this->messageQuit('Failed to find publishing timestamps', $sql);
+			}
+			$tmpRow= $this->db->getRow($result);
+			$minpub= $tmpRow['minpub'];
+			if ($minpub != NULL)
+			{
+				$timesArr[]= $minpub;
+			}
+			
+			$sql= "SELECT MIN(unpub_date) AS minunpub FROM " . $tbl_site_content . " WHERE unpub_date>$timeNow";
+			if (@ !$result= $this->db->query($sql))
+			{
+				$this->messageQuit('Failed to find publishing timestamps', $sql);
+			}
+			$tmpRow= $this->db->getRow($result);
+			$minunpub= $tmpRow['minunpub'];
+			if ($minunpub != NULL)
+			{
+				$timesArr[]= $minunpub;
+			}
+			
+			if (count($timesArr) > 0)
+			{
+				$nextevent= min($timesArr);
+			}
+			else
+			{
+				$nextevent= 0;
+			}
+			
+			$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
+			$content = '<?php $cacheRefreshTime=' . $nextevent . '; ?>';
+			file_put_contents($cache_path, $content);
+		}
+	}
 
     function postProcess() {
         // if the current document was generated, cache it!
