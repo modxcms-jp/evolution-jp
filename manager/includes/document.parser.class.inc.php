@@ -2169,7 +2169,7 @@ class DocumentParser {
         $p = array('am'=>'AM', 'pm'=>'PM');
         $P = array('am'=>'am', 'pm'=>'pm');
         $ampm = (strftime('%H', $timestamp) < 12) ? 'am' : 'pm';
-        if(empty($timestamp)) $timestamp = time() + $this->config['server_offset_time'];
+        if($timestamp==='') return '';
         if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
         $pieces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
         
