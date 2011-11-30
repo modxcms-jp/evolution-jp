@@ -644,75 +644,51 @@ class DocumentParser {
 	function checkPublishStatus()
 	{
 		$tbl_site_content = $this->getFullTableName('site_content');
-		$cacheRefreshTime= 0;
+		$cacheRefreshTime = 0;
 		include_once("{$this->config['base_path']}assets/cache/sitePublishing.idx.php");
 		$timeNow= time() + $this->config['server_offset_time'];
-		if ($cacheRefreshTime <= $timeNow && $cacheRefreshTime != 0)
-		{
-			// now, check for documents that need publishing
-			$fields = array();
-			$fields['published']   = '1';
-			$fields['publishedon'] = time();
-			$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
-			$rs = $this->db->update($fields,$tbl_site_content,$where);
-			
-			// now, check for documents that need un-publishing
-			$fields = array();
-			$fields['published']   = '0';
-			$fields['publishedon'] = '0';
-			$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
-			$rs = $this->db->update($fields,$tbl_site_content,$where);
 		
-			// clear the cache
-			$basepath= "{$this->config['base_path']}assets/cache/";
-			if ($handle= opendir($basepath))
-			{
-				$filesincache= 0;
-				$deletedfilesincache= 0;
-				while (($file= readdir($handle)) !== false)
-				{
-					if ($file != '.' && $file != '..')
-					{
-						$filesincache += 1;
-						if (preg_match("/\.pageCache/", $file))
-						{
-							$deletedfilesincache += 1;
-							while (!unlink($basepath . '/' . $file));
-						}
-					}
-				}
-				closedir($handle);
-			}
-			
-			// update publish time file
-			$timesArr= array ();
-			$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_content,"{$timeNow} < pub_date");
-			$minpub= $this->db->getValue($rs);
-			if ($minpub != NULL)
-			{
-				$timesArr[]= $minpub;
-			}
-			
-			$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content,"{$timeNow} < unpub_date");
-			$minunpub= $this->db->getValue($rs);
-			if ($minunpub != NULL)
-			{
-				$timesArr[]= $minunpub;
-			}
-			
-			if (count($timesArr) > 0)
-			{
-				$nextevent= min($timesArr);
-			}
-			else
-			{
-				$nextevent= 0;
-			}
-			
-			$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-			$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
-			file_put_contents($cache_path, $content);
+		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
+		
+		// now, check for documents that need publishing
+		$fields = array();
+		$fields['published']   = '1';
+		$fields['publishedon'] = time();
+		$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+		$rs = $this->db->update($fields,$tbl_site_content,$where);
+		
+		// now, check for documents that need un-publishing
+		$fields = array();
+		$fields['published']   = '0';
+		$fields['publishedon'] = '0';
+		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+		$rs = $this->db->update($fields,$tbl_site_content,$where);
+	
+		// clear the cache
+		$this->clearCache();
+		
+		// update publish time file
+		$timesArr= array ();
+		$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_content,"{$timeNow} < pub_date");
+		$minpub= $this->db->getValue($rs);
+		if ($minpub != NULL)
+		{
+			$timesArr[]= $minpub;
 		}
+		
+		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content,"{$timeNow} < unpub_date");
+		$minunpub= $this->db->getValue($rs);
+		if ($minunpub != NULL)
+		{
+			$timesArr[]= $minunpub;
+		}
+		
+		if (count($timesArr) > 0) $nextevent = min($timesArr);
+		else                      $nextevent = 0;
+		
+		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
+		$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
+		file_put_contents($cache_path, $content);
 	}
 
     function postProcess() {
