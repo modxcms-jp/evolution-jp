@@ -317,7 +317,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 			}
 			elseif(!empty($children['pub_date']))
 			{
-				$publishedon = '<span style="white-space:nowrap;color:#777;">' . $modx->toDateFormat($children['pub_Date']) . '</span>';
+				$publishedon = '<span style="white-space:nowrap;color:#777;">' . $modx->toDateFormat($children['pub_date']) . '</span>';
 			}
 			else $publishedon = '-';
 			
