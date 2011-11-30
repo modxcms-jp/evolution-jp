@@ -9,7 +9,7 @@ class synccache{
 	var $parents = array();
 
 	function setCachepath($path) {
-		$this->cachePath = $path;
+		$this->cachePath = rtrim($path,'/') . '/';
 	}
 
 	function setReport($bool) {
@@ -64,7 +64,7 @@ class synccache{
 		}
 		$filesincache = 0;
 		$deletedfilesincache = 0;
-		$pattern = realpath($this->cachePath).'/*.pageCache.php';
+		$pattern = realpath($this->cachePath).'*.pageCache.php';
 		$files = glob($pattern,GLOB_NOCHECK);
 		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
 		$deletedfiles = array();
@@ -125,7 +125,7 @@ class synccache{
 		}
 		
 		// write the file
-		$filename = $this->cachePath.'/sitePublishing.idx.php';
+		$filename = $this->cachePath.'sitePublishing.idx.php';
 		$somecontent = '<?php $cacheRefreshTime='.$nextevent.'; ?>';
 		
 		if (!$handle = fopen($filename, 'w'))
