@@ -179,6 +179,7 @@ class synccache {
 		
 		// close and write the file
 		$content .= "\n";
+		$content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
 		$cache_path = $this->cachePath.'siteCache.idx.php';
 		
 		// invoke OnBeforeCacheUpdate event
