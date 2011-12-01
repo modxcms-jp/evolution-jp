@@ -1816,13 +1816,15 @@ class DocumentParser {
         return $this->currentSnippet;
     }
 
-    function clearCache() {
+    function clearCache($params=array()) {
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
+    		$showReport = ($params['showReport']) ? $params['showReport'] : false;
+    		
 			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
 			$sync = new synccache();
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-			$sync->setReport(false);
+			$sync->setReport($showReport);
 			$sync->emptyCache(); // first empty the cache
 			return true;
 		}
