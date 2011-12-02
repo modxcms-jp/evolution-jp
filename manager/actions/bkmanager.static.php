@@ -9,6 +9,8 @@ if ($manager_theme)
         $manager_theme .= '/';
 else    $manager_theme  = '';
 
+if(!isset($modx->config['snapshot_path'])) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
+
 // Get table names (alphabetical)
 $tbl_event_log    = $modx->getFullTableName('event_log');
 
@@ -16,16 +18,27 @@ $tbl_event_log    = $modx->getFullTableName('event_log');
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
-if ($mode=='restore')
+if ($mode=='restore1')
 {
 	$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
 	import_sql($source);
 	exit;
 }
+elseif ($mode=='restore2')
+{
+	$path = $modx->config['snapshot_path'] . $_POST['filename'];
+	if(file_exists($path))
+	{
+		$source = file_get_contents($path);
+		import_sql($source);
+	}
+	exit;
+}
 elseif ($mode=='backup')
 {
 	$tables = isset($_POST['chk']) ? $_POST['chk'] : '';
-	if (!is_array($tables)) {
+	if (!is_array($tables))
+	{
 		echo '<html><body>'.
 		     '<script type="text/javascript">alert(\'Please select a valid table from the list below\');</script>'.
 		     '</body></html>';
@@ -43,9 +56,12 @@ elseif ($mode=='backup')
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
 	$dumpfinished = $dumper->createDump('callBack');
-	if($dumpfinished) {
+	if($dumpfinished)
+	{
 		exit;
-	} else {
+	}
+	else
+	{
 		$e->setError(1, 'Unable to Backup Database');
 		$e->dumpError();
 		exit;
@@ -53,17 +69,71 @@ elseif ($mode=='backup')
 
 	// MySQLdumper class can be found below
 }
+elseif ($mode=='snapshot')
+{
+	if(!is_dir(rtrim($modx->config['snapshot_path'],'/')))
+	{
+		mkdir(rtrim($modx->config['snapshot_path'],'/'));
+	}
+	if(!file_exists("{$modx->config['snapshot_path']}.htaccess"))
+	{
+		$htaccess = "order deny,allow\ndeny from all\n";
+		file_put_contents("{$modx->config['snapshot_path']}.htaccess",$htaccess);
+	}
+	$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
+	$rs = mysql_query($sql);
+	$tables = array();
+	if(0<mysql_num_rows($rs))
+	{
+		while($db_status = mysql_fetch_assoc($rs))
+		{
+			$tables[] = $db_status['Name'];
+		}
+	}
+	$today = $modx->toDateFormat(time());
+	$today = str_replace(array('/',' '), '-', $today);
+	$today = str_replace(':', '', $today);
+	$today = strtolower($today);
+	global $path;
+	$path = "{$modx->config['snapshot_path']}{$today}.sql";
+	
+	@set_time_limit(120); // set timeout limit to 2 minutes
+	$dbname = str_replace('`', '', $dbase);
+	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbname);
+	$dumper->setDBtables($tables);
+	$dumper->setDroptables(true);
+	$dumpfinished = $dumper->createDump('snapshot');
+	if($dumpfinished)
+	{
+		$_SESSION['result_msg'] = 'snapshot_ok';
+		$header="Location: index.php?a=93";
+		header($header);
+		exit;
+	} else {
+		$e->setError(1, 'Unable to Backup Database');
+		$e->dumpError();
+		exit;
+	}
+}
 else
 {
 	include_once "header.inc.php";  // start normal header
 }
 
-if(isset($_SESSION['import_result']) && $_SESSION['import_result'] === 'ok')
+if(isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '')
 {
-	$ph['import_result'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">リストアは正常に実行されました。</div>';
-	$_SESSION['import_result'] = '';
+	switch($_SESSION['result_msg'])
+	{
+		case 'import_ok':
+			$ph['result_msg'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">リストアは正常に実行されました。</div>';
+			break;
+		case 'snapshot_ok':
+			$ph['result_msg'] = '<div style="background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;">スナップショットは正常に保存されました。</div>';
+			break;
+	}
+	$_SESSION['result_msg'] = '';
 }
-else $ph['import_result'] = '';
+else $ph['result_msg'] = '';
 
 ?>
 <script language="javascript">
@@ -74,7 +144,7 @@ else $ph['import_result'] = '';
 			c[i].checked=f.chkselall.checked;
 		}
 	}
-	function submitForm(){
+	function backup(){
 		var f = document.forms['frmdb'];
 		f.mode.value='backup';
 		f.target='fileDownloader';
@@ -99,7 +169,7 @@ else $ph['import_result'] = '';
 	<input type="hidden" name="mode" value="" />
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
-	<p style="width:100%;"><a href="#" onclick="submitForm();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
+	<p style="width:100%;"><a href="#" onclick="backup();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
 	<p><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></p>
 	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
@@ -181,16 +251,16 @@ if ($totaloverhead > 0) {
 </div>
 <!-- This iframe is used when downloading file backup file -->
 <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
-<div class="tab-page" id="tabRestore">  
+<div class="tab-page" id="tabRestore">
 	<h2 class="tab">リストア</h2>
-	<?php echo $ph['import_result']; ?>
+	<?php echo $ph['result_msg']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
 	<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />
 	※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />
 	仮製作領域から本番サイトに移行するために使用する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>
 	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
 	<input type="hidden" name="a" value="93" />
-	<input type="hidden" name="mode" value="restore" />
+	<input type="hidden" name="mode" value="restore1" />
 	<input type="file" name="sqlfile" size="70" /><br />
 	<div class="actionButtons" style="margin-top:10px;">
 	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> リストア実行</a>
@@ -198,6 +268,53 @@ if ($totaloverhead > 0) {
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 </div>
+
+<div class="tab-page" id="tabSnapshot">
+	<h2 class="tab">スナップショット</h2>
+	<?php echo $ph['result_msg']; ?>
+	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabSnapshot'));</script>
+	<p>データベースの内容をサーバに保存・復元します。<br />
+	保存先($modx->config['snapshot_path']) : <?php echo $modx->config['snapshot_path']; ?></p>
+	<form method="post" name="snapshot" action="index.php">
+	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="mode" value="snapshot" />
+	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
+	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" />スナップショットを保存する</a>
+	<input type="submit" name="save" style="display:none;" />
+	</form>
+	</div>
+	<style type="text/css">
+	table {background-color:#fff;border-collapse:collapse;}
+	table td {border:1px solid #ccc;padding:4px;}
+	</style>
+	<form method="post" name="restore2" action="index.php">
+	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="mode" value="restore2" />
+	<input type="hidden" name="filename" value="" />
+<table>
+<tbody>
+<?php
+$pattern = "{$modx->config['snapshot_path']}*.sql";
+$files = glob($pattern,GLOB_NOCHECK);
+arsort($files);
+$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
+$deletedfiles = array();
+if(is_array($files) && 0 < $filesincache)
+{
+	$tpl = '<tr><td>[+filename+]</td><td class="actionButtons"><a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a></td></tr>' . "\n";
+	while ($file = array_shift($files))
+	{
+		$filename = substr($file,strrpos($file,'/')+1);
+		echo str_replace('[+filename+]',$filename,$tpl);
+	}
+}
+?>
+</tbody>
+</table>
+<input type="submit" name="save" style="display:none;" />
+	</form>
+</div>
+
 </div>
 
 </div>
@@ -372,7 +489,7 @@ class Mysqldumper {
 }
 
 
-function import_sql($source)
+function import_sql($source,$result_code='import_ok')
 {
 	global $modx;
 	$source = str_replace(array("\r\n","\r"),"\n",$source);
@@ -389,7 +506,7 @@ function import_sql($source)
 	$sync->setReport(false);
 	$sync->emptyCache(); // first empty the cache		
 	// finished emptying cache - redirect
-	$_SESSION['import_result'] = 'ok';
+	$_SESSION['result_msg'] = $result_code;
 	$header="Location: index.php?r=1&a=93";
 	header($header);
 }
@@ -421,5 +538,12 @@ function nicesize($size) {
 	if ($size==0)
 	        return '-';
 	else    return round($size,2).' '.$a[$pos];
+}
+
+function snapshot(&$dumpstring) {
+	global $path;
+	file_put_contents($path,$dumpstring,FILE_APPEND);
+//	file_put_contents
+	return true;
 }
 
