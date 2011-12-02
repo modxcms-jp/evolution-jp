@@ -995,7 +995,7 @@ $_lang["untitled_resource"] = 'タイトルがありません';
 $_lang["untitled_weblink"] = 'タイトルがありません';
 $_lang["update_params"] = 'パラメータ表示の更新';
 $_lang["update_settings_from_language"] = '置き換え';
-$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズ。サイズはバイト単位です。<br /><strong>※PHP4.2.3以降ではプログラム側で設定を変更できないようになっているため、この設定は現在は機能しません。.htaccessやphp.iniでupload_max_filesizeの設定を変更してください。</strong>';
+$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズ。このサーバでは上限%sまで設定できます。<br /><strong>※PHP4.2.3以降ではプログラム側で設定を変更できないようになっているため、この設定は現在は機能しません(※サーバによっては変更可能になっている場合もあります)。.htaccessやphp.iniでupload_max_filesizeの設定を変更してください。</strong>';
 $_lang["upload_maxsize_title"] = 'アップロードサイズの上限';
 $_lang["uploadable_files_message"] = '<a href="index.php?a=31" target="_self">ファイル管理</a>画面でアップロードできるファイルタイプの拡張子を入力してください。カンマで区切って複数指定できます。この設定はファイルブラウザも参照します。';
 $_lang["uploadable_files_title"] = 'アップロード可能なファイルタイプ';

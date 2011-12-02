@@ -1008,8 +1008,20 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 <th><?php echo $_lang["upload_maxsize_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_maxsize" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : "1048576" ; ?>" /><br />
-<?php echo $_lang["upload_maxsize_message"]?></td>
+<?php
+if(version_compare(ini_get('upload_max_filesize'), ini_get('post_max_size'),'<'))
+{
+	$limit_size = ini_get('upload_max_filesize');
+}
+else $limit_size = ini_get('post_max_size');
+
+if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
+{
+	$limit_size = ini_get('memory_limit');
+}
+?>
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_maxsize" value="<?php echo !empty($upload_maxsize) ? $upload_maxsize : $limit_size ; ?>" /><br />
+<?php echo sprintf($_lang["upload_maxsize_message"],$limit_size);?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_file_permissions_title"]?></th>
