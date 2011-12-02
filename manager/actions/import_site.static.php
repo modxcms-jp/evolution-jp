@@ -8,18 +8,6 @@ if(!$modx->hasPermission('import_static'))
 
 // Files to upload
 $allowedfiles = array('html','htm','shtml','xml');
-
-if($_REQUEST['mode']=='refresh')
-{
-	include_once (MODX_BASE_PATH . 'manager/processors/cache_sync.class.processor.php');
-	$sync = new synccache();
-	$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-	$sync->setReport(false);
-	$sync->emptyCache(); // first empty the cache
-	$header = "Location: index.php?r=1&a=95";
-	header($header);
-	exit;
-}
 ?>
 
 <script type="text/javascript">
@@ -31,9 +19,6 @@ if($_REQUEST['mode']=='refresh')
         document.getElementById('reset').disabled=true;
         else
         document.getElementById('reset').disabled=false;
-    }
-    function reloadTree() {
-        document.location.href = "index.php?mode=refresh&a=95";
     }
 </script>
 
@@ -94,11 +79,13 @@ if(!isset($_POST['import'])) {
 else
 {
 	run();
+	$modx->clearCache();
 ?>
 <ul class="actionButtons">
-    <li><a href="#" onclick="reloadTree();"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
+    <li><a href="#" onclick="document.location.href='index.php?r=1&a=2';"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
 </ul>
 <script type="text/javascript">
+top.mainMenu.reloadtree();
     parent.tree.ca = "";
 </script>
 <?php
