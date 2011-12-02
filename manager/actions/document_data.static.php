@@ -332,6 +332,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
 		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
+		$children_output .= '<div><input type="submit" value="チェックしたリソースを移動" /></div>';
 	}
 }
 else
@@ -433,7 +434,6 @@ function movedocument() {
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="a" value="51" />
 {$children_output}
-<input type="submit" value="チェックしたリソースを移動" />
 </form>
 EOT;
 ?>
