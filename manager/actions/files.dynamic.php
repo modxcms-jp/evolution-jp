@@ -534,8 +534,9 @@ echo $_lang['files_dirwritable'],' <b>',is_writable($startpath)==1 ? $_lang['yes
 if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && is_writable($startpath)) {
 	@ini_set("upload_max_filesize", $upload_maxsize); // modified by raymond
 ?>
-<form enctype="multipart/form-data" action="index.php?a=31" method="post">
+<form enctype="multipart/form-data" action="index.php" method="post">
 <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize)? $upload_maxsize:1048576; ?>">
+<input type="hidden" name="a" value="31">
 <input type="hidden" name="path" value="<?php echo $startpath?>">
 
 <span style="width:300px;"><?php echo $_lang['files_uploadfile_msg']?></span>
