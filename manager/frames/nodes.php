@@ -107,10 +107,12 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			$_SESSION['tree_sortby'] = 'menuindex';
 			$_SESSION['tree_sortdir'] = 'ASC';
 		}
-		$orderby = $_SESSION['tree_sortby']." ".$_SESSION['tree_sortdir'];
+		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
+		if(empty($orderby)) $orderby = "menuindex ASC";
 
 		// Folder sorting gets special setup ;) Add menuindex and pagetitle
-		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ", menuindex ASC, pagetitle";
+		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ", menuindex ASC";
+		$orderby  .= ", pagetitle ASC";
 
 		$tblsc  = $modx->getFullTableName('site_content');
 		$tbldg  = $modx->getFullTableName('document_groups');
