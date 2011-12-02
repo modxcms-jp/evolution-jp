@@ -124,8 +124,7 @@ function run()
 	// import files
 	if(0 < count($files))
 	{
-		$sql = "UPDATE {$tbl_site_content} SET isfolder=1 WHERE id={$parent};";
-		$rs = $modx->db->query($sql);
+		$rs = $modx->db->update(array('isfolder'=>1),$tbl_site_content,"id={$parent}");
 		importFiles($parent,$filedir,$files,'root');
 	}
 	
@@ -139,8 +138,7 @@ function run()
 function importFiles($parent,$filedir,$files,$mode) {
     global $modx;
     global $_lang, $allowedfiles;
-	global $dbase;
-    global $default_template, $search_default, $cache_default, $publish_default;
+    global $search_default, $cache_default, $publish_default;
     
     $tbl_site_content = $modx->getFullTableName('site_content');
 
@@ -149,7 +147,7 @@ function importFiles($parent,$filedir,$files,$mode) {
     if (!is_array($files)) return;
 	if ($_POST['object']=='all')
 	{
-		$default_template = '0';
+		$modx->config['default_template'] = '0';
 		$richtext         = '0';
 	}
 	else
@@ -199,16 +197,28 @@ function importFiles($parent,$filedir,$files,$mode) {
 						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 					}
 					$content = str_replace('[*content*]','',$content);
-					$date = filemtime($filepath);
-					$createdon = $date;
-					$editedon  = $date;
 					$pagetitle = $modx->db->escape($pagetitle);
-					$content   = $modx->db->escape($content);
-					$alias     = $modx->stripAlias($alias);
-					$sql = "INSERT INTO {$tbl_site_content} 
-					(type, contentType, pagetitle, longtitle, description, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) 
-					VALUES ('document', 'text/html', '{$pagetitle}', '{$pagetitle}', '{$description}', '{$alias}', $publish_default, '{$parent}', 1, '{$content}', '{$richtext}', '{$default_template}', 0, $search_default, $cache_default, $createdby, $createdon, $editedon);";
-					$rs = $modx->db->query($sql);
+					$date = filemtime($filepath);
+					$field = array();
+					$field['type'] = 'document';
+					$field['contentType'] = 'text/html';
+					$field['pagetitle'] = $pagetitle;
+					$field['longtitle'] = $pagetitle;
+					$field['description'] = $description;
+					$field['alias'] = $modx->stripAlias($alias);
+					$field['published'] = $publish_default;
+					$field['parent'] = $parent;
+					$field['isfolder'] = 1;
+					$field['content'] = $modx->db->escape($content);
+					$field['richtext'] = $richtext;
+					$field['template'] = $modx->config['default_template'];
+					$field['menuindex'] = 2;
+					$field['searchable'] = $search_default;
+					$field['cacheable'] = $cache_default;
+					$field['createdby'] = $createdby;
+					$field['createdon'] = $date;
+					$field['editedon'] = $date;
+					$rs = $modx->db->insert($field,$tbl_site_content);
 					if($rs) $new_parent = mysql_insert_id(); // get new parent id
 					else
 					{
@@ -267,15 +277,28 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$content = str_replace('[*content*]','',$content);
 				$content = $modx->db->escape($content);
 				$date = filemtime($filepath);
-				$createdon = $date;
-				$editedon = $date;
-				$pagetitle = $modx->db->escape($pagetitle);
 				$alias = $modx->stripAlias($alias);
 				$menuindex = ($alias=='index') ? 0 : 1;
-				$sql = "INSERT INTO {$tbl_site_content} 
-				(type, contentType, pagetitle, longtitle, description, alias, published, parent, isfolder, content, richtext, template, menuindex, searchable, cacheable, createdby, createdon, editedon) VALUES
-				('document', 'text/html', '{$pagetitle}', '{$pagetitle}', '{$description}', '{$alias}', $publish_default, '$parent', 0, '{$content}', '{$richtext}', '{$default_template}', $menuindex, $search_default, $cache_default, $createdby, $createdon, $editedon);";
-				$rs = $modx->db->query($sql);
+				$field = array();
+				$field['type'] = 'document';
+				$field['contentType'] = 'text/html';
+				$field['pagetitle'] = $modx->db->escape($pagetitle);;
+				$field['longtitle'] = $pagetitle;
+				$field['description'] = $description;
+				$field['alias'] = $alias;
+				$field['published'] = $publish_default;
+				$field['parent'] = $parent;
+				$field['isfolder'] = 0;
+				$field['content'] = $content;
+				$field['richtext'] = $richtext;
+				$field['template'] = $modx->config['default_template'];
+				$field['menuindex'] = $menuindex;
+				$field['searchable'] = $search_default;
+				$field['cacheable'] = $cache_default;
+				$field['createdby'] = $createdby;
+				$field['createdon'] = $date;
+				$field['editedon'] = $date;
+				$rs = $modx->db->insert($field,$tbl_site_content);
 				if(!$rs)
 				{
 					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
