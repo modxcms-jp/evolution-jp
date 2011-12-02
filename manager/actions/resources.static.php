@@ -16,7 +16,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 	
 	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
-	$orderby = ($resourceTable == 'site_plugins') ? '6,2' : '5,1';
+	$orderby = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
 	$orderby .= ", {$tbl_elm}.category ASC";
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
