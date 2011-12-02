@@ -3,9 +3,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 
 $theme = $manager_theme ? "$manager_theme/":'';
 
-$tablePre = $dbase . '.`' . $table_prefix;
-
-function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name')
+function createResourceList($resourceTable,$action,$nameField = 'name')
 {
 	global $modx, $_lang;
 	
@@ -16,8 +14,8 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 	
 	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
-	$orderby = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
-	$orderby .= ", {$tbl_elm}.category ASC";
+	$orderby  = "field ({$tbl_elm}.category,''),";
+	$orderby .= ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = mysql_num_rows($rs);
@@ -28,9 +26,8 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 	$preCat = '';
 	$insideUl = 0;
 	$output = '<ul>';
-	for($i=0; $i<$limit; $i++)
+	while($row = mysql_fetch_assoc($rs))
 	{
-		$row = mysql_fetch_assoc($rs);
 		$row['category'] = stripslashes($row['category']); //pixelchutes
 		if ($preCat !== $row['category'])
 		{
@@ -40,12 +37,23 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 		}
 		if ($resourceTable == 'site_plugins')
 		{
-			$class = $row['disabled'] ? ' class="disabledPlugin"' : '';
+			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
 		}
-		$output .= '<li><span'.$class.'><a href="index.php?id='.$row['id'].'&amp;a='.$action.'">'.$row['name'].' <small>(' . $row['id'] . ')</small></a>'.($modx_textdir ? '&rlm;' : '').'</span>';
-		$output .= !empty($row['description']) ? ' - '.$row['description'] : '' ;
-		$output .= $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '' ;
-		$output .= '</li>';
+		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+])</span>';
+		$tpl .= '[+description+][+locked+]</li>';
+		$ph['class'] = $class;
+		$ph['id'] = $row['id'];
+		$ph['action'] = $action;
+		$ph['name'] = $row['name'];
+		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
+		$ph['description'] = $row['description'];
+		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
+		foreach($ph as $k=>$v)
+		{
+			$k = '[+' . $k . '+]';
+			$tpl = str_replace($k,$v,$tpl);
+		}
+		$output .= $tpl;
 	
 		$preCat = $row['category'];
 	}
@@ -76,7 +84,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 			<li><a href="index.php?a=19"><?php echo $_lang['new_template']; ?></a></li>
 		</ul>
 		<br />
-		<?php echo createResourceList('site_templates',16,$tablePre,'templatename'); ?>
+		<?php echo createResourceList('site_templates',16,'templatename'); ?>
 	</div>
 <?php } ?>
 
@@ -94,7 +102,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 				<li><a href="index.php?a=300"><?php echo $_lang['new_tmplvars']; ?></a></li>
             </ul>
             <br />
-            <?php echo createResourceList('site_tmplvars',301,$tablePre); ?>
+            <?php echo createResourceList('site_tmplvars',301); ?>
 	</div>
 <?php } ?>
 
@@ -109,7 +117,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 			<li><a href="index.php?a=77"><?php echo $_lang['new_htmlsnippet']; ?></a></li>
 		</ul>
 		<br />
-		<?php echo createResourceList('site_htmlsnippets',78,$tablePre); ?>
+		<?php echo createResourceList('site_htmlsnippets',78); ?>
 	</div>
 <?php } ?>
 
@@ -124,7 +132,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 			<li><a href="index.php?a=23"><?php echo $_lang['new_snippet']; ?></a></li>
 		</ul>
 		<br />
-		<?php echo createResourceList('site_snippets',22,$tablePre); ?>
+		<?php echo createResourceList('site_snippets',22); ?>
 	</div>
 <?php } ?>
 
@@ -140,7 +148,7 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
 		</ul>
 		<br />
-		<?php echo createResourceList('site_plugins',102,$tablePre); ?>
+		<?php echo createResourceList('site_plugins',102); ?>
 	</div>
 <?php } ?>
 
@@ -239,6 +247,5 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 		?>
 		</ul>
 	</div>
-
 </div>
 </div>
