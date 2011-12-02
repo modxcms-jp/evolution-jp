@@ -8,20 +8,25 @@ $tablePre = $dbase . '.`' . $table_prefix;
 function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name')
 {
 	global $modx, $_lang;
-	$output = '<ul>';
+	
+	$tbl_elm = $modx->getFullTableName($resourceTable);
+	$tbl_categories = $modx->getFullTableName('categories');
+	
+	$pluginsql = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled," : '';
+	
+	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
+	$orderby = ($resourceTable == 'site_plugins') ? '6,2' : '5,1';
 
-	$pluginsql = $resourceTable == 'site_plugins' ? $tablePre.$resourceTable.'`.disabled, ' : '';
-	$orderby = $resourceTable == 'site_plugins' ? '6,2' : '5,1';
-	$sql = 'SELECT '.$pluginsql.$tablePre.$resourceTable.'`.'.$nameField.' as name, '.$tablePre.$resourceTable.'`.id, '.$tablePre.$resourceTable.'`.description, '.$tablePre.$resourceTable.'`.locked, if(isnull('.$tablePre.'categories`.category),\''.$_lang['no_category'].'\','.$tablePre.'categories`.category) as category FROM '.$tablePre.$resourceTable.'` left join '.$tablePre.'categories` on '.$tablePre.$resourceTable.'`.category = '.$tablePre.'categories`.id ORDER BY '.$orderby;
-
-	$rs = $modx->db->query($sql);
+	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = mysql_num_rows($rs);
 	if($limit<1)
 	{
-		echo $_lang['no_results'];
+		return $_lang['no_results'];
 	}
 	$preCat = '';
 	$insideUl = 0;
+	$output = '<ul>';
 	for($i=0; $i<$limit; $i++)
 	{
 		$row = mysql_fetch_assoc($rs);
