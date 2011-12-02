@@ -62,8 +62,8 @@ if(!isset($_POST['import'])) {
     <td nowrap="nowrap" valign="top"><b>インポート対象</b></td>
     <td>&nbsp;</td>
     <td>
-    <input type="radio" name="object" value="body" checked="checked" /> body要素のみ
-    <input type="radio" name="object" value="all" /> htmlファイルまるごと
+    <label><input type="radio" name="object" value="body" checked="checked" /> body要素のみ</label>
+    <label><input type="radio" name="object" value="all" /> htmlファイルまるごと</label>
         <br />
     </td>
   </tr>
