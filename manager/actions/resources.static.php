@@ -1,43 +1,49 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-$theme = $manager_theme ? "$manager_theme/":"";
+$theme = $manager_theme ? "$manager_theme/":'';
 
 $tablePre = $dbase . '.`' . $table_prefix;
 
-function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name') {
-    global $modx, $_lang;
-    $output = '<ul>';
-	
+function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name')
+{
+	global $modx, $_lang;
+	$output = '<ul>';
+
 	$pluginsql = $resourceTable == 'site_plugins' ? $tablePre.$resourceTable.'`.disabled, ' : '';
 	$orderby = $resourceTable == 'site_plugins' ? '6,2' : '5,1';
-    $sql = 'SELECT '.$pluginsql.$tablePre.$resourceTable.'`.'.$nameField.' as name, '.$tablePre.$resourceTable.'`.id, '.$tablePre.$resourceTable.'`.description, '.$tablePre.$resourceTable.'`.locked, if(isnull('.$tablePre.'categories`.category),\''.$_lang['no_category'].'\','.$tablePre.'categories`.category) as category FROM '.$tablePre.$resourceTable.'` left join '.$tablePre.'categories` on '.$tablePre.$resourceTable.'`.category = '.$tablePre.'categories`.id ORDER BY '.$orderby;
+	$sql = 'SELECT '.$pluginsql.$tablePre.$resourceTable.'`.'.$nameField.' as name, '.$tablePre.$resourceTable.'`.id, '.$tablePre.$resourceTable.'`.description, '.$tablePre.$resourceTable.'`.locked, if(isnull('.$tablePre.'categories`.category),\''.$_lang['no_category'].'\','.$tablePre.'categories`.category) as category FROM '.$tablePre.$resourceTable.'` left join '.$tablePre.'categories` on '.$tablePre.$resourceTable.'`.category = '.$tablePre.'categories`.id ORDER BY '.$orderby;
 
 	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
-	if($limit<1){
+	if($limit<1)
+	{
 		echo $_lang['no_results'];
 	}
 	$preCat = '';
 	$insideUl = 0;
-	for($i=0; $i<$limit; $i++) {
+	for($i=0; $i<$limit; $i++)
+	{
 		$row = mysql_fetch_assoc($rs);
 		$row['category'] = stripslashes($row['category']); //pixelchutes
-		if ($preCat !== $row['category']) {
-            $output .= $insideUl? '</ul>': '';
-            $output .= '<li><strong>'.$row['category'].'</strong><ul>';
-            $insideUl = 1;
-        }
-
-		if ($resourceTable == 'site_plugins') $class = $row['disabled'] ? ' class="disabledPlugin"' : '';
+		if ($preCat !== $row['category'])
+		{
+			$output .= $insideUl? '</ul>': '';
+			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
+			$insideUl = 1;
+		}
+		if ($resourceTable == 'site_plugins')
+		{
+			$class = $row['disabled'] ? ' class="disabledPlugin"' : '';
+		}
 		$output .= '<li><span'.$class.'><a href="index.php?id='.$row['id'].'&amp;a='.$action.'">'.$row['name'].' <small>(' . $row['id'] . ')</small></a>'.($modx_textdir ? '&rlm;' : '').'</span>';
-        $output .= !empty($row['description']) ? ' - '.$row['description'] : '' ;
-        $output .= $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : "" ;
-        $output .= '</li>';
-
-        $preCat = $row['category'];
-    }
-    $output .= $insideUl? '</ul>': '';
+		$output .= !empty($row['description']) ? ' - '.$row['description'] : '' ;
+		$output .= $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '' ;
+		$output .= '</li>';
+	
+		$preCat = $row['category'];
+	}
+	$output .= $insideUl? '</ul>': '';
 	$output .= '</ul>';
 	return $output;
 }
