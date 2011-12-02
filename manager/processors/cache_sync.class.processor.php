@@ -180,12 +180,11 @@ class synccache {
 		// close and write the file
 		$content .= "\n";
 		$content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
-		$cache_path = $this->cachePath.'siteCache.idx.php';
 		
 		// invoke OnBeforeCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnBeforeCacheUpdate');
 		
-		if(!file_put_contents($cache_path, $content))
+		if(!file_put_contents($this->cachePath.'siteCache.idx.php', $content))
 		{
 			echo 'Cannot write main MODX cache file! Make sure the assets/cache directory is writable!';
 			exit;
@@ -219,7 +218,7 @@ class synccache {
 		$tbl_system_settings    = $modx->getFullTableName('system_settings');
 		$tbl_site_content       = $modx->getFullTableName('site_content');
 		
-		$tmpPHP = '$this->aliasListing = array();' . "\n";
+		$tmpPHP  = '$this->aliasListing = array();' . "\n";
 		$tmpPHP .= '$a = &$this->aliasListing;' . "\n";
 		$tmpPHP .= '$d = &$this->documentListing;' . "\n";
 		$tmpPHP .= '$m = &$this->documentMap;' . "\n";
