@@ -195,7 +195,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 						$content = preg_replace($pattern, $replace, $content);
 						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 					}
-					$content = str_replace('[*content*]','',$content);
+					$content = str_replace('[*content*]','[ *content* ]',$content);
 					$pagetitle = $modx->db->escape($pagetitle);
 					$date = filemtime($filepath);
 					$field = array();
@@ -236,7 +236,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			// create document
 			if($mode=='sub' && $value == 'index.html') continue;
 			$filename = $value;
-			$fparts = explode(".",$value);
+			$fparts = explode('.',$value);
 			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
 			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
@@ -273,7 +273,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$content = preg_replace($pattern, $replace, $content);
 					$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
 				}
-				$content = str_replace('[*content*]','',$content);
+				$content = str_replace('[*content*]','[ *content* ]',$content);
 				$content = $modx->db->escape($content);
 				$date = filemtime($filepath);
 				$alias = $modx->stripAlias($alias);
