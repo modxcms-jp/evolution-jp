@@ -115,8 +115,7 @@ function run()
 	$filesfound = 0;
 	
 	$files = getFiles($filedir);
-	
-	uasort($files, 'cmp');
+	$files = pop_index($files);
 	
 	// no. of files to import
 	$output .= sprintf('<p>' . $_lang['import_files_found'] . '</p>', $filesfound);
@@ -377,11 +376,26 @@ function stripAlias($alias)
 	return $modx->stripAlias($alias);
 }
 
-function cmp($a, $b)
+function pop_index($array)
 {
-	if ($a == 'index.html')    return -1;
-	elseif ($a == 'index.htm') return -1;
-	elseif ($a < $b)           return -1;
-	elseif ($a == $b)          return  0;
-	elseif ($a > $b)           return  1;
+	$new_array = array();
+	foreach($array as $k=>$v)
+	{
+		if($v!=='index.html' && $v!=='index.htm' && !is_array($v))
+		{
+			$new_array[$k] = $v;
+		}
+		else
+		{
+			array_unshift($new_array, $v);
+		}
+	}
+	foreach($array as $k=>$v)
+	{
+		if(is_array($v))
+		{
+			$new_array[$k] = $v;
+		}
+	}
+	return $new_array;
 }
