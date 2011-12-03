@@ -239,14 +239,13 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
 $modx->setPlaceholder('OnlineInfo',$html);
 
 // load template file
-$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-if(file_exists($tplFile)==false)
-{
+if(file_exists($tplFile)) {
+	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+}
+else {
 	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
 }
-$handle = fopen($tplFile, "r");
-$tpl = fread($handle, filesize($tplFile));
-fclose($handle);
+$tpl = file_get_contents($tplFile);
 
 // invoke event OnManagerWelcomePrerender
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');

@@ -12,10 +12,13 @@ if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager'){
 
 // andrazk 20070416 - if installer is running, destroy active sessions
 $pth = dirname(__FILE__);
-if (file_exists($pth.'/../../assets/cache/installProc.inc.php')) {
+if (file_exists($pth.'/../../assets/cache/installProc.inc.php'))
+{
 	include_once($pth.'/../../assets/cache/installProc.inc.php');
-	if (isset($installStartTime)) {
-		if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
+	if (isset($installStartTime))
+	{
+		if ((time() - $installStartTime) > 5 * 60)
+		{ // if install flag older than 5 minutes, discard
 			unset($installStartTime);
 			@ chmod($pth.'/../../assets/cache/installProc.inc.php', 0755);
 			unlink($pth.'/../../assets/cache/installProc.inc.php');
@@ -34,20 +37,20 @@ if (file_exists($pth.'/../../assets/cache/installProc.inc.php')) {
 }
 
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime)) {
-  if (isset($_SESSION['mgrValidated'])) {
-		if (isset($_SESSION['modx.session.created.time'])) {
-			if ($_SESSION['modx.session.created.time'] < $lastInstallTime) {
-					if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-					if (isset($_COOKIE[session_name()])) {
-						session_unset();
-						@session_destroy();
-//						setcookie(session_name(), '', 0, MODX_BASE_URL);
-					}
-					header('HTTP/1.0 307 Redirect');
-					header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
-				}
+if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
+{
+	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime))
+	{
+		if ($_SERVER['REQUEST_METHOD'] != 'POST')
+		{
+			if (isset($_COOKIE[session_name()]))
+			{
+				session_unset();
+				@session_destroy();
+//				setcookie(session_name(), '', 0, MODX_BASE_URL);
 			}
+			header('HTTP/1.0 307 Redirect');
+			header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
 		}
 	}
 }
@@ -55,13 +58,13 @@ if (isset($lastInstallTime)) {
 if(!isset($_SESSION['mgrValidated'])){
 	include_once("browsercheck.inc.php");
 
-	if(isset($manager_language)) {
-		// establish fallback to English default
-		include_once "lang/english.inc.php";
+	if(isset($manager_language))
+	{
 		// include localized overrides
 		include_once "lang/".$manager_language.".inc.php";
 	}
-	else {
+	else
+	{
 		include_once "lang/english.inc.php";
 	}
 
