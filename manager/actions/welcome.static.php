@@ -270,12 +270,11 @@ if(is_array($evtOut)) {
 }
 
 // merge placeholders
-$tpl = $modx->mergePlaceholderContent($tpl);
-$tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl); //cleanup
+$tpl = $modx->parseDocumentSource($tpl);
 if ($js= $modx->getRegisteredClientScripts()) {
 	$tpl .= $js;
 }
-
+$tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl); //cleanup
 echo $tpl;
 
 
