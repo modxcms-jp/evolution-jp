@@ -2,7 +2,7 @@
 /**
  * TopicPath
  *
- * カスタマイズの自由度が高いパン屑リスト
+ * カスタマイズの自由度が高いパン屑リスト(Breadcrumbs互換)
  * 
  * @category	snippet
  * @version 	1.0.5
