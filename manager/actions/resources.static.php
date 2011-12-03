@@ -1,67 +1,6 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-
 $theme = $manager_theme ? "$manager_theme/":'';
-
-function createResourceList($resourceTable,$action,$nameField = 'name')
-{
-	global $modx, $_lang;
-	
-	$tbl_elm = $modx->getFullTableName($resourceTable);
-	$tbl_categories = $modx->getFullTableName('categories');
-	
-	$pluginsql = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled," : '';
-	
-	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
-	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
-	$orderby  = "field ({$tbl_elm}.category,''),";
-	$orderby .= ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
-
-	$rs = $modx->db->select($fields,$from,'',$orderby);
-	$limit = mysql_num_rows($rs);
-	if($limit<1)
-	{
-		return $_lang['no_results'];
-	}
-	$preCat = '';
-	$insideUl = 0;
-	$output = '<ul>';
-	while($row = mysql_fetch_assoc($rs))
-	{
-		$row['category'] = stripslashes($row['category']); //pixelchutes
-		if ($preCat !== $row['category'])
-		{
-			$output .= $insideUl? '</ul>': '';
-			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
-			$insideUl = 1;
-		}
-		if ($resourceTable == 'site_plugins')
-		{
-			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
-		}
-		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+])</span>';
-		$tpl .= '[+description+][+locked+]</li>';
-		$ph['class'] = $class;
-		$ph['id'] = $row['id'];
-		$ph['action'] = $action;
-		$ph['name'] = $row['name'];
-		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
-		$ph['description'] = $row['description'];
-		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
-		foreach($ph as $k=>$v)
-		{
-			$k = '[+' . $k . '+]';
-			$tpl = str_replace($k,$v,$tpl);
-		}
-		$output .= $tpl;
-	
-		$preCat = $row['category'];
-	}
-	$output .= $insideUl? '</ul>': '';
-	$output .= '</ul>';
-	return $output;
-}
-
 ?>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 
@@ -268,3 +207,63 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	</div>
 </div>
 </div>
+
+<?php
+function createResourceList($resourceTable,$action,$nameField = 'name')
+{
+	global $modx, $_lang;
+	
+	$tbl_elm = $modx->getFullTableName($resourceTable);
+	$tbl_categories = $modx->getFullTableName('categories');
+	
+	$pluginsql = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled," : '';
+	
+	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
+	$orderby  = "field ({$tbl_elm}.category,''),";
+	$orderby .= ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
+
+	$rs = $modx->db->select($fields,$from,'',$orderby);
+	$limit = mysql_num_rows($rs);
+	if($limit<1)
+	{
+		return $_lang['no_results'];
+	}
+	$preCat = '';
+	$insideUl = 0;
+	$output = '<ul>';
+	while($row = mysql_fetch_assoc($rs))
+	{
+		$row['category'] = stripslashes($row['category']); //pixelchutes
+		if ($preCat !== $row['category'])
+		{
+			$output .= $insideUl? '</ul>': '';
+			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
+			$insideUl = 1;
+		}
+		if ($resourceTable == 'site_plugins')
+		{
+			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
+		}
+		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+])</span>';
+		$tpl .= '[+description+][+locked+]</li>';
+		$ph['class'] = $class;
+		$ph['id'] = $row['id'];
+		$ph['action'] = $action;
+		$ph['name'] = $row['name'];
+		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
+		$ph['description'] = $row['description'];
+		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
+		foreach($ph as $k=>$v)
+		{
+			$k = '[+' . $k . '+]';
+			$tpl = str_replace($k,$v,$tpl);
+		}
+		$output .= $tpl;
+	
+		$preCat = $row['category'];
+	}
+	$output .= $insideUl? '</ul>': '';
+	$output .= '</ul>';
+	return $output;
+}
