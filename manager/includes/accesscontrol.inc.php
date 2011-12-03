@@ -125,7 +125,7 @@ if(!isset($_SESSION['mgrValidated'])){
 	$modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
     // merge placeholders
-    $tpl = $modx->mergePlaceholderContent($tpl);
+    $tpl = $modx->parseDocumentSource($tpl);
     $regx = strpos($tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
     $tpl = preg_replace($regx, '', $tpl); //cleanup
 
