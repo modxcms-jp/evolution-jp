@@ -2835,188 +2835,78 @@ class DocumentParser {
         return $parameter;
     }
 
-    /*############################################
-      Etomite_dbFunctions.php
-      New database functions for Etomite CMS
-    Author: Ralph A. Dahlgren - rad14701@yahoo.com
-    Etomite ID: rad14701
-    See documentation for usage details
-    ############################################*/
-    function getIntTableRows($fields= "*", $from= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-        // function to get rows from ANY internal database table
-        if ($from == "") {
-            return false;
-        } else {
-            $where= ($where != "") ? "WHERE $where" : "";
-            $sort= ($sort != "") ? "ORDER BY $sort $dir" : "";
-            $limit= ($limit != "") ? "LIMIT $limit" : "";
-            $tbl= $this->getFullTableName($from);
-            $sql= "SELECT $fields FROM $tbl $where $sort $limit;";
-            $result= $this->db->query($sql);
-            $resourceArray= array ();
-            for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                $resourceArray[] = @ $this->db->getRow($result);
-            }
-            return $resourceArray;
-        }
-    }
-
-    function putIntTableRow($fields= "", $into= "") {
-        // function to put a row into ANY internal database table
-        if (($fields == "") || ($into == "")) {
-            return false;
-        } else {
-            $tbl= $this->getFullTableName($into);
-            $sql= "INSERT INTO $tbl SET ";
-            foreach ($fields as $key => $value) {
-                $sql .= $key . "=";
-                if (is_numeric($value))
-                    $sql .= $value . ",";
-                else
-                    $sql .= "'" . $value . "',";
-            }
-            $sql= rtrim($sql, ",");
-            $sql .= ";";
-            $result= $this->db->query($sql);
-            return $result;
-        }
-    }
-
-    function updIntTableRow($fields= "", $into= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-        // function to update a row into ANY internal database table
-        if (($fields == "") || ($into == "")) {
-            return false;
-        } else {
-            $where= ($where != "") ? "WHERE $where" : "";
-            $sort= ($sort != "") ? "ORDER BY $sort $dir" : "";
-            $limit= ($limit != "") ? "LIMIT $limit" : "";
-            $tbl= $this->getFullTableName($into);
-            $sql= "UPDATE $tbl SET ";
-            foreach ($fields as $key => $value) {
-                $sql .= $key . "=";
-                if (is_numeric($value))
-                    $sql .= $value . ",";
-                else
-                    $sql .= "'" . $value . "',";
-            }
-            $sql= rtrim($sql, ",");
-            $sql .= " $where $sort $limit;";
-            $result= $this->db->query($sql);
-            return $result;
-        }
-    }
-
-    function getExtTableRows($host= "", $user= "", $pass= "", $dbase= "", $fields= "*", $from= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-        // function to get table rows from an external MySQL database
-        if (($host == "") || ($user == "") || ($pass == "") || ($dbase == "") || ($from == "")) {
-            return false;
-        } else {
-            $where= ($where != "") ? "WHERE  $where" : "";
-            $sort= ($sort != "") ? "ORDER BY $sort $dir" : "";
-            $limit= ($limit != "") ? "LIMIT $limit" : "";
-            $tbl= $dbase . "." . $from;
-            $this->dbExtConnect($host, $user, $pass, $dbase);
-            $sql= "SELECT $fields FROM $tbl $where $sort $limit;";
-            $result= $this->db->query($sql);
-            $resourceArray= array ();
-            for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                $resourceArray[] = @ $this->db->getRow($result);
-            }
-            return $resourceArray;
-        }
-    }
-
-    function putExtTableRow($host= "", $user= "", $pass= "", $dbase= "", $fields= "", $into= "") {
-        // function to put a row into an external database table
-        if (($host == "") || ($user == "") || ($pass == "") || ($dbase == "") || ($fields == "") || ($into == "")) {
-            return false;
-        } else {
-            $this->dbExtConnect($host, $user, $pass, $dbase);
-            $tbl= $dbase . "." . $into;
-            $sql= "INSERT INTO $tbl SET ";
-            foreach ($fields as $key => $value) {
-                $sql .= $key . "=";
-                if (is_numeric($value))
-                    $sql .= $value . ",";
-                else
-                    $sql .= "'" . $value . "',";
-            }
-            $sql= rtrim($sql, ",");
-            $sql .= ";";
-            $result= $this->db->query($sql);
-            return $result;
-        }
-    }
-
-    function updExtTableRow($host= "", $user= "", $pass= "", $dbase= "", $fields= "", $into= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
-        // function to update a row into an external database table
-        if (($fields == "") || ($into == "")) {
-            return false;
-        } else {
-            $this->dbExtConnect($host, $user, $pass, $dbase);
-            $tbl= $dbase . "." . $into;
-            $where= ($where != "") ? "WHERE $where" : "";
-            $sort= ($sort != "") ? "ORDER BY $sort $dir" : "";
-            $limit= ($limit != "") ? "LIMIT $limit" : "";
-            $sql= "UPDATE $tbl SET ";
-            foreach ($fields as $key => $value) {
-                $sql .= $key . "=";
-                if (is_numeric($value))
-                    $sql .= $value . ",";
-                else
-                    $sql .= "'" . $value . "',";
-            }
-            $sql= rtrim($sql, ",");
-            $sql .= " $where $sort $limit;";
-            $result= $this->db->query($sql);
-            return $result;
-        }
-    }
-
-    function dbExtConnect($host, $user, $pass, $dbase) {
-        // function to connect to external database
-        $tstart= $this->getMicroTime();
-        if (@ !$this->rs= mysql_connect($host, $user, $pass)) {
-            $this->messageQuit("Failed to create connection to the $dbase database!");
-        } else {
-            mysql_select_db($dbase);
-            $tend= $this->getMicroTime();
-            $totaltime= $tend - $tstart;
-            if ($this->dumpSQL) {
-                $this->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection to %s was created in %2.4f s", $dbase, $totaltime) . "</fieldset>";
-            }
-            $this->queryTime= $this->queryTime + $totaltime;
-        }
-    }
-
-    function getFormVars($method= "", $prefix= "", $trim= "", $REQUEST_METHOD) {
-        //  function to retrieve form results into an associative array
-        $results= array ();
-        $method= strtoupper($method);
-        if ($method == "")
-            $method= $REQUEST_METHOD;
-        if ($method == "POST")
-            $method= & $_POST;
-        elseif ($method == "GET") $method= & $_GET;
-        else
-            return false;
-        reset($method);
-        foreach ($method as $key => $value) {
-            if (($prefix != "") && (substr($key, 0, strlen($prefix)) == $prefix)) {
-                if ($trim) {
-                    $pieces= explode($prefix, $key, 2);
-                    $key= $pieces[1];
-                    $results[$key]= $value;
-                } else
-                    $results[$key]= $value;
-            }
-            elseif ($prefix == "") $results[$key]= $value;
-        }
-        return $results;
-    }
+	/*############################################
+	Etomite_dbFunctions.php
+	Database functions for Etomite CMS
+	Author: Ralph A. Dahlgren - rad14701@yahoo.com
+	Etomite ID: rad14701
+	See documentation for usage details
+	############################################*/
+	function getIntTableRows($fields= "*", $from= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
+		$orderby= ($sort != '') ? "{$sort} {$dir}" : '';
+		return $this->db->select($fields, $from, $where, $orderby, $limit);
+	}
+	function putIntTableRow($fields= "", $into= "") {
+		return $this->db->insert($fields,$into);
+	}
+	function updIntTableRow($fields= "", $into= "", $where= "", $sort= "", $dir= "ASC", $limit= "") {
+		return $this->db->update($fields, $into, $where);
+	}
+	function getExtTableRows($host='',$user='',$pass='',$dbase='',$fields='*',$from='',$where='',$sort='',$dir='ASC',$limit='') {
+		$this->db->connect($host, $dbase, $user, $pass);
+		$tbl= "{$dbase}.{$from}";
+		$sort= ($sort != "") ? "{$sort} {$dir}" : '';
+		$result= $this->db->select($fields,$tbl,$where,$sort,$limit);
+		$resourceArray= array ();
+		while($row = $this->db->getRow($result))
+		{
+			$resourceArray[] = $row;
+		}
+		return $resourceArray;
+	}
+	function putExtTableRow($host= "", $user= "", $pass= "", $dbase= "", $fields= "", $into= "") {
+		$this->db->connect($host, $dbase, $user, $pass);
+		$tbl= "{$dbase}.{$into}";
+		$result= $this->db->insert($fields,$tbl);
+		return $result;
+	}
+	function updExtTableRow($host='',$user='',$pass='',$dbase='',$fields='',$into='',$where='',$sort='',$dir= 'ASC', $limit='') {
+		$this->db->connect($host, $dbase, $user, $pass);
+		$tbl= "{$dbase}.{$into}";
+		$sort= ($sort != "") ? "{$sort} {$dir}" : '';
+		return $this->db->update($fields, $tbl, $where);
+	}
+	function dbExtConnect($host, $user, $pass, $dbase) {
+		$this->db->connect($host, $dbase, $user, $pass);
+	}
+	function getFormVars($method= "", $prefix= "", $trim= "", $REQUEST_METHOD) {
+		//  function to retrieve form results into an associative array
+		$results= array ();
+		$method= strtoupper($method);
+		if ($method == '')        $method= $REQUEST_METHOD;
+		if ($method == 'POST')    $method= & $_POST;
+		elseif ($method == 'GET') $method= & $_GET;
+		else                      return false;
+		reset($method);
+		foreach ($method as $key => $value)
+		{
+			if (($prefix != '') && (substr($key, 0, strlen($prefix)) == $prefix))
+			{
+				if ($trim)
+				{
+					$pieces= explode($prefix, $key, 2);
+					$key= $pieces[1];
+					$results[$key]= $value;
+				}
+				else $results[$key]= $value;
+			}
+			elseif ($prefix == '') $results[$key]= $value;
+		}
+		return $results;
+	}
 
     ########################################
-    // END New database functions - rad14701
+    // END Database functions for Etomite CMS - rad14701
     ########################################
 
     /***************************************************************************************/
@@ -3220,10 +3110,7 @@ class DocumentParser {
             return $alias;
         }
     }
-    
-
     // End of class.
-
 }
 
 // SystemEvent Class
