@@ -1,115 +1,10 @@
 <?php
-/**
- * api:		php
- * title:	upgrade.php
- * description:	Emulates functions from new PHP versions on older interpreters.
- * version:	17
- * license:	Public Domain
- * url:		http://freshmeat.net/projects/upgradephp
- * type:	functions
- * category:	library
- * priority:	auto
- * load_if:     (PHP_VERSION<5.2)
- * sort:	-255
- * provides:	upgrade-php, api:php5, json
- *
- *
- * By loading this library you get PHP version independence. It provides
- * downwards compatibility to older PHP interpreters by emulating missing
- * functions or constants using IDENTICAL NAMES. So this doesn't slow down
- * script execution on setups where the native functions already exist. It
- * is meant as quick drop-in solution. It spares you from rewriting code or
- * using cumbersome workarounds instead of the more powerful v5 functions.
- * 
- * It cannot mirror PHP5s extended OO-semantics and functionality into PHP4
- * however. A few features are added here that weren't part of PHP yet. And
- * some other function collections are separated out into the ext/ directory.
- * It doesn't produce many custom error messages (YAGNI), and instead leaves
- * reporting to invoked functions or for native PHP execution.
- * 
- * And further this is PUBLIC DOMAIN (no copyright, no license, no warranty)
- * so therefore compatible to ALL open source licenses. You could rip this
- * paragraph out to republish this instead only under more restrictive terms
- * or your favorite license (GNU LGPL/GPL, BSDL, MPL/CDDL, Artistic/PHPL, ..)
- *
- * Any contribution is appreciated. <milky*users#sf#net>
- *
- */
-
-
-
-
-
-/**
- *                                   --------------------- CVS / FUTURE ---
- * @group CVS
- * @since future
- *
- * Following functions aren't implemented in current PHP versions, but
- * might already be in CVS/SVN.
- *
- * @emulated
- *    gzdecode
- *
- * @moved out
- *    contrib/xmlentities
- *
- */
-
-
-
-/**
- *                                   ------------------------------ 5.2 ---
- * @group 5_2
- * @since 5.2
- *
- * Additions of PHP 5.2.0
- * - some listed here might have appeared earlier or in release candidates
- *
- * @emulated
- *    json_encode
- *    json_decode
- *    error_get_last
- *    preg_last_error
- *    lchown
- *    lchgrp
- *    E_RECOVERABLE_ERROR
- *    M_SQRTPI
- *    M_LNPI
- *    M_EULER
- *    M_SQRT3
- *    array_fill_keys  (@doc: 4.2 or 5.2 ?)
- *    array_diff_key   (@doc: 5.1 or 5.2 ?)
- *    array_diff_ukey
- *    array_product
- *    inet_ntop
- *    inet_pton
- *    array_intersect_key
- *    array_intersect_ukey
- *
- * @missing
- *    sys_getloadavg
- *    ftp_ssl_connect
- *    XmlReader
- *    XmlWriter
- *    PDO*
- *    pdo_drivers     (should be in ext/pdo)
- *
- * @unimplementable
- *    stream_*
- *
- */
-
-
-
-
+/* url:		http://freshmeat.net/projects/upgradephp */
 
 /**
  * @since unknown
  */
 if (!defined("E_RECOVERABLE_ERROR")) { define("E_RECOVERABLE_ERROR", 4096); }
-
-
 
 /**
  * Converts PHP variable or array into a "JSON" (JavaScript value expression
@@ -181,8 +76,6 @@ if (!function_exists("json_encode")) {
       return($json);
    }
 }
-
-
 
 /**
  * Parses a JSON (JavaScript value expression) string into a PHP variable
@@ -361,8 +254,6 @@ if (!function_exists("json_decode")) {
 }
 
 
-
-
 /**
  * @stub
  *
@@ -379,8 +270,6 @@ if (!function_exists("preg_last_error")) {
       return PREG_NO_ERROR;
    }
 }
-
-
 
 
 /**
@@ -403,8 +292,6 @@ if (!function_exists("sys_get_temp_dir")) {
    }
 }
 
-
-
 /**
  * @stub
  *
@@ -421,8 +308,6 @@ if (!function_exists("error_get_last")) {
       );
    }
 }
-
-
 
 
 /**
@@ -443,8 +328,6 @@ if (!function_exists("lchown")) {
    }
 }
 
-
-
 /**
  * @flag quirky, exec, realmode
  *
@@ -457,8 +340,6 @@ if (!function_exists("lchgrp")) {
    }
 }
 
-
-
 /**
  * @doc: Got this function new in PHP 5.2, but documentation says 4.2 ???
  * 
@@ -470,8 +351,6 @@ if (!function_exists("array_fill_keys")) {
       return array_combine($keys, array_fill(0, count($keys), $value));
    }
 }
-
-
 
 /**
  * @doc: php manual says 5.1, but function appeared with 5.2
@@ -496,8 +375,6 @@ if (!function_exists("array_diff_key")) {
       return ($base);
    }
 }
-
-
 
 
 /**
@@ -528,8 +405,6 @@ if (!function_exists("array_diff_ukey")) {
    }
 }
 
-
-
 /**
  * @doc: 5.1 vs 5.2
  *
@@ -548,8 +423,6 @@ if (!function_exists("array_intersect_key")) {
       return ($r);
    }
 }
-
-
 
 /**
  * @doc: 5.1 vs 5.2
@@ -576,10 +449,6 @@ if (!function_exists("array_intersect_ukey")) {
 
 
 
-
-
-
-
 /**
  * Hmmm.
  *
@@ -593,8 +462,6 @@ if (!function_exists("array_product")) {
       return $r;
    }
 }
-
-
 
 /**
  * Converts chr/bin/string-representation to human-readable IP text.
@@ -613,8 +480,6 @@ if (!function_exists("inet_ntop")) {
       }
    }
 }
-
-
 /**
  * Compact IPv4 1.2.3.4 or IPv6 ::FFFF:0001 addresses into binary string.
  *

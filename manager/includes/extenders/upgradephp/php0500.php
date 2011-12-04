@@ -1,138 +1,9 @@
 <?php
-/**
- * api:		php
- * title:	upgrade.php
- * description:	Emulates functions from new PHP versions on older interpreters.
- * version:	17
- * license:	Public Domain
- * url:		http://freshmeat.net/projects/upgradephp
- * type:	functions
- * category:	library
- * priority:	auto
- * load_if:     (PHP_VERSION<5.2)
- * sort:	-255
- * provides:	upgrade-php, api:php5, json
- *
- *
- * By loading this library you get PHP version independence. It provides
- * downwards compatibility to older PHP interpreters by emulating missing
- * functions or constants using IDENTICAL NAMES. So this doesn't slow down
- * script execution on setups where the native functions already exist. It
- * is meant as quick drop-in solution. It spares you from rewriting code or
- * using cumbersome workarounds instead of the more powerful v5 functions.
- * 
- * It cannot mirror PHP5s extended OO-semantics and functionality into PHP4
- * however. A few features are added here that weren't part of PHP yet. And
- * some other function collections are separated out into the ext/ directory.
- * It doesn't produce many custom error messages (YAGNI), and instead leaves
- * reporting to invoked functions or for native PHP execution.
- * 
- * And further this is PUBLIC DOMAIN (no copyright, no license, no warranty)
- * so therefore compatible to ALL open source licenses. You could rip this
- * paragraph out to republish this instead only under more restrictive terms
- * or your favorite license (GNU LGPL/GPL, BSDL, MPL/CDDL, Artistic/PHPL, ..)
- *
- * Any contribution is appreciated. <milky*users#sf#net>
- *
- */
-
-
-
-
-
-/**
- *                                   --------------------- CVS / FUTURE ---
- * @group CVS
- * @since future
- *
- * Following functions aren't implemented in current PHP versions, but
- * might already be in CVS/SVN.
- *
- * @emulated
- *    gzdecode
- *
- * @moved out
- *    contrib/xmlentities
- *
- */
-
-
-
-
-/**
- *                                   ------------------------------ 5.0 ---
- * @group 5_0
- * @since 5.0
- *
- * PHP 5.0 introduces the Zend Engine 2 with new object-orientation features
- * which cannot be reimplemented/defined for PHP4. The additional procedures
- * and functions however can.
- *
- * @emulated
- *    stripos
- *    strripos
- *    str_ireplace
- *    get_headers
- *    headers_list
- *    fprintf
- *    vfprintf
- *    str_split
- *    http_build_query
- *    convert_uuencode
- *    convert_uudecode
- *    scandir
- *    idate
- *    time_nanosleep
- *    strpbrk
- *    get_declared_interfaces
- *    array_combine
- *    array_walk_recursive
- *    substr_compare
- *    spl_classes
- *    class_parents
- *    session_commit
- *    dns_check_record
- *    dns_get_mx
- *    setrawcookie
- *    file_put_contents
- *    COUNT_NORMAL
- *    COUNT_RECURSIVE
- *    count_recursive
- *    FILE_USE_INCLUDE_PATH
- *    FILE_IGNORE_NEW_LINES
- *    FILE_SKIP_EMPTY_LINES
- *    FILE_APPEND
- *    FILE_NO_DEFAULT_CONTEXT
- *    E_STRICT
- *
- * @missing
- *    proc_nice
- *    dns_get_record
- *    date_sunrise - undoc.
- *    date_sunset - undoc.
- *    PHP_CONFIG_FILE_SCAN_DIR
- *    clone
- *
- * @unimplementable
- *    set_exception_handler
- *    restore_exception_handler
- *    debug_print_backtrace - in ext, needs4.3
- *    debug_backtrace       - stub
- *    class_implements
- *    proc_terminate
- *    proc_get_status
- *    range        - new param
- *    microtime    - new param
- *
- */
- 
- 
-
+/* url:		http://freshmeat.net/projects/upgradephp */
+/* load_if:     (PHP_VERSION<5.2) */
 
 #-- constant: end of line
 if (!defined("PHP_EOL")) { define("PHP_EOL", ( (DIRECTORY_SEPARATOR == "\\") ? "\015\012" : (strncmp(PHP_OS, "D", 1) ? "\012" : "\015") )  ); } # "D" for Darwin
-
-
 
 /**
  * case-insensitive string search function,
@@ -151,9 +22,6 @@ if (!function_exists("stripos")) {
       return($pos);
    }
 }
-
-
-
 
 /**
  * case-insensitive string search function
@@ -186,8 +54,6 @@ if (!function_exists("strripos")) {
       return($pos);
    }
 }
-
-
 /**
  * case-insensitive version of str_replace
  * 
@@ -215,8 +81,6 @@ if (!function_exists("str_ireplace")) {
       return($subject);
    }
 }
-
-
 /**
  * performs a http HEAD request
  * 
@@ -278,8 +142,6 @@ if (!function_exists("get_headers")) {
       return($ls);
    }
 }
-
-
 /**
  * @stub
  * list of already/potentially sent HTTP responsee headers(),
@@ -292,8 +154,6 @@ if (!function_exists("headers_list")) {
       return (array)NULL;
    }
 }
-
-
 /**
  * write formatted string to stream/file,
  * arbitrary numer of arguments
@@ -306,8 +166,6 @@ if (!function_exists("fprintf")) {
       return fwrite($stream, call_user_func_array("sprintf", $args));
    }
 }
-
-
 /**
  * write formatted string to stream, args array
  * 
@@ -317,8 +175,6 @@ if (!function_exists("vfprintf")) {
       return fwrite($stream, vsprintf($format, $args));
    }
 }
-
-
 /**
  * splits a string in evenly sized chunks
  * 
@@ -343,8 +199,6 @@ if (!function_exists("str_split")) {
       return($r);
    }
 }
-
-
 /**
  * constructs a QUERY_STRING (application/x-www-form-urlencoded format, non-raw)
  * from a nested array/hash with name=>value pairs
@@ -396,8 +250,6 @@ if (!function_exists("http_build_query")) {
       return($s);
    }
 }
-
-
 /**
  * transform into 3to4 uuencode
  * - this is the bare encoding, not the uu file format
@@ -445,8 +297,6 @@ if (!function_exists("convert_uuencode")) {
       return($out);
    }
 }
-
-
 /**
  * decodes uuencoded() data again
  *
@@ -498,8 +348,6 @@ if (!function_exists("convert_uudecode")) {
       return($out);
    }
 }
-
-
 /**
  * return array of filenames in a given directory
  * (only works for local files)
@@ -541,8 +389,6 @@ if (!function_exists("scandir")) {
       return false;
    }
 }
-
-
 /**
  * like date(), but returns an integer for given one-letter format parameter
  *
@@ -569,8 +415,6 @@ if (!function_exists("idate")) {
    }
 }
 
-
-
 /**
  * combined sleep() and usleep() 
  * 
@@ -581,8 +425,6 @@ if (!function_exists("time_nanosleep")) {
       usleep($nano);
    }
 }
-
-
 
 
 /**
@@ -620,8 +462,6 @@ if (!function_exists("strpbrk")) {
    }
 }
 
-
-
 /**
  * logo image activation URL query strings (gaga feature)
  * 
@@ -630,8 +470,6 @@ if (!function_exists("php_real_logo_guid")) {
    function php_real_logo_guid() { return php_logo_guid(); }
    function php_egg_logo_guid() { return zend_logo_guid(); }
 }
-
-
 /**
  * no need to implement this
  * (there aren't interfaces in PHP4 anyhow)
@@ -643,8 +481,6 @@ if (!function_exists("get_declared_interfaces")) {
       return( (array)NULL );
    }
 }
-
-
 
 /**
  * creates an array from lists of $keys and $values
@@ -674,8 +510,6 @@ if (!function_exists("array_combine")) {
       return($r);
    }
 }
-
-
 /**
  * apply userfunction to each array element (descending recursively)
  * use it like:  array_walk_recursive($_POST, "stripslashes");
@@ -705,8 +539,6 @@ if (!function_exists("array_walk_recursive")) {
       // no return value
    }
 }
-
-
 /**
  * complicated wrapper around substr() and and strncmp()
  *
@@ -745,8 +577,6 @@ if (!function_exists("substr_compare")) {
       return(strncmp($haystack, $needle, $len));
    }
 }
-
-
 /**
  * stub, returns empty list as usual;
  * you must load "ext/spl.php" beforehand to get this
@@ -758,8 +588,6 @@ if (!function_exists("spl_classes")) {
       return (array)NULL;
    }
 }
-
-
 
 /**
  * gets you list of class names the given objects class was derived from, slow
@@ -783,8 +611,6 @@ if (!function_exists("class_parents")) {
       return($r);
    }
 }
-
-
 /**
  * an alias
  * 
@@ -795,8 +621,6 @@ if (!function_exists("session_commit") && function_exists("session_write_close")
       session_write_close();
    }
 }
-
-
 /**
  * aliases
  *
@@ -823,8 +647,6 @@ if (!function_exists("dns_get_mx")) {
       return getmxrr($host, $mx, $w);
    }
 }
-
-
 /**
  * setrawcookie(),
  * can this be emulated 100% exactly?
@@ -854,8 +676,6 @@ if (!function_exists("setrawcookie")) {
       }
    }
 }
-
-
 /**
  * write-at-once file access (counterpart to file_get_contents)
  *
@@ -897,8 +717,6 @@ if (!function_exists("file_put_contents")) {
       }
    }
 }
-
-
 /**
  * file-related constants
  *
@@ -909,19 +727,13 @@ if (!defined("FILE_SKIP_EMPTY_LINES")) { define("FILE_SKIP_EMPTY_LINES", 4); }
 if (!defined("FILE_APPEND")) { define("FILE_APPEND", 8); }
 if (!defined("FILE_NO_DEFAULT_CONTEXT")) { define("FILE_NO_DEFAULT_CONTEXT", 16); }
 
-
-
 #-- more new constants for 5.0
 if (!defined("E_STRICT")) { define("E_STRICT", 2048); }  // _STRICT is a special case of _NOTICE (_DEBUG)
 # PHP_CONFIG_FILE_SCAN_DIR
 
-
-
 #-- array count_recursive()
 if (!defined("COUNT_NORMAL")) { define("COUNT_NORMAL", 0); }      // count($array, 0);
 if (!defined("COUNT_RECURSIVE")) { define("COUNT_RECURSIVE", 1); }    // use count_recursive()
-
-
 
 /**
  * @since never

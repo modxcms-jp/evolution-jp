@@ -1,98 +1,5 @@
 <?php
-/**
- * api:		php
- * title:	upgrade.php
- * description:	Emulates functions from new PHP versions on older interpreters.
- * version:	17
- * license:	Public Domain
- * url:		http://freshmeat.net/projects/upgradephp
- * type:	functions
- * category:	library
- * priority:	auto
- * load_if:     (PHP_VERSION<5.2)
- * sort:	-255
- * provides:	upgrade-php, api:php5, json
- *
- *
- * By loading this library you get PHP version independence. It provides
- * downwards compatibility to older PHP interpreters by emulating missing
- * functions or constants using IDENTICAL NAMES. So this doesn't slow down
- * script execution on setups where the native functions already exist. It
- * is meant as quick drop-in solution. It spares you from rewriting code or
- * using cumbersome workarounds instead of the more powerful v5 functions.
- * 
- * It cannot mirror PHP5s extended OO-semantics and functionality into PHP4
- * however. A few features are added here that weren't part of PHP yet. And
- * some other function collections are separated out into the ext/ directory.
- * It doesn't produce many custom error messages (YAGNI), and instead leaves
- * reporting to invoked functions or for native PHP execution.
- * 
- * And further this is PUBLIC DOMAIN (no copyright, no license, no warranty)
- * so therefore compatible to ALL open source licenses. You could rip this
- * paragraph out to republish this instead only under more restrictive terms
- * or your favorite license (GNU LGPL/GPL, BSDL, MPL/CDDL, Artistic/PHPL, ..)
- *
- * Any contribution is appreciated. <milky*users#sf#net>
- *
- */
-
-
-
-
-
-/**
- *                                   --------------------- CVS / FUTURE ---
- * @group CVS
- * @since future
- *
- * Following functions aren't implemented in current PHP versions, but
- * might already be in CVS/SVN.
- *
- * @emulated
- *    gzdecode
- *
- * @moved out
- *    contrib/xmlentities
- *
- */
-
-
-
-
-/**
- *                                   ------------------------------ 5.1 ---
- * @group 5_1
- * @since 5.1
- *
- * Additions in PHP 5.1
- * - most functions here appeared in -rc1 already
- * - and were backported to 4.4 series?
- *
- * @emulated
- *    property_exists
- *    time_sleep_until
- *    fputcsv
- *    strptime
- *    ENT_COMPAT
- *    ENT_QUOTES
- *    ENT_NOQUOTES
- *    htmlspecialchars_decode
- *    PHP_INT_SIZE
- *    PHP_INT_MAX
- *    M_SQRTPI
- *    M_LNPI
- *    M_EULER
- *    M_SQRT3
- *
- * @missing
- *    strptime
- *
- * @unimplementable
- *    ...
- *
- */
-
-
+/* url:		http://freshmeat.net/projects/upgradephp */
 
 /**
  * Constants for future 64-bit integer support.
@@ -100,8 +7,6 @@
  */
 if (!defined("PHP_INT_SIZE")) { define("PHP_INT_SIZE", 4); }
 if (!defined("PHP_INT_MAX")) { define("PHP_INT_MAX", 2147483647); }
-
-
 
 /**
  * @flag bugfix
@@ -113,8 +18,6 @@ if (!defined("M_SQRTPI")) { define("M_SQRTPI", 1.7724538509055); }
 if (!defined("M_LNPI")) { define("M_LNPI", 1.1447298858494); }
 if (!defined("M_EULER")) { define("M_EULER", 0.57721566490153); }
 if (!defined("M_SQRT3")) { define("M_SQRT3", 1.7320508075689); }
-
-
 
 
 /**
@@ -136,8 +39,6 @@ if (!function_exists("htmlspecialchars_decode")) {
    }
 }
 
-
-
 /**
  * @flag needs5
  *
@@ -158,8 +59,6 @@ if (!function_exists("property_exists")) {
    }
 }
 
-
-
 /**
  * halt execution, until given timestamp
  *
@@ -179,8 +78,6 @@ if (!function_exists("time_sleep_until")) {
    }
 }
 
-
-
 /**
  * @untested
  *
@@ -199,8 +96,6 @@ if (!function_exists("fputcsv")) {
       fwrite($fp, $line."\n");
    }
 }
-
-
 
 /**
  * @flag basic
