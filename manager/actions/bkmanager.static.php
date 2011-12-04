@@ -80,6 +80,11 @@ elseif ($mode=='snapshot')
 		$htaccess = "order deny,allow\ndeny from all\n";
 		file_put_contents("{$modx->config['snapshot_path']}.htaccess",$htaccess);
 	}
+	if(!is_writable(rtrim($modx->config['snapshot_path'],'/')))
+	{
+		echo "ディレクトリにファイルを作成できません。{$modx->config['snapshot_path']}のパーミッションを確認してください。";
+		exit;
+	}
 	$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
 	$rs = mysql_query($sql);
 	$tables = array();
