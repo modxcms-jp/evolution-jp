@@ -183,10 +183,10 @@ else $ph['result_msg'] = '';
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
 	<p style="width:100%;"><a href="#" onclick="backup();return false;"><img src="media/style/<?php echo $manager_theme?>images/misc/ed_save.gif" border="0" /><?php echo $_lang['database_table_clickhere']?></a> <?php echo $_lang['database_table_clickbackup']?></p>
-	<p><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></p>
+	<p><label><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></label></p>
 	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
-			<td width="160"><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></td>
+			<td width="160"><label><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></label></td>
 			<td width="40" align="right"><b><?php echo $_lang['database_table_records']?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang['database_table_datasize']?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang['database_table_overhead']?></b></td>
@@ -208,7 +208,7 @@ for ($i = 0; $i < $limit; $i++) {
 	else    $table_string = '';
 
 	echo '<tr bgcolor="'.$bgcolor.'" title="'.$db_status['Comment'].'" style="cursor:default">'."\n".
-	     "\t\t\t\t".'<td><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></td>'."\n".
+	     "\t\t\t\t".'<td><label><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></label></td>'."\n".
 	     "\t\t\t\t".'<td align="right">'.$db_status['Rows'].'</td>'."\n";
 
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
