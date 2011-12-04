@@ -103,6 +103,19 @@ elseif ($mode=='snapshot')
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables(true);
 	$dumpfinished = $dumper->createDump('snapshot');
+	
+	$pattern = "{$modx->config['snapshot_path']}*.sql";
+	$files = glob($pattern,GLOB_NOCHECK);
+	$total = ($files[0] !== $pattern) ? count($files) : 0;
+	arsort($files);
+	while(10 < $total && $limit < 50)
+	{
+		$del_file = array_pop($files);
+		unlink($del_file);
+		$total = count($files);
+		$limit++;
+	}
+	
 	if($dumpfinished)
 	{
 		$_SESSION['result_msg'] = 'snapshot_ok';
@@ -291,17 +304,15 @@ if ($totaloverhead > 0) {
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore2" />
 	<input type="hidden" name="filename" value="" />
-<table>
-<tbody>
+<ul>
 <?php
 $pattern = "{$modx->config['snapshot_path']}*.sql";
 $files = glob($pattern,GLOB_NOCHECK);
-arsort($files);
-$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
-$deletedfiles = array();
-if(is_array($files) && 0 < $filesincache)
+$total = ($files[0] !== $pattern) ? count($files) : 0;
+if(is_array($files) && 0 < $total)
 {
-	$tpl = '<tr><td>[+filename+]</td><td class="actionButtons"><a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a></td></tr>' . "\n";
+	arsort($files);
+	$tpl = '<li>[+filename+] (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a>)</li>' . "\n";
 	while ($file = array_shift($files))
 	{
 		$filename = substr($file,strrpos($file,'/')+1);
@@ -309,8 +320,7 @@ if(is_array($files) && 0 < $filesincache)
 	}
 }
 ?>
-</tbody>
-</table>
+</ul>
 <input type="submit" name="save" style="display:none;" />
 	</form>
 </div>
