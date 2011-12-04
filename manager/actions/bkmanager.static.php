@@ -416,7 +416,7 @@ class Mysqldumper {
 				$arr = $this->object2Array($row);
 				foreach($arr as $key => $value) {
 					$value = addslashes($value);
-					$value = str_replace(array("\r\n","\r"), '\\n', $value);
+					$value = str_replace(array("\r\n","\r","\n"), '\\n', $value);
 					$insertdump .= "'$value',";
 				}
 				$output .= rtrim($insertdump,',') . ");";
