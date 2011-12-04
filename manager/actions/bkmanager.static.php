@@ -311,13 +311,13 @@ if ($totaloverhead > 0) {
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore2" />
 	<input type="hidden" name="filename" value="" />
-<ul>
 <?php
 $pattern = "{$modx->config['snapshot_path']}*.sql";
 $files = glob($pattern,GLOB_NOCHECK);
 $total = ($files[0] !== $pattern) ? count($files) : 0;
 if(is_array($files) && 0 < $total)
 {
+	echo '<ul>';
 	arsort($files);
 	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a>)</li>' . "\n";
 	while ($file = array_shift($files))
@@ -326,9 +326,13 @@ if(is_array($files) && 0 < $total)
 		$filesize = nicesize(filesize($file));
 		echo str_replace(array('[+filename+]','[+filesize+]'),array($filename,$filesize),$tpl);
 	}
+	echo '</ul>';
+}
+else
+{
+	echo 'スナップショットはありません。';
 }
 ?>
-</ul>
 <input type="submit" name="save" style="display:none;" />
 	</form>
 </div>
