@@ -9,10 +9,10 @@ $php_ver_comp = version_compare(phpversion(), "4.4.2");
 $php_ver_comp2 = version_compare(phpversion(), "4.4.9");
 // -1 if left is less, 0 if equal, +1 if left is higher
 if ($php_ver_comp < 0) {
-    echo "<span class=\"notok\">" . $_lang['failed'] . "</span>".$_lang['you_running_php'] . phpversion() . $_lang["modx_requires_php"]."</p>";
+    echo echo_failed().$_lang['you_running_php'] . phpversion() . $_lang["modx_requires_php"]."</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+    echo echo_ok() . "</p>";
     if ($php_ver_comp2 < 0) {
         echo "<fieldset>" . $_lang['php_security_notice'] . "</fieldset>";
     }
@@ -21,35 +21,35 @@ if ($php_ver_comp < 0) {
 echo "<p>" . $_lang['checking_registerglobals'];
 $register_globals = (int) ini_get('register_globals');
 if ($register_globals == '1'){
-    echo "<span class=\"notok\">" . $_lang['failed'].  "</span></p><p><strong>".$_lang['checking_registerglobals_note']."</strong></p>";
+    echo echo_failed() . "</p><p><strong>".$_lang['checking_registerglobals_note']."</strong></p>";
     // $errors += 1; // comment out for now so we still allow installs if folks are simply stubborn
 } else {
-    echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+    echo echo_ok() . "</p>";
 }
 // check sessions
 echo "<p>" . $_lang['checking_sessions'];
 if ($_SESSION['test'] != 1) {
-    echo "<span class=\"notok\">" . $_lang['failed'].  "</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+    echo echo_ok() . "</p>";
 }
 // check directories
 // cache exists?
 echo "<p>" . $_lang['checking_if_cache_exist'];
 if (!file_exists("../assets/cache") || !file_exists("../assets/cache/rss")) {
-    echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+    echo echo_ok() . "</p>";
 }
 // cache writable?
 echo "<p>" . $_lang['checking_if_cache_writable'];
 if (!is_writable("../assets/cache") || !file_exists("../assets/media")) {
-    echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+    echo echo_ok() . "</p>";
 }
 // cache files writable?
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
@@ -60,49 +60,49 @@ if (!file_exists("../assets/cache/siteCache.idx.php")) {
     @ fclose($hnd);
 }
 if (!is_writable("../assets/cache/siteCache.idx.php")) {
-    echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 echo "<p>".$_lang['checking_if_cache_file2_writable'];
 if (!is_writable("../assets/cache/sitePublishing.idx.php")) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // File Browser directories exists?
 echo "<p>".$_lang['checking_if_images_exist'];
 if (!file_exists("../assets/images") || !file_exists("../assets/files") || !file_exists("../assets/flash") || !file_exists("../assets/media")) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // File Browser directories writable?
 echo "<p>".$_lang['checking_if_images_writable'];
 if (!is_writable("../assets/images") || !is_writable("../assets/files") || !is_writable("../assets/flash") || !is_writable("../assets/media")) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // export exists?
 echo "<p>".$_lang['checking_if_export_exists'];
 if (!file_exists("../assets/export")) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // export writable?
 echo "<p>".$_lang['checking_if_export_writable'];
 if (!is_writable("../assets/export")) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p>";
+    echo echo_failed() . "</p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
@@ -114,10 +114,10 @@ if (!file_exists("../manager/includes/config.inc.php")) {
 }
 $isWriteable = is_writable("../manager/includes/config.inc.php");
 if (!$isWriteable) {
-    echo "<span class=\"notok\">".$_lang['failed']."</span></p><p><strong>".$_lang['config_permissions_note']."</strong></p>";
+    echo echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong></p>";
     $errors += 1;
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // connect to the database
 if ($installMode == 1) {
@@ -137,14 +137,14 @@ if ($installMode == 1) {
 echo "<p>".$_lang['creating_database_connection'];
 if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
     $errors += 1;
-    echo "<span class=\"notok\">".$_lang['database_connection_failed']."</span><p />".$_lang['database_connection_failed_note']."</p>";
+    echo echo_failed($_lang['database_connection_failed']) . "<p />".$_lang['database_connection_failed_note']."</p>";
 } else {
-    echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+    echo echo_ok() . "</p>";
 }
 // make sure we can use the database
 if ($installMode > 0 && !@ mysql_query("USE {$dbase}")) {
     $errors += 1;
-    echo "<span class=\"notok\">".$_lang['database_use_failed']."</span><p />".$_lang["database_use_failed_note"]."</p>";
+    echo echo_failed($_lang['database_use_failed']) . "<p />".$_lang["database_use_failed_note"]."</p>";
 }
 
 // check the database collation if not specified in the configuration
@@ -171,20 +171,20 @@ if (!isset($database_connection_method) || empty($database_connection_method)) {
 if ($conn && $installMode == 0) {
     echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
     if ($rs= @ mysql_query("SELECT COUNT(*) FROM $dbase.`" . $table_prefix . "site_content`")) {
-        echo "<span class=\"notok\">" . $_lang['failed'] . "</span></b>" . $_lang['table_prefix_already_inuse'] . "</p>";
+        echo echo_failed() . "</b>" . $_lang['table_prefix_already_inuse'] . "</p>";
         $errors += 1;
         echo "<p>" . $_lang['table_prefix_already_inuse_note'] . "</p>";
     } else {
-        echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+        echo echo_ok() . "</p>";
     }
 } elseif ($conn && $installMode == 2) {
     echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
     if (!$rs = @ mysql_query("SELECT COUNT(*) FROM $dbase.`" . $table_prefix . "site_content`")) {
-        echo "<span class=\"notok\">" . $_lang['failed'] . "</span></b>" . $_lang['table_prefix_not_exist'] . "</p>";
+        echo echo_failed() . "</b>" . $_lang['table_prefix_not_exist'] . "</p>";
         $errors += 1;
         echo "<p>" . $_lang['table_prefix_not_exist_note'] . "</p>";
   } else {
-        echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+        echo echo_ok() . "</p>";
   }
 }
 
@@ -192,10 +192,10 @@ if ($conn && $installMode == 0) {
 if ($conn) {
     echo "<p>" . $_lang['checking_mysql_version'];
     if ( version_compare(mysql_get_server_info(), '5.0.51', '=') ) {
-        echo "<span class=\"notok\">"  . $_lang['warning'] . "</span></b>&nbsp;&nbsp;<strong>". $_lang['mysql_5051'] . "</strong></p>";
-        echo "<p><span class=\"notok\">" . $_lang['mysql_5051_warning'] . "</span></p>";
+        echo echo_failed($_lang['warning']) . "</b>&nbsp;&nbsp;<strong>". $_lang['mysql_5051'] . "</strong></p>";
+        echo "<p>" . echo_failed($_lang['mysql_5051_warning'] ) . "</p>";
     } else {
-        echo "<span class=\"ok\">" . $_lang['ok'] . "</span>&nbsp;&nbsp;<strong>" . $_lang['mysql_version_is'] . mysql_get_server_info() . "</strong></p>";
+        echo echo_ok() . "&nbsp;&nbsp;<strong>" . $_lang['mysql_version_is'] . mysql_get_server_info() . "</strong></p>";
     }
 }
 
@@ -209,14 +209,14 @@ if ($conn) {
         // print_r($modes);
         foreach ($modes as $mode) {
             if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
-                echo "<span class=\"notok\">" . $_lang['warning'] . "</span></b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
-                echo "<p><span class=\"notok\">" . $_lang['strict_mode_error'] . "</span></p>";
+                echo echo_failed($_lang['warning']) . "</b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
+                echo "<p>" . echo_failed($_lang['strict_mode_error'])  . "</p>";
             } else {
-                echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+                echo echo_ok() . "</p>";
             }
         }  
     } else {
-        echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+        echo echo_ok() . "</p>";
     }
 }
 // Version and strict mode check end
@@ -308,3 +308,17 @@ foreach ($modules as $i => $module) echo "<input type=\"hidden\" name=\"module[]
         <a id="nextbutton" href="javascript:document.getElementById('install_form').submit();" title="<?php echo $nextButton ?>" style="visibility:<?php echo $nextVisibility;?>"><span><?php echo $nextButton ?></span></a>
     </p>
 </form>
+
+<?php
+function echo_failed($msg=NULL)
+{
+	global $_lang;
+	if(is_null($msg)) $msg = $_lang['failed'];
+	return '<span class="notok">' . $msg . '</span>';
+}
+
+function echo_ok()
+{
+	global $_lang;
+	return '<span class="ok">' . $_lang['ok'] . '</span>';
+}
