@@ -312,11 +312,12 @@ $total = ($files[0] !== $pattern) ? count($files) : 0;
 if(is_array($files) && 0 < $total)
 {
 	arsort($files);
-	$tpl = '<li>[+filename+] (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a>)</li>' . "\n";
+	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">このデータに戻す</a>)</li>' . "\n";
 	while ($file = array_shift($files))
 	{
 		$filename = substr($file,strrpos($file,'/')+1);
-		echo str_replace('[+filename+]',$filename,$tpl);
+		$filesize = nicesize(filesize($file));
+		echo str_replace(array('[+filename+]','[+filesize+]'),array($filename,$filesize),$tpl);
 	}
 }
 ?>
