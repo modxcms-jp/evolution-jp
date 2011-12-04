@@ -297,7 +297,7 @@ if ($totaloverhead > 0) {
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="snapshot" />
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" />スナップショットを保存する</a>
+	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" />スナップショットを追加する</a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>
@@ -305,6 +305,8 @@ if ($totaloverhead > 0) {
 	table {background-color:#fff;border-collapse:collapse;}
 	table td {border:1px solid #ccc;padding:4px;}
 	</style>
+<div class="sectionHeader">スナップショットの一覧</div>
+<div class="sectionBody">
 	<form method="post" name="restore2" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore2" />
@@ -329,6 +331,7 @@ if(is_array($files) && 0 < $total)
 </ul>
 <input type="submit" name="save" style="display:none;" />
 	</form>
+</div>
 </div>
 
 </div>
