@@ -33,7 +33,7 @@ for($i=0; $i<$count; $i++) {
 }
 // end settings
 
-function ufilesize($size) {
+function nicesize($size) {
 	$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
 	$pos = 0;
 	while ($size >= 1024) {
@@ -81,17 +81,6 @@ function getExtension($string) {
 	   return substr($string, $pos);
    }
 	return $string;
-}
-
-function fsize($file) {
-       $a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-       $pos = 0;
-       $size = filesize($file);
-       while ($size >= 1024) {
-               $size /= 1024;
-               $pos++;
-       }
-       return round($size,2)." ".$a[$pos];
 }
 
 function mkdirs($strPath, $mode){ // recursive mkdir function
@@ -212,7 +201,7 @@ if(!empty($_FILES['userfile'])) {
 
 	// this seems to be an upload action.
 	printf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, $len, strlen($startpath)));
-	echo $userfile['error']==0 ? "<p>".$_lang['files_file_type'].$userfile['type'].", ".fsize($userfile['tmp_name']).'</p>' : '';
+	echo $userfile['error']==0 ? "<p>".$_lang['files_file_type'].$userfile['type'].", ".nicesize($userfile['tmp_name']).'</p>' : '';
 
 	$userfilename = $userfile['tmp_name'];
 
@@ -385,7 +374,7 @@ if (is_writable($startpath)){
 if($_REQUEST['mode']=='newfolder') {
 	$old_umask = umask(0);
 	$foldername = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
-	if(!mkdirs($startpath."/$foldername",$newfolderaccessmode)) {
+	if(!mkdirs("{$startpath}/{$foldername}",$newfolderaccessmode)) {
 		echo '<span class="warning"><b>',$_lang['file_folder_not_created'],'</b></span><br /><br />';
 	} else {
 		if (!@chmod($startpath.'/'.$foldername,$newfolderaccessmode)) {
@@ -460,7 +449,6 @@ function ls($curpath) {
 				$files_array[$filecounter]['edit'] = (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path='.urlencode($newpath).'#file_editfile"><img src="media/style/'.$manager_theme.'images/icons/save.png" border="0" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></a></span>' : '<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/save.png" border="0" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></span>';
                 $files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath) ? '<span style="width:20px;"><a href="javascript:deleteFile(\''.urlencode($file).'\');"><img src="media/style/'.$manager_theme.'images/icons/delete.gif" border="0" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></a></span>' : '<span class="disabledImage"><img src="media/style/'.$manager_theme.'images/icons/delete.gif" border="0" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></span>';
 
-
 				// increment the counter
 				$filecounter++;
 			}
@@ -476,7 +464,7 @@ function ls($curpath) {
 		echo '<tr style="cursor:default;" onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$dirs_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($dirs_array[$i]['stats']['9']),'</td>';
-		echo '<td dir="ltr">',ufilesize($dirs_array[$i]['stats']['7']),'</td>';
+		echo '<td dir="ltr">',nicesize($dirs_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $dirs_array[$i]['delete'];
 		echo '</td>';
@@ -491,7 +479,7 @@ function ls($curpath) {
 		echo '<tr onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$files_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($files_array[$i]['stats']['9']),'</td>';
-		echo '<td dir="ltr">',ufilesize($files_array[$i]['stats']['7']),'</td>';
+		echo '<td dir="ltr">',nicesize($files_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $files_array[$i]['unzip'];
 		echo $files_array[$i]['view'];
@@ -523,7 +511,7 @@ if($folders==0 && $files==0) {
 
 echo $_lang['files_directories'],': <b>',$folders,'</b><br />';
 echo $_lang['files_files'],': <b>',$files,'</b><br />';
-echo $_lang['files_data'],': <b><span dir="ltr">',ufilesize($filesizes),'</span></b><br />';
+echo $_lang['files_data'],': <b><span dir="ltr">',nicesize($filesizes),'</span></b><br />';
 echo $_lang['files_dirwritable'],' <b>',is_writable($startpath)==1 ? $_lang['yes'].'.' : $_lang['no'].'.'
 ?></b><br />
 <div align="center">
