@@ -297,6 +297,11 @@ if($_REQUEST['mode']=='delete') {
 	logFileChange('delete', $file);
 }
 
+if($startpath==="{$filemanager_path}manager" || $startpath==="{$filemanager_path}assets/backup")
+{
+	echo 'このディレクトリは参照できません。';
+	exit;
+}
 
 echo $_lang['files_dir_listing']?><b><?php echo substr($startpath, $len, strlen($startpath))=='' ? '/' : substr($startpath, $len, strlen($startpath))?></b><br /><br />
 <?php
