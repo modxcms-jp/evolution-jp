@@ -218,7 +218,6 @@ if ($conn) {
     if (@mysql_num_rows($mysqlmode) > 0){
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         //$modes = array("STRICT_TRANS_TABLES"); // for testing
-        // print_r($modes);
         foreach ($modes as $mode) {
             if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
                 echo echo_failed($_lang['warning']) . "</b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
@@ -290,17 +289,17 @@ echo <<< EOT
     <input type="hidden" value="{$_POST['installdata']}" name="installdata" />
 EOT;
 $templates = isset ($_POST['template']) ? $_POST['template'] : array ();
-foreach ($templates as $i => $template) echo '<input type="hidden" name="template[]" value="$template" />' . "\n";
+foreach ($templates as $i => $template) echo "<input type=\"hidden\" name=\"template[]\" value=\"$template\" />\n";
 $tvs = isset ($_POST['tv']) ? $_POST['tv'] : array ();
-foreach ($tvs as $i => $tv) echo '<input type="hidden" name="tv[]" value="$tv" />' . "\n";
+foreach ($tvs as $i => $tv) echo "<input type=\"hidden\" name=\"tv[]\" value=\"$tv\" />\n";
 $chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : array ();
-foreach ($chunks as $i => $chunk) echo '<input type="hidden" name="chunk[]" value="$chunk" />' . "\n";
+foreach ($chunks as $i => $chunk) echo "<input type=\"hidden\" name=\"chunk[]\" value=\"$chunk\" />\n";
 $snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : array ();
-foreach ($snippets as $i => $snippet) echo '<input type="hidden" name="snippet[]" value="$snippet" />' . "\n";
+foreach ($snippets as $i => $snippet) echo "<input type=\"hidden\" name=\"snippet[]\" value=\"$snippet\" />\n";
 $plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : array ();
-foreach ($plugins as $i => $plugin) echo '<input type="hidden" name="plugin[]" value="$plugin" />' . "\n";
+foreach ($plugins as $i => $plugin) echo "<input type=\"hidden\" name=\"plugin[]\" value=\"$plugin\" />\n";
 $modules = isset ($_POST['module']) ? $_POST['module'] : array ();
-foreach ($modules as $i => $module) echo '<input type="hidden" name="module[]" value="$module" />' . "\n";
+foreach ($modules as $i => $module) echo "<input type=\"hidden\" name=\"module[]\" value=\"$module\" />\n";
 ?>
 </div>
 
