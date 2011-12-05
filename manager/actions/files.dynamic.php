@@ -130,7 +130,7 @@ else $webstart_path = '../'.$webstart_path;
 
 ?>
 
-<h1><?php echo $_lang['files_files']?></h1>
+<h1><?php echo $_lang['manage_files']?></h1>
 
 <div class="sectionBody">
 <script type="text/javascript" src="media/script/multifile.js"></script>
