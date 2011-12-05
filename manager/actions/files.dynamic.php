@@ -169,14 +169,18 @@ function getFolderName(a){
 
 function deleteFolder (folder) {
     if (confirmDeleteFolder())
+    {
         window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder;
-    return false;
+        return false;
+    }
 }
 
 function deleteFile(file) {
     if (confirmDelete())
+    {
         window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file;
-    return false;
+        return false;
+    }
 }
 </script>
 <?php
