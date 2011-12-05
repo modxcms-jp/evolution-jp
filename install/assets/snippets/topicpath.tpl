@@ -9,6 +9,7 @@
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &templateSet=TemplateSet;list;defaultString,defaultList;defaultString
  * @internal	@modx_category Navigation
+ * @internal    @installset base, sample
  */
 
 include_once($modx->config['base_path'] . 'assets/snippets/topicpath/topicpath.class.inc.php');
