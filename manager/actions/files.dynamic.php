@@ -9,6 +9,10 @@ if ($manager_theme)
         $manager_theme .= '/';
 else    $manager_theme  = '';
 
+if(isset($_SESSION['token'])) $token['session'] = strval($_SESSION['token']);
+if(isset($_REQUEST['token'])) $token['request'] = strval($_REQUEST['token']);
+$token = uniqid();
+$_SESSION['token'] = $token;
 // settings
 $excludes = array('.', '..', 'cgi-bin', '.svn');
 $editablefiles = array('.txt', '.php', '.shtml', '.html', '.htm', '.xml', '.js', '.css', '.pageCache', $friendly_url_suffix);
@@ -170,7 +174,7 @@ function getFolderName(a){
 function deleteFolder (folder) {
     if (confirmDeleteFolder())
     {
-        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder;
+        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&token=<?php echo $token;?>";
         return false;
     }
 }
@@ -178,7 +182,7 @@ function deleteFolder (folder) {
 function deleteFile(file) {
     if (confirmDelete())
     {
-        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file;
+        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file+"&token=<?php echo $token;?>";
         return false;
     }
 }
@@ -284,12 +288,20 @@ if($_POST['mode']=='save') {
 }
 
 
-if($_REQUEST['mode']=='delete') {
+if($_REQUEST['mode']=='delete')
+{
 	printf($_lang['deleting_file'], str_replace('\\', '/', $_REQUEST['path']));
 	$file = $_REQUEST['path'];
-	if (!@unlink($file)) {
+	if(!isset($_GET['token']) || $token['request']!==$token['session'])
+	{
 	   echo '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
-	} else {
+	}
+	elseif(!@unlink($file))
+	{
+	   echo '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
+	}
+	else
+	{
 	   echo '<span class="success"><b>'.$_lang['file_deleted'].'</b></span><br /><br />';
 	}
 
@@ -369,11 +381,19 @@ if ($enablefileunzip && $_REQUEST['mode']=='unzip' && is_writable($startpath)){
 // New Folder & Delete Folder option - Raymond
 if (is_writable($startpath)){
 	// Delete Folder
-	if($_REQUEST['mode']=='deletefolder') {
+	if($_REQUEST['mode']=='deletefolder')
+	{
 		$folder = $_REQUEST['folderpath'];
-		if(!@rmdir($folder)) {
+		if(!isset($_GET['token']) || $token['request']!==$token['session'])
+		{
+		   echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
+		}
+		elseif(!@rmdir($folder))
+		{
 			echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
-		} else {
+		}
+		else
+		{
 			echo '<span class="success"><b>'.$_lang['file_folder_deleted'].'</b></span><br /><br />';
 		}
 	}
