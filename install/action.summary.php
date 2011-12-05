@@ -98,23 +98,17 @@ if (!is_writable("../assets/images") || !is_writable("../assets/files") || !is_w
     echo echo_ok();
 }
 echo '</p>';
+
 // export exists?
-echo "<p>".$_lang['checking_if_export_exists'];
-if (!file_exists("../assets/export")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
+echo '<p>'.$_lang['checking_if_export_exists'];
+if (!file_exists("../assets/export")) {echo echo_failed();$errors += 1;}
+else echo echo_ok();
 echo '</p>';
+
 // export writable?
-echo "<p>".$_lang['checking_if_export_writable'];
-if (!is_writable("../assets/export")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
+echo '<p>'.$_lang['checking_if_export_writable'];
+if (!is_writable("../assets/export")) {echo echo_failed();$errors += 1;}
+else echo echo_ok();
 echo '</p>';
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
@@ -182,7 +176,7 @@ if (!isset($database_connection_method) || empty($database_connection_method)) {
 // check table prefix
 if ($conn && $installMode == 0) {
     echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
-    if ($rs= @ mysql_query("SELECT COUNT(*) FROM $dbase.`" . $table_prefix . "site_content`")) {
+    if ($rs= @ mysql_query("SELECT COUNT(id) FROM $dbase.`" . $table_prefix . "site_content`")) {
         echo echo_failed() . "</b>" . $_lang['table_prefix_already_inuse'] . "</p>";
         echo "<p>" . $_lang['table_prefix_already_inuse_note'] . "</p>";
         $errors += 1;
@@ -191,7 +185,7 @@ if ($conn && $installMode == 0) {
     }
 } elseif ($conn && $installMode == 2) {
     echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
-    if (!$rs = @ mysql_query("SELECT COUNT(*) FROM $dbase.`" . $table_prefix . "site_content`")) {
+    if (!$rs = @ mysql_query("SELECT COUNT(id) FROM $dbase.`" . $table_prefix . "site_content`")) {
         echo echo_failed() . "</b>" . $_lang['table_prefix_not_exist'] . "</p>";
         $errors += 1;
         echo "<p>" . $_lang['table_prefix_not_exist_note'] . "</p>";
