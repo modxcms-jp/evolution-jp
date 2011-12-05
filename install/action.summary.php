@@ -110,6 +110,19 @@ echo '<p>'.$_lang['checking_if_export_writable'];
 if (!is_writable("../assets/export")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
+
+// backup exists?
+echo '<p>'.$_lang['checking_if_backup_exists'];
+if (!file_exists("../assets/backup")) {echo echo_failed();$errors += 1;}
+else echo echo_ok();
+echo '</p>';
+
+// backup writable?
+echo '<p>'.$_lang['checking_if_backup_writable'];
+if (!is_writable("../assets/backup")) {echo echo_failed();$errors += 1;}
+else echo echo_ok();
+echo '</p>';
+
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
 if (!file_exists("../manager/includes/config.inc.php")) {
