@@ -192,4 +192,6 @@ $_lang["welcome_message_welcome"] = 'MODXのインストールを開始します
 $_lang["writing_config_file"] = 'config.inc.phpへの書き込み(設定情報): ';
 $_lang["yes"] = 'はい';
 $_lang["you_running_php"] = ' - You are running on PHP ';
-?>
+
+$_lang['checking_if_backup_exists'] = '<span class="mono">/assets/backup</span>ディレクトリの存在(なければ転送に失敗しています): ';
+$_lang['checking_if_backup_writable'] = '<span class="mono">/assets/backup</span>ディレクトリの書き込み属性(707などに設定): ';
