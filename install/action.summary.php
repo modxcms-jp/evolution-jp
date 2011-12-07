@@ -129,7 +129,6 @@ if (!file_exists("../manager/includes/config.inc.php")) {
     // make an attempt to create the file
     file_put_contents('../manager/includes/config.inc.php','<?php //MODx configuration file ?>');
 }
-@chmod($config_path, 0606);
 $isWriteable = is_writable("../manager/includes/config.inc.php");
 if (!$isWriteable) {
     echo echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
