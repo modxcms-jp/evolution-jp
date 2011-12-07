@@ -93,7 +93,8 @@ class SqlParser {
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 
 		$num = 0;
-		foreach($sql_array as $sql_entry) {
+		foreach($sql_array as $sql_entry)
+		{
 			$sql_do = trim($sql_entry, "\r\n; ");
 
 			// strip out comments and \n for mysql 3.x
@@ -105,9 +106,11 @@ class SqlParser {
 
 			$num++;
 			if ($sql_do) mysql_query($sql_do, $this->conn);
-			if(mysql_error()) {
+			if(mysql_error())
+			{
 				// Ignore duplicate and drop errors - Raymond
-				if ($this->ignoreDuplicateErrors){
+				if ($this->ignoreDuplicateErrors)
+				{
 					if (mysql_errno() == 1060 || mysql_errno() == 1061 || mysql_errno() == 1091) continue;
 				}
 				// End Ignore duplicate
@@ -116,7 +119,7 @@ class SqlParser {
 			}
 		}
 	}
-
+	
 	function parse($src,$ph)
 	{
 		foreach($ph as $k=>$v)
@@ -131,5 +134,3 @@ class SqlParser {
 		mysql_close($this->conn);
 	}
 }
-
-?>

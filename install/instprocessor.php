@@ -240,7 +240,8 @@ if (@ fwrite($handle, $configString) === FALSE) {
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($filename, 0404);
 
-if ($configFileFailed == true) {
+if ($configFileFailed == true)
+{
 	echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
 	$errors += 1;
 ?>
@@ -270,7 +271,6 @@ if ($installMode == 0) {
 		}
 	}
 }
-
 
 // Install Templates
 if (isset ($_POST['template']) || $installData) {
@@ -694,8 +694,8 @@ $sync->setReport(false);
 $sync->emptyCache(); // first empty the cache
 
 // try to chmod the cache go-rwx (for suexeced php)
-$chmodSuccess = @chmod('../assets/cache/siteCache.idx.php', 0600);
-$chmodSuccess = @chmod('../assets/cache/sitePublishing.idx.php', 0600);
+@chmod('../assets/cache/siteCache.idx.php', 0600);
+@chmod('../assets/cache/sitePublishing.idx.php', 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
 mysql_query("TRUNCATE TABLE `".$table_prefix."active_users`");
