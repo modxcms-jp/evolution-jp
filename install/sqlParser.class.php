@@ -76,7 +76,8 @@ class SqlParser {
 		// replace {} tags
 		$ph = array();
 		$ph['PREFIX'] = $this->prefix;
-		$ph['ADMIN'] = $this->adminname;
+		$ph['ADMINNAME'] = $this->adminname;
+		$ph['ADMINFULLNAME'] = substr($this->adminemail,0,strpos($this->adminemail,'@'));
 		$ph['ADMINEMAIL'] = $this->adminemail;
 		$ph['ADMINPASS'] = $this->adminpass;
 		$ph['IMAGEPATH'] = $this->imagePath;
