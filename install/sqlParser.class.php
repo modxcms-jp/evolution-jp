@@ -103,7 +103,7 @@ class SqlParser {
 				$sql_do = str_replace('\n', "", $sql_do);
 			}
 
-			$num = $num + 1;
+			$num++;
 			if ($sql_do) mysql_query($sql_do, $this->conn);
 			if(mysql_error()) {
 				// Ignore duplicate and drop errors - Raymond
