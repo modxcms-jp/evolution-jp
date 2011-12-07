@@ -154,7 +154,7 @@ if ($installMode == 1) {
 echo "<p>".$_lang['creating_database_connection'];
 if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
     $errors += 1;
-    echo echo_failed($_lang['database_connection_failed']) . "<p />".$_lang['database_connection_failed_note'];
+    echo echo_failed($_lang['database_connection_failed']) . "<p>".$_lang['database_connection_failed_note'];
 } else {
     echo echo_ok();
 }
