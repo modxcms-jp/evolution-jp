@@ -225,20 +225,11 @@ foreach($ph as $k=>$v)
 	$configString = str_replace($src, $v, $configString);
 }
 
-$filename = realpath('../manager/includes/config.inc.php');
-$configFileFailed = false;
-if (@ !$handle = fopen($filename, 'w')) {
-	$configFileFailed = true;
-}
-
-// write $somecontent to our opened file.
-if (@ fwrite($handle, $configString) === FALSE) {
-	$configFileFailed = true;
-}
-@ fclose($handle);
+$config_path = realpath('../manager/includes/config.inc.php');
+$configFileFailed = (@ file_put_contents($config_path, $configString)) ? false : true;
 
 // try to chmod the config file go-rwx (for suexeced php)
-@chmod($filename, 0404);
+@chmod($config_path, 0404);
 
 if ($configFileFailed == true)
 {
