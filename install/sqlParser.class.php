@@ -72,18 +72,21 @@ class SqlParser {
 			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation . ' ';
 		
 		// replace {} tags
-		$idata = str_replace('{PREFIX}', $this->prefix, $idata);
-		$idata = str_replace('{ADMIN}', $this->adminname, $idata);
-		$idata = str_replace('{ADMINEMAIL}', $this->adminemail, $idata);
-		$idata = str_replace('{ADMINPASS}', $this->adminpass, $idata);
-		$idata = str_replace('{IMAGEPATH}', $this->imagePath, $idata);
-		$idata = str_replace('{IMAGEURL}', $this->imageUrl, $idata);
-		$idata = str_replace('{FILEMANAGERPATH}', $this->fileManagerPath, $idata);
-		$idata = str_replace('{MANAGERLANGUAGE}', $this->managerlanguage, $idata);
-		$idata = str_replace('{AUTOTEMPLATELOGIC}', $this->autoTemplateLogic, $idata);
-		$idata = str_replace('{DATE_NOW}', time(), $idata);
-		$idata = str_replace('ENGINE=MyISAM', 'ENGINE=MyISAM' . $char_collate, $idata);
+		$ph = array();
+		$ph['PREFIX'] = $this->prefix;
+		$ph['ADMIN'] = $this->adminname;
+		$ph['ADMINEMAIL'] = $this->adminemail;
+		$ph['ADMINPASS'] = $this->adminpass;
+		$ph['IMAGEPATH'] = $this->imagePath;
+		$ph['IMAGEURL'] = $this->imageUrl;
+		$ph['FILEMANAGERPATH'] = $this->fileManagerPath;
+		$ph['MANAGERLANGUAGE'] = $this->managerlanguage;
+		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
+		$ph['DATE_NOW'] = time();
+		$idata = $this->parse($idata,$ph);
 		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
+		
+		$idata = str_replace('ENGINE=MyISAM', 'ENGINE=MyISAM' . $char_collate, $idata);
 
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 
@@ -112,6 +115,16 @@ class SqlParser {
 		}
 	}
 
+	function parse($src,$ph)
+	{
+		foreach($ph as $k=>$v)
+		{
+			$k = '{' . $k . '}';
+			$src = str_replace($k,$v,$src);
+		}
+		return $src;
+	}
+	
 	function close() {
 		mysql_close($this->conn);
 	}
