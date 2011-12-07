@@ -67,9 +67,11 @@ class SqlParser {
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
 		
-		$char_collate = '';
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
-			$char_collate = ' DEFAULT CHARSET=' . $this->connection_charset . ' COLLATE ' . $this->connection_collation . ' ';
+		{
+			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
+			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
+		}
 		
 		// replace {} tags
 		$ph = array();
@@ -84,9 +86,8 @@ class SqlParser {
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
 		$ph['DATE_NOW'] = time();
 		$idata = $this->parse($idata,$ph);
-		/*$idata = str_replace('{VERSION}', $modx_version, $idata);*/
 		
-		$idata = str_replace('ENGINE=MyISAM', 'ENGINE=MyISAM' . $char_collate, $idata);
+		/*$ph['VERSION'] = $modx_version;*/
 
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 
