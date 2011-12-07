@@ -1,7 +1,4 @@
 <?php
-$upgradephp_path = '../manager/includes/extenders/upgradephp/';
-if (!version_compare('5.0.0', phpversion(),'<')) include_once $upgradephp_path . 'php0500.php';
-
 $installMode = intval($_POST['installmode']);
 echo "<h2>" . $_lang['preinstall_validation'] . "</h2>";
 echo "<h3>" . $_lang['summary_setup_check'] . "</h3>";
