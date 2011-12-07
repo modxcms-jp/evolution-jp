@@ -225,7 +225,7 @@ foreach($ph as $k=>$v)
 	$configString = str_replace($src, $v, $configString);
 }
 
-$filename = '../manager/includes/config.inc.php';
+$filename = realpath('../manager/includes/config.inc.php');
 $configFileFailed = false;
 if (@ !$handle = fopen($filename, 'w')) {
 	$configFileFailed = true;
@@ -250,7 +250,6 @@ if ($configFileFailed == true) {
 	</textarea>
 	<p><?php echo $_lang['cant_write_config_file_note']?></p>
 <?php
-	return;
 } else {
 	echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
 }
