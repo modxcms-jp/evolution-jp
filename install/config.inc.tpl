@@ -112,7 +112,7 @@ function assign_site_url($base_url)
 	}
 	else
 	{
-		$site_url .= $_SERVER['SERVER_PORT'];
+		$site_url .= ':' . $_SERVER['SERVER_PORT'];
 	}
 	return $site_url . $base_url;
 }
