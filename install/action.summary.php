@@ -127,6 +127,7 @@ if (!file_exists($config_path)) {
     // make an attempt to create the file
     file_put_contents($config_path,'<?php //MODx configuration file ?>');
 }
+@chmod($config_path, 0606);
 $isWriteable = is_writable($config_path);
 if (!$isWriteable) {
     echo echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
