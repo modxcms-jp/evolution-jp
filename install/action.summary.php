@@ -122,11 +122,12 @@ echo '</p>';
 
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
-if (!file_exists("../manager/includes/config.inc.php")) {
+$config_path = '../manager/includes/config.inc.php';
+if (!file_exists($config_path)) {
     // make an attempt to create the file
-    file_put_contents('../manager/includes/config.inc.php','<?php //MODx configuration file ?>');
+    file_put_contents($config_path,'<?php //MODx configuration file ?>');
 }
-$isWriteable = is_writable("../manager/includes/config.inc.php");
+$isWriteable = is_writable($config_path);
 if (!$isWriteable) {
     echo echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
     $errors += 1;
@@ -136,7 +137,7 @@ if (!$isWriteable) {
 echo '</p>';
 // connect to the database
 if ($installMode == 1) {
-    include "../manager/includes/config.inc.php";
+    include_once $config_path;
 } else {
     // get db info from post
     $database_server = $_POST['databasehost'];
