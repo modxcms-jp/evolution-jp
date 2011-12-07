@@ -23,9 +23,6 @@ echo "<p>{$_lang['setup_database']}</p>\n";
 $installMode= intval($_POST['installmode']);
 $installData = $_POST['installdata'] == "1" ? 1 : 0;
 
-//if ($installMode == 1) {
-//	include "../manager/includes/config.inc.php";
-//} else {
 // get db info from post
 $database_server = $_POST['databasehost'];
 $database_user = $_SESSION['databaseloginname'];
@@ -41,11 +38,6 @@ $adminemail = $_POST['cmsadminemail'];
 $adminpass = $_POST['cmspassword'];
 $managerlanguage = $_POST['managerlanguage'];
 //}
-
-// set session name variable
-if (!isset ($site_sessionname)) {
-	$site_sessionname = 'SN' . uniqid('');
-}
 
 // get base path and url
 $a = explode("install", str_replace("\\", "/", dirname($_SERVER["PHP_SELF"])));
@@ -224,7 +216,7 @@ $ph['database_connection_method']  = $database_connection_method;
 $ph['dbase']                       = str_replace('`', '', $dbase);
 $ph['table_prefix']                = $table_prefix;
 $ph['lastInstallTime']             = time();
-$ph['site_sessionname']            = $site_sessionname;
+$ph['site_sessionname']            = (!isset ($site_sessionname)) ? 'SN' . uniqid() : $site_sessionname;
 $ph['https_port']                  = '443';
 
 foreach($ph as $k=>$v)
