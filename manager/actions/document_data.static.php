@@ -323,12 +323,18 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 			}
 			else $publishedon = '-';
 			
+			if($children['editedon']!=='0')
+			{
+				$editedon = '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>';
+			}
+			else $editedon = '-';
+			
 			$listDocs[] = array(
 				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
 				'docid'    => $children['id'],
 				'title'    => $title,
 				'publishedon' => $publishedon,
-				'editedon' => '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>',
+				'editedon' => $editedon,
 				'status'   => $status
 			);
 		}
