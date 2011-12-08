@@ -167,6 +167,8 @@ if ($numRecords > 0) {
 <style type="text/css">
 a span.withmenu {border:1px solid transparent;}
 a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
+.nowrap {white-space:nowrap;}
+.disable {color:#777;}
 </style>
 <script type="text/javascript">
 	var selectedItem;
@@ -313,11 +315,11 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 			
 			if($children['publishedon']!=='0')
 			{
-				$publishedon = '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['publishedon']) . '</span>';
+				$publishedon = '<span class="nowrap">' . $modx->toDateFormat($children['publishedon']) . '</span>';
 			}
 			elseif(!empty($children['pub_date']))
 			{
-				$publishedon = '<span style="white-space:nowrap;color:#777;">' . $modx->toDateFormat($children['pub_date']) . '</span>';
+				$publishedon = '<span class="nowrap disable">' . $modx->toDateFormat($children['pub_date']) . '</span>';
 			}
 			else $publishedon = '-';
 			
@@ -326,7 +328,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 				'docid'    => $children['id'],
 				'title'    => $title,
 				'publishedon' => $publishedon,
-				'editedon' => '<span style="white-space:nowrap;">' . $modx->toDateFormat($children['editedon']) . '</span>',
+				'editedon' => '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>',
 				'status'   => $status
 			);
 		}
