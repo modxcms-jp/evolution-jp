@@ -88,7 +88,9 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 //	}
 
     // Set the published status to unpublished by default (see above ... commit #3388)
-    $content['published'] = $content['pub_date'] = 0;
+    $content['published'] = 0;
+    $content['pub_date']  = 0;
+    $content['publishedon'] = 0;
 
 	// Escape the proper strings
 	$content['pagetitle'] = $modx->db->escape($content['pagetitle']);
