@@ -651,9 +651,7 @@ class DocumentParser {
 		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
 		
 		// now, check for documents that need publishing
-		$fields = array();
-		$fields['published']   = '1';
-		$fields['publishedon'] = time();
+		$fields = "published='1', publishedon=pub_date";
 		$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
 		
