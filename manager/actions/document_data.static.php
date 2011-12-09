@@ -248,7 +248,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 		$listDocs = array();
 		foreach($resource as $k => $children)
 		{
-			if($children['published'] == 0)
+			if($children['published'] == 0 && (empty($children['pub_date']) || time() < $children['pub_date']))
 			{
 				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
 			}
