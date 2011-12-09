@@ -498,24 +498,31 @@ switch ($actionToTake) {
 			$pub_date   = $was['pub_date'];
 			$unpub_date = $was['unpub_date'];
 		}
-
-		// if it was changed from unpublished to published
-		if (0<$was['publishedon'] && $published)
-		{
-			$publishedon = $was['publishedon'];
-			$publishedby = $was['publishedby'];
-		}
-		elseif(!$published)
-		{
-			$publishedon = 0;
-			$publishedby = 0;
-		}
 		else
 		{
-			$publishedon = time();
-			$publishedby = $modx->getLoginUserID();
+			// if it was changed from unpublished to published
+			if($pub_date<=time() && $published)
+			{
+				$publishedon = $pub_date;
+				$publishedby = $was['publishedby'];
+			}
+			elseif (0<$was['publishedon'] && $published)
+			{
+				$publishedon = $was['publishedon'];
+				$publishedby = $was['publishedby'];
+			}
+			elseif(!$published)
+			{
+				$publishedon = 0;
+				$publishedby = 0;
+			}
+			else
+			{
+				$publishedon = time();
+				$publishedby = $modx->getLoginUserID();
+			}
 		}
-
+		
 		// invoke OnBeforeDocFormSave event
 		$modx->invokeEvent("OnBeforeDocFormSave", array (
 			"mode" => "upd",
