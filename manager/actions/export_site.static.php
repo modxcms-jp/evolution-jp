@@ -9,14 +9,6 @@ if(!$modx->hasPermission('export_static'))
 // figure out the base of the server, so we know where to get the documents in order to export them
 ?>
 
-<script type="text/javascript">
-function reloadTree()
-{
-	// redirect to welcome
-	document.location.href = "index.php?r=1&a=7";
-}
-</script>
-
 <h1><?php echo $_lang['export_site_html']; ?></h1>
 <div class="sectionBody">
 <?php
@@ -189,7 +181,7 @@ else
 	printf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
 ?>
 <ul class="actionButtons">
-	<li><a href="#" onclick="reloadTree();"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
+	<li><a href="#" onclick="document.location.href='index.php?a=7';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
 </ul>
 <?php
 }
