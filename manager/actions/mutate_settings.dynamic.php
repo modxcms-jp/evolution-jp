@@ -449,7 +449,7 @@ function confirmLangChange(el, lkey, elupd)
 			<td valign="top">
 			<select name="lst_custom_contenttype" style="width:200px;" size="5">
 <?php
-	$custom_contenttype = (isset($custom_contenttype) ? $custom_contenttype : "text/css,text/html,text/javascript,text/plain,text/xml");
+	$custom_contenttype = (isset($custom_contenttype) ? $custom_contenttype : 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain');
 	$ct = explode(",",$custom_contenttype);
 	for($i=0;$i<count($ct);$i++)
 	{
