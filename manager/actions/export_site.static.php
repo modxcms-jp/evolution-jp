@@ -116,16 +116,15 @@ else
 		exit;
 	}
 	
-	$noncache = $_POST['includenoncache']==1 ? '' : "AND {$tbl_site_content}.cacheable=1";
+	$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 	
 	// Support export alias path
 	
 	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
 	{
-		$sqlcond = "{$tbl_site_content}.deleted=0 AND (({$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document') OR ({$tbl_site_content}.isfolder=1)) $noncache";
-		$sql = "SELECT count(id) as total FROM {$tbl_site_content} WHERE {$sqlcond}";
-		$rs  = $modx->db->query($sql);
-		$row = mysql_fetch_assoc($rs);
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache}";
+		$rs  = $modx->db->select('count(id) as total',$tbl_site_content,$where);
+		$row = $modx->db->getRow($rs);
 		$total = $row['total'];
 		printf($_lang['export_site_numberdocs'], $total);
 		$n = 1;
@@ -138,14 +137,15 @@ else
 		$suffix = $_POST['suffix'];
 	
 	// Modified for export alias path  2006/3/24 end
-		$sql = "SELECT id, alias, pagetitle FROM {$tbl_site_content} WHERE {$tbl_site_content}.deleted=0 AND {$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document' $noncache";
-		$rs = $modx->db->query($sql);
-		$total = mysql_num_rows($rs);
+		$fields = 'id, alias, pagetitle';
+		$where = "deleted=0 AND published=1 AND type='document' {$noncache}";
+		$rs = $modx->db->select($fields,$tbl_site_content,$where);
+		$total = $modx->db->getRecordCount($rs);
 		printf($_lang['export_site_numberdocs'], $total);
 
 		for($i=0; $i<$total; $i++)
 		{
-			$row=mysql_fetch_assoc($rs);
+			$row=$modx->db->getRow($rs);
 
 			$id = $row['id'];
 			printf($_lang['export_site_exporting_document'], $i+1, $total, $row['pagetitle'], $id);
@@ -311,13 +311,12 @@ class EXPORT_SITE
 		global $modx;
 		
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$noncache = $_POST['includenoncache']==1 ? '' : "AND {$tbl_site_content}.cacheable=1";
-		$sqlcond = "{$tbl_site_content}.deleted=0 AND (({$tbl_site_content}.published=1 AND {$tbl_site_content}.type='document') OR ({$tbl_site_content}.isfolder=1)) $noncache";
-		
-		$sql = "SELECT id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published FROM {$tbl_site_content} WHERE {$tbl_site_content}.parent = ".$dirid." AND ".$sqlcond;
-		$rs = mysql_query($sql);
+		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
+		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
+		$where = "parent = {$dirid} AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache}";
+		$rs = $modx->db->select($fields,$tbl_site_content,$where);
 		$dircontent = array();
-		while($row = mysql_fetch_assoc($rs))
+		while($row = $modx->db->getRow($rs))
 		{
 			$row['alias'] = urldecode($row['alias']);
 			
