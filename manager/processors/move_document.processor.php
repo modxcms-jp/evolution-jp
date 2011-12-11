@@ -7,7 +7,7 @@ if(!$modx->hasPermission('edit_document'))   {$e->setError(3);$e->dumpError();}
 // second, new parent must be a folder. If not, set it to folder.
 if($_REQUEST['id']==$_REQUEST['new_parent']) {$e->setError(600); $e->dumpError();}
 if($_REQUEST['id']=='')                      {$e->setError(601); $e->dumpError();}
-if($_REQUEST['new_parent']=='')              {$e->setError(602); $e->dumpError();}
+if($_REQUEST['new_parent']=='')              {echo '<script type="text/javascript">parent.tree.ca = "open";</script>';$e->setError(602); $e->dumpError();}
 
 $tbl_site_content = $modx->getFullTableName('site_content');
 $doc_id = $_REQUEST['id'];

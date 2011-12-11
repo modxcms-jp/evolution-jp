@@ -70,49 +70,40 @@ function assign_base_url()
 	{
 		$script_name= $_SERVER['SCRIPT_NAME'];
 	}
-	$a= explode('/manager', str_replace("\\", '/', dirname($script_name)));
-	if (count($a) > 1)
-	{
-		array_pop($a);
-	}
-	$url= implode('manager', $a);
-	return rtrim($url, '/') . '/';
+	$conf_dir = str_replace("\\", '/', dirname($script_name));
+	$mgr_pos = strrpos($conf_dir,'/manager');
+	if($mgr_pos!==false) $conf_dir = substr($conf_dir,0,$mgr_pos+1);
+	return rtrim($conf_dir,'/') . '/';
 }
 
 function assign_base_path()
 {
-	$a= explode('manager', str_replace("\\", '/', dirname(__FILE__)));
-	if (count($a) > 1)
-	{
-		array_pop($a);
-	}
-	$pth= implode('manager', $a);
-	return rtrim($pth, '/') . '/';
+	$conf_dir = str_replace("\\", '/', dirname(__FILE__));
+	$base_path = substr($conf_dir,0,strrpos($conf_dir,'/manager/'));
+	return rtrim($base_path,'/') . '/';
 }
 
 // assign site_url
 function assign_site_url($base_url)
 {
-	if((isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
+	if(is_https($https_port)) $scheme = 'https://';
+	else                      $scheme = 'http://';
+	
+	$host = $_SERVER['HTTP_HOST'];
+	
+	$pos = strpos($host,':');
+	if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || is_https($https_port)))
 	{
-		$site_url = 'https://';
+		$host= substr($host,0,$pos);
 	}
-	else
+	return $scheme . $host . $base_url;
+}
+
+function is_https($https_port)
+{
+	if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
 	{
-		$site_url = 'http://';
+		return true;
 	}
-	$site_url .= $_SERVER['HTTP_HOST'];
-	if ($_SERVER['SERVER_PORT'] != 80)
-	{
-		$site_url= str_replace(':' . $_SERVER['SERVER_PORT'], '', $site_url); // remove port from HTTP_HOST
-	}
-	if($_SERVER['SERVER_PORT'] == 80 || (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
-	{
-		$site_url .= '';
-	}
-	else
-	{
-		$site_url .= ':' . $_SERVER['SERVER_PORT'];
-	}
-	return $site_url . $base_url;
+	else return false;
 }
