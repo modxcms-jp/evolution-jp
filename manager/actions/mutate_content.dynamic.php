@@ -483,7 +483,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 			<tr style="height: 24px;"><td width="100" align="left"><span class="warning"><?php echo $_lang['resource_title']?></span></td>
 				<td><input name="pagetitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['pagetitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
-			<tr style="height: 24px;"><td align="left"><span class="warning"><?php echo $_lang['long_title']?></span></td>
+			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['long_title']?></span></td>
 				<td><input name="longtitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['longtitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_long_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_description']?></span></td>
@@ -504,7 +504,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				
 <?php } ?>
 
-			<tr style="height: 24px;"><td valign="top" width="100" align="left"><span class="warning"><?php echo $_lang['resource_summary']?></span></td>
+			<tr style="height: 24px;"><td valign="top" width="100"><span class="warning"><?php echo $_lang['resource_summary']?></span></td>
                 <td valign="top"><textarea name="introtext" class="inputBox" rows="3" cols="" onchange="documentDirty=true;"><?php echo htmlspecialchars(stripslashes($content['introtext']))?></textarea>
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_summary_help']?>" onclick="alert(this.alt);" style="cursor:help;" spellcheck="true"/></td></tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_template']?></span></td>
@@ -515,65 +515,81 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				$rs = $modx->db->select('t.templatename, t.id, c.category',$from,'', 'c.category, t.templatename ASC');
 
 				$currentCategory = '';
-				while ($row = mysql_fetch_assoc($rs)) {
+				while ($row = mysql_fetch_assoc($rs))
+				{
 					$thisCategory = $row['category'];
-					if($thisCategory == null) {
+					if($thisCategory == null)
+					{
 						$thisCategory = $_lang["no_category"];
 					}
-					if($thisCategory != $currentCategory) {
-						if($closeOptGroup) {
+					if($thisCategory != $currentCategory)
+					{
+						if($closeOptGroup)
+						{
 							echo "\t\t\t\t\t</optgroup>\n";
 						}
 						echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";
 						$closeOptGroup = true;
-					} else {
+					}
+					else
+					{
 						$closeOptGroup = false;
 					}
-					if (isset($_REQUEST['newtemplate'])) {
+					if (isset($_REQUEST['newtemplate']))
+					{
 						$selectedtext = $row['id'] == $_REQUEST['newtemplate'] ? ' selected="selected"' : '';
-					} else {
-                        if (isset ($content['template'])) {
-						        $selectedtext = $row['id'] == $content['template'] ? ' selected="selected"' : '';
-                        } else {
-                            switch($auto_template_logic) {
-                                case 'sibling':
-
-                                    if (!isset($_GET['pid'])) {
-                                        break; // default_template is already set
-                                    } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1)) {
-                                        $default_template = $sibl[0]['template'];
-                                        break;
-                                    } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1)) {
-                                        $default_template = $sibl[0]['template'];
-                                        break;
-                                    }
-
-                                case 'parent':
-
-                                    if ($parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template')) {
-                                        $default_template = $parent['template'];
-                                        break;
-                                    }
-
-                                case 'system':
-                                default:
-                                    // default_template is already set
-                            }
-                            $selectedtext = $row['id'] == $default_template ? ' selected="selected"' : '';
-                        }
+					}
+					else
+					{
+						if (isset ($content['template']))
+						{
+							$selectedtext = $row['id'] == $content['template'] ? ' selected="selected"' : '';
+						}
+						else
+						{
+							switch($auto_template_logic)
+							{
+								case 'sibling':
+									if(!isset($_GET['pid']))
+									{
+										break; // default_template is already set
+									}
+									elseif($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1))
+									{
+										$default_template = $sibl[0]['template'];
+										break;
+									}
+									elseif($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1))
+									{
+										$default_template = $sibl[0]['template'];
+										break;
+									}
+								case 'parent':
+									if ($parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template'))
+									{
+										$default_template = $parent['template'];
+										break;
+									}
+								case 'system':
+									default:
+									// default_template is already set
+							}
+							$selectedtext = $row['id'] == $default_template ? ' selected="selected"' : '';
+						}
 					}
 					echo "\t\t\t\t\t".'<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
 					$currentCategory = $thisCategory;
 				}
-				if($thisCategory != '') {
-					echo "\t\t\t\t\t</optgroup>\n";							
+				if($thisCategory != '')
+				{
+					echo "\t\t\t\t\t</optgroup>\n";
 				}
 ?>
 				</select> &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['page_data_template_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
-			<tr style="height: 24px;"><td align="left" style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_title']?></span></td>
+			<tr style="height: 24px;"><td style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_title']?></span></td>
 				<td><input name="menutitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['menutitle']))?>" class="inputBox" onchange="documentDirty=true;" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
-			<tr style="height: 24px;"><td align="left" style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_index']?></span></td>
+			<tr style="height: 24px;"><td style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_index']?></span></td>
 				<td><table border="0" cellspacing="0" cellpadding="0" style="width:333px;"><tr>
 					<td><input name="menuindex" type="text" maxlength="5" value="<?php echo $content['menuindex']?>" class="inputBox number" style="width:30px;" onchange="documentDirty=true;" /><input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" /><input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 					&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_index_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
@@ -727,7 +743,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
                         }
 
                         $zindex = $row['type'] == 'date' ? '100' : '500';
-						echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
+						echo "\t\t",'<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
 						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
                              "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
                              "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
@@ -881,7 +897,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 <?php if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta']) {
 	// get list of site keywords
 	$keywords = array();
-	$ds = $modx->db->select('*', $tbl_site_keywords, '', 'keyword ASC');
+	$ds = $modx->db->select('id,keyword', $tbl_site_keywords, '', 'keyword ASC');
 	$limit = $modx->db->getRecordCount($ds);
 	if ($limit > 0) {
 		for ($i = 0; $i < $limit; $i++) {
