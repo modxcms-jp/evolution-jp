@@ -226,17 +226,11 @@ function confirmLangChange(el, lkey, elupd)
 	table.settings th,table.settings td {padding:5px;}
 	table.settings td input[type=text] {width:250px;}
 </style>
-<?php
-	function form_text()
-	{
-		$tpl = '<input onchange="documentDirty=true;" type="text" maxlength="[+max+]" name="[+name+]" value="[+value+]" />';
-	}
-?>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["sitename_title"] ?></th>
 	<td >
-		<input onchange="documentDirty=true;" type="text" maxlength="255" style="width:200px;" name="site_name" value="<?php echo isset($site_name) ? $site_name : "My MODx Site" ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="255" style="width:200px;" name="site_name" value="<?php echo $site_name; ?>" /><br />
 		<?php echo $_lang["sitename_message"] ?>
 	</td>
 </tr>
@@ -263,7 +257,7 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<input onchange="documentDirty=true;" type="radio" name="xhtml_urls" value="1" <?php echo $xhtml_urls=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="xhtml_urls" value="0" <?php echo ($xhtml_urls=='0' || !isset($xhtml_urls)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="xhtml_urls" value="0" <?php echo $xhtml_urls=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["xhtml_urls_message"] ?>
 	</td>
@@ -271,27 +265,27 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitestart_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="site_start" value="<?php echo isset($site_start) ? $site_start : 1 ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="site_start" value="<?php echo $site_start; ?>" /><br />
 		<?php echo $_lang["sitestart_message"] ?></td>
 </tr>
 <tr>
 	<th><?php echo $_lang["errorpage_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="error_page" value="<?php echo isset($error_page) ? $error_page : 1 ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="error_page" value="<?php echo $error_page; ?>" /><br />
 		<?php echo $_lang["errorpage_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["unauthorizedpage_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="unauthorized_page" value="<?php echo isset($unauthorized_page) ? $unauthorized_page : 1 ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="unauthorized_page" value="<?php echo $unauthorized_page; ?>" /><br />
 		<?php echo $_lang["unauthorizedpage_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["sitestatus_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="site_status" value="1" <?php echo ($site_status=='1' || !isset($site_status)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="site_status" value="1" <?php echo $site_status=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["online"]?><br />
 		<input onchange="documentDirty=true;" type="radio" name="site_status" value="0" <?php echo $site_status=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["offline"]?><br />
@@ -301,7 +295,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["siteunavailable_page_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" name="site_unavailable_page" type="text" maxlength="10" size="5" value="<?php echo isset($site_unavailable_page) ? $site_unavailable_page : "" ; ?>" /><br />
+		<input onchange="documentDirty=true;" name="site_unavailable_page" type="text" maxlength="10" size="5" value="<?php echo $site_unavailable_page; ?>" /><br />
 		<?php echo $_lang["siteunavailable_page_message"] ?>
 	</td>
 </tr>
@@ -323,7 +317,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["track_visitors_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="track_visitors" value="1" <?php echo ($track_visitors=='1' || !isset($track_visitors)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="track_visitors" value="1" <?php echo $track_visitors=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["yes"]?><br />
 		<input onchange="documentDirty=true;" type="radio" name="track_visitors" value="0" <?php echo $track_visitors=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["no"]?><br />
@@ -333,7 +327,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["top_howmany_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="top_howmany" value="<?php echo isset($top_howmany) ? $top_howmany : 10 ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="top_howmany" value="<?php echo $top_howmany; ?>" /><br />
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
@@ -406,7 +400,7 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<input onchange="documentDirty=true;" type="radio" name="publish_default" value="1" <?php echo $publish_default=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="publish_default" value="0" <?php echo ($publish_default=='0' || !isset($publish_default)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="publish_default" value="0" <?php echo $publish_default=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultpublish_message"] ?>
 	</td>
@@ -416,7 +410,7 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<input onchange="documentDirty=true;" type="radio" name="cache_default" value="1" <?php echo $cache_default=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="cache_default" value="0" <?php echo ($cache_default=='0' || !isset($cache_default)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="cache_default" value="0" <?php echo $cache_default=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultcache_message"] ?>
 	</td>
@@ -425,19 +419,17 @@ function confirmLangChange(el, lkey, elupd)
 	<th><?php echo $_lang["defaultsearch_title"] ?></th>
 	<td>
 		<input onchange="documentDirty=true;" type="radio" name="search_default" value="1" <?php echo $search_default=='1' ? 'checked="checked"' : "" ; ?> />
-	<?php echo $_lang["yes"]?><br />
-	<input onchange="documentDirty=true;" type="radio" name="search_default" value="0" <?php echo ($search_default=='0' || !isset($search_default)) ? 'checked="checked"' : "" ; ?> />
-	<?php echo $_lang["no"]?><br />
-	<?php echo $_lang["defaultsearch_message"] ?></td>
+		<?php echo $_lang["yes"]?><br />
+		<input onchange="documentDirty=true;" type="radio" name="search_default" value="0" <?php echo $search_default=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo $_lang["no"]?><br />
+		<?php echo $_lang["defaultsearch_message"] ?></td>
 </tr>
 <tr> 
 	<th><?php echo $_lang["defaultmenuindex_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="1" <?php echo ($auto_menuindex=='1' || !isset($auto_menuindex)) ? 'checked="checked"' : "" ; ?> /> 
-	<?php echo $_lang["yes"]?><br /> 
-	<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="0" <?php echo ($auto_menuindex=='0') ? 'checked="checked"' : "" ; ?> /> 
-	<?php echo $_lang["no"]?><br />
-	<?php echo $_lang["defaultmenuindex_message"] ?>
+		<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="1" <?php echo $auto_menuindex=='1' ? 'checked="checked"' : "" ; ?> />		<?php echo $_lang["yes"]?><br /> 
+		<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="0" <?php echo $auto_menuindex=='0' ? 'checked="checked"' : "" ; ?> />		<?php echo $_lang["no"]?><br />
+		<?php echo $_lang["defaultmenuindex_message"] ?>
 	</td>
 </tr>
 <tr>
@@ -449,7 +441,6 @@ function confirmLangChange(el, lkey, elupd)
 			<td valign="top">
 			<select name="lst_custom_contenttype" style="width:200px;" size="5">
 <?php
-	$custom_contenttype = (isset($custom_contenttype) ? $custom_contenttype : 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain');
 	$ct = explode(",",$custom_contenttype);
 	for($i=0;$i<count($ct);$i++)
 	{
@@ -488,7 +479,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["server_protocol_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="server_protocol" value="http" <?php echo ($server_protocol=='http' || !isset($server_protocol))? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="server_protocol" value="http"  <?php echo $server_protocol=='http' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["server_protocol_http"]?><br />
 		<input onchange="documentDirty=true;" type="radio" name="server_protocol" value="https" <?php echo $server_protocol=='https' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["server_protocol_https"]?><br />
@@ -498,7 +489,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["validate_referer_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="validate_referer" value="1" <?php echo ($validate_referer=='1' || !isset($validate_referer)) ? 'checked="checked"' : "" ; ?> />
+		<input onchange="documentDirty=true;" type="radio" name="validate_referer" value="1" <?php echo $validate_referer=='1' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["yes"]?><br />
 		<input onchange="documentDirty=true;" type="radio" name="validate_referer" value="0" <?php echo $validate_referer=='0' ? 'checked="checked"' : "" ; ?> />
 		<?php echo $_lang["no"]?><br />
@@ -508,14 +499,14 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["rss_url_news_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_news" value="<?php echo isset($rss_url_news) ? $rss_url_news : $_lang["rss_url_news_default"] ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_news" value="<?php echo $rss_url_news; ?>" /><br />
 		<?php echo $_lang["rss_url_news_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["rss_url_security_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_security" value="<?php echo isset($rss_url_security) ? $rss_url_security : $_lang["rss_url_security_default"] ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_security" value="<?php echo $rss_url_security; ?>" /><br />
 		<?php echo $_lang["rss_url_security_message"] ?>
 	</td>
 </tr>
@@ -541,7 +532,7 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<input onchange="documentDirty=true;" type="radio" name="friendly_urls" value="1" <?php echo $friendly_urls=='1' ? 'checked="checked"' : "" ; ?> onclick='showHide(/furlRow/, 1);' />
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="friendly_urls" value="0" <?php echo ($friendly_urls=='0' || !isset($friendly_urls)) ? 'checked="checked"' : "" ; ?> onclick='showHide(/furlRow/, 0);' />
+		<input onchange="documentDirty=true;" type="radio" name="friendly_urls" value="0" <?php echo $friendly_urls=='0' ? 'checked="checked"' : "" ; ?> onclick='showHide(/furlRow/, 0);' />
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["friendlyurls_message"] ?>
 	</td>
@@ -549,20 +540,20 @@ function confirmLangChange(el, lkey, elupd)
 <tr id="furlRow1" class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsprefix_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_prefix" value="<?php echo isset($friendly_url_prefix) ? $friendly_url_prefix : "p" ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_prefix" value="<?php echo $friendly_url_prefix; ?>" /><br />
 		<?php echo $_lang["friendlyurlsprefix_message"] ?></td>
 </tr>
 <tr id='furlRow4' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsuffix_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_suffix" value="<?php echo isset($friendly_url_suffix) ? $friendly_url_suffix : ".html" ; ?>" /><br />
+		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_suffix" value="<?php echo $friendly_url_suffix; ?>" /><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="1" <?php echo $friendly_alias_urls=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="0" <?php echo ($friendly_alias_urls=='0' || !isset($friendly_alias_urls)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="0" <?php echo $friendly_alias_urls=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["friendly_alias_message"] ?></td>
 </tr>
@@ -570,7 +561,7 @@ function confirmLangChange(el, lkey, elupd)
 <th><?php echo $_lang["use_alias_path_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="use_alias_path" value="1" <?php echo $use_alias_path=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_alias_path" value="0" <?php echo ($use_alias_path=='0' || !isset($use_alias_path)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="use_alias_path" value="0" <?php echo $use_alias_path=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["use_alias_path_message"] ?></td>
 </tr>
@@ -578,7 +569,7 @@ function confirmLangChange(el, lkey, elupd)
 <th><?php echo $_lang["duplicate_alias_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="allow_duplicate_alias" value="1" <?php echo $allow_duplicate_alias=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="allow_duplicate_alias" value="0" <?php echo ($allow_duplicate_alias=='0' || !isset($allow_duplicate_alias)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="allow_duplicate_alias" value="0" <?php echo $allow_duplicate_alias=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["duplicate_alias_message"] ?></td>
 </tr>
@@ -586,7 +577,7 @@ function confirmLangChange(el, lkey, elupd)
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="automatic_alias" value="1" <?php echo $automatic_alias=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="automatic_alias" value="0" <?php echo ($automatic_alias=='0' || !isset($automatic_alias)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="automatic_alias" value="0" <?php echo $automatic_alias=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["automatic_alias_message"] ?></td>
 </tr>
@@ -612,7 +603,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<td>
 	<input onchange="documentDirty=true;" type="radio" name="use_udperms" value="1" <?php echo $use_udperms=='1' ? 'checked="checked"' : "" ; ?> onclick='showHide(/udPerms/, 1);' />
 	<?php echo $_lang["yes"]?><br />
-	<input onchange="documentDirty=true;" type="radio" name="use_udperms" value="0" <?php echo ($use_udperms=='0' || !isset($use_udperms)) ? 'checked="checked"' : "" ; ?> onclick='showHide(/udPerms/, 0);' />
+	<input onchange="documentDirty=true;" type="radio" name="use_udperms" value="0" <?php echo $use_udperms=='0' ? 'checked="checked"' : "" ; ?> onclick='showHide(/udPerms/, 0);' />
 	<?php echo $_lang["no"]?> <br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
@@ -620,18 +611,18 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="udperms_allowroot" value="1" <?php echo $udperms_allowroot=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="udperms_allowroot" value="0" <?php echo ($udperms_allowroot=='0' || !isset($udperms_allowroot)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="udperms_allowroot" value="0" <?php echo $udperms_allowroot=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?> <br />
 <?php echo $_lang["udperms_allowroot_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["failed_login_title"] ?></th>
-<td><input type="text" name="failed_login_attempts" style="width:50px" value="<?php echo isset($failed_login_attempts) ? $failed_login_attempts : "3" ; ?>" /><br />
+<td><input type="text" name="failed_login_attempts" style="width:50px" value="<?php echo $failed_login_attempts; ?>" /><br />
 <?php echo $_lang["failed_login_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["blocked_minutes_title"] ?></th>
-<td><input type="text" name="blocked_minutes" style="width:100px" value="<?php echo isset($blocked_minutes) ? $blocked_minutes : "60" ; ?>" /><br />
+<td><input type="text" name="blocked_minutes" style="width:100px" value="<?php echo $blocked_minutes; ?>" /><br />
 <?php echo $_lang["blocked_minutes_message"] ?></td>
 </tr>
 <?php
@@ -642,7 +633,7 @@ $gdAvailable = extension_loaded('gd');
 <th><?php echo $_lang["captcha_title"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="use_captcha" value="1" <?php echo ($use_captcha=='1' && $gdAvailable) ? 'checked="checked"' : "" ; echo (!$gdAvailable)? ' readonly="readonly"' : ''; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_captcha" value="0" <?php echo ($use_captcha=='0' || !isset($use_captcha) || !$gdAvailable) ? 'checked="checked"' : "" ; echo (!$gdAvailable)? ' readonly="readonly"' : '';?> />
+<input onchange="documentDirty=true;" type="radio" name="use_captcha" value="0" <?php echo ($use_captcha=='0' || !$gdAvailable) ? 'checked="checked"' : "" ; echo (!$gdAvailable)? ' readonly="readonly"' : '';?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["captcha_message"] ?></td>
 </tr>
@@ -654,13 +645,13 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('captcha_words_default');?>
 </select>
 </th>
-<td><input type="text" id="captcha_words_input" name="captcha_words" style="width:250px" value="<?php echo isset($captcha_words) ? $captcha_words : $_lang["captcha_words_default"] ; ?>" />
+<td><input type="text" id="captcha_words_input" name="captcha_words" style="width:250px" value="<?php echo $captcha_words; ?>" />
 <input type="hidden" name="captcha_words_default" id="captcha_words_default_hidden" value="<?php echo addslashes($_lang["captcha_words_default"]);?>" /><br />
 <?php echo $_lang["captcha_words_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["emailsender_title"] ?></th>
-<td ><input onchange="documentDirty=true;" type="text" maxlength="255" name="emailsender" value="<?php echo isset($emailsender) ? $emailsender : "you@example.com" ; ?>" /><br />
+<td ><input onchange="documentDirty=true;" type="text" maxlength="255" name="emailsender" value="<?php echo $emailsender; ?>" /><br />
 <?php echo $_lang["emailsender_message"] ?></td>
 </tr>
 <tr>
@@ -671,7 +662,7 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('emailsubject_default');?>
 </select>
 </th>
-<td ><input id="emailsubject_field" name="emailsubject" onchange="documentDirty=true;" type="text" maxlength="255" value="<?php echo isset($emailsubject) ? $emailsubject : $_lang["emailsubject_default"] ; ?>" />
+<td ><input id="emailsubject_field" name="emailsubject" onchange="documentDirty=true;" type="text" maxlength="255" value="<?php echo $emailsubject; ?>" />
 <input type="hidden" name="emailsubject_default" id="emailsubject_default_hidden" value="<?php echo addslashes($_lang['emailsubject_default']);?>" /><br />
 <?php echo $_lang["emailsubject_message"] ?></td>
 </tr>
@@ -683,7 +674,7 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('system_email_signup');?>
 </select>
 </td>
-<td><textarea id="signupemail_message_textarea" name="signupemail_message" style="width:100%; height: 120px;"><?php echo isset($signupemail_message) ? $signupemail_message : $_lang["system_email_signup"] ?></textarea>
+<td><textarea id="signupemail_message_textarea" name="signupemail_message" style="width:100%; height: 120px;"><?php echo $signupemail_message;?></textarea>
 <input type="hidden" name="system_email_signup_default" id="system_email_signup_hidden" value="<?php echo addslashes($_lang['system_email_signup']);?>" /><br />
 <?php echo $_lang["signupemail_message"] ?></td>
 </tr>
@@ -695,7 +686,7 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('system_email_websignup');?>
 </select>
 </td>
-<td><textarea id="websignupemail_message_textarea" name="websignupemail_message" style="width:100%; height: 120px;"><?php echo isset($websignupemail_message) ? $websignupemail_message : $_lang["system_email_websignup"] ?></textarea>
+<td><textarea id="websignupemail_message_textarea" name="websignupemail_message" style="width:100%; height: 120px;"><?php echo $websignupemail_message;?></textarea>
 <input type="hidden" name="system_email_websignup_default" id="system_email_websignup_hidden" value="<?php echo addslashes($_lang['system_email_websignup']);?>" /><br />
 <?php echo $_lang["websignupemail_message"] ?></td>
 </tr>
@@ -707,7 +698,7 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('system_email_webreminder');?>
 </select>
 </td>
-<td><textarea id="system_email_webreminder_textarea" name="webpwdreminder_message" style="width:100%; height: 120px;"><?php echo isset($webpwdreminder_message) ? $webpwdreminder_message : $_lang["system_email_webreminder"]; ?></textarea>
+<td><textarea id="system_email_webreminder_textarea" name="webpwdreminder_message" style="width:100%; height: 120px;"><?php echo $webpwdreminder_message;?></textarea>
 <input type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden" value="<?php echo addslashes($_lang['system_email_webreminder']);?>" /><br />
 <?php echo $_lang["webpwdreminder_message"] ?></td>
 </tr>
@@ -750,16 +741,16 @@ $dir->close();
 <th><?php echo $_lang["warning_visibility"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="warning_visibility" value="0" <?php echo $warning_visibility=='0' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["administrators"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="warning_visibility" value="1" <?php echo (!isset($warning_visibility) || $warning_visibility=='1') ? 'checked="checked"' : ""; ?> />
+<input onchange="documentDirty=true;" type="radio" name="warning_visibility" value="1" <?php echo $warning_visibility=='1' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["everybody"]?><br /><?php echo $_lang["warning_visibility_message"]?></td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["tree_page_click"] ?></th>
 <td>
-<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo ($tree_page_click=='27' || !isset($tree_page_click)) ? 'checked="checked"' : ""; ?> />
+<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo $tree_page_click=='27' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["edit_resource"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo ($tree_page_click=='3') ? 'checked="checked"' : ""; ?> />
+<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo $tree_page_click=='3' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["doc_data_title"]?><br />
 <input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="auto" <?php echo ($tree_page_click=='auto') ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["tree_page_click_option_auto"]?><br />
@@ -793,9 +784,9 @@ $remember_last_tab_checked0 = 'checked="checked"';
 </tr>
 <tr>
 <th><?php echo $_lang["tree_show_protected"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="1" <?php echo (!isset($tree_show_protected) || $tree_show_protected=='0') ? '' : 'checked="checked" '; ?>/>
+<td><input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="1" <?php echo $tree_show_protected=='0' ? '' : 'checked="checked" '; ?>/>
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="0" <?php echo (!isset($tree_show_protected) || $tree_show_protected=='0') ? 'checked="checked" ' : ''; ?>/>
+<input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="0" <?php echo $tree_show_protected=='0' ? 'checked="checked" ' : ''; ?>/>
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["tree_show_protected_message"]?></td>
 </tr>
@@ -803,14 +794,14 @@ $remember_last_tab_checked0 = 'checked="checked"';
 <th><?php echo $_lang["show_meta"] ?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="show_meta" value="1" <?php echo $show_meta=='1' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="show_meta" value="0" <?php echo ($show_meta=='0' || !isset($show_meta)) ? 'checked="checked"' : ""; ?> />
+<input onchange="documentDirty=true;" type="radio" name="show_meta" value="0" <?php echo $show_meta=='0' ? 'checked="checked"' : ""; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["show_meta_message"]?></td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="datepicker_offset" value="<?php echo isset($datepicker_offset) ? $datepicker_offset : '-10' ; ?>" /><br />
+<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="datepicker_offset" value="<?php echo $datepicker_offset; ?>" /><br />
 <?php echo $_lang["datepicker_offset_message"]?></td>
 </tr>
 <tr>
@@ -832,27 +823,27 @@ echo $str;
 </tr>
 <tr>
 <th><?php echo $_lang["nologentries_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_logs" value="<?php echo isset($number_of_logs) ? $number_of_logs : 100 ; ?>" /><br />
+<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_logs" value="<?php echo $number_of_logs; ?>" /><br />
 <?php echo $_lang["nologentries_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["mail_check_timeperiod_title"] ?></th>
-<td><input type="text" name="mail_check_timeperiod" onchange="documentDirty=true;" size="5" value="<?php echo isset($mail_check_timeperiod) ? $mail_check_timeperiod : "60" ; ?>" /><br />
+<td><input type="text" name="mail_check_timeperiod" onchange="documentDirty=true;" size="5" value="<?php echo $mail_check_timeperiod; ?>" /><br />
 <?php echo $_lang["mail_check_timeperiod_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["nomessages_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_messages" value="<?php echo isset($number_of_messages) ? $number_of_messages : 30 ; ?>" /><br />
+<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_messages" value="<?php echo $number_of_messages; ?>" /><br />
 <?php echo $_lang["nomessages_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["noresults_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_results" value="<?php echo isset($number_of_results) ? $number_of_results : 30 ; ?>" /><br />
+<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_results" value="<?php echo $number_of_results; ?>" /><br />
 <?php echo $_lang["noresults_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_browser" value="1" <?php echo ($use_browser=='1' || !isset($use_browser)) ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 1);" />
+<td><input onchange="documentDirty=true;" type="radio" name="use_browser" value="1" <?php echo $use_browser=='1' ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 1);" />
 <?php echo $_lang["yes"]?><br />
 <input onchange="documentDirty=true;" type="radio" name="use_browser" value="0" <?php echo $use_browser=='0' ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 0);" />
 <?php echo $_lang["no"]?><br />
@@ -863,7 +854,7 @@ echo $str;
 <th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo ($strip_image_paths=='0' || !isset($strip_image_paths)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo $strip_image_paths=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["settings_strip_image_paths_message"]?></td>
 </tr>
@@ -874,7 +865,7 @@ echo $str;
 <th><?php echo $_lang["rb_webuser_title"]?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="1" <?php echo $rb_webuser=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="0" <?php echo ($rb_webuser=='0' || !isset($rb_webuser)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="0" <?php echo ($rb_webuser=='0') ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["rb_webuser_message"]?></td>
 </tr>
@@ -883,11 +874,11 @@ echo $str;
 <td><?php
 function getResourceBaseDir() {
 global $base_path;
-return $base_path."assets/";
+return "{$base_path}assets/";
 }
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_dir" id="rb_base_dir" value="<?php echo isset($rb_base_dir) ? $rb_base_dir : getResourceBaseDir() ; ?>" /> <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_dir" id="rb_base_dir" value="<?php echo $rb_base_dir; ?>" /> <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
 <tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
@@ -898,39 +889,39 @@ global $site_url;
 return $site_url . "assets/";
 }
 ?>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_url" value="<?php echo isset($rb_base_url) ? $rb_base_url : getResourceBaseUrl() ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_url" value="<?php echo $rb_base_url; ?>" /><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
 <tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_images_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_images" value="<?php echo isset($upload_images) ? $upload_images : "jpg,gif,png,ico,bmp,psd" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_images" value="<?php echo $upload_images; ?>" /><br />
 <?php echo $_lang["uploadable_images_message"]?></td>
 </tr>
 <tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_media_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_media" value="<?php echo isset($upload_media) ? $upload_media : "mp3,wav,au,wmv,avi,mpg,mpeg" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_media" value="<?php echo $upload_media; ?>" /><br />
 <?php echo $_lang["uploadable_media_message"]?></td>
 </tr>
 <tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_flash_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_flash" value="<?php echo isset($upload_flash) ? $upload_flash : "swf,fla" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_flash" value="<?php echo $upload_flash; ?>" /><br />
 <?php echo $_lang["uploadable_flash_message"]?></td>
 </tr>
 <tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
 <td><input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="1" <?php echo $clean_uploaded_filename=='1' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="0" <?php echo ($clean_uploaded_filename=='0' || !isset($clean_uploaded_filename)) ? 'checked="checked"' : "" ; ?> />
+<input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="0" <?php echo $clean_uploaded_filename=='0' ? 'checked="checked"' : "" ; ?> />
 <?php echo $_lang["no"]?><br />
 <?php echo $_lang["clean_uploaded_filename_message"];?></td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_editor" value="1" <?php echo ($use_editor=='1' || !isset($use_editor)) ? 'checked="checked"' : "" ; ?> onclick="showHide(/editorRow/, 1); checkCustomIcons();" />
+<td><input onchange="documentDirty=true;" type="radio" name="use_editor" value="1" <?php echo $use_editor=='1' ? 'checked="checked"' : "" ; ?> onclick="showHide(/editorRow/, 1); checkCustomIcons();" />
 <?php echo $_lang["yes"]?><br />
 <input onchange="documentDirty=true;" type="radio" name="use_editor" value="0" <?php echo $use_editor=='0' ? 'checked="checked"' : "" ; ?> onclick="showHide(/editorRow/, 0);" />
 <?php echo $_lang["no"]?><br />
@@ -964,7 +955,7 @@ echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" 
 </tr>
 <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["editor_css_path_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="255" name="editor_css_path" value="<?php echo isset($editor_css_path) ? $editor_css_path : "" ; ?>" /><br />
+<td><input onchange="documentDirty=true;" type="text" maxlength="255" name="editor_css_path" value="<?php echo $editor_css_path; ?>" /><br />
 <?php echo $_lang["editor_css_path_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
@@ -988,13 +979,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["filemanager_path_title"]?></th>
 <td>
 <?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo $base_path; ?></span><br />
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="filemanager_path" id="filemanager_path" value="<?php echo isset($filemanager_path) ? $filemanager_path : $base_path; ?>" /> <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="filemanager_path" id="filemanager_path" value="<?php echo $filemanager_path; ?>" /> <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
 <?php echo $_lang["filemanager_path_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_files_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_files" value="<?php echo isset($upload_files) ? $upload_files : "txt,php,html,htm,xml,js,css,cache,zip,gz,rar,z,tgz,tar,htaccess,pdf" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_files" value="<?php echo $upload_files; ?>" /><br />
 <?php echo $_lang["uploadable_files_message"]?></td>
 </tr>
 <tr>
@@ -1018,13 +1009,13 @@ if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
 <tr>
 <th><?php echo $_lang["new_file_permissions_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_file_permissions" value="<?php echo isset($new_file_permissions) ? $new_file_permissions : "0644" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_file_permissions" value="<?php echo $new_file_permissions; ?>" /><br />
 <?php echo $_lang["new_file_permissions_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_folder_permissions_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_folder_permissions" value="<?php echo isset($new_folder_permissions) ? $new_folder_permissions : "0755" ; ?>" /><br />
+<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_folder_permissions" value="<?php echo $new_folder_permissions; ?>" /><br />
 <?php echo $_lang["new_folder_permissions_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
