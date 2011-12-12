@@ -85,9 +85,9 @@ if ($action == 27) {
 
 // Check to see the document isn't locked
 $rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=27 AND id='{$id}'");
-if (1 < mysql_num_rows($rs))
+if (1 < $modx->db->getRecordCount($rs))
 {
-	while($lock = mysql_fetch_assoc($rs))
+	while($lock = $modx->db->getRow($rs))
 	{
 		if ($lock['internalKey'] != $modx->getLoginUserID())
 		{
@@ -108,7 +108,7 @@ if (!empty ($id)) {
 		(!$docgrp ? '' : " OR dg.document_group IN ($docgrp)");
 	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document=sc.id";
 	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
-	$limit = mysql_num_rows($rs);
+	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1) {
 		$e->setError(6);
 		$e->dumpError();
@@ -117,7 +117,7 @@ if (!empty ($id)) {
 		$e->setError(3);
 		$e->dumpError();
 	}
-	$content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
 } else {
 	$content = array();
 }
@@ -515,7 +515,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				$rs = $modx->db->select('t.templatename, t.id, c.category',$from,'', 'c.category, t.templatename ASC');
 
 				$currentCategory = '';
-				while ($row = mysql_fetch_assoc($rs))
+				while ($row = $modx->db->getRow($rs))
 				{
 					$thisCategory = $row['category'];
 					if($thisCategory == null)
@@ -627,12 +627,12 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				}
 				if($parentlookup !== false && is_numeric($parentlookup)) {
 					$rs = $modx->db->select('pagetitle',$tbl_site_content,"id='{$parentlookup}'");
-					$limit = mysql_num_rows($rs);
+					$limit = $modx->db->getRecordCount($rs);
 					if ($limit != 1) {
 						$e->setError(8);
 						$e->dumpError();
 					}
-					$parentrs = mysql_fetch_assoc($rs);
+					$parentrs = $modx->db->getRow($rs);
 					$parentname = $parentrs['pagetitle'];
 				}
                 ?>&nbsp;<img alt="tree_folder" name="plock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" /> <b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" ><?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
@@ -705,7 +705,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
 					");
 				$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
-				$num_of_tv = mysql_num_rows($rs);
+				$num_of_tv = $modx->db->getRecordCount($rs);
 				echo '<script type="text/javascript">var num_of_tv=' . $num_of_tv . ';</script>';
 				if ($num_of_tv > 0)
 				{
@@ -714,7 +714,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
 					for ($i = 0; $i < $num_of_tv; $i++) {
 						// Go through and display all Template Variables
-						$row = mysql_fetch_assoc($rs);
+						$row = $modx->db->getRow($rs);
 						if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
 							// Add richtext editor to the list
 							if (is_array($replace_richtexteditor)) {
@@ -989,53 +989,57 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 
 /*******************************
  * Document Access Permissions */
-if ($use_udperms == 1) {
+if ($use_udperms == 1)
+{
 	$groupsarray = array();
-	$sql = '';
-
-	$documentId = ($_REQUEST['a'] == '27' ? $id : (!empty($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']));
-	if ($documentId > 0) {
+	
+	if($_REQUEST['a'] == '27')       $docid = $id;
+	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
+	else                             $docid = $content['parent'];
+	
+	if ($docid > 0)
+	{
 		// Load up, the permissions from the parent (if new document) or existing document
-		$rs = $modx->db->select('id, document_group',$tbl_document_groups,"document='{$documentId}'");
-		while ($currentgroup = mysql_fetch_assoc($rs))
+		$rs = $modx->db->select('id, document_group',$tbl_document_groups,"document='{$docid}'");
+		while ($currentgroup = $modx->db->getRow($rs))
+		{
 			$groupsarray[] = $currentgroup['document_group'].','.$currentgroup['id'];
-
+		}
 		// Load up the current permissions and names
-		$sql = 'SELECT dgn.*, groups.id AS link_id '.
-		       'FROM '.$tbl_document_group_names.' AS dgn '.
-		       'LEFT JOIN '.$tbl_document_groups.' AS groups ON groups.document_group = dgn.id '.
-		       '  AND groups.document = '.$documentId.' '.
-		       'ORDER BY name';
-	} else {
-		// Just load up the names, we're starting clean
-		$sql = 'SELECT *, NULL AS link_id FROM '.$tbl_document_group_names.' ORDER BY name';
+		$field = 'dgn.*, groups.id AS link_id';
+		$from  = "{$tbl_document_group_names} AS dgn LEFT JOIN {$tbl_document_groups} AS groups ON groups.document_group = dgn.id  AND groups.document = {$docid}";
 	}
-
-	// retain selected doc groups between post
-	if (isset($_POST['docgroups']))
-		$groupsarray = array_merge($groupsarray, $_POST['docgroups']);
-
+	else
+	{
+		// Just load up the names, we're starting clean
+		$field = '*, NULL AS link_id';
+		$from  = $tbl_document_group_names;
+	}
 	// Query the permissions and names from above
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->select($field,$from,'','name');
+	$limit = $modx->db->getRecordCount($rs);
 
 	$isManager = $modx->hasPermission('access_permissions');
 	$isWeb     = $modx->hasPermission('web_access_permissions');
 
 	// Setup Basic attributes for each Input box
-	$inputAttributes = array(
-		'type' => 'checkbox',
-		'class' => 'checkbox',
-		'name' => 'docgroups[]',
-		'onclick' => 'makePublic(false);',
-	);
+	$inputAttributes['type']    = 'checkbox';
+	$inputAttributes['class']   = 'checkbox';
+	$inputAttributes['name']    = 'docgroups[]';
+	$inputAttributes['onclick'] = 'makePublic(false)';
+	
 	$permissions = array(); // New Permissions array list (this contains the HTML)
 	$permissions_yes = 0; // count permissions the current mgr user has
 	$permissions_no = 0; // count permissions the current mgr user doesn't have
 
+	// retain selected doc groups between post
+	if (isset($_POST['docgroups']))
+		$groupsarray = array_merge($groupsarray, $_POST['docgroups']);
+
 	// Loop through the permissions list
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+	for ($i = 0; $i < $limit; $i++)
+	{
+		$row = $modx->db->getRow($rs);
 
 		// Create an inputValue pair (group ID and group link (if it exists))
 		$inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
@@ -1057,17 +1061,18 @@ if ($use_udperms == 1) {
 
 		// Create attribute string list
 		$inputString = array();
-		foreach ($inputAttributes as $k => $v) $inputString[] = $k.'="'.$v.'"';
+		foreach ($inputAttributes as $k => $v)
+		{
+			$inputString[] = $k.'="'.$v.'"';
+		}
 
 		// Make the <input> HTML
-        $inputHTML = '<input '.implode(' ', $inputString).' />';
+        $inputHTML = '<input '.implode(' ', $inputString).' />' . "\n";
 
 		// does user have this permission?
-		$sql = "SELECT COUNT(mg.id) FROM {$tbl_membergroup_access} mga, {$tbl_member_groups} mg
- WHERE mga.membergroup = mg.user_group
- AND mga.documentgroup = {$row['id']}
- AND mg.member = {$_SESSION['mgrInternalKey']};";
-		$rsp = $modx->db->query($sql);
+		$from = "{$tbl_membergroup_access} mga, {$tbl_member_groups} mg";
+		$where = "mga.membergroup = mg.user_group AND mga.documentgroup = {$row['id']} AND mg.member = {$_SESSION['mgrInternalKey']}";
+		$rsp = $modx->db->select('COUNT(mg.id)',$from,$where);
 		$count = $modx->db->getValue($rsp);
 		if($count > 0) {
 			++$permissions_yes;
@@ -1121,7 +1126,10 @@ if ($use_udperms == 1) {
 </div><!--div class="tab-page" id="tabAccess"-->
 <?php
 	} // !empty($permissions)
-	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0) && ($_SESSION['mgrPermissions']['access_permissions'] == 1 || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)) {
+	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)
+	   && ($_SESSION['mgrPermissions']['access_permissions'] == 1
+	   || $_SESSION['mgrPermissions']['web_access_permissions'] == 1))
+	{
 ?>
 	<p><?php echo $_lang["access_permissions_docs_collision"];?></p>
 <?php
