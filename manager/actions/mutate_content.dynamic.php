@@ -402,7 +402,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 <input type="hidden" name="a" value="5" />
 <input type="hidden" name="id" value="<?php echo $content['id']?>" />
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a']?>" />
-<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : 1048576?>" />
+<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : 3145728?>" />
 <input type="hidden" name="refresh_preview" value="0" />
 <input type="hidden" name="newtemplate" value="" />
 
