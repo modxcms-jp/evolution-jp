@@ -503,7 +503,7 @@ switch ($actionToTake)
 			}
 			else
 			{
-				$header = "Location: index.php?a=3&id={$id}&r=1";
+				$header = "Location: index.php?a=2";
 			}
 		}
 		header($header);
