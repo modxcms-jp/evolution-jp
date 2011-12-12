@@ -27,6 +27,11 @@ else    $manager_theme  = '';
 
 	<table border="0" cellspacing="0" cellpadding="4">
 	<tr>
+		<td><?php echo $_lang["username"]?>:</td>
+		<td>&nbsp;</td>
+		<td><b><?php echo $modx->getLoginUserName();?></b></td>
+	</tr>
+	<tr>
 		<td><?php echo $_lang['change_password_new']?>:</td>
 		<td>&nbsp;</td>
 		<td><input type="password" name="pass1" class="inputBox" style="width:150px" value=""></td>
