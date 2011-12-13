@@ -61,14 +61,6 @@ $settings['rb_base_url'] =  $rb_base_url = trim($settings['rb_base_url']) == '' 
 
 <script type="text/javascript">
 
-function checkCustomIcons()
-{
-	if(document.settings.editor_toolbar.selectedIndex!=3)
-	{
-		showHide(/custom/,0);
-	}
-};
-
 function showHide(what, onoff)
 {
 	var all = document.getElementsByTagName( "*" );
@@ -255,9 +247,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["xhtml_urls_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="xhtml_urls" value="1" <?php echo $xhtml_urls=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('xhtml_urls','1',$xhtml_urls=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="xhtml_urls" value="0" <?php echo $xhtml_urls=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('xhtml_urls','0',$xhtml_urls=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["xhtml_urls_message"] ?>
 	</td>
@@ -285,9 +277,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitestatus_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="site_status" value="1" <?php echo $site_status=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('site_status','1',$site_status=='1');?>
 		<?php echo $_lang["online"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="site_status" value="0" <?php echo $site_status=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('site_status','0',$site_status=='0');?>
 		<?php echo $_lang["offline"]?><br />
 		<?php echo $_lang["sitestatus_message"] ?>
 	</td>
@@ -317,9 +309,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["track_visitors_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="track_visitors" value="1" <?php echo $track_visitors=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('track_visitors','1',$track_visitors=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="track_visitors" value="0" <?php echo $track_visitors=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('track_visitors','0',$track_visitors=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["track_visitors_message"] ?>
 	</td>
@@ -336,9 +328,11 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<p>
 		<?php echo $_lang["defaulttemplate_logic_general_message"];?></p>
-		<input onchange="documentDirty=true;" type="radio" name="auto_template_logic" value="system"<?php if($auto_template_logic == 'system') {echo " checked='checked'";}?>/> <?php echo $_lang["defaulttemplate_logic_system_message"]; ?><br />
-		<input onchange="documentDirty=true;" type="radio" name="auto_template_logic" value="parent"<?php if($auto_template_logic == 'parent') {echo " checked='checked'";}?>/> <?php echo $_lang["defaulttemplate_logic_parent_message"]; ?><br />
-		<input onchange="documentDirty=true;" type="radio" name="auto_template_logic" value="sibling"<?php if($auto_template_logic == 'sibling') {echo " checked='checked'";}?>/>
+		<?php echo form_radio('auto_template_logic','system', $auto_template_logic == 'system');?>
+		<?php echo $_lang["defaulttemplate_logic_system_message"]; ?><br />
+		<?php echo form_radio('auto_template_logic','parent', $auto_template_logic == 'parent');?>
+		<?php echo $_lang["defaulttemplate_logic_parent_message"]; ?><br />
+		<?php echo form_radio('auto_template_logic','sibling',$auto_template_logic == 'sibling');?>
 		<?php echo $_lang["defaulttemplate_logic_sibling_message"]; ?><br />
 	</td>
 </tr>
@@ -388,8 +382,8 @@ function confirmLangChange(el, lkey, elupd)
 ?>
 		</select><br />
 		<div id="template_reset_options_wrapper" style="display:none;">
-			<input onchange="documentDirty=true;" type="radio" name="reset_template" value="1" /> <?php echo $_lang["template_reset_all"]; ?><br />
-			<input onchange="documentDirty=true;" type="radio" name="reset_template" value="2" /> <?php echo sprintf($_lang["template_reset_specific"],$oldTmpName); ?>
+			<?php echo form_radio('reset_template','1');?> <?php echo $_lang["template_reset_all"]; ?><br />
+			<?php echo form_radio('reset_template','2');?> <?php echo sprintf($_lang["template_reset_specific"],$oldTmpName); ?>
 		</div>
 		<input type="hidden" name="old_template" value="<?php echo $oldTmpId; ?>" /><br />
 		<?php echo $_lang["defaulttemplate_message"] ?>
@@ -398,9 +392,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["defaultpublish_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="publish_default" value="1" <?php echo $publish_default=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('publish_default','1',$publish_default=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="publish_default" value="0" <?php echo $publish_default=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('publish_default','0',$publish_default=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultpublish_message"] ?>
 	</td>
@@ -408,9 +402,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["defaultcache_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="cache_default" value="1" <?php echo $cache_default=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('cache_default','1',$cache_default=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="cache_default" value="0" <?php echo $cache_default=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('cache_default','0',$cache_default=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultcache_message"] ?>
 	</td>
@@ -418,17 +412,19 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["defaultsearch_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="search_default" value="1" <?php echo $search_default=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('search_default','1',$search_default=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="search_default" value="0" <?php echo $search_default=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('search_default','0',$search_default=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultsearch_message"] ?></td>
 </tr>
 <tr> 
 	<th><?php echo $_lang["defaultmenuindex_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="1" <?php echo $auto_menuindex=='1' ? 'checked="checked"' : "" ; ?> />		<?php echo $_lang["yes"]?><br /> 
-		<input onchange="documentDirty=true;" type="radio" name="auto_menuindex" value="0" <?php echo $auto_menuindex=='0' ? 'checked="checked"' : "" ; ?> />		<?php echo $_lang["no"]?><br />
+		<?php echo form_radio('auto_menuindex','1',$auto_menuindex=='1');?>
+		<?php echo $_lang["yes"]?><br /> 
+		<?php echo form_radio('auto_menuindex','0',$auto_menuindex=='0');?>
+		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["defaultmenuindex_message"] ?>
 	</td>
 </tr>
@@ -479,9 +475,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["server_protocol_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="server_protocol" value="http"  <?php echo $server_protocol=='http' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('server_protocol','http', $server_protocol=='http');?>
 		<?php echo $_lang["server_protocol_http"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="server_protocol" value="https" <?php echo $server_protocol=='https' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('server_protocol','https',$server_protocol=='https');?>
 		<?php echo $_lang["server_protocol_https"]?><br />
 		<?php echo $_lang["server_protocol_message"] ?>
 	</td>
@@ -489,9 +485,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["validate_referer_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="validate_referer" value="1" <?php echo $validate_referer=='1' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('validate_referer','1', $validate_referer=='1');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="validate_referer" value="0" <?php echo $validate_referer=='0' ? 'checked="checked"' : "" ; ?> />
+		<?php echo form_radio('validate_referer','0', $validate_referer=='0');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["validate_referer_message"] ?>
 	</td>
@@ -530,9 +526,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["friendlyurls_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="radio" name="friendly_urls" value="1" <?php echo $friendly_urls=='1' ? 'checked="checked"' : "" ; ?> onclick='showHide(/furlRow/, 1);' />
+		<?php echo form_radio('friendly_urls','1', $friendly_urls=='1','onclick="showHide(/furlRow/, 1);"');?>
 		<?php echo $_lang["yes"]?><br />
-		<input onchange="documentDirty=true;" type="radio" name="friendly_urls" value="0" <?php echo $friendly_urls=='0' ? 'checked="checked"' : "" ; ?> onclick='showHide(/furlRow/, 0);' />
+		<?php echo form_radio('friendly_urls','0', $friendly_urls=='0','onclick="showHide(/furlRow/, 0);"');?>
 		<?php echo $_lang["no"]?><br />
 		<?php echo $_lang["friendlyurls_message"] ?>
 	</td>
@@ -551,35 +547,42 @@ function confirmLangChange(el, lkey, elupd)
 </tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="1" <?php echo $friendly_alias_urls=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="0" <?php echo $friendly_alias_urls=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["friendly_alias_message"] ?></td>
+<td>
+	<?php echo form_radio('friendly_alias_urls','1', $friendly_alias_urls=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('friendly_alias_urls','0', $friendly_alias_urls=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["friendly_alias_message"] ?></td>
 </tr>
 <tr id='furlRow10' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["use_alias_path_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_alias_path" value="1" <?php echo $use_alias_path=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_alias_path" value="0" <?php echo $use_alias_path=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["use_alias_path_message"] ?></td>
+<td>
+	<?php echo form_radio('use_alias_path','1', $use_alias_path=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('use_alias_path','0', $use_alias_path=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["use_alias_path_message"] ?>
+</td>
 </tr>
 <tr id='furlRow16' class='row2' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["duplicate_alias_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="allow_duplicate_alias" value="1" <?php echo $allow_duplicate_alias=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="allow_duplicate_alias" value="0" <?php echo $allow_duplicate_alias=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["duplicate_alias_message"] ?></td>
+<td>
+	<?php echo form_radio('allow_duplicate_alias','1', $allow_duplicate_alias=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('allow_duplicate_alias','0', $allow_duplicate_alias=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["duplicate_alias_message"] ?>
+</td>
 </tr>
 <tr id='furlRow13' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="automatic_alias" value="1" <?php echo $automatic_alias=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="automatic_alias" value="0" <?php echo $automatic_alias=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["automatic_alias_message"] ?></td>
+<td>
+	<?php echo form_radio('automatic_alias','1', $automatic_alias=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('automatic_alias','0', $automatic_alias=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["automatic_alias_message"] ?>
+</td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
 <td colspan="2">
@@ -601,19 +604,21 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<input onchange="documentDirty=true;" type="radio" name="use_udperms" value="1" <?php echo $use_udperms=='1' ? 'checked="checked"' : "" ; ?> onclick='showHide(/udPerms/, 1);' />
+	<?php echo form_radio('use_udperms','1', $use_udperms=='1','onclick="showHide(/udPerms/, 1);"');?>
 	<?php echo $_lang["yes"]?><br />
-	<input onchange="documentDirty=true;" type="radio" name="use_udperms" value="0" <?php echo $use_udperms=='0' ? 'checked="checked"' : "" ; ?> onclick='showHide(/udPerms/, 0);' />
-	<?php echo $_lang["no"]?> <br />
+	<?php echo form_radio('use_udperms','0', $use_udperms=='0','onclick="showHide(/udPerms/, 0);"');?>
+	<?php echo $_lang["no"]?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
 <tr id='udPermsRow1' class="row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="udperms_allowroot" value="1" <?php echo $udperms_allowroot=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="udperms_allowroot" value="0" <?php echo $udperms_allowroot=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?> <br />
-<?php echo $_lang["udperms_allowroot_message"] ?></td>
+<td>
+	<?php echo form_radio('udperms_allowroot','1', $udperms_allowroot=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('udperms_allowroot','0', $udperms_allowroot=='0');?>
+	<?php echo $_lang["no"]?> <br />
+	<?php echo $_lang["udperms_allowroot_message"] ?>
+</td>
 </tr>
 <tr>
 <th><?php echo $_lang["failed_login_title"] ?></th>
@@ -631,11 +636,13 @@ $gdAvailable = extension_loaded('gd');
 ?>
 <tr>
 <th><?php echo $_lang["captcha_title"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_captcha" value="1" <?php echo ($use_captcha=='1' && $gdAvailable) ? 'checked="checked"' : "" ; echo (!$gdAvailable)? ' readonly="readonly"' : ''; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_captcha" value="0" <?php echo ($use_captcha=='0' || !$gdAvailable) ? 'checked="checked"' : "" ; echo (!$gdAvailable)? ' readonly="readonly"' : '';?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["captcha_message"] ?></td>
+<td>
+	<?php echo form_radio('use_captcha','1', $use_captcha=='1' && $gdAvailable,'',!$gdAvailable);?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('use_captcha','0', $use_captcha=='0' || !$gdAvailable,'',!$gdAvailable);?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["captcha_message"] ?>
+</td>
 </tr>
 <tr>
 <th><?php echo $_lang["captcha_words_title"];?>
@@ -724,79 +731,75 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <td><select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
 $dir = dir("media/style/");
-while ($file = $dir->read()) {
-if($file!="." && $file!=".." && is_dir("media/style/$file") && substr($file,0,1) != '.') {
-$themename = $file;
-$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
-echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
-}
+while ($file = $dir->read())
+{
+	if($file!="." && $file!=".." && is_dir("media/style/$file") && substr($file,0,1) != '.')
+	{
+		$themename = $file;
+		$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
+		echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
+	}
 }
 $dir->close();
 ?>
-</select><input type="hidden" name="theme_refresher" value="" /><br />
+</select><br />
+<input type="hidden" name="theme_refresher" value="" />
 <?php echo $_lang["manager_theme_message"]?></td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["warning_visibility"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="warning_visibility" value="0" <?php echo $warning_visibility=='0' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["administrators"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="warning_visibility" value="1" <?php echo $warning_visibility=='1' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["everybody"]?><br /><?php echo $_lang["warning_visibility_message"]?></td>
+<td>
+	<?php echo form_radio('warning_visibility','0',$warning_visibility=='0');?>
+	<?php echo $_lang["administrators"]?><br />
+	<?php echo form_radio('warning_visibility','1',$warning_visibility=='1');?>
+	<?php echo $_lang["everybody"]?><br /><?php echo $_lang["warning_visibility_message"]?>
+</td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["tree_page_click"] ?></th>
 <td>
-<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="27" <?php echo $tree_page_click=='27' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["edit_resource"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="3" <?php echo $tree_page_click=='3' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["doc_data_title"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="tree_page_click" value="auto" <?php echo ($tree_page_click=='auto') ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["tree_page_click_option_auto"]?><br />
-<?php echo $_lang["tree_page_click_message"]?></td>
+	<?php echo form_radio('tree_page_click','27',$tree_page_click=='27');?>
+	<?php echo $_lang["edit_resource"]?><br />
+	<?php echo form_radio('tree_page_click','3',$tree_page_click=='3');?>
+	<?php echo $_lang["doc_data_title"]?><br />
+	<?php echo form_radio('tree_page_click','auto',$tree_page_click=='auto');?>
+	<?php echo $_lang["tree_page_click_option_auto"]?><br />
+	<?php echo $_lang["tree_page_click_message"]?>
+</td>
 </tr>
-<?php
-$remember_last_tab_checked2 = '';
-$remember_last_tab_checked1 = '';
-$remember_last_tab_checked0 = '';
-switch($remember_last_tab)
-{
-case '2':
-$remember_last_tab_checked2 = 'checked="checked"';
-break;
-case '1':
-$remember_last_tab_checked1 = 'checked="checked"';
-break;
-default:
-$remember_last_tab_checked0 = 'checked="checked"';
-}
-?>
 <tr>
 <th><?php echo $_lang["remember_last_tab"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="2" <?php echo $remember_last_tab_checked2; ?> />
-<?php echo $_lang["yes"]?> (Full)<br />
-<input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="1" <?php echo $remember_last_tab_checked1; ?> />
-<?php echo $_lang["yes"]?> (Stay mode)<br />
-<input onchange="documentDirty=true;" type="radio" name="remember_last_tab" value="0" <?php echo $remember_last_tab_checked0; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["remember_last_tab_message"]?></td>
+<td>
+	<?php echo form_radio('remember_last_tab','2',$remember_last_tab=='2');?>
+	<?php echo $_lang["yes"]?> (Full)<br />
+	<?php echo form_radio('remember_last_tab','1',$remember_last_tab=='1');?>
+	<?php echo $_lang["yes"]?> (Stay mode)<br />
+	<?php echo form_radio('remember_last_tab','0',$remember_last_tab=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["remember_last_tab_message"]?>
+</td>
 </tr>
 <tr>
 <th><?php echo $_lang["tree_show_protected"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="1" <?php echo $tree_show_protected=='0' ? '' : 'checked="checked" '; ?>/>
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="0" <?php echo $tree_show_protected=='0' ? 'checked="checked" ' : ''; ?>/>
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["tree_show_protected_message"]?></td>
+<td>
+	<?php echo form_radio('tree_show_protected','1',$tree_show_protected=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('tree_show_protected','0',$tree_show_protected=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["tree_show_protected_message"]?>
+</td>
 </tr>
 <tr>
 <th><?php echo $_lang["show_meta"] ?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="show_meta" value="1" <?php echo $show_meta=='1' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="show_meta" value="0" <?php echo $show_meta=='0' ? 'checked="checked"' : ""; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["show_meta_message"]?></td>
+<td>
+	<?php echo form_radio('show_meta','1',$show_meta=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('show_meta','0',$show_meta=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["show_meta_message"]?>
+</td>
 </tr>
 
 <tr>
@@ -843,31 +846,37 @@ echo $str;
 </tr>
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_browser" value="1" <?php echo $use_browser=='1' ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 1);" />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_browser" value="0" <?php echo $use_browser=='0' ? 'checked="checked"' : "" ; ?> onclick="showHide(/rbRow/, 0);" />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["rb_message"]?></td>
+<td>
+	<?php echo form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["rb_message"]?>
+</td>
 </tr>
 
 <tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="1" <?php echo $strip_image_paths=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="strip_image_paths" value="0" <?php echo $strip_image_paths=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["settings_strip_image_paths_message"]?></td>
+<td>
+	<?php echo form_radio('strip_image_paths','1',$strip_image_paths=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('strip_image_paths','0',$strip_image_paths=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["settings_strip_image_paths_message"]?>
+</td>
 </tr>
 
 <?php if(!isset($use_browser)) $use_browser=1; ?>
 
 <tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_webuser_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="1" <?php echo $rb_webuser=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="0" <?php echo ($rb_webuser=='0') ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["rb_webuser_message"]?></td>
+<td>
+	<?php echo form_radio('rb_webuser','1',$rb_webuser=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('rb_webuser','0',$rb_webuser=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["rb_webuser_message"]?>
+</td>
 </tr>
 <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_dir_title"]?></th>
@@ -912,20 +921,24 @@ return $site_url . "assets/";
 </tr>
 <tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="1" <?php echo $clean_uploaded_filename=='1' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="0" <?php echo $clean_uploaded_filename=='0' ? 'checked="checked"' : "" ; ?> />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["clean_uploaded_filename_message"];?></td>
+<td>
+	<?php echo form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('clean_uploaded_filename','0',$clean_uploaded_filename=='0');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["clean_uploaded_filename_message"];?>
+</td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
-<td><input onchange="documentDirty=true;" type="radio" name="use_editor" value="1" <?php echo $use_editor=='1' ? 'checked="checked"' : "" ; ?> onclick="showHide(/editorRow/, 1); checkCustomIcons();" />
-<?php echo $_lang["yes"]?><br />
-<input onchange="documentDirty=true;" type="radio" name="use_editor" value="0" <?php echo $use_editor=='0' ? 'checked="checked"' : "" ; ?> onclick="showHide(/editorRow/, 0);" />
-<?php echo $_lang["no"]?><br />
-<?php echo $_lang["use_editor_message"]?></td>
+<td>
+	<?php echo form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"');?>
+	<?php echo $_lang["yes"]?><br />
+	<?php echo form_radio('use_editor','0',$use_editor=='0','onclick="showHide(/editorRow/, 0);"');?>
+	<?php echo $_lang["no"]?><br />
+	<?php echo $_lang["use_editor_message"]?>
+</td>
 </tr>
 
 <?php if(!isset($use_editor)) $use_editor=1; ?>
@@ -1108,4 +1121,13 @@ function get_lang_options($key=null, $selected_lang=null)
 		return $lang_options;
 	}
 }
+
+function form_radio($name,$value,$checked=false,$add='',$disabled=false)
+{
+	if($checked)  $checked  = ' checked="checked"';
+	if($disabled) $disabled = ' disabled';
+	if($add)     $add = ' ' . $add;
+	return '<input onchange="documentDirty=true;" type="radio" name="' . $name . '" value="' . $value . '"' . $checked . $disabled . $add . ' />';
+}
+
 ?>
