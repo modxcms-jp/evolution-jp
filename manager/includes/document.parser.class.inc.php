@@ -691,12 +691,15 @@ class DocumentParser {
 
 	function postProcess()
 	{
-		$tbl_document_groups = $this->getFullTableName('document_groups');
-		$docid = $this->documentIdentifier;
 		// if the current document was generated, cache it!
-		if ($this->documentGenerated == 1 && $this->documentObject['cacheable'] == 1
-		    && $this->documentObject['type'] == 'document' && $this->documentObject['published'] == 1)
+		if ($this->documentGenerated           == 1
+		 && $this->documentObject['cacheable'] == 1
+		 && $this->documentObject['type']      == 'document'
+		 && $this->documentObject['published'] == 1)
 		{
+			$tbl_document_groups = $this->getFullTableName('document_groups');
+			$docid = $this->documentIdentifier;
+			
 			// invoke OnBeforeSaveWebPageCache event
 			$this->invokeEvent("OnBeforeSaveWebPageCache");
 			// get and store document groups inside document object. Document groups will be used to check security on cache pages
