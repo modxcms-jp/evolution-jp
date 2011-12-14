@@ -328,11 +328,21 @@ function decode(s){
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['custom_tv']    = 'Custom Input';
+	$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+	$result = $modx->db->select('name',$tbl_site_snippets,"name like'tvin:%'");
+	if(0 < $modx->db->getRecordCount($result))
+	{
+		while($tvin = $modx->db->getRow($result))
+		{
+			$tvin_name = substr($tvin['name'],5);
+			$option[$tvin_name] = $tvin_name;
+		}
+	}
 	if($content['type']=='') $content['type']=='text';
 	foreach($option as $k=>$v)
 	{
 		$selected = '';
-		if($content['type']==$k) $selected = 'selected="selected"';
+		if(strtolower($content['type'])==strtolower($k)) $selected = 'selected="selected"';
 		$row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
 	}
 	echo join("\n",$row);
