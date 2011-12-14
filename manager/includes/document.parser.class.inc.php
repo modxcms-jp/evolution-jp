@@ -2628,74 +2628,92 @@ class DocumentParser {
         }
     }
 
-    # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-    function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false)) {
-        $this->regClientScript($src, $options, true);
-    }
+	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
+	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
+	{
+	    $this->regClientScript($src, $options, true);
+	}
 
     # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
-    function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false) {
-        if (empty($src))
-            return ''; // nothing to register
-        if (!is_array($options)) {
-            if (is_bool($options))  // backward compatibility with old plaintext parameter
-                $options=array('plaintext'=>$options);
-            elseif (is_string($options)) // Also allow script name as 2nd param
-                $options=array('name'=>$options);
-            else
-                $options=array();
-        }
-        $name= isset($options['name']) ? strtolower($options['name']) : '';
-        $version= isset($options['version']) ? $options['version'] : '0';
-        $plaintext= isset($options['plaintext']) ? $options['plaintext'] : false;
-        $key= !empty($name) ? $name : $src;
-        unset($overwritepos); // probably unnecessary--just making sure
-
-        $useThisVer= true;
-        if (isset($this->loadedjscripts[$key])) { // a matching script was found
-            // if existing script is a startup script, make sure the candidate is also a startup script
-            if ($this->loadedjscripts[$key]['startup'])
-                $startup= true;
-
-            if (empty($name)) {
-                $useThisVer= false; // if the match was based on identical source code, no need to replace the old one
-            } else {
-                $useThisVer = version_compare($this->loadedjscripts[$key]['version'], $version, '<');
-            }
-
-            if ($useThisVer) {
-                if ($startup==true && $this->loadedjscripts[$key]['startup']==false) {
-                    // remove old script from the bottom of the page (new one will be at the top)
-                    unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-                } else {
-                    // overwrite the old script (the position may be important for dependent scripts)
-                    $overwritepos= $this->loadedjscripts[$key]['pos'];
-                }
-            } else { // Use the original version
-                if ($startup==true && $this->loadedjscripts[$key]['startup']==false) {
-                    // need to move the exisiting script to the head
-                    $version= $this->loadedjscripts[$key][$version];
-                    $src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
-                    unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-                } else {
-                    return ''; // the script is already in the right place
-                }
-            }
-        }
-
-        if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
-            $src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
-        if ($startup) {
-            $pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-            $this->sjscripts[$pos]= $src;
-        } else {
-            $pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
-            $this->jscripts[$pos]= $src;
-        }
-        $this->loadedjscripts[$key]['version']= $version;
-        $this->loadedjscripts[$key]['startup']= $startup;
-        $this->loadedjscripts[$key]['pos']= $pos;
-    }
+	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
+	{
+		if (empty($src)) return ''; // nothing to register
+		
+		if (!is_array($options))
+		{
+			if (is_bool($options))  // backward compatibility with old plaintext parameter
+				$options = array('plaintext'=>$options);
+			elseif (is_string($options)) // Also allow script name as 2nd param
+				$options = array('name'=>$options);
+			else
+				$options = array();
+		}
+		$name      = isset($options['name'])      ? strtolower($options['name']) : '';
+		$version   = isset($options['version'])   ? $options['version'] : '0';
+		$plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
+		$key       = !empty($name)                ? $name : $src;
+		
+		$useThisVer= true;
+		if (isset($this->loadedjscripts[$key]))
+		{ // a matching script was found
+			// if existing script is a startup script, make sure the candidate is also a startup script
+			if ($this->loadedjscripts[$key]['startup'])
+				$startup= true;
+			
+			if (empty($name))
+			{
+				$useThisVer= false; // if the match was based on identical source code, no need to replace the old one
+			}
+			else
+			{
+				$useThisVer = version_compare($this->loadedjscripts[$key]['version'], $version, '<');
+			}
+			
+			if ($useThisVer)
+			{
+				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
+				{
+					// remove old script from the bottom of the page (new one will be at the top)
+					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
+				}
+				else
+				{
+					// overwrite the old script (the position may be important for dependent scripts)
+					$overwritepos= $this->loadedjscripts[$key]['pos'];
+				}
+			}
+			else
+			{ // Use the original version
+				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
+				{
+					// need to move the exisiting script to the head
+					$version= $this->loadedjscripts[$key][$version];
+					$src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
+					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
+				}
+				else
+				{
+					return ''; // the script is already in the right place
+				}
+			}
+		}
+		
+		if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
+			$src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
+		if ($startup)
+		{
+			$pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
+			$this->sjscripts[$pos]= $src;
+		}
+		else
+		{
+			$pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
+			$this->jscripts[$pos]= $src;
+		}
+		$this->loadedjscripts[$key]['version']= $version;
+		$this->loadedjscripts[$key]['startup']= $startup;
+		$this->loadedjscripts[$key]['pos']= $pos;
+	}
 
     # Registers Client-side Startup HTML block
     function regClientStartupHTMLBlock($html) {
