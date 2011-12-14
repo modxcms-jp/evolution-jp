@@ -95,8 +95,8 @@ if(!isset($_SESSION['webValidated'])){
     ob_end_clean();
 } else {
     $output= '';
-    $dbase = $modx->dbConfig['dbase'];
-    $table_prefix = $modx->dbConfig['table_prefix'];
+    $dbase = $modx->db->config['dbase'];
+    $table_prefix = $modx->db->config['table_prefix'];
     
     if (getenv("HTTP_CLIENT_IP")) $ip = getenv("HTTP_CLIENT_IP");
     else if(getenv("HTTP_X_FORWARDED_FOR")) $ip = getenv("HTTP_X_FORWARDED_FOR");
