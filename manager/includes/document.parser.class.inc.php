@@ -2471,38 +2471,36 @@ class DocumentParser {
 
     # Returns a record for the manager user
     function getUserInfo($uid) {
-        $sql= "
-              SELECT mu.username, mu.password, mua.*
-              FROM " . $this->getFullTableName("manager_users") . " mu
-              INNER JOIN " . $this->getFullTableName("user_attributes") . " mua ON mua.internalkey=mu.id
-              WHERE mu.id = '$uid'
-              ";
-        $rs= $this->db->query($sql);
-        $limit= mysql_num_rows($rs);
-        if ($limit == 1) {
+    	$tbl_manager_users = $this->getFullTableName('manager_users');
+    	$tbl_user_attributes = $this->getFullTableName('user_attributes');
+        $field = 'mu.username, mu.password, mua.*';
+        $from  = "{$tbl_manager_users} mu INNER JOIN {$tbl_user_attributes} mua ON mua.internalkey=mu.id";
+        $rs= $this->db->select($field,$from,"mu.id = '$uid'");
+        $limit= $this->db->getRecordCount($rs);
+        if ($limit == 1)
+        {
             $row= $this->db->getRow($rs);
-            if (!$row["usertype"])
-                $row["usertype"]= "manager";
+            if (!$row['usertype']) $row['usertype']= 'manager';
             return $row;
         }
+        else return false;
     }
 
     # Returns a record for the web user
     function getWebUserInfo($uid) {
-        $sql= "
-              SELECT wu.username, wu.password, wua.*
-              FROM " . $this->getFullTableName("web_users") . " wu
-              INNER JOIN " . $this->getFullTableName("web_user_attributes") . " wua ON wua.internalkey=wu.id
-              WHERE wu.id='$uid'
-              ";
-        $rs= $this->db->query($sql);
-        $limit= mysql_num_rows($rs);
-        if ($limit == 1) {
+    	$tbl_web_users = $this->getFullTableName('web_users');
+    	$tbl_web_user_attributes = $this->getFullTableName('web_user_attributes');
+    	$field = 'wu.username, wu.password, wua.*';
+    	$from = "{$tbl_web_users} wu INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id";
+        $rs= $this->db->select($field,$from,"wu.id='$uid'");
+        $limit= $this->db->getRecordCount($rs);
+        if ($limit == 1)
+        {
             $row= $this->db->getRow($rs);
-            if (!$row["usertype"])
-                $row["usertype"]= "web";
+            if (!$row['usertype']) $row['usertype']= 'web';
             return $row;
         }
+        else return false;
     }
 
     # Returns an array of document groups that current user is assigned to.
