@@ -969,6 +969,21 @@ if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
 {
 	$limit_size = ini_get('memory_limit');
 }
+if(empty($upload_maxsize))
+{
+	$limit_size_bytes = $limit_size;
+	$last = strtolower($limit_size_bytes[strlen($limit_size_bytes)-1]);
+	switch($last)
+	{
+	case 'g':
+	$limit_size_bytes *= 1024;
+	case 'm':
+	$limit_size_bytes *= 1024;
+	case 'k':
+	$limit_size_bytes *= 1024;
+	}
+	$upload_maxsize = $limit_size_bytes;
+}
 ?>
 <?php echo form_text('upload_maxsize',$upload_maxsize);?><br />
 <?php echo sprintf($_lang["upload_maxsize_message"],$limit_size);?></td>
