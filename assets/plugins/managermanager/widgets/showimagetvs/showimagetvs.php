@@ -10,7 +10,7 @@
 function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $roles='', $templates='') {
 	
 	global $modx, $content;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates)) {
 		

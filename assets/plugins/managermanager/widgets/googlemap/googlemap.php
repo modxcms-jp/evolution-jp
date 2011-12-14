@@ -8,7 +8,7 @@
 function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', $templates='') {
 	
 	global $modx, $content, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates)) {
 		$output = '';		

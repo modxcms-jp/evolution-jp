@@ -10,7 +10,7 @@
 function mm_hideTemplates($tplIds, $roles='', $templates='') {
         	global  $modx;
         	
-        	$e = &$modx->Event;
+        	$e = &$modx->event;
 			
 			$tplIds = makeArray($tplIds);
 

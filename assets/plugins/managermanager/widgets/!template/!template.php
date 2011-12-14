@@ -7,7 +7,7 @@
 function mm_widget_template($fields, $other_param='defaultValue', $roles='', $templates='') {
 	
 	global $modx, $content, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates)) {
 		

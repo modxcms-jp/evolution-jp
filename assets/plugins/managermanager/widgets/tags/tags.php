@@ -7,7 +7,7 @@
 function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=false, $roles='', $templates='') {
 
 	global $modx, $content, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 
 	if (useThisRule($roles, $templates)) {
 

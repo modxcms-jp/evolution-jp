@@ -205,7 +205,7 @@ if (!function_exists("make_changes")) {
 
 // Check the current event
 global $e;
-$e = &$modx->Event;
+$e = &$modx->event;
 
 
 

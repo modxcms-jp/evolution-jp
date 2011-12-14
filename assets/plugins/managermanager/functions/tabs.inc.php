@@ -9,7 +9,7 @@
 function mm_renameTab($tab, $newname, $roles='', $templates='') {
 
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if (useThisRule($roles, $templates)) {
@@ -56,7 +56,7 @@ function mm_renameTab($tab, $newname, $roles='', $templates='') {
 function mm_hideTabs($tabs, $roles='', $templates='') {
 
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$tabs = makeArray($tabs);
@@ -126,7 +126,7 @@ function mm_hideTabs($tabs, $roles='', $templates='') {
 function mm_createTab($name, $id, $roles='', $templates='', $intro='', $width='680') {
 
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if (useThisRule($roles, $templates)) {

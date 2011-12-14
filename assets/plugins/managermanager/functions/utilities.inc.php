@@ -12,7 +12,7 @@
 function useThisRule($roles='', $templates='') {
 
 	global $mm_current_page, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	$exclude_roles = false;
 	$exclude_templates = false;

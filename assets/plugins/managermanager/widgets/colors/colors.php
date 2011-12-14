@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------- 
 function mm_widget_colors($fields, $default='#ffffff', $roles='', $templates='') {
 	global $modx, $content, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates)) {
 		

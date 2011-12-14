@@ -9,7 +9,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 	
 	
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 		
 	// if we aren't creating a new document or folder, we don't want to do this
 	// Which action IDs so we want to do this for?
@@ -174,7 +174,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 function mm_inherit($fields, $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -276,7 +276,7 @@ function mm_inherit($fields, $roles='', $templates='') {
 function mm_synch_fields($fields, $roles='', $templates='') {
 
 	global $modx, $mm_fields;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -349,7 +349,7 @@ function mm_synch_fields($fields, $roles='', $templates='') {
 function mm_set_clear_cache($value='', $roles='', $templates='') {
 	
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 		
 	// 85 =
 	// 4  =

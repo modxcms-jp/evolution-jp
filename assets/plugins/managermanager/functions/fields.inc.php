@@ -11,7 +11,7 @@
 function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 		
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if (useThisRule($roles, $templates)) {
@@ -72,7 +72,7 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 function mm_hideFields($fields, $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;	
+	$e = &$modx->event;	
 		
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -151,7 +151,7 @@ function mm_hideFields($fields, $roles='', $templates='') {
 function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;	
+	$e = &$modx->event;	
 		
 	if ($helptext=='') {
 		return;
@@ -204,7 +204,7 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 
 	global $modx, $mm_fields,$splitter;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array 
 	$fields = makeArray($fields);
@@ -315,7 +315,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 function mm_requireFields($fields, $roles='', $templates=''){
 
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 
 	// if we've been supplied with a string, convert it into an array
 	$fields = makeArray($fields);
