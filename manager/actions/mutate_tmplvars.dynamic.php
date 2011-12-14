@@ -305,26 +305,38 @@ function decode(s){
 
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_type']; ?>:&nbsp;&nbsp;</td>
-    <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="type" size="1" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>
-	            <option value="text" <?php      echo ($content['type']==''||$content['type']=='text')? "selected='selected'":""; ?>>Text</option>
-	            <option value="rawtext" <?php       echo ($content['type']=='rawtext')? "selected='selected'":""; ?>>Raw Text (deprecated)</option>
-	            <option value="textarea" <?php  echo ($content['type']=='textarea')? "selected='selected'":""; ?>>Textarea</option>
-	            <option value="rawtextarea" <?php   echo ($content['type']=='rawtextarea')? "selected='selected'":""; ?>>Raw Textarea (deprecated)</option>
-	            <option value="textareamini" <?php  echo ($content['type']=='textareamini')? "selected='selected'":""; ?>>Textarea (Mini)</option>
-	            <option value="richtext" <?php  echo ($content['type']=='richtext'||$content['type']=='htmlarea')? "selected='selected'":""; ?>>RichText</option>
-	            <option value="dropdown" <?php  echo ($content['type']=='dropdown')? "selected='selected'":""; ?>>DropDown List Menu</option>
-	            <option value="listbox" <?php   echo ($content['type']=='listbox')? "selected='selected'":""; ?>>Listbox (Single-Select)</option>
-	            <option value="listbox-multiple" <?php echo ($content['type']=='listbox-multiple')? "selected='selected'":""; ?>>Listbox (Multi-Select)</option>
-	            <option value="option" <?php    echo ($content['type']=='option')? "selected='selected'":""; ?>>Radio Options</option>
-	            <option value="checkbox" <?php  echo ($content['type']=='checkbox')? "selected='selected'":""; ?>>Check Box</option>
-	            <option value="image" <?php     echo ($content['type']=='image')? "selected='selected'":""; ?>>Image</option>
-	            <option value="file" <?php      echo ($content['type']=='file')? "selected='selected'":""; ?>>File</option>
-	            <option value="url" <?php       echo ($content['type']=='url')? "selected='selected'":""; ?>>URL</option>
-	            <option value="email" <?php     echo ($content['type']=='email')? "selected='selected'":""; ?>>Email</option>
-	            <option value="number" <?php    echo ($content['type']=='number')? "selected='selected'":""; ?>>Number</option>
-	            <option value="date" <?php      echo ($content['type']=='date')? "selected='selected'":""; ?>>DateTime</option>
-	            <option value="dateonly" <?php  echo ($content['type']=='dateonly')? "selected='selected'":""; ?>>DateOnly</option>
-	            <option value="custom_tv" <?php echo ($content['type']=='custom_tv')? "selected='selected'":""; ?>>Custom Input</option>
+    <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span>
+    <select name="type" size="1" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>
+<?php
+	$option = array();
+	$option['text']         = 'Text';
+	$option['rawtext']      = 'Raw Text (deprecated)';
+	$option['textarea']     = 'Textarea';
+	$option['rawtextarea']  = 'Raw Textarea (deprecated)';
+	$option['textareamini'] = 'Textarea (Mini)';
+	$option['richtext']     = 'RichText';
+	$option['dropdown']     = 'DropDown List Menu';
+	$option['listbox']      = 'Listbox (Single-Select)';
+	$option['listbox-multiple'] = 'Listbox (Multi-Select)';
+	$option['option']       = 'Radio Options';
+	$option['checkbox']     = 'Check Box';
+	$option['image']        = 'Image';
+	$option['file']         = 'File';
+	$option['url']          = 'URL';
+	$option['email']        = 'Email';
+	$option['number']       = 'Number';
+	$option['date']         = 'DateTime';
+	$option['dateonly']     = 'DateOnly';
+	$option['custom_tv']    = 'Custom Input';
+	if($content['type']=='') $content['type']=='text';
+	foreach($option as $k=>$v)
+	{
+		$selected = '';
+		if($content['type']==$k) $selected = 'selected="selected"';
+		$row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
+	}
+	echo join("\n",$row);
+?>
 	        </select>
     </td>
   </tr>
