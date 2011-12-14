@@ -853,9 +853,9 @@ class DocumentParser {
         if ($msg && isset ($php_errormsg)) {
             if (!strpos($php_errormsg, 'Deprecated')) { // ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->Event->activePlugin . " - Plugin");
+                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->event->activePlugin . " - Plugin");
                 if ($this->isBackend())
-                    $this->Event->alert("An error occurred while loading. Please see the event log for more information.<p />$msg");
+                    $this->event->alert("An error occurred while loading. Please see the event log for more information.<p />$msg");
             }
         } else {
             echo $msg;
@@ -881,7 +881,7 @@ class DocumentParser {
                 // log error
                 $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg<br />REQUEST_URI = $request_uri<br />ID = $this->documentIdentifier", $this->currentSnippet . " - Snippet");
                 if ($this->isBackend())
-                    $this->Event->alert("An error occurred while loading. Please see the event log for more information<p />$msg");
+                    $this->event->alert("An error occurred while loading. Please see the event log for more information<p />$msg");
             }
         }
         unset ($modx->event->params);
@@ -2765,7 +2765,7 @@ class DocumentParser {
                 $pluginName= $el[$i];
                 $pluginName = stripslashes($pluginName);
                 // reset event object
-                $e= & $this->Event;
+                $e= & $this->event;
                 $e->_resetEventObject();
                 $e->name= $evtName;
                 $e->activePlugin= $pluginName;
