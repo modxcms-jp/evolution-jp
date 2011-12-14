@@ -1446,8 +1446,8 @@ class DocumentParser {
             if (!$this->documentObject['template'])
                 $this->documentContent= "[*content*]"; // use blank template
             else {
-                $sql= "SELECT `content` FROM " . $this->getFullTableName("site_templates") . " WHERE " . $this->getFullTableName("site_templates") . ".`id` = '" . $this->documentObject['template'] . "';";
-                $result= $this->db->query($sql);
+            	$tbl_site_templates = $this->getFullTableName('site_templates');
+                $result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
                 $rowCount= $this->db->getRecordCount($result);
                 if ($rowCount > 1) {
                     $this->messageQuit("Incorrect number of templates returned from database", $sql);
