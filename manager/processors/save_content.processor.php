@@ -233,6 +233,7 @@ while ($row = $modx->db->getRow($rs))
 {
 	$tmplvar = '';
 	$tvid = "tv{$row['id']}";
+	if(!isset($_POST[$tvid])) continue;
 	switch ($row['type'])
 	{
 		case 'url':
