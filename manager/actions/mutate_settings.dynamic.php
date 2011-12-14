@@ -247,10 +247,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["xhtml_urls_title"] ?></th>
 	<td>
-		<?php echo form_radio('xhtml_urls','1',$xhtml_urls=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('xhtml_urls','0',$xhtml_urls=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('xhtml_urls','1',$xhtml_urls=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('xhtml_urls','0',$xhtml_urls=='0'));?><br />
 		<?php echo $_lang["xhtml_urls_message"] ?>
 	</td>
 </tr>
@@ -277,10 +275,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitestatus_title"] ?></th>
 	<td>
-		<?php echo form_radio('site_status','1',$site_status=='1');?>
-		<?php echo $_lang["online"]?><br />
-		<?php echo form_radio('site_status','0',$site_status=='0');?>
-		<?php echo $_lang["offline"]?><br />
+		<?php echo wrap_label($_lang["online"], form_radio('site_status','1',$site_status=='1'));?><br />
+		<?php echo wrap_label($_lang["offline"],form_radio('site_status','0',$site_status=='0'));?><br />
 		<?php echo $_lang["sitestatus_message"] ?>
 	</td>
 </tr>
@@ -309,10 +305,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["track_visitors_title"] ?></th>
 	<td>
-		<?php echo form_radio('track_visitors','1',$track_visitors=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('track_visitors','0',$track_visitors=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('track_visitors','1',$track_visitors=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('track_visitors','0',$track_visitors=='0'));?><br />
 		<?php echo $_lang["track_visitors_message"] ?>
 	</td>
 </tr>
@@ -324,29 +318,27 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["defaulttemplate_logic_title"];?></th>
-	<td>
-		<p>
-		<?php echo $_lang["defaulttemplate_logic_general_message"];?></p>
-		<?php echo form_radio('auto_template_logic','system', $auto_template_logic == 'system');?>
-		<?php echo $_lang["defaulttemplate_logic_system_message"]; ?><br />
-		<?php echo form_radio('auto_template_logic','parent', $auto_template_logic == 'parent');?>
-		<?php echo $_lang["defaulttemplate_logic_parent_message"]; ?><br />
-		<?php echo form_radio('auto_template_logic','sibling',$auto_template_logic == 'sibling');?>
-		<?php echo $_lang["defaulttemplate_logic_sibling_message"]; ?><br />
-	</td>
+<th><?php echo $_lang["defaulttemplate_logic_title"];?></th>
+<td>
+<?php echo wrap_label($_lang["defaulttemplate_logic_system_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'system'));?><br />
+<?php echo wrap_label($_lang["defaulttemplate_logic_parent_message"],form_radio('auto_template_logic','parent',$auto_template_logic == 'parent'));?><br />
+<?php echo wrap_label($_lang["defaulttemplate_logic_sibling_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'sibling'));?><br />
+	<?php echo $_lang["defaulttemplate_logic_general_message"];?>
+</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["defaulttemplate_title"] ?></th>
 	<td>
-<?php
-	$sql = 'SELECT t.templatename, t.id, c.category FROM '.$table_prefix.'site_templates t LEFT JOIN '.$table_prefix.'categories c ON t.category = c.id ORDER BY c.category, t.templatename ASC';
-	$rs = mysql_query($sql);
-?>
 		<select name="default_template" class="inputBox" onchange="documentDirty=true;wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
 <?php
+	$tbl_site_templates = $modx->getFullTableName('site_templates');
+	$tbl_categories = $modx->getFullTableName('categories');
+	$field = 't.templatename, t.id, c.category';
+	$from = "{$tbl_site_templates} t LEFT JOIN {$tbl_categories} c ON t.category = c.id";
+	$orderby = 'c.category, t.templatename ASC';
+	$rs = $modx->db->select($field,$from,'',$orderby);
 	$currentCategory = '';
-	while ($row = mysql_fetch_assoc($rs))
+	while ($row = $modx->db->getRow($rs))
 	{
 		$thisCategory = $row['category'];
 		if($thisCategory == null)
@@ -359,7 +351,7 @@ function confirmLangChange(el, lkey, elupd)
 			{
 				echo "\t\t\t\t\t</optgroup>\n";
 			}
-			echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";
+			echo "\t\t\t\t\t<optgroup label=\"{$thisCategory}\">\n";
 			$closeOptGroup = true;
 		}
 		else
@@ -382,49 +374,41 @@ function confirmLangChange(el, lkey, elupd)
 ?>
 		</select><br />
 		<div id="template_reset_options_wrapper" style="display:none;">
-			<?php echo form_radio('reset_template','1');?> <?php echo $_lang["template_reset_all"]; ?><br />
-			<?php echo form_radio('reset_template','2');?> <?php echo sprintf($_lang["template_reset_specific"],$oldTmpName); ?>
+			<?php echo wrap_label($_lang["template_reset_all"],form_radio('reset_template','1'));?><br />
+			<?php echo wrap_label(sprintf($_lang["template_reset_specific"],$oldTmpName),form_radio('reset_template','2'));?>
 		</div>
-		<input type="hidden" name="old_template" value="<?php echo $oldTmpId; ?>" /><br />
+		<input type="hidden" name="old_template" value="<?php echo $oldTmpId; ?>" />
 		<?php echo $_lang["defaulttemplate_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["defaultpublish_title"] ?></th>
 	<td>
-		<?php echo form_radio('publish_default','1',$publish_default=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('publish_default','0',$publish_default=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('publish_default','1',$publish_default=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('publish_default','0',$publish_default=='0'));?><br />
 		<?php echo $_lang["defaultpublish_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["defaultcache_title"] ?></th>
 	<td>
-		<?php echo form_radio('cache_default','1',$cache_default=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('cache_default','0',$cache_default=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('cache_default','1',$cache_default=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('cache_default','0',$cache_default=='0'));?><br />
 		<?php echo $_lang["defaultcache_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["defaultsearch_title"] ?></th>
 	<td>
-		<?php echo form_radio('search_default','1',$search_default=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('search_default','0',$search_default=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('search_default','1',$search_default=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('search_default','0',$search_default=='0'));?><br />
 		<?php echo $_lang["defaultsearch_message"] ?></td>
 </tr>
 <tr> 
 	<th><?php echo $_lang["defaultmenuindex_title"] ?></th>
 	<td>
-		<?php echo form_radio('auto_menuindex','1',$auto_menuindex=='1');?>
-		<?php echo $_lang["yes"]?><br /> 
-		<?php echo form_radio('auto_menuindex','0',$auto_menuindex=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('auto_menuindex','1',$auto_menuindex=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('auto_menuindex','0',$auto_menuindex=='0'));?><br />
 		<?php echo $_lang["defaultmenuindex_message"] ?>
 	</td>
 </tr>
@@ -437,10 +421,9 @@ function confirmLangChange(el, lkey, elupd)
 			<td valign="top">
 			<select name="lst_custom_contenttype" style="width:200px;" size="5">
 <?php
-	$ct = explode(",",$custom_contenttype);
-	for($i=0;$i<count($ct);$i++)
+	foreach(explode(',',$custom_contenttype) as $v)
 	{
-		echo "<option value=\"".$ct[$i]."\">".$ct[$i]."</option>";
+		echo '<option value="'.$v.'">'.$v."</option>\n";
 	}
 ?>
 			</select>
@@ -463,9 +446,7 @@ function confirmLangChange(el, lkey, elupd)
 	{
 		$seconds = $i*60*60;
 		$selectedtext = $seconds==$server_offset_time ? "selected='selected'" : "" ;
-?>
-		<option value="<?php echo $seconds; ?>" <?php echo $selectedtext; ?>><?php echo $i; ?></option>
-<?php
+		echo '<option value="' . $seconds . '" ' . $selectedtext . '>' . $i . "</option>\n";
 	}
 ?>
 		</select><br />
@@ -475,20 +456,16 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["server_protocol_title"] ?></th>
 	<td>
-		<?php echo form_radio('server_protocol','http', $server_protocol=='http');?>
-		<?php echo $_lang["server_protocol_http"]?><br />
-		<?php echo form_radio('server_protocol','https',$server_protocol=='https');?>
-		<?php echo $_lang["server_protocol_https"]?><br />
+		<?php echo wrap_label($_lang["server_protocol_http"],form_radio('server_protocol','http', $server_protocol=='http'));?><br />
+		<?php echo wrap_label($_lang["server_protocol_https"],form_radio('server_protocol','https', $server_protocol=='https'));?><br />
 		<?php echo $_lang["server_protocol_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["validate_referer_title"] ?></th>
 	<td>
-		<?php echo form_radio('validate_referer','1', $validate_referer=='1');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('validate_referer','0', $validate_referer=='0');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('validate_referer','1', $validate_referer=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('validate_referer','0', $validate_referer=='0'));?><br />
 		<?php echo $_lang["validate_referer_message"] ?>
 	</td>
 </tr>
@@ -526,10 +503,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["friendlyurls_title"] ?></th>
 	<td>
-		<?php echo form_radio('friendly_urls','1', $friendly_urls=='1','onclick="showHide(/furlRow/, 1);"');?>
-		<?php echo $_lang["yes"]?><br />
-		<?php echo form_radio('friendly_urls','0', $friendly_urls=='0','onclick="showHide(/furlRow/, 0);"');?>
-		<?php echo $_lang["no"]?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('friendly_urls','1', $friendly_urls=='1','onclick="showHide(/furlRow/, 1);"'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('friendly_urls','0', $friendly_urls=='0','onclick="showHide(/furlRow/, 0);"'));?><br />
 		<?php echo $_lang["friendlyurls_message"] ?>
 	</td>
 </tr>
@@ -548,39 +523,31 @@ function confirmLangChange(el, lkey, elupd)
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
 <td>
-	<?php echo form_radio('friendly_alias_urls','1', $friendly_alias_urls=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('friendly_alias_urls','0', $friendly_alias_urls=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('friendly_alias_urls','1', $friendly_alias_urls=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('friendly_alias_urls','0', $friendly_alias_urls=='0'));?><br />
 	<?php echo $_lang["friendly_alias_message"] ?></td>
 </tr>
 <tr id='furlRow10' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["use_alias_path_title"] ?></th>
 <td>
-	<?php echo form_radio('use_alias_path','1', $use_alias_path=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('use_alias_path','0', $use_alias_path=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_alias_path','1', $use_alias_path=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_alias_path','0', $use_alias_path=='0'));?><br />
 	<?php echo $_lang["use_alias_path_message"] ?>
 </td>
 </tr>
 <tr id='furlRow16' class='row2' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["duplicate_alias_title"] ?></th>
 <td>
-	<?php echo form_radio('allow_duplicate_alias','1', $allow_duplicate_alias=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('allow_duplicate_alias','0', $allow_duplicate_alias=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('allow_duplicate_alias','1', $allow_duplicate_alias=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('allow_duplicate_alias','0', $allow_duplicate_alias=='0'));?><br />
 	<?php echo $_lang["duplicate_alias_message"] ?>
 </td>
 </tr>
 <tr id='furlRow13' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td>
-	<?php echo form_radio('automatic_alias','1', $automatic_alias=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('automatic_alias','0', $automatic_alias=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('automatic_alias','0', $automatic_alias=='0'));?><br />
 	<?php echo $_lang["automatic_alias_message"] ?>
 </td>
 </tr>
@@ -604,19 +571,15 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<?php echo form_radio('use_udperms','1', $use_udperms=='1','onclick="showHide(/udPerms/, 1);"');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('use_udperms','0', $use_udperms=='0','onclick="showHide(/udPerms/, 0);"');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $use_udperms=='1','onclick="showHide(/udPerms/, 1);"'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_udperms','0', $use_udperms=='0','onclick="showHide(/udPerms/, 0);"'));?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
 <tr id='udPermsRow1' class="row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td>
-	<?php echo form_radio('udperms_allowroot','1', $udperms_allowroot=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('udperms_allowroot','0', $udperms_allowroot=='0');?>
-	<?php echo $_lang["no"]?> <br />
+	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('udperms_allowroot','0', $udperms_allowroot=='0'));?><br />
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
@@ -637,10 +600,8 @@ $gdAvailable = extension_loaded('gd');
 <tr>
 <th><?php echo $_lang["captcha_title"] ?></th>
 <td>
-	<?php echo form_radio('use_captcha','1', $use_captcha=='1' && $gdAvailable,'',!$gdAvailable);?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('use_captcha','0', $use_captcha=='0' || !$gdAvailable,'',!$gdAvailable);?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_captcha','1', $use_captcha=='1' && $gdAvailable,'',!$gdAvailable));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_captcha','0', $use_captcha=='0' || !$gdAvailable,'',!$gdAvailable));?><br />
 	<?php echo $_lang["captcha_message"] ?>
 </td>
 </tr>
@@ -750,54 +711,43 @@ $dir->close();
 <tr>
 <th><?php echo $_lang["warning_visibility"] ?></th>
 <td>
-	<?php echo form_radio('warning_visibility','0',$warning_visibility=='0');?>
-	<?php echo $_lang["administrators"]?><br />
-	<?php echo form_radio('warning_visibility','1',$warning_visibility=='1');?>
-	<?php echo $_lang["everybody"]?><br /><?php echo $_lang["warning_visibility_message"]?>
+	<?php echo wrap_label($_lang["administrators"],form_radio('warning_visibility','0',$warning_visibility=='0'));?><br />
+	<?php echo wrap_label($_lang["everybody"],form_radio('warning_visibility','1',$warning_visibility=='1'));?><br />
+	<?php echo $_lang["warning_visibility_message"]?>
 </td>
 </tr>
 
 <tr>
 <th><?php echo $_lang["tree_page_click"] ?></th>
 <td>
-	<?php echo form_radio('tree_page_click','27',$tree_page_click=='27');?>
-	<?php echo $_lang["edit_resource"]?><br />
-	<?php echo form_radio('tree_page_click','3',$tree_page_click=='3');?>
-	<?php echo $_lang["doc_data_title"]?><br />
-	<?php echo form_radio('tree_page_click','auto',$tree_page_click=='auto');?>
-	<?php echo $_lang["tree_page_click_option_auto"]?><br />
+	<?php echo wrap_label($_lang["edit_resource"],form_radio('tree_page_click','27',$tree_page_click=='27'));?><br />
+	<?php echo wrap_label($_lang["doc_data_title"],form_radio('tree_page_click','3',$tree_page_click=='3'));?><br />
+	<?php echo wrap_label($_lang["tree_page_click_option_auto"],form_radio('tree_page_click','auto',$tree_page_click=='auto'));?><br />
 	<?php echo $_lang["tree_page_click_message"]?>
 </td>
 </tr>
 <tr>
 <th><?php echo $_lang["remember_last_tab"] ?></th>
 <td>
-	<?php echo form_radio('remember_last_tab','2',$remember_last_tab=='2');?>
-	<?php echo $_lang["yes"]?> (Full)<br />
-	<?php echo form_radio('remember_last_tab','1',$remember_last_tab=='1');?>
-	<?php echo $_lang["yes"]?> (Stay mode)<br />
-	<?php echo form_radio('remember_last_tab','0',$remember_last_tab=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label("{$_lang['yes']} (Full)",form_radio('remember_last_tab','2',$remember_last_tab=='2'));?><br />
+	<?php echo wrap_label("{$_lang['yes']} (Stay mode)",form_radio('remember_last_tab','1',$remember_last_tab=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('remember_last_tab','0',$remember_last_tab=='0'));?><br />
 	<?php echo $_lang["remember_last_tab_message"]?>
 </td>
 </tr>
 <tr>
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
-	<?php echo form_radio('tree_show_protected','1',$tree_show_protected=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('tree_show_protected','0',$tree_show_protected=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('tree_show_protected','0',$tree_show_protected=='0'));?><br />
 	<?php echo $_lang["tree_show_protected_message"]?>
 </td>
 </tr>
 <tr>
 <th><?php echo $_lang["show_meta"] ?></th>
 <td>
-	<?php echo form_radio('show_meta','1',$show_meta=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('show_meta','0',$show_meta=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('show_meta','1',$show_meta=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('show_meta','0',$show_meta=='0'));?><br />
 	<?php echo $_lang["show_meta_message"]?>
 </td>
 </tr>
@@ -847,10 +797,8 @@ echo $str;
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
 <td>
-	<?php echo form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"'));?><br />
 	<?php echo $_lang["rb_message"]?>
 </td>
 </tr>
@@ -858,10 +806,8 @@ echo $str;
 <tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
 <td>
-	<?php echo form_radio('strip_image_paths','1',$strip_image_paths=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('strip_image_paths','0',$strip_image_paths=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('strip_image_paths','1',$strip_image_paths=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('strip_image_paths','0',$strip_image_paths=='0'));?><br />
 	<?php echo $_lang["settings_strip_image_paths_message"]?>
 </td>
 </tr>
@@ -871,10 +817,8 @@ echo $str;
 <tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_webuser_title"]?></th>
 <td>
-	<?php echo form_radio('rb_webuser','1',$rb_webuser=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('rb_webuser','0',$rb_webuser=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('rb_webuser','1',$rb_webuser=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('rb_webuser','0',$rb_webuser=='0'));?><br />
 	<?php echo $_lang["rb_webuser_message"]?>
 </td>
 </tr>
@@ -922,10 +866,8 @@ return $site_url . "assets/";
 <tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
 <td>
-	<?php echo form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('clean_uploaded_filename','0',$clean_uploaded_filename=='0');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('clean_uploaded_filename','0',$clean_uploaded_filename=='0'));?><br />
 	<?php echo $_lang["clean_uploaded_filename_message"];?>
 </td>
 </tr>
@@ -933,10 +875,8 @@ return $site_url . "assets/";
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
 <td>
-	<?php echo form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"');?>
-	<?php echo $_lang["yes"]?><br />
-	<?php echo form_radio('use_editor','0',$use_editor=='0','onclick="showHide(/editorRow/, 0);"');?>
-	<?php echo $_lang["no"]?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_editor','0',$use_editor=='0','onclick="showHide(/editorRow/, 0);"'));?><br />
 	<?php echo $_lang["use_editor_message"]?>
 </td>
 </tr>
@@ -1130,4 +1070,8 @@ function form_radio($name,$value,$checked=false,$add='',$disabled=false)
 	return '<input onchange="documentDirty=true;" type="radio" name="' . $name . '" value="' . $value . '"' . $checked . $disabled . $add . ' />';
 }
 
+function wrap_label($str='',$object)
+{
+	return '<label>' . $object . "\n" . $str . '</label>';
+}
 ?>
