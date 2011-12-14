@@ -221,14 +221,19 @@ if ($conn) {
 if ($conn) {
     echo "<p>". $_lang['checking_mysql_strict_mode'];
     $mysqlmode = @ mysql_query("SELECT @@global.sql_mode");
-    if (@mysql_num_rows($mysqlmode) > 0){
+    if (@mysql_num_rows($mysqlmode) > 0 && !isset($_SERVER['WEBPI_REFERRER']))
+    {
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         //$modes = array("STRICT_TRANS_TABLES"); // for testing
-        foreach ($modes as $mode) {
-            if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
+        foreach ($modes as $mode)
+        {
+            if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false)
+            {
                 echo echo_failed($_lang['warning']) . "</b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
                 echo "<p>" . echo_failed($_lang['strict_mode_error'])  . "</p>";
-            } else {
+            }
+            else
+            {
                 echo echo_ok() . "</p>";
             }
         }  
