@@ -975,12 +975,12 @@ if(empty($upload_maxsize))
 	$last = strtolower($limit_size_bytes[strlen($limit_size_bytes)-1]);
 	switch($last)
 	{
-	case 'g':
-	$limit_size_bytes *= 1024;
-	case 'm':
-	$limit_size_bytes *= 1024;
-	case 'k':
-	$limit_size_bytes *= 1024;
+		case 'g':
+			$limit_size_bytes *= 1024;
+		case 'm':
+			$limit_size_bytes *= 1024;
+		case 'k':
+			$limit_size_bytes *= 1024;
 	}
 	$upload_maxsize = $limit_size_bytes;
 }
