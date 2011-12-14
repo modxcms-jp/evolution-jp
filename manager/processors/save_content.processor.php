@@ -6,6 +6,52 @@ if (!$modx->hasPermission('save_document')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+$upload_files  = explode(',',$modx->config['upload_files']);
+$upload_images = explode(',',$modx->config['upload_images']);
+$upload_media  = explode(',',$modx->config['upload_media']);
+$upload_flash  = explode(',',$modx->config['upload_flash']);
+
+if($_FILES)
+{
+	foreach($_FILES as $k=>$file)
+	{
+		if($modx->config['clean_uploaded_filename']) $filename = $modx->stripAlias($file['name']);
+		$filename = $file['name'];
+		$ext = substr($filename,strrpos($filename,'.')+1);
+		if    (in_array($ext,$upload_images)) $each_dir = 'images/';
+		elseif(in_array($ext,$upload_files))  $each_dir = 'files/';
+		elseif(in_array($ext,$upload_media))  $each_dir = 'media/';
+		elseif(in_array($ext,$upload_flash))  $each_dir = 'flash/';
+		else {continue;}
+		$updir = $modx->config['rb_base_dir'] . $each_dir;
+		$_POST[$k]  = $modx->config['rb_base_url'] . $each_dir;
+		if(isset($target_dir) || !empty($target_dir))
+		{
+			$target_dir = rtrim($target_dir,'/');
+			$updir .= $target_dir;
+			if(!is_dir($updir))
+			{
+				mkdir($updir);
+			}
+			$updir     .= '/';
+			$_POST[$k] .= $target_dir . '/';
+		}
+		$_POST[$k] .= $filename;
+		
+		if(file_exists($file['tmp_name']))
+		{
+			$filesize = filesize($file['tmp_name']);
+			if($filesize <= $modx->config['upload_maxsize'])
+			{
+				move_uploaded_file($file['tmp_name'], $updir.$filename);
+			}
+			else
+			{
+				echo "$filesize Byte ファイルサイズが大きすぎます。";
+			}
+		}
+	}
+}
 
 // preprocess POST values
 $id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
