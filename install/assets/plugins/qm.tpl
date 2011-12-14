@@ -26,7 +26,7 @@ if (isset($_SESSION['mgrValidated']))
 		if (in_array($modx->documentIdentifier, $arr)) return;
 	}
 	// Replace [*#tv*] with QM+ edit TV button placeholders
-	if (($tvbuttons == 'true') && ($modx->Event->name == 'OnParseDocument'))
+	if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
 	{
 		$output = &$modx->documentOutput;
 		$output = preg_replace('~\[\*#(.*?)\*\]~', '<!-- '.$tvbclass.' $1 -->[*$1*]', $output);

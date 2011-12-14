@@ -156,7 +156,7 @@ EOT;
 global $_lang;
 
 $output = '';
-$event_name = $modx->Event->name;
+$event_name = $modx->event->name;
 $action = (empty($_GET['action']) ? '' : $_GET['action']);
 $username = (empty($_GET['username']) ? false : $_GET['username']);
 $to = (empty($_GET['email']) ? '' : $_GET['email']);
@@ -197,4 +197,4 @@ if($event_name == 'OnManagerAuthentication' && $hash && $username) {
     else $output = false;
 }
 
-$modx->Event->output($output);
+$modx->event->output($output);

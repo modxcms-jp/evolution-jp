@@ -14,7 +14,7 @@
  * @author yama  / created: 2010/10/03
  */
 
-$e = &$modx->Event; 
+$e = &$modx->event; 
 global $settings;
 $action = $modx->manager->action;
 if($action!==17) return;

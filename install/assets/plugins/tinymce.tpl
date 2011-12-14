@@ -54,7 +54,7 @@ include_once $mce_path . 'functions.php';
 $mce = new TinyMCE($params);
 
 // Handle event
-$e = &$modx->Event; 
+$e = &$modx->event; 
 switch ($e->name)
 {
 	case "OnRichTextEditorRegister": // register only for backend
