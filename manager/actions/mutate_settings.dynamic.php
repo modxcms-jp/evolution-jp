@@ -221,8 +221,8 @@ function confirmLangChange(el, lkey, elupd)
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["sitename_title"] ?></th>
-	<td >
-		<input onchange="documentDirty=true;" type="text" maxlength="255" style="width:200px;" name="site_name" value="<?php echo $site_name; ?>" /><br />
+	<td>
+		<?php echo form_text('site_name',$site_name);?><br />
 		<?php echo $_lang["sitename_message"] ?>
 	</td>
 </tr>
@@ -255,20 +255,20 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitestart_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="site_start" value="<?php echo $site_start; ?>" /><br />
+		<?php echo form_text('site_start',$site_start,10);?><br />
 		<?php echo $_lang["sitestart_message"] ?></td>
 </tr>
 <tr>
 	<th><?php echo $_lang["errorpage_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="error_page" value="<?php echo $error_page; ?>" /><br />
+		<?php echo form_text('error_page',$error_page,10);?><br />
 		<?php echo $_lang["errorpage_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["unauthorizedpage_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="10" size="5" name="unauthorized_page" value="<?php echo $unauthorized_page; ?>" /><br />
+		<?php echo form_text('unauthorized_page',$unauthorized_page,10);?><br />
 		<?php echo $_lang["unauthorizedpage_message"] ?>
 	</td>
 </tr>
@@ -283,7 +283,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["siteunavailable_page_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" name="site_unavailable_page" type="text" maxlength="10" size="5" value="<?php echo $site_unavailable_page; ?>" /><br />
+		<?php echo form_text('site_unavailable_page',$site_unavailable_page,10);?><br />
 		<?php echo $_lang["siteunavailable_page_message"] ?>
 	</td>
 </tr>
@@ -313,7 +313,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["top_howmany_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="top_howmany" value="<?php echo $top_howmany; ?>" /><br />
+		<?php echo form_text('top_howmany',$top_howmany,3);?><br />
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
@@ -415,7 +415,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["custom_contenttype_title"] ?></th>
 	<td>
-		<input name="txt_custom_contenttype" type="text" maxlength="100" style="width:200px;" value="" /> <input type="button" value="<?php echo $_lang["add"]; ?>" onclick='addContentType()' /><br />
+		<?php echo form_text('txt_custom_contenttype','',100,'style="width:200px;"');?>
+		<input type="button" value="<?php echo $_lang["add"]; ?>" onclick='addContentType()' /><br />
 		<table>
 			<tr>
 			<td valign="top">
@@ -472,14 +473,14 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["rss_url_news_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_news" value="<?php echo $rss_url_news; ?>" /><br />
+		<?php echo form_text('rss_url_news',$rss_url_news);?><br />
 		<?php echo $_lang["rss_url_news_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["rss_url_security_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength='350' style="width:350px;" name="rss_url_security" value="<?php echo $rss_url_security; ?>" /><br />
+		<?php echo form_text('rss_url_security',$rss_url_security);?><br />
 		<?php echo $_lang["rss_url_security_message"] ?>
 	</td>
 </tr>
@@ -511,13 +512,13 @@ function confirmLangChange(el, lkey, elupd)
 <tr id="furlRow1" class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsprefix_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_prefix" value="<?php echo $friendly_url_prefix; ?>" /><br />
+		<?php echo form_text('friendly_url_prefix',$friendly_url_prefix,50);?><br />
 		<?php echo $_lang["friendlyurlsprefix_message"] ?></td>
 </tr>
 <tr id='furlRow4' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsuffix_title"] ?></th>
 	<td>
-		<input onchange="documentDirty=true;" type="text" maxlength="50" style="width:200px;" name="friendly_url_suffix" value="<?php echo $friendly_url_suffix; ?>" /><br />
+		<?php echo form_text('friendly_url_suffix',$friendly_url_suffix,50);?><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
@@ -585,12 +586,14 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </tr>
 <tr>
 <th><?php echo $_lang["failed_login_title"] ?></th>
-<td><input type="text" name="failed_login_attempts" style="width:50px" value="<?php echo $failed_login_attempts; ?>" /><br />
+<td>
+	<?php echo form_text('failed_login_attempts',$failed_login_attempts,3);?><br />
 <?php echo $_lang["failed_login_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["blocked_minutes_title"] ?></th>
-<td><input type="text" name="blocked_minutes" style="width:100px" value="<?php echo $blocked_minutes; ?>" /><br />
+<td>
+	<?php echo form_text('blocked_minutes',$blocked_minutes,7);?><br />
 <?php echo $_lang["blocked_minutes_message"] ?></td>
 </tr>
 <?php
@@ -613,13 +616,15 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('captcha_words_default');?>
 </select>
 </th>
-<td><input type="text" id="captcha_words_input" name="captcha_words" style="width:250px" value="<?php echo $captcha_words; ?>" />
+<td>
+	<?php echo form_text('captcha_words',$captcha_words,255,'id="captcha_words_input" style="width:400px"');?><br />
 <input type="hidden" name="captcha_words_default" id="captcha_words_default_hidden" value="<?php echo addslashes($_lang["captcha_words_default"]);?>" /><br />
 <?php echo $_lang["captcha_words_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["emailsender_title"] ?></th>
-<td ><input onchange="documentDirty=true;" type="text" maxlength="255" name="emailsender" value="<?php echo $emailsender; ?>" /><br />
+<td>
+	<?php echo form_text('emailsender',$emailsender);?><br />
 <?php echo $_lang["emailsender_message"] ?></td>
 </tr>
 <tr>
@@ -630,7 +635,8 @@ $gdAvailable = extension_loaded('gd');
 <?php echo get_lang_options('emailsubject_default');?>
 </select>
 </th>
-<td ><input id="emailsubject_field" name="emailsubject" onchange="documentDirty=true;" type="text" maxlength="255" value="<?php echo $emailsubject; ?>" />
+<td>
+	<?php echo form_text('emailsubject',$emailsubject);?><br />
 <input type="hidden" name="emailsubject_default" id="emailsubject_default_hidden" value="<?php echo addslashes($_lang['emailsubject_default']);?>" /><br />
 <?php echo $_lang["emailsubject_message"] ?></td>
 </tr>
@@ -754,7 +760,8 @@ $dir->close();
 
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="datepicker_offset" value="<?php echo $datepicker_offset; ?>" /><br />
+<td>
+	<?php echo form_text('datepicker_offset',$datepicker_offset,5);?><br />
 <?php echo $_lang["datepicker_offset_message"]?></td>
 </tr>
 <tr>
@@ -776,22 +783,26 @@ echo $str;
 </tr>
 <tr>
 <th><?php echo $_lang["nologentries_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_logs" value="<?php echo $number_of_logs; ?>" /><br />
+<td>
+	<?php echo form_text('number_of_logs',$number_of_logs,3);?><br />
 <?php echo $_lang["nologentries_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["mail_check_timeperiod_title"] ?></th>
-<td><input type="text" name="mail_check_timeperiod" onchange="documentDirty=true;" size="5" value="<?php echo $mail_check_timeperiod; ?>" /><br />
+<td>
+	<?php echo form_text('mail_check_timeperiod',$mail_check_timeperiod,5);?><br />
 <?php echo $_lang["mail_check_timeperiod_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["nomessages_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_messages" value="<?php echo $number_of_messages; ?>" /><br />
+<td>
+	<?php echo form_text('number_of_messages',$number_of_messages,5);?><br />
 <?php echo $_lang["nomessages_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["noresults_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="50" size="5" name="number_of_results" value="<?php echo $number_of_results; ?>" /><br />
+<td>
+	<?php echo form_text('number_of_results',$number_of_results,5);?><br />
 <?php echo $_lang["noresults_message"]?></td>
 </tr>
 <tr>
@@ -831,7 +842,8 @@ return "{$base_path}assets/";
 }
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_dir" id="rb_base_dir" value="<?php echo $rb_base_dir; ?>" /> <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
+<?php echo form_text('rb_base_dir',$rb_base_dir,255,'id="rb_base_dir"');?>
+<input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
 <tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
@@ -842,25 +854,25 @@ global $site_url;
 return $site_url . "assets/";
 }
 ?>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="rb_base_url" value="<?php echo $rb_base_url; ?>" /><br />
+<?php echo form_text('rb_base_url',$rb_base_url);?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
 <tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_images_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_images" value="<?php echo $upload_images; ?>" /><br />
+<?php echo form_text('upload_images',$upload_images);?><br />
 <?php echo $_lang["uploadable_images_message"]?></td>
 </tr>
 <tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_media_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_media" value="<?php echo $upload_media; ?>" /><br />
+<?php echo form_text('upload_media',$upload_media);?><br />
 <?php echo $_lang["uploadable_media_message"]?></td>
 </tr>
 <tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_flash_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_flash" value="<?php echo $upload_flash; ?>" /><br />
+<?php echo form_text('upload_flash',$upload_flash);?><br />
 <?php echo $_lang["uploadable_flash_message"]?></td>
 </tr>
 <tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
@@ -908,7 +920,8 @@ echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" 
 </tr>
 <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["editor_css_path_title"]?></th>
-<td><input onchange="documentDirty=true;" type="text" maxlength="255" name="editor_css_path" value="<?php echo $editor_css_path; ?>" /><br />
+<td>
+<?php echo form_text('editor_css_path',$editor_css_path);?><br />
 <?php echo $_lang["editor_css_path_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
@@ -932,13 +945,14 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["filemanager_path_title"]?></th>
 <td>
 <?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo $base_path; ?></span><br />
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="filemanager_path" id="filemanager_path" value="<?php echo $filemanager_path; ?>" /> <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
+<?php echo form_text('filemanager_path',$filemanager_path,255,'id="filemanager_path"');?>
+<input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
 <?php echo $_lang["filemanager_path_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_files_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_files" value="<?php echo $upload_files; ?>" /><br />
+<?php echo form_text('upload_files',$upload_files);?><br />
 <?php echo $_lang["uploadable_files_message"]?></td>
 </tr>
 <tr>
@@ -956,19 +970,19 @@ if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
 	$limit_size = ini_get('memory_limit');
 }
 ?>
-<input onchange="documentDirty=true;" type="text" maxlength="255" name="upload_maxsize" value="<?php echo !empty($upload_maxsize) ? $upload_maxsize : $limit_size ; ?>" /><br />
+<?php echo form_text('upload_maxsize',$upload_maxsize);?><br />
 <?php echo sprintf($_lang["upload_maxsize_message"],$limit_size);?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_file_permissions_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_file_permissions" value="<?php echo $new_file_permissions; ?>" /><br />
+<?php echo form_text('new_file_permissions',$new_file_permissions,4);?><br />
 <?php echo $_lang["new_file_permissions_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_folder_permissions_title"]?></th>
 <td>
-<input onchange="documentDirty=true;" type="text" maxlength='4' style="width:50px;" name="new_folder_permissions" value="<?php echo $new_folder_permissions; ?>" /><br />
+<?php echo form_text('new_folder_permissions',$new_folder_permissions,4);?><br />
 <?php echo $_lang["new_folder_permissions_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
@@ -1062,6 +1076,14 @@ function get_lang_options($key=null, $selected_lang=null)
 	}
 }
 
+function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
+{
+	if($readonly) $readonly = ' disabled';
+	if($add)      $add = ' ' . $add;
+	if($maxlength<=10) $maxlength = 'maxlength="' . $maxlength . '" style="width:' . $maxlength . 'em;"';
+	else               $maxlength = 'maxlength="' . $maxlength . '"';
+	return '<input onchange="documentDirty=true;" type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
+}
 function form_radio($name,$value,$checked=false,$add='',$disabled=false)
 {
 	if($checked)  $checked  = ' checked="checked"';
@@ -1074,4 +1096,3 @@ function wrap_label($str='',$object)
 {
 	return '<label>' . $object . "\n" . $str . '</label>';
 }
-?>
