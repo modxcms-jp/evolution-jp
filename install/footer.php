@@ -17,10 +17,9 @@ function get_src_footer()
 			</div>
 		</div><!-- // content -->
 	</div><!-- // contentarea -->
-<br />
 <div id="footer">
 	<div id="footer-inner">
-	<div class="container_12">
+	<div class="container_10">
 		[+footer1+]
 		<br />
 		[+footer2+]

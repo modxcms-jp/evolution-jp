@@ -33,18 +33,18 @@ function get_src_header()
 <body [+textdir+]>
 <!-- start install screen-->
 <div id="header">
-	<div class="container">
+	<div class="container_10">
 		<span class="help"><a href="[+help_link+]" target="_blank" title="[+help_title+]">[+help+]</a></span>
 		<span class="version">[+version+] ([+release_date+])</span>
 		<div id="mainheader">
-			<h1 class="pngfix" id="logo"><span>MODX CMS</span></h1>
+			<h1 id="logo"><span>MODX CMS</span></h1>
 		</div>
 	</div>
 </div>
 <!-- end header -->
 
 <div id="contentarea">
-    <div class="container_12">        
+    <div class="container_10">        
         <!-- start content -->
         <div id="content">
 EOT;
