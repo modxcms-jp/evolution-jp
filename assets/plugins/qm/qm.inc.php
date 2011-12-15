@@ -309,8 +309,6 @@ EOT;
 						break;
 					}
 					$userID = $_SESSION['mgrInternalKey'];
-					//$docID = $this->modx->documentIdentifier;
-					$doc = $this->modx->getDocument($docID);
 					
 					// Edit button
 					
