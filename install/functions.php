@@ -322,3 +322,12 @@ function getCreateDbCategory($category, $sqlParser) {
     return $category_id;
 }
 
+function parse($src,$ph,$left='[+',$right='+]')
+{
+	foreach($ph as $k=>$v)
+	{
+		$k = $left . $k . $right;
+		$src = str_replace($k,$v,$src);
+	}
+	return $src;
+}
