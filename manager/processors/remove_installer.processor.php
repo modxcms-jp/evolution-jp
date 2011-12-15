@@ -13,7 +13,7 @@
  */
 
 $msg ='';
-$install_dir = dirname(dirname(dirname(__FILE__))).'/install/';
+$install_dir = dirname(dirname(dirname(__FILE__))).'/install';
 $install_dir = str_replace('\\','/',$install_dir);
 if(isset($_GET["rminstall"]))
 {
