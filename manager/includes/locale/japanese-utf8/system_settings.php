@@ -26,6 +26,10 @@ if(!isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling
 if(!isset($modx->config['manager_direction']))   $manager_direction = 'ltr';
 if(!isset($modx->config['tree_page_click']))     $tree_page_click = 'auto';
 
+if(!isset($modx->config['signupemail_message']))      $signupemail_message = $_lang['system_email_signup'];
+if(!isset($modx->config['websignupemail_message']))   $websignupemail_message = $_lang['system_email_websignup'];
+if(!isset($modx->config['webpwdreminder_message'])) $webpwdreminder_message = $_lang['system_email_webreminder'];
+
 function run_update($version)
 {
 	global $modx;
