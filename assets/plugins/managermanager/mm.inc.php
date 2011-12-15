@@ -467,7 +467,6 @@ case 'OnTVFormRender':
 
 		// Load the jquery library
 		echo '<!-- Begin ManagerManager output -->';
-		echo includeJs($js_url, 'html');	
 	
 		// Create a mask to cover the page while the fields are being rearranged
 		echo '		
