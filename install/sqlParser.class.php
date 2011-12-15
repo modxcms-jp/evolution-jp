@@ -86,7 +86,7 @@ class SqlParser {
 		$ph['MANAGERLANGUAGE'] = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
 		$ph['DATE_NOW'] = time();
-		$idata = $this->parse($idata,$ph);
+		$idata = $this->parse($idata,$ph,'{','}');
 		
 		/*$ph['VERSION'] = $modx_version;*/
 
@@ -118,16 +118,6 @@ class SqlParser {
 				$this->installFailed = true;
 			}
 		}
-	}
-	
-	function parse($src,$ph)
-	{
-		foreach($ph as $k=>$v)
-		{
-			$k = '{' . $k . '}';
-			$src = str_replace($k,$v,$src);
-		}
-		return $src;
 	}
 	
 	function close() {
