@@ -282,7 +282,6 @@ switch ($actionToTake)
 		$publishedon = ($published ? time() : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
 
-
 		$field = array();
 		$field['introtext']       = $introtext;
 		$field['content']         = $content;
@@ -858,17 +857,26 @@ function file_upload()
 		}
 		$_POST[$k] .= $filename;
 		
-		if(!is_uploaded_file($file['tmp_name'])) echo '不正なファイルです。';
-		elseif(file_exists($file['tmp_name']))
+		if(!is_uploaded_file($file['tmp_name']))
+		{
+			echo '不正なファイルです。';
+			exit;
+		}
+				elseif(file_exists($file['tmp_name']))
 		{
 			$filesize = filesize($file['tmp_name']);
 			if($filesize <= $modx->config['upload_maxsize'])
 			{
+				if($each_dir === 'images/' && (isset($modx->config['upload_img_w']) || !empty($modx->config['upload_img_w'])))
+				{ // jp-edition only
+					resize_image($file['tmp_name'], $modx->config['upload_img_w']);
+				}
 				move_uploaded_file($file['tmp_name'], $updir.$filename);
 			}
 			else
 			{
 				echo "$filesize Byte ファイルサイズが大きすぎます。";
+				exit;
 			}
 		}
 	}
@@ -954,4 +962,59 @@ function get_tmplvars()
 		}
 	}
 	return $tmplvars;
+}
+
+function resize_image($img_path, $width)
+{
+	list($orig_width, $orig_height, $image_type) = getimagesize($img_path);
+	switch ($image_type)
+	{
+		case IMAGETYPE_GIF : $im = imagecreatefromgif($img_path);  break;
+		case IMAGETYPE_JPEG: $im = imagecreatefromjpeg($img_path); break;
+		case IMAGETYPE_PNG : $im = imagecreatefrompng($img_path);  break;
+		default:
+			return false;
+	}
+	
+	$height = $width * ($orig_height / $orig_width);
+	$new_image = imagecreatetruecolor($width, $height);
+	
+	if (!$new_image)
+	{
+		imagedestroy($im);
+		return false;
+	}
+	
+	if (($image_type == IMAGETYPE_GIF) OR ($image_type==IMAGETYPE_PNG))
+	{
+		imagealphablending($new_image, false);
+		imagesavealpha($new_image, true);
+		$transparent = imagecolorallocatealpha($new_image, 255, 255, 255, 127);
+		imagefilledrectangle($new_image, 0, 0, $width, $height, $transparent);
+	}
+	
+	if (!imagecopyresampled($new_image, $im, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height))
+	{
+		imagedestroy($im);
+		imagedestroy($new_image);
+		return false;
+	}
+	
+	switch ($image_type)
+	{
+		case IMAGETYPE_GIF : $result = imagegif($new_image, $img_path, $quality) ; break;
+		case IMAGETYPE_JPEG: $result = imagejpeg($new_image, $img_path, $quality); break;
+		case IMAGETYPE_PNG : $result = imagepng($new_image, $img_path, $quality) ; break;
+		default:
+			return false;
+	}
+	
+	if (!$result)
+	{
+		imagedestroy($im);
+		imagedestroy($new_image);
+		return false;
+	}
+	imagedestroy($im);
+	imagedestroy($new_image);
 }
