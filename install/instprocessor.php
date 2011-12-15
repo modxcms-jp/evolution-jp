@@ -18,6 +18,8 @@ $create = false;
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
+require_once('functions.php');
+
 echo "<p>{$_lang['setup_database']}</p>\n";
 
 $installMode= intval($_POST['installmode']);
@@ -206,7 +208,7 @@ if ($moduleSQLBaseFile) {
 
 // write the config.inc.php file if new installation
 echo "<p>" . $_lang['writing_config_file'];
-$configString = file_get_contents('config.inc.tpl');
+$src = file_get_contents('config.inc.tpl');
 $ph['database_type']               = 'mysql';
 $ph['database_server']             = $database_server;
 $ph['database_user']               = modx_escape($database_user);
@@ -219,19 +221,14 @@ $ph['lastInstallTime']             = time();
 $ph['site_sessionname']            = (!isset ($site_sessionname)) ? 'SN' . uniqid() : $site_sessionname;
 $ph['https_port']                  = '443';
 
-foreach($ph as $k=>$v)
-{
-	$src = '[+' . $k . '+]';
-	$configString = str_replace($src, $v, $configString);
-}
-
-$config_path = realpath('../manager/includes/config.inc.php');
-$configFileFailed = (@ file_put_contents($config_path, $configString)) ? false : true;
+$src = parse($src, $ph);
+$config_path = str_replace('\\','/',realpath('../manager/includes')) . '/config.inc.php';
+$config_saved = (@ file_put_contents($config_path, $src));
 
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($config_path, 0404);
 
-if ($configFileFailed == true)
+if ($config_saved === false)
 {
 	echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
 	$errors += 1;
