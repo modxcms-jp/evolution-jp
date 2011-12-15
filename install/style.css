@@ -352,13 +352,6 @@ line-height:1em;
 margin-bottom:0.5em;
 }
 
-#downloadbar {
-background:transparent url(img/installbar.png) no-repeat scroll 0 0;
-height:93px;
-margin-bottom:20px;
-position:relative;
-width:940px;
-}
 #downloadinfo {
 	color:#FFFFFF;
 	font-size:26px;
@@ -384,15 +377,6 @@ margin-bottom:10px;
 }
 #footer a {
 color:#FFFFFF;
-}
-
-#bottom {
-background:#64AB24 url(img/site-ui-gfx.png) repeat-x scroll 0 0;
-clear:both;
-height:23px;
-margin:0;
-overflow:hidden;
-padding:0;
 }
 
 #content {
@@ -468,17 +452,6 @@ padding:6px 6px 6px 12px;
 text-align:center;
 width:10%;
 }
-thead th.nobg {
-background:transparent none repeat scroll 0 0;
-border-left:0 none;
-border-right:1px solid #E4E4E4;
-border-top:0 none;
-color:#8C8C8C;
-font-style:normal;
-font-weight:normal;
-text-align:left;
-width:auto;
-}
 td, th {
 background:#FFFFFF none repeat scroll 0 0;
 border-bottom:1px solid #E4E4E4;
@@ -522,14 +495,6 @@ p.labelHolder {
 }
 
 #content ul li { background: none; list-style: none; }
-
-#downloadbar ul {
-    margin:0 0 1.5em 15px;
-}
-#downloadbar li {
-    list-style-type:none;
-    margin:0;
-}
 
 
 #setCollation, #AUH {
