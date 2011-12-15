@@ -6,52 +6,8 @@ if (!$modx->hasPermission('save_document')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$upload_files  = explode(',',$modx->config['upload_files']);
-$upload_images = explode(',',$modx->config['upload_images']);
-$upload_media  = explode(',',$modx->config['upload_media']);
-$upload_flash  = explode(',',$modx->config['upload_flash']);
 
-if($_FILES)
-{
-	foreach($_FILES as $k=>$file)
-	{
-		if($modx->config['clean_uploaded_filename']) $filename = $modx->stripAlias($file['name']);
-		$filename = $file['name'];
-		$ext = substr($filename,strrpos($filename,'.')+1);
-		if    (in_array($ext,$upload_images)) $each_dir = 'images/';
-		elseif(in_array($ext,$upload_files))  $each_dir = 'files/';
-		elseif(in_array($ext,$upload_media))  $each_dir = 'media/';
-		elseif(in_array($ext,$upload_flash))  $each_dir = 'flash/';
-		else {continue;}
-		$updir = $modx->config['rb_base_dir'] . $each_dir;
-		$_POST[$k]  = $modx->config['rb_base_url'] . $each_dir;
-		if(isset($target_dir) || !empty($target_dir))
-		{
-			$target_dir = rtrim($target_dir,'/');
-			$updir .= $target_dir;
-			if(!is_dir($updir))
-			{
-				mkdir($updir);
-			}
-			$updir     .= '/';
-			$_POST[$k] .= $target_dir . '/';
-		}
-		$_POST[$k] .= $filename;
-		
-		if(file_exists($file['tmp_name']))
-		{
-			$filesize = filesize($file['tmp_name']);
-			if($filesize <= $modx->config['upload_maxsize'])
-			{
-				move_uploaded_file($file['tmp_name'], $updir.$filename);
-			}
-			else
-			{
-				echo "$filesize Byte ファイルサイズが大きすぎます。";
-			}
-		}
-	}
-}
+if($_FILES) file_upload();
 
 // preprocess POST values
 $id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
@@ -97,10 +53,8 @@ $tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
 $tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
 $tbl_site_content               = $modx->getFullTableName('site_content');
 $tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
 $tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
 $tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
 
 switch($_POST['mode'])
 {
@@ -224,13 +178,6 @@ else
 	}
 }
 
-// get document groups for current user
-$tmplvars = array ();
-if ($_SESSION['mgrDocgroups'])
-{
-	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
-}
-
 // ensure that user has not made this document inaccessible to themselves
 if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 {
@@ -262,66 +209,6 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 				exit;
 			}
 		}
-	}
-}
-
-$field = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-$from = "{$tbl_site_tmplvars} AS tv ";
-$from .= "INNER JOIN {$tbl_site_tmplvar_templates} AS tvtpl ON tvtpl.tmplvarid = tv.id ";
-$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$id}' ";
-$from .= "LEFT JOIN {$tbl_site_tmplvar_access} tva ON tva.tmplvarid=tv.id  ";
-$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
-$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
-$orderby = 'tv.rank';
-$rs = $modx->db->select($field,$from,$where,$orderby);
-
-while ($row = $modx->db->getRow($rs))
-{
-	$tmplvar = '';
-	$tvid = "tv{$row['id']}";
-	if(!isset($_POST[$tvid])) continue;
-	switch ($row['type'])
-	{
-		case 'url':
-			$tmplvar = $_POST[$tvid];
-			if($_POST["{$tvid}_prefix"] != '--')
-			{
-				$tmplvar = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $tmplvar);
-				$tmplvar = $_POST["{$tvid}_prefix"] . $tmplvar;
-			}
-			break;
-		case 'file':
-			$tmplvar = $_POST[$tvid];
-			break;
-		default:
-			if(is_array($_POST[$tvid]))
-			{
-				// handles checkboxes & multiple selects elements
-				$feature_insert = array ();
-				$lst = $_POST[$tvid];
-				foreach($lst as $v)
-				{
-					$feature_insert[count($feature_insert)] = $v;
-				}
-				$tmplvar = implode('||', $feature_insert);
-			}
-			else
-			{
-				$tmplvar = $_POST[$tvid];
-			}
-	}
-	// save value if it was modified
-	if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
-	{
-		$tmplvars[$row['id']] = array (
-			$row['id'],
-			$tmplvar
-		);
-	}
-	else
-	{
-		// Mark the variable for deletion
-		$tmplvars[$row['name']] = $row['id'];
 	}
 }
 
@@ -386,7 +273,7 @@ switch ($actionToTake)
 			"mode" => "new",
 			"id" => $id
 		));
-
+		
 		// deny publishing if not permitted
 		if (!$modx->hasPermission('publish_document')) {
 			$pub_date = 0;
@@ -441,7 +328,9 @@ switch ($actionToTake)
 			echo "Couldn't get last insert key!";
 			exit;
 		}
-
+		
+		$tmplvars = get_tmplvars();
+		
 		$tvChanges = array();
 		$field = '';
 		foreach ($tmplvars as $field => $value)
@@ -678,8 +567,9 @@ switch ($actionToTake)
 		{
 			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> $sql </i>.";
 		}
-
+		
 		// update template variables
+		$tmplvars = get_tmplvars();
 		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid={$id}");
 		$tvIds = array ();
 		while ($row = $modx->db->getRow($rs))
@@ -934,4 +824,133 @@ function saveMETAKeywords($id) {
 		);
 		$modx->db->update($flds, $tbl_site_content, "id=$id");
 	}
+}
+
+function file_upload()
+{
+	global $modx,$target_dir;
+	
+	$upload_files  = explode(',',$modx->config['upload_files']);
+	$upload_images = explode(',',$modx->config['upload_images']);
+	$upload_media  = explode(',',$modx->config['upload_media']);
+	$upload_flash  = explode(',',$modx->config['upload_flash']);
+	
+	foreach($_FILES as $k=>$file)
+	{
+		if($modx->config['clean_uploaded_filename']) $filename = $modx->stripAlias($file['name']);
+		$filename = $file['name'];
+		$ext = substr($filename,strrpos($filename,'.')+1);
+		if    (in_array($ext,$upload_images)) $each_dir = 'images/';
+		elseif(in_array($ext,$upload_files))  $each_dir = 'files/';
+		elseif(in_array($ext,$upload_media))  $each_dir = 'media/';
+		elseif(in_array($ext,$upload_flash))  $each_dir = 'flash/';
+		else {continue;}
+		$updir = $modx->config['rb_base_dir'] . $each_dir;
+		$_POST[$k]  = $modx->config['rb_base_url'] . $each_dir;
+		if(isset($target_dir) || !empty($target_dir))
+		{
+			$target_dir = rtrim($target_dir,'/');
+			$updir .= $target_dir;
+			if(!is_dir($updir))
+			{
+				mkdir($updir);
+			}
+			$updir     .= '/';
+			$_POST[$k] .= $target_dir . '/';
+		}
+		$_POST[$k] .= $filename;
+		
+		if(file_exists($file['tmp_name']))
+		{
+			$filesize = filesize($file['tmp_name']);
+			if($filesize <= $modx->config['upload_maxsize'])
+			{
+				move_uploaded_file($file['tmp_name'], $updir.$filename);
+			}
+			else
+			{
+				echo "$filesize Byte ファイルサイズが大きすぎます。";
+			}
+		}
+	}
+}
+
+function get_tmplvars()
+{
+	global $modx;
+	
+	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
+	$tbl_site_tmplvar_contentvalues =  $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
+	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+	$template = $_POST['template'];
+	$id       = is_numeric($_POST['id']) ? $_POST['id'] : '';
+	
+	// get document groups for current user
+	if ($_SESSION['mgrDocgroups'])
+	{
+		$docgrp = implode(',', $_SESSION['mgrDocgroups']);
+	}
+	
+	$field = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+	$from = "{$tbl_site_tmplvars} AS tv ";
+	$from .= "INNER JOIN {$tbl_site_tmplvar_templates} AS tvtpl ON tvtpl.tmplvarid = tv.id ";
+	$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$id}' ";
+	$from .= "LEFT JOIN {$tbl_site_tmplvar_access} tva ON tva.tmplvarid=tv.id  ";
+	$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
+	$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
+	$orderby = 'tv.rank';
+	$rs = $modx->db->select($field,$from,$where,$orderby);
+	
+	$tmplvars = array ();
+	while ($row = $modx->db->getRow($rs))
+	{
+		$tmplvar = '';
+		$tvid = "tv{$row['id']}";
+		if(!isset($_POST[$tvid])) continue;
+		switch ($row['type'])
+		{
+			case 'url':
+				$tmplvar = $_POST[$tvid];
+				if($_POST["{$tvid}_prefix"] != '--')
+				{
+					$tmplvar = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $tmplvar);
+					$tmplvar = $_POST["{$tvid}_prefix"] . $tmplvar;
+				}
+				break;
+			case 'file':
+				$tmplvar = $_POST[$tvid];
+				break;
+			default:
+				if(is_array($_POST[$tvid]))
+				{
+					// handles checkboxes & multiple selects elements
+					$feature_insert = array ();
+					$lst = $_POST[$tvid];
+					foreach($lst as $v)
+					{
+						$feature_insert[count($feature_insert)] = $v;
+					}
+					$tmplvar = implode('||', $feature_insert);
+				}
+				else
+				{
+					$tmplvar = $_POST[$tvid];
+				}
+		}
+		// save value if it was modified
+		if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
+		{
+			$tmplvars[$row['id']] = array (
+				$row['id'],
+				$tmplvar
+			);
+		}
+		else
+		{
+			// Mark the variable for deletion
+			$tmplvars[$row['name']] = $row['id'];
+		}
+	}
+	return $tmplvars;
 }
