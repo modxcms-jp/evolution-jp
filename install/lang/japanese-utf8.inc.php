@@ -86,7 +86,7 @@ $_lang["errors"] = 'エラー'; //Plural form
 $_lang["failed"] = '確認してください';
 $_lang["help"] = 'Help!';
 $_lang["help_link"] = 'http://modx.jp/docs/install.html';
-$_lang["help_title"] = 'インストールで困ったらココをチェック(MODXフォーラム)';
+$_lang["help_title"] = 'インストールで困ったらこのページを見てください';
 $_lang["iagree_box"] = '<b><a href="../assets/docs/license.txt" target="_blank">このライセンス(GPL2)</a>で規定される諸条件に同意します。</b></p><p><a href="http://www.opensource.jp/gpl/gpl.ja.html" target="_blank">GPL2ライセンスの日本語訳はこちらにあります。</a>この翻訳には法的効力はないため、<b>厳密な法的検証が必要な場合</b>は必ず英語の原文をご確認ください。';
 $_lang["install"] = 'インストール';
 $_lang["install_overwrite"] = 'インストール - ';

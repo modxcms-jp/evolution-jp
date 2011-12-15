@@ -192,7 +192,7 @@ if ($limit > 0) {
     }
 }
 if(!count($moduleTemplates+$moduleTVs+$moduleChunks+$moduleModules+$modulePlugins+$moduleSnippets))
-echo '<strong>アップデート対象のエレメントはありません。</strong>';
+echo '<strong>アップデート対象のオプションはありません。</strong>';
 ?>
 	</div>
     <p class="buttonlinks">
