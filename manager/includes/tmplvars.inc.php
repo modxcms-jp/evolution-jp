@@ -11,7 +11,7 @@
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
 
-		switch ($field_type) {
+		switch (strtolower($field_type)) {
 
 			case "text": // handler for regular text boxes
 			case "rawtext"; // non-htmlentity converted text boxes
@@ -294,8 +294,15 @@ EOT;
                 break;
             
 			default: // the default handler -- for errors, mostly
-				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' onchange="documentDirty=true;" />';
-
+				$sname = strtolower($field_type);
+				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='tvin:{$field_type}'");
+				if($modx->db->getRecordCount($result)==1)
+				{
+					$field_html .= eval($modx->db->getValue($result));
+				}
+				else
+					$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' onchange="documentDirty=true;" />';
 		} // end switch statement
 		return $field_html;
 	} // end renderFormElement function
