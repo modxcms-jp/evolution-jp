@@ -7,8 +7,6 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-if($_FILES) file_upload();
-
 // preprocess POST values
 $id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
 $introtext       = $modx->db->escape($_POST['introtext']);
@@ -885,6 +883,8 @@ function get_tmplvars()
 	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 	$template = $_POST['template'];
 	$id       = is_numeric($_POST['id']) ? $_POST['id'] : '';
+	
+	if($_FILES) file_upload();
 	
 	// get document groups for current user
 	if ($_SESSION['mgrDocgroups'])
