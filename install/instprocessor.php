@@ -99,11 +99,23 @@ if ($create) {
 		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 	}
 }
+$tbl_site_content = getFullTableName('site_content');
+$tbl_site_plugins = getFullTableName('site_plugins');
+$tbl_system_settings = getFullTableName('system_settings');
+$tbl_site_templates = getFullTableName('site_templates');
+$tbl_site_tmplvars = getFullTableName('site_tmplvars');
+$tbl_site_tmplvar_templates = getFullTableName('site_tmplvar_templates');
+$tbl_site_htmlsnippets = getFullTableName('site_htmlsnippets');
+$tbl_site_modules = getFullTableName('site_modules');
+$tbl_site_plugin_events = getFullTableName('site_plugin_events');
+$tbl_system_eventnames = getFullTableName('system_eventnames');
+$tbl_site_snippets = getFullTableName('site_snippets');
+$tbl_active_users = getFullTableName('active_users');
 
 // check table prefix
 if ($installMode == 0) {
 	echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
-	if (@ $rs = mysql_query("SELECT COUNT(*) FROM $dbase.`" . $table_prefix . "site_content`")) {
+	if (@ $rs = mysql_query("SELECT COUNT(*) FROM {$tbl_site_content}")) {
 		echo "<span class=\"notok\">" . $_lang['failed'] . "</span>" . $_lang['table_prefix_already_inuse'] . "</p>";
 		$errors += 1;
 		echo "<p>" . $_lang['table_prefix_already_inuse_note'] . "</p>";
@@ -139,7 +151,7 @@ if(!function_exists('parseProperties')) {
 // check status of Inherit Parent Template plugin
 if ($installMode != 0)
 {
-	$rs = mysql_query("SELECT properties, disabled FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='Inherit Parent Template'");
+	$rs = mysql_query("SELECT properties, disabled FROM {$tbl_site_plugins} WHERE name='Inherit Parent Template'");
 	$row = mysql_fetch_assoc($rs);
 	if(!$row)
 	{
@@ -246,16 +258,16 @@ if ($config_saved === false)
 // generate new site_id and set manager theme to MODxCarbon
 if ($installMode == 0) {
 	$siteid = uniqid('');
-	mysql_query("REPLACE INTO $dbase.`" . $table_prefix . "system_settings` (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxCarbon')", $sqlParser->conn);
+	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxCarbon')", $sqlParser->conn);
 } else {
 	// update site_id if missing
-	$ds = mysql_query("SELECT setting_name,setting_value FROM $dbase.`" . $table_prefix . "system_settings` WHERE setting_name='site_id'", $sqlParser->conn);
+	$ds = mysql_query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'", $sqlParser->conn);
 	if ($ds) {
 		$r = mysql_fetch_assoc($ds);
 		$siteid = $r['setting_value'];
 		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3') {
 			$siteid = uniqid('');
-			mysql_query("REPLACE INTO $dbase.`" . $table_prefix . "system_settings` (setting_name,setting_value) VALUES('site_id','$siteid')", $sqlParser->conn);
+			mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')", $sqlParser->conn);
 		}
 	}
 }
@@ -283,17 +295,17 @@ if (isset ($_POST['template']) || $installData) {
                 $template = modx_escape($template);
 			
 			// See if the template already exists
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_templates` WHERE templatename='$name'", $sqlParser->conn);
+			$rs = mysql_query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'", $sqlParser->conn);
 			
 			if (mysql_num_rows($rs)) {
-                    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_templates` SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';", $sqlParser->conn)) {
+                    if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';", $sqlParser->conn)) {
 					$errors += 1;
 					echo "<p>" . mysql_error() . "</p>";
 					return;
 				}
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 			} else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_templates` (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');", $sqlParser->conn)) {
+                    if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');", $sqlParser->conn)) {
 					$errors += 1;
 					echo "<p>" . mysql_error() . "</p>";
 					return;
@@ -329,11 +341,11 @@ if (isset ($_POST['tv']) || $installData) {
         // Create the category if it does not already exist
             $category = getCreateDbCategory($category, $sqlParser);
 
-        $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_tmplvars` WHERE name='$name'", $sqlParser->conn);
+        $rs = mysql_query("SELECT * FROM {$tbl_site_tmplvars} WHERE name='$name'", $sqlParser->conn);
         if (mysql_num_rows($rs)) {
             $insert = true;
             while($row = mysql_fetch_assoc($rs)) {
-                    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};", $sqlParser->conn)) {
+                    if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};", $sqlParser->conn)) {
                     echo "<p>" . mysql_error() . "</p>";
                     return;
                 }
@@ -341,8 +353,7 @@ if (isset ($_POST['tv']) || $installData) {
             }
             echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
         } else {
-                //$q = "INSERT INTO $dbase.`" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',(SELECT (CASE COUNT(*) WHEN 0 THEN 0 ELSE `id` END) `id` FROM $dbase.`" . $table_prefix . "categories` WHERE `category` = '$category'),$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
-                $q = "INSERT INTO $dbase.`" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
+                $q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
                 if (!@ mysql_query($q, $sqlParser->conn)) {
                 echo "<p>" . mysql_error() . "</p>";
                 return;
@@ -356,19 +367,19 @@ if (isset ($_POST['tv']) || $installData) {
         if (count($assignments) > 0) {
 
                 // remove existing tv -> template assignments
-                $ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+                $ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc';",$sqlParser->conn);
                 $row = mysql_fetch_assoc($ds);
                 $id = $row["id"];
-                mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_tmplvar_templates` WHERE tmplvarid = \'' . $id . '\'');
+                mysql_query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
 
                 // add tv -> template assignments
             foreach ($assignments as $assignment) {
                     $template = modx_escape($assignment);
-                $ts = mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_templates` WHERE templatename='$template';",$sqlParser->conn);
+                $ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$template';",$sqlParser->conn);
                 if ($ds && $ts) {
                     $tRow = mysql_fetch_assoc($ts);
                     $templateId = $tRow['id'];
-                    mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES($id, $templateId)");
+                    mysql_query("INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid) VALUES($id, $templateId)");
                }
             }
         }
@@ -399,16 +410,16 @@ if (isset ($_POST['chunk']) || $installData) {
 			
 			$chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
                 $chunk = modx_escape($chunk);
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_htmlsnippets` WHERE name='$name'", $sqlParser->conn);
+			$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'", $sqlParser->conn);
                 $count_original_name = mysql_num_rows($rs);
                 if($overwrite == 'false') {
                     $newname = $name . '-' . str_replace('.', '_', $modx_version);
-                    $rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_htmlsnippets` WHERE name='$newname'", $sqlParser->conn);
+                    $rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$newname'", $sqlParser->conn);
                     $count_new_name = mysql_num_rows($rs);
                 }
                 $update = $count_original_name > 0 && $overwrite == 'true';
                 if ($update) {
-                    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_htmlsnippets` SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';", $sqlParser->conn)) {
+                    if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';", $sqlParser->conn)) {
 					$errors += 1;
 					echo "<p>" . mysql_error() . "</p>";
 					return;
@@ -418,7 +429,7 @@ if (isset ($_POST['chunk']) || $installData) {
                     if($count_original_name > 0 && $overwrite == 'false') {
                         $name = $newname;
                     }
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_htmlsnippets` (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);", $sqlParser->conn)) {
+                    if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);", $sqlParser->conn)) {
 					$errors += 1;
 					echo "<p>" . mysql_error() . "</p>";
 					return;
@@ -455,17 +466,17 @@ if (isset ($_POST['module']) || $installData) {
 			// remove installer docblock
 			$module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
                 $module = modx_escape($module);
-			$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_modules` WHERE name='$name'", $sqlParser->conn);
+			$rs = mysql_query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'", $sqlParser->conn);
 			if (mysql_num_rows($rs)) {
 			    $row = mysql_fetch_assoc($rs);
 			    $props = propUpdate($properties,$row['properties']);
-			    if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_modules` SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';", $sqlParser->conn)) {
+			    if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';", $sqlParser->conn)) {
 					echo "<p>" . mysql_error() . "</p>";
 					return;
 				}
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 			} else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_modules` (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);", $sqlParser->conn)) {
+                    if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);", $sqlParser->conn)) {
 					echo "<p>" . mysql_error() . "</p>";
 					return;
 				}
@@ -508,7 +519,7 @@ if (isset ($_POST['plugin']) || $installData)
 				// disable legacy versions based on legacy_names provided
 				if(!empty($leg_names))
 				{
-					$update_query = "UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE name IN ($leg_names);";
+					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ($leg_names);";
 					$rs = mysql_query($update_query, $sqlParser->conn);
 				}
 				
@@ -519,7 +530,7 @@ if (isset ($_POST['plugin']) || $installData)
 				// remove installer docblock
 				$plugin = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugin, 1);
 				$plugin = modx_escape($plugin);
-				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name' AND disabled='0'", $sqlParser->conn);
+				$rs = mysql_query("SELECT * FROM {$tbl_site_plugins} WHERE name='$name' AND disabled='0'", $sqlParser->conn);
 				if(mysql_num_rows($rs))
 				{
 					$insert = true;
@@ -528,7 +539,7 @@ if (isset ($_POST['plugin']) || $installData)
 						$props = propUpdate($properties,$row['properties']);
 						if($row['description'] == $desc)
 						{
-							if(!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn))
+							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};", $sqlParser->conn))
 							{
 								echo "<p>" . mysql_error() . "</p>";
 								return;
@@ -537,7 +548,7 @@ if (isset ($_POST['plugin']) || $installData)
 						}
 						else
 						{
-							if(!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn))
+							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']};", $sqlParser->conn))
 							{
 								echo "<p>".mysql_error()."</p>";
 								return;
@@ -547,7 +558,7 @@ if (isset ($_POST['plugin']) || $installData)
 					if($insert === true)
 					{
 						if($props) $properties = $props;
-						if(!@mysql_query("INSERT INTO $dbase.`".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn))
+						if(!@mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn))
 						{
 							echo "<p>".mysql_error()."</p>";
 							return;
@@ -557,7 +568,7 @@ if (isset ($_POST['plugin']) || $installData)
 				}
 				else
 				{
-					if(!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);", $sqlParser->conn))
+					if(!@ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);", $sqlParser->conn))
 					{
 						echo "<p>" . mysql_error() . "</p>";
 						return;
@@ -567,15 +578,15 @@ if (isset ($_POST['plugin']) || $installData)
 				// add system events
 				if(count($events) > 0)
 				{
-				$ds=mysql_query("SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+				$ds=mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc';",$sqlParser->conn);
 					if($ds)
 					{
 						$row = mysql_fetch_assoc($ds);
 						$id = $row["id"];
 						// remove existing events
-						mysql_query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_plugin_events` WHERE pluginid = \'' . $id . '\'');
+						mysql_query("DELETE FROM {$tbl_site_plugin_events} WHERE pluginid = '{$id}'");
 						// add new events
-						mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid) SELECT '$id' as 'pluginid',se.id as 'evtid' FROM $dbase.`" . $table_prefix . "system_eventnames` se WHERE name IN ('" . implode("','", $events) . "')");
+						mysql_query("INSERT INTO {$tbl_site_plugin_events} (pluginid, evtid) SELECT '{$id}' as 'pluginid',se.id as 'evtid' FROM {$tbl_system_eventnames} se WHERE name IN ('" . implode("','", $events) . "')");
 					}
 				}
 			}
@@ -611,12 +622,12 @@ if (isset ($_POST['snippet']) || $installData)
 				// remove installer docblock
 				$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
 				$snippet = modx_escape($snippet);
-				$rs = mysql_query("SELECT * FROM $dbase.`" . $table_prefix . "site_snippets` WHERE name='$name'", $sqlParser->conn);
+				$rs = mysql_query("SELECT * FROM {$tbl_site_snippets} WHERE name='$name'", $sqlParser->conn);
 				if (mysql_num_rows($rs))
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE $dbase.`" . $table_prefix . "site_snippets` SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn))
+					if (!@ mysql_query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';", $sqlParser->conn))
 					{
 						echo "<p>" . mysql_error() . "</p>";
 						return;
@@ -625,7 +636,7 @@ if (isset ($_POST['snippet']) || $installData)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);", $sqlParser->conn))
 					{
 						echo "<p>" . mysql_error() . "</p>";
 						return;
@@ -686,7 +697,7 @@ $sync->emptyCache(); // first empty the cache
 @chmod('../assets/cache/sitePublishing.idx.php', 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
-mysql_query("TRUNCATE TABLE `".$table_prefix."active_users`");
+mysql_query("TRUNCATE TABLE {$tbl_active_users}");
 
 // close db connection
 $sqlParser->close();
@@ -706,3 +717,8 @@ if ($installMode == 0) {
 	echo "<p><img src=\"img/ico_info.png\" width=\"40\" height=\"42\" align=\"left\" style=\"margin-right:10px;\" />" . $_lang['upgrade_note'] . "</p>";
 }
 
+
+function getFullTableName($table_name)
+{
+	return "`{$_POST['database_name']}`.`{$_POST['tableprefix']}{$table_name}`";
+}
