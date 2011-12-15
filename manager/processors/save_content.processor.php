@@ -858,7 +858,8 @@ function file_upload()
 		}
 		$_POST[$k] .= $filename;
 		
-		if(file_exists($file['tmp_name']))
+		if(!is_uploaded_file($file['tmp_name'])) echo '不正なファイルです。';
+		elseif(file_exists($file['tmp_name']))
 		{
 			$filesize = filesize($file['tmp_name']);
 			if($filesize <= $modx->config['upload_maxsize'])
