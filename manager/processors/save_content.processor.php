@@ -836,7 +836,7 @@ function file_upload()
 	foreach($_FILES as $k=>$file)
 	{
 		if($modx->config['clean_uploaded_filename']) $filename = $modx->stripAlias($file['name']);
-		$filename = $file['name'];
+		$filename = htmlspecialchars($file['name'], ENT_QUOTES);
 		$ext = substr($filename,strrpos($filename,'.')+1);
 		if    (in_array($ext,$upload_images)) $each_dir = 'images/';
 		elseif(in_array($ext,$upload_files))  $each_dir = 'files/';
