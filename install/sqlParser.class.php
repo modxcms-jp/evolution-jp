@@ -86,7 +86,7 @@ class SqlParser {
 		$ph['MANAGERLANGUAGE'] = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
 		$ph['DATE_NOW'] = time();
-		$idata = $this->parse($idata,$ph,'{','}');
+		$idata = parse($idata,$ph,'{','}');
 		
 		/*$ph['VERSION'] = $modx_version;*/
 
