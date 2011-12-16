@@ -11,7 +11,7 @@ if (!$conn = @ mysql_connect($host, $uid, $pwd)) {
     $output .= '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
 }
 else {
-    $output .= '<span id="server_pass" style="color:#80c000;"> '.$_lang['status_passed_server'].'</span>';
+    $output .= '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
 
     // Mysql version check
     if ( version_compare(mysql_get_server_info(), '5.0.51', '=') ) {

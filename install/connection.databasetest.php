@@ -52,7 +52,7 @@ echo $output;
 
 function span_pass($str)
 {
-	return '<span id="database_pass" style="color:#80c000;">' . $str . '</span>';
+	return '<span id="database_pass" style="color:#388000;">' . $str . '</span>';
 }
 
 function span_fail($str)
