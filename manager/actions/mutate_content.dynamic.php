@@ -228,6 +228,7 @@ function resetpubdate() {
 			document.mutate.unpub_date.value='';
 		}
 	}
+	documentDirty=true;
 }
 
 var allowParentSelection = false;
@@ -787,7 +788,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
 				<td><input id="pub_date" <?php echo $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?php echo $content['pub_date']=="0" || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])?>" onblur="documentDirty=true;" />
-                <a onclick="javascript:document.mutate.pub_date.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
+                <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']?>" /></a>
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['page_data_publishdate_help']?>" onclick="alert(this.alt);" style="cursor:help;" />
 				</td>
@@ -799,7 +800,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_unpublishdate']?></span></td>
 				<td><input id="unpub_date" <?php echo $mx_can_pub ?>name="unpub_date" class="DatePicker" value="<?php echo $content['unpub_date']=="0" || !isset($content['unpub_date']) ? '' : $modx->toDateFormat($content['unpub_date'])?>" onblur="documentDirty=true;" />
-				<a onclick="document.mutate.unpub_date.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
+				<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']?>" /></a>
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['page_data_unpublishdate_help']?>" onclick="alert(this.alt);" style="cursor:help;" />
 				</td>
