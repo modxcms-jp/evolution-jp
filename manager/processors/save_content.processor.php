@@ -822,3 +822,83 @@ function saveMETAKeywords($id) {
 		$modx->db->update($flds, $tbl_site_content, "id=$id");
 	}
 }
+
+function get_tmplvars()
+{
+	global $modx;
+	
+	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
+	$tbl_site_tmplvar_contentvalues =  $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
+	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+	$template = $_POST['template'];
+	$id       = is_numeric($_POST['id']) ? $_POST['id'] : '';
+	
+	// get document groups for current user
+	if ($_SESSION['mgrDocgroups'])
+	{
+		$docgrp = implode(',', $_SESSION['mgrDocgroups']);
+	}
+	
+	$field = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+	$from = "{$tbl_site_tmplvars} AS tv ";
+	$from .= "INNER JOIN {$tbl_site_tmplvar_templates} AS tvtpl ON tvtpl.tmplvarid = tv.id ";
+	$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$id}' ";
+	$from .= "LEFT JOIN {$tbl_site_tmplvar_access} tva ON tva.tmplvarid=tv.id  ";
+	$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
+	$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
+	$orderby = 'tv.rank';
+	$rs = $modx->db->select($field,$from,$where,$orderby);
+	
+	$tmplvars = array ();
+	while ($row = $modx->db->getRow($rs))
+	{
+		$tmplvar = '';
+		$tvid = "tv{$row['id']}";
+		if(!isset($_POST[$tvid])) continue;
+		switch ($row['type'])
+		{
+			case 'url':
+				$tmplvar = $_POST[$tvid];
+				if($_POST["{$tvid}_prefix"] != '--')
+				{
+					$tmplvar = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $tmplvar);
+					$tmplvar = $_POST["{$tvid}_prefix"] . $tmplvar;
+				}
+				break;
+			case 'file':
+				$tmplvar = $_POST[$tvid];
+				break;
+			default:
+				if(is_array($_POST[$tvid]))
+				{
+					// handles checkboxes & multiple selects elements
+					$feature_insert = array ();
+					$lst = $_POST[$tvid];
+					foreach($lst as $v)
+					{
+						$feature_insert[count($feature_insert)] = $v;
+					}
+					$tmplvar = implode('||', $feature_insert);
+				}
+				else
+				{
+					$tmplvar = $_POST[$tvid];
+				}
+		}
+		// save value if it was modified
+		if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
+		{
+			$tmplvars[$row['id']] = array (
+				$row['id'],
+				$tmplvar
+			);
+		}
+		else
+		{
+			// Mark the variable for deletion
+			$tmplvars[$row['name']] = $row['id'];
+		}
+	}
+	return $tmplvars;
+}
