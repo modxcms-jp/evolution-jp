@@ -1,4 +1,5 @@
 <?php
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
 /**
  * Installer remover processor
@@ -15,7 +16,7 @@
 $msg ='';
 $install_dir = dirname(dirname(dirname(__FILE__))).'/install';
 $install_dir = str_replace('\\','/',$install_dir);
-if(isset($_GET["rminstall"]))
+if(isset($rminstall))
 {
 	if(is_dir($install_dir))
 	{

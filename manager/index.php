@@ -901,6 +901,11 @@ switch ($action) {
         include_once "processors/delete_eventlog.processor.php";
     break;
 
+    case 201:
+        //remove installer
+        $rminstall = '1';
+        include_once "processors/remove_installer.processor.php";
+    break;
     case 501:
         //delete category
         include_once "processors/delete_category.processor.php";
