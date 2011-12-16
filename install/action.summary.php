@@ -221,7 +221,7 @@ if ($conn) {
 if ($conn) {
     echo "<p>". $_lang['checking_mysql_strict_mode'];
     $mysqlmode = @ mysql_query("SELECT @@global.sql_mode");
-    if (@mysql_num_rows($mysqlmode) > 0 && !isset($_SERVER['WEBPI_REFERRER']))
+    if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix())
     {
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         //$modes = array("STRICT_TRANS_TABLES"); // for testing
