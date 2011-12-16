@@ -502,7 +502,7 @@ switch ($actionToTake)
 		else
 		{
 			// if it was changed from unpublished to published
-			if($pub_date<=time() && $published)
+			if(!empty($pub_date) && $pub_date<=time() && $published)
 			{
 				$publishedon = $pub_date;
 				$publishedby = $was['publishedby'];
