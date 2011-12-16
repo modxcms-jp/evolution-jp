@@ -331,3 +331,13 @@ function parse($src,$ph,$left='[+',$right='+]')
 	}
 	return $src;
 }
+
+function is_webmatrix()
+{
+	return (isset($_SERVER['WEBMATRIXMODE'])) ? true : false;
+}
+
+function is_iis()
+{
+	return (strpos($_SERVER['SERVER_SOFTWARE'],'IIS')) ? true : false;
+}
