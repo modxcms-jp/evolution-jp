@@ -108,9 +108,7 @@ function setColor(){
 	ssv = ss.innerHTML;
 	if ($('server_pass') !== null) {
 		col.setStyle('background-color', '#9CCD00');
-//        col.setStyle('color', '#0000CD');
 		col.setStyle('font-weight','bold');
-
 		window.Slider1.slideIn(); //toggle the slider up and down.
 		var Slider1FX = new Fx.Styles('collationMask', {duration: 997,transition: Fx.Transitions.linear});
 		Slider1FX.start({'opacity':[0,1]});
