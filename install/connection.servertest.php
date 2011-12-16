@@ -4,6 +4,7 @@ $host = $_POST['host'];
 $uid = $_POST['uid'];
 $pwd = $_POST['pwd'];
 
+require_once('functions.php');
 require_once("lang.php");
 
 $output = $_lang["status_connecting"];
@@ -19,7 +20,7 @@ else {
     }
     // Mode check
     $mysqlmode = @ mysql_query("SELECT @@session.sql_mode");
-    if (@mysql_num_rows($mysqlmode) > 0){
+    if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix()){
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         $strictMode = false;
         foreach ($modes as $mode) {
