@@ -29,5 +29,5 @@ else {
         if ($strictMode) $output .= '<br /><span style="color:#FF0000;"> '.$_lang['strict_mode'].'</span>';
     }
 }
-echo $output;
+echo '<div style="background: #eee;">' . $output . '</div>';
 ?>
