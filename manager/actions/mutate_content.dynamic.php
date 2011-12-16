@@ -221,6 +221,15 @@ function duplicatedocument(){
     }
 }
 
+function resetpubdate() {
+	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
+		if (confirm("公開開始日時・公開終了日時をリセットします")==true) {
+			document.mutate.pub_date.value='';
+			document.mutate.unpub_date.value='';
+		}
+	}
+}
+
 var allowParentSelection = false;
 var allowLinkSelection = false;
 
@@ -771,7 +780,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 		<?php $mx_can_pub = $modx->hasPermission('publish_document') ? '' : 'disabled="disabled" '; ?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
-				<td><input <?php echo $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? "checked" : ''?> onclick="changestate(document.mutate.published);" <?php if($id==$modx->config['site_start']) echo 'disabled ' ?>/>
+				<td><input <?php echo $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? "checked" : ''?> onclick="changestate(document.mutate.published);resetpubdate();" <?php if($id==$modx->config['site_start']) echo 'disabled ' ?>/>
 				<input type="hidden" name="published" value="<?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? 1 : 0?>" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_published_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
 			</tr>
