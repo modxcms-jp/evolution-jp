@@ -488,14 +488,14 @@ function decode(s){
 		        $checked = in_array($row['id'], $groupsarray);
 		        if($modx->hasPermission('access_permissions')) {
 		            if($checked) $notPublic = true;
-		            $chks.= "<input type='checkbox' name='docgroups[]' value='".$row['id']."' ".($checked ? "checked='checked'" : '')." onclick=\"makePublic(false)\" />".$row['name']."<br />";
+		            $chks.= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id']."' ".($checked ? "checked='checked'" : '')." onclick=\"makePublic(false)\" />".$row['name']."</label><br />";
 		        }
 		        else {
 		            if($checked) echo "<input type='hidden' name='docgroups[]'  value='".$row['id']."' />";
 		        }
 		    }
 		    if($modx->hasPermission('access_permissions')) {
-		        $chks = "<input type='checkbox' name='chkalldocs' ".(!$notPublic ? "checked='checked'" : '')." onclick=\"makePublic(true)\" /><span class='warning'>".$_lang['all_doc_groups']."</span><br />".$chks;
+		        $chks = '<label><input type="checkbox" name="chkalldocs" '.(!$notPublic ? "checked='checked'" : '')." onclick=\"makePublic(true)\" /><span class='warning'>".$_lang['all_doc_groups'].'</span></label><br />'.$chks;
 		    }
 		    echo $chks;
 		?>

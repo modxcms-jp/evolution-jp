@@ -530,13 +530,13 @@ if ($use_udperms == 1) {
 		$checked = in_array($row['id'], $groupsarray);
 		if($modx->hasPermission('access_permissions')) {
 			if ($checked) $notPublic = true;
-			$chks .= '<input type="checkbox" name="usrgroups[]" value="'.$row['id'].'"'.($checked ? ' checked="checked"' : '').' onclick="makePublic(false)" />'.$row['name']."<br />\n";
+			$chks .= '<label><input type="checkbox" name="usrgroups[]" value="'.$row['id'].'"'.($checked ? ' checked="checked"' : '').' onclick="makePublic(false)" />'.$row['name']."</label><br />\n";
 		} else {
 			if ($checked) $chks = '<input type="hidden" name="usrgroups[]"  value="'.$row['id'].'" />' . "\n" . $chks;
 		}
 	}
 	if($modx->hasPermission('access_permissions')) {
-		$chks = '<input type="checkbox" name="chkallgroups"'.(!$notPublic ? ' checked="checked"' : '').' onclick="makePublic(true)" /><span class="warning">'.$_lang['all_usr_groups'].'</span><br />' . "\n" . $chks;
+		$chks = '<label><input type="checkbox" name="chkallgroups"'.(!$notPublic ? ' checked="checked"' : '').' onclick="makePublic(true)" /><span class="warning">'.$_lang['all_usr_groups'].'</span></label><br />' . "\n" . $chks;
 	}
 	echo $chks;
 ?>
