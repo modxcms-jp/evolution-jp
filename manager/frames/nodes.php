@@ -33,32 +33,32 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     // icons by content type
 
 	$icons = array(
-		'application/rss+xml' => $_style["tree_page_rss"],
-		'application/pdf' => $_style["tree_page_pdf"],
-		'application/vnd.ms-word' => $_style["tree_page_word"],
+		'application/rss+xml'      => $_style["tree_page_rss"],
+		'application/pdf'          => $_style["tree_page_pdf"],
+		'application/vnd.ms-word'  => $_style["tree_page_word"],
 		'application/vnd.ms-excel' => $_style["tree_page_excel"],
-		'text/css' => $_style["tree_page_css"],
-		'text/html' => $_style["tree_page_html"],
+		'text/css'   => $_style["tree_page_css"],
+		'text/html'  => $_style["tree_page_html"],
 		'text/plain' => $_style["tree_page"],
-		'text/xml' => $_style["tree_page_xml"],
+		'text/xml'   => $_style["tree_page_xml"],
 		'text/javascript' => $_style["tree_page_js"],
-		'image/gif' => $_style["tree_page_gif"],
-		'image/jpg' => $_style["tree_page_jpg"],
-		'image/png' => $_style["tree_page_png"]
+		'image/gif'  => $_style["tree_page_gif"],
+		'image/jpg'  => $_style["tree_page_jpg"],
+		'image/png'  => $_style["tree_page_png"]
 	);
 	$iconsPrivate = array(
-		'application/rss+xml' => $_style["tree_page_rss_secure"],
-		'application/pdf' => $_style["tree_page_pdf_secure"],
-		'application/vnd.ms-word' => $_style["tree_page_word_secure"],
+		'application/rss+xml'      => $_style["tree_page_rss_secure"],
+		'application/pdf'          => $_style["tree_page_pdf_secure"],
+		'application/vnd.ms-word'  => $_style["tree_page_word_secure"],
 		'application/vnd.ms-excel' => $_style["tree_page_excel_secure"],
-		'text/css' => $_style["tree_page_css_secure"],
-		'text/html' => $_style["tree_page_html_secure"],
+		'text/css'   => $_style["tree_page_css_secure"],
+		'text/html'  => $_style["tree_page_html_secure"],
 		'text/plain' => $_style["tree_page_secure"],
-		'text/xml' => $_style["tree_page_xml_secure"],
+		'text/xml'   => $_style["tree_page_xml_secure"],
 		'text/javascript' => $_style["tree_page_js_secure"],
-		'image/gif' => $_style["tree_page_gif_secure"],
-		'image/jpg' => $_style["tree_page_jpg_secure"],
-		'image/png' => $_style["tree_page_png_secure"]
+		'image/gif'  => $_style["tree_page_gif_secure"],
+		'image/jpg'  => $_style["tree_page_jpg_secure"],
+		'image/png'  => $_style["tree_page_png_secure"]
 	);
 
 	if (isset($_SESSION['openedArray']))
@@ -71,7 +71,14 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	}
 	$opened2 = array();
 	$closed2 = array();
-
+	
+	$tree_orderby = get_tree_orderby();
+	if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
+	$in_docgrp = !$docgrp ? '':"OR dg.document_group IN ({$docgrp})";
+	
+	// get document groups for current user
+	$mgrRole= (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole']==='1') ? '1' : '0';
+	
 	makeHTML($indent,$parent,$expandAll,$theme);
 	echo $output;
 
@@ -79,80 +86,39 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	if ($expandAll==2)
 	{
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$sql = "SELECT COUNT(id) FROM {$tbl_site_content} WHERE deleted=1";
-		$rs = mysql_query($sql);
-		$row = mysql_fetch_row($rs);
-		$count = $row[0];
-		if ($count>0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
+		$rs = $modx->db->select('COUNT(id)',$tbl_site_content,"deleted=1");
+		if ($modx->db->getValue($rs) > 0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
 	}
-
 	function makeHTML($indent,$parent,$expandAll,$theme)
 	{
 		global $modx;
-		global $icons, $iconsPrivate, $theme, $_style;
-		global $output, $_lang, $opened, $opened2, $closed2; //added global vars
+		global $icons, $iconsPrivate, $theme, $_style,$modx_textdir;
+		global $output, $_lang, $opened, $opened2, $closed2, $tree_orderby,$docgrp,$in_docgrp,$mgrRole; //added global vars
 		
 		$pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
 		// setup spacer
-		$spacer = '';
-		for ($i = 1; $i <= $indent; $i++)
-		{
-			$spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-		}
-	
-		if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir']))
-		{
-			// This is the first startup, set default sort order
-			$_SESSION['tree_sortby'] = 'menuindex';
-			$_SESSION['tree_sortdir'] = 'ASC';
-		}
-		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
-		if(empty($orderby)) $orderby = "menuindex ASC";
-
-		// Folder sorting gets special setup ;) Add menuindex and pagetitle
-		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ", menuindex ASC";
-		$orderby  .= ", editedon DESC";
-
+		$spacer = get_spacer($indent);
+		
 		$tblsc  = $modx->getFullTableName('site_content');
 		$tbldg  = $modx->getFullTableName('document_groups');
 		$tbldgn = $modx->getFullTableName('documentgroup_names');
-		// get document groups for current user
-		if($_SESSION['mgrDocgroups']) $docgrp = implode(",",$_SESSION['mgrDocgroups']);
-		$showProtected= false;
-		if (isset ($modx->config['tree_show_protected']))
+		
+		$access = get_where_mydocs($mgrRole,$in_docgrp);
+		
+		$field  = 'DISTINCT sc.id,pagetitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
+		$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
+		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
+		$where  = "(parent={$parent}) {$access} GROUP BY sc.id";
+		$result = $modx->db->select($field,$from,$where,$tree_orderby);
+		
+		if(100<$modx->db->getRecordCount($result) && $modx->config['tree_page_click']==='auto')
 		{
-			$showProtected= (boolean) $modx->config['tree_show_protected'];
-		}
-		$mgrRole= (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole']==='1') ? '1' : '0';
-		if ($showProtected == false)
-		{
-			$access = "AND (1={$mgrRole} OR sc.privatemgr=0".
-			          (!$docgrp ? ")":" OR dg.document_group IN ({$docgrp}))");
-		}
-		$sql = "SELECT DISTINCT sc.id, pagetitle, parent, isfolder, published, deleted, type, menuindex, hidemenu, alias, contentType, privateweb, privatemgr,
-		    MAX(IF(1={$mgrRole} OR sc.privatemgr=0" . (!$docgrp ? "":" OR dg.document_group IN ({$docgrp})") . ", 1, 0)) AS has_access
-		    FROM {$tblsc} AS sc
-		    LEFT JOIN {$tbldg} dg on dg.document = sc.id
-		    WHERE (parent={$parent})
-		    $access
-		    GROUP BY sc.id
-		    ORDER BY {$orderby}";
-		$result = $modx->db->query($sql);
-		if(100<mysql_num_rows($result) && $modx->config['tree_page_click']==='auto')
-		{
-			$sql = "SELECT DISTINCT sc.id, pagetitle, parent, isfolder, published, deleted, type, menuindex, hidemenu, alias, contentType, privateweb, privatemgr,
-			    MAX(IF(1={$mgrRole} OR sc.privatemgr=0" . (!$docgrp ? "":" OR dg.document_group IN ({$docgrp})") . ", 1, 0)) AS has_access
-			    FROM {$tblsc} AS sc
-			    LEFT JOIN {$tbldg} dg on dg.document = sc.id
-			    WHERE (parent={$parent} AND isfolder=1)
-			    $access
-			    GROUP BY sc.id
-			    ORDER BY {$orderby}";
-			$result = $modx->db->query($sql);
+			$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
+			$result = $modx->db->select($field,$from,$where,$tree_orderby);
 			$status = 'too_many';
 		}
-		if(mysql_num_rows($result)==0)
+		if($modx->db->getRecordCount($result)==0)
 		{
 			if(isset($status) && $status==='too_many')
 			{
@@ -162,10 +128,8 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			
 			$output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
-		// Make sure to pass in the $modx_textdir variable to the node builder
-		global $modx_textdir;
-
-		while($row = mysql_fetch_row($result))
+		
+		while($row = $modx->db->getRow($result,'num'))
 		{
 			list($id,$pagetitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
 			$pagetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $pagetitle));
@@ -178,7 +142,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			$pagetitleDisplay = '<span class="' . $class . '">' . $pagetitle . '</span>';
 			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 			$pageIdDisplay = '<small>('.($modx_textdir ? '&rlm;':'').$id.')</small>';
-			$url = $modx->makeUrl($id);
+			$url = $modx->makeUrl($id,'','','full');
 
 			$alt  = "[{$id}] ";
 			$alt .= !empty($alias) ? $_lang['alias'].": ".$alias : $_lang['alias'].": -";
@@ -399,4 +363,48 @@ EOT;
 
 EOT;
 		return $src;
+	}
+	
+	function get_tree_orderby()
+	{
+		if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir']))
+		{
+			// This is the first startup, set default sort order
+			$_SESSION['tree_sortby'] = 'menuindex';
+			$_SESSION['tree_sortdir'] = 'ASC';
+		}
+		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
+		if(empty($orderby)) $orderby = 'menuindex ASC';
+
+		// Folder sorting gets special setup ;) Add menuindex and pagetitle
+		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ', menuindex ASC';
+		$orderby  .= ', editedon DESC';
+		return $orderby;
+	}
+	
+	function get_spacer($indent)
+	{
+		$spacer = '';
+		for ($i = 1; $i <= $indent; $i++)
+		{
+			$spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+		}
+		return $spacer;
+	}
+	
+	function get_where_mydocs($mgrRole,$in_docgrp)
+	{
+		global $modx;
+		
+		$access = '';
+		$showProtected= false;
+		if (isset ($modx->config['tree_show_protected']))
+		{
+			$showProtected= (boolean) $modx->config['tree_show_protected'];
+		}
+		if ($showProtected == false)
+		{
+			$access = "AND (1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp})";
+		}
+		return $access;
 	}

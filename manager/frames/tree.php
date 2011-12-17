@@ -1,25 +1,15 @@
 <?php if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-function constructLink($action, $img, $text, $allowed)
-{
-	if($allowed==1)
-	{
-		echo '<div class="menuLink" onclick="menuHandler(' . $action . '); hideMenu();">';
-	}
-	else
-	{
-		echo '<div class="menuLinkDisabled">';
-	}
-		echo '<img src="' . $img . '" />' . $text . '</div>';
-}
+$manager_theme = $manager_theme ? "$manager_theme/":'';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
     <title>Document Tree</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>style.css" />
+    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>style.css" />
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -164,7 +154,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
         if (rpcNode.style.display != 'block') {
             // expand
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/tree/plusnode.gif')>-1) {
+            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>images/tree/plusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_minusnode"]; ?>';
                 folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folderopen"]; ?>' :'<?php echo $_style["tree_folderopen_secure"]; ?>';
             }
@@ -189,7 +179,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         }
         else {
             // collapse
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/tree/minusnode.gif')>-1) {
+            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>images/tree/minusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_plusnode"]; ?>';
                 folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folder"]; ?>' : '<?php echo $_style["tree_folder_secure"]; ?>';
             }
@@ -391,7 +381,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 
 </head>
-<body onClick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
+<body onclick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
 
 <div id="treeSplitter"></div>
 
@@ -571,4 +561,17 @@ function menuHandler(action) {
 function select($cond=false)
 {
 	return ($cond) ? ' selected="selected"' : '';
+}
+
+function constructLink($action, $img, $text, $allowed)
+{
+	if($allowed==1)
+	{
+		echo '<div class="menuLink" onclick="menuHandler(' . $action . '); hideMenu();">';
+	}
+	else
+	{
+		echo '<div class="menuLinkDisabled">';
+	}
+		echo '<img src="' . $img . '" />' . $text . '</div>';
 }
