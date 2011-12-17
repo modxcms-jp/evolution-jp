@@ -2263,57 +2263,74 @@ class DocumentParser {
         }
     }
 
-    # returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVars($idnames= array (), $fields= "*", $docid= "", $published= 1, $sort= "rank", $dir= "ASC") {
-        if (($idnames != '*' && !is_array($idnames)) || count($idnames) == 0) {
-            return false;
-        } else {
-            $result= array ();
-
-            // get document record
-            if ($docid == "") {
-                $docid= $this->documentIdentifier;
-                $docRow= $this->documentObject;
-            } else {
-                $docRow= $this->getDocument($docid, '*', $published);
-                if (!$docRow)
-                    return false;
-            }
-
-            // get user defined template variables
-            $fields= ($fields == "") ? "tv.*" : 'tv.' . implode(',tv.', preg_replace("/^\s/i", "", explode(',', $fields)));
-            $sort= ($sort == "") ? "" : 'tv.' . implode(',tv.', preg_replace("/^\s/i", "", explode(',', $sort)));
-            if ($idnames == "*")
-                $query= "tv.id<>0";
-            else
-                $query= (is_numeric($idnames[0]) ? "tv.id" : "tv.name") . " IN ('" . implode("','", $idnames) . "')";
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-            $sql= "SELECT $fields, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
-            $sql .= "FROM " . $this->getFullTableName('site_tmplvars')." tv ";
-            $sql .= "INNER JOIN " . $this->getFullTableName('site_tmplvar_templates')." tvtpl ON tvtpl.tmplvarid = tv.id ";
-            $sql .= "LEFT JOIN " . $this->getFullTableName('site_tmplvar_contentvalues')." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $docid . "' ";
-            $sql .= "WHERE " . $query . " AND tvtpl.templateid = " . $docRow['template'];
-            if ($sort)
-                $sql .= " ORDER BY $sort $dir ";
-            $rs= $this->db->query($sql);
-            for ($i= 0; $i < @ $this->db->getRecordCount($rs); $i++) {
-                $result[] = @ $this->db->getRow($rs);
-            }
-
-            // get default/built-in template variables
-            ksort($docRow);
-            foreach ($docRow as $key => $value) {
-                if ($idnames == "*" || in_array($key, $idnames))
-                    $result[] = array (
-                        "name" => $key,
-                        "value" => $value
-                    );
-            }
-
-            return $result;
-        }
-    }
+	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
+	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
+	{
+		if (($idnames!='*' && !is_array($idnames)) || count($idnames) == 0)
+		{
+			return false;
+		}
+		else
+		{
+			$result= array ();
+			
+			// get document record
+			if ($docid == '')
+			{
+				$docid = $this->documentIdentifier;
+				$resource= $this->documentObject;
+			}
+			else
+			{
+				$resource= $this->getDocument($docid, '*', $published);
+				if (!$resource) return false;
+			}
+			// get user defined template variables
+			$fields= ($fields == '') ? 'tv.*' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $fields)));
+			$sort= ($sort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $sort)));
+			if ($idnames == '*')
+			{
+				$where= 'tv.id<>0';
+			}
+			else
+			{
+				$where= (is_numeric($idnames[0]) ? 'tv.id' : 'tv.name') . " IN ('" . implode("','", $idnames) . "')";
+			}
+			if ($docgrp= $this->getUserDocGroups())
+			{
+				$docgrp= implode(',', $docgrp);
+			}
+			$tbl_site_tmplvars              = $this->getFullTableName('site_tmplvars');
+			$tbl_site_tmplvar_templates     = $this->getFullTableName('site_tmplvar_templates');
+			$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
+			$fields= "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+			$from  = "{$tbl_site_tmplvars} tv";
+			$from .= " INNER JOIN {$tbl_site_tmplvar_templates} tvtpl  ON tvtpl.tmplvarid = tv.id";
+			$from .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
+			$where = "{$where} AND tvtpl.templateid={$resource['template']}";
+			if ($sort)
+			{
+				 $orderby = "{$sort} {$dir}";
+			}
+			else $orderby = '';
+			$rs= $this->db->select($fields,$from,$where,$orderby);
+			while($row = $this->db->getRow($rs))
+			{
+				$result[] = $row;
+			}
+			
+			// get default/built-in template variables
+			ksort($resource);
+			foreach ($resource as $key => $value)
+			{
+				if ($idnames == '*' || in_array($key, $idnames))
+				{
+					$result[] = array ('name'=>$key,'value'=>$value);
+				}
+			}
+			return $result;
+		}
+	}
 
     # returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
     function getTemplateVarOutput($idnames= array (), $docid= "", $published= 1, $sep='') {
@@ -2770,88 +2787,104 @@ class DocumentParser {
         $this->pluginEvent= array ();
     }
 
-    # invoke an event. $extParams - hash array: name=>value
-    function invokeEvent($evtName, $extParams= array ()) {
-        if (!$evtName)
-            return false;
-        if (!isset ($this->pluginEvent[$evtName]))
-            return false;
-        $el= $this->pluginEvent[$evtName];
-        $results= array ();
-        $numEvents= count($el);
-        if ($numEvents > 0)
-            for ($i= 0; $i < $numEvents; $i++) { // start for loop
-                $pluginName= $el[$i];
-                $pluginName = stripslashes($pluginName);
-                // reset event object
-                $e= & $this->event;
-                $e->_resetEventObject();
-                $e->name= $evtName;
-                $e->activePlugin= $pluginName;
+	# invoke an event. $extParams - hash array: name=>value
+	function invokeEvent($evtName, $extParams= array ())
+	{
+		if (!$evtName)                             return false;
+		if (!isset ($this->pluginEvent[$evtName])) return false;
+		
+		$el= $this->pluginEvent[$evtName];
+		$results= array ();
+		$numEvents= count($el);
+		if ($numEvents > 0)
+		{
+			for ($i= 0; $i < $numEvents; $i++)
+			{ // start for loop
+				$pluginName= $el[$i];
+				$pluginName = stripslashes($pluginName);
+				// reset event object
+				$e= & $this->event;
+				$e->_resetEventObject();
+				$e->name= $evtName;
+				$e->activePlugin= $pluginName;
+				
+				// get plugin code
+				if (isset ($this->pluginCache[$pluginName]))
+				{
+					$pluginCode= $this->pluginCache[$pluginName];
+					$pluginProperties= $this->pluginCache["{$pluginName}Props"];
+				}
+				else
+				{
+					$fields = '`name`, plugincode, properties';
+					$tbl_site_plugins = $this->getFullTableName('site_plugins');
+					$where = "`name`='{$pluginName}' AND disabled=0";
+					$result= $this->db->select($fields,$tbl_site_plugins,$where);
+					if ($this->db->getRecordCount($result) == 1)
+					{
+						$row= $this->db->getRow($result);
+						
+						$pluginCode                      = $row['plugincode'];
+						$this->pluginCache[$row['name']] = $row['plugincode']; 
+						$pluginProperties= $this->pluginCache["{$row['name']}Props"]= $row['properties'];
+					}
+					else
+					{
+						$pluginCode                      = 'return false;';
+						$this->pluginCache[$pluginName]  = 'return false;';
+						$pluginProperties= '';
+					}
+				}
+				
+				// load default params/properties
+				$parameter= $this->parseProperties($pluginProperties);
+				if (!empty($extParams))
+					$parameter= array_merge($parameter, $extParams);
+				
+				// eval plugin
+				$this->evalPlugin($pluginCode, $parameter);
+				if ($e->_output != '')
+					$results[]= $e->_output;
+				if ($e->_propagate != true)
+					break;
+			}
+		}
+		$e->activePlugin= '';
+		return $results;
+	}
 
-                // get plugin code
-                if (isset ($this->pluginCache[$pluginName])) {
-                    $pluginCode= $this->pluginCache[$pluginName];
-                    $pluginProperties= $this->pluginCache[$pluginName . "Props"];
-                } else {
-                    $sql= "SELECT `name`, `plugincode`, `properties` FROM " . $this->getFullTableName("site_plugins") . " WHERE `name`='" . $pluginName . "' AND `disabled`=0;";
-                    $result= $this->db->query($sql);
-                    if ($this->db->getRecordCount($result) == 1) {
-                        $row= $this->db->getRow($result);
-                        $pluginCode= $this->pluginCache[$row['name']]= $row['plugincode'];
-                        $pluginProperties= $this->pluginCache[$row['name'] . "Props"]= $row['properties'];
-                    } else {
-                        $pluginCode= $this->pluginCache[$pluginName]= "return false;";
-                        $pluginProperties= '';
-                    }
-                }
-
-                // load default params/properties
-                $parameter= $this->parseProperties($pluginProperties);
-                if (!empty ($extParams))
-                    $parameter= array_merge($parameter, $extParams);
-
-                // eval plugin
-                $this->evalPlugin($pluginCode, $parameter);
-                if ($e->_output != "")
-                    $results[]= $e->_output;
-                if ($e->_propagate != true)
-                    break;
-            }
-        $e->activePlugin= "";
-        return $results;
-    }
-
-    # parses a resource property string and returns the result as an array
-    function parseProperties($propertyString) {
-        $parameter= array ();
-        if (empty($propertyString)) return $parameter;
-        
-        $tmpParams= explode('&', $propertyString);
-        foreach ($tmpParams as $tmpParam)
-        {
-            if (strpos($tmpParam, '=') !== false)
-            {
-                $pTmp  = explode('=', $tmpParam);
-                $pvTmp = explode(';', trim($pTmp[1]));
-                if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
-                {
-                    $parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
-                }
-                elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
-                {
-                    $parameter[trim($pTmp[0])]= $pvTmp[2];
-                }
-            }
-        }
-        foreach($parameter as $k=>$v)
-        {
-            $v = str_replace('%3D','=',$v);
-            $v = str_replace('%26','&',$v);
-            $parameter[$k] = $v;
-        }
-        return $parameter;
-    }
+	# parses a resource property string and returns the result as an array
+	function parseProperties($propertyString)
+	{
+		if(strpos($propertyString,0) === '{') return json_decode($propertyString);
+		$parameter= array ();
+		if (empty($propertyString)) return $parameter;
+		
+		$tmpParams= explode('&', $propertyString);
+		foreach ($tmpParams as $tmpParam)
+		{
+			if (strpos($tmpParam, '=') !== false)
+			{
+				$pTmp  = explode('=', $tmpParam);
+				$pvTmp = explode(';', trim($pTmp[1]));
+				if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
+				}
+				elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[2];
+				}
+			}
+		}
+		foreach($parameter as $k=>$v)
+		{
+			$v = str_replace('%3D','=',$v);
+			$v = str_replace('%26','&',$v);
+			$parameter[$k] = $v;
+		}
+		return $parameter;
+	}
 
 	/*############################################
 	Etomite_dbFunctions.php

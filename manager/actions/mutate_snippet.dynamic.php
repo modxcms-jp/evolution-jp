@@ -32,13 +32,13 @@ $tbl_site_modules       = $modx->getFullTableName('site_modules');
 $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 
 // check to see the snippet editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=22 AND id='.$id;
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=22 AND id='{$id}'");
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if($lock['internalKey']!=$modx->getLoginUserID()) {
+		$lock = $modx->db->getRow($rs);
+		if($lock['internalKey']!=$modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang['lock_msg'],$lock['username'],"snippet");
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -49,9 +49,8 @@ if($limit>1) {
 
 
 if(isset($_GET['id'])) {
-	$sql = 'SELECT * FROM '.$tbl_site_snippets.' WHERE id='.$id;
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->select('*',$tbl_site_snippets,"id='{$id}'");
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
 		exit;

@@ -23,14 +23,16 @@ $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the plugin editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=102 AND $dbase.`".$table_prefix."active_users`.id=$id";
-$rs = mysql_query($sql);
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='102' AND id='{$id}'");
 $limit = mysql_num_rows($rs);
-if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if($lock['internalKey']!=$modx->getLoginUserID()) {
-			$msg = sprintf($_lang["lock_msg"],$lock['username'],"plugin");
+if($limit>1)
+{
+	while($lock = $modx->db->getRow)
+	{
+		if($lock['internalKey']!=$modx->getLoginUserID())
+		{
+			$msg = sprintf($_lang["lock_msg"],$lock['username'],'plugin');
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}
@@ -38,26 +40,31 @@ if($limit>1) {
 }
 // end check for lock
 
-
-if(isset($_GET['id'])) {
-	$sql = "SELECT * FROM $dbase.`".$table_prefix."site_plugins` WHERE $dbase.`".$table_prefix."site_plugins`.id = $id;";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1) {
+$tbl_site_plugins = $modx->getFullTableName('site_plugins');
+if(isset($_GET['id']))
+{
+	$rs = $modx->db->select('*',$tbl_site_plugins,"id={$id}");
+	$limit = $modx->db->getRecordCount($rs);
+	if($limit>1)
+	{
 		echo "Multiple plugins sharing same unique id. Not good.<p>";
 		exit;
 	}
-	if($limit<1) {
-		header("Location: /index.php?id=".$site_start);
+	if($limit<1)
+	{
+		header("Location: {$modx->config['site_url']}");
 	}
-	$content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['name'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
+	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	{
 		$e->setError(3);
 		$e->dumpError();
 	}
-} else {
-	$_SESSION['itemname']="New Plugin";
+}
+else
+{
+	$_SESSION['itemname']='New Plugin';
 }
 ?>
 <script language="JavaScript">
@@ -423,9 +430,9 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     			</a>
     			  <span class="and"> + </span>
     			<select id="stay" name="stay">
-    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
-    			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+    			  <option id="stay1" value="1" <?php echo selected($_REQUEST['stay']=='1');?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay2" value="2" <?php echo selected($_REQUEST['stay']=='2');?> ><?php echo $_lang['stay']?></option>
+    			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
     		  <?php
@@ -491,7 +498,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		            include_once "categories.inc.php";
 					$ds = getCategories();
 					if($ds) foreach($ds as $n=>$v){
-						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+						echo "<option value='".$v['id']."'" . selected($content["category"]==$v["id"]) . ">".htmlspecialchars($v["category"])."</option>";
 					}
 				?>
 			</select>
@@ -514,7 +521,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 							"ORDER BY sm.name ";
 					$ds = $modx->dbQuery($sql);
 					if($ds) while($row = $modx->fetchRow($ds)){
-						echo "<option value='".$row['guid']."'".($content["moduleguid"]==$row["guid"]? " selected='selected'":"").">".htmlspecialchars($row["name"])."</option>";
+						echo "<option value='".$row['guid']."'". selected($content["moduleguid"]==$row["guid"]) . ">".htmlspecialchars($row["name"])."</option>";
 					}
 				?>
 			</select>
@@ -553,23 +560,24 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <?php
 
 	// get selected events
-	if(is_numeric($id) && $id > 0) {
-		$sql = "
-			SELECT evtid, pluginid
-			FROM $dbase.`".$table_prefix."site_plugin_events`
-			WHERE pluginid='$id'
-		";
+	if(is_numeric($id) && $id > 0)
+	{
 		$evts = array();
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		for ($i=0; $i<$limit; $i++) {
-		   $row = mysql_fetch_assoc($rs);
+		$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
+		$rs = $modx->db->select('evtid, pluginid',$tbl_site_plugin_events,"pluginid='{$id}'");
+		while($row = mysql_fetch_assoc($rs))
+		{
 		   $evts[] = $row['evtid'];
 		}
-	} else {
-		if(isset($content['sysevents']) && is_array($content['sysevents'])) {
+	}
+	else
+	{
+		if(isset($content['sysevents']) && is_array($content['sysevents']))
+		{
 			$evts = $content['sysevents'];
-		} else {
+		}
+		else
+		{
 			$evts = array();
 		}
 	}
@@ -584,27 +592,29 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		"Template Service Events",
 		"User Defined Events"
 	);
-			$sql = "SELECT * FROM $dbase.`".$table_prefix."system_eventnames` ORDER BY service DESC, groupname, name";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit==0) echo "<tr><td>&nbsp;</td></tr>";
-	else for ($i=0; $i<$limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+	$rs = $modx->db->select('*',$tbl_system_eventnames,'','service DESC, groupname, name');
+	if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
+	else
+	while($row = mysql_fetch_assoc($rs))
+	{
 		// display records
-		if($srv!=$row['service']){
+		if($srv!=$row['service'])
+		{
 			$srv=$row['service'];
 			if(count($evtnames)>0) echoEventRows($evtnames);
-     			echo "<tr><td colspan='2'><div class='split' style='margin:10px 0;'></div></td></tr>";
-				echo "<tr><td colspan='2'><b>".$services[$srv-1]."</b></td></tr>";
+     		echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
+			echo '<tr><td colspan="2"><b>'.$services[$srv-1].'</b></td></tr>';
 		}
 		// display group name
-		if($grp!=$row['groupname']){
+		if($grp!=$row['groupname'])
+		{
 			$grp=$row['groupname'];
 			if(count($evtnames)>0) echoEventRows($evtnames);
-				echo "<tr><td colspan='2'><div class='split' style='margin:10px 0;'></div></td></tr>";
-				echo "<tr><td colspan='2'><b>".$row['groupname']."</b></td></tr>";
+			echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
+			echo '<tr><td colspan="2"><b>'.$row['groupname'].'</b></td></tr>';
 		}
-		$evtnames[] = '<input name="sysevents[]" type="checkbox"'.(in_array($row[id],$evts) ? " checked='checked' " : "").' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name'].'">'.$row['name'].'</label>'."\n";
+		$evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row[id],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name'].'">'.$row['name'].'</label>'."\n";
 		if(count($evtnames)==2) echoEventRows($evtnames);
 	}
 	if(count($evtnames)>0) echoEventRows($evtnames);
@@ -635,3 +645,16 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <script type="text/javascript">
 setTimeout('showParameters()',10);
 </script>
+<?php
+function selected($cond=false)
+{
+	if($cond!==false) return ' selected="selected"';
+	else return;
+}
+
+function checked($cond=false)
+{
+	if($cond!==false) return ' checked="checked"';
+	else return;
+}
+
