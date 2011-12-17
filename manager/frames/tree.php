@@ -426,33 +426,30 @@
 
 <div id="floater">
 <?php
-if(isset($_REQUEST['tree_sortby'])) {
-    $_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
-}
-
-if(isset($_REQUEST['tree_sortdir'])) {
-    $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
-}
+if(isset($_REQUEST['tree_sortby']))  $_SESSION['tree_sortby']  = $_REQUEST['tree_sortby'];
+else                                 $_SESSION['tree_sortby']  = 'menuindex';
+if(isset($_REQUEST['tree_sortdir'])) $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
+else                                 $_SESSION['tree_sortdir'] = 'ASC';
 ?>
 <form name="sortFrm" id="sortFrm" action="menu.php">
 <table width="100%"  border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
         <select name="sortby" style="font-size: 12px;">
-            <option value="isfolder" <?php echo $_SESSION['tree_sortby']=='isfolder' ? "selected='selected'" : "" ?>><?php echo $_lang['folder']; ?></option>
-            <option value="pagetitle" <?php echo $_SESSION['tree_sortby']=='pagetitle' ? "selected='selected'" : "" ?>><?php echo $_lang['pagetitle']; ?></option>
-            <option value="id" <?php echo $_SESSION['tree_sortby']=='id' ? "selected='selected'" : "" ?>><?php echo $_lang['id']; ?></option>
-            <option value="menuindex" <?php echo $_SESSION['tree_sortby']=='menuindex' ? "selected='selected'" : "" ?>><?php echo $_lang['resource_opt_menu_index'] ?></option>
-            <option value="createdon" <?php echo $_SESSION['tree_sortby']=='createdon' ? "selected='selected'" : "" ?>><?php echo $_lang['createdon']; ?></option>
-            <option value="editedon" <?php echo $_SESSION['tree_sortby']=='editedon' ? "selected='selected'" : "" ?>><?php echo $_lang['editedon']; ?></option>
+            <option value="isfolder" <?php echo select($_SESSION['tree_sortby']=='isfolder');?>><?php echo $_lang['folder']; ?></option>
+            <option value="pagetitle" <?php echo select($_SESSION['tree_sortby']=='pagetitle');?>><?php echo $_lang['pagetitle']; ?></option>
+            <option value="id" <?php echo select($_SESSION['tree_sortby']=='id');?>><?php echo $_lang['id']; ?></option>
+            <option value="menuindex" <?php echo select($_SESSION['tree_sortby']=='menuindex');?>><?php echo $_lang['resource_opt_menu_index'] ?></option>
+            <option value="createdon" <?php echo select($_SESSION['tree_sortby']=='createdon');?>><?php echo $_lang['createdon']; ?></option>
+            <option value="editedon" <?php echo select($_SESSION['tree_sortby']=='editedon');?>><?php echo $_lang['editedon']; ?></option>
         </select>
     </td>
   </tr>
   <tr>
     <td width="99%" style="padding-left: 10px;padding-top: 1px;">
         <select name="sortdir" style="font-size: 12px;">
-            <option value="DESC" <?php echo $_SESSION['tree_sortdir']=='DESC' ? "selected='selected'" : "" ?>><?php echo $_lang['sort_desc']; ?></option>
-            <option value="ASC" <?php echo $_SESSION['tree_sortdir']=='ASC' ? "selected='selected'" : "" ?>><?php echo $_lang['sort_asc']; ?></option>
+            <option value="DESC" <?php echo select($_SESSION['tree_sortdir']=='DESC');?>><?php echo $_lang['sort_desc']; ?></option>
+            <option value="ASC" <?php echo select($_SESSION['tree_sortdir']=='ASC');?>><?php echo $_lang['sort_asc']; ?></option>
         </select>
         <input type='hidden' name='dt' value='<?php echo $_REQUEST['dt']; ?>' />
     </td>
@@ -570,3 +567,8 @@ function menuHandler(action) {
 
 </body>
 </html>
+<?php
+function select($cond=false)
+{
+	return ($cond) ? ' selected="selected"' : '';
+}
