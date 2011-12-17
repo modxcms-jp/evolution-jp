@@ -173,7 +173,8 @@ function confirmLangChange(el, lkey, elupd)
 	}
 }
 </script>
-<form name="settings" action="index.php?a=30" method="post" enctype="multipart/form-data">
+<form name="settings" action="index.php" method="post" enctype="multipart/form-data">
+<input type="hidden" name="a" value="30" />
 	<h1><?php echo $_lang['settings_title']; ?></h1>
 	<div id="actions">
 		<ul class="actionButtons">

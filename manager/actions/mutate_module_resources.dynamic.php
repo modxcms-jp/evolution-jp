@@ -29,13 +29,13 @@ $tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=108 AND id=\''.$id.'\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->_select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if($lock['internalKey']!=$modx->getLoginUserID()) {
+	while($lock = $modx->db->getRow($rs))
+	{
+		if($lock['internalKey']!=$modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -94,7 +94,7 @@ switch ($_REQUEST['op']) {
 				if($row['type']=='40') $snids[$i]=$row['resource'];
 			}
 			// get guid
-			$ds = $modx->dbQuery("SELECT * FROM ".$tbl_site_modules." WHERE id='$id'");
+			$ds = $modx->db->select('*', $tbl_site_modules, "id='{$id}'");
 			if($ds) {
 				$row = $modx->fetchRow($ds);
 				$guid = $row['guid'];
@@ -104,11 +104,7 @@ switch ($_REQUEST['op']) {
 				if ($cp) $modx->dbQuery('UPDATE '.$tbl_site_plugins.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $plids).') AND moduleguid=\''.$guid.'\'');
 				if ($cs) $modx->dbQuery('UPDATE '.$tbl_site_snippets.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $snids).') AND moduleguid=\''.$guid.'\'');
 				// reset cache
-				include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
-				$sync = new synccache();
-				$sync->setCachepath("../assets/cache/");
-				$sync->setReport(false);
-				$sync->emptyCache(); // first empty the cache
+				$modx->clearCache();
 			}
 		}
 		$sql = 'DELETE FROM '.$tbl_site_module_depobj.' WHERE id IN ('.implode(',', $opids).')';
@@ -117,18 +113,17 @@ switch ($_REQUEST['op']) {
 }
 
 // load record
-$sql = "SELECT * FROM ".$tbl_site_modules." WHERE id = $id;";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
+$limit = $modx->db->getRow($rs);
 if($limit>1) {
 	echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
 	exit;
 }
-if($limit<1) {
+elseif($limit<1) {
 	echo "<p>Module not found for id '$id'.</p>";
 	exit;
 }
-$content = mysql_fetch_assoc($rs);
+$content = $modx->db->getRow($rs);
 $_SESSION['itemname']=$content['name'];
 if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 	$e->setError(3);
@@ -136,6 +131,9 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 }
 
 ?>
+<style type="text/css">
+a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:102px}
+</style>
 <script type="text/javascript">
 
 	function removeDependencies() {
@@ -197,7 +195,8 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 	};
 </script>
 
-<form name="mutate" method="post" action="index.php?a=113">
+<form name="mutate" method="post" action="index.php">
+<input type="hidden" name="a" value="113" />
 <input type="hidden" name="op" value="" />
 <input type="hidden" name="rt" value="" />
 <input type="hidden" name="newids" value="" />
@@ -256,13 +255,13 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 		?>
 		</td>
 		<td valign="top" width="120" style="background-color:#eeeeee">
-			<a class="searchtoolbarbtn" style="float:left;width:120px;margin-bottom:10px;" href="#" style="margin-top:2px;width:102px" onclick="removeDependencies();return false;"><img src="<?php echo $_style["icons_delete_document"]?>" align="absmiddle" /> <?php echo $_lang['remove']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addSnippet();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_snippet']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addDocument();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_doc']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addChunk();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_chunk']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addPlugin();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_plugin']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addTV();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_tv']; ?></a><br />
-			<a class="searchtoolbarbtn" style="float:left;width:120px;" href="#" style="margin-top:2px;width:102px" onclick="addTemplate();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_template']; ?></a><br />
+			<a class="searchtoolbarbtn" style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img src="<?php echo $_style["icons_delete_document"]?>" align="absmiddle" /> <?php echo $_lang['remove']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addSnippet();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_snippet']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addDocument();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_doc']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addChunk();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_chunk']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addPlugin();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_plugin']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addTV();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_tv']; ?></a><br />
+			<a class="searchtoolbarbtn" href="#" onclick="addTemplate();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_template']; ?></a><br />
 		</td>
 	  </tr>
 	</table>

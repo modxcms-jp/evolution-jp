@@ -722,37 +722,43 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 					echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
 					require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
 					require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
-					for ($i = 0; $i < $num_of_tv; $i++) {
+					while($row = $modx->db->getRow($rs))
+					{
 						// Go through and display all Template Variables
-						$row = $modx->db->getRow($rs);
-						if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
+						if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea')
+						{
 							// Add richtext editor to the list
-							if (is_array($replace_richtexteditor)) {
-								$replace_richtexteditor = array_merge($replace_richtexteditor, array(
-									"tv" . $row['id'],
-								));
-							} else {
-								$replace_richtexteditor = array(
-									"tv" . $row['id'],
-								);
+							if (is_array($replace_richtexteditor))
+							{
+								$replace_richtexteditor = array_merge($replace_richtexteditor, array('tv' . $row['id']));
+							}
+							else
+							{
+								$replace_richtexteditor = array('tv' . $row['id']);
 							}
 						}
 						// splitter
 						if ($i > 0 && $i < $num_of_tv)
 							echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
+						
+						// post back value
+						if(array_key_exists('tv'.$row['id'], $_POST))
+						{
+							if($row['type'] == 'listbox-multiple')
+							{
+								$tvPBV = implode('||', $_POST['tv'.$row['id']]);
+							}
+							else
+							{
+								$tvPBV = $_POST['tv'.$row['id']];
+							}
+						}
+						else
+						{
+							$tvPBV = $row['value'];
+						}
 
-                        // post back value
-                        if(array_key_exists('tv'.$row['id'], $_POST)) {
-                            if($row['type'] == 'listbox-multiple') {
-                                $tvPBV = implode('||', $_POST['tv'.$row['id']]);
-                            } else {
-                                $tvPBV = $_POST['tv'.$row['id']];
-                            }
-                        } else {
-                            $tvPBV = $row['value'];
-                        }
-
-                        $zindex = $row['type'] == 'date' ? '100' : '500';
+						$zindex = $row['type'] == 'date' ? '100' : '500';
 						echo "\t\t",'<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
 						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
                              "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
