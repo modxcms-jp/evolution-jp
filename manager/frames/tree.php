@@ -1,18 +1,18 @@
 <?php if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-    $theme = $manager_theme ? "$manager_theme/":"";
-
-    function constructLink($action, $img, $text, $allowed) {
-        if($allowed==1) { ?>
-            <div class="menuLink" onclick="menuHandler(<?php echo $action ; ?>); hideMenu();">
-        <?php } else { ?>
-            <div class="menuLinkDisabled">
-        <?php } ?>
-                <img src="<?php echo $img; ?>" /><?php echo $text; ?>
-            </div>
-        <?php
-    }
-    $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+function constructLink($action, $img, $text, $allowed)
+{
+	if($allowed==1)
+	{
+		echo '<div class="menuLink" onclick="menuHandler(' . $action . '); hideMenu();">';
+	}
+	else
+	{
+		echo '<div class="menuLinkDisabled">';
+	}
+		echo '<img src="' . $img . '" />' . $text . '</div>';
+}
+$mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
