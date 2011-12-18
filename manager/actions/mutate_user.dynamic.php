@@ -863,3 +863,8 @@ if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
 </form>
+<?php
+function selected($cond=false)
+{
+	if($cond) return ' selected="selected"';
+}
