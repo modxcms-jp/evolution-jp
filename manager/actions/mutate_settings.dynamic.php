@@ -552,6 +552,13 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo form_text('friendly_url_suffix',$friendly_url_suffix,50);?><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
+<tr id='furlRow5' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo '個別の拡張子表現';?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('suffix_mode','0', $suffix_mode=='0'));?><br />
+		<?php echo 'エイリアス名に「.」(ドット)を含む時にプレフィックスの追加を省略できます。';?></td>
+</tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
 <td>

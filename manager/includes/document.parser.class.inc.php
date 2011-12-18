@@ -1078,7 +1078,7 @@ class DocumentParser {
         $alias    = array_pop($elements);
         $dir      = implode('/', $elements);
         unset($elements);
-        if((strpos($alias, '.') !== false) && (isset($this->config['smart_suffix']) && $this->config['smart_suffix']==1)) $suff = ''; // jp-edition only
+        if((strpos($alias, '.') !== false) && (isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1)) $suff = ''; // jp-edition only
         return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
     }
 
@@ -1885,8 +1885,8 @@ class DocumentParser {
 		if ($this->config['friendly_urls'] == 1 && $alias != '')
 		{
 			if((strpos($alias, '.') !== false)
-			    && (isset($this->config['smart_suffix'])
-			    && $this->config['smart_suffix']==1))
+			    && (isset($this->config['suffix_mode'])
+			    && $this->config['suffix_mode']==1))
 			{
 				    $f_url_suffix = ''; // jp-edition only
 			}
