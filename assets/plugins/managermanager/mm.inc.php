@@ -215,11 +215,6 @@ switch ($e->name) {
 
 // if it's the plugin config form, give us a copy of all the relevant values
 
-case 'OnManagerPageInit':
-	$modx->addEventListener('OnManagerMainFrameHeaderHTMLBlock', $e->activePlugin);
-	
-	break;
-
 case 'OnPluginFormRender':
 	
 	$plugin_id_editing = $e->params['id']; // The ID of the plugin we're editing
@@ -298,10 +293,18 @@ case 'OnPluginFormRender':
 
 
 case 'OnManagerMainFrameHeaderHTMLBlock':
-	$output  = '<!-- Begin ManagerManager output -->' . "\n";
-	$output .= includeJs($js_url, 'html');
-	$e->output($output);
-	
+	switch($_GET['a'])
+	{
+		case '85':
+		case '4':
+		case '27':
+		case '301':
+			$output  = '<!-- Begin ManagerManager output -->' . "\n";
+			$output .= includeJs($js_url, 'html');
+			$e->output($output);
+			break;
+		default:return;
+	}
 	break;
 
 case 'OnDocFormPrerender':
@@ -329,10 +332,8 @@ case 'OnDocFormPrerender':
 	// Load the jquery library
 	echo '<!-- Begin ManagerManager output -->' . "\n";
 $tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
-$sql = "SELECT count(`name`) FROM {$tbl_system_eventnames} WHERE `name`='OnManagerMainFrameHeaderHTMLBlock'";
-$rs = $modx->db->query($sql);
-$count = $modx->db->getRow($rs);
-if($count<1) echo includeJs($js_url, 'html');
+$rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFrameHeaderHTMLBlock'");
+if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
 
 	// Create a mask to cover the page while the fields are being rearranged
 	echo '		
@@ -469,7 +470,7 @@ case 'OnTVFormRender':
 		echo '<!-- Begin ManagerManager output -->';
 	
 		// Create a mask to cover the page while the fields are being rearranged
-		echo '		
+		echo '
 			<script type="text/javascript">
 			var $j = jQuery.noConflict();
 			$j("select[name=type] option").each( function() {
