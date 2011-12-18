@@ -71,7 +71,7 @@ function assign_base_url()
 		$script_name= $_SERVER['SCRIPT_NAME'];
 	}
 	$conf_dir = str_replace("\\", '/', dirname($script_name));
-	$mgr_pos = strrpos($conf_dir,'/manager');
+	$mgr_pos = strlen($conf_dir) - strpos (strrev($conf_dir), strrev('/manager')) - strlen('/manager');
 	if($mgr_pos!==false) $conf_dir = substr($conf_dir,0,$mgr_pos+1);
 	return rtrim($conf_dir,'/') . '/';
 }
@@ -79,7 +79,8 @@ function assign_base_url()
 function assign_base_path()
 {
 	$conf_dir = str_replace("\\", '/', dirname(__FILE__));
-	$base_path = substr($conf_dir,0,strrpos($conf_dir,'/manager/'));
+	$mgr_pos = strlen($conf_dir) - strpos (strrev($conf_dir), strrev('/manager/')) - strlen('/manager/');
+	$base_path = substr($conf_dir,0,$mgr_pos);
 	return rtrim($base_path,'/') . '/';
 }
 
