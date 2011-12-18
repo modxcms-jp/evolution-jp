@@ -49,17 +49,17 @@ $cache_enabled           = '1';
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
 $settings = array();
-$sql = "SELECT setting_name, setting_value FROM $dbase.`".$table_prefix."system_settings`";
-$rs = mysql_query($sql);
-$number_of_settings = mysql_num_rows($rs);
-while ($row = mysql_fetch_assoc($rs)) $settings[$row['setting_name']] = $row['setting_value'];
+while ($row = $modx->db->getRow($rs))
+{
+	$settings[$row['setting_name']] = $row['setting_value'];
+}
 extract($settings, EXTR_OVERWRITE);
 
 $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
 
 // load languages and keys
 $lang_keys = array();
-$dir = dir("includes/lang");
+$dir = dir('includes/lang');
 while ($file = $dir->read())
 {
 	if(strpos($file, ".inc.php")>0)
