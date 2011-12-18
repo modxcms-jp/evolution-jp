@@ -456,7 +456,7 @@ class DocumentParser {
 
 	function checkCache($id)
 	{
-		if(isset($this->config['cacheable']) && $this->config['cacheable'] == 0) return ''; // jp-edition only
+		if(isset($this->config['cache_enabled']) && $this->config['cache_enabled'] == 0) return ''; // jp-edition only
 		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
 		if(!file_exists($cacheFile))
 		{

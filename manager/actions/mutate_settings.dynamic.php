@@ -413,6 +413,14 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang['setting_cache_enabled'] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('cache_enabled','1',$cache_enabled=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('cache_enabled','0',$cache_enabled=='0'));?><br />
+		<?php echo $_lang["setting_cache_enabled_desc"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["defaultcache_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('cache_default','1',$cache_default=='1'));?><br />
