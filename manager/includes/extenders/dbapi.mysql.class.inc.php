@@ -87,19 +87,31 @@ class DBAPI {
       $connection_method = $this->config['connection_method'];
       $tstart = $modx->getMicroTime();
       if(isset($_SESSION['mgrValidated'])) $persist = '1';
-      if (!$this->conn = ($persist ? mysql_pconnect($host, $uid, $pwd) : mysql_connect($host, $uid, $pwd, true))) {
-         $modx->messageQuit("Failed to create the database connection!");
-         exit;
-      } else {
+      $safe_count = 0;
+      while(!$this->conn && $safe_count<3)
+      {
+          if($persist!=0) $this->conn = mysql_pconnect($host, $uid, $pwd);
+          else            $this->conn = mysql_connect($host, $uid, $pwd, true);
+          $safe_count++;
+      }
+      if(!$this->conn)
+      {
+          $modx->messageQuit('Failed to create the database connection!');
+          exit;
+      }
+      else
+      {
          $dbase = str_replace('`', '', $dbase); // remove the `` chars
-         if (!@ mysql_select_db($dbase, $this->conn)) {
+         if (!@ mysql_select_db($dbase, $this->conn))
+         {
             $modx->messageQuit("Failed to select the database '" . $dbase . "'!");
             exit;
          }
          @mysql_query("{$connection_method} {$charset}", $this->conn);
          $tend = $modx->getMicroTime();
          $totaltime = $tend - $tstart;
-         if ($modx->dumpSQL) {
+         if ($modx->dumpSQL)
+         {
             $modx->queryCode .= "<fieldset style='text-align:left'><legend>Database connection</legend>" . sprintf("Database connection was created in %2.4f s", $totaltime) . "</fieldset>";
          }
          if (function_exists('mysql_set_charset'))
