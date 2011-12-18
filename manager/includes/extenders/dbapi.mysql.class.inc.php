@@ -103,7 +103,6 @@ class DBAPI {
       }
       if(!$this->conn)
       {
-          $modx->logEvent(0, 3,'Connect Error - Could not connect to DB server','DB');
           $modx->messageQuit('Failed to create the database connection!');
           exit;
       }
