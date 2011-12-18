@@ -249,9 +249,9 @@ if (is_array($evtOut))
     			</a>
     			  <span class="and"> + </span>				
     			<select id="stay" name="stay">
-    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
-    			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+    			  <option id="stay1" value="1" <?php echo selected($_REQUEST['stay']=='1');?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay2" value="2" <?php echo selected($_REQUEST['stay']=='2');?> ><?php echo $_lang['stay']?></option>
+    			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>		
     		  </li>
     		  <?php
@@ -346,11 +346,15 @@ $rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
 		<?php
 
-while ($row = mysql_fetch_assoc($rs)) {
-    if ($_REQUEST['a']=='11') {
-        $selectedtext = $row['id'] == '1' ? ' selected="selected"' : '';
-    } else {
-		$selectedtext = $row['id'] == $userdata['role'] ? ' selected="selected"' : '';
+while ($row = $modx->db->getRow($rs))
+{
+	if ($_REQUEST['a']=='11')
+	{
+		$selectedtext = selected($row['id'] == '1');
+	}
+	else
+	{
+		$selectedtext = selected($row['id'] == $userdata['role']);
 	}
 ?>
 			<option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
@@ -391,10 +395,11 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>
 			<select size="1" name="country" onchange="documentDirty=true;">
             <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
-			<option value="" <?php (!isset($chosenCountry) ? ' selected' : '') ?> >&nbsp;</option>
+			<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
 				<?php
-				foreach ($_country_lang as $key => $country) {
-				 echo "<option value=\"$key\"".(isset($chosenCountry) && $chosenCountry == $key ? ' selected' : '') .">$country</option>";
+				foreach ($_country_lang as $key => $country)
+				{
+					echo '<option value="' . $key . '"'.selected(isset($chosenCountry) && $chosenCountry == $key) .">{$country}</option>\n";
 				}
 				?>
             </select>
@@ -413,8 +418,8 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>&nbsp;</td>
 			<td><select name="gender" onchange="documentDirty=true;">
 				<option value=""></option>
-				<option value="1" <?php echo ($userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
-				<option value="2" <?php echo ($userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
+				<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
+				<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
 				</select>
 			</td>
 		  </tr>
@@ -492,7 +497,7 @@ while ($file = $dir->read()) {
 	if (strpos($file, ".inc.php") > 0) {
 		$endpos = strpos($file, ".");
 		$languagename = trim(substr($file, 0, $endpos));
-		$selectedtext = $languagename == $activelang ? "selected='selected'" : "";
+		$selectedtext = $languagename == selected($activelang);
 ?> 
                 <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
                 <?php
@@ -578,8 +583,7 @@ $dir->close();
 			if ($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file,0,1) != '.') {
 				$themename = $file;
 				$attr = 'value="'.$themename.'" ';
-				if (isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme'])
-					$attr .= 'selected="selected" ';
+					$attr .= selected(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']);
 				echo "\t\t<option ".rtrim($attr).'>'.ucwords(str_replace("_", " ", $themename))."</option>\n";
 			}
 		}
@@ -686,11 +690,11 @@ $dir->close();
 $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
 // invoke OnRichTextEditorRegister event
 $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-echo "<option value='none'" . ($edt == 'none' ? " selected='selected'" : "") . ">" . $_lang["none"] . "</option>\n";
+echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
 if (is_array($evtOut))
 	for ($i = 0; $i < count($evtOut); $i++) {
 		$editor = $evtOut[$i];
-		echo "<option value='$editor'" . ($edt == $editor ? " selected='selected'" : "") . ">$editor</option>\n";
+		echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
 	}
 ?>
 				</select>
