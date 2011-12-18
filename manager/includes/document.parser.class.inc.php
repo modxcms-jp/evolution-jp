@@ -2078,15 +2078,20 @@ class DocumentParser {
         return $this->getChunk($chunkName);
     }
 
-    function parseChunk($chunkName, $chunkArr, $prefix= "{", $suffix= "}") {
+    function parseChunk($chunkName, $chunkArr, $prefix= "{", $suffix= "}",$mode='chunk') {
         if (!is_array($chunkArr)) {
             return false;
         }
-        $chunk= $this->getChunk($chunkName);
-        foreach ($chunkArr as $key => $value) {
-            $chunk= str_replace($prefix . $key . $suffix, $value, $chunk);
+        if($mode==='chunk')
+        {
+            $src= $this->getChunk($chunkName);
         }
-        return $chunk;
+        else $src = $chunkName;
+        
+        foreach ($chunkArr as $key => $value) {
+            $src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
+        }
+        return $src;
     }
 
     function getUserData() {
