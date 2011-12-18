@@ -72,12 +72,11 @@ function update_config_default_template_method()
 	global $modx,$auto_template_logic;
 	
 	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
-	$rs = $modx->db->query("SELECT properties,disabled FROM {$tbl_site_plugins} WHERE `name`='Inherit Parent Template'");
-	$row = mysql_fetch_assoc($rs);
+	$rs = $modx->db->select('properties,disabled', $tbl_site_plugins, "`name`='Inherit Parent Template'");
+	$row = $modx->db->getRow($rs);
 	if($row)
 	{
-		$sql = "UPDATE {$tbl_site_plugins} SET `disabled` = '1' WHERE `name` IN ('Inherit Parent Template')";
-		$modx->db->query($sql);
+		$modx->db->update("`disabled`='1'", $tbl_site_plugins, "`name` IN ('Inherit Parent Template')");
 	}
 	if(!$row || !isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling'; // not installed
 	else
@@ -108,8 +107,7 @@ function update_tbl_user_roles()
 	{
 		$sql = "ALTER TABLE {$tbl_user_roles} ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
 		$modx->db->query($sql);
-		$sql = "UPDATE {$tbl_user_roles} SET `remove_locks` = '1' WHERE `id` =1";
-		$modx->db->query($sql);
+		$modx->db->update("`remove_locks` = '1'", $tbl_user_roles, "`id` =1");
 	}
 }
 
@@ -209,7 +207,5 @@ function update_tbl_system_settings()
 {
 	global $modx;
 	$tbl_system_settings     = $modx->getFullTableName('system_settings');
-	
-	$sql = "UPDATE {$tbl_system_settings} SET `setting_value` = '0' WHERE `setting_name` = 'validate_referer' AND `setting_value` = '00'";
-	$modx->db->query($sql);
+	$modx->db->update("`setting_value` = '0'", $tbl_system_settings, "`setting_name` = 'validate_referer' AND `setting_value` = '00'");
 }
