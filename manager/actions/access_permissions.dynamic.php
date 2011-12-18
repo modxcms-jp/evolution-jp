@@ -15,25 +15,23 @@ $tbl_membergroup_names   = $modx->getFullTableName('membergroup_names');
 $tbl_site_content        = $modx->getFullTableName('site_content');
 
 // find all document groups, for the select :)
-$sql = 'SELECT * FROM '.$tbl_documentgroup_names.' ORDER BY name';
-$rs = mysql_query($sql);
-if (mysql_num_rows($rs) < 1) {
+$rs = $modx->db->select('*',$tbl_documentgroup_names,'','name');
+if ($modx->db->getRecordCount($rs) < 1) {
 	$docgroupselector = '[no groups to add]';
 } else {
 	$docgroupselector = '<select name="docgroup">'."\n";
-	while ($row = mysql_fetch_assoc($rs)) {
+	while ($row = $modx->db->getRow($rs)) {
 		$docgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
 	}
 	$docgroupselector .= "</select>\n";
 }
 
-$sql = 'SELECT * FROM '.$tbl_membergroup_names.' ORDER BY name';
-$rs = mysql_query($sql);
-if (mysql_num_rows($rs) < 1) {
+$rs = $modx->db->select('*',$tbl_membergroup_names,'','name');
+if ($modx->db->getRecordCount($rs) < 1) {
 	$usrgroupselector = '[no user groups]';
 } else {
 	$usrgroupselector = '<select name="usergroup">'."\n";
-	while ($row = mysql_fetch_assoc($rs)) {
+	while ($row = $modx->db->getRow($rs)) {
 		$usrgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
 	}
 	$usrgroupselector .= "</select>\n";
@@ -56,14 +54,7 @@ if (mysql_num_rows($rs) < 1) {
 <script type="text/javascript">tp1.addTabPage( document.getElementById( "tabPage1" ) );</script>
 <?php
 // User Groups
-
 	echo '<p>'.$_lang['access_permissions_users_tab'].'</p>';
-
-	$sql = 'SELECT groupnames.*, users.id AS user_id, users.username user_name '.
-	       'FROM '.$tbl_membergroup_names.' AS groupnames '.
-	       'LEFT JOIN '.$tbl_member_groups.' AS groups ON groups.user_group = groupnames.id '.
-	       'LEFT JOIN '.$tbl_manager_users.' AS users ON users.id = groups.member '.
-	       'ORDER BY groupnames.name';
 ?>
 	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
 		<thead>
@@ -80,13 +71,21 @@ if (mysql_num_rows($rs) < 1) {
 	</table>
 	<br />
 <?php
-	$rs = mysql_query($sql);
-	if (mysql_num_rows($rs) < 1) {
+	$field = 'groupnames.*, users.id AS user_id, users.username user_name';
+	$from  = "{$tbl_membergroup_names} AS groupnames";
+	$from .= " LEFT JOIN {$tbl_member_groups} AS groups ON groups.user_group = groupnames.id";
+	$from .= " LEFT JOIN {$tbl_manager_users} AS users ON users.id = groups.member";
+	$orderby = 'groupnames.name';
+	$rs = $modx->db->select($field,$from,'',$orderby);
+	if ($modx->db->getRecordCount($rs) < 1)
+	{
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
-	} else {
+	}
+	else
+	{
 		echo "<ul>\n";
 		$pid = '';
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = $modx->db->getRow($rs)) {
 			if ($row['id'] !== $pid) {
 				if ($pid != '') echo "</li></ul></li>\n"; // close previous one
 
@@ -127,12 +126,6 @@ if (mysql_num_rows($rs) < 1) {
 // Document Groups
 
 	echo '<p>'.$_lang['access_permissions_resources_tab'].'</p>';
-
-	$sql = 'SELECT dgnames.id, dgnames.name, sc.id AS doc_id, sc.pagetitle AS doc_title '.
-	       'FROM '.$tbl_documentgroup_names.' AS dgnames '.
-	       'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document_group = dgnames.id '.
-	       'LEFT JOIN '.$tbl_site_content.' AS sc ON sc.id = dg.document '.
-	       'ORDER BY dgnames.name, sc.id';
 ?>
 	<table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
 		<thead>
@@ -149,8 +142,13 @@ if (mysql_num_rows($rs) < 1) {
 	</table>
 	<br />
 <?php
-	$rs = mysql_query($sql);
-	if (mysql_num_rows($rs) < 1) {
+	$field = 'dgnames.id, dgnames.name, sc.id AS doc_id, sc.pagetitle AS doc_title';
+	$from  = "{$tbl_documentgroup_names} AS dgnames";
+	$from .= " LEFT JOIN {$tbl_document_groups} AS dg ON dg.document_group = dgnames.id";
+	$from .= " LEFT JOIN {$tbl_site_content} AS sc ON sc.id = dg.document";
+	$orderby = 'dgnames.name, sc.id';
+	$rs = $modx->db->select($field,$from,'',$orderby);
+	if ($modx->db->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
 		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">'."\n".
@@ -158,8 +156,10 @@ if (mysql_num_rows($rs) < 1) {
 		     "\t".'<tr><td><b>'.$_lang['access_permissions_resource_groups'].'</b></td></tr>'."\n".
 		     "\t".'</thead>'."\n";
 		$pid = '';
-		while ($row = mysql_fetch_assoc($rs)) {
-			if ($row['id'] !== $pid) {
+		while ($row = $modx->db->getRow($rs))
+		{
+			if ($row['id'] !== $pid)
+			{
 				if ($pid != '') echo "</td></tr>\n"; // close previous one
 
 				echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">'."\n".
@@ -173,7 +173,8 @@ if (mysql_num_rows($rs) < 1) {
 
 				echo '</td></tr><tr><td class="row2">'.$_lang['access_permissions_resources_in_group'].' ';
 			}
-			if (!$row['doc_id']) {
+			if (!$row['doc_id'])
+			{
 				// no documents in group
 				echo $_lang['access_permissions_no_resources_in_group'];
 				$pid = $row['id'];
@@ -196,15 +197,17 @@ if (mysql_num_rows($rs) < 1) {
 
 	echo '<p>'.$_lang['access_permissions_links_tab'].'</p>';
 
-	$sql = 'SELECT groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name '.
-	       'FROM '.$tbl_membergroup_names.' AS groupnames '.
-	       'LEFT JOIN '.$tbl_membergroup_access.' AS groupacc ON groupacc.membergroup = groupnames.id '.
-	       'LEFT JOIN '.$tbl_documentgroup_names.' AS dgnames ON dgnames.id = groupacc.documentgroup '.
-	       'ORDER BY name';
-	$rs = mysql_query($sql);
-	if (mysql_num_rows($rs) < 1) {
+	$field = 'groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name';
+	$from  = "{$tbl_membergroup_names} AS groupnames";
+	$from .= "LEFT JOIN {$tbl_membergroup_access} AS groupacc ON groupacc.membergroup = groupnames.id";
+	$from .= "LEFT JOIN {$tbl_documentgroup_names} AS dgnames ON dgnames.id = groupacc.documentgroup";
+	$rs = $modx->db->select($field,$from,'','name');
+	if ($modx->db->getRecordCount($rs) < 1)
+	{
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
-	} else {
+	}
+	else
+	{
 		?>
 		<table border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
 			<thead>
@@ -226,7 +229,7 @@ if (mysql_num_rows($rs) < 1) {
 		<?php
 		echo "<ul>\n";
 		$pid = '';
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = $modx->db->getRow($rs)) {
 			if ($row['id'] != $pid) {
 				if ($pid != '') echo "</ul></li>\n"; // close previous one
 				echo '<li><b>'.$row['name'].'</b>';
