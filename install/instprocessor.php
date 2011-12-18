@@ -57,7 +57,7 @@ $base_path = $pth . (substr($pth, -1) != "/" ? "/" : "");
 
 // connect to the database
 echo "<p>". $_lang['setup_database_create_connection'];
-if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
+if (!@ $conn = mysql_pconnect($database_server, $database_user, $database_password)) {
 	echo "<span class=\"notok\">".$_lang["setup_database_create_connection_failed"]."</span></p><p>".$_lang['setup_database_create_connection_failed_note']."</p>";
 	return;
 } else {

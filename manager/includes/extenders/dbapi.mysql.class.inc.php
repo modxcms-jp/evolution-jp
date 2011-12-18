@@ -86,6 +86,7 @@ class DBAPI {
       $charset = $this->config['charset'];
       $connection_method = $this->config['connection_method'];
       $tstart = $modx->getMicroTime();
+      if(isset($_SESSION['mgrValidated'])) $persist = '1';
       if (!$this->conn = ($persist ? mysql_pconnect($host, $uid, $pwd) : mysql_connect($host, $uid, $pwd, true))) {
          $modx->messageQuit("Failed to create the database connection!");
          exit;
