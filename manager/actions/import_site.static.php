@@ -51,11 +51,11 @@ if(!isset($_POST['import'])) {
     </td>
   </tr>
   <tr>
-	<td nowrap="nowrap" valign="top"><b>サイトツリーをリセットする</b></td>
+	<td nowrap="nowrap" valign="top"><b>リソースツリーをリセットする</b></td>
     <td>&nbsp;</td>
     <td><input type="checkbox" id="reset" name="reset" value="on" />
         <br />
-		<small>サイトツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。</small>
+		<small>リソースツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。</small>
     </td>
   </tr>
   <tr>
