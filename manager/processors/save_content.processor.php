@@ -456,23 +456,30 @@ switch ($actionToTake)
 		$oldparent = $row['parent'];
 		$doctype = $row['type'];
 
+		$url = "index.php?a=27&id={$id}";
 		if ($id == $site_start && $published == 0)
 		{
 			$modx->manager->saveFormValues(27);
-			echo "Document is linked to site_start variable and cannot be unpublished!";
+			include_once "header.inc.php";
+			$modx->webAlert('Document is linked to site_start variable and cannot be unpublished!',$url);
+			include_once "footer.inc.php";
 			exit;
 		}
 		$today= time();
 		if ($id == $site_start && ($pub_date > $today || $unpub_date != "0"))
 		{
 			$modx->manager->saveFormValues(27);
-			echo "Document is linked to site_start variable and cannot have publish or unpublish dates set!";
+			include_once "header.inc.php";
+			$modx->webAlert('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
+			include_once "footer.inc.php";
 			exit;
 		}
 		if ($parent == $id)
 		{
 			$modx->manager->saveFormValues(27);
-			echo "Document can not be it's own parent!";
+			include_once "header.inc.php";
+			$modx->webAlert("Document can not be it's own parent!",$url);
+			include_once "footer.inc.php";
 			exit;
 		}
 		// check to see document is a folder
@@ -480,7 +487,9 @@ switch ($actionToTake)
 		if (!$rs)
 		{
 			$modx->manager->saveFormValues(27);
-			echo "An error occured while attempting to find the document's children.";
+			include_once "header.inc.php";
+			$modx->webAlert("An error occured while attempting to find the document's children.",$url);
+			include_once "footer.inc.php";
 			exit;
 		}
 		$row = $modx->db->getRow($rs);
