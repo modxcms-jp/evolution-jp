@@ -22,13 +22,14 @@ switch((int) $_REQUEST['a']) {
 $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`" . $table_prefix . "active_users` WHERE $dbase.`" . $table_prefix . "active_users`.action=12 AND $dbase.`" . $table_prefix . "active_users`.id=$user";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID()) {
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='12' AND id='{$user}'");
+if ($modx->db->getRecordCount($rs) > 1)
+{
+	while($lock = $modx->db->getRow($rs))
+	{
+		if ($lock['internalKey'] != $modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang["lock_msg"], $lock['username'], "user");
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -37,49 +38,49 @@ if ($limit > 1) {
 }
 // end check for lock
 
-if ($_REQUEST['a'] == '12') {
+if ($_REQUEST['a'] == '12')
+{
 	// get user attribute
-	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "user_attributes` WHERE $dbase.`" . $table_prefix . "user_attributes`.internalKey = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
-		echo "More than one user returned!<p>";
-		exit;
-	}
-	if ($limit < 1) {
-		echo "No user returned!<p>";
-		exit;
-	}
-	$userdata = mysql_fetch_assoc($rs);
-
+	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+	$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey={$user}");
+	$limit = $modx->db->getRecordCount($rs);
+	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
+	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
+	$userdata = $modx->db->getRow($rs);
+	
 	// get user settings
-	$sql = "SELECT us.* FROM $dbase.`" . $table_prefix . "user_settings` us WHERE us.user = " . $user . ";";
-	$rs = mysql_query($sql);
+	$tbl_user_settings = $modx->getFullTableName('user_settings');
+	$rs = $modx->db->select('*',$tbl_user_settings,"user={$user}");
 	$usersettings = array ();
-	while ($row = mysql_fetch_assoc($rs))
+	while ($row = $modx->db->getRow($rs))
+	{
 		$usersettings[$row['setting_name']] = $row['setting_value'];
-	// manually extract so that user display settings are not overwritten
-	foreach ($usersettings as $k => $v) {
-		if ($k != 'manager_language' && $k!='manager_theme') {
-			${$k} = $v;
-		}	
 	}
 	
+	// manually extract so that user display settings are not overwritten
+	foreach ($usersettings as $k => $v)
+	{
+		switch($k)
+		{
+			case 'manager_language':
+			case 'manager_theme':
+				break;
+			default:
+				${$k} = $v;
+		}
+	}
+	
+	$tbl_manager_users = $modx->getFullTableName('manager_users');
 	// get user name
-	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "manager_users` WHERE $dbase.`" . $table_prefix . "manager_users`.id = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
-		echo "More than one user returned while getting username!<p>";
-		exit;
-	}
-	if ($limit < 1) {
-		echo "No user returned while getting username!<p>";
-		exit;
-	}
-	$usernamedata = mysql_fetch_assoc($rs);
+	$rs = $modx->db->select('*',$tbl_manager_users,"id={$user}");
+	$limit = $modx->db->getRecordCount($rs);
+	if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
+	elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}
+	$usernamedata = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $usernamedata['username'];
-} else {
+}
+else
+{
 	$userdata = array ();
 	$usersettings = array ();
 	$usernamedata = array ();
@@ -224,7 +225,8 @@ function showHide(what, onoff){
 </script>
 
 
-<form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
+<form action="index.php" method="post" name="userform" enctype="multipart/form-data">
+<input type="hidden" name="a" value="32" />
 <?php
 
 // invoke OnUserFormPrerender event
@@ -337,9 +339,9 @@ if (is_array($evtOut))
 			<td>
 		<?php
 
-$notAdmin = ($_SESSION['mgrRole'] == 1) ? "" : "WHERE id != 1";
-$sql = "select name, id from $dbase.`" . $table_prefix . "user_roles` $notAdmin";
-$rs = mysql_query($sql);
+$tbl_user_roles = $modx->getFullTableName('user_roles');
+$where = ($_SESSION['mgrRole'] == 1) ? '' : 'id != 1';
+$rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 ?>
 		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
 		<?php
@@ -353,7 +355,6 @@ while ($row = mysql_fetch_assoc($rs)) {
 ?>
 			<option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
 		<?php
-
 }
 ?>
 		</select>
@@ -802,12 +803,13 @@ if ($use_udperms == 1)
 
 	if ($_GET['a'] == '12')
 	{ // only do this bit if the user is being edited
-		$sql = "SELECT * FROM $dbase.`" . $table_prefix . "member_groups` where member=" . $_GET['id'] . "";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
+		$tbl_member_groups = $modx->getFullTableName('member_groups');
+		$memberid = $_GET['id'];
+		$rs = $modx->db->select('*',$tbl_member_groups,"member={$memberid}" );
+		$limit = $modx->db->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
-			$currentgroup = mysql_fetch_assoc($rs);
+			$currentgroup = $modx->db->getRow($rs);
 			$groupsarray[$i] = $currentgroup['user_group'];
 		}
 	}
@@ -829,16 +831,18 @@ if ($use_udperms == 1)
 		<div class="sectionBody">
 		<?php
 			echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-			$sql = "SELECT name, id FROM $dbase.`" . $table_prefix . "membergroup_names` ORDER BY name";
-			$rs = mysql_query($sql);
+			$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
+			$rs = $modx->db->select('name, id',$tbl_membergroup_names,'','name');
 			$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
-			while($row = mysql_fetch_assoc($rs))
+			while($row = $modx->db->getRow($rs))
 			{
-				$echo = $tpl;
-				$echo = str_replace('[+id+]', $row['id'], $echo);
-				$echo = str_replace('[+checked+]', (in_array($row['id'], $groupsarray) ? 'checked="checked"' : ''),$echo);
-				$echo = str_replace('[+name+]', $row['name'], $echo);
-				echo $echo;
+				$src = $tpl;
+				$ph = array();
+				$ph['id'] = $row['id'];
+				$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
+				$ph['name'] = $row['name'];
+				$src = $modx->parsePlaceholder($src,$ph);
+				echo $src;
 			}
 		?>
 		</div>
