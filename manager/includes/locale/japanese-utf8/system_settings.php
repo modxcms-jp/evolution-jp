@@ -13,22 +13,6 @@ if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9
 {
 	$manager_theme = 'MODxCarbon';
 }
-if(!isset($modx->config['show_meta']))           $show_meta = '0';
-if(!isset($modx->config['fe_editor_lang']))      $fe_editor_lang = 'japanese-utf8';
-if(!isset($modx->config['rss_url_news']))        $rss_url_news = 'http://feeds2.feedburner.com/modxjp';
-if(!isset($modx->config['rss_url_security']))    $rss_url_security = 'http://feeds2.feedburner.com/modxjpsec';
-if(!isset($modx->config['validate_referer']))    $validate_referer = '1';
-if(!isset($modx->config['datepicker_offset']))   $datepicker_offset = '-10';
-if(!isset($modx->config['datetime_format']))     $datetime_format = 'YYYY/mm/dd';
-if(!isset($modx->config['warning_visibility']))  $warning_visibility = '0';
-if(!isset($modx->config['remember_last_tab']))   $remember_last_tab = '1';
-if(!isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling';
-if(!isset($modx->config['manager_direction']))   $manager_direction = 'ltr';
-if(!isset($modx->config['tree_page_click']))     $tree_page_click = 'auto';
-
-if(!isset($modx->config['signupemail_message']))      $signupemail_message = $_lang['system_email_signup'];
-if(!isset($modx->config['websignupemail_message']))   $websignupemail_message = $_lang['system_email_websignup'];
-if(!isset($modx->config['webpwdreminder_message'])) $webpwdreminder_message = $_lang['system_email_webreminder'];
 
 function run_update($version)
 {
