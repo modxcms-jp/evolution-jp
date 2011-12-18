@@ -106,7 +106,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 		
 		$access = get_where_mydocs($mgrRole,$in_docgrp);
 		
-		$field  = 'DISTINCT sc.id,pagetitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
+		$field  = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
 		$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
 		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
 		$where  = "(parent={$parent}) {$access} GROUP BY sc.id";
@@ -131,15 +131,31 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 		
 		while($row = $modx->db->getRow($result,'num'))
 		{
-			list($id,$pagetitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
-			$pagetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $pagetitle));
+			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
+			if($modx->config['resource_tree_node_name']==='menutitle') $nodetitle = $menutitle ? $menutitle : $pagetitle; //jp-edition only
+			elseif($modx->config['resource_tree_node_name']==='alias') 
+			{
+				$nodetitle = $alias ? $alias : $id;
+				if($isfolder==0)
+				{
+					if((strpos($alias, '.') === false)
+					    || (isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']!=1))
+					{ // jp-edition only
+						$nodetitle .= $modx->config['friendly_url_suffix'];
+					}
+					$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
+				}
+			}
+			else                                                       $nodetitle = $pagetitle;
+			
+			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
 			$protectedClass = $hasAccess==0 ? ' protectedNode' : '';
 			
 			if    ($deleted==1)   $class = 'deletedNode';
 			elseif($published==0) $class = 'unpublishedNode';
 			elseif($hidemenu==1)  $class = "notInMenuNode{$protectedClass}";
 			else                  $class = "publishedNode{$protectedClass}";
-			$pagetitleDisplay = '<span class="' . $class . '">' . $pagetitle . '</span>';
+			$nodetitleDisplay = '<span class="' . $class . '">' . $nodetitle . '</span>';
 			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 			$pageIdDisplay = '<small>('.($modx_textdir ? '&rlm;':'').$id.')</small>';
 			$url = $modx->makeUrl($id,'','','full');
@@ -156,9 +172,10 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			$ph['parent']    = $parent;
 			$ph['spacer']    = $spacer;
 			$ph['pagetitle'] = "'" . addslashes($pagetitle) . "'";
+			$ph['nodetitle'] = "'" . addslashes($nodetitle) . "'";
 			$ph['url']       = "'{$url}'";
 			$ph['deleted']   = $deleted;
-			$ph['pagetitleDisplay'] = $pagetitleDisplay;
+			$ph['nodetitleDisplay'] = $nodetitleDisplay;
 			$ph['weblinkDisplay']   = $weblinkDisplay;
 			$ph['pageIdDisplay']    = $pageIdDisplay;
 			$ph['_lang_click_to_context'] = $_lang['click_to_context'];
@@ -290,7 +307,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
-	title="[+alt+]">[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]</div>
+	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]</div>
 
 EOT;
 		return $src;
@@ -325,7 +342,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:block">
+>[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:block">
 
 EOT;
 		return $src;
@@ -359,7 +376,7 @@ EOT;
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
-	title="[+alt+]">[+pagetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:none"></div></div>
+	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:none"></div></div>
 
 EOT;
 		return $src;

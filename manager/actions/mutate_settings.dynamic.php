@@ -780,6 +780,27 @@ $dir->close();
 </td>
 </tr>
 <tr>
+<th><?php echo $_lang["setting_resource_tree_node_name"] ?></th>
+<td>
+	<select name="resource_tree_node_name" size="1" class="inputBox">
+<?php
+	$tpl = '<option value="[+value+]" [+selected+]>[+value+]</option>' . "\n";
+	$option = array('pagetitle','menutitle','alias');
+	$output = array();
+	foreach($option as $v)
+	{
+		$selected = ($v==$resource_tree_node_name) ? 'selected' : '';
+		$s = array('[+value+]','[+selected+]');
+		$r = array($v,$selected);
+		$output[] = str_replace($s,$r,$tpl);
+	}
+	echo join("\n",$output)
+?>
+	</select><br />
+	<?php echo $_lang["setting_resource_tree_node_name_desc"]?>
+</td>
+</tr>
+<tr>
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
