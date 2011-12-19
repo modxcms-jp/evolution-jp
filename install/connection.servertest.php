@@ -20,7 +20,7 @@ else {
     }
     // Mode check
     $mysqlmode = @ mysql_query("SELECT @@session.sql_mode");
-    if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix()){
+    if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix() && !is_iis()){
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         $strictMode = false;
         foreach ($modes as $mode) {
