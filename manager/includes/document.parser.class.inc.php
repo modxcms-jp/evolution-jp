@@ -1064,6 +1064,27 @@ class DocumentParser {
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
 	}
 
+	function set_aliases()
+	{
+		$path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
+		if(file_exists($path_aliases))
+		{
+			$src = file_get_contents($path_aliases);
+			$this->aliases = unserialize($src);
+		}
+		else
+		{
+			$aliases= array ();
+			foreach ($this->aliasListing as $doc)
+			{
+				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
+			}
+			file_put_contents($path_aliases,serialize($aliases));
+			$this->aliases = $aliases;
+		}
+		return $this->aliases;
+	}
+
 	function rewriteUrls($documentSource)
 	{
 		// rewrite the urls
@@ -1084,16 +1105,11 @@ class DocumentParser {
 		
 		if ($this->config['friendly_urls'] == 1)
 		{
-			if(empty($this->aliases))
-			{
-			$aliases= array ();
-			foreach ($this->aliasListing as $doc)
-			{
-				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
-			}
-				$this->aliases = $aliases;
-			}
-			$aliases = $this->aliases;
+			if(!isset($this->aliases) || empty($this->aliases))
+				$aliases = $this->set_aliases();
+			else
+				$aliases = $this->aliases;
+			
 			$use_alias = $this->config['friendly_alias_urls'];
 			$prefix    = $this->config['friendly_url_prefix'];
 			$suffix    = $this->config['friendly_url_suffix'];
