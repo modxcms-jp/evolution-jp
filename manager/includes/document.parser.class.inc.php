@@ -1051,20 +1051,25 @@ class DocumentParser {
 		return $snippetObject;
 	}
 	
-    function makeFriendlyURL($pre, $suff, $path) {
-        $elements = explode('/',$path);
-        $alias    = array_pop($elements);
-        $dir      = implode('/', $elements);
-        unset($elements);
-        if((strpos($alias, '.') !== false) && (isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1)) $suff = ''; // jp-edition only
-        return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
-    }
+	function makeFriendlyURL($pre, $suff, $path) {
+		$elements = explode('/',$path);
+		$alias    = array_pop($elements);
+		$dir      = implode('/', $elements);
+		unset($elements);
+		if((strpos($alias, '.') !== false))
+		{
+			if(isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1) $suff = ''; // jp-edition only
+		}
+		//container_suffix
+		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
+	}
 
-    function rewriteUrls($documentSource) {
-        // rewrite the urls
-			$pieces = preg_split('/(\[~|~\])/',$documentSource);
-			$maxidx = sizeof($pieces);
-			$documentSource = '';
+	function rewriteUrls($documentSource)
+	{
+		// rewrite the urls
+		$pieces = preg_split('/(\[~|~\])/',$documentSource);
+		$maxidx = sizeof($pieces);
+		$documentSource = '';
 		if(empty($this->referenceListing))
 		{
 			$this->referenceListing = array();
@@ -1147,7 +1152,6 @@ class DocumentParser {
     function getDocumentObject($method, $identifier) {
         $tblsc= $this->getFullTableName("site_content");
         $tbldg= $this->getFullTableName("document_groups");
-
         // allow alias to be full path
         if($method == 'alias') {
             $identifier = $this->cleanDocumentIdentifier($identifier);
@@ -1527,8 +1531,13 @@ class DocumentParser {
 			
 			foreach ($documentMap_cache[$id] as $childId)
 			{
-				$pkey = (strlen($this->aliasListing[$childId]['path']) ? "{$this->aliasListing[$childId]['path']}/" : '') . $this->aliasListing[$childId]['alias'];
-				if (!strlen($pkey)) $pkey = "{$childId}";
+				$pkey = $this->aliasListing[$childId]['alias'];
+				if(strlen($this->aliasListing[$childId]['path']))
+				{
+					$pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
+				}
+				
+				if (!strlen($pkey)) $pkey = $childId;
 				$children[$pkey] = $childId;
 				
 				if ($depth)
