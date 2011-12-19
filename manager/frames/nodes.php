@@ -136,15 +136,12 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			elseif($modx->config['resource_tree_node_name']==='alias') 
 			{
 				$nodetitle = $alias ? $alias : $id;
-				if($isfolder==0)
-				{
-					if((strpos($alias, '.') === false)
-					    || (isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']!=1))
-					{ // jp-edition only
-						$nodetitle .= $modx->config['friendly_url_suffix'];
-					}
-					$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
+				if((strpos($alias, '.') === false)
+				    || (isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']!=1))
+				{ // jp-edition only
+					$nodetitle .= $modx->config['friendly_url_suffix'];
 				}
+				$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
 			}
 			else                                                       $nodetitle = $pagetitle;
 			
