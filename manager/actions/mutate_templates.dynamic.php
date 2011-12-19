@@ -177,7 +177,8 @@ function deletedocument() {
 		        <?php
 		            include_once "categories.inc.php";
 					$ds = getCategories();
-					if($ds) foreach($ds as $n=>$v){
+					if($ds) foreach($ds as $n=>$v)
+					{
 						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
 					}
 				?>
@@ -203,28 +204,31 @@ function deletedocument() {
 	<input type="submit" name="save" style="display:none">
 
 <?php if ($_REQUEST['a'] == '16') {
-$sql = "SELECT tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'".$_lang['no_category']."',cat.category) as category
-	FROM ".$modx->getFullTableName('site_tmplvar_templates')." tr
-	INNER JOIN ".$modx->getFullTableName('site_tmplvars')." tv ON tv.id = tr.tmplvarid
-	LEFT JOIN ".$modx->getFullTableName('categories')." cat ON tv.category = cat.id
-    WHERE tr.templateid='{$id}' ORDER BY tr.rank, tv.rank, tv.id";
-
-
-$rs = $modx->db->query($sql);
-$limit = $modx->db->getRecordCount($rs);
+$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
+$tbl_categories             = $modx->getFullTableName('categories');
+$field = "tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category";
+$from  = "{$tbl_site_tmplvar_templates} tr";
+$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tr.tmplvarid";
+$from .= " LEFT JOIN {$tbl_categories} cat ON tv.category = cat.id";
+$where = "tr.templateid='{$id}'";
+$orderby = 'tr.rank, tv.rank, tv.id';
+$rs = $modx->db->select($field,$from,$where,$orderby);
+$total = $modx->db->getRecordCount($rs);
 ?>
 	</div>
 	<div class="tab-page" id="tabAssignedTVs">
     	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
     	<ul style="margin-bottom:15px;"><li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li></ul>
-    	<p><?php if ($limit > 0) echo $_lang['template_tv_msg']; ?></p>
-    	<?php if($modx->hasPermission('save_template') && $limit > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
+    	<p><?php if ($total > 0) echo $_lang['template_tv_msg']; ?></p>
+    	<?php if($modx->hasPermission('save_template') && $total > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
 <?php
 $tvList = '';
 
-if($limit>0) {
-    for ($i=0;$i<$limit;$i++) {
+if($total>0) {
+    for ($i=0;$i<$total;$i++)
+    {
         $row = $modx->db->getRow($rs);
         if ($i == 0 ) $tvList .= '<ul>';
         $tvList .= '<li><strong><a href="index.php?id=' . $row['id'] . '&amp;a=301">'.$row['name'].'</a></strong> ('.$row['category'].')</li>';
