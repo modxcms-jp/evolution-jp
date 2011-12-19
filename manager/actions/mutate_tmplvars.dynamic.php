@@ -9,8 +9,6 @@ if(!$modx->hasPermission('new_template') && $_REQUEST['a']=='300') {
     $e->dumpError();
 }
 
-
-
 if(isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 } else {
@@ -243,13 +241,14 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=302" enctype="multipart/form-data">
+<form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="id" value="<?php echo $content['id'];?>">
+<input type="hidden" name="a" value="302">
 <input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
 <input type="hidden" name="params" value="<?php echo htmlspecialchars($content['display_params']);?>">
 
