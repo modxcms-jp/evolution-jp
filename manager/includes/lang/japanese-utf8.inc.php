@@ -375,7 +375,7 @@ $_lang["help_title"] = 'サポート';
 $_lang["hide_tree"] = 'リソースツリーを非表示';
 $_lang["home"] = 'ダッシュボード';
 $_lang["htmlsnippet_desc"] = 'チャンクの説明';
-$_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャンクの管理</h3>編集したいチャンクを選択してください。チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。 <strong>{{チャンク名}}</strong> と記述するだけで、リソースやテンプレートから手軽に呼び出すことができます。単純な仕組みですが、使い慣れればデザイナーには手放せないものになるでしょう。詳しくは<a href="index.php?a=9">ヘルプ</a>を参照してください。';
+$_lang["htmlsnippet_management_msg"] = '<h3 style="font-weight:bold;">チャンクの管理</h3>チャンクは、パーツ感覚で利用できる「生の」HTMLコードです。 <strong>{{チャンク名}}</strong> と記述するだけで、リソースやテンプレートから手軽に呼び出すことができます。単純な仕組みですが、使い慣れればデザイナーには手放せないものになるでしょう。詳しくは<a href="index.php?a=9">ヘルプ</a>を参照してください。';
 $_lang["htmlsnippet_msg"] = '<p>チャンク名には日本語を用いることができます(チャンクの使い方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。</p>';
 $_lang["htmlsnippet_name"] = 'チャンク名';
 $_lang["htmlsnippet_title"] = 'チャンクの作成/編集';
