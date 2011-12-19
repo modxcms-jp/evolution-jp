@@ -7,7 +7,18 @@ class synccache {
 	var $deletedfiles = array();
 	var $aliases = array();
 	var $parents = array();
+	var $target;
 
+	function synccache()
+	{
+		if(empty($this->target)) $this->target = 'pagecache,sitecache';
+	}
+	
+	function setTarget($target)
+	{
+		$this->target = $target;
+	}
+	
 	function setCachepath($path) {
 		$this->cachePath = rtrim($path,'/') . '/';
 	}
@@ -68,8 +79,8 @@ class synccache {
 			exit;
 		}
 		
-		$result = $this->emptyPageCache();
-		$this->buildCache($modx);
+		if(strpos($this->target,'pagecache')!==false) $result = $this->emptyPageCache();
+		if(strpos($this->target,'sitecache')!==false) $this->buildCache($modx);
 		$this->publish_time_file($modx);
 		if($this->showReport==true) $this->showReport($result);
 	}

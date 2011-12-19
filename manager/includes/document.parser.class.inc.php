@@ -1856,11 +1856,13 @@ class DocumentParser {
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
     		$showReport = ($params['showReport']) ? $params['showReport'] : false;
+    		$target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
     		
 			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
 			$sync = new synccache();
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$sync->setReport($showReport);
+			$sync->setTarget($target);
 			$sync->emptyCache(); // first empty the cache
 			return true;
 		}
