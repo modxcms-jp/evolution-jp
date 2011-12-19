@@ -254,6 +254,9 @@ tbody, thead, tr {
 form label {
 	cursor: pointer;
 }
+form label input[type="radio"] {
+margin:0;
+}
 fieldset {
 	border: none;
 }
