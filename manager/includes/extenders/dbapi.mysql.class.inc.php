@@ -90,14 +90,13 @@ class DBAPI {
       $safe_count = 0;
       while(!$this->conn && $safe_count<3)
       {
-      
           if($persist!=0) $this->conn = mysql_pconnect($host, $uid, $pwd);
           else            $this->conn = mysql_connect($host, $uid, $pwd, true);
           
           if(!$this->conn)
           {
-              sleep(1);
               $modx->logEvent(0, 2,'Connect Error','DB');
+              sleep(1);
               $safe_count++;
           }
       }
