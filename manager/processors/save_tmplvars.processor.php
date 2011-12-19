@@ -17,19 +17,29 @@ $display = $modx->db->escape($_POST['display']);
 $params = $modx->db->escape($_POST['params']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
+$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+
 //Kyle Jaebker - added category support
-if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $categoryid = $modx->db->escape($_POST['categoryid']);
-} elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
-    $categoryid = 0;
-} else {
-    include_once "categories.inc.php";
-    $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $categoryid = $catCheck;
-    } else {
-        $categoryid = newCategory($_POST['newcategory']);
-    }
+if(empty($_POST['newcategory']) && $_POST['categoryid'] > 0)
+{
+	$categoryid = $modx->db->escape($_POST['categoryid']);
+}
+elseif(empty($_POST['newcategory']) && $_POST['categoryid'] <= 0)
+{
+	$categoryid = 0;
+}
+else
+{
+	include_once "categories.inc.php";
+	$catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
+	if ($catCheck)
+	{
+		$categoryid = $catCheck;
+	}
+	else
+	{
+		$categoryid = newCategory($_POST['newcategory']);
+	}
 }
 
 if($caption =='')
@@ -74,20 +84,35 @@ switch ($_POST['mode']) {
 			$content['category'] = $_POST['categoryid'];
 
 			include 'header.inc.php';
-			include(dirname(dirname(__FILE__)).'/actions/mutate_tmplvars.dynamic.php');
+			include(MODX_BASE_PATH . 'manager/actions/mutate_tmplvars.dynamic.php');
 			include 'footer.inc.php';
-			
 			exit;
 		}
 
 		// Add new TV
-		$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvars` (name, description, caption, type, elements, default_text, display,display_params, rank, locked, category) VALUES('".$name."', '".$description."', '".$caption."', '".$type."', '".$elements."', '".$default_text."', '".$display."', '".$params."', '".$rank."', '".$locked."', ".$categoryid.");";
-		$rs = $modx->db->query($sql);
-		if(!$rs){
+		$field = array();
+		$field['name'] = $name;
+		$field['description'] = $description;
+		$field['caption'] = $caption;
+		$field['type'] = $type;
+		$field['elements'] = $elements;
+		$field['default_text'] = $default_text;
+		$field['display'] = $display;
+		$field['display_params'] = $params;
+		$field['rank'] = $rank;
+		$field['locked'] = $locked;
+		$field['category'] = $categoryid;
+		$rs = $modx->db->insert($field,$tbl_site_tmplvars);
+		if(!$rs)
+		{
 			echo "\$rs not set! New variable not saved!";
-		} else {	
+		}
+		else
+		{
 			// get the id
-			if(!$newid=mysql_insert_id()) {
+			$newid = $modx->db->getInsertId();
+			if(!$newid)
+			{
 				echo "Couldn't get last insert key!";
 				exit;
 			}
@@ -102,19 +127,21 @@ switch ($_POST['mode']) {
 										"mode"	=> "new",
 										"id"	=> $newid
 								));
-								
+
 			// empty cache
 			$modx->clearCache(); // first empty the cache
 			// finished emptying cache - redirect
-			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "301&id=$newid":"300";
-				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
-			} else {
-				$header="Location: index.php?a=76&r=2";
-				header($header);
+			if($_POST['stay']!='')
+			{
+				$a = ($_POST['stay']!='0') ? "301&id={$newid}":"300";
+				$header="Location: index.php?a={$a}&r=2&stay={$_POST['stay']}";
 			}
-		}		
+			else
+			{
+				$header="Location: index.php?a=76&r=2";
+			}
+			header($header);
+		}
         break;
     case '301':
 		// invoke OnBeforeTVFormSave event
@@ -125,48 +152,48 @@ switch ($_POST['mode']) {
 							));
 
     	// update TV
-		$sql = "UPDATE $dbase.`".$table_prefix."site_tmplvars` SET ";
-        $sql .= "name='".$name."', ";
-		$sql .= "description='".$description."', ";
-        $sql .= "caption='".$caption."', ";
-        $sql .= "type='".$type."', ";
-        $sql .= "elements='".$elements."', ";
-        $sql .= "default_text='".$default_text."', ";
-        $sql .= "display='".$display."', "; 
-        $sql .= "display_params='".$params."', ";         
-        $sql .= "rank='".$rank."', ";
-        $sql .= "locked='".$locked."', ";
-        $sql .= "category=".$categoryid;
-        $sql .= " WHERE id='".$id."';";
-		$rs = $modx->db->query($sql);
-		if(!$rs){
+		$field = array();
+		$field['name']           = $name;
+		$field['description']    = $description;
+		$field['caption']        = $caption;
+		$field['type']           = $type;
+		$field['elements']       = $elements;
+		$field['default_text']   = $default_text;
+		$field['display']        = $display;
+		$field['display_params'] = $params;
+		$field['rank']           = $rank;
+		$field['locked']         = $locked;
+		$field['category']       = $categoryid;
+		$rs = $modx->db->update($field,$tbl_site_tmplvars,"id='{$id}'");
+		if(!$rs)
+		{
 			echo "\$rs not set! Edited variable not saved!";
-		} else {		
-
+		}
+		else
+		{
 			// save access permissions
 			saveTemplateAccess();
 			saveDocumentAccessPermissons();
-
 			// invoke OnTVFormSave event
 			$modx->invokeEvent("OnTVFormSave",
 									array(
 										"mode"	=> "upd",
 										"id"	=> $id
 								));
-
 			// empty cache
 			$modx->clearCache(); // first empty the cache
 			// finished emptying cache - redirect
-			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "301&id=$id":"300";
-				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
-			} else {
-				$header="Location: index.php?a=76&r=2";
-				header($header);
+			if($_POST['stay']!='')
+			{
+				$a = ($_POST['stay']!='0') ? "301&id={$id}":"300";
+				$header="Location: index.php?a={$a}&r=2&stay={$_POST['stay']}";
 			}
-		}				
-		
+			else
+			{
+				$header = 'Location: index.php?a=76&r=2';
+			}
+			header($header);
+		}
         break;
     default:
 	?>
@@ -174,54 +201,64 @@ switch ($_POST['mode']) {
 	<?php
 }
 
-function saveTemplateAccess() {	
-	global $dbase,$table_prefix;
+function saveTemplateAccess()
+{
 	global $id,$newid;
 	global $modx;
 
 	if($newid) $id = $newid;
 	$templates =  $_POST['template']; // get muli-templates based on S.BRENNAN mod
-		
+
 	// update template selections
-	$tbl = "$dbase.`".$table_prefix."site_tmplvar_templates`";
-	
+	$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+
     $getRankArray = array();
 
-    $getRank = $modx->db->select("templateid, rank", $tbl, "tmplvarid=$id");
+    $getRank = $modx->db->select('templateid,rank', $tbl_site_tmplvar_templates, "tmplvarid={$id}");
 
-    while( $row = $modx->db->getRow( $getRank ) ) {
-    $getRankArray[$row['templateid']] = $row['rank'];
-    }
-   
-	
-	mysql_query("DELETE FROM $tbl WHERE tmplvarid = $id");
-	for($i=0;$i<count($templates);$i++){
-	    $setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
-		mysql_query("INSERT INTO $tbl (tmplvarid,templateid,rank) VALUES($id,".$templates[$i].",$setRank);");
-	}	
+	while($row = $modx->db->getRow($getRank))
+	{
+		$getRankArray[$row['templateid']] = $row['rank'];
+	}
+	$modx->db->delete($tbl_site_tmplvar_templates,"tmplvarid={$id}");
+	for($i=0;$i<count($templates);$i++)
+	{
+		$setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
+		$field = array();
+		$field['tmplvarid']  = $id;
+		$field['templateid'] = $templates[$i];
+		$field['rank']       = $setRank;
+		$modx->db->insert($field,$tbl_site_tmplvar_templates);
+	}
 }
 
 function saveDocumentAccessPermissons(){
-	global $id,$newid;
-	global $dbase,$table_prefix,$use_udperms;
+	global $modx,$id,$newid,$use_udperms;
+	
+	$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
 
 	if($newid) $id = $newid;
 	$docgroups = $_POST['docgroups'];
 
 	// check for permission update access
-	if($use_udperms==1) {
+	if($use_udperms==1)
+	{
 		// delete old permissions on the tv
-		$sql = "DELETE FROM $dbase.`".$table_prefix."site_tmplvar_access` WHERE tmplvarid=$id;";
-		$rs = mysql_query($sql);
-		if(!$rs){
+		$rs = $modx->db->delete($tbl_site_tmplvar_access,"tmplvarid={$id}");
+		if(!$rs)
+		{
 			echo "An error occurred while attempting to delete previous template variable access permission entries.";
 			exit;
 		}
-		if(is_array($docgroups)) {
-			foreach ($docgroups as $dgkey=>$value) {
-				$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvar_access` (tmplvarid,documentgroup) values($id,".stripslashes($value).")";
-				$rs = mysql_query($sql);
-				if(!$rs){
+		if(is_array($docgroups))
+		{
+			foreach ($docgroups as $dgkey=>$value)
+			{
+				$field['tmplvarid'] = $id;
+				$field['documentgroup'] = stripslashes($value);
+				$rs = $modx->db->insert($field,$tbl_site_tmplvar_access);
+				if(!$rs)
+				{
 					echo "An error occured while attempting to save template variable acess permissions.";
 					exit;
 				}
