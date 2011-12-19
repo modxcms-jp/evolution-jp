@@ -26,10 +26,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	var buildText;
 
 	// Create the AJAX mail update object before requesting it
-	var updateMailerAjx = new Ajax('index.php', {method:'post', postBody:'updateMsgCount=true', onComplete:showResponse});
-	function updateMail(now) {
-		try {
-			// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
+	var updateMailerAjx = new Ajax('index.php',
+	{
+		method:'post',
+		postBody:'updateMsgCount=true',
+		onComplete:showResponse
+	});
+	function updateMail(now)
+	{
+		try
+		{
+		// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
 			if (now)
 				updateMailerAjx.request();
 			return false;

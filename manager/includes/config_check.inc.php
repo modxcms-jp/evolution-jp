@@ -49,9 +49,10 @@ if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx-
 <script type="text/javascript">
 function deleteTemplateSwitcher(){
     if(confirm('{$_lang["confirm_delete_plugin"]}')) {
-	var myAjax = new Ajax('index.php?a=118', {
+	var myAjax = new Ajax('index.php?a=118',
+	{
 		method: 'post',
-            data: 'action=updateplugin&key=_delete_&lang=$tplName'
+        data: 'action=updateplugin&key=_delete_&lang=$tplName'
 	});
 	myAjax.addEvent('onComplete', function(resp){
             fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();

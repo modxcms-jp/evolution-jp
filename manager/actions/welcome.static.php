@@ -11,11 +11,13 @@ if($modx->hasPermission('settings') && (!isset($settings_version) || $settings_v
 $script = <<<JS
         <script type="text/javascript">
         function hideConfigCheckWarning(key){
-            var myAjax = new Ajax('index.php?a=118', {
+            var myAjax = new Ajax('index.php?a=118',
+            {
                 method: 'post',
                 data: 'action=setsetting&key=_hide_configcheck_' + key + '&value=1'
             });
-            myAjax.addEvent('onComplete', function(resp){
+            myAjax.addEvent('onComplete', function(resp)
+            {
                 fieldset = $(key + '_warning_wrapper').getParent().getParent();
                 var sl = new Fx.Slide(fieldset);
                 sl.slideOut();
