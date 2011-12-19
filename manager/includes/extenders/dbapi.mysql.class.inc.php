@@ -86,7 +86,6 @@ class DBAPI {
       $charset = $this->config['charset'];
       $connection_method = $this->config['connection_method'];
       $tstart = $modx->getMicroTime();
-      if(isset($_SESSION['mgrValidated'])) $persist = '1';
       $safe_count = 0;
       while(!$this->conn && $safe_count<3)
       {
