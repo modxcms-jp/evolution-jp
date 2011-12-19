@@ -1,14 +1,12 @@
-<?php 
+<?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('save_template')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
-?>
-<?php
 
 $id = intval($_POST['id']);
-$name = $modx->db->escape(trim($_POST['name']));				
+$name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $caption = $modx->db->escape($_POST['caption']);
 $type = $modx->db->escape($_POST['type']);
@@ -34,7 +32,8 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
     }
 }
 
-if($caption =="") {
+if($caption =='')
+{
 	$caption  = $name? $name: "Untitled variable";
 }
 
@@ -46,7 +45,7 @@ switch ($_POST['mode']) {
 								array(
 									"mode"	=> "new",
 									"id"	=> $id
-							));	      	
+							));
 
 		// disallow duplicate names for new tvs
 		$sql = "SELECT COUNT(id) FROM {$dbase}.`{$table_prefix}site_tmplvars` WHERE name = '{$name}'";
@@ -91,10 +90,10 @@ switch ($_POST['mode']) {
 			if(!$newid=mysql_insert_id()) {
 				echo "Couldn't get last insert key!";
 				exit;
-			}			
-			
+			}
+
 			// save access permissions
-			saveTemplateAccess();			
+			saveTemplateAccess();
 			saveDocumentAccessPermissons();
 
 			// invoke OnTVFormSave event
@@ -102,14 +101,10 @@ switch ($_POST['mode']) {
 									array(
 										"mode"	=> "new",
 										"id"	=> $newid
-								));	    	
+								));
 								
 			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache		
+			$modx->clearCache(); // first empty the cache
 			// finished emptying cache - redirect
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "301&id=$newid":"300";
@@ -121,13 +116,13 @@ switch ($_POST['mode']) {
 			}
 		}		
         break;
-    case '301':	 	
+    case '301':
 		// invoke OnBeforeTVFormSave event
 		$modx->invokeEvent("OnBeforeTVFormSave",
 								array(
 									"mode"	=> "upd",
 									"id"	=> $id
-							));	 
+							));
 
     	// update TV
 		$sql = "UPDATE $dbase.`".$table_prefix."site_tmplvars` SET ";
@@ -149,7 +144,7 @@ switch ($_POST['mode']) {
 		} else {		
 
 			// save access permissions
-			saveTemplateAccess();			
+			saveTemplateAccess();
 			saveDocumentAccessPermissons();
 
 			// invoke OnTVFormSave event
@@ -157,15 +152,11 @@ switch ($_POST['mode']) {
 									array(
 										"mode"	=> "upd",
 										"id"	=> $id
-								));	 
+								));
 
 			// empty cache
-			include_once "cache_sync.class.processor.php";
-			$sync = new synccache();
-			$sync->setCachepath("../assets/cache/");
-			$sync->setReport(false);
-			$sync->emptyCache(); // first empty the cache		
-			// finished emptying cache - redirect	
+			$modx->clearCache(); // first empty the cache
+			// finished emptying cache - redirect
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "301&id=$id":"300";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
@@ -225,7 +216,7 @@ function saveDocumentAccessPermissons(){
 		if(!$rs){
 			echo "An error occurred while attempting to delete previous template variable access permission entries.";
 			exit;
-		}	
+		}
 		if(is_array($docgroups)) {
 			foreach ($docgroups as $dgkey=>$value) {
 				$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvar_access` (tmplvarid,documentgroup) values($id,".stripslashes($value).")";
@@ -238,4 +229,3 @@ function saveDocumentAccessPermissons(){
 		}
 	}
 }
-?>
