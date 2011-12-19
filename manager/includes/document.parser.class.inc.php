@@ -2096,7 +2096,7 @@ class DocumentParser {
     
 	function parsePlaceholder($src, $ph, $left= "[+", $right= "+]",$mode='ph')
 	{ // jp-edition only
-		return $this->parseChunk($src, $ph, $left, $right, $mode='chunk');
+		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
     function getUserData() {
