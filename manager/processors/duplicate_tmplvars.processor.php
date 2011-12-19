@@ -11,7 +11,7 @@ $id=$_GET['id'];
 
 // duplicate TV
 $sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvars` (type, name, caption, description, default_text, elements, rank, display, display_params, category)
-		SELECT type, name, CONCAT('Duplicate of ',caption) AS 'caption', description, default_text, elements, rank, display, display_params, category
+		SELECT type, CONCAT('Duplicate of ',name) AS 'name', CONCAT('Duplicate of ',caption) AS 'caption', description, default_text, elements, rank, display, display_params, category
 		FROM $dbase.`".$table_prefix."site_tmplvars` WHERE id=$id;";
 $rs = mysql_query($sql);
 
