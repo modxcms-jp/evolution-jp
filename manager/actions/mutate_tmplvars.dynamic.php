@@ -53,12 +53,16 @@ if(isset($_GET['id'])) {
         header("Location: /index.php?id=".$site_start);
     }
     $content = mysql_fetch_assoc($rs);
+	$formRestored = $modx->manager->loadFormValues();
+	if($formRestored) $content = array_merge($content, $_POST);
     $_SESSION['itemname']=$content['caption'];
     if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
         $e->setError(3);
         $e->dumpError();
     }
 } else {
+	$formRestored = $modx->manager->loadFormValues();
+	if($formRestored) $content = $_POST;
     $_SESSION['itemname']="New Template Variable";
 }
 
@@ -267,7 +271,8 @@ function decode(s){
     			</select>		
     		  </li>
     		  <?php
-    			if ($_GET['a'] == '301') { ?>
+    			if ($_GET['a'] == '301') {
+    			?>
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } else { ?>
