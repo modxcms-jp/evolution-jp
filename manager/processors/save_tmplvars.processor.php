@@ -57,15 +57,9 @@ switch ($_POST['mode']) {
 									"id"	=> $id
 							));
 
-		// disallow duplicate names for new tvs
-		$sql = "SELECT COUNT(id) FROM {$dbase}.`{$table_prefix}site_tmplvars` WHERE name = '{$name}'";
-		$rs = $modx->db->query($sql);
-		$count = $modx->db->getValue($rs);
-        $nameerror = false;
-		if($count > 0) {
-            $nameerror = true;
-			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name));
-        }
+		$nameerror = check_exist_name($name);
+		$nameerror = check_reserved_names($name);
+		
         // disallow reserved names
         if(in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu'))) {
             $nameerror = true;
@@ -265,4 +259,20 @@ function saveDocumentAccessPermissons(){
 			}
 		}
 	}
+
+function check_exist_name($name)
+{	// disallow duplicate names for new tvs
+	global $modx,$_lang;
+	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+	
+	$rs = $modx->db->select('COUNT(id)',$tbl_site_tmplvars,"name='{$name}'");
+	$count = $modx->db->getValue($rs);
+	if($count > 0)
+	{
+		$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name));
+		return true;
+	}
+	else return false;
+}
+
 }
