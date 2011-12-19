@@ -499,7 +499,7 @@ switch ($actionToTake)
 		}
 
 		// set publishedon and publishedby
-		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby', $tbl_site_content, "id='{$id}'"));
+		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby,alias', $tbl_site_content, "id='{$id}'"));
 
 		// keep original publish state, if change is not permitted
 		if (!$modx->hasPermission('publish_document'))
@@ -737,9 +737,11 @@ switch ($actionToTake)
 		include "{$base_path}manager/includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
 
+		if($was['alias']==$fields['alias']) $clearcache['target'] = 'pagecache';
+		else                                $clearcache['target'] = 'pagecache,sitecache';
 		if ($syncsite == 1)
 		{
-			$modx->clearCache();
+			$modx->clearCache($clearcache);
 		}
 		
 		if ($_POST['refresh_preview'] == '1')
