@@ -207,44 +207,14 @@ class DocumentParser {
         exit();
     }
 
-    // function to connect to the database
-    // - deprecated use $modx->db->connect()
-    function dbConnect() {
-        $this->db->connect();
-        $this->rs= $this->db->conn; // for compatibility
-    }
-
-    // function to query the database
-    // - deprecated use $modx->db->query()
-    function dbQuery($sql) {
-        return $this->db->query($sql);
-    }
-
-    // function to count the number of rows in a record set
-    function recordCount($rs) {
-        return $this->db->getRecordCount($rs);
-    }
-
-    // - deprecated, use $modx->db->getRow()
-    function fetchRow($rs, $mode= 'assoc') {
-        return $this->db->getRow($rs, $mode);
-    }
-
-    // - deprecated, use $modx->db->getAffectedRows()
-    function affectedRows($rs) {
-        return $this->db->getAffectedRows($rs);
-    }
-
-    // - deprecated, use $modx->db->getInsertId()
-    function insertId($rs) {
-        return $this->db->getInsertId($rs);
-    }
-
-    // function to close a database connection
-    // - deprecated, use $modx->db->disconnect()
-    function dbClose() {
-        $this->db->disconnect();
-    }
+	// - deprecated db functions
+	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
+	function dbQuery($sql)               {return $this->db->query($sql);}
+	function recordCount($rs)            {return $this->db->getRecordCount($rs);}
+	function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
+	function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
+	function insertId($rs)               {return $this->db->getInsertId($rs);}
+	function dbClose()                   {$this->db->disconnect();}
 
     function getSettings() {
         if (!is_array($this->config) || empty ($this->config)) {
