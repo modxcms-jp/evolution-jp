@@ -46,17 +46,15 @@ if($caption =='')
 {
 	$caption  = $name? $name: "Untitled variable";
 }
-
-switch ($_POST['mode']) {
+switch ($_POST['mode'])
+{
     case '300':
-
 		// invoke OnBeforeTVFormSave event
 		$modx->invokeEvent("OnBeforeTVFormSave",
 								array(
 									"mode"	=> "new",
 									"id"	=> $id
 							));
-
 		$nameerror = check_exist_name($name);
 		$nameerror = check_reserved_names($name);
 		
@@ -221,7 +219,8 @@ function saveTemplateAccess()
 	}
 }
 
-function saveDocumentAccessPermissons(){
+function saveDocumentAccessPermissons()
+{
 	global $modx,$id,$newid,$use_udperms;
 	
 	$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
