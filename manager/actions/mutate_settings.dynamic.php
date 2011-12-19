@@ -55,6 +55,14 @@ while ($row = $modx->db->getRow($rs))
 }
 extract($settings, EXTR_OVERWRITE);
 
+if((!isset($settings_version) || $settings_version!=$modx_version) && file_exists(MODX_BASE_PATH . 'install'))
+{
+	include_once "header.inc.php";
+	echo 'アップデータが実行されていません。<br /><a href="" onclick="window.top.location.href=\'../install/\';">[実行する]</a>';
+	include_once "footer.inc.php";
+	exit;
+}
+
 $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
 
 // load languages and keys
@@ -557,7 +565,7 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('suffix_mode','0', $suffix_mode=='0'));?><br />
-		<?php echo 'エイリアス名に「.」(ドット)を含む時にプレフィックスの追加を省略できます。';?></td>
+		<?php echo 'エイリアス名に「 . 」(ドット)を含む時にプレフィックスの追加を省略できます。';?></td>
 </tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
