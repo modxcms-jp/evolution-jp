@@ -60,13 +60,8 @@ switch ($_POST['mode']) {
 		$nameerror = check_exist_name($name);
 		$nameerror = check_reserved_names($name);
 		
-        // disallow reserved names
-        if(in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu'))) {
-            $nameerror = true;
-            $_POST['name'] = '';
-			$modx->event->alert(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name));
-        }
-        if($nameerror) {
+		if($nameerror)
+		{
 			// prepare a few variables prior to redisplaying form...
 			$content = array();
 			$_REQUEST['id'] = 0;
@@ -259,6 +254,7 @@ function saveDocumentAccessPermissons(){
 			}
 		}
 	}
+}
 
 function check_exist_name($name)
 {	// disallow duplicate names for new tvs
@@ -275,4 +271,16 @@ function check_exist_name($name)
 	else return false;
 }
 
+function check_reserved_names($name)
+{	// disallow reserved names
+	global $modx,$_lang;
+	
+	$reserved_names = explode(',', 'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu');
+	if(in_array($name,$reserved_names))
+	{
+		$_POST['name'] = '';
+		$modx->event->alert(sprintf($_lang['reserved_name_warning'], $name));
+		return true;
+	}
+	else return false;
 }
