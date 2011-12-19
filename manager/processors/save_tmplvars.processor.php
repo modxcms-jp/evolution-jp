@@ -55,27 +55,27 @@ switch ($_POST['mode'])
 									"mode"	=> "new",
 									"id"	=> $id
 							));
-		$nameerror = check_exist_name($name);
-		$nameerror = check_reserved_names($name);
-		
-		if($nameerror)
+		if(check_exist_name($name)!==false)
 		{
-			// prepare a few variables prior to redisplaying form...
-			$content = array();
-			$_REQUEST['id'] = 0;
-			$content['id'] = 0;
-			$_GET['a'] = '300';
-			$_GET['stay'] = $_POST['stay'];
-			$content = array_merge($content, $_POST);
-			$content['locked'] = $content['locked'] == 'on' ? 1: 0;
-			$content['category'] = $_POST['categoryid'];
-
-			include 'header.inc.php';
-			include(MODX_BASE_PATH . 'manager/actions/mutate_tmplvars.dynamic.php');
-			include 'footer.inc.php';
+			$url = "index.php?a=300";
+			$msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
+			$modx->manager->saveFormValues(300);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
 			exit;
 		}
-
+		if(check_reserved_names($name)!==false)
+		{
+			$url = "index.php?a=300";
+			$msg = sprintf($_lang['reserved_name_warning'], $name);
+			$modx->manager->saveFormValues(300);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
+			exit;
+		}
+		
 		// Add new TV
 		$field = array();
 		$field['name'] = $name;
@@ -137,7 +137,26 @@ switch ($_POST['mode'])
 									"mode"	=> "upd",
 									"id"	=> $id
 							));
-
+		if(check_exist_name($name)!==false)
+		{
+			$url = "index.php?id={$id}&a=301";
+			$msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
+			$modx->manager->saveFormValues(301);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
+			exit;
+		}
+		if(check_reserved_names($name)!==false)
+		{
+			$url = "index.php?id={$id}&a=301";
+			$msg = sprintf($_lang['reserved_name_warning'], $name);
+			$modx->manager->saveFormValues(301);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
+			exit;
+		}
     	// update TV
 		$field = array();
 		$field['name']           = $name;
@@ -259,15 +278,12 @@ function check_exist_name($name)
 {	// disallow duplicate names for new tvs
 	global $modx,$_lang;
 	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-	
-	$rs = $modx->db->select('COUNT(id)',$tbl_site_tmplvars,"name='{$name}'");
+	$where = "name='{$name}'";
+	if($_POST['mode']==301) {$where = $where . " AND id!={$_POST['id']}";}
+	$rs = $modx->db->select('COUNT(id)',$tbl_site_tmplvars,$where);
 	$count = $modx->db->getValue($rs);
-	if($count > 0)
-	{
-		$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name));
-		return true;
-	}
-	else return false;
+	if($count > 0) return true;
+	else           return false;
 }
 
 function check_reserved_names($name)
@@ -278,7 +294,6 @@ function check_reserved_names($name)
 	if(in_array($name,$reserved_names))
 	{
 		$_POST['name'] = '';
-		$modx->event->alert(sprintf($_lang['reserved_name_warning'], $name));
 		return true;
 	}
 	else return false;
