@@ -86,11 +86,11 @@ elseif ($mode=='snapshot')
 		exit;
 	}
 	$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$tables = array();
-	if(0<mysql_num_rows($rs))
+	if(0<$modx->db->getRecordCount($rs))
 	{
-		while($db_status = mysql_fetch_assoc($rs))
+		while($db_status = $modx->db->getRow($rs))
 		{
 			$tables[] = $db_status['Name'];
 		}
@@ -202,10 +202,10 @@ else $ph['result_msg'] = '';
 		<tbody>
 			<?php
 $sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 for ($i = 0; $i < $limit; $i++) {
-	$db_status = mysql_fetch_assoc($rs);
+	$db_status = $modx->db->getRow($rs);
 	$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
 	if (isset($tables))
@@ -421,7 +421,7 @@ class Mysqldumper {
 			$output .= "{$createtable[$tblval][0]};{$lf}";
 			$output .= $lf;
 			$output .= "#{$lf}# Dumping data for table `$tblval`{$lf}#{$lf}";
-			$result = $modx->db->query("SELECT * FROM `{$tblval}`");
+			$result = $modx->db->select('*',$tblval);
 			$rows = $this->loadObjectList('', $result);
 			foreach($rows as $row) {
 				$insertdump = $lf;
