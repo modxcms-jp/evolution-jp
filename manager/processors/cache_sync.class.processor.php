@@ -67,6 +67,15 @@ class synccache {
 			echo "Cache path not set.";
 			exit;
 		}
+		
+		$result = $this->emptyPageCache();
+		$this->buildCache($modx);
+		$this->publish_time_file($modx);
+		if($this->showReport==true) $this->showReport($result);
+	}
+	
+	function emptyPageCache()
+	{
 		$filesincache = 0;
 		$deletedfilesincache = 0;
 		$pattern = realpath($this->cachePath).'/*.pageCache.php';
@@ -87,14 +96,12 @@ class synccache {
 				}
 			}
 		}
-		
-		$this->buildCache($modx);
-		$this->publish_time_file($modx);
-		if($this->showReport==true) $this->showReport($filesincache,$deletedfilesincache,$deletedfiles);
+		return array($filesincache,$deletedfilesincache,$deletedfiles);
 	}
 
-	function showReport($filesincache,$deletedfilesincache,$deletedfiles)
+	function showReport($info)
 	{
+		list($filesincache,$deletedfilesincache,$deletedfiles) = $info;
 		// finished cache stuff.
 		global $_lang;
 		printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
