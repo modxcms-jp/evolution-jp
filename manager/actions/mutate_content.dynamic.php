@@ -1037,7 +1037,6 @@ if ($use_udperms == 1)
 	}
 	// Query the permissions and names from above
 	$rs = $modx->db->select($field,$from,'','name');
-	$limit = $modx->db->getRecordCount($rs);
 
 	$isManager = $modx->hasPermission('access_permissions');
 	$isWeb     = $modx->hasPermission('web_access_permissions');
@@ -1057,10 +1056,8 @@ if ($use_udperms == 1)
 		$groupsarray = array_merge($groupsarray, $_POST['docgroups']);
 
 	// Loop through the permissions list
-	for ($i = 0; $i < $limit; $i++)
+	while($row = $modx->db->getRow($rs))
 	{
-		$row = $modx->db->getRow($rs);
-
 		// Create an inputValue pair (group ID and group link (if it exists))
 		$inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
 		$inputId    = 'group-'.$row['id'];
