@@ -1169,28 +1169,32 @@ class DocumentParser {
         $tblsc= $this->getFullTableName("site_content");
         $tbldg= $this->getFullTableName("document_groups");
         // allow alias to be full path
-        if($method == 'alias') {
+        if($method == 'alias')
+        {
             $identifier = $this->cleanDocumentIdentifier($identifier);
             $method = $this->documentMethod;
         }
-        if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier])) {
-            $method = 'id';
+        if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier]))
+        {
             $identifier = $this->documentListing[$identifier];
+            $method = 'id';
         }
         // get document groups for current user
         if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
+            $docgrp= implode(',', $docgrp);
         // get document (add so)
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
-         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
+        if($this->isFrontend()) $access= "sc.privateweb=0";
+        else                    $access= "sc.privatemgr=0";
+        if($docgrp) $access .= " OR dg.document_group IN ($docgrp)";
+        $access .= " OR 1='{$_SESSION['mgrRole']}'";
+        
         $sql= "SELECT sc.*
               FROM $tblsc sc
               LEFT JOIN $tbldg dg ON dg.document = sc.id
               WHERE sc." . $method . " = '" . $identifier . "'
               AND ($access) LIMIT 1;";
         $result= $this->db->query($sql);
-        $rowCount= $this->db->getRecordCount($result);
-        if ($rowCount < 1) {
+        if ($this->db->getRecordCount($result) < 1) {
             if ($this->config['unauthorized_page']) {
                 // method may still be alias, while identifier is not full path alias, e.g. id not found above
                 if ($method === 'alias') {
@@ -1199,9 +1203,7 @@ class DocumentParser {
                     $q = "SELECT id FROM $tbldg WHERE document = '{$identifier}' LIMIT 1;";
                 }
                 // check if file is not public
-                $secrs= $this->db->query($q);
-                if ($secrs)
-                    $seclimit= mysql_num_rows($secrs);
+                $seclimit= $this->db->getRecordCount($this->db->query($q));
             }
             if ($seclimit > 0) {
                 // match found but not publicly accessible, send the visitor to the unauthorized_page
@@ -1217,16 +1219,21 @@ class DocumentParser {
         $documentObject= $this->db->getRow($result);
 
         // load TVs and merge with document - Orig by Apodigm - Docvars
-        $sql= "SELECT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
-        $sql .= "FROM " . $this->getFullTableName("site_tmplvars") . " tv ";
-        $sql .= "INNER JOIN " . $this->getFullTableName("site_tmplvar_templates")." tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $sql .= "LEFT JOIN " . $this->getFullTableName("site_tmplvar_contentvalues")." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $documentObject['id'] . "' ";
-        $sql .= "WHERE tvtpl.templateid = '" . $documentObject['template'] . "'";
+        $tbl_site_tmplvars = $this->getFullTableName('site_tmplvars');
+        $tbl_site_tmplvar_templates = $this->getFullTableName('site_tmplvar_templates');
+        $tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
+        
+        $sql= "SELECT tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type ";
+        $sql .= "FROM {$tbl_site_tmplvars} tv ";
+        $sql .= "INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id ";
+        $sql .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$documentObject['id']}' ";
+        $sql .= "WHERE tvtpl.templateid = '{$documentObject['template']}'";
         $rs= $this->db->query($sql);
         $rowCount= $this->db->getRecordCount($rs);
-        if ($rowCount > 0) {
-            for ($i= 0; $i < $rowCount; $i++) {
-                $row= $this->db->getRow($rs);
+        if ($rowCount > 0)
+        {
+            while ($row= $this->db->getRow($rs))
+            {
                 $tmplvars[$row['name']]= array (
                     $row['name'],
                     $row['value'],
