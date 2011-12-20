@@ -881,8 +881,8 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 			</tr>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_richtext']?></span></td>
-				<td><input name="richtextcheck" type="checkbox" class="checkbox" <?php echo checked($content['richtext']==0 && $_REQUEST['a']=='27');?> onclick="changestate(document.mutate.richtext);" />
-				<input type="hidden" name="richtext" value="<?php echo $content['richtext']==0 && $_REQUEST['a']=='27' ? 0 : 1?>" onchange="documentDirty=true;" />
+				<td><input name="richtextcheck" type="checkbox" class="checkbox" <?php echo checked(!isset($content['richtext']) || $content['richtext']!=0 || $_REQUEST['a']!='27');?> onclick="changestate(document.mutate.richtext);" <?php echo ($use_editor!=1) ? 'disabled="disabled"':'';?> />
+				<input type="hidden" name="richtext" value="<?php echo (!isset($content['richtext']) || $content['richtext']!=0 || $_REQUEST['a']!='27') ? 1 : 0?>" onchange="documentDirty=true;" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_richtext_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
 			</tr>			
 			<tr style="height: 24px;">
