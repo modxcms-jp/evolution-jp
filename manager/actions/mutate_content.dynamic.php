@@ -445,11 +445,11 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
           <?php } else { ?>
           <li id="Button3"><a href="#" onclick="undeletedocument();"><img src="<?php echo $_style["icons_undelete_resource"] ?>" alt="icons_undelete_document" /> <?php echo $_lang['undelete_resource']?></a></li>
           <?php } ?>
-		  <?php } ?>	
+		  <?php } ?>
           <li id="Button4"><a href="#" onclick="<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
           	 {
-          	 	if($content['isfolder']!=='1')
+          	 	if($content['isfolder']=='0')
           	 	{
           			echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
           	 	}
@@ -457,6 +457,10 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
           	 	{
           			echo "document.location.href='index.php?a=3&id={$id}&tab=0';";
           	 	}
+          	 }
+          	 elseif($content['isfolder']=='1' && $content['parent']=='0')
+          	 {
+          		echo "document.location.href='index.php?a=3&id={$id}&tab=0';";
           	 }
           	 elseif($_GET['pid'])
           	 {
