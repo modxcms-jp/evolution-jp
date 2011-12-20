@@ -199,8 +199,8 @@ if ($modx->db->getRecordCount($rs) < 1) {
 
 	$field = 'groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name';
 	$from  = "{$tbl_membergroup_names} AS groupnames";
-	$from .= "LEFT JOIN {$tbl_membergroup_access} AS groupacc ON groupacc.membergroup = groupnames.id";
-	$from .= "LEFT JOIN {$tbl_documentgroup_names} AS dgnames ON dgnames.id = groupacc.documentgroup";
+	$from .= " LEFT JOIN {$tbl_membergroup_access} AS groupacc ON groupacc.membergroup = groupnames.id";
+	$from .= " LEFT JOIN {$tbl_documentgroup_names} AS dgnames ON dgnames.id = groupacc.documentgroup";
 	$rs = $modx->db->select($field,$from,'','name');
 	if ($modx->db->getRecordCount($rs) < 1)
 	{
