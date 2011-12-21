@@ -70,10 +70,10 @@ function assign_base_url()
 	{
 		$script_name= $_SERVER['SCRIPT_NAME'];
 	}
-	$conf_dir = str_replace("\\", '/', dirname($script_name));
-	$mgr_pos = strlen($conf_dir) - strpos (strrev($conf_dir), strrev('/manager')) - strlen('/manager');
-	if($mgr_pos!==false) $conf_dir = substr($conf_dir,0,$mgr_pos+1);
-	return rtrim($conf_dir,'/') . '/';
+	if(strpos($script_name,'?')!==false) $script_name = substr($script_name,0,strpos($script_name,'?'));
+	$base_dir = substr($script_name,0,strpos($script_name,'index.php'));
+	if(strpos($base_dir,'/manager/')!==false) $base_dir = substr($script_name,0,strpos($script_name,'manager/'));
+	return rtrim($base_dir,'/') . '/';
 }
 
 function assign_base_path()
