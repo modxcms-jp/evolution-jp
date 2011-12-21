@@ -13,7 +13,7 @@ $theme_path = "media/style/{$manager_theme}";
 
 if(isset($_SESSION['token'])) $token['session'] = strval($_SESSION['token']);
 if(isset($_REQUEST['token'])) $token['request'] = strval($_REQUEST['token']);
-$token = uniqid();
+$token = uniqid('');
 $_SESSION['token'] = $token;
 // settings
 $excludes = array('.', '..', 'cgi-bin', '.svn');
