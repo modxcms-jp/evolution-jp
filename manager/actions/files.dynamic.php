@@ -208,7 +208,6 @@ if($_POST['mode']=='save') {
 	   echo '<span class="success"><b>'.$_lang['file_saved'].'</b></span><br /><br />';
 	   $_REQUEST['mode'] = 'edit';
 	}
-	fclose($handle);
 
 	// Log the change
 	logFileChange('modify', $filename);
