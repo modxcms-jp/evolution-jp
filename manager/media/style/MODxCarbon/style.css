@@ -1508,7 +1508,6 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 	border: 1px solid #b4cde4;
 	font-size: 13px;
 	background: #fff url(images/icons/datenofocus.gif) no-repeat top left;
-	cursor: pointer;
 }
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
 	background: #fffce9 url(images/icons/datefocus.gif) no-repeat top left;
