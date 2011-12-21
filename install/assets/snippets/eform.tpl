@@ -5,14 +5,14 @@
  * メール送信フォームなどに使える多機能フォームプロセッサー
  *
  * @category 	snippet
- * @version 	1.4.4.6
+ * @version 	1.4.4.7
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
  * @internal    @installset base, sample
  */
 
-# eForm 1.4.4.6 - Electronic Form Snippet
+# eForm 1.4.4.7 - Electronic Form Snippet
 # Original created by Raymond Irving 15-Dec-2004.
 # Version 1.3+ extended by Jelle Jager (TobyL) September 2006
 # -----------------------------------------------------
@@ -30,7 +30,7 @@ $snipPath = $modx->config["base_path"].'assets/snippets/'.$snipFolder.'/';
 
 # check if inside manager
 if ($modx->isBackend()) {
-return ''; # don't go any further when inside manager
+return ''; // don't go any further when inside manager
 }
 
 //tidying up some casing errors in parameters
@@ -44,39 +44,41 @@ if(isset($eformOnBeforeFormParse)) $eFormOnBeforeFormParse = $eformOnBeforeFormP
 if(isset($eFormCSS)) $cssStyle = $eFormCSS;
 
 # Snippet customize settings
+$from   = (isset($from)) ? $from : $modx->config['emailsender'];
+$formid = (isset($formid)) ? $formid : '';
 $params = array (
    // Snippet Path
    'snipPath' => $snipPath, //includes $snipFolder
 	 'snipFolder' => $snipFolder,
 
 // eForm Params
-   'vericode' => isset($vericode)? $vericode:"",
-   'formid' => isset($formid)? $formid:"",
-   'from' => isset($from)? $from:$modx->config['emailsender'],
+   'vericode' => isset($vericode)? $vericode:'',
+   'formid' => $formid,
+   'from' => $from,
    'fromname' => isset($fromname)? $fromname:$modx->config['site_name'],
    'to' => isset($to)? $to:$modx->config['emailsender'],
-   'cc' => isset($cc)? $cc:"",
-   'bcc' => isset($bcc)? $bcc:"",
-   'subject' => isset($subject)? $subject:"",
+   'cc' => isset($cc)? $cc:'',
+   'bcc' => isset($bcc)? $bcc:'',
+   'subject' => isset($subject)? $subject:'',
    'ccsender' => isset($ccsender)?$ccsender:0,
    'sendirect' => isset($sendirect)? $sendirect:0,
    'mselector' => isset($mailselector)? $mailselector:0,
    'mobile' => isset($mobile)? $mobile:'',
    'mobiletext' => isset($mobiletext)? $mobiletext:'',
    'autosender' => isset($autosender)? $autosender:$from,
-   'autotext' => isset($automessage)? $automessage:"",
+   'autotext' => isset($automessage)? $automessage:'',
    'category' => isset($category)? $category:0,
-   'keywords' => isset($keywords)? $keywords:"",
+   'keywords' => isset($keywords)? $keywords:'',
    'gid' => isset($gotoid)? $gotoid:$modx->documentIdentifier,
    'noemail' => isset($noemail)? ($noemail):false,
    'saveform' => isset($saveform)? ($saveform? true:false):true,
-   'tpl' => isset($tpl)? $tpl:"",
-   'report' => isset($report)? $report:"",
+   'tpl' => isset($tpl)? $tpl:'',
+   'report' => isset($report)? $report:'',
    'allowhtml' => isset($allowhtml)? $allowhtml:0,
    //Added by JJ
-   'replyto' => isset($replyto)? $replyto:"",
+   'replyto' => isset($replyto)? $replyto:'',
    'language' => isset($language)? $language:$modx->config['manager_language'],
-   'thankyou' => isset($thankyou)? $thankyou:"",
+   'thankyou' => isset($thankyou)? $thankyou:'',
    'isDebug' => isset($debug)? $debug:0,
    'reportAbuse' => isset($reportAbuse)? $reportAbuse:false,
    'disclaimer' => isset($disclaimer)?$disclaimer:'',

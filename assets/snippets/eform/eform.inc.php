@@ -105,7 +105,7 @@ $_dfnMaxlength = 6;
 			$tpl = str_replace('</form>',"<input type=\"hidden\" name=\"formid\" value=\"$form_id\" /></form>",$tpl);
 	}
 
-	$validFormId = ($formid==$_POST['formid'])?1:0;
+	$validFormId = (isset($_POST['formid']) && $formid==$_POST['formid'])?1:0;
 
 	# check if postback mode
 	$efPostBack = ($validFormId && count($_POST)>0)? true:false; //retain old variable?
@@ -187,7 +187,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
 
 		# validate fields
 		foreach($fields as $name => $value) {
-			$fld = $formats[$name];
+			$fld = isset($formats[$name]) ? $formats[$name] : '';
 			if ($fld) {
 				$desc		= $fld[1];
 				$datatype 	= $fld[2];
@@ -267,7 +267,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
 		//New in 1.4.2 - classes are set in labels and form elements for invalid fields
 		foreach($rClass as $n => $class){
 			$fields[$n.'_class'] = $fields[$n.'_class']?$fields[$n.'_class'].' '. $class:$class;
-			$fields[$n.'_vClass'] = $fields[$n.'_vClass']?$fields[$n.'_vClass'].' '. $class:$class;
+			$fields[$n.'_vClass'] = isset($fields[$n.'_vClass']) ? $fields[$n.'_vClass'].' '. $class:$class;
 			//work around for checkboxes
 			if( isset($formats[$n][6] )){ //have separate id's for check and option tags - set classes as well
 				foreach( explode(',',$formats[$n][6]) as $id)
@@ -293,7 +293,10 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
 			if(!strstr($tpl,'[+validationmessage+]'))
 				$modx->setPlaceholder('validationmessage',str_replace('[+ef_wrapper+]', $tmp, $_lang['ef_validation_message']));
 			else
+			{
+				if(!isset($fields['validationmessage'])) $fields['validationmessage'] = '';
 				$fields['validationmessage'] .= str_replace('[+ef_wrapper+]', $tmp, $_lang['ef_validation_message']);
+			}
 	} else {
 
 			# format report fields
@@ -607,25 +610,25 @@ function formMerge($docText, $docFields, $vClasses='') {
 	preg_match_all('~\[\+(.*?)\+\]~', $docText, $matches);
 	for($i=0;$i<count($matches[1]);$i++) {
 		$name = $matches[1][$i];
-		list($listName,$listValue) = explode(":",$name);
+		if(strpos($name,':')!==false) list($listName,$listValue) = explode(':',$name);
+		else $listName = $name;
 		$value = isset($docFields[$listName])? $docFields[$listName]:'';
 
 // support for multi checkbox, radio and select - Djamoer
 		if(is_array($value)) $value=implode(', ', $value);
-
-		$fld = $formats[$name];
-		if (!isset($fld)){
+		$fld = (isset($formats[$name])) ? $formats[$name] : '';
+		if (empty($fld)){
 			// listbox, checkbox, radio select
 			$colonPost = strpos($name, ':');
 			$listName = substr($name, 0, $colonPost);
 			$listValue = substr($name, $colonPost+1);
-			$datatype = $formats[$listName][2];
-			if(is_array($docFields[$listName])) {
+			$datatype = isset($formats[$listName][2]) ? $formats[$listName][2] : '';
+			if(isset($docFields[$listName]) && is_array($docFields[$listName])) {
 				if($datatype=="listbox" && in_array($listValue, $docFields[$listName])) $docText = str_replace("[+$listName:$listValue+]","selected='selected'",$docText);
 				if(($datatype=="checkbox"||$datatype=="radio") && in_array($listValue, $docFields[$listName])) $docText = str_replace("[+$listName:$listValue+]","checked='checked'",$docText);
 			}
 			else {
-				if($datatype=="listbox" && $listValue==$docFields[$listName]) $docText = str_replace("[+$listName:$listValue+]","selected='selected'",$docText);
+				if($datatype=="listbox" && isset($docFields[$listName]) && $listValue==$docFields[$listName]) $docText = str_replace("[+$listName:$listValue+]","selected='selected'",$docText);
 				if(($datatype=="checkbox"||$datatype=="radio") && $listValue==$docFields[$listName]) $docText = str_replace("[+$listName:$listValue+]","checked='checked'",$docText);
 			}
 		}
@@ -782,7 +785,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 				$tpl = str_replace($select,$newSelect,$tpl);
 				//add valid values to formats... (extension to $formats)
 
-				if($formats[$name] && !$formats[$name][5]){
+				if($formats[$name] && !isset($formats[$name][5])){
 					$formats[$name][4] = $_lang['ef_failed_default'];
 					//convert commas in values to something else !
 					$formats[$name][5]= "#LIST " . implode(",",str_replace(',','&#44;',$validValues));
@@ -792,7 +795,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 			case "textarea":
 				// add support for maxlength attribute for textarea
 				// attribute get's stripped form form //
-				if( $tagAttributes['maxlength'] ){
+				if( isset($tagAttributes['maxlength']) ){
 					$formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
 					unset($tagAttributes['maxlength']);
 				}
@@ -808,7 +811,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 				$newTag = buildTagPlaceholder($type,$tagAttributes,$name);
 				  $fieldType = stripTagQuotes($tagAttributes['type']);
 					//validate on maxlength...
-					if( $fieldType=='text' && $tagAttributes['maxlength'] ){
+					if( $fieldType=='text' && isset($tagAttributes['maxlength']) && $tagAttributes['maxlength'] ){
 						$formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
 					}
 					if($formats[$name] && !$formats[$name][2]) $formats[$name][2]=($fieldType=='text')?"string":$fieldType;
@@ -829,7 +832,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 						$formats[$name][6] .= ( isset($formats[$name][6])?",":"").stripTagQuotes($tagAttributes['id']);
 					}elseif(empty($fields[$name])){ //plain old text input field
 						//retain default value set in form template if not already set in code
-						$fields[$name] = stripTagQuotes($tagAttributes['value']);
+						$fields[$name] = (isset($tagAttributes['value'])) ? stripTagQuotes($tagAttributes['value']) : '';
 					}
 
 				$tpl = str_replace($fieldTags[$i],$newTag,$tpl);
@@ -845,10 +848,11 @@ function stripTagQuotes($value){
 }
 
 function buildTagPlaceholder($tag,$attributes,$name){
-	$type = stripTagQuotes($attributes["type"]);
-	$quotedValue = $attributes['value'];
+	$type = (isset($attributes["type"])) ? stripTagQuotes($attributes["type"]) : '';
+	$quotedValue = (isset($attributes['value'])) ? $attributes['value'] : '';
 	$val = stripTagQuotes($quotedValue);
 
+	$t = '';
 	foreach ($attributes as $k => $v)
 			$t .= ($k!='value' && $k!='checked' && $k!='selected')?" $k=$v":"";
 
@@ -886,7 +890,7 @@ function attr2array($tag){
 	preg_match_all($expr,$tag,$matches);
 	foreach($matches[1] as $i => $key)
 		$rt[$key]= $matches[2][$i];
-	return $rt;
+	if(isset($rt)) return $rt;
 }
 
 function validateField($value,$fld,&$vMsg,$isDebug=false){
@@ -1052,6 +1056,7 @@ function filterEformValue($value,$param){
 	function efLoadTemplate($key){
 		global $modx;
 		
+		$tpl = '';
 		if(substr($key, 0, 5) == '@FILE')
 		{
 			$path = substr($tpl, 6);

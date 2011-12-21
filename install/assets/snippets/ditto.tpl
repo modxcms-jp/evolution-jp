@@ -5,7 +5,7 @@
  * リソースの一覧を出力。ブログ・索引・目録・新着情報一覧・履歴一覧など
  *
  * @category 	snippet
- * @version 	2.1.1
+ * @version 	2.1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties 
  * @internal	@modx_category Content
@@ -182,6 +182,7 @@ $filters = array("custom"=>array(),"parsed"=>array());
     // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
     // $filters["custom"][] = array("source","callback_function");
 
+$orderBy = (isset($orderBy))? $orderBy : '';
 $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
     // Variable: orderBy
     // An array that holds all criteria to sort the result set by. 
@@ -229,6 +230,7 @@ foreach ($files as $filename => $filevalue) {
 }
 
 //---Initiate Class-------------------------------------------------- //
+$dbg_templates = (isset($dbg_templates)) ? $dbg_templates : NULL;
 if (class_exists('ditto')) {
     $ditto = new ditto($dittoID,$format,$_lang,$dbg_templates);
         // create a new Ditto instance in the specified format and language with the requested debug level
@@ -725,6 +727,10 @@ $save = (isset($save))? $save : 0;
     Default:
         0 - off; returns output
 */
+$tplAlt = (isset($tplAlt)) ? $tplAlt : '';
+$tplFirst = (isset($tplFirst)) ? $tplFirst : '';
+$tplLast = (isset($tplLast)) ? $tplLast : '';
+$tplCurrentDocument = (isset($tplCurrentDocument)) ? $tplCurrentDocument : '';
 $templates = array(
     "default" => "@CODE".$_lang['default_template'],
     "base" => $tpl,

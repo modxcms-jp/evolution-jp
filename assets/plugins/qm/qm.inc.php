@@ -26,14 +26,13 @@ class Qm {
 		$this->loadtb = $loadtb;
 		$this->tbwidth = $tbwidth;
 		$this->tbheight = $tbheight;
-		$this->usemm = $usemm;
 		$this->hidefields = $hidefields;
-		$this->hidetabs = $hidetabs;
-		$this->hidesections = $hidesections;
+		$this->hidetabs = isset($hidetabs) ? $hidetabs : '';;
+		$this->hidesections = isset($hidesections) ? $hidesections : '';
 		$this->addbutton = $addbutton;
 		$this->tpltype = $tpltype;
 		$this->tplid = $tplid;
-		$this->custombutton = $custombutton;
+		$this->custombutton = isset($custombutton)? $custombutton : '';
 		$this->managerbutton = $managerbutton;
 		$this->logout = $logout;
 		$this->autohide = $autohide;
@@ -150,7 +149,7 @@ class Qm {
 				}
 				
 				// QM+ TV edit
-				if(intval($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
+				if(isset($_GET['quickmanagertv'] ) && intval($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
 				{
 					$tvName = '';
 					$locked = FALSE;
@@ -300,7 +299,7 @@ EOT;
 			// QM+ with toolbar
 			else
 			{
-				if(isset($_SESSION['mgrValidated']) && $_REQUEST['z'] != 'manprev')
+				if(isset($_SESSION['mgrValidated']) && (!isset($_REQUEST['z']) || $_REQUEST['z'] != 'manprev'))
 				{
 					// If logout break here
 					if(isset($_REQUEST['logout']))
@@ -321,6 +320,7 @@ EOT;
 					$access = $this->checkAccess();
 					
 					// Does user have permissions to edit document
+					if(!isset($controls)) $controls = '';
 					if($access) $controls .= $editButton;
 					
 					if ($this->addbutton == 'true' && $access)
@@ -468,6 +468,7 @@ EOT;
 					// Insert jQuery and ColorBox in head if needed
 					if ($this->loadfrontendjq == 'true')
 					{
+						if(!isset($head)) $head = '';
 						$head .= '<script src="'.$this->modx->config['site_url'].$this->jqpath.'" type="text/javascript"></script>';
 					}
 					if ($this->loadtb == 'true')
@@ -852,8 +853,7 @@ function getCookie(cookieName)
 		// Check permission to TV, is TV in document group?
 		if (!$access)
 		{
-			$sql = "SELECT id FROM {$table} WHERE tmplvarid = {$tvId}";
-			$result = $this->modx->db->query($sql);
+			$result = $this->modx->db->select('id',$table,"tmplvarid = {$tvId}");
 			$rowCount = $this->modx->recordCount($result);
 			// TV is not in any document group
 			if ($rowCount == 0) { $access = TRUE; }

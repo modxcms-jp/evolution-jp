@@ -729,7 +729,7 @@ class DocumentParser {
 	    // Don't process when cached
 	    $this->documentObject['hasmetatags'] = '0';
         }
-	if ($metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
+	if (isset($metas) && $metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
         return $template;
     }
 
@@ -1145,12 +1145,12 @@ class DocumentParser {
 				if ($idx < $maxidx)
 				{
 					$target = trim($pieces[$idx]);
-					if(preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
+					if(isset($this->referenceListing[$target]) && preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
 						$target = $this->referenceListing[$target];
 					
 					if($target === $this->config['site_start'])
 						$path = 'index.php';
-					elseif(preg_match('@^https?://@', $this->referenceListing[$target]))
+					elseif(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
 						$path = $this->referenceListing[$target];
 					else
 						$path = 'index.php?id=' . $target;
@@ -1628,10 +1628,10 @@ class DocumentParser {
             exit();
         }
         else {
-            $trim  = ($this->config['event_log_trim'])  ? intval($this->config['event_log_trim']) : 100;
+            $trim  = (isset($this->config['event_log_trim']))  ? intval($this->config['event_log_trim']) : 100;
             if(($insert_id % $trim) == 0)
             {
-                $limit = ($this->config['event_log_limit']) ? intval($this->config['event_log_limit']) : 2000;
+                $limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
                 $this->purge_event_log($limit,$trim);
             }
         }
@@ -2113,8 +2113,11 @@ class DocumentParser {
     }
 
     function getChunk($chunkName) {
-        $t= $this->chunkCache[$chunkName];
-        return $t;
+        if(isset($this->chunkCache[$chunkName]))
+        {
+	        $t= $this->chunkCache[$chunkName];
+	        return $t;
+        }
     }
 
     // deprecated
