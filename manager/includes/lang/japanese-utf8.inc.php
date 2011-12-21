@@ -1090,6 +1090,6 @@ $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11�
 $_lang["tree_page_click_option_auto"] = '自動(推奨)';
 $_lang["too_many_resources"] = 'リソース数が多いため非表示';
 $_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード名';
-$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias, longtitle, etc.';
+$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
 $_lang['setting_cache_enabled'] = 'グローバルキャッシュを有効にする';
 $_lang['setting_cache_enabled_desc'] = '「いいえ」を選択すると、全てのキャッシュ機能を無効にします。 キャッシュを無効にすることは推奨しません。';
