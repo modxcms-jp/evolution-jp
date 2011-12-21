@@ -31,7 +31,6 @@ include_once "log.class.inc.php";
 
 // include the crypto thing
 include_once "crypt.class.inc.php";
-
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
@@ -53,6 +52,11 @@ $captcha_code = $_REQUEST['captcha_code'];
 $rememberme= $_REQUEST['rememberme'];
 $failed_allowed = $modx->config["failed_login_attempts"];
 
+$tbl_user_settings = $modx->getFullTableName("user_settings");
+$tbl_manager_users = $modx->getFullTableName('manager_users');
+$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+$tbl_user_roles = $modx->getFullTableName('user_roles');
+
 // invoke OnBeforeManagerLogin event
 $modx->invokeEvent("OnBeforeManagerLogin",
                         array(
@@ -61,16 +65,19 @@ $modx->invokeEvent("OnBeforeManagerLogin",
                             "rememberme"    => $rememberme
                         ));
 
-$sql = "SELECT $dbase.`".$table_prefix."manager_users`.*, $dbase.`".$table_prefix."user_attributes`.* FROM $dbase.`".$table_prefix."manager_users`, $dbase.`".$table_prefix."user_attributes` WHERE BINARY $dbase.`".$table_prefix."manager_users`.username = '".$username."' and $dbase.`".$table_prefix."user_attributes`.internalKey=$dbase.`".$table_prefix."manager_users`.id;";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$field = "{$tbl_manager_users}.*, {$tbl_user_attributes}.*";
+$from = "{$tbl_manager_users},{$tbl_user_attributes}";
+$where = "BINARY {$tbl_manager_users}.username='{$username}' and {$tbl_user_attributes}.internalKey={$tbl_manager_users}.id";
+
+$rs = $modx->db->select($field,$from,$where);
+$limit = $modx->db->getRecordCount($rs);
 
 if($limit==0 || $limit>1) {
     jsAlert($e->errors[900]);
     return;
 }
 
-$row = mysql_fetch_assoc($rs);
+$row = $modx->db->getRow($rs);
 
 $internalKey            = $row['internalKey'];
 $dbasePassword          = $row['password'];
@@ -86,9 +93,9 @@ $fullname               = $row['fullname'];
 $email                  = $row['email'];
 
 // get the user settings from the database
-$sql = "SELECT setting_name, setting_value FROM $dbase.`".$table_prefix."user_settings` WHERE user='".$internalKey."' AND setting_value!=''";
-$rs = mysql_query($sql);
-while ($row = mysql_fetch_assoc($rs)) {
+$rs = $modx->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$internalKey}' AND setting_value!=''");
+while ($row = $modx->db->getRow($rs))
+{
     ${$row['setting_name']} = $row['setting_value'];
 }
 // blocked due to number of login errors.
@@ -100,13 +107,13 @@ if($failedlogins>=$failed_allowed && $blockeduntildate>time()) {
 }
 
 // blocked due to number of login errors, but get to try again
-if($failedlogins>=$failed_allowed && $blockeduntildate<time()) { 
-    $sql = "UPDATE $dbase.`".$table_prefix."user_attributes` SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey=$internalKey";
-    $rs = mysql_query($sql);
+if($failedlogins>=$failed_allowed && $blockeduntildate<time()) {
+    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey={$internalKey}";
+    $rs = $modx->db->query($sql);
 }
 
 // this user has been blocked by an admin, so no way he's loggin in!
-if($blocked=="1") { 
+if($blocked=="1") {
     @session_destroy();
     session_unset();
     jsAlert($e->errors[903]);
@@ -186,12 +193,12 @@ if($use_captcha==1) {
 if($newloginerror) {
 	//increment the failed login counter
     $failedlogins += 1;
-    $sql = "update $dbase.`".$table_prefix."user_attributes` SET failedlogincount='$failedlogins' where internalKey=$internalKey";
-    $rs = mysql_query($sql);
-    if($failedlogins>=$failed_allowed) { 
+    $sql = "update {$tbl_user_attributes} SET failedlogincount='$failedlogins' where internalKey=$internalKey";
+    $rs = $modx->db->query($sql);
+    if($failedlogins>=$failed_allowed) {
 		//block user for too many fail attempts
-        $sql = "update $dbase.`".$table_prefix."user_attributes` SET blockeduntil='".(time()+($blocked_minutes*60))."' where internalKey=$internalKey";
-        $rs = mysql_query($sql);
+        $sql = "update {$tbl_user_attributes} SET blockeduntil='".(time()+($blocked_minutes*60))."' where internalKey=$internalKey";
+        $rs = $modx->db->query($sql);
     } else {
 		//sleep to help prevent brute force attacks
         $sleep = (int)$failedlogins/2;
@@ -217,33 +224,32 @@ $_SESSION['mgrFailedlogins']=$failedlogins;
 $_SESSION['mgrLastlogin']=$lastlogin;
 $_SESSION['mgrLogincount']=$nrlogins; // login count
 $_SESSION['mgrRole']=$role;
-$sql="SELECT * FROM $dbase.`".$table_prefix."user_roles` WHERE id=".$role.";";
-$rs = mysql_query($sql);
-$row = mysql_fetch_assoc($rs);
+$rs = $modx->db->select('* ',$tbl_user_roles,"id={$role}");
+$row = $modx->db->getRow($rs);
 $_SESSION['mgrPermissions'] = $row;
 
 // successful login so reset fail count and update key values
 if(isset($_SESSION['mgrValidated'])) {
-    $sql = "update $dbase.`".$table_prefix."user_attributes` SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
-    $rs = mysql_query($sql);
+    $sql = "update {$tbl_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
+    $rs = $modx->db->query($sql);
 }
 
 // get user's document groups
 $dg='';$i=0;
-$tblug = $dbase.".`".$table_prefix."member_groups`";
-$tbluga = $dbase.".`".$table_prefix."membergroup_access`";
+$tblug = $modx->getFullTableName('member_groups');
+$tbluga = $modx->getFullTableName('membergroup_access');
 $sql = "SELECT uga.documentgroup
         FROM $tblug ug
         INNER JOIN $tbluga uga ON uga.membergroup=ug.user_group
         WHERE ug.member =".$internalKey;
-$rs = mysql_query($sql);
-while ($row = mysql_fetch_row($rs)) $dg[$i++]=$row[0];
+$rs = $modx->db->query($sql);
+while ($row = $modx->db->getRow($rs)) $dg[$i++]=$row[0];
 $_SESSION['mgrDocgroups'] = $dg;
 
 if($rememberme == '1') {
     $_SESSION['modx.mgr.session.cookie.lifetime']= intval($modx->config['session.cookie.lifetime']);
 	
-	// Set a cookie separate from the session cookie with the username in it. 
+	// Set a cookie separate from the session cookie with the username in it.
 	// Are we using secure connection? If so, make sure the cookie is secure
 	global $https_port;
 	
@@ -261,7 +267,7 @@ if($rememberme == '1') {
 }
 
 $log = new logHandler;
-$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODx");
+$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODX");
 
 // invoke OnManagerLogin event
 $modx->invokeEvent("OnManagerLogin",
@@ -273,8 +279,7 @@ $modx->invokeEvent("OnManagerLogin",
                         ));
 
 // check if we should redirect user to a web page
-$tbl = $modx->getFullTableName("user_settings");
-$id = $modx->db->getValue("SELECT setting_value FROM $tbl WHERE user='$internalKey' AND setting_name='manager_login_startup'");
+$id = $modx->db->getValue($modx->db->select('setting_value',$tbl_user_settings,"user='$internalKey' AND setting_name='manager_login_startup'"));
 if(isset($id) && $id>0) {
     $header = 'Location: '.$modx->makeUrl($id,'','','full');
     if($_POST['ajax']==1) echo $header;
