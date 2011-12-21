@@ -188,18 +188,18 @@ switch ($_POST['mode']) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$id" : "87";
-				$header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
 				header($header);
 			} else {
-				$header = "Location: index.php?a=99&r=2";
+				$header = "Location: index.php?a=99";
 				header($header);
 			}
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$key" : "87";
-				$stayUrl = "index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
 			} else {
-				$stayUrl = "index.php?a=99&r=2";
+				$stayUrl = "index.php?a=99";
 			}
 			
 			include_once "header.inc.php";
@@ -375,9 +375,9 @@ switch ($_POST['mode']) {
 		if ($genpassword == 1 && $passwordnotifymethod == 's') {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$id" : "87";
-				$stayUrl = "index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
 			} else {
-				$stayUrl = "index.php?a=99&r=2";
+				$stayUrl = "index.php?a=99";
 			}
 			
 			include_once "header.inc.php";
@@ -402,10 +402,10 @@ switch ($_POST['mode']) {
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$id" : "87";
-				$header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
 				header($header);
 			} else {
-				$header = "Location: index.php?a=99&r=2";
+				$header = "Location: index.php?a=99";
 				header($header);
 			}
 		}

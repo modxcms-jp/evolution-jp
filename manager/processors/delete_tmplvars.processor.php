@@ -61,7 +61,7 @@ if(!$modx->hasPermission('delete_template')) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
 	} else {		
-		$header="Location: index.php?a=76&r=2";
+		$header="Location: index.php?a=76";
 		header($header);
 	}
 

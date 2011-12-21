@@ -93,11 +93,11 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='')
 			{
 				$a = ($_POST['stay']=='2') ? "16&id=$newid":"19";
-				$header="Location: index.php?a={$a}&r=2&stay={$_POST['stay']}";
+				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 			}
 			else
 			{
-				$header="Location: index.php?a=76&r=2";
+				$header="Location: index.php?a=76";
 			}
 			header($header);
 		}
@@ -155,11 +155,11 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='')
 			{
 				$a = ($_POST['stay']=='2') ? "16&id=$id":"19";
-				$header="Location: index.php?a={$a}&r=2&stay={$_POST['stay']}";
+				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 			}
 			else
 			{
-				$header="Location: index.php?a=76&r=2";
+				$header="Location: index.php?a=76";
 			}
 			header($header);
 		}

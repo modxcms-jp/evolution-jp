@@ -35,7 +35,7 @@ if(!$rs) {
 		$sync->emptyCache(); // first empty the cache
 		// finished emptying cache - redirect
 
-	$header="Location: index.php?a=76&r=2";
+	$header="Location: index.php?a=76";
 	header($header);
 }
 

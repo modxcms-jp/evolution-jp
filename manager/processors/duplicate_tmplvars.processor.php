@@ -47,4 +47,4 @@ if (!$rs) {
 }
 
 // finish duplicating - redirect to new variable
-header("Location: index.php?r=2&a=301&id=$newid");
+header("Location: index.php?a=301&id=$newid");

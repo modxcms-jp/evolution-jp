@@ -33,4 +33,4 @@ if($rs) {
 }
 
 // finish duplicating - redirect to new template
-header("Location: index.php?r=2&a=16&id=$newid");
+header("Location: index.php?a=16&id=$newid");

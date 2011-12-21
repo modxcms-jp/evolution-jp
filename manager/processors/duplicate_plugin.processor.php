@@ -34,4 +34,4 @@ if (!$rs) {
 }
 
 // finish duplicating - redirect to new plugin
-header("Location: index.php?r=2&a=102&id={$newid}");
+header("Location: index.php?a=102&id={$newid}");

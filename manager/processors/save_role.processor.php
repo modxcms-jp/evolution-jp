@@ -97,7 +97,7 @@ switch ($_POST['mode']) {
             echo "An error occured while attempting to save the new role.<p>";
             exit;
         }
-        $header = "Location: index.php?a=86&r=2";
+        $header = "Location: index.php?a=86";
         header($header);
         break;
     case '35' :
@@ -107,7 +107,7 @@ switch ($_POST['mode']) {
             echo "An error occured while attempting to update the role. <br />" . mysql_error();
             exit;
         }
-        $header = "Location: index.php?a=86&r=2";
+        $header = "Location: index.php?a=86";
         header($header);
         break;
     default :
