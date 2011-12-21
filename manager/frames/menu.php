@@ -121,14 +121,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	}
 
 	function reloadmenu() {
-<?php if($manager_layout==0) { ?>
 		var elm = $('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_working']?>' width='16' height='16' />&nbsp;<?php echo $_lang['loading_menu']?>";
 			elm.style.display = 'block';
 		}
 		parent.mainMenu.location.reload();
-<?php } ?>
 	}
 
 	function startrefresh(rFrame){
