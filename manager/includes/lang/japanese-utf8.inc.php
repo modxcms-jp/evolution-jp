@@ -1093,3 +1093,4 @@ $_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード�
 $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
 $_lang['setting_cache_enabled'] = 'グローバルキャッシュを有効にする';
 $_lang['setting_cache_enabled_desc'] = '「いいえ」を選択すると、全てのキャッシュ機能を無効にします。 キャッシュを無効にすることは推奨しません。';
+$_lang['duplicate_title_string'] = 'コピー - [+title+]';

@@ -4,18 +4,17 @@ if(!$modx->hasPermission('edit_template')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
 $id=$_GET['id'];
 
 // duplicate TV
-$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvars` (type, name, caption, description, default_text, elements, rank, display, display_params, category)
-		SELECT type, CONCAT('Duplicate of ',name) AS 'name', CONCAT('Duplicate of ',caption) AS 'caption', description, default_text, elements, rank, display, display_params, category
-		FROM $dbase.`".$table_prefix."site_tmplvars` WHERE id=$id;";
-$rs = mysql_query($sql);
+$tpl = $_lang['duplicate_title_string'];
+$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+$sql = "INSERT INTO {$tbl_site_tmplvars} (type, name, caption, description, default_text, elements, rank, display, display_params, category)
+		SELECT type, REPLACE('{$tpl}','[+title+]',name) AS 'name', caption, description, default_text, elements, rank, display, display_params, category
+		FROM {$tbl_site_tmplvars} WHERE id={$id}";
+$rs = $modx->db->query($sql);
 
-if($rs) $newid = mysql_insert_id(); // get new id
+if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
 	echo "A database error occured while trying to duplicate TV: <br /><br />".mysql_error();
 	exit;
@@ -23,10 +22,11 @@ else {
 
 
 // duplicate TV Template Access Permissions
-$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvar_templates` (tmplvarid, templateid)
+$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+$sql = "INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid)
 		SELECT $newid, templateid
-		FROM $dbase.`".$table_prefix."site_tmplvar_templates` WHERE tmplvarid=$id;";
-$rs = mysql_query($sql);
+		FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid={$id}";
+$rs = $modx->db->query($sql);
 
 if (!$rs) {
 	echo "A database error occured while trying to duplicate TV template access: <br /><br />".mysql_error();
@@ -35,10 +35,11 @@ if (!$rs) {
 
 
 // duplicate TV Access Permissions
-$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvar_access` (tmplvarid, documentgroup)
+$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
+$sql = "INSERT INTO {$tbl_site_tmplvar_access} (tmplvarid, documentgroup)
 		SELECT $newid, documentgroup
-		FROM $dbase.`".$table_prefix."site_tmplvar_access` WHERE tmplvarid=$id;";
-$rs = mysql_query($sql);
+		FROM {$tbl_site_tmplvar_access} WHERE tmplvarid={$id}";
+$rs = $modx->db->query($sql);
 
 if (!$rs) {
 	echo "A database error occured while trying to duplicate TV Acess Permissions: <br /><br />".mysql_error();
@@ -46,6 +47,4 @@ if (!$rs) {
 }
 
 // finish duplicating - redirect to new variable
-$header="Location: index.php?r=2&a=301&id=$newid";
-header($header);
-?>
+header("Location: index.php?r=2&a=301&id=$newid");

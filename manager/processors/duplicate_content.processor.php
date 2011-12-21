@@ -38,7 +38,7 @@ else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
 header($header);
 
 function duplicateDocument($docid, $parent=null, $_toplevel=0) {
-	global $modx;
+	global $modx,$_lang;
 
 	// invoke OnBeforeDocDuplicate event
 	$evtOut = $modx->invokeEvent('OnBeforeDocDuplicate', array(
@@ -62,7 +62,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 
 	// Once we've grabbed the document object, start doing some modifications
 	if ($_toplevel == 0) {
-		$content['pagetitle'] = 'Duplicate of '.$content['pagetitle'];
+		$content['pagetitle'] = str_replace('[+title+]',$content['pagetitle'],$_lang['duplicate_title_string']);
 		$content['alias'] = null;
 	} elseif($modx->config['friendly_urls'] == 0 || $modx->config['allow_duplicate_alias'] == 0) {
 		$content['alias'] = null;
