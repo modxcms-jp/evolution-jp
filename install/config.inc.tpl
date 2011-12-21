@@ -71,7 +71,7 @@ function assign_base_url()
 		$script_name= $_SERVER['SCRIPT_NAME'];
 	}
 	if(strpos($script_name,'?')!==false) $script_name = substr($script_name,0,strpos($script_name,'?'));
-	$base_dir = substr($script_name,0,strpos($script_name,'index.php'));
+	$base_dir = substr($script_name,0,strrpos($script_name,'/')+1);
 	if(strpos($base_dir,'/manager/')!==false) $base_dir = substr($script_name,0,strpos($script_name,'manager/'));
 	return rtrim($base_dir,'/') . '/';
 }
