@@ -51,6 +51,10 @@
 
 // get start time
 $mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
+if(@file_exists('../autoload.php'))
+{
+	include_once('../autoload.php');
+}
 
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.

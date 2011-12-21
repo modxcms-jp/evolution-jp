@@ -47,6 +47,10 @@
 
 // get start time
 $mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
+if(@file_exists('autoload.php'))
+{
+	include_once('autoload.php');
+}
 
 // harden it
 require_once(dirname(__FILE__).'/manager/includes/protect.inc.php');
