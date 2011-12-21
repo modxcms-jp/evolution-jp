@@ -104,11 +104,11 @@ switch ($_POST['mode']) {
 									"id"	=> $newid
 								));
 			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "108&id=$newid":"107";
+				$a = ($_POST['stay']=='2') ? "108&id={$newid}":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
 				header($header);
 			} else {
-				$header="Location: index.php?a=7&r=10";
+				$header="Location: index.php?a=106&r=2";
 				header($header);
 			}
 		}
@@ -143,7 +143,7 @@ switch ($_POST['mode']) {
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
 				header($header);
 			} else {
-				$header="Location: index.php?a=7&r=10";
+				$header="Location: index.php?a=106&r=2";
 				header($header);
 			}
 		}
