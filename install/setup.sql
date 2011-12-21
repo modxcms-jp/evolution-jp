@@ -781,7 +781,6 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('new_folder_permissions','0755'),
 ('filemanager_path',''),
 ('theme_refresher',''),
-('manager_layout','4'),
 ('custom_contenttype','application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain'),
 ('auto_menuindex','1'),
 ('session.cookie.lifetime','604800'),
