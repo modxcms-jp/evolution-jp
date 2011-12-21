@@ -2869,7 +2869,7 @@ class DocumentParser {
 				if (isset ($this->pluginCache[$pluginName]))
 				{
 					$pluginCode= $this->pluginCache[$pluginName];
-					$pluginProperties= $this->pluginCache["{$pluginName}Props"];
+					$pluginProperties= isset($this->pluginCache["{$pluginName}Props"]) ? $this->pluginCache["{$pluginName}Props"] : '';
 				}
 				else
 				{
