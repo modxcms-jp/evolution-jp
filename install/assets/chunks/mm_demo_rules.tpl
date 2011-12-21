@@ -55,3 +55,4 @@ http://modx.jp/docs/extras/plugins/mm.html
 // mm_changeFieldHelp('longtitle', 'ヘッドラインとして表示されます', '', $news_tpl); // チップヘルプをカスタマイズ
 // mm_changeFieldHelp('introtext', 'A short summary of the story', '', $news_tpl);
 // mm_changeFieldHelp('parent', 'To move this story to a different folder: Click this icon to activate, then choose a new folder in the tree on the left.', '', $news_tpl);
+*/
