@@ -2907,7 +2907,6 @@ class DocumentParser {
 	# parses a resource property string and returns the result as an array
 	function parseProperties($propertyString)
 	{
-		if(strpos($propertyString,0) === '{') return json_decode($propertyString);
 		$parameter= array ();
 		if (empty($propertyString)) return $parameter;
 		
