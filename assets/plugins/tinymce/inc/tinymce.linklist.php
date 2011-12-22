@@ -33,9 +33,10 @@ $recent              = 0;
 $tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
-$manage_path = realpath('../../../../manager/') . '/';
-include_once($manage_path . 'includes/config.inc.php');
-include_once($manage_path . 'includes/document.parser.class.inc.php');
+$base_path = realpath('../../../../') . '/';
+if(file_exists($base_path . 'autoload.php')) include_once($base_path . 'autoload.php');
+include_once($base_path . 'manager/includes/config.inc.php');
+include_once($base_path . 'manager/includes/document.parser.class.inc.php');
 startCMSSession();
 $modx = new DocumentParser;
 
@@ -52,110 +53,121 @@ if ($modx->getLoginUserType() !== 'manager')
     echo 'var tinyMCELinkList = new Array();';
     exit();
 }
-$linklist = new LINKLIST();
 
-$allpages = $linklist->getAllPages($limit,$recent);
-if (!is_array($allpages) ) {die();}
-
-$list = array();
-
-foreach($allpages as $page)
+$modx->getSettings();
+$cache_path = $modx->config['base_path'] . 'assets/cache/mce_linklist.pageCache.php';
+if(file_exists($cache_path))
 {
-	if (!in_array($page['template'], $templates_to_ignore) )
+	$output = file_get_contents($cache_path);
+}
+else
+{
+	$linklist = new LINKLIST();
+	
+	$allpages = $linklist->getAllPages($limit,$recent);
+	if (!is_array($allpages) ) {die();}
+	
+	$list = array();
+	
+	foreach($allpages as $page)
 	{
-		$caption = '';
-		$page['parents'] = array_reverse($page['parents']);
-		$breadcrumbs = array();
-		$sortcrumbs = array();
-		$published = $page['published'];
-		foreach ($page['parents'] as $parent)
+		if (!in_array($page['template'], $templates_to_ignore) )
 		{
-			$p = $linklist->getPage($parent);
-			
-			// Assemble what will be displayed
-			$breadcrumbs[] = ($p['menutitle']) ? htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
-			
-			// How will it be sorted?
-			if ($sortby == 'menuindex')
+			$caption = '';
+			$page['parents'] = array_reverse($page['parents']);
+			$breadcrumbs = array();
+			$sortcrumbs = array();
+			$published = $page['published'];
+			foreach ($page['parents'] as $parent)
 			{
-				$more_sortby_types = array('menutitle','pagetitle');
-				foreach ($more_sortby_types as $backup_sort_type)
+				$p = $linklist->getPage($parent);
+				
+				// Assemble what will be displayed
+				$breadcrumbs[] = ($p['menutitle']) ? htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
+				
+				// How will it be sorted?
+				if ($sortby == 'menuindex')
 				{
-					if ( $page[$backup_sort_type] != '')
+					$more_sortby_types = array('menutitle','pagetitle');
+					foreach ($more_sortby_types as $backup_sort_type)
 					{
-						$sortcrumbs[] = sprintf("%010d", $p[$sortby]);
-						break;
+						if ( $page[$backup_sort_type] != '')
+						{
+							$sortcrumbs[] = sprintf("%010d", $p[$sortby]);
+							break;
+						}
 					}
+				}
+				else
+				{
+					$sortcrumbs[] = $p[$sortby];
+				}
+				
+				if ($p['published'] !== '1')
+				{
+					$published = 0;
+				}
+			}
+			if ($mode=='tree')
+			{	// tree mode
+				$bc_count = count($breadcrumbs);
+				if ($bc_count>1)
+				{
+					$caption = str_repeat('&nbsp;', ($bc_count-1)*3);
+					$caption .= $tree_styles[$tree_style-1];
+					$caption .= $breadcrumbs[$bc_count-1];
+				}
+				else
+				{
+					$caption = $breadcrumbs[0];
 				}
 			}
 			else
-			{
-				$sortcrumbs[] = $p[$sortby];
+			{	// breadcrumb mode
+				$caption = implode('&gt;', $breadcrumbs);
 			}
 			
-			if ($p['published'] !== '1')
-			{
-				$published = 0;
-			}
-		}
-		if ($mode=='tree')
-		{	// tree mode
-			$bc_count = count($breadcrumbs);
-			if ($bc_count>1)
-			{
-				$caption = str_repeat('&nbsp;', ($bc_count-1)*3);
-				$caption .= $tree_styles[$tree_style-1];
-				$caption .= $breadcrumbs[$bc_count-1];
-			}
-			else
-			{
-				$caption = $breadcrumbs[0];
-			}
-		}
-		else
-		{	// breadcrumb mode
-			$caption = implode('&gt;', $breadcrumbs);
-		}
-		
-		$keyname = implode('-', $sortcrumbs);
-		
-		// Check for duplicates
-		while (isset($list[$keyname]))
-		{
-			$sortcrumbs[count($sortcrumbs)-1] += 1000000000;
 			$keyname = implode('-', $sortcrumbs);
-		}
-		
-		//$caption = $keyname;
-		
-		if (function_exists('mb_encode_numericentity'))
-		{
-			$convmap = array(0x0080, 0xffff, 0, 0xffff);
-			$encoding = $GLOBALS['database_connection_charset'];
-			$caption = mb_encode_numericentity($caption, $convmap, $encoding);
-		}
-		$output = '["' .$caption;
-		if ($include_page_ids)
-		{
-			$output .= ' (' . $page['id'] . ')';
-		}
-		$output .= '", "[~' . $page['id'] . '~]"]';
-		
-		if ($published == '1')
-		{
-			$list[$keyname] = $output;
+			
+			// Check for duplicates
+			while (isset($list[$keyname]))
+			{
+				$sortcrumbs[count($sortcrumbs)-1] += 1000000000;
+				$keyname = implode('-', $sortcrumbs);
+			}
+			
+			//$caption = $keyname;
+			
+			if (function_exists('mb_encode_numericentity'))
+			{
+				$convmap = array(0x0080, 0xffff, 0, 0xffff);
+				$encoding = $GLOBALS['database_connection_charset'];
+				$caption = mb_encode_numericentity($caption, $convmap, $encoding);
+			}
+			$output = '["' .$caption;
+			if ($include_page_ids)
+			{
+				$output .= ' (' . $page['id'] . ')';
+			}
+			$output .= '", "[~' . $page['id'] . '~]"]';
+			
+			if ($published == '1')
+			{
+				$list[$keyname] = $output;
+			}
 		}
 	}
+	
+	// Sort the list by it's keys
+	ksort($list);
+	
+	// Output the array separated by commas
+	$list_output = implode(", \n", $list);
+	
+	// Output as javascript
+	$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
+	file_put_contents($cache_path,$output);
 }
-
-// Sort the list by it's keys
-ksort($list);
-
-// Output the array separated by commas
-$list_output = implode(", \n", $list);
-
-// Output as javascript
-$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
 
 // Make output a real JavaScript file!
 header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
@@ -206,7 +218,6 @@ class LINKLIST
 	      WHERE sc.published=1 AND sc.deleted=0 {$where_recent}
 	      ORDER BY sc.editedon DESC, {$sort} {$dir}
 	      {$limit};";
-		
 		$resourceArray = $this->doSql($sql);
 		$count = count($resourceArray);
 		for($i=0; $i<$count; $i++)
@@ -214,10 +225,8 @@ class LINKLIST
 			$p = $this->getAllParents($resourceArray[$i]['id']);
 			$resourceArray[$i]['parents'] = $p;
 		}
-		
 	    return $resourceArray;
 	}
-	
 	
 	function getAllParents($doc_id) {
 		$return_array = array($doc_id);
@@ -237,7 +246,6 @@ class LINKLIST
 	function getPage($doc_id)
 	{
 		global $modx;
-		
 		global $page_cache;
 		
 		// If already cached, return this instead of doing another MySQL query
@@ -248,10 +256,6 @@ class LINKLIST
 		
 	    $tblsc = $modx->getFullTableName('site_content');
 	    $tbldg = $modx->getFullTableName('document_groups');
-	
-	    // modify field names to use sc. table reference
-//		$fields = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$fields)));
-//		$sort = 'sc.'.implode(',sc.',preg_replace("/^\s/i","",explode(',',$sort)));
 	
 	    $sql = "SELECT sc.parent, sc.menutitle, sc.pagetitle, sc.menuindex, sc.published FROM $tblsc sc
 	      LEFT JOIN $tbldg dg on dg.document = sc.id
@@ -265,19 +269,18 @@ class LINKLIST
 	    return $resourceArray[0];
 	}
 	
-	
 	function doSql($sql)
 	{
 		global $modx;
 		// Connecting, selecting database
 		
-	    $result = $modx->db->query($sql);
-	    $resourceArray = array();
-	    while($par = $modx->db->getRow($result))
-	    {
-	      $resourceArray[] = $par;
-	    }
+		$result = $modx->db->query($sql);
+		$resourceArray = array();
+		while($par = $modx->db->getRow($result))
+		{
+			$resourceArray[] = $par;
+		}
 		
-	    return $resourceArray;
+		return $resourceArray;
 	}
 }
