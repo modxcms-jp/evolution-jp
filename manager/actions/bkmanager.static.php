@@ -493,7 +493,7 @@ function import_sql($source,$result_code='import_ok')
 	}
 	$modx->clearCache();
 	$_SESSION['result_msg'] = $result_code;
-	$header="Location: index.php?r=1&a=93";
+	$header="Location: index.php?r=9&a=93";
 	header($header);
 }
 
