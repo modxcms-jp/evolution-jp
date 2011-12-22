@@ -137,9 +137,10 @@ else
 			$keyname = implode('-', $sortcrumbs);
 			
 			// Check for duplicates
+			$sc_count = count($sortcrumbs)-1;
 			while (isset($list[$keyname]))
 			{
-				$sortcrumbs[count($sortcrumbs)-1] += 1000000000;
+				$sortcrumbs[$sc_count] += 1000000000;
 				$keyname = implode('-', $sortcrumbs);
 			}
 			
