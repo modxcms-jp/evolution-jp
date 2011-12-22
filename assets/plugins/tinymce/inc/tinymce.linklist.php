@@ -83,7 +83,14 @@ else
 				$p = $linklist->getPage($parent);
 				
 				// Assemble what will be displayed
-				$breadcrumbs[] = ($p['menutitle']) ? htmlentities($p['menutitle'],ENT_QUOTES,$charset):htmlentities($p['pagetitle'],ENT_QUOTES,$charset);
+				if($p['menutitle'])
+				{
+					$breadcrumbs[] = htmlentities($p['menutitle'],ENT_QUOTES,$charset) . " ({$page['id']})";
+				}
+				else
+				{
+					$breadcrumbs[] = htmlentities($p['pagetitle'],ENT_QUOTES,$charset) . " ({$page['id']})";
+				}
 				
 				// How will it be sorted?
 				if ($sortby == 'menuindex')
