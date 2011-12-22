@@ -18,6 +18,8 @@ $create = false;
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
+if(@file_exists('../autoload.php')) include_once('../autoload.php');
+
 require_once('functions.php');
 
 echo "<p>{$_lang['setup_database']}</p>\n";

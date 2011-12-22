@@ -2,6 +2,9 @@
 /**
  * MODx Installer
  */
+
+if(@file_exists('../autoload.php')) include_once('../autoload.php');
+
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_runtime', 0);
