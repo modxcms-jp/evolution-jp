@@ -121,7 +121,8 @@ width:800px;
 	text-align: right;
 }
 
-strong, em, b, i {
+strong, em, b {
+color:#444;
 }
 h1, h2, h3, h4, h5, h6, address {
 margin-top:0;

@@ -138,7 +138,7 @@ $_lang["sample_web_site"] = 'サンプルサイト';
 $_lang["sample_web_site_note"] = '<span style="font-style:normal;">簡易なテンプレート・新着情報一覧・ナビゲーション・パン屑リスト・問い合わせフォームの実装サンプルが含まれています。</span>';
 $_lang["session_problem"] = 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。';
 $_lang["session_problem_try_again"] = '再試行しますか？'; 
-$_lang["setup_cannot_continue"] = '上記理由のため、セットアップを継続できません。';
+$_lang["setup_cannot_continue"] = '問題点があるため、セットアップを継続できません。';
 $_lang["setup_couldnt_install"] = '選択されたテーブルをインストール/変更できませんでした。';
 $_lang["setup_database"] = 'セットアップ結果<br />';
 $_lang["setup_database_create_connection"] = 'データベース接続: ';
