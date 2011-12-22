@@ -15,12 +15,6 @@
  *
 
 /**
- * file-related constants
- *
- */
-if (!defined("FILE_APPEND")) { define("FILE_APPEND", 8); }
-
-/**
  * write-at-once file access (counterpart to file_get_contents)
  *
  * @param  integer $filename
@@ -61,6 +55,13 @@ if (!function_exists("file_put_contents")) {
       }
    }
 }
+
+/**
+ * file-related constants
+ *
+ */
+if (!defined("FILE_USE_INCLUDE_PATH")) { define("FILE_USE_INCLUDE_PATH", 1); }
+if (!defined("FILE_APPEND")) { define("FILE_APPEND", 8); }
 
 #-- more new constants for 5.0
 if (!defined("E_STRICT")) { define("E_STRICT", 2048); }  // _STRICT is a special case of _NOTICE (_DEBUG)
