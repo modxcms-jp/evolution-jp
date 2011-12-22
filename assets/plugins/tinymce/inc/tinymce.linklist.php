@@ -145,12 +145,6 @@ else
 			
 			//$caption = $keyname;
 			
-			if (function_exists('mb_encode_numericentity'))
-			{
-				$convmap = array(0x0080, 0xffff, 0, 0xffff);
-				$encoding = $GLOBALS['database_connection_charset'];
-				$caption = mb_encode_numericentity($caption, $convmap, $encoding);
-			}
 			$output = '["' .$caption;
 			if ($include_page_ids)
 			{
@@ -171,6 +165,12 @@ else
 	// Output the array separated by commas
 	$list_output = implode(", \n", $list);
 	
+	if (function_exists('mb_encode_numericentity'))
+	{
+		$convmap = array(0x0080, 0xffff, 0, 0xffff);
+		$encoding = $GLOBALS['database_connection_charset'];
+		$list_output = mb_encode_numericentity($list_output, $convmap, $encoding);
+	}
 	// Output as javascript
 	$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
 	file_put_contents($cache_path,$output);
