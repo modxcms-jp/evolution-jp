@@ -8,12 +8,6 @@ if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_sybase', 0);
 }
 
-if (version_compare(phpversion(),'5.0.0','<'))
-{
-	$upgradephp_path = '../manager/includes/extenders/upgradephp/';
-	include_once $upgradephp_path . 'php0500.php';
-}
-
 // start session
 session_start();
 $_SESSION['test'] = 1;
