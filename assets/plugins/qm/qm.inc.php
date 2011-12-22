@@ -61,8 +61,8 @@ class Qm {
 		
 		// Individual user language setting (if set)
 		$tbl_user_settings = $this->modx->getFullTableName('user_settings');
-		$query = "SELECT setting_name, setting_value FROM {$tbl_user_settings} WHERE setting_name='manager_language' AND user={$_SESSION['mgrInternalKey']}";
-		$records = $this->modx->db->query($query);
+		$where = "setting_name='manager_language' AND user={$_SESSION['mgrInternalKey']}";
+		$records = $this->modx->db->select('setting_name, setting_value',$tbl_user_settings,$where);
 		if ($this->modx->db->getRecordCount($records) > 0)
 		{
 			$record = $this->modx->db->getRow($records);
@@ -752,8 +752,7 @@ function getCookie(cookieName)
 			$table= $this->modx->getFullTableName("document_groups");
 			
 			// Check if current document is assigned to one or more doc groups
-			$sql= "SELECT id FROM {$table} WHERE document={$docID}";
-			$result= $this->modx->db->query($sql);
+			$result= $this->modx->db->select('id',$table,"document={$docID}");
 			$rowCount= $this->modx->recordCount($result);
 			
 			// If document is assigned to one or more doc groups, check access
@@ -766,8 +765,7 @@ function getCookie(cookieName)
 					$docGroup = implode(",", $mrgDocGroups);
 					
 					// Check if user has access to current document
-					$sql= "SELECT id FROM {$table} WHERE document = {$docID} AND document_group IN ({$docGroup})";
-					$result= $this->modx->db->query($sql);
+					$result= $this->modx->db->select('id',$table,"document = {$docID} AND document_group IN ({$docGroup})");
 					$rowCount = $this->modx->recordCount($result);
 					
 					if ($rowCount >= 1) $access = TRUE;
@@ -787,8 +785,7 @@ function getCookie(cookieName)
 		global $modx;
 		if(empty($this->aliases))
 		{
-			$sql = "SELECT id, IF(alias='', id, alias) AS alias, parent FROM ".$modx->getFullTableName('site_content');
-			$qh = $modx->db->query($sql);
+			$qh = $modx->db->select("id, IF(alias='', id, alias) AS alias, parent",$modx->getFullTableName('site_content'));
 			if ($qh && $modx->db->getRecordCount($qh) > 0)
 			{
 				while ($row = $modx->db->getRow($qh))
@@ -861,8 +858,7 @@ function getCookie(cookieName)
 		// Check permission to TV, TV is in document group
 		if (!$access && $this->docGroup != '')
 		{
-			$sql = "SELECT id FROM {$table} WHERE tmplvarid = {$tvId} AND documentgroup IN ({$this->docGroup})";
-			$result = $this->modx->db->query($sql);
+			$result = $this->modx->db->select('id',$table,"tmplvarid = {$tvId} AND documentgroup IN ({$this->docGroup})");
 			$rowCount = $this->modx->recordCount($result);
 			if ($rowCount >= 1) { $access = TRUE; }
 		}
@@ -896,12 +892,7 @@ function getCookie(cookieName)
 		$locked = TRUE;
 		$userId = $_SESSION['mgrInternalKey'];
 		
-		$sql = "SELECT `internalKey`
-		FROM {$activeUsersTable}
-		WHERE (`action` = 27)
-		AND `internalKey` != '{$userId}'
-		AND `id` = '{$pageId}';";
-		$result = $this->modx->db->query($sql);
+		$result = $this->modx->db->select('internalKey',$activeUsersTable,$where);
 		
 		if ($this->modx->db->getRecordCount($result) === 0)
 		{
@@ -969,11 +960,8 @@ function getCookie(cookieName)
 		// Save TV
 		if ($tvId != '')
 		{
-			$sql = "SELECT id
-			FROM {$tmplvarContentValuesTable}
-			WHERE `tmplvarid` = '{$tvId}'
-			AND `contentid` = '{$pageId}';";
-			$result = $this->modx->db->query($sql);
+			$where = "`tmplvarid` = '{$tvId}' AND `contentid` = '{$pageId}'";
+			$result = $this->modx->db->select('id',$tmplvarContentValuesTable,$where);
 			
 			// TV exists, update TV
 			if($this->modx->db->getRecordCount($result))
