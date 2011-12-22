@@ -37,6 +37,17 @@ if ($_SESSION['test'] != 1) {
     echo echo_ok();
 }
 echo '</p>';
+
+// check sessions
+echo "<p>file_put_contents関数の存在チェック: ";
+if (!function_exists('file_put_contents')) {
+    echo echo_failed() . "</p><p><strong>対応方法については<a href=\"http://modx.jp/download/download_evo.html\" target=\"_blank\">公式サイト</a>をご確認ください。</strong>";
+    $errors += 1;
+} else {
+    echo echo_ok();
+}
+echo '</p>';
+
 // check directories
 // cache exists?
 echo "<p>" . $_lang['checking_if_cache_exist'];
@@ -60,7 +71,7 @@ echo '</p>';
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
 if (!file_exists("../assets/cache/siteCache.idx.php")) {
     // make an attempt to create the file
-    file_put_contents('../assets/cache/siteCache.idx.php','<?php //MODx site cache file ?>');
+    if(function_exists('file_put_contents')) file_put_contents('../assets/cache/siteCache.idx.php','<?php //MODx site cache file ?>');
 }
 if (!is_writable("../assets/cache/siteCache.idx.php")) {
     echo echo_failed();
@@ -125,7 +136,7 @@ echo "<p>".$_lang['checking_if_config_exist_and_writable'];
 $config_path = '../manager/includes/config.inc.php';
 if (!file_exists($config_path)) {
     // make an attempt to create the file
-    file_put_contents($config_path,'<?php //MODx configuration file ?>');
+    if(function_exists('file_put_contents')) file_put_contents($config_path,'<?php //MODx configuration file ?>');
 }
 @chmod($config_path, 0606);
 $isWriteable = is_writable($config_path);
@@ -248,7 +259,7 @@ if ($conn) {
 
 if (is_writable("../assets/cache")) {
     // make an attempt to create the file
-    file_put_contents('../assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
+    if(function_exists('file_put_contents')) file_put_contents('../assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
 }
 
 if($installMode > 0 && $_POST['installdata'] == "1") {
@@ -259,7 +270,7 @@ if ($errors > 0) {
 ?>
       <p>
       <?php
-      echo $_lang['setup_cannot_continue'];
+      echo "<strong>{$_lang['setup_cannot_continue']}</strong>";
       echo $errors > 1 ? $errors." " : "";
       if ($errors > 1) echo $_lang['errors'];
       else echo $_lang['error'];
