@@ -55,14 +55,6 @@ while ($row = $modx->db->getRow($rs))
 }
 extract($settings, EXTR_OVERWRITE);
 
-if((!isset($settings_version) || $settings_version!=$modx_version) && file_exists(MODX_BASE_PATH . 'install'))
-{
-	include_once "header.inc.php";
-	echo 'アップデータが実行されていません。<br /><a href="" onclick="window.top.location.href=\'../install/\';">[実行する]</a>';
-	include_once "footer.inc.php";
-	exit;
-}
-
 $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
 
 // load languages and keys
