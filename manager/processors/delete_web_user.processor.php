@@ -4,9 +4,6 @@ if(!$modx->hasPermission('delete_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
 $id=intval($_GET['id']);
 
 // get user name
@@ -58,7 +55,5 @@ if(!$rs) {
 							"id"	=> $id
 						));
 
-	$header="Location: index.php?a=99";
-	header($header);
+	header("Location: index.php?a=99");
 }
-?>

@@ -171,5 +171,3 @@ function duplicateAccess($oldid,$newid){
 		$newid.', document_group', $tbldg, 'document='.$oldid // Copy from
 	);
 }
-
-?>

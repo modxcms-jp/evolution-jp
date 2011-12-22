@@ -5,8 +5,6 @@ if (!$modx->hasPermission('save_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
 
 // Web alert -  sends an alert to web browser
 function webAlert($msg) {
@@ -210,11 +208,10 @@ switch ($_POST['mode']) {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "12&id=$id" : "11";
 				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
-				header($header);
 			} else {
 				$header = "Location: index.php?a=75";
-				header($header);
 			}
+			header($header);
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "12&id=$key" : "11";
@@ -444,11 +441,10 @@ switch ($_POST['mode']) {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "12&id=$id" : "11";
 				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
-				header($header);
 			} else {
 				$header = "Location: index.php?a=75";
-				header($header);
 			}
+			header($header);
 		}
 		break;
 	default :
@@ -604,4 +600,3 @@ function ConvertDate($date) {
 	if ($date == "") {return "0";}
 	else {}          {return $modx->toTimeStamp($date);}
 }
-?>

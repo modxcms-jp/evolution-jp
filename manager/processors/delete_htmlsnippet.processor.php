@@ -4,9 +4,6 @@ if(!$modx->hasPermission('delete_snippet')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
 $id=intval($_GET['id']);
 
 // invoke OnBeforeChunkFormDelete event
@@ -31,7 +28,5 @@ if(!$rs) {
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 	// finished emptying cache - redirect
-	$header="Location: index.php?a=76";
-	header($header);
+	header("Location: index.php?a=76");
 }
-?>

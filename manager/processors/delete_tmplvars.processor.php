@@ -1,12 +1,9 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-if(!$modx->hasPermission('delete_template')) {	
+if(!$modx->hasPermission('delete_template')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
-?>
-<?php
-
 	$id = isset($_GET['id'])? intval($_GET['id']):0;
 	$forced = isset($_GET['force'])? $_GET['force']:0;
 
@@ -61,8 +58,7 @@ if(!$modx->hasPermission('delete_template')) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
 	} else {		
-		$header="Location: index.php?a=76";
-		header($header);
+		header("Location: index.php?a=76");
 	}
 
 	// delete variable's content values
@@ -79,4 +75,3 @@ if(!$modx->hasPermission('delete_template')) {
 							array(
 								"id"	=> $id
 							));								
-?>

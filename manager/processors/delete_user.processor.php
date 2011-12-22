@@ -4,9 +4,6 @@ if(!$modx->hasPermission('delete_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-?>
-<?php
-
 $id=intval($_GET['id']);
 
 // delete the user, but first check if we are deleting our own record
@@ -72,7 +69,5 @@ if(!$rs) {
 							"id"	=> $id
 						));
 
-	$header="Location: index.php?a=75";
-	header($header);
+	header("Location: index.php?a=75");
 }
-?>

@@ -124,8 +124,7 @@ elseif ($mode=='snapshot')
 	if($dumpfinished)
 	{
 		$_SESSION['result_msg'] = 'snapshot_ok';
-		$header="Location: index.php?a=93";
-		header($header);
+		header("Location: index.php?a=93");
 		exit;
 	} else {
 		$e->setError(1, 'Unable to Backup Database');
@@ -493,8 +492,7 @@ function import_sql($source,$result_code='import_ok')
 	}
 	$modx->clearCache();
 	$_SESSION['result_msg'] = $result_code;
-	$header="Location: index.php?r=9&a=93";
-	header($header);
+	header("Location: index.php?r=9&a=93");
 }
 
 function callBack(&$dumpstring) {

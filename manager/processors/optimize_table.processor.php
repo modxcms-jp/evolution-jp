@@ -16,6 +16,4 @@ elseif (isset($_REQUEST['u'])) $sql = "TRUNCATE TABLE $dbase.".$_REQUEST['u'].";
 if($sql) $rs = @mysql_query($sql);
 
 $mode = intval($_REQUEST['mode']);
-$header="Location: index.php?a=".$mode."&s=4";
-header($header);
-?>
+header("Location: index.php?a=".$mode."&s=4");

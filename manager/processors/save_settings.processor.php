@@ -58,6 +58,4 @@ if (isset($_POST) && count($_POST) > 0) {
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 }
-$header="Location: index.php?a=7&r=10";
-header($header);
-?>
+header("Location: index.php?a=7&r=10");

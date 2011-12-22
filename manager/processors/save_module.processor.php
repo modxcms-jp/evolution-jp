@@ -106,11 +106,10 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "108&id={$newid}":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=106&r=2";
-				header($header);
 			}
+			header($header);
 		}
         break;
     case '108':
@@ -141,17 +140,15 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "108&id=$id":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=106&r=2";
-				header($header);
 			}
+			header($header);
 		}
         break;
     default:
     	// redirect to view modules
-		$header="Location: index.php?a=106&r=2";
-		header($header);
+		header("Location: index.php?a=106&r=2");
 }
 
 // saves module user group access
@@ -184,4 +181,3 @@ function saveUserGroupAccessPermissons(){
 		}
 	}
 }
-?>

@@ -52,7 +52,5 @@ if(!$rs) {
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 	// finished emptying cache - redirect
-	$header="Location: index.php?r=1&a=7";
-	header($header);
+	header("Location: index.php?r=1&a=7");
 }
-?>

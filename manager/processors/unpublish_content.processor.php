@@ -48,4 +48,3 @@ if($pid!=='0') $header="Location: index.php?r=1&a=3&id={$pid}&tab=0{$page}";
 else           $header="Location: index.php?a=2&r=1";
 
 header($header);
-?>

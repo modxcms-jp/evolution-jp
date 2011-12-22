@@ -30,7 +30,4 @@ if($limit!=1) {
 	}
 }
 
-$header = "Location: index.php?a=10";
-header($header);
-
-?>
+header("Location: index.php?a=10");

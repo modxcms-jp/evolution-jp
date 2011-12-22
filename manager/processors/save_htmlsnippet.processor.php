@@ -1,12 +1,9 @@
-<?php 
+<?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('save_chunk')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
-?>
-<?php
-
 $id = intval($_POST['id']);
 $snippet = $modx->db->escape($_POST['post']);
 $name = $modx->db->escape(trim($_POST['name']));
@@ -88,12 +85,11 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "78&id=$newid":"77";
 				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=76";
-				header($header);
 			}
-		}		
+			header($header);
+		}
         break;
     case '78':
 
@@ -124,12 +120,11 @@ switch ($_POST['mode']) {
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "78&id=$id":"77";
 				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
-				header($header);
 			} else {
 				$header="Location: index.php?a=76";
-				header($header);
 			}
-		}		
+			header($header);
+		}
 
 		
 		
@@ -139,4 +134,3 @@ switch ($_POST['mode']) {
 	Erm... You supposed to be here now?
 	<?php
 }
-?>
