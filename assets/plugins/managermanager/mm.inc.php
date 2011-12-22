@@ -293,18 +293,10 @@ case 'OnPluginFormRender':
 
 
 case 'OnManagerMainFrameHeaderHTMLBlock':
-	switch($_GET['a'])
-	{
-		case '85':
-		case '4':
-		case '27':
-		case '301':
-			$output  = '<!-- Begin ManagerManager output -->' . "\n";
-			$output .= includeJs($js_url, 'html');
-			$e->output($output);
-			break;
-		default:return;
-	}
+	$output  = '<!-- Begin ManagerManager output -->' . "\n";
+	$output .= includeJs($js_url, 'html');
+	$e->output($output);
+	
 	break;
 
 case 'OnDocFormPrerender':
