@@ -361,7 +361,7 @@ if (is_writable($startpath))
 		{
 			echo '<span class="warning"><b>'.$_lang['files_filetype_notok'].'</b></span><br /><br />';
 		}
-		elseif(preg_match('@(\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@',$filename)!==0)
+		elseif(preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@',$filename)!==0)
 		{
 			echo '<span class="warning"><b>ファイル名が不正です。</b></span><br /><br />';
 		}
