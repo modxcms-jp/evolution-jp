@@ -1013,11 +1013,7 @@ function getCookie(cookieName)
 	function clearCache()
 	{
 		// Clear cache
-		include_once $this->modx->config['base_path']."manager/processors/cache_sync.class.processor.php";
-		$sync = new synccache();
-		$sync->setCachepath($this->modx->config['base_path']."assets/cache/");
-		$sync->setReport(false);
-		$sync->emptyCache();
+		$this->modx->clearCache();
 	}
 	
 	function get_img_prev_src()

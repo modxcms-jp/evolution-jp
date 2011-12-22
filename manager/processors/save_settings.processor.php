@@ -56,11 +56,7 @@ if (isset($_POST) && count($_POST) > 0) {
 	unset($_POST);
 	
 	// empty cache
-	include_once "cache_sync.class.processor.php";
-	$sync = new synccache();
-	$sync->setCachepath("../assets/cache/");
-	$sync->setReport(false);
-	$sync->emptyCache(); // first empty the cache
+	$modx->clearCache(); // first empty the cache
 }
 $header="Location: index.php?a=7&r=10";
 header($header);

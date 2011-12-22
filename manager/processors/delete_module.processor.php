@@ -39,11 +39,7 @@ else {
 
 
 	// empty cache
-	include_once "cache_sync.class.processor.php";
-	$sync = new synccache();
-	$sync->setCachepath("../assets/cache/");
-	$sync->setReport(false);
-	$sync->emptyCache(); // first empty the cache
+	$modx->clearCache(); // first empty the cache
 	// finished emptying cache - redirect
 
 	$header="Location: index.php?a=106&r=2";

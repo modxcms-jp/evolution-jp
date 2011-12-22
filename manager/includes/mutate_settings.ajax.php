@@ -55,11 +55,7 @@ if($action == 'get') {
 }
 
 if($emptyCache) {
-    include_once dirname(dirname(__FILE__)) . "/processors/cache_sync.class.processor.php";
-    $sync = new synccache();
-    $sync->setCachepath("../assets/cache/");
-    $sync->setReport(false);
-    $sync->emptyCache();
+    $modx->clearCache();
 }
 
 echo $str;
