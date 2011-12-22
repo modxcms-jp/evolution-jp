@@ -243,7 +243,7 @@ $sql = "SELECT uga.documentgroup
         INNER JOIN $tbluga uga ON uga.membergroup=ug.user_group
         WHERE ug.member =".$internalKey;
 $rs = $modx->db->query($sql);
-while ($row = $modx->db->getRow($rs)) $dg[$i++]=$row[0];
+while ($row = $modx->db->getRow($rs,'num')) $dg[$i++]=$row[0];
 $_SESSION['mgrDocgroups'] = $dg;
 
 if($rememberme == '1') {
