@@ -73,7 +73,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo (!$modx_textdir ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
 		} catch(oException) {
-			x=window.setTimeout('hideTreeFrame()', 500);
+			x=window.setTimeout('hideTreeFrame()', 100);
 		}
 	}
 
@@ -86,7 +86,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = defaultFrameWidth;
 			top.__hideTree = false;
 		} catch(oException) {
-			z=window.setTimeout('defaultTreeFrame()', 500);
+			z=window.setTimeout('defaultTreeFrame()', 100);
 		}
 	}
 
@@ -96,7 +96,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.openAll();  // dtree
 		} catch(oException) {
-			zz=window.setTimeout('expandTree()', 500);
+			zz=window.setTimeout('expandTree()', 100);
 		}
 	}
 
@@ -104,7 +104,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.closeAll();  // dtree
 		} catch(oException) {
-			yy=window.setTimeout('collapseTree()', 500);
+			yy=window.setTimeout('collapseTree()', 100);
 		}
 	}
 
@@ -117,7 +117,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			elm.style.display = 'block';
 		}
 		top.tree.saveFolderState(); // save folder state
-		setTimeout('top.tree.restoreTree()',200);
+		setTimeout('top.tree.restoreTree()',100);
 	}
 
 	function reloadmenu() {
@@ -131,14 +131,14 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	function startrefresh(rFrame){
 		if(rFrame==1){
-			x=window.setTimeout('reloadtree()',500);
+			x=window.setTimeout('reloadtree()',100);
 		}
 		if(rFrame==2) {
-			x=window.setTimeout('reloadmenu()',500);
+			x=window.setTimeout('reloadmenu()',100);
 		}
 		if(rFrame==9) {
+			y=window.setTimeout('reloadtree()',100);
 			x=window.setTimeout('reloadmenu()',500);
-			y=window.setTimeout('reloadtree()',500);
 		}
 		if(rFrame==10) {
 			window.top.location.href = "../manager/";
