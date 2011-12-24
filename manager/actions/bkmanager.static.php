@@ -20,7 +20,14 @@ $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
 if ($mode=='restore1')
 {
-	$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
+	if(isset($_POST['textarea']) && !empty($_POST['textarea']))
+	{
+		$source = trim($_POST['textarea']);
+	}
+	else
+	{
+		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
+	}
 	import_sql($source);
 	exit;
 }
@@ -278,7 +285,29 @@ if ($totaloverhead > 0) {
 	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore1" />
-	<input type="file" name="sqlfile" size="70" /><br />
+	<script type="text/javascript">
+	function showhide(a)
+	{
+		var f=document.getElementById('sqlfile');
+		var t=document.getElementById('textarea');
+		if(a=='file') 
+		{
+			f.style.display = 'block';
+			t.style.display = 'none';
+		}
+		else
+		{
+			t.style.display = 'block';
+			f.style.display = 'none';
+		}
+	}
+	</script>
+	<p>
+	<label><input type="radio" name="sel" onclick="showhide('file');" checked /> ファイルから実行</label>
+	<label><input type="radio" name="sel" onclick="showhide('textarea');" /> SQL文を貼り付けて実行</label>
+	</p>
+	<div><input type="file" name="sqlfile" id="sqlfile" size="70" /></div>
+	<div><textarea name="textarea" id="textarea" style="width:500px;height:200px;display:none;"></textarea></div>
 	<div class="actionButtons" style="margin-top:10px;">
 	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> リストア実行</a>
 	</div>
