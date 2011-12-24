@@ -158,6 +158,8 @@ switch ($_POST['mode'])
 			exit;
 		}
     	// update TV
+    	$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_tmplvars,"id='{$id}'"));
+    	$reserve_name_replace = ($was_name!==$field['name']) ? true : false;
 		$field = array();
 		$field['name']           = $name;
 		$field['description']    = $description;
@@ -177,6 +179,12 @@ switch ($_POST['mode'])
 		}
 		else
 		{
+			$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_content'));
+			$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_templates'));
+			$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_htmlsnippets'));
+			$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_content'));
+			$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_templates'));
+			$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
 			// save access permissions
 			saveTemplateAccess();
 			saveDocumentAccessPermissons();
