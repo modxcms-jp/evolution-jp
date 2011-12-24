@@ -69,20 +69,6 @@ class Qm {
 			$manager_language = $record['setting_value'];
 		}
 		
-		// Include_once the language file
-		if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
-		{
-			$manager_language = 'english'; // if not set, get the english language file.
-		}
-		// Include default language
-		include_once MODX_MANAGER_PATH."includes/lang/english.inc.php";
-		
-		// Include user language
-		if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
-		{
-			include_once MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php";
-		}
-		
 		// Get event
 		$e = &$this->modx->event;
 		
@@ -123,6 +109,20 @@ class Qm {
 				
 			// Display page in front-end
 			case 'OnWebPagePrerender':
+				// Include_once the language file
+				if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
+				{
+					$manager_language = 'english'; // if not set, get the english language file.
+				}
+				// Include default language
+				include_once MODX_MANAGER_PATH."includes/lang/english.inc.php";
+				
+				// Include user language
+				if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
+				{
+					include_once MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php";
+				}
+				
 				// Get document id
 				$docID = $this->modx->documentIdentifier;
 				
