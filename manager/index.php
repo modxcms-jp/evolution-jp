@@ -116,14 +116,10 @@ $modx = new DocumentParser;
 $modx->loadExtension("ManagerAPI");
 $modx->getSettings();
 $etomite = &$modx; // for backward compatibility
-
 // connect to the database
-if(@!$modxDBConn = mysql_connect($database_server, $database_user, $database_password)) {
-    die("<h2>Failed to create the database connection!</h2>. Please run the MODx <a href='../install/index.php?action=mode'>install utility</a>");
-} else {
-    mysql_select_db(str_replace('`', '', $dbase));
-    @mysql_query("{$database_connection_method} {$database_connection_charset}");
-}
+$modx->config['charset'] = $database_connection_charset;
+$modx->config['connection_method'] = $database_connection_method;
+$modx->db->connect($database_server, $dbase, $database_user, $database_password);
 
 // start session
 startCMSSession();
