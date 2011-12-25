@@ -140,8 +140,8 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		{
 			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
 		}
-		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+])</span>';
-		$tpl .= '[+description+][+locked+]</li>';
+		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
+		$tpl .= ' [+description+][+locked+]</li>';
 		$ph['class'] = $class;
 		$ph['id'] = $row['id'];
 		$ph['action'] = $action;
