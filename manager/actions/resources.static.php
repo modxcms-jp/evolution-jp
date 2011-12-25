@@ -119,7 +119,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	$orderby = ($resourceTable == 'site_plugins') ? "6,{$tbl_elm}.disabled ASC,2" : '5,1';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
-	$limit = mysql_num_rows($rs);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit<1)
 	{
 		return $_lang['no_results'];
@@ -127,7 +127,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	$preCat = '';
 	$insideUl = 0;
 	$output = '<ul>';
-	while($row = mysql_fetch_assoc($rs))
+	while($row = $modx->db->getRow($rs))
 	{
 		$row['category'] = stripslashes($row['category']); //pixelchutes
 		if ($preCat !== $row['category'])
@@ -221,10 +221,10 @@ function createCategoryList()
 			$from = "{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
 			$orderby = ($v['table'] == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
 			$rs = $modx->db->select($fields,$from,'',$orderby);
-			$limit = mysql_num_rows($rs);
+			$limit = $modx->db->getRecordCount($rs);
 			if($limit>0)
 			{
-				while($row = mysql_fetch_assoc($rs))
+				while($row = $modx->db->getRow($rs))
 				{
 					$row['type'] = $v['name'];
 					$row['action'] = $v['action'];
