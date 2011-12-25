@@ -29,7 +29,7 @@ $sql = 'SELECT DISTINCT sc.* '.
        "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
        "WHERE sc.id ='{$id}' ".
        "AND ({$access})";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if ($limit > 1) {
 	echo "<p>Internal System Error...</p>",
@@ -46,17 +46,17 @@ $content = mysql_fetch_assoc($rs);
  * "General" tab setup
  */
 // Get Creator's username
-$rs = mysql_query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['createdby']}'");
+$rs = $modx->db->query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['createdby']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$createdbyname = $row['username'];
 
 // Get Editor's username
-$rs = mysql_query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['editedby']}'");
+$rs = $modx->db->query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['editedby']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$editedbyname = $row['username'];
 
 // Get Template name
-$rs = mysql_query("SELECT templatename FROM {$tbl_site_templates} WHERE id='{$content['template']}'");
+$rs = $modx->db->query("SELECT templatename FROM {$tbl_site_templates} WHERE id='{$content['template']}'");
 if ($row = mysql_fetch_assoc($rs))
 	$templatename = $row['templatename'];
 
@@ -71,7 +71,7 @@ if ($modx->config['show_meta'])
 	$sql = "SELECT k.keyword FROM {$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x ".
 	       "WHERE k.id = x.keyword_id AND x.content_id = '{$id}' ".
 	       "ORDER BY k.keyword ASC";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	while($row = mysql_fetch_assoc($rs))
 	{
 		$keywords[$i] = $row['keyword'];
@@ -82,7 +82,7 @@ if ($modx->config['show_meta'])
 	       "FROM {$tbl_site_metatags} AS meta ".
 	       "LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id ".
 	       "WHERE sc.content_id='{$content['id']}'";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	while($row = mysql_fetch_assoc($rs))
 	{
 		$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
