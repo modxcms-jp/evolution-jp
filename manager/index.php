@@ -131,16 +131,12 @@ include_once "settings.inc.php";
 include_once "user_settings.inc.php";
 
 // include_once the language file
+$default__language = 'japanese-utf8';
 if(!isset($manager_language)) {
-    $manager_language = "english"; // if not set, get the english language file.
+    $manager_language = $default__language; // if not set, get the english language file.
 }
 $_lang = array();
-include_once(MODX_MANAGER_PATH."includes/lang/english.inc.php");
-$length_eng_lang = count($_lang);
-
-if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php")) {
-    include_once "lang/".$manager_language.".inc.php";
-}
+include_once(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php");
 
 // send the charset header
 header('Content-Type: text/html; charset='.$modx_manager_charset);
