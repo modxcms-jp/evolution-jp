@@ -106,7 +106,7 @@ else
 	echo 'You cannot move a document to a child document!';
 }
 $modx->clearCache();
-if($pid!==0) $header="Location: index.php?a=3&id={$new_parent}&tab=0&r=1";
+if($new_parent!==0) $header="Location: index.php?a=3&id={$new_parent}&tab=0&r=1";
 else         $header="Location: index.php?a=2&r=1";
 header($header);
 exit;
