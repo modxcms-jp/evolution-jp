@@ -891,7 +891,7 @@ function getCookie(cookieName)
 		$pageId = $this->modx->documentIdentifier;
 		$locked = TRUE;
 		$userId = $_SESSION['mgrInternalKey'];
-		
+		$where = "(`action` = 27) AND `internalKey` != '{$userId}' AND `id` = '{$pageId}'";
 		$result = $this->modx->db->select('internalKey',$activeUsersTable,$where);
 		
 		if ($this->modx->db->getRecordCount($result) === 0)
