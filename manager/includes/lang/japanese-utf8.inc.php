@@ -903,7 +903,7 @@ $_lang["snippet"] = 'スニペット';
 $_lang["snippet_code"] = 'スニペット コード (php)';
 $_lang["snippet_desc"] = '説明';
 $_lang["snippet_execonsave"] = '更新後にスニペットを実行';
-$_lang["snippet_management_msg"] = '<h3 style="font-weight:bold;">スニペットの管理</h3>スニペットは主にリソースやテンプレートから呼び出すことを想定した簡易の機能拡張です。リソースまたはテンプレート内の任意の場所に <strong>[[スニペット名]]</strong> または <strong>[!スニペット名!]</strong> (キャッシュ無効)と記述するだけで手軽に呼び出せます。詳しくは<a href="index.php?a=9">ヘルプ</a>をご覧ください。>';
+$_lang["snippet_management_msg"] = '<h3 style="font-weight:bold;">スニペットの管理</h3>スニペットは主にリソースやテンプレートから呼び出すことを想定した簡易の機能拡張です。リソースまたはテンプレート内の任意の場所に <strong>[[スニペット名]]</strong> または <strong>[!スニペット名!]</strong> (キャッシュ無効)と記述するだけで手軽に呼び出せます。詳しくは<a href="index.php?a=9">ヘルプ</a>をご覧ください。';
 $_lang["snippet_msg"] = '<p>スニペット名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は必須です。省略した場合は自動的に追加されます。スニペットの作り方については<a href="index.php?a=9">ヘルプ</a>の「Tutorial」を参照してください。</p>';
 $_lang["snippet_name"] = 'スニペット名';
 $_lang["snippet_properties"] = '既定のプロパティ';
