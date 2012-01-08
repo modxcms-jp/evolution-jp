@@ -424,6 +424,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 <input type="hidden" name="a" value="31">
 <input type="hidden" name="path" value="<?php echo $startpath?>">
 
+<div id="uploader">
 <span style="width:300px;"><?php echo $_lang['files_uploadfile_msg']?></span>
 <input id="file_elem" type="file" name="bogus"  style="height: 19px;">
 <input type="submit" value="<?php echo $_lang['files_uploadfile']?>">
@@ -433,7 +434,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 	var multi_selector = new MultiSelector( document.getElementById( 'files_list' ), 10 );
 	multi_selector.addElement( document.getElementById( 'file_elem' ) );
 </script>
-
+</div>
 </form>
 
 <?php
