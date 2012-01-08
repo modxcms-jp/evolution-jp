@@ -35,7 +35,8 @@
     padding: 0 !important;
 }
 
-.qm-new a, .qm-tv a
+.qm-new a, .qm-tv a,
+.qm-new a:link, .qm-tv a:visited
 {
     display: block;
     color: #3b454f;
