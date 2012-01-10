@@ -40,31 +40,37 @@ if(!is_numeric($id)) {
     exit;
 }
 
-if(isset($_GET['id'])) {
-    $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-    $sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
-    if($limit>1) {
-        echo "Oops, Multiple variables sharing same unique id. Not good.<p>";
-        exit;
-    }
-    if($limit<1) {
-        header("Location: /index.php?id=".$site_start);
-    }
-    $content = mysql_fetch_assoc($rs);
-	$formRestored = $modx->manager->loadFormValues();
-	if($formRestored) $content = array_merge($content, $_POST);
-    $_SESSION['itemname']=$content['caption'];
-    if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
-        $e->setError(3);
-        $e->dumpError();
-    }
-} else {
-	$formRestored = $modx->manager->loadFormValues();
-	if($formRestored) $content = $_POST;
-    $_SESSION['itemname']="New Template Variable";
+$content = array();
+if(isset($_GET['id']))
+{
+	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+	$sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
+	$rs = mysql_query($sql);
+	$limit = mysql_num_rows($rs);
+	if($limit>1)
+	{
+		echo "Oops, Multiple variables sharing same unique id. Not good.<p>";
+		exit;
+	}
+	if($limit<1)
+	{
+		header("Location: /index.php?id=".$site_start);
+	}
+	$content = mysql_fetch_assoc($rs);
+	$_SESSION['itemname']=$content['caption'];
+	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
 }
+else
+{
+	$_SESSION['itemname']="New Template Variable";
+}
+
+$formRestored = $modx->manager->loadFormValues();
+if($formRestored) $content = array_merge($content, $_POST);
 
 // get available RichText Editors
 $RTEditors = "";
@@ -295,7 +301,7 @@ function decode(s){
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_name']; ?>:</td>
-    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id='savingMessage'>&nbsp;</span></td>
+    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onchange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id='savingMessage'>&nbsp;</span></td>
   </tr>
   <tr>
     <td align="left"><?php echo $_lang['tmplvars_caption']; ?>:&nbsp;&nbsp;</td>
