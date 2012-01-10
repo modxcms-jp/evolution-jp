@@ -36,7 +36,7 @@ $datepicker_offset       = '-10';
 $datetime_format         = 'YYYY/mm/dd';
 $warning_visibility      = '0';
 $remember_last_tab       = '1';
-$auto_template_logic     = 'sibling';
+$auto_template_logic     = 'system';
 $manager_direction       = 'ltr';
 $tree_page_click         = 'auto';
 $signupemail_message     = $_lang['system_email_signup'];
@@ -345,7 +345,7 @@ function confirmLangChange(el, lkey, elupd)
 <td>
 <?php echo wrap_label($_lang["defaulttemplate_logic_system_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'system'));?><br />
 <?php echo wrap_label($_lang["defaulttemplate_logic_parent_message"],form_radio('auto_template_logic','parent',$auto_template_logic == 'parent'));?><br />
-<?php echo wrap_label($_lang["defaulttemplate_logic_sibling_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'sibling'));?><br />
+<?php echo wrap_label($_lang["defaulttemplate_logic_sibling_message"],form_radio('auto_template_logic','sibling',$auto_template_logic == 'sibling'));?><br />
 	<?php echo $_lang["defaulttemplate_logic_general_message"];?>
 </td>
 </tr>
