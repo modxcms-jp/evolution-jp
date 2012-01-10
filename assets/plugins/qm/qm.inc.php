@@ -833,7 +833,8 @@ function getCookie(cookieName)
 		// Return TV button link if access
 		if ($access && $caption != '')
 		{
-			return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></span>';
+			$tvname = urlencode($matches[1]);
+			return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$tvname.'"><span>'.$caption.'</span></a></span>';
 		}
 	}
 
