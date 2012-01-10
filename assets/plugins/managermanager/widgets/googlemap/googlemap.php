@@ -6,7 +6,7 @@
 //--------------------------------------------------------------------------------- 
 function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', $templates='') {
 	
-	global $modx, $mm_fields,$mm_current_page;
+	global $modx, $mm_fields,$mm_current_page,$modx_lang_attribute;
 	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates))
@@ -21,8 +21,9 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 		
 		$output .= "//  -------------- googlemap widget ------------- \n";
 		$output .= includeJs($modx->config['base_url'] .'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
-		$output .= includeJs('http://maps.google.com/maps?file=api&v=2&sensor=false&key='.$googleApiKey.'&async=2');
-		foreach ($fields as $targetTv) {
+		$output .= includeJs("http://maps.google.com/maps?file=api&sensor=false&key={$googleApiKey}&async=2&hl={$modx_lang_attribute}");
+		foreach ($fields as $targetTv)
+		{
 			$tv_id = $mm_fields[$targetTv]['fieldname'];
 			$output .= "googlemap('$tv_id','$default');";
 		}
