@@ -154,10 +154,8 @@ if(!isset($_SESSION['mgrValidated'])){
 }
 
 // include_once the style variables file
-if(isset($manager_theme) && !isset($_style)) {
-    $_style = array();
-    include_once "media/style/".$manager_theme."/style.php";
-}
+$theme_dir = "media/style/{$manager_theme}/";
+include_once "{$theme_dir}style.php";
 
 // check if user is allowed to access manager interface
 if(isset($allow_manager_access) && $allow_manager_access==0) {

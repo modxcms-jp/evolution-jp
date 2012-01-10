@@ -2345,7 +2345,8 @@ class DocumentParser {
 			}
 			else
 			{
-				$where= (is_numeric($idnames[0]) ? 'tv.id' : 'tv.name') . " IN ('" . implode("','", $idnames) . "')";
+				$tvnames = $this->db->escape(implode("','", $idnames));
+				$where = (is_numeric($idnames[0])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
 			}
 			if ($docgrp= $this->getUserDocGroups())
 			{
