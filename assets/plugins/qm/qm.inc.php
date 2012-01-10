@@ -931,8 +931,8 @@ function getCookie(cookieName)
 	//_____________________________________________________
 	function saveTv($tvName)
 	{
-		$tmplvarContentValuesTable = $this->modx->getFullTableName('site_tmplvar_contentvalues');
-		$siteContentTable = $this->modx->getFullTableName('site_content');
+		$tbl_site_tmplvar_contentvalues = $this->modx->getFullTableName('site_tmplvar_contentvalues');
+		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$pageId = $this->modx->documentIdentifier;
 		$result = null;
 		$time = time();
@@ -962,12 +962,12 @@ function getCookie(cookieName)
 		if ($tvId != '')
 		{
 			$where = "`tmplvarid` = '{$tvId}' AND `contentid` = '{$pageId}'";
-			$result = $this->modx->db->select('id',$tmplvarContentValuesTable,$where);
+			$result = $this->modx->db->select('id',$tbl_site_tmplvar_contentvalues,$where);
 			
 			// TV exists, update TV
 			if($this->modx->db->getRecordCount($result))
 			{
-				$sql = "UPDATE {$tmplvarContentValuesTable}
+				$sql = "UPDATE {$tbl_site_tmplvar_contentvalues}
 				SET `value` = '{$tvContent}'
 				WHERE `tmplvarid` = '{$tvId}'
 				AND `contentid` = '{$pageId}';";
@@ -975,17 +975,17 @@ function getCookie(cookieName)
 			else
 			{
 				// TV does not exist, create new TV
-				$sql = "INSERT INTO {$tmplvarContentValuesTable} (tmplvarid, contentid, value)
+				$sql = "INSERT INTO {$tbl_site_tmplvar_contentvalues} (tmplvarid, contentid, value)
 				VALUES('{$tvId}', '{$pageId}', '{$tvContent}');";
 			}
 			
 			// Page edited by
-			$this->modx->db->update(array('editedon'=>$time, 'editedby'=>$user), $siteContentTable, 'id = "' . $pageId . '"');
+			$this->modx->db->update(array('editedon'=>$time, 'editedby'=>$user), $tbl_site_content, 'id = "' . $pageId . '"');
 		}
 		else
 		{
 			// Save default field, e.g. pagetitle
-			$sql = "UPDATE {$siteContentTable}
+			$sql = "UPDATE {$tbl_site_content}
 			SET
 			`{$tvName}` = '{$tvContent}',
 			`editedon` = '{$time}',
