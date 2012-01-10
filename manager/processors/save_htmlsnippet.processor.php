@@ -10,6 +10,8 @@ $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
+$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
     $categoryid = $modx->db->escape($_POST['categoryid']);
@@ -38,12 +40,12 @@ switch ($_POST['mode']) {
 								));
 
 		// disallow duplicate names for new chunks
-		$sql = "SELECT COUNT(id) FROM {$dbase}.`{$table_prefix}site_htmlsnippets` WHERE name = '{$name}'";
-		$rs = $modx->db->query($sql);
+		$rs = $modx->db->select('COUNT(id)',$tbl_site_htmlsnippets,"name='{$name}'");
 		$count = $modx->db->getValue($rs);
-		if($count > 0) {
+		if($count > 0)
+		{
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name));
-
+			
 			// prepare a few variables prior to redisplaying form...
 			$content = array();
 			$_REQUEST['id'] = 0;
@@ -56,17 +58,25 @@ switch ($_POST['mode']) {
 			include 'header.inc.php';
 			include(dirname(dirname(__FILE__)).'/actions/mutate_htmlsnippet.dynamic.php');
 			include 'footer.inc.php';
-			
 			exit;
 		}
 		//do stuff to save the new doc
-		$sql = "INSERT INTO $dbase.`".$table_prefix."site_htmlsnippets` (name, description, snippet, locked, category) VALUES('".$name."', '".$description."', '".$snippet."', '".$locked."', ".$categoryid.");";
-		$rs = $modx->db->query($sql);
-		if(!$rs){
+		$field = array();
+		$field['name'] = $name;
+		$field['description'] = $description;
+		$field['snippet'] = $snippet;
+		$field['locked'] = $locked;
+		$field['category'] = $categoryid;
+		$rs = $modx->db->insert($field,$tbl_site_htmlsnippets);
+		if(!$rs)
+		{
 			echo "\$rs not set! New Chunk not saved!";
-		} else {	
+		}
+		else
+		{
 			// get the id
-			if(!$newid=mysql_insert_id()) {
+			if(!$newid=$modx->db->getInsertId())
+			{
 				echo "Couldn't get last insert key!";
 				exit;
 			}
@@ -83,8 +93,8 @@ switch ($_POST['mode']) {
 			
 			// finished emptying cache - redirect
 			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "78&id=$newid":"77";
-				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
+				$a = ($_POST['stay']=='2') ? "78&id={$newid}":"77";
+				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 			} else {
 				$header="Location: index.php?a=76";
 			}
@@ -101,11 +111,19 @@ switch ($_POST['mode']) {
 								));
 		
 		//do stuff to save the edited doc
-		$sql = "UPDATE $dbase.`".$table_prefix."site_htmlsnippets` SET name='".$name."', description='".$description."', snippet='".$snippet."', locked='".$locked."', category=".$categoryid." WHERE id='".$id."';";
-		$rs = $modx->db->query($sql);
-		if(!$rs){
+		$field = array();
+		$field['name'] = $name;
+		$field['description'] = $description;
+		$field['snippet'] = $snippet;
+		$field['locked'] = $locked;
+		$field['category'] = $categoryid;
+		$rs = $modx->db->update($field,$tbl_site_htmlsnippets,"id='{$id}'");
+		if(!$rs)
+		{
 			echo "\$rs not set! Edited htmlsnippet not saved!";
-		} else {		
+		}
+		else
+		{
 			// invoke OnChunkFormSave event
 			$modx->invokeEvent("OnChunkFormSave",
 									array(
@@ -125,12 +143,6 @@ switch ($_POST['mode']) {
 			}
 			header($header);
 		}
-
-		
-		
         break;
     default:
-	?>
-	Erm... You supposed to be here now?
-	<?php
 }
