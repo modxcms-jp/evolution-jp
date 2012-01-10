@@ -76,7 +76,9 @@ if (isset($_POST['which_editor']))
         $which_editor = $_POST['which_editor'];
 else    $which_editor = 'none';
 
-$content = array_merge($content, $_POST);
+$formRestored = $modx->manager->loadFormValues();
+if($formRestored) $content = array_merge($content, $_POST);
+
 
 // Print RTE Javascript function
 ?>
