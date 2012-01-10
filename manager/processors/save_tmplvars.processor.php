@@ -284,7 +284,7 @@ function saveDocumentAccessPermissons()
 
 function check_exist_name($name)
 {	// disallow duplicate names for new tvs
-	global $modx,$_lang;
+	global $modx;
 	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
 	$where = "name='{$name}'";
 	if($_POST['mode']==301) {$where = $where . " AND id!={$_POST['id']}";}
@@ -296,7 +296,7 @@ function check_exist_name($name)
 
 function check_reserved_names($name)
 {	// disallow reserved names
-	global $modx,$_lang;
+	global $modx;
 	
 	$reserved_names = explode(',', 'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu');
 	if(in_array($name,$reserved_names))
