@@ -130,14 +130,14 @@ switch ($_POST['mode']) {
 										"mode"	=> "upd",
 										"id"	=> $id
 									));
-
+			
 			// empty cache
 			$modx->clearCache(); // first empty the cache		
 
 			// finished emptying cache - redirect	
 			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "78&id=$id":"77";
-				$header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
+				$a = ($_POST['stay']=='2') ? "78&id={$id}":"77";
+				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 			} else {
 				$header="Location: index.php?a=76";
 			}
