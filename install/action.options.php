@@ -94,7 +94,7 @@ $limit = count($moduleTemplates);
 if ($limit > 0) {
     $tplOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $moduleTemplates[$i][6]) ? 'toggle' : 'toggle demo';
+        $class = (is_array($moduleTemplates[$i][6]) && !in_array('sample', $moduleTemplates[$i][6])) ? 'toggle' : 'toggle demo';
         $chk = in_array($i, $templates) || (!$options_selected) ? 'checked="checked"' : "";
         $tplOutput .= "<label><input type=\"checkbox\" name=\"template[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTemplates[$i][0] . "</span> - " . $moduleTemplates[$i][1] . "</label><hr />\n";
     }
@@ -110,7 +110,7 @@ $limit = count($moduleTVs);
 if ($limit > 0) {
     $tvOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $moduleTVs[$i][12]) ? "toggle" : "toggle demo";
+        $class = (is_array($moduleTVs[$i][12]) && !in_array('sample', $moduleTVs[$i][12])) ? "toggle" : "toggle demo";
         $chk = in_array($i, $tvs) || (!$options_selected) ? 'checked="checked"' : "";
         $tvOutput .= "<label><input type=\"checkbox\" name=\"tv[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "</label><hr />\n";
     }
@@ -126,7 +126,7 @@ $limit = count($moduleChunks);
 if ($limit > 0) {
     $chunkOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $moduleChunks[$i][5]) ? "toggle" : "toggle demo";
+        $class = (is_array($moduleChunks[$i][5]) && !in_array('sample', $moduleChunks[$i][5])) ? "toggle" : "toggle demo";
         $chk = in_array($i, $chunks) || (!$options_selected) ? 'checked="checked"' : "";
         $chunkOutput .= "<label><input type=\"checkbox\" name=\"chunk[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleChunks[$i][0] . "</span> - " . $moduleChunks[$i][1] . "</label><hr />";
     }
@@ -142,7 +142,7 @@ $limit = count($moduleModules);
 if ($limit > 0) {
     $moduleOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $moduleModules[$i][7]) ? "toggle" : "toggle demo";
+        $class = (is_array($moduleModules[$i][7]) && !in_array('sample', $moduleModules[$i][7])) ? "toggle" : "toggle demo";
         $chk = in_array($i, $modules) || (!$options_selected) ? 'checked="checked"' : "";
         $moduleOutput .= "<label><input type=\"checkbox\" name=\"module[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleModules[$i][0] . "</span> - " . $moduleModules[$i][1] . "</label><hr />";
     }
@@ -160,7 +160,7 @@ if ($limit > 0) {
     for ($i = 0; $i < $limit; $i++) {
         if(is_array($modulePlugins[$i][8]))
         {
-        $class = !in_array('sample', $modulePlugins[$i][8]) ? "toggle" : "toggle demo";
+        $class = (is_array($modulePlugins[$i][8]) && !in_array('sample', $modulePlugins[$i][8])) ? "toggle" : "toggle demo";
         }
         else $class = 'toggle';
         $chk = in_array($i, $plugins) || (!$options_selected) ? 'checked="checked"' : "";
@@ -180,7 +180,7 @@ if ($limit > 0) {
     for ($i = 0; $i < $limit; $i++) {
         if(is_array($moduleSnippets[$i][5]))
         {
-        $class = !in_array('sample', $moduleSnippets[$i][5]) ? "toggle" : "toggle demo";
+        $class = (is_array($moduleSnippets[$i][5]) && !in_array('sample', $moduleSnippets[$i][5])) ? "toggle" : "toggle demo";
         }
         else $class = 'toggle';
         $chk = in_array($i, $snippets) || (!$options_selected) ? 'checked="checked"' : "";

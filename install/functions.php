@@ -63,34 +63,27 @@ function compare_check($params)
 	if($params['category']=='plugin') $sql .= " AND `disabled`='0'";
 	$rs = mysql_query($sql);
 	if(!$rs) echo "An error occurred while executing a query: ".mysql_error();
-	else     $row = mysql_fetch_assoc($rs);
-	$count = mysql_num_rows($rs);
-	
-	if($count===1)
+	else     
 	{
-		$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
-		$new_desc    = $new_version_str . $params['description'];
-		$old_desc    = $row['description'];
-		$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
-		$old_version = strip_tags($old_version);
-/* debug
-echo '<br /><b>' . $name . '</b><br />';
-echo 'new-' . $new_desc . '<br />';
-echo 'old-' . $old_desc . '<br />';
-echo 'new-' . $new_version . '<br />';
-echo 'old-' . $old_version . '<br />';
-*/
-		if($mode == 'version_compare' && $old_version === $new_version)
+		$row = mysql_fetch_assoc($rs);
+		$count = mysql_num_rows($rs);
+		if($count===1)
 		{
-			                            $result = 'same';
+			$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
+			$new_desc    = $new_version_str . $params['description'];
+			$old_desc    = $row['description'];
+			$old_version = substr($old_desc,0,strpos($old_desc,'</strong>'));
+			$old_version = strip_tags($old_version);
+			if($mode == 'version_compare' && $old_version === $new_version)
+			{
+				                            $result = 'same';
+			}
+			elseif($mode == 'name_compare') $result = 'same';
+			elseif($old_desc === $new_desc) $result = 'same';
+			else                            $result = 'diff';
 		}
-		elseif($mode == 'name_compare') $result = 'same';
-		elseif($old_desc === $new_desc) $result = 'same';
-		else                            $result = 'diff';
+		elseif($count < 1)                  $result = 'no exists';
 	}
-	elseif($count < 1)                  $result = 'no exists';
-	
-	
 if($params['category']=='chunk')
 {
 //echo '$old_version=' . $old_version . '<br />';
