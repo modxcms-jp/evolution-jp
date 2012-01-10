@@ -1,5 +1,4 @@
 <?php
-
 //---------------------------------------------------------------------------------
 // mm_widget_googlemap ver 0.11
 // 2010 / Oori
@@ -7,24 +6,19 @@
 //--------------------------------------------------------------------------------- 
 function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', $templates='') {
 	
-	global $modx, $content, $mm_fields;
+	global $modx, $mm_fields,$mm_current_page;
 	$e = &$modx->event;
 	
-	if (useThisRule($roles, $templates)) {
-		$output = '';		
+	if (useThisRule($roles, $templates))
+	{
+		$output = '';
 		$fields = makeArray($fields);
-		if (isset($content['template'])) {
-			$page_template = $content['template'];
-		} else {
-			$page_template = $modx->config['default_template']; 
+		$count = tplUseTvs($mm_current_page['template'], $fields);
+		if ($count == false)
+		{
+			return;
 		}
 		
-		$count = tplUseTvs($content['template'], $fields);
-		if ($count == false) {
-			return;
-		}		
-
-
 		$output .= "//  -------------- googlemap widget ------------- \n";
 		$output .= includeJs($modx->config['base_url'] .'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
 		$output .= includeJs('http://maps.google.com/maps?file=api&v=2&sensor=false&key='.$googleApiKey.'&async=2');
@@ -36,4 +30,3 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 	
 	$e->output($output . "\n");	// Send the output to the browser
 }
-?>

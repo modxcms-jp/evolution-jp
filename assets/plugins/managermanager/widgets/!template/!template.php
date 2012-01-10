@@ -6,7 +6,7 @@
 //--------------------------------------------------------------------------------- 
 function mm_widget_template($fields, $other_param='defaultValue', $roles='', $templates='') {
 	
-	global $modx, $content, $mm_fields;
+	global $modx, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
 	if (useThisRule($roles, $templates)) {
@@ -21,16 +21,7 @@ function mm_widget_template($fields, $other_param='defaultValue', $roles='', $te
 		// You might want to check whether the current page's template uses the TVs that have been
 		// supplied, to save processing page which don't contain them
 		
-		// Which template is this page using?
-		if (isset($content['template'])) {
-			$page_template = $content['template'];
-		} else {
-			// If no content is set, it's likely we're adding a new page at top level. 
-			// So use the site default template. This may need some work as it might interfere with a default template set by MM?
-			$page_template = $modx->config['default_template']; 
-		}
-		
-		$count = tplUseTvs($content['template'], $fields);
+		$count = tplUseTvs($mm_current_page['template'], $fields);
 		if ($count == false) {
 			return;
 		}		
