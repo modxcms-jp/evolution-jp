@@ -226,37 +226,8 @@ function clean_up($sqlParser) {
 			if(count($ids)>0) {
 				mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");	
 				unset($ids);
-			}		
+			}
 		}
-
-		/**** Add Quick Plugin to Module 
-		// get quick edit module id
-		$ds = mysql_query("SELECT id FROM `".$sqlParser->prefix."site_modules` WHERE name='QuickEdit'");
-		if(!$ds) {
-			echo "An error occurred while executing a query: ".mysql_error();
-		}
-		else {
-			$row = mysql_fetch_assoc($ds);
-			$moduleid=$row["id"];
-		}		
-		// get plugin id
-		$ds = mysql_query("SELECT id FROM `".$sqlParser->prefix."site_plugins` WHERE name='QuickEdit'");
-		if(!$ds) {
-			echo "An error occurred while executing a query: ".mysql_error();
-		}
-		else {
-			$row = mysql_fetch_assoc($ds);
-			$pluginid=$row["id"];
-		}		
-		// setup plugin as module dependency
-		$ds = mysql_query("SELECT module FROM `".$sqlParser->prefix."site_module_depobj` WHERE module='$moduleid' AND resource='$pluginid' AND type='30' LIMIT 1"); 
-		if(!$ds) {
-			echo "An error occurred while executing a query: ".mysql_error();
-		}
-		elseif (mysql_num_rows($ds)==0){
-			mysql_query("INSERT INTO `".$sqlParser->prefix."site_module_depobj` (module, resource, type) VALUES('$moduleid','$pluginid',30)");
-		}
-		***/
 }
 
 // Property Update function
@@ -302,7 +273,8 @@ function getCreateDbCategory($category, $sqlParser) {
     if(!empty($category)) {
         $category = modx_escape($category);
         $rs = mysql_query("SELECT id FROM $dbase.`".$table_prefix."categories` WHERE category = '".$category."'");
-        if(mysql_num_rows($rs) && ($row = mysql_fetch_assoc($rs))) {
+        if(mysql_num_rows($rs) && ($row = mysql_fetch_assoc($rs)))
+        {
             $category_id = $row['id'];
         } else {
             $q = "INSERT INTO $dbase.`".$table_prefix."categories` (`category`) VALUES ('{$category}');";
