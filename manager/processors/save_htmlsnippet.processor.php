@@ -114,6 +114,7 @@ switch ($_POST['mode']) {
 		}
 		
 		//do stuff to save the edited doc
+		$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_htmlsnippets,"id='{$id}'"));
 		$field = array();
 		$field['name'] = $name;
 		$field['description'] = $description;
@@ -127,6 +128,13 @@ switch ($_POST['mode']) {
 		}
 		else
 		{
+			$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_content'));
+			$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_templates'));
+			$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_htmlsnippets'));
+			$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_content'));
+			$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_templates'));
+			$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
+			
 			// invoke OnChunkFormSave event
 			$modx->invokeEvent("OnChunkFormSave",
 									array(
