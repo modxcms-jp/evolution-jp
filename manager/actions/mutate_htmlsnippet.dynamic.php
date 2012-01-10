@@ -47,7 +47,8 @@ if ($limit > 1) {
 }
 
 $content = array();
-if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
+if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
+{
 	$sql = 'SELECT * FROM '.$tbl_site_htmlsnippets.' WHERE id=\''.$id.'\'';
 	$rs = mysql_query($sql);
 	$limit = mysql_num_rows($rs);
@@ -65,7 +66,9 @@ if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])
 		$e->setError(3);
 		$e->dumpError();
 	}
-} else {
+}
+else
+{
 	$_SESSION['itemname'] = 'New Chunk';
 }
 
