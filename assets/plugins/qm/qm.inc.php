@@ -206,7 +206,7 @@ class Qm {
 								}
 							}
 							// Render TV html
-							$tvHtml = renderFormElement($tv['type'], $tv['name'], $tv['default_text'], $tv['elements'], $tv['value']);
+							$tvHtml = renderFormElement($tv['type'], addslashes($tv['name']), $tv['default_text'], $tv['elements'], $tv['value']);
 							
 							// Get jQuery conflict mode
 							if ($this->noconflictjq == 'true') $jq_mode = '$j';
