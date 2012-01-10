@@ -44,20 +44,12 @@ switch ($_POST['mode']) {
 		$count = $modx->db->getValue($rs);
 		if($count > 0)
 		{
-			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name));
-			
-			// prepare a few variables prior to redisplaying form...
-			$content = array();
-			$_REQUEST['id'] = 0;
-			$_REQUEST['a'] = '77';
-			$_GET['stay'] = $_POST['stay'];
-			$content['id'] = 0;
-			$content['locked'] = $_POST['locked'] == 'on' ? 1 : 0;
-			$content['category'] = $_POST['categoryid'];
-
-			include 'header.inc.php';
-			include(dirname(dirname(__FILE__)).'/actions/mutate_htmlsnippet.dynamic.php');
-			include 'footer.inc.php';
+			$url = "index.php?a=77";
+			$msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
+			$modx->manager->saveFormValues(77);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
 			exit;
 		}
 		//do stuff to save the new doc
@@ -110,6 +102,17 @@ switch ($_POST['mode']) {
 									"id"	=> $id
 								));
 		
+		if(check_exist_name($name)!==false)
+		{
+			$url = "index.php?a=78&id={$id}";
+			$msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
+			$modx->manager->saveFormValues(78);
+			include_once "header.inc.php";
+			$modx->webAlert($msg, $url);
+			include_once "footer.inc.php";
+			exit;
+		}
+		
 		//do stuff to save the edited doc
 		$field = array();
 		$field['name'] = $name;
@@ -145,4 +148,16 @@ switch ($_POST['mode']) {
 		}
         break;
     default:
+}
+
+function check_exist_name($name)
+{	// disallow duplicate names for new chunks
+	global $modx;
+	$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+	$where = "name='{$name}'";
+	if($_POST['mode']==78) {$where = $where . " AND id!={$_POST['id']}";}
+	$rs = $modx->db->select('COUNT(id)',$tbl_site_htmlsnippets,$where);
+	$count = $modx->db->getValue($rs);
+	if($count > 0) return true;
+	else           return false;
 }
