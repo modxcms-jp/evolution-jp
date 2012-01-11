@@ -58,6 +58,7 @@ define("IN_MANAGER_MODE", "true");  // we use this to make sure files are access
 
 // harden it
 require_once('./includes/protect.inc.php');
+require_once('./includes/initialize.inc.php');
 
 // send anti caching headers
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");

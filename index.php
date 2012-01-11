@@ -52,6 +52,7 @@ if(@file_exists('autoload.php')) include_once('autoload.php');
 
 // harden it
 require_once(dirname(__FILE__).'/manager/includes/protect.inc.php');
+require_once(dirname(__FILE__).'/manager/includes/initialize.inc.php');
 
 // set some settings, and address some IE issues
 @ini_set('url_rewriter.tags', '');
