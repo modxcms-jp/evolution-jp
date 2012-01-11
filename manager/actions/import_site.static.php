@@ -211,7 +211,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$field['content'] = $modx->db->escape($content);
 					$field['richtext'] = $richtext;
 					$field['template'] = $modx->config['default_template'];
-					$field['menuindex'] = 2;
+					$field['menuindex'] = 1;
 					$field['searchable'] = $search_default;
 					$field['cacheable'] = $cache_default;
 					$field['createdby'] = $createdby;
@@ -277,7 +277,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$content = $modx->db->escape($content);
 				$date = filemtime($filepath);
 				$alias = $modx->stripAlias($alias);
-				$menuindex = ($alias=='index') ? 0 : 1;
+				$menuindex = ($alias=='index') ? 0 : 2;
 				$field = array();
 				$field['type'] = 'document';
 				$field['contentType'] = 'text/html';
