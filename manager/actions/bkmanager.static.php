@@ -319,6 +319,38 @@ else
 	$f_display = 'block';
 	$t_display = 'none';
 }
+
+if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
+{
+	$last_result = $_SESSION['last_result'];
+	unset($_SESSION['last_result']);
+	if(count($last_result)<1) $result = '';
+	elseif(count($last_result)==1) echo $last_result[0];
+	else
+	{
+		$last_result = array_merge(array(), array_diff($last_result, array('')));
+		foreach($last_result['0'] as $k=>$v)
+		{
+			$title[] = $k;
+		}
+		$result = '<tr><th>' . join('</th><th>',$title) . '</th></tr>';
+		foreach($last_result as $row)
+		{
+			$result_value = array();
+			if($row)
+			{
+				foreach($row as $k=>$v)
+				{
+					$result_value[] = $v;
+				}
+				$result .= '<tr><td>' . join('</td><td>',$result_value) . '</td></tr>';
+			}
+		}
+		$style = '<style type="text/css">table th {border:1px solid #ccc;background-color:#ddd;}</style>';
+		$result = $style . '<table>' . $result . '</table>';
+	}
+}
+
 function checked($cond)
 {
 	if($cond) return ' checked';
@@ -337,6 +369,9 @@ function checked($cond)
 	</div>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
+<?php
+	if(isset($result)) echo '<div style="margin-top:20px;"><p style="font-weight:bold;">結果一覧</p>' . $result . '</div>';
+?>
 </div>
 
 <div class="tab-page" id="tabSnapshot">
@@ -544,6 +579,8 @@ function import_sql($source,$result_code='import_ok')
 		$rs = $modx->db->query($sql_entry);
 	}
 	$modx->clearCache();
+	while($_SESSION['last_result'][] = $modx->db->getRow($rs))
+	
 	$_SESSION['result_msg'] = $result_code;
 	header("Location: index.php?r=9&a=93");
 }
