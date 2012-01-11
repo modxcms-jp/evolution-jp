@@ -3185,7 +3185,9 @@ class DocumentParser {
         $parsedMessageString= str_replace("[^t^]", $totalTime, $parsedMessageString);
 
         // Log error
-        $this->logEvent(0, 3, $parsedMessageString);
+        if($source!=='') $source = 'Parser - ' . $source;
+        else             $source = 'Parser';
+        $this->logEvent(0, 3, $parsedMessageString,$source);
         if($nr == E_DEPRECATED) return true;
 
         // Set 500 response header
