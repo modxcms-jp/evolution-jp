@@ -582,15 +582,16 @@ class DocumentParser {
 			//                header('HTTP/1.0 404 Not Found');
 			if (!$this->checkPreview() && $this->documentObject['content_dispo'] == 1)
 			{
-				if ($this->documentObject['alias']) $name= $this->documentObject['alias'];
+				if ($this->documentObject['alias'])
+				{
+					$name= urldecode($this->documentObject['alias']);
+				}
 				else
 				{
 					// strip title of special characters
 					$name= $this->documentObject['pagetitle'];
 					$name= strip_tags($name);
-					$name= strtolower($name);
 					$name= preg_replace('/&.+?;/', '', $name); // kill entities
-					$name= preg_replace('/[^\.%a-z0-9 _-]/', '', $name);
 					$name= preg_replace('/\s+/', '-', $name);
 					$name= preg_replace('|-+|', '-', $name);
 					$name= trim($name, '-');
