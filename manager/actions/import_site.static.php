@@ -55,7 +55,7 @@ if(!isset($_POST['import'])) {
     <td>&nbsp;</td>
     <td><input type="checkbox" id="reset" name="reset" value="on" />
         <br />
-		<small>リソースツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。</small>
+		リソースツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。
     </td>
   </tr>
   <tr>
