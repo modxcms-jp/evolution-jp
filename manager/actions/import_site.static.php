@@ -86,7 +86,7 @@ else
 </ul>
 <script type="text/javascript">
 top.mainMenu.reloadtree();
-    parent.tree.ca = "";
+    parent.tree.ca = 'open';
 </script>
 <?php
 }
