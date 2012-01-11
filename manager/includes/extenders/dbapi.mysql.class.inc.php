@@ -94,9 +94,15 @@ class DBAPI {
           
           if(!$this->conn)
           {
-              $modx->logEvent(0, 2,'Connect Error','DB');
-              sleep(3);
-              $safe_count++;
+			$request_uri = $_SERVER['REQUEST_URI'];
+			$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+			$ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+			$referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+			$logtitle = 'Missing to create the database connection!';
+			$msg = "{$logtitle}<br />{$request_uri}<br />{$ua}<br />{$referer}";
+			$modx->logEvent(0, 2,$msg,$logtitle);
+			sleep(3);
+			$safe_count++;
           }
       }
       if(!$this->conn)
