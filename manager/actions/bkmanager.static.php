@@ -281,7 +281,7 @@ if ($totaloverhead > 0) {
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
 	<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />
 	※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />
-	仮製作領域から本番サイトに移行するために使用する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>
+	異なる領域に移行する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>
 	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="restore1" />
