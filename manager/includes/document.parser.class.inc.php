@@ -3195,7 +3195,7 @@ class DocumentParser {
 
         // Display error
         if (isset($_SESSION['mgrValidated'])) echo $parsedMessageString;
-        else  echo 'Error. Check event log.';
+        else  echo 'Error';
         ob_end_flush();
 
         // Make sure and die!
