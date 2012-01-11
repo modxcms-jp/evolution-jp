@@ -3051,7 +3051,7 @@ class DocumentParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $request_uri = getenv('REQUEST_URI');
+        $request_uri = $_SERVER['REQUEST_URI'];
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
