@@ -82,7 +82,7 @@ else
 	$modx->clearCache();
 ?>
 <ul class="actionButtons">
-    <li><a href="#" onclick="document.location.href='index.php?r=1&a=2';"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
+    <li><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
 </ul>
 <script type="text/javascript">
 top.mainMenu.reloadtree();
