@@ -23,6 +23,7 @@ if ($mode=='restore1')
 	if(isset($_POST['textarea']) && !empty($_POST['textarea']))
 	{
 		$source = trim($_POST['textarea']);
+		$_SESSION['textarea'] = $source . "\n";
 	}
 	else
 	{
@@ -302,12 +303,35 @@ if ($totaloverhead > 0) {
 		}
 	}
 	</script>
+<?php
+if(isset($_SESSION['textarea']) && !empty($_SESSION['textarea']))
+{
+	$value = $_SESSION['textarea'];
+	unset($_SESSION['textarea']);
+	$_SESSION['console_mode'] = 'text';
+	$f_display = 'none';
+	$t_display = 'block';
+}
+else
+{
+	$value = '';
+	$_SESSION['console_mode'] = 'file';
+	$f_display = 'block';
+	$t_display = 'none';
+}
+function checked($cond)
+{
+	if($cond) return ' checked';
+}
+?>
 	<p>
-	<label><input type="radio" name="sel" onclick="showhide('file');" checked /> ファイルから実行</label>
-	<label><input type="radio" name="sel" onclick="showhide('textarea');" /> SQL文を貼り付けて実行</label>
+	<label><input type="radio" name="sel" onclick="showhide('file');" <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text');?> /> ファイルから実行</label>
+	<label><input type="radio" name="sel" onclick="showhide('textarea');" <?php echo checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text');?> /> SQL文を直接実行</label>
 	</p>
-	<div><input type="file" name="sqlfile" id="sqlfile" size="70" /></div>
-	<div><textarea name="textarea" id="textarea" style="width:500px;height:200px;display:none;"></textarea></div>
+	<div><input type="file" name="sqlfile" id="sqlfile" size="70" style="display:<?php echo $f_display;?>;" /></div>
+	<div id="textarea" style="display:<?php echo $t_display;?>;">
+		<textarea name="textarea" style="width:500px;height:200px;"><?php echo $value;?></textarea>
+	</div>
 	<div class="actionButtons" style="margin-top:10px;">
 	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> リストア実行</a>
 	</div>
