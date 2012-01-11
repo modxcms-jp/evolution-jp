@@ -95,7 +95,7 @@ class DBAPI {
           if(!$this->conn)
           {
               $modx->logEvent(0, 2,'Connect Error','DB');
-              sleep(1);
+              sleep(3);
               $safe_count++;
           }
       }
