@@ -131,6 +131,7 @@ function run()
 	$importend = $mtime;
 	$totaltime = ($importend - $importstart);
 	$output .= sprintf ('<p>'.$_lang['import_site_time'].'</p>', round($totaltime, 3));
+	
 	return $output;
 }
 
@@ -225,7 +226,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 						.$_lang["import_site_failed_db_error"].mysql_error();
 						exit;
 					}
-					echo '<span class="success">'.$_lang["import_site_success"].'</span><br />' . PHP_EOL;
+					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
 					importFiles($new_parent, $filedir . $alias . '/',$value,'sub');
 					break;
 				}
@@ -242,7 +243,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
 			$modx->documentListing[$alias] = true;
 			
-			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . PHP_EOL;
+			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . "\n";
 			else
 			{
 				$filepath = $filedir . $filename;
@@ -316,7 +317,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$sql = "UPDATE {$tbl_site_content} SET menuindex=0 WHERE id={$newid}";
 					$modx->db->query($sql);
 				}
-				echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . PHP_EOL;
+				echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
 			}
 		}
 	}
