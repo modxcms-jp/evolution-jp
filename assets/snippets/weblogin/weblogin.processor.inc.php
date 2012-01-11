@@ -5,8 +5,10 @@
 
 defined('IN_PARSER_MODE') or die();
 
-$dbase        = $modx->db->config['dbase'];
-$table_prefix = $modx->db->config['table_prefix'];
+$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
+$tbl_web_users = $modx->getFullTableName('web_users');
+$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
+
 
 # process password activation
     if ($isPWDActivate==1)
@@ -15,7 +17,7 @@ $table_prefix = $modx->db->config['table_prefix'];
         $pwdkey = $_REQUEST['wlk'];
 
         $sql = "SELECT wu.*
-                FROM $dbase.`".$table_prefix."web_users` wu
+                FROM {$tbl_web_users} wu
                 WHERE wu.id='".$modx->db->escape($id)."'";
         $ds  = $modx->db->query($sql);
         $limit = $modx->recordCount($ds);
@@ -31,13 +33,13 @@ $table_prefix = $modx->db->config['table_prefix'];
             }
             // activate new password
             $newpwd = md5($newpwd);
-            $sql="UPDATE $dbase.`".$table_prefix."web_users`
-                  SET password = '".$newpwd."', cachepwd=''
+            $sql="UPDATE {$tbl_web_users}
+                  SET password = '{$newpwd}', cachepwd=''
                   WHERE id=".$row['id'];
             $ds = $modx->db->query($sql);
 
             // unblock user by resetting "blockeduntil"
-            $sql="UPDATE $dbase.`".$table_prefix."web_user_attributes`
+            $sql="UPDATE {$tbl_web_user_attributes}
                   SET blockeduntil = '0'
                   WHERE internalKey=".$row['id'];
             $ds2 = $modx->db->query($sql);
@@ -79,8 +81,8 @@ $table_prefix = $modx->db->config['table_prefix'];
         $site_name    = $modx->config['site_name'];
         // lookup account
         $sql = "SELECT wu.*, wua.fullname
-                FROM $dbase.`".$table_prefix."web_users` wu
-                INNER JOIN $dbase.`".$table_prefix."web_user_attributes` wua ON wua.internalkey=wu.id
+                FROM {$tbl_web_users} wu
+                INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id
                 WHERE wua.email='".$modx->db->escape($email)."'";
 
         $ds = $modx->db->query($sql);
@@ -90,18 +92,14 @@ $table_prefix = $modx->db->config['table_prefix'];
             $newpwdkey = webLoginGeneratePassword(8); // activation key
             $row = $modx->db->getRow($ds);
             //save new password
-            $sql="UPDATE $dbase.`".$table_prefix."web_users`
-                  SET cachepwd='".$newpwd."|".$newpwdkey."'
+            $sql="UPDATE {$tbl_web_users}
+                  SET cachepwd='{$newpwd}|{$newpwdkey}'
                   WHERE id=".$row['id'];
             $modx->db->query($sql);
             // built activation url
             $xhtmlUrlSetting = $modx->config['xhtml_urls'];
             $modx->config['xhtml_urls'] = false;
-            if($_SERVER['SERVER_PORT']!='80') {
-              $url = $modx->config['server_protocol'].'://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli=".$row['id']."&wlk=".$newpwdkey);
-            } else {
-              $url = $modx->config['server_protocol'].'://'.$_SERVER['SERVER_NAME'].$modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli=".$row['id']."&wlk=".$newpwdkey);
-            }
+            $url = $modx->config['server_protocol'].'://'.$_SERVER['HTTP_HOST'].$modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli=".$row['id']."&wlk=".$newpwdkey);
             $modx->config['xhtml_urls'] = $xhtmlUrlSetting;
             // replace placeholders and send email
             $message = str_replace("[+uid+]",$row['username'],$webpwdreminder_message);
@@ -110,11 +108,7 @@ $table_prefix = $modx->db->config['table_prefix'];
             $message = str_replace("[+sname+]",$site_name,$message);
             $message = str_replace("[+semail+]",$emailsender,$message);
             $message = str_replace("[+surl+]",$url,$message);
-/*
-
-            if (!ini_get('safe_mode')) $sent = mail($email, "New Password Activation for $site_name", $message, "From: ".$emailsender."\r\n"."X-Mailer: MODx Content Manager - PHP/".phpversion(), "-f {$emailsender}");
-            else $sent = mail($email, "New Password Activation for $site_name", $message, "From: ".$emailsender."\r\n"."X-Mailer: MODx Content Manager - PHP/".phpversion());
-*/
+            
 			$mail = new MODxMailer();
 			$mail->IsHTML(false);
 			$mail->From		= $emailsender;
@@ -145,7 +139,6 @@ $table_prefix = $modx->db->config['table_prefix'];
 
     }
 
-
 # process logout
     if ($isLogOut==1){
         $internalKey = $_SESSION['webInternalKey'];
@@ -160,7 +153,8 @@ $table_prefix = $modx->db->config['table_prefix'];
 
         // if we were launched from the manager
         // do NOT destroy session
-        if(isset($_SESSION['mgrValidated'])) {
+        if(isset($_SESSION['mgrValidated']))
+        {
             unset($_SESSION['webShortname']);
             unset($_SESSION['webFullname']);
             unset($_SESSION['webEmail']);
@@ -176,17 +170,10 @@ $table_prefix = $modx->db->config['table_prefix'];
             unset($_SESSION['webDocgroups']);
         }
         else {
-            // Unset all of the session variables.
-//            $_SESSION = array();
-            // destroy session cookie
             if (isset($_COOKIE[session_name()])) {
                 setcookie(session_name(), '', 0, MODX_BASE_URL);
             }
             session_destroy();
-//            $sessionID = md5(date('d-m-Y H:i:s'));
-//            session_id($sessionID);
-//            startCMSSession();
-//            session_destroy();
         }
 
         // invoke OnWebLogout event
@@ -220,7 +207,7 @@ $table_prefix = $modx->db->config['table_prefix'];
                                 "rememberme"    => $rememberme
                             ));
 
-    $sql = "SELECT $dbase.`".$table_prefix."web_users`.*, $dbase.`".$table_prefix."web_user_attributes`.* FROM $dbase.`".$table_prefix."web_users`, $dbase.`".$table_prefix."web_user_attributes` WHERE BINARY $dbase.`".$table_prefix."web_users`.username = '".$username."' and $dbase.`".$table_prefix."web_user_attributes`.internalKey=$dbase.`".$table_prefix."web_users`.id;";
+    $sql = "SELECT {$tbl_web_users}.*, {$tbl_web_user_attributes}.* FROM {$tbl_web_users}, {$tbl_web_user_attributes} WHERE BINARY {$tbl_web_users}.username='{$username}' and {$tbl_web_user_attributes}.internalKey={$tbl_web_users}.id;";
     $ds = $modx->db->query($sql);
     $limit = $modx->db->getRecordCount($ds);
 
@@ -231,23 +218,22 @@ $table_prefix = $modx->db->config['table_prefix'];
 
     $row = $modx->db->getRow($ds);
 
-    $internalKey             = $row['internalKey'];
-    $dbasePassword             = $row['password'];
-    $failedlogins             = $row['failedlogincount'];
-    $blocked                 = $row['blocked'];
-    $blockeduntildate        = $row['blockeduntil'];
-    $blockedafterdate        = $row['blockedafter'];
-    $registeredsessionid    = $row['sessionid'];
-    $role                    = $row['role'];
-    $lastlogin                = $row['lastlogin'];
-    $nrlogins                = $row['logincount'];
-    $fullname                = $row['fullname'];
-    //$sessionRegistered         = checkSession();
-    $email                     = $row['email'];
+    $internalKey          = $row['internalKey'];
+    $dbasePassword        = $row['password'];
+    $failedlogins         = $row['failedlogincount'];
+    $blocked              = $row['blocked'];
+    $blockeduntildate     = $row['blockeduntil'];
+    $blockedafterdate     = $row['blockedafter'];
+    $registeredsessionid  = $row['sessionid'];
+    $role                 = $row['role'];
+    $lastlogin            = $row['lastlogin'];
+    $nrlogins             = $row['logincount'];
+    $fullname             = $row['fullname'];
+    $email                = $row['email'];
 
     // load user settings
     if($internalKey){
-        $result = $modx->db->query("SELECT setting_name, setting_value FROM ".$dbase.".`".$table_prefix."web_user_settings` WHERE webuser='$internalKey'");
+        $result = $modx->db->select('setting_name, setting_value',$tbl_web_user_settings,"webuser='$internalKey'");
         while ($row = $modx->db->getRow($result, 'both')) $modx->config[$row[0]] = $row[1];
     }
 
@@ -259,7 +245,7 @@ $table_prefix = $modx->db->config['table_prefix'];
     }
 
     if($failedlogins>=$modx->config['failed_login_attempts'] && $blockeduntildate<time()) {    // blocked due to number of login errors, but get to try again
-        $sql = "UPDATE $dbase.`".$table_prefix."web_user_attributes` SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey=$internalKey";
+        $sql = "UPDATE {$tbl_web_user_attributes} SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey=$internalKey";
         $ds = $modx->db->query($sql);
     }
 
@@ -332,10 +318,10 @@ $table_prefix = $modx->db->config['table_prefix'];
     if(isset($newloginerror) && $newloginerror==1) {
         $failedlogins += $newloginerror;
         if($failedlogins>=$modx->config['failed_login_attempts']) { //increment the failed login counter, and block!
-            $sql = "update $dbase.`".$table_prefix."web_user_attributes` SET failedlogincount='$failedlogins', blocked=1, blockeduntil='".(time()+($modx->config['blocked_minutes']*60))."' where internalKey=$internalKey";
+            $sql = "update {$tbl_web_user_attributes} SET failedlogincount='{$failedlogins}', blocked=1, blockeduntil='".(time()+($modx->config['blocked_minutes']*60))."' where internalKey=$internalKey";
             $ds = $modx->db->query($sql);
         } else { //increment the failed login counter
-            $sql = "update $dbase.`".$table_prefix."web_user_attributes` SET failedlogincount='$failedlogins' where internalKey=$internalKey";
+            $sql = "update {$tbl_web_user_attributes} SET failedlogincount='{$failedlogins}' where internalKey=$internalKey";
             $ds = $modx->db->query($sql);
         }
         session_destroy();
@@ -346,7 +332,7 @@ $table_prefix = $modx->db->config['table_prefix'];
     $currentsessionid = session_id();
 
     if(!isset($_SESSION['webValidated'])) {
-        $sql = "update $dbase.`".$table_prefix."web_user_attributes` SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
+        $sql = "update {$tbl_web_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
         $ds = $modx->db->query($sql);
     }
 
@@ -364,22 +350,17 @@ $table_prefix = $modx->db->config['table_prefix'];
 
     // get user's document groups
     $dg='';$i=0;
-    $tblug = $dbase.".`".$table_prefix."web_groups`";
-    $tbluga = $dbase.".`".$table_prefix."webgroup_access`";
-    $sql = "SELECT uga.documentgroup
-            FROM $tblug ug
-            INNER JOIN $tbluga uga ON uga.webgroup=ug.webgroup
-            WHERE ug.webuser =".$internalKey;
-    $ds = $modx->db->query($sql);
+    $tbl_web_groups = $modx->getFullTableName('web_groups');
+    $tbl_webgroup_access = $modx->getFullTableName('webgroup_access');
+    $from = "{$tbl_web_groups} ug INNER JOIN {$tbl_webgroup_access} uga ON uga.webgroup=ug.webgroup";
+    $ds = $modx->db->select('uga.documentgroup',$from,"ug.webuser={$internalKey}");
     while ($row = $modx->db->getRow($ds,'num')) $dg[$i++]=$row[0];
     $_SESSION['webDocgroups'] = $dg;
 
-    $tblwgn = $this->getFullTableName("webgroup_names");
-    $tblwg = $this->getFullTableName("web_groups");
-    $sql= "SELECT wgn.name
-    FROM $tblwgn wgn
-    INNER JOIN $tblwg wg ON wg.webgroup=wgn.id AND wg.webuser=" . $internalKey;
-    $grpNames= $this->db->getColumn("name", $sql); 
+    $tblwgn = $this->getFullTableName('webgroup_names');
+    $tblwg = $this->getFullTableName('web_groups');
+    $from = "{$tblwgn} wgn INNER JOIN $tblwg wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
+    $grpNames= $this->db->getColumn('name', $this->db->select('wgn.name',$from)); 
     $_SESSION['webUserGroupNames']= $grpNames;
 
     if($rememberme) {
@@ -410,7 +391,8 @@ $table_prefix = $modx->db->config['table_prefix'];
         $itemid = isset($_REQUEST['id']) ? $_REQUEST['id'] : 'NULL' ;$lasthittime = time();$a = 998;
         if($a!=1) {
             // web users are stored with negative id
-            $sql = "REPLACE INTO $dbase.`".$table_prefix."active_users` (internalKey, username, lasthit, action, id, ip) values(-".$_SESSION['webInternalKey'].", '".$_SESSION['webShortname']."', '".$lasthittime."', '".$a."', ".$itemid.", '$ip')";
+            $tbl_active_users = $modx->getFullTableName('active_users');
+            $sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-{$_SESSION['webInternalKey']}, '{$_SESSION['webShortname']}', '{$lasthittime}', '{$a}', {$itemid}, '{$ip}')";
             if(!$ds = $modx->db->query($sql)) {
                 $output = "error replacing into active users! SQL: ".$sql;
                 return;
