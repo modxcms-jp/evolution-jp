@@ -574,7 +574,7 @@ class DocumentParser {
 		// send out content-type and content-disposition headers
 		if (IN_PARSER_MODE == 'true')
 		{
-			$type = $this->contentTypes[$this->documentIdentifier];
+			$type = $this->documentObject['contentType'];
 			if(empty($type)) $type = 'text/html';
 			
 			header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
