@@ -368,68 +368,68 @@ class DocumentParser {
         }
     }
 
-    function cleanDocumentIdentifier($qOrig) {
-        if(empty($qOrig)) $qOrig = $this->config['site_start'];
-        $q = trim($qOrig,'/');
-        /* Save path if any */
-        /* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
-        if ($this->config['use_alias_path'] == 1)
-        {
-            $this->virtualDir = dirname($q);
-            $this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
-            $q = end(explode('/', $q));
-        }
-        else
-        {
-            $this->virtualDir= '';
-        }
-        
-        $q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
-        $q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
-        if (is_numeric($q) && !$this->documentListing[$q])
-        { /* we got an ID returned, check to make sure it's not an alias */
-            /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
-            if ($this->config['use_alias_path'] == 1)
-            {
-                if (
-                     (
-                         ($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q])
-                         ||
-                         ($this->virtualDir == '' && !$this->documentListing[$q])
-                     )
-                     &&
-                     (
-                         ($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1)))
-                         ||
-                         ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1)))
-                      )
-                    )
-                    {
-                        $this->documentMethod = 'id';
-                        return $q;
-                    }
-                    else
-                    { /* not a valid id in terms of virtualDir, treat as alias */
-                        $this->documentMethod = 'alias';
-                        return $q;
-                    }
-            }
-            else
-            {
-                $this->documentMethod = 'id';
-                return $q;
-            }
-        }
-        else
-        { /* we didn't get an ID back, so instead we assume it's an alias */
-            if ($this->config['friendly_alias_urls'] != 1)
-            {
-                $q= $qOrig;
-            }
-            $this->documentMethod= 'alias';
-            return $q;
-        }
-    }
+	function cleanDocumentIdentifier($qOrig)
+	{
+		if(empty($qOrig)) $qOrig = $this->config['site_start'];
+		$q = trim($qOrig,'/');
+		/* Save path if any */
+		/* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
+		if ($this->config['use_alias_path'] == 1)
+		{
+			$this->virtualDir = dirname($q);
+			$this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+			$q = end(explode('/', $q));
+		}
+		else
+		{
+			$this->virtualDir= '';
+		}
+		
+		$q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
+		$q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
+		if (is_numeric($q) && !$this->documentListing[$q])
+		{ /* we got an ID returned, check to make sure it's not an alias */
+			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
+			if ($this->config['use_alias_path'] == 1)
+			{
+				if (
+					(
+						($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q])
+						||
+						($this->virtualDir == '' && !$this->documentListing[$q])
+					)
+					&&
+					(
+						($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1)))
+						||
+						($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1)))
+					))
+				{
+					$this->documentMethod = 'id';
+					return $q;
+				}
+				else
+				{ /* not a valid id in terms of virtualDir, treat as alias */
+					$this->documentMethod = 'alias';
+					return $q;
+				}
+			}
+			else
+			{
+				$this->documentMethod = 'id';
+				return $q;
+			}
+		}
+		else
+		{ /* we didn't get an ID back, so instead we assume it's an alias */
+			if ($this->config['friendly_alias_urls'] != 1)
+			{
+				$q= $qOrig;
+			}
+			$this->documentMethod= 'alias';
+			return $q;
+			}
+		}
 
 	function checkCache($id)
 	{
@@ -895,7 +895,7 @@ class DocumentParser {
 		
 		for($i= 0; $i < $passes; $i++)
 		{
-			if($i == ($passes -1)) $st = md5($stack);
+			if($i == ($passes -1)) $bt = md5($stack);
 			$pieces = array();
 			$pieces = explode('[[', $stack);
 			$stack = '';
@@ -911,8 +911,7 @@ class DocumentParser {
 			}
 			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
-				$et = md5($stack);
-				if($st != $et) $passes++;
+				if($bt != md5($stack)) $passes++;
 			}
 		}
 		return $stack;
@@ -1266,14 +1265,15 @@ class DocumentParser {
      */
     function parseDocumentSource($source) {
         // set the number of times we are to parse the document source
-        $this->minParserPasses= empty ($this->minParserPasses) ? 2 : $this->minParserPasses;
-        $this->maxParserPasses= empty ($this->maxParserPasses) ? 10 : $this->maxParserPasses;
+        if(empty($this->minParserPasses)) $this->minParserPasses = 2;
+        if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
         $passes= $this->minParserPasses;
-        for ($i= 0; $i < $passes; $i++) {
+        for ($i= 0; $i < $passes; $i++)
+        {
             // get source length if this is the final pass
-            if ($i == ($passes -1))
-                $st= strlen($source);
-            if ($this->dumpSnippets == 1) {
+            if ($i == ($passes -1)) $bt= md5($source);
+            if ($this->dumpSnippets == 1)
+            {
                 echo "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
             }
 
@@ -1297,111 +1297,126 @@ class DocumentParser {
             if ($this->dumpSnippets == 1) {
                 echo "</div></fieldset>";
             }
-            if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1)) {
+            if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+            {
                 // check if source length was changed
-                $et= strlen($source);
-                if ($st != $et)
-                    $passes++; // if content change then increase passes because
+                if ($bt != md5($source)) $passes++; // if content change then increase passes because
             } // we have not yet reached maxParserPasses
             if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
         }
         return $source;
     }
 
-    function executeParser() {
-        //error_reporting(0);
-        if (version_compare(phpversion(), "5.0.0", ">="))
-            set_error_handler(array (
-                & $this,
-                "phpError"
-            ), E_ALL);
-        else
-            set_error_handler(array (
-                & $this,
-                "phpError"
-            ));
-
-        $this->db->connect();
-
-        // get the settings
-        if (empty ($this->config)) {
-            $this->getSettings();
-        }
-
-        // IIS friendly url fix
-        if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) {
-            $url= $_SERVER['QUERY_STRING'];
-            $err= substr($url, 0, 3);
-            if ($err == '404' || $err == '405') {
-                $k= array_keys($_GET);
-                unset ($_GET[$k[0]]);
-                unset ($_REQUEST[$k[0]]); // remove 404,405 entry
-                $_SERVER['QUERY_STRING']= $qp['query'];
-                $qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
-                if (!empty ($qp['query'])) {
-                    parse_str($qp['query'], $qv);
-                    foreach ($qv as $n => $v)
-                        $_REQUEST[$n]= $_GET[$n]= $v;
-                }
-                $_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
-                $_REQUEST['q']= $_GET['q']= $qp['path'];
-            }
-        }
-
-        // check site settings
-        if (!$this->checkSiteStatus()) {
-            header('HTTP/1.0 503 Service Unavailable');
-            if (!$this->config['site_unavailable_page']) {
-                // display offline message
-                $this->documentContent= $this->config['site_unavailable_message'];
-                $this->outputContent();
-                exit; // stop processing here, as the site's offline
-            } else {
-                // setup offline page document settings
-                $this->documentMethod= "id";
-                $this->documentIdentifier= $this->config['site_unavailable_page'];
-            }
-        } else {
-            // make sure the cache doesn't need updating
-            $this->checkPublishStatus();
-
-            // find out which document we need to display
-            $this->documentMethod= $this->getDocumentMethod();
-            $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
-        }
-
-        if ($this->documentMethod == "none") {
-            $this->documentMethod= "id"; // now we know the site_start, change the none method to id
-        }
-        if ($this->documentMethod == "alias") {
-            $this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
-        }
-
-        if ($this->documentMethod == "alias") {
-            // Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-            if ($this->config['use_alias_path'] == 1) {
-                $alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
-                if (isset($this->documentListing[$alias])) {
-                    $this->documentIdentifier= $this->documentListing[$alias];
-                } else {
-                    $this->sendErrorPage();
-                }
-            } else {
-                $this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
-            }
-            $this->documentMethod= 'id';
-        }
-
-        // invoke OnWebPageInit event
-        $this->invokeEvent("OnWebPageInit");
-
-        // invoke OnLogPageView event
-        if ($this->config['track_visitors'] == 1) {
-            $this->invokeEvent("OnLogPageHit");
-        }
-
-        $this->prepareResponse();
-    }
+	function executeParser() {
+		//error_reporting(0);
+		if (version_compare(phpversion(), '5.0.0', ">="))
+		{
+			set_error_handler(array(& $this,'phpError'), E_ALL);
+		}
+		else
+		{
+			set_error_handler(array(& $this,'phpError'));
+		}
+		
+		$this->db->connect();
+		
+		// get the settings
+		if (empty ($this->config)) $this->getSettings();
+		
+		// IIS friendly url fix
+		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
+		{
+			$url= $_SERVER['QUERY_STRING'];
+			$err= substr($url, 0, 3);
+			if ($err == '404' || $err == '405')
+			{
+				$k= array_keys($_GET);
+				unset ($_GET[$k[0]]);
+				unset ($_REQUEST[$k[0]]); // remove 404,405 entry
+				$_SERVER['QUERY_STRING']= $qp['query'];
+				$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
+				if (!empty ($qp['query']))
+				{
+					parse_str($qp['query'], $qv);
+					foreach ($qv as $n => $v)
+					{
+						$_REQUEST[$n]= $_GET[$n]= $v;
+					}
+				}
+				$_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
+				$_REQUEST['q']= $_GET['q']= $qp['path'];
+			}
+		}
+		
+		// check site settings
+		if (!$this->checkSiteStatus())
+		{
+			header('HTTP/1.0 503 Service Unavailable');
+			if (!$this->config['site_unavailable_page'])
+			{
+				// display offline message
+				$this->documentContent= $this->config['site_unavailable_message'];
+				$this->outputContent();
+				exit; // stop processing here, as the site's offline
+			}
+			else
+			{
+				// setup offline page document settings
+				$this->documentMethod= "id";
+				$this->documentIdentifier= $this->config['site_unavailable_page'];
+			}
+		}
+		else
+		{
+			// make sure the cache doesn't need updating
+			$this->checkPublishStatus();
+			
+			// find out which document we need to display
+			$this->documentMethod= $this->getDocumentMethod();
+			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
+		}
+		
+		if ($this->documentMethod == "none")
+		{
+			$this->documentMethod= "id"; // now we know the site_start, change the none method to id
+		}
+		elseif ($this->documentMethod == "alias")
+		{
+			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
+		}
+		
+		if ($this->documentMethod == "alias")
+		{
+			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
+			if ($this->config['use_alias_path'] == 1)
+			{
+				$alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
+				if (isset($this->documentListing[$alias]))
+				{
+					$this->documentIdentifier= $this->documentListing[$alias];
+				}
+				else
+				{
+					$this->sendErrorPage();
+				}
+			}
+			else
+			{
+				$this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
+			}
+			$this->documentMethod= 'id';
+		}
+		
+		// invoke OnWebPageInit event
+		$this->invokeEvent("OnWebPageInit");
+		
+		// invoke OnLogPageView event
+		if ($this->config['track_visitors'] == 1)
+		{
+			$this->invokeEvent("OnLogPageHit");
+		}
+		$this->prepareResponse();
+	}
 
     function prepareResponse() {
         // we now know the method and identifier, let's check the cache
