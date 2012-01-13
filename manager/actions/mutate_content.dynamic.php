@@ -790,13 +790,13 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 
 		<?php $mx_can_pub = $modx->hasPermission('publish_document') ? '' : 'disabled="disabled" '; ?>
 			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
+				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
 				<td><input <?php echo $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?php echo checked((isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1));?> onclick="changestate(document.mutate.published);resetpubdate();" <?php if($id==$modx->config['site_start']) echo 'disabled ' ?>/>
 				<input type="hidden" name="published" value="<?php echo (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1) ? 1 : 0?>" />
 				&nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_published_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
 			</tr>
 			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
+				<td width="150"><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
 				<td><input id="pub_date" <?php echo $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?php echo $content['pub_date']=="0" || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])?>" onblur="documentDirty=true;" />
                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']?>" /></a>
