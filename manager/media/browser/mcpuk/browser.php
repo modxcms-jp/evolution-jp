@@ -1,10 +1,13 @@
 <?php
-
-include_once('../../../includes/config.inc.php');
-
-// $modx_base_path = realpath('../../../../');
-// $modx_base_path = trim($modx_base_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-// define('MODX_BASE_PATH', $modx_base_path);
+$base_path = str_replace('\\','/',realpath('../../../../')) . '/';
+require_once("{$base_path}manager/includes/protect.inc.php");
+require_once("{$base_path}manager/includes/initialize.inc.php");
+require_once("{$base_path}manager/includes/config.inc.php");
+startCMSSession();
+if(!isset($_SESSION['mgrValidated']))
+{
+	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+}
 
 $rb = new FBROWSER();
 $ph = array();
@@ -35,7 +38,7 @@ class FBROWSER
 					$result = str_replace('[+editor_path+]', $editor_path, $result);
 					break;
 				default:
-				$result = '<script src="seturl.js" type="text/javascript"></script>' . PHP_EOL;
+				$result = '<script src="seturl.js" type="text/javascript"></script>' . "\n";
 			}
 		}
 		return $result;

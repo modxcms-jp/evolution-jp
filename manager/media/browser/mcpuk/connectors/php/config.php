@@ -20,52 +20,26 @@
 
 // ** START FOR MODx
 
-require_once('../../../../../includes/protect.inc.php');
-
+$base_path = str_replace('\\','/',realpath('../../../../../../')) . '/';
 // load configuration file
 // initialize the variables prior to grabbing the config file
-$database_type = '';
-$database_server = '';
-$database_user = '';
-$database_password = '';
-$dbase = '';
-$table_prefix = '';
-$base_url = '';
-$base_path = '';
 define('IN_MANAGER_MODE', 'true'); // set this so that user_settings will trust us.
-include("../../../../../includes/config.inc.php");
+define('MODX_API_MODE',true);
+include_once("{$base_path}index.php");
 
 /** 
  * Security check user MUST be logged into manager 
  * before being able to run this script
  */
-startCMSSession(); 
-if(!isset($_SESSION['mgrValidated'])) {
-	if(!isset($_SESSION['webValidated'])){
-		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-	}
-}
 
 // connect to the database
-if(@!$modxDBConn = mysql_connect($database_server, $database_user, $database_password)) {
-	die("Failed to create the database connection!");
-} else {
-	mysql_select_db($dbase);
-    @mysql_query("{$database_connection_method} {$database_connection_charset}");
-}
-
+$modx->db->connect();
 // Override system settings with user settings
-include("../../../../../includes/settings.inc.php");
-include("../../../../../includes/user_settings.inc.php");
+include("{$base_path}manager/includes/settings.inc.php");
+include("{$base_path}manager/includes/user_settings.inc.php");
 
 if($settings['use_browser'] != 1){
 	die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
-}
-
-if(!isset($_SESSION['mgrValidated'])){
-	if($_SESSION['webValidated'] && $settings['rb_webuser'] != 1 ){
-		die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
-	}
 }
 
 // make arrays from the file upload settings
@@ -310,5 +284,3 @@ $fckphp_config['Commands'] = array(
 				"RenameFolder"
 				);
 /*==============================================================================*/
-
-?>
