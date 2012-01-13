@@ -46,13 +46,15 @@
  */
 
 // get start time
-$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
+$mtime = explode(' ',microtime());
+$tstart = $mtime[1] + $mtime[0];
 
-if(@file_exists('autoload.php')) include_once('autoload.php');
+$cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
+if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
 
 // harden it
-require_once(dirname(__FILE__).'/manager/includes/protect.inc.php');
-require_once(dirname(__FILE__).'/manager/includes/initialize.inc.php');
+require_once("{$cwd}manager/includes/protect.inc.php");
+require_once("{$cwd}manager/includes/initialize.inc.php");
 
 // set some settings, and address some IE issues
 @ini_set('url_rewriter.tags', '');
