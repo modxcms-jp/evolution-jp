@@ -48,7 +48,7 @@
 	</div>
 	<div class="footer">
 	<footer>
-	    (c)2011 [(site_name)]<br />
+	    (c)2012 [(site_name)]<br />
 	    MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document retrieved from [^s^].
 	</footer>
 	</div>
