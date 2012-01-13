@@ -55,40 +55,6 @@ if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
 // harden it
 require_once("{$cwd}manager/includes/protect.inc.php");
 require_once("{$cwd}manager/includes/initialize.inc.php");
-
-// set some settings, and address some IE issues
-@ini_set('url_rewriter.tags', '');
-@ini_set('session.use_trans_sid', 0);
-@ini_set('session.use_only_cookies',1);
-session_cache_limiter('');
-header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
-header('Cache-Control: private, must-revalidate');
-ob_start();
-error_reporting(E_ALL & ~E_NOTICE);
-
-/**
- *	Filename: index.php
- *	Function: This file loads and executes the parser. *
- */
-
-define("IN_ETOMITE_PARSER", "true"); // provides compatibility with etomite 0.6 and maybe later versions
-define("IN_PARSER_MODE", "true");
-define("IN_MANAGER_MODE", "false");
-
-if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', false);
-}
-
-// initialize the variables prior to grabbing the config file
-$database_type = '';
-$database_server = '';
-$database_user = '';
-$database_password = '';
-$dbase = '';
-$table_prefix = '';
-$base_url = '';
-$base_path = '';
-
 // get the required includes
 if(!isset($database_type))
 {
@@ -115,7 +81,7 @@ a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;paddin
 	}
 }
 
-// start session 
+set_parser_mode();
 startCMSSession();
 
 // initiate a new document parser
