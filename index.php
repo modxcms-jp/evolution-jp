@@ -79,7 +79,8 @@ $etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
 
 // execute the parser if index.php was not included
-if (!MODX_API_MODE) {
-    $modx->executeParser();
+if (!MODX_API_MODE)
+{
+	ob_start();
+	$modx->executeParser();
 }
-?>
