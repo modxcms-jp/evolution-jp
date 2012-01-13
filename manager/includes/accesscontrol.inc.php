@@ -1,13 +1,9 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager'){
-//		if (isset($_COOKIE[session_name()])) {
-//			setcookie(session_name(), '', 0, MODX_BASE_URL);
-//		}
-		@session_destroy();
-		// start session
-//	    startCMSSession();
+if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager')
+{
+	@session_destroy();
 }
 
 // andrazk 20070416 - if installer is running, destroy active sessions
@@ -23,12 +19,14 @@ if (file_exists($pth.'/../../assets/cache/installProc.inc.php'))
 			@ chmod($pth.'/../../assets/cache/installProc.inc.php', 0755);
 			unlink($pth.'/../../assets/cache/installProc.inc.php');
 		} 
-		else {
-			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-				if (isset($_COOKIE[session_name()])) {
+		else
+		{
+			if ($_SERVER['REQUEST_METHOD'] != 'POST')
+			{
+				if (isset($_COOKIE[session_name()]))
+				{
 					session_unset();
 					@session_destroy();
-//					setcookie(session_name(), '', 0, MODX_BASE_URL);
 				}
 				$installGoingOn = 1;
 			}
@@ -47,7 +45,6 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
 			{
 				session_unset();
 				@session_destroy();
-//				setcookie(session_name(), '', 0, MODX_BASE_URL);
 			}
 			header('HTTP/1.0 307 Redirect');
 			header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
