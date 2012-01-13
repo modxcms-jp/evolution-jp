@@ -220,11 +220,11 @@ class DocumentParser {
 	function dbClose()                   {$this->db->disconnect();}
 
     function getSettings() {
-        if (!is_array($this->config) || empty ($this->config)) {
-            if ($included= file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
+        if (!isset($this->config) || !is_array($this->config) || empty ($this->config)) {
+            if (file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
                 $included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
             }
-            if (!$included || !is_array($this->config) || empty ($this->config)) {
+            if (!isset($included) || !is_array($this->config) || empty ($this->config)) {
                 include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
                 $cache = new synccache();
                 $cache->setCachepath(MODX_BASE_PATH . "assets/cache/");
