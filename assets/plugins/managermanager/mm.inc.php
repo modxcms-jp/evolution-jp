@@ -27,21 +27,18 @@ $mm_version = '0.3.10dev';
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 
-
-
 // JS URL
-switch ($which_jquery) {
- case 'local (assets/js)':
-  $js_url  = $js_default_url_local;
- break;
-
- case 'remote (google code)':
-  $js_url  = $js_default_url_remote;
- break;
-
- case 'manual url (specify below)':
-  $js_url  = $js_src_override;
- break;
+switch ($which_jquery)
+{
+	case 'local (assets/js)':
+		$js_url  = $js_default_url_local;
+		break;
+	case 'remote (google code)':
+		$js_url  = $js_default_url_remote;
+		break;
+	case 'manual url (specify below)':
+		$js_url  = $js_src_override;
+		break;
 }
 
 // Should we remove deprecated Template variable types from the TV creation list?
@@ -89,40 +86,44 @@ else                                $mm_current_page['template'] = $default_temp
 
 $mm_current_page['role'] = $_SESSION['mgrRole'];
 
-
 // What are the fields we can change, and what types are they?
-$mm_fields = array(
-	'pagetitle' => array('fieldtype'=>'input', 'fieldname'=>'pagetitle', 'dbname'=>'pagetitle', 'tv'=>false),
-	'longtitle' => array('fieldtype'=>'input', 'fieldname'=>'longtitle', 'dbname'=>'longtitle', 'tv'=>false),
-	'description' => array('fieldtype'=>'input', 'fieldname'=>'description', 'dbname'=>'description', 'tv'=>false),
-	'alias' => array('fieldtype'=>'input', 'fieldname'=>'alias', 'dbname'=>'alias', 'tv'=>false),
-	'link_attributes' => array('fieldtype'=>'input', 'fieldname'=>'link_attributes', 'dbname'=>'link_attributes', 'tv'=>false),
-	'introtext' => array('fieldtype'=>'textarea', 'fieldname'=>'introtext', 'dbname'=>'introtext', 'tv'=>false),
-	'template' => array('fieldtype'=>'select', 'fieldname'=>'template', 'dbname'=>'template', 'tv'=>false),
-	'menutitle' => array('fieldtype'=>'input', 'fieldname'=>'menutitle','dbname'=>'menutitle',  'tv'=>false),
-	'menuindex' => array('fieldtype'=>'input', 'fieldname'=>'menuindex', 'dbname'=>'menuindex', 'tv'=>false),
-	'show_in_menu' => array('fieldtype'=>'input', 'fieldname'=>'hidemenucheck','dbname'=>'hidemenu',  'tv'=>false),
-	'hide_menu' => array('fieldtype'=>'input', 'fieldname'=>'hidemenucheck', 'dbname'=>'hidemenu', 'tv'=>false), // synonym for show_in_menu
-	'parent' => array('fieldtype'=>'input', 'fieldname'=>'parent', 'dbname'=>'parent', 'tv'=>false),
-	'is_folder' => array('fieldtype'=>'input', 'fieldname'=>'isfoldercheck', 'dbname'=>'isfolder', 'tv'=>false),
-	'is_richtext' => array('fieldtype'=>'input', 'fieldname'=>'richtextcheck','dbname'=>'richtext',  'tv'=>false),
-	'log' => array('fieldtype'=>'input', 'fieldname'=>'donthitcheck', 'dbname'=>'donthit', 'tv'=>false),
-	'published' => array('fieldtype'=>'input', 'fieldname'=>'publishedcheck','dbname'=>'published',  'tv'=>false),
-	'pub_date' => array('fieldtype'=>'input', 'fieldname'=>'pub_date', 'dbname'=>'pub_date', 'tv'=>false),
-	'unpub_date' => array('fieldtype'=>'input', 'fieldname'=>'unpub_date', 'dbname'=>'unpub_date', 'tv'=>false),
-	'searchable' => array('fieldtype'=>'input', 'fieldname'=>'searchablecheck','dbname'=>'searchable',  'tv'=>false),
-	'cacheable' => array('fieldtype'=>'input', 'fieldname'=>'cacheablecheck', 'dbname'=>'cacheable', 'tv'=>false),
-	'clear_cache' => array('fieldtype'=>'input', 'fieldname'=>'syncsitecheck','dbname'=>'',  'tv'=>false),
-	'content_type' => array('fieldtype'=>'select', 'fieldname'=>'contentType', 'dbname'=>'contentType', 'tv'=>false),
-	'content_dispo' => array('fieldtype'=>'select', 'fieldname'=>'content_dispo', 'dbname'=>'content_dispo', 'tv'=>false),
-	'keywords' => array('fieldtype'=>'select', 'fieldname'=>'keywords[]', 'dbname'=>'', 'tv'=>false),
-	'metatags' => array('fieldtype'=>'select', 'fieldname'=>'metatags[]', 'dbname'=>'', 'tv'=>false),
-	'content' => array('fieldtype'=>'textarea', 'fieldname'=>'ta', 'dbname'=>'content', 'tv'=>false),
-	'which_editor' => array('fieldtype'=>'select', 'fieldname'=>'which_editor','dbname'=>'',  'tv'=>false),
-	'resource_type' => array('fieldtype'=>'select', 'fieldname'=>'type', 'dbname'=>'isfolder', 'tv'=>false),
-	'weblink' => array('fieldtype'=>'input', 'fieldname'=>'ta', 'dbname'=>'content', 'tv'=>false)
-);
-
+$field['pagetitle']       = array('input', 'pagetitle', 'pagetitle');
+$field['longtitle']       = array('input', 'longtitle', 'longtitle');
+$field['description']     = array('input', 'description', 'description');
+$field['alias']           = array('input', 'alias', 'alias');
+$field['link_attributes'] = array('input', 'link_attributes', 'link_attributes');
+$field['menutitle']       = array('input', 'menutitle','menutitle');
+$field['menuindex']       = array('input', 'menuindex', 'menuindex');
+$field['show_in_menu']    = array('input', 'hidemenucheck','hidemenu');
+$field['hide_menu']       = array('input', 'hidemenucheck', 'hidemenu'); // synonym for show_in_menu
+$field['parent']          = array('input', 'parent', 'parent');
+$field['is_folder']       = array('input', 'isfoldercheck', 'isfolder');
+$field['is_richtext']     = array('input', 'richtextcheck','richtext');
+$field['log']             = array('input', 'donthitcheck', 'donthit');
+$field['published']       = array('input', 'publishedcheck','published');
+$field['pub_date']        = array('input', 'pub_date', 'pub_date');
+$field['unpub_date']      = array('input', 'unpub_date', 'unpub_date');
+$field['searchable']      = array('input', 'searchablecheck','searchable');
+$field['cacheable']       = array('input', 'cacheablecheck', 'cacheable');
+$field['clear_cache']     = array('input', 'syncsitecheck','');
+$field['weblink']         = array('input', 'ta', 'content');
+$field['introtext']       = array('textarea', 'introtext', 'introtext');
+$field['content']         = array('textarea', 'ta', 'content');
+$field['template']        = array('select', 'template', 'template');
+$field['content_type']    = array('select', 'contentType', 'contentType');
+$field['content_dispo']   = array('select', 'content_dispo', 'content_dispo');
+$field['keywords']        = array('select', 'keywords[]', '');
+$field['metatags']        = array('select', 'metatags[]', '');
+$field['which_editor']    = array('select', 'which_editor','');
+$field['resource_type']   = array('select', 'type', 'isfolder');
+foreach($field as $k=>$a)
+{
+	$mm_fields[$k]['fieldtype'] = $a[0];
+	$mm_fields[$k]['fieldname'] = $a[1];
+	$mm_fields[$k]['dbname']    = $a[2];
+	$mm_fields[$k]['tv']        = false;
+}
+unset($field);
 
 // Add in TVs to the list of available fields
 $all_tvs = $modx->db->makeArray( $modx->db->select("name,type,id,elements", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC')   );
