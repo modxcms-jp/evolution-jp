@@ -184,11 +184,11 @@ else $ph['result_msg'] = '';
 <div class="sectionHeader"><?php echo $_lang['bk_manager']?></div>
 <div class="sectionBody" id="lyr4">
 	<div class="tab-pane" id="dbmPane">
-	<script type="text/javascript"> 
-	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane')); 
+	<script type="text/javascript">
+	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
 	</script>
-	<div class="tab-page" id="tabBackup">  
-	    <h2 class="tab">バックアップ</h2>  
+	<div class="tab-page" id="tabBackup">
+	    <h2 class="tab">バックアップ</h2>
 	    <script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabBackup'));</script>
 	<form name="frmdb" method="post">
 	<input type="hidden" name="mode" value="" />
@@ -257,7 +257,6 @@ for ($i = 0; $i < $limit; $i++) {
 	$totaloverhead = $totaloverhead+$db_status['Data_free'];
 }
 ?>
-
 			<tr bgcolor="#CCCCCC">
 				<td valign="top"><b><?php echo $_lang['database_table_totals']?></b></td>
 				<td colspan="2">&nbsp;</td>
@@ -291,7 +290,7 @@ if ($totaloverhead > 0) {
 	{
 		var f=document.getElementById('sqlfile');
 		var t=document.getElementById('textarea');
-		if(a=='file') 
+		if(a=='file')
 		{
 			f.style.display = 'block';
 			t.style.display = 'none';

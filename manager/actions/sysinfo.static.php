@@ -16,7 +16,6 @@ if(!$modx->hasPermission('logs')) {
 
 <!-- server -->
 <div class="sectionHeader">Server</div><div class="sectionBody" id="lyr2">
-
 		<table border="0" cellspacing="2" cellpadding="2">
 		  <tr>
 			<td width="150"><?php echo $_lang['modx_version']?></td>
@@ -72,8 +71,7 @@ if(!$modx->hasPermission('logs')) {
 			<td><?php echo $_lang['database_charset']?></td>
 			<td>&nbsp;</td>
 			<td><strong><?php
-	$sql1 = "show variables like 'character_set_database'";
-    $res = $modx->db->query($sql1);
+    $res = $modx->db->query("show variables like 'character_set_database'");
     $charset = $modx->db->getRow($res, 'num');
     echo $charset[1];
 			?></strong></td>
@@ -82,8 +80,7 @@ if(!$modx->hasPermission('logs')) {
 			<td><?php echo $_lang['database_collation']?></td>
 			<td>&nbsp;</td>
 			<td><strong><?php
-    $sql2 = "show variables like 'collation_database'";
-    $res = $modx->db->query($sql2);
+    $res = $modx->db->query("show variables like 'collation_database'");
     $collation = $modx->db->getRow($res, 'num');
     echo $collation[1];
             ?></strong></td>
@@ -119,9 +116,7 @@ if(!$modx->hasPermission('logs')) {
 			<td><b><?php echo MODX_SITE_URL ?></b></td>
 		  </tr>
 		</table>
-
    </div>
-
 
 <!-- recent documents -->
 <div class="sectionHeader"><?php echo $_lang["activity_title"]; ?></div><div class="sectionBody" id="lyr1">
@@ -142,8 +137,9 @@ if(!$modx->hasPermission('logs')) {
 			</thead>
 			<tbody>
 		<?php
-		$sql = "SELECT id, pagetitle, editedby, editedon FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=0 ORDER BY editedon DESC LIMIT 20";
-		$rs = mysql_query($sql);
+		$field = 'id, pagetitle, editedby, editedon';
+		$tbl_site_content = $modx->getFullTableName('site_content');
+		$rs = $modx->db->select($field,$tbl_site_content,'deleted=0','editedon DESC',20);
 		$limit = mysql_num_rows($rs);
 		if($limit<1) {
 			echo "<p>".$_lang["no_edits_creates"]."</p>";
