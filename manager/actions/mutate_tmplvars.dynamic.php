@@ -19,7 +19,7 @@ if(isset($_REQUEST['id'])) {
 // check to see the variable editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
 $sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=301 AND id=$id";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
     for ($i=0;$i<$limit;$i++) {
@@ -45,7 +45,7 @@ if(isset($_GET['id']))
 {
 	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
 	$sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	if($limit>1)
 	{
@@ -421,7 +421,7 @@ function decode(s){
 	    $tbl = $modx->getFullTableName('site_templates');
 	    $tblsel = $modx->getFullTableName('site_tmplvar_templates');
 	    $sql = "SELECT id,templatename,tmplvarid FROM $tbl LEFT JOIN $tblsel ON $tblsel.templateid=$tbl.id AND $tblsel.tmplvarid=$id";
-	    $rs = mysql_query($sql);
+	    $rs = $modx->db->query($sql);
 ?>
   <tr>
     <td>
@@ -448,7 +448,7 @@ function decode(s){
 	    // fetch permissions for the variable
 	    $tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
 	    $sql = "SELECT * FROM {$tbl_site_tmplvar_access} where tmplvarid=".$id;
-	    $rs = mysql_query($sql);
+	    $rs = $modx->db->query($sql);
 	    $limit = mysql_num_rows($rs);
 	    for ($i = 0; $i < $limit; $i++) {
 	        $currentgroup=mysql_fetch_assoc($rs);
@@ -488,7 +488,7 @@ function decode(s){
 		    $chk ='';
 		    $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
 		    $sql = "SELECT name, id FROM {$tbl_documentgroup_names}";
-		    $rs = mysql_query($sql);
+		    $rs = $modx->db->query($sql);
 		    $limit = mysql_num_rows($rs);
 		    if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
 		    	$groupsarray = $_POST['docgroups'];

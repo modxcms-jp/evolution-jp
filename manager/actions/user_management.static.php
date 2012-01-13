@@ -131,7 +131,7 @@ echo $cm->render();
 	}
 	$sql .= "ORDER BY mua.blocked ASC, mua.thislogin DESC";
 
-	$ds = mysql_query($sql);
+	$ds = $modx->db->query($sql);
 	include_once $base_path."manager/includes/controls/datagrid.class.php";
 	$grd = new DataGrid('',$ds,$modx->config['number_of_results']); // set page size to 0 t show all items
 	$grd->noRecordMsg       = $_lang["no_records_found"];

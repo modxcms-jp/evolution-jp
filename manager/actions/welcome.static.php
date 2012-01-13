@@ -144,7 +144,7 @@ $sql .= ' FROM ' . $modx->getFullTableName('site_content');
 //$sql .= ' LEFT JOIN ' . $modx->getFullTableName('manager_log') . ' AS mlog ON mlog.internalKey = editedby';
 $sql .= ' WHERE deleted=0 AND editedby=' . $modx->getLoginUserID();
 $sql .= ' ORDER BY editedon DESC LIMIT 10';
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
     $html .= '<li>'.$_lang['no_activity_message'].'</li>';
@@ -208,7 +208,7 @@ $modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
     include_once "actionlist.inc.php";
 
     $sql = "SELECT * FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.lasthit>'$timetocheck' ORDER BY username ASC";
-    $rs = mysql_query($sql);
+    $rs = $modx->db->query($sql);
     $limit = mysql_num_rows($rs);
     if($limit<2) {
         $html = "<p>".$_lang['no_active_users_found']."</p>";
@@ -286,4 +286,3 @@ function get_icon($title,$action,$icon_path,$alt='')
 	$icon = '<a class="hometblink" href="'.$action.'" alt="'.$alt.'"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
 	return '<span class="wm_button" style="border:0">' . $icon . '</span>';
 }
-?>

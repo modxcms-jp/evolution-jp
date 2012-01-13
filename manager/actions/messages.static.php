@@ -11,7 +11,7 @@ if(!$modx->hasPermission('messages')) {
 <div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div><div class="sectionBody" id="lyr3">
 <?php
 $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.id=".$_REQUEST['id'];
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit!=1) {
     echo "Wrong number of messages returned!";
@@ -27,7 +27,7 @@ if($limit!=1) {
             $sendername = $_lang['messages_system_user'];
         } else {
             $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
-            $rs2 = mysql_query($sql);
+            $rs2 = $modx->db->query($sql);
             $row2 = mysql_fetch_assoc($rs2);
             $sendername = $row2['username'];
         }
@@ -83,7 +83,7 @@ if($limit!=1) {
 <?php
         // mark the message as read
         $sql = "UPDATE $dbase.`".$table_prefix."user_messages` SET $dbase.`".$table_prefix."user_messages`.messageread=1 WHERE $dbase.`".$table_prefix."user_messages`.id=".$_REQUEST['id'];
-        $rs = mysql_query($sql);
+        $rs = $modx->db->query($sql);
     }
 }
 ?>
@@ -95,7 +95,7 @@ if($limit!=1) {
 <?php
 // Get  number of rows
 $sql = "SELECT count(id) FROM $dbase.`".$table_prefix."user_messages` WHERE recipient=".$modx->getLoginUserID()."";
-$rs=mysql_query($sql);
+$rs=$modx->db->query($sql);
 $countrows = mysql_fetch_assoc($rs);
 $num_rows = $countrows['count(id)'];
 
@@ -142,7 +142,7 @@ $pager .=  $array_paging['next_link'] ."&gt;&gt;". (isset($array_paging['next_li
 // only the results you would like...
 
 $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.recipient=".$modx->getLoginUserID()." ORDER BY postdate DESC LIMIT ".$int_cur_position.", ".$int_num_result;
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit<1) {
     echo $_lang['messages_no_messages'];
@@ -170,7 +170,7 @@ $dotablestuff = 1;
                 $sendername = "[System]";
             } else {
                 $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
-                $rs2 = mysql_query($sql);
+                $rs2 = $modx->db->query($sql);
                 $row2 = mysql_fetch_assoc($rs2);
                 $sendername = $row2['username'];
             }
@@ -197,7 +197,7 @@ if($dotablestuff==1) { ?>
 <?php
 if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($_REQUEST['id'])) {
     $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.id=".$_REQUEST['id'];
-    $rs = mysql_query($sql);
+    $rs = $modx->db->query($sql);
     $limit = mysql_num_rows($rs);
     if($limit!=1) {
         echo "Wrong number of messages returned!";
@@ -213,7 +213,7 @@ if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($_REQUEST['id'])) {
                 $sendername = "[System]";
             } else {
                 $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
-                $rs2 = mysql_query($sql);
+                $rs2 = $modx->db->query($sql);
                 $row2 = mysql_fetch_assoc($rs2);
                 $sendername = $row2['username'];
             }
@@ -260,7 +260,7 @@ function hideSpans(showSpan) {
     <?php
     // get all usernames
     $sql = "SELECT username, id FROM $dbase.`".$table_prefix."manager_users`";
-    $rs = mysql_query($sql);
+    $rs = $modx->db->query($sql);
     ?>
     <select name="user" class="inputBox" style="width:150px">
     <?php
@@ -276,7 +276,7 @@ function hideSpans(showSpan) {
     <?php
     // get all usernames
     $sql = "SELECT name, id FROM $dbase.`".$table_prefix."user_roles`";
-    $rs = mysql_query($sql);
+    $rs = $modx->db->query($sql);
     ?>
     <select name="group" class="inputBox" style="width:150px">
     <?php
@@ -326,11 +326,11 @@ function hideSpans(showSpan) {
 <?php
 // count messages again, as any action on the messages page may have altered the message count
 $sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()." and messageread=0;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $row = mysql_fetch_assoc($rs);
 $_SESSION['nrnewmessages'] = $row['count(*)'];
 $sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()."";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $row = mysql_fetch_assoc($rs);
 $_SESSION['nrtotalmessages'] = $row['count(*)'];
 $messagesallowed = $modx->hasPermission('messages');

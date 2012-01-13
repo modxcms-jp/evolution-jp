@@ -24,7 +24,7 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=88 AND $dbase.`".$table_prefix."active_users`.id=$user";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
@@ -41,7 +41,7 @@ if($limit>1) {
 if($_REQUEST['a']=='88') {
 	// get user attributes
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_user_attributes` WHERE $dbase.`".$table_prefix."web_user_attributes`.internalKey = ".$user.";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	if($limit>1) {
 		echo "More than one user returned!<p>";
@@ -55,14 +55,14 @@ if($_REQUEST['a']=='88') {
 
 	// get user settings
 	$sql = "SELECT wus.* FROM $dbase.`".$table_prefix."web_user_settings` wus WHERE wus.webuser = ".$user.";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$usersettings = array();
 	while($row=mysql_fetch_assoc($rs)) $usersettings[$row['setting_name']]=$row['setting_value'];
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_users` WHERE $dbase.`".$table_prefix."web_users`.id = ".$user.";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	if($limit>1) {
 		echo "More than one user returned while getting username!<p>";
@@ -93,13 +93,6 @@ if($modx->manager->hasFormValues()) {
 	$usersettings = array_merge($usersettings,$userdata);
 	$usersettings['allowed_days'] = is_array($_POST['allowed_days']) ? implode(",",$_POST['allowed_days']):"";
 	extract($usersettings, EXTR_OVERWRITE);
-}
-
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
-	global $modx;
-	if ($date == "") {return "0";}
-	else {}          {return $modx->toTimeStamp($date);}
 }
 
 // include the country list language file
@@ -523,7 +516,7 @@ if($use_udperms==1)
 	if($_GET['a']=='88')
 	{ // only do this bit if the user is being edited
 		$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
-		$rs = mysql_query($sql);
+		$rs = $modx->db->query($sql);
 		$limit = mysql_num_rows($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
@@ -546,7 +539,7 @@ if($use_udperms==1)
 <?php
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
 	$sql = "SELECT name, id FROM $dbase.`".$table_prefix."webgroup_names` ORDER BY name";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
 	while($row=mysql_fetch_assoc($rs))
 	{
@@ -573,3 +566,10 @@ if($use_udperms==1)
 	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
+<?php
+// converts date format dd-mm-yyyy to php date
+function ConvertDate($date) {
+	global $modx;
+	if ($date == "") {return "0";}
+	else {}          {return $modx->toTimeStamp($date);}
+}

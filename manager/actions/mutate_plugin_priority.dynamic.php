@@ -46,7 +46,7 @@ $sql = "
 	ORDER BY sysevt.name,pe.priority
 ";
 
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 
 $insideUl = 0;

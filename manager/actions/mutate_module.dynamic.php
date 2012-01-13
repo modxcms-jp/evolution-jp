@@ -40,18 +40,9 @@ $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 $tbl_site_templates     = $modx->getFullTableName('site_templates');
 $tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
 
-// create globally unique identifiers (guid)
-function createGUID(){
-	srand((double)microtime()*1000000);
-	$r = rand() ;
-	$u = uniqid(getmypid() . $r . (double)microtime()*1000000,1);
-	$m = md5 ($u);
-	return $m;
-}
-
 // Check to see the editor isn't locked
 $sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=108 AND id=\''.$id.'\'';
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if ($limit > 1) {
 	for ($i = 0; $i < $limit; $i++) {
@@ -73,7 +64,7 @@ if (!is_numeric($id)) {
 
 if (isset($_GET['id'])) {
 	$sql = 'SELECT * FROM '.$tbl_site_modules.' WHERE id=\''.$id.'\'';
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	if ($limit > 1) {
 		echo '<p>Multiple modules sharing same unique id. Not good.<p>';
@@ -459,7 +450,7 @@ function SetUrl(url, width, height, alt) {
 	       'LEFT JOIN '.$tbl_site_templates.' AS st ON st.id = smd.resource AND smd.type = 50 '.
 	       'LEFT JOIN '.$tbl_site_tmplvars.' AS sv ON sv.id = smd.resource AND smd.type = 60 '.
 	       'WHERE smd.module=\''.$id.'\' ORDER BY smd.type,name';
-$ds = $modx->dbQuery($sql);
+$ds = $modx->db->query($sql);
 if (!$ds) {
 	echo "An error occured while loading module dependencies.";
 } else {
@@ -486,7 +477,7 @@ if ($use_udperms == 1) {
 	// fetch user access permissions for the module
 	$groupsarray = array();
 	$sql = 'SELECT * FROM '.$tbl_site_module_access.' WHERE module=\''.$id.'\'';
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$currentgroup = mysql_fetch_assoc($rs);
@@ -522,7 +513,7 @@ if ($use_udperms == 1) {
 	}
 	$chk = '';
 	$sql = "SELECT name, id FROM ".$tbl_membergroup_names;
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$row = mysql_fetch_assoc($rs);
@@ -551,3 +542,13 @@ if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 </form>
 <script type="text/javascript">setTimeout('showParameters();',10);</script>
+
+<?php
+// create globally unique identifiers (guid)
+function createGUID(){
+	srand((double)microtime()*1000000);
+	$r = rand() ;
+	$u = uniqid(getmypid() . $r . (double)microtime()*1000000,1);
+	$m = md5 ($u);
+	return $m;
+}

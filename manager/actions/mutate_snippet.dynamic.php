@@ -364,7 +364,7 @@ function decode(s){
 					       'INNER JOIN '.$tbl_site_snippets.' AS ss ON ss.id=smd.resource '.
 					       'WHERE smd.resource=\''.$id.'\' AND sm.enable_sharedparams=\'1\' '.
 					       'ORDER BY sm.name';
-					$ds = $modx->dbQuery($sql);
+					$ds = $modx->db->query($sql);
 					if($ds) while($row = $modx->fetchRow($ds)){
 						echo "<option value='".$row['guid']."'".($content['moduleguid']==$row['guid']? " selected='selected'":"").">".htmlspecialchars($row['name'])."</option>";
 					}

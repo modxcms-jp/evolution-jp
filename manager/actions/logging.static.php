@@ -5,41 +5,6 @@ if(!$modx->hasPermission('logs')) {
 	$e->dumpError();
 }
 
-function array_unique_multi($array, $checkKey) {
-	// Use the builtin if we're not a multi-dimensional array
-	if (!is_array(current($array)) || empty($checkKey)) return array_unique($array);
-
-	$ret = array();
-	$checkValues = array(); // contains the unique key Values
-	foreach ($array as $key => $current) {
-		if (in_array($current[$checkKey], $checkValues)) continue; // duplicate
-
-		$checkValues[] = $current[$checkKey];
-		$ret[$key] = $current;
-	}
-	return $ret;
-}
-
-function record_sort($array, $key) {
-	$hash = array();
-	foreach ($array as $k => $v) $hash[$k] = $v[$key];
-
-	natsort($hash);
-
-	$records = array();
-	foreach ($hash as $k => $row)
-		$records[$k] = $array[$k];
-
-	return $records;
-}
-
-// function to check date and convert to us date
-function convertdate($date) {
-	global $_lang, $modx;
-	$timestamp = $modx->toTimeStamp($date);
-	return $timestamp;
-}
-
 $sql = 'SELECT DISTINCT internalKey, username, action, itemid, itemname FROM '.$modx->getFullTableName('manager_log');
 $rs = $modx->db->query($sql);
 
@@ -214,7 +179,7 @@ if(isset($_REQUEST['log_submit'])) {
 		' ORDER BY timestamp DESC'.
 		' LIMIT '.$int_cur_position.', '.$int_num_result;
 
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if($limit<1) {
 		echo '<p>'.$_lang["mgrlog_emptysrch"].'</p>';
 	} else {
@@ -237,11 +202,11 @@ if(isset($_REQUEST['log_submit'])) {
 		$paging .= $array_paging['previous_link'] . $_lang["paging_prev"] . (isset($array_paging['previous_link']) ? "</a> " : " ");
 		$pagesfound = sizeof($array_row_paging);
 		if($pagesfound>6) {
-			$paging .= $array_row_paging[$current_row-2]; // ."&nbsp;";
-			$paging .= $array_row_paging[$current_row-1]; // ."&nbsp;";
-			$paging .= $array_row_paging[$current_row]; // ."&nbsp;";
-			$paging .= $array_row_paging[$current_row+1]; // ."&nbsp;";
-			$paging .= $array_row_paging[$current_row+2]; // ."&nbsp;";
+			$paging .= $array_row_paging[$current_row-2];
+			$paging .= $array_row_paging[$current_row-1];
+			$paging .= $array_row_paging[$current_row];
+			$paging .= $array_row_paging[$current_row+1];
+			$paging .= $array_row_paging[$current_row+2];
 		} else {
 			for( $i=0; $i<$pagesfound; $i++ ){
 				$paging .= $array_row_paging[$i] ."&nbsp;";
@@ -250,10 +215,6 @@ if(isset($_REQUEST['log_submit'])) {
 		$paging .= $array_paging['next_link'] . $_lang["paging_next"] . (isset($array_paging['next_link']) ? "</a> " : " ") . " ";
 		$paging .= $array_paging['last_link'] . $_lang["paging_last"] . (isset($array_paging['last_link']) ? "</a> " : " ") . "</p>";
 		echo $paging;
-		// The above exemple print somethings like:
-		// Results 1 to 20 of 597  <<< 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 >>>
-		// Of course you can now play with array_row_paging in order to print
-		// only the results you would like...
 		?>
 		<script type="text/javascript" src="media/script/tablesort.js"></script>
 		<table class="sortabletable rowstyle-even" id="table-1">
@@ -309,4 +270,38 @@ if(isset($_REQUEST['log_submit'])) {
 } else {
     echo $_lang["mgrlog_noquery"];
 }
-?>
+
+function array_unique_multi($array, $checkKey) {
+	// Use the builtin if we're not a multi-dimensional array
+	if (!is_array(current($array)) || empty($checkKey)) return array_unique($array);
+
+	$ret = array();
+	$checkValues = array(); // contains the unique key Values
+	foreach ($array as $key => $current) {
+		if (in_array($current[$checkKey], $checkValues)) continue; // duplicate
+
+		$checkValues[] = $current[$checkKey];
+		$ret[$key] = $current;
+	}
+	return $ret;
+}
+
+function record_sort($array, $key) {
+	$hash = array();
+	foreach ($array as $k => $v) $hash[$k] = $v[$key];
+
+	natsort($hash);
+
+	$records = array();
+	foreach ($hash as $k => $row)
+		$records[$k] = $array[$k];
+
+	return $records;
+}
+
+// function to check date and convert to us date
+function convertdate($date) {
+	global $_lang, $modx;
+	$timestamp = $modx->toTimeStamp($date);
+	return $timestamp;
+}

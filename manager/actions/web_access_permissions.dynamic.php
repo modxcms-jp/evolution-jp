@@ -7,7 +7,7 @@ if(!$modx->hasPermission('web_access_permissions') || $modx->config['use_udperms
 
 // find all document groups, for the select :)
 $sql = 'SELECT * FROM '.$modx->getFullTableName('documentgroup_names').' ORDER BY name';
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if (mysql_num_rows($rs) < 1) {
 	$docgroupselector = "[no groups to add]";
 } else {
@@ -19,7 +19,7 @@ if (mysql_num_rows($rs) < 1) {
 }
 
 $sql = 'SELECT * FROM '.$modx->getFullTableName('webgroup_names').' ORDER BY name';
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if (mysql_num_rows($rs) < 1) {
 	$usrgroupselector = '[no user groups]';
 } else {
@@ -74,7 +74,7 @@ if (mysql_num_rows($rs) < 1) {
 	</table>
 	<br />
 <?php
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if (mysql_num_rows($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
@@ -147,7 +147,7 @@ if (mysql_num_rows($rs) < 1) {
 	</table>
 	<br />
 <?php
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if (mysql_num_rows($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
@@ -203,7 +203,7 @@ if (mysql_num_rows($rs) < 1) {
 		"LEFT JOIN ".$modx->getFullTableName('webgroup_access')." AS groupacc ON groupacc.webgroup = groupnames.id ".
 		"LEFT JOIN ".$modx->getFullTableName('documentgroup_names')." AS dgnames ON dgnames.id = groupacc.documentgroup ".
 		"ORDER BY name";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if (mysql_num_rows($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
 	} else {
