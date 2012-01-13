@@ -100,31 +100,20 @@ if (!file_exists($config_filename)) {
 // include the database configuration file
 include_once $config_filename;
 
-// initiate the content manager class
-include_once "document.parser.class.inc.php";
-$modx = new DocumentParser;
-$modx->loadExtension("ManagerAPI");
-$modx->getSettings();
-$etomite = &$modx; // for backward compatibility
-// connect to the database
-$modx->config['charset'] = $database_connection_charset;
-$modx->config['connection_method'] = $database_connection_method;
-$modx->db->connect($database_server, $dbase, $database_user, $database_password);
-
 // start session
 startCMSSession();
 
-// get the settings from the database
-include_once "settings.inc.php";
-
-// get the user settings from the database
-include_once "user_settings.inc.php";
+// initiate the content manager class
+include_once "document.parser.class.inc.php";
+$modx = new DocumentParser;
+$etomite = &$modx; // for backward compatibility
+$modx->loadExtension("ManagerAPI");
+$modx->db->connect();
+$modx->getSettings();
+extract($modx->config);
 
 // include_once the language file
-$default__language = 'japanese-utf8';
-if(!isset($manager_language)) {
-    $manager_language = $default__language; // if not set, get the english language file.
-}
+if(!isset($manager_language)) $manager_language = 'japanese-utf8';
 $_lang = array();
 include_once(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php");
 
