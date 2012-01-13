@@ -201,7 +201,6 @@ if (!function_exists("make_changes")) {
 	}
 }
 
-
 // Check the current event
 global $e;
 $e = &$modx->event;
@@ -297,33 +296,12 @@ case 'OnManagerMainFrameHeaderHTMLBlock':
 	break;
 
 case 'OnDocFormPrerender':
-
-	// Are we clashing with the ShowImageTVs (or any other) plugins?
-	//$conflicted_plugins = array('ShowImageTVs');
-	//$conflicts = array();
-	//foreach ($conflicted_plugins as $plg) {
-	
-	//	$sql= "SELECT * FROM " . $this->getFullTableName("site_plugins") . " WHERE name='" . $plg . "' OR name='" . strtolower($plg) . "'AND disabled=0;";
-       // $result= $modx->db->query($sql);
-       //	if ($modx->db->getRecordCount($result) > 0) {
-       //	$conflicts[] = $plg;
-	//	}
-	//}
-	//if (count($conflicts) > 0) {
-	//	echo '
-	//	<script type="text/javascript">
-	//		alert("You appear to be running '.(count($conflicts)>1?'some plugins which are':'a plugin which is').' incompatible with ManagerManager: \n\n  '.implode('  \n  ', $conflicts).'\n\nYou may experience errors or unpredictable behaviour. \n\nPlease see the ManagerManager documentation for details of how to fix this.");
-	//	<script>
-	//	';
-	//}
-	
-
 	// Load the jquery library
 	echo '<!-- Begin ManagerManager output -->' . "\n";
-$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
-$rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFrameHeaderHTMLBlock'");
-if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
-
+	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
+	$rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFrameHeaderHTMLBlock'");
+	if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
+	
 	// Create a mask to cover the page while the fields are being rearranged
 	echo '
 		<div id="loadingmask">&nbsp;</div>
@@ -342,7 +320,6 @@ case 'OnDocFormRender':
 	
 	// The main document editing form
 	
-
     // Include the JQuery call
     $e->output( '
 <!-- ManagerManager Plugin :: '.$mm_version.' -->
