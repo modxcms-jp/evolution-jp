@@ -90,7 +90,8 @@ $base_url = '';
 $base_path = '';
 
 // get the required includes
-if($database_user=="") {
+if(!isset($database_type))
+{
 	$rt = @include_once(dirname(__FILE__).'/manager/includes/config.inc.php');
 	// Be sure config.inc.php is there and that it contains some important values
 	if(!$rt || !$database_type || !$database_server || !$database_user || !$dbase || is_null($lastInstallTime)) {
