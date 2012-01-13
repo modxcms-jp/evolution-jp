@@ -140,7 +140,7 @@ if(!empty($_FILES['userfile'])) {
 
 	// this seems to be an upload action.
 	printf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, strlen($filemanager_path), strlen($startpath)));
-	echo $userfile['error']==0 ? "<p>".$_lang['files_file_type'].$userfile['type'].", ".nicesize($userfile['tmp_name']).'</p>' : '';
+	echo $userfile['error']==0 ? "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize($userfile['tmp_name']).'</p>' : '';
 
 	$userfilename = $userfile['tmp_name'];
 
@@ -408,7 +408,7 @@ if($folders==0 && $files==0) {
 
 echo $_lang['files_directories'],': <b>',$folders,'</b> ';
 echo $_lang['files_files'],': <b>',$files,'</b> ';
-echo $_lang['files_data'],': <b><span dir="ltr">',nicesize($filesizes),'</span></b> ';
+echo $_lang['files_data'],': <b><span dir="ltr">',$modx->nicesize($filesizes),'</span></b> ';
 echo $_lang['files_dirwritable'],' <b>',is_writable($startpath)==1 ? $_lang['yes'].'.' : $_lang['no'].'.'
 ?></b>
 <div align="center">
@@ -570,7 +570,7 @@ function ls($curpath)
 		echo '<tr style="cursor:default;" onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$dirs_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($dirs_array[$i]['stats']['9']),'</td>';
-		echo '<td dir="ltr">',nicesize($dirs_array[$i]['stats']['7']),'</td>';
+		echo '<td dir="ltr">',$modx->nicesize($dirs_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $dirs_array[$i]['delete'];
 		echo '</td>';
@@ -586,7 +586,7 @@ function ls($curpath)
 		echo '<tr onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
 		echo '<td>',$files_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($files_array[$i]['stats']['9']),'</td>';
-		echo '<td dir="ltr">',nicesize($files_array[$i]['stats']['7']),'</td>';
+		echo '<td dir="ltr">',$modx->nicesize($files_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
 		echo $files_array[$i]['unzip'];
 		echo $files_array[$i]['view'];
@@ -596,16 +596,6 @@ function ls($curpath)
 		echo '</tr>';
 	}
 	return;
-}
-
-function nicesize($size) {
-	$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-	$pos = 0;
-	while ($size >= 1024) {
-		   $size /= 1024;
-		   $pos++;
-	}
-	return round($size,2)." ".$a[$pos];
 }
 
 function removeLastPath($string) {

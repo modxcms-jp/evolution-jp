@@ -233,24 +233,24 @@ for ($i = 0; $i < $limit; $i++) {
 	);
 	if($modx->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
 		echo "\t\t\t\t".'<td dir="ltr" align="right">'.
-		     '<a href="index.php?a=54&mode='.$action.'&u='.$db_status['Name'].'" title="'.$_lang['truncate_table'].'">'.nicesize($db_status['Data_length']+$db_status['Data_free']).'</a>'.
+		     '<a href="index.php?a=54&mode='.$action.'&u='.$db_status['Name'].'" title="'.$_lang['truncate_table'].'">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</a>'.
 		     '</td>'."\n";
 	} else {
-		echo "\t\t\t\t".'<td dir="ltr" align="right">'.nicesize($db_status['Data_length']+$db_status['Data_free']).'</td>'."\n";
+		echo "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</td>'."\n";
 	}
 
 	if($modx->hasPermission('settings')) {
 		echo "\t\t\t\t".'<td align="right">'.($db_status['Data_free'] > 0 ?
-		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'">'.nicesize($db_status['Data_free']).'</a>' :
+		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'">'.$modx->nicesize($db_status['Data_free']).'</a>' :
 		     '-').
 		     '</td>'."\n";
 	} else {
-		echo '<td align="right">'.($db_status['Data_free'] > 0 ? nicesize($db_status['Data_free']) : '-').'</td>'."\n";
+		echo '<td align="right">'.($db_status['Data_free'] > 0 ? $modx->nicesize($db_status['Data_free']) : '-').'</td>'."\n";
 	}
 
-	echo "\t\t\t\t".'<td dir="ltr" align="right">'.nicesize($db_status['Data_length']-$db_status['Data_free']).'</td>'."\n".
-	     "\t\t\t\t".'<td dir="ltr" align="right">'.nicesize($db_status['Index_length']).'</td>'."\n".
-	     "\t\t\t\t".'<td dir="ltr" align="right">'.nicesize($db_status['Index_length']+$db_status['Data_length']+$db_status['Data_free']).'</td>'."\n".
+	echo "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']-$db_status['Data_free']).'</td>'."\n".
+	     "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']).'</td>'."\n".
+	     "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']+$db_status['Data_length']+$db_status['Data_free']).'</td>'."\n".
 	     "\t\t\t</tr>";
 
 	$total = $total+$db_status['Index_length']+$db_status['Data_length'];
@@ -261,9 +261,9 @@ for ($i = 0; $i < $limit; $i++) {
 			<tr bgcolor="#CCCCCC">
 				<td valign="top"><b><?php echo $_lang['database_table_totals']?></b></td>
 				<td colspan="2">&nbsp;</td>
-				<td dir="ltr" align="right" valign="top"><?php echo $totaloverhead>0 ? '<b style="color:#990033">'.nicesize($totaloverhead).'</b><br />('.number_format($totaloverhead).' B)' : '-'?></td>
+				<td dir="ltr" align="right" valign="top"><?php echo $totaloverhead>0 ? '<b style="color:#990033">'.$modx->nicesize($totaloverhead).'</b><br />('.number_format($totaloverhead).' B)' : '-'?></td>
 				<td colspan="2">&nbsp;</td>
-				<td dir="ltr" align="right" valign="top"><?php echo "<b>".nicesize($total)."</b><br />(".number_format($total)." B)"?></td>
+				<td dir="ltr" align="right" valign="top"><?php echo "<b>".$modx->nicesize($total)."</b><br />(".number_format($total)." B)"?></td>
 			</tr>
 		</tbody>
 	</table>
@@ -410,7 +410,7 @@ if(is_array($files) && 0 < $total)
 	while ($file = array_shift($files))
 	{
 		$filename = substr($file,strrpos($file,'/')+1);
-		$filesize = nicesize(filesize($file));
+		$filesize = $modx->nicesize(filesize($file));
 		echo str_replace(array('[+filename+]','[+filesize+]'),array($filename,$filesize),$tpl);
 	}
 	echo '</ul>';
@@ -599,19 +599,6 @@ function callBack(&$dumpstring) {
 	}
 	echo $dumpstring;
 	return true;
-}
-
-function nicesize($size) {
-	$a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-
-	$pos = 0;
-	while ($size >= 1024) {
-		$size /= 1024;
-		$pos++;
-	}
-	if ($size==0)
-	        return '-';
-	else    return round($size,2).' '.$a[$pos];
 }
 
 function snapshot(&$dumpstring) {
