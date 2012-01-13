@@ -17,12 +17,12 @@
     HideEditor plugin by Timon Reinhard and Gildas; HideManagerFields by Brett @ The Man Can!
 	
 	@LICENSE:
-	(c) Rocket Science Solutions Ltd - www.rckt.co.uk	
+	(c) Rocket Science Solutions Ltd - www.rckt.co.uk
 	Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
 	
 */
 
-$mm_version = '0.3.10dev'; 
+$mm_version = '0.3.10dev';
 
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
@@ -32,7 +32,7 @@ $mm_version = '0.3.10dev';
 // JS URL
 switch ($which_jquery) {
  case 'local (assets/js)':
-  $js_url  = $js_default_url_local; 
+  $js_url  = $js_default_url_local;
  break;
 
  case 'remote (google code)':
@@ -49,7 +49,7 @@ $remove_deprecated_tv_types = ($remove_deprecated_tv_types_pref == 'yes') ? true
 
 
 // When loading widgets / functions, ignore folders / files beginning with these chars
-$ignore_first_chars = array('.', '_', '!'); 
+$ignore_first_chars = array('.', '_', '!');
 
 // Include functions - we'll load all *.inc.php files in the "functions" folder
 $function_dir = $modx->config['base_path'] . 'assets/plugins/managermanager/functions';
@@ -97,8 +97,8 @@ $mm_fields = array(
 	'description' => array('fieldtype'=>'input', 'fieldname'=>'description', 'dbname'=>'description', 'tv'=>false),
 	'alias' => array('fieldtype'=>'input', 'fieldname'=>'alias', 'dbname'=>'alias', 'tv'=>false),
 	'link_attributes' => array('fieldtype'=>'input', 'fieldname'=>'link_attributes', 'dbname'=>'link_attributes', 'tv'=>false),
-	'introtext' => array('fieldtype'=>'textarea', 'fieldname'=>'introtext', 'dbname'=>'introtext', 'tv'=>false), 
-	'template' => array('fieldtype'=>'select', 'fieldname'=>'template', 'dbname'=>'template', 'tv'=>false),  
+	'introtext' => array('fieldtype'=>'textarea', 'fieldname'=>'introtext', 'dbname'=>'introtext', 'tv'=>false),
+	'template' => array('fieldtype'=>'select', 'fieldname'=>'template', 'dbname'=>'template', 'tv'=>false),
 	'menutitle' => array('fieldtype'=>'input', 'fieldname'=>'menutitle','dbname'=>'menutitle',  'tv'=>false),
 	'menuindex' => array('fieldtype'=>'input', 'fieldname'=>'menuindex', 'dbname'=>'menuindex', 'tv'=>false),
 	'show_in_menu' => array('fieldtype'=>'input', 'fieldname'=>'hidemenucheck','dbname'=>'hidemenu',  'tv'=>false),
@@ -121,7 +121,7 @@ $mm_fields = array(
 	'which_editor' => array('fieldtype'=>'select', 'fieldname'=>'which_editor','dbname'=>'',  'tv'=>false),
 	'resource_type' => array('fieldtype'=>'select', 'fieldname'=>'type', 'dbname'=>'isfolder', 'tv'=>false),
 	'weblink' => array('fieldtype'=>'input', 'fieldname'=>'ta', 'dbname'=>'content', 'tv'=>false)
-);				
+);
 
 
 // Add in TVs to the list of available fields
@@ -135,18 +135,18 @@ foreach ($all_tvs as $thisTv) {
 	
 	switch ($thisTv['type']) { // What fieldtype is this TV type?
 		case 'textarea':
-		case 'rawtextarea': 
+		case 'rawtextarea':
 		case 'textareamini':
 		case 'richtext':
 			$t = 'textarea';
 		break;
 		
-		case 'dropdown': 
+		case 'dropdown':
 		case 'listbox':
 			$t = 'select';
 		break;
 		
-		case 'listbox-multiple':  
+		case 'listbox-multiple':
 			$t = 'select';
 			$fieldname_suffix = '[]';
 		break;
@@ -176,7 +176,7 @@ foreach ($all_tvs as $thisTv) {
 	}
 	
 	// check if there are any name clashes between TVs and default field names? If there is, preserve the default field
-	if (!isset($mm_fields[ $n ])) { 
+	if (!isset($mm_fields[ $n ])) {
 		$mm_fields[ $n ] = array('fieldtype'=>$t, 'fieldname'=>'tv'.$thisTv['id'].$fieldname_suffix, 'dbname'=>'', 'tv'=>true);
 	}
 	
@@ -185,7 +185,7 @@ foreach ($all_tvs as $thisTv) {
 
 // Get the contents of the config chunk, and put it in the "make changes" function, to be run at the appropriate moment later on
 if (!function_exists("make_changes")) {
-	function make_changes($chunk) { 
+	function make_changes($chunk) {
 	
 		global $modx;	// Global modx object
 		$config_file = $modx->config['base_path'] . 'assets/plugins/managermanager/mm_rules.inc.php';
@@ -198,19 +198,16 @@ if (!function_exists("make_changes")) {
 		} else if (is_readable($config_file)) {	// If there's no chunk output, read in the file.
 			include($config_file);
 		}
-	} 
-} 
-
+	}
+}
 
 
 // Check the current event
 global $e;
 $e = &$modx->event;
 
-
-
 // The start of adding or editing a document (before the main form)
-switch ($e->name) { 
+switch ($e->name) {
 
 
 // if it's the plugin config form, give us a copy of all the relevant values
@@ -272,7 +269,7 @@ case 'OnPluginFormRender':
 			$roles_table .= '</tr>';
 		}
 		$roles_table .= '</table>';
-			
+		
 		
 		// Load the jquery library
 		$output = '<!-- Begin ManagerManager output -->' . "\n";
@@ -284,11 +281,11 @@ case 'OnPluginFormRender':
 		$output .= "mm_lastTab = 'tabEvents'; \n";
 		$e->output($output);
 		
-		mm_createTab('Templates, TVs &amp; Roles', 'rolestemplates', '', '', '<p>These are the IDs for current templates,tvs and roles in your site.</p>'.$template_table.'&nbsp;'.$tvs_table.'&nbsp;'.$roles_table);		
+		mm_createTab('Templates, TVs &amp; Roles', 'rolestemplates', '', '', '<p>These are the IDs for current templates,tvs and roles in your site.</p>'.$template_table.'&nbsp;'.$tvs_table.'&nbsp;'.$roles_table);
 		
 		$e->output('</script>');
-		$e->output('<!-- End ManagerManager output -->' . "\n");		
-	} 
+		$e->output('<!-- End ManagerManager output -->' . "\n");
+	}
 	break;
 
 
@@ -305,7 +302,7 @@ case 'OnDocFormPrerender':
 	//$conflicted_plugins = array('ShowImageTVs');
 	//$conflicts = array();
 	//foreach ($conflicted_plugins as $plg) {
-		
+	
 	//	$sql= "SELECT * FROM " . $this->getFullTableName("site_plugins") . " WHERE name='" . $plg . "' OR name='" . strtolower($plg) . "'AND disabled=0;";
        // $result= $modx->db->query($sql);
        //	if ($modx->db->getRecordCount($result) > 0) {
@@ -313,11 +310,11 @@ case 'OnDocFormPrerender':
 	//	}
 	//}
 	//if (count($conflicts) > 0) {
-	//	echo '		
+	//	echo '
 	//	<script type="text/javascript">
 	//		alert("You appear to be running '.(count($conflicts)>1?'some plugins which are':'a plugin which is').' incompatible with ManagerManager: \n\n  '.implode('  \n  ', $conflicts).'\n\nYou may experience errors or unpredictable behaviour. \n\nPlease see the ManagerManager documentation for details of how to fix this.");
-	//	<script>	
-	//	';	
+	//	<script>
+	//	';
 	//}
 	
 
@@ -328,13 +325,13 @@ $rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFr
 if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
 
 	// Create a mask to cover the page while the fields are being rearranged
-	echo '		
+	echo '
 		<div id="loadingmask">&nbsp;</div>
 		<script type="text/javascript">
 		var $j = jQuery.noConflict();
 
 			$j("#loadingmask").css( {width: "100%", height: $j("body").height(), position: "absolute", zIndex: "1000", backgroundColor: "#ffffff"} );
-		</script>	
+		</script>
 	';
 	echo '<!-- End ManagerManager output -->';
 	break;
@@ -355,7 +352,7 @@ case 'OnDocFormRender':
 <script type="text/javascript" charset="'.$modx->config['modx_charset'].'">
 var $j = jQuery.noConflict();
 		
-var mm_lastTab = "tabGeneral"; 
+var mm_lastTab = "tabGeneral";
 var mm_sync_field_count = 0;
 var synch_field = new Array();
 
@@ -363,8 +360,8 @@ $j(document).ready(function() {
 	
 	// Lets handle errors nicely...
 	try {
-						   					
-	  // Change section index depending on Content History running or not                  
+		
+	  // Change section index depending on Content History running or not
 	if(jQuery.bindReady())
 	{
 		var sidx = ($j("div.sectionBody:eq(1)").attr("id") == "ch-body")?1:0;  //ch-body is the CH id name (currently at least)
@@ -386,7 +383,7 @@ $j(document).ready(function() {
 	
 	// Where would we get the config file from?
 	$config_file = $modx->config['base_path'] . 'assets/plugins/managermanager/mm_rules.inc.php';
-		
+	
 	// See if there is any chunk output (e.g. it exists, and is not empty)
 	$chunk_output = $modx->getChunk($config_chunk);
 	if (!empty($chunk_output)) {
@@ -402,7 +399,7 @@ $j(document).ready(function() {
 	
     
     // Close it off
-    $e->output( '	
+    $e->output( '
 	
 		// Misc tidying up
 		
@@ -413,7 +410,7 @@ $j(document).ready(function() {
 		if ($j("div.tmplvars :input").length == 0) {
 			$j("div.tmplvars").hide();	// Still contains an empty table and some dividers
 			$j("div.tmplvars").prev("div").hide();	// Still contains an empty table and some dividers
-			//$j("#sectionTVsHeader").hide(); 
+			//$j("#sectionTVsHeader").hide();
 		}
 		
 		// If template category is empty, hide the optgroup
@@ -423,23 +420,23 @@ $j(document).ready(function() {
 			$this.find("option").each( function() {
 				if ($j(this).css("display") != "none") 	visibleOptions++ ;
 			});
-			if (visibleOptions == 0) $this.hide();	
+			if (visibleOptions == 0) $this.hide();
 		});
 		
 		// Re-initiate the tooltips, in order for them to pick up any new help text which has been added
 		// This bit is MooTools, matching code inserted further up the page
 		if( !window.ie6 ) {
-			$$(".tooltip").each(function(help_img) {	 
-				help_img.setProperty("title", help_img.getProperty("alt") );			 
+			$$(".tooltip").each(function(help_img) {
+				help_img.setProperty("title", help_img.getProperty("alt") );
 			});
 			new Tips($$(".tooltip"), {className:"custom"} );
 		}
 	
 	} catch (e) {
 		// If theres an error, fail nicely
-		alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);	
+		alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
 		
-	} finally {	
+	} finally {
 		
 		// Whatever happens, hide the loading mask
 		$j("#loadingmask").hide();
@@ -468,10 +465,10 @@ case 'OnTVFormRender':
 			$j("select[name=type] option").each( function() {
 												var $this = $j(this);
 												if( !($this.text().match("deprecated")==null )) {
-													$this.remove();	
+													$this.remove();
 												}
 														  });
-			</script>	
+			</script>
 		';
 		echo '<!-- End ManagerManager output -->';
 	}
@@ -481,7 +478,3 @@ break;
 
 
 } // end switch
-
-
-
-?>
