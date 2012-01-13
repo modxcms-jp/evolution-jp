@@ -1314,6 +1314,7 @@ class DocumentParser {
     }
 
 	function executeParser() {
+		ob_start();
 		//error_reporting(0);
 		if (version_compare(phpversion(), '5.0.0', ">="))
 		{
