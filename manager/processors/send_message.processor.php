@@ -33,7 +33,7 @@ if($sendto=='g') {
 		$e->dumpError();
 	}
 	$sql = "SELECT internalKey FROM $dbase.`".$table_prefix."user_attributes` WHERE $dbase.`".$table_prefix."user_attributes`.role=$groupid";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for( $i=0; $i<$limit; $i++ ){
 		$row=mysql_fetch_assoc($rs);
@@ -48,7 +48,7 @@ if($sendto=='g') {
 
 if($sendto=='a') {
 	$sql = "SELECT id FROM $dbase.`".$table_prefix."manager_users`";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for( $i=0; $i<$limit; $i++ ){
 		$row=mysql_fetch_assoc($rs);

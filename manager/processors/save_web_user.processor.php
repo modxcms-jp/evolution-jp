@@ -5,29 +5,6 @@ if (!$modx->hasPermission('save_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-// Web alert -  sends an alert to web browser
-function webAlert($msg) {
-	global $id, $modx;
-	global $dbase, $table_prefix;
-	$mode = $_POST['mode'];
-	$url = "index.php?a=$mode" . ($mode == '88' ? "&id=" . $id : "");
-	$modx->manager->saveFormValues($mode);
-	include_once "header.inc.php";
-	$modx->webAlert($msg, $url);
-	include_once "footer.inc.php";
-}
-
-// Generate password
-function generate_password($length = 10) {
-	$allowable_characters = "abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	$ps_len = strlen($allowable_characters);
-	mt_srand((double) microtime() * 1000000);
-	$pass = "";
-	for ($i = 0; $i < $length; $i++) {
-		$pass .= $allowable_characters[mt_rand(0, $ps_len -1)];
-	}
-	return $pass;
-}
 
 $id = intval($_POST['id']);
 $oldusername = $_POST['oldusername'];
@@ -437,17 +414,6 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 		webAlert("Error while sending mail to $email");
 		exit;
 	}
-/*
-	if (ini_get('safe_mode') == FALSE) {
-		if (!mail($email, $emailsubject, $message, "From: " . $emailsender . "\r\n" . "X-Mailer: Content Manager - PHP/" . phpversion(), "-f $emailsender")) {
-			webAlert("Error while sending mail to $mailto");
-			exit;
-		}
-	} elseif (!mail($email, $emailsubject, $message, "From: " . $emailsender . "\r\n" . "X-Mailer: Content Manager - PHP/" . phpversion())) {
-		webAlert("Error while sending mail to $email");
-		exit;
-	}
-*/
 }
 
 // Save User Settings
@@ -460,7 +426,7 @@ function saveUserSettings($id) {
 		"allowed_days"
 	);
 
-	mysql_query("DELETE FROM $dbase.`" . $table_prefix . "web_user_settings` WHERE webuser='$id'");
+	$modx->db->query("DELETE FROM $dbase.`" . $table_prefix . "web_user_settings` WHERE webuser='$id'");
 
 	for ($i = 0; $i < count($settings); $i++) {
 		$n = $settings[$i];
@@ -468,7 +434,7 @@ function saveUserSettings($id) {
 		if (is_array($vl))
 			$vl = implode(",", $vl);
 		if ($vl != '')
-			mysql_query("INSERT INTO $dbase.`" . $table_prefix . "web_user_settings` (webuser,setting_name,setting_value) VALUES($id,'$n','" . $modx->db->escape($vl) . "')");
+			$modx->db->query("INSERT INTO $dbase.`" . $table_prefix . "web_user_settings` (webuser,setting_name,setting_value) VALUES($id,'$n','" . $modx->db->escape($vl) . "')");
 	}
 }
 
@@ -477,4 +443,28 @@ function ConvertDate($date) {
 	global $modx;
 	if ($date == "") {return "0";}
 	else {}          {return $modx->toTimeStamp($date);}
+}
+
+// Web alert -  sends an alert to web browser
+function webAlert($msg) {
+	global $id, $modx;
+	global $dbase, $table_prefix;
+	$mode = $_POST['mode'];
+	$url = "index.php?a=$mode" . ($mode == '88' ? "&id=" . $id : "");
+	$modx->manager->saveFormValues($mode);
+	include_once "header.inc.php";
+	$modx->webAlert($msg, $url);
+	include_once "footer.inc.php";
+}
+
+// Generate password
+function generate_password($length = 10) {
+	$allowable_characters = "abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	$ps_len = strlen($allowable_characters);
+	mt_srand((double) microtime() * 1000000);
+	$pass = "";
+	for ($i = 0; $i < $length; $i++) {
+		$pass .= $allowable_characters[mt_rand(0, $ps_len -1)];
+	}
+	return $pass;
 }

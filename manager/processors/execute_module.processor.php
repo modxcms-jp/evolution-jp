@@ -55,7 +55,7 @@ if($_SESSION['mgrRole']!=1){
 $sql = "SELECT * " .
 		"FROM ".$modx->getFullTableName("site_modules")." " .
 		"WHERE id = $id;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
 	echo "<script type='text/javascript'>" .
@@ -122,7 +122,6 @@ function evalModule($moduleCode,$params){
 			if($modx->isBackend()) $modx->event->alert("<span style='color:maroon;'><b>".$content['name']." - Module"." runtime error:</b></span><br /><br />An error occurred while loading the module. Please see the event log.");
 		}
 	}
-	unset($modx->event->params); 
+	unset($modx->event->params);
 	return $mod.$msg;
 }
-?>

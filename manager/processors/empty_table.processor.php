@@ -6,6 +6,6 @@ if(!$modx->hasPermission('settings')) {
 }
 
 $sql = 'TRUNCATE TABLE ' . $modx->getFullTableName('manager_log');
-$rs = @mysql_query($sql);
+$rs = $modx->db->query($sql);
 
 header("Location: index.php?a=13");

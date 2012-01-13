@@ -70,12 +70,12 @@ function getChildren($parent)
 	global $dbase;
 	global $table_prefix;
 	global $children;
-	global $deltime;
+	global $deltime,$modx;
 	
 	$db->debug = true;
 	
 	$sql = "SELECT id FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.parent=".$parent." AND deleted=1 AND deletedon=$deltime;";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	if($limit>0) {
 		// the document has children documents, we'll need to delete those too

@@ -6,7 +6,7 @@ if(!$modx->hasPermission('delete_document')) {
 }
 
 $sql = "SELECT id FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.deleted=1;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 $ids = array();
 if($limit>0) {
@@ -27,18 +27,18 @@ $sql = "DELETE $dbase.`".$table_prefix."document_groups`
 		FROM $dbase.`".$table_prefix."document_groups`
 		INNER JOIN $dbase.`".$table_prefix."site_content` ON $dbase.`".$table_prefix."site_content`.id = $dbase.`".$table_prefix."document_groups`.document
 		WHERE $dbase.`".$table_prefix."site_content`.deleted=1;";
-@mysql_query($sql);
+$modx->db->query($sql);
 
 // remove the TV content values.
 $sql = "DELETE $dbase.`".$table_prefix."site_tmplvar_contentvalues`
 		FROM $dbase.`".$table_prefix."site_tmplvar_contentvalues`
 		INNER JOIN $dbase.`".$table_prefix."site_content` ON $dbase.`".$table_prefix."site_content`.id = $dbase.`".$table_prefix."site_tmplvar_contentvalues`.contentid
 		WHERE $dbase.`".$table_prefix."site_content`.deleted=1;";
-@mysql_query($sql);
+$modx->db->query($sql);
 
 //'undelete' the document.
 $sql = "DELETE FROM $dbase.`".$table_prefix."site_content` WHERE deleted=1;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if(!$rs) {
 	echo "Something went wrong while trying to remove deleted documents!";
 	exit;

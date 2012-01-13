@@ -65,7 +65,7 @@ class udperms{
 				WHERE sc.id = $document 
 				AND (". ( (!$docgrp) ? null : "dg.document_group = ".$docgrp." ||" ) . " sc.privatemgr = 0)";
 				   
-		$rs = mysql_query($sql);
+		$rs = $modx->db->query($sql);
 		$limit = mysql_num_rows($rs);
 		if($limit==1) $permissionsok = true;
 		

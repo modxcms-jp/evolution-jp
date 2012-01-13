@@ -580,7 +580,7 @@ function saveUserSettings($id) {
 
 	$usrTable = $modx->getFullTableName('user_settings');
 
-	mysql_query('DELETE FROM '.$usrTable.' WHERE user='.$id);
+	$modx->db->query('DELETE FROM '.$usrTable.' WHERE user='.$id);
 
 	$savethese = array();
 	foreach ($settings as $k => $v) {

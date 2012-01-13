@@ -1,50 +1,26 @@
 <?php
-require_once(strtr(realpath(dirname(__FILE__)), '\\', '/').'/../includes/protect.inc.php');
+$base_path = str_replace('\\','/',realpath('../../')) . '/';
+define("IN_MANAGER_MODE", "true");
+define('MODX_API_MODE',true);
+include_once("{$base_path}index.php");
+$modx->db->connect();
 
-// set the include_once path
-set_include_path(get_include_path() . PATH_SEPARATOR . "../includes/");
+include("{$base_path}manager/includes/settings.inc.php");
+include_once "{$base_path}manager/includes/version.inc.php";
+include_once "{$base_path}manager/includes/log.class.inc.php";
+include_once "{$base_path}manager/includes/crypt.class.inc.php";
 
-define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
-                                    // the manager instead of seperately.
-// include the database configuration file
-include_once "config.inc.php";
-
-// start session
-startCMSSession();
-
-// connect to the database
-if(@!$modxDBConn = mysql_connect($database_server, $database_user, $database_password)) {
-    die("Failed to create the database connection!");
-} else {
-    mysql_select_db($dbase);
-    @mysql_query("{$database_connection_method} {$database_connection_charset}");
-}
-
-// get the settings from the database
-include_once "settings.inc.php";
-
-// include version info
-include_once "version.inc.php";
-
-// include the logger
-include_once "log.class.inc.php";
-
-// include the crypto thing
-include_once "crypt.class.inc.php";
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // include_once the error handler
-include_once "error.class.inc.php";
+include_once "{$base_path}manager/includes/error.class.inc.php";
 $e = new errorHandler;
 
 // initiate the content manager class
-include_once "document.parser.class.inc.php";
-$modx = new DocumentParser;
 $modx->loadExtension("ManagerAPI");
 $modx->getSettings();
-$etomite = &$modx; // for backward compatibility
 
 $username = $modx->db->escape($_REQUEST['username']);
 $givenPassword = $modx->db->escape($_REQUEST['password']);
@@ -299,4 +275,3 @@ function jsAlert($msg){
         echo "<script>window.setTimeout(\"alert('".addslashes($modx->db->escape($msg))."')\",10);history.go(-1)</script>";
     }
 }
-?>

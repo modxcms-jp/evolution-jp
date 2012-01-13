@@ -9,7 +9,7 @@ $id=$_REQUEST['id'];
 
 // check the user is allowed to delete this message
 $sql = "SELECT * FROM $dbase.`".$table_prefix."user_messages` WHERE $dbase.`".$table_prefix."user_messages`.id=$id";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit!=1) {
 	echo "Wrong number of messages returned!";
@@ -22,7 +22,7 @@ if($limit!=1) {
 	} else {
 		// delete message
 		$sql = "DELETE FROM $dbase.`".$table_prefix."user_messages` WHERE id=$id;";
-		$rs = mysql_query($sql);
+		$rs = $modx->db->query($sql);
 		if(!$rs) {
 			echo "Something went wrong while trying to delete the message!";
 			exit;

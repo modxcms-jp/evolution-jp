@@ -8,7 +8,7 @@ $id=intval($_GET['id']);
 
 // delete the template, but first check it doesn't have any documents using it
 $sql = "SELECT id, pagetitle FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.template=".$id." and $dbase.`".$table_prefix."site_content`.deleted=0;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>0) {
 	echo "This template is in use. Please set the documents using the template to another template. Documents using this template:<br />";
@@ -32,13 +32,13 @@ $modx->invokeEvent("OnBeforeTempFormDelete",
 						
 //ok, delete the document.
 $sql = "DELETE FROM $dbase.`".$table_prefix."site_templates` WHERE $dbase.`".$table_prefix."site_templates`.id=".$id.";";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if(!$rs) {
 	echo "Something went wrong while trying to delete the template...";
 	exit;
 } else {
 	$sql = "DELETE FROM $dbase.`".$table_prefix."site_tmplvar_templates` WHERE $dbase.`".$table_prefix."site_tmplvar_templates`.templateid=".$id.";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 			
 	// invoke OnTempFormDelete event
 	$modx->invokeEvent("OnTempFormDelete",
