@@ -2548,6 +2548,7 @@ class DocumentParser {
         elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return $_SESSION['mgrInternalKey'];
         }
+        else return false;
     }
 
     # Returns current user name
@@ -2561,6 +2562,7 @@ class DocumentParser {
         elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return $_SESSION['mgrShortname'];
         }
+        else return false;
     }
 
     # Returns current login user type - web or manager
