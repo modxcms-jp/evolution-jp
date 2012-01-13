@@ -58,25 +58,12 @@ require_once("{$cwd}manager/includes/initialize.inc.php");
 // get the required includes
 if(!isset($database_type))
 {
-	$rt = @include_once(dirname(__FILE__).'/manager/includes/config.inc.php');
+	$conf_path = "{$cwd}manager/includes/config.inc.php";
+	if(file_exists($conf_path)) require_once($conf_path);
 	// Be sure config.inc.php is there and that it contains some important values
-	if(!$rt || !$database_type || !$database_server || !$database_user || !$dbase || is_null($lastInstallTime)) {
-header('Content-Type: text/html; charset=UTF-8');
-	echo '<html><head><meta name="robots" content="noindex, nofollow">
-<style type="text/css">
-*{margin:0;padding:0}
-body{text-align:center;background:#eef0ee;font-size:15px;}
-.install{width:530px;padding:10px;border:1px solid #39b933;background:#f6ffe0;margin:50px auto;font-family:Verdana;text-align:center;}
-p{ margin:20px 0; }
-a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;padding: 5px;}
-</style></head>
-<body>
-<div class="install">
-<p><img src="install/img/install_begin.png" /></p>
-<p>MODXがインストールされていないか設定ファイルが見つかりません。</p>
-<p>今すぐインストールしますか？</p>
-<p><a href="install/index.php?action=mode">はい</a> / <a href="http://modx.jp/">いいえ</a></p>
-</div></body></html>';
+	if(is_installed()===false)
+	{
+		show_install();
 		exit;
 	}
 }

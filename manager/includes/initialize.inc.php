@@ -115,3 +115,37 @@ function set_parser_mode()
 	header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
 	header('Cache-Control: private, must-revalidate');
 }
+
+function is_installed($database_type,$lastInstallTime=NULL)
+{
+	global $database_type,$lastInstallTime;
+	
+	if(!isset($database_type) || empty($database_type) || empty($lastInstallTime) || is_null($lastInstallTime))
+	{
+		return false;
+	}
+	else return true;
+}
+
+function show_install()
+{
+	header('Content-Type: text/html; charset=UTF-8');
+	echo <<< EOT
+<html><head><meta name="robots" content="noindex, nofollow">
+<style type="text/css">
+*{margin:0;padding:0}
+body{text-align:center;background:#eef0ee;font-size:15px;}
+.install{width:530px;padding:10px;border:1px solid #39b933;background:#f6ffe0;margin:50px auto;font-family:Verdana;text-align:center;}
+p{ margin:20px 0; }
+a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;padding: 5px;}
+</style></head>
+<body>
+<div class="install">
+<p><img src="install/img/install_begin.png" /></p>
+<p>MODXがインストールされていないか設定ファイルが見つかりません。</p>
+<p>今すぐインストールしますか？</p>
+<p><a href="install/index.php?action=mode">はい</a> / <a href="http://modx.jp/">いいえ</a></p>
+</div></body></html>';
+EOT;
+	exit;
+}
