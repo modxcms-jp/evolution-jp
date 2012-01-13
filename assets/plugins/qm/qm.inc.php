@@ -618,6 +618,7 @@ function getCookie(cookieName)
 						else
 						{
 							// Normal add button
+							if($this->tpltype==='config') $this->tpltype = $this->modx->config['auto_template_logic'];
 							switch ($this->tpltype)
 							{
 								case 'parent': // Template type is parent
@@ -644,6 +645,25 @@ function getCookie(cookieName)
 									// Set template to inherit
 									if ($tv['value'] != '') $content['template'] = $tv['value'];
 									else                    $content['template'] = $this->modx->config['default_template'];
+									break;
+								case 'sibling':
+									if(!isset($_GET['pid']))
+									{
+										$content['template'] = $this->modx->config['default_template'];
+										break;
+									}
+									elseif($sibl = $this->modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1))
+									{
+										$content['template'] = $sibl[0]['template'];
+										break;
+									}
+									elseif($sibl = $this->modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1))
+									{
+										$content['template'] = $sibl[0]['template'];
+										break;
+									}
+								case 'system':
+									$content['template'] = $this->modx->config['default_template'];
 									break;
 							}
 						}
