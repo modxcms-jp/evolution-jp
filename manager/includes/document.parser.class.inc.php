@@ -332,7 +332,7 @@ class DocumentParser {
     // check for manager login session
 	function checkSession()
 	{
-		if(isset($_SESSION['mgrValidated'])) return true;
+		if(isset($_SESSION['mgrValidated']) && !empty($_SESSION['mgrValidated'])) return true;
 		else                                 return false;
 	}
 
