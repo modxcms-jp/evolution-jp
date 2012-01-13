@@ -68,31 +68,36 @@ class DocumentParser {
 		if($this->checkSession()===false) @ini_set('display_errors','0');
 	}
 
-    // loads an extension from the extenders folder
-    function loadExtension($extname) {
-        global $database_type;
-
-        switch ($extname) {
-            // Database API
-            case 'DBAPI' :
-                if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/dbapi.' . $database_type . '.class.inc.php')
-                    return false;
-                $this->db= new DBAPI;
-                return true;
-                break;
-
-                // Manager API
-            case 'ManagerAPI' :
-                if (!include_once MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php')
-                    return false;
-                $this->manager= new ManagerAPI;
-                return true;
-                break;
-
-            default :
-                return false;
-        }
-    }
+	// loads an extension from the extenders folder
+	function loadExtension($extname)
+	{
+		global $database_type;
+		
+		switch ($extname)
+		{
+			// Database API
+			case 'DBAPI' :
+				if(include_once(MODX_BASE_PATH . "manager/includes/extenders/dbapi.{$database_type}.class.inc.php"))
+				{
+					$this->db= new DBAPI;
+					$this->dbConfig= & $this->db->config; // alias for backward compatibility
+					return true;
+				}
+				else return false;
+				break;
+			// Manager API
+			case 'ManagerAPI' :
+				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php'))
+				{
+					$this->manager= new ManagerAPI;
+					return true;
+				}
+				else return false;
+				break;
+			default :
+				return false;
+		}
+	}
 
     function getMicroTime() {
         list ($usec, $sec)= explode(' ', microtime());
