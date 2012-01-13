@@ -256,7 +256,7 @@ class PHxParser {
 						break;
 					case "limit": // default: 100
 					  	$limit = intval($modifier_value[$i]) ? intval($modifier_value[$i]) : 100;
-						$output = substr($output,0,$limit);
+						$output = mb_substr($output,0,$limit);
 						break;
 					case "str_shuffle": case "shuffle":	$output = str_shuffle($output); break;
 					case "str_word_count": case "word_count":	case "wordcount": $output = str_word_count($output); break;
