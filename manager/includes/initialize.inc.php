@@ -116,11 +116,11 @@ function set_parser_mode()
 	header('Cache-Control: private, must-revalidate');
 }
 
-function is_installed($database_type,$lastInstallTime=NULL)
+function is_installed($database_type='',$lastInstallTime=NULL)
 {
 	global $database_type,$lastInstallTime;
 	
-	if(!isset($database_type) || empty($database_type) || empty($lastInstallTime) || is_null($lastInstallTime))
+	if(empty($database_type) || empty($lastInstallTime) || is_null($lastInstallTime))
 	{
 		return false;
 	}
