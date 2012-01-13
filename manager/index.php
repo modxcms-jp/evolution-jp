@@ -52,6 +52,7 @@
 // get start time
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
+$mstart = memory_get_usage();
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 
@@ -107,6 +108,8 @@ startCMSSession();
 include_once "document.parser.class.inc.php";
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
+$modx->tstart = $tstart;
+$modx->mstart = $mstart;
 $modx->loadExtension("ManagerAPI");
 $modx->db->connect();
 $modx->getSettings();

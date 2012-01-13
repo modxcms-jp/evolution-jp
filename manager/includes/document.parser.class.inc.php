@@ -20,6 +20,7 @@ class DocumentParser {
     var $documentGenerated;
     var $documentContent;
     var $tstart;
+    var $mstart;
     var $minParserPasses;
     var $maxParserPasses;
     var $documentObject;
@@ -618,6 +619,7 @@ class DocumentParser {
 		$phpTime= sprintf("%2.4f s", $phpTime);
 		$source= $this->documentGenerated == 1 ? "database" : "cache";
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
+		$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
 		
 		$out =& $this->documentOutput;
 		if ($this->dumpSQL)
@@ -629,6 +631,7 @@ class DocumentParser {
 		$out= str_replace("[^p^]", $phpTime, $out);
 		$out= str_replace("[^t^]", $totalTime, $out);
 		$out= str_replace("[^s^]", $source, $out);
+		$out= str_replace("[^m^]", $total_mem, $out);
 		//$this->documentOutput= $out;
 		
 		// invoke OnWebPagePrerender event
@@ -3192,6 +3195,7 @@ class DocumentParser {
         $str .= "</body></html>";
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
+        $total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
@@ -3203,6 +3207,7 @@ class DocumentParser {
         $str= str_replace("[^qt^]", $queryTime, $str);
         $str= str_replace("[^p^]", $phpTime, $str);
         $str= str_replace("[^t^]", $totalTime, $str);
+        $str= str_replace("[^m^]", $total_mem, $str);
 
         // Log error
         if($source!=='') $source = 'Parser - ' . $source;

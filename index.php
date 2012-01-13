@@ -48,6 +48,7 @@
 // get start time
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
+$mstart = memory_get_usage();
 
 $cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
 if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
@@ -77,6 +78,7 @@ $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 
 $modx->tstart = $tstart;
+$modx->mstart = $mstart;
 
 // execute the parser if index.php was not included
 if (!MODX_API_MODE)
