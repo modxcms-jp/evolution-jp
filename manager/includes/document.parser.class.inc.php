@@ -8,7 +8,7 @@
 class DocumentParser {
     var $db; // db object
     var $event, $Event; // event object
-    var $pluginEvent;
+    var $pluginEvent = array();
     var $config= null;
     var $rs;
     var $result;
@@ -42,28 +42,31 @@ class DocumentParser {
     var $queryCode;
     var $virtualDir;
     var $placeholders;
-    var $sjscripts;
-    var $jscripts;
-    var $loadedjscripts;
+    var $sjscripts = array();
+    var $jscripts = array();
+    var $loadedjscripts = array();
     var $documentMap;
     var $forwards= 3;
     var $referenceListing;
     var $documentMap_cache;
 
     // constructor
-    function DocumentParser() {
-        $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->dbConfig= & $this->db->config; // alias for backward compatibility
-        $this->jscripts= array ();
-        $this->sjscripts= array ();
-        $this->loadedjscripts= array ();
-        // events
-        $this->event= new SystemEvent();
-        $this->Event= & $this->event; //alias for backward compatibility
-        $this->pluginEvent= array ();
-        // set track_errors ini variable
-        @ ini_set("track_errors", "1"); // enable error tracking in $php_errormsg
-    }
+	function DocumentParser()
+	{
+		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+		// events
+		$this->event= new SystemEvent();
+		$this->Event= & $this->event; //alias for backward compatibility
+		$this->minParserPasses = 1; // min number of parser recursive loops or passes
+		$this->maxParserPasses = 10; // max number of parser recursive loops or passes
+		$this->dumpSQL = false;
+		$this->dumpSnippets = false; // feed the parser the execution start time
+		$this->stopOnNotice = false;
+		// set track_errors ini variable
+		@ ini_set("track_errors", "1"); // enable error tracking in $php_errormsg
+		// Don't show PHP errors to the public
+		if($this->checkSession()===false) @ini_set('display_errors','0');
+	}
 
     // loads an extension from the extenders folder
     function loadExtension($extname) {
@@ -525,8 +528,6 @@ class DocumentParser {
 		if (strpos($this->documentOutput, '[!') !== false)
 		{
 			// Parse document source
-			if(empty($this->minParserPasses)) $this->minParserPasses = 2;
-			if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
 			$passes = $this->minParserPasses;
 			
 			for ($i= 0; $i < $passes; $i++)
@@ -889,8 +890,6 @@ class DocumentParser {
 		$stack = $documentSource;
 		unset($documentSource);
 		
-		if(empty($this->minParserPasses)) $this->minParserPasses = 2;
-		if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
 		$passes = $this->minParserPasses;
 		
 		for($i= 0; $i < $passes; $i++)
@@ -1264,9 +1263,6 @@ class DocumentParser {
      * desc: return document source aftering parsing tvs, snippets, chunks, etc.
      */
     function parseDocumentSource($source) {
-        // set the number of times we are to parse the document source
-        if(empty($this->minParserPasses)) $this->minParserPasses = 2;
-        if(empty($this->maxParserPasses)) $this->maxParserPasses = 10;
         $passes= $this->minParserPasses;
         for ($i= 0; $i < $passes; $i++)
         {

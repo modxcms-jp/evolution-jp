@@ -120,20 +120,7 @@ include_once(MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 
-// set some parser options
-$modx->minParserPasses = 1; // min number of parser recursive loops or passes
-$modx->maxParserPasses = 10; // max number of parser recursive loops or passes
-$modx->dumpSQL = false;
-$modx->dumpSnippets = false; // feed the parser the execution start time
 $modx->tstart = $tstart;
-
-// Debugging mode:
-$modx->stopOnNotice = false;
-
-// Don't show PHP errors to the public
-if(!isset($_SESSION['mgrValidated']) || !$_SESSION['mgrValidated']) {
-    @ini_set("display_errors","0");
-}
 
 // execute the parser if index.php was not included
 if (!MODX_API_MODE) {
