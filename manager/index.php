@@ -52,11 +52,10 @@
 // get start time
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
-if(@file_exists('../autoload.php')) include_once('../autoload.php');
-
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 
+if(@file_exists('../autoload.php')) include_once('../autoload.php');
 // harden it
 require_once('./includes/protect.inc.php');
 require_once('./includes/initialize.inc.php');
