@@ -50,7 +50,8 @@
  */
 
 // get start time
-$mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
+$mtime = explode(' ',microtime());
+$tstart = $mtime[1] + $mtime[0];
 if(@file_exists('../autoload.php')) include_once('../autoload.php');
 
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
@@ -69,10 +70,10 @@ header("Pragma: no-cache");
 header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
 
 // set some runtime options
-$incPath = str_replace("\\","/",dirname(__FILE__)."/includes/"); // Mod by Raymond
+$incPath = str_replace("\\","/",dirname(__FILE__)) . '/includes/'; // Mod by Raymond
 set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
 
-if (version_compare(phpversion(), "5.3") < 0) {
+if (version_compare(phpversion(), '5.3') < 0) {
     @set_magic_quotes_runtime(0);
 }
 // include_once the magic_quotes_gpc workaround
