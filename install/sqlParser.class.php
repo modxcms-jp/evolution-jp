@@ -10,7 +10,7 @@ class SqlParser {
 	var $dbVersion;
     var $connection_charset, $connection_collation, $connection_method;
 
-	function SqlParser($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
+	function SqlParser($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'system') {
 		$this->host = $host;
 		$this->dbname = $db;
 		$this->prefix = $prefix;

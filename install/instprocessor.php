@@ -158,14 +158,14 @@ if ($installMode != 0)
 	if(!$row)
 	{
 		// not installed
-		$auto_template_logic = 'sibling';
+		$auto_template_logic = 'system';
 	}
 	else
 	{
 		if($row['disabled'] == 1)
 		{
 			// installed but disabled
-			$auto_template_logic = 'sibling';
+			$auto_template_logic = 'system';
 		}
 		else
 		{
@@ -181,7 +181,7 @@ if ($installMode != 0)
 		}
 	}
 }
-if(!isset($auto_template_logic)) $auto_template_logic = 'sibling';
+if(!isset($auto_template_logic)) $auto_template_logic = 'system';
 
 // open db connection
 $setupPath = realpath(dirname(__FILE__));
