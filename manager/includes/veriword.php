@@ -1,7 +1,11 @@
 <?php
-include_once('config.inc.php');
+define('MODX_API_MODE',true);
+$base_path = str_replace('\\','/',realpath('../../')) . '/';
+require_once("{$base_path}index.php");
+$modx->db->connect();
+$modx->getSettings();
 
-$vword = new VeriWord(148,60);
+$vword = new VeriWord(135,43);
 $vword->output_image();
 $vword->destroy_image();
 
@@ -38,17 +42,13 @@ class VeriWord {
 
 	function VeriWord($w=200, $h=80)
 	{
+		global $modx;
 		/* create session to set word for verification */
-		startCMSSession();
+		$this->words = $modx->config['captcha_words'];
 		$this->set_veriword();
 		$this->dir_font = dirname(__FILE__) . '/' . $this->dir_font;
 		$this->im_width         = $w;
 		$this->im_height        = $h;
-		include_once 'document.parser.class.inc.php';
-		$modx = new DocumentParser;
-		$modx->db->connect();
-		$modx->getSettings();
-		$this->words = $modx->config['captcha_words'];
 	}
 
 	function set_veriword()
@@ -71,7 +71,7 @@ class VeriWord {
 	{
 		$arr_words = explode(',', $this->words);
 		/* pick one randomly for text verification */
-		return (string) $arr_words[array_rand($arr_words)].rand(10,999);
+		return (string) $arr_words[array_rand($arr_words)].mt_rand(10,999);
 	}
 
 	function draw_text()
@@ -89,7 +89,7 @@ class VeriWord {
 		$text_font = (string) $fontstmp[array_rand($fontstmp)];
 		
 		/* angle for text inclination */
-		$text_angle = rand(-9,9);
+		$text_angle = mt_rand(-9,9);
 		/* initial text size */
 		$text_size  = 30;
 		/* calculate text width and height */
@@ -114,7 +114,7 @@ class VeriWord {
 		$bg_color       = imagecolorallocate ($im_text, 255, 255, 255);
 		
 		/* pick color for text */
-		$text_color     = imagecolorallocate ($im_text, 0, 51, 153);
+		$text_color     = imagecolorallocate ($im_text, 10, 10, 10);
 		
 		/* draw text into canvas */
 		imagettftext(
@@ -136,7 +136,7 @@ class VeriWord {
 	function draw_image()
 	{
 		/* pick one background image randomly from image directory */
-		$img_file       = $this->dir_noise."noise".rand(1,4).".jpg";
+		$img_file       = $this->dir_noise."noise".mt_rand(1,4).".jpg";
 		
 		/* create "noise" background image from your image stock*/
 		$noise_img      = @imagecreatefromjpeg ($img_file);
