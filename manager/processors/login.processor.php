@@ -8,7 +8,6 @@ $modx->db->connect();
 include("{$base_path}manager/includes/settings.inc.php");
 include_once "{$base_path}manager/includes/version.inc.php";
 include_once "{$base_path}manager/includes/log.class.inc.php";
-include_once "{$base_path}manager/includes/crypt.class.inc.php";
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
