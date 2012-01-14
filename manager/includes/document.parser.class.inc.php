@@ -938,8 +938,6 @@ class DocumentParser {
 		ob_start();
 		$result= eval($snippet);
 		$msg= ob_get_contents();
-		$request_uri = getenv('REQUEST_URI');
-		$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
 		ob_end_clean();
 		if ($msg && isset ($php_errormsg))
 		{
@@ -947,6 +945,8 @@ class DocumentParser {
 			{
 				// ignore php5 strict errors
 				// log error
+				$request_uri = getenv('REQUEST_URI');
+				$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
 				$this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}<br />REQUEST_URI = $request_uri<br />ID = {$this->documentIdentifier}", $this->currentSnippet . " - Snippet");
 				if ($this->isBackend())
 				{
