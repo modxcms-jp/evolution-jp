@@ -246,6 +246,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				$widget_output = '';
 				$o = '';
 				/* If we are loading a file */
+				$params['output'] = $modx->parsePlaceholder($params['output'],array('value'=>$value,'tvname'=>$name));
 				if(substr($params['output'], 0, 5) == "@FILE")
 				{
 					$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
@@ -292,9 +293,6 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				}
 				if(is_string($widget_output)) // Except @INCLUDE
 				{
-					$search        = array('[+value+]', '[+tvname+]');
-					$replace       = array($value, $name);
-					$widget_output = str_replace($search, $replace, $widget_output);
 					$o = $modx->parseDocumentSource($widget_output);
 				}
 				else
