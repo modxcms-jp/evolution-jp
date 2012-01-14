@@ -902,7 +902,7 @@ class DocumentParser {
 			extract($params, EXTR_SKIP);
 		}
 		ob_start();
-		eval ($pluginCode);
+		$result = eval($pluginCode);
 		$msg= ob_get_contents();
 		ob_end_clean();
 		if ($msg && isset ($php_errormsg))
@@ -919,7 +919,7 @@ class DocumentParser {
 		}
 		else
 		{
-			echo $msg;
+			echo $msg . $result;
 		}
 		unset ($modx->event->params);
 	}
