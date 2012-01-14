@@ -40,10 +40,10 @@ tinyMCE.init({
 	theme_advanced_buttons4          : '[+buttons4+]',
 	theme_advanced_resize_horizontal :  false,
 	external_link_list_url           : [+link_list+],
-	theme_advanced_blockformats      : '[+blockFormats+]',
+	theme_advanced_blockformats      : '[+mce_formats+]',
 	theme_advanced_styles            : '[+css_selectors+]',
 	theme_advanced_disable           : '[+disabledButtons+]',
-	theme_advanced_resizing          : [+resizing+],
+	theme_advanced_resizing          : [+mce_resizing+],
 	fullscreen_settings : {
 		theme_advanced_buttons1_add_before : 'save'
 	},

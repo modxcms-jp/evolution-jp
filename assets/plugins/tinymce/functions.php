@@ -127,7 +127,7 @@ class TinyMCE
 		$ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
 		
 		$ph['document_base_url'] = MODX_SITE_URL;
-		switch($params['pathoptions'])
+		switch($params['mce_path_options'])
 		{
 			case 'Site config':
 			case 'siteconfig':
@@ -178,10 +178,10 @@ class TinyMCE
 		$ph['buttons2']                = $buttons2;
 		$ph['buttons3']                = $buttons3;
 		$ph['buttons4']                = $buttons4;
-		$ph['blockFormats']            = (empty($params['blockFormats'])) ? 'p,h1,h2,h3,h4,h5,h6,div,blockquote,code,pre,address' : $params['blockFormats'];
+		$ph['mce_formats']             = (empty($params['mce_formats'])) ? 'p,h1,h2,h3,h4,h5,h6,div,blockquote,code,pre,address' : $params['mce_formats'];
 		$ph['css_selectors']           = $params['css_selectors'];
 		$ph['disabledButtons']         = $params['disabledButtons'];
-		$ph['resizing']                = $params['resizing'];
+		$ph['mce_resizing']            = $params['mce_resizing'];
 		$ph['date_format']             = $modx->toDateFormat(null, 'formatOnly');
 		$ph['time_format']             = '%H:%M:%S';
 		$ph['entity_encoding']         = $params['entity_encoding'];

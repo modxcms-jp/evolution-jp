@@ -27,27 +27,9 @@ if(!isset($mce_path))
 	$mce_path = MODX_BASE_PATH . 'assets/plugins/'.$plugin_dir . '/'; 
 	$mce_url  = MODX_BASE_URL  . 'assets/plugins/'.$plugin_dir . '/'; 
 }
-
-$params['customparams']    = $customparams;
-$params['blockFormats']    = $mce_formats;
-$params['entity_encoding'] = $entity_encoding;
-$params['entities']        = $entities;
-$params['pathoptions']     = $mce_path_options;
-$params['resizing']        = $mce_resizing;
-$params['disabledButtons'] = $disabledButtons;
-$params['link_list']       = $link_list;
-$params['theme']           = $webtheme;
-$params['custom_plugins']  = $webPlugins;
-$params['custom_buttons1'] = $webButtons1;
-$params['custom_buttons2'] = $webButtons2;
-$params['custom_buttons3'] = $webButtons3;
-$params['custom_buttons4'] = $webButtons4;
-$params['toolbar_align']   = $webAlign;
-$params['width']           = $width;
-$params['height']          = $height;
-
-$params['mce_path']        = $mce_path;
-$params['mce_url']         = $mce_url;
+$params = $modx->event->params;
+$params['mce_path']         = $mce_path;
+$params['mce_url']          = $mce_url;
 
 include_once $mce_path . 'functions.php';
 
@@ -64,7 +46,6 @@ switch ($e->name)
 	case "OnRichTextEditorInit": 
 		if($editor!=="TinyMCE") return;
 		
-		$params['elements']        = $elements;
 		$params['css_selectors']   = $modx->config['tinymce_css_selectors'];
 		$params['use_browser']     = $modx->config['use_browser'];
 		$params['editor_css_path'] = $modx->config['editor_css_path'];
@@ -89,9 +70,16 @@ switch ($e->name)
 			$frontend_language = isset($modx->config['fe_editor_lang']) ? $modx->config['fe_editor_lang']:'';
 			$webuser = (isset($modx->config['rb_webuser']) ? $modx->config['rb_webuser'] : null);
 			
+			$params['theme']           = $webtheme;
 			$params['webuser']         = $webuser;
 			$params['language']        = get_mce_lang($frontend_language);
 			$params['frontend']        = true;
+			$params['custom_plugins']  = $webPlugins;
+			$params['custom_buttons1'] = $webButtons1;
+			$params['custom_buttons2'] = $webButtons2;
+			$params['custom_buttons3'] = $webButtons3;
+			$params['custom_buttons4'] = $webButtons4;
+			$params['toolbar_align']   = $webAlign;
 			
 			$html = $mce->get_mce_script($params);
 		}
@@ -118,7 +106,6 @@ switch ($e->name)
     	}
     	
 		$params['use_editor']       = $modx->config['base_url'].$modx->config['use_editor'];
-        $params['editor_css_path']  = $modx->config['editor_css_path'];
 		$params['theme']            = $mce_settings['tinymce_editor_theme'];
 		$params['css_selectors']    = $mce_settings['tinymce_css_selectors'];
 		$params['custom_plugins']   = $mce_settings['tinymce_custom_plugins'];
