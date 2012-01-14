@@ -182,56 +182,70 @@ class DocManagerBackend {
 				}
 			}
 		
-			foreach ($pids as $docID) {
+			foreach ($pids as $docID)
+			{
 				$tempSQL = $this->modx->db->select('template', $this->modx->getFullTableName('site_content'), "id={$docID}");
-				if ($this->modx->db->getRecordCount($tempSQL) > 0) {
+				if ($this->modx->db->getRecordCount($tempSQL) > 0)
+				{
 					$row = $this->modx->db->getRow($tempSQL);
-					if ($row['template'] == $_POST['template_id']) {
+					if ($row['template'] == $_POST['template_id'])
+					{
 						$tvID = $this->getTemplateVarIds($tmplVars,$docID);
-						if (count($tvID) > 0) {
-							foreach ($tvID as $tvIndex => $tvValue) {
-                                if($_POST['update_tv_' . $tvIndex] == 'yes') {
-								$checkSQL = $this->modx->db->select('value',$tbl_site_tmplvar_contentvalues,"contentid='{$docID}' AND tmplvarid='{$tvValue}'");
-								$checkCount = $this->modx->db->getRecordCount($checkSQL);
-								if ($checkCount) {
-									$checkRow = $this->modx->db->getRow($checkSQL);
-									if ($checkRow['value'] == $tmplVars["$tvIndex"]) {
-										$noUpdate = true;
+						if (count($tvID) > 0)
+						{
+							foreach ($tvID as $tvIndex => $tvValue)
+							{
+								if($_POST['update_tv_' . $tvIndex] == 'yes')
+								{
+									$checkSQL = $this->modx->db->select('value',$tbl_site_tmplvar_contentvalues,"contentid='{$docID}' AND tmplvarid='{$tvValue}'");
+									$checkCount = $this->modx->db->getRecordCount($checkSQL);
+									if ($checkCount)
+									{
+										$checkRow = $this->modx->db->getRow($checkSQL);
+										if ($checkRow['value'] == $tmplVars["$tvIndex"])
+										{
+											$noUpdate = true;
+										}
+										elseif (trim($tmplVars["$tvIndex"]) == '')
+										{
+											$this->modx->db->delete($tbl_site_tmplvar_contentvalues, "contentid='{$docID}' AND tmplvarid='{$tvValue}'");
+											$noUpdate = true;
+										}
 									}
-									elseif (trim($tmplVars["$tvIndex"]) == '') {
-										$this->modx->db->delete($tbl_site_tmplvar_contentvalues, 'contentid="' . $docID . '" AND tmplvarid="' . $tvValue . '"');
-										$noUpdate = true;
-									}
-								}
-								
-								if ($checkCount > 0 && !isset ($noUpdate)) {
-									$fields = array (
+									
+									if ($checkCount > 0 && !isset ($noUpdate))
+									{
+										$fields = array (
 										'value' => $this->modx->db->escape($tmplVars["$tvIndex"])
-									);
-	
-									$this->modx->db->update($fields, $tbl_site_tmplvar_contentvalues, 'contentid="' . $docID . '" AND tmplvarid="' . $tvValue . '"');
-									$updated = true;
-								} elseif (!isset ($noUpdate) && ltrim($tmplVars["$tvIndex"]) !== '') {
-
-									$fields = array (
-										'value' => $this->modx->db->escape($tmplVars["$tvIndex"]),
-										'contentid' => $this->modx->db->escape($docID),
-										'tmplvarid' => $this->modx->db->escape($tvValue)
-									);
-	
-									$this->modx->db->insert($fields, $tbl_site_tmplvar_contentvalues);
-									$updated = true;
+										);
+										$this->modx->db->update($fields, $tbl_site_tmplvar_contentvalues, "contentid='{$docID}' AND tmplvarid='{$tvValue}'");
+										$updated = true;
+									}
+									elseif (!isset ($noUpdate) && ltrim($tmplVars["$tvIndex"]) !== '')
+									{
+										$fields = array (
+											'value' => $this->modx->db->escape($tmplVars["$tvIndex"]),
+											'contentid' => $this->modx->db->escape($docID),
+											'tmplvarid' => $this->modx->db->escape($tvValue)
+										);
+										$this->modx->db->insert($fields, $tbl_site_tmplvar_contentvalues);
+										$updated = true;
+									}
 								}
-                                }
-                                unset($noUpdate);
+							unset($noUpdate);
 							}
 						}
-					} else {
-						$updateError .= 'ID: ' . $docID . ' ' . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
 					}
-				} else {
-					if ($docID !== '0') {
-						$updateError .= 'ID: ' . $docID . ' ' . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
+					else
+					{
+						$updateError .= "ID: {$docID} " . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
+					}
+				}
+				else
+				{
+					if ($docID !== '0')
+					{
+						$updateError .= "ID: {$docID} " . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
 					}
 				}
 			}
@@ -425,6 +439,7 @@ class DocManagerBackend {
 	}
     
     function processRange($pids, $column, $returnval = 1) {
+		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$values = array();
 		$error = '';
 	
@@ -459,7 +474,7 @@ class DocManagerBackend {
 			elseif (preg_match('/^[\d]+\*$/', trim($value), $match)) {
 				$match = rtrim($match[0], '*');
 	
-				$group = $this->modx->db->select('id', $this->modx->getFullTablename('site_content'), 'parent=' . $match);
+				$group = $this->modx->db->select('id', $tbl_site_content, 'parent=' . $match);
 
 				if ($returnval == 0) {
 					$idarray[] = $match;
@@ -483,7 +498,7 @@ class DocManagerBackend {
 
 				for ($i = 0; $i < count($idarray); $i++) {
 					$where = 'parent=' . $idarray[$i];
-					$rs = $this->modx->db->select('id', $this->modx->getFullTableName('site_content'), $where);
+					$rs = $this->modx->db->select('id', $tbl_site_content, $where);
 					if ($this->modx->db->getRecordCount($rs) > 0) {
 						while ($row = $this->modx->db->getRow($rs)) {
 							$idarray[] = $row['id'];
@@ -527,15 +542,15 @@ class DocManagerBackend {
 				if (in_array($name,$ignoreList)) {
 					continue;
 				}
-				$sql = $this->modx->db->select('id,default_text', $this->modx->getFullTableName('site_tmplvars'), 'id="' . $name . '"');
+				$sql = $this->modx->db->select('id,default_text', $this->modx->getFullTableName('site_tmplvars'), "id='{$name}'");
 				if ($this->modx->db->getRecordCount($sql) > 0) {
 					$row = $this->modx->db->getRow($sql);
 					if ($value !== $row['default_text'] || trim($value) == '') {
 						$output["$name"] = $row['id'];
 					} elseif ($value == $row["default_text"]) {
-						$newSql = $this->modx->db->select("value", $tbl_site_tmplvar_contentvalues, "tmplvarid=" . $row["id"] . " AND contentid=" . $documentId);
+						$newSql = $this->modx->db->select("value", $tbl_site_tmplvar_contentvalues, "tmplvarid={$row['id']} AND contentid={$documentId}");
 						if ($this->modx->db->getRecordCount($newSql) == 1) {
-							$this->modx->db->delete($tbl_site_tmplvar_contentvalues, "tmplvarid=" . $row["id"] . " AND contentid=" . $documentId);
+							$this->modx->db->delete($tbl_site_tmplvar_contentvalues, "tmplvarid={$row['id']} AND contentid={$documentId}");
 						}
 					}
 				}
@@ -544,31 +559,33 @@ class DocManagerBackend {
 		return $output;
 	}
     
-    function secureWebDocument($docId = '') {	
+    function secureWebDocument($docId = '') {
+		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$sql = "SELECT DISTINCT sc.id
-									 FROM " . $this->modx->getFullTableName("site_content") . " sc
+									 FROM " . $tbl_site_content . " sc
 									 LEFT JOIN " . $this->modx->getFullTableName("document_groups") . " dg ON dg.document = sc.id
 									 LEFT JOIN " . $this->modx->getFullTableName("webgroup_access") . " wga ON wga.documentgroup = dg.document_group
 									 WHERE " . ($docId > 0 ? " sc.id={$docId} AND " : "") . "wga.id>0";
 		$ids = $this->modx->db->getColumn("id", $sql);
 		if (count($ids) > 0) {
-			$this->modx->db->query("UPDATE " . $this->modx->getFullTableName("site_content") . " SET privateweb = 1 WHERE id IN (" . implode(",", $ids) . ")");
+			$this->modx->db->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", $ids) . ")");
 		} else {
-			$this->modx->db->query("UPDATE " . $this->modx->getFullTableName("site_content") . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id={$docId}" : "privateweb = 1"));
+			$this->modx->db->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id={$docId}" : "privateweb = 1"));
 		}
 	}
 	
-	function secureMgrDocument($docId = '') {	
+	function secureMgrDocument($docId = '') {
+		$tbl_site_content = $this->modx->getFullTableName('site_content');
 		$sql = "SELECT DISTINCT sc.id
-									 FROM " . $this->modx->getFullTableName("site_content") . " sc
+									 FROM " . $tbl_site_content . " sc
 									 LEFT JOIN " . $this->modx->getFullTableName("document_groups") . " dg ON dg.document = sc.id
 									 LEFT JOIN " . $this->modx->getFullTableName("membergroup_access") . " mga ON mga.documentgroup = dg.document_group
 									 WHERE " . ($docId > 0 ? " sc.id={$docId} AND " : "") . "mga.id>0";
 		$ids = $this->modx->db->getColumn("id", $sql);
 		if (count($ids) > 0) {
-			$this->modx->db->query("UPDATE " . $this->modx->getFullTableName("site_content") . " SET privatemgr = 1 WHERE id IN (" . implode(",", $ids) . ")");
+			$this->modx->db->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", $ids) . ")");
 		} else {
-			$this->modx->db->query("UPDATE " . $this->modx->getFullTableName("site_content") . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id={$docId}" : "privatemgr = 1"));
+			$this->modx->db->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id={$docId}" : "privatemgr = 1"));
 		}
 	}
 	
