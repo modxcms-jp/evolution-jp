@@ -118,8 +118,6 @@ function set_parser_mode()
 
 function is_installed($database_type='',$lastInstallTime=NULL)
 {
-	global $database_type,$lastInstallTime;
-	
 	if(empty($database_type) || empty($lastInstallTime) || is_null($lastInstallTime))
 	{
 		return false;
