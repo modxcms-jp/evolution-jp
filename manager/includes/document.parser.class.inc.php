@@ -218,123 +218,146 @@ class DocumentParser {
 	function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
 	function insertId($rs)               {return $this->db->getInsertId($rs);}
 	function dbClose()                   {$this->db->disconnect();}
-
-    function getSettings() {
-        if (!isset($this->config) || !is_array($this->config) || empty ($this->config)) {
-            if (file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-                $included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
-            }
-            if (!isset($included) || !is_array($this->config) || empty ($this->config)) {
-                include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
-                $cache = new synccache();
-                $cache->setCachepath(MODX_BASE_PATH . "assets/cache/");
-                $cache->setReport(false);
-                $rebuilt = $cache->buildCache($this);
-                $included = false;
-                if($rebuilt && $included= file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-                    $included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
-                }
-                if(!$included) {
-                $result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
-                while ($row= $this->db->getRow($result, 'both')) {
-                    $this->config[$row[0]]= $row[1];
-                }
-            }
-            }
-
-            // added for backwards compatibility - garry FS#104
-            $this->config['etomite_charset'] = & $this->config['modx_charset'];
-
-            // store base_url and base_path inside config array
-            $this->config['base_url']= MODX_BASE_URL;
-            $this->config['base_path']= MODX_BASE_PATH;
-            $this->config['site_url']= MODX_SITE_URL;
-
-            // load user setting if user is logged in
-            $usrSettings= array ();
-            if ($id= $this->getLoginUserID()) {
-                $usrType= $this->getLoginUserType();
-                if (isset ($usrType) && $usrType == 'manager')
-                    $usrType= 'mgr';
-
-                if ($usrType == 'mgr' && $this->isBackend()) {
-                    // invoke the OnBeforeManagerPageInit event, only if in backend
-                    $this->invokeEvent("OnBeforeManagerPageInit");
-                }
-
-                if (isset ($_SESSION[$usrType . 'UsrConfigSet'])) {
-                    $usrSettings= & $_SESSION[$usrType . 'UsrConfigSet'];
-                } else {
-                    if ($usrType == 'web')
-                    {
-                        $from  = $this->getFullTableName('web_user_settings');
-                        $where ="webuser='{$id}'";
-                    }
-                    else
-                    {
-                        $from  = $this->getFullTableName('user_settings');
-                        $where = "user='{$id}'";
-                    }
-                    $result= $this->db->select('setting_name, setting_value',$from,$where);
-                    while ($row= $this->db->getRow($result, 'both'))
-                        $usrSettings[$row[0]]= $row[1];
-                    if (isset ($usrType))
-                        $_SESSION[$usrType . 'UsrConfigSet']= $usrSettings; // store user settings in session
-                }
-            }
-            if ($this->isFrontend() && $mgrid= $this->getLoginUserID('mgr')) {
-                $musrSettings= array ();
-                if (isset ($_SESSION['mgrUsrConfigSet'])) {
-                    $musrSettings= & $_SESSION['mgrUsrConfigSet'];
-                } else {
-                    if ($result= $this->db->select('setting_name, setting_value',$this->getFullTableName('user_settings'),"user='{$mgrid}'"))
-                    {
-                        while ($row= $this->db->getRow($result, 'both'))
-                        {
-                            $usrSettings[$row[0]]= $row[1];
-                        }
-                        $_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
-                    }
-                }
-                if (!empty ($musrSettings)) {
-                    $usrSettings= array_merge($musrSettings, $usrSettings);
-                }
-            }
-            $this->config= array_merge($this->config, $usrSettings);
-        }
-    }
-
-    function getDocumentMethod() {
-        // function to test the query and find the retrieval method
-        if (isset ($_REQUEST['q'])) {
-            return "alias";
-        }
-        elseif (isset ($_REQUEST['id'])) {
-            return "id";
-        } else {
-            return "none";
-        }
-    }
-
-    function getDocumentIdentifier($method) {
-        // function to test the query and find the retrieval method
-        $docIdentifier= $this->config['site_start'];
-        switch ($method) {
-            case 'alias' :
-                $docIdentifier= $this->db->escape($_REQUEST['q']);
-                break;
-            case 'id' :
-                if (!is_numeric($_REQUEST['id'])) {
-                    $this->sendErrorPage();
-                } else {
-                    $docIdentifier= intval($_REQUEST['id']);
-                }
-                break;
-        }
-        return $docIdentifier;
-    }
-
-    // check for manager login session
+	
+	function getSettings()
+	{
+		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
+		{
+			if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+			{
+				$included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+			}
+			if(!isset($included) || !is_array($this->config) || empty ($this->config))
+			{
+				include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
+				$cache = new synccache();
+				$cache->setCachepath(MODX_BASE_PATH . "assets/cache/");
+				$cache->setReport(false);
+				$rebuilt = $cache->buildCache($this);
+				$included = false;
+				if($rebuilt && file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+				{
+					$included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+				}
+				if(!$included)
+				{
+					$result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
+					while ($row= $this->db->getRow($result, 'both'))
+					{
+						$this->config[$row[0]]= $row[1];
+					}
+				}
+			}
+			
+			// added for backwards compatibility - garry FS#104
+			$this->config['etomite_charset'] = & $this->config['modx_charset'];
+			
+			// store base_url and base_path inside config array
+			$this->config['base_url']= MODX_BASE_URL;
+			$this->config['base_path']= MODX_BASE_PATH;
+			$this->config['site_url']= MODX_SITE_URL;
+			
+			// load user setting if user is logged in
+			$usrSettings= array ();
+			if ($id= $this->getLoginUserID())
+			{
+				$usrType= $this->getLoginUserType();
+				if (isset ($usrType) && $usrType == 'manager')
+				{
+					$usrType= 'mgr';
+				}
+				
+				if ($usrType == 'mgr' && $this->isBackend())
+				{
+					// invoke the OnBeforeManagerPageInit event, only if in backend
+					$this->invokeEvent("OnBeforeManagerPageInit");
+				}
+				if (isset ($_SESSION["{$usrType}UsrConfigSet"]))
+				{
+					$usrSettings= & $_SESSION["{$usrType}UsrConfigSet"];
+				}
+				else
+				{
+					if ($usrType == 'web')
+					{
+						$from  = $this->getFullTableName('web_user_settings');
+						$where ="webuser='{$id}'";
+					}
+					else
+					{
+						$from  = $this->getFullTableName('user_settings');
+						$where = "user='{$id}'";
+					}
+					$result= $this->db->select('setting_name, setting_value',$from,$where);
+					while ($row= $this->db->getRow($result, 'both'))
+					{
+						$usrSettings[$row[0]]= $row[1];
+					}
+					if (isset ($usrType))
+					{
+						$_SESSION[$usrType . 'UsrConfigSet']= $usrSettings; // store user settings in session
+					}
+				}
+			}
+			if($this->isFrontend() && $mgrid= $this->getLoginUserID('mgr'))
+			{
+				$musrSettings= array ();
+				if(isset ($_SESSION['mgrUsrConfigSet']))
+				{
+					$musrSettings= & $_SESSION['mgrUsrConfigSet'];
+				}
+				else
+				{
+					if($result= $this->db->select('setting_name, setting_value',$this->getFullTableName('user_settings'),"user='{$mgrid}'"))
+					{
+						while ($row= $this->db->getRow($result, 'both'))
+						{
+							$usrSettings[$row[0]]= $row[1];
+						}
+						$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
+					}
+				}
+				if(!empty ($musrSettings))
+				{
+					$usrSettings= array_merge($musrSettings, $usrSettings);
+				}
+			}
+			$this->config= array_merge($this->config, $usrSettings);
+		}
+	}
+	
+	function getDocumentMethod()
+	{
+		// function to test the query and find the retrieval method
+		if(isset($_REQUEST['q']))        return 'alias';
+		elseif(isset ($_REQUEST['id']))  return 'id';
+		else                             return 'none';
+	}
+	
+	function getDocumentIdentifier($method)
+	{
+		// function to test the query and find the retrieval method
+		$docIdentifier= $this->config['site_start'];
+		switch ($method)
+		{
+			case 'alias' :
+				$docIdentifier= $this->db->escape($_REQUEST['q']);
+				break;
+			case 'id' :
+				if (!is_numeric($_REQUEST['id']))
+				{
+					$this->sendErrorPage();
+				}
+				else
+				{
+					$docIdentifier= intval($_REQUEST['id']);
+				}
+				break;
+		}
+		return $docIdentifier;
+	}
+	
+	// check for manager login session
 	function checkSession()
 	{
 		if(isset($_SESSION['mgrValidated']) && !empty($_SESSION['mgrValidated']))
@@ -362,23 +385,25 @@ class DocumentParser {
 			return false;
 		}
 	}
-
-    // check if site is offline
-    function checkSiteStatus() {
-        $siteStatus= $this->config['site_status'];
-        if ($siteStatus == 1) {
-            // site online
-            return true;
-        }
-        elseif ($siteStatus == 0 && $this->checkSession()) {
-            // site offline but launched via the manager
-            return true;
-        } else {
-            // site is offline
-            return false;
-        }
-    }
-
+	
+	// check if site is offline
+	function checkSiteStatus()
+	{
+		$siteStatus= $this->config['site_status'];
+		if($siteStatus == 1)
+		{
+			return true; // site online
+		}
+		elseif($siteStatus == 0 && $this->checkSession())
+		{
+			return true; // site offline but launched via the manager
+		}
+		else
+		{
+			return false; // site is offline
+		}
+	}
+	
 	function cleanDocumentIdentifier($qOrig)
 	{
 		if(empty($qOrig)) $qOrig = $this->config['site_start'];
@@ -757,98 +782,122 @@ class DocumentParser {
         return $template;
     }
 
-    // mod by Raymond
-    function mergeDocumentContent($template) {
-        $replace= array ();
-        preg_match_all('~\[\*(.*?)\*\]~', $template, $matches);
-        $variableCount= count($matches[1]);
-        $basepath= $this->config["base_path"] . "manager/includes";
-        for ($i= 0; $i < $variableCount; $i++) {
-            $key= $matches[1][$i];
-            $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
-            $value= $this->documentObject[$key];
-            if (is_array($value)) {
-                include_once $basepath . "/tmplvars.format.inc.php";
-                include_once $basepath . "/tmplvars.commands.inc.php";
-                $w= "100%";
-                $h= "300";
-                $value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
-            }
-            $replace[$i]= $value;
-        }
-        $template= str_replace($matches[0], $replace, $template);
-
-        return $template;
-    }
-
-    function mergeSettingsContent($template) {
-        $replace= array ();
-        $matches= array ();
-        if (preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches)) {
-            $settingsCount= count($matches[1]);
-            for ($i= 0; $i < $settingsCount; $i++) {
-                if (isset($this->config[$matches[1][$i]]))
-                    $replace[$i]= $this->config[$matches[1][$i]];
-            }
-
-            $template= str_replace($matches[0], $replace, $template);
-        }
-        return $template;
-    }
-
-    function mergeChunkContent($content) {
-        $replace= array ();
-        $matches= array ();
-        if (preg_match_all('~{{(.*?)}}~', $content, $matches)) {
-            $settingsCount= count($matches[1]);
-            for ($i= 0; $i < $settingsCount; $i++) {
-                if (isset ($this->chunkCache[$matches[1][$i]])) {
-                    $replace[$i]= $this->chunkCache[$matches[1][$i]];
-                } else {
-                    $sql= "SELECT `snippet` FROM " . $this->getFullTableName("site_htmlsnippets") . " WHERE " . $this->getFullTableName("site_htmlsnippets") . ".`name`='" . $this->db->escape($matches[1][$i]) . "';";
-                    $result= $this->db->query($sql);
-                    $limit= $this->db->getRecordCount($result);
-                    if ($limit < 1) {
-                        $this->chunkCache[$matches[1][$i]]= "";
-                        $replace[$i]= "";
-                    } else {
-                        $row= $this->db->getRow($result);
-                        $this->chunkCache[$matches[1][$i]]= $row['snippet'];
-                        $replace[$i]= $row['snippet'];
-                    }
-                }
-            }
-            $content= str_replace($matches[0], $replace, $content);
-        }
-        return $content;
-    }
-
-    // Added by Raymond
-    function mergePlaceholderContent($content) {
-        $replace= array ();
-        $matches= array ();
-        if (preg_match_all('~\[\+(.*?)\+\]~', $content, $matches)) {
-            $cnt= count($matches[1]);
-            for ($i= 0; $i < $cnt; $i++) {
-                $v= '';
-                $key= $matches[1][$i];
-                if (is_array($this->placeholders) && isset($this->placeholders[$key]))
-                    $v= $this->placeholders[$key];
-                if ($v === '')
-                    unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
-                else
-                    $replace[$i]= $v;
-            }
-            $content= str_replace($matches[0], $replace, $content);
-        }
-        return $content;
-    }
+	// mod by Raymond
+	function mergeDocumentContent($template)
+	{
+		$replace= array ();
+		preg_match_all('~\[\*(.*?)\*\]~', $template, $matches);
+		$variableCount= count($matches[1]);
+		$basepath= $this->config["base_path"] . "manager/includes/";
+		include_once("{$basepath}tmplvars.format.inc.php");
+		include_once("{$basepath}tmplvars.commands.inc.php");
+		for ($i= 0; $i < $variableCount; $i++)
+		{
+			$key= $matches[1][$i];
+			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
+			$value= $this->documentObject[$key];
+			if (is_array($value))
+			{
+				$value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
+			}
+			$replace[$i]= $value;
+		}
+		$template= str_replace($matches[0], $replace, $template);
+		return $template;
+	}
+		
+	function mergeSettingsContent($template)
+	{
+		$replace= array ();
+		$matches= array ();
+		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches))
+		{
+			$total= count($matches[1]);
+			for($i= 0; $i < $total; $i++)
+			{
+				if(isset($this->config[$matches[1][$i]]))
+				{
+					$replace[$i]= $this->config[$matches[1][$i]];
+				}
+			}
+			
+			$template= str_replace($matches[0], $replace, $template);
+		}
+		return $template;
+	}
+	
+	function mergeChunkContent($content)
+	{
+		$replace= array ();
+		$matches= array ();
+		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
+		{
+			$total= count($matches[1]);
+			for ($i= 0; $i < $total; $i++)
+			{
+				if (isset ($this->chunkCache[$matches[1][$i]]))
+				{
+					$replace[$i]= $this->chunkCache[$matches[1][$i]];
+				}
+				else
+				{
+					$where = "`name`='" .  $this->db->escape($matches[1][$i]) . "'";
+					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
+					$limit= $this->db->getRecordCount($result);
+					if ($limit < 1)
+					{
+						$this->chunkCache[$matches[1][$i]]= "";
+						$replace[$i]= "";
+					}
+					else
+					{
+						$row= $this->db->getRow($result);
+						$this->chunkCache[$matches[1][$i]]= $row['snippet'];
+						$replace[$i]= $row['snippet'];
+					}
+				}
+			}
+			$content= str_replace($matches[0], $replace, $content);
+		}
+		return $content;
+	}
+	
+	// Added by Raymond
+	function mergePlaceholderContent($content)
+	{
+		$replace= array ();
+		$matches= array ();
+		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
+		{
+			$cnt= count($matches[1]);
+			for ($i= 0; $i < $cnt; $i++)
+			{
+				$v= '';
+				$key= $matches[1][$i];
+				if (is_array($this->placeholders) && isset($this->placeholders[$key]))
+				{
+					$v= $this->placeholders[$key];
+				}
+				if ($v === '')
+				{
+					unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
+				}
+				else
+				{
+					$replace[$i]= $v;
+				}
+			}
+			$content= str_replace($matches[0], $replace, $content);
+		}
+		return $content;
+	}
 
     // evalPlugin
     function evalPlugin($pluginCode, $params) {
         $etomite= $modx= & $this;
         $modx->event->params = $params; // store params inside event object
-        if (is_array($params)) {
+        if (is_array($params))
+        {
             extract($params, EXTR_SKIP);
         }
         ob_start();
@@ -858,7 +907,7 @@ class DocumentParser {
         if ($msg && isset ($php_errormsg)) {
             if (!strpos($php_errormsg, 'Deprecated')) { // ignore php5 strict errors
                 // log error
-                $this->logEvent(1, 3, "<b>$php_errormsg</b><br /><br /> $msg", $this->event->activePlugin . " - Plugin");
+                $this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}", $this->event->activePlugin . " - Plugin");
                 if ($this->isBackend())
                     $this->event->alert("An error occurred while loading. Please see the event log for more information.<p />$msg");
             }
