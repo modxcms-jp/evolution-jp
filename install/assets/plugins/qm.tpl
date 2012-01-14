@@ -33,6 +33,5 @@ if (isset($_SESSION['mgrValidated']))
 		$modx->documentOutput = $output;
 	}
 	include_once($modx->config['base_path'].'assets/plugins/qm/qm.inc.php');
-	$params = compact('jqpath', 'loadmanagerjq', 'loadfrontendjq', 'noconflictjq', 'loadtb', 'tbwidth', 'tbheight', 'hidefields', 'hidetabs', 'hidesections', 'addbutton', 'tpltype', 'tplid', 'custombutton', 'managerbutton', 'logout', 'autohide', 'editbuttons', 'editbclass', 'newbuttons', 'newbclass', 'tvbuttons', 'tvbclass');
-	$qm = new Qm($modx, $params);
+	$qm = new Qm($modx, $modx->event->params);
 }
