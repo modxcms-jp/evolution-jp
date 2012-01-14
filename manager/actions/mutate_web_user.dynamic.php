@@ -54,16 +54,19 @@ if($_REQUEST['a']=='88') {
 	$userdata = mysql_fetch_assoc($rs);
 
 	// get user settings
-	$sql = "SELECT wus.* FROM $dbase.`".$table_prefix."web_user_settings` wus WHERE wus.webuser = ".$user.";";
-	$rs = $modx->db->query($sql);
+	$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
+	$rs = $modx->db->select('*',$tbl_web_user_settings,"webuser={$user}");
 	$usersettings = array();
-	while($row=mysql_fetch_assoc($rs)) $usersettings[$row['setting_name']]=$row['setting_value'];
+	while($row = $modx->db->getRow($rs))
+	{
+		$usersettings[$row['setting_name']]=$row['setting_value'];
+	}
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
-	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_users` WHERE $dbase.`".$table_prefix."web_users`.id = ".$user.";";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
+	$tbl_web_users = $modx->getFullTableName('web_users');
+	$rs = $modx->db->select('*',$tbl_web_users,"id={$user}");
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned while getting username!<p>";
 		exit;
@@ -72,7 +75,7 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned while getting username!<p>";
 		exit;
 	}
-	$usernamedata = mysql_fetch_assoc($rs);
+	$usernamedata = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$usernamedata['username'];
 } else {
 	$userdata = array();
@@ -383,7 +386,11 @@ function showHide(what, onoff){
 		  <tr>
 			<td><?php echo $_lang['user_prevlogin']; ?>:</td>
 			<td>&nbsp;</td>
-			<td><?php echo $modx->toDateFormat($userdata['lastlogin']+$server_offset_time) ?></td>
+			<?php
+				if(!empty($userdata['lastlogin'])) $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
+				else                               $lastlogin = '-';
+			?>
+			<td><?php echo $lastlogin; ?></td>
 		  </tr>
 		  <tr>
 			<td><?php echo $_lang['user_failedlogincount']; ?>:</td>
