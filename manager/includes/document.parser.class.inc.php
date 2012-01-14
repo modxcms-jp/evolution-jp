@@ -910,7 +910,10 @@ class DocumentParser {
 			if (!strpos($php_errormsg, 'Deprecated'))
 			{   // ignore php5 strict errors
 				// log error
-				$this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}", $this->event->activePlugin . " - Plugin");
+				$request_uri = getenv('REQUEST_URI');
+				$desc = '<br />REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES);
+				if(isset($this->documentIdentifier)) $desc . "<br />ID = {$this->documentIdentifier}";
+				$this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}{$desc}", $this->event->activePlugin . " - Plugin");
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p />{$msg}");
