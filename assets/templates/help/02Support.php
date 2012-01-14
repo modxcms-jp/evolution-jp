@@ -24,7 +24,7 @@ $info = array(
               'PHPのバージョン' => PHP_VERSION,
               'セーフモード'  => (ini_get('safe_mode') ==0) ? 'off' : 'on',
               'php_sapi_name'  => php_sapi_name(),
-              'MySQLのバージョン'=>mysql_get_server_info(),
+              'MySQLのバージョン'=>$modx->db->getVersion(),
               'MySQLホスト情報' => mysql_get_host_info(),
 //              'mysql_get_client_info' => mysql_get_client_info(),
               'MODXのバージョン' => $modx_version,

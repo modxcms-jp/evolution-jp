@@ -3,9 +3,9 @@ if (IN_MANAGER_MODE != "true")
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
 // START HACK
-if (isset($modx))                         $user_id = $modx->getLoginUserID();
+if (isset($modx))                          $user_id = $modx->getLoginUserID();
 elseif(isset($_SESSION['mgrInternalKey'])) $user_id = $_SESSION['mgrInternalKey'];
-else                                      $user_id = '';
+else                                       $user_id = '';
 
 // END HACK
 

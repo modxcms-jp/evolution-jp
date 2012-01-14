@@ -40,24 +40,24 @@ if ($limit > 1) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$content = mysql_fetch_assoc($rs);
+$content = $modx->db->getRow($rs);
 
 /**
  * "General" tab setup
  */
 // Get Creator's username
-$rs = $modx->db->query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['createdby']}'");
-if ($row = mysql_fetch_assoc($rs))
+$rs = $modx->db->select('username', $tbl_manager_users,"id='{$content['createdby']}'");
+if ($row = $modx->db->getRow($rs))
 	$createdbyname = $row['username'];
 
 // Get Editor's username
-$rs = $modx->db->query("SELECT username FROM {$tbl_manager_users} WHERE id='{$content['editedby']}'");
-if ($row = mysql_fetch_assoc($rs))
+$rs = $modx->db->select('username', $tbl_manager_users, "id='{$content['editedby']}'");
+if ($row = $modx->db->getRow($rs))
 	$editedbyname = $row['username'];
 
 // Get Template name
-$rs = $modx->db->query("SELECT templatename FROM {$tbl_site_templates} WHERE id='{$content['template']}'");
-if ($row = mysql_fetch_assoc($rs))
+$rs = $modx->db->select('templatename', $tbl_site_templates, "id='{$content['template']}'");
+if ($row = $modx->db->getRow($rs))
 	$templatename = $row['templatename'];
 
 // Set the item name for logging
@@ -68,22 +68,20 @@ $metatags_selected = array();
 if ($modx->config['show_meta'])
 {
 	// Get list of current keywords for this document
-	$sql = "SELECT k.keyword FROM {$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x ".
-	       "WHERE k.id = x.keyword_id AND x.content_id = '{$id}' ".
-	       "ORDER BY k.keyword ASC";
-	$rs = $modx->db->query($sql);
-	while($row = mysql_fetch_assoc($rs))
+	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
+	$orderby = 'BY k.keyword ASC';
+	$rs = $modx->db->select('k.keyword',"{$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x",$where,$orderby);
+	while($row = $modx->db->getRow($rs))
 	{
 		$keywords[$i] = $row['keyword'];
 	}
 	
 	// Get list of selected site META tags for this document
-	$sql = "SELECT meta.id, meta.name, meta.tagvalue ".
-	       "FROM {$tbl_site_metatags} AS meta ".
-	       "LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id ".
-	       "WHERE sc.content_id='{$content['id']}'";
-	$rs = $modx->db->query($sql);
-	while($row = mysql_fetch_assoc($rs))
+	$field = 'meta.id, meta.name, meta.tagvalue';
+	$from = "{$tbl_site_metatags} AS meta LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id ";
+	$where = "sc.content_id='{$content['id']}'";
+	$rs = $modx->db->select($field,$from,$where);
+	while($row = $modx->db->getRow($rs))
 	{
 		$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
 	}

@@ -479,7 +479,7 @@ class Mysqldumper {
 		$output .= "# {$lf}";
 		$output .= "# Host: {$database_server}{$lf}";
 		$output .= "# Generation Time: " . $modx->toDateFormat(time()) . $lf;
-		$output .= "# Server version: ". mysql_get_server_info() . $lf;
+		$output .= "# Server version: ". $modx->db->getVersion() . $lf;
 		$output .= "# PHP Version: " . phpversion() . $lf;
 		$output .= "# Database : `{$dbname}`{$lf}";
 		$output .= "#";
