@@ -49,7 +49,6 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
-
 $cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
 if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
 
@@ -60,9 +59,9 @@ require_once("{$cwd}manager/includes/initialize.inc.php");
 if(!isset($database_type))
 {
 	$conf_path = "{$cwd}manager/includes/config.inc.php";
-	if(file_exists($conf_path)) require_once($conf_path);
+	if(file_exists($conf_path)) include_once($conf_path);
 	// Be sure config.inc.php is there and that it contains some important values
-	if(is_installed()===false)
+	if(is_installed($database_type,$lastInstallTime)===false || $lastInstallTime===NULL)
 	{
 		show_install();
 		exit;
