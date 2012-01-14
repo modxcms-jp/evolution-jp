@@ -753,7 +753,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('failed_login_attempts','3'),
 ('blocked_minutes','60'),
 ('use_captcha','0'),
-('captcha_words','maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma'),
+('captcha_words','maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma,sake,tai,buri,hirame,unagi,anago,amaebi,ikura,kanpachi,syako'),
 ('emailsender','{ADMINEMAIL}'),
 ('emailsubject','ログイン情報のお知らせ'),
 ('number_of_logs','100'),
