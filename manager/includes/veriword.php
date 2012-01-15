@@ -76,16 +76,15 @@ class VeriWord {
 
 	function draw_text()
 	{
-		$dir = dir($this->dir_font);
+		$files = scandir($this->dir_font);
 		$fontstmp = array();
-		while (false !== ($file = $dir->read()))
+		foreach ($files as $file)
 		{
 			if(substr($file, -4) == '.ttf')
 			{
 				$fontstmp[] = $this->dir_font.$file;
 			}
 		}
-		$dir->close();
 		$text_font = (string) $fontstmp[array_rand($fontstmp)];
 		
 		/* angle for text inclination */
