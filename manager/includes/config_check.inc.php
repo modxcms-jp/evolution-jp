@@ -8,17 +8,9 @@ if (is_writable("includes/config.inc.php")){
     }
 }
 
-if (file_exists("../install/")) {
-    $warnings[] = 'configcheck_installer';
-}
-
-if (ini_get('register_globals')==TRUE) {
-    $warnings[] = 'configcheck_register_globals';
-}
-
-if (!extension_loaded('gd')) {
-	$warnings[] = 'configcheck_php_gdzip';
-}
+if (file_exists("../install/"))        $warnings[] = 'configcheck_installer';
+if (ini_get('register_globals')==TRUE) $warnings[] = 'configcheck_register_globals';
+if (!extension_loaded('gd'))           $warnings[] = 'configcheck_php_gdzip';
 
 if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config['_hide_configcheck_validate_referer'] !== '1')
 {
@@ -39,78 +31,30 @@ if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx-
         $where = "name IN ('TemplateSwitcher','Template Switcher','templateswitcher','template_switcher','template switcher') OR plugincode LIKE '%TemplateSwitcher%'";
         $rs = $modx->db->select('name, disabled',$modx->getFullTableName('site_plugins'),$where);
         $row = $modx->db->getRow($rs);
-        if($row && $row['disabled'] == 0) {
-            $warnings[] = 'configcheck_templateswitcher_present';
-            $tplName = $row['name'];
-	$script = <<<JS
-<script type="text/javascript">
-function deleteTemplateSwitcher(){
-    if(confirm('{$_lang["confirm_delete_plugin"]}')) {
-	var myAjax = new Ajax('index.php?a=118',
-	{
-		method: 'post',
-        data: 'action=updateplugin&key=_delete_&lang=$tplName'
-	});
-	myAjax.addEvent('onComplete', function(resp){
-            fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
-		var sl = new Fx.Slide(fieldset);
-		sl.slideOut();
-	});
-	myAjax.request();
-    }
-}
-function disableTemplateSwitcher(){
-    var myAjax = new Ajax('index.php?a=118', {
-        method: 'post',
-        data: 'action=updateplugin&lang={$tplName}&key=disabled&value=1'
-    });
-    myAjax.addEvent('onComplete', function(resp){
-        fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
-        var sl = new Fx.Slide(fieldset);
-        sl.slideOut();
-    });
-    myAjax.request();
-}
-</script>
-
-JS;
-	$modx->regClientScript($script);
-        }
+		if($row && $row['disabled'] == 0)
+		{
+			$warnings[] = 'configcheck_templateswitcher_present';
+			$tplName = $row['name'];
+			$script = get_src_TemplateSwitcher_js();
+			$modx->regClientScript($script);
+		}
     }
 }
 
-$tbl_site_content = $modx->getFullTableName('site_content');
+if(get_sc_value('published',$unauthorized_page) == 0)  $warnings[] = 'configcheck_unauthorizedpage_unpublished';
+if(get_sc_value('published',$error_page) == 0)         $warnings[] = 'configcheck_errorpage_unpublished';
+if(get_sc_value('privateweb',$unauthorized_page) == 1) $warnings[] = 'configcheck_unauthorizedpage_unavailable';
+if(get_sc_value('privateweb',$error_page) == 1)        $warnings[] = 'configcheck_errorpage_unavailable';
 
-if ($modx->db->getValue($modx->db->select('published',$tbl_site_content,"id={$unauthorized_page}")) == 0) {
-    $warnings[] = 'configcheck_unauthorizedpage_unpublished';
-}
-
-if ($modx->db->getValue($modx->db->select('published',$tbl_site_content,"id={$error_page}")) == 0) {
-    $warnings[] = 'configcheck_errorpage_unpublished';
-}
-
-if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$unauthorized_page}")) == 1) {
-    $warnings[] = 'configcheck_unauthorizedpage_unavailable';
-}
-
-if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$error_page}")) == 1) {
-    $warnings[] = 'configcheck_errorpage_unavailable';
-}
-
-if (!is_writable("../assets/cache/")) {
-    $warnings[] = 'configcheck_cache';
-}
-
-if (!is_writable("../assets/images/")) {
-    $warnings[] = 'configcheck_images';
-}
+if (!is_writable("../assets/cache/"))  $warnings[] = 'configcheck_cache';
+if (!is_writable("../assets/images/")) $warnings[] = 'configcheck_images';
 
 // clear file info cache
 clearstatcache();
 
 if (0 < count($warnings))
 {
-	$config_check_results = "<h3>".$_lang['configcheck_notok']."</h3>";
+	$config_check_results = "<h3>{$_lang['configcheck_notok']}</h3>";
 	foreach ($warnings as $warning)
 	{
 		$title = $_lang[$warning];
@@ -178,16 +122,60 @@ if (0 < count($warnings))
 		$admin_warning = $_SESSION['mgrRole']!=1 ? $_lang['configcheck_admin'] : "" ;
 		$config_check_result[] = "
 <fieldset>
-<p><strong>{$_lang['configcheck_warning']}</strong> ' {$title} '</p>
+<p><strong>{$_lang['configcheck_warning']}</strong> {$title}</p>
 <p style=\"padding-left:1em\"><em>".$_lang['configcheck_what']."</em><br />
 ".$output." ".$admin_warning."</p>
 </fieldset>
 ";
 	}
 	$_SESSION["mgrConfigCheck"] = true;
-	$config_check_results = join('<br />',$config_check_result);
+	$config_check_results = join("\n",$config_check_result);
 }
 else
 {
 	$config_check_results = $_lang['configcheck_ok'];
+}
+
+function get_src_TemplateSwitcher_js()
+{
+	$script = <<<EOT
+<script type="text/javascript">
+function deleteTemplateSwitcher(){
+    if(confirm('{$_lang["confirm_delete_plugin"]}')) {
+	var myAjax = new Ajax('index.php?a=118',
+	{
+		method: 'post',
+        data: 'action=updateplugin&key=_delete_&lang=$tplName'
+	});
+	myAjax.addEvent('onComplete', function(resp){
+            fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
+		var sl = new Fx.Slide(fieldset);
+		sl.slideOut();
+	});
+	myAjax.request();
+    }
+}
+function disableTemplateSwitcher(){
+    var myAjax = new Ajax('index.php?a=118', {
+        method: 'post',
+        data: 'action=updateplugin&lang={$tplName}&key=disabled&value=1'
+    });
+    myAjax.addEvent('onComplete', function(resp){
+        fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
+        var sl = new Fx.Slide(fieldset);
+        sl.slideOut();
+    });
+    myAjax.request();
+}
+</script>
+EOT;
+return $script;
+}
+
+function get_sc_value($field,$where)
+{
+	global $modx;
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	$where = "id={$where}";
+	return $modx->db->getValue($modx->db->select($field,$tbl_site_content,$where));
 }
