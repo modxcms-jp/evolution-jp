@@ -67,31 +67,16 @@ if($content["type"]==1) $msgtype = $_lang["information"];
 else if($content["type"]==2) $msgtype = $_lang["warning"];
 else if($content["type"]==3) $msgtype = $_lang["error"];
 $useTheme = $manager_theme ? "$manager_theme/":"";
+if(empty($content["username"])) $content["username"] = '-';
 echo <<<HTML
-	<table border="0" width="100%">
-	  <tr><td colspan="4">
-		<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div><br />
-	  </td></tr>
-	  <tr>
-		<td width="25%" valign="top">{$_lang["event_id"]}:</td>
-		<td width="25%" valign="top">{$content["eventid"]}</td>
-		<td width="25%" valign="top">{$_lang["source"]}:</td>
-		<td width="25%" valign="top">{$content["source"]}</td>
-	  </tr>
-	  <tr><td colspan="4"><div class='split'>&nbsp;</div></td></tr>
-	  <tr>
-		<td width="25%" valign="top" >{$_lang["date"]}:</td>
-		<td width="25%" valign="top" >$date</td>
-		<td width="25%" valign="top" >{$_lang["user"]}:</td>
-		<td width="25%" valign="top" >{$content["username"]}</td>
-	  </tr>
-	  <tr><td colspan="4"><div class='split'>&nbsp;</div></td></tr>
-	  <tr>
-		<td width="100%" colspan="4"><br />
-		{$content["description"]}
-		</td>
-	  </tr>
+	<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
+	<table>
+	<tr><td>{$_lang["event_id"]} </td><td>{$content["eventid"]}</td></tr>
+	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>
+	<tr><td>{$_lang["date"]} </td><td>$date</td></tr>
+	<tr><td>{$_lang["user"]} </td><td>{$content["username"]}</td></tr>
 	</table>
+	<div>{$content["description"]}</div>
 HTML;
 ?>
 </div>
