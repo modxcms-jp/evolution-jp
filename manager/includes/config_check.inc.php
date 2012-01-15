@@ -4,20 +4,20 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 if (is_writable("includes/config.inc.php")){
     // Warn if world writable
     if(@fileperms('includes/config.inc.php') & 0x0002) {
-      $warnings[] = array($_lang['configcheck_configinc']);
+      $warnings[] = 'configcheck_configinc';
     }
 }
 
 if (file_exists("../install/")) {
-    $warnings[] = array($_lang['configcheck_installer']);
+    $warnings[] = 'configcheck_installer';
 }
 
 if (ini_get('register_globals')==TRUE) {
-    $warnings[] = array($_lang['configcheck_register_globals']);
+    $warnings[] = 'configcheck_register_globals';
 }
 
 if (!extension_loaded('gd')) {
-	$warnings[] = array($_lang['configcheck_php_gdzip']);
+	$warnings[] = 'configcheck_php_gdzip';
 }
 
 if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config['_hide_configcheck_validate_referer'] !== '1')
@@ -26,7 +26,7 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
 	{
 		if ($modx->db->getValue('SELECT COUNT(setting_value) FROM '.$modx->getFullTableName('system_settings').' WHERE setting_name=\'validate_referer\' AND setting_value=\'0\''))
 		{
-			$warnings[] = array($_lang['configcheck_validate_referer']);
+			$warnings[] = 'configcheck_validate_referer';
 		}
     }
 }
@@ -40,7 +40,7 @@ if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx-
         $rs = $modx->db->select('name, disabled',$modx->getFullTableName('site_plugins'),$where);
         $row = $modx->db->getRow($rs);
         if($row && $row['disabled'] == 0) {
-            $warnings[] = array($_lang['configcheck_templateswitcher_present']);
+            $warnings[] = 'configcheck_templateswitcher_present';
             $tplName = $row['name'];
 	$script = <<<JS
 <script type="text/javascript">
@@ -82,19 +82,19 @@ JS;
 $tbl_site_content = $modx->getFullTableName('site_content');
 
 if ($modx->db->getValue($modx->db->select('published',$tbl_site_content,"id={$unauthorized_page}")) == 0) {
-    $warnings[] = array($_lang['configcheck_unauthorizedpage_unpublished']);
+    $warnings[] = 'configcheck_unauthorizedpage_unpublished';
 }
 
 if ($modx->db->getValue($modx->db->select('published',$tbl_site_content,"id={$error_page}")) == 0) {
-    $warnings[] = array($_lang['configcheck_errorpage_unpublished']);
+    $warnings[] = 'configcheck_errorpage_unpublished';
 }
 
 if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$unauthorized_page}")) == 1) {
-    $warnings[] = array($_lang['configcheck_unauthorizedpage_unavailable']);
+    $warnings[] = 'configcheck_unauthorizedpage_unavailable';
 }
 
 if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$error_page}")) == 1) {
-    $warnings[] = array($_lang['configcheck_errorpage_unavailable']);
+    $warnings[] = 'configcheck_errorpage_unavailable';
 }
 
 	if (!function_exists('checkSiteCache'))
@@ -112,15 +112,15 @@ if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$e
 	}
 
 if (!is_writable("../assets/cache/")) {
-    $warnings[] = array($_lang['configcheck_cache']);
+    $warnings[] = 'configcheck_cache';
 }
 
 if (!checkSiteCache()) {
-    $warnings[]= array($lang['configcheck_sitecache_integrity']);
+    $warnings[]= 'configcheck_sitecache_integrity';
 }
 
 if (!is_writable("../assets/images/")) {
-    $warnings[] = array($_lang['configcheck_images']);
+    $warnings[] = 'configcheck_images';
 }
 
 // clear file info cache
@@ -129,54 +129,55 @@ clearstatcache();
 if (0 < count($warnings))
 {
 	$config_check_results = "<h3>".$_lang['configcheck_notok']."</h3>";
-	for ($i=0;$i<count($warnings);$i++)
+	foreach ($warnings as $warning)
 	{
-		switch ($warnings[$i][0])
+		$title = $_lang[$warning];
+		switch ($warning)
 		{
-			case $_lang['configcheck_configinc'];
-				$warnings[$i][1] = $_lang['configcheck_configinc_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$warnings[$i][1],$_lang['configcheck_configinc']);
+			case 'configcheck_configinc';
+				$output = $_lang['configcheck_configinc_msg'];
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
-			case $_lang['configcheck_installer'] :
-				$warnings[$i][1] = $_lang['configcheck_installer_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$warnings[$i][1],$_lang['configcheck_installer']);
+			case 'configcheck_installer':
+				$output = $_lang['configcheck_installer_msg'];
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
-			case $_lang['configcheck_cache'] :
-				$warnings[$i][1] = $_lang['configcheck_cache_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$warnings[$i][1],$_lang['configcheck_cache']);
+			case 'configcheck_cache':
+				$output = $_lang['configcheck_cache_msg'];
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
-			case $_lang['configcheck_images'] :
-				$warnings[$i][1] = $_lang['configcheck_images_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$warnings[$i][1],$_lang['configcheck_images']);
+			case 'configcheck_images':
+				$output = $_lang['configcheck_images_msg'];
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
-			case $_lang['configcheck_lang_difference'] :
-				$warnings[$i][1] = $_lang['configcheck_lang_difference_msg'];
+			case 'configcheck_lang_difference':
+				$output = $_lang['configcheck_lang_difference_msg'];
 				break;
-			case $_lang['configcheck_register_globals'] :
-				$warnings[$i][1] = $_lang['configcheck_register_globals_msg'];
+			case 'configcheck_register_globals':
+				$output = $_lang['configcheck_register_globals_msg'];
 				break;
-			case $_lang['configcheck_php_gdzip'] :
-				$warnings[$i][1] = $_lang['configcheck_php_gdzip_msg'];
+			case 'configcheck_php_gdzip':
+				$output = $_lang['configcheck_php_gdzip_msg'];
 				break;
-			case $_lang['configcheck_unauthorizedpage_unpublished'] :
-				$warnings[$i][1] = $_lang['configcheck_unauthorizedpage_unpublished_msg'];
+			case 'configcheck_unauthorizedpage_unpublished':
+				$output = $_lang['configcheck_unauthorizedpage_unpublished_msg'];
 				break;
-			case $_lang['configcheck_errorpage_unpublished'] :
-				$warnings[$i][1] = $_lang['configcheck_errorpage_unpublished_msg'];
+			case 'configcheck_errorpage_unpublished':
+				$output = $_lang['configcheck_errorpage_unpublished_msg'];
 				break;
-			case $_lang['configcheck_unauthorizedpage_unavailable'] :
-				$warnings[$i][1] = $_lang['configcheck_unauthorizedpage_unavailable_msg'];
+			case 'configcheck_unauthorizedpage_unavailable':
+				$output = $_lang['configcheck_unauthorizedpage_unavailable_msg'];
 				break;
-			case $_lang['configcheck_errorpage_unavailable'] :
-				$warnings[$i][1] = $_lang['configcheck_errorpage_unavailable_msg'];
+			case 'configcheck_errorpage_unavailable':
+				$output = $_lang['configcheck_errorpage_unavailable_msg'];
 				break;
-			case $_lang['configcheck_validate_referer'] :
+			case 'configcheck_validate_referer':
 				$msg = $_lang['configcheck_validate_referer_msg'];
 				$msg .= '<br />' . sprintf($_lang["configcheck_hide_warning"], 'validate_referer');
-				$warnings[$i][1] = "<span id=\"validate_referer_warning_wrapper\">{$msg}</span>\n";
+				$output = "<span id=\"validate_referer_warning_wrapper\">{$msg}</span>\n";
 				break;
-			case $_lang['configcheck_templateswitcher_present'] :
-				$msg = $_lang["configcheck_templateswitcher_present_msg"];
+			case 'configcheck_templateswitcher_present':
+				$msg = $_lang['configcheck_templateswitcher_present_msg'];
 				if(isset($_SESSION['mgrPermissions']['save_plugin']) && $_SESSION['mgrPermissions']['save_plugin'] == '1')
 				{
 					$msg .= '<br />' . $_lang["configcheck_templateswitcher_present_disable"];
@@ -186,18 +187,18 @@ if (0 < count($warnings))
 					$msg .= '<br />' . $_lang["configcheck_templateswitcher_present_delete"];
 				}
 				$msg .= '<br />' . sprintf($_lang["configcheck_hide_warning"], 'templateswitcher_present');
-				$warnings[$i][1] = "<span id=\"templateswitcher_present_warning_wrapper\">{$msg}</span>\n";
+				$output = "<span id=\"templateswitcher_present_warning_wrapper\">{$msg}</span>\n";
 				break;
 			default :
-				$warnings[$i][1] = $_lang['configcheck_default_msg'];
+				$output = $_lang['configcheck_default_msg'];
 		}
 		
 		$admin_warning = $_SESSION['mgrRole']!=1 ? $_lang['configcheck_admin'] : "" ;
 		$config_check_result[] = "
 <fieldset>
-<p><strong>".$_lang['configcheck_warning']."</strong> '".$warnings[$i][0]."'</p>
+<p><strong>{$_lang['configcheck_warning']}</strong> ' {$title} '</p>
 <p style=\"padding-left:1em\"><em>".$_lang['configcheck_what']."</em><br />
-".$warnings[$i][1]." ".$admin_warning."</p>
+".$output." ".$admin_warning."</p>
 </fieldset>
 ";
 	}
