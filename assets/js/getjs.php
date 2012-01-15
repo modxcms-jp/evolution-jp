@@ -1,11 +1,14 @@
 <?php
 if(!isset($_GET['target']) || empty($_GET['target'])) return;
-$target = $_GET['target'];
-if (!file_exists($target) || !is_dir($target)) return;
-if (!function_exists('scandir')) include_once('../upgradephp/upgrade.php');
+if(strpos($_GET['target'],'..')!==false || strpos($_GET['target'],'~')!==false) return;
 
-$files = scandir($target,1);
+$target = $_GET['target'];
+$jsdir = str_replace('\\','/',realpath(dirname(__FILE__))) . "/{$target}/";
+if(!file_exists($jsdir) || !is_dir($jsdir)) return;
+if(!function_exists('scandir')) include_once('../upgradephp/upgrade.php');
+$files = scandir($jsdir,1);
 if(0<count($files) && $files!=='..' && $files!=='.')
 {
-	readfile($files[0]);
+	header('Content-type: text/javascript');
+	readfile("{$jsdir}{$files[0]}");
 }
