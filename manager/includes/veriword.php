@@ -6,6 +6,9 @@ if(!isset($modx))
 	require_once("{$base_path}index.php");
 	$modx->db->connect();
 	$modx->getSettings();
+}
+if(!isset($vword))
+{
 	$vword = new VeriWord(135,43);
 	$vword->output_image();
 	$vword->destroy_image();

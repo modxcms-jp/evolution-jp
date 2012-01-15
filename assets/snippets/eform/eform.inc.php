@@ -571,7 +571,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 	// set vericode
 	if($vericode) {
 		$_SESSION['eForm.VeriCode'] = $fields['vericode'] = substr(uniqid(''),-5);
-		$fields['verimageurl'] = $modx->config['base_url'].'manager/includes/veriword.php?rand='.rand();
+		$fields['verimageurl'] = $modx->config['base_url'].'action.php?include=manager/includes/veriword.php&rand='.mt_rand();
 	}
 
 	# get SESSION data - thanks to sottwell

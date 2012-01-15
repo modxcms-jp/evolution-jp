@@ -100,7 +100,7 @@ if(!isset($_SESSION['mgrValidated'])){
 
 	if($use_captcha==1)  {
 		$modx->setPlaceholder('login_captcha_message',$_lang["login_captcha_message"]);
-		$modx->setPlaceholder('captcha_image','<a href="'.MODX_MANAGER_URL.'" class="loginCaptcha"><img id="captcha_image" src="'.$modx->getManagerPath().'includes/veriword.php?rand='.rand().'" alt="'.$_lang["login_captcha_message"].'" /></a>');
+		$modx->setPlaceholder('captcha_image','<a href="'.MODX_MANAGER_URL.'" class="loginCaptcha"><img id="captcha_image" src="../action.php?include=manager/includes/veriword.php&rand='.rand().'" alt="'.$_lang["login_captcha_message"].'" /></a>');
 		$modx->setPlaceholder('captcha_input','<label>'.$_lang["captcha_code"].'<input type="text" class="text" name="captcha_code" tabindex="3" value="" /></label>');
 	}
 
