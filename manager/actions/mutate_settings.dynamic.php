@@ -907,12 +907,7 @@ return "{$base_path}assets/";
 </tr>
 <tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_url_title"]?></th>
-<td><?php
-function getResourceBaseUrl() {
-global $site_url;
-return $site_url . "assets/";
-}
-?>
+<td>
 <?php echo form_text('rb_base_url',$rb_base_url);?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
