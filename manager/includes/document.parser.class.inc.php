@@ -911,9 +911,15 @@ class DocumentParser {
 			{   // ignore php5 strict errors
 				// log error
 				$request_uri = getenv('REQUEST_URI');
-				$desc = '<br />REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES);
-				if(isset($this->documentIdentifier)) $desc . "<br />ID = {$this->documentIdentifier}";
-				$this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}{$desc}", $this->event->activePlugin . " - Plugin");
+				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
+				if(isset($this->documentIdentifier))
+				{
+					$docid = "ID = {$this->documentIdentifier}<br />";
+				}
+//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
+				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
+				$plugin = $this->event->activePlugin . ' - Plugin';
+				$this->logEvent(1, 3, $log, $plugin);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p />{$msg}");
@@ -946,8 +952,12 @@ class DocumentParser {
 				// ignore php5 strict errors
 				// log error
 				$request_uri = getenv('REQUEST_URI');
-				$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
-				$this->logEvent(1, 3, "<b>{$php_errormsg}</b><br /><br /> {$msg}<br />REQUEST_URI = $request_uri<br />ID = {$this->documentIdentifier}", $this->currentSnippet . " - Snippet");
+				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
+				$docid = "ID = {$this->documentIdentifier}<br />";
+//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
+				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
+				$snip = $this->currentSnippet . ' - Snippet<br />';
+				$this->logEvent(1, 3, $log,$snip);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information<p />{$msg}");
@@ -1902,31 +1912,35 @@ class DocumentParser {
         }
     }
 
-    function getPageInfo($pageid= -1, $active= 1, $fields= 'id, pagetitle, description, alias') {
-        if ($pageid == 0) {
-            return false;
-        } else {
-            $tblsc= $this->getFullTableName("site_content");
-            $tbldg= $this->getFullTableName("document_groups");
-            $activeSql= $active == 1 ? "AND sc.published=1 AND sc.deleted=0" : "";
-            // modify field names to use sc. table reference
-            $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
-            // get document groups for current user
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-            $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-            $sql= "SELECT $fields
-                    FROM $tblsc sc
-                    LEFT JOIN $tbldg dg on dg.document = sc.id
-                    WHERE (sc.id=$pageid $activeSql)
-                    AND ($access)
-                    LIMIT 1 ";
-            $result= $this->db->query($sql);
-            $pageInfo= @ $this->db->getRow($result);
-            return $pageInfo;
-        }
-    }
+	function getPageInfo($pageid= -1, $active= 1, $fields= 'id, pagetitle, description, alias')
+	{
+		if($pageid == 0)
+		{
+			return false;
+		}
+		else
+		{
+			$tblsc= $this->getFullTableName("site_content");
+			$tbldg= $this->getFullTableName("document_groups");
+			$activeSql= $active == 1 ? "AND sc.published=1 AND sc.deleted=0" : "";
+			// modify field names to use sc. table reference
+			$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", "", explode(',', $fields)));
+			// get document groups for current user
+			if($docgrp= $this->getUserDocGroups())
+			{
+				$docgrp= implode(",", $docgrp);
+			}
+			if($this->isFrontend()) $access = "sc.privateweb=0";
+			else                    $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0)";
+			if($docgrp)             $access .=  " OR dg.document_group IN ({$docgrp})";
+			
+			$from = "{$tblsc} sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
+			$where = "(sc.id={$pageid} {$activeSql}) AND ({$access})";
+			$result= $this->db->select($fields,$from,$where,1);
+			$pageInfo= @ $this->db->getRow($result);
+			return $pageInfo;
+		}
+	}
 
     function getParent($pid= -1, $active= 1, $fields= 'id, pagetitle, description, alias, parent') {
         if ($pid == -1) {
@@ -1984,7 +1998,7 @@ class DocumentParser {
 		$f_url_suffix = $this->config['friendly_url_suffix'];
 		if (!is_numeric($id))
 		{
-			$this->messageQuit('`' . $id . '` is not numeric and may not be passed to makeUrl()');
+			$this->messageQuit("' {$id} ' is not numeric and may not be passed to makeUrl()");
 		}
 		if ($args != '' && $this->config['friendly_urls'] == 1)
 		{
