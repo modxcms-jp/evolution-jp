@@ -328,9 +328,9 @@ function getFiles($directory,$listing = array(), $count = 0)
 	global $_lang;
 	global $filesfound;
 	$dummy = $count;
-	if (@$handle = opendir($directory))
+	if ($files = scandir($directory))
 	{
-		while ($file = readdir($handle))
+		foreach($files as $file)
 		{
 			if ($file=='.' || $file=='..') continue;
 			elseif ($h = @opendir($directory.$file."/"))
@@ -352,7 +352,6 @@ function getFiles($directory,$listing = array(), $count = 0)
 		echo '<p><span class="fail">'.$_lang["import_site_failed"]."</span> "
 		.$_lang["import_site_failed_no_open_dir"].$directory.".</p>";
 	}
-	@closedir($handle);
 	return ($listing);
 }
 

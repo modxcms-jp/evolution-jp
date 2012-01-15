@@ -49,31 +49,32 @@ $remove_deprecated_tv_types = ($remove_deprecated_tv_types_pref == 'yes') ? true
 $ignore_first_chars = array('.', '_', '!');
 
 // Include functions - we'll load all *.inc.php files in the "functions" folder
-$function_dir = $modx->config['base_path'] . 'assets/plugins/managermanager/functions';
-if ($handle = opendir($function_dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if (!in_array(substr($file, 0, 1), $ignore_first_chars) && $file != ".." && substr($file, -8) == '.inc.php') {
-            include_once($function_dir.'/'.$file);
-        }
-    }
-    closedir($handle);
+$function_dir = "{$modx->config['base_path']}assets/plugins/managermanager/functions";
+if ($files = scandir($function_dir))
+{
+	foreach($files as $file)
+	{
+		if (!in_array(substr($file, 0, 1), $ignore_first_chars) && $file != '..' && substr($file, -8) == '.inc.php')
+		{
+			include_once("{$function_dir}/{$file}");
+		}
+	}
 }
-
 
 // Include widgets
 // We look for a PHP file with the same name as the directory - e.g.
 // /widgets/widgetname/widgetname.php
-$widget_dir = $modx->config['base_path'] . 'assets/plugins/managermanager/widgets';
-if ($handle = opendir($widget_dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != ".."  && is_dir($widget_dir.'/'.$file)) {
-            include_once($widget_dir.'/'.$file.'/'.$file.'.php');
-        }
-    }
-    closedir($handle);
+$widget_dir = "{$modx->config['base_path']}assets/plugins/managermanager/widgets";
+if ($files = scandir($widget_dir))
+{
+	foreach($files as $file)
+	{
+		if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != '..'  && is_dir($widget_dir.'/'.$file))
+		{
+			include_once("{$widget_dir}/{$file}/{$file}.php");
+		}
+	}
 }
-
-
 
 // Set variables
 global $content,$default_template, $mm_current_page, $mm_fields, $splitter;

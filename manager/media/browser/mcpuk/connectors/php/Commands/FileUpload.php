@@ -254,8 +254,11 @@ class FileUpload {
 	
 	function getDirSize($dir) {
 		$dirSize=0;
-		if ($dh=@opendir($dir)) {
-			while ($file=@readdir($dh)) {
+		$files = scandir($dir);
+		if ($files)
+		{
+			foreach ($files as $file)
+			{
 				if (($file!=".")&&($file!="..")) {
 					if (is_dir($dir."/".$file)) {
 						$tmp_dirSize=$this->getDirSize($dir."/".$file);
@@ -265,7 +268,6 @@ class FileUpload {
 					}
 				}
 			}
-			@closedir($dh);
 		} else {
 			return false;
 		}
@@ -273,5 +275,3 @@ class FileUpload {
 		return $dirSize;
 	}
 }
-
-?>

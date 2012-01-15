@@ -21,13 +21,15 @@ if(file_exists($help_dir)==false)
 	exit;
 }
 
-if ($handle = opendir($help_dir)) {
-    while (false !== ($file = readdir($handle))) {
-        if ($file != "." && $file != ".." && $file != ".svn") {
-            $help[] = $file;
-        }
-    }
-    closedir($handle);
+if ($files = scandir($help_dir))
+{
+	foreach ($files as $file)
+	{
+		if ($file != "." && $file != ".." && $file != ".svn")
+		{
+			$help[] = $file;
+		}
+	}
 }
 
 

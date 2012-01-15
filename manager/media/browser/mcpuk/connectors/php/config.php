@@ -35,9 +35,9 @@ include_once("{$base_path}index.php");
 // connect to the database
 $modx->db->connect();
 // Override system settings with user settings
-include("{$base_path}manager/includes/settings.inc.php");
-include("{$base_path}manager/includes/user_settings.inc.php");
-
+$modx->getSettings();
+extract($modx->config);
+$settings = &$modx->config;
 if($settings['use_browser'] != 1){
 	die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
 }
@@ -51,7 +51,7 @@ $upload_flash = explode(',',$upload_flash);
 // avoid problems when passing strings into CHMOD
 $fckphp_config['modx']['file_permissions'] = octdec($new_file_permissions);
 $fckphp_config['modx']['folder_permissions'] = octdec($new_folder_permissions);
-$fckphp_config['modx']['charset'] = $settings['modx_charset'];
+$fckphp_config['modx']['charset'] = $modx->config['modx_charset'];
 // ** END FOR MODx
 
 
@@ -201,7 +201,7 @@ $fckphp_config['ResourceAreas']['media'] =array(
 	'AllowImageEditing'	=>	false
 	);
 	
-/*==============================================================================*/		
+/*==============================================================================*/
 
 
 /*------------------------------------------------------------------------------*/
