@@ -33,12 +33,9 @@ $recent              = 0;
 $tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
-$base_path = realpath('../../../../') . '/';
-if(file_exists($base_path . 'autoload.php')) include_once($base_path . 'autoload.php');
-include_once($base_path . 'manager/includes/config.inc.php');
-include_once($base_path . 'manager/includes/document.parser.class.inc.php');
-startCMSSession();
-$modx = new DocumentParser;
+$base_path = str_replace('\\','/',realpath('../../../../')) . '/';
+include_once($base_path . 'index.php');
+$modx->db->connect();
 
 /* only display if manager user is logged in */
 if ($modx->getLoginUserType() !== 'manager')
