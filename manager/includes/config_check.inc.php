@@ -1,7 +1,7 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-if (is_writable("includes/config.inc.php")){
+if (is_writable('includes/config.inc.php')){
     // Warn if world writable
     if(@fileperms('includes/config.inc.php') & 0x0002) {
       $warnings[] = 'configcheck_configinc';
@@ -16,7 +16,7 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
 {
 	if(isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1')
 	{
-		if ($modx->db->getValue('SELECT COUNT(setting_value) FROM '.$modx->getFullTableName('system_settings').' WHERE setting_name=\'validate_referer\' AND setting_value=\'0\''))
+		if ($modx->db->getValue($modx->db->select('COUNT(setting_value)',$modx->getFullTableName('system_settings'),"setting_name='validate_referer' AND setting_value='0'")))
 		{
 			$warnings[] = 'configcheck_validate_referer';
 		}
