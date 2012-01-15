@@ -1,13 +1,15 @@
 <?php
-define('MODX_API_MODE',true);
-$base_path = str_replace('\\','/',realpath('../../')) . '/';
-require_once("{$base_path}index.php");
-$modx->db->connect();
-$modx->getSettings();
-
-$vword = new VeriWord(135,43);
-$vword->output_image();
-$vword->destroy_image();
+if(!isset($modx))
+{
+	define('MODX_API_MODE',true);
+	$base_path = str_replace('\\','/',realpath('../../')) . '/';
+	require_once("{$base_path}index.php");
+	$modx->db->connect();
+	$modx->getSettings();
+	$vword = new VeriWord(135,43);
+	$vword->output_image();
+	$vword->destroy_image();
+}
 
 #captchaClass.php file below
 
