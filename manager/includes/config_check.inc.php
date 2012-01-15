@@ -97,26 +97,8 @@ if ($modx->db->getValue($modx->db->select('privateweb',$tbl_site_content,"id={$e
     $warnings[] = 'configcheck_errorpage_unavailable';
 }
 
-	if (!function_exists('checkSiteCache'))
-	{
-		function checkSiteCache()
-		{
-			global $modx;
-			$checked= true;
-			if (file_exists($modx->config['base_path'] . 'assets/cache/siteCache.idx.php'))
-			{
-				$checked= @include_once ($modx->config['base_path'] . 'assets/cache/siteCache.idx.php');
-			}
-			return $checked;
-		}
-	}
-
 if (!is_writable("../assets/cache/")) {
     $warnings[] = 'configcheck_cache';
-}
-
-if (!checkSiteCache()) {
-    $warnings[]= 'configcheck_sitecache_integrity';
 }
 
 if (!is_writable("../assets/images/")) {
