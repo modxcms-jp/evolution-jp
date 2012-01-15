@@ -114,7 +114,7 @@ $_lang["configcheck_admin"] = 'このメッセージをシステム管理者に�
 $_lang["configcheck_cache"] = 'キャッシュディレクトリに書き込みできません';
 $_lang["configcheck_cache_msg"] = 'キャッシュファイルを更新できません。MODXは動作しますが、キャッシュが利用できないためレスポンスが重くなります。キャッシュを有効にするためには /cache/ ディレクトリを書き込み可能にしてください。';
 $_lang["configcheck_configinc"] = '設定ファイルがまだ書き込み可能になっています';
-$_lang["configcheck_configinc_msg"] = '今の状態では、悪意ある人がこのサイトを壊すことができてしまいます。設定ファイル (/manager/includes/config.inc.php)のパーミッションを404などに設定し、書込み不可にしてください。';
+$_lang["configcheck_configinc_msg"] = '設定ファイルが書き込み可能になっているため、悪意の第三者による操作がしやすい状態になっています。 /manager/includes/config.inc.php のパーミッションを404などに設定し、書込み不可にしてください。';
 $_lang["configcheck_default_msg"] = '原因不明のエラーが存在します。';
 $_lang["configcheck_errorpage_unavailable"] = '設定した「エラーページ」は利用できません';
 $_lang["configcheck_errorpage_unavailable_msg"] = '設定した「エラーページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。この場合、システムがループ状態に陥り、多くのエラーメッセージをエラーログに記録してしまいます。「エラーページ」には存在するページでかつ、公開ページ、かつ「public」なページを指定してください。';
@@ -124,7 +124,7 @@ $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning
 $_lang["configcheck_images"] = 'イメージディレクトリに書き込みできません';
 $_lang["configcheck_images_msg"] = 'イメージディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません';
 $_lang["configcheck_installer"] = 'インストーラーが残されています';
-$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が残されています。攻撃を受ける可能性がありますので、すぐにディレクトリごと削除してください。';
+$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が残されているため、第三者にアップデートを実行されてしまう可能性があります。すぐにディレクトリごと削除してください。';
 $_lang["configcheck_lang_difference"] = '言語ファイルのエントリー数が異なります';
 $_lang["configcheck_lang_difference_msg"] = '現在選択されている言語ファイルのエントリー数がデフォルト言語ファイル(英語)のエントリー数と異なるため、一部が英語で表示されます。日本語で表示したい場合は、最新の言語ファイルを入手しアップデートする必要があります。';
 $_lang["configcheck_notok"] = '動作環境に問題があります。';
