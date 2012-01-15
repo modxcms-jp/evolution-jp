@@ -82,3 +82,45 @@ if (!function_exists("lcfirst")) {
       return strlen($str) ? strtolower($str[0]) . substr($str, 1) : "";
    }
 }
+
+/**
+ * return array of filenames in a given directory
+ * (only works for local files)
+ *
+ * @param  string $dirname  
+ * @param  bool   $desc  
+ * @return array
+ */
+if (!function_exists("scandir")) {
+   function scandir($dirname, $desc=0) {
+   
+      #-- check for file:// protocol, others aren't handled
+      if (strpos($dirname, "file://") === 0) {
+         $dirname = substr($dirname, 7);
+         if (strpos($dirname, "localh") === 0) {
+            $dirname = substr($dirname, strpos($dirname, "/"));
+         }
+      }
+      
+      #-- directory reading handle
+      if ($dh = opendir($dirname)) {
+         $ls = array();
+         while ($fn = readdir($dh)) {
+            $ls[] = $fn;  // add to array
+         }
+         closedir($dh);
+         
+         #-- sort filenames
+         if ($desc) {
+            rsort($ls);
+         }
+         else {
+            sort($ls);
+         }
+         return $ls;
+      }
+
+      #-- failure
+      return false;
+   }
+}
