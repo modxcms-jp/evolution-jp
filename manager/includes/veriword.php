@@ -34,23 +34,27 @@ if(!isset($modx))
 ########
 class VeriWord {
 	/* path to font directory*/
-	var $dir_font   = 'ttf/';
+	var $dir_font;
 	/* path to background image directory*/
-	var $dir_noise  = 'noises/';
-	var $word       = '';
-	var $im_width   = 0;
-	var $im_height  = 0;
-	var $words      = '';
+	var $dir_noise;
+	var $word;
+	var $im_width;
+	var $im_height;
+	var $words;
 
 	function VeriWord($w=200, $h=80)
 	{
 		global $modx;
-		/* create session to set word for verification */
+		$vw_path = str_replace('\\','/',dirname(__FILE__)) . '/';
+		$this->dir_font  = 'ttf/';
+		$this->dir_noise = $vw_path . 'noises/';
+		$this->word = '';
 		$this->words = $modx->config['captcha_words'];
-		$this->set_veriword();
-		$this->dir_font = dirname(__FILE__) . '/' . $this->dir_font;
 		$this->im_width         = $w;
 		$this->im_height        = $h;
+		/* create session to set word for verification */
+		$this->set_veriword();
+		$this->dir_font = $vw_path . $this->dir_font;
 	}
 
 	function set_veriword()
