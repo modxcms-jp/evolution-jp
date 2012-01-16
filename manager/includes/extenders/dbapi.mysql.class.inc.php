@@ -209,14 +209,15 @@ class DBAPI {
 	* @name:  delete
 	*
 	*/
-	function delete($from,$where='')
+	function delete($from,$where='',$limit='')
 	{
 		if(!$from) return false;
 		else
 		{
 			$table = $from;
 			if($where != '') $where = "WHERE {$where}";
-			return $this->query("DELETE FROM {$table} {$where}");
+			if($limit != '') $limit = "LIMIT {$limit}";
+			return $this->query("DELETE FROM {$table} {$where} {$limit}");
 		}
 	}
 	
