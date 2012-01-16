@@ -293,7 +293,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				}
 				if(is_string($widget_output)) // Except @INCLUDE
 				{
-					if(strpos('[+',$widget_output)!==false)
+					if(strpos($widget_output,'[+')!==false)
 					{
 						$widget_output = $modx->parsePlaceholder($widget_output,array('value'=>$value,'tvname'=>$name));
 					}
