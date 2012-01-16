@@ -58,7 +58,7 @@
 $snipPath = $modx->config['base_path'] . "assets/snippets/";
 
 # check if inside manager
-if ($m = $modx->insideManager()) {
+if ($m = $modx->isBackend()) {
 	return ''; # don't go any further when inside manager
 }
 
