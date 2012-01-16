@@ -1931,27 +1931,27 @@ class DocumentParser {
 		if($docid == 0) return false;
 		else
 		{
-			$tbl_site_content    = $this->getFullTableName("site_content");
-			$tbl_document_groups = $this->getFullTableName("document_groups");
+			$tbl_site_content    = $this->getFullTableName('site_content');
+			$tbl_document_groups = $this->getFullTableName('document_groups');
 			
 			// modify field names to use sc. table reference
 			$fields = preg_replace("/\s/i", '',$fields);
-			$fields= 'sc.' . implode(',sc.', explode(',', $fields));
+			$fields = 'sc.' . implode(',sc.', explode(',', $fields));
 			
-			$published= ($active == 1) ? 'AND sc.published=1 AND sc.deleted=0' : '';
+			$published = ($active == 1) ? 'AND sc.published=1 AND sc.deleted=0' : '';
 			
 			// get document groups for current user
 			if($docgrp= $this->getUserDocGroups())
 			{
 				$docgrp= implode(',', $docgrp);
 			}
-			if($this->isFrontend()) $access = 'sc.privateweb=0';
-			else                    $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-			if($docgrp)             $access .=  " OR dg.document_group IN ({$docgrp})";
+			if($this->isFrontend()) $context = 'sc.privateweb=0';
+			else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+			if($docgrp)             $cond   =  "OR dg.document_group IN ({$docgrp})";
 			
 			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
-			$where = "(sc.id={$docid} {$published}) AND ({$access})";
-			$result= $this->db->select($fields,$from,$where,'',1);
+			$where = "(sc.id={$docid} {$published}) AND ({$context} {$cond})";
+			$result = $this->db->select($fields,$from,$where,'',1);
 			$pageInfo = $this->db->getRow($result);
 			return $pageInfo;
 		}
