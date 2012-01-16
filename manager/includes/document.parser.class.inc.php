@@ -36,6 +36,7 @@ class DocumentParser {
     var $entrypage;
     var $documentListing;
     var $dumpSnippets;
+    var $snipCode;
     var $chunkCache;
     var $snippetCache;
     var $contentTypes;
@@ -642,6 +643,10 @@ class DocumentParser {
 		{
 			$out .= $this->queryCode;
 		}
+		if ($this->dumpSnippets)
+		{
+			$out .= $this->snipCode;
+		}
 		$out= str_replace("[^q^]", $queries, $out);
 		$out= str_replace("[^qt^]", $queryTime, $out);
 		$out= str_replace("[^p^]", $phpTime, $out);
@@ -1046,7 +1051,7 @@ class DocumentParser {
 		$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
 		if($this->dumpSnippets == 1)
 		{
-			echo '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config["modx_charset"]) . '</textarea></fieldset>';
+			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config["modx_charset"]) . '</textarea></fieldset>';
 		}
 		return $executedSnippets . $except_snip_call;
 	}
@@ -1334,7 +1339,7 @@ class DocumentParser {
             if ($i == ($passes -1)) $bt= md5($source);
             if ($this->dumpSnippets == 1)
             {
-                echo "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
+                $this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
             }
 
             // invoke OnParseDocument event
@@ -1355,7 +1360,7 @@ class DocumentParser {
             // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
             if ($this->dumpSnippets == 1) {
-                echo "</div></fieldset>";
+                $this->snipCode .= '</div></fieldset>';
             }
             if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
             {
