@@ -1926,7 +1926,7 @@ class DocumentParser {
 		}
 	}
 
-	function getPageInfo($docid= -1, $active= 1, $fields= 'id, pagetitle, description, alias')
+	function getPageInfo($docid= 0, $active= 1, $fields= 'id, pagetitle, description, alias')
 	{
 		if($docid == 0) return false;
 		else
