@@ -967,6 +967,23 @@ class DocumentParser {
 		unset ($modx->event->params);
 		return $msg . $result;
 	}
+	
+	function get_backtrace($backtrace)
+	{
+		$str  = '<table>';
+		$str .= '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
+		foreach ($backtrace as $key => $val)
+		{
+			$key++;
+			$path = str_replace('\\','/',$val['file']);
+			if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
+			$str .= "<tr><td>{$key}</td>";
+			$str .= "<td>{$val['function']}()</td>";
+			$str .= "<td>{$path} on line {$val['line']}</td></tr>";
+		}
+		$str .= '</table>';
+		return $str;
+	}
 
 	function evalSnippets($documentSource)
 	{
