@@ -3307,6 +3307,9 @@ class DocumentParser {
         $str= str_replace("[^t^]", $totalTime, $str);
         $str= str_replace("[^m^]", $total_mem, $str);
 
+        if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
+		$str .= '<br />' . $this->get_backtrace(debug_backtrace());
+
         // Log error
         if($source!=='') $source = 'Parser - ' . $source;
         else             $source = 'Parser';
