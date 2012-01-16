@@ -636,7 +636,7 @@ class DocumentParser {
 		$phpTime= sprintf("%2.4f s", $phpTime);
 		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
+		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
 		
 		$out =& $this->documentOutput;
 		if ($this->dumpSQL)
@@ -3340,7 +3340,7 @@ class DocumentParser {
         $str .= "</body></html>";
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
-        $total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
+        $total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
