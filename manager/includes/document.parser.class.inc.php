@@ -127,11 +127,11 @@ class DocumentParser {
 					$currentNumberOfRedirects += 1;
 					if (strpos($url, '?') > 0)
 					{
-						$url .= "&err=$currentNumberOfRedirects";
+						$url .= "&err={$currentNumberOfRedirects}";
 					}
 					else
 					{
-						$url .= "?err=$currentNumberOfRedirects";
+						$url .= "?err={$currentNumberOfRedirects}";
 					}
 				}
 			}
@@ -262,7 +262,7 @@ class DocumentParser {
 				if ($usrType == 'mgr' && $this->isBackend())
 				{
 					// invoke the OnBeforeManagerPageInit event, only if in backend
-					$this->invokeEvent("OnBeforeManagerPageInit");
+					$this->invokeEvent('OnBeforeManagerPageInit');
 				}
 				if (isset ($_SESSION["{$usrType}UsrConfigSet"]))
 				{
@@ -504,7 +504,7 @@ class DocumentParser {
 				{
 					// check if file is not public
 					$tbl_document_groups = $this->getFullTableName('document_groups');
-					$secrs = $this->db->select('id', $tbl_document_groups, "document='{$id}'", 1);
+					$secrs = $this->db->select('id', $tbl_document_groups, "document='{$id}'",'',1);
 					if($secrs)
 					{
 						$seclimit = $this->db->getRecordCount($secrs);
@@ -634,7 +634,7 @@ class DocumentParser {
 		$queryTime= sprintf("%2.4f s", $queryTime);
 		$totalTime= sprintf("%2.4f s", $totalTime);
 		$phpTime= sprintf("%2.4f s", $phpTime);
-		$source= $this->documentGenerated == 1 ? "database" : "cache";
+		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
 		$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
 		
@@ -647,18 +647,18 @@ class DocumentParser {
 		{
 			$out .= $this->snipCode;
 		}
-		$out= str_replace("[^q^]", $queries, $out);
-		$out= str_replace("[^qt^]", $queryTime, $out);
-		$out= str_replace("[^p^]", $phpTime, $out);
-		$out= str_replace("[^t^]", $totalTime, $out);
-		$out= str_replace("[^s^]", $source, $out);
-		$out= str_replace("[^m^]", $total_mem, $out);
+		$out= str_replace('[^q^]', $queries, $out);
+		$out= str_replace('[^qt^]', $queryTime, $out);
+		$out= str_replace('[^p^]', $phpTime, $out);
+		$out= str_replace('[^t^]', $totalTime, $out);
+		$out= str_replace('[^s^]', $source, $out);
+		$out= str_replace('[^m^]', $total_mem, $out);
 		//$this->documentOutput= $out;
 		
 		// invoke OnWebPagePrerender event
 		if (!$noEvent)
 		{
-			$this->invokeEvent("OnWebPagePrerender");
+			$this->invokeEvent('OnWebPagePrerender');
 		}
 		echo $this->documentOutput;
 		ob_end_flush();
@@ -724,10 +724,10 @@ class DocumentParser {
 			$docid = $this->documentIdentifier;
 			
 			// invoke OnBeforeSaveWebPageCache event
-			$this->invokeEvent("OnBeforeSaveWebPageCache");
+			$this->invokeEvent('OnBeforeSaveWebPageCache');
 			// get and store document groups inside document object. Document groups will be used to check security on cache pages
 			$dsq = $this->db->select('document_group', $tbl_document_groups, "document='{$docid}'");
-			$docGroups= $this->db->getColumn("document_group", $dsq);
+			$docGroups= $this->db->getColumn('document_group', $dsq);
 			
 			// Attach Document Groups and Scripts
 			if (is_array($docGroups))
@@ -738,7 +738,7 @@ class DocumentParser {
 			$cacheContent  = "<?php die('Unauthorized access.'); ?>\n";
 			$cacheContent .= serialize($this->documentObject);
 			$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-			$base_path = $this->config["base_path"];
+			$base_path = $this->config['base_path'];
 			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent);
 		}
@@ -755,7 +755,7 @@ class DocumentParser {
 		$replace= array ();
 		preg_match_all('~\[\*(.*?)\*\]~', $template, $matches);
 		$variableCount= count($matches[1]);
-		$basepath= $this->config["base_path"] . "manager/includes/";
+		$basepath= $this->config['base_path'] . 'manager/includes/';
 		include_once("{$basepath}tmplvars.format.inc.php");
 		include_once("{$basepath}tmplvars.commands.inc.php");
 		for ($i= 0; $i < $variableCount; $i++)
@@ -802,24 +802,26 @@ class DocumentParser {
 			$total= count($matches[1]);
 			for ($i= 0; $i < $total; $i++)
 			{
-				if (isset ($this->chunkCache[$matches[1][$i]]))
+				$name = $matches[1][$i];
+				if (isset ($this->chunkCache[$name]))
 				{
-					$replace[$i]= $this->chunkCache[$matches[1][$i]];
+					$replace[$i]= $this->chunkCache[$name];
 				}
 				else
 				{
-					$where = "`name`='" .  $this->db->escape($matches[1][$i]) . "'";
+					$escaped_name = $this->db->escape($name);
+					$where = "`name`='{$escaped_name}'";
 					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
 					$limit= $this->db->getRecordCount($result);
 					if ($limit < 1)
 					{
-						$this->chunkCache[$matches[1][$i]]= '';
+						$this->chunkCache[$name]= '';
 						$replace[$i]= '';
 					}
 					else
 					{
 						$row= $this->db->getRow($result);
-						$this->chunkCache[$matches[1][$i]]= $row['snippet'];
+						$this->chunkCache[$name]= $row['snippet'];
 						$replace[$i]= $row['snippet'];
 					}
 				}
@@ -1051,7 +1053,7 @@ class DocumentParser {
 		$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
 		if($this->dumpSnippets == 1)
 		{
-			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config["modx_charset"]) . '</textarea></fieldset>';
+			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
 		}
 		return $executedSnippets . $except_snip_call;
 	}
@@ -1107,8 +1109,7 @@ class DocumentParser {
 			$tbl_snippets  = $this->getFullTableName('site_snippets');
 			$esc_snip_name = $this->db->escape($snip_name);
 			// get from db and store a copy inside cache
-			$sql= "SELECT `name`,`snippet`,`properties` FROM {$tbl_snippets} WHERE {$tbl_snippets}.`name`='{$esc_snip_name}';";
-			$result= $this->db->query($sql);
+			$result= $this->db->select('name,snippet,properties',$tbl_snippets,"name='{$esc_snip_name}'");
 			$added = false;
 			if($this->db->getRecordCount($result) == 1)
 			{
@@ -1241,141 +1242,159 @@ class DocumentParser {
         return $documentSource;
     }
 
-    /**
-     * name: getDocumentObject  - used by parser
-     * desc: returns a document object - $method: alias, id
-     */
-    function getDocumentObject($method, $identifier) {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
-        // allow alias to be full path
-        if($method == 'alias')
-        {
-            $identifier = $this->cleanDocumentIdentifier($identifier);
-            $method = $this->documentMethod;
-        }
-        if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier]))
-        {
-            $identifier = $this->documentListing[$identifier];
-            $method = 'id';
-        }
-        // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(',', $docgrp);
-        // get document (add so)
-        if($this->isFrontend()) $access= "sc.privateweb=0";
-        else                    $access= "sc.privatemgr=0";
-        if($docgrp) $access .= " OR dg.document_group IN ($docgrp)";
-        $access .= " OR 1='{$_SESSION['mgrRole']}'";
-        
-        $sql= "SELECT sc.*
-              FROM $tblsc sc
-              LEFT JOIN $tbldg dg ON dg.document = sc.id
-              WHERE sc." . $method . " = '" . $identifier . "'
-              AND ($access) LIMIT 1;";
-        $result= $this->db->query($sql);
-        if ($this->db->getRecordCount($result) < 1) {
-            if ($this->config['unauthorized_page']) {
-                // method may still be alias, while identifier is not full path alias, e.g. id not found above
-                if ($method === 'alias') {
-                    $q = "SELECT dg.id FROM $tbldg dg, $tblsc sc WHERE dg.document = sc.id AND sc.alias = '{$identifier}' LIMIT 1;";
-                } else {
-                    $q = "SELECT id FROM $tbldg WHERE document = '{$identifier}' LIMIT 1;";
-                }
-                // check if file is not public
-                $seclimit= $this->db->getRecordCount($this->db->query($q));
-            }
-            if ($seclimit > 0) {
-                // match found but not publicly accessible, send the visitor to the unauthorized_page
-                $this->sendUnauthorizedPage();
-                exit; // stop here
-            } else {
-                $this->sendErrorPage();
-                exit;
-            }
-        }
-
-        # this is now the document :) #
-        $documentObject= $this->db->getRow($result);
-
-        // load TVs and merge with document - Orig by Apodigm - Docvars
-        $tbl_site_tmplvars = $this->getFullTableName('site_tmplvars');
-        $tbl_site_tmplvar_templates = $this->getFullTableName('site_tmplvar_templates');
-        $tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
-        
-        $sql= "SELECT tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type ";
-        $sql .= "FROM {$tbl_site_tmplvars} tv ";
-        $sql .= "INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $sql .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$documentObject['id']}' ";
-        $sql .= "WHERE tvtpl.templateid = '{$documentObject['template']}'";
-        $rs= $this->db->query($sql);
-        $rowCount= $this->db->getRecordCount($rs);
-        if ($rowCount > 0)
-        {
-            while ($row= $this->db->getRow($rs))
-            {
-                $tmplvars[$row['name']]= array (
-                    $row['name'],
-                    $row['value'],
-                    $row['display'],
-                    $row['display_params'],
-                    $row['type']
-                );
-            }
-            $documentObject= array_merge($documentObject, $tmplvars);
-        }
-        return $documentObject;
-    }
-
-    /**
-     * name: parseDocumentSource - used by parser
-     * desc: return document source aftering parsing tvs, snippets, chunks, etc.
-     */
-    function parseDocumentSource($source) {
-        $passes= $this->minParserPasses;
-        for ($i= 0; $i < $passes; $i++)
-        {
-            // get source length if this is the final pass
-            if ($i == ($passes -1)) $bt= md5($source);
-            if ($this->dumpSnippets == 1)
-            {
-                $this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
-            }
-
-            // invoke OnParseDocument event
-            $this->documentOutput= $source; // store source code so plugins can
-            $this->invokeEvent("OnParseDocument"); // work on it via $modx->documentOutput
-            $source= $this->documentOutput;
-
-            // combine template and document variables
-            if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
-            // replace settings referenced in document
-            if(strpos($source,'[(')!==false) $source= $this->mergeSettingsContent($source);
-            // replace HTMLSnippets in document
-            if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
-            // insert META tags & keywords
-            $source= $this->mergeDocumentMETATags($source);
-            // find and merge snippets
-            if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
-            // find and replace Placeholders (must be parsed last) - Added by Raymond
-            if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
-            if ($this->dumpSnippets == 1) {
-                $this->snipCode .= '</div></fieldset>';
-            }
-            if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
-            {
-                // check if source length was changed
-                if ($bt != md5($source)) $passes++; // if content change then increase passes because
-            } // we have not yet reached maxParserPasses
-            if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
-        }
-        return $source;
-    }
+	/**
+	* name: getDocumentObject  - used by parser
+	* desc: returns a document object - $method: alias, id
+	*/
+	function getDocumentObject($method, $identifier)
+	{
+		$tbl_site_content= $this->getFullTableName("site_content");
+		$tbl_document_groups= $this->getFullTableName("document_groups");
+		// allow alias to be full path
+		if($method == 'alias')
+		{
+			$identifier = $this->cleanDocumentIdentifier($identifier);
+			$method = $this->documentMethod;
+		}
+		if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier]))
+		{
+			$identifier = $this->documentListing[$identifier];
+			$method = 'id';
+		}
+		// get document groups for current user
+		if ($docgrp= $this->getUserDocGroups())
+		{
+			$docgrp= implode(',', $docgrp);
+		}
+		// get document (add so)
+		if($this->isFrontend()) $access= "sc.privateweb=0";
+		else                    $access= "sc.privatemgr=0";
+		if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
+		$access .= " OR 1='{$_SESSION['mgrRole']}'";
+		
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id";
+		$where ="sc.{$method}='{$identifier}' AND ($access)";
+		$result= $this->db->select('sc.*',$from,$where,'',1);
+		if ($this->db->getRecordCount($result) < 1)
+		{
+			if ($this->config['unauthorized_page'])
+			{
+				// method may still be alias, while identifier is not full path alias, e.g. id not found above
+				if ($method === 'alias')
+				{
+					$field = 'dg.id';
+					$from = "{$tbl_document_groups} dg, {$tbl_site_content} sc";
+					$where =  "dg.document = sc.id AND sc.alias = '{$identifier}'";
+				}
+				else
+				{
+					$field = 'id';
+					$from = $tbl_document_groups;
+					$where =  "document = '{$identifier}'";
+				}
+				// check if file is not public
+				$seclimit= $this->db->getRecordCount($this->db->select($field,$from,$where,'',1));
+			}
+			if ($seclimit > 0)
+			{
+				// match found but not publicly accessible, send the visitor to the unauthorized_page
+				$this->sendUnauthorizedPage();
+				exit; // stop here
+			}
+			else
+			{
+				$this->sendErrorPage();
+				exit;
+			}
+		}
+		
+		# this is now the document :) #
+		$documentObject= $this->db->getRow($result);
+		
+		// load TVs and merge with document - Orig by Apodigm - Docvars
+		$tbl_site_tmplvars = $this->getFullTableName('site_tmplvars');
+		$tbl_site_tmplvar_templates = $this->getFullTableName('site_tmplvar_templates');
+		$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
+		
+		$field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type";
+		$from  = "{$tbl_site_tmplvars} tv ";
+		$from .= "INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id ";
+		$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$documentObject['id']}'";
+		$where = "tvtpl.templateid = '{$documentObject['template']}'";
+		$rs = $this->db->select($field,$from,$where);
+		$rowCount= $this->db->getRecordCount($rs);
+		if ($rowCount > 0)
+		{
+			while ($row= $this->db->getRow($rs))
+			{
+				$tmplvars[$row['name']]= array
+				(
+					$row['name'],
+					$row['value'],
+					$row['display'],
+					$row['display_params'],
+					$row['type']
+				);
+			}
+			$documentObject= array_merge($documentObject, $tmplvars);
+		}
+		return $documentObject;
+	}
+	
+	/**
+	* name: parseDocumentSource - used by parser
+	* desc: return document source aftering parsing tvs, snippets, chunks, etc.
+	*/
+	function parseDocumentSource($source)
+	{
+		$passes= $this->minParserPasses;
+		for ($i= 0; $i < $passes; $i++)
+		{
+			// get source length if this is the final pass
+			if ($i == ($passes -1)) $bt= md5($source);
+			if ($this->dumpSnippets == 1)
+			{
+				$this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
+			}
+			
+			// invoke OnParseDocument event
+			$this->documentOutput= $source; // store source code so plugins can
+			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
+			$source= $this->documentOutput;
+			
+			// combine template and document variables
+			if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
+			// replace settings referenced in document
+			if(strpos($source,'[(')!==false) $source= $this->mergeSettingsContent($source);
+			// replace HTMLSnippets in document
+			if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
+			// insert META tags & keywords
+			$source= $this->mergeDocumentMETATags($source);
+			// find and merge snippets
+			if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
+			// find and replace Placeholders (must be parsed last) - Added by Raymond
+			if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
+			if ($this->dumpSnippets == 1)
+			{
+				$this->snipCode .= '</div></fieldset>';
+			}
+			if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+			{
+				// check if source length was changed
+				if ($bt != md5($source))
+				{
+					$passes++; // if content change then increase passes because
+				}
+			} // we have not yet reached maxParserPasses
+			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
+		}
+		return $source;
+	}
 
 	function executeParser() {
 		ob_start();
 		//error_reporting(0);
-		if (version_compare(phpversion(), '5.0.0', ">="))
+		if (version_compare(phpversion(), '5.0.0', '>='))
 		{
 			set_error_handler(array(& $this,'phpError'), E_ALL);
 		}
@@ -1428,7 +1447,7 @@ class DocumentParser {
 			else
 			{
 				// setup offline page document settings
-				$this->documentMethod= "id";
+				$this->documentMethod= 'id';
 				$this->documentIdentifier= $this->config['site_unavailable_page'];
 			}
 		}
@@ -1442,16 +1461,16 @@ class DocumentParser {
 			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
 		}
 		
-		if ($this->documentMethod == "none")
+		if ($this->documentMethod == 'none')
 		{
-			$this->documentMethod= "id"; // now we know the site_start, change the none method to id
+			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
 		}
-		elseif ($this->documentMethod == "alias")
+		elseif ($this->documentMethod == 'alias')
 		{
 			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
 		}
 		
-		if ($this->documentMethod == "alias")
+		if ($this->documentMethod == 'alias')
 		{
 			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
 			if ($this->config['use_alias_path'] == 1)
@@ -1474,111 +1493,122 @@ class DocumentParser {
 		}
 		
 		// invoke OnWebPageInit event
-		$this->invokeEvent("OnWebPageInit");
+		$this->invokeEvent('OnWebPageInit');
 		
 		// invoke OnLogPageView event
 		if ($this->config['track_visitors'] == 1)
 		{
-			$this->invokeEvent("OnLogPageHit");
+			$this->invokeEvent('OnLogPageHit');
 		}
 		$this->prepareResponse();
 	}
-
-    function prepareResponse() {
-        // we now know the method and identifier, let's check the cache
-        $this->documentContent= $this->checkCache($this->documentIdentifier);
-        if ($this->documentContent != '') {
-            // invoke OnLoadWebPageCache  event
-            $this->invokeEvent("OnLoadWebPageCache");
-        } else {
-            // get document object
-            $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
-
-            // write the documentName to the object
-            $this->documentName= $this->documentObject['pagetitle'];
-
-            // validation routines
-            if ($this->documentObject['deleted'] == 1) {
-                $this->sendErrorPage();
-            }
-            //  && !$this->checkPreview()
-            if ($this->documentObject['published'] == 0) {
-
-                // Can't view unpublished pages
-                if (!$this->hasPermission('view_unpublished')) {
-                    $this->sendErrorPage();
-                } else {
-                    // Inculde the necessary files to check document permissions
-                    include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
-                    $udperms= new udperms();
-                    $udperms->user= $this->getLoginUserID();
-                    $udperms->document= $this->documentIdentifier;
-                    $udperms->role= $_SESSION['mgrRole'];
-                    // Doesn't have access to this document
-                    if (!$udperms->checkPermissions()) {
-                        $this->sendErrorPage();
-                    }
-
-                }
-
-            }
-
-            // check whether it's a reference
-            if ($this->documentObject['type'] == "reference") {
-                if (is_numeric($this->documentObject['content'])) {
-                    // if it's a bare document id
-                    $this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
-                }
-                elseif (strpos($this->documentObject['content'], '[~') !== false) {
-                    // if it's an internal docid tag, process it
-                    $this->documentObject['content']= $this->rewriteUrls($this->documentObject['content']);
-                }
-                $this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
-            }
-
-            // check if we should not hit this document
-            if ($this->documentObject['donthit'] == 1) {
-                $this->config['track_visitors']= 0;
-            }
-
-            // get the template and start parsing!
-            if (!$this->documentObject['template'])
-                $this->documentContent= "[*content*]"; // use blank template
-            else {
-            	$tbl_site_templates = $this->getFullTableName('site_templates');
-                $result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
-                $rowCount= $this->db->getRecordCount($result);
-                if ($rowCount > 1) {
-                    $this->messageQuit("Incorrect number of templates returned from database", $sql);
-                }
-                elseif ($rowCount == 1) {
-                    $row= $this->db->getRow($result);
-                    $this->documentContent= $row['content'];
-                }
-            }
-
-            // invoke OnLoadWebDocument event
-            $this->invokeEvent("OnLoadWebDocument");
-
-            // Parse document source
-            $this->documentContent= $this->parseDocumentSource($this->documentContent);
-
-            // setup <base> tag for friendly urls
-            //			if($this->config['friendly_urls']==1 && $this->config['use_alias_path']==1) {
-            //				$this->regClientStartupHTMLBlock('<base href="'.$this->config['site_url'].'" />');
-            //			}
-        }
-        register_shutdown_function(array (
-            & $this,
-            "postProcess"
-        )); // tell PHP to call postProcess when it shuts down
-        $this->outputContent();
-        //$this->postProcess();
-    }
-
-    /***************************************************************************************/
-    /* API functions																/
-    /***************************************************************************************/
+	
+	function prepareResponse()
+	{
+		// we now know the method and identifier, let's check the cache
+		$this->documentContent= $this->checkCache($this->documentIdentifier);
+		if ($this->documentContent != '')
+		{
+			$this->invokeEvent('OnLoadWebPageCache'); // invoke OnLoadWebPageCache  event
+		}
+		else
+		{
+			// get document object
+			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
+			
+			// write the documentName to the object
+			$this->documentName= $this->documentObject['pagetitle'];
+			
+			// validation routines
+			if ($this->documentObject['deleted'] == 1)
+			{
+				$this->sendErrorPage();
+			}
+			//  && !$this->checkPreview()
+			if ($this->documentObject['published'] == 0)
+			{
+			// Can't view unpublished pages
+				if (!$this->hasPermission('view_unpublished'))
+				{
+					$this->sendErrorPage();
+				}
+				else
+				{
+					// Inculde the necessary files to check document permissions
+					include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
+					$udperms= new udperms();
+					$udperms->user= $this->getLoginUserID();
+					$udperms->document= $this->documentIdentifier;
+					$udperms->role= $_SESSION['mgrRole'];
+					// Doesn't have access to this document
+					if (!$udperms->checkPermissions())
+					{
+						$this->sendErrorPage();
+					}
+				}
+			}
+			// check whether it's a reference
+			if($this->documentObject['type'] == 'reference')
+			{
+				if(is_numeric($this->documentObject['content']))
+				{
+					// if it's a bare document id
+					$this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
+				}
+				elseif(strpos($this->documentObject['content'], '[~') !== false)
+				{
+					// if it's an internal docid tag, process it
+					$this->documentObject['content']= $this->rewriteUrls($this->documentObject['content']);
+				}
+				$this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
+			}
+			// check if we should not hit this document
+			if($this->documentObject['donthit'] == 1)
+			{
+				$this->config['track_visitors']= 0;
+			}
+			// get the template and start parsing!
+			if(!$this->documentObject['template'])
+			{
+				$this->documentContent= '[*content*]'; // use blank template
+			}
+			else
+			{
+				$tbl_site_templates = $this->getFullTableName('site_templates');
+				$result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
+				$rowCount= $this->db->getRecordCount($result);
+				if($rowCount > 1)
+				{
+					$this->messageQuit('Incorrect number of templates returned from database', $sql);
+				}
+				elseif($rowCount == 1)
+				{
+					$row= $this->db->getRow($result);
+					$this->documentContent= $row['content'];
+				}
+			}
+			// invoke OnLoadWebDocument event
+			$this->invokeEvent('OnLoadWebDocument');
+			
+			// Parse document source
+			$this->documentContent= $this->parseDocumentSource($this->documentContent);
+			
+			// setup <base> tag for friendly urls
+			//			if($this->config['friendly_urls']==1 && $this->config['use_alias_path']==1) {
+			//				$this->regClientStartupHTMLBlock('<base href="'.$this->config['site_url'].'" />');
+			//			}
+		}
+		register_shutdown_function(array (
+		& $this,
+		'postProcess'
+		)); // tell PHP to call postProcess when it shuts down
+		$this->outputContent();
+		//$this->postProcess();
+	}
+	
+	/***************************************************************************************/
+	/* API functions																/
+	/***************************************************************************************/
 
 	function getParentIds($id, $height= 10)
 	{
@@ -1670,16 +1700,16 @@ class DocumentParser {
 	function webAlert($msg, $url= '')
 	{
 		$msg= addslashes($this->db->escape($msg));
-		if (substr(strtolower($url), 0, 11) == "javascript:")
+		if (substr(strtolower($url), 0, 11) == 'javascript:')
 		{
-			$act= "__WebAlert();";
-			$fnc= "function __WebAlert(){" . substr($url, 11) . "};";
+			$act= '__WebAlert();';
+			$fnc= 'function __WebAlert(){' . substr($url, 11) . '};';
 		}
 		else
 		{
 			$act= ($url ? "window.location.href='" . addslashes($url) . "';" : '');
 		}
-		$html= "<script>$fnc window.setTimeout(\"alert('$msg');$act\",100);</script>";
+		$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
 		if ($this->isFrontend())
 		{
 			$this->regClientScript($html);
@@ -1704,7 +1734,7 @@ class DocumentParser {
         $msg= $this->db->escape($msg);
         $source= $this->db->escape($source);
 	if ($GLOBALS['database_connection_charset'] == 'utf8' && extension_loaded('mbstring')) {
-		$source = mb_substr($source, 0, 50 , "UTF-8");
+		$source = mb_substr($source, 0, 50 , 'UTF-8');
 	} else {
 		$source = substr($source, 0, 50);
 	}
@@ -1723,9 +1753,9 @@ class DocumentParser {
         $fields['source']      = $source;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
-        $insert_id = @$this->db->insert($fields,$this->getFullTableName("event_log"));
+        $insert_id = @$this->db->insert($fields,$this->getFullTableName('event_log'));
         if (!$insert_id) {
-            echo "Error while inserting event log into database.";
+            echo 'Error while inserting event log into database.';
             exit();
         }
         else {
@@ -1742,7 +1772,7 @@ class DocumentParser {
 	{
 		if($limit < $trim) $trim = $limit;
 		
-		$tbl_event_log = $this->getFullTableName("event_log");
+		$tbl_event_log = $this->getFullTableName('event_log');
 		$count = $this->db->getValue($this->db->select('COUNT(id)',$tbl_event_log));
 		$over = $count - $limit;
 		if(0 < $over)
@@ -1773,142 +1803,132 @@ class DocumentParser {
     function isFrontend() {
         return !$this->insideManager() ? true : false;
     }
-
-    function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
-        // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-        $sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
-        // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
-        // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
-         (!$docgrp ? '' : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
-        $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$id'
-              AND ($access)
-              GROUP BY sc.id
-              ORDER BY $sort $dir;";
-        $result= $this->db->query($sql);
-        $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
-        }
-        return $resourceArray;
-    }
-
-    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
-
-        // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-        $sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
-        // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
-        // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? '' : " OR dg.document_group IN ($docgrp)");
-        $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$id' AND sc.published=1 AND sc.deleted=0
-              AND ($access)
-              GROUP BY sc.id
-              ORDER BY $sort $dir;";
-        $result= $this->db->query($sql);
-        $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
-        }
-        return $resourceArray;
-    }
-
-    function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '') {
-        $limit= ($limit != '') ? "LIMIT $limit" : '';
-        $tblsc= $this->getFullTableName("site_content");
-        $tbldg= $this->getFullTableName("document_groups");
-        // modify field names to use sc. table reference
-        $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-        $sort= ($sort == '') ? '' : 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
-        if ($where != '')
-            $where= 'AND ' . $where;
-        // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
-        // build query
-        $access= ($this->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-         (!$docgrp ? '' : " OR dg.document_group IN ($docgrp)");
-        $sql= "SELECT DISTINCT $fields
-              FROM $tblsc sc
-              LEFT JOIN $tbldg dg on dg.document = sc.id
-              WHERE sc.parent = '$parentid' AND sc.published=$published AND sc.deleted=$deleted $where
-              AND ($access)
-              GROUP BY sc.id " .
-         ($sort ? " ORDER BY $sort $dir " : '') . " $limit ";
-        $result= $this->db->query($sql);
-        $resourceArray= array ();
-        for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-            $resourceArray[] = @ $this->db->getRow($result);
-        }
-        return $resourceArray;
-    }
-
-    function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '') {
-        if (count($ids) == 0) {
-            return false;
-        } else {
-            $limit= ($limit != '') ? "LIMIT $limit" : ''; // LIMIT capabilities - rad14701
-            $tblsc= $this->getFullTableName("site_content");
-            $tbldg= $this->getFullTableName("document_groups");
-            // modify field names to use sc. table reference
-            $fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-            $sort= ($sort == '') ? '' : 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
-            if ($where != '')
-                $where= 'AND ' . $where;
-            // get document groups for current user
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-            $access= ($this->isFrontend() ? "sc.privateweb=0" : "sc.privatemgr=0") .
-             (!$docgrp ? '' : " OR dg.document_group IN ($docgrp)") . " OR 1='" . $_SESSION['mgrRole'] . "'";
-            $sql= "SELECT DISTINCT $fields FROM $tblsc sc
-                    LEFT JOIN $tbldg dg on dg.document = sc.id
-                    WHERE (sc.id IN (" . implode(",",$ids) . ") AND sc.published=$published AND sc.deleted=$deleted $where)
-                    AND ($access)
-                    GROUP BY sc.id " .
-             ($sort ? " ORDER BY $sort $dir" : '') . " $limit ";
-            $result= $this->db->query($sql);
-            $resourceArray= array ();
-            for ($i= 0; $i < @ $this->db->getRecordCount($result); $i++) {
-                $resourceArray[] = @ $this->db->getRow($result);
-            }
-            return $resourceArray;
-        }
-    }
-
-    function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0) {
-        if ($id == 0) {
-            return false;
-        } else {
-            $tmpArr[]= $id;
-            $docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
-            if ($docs != false) {
-                return $docs[0];
-            } else {
-                return false;
-            }
-        }
-    }
-
-	function getPageInfo($docid= -1, $active= 1, $fields= 'id, pagetitle, description, alias')
+	
+	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
 	{
-		if($docid == 0)
+		$tbl_site_content= $this->getFullTableName('site_content');
+		$tbl_document_groups= $this->getFullTableName('document_groups');
+		// modify field names to use sc. table reference
+		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+		// get document groups for current user
+		if ($docgrp= $this->getUserDocGroups())
+		{
+			$docgrp= implode(',', $docgrp);
+		}
+		// build query
+		$context = ($this->isFrontend() ? 'web' : 'mgr');
+		$cond    = ($docgrp) ? "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'" : '';
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+		$orderby = "{$sort} {$dir}";
+		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
+		$resourceArray= array ();
+		while($resourceArray[] = $this->db->getRow($result))
+		return $resourceArray;
+	}
+	
+	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+	{
+		$tbl_site_content    = $this->getFullTableName('site_content');
+		$tbl_document_groups = $this->getFullTableName('document_groups');
+		
+		// modify field names to use sc. table reference
+		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+		// get document groups for current user
+		if ($docgrp= $this->getUserDocGroups())
+		{
+			$docgrp= implode(",", $docgrp);
+		}
+		// build query
+		if($this->isFrontend()) $context = 'sc.privateweb=0';
+		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$cond = ($docgrp) ? " OR dg.document_group IN ({$docgrp})" : '';
+		
+		$fields = "DISTINCT {$fields}";
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
+		$orderby = "{$sort} {$dir}";
+		$result= $this->db->select($fields,$from,$where,$orderby);
+		$resourceArray= array ();
+		while($resourceArray[] = $this->db->getRow($result))
+		return $resourceArray;
+	}
+	
+	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '')
+	{
+		$tbl_site_content= $this->getFullTableName('site_content');
+		$tbl_document_groups= $this->getFullTableName('document_groups');
+		// modify field names to use sc. table reference
+		$fields = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+		if($where != '') $where= "AND {$where}";
+		// get document groups for current user
+		if($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+		// build query
+		if($this->isFrontend()) $context = 'sc.privateweb=0';
+		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		
+		$cond = ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
+		$fields = "DISTINCT {$fields}";
+		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+		$where = "sc.parent='{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$context} {$cond}) GROUP BY sc.id";
+		$orderby = ($sort) ? "{$sort} {$dir}" : '';
+		$result= $this->db->select($fields,$from,$where,$orderby,$limit);
+		$resourceArray= array ();
+		while($resourceArray[] = $this->db->getRow($result))
+		return $resourceArray;
+	}
+	
+	function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '')
+	{
+		if (count($ids) == 0)
 		{
 			return false;
 		}
+		else
+		{
+			$tbl_site_content= $this->getFullTableName('site_content');
+			$tbl_document_groups= $this->getFullTableName('document_groups');
+			
+			// modify field names to use sc. table reference
+			$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+			if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+			if ($where != '') $where= "AND {$where}";
+			// get document groups for current user
+			if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+			$context = ($this->isFrontend()) ? 'web' : 'mgr';
+			$cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
+			
+			$fields = "DISTINCT {$fields}";
+			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
+			$ids_str = implode(',',$ids);
+			$where = "(sc.id IN ({$ids_str}) AND sc.published={$published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
+			$orderby = ($sort) ? "{$sort} {$dir}" : '';
+			$result= $this->db->select($fields,$from,$where,$orderby,$limit);
+			$resourceArray= array ();
+			while($resourceArray[] = $this->db->getRow($result))
+			return $resourceArray;
+		}
+	}
+
+	function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
+	{
+		if ($id == 0) return false;
+		else
+		{
+			$tmpArr[]= $id;
+			$docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
+			
+			if ($docs != false) return $docs[0];
+			else                return false;
+		}
+	}
+
+	function getPageInfo($docid= -1, $active= 1, $fields= 'id, pagetitle, description, alias')
+	{
+		if($docid == 0) return false;
 		else
 		{
 			$tbl_site_content    = $this->getFullTableName("site_content");
@@ -1931,7 +1951,7 @@ class DocumentParser {
 			
 			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
 			$where = "(sc.id={$docid} {$published}) AND ({$access})";
-			$result= $this->db->select($fields,$from,$where,1);
+			$result= $this->db->select($fields,$from,$where,'',1);
 			$pageInfo= @ $this->db->getRow($result);
 			return $pageInfo;
 		}
@@ -1966,7 +1986,7 @@ class DocumentParser {
 		{
 			$tbl_site_snippets = $this->getFullTableName("site_snippets");
 			$snip = $this->db->escape($this->currentSnippet);
-			$rs= $this->db->select('id', $tbl_site_snippets, "`name`='{$snip}'",1);
+			$rs= $this->db->select('id', $tbl_site_snippets, "name='{$snip}'",'',1);
 			$row= @ $this->db->getRow($rs);
 			if ($row['id']) return $row['id'];
 		}
@@ -1984,7 +2004,7 @@ class DocumentParser {
     		$showReport = ($params['showReport']) ? $params['showReport'] : false;
     		$target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
     		
-			include_once MODX_MANAGER_PATH . "processors/cache_sync.class.processor.php";
+			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
 			$sync = new synccache();
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$sync->setReport($showReport);
@@ -2011,39 +2031,21 @@ class DocumentParser {
 			$c= substr($args, 0, 1);
 			if (strpos($f_url_prefix, '?') === false)
 			{
-				if ($c == '&')
-				{
-					$args= '?' . ltrim($args, '&');
-				}
-				elseif ($c != '?')
-				{
-					$args= '?' . $args;
-				}
+				if ($c == '&')     $args= '?' . ltrim($args, '&');
+				elseif ($c != '?') $args= '?' . $args;
 			}
 			else
 			{
-				if ($c == '?')
-				{
-					$args= '&' . ltrim($args, '?');
-				}
-				elseif ($c != '&')
-				{
-					$args= '&' . $args;
-				}
+				if ($c == '?')     $args= '&' . ltrim($args, '?');
+				elseif ($c != '&') $args= '&' . $args;
 			}
 		}
 		elseif ($args != '')
 		{
 			// add & to $args if missing
 			$c= substr($args, 0, 1);
-			if ($c == '?')
-			{
-				$args= '&' . ltrim($args, '?');
-			}
-			elseif ($c != '&')
-			{
-				$args= '&' . $args;
-			}
+			if ($c == '?')     $args= '&' . ltrim($args, '?');
+			elseif ($c != '&') $args= '&' . $args;
 		}
 		if ($this->config['friendly_urls'] == 1 && $alias != '')
 		{
@@ -2072,7 +2074,7 @@ class DocumentParser {
 		}
 		else
 		{
-			$url= 'index.php?id=' . $id . $args;
+			$url= "index.php?id={$id}{$args}";
 		}
 		
 		$host= $this->config['base_url'];
@@ -2129,7 +2131,7 @@ class DocumentParser {
 		
 		$tag = ($ordered == true) ? 'ol' : 'ul';
 		
-		if(!empty($type)) $typestr= " style='list-style-type: $type'";
+		if(!empty($type)) $typestr= " style='list-style-type: {$type}'";
 		else              $typestr= '';
 		
 		$listhtml= "{$tabs}<{$tag} class='{$ulroot}'{$typestr}>\n";
@@ -2137,7 +2139,8 @@ class DocumentParser {
 		{
 			if (is_array($value))
 			{
-				$listhtml .= "{$tabs}\t<li>{$key}\n" . $this->makeList($value, $ulprefix . $ulroot, $ulprefix, $type, $ordered, $tablevel +2) . $tabs . "\t</li>\n";
+				$line = $this->makeList($value, "{$ulprefix}{$ulroot}", $ulprefix, $type, $ordered, $tablevel +2);
+				$listhtml .= "{$tabs}\t<li>{$key}\n{$line}{$tabs}\t</li>\n";
 			}
 			else
 			{
@@ -2147,52 +2150,6 @@ class DocumentParser {
 		$listhtml = "{$tabs}</{$tag}>\n";
 		return $listhtml;
 	}
-
-	function userLoggedIn()
-	{
-		$userdetails= array ();
-		if ($this->isFrontend() && isset ($_SESSION['webValidated']))
-		{
-			// web user
-			$userdetails['loggedIn']= true;
-			$userdetails['id']= $_SESSION['webInternalKey'];
-			$userdetails['username']= $_SESSION['webShortname'];
-			$userdetails['usertype']= 'web'; // added by Raymond
-			return $userdetails;
-		}
-		elseif($this->isBackend() && isset ($_SESSION['mgrValidated']))
-		{
-			// manager user
-			$userdetails['loggedIn']= true;
-			$userdetails['id']= $_SESSION['mgrInternalKey'];
-			$userdetails['username']= $_SESSION['mgrShortname'];
-			$userdetails['usertype']= 'manager'; // added by Raymond
-			return $userdetails;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-    function getKeywords($id= 0) {
-        if ($id == 0) {
-            $id= $this->documentObject['id'];
-        }
-        $tblKeywords= $this->getFullTableName('site_keywords');
-        $tblKeywordXref= $this->getFullTableName('keyword_xref');
-        $sql= "SELECT keywords.keyword FROM " . $tblKeywords . " AS keywords INNER JOIN " . $tblKeywordXref . " AS xref ON keywords.id=xref.keyword_id WHERE xref.content_id = '$id'";
-        $result= $this->db->query($sql);
-        $limit= $this->db->getRecordCount($result);
-        $keywords= array ();
-        if ($limit > 0) {
-            for ($i= 0; $i < $limit; $i++) {
-                $row= $this->db->getRow($result);
-                $keywords[]= $row['keyword'];
-            }
-        }
-        return $keywords;
-    }
 
     function runSnippet($snippetName, $params= array ()) {
         if (isset ($this->snippetCache[$snippetName])) {
@@ -3070,10 +3027,7 @@ class DocumentParser {
 		$sort= ($sort != '') ? "{$sort} {$dir}" : '';
 		$result= $this->db->select($fields,$tbl,$where,$sort,$limit);
 		$resourceArray= array ();
-		while($row = $this->db->getRow($result))
-		{
-			$resourceArray[] = $row;
-		}
+		while($resourceArray[] = $this->db->getRow($result))
 		return $resourceArray;
 	}
 	function putExtTableRow($host= '', $user= '', $pass= '', $dbase= '', $fields= '', $into= '') {
@@ -3195,6 +3149,52 @@ class DocumentParser {
             }
         }
         return $metatags;
+    }
+
+	function userLoggedIn()
+	{
+		$userdetails= array ();
+		if ($this->isFrontend() && isset ($_SESSION['webValidated']))
+		{
+			// web user
+			$userdetails['loggedIn']= true;
+			$userdetails['id']= $_SESSION['webInternalKey'];
+			$userdetails['username']= $_SESSION['webShortname'];
+			$userdetails['usertype']= 'web'; // added by Raymond
+			return $userdetails;
+		}
+		elseif($this->isBackend() && isset ($_SESSION['mgrValidated']))
+		{
+			// manager user
+			$userdetails['loggedIn']= true;
+			$userdetails['id']= $_SESSION['mgrInternalKey'];
+			$userdetails['username']= $_SESSION['mgrShortname'];
+			$userdetails['usertype']= 'manager'; // added by Raymond
+			return $userdetails;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+    function getKeywords($id= 0) {
+        if ($id == 0) {
+            $id= $this->documentObject['id'];
+        }
+        $tblKeywords= $this->getFullTableName('site_keywords');
+        $tblKeywordXref= $this->getFullTableName('keyword_xref');
+        $sql= "SELECT keywords.keyword FROM " . $tblKeywords . " AS keywords INNER JOIN " . $tblKeywordXref . " AS xref ON keywords.id=xref.keyword_id WHERE xref.content_id = '$id'";
+        $result= $this->db->query($sql);
+        $limit= $this->db->getRecordCount($result);
+        $keywords= array ();
+        if ($limit > 0) {
+            for ($i= 0; $i < $limit; $i++) {
+                $row= $this->db->getRow($result);
+                $keywords[]= $row['keyword'];
+            }
+        }
+        return $keywords;
     }
 
     /***************************************************************************************/
