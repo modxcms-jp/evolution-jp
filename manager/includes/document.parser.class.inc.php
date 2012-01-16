@@ -1952,7 +1952,7 @@ class DocumentParser {
 			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
 			$where = "(sc.id={$docid} {$published}) AND ({$access})";
 			$result= $this->db->select($fields,$from,$where,'',1);
-			$pageInfo= @ $this->db->getRow($result);
+			$pageInfo = $this->db->getRow($result);
 			return $pageInfo;
 		}
 	}
