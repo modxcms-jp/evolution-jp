@@ -3228,47 +3228,48 @@ class DocumentParser {
         $str .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
 
         $str .= "<tr><td valign='top'>&nbsp;&nbsp;REQUEST_URI: </td>";
-        $str .= "<td colspan='3'>$request_uri</td>";
+        $str .= "<td colspan='2'>$request_uri</td>";
         $str .= "</tr>";
 
         $str .= "<tr><td valign='top'>&nbsp;&nbsp;ID: </td>";
-        $str .= "<td colspan='3'>" . $this->documentIdentifier . "</td>";
+        $str .= "<td colspan='2'>" . $this->documentIdentifier . "</td>";
         $str .= "</tr>";
 
         if(!empty($this->currentSnippet))
         {
             $str .= "<tr><td>&nbsp;&nbsp;Current Snippet: </td>";
-            $str .= '<td colspan="3">' . $this->currentSnippet . '</td>';
+            $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
             $str .= "</tr>";
         }
 
         if(!empty($this->event->activePlugin))
         {
             $str .= "<tr><td>&nbsp;&nbsp;Current Plugin: </td>";
-            $str .= '<td colspan="3">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
+            $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
             $str .= "</tr>";
         }
 
         $str .= "<tr><td>&nbsp;&nbsp;Referer: </td>";
-        $str .= '<td colspan="3">' . $referer . '</td>';
+        $str .= '<td colspan="2">' . $referer . '</td>';
         $str .= "</tr>";
 
         $str .= "<tr><td>&nbsp;&nbsp;User Agent: </td>";
-        $str .= '<td colspan="3">' . $ua . '</td>';
+        $str .= '<td colspan="2">' . $ua . '</td>';
         $str .= "</tr>";
 
-        $str .= '<tr><td colspan="3">&nbsp;</td></tr><tr><td colspan="3"><b>Parser timing</b></td></tr>';
+        $str .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
         $str .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
-        $str .= "<td><i>[^qt^]</i></td><td>(<i>[^q^] Requests</i>)</td>";
+        $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
         $str .= "</tr>";
 
         $str .= "<tr><td>&nbsp;&nbsp;PHP: </td>";
-        $str .= "<td><i>[^p^]</i></td><td>&nbsp;</td>";
+        $str .= '<td colspan="2"><i>[^p^]</i></td>';
         $str .= "</tr>";
 
         $str .= "<tr><td>&nbsp;&nbsp;Total: </td>";
-        $str .= "<td><i>[^t^]</i></td><td>&nbsp;</td>";
+        $str .= '<td colspan="2"><i>[^t^]</i></td>';
         $str .= "</tr>";
 
         $str .= "</table>";
