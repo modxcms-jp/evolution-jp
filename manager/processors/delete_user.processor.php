@@ -16,7 +16,7 @@ if($id==$modx->getLoginUserID()) {
 $sql = "SELECT * FROM $dbase.`".$table_prefix."manager_users` WHERE $dbase.`".$table_prefix."manager_users`.id='".$id."' LIMIT 1;";
 $rs = $modx->db->query($sql);
 if($rs) {
-	$row = mysql_fetch_assoc($rs);
+	$row = $modx->db->getRow($rs);
 	$username = $row['username'];
 }
 

@@ -28,7 +28,7 @@ $rs = $modx->db->query($sql);
 $limit = mysql_num_rows($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
+		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],"web user");
 			$e->setError(5, $msg);
@@ -51,7 +51,7 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned!<p>";
 		exit;
 	}
-	$userdata = mysql_fetch_assoc($rs);
+	$userdata = $modx->db->getRow($rs);
 
 	// get user settings
 	$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
@@ -527,7 +527,7 @@ if($use_udperms==1)
 		$limit = mysql_num_rows($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
-			$currentgroup=mysql_fetch_assoc($rs);
+			$currentgroup=$modx->db->getRow($rs);
 			$groupsarray[$i] = $currentgroup['webgroup'];
 		}
 	}
@@ -548,7 +548,7 @@ if($use_udperms==1)
 	$sql = "SELECT name, id FROM $dbase.`".$table_prefix."webgroup_names` ORDER BY name";
 	$rs = $modx->db->query($sql);
 	$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
-	while($row=mysql_fetch_assoc($rs))
+	while($row=$modx->db->getRow($rs))
 	{
 		$echo = $tpl;
 		$echo = str_replace('[+id+]',$row['id'],$echo);

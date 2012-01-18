@@ -84,7 +84,7 @@ function getChildren($parent)
 	if(0 < mysql_num_rows($rs))
 	{
 		// the document has children documents, we'll need to delete those too
-		while($row=mysql_fetch_assoc($rs))
+		while($row=$modx->db->getRow($rs))
 		{
 			if($row['id']==$modx->config['site_start'])
 			{

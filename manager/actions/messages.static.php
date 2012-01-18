@@ -16,7 +16,7 @@ $limit = mysql_num_rows($rs);
 if($limit!=1) {
     echo "Wrong number of messages returned!";
 } else {
-    $message=mysql_fetch_assoc($rs);
+    $message=$modx->db->getRow($rs);
     if($message['recipient']!=$modx->getLoginUserID()) {
         echo $_lang['messages_not_allowed_to_read'];
     } else {
@@ -28,7 +28,7 @@ if($limit!=1) {
         } else {
             $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
             $rs2 = $modx->db->query($sql);
-            $row2 = mysql_fetch_assoc($rs2);
+            $row2 = $modx->db->getRow($rs2);
             $sendername = $row2['username'];
         }
 ?>
@@ -96,7 +96,7 @@ if($limit!=1) {
 // Get  number of rows
 $sql = "SELECT count(id) FROM $dbase.`".$table_prefix."user_messages` WHERE recipient=".$modx->getLoginUserID()."";
 $rs=$modx->db->query($sql);
-$countrows = mysql_fetch_assoc($rs);
+$countrows = $modx->db->getRow($rs);
 $num_rows = $countrows['count(id)'];
 
 // ==============================================================
@@ -164,14 +164,14 @@ $dotablestuff = 1;
     <tbody>
 <?php
         for ($i = 0; $i < $limit; $i++) {
-            $message = mysql_fetch_assoc($rs);
+            $message = $modx->db->getRow($rs);
             $sender = $message['sender'];
             if($sender==0) {
                 $sendername = "[System]";
             } else {
                 $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
                 $rs2 = $modx->db->query($sql);
-                $row2 = mysql_fetch_assoc($rs2);
+                $row2 = $modx->db->getRow($rs2);
                 $sendername = $row2['username'];
             }
             $messagestyle = $message['messageread']==0 ? "messageUnread" : "messageRead";
@@ -202,7 +202,7 @@ if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($_REQUEST['id'])) {
     if($limit!=1) {
         echo "Wrong number of messages returned!";
     } else {
-        $message=mysql_fetch_assoc($rs);
+        $message=$modx->db->getRow($rs);
         if($message['recipient']!=$modx->getLoginUserID()) {
             echo $_lang['messages_not_allowed_to_read'];
         } else {
@@ -214,7 +214,7 @@ if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($_REQUEST['id'])) {
             } else {
                 $sql = "SELECT username FROM $dbase.`".$table_prefix."manager_users` WHERE id=$sender";
                 $rs2 = $modx->db->query($sql);
-                $row2 = mysql_fetch_assoc($rs2);
+                $row2 = $modx->db->getRow($rs2);
                 $sendername = $row2['username'];
             }
             $subjecttext = $_REQUEST['m']=='rp' ? "Re: " : "Fwd: ";
@@ -264,7 +264,7 @@ function hideSpans(showSpan) {
     ?>
     <select name="user" class="inputBox" style="width:150px">
     <?php
-        while ($row = mysql_fetch_assoc($rs)) {
+        while ($row = $modx->db->getRow($rs)) {
             ?>
             <option value="<?php echo $row['id']; ?>" ><?php echo $row['username']; ?></option>
             <?php
@@ -280,7 +280,7 @@ function hideSpans(showSpan) {
     ?>
     <select name="group" class="inputBox" style="width:150px">
     <?php
-    while ($row = mysql_fetch_assoc($rs)) {
+    while ($row = $modx->db->getRow($rs)) {
         ?>
         <option value="<?php echo $row['id']; ?>" ><?php echo $row['name']; ?></option>
         <?php
@@ -327,11 +327,11 @@ function hideSpans(showSpan) {
 // count messages again, as any action on the messages page may have altered the message count
 $sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()." and messageread=0;";
 $rs = $modx->db->query($sql);
-$row = mysql_fetch_assoc($rs);
+$row = $modx->db->getRow($rs);
 $_SESSION['nrnewmessages'] = $row['count(*)'];
 $sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()."";
 $rs = $modx->db->query($sql);
-$row = mysql_fetch_assoc($rs);
+$row = $modx->db->getRow($rs);
 $_SESSION['nrtotalmessages'] = $row['count(*)'];
 $messagesallowed = $modx->hasPermission('messages');
 ?>

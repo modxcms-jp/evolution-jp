@@ -1,7 +1,7 @@
 <?php
 #
 # DataGrid Class
-# Created By Raymond Irving 15-Feb,2004  
+# Created By Raymond Irving 15-Feb,2004
 # Based on CLASP 2.0 (www.claspdev.com)
 # -----------------------------------------
 # Licensed under the LGPL
@@ -37,7 +37,7 @@ class DataGrid {
 	var $colColors;
 	var $colTypes;			// coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
 							// data type: integer,float,currency,date
-							
+	
 	var $header;
 	var $footer;
 	var $cellPadding;
@@ -48,7 +48,7 @@ class DataGrid {
 	
 	var $noRecordMsg = "No records found.";
 
-	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {		
+	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
 		global $__DataGridCnt;
 		
 		// set id
@@ -56,11 +56,11 @@ class DataGrid {
 		$this->id = $this->id ? $id:"dg".$__DataGridCnt;
 
 		// set datasource
-		$this->ds = $ds; 
+		$this->ds = $ds;
 		
 		// set pager
 		$this->pageSize = $pageSize;
-		$this->pageNumber = $pageNumber; // by setting pager to -1 will cause pager to load it's last page number 
+		$this->pageNumber = $pageNumber; // by setting pager to -1 will cause pager to load it's last page number
 		$this->pagerLocation = 'top-right';
 	}
 
@@ -124,7 +124,7 @@ class DataGrid {
 			case "date":
 				if(!empty($value))
 				{
-				if($align=="") $align="right";			
+				if($align=="") $align="right";
 				if(!is_numeric($value)) $value = strtotime($value);
 				if(!$type_format) $type_format = "%A %d, %B %Y";
 				$value = $modx->mb_strftime($type_format,$value);
@@ -148,7 +148,7 @@ class DataGrid {
 
 			case "template":
 				// replace [+value+] first
-				$value = str_replace("[+value+]",$value,$type_format); 
+				$value = str_replace("[+value+]",$value,$type_format);
 				// replace other [+fields+]
 				if(strpos($value,"[+")!==false) foreach($row as $k=>$v){
 					$value = str_replace("[+$k+]",$v,$value);
@@ -159,8 +159,10 @@ class DataGrid {
 		return $value;
 	}
 
-	function render(){
-
+	function render()
+	{
+		global $modx;
+		
 		$columnHeaderStyle	= ($this->columnHeaderStyle)? 'style="' .$this->columnHeaderStyle. '"':'';
 		$columnHeaderClass	= ($this->columnHeaderClass)? 'class="' .$this->columnHeaderClass. '"':'';
 		$cssStyle			= ($this->cssStyle)? 'style="' .$this->cssStyle . '"':'';
@@ -176,7 +178,7 @@ class DataGrid {
 
 		$this->_alt = 0;
 		$this->_total = 0;
-				
+		
 		$this->_isDataset = is_resource($this->ds); // if not dataset then treat as array
 
 		if(!$cssStyle && !$cssClass) $cssStyle = 'style="width:100%;font-family:verdana,arial; font-size:12px;"';
@@ -185,7 +187,7 @@ class DataGrid {
 
 		if($this->_isDataset && !$this->columns) {
 			$cols = mysql_num_fields($this->ds);
-			for($i=0;$i<$cols;$i++) 
+			for($i=0;$i<$cols;$i++)
 				$this->columns.= ($i ? ",":"").mysql_field_name($this->ds,$i);
 		}
 		
@@ -230,15 +232,15 @@ class DataGrid {
 		}
 		$tblColHdr.="</tr></thead>\n";
 
-		// build rows 
-		$rowcount = $this->_isDataset ? mysql_num_rows($this->ds):count($this->ds);
+		// build rows
+		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
 		$this->_fieldnames = explode(",",$this->fields);
 		if($rowcount==0) $tblRows.= "<tr><td ".$this->_itemStyle." ".$this->_itemClass." colspan='".$this->_colcount."'>".$this->noRecordMsg."</td></tr>\n";
 		else {
 			// render grid items
 			if($this->pageSize<=0) {
-				for($r=0;$r<$rowcount;$r++){ 
-					$row = $this->_isDataset ? mysql_fetch_assoc($this->ds):$this->ds[$r];
+				for($r=0;$r<$rowcount;$r++){
+					$row = $this->_isDataset ? $modx->db->getRow($this->ds):$this->ds[$r];
 					$tblRows.= $this->RenderRowFnc($r+1,$row);
 				}
 			}
@@ -262,15 +264,15 @@ class DataGrid {
 		}
 		
 		// setup header,pager and footer
-		$o = $tblStart;	
+		$o = $tblStart;
 		$ptop = (substr($this->pagerLocation,0,3)=="top")||(substr($this->pagerLocation,0,4)=="both");
 		$pbot = (substr($this->pagerLocation,0,3)=="bot")||(substr($this->pagerLocation,0,4)=="both");
 		if($this->header) $o.="<tr><td colspan='".$this->_colcount."'>".$this->header."</td></tr>";
-		if($tblPager && $ptop) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";		
+		if($tblPager && $ptop) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";
 		$o.=$tblColHdr.$tblRows;
-		if($tblPager && $pbot) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";		
+		if($tblPager && $pbot) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";
 		if($this->footer) $o.="<tr><td colspan='".$this->_colcount."'>".$this->footer."</td></tr>";
-		$o.= $tblEnd;		
+		$o.= $tblEnd;
 		return $o;
 	}
 }

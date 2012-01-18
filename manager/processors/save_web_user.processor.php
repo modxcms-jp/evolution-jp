@@ -239,7 +239,7 @@ switch ($_POST['mode']) {
 		}
 		$limit = mysql_num_rows($rs);
 		if ($limit > 0) {
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['id'] != $id) {
 				webAlert("User name is already in use!");
 				exit;
@@ -253,7 +253,7 @@ switch ($_POST['mode']) {
 		}
 		$limit = mysql_num_rows($rs);
 		if ($limit > 0) {
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['internalKey'] != $id) {
 				webAlert("Email is already in use!");
 				exit;

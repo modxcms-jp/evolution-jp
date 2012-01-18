@@ -36,7 +36,7 @@ if($sendto=='g') {
 	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for( $i=0; $i<$limit; $i++ ){
-		$row=mysql_fetch_assoc($rs);
+		$row=$modx->db->getRow($rs);
 		if($row['internalKey']!=$modx->getLoginUserID()) {
 			$sql2 = "INSERT INTO $dbase.`".$table_prefix."user_messages` (recipient, sender, subject, message, postdate, type, private)
 					values(".$row['internalKey'].", ".$modx->getLoginUserID().", '$subject', '$message', $postdate, 'Message', 0);";
@@ -51,7 +51,7 @@ if($sendto=='a') {
 	$rs = $modx->db->query($sql);
 	$limit = mysql_num_rows($rs);
 	for( $i=0; $i<$limit; $i++ ){
-		$row=mysql_fetch_assoc($rs);
+		$row=$modx->db->getRow($rs);
 		if($row['id']!=$modx->getLoginUserID()) {
 			$sql2 = "INSERT INTO $dbase.`".$table_prefix."user_messages` (recipient, sender, subject, message, postdate, type, private)
 					values(".$row['id'].", ".$modx->getLoginUserID().", '$subject', '$message', $postdate, 'Message', 0);";

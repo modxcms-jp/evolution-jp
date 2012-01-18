@@ -22,7 +22,7 @@ $modx->manager->initPageViewState();
 		$rs = $modx->db->query($sql);
 		$limit = mysql_num_rows($rs); 
 		for($i=0;$i<$limit;$i++) {
-		$row=mysql_fetch_assoc($rs);
+		$row=$modx->db->getRow($rs);
 		?>
 
 		if(document.getElementById('delete<?php echo $row['id']; ?>').checked==true) {

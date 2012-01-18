@@ -58,7 +58,7 @@ if(isset($_GET['id'])) {
 	if($limit<1) {
 		header("Location: /index.php?id=".$site_start);
 	}
-	$content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['name'];
 	if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 		$e->setError(3);

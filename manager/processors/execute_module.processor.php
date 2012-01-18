@@ -73,7 +73,7 @@ if($limit<1) {
 			"</script>";
 	exit;
 }
-$content = mysql_fetch_assoc($rs);
+$content = $modx->db->getRow($rs);
 if($content['disabled']) {
 	echo "<script type='text/javascript'>" .
 			"function jsalert(){ alert('This module is disabled and cannot be executed.');" .

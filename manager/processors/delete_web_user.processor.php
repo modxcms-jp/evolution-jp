@@ -10,7 +10,7 @@ $id=intval($_GET['id']);
 $sql = "SELECT * FROM $dbase.`".$table_prefix."web_users` WHERE $dbase.`".$table_prefix."web_users`.id='".$id."' LIMIT 1;";
 $rs = $modx->db->query($sql);
 if($rs) {
-	$row = mysql_fetch_assoc($rs);
+	$row = $modx->db->getRow($rs);
 	$username = $row['username'];
 }
 

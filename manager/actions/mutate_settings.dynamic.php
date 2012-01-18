@@ -13,7 +13,7 @@ $limit = mysql_num_rows($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
 	{
-		$lock = mysql_fetch_assoc($rs);
+		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
 			$msg = sprintf($_lang["lock_settings_msg"],$lock['username']);

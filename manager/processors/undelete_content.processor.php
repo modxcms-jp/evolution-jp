@@ -67,20 +67,17 @@ else
 
 function getChildren($parent)
 {
-	global $dbase;
-	global $table_prefix;
 	global $children;
 	global $deltime,$modx;
 	
 	$db->debug = true;
-	
-	$sql = "SELECT id FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.parent=".$parent." AND deleted=1 AND deletedon=$deltime;";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>0) {
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	$rs = $modx->db->select('id',$tbl_site_content,"parent={$parent} AND deleted=1 AND deletedon={$deltime}");
+	if($modx->db->getRecordCount($rs)>0)
+	{
 		// the document has children documents, we'll need to delete those too
-		for($i=0;$i<$limit;$i++) {
-		$row=mysql_fetch_assoc($rs);
+		while($row=$modx->db->getRow($rs))
+		{
 			$children[] = $row['id'];
 			getChildren($row['id']);
 			//echo "Found childNode of parentNode $parent: ".$row['id']."<br />";
@@ -91,7 +88,7 @@ function getChildren($parent)
 function check_group_perm($id)
 {
 	global $modx;
-	include_once './processors/user_documents_permissions.class.php';
+	include_once MODX_BASE_PATH . 'processors/user_documents_permissions.class.php';
 	$udperms = new udperms();
 	$udperms->user = $modx->getLoginUserID();
 	$udperms->document = $id;
@@ -102,7 +99,7 @@ function check_group_perm($id)
 function disp_access_permission_denied()
 {
 	global $_lang;
-	include "header.inc.php";
+	include_once MODX_BASE_PATH . 'header.inc.php';
 	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>

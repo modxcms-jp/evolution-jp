@@ -5,7 +5,7 @@
  */
 
 // Added by Raymond 20-Jan-2005
-function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$docid="", $sep='') {
+function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='') {
 
 		global $modx;
 
@@ -15,17 +15,17 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
 		$param = array();
 		if($paramstring){
-			$cp = explode("&",$paramstring);
+			$cp = explode('&',$paramstring);
 			foreach($cp as $p => $v){
 				$v = trim($v); // trim
-				$ar = explode("=",$v);
+				$ar = explode('=',$v);
 				if (is_array($ar) && count($ar)==2) {
 					$params[$ar[0]] = decodeParamValue($ar[1]);
 				}
 			}
 		}
 
-		$id = "tv$name";
+		$id = "tv{$name}";
 		switch($format){
 			case 'image':
 				$images = parseInput($value, '||', 'array');
@@ -56,14 +56,14 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				}
 			break;
 
-			case "delim":	// display as delimitted list
-				$value = parseInput($value,"||");
-				$p = $params['delim'] ? $params['delim']:",";
+			case 'delim':	// display as delimitted list
+				$value = parseInput($value,'||');
+				$p = $params['delim'] ? $params['delim']:',';
 				if ($p=="\\n") $p = "\n";
-				$o = str_replace("||",$p,$value);
+				$o = str_replace('||',$p,$value);
 				break;
 
-			case "string":
+			case 'string':
 				$value = parseInput($value);
 				$format = strtolower($params['format']);
 				if($format=='upper case') $o = strtoupper($value);
@@ -73,21 +73,21 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				else $o = $value;
 				break;
 
-			case "date":
-			case "dateonly":
+			case 'date':
+			case 'dateonly':
 				if ($value !='' || $params['default']=='Yes') {
                 $timestamp = getUnixtimeFromDateString($value);
-					$p = $params['format'] ? $params['format']:"%A %d, %B %Y";
+					$p = $params['format'] ? $params['format']:$modx->toDateFormat(null, 'formatOnly');
 					$o = strftime($p,$timestamp);
 				} else {
 					$value='';
 				}
 				break;
 
-			case "hyperlink":
-				$value = parseInput($value,"||","array");
+			case 'hyperlink':
+				$value = parseInput($value,'||','array');
 				for ($i = 0; $i < count($value); $i++) {
-					list($name,$url) = is_array($value[$i]) ? $value[$i]: explode("==",$value[$i]);
+					list($name,$url) = is_array($value[$i]) ? $value[$i]: explode('==',$value[$i]);
 					if (!$url) $url = $name;
 					if ($url) {
 						if($o) $o.='<br />';
@@ -109,8 +109,8 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				}
 				break;
 
-			case "htmltag":
-				$value = parseInput($value,"||","array");
+			case 'htmltag':
+				$value = parseInput($value,'||','array');
 				$tagid = $params['tagid'];
 				$tagname = ($params['tagname'])? $params['tagname']:'div';
 				// Loop through a list of tags
@@ -125,18 +125,18 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 						'style' => $params['style'],
 					);
 					foreach ($attr as $k => $v) $attributes.= ($v ? ' '.$k.'="'.$v.'"' : '');
-					$attributes .= ' '.$params['attrib']; // add extra 
+					$attributes .= ' '.$params['attrib']; // add extra
 
 					// Output the HTML Tag
 					$o .= '<'.$tagname.rtrim($attributes).'>'.$tagvalue.'</'.$tagname.'>';
 				}
 				break;
 
-			case "richtext":
+			case 'richtext':
 				$value = parseInput($value);
 				$w = $params['w']? $params['w']:'100%';
 				$h = $params['h']? $params['h']:'400px';
-				$richtexteditor = $params['edt']? $params['edt']: "";
+				$richtexteditor = $params['edt']? $params['edt']: '';
 				$o = '<div class="MODX_RichTextWidget"><textarea id="'.$id.'" name="'.$id.'" style="width:'.$w.'; height:'.$h.';">';
 				$o.= htmlspecialchars($value);
 				$o.= '</textarea></div>';
@@ -144,63 +144,65 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				// setup editors
 				if (!empty($replace_richtext) && !empty($richtexteditor)) {
 					// invoke OnRichTextEditorInit event
-					$evtOut = $modx->invokeEvent("OnRichTextEditorInit", array(
+					$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
 						'editor'		=> $richtexteditor,
 						'elements'		=> $replace_richtext,
 						'forfrontend'		=> 1,
 						'width'			=> $w,
 						'height'		=> $h
 					));
-					if(is_array($evtOut)) $o.= implode("",$evtOut);
+					if(is_array($evtOut)) $o.= implode('',$evtOut);
 				}
 				break;
 
-			case "unixtime":
+			case 'unixtime':
 				$value = parseInput($value);
             $o = getUnixtimeFromDateString($value);
 				break;
 
-			case "viewport":
+			case 'viewport':
 				$value = parseInput($value);
 				$id = '_'.time();
 				if(!$params['vpid']) $params['vpid'] = $id;
 				if($_SESSION['browser']=='ns' && $_SESSION['browser_version']<'5.0') {
-					$sTag = "<ilayer"; $eTag = "</ilayer>";
+					$sTag = '<ilayer';
+					$eTag = '</ilayer>';
 				}
 				else {
-					$sTag = "<iframe"; $eTag = "</iframe>";
+					$sTag = '<iframe';
+					$eTag = '</iframe>';
 				}
-				$autoMode = "0";
+				$autoMode = '0';
 				$w = $params['width'];
 				$h = $params['height'];
 				if ($params['stretch']=='Yes') {
-					$w = "100%";
-					$h = "100%";
+					$w = '100%';
+					$h = '100%';
 				}
 				if ($params['asize']=='Yes' || ($params['awidth']=='Yes' && $params['aheight']=='Yes')) {
-					$autoMode = "3";  //both
+					$autoMode = '3';  //both
 				}
 				else if ($params['awidth']=='Yes') {
-					$autoMode = "1"; //width only
+					$autoMode = '1'; //width only
 				}
 				else if ($params['aheight']=='Yes') {
-					$autoMode = "2";	//height only
+					$autoMode = '2';	//height only
 				}
 
-				$modx->regClientStartupScript("manager/media/script/bin/viewport.js", array('name'=>'viewport', 'version'=>'0', 'plaintext'=>false));
+				$modx->regClientStartupScript('manager/media/script/bin/viewport.js', array('name'=>'viewport', 'version'=>'0', 'plaintext'=>false));
 				$o =  $sTag." id='".$params['vpid']."' name='".$params['vpid']."' ";
 				if ($params['class']) $o.= " class='".$params['class']."' ";
 				if ($params['style']) $o.= " style='".$params['style']."' ";
 				if ($params['attrib']) $o.= $params['attrib']." ";
 				$o.= "scrolling='".($params['sbar']=='No' ? "no":($params['sbar']=='Yes' ? "yes":"auto"))."' ";
 				$o.= "src='".$value."' frameborder='".$params['borsize']."' ";
-                $o.= "onload=\"window.setTimeout('ResizeViewPort(\\'".$params['vpid']."\\',".$autoMode.")',100);\" width='".$w."' height='".$h."' "; 
-				$o.= ">";
+                $o.= "onload=\"window.setTimeout('ResizeViewPort(\\'".$params['vpid']."\\',".$autoMode.")',100);\" width='".$w."' height='".$h."' ";
+				$o.= '>';
 				$o.= $eTag;
 				break;
 
-			case "datagrid":
-				include_once MODX_BASE_PATH."manager/includes/controls/datagrid.class.php";
+			case 'datagrid':
+				include_once MODX_BASE_PATH.'manager/includes/controls/datagrid.class.php';
 				$grd = new DataGrid('',$value);
 
 				$grd->noRecordMsg		=$params['egmsg'];
@@ -247,7 +249,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 				$o = '';
 				/* If we are loading a file */
 				$params['output'] = $modx->parsePlaceholder($params['output'],array('value'=>$value,'tvname'=>$name));
-				if(substr($params['output'], 0, 5) == "@FILE")
+				if(substr($params['output'], 0, 5) == '@FILE')
 				{
 					$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
 					if( !file_exists($file_name) )
@@ -319,23 +321,23 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 }
 
 function decodeParamValue($s){
-		$s = str_replace("%3D",'=',$s); // =
-		$s = str_replace("%26",'&',$s); // &
+		$s = str_replace('%3D','=',$s); // =
+		$s = str_replace('%26','&',$s); // &
 		return $s;
 }
 
 // returns an array if a delimiter is present. returns array is a recordset is present
-function parseInput($src, $delim="||", $type="string", $columns=true) { // type can be: string, array
+function parseInput($src, $delim='||', $type='string', $columns=true) { // type can be: string, array
 		if (is_resource($src)) {
 			// must be a recordset
 			$rows = array();
 			$nc = mysql_num_fields($src);
-			while ($cols = mysql_fetch_row($src)) $rows[] = ($columns)? $cols : implode(" ",$cols);
-			return ($type=="array")? $rows : implode($delim,$rows);
+			while ($cols = mysql_fetch_row($src)) $rows[] = ($columns)? $cols : implode(' ',$cols);
+			return ($type=='array')? $rows : implode($delim,$rows);
 		}
 		else {
 			// must be a text
-			if($type=="array") return explode($delim,$src);
+			if($type=='array') return explode($delim,$src);
 			else return $src;
 		}
 }

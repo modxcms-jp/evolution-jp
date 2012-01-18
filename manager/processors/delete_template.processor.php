@@ -13,7 +13,7 @@ $limit = mysql_num_rows($rs);
 if($limit>0) {
 	echo "This template is in use. Please set the documents using the template to another template. Documents using this template:<br />";
 	for ($i=0;$i<$limit;$i++) {
-		$row = mysql_fetch_assoc($rs);
+		$row = $modx->db->getRow($rs);
 		echo $row['id']." - ".$row['pagetitle']."<br />\n";
 	}	
 	exit;
