@@ -61,7 +61,7 @@ if(!isset($database_type))
 	$conf_path = "{$cwd}manager/includes/config.inc.php";
 	if(file_exists($conf_path)) include_once($conf_path);
 	// Be sure config.inc.php is there and that it contains some important values
-	if(is_installed($database_type,$lastInstallTime)===false || $lastInstallTime===NULL)
+	if(!isset($lastInstallTime) || $lastInstallTime===NULL)
 	{
 		show_install();
 		exit;

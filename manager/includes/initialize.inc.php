@@ -102,9 +102,9 @@ function get_DOCUMENT_ROOT()
 
 function set_parser_mode()
 {
-	define("IN_ETOMITE_PARSER", "true"); // provides compatibility with etomite 0.6 and maybe later versions
-	define("IN_PARSER_MODE", "true");
-	define("IN_MANAGER_MODE", "false");
+	define('IN_ETOMITE_PARSER', 'true'); // provides compatibility with etomite 0.6 and maybe later versions
+	define('IN_PARSER_MODE', 'true');
+	define('IN_MANAGER_MODE', 'false');
 	
 	if (!defined('MODX_API_MODE')) define('MODX_API_MODE', false);
 	// set some settings, and address some IE issues
@@ -114,15 +114,6 @@ function set_parser_mode()
 	session_cache_limiter('');
 	header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
 	header('Cache-Control: private, must-revalidate');
-}
-
-function is_installed($database_type='',$lastInstallTime=NULL)
-{
-	if(empty($database_type) || empty($lastInstallTime) || is_null($lastInstallTime))
-	{
-		return false;
-	}
-	else return true;
 }
 
 function show_install()
