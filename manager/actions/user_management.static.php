@@ -9,11 +9,13 @@ if(!$modx->hasPermission('edit_user')) {
 // initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 // get and save search string
-if($_REQUEST['op']=='reset') {
+if($_REQUEST['op']=='reset')
+{
 	$query = '';
 	$_PAGE['vs']['search']='';
 }
-else {
+else
+{
 	$query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
 	$sqlQuery = $modx->db->escape($query);
 	$_PAGE['vs']['search'] = $query;
@@ -23,12 +25,11 @@ else {
 $listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode']:$_PAGE['vs']['lm'];
 $_PAGE['vs']['lm'] = $listmode;
 
-
 // context menu
-include_once $base_path."manager/includes/controls/contextmenu.php";
-$cm = new ContextMenu("cntxm", 150);
-$cm->addItem($_lang["edit"],   "js:menuAction(1)", $style_path . "icons/logging.gif",(!$modx->hasPermission('edit_user') ? 1:0));
-$cm->addItem($_lang["delete"], "js:menuAction(2)", $style_path . "icons/delete.gif",(!$modx->hasPermission('delete_user') ? 1:0));
+include_once MODX_BASE_PATH . 'manager/includes/controls/contextmenu.php';
+$cm = new ContextMenu('cntxm', 150);
+$cm->addItem($_lang['edit'],   'js:menuAction(1)', $style_path . 'icons/logging.gif',(!$modx->hasPermission('edit_user') ? 1:0));
+$cm->addItem($_lang['delete'], 'js:menuAction(2)', $style_path . 'icons/delete.gif',(!$modx->hasPermission('delete_user') ? 1:0));
 echo $cm->render();
 
 ?>
@@ -36,20 +37,20 @@ echo $cm->render();
   	function searchResource(){
 		document.resource.op.value="srch";
 		document.resource.submit();
-	};
+	}
 
-	function resetSearch(){
+	function resetSearch() {
 		document.resource.search.value = ''
 		document.resource.op.value="reset";
 		document.resource.submit();
-	};
+	}
 
-	function changeListMode(){
+	function changeListMode() {
 		var m = parseInt(document.resource.listmode.value) ? 1:0;
 		if (m) document.resource.listmode.value=0;
 		else document.resource.listmode.value=1;
 		document.resource.submit();
-	};
+	}
 
 	var selectedItem;
 	var contextm = <?php echo $cm->getClientScriptObject(); ?>;
@@ -60,7 +61,7 @@ echo $cm->render();
 		contextm.style.visibility = "visible";
 		e.cancelBubble=true;
 		return false;
-	};
+	}
 	
 	function menuAction(a) {
 		var id = selectedItem;
@@ -86,7 +87,6 @@ echo $cm->render();
 <input type="hidden" name="op" value="" />
 
 <h1><?php echo $_lang['user_management_title']; ?></h1>
-
 <div class="sectionBody">
 	<p><?php echo $_lang['user_management_msg']; ?></p>
 	<div class="searchbar">
@@ -107,46 +107,53 @@ echo $cm->render();
 	<br />
 	<div>
 	<?php
-	$noAdminSql = ($_SESSION['mgrRole'] != 1)? 'mua.role != 1' : '' ;
-	$sql = "SELECT
-		mu.id,
-		mu.username,
-		rname.name AS role,
-		mua.fullname,
-		mua.email,
-		mua.thislogin,
-		IF(mua.gender=1,'".$_lang['user_male']."',IF(mua.gender=2,'".$_lang['user_female']."','-')) AS gender,
-		IF(mua.blocked,'".$_lang['yes']."','-') as blocked " .
-		"FROM ".$modx->getFullTableName('manager_users')." AS mu ".
-		"INNER JOIN ".$modx->getFullTableName('user_attributes')." AS mua ON mua.internalKey=mu.id ".
-		"LEFT JOIN ".$modx->getFullTableName('user_roles')." AS rname ON mua.role=rname.id ";
-	if ($noAdminSql){
-	    if(!empty($sqlQuery)){
-	        $sql .= "WHERE ((mu.username LIKE '$sqlQuery%') OR (mua.fullname LIKE '%$sqlQuery%') OR (mua.email LIKE '$sqlQuery%')) AND $noAdminSql ";
-	    } else {
-	        $sql .= "WHERE $noAdminSql ";
-	    }
-	} else {
-	    $sql .= (!empty($sqlQuery) ? "WHERE (mu.username LIKE '$sqlQuery%') OR (mua.fullname LIKE '%$sqlQuery%') OR (mua.email LIKE '$sqlQuery%') ":"");
+	$tbl_manager_users   = $modx->getFullTableName('manager_users');
+	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+	$tbl_user_roles      = $modx->getFullTableName('user_roles');
+	$field  = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin';
+	$field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
+	$field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";
+	$from  = "{$tbl_manager_users} AS mu";
+	$from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
+	$from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
+	if ($_SESSION['mgrRole'] != 1)
+	{
+		if(!empty($sqlQuery))
+		{
+			$where = "((mu.username LIKE '{$sqlQuery}%') OR (mua.fullname LIKE '%{$sqlQuery}%') OR (mua.email LIKE '{$sqlQuery}%')) AND mua.role != 1";
+		}
+		else
+		{
+			$where = 'mua.role != 1';
+		}
 	}
-	$sql .= "ORDER BY mua.blocked ASC, mua.thislogin DESC";
-
-	$ds = $modx->db->query($sql);
-	include_once $base_path."manager/includes/controls/datagrid.class.php";
+	else
+	{
+		if(!empty($sqlQuery))
+		{
+			$where = "(mu.username LIKE '{$sqlQuery}%') OR (mua.fullname LIKE '%{$sqlQuery}%') OR (mua.email LIKE '{$sqlQuery}%')";
+		}
+		else $where = '';
+	}
+	$orderby = 'mua.blocked ASC, mua.thislogin DESC';
+	$ds = $modx->db->select($field,$from,$where,$orderby);
+	
+	include_once MODX_BASE_PATH . 'manager/includes/controls/datagrid.class.php';
+	
 	$grd = new DataGrid('',$ds,$modx->config['number_of_results']); // set page size to 0 t show all items
-	$grd->noRecordMsg       = $_lang["no_records_found"];
-	$grd->cssClass          = "grid";
-	$grd->itemClass         = "gridItem";
-	$grd->altItemClass      = "gridAltItem";
-	$grd->fields            = "id,username,fullname,role,email,gender,blocked,thislogin";
-	$grd->columns           = join(',', array($_lang["icon"],$_lang["name"],$_lang["user_full_name"],$_lang['role'],
-	                                          $_lang["email"],$_lang["user_gender"],$_lang["user_block"],$_lang["login_button"]));
-	$grd->colAligns         = "center,,,,,center,center";
+	$grd->noRecordMsg       = $_lang['no_records_found'];
+	$grd->cssClass          = 'grid';
+	$grd->itemClass         = 'gridItem';
+	$grd->altItemClass      = 'gridAltItem';
+	$grd->fields            = 'id,username,fullname,role,email,gender,blocked,thislogin';
+	$grd->columns           = join(',', array($_lang['icon'],$_lang['name'],$_lang['user_full_name'],$_lang['role'],
+	                                          $_lang['email'],$_lang['user_gender'],$_lang['user_block'],$_lang['login_button']));
+	$grd->colAligns         = 'center,,,,,center,center';
 	$grd->colTypes          = join('||',array(
 	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a>',
 	                          'template:<a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a>',
 	                          'template:[+fullname+]',
-	                          'template:[+role+]',
+	                          'template:[+rolename+]',
 	                          'template:[+email+]',
 	                          'template:[+gender+]',
 	                          'template:[+blocked+]',

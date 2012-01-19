@@ -269,15 +269,15 @@ class DBAPI {
 		if(!$intotable) return false;
 		else
 		{
-			if (!is_array($fields)) $flds = $fields;
+			if (!is_array($fields)) $pairs = $fields;
 			else
 			{
 				$keys = array_keys($fields);
 				$keys = implode(',', $keys) ;
 				$values = array_values($fields);
 				$values = "'" . implode("','", $values) . "'";
-				$flds = "({$keys}) ";
-				if(!$fromtable && $values) $flds .= "VALUES({$values})";
+				$pairs = "({$keys}) ";
+				if(!$fromtable && $values) $pairs .= "VALUES({$values})";
 				if ($fromtable)
 				{
 					if($where !== '') $where = "WHERE {$where}";
@@ -285,7 +285,7 @@ class DBAPI {
 					$sql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
 				}
 			}
-			$rt = $this->query("INSERT INTO {$intotable} {$flds} {$sql}");
+			$rt = $this->query("INSERT INTO {$intotable} {$pairs} {$sql}");
 			$lid = $this->getInsertId();
 			return $lid ? $lid : $rt;
 		}
