@@ -134,7 +134,7 @@ a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;paddin
 <p>MODXがインストールされていないか設定ファイルが見つかりません。</p>
 <p>今すぐインストールしますか？</p>
 <p><a href="install/index.php?action=mode">はい</a> / <a href="http://modx.jp/">いいえ</a></p>
-</div></body></html>';
+</div></body></html>
 EOT;
 	exit;
 }
