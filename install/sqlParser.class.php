@@ -24,7 +24,11 @@ class SqlParser {
 		$this->connection_method = $connection_method;
 		$this->ignoreDuplicateErrors = false;
 		$this->managerlanguage = $managerlanguage;
-        $this->autoTemplateLogic = $auto_template_logic;
+		$this->autoTemplateLogic = $auto_template_logic;
+		if (function_exists('mysql_set_charset'))
+		{
+			mysql_set_charset($connection_charset);
+		}
 	}
 
 	function connect() {

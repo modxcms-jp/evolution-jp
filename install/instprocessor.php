@@ -46,11 +46,6 @@ $managerlanguage = $_POST['managerlanguage'];
 // get base path and url
 $base_path = str_replace("\\", '/', realpath('../')) . '/';
 
-if (function_exists('mysql_set_charset'))
-{
-	mysql_set_charset($database_connection_charset);
-}
-
 $tbl_site_content = getFullTableName('site_content');
 $tbl_site_plugins = getFullTableName('site_plugins');
 $tbl_system_settings = getFullTableName('system_settings');
