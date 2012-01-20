@@ -75,14 +75,7 @@ class SqlParser {
 		foreach($sql_array as $sql_entry)
 		{
 			$sql_do = trim($sql_entry, "\r\n; ");
-
-			// strip out comments and \n for mysql 3.x
-			if ($this->dbVersion <4.0) {
-				$sql_do = preg_replace("~COMMENT.*[^']?'.*[^']?'~","",$sql_do);
-				$sql_do = str_replace('\r', "", $sql_do);
-				$sql_do = str_replace('\n', "", $sql_do);
-			}
-
+			
 			$num++;
 			if ($sql_do) $modx->db->query($sql_do);
 			if(mysql_error())
