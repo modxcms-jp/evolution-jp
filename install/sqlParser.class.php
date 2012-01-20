@@ -4,18 +4,14 @@
 // SNUFFKIN/ Alex 2004
 
 class SqlParser {
-	var $host, $dbname, $prefix, $user, $password, $mysqlErrors;
+	var $prefix, $mysqlErrors;
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
-	var $mode, $fileManagerPath, $imgPath, $imgUrl;
+	var $mode;
 	var $dbVersion;
     var $connection_charset, $connection_collation, $connection_method;
 
-	function SqlParser($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'system') {
-		$this->host = $host;
-		$this->dbname = $db;
+	function SqlParser($prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'system') {
 		$this->prefix = $prefix;
-		$this->user = $user;
-		$this->password = $password;
 		$this->adminpass = $adminpass;
 		$this->adminname = $adminname;
 		$this->adminemail = $adminemail;
@@ -25,33 +21,17 @@ class SqlParser {
 		$this->ignoreDuplicateErrors = false;
 		$this->managerlanguage = $managerlanguage;
 		$this->autoTemplateLogic = $auto_template_logic;
-		if (function_exists('mysql_set_charset'))
-		{
-			mysql_set_charset($connection_charset);
-		}
 	}
 
-	function connect() {
-		$this->conn = mysql_connect($this->host, $this->user, $this->password);
-		mysql_select_db($this->dbname, $this->conn);
-		if (function_exists('mysql_set_charset'))
-		{
-			mysql_set_charset($this->connection_charset);
-		}
+	function process($filename) {
+	    global $modx,$modx_version;
 
 		$this->dbVersion = 3.23; // assume version 3.23
 		if(function_exists("mysql_get_server_info")) {
 			$ver = mysql_get_server_info();
-			$this->dbMODx 	 = version_compare($ver,"4.0.20");
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
-
-        mysql_query("{$this->connection_method} {$this->connection_charset}");
-	}
-
-	function process($filename) {
-	    global $modx_version;
-
+		
 		// check to make sure file exists
 		if (!file_exists($filename)) {
 			$this->mysqlErrors[] = array("error" => "File '$filename' not found");
@@ -79,23 +59,18 @@ class SqlParser {
 		
 		// replace {} tags
 		$ph = array();
-		$ph['PREFIX'] = $this->prefix;
-		$ph['ADMINNAME'] = $this->adminname;
-		$ph['ADMINFULLNAME'] = substr($this->adminemail,0,strpos($this->adminemail,'@'));
-		$ph['ADMINEMAIL'] = $this->adminemail;
-		$ph['ADMINPASS'] = $this->adminpass;
-		$ph['IMAGEPATH'] = $this->imagePath;
-		$ph['IMAGEURL'] = $this->imageUrl;
-		$ph['FILEMANAGERPATH'] = $this->fileManagerPath;
-		$ph['MANAGERLANGUAGE'] = $this->managerlanguage;
+		$ph['PREFIX']            = $this->prefix;
+		$ph['ADMINNAME']         = $this->adminname;
+		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
+		$ph['ADMINEMAIL']        = $this->adminemail;
+		$ph['ADMINPASS']         = $this->adminpass;
+		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
-		$ph['DATE_NOW'] = time();
+		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');
 		
-		/*$ph['VERSION'] = $modx_version;*/
-
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
-
+		
 		$num = 0;
 		foreach($sql_array as $sql_entry)
 		{
@@ -109,7 +84,7 @@ class SqlParser {
 			}
 
 			$num++;
-			if ($sql_do) mysql_query($sql_do, $this->conn);
+			if ($sql_do) $modx->db->query($sql_do);
 			if(mysql_error())
 			{
 				// Ignore duplicate and drop errors - Raymond
