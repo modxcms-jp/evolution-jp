@@ -8,19 +8,18 @@ class SqlParser {
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode;
 	var $dbVersion;
-    var $connection_charset, $connection_collation, $connection_method;
+    var $connection_charset, $connection_collation, $autoTemplateLogic,$ignoreDuplicateErrors;
 
-	function SqlParser($prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $connection_collation='utf8_general_ci', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'system') {
-		$this->prefix = $prefix;
-		$this->adminpass = $adminpass;
-		$this->adminname = $adminname;
-		$this->adminemail = $adminemail;
-		$this->connection_charset = $connection_charset;
-		$this->connection_collation = $connection_collation;
-		$this->connection_method = $connection_method;
+	function SqlParser() {
+		$this->prefix = 'modx_';
+		$this->adminname = 'admin';
+		$this->adminpass = 'password';
+		$this->adminemail = 'example@example.com';
+		$this->connection_charset = 'utf8';
+		$this->connection_collation = 'utf8_general_ci';
 		$this->ignoreDuplicateErrors = false;
-		$this->managerlanguage = $managerlanguage;
-		$this->autoTemplateLogic = $auto_template_logic;
+		$this->managerlanguage = 'english';
+		$this->autoTemplateLogic = 'system';
 	}
 
 	function process($filename) {
@@ -75,9 +74,8 @@ class SqlParser {
 		foreach($sql_array as $sql_entry)
 		{
 			$sql_do = trim($sql_entry, "\r\n; ");
-			
 			$num++;
-			if ($sql_do) $modx->db->query($sql_do);
+			if ($sql_do) mysql_query($sql_do);
 			if(mysql_error())
 			{
 				// Ignore duplicate and drop errors - Raymond
