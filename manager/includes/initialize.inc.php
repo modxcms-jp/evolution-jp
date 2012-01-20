@@ -15,8 +15,8 @@ if(empty($site_url))  $site_url  = assign_site_url($base_url);
 if (!defined('MODX_BASE_PATH'))    define('MODX_BASE_PATH', $base_path);
 if (!defined('MODX_BASE_URL'))     define('MODX_BASE_URL', $base_url);
 if (!defined('MODX_SITE_URL'))     define('MODX_SITE_URL', $site_url);
-if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', $base_path.'manager/');
-if (!defined('MODX_MANAGER_URL'))  define('MODX_MANAGER_URL', $site_url.'manager/');
+if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', "{$base_path}manager/");
+if (!defined('MODX_MANAGER_URL'))  define('MODX_MANAGER_URL', "{$site_url}manager/");
 
 // start cms session
 if(!function_exists('startCMSSession'))
