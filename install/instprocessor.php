@@ -70,26 +70,6 @@ if (!@ mysql_select_db(str_replace("`", "", $dbase), $conn)) {
 	echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 }
 
-// try to create the database
-if ($create) {
-	echo "<p>".$_lang['setup_database_creation']. str_replace("`", "", $dbase) . "`: ";
-	//	if(!@mysql_create_db(str_replace("`","",$dbase), $conn)) {
-	if (! mysql_query("CREATE DATABASE $dbase DEFAULT CHARACTER SET $database_charset COLLATE $database_collation")) {
-		echo "<span class=\"notok\">".$_lang['setup_database_creation_failed']."</span>".$_lang['setup_database_creation_failed_note']."</p>";
-		$errors += 1;
-?>
-        <pre>
-        database charset = <?php $database_charset ?>
-        database collation = <?php $database_collation ?>
-        </pre>
-		<p><?php echo $_lang['setup_database_creation_failed_note2']?></p>
-<?php
-
-		return;
-	} else {
-		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
-	}
-}
 $tbl_site_content = getFullTableName('site_content');
 $tbl_site_plugins = getFullTableName('site_plugins');
 $tbl_system_settings = getFullTableName('system_settings');
