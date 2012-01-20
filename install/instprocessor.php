@@ -35,7 +35,7 @@ $database_collation = ($_POST['database_collation']!=='') ? $_POST['database_col
 $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 $database_connection_charset = $_POST['database_connection_charset'];
 $database_connection_method = $_POST['database_connection_method'];
-$dbase = "`" . $_POST['database_name'] . "`";
+$dbase = "`{$_POST['database_name']}`";
 $table_prefix = $_POST['tableprefix'];
 $adminname = $_POST['cmsadmin'];
 $adminemail = $_POST['cmsadminemail'];
@@ -44,18 +44,7 @@ $managerlanguage = $_POST['managerlanguage'];
 //}
 
 // get base path and url
-$a = explode("install", str_replace("\\", "/", dirname($_SERVER["PHP_SELF"])));
-if (count($a) > 1)
-	array_pop($a);
-$url = implode("install", $a);
-reset($a);
-$a = explode("install", str_replace("\\", "/", realpath(dirname(__FILE__))));
-if (count($a) > 1)
-	array_pop($a);
-$pth = implode("install", $a);
-unset ($a);
-$base_url = $url . (substr($url, -1) != "/" ? "/" : "");
-$base_path = $pth . (substr($pth, -1) != "/" ? "/" : "");
+$base_path = str_replace("\\", '/', realpath('../')) . '/';
 
 // connect to the database
 echo "<p>". $_lang['setup_database_create_connection'];
@@ -712,7 +701,6 @@ if ($installMode == 0) {
 } else {
 	echo "<p><img src=\"img/ico_info.png\" width=\"40\" height=\"42\" align=\"left\" style=\"margin-right:10px;\" />" . $_lang['upgrade_note'] . "</p>";
 }
-
 
 function getFullTableName($table_name)
 {
