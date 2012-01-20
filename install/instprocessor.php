@@ -64,29 +64,6 @@ $tbl_system_eventnames = getFullTableName('system_eventnames');
 $tbl_site_snippets = getFullTableName('site_snippets');
 $tbl_active_users = getFullTableName('active_users');
 
-if(!function_exists('parseProperties')) {
-    // parses a resource property string and returns the result as an array
-    // duplicate of method in documentParser class
-    function parseProperties($propertyString) {
-        $parameter= array ();
-        if (!empty ($propertyString)) {
-            $tmpParams= explode("&", $propertyString);
-            for ($x= 0; $x < count($tmpParams); $x++) {
-                if (strpos($tmpParams[$x], '=', 0)) {
-                    $pTmp= explode("=", $tmpParams[$x]);
-                    $pvTmp= explode(";", trim($pTmp[1]));
-                    if ($pvTmp[1] == 'list' && $pvTmp[3] != "")
-                        $parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
-                    else
-                        if ($pvTmp[1] != 'list' && $pvTmp[2] != "")
-                            $parameter[trim($pTmp[0])]= $pvTmp[2];
-                }
-            }
-        }
-        return $parameter;
-    }
-}
-
 // check status of Inherit Parent Template plugin
 if ($installMode != 0)
 {
@@ -167,7 +144,7 @@ $ph['site_sessionname']            = (!isset ($site_sessionname)) ? 'SN' . uniqi
 $ph['https_port']                  = '443';
 
 $src = parse($src, $ph);
-$config_path = str_replace('\\','/',realpath('../manager/includes')) . '/config.inc.php';
+$config_path = "{$base_path}manager/includes/config.inc.php";
 $config_saved = (@ file_put_contents($config_path, $src));
 
 // try to chmod the config file go-rwx (for suexeced php)
@@ -175,7 +152,7 @@ $config_saved = (@ file_put_contents($config_path, $src));
 
 if ($config_saved === false)
 {
-	echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
+	echo '<span class="notok">' . $_lang['failed'] . "</span></p>";
 	$errors += 1;
 ?>
 	<p><?php echo $_lang['cant_write_config_file']?><span class="mono">manager/includes/config.inc.php</span></p>
@@ -184,21 +161,28 @@ if ($config_saved === false)
 	</textarea>
 	<p><?php echo $_lang['cant_write_config_file_note']?></p>
 <?php
-} else {
-	echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
+}
+else
+{
+	echo '<span class="ok">' . $_lang['ok'] . "</span></p>";
 }
 
 // generate new site_id and set manager theme to MODxCarbon
-if ($installMode == 0) {
+if ($installMode == 0)
+{
 	$siteid = uniqid('');
 	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxCarbon')", $sqlParser->conn);
-} else {
+}
+else
+{
 	// update site_id if missing
 	$ds = mysql_query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'", $sqlParser->conn);
-	if ($ds) {
+	if ($ds)
+	{
 		$r = mysql_fetch_assoc($ds);
 		$siteid = $r['setting_value'];
-		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3') {
+		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3')
+		{
 			$siteid = uniqid('');
 			mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')", $sqlParser->conn);
 		}
@@ -206,218 +190,258 @@ if ($installMode == 0) {
 }
 
 // Install Templates
-if (isset ($_POST['template']) || $installData) {
-    echo "<h3>" . $_lang['templates'] . ":</h3> ";
+if (isset ($_POST['template']) || $installData)
+{
+	echo "<h3>" . $_lang['templates'] . ":</h3> ";
 	$selTemplates = $_POST['template'];
-    foreach ($moduleTemplates as $k=>$moduleTemplate) {
-        $installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
-        if(in_array($k, $selTemplates) || $installSample) {
-            $name = modx_escape($moduleTemplate[0]);
-            $desc = modx_escape($moduleTemplate[1]);
-            $category = modx_escape($moduleTemplate[4]);
-            $locked = modx_escape($moduleTemplate[5]);
-            $filecontent = $moduleTemplate[3];
-		if (!file_exists($filecontent)) {
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		} else {
-			// Create the category if it does not already exist
-                $category_id = getCreateDbCategory($category, $sqlParser);
-			
-			// Strip the first comment up top
-			$template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-                $template = modx_escape($template);
-			
-			// See if the template already exists
-			$rs = mysql_query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'", $sqlParser->conn);
-			
-			if (mysql_num_rows($rs)) {
-                    if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';", $sqlParser->conn)) {
-					$errors += 1;
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+	foreach ($moduleTemplates as $k=>$moduleTemplate)
+	{
+		$installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
+		if(in_array($k, $selTemplates) || $installSample)
+		{
+			$name = modx_escape($moduleTemplate[0]);
+			$desc = modx_escape($moduleTemplate[1]);
+			$category = modx_escape($moduleTemplate[4]);
+			$locked = modx_escape($moduleTemplate[5]);
+			$filecontent = $moduleTemplate[3];
+			if (!file_exists($filecontent))
+			{
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
+			}
+			else
+			{
+				// Create the category if it does not already exist
+				$category_id = getCreateDbCategory($category, $sqlParser);
+				
+				// Strip the first comment up top
+				$template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+				$template = modx_escape($template);
+				
+				// See if the template already exists
+				$rs = mysql_query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'", $sqlParser->conn);
+				
+				if (mysql_num_rows($rs))
+				{
+					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';", $sqlParser->conn))
+					{
+						$errors += 1;
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-			} else {
-                    if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');", $sqlParser->conn)) {
-					$errors += 1;
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+				else
+				{
+					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');", $sqlParser->conn))
+					{
+						$errors += 1;
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 			}
 		}
 	}
-    }
 }
 
 // Install Template Variables
-if (isset ($_POST['tv']) || $installData) {
-    echo "<h3>" . $_lang['tvs'] . ":</h3> ";
-    $selTVs = $_POST['tv'];
-    foreach ($moduleTVs as $k=>$moduleTV) {
-        $installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
-        if(in_array($k, $selTVs) || $installSample) {
-            $name = modx_escape($moduleTV[0]);
-            $caption = modx_escape($moduleTV[1]);
-            $desc = modx_escape($moduleTV[2]);
-            $input_type = modx_escape($moduleTV[3]);
-            $input_options = modx_escape($moduleTV[4]);
-            $input_default = modx_escape($moduleTV[5]);
-            $output_widget = modx_escape($moduleTV[6]);
-            $output_widget_params = modx_escape($moduleTV[7]);
-            $filecontent = $moduleTV[8];
-            $assignments = $moduleTV[9];
-            $category = modx_escape($moduleTV[10]);
-            $locked = modx_escape($moduleTV[11]);
-        
-
-        // Create the category if it does not already exist
-            $category = getCreateDbCategory($category, $sqlParser);
-
-        $rs = mysql_query("SELECT * FROM {$tbl_site_tmplvars} WHERE name='$name'", $sqlParser->conn);
-        if (mysql_num_rows($rs)) {
-            $insert = true;
-            while($row = mysql_fetch_assoc($rs)) {
-                    if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};", $sqlParser->conn)) {
-                    echo "<p>" . mysql_error() . "</p>";
-                    return;
-                }
-                $insert = false;
-            }
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-        } else {
-                $q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
-                if (!@ mysql_query($q, $sqlParser->conn)) {
-                echo "<p>" . mysql_error() . "</p>";
-                return;
-            }
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
-        }
-      
-            // add template assignments
-        $assignments = explode(',', $assignments);
-        
-        if (count($assignments) > 0) {
-
-                // remove existing tv -> template assignments
-                $ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc';",$sqlParser->conn);
-                $row = mysql_fetch_assoc($ds);
-                $id = $row["id"];
-                mysql_query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
-
-                // add tv -> template assignments
-            foreach ($assignments as $assignment) {
-                    $template = modx_escape($assignment);
-                $ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$template';",$sqlParser->conn);
-                if ($ds && $ts) {
-                    $tRow = mysql_fetch_assoc($ts);
-                    $templateId = $tRow['id'];
-                    mysql_query("INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid) VALUES($id, $templateId)");
-               }
-            }
-        }
-        }
-    }
+if (isset ($_POST['tv']) || $installData)
+{
+	echo "<h3>" . $_lang['tvs'] . ":</h3> ";
+	$selTVs = $_POST['tv'];
+	foreach ($moduleTVs as $k=>$moduleTV)
+	{
+		$installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
+		if(in_array($k, $selTVs) || $installSample)
+		{
+			$name = modx_escape($moduleTV[0]);
+			$caption = modx_escape($moduleTV[1]);
+			$desc = modx_escape($moduleTV[2]);
+			$input_type = modx_escape($moduleTV[3]);
+			$input_options = modx_escape($moduleTV[4]);
+			$input_default = modx_escape($moduleTV[5]);
+			$output_widget = modx_escape($moduleTV[6]);
+			$output_widget_params = modx_escape($moduleTV[7]);
+			$filecontent = $moduleTV[8];
+			$assignments = $moduleTV[9];
+			$category = modx_escape($moduleTV[10]);
+			$locked = modx_escape($moduleTV[11]);
+			
+			// Create the category if it does not already exist
+			$category = getCreateDbCategory($category, $sqlParser);
+			
+			$rs = mysql_query("SELECT * FROM {$tbl_site_tmplvars} WHERE name='$name'", $sqlParser->conn);
+			if (mysql_num_rows($rs))
+			{
+				$insert = true;
+				while($row = mysql_fetch_assoc($rs))
+				{
+					if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};", $sqlParser->conn)) {
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					$insert = false;
+				}
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+			}
+			else
+			{
+				$q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
+				if (!@ mysql_query($q, $sqlParser->conn))
+				{
+					echo "<p>" . mysql_error() . "</p>";
+					return;
+				}
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+			}
+			
+			// add template assignments
+			$assignments = explode(',', $assignments);
+			if (count($assignments) > 0)
+			{
+				// remove existing tv -> template assignments
+				$ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+				$row = mysql_fetch_assoc($ds);
+				$id = $row["id"];
+				mysql_query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
+				
+				// add tv -> template assignments
+				foreach ($assignments as $assignment)
+				{
+					$template = modx_escape($assignment);
+					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$template';",$sqlParser->conn);
+					if ($ds && $ts)
+					{
+						$tRow = mysql_fetch_assoc($ts);
+						$templateId = $tRow['id'];
+						mysql_query("INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid) VALUES($id, $templateId)");
+					}
+				}
+			}
+		}
+	}
 }
 
 // Install Chunks
-if (isset ($_POST['chunk']) || $installData) {
+if (isset ($_POST['chunk']) || $installData)
+{
 	echo "<h3>" . $_lang['chunks'] . ":</h3> ";
 	$selChunks = $_POST['chunk'];
-    foreach ($moduleChunks as $k=>$moduleChunk) {
-        $installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
-        if(in_array($k, $selChunks) || $installSample) {
-
-            $name = modx_escape($moduleChunk[0]);
-            $desc = modx_escape($moduleChunk[1]);
-            $category = modx_escape($moduleChunk[3]);
-            $overwrite = modx_escape($moduleChunk[4]);
-            $filecontent = $moduleChunk[2];
-		
-		if (!file_exists($filecontent))
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_chunk'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else {
+	foreach ($moduleChunks as $k=>$moduleChunk)
+	{
+		$installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
+		if(in_array($k, $selChunks) || $installSample)
+		{
+			$name      = modx_escape($moduleChunk[0]);
+			$desc      = modx_escape($moduleChunk[1]);
+			$category  = modx_escape($moduleChunk[3]);
+			$overwrite = modx_escape($moduleChunk[4]);
+			$filecontent = $moduleChunk[2];
 			
-			// Create the category if it does not already exist
-                $category_id = getCreateDbCategory($category, $sqlParser);
-			
-			$chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-                $chunk = modx_escape($chunk);
-			$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'", $sqlParser->conn);
-                $count_original_name = mysql_num_rows($rs);
-                if($overwrite == 'false') {
-                    $newname = $name . '-' . str_replace('.', '_', $modx_version);
-                    $rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$newname'", $sqlParser->conn);
-                    $count_new_name = mysql_num_rows($rs);
-                }
-                $update = $count_original_name > 0 && $overwrite == 'true';
-                if ($update) {
-                    if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';", $sqlParser->conn)) {
-					$errors += 1;
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+			if (!file_exists($filecontent))
+			{
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . "{$_lang['unable_install_chunk']} '{$filecontent}' {$_lang['not_found']}</span></p>";
+			}
+			else
+			{
+				// Create the category if it does not already exist
+				$category_id = getCreateDbCategory($category, $sqlParser);
+				
+				$chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+				$chunk = modx_escape($chunk);
+				$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'", $sqlParser->conn);
+				$count_original_name = mysql_num_rows($rs);
+				if($overwrite == 'false')
+				{
+					$newname = $name . '-' . str_replace('.', '_', $modx_version);
+					$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$newname'", $sqlParser->conn);
+					$count_new_name = mysql_num_rows($rs);
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-                } elseif($count_new_name == 0) {
-                    if($count_original_name > 0 && $overwrite == 'false') {
-                        $name = $newname;
-                    }
-                    if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);", $sqlParser->conn)) {
-					$errors += 1;
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+				$update = $count_original_name > 0 && $overwrite == 'true';
+				if ($update)
+				{
+					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';", $sqlParser->conn))
+					{
+						$errors += 1;
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+				elseif($count_new_name == 0)
+				{
+					if($count_original_name > 0 && $overwrite == 'false')
+					{
+						$name = $newname;
+					}
+					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);", $sqlParser->conn))
+					{
+						$errors += 1;
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+				}
 			}
 		}
 	}
-    }
 }
 
 // Install Modules
-if (isset ($_POST['module']) || $installData) {
+if (isset ($_POST['module']) || $installData)
+{
 	echo "<h3>" . $_lang['modules'] . ":</h3> ";
-    $selModules = $_POST['module'];
-    foreach ($moduleModules as $k=>$moduleModule) {
-        $installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
-        if(in_array($k, $selModules) || $installSample) {
-            $name = modx_escape($moduleModule[0]);
-            $desc = modx_escape($moduleModule[1]);
-            $filecontent = $moduleModule[2];
-            $properties = modx_escape($moduleModule[3]);
-            $guid = modx_escape($moduleModule[4]);
-            $shared = modx_escape($moduleModule[5]);
-            $category = modx_escape($moduleModule[6]);
-		if (!file_exists($filecontent))
-			echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_module'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-		else {
-			
-			// Create the category if it does not already exist
-                $category = getCreateDbCategory($category, $sqlParser);
-			
-			$module = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
-			// remove installer docblock
-			$module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
-                $module = modx_escape($module);
-			$rs = mysql_query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'", $sqlParser->conn);
-			if (mysql_num_rows($rs)) {
-			    $row = mysql_fetch_assoc($rs);
-			    $props = propUpdate($properties,$row['properties']);
-			    if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+	$selModules = $_POST['module'];
+	foreach ($moduleModules as $k=>$moduleModule)
+	{
+		$installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
+		if(in_array($k, $selModules) || $installSample)
+		{
+			$name = modx_escape($moduleModule[0]);
+			$desc = modx_escape($moduleModule[1]);
+			$filecontent = $moduleModule[2];
+			$properties = modx_escape($moduleModule[3]);
+			$guid = modx_escape($moduleModule[4]);
+			$shared = modx_escape($moduleModule[5]);
+			$category = modx_escape($moduleModule[6]);
+			if (!file_exists($filecontent))
+			{
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . "{$_lang['unable_install_module']} '{$filecontent}' {$_lang['not_found']}</span></p>";
+			}
+			else
+			{
+				// Create the category if it does not already exist
+				$category = getCreateDbCategory($category, $sqlParser);
+				
+				$module = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
+				// remove installer docblock
+				$module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
+				$module = modx_escape($module);
+				$rs = mysql_query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'", $sqlParser->conn);
+				if (mysql_num_rows($rs))
+				{
+					$row = mysql_fetch_assoc($rs);
+					$props = propUpdate($properties,$row['properties']);
+					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-			} else {
-                    if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);", $sqlParser->conn)) {
-					echo "<p>" . mysql_error() . "</p>";
-					return;
+				else
+				{
+					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);", $sqlParser->conn))
+					{
+						echo "<p>" . mysql_error() . "</p>";
+						return;
+					}
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
 			}
 		}
 	}
-    }
 }
 
 // Install Plugins
@@ -582,52 +606,43 @@ if (isset ($_POST['snippet']) || $installData)
 }
 
 // install data
-if ($installData && $moduleSQLDataFile) {
-    echo "<p>" . $_lang['installing_demo_site'];
-    $sqlParser->process($moduleSQLDataFile);
-//	$sqlParser->process('lang/' . $managerlanguage . '/' . $moduleSQLDataFile);
-    // display database results
-    if ($sqlParser->installFailed == true)
-    {
-        $errors += 1;
-        echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
-        echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
-        echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
-        for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
-            echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
-        }
-        echo "</p>";
-        echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
-        return;
-    }
-    else
-    {
-        echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
-    }
+if ($installData && $moduleSQLDataFile)
+{
+	echo "<p>" . $_lang['installing_demo_site'];
+	$sqlParser->process($moduleSQLDataFile);
+	if ($sqlParser->installFailed == true)
+	{
+		$errors += 1;
+		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
+		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
+		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
+		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++)
+		{
+			echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
+		}
+		echo "</p>";
+		echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
+		return;
+	}
+	else
+	{
+		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+	}
 }
 
 // call back function
-if ($callBackFnc != "")
-	$callBackFnc ($sqlParser);
+if ($callBackFnc != '') $callBackFnc ($sqlParser);
 
 // Setup the MODx API -- needed for the cache processor
 define('MODX_API_MODE', true);
-define('MODX_BASE_PATH', $base_path);
-$database_type = 'mysql';
 // initiate a new document parser
-include_once('../manager/includes/document.parser.class.inc.php');
-$modx = new DocumentParser;
+include_once("{$base_path}index.php");
 $modx->db->connect();
-// always empty cache after install
-include_once "../manager/processors/cache_sync.class.processor.php";
-$sync = new synccache();
-$sync->setCachepath("../assets/cache/");
-$sync->setReport(false);
-$sync->emptyCache(); // first empty the cache
+$modx->clearCache(); // always empty cache after install
 
 // try to chmod the cache go-rwx (for suexeced php)
-@chmod('../assets/cache/siteCache.idx.php', 0600);
-@chmod('../assets/cache/sitePublishing.idx.php', 0600);
+@chmod("{$base_path}assets/cache/siteCache.idx.php", 0600);
+@chmod("{$base_path}assets/cache/sitePublishing.idx.php", 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
 mysql_query("TRUNCATE TABLE {$tbl_active_users}");
@@ -636,21 +651,62 @@ mysql_query("TRUNCATE TABLE {$tbl_active_users}");
 $sqlParser->close();
 
 // andrazk 20070416 - release manager access
-if (file_exists('../assets/cache/installProc.inc.php')) {
-	  @chmod('../assets/cache/installProc.inc.php', 0755);
-    unlink('../assets/cache/installProc.inc.php');
+if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
+{
+	@chmod("{$base_path}assets/cache/installProc.inc.php", 0755);
+	unlink("{$base_path}assets/cache/installProc.inc.php");
 }
 
 // setup completed!
 echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
 echo "<p>" . $_lang['to_log_into_content_manager'] . "</p>";
-if ($installMode == 0) {
-	echo "<p><img src=\"img/ico_info.png\" width=\"40\" height=\"42\" align=\"left\" style=\"margin-right:10px;\" />" . $_lang['installation_note'] . "</p>";
-} else {
-	echo "<p><img src=\"img/ico_info.png\" width=\"40\" height=\"42\" align=\"left\" style=\"margin-right:10px;\" />" . $_lang['upgrade_note'] . "</p>";
+if ($installMode == 0)
+{
+	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['installation_note'] . "</p>";
 }
+else
+{
+	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['upgrade_note'] . "</p>";
+}
+
+
 
 function getFullTableName($table_name)
 {
 	return "`{$_POST['database_name']}`.`{$_POST['tableprefix']}{$table_name}`";
+}
+
+function parseProperties($propertyString)
+{
+	$parameter= array ();
+	if (!empty($propertyString))
+	{
+		$tmpParams= explode('&', $propertyString);
+		for ($x= 0; $x < count($tmpParams); $x++)
+		{
+			if (strpos($tmpParams[$x], '=', 0))
+			{
+				$pTmp= explode('=', $tmpParams[$x]);
+				$pvTmp= explode(';', trim($pTmp[1]));
+				if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
+				}
+				elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[2];
+				}
+			}
+		}
+	}
+	return $parameter;
+}
+
+function result($status='ok',$ph=array())
+{
+	$ph['status'] = $status;
+	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
+	if(!isset($ph['msg'])) $ph['msg'] = '';
+	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
+	return parse($tpl,$ph);
 }
