@@ -46,28 +46,9 @@ $managerlanguage = $_POST['managerlanguage'];
 // get base path and url
 $base_path = str_replace("\\", '/', realpath('../')) . '/';
 
-// connect to the database
-echo "<p>". $_lang['setup_database_create_connection'];
-if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
-	echo "<span class=\"notok\">".$_lang["setup_database_create_connection_failed"]."</span></p><p>".$_lang['setup_database_create_connection_failed_note']."</p>";
-	return;
-} else {
-	echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
-}
-
 if (function_exists('mysql_set_charset'))
 {
 	mysql_set_charset($database_connection_charset);
-}
-
-// select database
-echo "<p>".$_lang['setup_database_selection']. str_replace("`", "", $dbase) . "`: ";
-if (!@ mysql_select_db(str_replace("`", "", $dbase), $conn)) {
-	echo "<span class=\"notok\" style='color:#707070'>".$_lang['setup_database_selection_failed']."</span>".$_lang['setup_database_selection_failed_note']."</p>";
-	$create = true;
-} else {
-    @ mysql_query("{$database_connection_method} {$database_connection_charset}");
-	echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 }
 
 $tbl_site_content = getFullTableName('site_content');
@@ -82,19 +63,6 @@ $tbl_site_plugin_events = getFullTableName('site_plugin_events');
 $tbl_system_eventnames = getFullTableName('system_eventnames');
 $tbl_site_snippets = getFullTableName('site_snippets');
 $tbl_active_users = getFullTableName('active_users');
-
-// check table prefix
-if ($installMode == 0) {
-	echo "<p>" . $_lang['checking_table_prefix'] . $table_prefix . "`: ";
-	if (@ $rs = mysql_query("SELECT COUNT(*) FROM {$tbl_site_content}")) {
-		echo "<span class=\"notok\">" . $_lang['failed'] . "</span>" . $_lang['table_prefix_already_inuse'] . "</p>";
-		$errors += 1;
-		echo "<p>" . $_lang['table_prefix_already_inuse_note'] . "</p>";
-		return;
-	} else {
-		echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
-	}
-}
 
 if(!function_exists('parseProperties')) {
     // parses a resource property string and returns the result as an array
