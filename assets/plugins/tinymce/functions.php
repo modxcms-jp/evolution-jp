@@ -51,6 +51,12 @@ class TinyMCE
 		else                return '';
 	}
 	
+	function checked($cond = false)
+	{
+		if($cond !== false) return ' checked="checked"';
+		else                return '';
+	}
+	
 	function get_mce_settings($params)
 	{
 		global $modx, $_lang;
@@ -84,6 +90,9 @@ class TinyMCE
 		
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names();
+		
+		$ph['entermode_options']  = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($modx->config['mce_entermode']!='br') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
+		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($modx->config['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
 		
 		include_once $params['mce_path'] . 'settings/default_params.php';
 		
@@ -222,9 +231,19 @@ class TinyMCE
 				$ph['remove_script_host'] = 'true';
 				$ph['convert_urls']       = 'false';
 		}
-	
-		$ph['forced_root_block']       = ($action !== '78') ? 'p' : '';
-		$ph['force_p_newlines']        = ($action !== '78') ? 'true' : 'false';
+		
+		if($modx->config['mce_entermode']!=='br' && $action !== '78')
+		{
+			$ph['forced_root_block']  = 'p';
+			$ph['force_p_newlines']   = 'true';
+			$ph['force_br_newlines']  = 'false';
+		}
+		else
+		{
+			$ph['forced_root_block']  = '';
+			$ph['force_p_newlines']   = 'false';
+			$ph['force_br_newlines']  = 'true';
+		}
 		$ph['toolbar_align']           = $params['toolbar_align'];
 		$ph['file_browser_callback']   = 'mceOpenServerBrowser';
 		$ph['plugins']                 = $plugins;
