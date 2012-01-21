@@ -192,14 +192,15 @@ function clean_up($sqlParser) {
 		}	
 		
 		// secure web documents - privateweb 
-		mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privateweb = 0 WHERE privateweb = 1",$sqlParser->conn);
+		mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privateweb = 0 WHERE privateweb = 1");
 		$sql =  "SELECT DISTINCT sc.id 
 				 FROM `".$sqlParser->prefix."site_content` sc
 				 LEFT JOIN `".$sqlParser->prefix."document_groups` dg ON dg.document = sc.id
 				 LEFT JOIN `".$sqlParser->prefix."webgroup_access` wga ON wga.documentgroup = dg.document_group
 				 WHERE wga.id>0";
-		$ds = mysql_query($sql,$sqlParser->conn);
-		if(!$ds) {
+		$ds = mysql_query($sql);
+		if(!$ds)
+		{
 			echo "An error occurred while executing a query: ".mysql_error();
 		}
 		else {
@@ -218,7 +219,8 @@ function clean_up($sqlParser) {
 				 LEFT JOIN `".$sqlParser->prefix."membergroup_access` mga ON mga.documentgroup = dg.document_group
 				 WHERE mga.id>0";
 		$ds = mysql_query($sql);
-		if(!$ds) {
+		if(!$ds)
+		{
 			echo "An error occurred while executing a query: ".mysql_error();
 		}
 		else {
@@ -278,9 +280,9 @@ function getCreateDbCategory($category, $sqlParser) {
             $category_id = $row['id'];
         } else {
             $q = "INSERT INTO $dbase.`".$table_prefix."categories` (`category`) VALUES ('{$category}');";
-            $rs = mysql_query($q, $sqlParser->conn);
+            $rs = mysql_query($q);
             if($rs) {
-                $category_id = mysql_insert_id($sqlParser->conn);
+                $category_id = mysql_insert_id();
             }
         }
     }
