@@ -654,8 +654,6 @@ $modx->clearCache(); // always empty cache after install
 // remove any locks on the manager functions so initial manager login is not blocked
 mysql_query("TRUNCATE TABLE {$tbl_active_users}");
 
-// close db connection
-
 // andrazk 20070416 - release manager access
 if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
 {

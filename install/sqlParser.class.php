@@ -89,8 +89,5 @@ class SqlParser {
 			}
 		}
 	}
-	
-	function close() {
-		mysql_close($this->conn);
-	}
+
 }
