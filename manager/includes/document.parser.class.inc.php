@@ -2474,10 +2474,11 @@ class DocumentParser {
         }
     }
 
-    # returns the full table name based on db settings
-    function getFullTableName($tbl) {
-        return $this->db->config['dbase'] . ".`" . $this->db->config['table_prefix'] . $tbl . "`";
-    }
+# returns the full table name based on db settings
+	function getFullTableName($tbl)
+	{
+		return $this->db->config['dbase'] . ".`" . $this->db->config['table_prefix'] . $tbl . "`";
+	}
 
     # return placeholder value
     function getPlaceholder($name) {
