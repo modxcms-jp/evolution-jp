@@ -516,7 +516,7 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
-	<td colspan="2">
+	<td colspan="2" style="padding:0;">
 <?php
 	// invoke OnSiteSettingsRender event
 	$evtOut = $modx->invokeEvent("OnSiteSettingsRender");
@@ -715,7 +715,7 @@ $gdAvailable = extension_loaded('gd');
 <?php echo $_lang["webpwdreminder_message"] ?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
-<td colspan="2">
+<td colspan="2" style="padding:0;">
 <?php
 // invoke OnUserSettingsRender event
 $evtOut = $modx->invokeEvent("OnUserSettingsRender");
@@ -979,7 +979,7 @@ echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" 
 <?php echo $_lang["editor_css_path_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
-<td colspan="2">
+<td colspan="2" style="padding:0;">
 <?php
 // invoke OnInterfaceSettingsRender event
 $evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
@@ -1055,7 +1055,7 @@ if(empty($upload_maxsize))
 <?php echo $_lang["new_folder_permissions_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
-<td colspan="2">
+<td colspan="2" style="padding:0;">
 <?php
 // invoke OnMiscSettingsRender event
 $evtOut = $modx->invokeEvent("OnMiscSettingsRender");
