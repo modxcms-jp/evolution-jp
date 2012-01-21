@@ -3,6 +3,8 @@
 <script language="javascript" type="text/javascript">
 tinyMCE.init({
 	theme                            : 'advanced',
+	skin                             : '[+skin+]',
+	skin_variant                     : '[+skin_variant+]',
 	mode                             : 'exact',
 	elements                         : '[+elmList+]',
 	width                            : '[+width+]',

@@ -2,10 +2,53 @@
 
 class TinyMCE
 {
-
+	var $mce_path;
+	
 	function TinyMCE($params)
 	{
+		$this->mce_path = $params['mce_path'];
 		include_once $params['mce_path'] . 'settings/lang.php';
+	}
+	
+	function get_skin_names()
+	{
+		global $modx;
+		
+		$skin_dir = $this->mce_path . 'jscripts/tiny_mce/themes/advanced/skins/';
+		foreach(glob("{$skin_dir}*",GLOB_ONLYDIR) as $dir)
+		{
+			$dir = str_replace('\\','/',$dir);
+			$skin_name = substr($dir,strrpos($dir,'/')+1);
+			$skins[$skin_name][] = 'default';
+			$styles = glob("{$dir}/ui_*.css");
+			if(0 < count($styles))
+			{
+				foreach($styles as $css)
+				{
+					$skin_variant = substr($css,strrpos($css,'_')+1);
+					$skin_variant = substr($skin_variant,0,strrpos($skin_variant,'.'));
+					$skins[$skin_name][] = $skin_variant;
+				}
+			}
+			foreach($skins as $k=>$o);
+			{
+				$v = '';
+				foreach($o as $v)
+				{
+					if($v==='default') $value = $k;
+					else               $value = "{$k}:{$v}";
+					$selected = $this->selected($value == $modx->config['mce_editor_skin']);
+					$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$value}</option>";
+				}
+			}
+		}
+		return join("\n",$option);
+	}
+	
+	function selected($cond = false)
+	{
+		if($cond !== false) return ' selected="selected"';
+		else                return '';
 	}
 	
 	function get_mce_settings($params)
@@ -19,25 +62,28 @@ class TinyMCE
 	
 		if($modx->manager->action == 11 || $modx->manager->action == 12)
 		{
-			$theme_options .= '<option value="">' . $_lang['tinymce_theme_global_settings'] . '</option>' . PHP_EOL;
+			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . '</option>' . PHP_EOL;
 		}
-		$themes['simple']   = $_lang['tinymce_theme_simple'];
-		$themes['editor']   = $_lang['tinymce_theme_editor'];
-		$themes['creative'] = $_lang['tinymce_theme_creative'];
-		$themes['logic']    = $_lang['tinymce_theme_logic'];
-		$themes['advanced'] = $_lang['tinymce_theme_advanced'];
-		$themes['legacy']   = (!empty($_lang['tinymce_theme_legacy'])) ? $_lang['tinymce_theme_legacy'] : 'legacy';
-		$themes['custom']   = $_lang['tinymce_theme_custom'];
+		$themes['simple']   = $_lang['mce_theme_simple'];
+		$themes['editor']   = $_lang['mce_theme_editor'];
+		$themes['creative'] = $_lang['mce_theme_creative'];
+		$themes['logic']    = $_lang['mce_theme_logic'];
+		$themes['advanced'] = $_lang['mce_theme_advanced'];
+		$themes['legacy']   = (!empty($_lang['mce_theme_legacy'])) ? $_lang['mce_theme_legacy'] : 'legacy';
+		$themes['custom']   = $_lang['mce_theme_custom'];
 		foreach ($themes as $key => $value)
 		{
-			$theme_options .= '<option value="' . $key . '"' . ($key == $params['theme'] ? ' selected="selected"' : '') . '>' . $value . '</option>' . PHP_EOL;
+			$selected = $this->selected($key == $modx->config['tinymce_editor_theme']);
+			$key = '"' . $key . '"';
+			$theme_options .= "<option value={$key}{$selected}>{$value}</option>" . PHP_EOL;
 		}
 		
 		$ph = $_lang;
 		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
 		
-		$ph['theme_options']       = $theme_options;
+		$ph['theme_options'] = $theme_options;
+		$ph['skin_options']  = $this->get_skin_names();
 		
 		include_once $params['mce_path'] . 'settings/default_params.php';
 		
@@ -63,9 +109,9 @@ class TinyMCE
 			$buttons2 = '';
 		    break;
 		case 'editor':
-			$plugins  = 'autolink,inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+			$plugins  = 'autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help';
-			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat';
+			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat';
 			$buttons3 = '';
 			$buttons4 = '';
 		    break;
@@ -125,6 +171,14 @@ class TinyMCE
 		$ph['width'] = (!empty($params['width'])) ? $params['width'] : '100%';
 		$ph['height'] = (!empty($params['height'])) ? $params['height'] : '300';
 		$ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
+		if(strpos($modx->config['mce_editor_skin'],':')!==false)
+		{
+			list($skin,$skin_variant) = explode(':',$modx->config['mce_editor_skin']);
+		}
+		else $skin = $modx->config['mce_editor_skin'];
+		$ph['skin']     = $skin;
+		if($skin_variant) $ph['skin_variant'] = $skin_variant;
+		else              $ph['skin_variant'] = '';
 		
 		$ph['document_base_url'] = MODX_SITE_URL;
 		switch($params['mce_path_options'])
