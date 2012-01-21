@@ -1730,43 +1730,46 @@ class DocumentParser {
     }
 
     # Add an a alert message to the system event log
-    function logEvent($evtid, $type, $msg, $source= 'Parser') {
-        $msg= $this->db->escape($msg);
-        $source= $this->db->escape($source);
-	if ($GLOBALS['database_connection_charset'] == 'utf8' && extension_loaded('mbstring')) {
-		$source = mb_substr($source, 0, 50 , 'UTF-8');
-	} else {
-		$source = substr($source, 0, 50);
+	function logEvent($evtid, $type, $msg, $source= 'Parser')
+	{
+		$evtid= intval($evtid);
+		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
+		if (3 < $type) $type= 3;
+		$msg= $this->db->escape($msg);
+		$source= $this->db->escape($source);
+		if (function_exists('mb_substr'))
+		{
+			$source = mb_substr($source, 0, 50 , $this->config['modx_charset']);
+		}
+		else
+		{
+			$source = substr($source, 0, 50);
+		}
+		$LoginUserID = $this->getLoginUserID();
+		if ($LoginUserID == '' || $LoginUserID===false) $LoginUserID = '-';
+		
+		$fields['eventid']     = $evtid;
+		$fields['type']        = $type;
+		$fields['createdon']   = time();
+		$fields['source']      = $source;
+		$fields['description'] = $msg;
+		$fields['user']        = $LoginUserID;
+		$insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
+		if (!$insert_id)
+		{
+			echo 'Error while inserting event log into database.';
+			exit();
+		}
+		else
+		{
+			$trim  = (isset($this->config['event_log_trim']))  ? intval($this->config['event_log_trim']) : 100;
+			if(($insert_id % $trim) == 0)
+			{
+				$limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
+				$this->purge_event_log($limit,$trim);
+			}
+		}
 	}
-	$LoginUserID = $this->getLoginUserID();
-	if ($LoginUserID == '') $LoginUserID = 0;
-        $evtid= intval($evtid);
-        if ($type < 1) {
-            $type= 1;
-        }
-        elseif ($type > 3) {
-            $type= 3; // Types: 1 = information, 2 = warning, 3 = error
-        }
-        $fields['eventid']     = $evtid;
-        $fields['type']        = $type;
-        $fields['createdon']   = time();
-        $fields['source']      = $source;
-        $fields['description'] = $msg;
-        $fields['user']        = $LoginUserID;
-        $insert_id = @$this->db->insert($fields,$this->getFullTableName('event_log'));
-        if (!$insert_id) {
-            echo 'Error while inserting event log into database.';
-            exit();
-        }
-        else {
-            $trim  = (isset($this->config['event_log_trim']))  ? intval($this->config['event_log_trim']) : 100;
-            if(($insert_id % $trim) == 0)
-            {
-                $limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
-                $this->purge_event_log($limit,$trim);
-            }
-        }
-    }
 
 	function purge_event_log($limit=2000, $trim=100)
 	{
@@ -1778,8 +1781,7 @@ class DocumentParser {
 		if(0 < $over)
 		{
 			$trim = ($over + $trim);
-			$sql = "DELETE FROM {$tbl_event_log} LIMIT {$trim}";
-			$this->db->query($sql);
+			$this->db->delete($tbl_event_log,'',$trim);
 			$sql = "OPTIMIZE TABLE {$tbl_event_log}";
 			$this->db->query($sql);
 		}
@@ -1790,8 +1792,7 @@ class DocumentParser {
 		$limit_time = time() - $limit_time;
 		$action     = intval($action);
 		$tbl_active_users = $this->getFullTableName('active_users');
-		$sql = "DELETE FROM {$tbl_active_users} WHERE action={$action} and lasthit < {$limit_time}";
-		$this->db->query($sql);
+		$this->db->delete($tbl_active_users,"action={$action} and lasthit < {$limit_time}");
 	}
 
     # Returns true if parser is executed in backend (manager) mode
@@ -2548,19 +2549,23 @@ class DocumentParser {
         $rs= $this->db->query($sql);
     }
 
-    # Returns current user id
-    function getLoginUserID($context= '') {
-        if ($context && isset ($_SESSION[$context . 'Validated'])) {
-            return $_SESSION[$context . 'InternalKey'];
-        }
-        elseif ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
-            return $_SESSION['webInternalKey'];
-        }
-        elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
-            return $_SESSION['mgrInternalKey'];
-        }
-        else return false;
-    }
+	# Returns current user id
+	function getLoginUserID($context= '')
+	{
+		if ($context && isset ($_SESSION["{$context}Validated"]))
+		{
+			return $_SESSION["{$context}InternalKey"];
+		}
+		elseif ($this->isFrontend() && isset ($_SESSION['webValidated']))
+		{
+			return $_SESSION['webInternalKey'];
+		}
+		elseif ($this->isBackend() && isset ($_SESSION['mgrValidated']))
+		{
+			return $_SESSION['mgrInternalKey'];
+		}
+		else return false;
+	}
 
     # Returns current user name
     function getLoginUserName($context= '') {
