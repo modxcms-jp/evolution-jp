@@ -213,6 +213,8 @@ class DocumentParser {
 
 	function getSettings()
 	{
+		$tbl_user_settings     = $this->getFullTableName('user_settings');
+		$tbl_web_user_settings = $this->getFullTableName('web_user_settings');
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
 			if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
@@ -240,7 +242,6 @@ class DocumentParser {
 					}
 				}
 			}
-			
 			// added for backwards compatibility - garry FS#104
 			$this->config['etomite_charset'] = & $this->config['modx_charset'];
 			
@@ -272,12 +273,12 @@ class DocumentParser {
 				{
 					if ($usrType == 'web')
 					{
-						$from  = $this->getFullTableName('web_user_settings');
+						$from  = $tbl_web_user_settings;
 						$where ="webuser='{$id}'";
 					}
 					else
 					{
-						$from  = $this->getFullTableName('user_settings');
+						$from  = $tbl_user_settings;
 						$where = "user='{$id}'";
 					}
 					$result= $this->db->select('setting_name, setting_value',$from,$where);
@@ -300,7 +301,7 @@ class DocumentParser {
 				}
 				else
 				{
-					if($result= $this->db->select('setting_name, setting_value',$this->getFullTableName('user_settings'),"user='{$mgrid}'"))
+					if($result= $this->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$mgrid}'"))
 					{
 						while ($row= $this->db->getRow($result, 'both'))
 						{
