@@ -431,17 +431,6 @@ switch ($_POST['mode']) {
 		exit;
 }
 
-// in case any plugins include a quoted_printable function
-function save_user_quoted_printable($string) {
-	$crlf = "\n" ;
-	$string = preg_replace('!(\r\n|\r|\n)!', $crlf, $string) . $crlf ;
-	$f[] = '/([\000-\010\013\014\016-\037\075\177-\377])/e' ;
-	$r[] = "'=' . sprintf('%02X', ord('\\1'))" ; $f[] = '/([\011\040])' . $crlf . '/e' ;
-	$r[] = "'=' . sprintf('%02X', ord('\\1')) . '" . $crlf . "'" ;
-	$string = preg_replace($f, $r, $string) ;
-	return trim(wordwrap($string, 70, ' =' . $crlf)) ;
-}
-
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
