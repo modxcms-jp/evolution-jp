@@ -16,7 +16,10 @@ class TinyMCE
 		
 		$skin_dir = $this->mce_path . 'jscripts/tiny_mce/themes/advanced/skins/';
 		$selected = $this->selected(empty($params['mce_editor_skin']));
-		$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
+		if($modx->manager->action=='12')
+		{
+			$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
+		}
 		foreach(glob("{$skin_dir}*",GLOB_ONLYDIR) as $dir)
 		{
 			$dir = str_replace('\\','/',$dir);
@@ -93,6 +96,7 @@ class TinyMCE
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
 		
+		if($modx->manager->action!=12 && empty($params['mce_entermode'])) $params['mce_entermode'] = 'p';
 		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($params['mce_entermode']=='p') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
 		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($params['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
 		if($modx->manager->action=='12')
