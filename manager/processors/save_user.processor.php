@@ -6,29 +6,6 @@ if (!$modx->hasPermission('save_user')) {
 	$e->dumpError();
 }
 
-// Web alert -  sends an alert to web browser
-function webAlert($msg) {
-	global $id, $modx;
-	$mode = $_POST['mode'];
-	$url = "index.php?a=$mode" . ($mode == '12' ? "&id=" . $id : "");
-	$modx->manager->saveFormValues($mode);
-	include_once "header.inc.php";
-	$modx->webAlert($msg, $url);
-	include_once "footer.inc.php";
-}
-
-// Generate password
-function generate_password($length = 10) {
-	$allowable_characters = "abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	$ps_len = strlen($allowable_characters);
-	mt_srand((double) microtime() * 1000000);
-	$pass = "";
-	for ($i = 0; $i < $length; $i++) {
-		$pass .= $allowable_characters[mt_rand(0, $ps_len -1)];
-	}
-	return $pass;
-}
-
 $id = intval($_POST['id']);
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : "New User";
@@ -466,56 +443,40 @@ function save_user_quoted_printable($string) {
 }
 
 // Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn) {
-	global $signupemail_message;
-	global $emailsubject, $emailsender;
-	global $site_name, $site_start, $site_url;
-	$manager_url = $site_url . "manager/";
-	$message = sprintf($signupemail_message, $uid, $pwd); // use old method
-	// replace placeholders
-	$message = str_replace("[+uid+]", $uid, $message);
-	$message = str_replace("[+pwd+]", $pwd, $message);
-	$message = str_replace("[+ufn+]", $ufn, $message);
-	$message = str_replace("[+sname+]", $site_name, $message);
-	$message = str_replace("[+saddr+]", $emailsender, $message);
-	$message = str_replace("[+semail+]", $emailsender, $message);
-	$message = str_replace("[+surl+]", $manager_url, $message);
+function sendMailMessage($email, $uid, $pwd, $ufn)
+{
+	global $modx;
+	$message = sprintf($modx->config['signupemail_message'], $uid, $pwd); // use old method
+	$ph['uid']    = $uid;
+	$ph['pwd']    = $pwd;
+	$ph['ufn']    = $ufn;
+	$ph['sname']  = $modx->config['site_name'];
+	$ph['saddr']  = $modx->config['emailsender'];
+	$ph['semail'] = $modx->config['emailsender'];
+	$ph['surl']   = $modx->config['site_url'] . 'manager/';
+	$message = $modx->parsePlaceholder($message,$ph);
 
-	include_once dirname(__FILE__)."/../includes/controls/modxmailer.inc.php";
+	include_once MODX_BASE_PATH."manager/includes/controls/modxmailer.inc.php";
 	$mail = new MODxMailer();
 	$mail->IsMail();
 	$mail->IsHTML(0);
-	$mail->From		= $emailsender;
+	$mail->From		= $modx->config['emailsender'];
 	$mail->FromName	= $modx->config['site_name'];
-	$mail->Subject	=  $emailsubject;
+	$mail->Subject	= $modx->config['emailsubject'];
 	$mail->Body		= $message;
 	$mail->AddAddress($email);
-	if ($mail->Send() === false) //ignore mail errors in this cas
+	$rs = $mail->Send();
+	if ($rs === false) //ignore mail errors in this cas
 	{
-		webAlert("$email - {$_lang['error_sending_email']}");
+		webAlert("{$email} - {$_lang['error_sending_email']}");
 		exit;
 	}
-/*
-	if (ini_get('safe_mode') == FALSE) {
-		if (!mail($email, $emailsubject, $message, "From: " . $emailsender . "\r\n" . "X-Mailer: Content Manager - PHP", "-f $emailsender")) {
-			webAlert("$email - {$_lang['error_sending_email']}");
-			exit;
-		}
-	} elseif (!mail($email, $emailsubject, $message, "From: " . $emailsender . "\r\n" . "X-Mailer: Content Manager - PHP/" . phpversion())) {
-		webAlert("$email - {$_lang['error_sending_email']}");
-		exit;
-	}
-*/
 }
 
 // Save User Settings
-function saveUserSettings($id) {
+function saveUserSettings($id)
+{
 	global $modx;
-
-	//$config = array();
-	//$rs = $modx->db->query('SELECT * FROM '.$modx->getFullTableName('system_settings'));
-	//while ($row = $modx->db->getRow($rs, 'num'))
-	//	$config[$row[0]] = $row[1];
 
 	// array of post values to ignore in this function
 	$ignore = array(
@@ -564,7 +525,8 @@ function saveUserSettings($id) {
 
 	// get user setting field names
 	$settings= array ();
-	foreach ($_POST as $n => $v) {
+	foreach ($_POST as $n => $v)
+	{
 		if(is_array($v)) $v = implode(',', $v);
 		if(in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
 
@@ -573,32 +535,58 @@ function saveUserSettings($id) {
 		$settings[$n] = $v; // this value should be saved
 	}
 
-	foreach ($defaults as $k) {
-		if (isset($settings['default_'.$k]) && $settings['default_'.$k] == '1') {
+	foreach ($defaults as $k)
+	{
+		if (isset($settings["default_{$k}"]) && $settings["default_{$k}"] == '1')
+		{
 			unset($settings[$k]);
 		}
-		unset($settings['default_'.$k]);
+		unset($settings["default_{$k}"]);
 	}
 
-	$usrTable = $modx->getFullTableName('user_settings');
+	$tbl_user_settings = $modx->getFullTableName('user_settings');
 
-	$modx->db->query('DELETE FROM '.$usrTable.' WHERE user='.$id);
+	$modx->db->delete($tbl_user_settings, "user={$id}");
 
 	$savethese = array();
-	foreach ($settings as $k => $v) {
-	    $savethese[] = '('.$id.', \''.$k.'\', \''.$modx->db->escape($v).'\')';
+	foreach ($settings as $k => $v)
+	{
+		$v = $modx->db->escape($v);
+		$savethese[] = "({$id}, '{$k}', '{$v}')";
 	}
 
-	$sql = 'INSERT INTO '.$usrTable.' (user, setting_name, setting_value)
-		VALUES '.implode(', ', $savethese);
-	if (!@$rs = $modx->db->query($sql)) {
-		die('Failed to update user settings!');
-	}
+	$values = implode(', ', $savethese);
+	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
+	$rs = $modx->db->query($sql);
+	if (!$rs) die('Failed to update user settings!');
 }
 
 // converts date format dd-mm-yyyy to php date
 function ConvertDate($date) {
 	global $modx;
-	if ($date == "") {return "0";}
+	if ($date == '') {return '0';}
 	else {}          {return $modx->toTimeStamp($date);}
+}
+
+// Web alert -  sends an alert to web browser
+function webAlert($msg) {
+	global $id, $modx;
+	$mode = $_POST['mode'];
+	$url = "index.php?a={$mode}" . ($mode == '12' ? "&id={$id}" : '');
+	$modx->manager->saveFormValues($mode);
+	include_once "header.inc.php";
+	$modx->webAlert($msg, $url);
+	include_once "footer.inc.php";
+}
+
+// Generate password
+function generate_password($length = 10) {
+	$allowable_characters = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+	$ps_len = strlen($allowable_characters);
+	mt_srand((double) microtime() * 1000000);
+	$pass = '';
+	for ($i = 0; $i < $length; $i++) {
+		$pass .= $allowable_characters[mt_rand(0, $ps_len -1)];
+	}
+	return $pass;
 }

@@ -37,9 +37,11 @@ if($pid==0) $header = "Location: index.php?r=1&a=3&id={$id}";
 else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
 header($header);
 
-function duplicateDocument($docid, $parent=null, $_toplevel=0) {
+function duplicateDocument($docid, $parent=null, $_toplevel=0)
+{
 	global $modx,$_lang;
-
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	
 	// invoke OnBeforeDocDuplicate event
 	$evtOut = $modx->invokeEvent('OnBeforeDocDuplicate', array(
 		'id' => $docid
@@ -52,19 +54,20 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	$myChildren = array();
 	$userID = $modx->getLoginUserID();
 
-	$tblsc = $modx->getFullTableName('site_content');
-
 	// Grab the original document
-	$rs = $modx->db->select('*', $tblsc, 'id='.$docid);
+	$rs = $modx->db->select('*', $tbl_site_content, 'id='.$docid);
 	$content = $modx->db->getRow($rs);
 
 	unset($content['id']); // remove the current id.
 
 	// Once we've grabbed the document object, start doing some modifications
-	if ($_toplevel == 0) {
+	if ($_toplevel == 0)
+	{
 		$content['pagetitle'] = str_replace('[+title+]',$content['pagetitle'],$_lang['duplicate_title_string']);
 		$content['alias'] = null;
-	} elseif($modx->config['friendly_urls'] == 0 || $modx->config['allow_duplicate_alias'] == 0) {
+	}
+	elseif($modx->config['friendly_urls'] == 0 || $modx->config['allow_duplicate_alias'] == 0)
+	{
 		$content['alias'] = null;
 	}
 
@@ -76,16 +79,6 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	$content['createdon'] = time();
 	// Remove other modification times
 	$content['editedby'] = $content['editedon'] = $content['deleted'] = $content['deletedby'] = $content['deletedon'] = 0;
-
-	// [FS#922] Should the published status be honored? - sirlancelot
-//	if ($modx->hasPermission('publish_document')) {
-//		if ($modx->config['publish_default'])
-//			$content['pub_date'] = $content['pub_date']; // should this be changed to 1?
-//		else	$content['pub_date'] = 0;
-//	} else {
-		// User can't publish documents
-//		$content['published'] = $content['pub_date'] = 0;
-//	}
 
     // Set the published status to unpublished by default (see above ... commit #3388)
     $content['published'] = 0;
@@ -106,36 +99,36 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
-		$sql = "SELECT max(menuindex) FROM {$tblsc} WHERE parent='{$pid}'";
-		$content['menuindex'] = $modx->db->getValue($sql)+1;
+		$content['menuindex'] = $modx->db->getValue($modx->db->select('max(menuindex)',$tbl_site_content,"parent='{$pid}'"))+1;
 	}
 
 	// Duplicate the Document
-	$newparent = $modx->db->insert($content, $tblsc);
+	$new_id = $modx->db->insert($content, $tbl_site_content);
 
 	// duplicate document's TVs & Keywords
-	duplicateKeywords($docid, $newparent);
-	duplicateTVs($docid, $newparent);
-	duplicateAccess($docid, $newparent);
+	if($modx->config['show_meta']==1) duplicateKeywords($docid, $new_id);
+	duplicateTVs($docid, $new_id);
+	duplicateAccess($docid, $new_id);
 	
 	// invoke OnDocDuplicate event
 	$evtOut = $modx->invokeEvent('OnDocDuplicate', array(
 		'id' => $docid,
-		'new_id' => $newparent
+		'new_id' => $new_id
 	));
 
 	// Start duplicating all the child documents that aren't deleted.
 	$_toplevel++;
-	$rs = $modx->db->select('id', $tblsc, 'parent='.$docid.' AND deleted=0', 'id ASC');
-	if ($modx->db->getRecordCount($rs)) {
+	$rs = $modx->db->select('id', $tbl_site_content, "parent={$docid} AND deleted=0", 'id ASC');
+	if ($modx->db->getRecordCount($rs))
+	{
 		while ($row = $modx->db->getRow($rs))
 		{
-			duplicateDocument($row['id'], $newparent, $_toplevel);
+			duplicateDocument($row['id'], $new_id, $_toplevel);
 		}
 	}
 
 	// return the new doc id
-	return $newparent;
+	return $new_id;
 }
 
 // Duplicate Keywords
@@ -146,7 +139,7 @@ function duplicateKeywords($oldid,$newid){
 
 	$modx->db->insert(
 		array('content_id'=>'', 'keyword_id'=>''), $tblkw, // Insert into
-		$newid.', keyword_id', $tblkw, 'content_id='.$oldid // Copy from
+		"{$newid}, keyword_id", $tblkw, "content_id={$oldid}" // Copy from
 	);
 }
 
@@ -158,7 +151,7 @@ function duplicateTVs($oldid,$newid){
 
 	$modx->db->insert(
 		array('contentid'=>'', 'tmplvarid'=>'', 'value'=>''), $tbltvc, // Insert into
-		$newid.', tmplvarid, value', $tbltvc, 'contentid='.$oldid // Copy from
+		"{$newid}, tmplvarid, value", $tbltvc, "contentid={$oldid}" // Copy from
 	);
 }
 
@@ -170,6 +163,6 @@ function duplicateAccess($oldid,$newid){
 
 	$modx->db->insert(
 		array('document'=>'', 'document_group'=>''), $tbldg, // Insert into
-		$newid.', document_group', $tbldg, 'document='.$oldid // Copy from
+		"{$newid}, document_group", $tbldg, "document={$oldid}" // Copy from
 	);
 }

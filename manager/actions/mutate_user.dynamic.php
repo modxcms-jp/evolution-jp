@@ -101,13 +101,6 @@ if ($modx->manager->hasFormValues()) {
 	extract($usersettings, EXTR_OVERWRITE);
 }
 
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
-	global $modx;
-	if ($date == "") { return "0"; }
-	else             { return $modx->toTimeStamp($date); }
-}
-
 // include the country list language file
 $_country_lang = array();
 include_once "lang/country/english_country.inc.php";
@@ -513,54 +506,41 @@ while ($file = $dir->read()) {
 $dir->close();
 ?> 
               </select>
+              <div><?php echo $_lang["language_message"]; ?></div>
          </td>
 	  </tr>
-	   <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["language_message"] ?></td>
-          </tr>
           <tr>
             <th><?php echo $_lang["mgr_login_start"] ?></th>
-            <td ><input onchange="documentDirty=true;" type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>"></td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["mgr_login_start_message"] ?></td>
+            <td ><input onchange="documentDirty=true;" type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
+            <div><?php echo $_lang["mgr_login_start_message"] ?></div>
+            </td>
           </tr>
           <tr>
             <th><?php echo $_lang["allow_mgr_access"] ?></th>
             <td>
             	<input onchange="documentDirty=true;" type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?> <br />
             	<input onchange="documentDirty=true;" type="radio" name="allow_manager_access" value="0" <?php echo isset($usersettings['allow_manager_access']) && $usersettings['allow_manager_access']==0 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['no']; ?>
+            	<div><?php echo $_lang["allow_mgr_access_message"] ?></div>
             </td>
           </tr>
           <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["allow_mgr_access_message"] ?></td>
-          </tr>
-          <tr>
             <th><?php echo $_lang["login_allowed_ip"] ?></th>
-            <td ><input onchange="documentDirty=true;"  type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $usersettings['allowed_ip']; ?>" /></td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["login_allowed_ip_message"] ?></td>
+            <td ><input onchange="documentDirty=true;"  type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $usersettings['allowed_ip']; ?>" />
+            <div><?php echo $_lang["login_allowed_ip_message"] ?></div>
+            </td>
           </tr>
           <tr>
             <th><?php echo $_lang["login_allowed_days"] ?></th>
             <td>
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="1" <?php echo strpos($usersettings['allowed_days'],'1')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['sunday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="2" <?php echo strpos($usersettings['allowed_days'],'2')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['monday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="3" <?php echo strpos($usersettings['allowed_days'],'3')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['tuesday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="4" <?php echo strpos($usersettings['allowed_days'],'4')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['wednesday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="5" <?php echo strpos($usersettings['allowed_days'],'5')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['thursday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="6" <?php echo strpos($usersettings['allowed_days'],'6')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['friday']; ?><br />
-            	<input onchange="documentDirty=true;" type="checkbox" name="allowed_days[]" value="7" <?php echo strpos($usersettings['allowed_days'],'7')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['saturday']; ?><br />
+            <?php echo checkbox('allowed_days[]','1',$_lang['sunday'],   strpos($usersettings['allowed_days'],'1')!==false);?>
+            <?php echo checkbox('allowed_days[]','2',$_lang['monday'],   strpos($usersettings['allowed_days'],'2')!==false);?>
+            <?php echo checkbox('allowed_days[]','3',$_lang['tuesday'],  strpos($usersettings['allowed_days'],'3')!==false);?>
+            <?php echo checkbox('allowed_days[]','4',$_lang['wednesday'],strpos($usersettings['allowed_days'],'4')!==false);?>
+            <?php echo checkbox('allowed_days[]','5',$_lang['thursday'], strpos($usersettings['allowed_days'],'5')!==false);?>
+            <?php echo checkbox('allowed_days[]','6',$_lang['friday'],   strpos($usersettings['allowed_days'],'6')!==false);?>
+            <?php echo checkbox('allowed_days[]','7',$_lang['saturday'], strpos($usersettings['allowed_days'],'7')!==false);?>
+            <div><?php echo $_lang["login_allowed_days_message"]; ?></div>
             </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["login_allowed_days_message"] ?></td>
           </tr>
           <tr>
           <th><?php echo $_lang["manager_theme"]?></th>
@@ -578,75 +558,54 @@ $dir->close();
 		}
 		$dir->close();
 ?>
-             </select><input type="hidden" name="theme_refresher" value=""></td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["manager_theme_message"]?></td>
+             </select><input type="hidden" name="theme_refresher" value="">
+             <div><?php echo $_lang["manager_theme_message"];?></div></td>
           </tr>
           <tr>
             <th><?php echo $_lang["filemanager_path_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="filemanager_path" value="<?php echo htmlspecialchars(isset($usersettings['filemanager_path']) ? $usersettings['filemanager_path']:""); ?>">
+              <div><?php echo $_lang["filemanager_path_message"];?></div>
               </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["filemanager_path_message"]?></td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_images_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
-              &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?><br />
+              &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?>
+              <div><?php echo $_lang["uploadable_images_message"].$_lang["user_upload_message"]?></div>
             </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["uploadable_images_message"].$_lang["user_upload_message"]?></td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_media_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : "" ; ?>">
-				&nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?><br />            
+				&nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?>
+				<div><?php echo $_lang["uploadable_media_message"].$_lang["user_upload_message"]?></div>
             </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["uploadable_media_message"].$_lang["user_upload_message"]?></td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_flash_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($usersettings['upload_flash']) ? $usersettings['upload_flash'] : "" ; ?>">
-            &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?><br />
+            &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?>
+            <div><?php echo $_lang["uploadable_flash_message"].$_lang["user_upload_message"]?></div>
             </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["uploadable_flash_message"].$_lang["user_upload_message"]?></td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_files_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : "" ; ?>">
-            &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?><br />
+            &nbsp;&nbsp; <input onchange="documentDirty=true;" type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?>
+            <div><?php echo $_lang["uploadable_files_message"].$_lang["user_upload_message"]?></div>
             </td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["uploadable_files_message"].$_lang["user_upload_message"]?></td>
           </tr>
           <tr class='row2'>
             <th><?php echo $_lang["upload_maxsize_title"]?></th>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
+              <div><?php echo $_lang["upload_maxsize_message"]?></div>
             </td>
-          </tr>
-          <tr class='row2'>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["upload_maxsize_message"]?></td>
           </tr>
           <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["which_editor_title"]?></th>
@@ -666,38 +625,26 @@ if (is_array($evtOut))
 	}
 ?>
 				</select>
+				<div><?php echo $_lang["which_editor_message"]?></div>
 			</td>
-          </tr>
-          <tr id='editorRow1' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["which_editor_message"]?></td>
           </tr>
           <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["editor_css_path_title"]?></th>
             <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
+            <div><?php echo $_lang["editor_css_path_message"]?></div>
 			</td>
-          </tr>
-          <tr id='editorRow15' class='row3' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["editor_css_path_message"]?></td>
           </tr>
           <tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["rb_base_dir_title"]?></th>
             <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
+            <div><?php echo $_lang["rb_base_dir_message"]?></div>
               </td>
-          </tr>
-          <tr id='rbRow2' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["rb_base_dir_message"]?></td>
           </tr>
           <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["rb_base_url_title"]?></th>
             <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
+            <div><?php echo $_lang["rb_base_url_message"]?></div>
               </td>
-          </tr>
-          <tr id='rbRow5' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["rb_base_url_message"]?></td>
           </tr>
 		  <tr class='row1'>
             <td colspan="2" style="padding:0;">
@@ -742,14 +689,17 @@ if (is_array($evtOut))
         <table class="settings">
           <tr>
             <th><?php echo $_lang["user_photo"] ?></th>
-            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" /></td>
-          </tr>
-          <tr>
-            <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["user_photo_message"] ?></td>
-          </tr>
-          <tr>
-              <td colspan="2" align="center"><img name="iphoto" src="<?php echo !empty($userdata['photo']) ? MODX_SITE_URL.$userdata['photo'] : $_style['tx']; ?>" /></td>
+            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
+            <div><?php echo $_lang["user_photo_message"]; ?></div>
+              <?php
+              	if(!empty($userdata['photo']))
+              	{
+              	?>
+              <img name="iphoto" src="<?php echo MODX_SITE_URL . $userdata['photo']; ?>" />
+              	<?php
+              	}
+              	?>
+            </td>
           </tr>
 		</table>
 	</div>
@@ -824,4 +774,27 @@ if (is_array($evtOut))
 function selected($cond=false)
 {
 	if($cond) return ' selected="selected"';
+}
+
+// converts date format dd-mm-yyyy to php date
+function ConvertDate($date) {
+	global $modx;
+	if ($date == "") { return "0"; }
+	else             { return $modx->toTimeStamp($date); }
+}
+
+function checkbox($name,$value,$label,$cond)
+{
+	global $modx;
+	$tpl = '<label><input onchange="documentDirty=true;" type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
+	$ph['name'] = $name;
+	$ph['value'] = $value;
+	$ph['label'] = $label;
+	$ph['checked'] = checked($cond);
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function checked($cond=false)
+{
+	if($cond===true) return 'checked="checked"';
 }
