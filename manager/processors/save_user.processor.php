@@ -185,6 +185,7 @@ switch ($_POST['mode']) {
 			"mode" => "new",
 			"id" => $key
 		));
+		unset($_SESSION['mgrUsrConfigSet']);
 
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
@@ -371,6 +372,7 @@ switch ($_POST['mode']) {
 			"mode" => "upd",
 			"id" => $id
 		));
+		unset($_SESSION['mgrUsrConfigSet']);
 
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
