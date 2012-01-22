@@ -53,6 +53,8 @@ switch ($e->name)
 		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mgrValidated'])))
 		{
 			$params['theme']           = $modx->config['tinymce_editor_theme'];
+			$params['mce_editor_skin'] = $modx->config['mce_editor_skin'];
+			$params['mce_entermode']   = $modx->config['mce_entermode'];
 			$params['language']        = get_mce_lang($modx->config['manager_language']);
 			$params['frontend']        = false;
 			$params['custom_plugins']  = $modx->config['tinymce_custom_plugins'];
@@ -88,11 +90,10 @@ switch ($e->name)
 
 	case "OnInterfaceSettingsRender":
 		global $usersettings,$settings;
-		$action = $modx->manager->action;
-		switch ($action)
+		switch ($modx->manager->action)
 		{
     		case 11:
-        		$mce_settings = '';
+        		$mce_settings = array();
         		break;
     		case 12:
         		$mce_settings = $usersettings;
@@ -105,8 +106,9 @@ switch ($e->name)
         		break;
     	}
     	
-		$params['use_editor']       = $modx->config['base_url'].$modx->config['use_editor'];
 		$params['theme']            = $mce_settings['tinymce_editor_theme'];
+		$params['mce_editor_skin']  = $mce_settings['mce_editor_skin'];
+		$params['mce_entermode']    = $mce_settings['mce_entermode'];
 		$params['css_selectors']    = $mce_settings['tinymce_css_selectors'];
 		$params['custom_plugins']   = $mce_settings['tinymce_custom_plugins'];
 		$params['custom_buttons1']  = $mce_settings['tinymce_custom_buttons1'];

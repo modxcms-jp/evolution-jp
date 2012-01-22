@@ -10,11 +10,13 @@ class TinyMCE
 		include_once $params['mce_path'] . 'settings/lang.php';
 	}
 	
-	function get_skin_names()
+	function get_skin_names($params)
 	{
-		global $modx;
+		global $modx,$_lang;
 		
 		$skin_dir = $this->mce_path . 'jscripts/tiny_mce/themes/advanced/skins/';
+		$selected = $this->selected(empty($params['mce_editor_skin']));
+		$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
 		foreach(glob("{$skin_dir}*",GLOB_ONLYDIR) as $dir)
 		{
 			$dir = str_replace('\\','/',$dir);
@@ -37,7 +39,7 @@ class TinyMCE
 				{
 					if($v==='default') $value = $k;
 					else               $value = "{$k}:{$v}";
-					$selected = $this->selected($value == $modx->config['mce_editor_skin']);
+					$selected = $this->selected($value == $params['mce_editor_skin']);
 					$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$value}</option>";
 				}
 			}
@@ -79,7 +81,7 @@ class TinyMCE
 		$themes['custom']   = $_lang['mce_theme_custom'];
 		foreach ($themes as $key => $value)
 		{
-			$selected = $this->selected($key == $modx->config['tinymce_editor_theme']);
+			$selected = $this->selected($key == $params['theme']);
 			$key = '"' . $key . '"';
 			$theme_options .= "<option value={$key}{$selected}>{$value}</option>" . PHP_EOL;
 		}
@@ -89,10 +91,15 @@ class TinyMCE
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
 		
 		$ph['theme_options'] = $theme_options;
-		$ph['skin_options']  = $this->get_skin_names();
+		$ph['skin_options']  = $this->get_skin_names($params);
 		
-		$ph['entermode_options']  = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($modx->config['mce_entermode']!='br') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
-		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($modx->config['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
+		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($params['mce_entermode']=='p') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
+		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($params['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
+		if($modx->manager->action=='12')
+		{
+			$ph['entermode_options']  .= '<br />';
+			$ph['entermode_options']  .= '<label><input name="mce_entermode" type="radio" value="" '.  $this->checked(empty($params['mce_entermode'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+		}
 		
 		include_once $params['mce_path'] . 'settings/default_params.php';
 		
@@ -173,7 +180,7 @@ class TinyMCE
 	
 	function build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4)
 	{
-		global $modx, $action;
+		global $modx;
 		
 		$ph['mce_url'] = $params['mce_url'];
 		$ph['elmList'] = implode(",", $params['elements']);
@@ -232,7 +239,7 @@ class TinyMCE
 				$ph['convert_urls']       = 'false';
 		}
 		
-		if($modx->config['mce_entermode']!=='br' && $action !== '78')
+		if($modx->config['mce_entermode']!=='br' && $modx->manager->action !== '78')
 		{
 			$ph['forced_root_block']  = 'p';
 			$ph['force_p_newlines']   = 'true';
