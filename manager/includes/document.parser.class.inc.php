@@ -891,7 +891,7 @@ class DocumentParser {
 				$this->logEvent(1, 3, $log, $plugin);
 				if ($this->isBackend())
 				{
-					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p />{$msg}");
+					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$msg}</p>");
 				}
 			}
 		}
@@ -929,7 +929,7 @@ class DocumentParser {
 				$this->logEvent(1, 3, $log,$snip);
 				if ($this->isBackend())
 				{
-					$this->event->alert("An error occurred while loading. Please see the event log for more information<p />{$msg}");
+					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
 				}
 			}
 		}
