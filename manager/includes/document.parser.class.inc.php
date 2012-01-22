@@ -265,7 +265,7 @@ class DocumentParser {
 					// invoke the OnBeforeManagerPageInit event, only if in backend
 					$this->invokeEvent('OnBeforeManagerPageInit');
 				}
-				if (isset ($_SESSION["{$usrType}UsrConfigSet"]))
+				if (isset ($_SESSION["{$usrType}UsrConfigSet"]) && 0 < count($_SESSION["{$usrType}UsrConfigSet"]))
 				{
 					$usrSettings= & $_SESSION["{$usrType}UsrConfigSet"];
 				}
