@@ -19,7 +19,7 @@ class Qm {
 		extract($params);
 		
 		// Get plugin parameters
-		$this->jqpath = $jqpath;
+		$this->jqpath = 'assets/js/getjs.php?target=jquery';
 		$this->loadmanagerjq = $loadmanagerjq;
 		$this->loadfrontendjq = $loadfrontendjq;
 		$this->noconflictjq = $noconflictjq;
