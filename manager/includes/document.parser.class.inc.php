@@ -1530,6 +1530,7 @@ class DocumentParser {
 			if ($this->documentObject['deleted'] == 1)
 			{
 				$this->sendErrorPage();
+				exit;
 			}
 			//  && !$this->checkPreview()
 			if ($this->documentObject['published'] == 0)
@@ -1538,6 +1539,7 @@ class DocumentParser {
 				if (!$this->hasPermission('view_unpublished'))
 				{
 					$this->sendErrorPage();
+					exit;
 				}
 				else
 				{
@@ -1551,6 +1553,7 @@ class DocumentParser {
 					if (!$udperms->checkPermissions())
 					{
 						$this->sendErrorPage();
+						exit;
 					}
 				}
 			}
@@ -1599,18 +1602,12 @@ class DocumentParser {
 			
 			// Parse document source
 			$this->documentContent= $this->parseDocumentSource($this->documentContent);
-			
-			// setup <base> tag for friendly urls
-			//			if($this->config['friendly_urls']==1 && $this->config['use_alias_path']==1) {
-			//				$this->regClientStartupHTMLBlock('<base href="'.$this->config['site_url'].'" />');
-			//			}
 		}
 		register_shutdown_function(array (
 		& $this,
 		'postProcess'
 		)); // tell PHP to call postProcess when it shuts down
 		$this->outputContent();
-		//$this->postProcess();
 	}
 	
 	/***************************************************************************************/
@@ -1714,7 +1711,7 @@ class DocumentParser {
 		}
 		else
 		{
-			$act= ($url ? "window.location.href='" . addslashes($url) . "';" : '');
+			$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
 		}
 		$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
 		if ($this->isFrontend())
@@ -1889,7 +1886,7 @@ class DocumentParser {
 		return $resourceArray;
 	}
 	
-	function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '')
+	function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
 	{
 		if (count($ids) == 0)
 		{
@@ -2158,125 +2155,144 @@ class DocumentParser {
 		$listhtml = "{$tabs}</{$tag}>\n";
 		return $listhtml;
 	}
+		
+	function runSnippet($snippetName, $params= array ())
+	{
+		if (isset ($this->snippetCache[$snippetName]))
+		{
+			$snippet= $this->snippetCache[$snippetName];
+			$properties= $this->snippetCache["{$snippetName}Props"];
+		}
+		else
+		{ // not in cache so let's check the db
+			$tbl_site_snippets = $this->getFullTableName('site_snippets');
+			$esc_name = $this->db->escape($snippetName);
+			$result= $this->db->select('name,snippet,properties',$tbl_site_snippets,"name='{$esc_name}'");
+			if ($this->db->getRecordCount($result) == 1)
+			{
+				$snippet= $this->snippetCache[$snippetName]= $row['snippet'];
+				$properties= $this->snippetCache["{$snippetName}Props"]= $row['properties'];
+			}
+			else
+			{
+				$snippet= $this->snippetCache[$snippetName]= "return false;";
+				$properties= '';
+			}
+		}
+		// load default params/properties
+		$parameters= $this->parseProperties($properties);
+		$parameters= array_merge($parameters, $params);
+		// run snippet
+		return $this->evalSnippet($snippet, $parameters);
+	}
+		
+	function getChunk($chunkName)
+	{
+		if(isset($this->chunkCache[$chunkName]))
+		{
+			$t= $this->chunkCache[$chunkName];
+			return $t;
+		}
+	}
+	
+	function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
+	{
+		if (!is_array($chunkArr)) return false;
+		
+		if($mode==='chunk') $src= $this->getChunk($chunkName);
+		else                $src = $chunkName;
+		
+		foreach ($chunkArr as $key => $value)
+		{
+			$src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
+		}
+		return $src;
+	}
 
-    function runSnippet($snippetName, $params= array ()) {
-        if (isset ($this->snippetCache[$snippetName])) {
-            $snippet= $this->snippetCache[$snippetName];
-            $properties= $this->snippetCache[$snippetName . "Props"];
-        } else { // not in cache so let's check the db
-            $sql= "SELECT `name`, `snippet`, `properties` FROM " . $this->getFullTableName("site_snippets") . " WHERE " . $this->getFullTableName("site_snippets") . ".`name`='" . $this->db->escape($snippetName) . "';";
-            $result= $this->db->query($sql);
-            if ($this->db->getRecordCount($result) == 1) {
-                $row= $this->db->getRow($result);
-                $snippet= $this->snippetCache[$row['name']]= $row['snippet'];
-                $properties= $this->snippetCache[$row['name'] . "Props"]= $row['properties'];
-            } else {
-                $snippet= $this->snippetCache[$snippetName]= "return false;";
-                $properties= '';
-            }
-        }
-        // load default params/properties
-        $parameters= $this->parseProperties($properties);
-        $parameters= array_merge($parameters, $params);
-        // run snippet
-        return $this->evalSnippet($snippet, $parameters);
-    }
-
-    function getChunk($chunkName) {
-        if(isset($this->chunkCache[$chunkName]))
-        {
-	        $t= $this->chunkCache[$chunkName];
-	        return $t;
-        }
-    }
-
-    function parseChunk($chunkName, $chunkArr, $prefix= "{", $suffix= "}",$mode='chunk') {
-        if (!is_array($chunkArr)) {
-            return false;
-        }
-        if($mode==='chunk')
-        {
-            $src= $this->getChunk($chunkName);
-        }
-        else $src = $chunkName;
-        
-        foreach ($chunkArr as $key => $value) {
-            $src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
-        }
-        return $src;
-    }
-    
 	function parsePlaceholder($src, $ph, $left= "[+", $right= "+]",$mode='ph')
 	{ // jp-edition only
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
-    function getUserData() {
-        include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
-        return $tmpArray;
-    }
-
-    function toDateFormat($timestamp = 0, $mode = '') {
-        $timestamp = trim($timestamp);
-        $timestamp = intval($timestamp);
-        
-        switch($this->config['datetime_format']) {
-            case 'YYYY/mm/dd':
-                $dateFormat = '%Y/%m/%d';
-                break;
-            case 'dd-mm-YYYY':
-                $dateFormat = '%d-%m-%Y';
-                break;
-            case 'mm/dd/YYYY':
-                $dateFormat = '%m/%d/%Y';
-                break;
-            /*
-            case 'dd-mmm-YYYY':
-                $dateFormat = '%e-%b-%Y';
-                break;
-            */
-        }
-        
-        if (empty($mode)) {
-            $strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
-        } elseif ($mode == 'dateOnly') {
-            $strTime = $this->mb_strftime($dateFormat, $timestamp);
-        } elseif ($mode == 'formatOnly') {
-        	$strTime = $dateFormat;
-        }
-        return $strTime;
-    }
-
-    function toTimeStamp($str) {
-        $str = trim($str);
-        if (empty($str)) {return '';}
-
-        switch($this->config['datetime_format']) {
-            case 'YYYY/mm/dd':
-            	if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {return '';}
-                list ($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
-                break;
-            case 'dd-mm-YYYY':
-            	if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {return '';}
-                list ($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
-                break;
-            case 'mm/dd/YYYY':
-            	if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {return '';}
-                list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
-                break;
-            /*
-            case 'dd-mmm-YYYY':
-            	if (!preg_match('/^[0-9]{2}-[0-9a-z]+-[0-9]{4}[0-9 :]*$/i', $str)) {return '';}
-            	list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d-%3s-%4d %2d:%2d:%2d');
-                break;
-            */
-        }
-        if (!$H && !$M && !$S) {$H = 0; $M = 0; $S = 0;}
-        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = intval($timeStamp);
-        return $timeStamp;
-    }
-
+	function getUserData()
+	{
+		include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
+		return $tmpArray;
+	}
+		
+	function toDateFormat($timestamp = 0, $mode = '')
+	{
+		$timestamp = trim($timestamp);
+		$timestamp = intval($timestamp);
+		
+		switch($this->config['datetime_format'])
+		{
+			case 'YYYY/mm/dd':
+				$dateFormat = '%Y/%m/%d';
+				break;
+			case 'dd-mm-YYYY':
+				$dateFormat = '%d-%m-%Y';
+				break;
+			case 'mm/dd/YYYY':
+				$dateFormat = '%m/%d/%Y';
+				break;
+		}
+		
+		if (empty($mode))
+		{
+			$strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
+		}
+		elseif ($mode == 'dateOnly')
+		{
+			$strTime = $this->mb_strftime($dateFormat, $timestamp);
+		}
+		elseif ($mode == 'formatOnly')
+		{
+			$strTime = $dateFormat;
+		}
+		return $strTime;
+	}
+	
+	function toTimeStamp($str)
+	{
+		$str = trim($str);
+		if (empty($str)) return '';
+		
+		switch($this->config['datetime_format'])
+		{
+			case 'YYYY/mm/dd':
+				if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
+				list ($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
+				break;
+			case 'dd-mm-YYYY':
+				if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
+				list ($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
+				break;
+			case 'mm/dd/YYYY':
+				if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str))
+				{
+					return '';
+				}
+				list ($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
+				break;
+		}
+		if (!$H && !$M && !$S)
+		{
+			$H = 0;
+			$M = 0;
+			$S = 0;
+		}
+		$timeStamp = mktime($H, $M, $S, $m, $d, $Y);
+		$timeStamp = intval($timeStamp);
+		return $timeStamp;
+	}
+	
 	function mb_strftime($format='%Y/%m/%d', $timestamp='')
 	{
 		$a = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
@@ -2292,98 +2308,105 @@ class DocumentParser {
 		$str = '';
 		foreach($pieces as $v)
 		{
-			if    ($v == '%a')             $str .= $a[$w];
-			elseif($v == '%A')             $str .= $A[$w];
-			elseif($v == '%p')             $str .= $p[$ampm];
-			elseif($v == '%P')             $str .= $P[$ampm];
-			elseif(strpos($v,'%')!==false) $str .= strftime($v, $timestamp);
-			else                           $str .= $v;
+		if    ($v == '%a')             $str .= $a[$w];
+		elseif($v == '%A')             $str .= $A[$w];
+		elseif($v == '%p')             $str .= $p[$ampm];
+		elseif($v == '%P')             $str .= $P[$ampm];
+		elseif(strpos($v,'%')!==false) $str .= strftime($v, $timestamp);
+		else                           $str .= $v;
 		}
 		return $str;
 	}
-
-    #::::::::::::::::::::::::::::::::::::::::
-    # Added By: Raymond Irving - MODx
-    #
-
-    function getDocumentChildrenTVars($parentid= 0, $tvidnames= array (), $published= 1, $docsort= "menuindex", $docsortdir= "ASC", $tvfields= '*', $tvsort= "rank", $tvsortdir= "ASC") {
-        $docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs)
-            return false;
-        else {
-            $result= array ();
-            // get user defined template variables
-            $fields= ($tvfields == '') ? "tv.*" : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvfields)));
-            $tvsort= ($tvsort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvsort)));
-            if ($tvidnames == '*')
-                $query= "tv.id<>0";
-            else
-                $query= (is_numeric($tvidnames[0]) ? "tv.id" : "tv.name") . " IN ('" . implode("','", $tvidnames) . "')";
-            if ($docgrp= $this->getUserDocGroups())
-                $docgrp= implode(",", $docgrp);
-
-            $docCount= count($docs);
-            for ($i= 0; $i < $docCount; $i++) {
-
-                $tvs= array ();
-                $docRow= $docs[$i];
-                $docid= $docRow['id'];
-
-                $sql= "SELECT $fields, IF(tvc.value!='',tvc.value,tv.default_text) as value ";
-                $sql .= "FROM " . $this->getFullTableName('site_tmplvars') . " tv ";
-                $sql .= "INNER JOIN " . $this->getFullTableName('site_tmplvar_templates')." tvtpl ON tvtpl.tmplvarid = tv.id ";
-                $sql .= "LEFT JOIN " . $this->getFullTableName('site_tmplvar_contentvalues')." tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '" . $docid . "' ";
-                $sql .= "WHERE " . $query . " AND tvtpl.templateid = " . $docRow['template'];
-                if ($tvsort)
-                    $sql .= " ORDER BY $tvsort $tvsortdir ";
-                $rs= $this->db->query($sql);
-                $limit= @ $this->db->getRecordCount($rs);
-                for ($x= 0; $x < $limit; $x++) {
-                    $tvs[] = @ $this->db->getRow($rs);
-                }
-
-                // get default/built-in template variables
-                ksort($docRow);
-                foreach ($docRow as $key => $value) {
-                    if ($tvidnames == '*' || in_array($key, $tvidnames))
-                        $tvs[] = array (
-                            "name" => $key,
-                            "value" => $value
-                        );
-                }
-
-                if (count($tvs))
-                    $result[] = $tvs;
-            }
-            return $result;
-        }
-    }
-
-    function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= array (), $published= 1, $docsort= "menuindex", $docsortdir= "ASC") {
-        $docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs)
-            return false;
-        else {
-            $result= array ();
-            for ($i= 0; $i < count($docs); $i++) {
-                $tvs= $this->getTemplateVarOutput($tvidnames, $docs[$i]["id"], $published);
-                if ($tvs)
-                    $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
-            }
-            return $result;
-        }
-    }
-
-    // Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
-    # returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVar($idname= '', $fields= '*', $docid= '', $published= 1) {
-        if ($idname == '') {
-            return false;
-        } else {
-            $result= $this->getTemplateVars(array ($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
-            return ($result != false) ? $result[0] : false;
-        }
-    }
+	
+	#::::::::::::::::::::::::::::::::::::::::
+	# Added By: Raymond Irving - MODx
+	#
+	
+	function getDocumentChildrenTVars($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+	{
+		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
+		if (!$docs) return false;
+		else
+		{
+			$result= array ();
+			// get user defined template variables
+			$fields= ($tvfields == '') ? 'tv.*' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvfields)));
+			$tvsort= ($tvsort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvsort)));
+			if ($tvidnames == '*') $query= 'tv.id<>0';
+			else
+			{
+				$join_tvidnames = implode("','", $tvidnames);
+				$query  = is_numeric($tvidnames[0]) ? 'tv.id' : 'tv.name';
+				$query .= " IN ('{$join_tvidnames}')";
+			}
+			if ($docgrp= $this->getUserDocGroups())
+			{
+				$docgrp= implode(',', $docgrp);
+			}
+			$tbl_site_tmplvars              = $this->getFullTableName('site_tmplvars');
+			$tbl_site_tmplvar_templates     = $this->getFullTableName('site_tmplvar_templates');
+			$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
+			$docCount= count($docs);
+			for ($i= 0; $i < $docCount; $i++)
+			{
+				$tvs= array ();
+				$docRow= $docs[$i];
+				$docid= $docRow['id'];
+				
+				$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+				$from    = "{$tbl_site_tmplvars} tv INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id";
+				$from   .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
+				$where   = "{$query} AND tvtpl.templateid = {$docRow['template']}";
+				$orderby = ($tvsort) ? "{$tvsort} {$tvsortdir}" : '';
+				$rs= $this->db->select($fields,$from,$where,$orderby);
+				$total= $this->db->getRecordCount($rs);
+				for ($x= 0; $x < $total; $x++)
+				{
+					$tvs[] = @ $this->db->getRow($rs);
+				}
+				
+				// get default/built-in template variables
+				ksort($docRow);
+				foreach ($docRow as $key => $value)
+				{
+					if ($tvidnames == '*' || in_array($key, $tvidnames))
+					{
+						$tvs[] = array ('name'=>$key, 'value'=>$value);
+					}
+				}
+				if (count($tvs)) $result[] = $tvs;
+			}
+			return $result;
+		}
+	}
+		
+	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
+	{
+		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
+		if (!$docs) return false;
+		else
+		{
+			$result= array ();
+			for ($i= 0; $i < count($docs); $i++)
+			{
+				$tvs= $this->getTemplateVarOutput($tvidnames, $docs[$i]["id"], $published);
+				if ($tvs) $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+			}
+			return $result;
+		}
+	}
+	
+	// Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
+	# returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
+	function getTemplateVar($idname= '', $fields= '*', $docid= '', $published= 1)
+	{
+		if ($idname == '') return false;
+		else
+		{
+			$result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
+			return ($result != false) ? $result[0] : false;
+		}
+	}
 
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
