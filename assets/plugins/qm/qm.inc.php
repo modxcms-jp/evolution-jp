@@ -103,7 +103,8 @@ class Qm {
 					}
 					
 					// Redirect to clearer page which refreshes parent window and closes modal box frame
-					$this->modx->sendRedirect($this->modx->config['base_url'].'index.php?id='.$id.'&quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
+					$url = $this->modx->makeUrl($id,'','','full');
+					$this->modx->sendRedirect("{$url}?quickmanagerclose=1", 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
 				}
 				break;
 				
@@ -141,7 +142,7 @@ class Qm {
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title></title>
 </head>
-<body onload="javascript: parent.location.href = \''.$url.'\';">
+<body onload="javascript: parent.location.href = \'' . $url . '\';">
 </body>
 </html>
 ';
@@ -749,7 +750,8 @@ function getCookie(cookieName)
 					// Redirect to document id
 					if ($this->logout != 'manager')
 					{
-						$this->modx->sendRedirect($this->modx->makeUrl($_REQUEST['logoutid']), 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
+						$url = $this->modx->makeUrl($_REQUEST['logoutid'],'','','full');
+						$this->modx->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
 					}
 				}
 				break;
