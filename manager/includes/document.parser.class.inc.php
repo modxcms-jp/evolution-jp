@@ -322,6 +322,12 @@ class DocumentParser {
 	function getDocumentMethod()
 	{
 		// function to test the query and find the retrieval method
+		if(!isset($_REQUEST['id']))
+		{
+			$_REQUEST['q'] = ltrim($_SERVER['REQUEST_URI'],'/');
+			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
+		}
+		
 		if(isset($_REQUEST['q']))        return 'alias';
 		elseif(isset ($_REQUEST['id']))  return 'id';
 		else                             return 'none';
