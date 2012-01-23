@@ -454,10 +454,15 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		<div class="sectionBody">
 		<h3><?php echo $_lang['page_data_general']?></h3>
 		<table>
-			<tr><td width="200"><?php echo $_lang['resource_title']?>: </td>
-				<td><b><?php echo $content['pagetitle']?></b></td></tr>
+			<tr><td width="200">ID: </td>
+				<td><?php echo $content['id']?></td>
+			</tr>
+			<tr><td><?php echo $_lang['resource_title']?>: </td>
+				<td><?php echo $content['pagetitle']?></td>
+			</tr>
 			<tr><td><?php echo $_lang['long_title']?>: </td>
-				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td></tr>
+				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td>
+			</tr>
 			<tr><td><?php echo $_lang['resource_description']?>: </td>
 				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
 			<tr><td><?php echo $_lang['resource_summary']?>: </td>
