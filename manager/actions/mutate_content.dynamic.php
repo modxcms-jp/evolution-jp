@@ -36,9 +36,8 @@ switch ($_REQUEST['a']) {
 }
 
 
-if (isset($_REQUEST['id']))
-        $id = (int)$_REQUEST['id'];
-else    $id = 0;
+if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
+else                        $id = 0;
 
 if ($manager_theme)
         $manager_theme .= '/';
@@ -103,28 +102,34 @@ if ($_SESSION['mgrDocgroups']) {
 	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
 }
 
-if (!empty ($id)) {
-	$access = "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0" .
-		(!$docgrp ? '' : " OR dg.document_group IN ($docgrp)");
+if ($id != 0)
+{
+	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+	$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
 	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document=sc.id";
 	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
 	$limit = $modx->db->getRecordCount($rs);
-	if ($limit > 1) {
+	if ($limit > 1)
+	{
 		$e->setError(6);
 		$e->dumpError();
 	}
-	if ($limit < 1) {
+	if ($limit < 1)
+	{
 		$e->setError(3);
 		$e->dumpError();
 	}
 	$content = $modx->db->getRow($rs);
-} else {
+}
+else
+{
 	$content = array();
 }
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
+if ($modx->manager->hasFormValues())
+{
 	$modx->manager->loadFormValues();
 	$formRestored = true;
 }
@@ -132,37 +137,46 @@ if ($modx->manager->hasFormValues()) {
 // retain form values if template was changed
 // edited to convert pub_date and unpub_date
 // sottwell 02-09-2006
-if ($formRestored == true || isset ($_REQUEST['newtemplate'])) {
+if ($formRestored == true || isset ($_REQUEST['newtemplate']))
+{
 	$content = array_merge($content, $_POST);
 	$content['content'] = $_POST['ta'];
-	if (empty ($content['pub_date'])) {
+	if (empty ($content['pub_date']))
+	{
 		unset ($content['pub_date']);
-	} else {
+	}
+	else
+	{
 		$content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
 	}
-	if (empty ($content['unpub_date'])) {
+	if (empty ($content['unpub_date']))
+	{
 		unset ($content['unpub_date']);
-	} else {
+	}
+	else
+	{
 		$content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
 	}
 }
 
 // increase menu index if this is a new document
-if (empty($_REQUEST['id'])) {
+if (empty($_REQUEST['id']))
+{
 	if (is_null($auto_menuindex) || $auto_menuindex)
 	{
 		$pid = intval($_REQUEST['pid']);
 		$content['menuindex'] = $modx->db->getValue($modx->db->select('count(id)',$tbl_site_content,"parent='{$pid}'")) + 1;
-	} else {
+	}
+	else
+	{
 		$content['menuindex'] = 0;
 	}
 }
 
-if (isset ($_POST['which_editor'])) {
+if (isset ($_POST['which_editor']))
+{
 	$which_editor = $_POST['which_editor'];
 }
-?>
-<?php
 $dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 ?>
@@ -405,8 +419,8 @@ function changeRTE() {
 $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
 	'id' => $id
 ));
-if (is_array($evtOut))
-	echo implode('', $evtOut);
+if (is_array($evtOut)) echo implode('', $evtOut);
+
 $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 ?>
 <input type="hidden" name="a" value="5" />
@@ -417,7 +431,10 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 <input type="hidden" name="newtemplate" value="" />
 
 <fieldset id="create_edit">
-	<h1><?php if ($_REQUEST['id']){ echo $_lang['edit_resource_title']; } else { echo $_lang['create_resource_title'];}?></h1>
+	<h1><?php
+			if ($id!=0) echo $_lang['edit_resource_title'];
+			else        echo $_lang['create_resource_title'];
+		?></h1>
 
 <div id="actions">
 	  <ul class="actionButtons">
