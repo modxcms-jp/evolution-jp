@@ -42,10 +42,8 @@ else
 	}
 }
 
-if($caption =='')
-{
-	$caption  = $name? $name: "Untitled variable";
-}
+if($name=='')     $name = 'Untitled variable';
+if($caption =='') $caption  = $name;
 switch ($_POST['mode'])
 {
     case '300':
