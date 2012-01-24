@@ -12,7 +12,7 @@ function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $ro
 	global $modx, $mm_current_page;
 	$e = &$modx->event;
 	
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		
 		$output = '';	
 				

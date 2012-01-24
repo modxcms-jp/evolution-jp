@@ -9,7 +9,7 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 	$e = &$modx->event;
 		
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$output = " // ----------- Rename field -------------- \n";
 		
@@ -68,7 +68,7 @@ function mm_hideFields($fields, $roles='', $templates='') {
 	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$e->output(" // ----------- Hide fields -------------- \n");
 	
@@ -143,7 +143,7 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 	}
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$output = " // ----------- Change field help -------------- \n";
 	
@@ -183,7 +183,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$output = " // ----------- Move field to tab -------------- \n";
 	
@@ -286,7 +286,7 @@ function mm_requireFields($fields, $roles='', $templates=''){
 	$fields = makeArray($fields);
 
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 
 		$output = " // ----------- Require field -------------- \n";
 		$output .= '

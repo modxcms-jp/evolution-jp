@@ -13,7 +13,7 @@ function mm_widget_accessdenied($ids='', $message='',  $roles='') {
 	
 	if (empty($message))  $message='<span>Access denied</span>Access to current document closed for security reasons.';
 	
-	if (useThisRule($roles)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles)) {
 		
 		$docid = (int)$_GET[id];		
 

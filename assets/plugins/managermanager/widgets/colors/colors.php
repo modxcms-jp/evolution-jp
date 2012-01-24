@@ -9,7 +9,7 @@ function mm_widget_colors($fields, $default='#ffffff', $roles='', $templates='')
 	global $modx, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 		
 		$output = '';
 		
