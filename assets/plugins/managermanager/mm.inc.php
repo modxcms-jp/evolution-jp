@@ -1,28 +1,22 @@
 <?php
-/*
-    @name       ManagerManager
-    @version    0.3.10dev
-    
-    @for        MODx Evolution 1.0.x
-    
-    @author     Nick Crossland - www.rckt.co.uk
-    
-    @DESCRIPTION
-    Used to manipulate the display of document fields in the manager.
-    
-    @INSTALLATION:
-    See /docs/install.htm
-    
-    @INSPIRATION:
-    HideEditor plugin by Timon Reinhard and Gildas; HideManagerFields by Brett @ The Man Can!
-	
-	@LICENSE:
-	(c) Rocket Science Solutions Ltd - www.rckt.co.uk
-	Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
-	
-*/
+/**
+ * @name ManagerManager
+ * @version 0.3.10 (2012-01-16)
+ * 
+ * @for MODx Evolution 1.0.x
+ * 
+ * @author Nick Crossland - www.rckt.co.uk, studio DivanDesign - www.DivanDesign.ru
+ * 
+ * @description Used to manipulate the display of document fields in the manager.
+ * 
+ * @installation See /docs/install.htm
+ * 
+ * @inspiration HideEditor plugin by Timon Reinhard and Gildas; HideManagerFields by Brett @ The Man Can!
+ * 
+ * @license Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
+ */
 
-$mm_version = '0.3.10dev';
+$mm_version = '0.3.10';
 
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
