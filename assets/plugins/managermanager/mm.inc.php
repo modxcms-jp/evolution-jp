@@ -449,5 +449,12 @@ case 'OnTVFormRender':
 break;
 
 
+case 'OnBeforeDocFormSave':
+	global $template;
+	
+	$mm_current_page['template'] = $template;
+	
+	make_changes($config_chunk);
+break;
 
 } // end switch
