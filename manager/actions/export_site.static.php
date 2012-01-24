@@ -155,7 +155,8 @@ else
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
-			if(@$somecontent = file_get_contents(MODX_SITE_URL . 'index.php?id=' . $id))
+			$somecontent = @file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
+			if($somecontent === false)
 			{
 				// save it
 				$filename = $filepath . $filename;
@@ -229,7 +230,7 @@ class EXPORT_SITE
 	{
 		global  $modx,$_lang;
 		
-		$src = @file_get_contents(MODX_SITE_URL . 'index.php?id=' . $docid);
+		$src = @file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
 		if($src !== false)
 		{
 			$repl_before = $_POST['repl_before'];
@@ -284,13 +285,17 @@ class EXPORT_SITE
 		}
 		else
 		{
-			foreach(glob($path . '/*') as $filepath)
+			$files = glob($path . '/*');
+			if(0 < count($files))
 			{
-				$filename = substr($filepath,strlen($path . '/'));
-				if(!in_array($filename, $docnames))
+				foreach($files as $filepath)
 				{
-					if(is_dir($filepath)) $this->removeDirectoryAll($filepath);
-					else                  @unlink($filepath);
+					$filename = substr($filepath,strlen($path . '/'));
+					if(!in_array($filename, $docnames))
+					{
+						if(is_dir($filepath)) $this->removeDirectoryAll($filepath);
+						else                  @unlink($filepath);
+					}
 				}
 			}
 			return TRUE;

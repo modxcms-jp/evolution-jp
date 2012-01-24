@@ -1,6 +1,5 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-$theme = $manager_theme ? "$manager_theme/":'';
 ?>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 
@@ -215,9 +214,11 @@ function createCategoryList()
 		{
 			$tbl_elm = $modx->getFullTableName($v['table']);
 			$tbl_categories = $modx->getFullTableName('categories');
-			$nameField = ($v['table'] == 'site_templates')? 'templatename': 'name';
-			$pluginsql = ($v['table'] == 'site_plugins') ? "{$tbl_elm}.disabled," : '';
-			$fields = "{$pluginsql}{$nameField} as name, {$tbl_elm}.id, description, locked, {$tbl_categories}.category, {$tbl_categories}.id as catid";
+			if($v['table'] == 'site_templates')   $fields = 'templatename as name, ';
+			elseif($v['table'] == 'site_plugins') $fields = "{$tbl_elm}.disabled, name, ";
+			else                                  $fields = 'name, ';
+			$fields .= "{$tbl_elm}.id, description, locked, {$tbl_categories}.category, {$tbl_categories}.id as catid";
+			
 			$from = "{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
 			$orderby = ($v['table'] == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
 			$rs = $modx->db->select($fields,$from,'',$orderby);
