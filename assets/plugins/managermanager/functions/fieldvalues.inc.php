@@ -156,7 +156,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 			
 			
 			default:
-				return;
+				$output .= '$j("*[name='.$field.']").val("'.$new_value.'");' . "\n"; //return;
 			break;
 		}	
 		$e->output($output . "\n");	
