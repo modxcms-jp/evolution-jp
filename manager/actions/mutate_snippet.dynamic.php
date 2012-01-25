@@ -34,7 +34,8 @@ $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 $rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=22 AND id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
+	for ($i=0;$i<$limit;$i++)
+	{
 		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
@@ -109,7 +110,7 @@ function showParameters(ctrl) {
 	dp = (f.properties.value) ? f.properties.value.split("&"):"";
 	if(!dp) tr.style.display='none';
 	else {
-		t='<table width="300" style="margin-bottom:3px;margin-left:14px;">';
+		t='<table width="300" style="margin-bottom:3px;">';
 		for(p = 0; p < dp.length; p++) {
 			dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
 			ar = dp[p].split("=");
@@ -304,23 +305,16 @@ function decode(s){
     <div class="tab-page" id="tabSnippet">
     	<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
     	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabSnippet" ) );</script>
-		<table border="0" cellspacing="0" cellpadding="0">
+		<table>
 		  <tr>
 			<td align="left"><?php echo $_lang['snippet_name']?>:</td>
-			<td align="left"><span style="font-family:'Courier New', Courier, mono">[[</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">]]</span><span class="warning" id="savingMessage">&nbsp;</span></td>
-		  </tr>
-		  <tr>
-			<td align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:&nbsp;&nbsp;</td>
-			<td align="left" style="padding-top:10px"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
-		  </tr>
-		  <tr>
-			<td style="padding-top:10px" align="left" valign="top" colspan="2"><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : ""?> class="inputBox"> <?php echo $_lang['lock_snippet']?> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></td>
+			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;">]]<span class="warning" id="savingMessage">&nbsp;</span></td>
 		  </tr>
 		</table>
 		<!-- PHP text editor start -->
-		<div style="width:100%;position:relative">
-		    <div style="padding:1px 1px 5px 1px; width:100%; height:16px;background-color:#eeeeee; border-top:1px solid #e0e0e0;margin-top:5px">
-		    	<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['snippet_code']?></span>
+		<div>
+		    <div style="padding:1px 1px 5px 1px; height:16px;background-color:#eeeeee; border-top:1px solid #e0e0e0;margin-top:5px">
+		    	<span style="float:left;font-weight:bold;"><?php echo $_lang['snippet_code']?></span>
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox" checked='checked' class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
 			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" onchange="documentDirty=true;"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
@@ -332,11 +326,10 @@ function decode(s){
     <div class="tab-page" id="tabProps">
     	<h2 class="tab"><?php echo $_lang['settings_properties']?></h2>
     	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabProps" ) );</script>
-		<table width="90%" border="0" cellspacing="0" cellpadding="0">
+		<table>
           <tr>
-			<td align="left"><?php echo $_lang['existing_category']?>:&nbsp;&nbsp;</td>
-			<td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="categoryid" style="width:300px;" onChange="documentDirty=true;">
-					<option>&nbsp;</option>
+			<td align="left"><?php echo $_lang['existing_category']?>:</td>
+			<td align="left"><select name="categoryid" style="width:300px;" onChange="documentDirty=true;">
 				<?php
 					include_once "categories.inc.php";
 					$ds = getCategories();
@@ -349,31 +342,51 @@ function decode(s){
 		  </tr>
           <tr>
 			<td align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category']?>:</td>
-			<td align="left" valign="top" style="padding-top:10px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+			<td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 		  </tr>
+		  <tr>
+			<td align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:</td>
+			<td align="left" style="padding-top:10px">
+				<textarea name="description" onChange="documentDirty=true;" style="height:3em;"><?php echo $content['description']?></textarea></td>
+		  </tr>
+		  <tr>
+			<td style="padding-top:10px" align="left" valign="top" colspan="2">
+			<label><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" :'';?> class="inputBox"> <?php echo $_lang['lock_snippet']?> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></label></td>
+		  </tr>
+<?php
+		$from = "{$tbl_site_modules} AS sm ".
+		       "INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 ".
+		       "INNER JOIN {$tbl_site_snippets} AS ss ON ss.id=smd.resource ";
+		$ds = $modx->db->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
+		$guid_total = $modx->db->getRecordCount($ds);
+		if($guid_total > 0)
+		{
+			$options = '';
+			while($row = $modx->db->getRow($ds))
+			{
+				$options .= "<option value='".$row['guid']."'".($content['moduleguid']==$row['guid']? " selected='selected'":"").">".htmlspecialchars($row['name'])."</option>";
+			}
+		}
+?>
+<?php if($guid_total > 0)
+{
+?>
           <tr>
-			<td align="left" style="padding-top:10px;"><?php echo $_lang['import_params']?>:&nbsp;&nbsp;</td>
-			<td align="left" valign="top" style="padding-top:10px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="moduleguid" style="width:300px;" onChange="documentDirty=true;">
-					<option>&nbsp;</option>
-	            <?php
-					$from = "{$tbl_site_modules} AS sm ".
-					       "INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 ".
-					       "INNER JOIN {$tbl_site_snippets} AS ss ON ss.id=smd.resource ";
-					$ds = $modx->db->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
-					if($ds) while($row = $modx->db->getRow($ds)){
-						echo "<option value='".$row['guid']."'".($content['moduleguid']==$row['guid']? " selected='selected'":"").">".htmlspecialchars($row['name'])."</option>";
-					}
-				?>
+			<td align="left" style="padding-top:10px;"><?php echo $_lang['import_params']?>:</td>
+			<td align="left" valign="top" style="padding-top:10px;">
+				<select name="moduleguid" style="width:300px;" onChange="documentDirty=true;">
+				<?php echo $options; ?>
 				</select>
 			</td>
 		  </tr>
 		  <tr>
 			<td>&nbsp;</td>
-			<td align="left" valign="top" style="padding-left:1.3em;"><span class="comment" ><?php echo $_lang['import_params_msg']?></div><br /><br /></td>
+			<td align="left" valign="top"><span class="comment" ><?php echo $_lang['import_params_msg']?></div></td>
 		  </tr>
+<?php } ?>
 		  <tr>
 			<td align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</td>
-			<td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><textarea name="properties" maxlength="65535" class="inputBox phptextarea" onChange="showParameters(this);documentDirty=true;"><?php echo $content['properties']?></textarea></td>
+			<td align="left" valign="top"><textarea name="properties" maxlength="65535" class="inputBox phptextarea" onChange="showParameters(this);documentDirty=true;"><?php echo $content['properties']?></textarea></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>
