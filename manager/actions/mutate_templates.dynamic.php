@@ -1,67 +1,78 @@
  <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch((int) $_REQUEST['a']) {
-  case 16:
-    if(!$modx->hasPermission('edit_template')) {
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
-  case 19:
-    if(!$modx->hasPermission('new_template')) {
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
-  default:
-    $e->setError(3);
-    $e->dumpError();
+switch((int) $_REQUEST['a'])
+{
+	case 16:
+	if(!$modx->hasPermission('edit_template'))
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+	break;
+case 19:
+	if(!$modx->hasPermission('new_template'))
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+	break;
+default:
+	$e->setError(3);
+	$e->dumpError();
 }
 
-if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id']))
+{
 	$id = $_REQUEST['id'];
 	// check to see the template editor isn't locked
-	$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=16 AND $dbase.`".$table_prefix."active_users`.id=$id";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1) {
-		for ($i=0;$i<$limit;$i++) {
-			$lock = $modx->db->getRow($rs);
-			if($lock['internalKey']!=$modx->getLoginUserID()) {
-				$msg = sprintf($_lang["lock_msg"],$lock['username'],"template");
+	$tbl_active_users = $modx->getFullTableName('active_users');
+	$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=16 AND id={$id}");
+	if($modx->db->getRecordCount($rs)>1)
+	{
+		while ($row = $modx->db->getRow($rs))
+		{
+			if($row['internalKey'] != $modx->getLoginUserID())
+			{
+				$msg = sprintf($_lang['lock_msg'],$row['username'],'template');
 				$e->setError(5, $msg);
 				$e->dumpError();
 			}
 		}
-	}
-	// end check for lock
-} else {
+	} // end check for lock
+}
+else
+{
     $id='';
 }
 
 $content = array();
 if(isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
-	$sql = "SELECT * FROM $dbase.`".$table_prefix."site_templates` WHERE $dbase.`".$table_prefix."site_templates`.id = $id;";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1) {
+	$tbl_site_templates = $modx->getFullTableName('site_templates');
+	$rs = $modx->db->select('*',$tbl_site_templates,"id={$id}");
+	$total = $modx->db->getRecordCount($rs);
+	if($total > 1)
+	{
 		echo "Oops, something went terribly wrong...<p>";
 		print "More results returned than expected. Which sucks. <p>Aborting.";
 		exit;
 	}
-	if($limit<1) {
+	if($total < 1)
+	{
 		echo "Oops, something went terribly wrong...<p>";
 		print "No database record has been found for this template. <p>Aborting.";
 		exit;
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['templatename'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
+	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	{
 		$e->setError(3);
 		$e->dumpError();
 	}
-} else {
+}
+else
+{
 	$_SESSION['itemname']="New template";
 }
 
@@ -203,18 +214,19 @@ function deletedocument() {
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
 
-<?php if ($_REQUEST['a'] == '16') {
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
-$tbl_categories             = $modx->getFullTableName('categories');
-$field = "tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category";
-$from  = "{$tbl_site_tmplvar_templates} tr";
-$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tr.tmplvarid";
-$from .= " LEFT JOIN {$tbl_categories} cat ON tv.category = cat.id";
-$where = "tr.templateid='{$id}'";
-$orderby = 'tr.rank, tv.rank, tv.id';
-$rs = $modx->db->select($field,$from,$where,$orderby);
-$total = $modx->db->getRecordCount($rs);
+<?php if ($_REQUEST['a'] == '16')
+{
+	$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+	$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
+	$tbl_categories             = $modx->getFullTableName('categories');
+	$field = "tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category";
+	$from  = "{$tbl_site_tmplvar_templates} tr";
+	$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tr.tmplvarid";
+	$from .= " LEFT JOIN {$tbl_categories} cat ON tv.category = cat.id";
+	$where = "tr.templateid='{$id}'";
+	$orderby = 'tr.rank, tv.rank, tv.id';
+	$rs = $modx->db->select($field,$from,$where,$orderby);
+	$total = $modx->db->getRecordCount($rs);
 ?>
 	</div>
 	<div class="tab-page" id="tabAssignedTVs">

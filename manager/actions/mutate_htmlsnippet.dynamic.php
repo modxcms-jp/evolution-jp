@@ -1,15 +1,18 @@
 <?php
 if (IN_MANAGER_MODE != 'true') die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch ((int) $_REQUEST['a']) {
+switch ((int) $_REQUEST['a'])
+{
 	case 78:
-		if (!$modx->hasPermission('edit_chunk')) {
+		if (!$modx->hasPermission('edit_chunk'))
+		{
 			$e->setError(3);
 			$e->dumpError();
 		}
 		break;
 	case 77:
-		if (!$modx->hasPermission('new_chunk')) {
+		if (!$modx->hasPermission('new_chunk'))
+		{
 			$e->setError(3);
 			$e->dumpError();
 		}
@@ -23,23 +26,19 @@ if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
 else    $id = 0;
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
 // Get table names (alphabetical)
 $tbl_active_users      = $modx->getFullTableName('active_users');
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 // Check to see the snippet editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=78 AND id=\''.$id.'\'';
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID()) {
-			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'chunk');
+$rs = $modx->db->select('internalKey, username', $tbl_active_users, "action=78 AND id='{$id}'");
+if ($modx->db->getRecordCount($rs) > 1)
+{
+	while ($row = $modx->db->getRow($rs))
+	{
+		if ($row['internalKey'] != $modx->getLoginUserID())
+		{
+			$msg = sprintf($_lang['lock_msg'], $row['username'], 'chunk');
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}
@@ -49,20 +48,22 @@ if ($limit > 1) {
 $content = array();
 if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
 {
-	$sql = 'SELECT * FROM '.$tbl_site_htmlsnippets.' WHERE id=\''.$id.'\'';
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
+	$rs = $modx->db->select('*',$tbl_site_htmlsnippets,"id='{$id}'");
+	$total = $modx->db->getRecordCount($rs);
+	if ($total > 1)
+	{
 		echo '<p>Error: Multiple Chunk sharing same unique ID.</p>';
 		exit;
 	}
-	if ($limit < 1) {
+	if ($total < 1)
+	{
 		echo '<p>Chunk doesn\'t exist.</p>';
 		exit;
 	}
-	$content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
-	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
+	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1)
+	{
 		$e->setError(3);
 		$e->dumpError();
 	}
@@ -229,4 +230,3 @@ if ($use_editor == 1) {
 	if (is_array($evtOut))
 		echo implode('', $evtOut);
 }
-?>

@@ -1,29 +1,28 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-switch((int) $_REQUEST['a']) {
-  case 22:
-    if(!$modx->hasPermission('edit_snippet')) {
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
-  case 23:
-    if(!$modx->hasPermission('new_snippet')) {
-      $e->setError(3);
-      $e->dumpError();
-    }
-    break;
-  default:
-    $e->setError(3);
-    $e->dumpError();
+switch((int) $_REQUEST['a'])
+{
+	case 22:
+		if(!$modx->hasPermission('edit_snippet'))
+		{
+			$e->setError(3);
+			$e->dumpError();
+		}
+		break;
+	case 23:
+		if(!$modx->hasPermission('new_snippet'))
+		{
+			$e->setError(3);
+			$e->dumpError();
+		}
+		break;
+	default:
+		$e->setError(3);
+		$e->dumpError();
 }
 
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
-
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
 
 // Get table Names (alphabetical)
 $tbl_active_users       = $modx->getFullTableName('active_users');
@@ -110,7 +109,7 @@ function showParameters(ctrl) {
 	dp = (f.properties.value) ? f.properties.value.split("&"):"";
 	if(!dp) tr.style.display='none';
 	else {
-		t='<table width="300" style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter']?></td><td width="50%"><?php echo $_lang['value']?></td></tr></thead>';
+		t='<table width="300" style="margin-bottom:3px;margin-left:14px;">';
 		for(p = 0; p < dp.length; p++) {
 			dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
 			ar = dp[p].split("=");
@@ -178,7 +177,7 @@ function showParameters(ctrl) {
 					break;
 
 				}
-				t +='<tr><td bgcolor="#FFFFFF" width="50%">'+desc+'</td><td bgcolor="#FFFFFF" width="50%">'+c+'</td></tr>';
+				t +='<tr><td><div>'+desc+'</div><div>'+c+'</div></td></tr>';
 			};
 		}
 		t+='</table>';
@@ -282,12 +281,12 @@ function decode(s){
     		  </li>
     		  <?php
     			if ($_GET['a'] == '22') { ?>
-    		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="media/style/<?php echo $manager_theme?>/images/icons/copy.gif" /> <?php echo $_lang["duplicate"]; ?></a></li>
+    		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $style_path; ?>icons/copy.gif" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3" class="disabled"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } else { ?>
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>	
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="media/style/<?php echo $manager_theme?>/images/icons/stop.png" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $style_path; ?>images/icons/stop.png" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 
@@ -295,7 +294,6 @@ function decode(s){
 
 <div class="sectionBody">
 <?php echo $_lang['snippet_msg']?>
-<link type="text/css" rel="stylesheet" href="media/style/<?php echo $manager_theme?>style.css<?php echo '?'.$theme_refresher?>" />
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="snipetPane">
 	<script type="text/javascript">
@@ -358,14 +356,11 @@ function decode(s){
 			<td align="left" valign="top" style="padding-top:10px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="moduleguid" style="width:300px;" onChange="documentDirty=true;">
 					<option>&nbsp;</option>
 	            <?php
-					$sql = 'SELECT sm.id,sm.name,sm.guid '.
-					       'FROM '.$tbl_site_modules.' AS sm '.
-					       'INNER JOIN '.$tbl_site_module_depobj.' AS smd ON smd.module=sm.id AND smd.type=40 '.
-					       'INNER JOIN '.$tbl_site_snippets.' AS ss ON ss.id=smd.resource '.
-					       'WHERE smd.resource=\''.$id.'\' AND sm.enable_sharedparams=\'1\' '.
-					       'ORDER BY sm.name';
-					$ds = $modx->db->query($sql);
-					if($ds) while($row = $modx->fetchRow($ds)){
+					$from = "{$tbl_site_modules} AS sm ".
+					       "INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 ".
+					       "INNER JOIN {$tbl_site_snippets} AS ss ON ss.id=smd.resource ";
+					$ds = $modx->db->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
+					if($ds) while($row = $modx->db->getRow($ds)){
 						echo "<option value='".$row['guid']."'".($content['moduleguid']==$row['guid']? " selected='selected'":"").">".htmlspecialchars($row['name'])."</option>";
 					}
 				?>

@@ -405,6 +405,32 @@ function decode(s){
 <div class="tab-page" id="tabInfo">
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
 <script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabInfo" ) );</script>
+
+<div class="sectionHeader"><?php echo $_lang['category_heading']; ?></div>
+<div class="sectionBody">
+        <table width="90%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
+            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+	            	<option>&nbsp;</option>
+	            <?php
+	                include_once "categories.inc.php";
+	                $ds = getCategories();
+	                if($ds) foreach($ds as $n=>$v)
+	                {
+	                    echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+	                }
+	            ?>
+	            </select>
+            </td>
+          </tr>
+          <tr>
+            <td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
+            <td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+          </tr>
+        </table>
+</div>
+
 	<div class="sectionHeader"><?php echo $_lang['tmplvar_tmpl_access']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
@@ -507,30 +533,6 @@ function decode(s){
 	</div>
 <?php }?>
 
-<div class="sectionHeader"><?php echo $_lang['category_heading']; ?></div>
-<div class="sectionBody">
-        <table width="90%" border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
-	            	<option>&nbsp;</option>
-	            <?php
-	                include_once "categories.inc.php";
-	                $ds = getCategories();
-	                if($ds) foreach($ds as $n=>$v)
-	                {
-	                    echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
-	                }
-	            ?>
-	            </select>
-            </td>
-          </tr>
-          <tr>
-            <td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
-            <td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
-          </tr>
-        </table>
-</div>
 </div>
 
 <?php
