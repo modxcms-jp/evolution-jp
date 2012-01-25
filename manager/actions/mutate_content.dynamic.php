@@ -677,7 +677,7 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 			<div class="sectionHeader" id="content_header"><?php echo $_lang['resource_content']?></div>
 			<div class="sectionBody" id="content_body">
 <?php
-			if (($content['richtext'] == 1 || $_REQUEST['a'] == '4') && $use_editor == 1) {
+			if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $content['richtext'] == 1) {
                 $htmlContent = $content['content'];
 ?>
 				<div style="width:100%">
