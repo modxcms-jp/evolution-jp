@@ -31,9 +31,8 @@ function mm_widget_accessdenied($ids='', $message='',  $roles='') {
 			$j("#aback").css({height: $j("body").height()} );';
 		}
 	
+		$e->output($output . "\n");	// Send the output to the browser
 	} // end if
-	
-	$e->output($output . "\n");	// Send the output to the browser
 	
 }
 
