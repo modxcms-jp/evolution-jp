@@ -1192,7 +1192,7 @@ if (is_array($evtOut)) echo implode('', $evtOut);
     storeCurTemplate();
 </script>
 <?php
-	if (($content['richtext'] == 1 || $_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') && $use_editor == 1) {
+	if (($content['richtext'] == 1 || $_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1) {
 		if (is_array($replace_richtexteditor)) {
 			// invoke OnRichTextEditorInit event
 			$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
