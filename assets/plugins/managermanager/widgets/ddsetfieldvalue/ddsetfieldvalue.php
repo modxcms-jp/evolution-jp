@@ -31,10 +31,10 @@ function mm_ddSetFieldValue($field, $value='', $roles='', $templates=''){
 				$date_format = 'd-m-Y';
 			break;
 			case 'mm/dd/YYYY':
-				$date_format = 'm-d-Y';
+				$date_format = 'm/d/Y';
 			break;
 			case 'YYYY/mm/dd':
-				$date_format = 'Y-m-d';
+				$date_format = 'Y/m/d';
 			break;
 		}
 		
