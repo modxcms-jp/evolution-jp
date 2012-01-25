@@ -6,10 +6,9 @@
 function newCategory($newCat)
 {
 	global $modx;
-	$useTable = $modx->getFullTableName('categories');
-	$newCat = $modx->db->escape($newCat);
-	$field['category'] = $newCat;
-	$newCatid = $modx->db->insert($field,$useTable);
+	$tbl_categories = $modx->getFullTableName('categories');
+	$field['category'] = $modx->db->escape($newCat);
+	$newCatid = $modx->db->insert($field,$tbl_categories);
 	if(!$newCatid) $newCatid = 0;
 	return $newCatid;
 }
@@ -44,7 +43,7 @@ function checkCategory($newCat = '')
 		{
 			while($row = $modx->db->getRow($cats))
 			{
-				array_push($resourceArray,array( 'id' => $row['id'], 'category' => stripslashes( $row['category'] ) )); // pixelchutes
+				$resourceArray[] = array('id' => $row['id'], 'category' => stripslashes( $row['category'] )); // pixelchutes
 			}
 		}
 		return $resourceArray;
