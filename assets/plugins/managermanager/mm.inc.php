@@ -121,7 +121,7 @@ foreach($field as $k=>$a)
 unset($field);
 
 // Add in TVs to the list of available fields
-$all_tvs = $modx->db->makeArray( $modx->db->select("name,type,id,elements", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC')   );
+$all_tvs = $modx->db->makeArray( $modx->db->select('name,type,id,elements', $modx->getFullTableName('site_tmplvars'), '', 'name ASC')   );
 foreach ($all_tvs as $thisTv) {
 	
 	$n = $thisTv['name']; // What is the field name?
@@ -208,9 +208,8 @@ switch ($e->name) {
 // if it's the plugin config form, give us a copy of all the relevant values
 
 case 'OnPluginFormRender':
-	
 	$plugin_id_editing = $e->params['id']; // The ID of the plugin we're editing
-	$result = $modx->db->select("name, id", $modx->db->config['table_prefix']."site_plugins", "id=$plugin_id_editing");
+	$result = $modx->db->select('name, id', $modx->getFullTableName('site_plugins'), "id={$plugin_id_editing}");
 	$all_plugins = $modx->db->makeArray( $result );
 	$plugin_editing_name = $all_plugins[0]['name'];
 
@@ -219,7 +218,7 @@ case 'OnPluginFormRender':
 	if (strtolower($plugin_editing_name) == 'managermanager') {
 	
 		// Get all templates
-		$result = $modx->db->select("templatename, id, description", $modx->db->config['table_prefix']."site_templates", '', 'templatename ASC');
+		$result = $modx->db->select('templatename, id, description', $modx->getFullTableName('site_templates'), '', 'templatename ASC');
 		$all_templates = $modx->db->makeArray( $result );
 		$template_table = '<table>';
 		$template_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">Template name</th><th class="gridHeader">Template description</th></tr>';
@@ -235,7 +234,7 @@ case 'OnPluginFormRender':
 		$template_table .= '</table>';
 
 		// Get all tvs
-		$result = $modx->db->select("name,caption,id", $modx->db->config['table_prefix']."site_tmplvars", '', 'name ASC');
+		$result = $modx->db->select('name,caption,id', $modx->getFullTableName('site_tmplvars'), '', 'name ASC');
 		$all_tvs = $modx->db->makeArray( $result );
 		$tvs_table = '<table>';
 		$tvs_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">TV name</th><th class="gridHeader">TV caption</th></tr>';
@@ -252,7 +251,7 @@ case 'OnPluginFormRender':
 		
 		
 		// Get all roles
-		$result = $modx->db->select("name, id", $modx->db->config['table_prefix']."user_roles", '', 'name ASC');
+		$result = $modx->db->select('name, id', $modx->getFullTableName('user_roles'), '', 'name ASC');
 		$all_roles = $modx->db->makeArray( $result );
 		$roles_table = '<table>';
 		$roles_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">Role name</th></tr>';
@@ -285,9 +284,18 @@ case 'OnPluginFormRender':
 
 
 case 'OnManagerMainFrameHeaderHTMLBlock':
-	$output  = '<!-- Begin ManagerManager output -->' . "\n";
-	$output .= includeJs($js_url, 'html');
-	$e->output($output);
+	switch($_GET['a'])
+	{
+		case '4':
+		case '27':
+		case '72':
+		case '73':
+			$output  = '<!-- Begin ManagerManager output -->' . "\n";
+			$output .= includeJs($js_url, 'html');
+			$e->output($output);
+			break;
+		default: return;
+	}
 	
 	break;
 
