@@ -27,7 +27,6 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 			$tv_id = $mm_fields[$targetTv]['fieldname'];
 			$output .= "googlemap('$tv_id','$default');";
 		}
+		$e->output($output . "\n");	// Send the output to the browser
 	}
-	
-	$e->output($output . "\n");	// Send the output to the browser
 }
