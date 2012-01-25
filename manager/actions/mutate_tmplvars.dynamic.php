@@ -9,55 +9,51 @@ if(!$modx->hasPermission('new_template') && $_REQUEST['a']=='300') {
     $e->dumpError();
 }
 
-if(isset($_REQUEST['id'])) {
-    $id = $_REQUEST['id'];
-} else {
-    $id=0;
-}
-
+if(isset($_REQUEST['id'])) $id = $_REQUEST['id'];
+else                       $id = 0;
 
 // check to see the variable editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
-$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=301 AND id=$id";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if($limit>1) {
-    for ($i=0;$i<$limit;$i++) {
-        $lock = mysql_fetch_assoc($rs);
-        if($lock['internalKey']!=$modx->getLoginUserID()) {
-            $msg = sprintf($_lang["lock_msg"],$lock['username']," template variable");
-            $e->setError(5, $msg);
-            $e->dumpError();
-        }
-    }
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=301 AND id={$id}");
+$total = $modx->db->getRecordCount($rs);
+if($total>1)
+{
+	while($row = $modx->db->getRow($rs))
+	{
+		if($row['internalKey']!=$modx->getLoginUserID())
+		{
+			$msg = sprintf($_lang['lock_msg'], $row['username'], ' template variable');
+			$e->setError(5, $msg);
+			$e->dumpError();
+		}
+	}
 }
 // end check for lock
 
-
 // make sure the id's a number
-if(!is_numeric($id)) {
-    echo "Passed ID is NaN!";
-    exit;
+if(!is_numeric($id))
+{
+	echo 'Passed ID is NaN!';
+	exit;
 }
 
 $content = array();
 if(isset($_GET['id']))
 {
 	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-	$sql = "SELECT * FROM {$tbl_site_tmplvars} WHERE id = $id;";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1)
+	$rs = $modx->db->select('*',$tbl_site_tmplvars,"id={$id}");
+	$total = $modx->db->getRecordCount($rs);
+	if($total>1)
 	{
-		echo "Oops, Multiple variables sharing same unique id. Not good.<p>";
+		echo 'Oops, Multiple variables sharing same unique id. Not good.';
 		exit;
 	}
-	if($limit<1)
+	if($total<1)
 	{
-		header("Location: /index.php?id=".$site_start);
+		header("Location: /index.php?id={$site_start}");
 	}
-	$content = mysql_fetch_assoc($rs);
-	$_SESSION['itemname']=$content['caption'];
+	$content = $modx->db->getRow($rs);
+	$_SESSION['itemname'] = $content['caption'];
 	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
 	{
 		$e->setError(3);
@@ -73,10 +69,9 @@ $formRestored = $modx->manager->loadFormValues();
 if($formRestored) $content = array_merge($content, $_POST);
 
 // get available RichText Editors
-$RTEditors = "";
-$evtOut = $modx->invokeEvent("OnRichTextEditorRegister",array('forfrontend' => 1));
-if(is_array($evtOut)) $RTEditors = implode(",",$evtOut);
-
+$RTEditors = '';
+$evtOut = $modx->invokeEvent('OnRichTextEditorRegister',array('forfrontend' => 1));
+if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
 ?>
 <script language="JavaScript">
 
@@ -254,7 +249,7 @@ function decode(s){
 <form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
-    $evtOut = $modx->invokeEvent("OnTVFormPrerender",array("id" => $id));
+    $evtOut = $modx->invokeEvent('OnTVFormPrerender',array('id' => $id));
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="id" value="<?php echo $content['id'];?>">
@@ -418,15 +413,16 @@ function decode(s){
 	</style>
 <table width="100%" cellspacing="0" cellpadding="0">
 	<?php
-	    $tbl = $modx->getFullTableName('site_templates');
-	    $tblsel = $modx->getFullTableName('site_tmplvar_templates');
-	    $sql = "SELECT id,templatename,tmplvarid FROM $tbl LEFT JOIN $tblsel ON $tblsel.templateid=$tbl.id AND $tblsel.tmplvarid=$id";
-	    $rs = $modx->db->query($sql);
+	    $tbl_site_templates = $modx->getFullTableName('site_templates');
+	    $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+	    $from = "{$tbl_site_templates} as st LEFT JOIN {$tbl_site_tmplvar_templates} as stt ON stt.templateid=st.id AND stt.tmplvarid={$id}";
+	    $rs = $modx->db->select('id,templatename,tmplvarid',$from);
 ?>
   <tr>
     <td>
 <?php
-	    while ($row = mysql_fetch_assoc($rs)) {
+	    while ($row = $modx->db->getRow($rs))
+	    {
 	    	if($id == 0 && is_array($_POST['template'])) {
 	    		$checked = in_array($row['id'], $_POST['template']);
 	    	} else {
@@ -442,19 +438,17 @@ function decode(s){
 
 <!-- Access Permissions -->
 	<?php
-	if($use_udperms==1) {
-	    $groupsarray = array();
-
-	    // fetch permissions for the variable
-	    $tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
-	    $sql = "SELECT * FROM {$tbl_site_tmplvar_access} where tmplvarid=".$id;
-	    $rs = $modx->db->query($sql);
-	    $limit = mysql_num_rows($rs);
-	    for ($i = 0; $i < $limit; $i++) {
-	        $currentgroup=mysql_fetch_assoc($rs);
-	        $groupsarray[$i] = $currentgroup['documentgroup'];
-	    }
-
+	if($use_udperms==1)
+	{
+		$groupsarray = array();
+		
+		// fetch permissions for the variable
+		$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
+		$rs = $modx->db->select('documentgroup',$tbl_site_tmplvar_access,"tmplvarid={$id}");
+		while($row = $modx->db->getRow($rs))
+		{
+			$groupsarray[] = $row['documentgroup'];
+		}
 ?>
 
 <!-- Access Permissions -->
@@ -487,21 +481,22 @@ function decode(s){
 		    }
 		    $chk ='';
 		    $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-		    $sql = "SELECT name, id FROM {$tbl_documentgroup_names}";
-		    $rs = $modx->db->query($sql);
-		    $limit = mysql_num_rows($rs);
-		    if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
+		    $rs = $modx->db->select('name, id',$tbl_documentgroup_names);
+		    if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
+		    {
 		    	$groupsarray = $_POST['docgroups'];
 		    }
-		    for($i=0; $i<$limit; $i++) {
-		        $row=mysql_fetch_assoc($rs);
+		    while($row=$modx->db->getRow($rs))
+		    {
 		        $checked = in_array($row['id'], $groupsarray);
-		        if($modx->hasPermission('access_permissions')) {
+		        if($modx->hasPermission('access_permissions'))
+		        {
 		            if($checked) $notPublic = true;
-		            $chks.= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id']."' ".($checked ? "checked='checked'" : '')." onclick=\"makePublic(false)\" />".$row['name']."</label><br />";
+		            $chks .= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id']."' ".($checked ? "checked='checked'" : '')." onclick=\"makePublic(false)\" />".$row['name']."</label><br />";
 		        }
-		        else {
-		            if($checked) echo "<input type='hidden' name='docgroups[]'  value='".$row['id']."' />";
+		        elseif($checked)
+		        {
+		            echo '<input type="hidden" name="docgroups[]"  value="' .$row['id'] . '" />';
 		        }
 		    }
 		    if($modx->hasPermission('access_permissions')) {
@@ -521,7 +516,8 @@ function decode(s){
 	            <?php
 	                include_once "categories.inc.php";
 	                $ds = getCategories();
-	                if($ds) foreach($ds as $n=>$v){
+	                if($ds) foreach($ds as $n=>$v)
+	                {
 	                    echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
 	                }
 	            ?>
@@ -539,8 +535,8 @@ function decode(s){
 
 <?php
     // invoke OnTVFormRender event
-    $evtOut = $modx->invokeEvent("OnTVFormRender",array("id" => $id));
-    if(is_array($evtOut)) echo implode("",$evtOut);
+    $evtOut = $modx->invokeEvent('OnTVFormRender',array('id' => $id));
+    if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 </div>
 </div>
