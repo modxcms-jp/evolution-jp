@@ -507,7 +507,8 @@ function decode(s){
 	</div>
 <?php }?>
 
-<div class="sectionHeader"><?php echo $_lang['category_heading']; ?></div><div class="sectionBody">
+<div class="sectionHeader"><?php echo $_lang['category_heading']; ?></div>
+<div class="sectionBody">
         <table width="90%" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
@@ -529,9 +530,8 @@ function decode(s){
             <td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
           </tr>
         </table>
-            </div>
 </div>
-	<input type="submit" name="save" style="display:none">
+</div>
 
 <?php
     // invoke OnTVFormRender event
@@ -540,5 +540,6 @@ function decode(s){
 ?>
 </div>
 </div>
+<input type="submit" name="save" style="display:none">
 </form>
 <script type="text/javascript">setTimeout('showParameters()',10);</script>
