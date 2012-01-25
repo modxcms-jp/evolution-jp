@@ -210,8 +210,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 			
 		// Go through each field that has been supplied
 		foreach ($fields as $field) {
-			
-			$output .= "// Moving $field to $newtab \n";
 
 			switch ($field) {
 				
@@ -250,12 +248,12 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 						$fieldtype = $mm_fields[$field]['fieldtype'];
 						$fieldname = $mm_fields[$field]['fieldname'];
 						$output .= '
-						var toMove = $j("'.$fieldtype.'[name=\''.$fieldname.'\']").parents("tr"); // Identify the table row to move
+						var toMove = $j(\''.$fieldtype.'[name="'.$fieldname.'"]\').parents("tr:not(.urltv)"); // Identify the table row to move
 						toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
 						var movedTV = toMove.appendTo("#tab'.$newtab.'>table:first"); // Move the table row
 						movedTV.after(ruleHtml); // Insert a rule after
 						movedTV.find("td[width]").attr("width","");  // Remove widths from label column
-						$j("[name=\''.$fieldname.'\']:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
+						$j("[name^='.$fieldname.']:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
 						';
 					}
 					
