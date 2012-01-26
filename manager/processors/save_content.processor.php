@@ -400,6 +400,7 @@ switch ($actionToTake)
 		saveMETAKeywords($key);
 
 		// invoke OnDocFormSave event
+		$header=''; // Redirect header
 		$modx->invokeEvent("OnDocFormSave", array (
 			"mode" => "new",
 			"id" => $key
@@ -416,27 +417,30 @@ switch ($actionToTake)
 		if($syncsite == 1) $modx->clearCache();
 
 		// redirect/stay options
-		if ($_POST['stay'] != '')
+		if ( empty($header) )
 		{
-			if ($_POST['mode'] == "72") // weblink
+			if ($_POST['stay'] != '')
 			{
-				$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "72&pid={$parent}";
-			}
-			elseif ($_POST['mode'] == "4") // document
-			{
-				$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "4&pid={$parent}";
-			}
-			$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-		}
-		else
-		{
-			if($parent!=='0')
-			{
-				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				if ($_POST['mode'] == "72") // weblink
+				{
+					$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "72&pid={$parent}";
+				}
+				elseif ($_POST['mode'] == "4") // document
+				{
+					$a = ($_POST['stay'] == '2') ? "27&id={$key}" : "4&pid={$parent}";
+				}
+				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 			}
 			else
 			{
-				$header = "Location: index.php?a=3&id={$key}&r=1";
+				if($parent!=='0')
+				{
+					$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				}
+				else
+				{
+					$header = "Location: index.php?a=3&id={$key}&r=1";
+				}
 			}
 		}
 		header($header);
@@ -724,6 +728,7 @@ switch ($actionToTake)
 		saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
+		$header=''; // Redirect header
 		$modx->invokeEvent("OnDocFormSave", array (
 			"mode" => "upd",
 			"id" => $id
@@ -745,42 +750,45 @@ switch ($actionToTake)
 			$modx->clearCache($clearcache);
 		}
 		
-		if ($_POST['refresh_preview'] == '1')
+		if ( empty($header) )
 		{
-			$header = "Location: ../index.php?id={$id}&z=manprev";
-		}
-		else
-		{
-			if ($_POST['stay'] != '')
+			if ($_POST['refresh_preview'] == '1')
 			{
-				$id = $_REQUEST['id'];
-				if ($type == "reference")
-				{
-					// weblink
-					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$parent}";
-				}
-				else
-				{
-					// document
-					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$parent}";
-				}
-				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-			}
-			elseif($isfolder==='1' && $parent!=='0')
-			{
-				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
-			}
-			elseif($isfolder==='1' && $parent==='0')
-			{
-				$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
-			}
-			elseif($isfolder==='0' && $parent!=='0')
-			{
-				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				$header = "Location: ../index.php?id={$id}&z=manprev";
 			}
 			else
 			{
-				$header = "Location: index.php?a=3&id={$id}&r=1";
+				if ($_POST['stay'] != '')
+				{
+					$id = $_REQUEST['id'];
+					if ($type == "reference")
+					{
+						// weblink
+						$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$parent}";
+					}
+					else
+					{
+						// document
+						$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$parent}";
+					}
+					$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
+				}
+				elseif($isfolder==='1' && $parent!=='0')
+				{
+					$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				}
+				elseif($isfolder==='1' && $parent==='0')
+				{
+					$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
+				}
+				elseif($isfolder==='0' && $parent!=='0')
+				{
+					$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				}
+				else
+				{
+					$header = "Location: index.php?a=3&id={$id}&r=1";
+				}
 			}
 		}
 		header($header);
