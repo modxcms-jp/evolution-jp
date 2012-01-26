@@ -401,7 +401,7 @@ function decode(s){
 	<?php
 	    $tbl_site_templates = $modx->getFullTableName('site_templates');
 	    $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-	    $from = "{$tbl_site_templates} as st LEFT JOIN {$tbl_site_tmplvar_templates} as stt ON stt.templateid=st.id AND stt.tmplvarid={$id}";
+	    $from = "{$tbl_site_templates} as tpl LEFT JOIN {$tbl_site_tmplvar_templates} as stt ON stt.templateid=tpl.id AND stt.tmplvarid={$id}";
 	    $rs = $modx->db->select('id,templatename,tmplvarid',$from);
 ?>
   <tr>
@@ -409,12 +409,20 @@ function decode(s){
 <?php
 	    while ($row = $modx->db->getRow($rs))
 	    {
-	    	if($id == 0 && is_array($_POST['template'])) {
+	    	if(isset($_GET['tpl']) && $_GET['tpl'] == $row['id'])
+	    	{
+	    		$checked = true;
+	    	}
+	    	elseif($id == 0 && is_array($_POST['template']))
+	    	{
 	    		$checked = in_array($row['id'], $_POST['template']);
-	    	} else {
+	    	}
+	    	else
+	    	{
 	    		$checked = $row['tmplvarid'];
 	    	}
-	        echo "<label><input type='checkbox' name='template[]' value='".$row['id']."'".($checked? "checked='checked'":'')." />".$row['templatename']."</label>";
+	    	$checked = $checked ? ' checked="checked"':'';
+	        echo '<label><input type="checkbox" name="template[]" value="' . $row['id'] . '"' . $checked . ' />' . $row['templatename'] . '</label>';
 	    }
 	?>
     </td>

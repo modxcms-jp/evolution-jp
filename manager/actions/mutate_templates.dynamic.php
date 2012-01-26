@@ -228,7 +228,10 @@ if ($_REQUEST['a'] == '16')
 		</div>
 		<div class="sectionBody">
 		<ul style="margin-bottom:15px;">
-			<li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li>
+<?php
+	$query = $_GET['id'] ? '&amp;tpl=' . intval($_GET['id']) : '';
+?>
+			<li><a href="index.php?&amp;a=300<?php echo $query;?>"><?php echo $_lang['new_tmplvars'];?></a></li>
 <?php
 	if($modx->hasPermission('save_template') && $total > 1)
 	{
