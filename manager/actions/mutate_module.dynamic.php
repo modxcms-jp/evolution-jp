@@ -367,15 +367,29 @@ function SetUrl(url, width, height, alt) {
 		<tr>
 			<td align="left"><?php echo $_lang['module_name']?>:</td>
 			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" onchange="documentDirty=true;"><span class="warning" id="savingMessage">&nbsp;</span></td>
-			</tr>
-		<tr>
-			<td align="left"><?php echo $_lang['module_desc']?>:</td>
-			<td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" onchange="documentDirty=true;"></td>
-			</tr>
-		<tr>
-			<td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:</td>
-			<td align="left"><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td>
-			</tr>
+		</tr>
+		<tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
+			<span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td>
+		</tr>
+	</table>
+
+	<!-- PHP text editor start -->
+	<div style="width:100%; position:relative">
+		<div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border-top:1px solid #e0e0e0; margin-top:5px">
+			<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['module_code']?></span>
+			<span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+		</div>
+        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['modulecode'])?></textarea>
+	</div>
+	<!-- PHP text editor end -->
+	</div>
+
+	<!-- Configuration -->
+	<div class="tab-page" id="tabConfig">
+		<h2 class="tab"><?php echo $_lang['settings_config']?></h2>
+		<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabConfig" ) );</script>
+
+		<table>
 		<tr>
 			<td align="left"><?php echo $_lang['existing_category']?>:</td>
 			<td align="left">
@@ -396,34 +410,20 @@ function SetUrl(url, width, height, alt) {
 			<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
 			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" onchange="documentDirty=true;"></td>
 		</tr>
+		<tr>
+			<td align="left"><?php echo $_lang['module_desc']?>:</td>
+			<td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" onchange="documentDirty=true;"></td>
+		</tr>
+		<tr>
+			<td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:</td>
+			<td align="left"><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td>
+		</tr>
 		<tr style="display:none;"><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
 			<td align="left"><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td>
-		</tr>
-		<tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
-			<span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td>
 		</tr>
 		<tr><td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
 			<span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module']?></span> <span class="comment"><?php echo $_lang['lock_module_msg']?></span></td>
 		</tr>
-	</table>
-
-	<!-- PHP text editor start -->
-	<div style="width:100%; position:relative">
-		<div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border-top:1px solid #e0e0e0; margin-top:5px">
-			<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['module_code']?></span>
-			<span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
-		</div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['modulecode'])?></textarea>
-	</div>
-	<!-- PHP text editor end -->
-	</div>
-
-	<!-- Configuration -->
-	<div class="tab-page" id="tabConfig">
-		<h2 class="tab"><?php echo $_lang['settings_config']?></h2>
-		<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabConfig" ) );</script>
-
-		<table width="90%" border="0" cellspacing="0" cellpadding="0">
 			<tr><td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
 				<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br /><br /></td></tr>
 			<tr><td align="left" valign="top"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
