@@ -10,10 +10,6 @@ if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
 else    $id = 0;
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  ='';
-
 // Get table names (alphabetical)
 $tbl_active_users       = $modx->getFullTableName('active_users');
 $tbl_site_content       = $modx->getFullTableName('site_content');
@@ -53,7 +49,7 @@ if(!is_numeric($id)) {
 // take action
 switch ($_REQUEST['op']) {
 	case 'add':
-		$opids = explode(",",$_REQUEST['newids']);
+		$opids = explode(',',$_REQUEST['newids']);
 		if (count($opids)>0){
 			// 1-snips, 2-tpls, 3-tvs, 4-chunks, 5-plugins, 6-docs
 			$rt = strtolower($_REQUEST["rt"]);
