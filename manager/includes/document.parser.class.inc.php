@@ -1828,7 +1828,10 @@ class DocumentParser {
 		$orderby = "{$sort} {$dir}";
 		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
 		$resourceArray= array ();
-		while($resourceArray[] = $this->db->getRow($result))
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
+		}
 		return $resourceArray;
 	}
 	
@@ -1856,7 +1859,10 @@ class DocumentParser {
 		$orderby = "{$sort} {$dir}";
 		$result= $this->db->select($fields,$from,$where,$orderby);
 		$resourceArray= array ();
-		while($resourceArray[] = $this->db->getRow($result))
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
+		}
 		return $resourceArray;
 	}
 	
@@ -1881,7 +1887,10 @@ class DocumentParser {
 		$orderby = ($sort) ? "{$sort} {$dir}" : '';
 		$result= $this->db->select($fields,$from,$where,$orderby,$limit);
 		$resourceArray= array ();
-		while($resourceArray[] = $this->db->getRow($result))
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
+		}
 		return $resourceArray;
 	}
 	
@@ -1912,7 +1921,10 @@ class DocumentParser {
 			$orderby = ($sort) ? "{$sort} {$dir}" : '';
 			$result= $this->db->select($fields,$from,$where,$orderby,$limit);
 			$resourceArray= array ();
-			while($resourceArray[] = $this->db->getRow($result))
+			for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+			{
+				$resourceArray[] = $this->db->getRow($result);
+			}
 			return $resourceArray;
 		}
 	}
@@ -3064,7 +3076,10 @@ class DocumentParser {
 		$sort= ($sort != '') ? "{$sort} {$dir}" : '';
 		$result= $this->db->select($fields,$tbl,$where,$sort,$limit);
 		$resourceArray= array ();
-		while($resourceArray[] = $this->db->getRow($result))
+		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		{
+			$resourceArray[] = $this->db->getRow($result);
+		}
 		return $resourceArray;
 	}
 	function putExtTableRow($host= '', $user= '', $pass= '', $dbase= '', $fields= '', $into= '') {
