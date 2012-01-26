@@ -1866,26 +1866,23 @@ class DocumentParser {
 		return $resourceArray;
 	}
 	
-	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= "menuindex", $dir= "ASC", $limit= '')
+	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
 	{
 		$tbl_site_content= $this->getFullTableName('site_content');
 		$tbl_document_groups= $this->getFullTableName('document_groups');
 		// modify field names to use sc. table reference
 		$fields = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-		if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
 		if($where != '') $where= "AND {$where}";
 		// get document groups for current user
-		if($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+		if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
 		// build query
-		if($this->isFrontend()) $context = 'sc.privateweb=0';
-		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-		
-		$cond = ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
-		$fields = "DISTINCT {$fields}";
+		$access  = $this->isFrontend() ? 'sc.privateweb=0' : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
 		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
-		$where = "sc.parent='{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$context} {$cond}) GROUP BY sc.id";
-		$orderby = ($sort) ? "{$sort} {$dir}" : '';
-		$result= $this->db->select($fields,$from,$where,$orderby,$limit);
+		$where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
+		$sort = ($sort != '') ? 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort))) : '';
+		$orderby = $sort ? "{$sort} {$dir}" : '';
+		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
 		$resourceArray= array ();
 		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
 		{
