@@ -187,41 +187,57 @@ if ($_REQUEST['a'] == '16')
 	$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
 	$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
 	$tbl_categories             = $modx->getFullTableName('categories');
-	$field = "tv.name as 'name', tv.id as 'id', tr.templateid, tr.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category";
-	$from  = "{$tbl_site_tmplvar_templates} tr";
-	$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tr.tmplvarid";
+	$field = "tv.name as 'name', tv.id as 'id', tpl.templateid as tplid, tpl.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category, tv.description as 'desc'";
+	$from  = "{$tbl_site_tmplvar_templates} tpl";
+	$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tpl.tmplvarid";
 	$from .= " LEFT JOIN {$tbl_categories} cat ON tv.category = cat.id";
-	$where = "tr.templateid='{$id}'";
-	$orderby = 'tr.rank, tv.rank, tv.id';
+	$where = "tpl.templateid='{$id}'";
+	$orderby = 'tpl.rank, tv.rank, tv.id';
 	$rs = $modx->db->select($field,$from,$where,$orderby);
 	$total = $modx->db->getRecordCount($rs);
 ?>
 	
 	<div class="tab-page" id="tabAssignedTVs">
-    	<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
-    	<ul style="margin-bottom:15px;"><li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li></ul>
-    	<p><?php if ($total > 0) echo $_lang['template_tv_msg']; ?></p>
-    	<?php if($modx->hasPermission('save_template') && $total > 1) { ?><p><a href="index.php?a=117&amp;id=<?php echo $_REQUEST['id'] ?>"><?php echo $_lang['template_tv_edit']; ?></a></p><?php } ?>
+		<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
+		<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
+		<?php echo "<p>{$_lang['template_tv_msg']}</p>"; ?>
+		<div class="sectionHeader">
+			<?php echo $_lang["template_assignedtv_tab"];?>
+		</div>
+		<div class="sectionBody">
 <?php
-	$tvList = '';
-	
 	if($total>0)
 	{
-		for ($i=0;$i<$total;$i++)
+		$tvList = '<ul>';
+		while ($row = $modx->db->getRow($rs))
 		{
-			$row = $modx->db->getRow($rs);
-			if ($i == 0 ) $tvList .= '<ul>';
-			$tvList .= '<li><strong><a href="index.php?id=' . $row['id'] . '&amp;a=301">'.$row['name'].'</a></strong> ('.$row['category'].')</li>';
+			$desc = $row['desc'] ? " ({$row['desc']})" : '';
+			$tvList .= '<li><a href="index.php?id=' . $row['id'] . '&amp;a=301">'.$row['name'] . '</a>' . $desc . '</li>';
 		}
 		$tvList .= '</ul>';
 	}
 	else
 	{
-		echo $_lang['template_no_tv'];
+		$tvList = $_lang['template_no_tv'];
 	}
 	echo $tvList;
-?></div>
+?>
+		</div>
+		<div class="sectionHeader">
+			<?php echo $_lang["tmplvars_title"];?>
+		</div>
+		<div class="sectionBody">
+		<ul style="margin-bottom:15px;">
+			<li><a href="index.php?&amp;a=300"><?php echo $_lang['new_tmplvars'];?></a></li>
+<?php
+	if($modx->hasPermission('save_template') && $total > 1)
+	{
+		echo '<li><a href="index.php?a=117&amp;id=' . $_REQUEST['id'] . '">' . $_lang['template_tv_edit'] . '</a></li>';
+	}
+?>
+		</ul>
+		</div>
+</div>
 <?php
 }
 ?>
