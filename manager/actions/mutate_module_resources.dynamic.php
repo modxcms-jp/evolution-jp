@@ -29,7 +29,7 @@ $tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked
-$rs = $modx->db->_select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	while($lock = $modx->db->getRow($rs))
@@ -114,7 +114,7 @@ switch ($_REQUEST['op']) {
 
 // load record
 $rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
-$limit = $modx->db->getRow($rs);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
 	exit;
@@ -132,7 +132,7 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 
 ?>
 <style type="text/css">
-a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:102px}
+a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
 </style>
 <script type="text/javascript">
 
@@ -214,7 +214,7 @@ a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:102px}
 <p><img src="<?php echo $_style["icons_modules"] ?>" alt="" align="left" /><?php echo $_lang['module_resource_msg']; ?></p>
 <br />
 <!-- Dependencies -->
-	 <table width="100%" border="0" cellspacing="1" cellpadding="2">
+	 <table>
 	  <tr>
 		<td valign="top" align="left">
 		<?php
