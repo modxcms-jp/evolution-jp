@@ -129,7 +129,7 @@ button {
 		margin: 0 0 0 5px;
 	}
 a, a:active, a:visited, a:link {
-	color: #1a32c7;
+	color: #333;
 	text-decoration: underline;
 }
 a:hover {
