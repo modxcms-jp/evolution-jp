@@ -2989,6 +2989,7 @@ class DocumentParser {
 				
 				// eval plugin
 				$this->evalPlugin($pluginCode, $parameter);
+				$e->setAllGlobalVariables();
 				if ($e->_output != '')
 					$results[]= $e->_output;
 				if ($e->_propagate != true)
@@ -3460,6 +3461,7 @@ class SystemEvent {
     var $name;
     var $_propagate;
     var $_output;
+    var $_globalVariables;
     var $activated;
     var $activePlugin;
 
@@ -3485,6 +3487,39 @@ class SystemEvent {
         $this->_output .= $msg;
     }
 
+    // get global variables
+    function getGlobalVariable($key) {
+        if( isset( $GLOBALS[$key] ) )
+        {
+            return $GLOBALS[$key];
+        }
+        return false;
+    }
+
+    // set global variables
+    function setGlobalVariable($key,$val,$now=0) {
+        if (! isset( $GLOBALS[$key] ) ) { return false; }
+        if ( $now === 1 || $now === 'now' )
+        {
+            $GLOBALS[$key] = $val;
+        }
+        else
+        {
+            $this->_globalVariables[$key]=$val;
+        }
+        return true;
+    }
+
+    // set all global variables
+    function setAllGlobalVariables() {
+        if ( empty( $this->_globalVariables ) ) { return false; }
+        foreach ( $this->_globalVariables as $key => $val )
+        {
+            $GLOBALS[$key] = $val;
+        }
+        return true;
+    }
+
     function stopPropagation() {
         $this->_propagate= false;
     }
@@ -3493,6 +3528,7 @@ class SystemEvent {
         unset ($this->returnedValues);
         $this->name= '';
         $this->_output= '';
+        $this->_globalVariables=array();
         $this->_propagate= true;
         $this->activated= false;
     }
