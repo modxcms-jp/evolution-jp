@@ -255,7 +255,7 @@ else
 	while ($row = $modx->db->getRow($rs))
 	{
 		$currentaction = getAction($row['action'], $row['id']);
-		$webicon = ($row['internalKey']<0)? "<img src='media/style/{$manager_theme}/images/tree/globe.gif' alt='Web user' />":'';
+		$webicon = ($row['internalKey']<0)? '<img src="' . $style_path . 'tree/globe.gif" alt="Web user" />':'';
 		$html.= "<tr bgcolor='#FFFFFF'><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
 	}
         $html.= '
