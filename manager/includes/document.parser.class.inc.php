@@ -1800,13 +1800,22 @@ class DocumentParser {
 
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
-        return $this->insideManager() ? true : false;
+		if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')
+		{
+			return true;
+		}
+		else return false;
     }
 
-    # Returns true if parser is executed in frontend mode
-    function isFrontend() {
-        return !$this->insideManager() ? true : false;
-    }
+	# Returns true if parser is executed in frontend mode
+	function isFrontend()
+	{
+		if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')
+		{
+			return false;
+		}
+		else return true;
+	}
 	
 	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
 	{
