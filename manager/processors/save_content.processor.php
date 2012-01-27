@@ -877,7 +877,13 @@ function get_tmplvars()
 	{
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
-		if(!isset($_POST[$tvid])) continue;
+		if(!isset($_POST[$tvid]))
+		{
+			if($row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
+			{
+				continue;
+			}
+		}
 		switch ($row['type'])
 		{
 			case 'url':
