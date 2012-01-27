@@ -266,10 +266,9 @@ else
 $modx->setPlaceholder('OnlineInfo',$html);
 
 // load template file
-if(file_exists($tplFile)) {
-	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-}
-else {
+$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+if(!file_exists($tplFile))
+{
 	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
 }
 $tpl = file_get_contents($tplFile);
