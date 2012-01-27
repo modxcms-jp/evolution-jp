@@ -146,6 +146,7 @@ $ph['database_server']             = $database_server;
 $ph['database_user']               = modx_escape($database_user);
 $ph['database_password']           = modx_escape($database_password);
 $ph['database_connection_charset'] = $database_connection_charset;
+$ph['database_connection_method']  = $database_connection_method;
 $ph['dbase']                       = $dbase;
 $ph['table_prefix']                = $table_prefix;
 $ph['lastInstallTime']             = time();
