@@ -18,7 +18,8 @@ $create = false;
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
-if(@file_exists('../autoload.php')) include_once('../autoload.php');
+$base_path = str_replace("\\", '/', realpath('../')) . '/';
+if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
 require_once('functions.php');
 
@@ -45,7 +46,6 @@ $managerlanguage = $_POST['managerlanguage'];
 
 // get base path and url
 define('MODX_API_MODE', true);
-$base_path = str_replace("\\", '/', realpath('../')) . '/';
 require_once("{$base_path}manager/includes/initialize.inc.php");
 startCMSSession();
 $database_type = 'mysql';
