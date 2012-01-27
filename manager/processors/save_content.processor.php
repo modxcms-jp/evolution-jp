@@ -444,7 +444,7 @@ switch ($actionToTake)
 			}
 		}
 		header($header);
-
+		exit;
 		break;
 	case 'edit' :
 
@@ -792,7 +792,7 @@ switch ($actionToTake)
 			}
 		}
 		header($header);
-		break;
+		exit;
 	default :
 		header("Location: index.php?a=7");
 		exit;
