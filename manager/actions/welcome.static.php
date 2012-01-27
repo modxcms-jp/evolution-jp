@@ -132,19 +132,30 @@ if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $
 } else {
     $modx->setPlaceholder('config_display','none');
 }
-
-// include rss feeds for important forum topics
-include_once "rss.inc.php"; 
+if(!empty($modx->config['rss_url_news']) || !empty($modx->config['rss_url_security']))
+{
+	include_once "rss.inc.php"; 
+}
+if(!empty($modx->config['rss_url_news']))
+{
+	$modx_news_content = $feedData['modx_news_content'];
+}
+else $modx_news_content = '-';
+if(!empty($modx->config['rss_url_security']))
+{
+	$modx_security_notices_content = $feedData['modx_security_notices_content'];
+}
+else $modx_security_notices_content = '-';
 
 // modx news
 $modx->setPlaceholder('modx_news',$_lang["modx_news_tab"]);
 $modx->setPlaceholder('modx_news_title',$_lang["modx_news_title"]);
-$modx->setPlaceholder('modx_news_content',$feedData['modx_news_content']);
+$modx->setPlaceholder('modx_news_content',$modx_news_content);
 
 // security notices
 $modx->setPlaceholder('modx_security_notices',$_lang["security_notices_tab"]);
 $modx->setPlaceholder('modx_security_notices_title',$_lang["security_notices_title"]);
-$modx->setPlaceholder('modx_security_notices_content',$feedData['modx_security_notices_content']);
+$modx->setPlaceholder('modx_security_notices_content',$modx_security_notices_content);
 
 // recent document info
 $html = $_lang["activity_message"].'<br /><br /><ul>';
