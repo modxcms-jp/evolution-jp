@@ -36,6 +36,7 @@ $database_collation = ($_POST['database_collation']!=='') ? $_POST['database_col
 $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 $database_connection_charset = $_POST['database_connection_charset'];
 $database_connection_method = $_POST['database_connection_method'];
+if(strpos($database_connection_method, '[+') !== false) $database_connection_method = 'SET CHARACTER SET';
 $dbase = $_POST['database_name'];
 $table_prefix = $_POST['tableprefix'];
 $adminname = $_POST['cmsadmin'];
