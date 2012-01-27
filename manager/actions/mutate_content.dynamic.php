@@ -173,6 +173,8 @@ if (empty($_REQUEST['id']))
 	}
 }
 
+if($_REQUEST['a'] == '4') $content['richtext'] = $modx->config['use_editor'];
+
 if (isset ($_POST['which_editor']))
 {
 	$which_editor = $_POST['which_editor'];
@@ -672,7 +674,10 @@ $_SESSION['itemname'] = htmlspecialchars(stripslashes($content['pagetitle']));
 				</td></tr>
 		</table>
 		
-<?php if ($content['type'] == 'document' || $_REQUEST['a'] == '4') { ?>
+<?php
+	if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
+	{
+?>
 		<!-- Content -->
 			<div class="sectionHeader" id="content_header"><?php echo $_lang['resource_content']?></div>
 			<div class="sectionBody" id="content_body">
