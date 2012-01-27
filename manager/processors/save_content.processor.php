@@ -575,7 +575,7 @@ switch ($actionToTake)
 		$rs = $modx->db->update($fields,$tbl_site_content,"id='{$id}'");
 		if (!$rs)
 		{
-			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> $sql </i>.";
+			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
 		}
 		
 		// update template variables
@@ -841,7 +841,7 @@ function saveMETAKeywords($id) {
 			'haskeywords' => (count($keywords) ? 1 : 0),
 			'hasmetatags' => (count($metatags) ? 1 : 0)
 		);
-		$modx->db->update($flds, $tbl_site_content, "id=$id");
+		$modx->db->update($flds, $tbl_site_content, "id={$id}");
 	}
 }
 
