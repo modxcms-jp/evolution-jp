@@ -185,43 +185,48 @@ if($newloginerror) {
     return;
 }
 
-$currentsessionid = session_id();
-
 $_SESSION['usertype'] = 'manager'; // user is a backend user
 
 // get permissions
-$_SESSION['mgrShortname']=$username;
-$_SESSION['mgrFullname']=$fullname;
-$_SESSION['mgrEmail']=$email;
-$_SESSION['mgrValidated']=1;
-$_SESSION['mgrInternalKey']=$internalKey;
-$_SESSION['mgrFailedlogins']=$failedlogins;
-$_SESSION['mgrLastlogin']=$lastlogin;
-$_SESSION['mgrLogincount']=$nrlogins; // login count
-$_SESSION['mgrRole']=$role;
+$_SESSION['mgrShortname'] = $username;
+$_SESSION['mgrFullname'] = $fullname;
+$_SESSION['mgrEmail'] = $email;
+$_SESSION['mgrValidated'] = 1;
+$_SESSION['mgrInternalKey'] = $internalKey;
+$_SESSION['mgrFailedlogins'] = $failedlogins;
+$_SESSION['mgrLastlogin'] = $lastlogin;
+$_SESSION['mgrLogincount'] = $nrlogins; // login count
+$_SESSION['mgrRole'] = $role;
 $rs = $modx->db->select('* ',$tbl_user_roles,"id={$role}");
 $row = $modx->db->getRow($rs);
 $_SESSION['mgrPermissions'] = $row;
 
 // successful login so reset fail count and update key values
-if(isset($_SESSION['mgrValidated'])) {
-    $sql = "update {$tbl_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
+if(isset($_SESSION['mgrValidated']))
+{
+	$now = time();
+	$currentsessionid = session_id();
+	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin={$now}, sessionid='{$currentsessionid}'";
+    $sql = "update {$tbl_user_attributes} SET {$field} where internalKey={$internalKey}";
     $rs = $modx->db->query($sql);
 }
 
 // get user's document groups
-$dg='';$i=0;
-$tblug = $modx->getFullTableName('member_groups');
-$tbluga = $modx->getFullTableName('membergroup_access');
-$sql = "SELECT uga.documentgroup
-        FROM $tblug ug
-        INNER JOIN $tbluga uga ON uga.membergroup=ug.user_group
-        WHERE ug.member =".$internalKey;
-$rs = $modx->db->query($sql);
-while ($row = $modx->db->getRow($rs,'num')) $dg[$i++]=$row[0];
+$dg='';
+$i=0;
+$tbl_member_groups = $modx->getFullTableName('member_groups');
+$tbl_membergroup_access = $modx->getFullTableName('membergroup_access');
+$field ='uga.documentgroup as documentgroup';
+$from = "{$tbl_member_groups} ug INNER JOIN {$tbl_membergroup_access} uga ON uga.membergroup=ug.user_group";
+$rs = $modx->db->select($field,$from,"ug.member={$internalKey}");
+while ($row = $modx->db->getRow($rs,'num'))
+{
+	$dg[$i++]=$row[0];
+}
 $_SESSION['mgrDocgroups'] = $dg;
 
-if($rememberme == '1') {
+if($rememberme == '1')
+{
     $_SESSION['modx.mgr.session.cookie.lifetime']= intval($modx->config['session.cookie.lifetime']);
 	
 	// Set a cookie separate from the session cookie with the username in it.
@@ -234,7 +239,9 @@ if($rememberme == '1') {
 	} else {
 		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, MODX_BASE_URL, NULL, $secure, true);
 	}
-} else {
+}
+else
+{
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
 	// Remove the Remember Me cookie
