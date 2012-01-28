@@ -537,8 +537,8 @@ class DocumentParser {
 			unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
 			
 			$this->documentObject = $docObj;
-			return $a[1]; // return document content
 		}
+		return $a[1]; // return document content
 	}
 
     function outputContent($noEvent= false)
