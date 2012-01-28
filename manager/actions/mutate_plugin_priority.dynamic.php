@@ -149,7 +149,7 @@ foreach ($sortables as $list) {
 
 <h1>'.$_lang['plugin_priority_title'].'</h1>
 
-<div id="actions"
+<div id="actions">
    <ul class="actionButtons">
        	<li><a href="#" onclick="save();"><img src="'.$_style["icons_save"].'" /> '.$_lang['save'].'</a></li>
 		<li><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="'.$_style["icons_cancel"].'" /> '.$_lang['cancel'].'</a></li>
