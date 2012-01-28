@@ -535,8 +535,8 @@ class DocumentParser {
 			
 			// Remove intermediate variables
 			unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
-			$this->documentObject = $docObj;
 		}
+		$this->documentObject = $docObj;
 		return $a[1]; // return document content
 	}
 
