@@ -454,7 +454,7 @@ function decode(s){
       </tr>
 	  <tr>
 	    <td align="left"><?php echo $_lang['tmplvars_description']; ?>:</td>
-	    <td align="left"><textarea name="description" onChange="documentDirty=true;" style="height:5em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	    <td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	  </tr>
 	  <tr>
 	    <td align="left" colspan="2"><label><input name="locked" value="on" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox" /> <?php echo $_lang['lock_tmplvars']; ?> <span class="comment"><?php echo $_lang['lock_tmplvars_msg']; ?></span></label></td>
@@ -464,9 +464,10 @@ function decode(s){
 	    <td align="left"><input name="rank" type="text" maxlength="4" value="<?php echo (isset($content['rank'])) ? $content['rank'] : 0;?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
 	  </tr>
       </table>
+</div>
 
 <!-- Access Permissions -->
-	<?php
+<?php
 	if($use_udperms==1)
 	{
 		$groupsarray = array();
@@ -481,63 +482,68 @@ function decode(s){
 ?>
 
 <!-- Access Permissions -->
-<?php if($modx->hasPermission('access_permissions')) { ?>
-<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div><div class="sectionBody">
-		<script type="text/javascript">
-		    function makePublic(b){
-		        var notPublic=false;
-		        var f=document.forms['mutate'];
-		        var chkpub = f['chkalldocs'];
-		        var chks = f['docgroups[]'];
-		        if(!chks && chkpub) {
-		            chkpub.checked=true;
-		            return false;
-		        }
-		        else if (!b && chkpub) {
-		            if(!chks.length) notPublic=chks.checked;
-		            else for(i=0;i<chks.length;i++) if(chks[i].checked) notPublic=true;
-		            chkpub.checked=!notPublic;
-		        }
-		        else {
-		            if(!chks.length) chks.checked = (b)? false:chks.checked;
-		            else for(i=0;i<chks.length;i++) if (b) chks[i].checked=false;
-		            chkpub.checked=true;
-		        }
-		    }
-		</script>
+<?php
+		if($modx->hasPermission('access_permissions'))
+		{
+?>
+<div class="tab-page" id="tabAccess">
+<h2 class="tab"><?php echo $_lang['access_permissions'];?></h2>
+<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabAccess" ) );</script>
+<script type="text/javascript">
+    function makePublic(b){
+        var notPublic=false;
+        var f=document.forms['mutate'];
+        var chkpub = f['chkalldocs'];
+        var chks = f['docgroups[]'];
+        if(!chks && chkpub) {
+            chkpub.checked=true;
+            return false;
+        }
+        else if (!b && chkpub) {
+            if(!chks.length) notPublic=chks.checked;
+            else for(i=0;i<chks.length;i++) if(chks[i].checked) notPublic=true;
+            chkpub.checked=!notPublic;
+        }
+        else {
+            if(!chks.length) chks.checked = (b)? false:chks.checked;
+            else for(i=0;i<chks.length;i++) if (b) chks[i].checked=false;
+            chkpub.checked=true;
+        }
+    }
+</script>
 <p><?php echo $_lang['tmplvar_access_msg']; ?></p>
-		<?php
-		    }
-		    $chk ='';
-		    $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-		    $rs = $modx->db->select('name, id',$tbl_documentgroup_names);
-		    if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
+<?php
+		}
+		$chk ='';
+		$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
+		$rs = $modx->db->select('name, id',$tbl_documentgroup_names);
+		if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
+		{
+			$groupsarray = $_POST['docgroups'];
+		}
+		while($row=$modx->db->getRow($rs))
+		{
+		    $checked = in_array($row['id'], $groupsarray);
+		    if($modx->hasPermission('access_permissions'))
 		    {
-		    	$groupsarray = $_POST['docgroups'];
+		        if($checked) $notPublic = true;
+		        $chks .= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
 		    }
-		    while($row=$modx->db->getRow($rs))
+		    elseif($checked)
 		    {
-		        $checked = in_array($row['id'], $groupsarray);
-		        if($modx->hasPermission('access_permissions'))
-		        {
-		            if($checked) $notPublic = true;
-		            $chks .= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id']."' ".($checked ? "checked='checked'" : '')." onclick=\"makePublic(false)\" />".$row['name']."</label><br />";
-		        }
-		        elseif($checked)
-		        {
-		            echo '<input type="hidden" name="docgroups[]"  value="' .$row['id'] . '" />';
-		        }
+		        echo '<input type="hidden" name="docgroups[]"  value="' .$row['id'] . '" />';
 		    }
-		    if($modx->hasPermission('access_permissions')) {
-		        $chks = '<label><input type="checkbox" name="chkalldocs" '.(!$notPublic ? "checked='checked'" : '')." onclick=\"makePublic(true)\" /><span class='warning'>".$_lang['all_doc_groups'].'</span></label>'.$chks;
-		    }
-		    echo $chks;
-		?>
-	</div>
-<?php }?>
-
+		}
+		if($modx->hasPermission('access_permissions'))
+		{
+		    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>'.$chks;
+		}
+		echo $chks;
+?>
 </div>
-
+<?php
+	}
+?>
 <?php
     // invoke OnTVFormRender event
     $evtOut = $modx->invokeEvent('OnTVFormRender',array('id' => $id));

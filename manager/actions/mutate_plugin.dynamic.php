@@ -648,7 +648,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	</tr>
 	  <tr>
 		<td align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</td>
-		<td align="left"><textarea id="pluginDescription" name="description" onChange="documentDirty=true;" style="height:4em;"><?php echo $content['description'];?></textarea></td>
+		<td align="left"><textarea id="pluginDescription" name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
 	  </tr>
 	  <tr>
 		<td align="left" valign="top" colspan="2">

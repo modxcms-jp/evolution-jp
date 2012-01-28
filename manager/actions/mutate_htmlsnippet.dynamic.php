@@ -232,7 +232,7 @@ if ($ds) {
 	</tr>
 	<tr>
 		<td align="left"><?php echo $_lang['htmlsnippet_desc']?>:</td>
-		<td align="left"><input name="description" type="text" maxlength="255" value="<?php echo htmlspecialchars($content['description'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 	<tr>
 		<td align="left" colspan="2">

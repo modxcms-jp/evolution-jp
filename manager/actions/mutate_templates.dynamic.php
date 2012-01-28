@@ -270,7 +270,7 @@ if ($_REQUEST['a'] == '16')
 	</tr>
 	<tr>
 		<td align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</td>
-		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="height:3em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 	  <tr>
 	    <td align="left" colspan="2">

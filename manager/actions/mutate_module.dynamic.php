@@ -412,7 +412,7 @@ function SetUrl(url, width, height, alt) {
 		</tr>
 		<tr>
 			<td align="left"><?php echo $_lang['module_desc']?>:</td>
-			<td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" onchange="documentDirty=true;"></td>
+			<td align="left"><textarea name="description" onchange="documentDirty=true;" style="padding:0;width:300px;height:4em;"><?php echo $content['description'];?></textarea></td>
 		</tr>
 		<tr>
 			<td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:</td>

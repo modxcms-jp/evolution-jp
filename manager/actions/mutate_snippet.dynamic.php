@@ -348,7 +348,7 @@ function decode(s){
 		  <tr>
 			<td align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:</td>
 			<td align="left" style="padding-top:10px">
-				<textarea name="description" onChange="documentDirty=true;" style="height:3em;"><?php echo $content['description']?></textarea></td>
+				<textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
 		  </tr>
 		  <tr>
 			<td style="padding-top:10px" align="left" valign="top" colspan="2">
