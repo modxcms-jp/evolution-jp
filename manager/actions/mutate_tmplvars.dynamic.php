@@ -529,7 +529,7 @@ function decode(s){
 		        }
 		    }
 		    if($modx->hasPermission('access_permissions')) {
-		        $chks = '<label><input type="checkbox" name="chkalldocs" '.(!$notPublic ? "checked='checked'" : '')." onclick=\"makePublic(true)\" /><span class='warning'>".$_lang['all_doc_groups'].'</span></label><br />'.$chks;
+		        $chks = '<label><input type="checkbox" name="chkalldocs" '.(!$notPublic ? "checked='checked'" : '')." onclick=\"makePublic(true)\" /><span class='warning'>".$_lang['all_doc_groups'].'</span></label>'.$chks;
 		    }
 		    echo $chks;
 		?>
