@@ -486,11 +486,15 @@ if (!$ds) {
 	</table>
 	</div>
 <?php } ?>
-</div>
-</div>
-
 <?php
-if ($use_udperms == 1) {
+if ($use_udperms == 1)
+{
+?>
+<!-- Access permissions -->
+<div class="tab-page" id="tabAccess">
+<h2 class="tab"><?php echo $_lang['group_access_permissions']?></h2>
+<script type="text/javascript">tpModule.addTabPage( document.getElementById("tabAccess") );</script>
+<?php
 	// fetch user access permissions for the module
 	$groupsarray = array();
 	$rs = $modx->db->select('*',$tbl_site_module_access,"module='{$id}'");
@@ -501,10 +505,9 @@ if ($use_udperms == 1) {
 		$groupsarray[$i] = $currentgroup['usergroup'];
 	}
 
-	if($modx->hasPermission('access_permissions')) { ?>
+	if($modx->hasPermission('access_permissions')) {
+?>
 <!-- User Group Access Permissions -->
-<div class="sectionHeader"><?php echo $_lang['group_access_permissions']?></div>
-<div class="sectionBody">
 	<script type="text/javascript">
 	function makePublic(b) {
 		var notPublic=false;
@@ -553,7 +556,11 @@ if ($use_udperms == 1) {
 	echo $chks;
 ?>
 </div>
-<?php } ?>
+<?php
+}
+?>
+</div>
+</div>
 
 <input type="submit" name="save" style="display:none;">
 <?php
