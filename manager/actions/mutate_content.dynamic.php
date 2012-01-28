@@ -1114,6 +1114,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 				<br />
 				<input type="button" class="button" value="<?php echo $_lang['deselect_metatags']?>" onclick="clearMetatagSelection();" />
 				</td>
+			</tr>
 			</table>
 			</td>
 		</tr>
