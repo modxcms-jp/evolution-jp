@@ -57,7 +57,7 @@ class DocumentParser {
 	{
 		if(!isset($_REQUEST['id']))
 		{
-			$_REQUEST['q'] = ltrim($_SERVER['REQUEST_URI'],'/');
+			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen(MODX_BASE_URL));
 			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
 		}
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
@@ -535,7 +535,6 @@ class DocumentParser {
 			
 			// Remove intermediate variables
 			unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
-			
 			$this->documentObject = $docObj;
 		}
 		return $a[1]; // return document content
