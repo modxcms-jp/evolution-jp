@@ -41,13 +41,15 @@ $tbl_site_templates     = $modx->getFullTableName('site_templates');
 $tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
 
 // Check to see the editor isn't locked
-$sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=108 AND id=\''.$id.'\'';
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
-	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID()) {
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
+$limit = $modx->db->getRecordCount($rs);
+if ($limit > 1)
+{
+	for ($i = 0; $i < $limit; $i++)
+	{
+		$lock = $modx->db->getRow($rs);
+		if ($lock['internalKey'] != $modx->getLoginUserID())
+		{
 			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -62,19 +64,21 @@ if (!is_numeric($id)) {
 	exit;
 }
 
-if (isset($_GET['id'])) {
-	$sql = 'SELECT * FROM '.$tbl_site_modules.' WHERE id=\''.$id.'\'';
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if ($limit > 1) {
+if (isset($_GET['id']))
+{
+	$rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
+	$limit = $modx->db->getRecordCount($rs);
+	if ($limit > 1)
+	{
 		echo '<p>Multiple modules sharing same unique id. Not good.<p>';
 		exit;
 	}
-	if ($limit < 1) {
+	if ($limit < 1)
+	{
 		echo '<p>No record found for id: '.$id.'.</p>';
 		exit;
 	}
-	$content = mysql_fetch_assoc($rs);
+	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
 	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 		$e->setError(3);
@@ -374,7 +378,7 @@ function SetUrl(url, width, height, alt) {
 	</table>
 
 	<!-- PHP text editor start -->
-	<div style="width:100%; position:relative">
+	<div style="position:relative">
 		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 			<span style="float:left;font-weight:bold;"><?php echo $_lang['module_code']?></span>
 			<span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
@@ -448,21 +452,21 @@ function SetUrl(url, width, height, alt) {
 <?php
 	$sql = 'SELECT smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.
 	       'CASE smd.type'.
-	       ' WHEN 10 THEN \'Chunk\''.
-	       ' WHEN 20 THEN \'Document\''.
-	       ' WHEN 30 THEN \'Plugin\''.
-	       ' WHEN 40 THEN \'Snippet\''.
-	       ' WHEN 50 THEN \'Template\''.
-	       ' WHEN 60 THEN \'TV\''.
+	       " WHEN 10 THEN 'Chunk'".
+	       " WHEN 20 THEN 'Document'".
+	       " WHEN 30 THEN 'Plugin'".
+	       " WHEN 40 THEN 'Snippet'".
+	       " WHEN 50 THEN 'Template'".
+	       " WHEN 60 THEN 'TV'" .
 	       'END AS `type` '.
-	       'FROM '.$tbl_site_module_depobj.' AS smd '.
-	       'LEFT JOIN '.$tbl_site_htmlsnippets.' AS sc ON sc.id = smd.resource AND smd.type = 10 '.
-	       'LEFT JOIN '.$tbl_site_content.' AS sd ON sd.id = smd.resource AND smd.type = 20 '.
-	       'LEFT JOIN '.$tbl_site_plugins.' AS sp ON sp.id = smd.resource AND smd.type = 30 '.
-	       'LEFT JOIN '.$tbl_site_snippets.' AS ss ON ss.id = smd.resource AND smd.type = 40 '.
-	       'LEFT JOIN '.$tbl_site_templates.' AS st ON st.id = smd.resource AND smd.type = 50 '.
-	       'LEFT JOIN '.$tbl_site_tmplvars.' AS sv ON sv.id = smd.resource AND smd.type = 60 '.
-	       'WHERE smd.module=\''.$id.'\' ORDER BY smd.type,name';
+	       "FROM {$tbl_site_module_depobj} AS smd ".
+	       "LEFT JOIN {$tbl_site_htmlsnippets} AS sc ON sc.id = smd.resource AND smd.type = 10 ".
+	       "LEFT JOIN {$tbl_site_content} AS sd ON sd.id = smd.resource AND smd.type = 20 ".
+	       "LEFT JOIN {$tbl_site_plugins} AS sp ON sp.id = smd.resource AND smd.type = 30 ".
+	       "LEFT JOIN {$tbl_site_snippets} AS ss ON ss.id = smd.resource AND smd.type = 40 ".
+	       "LEFT JOIN {$tbl_site_templates} AS st ON st.id = smd.resource AND smd.type = 50 ".
+	       "LEFT JOIN {$tbl_site_tmplvars} AS sv ON sv.id = smd.resource AND smd.type = 60 ".
+	       "WHERE smd.module='{$id}' ORDER BY smd.type,name";
 $ds = $modx->db->query($sql);
 if (!$ds) {
 	echo "An error occured while loading module dependencies.";
@@ -489,11 +493,11 @@ if (!$ds) {
 if ($use_udperms == 1) {
 	// fetch user access permissions for the module
 	$groupsarray = array();
-	$sql = 'SELECT * FROM '.$tbl_site_module_access.' WHERE module=\''.$id.'\'';
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	for ($i = 0; $i < $limit; $i++) {
-		$currentgroup = mysql_fetch_assoc($rs);
+	$rs = $modx->db->select('*',$tbl_site_module_access,"module='{$id}'");
+	$limit = $modx->db->getRecordCount($rs);
+	for ($i = 0; $i < $limit; $i++)
+	{
+		$currentgroup = $modx->db->getRow($rs);
 		$groupsarray[$i] = $currentgroup['usergroup'];
 	}
 
@@ -525,21 +529,25 @@ if ($use_udperms == 1) {
 <?php
 	}
 	$chk = '';
-	$sql = "SELECT name, id FROM ".$tbl_membergroup_names;
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+	$rs = $modx->db->select('name, id',$tbl_membergroup_names);
+	$limit = $modx->db->getRecordCount($rs);
+	for ($i = 0; $i < $limit; $i++)
+	{
+		$row = $modx->db->getRow($rs);
 		$groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
 		$checked = in_array($row['id'], $groupsarray);
-		if($modx->hasPermission('access_permissions')) {
+		if($modx->hasPermission('access_permissions'))
+		{
 			if ($checked) $notPublic = true;
 			$chks .= '<label><input type="checkbox" name="usrgroups[]" value="'.$row['id'].'"'.($checked ? ' checked="checked"' : '').' onclick="makePublic(false)" />'.$row['name']."</label><br />\n";
-		} else {
-			if ($checked) $chks = '<input type="hidden" name="usrgroups[]"  value="'.$row['id'].'" />' . "\n" . $chks;
+		}
+		elseif($checked)
+		{
+			$chks = '<input type="hidden" name="usrgroups[]"  value="'.$row['id'].'" />' . "\n" . $chks;
 		}
 	}
-	if($modx->hasPermission('access_permissions')) {
+	if($modx->hasPermission('access_permissions'))
+	{
 		$chks = '<label><input type="checkbox" name="chkallgroups"'.(!$notPublic ? ' checked="checked"' : '').' onclick="makePublic(true)" /><span class="warning">'.$_lang['all_usr_groups'].'</span></label><br />' . "\n" . $chks;
 	}
 	echo $chks;
