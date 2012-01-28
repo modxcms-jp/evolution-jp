@@ -375,8 +375,8 @@ function SetUrl(url, width, height, alt) {
 
 	<!-- PHP text editor start -->
 	<div style="width:100%; position:relative">
-		<div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border-top:1px solid #e0e0e0; margin-top:5px">
-			<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['module_code']?></span>
+		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+			<span style="float:left;font-weight:bold;"><?php echo $_lang['module_code']?></span>
 			<span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		</div>
         <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['modulecode'])?></textarea>

@@ -176,11 +176,11 @@ if (is_array($evtOut))
 	</table>
 
 	<div>
-		<div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border:1px solid #e0e0e0; margin-top:5px;">
-			<span style="font-weight:bold;">&nbsp;<?php echo $_lang['chunk_code']?></span>
+		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+			<span style="font-weight:bold;"><?php echo $_lang['chunk_code']?></span>
 		</div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" onChange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
-		</div>
+        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%" onchange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+	</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 			<select id="which_editor" name="which_editor" onchange="changeRTE();">

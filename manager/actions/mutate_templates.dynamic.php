@@ -173,8 +173,8 @@ function deletedocument() {
 	</div>
 	<!-- HTML text editor start -->
 	<div style="width:100%;position:relative">
-	    <div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border:1px solid #e0e0e0;margin-top:5px">
-	    	<span style="float:left;font-weight:bold;">&nbsp;<?php echo $_lang['template_code']; ?></span>
+	    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
         <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;" onChange='documentDirty=true;'><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
 	</div>
