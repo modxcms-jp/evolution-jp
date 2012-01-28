@@ -91,7 +91,7 @@ function deletedocument() {
 
 // Widget Parameters
 var widgetParams = {};          // name = description;datatype;default or list values - datatype: int, string, list : separated by comma (,)
-    widgetParams['date']        = '&format=Date Format;string;%A %d, %B %Y &default=If no value, use current date;list;Yes,No;No';
+    widgetParams['date']        = '&format=Date Format;string;%Y年%m月%d日 &default=If no value, use current date;list;Yes,No;No';
     widgetParams['string']      = '&format=String Format;list;Upper Case,Lower Case,Sentence Case,Capitalize';
     widgetParams['delim']       = '&delim=Delimiter;string;,';
     widgetParams['hyperlink']   = '&text=Display Text;string; &title=Title;string; &class=Class;string &style=Style;string &target=Target;string &attrib=Attributes;string';
