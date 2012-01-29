@@ -436,7 +436,9 @@ function decode(s){
       <table>
       <tr>
         <td align="left"><?php echo $_lang['existing_category']; ?>:</td>
-        <td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+        <td align="left">
+        <select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+        <option>&nbsp;</option>
             <?php
                 include_once "categories.inc.php";
                 $ds = getCategories();
