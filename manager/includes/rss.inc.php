@@ -36,10 +36,16 @@ $feedData = array();
 foreach ($urls as $section=>$url) {
 	$output = '';
     // While getting RSS, SESSION is closed temporarily.  
-    $tmp_sessionname=session_name();
-    session_write_close();
+    if ( !headers_sent() )
+    {
+        $tmp_sessionname=session_name();
+        session_write_close();
+    }
     $rss = @fetch_rss($url);
-    session_start($tmp_sessionname);
+    if ( isset($tmp_sessionname) )
+    {
+        session_start($tmp_sessionname);
+    }
     if( !$rss ){
     	$feedData[$section] = 'Failed to retrieve ' . $url;
     	continue;
