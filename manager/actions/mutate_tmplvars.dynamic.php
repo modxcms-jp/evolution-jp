@@ -329,13 +329,13 @@ function decode(s){
 	$option['dateonly']     = 'DateOnly';
 	$option['custom_tv']    = 'Custom Input';
 	$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-	$result = $modx->db->select('name',$tbl_site_snippets,"name like'tvin:%'");
+	$result = $modx->db->select('name',$tbl_site_snippets,"name like'wgt:%'");
 	if(0 < $modx->db->getRecordCount($result))
 	{
-		while($tvin = $modx->db->getRow($result))
+		while($row = $modx->db->getRow($result))
 		{
-			$tvin_name = substr($tvin['name'],5);
-			$option[$tvin_name] = $tvin_name;
+			$wgt_name = substr($row['name'],5);
+			$option[$wgt_name] = $wgt_name;
 		}
 	}
 	if($content['type']=='') $content['type']=='text';
