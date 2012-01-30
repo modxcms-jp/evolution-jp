@@ -296,7 +296,7 @@ EOT;
 			default: // the default handler -- for errors, mostly
 				$sname = strtolower($field_type);
 				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='wgt:{$field_type}'");
+				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='input:{$field_type}'");
 				if($modx->db->getRecordCount($result)==1)
 				{
 					$field_html .= eval($modx->db->getValue($result));
