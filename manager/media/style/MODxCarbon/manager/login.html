@@ -91,7 +91,7 @@
             else {
                 var cimg = $('captcha_image');
                 if (cimg) {
-                	cimg.src = 'includes/veriword.php?rand=' + Math.random();
+                	cimg.src = '../action.php?include=manager/includes/veriword.php?rand=' + Math.random();
                 }
                 $$('input').removeProperty('readonly');
                 alert(response);
