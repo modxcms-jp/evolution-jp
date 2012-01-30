@@ -1,3 +1,14 @@
+/**
+ * ログイン画面
+ * 
+ * ログイン画面テンプレート
+ * 
+ * @category	chunk
+ * @version 	1.0
+ * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal 	@modx_category Manager and Admin
+ * @internal    @installset base
+ */
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
