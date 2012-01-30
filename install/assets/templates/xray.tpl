@@ -37,9 +37,7 @@
 	</div>
 	<div class="content">
 	<nav>
-	    [[Wayfinder
-	    	&config=`breadcrumb` // /assets/snippets/wayfinder/configs/breadcrumb.config.phpを読む
-	    ]]
+	    [[TopicPath]]
 	</nav>
 	<article>
 	    <h2>[*pagetitle*]</h2>
