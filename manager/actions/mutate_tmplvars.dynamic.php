@@ -523,6 +523,7 @@ function decode(s){
 		{
 			$groupsarray = $_POST['docgroups'];
 		}
+		$number_of_g = 0;
 		while($row=$modx->db->getRow($rs))
 		{
 		    $checked = in_array($row['id'], $groupsarray);
@@ -530,6 +531,7 @@ function decode(s){
 		    {
 		        if($checked) $notPublic = true;
 		        $chks .= '<label><input type="checkbox" name="docgroups[]" value="'.$row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
+		        $number_of_g++;
 		    }
 		    elseif($checked)
 		    {
@@ -538,7 +540,8 @@ function decode(s){
 		}
 		if($modx->hasPermission('access_permissions'))
 		{
-		    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>'.$chks;
+			$disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
+		    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>'.$chks;
 		}
 		echo $chks;
 ?>
