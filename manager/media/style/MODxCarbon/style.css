@@ -339,7 +339,7 @@ form textarea {
 	height: 75px;
 	width: 300px;
 	margin-top: 0;
-	padding:8px;
+	padding:5px;
 	-webkit-box-sizing: border-box; /* Chrome, Safari */
 	-moz-box-sizing: border-box;    /* Firefox */
 	box-sizing: border-box;         /* IE8+, Opera */
@@ -729,7 +729,7 @@ a.hometblink:hover {
 	width: 300px;
 	height: 150px;
 	padding: 50px;
-	border: 1px solid #039;
+	border: 1px solid #999;
 }
 /* -------------------------[ contextmenu in editing modules ]--- */
 .contextMenu {
