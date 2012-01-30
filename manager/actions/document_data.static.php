@@ -18,25 +18,24 @@ $tbl_site_metatags         = $modx->getFullTableName('site_metatags');
 $tbl_site_templates        = $modx->getFullTableName('site_templates');
 
 // Get access permissions
-if($_SESSION['mgrDocgroups']) $docgrp = implode(",",$_SESSION['mgrDocgroups']);
+if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
 $in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
-
 // Get the document content
-$sql = 'SELECT DISTINCT sc.* '.
-       "FROM {$tbl_site_content} AS sc ".
-       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
-       "WHERE sc.id ='{$id}' ".
-       "AND ({$access})";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if ($limit > 1) {
+$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+$where = "sc.id ='{$id}' AND ({$access})";
+$rs = $modx->db->select('DISTINCT sc.*',$from,$where);
+$total = $modx->db->getRecordCount($rs);
+if ($total > 1)
+{
 	echo "<p>Internal System Error...</p>",
 	     "<p>More results returned than expected. </p>",
 	     "<p><strong>Aborting...</strong></p>";
 	exit;
-} elseif ($limit == 0) {
+}
+elseif ($total == 0)
+{
 	$e->setError(3);
 	$e->dumpError();
 }
@@ -68,9 +67,10 @@ $metatags_selected = array();
 if ($modx->config['show_meta'])
 {
 	// Get list of current keywords for this document
+	$from = "{$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x";
 	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
 	$orderby = 'BY k.keyword ASC';
-	$rs = $modx->db->select('k.keyword',"{$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x",$where,$orderby);
+	$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
 	while($row = $modx->db->getRow($rs))
 	{
 		$keywords[$i] = $row['keyword'];
@@ -78,7 +78,7 @@ if ($modx->config['show_meta'])
 	
 	// Get list of selected site META tags for this document
 	$field = 'meta.id, meta.name, meta.tagvalue';
-	$from = "{$tbl_site_metatags} AS meta LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id ";
+	$from = "{$tbl_site_metatags} AS meta LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id";
 	$where = "sc.content_id='{$content['id']}'";
 	$rs = $modx->db->select($field,$from,$where);
 	while($row = $modx->db->getRow($rs))
@@ -90,40 +90,39 @@ if ($modx->config['show_meta'])
 /**
  * "View Children" tab setup
  */
-$maxpageSize = $modx->config['number_of_results'];
-define('MAX_DISPLAY_RECORDS_NUM',$maxpageSize);
 
 if (!class_exists('makeTable')) include_once $modx->config['base_path'].'manager/includes/extenders/maketable.class.php';
 $childsTable = new makeTable();
 
 // Get child document count
-$sql = "SELECT DISTINCT sc.id ".
-       "FROM {$tbl_site_content} AS sc ".
-       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
-       "WHERE sc.parent='{$content['id']}' ".
-       "AND ({$access})";
-$rs = $modx->db->query($sql);
+$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+$where = "sc.parent='{$content['id']}' AND ({$access})";
+$rs = $modx->db->select('DISTINCT sc.id',$from,$where);
 $numRecords = $modx->db->getRecordCount($rs);
 
-// Get child documents (with paging)
-$sql = 'SELECT DISTINCT sc.* '.
-       "FROM {$tbl_site_content} AS sc ".
-       "LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id ".
-       "WHERE sc.parent='{$content['id']}' ".
-       "AND ({$access}) ".
-       "ORDER BY sc.isfolder DESC, sc.menuindex DESC".
-       $childsTable->handlePaging(); // add limit clause
 
-if ($numRecords > 0) {
-	if (!$rs = $modx->db->query($sql)) {
-		// sql error
-		$e->setError(1);
+
+if ($numRecords > 0)
+{
+	// Get child documents (with paging)
+	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+	$where = "sc.parent='{$content['id']}' AND ({$access})";
+	$orderby ='sc.isfolder DESC, sc.menuindex DESC';
+	$offset = (is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
+	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
+	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
+	$rs = $modx->db->select('DISTINCT sc.*',$from,$where,$orderby,$limit);
+	if (!$rs)
+	{
+		$e->setError(1); // sql error
 		$e->dumpError();
 		include($modx->config['base_path'].'manager/includes/footer.inc.php');
 		exit;
-	} else {
+	}
+	else
+	{
 		$resource = array();
-		while($row = $modx->fetchRow($rs))
+		while($row = $modx->db->getRow($rs))
 		{
 			$resource[] = $row;
 		}
@@ -139,8 +138,6 @@ if ($numRecords > 0) {
 		$childsTable->setRowRegularClass($rowRegularClass);
 		$childsTable->setRowAlternateClass($rowAlternateClass);
 
-		$limitClause = $childsTable->handlePaging();
-		
 		// context menu
 		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
 		$cm = new ContextMenu("cntxm", 150);
@@ -160,89 +157,9 @@ if ($numRecords > 0) {
 		$cm->addItem($_lang["resource_overview"], "js:menuAction(3)",$_style['icons_resource_overview'],($modx->hasPermission('view_document') ? 0:1));
 		//$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
 		echo $cm->render();
-		$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
-?>
-<style type="text/css">
-a span.withmenu {border:1px solid transparent;}
-a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
-.nowrap {white-space:nowrap;}
-.disable {color:#777;}
-</style>
-<script type="text/javascript">
-	var selectedItem;
-	var contextm = <?php echo $cm->getClientScriptObject(); ?>;
-	function showContentMenu(id,e){
-		selectedItem=id;
-		contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))<?php echo $modx_textdir ? '-190' : '';?>+10+"px"; //offset menu if RTL is selected
-		contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))-150 + 'px';
-		contextm.style.visibility = "visible";
-		e.cancelBubble=true;
-		return false;
-	};
-
-	function menuAction(a) {
-		var id = selectedItem;
-		switch(a) {
-			case 27:		// edit
-				window.location.href='index.php?a=27&id='+id;
-				break;
-			case 4: 		// new Resource
-				window.location.href='index.php?a=4&pid='+id;
-				break;
-			case 51:		// move
-				window.location.href='index.php?a=51&id='+id<?php echo $page; ?>;
-				break;
-			case 94:		// duplicate
-				if(confirm("<?php echo $_lang['confirm_resource_duplicate']; ?>")==true)
-				{
-					window.location.href='index.php?a=94&id='+id<?php echo $page; ?>;
-				}
-				break;
-			case 61:		// publish
-				if(confirm("<?php echo $_lang['confirm_publish']; ?>")==true)
-				{
-					window.location.href='index.php?a=61&id='+id<?php echo $page; ?>;
-				}
-				break;
-			case 62:		// unpublish
-				if (id != <?php echo $modx->config['site_start']?>)
-				{
-					if(confirm("<?php echo $_lang['confirm_unpublish']; ?>")==true)
-					{
-						window.location.href="index.php?a=62&id=" + id<?php echo $page; ?>;
-					}
-				}
-				else
-				{
-					alert('Document is linked to site_start variable and cannot be unpublished!');
-				}
-				break;
-			case 6: 		// delete
-				if(confirm("<?php echo $_lang['confirm_delete_resource']; ?>")==true)
-				{
-					window.location.href='index.php?a=6&id='+id<?php echo $page; ?>;
-				}
-				break;
-			case 63:		// undelete
-				if(confirm("<?php echo $_lang['confirm_undelete']; ?>")==true)
-				{
-					top.main.document.location.href="index.php?a=63&id=" + id<?php echo $page; ?>;
-				}
-				break;
-			case 72: 		// new Weblink
-				window.location.href='index.php?a=72&pid='+id;
-				break;
-			case 3:		// view
-				window.location.href='index.php?a=3&id='+id;
-				break;
-		}
-	}
-
-	document.addEvent('click', function(){
-		contextm.style.visibility = "hidden";
-	});
-</script>
-<?php
+		
+		echo get_jscript($id,$cm);
+		
 		$listDocs = array();
 		foreach($resource as $k => $children)
 		{
@@ -269,7 +186,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 			
 			$classes = array();
 			$classes[] = 'withmenu';
-			if($children['deleted']==='1') $classes[] = 'deletedNode';
+			if($children['deleted']==='1')   $classes[] = 'deletedNode';
 			if($children['published']==='0') $classes[] = 'unpublishedNode';
 			$class = ' class="' . join(' ',$classes) . '"';
 			
@@ -279,7 +196,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 			
 			if($children['isfolder'] == 0)
 			{
-				$link = 'index.php?a=27&amp;id=' . $children['id'];
+				$link = "index.php?a=27&amp;id={$children['id']}";
 				$iconpath = $_style['tree_page'];
 			}
 			else
@@ -348,27 +265,6 @@ else
 }
 
 ?>
-<script type="text/javascript">
-function duplicatedocument(){
-	if(confirm("<?php echo $_lang['confirm_resource_duplicate']?>")==true) {
-		document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94";
-	}
-}
-function deletedocument() {
-	if(confirm("<?php echo $_lang['confirm_delete_resource']?>")==true) {
-		document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=6";
-	}
-}
-function editdocument() {
-	document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=27";
-}
-function movedocument() {
-	document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=51";
-}
-</script>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-<script type="text/javascript" src="media/script/tablesort.js"></script>
-
 	<h1><?php echo $_lang['doc_data_title']?></h1>
 	
 	<div id="actions">	
@@ -475,14 +371,14 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 			<tr><td><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)
-					echo join($keywords, ", ");
-				else    echo "(<i>".$_lang['not_set']."</i>)";
+					echo join($keywords, ', ');
+				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
 				?></td></tr>
 			<tr><td><?php echo $_lang['metatags']?>: </td>
 				<td><?php // META Tags
 				if(count($metatags_selected) != 0)
-					echo join($metatags_selected, "<br /> ");
-				else    echo "(<i>".$_lang['not_set']."</i>)";
+					echo join($metatags_selected, '<br />');
+				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
 				?></td></tr>
 			<?php } ?>
 			</table>
@@ -533,27 +429,140 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		<h2 class="tab"><?php echo $_lang['page_data_source']?></h2>
 		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabSource" ) );</script>
 		<?php
-		$buffer = "";
-		$filename = $modx->config['base_path']."assets/cache/docid_".$id.".pageCache.php";
-		$handle = @fopen($filename, "r");
-		if(!$handle) {
-			$buffer = $_lang['page_data_notcached'];
+		$cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
+		$cache = @file_get_contents($cache_path);
+		if(!$cache) {
+			$cache = $_lang['page_data_notcached'];
 		} else {
-			while (!feof($handle)) {
-				$buffer .= fgets($handle, 4096);
-			}
-			fclose($handle);
-			$buffer = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.htmlspecialchars($buffer)."</textarea>\n";
+			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.htmlspecialchars($cache)."</textarea>\n";
 		}
-		echo $buffer;
+		echo $cache;
 ?>
 	</div><!-- end tab-page -->
 </div><!-- end documentPane -->
 </div><!-- end sectionBody -->
 
-<?php if ($show_preview==1) { ?>
+<?php
+if ($show_preview==1)
+{
+?>
 <div class="sectionHeader"><?php echo $_lang['preview']?></div>
 <div class="sectionBody" id="lyr2">
 	<iframe src="../index.php?id=<?php echo $id?>&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
 </div>
 <?php }
+
+
+
+function get_jscript($id,$cm)
+{
+	global $modx, $_lang;
+	
+	$contextm = $cm->getClientScriptObject();
+	$textdir = $modx_textdir ? '-190' : '';
+	$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
+	
+	$block = <<< EOT
+<style type="text/css">
+a span.withmenu {border:1px solid transparent;}
+a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
+.nowrap {white-space:nowrap;}
+.disable {color:#777;}
+</style>
+<script type="text/javascript">
+	var selectedItem;
+	var contextm = {$contextm};
+	function showContentMenu(id,e){
+		selectedItem=id;
+		//offset menu if RTL is selected
+		contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))){$textdir}+10+"px";
+		contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))-150 + 'px';
+		contextm.style.visibility = "visible";
+		e.cancelBubble=true;
+		return false;
+	};
+
+	function menuAction(a) {
+		var id = selectedItem;
+		switch(a) {
+			case 27:		// edit
+				window.location.href='index.php?a=27&id='+id;
+				break;
+			case 4: 		// new Resource
+				window.location.href='index.php?a=4&pid='+id;
+				break;
+			case 51:		// move
+				window.location.href='index.php?a=51&id='+id{$page};
+				break;
+			case 94:		// duplicate
+				if(confirm("{$_lang['confirm_resource_duplicate']}")==true)
+				{
+					window.location.href='index.php?a=94&id='+id{$page};
+				}
+				break;
+			case 61:		// publish
+				if(confirm("{$_lang['confirm_publish']}")==true)
+				{
+					window.location.href='index.php?a=61&id='+id{$page};
+				}
+				break;
+			case 62:		// unpublish
+				if (id != {$modx->config['site_start']})
+				{
+					if(confirm("{$_lang['confirm_unpublish']}")==true)
+					{
+						window.location.href="index.php?a=62&id=" + id{$page};
+					}
+				}
+				else
+				{
+					alert('Document is linked to site_start variable and cannot be unpublished!');
+				}
+				break;
+			case 6: 		// delete
+				if(confirm("{$_lang['confirm_delete_resource']}")==true)
+				{
+					window.location.href='index.php?a=6&id='+id{$page};
+				}
+				break;
+			case 63:		// undelete
+				if(confirm("{$_lang['confirm_undelete']}")==true)
+				{
+					top.main.document.location.href="index.php?a=63&id=" + id{$page};
+				}
+				break;
+			case 72: 		// new Weblink
+				window.location.href='index.php?a=72&pid='+id;
+				break;
+			case 3:		// view
+				window.location.href='index.php?a=3&id='+id;
+				break;
+		}
+	}
+	document.addEvent('click', function(){
+		contextm.style.visibility = "hidden";
+	});
+</script>
+<script type="text/javascript">
+function duplicatedocument(){
+	if(confirm("{$_lang['confirm_resource_duplicate']}")==true) {
+		document.location.href="index.php?id={$id}&a=94";
+	}
+}
+function deletedocument() {
+	if(confirm("{$_lang['confirm_delete_resource']}")==true) {
+		document.location.href="index.php?id={$id}&a=6";
+	}
+}
+function editdocument() {
+	document.location.href="index.php?id={$id}&a=27";
+}
+function movedocument() {
+	document.location.href="index.php?id={$id}&a=51";
+}
+</script>
+<script type="text/javascript" src="media/script/tabpane.js"></script>
+<script type="text/javascript" src="media/script/tablesort.js"></script>
+EOT;
+	return $block;
+}
