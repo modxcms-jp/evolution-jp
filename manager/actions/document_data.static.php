@@ -265,6 +265,8 @@ else
 }
 
 ?>
+	<script type="text/javascript" src="media/script/tabpane.js"></script>
+	<script type="text/javascript" src="media/script/tablesort.js"></script>
 	<h1><?php echo $_lang['doc_data_title']?></h1>
 	
 	<div id="actions">	
@@ -561,8 +563,6 @@ function movedocument() {
 	document.location.href="index.php?id={$id}&a=51";
 }
 </script>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-<script type="text/javascript" src="media/script/tablesort.js"></script>
 EOT;
 	return $block;
 }
