@@ -546,7 +546,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 					<span class="warning"><?php echo $_lang['resource_alias']?></span>
 				</td>
 				<td>
-					<?php echo input_text('alias',to_safestr($content['alias']),'','100');?>
+					<?php echo input_text('alias',to_safestr(urldecode($content['alias'])),'','100');?>
 					<?php echo tooltip($_lang['resource_alias_help']);?>
 				</td>
 			</tr>
