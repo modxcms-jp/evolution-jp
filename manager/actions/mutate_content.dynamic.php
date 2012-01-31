@@ -960,13 +960,16 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
 				<td><select name="type" class="inputBox" onchange="documentDirty=true;" style="width:200px">
 
-                    <option value="document"<?php echo (($content['type'] == "document" || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
-                    <option value="reference"<?php echo (($content['type'] == "reference" || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
+                    <option value="document"<?php echo (($content['type'] == 'document' || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
+                    <option value="reference"<?php echo (($content['type'] == 'reference' || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
 					</select>
 					<?php echo tooltip($_lang['resource_type_message']);?>
 					</td>
 				</tr>
-
+<?php
+				if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
+				{
+?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_contentType']?></span></td>
 				<td><select name="contentType" class="inputBox" onchange="documentDirty=true;" style="width:200px">
 			<?php
@@ -990,6 +993,9 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 				<?php echo tooltip($_lang['resource_opt_contentdispo_help']);?>
 				</td>
 			</tr>
+<?php
+				}
+?>
 			<tr>
 				<td colspan="2"><div class="split"></div></td>
 			</tr>
@@ -1022,6 +1028,10 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['resource_opt_folder_help']);?>
 				</td>
 			</tr>
+<?php
+					if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
+					{
+?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_richtext']?></span></td>
 				<td>
@@ -1033,6 +1043,9 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['resource_opt_richtext_help']);?>
 				</td>
 			</tr>
+<?php
+					}
+?>
 			<tr style="height: 24px;">
 				<td width="150"><span class="warning"><?php echo $_lang['track_visitors_title']?></span></td>
 				<td>
@@ -1053,6 +1066,10 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['page_data_searchable_help']);?>
 				</td>
 			</tr>
+<?php
+				if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
+				{
+?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_cacheable']?></span></td>
 				<td>
@@ -1074,6 +1091,9 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['resource_opt_emptycache_help']);?>
 				</td>
 			</tr>
+<?php
+				}
+?>
 		</table>
 	</div><!-- end #tabSettings -->
 
