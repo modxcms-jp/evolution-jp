@@ -124,17 +124,26 @@ if($limit<1) {
     <tr> 
       <td align="center"><a href="index.php?a=3&id=<?php echo $logentry['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" width="16" height="16" /></a></td> 
       <td><?php echo $logentry['id']; ?></td> 
-	  <?php if (function_exists('mb_strlen') && function_exists('mb_substr')) {?>
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['pagetitle'], $modx_manager_charset)>20 ? mb_substr($logentry['pagetitle'], 0, 20, $modx_manager_charset)."..." : $logentry['pagetitle'] ; ?></td> 
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['description'], $modx_manager_charset)>35 ? mb_substr($logentry['description'], 0, 35, $modx_manager_charset)."..." : $logentry['description'] ; ?></td>
-	  <?php } else { ?>
+<?php
+		if (function_exists('mb_strlen') && function_exists('mb_substr'))
+		{
+?>
+		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['pagetitle'], $modx_manager_charset)>70 ? mb_substr($logentry['pagetitle'], 0, 70, $modx_manager_charset)."..." : $logentry['pagetitle'] ; ?></td> 
+		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['description'], $modx_manager_charset)>70 ? mb_substr($logentry['description'], 0, 70, $modx_manager_charset)."..." : $logentry['description'] ; ?></td>
+<?php
+		}
+		else
+		{
+?>
 		<td<?php echo $tdClass; ?>><?php echo strlen($logentry['pagetitle'])>20 ? substr($logentry['pagetitle'], 0, 20)."..." : $logentry['pagetitle'] ; ?></td> 
 		<td<?php echo $tdClass; ?>><?php echo strlen($logentry['description'])>35 ? substr($logentry['description'], 0, 35)."..." : $logentry['description'] ; ?></td>
-	  <?php } ?>
+<?php
+		}
+?>
       <td align="center"><img src="<?php echo $icon; ?>" /></td>
     </tr> 
 <?php
-			}
+	}
 ?> 
     </tbody> 
      </table> 
