@@ -265,6 +265,24 @@ else
 }
 
 ?>
+	<script type="text/javascript">
+	function duplicatedocument(){
+		if(confirm("{$_lang['confirm_resource_duplicate']}")==true) {
+			document.location.href="index.php?id={$id}&a=94";
+		}
+	}
+	function deletedocument() {
+		if(confirm("{$_lang['confirm_delete_resource']}")==true) {
+			document.location.href="index.php?id={$id}&a=6";
+		}
+	}
+	function editdocument() {
+		document.location.href="index.php?id={$id}&a=27";
+	}
+	function movedocument() {
+		document.location.href="index.php?id={$id}&a=51";
+	}
+	</script>
 	<script type="text/javascript" src="media/script/tabpane.js"></script>
 	<script type="text/javascript" src="media/script/tablesort.js"></script>
 	<h1><?php echo $_lang['doc_data_title']?></h1>
@@ -544,24 +562,6 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 	document.addEvent('click', function(){
 		contextm.style.visibility = "hidden";
 	});
-</script>
-<script type="text/javascript">
-function duplicatedocument(){
-	if(confirm("{$_lang['confirm_resource_duplicate']}")==true) {
-		document.location.href="index.php?id={$id}&a=94";
-	}
-}
-function deletedocument() {
-	if(confirm("{$_lang['confirm_delete_resource']}")==true) {
-		document.location.href="index.php?id={$id}&a=6";
-	}
-}
-function editdocument() {
-	document.location.href="index.php?id={$id}&a=27";
-}
-function movedocument() {
-	document.location.href="index.php?id={$id}&a=51";
-}
 </script>
 EOT;
 	return $block;
