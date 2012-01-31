@@ -423,7 +423,14 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			}
 
 			$fields['disclaimer'] = ($disclaimer)? formMerge($disclaimer,$fields):"";
-			$subject	= isset($fields['subject'])?$fields['subject']:(($subject)? formMerge($subject,$fields):$category);
+			if(isset($fields['subject']))
+			{
+				$subject = $fields['subject'];
+			}
+			else
+			{
+				$subject = ($subject) ? formMerge($subject,$fields) : "from {$fromname}";
+			}
 			$fields['subject'] = $subject; //make subject available in report & thank you page
 			$report	= ($report)? formMerge($report,$fields):"";
 			$keywords	= ($keywords)? formMerge($keywords,$fields):"";
