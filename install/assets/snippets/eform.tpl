@@ -24,14 +24,11 @@
 #
 
 # Set Snippet Paths
-$snipFolder = isset($snipFolder)?$snipFolder:'eform';
-$snipPath = $modx->config["base_path"].'assets/snippets/'.$snipFolder.'/';
-
+$snip_dir = isset($snip_dir) ? $snip_dir : 'eform';
+$snipPath = "{$modx->config['base_path']}assets/snippets/{$snip_dir}/";
 
 # check if inside manager
-if ($modx->isBackend()) {
-return ''; // don't go any further when inside manager
-}
+if ($modx->isBackend()) return ''; // don't go any further when inside manager
 
 //tidying up some casing errors in parameters
 if(isset($eformOnValidate)) $eFormOnValidate = $eformOnValidate;
@@ -48,8 +45,8 @@ $from   = (isset($from)) ? $from : $modx->config['emailsender'];
 $formid = (isset($formid)) ? $formid : '';
 $params = array (
    // Snippet Path
-   'snipPath' => $snipPath, //includes $snipFolder
-	 'snipFolder' => $snipFolder,
+   'snipPath' => $snipPath, //includes $snip_dir
+	 'snipFolder' => $snip_dir,
 
 // eForm Params
    'vericode' => isset($vericode)? $vericode:'',
@@ -60,7 +57,7 @@ $params = array (
    'cc' => isset($cc)? $cc:'',
    'bcc' => isset($bcc)? $bcc:'',
    'subject' => isset($subject)? $subject:'',
-   'ccsender' => isset($ccsender)?$ccsender:0,
+   'ccsender' => isset($ccsender)? $ccsender:0,
    'sendirect' => isset($sendirect)? $sendirect:0,
    'mselector' => isset($mailselector)? $mailselector:0,
    'mobile' => isset($mobile)? $mobile:'',
@@ -107,7 +104,7 @@ foreach( $params as $key=>$val ) $params[ $key ] = str_replace( array('((','))')
 
 # Start processing
 
-include_once ($snipPath."eform.inc.php");
+include_once ("{$snipPath}eform.inc.php");
 
 $output = eForm($modx,$params);
 
