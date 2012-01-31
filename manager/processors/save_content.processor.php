@@ -7,11 +7,15 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
+fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes');
+
 // preprocess POST values
 $id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
 $introtext       = $modx->db->escape($_POST['introtext']);
 $content         = $modx->db->escape($_POST['ta']);
 $pagetitle       = $modx->db->escape($_POST['pagetitle']);
+$longtitle       = $modx->db->escape($_POST['longtitle']);
+$menutitle       = $modx->db->escape($_POST['menutitle']);
 $description     = $modx->db->escape($_POST['description']);
 $alias           = $modx->db->escape($_POST['alias']);
 $link_attributes = $modx->db->escape($_POST['link_attributes']);
@@ -32,9 +36,7 @@ $keywords        = $_POST['keywords'];
 $metatags        = $_POST['metatags'];
 $contentType     = $modx->db->escape($_POST['contentType']);
 $contentdispo    = intval($_POST['content_dispo']);
-$longtitle       = $modx->db->escape($_POST['longtitle']);
 $donthit         = intval($_POST['donthit']);
-$menutitle       = $modx->db->escape($_POST['menutitle']);
 $hidemenu        = intval($_POST['hidemenu']);
 
 if (trim($pagetitle) == '')
@@ -929,4 +931,15 @@ function get_tmplvars()
 		}
 	}
 	return $tmplvars;
+}
+
+function fix_tv_nest($target)
+{
+	foreach(explode(',',$target) as $name)
+	{
+		$tv = ($name !== 'ta') ? $name : 'content';
+		$s = "[*{$tv}*]";
+		$r = "[ *{$tv}* ]";
+		$_POST[$name] = str_replace($s,$r,$_POST[$name]);
+	}
 }
