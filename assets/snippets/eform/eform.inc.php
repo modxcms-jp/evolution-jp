@@ -90,11 +90,11 @@ $_dfnMaxlength = 6;
 	if($tpl==$modx->documentIdentifier) return $_lang['ef_is_own_id']."'$tpl'";
 
 	//required
-	if( $tmp=efLoadTemplate($tpl) ) $tpl=$tmp; else return $_lang['ef_no_doc'] . " '$tpl'";
+	if(empty($tpl)) $tpl = get_default_tpl();
+	elseif( $tmp=efLoadTemplate($tpl) ) $tpl = $tmp; else return $_lang['ef_no_doc'] . " '$tpl'";
 
 	# check for valid form key
-	if ($formid=="") return $_lang['ef_error_formid'];
-
+	if ($formid=='') $formid = 'eform';
 
 	// try to get formid from <form> tag id
 	preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches);
@@ -112,7 +112,11 @@ $_dfnMaxlength = 6;
 
 
 	if($efPostBack){
-		$report = (($tmp=efLoadTemplate($report))!==false)?$tmp:$_lang['ef_no_doc'] . " '$report'";
+		if(empty($report)) $report = get_default_report();
+		else
+		{
+			$report = (($tmp=efLoadTemplate($report))!==false)?$tmp:$_lang['ef_no_doc'] . " '$report'";
+		}
 		if($thankyou) $thankyou = (($tmp=efLoadTemplate($thankyou))!==false )?$tmp:$_lang['ef_no_doc'] . " '$thankyou'";
 		if($autotext) $autotext = (($tmp=efLoadTemplate($autotext))!==false )?$tmp:$_lang['ef_no_doc'] . " '$autotext'";
 	}
@@ -1142,4 +1146,28 @@ function hasMailHeaders( &$fields ){
 	return ($injectionAttempt)?true:false;
 }
 
-?>
+function get_default_tpl()
+{
+	$tpl = <<< EOT
+	<p class="error">[+validationmessage+]</p>
+	<form method="post" action="[~[*id*]~]">
+	<input name="formid" type="hidden" value="eform" />
+	Name : <input name="name" class="text" type="text" size="30" eform="Your Name::1:" /><br />
+	Email : <input name="email" class="text" type="text" size="30" eform="Email Address:email:1" /><br />
+	Message : <textarea name="message" rows="4" cols="20" eform="Message:textarea:1"></textarea><br />
+	<input type="submit" name="contact" class="button" value="send" />
+	</form>
+EOT;
+	return $tpl;
+}
+
+function get_default_report()
+{
+	$tpl = <<< EOT
+Name : [+name+]
+Email :  [+email+]
+Message  :
+[+message+]
+EOT;
+	return $tpl;
+}
