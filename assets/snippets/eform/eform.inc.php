@@ -42,7 +42,7 @@
 # $Date: 2009-07-27 16:31:59 +0900 (??, 01 3 2009) $ 
 #----------------------------------------------------------
 
-$GLOBALS['optionsName'] = "eform"; //name of pseudo attribute used for format settings
+$GLOBALS['optionsName'] = 'eform'; //name of pseudo attribute used for format settings
 $GLOBALS['efPostBack'] = false;
 
 function eForm($modx,$params) {
@@ -58,18 +58,18 @@ $_dfnMaxlength = 6;
 	extract($params,EXTR_SKIP); // extract params into variables
 
 	$fileVersion = '1.4.4';
-	$version = isset($version)?$version:'prior to 1.4.2';
+	$version = isset($version) ? $version : 'prior to 1.4.2';
 
 	#include default language file
 	include_once($snipPath."lang/english.inc.php");
 
 	#include other language file if set.
-	$form_language = isset($language)?$language:$modx->config['manager_language'];
+	$form_language = isset($language) ? $language : $modx->config['manager_language'];
 	if($form_language!="english" && $form_language!='') {
-		if(file_exists($snipPath ."lang/".$form_language.".inc.php"))
-			include_once $snipPath ."lang/".$form_language.".inc.php";
+		if(file_exists("{$snipPath}lang/{$form_language}.inc.php"))
+			include_once("{$snipPath}lang/{$form_language}.inc.php");
 		else
-			if( $isDebug ) $debugText .= "<strong>Language file '$form_language.inc.php' not found!</strong><br />"; //always in english!
+			if( $isDebug ) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />"; //always in english!
 	}
 
 	# add debug warning - moved again...
@@ -397,11 +397,18 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			if( $protectSubmit ){
 				$hash = '';
 				# create a hash of key data
-				if(!is_numeric($protectSubmit)){ //supplied field names
+				if(!is_numeric($protectSubmit))
+				{ //supplied field names
 					$protectSubmit = (strpos($protectSubmit,','))? explode(',',$protectSubmit):array($protectSubmit);
 					foreach($protectSubmit as $fld) $hash .= isset($fields[$fld]) ? $fields[$fld] : '';
-				}else //all required fields
-					foreach($formats as $fld) $hash .= ($fld[3]==1) ? $fields[$fld[0]] : '';
+				}
+				else //all required fields
+				{
+					foreach($formats as $fld)
+					{
+						$hash .= ($fld[3]==1) ? $fields[$fld[0]] : '';
+					}
+				}
 				if($hash) $hash = md5($hash);
 
 				if( $isDebug ) $debugText .= "<strong>SESSION HASH</strong>:".$_SESSION[$formid.'_hash']."<br />"."<b>FORM HASH</b>:".$hash."<br />";
