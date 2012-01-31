@@ -267,20 +267,20 @@ else
 ?>
 	<script type="text/javascript">
 	function duplicatedocument(){
-		if(confirm("{$_lang['confirm_resource_duplicate']}")==true) {
-			document.location.href="index.php?id={$id}&a=94";
+		if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
+			document.location.href="index.php?id=<?php echo $id;?>&a=94";
 		}
 	}
 	function deletedocument() {
-		if(confirm("{$_lang['confirm_delete_resource']}")==true) {
-			document.location.href="index.php?id={$id}&a=6";
+		if(confirm("<?php echo $_lang['confirm_delete_resource'];?>")==true) {
+			document.location.href="index.php?id=<?php echo $id;?>&a=6";
 		}
 	}
 	function editdocument() {
-		document.location.href="index.php?id={$id}&a=27";
+		document.location.href="index.php?id=<?php echo $id;?>&a=27";
 	}
 	function movedocument() {
-		document.location.href="index.php?id={$id}&a=51";
+		document.location.href="index.php?id=<?php echo $id;?>&a=51";
 	}
 	</script>
 	<script type="text/javascript" src="media/script/tabpane.js"></script>
