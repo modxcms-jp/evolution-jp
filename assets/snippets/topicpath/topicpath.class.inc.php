@@ -27,7 +27,7 @@ class TopicPath
 		if(!isset($hideOn))               $hideOn            = '';
 		if(!isset($hideUnder))            $hideUnder         = '';
 		if(!isset($stopIds))              $stopIds           = '';
-		if(!isset($ignoreIds))            $ignoreids         = '';
+		if(!isset($ignoreIds))            $ignoreIds         = '';
 		if(!isset($display))              $display         = 100;
 		
 		if(isset($templateSet)) $theme = $templateSet;
