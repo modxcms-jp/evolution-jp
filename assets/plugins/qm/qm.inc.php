@@ -31,7 +31,7 @@ class Qm {
 		$this->hidesections = isset($hidesections) ? $hidesections : '';
 		$this->addbutton = $addbutton;
 		$this->tpltype = $tpltype;
-		$this->tplid = $tplid;
+		$this->tplid = isset($tplid) ? $tplid : '';
 		$this->custombutton = isset($custombutton)? $custombutton : '';
 		$this->managerbutton = $managerbutton;
 		$this->logout = $logout;

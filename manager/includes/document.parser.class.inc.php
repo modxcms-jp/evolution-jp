@@ -1975,7 +1975,7 @@ class DocumentParser {
 			}
 			if($this->isFrontend()) $context = 'sc.privateweb=0';
 			else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-			if($docgrp)             $cond   =  "OR dg.document_group IN ({$docgrp})";
+			$cond   =  ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
 			
 			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
 			$where = "(sc.id={$docid} {$published}) AND ({$context} {$cond})";
