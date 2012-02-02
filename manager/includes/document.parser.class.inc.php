@@ -1791,7 +1791,6 @@ class DocumentParser {
 		{
 			$trim = ($over + $trim);
 			$this->db->delete($tbl_event_log,'',$trim);
-			$sql = "OPTIMIZE TABLE {$tbl_event_log}";
 			$this->db->query($sql);
 		}
 	}
