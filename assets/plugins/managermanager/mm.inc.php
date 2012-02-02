@@ -291,6 +291,7 @@ case 'OnManagerMainFrameHeaderHTMLBlock':
 		case '72':
 		case '73':
 		case '76':
+		case '300':
 		case '301':
 			$output  = '<!-- Begin ManagerManager output -->' . "\n";
 			$output .= includeJs($js_url, 'html');
