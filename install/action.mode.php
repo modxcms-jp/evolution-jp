@@ -57,7 +57,7 @@ function get_upgradeable_status()
 		// Include the file so we can test its validity
 		include('../manager/includes/config.inc.php');
 		// We need to have all connection settings - tho prefix may be empty so we have to ignore it
-		if (!isset($lastInstallTime) || empty($lastInstallTime))
+		if ((!isset($lastInstallTime) || empty($lastInstallTime)) && !isset($database_type))
 		{
 			return 0;
 		}
