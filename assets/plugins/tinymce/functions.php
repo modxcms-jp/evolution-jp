@@ -96,11 +96,13 @@ class TinyMCE
 		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
 		
+		include_once $params['mce_path'] . 'settings/default_params.php';
+		
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
 		
-		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($params['mce_entermode']=='p') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
-		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($params['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
+		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($ph['mce_entermode']=='p') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
+		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($ph['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
 		switch($modx->manager->action)
 		{
 			case '11':
@@ -109,8 +111,6 @@ class TinyMCE
 			$ph['entermode_options']  .= '<label><input name="mce_entermode" type="radio" value="" '.  $this->checked(empty($params['mce_entermode'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
 			break;
 		}
-		
-		include_once $params['mce_path'] . 'settings/default_params.php';
 		
 		$gsettings = file_get_contents($params['mce_path'] . 'inc/gsettings.html.inc');
 		
