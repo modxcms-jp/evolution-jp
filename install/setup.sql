@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `introtext` text COMMENT 'Used to provide quick summary of the document',  
   `content` mediumtext,
   `richtext` tinyint(1) NOT NULL default '1',
-  `template` int(10) NOT NULL default '1',
+  `template` int(10) NOT NULL default '0',
   `menuindex` int(10) NOT NULL default '0',
   `searchable` int(1) NOT NULL default '1',
   `cacheable` int(1) NOT NULL default '1',
@@ -705,7 +705,7 @@ REPLACE INTO `{PREFIX}site_templates`
 
 # Default Site Documents
 
-REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
+REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\n',1,1,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
 
 REPLACE INTO `{PREFIX}manager_users` (id, username, password)VALUES (1, '{ADMINNAME}', MD5('{ADMINPASS}'));
 REPLACE INTO `{PREFIX}user_attributes` 
