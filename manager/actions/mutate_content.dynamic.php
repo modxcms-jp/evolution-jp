@@ -904,8 +904,8 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 		<h2 class="tab"><?php echo $_lang['settings_page_settings']?></h2>
 		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
-		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start']); ?>
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
+		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start']); ?>
 			<tr style="height: 24px;">
 				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
 				<td>
@@ -1396,12 +1396,17 @@ function input_text($name,$value,$other='',$maxlength='255')
 function input_checkbox($name,$checked,$other='')
 {
 	global $modx;
-	
 	$ph['name']    = $name;
 	$ph['checked'] = ($checked) ? 'checked="checked"' : '';
 	$ph['other']   = $other;
 	$ph['resetpubdate'] = ($name == 'published') ? 'resetpubdate();' : '';
-	
+	if($name === 'published')
+	{
+		if($modx->hasPermission('publish_document') || $id==$modx->config['site_start'])
+		{
+			$ph['other'] = 'disabled="disabled"';
+		}
+	}
 	$tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
