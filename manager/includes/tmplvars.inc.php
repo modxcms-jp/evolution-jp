@@ -8,6 +8,15 @@
 		global $_lang;
 		global $content;
 
+		if(!isset($modx->config['imanager_url']))
+		{
+			$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+		}
+		if(!isset($modx->config['fmanager_url']))
+		{
+			$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+		}
+		
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
 
@@ -155,14 +164,14 @@
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
 							}
 							
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
@@ -213,14 +222,14 @@ EOT;
 								lastImageCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
 							}
 										
 							function BrowseFileServer(ctrl) {
 								lastFileCtrl = ctrl;
 								var w = screen.width * 0.7;
 								var h = screen.height * 0.7;
-								OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
+								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
 							}
 							
 							function SetUrl(url, width, height, alt){
