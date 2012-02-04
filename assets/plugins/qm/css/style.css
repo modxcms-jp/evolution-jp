@@ -300,6 +300,10 @@
 	outline: none;
 }
 
+div#qmEditor span {
+	font-weight: bold;
+}
+
 #qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover, .qm-save:hover, .qm-cancel:hover  
 {
 	background-position: bottom left;
