@@ -5,7 +5,7 @@
  * リソースの一覧を出力。ブログ・索引・目録・新着情報一覧・履歴一覧など
  *
  * @category 	snippet
- * @version 	2.1.2
+ * @version 	2.1.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties 
  * @internal	@modx_category Content
@@ -91,13 +91,13 @@ $format = (isset($format)) ? strtolower($format) : "html" ;
 $config = (isset($config)) ? $config : "default";
 include_once("{$ditto_base}configs/default.config.php");
 
-if($modx->getChunk($config))
+if(substr($config, 0, 6) === '@CHUNK')
 {
-	eval('?>' . $modx->getChunk($config));
+	eval('?>' . $modx->getChunk(trim(substr($config, 7)));
 }
 elseif(substr($config, 0, 5) === '@FILE')
 {
-	include_once($modx->config['base_path'] . trim(substr($config, 6)));
+	include_once($modx->config['base_path'] . ltrim(trim(substr($config, 6))),'/');
 }
 elseif($config !== 'default')
 {
