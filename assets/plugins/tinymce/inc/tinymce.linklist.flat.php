@@ -1,7 +1,7 @@
 <?php
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
-$base_path = realpath('../../../../) . '/';
+$base_path = realpath('../../../../') . '/';
 include_once("{$base_path}includes/index.php");
 $modx->db->connect();
 
