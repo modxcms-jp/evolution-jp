@@ -785,7 +785,7 @@ switch ($actionToTake)
 				}
 				elseif($isfolder==='0' && $parent!=='0')
 				{
-					$header = "Location: index.php?a=3&id={$parent}&r=1";
+					$header = "Location: index.php?a=3&id={$parent}&r=1&tab=0";
 				}
 				else
 				{
