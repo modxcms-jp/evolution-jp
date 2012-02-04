@@ -2,6 +2,18 @@
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 ?>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
+<script type="text/javascript">
+	function confirmDelete() {
+		return confirm("<?php echo $_lang['confirm_delete_category'] ?>");
+	}
+	function deleteCategory(catid) {
+	    if (confirmDelete())
+	    {
+	        window.location.href="index.php?a=501&catId="+catid;
+	        return false;
+	    }
+	}
+</script>
 
 <h1><?php echo $_lang['element_management']; ?></h1>
 
@@ -259,7 +271,7 @@ function createCategoryList()
 				}
 				else
 				{
-					echo '<li><strong>'.$v['category'].'</strong> (<a href="index.php?a=501&amp;catId='.$v['catid'].'">'.$_lang['delete'].'</a>)<ul>';
+					echo '<li><strong>'.$v['category'].'</strong> (<a href="javascript:deleteCategory(\'' . $v['catid'] . '\');">'.$_lang['delete'].'</a>)<ul>';
 				}
 				$insideUl = 1;
 			}

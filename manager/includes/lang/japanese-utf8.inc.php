@@ -1094,3 +1094,4 @@ $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to 
 $_lang['setting_cache_enabled'] = 'グローバルキャッシュを有効にする';
 $_lang['setting_cache_enabled_desc'] = '「いいえ」を選択すると、全てのキャッシュ機能を無効にします。 キャッシュを無効にすることは推奨しません。';
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
+$_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
