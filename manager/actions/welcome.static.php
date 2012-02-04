@@ -134,7 +134,7 @@ if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $
 }
 if(!empty($modx->config['rss_url_news']) || !empty($modx->config['rss_url_security']))
 {
-	include_once "rss.inc.php"; 
+	$feedData = include_once "rss.inc.php"; 
 }
 if(!empty($modx->config['rss_url_news']))
 {
