@@ -93,11 +93,11 @@ include_once("{$ditto_base}configs/default.config.php");
 
 if(substr($config, 0, 6) === '@CHUNK')
 {
-	eval('?>' . $modx->getChunk(trim(substr($config, 7)));
+	eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 }
 elseif(substr($config, 0, 5) === '@FILE')
 {
-	include_once($modx->config['base_path'] . ltrim(trim(substr($config, 6))),'/');
+	include_once($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
 }
 elseif($config !== 'default')
 {
