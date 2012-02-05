@@ -253,7 +253,10 @@ class DocumentParser {
 			// store base_url and base_path inside config array
 			$this->config['base_url']= MODX_BASE_URL;
 			$this->config['base_path']= MODX_BASE_PATH;
-			$this->config['site_url']= MODX_SITE_URL;
+			if(!isset($this->config['site_url']) || empty($this->config['site_url']))
+			{
+				$this->config['site_url']= MODX_SITE_URL;
+			}
 			
 			// load user setting if user is logged in
 			$usrSettings= array ();

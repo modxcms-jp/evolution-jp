@@ -250,6 +250,13 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang["site_url_title"] ?></th>
+	<td>
+		<?php echo form_text('site_url',$site_url);?><br />
+		<?php echo $_lang["site_url_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["language_title"]?></th>
 	<td>
 		<select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true;">
