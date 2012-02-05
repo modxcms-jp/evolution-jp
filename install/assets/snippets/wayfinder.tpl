@@ -38,11 +38,12 @@ Example Usage:
 $wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
 
 //Include a custom config file if specified
-$config = (!isset($config)) ? 'default' : $config;
 include_once("{$wf_base_path}configs/default.config.php");
 
-if($modx->getChunk($config))
+$config = (!isset($config)) ? 'default' : trim($config);
+if(substr($config, 0, 6) == '@CHUNK')
 {
+	$config = trim(substr($config, 7));
 	eval('?>' . $modx->getChunk($config));
 }
 elseif(substr($config, 0, 5) == '@FILE')
