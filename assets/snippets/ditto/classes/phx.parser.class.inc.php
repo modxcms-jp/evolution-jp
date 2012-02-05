@@ -313,9 +313,9 @@ class PHxParser {
 					$output = strtoupper($output); break;
 				case 'htmlent':
 				case 'htmlentities':
-					$output = htmlentities($output,ENT_QUOTES,$modx->config['etomite_charset']); break;
+					$output = htmlentities($output,ENT_QUOTES,$modx->config['modx_charset']); break;
 				case 'html_entity_decode':
-					$output = html_entity_decode($output,ENT_QUOTES,$modx->config['etomite_charset']); break;
+					$output = html_entity_decode($output,ENT_QUOTES,$modx->config['modx_charset']); break;
 				case 'esc':
 					$output = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($output));
 				$output = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$output);
