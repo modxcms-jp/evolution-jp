@@ -350,7 +350,7 @@ switch ($_POST['mode']) {
 			"id" => $id
 		));
 		unset($_SESSION['mgrUsrConfigSet']);
-
+		$modx->clearCache();
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
