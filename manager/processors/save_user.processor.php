@@ -8,6 +8,7 @@ if (!$modx->hasPermission('save_user')) {
 
 $tbl_user_attributes = $modx->getFullTableName('user_attributes');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
+$tbl_member_groups = $modx->getFullTableName('member_groups');
 
 $id = intval($_POST['id']);
 $oldusername = $_POST['oldusername'];
@@ -76,7 +77,7 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
 			webAlert("User name is already in use!");
 			exit;
@@ -88,7 +89,7 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
 			$row = $modx->db->getRow($rs);
 			if ($row['id'] != $id) {
@@ -132,11 +133,11 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		// now get the id
-		if (!$key = mysql_insert_id()) {
+		if (!$key = $modx->db->getInsertId()) {
 			//get the key by sql
 		}
 
-		$sql = "INSERT INTO $tbl_user_attributes (internalKey, fullname, role, email, phone, mobilephone, fax, zip, state, country, gender, dob, photo, comment, blocked, blockeduntil, blockedafter)
+		$sql = "INSERT INTO {$tbl_user_attributes} (internalKey, fullname, role, email, phone, mobilephone, fax, zip, state, country, gender, dob, photo, comment, blocked, blockeduntil, blockedafter)
 						VALUES($key, '$fullname', '$roleid', '$email', '$phone', '$mobilephone', '$fax', '$zip', '$state', '$country', '$gender', '$dob', '$photo', '$comment', '$blocked', '$blockeduntil', '$blockedafter');";
 		$rs = $modx->db->query($sql);
 		if (!$rs) {
@@ -171,7 +172,7 @@ switch ($_POST['mode']) {
 		if ($use_udperms == 1) {
 			if (count($user_groups) > 0) {
 				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO $dbase.`" . $table_prefix . "member_groups` (user_group, member) values('" . intval($user_groups[$i]) . "', $key)";
+					$sql = "INSERT INTO {$tbl_member_groups} (user_group, member) values('" . intval($user_groups[$i]) . "', $key)";
 					$rs = $modx->db->query($sql);
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.");
@@ -260,7 +261,7 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
 			$row = $modx->db->getRow($rs);
 			if ($row['id'] != $id) {
@@ -274,7 +275,7 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
 			$row = $modx->db->getRow($rs);
 			if ($row['internalKey'] != $id) {
@@ -355,7 +356,7 @@ switch ($_POST['mode']) {
 		// first, check that up_perms are switched on!
 		if ($use_udperms == 1) {
 			// as this is an existing user, delete his/ her entries in the groups before saving the new groups
-			$sql = "DELETE FROM $dbase.`" . $table_prefix . "member_groups` WHERE member=$id;";
+			$sql = "DELETE FROM {$tbl_member_groups} WHERE member=$id;";
 			$rs = $modx->db->query($sql);
 			if (!$rs) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
@@ -363,7 +364,7 @@ switch ($_POST['mode']) {
 			}
 			if (count($user_groups) > 0) {
 				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO $dbase.`" . $table_prefix . "member_groups` (user_group, member) values(" . intval($user_groups[$i]) . ", $id)";
+					$sql = "INSERT INTO {$tbl_member_groups} (user_group, member) values(" . intval($user_groups[$i]) . ", $id)";
 					$rs = $modx->db->query($sql);
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.<br />$sql;");
