@@ -191,6 +191,7 @@ class TinyMCE
 	{
 		global $modx;
 		
+		$ph['mce_version'] = $params['mce_version'];
 		$ph['mce_url'] = $params['mce_url'];
 		$ph['elmList'] = implode(",", $params['elements']);
 		$ph['width'] = (!empty($params['width'])) ? $params['width'] : '100%';

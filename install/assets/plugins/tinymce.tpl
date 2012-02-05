@@ -20,6 +20,7 @@
 
 // Set the name of the plugin folder
 $plugin_dir = "tinymce";
+$mce_version = '3.4.8';
 
 // Set path and base setting variables
 if(!isset($mce_path))
@@ -46,6 +47,7 @@ switch ($e->name)
 	case "OnRichTextEditorInit": 
 		if($editor!=="TinyMCE") return;
 		
+		$params['mce_version']     = $mce_version;
 		$params['css_selectors']   = $modx->config['tinymce_css_selectors'];
 		$params['use_browser']     = $modx->config['use_browser'];
 		$params['editor_css_path'] = $modx->config['editor_css_path'];
