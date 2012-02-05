@@ -1,6 +1,6 @@
 <?php
 /**
- *	MODx Document Parser
+ *	MODX Document Parser
  *	Function: This class contains the main document parsing functions
  *
  */
@@ -3067,80 +3067,6 @@ class DocumentParser {
 	function insertId($rs)               {return $this->db->getInsertId($rs);}
 	function dbClose()                   {$this->db->disconnect();}
 	
-	/*############################################
-	Etomite_dbFunctions.php
-	Database functions for Etomite CMS
-	Author: Ralph A. Dahlgren - rad14701@yahoo.com
-	Etomite ID: rad14701
-	See documentation for usage details
-	############################################*/
-	function getIntTableRows($fields= '*', $from= '', $where= '', $sort= '', $dir= "ASC", $limit= '') {
-		$orderby= ($sort != '') ? "{$sort} {$dir}" : '';
-		return $this->db->select($fields, $from, $where, $orderby, $limit);
-	}
-	function putIntTableRow($fields= '', $into= '') {
-		return $this->db->insert($fields,$into);
-	}
-	function updIntTableRow($fields= '', $into= '', $where= '', $sort= '', $dir= "ASC", $limit= '') {
-		return $this->db->update($fields, $into, $where);
-	}
-	function getExtTableRows($host='',$user='',$pass='',$dbase='',$fields='*',$from='',$where='',$sort='',$dir='ASC',$limit='') {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$from}";
-		$sort= ($sort != '') ? "{$sort} {$dir}" : '';
-		$result= $this->db->select($fields,$tbl,$where,$sort,$limit);
-		$resourceArray= array ();
-		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
-		{
-			$resourceArray[] = $this->db->getRow($result);
-		}
-		return $resourceArray;
-	}
-	function putExtTableRow($host= '', $user= '', $pass= '', $dbase= '', $fields= '', $into= '') {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$into}";
-		$result= $this->db->insert($fields,$tbl);
-		return $result;
-	}
-	function updExtTableRow($host='',$user='',$pass='',$dbase='',$fields='',$into='',$where='',$sort='',$dir= 'ASC', $limit='') {
-		$this->db->connect($host, $dbase, $user, $pass);
-		$tbl= "{$dbase}.{$into}";
-		$sort= ($sort != '') ? "{$sort} {$dir}" : '';
-		return $this->db->update($fields, $tbl, $where);
-	}
-	function dbExtConnect($host, $user, $pass, $dbase) {
-		$this->db->connect($host, $dbase, $user, $pass);
-	}
-	function getFormVars($method= '', $prefix= '', $trim= '', $REQUEST_METHOD) {
-		//  function to retrieve form results into an associative array
-		$results= array ();
-		$method= strtoupper($method);
-		if ($method == '')        $method= $REQUEST_METHOD;
-		if ($method == 'POST')    $method= & $_POST;
-		elseif ($method == 'GET') $method= & $_GET;
-		else                      return false;
-		reset($method);
-		foreach ($method as $key => $value)
-		{
-			if (($prefix != '') && (substr($key, 0, strlen($prefix)) == $prefix))
-			{
-				if ($trim)
-				{
-					$pieces= explode($prefix, $key, 2);
-					$key= $pieces[1];
-					$results[$key]= $value;
-				}
-				else $results[$key]= $value;
-			}
-			elseif ($prefix == '') $results[$key]= $value;
-		}
-		return $results;
-	}
-
-    ########################################
-    // END Database functions for Etomite CMS - rad14701
-    ########################################
-
     // deprecated
 	function insideManager()
 	{
@@ -3289,20 +3215,20 @@ class DocumentParser {
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
         $str = "
-              <html><head><title>MODx Content Manager $version &raquo; $release_date</title>
+              <html><head><title>MODX Content Manager $version &raquo; $release_date</title>
               <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-              <style>TD, BODY { font-size: 12px; font-family:Verdana; }</style>
+              <style>td, body { font-size: 12px; font-family:Verdana; }</style>
               </head><body>
               ";
         if ($is_error) {
-            $str .= "<h3 style='color:red'>&laquo; MODx Parse Error &raquo;</h3>
+            $str .= "<h3 style='color:red'>&laquo; MODX Parse Error &raquo;</h3>
                     <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>MODx encountered the following error while attempting to parse the requested resource:</td></tr>
+                    <tr><td colspan='3'>MODX encountered the following error while attempting to parse the requested resource:</td></tr>
                     <tr><td colspan='3'><b style='color:red;'>&laquo; $msg &raquo;</b></td></tr>";
         } else {
-            $str .= "<h3 style='color:#003399'>&laquo; MODx Debug/ stop message &raquo;</h3>
+            $str .= "<h3 style='color:#003399'>&laquo; MODX Debug/ stop message &raquo;</h3>
                     <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>The MODx parser recieved the following debug/ stop message:</td></tr>
+                    <tr><td colspan='3'>The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
         }
 
