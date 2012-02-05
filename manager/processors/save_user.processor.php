@@ -192,6 +192,7 @@ switch ($_POST['mode']) {
 				$header = "Location: index.php?a=75";
 			}
 			header($header);
+			exit;
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "12&id=$key" : "11";
@@ -424,6 +425,7 @@ switch ($_POST['mode']) {
 				$header = "Location: index.php?a=75";
 			}
 			header($header);
+			exit;
 		}
 		break;
 	default :
