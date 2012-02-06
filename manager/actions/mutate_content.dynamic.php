@@ -1402,7 +1402,8 @@ function input_checkbox($name,$checked,$other='')
 	$ph['resetpubdate'] = ($name == 'published') ? 'resetpubdate();' : '';
 	if($name === 'published')
 	{
-		if($modx->hasPermission('publish_document') || $id==$modx->config['site_start'])
+		$id = (isset($_REQUEST['id'])) ? (int)$_REQUEST['id'] : 0;
+		if(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start'])
 		{
 			$ph['other'] = 'disabled="disabled"';
 		}
