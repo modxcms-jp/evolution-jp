@@ -11,7 +11,7 @@
 # Options +FollowSymlinks
 RewriteEngine On
 
-RewriteBase /
+# RewriteBase /
 # MODXをサブディレクトリにインストールしている場合は「/modx」などに。
 
 # Fix Apache internal dummy connections from breaking [(site_url)] cache
@@ -31,9 +31,10 @@ RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
 # 実際に存在するファイル・ディレクトリはフレンドリーURLの解釈対象にする必要がありません。
 
 # For Friendly URLs
+RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^.*$ index.php [L,QSA]
+RewriteRule . index.php [L]
 
 # Reduce server overhead by enabling output compression if supported.
 #php_flag zlib.output_compression On
