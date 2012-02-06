@@ -128,7 +128,7 @@ $_dfnMaxlength = 6;
 
 	extract($params,EXTR_SKIP); // extract params into variables
 
-	$fileVersion = '1.4.4';
+	$fileVersion = '1.4.4.7';
 	$version = isset($version) ? $version : 'prior to 1.4.2';
 
 	#include default language file

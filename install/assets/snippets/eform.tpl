@@ -31,7 +31,7 @@ if ($modx->isBackend()) return ''; // don't go any further when inside manager
 # Start processing
 
 include_once ("{$snipPath}eform.inc.php");
-$params['version'] = '1.4.4';
+$params['version'] = '1.4.4.7';
 
 $output = eForm($modx,$params);
 
