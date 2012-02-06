@@ -29,7 +29,7 @@ class TinyMCE
 			$skin_name = substr($dir,strrpos($dir,'/')+1);
 			$skins[$skin_name][] = 'default';
 			$styles = glob("{$dir}/ui_*.css");
-			if(0 < count($styles))
+			if(is_array($styles) && 0 < count($styles))
 			{
 				foreach($styles as $css)
 				{
