@@ -17,7 +17,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 <head>
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>style.css" />
+    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>style.css?<?php echo $modx_version;?>" />
 
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
