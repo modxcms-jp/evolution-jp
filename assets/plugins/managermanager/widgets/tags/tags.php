@@ -25,7 +25,7 @@ function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=fals
 			return;
 		}	
 		
-		$source_tvs = tplUseTvs($page_template, $source);
+		$source_tvs = tplUseTvs($mm_current_page['template'], $source);
 		if ($source_tvs == false) {
 			return;
 		}	
