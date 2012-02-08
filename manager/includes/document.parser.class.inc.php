@@ -107,12 +107,361 @@ class DocumentParser {
 				return false;
 		}
 	}
-
-    function getMicroTime() {
-        list ($usec, $sec)= explode(' ', microtime());
-        return ((float) $usec + (float) $sec);
-    }
-
+	
+	function executeParser() {
+		ob_start();
+		//error_reporting(0);
+		if (version_compare(phpversion(), '5.0.0', '>='))
+		{
+			set_error_handler(array(& $this,'phpError'), E_ALL);
+		}
+		else
+		{
+			set_error_handler(array(& $this,'phpError'));
+		}
+		
+		$this->db->connect();
+		
+		// get the settings
+		if (empty ($this->config)) $this->getSettings();
+		
+		// IIS friendly url fix
+		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
+		{
+			$url= $_SERVER['QUERY_STRING'];
+			$err= substr($url, 0, 3);
+			if ($err == '404' || $err == '405')
+			{
+				$k= array_keys($_GET);
+				unset ($_GET[$k[0]]);
+				unset ($_REQUEST[$k[0]]); // remove 404,405 entry
+				$_SERVER['QUERY_STRING']= $qp['query'];
+				$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
+				if (!empty ($qp['query']))
+				{
+					parse_str($qp['query'], $qv);
+					foreach ($qv as $n => $v)
+					{
+						$_REQUEST[$n]= $_GET[$n]= $v;
+					}
+				}
+				$_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
+				$_REQUEST['q']= $_GET['q']= $qp['path'];
+			}
+		}
+		
+		// check site settings
+		if (!$this->checkSiteStatus())
+		{
+			header('HTTP/1.0 503 Service Unavailable');
+			if (!$this->config['site_unavailable_page'])
+			{
+				// display offline message
+				$this->documentContent= $this->config['site_unavailable_message'];
+				$this->outputContent();
+				exit; // stop processing here, as the site's offline
+			}
+			else
+			{
+				// setup offline page document settings
+				$this->documentMethod= 'id';
+				$this->documentIdentifier= $this->config['site_unavailable_page'];
+			}
+		}
+		else
+		{
+			// make sure the cache doesn't need updating
+			$this->checkPublishStatus();
+			
+			// find out which document we need to display
+			$this->documentMethod= $this->getDocumentMethod();
+			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
+		}
+		
+		if ($this->documentMethod == 'none')
+		{
+			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
+		}
+		elseif ($this->documentMethod == 'alias')
+		{
+			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
+		}
+		
+		if ($this->documentMethod == 'alias')
+		{
+			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
+			if ($this->config['use_alias_path'] == 1)
+			{
+				$alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
+				if (isset($this->documentListing[$alias]))
+				{
+					$this->documentIdentifier= $this->documentListing[$alias];
+				}
+				else
+				{
+					$this->sendErrorPage();
+				}
+			}
+			else
+			{
+				$this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
+			}
+			$this->documentMethod= 'id';
+		}
+		
+		// invoke OnWebPageInit event
+		$this->invokeEvent('OnWebPageInit');
+		
+		// invoke OnLogPageView event
+		if ($this->config['track_visitors'] == 1)
+		{
+			$this->invokeEvent('OnLogPageHit');
+		}
+		$this->prepareResponse();
+	}
+	
+	function prepareResponse()
+	{
+		// we now know the method and identifier, let's check the cache
+		$this->documentContent= $this->checkCache($this->documentIdentifier);
+		if ($this->documentContent != '')
+		{
+			$this->invokeEvent('OnLoadWebPageCache'); // invoke OnLoadWebPageCache  event
+		}
+		else
+		{
+			// get document object
+			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
+			
+			// write the documentName to the object
+			$this->documentName= $this->documentObject['pagetitle'];
+			
+			// validation routines
+			if ($this->documentObject['deleted'] == 1)
+			{
+				$this->sendErrorPage();
+				exit;
+			}
+			//  && !$this->checkPreview()
+			if ($this->documentObject['published'] == 0)
+			{
+			// Can't view unpublished pages
+				if (!$this->hasPermission('view_unpublished'))
+				{
+					$this->sendErrorPage();
+					exit;
+				}
+				else
+				{
+					// Inculde the necessary files to check document permissions
+					include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
+					$udperms= new udperms();
+					$udperms->user= $this->getLoginUserID();
+					$udperms->document= $this->documentIdentifier;
+					$udperms->role= $_SESSION['mgrRole'];
+					// Doesn't have access to this document
+					if (!$udperms->checkPermissions())
+					{
+						$this->sendErrorPage();
+						exit;
+					}
+				}
+			}
+			// check whether it's a reference
+			if($this->documentObject['type'] == 'reference')
+			{
+				if(is_numeric($this->documentObject['content']))
+				{
+					// if it's a bare document id
+					$this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
+				}
+				elseif(strpos($this->documentObject['content'], '[~') !== false)
+				{
+					// if it's an internal docid tag, process it
+					$this->documentObject['content']= $this->rewriteUrls($this->documentObject['content']);
+				}
+				$this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
+			}
+			// check if we should not hit this document
+			if($this->documentObject['donthit'] == 1)
+			{
+				$this->config['track_visitors']= 0;
+			}
+			// get the template and start parsing!
+			if(!$this->documentObject['template'])
+			{
+				$this->documentContent= '[*content*]'; // use blank template
+			}
+			else
+			{
+				$tbl_site_templates = $this->getFullTableName('site_templates');
+				$result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
+				$rowCount= $this->db->getRecordCount($result);
+				if($rowCount > 1)
+				{
+					$this->messageQuit('Incorrect number of templates returned from database', $sql);
+				}
+				elseif($rowCount == 1)
+				{
+					$row= $this->db->getRow($result);
+					$this->documentContent= $row['content'];
+				}
+			}
+			// invoke OnLoadWebDocument event
+			$this->invokeEvent('OnLoadWebDocument');
+			
+			// Parse document source
+			$this->documentContent= $this->parseDocumentSource($this->documentContent);
+		}
+		register_shutdown_function(array (
+		& $this,
+		'postProcess'
+		)); // tell PHP to call postProcess when it shuts down
+		$this->outputContent();
+	}
+	
+	function outputContent($noEvent= false)
+	{
+		
+		$this->documentOutput= $this->documentContent;
+		
+		if ($this->documentGenerated           == 1
+		 && $this->documentObject['cacheable'] == 1
+		 && $this->documentObject['type']      == 'document'
+		 && $this->documentObject['published'] == 1)
+		{
+			if (!empty($this->sjscripts)) $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
+			if (!empty($this->jscripts))  $this->documentObject['__MODxJScripts__'] = $this->jscripts;
+		}
+		
+		// check for non-cached snippet output
+		if (strpos($this->documentOutput, '[!') !== false)
+		{
+			// Parse document source
+			$passes = $this->minParserPasses;
+			
+			for ($i= 0; $i < $passes; $i++)
+			{
+				if($i == ($passes -1)) $st= md5($this->documentOutput);
+				
+				$this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
+				$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+				
+				if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
+				{
+					$et = md5($this->documentOutput);
+					if($st != $et) $passes++;
+				}
+			}
+		}
+		
+		// Moved from prepareResponse() by sirlancelot
+		// Insert Startup jscripts & CSS scripts into template - template must have a <head> tag
+		if ($js= $this->getRegisteredClientStartupScripts())
+		{
+			// change to just before closing </head>
+			// $this->documentContent = preg_replace("/(<head[^>]*>)/i", "\\1\n".$js, $this->documentContent);
+			$this->documentOutput= preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->documentOutput);
+		}
+		
+		// Insert jscripts & html block into template - template must have a </body> tag
+		if ($js= $this->getRegisteredClientScripts())
+		{
+			$this->documentOutput= preg_replace("/(<\/body>)/i", $js . "\n\\1", $this->documentOutput);
+		}
+		// End fix by sirlancelot
+		
+		// remove all unused placeholders
+		if (strpos($this->documentOutput, '[+') > -1)
+		{
+			$matches= array ();
+			preg_match_all('~\[\+(.*?)\+\]~', $this->documentOutput, $matches);
+			if ($matches[0])
+			$this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
+		}
+		
+		if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
+		
+		// send out content-type and content-disposition headers
+		if (IN_PARSER_MODE == 'true')
+		{
+			$type = $this->documentObject['contentType'];
+			if(empty($type)) $type = 'text/html';
+			
+			header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
+			//            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
+			//                header('HTTP/1.0 404 Not Found');
+			if ($this->documentObject['content_dispo'] == 1)
+			{
+				if ($this->documentObject['alias'])
+				{
+					$name= urldecode($this->documentObject['alias']);
+				}
+				else
+				{
+					// strip title of special characters
+					$name= $this->documentObject['pagetitle'];
+					$name= strip_tags($name);
+					$name= preg_replace('/&.+?;/', '', $name); // kill entities
+					$name= preg_replace('/\s+/', '-', $name);
+					$name= preg_replace('|-+|', '-', $name);
+					$name= trim($name, '-');
+				}
+				$header= 'Content-Disposition: attachment; filename=' . $name;
+				header($header);
+			}
+		}
+		
+		$totalTime= ($this->getMicroTime() - $this->tstart);
+		$queryTime= $this->queryTime;
+		$phpTime= $totalTime - $queryTime;
+		
+		$queryTime= sprintf("%2.4f s", $queryTime);
+		$totalTime= sprintf("%2.4f s", $totalTime);
+		$phpTime= sprintf("%2.4f s", $phpTime);
+		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
+		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
+		if(function_exists('memory_get_peak_usage'))
+		{
+			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		}
+		else
+		{
+			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
+		}
+		
+		$out =& $this->documentOutput;
+		if ($this->dumpSQL)
+		{
+			$out .= $this->queryCode;
+		}
+		if ($this->dumpSnippets)
+		{
+			$out .= $this->snipCode;
+		}
+		$out= str_replace('[^q^]', $queries, $out);
+		$out= str_replace('[^qt^]', $queryTime, $out);
+		$out= str_replace('[^p^]', $phpTime, $out);
+		$out= str_replace('[^t^]', $totalTime, $out);
+		$out= str_replace('[^s^]', $source, $out);
+		$out= str_replace('[^m^]', $total_mem, $out);
+		//$this->documentOutput= $out;
+		
+		// invoke OnWebPagePrerender event
+		if (!$noEvent)
+		{
+			$this->invokeEvent('OnWebPagePrerender');
+		}
+		echo $this->documentOutput;
+		ob_end_flush();
+	}
+	
+	function getMicroTime()
+	{
+		list ($usec, $sec)= explode(' ', microtime());
+		return ((float) $usec + (float) $sec);
+	}
+	
 	function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
 	{
 		if (empty($url))
@@ -544,148 +893,13 @@ class DocumentParser {
 		$this->documentObject = $docObj;
 		return $a[1]; // return document content
 	}
-
-    function outputContent($noEvent= false)
-    {
-		
-		$this->documentOutput= $this->documentContent;
-		
-		if ($this->documentGenerated           == 1
-		 && $this->documentObject['cacheable'] == 1
-		 && $this->documentObject['type']      == 'document'
-		 && $this->documentObject['published'] == 1)
-		{
-			if (!empty($this->sjscripts)) $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
-			if (!empty($this->jscripts))  $this->documentObject['__MODxJScripts__'] = $this->jscripts;
-		}
-		
-		// check for non-cached snippet output
-		if (strpos($this->documentOutput, '[!') !== false)
-		{
-			// Parse document source
-			$passes = $this->minParserPasses;
-			
-			for ($i= 0; $i < $passes; $i++)
-			{
-				if($i == ($passes -1)) $st= md5($this->documentOutput);
-				
-				$this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
-				$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
-				
-				if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
-				{
-					$et = md5($this->documentOutput);
-					if($st != $et) $passes++;
-				}
-			}
-		}
-		
-		// Moved from prepareResponse() by sirlancelot
-		// Insert Startup jscripts & CSS scripts into template - template must have a <head> tag
-		if ($js= $this->getRegisteredClientStartupScripts())
-		{
-			// change to just before closing </head>
-			// $this->documentContent = preg_replace("/(<head[^>]*>)/i", "\\1\n".$js, $this->documentContent);
-			$this->documentOutput= preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->documentOutput);
-		}
-		
-		// Insert jscripts & html block into template - template must have a </body> tag
-		if ($js= $this->getRegisteredClientScripts())
-		{
-			$this->documentOutput= preg_replace("/(<\/body>)/i", $js . "\n\\1", $this->documentOutput);
-		}
-		// End fix by sirlancelot
-		
-		// remove all unused placeholders
-		if (strpos($this->documentOutput, '[+') > -1)
-		{
-			$matches= array ();
-			preg_match_all('~\[\+(.*?)\+\]~', $this->documentOutput, $matches);
-			if ($matches[0])
-			$this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
-		}
-		
-		if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
-		
-		// send out content-type and content-disposition headers
-		if (IN_PARSER_MODE == 'true')
-		{
-			$type = $this->documentObject['contentType'];
-			if(empty($type)) $type = 'text/html';
-			
-			header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
-			//            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
-			//                header('HTTP/1.0 404 Not Found');
-			if ($this->documentObject['content_dispo'] == 1)
-			{
-				if ($this->documentObject['alias'])
-				{
-					$name= urldecode($this->documentObject['alias']);
-				}
-				else
-				{
-					// strip title of special characters
-					$name= $this->documentObject['pagetitle'];
-					$name= strip_tags($name);
-					$name= preg_replace('/&.+?;/', '', $name); // kill entities
-					$name= preg_replace('/\s+/', '-', $name);
-					$name= preg_replace('|-+|', '-', $name);
-					$name= trim($name, '-');
-				}
-				$header= 'Content-Disposition: attachment; filename=' . $name;
-				header($header);
-			}
-		}
-		
-		$totalTime= ($this->getMicroTime() - $this->tstart);
-		$queryTime= $this->queryTime;
-		$phpTime= $totalTime - $queryTime;
-		
-		$queryTime= sprintf("%2.4f s", $queryTime);
-		$totalTime= sprintf("%2.4f s", $totalTime);
-		$phpTime= sprintf("%2.4f s", $phpTime);
-		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
-		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		if(function_exists('memory_get_peak_usage'))
-		{
-			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
-		}
-		else
-		{
-			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
-		}
-		
-		$out =& $this->documentOutput;
-		if ($this->dumpSQL)
-		{
-			$out .= $this->queryCode;
-		}
-		if ($this->dumpSnippets)
-		{
-			$out .= $this->snipCode;
-		}
-		$out= str_replace('[^q^]', $queries, $out);
-		$out= str_replace('[^qt^]', $queryTime, $out);
-		$out= str_replace('[^p^]', $phpTime, $out);
-		$out= str_replace('[^t^]', $totalTime, $out);
-		$out= str_replace('[^s^]', $source, $out);
-		$out= str_replace('[^m^]', $total_mem, $out);
-		//$this->documentOutput= $out;
-		
-		// invoke OnWebPagePrerender event
-		if (!$noEvent)
-		{
-			$this->invokeEvent('OnWebPagePrerender');
-		}
-		echo $this->documentOutput;
-		ob_end_flush();
-	}
-
+	
 	function checkPublishStatus()
 	{
 		$tbl_site_content = $this->getFullTableName('site_content');
 		$cacheRefreshTime = 0;
-		include_once("{$this->config['base_path']}assets/cache/sitePublishing.idx.php");
+		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
+		include_once($cache_path);
 		$timeNow= time() + $this->config['server_offset_time'];
 		
 		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
@@ -724,7 +938,6 @@ class DocumentParser {
 		if (count($timesArr) > 0) $nextevent = min($timesArr);
 		else                      $nextevent = 0;
 		
-		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
 		$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
 		file_put_contents($cache_path, $content);
 	}
@@ -1406,218 +1619,6 @@ class DocumentParser {
 			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
 		}
 		return $source;
-	}
-
-	function executeParser() {
-		ob_start();
-		//error_reporting(0);
-		if (version_compare(phpversion(), '5.0.0', '>='))
-		{
-			set_error_handler(array(& $this,'phpError'), E_ALL);
-		}
-		else
-		{
-			set_error_handler(array(& $this,'phpError'));
-		}
-		
-		$this->db->connect();
-		
-		// get the settings
-		if (empty ($this->config)) $this->getSettings();
-		
-		// IIS friendly url fix
-		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
-		{
-			$url= $_SERVER['QUERY_STRING'];
-			$err= substr($url, 0, 3);
-			if ($err == '404' || $err == '405')
-			{
-				$k= array_keys($_GET);
-				unset ($_GET[$k[0]]);
-				unset ($_REQUEST[$k[0]]); // remove 404,405 entry
-				$_SERVER['QUERY_STRING']= $qp['query'];
-				$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
-				if (!empty ($qp['query']))
-				{
-					parse_str($qp['query'], $qv);
-					foreach ($qv as $n => $v)
-					{
-						$_REQUEST[$n]= $_GET[$n]= $v;
-					}
-				}
-				$_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
-				$_REQUEST['q']= $_GET['q']= $qp['path'];
-			}
-		}
-		
-		// check site settings
-		if (!$this->checkSiteStatus())
-		{
-			header('HTTP/1.0 503 Service Unavailable');
-			if (!$this->config['site_unavailable_page'])
-			{
-				// display offline message
-				$this->documentContent= $this->config['site_unavailable_message'];
-				$this->outputContent();
-				exit; // stop processing here, as the site's offline
-			}
-			else
-			{
-				// setup offline page document settings
-				$this->documentMethod= 'id';
-				$this->documentIdentifier= $this->config['site_unavailable_page'];
-			}
-		}
-		else
-		{
-			// make sure the cache doesn't need updating
-			$this->checkPublishStatus();
-			
-			// find out which document we need to display
-			$this->documentMethod= $this->getDocumentMethod();
-			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
-		}
-		
-		if ($this->documentMethod == 'none')
-		{
-			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
-		}
-		elseif ($this->documentMethod == 'alias')
-		{
-			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
-		}
-		
-		if ($this->documentMethod == 'alias')
-		{
-			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-			if ($this->config['use_alias_path'] == 1)
-			{
-				$alias= (strlen($this->virtualDir) > 0 ? $this->virtualDir . '/' : '') . $this->documentIdentifier;
-				if (isset($this->documentListing[$alias]))
-				{
-					$this->documentIdentifier= $this->documentListing[$alias];
-				}
-				else
-				{
-					$this->sendErrorPage();
-				}
-			}
-			else
-			{
-				$this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
-			}
-			$this->documentMethod= 'id';
-		}
-		
-		// invoke OnWebPageInit event
-		$this->invokeEvent('OnWebPageInit');
-		
-		// invoke OnLogPageView event
-		if ($this->config['track_visitors'] == 1)
-		{
-			$this->invokeEvent('OnLogPageHit');
-		}
-		$this->prepareResponse();
-	}
-	
-	function prepareResponse()
-	{
-		// we now know the method and identifier, let's check the cache
-		$this->documentContent= $this->checkCache($this->documentIdentifier);
-		if ($this->documentContent != '')
-		{
-			$this->invokeEvent('OnLoadWebPageCache'); // invoke OnLoadWebPageCache  event
-		}
-		else
-		{
-			// get document object
-			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
-			
-			// write the documentName to the object
-			$this->documentName= $this->documentObject['pagetitle'];
-			
-			// validation routines
-			if ($this->documentObject['deleted'] == 1)
-			{
-				$this->sendErrorPage();
-				exit;
-			}
-			//  && !$this->checkPreview()
-			if ($this->documentObject['published'] == 0)
-			{
-			// Can't view unpublished pages
-				if (!$this->hasPermission('view_unpublished'))
-				{
-					$this->sendErrorPage();
-					exit;
-				}
-				else
-				{
-					// Inculde the necessary files to check document permissions
-					include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
-					$udperms= new udperms();
-					$udperms->user= $this->getLoginUserID();
-					$udperms->document= $this->documentIdentifier;
-					$udperms->role= $_SESSION['mgrRole'];
-					// Doesn't have access to this document
-					if (!$udperms->checkPermissions())
-					{
-						$this->sendErrorPage();
-						exit;
-					}
-				}
-			}
-			// check whether it's a reference
-			if($this->documentObject['type'] == 'reference')
-			{
-				if(is_numeric($this->documentObject['content']))
-				{
-					// if it's a bare document id
-					$this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
-				}
-				elseif(strpos($this->documentObject['content'], '[~') !== false)
-				{
-					// if it's an internal docid tag, process it
-					$this->documentObject['content']= $this->rewriteUrls($this->documentObject['content']);
-				}
-				$this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
-			}
-			// check if we should not hit this document
-			if($this->documentObject['donthit'] == 1)
-			{
-				$this->config['track_visitors']= 0;
-			}
-			// get the template and start parsing!
-			if(!$this->documentObject['template'])
-			{
-				$this->documentContent= '[*content*]'; // use blank template
-			}
-			else
-			{
-				$tbl_site_templates = $this->getFullTableName('site_templates');
-				$result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
-				$rowCount= $this->db->getRecordCount($result);
-				if($rowCount > 1)
-				{
-					$this->messageQuit('Incorrect number of templates returned from database', $sql);
-				}
-				elseif($rowCount == 1)
-				{
-					$row= $this->db->getRow($result);
-					$this->documentContent= $row['content'];
-				}
-			}
-			// invoke OnLoadWebDocument event
-			$this->invokeEvent('OnLoadWebDocument');
-			
-			// Parse document source
-			$this->documentContent= $this->parseDocumentSource($this->documentContent);
-		}
-		register_shutdown_function(array (
-		& $this,
-		'postProcess'
-		)); // tell PHP to call postProcess when it shuts down
-		$this->outputContent();
 	}
 	
 	/***************************************************************************************/
