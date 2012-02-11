@@ -66,7 +66,7 @@ if (0 < count($warnings))
 				break;
 			case 'configcheck_installer':
 				$output = $_lang['configcheck_installer_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,3,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_cache':
 				$output = $_lang['configcheck_cache_msg'];
