@@ -3278,7 +3278,7 @@ class DocumentParser {
         }
 
         if (!empty ($query)) {
-            $str .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b>
+            $str .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>SQL:<span id='sqlHolder'>$query</span></b>
                     </td></tr>";
         }
 
@@ -3302,74 +3302,74 @@ class DocumentParser {
                 E_USER_DEPRECATED => "E_USER_DEPRECATED"
             );
 
-            $str .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+            $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 
-            $str .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
-            $str .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
+            $str .= "<tr><td valign='top'>Error: </td>";
+            $str .= "<td colspan='2'>$text</td><td></td>";
             $str .= "</tr>";
 
-            $str .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
-            $str .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td>&nbsp;</td>";
+            $str .= "<tr><td valign='top'>Error type/ Nr.: </td>";
+            $str .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td></td>";
             $str .= "</tr>";
 
-            $str .= "<tr><td>&nbsp;&nbsp;File: </td>";
-            $str .= "<td colspan='2'>$file</td><td>&nbsp;</td>";
+            $str .= "<tr><td>File: </td>";
+            $str .= "<td colspan='2'>$file</td><td></td>";
             $str .= "</tr>";
 
-            $str .= "<tr><td>&nbsp;&nbsp;Line: </td>";
-            $str .= "<td colspan='2'>$line</td><td>&nbsp;</td>";
+            $str .= "<tr><td>Line: </td>";
+            $str .= "<td colspan='2'>$line</td><td></td>";
             $str .= "</tr>";
             if ($source != '') {
-                $str .= "<tr><td valign='top'>&nbsp;&nbsp;Line $line source: </td>";
-                $str .= "<td colspan='2'>$source</td><td>&nbsp;</td>";
+                $str .= "<tr><td valign='top'>Line $line source: </td>";
+                $str .= "<td colspan='2'>$source</td><td></td>";
                 $str .= "</tr>";
             }
         }
 
-        $str .= "<tr><td colspan='3'>&nbsp;</td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
+        $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
 
-        $str .= "<tr><td valign='top'>&nbsp;&nbsp;REQUEST_URI: </td>";
+        $str .= "<tr><td valign='top'>REQUEST_URI: </td>";
         $str .= "<td colspan='2'>$request_uri</td>";
         $str .= "</tr>";
 
-        $str .= "<tr><td valign='top'>&nbsp;&nbsp;ID: </td>";
+        $str .= "<tr><td valign='top'>ID: </td>";
         $str .= "<td colspan='2'>" . $this->documentIdentifier . "</td>";
         $str .= "</tr>";
 
         if(!empty($this->currentSnippet))
         {
-            $str .= "<tr><td>&nbsp;&nbsp;Current Snippet: </td>";
+            $str .= "<tr><td>Current Snippet: </td>";
             $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
             $str .= "</tr>";
         }
 
         if(!empty($this->event->activePlugin))
         {
-            $str .= "<tr><td>&nbsp;&nbsp;Current Plugin: </td>";
+            $str .= "<tr><td>Current Plugin: </td>";
             $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
             $str .= "</tr>";
         }
 
-        $str .= "<tr><td>&nbsp;&nbsp;Referer: </td>";
+        $str .= "<tr><td>Referer: </td>";
         $str .= '<td colspan="2">' . $referer . '</td>';
         $str .= "</tr>";
 
-        $str .= "<tr><td>&nbsp;&nbsp;User Agent: </td>";
+        $str .= "<tr><td>User Agent: </td>";
         $str .= '<td colspan="2">' . $ua . '</td>';
         $str .= "</tr>";
 
-        $str .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $str .= '<tr><td colspan="2"></td></tr>';
         $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
-        $str .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
+        $str .= "<tr><td>MySQL: </td>";
         $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
         $str .= "</tr>";
 
-        $str .= "<tr><td>&nbsp;&nbsp;PHP: </td>";
+        $str .= "<tr><td>PHP: </td>";
         $str .= '<td colspan="2"><i>[^p^]</i></td>';
         $str .= "</tr>";
 
-        $str .= "<tr><td>&nbsp;&nbsp;Total: </td>";
+        $str .= "<tr><td>Total: </td>";
         $str .= '<td colspan="2"><i>[^t^]</i></td>';
         $str .= "</tr>";
 
