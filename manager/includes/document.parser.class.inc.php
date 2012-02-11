@@ -1781,7 +1781,46 @@ class DocumentParser {
 			}
 		}
 	}
-
+	
+	function sendmail($params=array(), $msg='')
+	{
+		if(isset($params) && is_string($params))
+		{
+			if(strpos($params,'=')===false)
+			{
+				if(strpos($params,'@')!==false) $p['sendto']  = $params;
+				else                            $p['subject'] = $params;
+			}
+			else
+			{
+				$params_array = explode(',',$params);
+				foreach($params_array as $k=>$v)
+				{
+					$k = trim($k);
+					$v = trim($v);
+					$p[$k] = $v;
+				}
+			}
+		}
+		else
+		{
+			$p = $params;
+			unset($params);
+		}
+		include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
+		$mail = new MODxMailer();
+		$mail->IsMail();
+		$mail->IsHTML(0);
+		$mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
+		$mail->FromName = (!isset($p['fromname'])) ? $this->config['site_name']    : $p['fromname'];
+		$mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
+		$sendto         = (!isset($p['sendto']))   ? $this->config['emailsender']  : $p['sendto'];
+		$mail->Body     = $msg;
+		$mail->AddAddress($sendto);
+		$rs = $mail->Send();
+		return $rs;
+	}
+	
 	function purge_event_log($limit=2000, $trim=100)
 	{
 		if($limit < $trim) $trim = $limit;
