@@ -2235,6 +2235,7 @@ class DocumentParser {
 
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{ // jp-edition only
+		if(!$ph) return $src;
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
