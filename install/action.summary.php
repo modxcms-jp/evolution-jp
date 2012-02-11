@@ -71,7 +71,7 @@ echo '</p>';
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
 if (!file_exists("../assets/cache/siteCache.idx.php")) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents('../assets/cache/siteCache.idx.php','<?php //MODx site cache file ?>');
+    @ rename('../assets/cache/siteCache.idx.php.blank','../assets/cache/siteCache.idx.php');
 }
 if (!is_writable("../assets/cache/siteCache.idx.php")) {
     echo echo_failed();
@@ -136,7 +136,7 @@ echo "<p>".$_lang['checking_if_config_exist_and_writable'];
 $config_path = '../manager/includes/config.inc.php';
 if (!file_exists($config_path)) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents($config_path,'<?php //MODx configuration file ?>');
+    @ rename("{$config_path}.blank",$config_path);
 }
 @chmod($config_path, 0606);
 $isWriteable = is_writable($config_path);
