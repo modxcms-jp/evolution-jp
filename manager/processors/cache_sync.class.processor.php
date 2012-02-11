@@ -204,7 +204,7 @@ class synccache {
 		
 		if(!file_put_contents($this->cachePath.'siteCache.idx.php', $content))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the assets/cache directory is writable!';
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
 		}
 		
