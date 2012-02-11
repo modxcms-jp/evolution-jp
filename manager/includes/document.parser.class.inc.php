@@ -30,9 +30,7 @@ class DocumentParser {
     var $executedQueries;
     var $queryTime;
     var $currentSnippet;
-    var $documentName;
     var $aliases;
-    var $visitor;
     var $entrypage;
     var $documentListing;
     var $dumpSnippets;
@@ -232,9 +230,6 @@ class DocumentParser {
 		{
 			// get document object
 			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
-			
-			// write the documentName to the object
-			$this->documentName= $this->documentObject['pagetitle'];
 			
 			// validation routines
 			if ($this->documentObject['deleted'] == 1)
