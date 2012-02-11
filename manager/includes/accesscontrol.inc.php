@@ -65,21 +65,26 @@ if(!isset($_SESSION['mgrValidated'])){
 		include_once "lang/english.inc.php";
 	}
 
-	// load template file
-	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
-	if(file_exists($tplFile)==false)
-	{
-		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
-	}
-    $handle = fopen($tplFile, "r");
-	$tpl = fread($handle, filesize($tplFile));
-	fclose($handle);
 
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
 	$modx->setPlaceholder('theme',$manager_theme);
 
+	global $tpl;
 	// invoke OnManagerLoginFormPrerender event
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
+	if(!isset($tpl) || empty($tpl))
+	{
+		// load template file
+		$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
+		if(file_exists($tplFile)==false)
+		{
+			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
+		}
+	    $handle = fopen($tplFile, "r");
+		$tpl = fread($handle, filesize($tplFile));
+		fclose($handle);
+	}
+	
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
