@@ -334,7 +334,7 @@ function decode(s){
 	{
 		while($row = $modx->db->getRow($result))
 		{
-			$input_name = substr($row['name'],5);
+			$input_name = trim(substr($row['name'],6));
 			$option[$input_name] = $input_name;
 		}
 	}
