@@ -89,6 +89,6 @@ echo '</table>' . PHP_EOL;
 ?>
 <h3>さらに詳細な情報</h3>
 <p>
-<a href="index.php?a=200">phpinfo</a> をご覧ください。文字化け関係は<a href="index.php?a=200#module_mbstring">mbstring</a>、captha関係は<a href="index.php?a=200#module_gd">GDやFreeType</a>などを確認する必要があります。
+<a href="index.php?a=200">phpinfo</a> をご覧ください。文字化け関係は<a href="index.php?a=200#module_mbstring">mbstring</a>、captcha関係は<a href="index.php?a=200#module_gd">GDやFreeType</a>などを確認する必要があります。
 </p>
 </div>
