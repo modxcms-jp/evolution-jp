@@ -45,6 +45,7 @@ $webpwdreminder_message  = $_lang['system_email_webreminder'];
 $resource_tree_node_name = 'pagetitle';
 $suffix_mode             = '0';
 $cache_enabled           = '1';
+$send_errormail          = '3';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
@@ -640,6 +641,15 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <td>
 	<?php echo form_text('blocked_minutes',$blocked_minutes,7);?><br />
 <?php echo $_lang["blocked_minutes_message"] ?></td>
+</tr>
+<tr>
+<th>システムエラーを<br />メールで通知する</th>
+<td>
+	<?php echo wrap_label('通知しない',form_radio('send_errormail','0', ($send_errormail=='0' || !isset($send_errormail))));?><br />
+	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
+	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
+	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
+エラー発生時に[(emailsender)](<?php echo $emailsender; ?>)に通知します。エラーの内容の詳細はイベントログを確認してください。</td>
 </tr>
 <?php
 // Check for GD before allowing captcha to be enabled

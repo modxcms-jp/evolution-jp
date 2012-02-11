@@ -1766,6 +1766,14 @@ class DocumentParser {
 		$fields['description'] = $msg;
 		$fields['user']        = $LoginUserID;
 		$insert_id = $this->db->insert($fields,$this->getFullTableName('event_log'));
+		if(isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0')
+		{
+			if($this->config['send_errormail'] <= $type)
+			{
+				$subject = 'エラー発生通知 from ' . $this->config['site_name'];
+				$this->sendmail($subject,$source);
+			}
+		}
 		if (!$insert_id)
 		{
 			echo 'Error while inserting event log into database.';
