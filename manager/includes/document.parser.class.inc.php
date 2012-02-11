@@ -106,7 +106,8 @@ class DocumentParser {
 		}
 	}
 	
-	function executeParser() {
+	function executeParser()
+	{
 		ob_start();
 		//error_reporting(0);
 		if (version_compare(phpversion(), '5.0.0', '>='))
@@ -449,6 +450,43 @@ class DocumentParser {
 		}
 		echo $this->documentOutput;
 		ob_end_flush();
+	}
+	
+	function postProcess()
+	{
+		// if the current document was generated, cache it!
+		if ($this->documentGenerated           == 1
+		 && $this->documentObject['cacheable'] == 1
+		 && $this->documentObject['type']      == 'document'
+		 && $this->documentObject['published'] == 1)
+		{
+			$tbl_document_groups = $this->getFullTableName('document_groups');
+			$docid = $this->documentIdentifier;
+			
+			// invoke OnBeforeSaveWebPageCache event
+			$this->invokeEvent('OnBeforeSaveWebPageCache');
+			// get and store document groups inside document object. Document groups will be used to check security on cache pages
+			$dsq = $this->db->select('document_group', $tbl_document_groups, "document='{$docid}'");
+			$docGroups= $this->db->getColumn('document_group', $dsq);
+			
+			// Attach Document Groups and Scripts
+			if (is_array($docGroups))
+			{
+				$this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
+			}
+			
+			$cacheContent  = "<?php die('Unauthorized access.'); ?>\n";
+			$cacheContent .= serialize($this->documentObject);
+			$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
+			$base_path = $this->config['base_path'];
+			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}.pageCache.php";
+			file_put_contents($page_cache_path, $cacheContent);
+		}
+		
+		// Useful for example to external page counters/stats packages
+		$this->invokeEvent('OnWebPageComplete');
+		
+		// end post processing
 	}
 	
 	function getMicroTime()
@@ -936,44 +974,7 @@ class DocumentParser {
 		$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
 		file_put_contents($cache_path, $content);
 	}
-
-	function postProcess()
-	{
-		// if the current document was generated, cache it!
-		if ($this->documentGenerated           == 1
-		 && $this->documentObject['cacheable'] == 1
-		 && $this->documentObject['type']      == 'document'
-		 && $this->documentObject['published'] == 1)
-		{
-			$tbl_document_groups = $this->getFullTableName('document_groups');
-			$docid = $this->documentIdentifier;
-			
-			// invoke OnBeforeSaveWebPageCache event
-			$this->invokeEvent('OnBeforeSaveWebPageCache');
-			// get and store document groups inside document object. Document groups will be used to check security on cache pages
-			$dsq = $this->db->select('document_group', $tbl_document_groups, "document='{$docid}'");
-			$docGroups= $this->db->getColumn('document_group', $dsq);
-			
-			// Attach Document Groups and Scripts
-			if (is_array($docGroups))
-			{
-				$this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
-			}
-			
-			$cacheContent  = "<?php die('Unauthorized access.'); ?>\n";
-			$cacheContent .= serialize($this->documentObject);
-			$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-			$base_path = $this->config['base_path'];
-			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}.pageCache.php";
-			file_put_contents($page_cache_path, $cacheContent);
-		}
-		
-		// Useful for example to external page counters/stats packages
-		$this->invokeEvent('OnWebPageComplete');
-		
-		// end post processing
-	}
-
+	
 	// mod by Raymond
 	function mergeDocumentContent($template)
 	{
@@ -2232,7 +2233,7 @@ class DocumentParser {
 		return $src;
 	}
 
-	function parsePlaceholder($src, $ph, $left= "[+", $right= "+]",$mode='ph')
+	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{ // jp-edition only
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
