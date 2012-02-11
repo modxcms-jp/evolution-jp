@@ -266,18 +266,22 @@ else
 $modx->setPlaceholder('OnlineInfo',$html);
 
 // load template file
-$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-if(!file_exists($tplFile))
-{
-	$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
-}
-$tpl = file_get_contents($tplFile);
-
+global $tpl;
 // invoke event OnManagerWelcomePrerender
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
 if(is_array($evtOut)) {
     $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
+}
+
+if(!isset($tpl) || empty($tpl))
+{
+	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+	if(!file_exists($tplFile))
+	{
+		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+	}
+	$tpl = file_get_contents($tplFile);
 }
 
 // invoke event OnManagerWelcomeHome
