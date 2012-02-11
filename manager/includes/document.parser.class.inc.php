@@ -2115,30 +2115,28 @@ class DocumentParser {
 			if ($c == '?')     $args= '&' . ltrim($args, '?');
 			elseif ($c != '&') $args= '&' . $args;
 		}
-		if ($this->config['friendly_urls'] == 1 && $alias != '')
+		if ($this->config['friendly_urls'] == 1)
 		{
-			if((strpos($alias, '.') !== false)
-			    && (isset($this->config['suffix_mode'])
-			    && $this->config['suffix_mode']==1))
+			$alPath = '';
+			if(empty($alias))
 			{
-				    $f_url_suffix = ''; // jp-edition only
-			}
-			$url= $f_url_prefix . $alias . $f_url_suffix . $args;
-		}
-		elseif ($this->config['friendly_urls'] == 1 && $alias == '')
-		{
-			$alias = $id;
-			if ($this->config['friendly_alias_urls'] == 1)
-			{
-				$al= $this->aliasListing[$id];
-				$alPath= !empty ($al['path']) ? $al['path'] . '/' : '';
-				if ($al && $al['alias'])
+				$alias = $id;
+				if ($this->config['friendly_alias_urls'] == 1)
 				{
-					$alias= $al['alias'];
+					$al= $this->aliasListing[$id];
+					if(!empty ($al['path'])) $alPath = $al['path'] . '/';
+					if ($al && $al['alias']) $alias  = $al['alias'];
 				}
 			}
-			$alias = $alPath . $f_url_prefix . $alias . $f_url_suffix;
-			$url = $alias . $args;
+			
+			if((strpos($alias, '.') !== false) && (isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1))
+			{
+				$f_url_suffix = ''; // jp-edition only
+			}
+		}
+		if ($this->config['friendly_urls'] == 1)
+		{
+			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix . $args;
 		}
 		else
 		{
