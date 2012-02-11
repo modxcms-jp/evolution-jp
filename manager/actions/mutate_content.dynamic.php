@@ -696,7 +696,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 								<?php echo tooltip($_lang['resource_opt_menu_index_help']);?>
 							</td>
-							<td align="right" style="text-align:right;">
+							<td style="text-align:right;">
 								<span class="warning"><?php echo $_lang['resource_opt_show_menu']?></span>&nbsp;
 								<?php
 									$cond = ($content['hidemenu']!=1);
