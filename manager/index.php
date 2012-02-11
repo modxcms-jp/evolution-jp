@@ -55,11 +55,13 @@ $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
+$base_path = str_replace('\\','/',realpath('../')) . '/';
+$core_path = "{$base_path}manager/includes/";
 
-if(@file_exists('../autoload.php')) include_once('../autoload.php');
+if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 // harden it
-require_once('./includes/protect.inc.php');
-require_once('./includes/initialize.inc.php');
+require_once("{$core_path}protect.inc.php");
+require_once("{$core_path}initialize.inc.php");
 
 // send anti caching headers
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
@@ -69,15 +71,11 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
 
-// set some runtime options
-$incPath = str_replace("\\","/",dirname(__FILE__)) . '/includes'; // Mod by Raymond
-set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
-
 if (version_compare(phpversion(), '5.3') < 0) {
     @set_magic_quotes_runtime(0);
 }
 // include_once the magic_quotes_gpc workaround
-if(get_magic_quotes_gpc()) include_once "quotes_stripper.inc.php";
+if(get_magic_quotes_gpc()) include_once "{$core_path}quotes_stripper.inc.php";
 
 if (!defined("ENT_COMPAT")) define("ENT_COMPAT", 2);
 if (!defined("ENT_NOQUOTES")) define("ENT_NOQUOTES", 0);
@@ -91,21 +89,24 @@ if(!isset($_SERVER["DOCUMENT_ROOT"]) || empty($_SERVER["DOCUMENT_ROOT"])) {
 define("IN_ETOMITE_SYSTEM", "true"); // for backward compatibility with 0.6
 
 // include_once config file
-$config_filename = "./includes/config.inc.php";
-if (!file_exists($config_filename)) {
-    echo "<h3>Unable to load configuration settings</h3>";
-    echo "Please run the MODx <a href='../install/index.php?action=mode'>install utility</a>";
-    exit;
+$config_path = "{$core_path}config.inc.php";
+if (!file_exists($config_path)) {
+	echo "<h3>Unable to load configuration settings</h3>";
+	echo "Please run the MODx <a href='../install/index.php?action=mode'>install utility</a>";
+	exit;
 }
 
 // include the database configuration file
-include_once $config_filename;
+include_once $config_path;
 
 // start session
 startCMSSession();
 
+// set some runtime options
+set_include_path(get_include_path() . PATH_SEPARATOR . rtrim($core_path,'/'));
+
 // initiate the content manager class
-include_once "document.parser.class.inc.php";
+include_once "{$core_path}document.parser.class.inc.php";
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
@@ -118,16 +119,16 @@ extract($modx->config);
 // include_once the language file
 if(!isset($manager_language)) $manager_language = 'japanese-utf8';
 $_lang = array();
-include_once(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php");
+include_once("{$core_path}lang/{$manager_language}.inc.php");
 
 // send the charset header
 header('Content-Type: text/html; charset='.$modx_manager_charset);
 
 // include version info
-include_once "version.inc.php";
+include_once "{$core_path}version.inc.php";
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
-include_once "accesscontrol.inc.php";
+include_once "{$core_path}accesscontrol.inc.php";
 
 // double check the session
 if(!isset($_SESSION['mgrValidated'])){
@@ -141,11 +142,11 @@ include_once "{$theme_dir}style.php";
 
 // check if user is allowed to access manager interface
 if(isset($allow_manager_access) && $allow_manager_access==0) {
-    include_once "manager.lockout.inc.php";
+	include_once "{$core_path}manager.lockout.inc.php";
 }
 
 // include_once the error handler
-include_once "error.class.inc.php";
+include_once "{$core_path}error.class.inc.php";
 $e = new errorHandler;
 
 // Initialize System Alert Message Queque
@@ -155,8 +156,8 @@ $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 // first we check to see if this is a frameset request
 if(!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($_POST['updateMsgCount'])) {
     // this looks to be a top-level frameset request, so let's serve up a frameset
-    include_once "frames/1.php";
-    exit;
+	include_once "{$base_path}manager/frames/1.php";
+	exit;
 }
 
 // OK, let's retrieve the action directive from the request
