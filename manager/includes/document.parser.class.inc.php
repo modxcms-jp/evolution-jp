@@ -122,7 +122,7 @@ class DocumentParser {
 		$this->db->connect();
 		
 		// get the settings
-		if (empty ($this->config)) $this->getSettings();
+		$this->getSettings();
 		
 		// IIS friendly url fix
 		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
