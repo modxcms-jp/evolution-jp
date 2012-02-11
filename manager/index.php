@@ -70,7 +70,7 @@ header("Pragma: no-cache");
 header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
 
 // set some runtime options
-$incPath = str_replace("\\","/",dirname(__FILE__)) . '/includes/'; // Mod by Raymond
+$incPath = str_replace("\\","/",dirname(__FILE__)) . '/includes'; // Mod by Raymond
 set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
 
 if (version_compare(phpversion(), '5.3') < 0) {
