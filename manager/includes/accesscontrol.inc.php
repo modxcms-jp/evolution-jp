@@ -80,9 +80,7 @@ if(!isset($_SESSION['mgrValidated'])){
 		{
 			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
 		}
-	    $handle = fopen($tplFile, "r");
-		$tpl = fread($handle, filesize($tplFile));
-		fclose($handle);
+		$tpl = file_get_contents($tplFile);
 	}
 	
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
