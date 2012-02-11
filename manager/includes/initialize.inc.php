@@ -49,7 +49,7 @@ if(!function_exists('startCMSSession'))
 
 function assign_base_url()
 {
-	$conf_dir = str_replace("\\", '/', dirname(__FILE__));
+	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
 	$docroot = get_DOCUMENT_ROOT();
 	$conf_dir = substr($conf_dir,strlen($docroot));
 	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
@@ -58,7 +58,7 @@ function assign_base_url()
 
 function assign_base_path()
 {
-	$conf_dir = str_replace("\\", '/', dirname(__FILE__));
+	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
 	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
 	return substr($conf_dir,0,$mgr_pos);
 }
@@ -97,6 +97,7 @@ function get_DOCUMENT_ROOT()
 	}
 	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
 	$docroot = substr($_SERVER['SCRIPT_FILENAME'], 0, $pos);
+	$docroot = realpath($docroot);
 	return str_replace("\\", '/',$docroot);
 }
 
