@@ -755,7 +755,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('use_captcha','0'),
 ('captcha_words','maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma,sake,tai,buri,hirame,unagi,anago,amaebi,ikura,kanpachi,syako'),
 ('emailsender','{ADMINEMAIL}'),
-('emailsubject','ログイン情報のお知らせ'),
+('emailsubject','サイトからのお知らせ'),
 ('number_of_logs','100'),
 ('number_of_messages','30'),
 ('number_of_results','20'),
