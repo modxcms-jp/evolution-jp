@@ -602,8 +602,6 @@ class DocumentParser {
 
 	function getSettings()
 	{
-		$tbl_user_settings     = $this->getFullTableName('user_settings');
-		$tbl_web_user_settings = $this->getFullTableName('web_user_settings');
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
 			if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
@@ -641,74 +639,74 @@ class DocumentParser {
 			{
 				$this->config['site_url']= MODX_SITE_URL;
 			}
-			
-			// load user setting if user is logged in
-			$usrSettings= array ();
-			if ($id= $this->getLoginUserID())
+		}
+		// load user setting if user is logged in
+		$tbl_user_settings     = $this->getFullTableName('user_settings');
+		$usrSettings= array();
+		if ($id= $this->getLoginUserID())
+		{
+			$usrType= $this->getLoginUserType();
+			if (isset ($usrType) && $usrType == 'manager')
 			{
-				$usrType= $this->getLoginUserType();
-				if (isset ($usrType) && $usrType == 'manager')
+				$usrType= 'mgr';
+			}
+			
+			if ($usrType == 'mgr' && $this->isBackend())
+			{
+				// invoke the OnBeforeManagerPageInit event, only if in backend
+				$this->invokeEvent('OnBeforeManagerPageInit');
+			}
+			if (isset ($_SESSION["{$usrType}UsrConfigSet"]) && 0 < count($_SESSION["{$usrType}UsrConfigSet"]))
+			{
+				$usrSettings= & $_SESSION["{$usrType}UsrConfigSet"];
+			}
+			else
+			{
+				if ($usrType == 'web')
 				{
-					$usrType= 'mgr';
-				}
-				
-				if ($usrType == 'mgr' && $this->isBackend())
-				{
-					// invoke the OnBeforeManagerPageInit event, only if in backend
-					$this->invokeEvent('OnBeforeManagerPageInit');
-				}
-				if (isset ($_SESSION["{$usrType}UsrConfigSet"]) && 0 < count($_SESSION["{$usrType}UsrConfigSet"]))
-				{
-					$usrSettings= & $_SESSION["{$usrType}UsrConfigSet"];
+					$from  = $this->getFullTableName('web_user_settings');
+					$where ="webuser='{$id}'";
 				}
 				else
 				{
-					if ($usrType == 'web')
-					{
-						$from  = $tbl_web_user_settings;
-						$where ="webuser='{$id}'";
-					}
-					else
-					{
-						$from  = $tbl_user_settings;
-						$where = "user='{$id}'";
-					}
-					$result= $this->db->select('setting_name, setting_value',$from,$where);
+					$from  = $tbl_user_settings;
+					$where = "user='{$id}'";
+				}
+				$result= $this->db->select('setting_name, setting_value',$from,$where);
+				while ($row= $this->db->getRow($result, 'both'))
+				{
+					$usrSettings[$row[0]]= $row[1];
+				}
+				if (isset ($usrType))
+				{
+					$_SESSION[$usrType . 'UsrConfigSet']= $usrSettings; // store user settings in session
+				}
+			}
+		}
+		if($this->isFrontend() && $mgrid= $this->getLoginUserID('mgr'))
+		{
+			$musrSettings= array ();
+			if(isset ($_SESSION['mgrUsrConfigSet']))
+			{
+				$musrSettings= & $_SESSION['mgrUsrConfigSet'];
+			}
+			else
+			{
+				if($result= $this->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$mgrid}'"))
+				{
 					while ($row= $this->db->getRow($result, 'both'))
 					{
 						$usrSettings[$row[0]]= $row[1];
 					}
-					if (isset ($usrType))
-					{
-						$_SESSION[$usrType . 'UsrConfigSet']= $usrSettings; // store user settings in session
-					}
+					$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
 				}
 			}
-			if($this->isFrontend() && $mgrid= $this->getLoginUserID('mgr'))
+			if(!empty ($musrSettings))
 			{
-				$musrSettings= array ();
-				if(isset ($_SESSION['mgrUsrConfigSet']))
-				{
-					$musrSettings= & $_SESSION['mgrUsrConfigSet'];
-				}
-				else
-				{
-					if($result= $this->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$mgrid}'"))
-					{
-						while ($row= $this->db->getRow($result, 'both'))
-						{
-							$usrSettings[$row[0]]= $row[1];
-						}
-						$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
-					}
-				}
-				if(!empty ($musrSettings))
-				{
-					$usrSettings= array_merge($musrSettings, $usrSettings);
-				}
+				$usrSettings= array_merge($musrSettings, $usrSettings);
 			}
-			$this->config= array_merge($this->config, $usrSettings);
 		}
+		$this->config= array_merge($this->config, $usrSettings);
 	}
 	
 	function getDocumentMethod()
