@@ -2167,12 +2167,26 @@ class DocumentParser {
 		
 		if ($this->config['xhtml_urls'])
 		{
-			return preg_replace("/&(?!amp;)/",'&amp;', $host . $virtualDir . $url);
+			$url = preg_replace("/&(?!amp;)/",'&amp;', $host . $virtualDir . $url);
 		}
 		else
 		{
-			return $host . $virtualDir . $url;
+			$url = $host . $virtualDir . $url;
 		}
+		$rs = $this->invokeEvent('OnMakeUrl',
+				array(
+					"id"    => $id,
+					"alias" => $alias,
+					"args"  => $args,
+					"scheme"=> $scheme,
+					"url"   => $url
+				)
+			);
+		if (!empty($rs))
+		{
+			$url = end($rs);
+		}
+		return $url;
 	}
 		
 	function getConfig($name= '')
