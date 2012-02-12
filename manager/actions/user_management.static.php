@@ -17,7 +17,7 @@ if($_REQUEST['op']=='reset')
 else
 {
 	$query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
-	$sqlQuery = $modx->db->escape($query);
+	$keyword = $modx->db->escape($query);
 	$_PAGE['vs']['search'] = $query;
 }
 
@@ -118,9 +118,9 @@ echo $cm->render();
 	$from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
 	if ($_SESSION['mgrRole'] != 1)
 	{
-		if(!empty($sqlQuery))
+		if(!empty($keyword))
 		{
-			$where = "((mu.username LIKE '{$sqlQuery}%') OR (mua.fullname LIKE '%{$sqlQuery}%') OR (mua.email LIKE '{$sqlQuery}%')) AND mua.role != 1";
+			$where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) AND mua.role != 1";
 		}
 		else
 		{
@@ -129,9 +129,9 @@ echo $cm->render();
 	}
 	else
 	{
-		if(!empty($sqlQuery))
+		if(!empty($keyword))
 		{
-			$where = "(mu.username LIKE '{$sqlQuery}%') OR (mua.fullname LIKE '%{$sqlQuery}%') OR (mua.email LIKE '{$sqlQuery}%')";
+			$where = "(mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')";
 		}
 		else $where = '';
 	}
