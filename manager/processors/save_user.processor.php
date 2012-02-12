@@ -52,9 +52,17 @@ if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i", $
 // verify admin security
 if ($_SESSION['mgrRole'] != 1) {
 	// Check to see if user tried to spoof a "1" (admin) role
-	if ($roleid == 1) {
-		webAlert("Illegal attempt to create/modify administrator by non-administrator!");
-		exit;
+	if ($roleid == 1)
+	{
+		if(!$modx->hasPermission('edit_role')
+		    || !$modx->hasPermission('save_role')
+		    || !$modx->hasPermission('delete_role')
+		    || !$modx->hasPermission('new_role')
+		    )
+			{
+				webAlert("Illegal attempt to create/modify administrator by non-administrator!");
+				exit;
+			}
 	}
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
 	if ($rs = $modx->db->select('role',$tbl_user_attributes,"internalKey={$id}")) {
@@ -383,7 +391,14 @@ switch ($_POST['mode']) {
 			</script>
 			</body>
 		<?php
-
+			exit;
+		}
+		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $roleid)
+		{
+			include_once "header.inc.php";
+			$_SESSION['mgrRole'] = $roleid;
+			$modx->webAlert('変更したロールの権限設定を読み込むために、再ログインしてください。','index.php?a=75');
+			include_once "footer.inc.php";
 			exit;
 		}
 		if ($genpassword == 1 && $passwordnotifymethod == 's') {
