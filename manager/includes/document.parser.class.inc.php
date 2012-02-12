@@ -2613,44 +2613,52 @@ class DocumentParser {
 
     # returns the virtual relative path to the manager folder
     function getManagerPath() {
-        global $base_url;
-        $pth= $base_url . 'manager/';
-        return $pth;
+        return $this->config['base_url'] . 'manager/';
     }
 
     # returns the virtual relative path to the cache folder
     function getCachePath() {
-        global $base_url;
-        $pth= $base_url . 'assets/cache/';
-        return $pth;
+        return $this->config['base_url'] . 'assets/cache/';
     }
 
-    # sends a message to a user's message box
-    function sendAlert($type, $to, $from, $subject, $msg, $private= 0) {
-        $private= ($private) ? 1 : 0;
-        if (!is_numeric($to)) {
-            // Query for the To ID
-            $sql= "SELECT id FROM " . $this->getFullTableName("manager_users") . " WHERE username='$to';";
-            $rs= $this->db->query($sql);
-            if ($this->db->getRecordCount($rs)) {
-                $rs= $this->db->getRow($rs);
-                $to= $rs['id'];
-            }
-        }
-        if (!is_numeric($from)) {
-            // Query for the From ID
-            $sql= "SELECT id FROM " . $this->getFullTableName("manager_users") . " WHERE username='$from';";
-            $rs= $this->db->query($sql);
-            if ($this->db->getRecordCount($rs)) {
-                $rs= $this->db->getRow($rs);
-                $from= $rs['id'];
-            }
-        }
-        // insert a new message into user_messages
-        $sql= "INSERT INTO " . $this->getFullTableName("user_messages") . " ( id , type , subject , message , sender , recipient , private , postdate , messageread ) VALUES ( '', '$type', '$subject', '$msg', '$from', '$to', '$private', '" . time() . "', '0' );";
-        $rs= $this->db->query($sql);
-    }
-
+	# sends a message to a user's message box
+	function sendAlert($type, $to, $from, $subject, $msg, $private= 0)
+	{
+		$tbl_manager_users = $this->getFullTableName('manager_users');
+		$private= ($private) ? 1 : 0;
+		if (!is_numeric($to))
+		{
+			// Query for the To ID
+			$rs= $this->db->select('id',$tbl_manager_users,"username='{$to}'");
+			if ($this->db->getRecordCount($rs))
+			{
+				$rs= $this->db->getRow($rs);
+				$to= $rs['id'];
+			}
+		}
+		if (!is_numeric($from))
+		{
+			// Query for the From ID
+			$rs= $this->db->select('id',$tbl_manager_users,"username='{$from}'");
+			if ($this->db->getRecordCount($rs))
+			{
+				$rs= $this->db->getRow($rs);
+				$from= $rs['id'];
+			}
+		}
+		// insert a new message into user_messages
+		$f['id']          = '';
+		$f['type']        = $type;
+		$f['subject']     = $subject;
+		$f['message']     = $msg;
+		$f['sender']      = $from;
+		$f['recipient']   = $to;
+		$f['private']     = $private;
+		$f['postdate']    = time();
+		$f['messageread'] = 0;
+		$rs= $this->db->insert($f,$this->getFullTableName('user_messages'));
+	}
+	
 	# Returns current user id
 	function getLoginUserID($context= '')
 	{
@@ -2768,7 +2776,7 @@ class DocumentParser {
 			$dgn = array ();
 			$tbl_dgn = $this->getFullTableName('documentgroup_names');
 			$imploded_dg = implode(',', $dg);
-			$ds = $this->db->query("SELECT `name` FROM {$tbl_dgn} WHERE id IN ({$imploded_dg})");
+			$ds = $this->db->select('name', $tbl_dgn, "id IN ({$imploded_dg})");
 			while ($row = $this->db->getRow($ds))
 			{
 				$dgn[count($dgn)] = $row['name'];
@@ -2839,8 +2847,8 @@ class DocumentParser {
 			$tbl_web_groups= $this->getFullTableName("web_groups");
 			$uid = $this->getLoginUserID();
 			$sql= "SELECT wgn.name
-			FROM $tbl_webgroup_names wgn
-			INNER JOIN $tbl_web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
+			FROM {$tbl_webgroup_names} wgn
+			INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
 			$grpNames= $this->db->getColumn("name", $sql);
 			
 			// save to cache
@@ -3542,4 +3550,3 @@ class SystemEvent {
         $this->activated= false;
     }
 }
-?>
