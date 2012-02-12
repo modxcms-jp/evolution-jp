@@ -336,10 +336,28 @@ if (is_array($evtOut))
 			<td><?php echo $_lang['user_role']; ?>:</td>
 			<td>&nbsp;</td>
 			<td>
-		<?php
-
+<?php
 $tbl_user_roles = $modx->getFullTableName('user_roles');
-$where = ($_SESSION['mgrRole'] == 1) ? '' : 'id != 1';
+if($_SESSION['mgrRole'] == 1)
+{
+	$where = '';
+}
+elseif($modx->hasPermission('edit_role')
+    && $modx->hasPermission('save_role')
+    && $modx->hasPermission('delete_role')
+    && $modx->hasPermission('new_role')
+    )
+{
+	$where = '';
+}
+elseif(!$modx->hasPermission('edit_role') && $_GET['id']==$modx->getLoginUserID())
+{
+	$where = 'edit_role=0 AND save_role=0 AND delete_role=0 AND new_role=0';
+}
+else
+{
+	$where = 'id != 1';
+}
 $rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 ?>
 		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
