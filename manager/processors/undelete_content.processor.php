@@ -88,7 +88,7 @@ function getChildren($parent)
 function check_group_perm($id)
 {
 	global $modx;
-	include_once MODX_BASE_PATH . 'processors/user_documents_permissions.class.php';
+	include_once MODX_MANAGER_PATH . 'processors/user_documents_permissions.class.php';
 	$udperms = new udperms();
 	$udperms->user = $modx->getLoginUserID();
 	$udperms->document = $id;
@@ -99,11 +99,11 @@ function check_group_perm($id)
 function disp_access_permission_denied()
 {
 	global $_lang;
-	include_once MODX_BASE_PATH . 'header.inc.php';
+	include_once('header.inc.php');
 	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>
 	<?php
-	include("footer.inc.php");
+	include_once('footer.inc.php');
 	exit;
 }
