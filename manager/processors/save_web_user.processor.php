@@ -169,7 +169,7 @@ switch ($_POST['mode']) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$id" : "87";
-				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
+				$header = "Location: index.php?a={$a}&stay=" . $_POST['stay'];
 			} else {
 				$header = "Location: index.php?a=99";
 			}
@@ -177,7 +177,7 @@ switch ($_POST['mode']) {
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$key" : "87";
-				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
+				$stayUrl = "index.php?a={$a}&stay=" . $_POST['stay'];
 			} else {
 				$stayUrl = "index.php?a=99";
 			}
@@ -201,7 +201,6 @@ switch ($_POST['mode']) {
 			</div>
 			</div>
 		<?php
-
 			include_once "footer.inc.php";
 		}
 		break;
@@ -406,7 +405,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$ph['semail'] = $emailsender;
 	$ph['surl'] = $site_url;
 	$message = $modx->parsePlaceholder($message,$ph);
-	include_once dirname(__FILE__)."/../includes/controls/modxmailer.inc.php";
+	include_once MODX_BASE_PATH . 'manager/includes/controls/modxmailer.inc.php';
 	$mail = new MODxMailer();
 	$mail->IsMail();
 	$mail->IsHTML(0);
