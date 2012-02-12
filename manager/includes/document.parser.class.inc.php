@@ -49,6 +49,7 @@ class DocumentParser {
     var $forwards= 3;
     var $referenceListing;
     var $documentMap_cache;
+    var $safeMode;
 
     // constructor
 	function DocumentParser()
@@ -69,6 +70,7 @@ class DocumentParser {
 		$this->dumpSQL = false;
 		$this->dumpSnippets = false; // feed the parser the execution start time
 		$this->stopOnNotice = false;
+		$this->safeMode     = false;
 		// set track_errors ini variable
 		@ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
 		// Don't show PHP errors to the public
@@ -3005,6 +3007,7 @@ class DocumentParser {
 	# invoke an event. $extParams - hash array: name=>value
 	function invokeEvent($evtName, $extParams= array ())
 	{
+		if ($this->safeMode == true)               return false;
 		if (!$evtName)                             return false;
 		if (!isset ($this->pluginEvent[$evtName])) return false;
 		

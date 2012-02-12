@@ -109,6 +109,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . rtrim($core_path,'/'));
 // initiate the content manager class
 include_once "{$core_path}document.parser.class.inc.php";
 $modx = new DocumentParser;
+// $modx->safeMode = true;
 $etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
