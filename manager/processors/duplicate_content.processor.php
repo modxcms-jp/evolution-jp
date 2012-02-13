@@ -29,6 +29,7 @@ if(!$udperms->checkPermissions()) {
 
 // Run the duplicator
 $id = duplicateDocument($id);
+$modx->clearCache($clearcache);
 
 // finish cloning - redirect
 $tbl_site_content = $modx->getFullTableName('site_content');
