@@ -1081,6 +1081,9 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['page_data_cacheable_help']);?>
 				</td>
 			</tr>
+<?php
+				}
+?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_emptycache']?></span></td>
 				<td>
@@ -1091,9 +1094,6 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 					echo tooltip($_lang['resource_opt_emptycache_help']);?>
 				</td>
 			</tr>
-<?php
-				}
-?>
 		</table>
 	</div><!-- end #tabSettings -->
 
