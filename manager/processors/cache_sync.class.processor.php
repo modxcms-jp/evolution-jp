@@ -271,6 +271,9 @@ class synccache {
 			$tmpPHP .= '$' . "d['{$alias_path}'] = {$docid};\n";
 			$tmpPHP .= '$' . "a[{$docid}] = array('id' => {$docid}, 'alias' => '{$alias}', 'path' => '{$path}', 'parent' => {$parent});\n";
 			$tmpPHP .= '$' . "m[] = array('{$parent}' => '{$docid}');\n";
+			$modx->documentListing[$alias_path] = $docid;
+			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent);
+			$modx->documentMap[] = array($parent => $docid);
 		}
 		return $tmpPHP;
 	}
