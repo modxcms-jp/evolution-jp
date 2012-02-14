@@ -136,7 +136,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `content_dispo` tinyint(1) NOT NULL default '0' COMMENT '0-inline, 1-attachment',
   `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu',
   PRIMARY KEY  (`id`),
-  KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (alias),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
