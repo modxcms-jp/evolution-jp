@@ -1131,6 +1131,11 @@ class DocumentParser {
 	function evalSnippet($snippet, $params)
 	{
 		$etomite= $modx= & $this;
+		foreach($params as $k=>$v)
+		{
+			if($v==='false')    $params[$k] = false;
+			elseif($v==='true') $params[$k] = true;
+		}
 		$modx->event->params = $params; // store params inside event object
 		if (is_array($params))
 		{
