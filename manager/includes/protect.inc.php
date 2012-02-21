@@ -25,7 +25,6 @@ if (!function_exists('modx_sanitize_gpc'))
 {
 	function modx_sanitize_gpc(& $target, $count=0)
 	{
-		$tags = array ('@<script[^>]*?>.*?</script>@si','@&#(\d+);@',);
 		$s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
 		$r = array('[ [','] ]','[ !','! ]','[ *','* ]','[ (',') ]','{ {','} }','[ +','+ ]','[ ~','~ ]','[ ^','^ ]');
 		foreach ($target as $key => $value)
@@ -43,7 +42,9 @@ if (!function_exists('modx_sanitize_gpc'))
 			else
 			{
 				$value = str_replace($s,$r,$value);
-				$target[$key] = preg_replace($tags, '', $value);
+				$value = preg_replace('/<script/si', '<s cript', $value);
+				$value = preg_replace('/&#(\d+);/', '& #$1', $value);
+				$target[$key] = $value;
 			}
 		}
 		return $target;
