@@ -23,16 +23,22 @@ if (@ ini_get('register_globals')) {
 }
 if (!function_exists('modx_sanitize_gpc'))
 {
-	function modx_sanitize_gpc(& $target, $limit= 3)
+	function modx_sanitize_gpc(& $target, $count=0)
 	{
 		$tags = array ('@<script[^>]*?>.*?</script>@si','@&#(\d+);@',);
 		$s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
 		$r = array('[ [','] ]','[ !','! ]','[ *','* ]','[ (',') ]','{ {','} }','[ +','+ ]','[ ~','~ ]','[ ^','^ ]');
 		foreach ($target as $key => $value)
 		{
-			if (is_array($value) && $limit > 0)
+			if (is_array($value))
 			{
-				modx_sanitize_gpc($value, $limit - 1);
+				$count++;
+				if(10 < $count)
+				{
+					echo 'too many nested array';
+					exit;
+				}
+				modx_sanitize_gpc($value);
 			}
 			else
 			{
