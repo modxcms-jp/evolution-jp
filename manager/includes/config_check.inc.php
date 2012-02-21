@@ -49,6 +49,9 @@ if(get_sc_value('privateweb',$error_page) == 1)        $warnings[] = 'configchec
 if (!is_writable("../assets/cache/"))  $warnings[] = 'configcheck_cache';
 if (!is_writable("../assets/images/")) $warnings[] = 'configcheck_images';
 
+if(!file_exists($modx->config['rb_base_dir']))      $warnings[] = 'configcheck_rb_base_dir';
+if(!file_exists($modx->config['filemanager_path'])) $warnings[] = 'configcheck_filemanager_path';
+
 // clear file info cache
 clearstatcache();
 
@@ -75,6 +78,12 @@ if (0 < count($warnings))
 			case 'configcheck_images':
 				$output = $_lang['configcheck_images_msg'];
 				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
+				break;
+			case 'configcheck_rb_base_dir':
+				$output = 'configcheck_rb_base_dir';
+				break;
+			case 'configcheck_filemanager_path':
+				$output = 'configcheck_filemanager_path';
 				break;
 			case 'configcheck_lang_difference':
 				$output = $_lang['configcheck_lang_difference_msg'];
