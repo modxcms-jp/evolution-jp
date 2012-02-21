@@ -25,7 +25,7 @@ if (!function_exists('modx_sanitize_gpc'))
 {
 	function modx_sanitize_gpc(& $target, $limit= 3)
 	{
-		$tags = array ('@<script[^>]*?>.*?</script>@si','@&#(\d+);@e',);
+		$tags = array ('@<script[^>]*?>.*?</script>@si','@&#(\d+);@',);
 		$s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
 		$r = array('[ [','] ]','[ !','! ]','[ *','* ]','[ (',') ]','{ {','} }','[ +','+ ]','[ ~','~ ]','[ ^','^ ]');
 		foreach ($target as $key => $value)
