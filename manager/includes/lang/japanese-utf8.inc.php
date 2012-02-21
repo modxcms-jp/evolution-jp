@@ -14,7 +14,7 @@
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = '<p>MODX(モドエックスまたはモッドエックス)は <a href="http://ja.wikipedia.org/wiki/MODx" target="_blank">PHP アプリケーション フレームワーク・コンテンツ管理システム</a>です。<a href="../assets/docs/license.txt">GNU GPL</a> に基づいて使用が許諾されます。</p>';
+$_lang["about_msg"] = '<p>MODX(モドエックスまたはモッドエックス)は <a href="http://ja.wikipedia.org/wiki/MODx" target="_blank">PHP アプリケーション フレームワーク・コンテンツ管理システム</a>です。GPL に基づいて使用が許諾されます。</p>';
 $_lang["about_title"] = 'MODX について';
 $_lang["access_permission_denied"] = 'このリソースにアクセスする権限がありません。';
 $_lang["access_permission_parent_denied"] = 'ここにリソースを作成する権限がありません。';
@@ -880,8 +880,8 @@ $_lang["settings_templvars"] = 'テンプレート変数';
 $_lang["settings_title"] = 'グローバル設定';
 $_lang["settings_ui"] = '管理画面の設定';
 $_lang["settings_users"] = '詳細設定';
-$_lang["show_meta"] = 'META Keywordsタブを表示';
-$_lang["show_meta_message"] = 'リソース編集画面にMETA Keywordsタブを表示します。過去のMODXとの互換性が必要な場合を除き、当設定は使い勝手の問題により推奨しません。';
+$_lang["show_meta"] = 'META Keywordsタブを表示<br />(※非推奨)';
+$_lang["show_meta_message"] = 'リソース編集画面にMETA Keywordsタブを表示します。(※この機能は将来廃止される可能性があります)';
 $_lang["show_tree"] = 'リソースツリーの表示';
 $_lang["showing"] = '表示中';
 $_lang["signupemail_message"] = 'ユーザ管理画面でユーザーアカウントを作成した時に、ログイン名とパスワードを記載したメールを送信することができます。このメールの内容は変更できます<br /><strong>参考:</strong> 下記の差し込み文字列は送信時に自動的に置き換えられます。<br /><br />[+sname+] - サイトの名前<br />[+saddr+] - サイト管理者のメールアドレス<br />[+surl+] - サイトのURL<br />[+uid+] - ログイン名<br />[+pwd+] - パスワード<br />[+ufn+] - フルネーム';
