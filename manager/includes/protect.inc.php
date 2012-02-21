@@ -42,7 +42,7 @@ if (!function_exists('modx_sanitize_gpc'))
 			else
 			{
 				$value = str_replace($s,$r,$value);
-				$value = preg_replace('/<script/si', 'sanitized_by_modx<s cript', $value);
+				$value = preg_replace('/<script/i', 'sanitized_by_modx<s cript', $value);
 				$value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
 				$target[$key] = $value;
 			}
