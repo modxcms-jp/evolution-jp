@@ -856,13 +856,18 @@ class DocumentParser {
 	{
 		if(isset($this->config['cache_enabled']) && $this->config['cache_enabled'] == 0) return ''; // jp-edition only
 		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-		if(!file_exists($cacheFile))
+		if(file_exists($cacheFile))
+		{
+			$flContent = file_get_contents($cacheFile, false);
+		}
+		if(!file_exists($cacheFile) || empty($flContent))
 		{
 			$this->documentGenerated = 1;
 			return '';
 		}
+		
 		$this->documentGenerated = 0;
-		$flContent = file_get_contents($cacheFile, false);
+		
 		$flContent = substr($flContent, 37); // remove php header
 		$a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
 		if(count($a) == 1)
