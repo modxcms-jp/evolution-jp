@@ -17,6 +17,8 @@ $tbl_site_keywords         = $modx->getFullTableName('site_keywords');
 $tbl_site_metatags         = $modx->getFullTableName('site_metatags');
 $tbl_site_templates        = $modx->getFullTableName('site_templates');
 
+$modx->checkPublishStatus();
+
 // Get access permissions
 if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
 $in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
@@ -163,7 +165,7 @@ if ($numRecords > 0)
 		$listDocs = array();
 		foreach($resource as $k => $children)
 		{
-			if($children['published'] == 0 && (empty($children['pub_date']) || time() < $children['pub_date']))
+			if($children['published'] == 0 && (time() < $children['pub_date'] || $children['unpub_date'] < time()))
 			{
 				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
 			}
