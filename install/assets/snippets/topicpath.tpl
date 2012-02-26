@@ -5,7 +5,7 @@
  * カスタマイズの自由度が高いパン屑リスト
  * 
  * @category	snippet
- * @version 	1.0.0
+ * @version 	1.0.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &theme=Theme;list;raw,list;raw
  * @internal	@modx_category Navigation

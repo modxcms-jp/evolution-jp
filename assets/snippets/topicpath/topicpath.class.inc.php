@@ -132,7 +132,7 @@ class TopicPath
 			
 			// Check for include conditions & add to topics
 			if ($doc['published']
-			    && (!$doc['hidemenu'] || !$respectHidemenu)
+			    && (!$doc['hidemenu'] || !$showInMenuOnly)
 			    && !in_array($doc['id'],$ignoreIds))
 			{
 				// Add topic
