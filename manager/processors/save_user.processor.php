@@ -393,6 +393,8 @@ switch ($_POST['mode']) {
 		<?php
 			exit;
 		}
+		unset($_SESSION['mgrUsrConfigSet']);
+		$modx->getSettings();
 		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $roleid)
 		{
 			include_once "header.inc.php";
