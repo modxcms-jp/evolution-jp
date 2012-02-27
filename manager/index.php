@@ -537,11 +537,6 @@ switch ($action)
 	case 55: // get the settings editor
 		include_once "processors/empty_table.processor.php";
 		break;
-	case 999: // get the test page
-		include_once "header.inc.php";
-		include_once "test_page.php";
-		include_once "footer.inc.php";
-		break;
 	case 64: // get the Recycle bin emptier
 		include_once "processors/remove_content.processor.php";
 		break;
@@ -667,6 +662,13 @@ switch ($action)
 		break;
 	case 501: //delete category
 		include_once "processors/delete_category.processor.php";
+		break;
+	case 998: //No action
+		break;
+	case 999: // get the test page
+		include_once "header.inc.php";
+		include_once "test_page.php";
+		include_once "footer.inc.php";
 		break;
 	default : // default action: show not implemented message
 		// say that what was requested doesn't do anything yet
