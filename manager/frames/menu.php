@@ -280,7 +280,7 @@ if($modx->hasPermission('exec_module')) {
 				ORDER BY sm.editedon DESC');
 	} else {
 		// Admins get the entire list
-		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+		$rs = $modx->db->select('id,name', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
 	while ($content = $modx->db->getRow($rs)) {
 		$modulemenu[] = '<li><a onclick="this.blur();" href="index.php?a=112&amp;id='.$content['id'].'" target="main">'.$content['name'].'</a></li>';
