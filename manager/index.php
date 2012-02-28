@@ -214,7 +214,9 @@ if (isset($modx->config['validate_referer']) && intval($modx->config['validate_r
 }
 
 // invoke OnManagerPageInit event
-$modx->invokeEvent("OnManagerPageInit", array("action" => $action));
+// If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
+//   ex)$modx->event->setGlobalVariable('action',999);
+$evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", array("action" => $action));
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 switch ($action)
@@ -537,11 +539,6 @@ switch ($action)
 	case 55: // get the settings editor
 		include_once "processors/empty_table.processor.php";
 		break;
-	case 999: // get the test page
-		include_once "header.inc.php";
-		include_once "test_page.php";
-		include_once "footer.inc.php";
-		break;
 	case 64: // get the Recycle bin emptier
 		include_once "processors/remove_content.processor.php";
 		break;
@@ -667,6 +664,14 @@ switch ($action)
 		break;
 	case 501: //delete category
 		include_once "processors/delete_category.processor.php";
+		break;
+	case 998: //Output of OnManagerPageInit with Header/Footer
+		include_once "header.inc.php";
+		if (is_array($evtOutOnMPI)) echo implode('', $evtOutOnMPI);
+		include_once "footer.inc.php";
+		break;
+	case 999: //Output of OnManagerPageInit
+		if (is_array($evtOutOnMPI)) echo implode('', $evtOutOnMPI);
 		break;
 	default : // default action: show not implemented message
 		// say that what was requested doesn't do anything yet
