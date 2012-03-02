@@ -11,6 +11,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
+$bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -114,6 +115,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 		/* ]]> */
     </script>
 </head>
-<body id="mainpane" ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
+<body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
 
 <div id="preLoader"><table width="100%" border="0" cellpadding="0"><tr><td align="center"><div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div></td></tr></table></div>
