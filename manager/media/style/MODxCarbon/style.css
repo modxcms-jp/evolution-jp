@@ -584,8 +584,7 @@ a img {
 	padding: 1px;
 }
 .unpublishedNode {
-	color: #aaa;
-	font-style: italic;
+	color: #b68282;
 }
 .deletedNode {
 	color: #A52A2A;
