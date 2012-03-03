@@ -800,19 +800,6 @@ switch ($actionToTake)
 		exit;
 }
 
-/**
- * Format alias to be URL-safe
- *
- * @deprecated Use $modx->stripAlias()
- * @param string Alias to be formatted
- * @return string Safe alias
- */
-function stripAlias($alias)
-{
-	global $modx;
-	return $modx->stripAlias($alias);
-}
-
 // -- Save META Keywords --
 function saveMETAKeywords($id) {
 	global $modx, $keywords, $metatags,$tbl_keyword_xref,$tbl_site_content,$tbl_site_content_metatags;
