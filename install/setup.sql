@@ -687,9 +687,13 @@ ALTER TABLE `{PREFIX}user_settings`
  DROP INDEX `setting_name`,
  ADD PRIMARY KEY (`setting_name`);
 
+ALTER TABLE `{PREFIX}web_user_settings`
+ DROP INDEX `setting_name`,
+ ADD PRIMARY KEY (`setting_name`);
+
 ALTER TABLE `{PREFIX}system_settings`
  DROP INDEX `setting_name` ,
- ADD PRIMARY KEY ( `setting_name` );
+ ADD PRIMARY KEY (`setting_name`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
