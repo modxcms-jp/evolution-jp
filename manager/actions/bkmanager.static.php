@@ -181,7 +181,6 @@ else $ph['result_msg'] = '';
 </script>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <h1><?php echo $_lang['bk_manager']?></h1>
-<div class="sectionHeader"><?php echo $_lang['bk_manager']?></div>
 <div class="sectionBody" id="lyr4">
 	<div class="tab-pane" id="dbmPane">
 	<script type="text/javascript">

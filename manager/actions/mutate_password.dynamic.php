@@ -14,7 +14,6 @@ if(!$modx->hasPermission('change_password')) {
 	  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 	</ul>
 </div>
-<div class="sectionHeader"><?php echo $_lang['change_password']?></div>
 <div class="sectionBody">
 	<form action="index.php" method="post" name="userform">
 	<input type="hidden" name="a" value="34>" />
