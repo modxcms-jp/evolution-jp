@@ -577,7 +577,13 @@ function import_sql($source,$result_code='import_ok')
 		$rs = $modx->db->query($sql_entry);
 	}
 	$modx->clearCache();
-	while($_SESSION['last_result'][] = $modx->db->getRow($rs))
+	if(0 < $modx->db->getRecordCount($rs))
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			$_SESSION['last_result'][] = $row;
+		}
+	}
 	
 	$_SESSION['result_msg'] = $result_code;
 	header("Location: index.php?r=9&a=93");
