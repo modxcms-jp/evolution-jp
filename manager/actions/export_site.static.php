@@ -207,6 +207,8 @@ class EXPORT_SITE
 	{
 		$directory = rtrim($directory,'/');
 		// if the path is not valid or is not a directory ...
+		if(strpos($directory,MODX_BASE_PATH)===false) return FALSE;
+		
 		if(!file_exists($directory) || !is_dir($directory))
 		{
 			return FALSE;
@@ -275,6 +277,8 @@ class EXPORT_SITE
 		// if the path has a slash at the end, remove it
 		$path = rtrim($path,'/');
 		// if the path is not valid or is not a directory ...
+		if(strpos($path,MODX_BASE_PATH)===false) return FALSE;
+		
 		if(!file_exists($path) || !is_dir($path))
 		{
 			return FALSE;
@@ -347,6 +351,7 @@ class EXPORT_SITE
 			{ // needs making a folder
 				if(empty($row['alias'])) $row['alias'] = $row['id'];
 				$dirname = $dirpath . $row['alias'];
+				if(strpos($dirname,MODX_BASE_PATH)===false) return FALSE;
 				if (!is_dir($dirname))
 				{
 					if(file_exists($dirname)) @unlink($dirname);
