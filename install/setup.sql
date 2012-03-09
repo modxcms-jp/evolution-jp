@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}active_users` (
 CREATE TABLE IF NOT EXISTS `{PREFIX}categories` (
   `id` integer NOT NULL AUTO_INCREMENT,
   `category` varchar(45) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY(`id`)
 ) ENGINE=MyISAM COMMENT='Categories to be used snippets,tv,chunks, etc';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups` (
@@ -44,14 +44,14 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}event_log` (
   `usertype` tinyint NOT NULL DEFAULT 0 COMMENT '0 - manager, 1 - web',
   `source` varchar(50) NOT NULL DEFAULT '',
   `description` text,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY(`id`),
   KEY `user`(`user`)
 ) ENGINE=MyISAM COMMENT='Stores event and error logs';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}keyword_xref` (
   `content_id` int(11) NOT NULL default '0',
   `keyword_id` int(11) NOT NULL default '0',
-  PRIMARY KEY (`content_id`),
+  KEY `content_id` (`content_id`),
   KEY `keyword_id` (`keyword_id`)
 ) ENGINE=MyISAM COMMENT='Cross reference bewteen keywords and content';
 
@@ -136,6 +136,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `content_dispo` tinyint(1) NOT NULL default '0' COMMENT '0-inline, 1-attachment',
   `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu',
   PRIMARY KEY  (`id`),
+  KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (alias),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
@@ -144,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_content_metatags` (
   `content_id` int(11) NOT NULL default '0',
   `metatag_id` int(11) NOT NULL default '0',
-  PRIMARY KEY (`content_id`),
+  KEY `content_id` (`content_id`),
   KEY `metatag_id` (`metatag_id`)
 ) ENGINE=MyISAM COMMENT='Reference table between meta tags and content';
 
@@ -230,8 +231,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugins` (
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugin_events` (
   `pluginid` INT(10) NOT NULL,
   `evtid` INT(10) NOT NULL default 0,
-  `priority` INT(10) NOT NULL default 0 COMMENT 'determines plugin run order',
-  PRIMARY KEY  (`evtid`)
+  `priority` INT(10) NOT NULL default 0 COMMENT 'determines plugin run order'
 ) ENGINE=MyISAM COMMENT='Links to system events';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_snippets` (
@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}system_eventnames` (
 CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings` (
   `setting_name` varchar(50) NOT NULL default '',
   `setting_value` text,
-  PRIMARY KEY (`setting_name`)
+  UNIQUE KEY `setting_name` (`setting_name`)
 ) ENGINE=MyISAM COMMENT='Contains Content Manager settings.';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_access` (
@@ -437,7 +437,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_settings` (
   `user` integer NOT NULL,
   `setting_name` varchar(50) NOT NULL default '',
   `setting_value` text,
-  PRIMARY KEY (`setting_name`),
+  KEY `setting_name` (`setting_name`),
   KEY `user` (`user`)
 ) ENGINE=MyISAM COMMENT='Contains backend user settings.';
 
@@ -504,7 +504,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
   `webuser` integer NOT NULL,
   `setting_name` varchar(50) NOT NULL default '',
   `setting_value` text,
-  PRIMARY KEY  (`setting_name`),
+  KEY `setting_name` (`setting_name`),
   KEY `webuserid` (`webuser`)
 ) ENGINE=MyISAM COMMENT='Contains web user settings.';
 
@@ -670,30 +670,6 @@ ALTER TABLE `{PREFIX}web_user_attributes`
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0';
 ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
 ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
-
-ALTER TABLE `{PREFIX}keyword_xref`
- DROP INDEX `content_id`,
- ADD PRIMARY KEY (`content_id`);
-
-ALTER TABLE `{PREFIX}site_content_metatags`
- DROP INDEX `content_id`,
- ADD PRIMARY KEY (`content_id`);
-
-ALTER TABLE `{PREFIX}site_plugin_events`
- DROP INDEX `evtid`,
- ADD PRIMARY KEY (`evtid`);
-
-ALTER TABLE `{PREFIX}user_settings`
- DROP INDEX `setting_name`,
- ADD PRIMARY KEY (`setting_name`);
-
-ALTER TABLE `{PREFIX}web_user_settings`
- DROP INDEX `setting_name`,
- ADD PRIMARY KEY (`setting_name`);
-
-ALTER TABLE `{PREFIX}system_settings`
- DROP INDEX `setting_name` ,
- ADD PRIMARY KEY (`setting_name`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
