@@ -1,7 +1,28 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
-MODx Evolution 1.0.5-rc1 (Jan 10, 2011)
+MODx Evolution 1.0.6 (Mar 08, 2012)
+===================================
+--------------------------------------------
+Security:
+--------------------------------------------
+* [#7175] Fix sanitization to strip tags recursively in parser and in eForm
+
+--------------------------------------------
+Bugfixes:
+--------------------------------------------
+* [#3799] Fix table creation on MySQL databases that no longer support TYPE keyword
+* [#3699] Fix fatal error using default value on a Template Variable with @INHERIT binding
+
+--------------------------------------------
+Additional Improvements & Updates:
+--------------------------------------------
+* [#3796] Fix manager_language not being sanitized
+* [JA879] improvement to pageCache read logic
+* Update minimum PHP version for manager to 4.3.3
+
+
+MODx Evolution 1.0.5 (Jan 19, 2011)
 ===================================
 --------------------------------------------
 Security:
@@ -9,6 +30,8 @@ Security:
 * [#MODX-1035] fix XSS vulnerability in installer
 * [#2787] fix XSS vuln. in image editor
 * [#3352] work around critical PHP bug 53632
+* [#3437] fix vulnerability in AjaxSearch allowing attacker to view arbitrary files (JVN#95385972)
+* [#3429] fix SQL injection vulnerability in AjaxSearch allowing attacker to execute arbitrary PHP code (JVN#54092716)
 
 --------------------------------------------
 Bugfixes:
@@ -82,6 +105,8 @@ Additional Improvements & Updates:
 * [#2627] New event allows plugin to inject custom markup into manager's header (header.inc.php)
 * [#3385] Wayfinder optimization when hideSubMenus is enabled
 * [#3386] Breadcrumbs optimizations
+* [#3543] Personalize updated to 2.1
+
 
 MODx Evolution 1.0.4 (Jun 8, 2010)
 ===================================
