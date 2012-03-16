@@ -462,7 +462,7 @@ $_lang["manager"] = '管理画面';
 $_lang["manager_lockout_message"] = '管理画面にログインしています。セッションを閉じたいときは「ログアウト」ボタンをクリックしてください。<br />管理画面のホームあるいはスタート画面に行きたいときは「ホーム」ボタンをクリックします。';
 $_lang["manager_permissions"] = 'グループ管理';
 $_lang["manager_theme"] = '管理画面のテーマ';
-$_lang["manager_theme_message"] = '管理画面で使用するデザインテーマを選択してください。この選択肢を増やすには<a href="http://modxcms.com/extras/repository/packages/?repository=7" target="_blank">MODX開発元の配布ページ</a>から入手して /manager/media/style/ ディレクトリに置く必要があります。';
+$_lang["manager_theme_message"] = '管理画面で使用するデザインテーマを選択してください。';
 $_lang["messages"] = 'メッセージ';
 $_lang["messages_all"] = '全員';
 $_lang["messages_compose"] = 'メッセージを作成';
