@@ -284,7 +284,9 @@ case 'OnPluginFormRender':
 
 
 case 'OnManagerMainFrameHeaderHTMLBlock':
-	switch($_GET['a'])
+	global $action;
+	if(empty($action) && isset($_GET['a'])) $action = $_GET['a'];
+	switch($action)
 	{
 		case '4':
 		case '27':
