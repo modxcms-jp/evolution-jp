@@ -80,17 +80,17 @@ class synccache {
 			exit;
 		}
 		
-		if(strpos($this->target,'pagecache')!==false) $result = $this->emptyPageCache();
+		if(strpos($this->target,'pagecache')!==false) $result = $this->emptyPageCache('pageCache');
 		if(strpos($this->target,'sitecache')!==false) $this->buildCache($modx);
 		$this->publish_time_file($modx);
-		if($this->showReport==true) $this->showReport($result);
+		if(isset($result) && $this->showReport==true) $this->showReport($result);
 	}
 	
-	function emptyPageCache()
+	function emptyPageCache($target)
 	{
 		$filesincache = 0;
 		$deletedfilesincache = 0;
-		$pattern = realpath($this->cachePath).'/*.pageCache.php';
+		$pattern = realpath($this->cachePath)."/*.{$target}.php";
 		$pattern = str_replace('\\','/',$pattern);
 		$files = glob($pattern,GLOB_NOCHECK);
 		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
@@ -100,7 +100,7 @@ class synccache {
 			while ($file = array_shift($files))
 			{
 				$name = basename($file);
-				if (strpos($name,'.pageCache')!==false && !in_array($name, $deletedfiles))
+				if (strpos($name,".{$target}")!==false && !in_array($name, $deletedfiles))
 				{
 					$deletedfilesincache++;
 					$deletedfiles[] = $name;
