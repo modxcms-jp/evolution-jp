@@ -37,7 +37,7 @@ if (!function_exists('modx_sanitize_gpc'))
 					echo 'too many nested array';
 					exit;
 				}
-				modx_sanitize_gpc($value);
+				modx_sanitize_gpc($value, $count);
 			}
 			else
 			{
@@ -46,6 +46,7 @@ if (!function_exists('modx_sanitize_gpc'))
 				$value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
 				$target[$key] = $value;
 			}
+			$count=0;
 		}
 		return $target;
 	}
