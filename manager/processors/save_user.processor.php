@@ -260,9 +260,6 @@ switch ($_POST['mode']) {
 			}
 			$updatepasswordsql = ", password=MD5('{$newpassword}') ";
 		}
-		if ($passwordnotifymethod == 'e') {
-			sendMailMessage($email, $newusername, $newpassword, $fullname);
-		}
 
 		// check if the username already exist
 		if (!$rs = $modx->db->select('id',$tbl_manager_users,"username='{$newusername}'")) {
@@ -351,6 +348,10 @@ switch ($_POST['mode']) {
 				"username" => $newusername,
 				"userpassword" => $newpassword
 			));
+
+		if ($passwordnotifymethod == 'e') {
+			sendMailMessage($email, $newusername, $newpassword, $fullname);
+		}
 
 		// invoke OnUserFormSave event
 		$modx->invokeEvent("OnUserFormSave", array (
