@@ -109,6 +109,7 @@ switch ($_POST['mode']) {
 			} else {
 				$header="Location: index.php?a=106&r=2";
 			}
+			if($enable_sharedparams!==0) $modx->clearCache();
 			header($header);
 		}
         break;
@@ -143,6 +144,7 @@ switch ($_POST['mode']) {
 			} else {
 				$header="Location: index.php?a=106&r=2";
 			}
+			if($enable_sharedparams!==0) $modx->clearCache();
 			header($header);
 		}
         break;
@@ -150,6 +152,7 @@ switch ($_POST['mode']) {
     	// redirect to view modules
 		header("Location: index.php?a=106&r=2");
 }
+exit;
 
 // saves module user group access
 function saveUserGroupAccessPermissons(){
