@@ -354,7 +354,8 @@ function SetUrl(url, width, height, alt) {
     </div>
 	<!-- end #actions -->
 
-<div class="sectionBody"><p><img class="icon" src="media/style/<?php echo $manager_theme?>images/icons/modules.gif" alt="." width="32" height="32" style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
+<div class="sectionBody">
+<p><img class="icon" src="media/style/<?php echo $manager_theme?>images/icons/modules.gif" alt="." style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
 
 <div class="tab-pane" id="modulePane">
 	<script type="text/javascript">
@@ -445,8 +446,13 @@ function SetUrl(url, width, height, alt) {
 	<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabDepend" ) );</script>
 
 	<table width="95%" border="0" cellspacing="0" cellpadding="0">
-	<tr><td align="left" valign="top"><p><?php echo $_lang['module_viewdepend_msg']?><br /><br />
-		<a class="searchtoolbarbtn" href="#" style="float:left" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_save"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a><br /><br /></p></td></tr>
+	<tr>
+		<td align="left" valign="top">
+		<p><?php echo $_lang['module_viewdepend_msg']?></p>
+		<p class="actionButtons">
+		<a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_save"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a></p>
+		</td>
+	</tr>
 	<tr><td valign="top" align="left">
 <?php
 	$sql = 'SELECT smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.

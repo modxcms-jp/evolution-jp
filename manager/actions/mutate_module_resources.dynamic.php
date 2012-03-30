@@ -201,7 +201,7 @@ a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
 
 <div id="actions">
 	<ul class="actionButtons">
-		<li><a href="index.php?a=106"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['close']; ?></a>
+		<li><a href="index.php?a=106"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?></a>
 	</ul>
 </div>
 
@@ -210,26 +210,19 @@ a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
 <p><img src="<?php echo $_style["icons_modules"] ?>" alt="" align="left" /><?php echo $_lang['module_resource_msg']; ?></p>
 <br />
 <!-- Dependencies -->
-	 <table>
-	  <tr>
-		<td valign="top" align="left">
+	<ul class="actionButtons">
+		<li><a href="#" onclick="addSnippet();return false;"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['add_snippet']; ?></a></li>
+		<li><a href="#" onclick="addPlugin();return false;"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['add_plugin']; ?></a></li>
+	</ul>
 		<?php
-			$sql = "SELECT smd.id,COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) as 'name'," .
+			$sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
 					"CASE smd.type " .
-					" WHEN 10 THEN 'Chunk' " .
-					" WHEN 20 THEN 'Document' " .
 					" WHEN 30 THEN 'Plugin' " .
 					" WHEN 40 THEN 'Snippet' " .
-					" WHEN 50 THEN 'Template' " .
-					" WHEN 60 THEN 'TV' " .
 					"END as 'type' " .
 					"FROM ".$tbl_site_module_depobj." smd ".
-					"LEFT JOIN ".$tbl_site_htmlsnippets." sc ON sc.id = smd.resource AND smd.type = '10' ".
-					"LEFT JOIN ".$tbl_site_content." sd ON sd.id = smd.resource AND smd.type = '20' ".
 					"LEFT JOIN ".$tbl_site_plugins." sp ON sp.id = smd.resource AND smd.type = '30' ".
 					"LEFT JOIN ".$tbl_site_snippets." ss ON ss.id = smd.resource AND smd.type = '40' ".
-					"LEFT JOIN ".$tbl_site_templates." st ON st.id = smd.resource AND smd.type = '50' ".
-					"LEFT JOIN ".$tbl_site_tmplvars." sv ON sv.id = smd.resource AND smd.type = '60' ".
 					"WHERE smd.module=$id ORDER BY smd.type,name ";
 			$ds = $modx->db->query($sql);
 			if (!$ds){
@@ -246,21 +239,13 @@ a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
 				$grd->columns=$_lang["element_name"]." ,".$_lang["type"];
 				$grd->colTypes = "template:<input type='checkbox' name='depid[]' value='[+id+]'> [+value+]";
 				$grd->fields="name,type";
+				$grd->colWidths='200';
 				echo $grd->render();
 			}
 		?>
-		</td>
-		<td valign="top" width="120" style="background-color:#eeeeee">
-			<a class="searchtoolbarbtn" style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img src="<?php echo $_style["icons_delete_document"]?>" align="absmiddle" /> <?php echo $_lang['remove']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addSnippet();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_snippet']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addDocument();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_doc']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addChunk();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_chunk']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addPlugin();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_plugin']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addTV();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_tv']; ?></a><br />
-			<a class="searchtoolbarbtn" href="#" onclick="addTemplate();return false;"><img src="<?php echo $_style["icons_add"] ?>" align="absmiddle" /> <?php echo $_lang['add_template']; ?></a><br />
-		</td>
-	  </tr>
-	</table>
+	<ul class="actionButtons">
+		<li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['remove']; ?></a></li>
+	</ul>
 </div>
 <input type="submit" name="save" style="display:none">
 </form>
