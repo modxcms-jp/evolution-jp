@@ -201,7 +201,7 @@ if($_SESSION['browser']=='ie') {
 				$grd->itemClass="gridItem"; 
 				$grd->altItemClass="gridAltItem"; 
 				$grd->columns=$_lang["name"]." ,".$_lang["description"];
-				$grd->colTypes = "template:<input type='".($sm=='m'? 'checkbox':'radio')."' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]";
+				$grd->colTypes = "template:<label><input type='".($sm=='m'? 'checkbox':'radio')."' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>";
 				$grd->fields="name,description";
 				if($_REQUEST['listmode']=='1') $grd->pageSize=0;
 				echo $grd->render();

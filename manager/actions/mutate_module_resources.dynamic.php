@@ -237,7 +237,7 @@ a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
 				$grd->itemClass="gridItem";
 				$grd->altItemClass="gridAltItem";
 				$grd->columns=$_lang["element_name"]." ,".$_lang["type"];
-				$grd->colTypes = "template:<input type='checkbox' name='depid[]' value='[+id+]'> [+value+]";
+				$grd->colTypes = "template:<label><input type='checkbox' name='depid[]' value='[+id+]'> [+value+]</label>";
 				$grd->fields="name,type";
 				$grd->colWidths='200';
 				echo $grd->render();
