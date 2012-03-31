@@ -425,17 +425,18 @@ function SetUrl(url, width, height, alt) {
 		<tr style="display:none;"><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
 			<td align="left"><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td>
 		</tr>
-		<tr><td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
+		<tr>
+			<td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
 			<span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module']?></span> <span class="comment"><?php echo $_lang['lock_module_msg']?></span></td>
 		</tr>
-			<tr><td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
-				<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br /><br /></td></tr>
-			<tr><td align="left" valign="top"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
-				<td align="left" valign="top"><span ><span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span></span><br /><br /></td></tr>
-			<tr><td align="left" valign="top"><?php echo $_lang['module_config']?>:</td>
-				<td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);documentDirty=true;" /><?php echo $content['properties']?></textarea><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td></tr>
-			<tr id="displayparamrow"><td valign="top" align="left">&nbsp;</td>
-				<td align="left" id="displayparams">&nbsp;</td></tr>
+		<tr>
+			<td align="left" valign="top"><?php echo $_lang['module_config']?>:</td>
+			<td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);documentDirty=true;" /><?php echo $content['properties']?></textarea><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td>
+		</tr>
+		<tr id="displayparamrow">
+			<td valign="top" align="left">&nbsp;</td>
+			<td align="left" id="displayparams">&nbsp;</td>
+		</tr>
 		</table>
 	</div>
 
@@ -444,16 +445,22 @@ function SetUrl(url, width, height, alt) {
 	<div class="tab-page" id="tabDepend">
 	<h2 class="tab"><?php echo $_lang['settings_dependencies']?></h2>
 	<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabDepend" ) );</script>
-
-	<table width="95%" border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td align="left" valign="top">
+	<div class="sectionBody">
+	<table>
+		<tr>
+			<td align="left" valign="top" colspan="2"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
+		</tr>
+		<tr>
+			<td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
+			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br />
+			<span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span><br /></td>
+		</tr>
+	</table>
+	</div>
+	<div class="sectionBody">
 		<p><?php echo $_lang['module_viewdepend_msg']?></p>
 		<p class="actionButtons">
 		<a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_save"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a></p>
-		</td>
-	</tr>
-	<tr><td valign="top" align="left">
 <?php
 	$sql = 'SELECT smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.
 	       'CASE smd.type'.
@@ -487,9 +494,8 @@ if (!$ds) {
 	$grd->fields = "name,type";
 	echo $grd->render();
 } ?>
-		</td></tr>
-	</table>
 	</div>
+</div>
 <?php } ?>
 <?php
 if ($use_udperms == 1)
