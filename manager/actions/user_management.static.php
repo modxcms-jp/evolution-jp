@@ -110,7 +110,7 @@ echo $cm->render();
 	$tbl_manager_users   = $modx->getFullTableName('manager_users');
 	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 	$tbl_user_roles      = $modx->getFullTableName('user_roles');
-	$field  = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin';
+	$field  = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
 	$field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
 	$field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";
 	$from  = "{$tbl_manager_users} AS mu";
@@ -145,19 +145,18 @@ echo $cm->render();
 	$grd->cssClass          = 'grid';
 	$grd->itemClass         = 'gridItem';
 	$grd->altItemClass      = 'gridAltItem';
-	$grd->fields            = 'id,username,fullname,role,email,gender,blocked,thislogin';
-	$grd->columns           = join(',', array($_lang['icon'],$_lang['name'],$_lang['user_full_name'],$_lang['role'],
-	                                          $_lang['email'],$_lang['user_gender'],$_lang['user_block'],$_lang['login_button']));
-	$grd->colAligns         = 'center,,,,,center,center';
+	$grd->fields            = 'username,fullname,email,role,thislogin,logincount,blocked';
+	$grd->columns           = join(',', array($_lang['name'],$_lang['user_full_name'],
+	                                          $_lang['email'],$_lang['role'],$_lang['login_button'],$_lang['user_logincount'],$_lang['user_block']));
 	$grd->colTypes          = join('||',array(
-	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a>',
-	                          'template:<a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a>',
+	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a><a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a>',
 	                          'template:[+fullname+]',
-	                          'template:[+rolename+]',
 	                          'template:[+email+]',
-	                          'template:[+gender+]',
-	                          'template:[+blocked+]',
-	                          'date: ' . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M'));
+	                          'template:[+rolename+]',
+	                          'date: ' . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M',
+	                          'template:[+logincount+]',
+	                          'template:[+blocked+]'
+	                          ));
 	if($listmode=='1')
 	  $grd->pageSize=0;
 	if($_REQUEST['op']=='reset')
