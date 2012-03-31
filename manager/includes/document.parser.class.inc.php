@@ -944,9 +944,7 @@ class DocumentParser {
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
 		
 		// now, check for documents that need un-publishing
-		$fields = array();
-		$fields['published']   = '0';
-		$fields['publishedon'] = '0';
+		$fields = "published='0', publishedon='0'";
 		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
 	
