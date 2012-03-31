@@ -460,7 +460,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
    	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabSnippet" ) );</script>
 		<table border="0" cellspacing="0" cellpadding="0">
 		  <tr>
-			<td align="left"><?php echo $_lang['plugin_name']; ?>:</td>
+			<th align="left"><?php echo $_lang['plugin_name']; ?></th>
 			<td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'>&nbsp;</span></td>
 		  </tr>
 		  <tr>
@@ -506,7 +506,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	{
 ?>
 		<tr>
-			<td align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</td>
+			<th align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</th>
 			<td align="left">
 			<select name="moduleguid" style="width:300px;" onChange='documentDirty=true;'>
 				<option>&nbsp;</option>
@@ -516,13 +516,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		  </tr>
 		  <tr>
 			<td>&nbsp;</td>
-			<td align="left" valign="top"><span style="width:300px;" ><span class="comment"><?php echo $_lang['import_params_msg']; ?></span></span><br /><br /></td>
+			<td align="left" valign="top"><span style="width:300px;" ><span class="comment"><?php echo $_lang['import_params_msg']; ?></span></span><br /></td>
 		  </tr>
 <?php
 	}
 ?>
 		  <tr>
-			<td align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</td>
+			<th align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</th>
 			<td align="left" valign="top">
 			<textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
@@ -539,7 +539,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
    	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabEvents" ) );</script>
 		<table>
 		  <tr>
-			<td align="left" valign="top" colspan="2"><?php echo $_lang['plugin_event_msg']; ?><br />&nbsp;</td>
+			<td align="left" valign="top" colspan="2"><?php echo $_lang['plugin_event_msg']; ?></td>
 		  </tr>
 		  <tr>
 		  	<td colspan="2">
@@ -629,7 +629,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	<tr>
-		<td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
+		<th align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><select name="categoryid" id="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 		<option>&nbsp;</option>
 		<?php
@@ -643,16 +643,16 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		</td>
 	</tr>
 	<tr>
-		<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
+		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
 		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" id="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
 	</tr>
 	  <tr>
-		<td align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</td>
+		<th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea id="pluginDescription" name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
 	  </tr>
 	  <tr>
 		<td align="left" valign="top" colspan="2">
-		<label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <?php echo $_lang['lock_plugin']; ?> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>
+		<label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <b><?php echo $_lang['lock_plugin']; ?></b> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>
 	  </tr>
 </table>
 </div>

@@ -307,7 +307,7 @@ function decode(s){
     	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabSnippet" ) );</script>
 		<table>
 		  <tr>
-			<td align="left"><?php echo $_lang['snippet_name']?>:</td>
+			<th align="left"><?php echo $_lang['snippet_name']?></th>
 			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;">]]<span class="warning" id="savingMessage">&nbsp;</span></td>
 		  </tr>
 		</table>
@@ -329,7 +329,7 @@ function decode(s){
     	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabProps" ) );</script>
 		<table>
           <tr>
-			<td align="left"><?php echo $_lang['existing_category']?>:</td>
+			<th align="left"><?php echo $_lang['existing_category']?>:</th>
 			<td align="left">
 			<select name="categoryid" style="width:300px;" onChange="documentDirty=true;">
 			<option>&nbsp;</option>
@@ -344,17 +344,17 @@ function decode(s){
 			</td>
 		  </tr>
           <tr>
-			<td align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category']?>:</td>
+			<th align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category']?>:</th>
 			<td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 		  </tr>
 		  <tr>
-			<td align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:</td>
+			<th align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:</th>
 			<td align="left" style="padding-top:10px">
 				<textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
 		  </tr>
 		  <tr>
 			<td style="padding-top:10px" align="left" valign="top" colspan="2">
-			<label><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" :'';?> class="inputBox"> <?php echo $_lang['lock_snippet']?> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></label></td>
+			<label><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" :'';?> class="inputBox"> <b><?php echo $_lang['lock_snippet']?></b> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></label></td>
 		  </tr>
 <?php
 		$from = "{$tbl_site_modules} AS sm ".
@@ -375,7 +375,7 @@ function decode(s){
 {
 ?>
           <tr>
-			<td align="left" style="padding-top:10px;"><?php echo $_lang['import_params']?>:</td>
+			<th align="left" style="padding-top:10px;"><?php echo $_lang['import_params']?>:</th>
 			<td align="left" valign="top" style="padding-top:10px;">
 				<select name="moduleguid" style="width:300px;" onChange="documentDirty=true;">
 				<?php echo $options; ?>
@@ -388,7 +388,7 @@ function decode(s){
 		  </tr>
 <?php } ?>
 		  <tr>
-			<td align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</td>
+			<th align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</th>
 			<td align="left" valign="top"><textarea name="properties" maxlength="65535" class="inputBox phptextarea" onChange="showParameters(this);documentDirty=true;"><?php echo $content['properties']?></textarea></td>
 		  </tr>
 		  <tr id="displayparamrow">

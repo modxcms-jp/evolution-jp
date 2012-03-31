@@ -158,6 +158,7 @@ if (is_array($evtOut))
     	  </ul>
     </div>
 
+<div class="sectionBody">
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="chunkPane">
 	<script type="text/javascript">
@@ -169,7 +170,7 @@ if (is_array($evtOut))
 	<p><?php echo $_lang['htmlsnippet_msg']?></p>
 	<table>
 		<tr>
-			<td align="left"><?php echo $_lang['htmlsnippet_name']?>:</td>
+			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
 			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>}}<span class="warning" id="savingMessage">&nbsp;</span></td>
 		</tr>
 	</table>
@@ -211,7 +212,7 @@ if (is_array($evtOut))
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	<tr>
-		<td align="left"><?php echo $_lang['existing_category']?>:</td>
+		<th align="left"><?php echo $_lang['existing_category']?></th>
 		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
 		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 			<option>&nbsp;</option>
@@ -227,11 +228,11 @@ if ($ds) {
         </select></td>
     </tr>
 	<tr>
-		<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+		<th align="left" valign="middle"><?php echo $_lang['new_category']?></th>
+		<td align="left" valign="top"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 	</tr>
 	<tr>
-		<td align="left"><?php echo $_lang['htmlsnippet_desc']?>:</td>
+		<th align="left"><?php echo $_lang['htmlsnippet_desc']?></th>
 		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 	<tr>
@@ -243,6 +244,7 @@ if ($ds) {
 </div>
 
 <input type="submit" name="save" style="display:none;" />
+</div>
 </form>
 </div>
 <?php

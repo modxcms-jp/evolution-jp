@@ -167,7 +167,7 @@ function deletedocument() {
 	<?php echo "\t" . $_lang['template_msg']; ?>
 	</div>
 	<div style="margin-bottom:10px;">
-	<?php echo $_lang['template_name']; ?>:
+	<b><?php echo $_lang['template_name']; ?></b>
 	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>
 	<span class="warning" id='savingMessage'></span>
 	</div>
@@ -250,7 +250,7 @@ if ($_REQUEST['a'] == '16')
 <script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	  <tr>
-		<td align="left"><?php echo $_lang['existing_category']; ?>:</td>
+		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
 		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 				<option>&nbsp;</option>
 		        <?php
@@ -265,11 +265,11 @@ if ($_REQUEST['a'] == '16')
 		</td>
 	</tr>
 	<tr>
-		<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
+		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
 		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
 	</tr>
 	<tr>
-		<td align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</td>
+		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 	  <tr>
