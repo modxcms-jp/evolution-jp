@@ -436,7 +436,7 @@ input.submit {
 	background: #fff url(images/misc/tabareabg.gif) repeat-x top;
 }
 .tab-page .sectionBody {
-	margin: 0 10px 0;
+	margin: 0 10px 10px;
 }
 .rtl .sectionBody, .layerVisible {
 	direction: rtl;
