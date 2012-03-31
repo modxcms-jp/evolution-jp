@@ -560,43 +560,46 @@ class DocumentParser {
 		}
 	}
 
-    function sendForward($id, $responseCode= '') {
-        if ($this->forwards > 0) {
+	function sendForward($id, $responseCode= '')
+	{
+		if ($this->forwards > 0)
+		{
             $this->forwards= $this->forwards - 1;
             $this->documentIdentifier= $id;
             $this->documentMethod= 'id';
             $this->documentObject= $this->getDocumentObject('id', $id);
-            if ($responseCode) {
+			if ($responseCode)
+			{
                 header($responseCode);
             }
             $this->prepareResponse();
-            exit();
-        } else {
+		}
+		else
+		{
             header('HTTP/1.0 500 Internal Server Error');
             die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
         }
+		exit();
     }
 
-    function sendErrorPage() {
+	function sendErrorPage()
+	{
         // invoke OnPageNotFound event
         $this->invokeEvent('OnPageNotFound');
         $this->sendForward($this->config['error_page'] ? $this->config['error_page'] : $this->config['site_start'], 'HTTP/1.0 404 Not Found');
-        exit();
     }
 
-    function sendUnauthorizedPage() {
+	function sendUnauthorizedPage()
+	{
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $this->documentIdentifier;
         $this->invokeEvent('OnPageUnauthorized');
-        if ($this->config['unauthorized_page']) {
-            $unauthorizedPage= $this->config['unauthorized_page'];
-        } elseif ($this->config['error_page']) {
-            $unauthorizedPage= $this->config['error_page'];
-        } else {
-            $unauthorizedPage= $this->config['site_start'];
-        }
+		
+		if($this->config['unauthorized_page']) $unauthorizedPage= $this->config['unauthorized_page'];
+		elseif($this->config['error_page'])    $unauthorizedPage= $this->config['error_page'];
+		else                                   $unauthorizedPage= $this->config['site_start'];
+		
         $this->sendForward($unauthorizedPage, 'HTTP/1.1 401 Unauthorized');
-        exit();
     }
 
 	function getSettings()
@@ -909,7 +912,6 @@ class DocumentParser {
 				{
 					// match found but not publicly accessible, send the visitor to the unauthorized_page
 					$this->sendUnauthorizedPage();
-					exit; // stop here
 				}
 				else
 				{
@@ -1532,7 +1534,6 @@ class DocumentParser {
 			{
 				// match found but not publicly accessible, send the visitor to the unauthorized_page
 				$this->sendUnauthorizedPage();
-				exit; // stop here
 			}
 			else
 			{
