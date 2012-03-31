@@ -238,7 +238,6 @@ class DocumentParser {
 			if ($this->documentObject['deleted'] == 1)
 			{
 				$this->sendErrorPage();
-				exit;
 			}
 			//  && !$this->checkPreview()
 			if ($this->documentObject['published'] == 0)
@@ -247,7 +246,6 @@ class DocumentParser {
 				if (!$this->hasPermission('view_unpublished'))
 				{
 					$this->sendErrorPage();
-					exit;
 				}
 				else
 				{
@@ -261,7 +259,6 @@ class DocumentParser {
 					if (!$udperms->checkPermissions())
 					{
 						$this->sendErrorPage();
-						exit;
 					}
 				}
 			}
@@ -918,7 +915,6 @@ class DocumentParser {
 				{
 					// no match found, send the visitor to the error_page
 					$this->sendErrorPage();
-					exit; // stop here
 				}
 			}
 			// Grab the Scripts
@@ -1543,7 +1539,6 @@ class DocumentParser {
 			else
 			{
 				$this->sendErrorPage();
-				exit;
 			}
 		}
 		
