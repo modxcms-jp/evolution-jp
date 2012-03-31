@@ -50,6 +50,7 @@ class DocumentParser {
     var $referenceListing;
     var $documentMap_cache;
     var $safeMode;
+    var $qs_hash;
 
     // constructor
 	function DocumentParser()
@@ -121,9 +122,15 @@ class DocumentParser {
 			set_error_handler(array(& $this,'phpError'));
 		}
 		
-		$this->db->connect();
+		if(!empty($_SERVER['QUERY_STRING']))
+		{
+			if($_GET['id']) unset($_GET['id']);
+			if(0 < count($_GET)) $this->qs_hash = '_' . urlencode(join('&',$_GET));
+			else $this->qs_hash = '';
+		}
 		
 		// get the settings
+		$this->db->connect();
 		$this->getSettings();
 		
 		// IIS friendly url fix
@@ -478,7 +485,7 @@ class DocumentParser {
 			$cacheContent .= serialize($this->documentObject);
 			$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
 			$base_path = $this->config['base_path'];
-			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}.pageCache.php";
+			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}{$this->qs_hash}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent);
 		}
 		
@@ -855,7 +862,7 @@ class DocumentParser {
 	function checkCache($id)
 	{
 		if(isset($this->config['cache_enabled']) && $this->config['cache_enabled'] == 0) return ''; // jp-edition only
-		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
+		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}{$this->qs_hash}.pageCache.php";
 		if(file_exists($cacheFile))
 		{
 			$flContent = file_get_contents($cacheFile, false);
