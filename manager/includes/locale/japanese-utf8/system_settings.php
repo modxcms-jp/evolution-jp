@@ -4,7 +4,6 @@ if(!function_exists('mysql_set_charset'))
 {
 	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">この環境では日本語以外の文字(中国語・韓国語・一部の機種依存文字など)を入力できません。</strong>対応が必要な場合は、サーバ環境のUTF-8エンコードの扱いを整備したうえで、dbapi.mysql.class.inc.phpのescape関数の処理を書き換えてください。mb_convert_encodingの処理を行なっている行が2行ありますので、これを削除します。';
 }
-
 $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 run_update($simple_version);
@@ -51,6 +50,9 @@ function run_update($version)
 		update_config_default_template_method();
 		update_tbl_member_groups();
 	}
+	$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+	$rs = $modx->db->query("DESC {$tbl_site_htmlsnippets} `published`");
+	if($modx->db->getRecordCount($rs) < 1) update_tbl_site_htmlsnippets();
 }
 
 function update_config_custom_contenttype()
@@ -208,4 +210,15 @@ function update_tbl_system_settings()
 	global $modx;
 	$tbl_system_settings     = $modx->getFullTableName('system_settings');
 	$modx->db->update("`setting_value` = '0'", $tbl_system_settings, "`setting_name` = 'validate_referer' AND `setting_value` = '00'");
+}
+
+function update_tbl_site_htmlsnippets()
+{
+	global $modx;
+	$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+	$sql  = "ALTER TABLE {$tbl_site_htmlsnippets} ";
+	$sql .= "ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`,";
+	$sql .= "ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`,";
+	$sql .= "ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`";
+	$modx->db->query($sql);
 }
