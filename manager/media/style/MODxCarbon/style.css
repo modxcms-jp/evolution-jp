@@ -1639,3 +1639,5 @@ form#mutate div.tmplvars label {display:block;}
 
 .phptextarea {font-family: 'Courier New','Courier', monospace;}
 optgroup {font-style:normal;}
+
+#mainpane table th {vertical-align:top;}
