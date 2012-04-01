@@ -129,6 +129,16 @@ window.addEvent('domready', function(){
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 });
+
+function resetpubdate() {
+	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
+		if (confirm("公開開始日時・公開終了日時をリセットします")==true) {
+			document.mutate.pub_date.value='';
+			document.mutate.unpub_date.value='';
+		}
+	}
+	documentDirty=true;
+}
 </script>
 
 <form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php" enctype="multipart/form-data">
@@ -231,7 +241,7 @@ if (is_array($evtOut))
 <table>
 	<tr>
 		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
-		<td><input name="published" type="checkbox"<?php echo $content['published'] == 1 ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
+		<td><input name="published" onclick="resetpubdate();" type="checkbox"<?php echo $content['published'] == 1 ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
 	</tr>
 	<tr>
 		<?php
