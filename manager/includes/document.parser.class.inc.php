@@ -604,7 +604,11 @@ class DocumentParser {
 	{
         // invoke OnPageNotFound event
         $this->invokeEvent('OnPageNotFound');
-        $this->sendForward($this->config['error_page'] ? $this->config['error_page'] : $this->config['site_start'], 'HTTP/1.0 404 Not Found');
+		
+		if($this->config['error_page']) $dist = $this->config['error_page'];
+		else                            $dist = $this->config['site_start'];
+		
+		$this->sendForward($dist, 'HTTP/1.0 404 Not Found');
     }
 
 	function sendUnauthorizedPage()
@@ -613,11 +617,11 @@ class DocumentParser {
         $_REQUEST['refurl'] = $this->documentIdentifier;
         $this->invokeEvent('OnPageUnauthorized');
 		
-		if($this->config['unauthorized_page']) $unauthorizedPage= $this->config['unauthorized_page'];
-		elseif($this->config['error_page'])    $unauthorizedPage= $this->config['error_page'];
-		else                                   $unauthorizedPage= $this->config['site_start'];
+		if($this->config['unauthorized_page']) $dist = $this->config['unauthorized_page'];
+		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
+		else                                   $dist = $this->config['site_start'];
 		
-        $this->sendForward($unauthorizedPage, 'HTTP/1.1 401 Unauthorized');
+		$this->sendForward($dist , 'HTTP/1.1 401 Unauthorized');
     }
 
 	function get_static_pages()
