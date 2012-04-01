@@ -135,7 +135,7 @@ if (is_array($evtOut))
     <div id="actions">
     	  <ul class="actionButtons">
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();">
+    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
     			</a>
     			  <span class="and"> + </span>				
