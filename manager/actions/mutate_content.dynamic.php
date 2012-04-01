@@ -345,7 +345,7 @@ function storeCurTemplate() {
 		}
 	}
 }
-function templateWarning() {
+function changeTemplate() {
 	var dropTemplate = document.getElementById('template');
 	if (dropTemplate) {
 		for (var i=0; i<dropTemplate.length; i++) {
@@ -581,7 +581,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 					<span class="warning"><?php echo $_lang['page_data_template']?></span>
 				</td>
 				<td>
-					<select id="template" name="template" class="inputBox" onchange="templateWarning();" style="width:308px">
+					<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">
 					<option value="0">(blank)</option>
 <?php
 				$from = "{$tbl_site_templates} t LEFT JOIN {$tbl_categories} c ON t.category = c.id";
