@@ -230,11 +230,6 @@ class DocumentParser {
 		// invoke OnWebPageInit event
 		$this->invokeEvent('OnWebPageInit');
 		
-		// invoke OnLogPageView event
-		if ($this->config['track_visitors'] == 1)
-		{
-			$this->invokeEvent('OnLogPageHit');
-		}
 		$this->prepareResponse();
 	}
 	
@@ -497,6 +492,12 @@ class DocumentParser {
 			$base_path = $this->config['base_path'];
 			$page_cache_path = "{$base_path}assets/cache/docid_{$docid}{$this->qs_hash}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent);
+		}
+		
+		// invoke OnLogPageView event
+		if ($this->config['track_visitors'] == 1)
+		{
+			$this->invokeEvent('OnLogPageHit');
 		}
 		
 		// Useful for example to external page counters/stats packages
