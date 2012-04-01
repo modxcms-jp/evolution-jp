@@ -73,6 +73,24 @@ else
 	$_SESSION['itemname'] = 'New Chunk';
 }
 
+// restore saved form
+$formRestored = false;
+if ($modx->manager->hasFormValues())
+{
+	$modx->manager->loadFormValues();
+	$formRestored = true;
+}
+
+if ($formRestored == true || isset ($_REQUEST['changeMode']))
+{
+	$content = array_merge($content, $_POST);
+	$content['content'] = $_POST['ta'];
+	if (empty ($content['pub_date'])) unset ($content['pub_date']);
+	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
+	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
+}
+
 if (isset($_POST['which_editor']))
         $which_editor = $_POST['which_editor'];
 elseif(!isset($content['editor_type']) || empty($content['editor_type'])) $which_editor = 'none';
@@ -97,6 +115,7 @@ function changeRTE(){
 	documentDirty=false;
 	document.mutate.a.value = <?php echo $action?>;
 	document.mutate.which_editor.value = newEditor;
+	document.mutate.changeMode.value = newEditor;
 	document.mutate.submit();
 }
 
@@ -155,6 +174,7 @@ if (is_array($evtOut))
 <input type="hidden" name="a" value="79" />
 <input type="hidden" name="id" value="<?php echo $_REQUEST['id']?>" />
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a']?>" />
+<input type="hidden" name="changeMode" value="" />
 
 	<h1><?php echo $_lang['htmlsnippet_title']?></h1>
 
