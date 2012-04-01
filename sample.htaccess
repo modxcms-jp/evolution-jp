@@ -5,16 +5,10 @@ RewriteEngine On
 RewriteBase /
 # MODXをサブディレクトリにインストールしている場合は「/modx」などに。
 
-# Fix Apache internal dummy connections from breaking [(site_url)] cache
-RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
-RewriteRule .* - [F,L]
-
-# Exclude /assets and /manager directories and images from rewrite rules
 RewriteRule ^(manager|assets)/*$ - [L]
-RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
-# /*フレンドリーURLの解釈対象としないファイル名・ディレクトリ名を指定します。*/
+# RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
+RewriteRule ^index\.php$ - [L]
 
-# For Friendly URLs
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

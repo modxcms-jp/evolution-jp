@@ -133,6 +133,16 @@ class DocumentParser {
 		$this->db->connect();
 		$this->getSettings();
 		
+		$this->documentOutput = $this->get_static_pages();
+		if(!empty($this->documentOutput))
+		{
+			$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+			$this->invokeEvent('OnWebPagePrerender');
+			echo $this->documentOutput;
+			$this->invokeEvent('OnWebPageComplete');
+			exit;
+		}
+		
 		// IIS friendly url fix
 		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
 		{
@@ -609,6 +619,51 @@ class DocumentParser {
         $this->sendForward($unauthorizedPage, 'HTTP/1.1 401 Unauthorized');
     }
 
+	function get_static_pages()
+	{
+		$filepath = $_SERVER['REQUEST_URI'];
+		if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
+		$filepath = substr($filepath,strlen($this->config['base_url']));
+		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
+		$filepath = $this->config['base_path'] . 'assets/static_pages/' . $filepath;
+		if(file_exists($filepath)!==false)
+		{
+			$ext = strtolower(substr($filepath,strrpos($filepath,'.')));
+			switch($ext)
+			{
+				case '.html':
+				case '.htm':
+					$mime_type = 'text/html'; break;
+				case '.css':
+					$mime_type = 'text/css'; break;
+				case '.js':
+					$mime_type = 'text/javascript'; break;
+				case '.txt':
+					$mime_type = 'text/plain'; break;
+				case '.jpg':
+				case '.jpeg':
+				case '.png':
+				case '.gif':
+					if($ext==='.ico') $mime_type = 'image/x-icon';
+					else
+					{
+						$info = getImageSize($filepath);
+						$mime_type = $info['mime'];
+					}
+					header("Content-type: {$mime_type}");
+					readfile($filepath);
+					exit;
+				default:
+					exit;
+			}
+			header("Content-type: {$mime_type}");
+			 $src = file_get_contents($filepath);
+		}
+		else $src = false;
+		
+		return $src;
+	}
+	
 	function getSettings()
 	{
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
