@@ -141,22 +141,10 @@ if ($formRestored == true || isset ($_REQUEST['newtemplate']))
 {
 	$content = array_merge($content, $_POST);
 	$content['content'] = $_POST['ta'];
-	if (empty ($content['pub_date']))
-	{
-		unset ($content['pub_date']);
-	}
-	else
-	{
-		$content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
-	}
-	if (empty ($content['unpub_date']))
-	{
-		unset ($content['unpub_date']);
-	}
-	else
-	{
-		$content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
-	}
+	if (empty ($content['pub_date'])) unset ($content['pub_date']);
+	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
+	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
 }
 
 // increase menu index if this is a new document
