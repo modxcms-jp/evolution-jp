@@ -1028,6 +1028,8 @@ class DocumentParser {
 		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
 		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
 	
+		unset($this->chunkCache);
+	
 		// clear the cache
 		$this->clearCache();
 		
@@ -1041,6 +1043,20 @@ class DocumentParser {
 		}
 		
 		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content,"{$timeNow} < unpub_date");
+		$minunpub= $this->db->getValue($rs);
+		if ($minunpub != NULL)
+		{
+			$timesArr[]= $minunpub;
+		}
+		
+		$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_htmlsnippets,"{$timeNow} < pub_date");
+		$minpub= $this->db->getValue($rs);
+		if ($minpub != NULL)
+		{
+			$timesArr[]= $minpub;
+		}
+		
+		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_htmlsnippets,"{$timeNow} < unpub_date");
 		$minunpub= $this->db->getValue($rs);
 		if ($minunpub != NULL)
 		{

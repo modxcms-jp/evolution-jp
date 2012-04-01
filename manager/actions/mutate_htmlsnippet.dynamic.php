@@ -114,6 +114,22 @@ function deletedocument() {
 	}
 }
 </script>
+<?php
+$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
+$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+?>
+<script type="text/javascript" src="media/calendar/datepicker.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+window.addEvent('domready', function(){
+	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
+	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
+	var dayNames = <?php echo $dayNames;?>;
+	var monthNames = <?php echo $monthNames;?>;
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+});
+</script>
 
 <form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
@@ -216,6 +232,28 @@ if (is_array($evtOut))
 	<tr>
 		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
 		<td><input name="published" type="checkbox"<?php echo $content['published'] == 1 ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
+	</tr>
+	<tr>
+		<?php
+			$content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
+		?>
+		<th align="left"><?php echo $_lang['page_data_publishdate'];?></th>
+		<td>
+			<input id="pub_date" name="pub_date" type="text" value="<?php echo $content['pub_date'];?>" class="DatePicker" />
+            <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
+			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
+		</td>
+	</tr>
+	<tr>
+		<?php
+			$content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date']!='0') ? $modx->toDateFormat($content['unpub_date']) : '';
+		?>
+		<th align="left"><?php echo $_lang['page_data_unpublishdate'];?></th>
+		<td>
+			<input id="unpub_date" name="unpub_date" type="text" value="<?php echo $content['unpub_date'];?>" class="DatePicker" />
+			<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
+			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
+		</td>
 	</tr>
 	<tr>
 		<th align="left"><?php echo $_lang['existing_category'];?></th>

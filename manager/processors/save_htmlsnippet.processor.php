@@ -11,6 +11,60 @@ $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 $editor_type = $_POST['editor_type']=='1' ? 1 : 0 ;
 $published = $_POST['published']=='1' ? 1 : 0 ;
+$pub_date    = $_POST['pub_date'];
+$unpub_date  = $_POST['unpub_date'];
+
+// determine published status
+$currentdate = time();
+
+if(empty($pub_date))
+{
+	$pub_date = 0;
+}
+else
+{
+	$pub_date = $modx->toTimeStamp($pub_date);
+	if(empty($pub_date))
+	{
+		$modx->manager->saveFormValues(78);
+		$url = "index.php?a=78&id={$id}";
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif($pub_date < $currentdate)
+	{
+		$published = 1;
+	}
+	elseif ($pub_date > $currentdate)
+	{
+		$published = 0;
+	}
+}
+
+if(empty($unpub_date))
+{
+	$unpub_date = 0;
+}
+else
+{
+	$unpub_date = $modx->toTimeStamp($unpub_date);
+	if(empty($unpub_date))
+	{
+		$modx->manager->saveFormValues(78);
+		$url = "index.php?a=78&id={$id}";
+		include_once "header.inc.php";
+		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
+		include_once "footer.inc.php";
+		exit;
+	}
+	elseif ($unpub_date < $currentdate)
+	{
+		$published = 0;
+	}
+}
+
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 //Kyle Jaebker - added category support
@@ -58,6 +112,8 @@ switch ($_POST['mode']) {
 		$field['name'] = $name;
 		$field['description'] = $description;
 		$field['published'] = $published;
+		$field['pub_date'] = $pub_date;
+		$field['unpub_date'] = $unpub_date;
 		$field['snippet'] = $snippet;
 		$field['locked'] = $locked;
 		$field['editor_type'] = $editor_type;
@@ -122,6 +178,8 @@ switch ($_POST['mode']) {
 		$field['name'] = $name;
 		$field['description'] = $description;
 		$field['published'] = $published;
+		$field['pub_date'] = $pub_date;
+		$field['unpub_date'] = $unpub_date;
 		$field['snippet'] = $snippet;
 		$field['locked'] = $locked;
 		$field['editor_type'] = $editor_type;
