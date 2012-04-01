@@ -577,52 +577,52 @@ class DocumentParser {
 			exit();
 		}
 	}
-
+	
 	function sendForward($id, $responseCode= '')
 	{
 		if ($this->forwards > 0)
 		{
-            $this->forwards= $this->forwards - 1;
-            $this->documentIdentifier= $id;
-            $this->documentMethod= 'id';
-            $this->documentObject= $this->getDocumentObject('id', $id);
+			$this->forwards= $this->forwards - 1;
+			$this->documentIdentifier= $id;
+			$this->documentMethod= 'id';
+			$this->documentObject= $this->getDocumentObject('id', $id);
 			if ($responseCode)
 			{
-                header($responseCode);
-            }
-            $this->prepareResponse();
+				header($responseCode);
+			}
+			$this->prepareResponse();
 		}
 		else
 		{
-            header('HTTP/1.0 500 Internal Server Error');
-            die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
-        }
+			header('HTTP/1.0 500 Internal Server Error');
+			die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
+		}
 		exit();
-    }
-
+	}
+	
 	function sendErrorPage()
 	{
-        // invoke OnPageNotFound event
-        $this->invokeEvent('OnPageNotFound');
+		// invoke OnPageNotFound event
+		$this->invokeEvent('OnPageNotFound');
 		
 		if($this->config['error_page']) $dist = $this->config['error_page'];
 		else                            $dist = $this->config['site_start'];
 		
 		$this->sendForward($dist, 'HTTP/1.0 404 Not Found');
-    }
-
+	}
+	
 	function sendUnauthorizedPage()
 	{
-        // invoke OnPageUnauthorized event
-        $_REQUEST['refurl'] = $this->documentIdentifier;
-        $this->invokeEvent('OnPageUnauthorized');
+		// invoke OnPageUnauthorized event
+		$_REQUEST['refurl'] = $this->documentIdentifier;
+		$this->invokeEvent('OnPageUnauthorized');
 		
 		if($this->config['unauthorized_page']) $dist = $this->config['unauthorized_page'];
 		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
 		else                                   $dist = $this->config['site_start'];
 		
 		$this->sendForward($dist , 'HTTP/1.1 401 Unauthorized');
-    }
+	}
 
 	function get_static_pages()
 	{
@@ -662,7 +662,7 @@ class DocumentParser {
 					exit;
 			}
 			header("Content-type: {$mime_type}");
-			 $src = file_get_contents($filepath);
+			$src = file_get_contents($filepath);
 		}
 		else $src = false;
 		
@@ -999,7 +999,8 @@ class DocumentParser {
 	
 	function checkPublishStatus()
 	{
-		$tbl_site_content = $this->getFullTableName('site_content');
+		$tbl_site_content      = $this->getFullTableName('site_content');
+		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		$cacheRefreshTime = 0;
 		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
 		include_once($cache_path);
@@ -1016,6 +1017,16 @@ class DocumentParser {
 		$fields = "published='0', publishedon='0'";
 		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
 		$rs = $this->db->update($fields,$tbl_site_content,$where);
+	
+		// now, check for chunks that need publishing
+		$fields = "published='1'";
+		$where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
+		
+		// now, check for chunks that need un-publishing
+		$fields = "published='0'";
+		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
 	
 		// clear the cache
 		$this->clearCache();

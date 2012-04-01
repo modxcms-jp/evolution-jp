@@ -135,9 +135,11 @@ class synccache {
 	function publish_time_file($modx)
 	{
 		// update publish time file
-		$tbl_site_content = $modx->getFullTableName('site_content');
+		$tbl_site_content      = $modx->getFullTableName('site_content');
+		$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 		$timesArr = array();
 		$current_time = time();
+		
 		$result = $modx->db->select('MIN(pub_date) AS minpub',$tbl_site_content, "{$current_time} < pub_date");
 		if(!$result)
 		{
@@ -151,6 +153,29 @@ class synccache {
 		}
 		
 		$result = $modx->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content, "{$current_time} < unpub_date");
+		if(!$result)
+		{
+			echo "Couldn't determine next unpublish event!";
+		}
+		$minunpub = $modx->db->getValue($result);
+		if($minunpub!=NULL)
+		{
+			$timesArr[] = $minunpub;
+		}
+		
+		$result = $modx->db->select('MIN(pub_date) AS minpub',$tbl_site_htmlsnippets, "{$current_time} < pub_date");
+		if(!$result)
+		{
+			echo "Couldn't determine next publish event!";
+		}
+		
+		$minpub = $modx->db->getValue($result);
+		if($minpub!=NULL)
+		{
+			$timesArr[] = $minpub;
+		}
+		
+		$result = $modx->db->select('MIN(unpub_date) AS minunpub',$tbl_site_htmlsnippets, "{$current_time} < unpub_date");
 		if(!$result)
 		{
 			echo "Couldn't determine next unpublish event!";
