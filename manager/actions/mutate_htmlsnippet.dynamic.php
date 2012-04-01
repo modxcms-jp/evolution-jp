@@ -75,7 +75,7 @@ else
 
 if (isset($_POST['which_editor']))
         $which_editor = $_POST['which_editor'];
-else    $which_editor = 'none';
+elseif(!isset($content['editor_type']) || empty($content['editor_type'])) $which_editor = 'none';
 
 $formRestored = $modx->manager->loadFormValues();
 if($formRestored) $content = array_merge($content, $_POST);
@@ -188,8 +188,10 @@ if (is_array($evtOut))
 <?php
 // invoke OnRichTextEditorRegister event
 $evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
-if (is_array($evtOut)) {
-					foreach ($evtOut as $i => $editor) {
+if (is_array($evtOut))
+{
+	foreach ($evtOut as $i => $editor)
+	{
 						echo "\t".'<option value="'.$editor.'"'.($which_editor == $editor ? ' selected="selected"' : '').'>'.$editor."</option>\n";
 					}
 }
@@ -234,6 +236,10 @@ if ($ds) {
 	<tr>
 		<th align="left"><?php echo $_lang['htmlsnippet_desc']?></th>
 		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	</tr>
+	<tr>
+		<th align="left" valign="middle"><?php echo $_lang['resource_opt_richtext']?></th>
+		<td align="left" valign="top"><input name="editor_type" type="checkbox"<?php echo $content['editor_type'] == 1 ? ' checked="checked"' : ''?> class="inputBox" value="1" /></td>
 	</tr>
 	<tr>
 		<td align="left" colspan="2">

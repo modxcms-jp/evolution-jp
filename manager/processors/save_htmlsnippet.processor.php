@@ -9,7 +9,7 @@ $snippet = $modx->db->escape($_POST['post']);
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
-
+$editor_type = $_POST['editor_type']=='1' ? 1 : 0 ;
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 //Kyle Jaebker - added category support
@@ -58,6 +58,7 @@ switch ($_POST['mode']) {
 		$field['description'] = $description;
 		$field['snippet'] = $snippet;
 		$field['locked'] = $locked;
+		$field['editor_type'] = $editor_type;
 		$field['category'] = $categoryid;
 		$rs = $modx->db->insert($field,$tbl_site_htmlsnippets);
 		if(!$rs)
@@ -120,6 +121,7 @@ switch ($_POST['mode']) {
 		$field['description'] = $description;
 		$field['snippet'] = $snippet;
 		$field['locked'] = $locked;
+		$field['editor_type'] = $editor_type;
 		$field['category'] = $categoryid;
 		$rs = $modx->db->update($field,$tbl_site_htmlsnippets,"id='{$id}'");
 		if(!$rs)
