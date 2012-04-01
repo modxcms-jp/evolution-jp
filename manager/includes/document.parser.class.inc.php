@@ -1104,7 +1104,7 @@ class DocumentParser {
 				else
 				{
 					$escaped_name = $this->db->escape($name);
-					$where = "`name`='{$escaped_name}'";
+					$where = "`name`='{$escaped_name}' AND `published`='1'";
 					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
 					$limit= $this->db->getRecordCount($result);
 					if ($limit < 1)

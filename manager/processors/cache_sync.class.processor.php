@@ -296,7 +296,7 @@ class synccache {
 	{
 		$tbl_site_htmlsnippets  = $modx->getFullTableName('site_htmlsnippets');
 		
-		$rs = $modx->db->select('name,snippet',$tbl_site_htmlsnippets);
+		$rs = $modx->db->select('name,snippet',$tbl_site_htmlsnippets, "`published`='1'");
 		$tmpPHP = '$c = &$this->chunkCache;' . "\n";
 		$row = array();
 		while ($row = $modx->db->getRow($rs))

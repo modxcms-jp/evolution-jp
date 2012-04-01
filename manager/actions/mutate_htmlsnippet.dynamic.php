@@ -214,7 +214,11 @@ if (is_array($evtOut))
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	<tr>
-		<th align="left"><?php echo $_lang['existing_category']?></th>
+		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
+		<td><input name="published" type="checkbox"<?php echo $content['published'] == 1 ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
+	</tr>
+	<tr>
+		<th align="left"><?php echo $_lang['existing_category'];?></th>
 		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
 		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 			<option>&nbsp;</option>
