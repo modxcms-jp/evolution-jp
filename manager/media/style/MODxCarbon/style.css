@@ -582,7 +582,8 @@ a img {
 	border: 1px solid #c8c8d4;
 	padding: 1px;
 }
-.unpublishedNode {
+.unpublishedNode,
+.unpublished a {
 	color: #b68282;
 }
 .deletedNode {

@@ -29,7 +29,6 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     	<h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
 		<p><?php echo $_lang['template_management_msg']; ?></p>
-
 		<ul>
 			<li><a href="index.php?a=19"><?php echo $_lang['new_template']; ?></a></li>
 		</ul>
@@ -123,11 +122,29 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	$tbl_elm = $modx->getFullTableName($resourceTable);
 	$tbl_categories = $modx->getFullTableName('categories');
 	
-	$pluginsql = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled," : '';
+	switch($resourceTable)
+	{
+		case 'site_plugins':
+			$add_field = "{$tbl_elm}.disabled,";
+			break;
+		case 'site_htmlsnippets':
+			$add_field = "{$tbl_elm}.published,";
+			break;
+		default:
+			$add_field = '';
+	}
 	
-	$fields = "{$pluginsql} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$fields = "{$add_field} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
-	$orderby = ($resourceTable == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
+	if($resourceTable == 'site_plugins')
+	{
+		$orderby = "{$tbl_elm}.disabled ASC,6,2";
+	}
+	elseif($resourceTable == 'site_htmlsnippets')
+	{
+		$orderby = "{$tbl_elm}.published DESC,6,2";
+	}
+	else $orderby = '5,1';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = $modx->db->getRecordCount($rs);
@@ -147,9 +164,13 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
 			$insideUl = 1;
 		}
-		if ($resourceTable == 'site_plugins')
+		if ($resourceTable === 'site_plugins')
 		{
 			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
+		}
+		elseif ($resourceTable === 'site_htmlsnippets')
+		{
+			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
 		}
 		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
 		$tpl .= ' [+description+][+locked+]</li>';
@@ -228,6 +249,7 @@ function createCategoryList()
 			$tbl_categories = $modx->getFullTableName('categories');
 			if($v['table'] == 'site_templates')   $fields = 'templatename as name, ';
 			elseif($v['table'] == 'site_plugins') $fields = "{$tbl_elm}.disabled, name, ";
+			elseif($v['table'] == 'site_htmlsnippets') $fields = "{$tbl_elm}.published, name, ";
 			else                                  $fields = 'name, ';
 			$fields .= "{$tbl_elm}.id, description, locked, {$tbl_categories}.category, {$tbl_categories}.id as catid";
 			
@@ -276,7 +298,15 @@ function createCategoryList()
 				$insideUl = 1;
 			}
 			$ph = array();
-			$ph['class'] = array_key_exists('disabled',$v) && $v['disabled'] ? ' class="disabledPlugin"' : '';
+			if(array_key_exists('disabled',$v) && $v['disabled'])
+			{
+				$ph['class'] = ' class="disabledPlugin"';
+			}
+			if(array_key_exists('published',$v) && $v['published']==='0')
+			{
+				$ph['class'] = ' class="unpublished"';
+			}
+			else $ph['class'] = '';
 			$ph['id'] = $v['id'];
 			$ph['action'] = $v['action'];
 			$ph['name'] = $v['name'];
