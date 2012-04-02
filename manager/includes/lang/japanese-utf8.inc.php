@@ -651,7 +651,7 @@ $_lang["plugin_event_msg"] = 'このプラグインが使用するイベント�
 $_lang["plugin_management_msg"] = '<h3 style="font-weight:bold;">プラグインの管理</h3>プラグインはシステム寄りの拡張機能で、実行するためには任意のシステムイベントに関連付ける必要があります。スニペットほど直感的ではありませんが、管理画面のカスタマイズもできるなど応用幅が広いです。';
 $_lang["plugin_msg"] = 'プラグイン名には日本語を用いることができます。先頭と末尾の「&lt;?php」「?&gt;」は不要です。プラグインを実行するためには、必ず任意のシステムイベントと関連付けてください。';
 $_lang["plugin_name"] = 'プラグイン名';
-$_lang["plugin_priority"] = 'イベント発生時のプラグインの実行順を編集';
+$_lang["plugin_priority"] = 'プラグインの実行順を編集';
 $_lang["plugin_priority_instructions"] = 'プラグインの実行順を変更するには、各イベント名の下にあるプラグインをドラッグしてください。最初に実行するプラグインは最上位にしてください。';
 $_lang["plugin_priority_title"] = 'プラグインの実行順';
 $_lang["plugin_title"] = 'プラグインの作成/編集';
@@ -1098,3 +1098,4 @@ $_lang["confirm_delete_category"] = 'このカテゴリー名を削除しても�
 $_lang["site_url_title"] = 'サイトのURL';
 $_lang["site_url_message"] = '例：<b>' . MODX_SITE_URL . '</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
 $_lang["chunk_opt_published"] = '公開ステータス';
+$_lang["delete_category"] = 'カテゴリー名を削除';
