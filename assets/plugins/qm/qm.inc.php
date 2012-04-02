@@ -43,6 +43,12 @@ class Qm {
 		$this->tvbuttons = $tvbuttons;
 		$this->tvbclass = $tvbclass;
 		
+		if(!isset($version) || version_compare($version,'1.5.5r5','<'))
+		{
+			$modx->documentOutput = 'QuickManagerをアップデートしてください。';
+			return;
+		}
+		
 		// Includes
 		include_once($this->modx->config['base_path'].'assets/plugins/qm/mcc.class.php');
 		
