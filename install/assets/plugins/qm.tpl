@@ -19,20 +19,6 @@ $version = '1.5.5r5';
 // In manager
 if (isset($_SESSION['mgrValidated']))
 {
-	$show = TRUE;
-	
-	if (isset($disabled) && $disabled  != '')
-	{
-		$arr = explode(',', $disabled );
-		if (in_array($modx->documentIdentifier, $arr)) return;
-	}
-	// Replace [*#tv*] with QM+ edit TV button placeholders
-	if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
-	{
-		$output = &$modx->documentOutput;
-		$output = preg_replace('~\[\*#(.*?)\*\]~', '<!-- '.$tvbclass.' $1 -->[*$1*]', $output);
-		$modx->documentOutput = $output;
-	}
 	include_once($modx->config['base_path'].'assets/plugins/qm/qm.inc.php');
 	$modx->event->params['version'] = $version;
 	$qm = new Qm($modx, $modx->event->params);

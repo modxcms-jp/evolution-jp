@@ -7,6 +7,21 @@
  * @version     1.5.5 updated 12/01/2011
  */
 
+$show = TRUE;
+
+if (isset($disabled) && $disabled  != '')
+{
+	$arr = explode(',', $disabled );
+	if (in_array($modx->documentIdentifier, $arr)) return;
+}
+// Replace [*#tv*] with QM+ edit TV button placeholders
+if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
+{
+	$output = &$modx->documentOutput;
+	$output = preg_replace('~\[\*#(.*?)\*\]~', '<!-- '.$tvbclass.' $1 -->[*$1*]', $output);
+	$modx->documentOutput = $output;
+}
+
 if(class_exists('Qm')) return;
 
 class Qm {
