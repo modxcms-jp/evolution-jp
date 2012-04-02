@@ -507,7 +507,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 					<span class="warning"><?php echo $_lang['resource_title']?></span>
 				</td>
 				<td>
-					<?php echo input_text('pagetitle',to_safestr($content['pagetitle']),'spellcheck="true"');?>
+					<?php echo input_text('pagetitle',to_safestr($content['pagetitle']),'spellcheck="true" required');?>
 					<?php echo tooltip($_lang['resource_title_help']);?>
 				</td>
 			</tr>
@@ -911,7 +911,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 				<?php
 					$content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
 				?>
-				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker" value="<?php echo $content['pub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="pub_date" pattern="^[0-9\/\:\- ]+$" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker" value="<?php echo $content['pub_date'];?>" onblur="documentDirty=true;" />
                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_publishdate_help']);?>
@@ -927,7 +927,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 				<?php
 					$content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date']!='0') ? $modx->toDateFormat($content['unpub_date']) : '';
 				?>
-				<input type="text" id="unpub_date" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker" value="<?php echo $content['unpub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="unpub_date" pattern="^[0-9\/\:\- ]+$" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker" value="<?php echo $content['unpub_date'];?>" onblur="documentDirty=true;" />
 				<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_unpublishdate_help']);?>
