@@ -554,12 +554,12 @@ ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `disabled` tinyint NOT NULL DEFAUL
 
 ALTER TABLE `{PREFIX}site_plugins` ADD COLUMN `moduleguid` varchar(32) NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters' AFTER `disabled`;
 
-ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
- ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,
- ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`,
- ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`,
- ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`,
- ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `cache_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'cache option' AFTER `category`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
 
 ALTER TABLE `{PREFIX}site_snippets` ADD COLUMN `editor_type` integer NOT NULL DEFAULT '0' COMMENT '0-plain text,1-rich text,2-code editor' AFTER `description`,
  ADD COLUMN `category` integer NOT NULL DEFAULT '0' COMMENT 'category id' AFTER `editor_type`,

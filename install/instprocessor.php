@@ -647,6 +647,7 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 // Setup the MODx API -- needed for the cache processor
 // initiate a new document parser
 include_once("{$base_path}index.php");
+
 $modx->clearCache(); // always empty cache after install
 
 // try to chmod the cache go-rwx (for suexeced php)
