@@ -85,7 +85,7 @@ echo $cm->render();
 
 	<div id="actions">
 		<ul class="actionButtons">
-			<li><a href="index.php?a=107"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['new_module'] ?></a></li>
+			<li><a href="index.php?a=107"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_module'] ?></a></li>
 		</ul>
 	</div>
 
