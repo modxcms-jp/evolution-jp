@@ -112,7 +112,8 @@ $params = array (
    'requiredClass' => isset($requiredClass)?$requiredClass:"required",
    'invalidClass' => isset($invalidClass)?$invalidClass:"invalid",
    'runSnippet' => ( isset($runSnippet) && !is_numeric($runSnippet) )?$runSnippet:'',
-   'autoSenderName' => isset($autoSenderName)?$autoSenderName:''
+   'autoSenderName' => isset($autoSenderName)?$autoSenderName:'',
+   'version' => isset($version) ? $version : '1.4.2'
 );
 
 // pixelchutes PHx workaround
@@ -130,9 +131,6 @@ $_dfnMaxlength = 6;
 
 	extract($params,EXTR_SKIP); // extract params into variables
 
-	$fileVersion = '1.4.4.7';
-	$version = isset($version) ? $version : 'prior to 1.4.2';
-
 	#include default language file
 	include_once($snipPath."lang/english.inc.php");
 
@@ -145,12 +143,11 @@ $_dfnMaxlength = 6;
 			if( $isDebug ) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />"; //always in english!
 	}
 
+	//check version differences
+	if(version_compare($version, '1.4.4.7', '<')) return $_lang['ef_version_error'];
+	
 	# add debug warning - moved again...
 	if( $isDebug ) $debugText .= $_lang['ef_debug_warning'];
-
-	//check version differences
-	if( $version != $fileVersion )
-		return $_lang['ef_version_error'];
 
 	# check for valid form key - moved to below fetching form template to allow id coming from form template
 
