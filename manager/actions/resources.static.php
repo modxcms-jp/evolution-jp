@@ -29,10 +29,9 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     	<h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
 		<p><?php echo $_lang['template_management_msg']; ?></p>
-		<ul>
-			<li><a href="index.php?a=19"><?php echo $_lang['new_template']; ?></a></li>
+		<ul class="actionButtons">
+			<li><a href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_templates',16,'templatename'); ?>
 	</div>
 <?php } ?>
@@ -47,10 +46,9 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
 		-->
 		<p><?php echo $_lang['tmplvars_management_msg']; ?></p>
-			<ul>
-				<li><a href="index.php?a=300"><?php echo $_lang['new_tmplvars']; ?></a></li>
+			<ul class="actionButtons">
+				<li><a href="index.php?a=300"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_tmplvars']; ?></a></li>
             </ul>
-            <br />
             <?php echo createResourceList('site_tmplvars',301); ?>
 	</div>
 <?php } ?>
@@ -62,10 +60,9 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabChunks" ) );</script>
 		<p><?php echo $_lang['htmlsnippet_management_msg']; ?></p>
 
-		<ul>
-			<li><a href="index.php?a=77"><?php echo $_lang['new_htmlsnippet']; ?></a></li>
+		<ul class="actionButtons">
+			<li><a href="index.php?a=77"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_htmlsnippet']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_htmlsnippets',78); ?>
 	</div>
 <?php } ?>
@@ -77,10 +74,9 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabSnippets" ) );</script>
 		<p><?php echo $_lang['snippet_management_msg']; ?></p>
 
-		<ul>
-			<li><a href="index.php?a=23"><?php echo $_lang['new_snippet']; ?></a></li>
+		<ul class="actionButtons">
+			<li><a href="index.php?a=23"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_snippet']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_snippets',22); ?>
 	</div>
 <?php } ?>
@@ -92,11 +88,10 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabPlugins" ) );</script>
 		<p><?php echo $_lang['plugin_management_msg']; ?></p>
 
-		<ul>
-			<li><a href="index.php?a=101"><?php echo $_lang['new_plugin']; ?></a></li>
-			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
+		<ul class="actionButtons">
+			<li><a href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?></a></li>
+			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_plugins',102); ?>
 	</div>
 <?php } ?>

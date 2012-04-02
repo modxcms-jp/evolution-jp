@@ -63,7 +63,7 @@ $_style['tree_page_excel_secure']   = $style_path.'tree/application_excel_secure
 
 
 // Icons
-$_style['icons_add']                = $style_path.'icons/save.png';
+$_style['icons_add']                = $style_path.'icons/add.png';
 $_style['icons_cal']                = $style_path.'icons/cal.gif';
 $_style['icons_cal_nodate']         = $style_path.'icons/cal_nodate.gif';
 $_style['icons_cancel']             = $style_path.'icons/stop.png';
