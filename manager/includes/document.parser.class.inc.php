@@ -124,8 +124,9 @@ class DocumentParser {
 		
 		if(!empty($_SERVER['QUERY_STRING']))
 		{
-			if($_GET['id']) unset($_GET['id']);
-			if(0 < count($_GET)) $this->qs_hash = '_' . md5(join('&',$_GET));
+			$qs = $_GET['id'];
+			if($qs['id']) unset($qs['id']);
+			if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
 			else $this->qs_hash = '';
 		}
 		
