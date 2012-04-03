@@ -5,7 +5,6 @@ if(!$modx->hasPermission('settings'))
 	$e->setError(3);
 	$e->dumpError();
 }
-
 // check to see the edit settings page isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=17";
 $rs = $modx->db->query($sql);
@@ -50,10 +49,16 @@ $send_errormail          = '3';
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
 $settings = array();
+
 while ($row = $modx->db->getRow($rs))
 {
 	$settings[$row['setting_name']] = $row['setting_value'];
 }
+if ($modx->manager->hasFormValues()) {
+	$modx->manager->loadFormValues();
+}
+$settings = array_merge($settings, $_POST);
+
 extract($settings, EXTR_OVERWRITE);
 
 $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;

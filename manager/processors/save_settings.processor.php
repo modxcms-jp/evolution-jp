@@ -4,6 +4,21 @@ if(!$modx->hasPermission('settings')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+if($_POST['friendly_urls']==='1' && !file_exists($modx->config['base_path'] . '.htaccess'))
+{
+	$warnings[] = $_lang["settings_friendlyurls_alert"];
+}
+if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
+if(!file_exists($_POST['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
+
+if(0< count($warnings))
+{
+	$modx->manager->saveFormValues('17');
+	$msg = join("\n",$warnings);
+	$modx->webAlert($msg,'index.php?a=17');
+	exit;
+}
+
 if (isset($_POST) && count($_POST) > 0) {
 	$savethese = array();
 	foreach ($_POST as $k => $v) {
