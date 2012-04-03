@@ -2396,6 +2396,19 @@ class DocumentParser {
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{ // jp-edition only
 		if(!$ph) return $src;
+		elseif(is_string($ph) && strpos($ph,'='))
+		{
+			if(strpos($ph,',')) $pairs   = explode(',',$ph);
+			else                $pairs[] = $ph;
+			
+			unset($ph);
+			$ph = array();
+			foreach($pairs as $pair)
+			{
+				list($k,$v) = explode('=',$pair);
+				$ph[$k] = $v;
+			}
+		}
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
