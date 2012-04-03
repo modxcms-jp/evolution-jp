@@ -8,7 +8,7 @@
  * Author:         yamamoto          - http://kyms.jp
  * Date:           2011/08/28
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.0 - 1.0.5J-r6
+ * MODX version:   Evolution 1.0.0 - 1.0.6J
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
@@ -358,7 +358,7 @@ $_lang["forgot_your_password"] = 'パスワードを忘れた場合はこちら'
 $_lang["friday"] = '金';
 $_lang["friendly_alias_message"] = 'フレンドリーURLを使用して、かつリソースがエイリアスを持つ場合、URL表現にエイリアスを用います。このオプションを「はい」に設定することで、フレンドリーURLのプレフィックスとサフィックスもエイリアスに適用されます。例えば、リソースのIDが1、エイリアスが「introduction」、プレフィックスが「」(空白)、サフィックスが「.html」の場合、このオプションを「はい」にすると、URLは「introduction.html」となります。 エイリアスを設定していない場合は、MODXが「1.html」というリンクを生成します。';
 $_lang["friendly_alias_title"] = 'エイリアスを使用';
-$_lang["friendlyurls_message"] = '静的URI機能（フレンドリーURL）を有効にします。この機能はMODXがApache上で動作している時のみ有効です。この機能を動作させるためにはMODXインストールディレクトリのht.accessファイルを.htaccessにリネームしてください。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
+$_lang["friendlyurls_message"] = '静的URI機能(フレンドリーURL)を動作させるためにはMODXインストールディレクトリの<b>sample.htaccessファイルを.htaccessにリネーム</b>する必要があります。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
 $_lang["friendlyurls_title"] = 'フレンドリーURLを使用';
 $_lang["friendlyurlsprefix_message"] = 'フレンドリーURLのプレフィックスを指定してください。例えばプレフィックスを「page」に設定した場合、URLの /index.php?id=2 は、 /page2.htmlというフレンドリーURLに変換されます(サフィックスが .htmlに設定されていると仮定)。';
 $_lang["friendlyurlsprefix_title"] = 'プレフィックス';
