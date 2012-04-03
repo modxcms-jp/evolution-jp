@@ -84,7 +84,7 @@ function update_config_default_template_method()
 		else
 		{
 			// installed, enabled .. see how it's configured
-			$properties = parseProperties($row['properties']);
+			$properties = $modx->parseProperties($row['properties']);
 			if(isset($properties['inheritTemplate']))
 			{
 				if($properties['inheritTemplate'] == 'From First Sibling')

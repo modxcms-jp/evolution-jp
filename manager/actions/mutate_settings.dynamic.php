@@ -220,7 +220,7 @@ function confirmLangChange(el, lkey, elupd)
 <?php
 	if(!isset($settings_version) || $settings_version!=$modx_version)
 	{
-		include(MODX_MANAGER_PATH.'includes/locale/' . $manager_language . '/system_settings.php');
+		include(MODX_MANAGER_PATH.'includes/upgrades.php');
 	?>
 	<div class='sectionBody'><p><?php echo $_lang['settings_after_install']; ?></p></div>
 <?php
