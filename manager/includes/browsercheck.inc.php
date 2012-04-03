@@ -14,17 +14,3 @@ $sniffer_settings = array(	'check_cookies'=>$_GET['cc'],
 $client = new phpSniff($_GET['UA'],$sniffer_settings);
 
 $client->get_property('UA');
-
-if(isset($_GET['showbrowser']) && $_GET['showbrowser']==1) {
-?>
-Browser: <?php print $client->property('browser'); ?> <br />
-longname: <?php print $client->property('long_name');?> <br />
-version: <?php print $client->property('version');?> <br />
-maj_ver: <?php print $client->property('maj_ver');?> <br />
-min_ver: <?php print $client->property('min_ver');?> <br />
-letter_ver: <?php print $client->property('letter_ver');?> <br />
-javascript: <?php print $client->property('javascript');?> <br />
-platform: <?php print $client->property('platform');?> <br />
-os: <?php print $client->property('os');?> <br />
-<?php
-}
