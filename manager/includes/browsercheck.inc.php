@@ -28,10 +28,3 @@ platform: <?php print $client->property('platform');?> <br />
 os: <?php print $client->property('os');?> <br />
 <?php
 }
-
-$browserok = false;
-
-if((isset($_GET['browserok']) && $_GET['browserok']==1) || (isset($_SESSION['browserok']) && $_SESSION['browserok']==1)) {
-	$browserok = 1;
-	$_SESSION['browserok']=1;
-}
