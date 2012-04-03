@@ -30,15 +30,6 @@ os: <?php print $client->property('os');?> <br />
 }
 
 $browserok = false;
-if($client->property('platform')=='win' && $client->property('browser')=='ie' && $client->property('version')>='5.5') {
-	$browserok = true;
-}
-if($client->property('platform')=='win' && $client->property('browser')=='fb' && $client->property('version')>='0.6.1') {
-	$browserok = true;
-}
-if($client->property('platform')=='win' && $client->property('browser')=='mz' && $client->property('version')>='1.4') {
-	$browserok = true;
-}
 
 if((isset($_GET['browserok']) && $_GET['browserok']==1) || (isset($_SESSION['browserok']) && $_SESSION['browserok']==1)) {
 	$browserok = 1;
