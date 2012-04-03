@@ -630,7 +630,7 @@ class DocumentParser {
 		if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
 		$filepath = substr($filepath,strlen($this->config['base_url']));
 		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
-		$filepath = $this->config['base_path'] . 'assets/static_pages/' . $filepath;
+		$filepath = $this->config['base_path'] . 'assets/public_html/' . $filepath;
 		if(file_exists($filepath)!==false)
 		{
 			$ext = strtolower(substr($filepath,strrpos($filepath,'.')));
