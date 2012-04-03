@@ -53,8 +53,6 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
 }
 
 if(!isset($_SESSION['mgrValidated'])){
-	include_once("browsercheck.inc.php");
-
 	if(isset($manager_language))
 	{
 		// include localized overrides
