@@ -2412,12 +2412,6 @@ class DocumentParser {
 		return $this->parseChunk($src, $ph, $left, $right, $mode);
 	}
 	
-	function getUserData()
-	{
-		include_once($this->config["base_path"] . "manager/includes/extenders/getUserData.extender.php");
-		return $tmpArray;
-	}
-		
 	function toDateFormat($timestamp = 0, $mode = '')
 	{
 		$timestamp = trim($timestamp);
