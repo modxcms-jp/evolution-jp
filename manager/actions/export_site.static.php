@@ -154,7 +154,7 @@ else
 			}
 			// get the file
 			$somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
-			if($somecontent === false)
+			if($somecontent !== false)
 			{
 				// save it
 				$filename = $filepath . $filename;
