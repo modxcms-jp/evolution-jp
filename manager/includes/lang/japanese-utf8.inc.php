@@ -234,7 +234,7 @@ $_lang["disabled"] = '停止';
 $_lang["doc_data_title"] = 'リソースの詳細情報';
 $_lang["duplicate"] = '複製';
 $_lang["duplicate_alias_found"] = 'リソース「%s」が「%s」というエイリアスをすでに使用しています。他のエイリアスを入力してください。';
-$_lang["duplicate_alias_message"] = '「はい」を選択すると、同じエイリアス名を持つ複数のリソースを作ることができるようになります。この場合、エイリアス名をURL表現に用いると問題が発生する可能性があるため、ご注意ください。';
+$_lang["duplicate_alias_message"] = '同じ階層内でエイリアス名の重複を許可します。この場合、エイリアス名をURL表現に用いると問題が発生する可能性があるため、ご注意ください。';
 $_lang["duplicate_alias_title"] = '重複エイリアスを許可';
 $_lang["duplicate_name_found_general"] = '%sにはすでに「%s」という名前が存在します。重複しない名前を指定してください。';
 $_lang["duplicate_name_found_module"] = 'すでに「%s」という名前が存在します。重複しない名前を指定してください。';
@@ -1005,7 +1005,7 @@ $_lang["uploadable_images_message"] = 'ファイルブラウザを使用して�
 $_lang["uploadable_images_title"] = 'アップロード可能な画像タイプ';
 $_lang["uploadable_media_message"] = 'ファイルブラウザを使用して「assets/media/ 」にアップロードできるメディアファイルの拡張子を入力してください。カンマで区切って複数入力できます。';
 $_lang["uploadable_media_title"] = 'アップロード可能なメディアタイプ';
-$_lang["use_alias_path_message"] = 'このオプションを「はい」に設定すると、リソースのエイリアスがパスとして表示されます。例えば、「child」というエイリアスを持ったリソース「parent」というエイリアスのリソースの下に配置されていると、エイリアスパスは「/parent/child.html」になります。<br /><strong>注意: このオプションを「はい」にしてエイリアスパスを使用するときは、リソースから参照するものは（画像・CSS・JavaScriptなど）絶対パスで指定する必要があります。例えば、assets/imagesに対しては/assets/imagesと指定します。または、<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用すると、相対パス記述でも正しく参照できます。</strong>';
+$_lang["use_alias_path_message"] = 'リソースの階層構造をそのままURL構成として反映できます。例えば「parent」というエイリアスのリソースの下に「child」というエイリアスのリソースを配置すると、URL(エイリアスパス)は「/parent/child.html」になります。<br /><strong>注意: このオプションを「はい」にしてエイリアスパスを使用するときは、リソースから参照するものは（画像・CSS・JavaScriptなど）絶対パスで指定する必要があります。例えば、assets/imagesに対しては/assets/imagesと指定します。または、<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用すると、相対パス記述でも正しく参照できます。</strong>';
 $_lang["use_alias_path_title"] = 'エイリアスパスを使用';
 $_lang["use_editor_message"] = 'リッチテキストエディター(RTE)の使用を設定します。「いいえ」を選択するとRTEを利用できなくなります。この設定は全てのリソース・全てのユーザーに影響します。';
 $_lang["use_editor_title"] = 'リッチテキストエディターの使用';
