@@ -1204,7 +1204,7 @@ class DocumentParser {
 			if (!strpos($php_errormsg, 'Deprecated'))
 			{   // ignore php5 strict errors
 				// log error
-				$request_uri = getenv('REQUEST_URI');
+				$request_uri = $_SERVER['REQUEST_URI'];
 				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
 				if(isset($this->documentIdentifier))
 				{
@@ -1253,7 +1253,7 @@ class DocumentParser {
 			{
 				// ignore php5 strict errors
 				// log error
-				$request_uri = getenv('REQUEST_URI');
+				$request_uri = $_SERVER['REQUEST_URI'];
 				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
 				$docid = "ID = {$this->documentIdentifier}<br />";
 //				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
