@@ -154,7 +154,7 @@ else
 				// Write $somecontent to our opened file.
 				$repl_before = $_POST['repl_before'];
 				$repl_after  = $_POST['repl_after'];
-				$somecontent = str_replace($repl_before,$repl_after,$somecontent);
+				if($repl_before!==$repl_after) $somecontent = str_replace($repl_before,$repl_after,$somecontent);
 				if(file_put_contents($filename, $somecontent) === FALSE)
 				{
 					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
