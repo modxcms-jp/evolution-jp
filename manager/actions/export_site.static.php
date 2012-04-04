@@ -146,7 +146,7 @@ else
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
-			$somecontent = @file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
+			$somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
 			if($somecontent === false)
 			{
 				// save it
@@ -223,7 +223,7 @@ class EXPORT_SITE
 	{
 		global  $modx,$_lang;
 		
-		$src = @file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		$src = file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
 		if($src !== false)
 		{
 			$repl_before = $_POST['repl_before'];
