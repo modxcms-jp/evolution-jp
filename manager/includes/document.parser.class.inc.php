@@ -364,11 +364,8 @@ class DocumentParser {
 		}
 		
 		// Moved from prepareResponse() by sirlancelot
-		// Insert Startup jscripts & CSS scripts into template - template must have a <head> tag
 		if ($js= $this->getRegisteredClientStartupScripts())
 		{
-			// change to just before closing </head>
-			// $this->documentContent = preg_replace("/(<head[^>]*>)/i", "\\1\n".$js, $this->documentContent);
 			$this->documentOutput= preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->documentOutput);
 		}
 		
