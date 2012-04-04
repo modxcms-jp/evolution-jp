@@ -29,13 +29,13 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 <table class="settings" cellspacing="0" cellpadding="2">
   <tr>
     <td class="head"><?php echo $_lang['export_site_cacheable']; ?></td>
-    <td><input type="radio" name="includenoncache" value="1" checked="checked"><?php echo $_lang['yes'];?>
-		<input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></td>
+    <td><label><input type="radio" name="includenoncache" value="1" checked="checked"><?php echo $_lang['yes'];?></label>
+		<label><input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></label></td>
   </tr>
   <tr>
     <td class="head">エクスポート対象</td>
-    <td><input type="radio" name="target" value="0" checked="checked">更新されたページのみ
-		<input type="radio" name="target" value="1">全てのページ</td>
+    <td><label><input type="radio" name="target" value="0" checked="checked">更新されたページのみ</label>
+		<label><input type="radio" name="target" value="1">全てのページ</label></td>
   </tr>
   <tr>
     <td class="head">文字列を置換(置換前)</td>
