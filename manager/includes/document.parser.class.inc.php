@@ -1155,7 +1155,7 @@ class DocumentParser {
 		}
 		return $content;
 	}
-
+	
 	function mergeBenchmarkContent($content)
 	{
 		$totalTime= ($this->getMicroTime() - $this->tstart);
@@ -1167,14 +1167,7 @@ class DocumentParser {
 		$phpTime= sprintf("%2.4f s", $phpTime);
 		$source= $this->documentGenerated == 1 ? 'database' : 'cache';
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		if(function_exists('memory_get_peak_usage'))
-		{
-			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
-		}
-		else
-		{
-			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
-		}
+		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
 		
 		$content= str_replace('[^q^]', $queries, $content);
 		$content= str_replace('[^qt^]', $queryTime, $content);
@@ -3514,14 +3507,8 @@ class DocumentParser {
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
 
-		if(function_exists('memory_get_peak_usage'))
-		{
-			$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
-		}
-		else
-		{
-			$total_mem = $this->nicesize(memory_get_usage() - $this->mstart);
-		}
+		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;

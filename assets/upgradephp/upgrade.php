@@ -124,3 +124,11 @@ if (!function_exists("scandir")) {
       return false;
    }
 }
+
+if (!function_exists('memory_get_peak_usage'))
+{
+	function memory_get_peak_usage($real_usage = false)
+	{
+		return memory_get_usage($real_usage);
+	}
+}
