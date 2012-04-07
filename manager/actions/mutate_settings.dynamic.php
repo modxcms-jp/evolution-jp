@@ -43,7 +43,7 @@ $websignupemail_message  = $_lang['system_email_websignup'];
 $webpwdreminder_message  = $_lang['system_email_webreminder'];
 $resource_tree_node_name = 'pagetitle';
 $suffix_mode             = '0';
-$cache_enabled           = '1';
+$cache_type              = '1';
 $send_errormail          = '3';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
@@ -426,11 +426,12 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang['setting_cache_enabled'] ?></th>
+	<th><?php echo $_lang['setting_cache_type'] ?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('cache_enabled','1',$cache_enabled=='1'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('cache_enabled','0',$cache_enabled=='0'));?><br />
-		<?php echo $_lang["setting_cache_enabled_desc"] ?>
+		<?php echo wrap_label('標準キャッシュ',form_radio('cache_type','1',$cache_type=='1'));?><br />
+		<?php echo wrap_label('完全キャッシュ',form_radio('cache_type','2',$cache_type=='2'));?><br />
+		<?php echo wrap_label('キャッシュ無効',form_radio('cache_type','0',$cache_type=='0'));?><br />
+		<?php echo $_lang["setting_cache_type_desc"] ?>
 	</td>
 </tr>
 <tr>

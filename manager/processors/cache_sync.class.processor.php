@@ -134,9 +134,12 @@ class synccache {
 	/****************************************************************************/
 	function publish_time_file($modx)
 	{
+		global $site_sessionname;
+		
 		// update publish time file
 		$tbl_site_content      = $modx->getFullTableName('site_content');
 		$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+		$tbl_system_settings    = $modx->getFullTableName('system_settings');
 		$timesArr = array();
 		$current_time = time();
 		
@@ -189,9 +192,14 @@ class synccache {
 		if(count($timesArr)>0) $nextevent = min($timesArr);
 		else                   $nextevent = 0;
 		
+		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='cache_type'");
+		$cache_type = $modx->db->getValue($rs);
+		
 		// write the file
-		$cache_path = $this->cachePath.'sitePublishing.idx.php';
-		$content = '<?php $cacheRefreshTime='.$nextevent.';';
+		$cache_path = $this->cachePath . 'sitePublishing.idx.php';
+		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
+		$content .= '$cache_type = ' . "{$cache_type};\n";
+		$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
 		
 		$rs = file_put_contents($cache_path, $content);
 		
@@ -228,7 +236,7 @@ class synccache {
 		// invoke OnBeforeCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnBeforeCacheUpdate');
 		
-		if(!file_put_contents($this->cachePath.'siteCache.idx.php', $content))
+		if(!file_put_contents($this->cachePath .'siteCache.idx.php', $content))
 		{
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
