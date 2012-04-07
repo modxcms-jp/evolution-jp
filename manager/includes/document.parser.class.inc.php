@@ -1468,6 +1468,7 @@ class DocumentParser {
 			if(isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1) $suff = ''; // jp-edition only
 		}
 		//container_suffix
+		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
 	}
 
@@ -1710,7 +1711,7 @@ class DocumentParser {
 					$passes++; // if content change then increase passes because
 				}
 			} // we have not yet reached maxParserPasses
-			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);//yama
+			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);
 		}
 		return $source;
 	}
