@@ -172,7 +172,7 @@ $_dfnMaxlength = 6;
 	//check for <input type='hidden name='formid'...>
 	if( !preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i',$tpl) ){
 			//insert hidden formid field
-			$tpl = str_replace('</form>',"<input type=\"hidden\" name=\"formid\" value=\"$form_id\" /></form>",$tpl);
+			$tpl = str_replace('</form>',"<input type=\"hidden\" name=\"formid\" value=\"$formid\" /></form>",$tpl);
 	}
 
 	$validFormId = (isset($_POST['formid']) && $formid==$_POST['formid'])?1:0;
