@@ -64,33 +64,32 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 		{
 			$handle = fopen("{$cwd}assets/cache/{$filename}.pageCache.php", 'rb');
 			$src = fread($handle, filesize("{$cwd}assets/cache/{$filename}.pageCache.php"));
-			if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
+			if(file_exists("{$cwd}autoload.php")) $loaded_autoload = include_once("{$cwd}autoload.php");
 			
-			$lastupdate = filemtime("{$cwd}assets/cache/{$filename}.pageCache.php");
-			$now = time();
-			if($lastupdate > $now) $lastupdate = $now;
-			
-			$msize = memory_get_peak_usage() - $mstart;
-			$units = array('B', 'KB', 'MB');
-			$pos = 0;
-			while($msize >= 1024) $msize /= 1024; $pos++;
-			$msize = round($msize,2) . ' ' . $units[$pos];
-			list ($usec, $sec)= explode(' ', microtime());
-			$now =  ((float) $usec + (float) $sec);
-			$totalTime= ($now - $tstart);
-			$totalTime= sprintf("%2.4f s", $totalTime);
-			$src= str_replace('[^q^]', '0', $src);
-			$src= str_replace('[^qt^]', '0s', $src);
-			$src= str_replace('[^p^]', $totalTime, $src);
-			$src= str_replace('[^t^]', $totalTime, $src);
-			$src= str_replace('[^s^]', 'plain_cache', $src);
-			$src= str_replace('[^m^]', $msize, $src);
-			echo $src;
-			exit;
+			if($src !== false)
+			{
+				$msize = memory_get_peak_usage() - $mstart;
+				$units = array('B', 'KB', 'MB');
+				$pos = 0;
+				while($msize >= 1024) $msize /= 1024; $pos++;
+				$msize = round($msize,2) . ' ' . $units[$pos];
+				list ($usec, $sec)= explode(' ', microtime());
+				$now =  ((float) $usec + (float) $sec);
+				$totalTime= ($now - $tstart);
+				$totalTime= sprintf("%2.4f s", $totalTime);
+				$src= str_replace('[^q^]', '0', $src);
+				$src= str_replace('[^qt^]', '0s', $src);
+				$src= str_replace('[^p^]', $totalTime, $src);
+				$src= str_replace('[^t^]', $totalTime, $src);
+				$src= str_replace('[^s^]', 'plain_cache', $src);
+				$src= str_replace('[^m^]', $msize, $src);
+				echo $src;
+				exit;
+			}
 		}
 	}
 }
-if(file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
+if(!isset($loaded_autoload) && file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
 
 // harden it
 require_once("{$cwd}manager/includes/protect.inc.php");
