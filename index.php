@@ -52,7 +52,7 @@ $mstart = memory_get_usage();
 $cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
 
 include_once("{$cwd}assets/cache/sitePublishing.idx.php");
-if($cache_type==2 && count($_POST) < 1 && $cacheRefreshTime < time())
+if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTime < time())
 {
 	session_name($site_sessionname);
 	session_cache_limiter('');
