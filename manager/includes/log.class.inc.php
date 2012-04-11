@@ -86,29 +86,8 @@ class logHandler {
 			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
 			if(($insert_id % $trim) == 0)
 			{
-				$this->purge_manager_log($limit,$trim);
+				$this->purge_log('manager_log',$limit,$trim);
 			}
-		}
-	}
-	
-	function purge_manager_log($limit=2000, $trim=100)
-	{
-		global $modx;
-		
-		if($limit < $trim) $trim = $limit;
-		
-		$tbl_manager_log = $modx->getFullTableName("manager_log");
-		$sql = "SELECT COUNT(id) as count FROM {$tbl_manager_log}";
-		$rs = $modx->db->query($sql);
-		if($rs) $row = $modx->db->getRow($rs);
-		$over = $row['count'] - $limit;
-		if(0 < $over)
-		{
-			$trim = ($over + $trim);
-			$sql = "DELETE FROM {$tbl_manager_log} LIMIT {$trim}";
-			$modx->db->query($sql);
-			$sql = "OPTIMIZE TABLE {$tbl_manager_log}";
-			$modx->db->query($sql);
 		}
 	}
 }

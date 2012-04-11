@@ -1954,6 +1954,8 @@ class DocumentParser {
 	
 	function purge_log($target='event_log',$limit=2000, $trim=100)
 	{
+		global $dbase;
+		
 		if($limit < $trim) $trim = $limit;
 		
 		$target = $this->getFullTableName($target);
@@ -1964,6 +1966,12 @@ class DocumentParser {
 			$trim = ($over + $trim);
 			$this->db->delete($target,'',$trim);
 			$this->db->query($sql);
+		}
+		$result = $this->db->query("SHOW TABLE STATUS FROM {$dbase}");
+		while ($row = $this->db->getRow($result))
+		{
+			$tbl_name = $row['Name'];
+			$this->db->query("OPTIMIZE TABLE {$tbl_name}");
 		}
 	}
 	
