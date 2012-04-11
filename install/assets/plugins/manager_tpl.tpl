@@ -19,13 +19,17 @@
 // manager/index.php内の「$modx->safeMode = true;」行頭のコメントアウトを
 // 削除してログインし、修正してください。
 
-global $tpl;
 switch($modx->event->name)
 {
 	case 'OnManagerLoginFormPrerender':
-		$tpl = $modx->getChunk('ログイン画面');
+		$src = $modx->getChunk('ログイン画面');
 		break;
 	case 'OnManagerWelcomePrerender':
-		$tpl = $modx->getChunk('ダッシュボード');
+		$src = $modx->getChunk('ダッシュボード');
 		break;
+}
+if($src!==false && !empty($src))
+{
+	global $tpl;
+	$tpl = $src;
 }
