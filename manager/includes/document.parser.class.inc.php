@@ -1908,7 +1908,7 @@ class DocumentParser {
 			if(($insert_id % $trim) == 0)
 			{
 				$limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
-				$this->purge_event_log($limit,$trim);
+				$this->purge_log('event_log',$limit,$trim);
 			}
 		}
 	}
@@ -1952,17 +1952,17 @@ class DocumentParser {
 		return $rs;
 	}
 	
-	function purge_event_log($limit=2000, $trim=100)
+	function purge_log($target='event_log',$limit=2000, $trim=100)
 	{
 		if($limit < $trim) $trim = $limit;
 		
-		$tbl_event_log = $this->getFullTableName('event_log');
-		$count = $this->db->getValue($this->db->select('COUNT(id)',$tbl_event_log));
+		$target = $this->getFullTableName($target);
+		$count = $this->db->getValue($this->db->select('COUNT(id)',$target));
 		$over = $count - $limit;
 		if(0 < $over)
 		{
 			$trim = ($over + $trim);
-			$this->db->delete($tbl_event_log,'',$trim);
+			$this->db->delete($target,'',$trim);
 			$this->db->query($sql);
 		}
 	}
