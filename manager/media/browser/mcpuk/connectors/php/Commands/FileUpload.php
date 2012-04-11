@@ -40,15 +40,28 @@ class FileUpload {
 		$this->type=$type;
 		$this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace('//','/',($this->fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
-		$this->real_cwd=str_replace('//','/',($this->fckphp_config['basedir']."/".$this->actual_cwd));
+		$this->real_cwd=str_replace('//','/',($this->fckphp_config['basedir'].'/'.$this->actual_cwd));
+		define('IN_MANAGER_MODE', true);
+		define('MODX_API_MODE', true);
+		$base_path = str_replace('\\','/',realpath('../../../../../../../')) . '/';
+		include_once($base_path . 'index.php');
+		global $modx;
+		$modx->db->connect();
+		$modx->getSettings();
 	}
 	
 	function cleanFilename($filename)
 	{
-		$n_filename="";
+		$n_filename='';
 		
 		//Check that it only contains valid characters
-		for($i=0;$i<strlen($filename);$i++) if (in_array(substr($filename,$i,1),$this->fckphp_config['FileNameAllowedChars'])) $n_filename.=substr($filename,$i,1);
+		for($i=0;$i<strlen($filename);$i++)
+		{
+			if (in_array(substr($filename,$i,1),$this->fckphp_config['FileNameAllowedChars']))
+			{
+				$n_filename .= substr($filename,$i,1);
+			}
+		}
 		
 		//If it got this far all is ok
 		return $n_filename;
@@ -56,42 +69,22 @@ class FileUpload {
 	
 	function run()
 	{
-		//If using CGI Upload script, get file info and insert into $_FILE array
-		if 	(
-				(sizeof($_FILES)==0) && 
-				isset($_GET['file']) && 
-				isset($_GET['file']['NewFile']) && 
-				is_array($_GET['file']['NewFile'])
-			)
-		{
-			if (isset($_GET['file']['NewFile']['name'])&&$_GET['file']['NewFile']['size']&&$_GET['file']['NewFile']['tmp_name'])
-			{
-//				$_FILES['NewFile']['name']=basename(str_replace("\\","/",$_GET['file']['NewFile']['name']));
-				$_FILES['NewFile']['name']=end(explode('/',str_replace("\\","/",$_GET['file']['NewFile']['name'])));	// (*2)
-				$_FILES['NewFile']['size']=$_GET['file']['NewFile']['size'];
-				$_FILES['NewFile']['tmp_name']=$_GET['file']['NewFile']['tmp_name'];
-			}
-			else
-			{
-				$disp="202,'Incomplete file information from upload CGI'";
-			}
-		}
+		global $modx;
 		
 		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
 		
-		header ("content-type: text/html");
+		header ('content-type: text/html');
 		if (count($_FILES) < 1) exit(0);
 		
 		if (array_key_exists('NewFile',$_FILES))
 		{
 			if (! $_FILES['NewFile']['error'] && $_FILES['NewFile']['size']<($typeconfig['MaxSize']))
 			{	// (*1)
-//					$filename=basename(str_replace("\\","/",$_FILES['NewFile']['name']));
-				$filename=end(explode('/',str_replace("\\","/",$_FILES['NewFile']['name'])));	// (*2)
+				$filename=end(explode('/',str_replace("\\",'/',$_FILES['NewFile']['name'])));	// (*2)
 				
 				if ($this->cleanFilename($filename) == $filename)
 				{	// (*3)
-					$lastdot=strrpos($filename,".");
+					$lastdot=strrpos($filename, '.');
 					
 					if ($lastdot!==false)
 					{
@@ -110,7 +103,7 @@ class FileUpload {
 								{
 									$dirSizes[$resType]=
 										$this->getDirSize(
-											$this->fckphp_config['basedir']."/".$this->fckphp_config['UserFilesPath']."/$resType");
+											$this->fckphp_config['basedir'].'/'.$this->fckphp_config['UserFilesPath']."/$resType");
 									
 									if ($dirSizes[$resType]===false)
 									{
@@ -140,7 +133,7 @@ class FileUpload {
 								{
 									$dirSizes[$this->type]=
 										$this->getDirSize(
-											$this->fckphp_config['basedir']."/".$this->fckphp_config['UserFilesPath']."/".$this->type);
+											$this->fckphp_config['basedir'].'/'.$this->fckphp_config['UserFilesPath'].'/'.$this->type);
 								}
 								
 								if (($dirSizes[$this->type]+$_FILES['NewFile']['size'])>
@@ -158,6 +151,7 @@ class FileUpload {
 							}
 							else
 							{
+								$tmp_path = $_FILES['NewFile']['tmp_name'];
 								if (file_exists($this->real_cwd."/$filename.$ext"))
 								{
 									$taskDone=false;
@@ -167,14 +161,16 @@ class FileUpload {
 									//	the same name giveup
 									for ($i=1;(($i<200)&&($taskDone==false));$i++)
 									{
-										if (!file_exists($this->real_cwd."/$filename($i).$ext"))
+										$uploaded_name = "$filename($i).$ext";	// (*4)
+										$target_path = $this->real_cwd . "/{$uploaded_name}";
+										if (!file_exists($target_path))
 										{
-											if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
+											if (is_uploaded_file($tmp_path))
 											{
-												if (move_uploaded_file($_FILES['NewFile']['tmp_name'],($this->real_cwd."/$filename($i).$ext")))
+												if ($this->_move_uploaded_file($tmp_path,$target_path))
 												{
-													@chmod(($this->real_cwd."/$filename($i).$ext"),$this->fckphp_config['modx']['file_permissions']); //modified for MODx
-													$disp="201,'..$filename($i).$ext'";
+													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
+													$disp="201,'..{$uploaded_name}'";
 												}
 												else
 												{
@@ -183,33 +179,35 @@ class FileUpload {
 											}
 											else
 											{
-												if (rename($_FILES['NewFile']['tmp_name'],($this->real_cwd."/$filename($i).$ext")))
+												if (rename($tmp_path,$target_path))
 												{
-													@chmod(($this->real_cwd."/$filename($i).$ext"),$this->fckphp_config['modx']['file_permissions']); //modified for MODx
-													$disp="201,'$filename($i).$ext'";
+													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
+													$disp="201,'{$uploaded_name}'";
 												}
 												else
 												{
 													$disp="202,'Failed to upload file, internal error.'";
 												}
 											}
-											$uploaded_name = "$filename($i).$ext";	// (*4)
 											$taskDone=true;	
 										}
 									}
 									if ($taskDone==false)
 									{
 										$disp="202,'Failed to upload file, internal error..'";
+										$uploaded_name = '';
 									}
 								}
 								else
 								{
+									$uploaded_name = "$filename.$ext";	// (*4)
+									$target_path = $this->real_cwd . "/{$uploaded_name}";
 									//Upload file
-									if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
+									if (is_uploaded_file($tmp_path))
 									{
-										if (move_uploaded_file($_FILES['NewFile']['tmp_name'],($this->real_cwd."/$filename.$ext")))
+										if ($this->_move_uploaded_file($tmp_path,$target_path))
 										{
-											@chmod(($this->real_cwd."/$filename.$ext"),$this->fckphp_config['modx']['file_permissions']); //modified for MODx
+											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 											$disp="0";
 										}
 										else
@@ -219,23 +217,21 @@ class FileUpload {
 									}
 									else
 									{
-										if (rename($_FILES['NewFile']['tmp_name'],($this->real_cwd."/$filename.$ext")))
+										if (rename($tmp_path,$target_path))
 										{
-											@chmod(($this->real_cwd."/$filename.$ext"),$this->fckphp_config['modx']['file_permissions']); //modified for MODx
+											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 											$disp="0";
-										} else {
+										}
+										else
+										{
 											$disp="202,'Failed to upload file, internal error...'";
 										}
 									}
-									$uploaded_name = "$filename.$ext";	// (*4)
 								}
 								// (*4)
-								if (reset(explode(',', $disp)) != '202') {
+								if (reset(explode(',', $disp)) != '202')
+								{
 									$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
-									include_once("../../../../../includes/document.parser.class.inc.php");
-									global $modx;
-									$modx = new DocumentParser;
-									$modx->getSettings();
 									$modx->invokeEvent("OnFileManagerUpload",
 											array(
 												"filepath"	=> $uploaded_path,
@@ -248,7 +244,9 @@ class FileUpload {
 							$disp="202,'アップロードできない種類のファイルです。'";
 						}
 						
-					} else {
+					}
+					else
+					{
 						//No file extension to check
 						$disp="202,'種類を判別できないファイル名です。'";
 					}	
@@ -281,6 +279,13 @@ class FileUpload {
 		
 	}
 	
+	function _move_uploaded_file($tmp_path,$target_path)
+	{
+		global $modx;
+		
+		return move_uploaded_file($tmp_path,$target_path);
+	}
+	
 	function getDirSize($dir) {
 		$dirSize=0;
 		$files = scandir($dir);
@@ -289,11 +294,11 @@ class FileUpload {
 			foreach ($files as $file)
 			{
 				if (($file!=".")&&($file!="..")) {
-					if (is_dir($dir."/".$file)) {
-						$tmp_dirSize=$this->getDirSize($dir."/".$file);
+					if (is_dir($dir.'/'.$file)) {
+						$tmp_dirSize=$this->getDirSize($dir.'/'.$file);
 						if ($tmp_dirSize!==false) $dirSize+=$tmp_dirSize;
 					} else {
-						$dirSize+=filesize($dir."/".$file);
+						$dirSize+=filesize($dir.'/'.$file);
 					}
 				}
 			}
