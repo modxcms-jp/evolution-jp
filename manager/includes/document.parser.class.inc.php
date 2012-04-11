@@ -1965,7 +1965,6 @@ class DocumentParser {
 		{
 			$trim = ($over + $trim);
 			$this->db->delete($target,'',$trim);
-			$this->db->query($sql);
 		}
 		$result = $this->db->query("SHOW TABLE STATUS FROM {$dbase}");
 		while ($row = $this->db->getRow($result))

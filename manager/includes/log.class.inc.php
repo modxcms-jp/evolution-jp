@@ -86,7 +86,7 @@ class logHandler {
 			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
 			if(($insert_id % $trim) == 0)
 			{
-				$this->purge_log('manager_log',$limit,$trim);
+				$modx->purge_log('manager_log',$limit,$trim);
 			}
 		}
 	}
