@@ -261,7 +261,7 @@ if (is_array($evtOut))
 <table>
 	<tr>
 		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
-		<td><input name="published" onclick="resetpubdate();" type="checkbox"<?php echo $content['published'] == 1 ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
+		<td><input name="published" onclick="resetpubdate();" type="checkbox"<?php echo (!isset($content['published']) || $content['published'] == 1) ? ' checked="checked"' : '';?> class="inputBox" value="1" /></td>
 	</tr>
 	<tr>
 		<?php
