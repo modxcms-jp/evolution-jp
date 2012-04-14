@@ -507,7 +507,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 					<span class="warning"><?php echo $_lang['resource_title']?></span>
 				</td>
 				<td>
-					<?php echo input_text('pagetitle',to_safestr($content['pagetitle']),'spellcheck="true" required');?>
+					<?php echo input_text('pagetitle',to_safestr($content['pagetitle']),'spellcheck="true"');?>
 					<?php echo tooltip($_lang['resource_title_help']);?>
 				</td>
 			</tr>
