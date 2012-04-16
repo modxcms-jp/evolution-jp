@@ -280,7 +280,7 @@ class synccache {
 		{
 			$use_alias_path = $modx->db->getValue($modx->db->select('setting_value',$tbl_system_settings,"setting_name='use_alias_path'"));
 		}
-		$fields = "IF(alias='', id, alias) AS alias, id, contentType, parent";
+		$fields = "IF(alias='', id, alias) AS alias, id, parent";
 		$where  = 'deleted=0 ORDER BY parent, menuindex';
 		$rs = $modx->db->select($fields,$tbl_site_content,$where);
 		$row = array();
