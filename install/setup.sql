@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (alias),
+  KEY typeidx (`type`),
   FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
 
@@ -526,6 +527,8 @@ ALTER TABLE `{PREFIX}site_tmplvars` MODIFY COLUMN `name` varchar(50) NOT NULL de
 ALTER TABLE `{PREFIX}site_tmplvars` ADD INDEX `indx_rank`(`rank`);
 
 ALTER TABLE `{PREFIX}site_content` ADD INDEX `aliasidx` (alias);
+
+ALTER TABLE `{PREFIX}site_content` ADD INDEX `typeidx` (`type`);
 
 ALTER TABLE `{PREFIX}site_content` ADD COLUMN `introtext` text COMMENT 'Used to provide quick summary of the document' AFTER `isfolder`;
 
