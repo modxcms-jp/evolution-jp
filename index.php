@@ -81,7 +81,7 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 				$src= str_replace('[^qt^]', '0s', $src);
 				$src= str_replace('[^p^]', $totalTime, $src);
 				$src= str_replace('[^t^]', $totalTime, $src);
-				$src= str_replace('[^s^]', 'plain_cache', $src);
+				$src= str_replace('[^s^]', 'bypass_cache', $src);
 				$src= str_replace('[^m^]', $msize, $src);
 				echo $src;
 				exit;
