@@ -131,15 +131,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	
 	$fields = "{$add_field} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
-	if($resourceTable == 'site_plugins')
-	{
-		$orderby = "{$tbl_elm}.disabled ASC,6,2";
-	}
-	elseif($resourceTable == 'site_htmlsnippets')
-	{
-		$orderby = "{$tbl_elm}.published DESC,6,2";
-	}
-	else $orderby = '5,1';
+	$orderby = 'category,name';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = $modx->db->getRecordCount($rs);
