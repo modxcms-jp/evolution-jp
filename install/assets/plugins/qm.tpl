@@ -22,5 +22,5 @@ if (isset($_SESSION['mgrValidated']))
 	include_once($modx->config['base_path'].'assets/plugins/qm/qm.inc.php');
 	$modx->event->params['version'] = $version;
 	$qm = new Qm($modx, $modx->event->params);
-	$qm->jqpath = 'assets/js/getjs.php?target=jquery';
+	$qm->jqpath = 'assets/js/jquery.min.js';
 }

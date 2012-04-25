@@ -201,7 +201,7 @@ echo '<strong>アップデート対象のオプションはありません。</s
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/getjs.php?target=jquery"></script>
+<script type="text/javascript" src="../assets/js/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
