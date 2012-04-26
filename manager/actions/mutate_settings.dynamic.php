@@ -428,8 +428,8 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang['setting_cache_type'] ?></th>
 	<td>
-		<?php echo wrap_label('標準キャッシュ',form_radio('cache_type','1',$cache_type=='1'));?><br />
-		<?php echo wrap_label('完全キャッシュ',form_radio('cache_type','2',$cache_type=='2'));?><br />
+		<?php echo wrap_label('標準モード',form_radio('cache_type','1',$cache_type=='1'));?><br />
+		<?php echo wrap_label('バイパスモード',form_radio('cache_type','2',$cache_type=='2'));?><br />
 		<?php echo wrap_label('キャッシュ無効',form_radio('cache_type','0',$cache_type=='0'));?><br />
 		<?php echo $_lang["setting_cache_type_desc"] ?>
 	</td>
