@@ -1064,7 +1064,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 				<td>
 				<?php
 					$cond = ((isset($content['cacheable']) && $content['cacheable']==1) || (!isset($content['cacheable']) && $cache_default==1));
-					$disabled = ($cache_enabled==0) ? ' disabled="disabled"' : '';
+					$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
 					echo input_checkbox('cacheable',$cond,$disabled);
 					echo input_hidden('cacheable',$cond);
 					echo tooltip($_lang['page_data_cacheable_help']);?>
@@ -1077,7 +1077,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 				<td><span class="warning"><?php echo $_lang['resource_opt_emptycache']?></span></td>
 				<td>
 				<?php
-					$disabled = ($cache_enabled==0) ? ' disabled="disabled"' : '';
+					$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
 					echo input_checkbox('syncsite',true,$disabled);
 					echo input_hidden('syncsite');
 					echo tooltip($_lang['resource_opt_emptycache_help']);?>
