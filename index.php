@@ -64,10 +64,7 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 		{
 			$handle = fopen("{$cwd}assets/cache/{$filename}.pageCache.php", 'rb');
 			$src = fread($handle, filesize("{$cwd}assets/cache/{$filename}.pageCache.php"));
-			if(file_exists("{$cwd}autoload.php")) $loaded_autoload = include_once("{$cwd}autoload.php");
 			
-			if($src !== false)
-			{
 				$msize = memory_get_peak_usage() - $mstart;
 				$units = array('B', 'KB', 'MB');
 				$pos = 0;
@@ -83,6 +80,9 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 				$src= str_replace('[^t^]', $totalTime, $src);
 				$src= str_replace('[^s^]', 'bypass_cache', $src);
 				$src= str_replace('[^m^]', $msize, $src);
+			if(file_exists("{$cwd}autoload.php")) $loaded_autoload = include_once("{$cwd}autoload.php");
+			if($src !== false)
+			{
 				echo $src;
 				exit;
 			}
