@@ -4,7 +4,7 @@
  *
  * @author      Mikko Lammi, www.maagit.fi
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.5 updated 12/01/2011
+ * @version     1.5.5r5 updated 12/01/2011
  */
 
 $show = TRUE;

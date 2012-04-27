@@ -1,11 +1,11 @@
 <?php
 /**
  * @name ManagerManager
- * @version 0.3.10 (2012-01-16)
+ * @version 0.3.11 (2012-02-15)
  * 
  * @for MODx Evolution 1.0.x
  * 
- * @author Nick Crossland - www.rckt.co.uk, studio DivanDesign - www.DivanDesign.ru
+ * @author Nick Crossland - www.rckt.co.uk, studio DivanDesign - www.DivanDesign.biz
  * 
  * @description Used to manipulate the display of document fields in the manager.
  * 
@@ -16,7 +16,7 @@
  * @license Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
  */
 
-$mm_version = '0.3.10';
+$mm_version = '0.3.11'; 
 
 
 // Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
