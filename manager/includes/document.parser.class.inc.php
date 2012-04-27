@@ -1180,6 +1180,27 @@ class DocumentParser {
 		return $content;
 	}
 	
+	function mergeCommentedTagsContent($content)
+	{
+		$pieces = explode('<!-- #modx',$content);
+		$stack = '';
+		$total = count($pieces);
+		for($i=0;$i<$total;$i++)
+		{
+			$_ = $pieces[$i];
+			if($i!==0)
+			{
+				list($modxelm,$txt) = explode('-->',$_, 2);
+				$modxelm = trim($modxelm);
+				$txt = substr($txt,strpos($txt,'<!-- /#modx'));
+				$txt = substr($txt,strpos($txt,'-->')+3);
+				$_ = $modxelm . $txt;
+			}
+			 $stack .= $_;
+		}
+		return $stack;
+	}
+	
 	function mergeBenchmarkContent($content)
 	{
 		$totalTime= ($this->getMicroTime() - $this->tstart);
@@ -1711,6 +1732,7 @@ class DocumentParser {
 			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
 			$source= $this->documentOutput;
 			
+			if(strpos($source,'<!-- #modx')!==false) $source= $this->mergeCommentedTagsContent($source);
 			// combine template and document variables
 			if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
 			// replace settings referenced in document
