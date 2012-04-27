@@ -256,6 +256,13 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang["site_slogan_title"] ?></th>
+	<td>
+		<textarea name="site_slogan" id="site_slogan" style="width:300px; height: 4em;"><?php echo $site_slogan; ?></textarea><br />
+		<?php echo $_lang["site_slogan_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["site_url_title"] ?></th>
 	<td>
 		<?php echo form_text('site_url',$site_url);?><br />
