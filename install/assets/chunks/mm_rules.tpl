@@ -1,20 +1,15 @@
 /**
- * mm_demo_rules
+ * mm_rules
  * 
  * ManagerManager用のカスタマイズルール(サンプル)
  * 
  * @category	chunk
- * @version 	1.0.5r1
+ * @version 	1.0.5r2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Demo Content
  * @internal    @overwrite false
  * @internal    @installset base, sample
  */
-
-/* ****************
-【ご注意】
-実運用の際は、必ずこのチャンクの名前を変更し(たとえばmm_rulesなど)、ManagerManagerプラグインの「Configuration Chunk」で新しいチャンク名を設定してください。
-**************** */
 
 mm_widget_showimagetvs(); // Imageタイプのテンプレート変数の画像をプレビューします
 if($modx->config['track_visitors']==='0') mm_hideFields('log');
