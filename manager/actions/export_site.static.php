@@ -352,7 +352,7 @@ class EXPORT_SITE
 				if(strpos($dirname,MODX_BASE_PATH)===false) return FALSE;
 				if (!is_dir($dirname))
 				{
-					if(file_exists($dirname)) @unlink($dirname);
+					if (file_exists($dirname)) @unlink($dirname);
 					mkdir($dirname);
 					if ($row['wasNull'])
 					{

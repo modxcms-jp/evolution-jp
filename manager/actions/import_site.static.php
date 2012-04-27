@@ -368,8 +368,8 @@ function getFileContent($filepath)
 }
 
 /**
-* @deprecated Use $modx->stripAlias()
-*/
+ * @deprecated Use $modx->stripAlias()
+ */
 function stripAlias($alias)
 {
 	global $modx;

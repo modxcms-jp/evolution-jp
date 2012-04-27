@@ -1069,10 +1069,10 @@ class DocumentParser {
 	}
 	
 	// mod by Raymond
-	function mergeDocumentContent($template)
+	function mergeDocumentContent($content)
 	{
 		$replace= array ();
-		preg_match_all('~\[\*(.*?)\*\]~', $template, $matches);
+		preg_match_all('~\[\*(.*?)\*\]~', $content, $matches);
 		$variableCount= count($matches[1]);
 		$basepath= $this->config['base_path'] . 'manager/includes/';
 		include_once("{$basepath}tmplvars.format.inc.php");
@@ -1088,15 +1088,15 @@ class DocumentParser {
 			}
 			$replace[$i]= $value;
 		}
-		$template= str_replace($matches[0], $replace, $template);
-		return $template;
+		$content= str_replace($matches[0], $replace, $content);
+		return $content;
 	}
 		
-	function mergeSettingsContent($template)
+	function mergeSettingsContent($content)
 	{
 		$replace= array ();
 		$matches= array ();
-		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $template, $matches))
+		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $content, $matches))
 		{
 			$total= count($matches[1]);
 			for($i= 0; $i < $total; $i++)
@@ -1107,9 +1107,9 @@ class DocumentParser {
 				}
 			}
 			
-			$template= str_replace($matches[0], $replace, $template);
+			$content= str_replace($matches[0], $replace, $content);
 		}
-		return $template;
+		return $content;
 	}
 	
 	function mergeChunkContent($content)
