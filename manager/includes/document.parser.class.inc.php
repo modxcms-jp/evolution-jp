@@ -1438,31 +1438,32 @@ class DocumentParser {
 		list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
 		if(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, '?') < strpos($call, "\n"))
 		{
-			list($snip['name'],$snip['params']) = explode('?',$call,2);
+			list($name,$params) = explode('?',$call,2);
 		}
 		elseif(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, "\n") < strpos($call, '?'))
 		{
-			list($snip['name'],$snip['params']) = explode("\n",$call,2);
+			list($name,$params) = explode("\n",$call,2);
 		}
 		elseif(strpos($call, '?') !== false)
 		{
-			list($snip['name'],$snip['params']) = explode('?',$call,2);
+			list($name,$params) = explode('?',$call,2);
 		}
 		elseif((strpos($call, '&') !== false) && (strpos($call, '=') !== false) && (strpos($call, '?') === false))
 		{
-			list($snip['name'],$snip['params']) = explode("&",$call,2);
-			$snip['params'] = '&' . $snip['params'];
+			list($name,$params) = explode('&',$call,2);
+			$params = "&{$params}";
 		}
 		elseif(strpos($call, "\n") !== false)
 		{
-			list($snip['name'],$snip['params']) = explode("\n",$call,2);
+			list($name,$params) = explode("\n",$call,2);
 		}
 		else
 		{
-			$snip['name'] = $call;
-			$snip['params'] = '';
+			$name   = $call;
+			$params = '';
 		}
-		$snip['name'] = trim($snip['name']);
+		$snip['name']   = trim($name);
+		$snip['params'] = $params;
 		return $snip;
 	}
 	
