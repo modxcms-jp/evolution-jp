@@ -629,12 +629,16 @@ class DocumentParser {
 				case '.html':
 				case '.htm':
 					$mime_type = 'text/html'; break;
+				case '.xml':
+				case '.rdf':
+					$mime_type = 'text/xml'; break;
 				case '.css':
 					$mime_type = 'text/css'; break;
 				case '.js':
 					$mime_type = 'text/javascript'; break;
 				case '.txt':
 					$mime_type = 'text/plain'; break;
+				case '.ico':
 				case '.jpg':
 				case '.jpeg':
 				case '.png':
