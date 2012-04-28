@@ -21,7 +21,7 @@ function ProcessTVCommand($value, $name = '', $docid = '') {
     $nvalue = trim($value);
     if (substr($nvalue, 0, 1) != '@')
         return $value;
-    elseif(empty($modx->config['enable_bindings'])) // jp-edition only
+    elseif(empty($modx->config['enable_bindings']))
     {
         return '@Bindings is disabled.';
     }
