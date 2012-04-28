@@ -124,8 +124,9 @@ function show_install()
 <html><head><meta name="robots" content="noindex, nofollow">
 <style type="text/css">
 *{margin:0;padding:0}
-body{text-align:center;background:#eef0ee;font-size:15px;}
-.install{width:530px;padding:10px;border:1px solid #39b933;background:#f6ffe0;margin:50px auto;font-family:Verdana;text-align:center;}
+html {font-size:100.01%;}
+body{text-align:center;background:#eef0ee;font-size:92.5%;}
+.install{width:530px;padding:10px;border:1px solid #b3c3af;background:#f6ffe0;margin:50px auto;font-family:Helvetica,Arial,sans-serif;text-align:center;}
 p{ margin:20px 0; }
 a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;padding: 5px;}
 </style></head>
