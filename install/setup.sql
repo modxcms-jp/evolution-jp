@@ -776,6 +776,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('manager_language','{MANAGERLANGUAGE}'),
 ('modx_charset','UTF-8'),
 ('site_name','My MODX Site'),
+('site_slogan','ここにサイトのスローガン文を表示します。'),
 ('site_start','1'),
 ('error_page','1'),
 ('unauthorized_page','1'),

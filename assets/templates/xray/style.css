@@ -5,25 +5,27 @@ img, h1, ul, li             {margin:0;padding:0;}
 img                         {border:none;vertical-align:bottom;}
 input, select, textarea     {font:inherit;}
 body                        {text-align:center;}
-div.wrap                    {text-align:left;}
+.wrap                       {text-align:left;}
 
 /* width *************/
-div.wrap                    {width:798px;}
+.wrap                       {width:798px;}
 
 /* font color ********/
 body                        {color:#444;}
 
-div.navi ul li a:link,
-div.navi ul li a:visited,
-div.footer,
-div.footer a:visited,
-div.footer a:link           {color:#ffffff;}
+.slogan,
+.navi ul li a:link,
+.navi ul li a:visited,
+.footer,
+.footer a:visited,
+.footer a:link              {color:#ffffff;}
 
 /* background color **/
 body,div.wrap               {background-color:#ffffff;}
-div.navi                    {background-color:#8c969c;}
-div.navi ul li.active       {background-color:#404d56;}
-div.footer                  {background-color:#6b7881;}
+.navi                       {background-color:#8c969c;}
+.navi ul li.active          {background-color:#404d56;}
+.footer                     {background-color:#6b7881;}
+.slogan                     {background-color:#65727B;}
 
 /* background image **/
 body                        {
@@ -43,6 +45,9 @@ div.wrap                    {
                              box-shadow:0 0 15px #cdcdcd;
                              -moz-box-shadow:0 0 15px #cdcdcd;
                              -webkit-box-shadow:0 0 20px #e5e5e5;
+                            }
+div.slogan                  {
+                             padding:5px;
                             }
 div.navi ul                 {
                              overflow:hidden;zoom:1;

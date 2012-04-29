@@ -24,6 +24,7 @@
 <div class="wrap">
 	<div class="header">
 	<header>
+		<div class="slogan">[(site_slogan)]</div>
 	    <h1><img src="assets/templates/xray/images/header_image.png" alt="[(site_name)]" /></h1>
 	</header>
 	</div>
