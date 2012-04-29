@@ -97,10 +97,10 @@ echo $cm->render();
 <div class="sectionBody">
 	<!-- load modules -->
 	<p><?php echo $_lang['eventlog_msg']?></p>
-	<div class="searchbar">
+	<div class="actionButtons">
 		<table border="0" style="width:100%">
 			<tr>
-			<td><a class="searchtoolbarbtn" href="index.php?a=116&cls=1"><img src="<?php echo $_style["icons_delete_document"]?>"  align="absmiddle" /> <?php echo $_lang['clear_log']?></a></td>
+			<td><a href="index.php?a=116&cls=1"><img src="<?php echo $_style["icons_delete_document"]?>"  align="absmiddle" /> <?php echo $_lang['clear_log']?></a></td>
 			<td nowrap="nowrap">
 				<table border="0" style="float:right">
 				    <tr>
@@ -114,7 +114,6 @@ echo $cm->render();
 			</tr>
 		</table>
 	</div>
-	<br />
 	<div>
 	<?php
 

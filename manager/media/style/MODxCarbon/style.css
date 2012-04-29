@@ -679,22 +679,6 @@ table.grid td.even, .gridAltItem {
 	margin: 0;
 	padding: 0
 }
-.searchtoolbarbtn {
-	text-decoration: none;
-	border: 1px solid #D1D8DF;
-	text-decoration: none!important;
-	background: #fff;
-	padding: 5px 5px 5px 2px;
-}
-.searchtoolbarbtn img {
-	vertical-align: middle;
-	padding: 3px;
-}
-.searchtoolbarbtn:hover {
-	text-decoration: none;
-	border: 1px solid #88939E;
-	background: #fff;
-}
 /* -------------------------[ home page main links ]--- */
 a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
 	text-decoration: underline;
