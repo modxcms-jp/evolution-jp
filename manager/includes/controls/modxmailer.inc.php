@@ -3,7 +3,7 @@
  *
  * MODxMailer Class extends PHPMailer
  * Created by ZeRo (http://www.petit-power.com/)
- * updated by yama (http://kyms.ne.jp/)
+ * updated by yama (http://kyms.jp/)
  *
  * -----------------------------------------------------
  * [History]
@@ -42,7 +42,7 @@ class MODxMailer extends PHPMailer
 			case 'japanese-euc':
 				$this->CharSet     = 'ISO-2022-JP';
 				$this->Encoding    = '7bit';
-				$this->mb_language = 'Japanese';
+				$this->mb_language = 'ja';
 				$this->encode_header_method = 'mb_encode_mimeheader';
 				$this->IsHTML(false);
 				break;
@@ -61,27 +61,104 @@ class MODxMailer extends PHPMailer
 				$this->Encoding    = 'base64';
 				$this->mb_language = 'UNI';
 		}
-	}
-	
-	function Send()
-	{
-		global $modx;
-		
 	    if(extension_loaded('mbstring'))
 		{
 			mb_language($this->mb_language);
 			mb_internal_encoding($modx->config['modx_charset']);
-			$this->Body = mb_convert_encoding($this->Body, $this->CharSet, $modx->config['modx_charset']);
 		}
-		return parent::Send();
 	}
 	
 	function EncodeHeader($str, $position = 'text')
 	{
-		if($this->encode_header_method=='mb_encode_mimeheader')
+		global $modx;
+		if($this->encode_header_method=='mb_encode_mimeheader') return mb_encode_mimeheader($str,$this->CharSet);
+		
+		switch(strtolower($modx->config['manager_language']))
 		{
-			 return mb_encode_mimeheader($str, $this->CharSet, 'B');
+			case 'japanese-utf8':
+			case 'japanese-euc':
+				return $str;
+				break;
+			default:
+				return parent::EncodeHeader($str, $position);
 		}
-		else return parent::EncodeHeader($str, $position);
+	}
+	
+	function MailSend($header, $body)
+	{
+		global $modx;
+		switch(strtolower($modx->config['manager_language']))
+		{
+			case 'japanese-utf8':
+			case 'japanese-euc':
+				break;
+			default:
+				return parent::MailSend($header, $body);
+		}
+		
+		$to = '';
+		for($i = 0; $i < count($this->to); $i++)
+		{
+			if($i != 0) { $to .= ', '; }
+			$to .= $this->AddrFormat($this->to[$i]);
+		}
+		
+		$toArr = explode(',', $to);
+		
+		$params = sprintf("-oi -f %s", $this->Sender);
+		if ($this->Sender != '' && strlen(ini_get('safe_mode')) < 1)
+		{
+			$old_from = ini_get('sendmail_from');
+			ini_set('sendmail_from', $this->Sender);
+			if ($this->SingleTo === true && count($toArr) > 1)
+			{
+				foreach ($toArr as $key => $val)
+				{
+					$rt = @mb_send_mail($val, $this->Subject, $body, $header, $params); 
+				}
+			}
+			else
+			{
+				$rt = @mb_send_mail($to, $this->Subject, $body, $header, $params);
+			}
+		}
+		else
+		{
+			if ($this->SingleTo === true && count($toArr) > 1)
+			{
+				foreach ($toArr as $key => $val)
+				{
+					$rt = @mb_send_mail($val, $this->Subject, $body, $header, $params);
+				}
+			}
+			else
+			{
+				$rt = @mb_send_mail($to, $this->Subject, $body, $header);
+			}
+		}
+		
+		if (isset($old_from))
+		{
+			ini_set('sendmail_from', $old_from);
+		}
+		if(!$rt)
+		{
+			$msg  = $this->Lang('instantiate') . "<br />\n";
+			$msg .= "{$this->Subject}<br />\n";
+			$msg .= "{$this->FromName}&lt;{$this->From}&gt;<br />\n";
+			$msg .= $body;
+			$this->SetError($msg);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	function SetError($msg)
+	{
+		global $modx;
+		$modx->config['send_errormail'] = '0';
+		$modx->logEvent(0, 3, $msg,'phpmailer');
+		return parent::SetError($msg);
 	}
 }
