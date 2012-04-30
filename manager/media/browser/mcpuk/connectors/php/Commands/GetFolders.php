@@ -85,5 +85,3 @@ class GetFolders {
 		<?php
 	}
 }
-
-?>

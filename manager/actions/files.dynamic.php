@@ -117,17 +117,17 @@ if (is_writable($startpath))
 {
 	$ph = array();
 	$ph['style_path'] = $style_path;
-	$tpl = '<a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a> ';
+	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li> ';
 	$ph['image']   = 'folder.gif';
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
 	$_ = $modx->parsePlaceholder($tpl,$ph);
 	
-	$tpl = '<a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> テキストファイルを新規作成</a>';
+	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> テキストファイルを新規作成</a></li>';
 	$ph['image']   = 'page-html.gif';
 	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
 	$_ .=  $modx->parsePlaceholder($tpl,$ph);
-	echo "<div class=\"actionButtons\" style=\"margin-bottom:10px;\">{$_}</div>";
+	echo '<ul class="actionButtons">' . $_ . '</ul>';
 }
 
 
