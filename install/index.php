@@ -3,6 +3,9 @@
  * MODx Installer
  */
 
+$base_path = str_replace('\\','/',realpath(dirname(dirname(__FILE__)))) . '/';
+$installer_path = "{$base_path}install/";
+
 if(@file_exists('../autoload.php')) include_once('../autoload.php');
 
 // do a little bit of environment cleanup if possible
