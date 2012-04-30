@@ -1,4 +1,5 @@
 <?php
+$assets_path = "{$base_path}assets/";
 $installMode = intval($_POST['installmode']);
 echo "<h2>" . $_lang['preinstall_validation'] . "</h2>";
 echo "<h3>" . $_lang['summary_setup_check'] . "</h3>";
@@ -51,7 +52,7 @@ echo '</p>';
 // check directories
 // cache exists?
 echo "<p>" . $_lang['checking_if_cache_exist'];
-if (!file_exists("../assets/cache") || !file_exists("../assets/cache/rss")) {
+if (!file_exists("{$assets_path}cache") || !file_exists("{$assets_path}cache/rss")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -60,7 +61,7 @@ if (!file_exists("../assets/cache") || !file_exists("../assets/cache/rss")) {
 echo '</p>';
 // cache writable?
 echo "<p>" . $_lang['checking_if_cache_writable'];
-if (!is_writable("../assets/cache") || !file_exists("../assets/media")) {
+if (!is_writable("{$assets_path}cache") || !file_exists("{$assets_path}media")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -69,11 +70,11 @@ if (!is_writable("../assets/cache") || !file_exists("../assets/media")) {
 echo '</p>';
 // cache files writable?
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
-if (!file_exists("../assets/cache/siteCache.idx.php")) {
+if (!file_exists("{$assets_path}cache/siteCache.idx.php")) {
     // make an attempt to create the file
-    @ rename('../assets/cache/siteCache.idx.php.blank','../assets/cache/siteCache.idx.php');
+    @ rename('{$assets_path}cache/siteCache.idx.php.blank','{$assets_path}cache/siteCache.idx.php');
 }
-if (!is_writable("../assets/cache/siteCache.idx.php")) {
+if (!is_writable("{$assets_path}cache/siteCache.idx.php")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -81,7 +82,7 @@ if (!is_writable("../assets/cache/siteCache.idx.php")) {
 }
 echo '</p>';
 echo "<p>".$_lang['checking_if_cache_file2_writable'];
-if (!is_writable("../assets/cache/sitePublishing.idx.php")) {
+if (!is_writable("{$assets_path}cache/sitePublishing.idx.php")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -90,7 +91,7 @@ if (!is_writable("../assets/cache/sitePublishing.idx.php")) {
 echo '</p>';
 // File Browser directories exists?
 echo "<p>".$_lang['checking_if_images_exist'];
-if (!file_exists("../assets/images") || !file_exists("../assets/files") || !file_exists("../assets/flash") || !file_exists("../assets/media")) {
+if (!file_exists("{$assets_path}images") || !file_exists("{$assets_path}files") || !file_exists("{$assets_path}flash") || !file_exists("{$assets_path}media")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -99,7 +100,7 @@ if (!file_exists("../assets/images") || !file_exists("../assets/files") || !file
 echo '</p>';
 // File Browser directories writable?
 echo "<p>".$_lang['checking_if_images_writable'];
-if (!is_writable("../assets/images") || !is_writable("../assets/files") || !is_writable("../assets/flash") || !is_writable("../assets/media")) {
+if (!is_writable("{$assets_path}images") || !is_writable("{$assets_path}files") || !is_writable("{$assets_path}flash") || !is_writable("{$assets_path}media")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -109,31 +110,31 @@ echo '</p>';
 
 // export exists?
 echo '<p>'.$_lang['checking_if_export_exists'];
-if (!file_exists("../assets/export")) {echo echo_failed();$errors += 1;}
+if (!file_exists("{$assets_path}export")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // export writable?
 echo '<p>'.$_lang['checking_if_export_writable'];
-if (!is_writable("../assets/export")) {echo echo_failed();$errors += 1;}
+if (!is_writable("{$assets_path}export")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // backup exists?
 echo '<p>'.$_lang['checking_if_backup_exists'];
-if (!file_exists("../assets/backup")) {echo echo_failed();$errors += 1;}
+if (!file_exists("{$assets_path}backup")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // backup writable?
 echo '<p>'.$_lang['checking_if_backup_writable'];
-if (!is_writable("../assets/backup")) {echo echo_failed();$errors += 1;}
+if (!is_writable("{$assets_path}backup")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
-$config_path = '../manager/includes/config.inc.php';
+$config_path = "{$base_path}manager/includes/config.inc.php";
 if (!file_exists($config_path)) {
     // make an attempt to create the file
     @ rename("{$config_path}.blank",$config_path);
@@ -259,7 +260,7 @@ if ($conn) {
 
 if (is_writable("../assets/cache")) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents('../assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
+    if(function_exists('file_put_contents')) file_put_contents("{$base_path}assets/cache/installProc.inc.php",'<?php $installStartTime = '.time().'; ?>');
 }
 
 if($installMode > 0 && $_POST['installdata'] == "1") {

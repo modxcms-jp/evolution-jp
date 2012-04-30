@@ -4,12 +4,11 @@ $ph['_lang_begin']         = $_lang['begin'];
 $ph['_lang_btnnext_value'] = $_lang['btnnext_value'];
 echo  parse(get_src_content(),$ph);
 
-
-
 function get_langs()
 {
+	global $installer_path;
 	$langs = array();
-	foreach(glob('lang/*.inc.php') as $path)
+	foreach(glob("{$installer_path}lang/*.inc.php") as $path)
 	{
 		$langs[] = substr($path,5,strpos($path,'.inc.php')-5);
 	}

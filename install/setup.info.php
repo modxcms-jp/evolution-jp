@@ -1,19 +1,19 @@
 <?php
 //:: MODx Installer Setup file 
 //:::::::::::::::::::::::::::::::::::::::::
-require_once('../manager/includes/version.inc.php');
+require_once("{$base_path}manager/includes/version.inc.php");
 
 $moduleName = 'MODX';
 $moduleVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 $moduleSQLBaseFile = "setup.sql";
 $moduleSQLDataFile = "setup.data.sql";
-$chunkPath = $setupPath .'/assets/chunks';
-$snippetPath = $setupPath .'/assets/snippets';
-$pluginPath = $setupPath .'/assets/plugins';
-$modulePath = $setupPath .'/assets/modules';
-$templatePath = $setupPath .'/assets/templates';
-$tvPath = $setupPath .'/assets/tvs';
+$chunkPath = "{$installer_path}assets/chunks";
+$snippetPath = "{$installer_path}assets/snippets";
+$pluginPath = "{$installer_path}assets/plugins";
+$modulePath = "{$installer_path}assets/modules";
+$templatePath = "{$installer_path}assets/templates";
+$tvPath = "{$installer_path}assets/tvs";
 
 @ $conn = mysql_connect($database_server, $database_user, $database_password);
 if (function_exists('mysql_set_charset'))

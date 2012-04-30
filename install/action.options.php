@@ -10,7 +10,7 @@ if ($installMode == 0 || $installMode == 2) {
         $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
 }
 elseif ($installMode == 1) {
-    include "../manager/includes/config.inc.php";
+    include "{$base_path}manager/includes/config.inc.php";
 
     if (empty($database_collation)) {
         $database_collation = 'utf8_general_ci';
@@ -24,7 +24,7 @@ elseif ($installMode == 1) {
         $database_connection_method = 'SET CHARACTER SET';
     }
     if ($database_connection_method != 'SET NAMES' && $database_connection_charset != $database_charset) {
-        $database_connection_method = 'SET NAMES';
+        $database_connection_method  = 'SET NAMES';
     }
 
     $_POST['database_name'] = $dbase;
@@ -59,8 +59,7 @@ elseif ($installMode == 1) {
 
 
 # load setup information file
-$setupPath = realpath(dirname(__FILE__));
-include "{$setupPath}/setup.info.php";
+include "{$installer_path}setup.info.php";
 
 if($_POST['installmode'] === '0')
 {
