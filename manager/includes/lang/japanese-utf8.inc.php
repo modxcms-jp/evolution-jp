@@ -1119,6 +1119,7 @@ $_lang["bkmgr_snapshot_list_title"] = 'スナップショットの一覧';
 $_lang["bkmgr_restore_submit"] = 'このデータに戻す';
 $_lang["bkmgr_snapshot_nothing"] = 'スナップショットはありません。';
 $_lang["settings_friendlyurls_alert"] = "フレンドリーURL機能を利用するにはMODXインストールディレクトリの\nsample.htaccessファイルを.htaccessにリネームする必要があります。";
+$_lang["settings_friendlyurls_alert2"] = 'サブディレクトリにインストールしているため、.htaccessの内容を変更する必要があります。';
 
 $_lang["configcheck_rb_base_dir"] = 'ファイルブラウザディレクトリのパス設定が正しくありません。';
 $_lang["configcheck_filemanager_path"] = 'ファイル管理機能の対象ディレクトリのパス設定が正しくありません。';

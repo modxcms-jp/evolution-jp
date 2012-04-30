@@ -4,9 +4,30 @@ if(!$modx->hasPermission('settings')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-if($_POST['friendly_urls']==='1' && !file_exists($modx->config['base_path'] . '.htaccess'))
+if($_POST['friendly_urls']==='1')
+{
+	$htaccess        = $modx->config['base_path'] . '.htaccess';
+	$sample_htaccess = $modx->config['base_path'] . 'sample.htaccess';
+	if(!file_exists($htaccess))
+	{
+		if(file_exists($sample_htaccess))
+		{
+			if(!@rename($sample_htaccess,$htaccess))
 {
 	$warnings[] = $_lang["settings_friendlyurls_alert"];
+			}
+			elseif($modx->config['base_url']!=='/')
+			{
+				$subdir = rtrim($modx->config['base_url'],'/');
+				$_ = file_get_contents($htaccess);
+				$_ = str_replace('RewriteBase /',"RewriteBase {$subdir}", $_);
+				if(!file_put_contents($htaccess,$_))
+				{
+					$warnings[] = $_lang["settings_friendlyurls_alert2"];
+				}
+			}
+		}
+	}
 }
 if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 if(!file_exists($_POST['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
