@@ -72,7 +72,7 @@ echo '</p>';
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
 if (!file_exists("{$assets_path}cache/siteCache.idx.php")) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents('{$assets_path}cache/siteCache.idx.php','<?php //MODx site cache file ?>');
+    if(function_exists('file_put_contents')) file_put_contents("{$assets_path}cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
 }
 if (!is_writable("{$assets_path}cache/siteCache.idx.php")) {
     echo echo_failed();
