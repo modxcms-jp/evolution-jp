@@ -80,7 +80,8 @@ $action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language
 ob_start();
 include ("{$installer_path}header.php");
 
-if (!@include ('action.' . $action . '.php')) {
+if (!@include ("{$installer_path}actions/{$action}.php"))
+{
     die ('Invalid install action attempted. [action=' . $action . ']');
 }
 
