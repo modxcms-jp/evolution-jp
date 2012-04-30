@@ -42,7 +42,7 @@ class MODxMailer extends PHPMailer
 			case 'japanese-euc':
 				$this->CharSet     = 'ISO-2022-JP';
 				$this->Encoding    = '7bit';
-				$this->mb_language = 'ja';
+				$this->mb_language = 'Japanese';
 				$this->encode_header_method = 'mb_encode_mimeheader';
 				$this->IsHTML(false);
 				break;
@@ -87,15 +87,22 @@ class MODxMailer extends PHPMailer
 	function MailSend($header, $body)
 	{
 		global $modx;
+		
+		if(ini_get('safe_mode')) return parent::MailSend($header, $body);
+		
 		switch(strtolower($modx->config['manager_language']))
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
+				return $this->mbMailSend($header, $body);
 				break;
 			default:
 				return parent::MailSend($header, $body);
 		}
-		
+	}
+	
+	function mbMailSend($header, $body)
+	{
 		$to = '';
 		for($i = 0; $i < count($this->to); $i++)
 		{
