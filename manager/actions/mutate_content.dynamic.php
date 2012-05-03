@@ -220,6 +220,10 @@ function undeletedocument() {
 	}
 }
 
+function movedocument() {
+	document.location.href="index.php?id=<?php echo $_REQUEST['id'];?>&a=51";
+}
+
 function duplicatedocument(){
     if(confirm("<?php echo $_lang['confirm_resource_duplicate']?>")==true) {
         document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94";
@@ -441,19 +445,6 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
 			</select>		
 		  </li>
-		  <?php
-            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
-            { ?>
-          <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
-          <?php
-          if($content['deleted'] === '0')
-          {
-          ?>
-          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']; ?></a></li>
-          <?php } else { ?>
-          <li id="Button3"><a href="#" onclick="undeletedocument();"><img src="<?php echo $_style["icons_undelete_resource"] ?>" alt="icons_undelete_document" /> <?php echo $_lang['undelete_resource']?></a></li>
-          <?php } ?>
-		  <?php } ?>
           <li id="Button4"><a href="#" onclick="
 <?php
 				if(isset($content['parent']) && $content['parent']!=='0')
@@ -482,6 +473,22 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 				}
 ?>
           	"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+		  <?php
+            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
+            { ?>
+		  <li id="Button2">
+			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
+		  </li>
+          <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
+          <?php
+          if($content['deleted'] === '0')
+          {
+          ?>
+          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']; ?></a></li>
+          <?php } else { ?>
+          <li id="Button3"><a href="#" onclick="undeletedocument();"><img src="<?php echo $_style["icons_undelete_resource"] ?>" alt="icons_undelete_document" /> <?php echo $_lang['undelete_resource']?></a></li>
+          <?php } ?>
+		  <?php } ?>
           <?php
             if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72') { ?>
           <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img alt="icons_preview_resource" src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>

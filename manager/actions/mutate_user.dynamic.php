@@ -247,13 +247,11 @@ if (is_array($evtOut))
     			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>		
     		  </li>
+    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=75';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     		  <?php
     			if ($_REQUEST['a'] == '12') { ?>
-    		  <li id="Button3" class="disabled"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
-    		  <?php } else { ?>
     		  <li id="Button3"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>	
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=75';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 <!-- Tab Start -->
