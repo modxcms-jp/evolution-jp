@@ -452,7 +452,7 @@ switch ($_POST['mode']) {
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
-	global $modx;
+	global $modx,$_lang;
 	$message = sprintf($modx->config['signupemail_message'], $uid, $pwd); // use old method
 	$ph['uid']    = $uid;
 	$ph['pwd']    = $pwd;
