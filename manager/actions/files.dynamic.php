@@ -123,7 +123,7 @@ if (is_writable($startpath))
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
 	$_ = $modx->parsePlaceholder($tpl,$ph);
 	
-	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> テキストファイルを新規作成</a></li>';
+	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> ' . $_lang['files.dynamic.php1'] . '</a></li>';
 	$ph['image']   = 'page-html.gif';
 	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
 	$_ .=  $modx->parsePlaceholder($tpl,$ph);
@@ -249,7 +249,7 @@ if($_REQUEST['mode']=='delete')
 
 if($startpath==="{$filemanager_path}manager" || $startpath==="{$filemanager_path}assets/backup")
 {
-	echo 'このディレクトリは参照できません。';
+	echo $_lang['files.dynamic.php2'];
 	exit;
 }
 
@@ -375,7 +375,7 @@ if (is_writable($startpath))
 		}
 		elseif(preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@',$filename)!==0)
 		{
-			echo '<span class="warning"><b>ファイル名が不正です。</b></span><br /><br />';
+			echo $_lang['files.dynamic.php3'];
 		}
 		else
 		{
@@ -386,7 +386,7 @@ if (is_writable($startpath))
 			}
 			else
 			{
-				echo '<span class="success"><b>テキストファイルを作成しました。</b></span><br /><br />';
+				echo $_lang['files.dynamic.php4'];
 			}
 			umask($old_umask);
 		}

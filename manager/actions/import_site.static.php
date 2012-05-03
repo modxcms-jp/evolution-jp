@@ -51,19 +51,19 @@ if(!isset($_POST['import'])) {
     </td>
   </tr>
   <tr>
-	<td nowrap="nowrap" valign="top"><b>リソースツリーをリセットする</b></td>
+	<td nowrap="nowrap" valign="top"><b><?php echo $_lang["import_site.static.php1"]; ?></b></td>
     <td>&nbsp;</td>
     <td><input type="checkbox" id="reset" name="reset" value="on" />
         <br />
-		リソースツリー上のリソースを全削除してからインポートします。リソースIDも初期化されます。
+		<?php echo $_lang["import_site.static.php2"]; ?>
     </td>
   </tr>
   <tr>
-    <td nowrap="nowrap" valign="top"><b>インポート対象</b></td>
+    <td nowrap="nowrap" valign="top"><b><?php echo $_lang["import_site.static.php3"]; ?></b></td>
     <td>&nbsp;</td>
     <td>
-    <label><input type="radio" name="object" value="body" checked="checked" /> body要素のみ</label>
-    <label><input type="radio" name="object" value="all" /> htmlファイルまるごと</label>
+    <label><input type="radio" name="object" value="body" checked="checked" /> <?php echo $_lang["import_site.static.php4"]; ?></label>
+    <label><input type="radio" name="object" value="all" /> <?php echo $_lang["import_site.static.php5"]; ?></label>
         <br />
     </td>
   </tr>

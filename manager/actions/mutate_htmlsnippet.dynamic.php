@@ -151,7 +151,7 @@ window.addEvent('domready', function(){
 
 function resetpubdate() {
 	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
-		if (confirm("公開開始日時・公開終了日時をリセットします")==true) {
+		if (confirm("<?php echo $_lang['mutate_htmlsnippet.dynamic.php1'];?>")==true) {
 			document.mutate.pub_date.value='';
 			document.mutate.unpub_date.value='';
 		}

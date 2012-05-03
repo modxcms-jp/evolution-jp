@@ -33,16 +33,16 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		<label><input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></label></td>
   </tr>
   <tr>
-    <td class="head">エクスポート対象</td>
-    <td><label><input type="radio" name="target" value="0" checked="checked">更新されたページのみ</label>
-		<label><input type="radio" name="target" value="1">全てのページ</label></td>
+    <td class="head"><?php echo $_lang['export_site.static.php1']; ?></td>
+    <td><label><input type="radio" name="target" value="0" checked="checked"><?php echo $_lang['export_site.static.php2']; ?></label>
+		<label><input type="radio" name="target" value="1"><?php echo $_lang['export_site.static.php3']; ?></label></td>
   </tr>
   <tr>
-    <td class="head">文字列を置換(置換前)</td>
+    <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
     <td><input type="text" name="repl_before" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
   <tr>
-    <td class="head">文字列を置換(置換後)</td>
+    <td class="head"><?php echo $_lang['export_site.static.php5']; ?></td>
     <td><input type="text" name="repl_after" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
 <?php
@@ -95,13 +95,13 @@ else
 	}
 	elseif(strpos($modx->config['base_path'],$filepath)===0 && 0 <= strlen(str_replace($filepath,'',$modx->config['base_path'])))
 	{
-		echo '/manager/ ディレクトリより上の階層にはファイルを出力できません。';
+		echo $_lang['export_site.static.php6'];
 		include "footer.inc.php";
 		exit;
 	}
 	elseif($modx->config['rb_base_dir'] === $filepath)
 	{
-		echo $modx->config['base_url'] . $modx->config['rb_base_url'] . ' ディレクトリにはファイルを出力できません。';
+		echo $_lang['export_site.static.php7'];
 		include "footer.inc.php";
 		exit;
 	}

@@ -68,7 +68,11 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 				$msize = memory_get_peak_usage() - $mstart;
 				$units = array('B', 'KB', 'MB');
 				$pos = 0;
-				while($msize >= 1024) $msize /= 1024; $pos++;
+				while($msize >= 1024)
+				{
+					$msize /= 1024;
+					$pos++;
+				}
 				$msize = round($msize,2) . ' ' . $units[$pos];
 				list ($usec, $sec)= explode(' ', microtime());
 				$now =  ((float) $usec + (float) $sec);

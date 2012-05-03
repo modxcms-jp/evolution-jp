@@ -400,7 +400,7 @@ switch ($_POST['mode']) {
 		{
 			include_once "header.inc.php";
 			$_SESSION['mgrRole'] = $roleid;
-			$modx->webAlert('変更したロールの権限設定を読み込むために、再ログインしてください。','index.php?a=75');
+			$modx->webAlert($_lang['save_user.processor.php1'],'index.php?a=75');
 			include_once "footer.inc.php";
 			exit;
 		}

@@ -435,9 +435,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang['setting_cache_type'] ?></th>
 	<td>
-		<?php echo wrap_label('標準モード',form_radio('cache_type','1',$cache_type=='1'));?><br />
-		<?php echo wrap_label('バイパスモード',form_radio('cache_type','2',$cache_type=='2'));?><br />
-		<?php echo wrap_label('キャッシュ無効',form_radio('cache_type','0',$cache_type=='0'));?><br />
+		<?php echo wrap_label($_lang['mutate_settings.dynamic.php1'],form_radio('cache_type','1',$cache_type=='1'));?><br />
+		<?php echo wrap_label($_lang['mutate_settings.dynamic.php2'],form_radio('cache_type','2',$cache_type=='2'));?><br />
+		<?php echo wrap_label($_lang['mutate_settings.dynamic.php3'],form_radio('cache_type','0',$cache_type=='0'));?><br />
 		<?php echo $_lang["setting_cache_type_desc"] ?>
 	</td>
 </tr>
@@ -574,11 +574,11 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
 <tr id='furlRow5' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
-	<th><?php echo '個別の拡張子表現';?></th>
+	<th><?php echo $_lang['mutate_settings.dynamic.php4'];?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('suffix_mode','0', $suffix_mode=='0'));?><br />
-		<?php echo 'エイリアス名に「 . 」(ドット)を含む時にプレフィックスの追加を省略できます。';?></td>
+		<?php echo $_lang['mutate_settings.dynamic.php5'];?></td>
 </tr>
 <tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
@@ -656,13 +656,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <?php echo $_lang["blocked_minutes_message"] ?></td>
 </tr>
 <tr>
-<th>システムエラーを<br />メールで通知する</th>
+<th><?php echo $_lang['mutate_settings.dynamic.php6']; ?></th>
 <td>
-	<?php echo wrap_label('通知しない',form_radio('send_errormail','0', ($send_errormail=='0' || !isset($send_errormail))));?><br />
+	<?php echo wrap_label($_lang['mutate_settings.dynamic.php7'],form_radio('send_errormail','0', ($send_errormail=='0' || !isset($send_errormail))));?><br />
 	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
 	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
 	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
-エラー発生時に[(emailsender)](<?php echo $emailsender; ?>)に通知します。エラーの内容の詳細はイベントログを確認してください。</td>
+<?php echo $_lang['mutate_settings.dynamic.php8'];?></td>
 </tr>
 <?php
 // Check for GD before allowing captcha to be enabled

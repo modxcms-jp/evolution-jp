@@ -257,7 +257,7 @@ if ($numRecords > 0)
 		}
 		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
 		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
-		$children_output .= '<div><input type="submit" value="チェックしたリソースを移動" /></div>';
+		$children_output .= '<div><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
 else
