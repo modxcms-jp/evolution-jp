@@ -218,8 +218,7 @@ function showHide(what, onoff){
 </script>
 
 
-<form action="index.php" method="post" name="userform" enctype="multipart/form-data">
-<input type="hidden" name="a" value="32" />
+<form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
 <?php
 
 // invoke OnUserFormPrerender event
