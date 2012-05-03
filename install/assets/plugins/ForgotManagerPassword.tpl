@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.5
+ * @version 	1.1.6
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnWebPageInit,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin
@@ -52,7 +52,7 @@ EOD;
 			if($user_id !== false) $user_id = $modx->db->escape($user_id);
 			$username = $modx->db->escape($username);
 			$email    = $modx->db->escape($email);
-			$emaail   = $modx->db->escape($hash);
+			$hash     = $modx->db->escape($hash);
 			
 			$tbl_manager_users   = $modx->getFullTableName('manager_users');
 			$tbl_user_attributes = $modx->getFullTableName('user_attributes');
@@ -95,10 +95,16 @@ EOD;
 			$user = $this->getUser(0, '', $to);
 			if(!$user['username']) return;
 			
+			
+			if($modx->config['use_captcha']==='1')
+			{
+				$captcha = '&captcha_code=ignore';
+			}
+			else $captcha = '';
 			$body = <<< EOT
 {$_lang['forgot_password_email_intro']}
 
-{$modx->config['site_url']}index.php?name={$user['username']}&hash={$user['hash']}
+{$modx->config['site_url']}index.php?name={$user['username']}&hash={$user['hash']}{$captcha}
 {$_lang['forgot_password_email_link']}
 
 {$_lang['forgot_password_email_instructions']}
@@ -177,7 +183,13 @@ $forgot   = new ForgotManagerPassword();
 
 if($event_name == 'OnWebPageInit' && isset($_GET['hash']) && isset($_GET['name']))
 {
-	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$_GET['name']}&hash={$_GET['hash']}";
+	if($modx->config['use_captcha']==='1')
+	{
+		$captcha = '&captcha_code=ignore';
+	}
+	else $captcha = '';
+
+	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$_GET['name']}&hash={$hash}{$captcha}";
 	header("Location:{$url}");
 	exit;
 }
@@ -201,6 +213,7 @@ if($event_name == 'OnManagerLoginFormRender')
 	}
 	
 	if($forgot->errors) { $output = $forgot->getErrorOutput() . $forgot->getLink(); }
+	$modx->event->output($output);
 }
 
 if($event_name == 'OnBeforeManagerLogin')
@@ -218,10 +231,10 @@ if($event_name == 'OnManagerAuthentication' && $hash && $username)
 	$user = $forgot->getUser(false, '', '', $hash);
 	if($user !== null && count($forgot->errors) == 0)
 	{
+		if(isset($_GET['captcha_code'])) $_SESSION['veriword'] = $_GET['captcha_code'];
 		if(!$hash && $_SESSION['mgrForgetPassword']) unset($_SESSION['mgrForgetPassword']);
 		$output =  true;
 	}
 	else $output = false;
+	$modx->event->output($output);
 }
-
-$modx->event->output($output);
