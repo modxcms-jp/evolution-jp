@@ -20,7 +20,7 @@ if($_POST['friendly_urls']==='1')
 			{
 				$subdir = rtrim($modx->config['base_url'],'/');
 				$_ = file_get_contents($htaccess);
-				$_ = str_replace('RewriteBase /',"RewriteBase {$subdir}", $_);
+				$_ = preg_replace('@RewriteBase.+@',"RewriteBase {$subdir}", $_);
 				if(!@file_put_contents($htaccess,$_))
 				{
 					$warnings[] = $_lang["settings_friendlyurls_alert2"];
