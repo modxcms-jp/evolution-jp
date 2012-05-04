@@ -841,9 +841,15 @@ function get_alias($id,$alias,$parent,$pagetitle)
 		{ // check for duplicate alias name if not allowed
 			$alias = _check_duplicate_alias($modx,$id,$alias,$parent);
 		}
-		elseif (!$alias && $modx->config['automatic_alias'])
+		elseif (!$alias && $modx->config['automatic_alias'] != '0')
 		{ // auto assign alias
+			switch($modx->config['automatic_alias'])
+			{
+				case '1':
 			$alias = _get_alias_from_title($modx,$pagetitle);
+					break;
+			}
+			
 		}
 	}
 	return $alias;
@@ -879,11 +885,13 @@ function _check_duplicate_alias($modx,$id,$alias,$parent)
 	
 	if ($modx->config['use_alias_path']==1)
 	{ // only check for duplicates on the same level if alias_path is on
-		$docid = $modx->db->getValue($modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1"));
+		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
+		$docid = $modx->db->getValue($rs);
 	}
 	else
 	{
-		$docid = $modx->db->getValue($modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1"));
+		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
+		$docid = $modx->db->getValue($rs);
 	}
 	if ($docid > 0)
 	{
