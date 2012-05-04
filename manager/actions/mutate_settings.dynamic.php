@@ -606,8 +606,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr id='furlRow13' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('automatic_alias','0', $automatic_alias=='0'));?><br />
+	<?php echo wrap_label('pagetitle',form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
+	<?php echo wrap_label('numbering in each folder',form_radio('automatic_alias','2', $automatic_alias=='2'));?><br />
+	<?php echo wrap_label($_lang["disabled"],form_radio('automatic_alias','0', $automatic_alias=='0'));?><br />
 	<?php echo $_lang["automatic_alias_message"] ?>
 </td>
 </tr>

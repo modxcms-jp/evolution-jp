@@ -848,6 +848,9 @@ function get_alias($id,$alias,$parent,$pagetitle)
 				case '1':
 			$alias = _get_alias_from_title($modx,$pagetitle);
 					break;
+				case '2':
+					$alias = _get_alias_num_in_folder($parent);
+					break;
 			}
 			
 		}
@@ -877,6 +880,16 @@ function _get_alias_from_title($modx,$pagetitle)
 	}
 	else $alias = '';
 	return $alias;
+}
+
+function _get_alias_num_in_folder($parent)
+{
+	global $modx;
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	
+	$rs = $modx->db->select('MAX(alias)',$tbl_site_content,"parent={$parent} AND alias REGEXP '^[0-9]+$'");
+	$_ = $modx->db->getValue($rs);
+	return ++$_;
 }
 
 function _check_duplicate_alias($modx,$id,$alias,$parent)

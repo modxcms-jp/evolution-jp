@@ -66,8 +66,8 @@ $_lang["allow_mgr_access"] = '管理画面へのアクセス';
 $_lang["allow_mgr_access_message"] = 'このオプションは管理画面へのアクセスをユーザーに許可するかしないかを選択するものです。<br /><strong>※このオプションを「いいえ」に設定すると、ユーザーは上記の「管理画面ログイン開始ページ」か、それが空白ならサイトスタートのページへリダイレクトされます。</strong>';
 $_lang["already_deleted"] = 'はすでに削除されています';
 $_lang["attachment"] = 'ファイルとしてダウンロード';
-$_lang["automatic_alias_message"] = '「はい」を選択すると、リソースを更新する際にリソースのタイトルを元にシステムが自動的にエイリアスを作成します。<br />※日本語環境での使用は推奨しません。';
-$_lang["automatic_alias_title"] = 'エイリアス自動生成<br />(日本語環境では推奨しません)';
+$_lang["automatic_alias_message"] = 'pagetitle - リソース名からエイリアスを自動生成します。<br />numbering - コンテナ単位でナンバリングを行ないます。';
+$_lang["automatic_alias_title"] = 'エイリアス自動生成';
 $_lang["backup"] = 'バックアップ';
 $_lang["bk_manager"] = 'バックアップ・リストア';
 $_lang["block_message"] = '更新後、このユーザーのアカウントは休止状態になります。';
@@ -1152,3 +1152,5 @@ $_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メー�
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
 $_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)](' . $modx->config['emailsender'] . ')に通知します。エラーの内容の詳細はイベントログを確認してください。';
 $_lang["save_user.processor.php1"] = '変更したロールの権限設定を読み込むために、再ログインしてください。';
+
+$_lang["disabled"] = '無効';
