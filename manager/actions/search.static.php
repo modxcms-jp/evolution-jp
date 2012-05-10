@@ -13,19 +13,31 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
     <td width="120"><?php echo $_lang['search_criteria_id']; ?></td>
     <td width="20">&nbsp;</td>
     <td width="120"><input name="searchid" type="text" /></td>
-	<td><?php echo $_lang['search_criteria_id_msg']; ?></td>
+    <td><?php echo $_lang['search_criteria_id_msg']; ?></td>
   </tr>
   <tr>
     <td><?php echo $_lang['search_criteria_title']; ?></td>
     <td>&nbsp;</td>
     <td><input name="pagetitle" type="text" /></td>
-	<td><?php echo $_lang['search_criteria_title_msg']; ?></td>
+    <td><?php echo $_lang['search_criteria_title_msg']; ?></td>
   </tr>
   <tr>
     <td><?php echo $_lang['search_criteria_longtitle']; ?></td>
     <td>&nbsp;</td>
     <td><input name="longtitle" type="text" /></td>
-	<td><?php echo $_lang['search_criteria_longtitle_msg']; ?></td>
+    <td><?php echo $_lang['search_criteria_longtitle_msg']; ?></td>
+  </tr>
+  <tr>
+    <td>Alias</td>
+    <td>&nbsp;</td>
+    <td><input name="alias" type="text" /></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>URL</td>
+    <td>&nbsp;</td>
+    <td><input name="url" type="text" size="50" /></td>
+    <td></td>
   </tr>
   <tr>
     <td><?php echo $_lang['search_criteria_content']; ?></td>
@@ -50,19 +62,34 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 
 <?php
 if(isset($_REQUEST['submitok'])) {
-	$searchid = !empty($_REQUEST['searchid']) ? intval($_REQUEST['searchid']) : 0;
-	$searchtitle = htmlentities($_POST['pagetitle'], ENT_QUOTES, $modx_manager_charset);
-	$searchcontent = $modx->db->escape($_REQUEST['content']);
-	$searchlongtitle = $modx->db->escape($_REQUEST['longtitle']);
-
-$sqladd .= $searchid!="" ? " AND $dbase.`".$table_prefix."site_content`.id='$searchid' " : "" ;
-$sqladd .= $searchtitle!="" ? " AND $dbase.`".$table_prefix."site_content`.pagetitle LIKE '%$searchtitle%' " : "" ;
-$sqladd .= $searchlongtitle!="" ? " AND $dbase.`".$table_prefix."site_content`.longtitle LIKE '%$searchlongtitle%' " : "" ;
-$sqladd .= $searchcontent!="" ? " AND $dbase.`".$table_prefix."site_content`.content LIKE '%$searchcontent%' " : "" ;
-
-$sql = "SELECT id, contenttype, pagetitle, description, deleted, published, isfolder, type FROM $dbase.`".$table_prefix."site_content` where 1=1 ".$sqladd." ORDER BY id;";
-$rs = $modx->db->query($sql);
-$limit = $modx->db->getRecordCount($rs);
+    $searchid = ($_REQUEST['searchid']!=='') ? intval($_REQUEST['searchid']) : '0';
+    $searchtitle = htmlentities($_POST['pagetitle'], ENT_QUOTES, $modx_manager_charset);
+    $search_alias = $modx->db->escape($_REQUEST['alias']);
+    $searchcontent = $modx->db->escape($_REQUEST['content']);
+    $searchlongtitle = $modx->db->escape($_REQUEST['longtitle']);
+    if(isset($_REQUEST['url']) && $_REQUEST['url']!=='') {
+        $url = $modx->db->escape($_REQUEST['url']);
+        $friendly_url_suffix = $modx->config['friendly_url_suffix'];
+        $base_url = $modx->config['base_url'];
+        $site_url = $modx->config['site_url'];
+        $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
+        $url = preg_replace('@^' . $base_url . '@', '', $url);
+        $url = preg_replace('@^' . $site_url . '@', '', $url);
+        $searchid = $modx->documentListing[$url];
+        if (empty($searchid)) $searchid = 'x';
+    }
+    
+    $tbl_site_content = $modx->getFullTableName('site_content');
+    $sqladd .= $searchid!=='0'        ? " AND id='{$searchid}' " : '';
+    $sqladd .= $searchtitle!=''     ? " AND pagetitle LIKE '%{$searchtitle}%' " : '';
+    $sqladd .= $searchlongtitle!='' ? " AND longtitle LIKE '%{$searchlongtitle}%' " : '';
+    $sqladd .= $search_alias!='' ? " AND alias LIKE '%{$search_alias}%' " : '';
+    $sqladd .= $searchcontent!=''   ? " AND content LIKE '%{$searchcontent}%' " : '';
+    
+    $fields = 'id, contenttype, pagetitle, description, deleted, published, isfolder, type';
+    $where  = "1=1 {$sqladd}";
+    $rs = $modx->db->select($fields,$tbl_site_content,$where,'id');
+    $limit = $modx->db->getRecordCount($rs);
 ?>
 <div class="sectionHeader"><?php echo $_lang['search_results']; ?></div><div class="sectionBody">
 <?php
@@ -100,43 +127,38 @@ if($limit<1) {
         'image/png' => $_style["tree_page_png"]
     );
 
-			for ($i = 0; $i < $limit; $i++) { 
-				$logentry = $modx->db->getRow($rs);
-
+while ($row = $modx->db->getRow($rs)) { 
 	// figure out the icon for the document...
 	$icon = "";
-		if ($logentry['type']=='reference') {
-			$icon .= $_style["tree_linkgo"];
-		} elseif ($logentry['isfolder'] == 0) {
-			$icon .= isset($icons[$logentry['contenttype']]) ? $icons[$logentry['contenttype']] : $_style["tree_page_html"];
-		} else {
-			$icon .= $_style['tree_folder'];
+	if ($row['type']=='reference') {
+		$icon .= $_style["tree_linkgo"];
+	} elseif ($row['isfolder'] == 0) {
+		$icon .= isset($icons[$row['contenttype']]) ? $icons[$row['contenttype']] : $_style["tree_page_html"];
+	} else {
+		$icon .= $_style['tree_folder'];
 	} 
 
-		$tdClass = "";
-		if($logentry['published'] == 0) {
-			$tdClass .= ' class="unpublishedNode"';
+	$tdClass = "";
+	if($row['published'] == 0) {
+		$tdClass .= ' class="unpublishedNode"';
 	}
-		if($logentry['deleted'] == 1) {
-			$tdClass .= ' class="deletedNode"';
+	if($row['deleted'] == 1) {
+		$tdClass .= ' class="deletedNode"';
 	}
 ?> 
     <tr> 
-      <td align="center"><a href="index.php?a=3&id=<?php echo $logentry['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" width="16" height="16" /></a></td> 
-      <td><?php echo $logentry['id']; ?></td> 
+      <td align="center"><a href="index.php?a=3&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" width="16" height="16" /></a></td> 
+      <td><?php echo $row['id']; ?></td> 
 <?php
-		if (function_exists('mb_strlen') && function_exists('mb_substr'))
-		{
+		if (function_exists('mb_strlen') && function_exists('mb_substr')) {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['pagetitle'], $modx_manager_charset)>70 ? mb_substr($logentry['pagetitle'], 0, 70, $modx_manager_charset)."..." : $logentry['pagetitle'] ; ?></td> 
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($logentry['description'], $modx_manager_charset)>70 ? mb_substr($logentry['description'], 0, 70, $modx_manager_charset)."..." : $logentry['description'] ; ?></td>
+		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['pagetitle'], $modx_manager_charset)>70 ? mb_substr($row['pagetitle'], 0, 70, $modx_manager_charset)."..." : $row['pagetitle'] ; ?></td> 
+		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['description'], $modx_manager_charset)>70 ? mb_substr($row['description'], 0, 70, $modx_manager_charset)."..." : $row['description'] ; ?></td>
 <?php
-		}
-		else
-		{
+		} else {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo strlen($logentry['pagetitle'])>20 ? substr($logentry['pagetitle'], 0, 20)."..." : $logentry['pagetitle'] ; ?></td> 
-		<td<?php echo $tdClass; ?>><?php echo strlen($logentry['description'])>35 ? substr($logentry['description'], 0, 35)."..." : $logentry['description'] ; ?></td>
+		<td<?php echo $tdClass; ?>><?php echo strlen($row['pagetitle'])>20 ? substr($row['pagetitle'], 0, 20).'...' : $row['pagetitle'] ; ?></td> 
+		<td<?php echo $tdClass; ?>><?php echo strlen($row['description'])>35 ? substr($row['description'], 0, 35).'...' : $row['description'] ; ?></td>
 <?php
 		}
 ?>
@@ -145,8 +167,8 @@ if($limit<1) {
 <?php
 	}
 ?> 
-    </tbody> 
-     </table> 
+    </tbody>
+     </table>
 <?php
 }
 ?>
