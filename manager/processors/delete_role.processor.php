@@ -4,7 +4,16 @@ if(!$modx->hasPermission('delete_role')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+if( empty($_GET['id']) ){
+	header("Location: index.php?a=86");
+}
+
 $id=$_GET['id'];
+
+if( !preg_match('/^[0-9]+$/',$id) ){
+	echo "Wrong data was inputted!";
+	exit;
+}
 
 if($id==1){
 	echo "The role you are trying to delete is the admin role. This role cannot be deleted!";
