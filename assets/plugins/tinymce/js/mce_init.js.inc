@@ -10,6 +10,7 @@ tinyMCE.init({
 	width                            : '[+width+]',
 	height                           : '[+height+]',
 	language                         : '[+language+]',
+	paste_text_use_dialog            : true,
 	document_base_url                : '[+document_base_url+]',
 	relative_urls                    : [+relative_urls+],
 	remove_script_host               : [+remove_script_host+],
