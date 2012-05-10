@@ -4,7 +4,7 @@ $ph['_lang_cleaningup']     = $_lang['cleaningup'];
 $ph['_lang_actioncomplete'] = $_lang['actioncomplete'];
 
 if($_REQUEST['r']==10)
-	$ph['reload'] = 'top.location.startrefresh(10);';
+	$ph['reload'] = 'top.mainMenu.startrefresh(10);';
 elseif($_REQUEST['dv']==1 && $_REQUEST['id']!='')
 	$ph['reload'] = "document.location.href='index.php?a=3&id={$_REQUEST['id']};'";
 else
