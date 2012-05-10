@@ -1,4 +1,7 @@
 <?php
+$class_version = '1.0.2';
+if(!isset($version) || $version !== $class_version) echo 'TopicPath version error';
+
 class TopicPath
 {
 	function TopicPath()
@@ -10,13 +13,13 @@ class TopicPath
 		global $modx;
 		if($modx->event->params) extract($modx->event->params);
 		
-		if(!isset($theme))                $theme             = 'raw';
+		if(!isset($theme))                $theme             = 'string';
 		if(!isset($pathThruUnPub))        $pathThruUnPub     = 1;
 		if(!isset($showInMenuOnly))       $showInMenuOnly    = 1;
 		if(!isset($showCurrentTopic))     $showCurrentTopic  = 1;
 		if(!isset($currentAsLink))        $currentAsLink     = 0;
-		if(!isset($titleField))           $titleField     = 'menutitle,pagetitle';
-		if(!isset($descField))            $descField     = 'description,longtitle,pagetitle';
+		if(!isset($titleField))           $titleField        = 'menutitle,pagetitle';
+		if(!isset($descField))            $descField         = 'description,longtitle,pagetitle';
 		if(!isset($showTopicsAsLinks))    $showTopicsAsLinks = 1;
 		if(!isset($topicGap))             $topicGap          = '...';
 		if(!isset($showHomeTopic))        $showHomeTopic     = 1;
@@ -37,17 +40,20 @@ class TopicPath
 			case 'li':
 			case 'defaultlist':
 				$tpl['outer']             = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['first_topic_outer'] = '<span class="first">[+topic+]</span>';
-				$tpl['last_topic_outer']  = '<span class="last">[+topic+]</span>';
-				$tpl['topic']             = '<li>[+topic+]</li>';
+				$tpl['first_topic_outer'] = '<li class="first">[+topic+]</li>';
+				$tpl['last_topic_outer']  = '<li class="last">[+topic+]</li>';
+				$tpl['other_topic_outer'] = '<li>[+topic+]</li>';
+				$tpl['topic']             = '[+topic+]';
 				$tpl['separator']         = '';
 				break;
 			case 'raw':
+			case 'string':
 			case 'defaultstring':
 			case 'default':
-				$tpl['outer']             = '<span class="topicpath">[+topics+]</span>';
+				$tpl['outer']             = '<div class="topicpath">[+topics+]</div>';
 				$tpl['first_topic_outer'] = '<span class="first">[+topic+]</span>';
 				$tpl['last_topic_outer']  = '<span class="last">[+topic+]</span>';
+				$tpl['other_topic_outer'] = '<span>[+topic+]</span>';
 				$tpl['topic']             = '[+topic+]';
 				$tpl['separator']         = ' &raquo; ';
 				break;
@@ -58,6 +64,7 @@ class TopicPath
 		if(isset($tplTopic))           $tpl['topic']             = $tplTopic;
 		if(isset($tplFirstTopicOuter)) $tpl['first_topic_outer'] = $tplFirstTopicOuter;
 		if(isset($tplLastTopicOuter))  $tpl['last_topic_outer']  = $tplLastTopicOuter;
+		if(isset($tplOtherTopicOuter)) $tpl['other_topic_outer'] = $tplOtherTopicOuter;
 		if(isset($tplSeparator))       $tpl['separator']         = $tplSeparator;
 		
 		// Return blank if necessary: on home page
@@ -248,18 +255,18 @@ class TopicPath
 		// Put in correct order for output
 		$pretplTopics = array_reverse($pretplTopics);
 		
-		// Wrap first/last spans
-		
-		$pretplTopics[0] = str_replace('[+topic+]',$pretplTopics[0],$tpl['first_topic_outer']);
-		
-		$last = count($pretplTopics)-1;
-		$pretplTopics[$last] = str_replace('[+topic+]',$pretplTopics[$last],$tpl['last_topic_outer']);
-		
 		// Insert topics into topic template
 		$processedTopics = array();
+		$c = 0;
+		$last = count($pretplTopics)-1;
 		foreach ( $pretplTopics as $pc )
 		{
-			$processedTopics[] = str_replace('[+topic+]',$pc,$tpl['topic']);
+			$_ = str_replace('[+topic+]', $pc, $tpl['topic']);
+			if($c === 0)         $_ = str_replace('[+topic+]', $_, $tpl['first_topic_outer']);
+			elseif($c === $last) $_ = str_replace('[+topic+]', $_, $tpl['last_topic_outer']);
+			else                 $_ = str_replace('[+topic+]', $_, $tpl['other_topic_outer']);
+			$processedTopics[] = $_;
+			$c++;
 		}
 		
 		// Combine topics together into one string with separator
@@ -270,6 +277,7 @@ class TopicPath
 		// Return topics
 		return $container;
 	}
+	
 	function convert_array($str)
 	{
 		if($str == '') return array();
