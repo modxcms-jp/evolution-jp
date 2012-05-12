@@ -13,10 +13,6 @@ include_once("{$base_path}manager/includes/log.class.inc.php");
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// include_once the error handler
-include_once "{$base_path}manager/includes/error.class.inc.php";
-$e = new errorHandler;
-
 // initiate the content manager class
 $modx->loadExtension('ManagerAPI');
 $modx->getSettings();
@@ -46,6 +42,14 @@ $where = "BINARY {$tbl_manager_users}.username='{$username}' and {$tbl_user_attr
 
 $rs = $modx->db->select($field,$from,$where);
 $limit = $modx->db->getRecordCount($rs);
+
+if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
+$_lang = array();
+include_once("{$base_path}manager/includes/lang/{$modx->config['manager_language']}.inc.php");
+
+// include_once the error handler
+include_once("{$base_path}manager/includes/error.class.inc.php");
+$e = new errorHandler;
 
 if($limit==0 || $limit>1) {
     jsAlert($e->errors[900]);
