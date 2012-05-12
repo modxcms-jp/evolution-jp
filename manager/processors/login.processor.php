@@ -1,13 +1,13 @@
 <?php
 $base_path = str_replace('\\','/',realpath('../../')) . '/';
-define("IN_MANAGER_MODE", "true");
+define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
 $modx->db->connect();
 
-include("{$base_path}manager/includes/settings.inc.php");
-include_once "{$base_path}manager/includes/version.inc.php";
-include_once "{$base_path}manager/includes/log.class.inc.php";
+include_once("{$base_path}manager/includes/settings.inc.php");
+include_once("{$base_path}manager/includes/version.inc.php");
+include_once("{$base_path}manager/includes/log.class.inc.php");
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
@@ -18,16 +18,16 @@ include_once "{$base_path}manager/includes/error.class.inc.php";
 $e = new errorHandler;
 
 // initiate the content manager class
-$modx->loadExtension("ManagerAPI");
+$modx->loadExtension('ManagerAPI');
 $modx->getSettings();
 
 $username = $modx->db->escape($_REQUEST['username']);
 $givenPassword = $modx->db->escape($_REQUEST['password']);
 $captcha_code = $_REQUEST['captcha_code'];
 $rememberme= $_REQUEST['rememberme'];
-$failed_allowed = $modx->config["failed_login_attempts"];
+$failed_allowed = $modx->config['failed_login_attempts'];
 
-$tbl_user_settings = $modx->getFullTableName("user_settings");
+$tbl_user_settings   = $modx->getFullTableName('user_settings');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_user_attributes = $modx->getFullTableName('user_attributes');
 $tbl_user_roles = $modx->getFullTableName('user_roles');
@@ -276,8 +276,9 @@ else {
 // show javascript alert
 function jsAlert($msg){
 	global $modx;
-    if($_POST['ajax']==1) echo $msg."\n";
+    if($_POST['ajax']==1) echo "{$msg}\n";
     else {
-        echo "<script>window.setTimeout(\"alert('".addslashes($modx->db->escape($msg))."')\",10);history.go(-1)</script>";
+    	$msg = addslashes($modx->db->escape($msg));
+        echo "<script>window.setTimeout(\"alert('{$msg}')\",10);history.go(-1)</script>";
     }
 }
