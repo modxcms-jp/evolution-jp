@@ -867,11 +867,21 @@ function _check_duplicate_alias($id,$alias,$parent)
 	{ // only check for duplicates on the same level if alias_path is on
 		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
 		$docid = $modx->db->getValue($rs);
+		if($docid < 1)
+		{
+			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent={$parent}");
+			$docid = $modx->db->getValue($rs);
+		}
 	}
 	else
 	{
 		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
 		$docid = $modx->db->getValue($rs);
+		if($docid < 1)
+		{
+			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias=''");
+			$docid = $modx->db->getValue($rs);
+		}
 	}
 	if ($docid > 0)
 	{
