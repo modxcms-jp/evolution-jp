@@ -24,6 +24,7 @@ $_style['sort_tree']                = '<img src="'.$style_path.'icons/sort.png" 
 
 
 // Tree Icons
+$_style['tree_blanknode']           = $style_path.'tree/blanknode.gif';
 $_style['tree_deletedpage']         = $style_path.'tree/deletedpage.gif';
 $_style['tree_folder']              = $style_path.'tree/application_double.gif'; /* folder.gif */
 $_style['tree_folderopen']          = $style_path.'tree/application_double.gif'; /* folder-open.gif */

@@ -45,6 +45,7 @@ $resource_tree_node_name = 'pagetitle';
 $suffix_mode             = '0';
 $cache_type              = '1';
 $send_errormail          = '3';
+$limit_by_container       = '100';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
@@ -790,6 +791,12 @@ $dir->close();
 	<?php echo wrap_label($_lang["everybody"],form_radio('warning_visibility','1',$warning_visibility=='1'));?><br />
 	<?php echo $_lang["warning_visibility_message"]?>
 </td>
+</tr>
+<tr>
+<th><?php echo $_lang["limit_by_container"] ?></th>
+<td>
+	<?php echo form_text('limit_by_container',$limit_by_container,4);?><br />
+<?php echo $_lang["limit_by_container_message"]?></td>
 </tr>
 
 <tr>

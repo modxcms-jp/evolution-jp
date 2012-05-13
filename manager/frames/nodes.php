@@ -111,27 +111,45 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
 		$where  = "(parent={$parent}) {$access} GROUP BY sc.id";
 		$result = $modx->db->select($field,$from,$where,$tree_orderby);
+		$has_child = $modx->db->getRecordCount($result);
+		$has_child0=$has_child;
+		if(!isset($modx->config['limit_by_container'])) $modx->config['limit_by_container'] = '';
 		
-		if(100<$modx->db->getRecordCount($result) && $modx->config['tree_page_click']==='auto')
+		if($modx->config['tree_page_click']!=='27')
+		{
+			if($modx->config['limit_by_container']==='')             $status = 'asis';
+			elseif($modx->config['limit_by_container'] === '0')      $status = 'container_only';
+			elseif($modx->config['limit_by_container'] < $has_child) $status = 'too_many';
+			else $status = 'asis';
+			if($status!=='asis' && $parent !=='0')
 		{
 			$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
 			$result = $modx->db->select($field,$from,$where,$tree_orderby);
-			$status = 'too_many';
+				$has_child = $modx->db->getRecordCount($result);
 		}
-		if($modx->db->getRecordCount($result)==0)
+		}
+		
+		if($has_child==0 && $status !== 'container_only' && $status !== 'asis')
 		{
-			if(isset($status) && $status==='too_many')
+			if($status==='too_many')
 			{
 				$msg = $_lang['too_many_resources'];
 			}
 			else $msg = $_lang['empty_folder'];
 			
-			$output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
+			if($msg) $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
 		
 		while($row = $modx->db->getRow($result,'num'))
 		{
 			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
+			if($status === 'container_only' && $isfolder==1)
+			{
+				$where  = "(parent={$id}) AND isfolder=1 {$access} GROUP BY sc.id";
+				$result2 = $modx->db->select($field,$from,$where,$tree_orderby);
+				$has_child = $modx->db->getRecordCount($result2);
+			}
+			
 			if($modx->config['resource_tree_node_name']==='menutitle') $nodetitle = $menutitle ? $menutitle : $pagetitle; //jp-edition only
 			elseif($modx->config['resource_tree_node_name']==='alias') 
 			{
@@ -229,7 +247,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 				{
 					if ($expandAll == 1) array_push($opened2, $id);
 					
-					$ph['_style_tree_minusnode']  = $_style["tree_minusnode"];
+					$ph['_style_tree_minusnode']  = ($status === 'container_only' && $has_child==0) ? $_style["tree_blanknode"] : $_style["tree_minusnode"];
 					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folderopen_secure"] : $_style["tree_folderopen"];
 					$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fopen_node();
@@ -239,11 +257,13 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 				}
 				else
 				{
-					$ph['_style_tree_plusnode'] = $_style["tree_plusnode"];
+					if($status === 'container_only' && $has_child==0) $ph['_style_tree_plusnode'] = $_style["tree_blanknode"];
+					else                                                $ph['_style_tree_plusnode'] = $_style["tree_plusnode"];
 					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folder_secure"] : $_style["tree_folder"];
 					$ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fclose_node();
 					$output .= parse_ph($ph,$tpl);
+					if($parent!=0 && $status==='too_many') $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">' . $_lang['too_many_resources'] . '</span></div>';
 					array_push($closed2, $id);
 				}
 			}
