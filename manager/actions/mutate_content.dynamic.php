@@ -160,6 +160,10 @@ if (empty($_REQUEST['id']))
 	{
 		$content['menuindex'] = 0;
 	}
+	if (!$content['alias'] && $modx->config['automatic_alias'] === '2')
+	{
+		$content['alias'] = $modx->manager->get_alias_num_in_folder(0,$pid);
+	}
 }
 
 if($_REQUEST['a'] == '4') $content['richtext'] = $modx->config['use_editor'];

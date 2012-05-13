@@ -839,17 +839,17 @@ function get_alias($id,$alias,$parent,$pagetitle)
 	{
 		if ($alias && !$modx->config['allow_duplicate_alias'])
 		{ // check for duplicate alias name if not allowed
-			$alias = _check_duplicate_alias($modx,$id,$alias,$parent);
+			$alias = _check_duplicate_alias($id,$alias,$parent);
 		}
 		elseif (!$alias && $modx->config['automatic_alias'] != '0')
 		{ // auto assign alias
 			switch($modx->config['automatic_alias'])
 			{
 				case '1':
-			$alias = _get_alias_from_title($modx,$pagetitle);
+					$alias = $modx->manager->get_alias_from_title($id,$pagetitle);
 					break;
 				case '2':
-					$alias = _get_alias_num_in_folder($parent);
+					$alias = $modx->manager->get_alias_num_in_folder($id,$parent);
 					break;
 			}
 			
@@ -858,42 +858,9 @@ function get_alias($id,$alias,$parent,$pagetitle)
 	return $alias;
 }
 
-function _get_alias_from_title($modx,$pagetitle)
-{
-	$alias = strtolower($modx->stripAlias(trim($pagetitle)));
-	$tbl_site_content = $modx->getFullTableName('site_content');
-	
-	if(!$modx->config['allow_duplicate_alias'])
-	{
-		if(0 != $modx->db->getValue($modx->db->select('COUNT(id)',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}'")))
-		{
-			$c = 1;
-			$_ = $alias;
-			while(0 != $modx->db->getValue($modx->db->select('COUNT(id)',$tbl_site_content,"id<>'{$id}' AND alias='{$_}'")))
-			{
-				$_  = $alias;
-				$_ .= $c;
-				$c++;
-			}
-			$alias = $_;
-		}
-	}
-	else $alias = '';
-	return $alias;
-}
-
-function _get_alias_num_in_folder($parent)
+function _check_duplicate_alias($id,$alias,$parent)
 {
 	global $modx;
-	$tbl_site_content = $modx->getFullTableName('site_content');
-	
-	$rs = $modx->db->select('MAX(alias)',$tbl_site_content,"parent={$parent} AND alias REGEXP '^[0-9]+$'");
-	$_ = $modx->db->getValue($rs);
-	return ++$_;
-}
-
-function _check_duplicate_alias($modx,$id,$alias,$parent)
-{
 	$tbl_site_content = $modx->getFullTableName('site_content');
 	
 	if ($modx->config['use_alias_path']==1)
