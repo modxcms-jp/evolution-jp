@@ -65,7 +65,8 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 			$handle = fopen("{$cwd}assets/cache/{$filename}.pageCache.php", 'rb');
 			$src = fread($handle, filesize("{$cwd}assets/cache/{$filename}.pageCache.php"));
 			
-				$msize = memory_get_peak_usage() - $mstart;
+				$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+				$msize = $mem - $mstart;
 				$units = array('B', 'KB', 'MB');
 				$pos = 0;
 				while($msize >= 1024)

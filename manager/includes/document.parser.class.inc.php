@@ -1216,7 +1216,8 @@ class DocumentParser {
 		$phpTime= sprintf("%2.4f s", $phpTime);
 		$source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+		$total_mem = $this->nicesize($mem - $this->mstart);
 		
 		$content= str_replace('[^q^]', $queries, $content);
 		$content= str_replace('[^qt^]', $queryTime, $content);
@@ -3566,7 +3567,8 @@ class DocumentParser {
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
 
-		$total_mem = $this->nicesize(memory_get_peak_usage() - $this->mstart);
+		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+		$total_mem = $this->nicesize($mem - $this->mstart);
 		
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
