@@ -1936,7 +1936,7 @@ class DocumentParser {
 			if(($insert_id % $trim) == 0)
 			{
 				$limit = (isset($this->config['event_log_limit'])) ? intval($this->config['event_log_limit']) : 2000;
-				$this->purge_log('event_log',$limit,$trim);
+				$this->rotate_log('event_log',$limit,$trim);
 			}
 		}
 	}
@@ -1980,7 +1980,7 @@ class DocumentParser {
 		return $rs;
 	}
 	
-	function purge_log($target='event_log',$limit=2000, $trim=100)
+	function rotate_log($target='event_log',$limit=2000, $trim=100)
 	{
 		global $dbase;
 		
