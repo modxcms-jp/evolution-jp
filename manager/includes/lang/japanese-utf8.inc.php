@@ -1157,6 +1157,8 @@ $_lang["disabled"] = '無効';
 
 $_lang["limit_by_container"] = 'コンテナ内の表示数';
 $_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると表示を抑制します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
+$_lang["allow_mgr2web_title"]   = '認証状態を上書き';
+$_lang["allow_mgr2web_message"] = '管理メンバーとしてログインしている時はウェブユーザとしてもログインしている状態にします。';
 
 $_lang["No errors occured."] = "No errors occured.";
 $_lang["An error occured!"] = "An error occured!";

@@ -46,6 +46,7 @@ $suffix_mode             = '0';
 $cache_type              = '1';
 $send_errormail          = '3';
 $limit_by_container       = '100';
+$allow_mgr2web           = '0';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
@@ -643,6 +644,14 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
 	<?php echo wrap_label($_lang["no"],form_radio('udperms_allowroot','0', $udperms_allowroot=='0'));?><br />
 	<?php echo $_lang["udperms_allowroot_message"] ?>
+</td>
+</tr>
+<tr>
+<th><?php echo $_lang["allow_mgr2web_title"] ?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('allow_mgr2web','1', $allow_mgr2web=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('allow_mgr2web','0', $allow_mgr2web=='0'));?><br />
+	<?php echo $_lang["allow_mgr2web_message"] ?>
 </td>
 </tr>
 <tr>

@@ -1155,6 +1155,8 @@ $_lang["disabled"] = 'disabled';
 
 $_lang["limit_by_container"] = 'The number of displays in a container';
 $_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Only Container is Always Displayed';
+$_lang["allow_mgr2web_title"]   = 'Override attestation state';
+$_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
 
 $_lang["No errors occured."] = "No errors occured.";
 $_lang["An error occured!"] = "An error occured!";
