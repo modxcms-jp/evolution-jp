@@ -139,9 +139,16 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			
 			if($msg) $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
+		elseif($has_child==0 && $status !== 'container_only')
+		{
+			$msg = $_lang['empty_folder'];
+			if($msg) $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
+		}
 		
+		$loop_count = 0;
 		while($row = $modx->db->getRow($result,'num'))
 		{
+			$loop_count++;
 			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
 			if($status === 'container_only' && $isfolder==1)
 			{
@@ -263,7 +270,10 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 					$ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fclose_node();
 					$output .= parse_ph($ph,$tpl);
-					if($parent!=0 && $status==='too_many') $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">' . $_lang['too_many_resources'] . '</span></div>';
+					if($parent!=0 && $status==='too_many' && $loop_count == $has_child)
+					{
+						$output .= '<div style="white-space: nowrap;">'. $spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">' . $_lang['too_many_resources'] . '</span></div>';
+					}
 					array_push($closed2, $id);
 				}
 			}
