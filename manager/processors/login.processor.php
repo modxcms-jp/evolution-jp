@@ -252,6 +252,10 @@ else
 	setcookie ('modx_remember_manager', "", time() - 3600, MODX_BASE_URL);
 }
 
+if($modx->hasPermission('remove_locks')) {
+	$modx->remove_locks();
+}
+
 $log = new logHandler;
 $log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODX");
 
