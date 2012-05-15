@@ -1472,6 +1472,7 @@ function ab_cancel()
 function ab_move()
 {
 	global $modx, $_style, $_lang;
+	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button2"><a href="#" onclick="movedocument();"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
@@ -1481,6 +1482,7 @@ function ab_move()
 function ab_duplicate()
 {
 	global $modx, $_style, $_lang;
+	if(!$modx->hasPermission('new_document')) return;
 	$tpl = '<li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_resource_duplicate"];
 	$ph['alt'] = 'icons_resource_duplicate';
@@ -1492,6 +1494,7 @@ function ab_delete()
 {
 	global $modx, $_style, $_lang, $content;
 	if(!$modx->hasPermission('delete_document')) return;
+	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	if($content['deleted'] === '0')
 	{
