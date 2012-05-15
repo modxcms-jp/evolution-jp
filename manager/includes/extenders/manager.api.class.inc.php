@@ -99,6 +99,7 @@ class ManagerAPI {
 		
 		$rs = $modx->db->select('MAX(cast(alias as SIGNED))',$tbl_site_content,"id<>'{$id}' AND parent={$parent} AND alias REGEXP '^[0-9]+$'");
 		$_ = $modx->db->getValue($rs);
+		if(empty($_)) $_ = 0;
 		$_++;
 		while(!isset($noduplex))
 		{
