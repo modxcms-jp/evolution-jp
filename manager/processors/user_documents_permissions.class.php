@@ -9,10 +9,10 @@ class udperms{
 	
 	function checkPermissions() {
 		
-		global $table_prefix;
-		global $dbase;
 		global $udperms_allowroot;
 		global $modx;
+
+		$tbl_site_content = $modx->getFullTableName('site_content');
 
 		$user = $this->user;
 		$document = $this->document;
@@ -37,7 +37,7 @@ class udperms{
 			$document = substr($document,0,strpos($document,','));
 		}
 		
-		$parent = $modx->db->getValue('SELECT parent FROM '.$modx->getFullTableName('site_content').' WHERE id='.$document);
+		$parent = $modx->db->getValue($modx->db->select('parent', $tbl_site_content, "id={$document}"));
 		if ($this->duplicateDoc==true && $parent==0 && $udperms_allowroot==0) {
 			return false; // deny duplicate document at root if Allow Root is No
 		}
@@ -55,22 +55,19 @@ class udperms{
 			are private to the manager users will not be private to web users if the 
 			document group is not assigned to a web user group and visa versa.
 		 */
-		$tblsc = $dbase.".`".$table_prefix."site_content`";
-		$tbldg = $dbase.".`".$table_prefix."document_groups`";
-		$tbldgn = $dbase.".`".$table_prefix."documentgroup_names`";
+		$tbl_document_groups = $modx->getFullTableName('document_groups');
+		$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
 		$sql = "SELECT DISTINCT sc.id 
-				FROM $tblsc sc 
-				LEFT JOIN $tbldg dg on dg.document = sc.id
-				LEFT JOIN $tbldgn dgn ON dgn.id = dg.document_group
+				FROM {$tbl_site_content} sc 
+				LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id
+				LEFT JOIN {$tbl_documentgroup_names} dgn ON dgn.id = dg.document_group
 				WHERE sc.id = $document 
 				AND (". ( (!$docgrp) ? null : "dg.document_group = ".$docgrp." ||" ) . " sc.privatemgr = 0)";
 				   
 		$rs = $modx->db->query($sql);
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if($limit==1) $permissionsok = true;
 		
 		return $permissionsok;
 	}
 }
-
-?>
