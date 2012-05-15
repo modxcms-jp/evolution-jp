@@ -1921,7 +1921,7 @@ class DocumentParser {
 		{
 			if($this->config['send_errormail'] <= $type)
 			{
-				$subject = 'エラー発生通知 from ' . $this->config['site_name'];
+				$subject = 'Error mail from ' . $this->config['site_name'];
 				$this->sendmail($subject,$source);
 			}
 		}
