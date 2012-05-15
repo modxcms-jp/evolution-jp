@@ -437,66 +437,20 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 
 <div id="actions">
 	  <ul class="actionButtons">
-		  <li id="Button1">
-			<a href="#" onclick="documentDirty=false; document.mutate.save.click();">
-              <img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
-			</a><span class="and"> + </span>
-			<select id="stay" name="stay">
-			  <?php if ($modx->hasPermission('new_document')) { ?>		
-			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
-			  <?php } ?>
-			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
-			</select>		
-		  </li>
-          <li id="Button4"><a href="#" onclick="
 <?php
-				if(isset($content['parent']) && $content['parent']!=='0')
-				{
-					if($content['isfolder']=='0')
+		echo ab_save();
+		echo ab_cancel();
+		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
 					{
-					echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
+			echo ab_move();
+			echo ab_duplicate();
+			echo ab_delete();
 					}
-					else
-					{
-					echo "document.location.href='index.php?a=3&id={$id}&tab=0';";
-					}
-				}
-				elseif($content['isfolder']=='1' && $content['parent']=='0')
+		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
 				{
-					echo "document.location.href='index.php?a=3&id={$id}&tab=0';";
-				}
-				elseif($_GET['pid'])
-				{
-					$_GET['pid'] = intval($_GET['pid']);
-					echo "document.location.href='index.php?a=3&id={$_GET['pid']}&tab=0';";
-				}
-				else
-				{
-					echo "document.location.href='index.php?a=2';";
+			echo ab_preview();
 				}
 ?>
-          	"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-		  <?php
-            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
-            { ?>
-		  <li id="Button2">
-			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
-		  </li>
-          <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
-          <?php
-          if($content['deleted'] === '0')
-          {
-          ?>
-          <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']; ?></a></li>
-          <?php } else { ?>
-          <li id="Button3"><a href="#" onclick="undeletedocument();"><img src="<?php echo $_style["icons_undelete_resource"] ?>" alt="icons_undelete_document" /> <?php echo $_lang['undelete_resource']?></a></li>
-          <?php } ?>
-		  <?php } ?>
-          <?php
-            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72') { ?>
-          <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img alt="icons_preview_resource" src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>
-          <?php } ?>
 	  </ul>
 </div>
 
@@ -1440,5 +1394,105 @@ function input_hidden($name,$cond=true)
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
 	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" onchange="documentDirty=true;" />';
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_preview()
+{
+	global $modx, $_style, $_lang, $id;
+	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['onclick'] = "window.open('" . $modx->makeUrl($id,'','','full') . "','previeWin');";
+	$ph['icon'] = $_style["icons_preview_resource"];
+	$ph['alt'] = 'icons_preview_resource';
+	$ph['label'] = $_lang['preview'];
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_save()
+{
+	global $modx, $_style, $_lang;
+	$tpl = '<li id="Button1"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
+	$ph['onclick'] = 'documentDirty=false; document.mutate.save.click();';
+	$ph['icon'] = $_style["icons_save"];
+	$ph['alt'] = 'icons_save';
+	$ph['label'] = $_lang['save'];
+	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">';
+	if ($modx->hasPermission('new_document'))
+	{
+		$selected = $_REQUEST['stay']=='1' ? ' selected=""' : '';
+		$ph['select'] .= '<option id="stay1" value="1" ' . $selected . ' >' . $_lang['stay_new'] . '</option>';
+	}
+	$selected = $_REQUEST['stay']=='2' ? ' selected="selected"' : '';
+	$ph['select'] .= '<option id="stay2" value="2" ' . $selected . ' >' . $_lang['stay'] . '</option>';
+	$selected = $_REQUEST['stay']=='' ? ' selected=""' : '';
+	$ph['select'] .= '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option></select>';
+	
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_cancel()
+{
+	global $modx, $_style, $_lang, $content, $id;
+	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_cancel"];
+	$ph['alt'] = 'icons_cancel';
+	$ph['label'] = $_lang['cancel'];
+	if(isset($content['parent']) && $content['parent']!=='0')
+	{
+		if($content['isfolder']=='0') $href = "a=3&id={$content['parent']}&tab=0";
+		else                          $href = "a=3&id={$id}&tab=0";
+	}
+	elseif($content['isfolder']=='1' && $content['parent']=='0')
+	{
+		$href = "a=3&id={$id}&tab=0";
+	}
+	elseif($_GET['pid'])
+	{
+		$_GET['pid'] = intval($_GET['pid']);
+		$href = "a=3&id={$_GET['pid']}&tab=0";
+	}
+	else $href = "a=2";
+	$ph['onclick'] = "document.location.href='index.php?{$href}';";
+	
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_move()
+{
+	global $modx, $_style, $_lang;
+	$tpl = '<li id="Button2"><a href="#" onclick="movedocument();"><img src="[+icon+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_move_document"];
+	$ph['label'] = $_lang['move'];
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_duplicate()
+{
+	global $modx, $_style, $_lang;
+	$tpl = '<li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_resource_duplicate"];
+	$ph['alt'] = 'icons_resource_duplicate';
+	$ph['label'] = $_lang['duplicate'];
+	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function ab_delete()
+{
+	global $modx, $_style, $_lang, $content;
+	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	if($content['deleted'] === '0')
+	{
+		$ph['onclick'] = 'deletedocument();';
+		$ph['icon'] = $_style["icons_delete_document"];
+		$ph['alt'] = 'icons_delete_document';
+		$ph['label'] = $_lang['delete'];
+	}
+	else
+	{
+		$ph['onclick'] = 'undeletedocument();';
+		$ph['icon'] = $_style["icons_undelete_resource"];
+		$ph['alt'] = 'icons_undelete_document';
+		$ph['label'] = $_lang['undelete_resource'];
+	}
 	return $modx->parsePlaceholder($tpl,$ph);
 }
