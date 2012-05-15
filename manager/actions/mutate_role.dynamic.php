@@ -26,12 +26,11 @@ $role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the role editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
-$sql = "SELECT internalKey, username FROM {$tbl_active_users} WHERE action=35 and id={$role}";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
-if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=35 and id={$role}");
+$total = $modx->db->getRecordCount($rs);
+if($total>1) {
+	for ($i=0;$i<$total;$i++) {
+		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],"role");
 			$e->setError(5, $msg);
@@ -46,18 +45,17 @@ if($limit>1) {
 if($_REQUEST['a']=='35')
 {
 	$tbl_user_roles = $modx->getFullTableName('user_roles');
-	$sql = "SELECT * FROM {$tbl_user_roles} WHERE id={$role}";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	if($limit>1) {
+	$rs = $modx->db->select('*',$tbl_user_roles,"id={$role}");
+	$total = $modx->db->getRecordCount($rs);
+	if($total>1) {
 		echo "More than one role returned!<p>";
 		exit;
 	}
-	if($limit<1) {
+	if($total<1) {
 		echo "No role returned!<p>";
 		exit;
 	}
-	$roledata = mysql_fetch_assoc($rs);
+	$roledata = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$roledata['name'];
 } else {
 	$roledata = 0;
