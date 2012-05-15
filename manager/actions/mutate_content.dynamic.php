@@ -1411,6 +1411,8 @@ function ab_preview()
 function ab_save()
 {
 	global $modx, $_style, $_lang;
+	
+	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button1"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
 	$ph['onclick'] = 'documentDirty=false; document.mutate.save.click();';
 	$ph['icon'] = $_style["icons_save"];
@@ -1479,6 +1481,7 @@ function ab_duplicate()
 function ab_delete()
 {
 	global $modx, $_style, $_lang, $content;
+	if(!$modx->hasPermission('delete_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	if($content['deleted'] === '0')
 	{
