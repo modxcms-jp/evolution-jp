@@ -6,7 +6,7 @@ if(!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_docu
 	$e->dumpError();	
 }
 
-$id = $_REQUEST['id'];
+$id = intval($_REQUEST['id']);
 $tbl_site_content     = $modx->getFullTableName('site_content');
 
 // check permissions on the document
