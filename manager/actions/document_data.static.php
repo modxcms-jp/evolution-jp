@@ -28,6 +28,7 @@ $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 $from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
 $where = "sc.id ='{$id}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.*',$from,$where);
+$content = $modx->db->getRow($rs);
 $total = $modx->db->getRecordCount($rs);
 if ($total > 1)
 {
@@ -40,17 +41,6 @@ elseif ($total == 0)
 {
 	$e->setError(3);
 	$e->dumpError();
-}
-$content = $modx->db->getRow($rs);
-
-if ($content['published']==='0' && !$modx->hasPermission('view_unpublished'))
-{
-	if($modx->getLoginUserID() != $content['editedby'])
-	{
-		$modx->config['remember_last_tab'] = 0;
-		$e->setError(3);
-		$e->dumpError();
-	}
 }
 
 /**
