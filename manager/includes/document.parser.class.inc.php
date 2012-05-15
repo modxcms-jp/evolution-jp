@@ -1005,7 +1005,7 @@ class DocumentParser {
 		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		$cacheRefreshTime = 0;
 		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-		include_once($cache_path);
+		if(file_exists($cache_path)) include_once($cache_path);
 		$timeNow= time() + $this->config['server_offset_time'];
 		
 		if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) return;
