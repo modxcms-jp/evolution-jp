@@ -8,9 +8,6 @@ if($modx->config['remember_last_tab']!=='2')
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
-// invoke OnManagerRegClientStartupHTMLBlock event
-$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
-$onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -21,9 +18,6 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx->config['settings_version'];?>" />
 
-    <!-- OnManagerMainFrameHeaderHTMLBlock -->
-    <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
-    
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -114,6 +108,13 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 		}
 		/* ]]> */
     </script>
+<?php
+// invoke OnManagerRegClientStartupHTMLBlock event
+$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
+$onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
+?>
+    <!-- OnManagerMainFrameHeaderHTMLBlock -->
+    <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
 </head>
 <body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
 
