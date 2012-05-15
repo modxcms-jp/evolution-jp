@@ -138,6 +138,33 @@ if(!isset($_SESSION['mgrValidated'])){
 	exit;
 }
 
+switch($action)
+{
+	case 5:
+	case 20:
+	case 24:
+	case 79:
+	case 103:
+	case 109:
+	case 30:
+	case 302:
+	case 86:
+		break;
+	default:
+		$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
+		if(file_exists($cache_path))
+		{
+			$role = unserialize(file_get_contents($cache_path));
+			if($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']])
+			{
+			    @session_destroy();
+			    session_unset();
+			    header("Location: {$modx->config['site_url']}manager/");
+			    exit;
+			}
+		}
+}
+
 // include_once the style variables file
 $theme_dir = "media/style/{$manager_theme}/";
 include_once "{$theme_dir}style.php";

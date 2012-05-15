@@ -99,6 +99,7 @@ switch ($_POST['mode']) {
             echo "An error occured while attempting to save the new role.<p>";
             exit;
         }
+        else $id = $modx->db->getInsertId();
         break;
     case '35' :
         $rs = $modx->db->update($fields, $tbl_user_roles, "id={$id}");
@@ -112,4 +113,14 @@ switch ($_POST['mode']) {
         exit;
 }
 
-if($rs) header("Location: index.php?a=86");
+if($rs)
+{
+	$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
+	if(file_exists($cache_path))
+	{
+		$role = unserialize(file_get_contents($cache_path));
+	}
+	$role[$id] = time();
+	file_put_contents($cache_path, serialize($role));
+	header("Location: index.php?a=86");
+}
