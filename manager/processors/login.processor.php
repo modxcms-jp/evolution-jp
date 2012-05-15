@@ -198,7 +198,6 @@ $_SESSION['mgrEmail'] = $email;
 $_SESSION['mgrValidated'] = 1;
 $_SESSION['mgrInternalKey'] = $internalKey;
 $_SESSION['mgrFailedlogins'] = $failedlogins;
-$_SESSION['mgrLastlogin'] = $lastlogin;
 $_SESSION['mgrLogincount'] = $nrlogins; // login count
 $_SESSION['mgrRole'] = $role;
 $rs = $modx->db->select('* ',$tbl_user_roles,"id={$role}");
@@ -213,6 +212,7 @@ if(isset($_SESSION['mgrValidated']))
 	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin={$now}, sessionid='{$currentsessionid}'";
     $sql = "update {$tbl_user_attributes} SET {$field} where internalKey={$internalKey}";
     $rs = $modx->db->query($sql);
+	$_SESSION['mgrLastlogin'] = $now;
 }
 
 // get user's document groups
