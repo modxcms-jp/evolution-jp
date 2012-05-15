@@ -43,6 +43,16 @@ elseif ($total == 0)
 }
 $content = $modx->db->getRow($rs);
 
+if ($content['published']==='0' && !$modx->hasPermission('view_unpublished'))
+{
+	if($modx->getLoginUserID() != $content['editedby'])
+	{
+		$modx->config['remember_last_tab'] = 0;
+		$e->setError(3);
+		$e->dumpError();
+	}
+}
+
 /**
  * "General" tab setup
  */

@@ -148,6 +148,16 @@ if ($formRestored == true || isset ($_REQUEST['newtemplate']))
 	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
 }
 
+if ($_REQUEST['a']==27 && $content['published']==='0' && !$modx->hasPermission('view_unpublished'))
+{
+	if($modx->getLoginUserID() != $content['editedby'])
+	{
+		$modx->config['remember_last_tab'] = 0;
+		$e->setError(3);
+		$e->dumpError();
+	}
+}
+
 // increase menu index if this is a new document
 if (empty($_REQUEST['id']))
 {

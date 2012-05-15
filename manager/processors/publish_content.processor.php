@@ -26,12 +26,23 @@ if(!$udperms->checkPermissions()) {
 	exit;	
 }
 
+if(!$modx->hasPermission('view_unpublished'))
+{
+	$uid = $modx->db->getValue($modx->db->select('publishedby',$tbl_site_content,"id='{$id}'"));
+	if($modx->getLoginUserID() != $uid)
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+}
+
 // update the document
 $field['published']   = 1;
 $field['pub_date']    = 0;
 $field['unpub_date']  = 0;
 $field['publishedby'] = $modx->getLoginUserID();
 $field['publishedon'] = time();
+$field['editedby']    = $modx->getLoginUserID();
 $rs = $modx->db->update($field,$tbl_site_content,"id={$id}");
 if(!$rs)
 {

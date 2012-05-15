@@ -31,6 +31,8 @@ $field['pub_date']    = 0;
 $field['unpub_date']  = 0;
 $field['publishedby'] = 0;
 $field['publishedon'] = 0;
+$field['editedby'] = $modx->getLoginUserID();
+
 $rs = $modx->db->update($field,$tbl_site_content,"id={$id}");
 if(!$rs)
 {
