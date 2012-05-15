@@ -358,7 +358,7 @@ $_lang["forgot_your_password"] = 'パスワードを忘れた場合はこちら'
 $_lang["friday"] = '金';
 $_lang["friendly_alias_message"] = 'フレンドリーURLを使用して、かつリソースがエイリアスを持つ場合、URL表現にエイリアスを用います。このオプションを「はい」に設定することで、フレンドリーURLのプレフィックスとサフィックスもエイリアスに適用されます。例えば、リソースのIDが1、エイリアスが「introduction」、プレフィックスが「」(空白)、サフィックスが「.html」の場合、このオプションを「はい」にすると、URLは「introduction.html」となります。 エイリアスを設定していない場合は、MODXが「1.html」というリンクを生成します。';
 $_lang["friendly_alias_title"] = 'エイリアスを使用';
-$_lang["friendlyurls_message"] = '静的URI機能(フレンドリーURL)を動作させるためにはMODXインストールディレクトリの<b>sample.htaccessファイルを.htaccessにリネーム</b>する必要があります。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
+$_lang["friendlyurls_message"] = 'MODXインストールディレクトリの<b>sample.htaccessファイルを.htaccessにリネーム</b>する必要があります。ディレクトリの書き込み権限がある場合はグローバル設定更新時に自動的にリネームしますが、自動リネームを行ないたくない場合はsample.htaccessを予め削除しておいてください。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
 $_lang["friendlyurls_title"] = 'フレンドリーURLを使用';
 $_lang["friendlyurlsprefix_message"] = 'フレンドリーURLのプレフィックスを指定してください。例えばプレフィックスを「page」に設定した場合、URLの /index.php?id=2 は、 /page2.htmlというフレンドリーURLに変換されます(サフィックスが .htmlに設定されていると仮定)。';
 $_lang["friendlyurlsprefix_title"] = 'プレフィックス';
@@ -1150,7 +1150,7 @@ $_lang["mutate_settings.dynamic.php4"] = '個別の拡張子表現';
 $_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドット)を含む時にプレフィックスの追加を省略できます。';
 $_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メールで通知する';
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
-$_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)](' . $modx->config['emailsender'] . ')に通知します。エラーの内容の詳細はイベントログを確認してください。';
+$_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)](' . $modx->config['emailsender'] . ')に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
 $_lang["save_user.processor.php1"] = '変更したロールの権限設定を読み込むために、再ログインしてください。';
 
 $_lang["disabled"] = '無効';
