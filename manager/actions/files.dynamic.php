@@ -29,7 +29,7 @@ $upload_flash = explode(',',$upload_flash);
 $uploadablefiles = array_merge($upload_files,$upload_images,$upload_media,$upload_flash);
 $count = count($uploadablefiles);
 for($i=0; $i<$count; $i++) {
-	$uploadablefiles[$i] = ".".$uploadablefiles[$i]; // add a dot :)
+	$uploadablefiles[$i] = ".".strtolower($uploadablefiles[$i]); // add a dot :)
 }
 // end settings
 
@@ -633,9 +633,9 @@ function getExtension($string) {
    }
    if (is_int($pos)) {
 	   $len = strlen($search);
-	   return substr($string, $pos);
+	   return strtolower(substr($string, $pos));
    }
-	return $string;
+	return strtolower($string);
 }
 
 function mkdirs($strPath, $mode){ // recursive mkdir function

@@ -43,10 +43,10 @@ if($settings['use_browser'] != 1){
 }
 
 // make arrays from the file upload settings
-$upload_files = explode(',',$upload_files);
-$upload_images = explode(',',$upload_images);
-$upload_media = explode(',',$upload_media);
-$upload_flash = explode(',',$upload_flash);
+$upload_files  = explode(',',strtolower($upload_files));
+$upload_images = explode(',',strtolower($upload_images));
+$upload_media  = explode(',',strtolower($upload_media));
+$upload_flash  = explode(',',strtolower($upload_flash));
 
 // avoid problems when passing strings into CHMOD
 $fckphp_config['modx']['file_permissions'] = octdec($new_file_permissions);
