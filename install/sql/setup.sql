@@ -745,7 +745,7 @@ ALTER TABLE `{PREFIX}site_content_metatags`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
-ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
+ALTER TABLE `{PREFIX}_site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
