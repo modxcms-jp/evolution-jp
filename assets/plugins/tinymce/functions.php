@@ -101,8 +101,8 @@ class TinyMCE
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
 		
-		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($ph['mce_entermode']=='p') . '/>&lt;p&gt;&lt;/p&gt;で囲む</label><br />';
-		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($ph['mce_entermode']=='br') . '/>&lt;br /&gt;を挿入</label>';
+		$ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" '.  $this->checked($ph['mce_entermode']=='p') . '/>' . $_lang['mce_entermode_opt1'] . '</label><br />';
+		$ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" '. $this->checked($ph['mce_entermode']=='br') . '/>' . $_lang['mce_entermode_opt2'] . '</label>';
 		switch($modx->manager->action)
 		{
 			case '11':

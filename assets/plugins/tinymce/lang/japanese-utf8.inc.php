@@ -30,3 +30,5 @@ $_lang['mce_editor_skin_title'] = 'スキン';
 $_lang['mce_editor_skin_message'] = 'ツールバーのデザイン。tinymce/jscripts/tiny_mce/themes/advanced/skins/ ディレクトリ内のスキンを選択します。<br />';
 $_lang['mce_editor_entermode_title'] = '改行キーの動作';
 $_lang['mce_editor_entermode_message'] = '改行キーを押した時の動作を設定します。';
+$_lang['mce_entermode_opt1'] = '&lt;p&gt;&lt;/p&gt;で囲む';
+$_lang['mce_entermode_opt2'] = '&lt;br /&gt;を挿入';

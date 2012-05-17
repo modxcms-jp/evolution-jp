@@ -30,3 +30,5 @@ $_lang['mce_editor_skin_title'] = 'Skin';
 $_lang['mce_editor_skin_message'] = 'Design of toolbar. see tinymce/jscripts/tiny_mce/themes/advanced/skins/<br />';
 $_lang['mce_editor_entermode_title'] = 'Enter key mode';
 $_lang['mce_editor_entermode_message'] = 'Operation when the enter key is pressed is set up.';
+$_lang['mce_entermode_opt1'] = 'Wrap &lt;p&gt;&lt;/p&gt;';
+$_lang['mce_entermode_opt2'] = 'Insert &lt;br /&gt;';
