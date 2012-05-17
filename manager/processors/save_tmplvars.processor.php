@@ -14,7 +14,7 @@ $elements = $modx->db->escape($_POST['elements']);
 $default_text = $modx->db->escape($_POST['default_text']);
 $rank = isset ($_POST['rank']) ? $modx->db->escape($_POST['rank']) : 0;
 $display = $modx->db->escape($_POST['display']);
-$params = $modx->db->escape($_POST['params']);
+$display_params = $modx->db->escape($_POST['params']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
 $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
@@ -22,11 +22,11 @@ $tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
 //Kyle Jaebker - added category support
 if(empty($_POST['newcategory']) && $_POST['categoryid'] > 0)
 {
-	$categoryid = $modx->db->escape($_POST['categoryid']);
+	$category = $modx->db->escape($_POST['categoryid']);
 }
 elseif(empty($_POST['newcategory']) && $_POST['categoryid'] <= 0)
 {
-	$categoryid = 0;
+	$category = 0;
 }
 else
 {
@@ -34,11 +34,11 @@ else
 	$catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
 	if ($catCheck)
 	{
-		$categoryid = $catCheck;
+		$category = $catCheck;
 	}
 	else
 	{
-		$categoryid = newCategory($_POST['newcategory']);
+		$category = newCategory($_POST['newcategory']);
 	}
 }
 
@@ -75,18 +75,7 @@ switch ($_POST['mode'])
 		}
 		
 		// Add new TV
-		$field = array();
-		$field['name'] = $name;
-		$field['description'] = $description;
-		$field['caption'] = $caption;
-		$field['type'] = $type;
-		$field['elements'] = $elements;
-		$field['default_text'] = $default_text;
-		$field['display'] = $display;
-		$field['display_params'] = $params;
-		$field['rank'] = $rank;
-		$field['locked'] = $locked;
-		$field['category'] = $categoryid;
+		$field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
 		$rs = $modx->db->insert($field,$tbl_site_tmplvars);
 		if(!$rs)
 		{
@@ -157,19 +146,7 @@ switch ($_POST['mode'])
 		}
     	// update TV
     	$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_tmplvars,"id='{$id}'"));
-    	$reserve_name_replace = ($was_name!==$field['name']) ? true : false;
-		$field = array();
-		$field['name']           = $name;
-		$field['description']    = $description;
-		$field['caption']        = $caption;
-		$field['type']           = $type;
-		$field['elements']       = $elements;
-		$field['default_text']   = $default_text;
-		$field['display']        = $display;
-		$field['display_params'] = $params;
-		$field['rank']           = $rank;
-		$field['locked']         = $locked;
-		$field['category']       = $categoryid;
+		$field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
 		$rs = $modx->db->update($field,$tbl_site_tmplvars,"id='{$id}'");
 		if(!$rs)
 		{

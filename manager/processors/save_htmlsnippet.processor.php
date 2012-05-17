@@ -4,9 +4,10 @@ if(!$modx->hasPermission('save_chunk')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+
 $id = intval($_POST['id']);
 $snippet = $modx->db->escape($_POST['post']);
-$name = $modx->db->escape(trim($_POST['name']));
+$name        = ($_POST['name']) ? $modx->db->escape(trim($_POST['name'])) : 'Untitled chunk';
 $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 $editor_type = $_POST['editor_type']=='1' ? 1 : 0 ;
@@ -33,20 +34,10 @@ else
 		include_once "footer.inc.php";
 		exit;
 	}
-	elseif($pub_date < $currentdate)
-	{
-		$published = 1;
-	}
-	elseif ($pub_date > $currentdate)
-	{
-		$published = 0;
-	}
+	elseif($pub_date < $currentdate)  $published = 1;
+	elseif ($pub_date > $currentdate) $published = 0;
 }
-
-if(empty($unpub_date))
-{
-	$unpub_date = 0;
-}
+if(empty($unpub_date))                $unpub_date = 0;
 else
 {
 	$unpub_date = $modx->toTimeStamp($unpub_date);
@@ -59,30 +50,25 @@ else
 		include_once "footer.inc.php";
 		exit;
 	}
-	elseif ($unpub_date < $currentdate)
-	{
-		$published = 0;
+	elseif ($unpub_date < $currentdate) $published = 0;
 	}
-}
 
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $categoryid = $modx->db->escape($_POST['categoryid']);
+    $category = $modx->db->escape($_POST['categoryid']);
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
-    $categoryid = 0;
+    $category = 0;
 } else {
     include_once "categories.inc.php";
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
     if ($catCheck) {
-        $categoryid = $catCheck;
+        $category = $catCheck;
     } else {
-        $categoryid = newCategory($_POST['newcategory']);
+        $category = newCategory($_POST['newcategory']);
     }
 }
-
-if($name=="") $name = "Untitled chunk";
 
 switch ($_POST['mode']) {
     case '77':
@@ -108,16 +94,7 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		//do stuff to save the new doc
-		$field = array();
-		$field['name'] = $name;
-		$field['description'] = $description;
-		$field['published'] = $published;
-		$field['pub_date'] = $pub_date;
-		$field['unpub_date'] = $unpub_date;
-		$field['snippet'] = $snippet;
-		$field['locked'] = $locked;
-		$field['editor_type'] = $editor_type;
-		$field['category'] = $categoryid;
+		$field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
 		$rs = $modx->db->insert($field,$tbl_site_htmlsnippets);
 		if(!$rs)
 		{
@@ -174,16 +151,7 @@ switch ($_POST['mode']) {
 		
 		//do stuff to save the edited doc
 		$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_htmlsnippets,"id='{$id}'"));
-		$field = array();
-		$field['name'] = $name;
-		$field['description'] = $description;
-		$field['published'] = $published;
-		$field['pub_date'] = $pub_date;
-		$field['unpub_date'] = $unpub_date;
-		$field['snippet'] = $snippet;
-		$field['locked'] = $locked;
-		$field['editor_type'] = $editor_type;
-		$field['category'] = $categoryid;
+		$field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
 		$rs = $modx->db->update($field,$tbl_site_htmlsnippets,"id='{$id}'");
 		if(!$rs)
 		{

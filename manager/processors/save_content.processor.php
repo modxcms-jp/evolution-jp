@@ -9,52 +9,8 @@ if (!$modx->hasPermission('save_document')) {
 
 fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes');
 
-// preprocess POST values
-$id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
-$introtext       = $modx->db->escape($_POST['introtext']);
-$content         = $modx->db->escape($_POST['ta']);
-$pagetitle       = $modx->db->escape($_POST['pagetitle']);
-$longtitle       = $modx->db->escape($_POST['longtitle']);
-$menutitle       = $modx->db->escape($_POST['menutitle']);
-$description     = $modx->db->escape($_POST['description']);
-$alias           = $modx->stripAlias($modx->db->escape($_POST['alias']));
-$link_attributes = $modx->db->escape($_POST['link_attributes']);
-$isfolder        = $_POST['isfolder'];
-$richtext        = $_POST['richtext'];
-$published       = $_POST['published'];
-$parent          = $_POST['parent'] != '' ? $_POST['parent'] : 0;
-$template        = $_POST['template'];
-$menuindex       = !empty($_POST['menuindex']) ? $_POST['menuindex'] : 0;
-$searchable      = $_POST['searchable'];
-$cacheable       = $_POST['cacheable'];
-$syncsite        = $_POST['syncsite'];
-$pub_date        = $_POST['pub_date'];
-$unpub_date      = $_POST['unpub_date'];
-$document_groups = (isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on') ? array() : $_POST['docgroups'];
-$type            = $_POST['type'];
-$keywords        = $_POST['keywords'];
-$metatags        = $_POST['metatags'];
-$contentType     = $modx->db->escape($_POST['contentType']);
-$contentdispo    = intval($_POST['content_dispo']);
-$donthit         = intval($_POST['donthit']);
-$hidemenu        = intval($_POST['hidemenu']);
-
-if (trim($pagetitle) == '')
-{
-	if ($type == 'reference') $pagetitle = $_lang['untitled_weblink'];
-	else                      $pagetitle = $_lang['untitled_resource'];
-}
-
-// get table names
-$tbl_document_groups            = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
-$tbl_member_groups              = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
-$tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
-$tbl_site_content               = $modx->getFullTableName('site_content');
-$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+extract(getValues());    // preprocess POST values
+extract(get_tblnames()); // get table names
 
 if($_POST['mode'] == '27') $actionToTake = 'edit';
 else                       $actionToTake = 'new';
@@ -182,37 +138,12 @@ switch ($actionToTake)
 
 		$publishedon = ($published ? time() : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
-
-		$field = array();
-		$field['introtext']       = $introtext;
-		$field['content']         = $content;
-		$field['pagetitle']       = $pagetitle;
-		$field['longtitle']       = $longtitle;
-		$field['type']            = $type;
-		$field['description']     = $description;
-		$field['alias']           = $alias;
-		$field['link_attributes'] = $link_attributes;
-		$field['isfolder']        = $isfolder;
-		$field['richtext']        = $richtext;
-		$field['published']       = $published;
-		$field['parent']          = $parent;
-		$field['template']        = $template;
-		$field['menuindex']       = $menuindex;
-		$field['searchable']      = $searchable;
-		$field['cacheable']       = $cacheable;
-		$field['createdby']       = $modx->getLoginUserID();
-		$field['createdon']       = time();
-		$field['editedby']        = $modx->getLoginUserID();
-		$field['editedon']        = time();
-		$field['publishedby']     = $publishedby;
-		$field['publishedon']     = $publishedon;
-		$field['pub_date']        = $pub_date;
-		$field['unpub_date']      = $unpub_date;
-		$field['contentType']     = $contentType;
-		$field['content_dispo']   = $contentdispo;
-		$field['donthit']         = $donthit;
-		$field['menutitle']       = $menutitle;
-		$field['hidemenu']        = $hidemenu;
+		
+		$createdby = $modx->getLoginUserID();
+		$createdon = time();
+		$editedby = $modx->getLoginUserID();
+		$editedon = time();
+		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		$rs = $modx->db->insert($field,$tbl_site_content);
 		if(!$rs)
 		{
@@ -445,34 +376,9 @@ switch ($actionToTake)
 		$modx->invokeEvent('OnBeforeDocFormSave', $params);
 
 		// update the document
-		$field = array();
-		$field['introtext']       = $introtext;
-		$field['content']         = $content;
-		$field['pagetitle']       = $pagetitle;
-		$field['longtitle']       = $longtitle;
-		$field['type']            = $type;
-		$field['description']     = $description;
-		$field['alias']           = $alias;
-		$field['link_attributes'] = $link_attributes;
-		$field['isfolder']        = $isfolder;
-		$field['richtext']        = $richtext;
-		$field['published']       = $published;
-		$field['pub_date']        = $pub_date;
-		$field['unpub_date']      = $unpub_date;
-		$field['parent']          = $parent;
-		$field['template']        = $template;
-		$field['menuindex']       = $menuindex;
-		$field['searchable']      = $searchable;
-		$field['cacheable']       = $cacheable;
-		$field['editedby']        = $modx->getLoginUserID();
-		$field['editedon']        = time();
-		$field['publishedon']     = $publishedon;
-		$field['publishedby']     = $publishedby;
-		$field['contentType']     = $contentType;
-		$field['content_dispo']   = $contentdispo;
-		$field['donthit']         = $donthit;
-		$field['menutitle']       = $menutitle;
-		$field['hidemenu']        = $hidemenu;
+		$editedby = $modx->getLoginUserID();
+		$editedon = time();
+		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
 		if (!$rs)
 		{
@@ -901,4 +807,46 @@ function _check_duplicate_alias($id,$alias,$parent)
 		exit;
 	}
 	return $alias;
+}
+
+function getValues()
+{
+	global $modx, $_lang;
+	
+	foreach($_POST as $k=>$v)
+	{
+		$input[$k] = $modx->db->escape($v);
+	}
+	$input['id']              = is_numeric($input['id']) ? $input['id'] : '';
+	$input['content']         = $input['ta'];
+	$input['alias']           = $modx->stripAlias($modx->db->escape($input['alias']));
+	$input['parent']          = $input['parent']!='' ? $input['parent'] : 0;
+	$input['menuindex']       = !empty($input['menuindex']) ? $input['menuindex'] : 0;
+	$input['document_groups'] = (isset($input['chkalldocs']) && $input['chkalldocs'] == 'on') ? array() : $input['docgroups'];
+	$input['content_dispo']    = intval($input['content_dispo']);
+	$input['donthit']         = intval($input['donthit']);
+	$input['hidemenu']        = intval($input['hidemenu']);
+	if (trim($input['pagetitle']) == '')
+	{
+		if ($type == 'reference') $input['pagetitle'] = $_lang['untitled_weblink'];
+		else                      $input['pagetitle'] = $_lang['untitled_resource'];
+	}
+
+	return $input;
+}
+
+function get_tblnames()
+{
+	global $modx;
+	
+	$tbl['tbl_document_groups']            = $modx->getFullTableName('document_groups');
+	$tbl['tbl_documentgroup_names']        = $modx->getFullTableName('documentgroup_names');
+	$tbl['tbl_member_groups']              = $modx->getFullTableName('member_groups');
+	$tbl['tbl_membergroup_access']         = $modx->getFullTableName('membergroup_access');
+	$tbl['tbl_keyword_xref']               = $modx->getFullTableName('keyword_xref');
+	$tbl['tbl_site_content']               = $modx->getFullTableName('site_content');
+	$tbl['tbl_site_content_metatags']      = $modx->getFullTableName('site_content_metatags');
+	$tbl['tbl_site_tmplvar_contentvalues'] = $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl['tbl_site_tmplvar_templates']     = $modx->getFullTableName('site_tmplvar_templates');
+	return $tbl;
 }

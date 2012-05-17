@@ -230,43 +230,46 @@ if($modx->hasPermission('help')) { ?>
 <?php
 // Concatenate menu items based on permissions
 
+function item($name, $href, $attrib='target="main"')
+{
+	global $modx;
+	
+	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
+	$ph = compact('href','name','attrib');
+	return $modx->parsePlaceholder($tpl, $ph);
+}
 // Site Menu
 $sitemenu = array();
-// home
-$sitemenu[] = '<li><a onclick="this.blur();" href="index.php?a=2" target="main">'.$_lang['home'].'</a></li>';
-// preview
-$sitemenu[] = '<li><a onclick="this.blur();" href="../" target="_blank">'.$_lang['preview'].'</a></li>';
-// clear-cache
-$sitemenu[] = '<li><a onclick="this.blur();" href="index.php?a=26" target="main">'.$_lang['refresh_site'].'</a></li>';
-// search
-$sitemenu[] = '<li><a onclick="this.blur();" href="index.php?a=71" target="main">'.$_lang['search'].'</a></li>';
+
+$sitemenu[] = item($_lang['home'], 'index.php?a=2');             // home
+$sitemenu[] = item($_lang['preview'], '../', 'target="_blank"'); // preview
+$sitemenu[] = item($_lang['refresh_site'], 'index.php?a=26');    // clear-cache
+$sitemenu[] = item($_lang['search'], 'index.php?a=71');          // search
 if ($modx->hasPermission('new_document')) {
-	// new-document
-	$sitemenu[] = '<li><a onclick="this.blur();" href="index.php?a=4" target="main">'.$_lang['add_resource'].'</a></li>';
-	// new-weblink
-	$sitemenu[] = '<li><a onclick="this.blur();" href="index.php?a=72" target="main">'.$_lang['add_weblink'].'</a></li>';
+	$sitemenu[] = item($_lang['add_resource'], 'index.php?a=4'); // new-document
+	$sitemenu[] = item($_lang['add_weblink'], 'index.php?a=72'); // new-weblink
 }
 
 // Elements Menu
 $resourcemenu = array();
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_chunk') || $modx->hasPermission('edit_chunk') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) {
 	// Elements
-	$resourcemenu[] = '<li><a onclick="this.blur();" href="index.php?a=76" target="main">'.$_lang['element_management'].'</a></li>';
+	$resourcemenu[] = item($_lang['element_management'], 'index.php?a=76');
 }
 if($modx->hasPermission('file_manager')) {
 	// Manage-Files
-	$resourcemenu[] = '<li><a onclick="this.blur();" href="index.php?a=31" target="main">'.$_lang['manage_files'].'</a></li>';
+	$resourcemenu[] = item($_lang['manage_files'], 'index.php?a=31');
 }
 if($modx->hasPermission('manage_metatags') && $modx->config['show_meta'] == 1) {
 	// Manage-Metatags
-	$resourcemenu[] = '<li><a onclick="this.blur();" href="index.php?a=81" target="main">'.$_lang['manage_metatags'].'</a></li>';
+	$resourcemenu[] = item($_lang['manage_metatags'], 'index.php?a=81');
 }
 
 // Modules Menu Items
 $modulemenu = array();
 if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
 	// manage-modules
-	$modulemenu[] = '<li><a onclick="this.blur();" href="index.php?a=106" target="main">'.$_lang['module_management'].'</a></li>';
+	$modulemenu[] = item($_lang['module_management'], 'index.php?a=106');
 }
 if($modx->hasPermission('exec_module')) {
 	// Each module
@@ -283,7 +286,7 @@ if($modx->hasPermission('exec_module')) {
 		$rs = $modx->db->select('id,name', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
 	while ($content = $modx->db->getRow($rs)) {
-		$modulemenu[] = '<li><a onclick="this.blur();" href="index.php?a=112&amp;id='.$content['id'].'" target="main">'.$content['name'].'</a></li>';
+		$modulemenu[] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
 	}
 }
 
@@ -291,61 +294,61 @@ if($modx->hasPermission('exec_module')) {
 $securitymenu = array();
 if($modx->hasPermission('edit_user')) {
 	// manager-users
-	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=75" target="main">'.$_lang['user_management_title'].'</a></li>';
+	$securitymenu[] = item($_lang['user_management_title'], 'index.php?a=75');
 }
 if($modx->hasPermission('edit_web_user')) {
 	// web-users
-	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=99" target="main">'.$_lang['web_user_management_title'].'</a></li>';
+	$securitymenu[] = item($_lang['web_user_management_title'], 'index.php?a=99');
 }
 if($modx->hasPermission('new_role') || $modx->hasPermission('edit_role') || $modx->hasPermission('delete_role')) {
 	// roles
-	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=86" target="main">'.$_lang['role_management_title'].'</a></li>';
+	$securitymenu[] = item($_lang['role_management_title'], 'index.php?a=86');
 }
 if($modx->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) {
 	// manager-perms
-	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=40" target="main">'.$_lang['manager_permissions'].'</a></li>';
+	$securitymenu[] = item($_lang['manager_permissions'], 'index.php?a=40');
 }
 if($modx->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) {
 	// web-user-perms
-	$securitymenu[] = '<li><a onclick="this.blur();" href="index.php?a=91" target="main">'.$_lang['web_permissions'].'</a></li>';
+	$securitymenu[] = item($_lang['web_permissions'], 'index.php?a=91');
 }
 
 // Tools Menu
 $toolsmenu = array();
 if($modx->hasPermission('bk_manager')) {
 	// backup-mgr
-	$toolsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=93" target="main">'.$_lang['bk_manager'].'</a></li>';
+	$toolsmenu[] = item($_lang['bk_manager'], 'index.php?a=93');
 }
 if($modx->hasPermission('remove_locks')) {
 	// unlock-pages
-	$toolsmenu[] = '<li><a onclick="this.blur();" href="javascript:removeLocks();">'.$_lang['remove_locks'].'</a></li>';
+	$toolsmenu[] = item($_lang['remove_locks'], 'javascript:removeLocks();', '');
 }
 if($modx->hasPermission('import_static')) {
 	// import-html
-	$toolsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=95" target="main">'.$_lang['import_site'].'</a></li>';
+	$toolsmenu[] = item($_lang['import_site'], 'index.php?a=95');
 }
 if($modx->hasPermission('export_static')) {
 	// export-static-site
-	$toolsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=83" target="main">'.$_lang['export_site'].'</a></li>';
+	$toolsmenu[] = item($_lang['export_site'], 'index.php?a=83');
 }
 if($modx->hasPermission('settings')) {
 	// configuration
-	$toolsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=17" target="main">'.$_lang['edit_settings'].'</a></li>';
+	$toolsmenu[] = item($_lang['edit_settings'], 'index.php?a=17');
 }
 
 // Reports Menu
 $reportsmenu = array();
 // site-sched
-$reportsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=70" target="main">'.$_lang['site_schedule'].'</a></li>';
+$reportsmenu[] = item($_lang['site_schedule'], 'index.php?a=70');
 if($modx->hasPermission('view_eventlog')) {
 	// eventlog
-	$reportsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=114" target="main">'.$_lang['eventlog_viewer'].'</a></li>';
+	$reportsmenu[] = item($_lang['eventlog_viewer'], 'index.php?a=114');
 }
 if($modx->hasPermission('logs')) {
 	// manager-audit-trail
-	$reportsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=13" target="main">'.$_lang['view_logging'].'</a></li>';
+	$reportsmenu[] = item($_lang['view_logging'], 'index.php?a=13');
 	// system-info
-	$reportsmenu[] = '<li><a onclick="this.blur();" href="index.php?a=53" target="main">'.$_lang['view_sysinfo'].'</a></li>';
+	$reportsmenu[] = item($_lang['view_sysinfo'], 'index.php?a=53');
 }
 
 // Output Menus where there are items to show
