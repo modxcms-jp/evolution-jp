@@ -9,6 +9,7 @@
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &theme=Theme;list;raw,list;raw
  * @internal	@modx_category Navigation
+ * @author  	yama http://kyms.jp
  */
 
 $version = '1.0.2';
