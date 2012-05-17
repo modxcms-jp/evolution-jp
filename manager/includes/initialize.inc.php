@@ -49,12 +49,10 @@ if(!function_exists('startCMSSession'))
 
 function assign_base_url()
 {
-	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
+	$init_path = str_replace("\\", '/',__FILE__);
+	$base_path = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
 	$docroot = get_DOCUMENT_ROOT();
-	$conf_dir = substr($conf_dir,strlen($docroot));
-	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
-	$base_url = substr($conf_dir,0,$mgr_pos);
-	return rtrim($base_url,'/') . '/';
+	return substr($base_path, strlen($docroot)) . '/';
 }
 
 function assign_base_path()
@@ -95,23 +93,23 @@ function is_https()
 function get_DOCUMENT_ROOT()
 {
 	$init_path = str_replace("\\", '/',__FILE__);
-	$_ = $_SERVER['SCRIPT_NAME'];
-	switch($_)
+	$_1 = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
+	$_2 = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'],'/'));
+	$limit = 10;
+	while(0 < $limit)
 	{
-		case '/index.php':
-		case '/manager/index.php':
-			$docroot = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
-			break;
-		default:
-			while(strpos($_,'/')!==false)
-			{
-				$_ = substr($_, 0, strrpos($_, '/'));
-				if(strpos($init_path, "{$_}/manager/includes/initialize.inc.php")!==false)
+		$pos = strlen($_2);
+		if($_2==='')                    $docroot = $_1;
+		elseif(substr($_1,-$pos)===$_2) $docroot = substr($_1, 0, -$pos);
+		else $_2 = substr($_2, 0, strrpos($_2, '/'));
+		
+		if(isset($docroot)) break;
+		$limit--;
+	}
+	if(!isset($docroot))
 	{
-					$docroot = substr($init_path, 0, strpos($init_path, "{$_}/manager/includes/initialize.inc.php"));
-					break;
-				}
-			}
+		echo 'DOCUMENT_ROOT error';
+		exit;
 	}
 	return rtrim($docroot,'/');
 }
