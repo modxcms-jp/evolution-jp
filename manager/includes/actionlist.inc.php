@@ -127,8 +127,8 @@ $GLOBALS['action_list'] = array(
 
 	'200'	=> 'Viewing phpInfo()',
 	'501'	=> 'Delete category',
-	'998'	=> 'Viewing web page',
-	'999'	=> 'Viewing test page',
+	'998'	=> 'Custom action with style',
+	'999'	=> 'Custom action',
 );
 
 function getAction($actionId, $itemid='') {
