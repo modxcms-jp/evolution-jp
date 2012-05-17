@@ -745,6 +745,7 @@ ALTER TABLE `{PREFIX}site_content_metatags`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
@@ -789,7 +790,8 @@ REPLACE INTO `{PREFIX}site_templates`
 
 REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\n',1,1,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
 
-REPLACE INTO `{PREFIX}manager_users` (id, username, password)VALUES (1, '{ADMINNAME}', MD5('{ADMINPASS}'));
+REPLACE INTO `{PREFIX}manager_users` (id, username, password) VALUES (1, '{ADMINNAME}', MD5('{ADMINPASS}'));
+
 REPLACE INTO `{PREFIX}user_attributes` 
 (id, internalKey, fullname, role, email, phone, mobilephone, blocked, blockeduntil, blockedafter, logincount, lastlogin, thislogin, failedlogincount, sessionid, dob, gender, country, state, zip, fax, photo, comment) VALUES 
 (1, 1, '{ADMINFULLNAME}', 1, '{ADMINEMAIL}', '', '', 0, 0, 0, 0, 0, 0, 0, '', 0, 0, '', '', '', '', '', '');
@@ -873,7 +875,6 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('tinymce_custom_plugins','inlinepopups,autosave,save,advlist,clearfloat,style,fullscreen,advimage,paste,advlink,media,contextmenu,table'),
 ('tinymce_custom_buttons1','undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help'),
 ('tinymce_custom_buttons2','image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat'),
-('tinymce_css_selectors', '左寄せ=justifyleft;右寄せ=justifyright'),
 ('tree_show_protected', '0'),
 ('rss_url_news', 'http://feeds2.feedburner.com/modxjp'),
 ('rss_url_security', 'http://feeds2.feedburner.com/modxjpsec'),
