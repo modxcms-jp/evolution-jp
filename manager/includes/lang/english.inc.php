@@ -1091,8 +1091,8 @@ $_lang["tree_page_click_option_auto"] = 'Auto';
 $_lang["too_many_resources"] = 'Undisplayed, there are many resources';
 $_lang['setting_resource_tree_node_name'] = 'The node name of a resource tree';
 $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
-$_lang['setting_cache_type'] = 'A global cache is enabled.';
-$_lang['setting_cache_type_desc'] = 'Selection of "no" will repeal all the cache functions. Caching invalid does not recommend.';
+$_lang['setting_cache_type'] = 'Cache mode';
+$_lang['setting_cache_type_desc'] = 'Selection of "Cache disabled" will repeal all the cache functions. Caching invalid does not recommend.';
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
@@ -1154,7 +1154,7 @@ $_lang["save_user.processor.php1"] = 'In order to read an authority setup of the
 $_lang["disabled"] = 'disabled';
 
 $_lang["limit_by_container"] = 'The number of displays in a container';
-$_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Only Container is Always Displayed';
+$_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Containers only';
 $_lang["allow_mgr2web_title"]   = 'Override attestation state';
 $_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
 
