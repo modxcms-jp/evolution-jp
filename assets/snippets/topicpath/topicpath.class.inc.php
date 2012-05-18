@@ -1,5 +1,5 @@
 <?php
-$class_version = '1.0.2';
+$class_version = '1.0.3';
 if(!isset($version) || $version !== $class_version) echo 'TopicPath version error';
 
 class TopicPath
