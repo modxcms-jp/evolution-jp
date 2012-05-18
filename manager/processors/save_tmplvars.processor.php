@@ -145,7 +145,7 @@ switch ($_POST['mode'])
 			exit;
 		}
     	// update TV
-    	$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_tmplvars,"id='{$id}'"));
+		$was_name = $modx->db->getValue($modx->db->select('name',$tbl_site_tmplvars,"id='{$id}'"));
 		$field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
 		$rs = $modx->db->update($field,$tbl_site_tmplvars,"id='{$id}'");
 		if(!$rs)
@@ -154,12 +154,17 @@ switch ($_POST['mode'])
 		}
 		else
 		{
-			$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_content'));
-			$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_templates'));
-			$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_htmlsnippets'));
-			$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_content'));
-			$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_templates'));
-			$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
+			if($name!==$was_name)
+			{
+				$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_content'));
+				$modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_templates'));
+				$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_htmlsnippets'));
+				$modx->db->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",$modx->getFullTableName('site_tmplvar_contentvalues'));
+				$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_content'));
+				$modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_templates'));
+				$modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
+				$modx->db->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",  $modx->getFullTableName('site_tmplvar_contentvalues'));
+			}
 			// save access permissions
 			saveTemplateAccess();
 			saveDocumentAccessPermissons();

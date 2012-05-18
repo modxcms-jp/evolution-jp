@@ -5,13 +5,13 @@ if(!$modx->hasPermission('save_chunk')) {
 	$e->dumpError();
 }
 
-$id = intval($_POST['id']);
-$snippet = $modx->db->escape($_POST['post']);
+$id          = intval($_POST['id']);
+$snippet     = $modx->db->escape($_POST['post']);
 $name        = ($_POST['name']) ? $modx->db->escape(trim($_POST['name'])) : 'Untitled chunk';
 $description = $modx->db->escape($_POST['description']);
-$locked = $_POST['locked']=='on' ? 1 : 0 ;
+$locked      = $_POST['locked']=='on' ? 1 : 0 ;
 $editor_type = $_POST['editor_type']=='1' ? 1 : 0 ;
-$published = $_POST['published']=='1' ? 1 : 0 ;
+$published   = $_POST['published']=='1' ? 1 : 0 ;
 $pub_date    = $_POST['pub_date'];
 $unpub_date  = $_POST['unpub_date'];
 
@@ -40,7 +40,7 @@ else
 if(empty($unpub_date))                $unpub_date = 0;
 else
 {
-	$unpub_date = $modx->toTimeStamp($unpub_date);
+	                                  $unpub_date = $modx->toTimeStamp($unpub_date);
 	if(empty($unpub_date))
 	{
 		$modx->manager->saveFormValues(78);
@@ -51,7 +51,7 @@ else
 		exit;
 	}
 	elseif ($unpub_date < $currentdate) $published = 0;
-	}
+}
 
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
@@ -159,12 +159,17 @@ switch ($_POST['mode']) {
 		}
 		else
 		{
-			$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_content'));
-			$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_templates'));
-			$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_htmlsnippets'));
-			$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_content'));
-			$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_templates'));
-			$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
+			if($name!==$was_name)
+			{
+				$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_content'));
+				$modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_templates'));
+				$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_htmlsnippets'));
+				$modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')",$modx->getFullTableName('site_tmplvar_contentvalues'));
+				$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_content'));
+				$modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_templates'));
+				$modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_htmlsnippets'));
+				$modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')",  $modx->getFullTableName('site_tmplvar_contentvalues'));
+			}
 			
 			// invoke OnChunkFormSave event
 			$modx->invokeEvent("OnChunkFormSave",
