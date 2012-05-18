@@ -11,8 +11,7 @@ $database_connection_method  = '[+database_connection_method+]';
 $dbase                       = '`[+dbase+]`';
 $table_prefix                = '[+table_prefix+]';
 
-$lastInstallTime             = [+lastInstallTime+];
-$site_sessionname            = '[+site_sessionname+]';
 $https_port                  = '[+https_port+]';
 
-if (!defined('MODX_SITE_URL')) require_once(str_replace('\\', '/', dirname(__FILE__)) . '/initialize.inc.php');
+$lastInstallTime             = [+lastInstallTime+];
+$site_sessionname            = '[+site_sessionname+]';
