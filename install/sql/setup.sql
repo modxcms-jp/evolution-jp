@@ -296,7 +296,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	`value` text,
 	PRIMARY KEY  (id),
 	KEY idx_tmplvarid (tmplvarid),
-	KEY idx_id (contentid)
+	KEY idx_id (contentid),
+	FULLTEXT KEY `value_ft_idx` (`value`)
 ) ENGINE=MyISAM COMMENT='Site Template Variables Content Values Link Table';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates` (
@@ -745,7 +746,7 @@ ALTER TABLE `{PREFIX}site_content_metatags`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
-ALTER TABLE `{PREFIX}_site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
