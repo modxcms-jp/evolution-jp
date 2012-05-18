@@ -76,7 +76,7 @@ if (strstr(str_replace('.','',serialize(array_merge($_GET, $_POST, $_COOKIE))), 
 function FindDangerValue($value, $found = false) {
 	if($found || (strpos(str_replace('.', '', serialize($value)), '22250738585072011') !== false))
 	{
-		//文字列の中に問題の数字が埋め込まれているケースを排除する by @enogu
+		//by @enogu
 		if (is_array($value))
 		{
 			foreach ($value as $item)
