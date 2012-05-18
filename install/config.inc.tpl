@@ -15,6 +15,4 @@ $lastInstallTime             = [+lastInstallTime+];
 $site_sessionname            = '[+site_sessionname+]';
 $https_port                  = '[+https_port+]';
 
-error_reporting(E_ALL & ~E_NOTICE);
-
 if (!defined('MODX_SITE_URL')) require_once(str_replace('\\', '/', dirname(__FILE__)) . '/initialize.inc.php');

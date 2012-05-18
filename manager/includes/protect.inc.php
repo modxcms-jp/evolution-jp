@@ -3,6 +3,8 @@
  *    Protect against some common security flaws
  */
 
+error_reporting(E_ALL & ~E_NOTICE);
+
 $gpc = array_merge($_GET, $_POST, $_COOKIE);
 if(FindDangerValue($gpc)!==false)
 {
