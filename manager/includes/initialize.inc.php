@@ -58,24 +58,30 @@ function assign_base_path()
 function assign_base_url()
 {
 	$init_path = str_replace("\\", '/',__FILE__);
-	$_1 = substr($init_path, 0, strpos($init_path, '/manager/includes/initialize.inc.php'));
-	$_2 = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'],'/'));
+	$modx_base_path = substr($init_path, 0, strpos($init_path, 'manager/includes/initialize.inc.php'));
+	$_ = $_SERVER['REQUEST_URI'];
+	if(strpos($_, '?')) $_ = substr($_, 0, strpos($_, '?'));
+	if($_ !== '/') $_ = substr($_, 0, strrpos($_,'/'));
+	else           $result = '/';
+	
 	$limit = 10;
-	while(0 < $limit)
+	while(0 < $limit && $_ !== '/')
 	{
-		$pos = strlen($_2);
-		if(($_2==='') || (substr($_1,-$pos)===$_2)) $base_url = $_2;
-		else $_2 = substr($_2, 0, strrpos($_2, '/'));
+		if(strpos($modx_base_path,"{$_}/")!==false)
+		{
+			$result = "{$_}/";
+			break;
+		}
+		else $_ = substr($_, 0, strrpos($_, '/'));
 		
-		if(isset($base_url)) break;
 		$limit--;
 	}
-	if(!isset($base_url))
+	if(!isset($result))
 	{
 		echo 'base_url error';
 		exit;
 	}
-	return rtrim($base_url,'/') . '/';
+	return $result;
 }
 
 function assign_site_url($base_url)
