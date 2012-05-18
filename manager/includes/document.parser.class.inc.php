@@ -179,7 +179,7 @@ class DocumentParser {
 			{
 				// display offline message
 				$this->documentContent= $this->config['site_unavailable_message'];
-				$this->outputContent();
+				echo $this->outputContent();
 				exit; // stop processing here, as the site's offline
 			}
 			else
@@ -233,7 +233,8 @@ class DocumentParser {
 		// invoke OnWebPageInit event
 		$this->invokeEvent('OnWebPageInit');
 		
-		$this->prepareResponse();
+		$result = $this->prepareResponse();
+		return $result;
 	}
 	
 	function prepareResponse()
@@ -305,15 +306,15 @@ class DocumentParser {
 			else
 			{
 				$tbl_site_templates = $this->getFullTableName('site_templates');
-				$result= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
-				$rowCount= $this->db->getRecordCount($result);
+				$rs= $this->db->select('content',$tbl_site_templates,"id = '{$this->documentObject['template']}'");
+				$rowCount= $this->db->getRecordCount($rs);
 				if($rowCount > 1)
 				{
 					$this->messageQuit('Incorrect number of templates returned from database', $sql);
 				}
 				elseif($rowCount == 1)
 				{
-					$row= $this->db->getRow($result);
+					$row= $this->db->getRow($rs);
 					$this->documentContent= $row['content'];
 				}
 			}
@@ -327,7 +328,8 @@ class DocumentParser {
 		& $this,
 		'postProcess'
 		)); // tell PHP to call postProcess when it shuts down
-		$this->outputContent();
+		$result = $this->outputContent();
+		return $result;
 	}
 	
 	function outputContent($noEvent= false)
@@ -439,7 +441,8 @@ class DocumentParser {
 		}
 		if(strpos($this->documentOutput,'[^')) echo $this->mergeBenchmarkContent($this->documentOutput);
 		else                                   echo $this->documentOutput;
-		ob_end_flush();
+		$result = ob_get_clean();
+		return $result;
 	}
 	
 	function postProcess()
@@ -580,7 +583,7 @@ class DocumentParser {
 			{
 				header($responseCode);
 			}
-			$this->prepareResponse();
+			echo $this->prepareResponse();
 		}
 		else
 		{
