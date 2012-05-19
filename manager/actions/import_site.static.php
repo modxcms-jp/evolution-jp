@@ -47,7 +47,7 @@ if(!isset($_POST['import'])) {
     <td>&nbsp;</td>
     <td><input type="text" name="maxtime" value="30" />
         <br />
-        <small><?php echo $_lang['import_site_maxtime_message']; ?></small>
+        <?php echo $_lang['import_site_maxtime_message']; ?>
     </td>
   </tr>
   <tr>

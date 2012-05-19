@@ -64,7 +64,7 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
     <td class="head"><?php echo $_lang['export_site_maxtime']; ?></td>
     <td><input type="text" name="maxtime" value="60" />
 		<br />
-		<small><?php echo $_lang['export_site_maxtime_message']; ?></small>
+		<?php echo $_lang['export_site_maxtime_message']; ?>
 	</td>
   </tr>
 </table>
