@@ -28,7 +28,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     <div class="tab-page" id="tabTemplates">
     	<h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
-		<p><?php echo $_lang['template_management_msg']; ?></p>
+		<div><?php echo $_lang['template_management_msg']; ?></div>
 		<ul class="actionButtons">
 			<li><a href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?></a></li>
 		</ul>
@@ -45,7 +45,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			Modified By Raymond for Template Variables
 			Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
 		-->
-		<p><?php echo $_lang['tmplvars_management_msg']; ?></p>
+		<div><?php echo $_lang['tmplvars_management_msg']; ?></div>
 			<ul class="actionButtons">
 				<li><a href="index.php?a=300"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_tmplvars']; ?></a></li>
             </ul>
@@ -58,7 +58,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     <div class="tab-page" id="tabChunks">
     	<h2 class="tab"><?php echo $_lang["manage_htmlsnippets"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabChunks" ) );</script>
-		<p><?php echo $_lang['htmlsnippet_management_msg']; ?></p>
+		<div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
 			<li><a href="index.php?a=77"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_htmlsnippet']; ?></a></li>
@@ -72,7 +72,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     <div class="tab-page" id="tabSnippets">
     	<h2 class="tab"><?php echo $_lang["manage_snippets"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabSnippets" ) );</script>
-		<p><?php echo $_lang['snippet_management_msg']; ?></p>
+		<div><?php echo $_lang['snippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
 			<li><a href="index.php?a=23"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_snippet']; ?></a></li>
@@ -86,7 +86,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     <div class="tab-page" id="tabPlugins">
     	<h2 class="tab"><?php echo $_lang["manage_plugins"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabPlugins" ) );</script>
-		<p><?php echo $_lang['plugin_management_msg']; ?></p>
+		<div><?php echo $_lang['plugin_management_msg']; ?></div>
 
 		<ul class="actionButtons">
 			<li><a href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?></a></li>
@@ -100,7 +100,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
     <div class="tab-page" id="tabCategory">
     	<h2 class="tab"><?php echo $_lang["element_categories"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabCategory" ) );</script>
-		<p><?php echo $_lang['category_msg']; ?></p>
+		<div><?php echo $_lang['category_msg']; ?></div>
 		<br />
 		<ul>
 		<?php echo createCategoryList(); ?>
