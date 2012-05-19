@@ -1600,3 +1600,10 @@ form#mutate div.tmplvars label {display:block;}
 optgroup {font-style:normal;}
 
 #mainpane table th {vertical-align:top;}
+
+.dynamic-tab-pane-control .tab-row .tab .alert {
+	color:#c00;
+}
+.dynamic-tab-pane-control .tab-row .tab.selected .alert {
+	color:#c00;
+}
