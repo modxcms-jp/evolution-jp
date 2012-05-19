@@ -54,5 +54,5 @@ class FBROWSER
 			$browser_html = str_replace($name, $value, $browser_html);
 		}
 		return $browser_html;
-			}
+	}
 }
