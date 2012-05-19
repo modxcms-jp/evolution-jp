@@ -725,9 +725,9 @@ switch($action)
 	case 999:
 		break;
 	default:
-	include_once "log.class.inc.php";
-	$log = new logHandler;
-	$log->initAndWriteLog();
+		include_once "log.class.inc.php";
+		$log = new logHandler;
+		$log->initAndWriteLog();
 }
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes

@@ -117,7 +117,7 @@ if (is_writable($startpath))
 {
 	$ph = array();
 	$ph['style_path'] = $style_path;
-	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li> ';
+	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li>';
 	$ph['image']   = 'folder.gif';
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';

@@ -2950,10 +2950,10 @@ class DocumentParser {
 		{
 			if($this->config['allow_mgr2web']==='1' || $this->isBackend())
 			{
-			$dg = array_merge($dg, $_SESSION['mgrDocgroups']);
-			if(isset($_SESSION['mgrDocgrpNames']))
-			{
-				$dgn = array_merge($dgn, $_SESSION['mgrDocgrpNames']);
+				$dg = array_merge($dg, $_SESSION['mgrDocgroups']);
+				if(isset($_SESSION['mgrDocgrpNames']))
+				{
+					$dgn = array_merge($dgn, $_SESSION['mgrDocgrpNames']);
 				}
 			}
 		}

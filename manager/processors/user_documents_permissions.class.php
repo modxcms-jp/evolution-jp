@@ -11,7 +11,7 @@ class udperms{
 		
 		global $udperms_allowroot;
 		global $modx;
-
+		
 		$tbl_site_content = $modx->getFullTableName('site_content');
 
 		$user = $this->user;
