@@ -17,7 +17,13 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx->config['settings_version'];?>" />
-
+<?php
+// invoke OnManagerRegClientStartupHTMLBlock event
+$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
+$onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
+?>
+    <!-- OnManagerMainFrameHeaderHTMLBlock -->
+    <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -108,13 +114,6 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 		}
 		/* ]]> */
     </script>
-<?php
-// invoke OnManagerRegClientStartupHTMLBlock event
-$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
-$onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
-?>
-    <!-- OnManagerMainFrameHeaderHTMLBlock -->
-    <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
 </head>
 <body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir ? ' class="rtl"':''?>>
 
