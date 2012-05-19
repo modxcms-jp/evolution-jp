@@ -447,7 +447,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 
 <div id="actions">
 	  <ul class="actionButtons">
-<?php
+		  <?php
 		echo ab_save();
 		echo ab_cancel();
 		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
@@ -456,7 +456,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			echo ab_duplicate();
 			echo ab_delete();
 					}
-		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
+            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
 				{
 			echo ab_preview();
 				}

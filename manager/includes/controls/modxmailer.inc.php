@@ -100,7 +100,7 @@ class MODxMailer extends PHPMailer
 				return parent::MailSend($header, $body);
 		}
 	}
-	
+		
 	function mbMailSend($header, $body)
 	{
 		$to = '';
