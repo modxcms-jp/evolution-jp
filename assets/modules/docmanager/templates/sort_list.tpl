@@ -34,8 +34,8 @@
 	    
 	    parent.tree.updateTree();
     </script>
-    <style type="text/css">        
-        li {
+    <style type="text/css">
+        ul.sortableList li {
             cursor:move;
             border: 1px solid #ccc;
             background: #eee no-repeat 2px center;
@@ -45,14 +45,14 @@
             min-height: 20px;
             width:50%;
         }
-        li.noChildren {
+        ul.sortableList li.noChildren {
             background-image: url(media/style[+theme+]/images/tree/page.gif);
         }
-        li.hasChildren {
+        ul.sortableList li.hasChildren {
             background-image: url(media/style[+theme+]/images/tree/folder.gif);
         }
-        li.inMenuNode      {font-weight:bold;}
-        li.unpublishedNode {background-color:#f6f3ea;}
+        ul.sortableList li.inMenuNode      {font-weight:bold;}
+        ul.sortableList li.unpublishedNode {background-color:#f6f3ea;}
     </style>
 </head>
 <body>
