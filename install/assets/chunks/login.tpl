@@ -4,7 +4,7 @@
  * ログイン画面テンプレート
  * 
  * @category	chunk
- * @version 	1.0.1
+ * @version 	1.0.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal 	@modx_category Manager and Admin
  * @internal    @installset base
@@ -15,6 +15,7 @@
     <title>MODX CMF Manager Login</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]" />
     <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css" />
     <style type="text/css">
     /* Neutralize styles, fonts and viewport:
     ---------------------------------------------------------------- */
@@ -47,8 +48,8 @@
     input, .inputBox {padding: 1px;}
     form { border: 1px solid #fff; }
     #logo { margin-left: -7px }
-    .sectionHeader {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/MODxCarbon/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;}
-    .sectionBody {padding: 20px 20px 20px;display: block;background: #fff;background-image:url(media/style/MODxCarbon/images/misc/tabareabg.gif);background-repeat:repeat-x;}
+    .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;}
+    .body {padding: 20px 20px 20px;display: block;background: #fff;background-image:url(media/style/[+theme+]/images/misc/tabareabg.gif);background-repeat:repeat-x;}
     #mx_loginbox {width: 460px;margin: 30px auto 0;
                                  box-shadow: 0 0 10px #aaa;
                              -moz-box-shadow: 0 0 10px #aaa;
@@ -58,8 +59,8 @@
     label {display: block;font-weight: bold;}
     input {margin: 0 0 10px 0;}
     input.checkbox {float: left;clear: left;margin-right: 3px;}
-    input.text,input#FMP-email {line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url(media/style/MODxCarbon/images/misc/input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;}
-    input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url(media/style/MODxCarbon/images/misc/fade.gif) repeat-x top;border:1px solid #ccc;}
+    input.text,input#FMP-email {line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url(media/style/[+theme+]/images/misc/input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;}
+    input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border:1px solid #ccc;}
     .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;}
     .loginLicense a {color: #B2B2B2;}
     .notice {width: 100%;padding: 5px;border: 1px solid #eee;background-color: #F4F4F4;color: #707070;}
@@ -122,13 +123,13 @@
     <form method="post" name="loginfrm" id="loginfrm" action="processors/login.processor.php">
     <!-- anything to output before the login box via a plugin? -->
     [+OnManagerLoginFormPrerender+]
-        <div class="sectionHeader"><a href="../">[+site_name+]</a></div>
-        <div class="sectionBody">
-			<img src="media/style/MODxCarbon/images/misc/login-logo.png" alt="[+site_name+]" id="logo" />
+        <div class="header"><a href="../">[+site_name+]</a></div>
+        <div class="body">
+			<img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo" />
             <p class="loginMessage">[+login_message+]</p>
-            <label>[+username+] </label>
+            <label for="username">[+username+] </label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" />
-            <label>[+password+] </label>
+            <label for="password">[+password+] </label>
             <input type="password" class="text" name="password" id="password" tabindex="2" value="" />
             <p class="caption">[+login_captcha_message+]</p>
             <div>[+captcha_image+]</div>
