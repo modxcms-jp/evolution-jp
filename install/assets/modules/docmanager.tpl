@@ -7,7 +7,7 @@
  * @category	module
  * @version 	1.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties	 
+ * @internal	@properties
  * @internal	@guid 	
  * @internal	@shareparams 1
  * @internal	@dependencies requires files located at /assets/modules/docmanager/
