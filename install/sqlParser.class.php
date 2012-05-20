@@ -44,17 +44,32 @@ class SqlParser {
 		$idata = str_replace("\r", '', $idata);
 
 		// check if in upgrade mode
-		if ($this->mode=="upd") {
+		if ($this->mode=='upd') {
 			// remove non-upgradeable parts
-			$s = strpos($idata,"non-upgrade-able[[");
-			$e = strpos($idata,"]]non-upgrade-able")+17;
+			$s = strpos($idata,'non-upgrade-able[[');
+			$e = strpos($idata,']]non-upgrade-able')+17;
 			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
 		}
 		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{
+			$engine!=='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
-			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
+			$idata = str_replace('ENGINE=MyISAM', "ENGINE={$engine} {$char_collate}", $idata);
+			$engine!=='MyISAM';
+			if ($this->mode==='upd')
+			{
+				$sql = "show table status where Name='{$this->prefix}site_content'";
+				$rs = mysql_query($sql);
+				$row = mysql_fetch_assoc($rs);
+				$current_engine = $row['Engine'];
+			}
+			if($engine!=='MyISAM'))
+			{
+				$s = strpos($idata,'forMyISAM[[');
+				$e = strpos($idata,']]forMyISAM')+10;
+				if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed MyISAM items",$idata);
+			}
 		}
 		
 		// replace {} tags
