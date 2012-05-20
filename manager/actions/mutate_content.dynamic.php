@@ -654,7 +654,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 				<td>
 					<table cellpadding="0" cellspacing="0" style="width:333px;">
 						<tr>
-							<td>
+							<td style="white-space:nowrap;">
 								<?php echo input_text('menuindex',$content['menuindex'],'class="number" style="width:40px;"','5');?>
 								<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
@@ -895,7 +895,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			</tr>
 			<tr>
 				<td></td>
-				<td style="color: #555;font-size:10px"><em> <?php echo $modx->config['datetime_format']; ?> HH:MM:SS</em></td>
+				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $modx->config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_unpublishdate']?></span></td>
@@ -911,7 +911,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			</tr>
 			<tr>
 				<td></td>
-				<td style="color: #555;font-size:10px"><em> <?php echo $modx->config['datetime_format']; ?> HH:MM:SS</em></td>
+				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $modx->config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
 			<tr>
 				<td colspan="2"><div class="split"></div></td>

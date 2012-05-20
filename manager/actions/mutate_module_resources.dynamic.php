@@ -127,9 +127,6 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 }
 
 ?>
-<style type="text/css">
-a.searchtoolbarbtn {float:left;width:120px;margin-top:2px;width:170px}
-</style>
 <script type="text/javascript">
 
 	function removeDependencies() {

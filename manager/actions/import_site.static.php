@@ -31,7 +31,7 @@ if(!isset($_POST['import'])) {
     echo "<p>".$_lang['import_site_message']."</p>";
 ?>
 
-<fieldset style="padding:10px"><legend><?php echo $_lang['import_site']; ?></legend>
+<fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;"><legend><?php echo $_lang['import_site']; ?></legend>
 <form action="index.php" method="post" name="importFrm">
 <input type="hidden" name="import" value="import" />
 <input type="hidden" name="a" value="95" />
