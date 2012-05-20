@@ -6,7 +6,7 @@
  * @category	chunk
  * @version 	1.0.5r2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal 	@modx_category Demo Content
+ * @internal 	@modx_category Manager and Admin
  * @internal    @overwrite false
  * @internal    @installset base, sample
  */
