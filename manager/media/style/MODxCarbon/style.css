@@ -1445,6 +1445,33 @@ form#mutate select.tv_url_select {
 }
 
 /* ppb:
+* Style mootools tooltips
+*/
+
+.custom-tip {
+	color: #333;
+	width: 175px;
+	z-index: 13000;
+	border: 1px solid #cccccc;
+	background: #fff;
+	padding: 5px;
+}
+
+.custom-title {
+	font-weight: bold;
+	font-size: 12px;
+	margin: 0;
+	color: #fff;
+	padding: 6px 6px 4px;
+	background: #758CA2 url(images/misc/tab.gif);
+}
+
+.custom-text {
+	font-size: 12px;
+	padding: 4px 8px 8px;
+	background: #fff;
+}
+/* ppb:
 * Some styling for legacy mode fieldsets
 */
 
