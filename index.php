@@ -122,6 +122,7 @@ $etomite = &$modx; // for backward compatibility
 
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
+$modx->cacheRefreshTime = $cacheRefreshTime;
 
 // execute the parser if index.php was not included
 if(!MODX_API_MODE) {
