@@ -4,16 +4,19 @@
  *
  * This page is requested once in awhile to keep the session alive and kicking.
  */
-require_once(dirname(__FILE__).'/protect.inc.php');
+define('IN_MANAGER_MODE', true);
+define('MODX_API_MODE', true);
+$base_path = str_replace('\\','/',realpath('../../')) . '/';
+include_once($base_path . 'index.php');
+$modx->db->connect();
 
-$ok = false;
-if ($rt = @ include_once('config.inc.php'))
+// Keep it alive
+if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
 {
-	// Keep it alive
-	startCMSSession();
-	if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
-	{
-		echo '{status:"ok"}';
-	}
-	else echo '{status:"null"}';
+	$uid = $_SESSION['mgrInternalKey'];
+	$tbl_active_users = $modx->getFullTableName('active_users');
+	$timestamp = time();
+	$modx->db->update("lasthit={$timestamp}", $tbl_active_users, "internalKey='{$uid}'");
+	echo '{status:"ok"}';
 }
+else echo '{status:"null"}';
