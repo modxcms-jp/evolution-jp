@@ -810,7 +810,7 @@ REPLACE INTO `{PREFIX}user_roles`
 # Default Site Settings
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
-('manager_theme','MODxCarbon'),
+('manager_theme','{MANAGER_THEME}'),
 ('settings_version',''),
 ('show_meta','0'),
 ('server_offset_time','0'),
@@ -1054,6 +1054,6 @@ UPDATE `{PREFIX}user_roles` SET
 
 # Update any invalid Manager Themes in User Settings and reset the default theme
 
-UPDATE `{PREFIX}user_settings` SET `setting_value`='MODxCarbon' WHERE `setting_name`='manager_theme';
+UPDATE `{PREFIX}user_settings` SET `setting_value`='{MANAGER_THEME}' WHERE `setting_name`='manager_theme';
 
-REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','MODxCarbon');
+REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','{MANAGER_THEME}');

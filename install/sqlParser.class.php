@@ -5,7 +5,7 @@
 
 class SqlParser {
 	var $prefix, $mysqlErrors;
-	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
+	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage, $manager_theme;
 	var $mode;
 	var $dbVersion;
     var $connection_charset, $connection_collation, $autoTemplateLogic,$ignoreDuplicateErrors;
@@ -73,6 +73,7 @@ class SqlParser {
 		$ph['ADMINPASS']         = $this->adminpass;
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
+		$ph['MANAGER_THEME']     = $this->manager_theme;
 		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');
 		

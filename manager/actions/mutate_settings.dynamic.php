@@ -23,30 +23,11 @@ if($limit>1) {
 }
 // end check for lock
 
+$config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+extract($config);
+
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-
-$show_meta               = '0';
-$fe_editor_lang          = 'japanese-utf8';
-$rss_url_news            = 'http://feeds2.feedburner.com/modxjp';
-$rss_url_security        = 'http://feeds2.feedburner.com/modxjpsec';
-$validate_referer        = '1';
-$datepicker_offset       = '-10';
-$datetime_format         = 'YYYY/mm/dd';
-$warning_visibility      = '0';
-$remember_last_tab       = '1';
-$auto_template_logic     = 'system';
-$manager_direction       = 'ltr';
-$tree_page_click         = 'auto';
-$signupemail_message     = $_lang['system_email_signup'];
-$websignupemail_message  = $_lang['system_email_websignup'];
-$webpwdreminder_message  = $_lang['system_email_webreminder'];
-$resource_tree_node_name = 'pagetitle';
-$suffix_mode             = '0';
-$cache_type              = '1';
-$send_errormail          = '3';
-$limit_by_container       = '100';
-$allow_mgr2web           = '0';
 
 $tbl_system_settings = $modx->getFullTableName('system_settings');
 $rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);

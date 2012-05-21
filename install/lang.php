@@ -10,7 +10,7 @@
  * Filename:       /install/lang.php
  */
 
-$default_language = 'japanese-utf8';
+$default_language = $config['manager_language'];
 
 if    (isset($_POST['language'])) $install_language = $_POST['language'];
 elseif(isset($_GET['language']))  $install_language = $_GET['language'];
@@ -24,6 +24,7 @@ else                                     $manager_language = $default_language;
 $_lang = array ();
 if($install_language!==$default_language && file_exists("lang/{$install_language}.inc.php"))
 {
+	 require_once("lang/{$default_language}.inc.php");
 	 require_once("lang/{$install_language}.inc.php");
 }
 else require_once("lang/{$default_language}.inc.php");

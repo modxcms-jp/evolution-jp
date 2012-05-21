@@ -21,6 +21,7 @@ $_SESSION['test'] = 1;
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
+require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$installer_path}lang.php");
 require_once("{$base_path}manager/includes/version.inc.php");
 require_once("{$installer_path}functions.php");
@@ -33,11 +34,11 @@ if (!$_SESSION['test']) {
         $installBaseUrl = str_replace(':' . $_SERVER['SERVER_PORT'], '', $installBaseUrl); // remove port from HTTP_HOST
     $installBaseUrl .= ($_SERVER['SERVER_PORT'] == 80 || isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) == 'on') ? '' : ':' . $_SERVER['SERVER_PORT'];
 	$retryURL = $installBaseUrl . $_SERVER['PHP_SELF'] . "?action=language";
-	echo "
+	echo '
 <html>
 <head>
 	<title>Install Problem</title>
-	<style type=\"text/css\">
+	<style type="text/css">
 		*{margin:0;padding:0}
 		body{margin:50px;background:#eee;}
 		.install{padding:10px;border:5px solid #f22;background:#f99;margin:0 auto;font:120%/1em serif;text-align:center;}
@@ -46,12 +47,12 @@ if (!$_SESSION['test']) {
 	</style>
 </head>
 <body>
-	<div class=\"install\">
-		<p>".$_lang["session_problem"]."</p>
-		<p><a href=\"".$retryURL."\">".$_lang["session_problem_try_again"]."</a></p>
+	<div class="install">
+		<p>' . $_lang["session_problem"] . '</p>
+		<p><a href="' . $retryURL . '">' .$_lang["session_problem_try_again"] . '</a></p>
 	</div>
 </body>
-</html>";
+</html>';
 	exit;
 
 }
