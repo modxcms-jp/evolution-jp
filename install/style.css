@@ -27,7 +27,9 @@ font-variant:normal;
 font-weight:normal;
 line-height:1.5;
 }
-
+label {
+cursor:pointer;
+}
 ol, ul {
 list-style-image:none;
 list-style-position:outside;
