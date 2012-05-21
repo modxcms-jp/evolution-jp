@@ -2006,7 +2006,7 @@ class DocumentParser {
 		}
 	}
 	
-	function remove_locks($action='all',$limit_time=86400)
+	function remove_locks($action='all',$limit_time=120)
 	{
 		$limit_time = time() - $limit_time;
 		if($action === 'all')
@@ -2015,7 +2015,7 @@ class DocumentParser {
 		}
 		else
 		{
-		$action     = intval($action);
+			$action = intval($action);
 			$action = "action={$action} and";
 		}
 		$tbl_active_users = $this->getFullTableName('active_users');
