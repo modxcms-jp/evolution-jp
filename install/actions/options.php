@@ -191,7 +191,7 @@ if ($limit > 0) {
     }
 }
 if(!count($moduleTemplates+$moduleTVs+$moduleChunks+$moduleModules+$modulePlugins+$moduleSnippets))
-echo '<strong>アップデート対象のオプションはありません。</strong>';
+echo '<strong>' . $_lang['no_update_options'] . '</strong>';
 ?>
 	</div>
     <p class="buttonlinks">

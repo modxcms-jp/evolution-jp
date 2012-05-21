@@ -4,6 +4,7 @@
  *
  * @author davaeron
  * @package MODX
+ * @subpackage installer_translations
  * @version 1.0
  * 
  * Filename:       /install/lang/english/english.inc.php
@@ -196,3 +197,4 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 
 $_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
 $_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/assets/backup</span> directory is writable: ';
+$_lang['no_update_options'] = 'There is no option for update.';

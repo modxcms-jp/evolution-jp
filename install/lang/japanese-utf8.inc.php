@@ -4,6 +4,7 @@
  *
  * @author MEGU, yamamoto, TxO
  * @package MODX
+ * @subpackage installer_translations
  * @version 1.0.5J-r3
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
@@ -195,3 +196,4 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 
 $_lang['checking_if_backup_exists'] = '<span class="mono">/assets/backup</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_backup_writable'] = '<span class="mono">/assets/backup</span>ディレクトリの書き込み属性(707などに設定): ';
+$_lang['no_update_options'] = 'アップデート対象のオプションはありません';
