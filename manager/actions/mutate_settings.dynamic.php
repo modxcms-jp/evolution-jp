@@ -23,8 +23,8 @@ if($limit>1) {
 }
 // end check for lock
 
-$config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
-extract($config);
+$default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+extract($default_config);
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
