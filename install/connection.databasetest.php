@@ -5,6 +5,7 @@ $uid  = $_POST['uid'];
 $pwd  = $_POST['pwd'];
 $installMode = $_POST['installMode'];
 
+require_once('../manager/includes/default.config.php');
 require_once('functions.php');
 require_once('lang.php');
 $output = $_lang['status_checking_database'];

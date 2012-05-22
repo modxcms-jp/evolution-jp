@@ -4,6 +4,7 @@ $host = $_POST['host'];
 $uid = $_POST['uid'];
 $pwd = $_POST['pwd'];
 
+require_once('../manager/includes/default.config.php');
 require_once('functions.php');
 require_once("lang.php");
 
