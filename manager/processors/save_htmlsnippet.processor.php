@@ -40,7 +40,7 @@ else
 if(empty($unpub_date))                $unpub_date = 0;
 else
 {
-	                                  $unpub_date = $modx->toTimeStamp($unpub_date);
+	$unpub_date = $modx->toTimeStamp($unpub_date);
 	if(empty($unpub_date))
 	{
 		$modx->manager->saveFormValues(78);
