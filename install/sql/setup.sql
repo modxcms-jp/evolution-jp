@@ -789,11 +789,11 @@ ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`v
 # Default Site Template
 
 REPLACE INTO `{PREFIX}site_templates` 
-(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n    <title>[*pagetitle*] | [(site_name)]</title>         <!--リソース変数pagetitleとコンフィグ変数site_name-->\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=[(modx_charset)]\" /> <!--コンフィグ変数modx_charset-->\n  <base href=\"[(site_url)]\" />               <!--コンフィグ変数site_url-->\n</head>\n<body>\n    <h1>[*pagetitle*]</h1>                    <!--リソース変数pagetitle-->\n     [*content*]                                         <!--リソース変数content-->\n</body>\n</html>\n','0');
+(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','[*content*]','0');
 
 # Default Site Documents
 
-REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','最初のページ','これは最初のページです。','','begin','',1,0,0,0,0,'','<h3>MODXへようこそ。</h3>\n<p><img src=\"assets/images/logo.png\" /><br />MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\n',1,1,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'初期ページ',0,0,0,0,0,0,0);
+REPLACE INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODX CMS Install Success','Welcome to the MODX Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODX.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODX Community</a> provides a great starting point to learn all things MODX, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0);
 
 REPLACE INTO `{PREFIX}manager_users` (id, username, password) VALUES (1, '{ADMINNAME}', MD5('{ADMINPASS}'));
 
@@ -803,7 +803,8 @@ REPLACE INTO `{PREFIX}user_attributes`
 
 REPLACE INTO `{PREFIX}user_roles` 
 (id,name,description,frames,home,view_document,new_document,save_document,publish_document,delete_document,empty_trash,action_ok,logout,help,messages,new_user,edit_user,logs,edit_parser,save_parser,edit_template,settings,credits,new_template,save_template,delete_template,edit_snippet,new_snippet,save_snippet,delete_snippet,edit_chunk,new_chunk,save_chunk,delete_chunk,empty_cache,edit_document,change_password,error_dialog,about,file_manager,save_user,delete_user,save_password,edit_role,save_role,delete_role,new_role,access_permissions,bk_manager,new_plugin,edit_plugin,save_plugin,delete_plugin,new_module,edit_module,save_module,exec_module,delete_module,view_eventlog,delete_eventlog,manage_metatags,edit_doc_metatags,new_web_user,edit_web_user,save_web_user,delete_web_user,web_access_permissions,view_unpublished,import_static,export_static,remove_locks) VALUES 
-('2','ウェブマスター','全ての権限を持ちます。',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+(2,'Editor','Limited to managing content',1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1),
+(3,'Publisher','Editor with expanded permissions including manage users\, update Elements and site settings',1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,0,1,0,0,1);
 
 # ]]non-upgrade-able
 
@@ -818,12 +819,10 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('manager_language','{MANAGERLANGUAGE}'),
 ('modx_charset','UTF-8'),
 ('site_name','My MODX Site'),
-('site_slogan','ここにサイトのスローガン文を表示します。'),
 ('site_start','1'),
 ('error_page','1'),
 ('unauthorized_page','1'),
 ('site_status','1'),
-('site_unavailable_message','サイトは現在メンテナンス中です。しばらくお待ちください。'),
 ('track_visitors','0'),
 ('top_howmany','10'),
 ('auto_template_logic','{AUTOTEMPLATELOGIC}'),
@@ -843,9 +842,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('failed_login_attempts','3'),
 ('blocked_minutes','60'),
 ('use_captcha','0'),
-('captcha_words','maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma,sake,tai,buri,hirame,unagi,anago,amaebi,ikura,kanpachi,syako'),
 ('emailsender','{ADMINEMAIL}'),
-('emailsubject','サイトからのお知らせ'),
 ('number_of_logs','100'),
 ('number_of_messages','30'),
 ('number_of_results','20'),
@@ -859,7 +856,6 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('fck_editor_autolang','0'),
 ('editor_css_path',''),
 ('editor_css_selectors',''),
-('strip_image_paths','0'),
 ('rb_webuser','0'),
 ('upload_images','bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff'),
 ('upload_media','au,avi,mp3,mp4,mpeg,mpg,wav,wmv'),
@@ -881,14 +877,11 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('tinymce_custom_buttons1','undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help'),
 ('tinymce_custom_buttons2','image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,clearfloat,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,styleprops,removeformat'),
 ('tree_show_protected', '0'),
-('rss_url_news', 'http://feeds2.feedburner.com/modxjp'),
-('rss_url_security', 'http://feeds2.feedburner.com/modxjpsec'),
 ('validate_referer', '1'),
 ('datepicker_offset','-10'),
 ('xhtml_urls','1'),
 ('allow_duplicate_alias','0'),
 ('automatic_alias','2'),
-('datetime_format','YYYY/mm/dd'),
 ('warning_visibility', '0'),
 ('remember_last_tab', '1'),
 ('send_errormail', '3'),
@@ -1052,8 +1045,6 @@ UPDATE `{PREFIX}user_roles` SET
 	remove_locks = 1
 	WHERE `id`=1;
 
-# Update any invalid Manager Themes in User Settings and reset the default theme
-
-UPDATE `{PREFIX}user_settings` SET `setting_value`='{MANAGER_THEME}' WHERE `setting_name`='manager_theme';
+# Update any invalid Manager Themes reset the default theme
 
 REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','{MANAGER_THEME}');
