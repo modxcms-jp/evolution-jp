@@ -1,7 +1,7 @@
 /*
  * Small script to keep session alive in MODx
  */
-function keepMeAlive(imgName) {
+function keepMeAlive() {
     var sessionJSON = new Ajax('includes/session_keepalive.php?tok=' + document.getElementById('sessTokenInput').value + '&o=' + Math.random(), {
         method: 'get',
         onComplete: function(sessionResponse) {
