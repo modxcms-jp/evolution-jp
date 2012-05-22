@@ -8,9 +8,9 @@ $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 run_update($simple_version);
 
-if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9.')
+if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9.' || $modx->config['manager_theme']==='MODxCarbon')
 {
-	$manager_theme = 'MODxCarbon';
+	$manager_theme = $default_config['manager_theme'];
 }
 
 function run_update($version)
