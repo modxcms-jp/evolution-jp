@@ -77,24 +77,6 @@ else
 }
 
 $content = array_merge($content, $_POST);
-if($content['content']=='')
-{
-	$content['content'] =<<< EOT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <base href="[(site_url)]" />
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>[*pagetitle*]|[(site_name)]</title>
-  <meta name="description" content="[*description*]" />
-</head>
-<body>
-  <h1>[*pagetitle*]</h1>
-  <div>[*content*]</div>
-</body>
-</html>
-EOT;
-}
 
 ?>
 <script type="text/javascript">
