@@ -7,7 +7,7 @@ if(!$modx->hasPermission('save_chunk')) {
 
 $id          = intval($_POST['id']);
 $snippet     = $modx->db->escape($_POST['post']);
-$name        = ($_POST['name']) ? $modx->db->escape(trim($_POST['name'])) : 'Untitled chunk';
+$name        = (isset($_POST['name']) && $_POST['name']!=='') ? $modx->db->escape(trim($_POST['name'])) : 'Untitled chunk';
 $description = $modx->db->escape($_POST['description']);
 $locked      = $_POST['locked']=='on' ? 1 : 0 ;
 $editor_type = $_POST['editor_type']=='1' ? 1 : 0 ;
