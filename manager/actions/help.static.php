@@ -5,6 +5,12 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 
 <h1><?php echo $_lang['help']; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
     <div class="tab-pane" id="resourcesPane">
         <script type="text/javascript">

@@ -7,6 +7,12 @@ if(!$modx->hasPermission('logs')) {
 ?>
 <h1><?php echo $_lang["view_sysinfo"]; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <script type="text/javascript">
 	function viewPHPInfo() {
 		dontShowWorker = true; // prevent worker from being displayed

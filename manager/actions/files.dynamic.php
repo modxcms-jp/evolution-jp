@@ -54,6 +54,12 @@ else $webstart_path = '../'.$webstart_path;
 </style>
 <h1><?php echo $_lang['manage_files']?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 <script type="text/javascript" src="media/script/multifile.js"></script>
 <script type="text/javascript">

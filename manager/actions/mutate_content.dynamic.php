@@ -449,17 +449,17 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 	  <ul class="actionButtons">
 		  <?php
 		echo ab_save();
-		echo ab_cancel();
 		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
-					{
+		{
 			echo ab_move();
 			echo ab_duplicate();
 			echo ab_delete();
-					}
-            if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
-				{
+		}
+		if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
+		{
 			echo ab_preview();
-				}
+		}
+		echo ab_cancel();
 ?>
 	  </ul>
 </div>

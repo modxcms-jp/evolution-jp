@@ -24,6 +24,12 @@ $allowedfiles = array('html','htm','shtml','xml');
 
 <h1><?php echo $_lang['import_site_html']; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 <?php
 

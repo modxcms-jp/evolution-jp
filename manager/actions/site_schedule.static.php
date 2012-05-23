@@ -10,6 +10,12 @@ $tbl_site_content = $modx->getFullTableName('site_content');
 <script type="text/javascript" src="media/script/tablesort.js"></script>
 <h1><?php echo $_lang["site_schedule"]?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionHeader"><?php echo $_lang["publish_events"]?></div><div class="sectionBody" id="lyr1">
 <?php
 $field = 'id, pagetitle, pub_date';

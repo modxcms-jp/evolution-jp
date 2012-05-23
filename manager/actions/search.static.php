@@ -5,6 +5,12 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 
 <h1><?php echo $_lang['search_criteria']; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 
 <form action="index.php?a=71" method="post" name="searchform" enctype="multipart/form-data">

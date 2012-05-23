@@ -11,6 +11,12 @@ if(!$modx->hasPermission('edit_user')) {
 
 <h1><?php echo $_lang['role_management_title']; ?></h1>
 
+<div id="actions">
+  <ul class="actionButtons">
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+  </ul>
+</div>
+
 <div class="sectionBody">
 <p><?php echo $_lang['role_management_msg']; ?></p>
 
