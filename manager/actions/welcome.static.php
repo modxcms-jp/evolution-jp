@@ -274,6 +274,11 @@ if(is_array($evtOut)) {
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
+if(file_exists(MODX_BASE_PATH . 'assets/templates/manager/welcome.php'))
+{
+	include_once(MODX_BASE_PATH . 'assets/templates/manager/welcome.php');
+}
+
 if(!isset($tpl) || empty($tpl))
 {
 	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
