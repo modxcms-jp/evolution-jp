@@ -441,7 +441,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 
 <fieldset id="create_edit">
 	<h1><?php
-			if ($id!=0) echo $_lang['edit_resource_title'];
+			if ($id!=0) echo "{$_lang['edit_resource_title']}(ID:{$id})";
 			else        echo $_lang['create_resource_title'];
 		?></h1>
 
