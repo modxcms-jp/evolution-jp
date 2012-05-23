@@ -115,7 +115,7 @@ $sqlParser->connection_collation = $database_collation;
 $sqlParser->connection_method = $database_connection_method;
 $sqlParser->managerlanguage = $managerlanguage;
 $sqlParser->autoTemplateLogic = $auto_template_logic;
-$sqlParser->manager_theme = $config['manager_theme'];
+$sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installMode < 1) ? 'new' : 'upd';
 
 $sqlParser->ignoreDuplicateErrors = true;
