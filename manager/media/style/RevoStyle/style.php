@@ -106,13 +106,13 @@ $_style['icons_tooltip']            = $style_path.'icons/b02.gif';
 $_style['icons_tooltip_over']       = $style_path.'icons/b02_trans.gif';
 
 // Large Icons
-$_style['icons_backup_large']       = $style_path.'icons/backup.png';
-$_style['icons_mail_large']         = $style_path.'icons/mail_generic.gif';
-$_style['icons_modules_large']      = $style_path.'icons/modules.gif';
-$_style['icons_resources_large']    = $style_path.'icons/resources.png';
-$_style['icons_security_large']     = $style_path.'icons/security.gif';
-$_style['icons_webusers_large']     = $style_path.'icons/web_users.gif';
-$_style['icons_help_large']         = $style_path.'icons/help.png';
+$_style['icons_backup_large']       = $style_path.'icons/32x/backup.png';
+$_style['icons_mail_large']         = $style_path.'icons/32x/mail_generic.gif';
+$_style['icons_modules_large']      = $style_path.'icons/32x/modules.gif';
+$_style['icons_resources_large']    = $style_path.'icons/32x/resources.png';
+$_style['icons_security_large']     = $style_path.'icons/32x/security.gif';
+$_style['icons_webusers_large']     = $style_path.'icons/32x/web_users.gif';
+$_style['icons_help_large']         = $style_path.'icons/32x/help.png';
 
 // Miscellaneous
 $_style['ajax_loader']              = '<p>'.$_lang['loading_page'].'</p><p><img src="'.$style_path.'misc/ajax-loader.gif" alt="Please wait" /></p>';
