@@ -139,7 +139,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
       <input id="cmspasswordconfirm" type="password" name="cmspasswordconfirm" value="<?php echo isset($_POST['cmspasswordconfirm']) ? $_POST['cmspasswordconfirm']:"" ?>" />
     </p>
 
-    <input type="hidden" name="managerlanguage" id="managerlanguage_select" value="<?php echo $config['manager_language'];?>" />
+    <input type="hidden" name="managerlanguage" id="managerlanguage_select" value="<?php echo $default_config['manager_language'];?>" />
 </div></div>
 
 <?php
