@@ -171,7 +171,7 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 
 	function openSelector(resource,mode,callback,w,h){
 		var win
-		w = w ? w:600;
+		w = w ? w:700;
 		h = h ? h:400;
 		url = "index.php?a=84&sm="+mode+"&rt="+resource+"&cb="+callback
 		// center on parent
