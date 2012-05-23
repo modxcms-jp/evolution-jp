@@ -378,7 +378,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['pagetitle']?></td>
 			</tr>
 			<tr><td><?php echo $_lang['long_title']?>: </td>
-				<td><small><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></small></td>
+				<td><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_description']?>: </td>
 				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>

@@ -1,8 +1,8 @@
 <?php
-$base_path = str_replace('\\','/',realpath('../../../../')) . '/';
-require_once("{$base_path}manager/includes/protect.inc.php");
-require_once("{$base_path}manager/includes/initialize.inc.php");
-require_once("{$base_path}manager/includes/config.inc.php");
+$core_path = str_replace('\\','/',realpath('../../../../')) . '/manager/includes/';
+require_once("{$core_path}protect.inc.php");
+require_once("{$core_path}initialize.inc.php");
+require_once("{$core_path}config.inc.php");
 startCMSSession();
 if(!isset($_SESSION['mgrValidated']))
 {
