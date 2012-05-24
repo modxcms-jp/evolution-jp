@@ -285,12 +285,12 @@ if (is_array($evtOut))
 		  </tr>
 		  <?php } ?>
 		  <tr id="editname" style="display:<?php echo $_GET['a']=='11'||(isset($usernamedata['oldusername']) && $usernamedata['oldusername']!=$usernamedata['username']) ? $displayStyle : 'none' ; ?>">
-			<td><?php echo $_lang['username']; ?>:</td>
+			<th><?php echo $_lang['username']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="newusername" class="inputBox" value="<?php echo htmlspecialchars($usernamedata['username']); ?>" onchange='documentDirty=true;' maxlength="100" /></td>
 		  </tr>
 		  <tr>
-			<td valign="top"><?php echo $_GET['a']=='11' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></td>
+			<th valign="top"><?php echo $_GET['a']=='11' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></th>
 			<td>&nbsp;</td>
 			<td><label><input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a']=="11" ? " checked disabled": "" ; ?>><input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="11" ? 1 : 0 ; ?>" onchange="documentDirty=true;" /></label><br />
 				<span style="display:<?php echo $_REQUEST['a']=="11" ? "block": "none" ; ?>" id="passwordBlock">
@@ -316,12 +316,12 @@ if (is_array($evtOut))
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_full_name']; ?>:</td>
+			<th><?php echo $_lang['user_full_name']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_email']; ?>:</td>
+			<th><?php echo $_lang['user_email']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 			<input type="text" name="email" class="inputBox" value="<?php echo htmlspecialchars($userdata['email']); ?>" onchange="documentDirty=true;" />
@@ -329,7 +329,7 @@ if (is_array($evtOut))
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_role']; ?>:</td>
+			<th><?php echo $_lang['user_role']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 <?php
@@ -378,32 +378,32 @@ while ($row = $modx->db->getRow($rs))
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_phone']; ?>:</td>
+			<th><?php echo $_lang['user_phone']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_mobile']; ?>:</td>
+			<th><?php echo $_lang['user_mobile']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>		  
 		  <tr>	  
-			<td><?php echo $_lang['user_fax']; ?>:</td>
+			<th><?php echo $_lang['user_fax']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_state']; ?>:</td>
+			<th><?php echo $_lang['user_state']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_zip']; ?>:</td>
+			<th><?php echo $_lang['user_zip']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_country']; ?>:</td>
+			<th><?php echo $_lang['user_country']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 			<select size="1" name="country" onchange="documentDirty=true;">
@@ -419,7 +419,7 @@ while ($row = $modx->db->getRow($rs))
             </td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_dob']; ?>:</td>
+			<th><?php echo $_lang['user_dob']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
@@ -427,7 +427,7 @@ while ($row = $modx->db->getRow($rs))
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_gender']; ?>:</td>
+			<th><?php echo $_lang['user_gender']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><select name="gender" onchange="documentDirty=true;">
 				<option value=""></option>
@@ -437,7 +437,7 @@ while ($row = $modx->db->getRow($rs))
 			</td>
 		  </tr>
 		  <tr>
-			<td valign="top"><?php echo $_lang['comment']; ?>:</td>
+			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<textarea type="text" name="comment" class="inputBox"  rows="5" onchange="documentDirty=true;"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
@@ -445,7 +445,7 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		<?php if($_GET['a']=='12') { ?>
 		  <tr>
-			<td><?php echo $_lang['user_logincount']; ?>:</td>
+			<th><?php echo $_lang['user_logincount']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
@@ -457,22 +457,22 @@ while ($row = $modx->db->getRow($rs))
 		      else $lastlogin = '-';
 		  ?>
 		  <tr>
-			<td><?php echo $_lang['user_prevlogin']; ?>:</td>
+			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><?php echo $lastlogin ?></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_failedlogincount']; ?>:</td>
+			<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
 			<td>&nbsp;<input type="hidden" name="failedlogincount"  onchange='documentDirty=true;' value="<?php echo $userdata['failedlogincount']; ?>"></td>
 			<td><span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_block']; ?>:</td>
+			<th><?php echo $_lang['user_block']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><label><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)) ? " checked": "" ; ?>><input type="hidden" name="blocked" value="<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0))?1:0; ?>"></label></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_blockeduntil']; ?>:</td>
+			<th><?php echo $_lang['user_blockeduntil']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
@@ -480,7 +480,7 @@ while ($row = $modx->db->getRow($rs))
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_blockedafter']; ?>:</td>
+			<th><?php echo $_lang['user_blockedafter']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
