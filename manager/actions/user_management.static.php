@@ -119,6 +119,7 @@ echo $cm->render();
 	$field  = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
 	$field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
 	$field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";
+	$field .= ",IF(mua.blocked,'unpublished','published') as class";
 	$from  = "{$tbl_manager_users} AS mu";
 	$from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
 	$from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
@@ -155,7 +156,7 @@ echo $cm->render();
 	$grd->columns           = join(',', array($_lang['name'],$_lang['user_full_name'],
 	                                          $_lang['email'],$_lang['role'],$_lang['login_button'],$_lang['user_logincount'],$_lang['user_block']));
 	$grd->colTypes          = join('||',array(
-	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a><a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a>',
+	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a></span>',
 	                          'template:[+fullname+]',
 	                          'template:[+email+]',
 	                          'template:[+rolename+]',
