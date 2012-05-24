@@ -210,6 +210,12 @@ function showHide(what, onoff){
 
 </script>
 
+<style type="text/css">
+	table.settings {border-collapse:collapse;width:100%;}
+	table.settings tr {border-bottom:1px dotted #ccc;}
+	table.settings th {font-size:inherit;vertical-align:top;text-align:left;}
+	table.settings th,table.settings td {padding:5px;}
+</style>
 
 <form action="index.php?a=89" method="post" name="userform" enctype="multipart/form-data">
 <?php
@@ -252,10 +258,10 @@ function showHide(what, onoff){
     <div class="tab-page" id="tabGeneral">
     	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
-		<table border="0" cellspacing="0" cellpadding="3">
+		<table border="0" cellspacing="0" cellpadding="3" class="settings">
 		  <tr>
 			<td colspan="3">
-				<span id="blocked" class="warning"><?php if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)|| ($userdata['blockedafter']<time() && $userdata['blockedafter']!=0) || $userdata['failedlogins']>3) { ?><b><?php echo $_lang['user_is_blocked']; ?></b><?php } ?></span><br />
+				<span id="blocked" class="warning"><?php if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)|| ($userdata['blockedafter']<time() && $userdata['blockedafter']!=0) || $userdata['failedlogins']>3) { ?><b><?php echo $_lang['user_is_blocked']; ?></b><?php } ?></span>
 			</td>
 		  </tr>
 		  <?php if(!empty($userdata['id'])) { ?>
@@ -263,17 +269,16 @@ function showHide(what, onoff){
 			<td colspan="3">
 				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
-				<hr />
 			</td>
 		  </tr>
 		  <?php } ?>
 		  <tr id="editname" style="display:<?php echo $_GET['a']=='87'||(isset($usernamedata['oldusername']) && $usernamedata['oldusername']!=$usernamedata['username']) ? $displayStyle : 'none' ; ?>">
-			<td><?php echo $_lang['username']; ?>:</td>
+			<th><?php echo $_lang['username']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="newusername" class="inputBox" value="<?php echo htmlspecialchars(isset($_POST['newusername']) ? $_POST['newusername'] : $usernamedata['username']); ?>" onchange='documentDirty=true;' maxlength="100" /></td>
 		  </tr>
 		  <tr>
-			<td valign="top"><?php echo $_GET['a']=='87' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></td>
+			<th valign="top"><?php echo $_GET['a']=='87' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></th>
 			<td>&nbsp;</td>
 			<td><input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a']=="87" ? " checked disabled": "" ; ?>><input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="87" ? 1 : 0 ; ?>" onchange="documentDirty=true;" /><br />
 				<span style="display:<?php echo $_REQUEST['a']=="87" ? "block": "none" ; ?>" id="passwordBlock">
@@ -299,12 +304,12 @@ function showHide(what, onoff){
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_full_name']; ?>:</td>
+			<th><?php echo $_lang['user_full_name']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars(isset($_POST['fullname']) ? $_POST['fullname'] : $userdata['fullname']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_email']; ?>:</td>
+			<th><?php echo $_lang['user_email']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 			<input type="text" name="email" class="inputBox" value="<?php echo  isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" onchange="documentDirty=true;" />
@@ -312,32 +317,32 @@ function showHide(what, onoff){
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_phone']; ?>:</td>
+			<th><?php echo $_lang['user_phone']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="phone" class="inputBox" value="<?php echo isset($_POST['phone']) ? $_POST['phone'] : $userdata['phone']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_mobile']; ?>:</td>
+			<th><?php echo $_lang['user_mobile']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo isset($_POST['mobilephone']) ? $_POST['mobilephone'] : $userdata['mobilephone']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_fax']; ?>:</td>
+			<th><?php echo $_lang['user_fax']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="fax" class="inputBox" value="<?php echo isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_state']; ?>:</td>
+			<th><?php echo $_lang['user_state']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="state" class="inputBox" value="<?php echo isset($_POST['state']) ? $_POST['state'] : $userdata['state']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_zip']; ?>:</td>
+			<th><?php echo $_lang['user_zip']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input type="text" name="zip" class="inputBox" value="<?php echo isset($_POST['zip']) ? $_POST['zip'] : $userdata['zip']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_country']; ?>:</td>
+			<th><?php echo $_lang['user_country']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 			<select size="1" name="country" onchange="documentDirty=true;">
@@ -352,7 +357,7 @@ function showHide(what, onoff){
             </td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_dob']; ?>:</td>
+			<th><?php echo $_lang['user_dob']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
@@ -360,7 +365,7 @@ function showHide(what, onoff){
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_gender']; ?>:</td>
+			<th><?php echo $_lang['user_gender']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><select name="gender" onchange="documentDirty=true;">
 				<option value=""></option>
@@ -370,7 +375,7 @@ function showHide(what, onoff){
 			</td>
 		  </tr>
 		  <tr>
-			<td valign="top"><?php echo $_lang['comment']; ?>:</td>
+			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<textarea type="text" name="comment" class="inputBox"  rows="5" onchange="documentDirty=true;"><?php echo htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea>
@@ -378,12 +383,12 @@ function showHide(what, onoff){
 		  </tr>
 		<?php if($_GET['a']=='88') { ?>
 		  <tr>
-			<td><?php echo $_lang['user_logincount']; ?>:</td>
+			<th><?php echo $_lang['user_logincount']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_prevlogin']; ?>:</td>
+			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
 			<td>&nbsp;</td>
 			<?php
 				if(!empty($userdata['lastlogin'])) $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
@@ -392,17 +397,17 @@ function showHide(what, onoff){
 			<td><?php echo $lastlogin; ?></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_failedlogincount']; ?>:</td>
+			<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
 			<td>&nbsp;<input type="hidden" name="failedlogincount"  onchange='documentDirty=true;' value="<?php echo $userdata['failedlogincount']; ?>"></td>
 			<td><span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_block']; ?>:</td>
+			<th><?php echo $_lang['user_block']; ?>:</th>
 			<td>&nbsp;</td>
 			<td><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)||($userdata['blockedafter']<time() && $userdata['blockedafter']!=0)) ? " checked='checked'": "" ; ?> /><input type="hidden" name="blocked" value="<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0))?1:0; ?>"></td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_blockeduntil']; ?>:</td>
+			<th><?php echo $_lang['user_blockeduntil']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo isset($_POST['blockeduntil']) ? $_POST['blockeduntil'] : ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
@@ -410,7 +415,7 @@ function showHide(what, onoff){
 			</td>
 		  </tr>
 		  <tr>
-			<td><?php echo $_lang['user_blockedafter']; ?>:</td>
+			<th><?php echo $_lang['user_blockedafter']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo isset($_POST['blockedafter']) ? $_POST['blockedafter'] : ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
@@ -433,7 +438,7 @@ function showHide(what, onoff){
           </tr>
           <tr>
             <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["login_homepage_message"] ?></td>
+            <td><?php echo $_lang["login_homepage_message"] ?></td>
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
@@ -444,7 +449,7 @@ function showHide(what, onoff){
           </tr>
           <tr>
             <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["login_allowed_ip_message"] ?></td>
+            <td><?php echo $_lang["login_allowed_ip_message"] ?></td>
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
@@ -463,7 +468,7 @@ function showHide(what, onoff){
           </tr>
           <tr>
             <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["login_allowed_days_message"] ?></td>
+            <td><?php echo $_lang["login_allowed_days_message"] ?></td>
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
@@ -504,7 +509,7 @@ function showHide(what, onoff){
           </tr>
           <tr>
             <td width="200">&nbsp;</td>
-            <td class='comment'><?php echo $_lang["user_photo_message"] ?></td>
+            <td><?php echo $_lang["user_photo_message"] ?></td>
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
