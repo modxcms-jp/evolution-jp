@@ -374,7 +374,6 @@ input[type="submit"],
 input[type="button"] {
 	height: auto !important;
 	width: auto !important;
-	vertical-align: middle;
 	cursor:pointer;cursor:hand;
 }
 select {
