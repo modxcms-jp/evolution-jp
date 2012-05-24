@@ -317,9 +317,9 @@ form textarea
 	.rtl form textarea {
 		padding: 2px 2px 2px 0;
 	}
-.sectionBody input[type=text],
-.sectionBody input[type=password],
-.sectionBody select {
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
 	width:350px;
 }
 
