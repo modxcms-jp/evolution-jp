@@ -7,24 +7,36 @@ if(!$modx->hasPermission('messages')) {
 
 //$db->debug = true;
 
+if(!isset($modx->config['pm2email'])) $modx->config['pm2email'] == '1';
 
-$sendto = $_REQUEST['sendto'];
-$userid = $_REQUEST['user'];
-$groupid = $_REQUEST['group'];
+$sendto    = $_REQUEST['sendto'];
+$recipient = $_REQUEST['user'];
+$groupid   = $_REQUEST['group'];
+
+$sender = $modx->getLoginUserID();
+
 $subject = addslashes($_REQUEST['messagesubject']);
-if($subject=="") $subject="(no subject)";
+if($subject=='') $subject="(no subject)";
 $message = addslashes($_REQUEST['messagebody']);
-if($message=="") $message="(no message)";
+if($message=='') $message="(no message)";
 $postdate = time();
+$type = 'Message';
+
+$tbl_user_messages   = $modx->getFullTableName('user_messages');
+$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+
+$rs = $modx->db->select('fullname,email', $tbl_user_attributes, "internalKey='$sender'");
+$from = $modx->db->getRow($rs);
 
 if($sendto=='u') {
-	if($userid==0) {
+	if($recipient==0) {
 		$e->setError(13);
 		$e->dumpError();
 	}
-	$sql = "INSERT INTO $dbase.`".$table_prefix."user_messages` (recipient, sender, subject, message, postdate, type, private)
-			values($userid, ".$modx->getLoginUserID().", '$subject', '$message', $postdate, 'Message', 1);";
-	$rs = $modx->db->query($sql);
+	$private = 1;
+	$fields = compact('recipient','sender','subject','message','postdate','type','private');
+	$rs = $modx->db->insert($fields,$tbl_user_messages);
+	if($rs) pm2email($from,$fields);
 }
 
 if($sendto=='g') {
@@ -32,34 +44,49 @@ if($sendto=='g') {
 		$e->setError(14);
 		$e->dumpError();
 	}
-	$sql = "SELECT internalKey FROM $dbase.`".$table_prefix."user_attributes` WHERE $dbase.`".$table_prefix."user_attributes`.role=$groupid";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	for( $i=0; $i<$limit; $i++ ){
-		$row=$modx->db->getRow($rs);
-		if($row['internalKey']!=$modx->getLoginUserID()) {
-			$sql2 = "INSERT INTO $dbase.`".$table_prefix."user_messages` (recipient, sender, subject, message, postdate, type, private)
-					values(".$row['internalKey'].", ".$modx->getLoginUserID().", '$subject', '$message', $postdate, 'Message', 0);";
-			$rs2 = $modx->db->query($sql2);
-		}
+	$rs = $modx->db->select('internalKey', $tbl_user_attributes, "role={$groupid} AND blocked=0");
+	$private = 0;
+	while($row=$modx->db->getRow($rs))
+	if($row['internalKey']!=$sender) {
+		$recipient = $row['internalKey'];
+		$fields = compact('recipient','sender','subject','message','postdate','type','private');
+		$rs = $modx->db->insert($fields,$tbl_user_messages);
+		if($rs) pm2email($from,$fields);
 	}
 }
-
 
 if($sendto=='a') {
-	$sql = "SELECT id FROM $dbase.`".$table_prefix."manager_users`";
-	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
-	for( $i=0; $i<$limit; $i++ ){
-		$row=$modx->db->getRow($rs);
-		if($row['id']!=$modx->getLoginUserID()) {
-			$sql2 = "INSERT INTO $dbase.`".$table_prefix."user_messages` (recipient, sender, subject, message, postdate, type, private)
-					values(".$row['id'].", ".$modx->getLoginUserID().", '$subject', '$message', $postdate, 'Message', 0);";
-			$rs2 = $modx->db->query($sql2);
+	$tbl_manager_users = $modx->getFullTableName('manager_users');
+	$rs = $modx->db->select('id',$tbl_manager_users);
+	$private = 0;
+	while($row=$modx->db->getRow($rs))
+	{
+		if($row['id']!=$sender) {
+			$recipient = $row['id'];
+			$fields = compact('recipient','sender','subject','message','postdate','type','private');
+			$rs = $modx->db->insert($fields,$tbl_user_messages);
+			if($rs) pm2email($from,$fields);
 		}
 	}
 }
 
-//exit;
-
 header("Location: index.php?a=10");
+
+
+function pm2email($from,$fields)
+{
+	global $modx;
+	if($modx->config['pm2email'] == '0') return;
+	
+	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+	extract($fields);
+	
+	$msg = $message ."\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
+	$msg = $modx->mergeSettingsContent($msg);
+	$params['from']     = $from['email'];
+	$params['fromname'] = $from['fullname'];
+	$params['subject']  = $subject;
+	$params['sendto']   = $modx->db->getValue($modx->db->select('email', $tbl_user_attributes, "internalKey='$recipient'"));
+	$modx->sendmail($params,$msg);
+	usleep(300000);
+}

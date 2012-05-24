@@ -35,6 +35,7 @@ $default_config['number_of_logs']           = '100';
 $default_config['number_of_messages']       = '30';
 $default_config['number_of_results']        = '20';
 $default_config['publish_default']          = '1';
+$default_config['pm2email']                 = '1';
 $default_config['rb_webuser']               = '0';
 $default_config['remember_last_tab']        = '1';
 $default_config['resource_tree_node_name']  = 'pagetitle';

@@ -1184,3 +1184,6 @@ $_lang["Due to too many failed logins, you have been blocked!"] = "Due to too ma
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
 $_lang["You are blocked and cannot log in! Please try again later."] = "You are blocked and cannot log in! Please try again later.";
 $_lang["The security code you entered didn't validate! Please try to login again!"] = "The security code you entered didn't validate! Please try to login again!";
+
+$_lang["pm2email_title"] = 'PM transmit to email';
+$_lang["pm2email_message"] = 'PM transmit to email.';

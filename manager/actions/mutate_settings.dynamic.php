@@ -887,6 +887,14 @@ echo $str;
 <?php echo $_lang["nomessages_message"]?></td>
 </tr>
 <tr>
+	<th><?php echo $_lang["pm2email_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('pm2email','1',$xhtml_urls=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('pm2email','0',$xhtml_urls=='0'));?><br />
+		<?php echo $_lang["pm2email_message"] ?>
+	</td>
+</tr>
+<tr>
 <th><?php echo $_lang["noresults_title"]?></th>
 <td>
 	<?php echo form_text('number_of_results',$number_of_results,5);?><br />
