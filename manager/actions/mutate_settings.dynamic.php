@@ -6,9 +6,9 @@ if(!$modx->hasPermission('settings'))
 	$e->dumpError();
 }
 // check to see the edit settings page isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=17";
-$rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
+$tbl_active_users = $modx->getFullTableName('active_users');
+$rs = $modx->db->select('internalKey, username', $tbl_active_users, 'action=17');
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
 	{
