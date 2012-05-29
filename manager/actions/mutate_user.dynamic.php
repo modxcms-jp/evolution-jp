@@ -504,13 +504,15 @@ while ($row = $modx->db->getRow($rs))
 	    <td> <select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
 	    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
 	    <?php
-$activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : '';
-$dir = dir("includes/lang");
-while ($file = $dir->read()) {
-	if (strpos($file, ".inc.php") > 0) {
+$activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
+$dir = dir('includes/lang');
+while ($file = $dir->read())
+{
+	if (strpos($file, '.inc.php') !== false)
+	{
 		$endpos = strpos($file, ".");
 		$languagename = trim(substr($file, 0, $endpos));
-		$selectedtext = $languagename == selected($activelang);
+		$selectedtext = selected($activelang===$languagename);
 ?> 
                 <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
                 <?php
