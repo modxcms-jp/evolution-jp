@@ -349,7 +349,7 @@ switch ($_POST['mode']) {
 				"userpassword" => $newpassword
 			));
 
-		if ($passwordnotifymethod == 'e') {
+		if ($passwordnotifymethod == 'e' && $genpassword == 1) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 		}
 
