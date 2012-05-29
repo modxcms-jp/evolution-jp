@@ -24,10 +24,10 @@ $_style['sort_tree']                = '<img src="'.$style_path.'icons/sort.png" 
 
 
 // Tree Icons
-$_style['tree_blanknode']           = $style_path.'tree/blanknode.gif';
+$_style['tree_blanknode']           = $style_path.'tree/empty.gif';
 $_style['tree_deletedpage']         = $style_path.'tree/deletedpage.gif';
-$_style['tree_folder']              = $style_path.'tree/application_double.gif'; /* folder.gif */
-$_style['tree_folderopen']          = $style_path.'tree/application_double.gif'; /* folder-open.gif */
+$_style['tree_folder']              = $style_path.'tree/folder.png'; /* folder.gif */
+$_style['tree_folderopen']          = $style_path.'tree/folder.png'; /* folder-open.gif */
 $_style['tree_folder_secure']       = $style_path.'tree/application_double_key.gif';
 $_style['tree_folderopen_secure']   = $style_path.'tree/application_double_key.gif';
 $_style['tree_globe']               = $style_path.'tree/globe.gif';
@@ -40,7 +40,7 @@ $_style['tree_page_hourglass']      = $style_path.'tree/application_hourglass.gi
 $_style['tree_page_info']           = $style_path.'tree/application_info.gif';
 $_style['tree_page_blank']          = $style_path.'tree/application.gif';
 $_style['tree_page_css']            = $style_path.'tree/application_css.gif';
-$_style['tree_page_html']           = $style_path.'tree/application_html.gif';
+$_style['tree_page_html']           = $style_path.'tree/page.gif';
 $_style['tree_page_xml']            = $style_path.'tree/application_xml.gif';
 $_style['tree_page_js']             = $style_path.'tree/application_js.gif';
 $_style['tree_page_rss']            = $style_path.'tree/application_rss.gif';
@@ -75,14 +75,14 @@ $_style['icons_resource_overview']  = $style_path.'icons/page_white_magnify.png'
 $_style['icons_resource_duplicate'] = $style_path.'icons/page_white_copy.png';
 $_style['icons_edit_document']      = $style_path.'icons/write.png';
 $_style['icons_email']              = $style_path.'icons/email.png';
-$_style['icons_folder']             = $style_path.'icons/folder.gif';
+$_style['icons_folder']             = $style_path.'icons/folder.png';
 $_style['icons_home']               = $style_path.'icons/home.gif';
 $_style['icons_information']        = $style_path.'icons/information.png';
 $_style['icons_loading_doc_tree']   = $style_path.'icons/information.png'; // top bar
 $_style['icons_mail']               = $style_path.'icons/email.png'; // top bar
 $_style['icons_message_forward']    = $style_path.'icons/forward.gif';
 $_style['icons_message_reply']      = $style_path.'icons/reply.gif';
-$_style['icons_modules']            = $style_path.'icons/modules.gif';
+$_style['icons_modules']            = $style_path.'icons/32x/modules.gif';
 $_style['icons_move_document']      = $style_path.'icons/page_white_go.png';
 $_style['icons_new_document']       = $style_path.'icons/page_white_add.png';
 $_style['icons_new_weblink']        = $style_path.'icons/world_link.png';
@@ -90,11 +90,11 @@ $_style['icons_preview_resource']   = $style_path.'icons/page_white_magnify.png'
 $_style['icons_publish_document']   = $style_path.'icons/clock_play.png';
 $_style['icons_refresh']            = $style_path.'icons/refresh.png'; 
 $_style['icons_save']               = $style_path.'icons/save.png';
-$_style['icons_set_parent']         = $style_path.'icons/layout_go.gif';
+$_style['icons_set_parent']         = $style_path.'icons/stick.gif';
 $_style['icons_table']              = $style_path.'icons/table.gif'; 
 $_style['icons_undelete_resource']  = $style_path.'icons/b092.gif';
 $_style['icons_unpublish_resource'] = $style_path.'icons/clock_stop.png';
-$_style['icons_user']               = $style_path.'icons/user.png';
+$_style['icons_user']               = $style_path.'icons/vcard.png';
 $_style['icons_weblink']            = $style_path.'icons/world_link.png';
 $_style['icons_working']            = $style_path.'icons/exclamation.png'; // top bar
 

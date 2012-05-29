@@ -506,6 +506,7 @@ input.submit {
 	font-weight: bold;
 	font-size: 1.25em;
 	border: 1px solid #ccc;
+	border-bottom:none;
 		text-shadow: 0px 1px 0px #FFF;
 }
 	.tab-page .sectionHeader {
@@ -521,10 +522,10 @@ input.submit {
 	margin: 5px 15px 15px;
 	display: block;
 }
-	.tab-page .sectionBody {
+	.tab-page .sectionBody,
+	.section .sectionBody {
 		background: none repeat scroll 0 0 #F7F7F7;
 		border: 1px solid #CCCCCC;
-		border-top:none;
 		margin: 0 3px 15px;
 		padding: 15px;
 	}
@@ -532,6 +533,9 @@ input.submit {
 		direction: rtl;
 		position: inherit;
 	}
+.section .sectionBody {
+	margin:0 15px 15px;
+}
 #tabdocInfo .sectionBody {
 	border-top:1px solid #ccc;
 }
@@ -1255,9 +1259,12 @@ a.hometblink, a.hometblink img {
 }
 /* -------------------------[ New sortable table class ]--- */
 .sortabletable {
-	border: 0 solid ThreeDShadow;
-	color: WindowText;
 }
+table.sortabletable {
+	width:100%;
+	border-collapse:collapse;
+}
+
 .sortabletable thead tr {
 	background-color: #86919e;
 }
@@ -1268,8 +1275,8 @@ a.hometblink, a.hometblink img {
 	background: #E9F0F3;
 }
 .sortabletable td, .sortabletable th {
-	padding: 2px 5px;
-	border-bottom: 1px solid #eee;
+	padding: 3px 5px;
+	border: 1px solid #ccc;
 }
 .sortabletable th {
 	text-align: left;
@@ -1647,7 +1654,8 @@ fieldset.legacy h2 {
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
 	width: 150px;
 	padding: 3px 3px 3px 24px;
-	background: url(images/misc/datenofocus.gif) no-repeat top left;
+	background-color:#ffffff;
+	background: url(images/misc/datenofocus.gif) no-repeat top left #ffffff;
 	cursor: pointer;
 }
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
