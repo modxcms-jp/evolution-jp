@@ -54,18 +54,18 @@ switch ($e->name)
 		
 		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mgrValidated'])))
 		{
-			$params['theme']           = $modx->config['tinymce_editor_theme'];
-			$params['mce_editor_skin'] = $modx->config['mce_editor_skin'];
-			$params['mce_entermode']   = $modx->config['mce_entermode'];
-			$params['language']        = get_mce_lang($modx->config['manager_language']);
-			$params['frontend']        = false;
-			$params['custom_plugins']  = $modx->config['tinymce_custom_plugins'];
-			$params['custom_buttons1'] = $modx->config['tinymce_custom_buttons1'];
-			$params['custom_buttons2'] = $modx->config['tinymce_custom_buttons2'];
-			$params['custom_buttons3'] = $modx->config['tinymce_custom_buttons3'];
-			$params['custom_buttons4'] = $modx->config['tinymce_custom_buttons4'];
-			$params['toolbar_align']   = $modx->config['manager_direction'];
-			$params['webuser']         = null;
+			$params['theme']              = $modx->config['tinymce_editor_theme'];
+			$params['mce_editor_skin']    = $modx->config['mce_editor_skin'];
+			$params['mce_entermode']      = $modx->config['mce_entermode'];
+			$params['language']           = get_mce_lang($modx->config['manager_language']);
+			$params['frontend']           = false;
+			$params['custom_plugins']     = $modx->config['tinymce_custom_plugins'];
+			$params['custom_buttons1']    = $modx->config['tinymce_custom_buttons1'];
+			$params['custom_buttons2']    = $modx->config['tinymce_custom_buttons2'];
+			$params['custom_buttons3']    = $modx->config['tinymce_custom_buttons3'];
+			$params['custom_buttons4']    = $modx->config['tinymce_custom_buttons4'];
+			$params['toolbar_align']      = $modx->config['manager_direction'];
+			$params['webuser']            = null;
 			
 			$html = $mce->get_mce_script($params);
 		}
@@ -108,15 +108,15 @@ switch ($e->name)
         		break;
     	}
     	
-		$params['theme']            = $mce_settings['tinymce_editor_theme'];
-		$params['mce_editor_skin']  = $mce_settings['mce_editor_skin'];
-		$params['mce_entermode']    = $mce_settings['mce_entermode'];
-		$params['css_selectors']    = $mce_settings['tinymce_css_selectors'];
-		$params['custom_plugins']   = $mce_settings['tinymce_custom_plugins'];
-		$params['custom_buttons1']  = $mce_settings['tinymce_custom_buttons1'];
-		$params['custom_buttons2']  = $mce_settings['tinymce_custom_buttons2'];
-		$params['custom_buttons3']  = $mce_settings['tinymce_custom_buttons3'];
-		$params['custom_buttons4']  = $mce_settings['tinymce_custom_buttons4'];
+		$params['theme']              = $mce_settings['tinymce_editor_theme'];
+		$params['mce_editor_skin']    = $mce_settings['mce_editor_skin'];
+		$params['mce_entermode']      = $mce_settings['mce_entermode'];
+		$params['css_selectors']      = $mce_settings['tinymce_css_selectors'];
+		$params['custom_plugins']     = $mce_settings['tinymce_custom_plugins'];
+		$params['custom_buttons1']    = $mce_settings['tinymce_custom_buttons1'];
+		$params['custom_buttons2']    = $mce_settings['tinymce_custom_buttons2'];
+		$params['custom_buttons3']    = $mce_settings['tinymce_custom_buttons3'];
+		$params['custom_buttons4']    = $mce_settings['tinymce_custom_buttons4'];
     	
 		$html = $mce->get_mce_settings($params);
 		$e->output($html);
