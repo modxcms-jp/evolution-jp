@@ -618,6 +618,8 @@ if (isset ($_POST['snippet']) || $installData)
 	}
 }
 
+if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('override.sql');
+
 // install data
 if ($installData && $moduleSQLDataFile)
 {
@@ -642,8 +644,6 @@ if ($installData && $moduleSQLDataFile)
 		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
 	}
 }
-
-if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('override.sql');
 
 // call back function
 if ($callBackFnc != '') $callBackFnc ($sqlParser);
