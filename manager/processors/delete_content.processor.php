@@ -20,6 +20,9 @@ elseif($id==$modx->config['site_unavailable_page'])
 	$warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
 }
 elseif(!check_group_perm($id)) $warning = $_lang['access_permissions'];
+else $linked = check_linked($id);
+
+if(isset($linked) && $linked!==false)  $warning = 'Linked by ' . 'ID:' . join(', ID:', $linked);
 
 if(isset($warning))
 {
@@ -119,3 +122,24 @@ function check_group_perm($id)
 	$udperms->role = $_SESSION['mgrRole'];
 	return $udperms->checkPermissions();
 }
+
+function check_linked($id)
+{
+	global $modx;
+	
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	$url     = $modx->makeUrl($id);
+	$fullurl = $modx->makeUrl($id,'','','full');
+	
+	$rs = $modx->db->select('id',$tbl_site_content,"(content LIKE '%[~{$id}~]\"%' OR content LIKE '%{$url}\"%' OR content LIKE '%{$fullurl}\"%') AND deleted='0'");
+	if(0 < $modx->db->getRecordCount($rs))
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			$result[] = $row['id'];
+		}
+		return $result;
+	}
+	return false;
+}
+
