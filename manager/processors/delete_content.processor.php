@@ -128,10 +128,8 @@ function check_linked($id)
 	global $modx;
 	
 	$tbl_site_content = $modx->getFullTableName('site_content');
-	$url     = $modx->makeUrl($id);
-	$fullurl = $modx->makeUrl($id,'','','full');
 	
-	$rs = $modx->db->select('id',$tbl_site_content,"(content LIKE '%[~{$id}~]\"%' OR content LIKE '%{$url}\"%' OR content LIKE '%{$fullurl}\"%') AND deleted='0'");
+	$rs = $modx->db->select('id',$tbl_site_content,"content LIKE '%[~{$id}~]%' AND deleted='0'");
 	if(0 < $modx->db->getRecordCount($rs))
 	{
 		while($row = $modx->db->getRow($rs))
