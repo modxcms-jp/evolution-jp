@@ -199,12 +199,12 @@ if ($numRecords > 0)
 			if($children['isfolder'] == 0)
 			{
 				$link = "index.php?a=27&amp;id={$children['id']}";
-				$iconpath = $_style['tree_page'];
+				$iconpath = $_style['tree_page_html'];
 			}
 			else
 			{
 				$link = "index.php?a=3&amp;id={$children['id']}&amp;tab=0";
-				$iconpath = $_style['icons_folder'];
+				$iconpath = $_style['tree_folder'];
 			}
 			
 			if( $children['type']==='reference')

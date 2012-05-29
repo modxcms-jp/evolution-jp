@@ -10,10 +10,12 @@ $tbl_user_messages   = $modx->getFullTableName('user_messages');
 $tbl_manager_users   = $modx->getFullTableName('manager_users');
 ?>
 <h1><?php echo $_lang['messages_title']; ?></h1>
-
+<?php
+	$location = isset($_GET['id']) ? '10' : '2';
+?>
 <div id="actions">
   <ul class="actionButtons">
-      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=10';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=<?php echo $location;?>';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
   </ul>
 </div>
 
