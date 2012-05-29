@@ -112,6 +112,7 @@ switch ($e->name)
 		$params['mce_editor_skin']    = $mce_settings['mce_editor_skin'];
 		$params['mce_entermode']      = $mce_settings['mce_entermode'];
 		$params['mce_element_format'] = $mce_settings['mce_element_format'];
+		$params['mce_schema']         = $mce_settings['mce_schema'];
 		$params['css_selectors']      = $mce_settings['tinymce_css_selectors'];
 		$params['custom_plugins']     = $mce_settings['tinymce_custom_plugins'];
 		$params['custom_buttons1']    = $mce_settings['tinymce_custom_buttons1'];

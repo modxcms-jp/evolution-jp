@@ -16,3 +16,4 @@ $ph['custom_buttons3'] = $params['custom_buttons3'];
 $ph['custom_buttons4'] = $params['custom_buttons4'];
 $ph['mce_entermode'] = (!isset($params['mce_entermode'])) ? 'p' : $params['mce_entermode'];
 $ph['mce_element_format'] = (!isset($params['mce_element_format'])) ? 'xhtml' : $params['mce_element_format'];
+$ph['mce_schema']      = (!isset($params['mce_schema'])) ? 'html4' : $params['mce_schema'];

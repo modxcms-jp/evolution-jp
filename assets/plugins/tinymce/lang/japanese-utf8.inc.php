@@ -35,3 +35,5 @@ $_lang['mce_entermode_opt2'] = '&lt;br /&gt;を挿入';
 
 $_lang['mce_element_format_title'] = 'タグのスタイル';
 $_lang['mce_element_format_message'] = '&lt;br /&gt;または&lt;br&gt;';
+$_lang['mce_schema_title'] = 'スキーマ';
+$_lang['mce_schema_message'] = 'スキーマを選択します。';
