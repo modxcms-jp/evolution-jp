@@ -76,7 +76,7 @@ class TinyMCE
 	
 		if($modx->manager->action == 11 || $modx->manager->action == 12)
 		{
-			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . '</option>' . PHP_EOL;
+			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . "</option>\n";
 		}
 		$themes['simple']   = $_lang['mce_theme_simple'];
 		$themes['editor']   = $_lang['mce_theme_editor'];
@@ -89,7 +89,7 @@ class TinyMCE
 		{
 			$selected = $this->selected($key == $params['theme']);
 			$key = '"' . $key . '"';
-			$theme_options .= "<option value={$key}{$selected}>{$value}</option>" . PHP_EOL;
+			$theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
 		}
 		
 		$ph = $_lang;
@@ -202,8 +202,7 @@ class TinyMCE
 		    break;
 		}
 		
-		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4);
-		$str .= PHP_EOL;
+		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
 		$str .= $this->build_tiny_callback($params);
 		
 		return $str;
