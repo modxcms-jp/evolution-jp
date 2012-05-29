@@ -289,7 +289,7 @@ class TinyMCE
 		}
 		elseif ($params['editor_css_path']!=='') $content_css[] = MODX_BASE_URL . $params['editor_css_path'];
 			$ph['content_css']         = join(',', $content_css);
-		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$params['mce_url']}inc/tinymce.linklist.php'" : 'false';
+		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$params['mce_url']}js/tinymce.linklist.php'" : 'false';
 	
 		$mce_init = file_get_contents($params['mce_path'] . 'js/mce_init.js.inc');
 		
