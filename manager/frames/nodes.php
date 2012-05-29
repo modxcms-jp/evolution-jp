@@ -122,11 +122,11 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			elseif($modx->config['limit_by_container'] < $has_child) $status = 'too_many';
 			else $status = 'asis';
 			if($status!=='asis' && $parent !=='0')
-		{
-			$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
-			$result = $modx->db->select($field,$from,$where,$tree_orderby);
-				$has_child = $modx->db->getRecordCount($result);
-		}
+			{
+				$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
+				$result = $modx->db->select($field,$from,$where,$tree_orderby);
+					$has_child = $modx->db->getRecordCount($result);
+			}
 		}
 		
 		if($has_child==0 && $status !== 'container_only' && $status !== 'asis')
