@@ -17,6 +17,10 @@ if(strlen($pass1)<6){
 	echo "Password is too short. Please specify a password of at least 6 characters.";
 	exit;
 }
+elseif(32<strlen($pass1)){
+	echo "Password is too long. Please specify a password of less than 32 characters.";
+	exit;
+}
 
 $sql = "UPDATE $dbase.`".$table_prefix."manager_users` SET password=md5('".$pass1."') where id=".$modx->getLoginUserID().";";
 $rs = $modx->db->query($sql);
