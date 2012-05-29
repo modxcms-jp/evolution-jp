@@ -31,6 +31,13 @@ textarea.mce {width:95%;height:40px;display:block;}
 	</td>
   </tr>
   <tr class="row1" style="display: [+display+];">
+    <th>[+mce_element_format_title+]</th>
+    <td>
+    [+element_format_options+]
+    <div>[+mce_element_format_message+]</div>
+	</td>
+  </tr>
+  <tr class="row1" style="display: [+display+];">
 	<th>[+mce_editor_custom_plugins_title+]</th>
 	<td>
 		<textarea onchange="documentDirty=true;" class="inputBox mce" name="tinymce_custom_plugins" />[+custom_plugins+]</textarea>

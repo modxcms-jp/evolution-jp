@@ -32,3 +32,6 @@ $_lang['mce_editor_entermode_title'] = 'Enter key mode';
 $_lang['mce_editor_entermode_message'] = 'Operation when the enter key is pressed is set up.';
 $_lang['mce_entermode_opt1'] = 'Wrap &lt;p&gt;&lt;/p&gt;';
 $_lang['mce_entermode_opt2'] = 'Insert &lt;br /&gt;';
+
+$_lang['mce_element_format_title'] = 'Element format';
+$_lang['mce_element_format_message'] = 'This option enables control if elements should be in html or xhtml mode. xhtml is the default state for this option. This means that for example &lt;br /&gt; will be &lt;br&gt; if you set this option to &quot;html&quot;.';

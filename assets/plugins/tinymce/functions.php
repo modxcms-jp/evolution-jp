@@ -112,6 +112,17 @@ class TinyMCE
 			break;
 		}
 		
+		$ph['element_format_options'] = '<label><input name="mce_element_format" type="radio" value="xhtml" '.  $this->checked($ph['mce_element_format']=='xhtml') . '/>XHTML</label><br />';
+		$ph['element_format_options'] .= '<label><input name="mce_element_format" type="radio" value="html" '. $this->checked($ph['mce_element_format']=='html') . '/>HTML</label>';
+		switch($modx->manager->action)
+		{
+			case '11':
+			case '12':
+			$ph['element_format_options']  .= '<br />';
+			$ph['element_format_options']  .= '<label><input name="mce_element_format" type="radio" value="" '.  $this->checked(empty($params['mce_element_format'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+			break;
+		}
+		
 		$gsettings = file_get_contents($params['mce_path'] . 'inc/gsettings.html.inc');
 		
 		foreach($ph as $name => $value)
@@ -261,6 +272,7 @@ class TinyMCE
 			$ph['force_p_newlines']   = 'false';
 			$ph['force_br_newlines']  = 'true';
 		}
+		$ph['element_format']          = $modx->config['mce_element_format'];
 		$ph['toolbar_align']           = $params['toolbar_align'];
 		$ph['file_browser_callback']   = 'mceOpenServerBrowser';
 		$ph['plugins']                 = $plugins;
