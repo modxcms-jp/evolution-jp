@@ -49,21 +49,23 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
-$cwd = str_replace('\\','/',dirname(__FILE__)) . '/';
+$base_path = str_replace('\\','/',dirname(__FILE__)) . '/';
 
-include_once("{$cwd}assets/cache/sitePublishing.idx.php");
-if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTime < time())
+$cache_type = 1;
+$cacheRefreshTime = 0;
+include_once($base_path . 'assets/cache/sitePublishing.idx.php');
+if($cache_type==2 && count($_POST) < 1 && $cacheRefreshTime < time())
 {
 	session_name($site_sessionname);
 	session_cache_limiter('');
 	session_start();
 	if(!isset($_SESSION['mgrValidated']))
 	{
-		$filename = md5($_SERVER['REQUEST_URI']);
-		if(file_exists("{$cwd}assets/cache/{$filename}.pageCache.php"))
+		$target = $base_path . 'assets/cache/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
+		if(is_file($target))
 		{
-			$handle = fopen("{$cwd}assets/cache/{$filename}.pageCache.php", 'rb');
-			$src = fread($handle, filesize("{$cwd}assets/cache/{$filename}.pageCache.php"));
+			$handle = fopen($target, 'rb');
+			$src = fread($handle, filesize($target));
 			
 				$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
 				$msize = $mem - $mstart;
@@ -85,7 +87,7 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 				$src= str_replace('[^t^]', $totalTime, $src);
 				$src= str_replace('[^s^]', 'bypass_cache', $src);
 				$src= str_replace('[^m^]', $msize, $src);
-			if(file_exists("{$cwd}autoload.php")) $loaded_autoload = include_once("{$cwd}autoload.php");
+			if(is_file("{$base_path}autoload.php")) $loaded_autoload = include_once("{$base_path}autoload.php");
 			if($src !== false)
 			{
 				echo $src;
@@ -94,16 +96,16 @@ if(isset($cache_type) && $cache_type==2 && count($_POST) < 1 && $cacheRefreshTim
 		}
 	}
 }
-if(!isset($loaded_autoload) && file_exists("{$cwd}autoload.php")) include_once("{$cwd}autoload.php");
+if(!isset($loaded_autoload) && is_file("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
 // harden it
-require_once("{$cwd}manager/includes/protect.inc.php");
-require_once("{$cwd}manager/includes/initialize.inc.php");
+require_once("{$base_path}manager/includes/protect.inc.php");
+require_once("{$base_path}manager/includes/initialize.inc.php");
 // get the required includes
 if(!isset($database_type))
 {
-	$conf_path = "{$cwd}manager/includes/config.inc.php";
-	if(file_exists($conf_path)) include_once($conf_path);
+	$conf_path = "{$base_path}manager/includes/config.inc.php";
+	if(is_file($conf_path)) include_once($conf_path);
 	// Be sure config.inc.php is there and that it contains some important values
 	if((!isset($lastInstallTime) || $lastInstallTime===NULL) && !isset($database_type))
 	{
