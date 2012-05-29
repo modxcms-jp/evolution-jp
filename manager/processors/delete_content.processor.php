@@ -11,17 +11,24 @@ if(!$modx->hasPermission('delete_document'))
 $id=intval($_GET['id']);
 
 // check permissions on the document
-if(!check_group_perm($id)) disp_access_permission_denied();
-
 if($id==$modx->config['site_start'])
 {
-	echo "Document is 'Site start' and cannot be deleted!";
-	exit;
+	$warning = "Document is 'Site start' and cannot be deleted!";
 }
-
-if($id==$modx->config['site_unavailable_page'])
+elseif($id==$modx->config['site_unavailable_page'])
 {
-	echo "Document is used as the 'Site unavailable page' and cannot be deleted!";
+	$warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
+}
+elseif(!check_group_perm($id)) $warning = $_lang['access_permissions'];
+
+if(isset($warning))
+{
+	include "header.inc.php";
+	?><div class="sectionHeader">Warning</div>
+	<div class="sectionBody">
+	<p><?php $modx->webAlert($warning,'javascript:history.back();'); ?></p>
+	<?php
+	include("footer.inc.php");
 	exit;
 }
 
@@ -81,7 +88,7 @@ function getChildren($parent)
 	$tbl_site_content = $modx->getFullTableName('site_content');
 
 	$rs = $modx->db->select('id',$tbl_site_content,"parent='{$parent}' AND deleted='0'");
-	if(0 < mysql_num_rows($rs))
+	if(0 < $modx->db->getRecordCount($rs))
 	{
 		// the document has children documents, we'll need to delete those too
 		while($row=$modx->db->getRow($rs))
@@ -111,16 +118,4 @@ function check_group_perm($id)
 	$udperms->document = $id;
 	$udperms->role = $_SESSION['mgrRole'];
 	return $udperms->checkPermissions();
-}
-
-function disp_access_permission_denied()
-{
-	global $_lang;
-	include "header.inc.php";
-	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
-	<div class="sectionBody">
-	<p><?php echo $_lang['access_permission_denied']; ?></p>
-	<?php
-	include("footer.inc.php");
-	exit;
 }
