@@ -16,7 +16,9 @@ $tbl_site_content = $modx->getFullTableName('site_content');
   </ul>
 </div>
 
-<div class="sectionHeader"><?php echo $_lang["publish_events"]?></div><div class="sectionBody" id="lyr1">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang["publish_events"]?></div>
+<div class="sectionBody" id="lyr1">
 <?php
 $field = 'id, pagetitle, pub_date';
 $where = 'pub_date > ' . time();
@@ -53,11 +55,12 @@ if($total<1) {
 <?php
 }
 ?>
-
+</div>
 </div>
 
-
-<div class="sectionHeader"><?php echo $_lang["unpublish_events"];?></div><div class="sectionBody" id="lyr2"><?php
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang["unpublish_events"];?></div>
+<div class="sectionBody" id="lyr2"><?php
 //$db->debug = true;
 $field = 'id, pagetitle, unpub_date';
 $where = 'unpub_date > ' . time();
@@ -94,11 +97,13 @@ if($total<1) {
 <?php
 }
 ?>
-
+</div>
 </div>
 
 
-<div class="sectionHeader"><?php echo $_lang["all_events"];?></div><div class="sectionBody"><?php
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang["all_events"];?></div>
+<div class="sectionBody"><?php
 $field = 'id, pagetitle, pub_date, unpub_date';
 $where = 'pub_date > 0 OR unpub_date > 0';
 $orderby = 'pub_date DESC';
@@ -137,4 +142,5 @@ if($total<1) {
 <?php
 }
 ?>
+</div>
 </div>

@@ -21,7 +21,9 @@ if(!$modx->hasPermission('logs')) {
 </script>
 
 <!-- server -->
-<div class="sectionHeader">Server</div><div class="sectionBody" id="lyr2">
+<div class="section">
+<div class="sectionHeader">Server</div>
+<div class="sectionBody" id="lyr2">
 		<table border="0" cellspacing="2" cellpadding="2">
 		<?php echo render_tr($_lang['modx_version'],$modx_version);?>
 		<?php echo render_tr($_lang['release_date'],$modx_release_date);?>
@@ -51,9 +53,11 @@ if(!$modx->hasPermission('logs')) {
 		<?php echo render_tr($_lang['cfg_site_url'],MODX_SITE_URL);?>
 		</table>
    </div>
-
+</div>
 <!-- recent documents -->
-<div class="sectionHeader"><?php echo $_lang["activity_title"]; ?></div><div class="sectionBody" id="lyr1">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang["activity_title"]; ?></div>
+<div class="sectionBody" id="lyr1">
 		<?php echo $_lang["sysinfo_activity_message"]; ?><p>
 		<style type="text/css">
 			table.grid {border-collapse:collapse;width:100%;}
@@ -106,10 +110,12 @@ if(!$modx->hasPermission('logs')) {
 		</tbody>
          </table>
    </div>
-
+</div>
 
 <!-- database -->
-<div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div><div class="sectionBody" id="lyr4">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div>
+<div class="sectionBody" id="lyr4">
 		<p><?php echo $_lang['table_hoverinfo']; ?></p>
 		<table class="grid">
 		 <thead>
@@ -186,9 +192,11 @@ if(!$modx->hasPermission('logs')) {
 		<p><?php echo $_lang['database_overhead']; ?></p>
 		<?php } ?>
 </div>
-
+</div>
 <!-- online users -->
-<div class="sectionHeader"><?php echo $_lang['onlineusers_title']; ?></div><div class="sectionBody" id="lyr5">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['onlineusers_title']; ?></div>
+<div class="sectionBody" id="lyr5">
 
 		<?php
 		$html = $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>):<br /><br />
@@ -227,6 +235,7 @@ if(!$modx->hasPermission('logs')) {
 		?>
 		</tbody>
 		</table>
+</div>
 </div>
 <?php
 function render_tr($label,$content)

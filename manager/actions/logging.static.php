@@ -30,6 +30,7 @@ window.addEvent('domready', function() {
   </ul>
 </div>
 
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang["mgrlog_query"]?></div>
 <div class="sectionBody" id="lyr1">
 <p><?php echo $_lang["mgrlog_query_msg"]?></p>
@@ -144,8 +145,11 @@ window.addEvent('domready', function() {
 </table>
 </form>
 </div>
+</div>
 
-<div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div><div class="sectionBody" id="lyr2">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div>
+<div class="sectionBody" id="lyr2">
 <?php
 if(isset($_REQUEST['log_submit'])) {
 	// get the selections the user made.
@@ -264,6 +268,7 @@ if(isset($_REQUEST['log_submit'])) {
 	}
 	?>
 	</div>
+</div>
 	<?php
 	// HACK: prevent multiple "Viewing logging" entries after a search has taken place.
 	// @see manager/index.php @ 915

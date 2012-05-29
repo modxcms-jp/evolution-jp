@@ -143,6 +143,7 @@ $header .= '</head>
 	</ul>
 </div>
 
+<div class="section">
 <div class="sectionHeader">'.$_lang['template_tv_edit'].'</div>
 <div class="sectionBody">
 <p>'.$_lang["template_tv_edit_message"].'</p>';
@@ -154,6 +155,7 @@ echo $updateMsg . "<span class=\"warning\" style=\"display:none;\" id=\"updating
 echo $evtLists;
 
 echo '
+</div>
 </div>
 <form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />
