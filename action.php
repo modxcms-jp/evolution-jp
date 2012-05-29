@@ -1,10 +1,10 @@
 <?php
 $base_path = str_replace('\\','/',dirname(__FILE__)) . '/';
+if(is_file("{$base_path}autoload.php")) $loaded_autoload = include_once("{$base_path}autoload.php");
 define('MODX_API_MODE', true);
 require_once("{$base_path}index.php");
 $modx->db->connect();
 $modx->getSettings();
-$modx->invokeEvent('OnWebPageInit');
 if(isset($_GET['include']))
 {
 	$path = $_GET['include'];
