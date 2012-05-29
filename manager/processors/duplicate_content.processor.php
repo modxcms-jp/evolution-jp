@@ -38,7 +38,7 @@ if($pid==0) $header = "Location: index.php?r=1&a=3&id={$id}";
 else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
 header($header);
 
-function duplicateDocument($docid, $parent=null, $_toplevel=0)
+function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true)
 {
 	global $modx,$_lang;
 	$tbl_site_content = $modx->getFullTableName('site_content');
@@ -62,12 +62,12 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0)
 	unset($content['id']); // remove the current id.
 
 	// Once we've grabbed the document object, start doing some modifications
-	if ($_toplevel == 0)
+	if ($_toplevel == 0 && $reset_alias===true)
 	{
 		$content['pagetitle'] = str_replace('[+title+]',$content['pagetitle'],$_lang['duplicate_title_string']);
 		$content['alias'] = null;
 	}
-	elseif($modx->config['friendly_urls'] == 0 || $modx->config['allow_duplicate_alias'] == 0)
+	elseif(($modx->config['friendly_urls'] == 0 || $modx->config['allow_duplicate_alias'] == 0) && $reset_alias===true)
 	{
 		$content['alias'] = null;
 	}
@@ -124,7 +124,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0)
 	{
 		while ($row = $modx->db->getRow($rs))
 		{
-			duplicateDocument($row['id'], $new_id, $_toplevel);
+			duplicateDocument($row['id'], $new_id, $_toplevel, $reset_alias===false);
 		}
 	}
 
