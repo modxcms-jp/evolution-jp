@@ -74,6 +74,16 @@ function assign_base_url()
 			$result = "{$_}/";
 			break;
 		}
+		elseif($_[1]==='~')
+		{
+			$_ = substr($_,2);
+			if(strpos($modx_base_path,"/{$_}/")!==false)
+			{
+				$result = "/~{$_}/";
+				break;
+			}
+			else $_ = '/~' . substr($_, 0, strrpos($_, '/'));
+		}
 		else $_ = substr($_, 0, strrpos($_, '/'));
 		
 		$limit--;
