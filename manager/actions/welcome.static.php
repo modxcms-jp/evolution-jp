@@ -117,7 +117,9 @@ if(0<count($modulemenu)) $modules = join("\n",$modulemenu);
 $modx->setPlaceholder('Modules',$modules);
 
 // do some config checks
-if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1)
+if (   ($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
+    || ($modx->config['warning_visibility'] == 2 && $modx->hasPermission('save_role') == 1)
+    ||  $modx->config['warning_visibility'] == 1)
 {
     include_once "config_check.inc.php";
     $modx->setPlaceholder('settings_config',$_lang['settings_config']);
