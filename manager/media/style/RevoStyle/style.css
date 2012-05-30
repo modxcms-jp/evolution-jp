@@ -535,6 +535,7 @@ input.submit {
 	}
 .section .sectionBody {
 	margin:0 15px 15px;
+	background-color:#fff;
 }
 #tabdocInfo .sectionBody {
 	border-top:1px solid #ccc;
