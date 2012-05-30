@@ -128,12 +128,12 @@ if (0 < count($warnings))
 				$output = $_lang['configcheck_default_msg'];
 		}
 		
-		$admin_warning = $_SESSION['mgrRole']!=1 ? $_lang['configcheck_admin'] : "" ;
+		$admin_warning = $_SESSION['mgrRole']!=1 ? '<br />' . $_lang['configcheck_admin'] : '' ;
 		$config_check_result[] = "
 <fieldset>
 <p><strong>{$_lang['configcheck_warning']}</strong> {$title}</p>
 <p style=\"padding-left:1em\"><em>".$_lang['configcheck_what']."</em><br />
-".$output." ".$admin_warning."</p>
+{$output}{$admin_warning}</p>
 </fieldset>
 ";
 	}
