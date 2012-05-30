@@ -5,9 +5,9 @@
  * グローバル設定にBindings機能の有効無効の設定項目を追加します
  *
  * @category 	plugin
- * @version 	0.1.1
+ * @version 	0.1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@events OnInterfaceSettingsRender 
+ * @internal	@events OnUserSettingsRender 
  * @internal	@modx_category Manager and Admin
  * @internal    @installset base
   *
