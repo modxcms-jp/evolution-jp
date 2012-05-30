@@ -1187,3 +1187,5 @@ $_lang["The security code you entered didn't validate! Please try to login again
 
 $_lang["pm2email_title"] = 'PM transmit to email';
 $_lang["pm2email_message"] = 'PM transmit to email.';
+
+$_lang["a17_warning_opt2"] = 'A member with the update authority of Role';
