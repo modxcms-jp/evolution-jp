@@ -668,6 +668,17 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 // Check for GD before allowing captcha to be enabled
 $gdAvailable = extension_loaded('gd');
 ?>
+
+<tr>
+<th><?php echo $_lang["warning_visibility"] ?></th>
+<td>
+	<?php echo wrap_label($_lang["administrators"],form_radio('warning_visibility','0',$warning_visibility=='0'));?><br />
+	<?php echo wrap_label($_lang["a17_warning_opt2"],form_radio('warning_visibility','2',$warning_visibility=='2'));?><br />
+	<?php echo wrap_label($_lang["everybody"],form_radio('warning_visibility','1',$warning_visibility=='1'));?><br />
+	<?php echo $_lang["warning_visibility_message"]?>
+</td>
+</tr>
+
 <tr>
 <th><?php echo $_lang["captcha_title"] ?></th>
 <td>
@@ -782,15 +793,6 @@ $dir->close();
 <?php echo $_lang["manager_theme_message"]?></td>
 </tr>
 
-<tr>
-<th><?php echo $_lang["warning_visibility"] ?></th>
-<td>
-	<?php echo wrap_label($_lang["administrators"],form_radio('warning_visibility','0',$warning_visibility=='0'));?><br />
-	<?php echo wrap_label($_lang["a17_warning_opt2"],form_radio('warning_visibility','2',$warning_visibility=='2'));?><br />
-	<?php echo wrap_label($_lang["everybody"],form_radio('warning_visibility','1',$warning_visibility=='1'));?><br />
-	<?php echo $_lang["warning_visibility_message"]?>
-</td>
-</tr>
 <tr>
 <th><?php echo $_lang["limit_by_container"] ?></th>
 <td>
