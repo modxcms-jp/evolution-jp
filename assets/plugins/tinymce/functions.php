@@ -74,6 +74,9 @@ class TinyMCE
 			include_once($params['mce_path'] .'lang/english.inc.php');
 		}
 	
+		include_once $params['mce_path'] . 'settings/default_params.php';
+		$ph += $_lang;
+		
 		if($modx->manager->action == 11 || $modx->manager->action == 12)
 		{
 			$theme_options .= '<option value="">' . $_lang['mce_theme_global_settings'] . "</option>\n";
@@ -91,12 +94,8 @@ class TinyMCE
 			$key = '"' . $key . '"';
 			$theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
 		}
-		
-		$ph = $_lang;
 		$ph['display'] = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block';
 		$ph['display'] = $modx->config['use_editor']==1 ? $ph['display']: 'none';
-		
-		include_once $params['mce_path'] . 'settings/default_params.php';
 		
 		$ph['theme_options'] = $theme_options;
 		$ph['skin_options']  = $this->get_skin_names($params);
