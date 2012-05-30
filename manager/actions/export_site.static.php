@@ -17,6 +17,7 @@ if(!$modx->hasPermission('export_static'))
   </ul>
 </div>
 
+<div class="section">
 <div class="sectionBody">
 <?php
 
@@ -191,9 +192,11 @@ else
 </ul>
 <?php
 }
+?>
+</div>
+</div>
 
-
-
+<?php
 class EXPORT_SITE
 {
 	function EXPORT_SITE()

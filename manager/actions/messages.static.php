@@ -20,7 +20,9 @@ $tbl_manager_users   = $modx->getFullTableName('manager_users');
 </div>
 
 <?php if(isset($msgid) && $_REQUEST['m']=='r') { ?>
-<div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div><div class="sectionBody" id="lyr3">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div>
+<div class="sectionBody" id="lyr3">
 <?php
 $rs = $modx->db->select('*',$tbl_user_messages,"{$tbl_user_messages}.id={$msgid}");
 $limit = $modx->db->getRecordCount($rs);
@@ -92,10 +94,13 @@ if($limit!=1) {
 }
 ?>
     </div>
+</div>
 <?php } ?>
 
 
-<div class="sectionHeader"><?php echo $_lang['messages_inbox']; ?></div><div class="sectionBody">
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['messages_inbox']; ?></div>
+<div class="sectionBody">
 <?php
 // Get  number of rows
 $rs=$modx->db->select('count(id)', $tbl_user_messages, "recipient={$uid}");
@@ -191,8 +196,10 @@ if($dotablestuff==1) { ?>
 </table>
 <?php } ?>
     </div>
-
-<div class="sectionHeader"><?php echo $_lang['messages_compose']; ?></div><div class="sectionBody">
+</div>
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['messages_compose']; ?></div>
+<div class="sectionBody">
 <?php
 if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($msgid)) {
     $rs = $modx->db->select('*',$tbl_user_messages,"id={$msgid}");
@@ -316,7 +323,7 @@ function hideSpans(showSpan) {
 </fieldset>
 </form>
 </div>
-
+</div>
 <?php
 // count messages again, as any action on the messages page may have altered the message count
 $rs = $modx->db->select('count(*)',$tbl_user_messages,"recipient={$uid} AND messageread=0");

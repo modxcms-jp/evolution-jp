@@ -30,6 +30,7 @@ $allowedfiles = array('html','htm','shtml','xml');
   </ul>
 </div>
 
+<div class="section">
 <div class="sectionBody">
 <?php
 
@@ -96,7 +97,11 @@ top.mainMenu.reloadtree();
 </script>
 <?php
 }
+?>
+</div>
+</div>
 
+<?php
 function run()
 {
 	global $modx;

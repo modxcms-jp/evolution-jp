@@ -11,8 +11,9 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
   </ul>
 </div>
 
-<div class="sectionBody">
 
+<div class="section">
+<div class="sectionBody">
 <form action="index.php?a=71" method="post" name="searchform" enctype="multipart/form-data">
 <table width="100%" border="0">
   <tr>
@@ -64,7 +65,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 <input type="submit" value="Search" name="submitok" style="display:none" />
 </form>
 </div>
-
+</div>
 
 <?php
 if(isset($_REQUEST['submitok'])) {
