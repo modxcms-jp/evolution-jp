@@ -1101,7 +1101,7 @@ $_lang["chunk_opt_published"] = 'Published';
 $_lang["delete_category"] = 'Are you sure you want to delete this category name?';
 
 // bkmanager.static.php
-$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of ' . $modx->config['snapshot_path'];
+$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of [+snapshot_path+]';
 $_lang["bkmgr_restore_msg"] = '<p>A site can be restore using an SQL file. </p>';
 $_lang["bkmgr_restore_title"] = 'Restore';
 $_lang["bkmgr_import_ok"] = 'SQL recovery was performed normally.';
@@ -1129,7 +1129,7 @@ $_lang["export_site.static.php3"] = 'All resources';
 $_lang["export_site.static.php4"] = 'Replace string (before)';
 $_lang["export_site.static.php5"] = 'Replace string (after)';
 $_lang["export_site.static.php6"] = 'Target';
-$_lang["export_site.static.php7"] = 'Files cannot be outputted to ' . $modx->config['base_url'] . $modx->config['rb_base_url'];
+$_lang["export_site.static.php7"] = 'Files cannot be outputted to [+rb_base_url+]';
 $_lang["files.dynamic.php1"] = 'create text file';
 $_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
 $_lang["files.dynamic.php3"] = 'There is a problem in a file name.';
@@ -1148,7 +1148,7 @@ $_lang["mutate_settings.dynamic.php4"] = 'Individual extension expression';
 $_lang["mutate_settings.dynamic.php5"] = 'The addition of a prefix can be omitted when "." (dot) is included in an alias name.';
 $_lang["mutate_settings.dynamic.php6"] = 'email notifies system error.';
 $_lang["mutate_settings.dynamic.php7"] = 'not notify';
-$_lang["mutate_settings.dynamic.php8"] = 'It notifies to [(emailsender)](' . $modx->config['emailsender'] . ') at the time of error generating. The details of the contents of the error should check an event log.';
+$_lang["mutate_settings.dynamic.php8"] = 'It notifies to [(emailsender)]([+emailsender+]) at the time of error generating. The details of the contents of the error should check an event log.';
 $_lang["save_user.processor.php1"] = 'In order to read an authority setup of the changed role, please relogin.';
 
 $_lang["disabled"] = 'disabled';

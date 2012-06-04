@@ -662,7 +662,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
 	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
 	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
-<?php echo $_lang['mutate_settings.dynamic.php8'];?></td>
+<?php echo $modx->parsePlaceholder($_lang['mutate_settings.dynamic.php8'],'emailsender=' . $modx->config['emailsender']);?></td>
 </tr>
 <?php
 // Check for GD before allowing captcha to be enabled

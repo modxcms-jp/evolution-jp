@@ -109,7 +109,7 @@ else
 	}
 	elseif($modx->config['rb_base_dir'] === $filepath)
 	{
-		echo $_lang['export_site.static.php7'];
+		echo $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
 		include "footer.inc.php";
 		exit;
 	}
