@@ -68,6 +68,8 @@ class ManagerAPI {
 	function get_alias_from_title($id,$pagetitle)
 	{
 	    global $modx;
+	    if($id==='') $id = 0;
+	    
 		$alias = strtolower($modx->stripAlias(trim($pagetitle)));
 		
 		if(!$modx->config['allow_duplicate_alias'])
@@ -95,6 +97,8 @@ class ManagerAPI {
 	function get_alias_num_in_folder($id,$parent)
 	{
 		global $modx;
+	    if($id==='') $id = 0;
+	    
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		
 		$rs = $modx->db->select('MAX(cast(alias as SIGNED))',$tbl_site_content,"id<>'{$id}' AND parent={$parent} AND alias REGEXP '^[0-9]+$'");
