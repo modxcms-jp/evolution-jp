@@ -264,33 +264,40 @@ class DBAPI {
 	* @name:  insert
 	* @desc:  returns either last id inserted or the result from the query
 	*/
-	function insert($fields, $intotable, $fromfields = "*", $fromtable = '', $where = '', $limit = '')
-	{
-		if(!$intotable) return false;
-		else
-		{
-			if (!is_array($fields)) $pairs = $fields;
-			else
-			{
-				$keys = array_keys($fields);
-				$keys = implode(',', $keys) ;
-				$values = array_values($fields);
-				$values = "'" . implode("','", $values) . "'";
-				$pairs = "({$keys}) ";
-				if(!$fromtable && $values) $pairs .= "VALUES({$values})";
-				if ($fromtable)
-				{
-					if($where !== '') $where = "WHERE {$where}";
-					if($limit !== '') $limit = "LIMIT {$limit}";
-					$sql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
-				}
-			}
-			$rt = $this->query("INSERT INTO {$intotable} {$pairs} {$sql}");
-			$lid = $this->getInsertId();
-			return $lid ? $lid : $rt;
-		}
-	}
-	
+    function insert($fields, $intotable, $fromfields = "*", $fromtable = '', $where = '', $limit = '') {
+        if (!$intotable) {
+            $result = false;
+        } else {
+            $subsql = '';
+            if (!is_array($fields)) {
+                $pairs = $fields;
+            } else {
+                $keys = array_keys($fields);
+                $keys = implode(',', $keys) ;
+                $values = array_values($fields);
+                $values = "'" . implode("','", $values) . "'";
+                $pairs = "({$keys}) ";
+                if (!$fromtable && $values) {
+                    $pairs .= "VALUES({$values})";
+                }
+                if ($fromtable) {
+                    if ($where !== '') {
+                        $where = "WHERE {$where}";
+                    }
+                    if ($limit !== '') {
+                        $limit = "LIMIT {$limit}";
+                    }
+                    $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
+                }
+            }
+            $rt = $this->query("INSERT INTO {$intotable} {$pairs} {$subsql}");
+                $lid = $this->getInsertId();
+                $result = $lid ? $lid : $rt;
+        }
+
+        return $result;
+    } // insert
+    
 	/**
 	* @name:  getInsertId
 	*
