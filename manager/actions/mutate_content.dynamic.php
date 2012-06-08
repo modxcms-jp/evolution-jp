@@ -603,14 +603,18 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 									{
 										break; // default_template is already set
 									}
-									elseif($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1))
+									else
 									{
-										$default_template = $sibl[0]['template'];
-										break;
-									}
-									elseif($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1))
-									{
-										$default_template = $sibl[0]['template'];
+										$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+										if(!empty($sibl[0]['template']))
+										{
+											$default_template = $sibl[0]['template'];
+										}
+										else
+										{
+											$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+											if(!empty($sibl[0]['template'])) $default_template = $sibl[0]['template'];
+										}
 										break;
 									}
 								case 'parent':
