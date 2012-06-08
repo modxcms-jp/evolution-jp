@@ -749,10 +749,13 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 				$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
 				if (is_array($evtOut))
 				{
-					for ($i = 0; $i < count($evtOut); $i++)
+					foreach ($evtOut as $editor)
 					{
-						$editor = $evtOut[$i];
-						echo "\t\t\t",'<option value="',$editor,'"',($which_editor == $editor ? ' selected="selected"' : ''),'>',$editor,"</option>\n";
+						$ph = array();
+						$ph['editor']   = $editor;
+						$ph['selected'] = ($which_editor == $editor) ? 'selected="selected"' : '';
+						$tpl = "\t\t\t" . '<option value="[+editor+]" [+selected+]>[+editor+]</option>' . "\n";
+						echo $modx->parsePlaceholder($tpl, $ph);
 					}
 				}
 ?>
@@ -1072,8 +1075,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 	$ds = $modx->db->select('id,keyword', $tbl_site_keywords, '', 'keyword ASC');
 	$limit = $modx->db->getRecordCount($ds);
 	if ($limit > 0) {
-		for ($i = 0; $i < $limit; $i++) {
-			$row = $modx->db->getRow($ds);
+		while($row = $modx->db->getRow($ds)) {
 			$keywords[$row['id']] = $row['keyword'];
 		}
 	}
@@ -1083,20 +1085,18 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 		$ds = $modx->db->select('keyword_id', $tbl_keyword_xref, "content_id='{$content['id']}'");
 		$limit = $modx->db->getRecordCount($ds);
 		if ($limit > 0) {
-			for ($i = 0; $i < $limit; $i++) {
-				$row = $modx->db->getRow($ds);
+			while($row = $modx->db->getRow($ds)) {
 				$keywords_selected[$row['keyword_id']] = ' selected="selected"';
 			}
 		}
 	}
-
+	
 	// get list of site META tags
 	$metatags = array();
 	$ds = $modx->db->select('*', $tbl_site_metatags);
 	$limit = $modx->db->getRecordCount($ds);
 	if ($limit > 0) {
-		for ($i = 0; $i < $limit; $i++) {
-			$row = $modx->db->getRow($ds);
+		while($row = $modx->db->getRow($ds)) {
 			$metatags[$row['id']] = $row['name'];
 		}
 	}
@@ -1105,11 +1105,8 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
 		$metatags_selected = array();
 		$ds = $modx->db->select('metatag_id', $tbl_site_content_metatags, "content_id='{$content['id']}'");
 		$limit = $modx->db->getRecordCount($ds);
-		if ($limit > 0)
-		{
-			for ($i = 0; $i < $limit; $i++)
-			{
-				$row = $modx->db->getRow($ds);
+		if ($limit > 0) {
+			while($row = $modx->db->getRow($ds)) {
 				$metatags_selected[$row['metatag_id']] = ' selected="selected"';
 			}
 		}
