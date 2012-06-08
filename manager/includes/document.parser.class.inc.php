@@ -174,7 +174,8 @@ class DocumentParser {
 		}
 		
 		// check site settings
-		if (!$this->checkSiteStatus())
+		$site_status = $this->checkSiteStatus();
+		if ($site_status===false)
 		{
 			header('HTTP/1.0 503 Service Unavailable');
 			if (!$this->config['site_unavailable_page'])
@@ -200,7 +201,7 @@ class DocumentParser {
 			$this->documentMethod= $this->getDocumentMethod();
 			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
 		}
-		if ($this->documentMethod == 'none' || $_SERVER['REQUEST_URI']===$this->config['base_url'])
+		if ($this->documentMethod == 'none' || ($_SERVER['REQUEST_URI']===$this->config['base_url'] && $site_status!==false))
 		{
 			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
 			$this->documentIdentifier = $this->config['site_start'];
