@@ -5,9 +5,9 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.6
+ * @version 	1.1.7
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@events OnWebPageInit,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
+ * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin
  * @internal    @installset base
  */
@@ -104,7 +104,7 @@ EOD;
 			$body = <<< EOT
 {$_lang['forgot_password_email_intro']}
 
-{$modx->config['site_url']}index.php?name={$user['username']}&hash={$user['hash']}{$captcha}
+{$modx->config['site_url']}manager/index.php?name={$user['username']}&hash={$user['hash']}{$captcha}
 {$_lang['forgot_password_email_link']}
 
 {$_lang['forgot_password_email_instructions']}
@@ -181,7 +181,7 @@ $to       = (empty($_GET['email'])    ? ''    : $_GET['email']);
 $hash     = (empty($_GET['hash'])     ? false : $_GET['hash']);
 $forgot   = new ForgotManagerPassword();
 
-if($event_name == 'OnWebPageInit' && isset($_GET['hash']) && isset($_GET['name']))
+if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['hash']) && isset($_GET['name']))
 {
 	if($modx->config['use_captcha']==='1')
 	{
