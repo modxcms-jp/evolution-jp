@@ -194,12 +194,15 @@ class synccache {
 		
 		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='cache_type'");
 		$cache_type = $modx->db->getValue($rs);
+		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='site_status'");
+		$site_status = $modx->db->getValue($rs);
 		
 		// write the file
 		$cache_path = $this->cachePath . 'sitePublishing.idx.php';
 		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
 		$content .= '$cache_type = ' . "{$cache_type};\n";
 		$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
+		$content .= '$site_status = '      . "'{$site_status}';\n";
 		
 		$rs = file_put_contents($cache_path, $content);
 		
