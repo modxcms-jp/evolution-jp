@@ -140,8 +140,23 @@ function allChildren($docid)
 
 function update_parentid($doc_id,$new_parent,$user_id,$menuindex,$now)
 {
-	global $modx;
+	global $modx, $_lang;
 	$tbl_site_content = $modx->getFullTableName('site_content');
+	if (!$modx->config['allow_duplicate_alias'])
+	{
+		$rs = $modx->db->select("IF(alias='', id, alias) AS alias",$tbl_site_content, "id='{$doc_id}'");
+		$alias = $modx->db->getValue($rs);
+		$rs = $modx->db->select('id',$tbl_site_content, "parent='{$new_parent}' AND (alias='{$alias}' OR id='{$alias}')");
+		$find = $modx->db->getRecordcount($rs);
+		if(0<$find)
+		{
+			$target_id = $modx->db->getValue($rs);
+			echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
+			$url = "index.php?a=27&id={$doc_id}";
+			$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $target_id, $alias), $url);
+			exit;
+		}
+	}
 	$field['parent']    = $new_parent;
 	$field['editedby']  = $user_id;
 	$field['menuindex'] = $menuindex;
