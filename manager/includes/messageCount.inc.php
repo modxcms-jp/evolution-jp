@@ -1,19 +1,18 @@
 <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
-$sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()." and messageread=0;";
-$rs = $modx->db->query($sql);
-$row = $modx->db->getRow($rs);
-$nrnewmessages = $row['count(*)'];
-$sql="SELECT count(*) FROM $dbase.`".$table_prefix."user_messages` where recipient=".$modx->getLoginUserID()."";
-$rs = $modx->db->query($sql);
-$row = $modx->db->getRow($rs);
-$nrtotalmessages = $row['count(*)'];
-$messagesallowed = $modx->hasPermission('messages');
+if(!$modx->hasPermission('messages')) return;
+
+$tbl_user_messages = $modx->getFullTableName('user_messages');
+$uid = $modx->getLoginUserID();
+
+$rs = $modx->db->select('count(id)', $tbl_user_messages, "recipient='{$uid}' and messageread=0");
+$nrnewmessages = $modx->db->getValue($rs);
+$rs = $modx->db->select('count(id)', $tbl_user_messages, "recipient='{$uid}'");
+$nrtotalmessages = $modx->db->getValue($rs);
 
 // ajax response
 if (isset($_POST['updateMsgCount'])) {
-	print $nrnewmessages.','.$nrtotalmessages;
+	echo "{$nrnewmessages},{$nrtotalmessages}";
 	exit();
 }
-?>
