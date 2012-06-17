@@ -11,7 +11,7 @@ if(version_compare(phpversion(), '4.4.2') < 0)
 
 // automatically assign base_path and base_url
 if(empty($base_path)) $base_path = assign_base_path();
-if(empty($base_url))  $base_url  = assign_base_url();
+if(empty($base_url))  $base_url  = assign_base_url($base_path);
 if(empty($site_url))  $site_url  = assign_site_url($base_url);
 
 if (!defined('MODX_BASE_PATH'))    define('MODX_BASE_PATH', $base_path);
@@ -57,43 +57,16 @@ function assign_base_path()
 	return rtrim($base_path,'/') . '/';
 }
 
-function assign_base_url()
+function assign_base_url($base_path)
 {
-	$init_path = str_replace("\\", '/',__FILE__);
-	$modx_base_path = substr($init_path, 0, strpos($init_path, 'manager/includes/initialize.inc.php'));
-	$_ = $_SERVER['REQUEST_URI'];
-	if(strpos($_, '?')) $_ = substr($_, 0, strpos($_, '?'));
-	if($_ !== '/') $_ = substr($_, 0, strrpos($_,'/'));
-	else           $result = '/';
-	
-	$limit = 10;
-	while(0 < $limit && $_ !== '/')
-	{
-		if(strpos($modx_base_path,"{$_}/")!==false)
-		{
-			$result = "{$_}/";
-			break;
-		}
-		elseif($_[1]==='~')
-		{
-			$_ = substr($_,2);
-			if(strpos($modx_base_path,"/{$_}/")!==false)
-			{
-				$result = "/~{$_}/";
-				break;
-			}
-			else $_ = '/~' . substr($_, 0, strrpos($_, '/'));
-		}
-		else $_ = substr($_, 0, strrpos($_, '/'));
-		
-		$limit--;
-	}
-	if(!isset($result))
-	{
-		echo 'base_url error';
-		exit;
-	}
-	return $result;
+	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
+	$dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
+	$dir = substr($dir,0,strrpos($dir,'/')) . '/';
+	$dir = preg_replace('@(.*?)/manager/.*$@', '$1', $dir);
+	$request_uri = $_SERVER['REQUEST_URI'];
+	if($request_uri[1]==='~') $dir = '/~' . substr($dir,1);
+	$dir = rtrim($dir, '/') . '/';
+	return $dir;
 }
 
 function assign_site_url($base_url)
