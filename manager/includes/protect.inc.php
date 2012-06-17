@@ -28,7 +28,10 @@ if (!function_exists('modx_sanitize_gpc'))
 	function modx_sanitize_gpc(& $target, $count=0)
 	{
 		$s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
-		$r = array('[ [','] ]','[ !','! ]','[ *','* ]','[ (',') ]','{ {','} }','[ +','+ ]','[ ~','~ ]','[ ^','^ ]');
+		foreach($s as $_)
+		{
+			$r[] = " {$_['0']} {$_['1']} ";
+		}
 		foreach ($target as $key => $value)
 		{
 			if (is_array($value))
