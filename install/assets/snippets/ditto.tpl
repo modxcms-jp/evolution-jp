@@ -22,7 +22,7 @@
 
 //---Core Settings---------------------------------------------------- //
 
-$ditto_version = "2.1.1";
+$ditto_version = "2.1.3";
     // Ditto version being executed
 
 $ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_base,'/') : $modx->config['base_path']."assets/snippets/ditto/";
