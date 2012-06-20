@@ -249,7 +249,7 @@ function confirmLangChange(el, lkey, elupd)
 	<th><?php echo $_lang["site_url_title"] ?></th>
 	<td>
 		<?php echo form_text('site_url',$site_url);?><br />
-		<?php echo $_lang["site_url_message"] ?>
+		<?php echo $modx->parsePlaceholder($_lang["site_url_message"],array('MODX_SITE_URL'=>MODX_SITE_URL)) ?>
 	</td>
 </tr>
 <tr>

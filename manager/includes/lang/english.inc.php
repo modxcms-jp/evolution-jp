@@ -1096,7 +1096,7 @@ $_lang['setting_cache_type_desc'] = 'Selection of "Cache disabled" will repeal a
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
-$_lang["site_url_message"] = 'Example: <b>' . MODX_SITE_URL . '</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
+$_lang["site_url_message"] = 'Example: <b>[+MODX_SITE_URL+]</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
 $_lang["chunk_opt_published"] = 'Published';
 $_lang["delete_category"] = 'Are you sure you want to delete this category name?';
 
