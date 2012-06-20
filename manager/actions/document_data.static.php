@@ -109,7 +109,7 @@ if ($numRecords > 0)
 	// Get child documents (with paging)
 	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
 	$where = "sc.parent='{$content['id']}' AND ({$access})";
-	$orderby ='sc.isfolder DESC, sc.publishedon DESC';
+	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
 	$offset = (is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
 	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
 	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
