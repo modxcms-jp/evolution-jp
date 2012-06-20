@@ -71,7 +71,7 @@ $default_config['use_captcha']              = '0';
 $default_config['use_editor']               = '1';
 $default_config['use_udperms']              = '0';
 $default_config['validate_referer']         = '1';
-$default_config['warning_visibility']       = '0';
+$default_config['warning_visibility']       = '2';
 $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
 
