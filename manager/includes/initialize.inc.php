@@ -20,6 +20,36 @@ if (!defined('MODX_SITE_URL'))     define('MODX_SITE_URL', $site_url);
 if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', "{$base_path}manager/");
 if (!defined('MODX_MANAGER_URL'))  define('MODX_MANAGER_URL', "{$site_url}manager/");
 
+if (defined('IN_MANAGER_MODE')) init_mgr();
+
+if (version_compare(phpversion(), '5.3') < 0) @set_magic_quotes_runtime(0);
+
+// include_once the magic_quotes_gpc workaround
+if (get_magic_quotes_gpc()) include_once "{$core_path}quotes_stripper.inc.php";
+
+if (!defined('ENT_COMPAT'))   define('ENT_COMPAT', 2);
+if (!defined('ENT_NOQUOTES')) define('ENT_NOQUOTES', 0);
+if (!defined('ENT_QUOTES'))   define('ENT_QUOTES', 3);
+
+// set the document_root :|
+if (!isset($_SERVER["DOCUMENT_ROOT"]) || empty($_SERVER["DOCUMENT_ROOT"]))
+{
+    $_SERVER["DOCUMENT_ROOT"] = str_replace($_SERVER["PATH_INFO"], "", preg_replace("/\\\\/", "/", $_SERVER["PATH_TRANSLATED"]))."/";
+}
+
+
+
+function init_mgr()
+{
+	// send anti caching headers
+	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+	header("Cache-Control: no-store, no-cache, must-revalidate");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+	header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
+}
+
 // start cms session
 if(!function_exists('startCMSSession'))
 {

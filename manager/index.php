@@ -53,7 +53,7 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
-define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
+define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 $base_path = str_replace('\\','/',realpath('../')) . '/';
 $core_path = "{$base_path}manager/includes/";
@@ -65,38 +65,7 @@ if (@file_exists("{$base_path}autoload.php")) {
 require_once("{$core_path}protect.inc.php");
 require_once("{$core_path}initialize.inc.php");
 
-// send anti caching headers
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
-
-if (version_compare(phpversion(), '5.3') < 0) {
-    @set_magic_quotes_runtime(0);
-}
-// include_once the magic_quotes_gpc workaround
-if (get_magic_quotes_gpc()) {
-    include_once "{$core_path}quotes_stripper.inc.php";
-}
-
-if (!defined("ENT_COMPAT")) {
-    define("ENT_COMPAT", 2);
-}
-if (!defined("ENT_NOQUOTES")) {
-    define("ENT_NOQUOTES", 0);
-}
-if (!defined("ENT_QUOTES")) {
-    define("ENT_QUOTES", 3);
-}
-
-// set the document_root :|
-if (!isset($_SERVER["DOCUMENT_ROOT"]) || empty($_SERVER["DOCUMENT_ROOT"])) {
-    $_SERVER["DOCUMENT_ROOT"] = str_replace($_SERVER["PATH_INFO"], "", preg_replace("/\\\\/", "/", $_SERVER["PATH_TRANSLATED"]))."/";
-}
-
-define("IN_ETOMITE_SYSTEM", "true"); // for backward compatibility with 0.6
+define('IN_ETOMITE_SYSTEM', 'true'); // for backward compatibility with 0.6
 
 // include_once config file
 $config_path = "{$core_path}config.inc.php";
