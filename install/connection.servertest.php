@@ -16,7 +16,7 @@ else {
     $output .= '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
 
     // Mysql version check
-    if ( version_compare(mysql_get_server_info(), '5.0.51', '=') ) {
+    if ( strpos(mysql_get_server_info(), '5.0.51')!==false ) {
         $output .= '<br /><span style="color:#FF0000;"> '.$_lang['mysql_5051'].'</span>';
     }
     // Mode check
