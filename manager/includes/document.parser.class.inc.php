@@ -437,6 +437,12 @@ class DocumentParser {
 			$this->documentOutput = preg_replace("/(<\/body>)/i", $this->snipCode . "\n\\1", $this->documentOutput);
 		}
 		
+		// invoke OnLogPageView event
+		if ($this->config['track_visitors'] == 1)
+		{
+			$this->invokeEvent('OnLogPageHit');
+		}
+		
 		// invoke OnWebPagePrerender event
 		if (!$noEvent)
 		{
@@ -488,12 +494,6 @@ class DocumentParser {
 			}
 			$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent);
-		}
-		
-		// invoke OnLogPageView event
-		if ($this->config['track_visitors'] == 1)
-		{
-			$this->invokeEvent('OnLogPageHit');
 		}
 		
 		// Useful for example to external page counters/stats packages
