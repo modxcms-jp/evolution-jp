@@ -510,7 +510,27 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 					<span class="warning"><?php echo $_lang['resource_alias']?></span>
 				</td>
 				<td>
-					<?php echo input_text('alias',to_safestr(urldecode($content['alias'])),'','100');?>
+					<?php
+					if(isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']==1)
+					{
+						echo get_scr_change_url_suffix($modx->config['friendly_url_suffix']);
+						$onkeyup = 'onkeyup="change_url_suffix();" ';
+					}
+					else $onkeyup = '';
+					if($modx->config['friendly_urls']==1)
+					{
+						echo get_alias_path($id,$pid);
+						echo input_text('alias',to_safestr(urldecode($content['alias'])), $onkeyup . 'size="20" style="width:120px;"','50');
+						if($modx->config['friendly_urls']==1) $suffix = $modx->config['friendly_url_suffix'];
+						else $suffix = '';
+						echo '<span id="url_suffix">' . $suffix . '</span>';
+					}
+					else
+					{
+						echo input_text('alias',to_safestr(urldecode($content['alias'])),'','100');
+					}
+					?>
+					
 					<?php echo tooltip($_lang['resource_alias_help']);?>
 				</td>
 			</tr>
@@ -1512,4 +1532,42 @@ function ab_delete()
 		$ph['label'] = $_lang['undelete_resource'];
 	}
 	return $modx->parsePlaceholder($tpl,$ph);
+}
+
+function get_alias_path($id,$pid)
+{
+	global $modx;
+	
+	if($modx->config['use_alias_path']==='0') $path = '';
+	elseif($pid)
+	{
+		if($modx->aliasListing[$pid]['path'])
+		{
+			$path = $modx->aliasListing[$pid]['path'] . '/' . $modx->aliasListing[$pid]['alias'];
+		}
+		else $path = $modx->aliasListing[$pid]['alias'];
+	}
+	elseif($id) $path = $modx->aliasListing[$id]['path'];
+	else        $path = '';
+	
+	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
+	else           $path = $modx->config['base_url'];
+	
+	if(30 < strlen($path)) $path .= '<br />';
+	return $path;
+}
+
+function get_scr_change_url_suffix($suffix)
+{
+	$scr = <<< EOT
+	<script type="text/javascript">
+	function change_url_suffix() {
+		var a = document.getElementById("field_alias");
+		var s = document.getElementById("url_suffix");
+		if(0 < a.value.indexOf('.')) s.innerHTML = '';
+		else s.innerHTML = '$suffix';
+	}
+	</script>
+EOT;
+	return $scr;
 }
