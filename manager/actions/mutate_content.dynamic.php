@@ -1374,7 +1374,7 @@ function input_text($name,$value,$other='',$maxlength='255')
 	$ph['maxlength'] = $maxlength;
 	$ph['other']     = $other;
 	
-	$tpl = '<input name="[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="inputBox" onchange="documentDirty=true;" [+other+] />';
+	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="inputBox" onchange="documentDirty=true;" [+other+] />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
 
