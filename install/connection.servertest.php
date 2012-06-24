@@ -1,19 +1,22 @@
 <?php
-
-$host = $_POST['host'];
-$uid = $_POST['uid'];
-$pwd = $_POST['pwd'];
-
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
 require_once("lang.php");
 
-$output = $_lang["status_connecting"];
-if (!$conn = @ mysql_connect($host, $uid, $pwd)) {
-    $output .= '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
+if(isset($_POST['host'])) $host = $_POST['host'];
+if(isset($_POST['uid']))  $uid  = $_POST['uid'];
+$pwd  = (isset($_POST['pwd'])) ? $_POST['pwd'] : '';
+
+if(!isset($host) || !isset($uid))
+{
+	$conn = false;
 }
-else {
-    $output .= '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
+else $conn = @ mysql_connect($host, $uid, $pwd);
+
+if (!$conn) {
+    $output = '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
+} else {
+    $output = '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
 
     // Mysql version check
     if ( strpos(mysql_get_server_info(), '5.0.51')!==false ) {
@@ -25,10 +28,11 @@ else {
         $modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
         $strictMode = false;
         foreach ($modes as $mode) {
-    		    if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) $strictMode = true;
+    		if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
+    			$strictMode = true;
+    		}
         }
         if ($strictMode) $output .= '<br /><span style="color:#FF0000;"> '.$_lang['strict_mode'].'</span>';
     }
 }
-echo '<div style="background: #eee;">' . $output . '</div>';
-?>
+echo '<div style="background: #eee;">' . $_lang["status_connecting"] . $output . '</div>';
