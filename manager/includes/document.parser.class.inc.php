@@ -1637,10 +1637,19 @@ class DocumentParser {
 	* name: getDocumentObject  - used by parser
 	* desc: returns a document object - $method: alias, id
 	*/
-	function getDocumentObject($method, $identifier)
+	function getDocumentObject($method='id', $identifier='')
 	{
 		$tbl_site_content= $this->getFullTableName("site_content");
 		$tbl_document_groups= $this->getFullTableName("document_groups");
+		
+		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
+		{
+			$identifier = $method;
+			if(empty($identifier)) $identifier = $this->documentIdentifier;
+			if(preg_match('/^[0-9]+$/', $method)) $method = 'id';
+			else                                  $method = 'alias';
+		}
+		
 		// allow alias to be full path
 		if($method == 'alias')
 		{
