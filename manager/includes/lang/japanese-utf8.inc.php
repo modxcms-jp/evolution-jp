@@ -1162,7 +1162,6 @@ $_lang["allow_mgr2web_message"] = '管理メンバーとしてログインして
 
 $_lang["No errors occured."] = "No errors occured.";
 $_lang["An error occured!"] = "An error occured!";
-$_lang["Document's ID not passed in request!"] = "Document's ID not passed in request!";
 $_lang["You don't have enough privileges for this action!"] = "この操作を行なう権限がありません。";
 $_lang["ID passed in request is NaN!"] = "ID passed in request is NaN!";
 $_lang["The document is locked!"] = "The document is locked!";
