@@ -165,11 +165,22 @@ if ($use_udperms == 1)
 switch ($actionToTake)
 {
 	case 'new' :
-
+		switch($modx->config['docid_incrmnt_method'])
+		{
+			case '1':
+				$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+				$where = "T1.id IS NULL";
+				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
+				$id = $modx->db->getValue($rs);
+				break;
+			case '2':
+				$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+				$id = $modx->db->getValue($rs);
+				break;
+		}
 		// invoke OnBeforeDocFormSave event
 		$params = array();
 		$params['mode'] = 'new';
-		$params['id']   = $id;
 		$modx->invokeEvent('OnBeforeDocFormSave', $params);
 		
 		// deny publishing if not permitted
@@ -188,6 +199,7 @@ switch ($actionToTake)
 		$editedby = $modx->getLoginUserID();
 		$editedon = time();
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
+		if(!empty($id)) $field['id'] = $id;
 		$rs = $modx->db->insert($field,$tbl_site_content);
 		if(!$rs)
 		{

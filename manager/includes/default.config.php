@@ -13,6 +13,7 @@ $default_config['custom_contenttype']       = 'application/rss+xml,application/p
 $default_config['datepicker_offset']        = '-10';
 $default_config['datetime_format']          = 'YYYY/mm/dd';
 $default_config['default_template']         = '1';
+$default_config['docid_incrmnt_method']     = '0';
 $default_config['editor_css_path']          = '';
 $default_config['editor_css_selectors']     = '';
 $default_config['emailsubject']             = 'サイトからのお知らせ';

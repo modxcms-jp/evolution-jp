@@ -474,6 +474,16 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang["docid_incrmnt_method_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["docid_incrmnt_method_0"],form_radio('docid_incrmnt_method','0', $docid_incrmnt_method=='0'));?><br />
+		<?php echo wrap_label($_lang["docid_incrmnt_method_1"],form_radio('docid_incrmnt_method','1', $docid_incrmnt_method=='1'));?><br />
+		<?php echo wrap_label($_lang["docid_incrmnt_method_2"],form_radio('docid_incrmnt_method','2', $docid_incrmnt_method=='2'));?><br />
+		<?php echo $_lang["docid_incrmnt_method_message"] ?>
+	</td>
+</tr>
+
+<tr>
 	<th><?php echo $_lang["serveroffset_title"] ?></th>
 	<td>
 		<select name="server_offset_time" size="1" class="inputBox">

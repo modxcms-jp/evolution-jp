@@ -1190,3 +1190,9 @@ $_lang["pm2email_title"] = 'PMをメールに転送';
 $_lang["pm2email_message"] = '新着プライベートメッセージをメールで通知します。';
 
 $_lang["a17_warning_opt2"] = 'ロールの更新権限を持つメンバー';
+
+$_lang["docid_incrmnt_method_title"] = 'リソースIDの自動増分';
+$_lang["docid_incrmnt_method_0"] = 'データベース側で処理する(オートインクリメント)';
+$_lang["docid_incrmnt_method_1"] = '欠番の最小値を埋める';
+$_lang["docid_incrmnt_method_2"] = 'リソースIDの最大値として追加する';
+$_lang["docid_incrmnt_method_message"] = 'リソースIDの自動増分の処理方法を指定します。';

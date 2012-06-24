@@ -1188,3 +1188,9 @@ $_lang["pm2email_title"] = 'PM transmit to email';
 $_lang["pm2email_message"] = 'PM transmit to email.';
 
 $_lang["a17_warning_opt2"] = 'A member with the update authority of Role';
+
+$_lang["docid_incrmnt_method_title"] = 'Resource ID increment method';
+$_lang["docid_incrmnt_method_0"] = 'DB auto increment';
+$_lang["docid_incrmnt_method_1"] = 'Minimum missing number';
+$_lang["docid_incrmnt_method_2"] = 'MAX value';
+$_lang["docid_incrmnt_method_message"] = 'Resource ID increment method';
