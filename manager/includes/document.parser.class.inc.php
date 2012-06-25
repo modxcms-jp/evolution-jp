@@ -866,7 +866,8 @@ class DocumentParser {
 		{
 			$this->virtualDir = dirname($q);
 			$this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
-			$q = end(explode('/', $q));
+			$q = explode('/', $q);
+			$q = end($q);
 		}
 		else
 		{
