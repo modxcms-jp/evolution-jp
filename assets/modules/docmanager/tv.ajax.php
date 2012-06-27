@@ -3,53 +3,57 @@
  * This file includes slightly modified code from the MODx core distribution.
  */
 
-require_once '../../../manager/includes/protect.inc.php'; 
-include_once ('../../../manager/includes/config.inc.php');
-include_once (MODX_BASE_PATH.'manager/includes/document.parser.class.inc.php');
-include_once (MODX_BASE_PATH.'assets/modules/docmanager/classes/docmanager.class.php');
-$modx = new DocumentParser;
+define('MODX_API_MODE', true);
+$base_path = realpath('../../../');
+$base_path = str_replace('\\','/',$base_path) . '/';
+include_once("{$base_path}index.php"); 
+include_once("{$base_path}assets/modules/docmanager/classes/docmanager.class.php");
 $modx->getSettings();
+$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
 
 $dm = new DocManager($modx);
 $dm->getLang();
 $dm->getTheme();
- 
- $output = '';
- 
- if(isset($_POST['tplID']) && is_numeric($_POST['tplID'])) {
- 	$sql = "SELECT * FROM ".$modx->getFullTableName('site_tmplvars')." tv LEFT JOIN ".$modx->getFullTableName('site_tmplvar_templates')." ON tv.id = ".$modx->getFullTableName('site_tmplvar_templates').".tmplvarid WHERE ".$modx->getFullTableName('site_tmplvar_templates').".templateid ='". $_POST['tplID']."'";
- 	$rs = $modx->db->query($sql);
- 	$limit = $modx->db->getRecordCount($rs);
- 	
- 	if ($limit > 0) {
-		require(MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php');
-		$output.= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
 
-		for ($i=0; $i<$limit; $i++) {
- 			$row = $modx->db->getRow($rs);
+$output = '';
 
-				if($i>0 && $i<$limit) $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
-				
-				$output.='<tr style="height: 24px;">
-				<td align="left" valign="top" width="200">
-					<span class=\'warning\'><input type=\'checkbox\' name=\'update_tv_' . $row['id'] . '\' id=\'cb_update_tv_' . $row['id'] . '\' value=\'yes\' />&nbsp;'.$row['caption'].'</span><br /><span class=\'comment\'>'.$row['description'].'</span>
-				</td>
-				<td valign="top" style="position:relative">';
-				$base_url = str_replace("assets/modules/docmanager/", "", MODX_BASE_URL);
-				$output.= renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $row['value'], ' style="width:300px;"');
-				$output.= '</td></tr>';
-		}
-		$output.='</table>';
-		//$output.= '<br />'.$dm->lang['DM_tv_ignore_tv'].' <input type="text" id="ignoreTV" name="ignoreTV" size="50" value="" />';
- 	} else {
- 		print $dm->lang['DM_tv_no_tv'];
- 	}
- 	
- 	print $output;
- } else {
- 	print '';
- }
- 
+if(!isset($_POST['tplID']) || !is_numeric($_POST['tplID'])) return;
+
+$tplID = $_POST['tplID'];
+$from = "{$tbl_site_tmplvars} tv LEFT JOIN {$tbl_site_tmplvar_templates} ON tv.id = {$tbl_site_tmplvar_templates}.tmplvarid";
+$rs = $modx->db->select('*', $from, "{$tbl_site_tmplvar_templates}.templateid ='{$tplID}'");
+$total = $modx->db->getRecordCount($rs);
+
+if ($total > 0)
+{
+	require("{$base_path}manager/includes/tmplvars.commands.inc.php");
+	$output.= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
+	
+	for ($i=0; $i<$total; $i++)
+	{
+$row = $modx->db->getRow($rs);
+		
+		if($i>0 && $i<$total) $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
+		
+		$output.='<tr style="height: 24px;">
+			<td align="left" valign="top" width="200">
+				<span class=\'warning\'><input type=\'checkbox\' name=\'update_tv_' . $row['id'] . '\' id=\'cb_update_tv_' . $row['id'] . '\' value=\'yes\' />&nbsp;'.$row['caption'].'</span><br /><span class=\'comment\'>'.$row['description'].'</span>
+			</td>
+			<td valign="top" style="position:relative">';
+		$base_url = $modx->config['base_url'];
+		$output.= renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $row['value'], ' style="width:300px;"');
+		$output.= '</td></tr>';
+	}
+	$output.='</table>';
+	//$output.= '<br />'.$dm->lang['DM_tv_ignore_tv'].' <input type="text" id="ignoreTV" name="ignoreTV" size="50" value="" />';
+}
+else
+{
+	echo $dm->lang['DM_tv_no_tv'];
+}
+echo $output;
+
 
 
 function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style='') {
@@ -180,14 +184,14 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 						}
 						
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 						}
 						
 						function SetUrl(url, width, height, alt){
@@ -204,7 +208,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							}
 						}
 				</script>";
-				$ResourceManagerLoaded  = true;					
+				$ResourceManagerLoaded  = true;
 			} 
 			$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$dm->lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
 			break;
@@ -235,14 +239,14 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 						}
 									
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}', w, h);
 						}
 						
 						function SetUrl(url, width, height, alt){
@@ -259,7 +263,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							}
 						}
 				</script>";
-				$ResourceManagerLoaded  = true;					
+				$ResourceManagerLoaded  = true;
 			} 
 			$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$dm->lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
             
@@ -270,7 +274,6 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 	return $field_html;
 } // end renderFormElement function
 
-
 function ParseIntputOptions($v) {
 	$a = array();
 	if(is_array($v)) return $v;
@@ -280,6 +283,3 @@ function ParseIntputOptions($v) {
 	else $a = explode("||", $v);
 	return $a;
 }
-	
- 
-?>
