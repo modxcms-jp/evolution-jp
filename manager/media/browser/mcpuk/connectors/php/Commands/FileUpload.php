@@ -81,7 +81,8 @@ class FileUpload {
 		{
 			if (! $_FILES['NewFile']['error'] && $_FILES['NewFile']['size']<($typeconfig['MaxSize']))
 			{	// (*1)
-				$filename=end(explode('/',str_replace("\\",'/',$_FILES['NewFile']['name'])));	// (*2)
+				$filename=explode('/',str_replace("\\",'/',$_FILES['NewFile']['name']));
+				$filename=end($filename);	// (*2)
 				
 				if ($this->cleanFilename($filename) == $filename)
 				{	// (*3)
