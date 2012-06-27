@@ -1098,7 +1098,7 @@ $_lang['setting_cache_type_desc'] = '「バイパスモード」はプラグイ�
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
 $_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
 $_lang["site_url_title"] = 'サイトのURL';
-$_lang["site_url_message"] = '例：<b>[+MODX_SITE_URL+]</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
+$_lang["site_url_message"] = '[(site_url)] - 例：<b>[+MODX_SITE_URL+]</b><br />空白にすると自動的に処理します(wwwの有無・http/httpsの違いなどにより動的に変わります)。';
 $_lang["chunk_opt_published"] = '公開ステータス';
 $_lang["delete_category"] = 'カテゴリー名を削除';
 
@@ -1196,3 +1196,6 @@ $_lang["docid_incrmnt_method_0"] = 'データベース側で処理する(オー�
 $_lang["docid_incrmnt_method_1"] = '欠番の最小値を埋める';
 $_lang["docid_incrmnt_method_2"] = 'リソースIDの最大値として追加する';
 $_lang["docid_incrmnt_method_message"] = 'リソースIDの自動増分の処理方法を指定します。';
+
+$_lang["base_url_title"] = 'ベースURL';
+$_lang["base_url_message"] = '[(base_url)] - 例：<b>[+MODX_BASE_URL+]</b><br />MODXの設置ディレクトリ。空白にすると動的に生成します。';

@@ -1194,3 +1194,6 @@ $_lang["docid_incrmnt_method_0"] = 'DB auto increment';
 $_lang["docid_incrmnt_method_1"] = 'Minimum missing number';
 $_lang["docid_incrmnt_method_2"] = 'MAX value';
 $_lang["docid_incrmnt_method_message"] = 'Resource ID increment method';
+
+$_lang["base_url_title"] = 'Base URL';
+$_lang["base_url_message"] = 'Example: <b>[+MODX_BASE_URL+]</b><br />If it is made blank, it will process automatically.';
