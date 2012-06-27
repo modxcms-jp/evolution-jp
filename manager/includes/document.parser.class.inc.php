@@ -57,13 +57,6 @@ class DocumentParser {
     // constructor
 	function DocumentParser()
 	{
-		if(!isset($_REQUEST['id']))
-		{
-			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen(MODX_BASE_URL));
-			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
-		}
-		if($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
-		
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
 		// events
 		$this->event= new SystemEvent();
@@ -135,6 +128,12 @@ class DocumentParser {
 		// get the settings
 		$this->db->connect();
 		$this->getSettings();
+		if(!isset($_REQUEST['id']))
+		{
+			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
+			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
+		}
+		if($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
 		
 		if(0 < count($_POST)) $this->config['cache_type'] = 0;
 		
@@ -702,7 +701,10 @@ class DocumentParser {
 			$this->config['etomite_charset'] = & $this->config['modx_charset'];
 			
 			// store base_url and base_path inside config array
-			$this->config['base_url']= MODX_BASE_URL;
+			if(!isset($this->config['base_url']) || empty($this->config['base_url']))
+			{
+				$this->config['base_url']= MODX_BASE_URL;
+			}
 			$this->config['base_path']= MODX_BASE_PATH;
 			if(!isset($this->config['site_url']) || empty($this->config['site_url']))
 			{
