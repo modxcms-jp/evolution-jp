@@ -239,9 +239,9 @@ if($rememberme == '1')
 	
 	$secure = (  (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port);
 	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, MODX_BASE_URL, '; HttpOnly' , $secure );
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], '; HttpOnly' , $secure );
 	} else {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, MODX_BASE_URL, NULL, $secure, true);
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
 	}
 }
 else
@@ -249,7 +249,7 @@ else
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
 	// Remove the Remember Me cookie
-	setcookie ('modx_remember_manager', "", time() - 3600, MODX_BASE_URL);
+	setcookie ('modx_remember_manager', "", time() - 3600, $modx->config['base_url']);
 }
 
 if($modx->hasPermission('remove_locks')) {
