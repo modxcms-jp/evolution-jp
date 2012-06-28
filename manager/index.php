@@ -57,6 +57,7 @@ define('IN_MANAGER_MODE', "true");  // we use this to make sure files are access
                                     // the manager instead of seperately.
 $base_path = str_replace('\\','/',realpath('../')) . '/';
 $core_path = "{$base_path}manager/includes/";
+$incPath = $core_path;
 
 if (@file_exists("{$base_path}autoload.php")) {
     include_once("{$base_path}autoload.php");
