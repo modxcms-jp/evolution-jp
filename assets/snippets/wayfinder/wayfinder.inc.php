@@ -398,11 +398,13 @@ class Wayfinder {
 			}
 			else $access = '';
 			$joind_ids = implode(',',$ids);
+			 if(strpos($modx->db->getVersion(),'5.0.51')===false) $groupby = 'GROUP BY sc.id';
+			 else                                                 $groupby = '';
 			$sql = "
 				SELECT DISTINCT {$fields} FROM {$tblsc} sc
 					LEFT JOIN {$tbldg} dg ON dg.document = sc.id
 					WHERE sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids})
-					GROUP BY sc.id
+					{$groupby}
 					ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};
 				";
 			//run the query
