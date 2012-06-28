@@ -103,6 +103,11 @@ class MODxMailer extends PHPMailer
 		
 	function mbMailSend($header, $body)
 	{
+		global $modx;
+		
+		$body          = mb_convert_encoding($body, 'JIS', $modx->config['modx_charset']);
+		$this->Subject = $this->EncodeHeader($this->Subject);
+		
 		$to = '';
 		for($i = 0; $i < count($this->to); $i++)
 		{
@@ -121,12 +126,12 @@ class MODxMailer extends PHPMailer
 			{
 				foreach ($toArr as $key => $val)
 				{
-					$rt = @mb_send_mail($val, $this->Subject, $body, $header, $params); 
+					$rt = @mail($val, $this->Subject, $body, $header, $params); 
 				}
 			}
 			else
 			{
-				$rt = @mb_send_mail($to, $this->Subject, $body, $header, $params);
+				$rt = @mail($to, $this->Subject, $body, $header, $params);
 			}
 		}
 		else
@@ -135,12 +140,12 @@ class MODxMailer extends PHPMailer
 			{
 				foreach ($toArr as $key => $val)
 				{
-					$rt = @mb_send_mail($val, $this->Subject, $body, $header, $params);
+					$rt = @mail($val, $this->Subject, $body, $header, $params);
 				}
 			}
 			else
 			{
-				$rt = @mb_send_mail($to, $this->Subject, $body, $header);
+				$rt = @mail($to, $this->Subject, $body, $header);
 			}
 		}
 		
