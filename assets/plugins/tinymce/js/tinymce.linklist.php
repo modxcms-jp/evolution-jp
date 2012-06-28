@@ -166,18 +166,13 @@ else
 	// Output the array separated by commas
 	$list_output = implode(", \n", $list);
 	
-	if (function_exists('mb_encode_numericentity'))
-	{
-		$convmap = array(0x0080, 0xffff, 0, 0xffff);
-		$encoding = $GLOBALS['database_connection_charset'];
-		$list_output = mb_encode_numericentity($list_output, $convmap, $encoding);
-	}
 	// Output as javascript
 	$output = "var tinyMCELinkList = new Array(\n". $list_output .");";
 	file_put_contents($cache_path,$output);
 }
 
 // Make output a real JavaScript file!
+header("Content-Type: text/html; charset={$modx->config['modx_charset']}");
 header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
 
 // prevent browser from caching
