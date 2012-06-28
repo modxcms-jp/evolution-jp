@@ -221,7 +221,7 @@ if ($conn && $installMode == 0) {
 // check mysql version
 if ($conn) {
     echo "<p>" . $_lang['checking_mysql_version'];
-    if ( version_compare(mysql_get_server_info(), '5.0.51', '=') ) {
+    if ( strpos(mysql_get_server_info(), '5.0.51')!==false ) {
         echo echo_failed($_lang['warning']) . "</b>&nbsp;&nbsp;<strong>". $_lang['mysql_5051'] . "</strong></p>";
         echo "<p>" . echo_failed($_lang['mysql_5051_warning'] ) . "</p>";
     } else {
