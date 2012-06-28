@@ -119,7 +119,7 @@ function getWebChangePwdtpl(){
               <label for="oldpassword" style="width:120px">Current password:</label>
               </td>
               <td style="padding:0px 0px 0px 0px;">
-              <input type="password" name="oldpassword" size="20" /><br />
+              <input type="password" name="oldpassword" size="20" autocomplete="off" /><br />
               </td>
             </tr>
           </table>
@@ -136,7 +136,7 @@ function getWebChangePwdtpl(){
                 <label for="specifiedpassword" style="width:120px">New password:</label>
                 </td>
                 <td style="padding:0px 0px 0px 0px;">
-                <input type="password" name="specifiedpassword" onchange="documentdirty=true;" onkeypress="document.changepwdfrm.passwordgenmethod[1].checked=true;" size="20" /><br />
+                <input type="password" name="specifiedpassword" onchange="documentdirty=true;" onkeypress="document.changepwdfrm.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
                 </td>
               </tr>
               <tr>

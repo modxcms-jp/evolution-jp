@@ -25,11 +25,11 @@ if(!$modx->hasPermission('change_password')) {
 	</tr>
 	<tr>
 		<td><?php echo $_lang['change_password_new']?>:</td>
-		<td><input onchange="documentDirty=true;" type="password" name="pass1" class="inputBox" style="width:150px" value=""></td>
+		<td><input onchange="documentDirty=true;" type="password" name="pass1" class="inputBox" style="width:150px" value="" autocomplete="off" /></td>
 	</tr>
 	<tr>
 		<td><?php echo $_lang['change_password_confirm']?>:</td>
-		<td><input onchange="documentDirty=true;" type="password" name="pass2" class="inputBox" style="width:150px" value=""></td>
+		<td><input onchange="documentDirty=true;" type="password" name="pass2" class="inputBox" style="width:150px" value="" autocomplete="off" /></td>
 	</tr>
 	</table>
 
