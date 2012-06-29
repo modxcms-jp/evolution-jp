@@ -21,22 +21,19 @@ function iconLookup($mime,$ext) {
 			"image"=>"image.png",
 			"audio"=>"sound.png",
 			"video"=>"video.png",
-			"text"=>"document2.png",
+			"text"=>"doc.png",
 			"text/html"=>"html.png",
 			"application"=>"binary.png",
 			"application/pdf"=>"pdf.png",
-			"application/msword"=>"document2.png",
+			"application/msword"=>"doc.png",
 			"application/postscript"=>"postscript.png",
-			"application/rtf"=>"document2.png",
+			"application/rtf"=>"doc.png",
 			"application/vnd.ms-excel"=>"spreadsheet.png",
-			"application/vnd.ms-powerpoint"=>"document2.png",
+			"application/vnd.ms-powerpoint"=>"doc.png",
 			"application/x-tar"=>"tar.png",
 			"application/zip"=>"tar.png",
 			"application/x-shockwave-flash"=>"flash.png",
-			"message"=>"email.png",
-			"message/html"=>"html.png",
-			"model"=>"kmplot.png",
-			"multipart"=>"kmultiple.png"
+			"message/html"=>"html.png"
 			);
 	
 	$extIcons=array(
@@ -47,13 +44,12 @@ function iconLookup($mime,$ext) {
 			"ps"=>"postscript.png",
 			"eps"=>"postscript.png",
 			"ai"=>"postscript.png",
-			"ra"=>"real_doc.png",
-			"rm"=>"real_doc.png",
-			"ram"=>"real_doc.png",
+			"ra"=>"sound.png",
+			"rm"=>"sound.png",
+			"ram"=>"sound.png",
 			"wav"=>"sound.png",
 			"mp3"=>"sound.png",
 			"ogg"=>"sound.png",
-			"eml"=>"email.png",
 			"tar"=>"tar.png",
 			"zip"=>"tar.png",
 			"bz2"=>"tar.png",
@@ -71,14 +67,14 @@ function iconLookup($mime,$ext) {
 			"xls"=>"spreadsheet.png",
 			"csv"=>"spreadsheet.png",
 			"html"=>"html.png",
-			"doc"=>"document2.png",
-			"rtf"=>"document2.png",
-			"txt"=>"document2.png",
-			"xla"=>"document2.png",
-			"xlc"=>"document2.png",
-			"xlt"=>"document2.png",
-			"xlw"=>"document2.png",
-			"txt"=>"document2.png"
+			"doc"=>"doc.png",
+			"rtf"=>"doc.png",
+			"txt"=>"doc.png",
+			"xla"=>"doc.png",
+			"xlc"=>"doc.png",
+			"xlt"=>"doc.png",
+			"xlw"=>"doc.png",
+			"txt"=>"doc.png"
 			);
 
 

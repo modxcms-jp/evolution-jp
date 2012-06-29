@@ -52,18 +52,6 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 		{
 			if ( oXmlHttp.readyState == 4 )
 			{
-				/*
-				dbgWin=window.open('','dbgWin','width=700,height=400');
-				txt=dbgWin.document.getElementById('txtXML');
-				
-				if (txt==null) {
-					dbgWin.document.write("<textarea style=\"width: 100%; height: 100%\" id=\"txtXML\"></textarea>");
-					txt=dbgWin.document.getElementById('txtXML');
-				}
-				
-				txt.value=new String("-----------------------------------------\n" + oXmlHttp.responseText);
-				*/
-				
 				oFCKXml.DOMDocument = oXmlHttp.responseXML ;
 				asyncFunctionPointer( oFCKXml ) ;
 			}
