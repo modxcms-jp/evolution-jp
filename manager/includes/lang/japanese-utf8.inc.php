@@ -1199,3 +1199,6 @@ $_lang["docid_incrmnt_method_message"] = 'リソースIDの自動増分の処理
 
 $_lang["base_url_title"] = 'ベースURL';
 $_lang["base_url_message"] = '[(base_url)] - 例：<b>[+MODX_BASE_URL+]</b><br />MODXの設置ディレクトリ。空白にすると動的に生成します。';
+
+$_lang["configcheck_del_actionphp"] = 'セキュリティ警告: action.phpが存在します';
+$_lang["configcheck_del_actionphp_msg"] = 'Captcha画像の表示に用いるaction.phpは1.0.6J-r4以降で不要になりました。セキュリティ上の問題があるため、必ず削除してください。';

@@ -23,6 +23,11 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
     }
 }
 
+if(file_exists($modx->config['base_path'] . 'action.php'))
+{
+	$warnings[] = 'configcheck_del_actionphp';
+}
+
 // check for Template Switcher plugin
 if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx->config['_hide_configcheck_templateswitcher_present'] !== '1')
 {
@@ -110,6 +115,10 @@ if (0 < count($warnings))
 				$msg = $_lang['configcheck_validate_referer_msg'];
 				$msg .= '<br />' . sprintf($_lang["configcheck_hide_warning"], 'validate_referer');
 				$output = "<span id=\"validate_referer_warning_wrapper\">{$msg}</span>\n";
+				break;
+			case 'configcheck_del_actionphp':
+				$output = $_lang['configcheck_del_actionphp_msg'];
+				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,3,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_templateswitcher_present':
 				$msg = $_lang['configcheck_templateswitcher_present_msg'];
