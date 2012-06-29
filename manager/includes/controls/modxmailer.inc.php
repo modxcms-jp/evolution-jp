@@ -88,6 +88,16 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
+		if($modx->debug)
+		{
+			$modx->debug = false;
+			$debug_info  = 'CharSet = ' . $this->CharSet . "\n";
+			$debug_info .= 'Encoding = ' . $this->Encoding . "\n";
+			$debug_info .= 'mb_language = ' . $this->mb_language . "\n";
+			$debug_info .= 'encode_header_method = ' . $this->encode_header_method . "\n";
+			$log = "<pre>{$debug_info}\n{$header}\n{$body}</pre>";
+			$modx->logEvent(1, 1, $log, 'Debug information');
+		}
 		if(ini_get('safe_mode')) return parent::MailSend($header, $body);
 		
 		switch(strtolower($modx->config['manager_language']))
