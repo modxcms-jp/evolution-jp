@@ -23,9 +23,14 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
     }
 }
 
-if(file_exists($modx->config['base_path'] . 'action.php'))
+$actionphp = $modx->config['base_path'] . 'action.php';
+if(file_exists($actionphp))
 {
-	$warnings[] = 'configcheck_del_actionphp';
+	$src = file_get_contents($actionphp);
+	if(strpos($src,'strpos($path, \'manager/\'')!==false)
+	{
+		$warnings[] = 'configcheck_del_actionphp';
+	}
 }
 
 // check for Template Switcher plugin

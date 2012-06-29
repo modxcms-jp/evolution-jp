@@ -214,8 +214,13 @@ function delete_actionphp()
 {
 	global $modx;
 	
-	if(file_exists($modx->config['base_path'] . 'action.php'))
+	$path = $modx->config['base_path'] . 'action.php';
+	if(file_exists($path))
 	{
-		@unlink($modx->config['base_path'] . 'action.php');
+		$src = file_get_contents($path);
+		if(strpos($src,'strpos($path, \'manager/\'')!==false)
+		{
+			@unlink($modx->config['base_path'] . 'action.php');
+		}
 	}
 }
