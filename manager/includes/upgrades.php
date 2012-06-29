@@ -46,6 +46,11 @@ function run_update($version)
 		update_config_default_template_method();
 		update_tbl_member_groups();
 	}
+	
+	if(104 < $version)
+	{
+		delete_actionphp();
+	}
 }
 
 function update_config_custom_contenttype()
@@ -203,4 +208,14 @@ function update_tbl_system_settings()
 	global $modx;
 	$tbl_system_settings     = $modx->getFullTableName('system_settings');
 	$modx->db->update("`setting_value` = '0'", $tbl_system_settings, "`setting_name` = 'validate_referer' AND `setting_value` = '00'");
+}
+
+function delete_actionphp()
+{
+	global $modx;
+	
+	if(file_exists($modx->config['base_path'] . 'action.php'))
+	{
+		@unlink($modx->config['base_path'] . 'action.php');
+	}
 }
