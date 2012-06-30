@@ -10,9 +10,9 @@ if(version_compare(phpversion(), '4.4.2') < 0)
 }
 
 // automatically assign base_path and base_url
-if(empty($base_path)) $base_path = assign_base_path();
-if(empty($base_url))  $base_url  = assign_base_url($base_path);
-if(empty($site_url))  $site_url  = assign_site_url($base_url);
+if(!isset($base_path)) $base_path = assign_base_path();
+if(!isset($base_url))  $base_url  = assign_base_url($base_path);
+if(!isset($site_url))  $site_url  = assign_site_url($base_url);
 
 if (!defined('MODX_BASE_PATH'))    define('MODX_BASE_PATH', $base_path);
 if (!defined('MODX_BASE_URL'))     define('MODX_BASE_URL', $base_url);
