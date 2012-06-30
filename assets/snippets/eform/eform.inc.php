@@ -237,6 +237,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
 
 		# get user post back data
 		foreach($_POST as $name => $value){
+			$value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
 			if(is_array($value)){
 				//remove empty values
 				$fields[$name] = array_filter($value,create_function('$v','return (!empty($v));'));
