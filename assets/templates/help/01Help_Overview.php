@@ -10,32 +10,14 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 <?php echo $_lang['help_msg']; ?>
 </div>
 
-<div class="sectionHeader"><?php echo $_lang['credits']; ?></div><div class="sectionBody">
-<table width="500"  border="0" cellspacing="0" cellpadding="0">
-  <tr height="70">
-    <td align="center"><a href="http://www.php.net" target="_blank"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/credits/php.gif" border="0"></a></td>
-    <td align="left"><?php echo $_lang['credits_php']; ?></td>
-  </tr>
-  <tr height="70">
-    <td align="center"><a href="http://www.mysql.com" target="_blank"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/credits/mysql.gif" border="0"></a></td>
-    <td align="left"><?php echo $_lang['credits_mysql']; ?></td>
-  </tr>
-  <tr height="70">
-    <td align="center"><a href="http://www.destroydrop.com" target="_blank"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/credits/dtree.gif" border="0"></a></td>
-    <td align="left"><?php echo $_lang['credits_dTree']; ?></td>
-  </tr>
-  <tr height="70">
-    <td align="center"><a href="http://www.everaldo.com" target="_blank"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/credits/penguin.gif" border="0"></a></td>
-    <td align="left"><?php echo $_lang['credits_everaldo']; ?></td>
-  </tr>
-  <tr>
-    <td colspan="2">&nbsp;</td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><?php echo $_lang['credits_shouts_title']; ?></td>
-	<td align="left"><?php echo $_lang['credits_shouts_msg']; ?></td>
-  </tr>
-</table>
-
+<div class="sectionHeader"><?php echo $_lang['credits']; ?></div>
+<div class="sectionBody">
+<ul>
+<li><a href="http://www.php.net/copyright.php" target="_blank">Copyright&copy; 2001-2012 The PHP Group</a></li>
+<li><a href="http://www.mysql.com" target="_blank">&copy; 2012, Oracle Corporation and/or its affiliates</a></li>
+<li><a href="http://www.destroydrop.com" target="_blank">&copy;2002-2003 Geir Landr&ouml;</a></li>
+<li><a href="http://www.everaldo.com" target="_blank">Copyright (c)  2006-2007  Everaldo Coelho.</a></li>
+</ul>
+<?php echo $_lang['credits_shouts_msg']; ?>
 </div>
 
