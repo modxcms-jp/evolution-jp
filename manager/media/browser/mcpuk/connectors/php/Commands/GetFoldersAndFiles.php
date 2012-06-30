@@ -22,6 +22,7 @@ class GetFoldersAndFiles {
 	var $type;
 	var $cwd;
 	var $actual_cwd;
+	var $enable_imgedit;
 	
 	function GetFoldersAndFiles($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
@@ -29,6 +30,11 @@ class GetFoldersAndFiles {
 		$this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
 		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
+		$base_path = str_replace('\\','/',__FILE__);
+		$base_path = preg_replace('@manager/media/browser/mcpuk/connectors/php/Commands/GetFoldersAndFiles.php$@', '', $base_path);
+		if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
+		else                                                             $this->enable_imgedit = true;
+
 	}
 	
 	function run() {
@@ -135,8 +141,10 @@ class GetFoldersAndFiles {
 
 					if (!$hide) {
 						if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing'])
+						if($this->enable_imgedit)
+						{
 							$editable=$this->isImageEditable($this->real_cwd."/".$files[$i]);
-
+						}
                         if(extension_loaded('mbstring')) {
                             $name = mb_convert_encoding($files [$i] , 'UTF-8', mb_detect_encoding($files[$i] , 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
                         } else {
