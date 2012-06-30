@@ -144,6 +144,9 @@ switch ($_POST['mode']) {
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
+            $name = stripslashes($name);
+            $name = str_replace("'", "''", $name);
+            $was_name = str_replace("'", "''", $was_name);
             if ($name !== $was_name) {
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_content'));
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_templates'));
