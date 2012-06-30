@@ -201,19 +201,22 @@ class synccache {
 		$cache_path = $this->cachePath . 'sitePublishing.idx.php';
 		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
 		$content .= '$cache_type = ' . "{$cache_type};\n";
-		$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
+		if(isset($site_sessionname) && !empty($site_sessionname))
+		{
+			$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
+		}
 		$content .= '$site_status = '      . "'{$site_status}';\n";
 		
 		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='site_url'");
 		$site_url = $modx->db->getValue($rs);
-		if($site_url!=='')
+		if(isset($site_url) && !empty($site_url))
 		{
 			$content .= '$site_url = '      . "'{$site_url}';\n";
 		}
 		
 		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='base_url'");
 		$base_url = $modx->db->getValue($rs);
-		if($base_url!=='')
+		if(isset($base_url) && !empty($base_url))
 		{
 			$content .= '$base_url = '      . "'{$base_url}';\n";
 		}
