@@ -64,6 +64,11 @@ if ($row = $modx->db->getRow($rs))
 // Set the item name for logging
 $_SESSION['itemname'] = $content['pagetitle'];
 
+foreach($content as $k=>$v)
+{
+	$content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
+}
+
 $keywords = array();
 $metatags_selected = array();
 if ($modx->config['show_meta'])
@@ -165,6 +170,10 @@ if ($numRecords > 0)
 		$listDocs = array();
 		foreach($resource as $k => $children)
 		{
+			foreach($children as $k=>$v)
+			{
+				$children[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
+			}
 			if($children['published'] == 0 && (time() < $children['pub_date'] || $children['unpub_date'] < time()))
 			{
 				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
@@ -174,8 +183,8 @@ if ($numRecords > 0)
 				$status = '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>';
 			}
 			$description = $children['description'];
-			$len_title = mb_strlen($children['pagetitle'], 'UTF-8');
-			$len_desc  = mb_strlen($description, 'UTF-8');
+			$len_title = mb_strlen($children['pagetitle'], $modx->config['modx_charset']);
+			$len_desc  = mb_strlen($description, $modx->config['modx_charset']);
 			$len_total = $len_title + $len_desc;
 			if($len_total < 50)
 			{
@@ -455,7 +464,8 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		if(!$cache) {
 			$cache = $_lang['page_data_notcached'];
 		} else {
-			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.htmlspecialchars($cache)."</textarea>\n";
+			$cache = htmlspecialchars($cache, ENT_QUOTES, $modx->config['modx_charset']);
+			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.$cache."</textarea>\n";
 		}
 		echo $cache;
 ?>

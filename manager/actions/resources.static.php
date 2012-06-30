@@ -170,7 +170,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		$ph['class'] = $class;
 		$ph['id'] = $row['id'];
 		$ph['action'] = $action;
-		$ph['name'] = $row['name'];
+		$ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
 		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
 		$ph['description'] = $row['description'];
 		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
@@ -302,7 +302,7 @@ function createCategoryList()
 			else $ph['class'] = '';
 			$ph['id'] = $v['id'];
 			$ph['action'] = $v['action'];
-			$ph['name'] = $v['name'];
+			$ph['name'] = htmlspecialchars($v['name'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['type'] = $v['type'];
 			$ph['description'] = (!empty($v['description'])) ? ' - '.$v['description'] : '';
 			$ph['locked'] = ($v['locked']) ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
