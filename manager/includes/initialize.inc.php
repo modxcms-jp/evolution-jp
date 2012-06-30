@@ -93,6 +93,7 @@ function assign_base_url($base_path)
 	$dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
 	$dir = substr($dir,0,strrpos($dir,'/')) . '/';
 	$dir = preg_replace('@(.*?)/manager/.*$@', '$1', $dir);
+	$dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
 	$request_uri = $_SERVER['REQUEST_URI'];
 	if($request_uri[1]==='~') $dir = '/~' . substr($dir,1);
 	$dir = rtrim($dir, '/') . '/';
