@@ -204,6 +204,20 @@ class synccache {
 		$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
 		$content .= '$site_status = '      . "'{$site_status}';\n";
 		
+		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='site_url'");
+		$site_url = $modx->db->getValue($rs);
+		if($site_url!=='')
+		{
+			$content .= '$site_url = '      . "'{$site_url}';\n";
+		}
+		
+		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='base_url'");
+		$base_url = $modx->db->getValue($rs);
+		if($base_url!=='')
+		{
+			$content .= '$base_url = '      . "'{$base_url}';\n";
+		}
+		
 		$rs = file_put_contents($cache_path, $content);
 		
 		if (!$rs)
