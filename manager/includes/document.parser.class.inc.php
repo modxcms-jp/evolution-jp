@@ -3339,6 +3339,14 @@ class DocumentParser {
 	function dbClose()                   {$this->db->disconnect();}
 	
     // deprecated
+    function getUserData()
+    {
+    	$client['host'] = $_SERVER['REMOTE_ADDR'];
+    	$client['ip']   = $_SERVER['REMOTE_ADDR'];
+    	$client['ua']   = $_SERVER['HTTP_USER_AGENT'];
+    	return $client;
+    }
+    
 	function insideManager()
 	{
 		$m= false;
