@@ -76,7 +76,7 @@ if ($modx->config['show_meta'])
 	// Get list of current keywords for this document
 	$from = "{$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x";
 	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
-	$orderby = 'BY k.keyword ASC';
+	$orderby = 'k.keyword ASC';
 	$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
 	while($row = $modx->db->getRow($rs))
 	{
