@@ -1269,7 +1269,6 @@ class DocumentParser {
 				{
 					$docid = "ID = {$this->documentIdentifier}<br />";
 				}
-//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
 				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
 				$plugin = $this->event->activePlugin . ' - Plugin';
 				$this->logEvent(1, 3, $log, $plugin);
@@ -2196,7 +2195,8 @@ class DocumentParser {
 
 	function getPageInfo($docid= 0, $active= 1, $fields= 'id, pagetitle, description, alias')
 	{
-		if($docid == 0) return false;
+		if($this->documentMethod !== 'id') return false;
+		if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
 		else
 		{
 			$tbl_site_content    = $this->getFullTableName('site_content');
@@ -2218,7 +2218,7 @@ class DocumentParser {
 			$cond   =  ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
 			
 			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
-			$where = "(sc.id={$docid} {$published}) AND ({$context} {$cond})";
+			$where = "(sc.id='{$docid}' {$published}) AND ({$context} {$cond})";
 			$result = $this->db->select($fields,$from,$where,'',1);
 			$pageInfo = $this->db->getRow($result);
 			return $pageInfo;
