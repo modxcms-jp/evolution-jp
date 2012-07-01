@@ -56,7 +56,7 @@ $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
 include_once($base_path . 'assets/cache/sitePublishing.idx.php');
-if ($cache_type == 2 && count($_POST) < 1 && $cacheRefreshTime < time() && $site_status!=='0') {
+if ($cache_type == 2 && count($_POST) < 1 && time() < $cacheRefreshTime && $site_status!=='0') {
     session_name($site_sessionname);
     session_cache_limiter('');
     session_start();
