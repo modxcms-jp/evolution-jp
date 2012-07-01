@@ -84,7 +84,7 @@ class logHandler {
 		{
 			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 2000;
 			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
-			if(($insert_id % $trim) == 0)
+			if(($insert_id % $trim) === 0)
 			{
 				$modx->rotate_log('manager_log',$limit,$trim);
 			}
