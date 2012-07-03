@@ -60,13 +60,14 @@ if(isset($eFormCSS)) $cssStyle = $eFormCSS;
 # Snippet customize settings
 $from   = (isset($from)) ? $from : $modx->config['emailsender'];
 $formid = (isset($formid)) ? $formid : '';
+$vericode = (isset($vericode)) ? $vericode: '';
 $params = array (
    // Snippet Path
    'snipPath' => $snipPath, //includes $snip_dir
 	 'snipFolder' => $snip_dir,
 
 // eForm Params
-   'vericode' => isset($vericode)? $vericode:'',
+   'vericode' => $vericode,
    'formid' => $formid,
    'from' => $from,
    'fromname' => isset($fromname)? $fromname:$modx->config['site_name'],
