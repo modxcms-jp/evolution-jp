@@ -1202,3 +1202,8 @@ $_lang["base_url_message"] = '[(base_url)] - 例：<b>[+MODX_BASE_URL+]</b><br /
 
 $_lang["configcheck_del_actionphp"] = 'セキュリティ警告: action.phpが存在します';
 $_lang["configcheck_del_actionphp_msg"] = 'Captcha画像の表示に用いるaction.phpは1.0.6J-r4以降で不要になりました。セキュリティ上の問題があるため、削除するか、<a href="http://modx.jp/news/140.html" target="_blank">問題がFIXされたaction.php</a>を使用してください。';
+
+$_lang["a16_use_resources"] = 'このテンプレートを使用しているリソース';
+$_lang["a16_many_resources"] = 'リソース数が多いためここでは表示しません。';
+$_lang["a16_no_resource"] = 'このテンプレートを使用しているリソースはありません。';
+

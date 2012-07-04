@@ -161,6 +161,41 @@ function deletedocument() {
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
 	</div>
+
+<div class="tab-page" id="tabProp">
+<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
+<script type="text/javascript">tpResources.addTabPage( document.getElementById('tabProp') );</script>
+<table>
+	  <tr>
+		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
+		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+				<option>&nbsp;</option>
+		        <?php
+		            include_once "categories.inc.php";
+					$ds = getCategories();
+					if($ds) foreach($ds as $n=>$v)
+					{
+						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+					}
+				?>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
+		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+	</tr>
+	<tr>
+		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
+		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	</tr>
+	  <tr>
+	    <td align="left" colspan="2">
+	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
+	  </tr>
+</table>
+</div>
+
 <?php
 if ($_REQUEST['a'] == '16')
 {
@@ -177,9 +212,9 @@ if ($_REQUEST['a'] == '16')
 	$total = $modx->db->getRecordCount($rs);
 ?>
 	
-	<div class="tab-page" id="tabAssignedTVs">
-		<h2 class="tab"><?php echo $_lang["template_assignedtv_tab"] ?></h2>
-		<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabAssignedTVs" ) );</script>
+	<div class="tab-page" id="tabInfo">
+		<h2 class="tab"><?php echo $_lang["info"] ?></h2>
+		<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabInfo" ) );</script>
 		<?php echo "<p>{$_lang['template_tv_msg']}</p>"; ?>
 		<div class="sectionHeader">
 			<?php echo $_lang["template_assignedtv_tab"];?>
@@ -215,49 +250,37 @@ if ($_REQUEST['a'] == '16')
 ?>
 		</ul>
 		</div>
-</div>
+		<div class="sectionHeader"><?php echo $_lang['a16_use_resources']; ?></div>
+		<div class="sectionBody"><?php echo get_resources($id,$modx,$_lang); ?></div>
+	</div>
 <?php
 }
 ?>
 
-<div class="tab-page" id="tabInfo">
-<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
-<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabInfo" ) );</script>
-<table>
-	  <tr>
-		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
-		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
-				<option>&nbsp;</option>
-		        <?php
-		            include_once "categories.inc.php";
-					$ds = getCategories();
-					if($ds) foreach($ds as $n=>$v)
-					{
-						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
-					}
-				?>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
-	</tr>
-	<tr>
-		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
-		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
-	</tr>
-	  <tr>
-	    <td align="left" colspan="2">
-	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
-	  </tr>
-</table>
-</div>
-
 <?php
 // invoke OnTempFormRender event
-$evtOut = $modx->invokeEvent("OnTempFormRender",array("id" => $id));
+$evtOut = $modx->invokeEvent("OnTempFormRender",array('id' => $id));
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
 </div>
+
+<?php
+function get_resources($id,$modx,$_lang)
+{
+	$rs = $modx->db->select('id', $modx->getFullTableName('site_content'), "template='{$id}'");
+	$total = $modx->db->getRecordCount($rs);
+	if(500 < $total)  $result = $_lang['a16_many_resources'];
+	elseif($total===0)$result = $_lang['a16_no_resource'];
+	else
+	{
+		$tpl = '<a href="index.php?a=27&id=[+id+]">[+id+]</a>';
+		$items = array();
+		while($row = $modx->db->getRow($rs))
+		{
+			$items[] = str_replace('[+id+]', $row['id'], $tpl);
+		}
+		$result = join(', ', $items);
+	}
+	return "<p>{$result}</p>";
+}
