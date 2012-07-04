@@ -1,6 +1,9 @@
  <?php
 if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
 
+if(isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) $id = $_REQUEST['id'];
+else                                                                   $id = '';
+
 switch((int) $_REQUEST['a'])
 {
 	case 16:
@@ -22,9 +25,8 @@ default:
 	$e->dumpError();
 }
 
-if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id']))
+if(!empty($id))
 {
-	$id = $_REQUEST['id'];
 	// check to see the template editor isn't locked
 	$tbl_active_users = $modx->getFullTableName('active_users');
 	$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=16 AND id={$id}");
@@ -41,26 +43,22 @@ if(isset($_REQUEST['id']) && is_numeric($_REQUEST['id']))
 		}
 	} // end check for lock
 }
-else
-{
-    $id='';
-}
 
 $content = array();
-if(isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
+if(!empty($id)) {
 	$tbl_site_templates = $modx->getFullTableName('site_templates');
-	$rs = $modx->db->select('*',$tbl_site_templates,"id={$id}");
+	$rs = $modx->db->select('*',$tbl_site_templates,"id='{$id}'");
 	$total = $modx->db->getRecordCount($rs);
 	if($total > 1)
 	{
 		echo "Oops, something went terribly wrong...<p>";
-		print "More results returned than expected. Which sucks. <p>Aborting.";
+		echo "More results returned than expected. Which sucks. <p>Aborting.";
 		exit;
 	}
 	if($total < 1)
 	{
 		echo "Oops, something went terribly wrong...<p>";
-		print "No database record has been found for this template. <p>Aborting.";
+		echo "No database record has been found for this template. <p>Aborting.";
 		exit;
 	}
 	$content = $modx->db->getRow($rs);
