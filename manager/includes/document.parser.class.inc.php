@@ -1050,42 +1050,6 @@ class DocumentParser {
 	
 		// clear the cache
 		$this->clearCache();
-		
-		// update publish time file
-		$timesArr= array ();
-		$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_content,"{$timeNow} < pub_date");
-		$minpub= $this->db->getValue($rs);
-		if ($minpub != NULL)
-		{
-			$timesArr[]= $minpub;
-		}
-		
-		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_content,"{$timeNow} < unpub_date");
-		$minunpub= $this->db->getValue($rs);
-		if ($minunpub != NULL)
-		{
-			$timesArr[]= $minunpub;
-		}
-		
-		$rs = $this->db->select('MIN(pub_date) AS minpub',$tbl_site_htmlsnippets,"{$timeNow} < pub_date");
-		$minpub= $this->db->getValue($rs);
-		if ($minpub != NULL)
-		{
-			$timesArr[]= $minpub;
-		}
-		
-		$rs = $this->db->select('MIN(unpub_date) AS minunpub',$tbl_site_htmlsnippets,"{$timeNow} < unpub_date");
-		$minunpub= $this->db->getValue($rs);
-		if ($minunpub != NULL)
-		{
-			$timesArr[]= $minunpub;
-		}
-		
-		if (count($timesArr) > 0) $nextevent = min($timesArr);
-		else                      $nextevent = 0;
-		
-		$content = '<?php $cacheRefreshTime=' . $nextevent . ';';
-		file_put_contents($cache_path, $content);
 	}
 	
 	// mod by Raymond
