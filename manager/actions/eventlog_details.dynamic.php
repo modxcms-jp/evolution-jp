@@ -70,6 +70,8 @@ else if($content["type"]==2) $msgtype = $_lang["warning"];
 else if($content["type"]==3) $msgtype = $_lang["error"];
 $useTheme = $manager_theme ? "$manager_theme/":"";
 if(empty($content["username"])) $content["username"] = '-';
+$description = urldecode($content['description']);
+$description = str_replace('&amp;amp;','&amp;',$description);
 echo <<<HTML
 	<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
 	<table>
@@ -78,7 +80,7 @@ echo <<<HTML
 	<tr><td>{$_lang["date"]} </td><td>$date</td></tr>
 	<tr><td>{$_lang["user"]} </td><td>{$content["username"]}</td></tr>
 	</table>
-	<div>{$content["description"]}</div>
+	<div>{$description}</div>
 HTML;
 ?>
 </div>
