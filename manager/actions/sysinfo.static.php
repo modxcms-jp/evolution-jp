@@ -20,8 +20,16 @@ if(!$modx->hasPermission('logs')) {
 	};
 </script>
 
+<div class="sectionBody">
+<script type="text/javascript" src="media/script/tabpane.js"></script>
+<div class="tab-pane" id="sysinfoPane">
+<script type="text/javascript">
+	tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);
+</script>
+<div class="tab-page" id="tabServer">
+<h2 class="tab">Server</h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabServer" ) );</script>
 <!-- server -->
-<div class="section">
 <div class="sectionHeader">Server</div>
 <div class="sectionBody" id="lyr2">
 		<table border="0" cellspacing="2" cellpadding="2">
@@ -54,8 +62,11 @@ if(!$modx->hasPermission('logs')) {
 		</table>
    </div>
 </div>
+
 <!-- recent documents -->
-<div class="section">
+<div class="tab-page" id="tabActivity">
+<h2 class="tab"><?php echo $_lang["activity_title"]; ?></h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabActivity" ) );</script>
 <div class="sectionHeader"><?php echo $_lang["activity_title"]; ?></div>
 <div class="sectionBody" id="lyr1">
 		<?php echo $_lang["sysinfo_activity_message"]; ?><p>
@@ -113,7 +124,9 @@ if(!$modx->hasPermission('logs')) {
 </div>
 
 <!-- database -->
-<div class="section">
+<div class="tab-page" id="tabDatebase">
+<h2 class="tab"><?php echo $_lang["database_tables"]; ?></h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabDatebase" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div>
 <div class="sectionBody" id="lyr4">
 		<p><?php echo $_lang['table_hoverinfo']; ?></p>
@@ -193,8 +206,11 @@ if(!$modx->hasPermission('logs')) {
 		<?php } ?>
 </div>
 </div>
+
 <!-- online users -->
-<div class="section">
+<div class="tab-page" id="tabOnlineUsers">
+<h2 class="tab"><?php echo $_lang["onlineusers_title"]; ?></h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabOnlineUsers" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['onlineusers_title']; ?></div>
 <div class="sectionBody" id="lyr5">
 
@@ -235,6 +251,8 @@ if(!$modx->hasPermission('logs')) {
 		?>
 		</tbody>
 		</table>
+</div>
+</div>
 </div>
 </div>
 <?php
