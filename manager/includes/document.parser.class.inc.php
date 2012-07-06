@@ -3538,7 +3538,7 @@ class DocumentParser {
             $str .= "<td colspan='2'>$line</td><td></td>";
             $str .= "</tr>";
             if ($source != '') {
-                $str .= "<tr><td valign='top'>Line $line source: </td>";
+                $str .= "<tr><td valign='top'>Source: </td>";
                 $str .= "<td colspan='2'>$source</td><td></td>";
                 $str .= "</tr>";
             }
