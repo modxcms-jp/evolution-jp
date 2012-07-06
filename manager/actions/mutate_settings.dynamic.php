@@ -672,6 +672,17 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo form_text('blocked_minutes',$blocked_minutes,7);?><br />
 <?php echo $_lang["blocked_minutes_message"] ?></td>
 </tr>
+
+<tr>
+<th><?php echo $_lang['a17_error_reporting_title']; ?></th>
+<td>
+	<?php echo wrap_label($_lang['a17_error_reporting_opt0'],form_radio('error_reporting','0', ($error_reporting==='0')));?><br />
+	<?php echo wrap_label($_lang['a17_error_reporting_opt1'],form_radio('error_reporting','1', $error_reporting==='1' || !isset($error_reporting)));?><br />
+	<?php echo wrap_label($_lang['a17_error_reporting_opt2'],form_radio('error_reporting','2', $error_reporting==='2'));?><br />
+	<?php echo wrap_label($_lang['a17_error_reporting_opt99'],form_radio('error_reporting','99', $error_reporting==='99'));?><br />
+<?php echo $_lang['a17_error_reporting_msg'];?></td>
+</tr>
+
 <tr>
 <th><?php echo $_lang['mutate_settings.dynamic.php6']; ?></th>
 <td>
