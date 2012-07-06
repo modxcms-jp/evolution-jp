@@ -3454,20 +3454,39 @@ class DocumentParser {
     /* End of API functions								       */
     /***************************************************************************************/
 
-    function phpError($nr, $text, $file, $line) {
-        if (error_reporting() == 0 || $nr == 0 || ($nr == 8 && $this->stopOnNotice == false)) {
-            return true;
-        }
-        if (is_readable($file)) {
-            $source= file($file);
-            $source= htmlspecialchars($source[$line -1]);
-        } else {
-            $source= '';
-        } //Error $nr in $file at $line: <div><code>$source</code></div>
-        $result = $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
-        if($result===false) exit();
-        return $result;
-    }
+	function phpError($nr, $text, $file, $line)
+	{
+		if (error_reporting() == 0 || $nr == 0)
+		{
+			return true;
+		}
+		if($this->stopOnNotice == false)
+		{
+			switch($this->error_reporting)
+			{
+				case '0':return true; break;
+				case '1':
+					if($nr==8 || $nr==2048 || $nr==8192)  return true;
+					break;
+				case '2':
+					if($nr==8)  return true;
+					break;
+			}
+		}
+		
+		if (is_readable($file))
+		{
+			$source= file($file);
+			$source= htmlspecialchars($source[$line -1]);
+		}
+		else
+		{
+			$source= '';
+		} //Error $nr in $file at $line: <div><code>$source</code></div>
+		$result = $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
+		if($result===false) exit();
+		return $result;
+	}
 
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '') {
 
