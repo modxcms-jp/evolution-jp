@@ -91,6 +91,7 @@ function assign_base_url($base_path)
 {
 	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
 	$dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
+	$dir = str_replace('\\', '/', $dir);
 	$dir = substr($dir,0,strrpos($dir,'/')) . '/';
 	$dir = preg_replace('@(.*?)/manager/.*$@', '$1', $dir);
 	$dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
