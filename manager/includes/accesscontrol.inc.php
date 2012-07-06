@@ -7,17 +7,16 @@ if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager')
 }
 
 // andrazk 20070416 - if installer is running, destroy active sessions
-$pth = dirname(__FILE__);
-if (file_exists($pth.'/../../assets/cache/installProc.inc.php'))
+if (file_exists($modx->config['base_path'] . 'assets/cache/installProc.inc.php'))
 {
-	include_once($pth.'/../../assets/cache/installProc.inc.php');
+	include_once($modx->config['base_path'] . 'assets/cache/installProc.inc.php');
 	if (isset($installStartTime))
 	{
 		if ((time() - $installStartTime) > 5 * 60)
 		{ // if install flag older than 5 minutes, discard
 			unset($installStartTime);
-			@ chmod($pth.'/../../assets/cache/installProc.inc.php', 0755);
-			unlink($pth.'/../../assets/cache/installProc.inc.php');
+			@ chmod($modx->config['base_path'] . 'assets/cache/installProc.inc.php', 0755);
+			unlink($modx->config['base_path'] . 'assets/cache/installProc.inc.php');
 		} 
 		else
 		{
@@ -133,13 +132,10 @@ if(!isset($_SESSION['mgrValidated'])){
 
 } else {
 	// log the user action
-	if ($cip = getenv("HTTP_CLIENT_IP"))
-		$ip = $cip;
-	elseif ($cip = getenv("HTTP_X_FORWARDED_FOR"))
-		$ip = $cip;
-	elseif ($cip = getenv("REMOTE_ADDR"))
-		$ip = $cip;
-	else	$ip = "UNKNOWN";
+	if    (isset($_SERVER['HTTP_CLIENT_IP']))       $ip = $_SERVER['HTTP_CLIENT_IP'];
+	elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	elseif(isset($_SERVER['REMOTE_ADDR']))          $ip = $_SERVER['REMOTE_ADDR'];
+	else                                            $ip = 'UNKNOWN';
 	
 	$_SESSION['ip'] = $ip;
 
@@ -165,4 +161,3 @@ if(!isset($_SESSION['mgrValidated'])){
 		}
 	}
 }
-?>
