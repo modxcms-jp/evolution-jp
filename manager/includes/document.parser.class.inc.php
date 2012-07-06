@@ -3598,8 +3598,20 @@ class DocumentParser {
         // Log error
         if($source!=='') $source = 'Parser - ' . $source;
         else             $source = 'Parser';
-        $this->logEvent(0, 3, $str,$source);
-        if($nr == E_DEPRECATED) return true;
+        switch($nr)
+        {
+        	case E_DEPRECATED :
+        	case E_USER_DEPRECATED :
+        	case E_STRICT :
+        	case E_NOTICE :
+        	case E_USER_NOTICE :
+        		$error_level = 2;
+        		break;
+        	default:
+        		$error_level = 3;
+        }
+        $this->logEvent(0, $error_level, $str,$source);
+        if($error_level === 2) return true;
 
         // Set 500 response header
         header('HTTP/1.1 500 Internal Server Error');
