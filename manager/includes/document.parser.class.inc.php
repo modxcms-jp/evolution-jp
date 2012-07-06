@@ -3442,7 +3442,7 @@ class DocumentParser {
 
     function phpError($nr, $text, $file, $line) {
         if (error_reporting() == 0 || $nr == 0 || ($nr == 8 && $this->stopOnNotice == false)) {
-            $result = true;
+            return true;
         }
         if (is_readable($file)) {
             $source= file($file);
