@@ -3514,7 +3514,7 @@ class DocumentParser {
             $str .= "</tr>";
 
             $str .= "<tr><td valign='top'>Error type/ Nr.: </td>";
-            $str .= "<td colspan='2'>" . $errortype[$nr] . " - $nr</td><td></td>";
+            $str .= "<td colspan='2'>" . $errortype[$nr] . "[{$nr}]</td><td></td>";
             $str .= "</tr>";
 
             $str .= "<tr><td>File: </td>";
