@@ -3591,8 +3591,7 @@ class DocumentParser {
         $str .= '<td colspan="2"><i>[^t^]</i></td>';
         $str .= "</tr>";
 
-        $str .= "</table>";
-        $str .= "</body></html>";
+        $str .= "</table>\n";
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
 
