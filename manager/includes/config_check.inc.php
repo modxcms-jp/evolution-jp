@@ -27,7 +27,7 @@ $actionphp = $modx->config['base_path'] . 'action.php';
 if(file_exists($actionphp))
 {
 	$src = file_get_contents($actionphp);
-	if(strpos($src,'strpos($path, \'manager/\'')!==false)
+	if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
 	{
 		$warnings[] = 'configcheck_del_actionphp';
 	}

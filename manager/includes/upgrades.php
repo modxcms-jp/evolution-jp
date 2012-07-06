@@ -218,7 +218,7 @@ function delete_actionphp()
 	if(file_exists($path))
 	{
 		$src = file_get_contents($path);
-		if(strpos($src,'strpos($path, \'manager/\'')!==false)
+		if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
 		{
 			@unlink($modx->config['base_path'] . 'action.php');
 		}
