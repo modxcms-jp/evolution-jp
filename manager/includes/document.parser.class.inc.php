@@ -3438,7 +3438,7 @@ class DocumentParser {
 
     function phpError($nr, $text, $file, $line) {
         if (error_reporting() == 0 || $nr == 0 || ($nr == 8 && $this->stopOnNotice == false)) {
-            return true;
+            $result = true;
         }
         if (is_readable($file)) {
             $source= file($file);
@@ -3446,7 +3446,9 @@ class DocumentParser {
         } else {
             $source= '';
         } //Error $nr in $file at $line: <div><code>$source</code></div>
-        $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
+        $result = $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
+        if($result===false) exit();
+        return $result;
     }
 
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '') {
@@ -3621,8 +3623,7 @@ class DocumentParser {
         else  echo 'Error';
         ob_end_flush();
 
-        // Make sure and die!
-        exit();
+        return false;
     }
 
     function getRegisteredClientScripts() {
