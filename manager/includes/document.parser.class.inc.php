@@ -288,7 +288,7 @@ class DocumentParser {
 			// check whether it's a reference
 			if($this->documentObject['type'] == 'reference')
 			{
-				if(is_numeric($this->documentObject['content']))
+				if(preg_match('@^[0-9]+$@',$this->documentObject['content']))
 				{
 					// if it's a bare document id
 					$this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
