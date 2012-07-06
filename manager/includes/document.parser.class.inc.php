@@ -1274,19 +1274,30 @@ class DocumentParser {
 		$result= eval($snippet);
 		$msg= ob_get_contents();
 		ob_end_clean();
-		if ($msg && isset ($php_errormsg))
+		
+		if ((0<$this->config['error_reporting']) && $msg && isset($php_errormsg))
 		{
-			if (strpos(strtolower($php_errormsg), 'deprecated')===false)
+			$error_info = error_get_last();
+			if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
+			else                                                         $error_type = 3;
+			if(1<$this->config['error_reporting'] || 2<$error_type)
 			{
-				// ignore php5 strict errors
-				// log error
+				extract($error_info);
 				$request_uri = $_SERVER['REQUEST_URI'];
-				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
-				$docid = "ID = {$this->documentIdentifier}<br />";
-//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
-				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
+				$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+				$docid = $this->documentIdentifier;
+	//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
+				$log = "<p><b>{$php_errormsg}</b></p>";
+				$log .= "REQUEST_URI = {$request_uri}<br />";
+				$log .= "ID = {$docid}<br />";
+				$log .= "Error Type = {$type}<br />";
+				$log .= "Error Msg = {$message}<br />";
+				$log .= "File = {$file} - line {$line}<br />";
+				$log .= 'UA = ' . htmlspecialchars($_SERVER['HTTP_USER_AGENT'],ENT_QUOTES) . '<br />';
+				$log .= 'IP = ' . $_SERVER['REMOTE_ADDR'];
+				$log .= '<div style="margin-top:25px;padding:15px;border:1px solid #ccc;">' . $msg . '</div>';
 				$snip = $this->currentSnippet . ' - Snippet<br />';
-				$this->logEvent(1, 3, $log,$snip);
+				$this->logEvent(1, $error_type, $log,$snip);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
