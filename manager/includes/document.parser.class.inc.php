@@ -296,7 +296,7 @@ class DocumentParser {
 				elseif(strpos($this->documentObject['content'], '[~') !== false)
 				{
 					// if it's an internal docid tag, process it
-					$this->documentObject['content']= $this->rewriteUrls($this->documentObject['content']);
+					$this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
 				}
 				$this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
 			}
