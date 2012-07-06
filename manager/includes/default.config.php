@@ -75,6 +75,7 @@ $default_config['validate_referer']         = '1';
 $default_config['warning_visibility']       = '2';
 $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
+$default_config['error_reporting']          = '1';
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
 
