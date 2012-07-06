@@ -189,6 +189,11 @@ class synccache {
 			$timesArr[] = $minunpub;
 		}
 		
+		if(isset($modx->config['cache_expire']) && !empty($modx->config['cache_expire']))
+		{
+			$timesArr[] = $modx->config['cache_expire'];
+		}
+		
 		if(count($timesArr)>0) $nextevent = min($timesArr);
 		else                   $nextevent = 0;
 		
