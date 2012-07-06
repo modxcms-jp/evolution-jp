@@ -197,33 +197,32 @@ class synccache {
 		if(count($timesArr)>0) $nextevent = min($timesArr);
 		else                   $nextevent = 0;
 		
-		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='cache_type'");
-		$cache_type = $modx->db->getValue($rs);
-		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='site_status'");
-		$site_status = $modx->db->getValue($rs);
+		$rs = $modx->db->select('setting_name,setting_value',$tbl_system_settings);
+		while($row = $modx->db->getRow($rs))
+		{
+			$name  = $row['setting_name'];
+			$value = $row['setting_value'];
+			$setting[$name] = $value;
+		}
 		
 		// write the file
 		$cache_path = $this->cachePath . 'sitePublishing.idx.php';
 		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
-		$content .= '$cache_type = ' . "{$cache_type};\n";
+		$content .= '$cache_type = ' . "{$setting['cache_type']};\n";
 		if(isset($site_sessionname) && !empty($site_sessionname))
 		{
 			$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
 		}
-		$content .= '$site_status = '      . "'{$site_status}';\n";
+		$content .= '$site_status = '      . "'{$setting['site_status']}';\n";
 		
-		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='site_url'");
-		$site_url = $modx->db->getValue($rs);
-		if(isset($site_url) && !empty($site_url))
+		if(isset($setting['site_url']) && !empty($setting['site_url']))
 		{
-			$content .= '$site_url = '      . "'{$site_url}';\n";
+			$content .= '$site_url = '      . "'{$setting['site_url']}';\n";
 		}
 		
-		$rs = $modx->db->select('setting_value',$tbl_system_settings,"setting_name='base_url'");
-		$base_url = $modx->db->getValue($rs);
-		if(isset($base_url) && !empty($base_url))
+		if(isset($setting['base_url']) && !empty($setting['base_url']))
 		{
-			$content .= '$base_url = '      . "'{$base_url}';\n";
+			$content .= '$base_url = '      . "'{$setting['base_url']}';\n";
 		}
 		
 		$rs = file_put_contents($cache_path, $content);
