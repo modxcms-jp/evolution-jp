@@ -52,6 +52,7 @@ class DocumentParser {
     var $safeMode;
     var $qs_hash;
     var $cacheRefreshTime;
+    var $error_reporting;
 
 
     // constructor
@@ -69,6 +70,7 @@ class DocumentParser {
 		$this->safeMode     = false;
 		// set track_errors ini variable
 		@ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
+		$this->error_reporting = 1;
 		// Don't show PHP errors to the public
 		if($this->checkSession()===false) @ini_set('display_errors','0');
 	}
