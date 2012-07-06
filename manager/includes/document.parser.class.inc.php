@@ -2164,7 +2164,6 @@ class DocumentParser {
 
 	function getPageInfo($docid= 0, $active= 1, $fields= 'id, pagetitle, description, alias')
 	{
-		if($this->documentMethod !== 'id') return false;
 		if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
 		else
 		{
