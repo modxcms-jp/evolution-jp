@@ -3576,6 +3576,10 @@ class DocumentParser {
         $str .= '<td colspan="2">' . $ua . '</td>';
         $str .= "</tr>";
 
+        $str .= "<tr><td>IP: </td>";
+        $str .= '<td colspan="2">' . $_SERVER['REMOTE_ADDR'] . '</td>';
+        $str .= "</tr>";
+
         $str .= '<tr><td colspan="2"></td></tr>';
         $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
