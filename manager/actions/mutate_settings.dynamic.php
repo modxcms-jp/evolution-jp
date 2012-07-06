@@ -949,8 +949,6 @@ echo $str;
 </td>
 </tr>
 
-<?php if(!isset($use_browser)) $use_browser=1; ?>
-
 <tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_webuser_title"]?></th>
 <td>
@@ -1013,8 +1011,6 @@ return "{$base_path}assets/";
 	<?php echo $_lang["use_editor_message"]?>
 </td>
 </tr>
-
-<?php if(!isset($use_editor)) $use_editor=1; ?>
 
 <tr id='editorRow0' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["which_editor_title"]?></th>
