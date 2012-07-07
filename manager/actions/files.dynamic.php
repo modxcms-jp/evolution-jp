@@ -14,6 +14,10 @@ $excludes = array('.', '..', 'cgi-bin', '.svn');
 $editablefiles = array('.txt', '.php', '.shtml', '.html', '.htm', '.xml', '.js', '.css', '.pageCache', '.htaccess', $friendly_url_suffix);
 $inlineviewablefiles = array('.txt', '.php', '.html', '.htm', '.xml', '.js', '.css', '.pageCache', '.access', $friendly_url_suffix);
 $viewablefiles = array('.jpg', '.gif', '.png', '.ico');
+
+$proteted_path[] = $modx->config['base_path'] . 'manager';
+$proteted_path[] = $modx->config['base_path'] . 'assets/backup';
+
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
@@ -257,7 +261,7 @@ if($_REQUEST['mode']=='delete')
 	logFileChange('delete', $file);
 }
 
-if($startpath==="{$filemanager_path}manager" || $startpath==="{$filemanager_path}assets/backup")
+if(in_array($startpath,$proteted_path))
 {
 	echo $_lang['files.dynamic.php2'];
 	exit;
@@ -516,7 +520,7 @@ if($_REQUEST['mode']=="edit") {
 function ls($curpath)
 {
 	global $_lang,$style_path,$_style;
-	global $excludes, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $modx;
+	global $excludes, $proteted_path, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $modx;
 	$dircounter = 0;
 	$filecounter = 0;
 	$curpath = str_replace('//','/',$curpath.'/');
@@ -537,7 +541,7 @@ function ls($curpath)
 			$dirs_array[$dircounter]['dir'] = $newpath;
 			$dirs_array[$dircounter]['stats'] = lstat($newpath);
 			if($file==='..'||$file==='.') continue;
-			elseif(!in_array($file, $excludes) && $newpath!==MODX_BASE_PATH . 'manager' && $newpath!==MODX_BASE_PATH . 'assets/backup')
+			elseif(!in_array($file, $excludes) && !in_array($newpath,$proteted_path))
 			{
 				$dirs_array[$dircounter]['text'] = '<img src="' . $style_path.'tree/folder.gif" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path='.urlencode($newpath).'"><b>'.$file.'</b></a>';
 				$dirs_array[$dircounter]['delete'] = is_writable($curpath) ? '<span style="width:20px"><a href="javascript: deleteFolder(\''.urlencode($file).'\');"><img src="'.$style_path.'icons/delete.gif" alt="'.$_lang['file_delete_folder'].'" title="'.$_lang['file_delete_folder'].'" /></a></span>' : '';
@@ -557,7 +561,7 @@ function ls($curpath)
 			$files_array[$filecounter]['file'] = $newpath;
 			$files_array[$filecounter]['stats'] = lstat($newpath);
 			$files_array[$filecounter]['text'] = '<img src="'.$style_path.'tree/page-html.gif" align="absmiddle" alt="" />'.$file;
-			$files_array[$filecounter]['view'] = (in_array(strtolower($type), $viewablefiles)) ?
+			$files_array[$filecounter]['view'] = (in_array($type, $viewablefiles)) ?
 			'<span style="cursor:pointer; width:20px;" onclick="viewfile(\''.$webstart_path.substr($newpath, $len, strlen($newpath)).'\');"><img src="'.$style_path.'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ' : (($enablefiledownload && in_array($type, $uploadablefiles))? '<a href="'.$webstart_path.implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len, strlen($newpath))))).'" style="cursor:pointer; width:20px;"><img src="'.$style_path . 'misc/ed_save.gif" align="absmiddle" alt="'.$_lang['file_download_file'].'" title="'.$_lang['file_download_file'].'" /></a> ':'<span class="disabledImage"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ');
 			$files_array[$filecounter]['view'] = (in_array($type, $inlineviewablefiles)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=view&path='.urlencode($newpath).'"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></a></span> ' : $files_array[$filecounter]['view'] ;
 			$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type=='.zip') ? '<span style="width:20px;"><a href="index.php?a=31&mode=unzip&path='.$curpath.'&file='.urlencode($file).'" onclick="return confirmUnzip();"><img src="'.$style_path . 'icons/unzip.gif" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span> ' : '' ;
@@ -608,44 +612,24 @@ function ls($curpath)
 }
 
 function removeLastPath($string) {
-   $pos = false;
-   $search = "/";
-   if (is_int(strpos($string, $search))) {
-	   $endPos = strlen($string);
-	   while ($endPos > 0) {
-		   $endPos = $endPos - 1;
-		   $pos = strpos($string, $search, $endPos);
-		   if (is_int($pos)) {
-			   break;
-		   }
-	   }
-   }
-   if (is_int($pos)) {
-	   $len = strlen($search);
-	   return substr($string, 0, $pos);
-   }
-	return $string;
+	$pos = strrpos($string, '/');
+	if($pos!==false)
+	{
+	   $path = substr($string,0,$pos);
+	}
+	else $path = false;
+	return $path;
 }
 
 function getExtension($string) {
-   $pos = false;
-   $search = '.';
-   if (is_int(strpos($string, $search)))
-   {
-	   $endPos = strlen($string);
-	   while ($endPos > 0) {
-		   $endPos = $endPos - 1;
-		   $pos = strpos($string, $search, $endPos);
-		   if (is_int($pos)) {
-			   break;
-		   }
-	   }
-   }
-   if (is_int($pos)) {
-	   $len = strlen($search);
-	   return strtolower(substr($string, $pos));
-   }
-	return strtolower($string);
+	$pos = strrpos($string, '.');
+	if($pos!==false)
+	{
+	   $ext = substr($string,$pos);
+	   $ext = strtolower($ext);
+	}
+	else $ext = false;
+	return $ext;
 }
 
 function mkdirs($strPath, $mode){ // recursive mkdir function
