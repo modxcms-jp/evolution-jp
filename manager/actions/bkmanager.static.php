@@ -5,10 +5,6 @@ if(!$modx->hasPermission('bk_manager')) {
 	$e->dumpError();
 }
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
 if(!isset($modx->config['snapshot_path'])) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
 
 // Get table names (alphabetical)
