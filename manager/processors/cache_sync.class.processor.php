@@ -214,6 +214,7 @@ class synccache {
 			$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
 		}
 		$content .= '$site_status = '      . "'{$setting['site_status']}';\n";
+		$content .= '$error_reporting = ' . "'{$setting['error_reporting']}';\n";
 		
 		if(isset($setting['site_url']) && !empty($setting['site_url']))
 		{
