@@ -11,9 +11,14 @@ $token = uniqid('');
 $_SESSION['token'] = $token;
 // settings
 $excludes = array('.', '..', 'cgi-bin', '.svn');
-$editablefiles = array('.txt', '.php', '.shtml', '.html', '.htm', '.xml', '.js', '.css', '.pageCache', '.htaccess', $friendly_url_suffix);
-$inlineviewablefiles = array('.txt', '.php', '.html', '.htm', '.xml', '.js', '.css', '.pageCache', '.access', $friendly_url_suffix);
-$viewablefiles = array('.jpg', '.gif', '.png', '.ico');
+$alias_suffix = (!empty($friendly_url_suffix)) ? ','.ltrim($friendly_url_suffix,'.') : '';
+$editablefiles       = explode(',', 'txt,php,shtml,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
+$inlineviewablefiles = explode(',', 'txt,php,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
+$viewablefiles       = explode(',', 'jpg,gif,png,ico');
+
+$editablefiles       = add_dot($editablefiles);
+$inlineviewablefiles = add_dot($inlineviewablefiles);
+$viewablefiles       = add_dot($viewablefiles);
 
 $proteted_path[] = $modx->config['base_path'] . 'manager';
 $proteted_path[] = $modx->config['base_path'] . 'assets/backup';
@@ -31,9 +36,14 @@ $upload_media = explode(',',$upload_media);
 $upload_flash = explode(',',$upload_flash);
 // now merge them
 $uploadablefiles = array_merge($upload_files,$upload_images,$upload_media,$upload_flash);
-$count = count($uploadablefiles);
-for($i=0; $i<$count; $i++) {
-	$uploadablefiles[$i] = ".".strtolower($uploadablefiles[$i]); // add a dot :)
+$uploadablefiles = add_dot($uploadablefiles);
+function add_dot($array)
+{
+	$count = count($array);
+	for($i=0; $i<$count; $i++) {
+		$array[$i] = '.'.strtolower(trim($array[$i])); // add a dot :)
+	}
+	return $array;
 }
 // end settings
 
