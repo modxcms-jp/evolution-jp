@@ -3496,27 +3496,27 @@ class DocumentParser {
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
-        $str = "
-              <html><head><title>MODX Content Manager $version &raquo; $release_date</title>
-              <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        $str = '
+              <html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
+              <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
               <style>td, body { font-size: 12px; font-family:Verdana; }</style>
               </head><body>
-              ";
+              ';
         if ($is_error) {
-            $str .= "<h3 style='color:red'>&laquo; MODX Parse Error &raquo;</h3>
-                    <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>MODX encountered the following error while attempting to parse the requested resource:</td></tr>
-                    <tr><td colspan='3'><b style='color:red;'>&laquo; $msg &raquo;</b></td></tr>";
+            $str .= '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
+                    <table border="0" cellpadding="1" cellspacing="0">
+                    <tr><td colspan="3">MODX encountered the following error while attempting to parse the requested resource:</td></tr>
+                    <tr><td colspan="3"><b style="color:red;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         } else {
-            $str .= "<h3 style='color:#003399'>&laquo; MODX Debug/ stop message &raquo;</h3>
-                    <table border='0' cellpadding='1' cellspacing='0'>
-                    <tr><td colspan='3'>The MODX parser recieved the following debug/ stop message:</td></tr>
-                    <tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
+            $str .= '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
+                    <table border="0" cellpadding="1" cellspacing="0">
+                    <tr><td colspan="3">The MODX parser recieved the following debug/ stop message:</td></tr>
+                    <tr><td colspan="3"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         }
 
         if (!empty ($query)) {
-            $str .= "<tr><td colspan='3'><b style='color:#999;font-size: 12px;'>SQL:<span id='sqlHolder'>$query</span></b>
-                    </td></tr>";
+            $str .= '<tr><td colspan="3"><b style="color:#999;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
+                    </td></tr>';
         }
 
         if ($text != '') {
@@ -3539,80 +3539,80 @@ class DocumentParser {
                 E_USER_DEPRECATED   => "USER DEPRECATED"
             );
 
-            $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+            $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>PHP error debug</b></td></tr>';
 
-            $str .= "<tr><td valign='top'>Error: </td>";
-            $str .= "<td colspan='2'>$text</td><td></td>";
-            $str .= "</tr>";
+            $str .= '<tr><td valign="top">Error: </td>';
+            $str .= '<td colspan="2">' . $text . '</td><td></td>';
+            $str .= '</tr>';
 
-            $str .= "<tr><td valign='top'>Error type/ Nr.: </td>";
-            $str .= "<td colspan='2'>" . $errortype[$nr] . "[{$nr}]</td><td></td>";
-            $str .= "</tr>";
+            $str .= '<tr><td valign="top">Error type/ Nr.: </td>';
+            $str .= '<td colspan="2">' . $errortype[$nr] . "[{$nr}]</td><td></td>";
+            $str .= '</tr>';
 
-            $str .= "<tr><td>File: </td>";
-            $str .= "<td colspan='2'>$file</td><td></td>";
-            $str .= "</tr>";
+            $str .= '<tr><td>File: </td>';
+            $str .= '<td colspan="2">' . $file . '</td><td></td>';
+            $str .= '</tr>';
 
-            $str .= "<tr><td>Line: </td>";
-            $str .= "<td colspan='2'>$line</td><td></td>";
-            $str .= "</tr>";
+            $str .= '<tr><td>Line: </td>';
+            $str .= '<td colspan="2">' . $line . '</td><td></td>';
+            $str .= '</tr>';
             if ($source != '') {
-                $str .= "<tr><td valign='top'>Source: </td>";
-                $str .= "<td colspan='2'>$source</td><td></td>";
-                $str .= "</tr>";
+                $str .= '<tr><td valign="top">Source: </td>';
+                $str .= '<td colspan="2">' . $source . '</td><td></td>';
+                $str .= '</tr>';
             }
         }
 
-        $str .= "<tr><td colspan='3'></td></tr><tr><td colspan='3'><b>Basic info</b></td></tr>";
+        $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>Basic info</b></td></tr>';
 
-        $str .= "<tr><td valign='top'>REQUEST_URI: </td>";
-        $str .= "<td colspan='2'>$request_uri</td>";
-        $str .= "</tr>";
+        $str .= '<tr><td valign="top">REQUEST_URI: </td>';
+        $str .= '<td colspan="2">' . $request_uri . '</td>';
+        $str .= '</tr>';
 
-        $str .= "<tr><td valign='top'>ID: </td>";
-        $str .= "<td colspan='2'>" . $this->documentIdentifier . "</td>";
-        $str .= "</tr>";
+        $str .= '<tr><td valign="top">ID: </td>';
+        $str .= '<td colspan="2">' . $this->documentIdentifier . '</td>';
+        $str .= '</tr>';
 
         if(!empty($this->currentSnippet))
         {
             $str .= "<tr><td>Current Snippet: </td>";
             $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
-            $str .= "</tr>";
+            $str .= '</tr>';
         }
 
         if(!empty($this->event->activePlugin))
         {
             $str .= "<tr><td>Current Plugin: </td>";
             $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
-            $str .= "</tr>";
+            $str .= '</tr>';
         }
 
         $str .= "<tr><td>Referer: </td>";
         $str .= '<td colspan="2">' . $referer . '</td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= "<tr><td>User Agent: </td>";
         $str .= '<td colspan="2">' . $ua . '</td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= "<tr><td>IP: </td>";
         $str .= '<td colspan="2">' . $_SERVER['REMOTE_ADDR'] . '</td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= '<tr><td colspan="2"></td></tr>';
         $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
         $str .= "<tr><td>MySQL: </td>";
         $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= "<tr><td>PHP: </td>";
         $str .= '<td colspan="2"><i>[^p^]</i></td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= "<tr><td>Total: </td>";
         $str .= '<td colspan="2"><i>[^t^]</i></td>';
-        $str .= "</tr>";
+        $str .= '</tr>';
 
         $str .= "</table>\n";
 
@@ -3628,11 +3628,11 @@ class DocumentParser {
         $totalTime= sprintf("%2.4f s", $totalTime);
         $phpTime= sprintf("%2.4f s", $phpTime);
 
-        $str= str_replace("[^q^]", $queries, $str);
-        $str= str_replace("[^qt^]", $queryTime, $str);
-        $str= str_replace("[^p^]", $phpTime, $str);
-        $str= str_replace("[^t^]", $totalTime, $str);
-        $str= str_replace("[^m^]", $total_mem, $str);
+        $str= str_replace('[^q^]', $queries, $str);
+        $str= str_replace('[^qt^]',$queryTime, $str);
+        $str= str_replace('[^p^]', $phpTime, $str);
+        $str= str_replace('[^t^]', $totalTime, $str);
+        $str= str_replace('[^m^]', $total_mem, $str);
 
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
 		$str .= '<br />' . $this->get_backtrace(debug_backtrace());
