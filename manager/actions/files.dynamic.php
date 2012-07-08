@@ -54,6 +54,7 @@ if(isset($_REQUEST['path']) && !empty($_REQUEST['path'])) {
 } else {
 	$startpath = $filemanager_path;
 }
+$startpath = rtrim($startpath,'/');
 
 // Raymond: get web start path for showing pictures
 $rf = realpath($filemanager_path);
@@ -331,7 +332,7 @@ if(substr(strtolower(str_replace('//','/',$startpath."/")), 0, $len)!=strtolower
 // Unzip .zip files - by Raymond
 if ($enablefileunzip && $_REQUEST['mode']=='unzip' && is_writable($startpath))
 {
-	if(!$err=@unzip(realpath("$startpath/".$_REQUEST['file']),realpath($startpath)))
+	if(!$err=@unzip(realpath("{$startpath}/".$_REQUEST['file']),realpath($startpath)))
 	{
 		echo '<span class="warning"><b>'.$_lang['file_unzip_fail'].($err===0? 'Missing zip library (php_zip.dll / zip.so)':'').'</b></span><br /><br />';
 	}
