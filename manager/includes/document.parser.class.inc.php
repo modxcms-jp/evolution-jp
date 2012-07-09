@@ -3458,15 +3458,17 @@ class DocumentParser {
 		}
 		if($this->stopOnNotice == false)
 		{
-			switch($this->error_reporting)
+			switch($nr)
 			{
-				case '0':return true; break;
-				case '1':
-					if($nr==8 || $nr==2048 || $nr==8192)  return true;
+				case E_NOTICE:
+					if($this->error_reporting <= 2) return true;
 					break;
-				case '2':
-					if($nr==8)  return true;
+				case E_STRICT:
+				case E_DEPRECATED:
+					if($this->error_reporting <= 1) return true;
 					break;
+				default:
+					if($this->error_reporting === 0) return true;
 			}
 		}
 		
