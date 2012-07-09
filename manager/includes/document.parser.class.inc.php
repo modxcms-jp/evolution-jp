@@ -619,7 +619,7 @@ class DocumentParser {
 		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
 		else                                   $dist = $this->config['site_start'];
 		
-		$this->sendForward($dist , 'HTTP/1.1 401 Unauthorized');
+		$this->sendForward($dist , 'HTTP/1.1 403 Forbidden');
 	}
 
 	function get_static_pages()
