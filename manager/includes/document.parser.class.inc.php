@@ -295,11 +295,7 @@ class DocumentParser {
 					// if it's a bare document id
 					$this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
 				}
-				elseif(strpos($this->documentObject['content'], '[~') !== false)
-				{
-					// if it's an internal docid tag, process it
-					$this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
-				}
+				$this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
 				$this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
 			}
 			// check if we should not hit this document
