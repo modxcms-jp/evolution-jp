@@ -517,7 +517,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 						$onkeyup = 'onkeyup="change_url_suffix();" ';
 					}
 					else $onkeyup = '';
-					if($modx->config['friendly_urls']==1)
+					if($modx->config['friendly_urls']==='1' && $content['type']!=='reference')
 					{
 						echo get_alias_path($id,$pid);
 						echo input_text('alias',to_safestr(urldecode($content['alias'])), $onkeyup . 'size="20" style="width:120px;"','50');
