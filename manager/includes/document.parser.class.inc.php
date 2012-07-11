@@ -3485,7 +3485,7 @@ class DocumentParser {
 		{
 			$source= '';
 		} //Error $nr in $file at $line: <div><code>$source</code></div>
-		$result = $this->messageQuit("PHP Parse Error", '', true, $nr, $file, $source, $text, $line);
+		$result = $this->messageQuit('PHP Parse Error', '', true, $nr, $file, $source, $text, $line);
 		if($result===false) exit();
 		return $result;
 	}
@@ -3543,23 +3543,23 @@ class DocumentParser {
 
             $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>PHP error debug</b></td></tr>';
 
-            $str .= '<tr><td valign="top">Error: </td>';
+            $str .= '<tr><td valign="top">Error : </td>';
             $str .= '<td colspan="2">' . $text . '</td><td></td>';
             $str .= '</tr>';
 
-            $str .= '<tr><td valign="top">Error type/ Nr.: </td>';
-            $str .= '<td colspan="2">' . $errortype[$nr] . "[{$nr}]</td><td></td>";
+            $str .= '<tr><td valign="top">ErrorType[num] : </td>';
+            $str .= '<td colspan="2">' . $errortype [$nr] . "[{$nr}]</td><td></td>";
             $str .= '</tr>';
 
-            $str .= '<tr><td>File: </td>';
+            $str .= '<tr><td>File : </td>';
             $str .= '<td colspan="2">' . $file . '</td><td></td>';
             $str .= '</tr>';
 
-            $str .= '<tr><td>Line: </td>';
+            $str .= '<tr><td>Line : </td>';
             $str .= '<td colspan="2">' . $line . '</td><td></td>';
             $str .= '</tr>';
             if ($source != '') {
-                $str .= '<tr><td valign="top">Source: </td>';
+                $str .= '<tr><td valign="top">Source : </td>';
                 $str .= '<td colspan="2">' . $source . '</td><td></td>';
                 $str .= '</tr>';
             }
@@ -3567,52 +3567,52 @@ class DocumentParser {
 
         $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>Basic info</b></td></tr>';
 
-        $str .= '<tr><td valign="top">REQUEST_URI: </td>';
+        $str .= '<tr><td valign="top">REQUEST_URI : </td>';
         $str .= '<td colspan="2">' . $request_uri . '</td>';
         $str .= '</tr>';
 
-        $str .= '<tr><td valign="top">ID: </td>';
+        $str .= '<tr><td valign="top">ID : </td>';
         $str .= '<td colspan="2">' . $this->documentIdentifier . '</td>';
         $str .= '</tr>';
 
         if(!empty($this->currentSnippet))
         {
-            $str .= "<tr><td>Current Snippet: </td>";
+            $str .= "<tr><td>Current Snippet : </td>";
             $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
             $str .= '</tr>';
         }
 
         if(!empty($this->event->activePlugin))
         {
-            $str .= "<tr><td>Current Plugin: </td>";
+            $str .= "<tr><td>Current Plugin : </td>";
             $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
             $str .= '</tr>';
         }
 
-        $str .= "<tr><td>Referer: </td>";
+        $str .= "<tr><td>Referer : </td>";
         $str .= '<td colspan="2">' . $referer . '</td>';
         $str .= '</tr>';
 
-        $str .= "<tr><td>User Agent: </td>";
+        $str .= "<tr><td>User Agent : </td>";
         $str .= '<td colspan="2">' . $ua . '</td>';
         $str .= '</tr>';
 
-        $str .= "<tr><td>IP: </td>";
+        $str .= "<tr><td>IP : </td>";
         $str .= '<td colspan="2">' . $_SERVER['REMOTE_ADDR'] . '</td>';
         $str .= '</tr>';
 
         $str .= '<tr><td colspan="2"></td></tr>';
         $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
-        $str .= "<tr><td>MySQL: </td>";
+        $str .= "<tr><td>MySQL : </td>";
         $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
         $str .= '</tr>';
 
-        $str .= "<tr><td>PHP: </td>";
+        $str .= "<tr><td>PHP : </td>";
         $str .= '<td colspan="2"><i>[^p^]</i></td>';
         $str .= '</tr>';
 
-        $str .= "<tr><td>Total: </td>";
+        $str .= "<tr><td>Total : </td>";
         $str .= '<td colspan="2"><i>[^t^]</i></td>';
         $str .= '</tr>';
 
