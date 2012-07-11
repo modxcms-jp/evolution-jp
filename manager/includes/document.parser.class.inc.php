@@ -1311,9 +1311,11 @@ class DocumentParser {
 	{
 		$str  = '<table>';
 		$str .= '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
+		$backtrace = array_reverse($backtrace);
 		foreach ($backtrace as $key => $val)
 		{
 			$key++;
+			if(substr($val['function'],0,8)==='phpError') break;
 			$path = str_replace('\\','/',$val['file']);
 			if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
 			$str .= "<tr><td>{$key}</td>";
