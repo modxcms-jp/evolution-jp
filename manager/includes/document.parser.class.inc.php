@@ -1227,18 +1227,20 @@ class DocumentParser {
 		ob_end_clean();
 		if ($msg && isset ($php_errormsg))
 		{
-			if (!strpos($php_errormsg, 'Deprecated'))
-			{   // ignore php5 strict errors
-				// log error
+			$error_info = error_get_last();
+			if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
+			else                                                         $error_type = 3;
+			if(1<$this->config['error_reporting'] || 2<$error_type)
+			{
 				$request_uri = $_SERVER['REQUEST_URI'];
-				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES) . '<br />';
+				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES, $this->config['modx_charset']) . '<br />';
 				if(isset($this->documentIdentifier))
 				{
 					$docid = "ID = {$this->documentIdentifier}<br />";
 				}
 				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
 				$plugin = $this->event->activePlugin . ' - Plugin';
-				$this->logEvent(1, 3, $log, $plugin);
+				$this->logEvent(1, $error_type, $log, $plugin);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$msg}</p>");
