@@ -1578,15 +1578,15 @@ class DocumentParser {
 				if ($idx < $maxidx)
 				{
 					$target = trim($pieces[$idx]);
-					if(preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
+					if(isset($this->referenceListing[$target]) && preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
 						$target = $this->referenceListing[$target];
 					elseif(preg_match("/^[0-9]+$/",$target))
 						$target = $aliases[$target];
 					else $target = $this->parseDocumentSource($target);
 					
-					if(preg_match('@^https?://@', $this->referenceListing[$target]))
+					if(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
 					                                        $path = $this->referenceListing[$target];
-					elseif($aliases[$target] && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$target]);
+					elseif(isset($aliases[$target]) && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$target]);
 					else                                    $path = $this->makeFriendlyURL($prefix, $suffix, $target);
 					$documentSource .= $path;
 				}
