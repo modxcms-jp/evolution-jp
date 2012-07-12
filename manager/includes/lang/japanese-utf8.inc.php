@@ -1044,7 +1044,7 @@ $_lang["user_use_config"] = 'グローバル設定を使用';
 $_lang["user_zip"] = '郵便番号';
 $_lang["username"] = 'ログイン名';
 $_lang["users"] = '権限管理';
-$_lang["validate_referer_message"] = '「はい」を選択すると、リファラチェック(参照元チェック)を行い、不正な参照元からのURLによる要求を拒否します。これにより、管理画面にログイン中に意図しない動作をさせられてしまう脅威 <a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">(CSRF=Cross Site Request Forgery)</a>をある程度軽減できます。ただしリファラは偽装が可能なため注意が必要です。よりよい回避策が実装されるまでは、管理画面にログイン中は、不用意に外部リンクをクリックしない・こまめにログアウトをするなど習慣づけてください。';
+$_lang["validate_referer_message"] = 'リファラチェック(参照元チェック)を行い、<a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">(CSRF=Cross Site Request Forgery)</a>をある程度回避できます。万全ではありませんので、管理画面にログイン中は不用意に外部サイトを閲覧しない・こまめにログアウトするなどを習慣づけてください。';
 $_lang["validate_referer_title"] = '管理画面操作のリファラチェック';
 $_lang["value"] = '値';
 $_lang["view"] = 'ここをクリック';
@@ -1210,6 +1210,6 @@ $_lang["a16_no_resource"] = 'このテンプレートを使用しているリソ
 $_lang['a17_error_reporting_title'] = 'PHPエラーの検出レベル';
 $_lang['a17_error_reporting_msg'] = 'PHPエラーの検出レベルを設定します。';
 $_lang['a17_error_reporting_opt0'] = '全て無視する';
-$_lang['a17_error_reporting_opt1'] = '警告レベルの軽いエラー以外を検出する(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT)';
+$_lang['a17_error_reporting_opt1'] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED++E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
 $_lang['a17_error_reporting_opt2'] = 'E_NOTICE 以外の全てのエラーを検出';
 $_lang['a17_error_reporting_opt99'] = '全て検出する';
