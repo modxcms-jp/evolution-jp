@@ -5,17 +5,32 @@ if(!$modx->hasPermission('file_manager')) {
 	$e->dumpError();
 }
 
-function get_token()
+function getToken()
 {
-	if(!isset($_SESSION['mgr_token']) || !isset($_REQUEST['mgr_token'])) $rs = false;
-	elseif($_SESSION['mgr_token']===$_REQUEST['mgr_token'])              $rs = true;
-	else                                                                 $rs = false;
-	$_SESSION['mgr_token'] = uniqid('');
+	if(isset($_POST['token']))    $token = $_POST['token'];
+	elseif(isset($_GET['token'])) $token = $_GET['token'];
+	else                          $token = '';
+	return $token;
+}
+function checkToken($token='')
+{
+	if(empty($token)) $token = getToken();
+	
+	if   (!isset($_SESSION['token']))   $rs = false;
+	elseif(empty($_SESSION['token']))   $rs = false;
+	elseif($_SESSION['token']===$token) $rs = true;
+	else                                $rs = false;
+	$_SESSION['token'] = '';
 	return $rs;
 }
-$token_check = get_token();
-
-if(isset($_SESSION['mgr_token'])) $token = $_SESSION['mgr_token'];
+function initToken()
+{
+	$token = uniqid('');
+	$_SESSION['token'] = $token;
+	return $token;
+}
+$token_check = checkToken();
+$token = initToken();
 
 // settings
 $excludes = array('.', '..', 'cgi-bin', '.svn');
@@ -132,7 +147,7 @@ function getFileName(a){
 function deleteFolder (folder) {
     if (confirmDeleteFolder())
     {
-        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&mgr_token=<?php echo $token;?>";
+        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&token=<?php echo $token;?>";
         return false;
     }
 }
@@ -140,7 +155,7 @@ function deleteFolder (folder) {
 function deleteFile(file) {
     if (confirmDelete())
     {
-        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file+"&mgr_token=<?php echo $token;?>";
+        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file+"&token=<?php echo $token;?>";
         return false;
     }
 }
@@ -263,7 +278,7 @@ if($_REQUEST['mode']=='delete')
 {
 	printf($_lang['deleting_file'], str_replace('\\', '/', $_REQUEST['path']));
 	$file = $_REQUEST['path'];
-	if(!isset($_GET['mgr_token']) || !$token_check)
+	if(!$token_check)
 	{
 	   echo '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
 	}
@@ -359,7 +374,7 @@ if (is_writable($startpath))
 	if($_REQUEST['mode']=='deletefolder')
 	{
 		$folder = $_REQUEST['folderpath'];
-		if(!isset($_GET['mgr_token']) || !$token_check)
+		if(!$token_check)
 		{
 		   echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
 		}
