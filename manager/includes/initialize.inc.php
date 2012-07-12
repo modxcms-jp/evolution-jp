@@ -104,7 +104,7 @@ function assign_base_url($base_path)
 function assign_site_url($base_url)
 {
 	if(is_https()) $scheme = 'https://';
-	else                      $scheme = 'http://';
+	else           $scheme = 'http://';
 	
 	$host = $_SERVER['HTTP_HOST'];
 	
