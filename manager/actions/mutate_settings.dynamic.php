@@ -344,13 +344,6 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["top_howmany_title"] ?></th>
-	<td>
-		<?php echo form_text('top_howmany',$top_howmany,3);?><br />
-		<?php echo $_lang["top_howmany_message"] ?>
-	</td>
-</tr>
-<tr>
 <th><?php echo $_lang["defaulttemplate_logic_title"];?></th>
 <td>
 <?php echo wrap_label($_lang["defaulttemplate_logic_system_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'system'));?><br />
@@ -514,28 +507,6 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo $_lang["server_protocol_message"] ?>
 	</td>
 </tr>
-<tr>
-	<th><?php echo $_lang["validate_referer_title"] ?></th>
-	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('validate_referer','1', $validate_referer=='1'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('validate_referer','0', $validate_referer=='0'));?><br />
-		<?php echo $_lang["validate_referer_message"] ?>
-	</td>
-</tr>
-<tr>
-	<th><?php echo $_lang["rss_url_news_title"] ?></th>
-	<td>
-		<?php echo form_text('rss_url_news',$rss_url_news);?><br />
-		<?php echo $_lang["rss_url_news_message"] ?>
-	</td>
-</tr>
-<tr>
-	<th><?php echo $_lang["rss_url_security_title"] ?></th>
-	<td>
-		<?php echo form_text('rss_url_security',$rss_url_security);?><br />
-		<?php echo $_lang["rss_url_security_message"] ?>
-	</td>
-</tr>
 <tr class="row1" style="border-bottom:none;">
 	<td colspan="2" style="padding:0;">
 <?php
@@ -652,6 +623,16 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["tree_show_protected_message"]?>
 </td>
 </tr>
+
+<tr>
+	<th><?php echo $_lang["validate_referer_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('validate_referer','1', $validate_referer=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('validate_referer','0', $validate_referer=='0'));?><br />
+		<?php echo $_lang["validate_referer_message"] ?>
+	</td>
+</tr>
+
 <tr>
 <th><?php echo $_lang["allow_mgr2web_title"] ?></th>
 <td>
@@ -867,6 +848,15 @@ $dir->close();
 	<?php echo $_lang["setting_resource_tree_node_name_desc"]?>
 </td>
 </tr>
+
+<tr>
+	<th><?php echo $_lang["top_howmany_title"] ?></th>
+	<td>
+		<?php echo form_text('top_howmany',$top_howmany,3);?><br />
+		<?php echo $_lang["top_howmany_message"] ?>
+	</td>
+</tr>
+
 <tr>
 <th><?php echo $_lang["show_meta"] ?></th>
 <td>
@@ -931,6 +921,22 @@ echo $str;
 	<?php echo form_text('number_of_results',$number_of_results,5);?><br />
 <?php echo $_lang["noresults_message"]?></td>
 </tr>
+
+<tr>
+	<th><?php echo $_lang["rss_url_news_title"] ?></th>
+	<td>
+		<?php echo form_text('rss_url_news',$rss_url_news);?><br />
+		<?php echo $_lang["rss_url_news_message"] ?>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["rss_url_security_title"] ?></th>
+	<td>
+		<?php echo form_text('rss_url_security',$rss_url_security);?><br />
+		<?php echo $_lang["rss_url_security_message"] ?>
+	</td>
+</tr>
+
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
 <td>
