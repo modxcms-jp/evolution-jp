@@ -44,38 +44,38 @@ if (isset($_POST) && count($_POST) > 0) {
 	$savethese = array();
 	foreach ($_POST as $k => $v) {
 		switch ($k) {
+			case 'site_url':
+			case 'base_url':
+			case 'rb_base_dir':
+			case 'rb_base_url':
+			case 'filemanager_path':
+				$v = rtrim($v,'/') . '/';
+				break;
 			case 'error_page':
 			case 'unauthorized_page':
-			if (trim($v) == '' || !is_numeric($v)) {
-				$v = $_POST['site_start'];
-			}
-			break;
+				if (trim($v) == '' || !is_numeric($v))
+				{
+					$v = $_POST['site_start'];
+				}
+				break;
 	
 			case 'lst_custom_contenttype':
 			case 'txt_custom_contenttype':
 				// Skip these
 				continue 2;
 				break;
-			case 'rb_base_dir':
-			case 'rb_base_url':
-			case 'filemanager_path':
-				if (substr(trim($v), -1) !== '/') {
-					$v = $v .'/';
+			case 'manager_language':
+				$langFile = realpath(MODX_BASE_PATH . "manager/includes/lang/{$v}.inc.php");
+				if(!file_exists($langFile))
+				{
+					$v = 'english';
 				}
-				break;
-            case 'manager_language':
-                $langDir = realpath(MODX_BASE_PATH . 'manager/includes/lang');
-                $langFile = realpath(MODX_BASE_PATH . '/manager/includes/lang/' . $v . '.inc.php');
-                $langFileDir = dirname($langFile);
-                if($langDir !== $langFileDir || !file_exists($langFile)) {
-                    $v = 'english';
-                }
 			default:
 			break;
 		}
-		$v = is_array($v) ? implode(",", $v) : $v;
+		$v = is_array($v) ? implode(',', $v) : $v;
 
-		$savethese[] = '(\''.$modx->db->escape($k).'\', \''.$modx->db->escape($v).'\')';
+		$savethese[] = "('" . $modx->db->escape($k)."', '" . $modx->db->escape($v) . "')";
 	}
 	
 	// Run a single query to save all the values
@@ -90,10 +90,10 @@ if (isset($_POST) && count($_POST) > 0) {
 	if (isset($_POST['reset_template'])) {
 		$template = $_POST['default_template'];
 		$oldtemplate = $_POST['old_template'];
-		$tbl = $dbase.".`".$table_prefix."site_content`";
+		$tbl_site_content = $modx->getFullTableName('site_content');
 		$reset = $_POST['reset_template'];
-		if($reset==1) $modx->db->query("UPDATE $tbl SET template = '$template' WHERE type='document'");
-		else if($reset==2) $modx->db->query("UPDATE $tbl SET template = '$template' WHERE template = $oldtemplate");
+		if    ($reset==1) $modx->db->update("template='{$template}'", $tbl_site_content, "type='document'");
+		elseif($reset==2) $modx->db->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
 	}
 	// lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
 	unset($_POST);
