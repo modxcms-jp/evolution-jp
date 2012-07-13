@@ -77,6 +77,10 @@ $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
 $default_config['error_reporting']          = '1';
 
+$default_config['filemanager_path']         = defined('MODX_BASE_PATH')?MODX_BASE_PATH:'';
+$default_config['rb_base_dir']              = defined('MODX_BASE_PATH')?MODX_BASE_PATH . 'content/':'';
+$default_config['rb_base_url']              = 'content/';
+
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
 
 $default_config['signupemail_message']    = $_lang['system_email_signup'];

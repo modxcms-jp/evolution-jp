@@ -64,10 +64,6 @@ $isDefaultUnavailableMsg = $site_unavailable_message == $_lang['siteunavailable_
 $isDefaultUnavailableMsgJs = $isDefaultUnavailableMsg ? 'true' : 'false';
 $site_unavailable_message_view = isset($site_unavailable_message) ? $site_unavailable_message : $_lang['siteunavailable_message_default'];
 
-/* check the file paths */
-$settings['filemanager_path'] = $filemanager_path = trim($settings['filemanager_path']) == '' ? MODX_BASE_PATH : $settings['filemanager_path'];
-$settings['rb_base_dir'] = $rb_base_dir = trim($settings['rb_base_dir']) == '' ? MODX_BASE_PATH.'assets/' : $settings['rb_base_dir'];
-$settings['rb_base_url'] =  $rb_base_url = trim($settings['rb_base_url']) == '' ? 'assets/' : $settings['rb_base_url'];
 ?>
 
 <script type="text/javascript">
@@ -968,7 +964,7 @@ echo $str;
 <td><?php
 function getResourceBaseDir() {
 global $base_path;
-return "{$base_path}assets/";
+return "{$base_path}content/";
 }
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />

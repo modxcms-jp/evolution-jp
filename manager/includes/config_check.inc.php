@@ -56,8 +56,8 @@ if(get_sc_value('published',$error_page) == 0)         $warnings[] = 'configchec
 if(get_sc_value('privateweb',$unauthorized_page) == 1) $warnings[] = 'configcheck_unauthorizedpage_unavailable';
 if(get_sc_value('privateweb',$error_page) == 1)        $warnings[] = 'configcheck_errorpage_unavailable';
 
-if (!is_writable("../assets/cache/"))  $warnings[] = 'configcheck_cache';
-if (!is_writable("../assets/images/")) $warnings[] = 'configcheck_images';
+if (!is_writable($modx->config['base_path'] . 'assets/cache'))  $warnings[] = 'configcheck_cache';
+if (!is_writable($modx->config['rb_base_dir'] . 'images')) $warnings[] = 'configcheck_images';
 
 if(!file_exists($modx->config['rb_base_dir']))      $warnings[] = 'configcheck_rb_base_dir';
 if(!file_exists($modx->config['filemanager_path'])) $warnings[] = 'configcheck_filemanager_path';

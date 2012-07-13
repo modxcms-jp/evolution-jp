@@ -122,7 +122,10 @@ function run()
 	}
 	
 	$parent = intval($_POST['parent']);
-	$filedir = MODX_BASE_PATH . 'assets/import/';
+	
+	if(is_dir(MODX_BASE_PATH . 'temp/import/'))       $filedir = MODX_BASE_PATH . 'temp/import/';
+	elseif(is_dir(MODX_BASE_PATH . 'assets/import/')) $filedir = MODX_BASE_PATH . 'assets/import/';
+	
 	$filesfound = 0;
 	
 	$files = getFiles($filedir);

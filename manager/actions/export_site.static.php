@@ -94,7 +94,10 @@ else
 	$exportstart = $export->get_mtime();
 
 	$tbl_site_content = $modx->getFullTableName('site_content');
-	$filepath = $modx->config['base_path'] . 'assets/export/';
+	
+	if(is_dir(MODX_BASE_PATH . 'temp/export/'))       $filepath = MODX_BASE_PATH . 'temp/export/';
+	elseif(is_dir(MODX_BASE_PATH . 'assets/export/')) $filepath = MODX_BASE_PATH . 'assets/export/';
+	
 	if(!is_writable($filepath))
 	{
 		echo $_lang['export_site_target_unwritable'];

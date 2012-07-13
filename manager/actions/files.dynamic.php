@@ -44,6 +44,7 @@ $inlineviewablefiles = add_dot($inlineviewablefiles);
 $viewablefiles       = add_dot($viewablefiles);
 
 $proteted_path[] = $modx->config['base_path'] . 'manager';
+$proteted_path[] = $modx->config['base_path'] . 'temp/backup';
 $proteted_path[] = $modx->config['base_path'] . 'assets/backup';
 
 // Mod added by Raymond

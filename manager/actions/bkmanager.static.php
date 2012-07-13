@@ -5,7 +5,11 @@ if(!$modx->hasPermission('bk_manager')) {
 	$e->dumpError();
 }
 
-if(!isset($modx->config['snapshot_path'])) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
+if(!isset($modx->config['snapshot_path']))
+{
+	if(is_dir(MODX_BASE_PATH . 'temp/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'temp/backup/';
+	elseif(is_dir(MODX_BASE_PATH . 'assets/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
+}
 
 // Get table names (alphabetical)
 $tbl_event_log    = $modx->getFullTableName('event_log');

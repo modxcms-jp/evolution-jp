@@ -1,6 +1,6 @@
 <?php
-$assets_path = "{$base_path}assets/";
 $installMode = intval($_POST['installmode']);
+
 echo "<h2>" . $_lang['preinstall_validation'] . "</h2>";
 echo "<h3>" . $_lang['summary_setup_check'] . "</h3>";
 $errors = 0;
@@ -20,61 +20,50 @@ if ($php_ver_comp < 0) {
 }
 echo '</p>';
 // check php register globals off
-echo "<p>" . $_lang['checking_registerglobals'];
+
 $register_globals = (int) ini_get('register_globals');
 if ($register_globals == '1'){
+    echo "<p>" . $_lang['checking_registerglobals'];
     echo echo_failed() . "</p><p><strong>".$_lang['checking_registerglobals_note']."</strong>";
-    // $errors += 1; // comment out for now so we still allow installs if folks are simply stubborn
-} else {
-    echo echo_ok();
+    echo '</p>';
 }
-echo '</p>';
-// check sessions
-echo "<p>" . $_lang['checking_sessions'];
-if ($_SESSION['test'] != 1) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
-echo '</p>';
 
 // check sessions
-echo "<p>file_put_contents関数の存在チェック: ";
-if (!function_exists('file_put_contents')) {
-    echo echo_failed() . "</p><p><strong>対応方法については<a href=\"http://modx.jp/download/download_evo.html\" target=\"_blank\">公式サイト</a>をご確認ください。</strong>";
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
+if ($_SESSION['test'] != 1) {
+echo "<p>" . $_lang['checking_sessions'];
+    echo echo_failed();
 echo '</p>';
+    $errors += 1;
+}
 
 // check directories
 // cache exists?
+if (!is_dir("{$base_path}assets/cache")) {
 echo "<p>" . $_lang['checking_if_cache_exist'];
-if (!file_exists("{$assets_path}cache") || !file_exists("{$assets_path}cache/rss")) {
     echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
 echo '</p>';
+    $errors += 1;
+}
+
 // cache writable?
+
 echo "<p>" . $_lang['checking_if_cache_writable'];
-if (!is_writable("{$assets_path}cache") || !file_exists("{$assets_path}media")) {
+if (!is_writable("{$base_path}assets/cache")) {
     echo echo_failed();
     $errors += 1;
 } else {
     echo echo_ok();
+    @mkdir("{$base_path}assets/cache/rss");
+    @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
 }
 echo '</p>';
 // cache files writable?
 echo "<p>" . $_lang['checking_if_cache_file_writable'];
-if (!file_exists("{$assets_path}cache/siteCache.idx.php")) {
+if (!is_file("{$base_path}assets/cache/siteCache.idx.php")) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents("{$assets_path}cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
+    file_put_contents("{$base_path}assets/cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
 }
-if (!is_writable("{$assets_path}cache/siteCache.idx.php")) {
+if (!is_writable("{$base_path}assets/cache/siteCache.idx.php")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -82,25 +71,7 @@ if (!is_writable("{$assets_path}cache/siteCache.idx.php")) {
 }
 echo '</p>';
 echo "<p>".$_lang['checking_if_cache_file2_writable'];
-if (!is_writable("{$assets_path}cache/sitePublishing.idx.php")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
-echo '</p>';
-// File Browser directories exists?
-echo "<p>".$_lang['checking_if_images_exist'];
-if (!file_exists("{$assets_path}images") || !file_exists("{$assets_path}files") || !file_exists("{$assets_path}flash") || !file_exists("{$assets_path}media")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
-echo '</p>';
-// File Browser directories writable?
-echo "<p>".$_lang['checking_if_images_writable'];
-if (!is_writable("{$assets_path}images") || !is_writable("{$assets_path}files") || !is_writable("{$assets_path}flash") || !is_writable("{$assets_path}media")) {
+if (!is_writable("{$base_path}assets/cache/sitePublishing.idx.php")) {
     echo echo_failed();
     $errors += 1;
 } else {
@@ -108,36 +79,73 @@ if (!is_writable("{$assets_path}images") || !is_writable("{$assets_path}files") 
 }
 echo '</p>';
 
-// export exists?
-echo '<p>'.$_lang['checking_if_export_exists'];
-if (!file_exists("{$assets_path}export")) {echo echo_failed();$errors += 1;}
-else echo echo_ok();
+@mkdir("{$base_path}content/images");
+@mkdir("{$base_path}content/files");
+@mkdir("{$base_path}content/flash");
+@mkdir("{$base_path}content/media");
+
+@file_put_contents("{$base_path}content/images/index.html",'');
+@file_put_contents("{$base_path}content/files/index.html",'');
+@file_put_contents("{$base_path}content/flash/index.html",'');
+@file_put_contents("{$base_path}content/media/index.html",'');
+
+
+// File Browser directories exists?
+if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media")) {
+    echo "<p>".$_lang['checking_if_images_exist'];
+    echo echo_failed();
+    echo '</p>';
+    $errors += 1;
+}
+
+// File Browser directories writable?
+echo "<p>".$_lang['checking_if_images_writable'];
+if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media")) {
+    echo echo_failed();
+    $errors += 1;
+} else {
+    echo echo_ok();
+}
 echo '</p>';
+
+@mkdir("{$base_path}temp/export");
+@mkdir("{$base_path}temp/backup");
+@file_put_contents("{$base_path}temp/export/index.html",'');
+@file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
+
+// export exists?
+if (!is_dir("{$base_path}temp/export")) {
+echo '<p>'.$_lang['checking_if_export_exists'];
+echo echo_failed();
+echo '</p>';
+$errors += 1;
+}
 
 // export writable?
 echo '<p>'.$_lang['checking_if_export_writable'];
-if (!is_writable("{$assets_path}export")) {echo echo_failed();$errors += 1;}
+if (!is_writable("{$base_path}temp/export")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // backup exists?
+if (!is_dir("{$base_path}temp/backup")) {
 echo '<p>'.$_lang['checking_if_backup_exists'];
-if (!file_exists("{$assets_path}backup")) {echo echo_failed();$errors += 1;}
-else echo echo_ok();
+echo echo_failed();$errors += 1;
 echo '</p>';
+}
 
 // backup writable?
 echo '<p>'.$_lang['checking_if_backup_writable'];
-if (!is_writable("{$assets_path}backup")) {echo echo_failed();$errors += 1;}
+if (!is_writable("{$base_path}temp/backup")) {echo echo_failed();$errors += 1;}
 else echo echo_ok();
 echo '</p>';
 
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
 $config_path = "{$base_path}manager/includes/config.inc.php";
-if (!file_exists($config_path)) {
+if (!is_file($config_path)) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents($config_path,'<?php //MODx configuration file ?>');
+    file_put_contents($config_path,'<?php //MODx configuration file ?>');
 }
 @chmod($config_path, 0606);
 $isWriteable = is_writable($config_path);
@@ -230,8 +238,8 @@ if ($conn) {
 }
 
 // check for strict mode
-if ($conn) {
-    echo "<p>". $_lang['checking_mysql_strict_mode'];
+if ($conn)
+{
     $mysqlmode = @ mysql_query("SELECT @@global.sql_mode");
     if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix() && !is_iis())
     {
@@ -241,16 +249,11 @@ if ($conn) {
         {
             if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false)
             {
-                echo echo_failed($_lang['warning']) . "</b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
+                echo "<p>". $_lang['checking_mysql_strict_mode'] . "</p>";
+                echo '<p>' . echo_failed($_lang['warning']) . "</b> <strong>&nbsp;&nbsp;" . $_lang['strict_mode'] . "</strong></p>";
                 echo "<p>" . echo_failed($_lang['strict_mode_error'])  . "</p>";
             }
-            else
-            {
-                echo echo_ok() . "</p>";
-            }
         }  
-    } else {
-        echo echo_ok() . "</p>";
     }
 }
 // Version and strict mode check end
@@ -260,7 +263,7 @@ if ($conn) {
 
 if (is_writable("../assets/cache")) {
     // make an attempt to create the file
-    if(function_exists('file_put_contents')) file_put_contents("{$base_path}assets/cache/installProc.inc.php",'<?php $installStartTime = '.time().'; ?>');
+    file_put_contents("{$base_path}assets/cache/installProc.inc.php",'<?php $installStartTime = '.time().'; ?>');
 }
 
 if($installMode > 0 && $_POST['installdata'] == "1") {

@@ -437,9 +437,9 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					foreach($fields as $key => $value)
 						$body .= "<tr><td>$key</td><td><pre>$value</pre></td></tr>";
 					$body .="</table>";
-					include_once "manager/includes/controls/modxmailer.inc.php";
-				# send abuse alert
+					include_once $modx->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
 					$mail = new MODxMailer();
+				# send abuse alert
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $modx->config['emailsender'];
@@ -447,7 +447,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->Subject	= $_lang['ef_mail_abuse_subject'];
 					$mail->Body		= $body;
 					AddAddressToMailer($mail,"to",$modx->config['emailsender']);
-					$mail->send(); //ignore mail errors in this case
+					$mail->Send(); //ignore mail errors in this case
 				}
 				//return empty form with error message
 				//register css and/or javascript
@@ -537,7 +537,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$replyto = ( $fields[$replyto] && strstr($fields[$replyto],'@') )?$fields[$replyto]:$from;
 
 				# include PHP Mailer
-				include_once "manager/includes/controls/modxmailer.inc.php";
+				include_once $modx->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
+				$mail = new MODxMailer();
 
 				# send form
 				//defaults to html so only test sendasText
@@ -545,7 +546,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				if(!$noemail) {
 					if($sendirect) $to = $fields['email'];
-					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
@@ -557,12 +557,11 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					AddAddressToMailer($mail,"cc",$cc);
 					AddAddressToMailer($mail,"bcc",$bcc);
 					AttachFilesToMailer($mail,$attachments);
-					if(!$mail->send()) return 'Main mail: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
+					if(!$mail->Send()) return 'Main mail: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
 				}
 
 				# send user a copy of the report
 				if($ccsender && $fields['email']) {
-					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
@@ -571,7 +570,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->Body		= $report;
 					AddAddressToMailer($mail,"to",$fields['email']);
 					AttachFilesToMailer($mail,$attachments);
-					if(!$mail->send()) return 'CCSender: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
+					if(!$mail->Send()) return 'CCSender: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
 				}
 
 				# send auto-respond email
@@ -579,7 +578,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext'))?false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
-					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= ($autosender)? $autosender:$from;
@@ -587,7 +585,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->Subject	= $subject;
 					$mail->Body		= $autotext;
 					AddAddressToMailer($mail,"to",$fields['email']);
-					if(!$mail->send()) return 'AutoText: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
+					if(!$mail->Send()) return 'AutoText: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
 				}
 
 				//defaults to text - test for sendAsHtml
@@ -595,7 +593,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
-					$mail = new MODxMailer();
 					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
@@ -603,7 +600,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->Subject	= $subject;
 					$mail->Body		= $mobiletext;
 					AddAddressToMailer($mail,"to",$mobile);
-					$mail->send();
+					$mail->Send();
 				}
 
 			}//end test nomail

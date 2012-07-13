@@ -98,13 +98,14 @@ class MODxMailer extends PHPMailer
 			$log = "<pre>{$debug_info}\n{$header}\n{$body}</pre>";
 			$modx->logEvent(1, 1, $log, 'Debug information');
 		}
-		if(ini_get('safe_mode')) return parent::MailSend($header, $body);
 		
 		switch(strtolower($modx->config['manager_language']))
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
-				return $this->mbMailSend($header, $body);
+				$body = mb_convert_encoding($body, 'JIS', $modx->config['modx_charset']);
+				if(ini_get('safe_mode')) return parent::MailSend($header, $body);
+				else                     return $this->mbMailSend($header, $body);
 				break;
 			default:
 				return parent::MailSend($header, $body);
@@ -115,7 +116,6 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
-		$body          = mb_convert_encoding($body, 'JIS', $modx->config['modx_charset']);
 		$this->Subject = $this->EncodeHeader($this->Subject);
 		
 		$to = '';

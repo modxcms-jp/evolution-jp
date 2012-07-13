@@ -396,7 +396,7 @@ $_lang["import_site_html"] = 'HTMLからサイトをインポート';
 $_lang["import_site_importing_document"] = 'インポート中のファイル <strong>%s</strong>';
 $_lang["import_site_maxtime"] = 'インポート時間の上限';
 $_lang["import_site_maxtime_message"] = 'MODXがサイトのインポート処理に使用できる最大秒数を指定します。（<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの指定処理秒数</a>を上書きします）「0」を指定すると処理時間を制限しませんが、想定外の負荷が発生する恐れがあるため注意してください。';
-$_lang["import_site_message"] = 'HTMLで記述されたサイトを丸ごとデータベースにインポートします。htmlファイルをディレクトリごと /assets/import/ ディレクトリにコピーし、「インポート開始」ボタンをクリックすればスタートします。ファイル名はエイリアスになり、&lt;title&gt;要素はリソース名 [*pagetitle*] になります。</p><p>&lt;body&gt;要素の内側がそのまま取り込まれます。&lt;head&gt;要素は&lt;title&gt;要素のみ取り込みます。<br />左側のリソースツリー上の任意のリソースをクリックすると<b>「親リソース」</b>(インポート先)を変更できます。';
+$_lang["import_site_message"] = 'HTMLで記述されたサイトを丸ごとデータベースにインポートします。htmlファイルをディレクトリごと /temp/import/ ディレクトリにコピーし、「インポート開始」ボタンをクリックすればスタートします。ファイル名はエイリアスになり、&lt;title&gt;要素はリソース名 [*pagetitle*] になります。</p><p>&lt;body&gt;要素の内側がそのまま取り込まれます。&lt;head&gt;要素は&lt;title&gt;要素のみ取り込みます。<br />左側のリソースツリー上の任意のリソースをクリックすると<b>「親リソース」</b>(インポート先)を変更できます。';
 $_lang["import_site_skip"] = '処理をスキップしました';
 $_lang["import_site_start"] = 'インポート開始';
 $_lang["import_site_success"] = '成功';
