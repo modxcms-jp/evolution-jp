@@ -964,7 +964,9 @@ echo $str;
 <td><?php
 function getResourceBaseDir() {
 global $base_path;
-return "{$base_path}content/";
+if(is_dir("{$base_path}content")) return "{$base_path}content/";
+else return "{$base_path}assets/";
+
 }
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
