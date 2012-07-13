@@ -69,7 +69,7 @@ if($content["type"]==1) $msgtype = $_lang["information"];
 else if($content["type"]==2) $msgtype = $_lang["warning"];
 else if($content["type"]==3) $msgtype = $_lang["error"];
 $useTheme = $manager_theme ? "$manager_theme/":"";
-if(empty($content["username"])) $content["username"] = '-';
+if(empty($content["username"])) $content["username"] = '';
 $description = urldecode($content['description']);
 $description = str_replace('&amp;amp;','&amp;',$description);
 echo <<<HTML
@@ -78,7 +78,9 @@ echo <<<HTML
 	<tr><td>{$_lang["event_id"]} </td><td>{$content["eventid"]}</td></tr>
 	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>
 	<tr><td>{$_lang["date"]} </td><td>$date</td></tr>
-	<tr><td>{$_lang["user"]} </td><td>{$content["username"]}</td></tr>
+HTML;
+if(!empty($content["username"])) echo '<tr><td>' . $_lang["user"] . '</td><td>' . $content["username"] . '</td></tr>';
+echo <<<HTML
 	</table>
 	<div>{$description}</div>
 HTML;
