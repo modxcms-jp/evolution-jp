@@ -64,6 +64,11 @@ $isDefaultUnavailableMsg = $site_unavailable_message == $_lang['siteunavailable_
 $isDefaultUnavailableMsgJs = $isDefaultUnavailableMsg ? 'true' : 'false';
 $site_unavailable_message_view = isset($site_unavailable_message) ? $site_unavailable_message : $_lang['siteunavailable_message_default'];
 
+if(setlocale(LC_CTYPE, 0)==='Japanese_Japan.932')
+{
+	$settings['filemanager_path'] = mb_convert_encoding($settings['filemanager_path'], 'utf-8', 'sjis-win');
+	$settings['rb_base_dir']      = mb_convert_encoding($settings['rb_base_dir'], 'utf-8', 'sjis-win');
+}
 ?>
 
 <script type="text/javascript">
