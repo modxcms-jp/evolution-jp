@@ -1232,15 +1232,8 @@ class DocumentParser {
 			else                                                         $error_type = 3;
 			if(1<$this->config['error_reporting'] || 2<$error_type)
 			{
-				$request_uri = $_SERVER['REQUEST_URI'];
-				$request_uri = 'REQUEST_URI = ' . htmlspecialchars($request_uri, ENT_QUOTES, $this->config['modx_charset']) . '<br />';
-				if(isset($this->documentIdentifier))
-				{
-					$docid = "ID = {$this->documentIdentifier}<br />";
-				}
-				$log = "<b>{$php_errormsg}</b><br />{$msg}<br />{$request_uri}{$docid}";
-				$plugin = $this->event->activePlugin . ' - Plugin';
-				$this->logEvent(1, $error_type, $log, $plugin);
+				extract($error_info);
+				$result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Plugin', $text, $line, $msg);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$msg}</p>");
@@ -1283,21 +1276,7 @@ class DocumentParser {
 			if(1<$this->config['error_reporting'] || 2<$error_type)
 			{
 				extract($error_info);
-				$request_uri = $_SERVER['REQUEST_URI'];
-				$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
-				$docid = $this->documentIdentifier;
-	//				$bt = $this->get_backtrace(debug_backtrace()) . '<br />';
-				$log = "<p><b>{$php_errormsg}</b></p>";
-				$log .= "REQUEST_URI = {$request_uri}<br />";
-				$log .= "ID = {$docid}<br />";
-				$log .= "Error Type = {$type}<br />";
-				$log .= "Error Msg = {$message}<br />";
-				$log .= "File = {$file} - line {$line}<br />";
-				$log .= 'UA = ' . htmlspecialchars($_SERVER['HTTP_USER_AGENT'],ENT_QUOTES) . '<br />';
-				$log .= 'IP = ' . $_SERVER['REMOTE_ADDR'];
-				$log .= '<div style="margin-top:25px;padding:15px;border:1px solid #ccc;">' . $msg . '</div>';
-				$snip = $this->currentSnippet . ' - Snippet<br />';
-				$this->logEvent(1, $error_type, $log,$snip);
+				$result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Snippet', $text, $line, $msg);
 				if ($this->isBackend())
 				{
 					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
@@ -1311,13 +1290,14 @@ class DocumentParser {
 	
 	function get_backtrace($backtrace)
 	{
-		$str  = '<table>';
-		$str .= '<tr align="center"><td>#</td><td>call</td><td>path</td></tr>';
+		$str = "<p><b>Backtrace</b></p>\n";
+		$str  .= '<table>';
 		$backtrace = array_reverse($backtrace);
 		foreach ($backtrace as $key => $val)
 		{
 			$key++;
-			if(substr($val['function'],0,8)==='phpError') break;
+			if(substr($val['function'],0,11)==='messageQuit') break;
+			elseif(substr($val['function'],0,8)==='phpError') break;
 			$path = str_replace('\\','/',$val['file']);
 			if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
 			$str .= "<tr><td>{$key}</td>";
@@ -3490,7 +3470,7 @@ class DocumentParser {
 		return $result;
 	}
 
-    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '') {
+    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='') {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
@@ -3507,113 +3487,103 @@ class DocumentParser {
         if ($is_error) {
             $str .= '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
-                    <tr><td colspan="3">MODX encountered the following error while attempting to parse the requested resource:</td></tr>
-                    <tr><td colspan="3"><b style="color:red;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
+                    <tr><td colspan="2">MODX encountered the following error while attempting to parse the requested resource:</td></tr>
+                    <tr><td colspan="2"><b style="color:red;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         } else {
             $str .= '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
-                    <tr><td colspan="3">The MODX parser recieved the following debug/ stop message:</td></tr>
-                    <tr><td colspan="3"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
+                    <tr><td colspan="2">The MODX parser recieved the following debug/ stop message:</td></tr>
+                    <tr><td colspan="2"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         }
 
         if (!empty ($query)) {
-            $str .= '<tr><td colspan="3"><b style="color:#999;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
+            $str .= '<tr><td colspan="2"><b style="color:#999;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
                     </td></tr>';
         }
 
-        if ($text != '') {
+        $errortype= array (
+            E_ERROR             => "ERROR",
+            E_WARNING           => "WARNING",
+            E_PARSE             => "PARSING ERROR",
+            E_NOTICE            => "NOTICE",
+            E_CORE_ERROR        => "CORE ERROR",
+            E_CORE_WARNING      => "CORE WARNING",
+            E_COMPILE_ERROR     => "COMPILE ERROR",
+            E_COMPILE_WARNING   => "COMPILE WARNING",
+            E_USER_ERROR        => "USER ERROR",
+            E_USER_WARNING      => "USER WARNING",
+            E_USER_NOTICE       => "USER NOTICE",
+            E_STRICT            => "STRICT NOTICE",
+            E_RECOVERABLE_ERROR => "RECOVERABLE ERROR",
+            E_DEPRECATED        => "DEPRECATED",
+            E_USER_DEPRECATED   => "USER DEPRECATED"
+        );
 
-            $errortype= array (
-                E_ERROR             => "ERROR",
-                E_WARNING           => "WARNING",
-                E_PARSE             => "PARSING ERROR",
-                E_NOTICE            => "NOTICE",
-                E_CORE_ERROR        => "CORE ERROR",
-                E_CORE_WARNING      => "CORE WARNING",
-                E_COMPILE_ERROR     => "COMPILE ERROR",
-                E_COMPILE_WARNING   => "COMPILE WARNING",
-                E_USER_ERROR        => "USER ERROR",
-                E_USER_WARNING      => "USER WARNING",
-                E_USER_NOTICE       => "USER NOTICE",
-                E_STRICT            => "STRICT NOTICE",
-                E_RECOVERABLE_ERROR => "RECOVERABLE ERROR",
-                E_DEPRECATED        => "DEPRECATED",
-                E_USER_DEPRECATED   => "USER DEPRECATED"
-            );
+        $str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
 
-            $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>PHP error debug</b></td></tr>';
-
-            $str .= '<tr><td valign="top">Error : </td>';
-            $str .= '<td colspan="2">' . $text . '</td><td></td>';
-            $str .= '</tr>';
-
-            $str .= '<tr><td valign="top">ErrorType[num] : </td>';
-            $str .= '<td colspan="2">' . $errortype [$nr] . "[{$nr}]</td><td></td>";
-            $str .= '</tr>';
-
-            $str .= '<tr><td>File : </td>';
-            $str .= '<td colspan="2">' . $file . '</td><td></td>';
-            $str .= '</tr>';
-
-            $str .= '<tr><td>Line : </td>';
-            $str .= '<td colspan="2">' . $line . '</td><td></td>';
-            $str .= '</tr>';
-            if ($source != '') {
-                $str .= '<tr><td valign="top">Source : </td>';
-                $str .= '<td colspan="2">' . $source . '</td><td></td>';
-                $str .= '</tr>';
-            }
+        if ($text != '')
+        {
+            $str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
         }
 
-        $str .= '<tr><td colspan="3"></td></tr><tr><td colspan="3"><b>Basic info</b></td></tr>';
+        $str .= '<tr><td valign="top">ErrorType[num] : </td>';
+        $str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
+        $str .= '</tr>';
+
+        $str .= "<tr><td>File : </td><td>{$file}</td></tr>";
+        $str .= "<tr><td>Line : </td><td>{$line}</td></tr>";
+        
+        if ($source != '')
+        {
+            $str .= "<tr><td>Source : </td><td>{$source}</td></tr>";
+        }
+
+        $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
         $str .= '<tr><td valign="top">REQUEST_URI : </td>';
-        $str .= '<td colspan="2">' . $request_uri . '</td>';
+        $str .= '<td>' . $request_uri . '</td>';
         $str .= '</tr>';
-
-        $str .= '<tr><td valign="top">ID : </td>';
-        $str .= '<td colspan="2">' . $this->documentIdentifier . '</td>';
-        $str .= '</tr>';
+        
+        if(preg_match('@^[0-9]+@',$this->documentIdentifier))
+        {
+        	$resource  = $this->getDocumentObject('id',$this->documentIdentifier);
+        	$url = $this->makeUrl($this->documentIdentifier,'','','full');
+        	$link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
+			$str .= '<tr><td valign="top">Resource : </td>';
+			$str .= '<td>[' . $this->documentIdentifier . ']' . $link . '</td></tr>';
+        }
 
         if(!empty($this->currentSnippet))
         {
             $str .= "<tr><td>Current Snippet : </td>";
-            $str .= '<td colspan="2">' . $this->currentSnippet . '</td>';
-            $str .= '</tr>';
+            $str .= '<td>' . $this->currentSnippet . '</td></tr>';
         }
 
         if(!empty($this->event->activePlugin))
         {
             $str .= "<tr><td>Current Plugin : </td>";
-            $str .= '<td colspan="2">' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td>';
-            $str .= '</tr>';
+            $str .= '<td>' . $this->event->activePlugin . '(' . $this->event->name . ')' . '</td></tr>';
         }
 
-        $str .= "<tr><td>Referer : </td>";
-        $str .= '<td colspan="2">' . $referer . '</td>';
-        $str .= '</tr>';
-
-        $str .= "<tr><td>User Agent : </td>";
-        $str .= '<td colspan="2">' . $ua . '</td>';
-        $str .= '</tr>';
+        $str .= "<tr><td>Referer : </td><td>{$referer}</td></tr>";
+        $str .= "<tr><td>User Agent : </td><td>{$ua}</td></tr>";
 
         $str .= "<tr><td>IP : </td>";
-        $str .= '<td colspan="2">' . $_SERVER['REMOTE_ADDR'] . '</td>';
+        $str .= '<td>' . $_SERVER['REMOTE_ADDR'] . '</td>';
         $str .= '</tr>';
 
-        $str .= '<tr><td colspan="2"></td></tr>';
         $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
         $str .= "<tr><td>MySQL : </td>";
-        $str .= '<td colspan="2"><i>[^qt^] ([^q^] Requests</i>)</td>';
+        $str .= '<td><i>[^qt^] ([^q^] Requests</i>)</td>';
         $str .= '</tr>';
 
         $str .= "<tr><td>PHP : </td>";
-        $str .= '<td colspan="2"><i>[^p^]</i></td>';
+        $str .= '<td><i>[^p^]</i></td>';
         $str .= '</tr>';
 
         $str .= "<tr><td>Total : </td>";
-        $str .= '<td colspan="2"><i>[^t^]</i></td>';
+        $str .= '<td><i>[^t^]</i></td>';
         $str .= '</tr>';
 
         $str .= "</table>\n";
@@ -3637,10 +3607,17 @@ class DocumentParser {
         $str= str_replace('[^m^]', $total_mem, $str);
 
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
-		$str .= '<br />' . $this->get_backtrace(debug_backtrace());
+		$str .= '<br />' . $this->get_backtrace(debug_backtrace()) . "\n";
+		
+		if(!empty($output))
+		{
+			$str .= '<div style="margin-top:25px;padding:15px;border:1px solid #ccc;"><p><b>Output:</b></p>' . $output . '</div>';
+		}
 
         // Log error
-        if($source!=='') $source = 'Parser - ' . $source;
+        if(!empty($this->currentSnippet)) $source = 'Snippet - ' . $this->currentSnippet;
+        elseif(!empty($this->event->activePlugin)) $source = 'Plugin - ' . $this->event->activePlugin;
+        elseif($source!=='') $source = 'Parser - ' . $source;
         else             $source = 'Parser';
         switch($nr)
         {
