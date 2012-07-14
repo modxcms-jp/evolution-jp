@@ -1122,8 +1122,8 @@ class DocumentParser {
 					$limit= $this->db->getRecordCount($result);
 					if ($limit < 1)
 					{
-						$this->chunkCache[$name]= '';
-						$replace[$i]= '';
+						$this->chunkCache[$name]= $name;
+						$replace[$i]= $name;
 					}
 					else
 					{
