@@ -54,91 +54,142 @@ if (!is_writable("{$base_path}assets/cache")) {
 } else {
     echo echo_ok();
     @mkdir("{$base_path}assets/cache/rss");
+    @chmod("{$base_path}assets/cache/rss", 0777);
     @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
 }
 echo '</p>';
-// cache files writable?
-echo "<p>" . $_lang['checking_if_cache_file_writable'];
-if (!is_file("{$base_path}assets/cache/siteCache.idx.php")) {
-    // make an attempt to create the file
-    file_put_contents("{$base_path}assets/cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
+
+if (is_writable("{$base_path}assets/cache")) {
+	// cache files writable?
+	echo "<p>" . $_lang['checking_if_cache_file_writable'];
+	if (!is_file("{$base_path}assets/cache/siteCache.idx.php")) {
+	    // make an attempt to create the file
+	    file_put_contents("{$base_path}assets/cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
+	}
+	if (!is_writable("{$base_path}assets/cache/siteCache.idx.php")) {
+	    echo echo_failed();
+	    $errors += 1;
+	} else {
+	    echo echo_ok();
+	}
+	echo '</p>';
+	    file_put_contents("{$base_path}assets/cache/sitePublishing.idx.php",'<?php $cacheRefreshTime=0; ?>');
+	
+	echo "<p>".$_lang['checking_if_cache_file2_writable'];
+	if (!is_writable("{$base_path}assets/cache/sitePublishing.idx.php")) {
+	    echo echo_failed();
+	    $errors += 1;
+	} else {
+	    echo echo_ok();
+	}
+	echo '</p>';
 }
-if (!is_writable("{$base_path}assets/cache/siteCache.idx.php")) {
+
+if (!is_dir("{$base_path}content")) {
+echo "<p>" . $_lang['checking_if_content_exists'];
+    echo echo_failed();
+echo '</p>';
+    $errors += 1;
+}
+
+// cache writable?
+
+echo "<p>" . $_lang['checking_if_content_writable'];
+if (!is_writable("{$base_path}content")) {
     echo echo_failed();
     $errors += 1;
 } else {
     echo echo_ok();
+	@mkdir("{$base_path}content/images");
+	@mkdir("{$base_path}content/files");
+	@mkdir("{$base_path}content/flash");
+	@mkdir("{$base_path}content/media");
+	
+	@chmod("{$base_path}content/images", 0777);
+	@chmod("{$base_path}content/files", 0777);
+	@chmod("{$base_path}content/flash", 0777);
+	@chmod("{$base_path}content/media", 0777);
+	
+	@file_put_contents("{$base_path}content/images/index.html",'');
+	@file_put_contents("{$base_path}content/files/index.html",'');
+	@file_put_contents("{$base_path}content/flash/index.html",'');
+	@file_put_contents("{$base_path}content/media/index.html",'');
 }
 echo '</p>';
-echo "<p>".$_lang['checking_if_cache_file2_writable'];
-if (!is_writable("{$base_path}assets/cache/sitePublishing.idx.php")) {
+
+
+if (is_writable("{$base_path}content")) {
+	// File Browser directories exists?
+	if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media")) {
+	    echo "<p>".$_lang['checking_if_images_exist'];
+	    echo echo_failed();
+	    echo '</p>';
+	    $errors += 1;
+	}
+	
+	// File Browser directories writable?
+	echo "<p>".$_lang['checking_if_images_writable'];
+	if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media")) {
+	    echo echo_failed();
+	    $errors += 1;
+	} else {
+	    echo echo_ok();
+	}
+	echo '</p>';
+}
+
+if (!is_dir("{$base_path}temp")) {
+echo "<p>" . $_lang['checking_if_temp_exists'];
+    echo echo_failed();
+echo '</p>';
+    $errors += 1;
+}
+
+// cache writable?
+
+echo "<p>" . $_lang['checking_if_temp_writable'];
+if (!is_writable("{$base_path}temp")) {
     echo echo_failed();
     $errors += 1;
 } else {
     echo echo_ok();
+	@mkdir("{$base_path}temp/export");
+	@mkdir("{$base_path}temp/backup");
+	@chmod("{$base_path}temp/export", 0777);
+	@chmod("{$base_path}temp/backup", 0777);
+	@file_put_contents("{$base_path}temp/export/index.html",'');
+	@file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
 }
 echo '</p>';
 
-@mkdir("{$base_path}content/images");
-@mkdir("{$base_path}content/files");
-@mkdir("{$base_path}content/flash");
-@mkdir("{$base_path}content/media");
-
-@file_put_contents("{$base_path}content/images/index.html",'');
-@file_put_contents("{$base_path}content/files/index.html",'');
-@file_put_contents("{$base_path}content/flash/index.html",'');
-@file_put_contents("{$base_path}content/media/index.html",'');
-
-
-// File Browser directories exists?
-if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media")) {
-    echo "<p>".$_lang['checking_if_images_exist'];
-    echo echo_failed();
-    echo '</p>';
-    $errors += 1;
+if (is_writable("{$base_path}temp")) {
+	// export exists?
+	if (!is_dir("{$base_path}temp/export")) {
+	echo '<p>'.$_lang['checking_if_export_exists'];
+	echo echo_failed();
+	echo '</p>';
+	$errors += 1;
+	}
+	
+	// export writable?
+	echo '<p>'.$_lang['checking_if_export_writable'];
+	if (!is_writable("{$base_path}temp/export")) {echo echo_failed();$errors += 1;}
+	else echo echo_ok();
+	echo '</p>';
+	
+	// backup exists?
+	if (!is_dir("{$base_path}temp/backup")) {
+	echo '<p>'.$_lang['checking_if_backup_exists'];
+	echo echo_failed();$errors += 1;
+	echo '</p>';
+	}
+	
+	// backup writable?
+	echo '<p>'.$_lang['checking_if_backup_writable'];
+	if (!is_writable("{$base_path}temp/backup")) {echo echo_failed();$errors += 1;}
+	else echo echo_ok();
+	echo '</p>';
 }
-
-// File Browser directories writable?
-echo "<p>".$_lang['checking_if_images_writable'];
-if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-}
-echo '</p>';
-
-@mkdir("{$base_path}temp/export");
-@mkdir("{$base_path}temp/backup");
-@file_put_contents("{$base_path}temp/export/index.html",'');
-@file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
-
-// export exists?
-if (!is_dir("{$base_path}temp/export")) {
-echo '<p>'.$_lang['checking_if_export_exists'];
-echo echo_failed();
-echo '</p>';
-$errors += 1;
-}
-
-// export writable?
-echo '<p>'.$_lang['checking_if_export_writable'];
-if (!is_writable("{$base_path}temp/export")) {echo echo_failed();$errors += 1;}
-else echo echo_ok();
-echo '</p>';
-
-// backup exists?
-if (!is_dir("{$base_path}temp/backup")) {
-echo '<p>'.$_lang['checking_if_backup_exists'];
-echo echo_failed();$errors += 1;
-echo '</p>';
-}
-
-// backup writable?
-echo '<p>'.$_lang['checking_if_backup_writable'];
-if (!is_writable("{$base_path}temp/backup")) {echo echo_failed();$errors += 1;}
-else echo echo_ok();
-echo '</p>';
 
 // config.inc.php writable?
 echo "<p>".$_lang['checking_if_config_exist_and_writable'];
