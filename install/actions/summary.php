@@ -53,8 +53,7 @@ if (!is_writable("{$base_path}assets/cache")) {
     $errors += 1;
 } else {
     echo echo_ok();
-    @mkdir("{$base_path}assets/cache/rss");
-    @chmod("{$base_path}assets/cache/rss", 0777);
+    mkd("{$base_path}assets/cache/rss");
     @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
 }
 echo '</p>';
@@ -100,15 +99,10 @@ if (!is_writable("{$base_path}content")) {
     $errors += 1;
 } else {
     echo echo_ok();
-	@mkdir("{$base_path}content/images");
-	@mkdir("{$base_path}content/files");
-	@mkdir("{$base_path}content/flash");
-	@mkdir("{$base_path}content/media");
-	
-	@chmod("{$base_path}content/images", 0777);
-	@chmod("{$base_path}content/files", 0777);
-	@chmod("{$base_path}content/flash", 0777);
-	@chmod("{$base_path}content/media", 0777);
+	mkd("{$base_path}content/images");
+	mkd("{$base_path}content/files");
+	mkd("{$base_path}content/flash");
+	mkd("{$base_path}content/media");
 	
 	@file_put_contents("{$base_path}content/images/index.html",'');
 	@file_put_contents("{$base_path}content/files/index.html",'');
@@ -153,10 +147,8 @@ if (!is_writable("{$base_path}temp")) {
     $errors += 1;
 } else {
     echo echo_ok();
-	@mkdir("{$base_path}temp/export");
-	@mkdir("{$base_path}temp/backup");
-	@chmod("{$base_path}temp/export", 0777);
-	@chmod("{$base_path}temp/backup", 0777);
+	mkd("{$base_path}temp/export");
+	mkd("{$base_path}temp/backup");
 	@file_put_contents("{$base_path}temp/export/index.html",'');
 	@file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
 }
@@ -402,4 +394,11 @@ function echo_ok()
 {
 	global $_lang;
 	return '<span class="ok">' . $_lang['ok'] . '</span>';
+}
+
+function mkd($path)
+{
+	$rs = @mkdir($path);
+	if($rs) $rs = @chmod($path, 0777);
+	return $rs;
 }

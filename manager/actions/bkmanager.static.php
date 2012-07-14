@@ -82,6 +82,7 @@ elseif ($mode=='snapshot')
 	if(!is_dir(rtrim($modx->config['snapshot_path'],'/')))
 	{
 		mkdir(rtrim($modx->config['snapshot_path'],'/'));
+		@chmod(rtrim($modx->config['snapshot_path'],'/'), 0777);
 	}
 	if(!file_exists("{$modx->config['snapshot_path']}.htaccess"))
 	{
