@@ -801,7 +801,7 @@ class DocumentParser {
 				$docIdentifier= $this->db->escape($_REQUEST['q']);
 				break;
 			case 'id' :
-				if (!is_numeric($_REQUEST['id']))
+				if (!preg_match('@^[0-9]+$@', $_REQUEST['id']))
 				{
 					$this->sendErrorPage();
 				}
