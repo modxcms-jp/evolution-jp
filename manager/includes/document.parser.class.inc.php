@@ -794,7 +794,6 @@ class DocumentParser {
 	function getDocumentIdentifier($method)
 	{
 		// function to test the query and find the retrieval method
-		$docIdentifier= $this->config['site_start'];
 		switch ($method)
 		{
 			case 'alias' :
@@ -810,6 +809,8 @@ class DocumentParser {
 					$docIdentifier= intval($_REQUEST['id']);
 				}
 				break;
+			default:
+				$docIdentifier= $this->config['site_start'];
 		}
 		return $docIdentifier;
 	}
