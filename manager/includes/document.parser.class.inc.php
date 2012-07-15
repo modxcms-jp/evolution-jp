@@ -237,6 +237,13 @@ class DocumentParser {
 				$this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
 			}
 			$this->documentMethod= 'id';
+			
+		}
+		
+		if($this->documentMethod==='id' || isset($alias))
+		{
+			$this->documentIdentifier = intval($this->documentIdentifier);
+			if(!isset($this->documentListing[$alias])) $this->sendErrorPage();
 		}
 		
 		// invoke OnWebPageInit event
