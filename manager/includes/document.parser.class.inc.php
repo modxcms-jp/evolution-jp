@@ -894,17 +894,18 @@ class DocumentParser {
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
 			if ($this->config['use_alias_path'] == 1)
 			{
+				$vdir = $this->virtualDir;
 				if (
 					(
-						($this->virtualDir != '' && !$this->documentListing[$this->virtualDir . '/' . $q])
+						($vdir != '' && !$this->documentListing["{$vdir}/{$q}"])
 						||
-						($this->virtualDir == '' && !$this->documentListing[$q])
+						($vdir == '' && !$this->documentListing[$q])
 					)
 					&&
 					(
-						($this->virtualDir != '' && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1)))
+						($vdir != '' && in_array($q, $this->getChildIds($this->documentListing[$vdir], 1)))
 						||
-						($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1)))
+						($vdir == '' && in_array($q, $this->getChildIds(0, 1)))
 					))
 				{
 					$this->documentMethod = 'id';
