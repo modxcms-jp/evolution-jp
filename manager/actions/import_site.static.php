@@ -395,7 +395,7 @@ function pop_index($array)
 	$new_array = array();
 	foreach($array as $k=>$v)
 	{
-		if($v!=='index.html' && $v!=='index.htm' && !is_array($v))
+		if($v!=='index.html' && $v!=='index.htm')
 		{
 			$new_array[$k] = $v;
 		}
