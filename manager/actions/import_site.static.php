@@ -353,7 +353,7 @@ function getFiles($directory,$listing = array(), $count = 0)
 				$count = -1;
 				$listing[$file] = getFiles($directory.$file."/",array(), $count + 1);
 			}
-			else
+			elseif(strpos($file,'.htm')!==false)
 			{
 				$listing[$dummy] = $file;
 				$dummy = $dummy + 1;
