@@ -224,9 +224,9 @@ class DocumentParser {
 					$alias = $this->virtualDir . '/' . $alias;
 				}
 				
-				if (isset($this->documentListing[$alias]))
+				if ($this->getDocumentListing($alias)!==false)
 				{
-					$this->documentIdentifier= $this->documentListing[$alias];
+					$this->documentIdentifier= $this->getDocumentListing($alias);
 				}
 				else
 				{
@@ -235,7 +235,7 @@ class DocumentParser {
 			}
 			else
 			{
-				$this->documentIdentifier= $this->documentListing[$this->documentIdentifier];
+				$this->documentIdentifier= $this->getDocumentListing($this->documentIdentifier);
 			}
 			$this->documentMethod= 'id';
 			
@@ -243,7 +243,7 @@ class DocumentParser {
 		
 		if($this->documentMethod==='id' || isset($alias))
 		{
-			if(!isset($this->documentListing[$alias]))
+			if($this->getDocumentListing($alias)===false)
 			{
 				if($this->documentIdentifier != $this->config['site_start'])
 				{
@@ -895,7 +895,7 @@ class DocumentParser {
 		
 		$q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
 		$q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
-		if (is_numeric($q) && !$this->documentListing[$q])
+		if (is_numeric($q) && !$this->getDocumentListing($q))
 		{ /* we got an ID returned, check to make sure it's not an alias */
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
 			if ($this->config['use_alias_path'] == 1)
@@ -903,13 +903,13 @@ class DocumentParser {
 				$vdir = $this->virtualDir;
 				if (
 					(
-						($vdir != '' && !$this->documentListing["{$vdir}/{$q}"])
+						($vdir != '' && !$this->getDocumentListing("{$vdir}/{$q}"))
 						||
-						($vdir == '' && !$this->documentListing[$q])
+						($vdir == '' && !$this->getDocumentListing($q))
 					)
 					&&
 					(
-						($vdir != '' && in_array($q, $this->getChildIds($this->documentListing[$vdir], 1)))
+						($vdir != '' && in_array($q, $this->getChildIds($this->getDocumentListing($vdir), 1)))
 						||
 						($vdir == '' && in_array($q, $this->getChildIds(0, 1)))
 					))
@@ -1636,9 +1636,9 @@ class DocumentParser {
 			$identifier = $this->cleanDocumentIdentifier($identifier);
 			$method = $this->documentMethod;
 		}
-		if($method == 'alias' && $this->config['use_alias_path'] && isset($this->documentListing[$identifier]))
+		if($method == 'alias' && $this->config['use_alias_path'] && $this->getDocumentListing($identifier)!==false)
 		{
-			$identifier = $this->documentListing[$identifier];
+			$identifier = $this->getDocumentListing($identifier);
 			$method = 'id';
 		}
 		// get document groups for current user
