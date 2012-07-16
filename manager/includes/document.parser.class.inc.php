@@ -55,6 +55,7 @@ class DocumentParser {
     var $error_reporting;
     var $childrenCache;
     var $xdocumentListing;
+    var $processCache;
 
 
     // constructor
@@ -3701,6 +3702,17 @@ class DocumentParser {
 			   $pos++;
 		}
 		return round($size,2)." ".$a[$pos];
+	}
+	
+	function setProcessCache($key, $value)
+	{
+		$this->processCache[$key] = $value;
+	}
+	
+	function getProcessCache($key)
+	{
+		if(isset($this->processCache[$key])) return $this->processCache[$key];
+		else                                 return false;
 	}
 	
 	function getDocumentListing($str)
