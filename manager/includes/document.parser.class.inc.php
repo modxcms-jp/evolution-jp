@@ -242,7 +242,7 @@ class DocumentParser {
 		
 		if($this->documentMethod==='id' || isset($alias))
 		{
-			if(!isset($this->documentListing($alias)))
+			if(!isset($this->documentListing[$alias]))
 			{
 				if($this->documentIdentifier != $this->config['site_start'])
 				{
