@@ -54,7 +54,6 @@ class DocumentParser {
     var $cacheRefreshTime;
     var $error_reporting;
     var $childrenCache;
-    var $xdocumentListing;
     var $processCache;
 
 
@@ -3717,7 +3716,10 @@ class DocumentParser {
 	
 	function getDocumentListing($str)
 	{
-		if(isset($this->xdocumentListing[$str])) return $this->xdocumentListing[$str];
+		$cacheKey = md5(__FUNCTION__ . $str);
+		$result = $this->getProcessCache($cacheKey);
+		if($result!==false) return $result;
+		
 		$tbl_site_content = $this->getFullTableName('site_content');
 		$_a = explode('/', $str);
 		$parent = '0';
@@ -3742,6 +3744,7 @@ class DocumentParser {
 				break;
 			}
 		}
+		$this->setProcessCache($cacheKey,$parent);
 		return $parent;
 	}
 	
