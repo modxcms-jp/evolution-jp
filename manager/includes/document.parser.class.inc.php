@@ -3700,6 +3700,26 @@ class DocumentParser {
 		}
 		return round($size,2)." ".$a[$pos];
 	}
+	
+	function getDocumentListing($str)
+	{
+		if(isset($this->xdocumentListing[$str])) return $this->xdocumentListing[$str];
+		$tbl_site_content = $this->getFullTableName('site_content');
+		$_a = explode('/', $str);
+		$parent = '0';
+		$fields = "id, IF(alias='', id, alias) AS alias";
+		foreach($_a as $v)
+		{
+			$rs = $this->db->select($fields, $tbl_site_content, "parent={$parent}");
+			while($row = $this->db->getRow($rs))
+			{
+				$d[$row['alias']] = $row['id'];
+			}
+			$parent = $d[$v];
+		}
+		return $parent;
+	}
+	
     // End of class.
 }
 
