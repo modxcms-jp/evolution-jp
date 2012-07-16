@@ -132,6 +132,7 @@ class DocumentParser {
 		// get the settings
 		$this->db->connect();
 		$this->getSettings();
+		$this->initProcessCache();
 		if(!isset($_REQUEST['id']))
 		{
 			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
@@ -3703,6 +3704,14 @@ class DocumentParser {
 		return round($size,2)." ".$a[$pos];
 	}
 	
+	function initProcessCache()
+	{
+		$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
+		if(file_exists($cache_path)) $src = file_get_contents($cache_path);
+		$this->processCache = unserialize($src);
+	}
+	
+	function setProcessCache($key, $value, $mode='mem')
 	function setProcessCache($key, $value)
 	{
 		$this->processCache[$key] = $value;
