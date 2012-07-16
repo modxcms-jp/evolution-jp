@@ -3712,9 +3712,15 @@ class DocumentParser {
 	}
 	
 	function setProcessCache($key, $value, $mode='mem')
-	function setProcessCache($key, $value)
 	{
 		$this->processCache[$key] = $value;
+		
+		if($mode==='file')
+		{
+			$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
+			file_put_contents($cache_path,serialize($this->processCache));
+		}
+		
 	}
 	
 	function getProcessCache($key)
@@ -3753,7 +3759,7 @@ class DocumentParser {
 				break;
 			}
 		}
-		$this->setProcessCache($cacheKey,$parent);
+		$this->setProcessCache($cacheKey,$parent,'file');
 		return $parent;
 	}
 	
