@@ -53,6 +53,7 @@ class DocumentParser {
     var $qs_hash;
     var $cacheRefreshTime;
     var $error_reporting;
+    var $childrenCache;
     var $xdocumentListing;
 
 
@@ -3711,10 +3712,16 @@ class DocumentParser {
 		$fields = "id, IF(alias='', id, alias) AS alias";
 		foreach($_a as $v)
 		{
-			$rs = $this->db->select($fields, $tbl_site_content, "parent={$parent}");
-			while($row = $this->db->getRow($rs))
+			if(isset($this->childrenCache[$parent])) $d = $this->childrenCache[$parent];
+			else
 			{
-				$d[$row['alias']] = $row['id'];
+				$rs = $this->db->select($fields, $tbl_site_content, "parent={$parent}");
+				$d = array();
+				while($row = $this->db->getRow($rs))
+				{
+					$d[$row['alias']] = $row['id'];
+				}
+				$this->childrenCache[$parent] = $d;
 			}
 			if(isset($d[$v])) $parent = $d[$v];
 			else
