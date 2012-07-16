@@ -297,7 +297,6 @@ class synccache {
 		
 		$tmpPHP  = '$this->aliasListing = array();' . "\n";
 		$tmpPHP .= '$a = &$this->aliasListing;' . "\n";
-		$tmpPHP .= '$d = &$this->documentListing;' . "\n";
 		$tmpPHP .= '$m = &$this->documentMap;' . "\n";
 		
 		$friendly_urls = $modx->db->getValue($modx->db->select('setting_value',$tbl_system_settings,"setting_name='friendly_urls'"));
@@ -314,21 +313,13 @@ class synccache {
 			if ($friendly_urls == 1 && $use_alias_path == 1)
 			{
 				$path = $this->getParents($row['parent']);
-				$alias_path= (strlen($path) > 0 ? "{$path}/" : '').$row['alias'];
 			}
-			else
-			{
-				$alias_path = $row['alias'];
-			}
-			$alias_path = $modx->db->escape($alias_path);
 			$alias = $modx->db->escape($row['alias']);
 			$docid = $row['id'];
 			$path = $modx->db->escape($path);
 			$parent = $row['parent'];
-			$tmpPHP .= '$' . "d['{$alias_path}'] = {$docid};\n";
 			$tmpPHP .= '$' . "a[{$docid}] = array('id' => {$docid}, 'alias' => '{$alias}', 'path' => '{$path}', 'parent' => {$parent});\n";
 			$tmpPHP .= '$' . "m[] = array('{$parent}' => '{$docid}');\n";
-			$modx->documentListing[$alias_path] = $docid;
 			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent);
 			$modx->documentMap[] = array($parent => $docid);
 		}
