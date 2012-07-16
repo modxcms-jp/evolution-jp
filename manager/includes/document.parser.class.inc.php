@@ -53,6 +53,7 @@ class DocumentParser {
     var $qs_hash;
     var $cacheRefreshTime;
     var $error_reporting;
+    var $xdocumentListing;
 
 
     // constructor
