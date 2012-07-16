@@ -3715,7 +3715,12 @@ class DocumentParser {
 			{
 				$d[$row['alias']] = $row['id'];
 			}
-			$parent = $d[$v];
+			if(isset($d[$v])) $parent = $d[$v];
+			else
+			{
+				$parent = false;
+				break;
+			}
 		}
 		return $parent;
 	}
