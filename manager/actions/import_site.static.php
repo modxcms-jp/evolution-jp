@@ -175,7 +175,6 @@ function importFiles($parent,$filedir,$files,$mode) {
 		{
 			// create folder
 			$alias = $id;
-			$modx->documentListing[$alias] = true;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $alias);
 			foreach(array('index.html','index.htm') as $filename)
 			{
@@ -255,7 +254,6 @@ function importFiles($parent,$filedir,$files,$mode) {
 			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
 			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
-			$modx->documentListing[$alias] = true;
 			
 			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . "\n";
 			else
