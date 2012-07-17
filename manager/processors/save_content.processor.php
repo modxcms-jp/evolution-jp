@@ -10,7 +10,17 @@ if (!$modx->hasPermission('save_document')) {
 fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes');
 
 // preprocess POST values
-$id              = is_numeric($_POST['id']) ? $_POST['id'] : '';
+if(isset($_POST['id']) && !empty($_POST['id']) && $_POST['id']!='0')
+{
+	$id = $_POST['id'];
+	if(!preg_match('@^[0-9]+$@',$id))
+	{
+		$e->setError(2);
+		$e->dumpError();
+	}
+}
+else $id = '';
+
 $introtext       = $modx->db->escape($_POST['introtext']);
 $content         = $modx->db->escape($_POST['ta']);
 $pagetitle       = $modx->db->escape($_POST['pagetitle']);
@@ -58,6 +68,12 @@ $tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_template
 
 if($_POST['mode'] == '27') $actionToTake = 'edit';
 else                       $actionToTake = 'new';
+
+if($actionToTake==='edit' && empty($id))
+{
+	$e->setError(2);
+	$e->dumpError();
+}
 
 $alias = get_alias($id,$alias,$parent,$pagetitle);
 
