@@ -61,6 +61,7 @@ class DocumentParser {
 	function DocumentParser()
 	{
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+		$this->loadExtension('PHx') or die('Could not load PHx class.'); // load PHx class
 		// events
 		$this->event= new SystemEvent();
 		$this->Event= & $this->event; //alias for backward compatibility
@@ -99,6 +100,15 @@ class DocumentParser {
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php'))
 				{
 					$this->manager= new ManagerAPI;
+					return true;
+				}
+				else return false;
+				break;
+			// PHx
+			case 'PHx' :
+				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php'))
+				{
+					$this->phx= new PHx;
 					return true;
 				}
 				else return false;
