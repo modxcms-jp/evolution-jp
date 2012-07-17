@@ -1136,6 +1136,7 @@ class DocumentParser {
 	{
 		$replace= array ();
 		$matches= array ();
+		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
 		{
 			$total= count($matches[1]);
@@ -1150,12 +1151,23 @@ class DocumentParser {
 				{
 					$escaped_name = $this->db->escape($name);
 					$where = "`name`='{$escaped_name}' AND `published`='1'";
-					$result= $this->db->select('snippet',$this->getFullTableName('site_htmlsnippets'),$where);
-					$limit= $this->db->getRecordCount($result);
-					if ($limit < 1)
+					$result= $this->db->select('snippet',$tbl_site_htmlsnippets,$where);
+					$total= $this->db->getRecordCount($result);
+					if ($total < 1)
 					{
-						$this->chunkCache[$name]= $name;
-						$replace[$i]= $name;
+						$where = "`name`='{$escaped_name}' AND `published`='0'";
+						$result= $this->db->select('snippet',$tbl_site_htmlsnippets,$where);
+						$total= $this->db->getRecordCount($result);
+						if(0 < $total)
+						{
+							$this->chunkCache[$name]= $name;
+							$replace[$i]= '';
+						}
+						else
+						{
+							$this->chunkCache[$name]= $name;
+							$replace[$i]= $name;
+						}
 					}
 					else
 					{
