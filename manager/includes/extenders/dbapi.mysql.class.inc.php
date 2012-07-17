@@ -204,7 +204,18 @@ class DBAPI {
 			if ($modx->dumpSQL)
 			{
 				$backtraces = debug_backtrace();
-				$modx->queryCode .= '<fieldset style="text-align:left"><legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>' . $sql . '<br />src : ' . $backtraces[0]['file'] . '<br />line : ' . $backtraces[0]['line'] . '</fieldset>';
+				$backtraces = array_reverse($backtraces);
+				$bt = '';
+				foreach($backtraces as $v)
+				{
+					$file = str_replace('\\','/',$v['file']);
+					$line = $v['line'];
+					$function = $v['function'];
+					$bt .= "{$function} - {$file}[{$line}]<br />";
+				}
+				$modx->queryCode .= '<fieldset style="text-align:left">';
+				$modx->queryCode .= '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>';
+				$modx->queryCode .= "{$sql}<br />{$bt}</fieldset>";
 			}
 			$modx->executedQueries = $modx->executedQueries + 1;
 			return $result;
