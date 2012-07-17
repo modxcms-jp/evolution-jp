@@ -3571,12 +3571,14 @@ class DocumentParser {
             $str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
         }
 
-        $str .= '<tr><td valign="top">ErrorType[num] : </td>';
-        $str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
-        $str .= '</tr>';
-
-        $str .= "<tr><td>File : </td><td>{$file}</td></tr>";
-        $str .= "<tr><td>Line : </td><td>{$line}</td></tr>";
+		if(!empty($nr) || !empty($file))
+		{
+			$str .= '<tr><td valign="top">ErrorType[num] : </td>';
+			$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
+			$str .= '</tr>';
+			$str .= "<tr><td>File : </td><td>{$file}</td></tr>";
+			$str .= "<tr><td>Line : </td><td>{$line}</td></tr>";
+		}
         
         if ($source != '')
         {
