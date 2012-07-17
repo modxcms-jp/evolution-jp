@@ -1095,11 +1095,17 @@ class DocumentParser {
 		{
 			$key= $matches[1][$i];
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
+			if(strpos($key,':')!==false)
+			{
+				list($key,$modifiers) = explode(':', $key, 2);
+			}
+			else $modifiers = false;
 			$value= $this->documentObject[$key];
 			if (is_array($value))
 			{
 				$value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
 			}
+			if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
 			$replace[$i]= $value;
 		}
 		$content= str_replace($matches[0], $replace, $content);
