@@ -139,7 +139,7 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 // get the document, but only if it already exists
 if ($actionToTake != 'new')
 {
-	$rs = $modx->db->select('parent', $tbl_site_content, "id={$id}");
+	$rs = $modx->db->select('parent', $tbl_site_content, "id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1)
 	{
@@ -293,7 +293,7 @@ switch ($actionToTake)
 		// update parent folder status
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, 'id='.$_REQUEST['parent']);
+			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the document's parent to a folder.";
@@ -353,7 +353,7 @@ switch ($actionToTake)
 	case 'edit' :
 
 		// get the document's current parent
-		$rs = $modx->db->select('parent', $tbl_site_content, 'id='.$_REQUEST['id']);
+		$rs = $modx->db->select('parent', $tbl_site_content, "id='{$id}'");
 		if (!$rs) {
 			$modx->manager->saveFormValues(27);
 			echo "An error occured while attempting to find the document's current parent.";
@@ -484,7 +484,7 @@ switch ($actionToTake)
 		
 		// update template variables
 		$tmplvars = get_tmplvars();
-		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid={$id}");
+		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid='{$id}'");
 		$tvIds = array ();
 		while ($row = $modx->db->getRow($rs))
 		{
@@ -532,7 +532,8 @@ switch ($actionToTake)
 		{
 			foreach ($tvChanges as $tv)
 			{
-				$rs = $modx->db->update($tv[0], $tbl_site_tmplvar_contentvalues, 'id='.$tv[1]['id']);
+				$tvid = $tv[1]['id'];
+				$rs = $modx->db->update($tv[0], $tbl_site_tmplvar_contentvalues, "id='{$tvid}'");
 			}
 		}
 
@@ -603,7 +604,7 @@ switch ($actionToTake)
 		// do the parent stuff
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id={$_REQUEST['parent']}");
+			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the new parent to a folder.";
@@ -621,7 +622,7 @@ switch ($actionToTake)
 
 		if ($limit == 0)
 		{
-			$rs = $modx->db->update('isfolder = 0', $tbl_site_content, "id={$oldparent}");
+			$rs = $modx->db->update('isfolder = 0', $tbl_site_content, "id='{$oldparent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the old parent to a regular document.";
@@ -709,7 +710,7 @@ function saveMETAKeywords($id) {
 	if ($modx->hasPermission('edit_doc_metatags'))
 	{
 		// keywords - remove old keywords first
-		$modx->db->delete($tbl_keyword_xref, "content_id={$id}");
+		$modx->db->delete($tbl_keyword_xref, "content_id='{$id}'");
 		for ($i = 0; $i < count($keywords); $i++) {
 			$kwid = $keywords[$i];
 			$flds = array (
@@ -719,7 +720,7 @@ function saveMETAKeywords($id) {
 			$modx->db->insert($flds, $tbl_keyword_xref);
 		}
 		// meta tags - remove old tags first
-		$modx->db->delete($tbl_site_content_metatags, "content_id={$id}");
+		$modx->db->delete($tbl_site_content_metatags, "content_id='{$id}'");
 		for ($i = 0; $i < count($metatags); $i++) {
 			$kwid = $metatags[$i];
 			$flds = array (
@@ -836,7 +837,6 @@ function fix_tv_nest($target)
 function get_alias($id,$alias,$parent,$pagetitle)
 {
 	global $modx;
-	
 	// friendly url alias checks
 	if ($modx->config['friendly_urls'])
 	{
@@ -872,7 +872,7 @@ function _check_duplicate_alias($id,$alias,$parent)
 		$docid = $modx->db->getValue($rs);
 		if($docid < 1)
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent={$parent}");
+			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent='{$parent}'");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
