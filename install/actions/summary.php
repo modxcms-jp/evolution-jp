@@ -84,52 +84,57 @@ if (is_writable("{$base_path}assets/cache")) {
 	echo '</p>';
 }
 
-if (!is_dir("{$base_path}content")) {
-echo "<p>" . $_lang['checking_if_content_exists'];
-    echo echo_failed();
-echo '</p>';
-    $errors += 1;
-}
-
-// cache writable?
-
-echo "<p>" . $_lang['checking_if_content_writable'];
-if (!is_writable("{$base_path}content")) {
-    echo echo_failed();
-    $errors += 1;
-} else {
-    echo echo_ok();
-	mkd("{$base_path}content/images");
-	mkd("{$base_path}content/files");
-	mkd("{$base_path}content/flash");
-	mkd("{$base_path}content/media");
-	
-	@file_put_contents("{$base_path}content/images/index.html",'');
-	@file_put_contents("{$base_path}content/files/index.html",'');
-	@file_put_contents("{$base_path}content/flash/index.html",'');
-	@file_put_contents("{$base_path}content/media/index.html",'');
-}
-echo '</p>';
-
-
-if (is_writable("{$base_path}content")) {
-	// File Browser directories exists?
-	if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media")) {
-	    echo "<p>".$_lang['checking_if_images_exist'];
+if(!is_dir("{$base_path}assets/images"))
+{
+	if (!is_dir("{$base_path}content")) {
+	echo "<p>" . $_lang['checking_if_content_exists'];
 	    echo echo_failed();
-	    echo '</p>';
+	echo '</p>';
 	    $errors += 1;
 	}
 	
-	// File Browser directories writable?
-	echo "<p>".$_lang['checking_if_images_writable'];
-	if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media")) {
+	// cache writable?
+	
+	echo "<p>" . $_lang['checking_if_content_writable'];
+	if (!is_writable("{$base_path}content")) {
 	    echo echo_failed();
 	    $errors += 1;
 	} else {
 	    echo echo_ok();
+		mkd("{$base_path}content/images");
+		mkd("{$base_path}content/files");
+		mkd("{$base_path}content/flash");
+		mkd("{$base_path}content/media");
+		
+		@file_put_contents("{$base_path}content/images/index.html",'');
+		@file_put_contents("{$base_path}content/files/index.html",'');
+		@file_put_contents("{$base_path}content/flash/index.html",'');
+		@file_put_contents("{$base_path}content/media/index.html",'');
 	}
 	echo '</p>';
+	if (is_writable("{$base_path}content"))
+	{
+		// File Browser directories exists?
+		if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media"))
+		{
+			echo "<p>".$_lang['checking_if_images_exist'];
+			echo echo_failed();
+			echo '</p>';
+			$errors += 1;
+		}
+		// File Browser directories writable?
+		echo "<p>".$_lang['checking_if_images_writable'];
+		if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media"))
+		{
+		    echo echo_failed();
+		    $errors += 1;
+		}
+		else 
+		{
+		    echo echo_ok();
+		}
+		echo '</p>';
+	}
 }
 
 if (!is_dir("{$base_path}temp")) {
