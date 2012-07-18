@@ -6,16 +6,25 @@ if(!$modx->hasPermission('delete_template')) {
 }
 	$id = isset($_GET['id'])? intval($_GET['id']):0;
 	$forced = isset($_GET['force'])? $_GET['force']:0;
+	
+	$tbl_site_content               = $modx->getFullTableName('site_content');
+	$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
+	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
 
 	// check for relations
 	if(!$forced) {
-		$sql="SELECT sc.id, sc.pagetitle,sc.description FROM $dbase.`".$table_prefix."site_content` sc INNER JOIN $dbase.`".$table_prefix."site_tmplvar_contentvalues` stcv ON stcv.contentid=sc.id WHERE stcv.tmplvarid=".$id.";";
-		$drs = $modx->db->query($sql);
-		$count = mysql_num_rows($drs);
-		if($count>0){
+		$field = 'sc.id, sc.pagetitle,sc.description';
+		$from  = "{$tbl_site_content} sc INNER JOIN {$tbl_site_tmplvar_contentvalues} stcv ON stcv.contentid=sc.id";
+		$where = "stcv.tmplvarid='{$id}'";
+		$rs = $modx->db->select($field,$from,$where);
+		$count = $modx->db->getRecordCount($rs);
+		if($count>0)
+		{
 			include_once "header.inc.php";
 		?>	
-			<script>
+			<script type="text/javascript">
 				function deletedocument() {
 					document.location.href="index.php?id=<?php echo $id;?>&a=303&force=1";
 				}
@@ -24,8 +33,8 @@ if(!$modx->hasPermission('delete_template')) {
 
 	<div id="actions">
 		<ul class="actionButtons">
-			<li id="cmdDelete"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang["delete"]; ?></a></td>
-			<li id="cmdCancel"><a href="index.php?a=301&id=<?php echo $id;?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["cancel"]; ?></a></li>
+			<li><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang["delete"]; ?></a></td>
+			<li><a href="index.php?a=301&id=<?php echo $id;?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang["cancel"]; ?></a></li>
 		</ul>
 	</div>
 
@@ -34,8 +43,8 @@ if(!$modx->hasPermission('delete_template')) {
 		<?php
 			echo "<p>".$_lang['tmplvar_inuse']."</p>";
 			echo "<ul>";
-			for($i=0;$i<$count;$i++) {
-				$row = $modx->db->getRow($drs);
+			while($row = $modx->db->getRow($rs))
+			{
 				echo '<li><span style="width: 200px"><a href="index.php?id='.$row['id'].'&a=27">'.$row['pagetitle'].'</a></span>'.($row['description']!='' ? ' - '.$row['description'] : '').'</li>';
 			}
 			echo "</ul>";
@@ -52,8 +61,7 @@ if(!$modx->hasPermission('delete_template')) {
 							));
 						
 	// delete variable
-	$sql = "DELETE FROM $dbase.`".$table_prefix."site_tmplvars` WHERE id=".$id.";";
-	$rs = $modx->db->query($sql);
+	$rs = $modx->db->delete($tbl_site_tmplvars, "id='{$id}'");
 	if(!$rs) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
@@ -62,13 +70,13 @@ if(!$modx->hasPermission('delete_template')) {
 	}
 
 	// delete variable's content values
-	$modx->db->query("DELETE FROM $dbase.`".$table_prefix."site_tmplvar_contentvalues` WHERE tmplvarid=".$id.";");
+	$modx->db->delete($tbl_site_tmplvar_contentvalues, "tmplvarid='{$id}'");
 	
 	// delete variable's template access
-	$modx->db->query("DELETE FROM $dbase.`".$table_prefix."site_tmplvar_templates` WHERE tmplvarid=".$id.";");
+	$modx->db->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
 	
 	// delete variable's access permissions
-	$modx->db->query("DELETE FROM $dbase.`".$table_prefix."site_tmplvar_access` WHERE tmplvarid=".$id.";");
+	$modx->db->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
 
 	// invoke OnTVFormDelete event
 	$modx->invokeEvent("OnTVFormDelete",
