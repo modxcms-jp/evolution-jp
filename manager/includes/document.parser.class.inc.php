@@ -3541,7 +3541,7 @@ class DocumentParser {
         }
 
         if (!empty ($query)) {
-            $str .= '<tr><td colspan="2"><b style="color:#999;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
+            $str .= '<tr><td colspan="2"><b style="color:#333;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
                     </td></tr>';
         }
 
@@ -3563,15 +3563,13 @@ class DocumentParser {
             E_USER_DEPRECATED   => "USER DEPRECATED"
         );
 
-        $str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
-
-        if ($text != '')
-        {
-            $str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
-        }
-
 		if(!empty($nr) || !empty($file))
 		{
+			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
+			if ($text != '')
+			{
+				$str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
+			}
 			$str .= '<tr><td valign="top">ErrorType[num] : </td>';
 			$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
 			$str .= '</tr>';
@@ -3587,8 +3585,21 @@ class DocumentParser {
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
         $str .= '<tr><td valign="top">REQUEST_URI : </td>';
-        $str .= '<td>' . $request_uri . '</td>';
+        $str .= "<td>{$request_uri}</td>";
         $str .= '</tr>';
+        
+        if($_POST['a'])    $action = $_POST['a'];
+        elseif($_GET['a']) $action = $_GET['a'];
+        if(isset($action) && !empty($action))
+        {
+        	include_once $this->config['base_path'] . 'manager/includes/actionlist.inc.php';
+        	global $action_list;
+        	if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
+        	else $actionName = '';
+			$str .= '<tr><td valign="top">Manager action : </td>';
+			$str .= "<td>{$action}{$actionName}</td>";
+			$str .= '</tr>';
+        }
         
         if(preg_match('@^[0-9]+@',$this->documentIdentifier))
         {
@@ -3664,7 +3675,9 @@ class DocumentParser {
         if(!empty($this->currentSnippet)) $source = 'Snippet - ' . $this->currentSnippet;
         elseif(!empty($this->event->activePlugin)) $source = 'Plugin - ' . $this->event->activePlugin;
         elseif($source!=='') $source = 'Parser - ' . $source;
+        elseif($query!=='')  $source = 'SQL Query';
         else             $source = 'Parser';
+        if(isset($actionName) && !empty($actionName)) $source .= $actionName;
         switch($nr)
         {
         	case E_DEPRECATED :
