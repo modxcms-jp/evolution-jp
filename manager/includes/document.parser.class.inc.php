@@ -1548,7 +1548,7 @@ class DocumentParser {
 	function set_aliases()
 	{
 		$path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
-		if(file_exists($path_aliases))
+		if(is_file($path_aliases))
 		{
 			$src = file_get_contents($path_aliases);
 			$this->aliases = unserialize($src);
@@ -3749,8 +3749,12 @@ class DocumentParser {
 	function initProcessCache()
 	{
 		$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
-		if(file_exists($cache_path)) $src = file_get_contents($cache_path);
-		$this->processCache = unserialize($src);
+		if(is_file($cache_path))
+		{
+			$src = file_get_contents($cache_path);
+			$this->processCache = unserialize($src);
+		}
+		else $this->processCache = array();
 	}
 	
 	function setProcessCache($key, $value, $mode='mem')
