@@ -80,8 +80,8 @@ if(isset($_REQUEST['submitok'])) {
         $base_url = $modx->config['base_url'];
         $site_url = $modx->config['site_url'];
         $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
-        $url = preg_replace('@^' . $base_url . '@', '', $url);
-        $url = preg_replace('@^' . $site_url . '@', '', $url);
+        if($url[0]==='/')             $url = preg_replace('@^' . $base_url . '@', '', $url);
+        if(substr($url,0,4)==='http') $url = preg_replace('@^' . $site_url . '@', '', $url);
         $searchid = $modx->getDocumentListing($url);
         if (empty($searchid)) $searchid = 'x';
     }
