@@ -254,12 +254,14 @@ class DocumentParser {
 		
 		if($this->documentMethod==='id' || isset($alias))
 		{
-			if($this->documentIdentifier != $this->config['site_start'])
+			switch($this->documentIdentifier)
 			{
-				if($this->getDocumentListing($alias)===false)
-				{
-					$this->sendErrorPage();
-				}
+				case $this->config['site_start']:
+				case $this->config['site_unavailable_page']:
+				case $this->config['unauthorized_page']:
+					break;
+				default:
+					if($this->getDocumentListing($alias)===false) $this->sendErrorPage();
 			}
 		}
 		
