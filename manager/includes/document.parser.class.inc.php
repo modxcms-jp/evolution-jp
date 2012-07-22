@@ -1088,13 +1088,12 @@ class DocumentParser {
 	{
 		$replace= array ();
 		preg_match_all('~\[\*(.*?)\*\]~', $content, $matches);
-		$variableCount= count($matches[1]);
 		$basepath= $this->config['base_path'] . 'manager/includes/';
 		include_once("{$basepath}tmplvars.format.inc.php");
 		include_once("{$basepath}tmplvars.commands.inc.php");
-		for ($i= 0; $i < $variableCount; $i++)
+		$i= 0;
+		foreach($matches[1] as $key)
 		{
-			$key= $matches[1][$i];
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
 			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 			{
@@ -1108,6 +1107,7 @@ class DocumentParser {
 			}
 			if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
 			$replace[$i]= $value;
+			$i++;
 		}
 		$content= str_replace($matches[0], $replace, $content);
 		return $content;
@@ -1119,13 +1119,14 @@ class DocumentParser {
 		$matches= array ();
 		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $content, $matches))
 		{
-			$total= count($matches[1]);
-			for($i= 0; $i < $total; $i++)
+			$i= 0;
+			foreach($matches[1] as $key)
 			{
-				if(isset($this->config[$matches[1][$i]]))
+				if(isset($this->config[$key]))
 				{
-					$replace[$i]= $this->config[$matches[1][$i]];
+					$replace[$i]= $this->config[$key];
 				}
+				$i++;
 			}
 			
 			$content= str_replace($matches[0], $replace, $content);
@@ -1140,10 +1141,9 @@ class DocumentParser {
 		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
 		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
 		{
-			$total= count($matches[1]);
-			for ($i= 0; $i < $total; $i++)
+			$i= 0;
+			foreach($matches[1] as $name)
 			{
-				$name = $matches[1][$i];
 				if (isset ($this->chunkCache[$name]))
 				{
 					$replace[$i]= $this->chunkCache[$name];
@@ -1177,6 +1177,7 @@ class DocumentParser {
 						$replace[$i]= $row['snippet'];
 					}
 				}
+				$i++;
 			}
 			$content= str_replace($matches[0], $replace, $content);
 		}
@@ -1190,11 +1191,10 @@ class DocumentParser {
 		$matches= array ();
 		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
 		{
-			$cnt= count($matches[1]);
-			for ($i= 0; $i < $cnt; $i++)
+			$i= 0;
+			foreach($matches[1] as $key)
 			{
 				$v= '';
-				$key= $matches[1][$i];
 				if (is_array($this->placeholders) && isset($this->placeholders[$key]))
 				{
 					$v= $this->placeholders[$key];
@@ -1207,6 +1207,7 @@ class DocumentParser {
 				{
 					$replace[$i]= $v;
 				}
+				$i++;
 			}
 			$content= str_replace($matches[0], $replace, $content);
 		}
@@ -1217,10 +1218,9 @@ class DocumentParser {
 	{
 		$pieces = explode('<!-- #modx',$content);
 		$stack = '';
-		$total = count($pieces);
-		for($i=0;$i<$total;$i++)
+		$i=0;
+		foreach($pieces as $_)
 		{
-			$_ = $pieces[$i];
 			if($i!==0)
 			{
 				list($modxelm,$txt) = explode('-->',$_, 2);
@@ -1229,7 +1229,8 @@ class DocumentParser {
 				$txt = substr($txt,strpos($txt,'-->')+3);
 				$_ = $modxelm . $txt;
 			}
-			 $stack .= $_;
+			$stack .= $_;
+			$i++;
 		}
 		return $stack;
 	}
