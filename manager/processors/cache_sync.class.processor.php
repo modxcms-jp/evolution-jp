@@ -256,7 +256,7 @@ class synccache {
 		$this->_get_aliases($modx);  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types($modx); // get content types
 		$this->_get_chunks($modx);   // WRITE Chunks to cache file
-		$content .= $this->_get_snippets($modx); // WRITE snippets to cache file
+		$this->_get_snippets($modx); // WRITE snippets to cache file
 		$content .= $this->_get_plugins($modx);  // WRITE plugins to cache file
 		$content .= $this->_get_events($modx);   // WRITE system event triggers
 		
@@ -300,6 +300,12 @@ class synccache {
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
 		}
+		$str = serialize($modx->snippetCache);
+		if(!file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
 		
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
@@ -319,7 +325,6 @@ class synccache {
 			$setting_value = $row['setting_value'];
 			$this->config[$setting_name] = $setting_value;
 		}
-		return $tmpPHP;
 	}
 	
 	function _get_aliases($modx)
@@ -386,20 +391,18 @@ class synccache {
 		$fields = 'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`';
 		$from = "{$tbl_site_snippets} ss LEFT JOIN {$tbl_site_modules} sm on sm.guid=ss.moduleguid";
 		$rs = $modx->db->select($fields,$from);
-		$tmpPHP = '$s = &$this->snippetCache;' . "\n";
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
-			$tmpPHP .= '$s[\''.$modx->db->escape($row['name']).'\']'." = '".$this->escapeSingleQuotes($row['snippet'])."';\n";
-			// Raymond: save snippet properties to cache
-			if ($row['properties']!=""||$row['sharedproperties']!="")
+			$name = $row['name'];
+			$snippet = $row['snippet'];
+			$modx->snippetCache[$name] = $snippet;
+			if ($row['properties'] != '' || $row['sharedproperties'] != '')
 			{
-				$properties = $this->escapeSingleQuotes($row['properties'] . ' ' . $row['sharedproperties']);
-				$tmpPHP .= '$s[\''.$row['name'].'Props\']'." = '".$properties."';\n";
-				// End mod
+				$properties = $row['properties'] . ' ' . $row['sharedproperties'];
+				$modx->snippetCache["{$name}Props"] = $properties;
 			}
 		}
-		return $tmpPHP;
 	}
 	
 	function _get_plugins($modx)

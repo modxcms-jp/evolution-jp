@@ -1417,6 +1417,8 @@ class DocumentParser {
 		
 		$passes = $this->minParserPasses;
 		
+		if(!$this->snippetCache) $this->setSnippetCache();
+		
 		for($i= 0; $i < $passes; $i++)
 		{
 			if($i == ($passes -1)) $bt = md5($stack);
@@ -1424,6 +1426,7 @@ class DocumentParser {
 			$pieces = explode('[[', $stack);
 			$stack = '';
 			$loop_count = 0;
+			
 			foreach($pieces as $piece)
 			{
 				if($loop_count < 1)                 $result = $piece;
@@ -1599,6 +1602,13 @@ class DocumentParser {
 		//container_suffix
 		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
+	}
+	
+	function setSnippetCache()
+	{
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/snippet.siteCache.idx.php');
+		if($str) $this->snippetCache = unserialize($str);
+		else return false;
 	}
 	
 	function setChunkCache()
