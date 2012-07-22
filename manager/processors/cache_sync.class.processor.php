@@ -59,7 +59,12 @@ class synccache {
 		}
 		if (isset($this->aliases[$id]))
 		{
-			$path = $this->aliases[$id] . ($path != '' ? '/' : '') . $path;
+			if($path !== '')
+			{
+				$path = $this->aliases[$id] . '/' . $path;
+			}
+			else $path = $this->aliases[$id];
+			
 			return $this->getParents($this->parents[$id], $path);
 		}
 		return $path;
@@ -274,6 +279,13 @@ class synccache {
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
 		}
+		$str = serialize($modx->aliasListing);
+		if(!file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
+		
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
 		
@@ -305,8 +317,6 @@ class synccache {
 		$tbl_system_settings    = $modx->getFullTableName('system_settings');
 		$tbl_site_content       = $modx->getFullTableName('site_content');
 		
-		$tmpPHP  = '$this->aliasListing = array();' . "\n";
-		$tmpPHP .= '$a = &$this->aliasListing;' . "\n";
 		$tmpPHP .= '$m = &$this->documentMap;' . "\n";
 		
 		$friendly_urls = $modx->db->getValue($modx->db->select('setting_value',$tbl_system_settings,"setting_name='friendly_urls'"));
@@ -328,7 +338,6 @@ class synccache {
 			$docid = $row['id'];
 			$path = $modx->db->escape($path);
 			$parent = $row['parent'];
-			$tmpPHP .= '$' . "a[{$docid}] = array('id' => {$docid}, 'alias' => '{$alias}', 'path' => '{$path}', 'parent' => {$parent});\n";
 			$tmpPHP .= '$' . "m[] = array('{$parent}' => '{$docid}');\n";
 			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent);
 			$modx->documentMap[] = array($parent => $docid);

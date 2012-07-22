@@ -1598,7 +1598,14 @@ class DocumentParser {
 		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
 	}
-
+	
+	function setAliasListing()
+	{
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+		if($str) $this->aliasListing = unserialize($str);
+		else return false;
+	}
+	
 	function set_aliases()
 	{
 		$path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
@@ -1609,6 +1616,8 @@ class DocumentParser {
 		}
 		else
 		{
+			if(!$this->aliasListing) $this->setAliasListing();
+			
 			$aliases= array ();
 			foreach ($this->aliasListing as $doc)
 			{
@@ -1860,6 +1869,9 @@ class DocumentParser {
 	function getParentIds($id, $height= 10)
 	{
 		$parents= array ();
+		
+		if(!$this->aliasListing) $this->setAliasListing();
+		
 		while( $id && 0<$height)
 		{
 			$current_id = $id;
@@ -1922,6 +1934,8 @@ class DocumentParser {
 		if (isset($documentMap_cache[$id]))
 		{
 			$depth--;
+			
+			if(!$this->aliasListing) $this->setAliasListing();
 			
 			foreach ($documentMap_cache[$id] as $childId)
 			{
@@ -2383,6 +2397,8 @@ class DocumentParser {
 				$alias = $id;
 				if ($this->config['friendly_alias_urls'] == 1)
 				{
+					if(!$this->aliasListing) $this->setAliasListing();
+					
 					$al= $this->aliasListing[$id];
 					if(!empty ($al['path'])) $alPath = $al['path'] . '/';
 					if ($al && $al['alias']) $alias  = $al['alias'];
