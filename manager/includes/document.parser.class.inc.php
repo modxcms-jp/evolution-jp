@@ -521,7 +521,7 @@ class DocumentParser {
 					break;
 			}
 			$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
-			file_put_contents($page_cache_path, $cacheContent);
+			file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
 		}
 		
 		// Useful for example to external page counters/stats packages
@@ -1656,7 +1656,7 @@ class DocumentParser {
 			{
 				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
 			}
-			file_put_contents($path_aliases,serialize($aliases));
+			file_put_contents($path_aliases,serialize($aliases), LOCK_EX);
 			$this->aliases = $aliases;
 		}
 		return $this->aliases;
@@ -1952,7 +1952,7 @@ class DocumentParser {
 					$documentMap_cache[$p][] = $c;
 				}
 			}
-			file_put_contents($path_documentmapcache,serialize($documentMap_cache));
+			file_put_contents($path_documentmapcache,serialize($documentMap_cache), LOCK_EX);
 			$this->documentMap_cache = $documentMap_cache;
 		}
 		return $this->documentMap_cache;
@@ -3874,7 +3874,7 @@ class DocumentParser {
 		if($mode==='file')
 		{
 			$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
-			file_put_contents($cache_path,serialize($this->processCache));
+			file_put_contents($cache_path,serialize($this->processCache), LOCK_EX);
 		}
 		
 	}
