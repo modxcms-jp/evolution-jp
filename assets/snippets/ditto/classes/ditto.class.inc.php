@@ -734,6 +734,8 @@ class ditto {
 	function getParentList() {
 		global $modx;
 		$kids = array();
+		if(!$modx->documentMap) $modx->setdocumentMap();
+		
 		foreach ($modx->documentMap as $null => $document) {
 			foreach ($document as $parent => $id) {
 				$kids[$parent][] = $id;
@@ -848,6 +850,8 @@ class ditto {
 		$depth = intval($depth);
 		$kids = array();
 		$docIDs = array();
+		
+		if(!$modx->documentMap) $modx->setdocumentMap();
 		
 		if ($depth == 0 && $IDs[0] == 0 && count($IDs) == 1) {
 			foreach ($modx->documentMap as $null => $document) {

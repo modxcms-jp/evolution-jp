@@ -289,7 +289,8 @@ class TopicPath
 		$processedTopics = implode($tpl['separator'],$processedTopics);
 		
 		// Put topics into topic container template
-		$container = str_replace('[+topics+]',$processedTopics,$tpl['outer']);
+		$modx->setPlaceholder('topics',$processedTopics);
+		$container = $modx->mergePlaceholderContent($tpl['outer']);
 		// Return topics
 		return $container;
 	}
