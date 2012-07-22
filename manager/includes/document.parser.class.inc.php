@@ -1604,6 +1604,13 @@ class DocumentParser {
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
 	}
 	
+	function setChunkCache()
+	{
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
+		if($str) $this->chunkCache = unserialize($str);
+		else return false;
+	}
+	
 	function setSnippetCache()
 	{
 		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/snippet.siteCache.idx.php');
