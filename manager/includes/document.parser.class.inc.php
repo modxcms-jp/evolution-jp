@@ -1206,18 +1206,18 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches[1] as $key)
 			{
-				$v= '';
+				$value= '';
 				if (is_array($this->placeholders) && isset($this->placeholders[$key]))
 				{
-					$v= $this->placeholders[$key];
+					$value= $this->placeholders[$key];
 				}
-				if ($v === '')
+				if ($value === '')
 				{
 					unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
 				}
 				else
 				{
-					$replace[$i]= $v;
+					$replace[$i]= $value;
 				}
 				$i++;
 			}
