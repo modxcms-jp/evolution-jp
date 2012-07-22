@@ -697,15 +697,37 @@ class DocumentParser {
 		return $src;
 	}
 	
+	function getSiteCache()
+	{
+		if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+		{
+			$included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+		}
+		if(!isset($included) || !is_array($this->config) || empty ($this->config))
+		{
+			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+			$cache = new synccache();
+			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+			$cache->setReport(false);
+			$rebuilt = $cache->buildCache($this);
+			$included = false;
+			if($rebuilt && file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+			{
+				$included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+			}
+		}
+	}
+	
 	function getSettings()
 	{
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
-			if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+			if(file_exists(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php'))
 			{
-				$included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+				$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php');
+				if($str) $this->config = unserialize($str);
 			}
-			if(!isset($included) || !is_array($this->config) || empty ($this->config))
+			if(!isset($str) || !is_array($this->config) || empty ($this->config))
 			{
 				include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
 				$cache = new synccache();
@@ -715,9 +737,10 @@ class DocumentParser {
 				$included = false;
 				if($rebuilt && file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
 				{
-					$included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+					$str = file_get_contents(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php');
+					$this->config = unserialize($str);
 				}
-				if(!$included)
+				if(!$str || !$this->config)
 				{
 					$result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
 					while ($row= $this->db->getRow($result, 'both'))
@@ -726,6 +749,8 @@ class DocumentParser {
 					}
 				}
 			}
+			$this->getSiteCache();
+			
 			// added for backwards compatibility - garry FS#104
 			$this->config['etomite_charset'] = & $this->config['modx_charset'];
 			

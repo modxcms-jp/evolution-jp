@@ -8,6 +8,7 @@ class synccache {
 	var $aliases = array();
 	var $parents = array();
 	var $target;
+	var $config = array();
 
 	function synccache()
 	{
@@ -246,7 +247,7 @@ class synccache {
 		
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		
-		$content .= $this->_get_settings($modx); // get settings
+		$this->_get_settings($modx); // get settings
 		$content .= $this->_get_aliases($modx);  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types($modx); // get content types
 		$content .= $this->_get_chunks($modx);   // WRITE Chunks to cache file
@@ -267,6 +268,12 @@ class synccache {
 			exit;
 		}
 		
+		$str = serialize($this->config);
+		if(!file_put_contents($this->cachePath .'config.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
 		
@@ -283,9 +290,12 @@ class synccache {
 		$row = array();
 		while($row = $modx->db->getRow($rs))
 		{
+			$setting_name  = $row['setting_name'];
+			$setting_value = $row['setting_value'];
 			$search  = array('[+key+]','[+value+]');
-			$replace = array("'{$row['setting_name']}'",$this->escapeDoubleQuotes($row['setting_value']));
+			$replace = array("'{$setting_name}'",$this->escapeDoubleQuotes($setting_value));
 			$tmpPHP .= str_replace($search,$replace,$tpl) . "\n";
+			$this->config[$setting_name] = $setting_value;
 		}
 		return $tmpPHP;
 	}
