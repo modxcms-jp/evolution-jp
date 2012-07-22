@@ -76,18 +76,22 @@ class TopicPath
 		if ($hideOn || $hideUnder)
 		{
 			// Create array of hide pages
-			$hideOn = str_replace(' ','', $hideOn);
-			$hideOn = explode(',', $hideOn);
+			if(!empty($hideOn))
+			{
+				$hideOn = str_replace(' ','', $hideOn);
+				$hideOn = explode(',', $hideOn);
+			}
+			else $hideOn = array();
 			
 			// Get more hide pages based on parents if needed
 			if ( $hideUnder )
 			{
 				$hiddenKids = array();
 				// Get child pages to hide
-				$hideKidsQuery = $modx->db->select('id',$modx->getFullTableName('site_content'),"parent IN ({$hideUnder})");
-				while ($hideKid = $modx->db->getRow($hideKidsQuery))
+				$rs = $modx->db->select('id',$modx->getFullTableName('site_content'),"parent IN ({$hideUnder})");
+				while ($row = $modx->db->getRow($rs))
 				{
-					$hiddenKids[] = $hideKid['id'];
+					$hiddenKids[] = $row['id'];
 				}
 				// Merge with hideOn pages
 				$hideOn = array_merge($hideOn,$hiddenKids);
@@ -102,10 +106,22 @@ class TopicPath
 		// Initialize ------------------------------------------------------------------
 		
 		// Put certain parameters in arrays
-		$stopIds       = $this->convert_array($stopIds);
+		$stopIds    = $this->convert_array($stopIds);
 		$titleField = $this->convert_array($titleField);
-		$descField = $this->convert_array($descField);
-		$ignoreIds     = $this->convert_array($ignoreIds);
+		$descField  = $this->convert_array($descField);
+		$ignoreIds  = $this->convert_array($ignoreIds);
+		
+		if ( $ignoreIdsUnder )
+		{
+			$hiddenKids = array();
+			// Get child pages to hide
+			$rs = $modx->db->select('id',$modx->getFullTableName('site_content'),"parent IN ({$ignoreIdsUnder})");
+			while ($row = $modx->db->getRow($rs))
+			{
+				$hiddenKids[] = $row['id'];
+			}
+			$ignoreIds = array_merge($ignoreIds,$hiddenKids);
+		}
 		
 		/* $topics
 		* Topic elements are: id, parent, pagetitle, longtitle, menutitle, description,
