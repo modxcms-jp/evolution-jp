@@ -22,7 +22,7 @@ if (!defined('MODX_MANAGER_URL'))  define('MODX_MANAGER_URL', "{$site_url}manage
 
 if (defined('IN_MANAGER_MODE')) init_mgr();
 
-if (version_compare(phpversion(), '5.3') < 0) @set_magic_quotes_runtime(0);
+if (version_compare(PHP_VERSION, '5.3.0') < 0) @set_magic_quotes_runtime(0);
 
 // include_once the magic_quotes_gpc workaround
 if (get_magic_quotes_gpc()) include_once "{$core_path}quotes_stripper.inc.php";
