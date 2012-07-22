@@ -1117,15 +1117,25 @@ class DocumentParser {
 	{
 		$replace= array ();
 		$matches= array ();
-		if(preg_match_all('~\[\(([a-z\_]*?)\)\]~', $content, $matches))
+		if(preg_match_all('~\[\(([a-z\_:]*?)\)\]~', $content, $matches))
 		{
 			$i= 0;
 			foreach($matches[1] as $key)
 			{
 				if(isset($this->config[$key]))
 				{
-					$replace[$i]= $this->config[$key];
+					if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+					{
+						list($key,$modifiers) = explode(':', $key, 2);
+					}
+					else $modifiers = false;
+					
+					$value = $this->config[$key];
+					if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+					
+					$replace[$i]= $value;
 				}
+				else $replace[$i]= $key;
 				$i++;
 			}
 			
