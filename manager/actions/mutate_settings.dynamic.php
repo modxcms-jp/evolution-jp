@@ -508,6 +508,14 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo $_lang["server_protocol_message"] ?>
 	</td>
 </tr>
+<tr>
+	<th>Internal PHx function</th>
+	<td>
+		<?php echo wrap_label('Enable',form_radio('enable_phx','1', $enable_phx=='1'));?><br />
+		<?php echo wrap_label('Disable',form_radio('enable_phx','0', $enable_phx=='0'));?><br />
+		<?php echo $_lang["enable_phx_message"] ?>
+	</td>
+</tr>
 <tr class="row1" style="border-bottom:none;">
 	<td colspan="2" style="padding:0;">
 <?php

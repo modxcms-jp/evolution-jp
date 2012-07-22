@@ -1096,7 +1096,7 @@ class DocumentParser {
 		{
 			$key= $matches[1][$i];
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
-			if(strpos($key,':')!==false)
+			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 			{
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
