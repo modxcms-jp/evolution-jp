@@ -1122,13 +1122,14 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches[1] as $key)
 			{
+				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+				{
+					list($key,$modifiers) = explode(':', $key, 2);
+				}
+				else $modifiers = false;
+				
 				if(isset($this->config[$key]))
 				{
-					if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
-					{
-						list($key,$modifiers) = explode(':', $key, 2);
-					}
-					else $modifiers = false;
 					
 					$value = $this->config[$key];
 					if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
@@ -1152,15 +1153,15 @@ class DocumentParser {
 		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
 		{
 			$i= 0;
-			foreach($matches[1] as $name)
+			foreach($matches[1] as $key)
 			{
-				if (isset ($this->chunkCache[$name]))
+				if (isset ($this->chunkCache[$key]))
 				{
-					$replace[$i]= $this->chunkCache[$name];
+					$value= $this->chunkCache[$key];
 				}
 				else
 				{
-					$escaped_name = $this->db->escape($name);
+					$escaped_name = $this->db->escape($key);
 					$where = "`name`='{$escaped_name}' AND `published`='1'";
 					$result= $this->db->select('snippet',$tbl_site_htmlsnippets,$where);
 					$total= $this->db->getRecordCount($result);
@@ -1171,22 +1172,23 @@ class DocumentParser {
 						$total= $this->db->getRecordCount($result);
 						if(0 < $total)
 						{
-							$this->chunkCache[$name]= $name;
-							$replace[$i]= '';
+							$this->chunkCache[$key]= $key;
+							$value= '';
 						}
 						else
 						{
-							$this->chunkCache[$name]= $name;
-							$replace[$i]= $name;
+							$this->chunkCache[$key]= $key;
+							$value= $key;
 						}
 					}
 					else
 					{
 						$row= $this->db->getRow($result);
-						$this->chunkCache[$name]= $row['snippet'];
-						$replace[$i]= $row['snippet'];
+						$this->chunkCache[$key]= $row['snippet'];
+						$value= $row['snippet'];
 					}
 				}
+				$replace[$i] = $value;
 				$i++;
 			}
 			$content= str_replace($matches[0], $replace, $content);
