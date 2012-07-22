@@ -1618,10 +1618,10 @@ class DocumentParser {
 		else return false;
 	}
 	
-	function setChunkCache()
+	function setPluginCache()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
-		if($str) $this->chunkCache = unserialize($str);
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
+		if($str) $this->pluginCache = unserialize($str);
 		else return false;
 	}
 	
@@ -3355,6 +3355,8 @@ class DocumentParser {
 		$numEvents= count($el);
 		if ($numEvents > 0)
 		{
+			if(!$this->pluginCache) $this->setPluginCache();
+			
 			for ($i= 0; $i < $numEvents; $i++)
 			{ // start for loop
 				$pluginName= $el[$i];

@@ -257,7 +257,7 @@ class synccache {
 		$content .= $this->_get_content_types($modx); // get content types
 		$this->_get_chunks($modx);   // WRITE Chunks to cache file
 		$this->_get_snippets($modx); // WRITE snippets to cache file
-		$content .= $this->_get_plugins($modx);  // WRITE plugins to cache file
+		$this->_get_plugins($modx);  // WRITE plugins to cache file
 		$content .= $this->_get_events($modx);   // WRITE system event triggers
 		
 		// close and write the file
@@ -300,8 +300,16 @@ class synccache {
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
 		}
+		
 		$str = serialize($modx->snippetCache);
 		if(!file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
+		
+		$str = serialize($modx->pluginCache);
+		if(!file_put_contents($this->cachePath .'plugin.siteCache.idx.php', $str))
 		{
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
@@ -413,20 +421,18 @@ class synccache {
 		$fields = 'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`';
 		$from = "{$tbl_site_plugins} sp LEFT JOIN {$tbl_site_modules} sm on sm.guid=sp.moduleguid";
 		$rs = $modx->db->select($fields,$from,'sp.disabled=0');
-		$tmpPHP = '$p = &$this->pluginCache;' . "\n";
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			$name = $modx->db->escape($row['name']);
-			$plugincode = $this->escapeSingleQuotes($row['plugincode']);
-			$properties = $this->escapeSingleQuotes($row['properties'].' '.$row['sharedproperties']);
-			$tmpPHP .= '$p[\''.$name.'\']'." = '".$plugincode."';\n";
-			if ($row['properties']!=''||$row['sharedproperties']!='')
+			$plugincode = $row['plugincode'];
+			$properties = $row['properties'].' '.$row['sharedproperties'];
+			$modx->pluginCache[$name]          = $plugincode;
+			if ($row['properties']!='' || $row['sharedproperties']!='')
 			{
-				$tmpPHP .= '$p[' . "'{$name}Props'] = '{$properties}';\n";
+				$modx->pluginCache["{$name}Props"] = $properties;
 			}
 		}
-		return $tmpPHP;
 	}
 	
 	function _get_events($modx)
