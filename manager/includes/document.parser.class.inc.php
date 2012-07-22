@@ -1103,6 +1103,7 @@ class DocumentParser {
 		$rs = $this->db->update($fields,$tbl_site_htmlsnippets,$where);
 	
 		unset($this->chunkCache);
+		$this->setChunkCache();
 	
 		// clear the cache
 		$this->clearCache();
@@ -1192,6 +1193,7 @@ class DocumentParser {
 				}
 				else
 				{
+					if(!$this->chunkCache) $this->setChunkCache();
 					$escaped_name = $this->db->escape($key);
 					$where = "`name`='{$escaped_name}' AND `published`='1'";
 					$result= $this->db->select('snippet',$tbl_site_htmlsnippets,$where);
@@ -1597,6 +1599,13 @@ class DocumentParser {
 		//container_suffix
 		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
+	}
+	
+	function setChunkCache()
+	{
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
+		if($str) $this->chunkCache = unserialize($str);
+		else return false;
 	}
 	
 	function setdocumentMap()
@@ -2549,6 +2558,8 @@ class DocumentParser {
 		
 	function getChunk($key)
 	{
+		if(!$this->chunkCache) $this->setChunkCache();
+		
 		if(isset($this->chunkCache[$key]))
 		{
 			return $this->chunkCache[$key];

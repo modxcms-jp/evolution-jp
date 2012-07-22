@@ -255,7 +255,7 @@ class synccache {
 		$this->_get_settings($modx); // get settings
 		$this->_get_aliases($modx);  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types($modx); // get content types
-		$content .= $this->_get_chunks($modx);   // WRITE Chunks to cache file
+		$this->_get_chunks($modx);   // WRITE Chunks to cache file
 		$content .= $this->_get_snippets($modx); // WRITE snippets to cache file
 		$content .= $this->_get_plugins($modx);  // WRITE plugins to cache file
 		$content .= $this->_get_events($modx);   // WRITE system event triggers
@@ -289,6 +289,13 @@ class synccache {
 		
 		$str = serialize($modx->documentMap);
 		if(!file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
+		
+		$str = serialize($modx->chunkCache);
+		if(!file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str))
 		{
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
@@ -363,15 +370,12 @@ class synccache {
 		$tbl_site_htmlsnippets  = $modx->getFullTableName('site_htmlsnippets');
 		
 		$rs = $modx->db->select('name,snippet',$tbl_site_htmlsnippets, "`published`='1'");
-		$tmpPHP = '$c = &$this->chunkCache;' . "\n";
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			$name = $modx->db->escape($row['name']);
-			$tmpPHP .= "\$c['{$name}'] = " . "'{$this->escapeSingleQuotes($row['snippet'])}';\n";
 			$modx->chunkCache[$name] = $row['snippet'];
 		}
-		return $tmpPHP;
 	}
 	
 	function _get_snippets($modx)
