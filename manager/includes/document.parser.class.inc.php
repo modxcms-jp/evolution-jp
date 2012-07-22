@@ -1186,9 +1186,9 @@ class DocumentParser {
 				}
 				else $modifiers = false;
 				
-				if (isset ($this->chunkCache[$key]))
+				if ($this->getChunk($key)!==false)
 				{
-					$value= $this->chunkCache[$key];
+					$value= $this->getChunk($key);
 				}
 				else
 				{
@@ -2547,13 +2547,13 @@ class DocumentParser {
 		return $this->evalSnippet($snippet, $parameters);
 	}
 		
-	function getChunk($chunkName)
+	function getChunk($key)
 	{
-		if(isset($this->chunkCache[$chunkName]))
+		if(isset($this->chunkCache[$key]))
 		{
-			$t= $this->chunkCache[$chunkName];
-			return $t;
+			return $this->chunkCache[$key];
 		}
+		else return false;
 	}
 	
 	function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
