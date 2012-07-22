@@ -168,7 +168,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 				}
 				$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
 			}
-			else                                                       $nodetitle = $pagetitle;
+			else $nodetitle = $pagetitle;
 			
 			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
 			$protectedClass = $hasAccess==0 ? ' protectedNode' : '';
@@ -177,7 +177,7 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			elseif($published==0) $class = 'unpublishedNode';
 			elseif($hidemenu==1)  $class = "notInMenuNode{$protectedClass}";
 			else                  $class = "publishedNode{$protectedClass}";
-			$nodetitleDisplay = '<span class="' . $class . '">' . $nodetitle . '</span>';
+			$nodetitleDisplay = '<span class="' . $class . '">' . "{$nodetitle}</span>";
 			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 			$pageIdDisplay = '<small>('.($modx_textdir ? '&rlm;':'').$id.')</small>';
 			$url = $modx->makeUrl($id,'','','full');
@@ -190,12 +190,17 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 			$alt .= " {$_lang['page_data_mgr_access']}: ".($privatemgr ? $_lang['private']:$_lang['public']);
 			
 			$ph['id']        = $id;
-			$ph['alt']       = addslashes($alt);
+			$alt = addslashes($alt);
+			$alt = htmlspecialchars($alt,ENT_QUOTES,$modx->config['modx_charset']);
+			$ph['alt']       = $alt;
 			$ph['parent']    = $parent;
 			$ph['spacer']    = $spacer;
+			$pagetitle = addslashes($pagetitle);
 			$pagetitle = htmlspecialchars($pagetitle,ENT_QUOTES,$modx->config['modx_charset']);
-			$ph['pagetitle'] = "'" . htmlspecialchars($pagetitle, ENT_QUOTES, $modx->config['modx_charset']) . "'";
-			$ph['nodetitle'] = "'" . htmlspecialchars($nodetitle, ENT_QUOTES, $modx->config['modx_charset']) . "'";
+			$nodetitle = addslashes($nodetitle);
+			$nodetitle = htmlspecialchars($nodetitle, ENT_QUOTES, $modx->config['modx_charset']);
+			$ph['pagetitle'] = "'{$pagetitle}'";
+			$ph['nodetitle'] = "'{$nodetitle}'";
 			$ph['url']       = "'{$url}'";
 			$ph['deleted']   = $deleted;
 			$ph['nodetitleDisplay'] = $nodetitleDisplay;
