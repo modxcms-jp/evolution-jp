@@ -1213,6 +1213,12 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches[1] as $key)
 			{
+				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+				{
+					list($key,$modifiers) = explode(':', $key, 2);
+				}
+				else $modifiers = false;
+				
 				$value= '';
 				if (is_array($this->placeholders) && isset($this->placeholders[$key]))
 				{
@@ -1224,6 +1230,7 @@ class DocumentParser {
 				}
 				else
 				{
+					if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
 					$replace[$i]= $value;
 				}
 				$i++;
