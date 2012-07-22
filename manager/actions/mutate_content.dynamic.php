@@ -946,7 +946,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 		
 <?php
 
-if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInternalKey'] == $content['createdby']) {
+if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $content['createdby']) {
 ?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
 				<td><select name="type" class="inputBox" onchange="documentDirty=true;" style="width:200px">
