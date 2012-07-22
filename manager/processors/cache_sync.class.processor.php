@@ -253,7 +253,7 @@ class synccache {
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		
 		$this->_get_settings($modx); // get settings
-		$content .= $this->_get_aliases($modx);  // get aliases modx: support for alias path
+		$this->_get_aliases($modx);  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types($modx); // get content types
 		$content .= $this->_get_chunks($modx);   // WRITE Chunks to cache file
 		$content .= $this->_get_snippets($modx); // WRITE snippets to cache file
@@ -279,8 +279,16 @@ class synccache {
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
 		}
+		
 		$str = serialize($modx->aliasListing);
 		if(!file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str))
+		{
+			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
+			exit;
+		}
+		
+		$str = serialize($modx->documentMap);
+		if(!file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str))
 		{
 			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
 			exit;
@@ -297,16 +305,11 @@ class synccache {
 		$tbl_system_settings    = $modx->getFullTableName('system_settings');
 		
 		$rs = $modx->db->select('setting_name,setting_value',$tbl_system_settings);
-		$tmpPHP = '$c=&$this->config;' . "\n";
-		$tpl = '$c[[+key+]] = "[+value+]";';
 		$row = array();
 		while($row = $modx->db->getRow($rs))
 		{
 			$setting_name  = $row['setting_name'];
 			$setting_value = $row['setting_value'];
-			$search  = array('[+key+]','[+value+]');
-			$replace = array("'{$setting_name}'",$this->escapeDoubleQuotes($setting_value));
-			$tmpPHP .= str_replace($search,$replace,$tpl) . "\n";
 			$this->config[$setting_name] = $setting_value;
 		}
 		return $tmpPHP;
@@ -316,8 +319,6 @@ class synccache {
 	{
 		$tbl_system_settings    = $modx->getFullTableName('system_settings');
 		$tbl_site_content       = $modx->getFullTableName('site_content');
-		
-		$tmpPHP .= '$m = &$this->documentMap;' . "\n";
 		
 		$friendly_urls = $modx->db->getValue($modx->db->select('setting_value',$tbl_system_settings,"setting_name='friendly_urls'"));
 		if($friendly_urls==1)
@@ -338,11 +339,9 @@ class synccache {
 			$docid = $row['id'];
 			$path = $modx->db->escape($path);
 			$parent = $row['parent'];
-			$tmpPHP .= '$' . "m[] = array('{$parent}' => '{$docid}');\n";
 			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent);
 			$modx->documentMap[] = array($parent => $docid);
 		}
-		return $tmpPHP;
 	}
 	
 	function _get_content_types($modx)

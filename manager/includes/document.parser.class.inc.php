@@ -1599,6 +1599,13 @@ class DocumentParser {
 		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
 	}
 	
+	function setdocumentMap()
+	{
+		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+		if($str) $this->documentMap = unserialize($str);
+		else return false;
+	}
+	
 	function setAliasListing()
 	{
 		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
@@ -1909,6 +1916,9 @@ class DocumentParser {
 		else
 		{
 			$documentMap_cache= array ();
+			
+			if(!$this->documentMap) $this->setdocumentMap();
+			
 			foreach ($this->documentMap as $document)
 			{
 				foreach ($document as $p => $c)
