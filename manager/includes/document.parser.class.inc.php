@@ -1450,6 +1450,14 @@ class DocumentParser {
 		$snip_name        = $snip_call['name'];
 		$except_snip_call = $snip_call['except_snip_call'];
 		
+		$key = $snip_call['name'];
+		if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+		{
+			list($key,$modifiers) = explode(':', $key, 2);
+			$snip_call['name'] = $key;
+		}
+		else $modifiers = false;
+		
 		$snippetObject = $this->_get_snip_properties($snip_call);
 		
 		$params   = array ();
@@ -1507,12 +1515,14 @@ class DocumentParser {
 			}
 			unset($temp_params);
 		}
-		$executedSnippets = $this->evalSnippet($snippetObject['content'], $params);
+		$value = $this->evalSnippet($snippetObject['content'], $params);
+		if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+		
 		if($this->dumpSnippets == 1)
 		{
-			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($executedSnippets,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
+			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
 		}
-		return $executedSnippets . $except_snip_call;
+		return $value . $except_snip_call;
 	}
 	
 	function _split_snip_call($src)
