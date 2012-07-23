@@ -75,6 +75,17 @@ class PHx {
 			case 'word_count':
 			case 'wordcount':
 				$value = str_word_count($value); break;
+			case 'zenhan':
+				if(empty($opt)) $opt='Krns';
+				$value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
+			case 'hanzen':
+				if(empty($opt)) $opt='KAS';
+				$value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
+			case 'str_replace':
+				if(empty($opt) || strpos($opt,',')===false) break;
+				list($s,$r) = explode(',',$opt,2);
+				if($value!=='') $value = str_replace($s,$r,$value);
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
