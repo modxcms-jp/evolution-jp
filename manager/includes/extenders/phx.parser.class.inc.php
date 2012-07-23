@@ -118,7 +118,13 @@ class PHx {
 				break;
 			case 'userinfo':
 				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
+				if(empty($opt)) $opt = 'username';
 				$value = $this->ModUser($value,$opt);
+				break;
+			case 'webuserinfo':
+				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
+				if(empty($opt)) $opt = 'username';
+				$value = $this->ModUser(-$value,$opt);
 				break;
 			case 'inrole':
 				// deprecated
@@ -176,7 +182,7 @@ class PHx {
 	// positive userid = manager, negative integer = webuser
 	function ModUser($userid,$field) {
 		global $modx;
-		if (!array_key_exists($userid, $this->cache['ui'])) {
+		if (!isset($this->cache['ui']) || !array_key_exists($userid, $this->cache['ui'])) {
 			if (intval($userid) < 0) {
 				$user = $modx->getWebUserInfo(-($userid));
 			} else {
