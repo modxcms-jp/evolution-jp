@@ -86,6 +86,9 @@ class PHx {
 				list($s,$r) = explode(',',$opt,2);
 				if($value!=='') $value = str_replace($s,$r,$value);
 				break;
+			case '.':
+				if($value!=='') $value = $value . $opt;
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
