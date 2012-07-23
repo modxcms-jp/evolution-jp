@@ -222,33 +222,70 @@ class PHx {
 	
 	function splitModifiers($modifiers)
 	{
-		for ($i=0;$i<strlen($modifiers);$i++)
-		{
-			$_modifiers[] = $modifiers[$i];
-		}
 		$reslut = array();
 		$in_opt = false;
 		$cmd = '';
 		$opt = '';
-		foreach($_modifiers as $v)
+		$delim = '';
+		$r = $modifiers;
+		$c=0;
+		while(!empty($r) && $c < 3000)
 		{
+			$v = substr($r,0,1);
+			$r = substr($r,1);
 			switch($v)
 			{
 				case ':':
-					$opt = trim($opt, '`');
+					if($in_opt===false && !empty($cmd))
+					{
+						$reslut[$cmd] = '';
+						$opt = '';
+					}
+					elseif($in_opt===true && !empty($cmd))
+					{
+						$in_opt = false;
 					$reslut[$cmd] = $opt;
-					$in_opt = false;
+						$delim = '';
+					}
 					$cmd = '';
 					$opt = '';
 					break;
 				case '=':
-					if($in_opt!==false) $cmd .= '=';
+					if($in_opt===true) $opt .= '=';
+					elseif($in_opt===false && $cmd!=='')
+					{
+						if($r[0]==='"'||$r[0]==="'"||$r[0]==='`')
+						{
+							$delim = $r[0];
+							$r = substr($r,1);
+							list($opt, $r) = explode($delim, $r, 2);
+							$reslut[$cmd] = $opt;
+							$cmd = '';
+						}
 					else                $in_opt = true;
+					}
 					break;
 				default:
-					$cmd .= $v;
+					if(strpos($r,':')===false && strpos($r,'=')===false)
+					{
+						$reslut[$v.$r] = '';
+						$r = '';
 			}
+					elseif(strpos($r,':')===false && strpos($r,'=')!==false)
+					{
+						list($cmd,$opt) = explode('=',$v.$r);
+						$reslut[$cmd] = $opt;
+						$r = '';
 		}
+					else
+					{
+						if($in_opt===true) $opt .= $v;
+						else               $cmd .= $v;
+					}
+			}
+			$c++;
+		}
+		
 		if(count($reslut) < 1) $reslut[$cmd] = '';
 		return $reslut;
 	}
