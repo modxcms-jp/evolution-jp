@@ -252,7 +252,7 @@ class DocumentParser {
 			$this->documentMethod= 'id';
 		}
 		
-		if($this->documentMethod==='id' || isset($alias))
+		if($this->documentMethod==='id' && isset($alias))
 		{
 			switch($this->documentIdentifier)
 			{
