@@ -294,6 +294,11 @@ class PHx {
 					elseif(strpos($r,':')===false && strpos($r,'=')!==false)
 					{
 						list($cmd,$opt) = explode('=',$v.$r);
+						if($opt[0]==='"'||$opt[0]==="'"||$opt[0]==='`')
+						{
+							$delim = $opt[0];
+							$opt = trim($opt,$delim);
+						}
 						$reslut[$cmd] = $opt;
 						$r = '';
 		}
