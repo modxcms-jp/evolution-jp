@@ -346,6 +346,14 @@ elseif($modx->hasPermission('edit_role')
 {
 	$where = '';
 }
+elseif(!$modx->hasPermission('edit_role')
+    && !$modx->hasPermission('save_role')
+    && !$modx->hasPermission('delete_role')
+    && !$modx->hasPermission('new_role')
+    )
+{
+	$where = 'id=' . $userdata['role'];
+}
 elseif(!$modx->hasPermission('edit_role') && $_GET['id']==$modx->getLoginUserID())
 {
 	$where = 'edit_role=0 AND save_role=0 AND delete_role=0 AND new_role=0';
