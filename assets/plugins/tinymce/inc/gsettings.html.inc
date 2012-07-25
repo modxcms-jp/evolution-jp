@@ -55,7 +55,9 @@ textarea.mce {width:95%;height:40px;display:block;}
 	<th>[+mce_editor_custom_buttons_title+]</th>
 	<td>
 	Row 1: <textarea onchange="documentDirty=true;" class="inputBox mce" name="tinymce_custom_buttons1" />[+custom_buttons1+]</textarea>
+	<div>[+mce_toolbar1_msg+]</div>
 	Row 2: <textarea onchange="documentDirty=true;" class="inputBox mce" name="tinymce_custom_buttons2" />[+custom_buttons2+]</textarea>
+	<div>[+mce_toolbar2_msg+]</div>
 	Row 3: <textarea onchange="documentDirty=true;" class="inputBox mce" name="tinymce_custom_buttons3" />[+custom_buttons3+]</textarea>
 	Row 4: <textarea onchange="documentDirty=true;" class="inputBox mce" name="tinymce_custom_buttons4" />[+custom_buttons4+]</textarea>
 	<div>[+mce_editor_custom_buttons_message+]</div>

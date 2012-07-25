@@ -12,9 +12,9 @@
 $_lang['mce_editor_theme_title'] = 'テーマ:';
 $_lang['mce_editor_theme_message'] = 'テーマを選択し、ツールバーアイコンのセットおよびエディタのデザインを変更できます。';
 $_lang['mce_editor_custom_plugins_title'] = 'カスタムテーマのプラグイン設定:';
-$_lang['mce_editor_custom_plugins_message'] = 'カスタムテーマを選択したときに利用するプラグインをカンマ（,）で区切って記述します。<br />値を空にして更新するとデフォルト値をセットすることができます。';
+$_lang['mce_editor_custom_plugins_message'] = 'カスタムテーマを選択したときに利用するプラグインをカンマ（,）で区切って記述します。<br />デフォルト値 : visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 $_lang['mce_editor_custom_buttons_title'] = 'カスタムボタン:';
-$_lang['mce_editor_custom_buttons_message'] = 'カスタムテーマを選択したときに利用するボタンをカンマ（,）で区切ってそれぞれの行に記述します。セパレータは「separator」または「|」と記述します。プラグインによって機能が提供されるボタンは、プラグイン指定も必要です。詳細については<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Index" target="_blank">TinyMCE開発元の公式ドキュメント</a>の<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference" target="_blank">Control reference</a>のページをご確認ください。<br />値を空にして更新するとデフォルト値をセットすることができます。';
+$_lang['mce_editor_custom_buttons_message'] = 'カスタムテーマを選択したときに利用するボタンをカンマ（,）で区切ってそれぞれの行に記述します。セパレータは「separator」または「|」と記述します。プラグインによって機能が提供されるボタンは、プラグイン指定も必要です。詳細については<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Index" target="_blank">TinyMCE開発元の公式ドキュメント</a>の<a href="http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference" target="_blank">Control reference</a>のページをご確認ください。';
 $_lang['mce_editor_css_selectors_title'] = 'CSSスタイルセレクタ:';
 $_lang['mce_editor_css_selectors_message'] = 'class=xxxxxという形で任意のタグに割り当てる「CSSクラス」をここで設定できます。<br />書式：本のタイトル=booktitle;著者=author<br />上記のように、複数のクラスをセミコロンで区切って指定します。';
 $_lang['mce_settings'] = 'TinyMCEの設定';
@@ -37,3 +37,6 @@ $_lang['mce_element_format_title'] = 'タグのスタイル';
 $_lang['mce_element_format_message'] = '&lt;br /&gt;または&lt;br&gt;';
 $_lang['mce_schema_title'] = 'スキーマ';
 $_lang['mce_schema_message'] = 'スキーマを選択します。';
+
+$_lang['mce_toolbar1_msg'] = 'デフォルト値 : undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|, fullscreen,help';
+$_lang['mce_toolbar2_msg'] = 'デフォルト値 : image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|, blockquote,outdent,indent,|,table,hr,|,visualblocks,styleprops,removeformat';
