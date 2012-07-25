@@ -182,35 +182,8 @@ function importFiles($parent,$filedir,$files,$mode) {
 				if(file_exists($filepath))
 				{
 					$file = getFileContent($filepath);
-					$file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
-					if (preg_match("@<title>(.*)</title>@i",$file,$matches))
-					{
-						$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
-						$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
-					}
-					else $pagetitle = $alias;
-					
-					if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
-					{
-						$description = ($matches[1]!=='') ? $matches[1] : $filename;
-						$description = str_replace('[*description*]','',$description);
-					}
-					else $description = '';
+					list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);
 			
-					if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
-					{
-					$content = $matches[1];
-					}
-					else
-					{
-						$content = $file;
-						$pattern = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
-						$replace = '$1' . $modx->config['modx_charset'] . '$2';
-						$content = preg_replace($pattern, $replace, $content);
-						$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
-					}
-					$content = str_replace('[*content*]','[ *content* ]',$content);
-					$pagetitle = $modx->db->escape($pagetitle);
 					$date = filemtime($filepath);
 					$field = array();
 					$field['type'] = 'document';
@@ -221,26 +194,28 @@ function importFiles($parent,$filedir,$files,$mode) {
 					$field['alias'] = $modx->stripAlias($alias);
 					$field['published'] = $publish_default;
 					$field['parent'] = $parent;
-					$field['isfolder'] = 1;
 					$field['content'] = $modx->db->escape($content);
 					$field['richtext'] = $richtext;
 					$field['template'] = $modx->config['default_template'];
-					$field['menuindex'] = 1;
 					$field['searchable'] = $search_default;
 					$field['cacheable'] = $cache_default;
 					$field['createdby'] = $createdby;
 					$field['createdon'] = $date;
 					$field['editedon'] = $date;
-					$rs = $modx->db->insert($field,$tbl_site_content);
-					if($rs) $new_parent = mysql_insert_id(); // get new parent id
+					$field['isfolder'] = 1;
+					$field['menuindex'] = 1;
+					$newid = $modx->db->insert($field,$tbl_site_content);
+					if($newid)
+					{
+						echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+						importFiles($newid, $filedir . $alias . '/',$value,'sub');
+					}
 					else
 					{
 						echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
 						.$_lang["import_site_failed_db_error"].mysql_error();
 						exit;
 					}
-					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
-					importFiles($new_parent, $filedir . $alias . '/',$value,'sub');
 					break;
 				}
 			}
@@ -260,58 +235,34 @@ function importFiles($parent,$filedir,$files,$mode) {
 			{
 				$filepath = $filedir . $filename;
 				$file = getFileContent($filepath);
-				$file = mb_convert_encoding($file, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
-				if (preg_match("@<title>(.*)</title>@i",$file,$matches))
-				{
-					$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
-					$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
-				}
-				else $pagetitle = $alias;
-				if(!$pagetitle) $pagetitle = $alias;
-				if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$file,$matches))
-				{
-					$description = ($matches[1]!=='') ? $matches[1] : $filename;
-					$description = str_replace('[*description*]','',$description);
-				}
-				else $description = '';
-				if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$file,$matches)) && $_POST['object']=='body')
-				{
-					$content = $matches[1];
-				}
-				else
-				{
-					$content = $file;
-					$pattern = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
-					$replace = '$1' . $modx->config['modx_charset'] . '$2';
-					$content = preg_replace($pattern, $replace, $content);
-					$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
-				}
-				$content = str_replace('[*content*]','[ *content* ]',$content);
-				$content = $modx->db->escape($content);
+				list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);
+				
 				$date = filemtime($filepath);
-				$alias = $modx->stripAlias($alias);
-				$menuindex = ($alias=='index') ? 0 : 2;
 				$field = array();
 				$field['type'] = 'document';
 				$field['contentType'] = 'text/html';
-				$field['pagetitle'] = $modx->db->escape($pagetitle);;
+					$field['pagetitle'] = $pagetitle;
 				$field['longtitle'] = $pagetitle;
 				$field['description'] = $description;
-				$field['alias'] = $alias;
+				$field['alias'] = $modx->stripAlias($alias);
 				$field['published'] = $publish_default;
 				$field['parent'] = $parent;
-				$field['isfolder'] = 0;
-				$field['content'] = $content;
+				$field['content'] = $modx->db->escape($content);
 				$field['richtext'] = $richtext;
 				$field['template'] = $modx->config['default_template'];
-				$field['menuindex'] = $menuindex;
 				$field['searchable'] = $search_default;
 				$field['cacheable'] = $cache_default;
 				$field['createdby'] = $createdby;
 				$field['createdon'] = $date;
 				$field['editedon'] = $date;
-				$rs = $modx->db->insert($field,$tbl_site_content);
-				if(!$rs)
+				$field['isfolder'] = 0;
+				$field['menuindex'] = ($alias=='index') ? 0 : 2;
+				$newid = $modx->db->insert($field,$tbl_site_content);
+				if($newid)
+				{
+					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+				}
+				else
 				{
 					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
 					.$_lang["import_site_failed_db_error"].mysql_error();
@@ -322,14 +273,11 @@ function importFiles($parent,$filedir,$files,$mode) {
 				if($filename == 'index.html') $is_site_start = true;
 				if($is_site_start==true && $_POST['reset']=='on')
 				{
-					$newid = mysql_insert_id();
 					$tbl_system_settings = $modx->getFullTableName('system_settings');
 					$sql = "REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES ('site_start', '{$newid}')";
 					$modx->db->query($sql);
-					$sql = "UPDATE {$tbl_site_content} SET menuindex=0 WHERE id={$newid}";
-					$modx->db->query($sql);
+					$modx->db->update('menuindex=0',$tbl_site_content,"id='{$newid}'");
 				}
-				echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
 			}
 		}
 	}
@@ -410,4 +358,43 @@ function pop_index($array)
 		}
 	}
 	return $new_array;
+}
+
+function treatContent($src,$filename,$alias)
+{
+	global $modx;
+	
+	$src = mb_convert_encoding($src, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
+	
+	if (preg_match("@<title>(.*)</title>@i",$src,$matches))
+	{
+		$pagetitle = ($matches[1]!=='') ? $matches[1] : $filename;
+		$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
+	}
+	else $pagetitle = $alias;
+	if(!$pagetitle) $pagetitle = $alias;
+	
+	if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$src,$matches))
+	{
+		$description = ($matches[1]!=='') ? $matches[1] : $filename;
+		$description = str_replace('[*description*]','',$description);
+	}
+	else $description = '';
+
+	if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is",$src,$matches)) && $_POST['object']=='body')
+	{
+		$content = $matches[1];
+	}
+	else
+	{
+		$content = $src;
+		$s = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
+		$r = '$1' . $modx->config['modx_charset'] . '$2';
+		$content = preg_replace($s, $r, $content);
+		$content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
+	}
+	$content = str_replace('[*content*]','[ *content* ]',$content);
+	$content = trim($content);
+	$pagetitle = $modx->db->escape($pagetitle);
+	return array($pagetitle,$content,$description);
 }
