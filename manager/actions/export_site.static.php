@@ -367,7 +367,7 @@ class EXPORT_SITE
 				{
 					if (file_exists($dirname)) @unlink($dirname);
 					mkdir($dirname);
-					@chmod($dirname, 0777)
+					@chmod($dirname, 0777);
 					if ($row['wasNull'])
 					{
 						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
