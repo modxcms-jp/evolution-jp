@@ -274,8 +274,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 				if($is_site_start==true && $_POST['reset']=='on')
 				{
 					$tbl_system_settings = $modx->getFullTableName('system_settings');
-					$sql = "REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES ('site_start', '{$newid}')";
-					$modx->db->query($sql);
+					$modx->db->update("setting_value={$newid}",$tbl_system_settings,"setting_name='site_start'");
 					$modx->db->update('menuindex=0',$tbl_site_content,"id='{$newid}'");
 				}
 			}
@@ -325,15 +324,6 @@ function getFileContent($filepath)
 		.$_lang["import_site_failed_no_retrieve_file"].$filepath.".</p>";
 	}
 	else return $buffer;
-}
-
-/**
- * @deprecated Use $modx->stripAlias()
- */
-function stripAlias($alias)
-{
-	global $modx;
-	return $modx->stripAlias($alias);
 }
 
 function pop_index($array)

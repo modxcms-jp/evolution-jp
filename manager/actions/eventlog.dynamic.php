@@ -35,9 +35,9 @@ $_PAGE['vs']['lm'] = $listmode;
 // context menu
 include_once $base_path."manager/includes/controls/contextmenu.php";
 $cm = new ContextMenu("cntxm", 150);
-$cm->addItem($_lang['view_log'],"js:menuAction(1)","media/style/" . $manager_theme ."images/icons/save.png");
+$cm->addItem($_lang['view_log'],"js:menuAction(1)",$_style['icons_save']);
 $cm->addSeparator();
-$cm->addItem($_lang['delete'], "js:menuAction(2)","media/style/" . $manager_theme ."images/icons/delete.png",(!$modx->hasPermission('delete_eventlog') ? 1:0));
+$cm->addItem($_lang['delete'], "js:menuAction(2)",$_style['icons_delete'],(!$modx->hasPermission('delete_eventlog') ? 1:0));
 echo $cm->render();
 
 ?>
@@ -111,9 +111,9 @@ echo $cm->render();
 				<table border="0" style="float:right">
 				    <tr>
 				        <td><?php echo $_lang['search']?> </td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query?>" /></td>
-				        <td><a href="#" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><?php echo $_lang['go']?></a></td>
-				        <td><a href="#" title="<?php echo $_lang['reset']?>" onclick="resetSearch();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/refresh.gif" width="16" height="16"/></a></td>
-				        <td><a href="#" title="<?php echo $_lang['list_mode']?>" onclick="changeListMode();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/table.gif" width="16" height="16"/></a></td>
+				        <td><a href="#" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><img src="<?php echo $_style['icons_save'];?>" /><?php echo $_lang['go']?></a></td>
+				        <td><a href="#" title="<?php echo $_lang['reset']?>" onclick="resetSearch();return false;"><img src="media/style/<?php echo $manager_theme?>images/icons/refresh.gif" /></a></td>
+				        <td><a href="#" title="<?php echo $_lang['list_mode']?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table'];?>"/></a></td>
 				    </tr>
 				</table>
 			</td>
