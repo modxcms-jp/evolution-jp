@@ -338,8 +338,11 @@ if($modx->hasPermission('settings')) {
 
 // Reports Menu
 $reportsmenu = array();
+if($modx->hasPermission('view_schedule')) {
 // site-sched
 $reportsmenu[] = item($_lang['site_schedule'], 'index.php?a=70');
+}
+
 if($modx->hasPermission('view_eventlog')) {
 	// eventlog
 	$reportsmenu[] = item($_lang['eventlog_viewer'], 'index.php?a=114');

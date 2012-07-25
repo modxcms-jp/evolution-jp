@@ -109,6 +109,12 @@ function update_tbl_user_roles()
 		$modx->db->query($sql);
 		$modx->db->update("`remove_locks` = '1'", $tbl_user_roles, "`id` =1");
 	}
+	if($data['view_schedule'] == false)
+	{
+		$sql = "ALTER TABLE {$tbl_user_roles} ADD COLUMN `view_schedule` int(1) NOT NULL DEFAULT '0'";
+		$modx->db->query($sql);
+		$modx->db->update("`view_schedule` = '1'", $tbl_user_roles, "`id` =1");
+	}
 }
 
 function update_tbl_member_groups()

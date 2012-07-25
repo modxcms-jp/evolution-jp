@@ -152,6 +152,7 @@ table td {vertical-align:top;}
 	echo render_form('edit_doc_metatags', $_lang['role_edit_doc_metatags']);
 	echo render_form('empty_cache',       $_lang['role_cache_refresh'], 'disabled');
 	echo render_form('view_unpublished',  $_lang['role_view_unpublished']);
+	echo render_form('view_schedule',     $_lang['role_site_schedule']);
 ?>
 </fieldset>
 </td>
