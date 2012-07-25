@@ -74,6 +74,14 @@ if(!isset($_POST['import'])) {
         <br />
     </td>
   </tr>
+  <tr>
+	<td nowrap="nowrap" valign="top"><b><?php echo $_lang["a95_convert_link"]; ?></b></td>
+    <td>&nbsp;</td>
+    <td><input type="checkbox" id="convert_link" name="convert_link" value="on" />
+        <br />
+		<?php echo $_lang["a95_convert_link_msg"]; ?>
+    </td>
+  </tr>
 </table>
 <ul class="actionButtons">
     <li><a href="#" onclick="document.importFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["import_site_start"]; ?></a></li>
@@ -145,6 +153,8 @@ function run()
 	$importend = $mtime;
 	$totaltime = ($importend - $importstart);
 	$output .= sprintf ('<p>'.$_lang['import_site_time'].'</p>', round($totaltime, 3));
+	
+	if($_POST['convert_link']=='on') convertLink();
 	
 	return $output;
 }
@@ -387,4 +397,54 @@ function treatContent($src,$filename,$alias)
 	$content = trim($content);
 	$pagetitle = $modx->db->escape($pagetitle);
 	return array($pagetitle,$content,$description);
+}
+
+function convertLink()
+{
+	global $modx;
+	
+	$tbl_site_content = $modx->getFulltableName('site_content');
+	$rs = $modx->db->select('id,content',$tbl_site_content);
+	while($row=$modx->db->getRow($rs))
+	{
+		$id = $row['id'];
+		$array = explode('<a href=',$row['content']);
+		$c = 0;
+		foreach($array as $v)
+		{
+			if($v[0]==='"')
+			{
+				$v=substr($v,1);
+				list($href,$v) = explode('"',$v,2);
+				$_ = $href;
+				if($_[0]==='/') $_ = substr($_,1);
+				$_ = str_replace('/index.html','.html',$_);
+				$level = substr_count($_,'../');
+				if(1<$level)
+				{
+					if(!isset($p[$id])) $p[$id] = $modx->getParentIds($id);
+					$k = array_keys($p[$id]);
+					while(0<$level)
+					{
+						$dir = array_shift($k);
+						$level--;
+					}
+					if($dir!='') $dir .= '/';
+				}
+				else $dir = '';
+				
+				$_ = trim($_,'./');
+				if(strpos($_,'/')!==false) $_ = substr($_,strrpos($_,'/'));
+				$_ = $dir . str_replace('.html','',$_);
+				if(!isset($target[$_])) $target[$_] = $modx->getDocumentListing($_);
+				$target[$_] = trim($target[$_]);
+				if(!empty($target[$_])) $href = '[~' . $target[$_] . '~]';
+				$array[$c] = '<a href="' . $href . '"' . $v;
+			}
+			$c++;
+		}
+		$content = join('',$array);
+		$f['content'] = $modx->db->escape($content);
+		$modx->db->update($f,$tbl_site_content,"id='{$id}'");
+	}
 }
