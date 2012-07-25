@@ -1813,11 +1813,13 @@ class DocumentParser {
 			if ($seclimit > 0)
 			{
 				// match found but not publicly accessible, send the visitor to the unauthorized_page
-				$this->sendUnauthorizedPage();
+				if ($this->isBackend()) return false;
+				else $this->sendUnauthorizedPage();
 			}
 			else
 			{
-				$this->sendErrorPage();
+				if ($this->isBackend()) return false;
+				else $this->sendErrorPage();
 			}
 		}
 		
