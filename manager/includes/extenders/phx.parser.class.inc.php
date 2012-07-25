@@ -21,6 +21,7 @@ class PHx {
 		global $modx;
 		switch ($cmd)
 		{
+			#####  String Modifiers
 			case 'lcase':
 			case 'strtolower':
 				$value = strtolower($value); break;
@@ -103,6 +104,45 @@ class PHx {
 				$value = $cmd($value);
 				break;
 			
+			#####  Resource fields
+			case 'id':
+			case 'type':
+			case 'contentType':
+			case 'pagetitle':
+			case 'longtitle':
+			case 'description':
+			case 'alias':
+			case 'link_attributes':
+			case 'published':
+			case 'pub_date':
+			case 'unpub_date':
+			case 'parent':
+			case 'isfolder':
+			case 'content':
+			case 'richtext':
+			case 'template':
+			case 'menuindex':
+			case 'searchable':
+			case 'cacheable':
+			case 'createdby':
+			case 'createdon':
+			case 'editedby':
+			case 'editedon':
+			case 'deleted':
+			case 'deletedon':
+			case 'deletedby':
+			case 'publishedon':
+			case 'publishedby':
+			case 'menutitle':
+			case 'donthit':
+			case 'haskeywords':
+			case 'hasmetatags':
+			case 'privateweb':
+			case 'privatemgr':
+			case 'content_dispo':
+			case 'hidemenu':
+				$value = $this->getDocumentObject($value,$cmd);
+				break;
 			
 			#####  Special functions 
 			case 'math':
@@ -313,5 +353,20 @@ class PHx {
 		
 		if(count($reslut) < 1) $reslut[$cmd] = '';
 		return $reslut;
+	}
+	
+	function getDocumentObject($value,$field='pagetitle')
+	{
+		global $modx;
+		
+		$value = trim($value);
+		if(preg_match('@^[0-9]+$@',$value)) $mode='id';
+		else $mode = 'alias';
+		
+		if(!isset($this->documentObject[$value])) 
+		{
+			$this->documentObject[$value] = $modx->getDocumentObject($mode,$value);
+		}
+		return $this->documentObject[$value][$field];
 	}
 }
