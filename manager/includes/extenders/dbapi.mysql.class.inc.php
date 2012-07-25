@@ -316,6 +316,42 @@ class DBAPI {
     } // insert
     
 	/**
+	* @name:  replace
+	* @desc:  returns replaced or the result from the query
+	*/
+    function replace($fields, $intotable, $fromfields = "*", $fromtable = '', $where = '', $limit = '') {
+        if (!$intotable) {
+            $result = false;
+        } else {
+            $subsql = '';
+            if (!is_array($fields)) {
+                $pairs = $fields;
+            } else {
+                $keys = array_keys($fields);
+                $keys = implode(',', $keys) ;
+                $values = array_values($fields);
+                $values = "'" . implode("','", $values) . "'";
+                $pairs = "({$keys}) ";
+                if (!$fromtable && $values) {
+                    $pairs .= "VALUES({$values})";
+                }
+                if ($fromtable) {
+                    if ($where !== '') {
+                        $where = "WHERE {$where}";
+                    }
+                    if ($limit !== '') {
+                        $limit = "LIMIT {$limit}";
+                    }
+                    $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
+                }
+            }
+            $result = $this->query("REPLACE INTO {$intotable} {$pairs} {$subsql}");
+        }
+
+        return $result;
+    } // replace
+    
+	/**
 	* @name:  getInsertId
 	*
 	*/
