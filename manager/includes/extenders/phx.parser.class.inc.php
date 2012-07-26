@@ -19,6 +19,8 @@ class PHx {
 	function Filter($value, $cmd, $opt='')
 	{
 		global $modx;
+		$cmd=strtolower($cmd);
+		
 		switch ($cmd)
 		{
 			#####  String Modifiers
@@ -86,6 +88,9 @@ class PHx {
 				if(empty($opt) || strpos($opt,',')===false) break;
 				list($s,$r) = explode(',',$opt,2);
 				if($value!=='') $value = str_replace($s,$r,$value);
+				break;
+			case 'ph':
+				if($value!=='') $value = str_replace(array('[+value+]','[+output+]'),$value,$opt);
 				break;
 			case '.':
 				if($value!=='') $value = $value . $opt;
@@ -157,18 +162,15 @@ class PHx {
 				$value = $modx->mb_strftime($opt,0+$value);
 				break;
 			case 'userinfo':
-				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
 				if(empty($opt)) $opt = 'username';
 				$value = $this->ModUser($value,$opt);
 				break;
 			case 'webuserinfo':
-				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
 				if(empty($opt)) $opt = 'username';
 				$value = $this->ModUser(-$value,$opt);
 				break;
 			case 'inrole':
 				// deprecated
-				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
 				$grps = (strlen($opt) > 0 ) ? explode(',', $opt) :array();
 				$value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
