@@ -200,10 +200,12 @@ class PHx {
 					}
 					else
 					{
-						$php = '';
+						$php = false;
 					}
 				}
-				if($php !== '')
+				if($php==='') $php=false;
+				
+				if($php !== false)
 				{
 					ob_start();
 					$options = $opt;
@@ -213,11 +215,17 @@ class PHx {
 					$value = $msg . $custom;
 					ob_end_clean();
 					}
-				elseif($html !== '')
+				elseif($html!==false)
 				{
 					$html = str_replace(array('[+output+]','[+value+]'), $value, $html);
 					$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
 				}
+				if($php===false && $html===false && $value!==''
+				   && (strpos($cmd,'[+value+]')!==false || strpos($cmd,'[+output+]')!==false))
+				{
+					$value = str_replace(array('[+value+]','[+output+]'),$value,$cmd);
+				}
+				else $value = '';
 				break;
 		}
 		return $value;
