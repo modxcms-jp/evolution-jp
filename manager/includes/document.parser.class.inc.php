@@ -1131,7 +1131,7 @@ class DocumentParser {
 			{
 				$value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
 			}
-			if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+			if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 			$replace[$i]= $value;
 			$i++;
 		}
@@ -1158,7 +1158,7 @@ class DocumentParser {
 				{
 					
 					$value = $this->config[$key];
-					if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+					if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 					
 					$replace[$i]= $value;
 				}
@@ -1221,7 +1221,7 @@ class DocumentParser {
 						$value= $row['snippet'];
 					}
 				}
-				if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+				if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 				$replace[$i] = $value;
 				$i++;
 			}
@@ -1257,7 +1257,7 @@ class DocumentParser {
 				}
 				else
 				{
-					if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+					if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 					$replace[$i]= $value;
 				}
 				$i++;
@@ -1516,7 +1516,7 @@ class DocumentParser {
 			unset($temp_params);
 		}
 		$value = $this->evalSnippet($snippetObject['content'], $params);
-		if($modifiers!==false) $value = $this->phx->phxFilter($value,$modifiers);
+		if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 		
 		if($this->dumpSnippets == 1)
 		{
