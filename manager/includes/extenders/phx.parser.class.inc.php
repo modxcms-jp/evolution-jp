@@ -134,6 +134,9 @@ class PHx {
 				$grps = (strlen($opt) > 0 ) ? explode(',', $opt) :array();
 				$value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
+			case 'getfield':
+				$value = $this->get_from_tv($value,$opt);
+				break;
 				
 			// If we haven't yet found the modifier, let's look elsewhere	
 			default:
