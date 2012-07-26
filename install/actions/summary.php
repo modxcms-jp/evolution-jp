@@ -54,7 +54,7 @@ if (!is_writable("{$base_path}assets/cache")) {
 } else {
     echo echo_ok();
     mkd("{$base_path}assets/cache/rss");
-    @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
+    if(is_dir("{$base_path}assets/cache/rss")) @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
 }
 echo '</p>';
 
@@ -106,10 +106,10 @@ if(!is_dir("{$base_path}assets/images"))
 		mkd("{$base_path}content/flash");
 		mkd("{$base_path}content/media");
 		
-		@file_put_contents("{$base_path}content/images/index.html",'');
-		@file_put_contents("{$base_path}content/files/index.html",'');
-		@file_put_contents("{$base_path}content/flash/index.html",'');
-		@file_put_contents("{$base_path}content/media/index.html",'');
+		if(is_dir("{$base_path}content/images")) @file_put_contents("{$base_path}content/images/index.html",'');
+		if(is_dir("{$base_path}content/files")) @file_put_contents("{$base_path}content/files/index.html",'');
+		if(is_dir("{$base_path}content/flash")) @file_put_contents("{$base_path}content/flash/index.html",'');
+		if(is_dir("{$base_path}content/media")) @file_put_contents("{$base_path}content/media/index.html",'');
 	}
 	echo '</p>';
 	if (is_writable("{$base_path}content"))
@@ -154,8 +154,8 @@ if (!is_writable("{$base_path}temp")) {
     echo echo_ok();
 	mkd("{$base_path}temp/export");
 	mkd("{$base_path}temp/backup");
-	@file_put_contents("{$base_path}temp/export/index.html",'');
-	@file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
+	if(is_dir("{$base_path}temp/export")) @file_put_contents("{$base_path}temp/export/index.html",'');
+	if(is_dir("{$base_path}temp/backup")) @file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
 }
 echo '</p>';
 
@@ -403,6 +403,8 @@ function echo_ok()
 
 function mkd($path)
 {
+	if(ini_get('safe_mode') !=0) return;
+	
 	$rs = @mkdir($path);
 	if($rs) $rs = @chmod($path, 0777);
 	return $rs;
