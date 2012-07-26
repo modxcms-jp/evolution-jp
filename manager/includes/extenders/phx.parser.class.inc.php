@@ -111,6 +111,9 @@ class PHx {
 			
 			#####  Resource fields
 			case 'id':
+				if($opt) $value = $this->getDocumentObject($opt,$key);
+				else     $value = $this->getDocumentObject($value,$cmd);
+				break;
 			case 'type':
 			case 'contentType':
 			case 'pagetitle':
@@ -146,8 +149,7 @@ class PHx {
 			case 'privatemgr':
 			case 'content_dispo':
 			case 'hidemenu':
-				if($opt) $value = $this->getDocumentObject($opt,$key);
-				else     $value = $this->getDocumentObject($value,$cmd);
+				$value = $this->getDocumentObject($value,$cmd);
 				break;
 			
 			#####  Special functions 
