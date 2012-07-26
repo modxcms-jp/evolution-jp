@@ -89,7 +89,7 @@ class PHx {
 				list($s,$r) = explode(',',$opt,2);
 				if($value!=='') $value = str_replace($s,$r,$value);
 				break;
-			case 'ph':
+			case 'replece_to':
 				if($value!=='') $value = str_replace(array('[+value+]','[+output+]'),$value,$opt);
 				break;
 			case '.':
