@@ -109,46 +109,6 @@ class PHx {
 				$value = $cmd($value);
 				break;
 			
-			#####  Resource fields
-			case 'id':
-			case 'type':
-			case 'contentType':
-			case 'pagetitle':
-			case 'longtitle':
-			case 'description':
-			case 'alias':
-			case 'link_attributes':
-			case 'published':
-			case 'pub_date':
-			case 'unpub_date':
-			case 'parent':
-			case 'isfolder':
-			case 'content':
-			case 'richtext':
-			case 'template':
-			case 'menuindex':
-			case 'searchable':
-			case 'cacheable':
-			case 'createdby':
-			case 'createdon':
-			case 'editedby':
-			case 'editedon':
-			case 'deleted':
-			case 'deletedon':
-			case 'deletedby':
-			case 'publishedon':
-			case 'publishedby':
-			case 'menutitle':
-			case 'donthit':
-			case 'haskeywords':
-			case 'hasmetatags':
-			case 'privateweb':
-			case 'privatemgr':
-			case 'content_dispo':
-			case 'hidemenu':
-				$value = $this->getDocumentObject($value,$cmd);
-				break;
-			
 			#####  Special functions 
 			case 'math':
 				$filter = preg_replace("~([a-zA-Z\n\r\t\s])~",'',$opt);
@@ -177,44 +137,22 @@ class PHx {
 				
 			// If we haven't yet found the modifier, let's look elsewhere	
 			default:
-				$html = $modx->getChunk('phx:' . $cmd);
-				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='phx:{$cmd}'");
-				if($modx->db->getRecordCount($result) == 1)
+				$phxmod_detect_order = 'snippet,include,chunk,tv';
+				$order=explode(',',$phxmod_detect_order);
+				foreach($order as $v)
 				{
-					$php = $modx->db->getValue($result);
-				}
-				elseif($modx->db->getRecordCount($result) == 0)
+					if    ($v==='snippet') $result = $this->get_from_snippet($value,$cmd,$opt);
+					elseif($v==='include') $result = $this->get_from_include($value,$cmd,$opt);
+					elseif($v==='chunk')   $result = $this->get_from_chunk($value,$cmd,$opt);
+					elseif($v==='tv')      $result = $this->get_from_tv($value,$cmd);
+					
+					if($result!==false)
 				{
-					$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
-					if(file_exists($filename))
-					{
-						$php = @file_get_contents($filename);
-						$php = trim($php);
-						$php = preg_replace('@^<\?php@', '', $php);
-						$php = preg_replace('@?>$@', '', $php);
-						$php = preg_replace('@^<\?@', '', $php);
-					}
-					else
-					{
-						$php = '';
+						$value = $result;
+						break;
 					}
 				}
-				if($php !== '')
-				{
-					ob_start();
-					$options = $opt;
-					$output = $value;
-					$custom = eval($php);
-					$msg = ob_get_contents();
-					$value = $msg . $custom;
-					ob_end_clean();
-				}
-				elseif($html !== '')
-				{
-					$html = str_replace(array('[+output+]','[+value+]'), $value, $html);
-					$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
-				}
+				
 				break;
 		}
 		return $value;
@@ -357,10 +295,73 @@ class PHx {
 		return $reslut;
 	}
 	
-	function getDocumentObject($value,$field='pagetitle')
+	function get_from_snippet($value,$cmd,$opt)
 	{
 		global $modx;
 		
+		$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+		$result = $modx->db->select('snippet',$tbl_site_snippets,"name='phx:{$cmd}'");
+		if($modx->db->getRecordCount($result) == 1)
+		{
+			$php = $modx->db->getValue($result);
+		}
+		
+		if(isset($php)) $result = eval_php($php,$value,$cmd,$opt);
+		else            $result = false;
+		
+		return $result;
+	}
+	
+	function get_from_include($value,$cmd,$opt)
+	{
+		global $modx;
+		
+		$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
+		if(file_exists($filename))
+		{
+			$php = @file_get_contents($filename);
+			$php = trim($php);
+			$php = preg_replace('@^<\?php@', '', $php);
+			$php = preg_replace('@?>$@', '', $php);
+			$php = preg_replace('@^<\?@', '', $php);
+		}
+		
+		if(isset($php)) $result = eval_php($php,$value,$cmd,$opt);
+		else            $result = false;
+		
+		return $result;
+	}
+	
+	function eval_php($php,$value,$cmd,$opt)
+	{
+		ob_start();
+		$options = $opt;
+		$output = $value;
+		$custom = eval($php);
+		$msg = ob_get_contents();
+		$result = $msg . $custom;
+		ob_end_clean();
+		return $result;
+	}
+	
+	function get_from_chunk($value,$cmd,$opt)
+	{
+		global $modx;
+		
+		$html = $modx->getChunk('phx:' . $cmd);
+		if($html)
+		{
+			$html = str_replace(array('[+output+]','[+value+]'), $value, $html);
+			$result = str_replace(array('[+options+]','[+param+]'), $opt, $html);
+		}
+		else $result = false;
+		
+		return $result;
+	}
+	
+	function get_from_tv($value,$field='pagetitle')
+	{
+		global $modx;
 		$value = trim($value);
 		if(preg_match('@^[0-9]+$@',$value)) $mode='id';
 		else $mode = 'alias';
@@ -369,6 +370,12 @@ class PHx {
 		{
 			$this->documentObject[$value] = $modx->getDocumentObject($mode,$value);
 		}
+		if(is_array($this->documentObject[$value][$field]))
+		{
+			$a = $modx->getTemplateVarOutput($field,$value);
+			$this->documentObject[$value][$field] = $a[$field];
+		}
+		
 		return $this->documentObject[$value][$field];
 	}
 }
