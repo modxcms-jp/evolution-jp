@@ -11,7 +11,8 @@ $BINDINGS = array (
     'SELECT',
     'EVAL',
     'INHERIT',
-    'DIRECTORY'
+    'DIRECTORY',
+    'NONE'
 );
 
 function ProcessTVCommand($value, $name = '', $docid = '') {
@@ -111,6 +112,11 @@ function ProcessTVCommand($value, $name = '', $docid = '') {
                 }
                 asort($files);
                 $output = implode('||', $files);
+                break;
+
+            case 'NULL' :
+            case 'NONE' :
+                $output = '';
                 break;
 
             default :
