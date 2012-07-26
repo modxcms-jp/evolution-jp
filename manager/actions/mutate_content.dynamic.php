@@ -869,14 +869,14 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 							$tvPBV = $row['value'];
 						}
 
-						$zindex = $row['type'] == 'date' ? '100' : '500';
-						echo "\t\t",'<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
-						     "\t\t\t",'<br /><span class="comment">',$row['description'],"</span></td>\n",
-                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:{$zindex};' : ''),'">',"\n",
-                             "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
-						     "\t\t</td></tr>\n";
+						$zindex = ($row['type'] === 'date') ? 'z-index:100;' : '';
+							echo '<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">'.$row['caption']."</span>\n".
+						     '<br /><span class="comment">'.$row['description']."</span></td>\n".
+                             '<td valign="top" style="position:relative;'.$zindex.'">'."\n".
+                             renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
+						     "</td></tr>\n";
 					}
-					echo "\t</table>\n";
+					echo "</table>\n";
 				}
 				else
 				{
