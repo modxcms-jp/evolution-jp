@@ -89,14 +89,22 @@ function assign_base_path()
 
 function assign_base_url($base_path)
 {
+	if(defined('IN_MANAGER_MODE'))
+	{
+		return substr($_SERVER['REQUEST_URI'],0,strpos($_SERVER['REQUEST_URI'],'/manager/')) . '/';
+	}
+	if(strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['SCRIPT_NAME'])===false)
+	{
+		echo 'Missing base_url';
+		exit;
+	}
 	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
 	$dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
 	$dir = str_replace('\\', '/', $dir);
 	$dir = substr($dir,0,strrpos($dir,'/')) . '/';
 	$dir = preg_replace('@(.*?)/manager/.*$@', '$1', $dir);
 	$dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
-	$request_uri = $_SERVER['REQUEST_URI'];
-	if($request_uri[1]==='~') $dir = '/~' . substr($dir,1);
+	if(substr($_SERVER['REQUEST_URI'],0,2)==='/~') $dir = '/~' . substr($dir,1);
 	$dir = rtrim($dir, '/') . '/';
 	return $dir;
 }
