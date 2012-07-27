@@ -1214,7 +1214,7 @@ $_lang['a17_error_reporting_opt1'] = '通知レベルの軽度の警告を無視
 $_lang['a17_error_reporting_opt2'] = 'E_NOTICE 以外の全てのエラーを検出';
 $_lang['a17_error_reporting_opt99'] = '全て検出する';
 
-$_lang['enable_phx_message'] = '内蔵のPHx機能を有効にします。この機能はまだ不完全なので、if判定など複雑な処理はできません。';
+$_lang['enable_phx_message'] = '内蔵の簡易PHx機能を有効にします。プラグイン版PHxと比べると、if判定など複雑な処理はできません。';
 
 $_lang["role_site_schedule"] = '公開状態の一覧';
 
