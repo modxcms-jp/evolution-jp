@@ -324,6 +324,7 @@ function decode(s){
 	$option['number']       = 'Number';
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
+	$option['hidden']       = 'HIdden';
 	$option['custom_tv']    = 'Custom Input';
 	$tbl_site_snippets = $modx->getFullTableName('site_snippets');
 	$result = $modx->db->select('name',$tbl_site_snippets,"name like'input:%'");

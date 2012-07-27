@@ -862,11 +862,18 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 						}
 
 						$zindex = ($row['type'] === 'date') ? 'z-index:100;' : '';
+						if($row['type']!=='hidden')
+						{
 							echo '<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">'.$row['caption']."</span>\n".
 						     '<br /><span class="comment">'.$row['description']."</span></td>\n".
                              '<td valign="top" style="position:relative;'.$zindex.'">'."\n".
                              renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
 						     "</td></tr>\n";
+						}
+						else
+						{
+							echo '<tr style="display:none;"><td colspan="2">' . renderFormElement('hidden', $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."</td></tr>\n";
+						}
 					}
 					echo "</table>\n";
 				}

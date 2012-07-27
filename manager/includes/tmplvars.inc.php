@@ -252,6 +252,10 @@ EOT;
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' onchange="documentDirty=true;" />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
                 
 				break;
+			case "hidden":
+				$field_type = 'hidden';
+				$field_html .=  '<input type="hidden" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value). '" tvtype="' . $field_type.'" onchange="documentDirty=true;" />';
+				break;
 
             case 'custom_tv':
                 $custom_output = '';
