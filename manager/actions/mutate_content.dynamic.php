@@ -39,10 +39,6 @@ switch ($_REQUEST['a']) {
 if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
 else                        $id = 0;
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
 // Get table names (alphabetical)
 $tbl_active_users               = $modx->getFullTableName('active_users');
 $tbl_categories                 = $modx->getFullTableName('categories');
@@ -782,9 +778,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			</select>
 		</div>
 <?php
-				$replace_richtexteditor = array(
-					'ta',
-				);
+				$replace_richtexteditor = array('ta');
 			}
 			else
 			{
@@ -804,27 +798,25 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
 			<div class="sectionBody tmplvars" id="tv_body">
 <?php
-				$template = $default_template;
-				if (isset ($_REQUEST['newtemplate'])) {
-					$template = $_REQUEST['newtemplate'];
-				} else {
-					if (isset ($content['template']))
-						$template = $content['template'];
-				}
+				
+				if (isset ($_REQUEST['newtemplate'])) $template = $_REQUEST['newtemplate'];
+				elseif (isset ($content['template'])) $template = $content['template'];
+				else                                  $template = $modx->config['default_template'];
+				
 				$session_mgrRole = $_SESSION['mgrRole'];
 				$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
 				
 				$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-				$from = trim("
+				$from = "
 					{$tbl_site_tmplvars}                         AS tv 
 					INNER JOIN {$tbl_site_tmplvar_templates}     AS tvtpl ON tvtpl.tmplvarid = tv.id 
 					LEFT  JOIN {$tbl_site_tmplvar_contentvalues} AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
 					LEFT  JOIN {$tbl_site_tmplvar_access}        AS tva   ON tva.tmplvarid   = tv.id
-					");
-				$where = trim("
+					";
+				$where = "
 					tvtpl.templateid='{$template}'
 					AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
-					");
+					";
 				$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
 				$num_of_tv = $modx->db->getRecordCount($rs);
 				echo '<script type="text/javascript">var num_of_tv=' . $num_of_tv . ';</script>';
