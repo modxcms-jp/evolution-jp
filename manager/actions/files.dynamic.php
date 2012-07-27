@@ -51,6 +51,7 @@ if(!$modx->hasPermission('save_plugin'))   $proteted_path[] = $modx->config['bas
 if(!$modx->hasPermission('save_snippet'))  $proteted_path[] = $modx->config['base_path'] . 'assets/snippets';
 if(!$modx->hasPermission('save_template')) $proteted_path[] = $modx->config['base_path'] . 'assets/templates';
 if(!$modx->hasPermission('save_module'))   $proteted_path[] = $modx->config['base_path'] . 'assets/modules';
+if(!$modx->hasPermission('empty_cache'))   $proteted_path[] = $modx->config['base_path'] . 'assets/cache';
 if(!$modx->hasPermission('import_static')) {
 	$proteted_path[] = $modx->config['base_path'] . 'temp/import';
 	$proteted_path[] = $modx->config['base_path'] . 'assets/import';

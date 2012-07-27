@@ -2389,6 +2389,8 @@ class DocumentParser {
 	}
 	
     function clearCache($params=array()) {
+    	if(!$this->hasPermission('empty_cache')) return;
+    	
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
     		$showReport = ($params['showReport']) ? $params['showReport'] : false;

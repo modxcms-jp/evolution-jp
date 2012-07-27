@@ -243,7 +243,9 @@ $sitemenu = array();
 
 $sitemenu[] = item($_lang['home'], 'index.php?a=2');             // home
 $sitemenu[] = item($_lang['preview'], '../', 'target="_blank"'); // preview
-$sitemenu[] = item($_lang['refresh_site'], 'index.php?a=26');    // clear-cache
+if ($modx->hasPermission('empty_cache')) {
+	$sitemenu[] = item($_lang['refresh_site'], 'index.php?a=26');    // clear-cache
+}
 $sitemenu[] = item($_lang['search'], 'index.php?a=71');          // search
 if ($modx->hasPermission('new_document')) {
 	$sitemenu[] = item($_lang['add_resource'], 'index.php?a=4'); // new-document
