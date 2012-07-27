@@ -647,12 +647,9 @@ switch ($actionToTake)
 		include "{$base_path}manager/includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
 
-		if($published  != $was['published'])    $clearcache['target'] = 'pagecache,sitecache';
-		elseif($was['alias']==$fields['alias']) $clearcache['target'] = 'pagecache';
-		else                                    $clearcache['target'] = 'pagecache,sitecache';
 		if ($syncsite == 1)
 		{
-			$modx->clearCache($clearcache);
+			$modx->clearCache('pagecache,sitecache');
 		}
 		
 		if ( empty($header) )
