@@ -98,8 +98,12 @@ function assign_base_url($base_path)
 	}
 	if(strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['SCRIPT_NAME'])===false)
 	{
-		echo 'Missing base_url';
-		exit;
+		if(strrpos($_SERVER['REQUEST_URI'],'/install/index.php')!==false)
+			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install/')) . '/';
+		else {
+			echo 'Missing base_url';
+			exit;
+		}
 	}
 	$pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
 	$dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
