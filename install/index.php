@@ -33,7 +33,7 @@ if (!$_SESSION['test']) {
     if ($_SERVER['SERVER_PORT'] != 80)
         $installBaseUrl = str_replace(':' . $_SERVER['SERVER_PORT'], '', $installBaseUrl); // remove port from HTTP_HOST
     $installBaseUrl .= ($_SERVER['SERVER_PORT'] == 80 || isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) == 'on') ? '' : ':' . $_SERVER['SERVER_PORT'];
-	$retryURL = $installBaseUrl . $_SERVER['PHP_SELF'] . "?action=language";
+	$retryURL = $installBaseUrl . $_SERVER['SCRIPT_NAME'] . "?action=language";
 	echo '
 <html>
 <head>
