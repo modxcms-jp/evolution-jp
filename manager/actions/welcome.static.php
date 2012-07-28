@@ -134,138 +134,6 @@ if (   ($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
 } else {
     $modx->setPlaceholder('config_display','none');
 }
-if(!empty($modx->config['rss_url_news']) || !empty($modx->config['rss_url_security']))
-{
-	$feedData = include_once "rss.inc.php"; 
-}
-if(!empty($modx->config['rss_url_news']))
-{
-	$modx_news_content = $feedData['modx_news_content'];
-}
-else $modx_news_content = '-';
-if(!empty($modx->config['rss_url_security']))
-{
-	$modx_security_notices_content = $feedData['modx_security_notices_content'];
-}
-else $modx_security_notices_content = '-';
-
-// modx news
-$modx->setPlaceholder('modx_news',$_lang["modx_news_tab"]);
-$modx->setPlaceholder('modx_news_title',$_lang["modx_news_title"]);
-$modx->setPlaceholder('modx_news_content',$modx_news_content);
-
-// security notices
-$modx->setPlaceholder('modx_security_notices',$_lang["security_notices_tab"]);
-$modx->setPlaceholder('modx_security_notices_title',$_lang["security_notices_title"]);
-$modx->setPlaceholder('modx_security_notices_content',$modx_security_notices_content);
-
-// recent document info
-$html = $_lang["activity_message"].'<br /><br /><ul>';
-$field = 'id, pagetitle, description, editedon, editedby';
-$tbl_site_content = $modx->getFullTableName('site_content');
-$where = "deleted=0 AND editedby={$uid}";
-$rs = $modx->db->select($field,$tbl_site_content,$where,'editedon DESC',10);
-$limit = $modx->db->getRecordCount($rs);
-if($limit<1)
-{
-    $html .= '<li>'.$_lang['no_activity_message'].'</li>';
-}
-else
-{
-	for ($i = 0; $i < $limit; $i++)
-	{
-		$row = $modx->db->getRow($rs);
-		if($i==0)
-		{
-			$syncid = $row['id'];
-		}
-        
-		$html.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
-		.'</li>';
-	}
-}
-$html.='</ul>';
-$modx->setPlaceholder('recent_docs',$_lang['recent_docs']);
-$modx->setPlaceholder('activity_title',$_lang['activity_title']);
-$modx->setPlaceholder('RecentInfo',$html);
-
-// user info
-$modx->setPlaceholder('info',$_lang['info']);
-$modx->setPlaceholder('yourinfo_title',$_lang['yourinfo_title']);
-if(!empty($_SESSION['mgrLastlogin']))
-{
-     $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time);
-}
-else $Lastlogin = '-';
-
-$html = '
-    <p>'.$_lang["yourinfo_message"].'</p>
-    <table border="0" cellspacing="0" cellpadding="0">
-      <tr>
-        <td width="150">'.$_lang["yourinfo_username"].'</td>
-        <td width="20">&nbsp;</td>
-        <td><b>'.$modx->getLoginUserName().'</b></td>
-      </tr>
-      <tr>
-        <td>'.$_lang["yourinfo_role"].'</td>
-        <td>&nbsp;</td>
-        <td><b>'.$_SESSION['mgrPermissions']['name'].'</b></td>
-      </tr>
-      <tr>
-        <td>'.$_lang["yourinfo_previous_login"].'</td>
-        <td>&nbsp;</td>
-        <td><b>' . $Lastlogin . '</b></td>
-      </tr>
-      <tr>
-        <td>'.$_lang["yourinfo_total_logins"].'</td>
-        <td>&nbsp;</td>
-        <td><b>'.($_SESSION['mgrLogincount']+1).'</b></td>
-      </tr>
-    </table>
-';
-$modx->setPlaceholder('UserInfo',$html);
-
-// online users
-$modx->setPlaceholder('online',$_lang['online']);
-$modx->setPlaceholder('onlineusers_title',$_lang['onlineusers_title']);
-$timetocheck = (time()-(60*20));//+$server_offset_time;
-
-include_once "actionlist.inc.php";
-$tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('*',$tbl_active_users,"lasthit>'{$timetocheck}'",'username ASC');
-$limit = $modx->db->getRecordCount($rs);
-if($limit<2)
-{
-	$html = "<p>".$_lang['no_active_users_found']."</p>";
-}
-else
-{
-	$html = '<p>' . $_lang["onlineusers_message"].'<b>'.strftime('%H:%M:%S', time()+$server_offset_time).'</b>)</p>';
-	$html .= '
-	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
-	<thead>
-	<tr>
-	<td><b>'.$_lang["onlineusers_user"].'</b></td>
-	<td><b>'.$_lang["onlineusers_userid"].'</b></td>
-	<td><b>'.$_lang["onlineusers_ipaddress"].'</b></td>
-	<td><b>'.$_lang["onlineusers_lasthit"].'</b></td>
-	<td><b>'.$_lang["onlineusers_action"].'</b></td>
-	</tr>
-	</thead>
-	<tbody>
-	';
-	while ($row = $modx->db->getRow($rs))
-	{
-		$currentaction = getAction($row['action'], $row['id']);
-		$webicon = ($row['internalKey']<0)? '<img src="' . $style_path . 'tree/globe.gif" alt="Web user" />':'';
-		$html.= "<tr bgcolor='#FFFFFF'><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
-	}
-        $html.= '
-                </tbody>
-                </table>
-        ';
-    }
-$modx->setPlaceholder('OnlineInfo',$html);
 
 // load template file
 global $tpl;
@@ -276,20 +144,20 @@ if(is_array($evtOut)) {
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
-if(file_exists(MODX_BASE_PATH . 'assets/templates/manager/welcome.php'))
-{
-	include_once(MODX_BASE_PATH . 'assets/templates/manager/welcome.php');
-}
+$_ = MODX_BASE_PATH . 'assets/templates/manager/welcome.php';
+if(file_exists($_)) include_once($_);
+unset($_);
 
 if(!isset($tpl) || empty($tpl))
 {
-	$tplFile = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-	if(!file_exists($tplFile))
+	$_ = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
+	if(!file_exists($_))
 	{
-		$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+		$_ = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
 	}
-	$tpl = file_get_contents($tplFile);
+	$tpl = file_get_contents($_);
 }
+unset($_);
 
 // invoke event OnManagerWelcomeHome
 $evtOut = $modx->invokeEvent('OnManagerWelcomeHome');
@@ -312,8 +180,6 @@ if ($js= $modx->getRegisteredClientScripts()) {
 }
 $tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl); //cleanup
 echo $tpl;
-
-
 
 function get_icon($title,$action,$icon_path,$alt='')
 {
