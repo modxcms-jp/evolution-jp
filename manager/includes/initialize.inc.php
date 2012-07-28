@@ -91,7 +91,10 @@ function assign_base_url($base_path)
 {
 	if(defined('IN_MANAGER_MODE'))
 	{
-		return substr($_SERVER['REQUEST_URI'],0,strpos($_SERVER['REQUEST_URI'],'/manager/')) . '/';
+		if(strpos($_SERVER['REQUEST_URI'],'/manager/')!==false)
+			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/manager/')) . '/';
+		elseif(strrpos($_SERVER['REQUEST_URI'],'/assets/')!==false)
+			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/assets/')) . '/';
 	}
 	if(strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['SCRIPT_NAME'])===false)
 	{
