@@ -1885,7 +1885,10 @@ class DocumentParser {
 			// replace HTMLSnippets in document
 			if(strpos($source,'{{')!==false) $source= $this->mergeChunkContent($source);
 			// insert META tags & keywords
-			$source= $this->mergeDocumentMETATags($source);
+			if(isset($this->config['show_meta']) && $this->config['show_meta']==1)
+			{
+				$source= $this->mergeDocumentMETATags($source);
+			}
 			// find and merge snippets
 			if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
 			// find and replace Placeholders (must be parsed last) - Added by Raymond

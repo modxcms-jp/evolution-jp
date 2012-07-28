@@ -301,7 +301,7 @@ switch ($actionToTake)
 		}
 
 		// save META Keywords
-		saveMETAKeywords($newid);
+		if(isset($modx->config['show_meta']) && $modx->config['show_meta']==1) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
 		$header=''; // Redirect header
@@ -630,7 +630,7 @@ switch ($actionToTake)
 		}
 
 		// save META Keywords
-		saveMETAKeywords($id);
+		if(isset($modx->config['show_meta']) && $modx->config['show_meta']==1) saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
 		$header=''; // Redirect header

@@ -865,7 +865,10 @@ $dir->close();
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
-
+<?php
+$rs = $modx->db->query("SHOW TABLES LIKE '{$table_prefix}site_metatags'");
+if(0 < $modx->db->getRecordCount($rs))
+{ ?>
 <tr>
 <th><?php echo $_lang["show_meta"] ?></th>
 <td>
@@ -874,7 +877,7 @@ $dir->close();
 	<?php echo $_lang["show_meta_message"]?>
 </td>
 </tr>
-
+<?php } ?>
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
 <td>

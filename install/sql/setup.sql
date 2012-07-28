@@ -48,14 +48,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}event_log` (
   KEY `user`(`user`)
 ) ENGINE=MyISAM COMMENT='Stores event and error logs';
 
-CREATE TABLE IF NOT EXISTS `{PREFIX}keyword_xref` (
-  `content_id` int(11) NOT NULL default '0',
-  `keyword_id` int(11) NOT NULL default '0',
-  PRIMARY KEY ( `content_id` , `keyword_id` ),
-  KEY `content_id` (`content_id`),
-  KEY `keyword_id` (`keyword_id`)
-) ENGINE=MyISAM COMMENT='Cross reference bewteen keywords and content';
-
 CREATE TABLE IF NOT EXISTS `{PREFIX}manager_log` (
   `id` int(10) NOT NULL auto_increment,
   `timestamp` int(20) NOT NULL default '0',
@@ -143,14 +135,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY typeidx (`type`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
 
-CREATE TABLE IF NOT EXISTS `{PREFIX}site_content_metatags` (
-  `content_id` int(11) NOT NULL default '0',
-  `metatag_id` int(11) NOT NULL default '0',
-  PRIMARY KEY ( `content_id` , `metatag_id` ),
-  KEY `content_id` (`content_id`),
-  KEY `metatag_id` (`metatag_id`)
-) ENGINE=MyISAM COMMENT='Reference table between meta tags and content';
-
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
   `id` int(10) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
@@ -165,22 +149,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
   `locked` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM COMMENT='Contains the site chunks.';
-
-CREATE TABLE IF NOT EXISTS `{PREFIX}site_keywords` (
-  `id` int(11) NOT NULL auto_increment,
-  `keyword` varchar(40) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `keyword` (`keyword`)
-) ENGINE=MyISAM COMMENT='Site keyword list';
-
-CREATE TABLE IF NOT EXISTS `{PREFIX}site_metatags` (
-  `id` integer NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL DEFAULT '',
-  `tag` varchar(50) NOT NULL DEFAULT '' COMMENT 'tag name',
-  `tagvalue` varchar(255) NOT NULL DEFAULT '',
-  `http_equiv` tinyint NOT NULL DEFAULT 0 COMMENT '1 - use http_equiv tag style, 0 - use name',
-  PRIMARY KEY(`id`)
-) ENGINE=MyISAM COMMENT='Site meta tags';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_modules` (
   `id` integer NOT NULL AUTO_INCREMENT,
@@ -705,11 +673,6 @@ ALTER TABLE `{PREFIX}user_attributes`
   MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
   MODIFY COLUMN `comment` text;
 
-ALTER TABLE `{PREFIX}site_metatags` 
-  MODIFY COLUMN `name` varchar(50) NOT NULL DEFAULT '',
-  MODIFY COLUMN `tag` varchar(50) NOT NULL DEFAULT '' COMMENT 'tag name',
-  MODIFY COLUMN `tagvalue` varchar(255) NOT NULL DEFAULT '';
-
 ALTER TABLE `{PREFIX}web_user_attributes`
   MODIFY COLUMN `state` varchar(25) NOT NULL default '',
   MODIFY COLUMN `zip` varchar(25) NOT NULL default '',
@@ -738,14 +701,6 @@ ALTER TABLE `{PREFIX}web_user_settings`
 ALTER TABLE `{PREFIX}site_plugin_events`
  DROP PRIMARY KEY,
  ADD PRIMARY KEY ( `pluginid` , `evtid` );
-
-ALTER TABLE `{PREFIX}keyword_xref`
- DROP PRIMARY KEY,
- ADD PRIMARY KEY ( `content_id` , `keyword_id` );
-
-ALTER TABLE `{PREFIX}site_content_metatags`
- DROP PRIMARY KEY,
- ADD PRIMARY KEY ( `content_id` , `metatag_id` );
 
 # Set the private manager group flag
 UPDATE `{PREFIX}documentgroup_names` AS dgn
