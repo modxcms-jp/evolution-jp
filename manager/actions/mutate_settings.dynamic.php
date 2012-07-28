@@ -950,86 +950,6 @@ echo $str;
 </tr>
 
 <tr>
-<th><?php echo $_lang["rb_title"]?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"'));?><br />
-	<?php echo $_lang["rb_message"]?>
-</td>
-</tr>
-
-<tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('strip_image_paths','1',$strip_image_paths=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('strip_image_paths','0',$strip_image_paths=='0'));?><br />
-	<?php echo $_lang["settings_strip_image_paths_message"]?>
-</td>
-</tr>
-
-<tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["rb_webuser_title"]?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('rb_webuser','1',$rb_webuser=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('rb_webuser','0',$rb_webuser=='0'));?><br />
-	<?php echo $_lang["rb_webuser_message"]?>
-</td>
-</tr>
-<tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["rb_base_dir_title"]?></th>
-<td><?php
-function getResourceBaseDir() {
-global $base_path;
-if(is_dir("{$base_path}content")) return "{$base_path}content/";
-else return "{$base_path}assets/";
-
-}
-?>
-<?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
-<?php echo form_text('rb_base_dir',$rb_base_dir,255,'id="rb_base_dir"');?>
-<input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
-<?php echo $_lang["rb_base_dir_message"]?></td>
-</tr>
-<tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["rb_base_url_title"]?></th>
-<td>
-<?php echo $base_path . form_text('rb_base_url',$rb_base_url);?><br />
-<?php echo $_lang["rb_base_url_message"]?></td>
-</tr>
-<tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_images_title"]?></th>
-<td>
-<?php echo form_text('upload_images',$upload_images);?><br />
-<?php echo $_lang["uploadable_images_message"]?></td>
-</tr>
-<tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_media_title"]?></th>
-<td>
-<?php echo form_text('upload_media',$upload_media);?><br />
-<?php echo $_lang["uploadable_media_message"]?></td>
-</tr>
-<tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_flash_title"]?></th>
-<td>
-<?php echo form_text('upload_flash',$upload_flash);?><br />
-<?php echo $_lang["uploadable_flash_message"]?></td>
-</tr>
-<tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["clean_uploaded_filename"]?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('clean_uploaded_filename','0',$clean_uploaded_filename=='0'));?><br />
-	<?php echo $_lang["clean_uploaded_filename_message"];?>
-</td>
-</tr>
-<tr id='rbRow173' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["a17_image_limit_width_title"]?></th>
-<td>
-<?php echo form_text('image_limit_width',$image_limit_width);?>px<br />
-<?php echo $_lang["a17_image_limit_width_message"]?></td>
-</tr>
-
-<tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"'));?><br />
@@ -1128,7 +1048,7 @@ if(empty($upload_maxsize))
 	$upload_maxsize = $limit_size_bytes;
 }
 ?>
-<?php echo form_text('upload_maxsize',$upload_maxsize);?><br />
+<?php echo form_text('upload_maxsize',intval($upload_maxsize));?><br />
 <?php echo sprintf($_lang["upload_maxsize_message"],$limit_size);?></td>
 </tr>
 <tr>
@@ -1143,6 +1063,87 @@ if(empty($upload_maxsize))
 <?php echo form_text('new_folder_permissions',$new_folder_permissions,4);?><br />
 <?php echo $_lang["new_folder_permissions_message"]?></td>
 </tr>
+
+<tr>
+<th><?php echo $_lang["rb_title"]?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"'));?><br />
+	<?php echo $_lang["rb_message"]?>
+</td>
+</tr>
+
+<tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('strip_image_paths','1',$strip_image_paths=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('strip_image_paths','0',$strip_image_paths=='0'));?><br />
+	<?php echo $_lang["settings_strip_image_paths_message"]?>
+</td>
+</tr>
+
+<tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["rb_webuser_title"]?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('rb_webuser','1',$rb_webuser=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('rb_webuser','0',$rb_webuser=='0'));?><br />
+	<?php echo $_lang["rb_webuser_message"]?>
+</td>
+</tr>
+<tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["rb_base_dir_title"]?></th>
+<td><?php
+function getResourceBaseDir() {
+global $base_path;
+if(is_dir("{$base_path}content")) return "{$base_path}content/";
+else return "{$base_path}assets/";
+
+}
+?>
+<?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
+<?php echo form_text('rb_base_dir',$rb_base_dir,255,'id="rb_base_dir"');?>
+<input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
+<?php echo $_lang["rb_base_dir_message"]?></td>
+</tr>
+<tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["rb_base_url_title"]?></th>
+<td>
+<?php echo $base_path . form_text('rb_base_url',$rb_base_url);?><br />
+<?php echo $_lang["rb_base_url_message"]?></td>
+</tr>
+<tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["uploadable_images_title"]?></th>
+<td>
+<?php echo form_text('upload_images',$upload_images);?><br />
+<?php echo $_lang["uploadable_images_message"]?></td>
+</tr>
+<tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["uploadable_media_title"]?></th>
+<td>
+<?php echo form_text('upload_media',$upload_media);?><br />
+<?php echo $_lang["uploadable_media_message"]?></td>
+</tr>
+<tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["uploadable_flash_title"]?></th>
+<td>
+<?php echo form_text('upload_flash',$upload_flash);?><br />
+<?php echo $_lang["uploadable_flash_message"]?></td>
+</tr>
+<tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["clean_uploaded_filename"]?></th>
+<td>
+	<?php echo wrap_label($_lang["yes"],form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1'));?><br />
+	<?php echo wrap_label($_lang["no"],form_radio('clean_uploaded_filename','0',$clean_uploaded_filename=='0'));?><br />
+	<?php echo $_lang["clean_uploaded_filename_message"];?>
+</td>
+</tr>
+<tr id='rbRow173' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["a17_image_limit_width_title"]?></th>
+<td>
+<?php echo form_text('image_limit_width',$image_limit_width);?>px<br />
+<?php echo $_lang["a17_image_limit_width_message"]?></td>
+</tr>
+
 <tr class="row1" style="border-bottom:none;">
 <td colspan="2" style="padding:0;">
 <?php
