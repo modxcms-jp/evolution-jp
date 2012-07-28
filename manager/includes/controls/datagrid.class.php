@@ -93,7 +93,7 @@ class DataGrid {
 				$v = trim($v);
 				if(!empty($v)) $attr .= ' ' . $v;
 			}
-			$o .= '<td' . $attr . '>' . $value . '</td>';
+			$o .= "<td{$attr}>{$value}</td>";
 		}
 		$o.="</tr>\n";
 		return $o;

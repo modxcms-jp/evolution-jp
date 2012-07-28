@@ -10,7 +10,7 @@
  * @internal	@events OnUserSettingsRender 
  * @internal	@modx_category Manager and Admin
  * @internal    @installset base
-  *
+ *
  * @author yama  / created: 2010/10/03
  */
 
