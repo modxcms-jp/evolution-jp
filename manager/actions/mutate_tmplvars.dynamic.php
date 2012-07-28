@@ -380,7 +380,7 @@ function decode(s){
     </td>
   </tr>
   <tr id="displayparamrow">
-    <td valign="top" align="left"><?php echo $_lang['tmplvars_widget_prop']; ?><div style="padding-top:8px;"><a href="javascript://" onclick="resetParameters(); return false"><img src="media/style/<?php echo $manager_theme ? "$manager_theme/":""; ?>images/icons/refresh.gif" width="16" height="16" alt="<?php echo $_lang['tmplvars_reset_params']; ?>"></a></div></td>
+    <td valign="top" align="left"><?php echo $_lang['tmplvars_widget_prop']; ?><div style="padding-top:8px;"><a href="javascript://" onclick="resetParameters(); return false"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/refresh.gif" width="16" height="16" alt="<?php echo $_lang['tmplvars_reset_params']; ?>"></a></div></td>
     <td align="left" id="displayparams">&nbsp;</td>
   </tr>
 </table>

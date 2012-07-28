@@ -1,6 +1,5 @@
 <?php if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-$manager_theme = $manager_theme ? "$manager_theme/":'';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 ?>
@@ -9,7 +8,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <head>
     <title>Document Tree</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>style.css" />
+    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>/style.css" />
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -154,7 +153,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
         if (rpcNode.style.display != 'block') {
             // expand
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>images/tree/plusnode.gif')>-1) {
+            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/plusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_minusnode"]; ?>';
                 folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folderopen"]; ?>' :'<?php echo $_style["tree_folderopen_secure"]; ?>';
             }
@@ -180,7 +179,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         }
         else {
             // collapse
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>images/tree/minusnode.gif')>-1) {
+            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/minusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_plusnode"]; ?>';
                 folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folder"]; ?>' : '<?php echo $_style["tree_folder_secure"]; ?>';
             }

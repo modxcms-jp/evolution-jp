@@ -1,8 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('view_eventlog')) {	
+if(!$modx->hasPermission('view_eventlog')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 
 // get id
@@ -35,7 +35,6 @@ else{
 }
 
 ?>
-
 	<h1><?php echo $_lang['eventlog']; ?></h1>
 
 <div id="actions">
@@ -65,15 +64,18 @@ else{
 <div class="sectionBody">
 <?php
 $date = $modx->toDateFormat($content["createdon"]);
-if($content["type"]==1) $msgtype = $_lang["information"];
-else if($content["type"]==2) $msgtype = $_lang["warning"];
-else if($content["type"]==3) $msgtype = $_lang["error"];
-$useTheme = $manager_theme ? "$manager_theme/":"";
+switch($content['type'])
+{
+	case 1: $msgtype = $_lang["information"] ; break;
+	case 2: $msgtype = $_lang["warning"]     ; break;
+	case 3: $msgtype = $_lang["error"]       ; break;
+}
+
 if(empty($content["username"])) $content["username"] = '';
 $description = urldecode($content['description']);
 $description = str_replace('&amp;amp;','&amp;',$description);
 echo <<<HTML
-	<div class="warning"><img src="media/style/{$useTheme}images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
+	<div class="warning"><img src="media/style/{$manager_theme}/images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
 	<table>
 	<tr><td>{$_lang["event_id"]} </td><td>{$content["eventid"]}</td></tr>
 	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>

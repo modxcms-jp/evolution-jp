@@ -18,7 +18,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	$parent    = $_GET['parent'];
 	$expandAll = $_GET['expandAll'];
 	$output    = '';
-	$theme = $manager_theme ? "$manager_theme/":"";
+	$theme = "{$manager_theme}/";
 
 	// setup sorting
 	if(isset($_REQUEST['tree_sortby']))
