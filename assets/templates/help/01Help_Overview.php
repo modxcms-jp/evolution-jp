@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 ?>
 
 <div class="sectionHeader"><?php echo $_lang['about_title']; ?></div><div class="sectionBody">
@@ -20,4 +20,3 @@ if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please
 </ul>
 <?php echo $_lang['credits_shouts_msg']; ?>
 </div>
-

@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 /**
  *	Secure Manager Documents
@@ -28,4 +28,3 @@ function secureMgrDocument($docid='')
 		$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");	
 	}
 }
-?>

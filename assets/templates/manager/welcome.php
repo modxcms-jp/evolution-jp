@@ -1,4 +1,5 @@
-<?php if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+<?php
+if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
 	$src = get_icon($_lang['add_resource'], 4, '[(site_url)]assets/templates/manager/images/32x32/newdoc.png');
