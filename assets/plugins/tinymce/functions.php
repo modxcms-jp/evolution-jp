@@ -160,6 +160,11 @@ class TinyMCE
 			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,visualblocks,styleprops,removeformat';
 			$buttons3 = '';
 			$buttons4 = '';
+			if(is_dir($params['mce_path'] . 'jscripts/tiny_mce/plugins/quickupload'))
+			{
+				$plugins = 'quickupload,'. $plugins;
+				$buttons2 = 'quickupload,'. $buttons2;
+			}
 		    break;
 		case 'creative':
 			$plugins = 'autolink,inlinepopups,autosave,advlist,layer,style,fullscreen,advimage,advhr,paste,advlink,media,contextmenu,table';
