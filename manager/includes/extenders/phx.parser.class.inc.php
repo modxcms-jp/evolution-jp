@@ -214,7 +214,7 @@ class PHx {
 					$msg = ob_get_contents();
 					$value = $msg . $custom;
 					ob_end_clean();
-					}
+				}
 				elseif($html!==false)
 				{
 					$html = str_replace(array('[+output+]','[+value+]'), $value, $html);
