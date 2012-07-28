@@ -13,7 +13,7 @@ $updateMsg = '';
 
 if(isset($_POST['listSubmitted']))
 {
-	$updateMsg .= '<span class="warning" id="updated">Updated!<br /><br /> </span>';
+	$updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
 	
 	foreach ($_POST as $listName=>$listValue)
 	{

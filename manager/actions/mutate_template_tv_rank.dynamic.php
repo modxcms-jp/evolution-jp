@@ -26,7 +26,7 @@ $siteURL = $modx->config['site_url'];
 $updateMsg = '';
 
 if(isset($_POST['listSubmitted'])) {
-	$updateMsg .= '<span class="warning" id="updated">Updated!<br /><br /></span>';
+	$updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
 	foreach ($_POST as $listName=>$listValue) {
 		if ($listName == 'listSubmitted') continue;
 		$orderArray = explode(';', rtrim($listValue, ';'));
