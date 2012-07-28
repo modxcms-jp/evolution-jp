@@ -113,4 +113,65 @@ class ManagerAPI {
 		}
 		return $_;
 	}
+	
+	function modx_move_uploaded_file($tmp_path,$target_path)
+	{
+		global $modx,$image_limit_width;
+		
+		if(isset($modx->config['image_limit_width']))
+			$image_limit_width = $modx->config['image_limit_width'];
+		$img = getimagesize($tmp_path);
+		switch($img[2])
+		{
+			case IMAGETYPE_JPEG: $ext = '.jpg'; break;
+			case IMAGETYPE_PNG:  $ext = '.png'; break;
+			case IMAGETYPE_GIF:  $ext = '.gif'; break;
+			case IMAGETYPE_BMP:  $ext = '.bmp'; break;
+		}
+		if(isset($ext)) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
+		
+		if($image_limit_width==='' || $img[0] <= $image_limit_width)
+		{
+			$rs = move_uploaded_file($tmp_path, $target_path);
+			return $rs;
+		}
+		
+		$new_width = $image_limit_width;
+		$new_height = (int)( ($img[1]/$img[0]) * $new_width);
+		
+		switch($img[2])
+		{
+			case IMAGETYPE_JPEG:
+				$tmp_image = imagecreatefromjpeg($tmp_path);
+				$new_image = imagecreatetruecolor($new_width, $new_height);
+				$rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
+				if($rs) $rs = imagejpeg($new_image, $target_path, 85);
+				break;
+			case IMAGETYPE_PNG:
+				$tmp_image = imagecreatefrompng($tmp_path);
+				$new_image = imagecreatetruecolor($new_width, $new_height);
+//				imagealphablending($new_image,false);
+//				imagesavealpha($new_image,true);
+				$rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
+				if($rs) $rs = imagepng($new_image, $target_path);
+				break;
+			case IMAGETYPE_GIF: 
+			case IMAGETYPE_BMP:
+				if($img[2]==IMAGETYPE_GIF)
+					$tmp_image = imagecreatefromgif($tmp_path);
+				if($img[2]==IMAGETYPE_BMP)
+					$tmp_image = imagecreatefromwbmp($tmp_path);
+				$new_image = imagecreatetruecolor($new_width, $new_height);
+				$rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
+				if($rs) $rs = imagepng($new_image, $target_path);
+				break;
+			default:
+		}
+		if($new_image)
+		{
+			imagedestroy($tmp_image);
+			imagedestroy($new_image);
+		}
+		return $rs;
+	}
 }
