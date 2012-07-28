@@ -62,6 +62,8 @@ class DocumentParser {
 	{
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
 		$this->loadExtension('PHx') or die('Could not load PHx class.'); // load PHx class
+		if($this->isBackend()) $this->loadExtension('ManagerAPI');
+		
 		// events
 		$this->event= new SystemEvent();
 		$this->Event= & $this->event; //alias for backward compatibility
