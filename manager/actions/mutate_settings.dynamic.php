@@ -1022,6 +1022,12 @@ else return "{$base_path}assets/";
 	<?php echo $_lang["clean_uploaded_filename_message"];?>
 </td>
 </tr>
+<tr id='rbRow173' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<th><?php echo $_lang["a17_image_limit_width_title"]?></th>
+<td>
+<?php echo form_text('image_limit_width',$image_limit_width);?>px<br />
+<?php echo $_lang["a17_image_limit_width_message"]?></td>
+</tr>
 
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>

@@ -1220,3 +1220,6 @@ $_lang["role_site_schedule"] = '公開状態の一覧';
 
 $_lang["a95_convert_link"] = 'リンクタグ変換';
 $_lang["a95_convert_link_msg"] = 'サイト内リンクをリンクタグに変換します。';
+
+$_lang["a17_image_limit_width_title"] = '画像の横幅の最大値';
+$_lang["a17_image_limit_width_message"] = 'アップロードする画像の横幅を自動的に縮小します。空白にすると処理しません。';

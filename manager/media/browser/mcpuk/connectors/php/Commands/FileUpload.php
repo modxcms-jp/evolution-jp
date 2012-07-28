@@ -169,7 +169,7 @@ class FileUpload {
 										{
 											if (is_uploaded_file($tmp_path))
 											{
-												if ($this->_move_uploaded_file($tmp_path,$target_path))
+												if ($modx->manager->modx_move_uploaded_file($tmp_path,$target_path))
 												{
 													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 													$disp="201,'..{$uploaded_name}'";
@@ -207,7 +207,7 @@ class FileUpload {
 									//Upload file
 									if (is_uploaded_file($tmp_path))
 									{
-										if ($this->_move_uploaded_file($tmp_path,$target_path))
+										if ($modx->manager->modx_move_uploaded_file($tmp_path,$target_path))
 										{
 											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 											$disp="0";
@@ -279,13 +279,6 @@ class FileUpload {
 		</html>
 		<?php
 		
-	}
-	
-	function _move_uploaded_file($tmp_path,$target_path)
-	{
-		global $modx;
-		
-		return move_uploaded_file($tmp_path,$target_path);
 	}
 	
 	function getDirSize($dir) {

@@ -81,6 +81,7 @@ $default_config['filemanager_path']         = defined('MODX_BASE_PATH')?MODX_BAS
 $default_config['rb_base_dir']              = defined('MODX_BASE_PATH')?MODX_BASE_PATH . 'content/':'';
 $default_config['rb_base_url']              = 'content/';
 $default_config['enable_phx']               = '1';
+$default_config['image_limit_width']         = '500';
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
 
