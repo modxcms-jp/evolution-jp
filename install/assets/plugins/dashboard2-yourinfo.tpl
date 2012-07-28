@@ -50,34 +50,28 @@ $user_info = '
 
 // recent document info
 $uid = $modx->getLoginUserID();
-$recent_info = $_lang["activity_message"].'<br /><br /><ul>';
 $field = 'id, pagetitle, description, editedon, editedby';
 $tbl_site_content = $modx->getFullTableName('site_content');
-$where = "deleted=0 AND editedby={$uid}";
+$where = "deleted=0 AND editedby='{$uid}'";
 $rs = $modx->db->select($field,$tbl_site_content,$where,'editedon DESC',10);
-$limit = $modx->db->getRecordCount($rs);
-if($limit<1)
-{
-    $recent_info .= '<li>'.$_lang['no_activity_message'].'</li>';
-}
+
+$recent_info = $_lang["activity_message"].'<br /><br /><ul>';
+
+if($modx->db->getRecordCount($rs) < 1) $recent_info .= '<li>'.$_lang['no_activity_message'].'</li>';
 else
 {
-	for ($i = 0; $i < $limit; $i++)
+	$tpl = '<li><b>[+editedon+]</b> - [[+id+]] <a href="index.php?a=3&amp;id=[+id+]">[+pagetitle+]</a>[+description+]</li>';
+	while($ph = $modx->db->getRow($rs))
 	{
-		$row = $modx->db->getRow($rs);
-		if($i==0)
-		{
-			$syncid = $row['id'];
-		}
-        
-		$recent_info.='<li><b>' . $modx->toDateFormat($row['editedon']) . '</b> - [' . $row['id'] .'] <a href="index.php?a=3&amp;id='.$row['id'].'">'.$row['pagetitle'].'</a>'.($row['description']!='' ? ' - '.$row['description'] : '')
-		.'</li>';
+		$ph['editedon'] = $modx->toDateFormat($ph['editedon']);
+		$ph['description'] = $ph['description']!='' ? ' - '.$ph['description'] : '';
+		$recent_info .= $modx->parsePlaceholder($tpl,$ph);
 	}
 }
 $recent_info.='</ul>';
 
 $modx->setPlaceholder('recent_docs',$_lang['recent_docs']);
-
+$ph = array();
 $ph['UserInfo']       = $user_info;
 $ph['info']           = $_lang['info'];
 $ph['yourinfo_title'] = $_lang['yourinfo_title'];
@@ -87,13 +81,13 @@ $ph['activity_title'] = $_lang['activity_title'];
 $block = <<< EOT
 <div class="tab-page" id="tabYour" style="padding-left:0; padding-right:0">
 	<h2 class="tab">[+yourinfo_title+]</h2>
-	<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabYour" ) );</script>
-<!-- recent activities -->
+	<script type="text/javascript">
+		tpPane.addTabPage(document.getElementById("tabYour"));
+	</script>
 	<div class="sectionHeader">[+activity_title+]</div>
 	<div class="sectionBody">
 		[+RecentInfo+]
 	</div>
-<!-- user info -->
 	<div class="sectionHeader">[+yourinfo_title+]</div>
 	<div class="sectionBody">
 		[+UserInfo+]
