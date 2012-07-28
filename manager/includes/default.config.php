@@ -77,8 +77,8 @@ $default_config['which_editor']             = 'TinyMCE';
 $default_config['xhtml_urls']               = '1';
 $default_config['error_reporting']          = '1';
 
-$default_config['filemanager_path']         = defined('MODX_BASE_PATH')?MODX_BASE_PATH:'';
-$default_config['rb_base_dir']              = defined('MODX_BASE_PATH')?MODX_BASE_PATH . 'content/':'';
+$default_config['filemanager_path']         = defined('MODX_BASE_PATH') ? MODX_BASE_PATH:'';
+$default_config['rb_base_dir']              = defined('MODX_BASE_PATH') ? MODX_BASE_PATH . 'content/':'';
 $default_config['rb_base_url']              = 'content/';
 $default_config['enable_phx']               = '1';
 $default_config['image_limit_width']         = '500';
