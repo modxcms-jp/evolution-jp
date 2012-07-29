@@ -518,7 +518,8 @@ class DocumentParser {
 					$filename = "docid_{$docid}{$this->qs_hash}";
 					break;
 				case '2':
-					$cacheContent  = $this->documentOutput;
+					$cacheContent .= serialize($this->documentObject['contentType']);
+					$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
 					$filename = md5($_SERVER['REQUEST_URI']);
 					break;
 			}

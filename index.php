@@ -1,5 +1,4 @@
 <?php
-
 /*
  * ************************************************************************
   MODX Content Management System and PHP Application Framework
@@ -69,6 +68,13 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
             $handle = fopen($target, 'rb');
             $src = fread($handle, filesize($target));
             unset($handle);
+            list($head,$src) = explode('<!--__MODxCacheSpliter__-->',$src,2);
+            if(strpos($head,'"text/html";')===false)
+            {
+            	$type=unserialize($head);
+            	header('Content-Type:' . $type . '; charset=utf-8');
+            }
+            else header('Content-Type:text/html; charset=utf-8');
             $mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
             $msize = $mem - $mstart;
             $units = array('B', 'KB', 'MB');
@@ -82,12 +88,8 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
             $now = ((float) $usec + (float) $sec);
             $totalTime = ($now - $tstart);
             $totalTime = sprintf('%2.4f s', $totalTime);
-            $src = str_replace('[^q^]', '0', $src);
-            $src = str_replace('[^qt^]', '0s', $src);
-            $src = str_replace('[^p^]', $totalTime, $src);
-            $src = str_replace('[^t^]', $totalTime, $src);
-            $src = str_replace('[^s^]', 'bypass_cache', $src);
-            $src = str_replace('[^m^]', $msize, $src);
+            $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize);
+            $src = strtr($src,$r);
             if (is_file("{$base_path}autoload.php"))
                 $loaded_autoload = include_once("{$base_path}autoload.php");
             if ($src !== false) {
