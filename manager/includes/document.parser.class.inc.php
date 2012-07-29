@@ -382,6 +382,8 @@ class DocumentParser {
 		// check for non-cached snippet output
 		if (strpos($this->documentOutput, '[!') !== false)
 		{
+			if($this->config['cache_type']==2) $this->config['cache_type'] = 1;
+			
 			// Parse document source
 			$passes = $this->minParserPasses;
 			
