@@ -462,7 +462,7 @@ class DBAPI {
 		if ($dsq)
 		{
 			$r = $this->getRow($dsq, 'num');
-			return $r[0];
+			return $r['0'];
 		}
 	}
 	
@@ -481,7 +481,7 @@ class DBAPI {
 			{
 				if ($j % 2)
 				{
-					$xmldata .= "<{$line[0]}>{$line[1]}</{$line[0]}>\r\n";
+					$xmldata .= "<{$line['0']}>{$line['1']}</{$line['0']}>\r\n";
 				}
 			}
 			$xmldata .= "</item>\r\n";

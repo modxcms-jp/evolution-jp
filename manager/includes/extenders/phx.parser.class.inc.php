@@ -327,9 +327,9 @@ class PHx {
 					if($in_opt===true) $opt .= '=';
 					elseif($in_opt===false && $cmd!=='')
 					{
-						if($r[0]==='"'||$r[0]==="'"||$r[0]==='`')
+						if($r['0']==='"'||$r['0']==="'"||$r['0']==='`')
 						{
-							$delim = $r[0];
+							$delim = $r['0'];
 							$r = substr($r,1);
 							list($opt, $r) = explode($delim, $r, 2);
 							$reslut[$cmd] = $opt;
@@ -347,9 +347,9 @@ class PHx {
 					elseif(strpos($r,':')===false && strpos($r,'=')!==false)
 					{
 						list($cmd,$opt) = explode('=',$v.$r);
-						if($opt[0]==='"'||$opt[0]==="'"||$opt[0]==='`')
+						if($opt['0']==='"'||$opt['0']==="'"||$opt['0']==='`')
 						{
-							$delim = $opt[0];
+							$delim = $opt['0'];
 							$opt = trim($opt,$delim);
 						}
 						$reslut[$cmd] = $opt;

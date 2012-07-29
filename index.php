@@ -46,7 +46,7 @@
  */
 // get start time
 $mtime = explode(' ', microtime());
-$tstart = $mtime[1] + $mtime[0];
+$tstart = $mtime['1'] + $mtime['0'];
 $mstart = memory_get_usage();
 $base_path = str_replace('\\', '/', dirname(__FILE__)) . '/';
 
