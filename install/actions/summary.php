@@ -6,17 +6,10 @@ echo "<h3>" . $_lang['summary_setup_check'] . "</h3>";
 $errors = 0;
 // check PHP version
 echo "<p>" . $_lang['checking_php_version'];
-$php_ver_comp = version_compare(phpversion(), "4.4.2");
-$php_ver_comp2 = version_compare(phpversion(), "4.4.9");
-// -1 if left is less, 0 if equal, +1 if left is higher
+$php_ver_comp = version_compare(phpversion(), '5.0.0');
 if ($php_ver_comp < 0) {
     echo echo_failed().$_lang['you_running_php'] . phpversion() . $_lang["modx_requires_php"];
     $errors += 1;
-} else {
-    echo echo_ok();
-    if ($php_ver_comp2 < 0 && 0 <= $php_ver_comp) {
-        echo "<fieldset>" . $_lang['php_security_notice'] . "</fieldset>";
-    }
 }
 echo '</p>';
 // check php register globals off
