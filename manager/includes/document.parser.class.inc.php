@@ -660,7 +660,7 @@ class DocumentParser {
 		$filepath = substr($filepath,strlen($this->config['base_url']));
 		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
 		$filepath = $this->config['base_path'] . 'temp/public_html/' . $filepath;
-		if(file_exists($filepath)!==false)
+		if(is_file($filepath)!==false)
 		{
 			$ext = strtolower(substr($filepath,strrpos($filepath,'.')));
 			switch($ext)
@@ -706,7 +706,7 @@ class DocumentParser {
 	{
 		$cpath = MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
 		
-		if(file_exists($cpath)) $included= include_once ($cpath);
+		if(is_file($cpath)) $included= include_once ($cpath);
 		
 		if(!isset($included) || !is_array($this->config) || empty ($this->config))
 		{
@@ -716,7 +716,7 @@ class DocumentParser {
 			$cache->setReport(false);
 			$rebuilt = $cache->buildCache($this);
 			
-			if($rebuilt && file_exists($cpath)) include_once($cpath);
+			if($rebuilt && is_file($cpath)) include_once($cpath);
 		}
 	}
 	
@@ -725,7 +725,7 @@ class DocumentParser {
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
 			$cpath = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
-			if(file_exists($cpath))
+			if(is_file($cpath))
 			{
 				$str = @file_get_contents($cpath);
 				if($str) $this->config = unserialize($str);
@@ -738,7 +738,7 @@ class DocumentParser {
 				$cache->setReport(false);
 				$rebuilt = $cache->buildCache($this);
 				$included = false;
-				if($rebuilt && file_exists($cpath))
+				if($rebuilt && is_file($cpath))
 				{
 					$str = file_get_contents($cpath);
 					$this->config = unserialize($str);
@@ -993,11 +993,11 @@ class DocumentParser {
 		{
 			$flContent = '';
 		}
-		elseif(file_exists($cacheFile))
+		elseif(is_file($cacheFile))
 		{
 			$flContent = file_get_contents($cacheFile, false);
 		}
-		if(!file_exists($cacheFile) || empty($flContent))
+		if(!is_file($cacheFile) || empty($flContent))
 		{
 			$this->documentGenerated = 1;
 			return '';
@@ -1074,7 +1074,7 @@ class DocumentParser {
 		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
 		if($this->cacheRefreshTime=='')
 		{
-			if(file_exists($cache_path))
+			if(is_file($cache_path))
 			{
 				include_once($cache_path);
 				$this->cacheRefreshTime = $cacheRefreshTime;
@@ -1952,7 +1952,7 @@ class DocumentParser {
 	function set_documentMap_cache()
 	{
 		$path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.pageCache.php';
-		if(file_exists($path_documentmapcache))
+		if(is_file($path_documentmapcache))
 		{
 			$src = file_get_contents($path_documentmapcache);
 			$this->documentMap_cache = unserialize($src);
