@@ -172,8 +172,8 @@ class DocumentParser {
 			if ($err == '404' || $err == '405')
 			{
 				$k= array_keys($_GET);
-				unset ($_GET[$k[0]]);
-				unset ($_REQUEST[$k[0]]); // remove 404,405 entry
+				unset ($_GET[$k['0']]);
+				unset ($_REQUEST[$k['0']]); // remove 404,405 entry
 				$_SERVER['QUERY_STRING']= $qp['query'];
 				$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
 				if (!empty ($qp['query']))
@@ -418,8 +418,8 @@ class DocumentParser {
 		{
 			$matches= array ();
 			preg_match_all('~\[\+(.*?)\+\]~', $this->documentOutput, $matches);
-			if ($matches[0])
-			$this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
+			if ($matches['0'])
+			$this->documentOutput= str_replace($matches['0'], '', $this->documentOutput);
 		}
 		
 		if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
@@ -746,7 +746,7 @@ class DocumentParser {
 					$result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
 					while ($row= $this->db->getRow($result, 'both'))
 					{
-						$this->config[$row[0]]= $row[1];
+						$this->config[$row['0']]= $row['1'];
 					}
 				}
 			}
@@ -801,7 +801,7 @@ class DocumentParser {
 				$result= $this->db->select('setting_name, setting_value',$from,$where);
 				while ($row= $this->db->getRow($result, 'both'))
 				{
-					$usrSettings[$row[0]]= $row[1];
+					$usrSettings[$row['0']]= $row['1'];
 				}
 				if (isset ($usrType))
 				{
@@ -822,7 +822,7 @@ class DocumentParser {
 				{
 					while ($row= $this->db->getRow($result, 'both'))
 					{
-						$usrSettings[$row[0]]= $row[1];
+						$usrSettings[$row['0']]= $row['1'];
 					}
 					$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
 				}
@@ -1007,10 +1007,10 @@ class DocumentParser {
 		$a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
 		if(count($a) == 1)
 		{
-			return $a[0]; // return only document content
+			return $a['0']; // return only document content
 		}
 		
-		$docObj = unserialize(trim($a[0])); // rebuild document object
+		$docObj = unserialize(trim($a['0'])); // rebuild document object
 		// add so - check page security(admin(mgrRole=1) is pass)
 		if(!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1) 
 		    && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__']))
@@ -1062,7 +1062,7 @@ class DocumentParser {
 			unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
 		}
 		$this->documentObject = $docObj;
-		return $a[1]; // return document content
+		return $a['1']; // return document content
 	}
 	
 	function checkPublishStatus()
@@ -1119,7 +1119,7 @@ class DocumentParser {
 		include_once("{$basepath}tmplvars.format.inc.php");
 		include_once("{$basepath}tmplvars.commands.inc.php");
 		$i= 0;
-		foreach($matches[1] as $key)
+		foreach($matches['1'] as $key)
 		{
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
 			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
@@ -1130,13 +1130,13 @@ class DocumentParser {
 			$value= $this->documentObject[$key];
 			if (is_array($value))
 			{
-				$value= getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
+				$value= getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
 			}
 			if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 			$replace[$i]= $value;
 			$i++;
 		}
-		$content= str_replace($matches[0], $replace, $content);
+		$content= str_replace($matches['0'], $replace, $content);
 		return $content;
 	}
 		
@@ -1147,7 +1147,7 @@ class DocumentParser {
 		if(preg_match_all('~\[\(([a-z\_:]*?)\)\]~', $content, $matches))
 		{
 			$i= 0;
-			foreach($matches[1] as $key)
+			foreach($matches['1'] as $key)
 			{
 				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 				{
@@ -1167,7 +1167,7 @@ class DocumentParser {
 				$i++;
 			}
 			
-			$content= str_replace($matches[0], $replace, $content);
+			$content= str_replace($matches['0'], $replace, $content);
 		}
 		return $content;
 	}
@@ -1180,7 +1180,7 @@ class DocumentParser {
 		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
 		{
 			$i= 0;
-			foreach($matches[1] as $key)
+			foreach($matches['1'] as $key)
 			{
 				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 				{
@@ -1226,7 +1226,7 @@ class DocumentParser {
 				$replace[$i] = $value;
 				$i++;
 			}
-			$content= str_replace($matches[0], $replace, $content);
+			$content= str_replace($matches['0'], $replace, $content);
 		}
 		return $content;
 	}
@@ -1239,7 +1239,7 @@ class DocumentParser {
 		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
 		{
 			$i= 0;
-			foreach($matches[1] as $key)
+			foreach($matches['1'] as $key)
 			{
 				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 				{
@@ -1254,7 +1254,7 @@ class DocumentParser {
 				}
 				if ($value === '')
 				{
-					unset ($matches[0][$i]); // here we'll leave empty placeholders for last.
+					unset ($matches['0'][$i]); // here we'll leave empty placeholders for last.
 				}
 				else
 				{
@@ -1263,7 +1263,7 @@ class DocumentParser {
 				}
 				$i++;
 			}
-			$content= str_replace($matches[0], $replace, $content);
+			$content= str_replace($matches['0'], $replace, $content);
 		}
 		return $content;
 	}
@@ -2315,7 +2315,7 @@ class DocumentParser {
 			$tmpArr[]= $id;
 			$docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
 			
-			if ($docs != false) return $docs[0];
+			if ($docs != false) return $docs['0'];
 			else                return false;
 		}
 	}
@@ -2751,7 +2751,7 @@ class DocumentParser {
 			else
 			{
 				$join_tvidnames = implode("','", $tvidnames);
-				$query  = is_numeric($tvidnames[0]) ? 'tv.id' : 'tv.name';
+				$query  = is_numeric($tvidnames['0']) ? 'tv.id' : 'tv.name';
 				$query .= " IN ('{$join_tvidnames}')";
 			}
 			if ($docgrp= $this->getUserDocGroups())
@@ -2819,7 +2819,7 @@ class DocumentParser {
 		else
 		{
 			$result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
-			return ($result != false) ? $result[0] : false;
+			return ($result != false) ? $result['0'] : false;
 		}
 	}
 
@@ -2856,7 +2856,7 @@ class DocumentParser {
 			{
 				$tvnames = $this->db->escape(implode("\t", $idnames));
 				$tvnames = str_replace("\t","','",$tvnames);
-				$where = (is_numeric($idnames[0])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
+				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
 			}
 			if ($docgrp= $this->getUserDocGroups())
 			{
@@ -3443,14 +3443,14 @@ class DocumentParser {
 			if (strpos($tmpParam, '=') !== false)
 			{
 				$pTmp  = explode('=', $tmpParam);
-				$pvTmp = explode(';', trim($pTmp[1]));
-				if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+				$pvTmp = explode(';', trim($pTmp['1']));
+				if ($pvTmp['1'] == 'list' && $pvTmp['3'] != '')
 				{
-					$parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
+					$parameter[trim($pTmp['0'])]= $pvTmp['3']; //list default
 				}
-				elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+				elseif ($pvTmp['1'] != 'list' && $pvTmp['2'] != '')
 				{
-					$parameter[trim($pTmp[0])]= $pvTmp[2];
+					$parameter[trim($pTmp['0'])]= $pvTmp['2'];
 				}
 			}
 		}
