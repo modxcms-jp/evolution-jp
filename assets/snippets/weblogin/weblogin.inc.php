@@ -119,53 +119,25 @@ function getWebLogintpl(){
     $src = <<< EOT
     <!-- #declare:separator <hr> -->
     <!-- login form section-->
-    <form method="post" name="loginfrm" action="[+action+]" style="margin: 0px; padding: 0px;">
+    <form method="post" name="loginfrm" action="[+action+]">
     <input type="hidden" value="[+rememberme+]" name="rememberme" />
-    <table class="loginform">
-      <tr>
-        <td><b>User:</b></td>
-        <td><input type="text" name="username" tabindex="1" onkeypress="return webLoginEnter(document.loginfrm.password);" size="8" style="width: 150px;" value="[+username+]" /></td>
-      </tr>
-      <tr>
-        <td><b>Password:</b></td>
-        <td><input type="password" name="password" tabindex="2" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /></td>
-      </tr>
-      <tr>
-        <td><label for="chkbox" style="cursor:pointer">Remember me:&nbsp; </label></td>
-        <td>
-        <table style="width:100%;">
-          <tr>
-            <td valign="top"><input type="checkbox" id="chkbox" name="chkbox" tabindex="4" size="1" value="" [+checkbox+] onclick="webLoginCheckRemember()" /></td>
-            <td align="right">
-            <input type="submit" value="[+logintext+]" name="cmdweblogin" /></td>
-          </tr>
-        </table>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2"><a href="#" onclick="webLoginShowForm(2);return false;">Forget Password?</a></td>
-      </tr>
-    </table>
+    User : <input type="text" name="username" onkeypress="return webLoginEnter(document.loginfrm.password);" size="8" style="width: 150px;" value="[+username+]" /><br />
+    Password : <input type="password" name="password" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /><br />
+    Remember me : <input type="checkbox" id="chkbox" name="chkbox" value="" [+checkbox+] onclick="webLoginCheckRemember()" /><br />
+    <input type="submit" value="[+logintext+]" name="cmdweblogin" /><br />
+    <a href="#" onclick="webLoginShowForm(2);return false;">Forget Password?</a>
     </form>
     <hr>
     <!-- log out hyperlink section -->
     <a href='[+action+]'>[+logouttext+]</a>
     <hr>
     <!-- Password reminder form section -->
-    <form name="loginreminder" method="post" action="[+action+]" style="margin: 0px; padding: 0px;">
+    <form name="loginreminder" method="post" action="[+action+]">
     <input type="hidden" name="txtpwdrem" value="0" />
-    <table>
-        <tr>
-          <td>Enter the email address of your account <br />below to receive your password:</td>
-        </tr>
-        <tr>
-          <td><input type="text" name="txtwebemail" size="24" /></td>
-        </tr>
-        <tr>
-          <td align="right"><input type="submit" value="Submit" name="cmdweblogin" />
-          <input type="reset" value="Cancel" name="cmdcancel" onclick="webLoginShowForm(1);" /></td>
-        </tr>
-      </table>
+    Enter the email address of your account<br />
+    below to receive your password:<input type="text" name="txtwebemail" size="24" />
+    <input type="submit" value="Submit" name="cmdweblogin" />
+    <input type="reset" value="Cancel" name="cmdcancel" onclick="webLoginShowForm(1);" />
     </form>
 EOT;
     return $src;
