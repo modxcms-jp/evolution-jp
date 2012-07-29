@@ -7,16 +7,17 @@ if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager')
 }
 
 // andrazk 20070416 - if installer is running, destroy active sessions
-if (file_exists($modx->config['base_path'] . 'assets/cache/installProc.inc.php'))
+$instcheck_path = $modx->config['base_path'] . 'assets/cache/installProc.inc.php';
+if (file_exists($instcheck_path))
 {
-	include_once($modx->config['base_path'] . 'assets/cache/installProc.inc.php');
+	include_once($instcheck_path);
 	if (isset($installStartTime))
 	{
 		if ((time() - $installStartTime) > 5 * 60)
 		{ // if install flag older than 5 minutes, discard
 			unset($installStartTime);
-			@ chmod($modx->config['base_path'] . 'assets/cache/installProc.inc.php', 0755);
-			unlink($modx->config['base_path'] . 'assets/cache/installProc.inc.php');
+			@ chmod($instcheck_path, 0755);
+			unlink($instcheck_path);
 		} 
 		else
 		{
@@ -51,17 +52,10 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
 	}
 }
 
-if(!isset($_SESSION['mgrValidated'])){
-	if(isset($manager_language))
-	{
-		// include localized overrides
-		include_once "lang/".$manager_language.".inc.php";
-	}
-	else
-	{
-		include_once "lang/english.inc.php";
-	}
-
+if(!isset($_SESSION['mgrValidated']))
+{
+	if(isset($manager_language)) include_once("lang/{$manager_language}.inc.php");// include localized overrides
+	else                         include_once('lang/english.inc.php');
 
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
 	$modx->setPlaceholder('theme',$manager_theme);
@@ -88,19 +82,23 @@ if(!isset($_SESSION['mgrValidated'])){
 	$modx->setPlaceholder('login_message',$_lang["login_message"]);
 
 	// andrazk 20070416 - notify user of install/update
-	if (isset($_GET['installGoingOn'])) {
-		$installGoingOn = $_GET['installGoingOn'];
-	}
-	if (isset($installGoingOn)) {			
-		switch ($installGoingOn) {
-		 case 1 : $modx->setPlaceholder('login_message',"<p><span class=\"fail\">".$_lang["login_cancelled_install_in_progress"]."</p><p>".$_lang["login_message"]."</p>"); break;
-		 case 2 : $modx->setPlaceholder('login_message',"<p><span class=\"fail\">".$_lang["login_cancelled_site_was_updated"]."</p><p>".$_lang["login_message"]."</p>"); break;
+	if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
+	if (isset($installGoingOn))
+	{
+		switch ($installGoingOn)
+		{
+		 case 1 : $login_message = $_lang["login_cancelled_install_in_progress"]; break;
+		 case 2 : $login_message = $_lang["login_cancelled_site_was_updated"]   ; break;
 		}
+		$modx->setPlaceholder('login_message','<p><span class="fail">'.$login_message.'</p><p>'.$_lang["login_message"].'</p>');
 	}
 
-	if($use_captcha==1)  {
+	if($use_captcha==1)
+	{
 		$modx->setPlaceholder('login_captcha_message',$_lang["login_captcha_message"]);
-		$modx->setPlaceholder('captcha_image','<a href="'.MODX_MANAGER_URL.'" class="loginCaptcha"><img id="captcha_image" src="../captcha.php?rand='.mt_rand().'" alt="'.$_lang["login_captcha_message"].'" /></a>');
+		$captcha_image = '<img id="captcha_image" src="../captcha.php?rand=' . mt_rand() . '" alt="'.$_lang["login_captcha_message"].'" />';
+		$captcha_image = '<a href="'.MODX_MANAGER_URL.'" class="loginCaptcha">' . $captcha_image . '</a>';
+		$modx->setPlaceholder('captcha_image',$captcha_image);
 		$modx->setPlaceholder('captcha_input','<label>'.$_lang["captcha_code"].'<input type="text" class="text" name="captcha_code" tabindex="3" value="" /></label>');
 	}
 
@@ -130,7 +128,9 @@ if(!isset($_SESSION['mgrValidated'])){
 
     exit;
 
-} else {
+}
+else
+{
 	// log the user action
 	if    (isset($_SERVER['HTTP_CLIENT_IP']))       $ip = $_SERVER['HTTP_CLIENT_IP'];
 	elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -143,7 +143,8 @@ if(!isset($_SESSION['mgrValidated'])){
 	$lasthittime = time();
     $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
-    if($action !== 1) {
+    if($action !== 1)
+    {
 		if (!intval($itemid)) $itemid= null;
 		$sql = sprintf('REPLACE INTO %s (internalKey, username, lasthit, action, id, ip)
 			VALUES (%d, \'%s\', \'%d\', \'%s\', %s, \'%s\')',
@@ -155,7 +156,8 @@ if(!isset($_SESSION['mgrValidated'])){
 			$itemid == null ? var_export(null, true) : $itemid,
 			$ip
 		);
-		if(!$rs = $modx->db->query($sql)) {
+		if(!$rs = $modx->db->query($sql))
+		{
 			echo "error replacing into active users! SQL: ".$sql."\n".mysql_error();
 			exit;
 		}
