@@ -701,10 +701,10 @@ class DocumentParser {
 	
 	function getSiteCache()
 	{
-		if(file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
-		{
-			$included= include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
-		}
+		$cpath = MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
+		
+		if(file_exists($cpath)) $included= include_once ($cpath);
+		
 		if(!isset($included) || !is_array($this->config) || empty ($this->config))
 		{
 			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
@@ -712,11 +712,8 @@ class DocumentParser {
 			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$cache->setReport(false);
 			$rebuilt = $cache->buildCache($this);
-			$included = false;
-			if($rebuilt && file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
-			{
-				$included= include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
-			}
+			
+			if($rebuilt && file_exists($cpath)) include_once($cpath);
 		}
 	}
 	
@@ -724,9 +721,10 @@ class DocumentParser {
 	{
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
-			if(file_exists(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php'))
+			$cpath = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
+			if(file_exists($cpath))
 			{
-				$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php');
+				$str = @file_get_contents($cpath);
 				if($str) $this->config = unserialize($str);
 			}
 			if(!isset($str) || !is_array($this->config) || empty ($this->config))
@@ -737,9 +735,9 @@ class DocumentParser {
 				$cache->setReport(false);
 				$rebuilt = $cache->buildCache($this);
 				$included = false;
-				if($rebuilt && file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php'))
+				if($rebuilt && file_exists($cpath))
 				{
-					$str = file_get_contents(MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php');
+					$str = file_get_contents($cpath);
 					$this->config = unserialize($str);
 				}
 				if(!$str || !$this->config)
