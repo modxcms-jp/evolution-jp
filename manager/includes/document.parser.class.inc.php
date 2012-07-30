@@ -991,7 +991,8 @@ class DocumentParser {
 		
 		if($this->config['cache_type'] == 2)
 		{
-			$flContent = '';
+			$this->documentGenerated = 1;
+			return '';
 		}
 		elseif(is_file($cacheFile))
 		{
