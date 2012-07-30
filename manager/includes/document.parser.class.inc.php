@@ -989,6 +989,18 @@ class DocumentParser {
 		
 		if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
 		
+		if(is_file($cacheFile) && isset($this->config['cache_expire']) && !empty($this->config['cache_expire']))
+		{
+			$timestamp = filemtime($cacheFile);
+			$timestamp += $this->config['cache_expire'];
+			if($timestamp <time() )
+			{
+				@unlink($cacheFile);
+				$this->documentGenerated = 1;
+				return '';
+			}
+		}
+		
 		if($this->config['cache_type'] == 2)
 		{
 			$this->documentGenerated = 1;
