@@ -1,11 +1,12 @@
 <?php
 /*####
 #
-#	Name: PHx (Placeholders Xtended)
-#	Version: 2.1.5
-#	Modified by Nick to include external files
+#	Name: PHx class(Placeholders Xtended)
+#	Version: 2.2
 #	Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
-#	Date: July 13, 2007
+#	Modified by Nick to include external files
+#	Modified by yama yamamoto@kyms.ne.jp
+#	Date: 2012/07/28
 #
 ####*/
 
@@ -161,7 +162,11 @@ class PHx {
 			case 'ifempty':
 				if (empty($value)) $value = $opt; break;
 			case 'date':
-				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';
+				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
+				$value = $modx->mb_strftime($opt,0+$value);
+				break;
+			case 'time':
+				if(empty($opt)) $opt = '%H:%M';
 				$value = $modx->mb_strftime($opt,0+$value);
 				break;
 			case 'userinfo':
