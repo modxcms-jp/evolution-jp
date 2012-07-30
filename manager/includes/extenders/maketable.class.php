@@ -379,20 +379,8 @@ class MakeTable {
 			}
 			if (strlen($this->pageNav) > 1)
 			{//changed to display the pagination if exists.
-				/* commented this part because of cookie
-				$table .= '<div id="max-display-records" ><select style="display:inline" onchange="javascript:updatePageSize(this[this.selectedIndex].value);">';
-				$pageSizes= array (10, 25, 50, 100, 250);
-				for ($i= 0; $i < count($pageSizes); $i ++) {
-					$table .= '<option value="'.$pageSizes[$i].'"';
-					$table .= MAX_DISPLAY_RECORDS_NUM == $pageSizes[$i] ? ' selected ' : '';
-					$table .= '>'.$pageSizes[$i].'</option>';
-				}
-				
-				$table .= '</select>'.$_lang["pagination_table_perpage"].'</div>';
-				*/
 				$pageNavBlock = '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$this->pageNav.'</ul></div>';
 				$table = $pageNavBlock . $table . $pageNavBlock;
-				//$table .= '<script language="javascript">function updatePageSize(size){window.location = \''.$this->prepareLink($linkpage).'pageSize=\'+size;}</script>';
 			}
 			if ($this->allOption)
 			{
@@ -542,4 +530,3 @@ class MakeTable {
 	}
 	
 }
-?>
