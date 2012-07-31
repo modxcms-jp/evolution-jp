@@ -60,7 +60,7 @@ class Qm {
 		
 		if(!isset($version) || version_compare($version,'1.5.5r5','<'))
 		{
-			$modx->documentOutput = 'QuickManager¤ò¥¢¥Ã¥×¥Ç¡¼¥È¤·¤Æ¤¯¤À¤µ¤¤¡£';
+			$modx->documentOutput = 'QuickManagerã‚’ã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆã—ã¦ãã ã•ã„ã€‚';
 			return;
 		}
 		
@@ -788,6 +788,10 @@ function getCookie(cookieName)
 		
 		// If user is admin (role = 1)
 		if ($_SESSION['mgrRole'] == 1) $access = TRUE;
+		elseif(!isset($this->modx->documentIdentifier) || empty($this->modx->documentIdentifier))
+		{
+			$access = FALSE;
+		}
 		else
 		{
 			$docID = $this->modx->documentIdentifier;
@@ -796,7 +800,7 @@ function getCookie(cookieName)
 			$table= $this->modx->getFullTableName("document_groups");
 			
 			// Check if current document is assigned to one or more doc groups
-			$result= $this->modx->db->select('id',$table,"document={$docID}");
+			$result= $this->modx->db->select('id',$table,"document='{$docID}'");
 			$rowCount= $this->modx->recordCount($result);
 			
 			// If document is assigned to one or more doc groups, check access
