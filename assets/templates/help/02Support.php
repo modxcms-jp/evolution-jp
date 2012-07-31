@@ -31,7 +31,6 @@ $info = array(
               'サイトのURL'  => $modx->config['site_url'],
               'ホスト名' => gethostbyaddr(getenv('SERVER_ADDR')),
               'MODX_BASE_URL' => MODX_BASE_URL,
-              'siteCacheのサイズ' => $modx->nicesize(filesize(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) . '(コンテンツ構成およびシステム構成のキャッシュです。あまり大きくなるとパフォーマンスに影響します。不要な拡張機能を整理する・拡張機能の本体コードを外部ファイル化するなどして抑制できます。サイト構成にもよりますが、1MB前後までなら問題ありません)',
               'upload_tmp_dir' => ini_get('upload_tmp_dir') . '(ファイルアップロード処理のために一時的なファイル保存領域として用いるテンポラリディレクトリ。この値が空になっている時は、OSが認識するテンポラリディレクトリが用いられます)',
               'memory_limit' => ini_get('memory_limit') . '(スクリプトが確保できる最大メモリ。通常はpost_max_sizeよりも大きい値にします)',
               'post_max_size' => ini_get('post_max_size') . '(POSTデータに許可される最大サイズ。POSTには複数のデータが含まれるので、通常はupload_max_filesizeよりも大きい値にします)',
