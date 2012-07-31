@@ -230,7 +230,6 @@ class PHx {
 				{
 					$value = str_replace(array('[+value+]','[+output+]'),$value,$cmd);
 				}
-				else $value = '';
 				break;
 		}
 		return $value;
