@@ -15,6 +15,10 @@ if($id==$modx->config['site_start'])
 {
 	$warning = "Document is 'Site start' and cannot be deleted!";
 }
+elseif($id==$modx->config['error_page'])
+{
+	$warning = "Document is 'Error page' and cannot be deleted!";
+}
 elseif($id==$modx->config['site_unavailable_page'])
 {
 	$warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
