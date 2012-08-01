@@ -935,21 +935,6 @@ echo $str;
 </tr>
 
 <tr>
-	<th><?php echo $_lang["rss_url_news_title"] ?></th>
-	<td>
-		<?php echo form_text('rss_url_news',$rss_url_news);?><br />
-		<?php echo $_lang["rss_url_news_message"] ?>
-	</td>
-</tr>
-<tr>
-	<th><?php echo $_lang["rss_url_security_title"] ?></th>
-	<td>
-		<?php echo form_text('rss_url_security',$rss_url_security);?><br />
-		<?php echo $_lang["rss_url_security_message"] ?>
-	</td>
-</tr>
-
-<tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"'));?><br />
