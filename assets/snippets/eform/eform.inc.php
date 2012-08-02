@@ -440,7 +440,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					include_once $modx->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
 					$mail = new MODxMailer();
 				# send abuse alert
-					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $modx->config['emailsender'];
 					$mail->FromName	= $modx->config['site_name'];
@@ -546,7 +545,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				if(!$noemail) {
 					if($sendirect) $to = $fields['email'];
-					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -562,7 +560,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				# send user a copy of the report
 				if($ccsender && $fields['email']) {
-					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -578,7 +575,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext'))?false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
-					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= ($autosender)? $autosender:$from;
 					$mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
@@ -593,7 +589,6 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
-					$mail->IsMail();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;

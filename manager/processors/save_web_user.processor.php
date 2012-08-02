@@ -404,16 +404,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$ph['semail'] = $emailsender;
 	$ph['surl'] = $site_url;
 	$message = $modx->parsePlaceholder($message,$ph);
-	include_once MODX_BASE_PATH . 'manager/includes/controls/modxmailer.inc.php';
-	$mail = new MODxMailer();
-	$mail->IsMail();
-	$mail->IsHTML(0);
-	$mail->From		= $emailsender;
-	$mail->FromName	= $modx->config['site_name'];
-	$mail->Subject	=  $emailsubject;
-	$mail->Body		= $message;
-	$mail->AddAddress($email);
-	if ($mail->Send() === false) //ignore mail errors in this cas
+	if ($modx->sendmail($email,$message) === false) //ignore mail errors in this cas
 	{
 		webAlert("Error while sending mail to $email");
 		exit;

@@ -73,7 +73,6 @@ $tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
 
 # process password reminder
     if ($isPWDReminder==1) {
-    include_once MODX_MANAGER_PATH . 'includes/controls/modxmailer.inc.php';
         $email = $_POST['txtwebemail'];
         $webpwdreminder_message = $modx->config['webpwdreminder_message'];
         $emailsubject = $modx->config['emailsubject'];
@@ -109,15 +108,7 @@ $tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
             $message = str_replace("[+semail+]",$emailsender,$message);
             $message = str_replace("[+surl+]",$url,$message);
             
-			$mail = new MODxMailer();
-			$mail->IsHTML(false);
-			$mail->From		= $emailsender;
-			$mail->FromName	= $site_name;
-
-			$mail->Subject	=  $emailsubject;
-			$mail->Body		= $message;
-			$mail->AddAddress($email);
-			$sent = $mail->Send() ;         //ignore mail errors in this cas
+			$sent = $modx->sendmail($email,$message) ;         //ignore mail errors in this cas
             if(!$sent) {
                 // error
                 $output =  webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator",array('email'=>$email));

@@ -462,16 +462,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 	$ph['surl']   = $modx->config['site_url'] . 'manager/';
 	$message = $modx->parsePlaceholder($message,$ph);
 
-	include_once MODX_BASE_PATH."manager/includes/controls/modxmailer.inc.php";
-	$mail = new MODxMailer();
-	$mail->IsMail();
-	$mail->IsHTML(0);
-	$mail->From		= $modx->config['emailsender'];
-	$mail->FromName	= $modx->config['site_name'];
-	$mail->Subject	= $modx->config['emailsubject'];
-	$mail->Body		= $message;
-	$mail->AddAddress($email);
-	$rs = $mail->Send();
+	$rs = $modx->sendmail($email,$message);
 	if ($rs === false) //ignore mail errors in this cas
 	{
 		webAlert("{$email} - {$_lang['error_sending_email']}");

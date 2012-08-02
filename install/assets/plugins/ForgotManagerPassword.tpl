@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.7
+ * @version 	1.1.8
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
  * @internal	@modx_category Manager and Admin
@@ -110,13 +110,9 @@ EOD;
 {$_lang['forgot_password_email_instructions']}
 {$_lang['forgot_password_email_fine_print']}
 EOT;
-			include_once MODX_MANAGER_PATH . 'includes/controls/modxmailer.inc.php';
-			$mail = new MODxMailer();
-			$mail->Subject = $_lang['password_change_request'];
-			$mail->Body    = $body;
-			$mail->IsHTML(false);
-			$mail->AddAddress($to);
-			$result = $mail->send();
+			$mail['subject'] = $_lang['password_change_request'];
+			$mail['sendto'] = $to;
+			$result = $modx->sendmail($mail,$body);
 			
 			if(!$result) $this->errors[] = $_lang['error_sending_email'];
 			return $result;

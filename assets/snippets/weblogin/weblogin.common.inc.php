@@ -66,15 +66,7 @@ function webLoginSendNewPassword($email,$uid,$pwd,$ufn)
 	$message = str_replace("[+semail+]",$emailsender,$message);
 	$message = str_replace("[+surl+]",$site_url,$message);
 	
-	include_once MODX_BASE_PATH . 'manager/includes/controls/modxmailer.inc.php';
-	$mail = new MODxMailer();
-	$mail->IsHTML(false);
-	$mail->From		= $emailsender;
-	$mail->FromName	= $site_name;
-	$mail->Subject	= $emailsubject;
-	$mail->Body		= $message;
-	$mail->AddAddress($email);
-	$sent = $mail->Send() ;         //ignore mail errors in this cas
+	$sent = $modx->sendmail($email,$message) ;         //ignore mail errors in this cas
 	
 	if (!$sent) webLoginAlert("Error while sending mail to {$mailto}",1);
 	return true;

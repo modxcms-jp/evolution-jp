@@ -2135,8 +2135,6 @@ class DocumentParser {
 		}
 		include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
 		$mail = new MODxMailer();
-		$mail->IsMail();
-		$mail->IsHTML(0);
 		$mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
 		$mail->FromName = (!isset($p['fromname'])) ? $this->config['site_name']    : $p['fromname'];
 		$mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
