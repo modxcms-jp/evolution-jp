@@ -39,4 +39,4 @@ $js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery
 
 // Run the main code
 $asset_path = $modx->config['base_path'] . 'assets/plugins/managermanager/mm.inc.php';
-include($asset_path);
+include_once($asset_path);
