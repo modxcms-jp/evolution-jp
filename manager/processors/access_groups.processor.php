@@ -26,17 +26,17 @@ switch ($operation) {
 			exit;
 		} else {
 			$esc_newgroup = $modx->db->escape($newgroup);
-			$f['name'] = $esc_newgroup;
 			$rs = $modx->db->select('id',$tbl_membergroup_names,"name='{$esc_newgroup}'");
-			if(0<$modx->db->getRecordCount($rs)) $rs = false;
-			if($rs) $rs = $modx->db->insert($f,$tbl_membergroup_names);
-			if(!$rs) {
+			if(0<$modx->db->getRecordCount($rs))
+			{
 				echo "Failed to insert new group. Possible duplicate group name?";
 				exit;
 			}
-
-			// get new id
-			$id = mysql_insert_id();
+			else
+			{
+				$f['name'] = $esc_newgroup;
+				$id = $modx->db->insert($f,$tbl_membergroup_names);
+			}
 
 			// invoke OnManagerCreateGroup event
 			$modx->invokeEvent('OnManagerCreateGroup', array(
