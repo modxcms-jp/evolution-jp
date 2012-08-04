@@ -130,10 +130,13 @@ class ManagerAPI {
 		}
 		if(isset($ext)) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
 		
-		if(!strpos('.jpg.png.gif.bmp',$ext) || $image_limit_width==='' || $img[0] <= $image_limit_width)
+		if($image_limit_width==='' || $img[0] <= $image_limit_width)
 		{
-			$rs = move_uploaded_file($tmp_path, $target_path);
-			return $rs;
+			if(!isset($ext) || in_array($ext,array('.jpg','.png','.gif','.bmp')))
+			{
+				$rs = move_uploaded_file($tmp_path, $target_path);
+				return $rs;
+			}
 		}
 		
 		$new_width = $image_limit_width;
