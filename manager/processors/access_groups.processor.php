@@ -25,8 +25,12 @@ switch ($operation) {
 			echo "no group name specified";
 			exit;
 		} else {
-			$sql = 'INSERT INTO '.$tbl_membergroup_names.' (name) VALUES(\''.$modx->db->escape($newgroup).'\')';
-			if(!$rs = $modx->db->query($sql)) {
+			$esc_newgroup = $modx->db->escape($newgroup);
+			$f['name'] = $esc_newgroup;
+			$rs = $modx->db->select('id',$tbl_membergroup_names,"name='{$esc_newgroup}'");
+			if(0<$modx->db->getRecordCount($rs)) $rs = false;
+			if($rs) $rs = $modx->db->insert($f,$tbl_membergroup_names);
+			if(!$rs) {
 				echo "Failed to insert new group. Possible duplicate group name?";
 				exit;
 			}
