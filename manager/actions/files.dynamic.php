@@ -33,7 +33,7 @@ $token_check = checkToken();
 $token = initToken();
 
 // settings
-$excludes = array('.', '..', 'cgi-bin', '.svn');
+$excludes = array('.', '..', '.svn');
 $alias_suffix = (!empty($friendly_url_suffix)) ? ','.ltrim($friendly_url_suffix,'.') : '';
 $editablefiles       = explode(',', 'txt,php,shtml,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
 $inlineviewablefiles = explode(',', 'txt,php,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
