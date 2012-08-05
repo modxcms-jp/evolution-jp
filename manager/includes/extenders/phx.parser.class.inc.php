@@ -163,10 +163,12 @@ class PHx {
 				if (empty($value)) $value = $opt; break;
 			case 'date':
 				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
+				if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
 				$value = $modx->mb_strftime($opt,0+$value);
 				break;
 			case 'time':
 				if(empty($opt)) $opt = '%H:%M';
+				if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
 				$value = $modx->mb_strftime($opt,0+$value);
 				break;
 			case 'userinfo':
