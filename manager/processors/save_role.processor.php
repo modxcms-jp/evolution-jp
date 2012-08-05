@@ -94,15 +94,19 @@ $fields = array (
 $tbl_user_roles = $modx->getFullTableName("user_roles");
 switch ($_POST['mode']) {
     case '38' :
-        $rs = $modx->db->insert($fields, $tbl_user_roles);
-        if (!$rs) {
-            echo "An error occured while attempting to save the new role.<p>";
-            exit;
-        }
-        else $id = $modx->db->getInsertId();
-        break;
+		$rs = $modx->db->select('id',$tbl_user_roles,"name='{$name}'");
+		if(0<$modx->db->getRecordCount($rs))
+		{
+			echo "An error occured while attempting to save the new role.";
+			exit;
+		}
+		else
+		{
+			$id = $modx->db->insert($fields, $tbl_user_roles);
+		}
+		break;
     case '35' :
-        $rs = $modx->db->update($fields, $tbl_user_roles, "id={$id}");
+        $rs = $modx->db->update($fields, $tbl_user_roles, "id='{$id}'");
         if (!$rs) {
             echo "An error occured while attempting to update the role. <br />" . mysql_error();
             exit;
