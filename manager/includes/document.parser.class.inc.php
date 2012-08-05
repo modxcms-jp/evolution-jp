@@ -3115,46 +3115,43 @@ class DocumentParser {
 	# Change current web user's password - returns true if successful, oterhwise return error message
 	function changeWebUserPassword($oldPwd, $newPwd)
 	{
-		$rt= false;
-		if ($_SESSION["webValidated"] == 1)
+		if ($_SESSION["webValidated"] != 1) return false;
+		
+		$tbl_web_users= $this->getFullTableName('web_users');
+		$uid = $this->getLoginUserID();
+		$ds = $this->db->select('id,username,password', $tbl_web_users, "`id`='{$uid}'");
+		$total = $this->db->getRecordCount($ds);
+		if ($total != 1) return false;
+		
+		$row= $this->db->getRow($ds);
+		if ($row["password"] == md5($oldPwd))
 		{
-			$tbl_web_users= $this->getFullTableName("web_users");
-			$uid = $this->getLoginUserID();
-			$ds= $this->db->select('id,username,password', $tbl_web_users, "`id`='{$uid}'");
-			$limit= $this->db->getRecordCount($ds);
-			if ($limit == 1)
+			if (strlen($newPwd) < 6)
 			{
-				$row= $this->db->getRow($ds);
-				if ($row["password"] == md5($oldPwd))
-				{
-					if (strlen($newPwd) < 6)
-					{
-						return 'Password is too short!';
-					}
-					elseif ($newPwd == '')
-					{
-						return "You didn't specify a password for this user!";
-					}
-					else
-					{
-						$newPwd = $this->db->escape($newPwd);
-						$this->db->update("password = md5('{$newPwd}')", $tbl_web_users, "id='{$uid}'");
-						// invoke OnWebChangePassword event
-						$this->invokeEvent("OnWebChangePassword",
-						array
-						(
-							"userid" => $row["id"],
-							"username" => $row["username"],
-							"userpassword" => $newPwd
-						));
-						return true;
-					}
-				}
-				else
-				{
-					return 'Incorrect password.';
-				}
+				return 'Password is too short!';
 			}
+			elseif ($newPwd == '')
+			{
+				return "You didn't specify a password for this user!";
+			}
+			else
+			{
+				$newPwd = $this->db->escape($newPwd);
+				$this->db->update("password = md5('{$newPwd}')", $tbl_web_users, "id='{$uid}'");
+				// invoke OnWebChangePassword event
+				$this->invokeEvent("OnWebChangePassword",
+				array
+				(
+					"userid" => $row["id"],
+					"username" => $row["username"],
+					"userpassword" => $newPwd
+				));
+				return true;
+			}
+		}
+		else
+		{
+			return 'Incorrect password.';
 		}
 	}
 	
