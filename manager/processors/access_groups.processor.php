@@ -25,15 +25,12 @@ switch ($operation) {
 			echo "no group name specified";
 			exit;
 		} else {
-			$sql = 'INSERT INTO '.$tbl_membergroup_names.' (name) VALUES(\''.$modx->db->escape($newgroup).'\')';
-			if(!$rs = $modx->db->query($sql)) {
+			$f['name'] = $modx->db->escape($newgroup);
+			$id = $modx->db->insert_ignore($f,$tbl_membergroup_names);
+			if(!$id) {
 				echo "Failed to insert new group. Possible duplicate group name?";
 				exit;
 			}
-
-			// get new id
-			$id = mysql_insert_id();
-
 			// invoke OnManagerCreateGroup event
 			$modx->invokeEvent('OnManagerCreateGroup', array(
 				'groupid'   => $id,
@@ -47,15 +44,13 @@ switch ($operation) {
 			echo "no group name specified";
 			exit;
 		} else {
-			$sql = 'INSERT INTO '.$tbl_documentgroup_names.' (name) VALUES(\''.$modx->db->escape($newgroup).'\')';
-			if(!$rs = $modx->db->query($sql)) {
+			$f['name'] = $modx->db->escape($newgroup);
+			$id = $modx->db->insert_ignore($f,$tbl_documentgroup_names);
+			if(!$id) {
 				echo "Failed to insert new group. Possible duplicate group name?";
 				exit;
 			}
-
-			// get new id
-			$id = mysql_insert_id();
-
+			
 			// invoke OnCreateDocGroup event
 			$modx->invokeEvent('OnCreateDocGroup', array(
 				'groupid'   => $id,
