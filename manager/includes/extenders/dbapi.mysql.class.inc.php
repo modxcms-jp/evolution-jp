@@ -281,45 +281,27 @@ class DBAPI {
 	* @name:  insert
 	* @desc:  returns either last id inserted or the result from the query
 	*/
-    function insert($fields, $intotable, $fromfields = "*", $fromtable = '', $where = '', $limit = '') {
-        if (!$intotable) {
-            $result = false;
-        } else {
-            $subsql = '';
-            if (!is_array($fields)) {
-                $pairs = $fields;
-            } else {
-                $keys = array_keys($fields);
-                $keys = implode(',', $keys) ;
-                $values = array_values($fields);
-                $values = "'" . implode("','", $values) . "'";
-                $pairs = "({$keys}) ";
-                if (!$fromtable && $values) {
-                    $pairs .= "VALUES({$values})";
-                }
-                if ($fromtable) {
-                    if ($where !== '') {
-                        $where = "WHERE {$where}";
-                    }
-                    if ($limit !== '') {
-                        $limit = "LIMIT {$limit}";
-                    }
-                    $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
-                }
-            }
-            $rt = $this->query("INSERT INTO {$intotable} {$pairs} {$subsql}");
-                $lid = $this->getInsertId();
-                $result = $lid ? $lid : $rt;
-        }
-
-        return $result;
-    } // insert
-    
+	function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+		return $this->__insert('INSERT', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+	}
+	
+	/**
+	* @name:  insert ignore
+	* @desc:  returns either last id inserted or the result from the query
+	*/
+	function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+		return $this->__insert('INSERT IGNORE', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+	}
+	
 	/**
 	* @name:  replace
-	* @desc:  returns replaced or the result from the query
+	* @desc:  returns either last id inserted or the result from the query
 	*/
-    function replace($fields, $intotable, $fromfields = "*", $fromtable = '', $where = '', $limit = '') {
+	function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+		return $this->__insert('REPLACE', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+	}
+	
+    private function __insert($insert_method='INSERT', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
         if (!$intotable) {
             $result = false;
         } else {
@@ -345,11 +327,28 @@ class DBAPI {
                     $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
                 }
             }
-            $result = $this->query("REPLACE INTO {$intotable} {$pairs} {$subsql}");
+			$rt = $this->query("{$insert_method} {$intotable} {$pairs} {$subsql}");
+			if($rt===false) $result = false;
+			else
+			{
+				switch($insert_method)
+				{
+					case 'INSERT IGNORE':
+						$diff = $this->getAffectedRows();
+						if($diff==1) $result = $this->getInsertId();
+						else         $result = false;
+						break;
+					case 'REPLACE':
+						$result = $this->getAffectedRows();
+						break;
+					case 'INSERT':
+					default:
+						$result = $this->getInsertId();
+				}
+			}
         }
-
         return $result;
-    } // replace
+    } // __insert
     
 	/**
 	* @name:  getInsertId
