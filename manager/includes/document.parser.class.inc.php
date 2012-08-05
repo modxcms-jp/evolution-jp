@@ -1460,7 +1460,7 @@ class DocumentParser {
 		return $stack;
 	}
 	
-	function _get_snip_result($piece)
+	private function _get_snip_result($piece)
 	{
 		$snip_call        = $this->_split_snip_call($piece);
 		$snip_name        = $snip_call['name'];
@@ -1541,7 +1541,7 @@ class DocumentParser {
 		return $value . $except_snip_call;
 	}
 	
-	function _split_snip_call($src)
+	private function _split_snip_call($src)
 	{
 		list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
 		if(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, '?') < strpos($call, "\n"))
@@ -1575,7 +1575,7 @@ class DocumentParser {
 		return $snip;
 	}
 	
-	function _get_snip_properties($snip_call)
+	private function _get_snip_properties($snip_call)
 	{
 		$snip_name  = $snip_call['name'];
 		
