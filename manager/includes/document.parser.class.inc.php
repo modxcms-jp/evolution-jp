@@ -2979,44 +2979,6 @@ class DocumentParser {
     function getCachePath() {
         return $this->config['base_url'] . 'assets/cache/';
     }
-
-	# sends a message to a user's message box
-	function sendAlert($type, $to, $from, $subject, $msg, $private= 0)
-	{
-		$tbl_manager_users = $this->getFullTableName('manager_users');
-		$private= ($private) ? 1 : 0;
-		if (!is_numeric($to))
-		{
-			// Query for the To ID
-			$rs= $this->db->select('id',$tbl_manager_users,"username='{$to}'");
-			if ($this->db->getRecordCount($rs))
-			{
-				$rs= $this->db->getRow($rs);
-				$to= $rs['id'];
-			}
-		}
-		if (!is_numeric($from))
-		{
-			// Query for the From ID
-			$rs= $this->db->select('id',$tbl_manager_users,"username='{$from}'");
-			if ($this->db->getRecordCount($rs))
-			{
-				$rs= $this->db->getRow($rs);
-				$from= $rs['id'];
-			}
-		}
-		// insert a new message into user_messages
-		$f['id']          = '';
-		$f['type']        = $type;
-		$f['subject']     = $subject;
-		$f['message']     = $msg;
-		$f['sender']      = $from;
-		$f['recipient']   = $to;
-		$f['private']     = $private;
-		$f['postdate']    = time();
-		$f['messageread'] = 0;
-		$rs= $this->db->insert($f,$this->getFullTableName('user_messages'));
-	}
 	
 	# Returns current user id
 	function getLoginUserID($context= '')
