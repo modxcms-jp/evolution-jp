@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}active_users` (
   `lasthit` int(20) NOT NULL default '0',
   `id` int(10) default NULL,
   `action` varchar(10) NOT NULL default '',
-  `ip` varchar(20) NOT NULL default '',
+  `ip` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`internalKey`)
 ) ENGINE=MyISAM COMMENT='Contains data about active users.';
 
@@ -725,6 +725,8 @@ UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/javascr
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/css' WHERE `type`='' AND `alias` REGEXP '[.period.]css$';
 
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' WHERE `type`='';
+
+ALTER TABLE `{PREFIX}active_users` MODIFY COLUMN `ip` varchar(50) NOT NULL DEFAULT '';
 
 # end related to #MODX-1321
 # ]]upgrade-able
