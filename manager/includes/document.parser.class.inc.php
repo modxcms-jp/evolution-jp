@@ -2588,6 +2588,7 @@ class DocumentParser {
 			$result= $this->db->select('name,snippet,properties',$tbl_site_snippets,"name='{$esc_name}'");
 			if ($this->db->getRecordCount($result) == 1)
 			{
+				$row = $this->db->getRow($result);
 				$snippet= $this->snippetCache[$snippetName]= $row['snippet'];
 				$properties= $this->snippetCache["{$snippetName}Props"]= $row['properties'];
 			}
