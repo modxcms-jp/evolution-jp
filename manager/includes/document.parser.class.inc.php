@@ -3642,7 +3642,7 @@ class DocumentParser {
         }
 
         if (!empty ($query)) {
-            $str .= '<tr><td colspan="2"><b style="color:#333;font-size: 12px;">SQL:<span id="sqlHolder">' . $query . '</span></b>
+            $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:5px;color:#333;background-color:#ffffcd;">SQL:<span id="sqlHolder">' . $query . '</span></div>
                     </td></tr>';
         }
 
