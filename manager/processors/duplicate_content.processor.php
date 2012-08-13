@@ -28,15 +28,17 @@ if(!$udperms->checkPermissions()) {
 }
 
 // Run the duplicator
-$id = duplicateDocument($id);
+$newid = duplicateDocument($id);
 $modx->clearCache($clearcache);
 
 // finish cloning - redirect
 $tbl_site_content = $modx->getFullTableName('site_content');
-$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
-if($pid==0) $header = "Location: index.php?r=1&a=3&id={$id}";
+$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$newid}'"));
+if($pid==0) $header = "Location: index.php?r=1&a=3&id={$newid}";
 else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
 header($header);
+
+
 
 function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true)
 {
@@ -59,20 +61,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$rs = $modx->db->select('*', $tbl_site_content, 'id='.$docid);
 	$content = $modx->db->getRow($rs);
 
-	unset($content['id']); // remove the current id.
-	switch($modx->config['docid_incrmnt_method'])
-	{
-		case '1':
-			$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
-			$where = "T1.id IS NULL";
-			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-			$content['id'] = $modx->db->getValue($rs);
-			break;
-		case '2':
-			$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
-			$content['id'] = $modx->db->getValue($rs);
-			break;
-	}
+	$content['id'] = set_new_id();
 
 	// Once we've grabbed the document object, start doing some modifications
 	if ($_toplevel == 0 && $reset_alias===true)
@@ -120,7 +109,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$new_id = $modx->db->insert($content, $tbl_site_content);
 
 	// duplicate document's TVs & Keywords
-	if($modx->config['show_meta']==1) duplicateKeywords($docid, $new_id);
+	duplicateKeywords($docid, $new_id);
 	duplicateTVs($docid, $new_id);
 	duplicateAccess($docid, $new_id);
 	
@@ -145,10 +134,33 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	return $new_id;
 }
 
+function set_new_id()
+{
+	global $modx;
+	$tbl_site_content = $modx->getFullTableName('site_content');
+	
+	switch($modx->config['docid_incrmnt_method'])
+	{
+		case '1':
+			$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+			$where = "T1.id IS NULL";
+			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
+			$result = $modx->db->getValue($rs);
+			break;
+		case '2':
+			$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+			$result = $modx->db->getValue($rs);
+			break;
+	}
+	return $result;
+}
+
 // Duplicate Keywords
 function duplicateKeywords($oldid,$newid){
 	global $modx;
-
+	
+	if($modx->config['show_meta']!=1) return;
+	
 	$tblkw = $modx->getFullTableName('keyword_xref');
 
 	$modx->db->insert(
