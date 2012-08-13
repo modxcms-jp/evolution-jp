@@ -28,6 +28,14 @@ if($_POST['friendly_urls']==='1')
 			}
 		}
 	}
+	else
+	{
+		$_ = file_get_contents($htaccess);
+		if(strpos($_,'RewriteBase')===false)
+		{
+			$warnings[] = $_lang["settings_friendlyurls_alert2"];
+		}
+	}
 }
 if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 if(!file_exists($_POST['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
