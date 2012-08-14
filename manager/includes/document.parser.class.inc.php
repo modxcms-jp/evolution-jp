@@ -3683,19 +3683,9 @@ class DocumentParser {
     function stripAlias($alias) {
         // let add-ons overwrite the default behavior
         $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias));
-        if (!empty($results)) {
-            // if multiple plugins are registered, only the last one is used
-            return end($results);
-        } else {
-            // default behavior: strip invalid characters and replace spaces with dashes.
-            $alias = strip_tags($alias); // strip HTML
-//          $alias = preg_replace('/[^\.A-Za-z0-9 _-]/', '', $alias); // strip non-alphanumeric characters
-//          $alias = preg_replace('/\s+/', '-', $alias); // convert white-space to dash
-//          $alias = preg_replace('/-+/', '-', $alias);  // convert multiple dashes to one
-//          $alias = trim($alias, '-'); // trim excess
-            $alias = urlencode($alias);
-            return $alias;
-        }
+        
+        if (!empty($results)) return end($results);//if multiple plugins are registered, only the last one is used
+        else                  return urlencode(strip_tags($alias));
     }
     
 	function nicesize($size) {
@@ -3705,7 +3695,7 @@ class DocumentParser {
 			   $size /= 1024;
 			   $pos++;
 		}
-		return round($size,2)." ".$a[$pos];
+		return round($size,2).' '.$a[$pos];
 	}
 	
 	function initProcessCache()
