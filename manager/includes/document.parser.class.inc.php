@@ -48,7 +48,7 @@ class DocumentParser {
     var $documentMap;
     var $forwards= 3;
     var $referenceListing;
-    var $documentMap_cache;
+    var $childrenList;
     var $safeMode;
     var $qs_hash;
     var $cacheRefreshTime;
@@ -1893,17 +1893,17 @@ class DocumentParser {
 		return $parents;
 	}
 
-	function set_documentMap_cache()
+	function set_childrenList()
 	{
 		$path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.pageCache.php';
 		if(is_file($path_documentmapcache))
 		{
 			$src = file_get_contents($path_documentmapcache);
-			$this->documentMap_cache = unserialize($src);
+			$this->childrenList = unserialize($src);
 		}
 		else
 		{
-			$documentMap_cache= array ();
+			$childrenList= array ();
 			
 			if(!$this->documentMap) $this->setdocumentMap();
 			
@@ -1911,31 +1911,31 @@ class DocumentParser {
 			{
 				foreach ($document as $p => $c)
 				{
-					$documentMap_cache[$p][] = $c;
+					$childrenList[$p][] = $c;
 				}
 			}
-			file_put_contents($path_documentmapcache,serialize($documentMap_cache), LOCK_EX);
-			$this->documentMap_cache = $documentMap_cache;
+			file_put_contents($path_documentmapcache,serialize($childrenList), LOCK_EX);
+			$this->childrenList = $childrenList;
 		}
-		return $this->documentMap_cache;
+		return $this->childrenList;
 	}
 
 	function getChildIds($id, $depth= 10, $children= array ())
 	{
 		// Initialise a static array to index parents->children
-		if(!count($this->documentMap_cache))
-			$documentMap_cache = $this->set_documentMap_cache();
+		if(!count($this->childrenList))
+			$childrenList = $this->set_childrenList();
 		else
-			$documentMap_cache = $this->documentMap_cache;
+			$childrenList = $this->childrenList;
 		
 		// Get all the children for this parent node
-		if (isset($documentMap_cache[$id]))
+		if (isset($childrenList[$id]))
 		{
 			$depth--;
 			
 			if(!$this->aliasListing) $this->setAliasListing();
 			
-			foreach ($documentMap_cache[$id] as $childId)
+			foreach ($childrenList[$id] as $childId)
 			{
 				$pkey = $this->aliasListing[$childId]['alias'];
 				if(strlen($this->aliasListing[$childId]['path']))
