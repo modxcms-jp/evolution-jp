@@ -655,11 +655,11 @@ a img {
 	display: none;
 	position: absolute;
 	width: 200px;
-	height: 50px;
+	padding:5px;
 	top: 25px;
 	left: 4px;
 	background: #fff;
-	border-bottom: 1px solid #666;
+	border: 1px solid #ccc;
 	z-index: 500;
 }
 	.rtl #floater {
@@ -1211,7 +1211,8 @@ zoom:1;
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
 	display: block;
-	cursor: default;
+	cursor: pointer;
+	cursor: hand;
 	color: #333;
 	border: 1px;
 	border-bottom-color: #809c47;
