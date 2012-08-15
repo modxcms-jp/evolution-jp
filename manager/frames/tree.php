@@ -103,9 +103,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
       return scrOfY;
     }
 
-    function showPopup(id,title,e){
+    function showPopup(id,title,pub,del,e){
         var x,y
         var mnu = $('mx_contextmenu');
+        document.getElementById('item9').style.display='block';
+        document.getElementById('item10').style.display='block';
+        document.getElementById('item4').style.display='block';
+        document.getElementById('item8').style.display='block';
+        if(pub==1) document.getElementById('item9').style.display='none';
+        else       document.getElementById('item10').style.display='none';
+        if(del==1) document.getElementById('item4').style.display='none';
+        else       document.getElementById('item8').style.display='none';
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX>0 ? e.clientX:e.pageX;
         y = e.clientY>0 ? e.clientY:e.pageY;
