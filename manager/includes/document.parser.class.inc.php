@@ -2337,7 +2337,7 @@ class DocumentParser {
 	}
 	
     function clearCache($params=array()) {
-    	if(!$this->hasPermission('empty_cache')) return;
+    	if($this->isBackend() && !$this->hasPermission('empty_cache')) return;
     	
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
