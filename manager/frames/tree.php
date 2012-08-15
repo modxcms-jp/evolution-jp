@@ -580,7 +580,7 @@ function constructLink($action, $img, $text, $allowed)
 {
 	if($allowed==1)
 	{
-		echo '<div class="menuLink" onclick="menuHandler(' . $action . '); hideMenu();">';
+		echo '<div class="menuLink" id="item'.$action.'" onclick="menuHandler(' . $action . '); hideMenu();">';
 	}
 	else
 	{
