@@ -57,7 +57,7 @@ if (isset($_POST) && count($_POST) > 0) {
 			case 'rb_base_dir':
 			case 'rb_base_url':
 			case 'filemanager_path':
-				$v = rtrim($v,'/') . '/';
+				if($v!=='') $v = rtrim($v,'/') . '/';
 				break;
 			case 'error_page':
 			case 'unauthorized_page':
