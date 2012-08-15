@@ -5,7 +5,7 @@
  * 投稿画面を自由自在にカスタマイズ。
  *
  * @category 	plugin
- * @version 	0.3.11
+ * @version 	0.3.12
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes &which_jquery=jQuery source;list;local (assets/js),remote (google code),manual url (specify below);local (assets/js) &js_src_override=jQuery URL override;text;
  * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnTVFormRender,OnManagerMainFrameHeaderHTMLBlock
@@ -31,12 +31,12 @@
 // or specify a URL to a custom location.
 // Here we set some default values, because this is a convenient place to change them if we need to,
 // but you should configure your preference via the Configuration tab.
-$js_default_url_local = $modx->config['site_url']. 'assets/js/jquery.min.js';
-$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js';
 
 // You don't need to change anything else from here onwards
 //-------------------------------------------------------
 
 // Run the main code
-$asset_path = $modx->config['base_path'] . 'assets/plugins/managermanager/mm.inc.php';
-include_once($asset_path);
+$mm_path = $modx->config['base_path'] . 'assets/plugins/managermanager/mm.inc.php';
+include_once($mm_path);
+$mm = new MANAGERMANAGER();
+$mm->run();
