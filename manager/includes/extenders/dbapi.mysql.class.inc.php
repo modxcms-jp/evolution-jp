@@ -226,15 +226,16 @@ class DBAPI {
 	* @name:  delete
 	*
 	*/
-	function delete($from,$where='',$limit='')
+	function delete($from,$where='',$orderby='', $limit = '')
 	{
 		if(!$from) return false;
 		else
 		{
 			$table = $from;
 			if($where != '') $where = "WHERE {$where}";
+			if($orderby !== '') $orderby = "ORDER BY {$orderby}";
 			if($limit != '') $limit = "LIMIT {$limit}";
-			return $this->query("DELETE FROM {$table} {$where} {$limit}");
+			return $this->query("DELETE FROM {$table} {$where} {$orderby} {$limit}");
 		}
 	}
 	
