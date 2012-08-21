@@ -93,12 +93,12 @@ function assign_base_url($base_path)
 	{
 		if(strpos($_SERVER['REQUEST_URI'],'/manager/')!==false)
 			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/manager/')) . '/';
-		elseif(strrpos($_SERVER['REQUEST_URI'],'/assets/')!==false)
+		elseif(strpos($_SERVER['REQUEST_URI'],'/assets/')!==false)
 			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/assets/')) . '/';
 	}
-	if(strpos($_SERVER['SCRIPT_FILENAME'],$_SERVER['SCRIPT_NAME'])===false)
+	if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),$_SERVER['SCRIPT_NAME'])===false)
 	{
-		if(strrpos($_SERVER['REQUEST_URI'],'/install/index.php')!==false)
+		if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),'/install/index.php')!==false)
 			return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install/')) . '/';
 		else {
 			echo 'Missing base_url';
