@@ -752,6 +752,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 <?php
 	if (isset ($_REQUEST['newtemplate'])) $template = $_REQUEST['newtemplate'];
 	elseif (isset ($content['template'])) $template = $content['template'];
+	elseif (isset ($default_template))    $template = $default_template;
 	else                                  $template = $modx->config['default_template'];
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
