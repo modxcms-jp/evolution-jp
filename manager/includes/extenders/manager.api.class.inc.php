@@ -132,7 +132,7 @@ class ManagerAPI {
 		
 		if($image_limit_width==='' || $img[0] <= $image_limit_width)
 		{
-			if(!isset($ext) || in_array($ext,array('.jpg','.png','.gif','.bmp')))
+			if(!isset($ext) || !in_array($ext,array('.jpg','.png','.gif','.bmp')))
 			{
 				$rs = move_uploaded_file($tmp_path, $target_path);
 				return $rs;
