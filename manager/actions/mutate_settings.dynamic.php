@@ -1151,7 +1151,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 */
 function get_lang_keys($filename)
 {
-	$file = MODX_MANAGER_PATH.'includes/lang' . DIRECTORY_SEPARATOR . $filename;
+	$file = MODX_MANAGER_PATH.'includes/lang/' . $filename;
 	if(is_file($file) && is_readable($file))
 	{
 		include($file);
