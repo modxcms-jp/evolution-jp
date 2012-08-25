@@ -192,7 +192,12 @@ switch ($actionToTake)
 				$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
 				$id = $modx->db->getValue($rs);
 				break;
+			default:
+				$id = '';
 		}
+		
+		$tmplvars = get_tmplvars($id);
+		
 		// invoke OnBeforeDocFormSave event
 		$params = array();
 		$params['mode'] = 'new';
@@ -432,6 +437,8 @@ switch ($actionToTake)
 			}
 		}
 		
+		$tmplvars = get_tmplvars($id);
+		
 		// invoke OnBeforeDocFormSave event
 		$params = array();
 		$params['mode'] = 'upd';
@@ -474,7 +481,6 @@ switch ($actionToTake)
 		}
 		
 		// update template variables
-		$tmplvars = get_tmplvars();
 		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid='{$id}'");
 		$tvIds = array ();
 		while ($row = $modx->db->getRow($rs))
@@ -728,7 +734,7 @@ function saveMETAKeywords($id) {
 	}
 }
 
-function get_tmplvars()
+function get_tmplvars($id)
 {
 	global $modx;
 	
@@ -737,7 +743,6 @@ function get_tmplvars()
 	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
 	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 	$template = $_POST['template'];
-	$id       = is_numeric($_POST['id']) ? $_POST['id'] : '';
 	
 	// get document groups for current user
 	if ($_SESSION['mgrDocgroups'])
