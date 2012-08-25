@@ -215,21 +215,13 @@ switch ($actionToTake)
 		$editedon = time();
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		if(!empty($id)) $field['id'] = $id;
-		$rs = $modx->db->insert($field,$tbl_site_content);
-		if(!$rs)
+		$newid = $modx->db->insert($field,$tbl_site_content);
+		if(!$newid)
 		{
 			$modx->manager->saveFormValues(27);
 			echo "An error occured while attempting to save the new document: " . $modx->db->getLastError();
 			exit;
 		}
-		if (!$newid = $modx->db->getInsertId())
-		{
-			$modx->manager->saveFormValues(27);
-			echo "Couldn't get last insert key!";
-			exit;
-		}
-		
-		$tmplvars = get_tmplvars();
 		
 		$tvChanges = array();
 		$field = '';
