@@ -161,6 +161,7 @@ class PHx {
 				break;
 			case 'ifempty':
 				if (empty($value)) $value = $opt; break;
+			case 'strftime':
 			case 'date':
 				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
 				if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
