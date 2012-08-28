@@ -190,20 +190,27 @@ if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
 $modx->manager->action = $action;
 
 // attempt to foil some simple types of CSRF attacks
-if (isset($modx->config['validate_referer']) && intval($modx->config['validate_referer'])) {
-    if (isset($_SERVER['HTTP_REFERER'])) {
+if (isset($modx->config['validate_referer']) && intval($modx->config['validate_referer']))
+{
+    if (isset($_SERVER['HTTP_REFERER']))
+    {
         $referer = $_SERVER['HTTP_REFERER'];
-        
-        if (!empty($referer)) {
-            if (!preg_match('/^'.preg_quote(MODX_SITE_URL, '/').'/i', $referer)) {
+        if (!empty($referer))
+        {
+            if (!preg_match('/^'.preg_quote(MODX_SITE_URL, '/').'/i', $referer))
+            {
                 echo "A possible CSRF attempt was detected from referer: {$referer}.";
                 exit();
             }
-        } else {
+        }
+        else
+        {
             echo "A possible CSRF attempt was detected. No referer was provided by the client.";
             exit();
         }
-    } else {
+    }
+    else
+    {
         echo "A possible CSRF attempt was detected. No referer was provided by the server.";
         exit();
     }
