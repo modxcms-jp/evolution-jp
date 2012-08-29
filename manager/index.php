@@ -194,7 +194,7 @@ if (isset($modx->config['validate_referer']) && $modx->config['validate_referer'
 {
     if (isset($_SERVER['HTTP_REFERER']))
     {
-        $referer = $_SERVER['HTTP_REFERER'];
+        $referer = strip_tags($_SERVER['HTTP_REFERER']);
         if (!empty($referer))
         {
             if (stripos($referer,MODX_SITE_URL)===false)
