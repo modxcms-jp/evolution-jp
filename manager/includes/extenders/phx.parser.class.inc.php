@@ -188,7 +188,6 @@ class PHx {
 				
 			// If we haven't yet found the modifier, let's look elsewhere	
 			default:
-				$html = $modx->getChunk('phx:' . $cmd);
 				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
 				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='phx:{$cmd}'");
 				if($modx->db->getRecordCount($result) == 1)
@@ -212,6 +211,9 @@ class PHx {
 					}
 				}
 				if($php==='') $php=false;
+				
+				if($php===false) $html = $modx->getChunk('phx:' . $cmd);
+				else             $html = false;
 				
 				if($php !== false)
 				{
