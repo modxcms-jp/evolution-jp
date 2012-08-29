@@ -205,7 +205,7 @@ if (isset($modx->config['validate_referer']) && $modx->config['validate_referer'
         }
         else
         {
-            echo "A possible CSRF attempt was detected. No referer was provided by the client.";
+            echo "A possible CSRF attempt was detected. Check return HTTP_REFERER setting on your browser.";
             exit();
         }
     }
