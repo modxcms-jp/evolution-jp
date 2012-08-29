@@ -3734,31 +3734,52 @@ class DocumentParser {
 		if($result!==false) return $result;
 		
 		$tbl_site_content = $this->getFullTableName('site_content');
-		$_a = explode('/', $str);
-		$parent = '0';
 		$fields = "id, IF(alias='', id, alias) AS alias";
+		if($this->config['use_alias_path']==1)
+		{
+			$id = '0';
+		$_a = explode('/', $str);
 		foreach($_a as $v)
 		{
-			if(isset($this->childrenCache[$parent])) $d = $this->childrenCache[$parent];
+				if(isset($this->childrenCache[$id])) $d = $this->childrenCache[$id];
 			else
 			{
-				$rs = $this->db->select($fields, $tbl_site_content, "parent={$parent}");
+					$rs = $this->db->select($fields, $tbl_site_content, "deleted=0 and parent={$id}", 'menuindex');
 				$d = array();
 				while($row = $this->db->getRow($rs))
 				{
 					$d[$row['alias']] = $row['id'];
 				}
-				$this->childrenCache[$parent] = $d;
+					$this->childrenCache[$id] = $d;
 			}
-			if(isset($d[$v])) $parent = $d[$v];
+				if(isset($d[$v])) $id = $d[$v];
 			else
 			{
-				$parent = false;
+					$id = false;
 				break;
 			}
 		}
-		$this->setProcessCache($cacheKey,$parent,'file');
-		return $parent;
+		}
+		else
+		{
+			if(isset($this->childrenCache[$id])) $d = $this->childrenCache[$id];
+			else
+			{
+				$rs = $this->db->select($fields, $tbl_site_content, "deleted=0", 'parent, menuindex');
+				while($row = $this->db->getRow($rs))
+				{
+					$d[$row['alias']] = $row['id'];
+				}
+				$this->childrenCache[$id] = $d;
+			}
+			if(isset($d[$str])) $id = $d[$str];
+			else
+			{
+				$id = false;
+			}
+		}
+		$this->setProcessCache($cacheKey,$id,'file');
+		return $id;
 	}
 	
     // End of class.
