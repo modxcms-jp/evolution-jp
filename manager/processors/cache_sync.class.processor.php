@@ -350,6 +350,10 @@ class synccache {
 			{
 				$path = $this->getParents($row['parent']);
 			}
+			else
+			{
+				$path = '';
+			}
 			$alias = $modx->db->escape($row['alias']);
 			$docid = $row['id'];
 			$path = $modx->db->escape($path);
