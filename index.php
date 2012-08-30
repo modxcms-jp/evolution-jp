@@ -111,7 +111,7 @@ if (!isset($database_type)) {
     if (is_file($conf_path))
         include_once($conf_path);
     // Be sure config.inc.php is there and that it contains some important values
-    if ((!isset($lastInstallTime) || $lastInstallTime === NULL) && !isset($database_type)) {
+    if ((!isset($lastInstallTime) || empty($lastInstallTime))) {
         show_install();
         exit;
     }

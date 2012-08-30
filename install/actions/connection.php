@@ -3,29 +3,49 @@ $installMode = intval($_POST['installmode']);
 
 // Determine upgradeability
 $upgradeable= 0;
-if ($installMode > 0) {
-  if (file_exists("{$base_path}manager/includes/config.inc.php")) {
-      // Include the file so we can test its validity
-      include "{$base_path}manager/includes/config.inc.php";
-      // We need to have all connection settings - but prefix may be empty so we have to ignore it
-      if ($dbase) {
-          if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
-              $upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
-          }
-          elseif (!@ mysql_select_db(trim($dbase, '`'), $conn)) {
-              $upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == 'new' ? 0 : 2;
-          } else {
-              $upgradeable = 1;
-          }
-          $database_name= trim($dbase, '`');
-      } else {
-          $upgradable= 2;
-      }
-  }
-} else {
-    $database_name= '';
-    $database_server= 'localhost';
-    $table_prefix= 'modx_';
+
+if (is_file("{$base_path}manager/includes/config.inc.php"))
+{
+	include_once("{$base_path}manager/includes/config.inc.php");
+}
+if($installMode > 0)
+{
+	if(isset($dbase) && !empty($dbase))
+	{
+		if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
+		{
+			$upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == '0' ? 0 : 2;
+		}
+		elseif (!@ mysql_select_db(trim($dbase, '`'), $conn))
+		{
+			$upgradeable = isset ($_POST['installmode']) && $_POST['installmode'] == '0' ? 0 : 2;
+		}
+		else
+		{
+			$upgradeable = 1;
+		}
+		$database_name= trim($dbase, '`');
+	}
+	else
+	{
+		$upgradable= 2;
+	}
+}
+else 
+{
+	if(isset($_POST['databasehost']))             $database_server = $_POST['databasehost'];
+	elseif(!isset($database_server))              $database_server = 'localhost';
+	
+	if(isset($_SESSION['databaseloginname']))     $database_user = $_SESSION['databaseloginname'];
+	elseif(!isset($database_user))                $database_user = '';
+	
+	if(isset($_SESSION['databaseloginpassword'])) $database_password = $_SESSION['databaseloginpassword'];
+	elseif(!isset($database_password))            $database_password = '';
+	
+	if(isset($_POST['database_name']))            $database_name = $_POST['database_name'];
+	elseif(isset($dbase))                         $database_name = trim($dbase, '`');
+	else                                          $database_name = '';
+	
 }
 
 // check the database collation if not specified in the configuration
@@ -64,13 +84,13 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
   <p><?php echo $_lang['connection_screen_server_connection_note']?></p>
 
   <p class="labelHolder"><label for="databasehost"><?php echo $_lang['connection_screen_database_host']?></label>
-    <input id="databasehost" value="<?php echo isset($_POST['databasehost']) ? $_POST['databasehost']: $database_server ?>" name="databasehost" />
+    <input id="databasehost" value="<?php echo $database_server; ?>" name="databasehost" />
   </p>
   <p class="labelHolder"><label for="databaseloginname"><?php echo $_lang['connection_screen_database_login']?></label>
-    <input id="databaseloginname" name="databaseloginname" value="<?php echo isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname']: "" ?>" />
+    <input id="databaseloginname" name="databaseloginname" value="<?php echo $database_user; ?>" />
   </p>
   <p class="labelHolder"><label for="databaseloginpassword"><?php echo $_lang['connection_screen_database_pass']?></label>
-    <input id="databaseloginpassword" type="password" name="databaseloginpassword" value="<?php echo isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword']: "" ?>" />
+    <input id="databaseloginpassword" type="password" name="databaseloginpassword" value="<?php echo $database_password; ?>" />
   </p>
 
 <!-- connection test action/status message -->
@@ -85,7 +105,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
   <h3><?php echo $_lang['connection_screen_database_connection_information']?></h3>
   <p><?php echo $_lang['connection_screen_database_connection_note']?></p>
   <p class="labelHolder"><label for="database_name"><?php echo $_lang['connection_screen_database_name']?></label>
-    <input id="database_name" value="<?php echo isset($_POST['database_name']) ? $_POST['database_name']: $database_name ?>" name="database_name" />
+    <input id="database_name" value="<?php echo $database_name; ?>" name="database_name" />
   </p>
   <p class="labelHolder"><label for="tableprefix"><?php echo $_lang['connection_screen_table_prefix']?></label>
     <input id="tableprefix" value="<?php echo isset($_POST['tableprefix']) ? $_POST['tableprefix']: $table_prefix ?>" name="tableprefix" />

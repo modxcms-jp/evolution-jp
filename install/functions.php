@@ -317,15 +317,15 @@ function get_upgradeable_status()
 		// Include the file so we can test its validity
 		include("{$base_path}manager/includes/config.inc.php");
 		// We need to have all connection settings - tho prefix may be empty so we have to ignore it
-		if ((!isset($lastInstallTime) || empty($lastInstallTime)) && !isset($database_type))
+		if ((!isset($lastInstallTime) || empty($lastInstallTime)))
 		{
 			return 0;
 		}
-		elseif($dbase)
+		elseif(isset($dbase) && !empty($dbase))
 		{
 			if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
 			{
-				if(isset($_POST['installmode']) && $_POST['installmode'] == 'new')
+				if(isset($_POST['installmode']) && $_POST['installmode'] == '0')
 				{
 					return 0;
 				}
@@ -336,7 +336,7 @@ function get_upgradeable_status()
 			}
 			elseif (!@ mysql_select_db(trim($dbase, '`'), $conn))
 			{
-				if(isset($_POST['installmode']) && $_POST['installmode'] == 'new')
+				if(isset($_POST['installmode']) && $_POST['installmode'] == '0')
 				{
 					return 0;
 				}
