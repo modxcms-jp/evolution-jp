@@ -46,6 +46,8 @@ else
 	elseif(isset($dbase))                         $database_name = trim($dbase, '`');
 	else                                          $database_name = '';
 	
+	if(isset($_POST['tableprefix']))              $table_prefix = $_POST['tableprefix'];
+	else                                          $table_prefix = 'modx_';
 }
 
 // check the database collation if not specified in the configuration
@@ -108,7 +110,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
     <input id="database_name" value="<?php echo $database_name; ?>" name="database_name" />
   </p>
   <p class="labelHolder"><label for="tableprefix"><?php echo $_lang['connection_screen_table_prefix']?></label>
-    <input id="tableprefix" value="<?php echo isset($_POST['tableprefix']) ? $_POST['tableprefix']: $table_prefix ?>" name="tableprefix" />
+    <input id="tableprefix" value="<?php echo $table_prefix; ?>" name="tableprefix" />
   </p>
 <?php
   if (($installMode == 0) || ($installMode == 2)) {
