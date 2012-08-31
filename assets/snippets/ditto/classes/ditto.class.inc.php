@@ -854,7 +854,7 @@ class ditto {
 		$kids = array();
 		$docIDs = array();
 		
-		if(method_exists($modx, 'documentMap') && !isset($modx->documentMap))
+		if(method_exists($modx, 'setdocumentMap') && !isset($modx->documentMap))
 		{
 			$modx->setdocumentMap();
 		}
