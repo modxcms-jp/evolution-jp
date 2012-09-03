@@ -1,11 +1,7 @@
 # Default modx exclusions
 User-agent: *
-Disallow: /assets/cache/
 Disallow: /temp/
-Disallow: /assets/import/
-Disallow: /assets/modules/
-Disallow: /assets/plugins/
-Disallow: /assets/snippets/
+Disallow: /assets/
 Disallow: /install/
 Disallow: /manager/	
 
