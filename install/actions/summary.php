@@ -398,7 +398,7 @@ function mkd($path)
 {
 	// if(ini_get('safe_mode') !=0) return;
 	
-	$rs = @mkdir($path);
+	$rs = @mkdir($path, true);
 	if($rs) $rs = @chmod($path, 0777);
 	return $rs;
 }
