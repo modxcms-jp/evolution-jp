@@ -120,6 +120,8 @@ class ManagerAPI {
 		
 		if(isset($modx->config['image_limit_width']))
 			$image_limit_width = $modx->config['image_limit_width'];
+		else $image_limit_width = '';
+		
 		$img = getimagesize($tmp_path);
 		switch($img[2])
 		{
@@ -130,13 +132,10 @@ class ManagerAPI {
 		}
 		if(isset($ext)) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
 		
-		if($image_limit_width==='' || $img[0] <= $image_limit_width)
+		if(!isset($ext) || $image_limit_width==='' || $img[0] <= $image_limit_width)
 		{
-			if(!isset($ext) || !in_array($ext,array('.jpg','.png','.gif','.bmp')))
-			{
-				$rs = move_uploaded_file($tmp_path, $target_path);
-				return $rs;
-			}
+			$rs = move_uploaded_file($tmp_path, $target_path);
+			return $rs;
 		}
 		
 		$new_width = $image_limit_width;

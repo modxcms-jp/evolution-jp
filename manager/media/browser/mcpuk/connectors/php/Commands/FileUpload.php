@@ -31,16 +31,13 @@ class FileUpload {
 	var $fckphp_config;
 	var $type;
 	var $cwd;
-	var $actual_cwd;
 	var $newfolder;
 	
 	function FileUpload($fckphp_config,$type,$cwd)
 	{
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
-		$this->raw_cwd=$cwd;
-		$this->actual_cwd=str_replace('//','/',($this->fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
-		$this->real_cwd=str_replace('//','/',($this->fckphp_config['basedir'].'/'.$this->actual_cwd));
+		$this->real_cwd   = rtrim($this->fckphp_config['basedir']."/{$type}/{$cwd}",'/');
 		define('IN_MANAGER_MODE', true);
 		define('MODX_API_MODE', true);
 		$base_path = str_replace('\\','/',realpath('../../../../../../../')) . '/';
@@ -71,6 +68,12 @@ class FileUpload {
 	{
 		global $modx;
 		$modx->config['new_file_permissions'] = octdec($modx->config['new_file_permissions']);
+		
+		if(!is_dir($this->real_cwd))
+		{
+			@mkdir($this->real_cwd,true);
+			@chmod($this->real_cwd, $modx->config['new_file_permissions']);
+		}
 		
 		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
 		
@@ -153,8 +156,7 @@ class FileUpload {
 							}
 							else
 							{
-								$tmp_path = $_FILES['NewFile']['tmp_name'];
-								if (file_exists($this->real_cwd."/$filename.$ext"))
+								if (file_exists($this->real_cwd."/{$filename}.{$ext}"))
 								{
 									$taskDone=false;
 									
@@ -163,32 +165,32 @@ class FileUpload {
 									//	the same name giveup
 									for ($i=1;(($i<200)&&($taskDone==false));$i++)
 									{
-										$uploaded_name = "$filename($i).$ext";	// (*4)
+										$uploaded_name = "{$filename}({$i}).{$ext}";	// (*4)
 										$target_path = $this->real_cwd . "/{$uploaded_name}";
 										if (!file_exists($target_path))
 										{
-											if (is_uploaded_file($tmp_path))
+											if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
 											{
-												if ($modx->manager->modx_move_uploaded_file($tmp_path,$target_path))
+												if ($modx->manager->modx_move_uploaded_file($_FILES['NewFile']['tmp_name'],$target_path))
 												{
 													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 													$disp="201,'..{$uploaded_name}'";
 												}
 												else
 												{
-													$disp="202,'Failed to upload file, internal error.'";
+													$disp="202,'Failed to upload file[1], internal error.'";
 												}
 											}
 											else
 											{
-												if (rename($tmp_path,$target_path))
+												if (rename($_FILES['NewFile']['tmp_name'],$target_path))
 												{
 													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 													$disp="201,'{$uploaded_name}'";
 												}
 												else
 												{
-													$disp="202,'Failed to upload file, internal error.'";
+													$disp="202,'Failed to upload file[2], internal error.'";
 												}
 											}
 											$taskDone=true;	
@@ -196,7 +198,7 @@ class FileUpload {
 									}
 									if ($taskDone==false)
 									{
-										$disp="202,'Failed to upload file, internal error..'";
+										$disp="202,'Failed to upload file[3], internal error..'";
 										$uploaded_name = '';
 									}
 								}
@@ -205,28 +207,28 @@ class FileUpload {
 									$uploaded_name = "$filename.$ext";	// (*4)
 									$target_path = $this->real_cwd . "/{$uploaded_name}";
 									//Upload file
-									if (is_uploaded_file($tmp_path))
+									if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
 									{
-										if ($modx->manager->modx_move_uploaded_file($tmp_path,$target_path))
+										if ($modx->manager->modx_move_uploaded_file($_FILES['NewFile']['tmp_name'],$target_path))
 										{
 											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 											$disp="0";
 										}
 										else
 										{
-											$disp="202,'Failed to upload file, internal error...'";
+											$disp="202,'Failed to upload file[4], internal error...'";
 										}
 									}
 									else
 									{
-										if (rename($tmp_path,$target_path))
+										if (rename($_FILES['NewFile']['tmp_name'],$target_path))
 										{
 											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
 											$disp="0";
 										}
 										else
 										{
-											$disp="202,'Failed to upload file, internal error...'";
+											$disp="202,'Failed to upload file[5], internal error...'";
 										}
 									}
 								}
