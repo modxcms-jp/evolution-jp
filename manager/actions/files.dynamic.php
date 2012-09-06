@@ -607,6 +607,7 @@ function ls($curpath)
 	while ($file = $dir->read())
 	{
 		$newpath = $curpath.$file;
+		if($file==='..'||$file==='.') continue;
 		if(is_dir($newpath))
 		{
 			$dirs_array[$dircounter]['dir'] = $newpath;
