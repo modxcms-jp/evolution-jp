@@ -9,13 +9,13 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <title>Document Tree</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>/style.css" />
-    <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
-    <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
+    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-    window.addEvent('load', function(){
+    var $j = jQuery.noConflict();
+    $j(function(){
         resizeTree();
         restoreTree();
-        window.addEvent('resize', resizeTree);
+        window.resize(function(){resizeTree;});
     });
 
     // preload images
@@ -80,8 +80,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var win = getWindowDimension();
 
         // set tree height
-        var tree = $('treeHolder');
-        var tmnu = $('treeMenu');
+        var tree = document.getElementById('treeHolder');
+        var tmnu = document.getElementById('treeMenu');
         tree.style.width = (win['width']-20)+'px';
         tree.style.height = (win['height']-tree.offsetTop-6)+'px';
         tree.style.overflow = 'auto';
@@ -105,7 +105,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function showPopup(id,title,pub,del,e){
         var x,y
-        var mnu = $('mx_contextmenu');
+        var mnu = document.getElementById('mx_contextmenu');
         document.getElementById('item9').style.display='block';
         document.getElementById('item10').style.display='block';
         document.getElementById('item4').style.display='block';
@@ -115,12 +115,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         if(del==1) document.getElementById('item4').style.display='none';
         else       document.getElementById('item8').style.display='none';
         var bodyHeight = parseInt(document.body.offsetHeight);
-        x = e.clientX>0 ? e.clientX:e.pageX;
-        y = e.clientY>0 ? e.clientY:e.pageY;
+        x = e.clientX > 0 ? e.clientX:e.pageX;
+        y = e.clientY > 0 ? e.clientY:e.pageY;
         y = getScrollY()+(y/2);
-        if (y+mnu.offsetHeight > bodyHeight) {
+        if (y + mnu.offsetHeight > bodyHeight) {
             // make sure context menu is within frame
-            y = y - ((y+mnu.offsetHeight)-bodyHeight+5);
+            y = mnu.offsetHeight - bodyHeight + 5;
         }
         itemToChange=id;
         selectedObjectName= title;
@@ -133,31 +133,30 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         if(selectedObjectName.length>20) {
             selectedObjectName = selectedObjectName.substr(0, 20) + "...";
         }
-        var h,context = $('mx_contextmenu');
-        context.style.left= x<?php echo $modx_textdir ? '-190' : '';?>+"px"; //offset menu to the left if rtl is selected
-        context.style.top = y+"px";
-        var elm = $("nameHolder");
-        elm.innerHTML = selectedObjectName;
+        x = x<?php echo $modx_textdir ? '-190' : '';?>;
+        $j('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
+        $j('#mx_contextmenu').css('top' ,y);
+        $j("#nameHolder").text(selectedObjectName);
 
-        context.style.visibility = 'visible';
+        $j('#mx_contextmenu').css('visibility','visible');
         _rc = 1;
         setTimeout("_rc = 0;",100);
     }
 
     function hideMenu() {
         if (_rc) return false;
-        $('mx_contextmenu').style.visibility = 'hidden';
+        $j('#mx_contextmenu').css('visibility','hidden');
     }
 
     function toggleNode(node,indent,parent,expandAll,privatenode) {
         privatenode = (!privatenode || privatenode == '0') ? privatenode = '0' : privatenode = '1';
-        rpcNode = $(node.parentNode.lastChild);
+        rpcNode = node.parentNode.lastChild;
 
         var rpcNodeText;
         var loadText = "<?php echo $_lang['loading_doc_tree'];?>";
 
-        var signImg = document.getElementById("s"+parent);
-        var folderImg = document.getElementById("f"+parent);
+        var signImg = document.getElementById('s'+parent);
+        var folderImg = document.getElementById('f'+parent);
 
         if (rpcNode.style.display != 'block') {
             // expand
@@ -178,7 +177,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
                 url = 'index.php?a=1&f=nodes&indent='+indent+'&parent='+parent+'&expandAll='+expandAll+folderState;
-                new Ajax(url, {method: 'get',onComplete:rpcLoadData}).request();
+                $j.ajax({type:'GET',url:url,success:rpcLoadData});
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -202,20 +201,20 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             rpcNode.innerHTML = typeof response=='object' ? response.responseText : response ;
             rpcNode.style.display = 'block';
             rpcNode.loaded = true;
-            var elm = top.mainMenu.$("buildText");
+            var elm = top.mainMenu.document.getElementById('buildText');
             if (elm) {
-                elm.innerHTML = "";
+                elm.innerHTML = '';
                 elm.style.display = 'none';
             }
             // check if bin is full
             if(rpcNode.id=='treeRoot') {
-                var e = $('binFull');
+                var e = document.getElementById('binFull');
                 if(e) showBinFull();
                 else showBinEmpty();
             }
 
             // check if our payload contains the login form :)
-            e = $('mx_loginbox');
+            e = document.getElementById('mx_loginbox');
             if(e) {
                 // yep! the seession has timed out
                 rpcNode.innerHTML = '';
@@ -225,22 +224,22 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
     function expandTree() {
-        rpcNode = $('treeRoot');
+        rpcNode = document.getElementById('treeRoot');
         url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=1';
-        new Ajax(url, {method: 'get',onComplete:rpcLoadData}).request();
+        $j.ajax({type:'GET',url:url,success:rpcLoadData});
     }
 
     function collapseTree() {
-        rpcNode = $('treeRoot');
+        rpcNode = document.getElementById('treeRoot');
         url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=0';
-        new Ajax(url, {method: 'get',onComplete:rpcLoadData}).request();
+        $j.ajax({type:'GET',url:url,success:rpcLoadData});
     }
 
     // new function used in body onload
     function restoreTree() {
-        rpcNode = $('treeRoot');
+        rpcNode = document.getElementById('treeRoot');
         url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=2';
-        new Ajax(url, {method: 'get',onComplete:rpcLoadData}).request();
+        $j.ajax({type:'GET',url:url,success:rpcLoadData});
     }
 
     function setSelected(elSel) {
@@ -277,10 +276,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     };
 
     function updateTree() {
-        rpcNode = $('treeRoot');
+        rpcNode = document.getElementById('treeRoot');
         treeParams = 'a=1&f=nodes&indent=1&parent=0&expandAll=2&dt=' + document.sortFrm.dt.value + '&tree_sortby=' + document.sortFrm.sortby.value + '&tree_sortdir=' + document.sortFrm.sortdir.value;
         url = 'index.php?'+treeParams;
-        new Ajax(url, {method: 'get',onComplete:rpcLoadData}).request();
+        $j.ajax({type:'GET',url:url,success:rpcLoadData});
     }
 
     function emptyTrash() {
@@ -355,12 +354,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function saveFolderState() {
         var folderState = getFolderState();
         url = 'index.php?a=1&f=nodes&savestateonly=1'+folderState;
-        new Ajax(url, {method: 'get'}).request();
+        $j.ajax({type:'GET',url:url});
     }
 
     // show state of recycle bin
     function showBinFull() {
-        var a = $('Button10');
+        var a = document.getElementById('Button10');
         var title = '<?php echo $_lang['empty_recycle_bin']; ?>';
         if (a) {
             if(!a.setAttribute) a.title = title;
@@ -372,7 +371,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
     function showBinEmpty() {
-        var a = $('Button10');
+        var a = document.getElementById('Button10');
         var title = '<?php echo addslashes($_lang['empty_recycle_bin_empty']); ?>';
         if (a) {
             if(!a.setAttribute) a.title = title;
@@ -403,14 +402,14 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <td>
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-            <td><a href="#" class="treeButton" id="Button1" onClick="expandTree();" title="<?php echo $_lang['expand_tree']; ?>"><?php echo $_style['expand_tree']; ?></a></td>
-            <td><a href="#" class="treeButton" id="Button2" onClick="collapseTree();" title="<?php echo $_lang['collapse_tree']; ?>"><?php echo $_style['collapse_tree']; ?></a></td>
+            <td><a href="#" class="treeButton" id="Button1" onclick="expandTree();" title="<?php echo $_lang['expand_tree']; ?>"><?php echo $_style['expand_tree']; ?></a></td>
+            <td><a href="#" class="treeButton" id="Button2" onclick="collapseTree();" title="<?php echo $_lang['collapse_tree']; ?>"><?php echo $_style['collapse_tree']; ?></a></td>
             <?php if ($modx->hasPermission('new_document')) { ?>
-                <td><a href="#" class="treeButton" id="Button3a" onClick="top.main.document.location.href='index.php?a=4';" title="<?php echo $_lang['add_resource']; ?>"><?php echo $_style['add_doc_tree']; ?></a></td>
-                <td><a href="#" class="treeButton" id="Button3c" onClick="top.main.document.location.href='index.php?a=72';" title="<?php echo $_lang['add_weblink']; ?>"><?php echo $_style['add_weblink_tree']; ?></a></td>
+                <td><a href="#" class="treeButton" id="Button3a" onclick="top.main.document.location.href='index.php?a=4';" title="<?php echo $_lang['add_resource']; ?>"><?php echo $_style['add_doc_tree']; ?></a></td>
+                <td><a href="#" class="treeButton" id="Button3c" onclick="top.main.document.location.href='index.php?a=72';" title="<?php echo $_lang['add_weblink']; ?>"><?php echo $_style['add_weblink_tree']; ?></a></td>
             <?php } ?>
-            <td><a href="#" class="treeButton" id="Button4" onClick="top.mainMenu.reloadtree();" title="<?php echo $_lang['refresh_tree']; ?>"><?php echo $_style['refresh_tree']; ?></a></td>
-            <td><a href="#" class="treeButton" id="Button5" onClick="showSorter();" title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_style['sort_tree']; ?></a></td>
+            <td><a href="#" class="treeButton" id="Button4" onclick="top.mainMenu.reloadtree();" title="<?php echo $_lang['refresh_tree']; ?>"><?php echo $_style['refresh_tree']; ?></a></td>
+            <td><a href="#" class="treeButton" id="Button5" onclick="showSorter();" title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_style['sort_tree']; ?></a></td>
             <?php if ($modx->hasPermission('empty_trash')) { ?>
                 <td><a href="#" id="Button10" class="treeButtonDisabled" title="<?php echo $_lang['empty_recycle_bin_empty'] ; ?>"><?php echo $_style['empty_recycle_bin_empty'] ; ?></a></td>
             <?php } ?>
@@ -420,7 +419,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <td align="right">
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
-            <td><a href="#" class="treeButton" id="Button6" onClick="top.mainMenu.hideTreeFrame();" title="<?php echo $_lang['hide_tree']; ?>"><?php echo $_style['hide_tree']; ?></a></td>
+            <td><a href="#" class="treeButton" id="Button6" onclick="top.mainMenu.hideTreeFrame();" title="<?php echo $_lang['hide_tree']; ?>"><?php echo $_style['hide_tree']; ?></a></td>
             </tr>
         </table>
     </td>
@@ -456,35 +455,36 @@ else                                 $_SESSION['tree_sortdir'] = 'ASC';
         </select>
         <input type='hidden' name='dt' value='<?php echo $_REQUEST['dt']; ?>' />
     </td>
-    <td width="1%"><a href="#" class="treeButton" id="button7" style="text-align:right" onClick="updateTree();showSorter();" title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_lang['sort_tree']; ?></a></td>
+    <td width="1%"><a href="#" class="treeButton" id="button7" style="text-align:right" onclick="updateTree();showSorter();" title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_lang['sort_tree']; ?></a></td>
   </tr>
 </table>
 </form>
 </div>
 
 <div id="treeHolder">
-    <div><?php echo $_style['tree_showtree']; ?>&nbsp;<span class="rootNode" onClick="treeAction(0, '<?php echo addslashes($site_name); ?>');"><b><?php echo $site_name; ?></b></span><div id="treeRoot"></div></div>
+    <div><?php echo $_style['tree_showtree']; ?>&nbsp;<span class="rootNode" onclick="treeAction(0, '<?php echo addslashes($site_name); ?>');"><b><?php echo $site_name; ?></b></span><div id="treeRoot"></div></div>
 </div>
 
 <script type="text/javascript">
 // Set 'treeNodeSelected' class on document node when editing via Context Menu
 function setActiveFromContextMenu( doc_id ){
-    $$('.treeNodeSelected').removeClass('treeNodeSelected');
-    $$('#node'+doc_id+' span')[0].className='treeNodeSelected';
+    $j('.treeNodeSelected').removeClass('treeNodeSelected');
+    $j('#node'+doc_id+' span:first').attr('class','treeNodeSelected');
 }
 
 // Context menu stuff
 function menuHandler(action) {
     switch (action) {
         case 1 : // view
-            setActiveFromContextMenu( itemToChange );
+            setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=3&id=" + itemToChange;
             break
         case 2 : // edit
-            setActiveFromContextMenu( itemToChange );
+            setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break
         case 3 : // new Resource
+            setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=4&pid=" + itemToChange;
             break
         case 4 : // delete
@@ -497,13 +497,16 @@ function menuHandler(action) {
             }
             break
         case 5 : // move
+            setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=51&id=" + itemToChange;
             break
         case 6 : // new Weblink
+            setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=72&pid=" + itemToChange;
             break
         case 7 : // duplicate
             if(confirm("<?php echo $_lang['confirm_resource_duplicate'] ?>")==true) {
+                   setActiveFromContextMenu(itemToChange);
                    top.main.document.location.href="index.php?a=94&id=" + itemToChange;
                }
             break
@@ -518,19 +521,22 @@ function menuHandler(action) {
             break
         case 9 : // publish
             if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_publish']; ?>")==true) {
+                setActiveFromContextMenu(itemToChange);
                 top.main.document.location.href="index.php?a=61&id=" + itemToChange;
             }
             break
         case 10 : // unpublish
             if (itemToChange != <?php echo $modx->config['site_start']?>) {
                 if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_unpublish']; ?>")==true) {
+                    setActiveFromContextMenu(itemToChange);
                     top.main.document.location.href="index.php?a=62&id=" + itemToChange;
                 }
             } else {
                 alert('Document is linked to site_start variable and cannot be unpublished!');
             }
             break
-        case 12 : // preview	
+        case 12 : // preview
+            setActiveFromContextMenu(itemToChange);
             window.open(selectedObjectUrl,'previeWin'); //re-use 'new' window
             break
 

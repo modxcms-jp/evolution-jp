@@ -12,8 +12,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset?>" />
 	<title>nav</title>
 	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css" />
-	<script src="media/script/mootools/mootools.js" type="text/javascript"></script>
-	<script src="media/script/mootools/moodx.js" type="text/javascript"></script>
+	<script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/session.js"></script>
 	<script type="text/javascript">
 	// TREE FUNCTIONS - FRAME
@@ -24,42 +23,45 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	var workText;
 	var buildText;
-
-	// Create the AJAX mail update object before requesting it
-	var updateMailerAjx = new Ajax('index.php',
-	{
-		method:'post',
-		postBody:'updateMsgCount=true',
-		onComplete:showResponse
-	});
+	var msgcheck = <?php echo $modx->hasPermission('messages');?>;
+	
+	var $j = jQuery.noConflict();
+	
 	function updateMail(now)
 	{
 		try
 		{
 		// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
-			if (now)
-				updateMailerAjx.request();
+			if (now && msgcheck!=0)
+			{
+				$j.ajax({type:'POST',url:'index.php',data:{'updateMsgCount':'true'},success:function(request){showResponse(request);}});
+			}
 			return false;
 		} catch(oException) {
 			// Delay first run until we're ready...
-			xx=updateMail.delay(1000,'',true);
+			if(msgcheck!=0) setTimeout('updateMail(true)',1000);
 		}
 	};
 
 	function showResponse(request) {
 		var counts = request.split(',');
-		var elm = $('msgCounter');
+		var elm = document.getElementById('msgCounter');
 		if (elm) elm.innerHTML ='(' + counts[0] + ' / ' + counts[1] + ')';
-		var elm = $('newMail');
+		var elm = document.getElementById('newMail');
 		if (elm) elm.style.display = counts[0] >0 ? 'inline' :  'none';
 	}
 
-	window.addEvent('load', function() {
-		updateMail(true); // First run update
-		updateMail.periodical(<?php echo $modx->config['mail_check_timeperiod'] * 1000 ?>, '', true); // Periodical Updater
+	$j(function(){
+		if(msgcheck!=0) updateMail(true); // First run update
+		var mailinterval = <?php echo $modx->config['mail_check_timeperiod'];?>;
+		if(mailinterval!='' || mailinterval!=0)
+		{
+			if(msgcheck!=0) setInterval('updateMail(true)',mailinterval * 1000);
+		}
+		
 		if(top.__hideTree) {
 			// display toc icon
-			var elm = $('tocText');
+			var elm = document.getElementById('tocText');
 			if(elm) elm.innerHTML = "<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' width='16' height='16' /></a>";
 		}
 	});
@@ -68,7 +70,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		userDefinedFrameWidth = parent.document.getElementsByTagName("FRAMESET").item(1).cols;
 		currentFrameState = 'closed';
 		try {
-			var elm = $('tocText');
+			var elm = document.getElementById('tocText');
 			if(elm) elm.innerHTML = "<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' width='16' height='16' /></a>";
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo (!$modx_textdir ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
@@ -81,7 +83,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		userDefinedFrameWidth = defaultFrameWidth;
 		currentFrameState = 'open';
 		try {
-			var elm = $('tocText');
+			var elm = document.getElementById('tocText');
 			if(elm) elm.innerHTML = "";
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = defaultFrameWidth;
 			top.__hideTree = false;
@@ -111,7 +113,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	// GENERAL FUNCTIONS - Refresh
 	// These functions are used for refreshing the tree or menu
 	function reloadtree() {
-		var elm = $('buildText');
+		var elm = document.getElementById('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_loading_doc_tree']?>' width='16' height='16' />&nbsp;<?php echo $_lang['loading_doc_tree']?>";
 			elm.style.display = 'block';
@@ -121,7 +123,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	}
 
 	function reloadmenu() {
-		var elm = $('buildText');
+		var elm = document.getElementById('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_working']?>' width='16' height='16' />&nbsp;<?php echo $_lang['loading_menu']?>";
 			elm.style.display = 'block';
@@ -148,13 +150,13 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	// GENERAL FUNCTIONS - Work
 	// These functions are used for showing the user the system is working
 	function work() {
-		var elm = $('workText');
+		var elm = document.getElementById('workText');
 		if (elm) elm.innerHTML = "&nbsp;<img src='<?php echo $_style['icons_working']?>' width='16' height='16' />&nbsp;<?php echo $_lang['working']?>";
 		else w=window.setTimeout('work()', 50);
 	}
 
 	function stopWork() {
-		var elm = $('workText');
+		var elm = document.getElementById('workText');
 		if (elm) elm.innerHTML = "";
 		else  ww=window.setTimeout('stopWork()', 50);
 	}
