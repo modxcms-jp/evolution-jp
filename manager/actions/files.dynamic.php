@@ -137,8 +137,11 @@ function confirmDelete() {
 	return confirm("<?php echo $_lang['confirm_delete_file'] ?>");
 }
 
-function confirmDeleteFolder() {
-	return confirm("<?php echo str_replace('file','folder',$_lang['confirm_delete_file']) ?>");
+function confirmDeleteFolder(status) {
+	if(status!='file_exists')
+		return confirm("<?php echo $_lang['confirm_delete_dir']; ?>");
+	else
+		return confirm("<?php echo $_lang['confirm_delete_dir_recursive']; ?>");
 }
 
 function confirmUnzip() {
@@ -159,8 +162,8 @@ function getFileName(a){
 	return (f) ? true:false;
 }
 
-function deleteFolder (folder) {
-    if (confirmDeleteFolder())
+function deleteFolder (folder,status) {
+    if (confirmDeleteFolder(status))
     {
         window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&token=<?php echo $token;?>";
         return false;
@@ -412,7 +415,7 @@ if (is_writable($startpath))
 		{
 		   echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
 		}
-		elseif(!@rmdir($folder))
+		elseif(!@rrmdir($folder))
 		{
 			echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
 		}
@@ -427,7 +430,7 @@ if (is_writable($startpath))
 	{
 		$old_umask = umask(0);
 		$foldername = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
-		if(!mkdirs("{$startpath}/{$foldername}",$newfolderaccessmode))
+		if(!mkdirs("{$startpath}/{$foldername}",0777))
 		{
 			echo '<span class="warning"><b>',$_lang['file_folder_not_created'],'</b></span><br /><br />';
 		}
@@ -612,7 +615,21 @@ function ls($curpath)
 			elseif(!in_array($file, $excludes) && !in_array($newpath,$proteted_path))
 			{
 				$dirs_array[$dircounter]['text'] = '<img src="' . $style_path.'tree/folder.gif" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path='.urlencode($newpath).'"><b>'.$file.'</b></a>';
-				$dirs_array[$dircounter]['delete'] = is_writable($curpath) ? '<span style="width:20px"><a href="javascript: deleteFolder(\''.urlencode($file).'\');"><img src="'.$style_path.'icons/delete.gif" alt="'.$_lang['file_delete_folder'].'" title="'.$_lang['file_delete_folder'].'" /></a></span>' : '';
+				
+				$dfiles = scandir($newpath);
+				foreach($dfiles as $i=>$infile)
+				{
+					switch($infile)
+					{
+						case '..':
+						case '.':
+							unset($dfiles[$i]);
+							break;
+					}
+				}
+				$file_exists = (0<count($dfiles)) ? 'file_exists' : '';
+				
+				$dirs_array[$dircounter]['delete'] = is_writable($curpath) ? '<span style="width:20px"><a href="javascript: deleteFolder(\''.urlencode($file).'\',\'' . $file_exists . '\');"><img src="'.$style_path.'icons/delete.gif" alt="'.$_lang['file_delete_folder'].'" title="'.$_lang['file_delete_folder'].'" /></a></span>' : '';
 			}
 			else
 			{
@@ -761,7 +778,7 @@ function unzip($file, $path)
 						$tmp .= $k.'\\';
 						if(!file_exists($tmp))
 						{
-							@mkdir($tmp, $newfolderaccessmode);
+							@mkdir($tmp, 0777);
 						}
 					}
 				}
@@ -779,4 +796,14 @@ function unzip($file, $path)
 		return true;
 	}
 	zip_close($zip);
+}
+
+function rrmdir($dir)
+{
+	foreach(glob($dir . '/*') as $file)
+	{
+		if(is_dir($file)) rrmdir($file);
+		else              unlink($file);
+	}
+	return rmdir($dir);
 }
