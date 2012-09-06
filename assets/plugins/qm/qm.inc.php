@@ -936,12 +936,12 @@ function getCookie(cookieName)
 	//_____________________________________________________
 	function checkLocked()
 	{
-		$activeUsersTable = $this->modx->getFullTableName('active_users');
+		$tbl_active_users = $this->modx->getFullTableName('active_users');
 		$pageId = $this->modx->documentIdentifier;
 		$locked = TRUE;
 		$userId = $_SESSION['mgrInternalKey'];
 		$where = "(`action` = 27) AND `internalKey` != '{$userId}' AND `id` = '{$pageId}'";
-		$result = $this->modx->db->select('internalKey',$activeUsersTable,$where);
+		$result = $this->modx->db->select('internalKey',$tbl_active_users,$where);
 		
 		if ($this->modx->db->getRecordCount($result) === 0)
 		{
@@ -955,7 +955,7 @@ function getCookie(cookieName)
 	//_____________________________________________________
 	function setLocked($locked)
 	{
-		$activeUsersTable = $this->modx->getFullTableName('active_users');
+		$tbl_active_users = $this->modx->getFullTableName('active_users');
 		$pageId = $this->modx->documentIdentifier;
 		$userId = $_SESSION['mgrInternalKey'];
 		
@@ -972,7 +972,7 @@ function getCookie(cookieName)
 			$fields['action'] = 2;
 		}
 		$where = "internalKey = '{$userId}'";
-		$result = $this->modx->db->update($fields, $activeUsersTable, $where);
+		$result = $this->modx->db->update($fields, $tbl_active_users, $where);
 	}
 	
 	// Save TV

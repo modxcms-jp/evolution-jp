@@ -115,18 +115,21 @@ if(!is_dir("{$base_path}assets/images"))
 			echo '</p>';
 			$errors += 1;
 		}
-		// File Browser directories writable?
-		echo "<p>".$_lang['checking_if_images_writable'];
-		if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media"))
+		else
 		{
-		    echo echo_failed();
-		    $errors += 1;
+			// File Browser directories writable?
+			echo "<p>".$_lang['checking_if_images_writable'];
+			if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media"))
+			{
+			    echo echo_failed();
+			    $errors += 1;
+			}
+			else 
+			{
+			    echo echo_ok();
+			}
+			echo '</p>';
 		}
-		else 
-		{
-		    echo echo_ok();
-		}
-		echo '</p>';
 	}
 }
 
