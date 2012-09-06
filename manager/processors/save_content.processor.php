@@ -884,15 +884,16 @@ function _check_duplicate_alias($id,$alias,$parent)
 	}
 	if ($docid > 0)
 	{
-		if ($actionToTake == 'edit')
+		if ($_POST['mode'] == '27')
 		{
 			$modx->manager->saveFormValues(27);
 			$url = "index.php?a=27&id={$id}";
 		}
 		else
 		{
-			$modx->manager->saveFormValues(4);
-			$url = 'index.php?a=4';
+			$modx->manager->saveFormValues($_POST['mode']);
+			if($_REQUEST['pid']) $pid = '&pid=' . $_REQUEST['pid'];
+			$url = 'index.php?a=' . $_POST['mode'] . $pid;
 		}
 		include_once "header.inc.php";
 		$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
