@@ -58,7 +58,7 @@ if(!function_exists('startCMSSession'))
 	function startCMSSession()
 	{
 		global $site_sessionname;
-		session_name($site_sessionname);
+		session_name($site_sessionname . MODX_SITE_URL);
 		session_start();
 		$cookieExpiration= 0;
 		if (isset ($_SESSION['mgrValidated']) || isset ($_SESSION['webValidated']))
