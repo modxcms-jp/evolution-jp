@@ -153,7 +153,6 @@ $ph['database_connection_method']  = $database_connection_method;
 $ph['dbase']                       = $dbase;
 $ph['table_prefix']                = $table_prefix;
 $ph['lastInstallTime']             = time();
-$ph['site_sessionname']            = (!isset ($site_sessionname)) ? 'SN' . uniqid('') : $site_sessionname;
 $ph['https_port']                  = '443';
 
 $src = parse($src, $ph);
