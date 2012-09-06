@@ -139,26 +139,30 @@ else
 	
 	$_SESSION['ip'] = $ip;
 
-    $itemid = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
-	$lasthittime = time();
-    $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
-
-    if($action !== 1)
-    {
-		if (!intval($itemid)) $itemid= null;
-		$sql = sprintf('REPLACE INTO %s (internalKey, username, lasthit, action, id, ip)
-			VALUES (%d, \'%s\', \'%d\', \'%s\', %s, \'%s\')',
-			$modx->getFullTableName('active_users'), // Table
-			$modx->getLoginUserID(),
-			$_SESSION['mgrShortname'],
-			$lasthittime,
-			(string)$action,
-			$itemid == null ? var_export(null, true) : $itemid,
-			$ip
-		);
+	$action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
+	
+	$fields['internalKey'] = $modx->getLoginUserID();
+	$fields['username']    = $_SESSION['mgrShortname'];
+	$fields['lasthit']     = time();
+	$fields['action']      = $action;
+	$fields['id']          = (preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+	$fields['ip']          = $ip;
+	
+	if($action !== 1)
+	{
+		foreach($fields as $k=>$v)
+		{
+			$keys[]   = $k;
+			$values[] = $v;
+		}
+		$join_key   = join(',', $keys);
+		$join_value = "'" . join("','", $values) . "'";
+		
+		$tbl_active_users = $modx->getFullTableName('active_users');
+		$sql = "REPLACE INTO {$tbl_active_users} ({$join_key}) VALUES ({$join_value})";
 		if(!$rs = $modx->db->query($sql))
 		{
-			echo "error replacing into active users! SQL: ".$sql."\n".mysql_error();
+			echo "error replacing into active users! SQL: {$sql}\n" . mysql_error();
 			exit;
 		}
 	}
