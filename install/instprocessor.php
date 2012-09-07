@@ -143,7 +143,7 @@ if ($moduleSQLBaseFile) {
 
 // write the config.inc.php file if new installation
 echo "<p>" . $_lang['writing_config_file'];
-$src = file_get_contents('config.inc.tpl');
+$src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
 $ph['database_server']             = $database_server;
 $ph['database_user']               = modx_escape($database_user);
