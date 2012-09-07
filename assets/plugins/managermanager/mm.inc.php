@@ -30,7 +30,7 @@ class MANAGERMANAGER
 		extract($modx->event->params);
 		$mm_version = '0.3.12'; 
 		$js_default_url_local = $modx->config['site_url']. 'manager/media/script/jquery/jquery.min.js';
-		$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js';
+		$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js';
 		
 		// Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 		
