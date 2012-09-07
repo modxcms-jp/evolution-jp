@@ -200,7 +200,7 @@ echo '<strong>' . $_lang['no_update_options'] . '</strong>';
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
