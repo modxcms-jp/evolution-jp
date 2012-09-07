@@ -668,7 +668,12 @@ if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
 	@chmod("{$base_path}assets/cache/installProc.inc.php", 0755);
 	unlink("{$base_path}assets/cache/installProc.inc.php");
 }
-
+if(is_write($base_path) && $installMode==0)
+{
+	copy("{$base_path}install/tpl/robots.tpl",    "{$base_path}sample.robots.txt");
+	if(!is_iis()) copy("{$base_path}install/tpl/htaccess.tpl",  "{$base_path}sample.htaccess");
+	else          copy("{$base_path}install/tpl/web.config.tpl","{$base_path}web.config");
+}
 // setup completed!
 echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
 echo "<p>" . $_lang['to_log_into_content_manager'] . "</p>";
