@@ -66,9 +66,9 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
         $target = $base_path . 'assets/cache/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
-            $src = fread($handle, filesize($target));
+            $output = fread($handle, filesize($target));
             unset($handle);
-            list($head,$src) = explode('<!--__MODxCacheSpliter__-->',$src,2);
+            list($head,$output) = explode('<!--__MODxCacheSpliter__-->',$output,2);
             if(strpos($head,'"text/html";')===false)
             {
             	$type=unserialize($head);
@@ -89,11 +89,11 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
             $totalTime = ($now - $tstart);
             $totalTime = sprintf('%2.4f s', $totalTime);
             $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize);
-            $src = strtr($src,$r);
+            $output = strtr($output,$r);
             if (is_file("{$base_path}autoload.php"))
                 $loaded_autoload = include_once("{$base_path}autoload.php");
-            if ($src !== false) {
-                echo $src;
+            if ($output !== false) {
+                echo $output;
                 exit;
             }
         }
