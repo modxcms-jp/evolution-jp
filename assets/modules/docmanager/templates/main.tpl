@@ -67,7 +67,8 @@
             <ul class="actionButtons">
                 <li id="Button1"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="media/style[+theme+]/images/icons/stop.png" /> [+lang.DM_close+]</a></li>
             </ul>
-        </div>        
+        </div>
+        <div class="section">
 	    <div class="sectionHeader">[+lang.DM_action_title+]</div>
 	    <div class="sectionBody"> 
 	        <div class="tab-pane" id="docManagerPane"> 
@@ -105,6 +106,7 @@
 	           [+view.misc+]
 	           [+view.changeauthors+]
 	        </div>
+	    </div>
 	    </div>
 	</div>
 	[+view.documents+]
