@@ -801,7 +801,7 @@ function getCookie(cookieName)
 			
 			// Check if current document is assigned to one or more doc groups
 			$result= $this->modx->db->select('id',$table,"document='{$docID}'");
-			$rowCount= $this->modx->recordCount($result);
+			$rowCount= $this->modx->db->getRecordCount($result);
 			
 			// If document is assigned to one or more doc groups, check access
 			if ($rowCount >= 1)
@@ -814,7 +814,7 @@ function getCookie(cookieName)
 					
 					// Check if user has access to current document
 					$result= $this->modx->db->select('id',$table,"document = {$docID} AND document_group IN ({$docGroup})");
-					$rowCount = $this->modx->recordCount($result);
+					$rowCount = $this->modx->db->getRecordCount($result);
 					
 					if ($rowCount >= 1) $access = TRUE;
 				}
@@ -900,7 +900,7 @@ function getCookie(cookieName)
 		if (!$access)
 		{
 			$result = $this->modx->db->select('id',$table,"tmplvarid = {$tvId}");
-			$rowCount = $this->modx->recordCount($result);
+			$rowCount = $this->modx->db->getRecordCount($result);
 			// TV is not in any document group
 			if ($rowCount == 0) { $access = TRUE; }
 		}
@@ -908,7 +908,7 @@ function getCookie(cookieName)
 		if (!$access && $this->docGroup != '')
 		{
 			$result = $this->modx->db->select('id',$table,"tmplvarid = {$tvId} AND documentgroup IN ({$this->docGroup})");
-			$rowCount = $this->modx->recordCount($result);
+			$rowCount = $this->modx->db->getRecordCount($result);
 			if ($rowCount >= 1) { $access = TRUE; }
 		}
 		return $access;

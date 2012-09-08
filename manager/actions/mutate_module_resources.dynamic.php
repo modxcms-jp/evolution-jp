@@ -85,14 +85,14 @@ switch ($_REQUEST['op']) {
 		if ($ds) {
 			// loop through resources and look for plugins and snippets
 			$i=0; $plids=array(); $snid=array();
-			while ($row=mysql_fetch_assoc($ds)){
+			while ($row=$modx->db->getRow($ds)){
 				if($row['type']=='30') $plids[$i]=$row['resource'];
 				if($row['type']=='40') $snids[$i]=$row['resource'];
 			}
 			// get guid
 			$ds = $modx->db->select('*', $tbl_site_modules, "id='{$id}'");
 			if($ds) {
-				$row = $modx->fetchRow($ds);
+				$row = $modx->db->getRow($ds);
 				$guid = $row['guid'];
 			}
 			// reset moduleguid for deleted resources

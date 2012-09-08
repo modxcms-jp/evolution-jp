@@ -29,7 +29,7 @@ if($_SESSION['mgrRole']!=1){
 	//attached so permission granted
 	$permissionAccessInt = -1;
 
-	while ($row = $modx->fetchRow($rs)) {
+	while ($row = $modx->db->getRow($rs)) {
 		if($row["usergroup"] && $row["member"]) {
 			//if there are permissions and this member has permission, ofcourse
 			//this is granted

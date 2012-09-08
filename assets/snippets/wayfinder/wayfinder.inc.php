@@ -408,9 +408,9 @@ class Wayfinder {
 					ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};
 				";
 			//run the query
-			$result = $modx->dbQuery($sql);
+			$result = $modx->db->query($sql);
 	        $resourceArray = array();
-			$numResults = @$modx->recordCount($result);
+			$numResults = @ $modx->db->getRecordCount($result);
 			$level = 1;
 			$prevParent = -1;
 			//Setup startlevel for determining each items level
@@ -423,7 +423,7 @@ class Wayfinder {
 			$resultIds = array();
 			//loop through the results
 			for($i=0;$i<$numResults;$i++)  {
-				$tempDocInfo = $modx->fetchRow($result);
+				$tempDocInfo = $modx->db->getRow($result);
 				$resultIds[] = $tempDocInfo['id'];
 				//Create the link
 				$linkScheme = $this->_config['fullLink'] ? 'full' : '';
@@ -504,7 +504,7 @@ class Wayfinder {
 		$tot = $modx->db->getRecordCount($rs);
 		$resourceArray = array();
 		for($i=0;$i<$tot;$i++)  {
-			$row = @$modx->fetchRow($rs);
+			$row = @$modx->db->getRow($rs);
 			$resourceArray["#{$row['contentid']}"][$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'],$row['contentid']);   
 		}
 
@@ -513,7 +513,7 @@ class Wayfinder {
 			$query .= " FROM $tb2";
 			$query .= " WHERE name='".$tvname."' LIMIT 1";
 			$rs = $modx->db->query($query);
-			$row = @$modx->fetchRow($rs);
+			$row = @$modx->db->getRow($rs);
 			$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
 			foreach ($docIDs as $id) {
 				if (!isset($resourceArray["#{$id}"])) {

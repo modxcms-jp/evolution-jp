@@ -1007,7 +1007,7 @@ class ditto {
 	                GROUP BY sc.id ";
 	        $result= $modx->db->query($sql);
 	        $resourceArray= array ();
-	        for ($i= 0; $i < @ $modx->recordCount($result); $i++) {
+	        for ($i= 0; $i < @ $modx->db->getRecordCount($result); $i++) {
 	            array_push($resourceArray, @ $modx->db->getRow($result));
 	        }
 	        return $resourceArray;
