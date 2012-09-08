@@ -233,9 +233,6 @@ for ($i = 0; $i < $limit; $i++) {
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
 	$truncateable = array(
 		$table_prefix.'event_log',
-		$table_prefix.'log_access',   // should these three
-		$table_prefix.'log_hosts',    // be deleted? - sirlancelot (2008-02-26)
-		$table_prefix.'log_visitors', //
 		$table_prefix.'manager_log',
 	);
 	if($modx->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {

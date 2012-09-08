@@ -160,9 +160,6 @@ if(!$modx->hasPermission('logs')) {
 	// 08-2005
 	if($modx->hasPermission('settings')
 	  && (   $log_status['Name'] == "`{$table_prefix}event_log`"
-	      || $log_status['Name'] == "`{$table_prefix}log_access`"
-	      || $log_status['Name'] == "`{$table_prefix}log_hosts`"
-	      || $log_status['Name'] == "`{$table_prefix}log_visitors`"
 	      || $log_status['Name'] == "`{$table_prefix}manager_log`"
 	     )
 	  )
