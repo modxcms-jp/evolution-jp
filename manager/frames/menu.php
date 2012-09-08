@@ -232,14 +232,6 @@ if($modx->hasPermission('help')) { ?>
 <?php
 // Concatenate menu items based on permissions
 
-function item($name, $href, $attrib='target="main"')
-{
-	global $modx;
-	
-	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
-	$ph = compact('href','name','attrib');
-	return $modx->parsePlaceholder($tpl, $ph);
-}
 // Site Menu
 $sitemenu = array();
 
@@ -398,3 +390,13 @@ if (!empty($reportsmenu)) {
 <div id="menuSplitter"></div>
 </body>
 </html>
+
+<?php
+function item($name, $href, $attrib='target="main"')
+{
+	global $modx;
+	
+	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
+	$ph = compact('href','name','attrib');
+	return $modx->parsePlaceholder($tpl, $ph);
+}
