@@ -1,6 +1,13 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+$tbl_active_users        = $modx->getFullTableName('active_users');
+$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
+$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
+$tbl_web_users = $modx->getFullTableName('web_users');
+$tbl_web_groups = $modx->getFullTableName('web_groups');
+$tbl_webgroup_names = $modx->getFullTableName('webgroup_names');
+
 switch((int) $_REQUEST['a']) {
   case 88:
     if(!$modx->hasPermission('edit_web_user')) {
@@ -23,8 +30,7 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the snippet editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=88 AND $dbase.`".$table_prefix."active_users`.id=$user";
-$rs = $modx->db->query($sql);
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='88' AND id='{$user}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
@@ -40,8 +46,7 @@ if($limit>1) {
 
 if($_REQUEST['a']=='88') {
 	// get user attributes
-	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_user_attributes` WHERE $dbase.`".$table_prefix."web_user_attributes`.internalKey = ".$user.";";
-	$rs = $modx->db->query($sql);
+	$rs = $modx->db->select('*',$tbl_web_user_attributes,"internalKey='{$user}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned!<p>";
@@ -54,8 +59,7 @@ if($_REQUEST['a']=='88') {
 	$userdata = $modx->db->getRow($rs);
 
 	// get user settings
-	$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
-	$rs = $modx->db->select('*',$tbl_web_user_settings,"webuser={$user}");
+	$rs = $modx->db->select('*',$tbl_web_user_settings,"webuser='{$user}'");
 	$usersettings = array();
 	while($row = $modx->db->getRow($rs))
 	{
@@ -64,8 +68,7 @@ if($_REQUEST['a']=='88') {
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
-	$tbl_web_users = $modx->getFullTableName('web_users');
-	$rs = $modx->db->select('*',$tbl_web_users,"id={$user}");
+	$rs = $modx->db->select('*',$tbl_web_users,"id='{$user}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned while getting username!<p>";
@@ -100,9 +103,13 @@ if($modx->manager->hasFormValues()) {
 
 // include the country list language file
 $_country_lang = array();
-if($manager_language!="english" && file_exists($modx->config['base_path']."manager/includes/lang/country/".$manager_language."_country.inc.php")){
+$base_path = $modx->config['base_path'];
+if($manager_language!="english" && file_exists("{$base_path}manager/includes/lang/country/{$manager_language}_country.inc.php"))
+{
     include_once "lang/country/".$manager_language."_country.inc.php";
-} else {
+}
+else
+{
     include_once "lang/country/english_country.inc.php";
 }
 
@@ -526,8 +533,8 @@ if($use_udperms==1)
 	
 	if($_GET['a']=='88')
 	{ // only do this bit if the user is being edited
-		$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
-		$rs = $modx->db->query($sql);
+		$uid = intval($_GET['id']);
+		$rs = $modx->db->select('*',$tbl_web_groups,"webuser='{$uid}'");
 		$limit = $modx->db->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
@@ -549,8 +556,7 @@ if($use_udperms==1)
 		<div class="sectionBody">
 <?php
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$sql = "SELECT name, id FROM $dbase.`".$table_prefix."webgroup_names` ORDER BY name";
-	$rs = $modx->db->query($sql);
+	$rs = $modx->db->query('name,id',$tbl_webgroup_names,'','name');
 	$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
 	while($row=$modx->db->getRow($rs))
 	{
