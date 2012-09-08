@@ -25,7 +25,7 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=88 AND $dbase.`".$table_prefix."active_users`.id=$user";
 $rs = $modx->db->query($sql);
-$limit = mysql_num_rows($rs);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
 		$lock = $modx->db->getRow($rs);
@@ -42,7 +42,7 @@ if($_REQUEST['a']=='88') {
 	// get user attributes
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_user_attributes` WHERE $dbase.`".$table_prefix."web_user_attributes`.internalKey = ".$user.";";
 	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned!<p>";
 		exit;
@@ -528,7 +528,7 @@ if($use_udperms==1)
 	{ // only do this bit if the user is being edited
 		$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
 		$rs = $modx->db->query($sql);
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
 			$currentgroup=$modx->db->getRow($rs);

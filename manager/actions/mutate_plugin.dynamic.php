@@ -25,7 +25,7 @@ $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 // check to see the plugin editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
 $rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='102' AND id='{$id}'");
-$limit = mysql_num_rows($rs);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1)
 {
 	while($lock = $modx->db->getRow)

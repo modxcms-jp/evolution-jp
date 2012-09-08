@@ -11,11 +11,11 @@ else                                       $user_id = '';
 if (!empty($user_id))
 {
 	// Raymond: grab the user settings from the database.
-	$sql = "SELECT setting_name, setting_value FROM $dbase.`" . $table_prefix . "user_settings` WHERE user=" . $user_id;
-	$rs = mysql_query($sql);
-	$number_of_settings = mysql_num_rows($rs);
+	$tbl_user_settings = $modx->getFullTableName('user_settings');
+	$rs = $modx->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$user_id}'");
+	$number_of_settings = $modx->db->getRecordCount($rs);
 	
-	while ($row = mysql_fetch_assoc($rs))
+	while ($row = $modx->db->getRow($rs))
 	{
 		$settings[$row['setting_name']] = $row['setting_value'];
 		if (isset($modx->config))

@@ -54,7 +54,7 @@ else {
 		if($rename_keywords[$key]!=$value) {
 			$sql = "SELECT * FROM $dbase.`".$table_prefix."site_keywords` WHERE BINARY keyword='".addslashes($rename_keywords[$key])."'";
 			$rs = $modx->db->query($sql);
-			$limit = mysql_num_rows($rs);
+			$limit = $modx->db->getRecordCount($rs);
 			if($limit > 0) {
 				echo "  - This keyword has already been defined!";
 				exit;
@@ -94,7 +94,7 @@ else {
 
 		$sql = "SELECT * FROM $dbase.`".$table_prefix."site_keywords` WHERE keyword='".addslashes($nk)."'";
 		$rs = $modx->db->query($sql);
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if($limit > 0) {
 			echo "Keyword $nk already exists!";
 			exit;

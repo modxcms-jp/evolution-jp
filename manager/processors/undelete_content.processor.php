@@ -16,7 +16,7 @@ $tbl_site_content = $modx->getFullTableName('site_content');
 // get the timestamp on which the document was deleted.
 $where = "id='{$id}' AND deleted=1";
 $rs = $modx->db->select('deletedon',$tbl_site_content,$where);
-if(mysql_num_rows($rs)!=1)
+if($modx->db->getRecordCount($rs)!=1)
 {
 	echo "Couldn't find document to determine it's date of deletion!";
 	exit;

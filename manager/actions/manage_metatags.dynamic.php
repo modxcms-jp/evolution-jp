@@ -20,7 +20,7 @@ $modx->manager->initPageViewState();
 	<?php 
 		$sql = "SELECT * FROM $dbase.`".$table_prefix."site_keywords` ORDER BY keyword ASC";
 		$rs = $modx->db->query($sql);
-		$limit = mysql_num_rows($rs); 
+		$limit = $modx->db->getRecordCount($rs); 
 		for($i=0;$i<$limit;$i++) {
 		$row=$modx->db->getRow($rs);
 		?>

@@ -162,7 +162,7 @@ else
 	<br />
 <?php
 	$rs = $modx->db->query($sql);
-	if (mysql_num_rows($rs) < 1) {
+	if ($modx->db->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
 		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">'."\n".
@@ -218,7 +218,7 @@ else
 		"LEFT JOIN ".$tbl_documentgroup_names." AS dgnames ON dgnames.id = groupacc.documentgroup ".
 		"ORDER BY name";
 	$rs = $modx->db->query($sql);
-	if (mysql_num_rows($rs) < 1) {
+	if ($modx->db->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
 	} else {
 		?>
