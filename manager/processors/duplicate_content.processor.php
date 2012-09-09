@@ -10,7 +10,7 @@ $id=$_GET['id'];
 $children = array();
 
 // check permissions on the document
-include_once "./processors/user_documents_permissions.class.php";
+include_once($modx->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
 $udperms = new udperms();
 $udperms->user = $modx->getLoginUserID();
 $udperms->document = $id;
@@ -58,7 +58,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$userID = $modx->getLoginUserID();
 
 	// Grab the original document
-	$rs = $modx->db->select('*', $tbl_site_content, 'id='.$docid);
+	$rs = $modx->db->select('*', $tbl_site_content, "id='{$docid}'");
 	$content = $modx->db->getRow($rs);
 
 	$content['id'] = set_new_id();
@@ -81,24 +81,28 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$content['createdby'] = $userID;
 	$content['createdon'] = time();
 	// Remove other modification times
-	$content['editedby'] = $content['editedon'] = $content['deleted'] = $content['deletedby'] = $content['deletedon'] = 0;
+	$content['editedby']  = 0;
+	$content['editedon']  = 0;
+	$content['deleted']   = 0;
+	$content['deletedby'] = 0;
+	$content['deletedon'] = 0;
 
     // Set the published status to unpublished by default (see above ... commit #3388)
-    $content['published'] = 0;
-    $content['pub_date']  = 0;
+    $content['published']   = 0;
+    $content['pub_date']    = 0;
     $content['unpub_date']  = 0;
     $content['publishedon'] = 0;
 
 	// Escape the proper strings
-	$content['pagetitle'] = $modx->db->escape($content['pagetitle']);
-	$content['longtitle'] = $modx->db->escape($content['longtitle']);
+	$content['pagetitle']   = $modx->db->escape($content['pagetitle']);
+	$content['longtitle']   = $modx->db->escape($content['longtitle']);
 	$content['description'] = $modx->db->escape($content['description']);
-	$content['introtext'] = $modx->db->escape($content['introtext']);
-	$content['content'] = $modx->db->escape($content['content']);
-	$content['menutitle'] = $modx->db->escape($content['menutitle']);
+	$content['introtext']   = $modx->db->escape($content['introtext']);
+	$content['content']     = $modx->db->escape($content['content']);
+	$content['menutitle']   = $modx->db->escape($content['menutitle']);
 
 	// increase menu index
-	if (is_null($auto_menuindex) || $auto_menuindex)
+	if ($_toplevel==0)
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
@@ -120,10 +124,10 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	));
 
 	// Start duplicating all the child documents that aren't deleted.
-	$_toplevel++;
 	$rs = $modx->db->select('id', $tbl_site_content, "parent={$docid} AND deleted=0", 'id ASC');
 	if ($modx->db->getRecordCount($rs))
 	{
+		$_toplevel++;
 		while ($row = $modx->db->getRow($rs))
 		{
 			duplicateDocument($row['id'], $new_id, $_toplevel, $reset_alias===false);
@@ -151,6 +155,8 @@ function set_new_id()
 			$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
 			$result = $modx->db->getValue($rs);
 			break;
+		default:
+			$result=false;
 	}
 	return $result;
 }
@@ -162,11 +168,7 @@ function duplicateKeywords($oldid,$newid){
 	if($modx->config['show_meta']!=1) return;
 	
 	$tblkw = $modx->getFullTableName('keyword_xref');
-
-	$modx->db->insert(
-		array('content_id'=>'', 'keyword_id'=>''), $tblkw, // Insert into
-		"{$newid}, keyword_id", $tblkw, "content_id={$oldid}" // Copy from
-	);
+	$modx->db->insert('content_id,keyword_id', $tblkw, "{$newid},keyword_id", $tblkw, "content_id='{$oldid}'");
 }
 
 // Duplicate Document TVs
@@ -174,11 +176,7 @@ function duplicateTVs($oldid,$newid){
 	global $modx;
 
 	$tbltvc = $modx->getFullTableName('site_tmplvar_contentvalues');
-
-	$modx->db->insert(
-		array('contentid'=>'', 'tmplvarid'=>'', 'value'=>''), $tbltvc, // Insert into
-		"{$newid}, tmplvarid, value", $tbltvc, "contentid={$oldid}" // Copy from
-	);
+	$modx->db->insert('contentid,tmplvarid,value', $tbltvc, "{$newid},tmplvarid,value", $tbltvc, "contentid='{$oldid}'");
 }
 
 // Duplicate Document Access Permissions
@@ -186,9 +184,5 @@ function duplicateAccess($oldid,$newid){
 	global $modx;
 
 	$tbldg = $modx->getFullTableName('document_groups');
-
-	$modx->db->insert(
-		array('document'=>'', 'document_group'=>''), $tbldg, // Insert into
-		"{$newid}, document_group", $tbldg, "document={$oldid}" // Copy from
-	);
+	$modx->db->insert('document,document_group', $tbldg, "{$newid},document_group", $tbldg, "document='{$oldid}'");
 }

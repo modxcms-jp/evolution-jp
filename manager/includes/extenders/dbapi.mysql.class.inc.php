@@ -283,7 +283,7 @@ class DBAPI {
 	* @desc:  returns either last id inserted or the result from the query
 	*/
 	function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-		return $this->__insert('INSERT', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+		return $this->__insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
 	}
 	
 	/**
@@ -291,7 +291,7 @@ class DBAPI {
 	* @desc:  returns either last id inserted or the result from the query
 	*/
 	function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-		return $this->__insert('INSERT IGNORE', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+		return $this->__insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
 	}
 	
 	/**
@@ -299,58 +299,61 @@ class DBAPI {
 	* @desc:  returns either last id inserted or the result from the query
 	*/
 	function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-		return $this->__insert('REPLACE', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '');
+		return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
 	}
 	
-    private function __insert($insert_method='INSERT', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-        if (!$intotable) {
-            $result = false;
-        } else {
-            $subsql = '';
-            if (!is_array($fields)) {
-                $pairs = $fields;
-            } else {
-                $keys = array_keys($fields);
-                $keys = implode(',', $keys) ;
-                $values = array_values($fields);
-                $values = "'" . implode("','", $values) . "'";
-                $pairs = "({$keys}) ";
-                if (!$fromtable && $values) {
-                    $pairs .= "VALUES({$values})";
-                }
-                if ($fromtable) {
-                    if ($where !== '') {
-                        $where = "WHERE {$where}";
-                    }
-                    if ($limit !== '') {
-                        $limit = "LIMIT {$limit}";
-                    }
-                    $subsql = "SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
-                }
-            }
-			$rt = $this->query("{$insert_method} {$intotable} {$pairs} {$subsql}");
+	private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+	{
+		if (!$intotable) $result = false;
+		else
+		{
+			if (!is_array($fields))
+			{
+				$pairs = $fields;
+			}
+			else
+			{
+				$keys = array_keys($fields);
+				$keys = implode(',', $keys) ;
+				$values = array_values($fields);
+				$values = implode("','", $values);
+				if (!$fromtable && $values) $pairs = "({$keys}) VALUES('{$values}')";
+			}
+			if($fromtable)
+			{
+				if (is_array($fields))
+				{
+					$keys   = array_keys($fields);
+					$fields = implode(',', $keys);
+				}
+				if ($where !== '') $where = "WHERE {$where}";
+				if ($limit !== '') $limit = "LIMIT {$limit}";
+				
+				$query = "{$insert_method} {$intotable} ({$fields}) SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
+			}
+			else $query = "{$insert_method} {$intotable} {$pairs}";
+			
+			$rt = $this->query($query);
 			if($rt===false) $result = false;
 			else
 			{
 				switch($insert_method)
 				{
 					case 'INSERT IGNORE':
+					case 'REPLACE INTO':
 						$diff = $this->getAffectedRows();
 						if($diff==1) $result = $this->getInsertId();
 						else         $result = false;
 						break;
-					case 'REPLACE':
-						$result = $this->getAffectedRows();
-						break;
-					case 'INSERT':
+					case 'INSERT INTO':
 					default:
 						$result = $this->getInsertId();
 				}
 			}
-        }
-        return $result;
-    } // __insert
-    
+		}
+		return $result;
+	} // __insert
+	
 	/**
 	* @name:  getInsertId
 	*
