@@ -339,14 +339,14 @@ class MANAGERMANAGER
 		var mm_sync_field_count = 0;
 		var synch_field = new Array();
 		
-		$j(document).ready(function() {
+		$j(function()
+		{
 			
 			// Lets handle errors nicely...
-			try {
+			try
+			{
 			'
 					);
-			
-			
 			// Get the JS for the changes
 		  	
 			
@@ -355,17 +355,20 @@ class MANAGERMANAGER
 			
 			// See if there is any chunk output (e.g. it exists, and is not empty)
 			$chunk_output = $modx->getChunk($config_chunk);
-			if (!empty($chunk_output)) {
+			if (!empty($chunk_output))
+			{
 				$e->output("// Getting rules from chunk: $config_chunk \n\n");
 				eval($chunk_output); // If there is, run it.
-			} else if (is_readable($config_file)) {	// If there's no chunk output, read in the file.
+			}
+			else if (is_readable($config_file))
+			{	// If there's no chunk output, read in the file.
 				$e->output("// Getting rules from file: $config_file \n\n");
 				include($config_file);
-			} else {
+			}
+			else
+			{
 				$e->output("// No rules found \n\n");
 			}
-				
-			
 		    
 		    // Close it off
 		    $e->output( '
@@ -376,14 +379,16 @@ class MANAGERMANAGER
 				$j("div#tabGeneral table").attr("width", "100%");
 				
 				// if template variables containers are empty, remove their section
-				if ($j("div.tmplvars :input").length == 0) {
+				if ($j("div.tmplvars :input").length == 0)
+				{
 					$j("div.tmplvars").hide();	// Still contains an empty table and some dividers
 					$j("div.tmplvars").prev("div").hide();	// Still contains an empty table and some dividers
 					//$j("#sectionTVsHeader").hide();
 				}
 				
 				// If template category is empty, hide the optgroup
-				$j("#template optgroup").each( function() {
+				$j("#template optgroup").each( function()
+				{
 					var $this = $j(this),
 					visibleOptions = 0;
 					$this.find("option").each( function() {
@@ -394,18 +399,23 @@ class MANAGERMANAGER
 				
 				// Re-initiate the tooltips, in order for them to pick up any new help text which has been added
 				// This bit is MooTools, matching code inserted further up the page
-				if( !window.ie6 ) {
+				if( !window.ie6 )
+				{
 					$$(".tooltip").each(function(help_img) {
 						help_img.setProperty("title", help_img.getProperty("alt") );
 					});
 					new Tips($$(".tooltip"), {className:"custom"} );
 				}
 			
-			} catch (e) {
+			}
+			catch (e)
+			{
 				// If theres an error, fail nicely
 				alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
 				
-			} finally {
+			}
+			finally
+			{
 				
 				// Whatever happens, hide the loading mask
 				$j("#loadingmask").hide();
