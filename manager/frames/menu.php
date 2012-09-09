@@ -1,7 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if (!array_key_exists('mail_check_timeperiod', $modx->config) || !is_numeric($modx->config['mail_check_timeperiod'])) {
-	$modx->config['mail_check_timeperiod'] = 5;
+if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_check_timeperiod']))
+{
+	$modx->config['mail_check_timeperiod'] = 0;
 }
 if ($manager_theme) $manager_theme .= '/';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
@@ -54,7 +55,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	$j(function(){
 		if(msgcheck!=0) updateMail(true); // First run update
 		var mailinterval = <?php echo $modx->config['mail_check_timeperiod'];?>;
-		if(mailinterval!='' || mailinterval!=0)
+		if(mailinterval!='' && mailinterval!=0)
 		{
 			if(msgcheck!=0) setInterval('updateMail(true)',mailinterval * 1000);
 		}
@@ -233,17 +234,14 @@ if($modx->hasPermission('help')) { ?>
 // Concatenate menu items based on permissions
 
 // Site Menu
-$sitemenu = array();
-
-$sitemenu[] = item($_lang['home'], 2);             // home
-$sitemenu[] = item($_lang['preview'], '../', 1, 'target="_blank"'); // preview
-$sitemenu[] = item($_lang['refresh_site'], 26,$modx->hasPermission('empty_cache'));    // clear-cache
-$sitemenu[] = item($_lang['search'], 71);          // search
-$sitemenu[] = item($_lang['add_resource'], 4,$modx->hasPermission('new_document')); // new-document
-$sitemenu[] = item($_lang['add_weblink'], 72,$modx->hasPermission('new_document')); // new-weblink
+$menu['home']         = item($_lang['home'], 2);             // home
+$menu['preview']      = item($_lang['preview'], '../', 1, 'target="_blank"'); // preview
+$menu['refresh_site'] = item($_lang['refresh_site'], 26,$modx->hasPermission('empty_cache'));    // clear-cache
+$menu['search']       = item($_lang['search'], 71);          // search
+$menu['add_resource'] = item($_lang['add_resource'], 4,$modx->hasPermission('new_document')); // new-document
+$menu['add_weblink']  = item($_lang['add_weblink'], 72,$modx->hasPermission('new_document')); // new-weblink
 
 // Resources Menu
-$resourcemenu = array();
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')
 || $modx->hasPermission('new_snippet')  || $modx->hasPermission('edit_snippet')
 || $modx->hasPermission('new_chunk')    || $modx->hasPermission('edit_chunk')
@@ -254,14 +252,14 @@ if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')
 else $perm_element_management = 0;
 $perm_manage_metatags = ($modx->hasPermission('manage_metatags') && $modx->config['show_meta'] == 1) ? 1 : 0;
 
-$resourcemenu[] = item($_lang['element_management'], 76,$perm_element_management);// Elements
-$resourcemenu[] = item($_lang['manage_files'], 31,$modx->hasPermission('file_manager'));// Manage-Files
-$resourcemenu[] = item($_lang['manage_metatags'], 81, $perm_manage_metatags); // Manage-Metatags
+$menu['element_management'] = item($_lang['element_management'], 76,$perm_element_management);// Elements
+$menu['manage_files']       = item($_lang['manage_files'], 31,$modx->hasPermission('file_manager'));// Manage-Files
+$menu['manage_metatags']    = item($_lang['manage_metatags'], 81, $perm_manage_metatags); // Manage-Metatags
 
 // Modules Menu Items
-$modulemenu = array();
+$moduleitem = array();
 $perm_module_management = ($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) ? 1 : 0;
-$modulemenu[] = item($_lang['module_management'], 106,$perm_module_management);// manage-modules
+$moduleitem['module_management']    = item($_lang['module_management'], 106,$perm_module_management);// manage-modules
 if($modx->hasPermission('exec_module'))
 {
 	// Each module
@@ -280,69 +278,70 @@ if($modx->hasPermission('exec_module'))
 		// Admins get the entire list
 		$rs = $modx->db->select('id,name', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
+	
 	while ($content = $modx->db->getRow($rs))
 	{
-		$modulemenu[] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
+		$moduleitem[] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
 	}
+	if(0<count($moduleitem)) $modulemenu = join("\n", $moduleitem);
+	else                     $modulemenu = false;
 }
 
 // Security menu items (users)
-$securitymenu = array();
 $perm_role_management = ($modx->hasPermission('new_role') || $modx->hasPermission('edit_role') || $modx->hasPermission('delete_role')) ? 1 : 0;
 $perm_mgruser = ($modx->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
 $perm_webuser = ($modx->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
-$securitymenu[] = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
-$securitymenu[] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
-$securitymenu[] = item($_lang['role_management_title'], 86, $perm_role_management);// roles
-$securitymenu[] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
-$securitymenu[] = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
+
+$menu['user_management']     = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
+$menu['web_user_management'] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
+$menu['role_management']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
+$menu['manager_permissions'] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
+$menu['web_permissions']     = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
 
 // Tools Menu
-$toolsmenu = array();
-$toolsmenu[] = item($_lang['bk_manager'], 93,$modx->hasPermission('bk_manager'));// backup-mgr
-$toolsmenu[] = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
-$toolsmenu[] = item($_lang['import_site'], 95,$modx->hasPermission('import_static'));// import-html
-$toolsmenu[] = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
-$toolsmenu[] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
+$menu['bk_manager']    = item($_lang['bk_manager'], 93,$modx->hasPermission('bk_manager'));// backup-mgr
+$menu['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
+$menu['import_site']   = item($_lang['import_site'], 95,$modx->hasPermission('import_static'));// import-html
+$menu['export_site']   = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
+$menu['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
 
 // Reports Menu
-$reportsmenu = array();
-$reportsmenu[] = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
-$reportsmenu[] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
-$reportsmenu[] = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
-$reportsmenu[] = item($_lang['view_sysinfo'], 53);// system-info
+$menu['site_schedule']   = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
+$menu['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
+$menu['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
+$menu['view_sysinfo']    = item($_lang['view_sysinfo'], 53);// system-info
+
+$sitemenu     = buildMenu('site',$menu);
+$elementmenu  = buildMenu('element',$menu);
+$securitymenu = buildMenu('security',$menu);
+$toolsmenu    = buildMenu('tools',$menu);
+$reportsmenu  = buildMenu('reports',$menu);
 
 // Output Menus where there are items to show
-if (!empty($sitemenu))
-{
-	echo '<li id="limenu3" class="active"><a href="#menu3" onclick="new NavToggle(this); return false;">'.$_lang['site'].'</a><ul class="subnav" id="menu3">'."\n".
-	     implode("\n", $sitemenu).
-	     "\n</ul></li>\n";
+if (!empty($sitemenu)) {
+	echo '<li id="limenu1" class="active"><a href="#menu1" onclick="new NavToggle(this); return false;">'.$_lang['site'].'</a><ul class="subnav" id="menu1">'."\n".
+	     "{$sitemenu}\n</ul></li>\n";
+	     
 }
-if (!empty($resourcemenu)) {
-	echo '<li id="limenu5"><a href="#menu5" onclick="new NavToggle(this); return false;">'.$_lang['elements'].'</a><ul class="subnav" id="menu5">'."\n".
-	     implode("\n", $resourcemenu).
-	     "\n</ul></li>\n";
+if (!empty($elementmenu)) {
+	echo '<li id="limenu2"><a href="#menu2" onclick="new NavToggle(this); return false;">'.$_lang['elements'].'</a><ul class="subnav" id="menu2">'."\n".
+	     "{$elementmenu}\n</ul></li>\n";
 }
 if (!empty($modulemenu)) {
-	echo '<li id="limenu9"><a href="#menu9" onclick="new NavToggle(this); return false;">'.$_lang['modules'].'</a><ul class="subnav" id="menu9">'."\n".
-	     implode("\n", $modulemenu).
-	     "\n</ul></li>\n";
+	echo '<li id="limenu3"><a href="#menu3" onclick="new NavToggle(this); return false;">'.$_lang['modules'].'</a><ul class="subnav" id="menu3">'."\n".
+	     "{$modulemenu}\n</ul></li>\n";
 }
 if (!empty($securitymenu)) {
-	echo '<li id="limenu2"><a href="#menu2" onclick="new NavToggle(this); return false;">'.$_lang['users'].'</a><ul class="subnav" id="menu2">'."\n".
-	     implode("\n", $securitymenu).
-	     "\n</ul></li>\n";
+	echo '<li id="limenu4"><a href="#menu4" onclick="new NavToggle(this); return false;">'.$_lang['users'].'</a><ul class="subnav" id="menu4">'."\n".
+	     "{$securitymenu}\n</ul></li>\n";
 }
 if (!empty($toolsmenu)) {
-	echo '<li id="limenu1-1"><a href="#menu1-1" onclick="new NavToggle(this); return false;">'.$_lang['tools'].'</a><ul class="subnav" id="menu1-1">'."\n".
-	     implode("\n", $toolsmenu).
-	     "\n</ul></li>\n";
+	echo '<li id="limenu5"><a href="#menu5" onclick="new NavToggle(this); return false;">'.$_lang['tools'].'</a><ul class="subnav" id="menu5">'."\n".
+	     "{$toolsmenu}\n</ul></li>\n";
 }
 if (!empty($reportsmenu)) {
-	echo '<li id="limenu1-2"><a href="#menu1-2" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu1-2">'."\n".
-	     implode("\n", $reportsmenu).
-	     "\n</ul></li>\n";
+	echo '<li id="limenu6"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu6">'."\n".
+	     "{$reportsmenu}\n</ul></li>\n";
 }
 ?>
 	</ul>
@@ -359,11 +358,35 @@ function item($name, $href, $display=1, $attrib='target="main"')
 {
 	global $modx;
 	
-	if($display==0) return;
+	if($display==0) return false;
 	
 	if(is_int($href)) $href = "index.php?a={$href}";
 	
 	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
 	$ph = compact('href','name','attrib');
 	return $modx->parsePlaceholder($tpl, $ph);
+}
+
+function buildMenu($target,$array)
+{
+	if($_SESSION['mgrRole']==1) return $array;
+	
+	$menu['site']     = 'home,preview,refresh_site,search,add_resource,add_weblink';
+	$menu['element']  = 'element_management,manage_files,manage_metatags';
+	$menu['module']   = 'modules';
+	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions';
+	$menu['tools']    = 'bk_manager,remove_locks unlock-pages,import_site,export_site,edit_settings';
+	$menu['reports']  = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
+	
+	if(empty($menu[$target])) return false;
+	
+	$a = explode(',',$menu[$target]);
+	foreach($a as $v)
+	{
+		$v = trim($v);
+		if(isset($array[$v])) $result[] = $array[$v];
+	}
+	
+	if(0<count($result)) return join("\n", $result);
+	else                 return false;
 }
