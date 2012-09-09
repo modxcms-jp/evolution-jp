@@ -102,7 +102,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$content['menutitle']   = $modx->db->escape($content['menutitle']);
 
 	// increase menu index
-	if ($_toplevel==0)
+	if ($_toplevel==0 && $modx->config['auto_menuindex']==='1')
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
