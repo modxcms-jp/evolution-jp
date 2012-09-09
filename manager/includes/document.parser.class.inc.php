@@ -115,6 +115,14 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+			case 'MakeTable' :
+				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/maketable.class.php'))
+				{
+					$this->table= new MakeTable;
+					return true;
+				}
+				else return false;
+				break;
 			case 'DeprecatedAPI':
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php'))
 				{

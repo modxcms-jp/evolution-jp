@@ -98,8 +98,7 @@ if ($modx->config['show_meta'])
  * "View Children" tab setup
  */
 
-if (!class_exists('makeTable')) include_once $modx->config['base_path'].'manager/includes/extenders/maketable.class.php';
-$childsTable = new makeTable();
+$modx->loadExtension('MakeTable');
 
 // Get child document count
 $from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
@@ -135,15 +134,10 @@ if ($numRecords > 0)
 		}
 
 		// CSS style for table
-		$tableClass = 'grid';
-		$rowHeaderClass = 'gridHeader';
-		$rowRegularClass = 'gridItem';
-		$rowAlternateClass = 'gridAltItem';
-
-		$childsTable->setTableClass($tableClass);
-		$childsTable->setRowHeaderClass($rowHeaderClass);
-		$childsTable->setRowRegularClass($rowRegularClass);
-		$childsTable->setRowAlternateClass($rowAlternateClass);
+		$modx->table->setTableClass('grid');
+		$modx->table->setRowHeaderClass('gridHeader');
+		$modx->table->setRowRegularClass('gridItem');
+		$modx->table->setRowAlternateClass('gridAltItem');
 
 		// context menu
 		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
@@ -237,7 +231,7 @@ if ($numRecords > 0)
 				'status' =>   $_lang['page_data_status']
 			);
 			$tbWidth = array('2%','2%', '68%', '10%', '10%', '8%');
-			$childsTable->setColumnWidths($tbWidth);
+			$modx->table->setColumnWidths($tbWidth);
 			
 			if($children['publishedon']!=='0')
 			{
@@ -264,8 +258,8 @@ if ($numRecords > 0)
 				'status'   => $status
 			);
 		}
-		$childsTable->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
-		$children_output = $childsTable->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
+		$modx->table->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
+		$children_output = $modx->table->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
 		$children_output .= '<div><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
