@@ -147,22 +147,23 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 	
 	$output = " // ----------- Change field help -------------- \n";
 	
-			switch ($field) {
+			switch ($field)
+			{
 				// Ones that follow the regular pattern
 				default:
 					// What type is this field?
-					if (isset($mm_fields[$field])) {
+					if (isset($mm_fields[$field]))
+					{
 						$fieldtype = $mm_fields[$field]['fieldtype'];
 						$fieldname = $mm_fields[$field]['fieldname'];
 					
 						// Give the help button an ID, and modify the alt/title text
-						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img[style:contains(\'cursor:help\')]").attr("id", "'.$fieldname.'-help").attr("alt", "'.jsSafe($helptext).'").attr("title", "'.jsSafe($helptext).'"); ';
-					} else {
+						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img[style*=\'help\']").attr("id", "'.$fieldname.'-help").attr("alt", "'.jsSafe($helptext).'").attr("title", "'.jsSafe($helptext).'"); ';
+					}
+					else
+					{
 						break;
 					}
-				
-				
-				
 				break;
 			} // end switch
 			
