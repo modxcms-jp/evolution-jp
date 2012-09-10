@@ -215,6 +215,11 @@ class MakeTable {
 	 * 			source table array.
 	 */
 	function setColumnWidths($widthArray) {
+		if(!is_array($widthArray)) $widthArray = explode(',', $widthArray);
+		foreach($widthArray as $i=>$v)
+		{
+			$widthArray[$i] = trim($v);
+		}
 		$this->columnWidths= $widthArray;
 	}
 	
@@ -331,7 +336,7 @@ class MakeTable {
 	 * the $fieldsArray where the values represent the alt heading content
 	 * for each column.
 	 */
-	function create($fieldsArray, $fieldHeadersArray=array(),$linkpage="")
+	function create($fieldsArray, $fieldHeadersArray=array())
 	{
 		global $_lang;
 		if (is_array($fieldsArray))
@@ -377,11 +382,6 @@ class MakeTable {
 			if ($this->formElementType) {
 				$table= "\n".'<form id="'.$this->formName.'" name="'.$this->formName.'" action="'.$this->formAction.'" method="POST">'.$table;
 			}
-			if (strlen($this->pageNav) > 1)
-			{//changed to display the pagination if exists.
-				$pageNavBlock = '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$this->pageNav.'</ul></div>';
-				$table = $pageNavBlock . $table . $pageNavBlock;
-			}
 			if ($this->allOption)
 			{
 				$table .= '
@@ -420,17 +420,22 @@ class MakeTable {
 		global $_lang;
 		$currentPage= (is_numeric($_GET['page']) ? $_GET['page'] : 1);
 		$numPages= ceil($numRecords / MAX_DISPLAY_RECORDS_NUM);
-		if ($numPages > 1) {
-			$currentURL= empty($qs)? '': '?'.$qs;
-			if ($currentPage > 6) {
+		if ($numPages > 1)
+		{
+			$currentURL= empty($qs) ? '': "?{$qs}";
+			
+			if ($currentPage > 6)
+			{
 				$nav .= $this->createPageLink($currentURL, 1, $_lang["pagination_table_first"]);
 			}
-			if ($currentPage != 1) {
+			if ($currentPage != 1)
+			{
 				$nav .= $this->createPageLink($currentURL, $currentPage -1, '&lt;&lt;');
 			}
 			$offset= -4 + ($currentPage < 5 ? (5 - $currentPage) : 0);
 			$i= 1;
-			while ($i < 10 && ($currentPage + $offset <= $numPages)) {
+			while ($i < 10 && ($currentPage + $offset <= $numPages))
+			{
 				if ($currentPage == $currentPage + $offset)
 					$nav .= $this->createPageLink($currentURL, $currentPage + $offset, $currentPage + $offset, true);
 				else
@@ -438,14 +443,22 @@ class MakeTable {
 				$i ++;
 				$offset ++;
 			}
-			if ($currentPage < $numPages) {
+			if ($currentPage < $numPages)
+			{
 				$nav .= $this->createPageLink($currentURL, $currentPage +1, '&gt;&gt;');
 			}
-			if ($currentPage != $numPages) {
+			if ($currentPage != $numPages)
+			{
 				$nav .= $this->createPageLink($currentURL, $numPages, $_lang["pagination_table_last"]);
 			}
 		}
-		$this->pageNav= ' '.$nav;
+		if (strlen($nav) > 0)
+		{//changed to display the pagination if exists.
+			$pageNavBlock = '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$nav.'</ul></div>';
+		}
+		else $pageNavBlock = '';
+		
+		return $pageNavBlock;
 	}
 	
 	/**
@@ -459,10 +472,14 @@ class MakeTable {
 	 */
 	function createPageLink($link='', $pageNum, $displayText, $currentPage=false, $qs='') {
 		global $modx;
-		$orderBy= !empty($_GET['orderby'])? '&orderby=' . $_GET['orderby']: '';
-		$orderDir= !empty($_GET['orderdir'])? '&orderdir=' . $_GET['orderdir']: '';
-		if (!empty($qs)) $qs= "?$qs";
-		$link= empty($link)? $modx->makeUrl($modx->documentIdentifier, $modx->documentObject['alias'], $qs . "page=$pageNum$orderBy$orderDir"): $this->prepareLink($link) . "page=$pageNum";
+		$orderBy  = !empty($_GET['orderby']) ? '&orderby='  . $_GET['orderby'] : '';
+		$orderDir = !empty($_GET['orderdir'])? '&orderdir=' . $_GET['orderdir']: '';
+		if (!empty($qs)) $qs= "?{$qs}";
+		$link = empty($link) ?
+			$modx->makeUrl($modx->documentIdentifier, $modx->documentObject['alias'], "{$qs}page={$pageNum}{$orderBy}{$orderDir}")
+			:
+			$this->prepareLink($link) . "page={$pageNum}";
+			
 		$nav .= '<li'.($currentPage? ' class="currentPage"': '').'><a'.($currentPage? ' class="currentPage"': '').' href="'.$link.'">'.$displayText.'</a></li>'."\n";
 		return $nav;
 	}

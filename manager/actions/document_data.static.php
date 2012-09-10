@@ -98,8 +98,6 @@ if ($modx->config['show_meta'])
  * "View Children" tab setup
  */
 
-$modx->loadExtension('MakeTable');
-
 // Get child document count
 $from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
 $where = "sc.parent='{$content['id']}' AND ({$access})";
@@ -133,11 +131,6 @@ if ($numRecords > 0)
 			$resource[] = $row;
 		}
 
-		// CSS style for table
-		$modx->table->setTableClass('grid');
-		$modx->table->setRowHeaderClass('gridHeader');
-		$modx->table->setRowRegularClass('gridItem');
-		$modx->table->setRowAlternateClass('gridAltItem');
 
 		// context menu
 		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
@@ -162,6 +155,7 @@ if ($numRecords > 0)
 		echo get_jscript($id,$cm);
 		
 		$listDocs = array();
+		
 		foreach($resource as $k => $children)
 		{
 			foreach($children as $k=>$v)
@@ -221,18 +215,6 @@ if ($numRecords > 0)
 			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
 			                     array($icon,$link,$pagetitle,$description), $tpl);
 			
-			// Table header
-			$listTableHeader = array(
-				'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
-				'docid' =>    $_lang['id'],
-				'title' =>    $_lang['resource_title'],
-				'publishedon' => $_lang['publish_date'],
-				'editedon' => $_lang['editedon'],
-				'status' =>   $_lang['page_data_status']
-			);
-			$tbWidth = array('2%','2%', '68%', '10%', '10%', '8%');
-			$modx->table->setColumnWidths($tbWidth);
-			
 			if($children['publishedon']!=='0')
 			{
 				$publishedon = '<span class="nowrap">' . $modx->toDateFormat($children['publishedon']) . '</span>';
@@ -258,8 +240,29 @@ if ($numRecords > 0)
 				'status'   => $status
 			);
 		}
-		$modx->table->createPagingNavigation($numRecords,'a=3&amp;id='.$content['id'] . '&amp;tab=0');
-		$children_output = $modx->table->create($listDocs,$listTableHeader,'index.php?a=3&amp;id='.$content['id'] . '&amp;tab=0');
+		
+		$modx->loadExtension('MakeTable');
+		
+		// CSS style for table
+		$modx->table->setTableClass('grid');
+		$modx->table->setRowHeaderClass('gridHeader');
+		$modx->table->setRowRegularClass('gridItem');
+		$modx->table->setRowAlternateClass('gridAltItem');
+		
+		// Table header
+		$listTableHeader = array(
+			'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
+			'docid' =>    $_lang['id'],
+			'title' =>    $_lang['resource_title'],
+			'publishedon' => $_lang['publish_date'],
+			'editedon' => $_lang['editedon'],
+			'status' =>   $_lang['page_data_status']
+		);
+		
+		$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
+		
+		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=3&amp;id={$content['id']}&amp;tab=0");
+		$children_output = $pageNavBlock . $modx->table->create($listDocs,$listTableHeader) . $pageNavBlock;
 		$children_output .= '<div><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
