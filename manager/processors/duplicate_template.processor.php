@@ -28,7 +28,7 @@ if($rs) {
 		}
 	}
 } else {
-	echo "A database error occured while trying to duplicate variable: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate variable: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 

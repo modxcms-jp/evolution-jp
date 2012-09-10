@@ -92,14 +92,14 @@ else {
 		$rs = $modx->db->delete($tbl_keyword_xref, "keyword_id IN('{$keywords}')");
 		if(!$rs)
 		{
-			echo "Failure on deletion of xref keys: ".mysql_error();
+			echo "Failure on deletion of xref keys: ".$modx->db->getLastError();
 			exit;
 		}
 
 		$rs = $modx->db->delete($tbl_site_keywords, "id IN('{$keywords}')");
 		if(!$rs)
 		{
-			echo "Failure on deletion of keywords ".mysql_error();
+			echo "Failure on deletion of keywords ".$modx->db->getLastError();
 			exit;
 		}
 

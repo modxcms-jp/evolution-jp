@@ -77,7 +77,7 @@ class logHandler {
 		$fields['message']     = $modx->db->escape($this->entry['msg']);
 		
 		if(!$insert_id = $modx->db->insert($fields,$tbl_manager_log)) {
-			$this->logError("Couldn't save log to table! ".mysql_error());
+			$this->logError("Couldn't save log to table! ".$modx->db->getLastError());
 			return true;
 		}
 		else

@@ -545,7 +545,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		$evts = array();
 		$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
 		$rs = $modx->db->select('evtid, pluginid',$tbl_site_plugin_events,"pluginid='{$id}'");
-		while($row = mysql_fetch_assoc($rs))
+		while($row = $modx->db->getRow($rs))
 		{
 		   $evts[] = $row['evtid'];
 		}

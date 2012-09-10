@@ -17,7 +17,7 @@ $rs = $modx->db->query($sql);
 
 if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
-	echo "A database error occured while trying to duplicate plugin: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate plugin: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 
@@ -29,7 +29,7 @@ $sql = "INSERT INTO {$tbl_site_plugin_events} (pluginid,evtid,priority)
 $rs = $modx->db->query($sql);
 
 if (!$rs) {
-	echo "A database error occured while trying to duplicate plugin events: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate plugin events: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 

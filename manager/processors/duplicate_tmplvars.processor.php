@@ -16,7 +16,7 @@ $rs = $modx->db->query($sql);
 
 if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
-	echo "A database error occured while trying to duplicate TV: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate TV: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 
@@ -29,7 +29,7 @@ $sql = "INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid)
 $rs = $modx->db->query($sql);
 
 if (!$rs) {
-	echo "A database error occured while trying to duplicate TV template access: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate TV template access: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 
@@ -42,7 +42,7 @@ $sql = "INSERT INTO {$tbl_site_tmplvar_access} (tmplvarid, documentgroup)
 $rs = $modx->db->query($sql);
 
 if (!$rs) {
-	echo "A database error occured while trying to duplicate TV Acess Permissions: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate TV Acess Permissions: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 

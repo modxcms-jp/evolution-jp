@@ -108,7 +108,7 @@ switch ($_POST['mode']) {
     case '35' :
         $rs = $modx->db->update($fields, $tbl_user_roles, "id='{$id}'");
         if (!$rs) {
-            echo "An error occured while attempting to update the role. <br />" . mysql_error();
+            echo "An error occured while attempting to update the role. <br />" . $modx->db->getLastError();
             exit;
         }
         break;

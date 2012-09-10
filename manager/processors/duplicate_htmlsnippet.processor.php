@@ -11,12 +11,12 @@ $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 $tpl = $_lang['duplicate_title_string'];
 $sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category)
 		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, category
-		FROM {$tbl_site_htmlsnippets} WHERE id={$id}";
+		FROM {$tbl_site_htmlsnippets} WHERE id='{$id}'";
 $rs = $modx->db->query($sql);
 
 if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
-	echo "A database error occured while trying to duplicate variable: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate variable: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 

@@ -50,7 +50,7 @@ if($total>1)
 {
 	for ($i=0;$i<$total;$i++)
 	{
-		$plugins = mysql_fetch_assoc($rs);
+		$plugins = $modx->db->getRow($rs);
 		if ($preEvt !== $plugins['evtid'])
 		{
 			$sortables[] = $plugins['evtid'];

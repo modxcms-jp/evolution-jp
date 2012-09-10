@@ -132,7 +132,7 @@ switch ($_POST['mode']) {
 		             'guid','modulecode','properties','editedon');
 		$rs = $modx->db->update($f,$tbl_site_modules,"id='{$id}'");
 		if(!$rs){
-			echo "\$rs not set! Edited module not saved!".mysql_error();
+			echo "\$rs not set! Edited module not saved!".$modx->db->getLastError();
 			exit;
 		}
 		else {

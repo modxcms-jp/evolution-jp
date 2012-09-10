@@ -59,17 +59,19 @@ switch ($_REQUEST['op']) {
 			if ($rt == 'snip')  $type = 40;
 			if ($rt == 'tpl')   $type = 50;
 			if ($rt == 'tv')    $type = 60;
-			$sql = 'INSERT INTO '.$tbl_site_module_depobj.' (module, resource, type) VALUES ';
-			for($i=0;$i<count($opids);$i++) {
-				if ($i != 0) $sql .= ',';
-				$opids[$i] = intval($opids[$i]);
-				$sql.="('$id',".$opids[$i].",$type)";
+			$v = array();
+			foreach($opids as $opid)
+			{
+				$opid = intval($opid);
+				$v[] = "('{$id}','{$opid}','{$type}')";
 			}
-			$modx->db->query('DELETE FROM '.$tbl_site_module_depobj.' WHERE module=\''.$id.'\' AND resource IN ('.implode(',',$opids).') AND type=\''.$type.'\'');
-			$ds = $modx->db->query($sql);
+			$values = join(',', $v);
+			$del_opids = join(',', $opids);
+			$modx->db->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
+			$ds = $modx->db->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
 			if(!$ds){
 				echo '<script type="text/javascript">'.
-				     'function jsalert(){ alert(\'An error occured while trying to update the database. \''.mysql_error().');'.
+				     'function jsalert(){ alert(\'An error occured while trying to update the database. \''.$modx->db->getLastError().');'.
 				     'setTimeout(\'jsalert()\',100)'.
 				     '</script>';
 			}
@@ -96,15 +98,18 @@ switch ($_REQUEST['op']) {
 				$guid = $row['guid'];
 			}
 			// reset moduleguid for deleted resources
-			if (($cp=count($plids)) || ($cs=count($snids))) {
-				if ($cp) $modx->db->query('UPDATE '.$tbl_site_plugins.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $plids).') AND moduleguid=\''.$guid.'\'');
-				if ($cs) $modx->db->query('UPDATE '.$tbl_site_snippets.' SET moduleguid=\'\' WHERE id IN ('.implode(',', $snids).') AND moduleguid=\''.$guid.'\'');
+			if (($cp=count($plids)) || ($cs=count($snids)))
+			{
+				$plids = join(',', $plids);
+				$snids = join(',', $snids);
+				if ($cp) $modx->db->update("moduleguid=''", $tbl_site_plugins,  "id IN ({$plids}) AND moduleguid='{$guid}'");
+				if ($cs) $modx->db->update("moduleguid=''", $tbl_site_snippets, "id IN ({$snids}) AND moduleguid='{$guid}'");
 				// reset cache
 				$modx->clearCache();
 			}
 		}
-		$sql = 'DELETE FROM '.$tbl_site_module_depobj.' WHERE id IN ('.implode(',', $opids).')';
-		$modx->db->query($sql);
+		$opids = join(',', $opids);
+		$modx->db->delete($tbl_site_module_depobj,"id IN ({$opids})");
 		break;
 }
 

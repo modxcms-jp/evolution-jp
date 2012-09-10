@@ -162,7 +162,7 @@ else
 		$sql = "REPLACE INTO {$tbl_active_users} ({$join_key}) VALUES ({$join_value})";
 		if(!$rs = $modx->db->query($sql))
 		{
-			echo "error replacing into active users! SQL: {$sql}\n" . mysql_error();
+			echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
 			exit;
 		}
 	}

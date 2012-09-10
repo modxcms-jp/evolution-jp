@@ -16,7 +16,7 @@ $rs = $modx->db->query($sql);
 
 if($rs) $newid = $modx->db->getInsertId(); // get new id
 else {
-	echo "A database error occured while trying to duplicate snippet: <br /><br />".mysql_error();
+	echo "A database error occured while trying to duplicate snippet: <br /><br />".$modx->db->getLastError();
 	exit;
 }
 
