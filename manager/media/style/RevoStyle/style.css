@@ -338,7 +338,8 @@ select:focus
 	border-style: solid;
 	border-width: 1px;
 }
-input[type="button"] {
+input[type="button"],
+input[type="submit"] {
 background:#ededed;
 	border: 1px solid green;
 	cursor: pointer;
@@ -357,7 +358,8 @@ background:#ededed;
 			-webkit-border-radius:3px;
 			border-radius:3px;
 	}
-	input[type="button"]:hover {
+	input[type="button"]:hover,
+	input[type="submit"] {
 		border-color: green;
 		background:-moz-linear-gradient(#FFFFFF, #EEEEEE);
 		background:-webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#EEEEEE));
