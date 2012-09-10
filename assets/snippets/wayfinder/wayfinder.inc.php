@@ -18,38 +18,61 @@ class Wayfinder {
 	var $docs = array();
 	var $parentTree = array();
 	var $hasChildren = array();
-	var $placeHolders = array(
-		'rowLevel' => array('[+wf.wrapper+]','[+wf.classes+]','[+wf.classnames+]','[+wf.link+]','[+wf.title+]','[+wf.linktext+]','[+wf.id+]','[+wf.alias+]','[+wf.attributes+]','[+wf.docid+]','[+wf.introtext+]','[+wf.description+]','[+wf.subitemcount+]'),
-		'wrapperLevel' => array('[+wf.wrapper+]','[+wf.classes+]','[+wf.classnames+]'),
-		'tvs' => array(),
-	);
+	var $placeHolders = array();
 	var $tvList = array();
 	var $debugInfo = array();
 	
-	function run() {
+	function __construct()
+	{
 		global $modx;
+		
+		$this->placeHolders['rowLevel'][]   = '[+wf.wrapper+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.classes+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.classnames+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.link+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.title+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.linktext+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.id+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.alias+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.attributes+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.docid+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.introtext+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.description+]';
+		$this->placeHolders['rowLevel'][]   = '[+wf.subitemcount+]';
+		$this->placeHolders['wrapperLevel'] = array('[+wf.wrapper+]','[+wf.classes+]','[+wf.classnames+]');
+		$this->placeHolders['tvs']          = array();
+		
 		//setup here checking array
 		$this->parentTree = $modx->getParentIds($modx->documentIdentifier);
 		$this->parentTree[] = $modx->documentIdentifier;
+	}
+	
+	function run() {
+		global $modx;
 		
-		if ($this->_config['debug']) {
-			$this->addDebugInfo("settings","Settings","Settings","Settings used to create this menu.",$this->_config);
-			$this->addDebugInfo("settings","CSS","CSS Settings","Available CSS options.",$this->_css);
+		if ($this->_config['debug'])
+		{
+			$this->addDebugInfo('settings','Settings','Settings','Settings used to create this menu.',$this->_config);
+			$this->addDebugInfo('settings','CSS','CSS Settings','Available CSS options.',$this->_css);
 		}
 		//Load the templates
 		$this->checkTemplates();
 		//Register any scripts
-		if ($this->_config['cssTpl'] || $this->_config['jsTpl']) {
+		if ($this->_config['cssTpl'] || $this->_config['jsTpl'])
+		{
 		    $this->regJsCss();
 		}
 		//Get all of the documents
 		$this->docs = $this->getData();
-		if (!empty($this->docs)) {
+		if (!empty($this->docs))
+		{
 			//Sort documents by level for proper wrapper substitution
 			ksort($this->docs);
 			//build the menu
 			return $this->buildMenu();
-		} else {
+		}
+		else
+		{
 			$noneReturn = $this->_config['debug'] ? '<p style="color:red">No documents found for menu.</p>' : '';
 			return $noneReturn;
 		}
@@ -58,17 +81,23 @@ class Wayfinder {
 	function buildMenu() {
 		global $modx;
 		//Loop through all of the menu levels
-		foreach ($this->docs as $level => $subDocs) {
+		foreach ($this->docs as $level => $subDocs)
+		{
 			//Loop through each document group (grouped by parent doc)
-			foreach ($subDocs as $parentId => $docs) {
+			foreach ($subDocs as $parentId => $docs)
+			{
 				//only process document group, if starting at root, hidesubmenus is off, or is in current parenttree
-				if (!$this->_config['hideSubMenus'] || $this->isHere($parentId) || $level <= 1) {
+				if (!$this->_config['hideSubMenus'] || $this->isHere($parentId) || $level <= 1)
+				{
 					//Build the output for the group of documents
 					$menuPart = $this->buildSubMenu($docs,$level);
 					//If we are at the top of the menu start the output, otherwise replace the wrapper with the submenu
-					if (($level == 1 && (!$this->_config['displayStart'] || $this->_config['id'] == 0)) || ($level == 0 && $this->_config['displayStart'])) {
+					if (($level == 1 && (!$this->_config['displayStart'] || $this->_config['id'] == 0)) || ($level == 0 && $this->_config['displayStart']))
+					{
 						$output = $menuPart;
-					} else {
+					}
+					else
+					{
 						$output = str_replace("[+wf.wrapper.{$parentId}+]",$menuPart,$output);
 					}
 				}
@@ -78,123 +107,182 @@ class Wayfinder {
 		return $output;
 	}
 
-	function buildSubMenu($menuDocs,$level) {
+	function buildSubMenu($menuDocs,$level)
+	{
 		global $modx;
 		$subMenuOutput = '';
 		$firstItem = 1;
 		$counter = 1;
 		$numSubItems = count($menuDocs);
+		
 		//Loop through each document to render output
-		foreach ($menuDocs as $docId => $docInfo) {
+		foreach ($menuDocs as $docId => $docInfo)
+		{
 			$docInfo['level'] = $level;
 			$docInfo['first'] = $firstItem;
 			$firstItem = 0;
+			
 			//Determine if last item in group
-			if ($counter == ($numSubItems)) {
-				$docInfo['last'] = 1;
-			} else {
-				$docInfo['last'] = 0;
-			}
+			if ($counter == ($numSubItems)) $docInfo['last'] = 1;
+			else                            $docInfo['last'] = 0;
+			
 			//Determine if document has children
-			$docInfo['hasChildren'] = in_array($docInfo['id'],$this->hasChildren) ? 1 : 0;
-			$numChildren = $docInfo['hasChildren'] ? count($this->docs[$level+1][$docInfo['id']]) : 0;
+			if(in_array($docInfo['id'],$this->hasChildren)) $docInfo['hasChildren'] = 1;
+			else                                            $docInfo['hasChildren'] = 0;
+			
+			if($docInfo['hasChildren']) $numChildren = count($this->docs[$level+1][$docInfo['id']]);
+			else                        $numChildren = 0;
+			
 			//Render the row output
 			$subMenuOutput .= $this->renderRow($docInfo,$numChildren);
 			//Update counter for last check
 			$counter++;
 		}
 		
-		if ($level > 0) {
+		if ($level > 0)
+		{
 			//Determine which wrapper template to use
-			if ($this->_templates['innerTpl'] && $level > 1) {
+			if ($this->_templates['innerTpl'] && $level > 1)
+			{
 				$useChunk = $this->_templates['innerTpl'];
 				$usedTemplate = 'innerTpl';
-			} else {
+			}
+			else
+			{
 				$useChunk = $this->_templates['outerTpl'];
 				$usedTemplate = 'outerTpl';
 			}
 			//Determine wrapper class
-			if ($level > 1) {
-				$wrapperClass = 'innercls';
-			} else {
-				$wrapperClass = 'outercls';
-			}
+			if($level > 1) $wrapperClass = 'innercls';
+			else           $wrapperClass = 'outercls';
+			
 			//Get the class names for the wrapper
 			$classNames = $this->setItemClass($wrapperClass);
-			$useClass = ($classNames) ? ' class="' . $classNames . '"' : '';
+			$useClass = ($classNames) ? " class=\"{$classNames}\"" : '';
+			
 			$phArray = array($subMenuOutput,$useClass,$classNames);
+			
 			//Process the wrapper
 			$subMenuOutput = str_replace($this->placeHolders['wrapperLevel'],$phArray,$useChunk);
+			
 			//Debug
-			if ($this->_config['debug']) {
+			if ($this->_config['debug'])
+			{
 				$debugParent = $docInfo['parent'];
 				$debugDocInfo = array();
 				$debugDocInfo['template'] = $usedTemplate;
-				foreach ($this->placeHolders['wrapperLevel'] as $n => $v) {
-					if ($v !== '[+wf.wrapper+]')
-						$debugDocInfo[$v] = $phArray[$n];
-				}	
-				$this->addDebugInfo("wrapper","{$debugParent}","Wrapper for items with parent {$debugParent}.","These fields were used when processing the wrapper for the following documents.",$debugDocInfo);
+				
+				foreach ($this->placeHolders['wrapperLevel'] as $n => $v)
+				{
+					if($v !== '[+wf.wrapper+]') $debugDocInfo[$v] = $phArray[$n];
+				}
+				
+				$this->addDebugInfo('wrapper',"{$debugParent}","Wrapper for items with parent {$debugParent}.","These fields were used when processing the wrapper for the following documents.",$debugDocInfo);
 			}
 		}
+		
 		//Return the submenu
 		return $subMenuOutput;
 	}
 	
 	//render each rows output
-    function renderRow(&$resource,$numChildren) {
-        global $modx;
-        $output = '';
+	function renderRow(&$resource,$numChildren)
+	{
+		global $modx;
+		$output = '';
 		//Determine which template to use
-        if ($this->_config['displayStart'] && $resource['level'] == 0) {
+		if ($this->_config['displayStart'] && $resource['level'] == 0)
+		{
 			$usedTemplate = 'startItemTpl';
-		} elseif ($resource['id'] == $modx->documentObject['id'] && $resource['isfolder'] && $this->_templates['parentRowHereTpl'] && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0) && $numChildren) {
-            $usedTemplate = 'parentRowHereTpl';
-        } elseif ($resource['id'] == $modx->documentObject['id'] && $this->_templates['innerHereTpl'] && $resource['level'] > 1) {
-            $usedTemplate = 'innerHereTpl';
-        } elseif ($resource['id'] == $modx->documentObject['id'] && $this->_templates['hereTpl']) {
-            $usedTemplate = 'hereTpl';
-        } elseif ($resource['isfolder'] && $this->_templates['activeParentRowTpl'] && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0) && $this->isHere($resource['id'])) {
-            $usedTemplate = 'activeParentRowTpl';
-        } elseif ($resource['isfolder'] && ($resource['template']=="0" || is_numeric(strpos($resource['link_attributes'],'rel="category"'))) && $this->_templates['categoryFoldersTpl'] && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)) {
-            $usedTemplate = 'categoryFoldersTpl';
-        } elseif ($resource['isfolder'] && $this->_templates['parentRowTpl'] && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0) && $numChildren) {
-            $usedTemplate = 'parentRowTpl';
-        } elseif ($resource['level'] > 1 && $this->_templates['innerRowTpl']) {
-            $usedTemplate = 'innerRowTpl';
-        } else {
-            $usedTemplate = 'rowTpl';
-        }
-        //Get the template
-        $useChunk = $this->_templates[$usedTemplate];
+		}
+		elseif($resource['id'] == $modx->documentObject['id']
+		    && $resource['isfolder']
+		    && $this->_templates['parentRowHereTpl']
+		    && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
+		    && $numChildren)
+		{
+			$usedTemplate = 'parentRowHereTpl';
+		}
+		elseif($resource['id'] == $modx->documentObject['id'] && $this->_templates['innerHereTpl'] && $resource['level'] > 1)
+		{
+			$usedTemplate = 'innerHereTpl';
+		}
+		elseif($resource['id'] == $modx->documentObject['id'] && $this->_templates['hereTpl'])
+		{
+			$usedTemplate = 'hereTpl';
+		}
+		elseif($resource['isfolder']
+		    && $this->_templates['activeParentRowTpl']
+		    && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
+		    && $this->isHere($resource['id']))
+		{
+			$usedTemplate = 'activeParentRowTpl';
+		}
+		elseif($resource['isfolder']
+		   && ($resource['template']=="0" || is_numeric(strpos($resource['link_attributes'],'rel="category"')))
+		   && $this->_templates['categoryFoldersTpl']
+		   && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0))
+		{
+			$usedTemplate = 'categoryFoldersTpl';
+		}
+		elseif($resource['isfolder']
+		    && $this->_templates['parentRowTpl']
+		    && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
+		    && $numChildren)
+		{
+			$usedTemplate = 'parentRowTpl';
+		}
+		elseif($resource['level'] > 1 && $this->_templates['innerRowTpl'])
+		{
+			$usedTemplate = 'innerRowTpl';
+		}
+		else
+		{
+			$usedTemplate = 'rowTpl';
+		}
+		
+		//Get the template
+		$useChunk = $this->_templates[$usedTemplate];
+		
 		//Setup the new wrapper name and get the class names
-        $useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$resource['id']}+]" : "";
-        $classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['isfolder'],$resource['type']);
-        $useClass = ($classNames) ? $useClass = ' class="' . $classNames . '"' : '';
-        //Setup the row id if a prefix is specified
-        if ($this->_config['rowIdPrefix']) {
-            $useId = ' id="' . $this->_config['rowIdPrefix'] . $resource['id'] . '"';
-        } else {
-            $useId = '';
-        }
+		$useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$resource['id']}+]" : "";
+		$classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['isfolder'],$resource['type']);
+		$useClass = ($classNames) ? $useClass = ' class="' . $classNames . '"' : '';
+		
+		//Setup the row id if a prefix is specified
+		if ($this->_config['rowIdPrefix'])
+		{
+			$useId = ' id="' . $this->_config['rowIdPrefix'] . $resource['id'] . '"';
+		}
+		else
+		{
+			$useId = '';
+		}
 		//Load row values into placholder array
-        $phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
+		$phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
+		
 		//If tvs are used add them to the placeholder array
-		if (!empty($this->tvList)) {
+		if (!empty($this->tvList))
+		{
 			$usePlaceholders = array_merge($this->placeHolders['rowLevel'],$this->placeHolders['tvs']);
-			foreach ($this->tvList as $tvName) {
+			foreach ($this->tvList as $tvName)
+			{
 				$phArray[] = $resource[$tvName];
 			}
-		} else {
+		}
+		else
+		{
 			$usePlaceholders = $this->placeHolders['rowLevel'];
 		}
 		//Debug
-		if ($this->_config['debug']) {
+		if ($this->_config['debug'])
+		{
 			$debugDocInfo = array();
 			$debugDocInfo['template'] = $usedTemplate;
-			foreach ($usePlaceholders as $n => $v) {
+			foreach ($usePlaceholders as $n => $v)
+			{
 				$debugDocInfo[$v] = $phArray[$n];
-			}		
+			}
 			$this->addDebugInfo("row","{$resource['parent']}:{$resource['id']}","Doc: #{$resource['id']}","The following fields were used when processing this document.",$debugDocInfo);
 			$this->addDebugInfo("rowdata","{$resource['parent']}:{$resource['id']}","Doc: #{$resource['id']}","The following fields were retrieved from the database for this document.",$resource);
 		}
@@ -511,7 +599,7 @@ class Wayfinder {
 		if ($tot != count($docIDs)) {
 			$query = "SELECT name,type,display,display_params,default_text";
 			$query .= " FROM $tb2";
-			$query .= " WHERE name='".$tvname."' LIMIT 1";
+			$query .= " WHERE name='{$tvname}' LIMIT 1";
 			$rs = $modx->db->query($query);
 			$row = @$modx->db->getRow($rs);
 			$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
