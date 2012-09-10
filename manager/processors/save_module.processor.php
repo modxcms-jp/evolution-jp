@@ -167,7 +167,6 @@ function saveUserGroupAccessPermissons(){
 	global $id,$newid;
 	global $use_udperms;
 	
-	$tbl_site_modules       = $modx->getFullTableName('site_modules');
 	$tbl_site_module_access = $modx->getFullTableName('site_module_access');
 	
 	if($newid) $id = $newid;
@@ -178,18 +177,18 @@ function saveUserGroupAccessPermissons(){
 	{
 		// delete old permissions on the module
 		
-		$rs = $modx->db->delete($tbl_site_modules, "module='{$id}'");
+		$rs = $modx->db->delete($tbl_site_module_access, "module='{$id}'");
 		if(!$rs)
 		{
 			echo "An error occured while attempting to delete previous module user access permission entries.";
 			exit;
 		}
-		if(is_array($usrgroups))
+		elseif(is_array($usrgroups))
 		{
 			foreach ($usrgroups as $ugkey=>$value)
 			{
 				$f['module']    = $id;
-				$f['usergroup'] = stripslashes($value);
+				$f['usergroup'] = $modx->db->escape($value);
 				$rs = $modx->db->insert($f,$tbl_site_module_access);
 				if(!$rs)
 				{
