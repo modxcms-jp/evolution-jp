@@ -24,7 +24,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	var workText;
 	var buildText;
-	var msgcheck = <?php echo $modx->hasPermission('messages');?>;
+	var msgcheck = <?php echo $modx->hasPermission('messages') ? 1 : 0 ;?>;
 	
 	var $j = jQuery.noConflict();
 	
