@@ -668,7 +668,7 @@ if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
 	@chmod("{$base_path}assets/cache/installProc.inc.php", 0755);
 	unlink("{$base_path}assets/cache/installProc.inc.php");
 }
-if(is_write($base_path) && $installMode==0)
+if(is_writeable($base_path) && $installMode==0)
 {
 	copy("{$base_path}install/tpl/robots.tpl",    "{$base_path}sample.robots.txt");
 	if(!is_iis()) copy("{$base_path}install/tpl/htaccess.tpl",  "{$base_path}sample.htaccess");
