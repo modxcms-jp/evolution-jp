@@ -619,33 +619,36 @@ class Wayfinder {
 	function appendTV($tvname,$docIDs){
 		global $modx;
 		
-		$baspath= $modx->config["base_path"] . "manager/includes";
-	    include_once $baspath . "/tmplvars.format.inc.php";
-	    include_once $baspath . "/tmplvars.commands.inc.php";
-
-		$tb1 = $modx->getFullTableName("site_tmplvar_contentvalues");
-		$tb2 = $modx->getFullTableName("site_tmplvars");
-
-		$query = "SELECT stv.name,stc.tmplvarid,stc.contentid,stv.type,stv.display,stv.display_params,stc.value";
-		$query .= " FROM ".$tb1." stc LEFT JOIN ".$tb2." stv ON stv.id=stc.tmplvarid ";
-		$query .= " WHERE stv.name='".$tvname."' AND stc.contentid IN (".implode($docIDs,",").") ORDER BY stc.contentid ASC;";
-		$rs = $modx->db->query($query);
+		$baspath= $modx->config['base_path'] . 'manager/includes/';
+		include_once "{$baspath}tmplvars.format.inc.php";
+		include_once "{$baspath}tmplvars.commands.inc.php";
+		
+		$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+		$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+		
+		$joined_ids = join(',',$docIDs);
+		$field = 'stv.name,stc.tmplvarid,stc.contentid,stv.type,stv.display,stv.display_params,stc.value';
+		$from  = "{$tbl_site_tmplvar_contentvalues} stc LEFT JOIN {$tbl_site_tmplvars} stv ON stv.id=stc.tmplvarid";
+		$where = "stv.name='{$tvname}' AND stc.contentid IN ({$joined_ids})";
+		$orderby = 'stc.contentid ASC';
+		$rs = $modx->db->select($field,$from,$where,$orderby);
 		$tot = $modx->db->getRecordCount($rs);
 		$resourceArray = array();
-		for($i=0;$i<$tot;$i++)  {
-			$row = @$modx->db->getRow($rs);
+		while($row = $modx->db->getRow($rs))
+		{
 			$resourceArray["#{$row['contentid']}"][$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'],$row['contentid']);   
 		}
-
-		if ($tot != count($docIDs)) {
-			$query = "SELECT name,type,display,display_params,default_text";
-			$query .= " FROM $tb2";
-			$query .= " WHERE name='{$tvname}' LIMIT 1";
-			$rs = $modx->db->query($query);
+		
+		if ($tot != count($docIDs))
+		{
+			$field = 'name,type,display,display_params,default_text';
+			$rs = $modx->db->select($field, $tbl_site_tmplvars, "name='{$tvname}'", '', '1');
 			$row = @$modx->db->getRow($rs);
 			$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
-			foreach ($docIDs as $id) {
-				if (!isset($resourceArray["#{$id}"])) {
+			foreach ($docIDs as $id)
+			{
+				if (!isset($resourceArray["#{$id}"]))
+				{
 					$resourceArray["#{$id}"][$tvname] = $defaultOutput;
 				}
 			}
@@ -664,7 +667,9 @@ class Wayfinder {
 			// TODO: make it so that it only pulls those that apply to the current template
 		$dbfields = array();
 		while ($dbfield = $modx->db->getRow($tvs))
+		{
 			$dbfields[] = $dbfield['name'];
+		}
 		return $dbfields;
 	}
 	
@@ -737,14 +742,21 @@ class Wayfinder {
 	function fetch($tpl){
 		// based on version by Doze at http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
 		global $modx;
-		$template = "";
-		if ($modx->getChunk($tpl) != "") {
+		$template = '';
+		if ($modx->getChunk($tpl) != '')
+		{
 			$template = $modx->getChunk($tpl);
-		} else if(substr($tpl, 0, 5) == "@FILE") {
+		}
+		elseif(substr($tpl, 0, 5) == '@FILE')
+		{
 			$template = file_get_contents(substr($tpl, 6));
-		} else if(substr($tpl, 0, 5) == "@CODE") {
+		}
+		elseif(substr($tpl, 0, 5) == '@CODE')
+		{
 			$template = substr($tpl, 6);
-		} else {
+		}
+		else
+		{
 			$template = FALSE;
 		}
 		return $template;
@@ -753,10 +765,12 @@ class Wayfinder {
 	function findTemplateVars($tpl) {
 		preg_match_all('~\[\+(.*?)\+\]~', $tpl, $matches);
 		$cnt = count($matches[1]);
-				
+		
 		$tvnames = array ();
-		for ($i = 0; $i < $cnt; $i++) {
-			if (strpos($matches[1][$i], "wf.") === FALSE) {
+		for ($i = 0; $i < $cnt; $i++)
+		{
+			if (strpos($matches[1][$i], 'wf.') === FALSE)
+			{
 				$tvnames[] =  $matches[1][$i];
 			}
 		}
