@@ -560,6 +560,19 @@ class Wayfinder {
 				}
 				$useTextField = (empty($tempDocInfo[$this->_config['textOfLinks']])) ? 'pagetitle' : $this->_config['textOfLinks'];
 				$tempDocInfo['linktext'] = $tempDocInfo[$useTextField];
+				if(strpos($this->_config['titleOfLinks'],',')!==false)
+				{
+					$_ = explode(',', $this->_config['titleOfLinks']);
+					foreach($_ as $v)
+					{
+						$v = trim($v);
+						if(isset($tempDocInfo[$v]))
+						{
+							$this->_config['titleOfLinks'] = $v;
+							break;
+						}
+					}
+				}
 				$tempDocInfo['title'] = $tempDocInfo[$this->_config['titleOfLinks']];
 				//If tvs were specified keep array flat otherwise array becomes level->parent->doc
 				if (!empty($this->tvList))
