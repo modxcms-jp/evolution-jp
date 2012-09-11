@@ -545,6 +545,19 @@ class Wayfinder {
 				$tempDocInfo['level'] = $level;
 				$prevParent = $tempDocInfo['parent'];
 				//determine other output options
+				if(strpos($this->_config['textOfLinks'],',')!==false)
+				{
+					$_ = explode(',', $this->_config['textOfLinks']);
+					foreach($_ as $v)
+					{
+						$v = trim($v);
+						if(isset($tempDocInfo[$v]))
+						{
+							$this->_config['textOfLinks'] = $v;
+							break;
+						}
+					}
+				}
 				$useTextField = (empty($tempDocInfo[$this->_config['textOfLinks']])) ? 'pagetitle' : $this->_config['textOfLinks'];
 				$tempDocInfo['linktext'] = $tempDocInfo[$useTextField];
 				$tempDocInfo['title'] = $tempDocInfo[$this->_config['titleOfLinks']];
