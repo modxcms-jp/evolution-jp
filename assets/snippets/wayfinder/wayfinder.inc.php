@@ -287,6 +287,7 @@ class Wayfinder {
 			$this->addDebugInfo("rowdata","{$resource['parent']}:{$resource['id']}","Doc: #{$resource['id']}","The following fields were retrieved from the database for this document.",$resource);
 		}
 		//Process the row
+		
         $output .= str_replace($usePlaceholders,$phArray,$useChunk);
 		//Return the row
         return $output . $this->_config['nl'];
@@ -510,18 +511,24 @@ class Wayfinder {
 			}
 			$resultIds = array();
 			//loop through the results
-			for($i=0;$i<$numResults;$i++)  {
-				$tempDocInfo = $modx->db->getRow($result);
+			while($tempDocInfo = $modx->db->getRow($result))
+			{
 				$resultIds[] = $tempDocInfo['id'];
 				//Create the link
 				$linkScheme = $this->_config['fullLink'] ? 'full' : '';
-				if ($this->_config['useWeblinkUrl'] !== 'FALSE' && $tempDocInfo['type'] == 'reference') {
-					if (is_numeric($tempDocInfo['content'])) {
+				if ($this->_config['useWeblinkUrl'] !== 'FALSE' && $tempDocInfo['type'] == 'reference')
+				{
+					if (is_numeric($tempDocInfo['content']))
+					{
 						$tempDocInfo['link'] = $modx->makeUrl(intval($tempDocInfo['content']),'','',$linkScheme);
-					} else {
+					}
+					else
+					{
 						$tempDocInfo['link'] = $tempDocInfo['content'];
 					}
-				} elseif ($tempDocInfo['id'] == $modx->config['site_start']) {
+				}
+				elseif ($tempDocInfo['id'] == $modx->config['site_start'])
+				{
 					$tempDocInfo['link'] = $modx->config['site_url'];
 				} else {
 					$tempDocInfo['link'] = $modx->makeUrl($tempDocInfo['id'],'','',$linkScheme);
@@ -542,23 +549,31 @@ class Wayfinder {
 				$tempDocInfo['linktext'] = $tempDocInfo[$useTextField];
 				$tempDocInfo['title'] = $tempDocInfo[$this->_config['titleOfLinks']];
 				//If tvs were specified keep array flat otherwise array becomes level->parent->doc
-				if (!empty($this->tvList)) {
+				if (!empty($this->tvList))
+				{
 					$tempResults[] = $tempDocInfo;
-				} else {
+				}
+				else
+				{
 					$resourceArray[$tempDocInfo['level']][$tempDocInfo['parent']][] = $tempDocInfo;
 				}
 	        }
 			//Process the tvs
-			if (!empty($this->tvList) && !empty($resultIds)) {
+			if (!empty($this->tvList) && !empty($resultIds))
+			{
 				$tvValues = array();
 				//loop through all tvs and get their values for each document
-				foreach ($this->tvList as $tvName) {
+				foreach ($this->tvList as $tvName)
+				{
 					$tvValues = array_merge_recursive($this->appendTV($tvName,$resultIds),$tvValues);
 				}
 				//loop through the document array and add the tvar values to each document
-				foreach ($tempResults as $tempDocInfo) {
-					if (array_key_exists("#{$tempDocInfo['id']}",$tvValues)) {
-						foreach ($tvValues["#{$tempDocInfo['id']}"] as $tvName => $tvValue) {
+				foreach ($tempResults as $tempDocInfo)
+				{
+					if (array_key_exists("#{$tempDocInfo['id']}",$tvValues))
+					{
+						foreach ($tvValues["#{$tempDocInfo['id']}"] as $tvName => $tvValue)
+						{
 							$tempDocInfo[$tvName] = $tvValue;
 						}
 					}
@@ -628,46 +643,70 @@ class Wayfinder {
 	}
 	
 	//debugging to check for valid chunks
-    function checkTemplates() {
-        global $modx;
+	function checkTemplates()
+	{
+		global $modx;
 		$nonWayfinderFields = array();
-
-        foreach ($this->_templates as $n => $v) {
-            $templateCheck = $this->fetch($v);
-            if (empty($v) || !$templateCheck) {
-                if ($n === 'outerTpl') {
-                    $this->_templates[$n] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
-                } elseif ($n === 'rowTpl') {
-                    $this->_templates[$n] = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
-				} elseif ($n === 'startItemTpl') {
-					$this->_templates[$n] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
-                } else {
-                    $this->_templates[$n] = FALSE;
-                }
-				if ($this->_config['debug']) { $this->addDebugInfo('template',$n,$n,"No template found, using default.",array($n => $this->_templates[$n])); }
-            } else {
-                $this->_templates[$n] = $templateCheck;
+		
+		foreach ($this->_templates as $n => $v)
+		{
+			$templateCheck = $this->fetch($v);
+			if (empty($v) || !$templateCheck)
+			{
+				switch($n)
+				{
+					case 'outerTpl':
+						$this->_templates['outerTpl'] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
+						break;
+					case 'rowTpl':
+						$this->_templates['rowTpl']   = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
+						break;
+					case 'startItemTpl':
+						$this->_templates['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
+						break;
+					default:
+						$this->_templates[$n] = FALSE;
+				}
+				
+				if ($this->_config['debug'])
+				{
+					$this->addDebugInfo('template',$n,$n,"No template found, using default.",array($n => $this->_templates[$n]));
+				}
+			}
+			else
+			{
+				$this->_templates[$n] = $templateCheck;
 				$check = $this->findTemplateVars($templateCheck);
-				if (is_array($check)) {
+				if (is_array($check))
+				{
 					$nonWayfinderFields = array_merge($check, $nonWayfinderFields);
 				}
-				if ($this->_config['debug']) { $this->addDebugInfo('template',$n,$n,"Template Found.",array($n => $this->_templates[$n])); }
-            }			
-        }
+				if ($this->_config['debug'])
+				{
+					$this->addDebugInfo('template',$n,$n,"Template Found.",array($n => $this->_templates[$n]));
+				}
+			}
+		}
 		
-		if (!empty($nonWayfinderFields)) {
+		if (!empty($nonWayfinderFields))
+		{
 			$nonWayfinderFields = array_unique($nonWayfinderFields);
 			$allTvars = $this->getTVList();
-
-			foreach ($nonWayfinderFields as $field) {
-				if (in_array($field, $allTvars)) {
+			
+			foreach ($nonWayfinderFields as $field)
+			{
+				if (in_array($field, $allTvars))
+				{
 					$this->placeHolders['tvs'][] = "[+{$field}+]";
 					$this->tvList[] = $field;
 				}
 			}
-			if ($this->_config['debug']) { $this->addDebugInfo('tvars','tvs','Template Variables',"The following template variables were found in your templates.",$this->tvList); }
+			if ($this->_config['debug'])
+			{
+				$this->addDebugInfo('tvars','tvs','Template Variables',"The following template variables were found in your templates.",$this->tvList);
+			}
 		}
-    }
+	}
 	
 	function fetch($tpl){
 		// based on version by Doze at http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
