@@ -625,39 +625,11 @@ class Wayfinder {
 	function appendTV($tvname,$docIDs){
 		global $modx;
 		
-		$baspath= $modx->config['base_path'] . 'manager/includes/';
-		include_once "{$baspath}tmplvars.format.inc.php";
-		include_once "{$baspath}tmplvars.commands.inc.php";
-		
-		$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-		$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-		
-		$joined_ids = join(',',$docIDs);
-		$field = 'stv.name,stc.tmplvarid,stc.contentid,stv.type,stv.display,stv.display_params,stc.value';
-		$from  = "{$tbl_site_tmplvar_contentvalues} stc LEFT JOIN {$tbl_site_tmplvars} stv ON stv.id=stc.tmplvarid";
-		$where = "stv.name='{$tvname}' AND stc.contentid IN ({$joined_ids})";
-		$orderby = 'stc.contentid ASC';
-		$rs = $modx->db->select($field,$from,$where,$orderby);
-		$tot = $modx->db->getRecordCount($rs);
 		$resourceArray = array();
-		while($row = $modx->db->getRow($rs))
+		foreach($docIDs as $id)
 		{
-			$resourceArray["#{$row['contentid']}"][$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'],$row['contentid']);   
-		}
-		
-		if ($tot != count($docIDs))
-		{
-			$field = 'name,type,display,display_params,default_text';
-			$rs = $modx->db->select($field, $tbl_site_tmplvars, "name='{$tvname}'", '', '1');
-			$row = @$modx->db->getRow($rs);
-			$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
-			foreach ($docIDs as $id)
-			{
-				if (!isset($resourceArray["#{$id}"]))
-				{
-					$resourceArray["#{$id}"][$tvname] = $defaultOutput;
-				}
-			}
+			$tv = $modx->getTemplateVarOutput($tvname, $id);
+			$resourceArray["#{$id}"][$tvname] = $tv[$tvname];
 		}
 		return $resourceArray;
 	}
