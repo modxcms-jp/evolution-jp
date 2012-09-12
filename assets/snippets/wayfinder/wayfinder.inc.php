@@ -662,13 +662,13 @@ class Wayfinder {
 		
 	function getTVList() {
 		global $modx;
-		$table = $modx->getFullTableName("site_tmplvars");
-		$tvs = $modx->db->select("name", $table);
+		$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+		$tvs = $modx->db->select('name', $tbl_site_tmplvars);
 			// TODO: make it so that it only pulls those that apply to the current template
 		$dbfields = array();
-		while ($dbfield = $modx->db->getRow($tvs))
+		while ($row = $modx->db->getRow($tvs))
 		{
-			$dbfields[] = $dbfield['name'];
+			$dbfields[] = $row['name'];
 		}
 		return $dbfields;
 	}
@@ -811,11 +811,14 @@ class Wayfinder {
 	
 	function renderDebugOutput() {
 		$output = '<table border="1" cellpadding="3px" width="100%">';
-		foreach ($this->debugInfo as $group => $item) {
-			switch ($group) {
+		foreach ($this->debugInfo as $group => $item)
+		{
+			switch ($group)
+			{
 				case 'template':
 					$output .= "<tr><th style=\"background:#C3D9FF;font-size:200%;\">Template Processing</th></tr>";
-					foreach ($item as $parentId => $info) {
+					foreach ($item as $parentId => $info)
+					{
 						$output .= "
 							<tr style=\"background:#336699;color:#fff;\"><th>{$info['header']} - <span style=\"font-weight:normal;\">{$info['message']}</span></th></tr>
 							<tr><td>{$info['info']}</td></tr>";
@@ -824,15 +827,18 @@ class Wayfinder {
 				case 'wrapper':
 					$output .= "<tr><th style=\"background:#C3D9FF;font-size:200%;\">Document Processing</th></tr>";
 					
-					foreach ($item as $parentId => $info) {
+					foreach ($item as $parentId => $info)
+					{
 						$output .= "<tr><table border=\"1\" cellpadding=\"3px\" style=\"margin-bottom: 10px;\" width=\"100%\">
 									<tr style=\"background:#336699;color:#fff;\"><th>{$info['header']} - <span style=\"font-weight:normal;\">{$info['message']}</span></th></tr>
 									<tr><td>{$info['info']}</td></tr>
 									<tr style=\"background:#336699;color:#fff;\"><th>Documents included in this wrapper:</th></tr>";
-															
-						foreach ($this->debugInfo['row'] as $key => $value) {
+						
+						foreach ($this->debugInfo['row'] as $key => $value)
+						{
 							$keyParts = explode(':',$key);
-							if ($parentId == $keyParts[0]) {
+							if ($parentId == $keyParts[0])
+							{
 								$output .= "<tr style=\"background:#eee;\"><th>{$value['header']}</th></tr>
 									<tr><td><div style=\"float:left;margin-right:1%;\">{$value['message']}<br />{$value['info']}</div><div style=\"float:left;\">{$this->debugInfo['rowdata'][$key]['message']}<br />{$this->debugInfo['rowdata'][$key]['info']}</div></td></tr>";
 							}
@@ -861,13 +867,10 @@ class Wayfinder {
 	
 	function modxPrep($value) {
 		global $modx;
-		$value = (strpos($value,"<") !== FALSE) ? htmlentities($value,ENT_NOQUOTES,$modx->config["modx_charset"]) : $value;
-		$value = str_replace("[","&#091;",$value);
-		$value = str_replace("]","&#093;",$value);
-		$value = str_replace("{","&#123;",$value);
-		$value = str_replace("}","&#125;",$value);
+		$value = (strpos($value,'<') !== FALSE) ? htmlentities($value,ENT_NOQUOTES,$modx->config['modx_charset']) : $value;
+		$s = array('[', ']', '{', '}');
+		$r = array('&#091;', '&#093;', '&#123;', '&#125;');
+		$value = str_replace($s, $r, $value);
 		return $value;
 	}
 }
-
-?>
