@@ -434,8 +434,8 @@ class Wayfinder {
 			//Setup the fields for the query
 			$fields = "sc.id, sc.menutitle, sc.pagetitle, sc.introtext, sc.menuindex, sc.published, sc.hidemenu, sc.parent, sc.isfolder, sc.description, IF(sc.alias='', sc.id, sc.alias) AS alias, sc.longtitle, sc.type,if(sc.type='reference',sc.content,'') as content, sc.template, sc.link_attributes";
 	        //Get the table names
-	        $tblsc = $modx->getFullTableName("site_content");
-	        $tbldg = $modx->getFullTableName("document_groups");
+	        $tbl_site_content    = $modx->getFullTableName('site_content');
+	        $tbl_document_groups = $modx->getFullTableName('document_groups');
 	        //Add the ignore hidden option to the where clause
 	        if ($this->_config['ignoreHidden']) {
 	            $menuWhere = '';
@@ -496,8 +496,8 @@ class Wayfinder {
 			 if(strpos($modx->db->getVersion(),'5.0.51')===false) $groupby = 'GROUP BY sc.id';
 			 else                                                 $groupby = '';
 			$sql = "
-				SELECT DISTINCT {$fields} FROM {$tblsc} sc
-					LEFT JOIN {$tbldg} dg ON dg.document = sc.id
+				SELECT DISTINCT {$fields} FROM {$tbl_site_content} sc
+					LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id
 					WHERE sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids})
 					{$groupby}
 					ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};
@@ -536,50 +536,66 @@ class Wayfinder {
 				elseif ($tempDocInfo['id'] == $modx->config['site_start'])
 				{
 					$tempDocInfo['link'] = $modx->config['site_url'];
-				} else {
+				}
+				else
+				{
 					$tempDocInfo['link'] = $modx->makeUrl($tempDocInfo['id'],'','',$linkScheme);
 				}
 				//determine the level, if parent has changed
-				if ($prevParent !== $tempDocInfo['parent']) {
+				if ($prevParent !== $tempDocInfo['parent'])
+				{
 					$level = count($modx->getParentIds($tempDocInfo['id'])) + 1 - $startLevel;
 				}
 				//add parent to hasChildren array for later processing
-				if (($level > 1 || $this->_config['displayStart']) && !in_array($tempDocInfo['parent'],$this->hasChildren)) {
+				if (($level > 1 || $this->_config['displayStart']) && !in_array($tempDocInfo['parent'],$this->hasChildren))
+				{
 					$this->hasChildren[] = $tempDocInfo['parent'];
 				}
 				//set the level
 				$tempDocInfo['level'] = $level;
 				$prevParent = $tempDocInfo['parent'];
 				//determine other output options
+				$useTextField = '';
 				if(strpos($this->_config['textOfLinks'],',')!==false)
 				{
 					$_ = explode(',', $this->_config['textOfLinks']);
 					foreach($_ as $v)
 					{
 						$v = trim($v);
-						if(isset($tempDocInfo[$v]))
+						if(!empty($tempDocInfo[$v]))
 						{
-							$this->_config['textOfLinks'] = $v;
+							$useTextField = $v;
 							break;
 						}
 					}
+					if(empty($useTextField)) $useTextField = 'pagetitle';
 				}
-				$useTextField = (empty($tempDocInfo[$this->_config['textOfLinks']])) ? 'pagetitle' : $this->_config['textOfLinks'];
+				elseif(!empty($tempDocInfo[$this->_config['textOfLinks']]))
+				{
+					$useTextField = $this->_config['textOfLinks'];
+				}
+				else $useTextField = 'pagetitle';
+				
 				$tempDocInfo['linktext'] = $tempDocInfo[$useTextField];
+				
+				$useTitleField = '';
 				if(strpos($this->_config['titleOfLinks'],',')!==false)
 				{
 					$_ = explode(',', $this->_config['titleOfLinks']);
 					foreach($_ as $v)
 					{
 						$v = trim($v);
-						if(isset($tempDocInfo[$v]))
+						if(!empty($tempDocInfo[$v]))
 						{
-							$this->_config['titleOfLinks'] = $v;
+							$useTitleField = $v;
 							break;
 						}
 					}
 				}
-				$tempDocInfo['title'] = $tempDocInfo[$this->_config['titleOfLinks']];
+				else $useTitleField = $this->_config['titleOfLinks'];
+				
+				$tempDocInfo['title'] = $tempDocInfo[$useTitleField];
+				
 				//If tvs were specified keep array flat otherwise array becomes level->parent->doc
 				if (!empty($this->tvList))
 				{
