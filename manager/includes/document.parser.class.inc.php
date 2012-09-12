@@ -3287,16 +3287,20 @@ class DocumentParser {
         $t= preg_replace('~{{(.*?)}}~', '', $t); //chunks
         return $t;
     }
-
-    # add an event listner to a plugin - only for use within the current execution cycle
-    function addEventListener($evtName, $pluginName) {
-	    if (!$evtName || !$pluginName)
-		    return false;
-	    if (!isset($this->pluginEvent[$evtName]))
-		    $this->pluginEvent[$evtName] = array();
-	    return $this->pluginEvent[$evtName][] = $pluginName; // return array count
-    }
-
+	
+	# add an event listner to a plugin - only for use within the current execution cycle
+	function addEventListener($evtName, $pluginName)
+	{
+		if(!$evtName || !$pluginName) return false;
+		
+		if (!isset($this->pluginEvent[$evtName]))
+		{
+			$this->pluginEvent[$evtName] = array();
+		}
+		
+		return $this->pluginEvent[$evtName][] = $pluginName; // return array count
+	}
+	
     # remove event listner - only for use within the current execution cycle
     function removeEventListener($evtName, $pluginName='') {
         if (!$evtName)
