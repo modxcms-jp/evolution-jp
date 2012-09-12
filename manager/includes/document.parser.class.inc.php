@@ -2895,31 +2895,41 @@ class DocumentParser {
 		}
 	}
 
-    # returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVarOutput($idnames= array (), $docid= '', $published= 1, $sep='') {
-        if (count($idnames) == 0) {
-            return false;
-        } else {
-            $output= array ();
-            $vars= ($idnames == '*' || is_array($idnames)) ? $idnames : array ($idnames);
-            $docid= intval($docid) ? intval($docid) : $this->documentIdentifier;
-            $result= $this->getTemplateVars($vars, '*', $docid, $published, '', '', $sep); // remove sort for speed
-            if ($result == false)
-                return false;
-            else {
-		$baspath= $this->config["base_path"] . "manager/includes";
-		include_once $baspath . "/tmplvars.format.inc.php";
-		include_once $baspath . "/tmplvars.commands.inc.php";
-		for ($i= 0; $i < count($result); $i++) {
-			$row= $result[$i];
-			if (!$row['id'])
-				$output[$row['name']]= $row['value'];
-			else	$output[$row['name']]= getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
+	# returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
+	function getTemplateVarOutput($idnames= array (), $docid= '', $published= 1, $sep='')
+	{
+		if (count($idnames) == 0)
+		{
+			return false;
 		}
-		return $output;
-            }
-        }
-    }
+		else
+		{
+			$output= array ();
+			$vars   = ($idnames == '*' || is_array($idnames)) ? $idnames : array ($idnames);
+			$docid  = intval($docid) ? intval($docid) : $this->documentIdentifier;
+			$result = $this->getTemplateVars($vars, '*', $docid, $published, '', '', $sep); // remove sort for speed
+			
+			if ($result == false) return false;
+			else
+			{
+				$core_path = $this->config['base_path'] . 'manager/includes/';
+				include_once "{$core_path}tmplvars.format.inc.php";
+				include_once "{$core_path}tmplvars.commands.inc.php";
+				foreach($result as $row)
+				{
+					if (!$row['id'])
+					{
+						$output[$row['name']] = $row['value'];
+					}
+					else
+					{
+						$output[$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
+					}
+				}
+				return $output;
+			}
+		}
+	}
 
 # returns the full table name based on db settings
 	function getFullTableName($tbl)
@@ -3103,7 +3113,7 @@ class DocumentParser {
 	# Change current web user's password - returns true if successful, oterhwise return error message
 	function changeWebUserPassword($oldPwd, $newPwd)
 	{
-		if ($_SESSION["webValidated"] != 1) return false;
+		if ($_SESSION['webValidated'] != 1) return false;
 		
 		$tbl_web_users= $this->getFullTableName('web_users');
 		$uid = $this->getLoginUserID();
@@ -3112,35 +3122,26 @@ class DocumentParser {
 		if ($total != 1) return false;
 		
 		$row= $this->db->getRow($ds);
-		if ($row["password"] == md5($oldPwd))
+		if ($row['password'] == md5($oldPwd))
 		{
-			if (strlen($newPwd) < 6)
-			{
-				return 'Password is too short!';
-			}
-			elseif ($newPwd == '')
-			{
-				return "You didn't specify a password for this user!";
-			}
+			if (strlen($newPwd) < 6) return 'Password is too short!';
+			elseif ($newPwd == '')   return "You didn't specify a password for this user!";
 			else
 			{
 				$newPwd = $this->db->escape($newPwd);
 				$this->db->update("password = md5('{$newPwd}')", $tbl_web_users, "id='{$uid}'");
 				// invoke OnWebChangePassword event
-				$this->invokeEvent("OnWebChangePassword",
+				$this->invokeEvent('OnWebChangePassword',
 				array
 				(
-					"userid" => $row["id"],
-					"username" => $row["username"],
-					"userpassword" => $newPwd
+					'userid' => $row['id'],
+					'username' => $row['username'],
+					'userpassword' => $newPwd
 				));
 				return true;
 			}
 		}
-		else
-		{
-			return 'Incorrect password.';
-		}
+		else return 'Incorrect password.';
 	}
 	
 	# returns true if the current web user is a member the specified groups
@@ -3152,13 +3153,13 @@ class DocumentParser {
 		$grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
 		if (!is_array($grpNames))
 		{
-			$tbl_webgroup_names= $this->getFullTableName("webgroup_names");
-			$tbl_web_groups= $this->getFullTableName("web_groups");
+			$tbl_webgroup_names= $this->getFullTableName('webgroup_names');
+			$tbl_web_groups= $this->getFullTableName('web_groups');
 			$uid = $this->getLoginUserID();
 			$sql= "SELECT wgn.name
 			FROM {$tbl_webgroup_names} wgn
 			INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
-			$grpNames= $this->db->getColumn("name", $sql);
+			$grpNames= $this->db->getColumn('name', $sql);
 			
 			// save to cache
 			$_SESSION['webUserGroupNames']= $grpNames;
@@ -3170,20 +3171,27 @@ class DocumentParser {
 		return false;
 	}
 
-    # Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
-    function regClientCSS($src, $media='') {
-        if (empty($src) || isset ($this->loadedjscripts[$src]))
-            return '';
-        $nextpos= max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-        $this->loadedjscripts[$src]['startup']= true;
-        $this->loadedjscripts[$src]['version']= '0';
-        $this->loadedjscripts[$src]['pos']= $nextpos;
-        if (strpos(strtolower($src), "<style") !== false || strpos(strtolower($src), "<link") !== false) {
-            $this->sjscripts[$nextpos]= $src;
-        } else {
-            $this->sjscripts[$nextpos]= "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.($media ? 'media="'.$media.'" ' : '').'/>';
-        }
-    }
+	# Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
+	function regClientCSS($src, $media='')
+	{
+		if (empty($src) || isset ($this->loadedjscripts[$src])) return '';
+		
+		$nextpos = max(array_merge(array(0),array_keys($this->sjscripts)))+1;
+		
+		$this->loadedjscripts[$src]['startup'] = true;
+		$this->loadedjscripts[$src]['version'] = '0';
+		$this->loadedjscripts[$src]['pos']     = $nextpos;
+		
+		if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
+		{
+			$this->sjscripts[$nextpos]= $src;
+		}
+		else
+		{
+			$media = $media ? 'media="' . $media . '" ' : '';
+			$this->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
+		}
+	}
 
     # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
 	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
@@ -3192,12 +3200,9 @@ class DocumentParser {
 		
 		if (!is_array($options))
 		{
-			if (is_bool($options))  // backward compatibility with old plaintext parameter
-				$options = array('plaintext'=>$options);
-			elseif (is_string($options)) // Also allow script name as 2nd param
-				$options = array('name'=>$options);
-			else
-				$options = array();
+			if(is_bool($options))       $options = array('plaintext'=>$options);
+			elseif(is_string($options)) $options = array('name'=>$options);
+			else                        $options = array();
 		}
 		$name      = isset($options['name'])      ? strtolower($options['name']) : '';
 		$version   = isset($options['version'])   ? $options['version'] : '0';
@@ -3208,8 +3213,7 @@ class DocumentParser {
 		if (isset($this->loadedjscripts[$key]))
 		{ // a matching script was found
 			// if existing script is a startup script, make sure the candidate is also a startup script
-			if ($this->loadedjscripts[$key]['startup'])
-				$startup= true;
+			if ($this->loadedjscripts[$key]['startup']) $startup= true;
 			
 			if (empty($name))
 			{
@@ -3223,42 +3227,39 @@ class DocumentParser {
 			if ($useThisVer)
 			{
 				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{
-					// remove old script from the bottom of the page (new one will be at the top)
+				{ // remove old script from the bottom of the page (new one will be at the top)
 					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
 				}
 				else
-				{
-					// overwrite the old script (the position may be important for dependent scripts)
+				{ // overwrite the old script (the position may be important for dependent scripts)
 					$overwritepos= $this->loadedjscripts[$key]['pos'];
 				}
 			}
 			else
 			{ // Use the original version
 				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{
-					// need to move the exisiting script to the head
+				{ // need to move the exisiting script to the head
 					$version= $this->loadedjscripts[$key][$version];
 					$src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
 					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
 				}
-				else
-				{
-					return ''; // the script is already in the right place
-				}
+				else return ''; // the script is already in the right place
 			}
 		}
 		
 		if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
+		{
 			$src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
+		}
+		
 		if ($startup)
 		{
-			$pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
+			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
 			$this->sjscripts[$pos]= $src;
 		}
 		else
 		{
-			$pos= isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
+			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
 			$this->jscripts[$pos]= $src;
 		}
 		$this->loadedjscripts[$key]['version']= $version;
