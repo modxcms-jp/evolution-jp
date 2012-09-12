@@ -261,6 +261,12 @@ class Wayfinder {
 		//Load row values into placholder array
 		$phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
 		
+		foreach($resource as $k=>$v)
+		{
+			$this->placeHolders['rowLevel'][] = "[+{$k}+]";
+			$phArray[] = $v;
+		}
+		
 		//If tvs are used add them to the placeholder array
 		if (!empty($this->tvList))
 		{
