@@ -3298,7 +3298,9 @@ class DocumentParser {
 			$this->pluginEvent[$evtName] = array();
 		}
 		
-		return $this->pluginEvent[$evtName][] = $pluginName; // return array count
+		$result = array_push($this->pluginEvent[$evtName], $pluginName);
+		
+		return $result; // return array count
 	}
 	
     # remove event listner - only for use within the current execution cycle
