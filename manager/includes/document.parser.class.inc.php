@@ -2822,7 +2822,7 @@ class DocumentParser {
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
 	{
-		if (($idnames!='*' && !is_array($idnames)) || count($idnames) == 0)
+		if (($idnames!='*' && !is_array($idnames)) || (is_array($idnames) && count($idnames) == 0))
 		{
 			return false;
 		}
@@ -2850,9 +2850,14 @@ class DocumentParser {
 			}
 			else
 			{
-				$tvnames = $this->db->escape(implode("\t", $idnames));
-				$tvnames = str_replace("\t","','",$tvnames);
-				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ('{$tvnames}')";
+				$i = 0;
+				foreach($idnames as $idname)
+				{
+					$idnames[$i] = "'" . $this->db->escape($idname) . "'";
+					$i++;
+				}
+				$tvnames = implode(',', $idnames);
+				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
 			}
 			if ($docgrp= $this->getUserDocGroups())
 			{
