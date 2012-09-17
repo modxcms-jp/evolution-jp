@@ -234,12 +234,12 @@ if($modx->hasPermission('help')) { ?>
 // Concatenate menu items based on permissions
 
 // Site Menu
-$menu['home']         = item($_lang['home'], 2);             // home
-$menu['preview']      = item($_lang['preview'], '../', 1, 'target="_blank"'); // preview
-$menu['refresh_site'] = item($_lang['refresh_site'], 26,$modx->hasPermission('empty_cache'));    // clear-cache
-$menu['search']       = item($_lang['search'], 71);          // search
-$menu['add_resource'] = item($_lang['add_resource'], 4,$modx->hasPermission('new_document')); // new-document
-$menu['add_weblink']  = item($_lang['add_weblink'], 72,$modx->hasPermission('new_document')); // new-weblink
+$item['home']         = item($_lang['home'], 2);             // home
+$item['preview']      = item($_lang['preview'], '../', 1, 'target="_blank"'); // preview
+$item['refresh_site'] = item($_lang['refresh_site'], 26,$modx->hasPermission('empty_cache'));    // clear-cache
+$item['search']       = item($_lang['search'], 71);          // search
+$item['add_resource'] = item($_lang['add_resource'], 4,$modx->hasPermission('new_document')); // new-document
+$item['add_weblink']  = item($_lang['add_weblink'], 72,$modx->hasPermission('new_document')); // new-weblink
 
 // Resources Menu
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')
@@ -252,39 +252,43 @@ if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')
 else $perm_element_management = 0;
 $perm_manage_metatags = ($modx->hasPermission('manage_metatags') && $modx->config['show_meta'] == 1) ? 1 : 0;
 
-$menu['element_management'] = item($_lang['element_management'], 76,$perm_element_management);// Elements
-$menu['manage_files']       = item($_lang['manage_files'], 31,$modx->hasPermission('file_manager'));// Manage-Files
-$menu['manage_metatags']    = item($_lang['manage_metatags'], 81, $perm_manage_metatags); // Manage-Metatags
+$item['element_management'] = item($_lang['element_management'], 76,$perm_element_management);// Elements
+$item['manage_files']       = item($_lang['manage_files'], 31,$modx->hasPermission('file_manager'));// Manage-Files
+$item['manage_metatags']    = item($_lang['manage_metatags'], 81, $perm_manage_metatags); // Manage-Metatags
 
 // Modules Menu Items
-$moduleitem = array();
 $perm_module_management = ($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) ? 1 : 0;
-$moduleitem['module_management']    = item($_lang['module_management'], 106,$perm_module_management);// manage-modules
+$item['modules']['module_management'] = item($_lang['module_management'], 106,$perm_module_management);// manage-modules
 if($modx->hasPermission('exec_module'))
 {
 	// Each module
+	$tbl_site_modules       = $modx->getFullTableName('site_modules');
+	$tbl_site_module_access = $modx->getFullTableName('site_module_access');
+	$tbl_member_groups      = $modx->getFullTableName('member_groups');
+	$uid = $modx->getLoginUserID();
 	if ($_SESSION['mgrRole'] != 1)
 	{
 		// Display only those modules the user can execute
-		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, mg.member
-				FROM '.$modx->getFullTableName('site_modules').' AS sm
-				LEFT JOIN '.$modx->getFullTableName('site_module_access').' AS sma ON sma.module = sm.id
-				LEFT JOIN '.$modx->getFullTableName('member_groups').' AS mg ON sma.usergroup = mg.user_group
-				WHERE (mg.member IS NULL OR mg.member = '.$modx->getLoginUserID().') AND sm.disabled != 1
-				ORDER BY sm.editedon DESC');
+		$field = 'sm.id, sm.name, mg.member';
+		$from = "{$tbl_site_modules}                 AS sm "
+		       ."LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id "
+		       ."LEFT JOIN {$tbl_member_groups}      AS mg  ON sma.usergroup = mg.user_group";
+		$where   = "(mg.member IS NULL OR mg.member='{$uid}') AND sm.disabled != 1";
+		$orderby = 'sm.editedon DESC';
+		$rs = $modx->db->select($field, $from, $where, $orderby);
 	}
 	else
 	{
 		// Admins get the entire list
-		$rs = $modx->db->select('id,name', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+		$rs = $modx->db->select('id,name', $tbl_site_modules, 'disabled != 1', 'editedon DESC');
 	}
 	
 	while ($content = $modx->db->getRow($rs))
 	{
-		$moduleitem[] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
+		$item['modules'][$content['name']] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
 	}
-	if(0<count($moduleitem)) $modulemenu = join("\n", $moduleitem);
-	else                     $modulemenu = false;
+	if(0<count($item['modules'])) $modulemenu = join("\n", $item['modules']);
+	else                          $modulemenu = false;
 }
 
 // Security menu items (users)
@@ -292,30 +296,31 @@ $perm_role_management = ($modx->hasPermission('new_role') || $modx->hasPermissio
 $perm_mgruser = ($modx->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
 $perm_webuser = ($modx->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
 
-$menu['user_management']     = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
-$menu['web_user_management'] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
-$menu['role_management']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
-$menu['manager_permissions'] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
-$menu['web_permissions']     = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
+$item['user_management']     = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
+$item['web_user_management'] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
+$item['role_management']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
+$item['manager_permissions'] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
+$item['web_permissions']     = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
 
 // Tools Menu
-$menu['bk_manager']    = item($_lang['bk_manager'], 93,$modx->hasPermission('bk_manager'));// backup-mgr
-$menu['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
-$menu['import_site']   = item($_lang['import_site'], 95,$modx->hasPermission('import_static'));// import-html
-$menu['export_site']   = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
-$menu['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
+$item['bk_manager']    = item($_lang['bk_manager'], 93,$modx->hasPermission('bk_manager'));// backup-mgr
+$item['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
+$item['import_site']   = item($_lang['import_site'], 95,$modx->hasPermission('import_static'));// import-html
+$item['export_site']   = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
+$item['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
 
 // Reports Menu
-$menu['site_schedule']   = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
-$menu['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
-$menu['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
-$menu['view_sysinfo']    = item($_lang['view_sysinfo'], 53);// system-info
+$item['site_schedule']   = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
+$item['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
+$item['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
+$item['view_sysinfo']    = item($_lang['view_sysinfo'], 53);// system-info
 
-$sitemenu     = buildMenu('site',$menu);
-$elementmenu  = buildMenu('element',$menu);
-$securitymenu = buildMenu('security',$menu);
-$toolsmenu    = buildMenu('tools',$menu);
-$reportsmenu  = buildMenu('reports',$menu);
+$sitemenu     = buildMenu('site',$item);
+$elementmenu  = buildMenu('element',$item);
+//$modulemenu   = buildMenu('module',$item);//$item['modules']
+$securitymenu = buildMenu('security',$item);
+$toolsmenu    = buildMenu('tools',$item);
+$reportsmenu  = buildMenu('reports',$item);
 
 // Output Menus where there are items to show
 if (!empty($sitemenu)) {
@@ -367,10 +372,8 @@ function item($name, $href, $display=1, $attrib='target="main"')
 	return $modx->parsePlaceholder($tpl, $ph);
 }
 
-function buildMenu($target,$array)
+function buildMenu($target,$item)
 {
-	if($_SESSION['mgrRole']==1) return $array;
-	
 	$menu['site']     = 'home,preview,refresh_site,search,add_resource,add_weblink';
 	$menu['element']  = 'element_management,manage_files,manage_metatags';
 	$menu['module']   = 'modules';
@@ -384,7 +387,12 @@ function buildMenu($target,$array)
 	foreach($a as $v)
 	{
 		$v = trim($v);
-		if(isset($array[$v])) $result[] = $array[$v];
+		if(isset($item[$v])) $result[] = $item[$v];
+		elseif(isset($item['modules'][$v]))
+		{
+			$result[] = $item['modules'][$v];
+			unset($item['modules'][$v]);
+		}
 	}
 	
 	if(0<count($result)) return join("\n", $result);
