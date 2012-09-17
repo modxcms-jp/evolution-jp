@@ -38,9 +38,9 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 
 if($name=="") $name = "Untitled snippet";
 
-switch ($_POST['mode']) {
-    case '23':
-
+switch ($_POST['mode'])
+{
+	case '23':
 		// invoke OnBeforeSnipFormSave event
 		$modx->invokeEvent("OnBeforeSnipFormSave",
 								array(
@@ -51,9 +51,10 @@ switch ($_POST['mode']) {
 		// disallow duplicate names for new snippets
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_snippets,"name = '{$name}'");
 		$count = $modx->db->getValue($rs);
-		if($count > 0) {
+		if($count > 0)
+		{
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang["snippet"], $name));
-
+			
 			// prepare a few variables prior to redisplaying form...
 			$_REQUEST['id'] = 0;
 			$_REQUEST['a'] = '23';
@@ -82,37 +83,35 @@ switch ($_POST['mode']) {
 		$field['locked']      = $locked;
 		$field['properties']  = $properties;
 		$field['category']    = $categoryid;
-		$rs = $modx->db->insert($field,$tbl_site_snippets);
-		if(!$rs){
+		$newid = $modx->db->insert($field,$tbl_site_snippets);
+		if(!$newid)
+		{
 			echo "\$rs not set! New snippet not saved!";
 			exit;
 		}
-		else {
-			// get the id
-			if(!$newid=$modx->db->->getInsertId()) {
-				echo "Couldn't get last insert key!";
-				exit;
-			}
-
-			// invoke OnSnipFormSave event
-			$modx->invokeEvent("OnSnipFormSave",
-									array(
-										"mode"	=> "new",
-										"id"	=> $newid
-									));
-			// empty cache
-			$modx->clearCache(); // first empty the cache
-			// finished emptying cache - redirect
-			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "22&id={$newid}":"23";
-				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
-			} else {
-				$header="Location: index.php?a=76";
-			}
-			header($header);
+		
+		// invoke OnSnipFormSave event
+		$modx->invokeEvent("OnSnipFormSave",
+								array(
+									"mode"	=> "new",
+									"id"	=> $newid
+								));
+		// empty cache
+		$modx->clearCache(); // first empty the cache
+		// finished emptying cache - redirect
+		if($_POST['stay']!='')
+		{
+			$a = ($_POST['stay']=='2') ? "22&id={$newid}":"23";
+			$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 		}
-        break;
-    case '22':
+		else
+		{
+			$header="Location: index.php?a=76";
+		}
+		header($header);
+		break;
+		
+	case '22':
 		// invoke OnBeforeSnipFormSave event
 		$modx->invokeEvent("OnBeforeSnipFormSave",
 								array(
@@ -130,11 +129,13 @@ switch ($_POST['mode']) {
 		$field['properties']  = $properties;
 		$field['category']    = $categoryid;
 		$rs = $modx->db->update($field,$tbl_site_snippets,"id='{$id}'");
-		if(!$rs){
+		if(!$rs)
+		{
 			echo "\$rs not set! Edited snippet not saved!";
 			exit;
 		}
-		else {
+		else
+		{
 			// invoke OnSnipFormSave event
 			$modx->invokeEvent("OnSnipFormSave",
 									array(
@@ -143,12 +144,15 @@ switch ($_POST['mode']) {
 									));
 			// empty cache
 			$modx->clearCache(); // first empty the cache
-			if($_POST['runsnippet']) run_snippet($snippet);
+			//if($_POST['runsnippet']) run_snippet($snippet);
 			// finished emptying cache - redirect
-			if($_POST['stay']!='') {
+			if($_POST['stay']!='')
+			{
 				$a = ($_POST['stay']=='2') ? "22&id={$id}":"23";
 				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
-			} else {
+			}
+			else
+			{
 				$header="Location: index.php?a=76";
 			}
 			header($header);
