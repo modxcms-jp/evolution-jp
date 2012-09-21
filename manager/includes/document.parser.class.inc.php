@@ -778,6 +778,7 @@ class DocumentParser {
 				$this->config['base_url']= MODX_BASE_URL;
 			}
 			$this->config['base_path']= MODX_BASE_PATH;
+			$this->config['core_path']= MODX_CORE_PATH;
 			if(!isset($this->config['site_url']) || empty($this->config['site_url']))
 			{
 				$this->config['site_url']= MODX_SITE_URL;
@@ -2912,7 +2913,7 @@ class DocumentParser {
 			if ($result == false) return false;
 			else
 			{
-				$core_path = $this->config['base_path'] . 'manager/includes/';
+				$core_path = $this->config['core_path'];
 				include_once "{$core_path}tmplvars.format.inc.php";
 				include_once "{$core_path}tmplvars.commands.inc.php";
 				foreach($result as $row)
@@ -3574,7 +3575,7 @@ class DocumentParser {
         elseif($_GET['a']) $action = $_GET['a'];
         if(isset($action) && !empty($action))
         {
-        	include_once $this->config['base_path'] . 'manager/includes/actionlist.inc.php';
+        	include_once($this->config['core_path'] . 'actionlist.inc.php');
         	global $action_list;
         	if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
         	else $actionName = '';

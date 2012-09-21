@@ -398,7 +398,7 @@ function SetUrl(url, width, height, alt) {
 			<select name="categoryid" onchange="documentDirty=true;">
 				<option>&nbsp;</option>
 <?php
-				include_once "categories.inc.php";
+				include_once($modx->config['core_path'].'categories.inc.php');
 				$ds = getCategories();
 				if ($ds) {
 					foreach($ds as $n => $v) {

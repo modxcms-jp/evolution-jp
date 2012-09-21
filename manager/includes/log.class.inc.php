@@ -60,7 +60,7 @@ class logHandler {
 			return;
 		}
 		if($this->entry['msg'] == "") {
-			include_once "actionlist.inc.php";
+			include_once($modx->config['core_path'] . 'actionlist.inc.php');
 			$this->entry['msg'] = getAction($this->entry['action'], $this->entry['itemId']);
 			if($this->entry['msg'] == "") {
 				$this->logError("couldn't find message to write to log.");

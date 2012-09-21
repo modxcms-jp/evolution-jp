@@ -65,7 +65,7 @@ window.addEvent('domready', function() {
 		<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
 <?php
 	// get all available actions in the log
-	include_once "actionlist.inc.php";
+	include_once($modx->config['core_path'] . 'actionlist.inc.php');
 	$logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
 	foreach ($logs_actions as $row) {
 		$action = getAction($row['action']);

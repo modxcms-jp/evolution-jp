@@ -229,7 +229,7 @@ if(!$modx->hasPermission('logs')) {
 		
 		$timetocheck = (time()-(60*20));
 
-		include_once "actionlist.inc.php";
+		include_once($modx->config['core_path'] . 'actionlist.inc.php');
 		$tbl_active_users = $modx->getFullTableName('active_users');
 		
 		$rs = $modx->db->select('*',$tbl_active_users,"lasthit>{$timetocheck}",'username ASC');

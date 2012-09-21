@@ -169,7 +169,7 @@ function deletedocument() {
 		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 				<option>&nbsp;</option>
 		        <?php
-		            include_once "categories.inc.php";
+		            include_once($modx->config['core_path'].'categories.inc.php');
 					$ds = getCategories();
 					if($ds) foreach($ds as $n=>$v)
 					{

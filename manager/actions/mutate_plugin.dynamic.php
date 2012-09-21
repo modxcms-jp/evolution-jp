@@ -615,7 +615,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		<td align="left"><select name="categoryid" id="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 		<option>&nbsp;</option>
 		<?php
-		    include_once "categories.inc.php";
+		    include_once($modx->config['core_path'].'categories.inc.php');
 			$ds = getCategories();
 			if($ds) foreach($ds as $n=>$v){
 				echo "<option value='".$v['id']."'" . selected($content["category"]==$v["id"]) . ">".htmlspecialchars($v["category"])."</option>";

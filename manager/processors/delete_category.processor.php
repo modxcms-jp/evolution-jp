@@ -10,7 +10,7 @@ if($modx->hasPermission('save_plugin') ||
 
 if ($hasPermission) {
     $catId = intval($_GET['catId']);
-    include_once "categories.inc.php";
+    include_once($modx->config['core_path'].'categories.inc.php');
     deleteCategory($catId);
 }
 header("Location: index.php?a=76");

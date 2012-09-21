@@ -5,7 +5,7 @@
  * ダッシュボードに「オンラインユーザー」を表示します。
  *
  * @category 	plugin
- * @version 	0.1
+ * @version 	0.1.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerWelcomeRender
  * @internal	@modx_category Manager and Admin
@@ -20,7 +20,7 @@ $ph['online'] = $_lang['online'];
 $ph['onlineusers_title'] = $_lang['onlineusers_title'];
 $timetocheck = (time()-(60*20));//+$server_offset_time;
 
-include_once($modx->config['base_path'] . 'manager/includes/actionlist.inc.php');
+include_once($modx->config['core_path'] . 'actionlist.inc.php');
 $tbl_active_users = $modx->getFullTableName('active_users');
 $rs = $modx->db->select('*',$tbl_active_users,"lasthit>'{$timetocheck}'",'username ASC');
 $limit = $modx->db->getRecordCount($rs);

@@ -289,7 +289,7 @@ if (is_array($evtOut))
 		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
 			<option>&nbsp;</option>
 <?php
-include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
+include_once($modx->config['core_path'].'categories.inc.php');
 $ds = getCategories();
 if ($ds) {
 			foreach ($ds as $n => $v) {
