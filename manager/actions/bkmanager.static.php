@@ -30,6 +30,7 @@ if ($mode=='restore1')
 		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
 	}
 	import_sql($source);
+	header('Location: index.php?r=9&a=93');
 	exit;
 }
 elseif ($mode=='restore2')
@@ -39,6 +40,7 @@ elseif ($mode=='restore2')
 	{
 		$source = file_get_contents($path);
 		import_sql($source);
+		header('Location: index.php?r=9&a=93');
 	}
 	exit;
 }
@@ -571,6 +573,9 @@ class Mysqldumper {
 function import_sql($source,$result_code='import_ok')
 {
 	global $modx;
+	
+	$settings = getSettings();
+	
 	$source = str_replace(array("\r\n","\r"),"\n",$source);
 	$sql_array = preg_split('@;[ \t]*\n@', $source);
 	foreach($sql_array as $sql_entry)
@@ -579,6 +584,8 @@ function import_sql($source,$result_code='import_ok')
 		if(empty($sql_entry)) continue;
 		$rs = $modx->db->query($sql_entry);
 	}
+	restoreSettings($settings);
+	
 	$modx->clearCache();
 	if(0 < $modx->db->getRecordCount($rs))
 	{
@@ -589,7 +596,6 @@ function import_sql($source,$result_code='import_ok')
 	}
 	
 	$_SESSION['result_msg'] = $result_code;
-	header("Location: index.php?r=9&a=93");
 }
 
 function callBack(&$dumpstring) {
@@ -614,3 +620,36 @@ function snapshot(&$dumpstring) {
 	return true;
 }
 
+function getSettings()
+{
+	global $modx;
+	
+	$tbl_system_settings = $modx->getFullTableName('system_settings');
+	$rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
+	
+	$settings = array();
+	while ($row = $modx->db->getRow($rs))
+	{
+		switch($row['setting_name'])
+		{
+			case 'rb_base_dir':
+			case 'filemanager_path':
+			case 'site_url':
+			case 'base_url':
+				$settings[$row['setting_name']] = $row['setting_value'];
+				break;
+		}
+	}
+	return $settings;
+}
+
+function restoreSettings($settings)
+{
+	global $modx;
+	
+	$tbl_system_settings = $modx->getFullTableName('system_settings');
+	foreach($settings as $k=>$v)
+	{
+		$modx->db->update(array('setting_value'=>$v),$tbl_system_settings,"setting_name='{$k}'");
+	}
+}
