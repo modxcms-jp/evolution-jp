@@ -34,18 +34,28 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         function document_onload() {
             stopWorker();
             hideLoader();
-            <?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>;
+            <?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : '' ;?>;
         };
 
+        function doRefresh(r) {
+            try
+            {
+                rr = r;
+                top.mainMenu.startrefresh(rr);
+            }
+            catch(oException)
+            {
+                vv = window.setTimeout('doRefresh()',500);
+            }
+        }
+        
 		function reset_path(elementName) {
 	  		document.getElementById(elementName).value = document.getElementById('default_' + elementName).innerHTML;
 		}
 
         var dontShowWorker = false;
         function document_onunload() {
-            if(!dontShowWorker) {
-                top.mainMenu.work();
-            }
+            if(!dontShowWorker) top.mainMenu.work();
         };
 
         // set tree to default action.
@@ -53,50 +63,41 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 
 		// call the updateMail function, updates mail notification in top navigation
 		if (top.mainMenu) {
-			if(top.mainMenu.updateMail) {
-				top.mainMenu.updateMail(true);
-			}
+			if(top.mainMenu.updateMail) top.mainMenu.updateMail(true);
 		}
 		
         function stopWorker() {
-            try {
+            try
+            {
                 parent.mainMenu.stopWork();
-            } catch(oException) {
+            }
+            catch(oException)
+            {
                 ww = window.setTimeout('stopWorker()',500);
             }
         }
 
-        function doRefresh(r) {
-            try {
-                rr = r;
-                top.mainMenu.startrefresh(rr);
-            } catch(oException) {
-                vv = window.setTimeout('doRefresh()',500);
-            }
-        }
         var documentDirty=false;
 
         function checkDirt(evt) {
-            if(documentDirty==true) {
+            if(documentDirty==true)
+            {
 				var message = "<?php echo $_lang['warning_not_saved']; ?>";
-				if (typeof evt == 'undefined') {
-					evt = window.event;
-            }
-				if (evt) {
-					evt.returnValue = message;
-        }
+				
+				if (typeof evt == 'undefined') evt = window.event;
+				if (evt)                       evt.returnValue = message;
+				
 				return message;
   			}
         }
 
         function saveWait(fName) {
-            document.getElementById("savingMessage").innerHTML = "<?php echo $_lang['saving']; ?>";
-            for(i = 0; i < document.forms[fName].elements.length; i++) {
+            document.getElementById('savingMessage').innerHTML = "<?php echo $_lang['saving']; ?>";
+            for(i = 0; i < document.forms[fName].elements.length; i++)
+            {
                 document.forms[fName].elements[i].disabled='disabled';
             }
         }
-
-        var managerPath = "";
 
         function hideLoader() {
             document.getElementById('preLoader').style.display = "none";
@@ -105,11 +106,16 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         hideL = window.setTimeout("hideLoader()", 1500);
 
         // add the 'unsaved changes' warning event handler
-        if( window.addEventListener ) {
+        if( window.addEventListener )
+        {
 			window.addEventListener('beforeunload',checkDirt,false);
-		} else if ( window.attachEvent ) {
+		}
+		else if ( window.attachEvent )
+		{
 			window.attachEvent('onbeforeunload',checkDirt);
-		} else {
+		}
+		else
+		{
 			window.onbeforeunload = checkDirt;
 		}
 		/* ]]> */
