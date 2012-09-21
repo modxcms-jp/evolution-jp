@@ -20,7 +20,9 @@
 
 // Set the name of the plugin folder
 $plugin_dir = "tinymce";
-$mce_version = '3.5.4.1';
+$mce_version = '3.5.6';
+
+global $usersettings,$settings;
 
 // Set path and base setting variables
 if(!isset($mce_path))
@@ -50,7 +52,14 @@ switch ($e->name)
 		$params['mce_version']     = $mce_version;
 		$params['css_selectors']   = $modx->config['tinymce_css_selectors'];
 		$params['use_browser']     = $modx->config['use_browser'];
-		$params['editor_css_path'] = $modx->config['editor_css_path'];
+		if(!empty($usersettings['editor_css_path']))
+		{
+			$params['editor_css_path'] = $usersettings['editor_css_path'];
+		}
+		else
+		{
+			$params['editor_css_path'] = $settings['editor_css_path'];
+		}
 		
 		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mgrValidated'])))
 		{
@@ -91,7 +100,6 @@ switch ($e->name)
 		break;
 
 	case "OnInterfaceSettingsRender":
-		global $usersettings,$settings;
 		switch ($modx->manager->action)
 		{
     		case 11:
@@ -99,6 +107,10 @@ switch ($e->name)
         		break;
     		case 12:
         		$mce_settings = $usersettings;
+    			if(!empty($usersettings['tinymce_editor_theme']))
+    			{
+    				$usersettings['tinymce_editor_theme'] = $settings['tinymce_editor_theme'];
+    			}
         		break;
     		case 17:
         		$mce_settings = $settings;
