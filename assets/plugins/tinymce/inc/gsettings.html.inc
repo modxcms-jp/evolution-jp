@@ -8,7 +8,7 @@ textarea.mce {width:95%;height:40px;display:block;}
   <tr class="row1" style="display: [+display+];">
     <th>[+mce_editor_theme_title+]</th>
     <td>
-    <select name="tinymce_editor_theme" onchange="documentDirty=true;">
+    <select name="tinymce_editor_theme" class="inputBox" onchange="documentDirty=true;">
     [+theme_options+]
 	</select>
     <div>[+mce_editor_theme_message+]</div>
@@ -17,7 +17,7 @@ textarea.mce {width:95%;height:40px;display:block;}
   <tr class="row1" style="display: [+display+];">
     <th>[+mce_editor_skin_title+]</th>
     <td>
-    <select name="mce_editor_skin" onchange="documentDirty=true;">
+    <select name="mce_editor_skin" class="inputBox" onchange="documentDirty=true;">
     [+skin_options+]
 	</select>
     <div>[+mce_editor_skin_message+]</div>
