@@ -34,6 +34,7 @@ class MODxMailer extends PHPMailer
 		
 		$this->IsMail();
 		$this->From     = $modx->config['emailsender'];
+		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
 		
 		switch(strtolower($modx->config['manager_language']))
