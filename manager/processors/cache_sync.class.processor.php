@@ -80,11 +80,7 @@ class synccache {
 		$instance_name = strtolower($instance_name);
 		if($instance_name!=='documentparser') global $modx;
 		
-		if(!isset($this->cachePath))
-		{
-			echo "Cache path not set.";
-			exit;
-		}
+		if(!isset($this->cachePath)) exit('Cache path not set.');
 		
 		if(strpos($this->target,'pagecache')!==false) $result = $this->emptyPageCache('pageCache');
 		if(strpos($this->target,'sitecache')!==false) $this->buildCache($modx);
@@ -229,11 +225,7 @@ class synccache {
 		
 		$rs = file_put_contents($cache_path, $content, LOCK_EX);
 		
-		if (!$rs)
-		{
-			echo "Cannot open file ({$filename})";
-			exit;
-		}
+		if (!$rs) exit("Cannot open file ({$filename})");
 	}
 	
 	/**
@@ -264,50 +256,43 @@ class synccache {
 		
 		if(!file_put_contents($this->cachePath .'siteCache.idx.php', $content, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($this->config);
 		if(!file_put_contents($this->cachePath .'config.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($modx->aliasListing);
 		if(!file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($modx->documentMap);
 		if(!file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($modx->chunkCache);
 		if(!file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($modx->snippetCache);
 		if(!file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		$str = serialize($modx->pluginCache);
 		if(!file_put_contents($this->cachePath .'plugin.siteCache.idx.php', $str, LOCK_EX))
 		{
-			echo 'Cannot write main MODX cache file! Make sure the "' . $this->cachePath . '" directory is writable!';
-			exit;
+			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
 		// invoke OnCacheUpdate event

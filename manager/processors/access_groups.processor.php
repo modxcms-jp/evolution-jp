@@ -178,6 +178,5 @@ header("Location: index.php?a=40");
 
 function warning($msg)
 {
-	echo $msg;
-	exit;
+	exit($msg);
 }
