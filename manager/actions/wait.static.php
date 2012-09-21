@@ -11,8 +11,7 @@ else
 	$ph['reload'] = 'document.location.href="index.php?a=2"';
 
 $tpl = get_tpl();
-$haystack = array('[+_lang_cleaningup+]','[+_lang_actioncomplete+]','[+reload+]');
-echo str_replace($haystack,$ph,$tpl);
+echo $modx->parsePlaceholder($tpl,$ph);
 
 function get_tpl()
 {
