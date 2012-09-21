@@ -374,14 +374,10 @@ function changeTemplate() {
 	}
 	if (curTemplate == newTemplate) {return;}
 
-	if (documentDirty==false) {
-		documentDirty=false;
-		document.mutate.a.value = <?php echo $action?>;
-		document.mutate.newtemplate.value = newTemplate;
-		document.mutate.submit();
-	} else {
-		dropTemplate[curTemplateIndex].selected = true;
-	}
+	documentDirty=false;
+	document.mutate.a.value = <?php echo $action?>;
+	document.mutate.newtemplate.value = newTemplate;
+	document.mutate.submit();
 }
 
 // Added for RTE selection
