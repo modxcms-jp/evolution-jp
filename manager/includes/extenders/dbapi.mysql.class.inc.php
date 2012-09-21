@@ -259,7 +259,7 @@ class DBAPI {
 	* @name:  update
 	*
 	*/
-	function update($fields, $table, $where = '')
+	function update($fields, $table, $where = '', $orderby='', $limit='')
 	{
 		if(!$table) return false;
 		else
@@ -269,12 +269,14 @@ class DBAPI {
 			{
 				foreach ($fields as $key => $value)
 				{
-					$pair[] = "{$key}='{$value}'";
+					$pair[] = "`{$key}`='{$value}'";
 				}
 				$pairs = join(',',$pair);
 			}
 			if($where != '') $where = "WHERE {$where}";
-			return $this->query("UPDATE {$table} SET {$pairs} {$where}");
+			if($orderby !== '') $orderby = "ORDER BY {$orderby}";
+			if($limit !== '')   $limit   = "LIMIT {$limit}";
+			return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
 		}
 	}
 	
