@@ -49,7 +49,6 @@ switch ($e->name)
 	case "OnRichTextEditorInit": 
 		if($editor!=="TinyMCE") return;
 		
-		$params['mce_version']     = $mce_version;
 		$params['css_selectors']   = $modx->config['tinymce_css_selectors'];
 		$params['use_browser']     = $modx->config['use_browser'];
 		if(!empty($usersettings['editor_css_path']))

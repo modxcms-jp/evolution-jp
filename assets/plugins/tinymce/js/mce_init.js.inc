@@ -1,4 +1,4 @@
-<script language="javascript" type="text/javascript" src="[+mce_url+]jscripts/tiny_mce/tiny_mce.js?[+mce_version+]"></script>
+<script language="javascript" type="text/javascript" src="[+mce_url+]jscripts/tiny_mce/tiny_mce.js?[+refresh_seed+]"></script>
 <script language="javascript" type="text/javascript" src="[+mce_url+]js/xconfig.js"></script>
 <script language="javascript" type="text/javascript">
 tinyMCE.init({

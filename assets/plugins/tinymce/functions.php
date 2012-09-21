@@ -221,7 +221,7 @@ class TinyMCE
 	{
 		global $modx;
 		
-		$ph['mce_version'] = $params['mce_version'];
+		$ph['refresh_seed'] = filesize("{$this->mce_path}jscripts/tiny_mce/tiny_mce.js");
 		$ph['mce_url'] = $params['mce_url'];
 		$ph['elmList'] = implode(",", $params['elements']);
 		$ph['width'] = (!empty($params['width'])) ? $params['width'] : '100%';
