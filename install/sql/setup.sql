@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups` (
   `document_group` int(10) NOT NULL default '0',
   `document` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`),
-  KEY `document` (document),
-  KEY `document_group` (document_group)
+  KEY `document` (`document`),
+  KEY `document_group` (`document_group`)
 ) ENGINE=MyISAM COMMENT='Contains data used for access permissions.';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names` (
