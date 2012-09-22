@@ -1,15 +1,16 @@
 /*
- * Small script to keep session alive in MODx
+ * Small script to keep session alive in MODX
  */
-function keepMeAlive() {
-    var sessionJSON = new Ajax('includes/session_keepalive.php?tok=' + document.getElementById('sessTokenInput').value + '&o=' + Math.random(), {
-        method: 'get',
-        onComplete: function(sessionResponse) {
-            resp = Json.evaluate(sessionResponse);
-            if(resp.status != 'ok') {
-                window.location.href = 'index.php?a=8';
-            }
-        }
-    }).request();
+function keepMeAlive()
+{
+	var tok = document.getElementById('sessTokenInput').value;
+	var o = Math.random();
+	var url = 'includes/session_keepalive.php';
+	
+	$j.getJSON(url, {'tok':tok,'o':o},
+	function(resp)
+	{
+		if(resp.status != 'ok') window.location.href = 'index.php?a=8';
+    });
 }
-window.setInterval("keepMeAlive()", 1000 * 60);
+window.setInterval('keepMeAlive()', 1000 * 60);
