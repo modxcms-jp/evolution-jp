@@ -176,8 +176,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
-                url = 'index.php?a=1&f=nodes&indent='+indent+'&parent='+parent+'&expandAll='+expandAll+folderState;
-                $j.ajax({type:'GET',url:url,success:rpcLoadData});
+                $j.get('index.php',{a:'1',f:'nodes',indent:indent,parent:parent,expandAll:expandAll+folderState},rpcLoadData);
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -225,21 +224,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=1';
-        $j.ajax({type:'GET',url:url,success:rpcLoadData});
+        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'1'},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=0';
-        $j.ajax({type:'GET',url:url,success:rpcLoadData});
+        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'0'},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        url = 'index.php?a=1&f=nodes&indent=1&parent=0&expandAll=2';
-        $j.ajax({type:'GET',url:url,success:rpcLoadData});
+        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'2'},rpcLoadData);
     }
 
     function setSelected(elSel) {
@@ -277,9 +273,11 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function updateTree() {
         rpcNode = document.getElementById('treeRoot');
-        treeParams = 'a=1&f=nodes&indent=1&parent=0&expandAll=2&dt=' + document.sortFrm.dt.value + '&tree_sortby=' + document.sortFrm.sortby.value + '&tree_sortdir=' + document.sortFrm.sortdir.value;
-        url = 'index.php?'+treeParams;
-        $j.ajax({type:'GET',url:url,success:rpcLoadData});
+        var dt = document.sortFrm.dt.value;
+        var t_sortby = document.sortFrm.sortby.value;
+        var t_sortdir = document.sortFrm.sortdir.value;
+        
+        $j.get(url,{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'2',dt:dt,tree_sortby:t_sortby,tree_sortdir:t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
@@ -354,7 +352,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function saveFolderState() {
         var folderState = getFolderState();
         url = 'index.php?a=1&f=nodes&savestateonly=1'+folderState;
-        $j.ajax({type:'GET',url:url});
+        $j.get(url);
     }
 
     // show state of recycle bin
