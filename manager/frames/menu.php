@@ -14,7 +14,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	<title>nav</title>
 	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css" />
 	<script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="media/script/session.js"></script>
 	<script type="text/javascript">
 	// TREE FUNCTIONS - FRAME
 	// These functions affect the tree frame and any items that may be pointing to the tree.
@@ -27,6 +26,20 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	var msgcheck = <?php echo $modx->hasPermission('messages') ? 1 : 0 ;?>;
 	
 	var $j = jQuery.noConflict();
+	
+	function keepMeAlive()
+	{
+		var tok = document.getElementById('sessTokenInput').value;
+		var o = Math.random();
+		var url = 'includes/session_keepalive.php';
+		
+		$j.getJSON(url, {'tok':tok,'o':o},
+		function(resp)
+		{
+			if(resp.status != 'ok') window.location.href = 'index.php?a=8';
+	    });
+	}
+	window.setInterval('keepMeAlive()', 1000 * 60);
 	
 	function updateMail(now)
 	{
