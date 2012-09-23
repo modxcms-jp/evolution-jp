@@ -4,7 +4,7 @@
  *
  * This page is requested once in awhile to keep the session alive and kicking.
  */
-define('IN_MANAGER_MODE', true);
+define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
 $core_path = str_replace('\\','/',realpath('../../')) . '/manager/includes/';
 include_once("{$core_path}config.inc.php");
