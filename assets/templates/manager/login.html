@@ -60,47 +60,39 @@
 	label#FMP-email_label {padding-left:0;}
     </style>
 
-    <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
+    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
     /* <![CDATA[ */
+        var $j = jQuery.noConflict();
         if (top.frames.length!=0) {
             top.location=self.document.location;
         }
         
-        window.addEvent('domready', function() {
-            $('submitButton').addEvent('click', function(e) {
-                 e = new Event(e).stop();
-                 params = 'ajax=1&' + $('loginfrm').toQueryString();
+        $j(function() {
+            $j('#submitButton').click(function(e) {
+				var $form = $j('#loginfrm');
+				var query = $form.serialize();
+				var params = $form.serializeArray();
+				params['ajax'] = 1;
                  url = 'processors/login.processor.php';
-                 new Ajax(url,
-                    {
-                        method: 'post',
-                        postBody: params,
-                        onComplete:ajaxReturn
-                    }
-                ).request();
-                $$('input').setProperty('readonly', 'readonly');
+                 $j.post(url,params,ajaxReturn);
             });  
 			
 			// Initial focus
-			if ($('username').value != '') {
-				$('password').focus();
-			} else {
-				$('username').focus();
-			}
-			   
+			if ($j('#username').val() != '') $j('#password').focus();
+			else                             $j('#username').focus();
+			
         });
 
         function ajaxReturn(response) {
             var header = response.substr(0,9);
             if (header.toLowerCase()=='location:') top.location = response.substr(10);
             else {
-                var cimg = $('captcha_image');
+                var cimg = document.getElementById('captcha_image');
                 if (cimg) {
                 	cimg.src = '../captcha.php?rand=' + Math.random();
                 }
-                $$('input').removeProperty('readonly');
                 alert(response);
             }
         }
