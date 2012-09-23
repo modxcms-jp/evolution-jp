@@ -1384,7 +1384,7 @@ function tooltip($msg)
 	$ph['icons_tooltip'] = "'{$_style['icons_tooltip']}'";
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
 	$ph['msg'] = $msg;
-	$tpl = '&nbsp;&nbsp;<img src="[+icons_tooltip_over+]" onmouseover="this.src=[+icons_tooltip+];" onmouseout="this.src=\'[+icons_tooltip_over+]\'" alt="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" />';
+	$tpl = '&nbsp;&nbsp;<img src="[+icons_tooltip_over+]" onmouseover="this.src=[+icons_tooltip+];" onmouseout="this.src=\'[+icons_tooltip_over+]\'" alt="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
 
