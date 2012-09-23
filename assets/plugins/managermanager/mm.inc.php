@@ -29,24 +29,8 @@ class MANAGERMANAGER
 		
 		extract($modx->event->params);
 		$mm_version = '0.3.12'; 
-		$js_default_url_local = $modx->config['site_url']. 'manager/media/script/jquery/jquery.min.js';
-		$js_default_url_remote = 'http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js';
 		
 		// Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
-		
-		// JS URL
-		switch ($which_jquery)
-		{
-			case 'local (assets/js)':
-				$js_url  = $js_default_url_local;
-				break;
-			case 'remote (google code)':
-				$js_url  = $js_default_url_remote;
-				break;
-			case 'manual url (specify below)':
-				$js_url  = $js_src_override;
-				break;
-		}
 		
 		// Should we remove deprecated Template variable types from the TV creation list?
 		$remove_deprecated_tv_types = ($remove_deprecated_tv_types_pref == 'yes') ? true : false;
@@ -264,10 +248,8 @@ class MANAGERMANAGER
 				
 				// Load the jquery library
 				$output = '<!-- Begin ManagerManager output -->' . "\n";
-				$output .= includeJs($js_url, 'html');
 				
 				$output .= '<script type="text/javascript">' . "\n";
-				$output .= "var \$j = jQuery.noConflict(); \n"; //produces var  $j = jQuery.noConflict();
 		
 				$output .= "mm_lastTab = 'tabEvents'; \n";
 				$e->output($output);
@@ -293,7 +275,6 @@ class MANAGERMANAGER
 				case '300':
 				case '301':
 					$output  = '<!-- Begin ManagerManager output -->' . "\n";
-					$output .= includeJs($js_url, 'html');
 					$e->output($output);
 					break;
 				default: return;
@@ -304,16 +285,11 @@ class MANAGERMANAGER
 		case 'OnDocFormPrerender':
 			// Load the jquery library
 			echo '<!-- Begin ManagerManager output -->' . "\n";
-			$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
-			$rs = $modx->db->select('`name`',$tbl_system_eventnames,"`name`='OnManagerMainFrameHeaderHTMLBlock'");
-			if($modx->db->getRecordCount($rs)<1) echo includeJs($js_url, 'html');
 			
 			// Create a mask to cover the page while the fields are being rearranged
 			echo '
 				<div id="loadingmask">&nbsp;</div>
 				<script type="text/javascript">
-				var $j = jQuery.noConflict();
-		
 					$j("#loadingmask").css( {width: "100%", height: $j("body").height(), position: "absolute", zIndex: "1000", backgroundColor: "#ffffff"} );
 				</script>
 			';
@@ -333,8 +309,6 @@ class MANAGERMANAGER
 		<!-- You are logged into the following role: '. $mm_current_page['role'] .' -->
 				
 		<script type="text/javascript" charset="'.$modx->config['modx_charset'].'">
-		var $j = jQuery.noConflict();
-				
 		var mm_lastTab = "tabGeneral";
 		var mm_sync_field_count = 0;
 		var synch_field = new Array();
@@ -440,7 +414,6 @@ class MANAGERMANAGER
 				// Create a mask to cover the page while the fields are being rearranged
 				echo '
 					<script type="text/javascript">
-					var $j = jQuery.noConflict();
 					$j("select[name=type] option").each( function() {
 														var $this = $j(this);
 														if( !($this.text().match("deprecated")==null )) {
