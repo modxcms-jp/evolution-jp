@@ -5,9 +5,9 @@
  * 投稿画面を自由自在にカスタマイズ。
  *
  * @category 	plugin
- * @version 	0.3.12
+ * @version 	0.3.12.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes &which_jquery=jQuery source;list;local (assets/js),remote (google code),manual url (specify below);local (assets/js) &js_src_override=jQuery URL override;text;
+ * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes;
  * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnTVFormRender,OnManagerMainFrameHeaderHTMLBlock
  * @internal	@modx_category Manager and Admin
  * @internal    @legacy_names Image TV Preview, Show Image TVs
@@ -24,7 +24,6 @@
 // create the chunk, and enter its name in the configuration tab.
 // The chunk should NOT have php tags at the beginning or end
 
-// ManagerManager requires jQuery 1.3+
 // The URL to the jQuery library. Choose from the configuration tab whether you want to use
 // a local copy (which defaults to the jQuery library distributed with ModX 1.0.1)
 // a remote copy (which defaults to the Google Code hosted version)
