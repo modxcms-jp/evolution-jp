@@ -186,7 +186,7 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
-window.addEvent('domready', function(){
+$j(function(){
 	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
 	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
 	var dayNames = <?php echo $dayNames;?>;
