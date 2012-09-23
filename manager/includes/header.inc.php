@@ -24,12 +24,16 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 ?>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
+    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
-        window.addEvent('load', document_onload);
-        window.addEvent('beforeunload', document_onunload);
+		
+		var $j = jQuery.noConflict();
+		
+        $j(document_onload());
+        $j.bind('beforeunload', document_onunload());
         
         function document_onload() {
             stopWorker();
@@ -100,10 +104,10 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
 
         function hideLoader() {
-            document.getElementById('preLoader').style.display = "none";
+            $j('#preLoader').css('display','none');
         }
 
-        hideL = window.setTimeout("hideLoader()", 1500);
+        hideL = window.setTimeout("hideLoader()", 150);
 
         // add the 'unsaved changes' warning event handler
         if( window.addEventListener )
