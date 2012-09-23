@@ -2,6 +2,8 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
+$version = intval($version);
+
 run_update($simple_version);
 
 if(!isset($modx->config['manager_theme']) || substr($settings_version,0,4)=='0.9.' || $modx->config['manager_theme']==='MODxCarbon')
@@ -13,25 +15,19 @@ function run_update($version)
 {
 	global $modx;
 	
-	$version = intval($version);
-	
-	if($version < 100)
-	{
+	if($version < 100) {
 		update_tbl_system_eventnames('100');
 	}
 	
-	if($version < 102)
-	{
+	if($version < 102) {
 		update_tbl_system_eventnames('102');
 	}
 	
-	if($version < 104)
-	{
+	if($version < 104) {
 		update_tbl_user_roles();
 	}
 	
-	if($version < 105)
-	{
+	if($version < 105) {
 		update_tbl_system_eventnames('105');
 		update_tbl_user_attributes();
 		update_tbl_web_user_attributes();
@@ -40,15 +36,13 @@ function run_update($version)
 		update_tbl_system_settings();
 	}
 	
-	if($version < 106)
-	{
+	if($version < 106) {
 		update_config_custom_contenttype();
 		update_config_default_template_method();
 		update_tbl_member_groups();
 	}
 	
-	if(104 < $version)
-	{
+	if(104 < $version) {
 		delete_actionphp();
 	}
 }
@@ -107,13 +101,13 @@ function update_tbl_user_roles()
 	{
 		$sql = "ALTER TABLE {$tbl_user_roles} ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0'";
 		$modx->db->query($sql);
-		$modx->db->update("`remove_locks` = '1'", $tbl_user_roles, "`id` =1");
+		$modx->db->update(array('remove_locks'=>'1'), $tbl_user_roles, "`id`='1'");
 	}
 	if($data['view_schedule'] == false)
 	{
 		$sql = "ALTER TABLE {$tbl_user_roles} ADD COLUMN `view_schedule` int(1) NOT NULL DEFAULT '0'";
 		$modx->db->query($sql);
-		$modx->db->update("`view_schedule` = '1'", $tbl_user_roles, "`id` =1");
+		$modx->db->update(array('view_schedule'=>'1'), $tbl_user_roles, "`id`='1'");
 	}
 }
 
@@ -221,7 +215,7 @@ function delete_actionphp()
 	global $modx;
 	
 	$path = $modx->config['base_path'] . 'action.php';
-	if(file_exists($path))
+	if(is_file($path))
 	{
 		$src = file_get_contents($path);
 		if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
