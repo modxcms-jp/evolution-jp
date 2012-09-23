@@ -72,33 +72,18 @@ if(setlocale(LC_CTYPE, 0)==='Japanese_Japan.932')
 ?>
 
 <script type="text/javascript">
-
-function showHide(what, onoff)
-{
-	var all = document.getElementsByTagName( "*" );
-	var l = all.length;
-	var buttonRe = what;
-	var id, el, stylevar;
-
-	if(onoff==1)
-	{
-		stylevar = "<?php echo $displayStyle; ?>";
-	}
-	else
-	{
-		stylevar = "none";
-	}
-	for ( var i = 0; i < l; i++ )
-	{
-		el = all[i]
-		id = el.id;
-		if ( id == "" ) continue;
-		if (buttonRe.test(id))
-		{
-			el.style.display = stylevar;
-		}
-	}
-};
+$j(function(){
+	$j('#furlRow1').change(function() {$j('.furlRow').fadeIn();});
+	$j('#furlRow0').change(function() {$j('.furlRow').fadeOut();});
+	$j('#udPerms1').change(function() {$j('.udPerms').fadeIn();});
+	$j('#udPerms0').change(function() {$j('.udPerms').fadeOut();});
+	$j('#udPerms1').change(function() {$j('.udPerms').fadeIn();});
+	$j('#udPerms0').change(function() {$j('.udPerms').fadeOut();});
+	$j('#editorRow1').change(function() {$j('.editorRow').fadeIn();});
+	$j('#editorRow0').change(function() {$j('.editorRow').fadeOut();});
+	$j('#rbRow1').change(function() {$j('.rbRow').fadeIn();});
+	$j('#rbRow0').change(function() {$j('.rbRow').fadeOut();});
+});
 
 function addContentType()
 {
@@ -161,24 +146,18 @@ function updateContentType()
  */
 function confirmLangChange(el, lkey, elupd)
 {
-	lang_current = document.getElementById(elupd).value;
-	lang_default = document.getElementById(lkey+'_hidden').value;
-	changed = lang_current != lang_default;
+	lang_current = $j('#'+elupd).val();
+	lang_default = $j('#'+lkey+'_hidden').val();
 	proceed = true;
-	if(changed)
+	if(lang_current != lang_default)
 	{
 		proceed = confirm('<?php echo $_lang['confirm_setting_language_change']; ?>');
 	}
 	if(proceed)
 	{
 		//document.getElementById(elupd).value = '';
-		lang = el.options[el.selectedIndex].value;
-		var myAjax = new Ajax('index.php?a=118',
-		{
-			method: 'post',
-			data: 'action=get&lang='+lang+'&key='+lkey
-		}).request();
-		myAjax.addEvent('onComplete', function(resp)
+		lang = $j(el).val();
+		$j.post('index.php',{'a':'118','action':'get','lang':lang,'key':lkey},function(resp)
 		{
 			document.getElementById(elupd).value = resp;
 		});
@@ -536,38 +515,38 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["friendlyurls_title"] ?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('friendly_urls','1', $friendly_urls=='1','onclick="showHide(/furlRow/, 1);"'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('friendly_urls','0', $friendly_urls=='0','onclick="showHide(/furlRow/, 0);"'));?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('friendly_urls','1', $friendly_urls=='1','id="furlRow1"'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('friendly_urls','0', $friendly_urls=='0','id="furlRow0"'));?><br />
 		<?php echo $_lang["friendlyurls_message"] ?>
 	</td>
 </tr>
-<tr id="furlRow1" class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsprefix_title"] ?></th>
 	<td>
 		<?php echo form_text('friendly_url_prefix',$friendly_url_prefix,50);?><br />
 		<?php echo $_lang["friendlyurlsprefix_message"] ?></td>
 </tr>
-<tr id='furlRow4' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsuffix_title"] ?></th>
 	<td>
 		<?php echo form_text('friendly_url_suffix',$friendly_url_suffix,50);?><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
-<tr id='furlRow5' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang['mutate_settings.dynamic.php4'];?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('suffix_mode','0', $suffix_mode=='0'));?><br />
 		<?php echo $_lang['mutate_settings.dynamic.php5'];?></td>
 </tr>
-<tr id='furlRow7' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('friendly_alias_urls','1', $friendly_alias_urls=='1'));?><br />
 	<?php echo wrap_label($_lang["no"],form_radio('friendly_alias_urls','0', $friendly_alias_urls=='0'));?><br />
 	<?php echo $_lang["friendly_alias_message"] ?></td>
 </tr>
-<tr id='furlRow10' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["use_alias_path_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('use_alias_path','1', $use_alias_path=='1'));?><br />
@@ -575,7 +554,7 @@ function confirmLangChange(el, lkey, elupd)
 	<?php echo $_lang["use_alias_path_message"] ?>
 </td>
 </tr>
-<tr id='furlRow16' class='row2' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class='furlRow row2' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["duplicate_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('allow_duplicate_alias','1', $allow_duplicate_alias=='1'));?><br />
@@ -583,7 +562,7 @@ function confirmLangChange(el, lkey, elupd)
 	<?php echo $_lang["duplicate_alias_message"] ?>
 </td>
 </tr>
-<tr id='furlRow13' class="row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label('pagetitle',form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
@@ -612,11 +591,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $use_udperms=='1','onclick="showHide(/udPerms/, 1);"'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('use_udperms','0', $use_udperms=='0','onclick="showHide(/udPerms/, 0);"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $use_udperms=='1','id="udPerms1"'));?><br />
+	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $use_udperms=='0','id="udPerms0"'));?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
-<tr id='udPermsRow1' class="row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row2" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
@@ -624,7 +603,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
-<tr id='udPermsRow2' class="row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
@@ -733,7 +712,7 @@ $gdAvailable = extension_loaded('gd');
 </select>
 </th>
 <td>
-	<?php echo form_text('emailsubject',$emailsubject);?><br />
+	<?php echo form_text('emailsubject',$emailsubject,null,'id="emailsubject_field"');?><br />
 <input type="hidden" name="emailsubject_default" id="emailsubject_default_hidden" value="<?php echo addslashes($_lang['emailsubject_default']);?>" /><br />
 <?php echo $_lang["emailsubject_message"] ?></td>
 </tr>
@@ -937,13 +916,13 @@ echo $str;
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','onclick="showHide(/editorRow/, 1);"'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('use_editor','0',$use_editor=='0','onclick="showHide(/editorRow/, 0);"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','id="editorRow1"'));?><br />
+	<?php echo wrap_label($_lang["no"] ,form_radio('use_editor','0',$use_editor=='0','id="editorRow0"'));?><br />
 	<?php echo $_lang["use_editor_message"]?>
 </td>
 </tr>
 
-<tr id='editorRow0' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["which_editor_title"]?></th>
 <td>
 <select name="which_editor" onchange="documentDirty=true;">
@@ -959,17 +938,17 @@ echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" 
 </select><br />
 <?php echo $_lang["which_editor_message"]?></td>
 </tr>
-<tr id='editorRow4' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["fe_editor_lang_title"]?></th>
 <td><select name="fe_editor_lang" size="1" class="inputBox" onchange="documentDirty=true;">
 <?php echo get_lang_options(null, $fe_editor_lang);?>
 </select><br />
 <?php echo $_lang["fe_editor_lang_message"]?></td>
 </tr>
-<tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["editor_css_path_title"]?></th>
 <td>
-<?php echo form_text('editor_css_path',$editor_css_path);?><br />
+<?php echo form_text('editor_css_path',$editor_css_path,'','style="width:400px;"');?><br />
 <?php echo $_lang["editor_css_path_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
@@ -1052,13 +1031,13 @@ if(empty($upload_maxsize))
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','onclick="showHide(/rbRow/, 1);"'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('use_browser','0',$use_browser=='0','onclick="showHide(/rbRow/, 0);"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','id="rbRow1"'));?><br />
+	<?php echo wrap_label($_lang["no"] ,form_radio('use_browser','0',$use_browser=='0','id="rbRow0"'));?><br />
 	<?php echo $_lang["rb_message"]?>
 </td>
 </tr>
 
-<tr id='rbRow19' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class="rbRow row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('strip_image_paths','1',$strip_image_paths=='1'));?><br />
@@ -1067,7 +1046,7 @@ if(empty($upload_maxsize))
 </td>
 </tr>
 
-<tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class="rbRow row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_webuser_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('rb_webuser','1',$rb_webuser=='1'));?><br />
@@ -1075,7 +1054,7 @@ if(empty($upload_maxsize))
 	<?php echo $_lang["rb_webuser_message"]?>
 </td>
 </tr>
-<tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_dir_title"]?></th>
 <td><?php
 function getResourceBaseDir() {
@@ -1090,31 +1069,31 @@ else return "{$base_path}assets/";
 <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
-<tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_url_title"]?></th>
 <td>
 <?php echo $base_path . form_text('rb_base_url',$rb_base_url);?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
-<tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_images_title"]?></th>
 <td>
 <?php echo form_text('upload_images',$upload_images);?><br />
 <?php echo $_lang["uploadable_images_message"]?></td>
 </tr>
-<tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_media_title"]?></th>
 <td>
 <?php echo form_text('upload_media',$upload_media);?><br />
 <?php echo $_lang["uploadable_media_message"]?></td>
 </tr>
-<tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["uploadable_flash_title"]?></th>
 <td>
 <?php echo form_text('upload_flash',$upload_flash);?><br />
 <?php echo $_lang["uploadable_flash_message"]?></td>
 </tr>
-<tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1'));?><br />
@@ -1122,7 +1101,7 @@ else return "{$base_path}assets/";
 	<?php echo $_lang["clean_uploaded_filename_message"];?>
 </td>
 </tr>
-<tr id='rbRow173' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["a17_image_limit_width_title"]?></th>
 <td>
 <?php echo form_text('image_limit_width',$image_limit_width);?>px<br />
@@ -1224,6 +1203,7 @@ function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
 {
 	if($readonly) $readonly = ' disabled';
 	if($add)      $add = ' ' . $add;
+	if(empty($maxlength)) $maxlength = '255';
 	if($maxlength<=10) $maxlength = 'maxlength="' . $maxlength . '" style="width:' . $maxlength . 'em;"';
 	else               $maxlength = 'maxlength="' . $maxlength . '"';
 	return '<input onchange="documentDirty=true;" type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
