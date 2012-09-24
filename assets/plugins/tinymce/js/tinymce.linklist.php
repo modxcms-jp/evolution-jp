@@ -172,8 +172,7 @@ else
 }
 
 // Make output a real JavaScript file!
-header("Content-Type: text/html; charset={$modx->config['modx_charset']}");
-header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
+header("Content-type: text/javascript; charset={$modx->config['modx_charset']}"); // browser will now recognize the file as a valid JS file
 
 // prevent browser from caching
 header('pragma: no-cache');
@@ -196,7 +195,7 @@ class LINKLIST
 		$fields = 'sc.'.implode(',sc.',explode(',',$fields));
 		$sort   = preg_replace('@\s*@','',$sort);
 		$sort   = 'sc.'.implode(',sc.',explode(',',$sort));
-	
+		
 		if($recent!==0 && preg_match('@^[0-9]+$@',$recent))
 		{
 			$where_recent = time() - ($recent * 3600 * 24);
