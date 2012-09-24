@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Title: JSON
  * Purpose:
@@ -62,7 +61,7 @@ if(!function_exists("json_parameters")) {
 			$jsonArr["json_".$name] = str_replace(array("\r\n","\r"), '\n', addslashes($value));
 		}
 		$placeholders = array_merge($jsonArr,$placeholders);
-		return $placeholders;	
+		return $placeholders;
 	}
 }
 // ---------------------------------------------------
@@ -118,13 +117,11 @@ TPL;
 
 $header = isset($header) ? $header : template::replace($json_placeholders,$json_header);
 
-$tpl = isset($tpl) ? $tpl : "@CODE:".$json_tpl;
+$tpl = isset($tpl) ? $tpl : "@CODE:{$json_tpl}";
 
-$tplLast = isset($tplLast) ? $tplLast : "@CODE:".$json_tpl_last;
+$tplLast = isset($tplLast) ? $tplLast : "@CODE:{$json_tpl_last}";
 
 $footer = isset($footer) ? $footer : $json_footer;
 
 // set emptytext
-$noResults = "      ";
-
-?>
+$noResults = '      ';
