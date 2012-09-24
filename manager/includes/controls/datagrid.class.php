@@ -181,7 +181,7 @@ class DataGrid {
 		
 		$this->_isDataset = is_resource($this->ds); // if not dataset then treat as array
 
-		if(!$cssStyle && !$cssClass) $cssStyle = 'style="width:100%;font-family:verdana,arial; font-size:12px;"';
+		if(!$cssStyle && !$cssClass) $cssStyle = '';
 		if(!$this->_itemStyle && !$this->_itemClass) $this->_itemStyle = "style='color:#333333;'";
 		if(!$this->_altItemStyle && !$this->_altItemClass) $this->_altItemStyle = "style='color:#333333;background-color:#eeeeee'";
 
