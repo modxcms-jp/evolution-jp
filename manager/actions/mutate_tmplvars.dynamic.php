@@ -75,6 +75,31 @@ if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
 ?>
 <script language="JavaScript">
 
+$j(function(){
+	var itype = $j('#type');
+	itype.change(function(){
+		switch(itype.val())
+		{
+			case 'dropdown':
+			case 'listbox':
+			case 'listbox-multiple':
+			case 'checkbox':
+			case 'option':
+			case 'custom_tv':
+				$j('#elements').fadeIn();
+				if(itype.val()=='custom_tv')
+				{
+					$j('#elements th:first').css('visibility','hidden');
+					$j("textarea[name='elements']").css({'width':'350px','height':'200px'});
+				}
+				else $j('#elements th:first').css('visibility','visible');
+				break;
+			default:
+				$j('#elements').fadeOut();
+		}
+	});
+});
+
 function duplicaterecord(){
     if(confirm("<?php echo $_lang['confirm_duplicate_record'] ?>")==true) {
         documentDirty=false;
@@ -303,7 +328,7 @@ function decode(s){
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_type']; ?></th>
     <td align="left">
-    <select name="type" size="1" class="inputBox" style="width:300px;" onchange="documentDirty=true;">
+    <select id="type" name="type" size="1" class="inputBox" style="width:300px;" onchange="documentDirty=true;">
 <?php
 	$option = array();
 	$option['text']         = 'Text';
@@ -348,7 +373,7 @@ function decode(s){
 	        </select>
     </td>
   </tr>
-  <tr>
+  <tr id="elements" style="display:none;">
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
 	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
