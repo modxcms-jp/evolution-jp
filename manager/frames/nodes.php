@@ -84,13 +84,14 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_content,"deleted=1");
 		if ($modx->db->getValue($rs) > 0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
 	}
-	function makeHTML($indent,$parent,$expandAll,$theme)
+	function makeHTML($indent,$parent=0,$expandAll,$theme)
 	{
 		global $modx;
 		global $icons, $iconsPrivate, $theme, $_style,$modx_textdir;
 		global $output, $_lang, $opened, $opened2, $closed2, $tree_orderby,$docgrp,$in_docgrp,$mgrRole; //added global vars
 		
 		$pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+		if($parent=='') $parent = 0;
 
 		// setup spacer
 		$spacer = get_spacer($indent);
@@ -104,7 +105,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		$field  = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
 		$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
 		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
-		$where  = "(parent={$parent}) {$access} GROUP BY sc.id";
+		$where  = "(parent='{$parent}') {$access} GROUP BY sc.id";
 		$result = $modx->db->select($field,$from,$where,$tree_orderby);
 		$has_child = $modx->db->getRecordCount($result);
 		$has_child0=$has_child;
