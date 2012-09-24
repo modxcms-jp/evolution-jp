@@ -72,11 +72,11 @@
         $j(function() {
             $j('#submitButton').click(function(e) {
 				var $form = $j('#loginfrm');
-				var query = $form.serialize();
-				var params = $form.serializeArray();
-				params['ajax'] = 1;
-                 url = 'processors/login.processor.php';
-                 $j.post(url,params,ajaxReturn);
+				var username = $j('#username').val();
+				var password = $j('#password').val();
+				var rememberme = $j('#rememberme').val();
+				params = {'username':username,'password':password,'rememberme':rememberme,'ajax':'1'};
+                $j.post('processors/login.processor.php',params,ajaxReturn);
             });  
 			
 			// Initial focus
