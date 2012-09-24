@@ -353,7 +353,7 @@ function SetUrl(url, width, height, alt) {
 	<!-- end #actions -->
 
 <div class="sectionBody">
-<p><img class="icon" src="media/style/<?php echo $manager_theme?>images/icons/modules.gif" alt="." style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
+<p><img class="icon" src="<?php echo $_style['icons_modules'];?>" alt="." style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
 
 <div class="tab-pane" id="modulePane">
 	<script type="text/javascript">
