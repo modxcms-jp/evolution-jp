@@ -191,8 +191,8 @@ $j(function(){
 	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
 	var dayNames = <?php echo $dayNames;?>;
 	var monthNames = <?php echo $monthNames;?>;
-	new DatePicker(document.getElementById('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker(document.getElementById('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 
 	if( !window.ie6 ) {
 	    $$('img[src=<?php echo $_style["icons_tooltip_over"]?>]').each(function(help_img) {
