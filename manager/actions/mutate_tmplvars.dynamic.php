@@ -90,7 +90,6 @@ $j(function(){
 				if(itype.val()=='custom_tv')
 				{
 					$j('#elements th:first').css('visibility','hidden');
-					$j("textarea[name='elements']").css({'width':'350px','height':'200px'});
 				}
 				else $j('#elements th:first').css('visibility','visible');
 				break;
