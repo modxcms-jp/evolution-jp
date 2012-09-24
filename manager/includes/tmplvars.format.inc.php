@@ -74,10 +74,16 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 		case 'string':
 			$value = parseInput($value);
 			$format = strtolower($params['format']);
-			if($format=='upper case')         $o = strtoupper($value);
+			if($format=='zen-han')            $o = mb_convert_kana($value,'as',$modx->config['modx_charset']);
+			else if($format=='han-zen')       $o = mb_convert_kana($value,'AS',$modx->config['modx_charset']);
+			else if($format=='upper case')    $o = strtoupper($value);
 			else if($format=='lower case')    $o = strtolower($value);
 			else if($format=='sentence case') $o = ucfirst($value);
 			else if($format=='capitalize')    $o = ucwords($value);
+			else if($format=='nl2br')         $o = nl2br($value);
+			else if($format=='number format') $o = number_format($value);
+			else if($format=='htmlspecialchars') $o = htmlspecialchars($value,ENT_QUOTES,$modx->config['modx_charset']);
+			else if($format=='htmlentities')  $o = htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
 			else $o = $value;
 			break;
 		case 'date':
@@ -179,7 +185,6 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 		case 'datagrid':
 			include_once MODX_BASE_PATH.'manager/includes/controls/datagrid.class.php';
 			$grd = new DataGrid('',$value);
-			
 			$grd->noRecordMsg		=$params['egmsg'];
 			
 			$grd->columnHeaderClass	=$params['chdrc'];
