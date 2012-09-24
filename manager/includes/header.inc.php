@@ -17,6 +17,7 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx->config['settings_version'];?>" />
+    <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
 <?php
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
@@ -25,12 +26,17 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="media/script/jquery/jquery.powertipmin.js" type="text/javascript"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
 		
 		var $j = jQuery.noConflict();
+		
+		$j(function(){
+			$j('.tooltip').powerTip({'fadeInTime':'0','smartPlacement':true});
+		});
 		
         $j(document_onload());
         $j.bind('beforeunload', document_onunload());

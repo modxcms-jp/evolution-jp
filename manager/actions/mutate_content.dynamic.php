@@ -193,18 +193,6 @@ $j(function(){
 	var monthNames = <?php echo $monthNames;?>;
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-
-	if( !window.ie6 ) {
-	    $$('img[src=<?php echo $_style["icons_tooltip_over"]?>]').each(function(help_img) {
-            help_img.removeProperty('onclick');
-            help_img.removeProperty('onmouseover');
-            help_img.removeProperty('onmouseout');
-            help_img.setProperty('title', help_img.getProperty('alt') );
-            help_img.setProperty('class', 'tooltip' );
-            if (window.ie) help_img.removeProperty('alt');
-	    });
-	    new Tips($$('.tooltip'),{className:'custom'} );
-	}
 });
 
 // save tree folder state

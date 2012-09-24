@@ -158,7 +158,7 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates='') {
 						$fieldname = $mm_fields[$field]['fieldname'];
 					
 						// Give the help button an ID, and modify the alt/title text
-						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img[style*=\'help\']").attr("id", "'.$fieldname.'-help").attr("alt", "'.jsSafe($helptext).'").attr("title", "'.jsSafe($helptext).'"); ';
+						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img.tooltip").attr("id", "'.$fieldname.'-help").attr("title", "'.jsSafe($helptext).'").attr("alt", "'.jsSafe($helptext).'").data(\'powertip\', \'' . jsSafe($helptext) . '\'); ';
 					}
 					else
 					{

@@ -371,16 +371,6 @@ class MANAGERMANAGER
 					if (visibleOptions == 0) $this.hide();
 				});
 				
-				// Re-initiate the tooltips, in order for them to pick up any new help text which has been added
-				// This bit is MooTools, matching code inserted further up the page
-				if( !window.ie6 )
-				{
-					$$(".tooltip").each(function(help_img) {
-						help_img.setProperty("title", help_img.getProperty("alt") );
-					});
-					new Tips($$(".tooltip"), {className:"custom"} );
-				}
-			
 			}
 			catch (e)
 			{
