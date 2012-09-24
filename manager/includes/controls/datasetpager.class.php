@@ -118,18 +118,27 @@ class DataSetPager {
 			$fnc = $this->renderPagerFnc;
 			$args = $this->renderPagerFncArgs;
 			if (!isset($fnc)){
-				$url = $_SERVER['SCRIPT_NAME'].'?';
 				$i=0;
 				foreach($_GET as $n => $v) if($n!='dpgn'.$this->id) {$i++;$url.=(($i>1)? "&":"")."$n=$v";}
 				if($i>=1)$url.="&";
 			}
+			
 			for($i=1;$i<=$tp;$i++) {
 				if (isset($fnc)) {
 					if($args!="") $this->pager .= $fnc($p,$i,$args);
 					else $this->pager .= $fnc($p,$i);
 				}
 				else {
-					$this->pager .=($p==$i)? " <span class='".$this->selPageClass."' style='".$this->selPageStyle."'>$i</span> ":" <a href='".$url."dpgn".$this->id."=$i' class='".$this->pageClass."' style='".$this->pageStyle."'>$i</a> ";
+					$eachargs = "dpgn{$this->id}={$i}";
+					if($i!=1)
+					{
+						$url = $modx->makeUrl($modx->documentIdentifier,'',$eachargs,'full');
+					}
+					else
+					{
+						$url = $modx->makeUrl($modx->documentIdentifier,'','','full');
+					}
+					$this->pager .=($p==$i)? " <span class='".$this->selPageClass."' style='".$this->selPageStyle."'>$i</span> ":' <a href="' . $url . '" class="' . $this->pageClass . '" style="' . $this->pageStyle.'">' . $i . '</a> ';
 				}
 			}
 		}
