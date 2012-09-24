@@ -9,4 +9,5 @@
 
 <ul class="actionButtons">
     <li id="sort_btn"><a href="#" onclick="save();"><img src="media/style[+theme+]/images/icons/save.png" align="absmiddle"> [+lang.DM_go+]</a></li>
+    <li id="cancel"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="media/style[+theme+]/images/icons/cancel.png" align="absmiddle"> [+lang.DM_cancel+]</a></li>
 </ul>
