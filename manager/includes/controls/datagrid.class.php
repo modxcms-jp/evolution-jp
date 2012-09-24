@@ -47,6 +47,10 @@ class DataGrid {
 	var $rowIdField;
 	
 	var $noRecordMsg = "No records found.";
+	
+	var $cdelim;
+	var $cwrap;
+	var $src_encode;
 
 	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
 		global $__DataGridCnt;
@@ -54,17 +58,29 @@ class DataGrid {
 		// set id
 		$__DataGridCnt++;
 		$this->id = $this->id ? $id:"dg".$__DataGridCnt;
-
-		// set datasource
-		$this->ds = $ds;
 		
 		// set pager
 		$this->pageSize = $pageSize;
 		$this->pageNumber = $pageNumber; // by setting pager to -1 will cause pager to load it's last page number
 		$this->pagerLocation = 'top-right';
+		
+		$this->ds = $ds;
+		$this->cdelim = ',';
+		
+		$this->src_encode = $modx->config['modx_charset'];
 	}
 
-	function setDataSource($ds){
+	function setDataSource(){
+		global $modx;
+		
+		if(is_resource($this->ds)) return;
+		
+		$ds = trim($this->ds);
+		if((strpos($ds,"\n")===false) && is_file($ds))
+		{
+			$ds = trim(file_get_contents($ds));
+			if($ds) $ds = mb_convert_encoding($ds, $modx->config['modx_charset'], $this->src_encode);
+		}
 		$this->ds = $ds;
 	}
 	
@@ -83,6 +99,7 @@ class DataGrid {
 			$value = $row[($this->_isDataset && $fld ? $fld:$c)];
 			if($color && $Style) $colStyle = substr($colStyle,0,-1).";background-color:$color;'";
 			$value = $this->formatColumnValue($row,$value,$type,$align);
+			
 			if($align)  $align  = 'align="'   . $align  . '"';
 			if($color)  $color  = 'bgcolor="' . $color  . '"';
 			if($nowrap) $nowrap = 'nowrap="'  . $nowrap . '"';
@@ -150,18 +167,25 @@ class DataGrid {
 				// replace [+value+] first
 				$value = str_replace("[+value+]",$value,$type_format);
 				// replace other [+fields+]
-				if(strpos($value,"[+")!==false) foreach($row as $k=>$v){
-					$value = str_replace("[+$k+]",$v,$value);
+				if(strpos($value,"[+")!==false)
+				{
+					foreach($row as $k=>$v)
+					{
+						$value = str_replace("[+$k+]",$v,$value);
+					}
 				}
 				break;
 				
 		}
 		return $value;
 	}
-
+	
 	function render()
 	{
 		global $modx;
+		
+		// set datasource
+		$this->setDataSource();
 		
 		$columnHeaderStyle	= ($this->columnHeaderStyle)? 'style="' .$this->columnHeaderStyle. '"':'';
 		$columnHeaderClass	= ($this->columnHeaderClass)? 'class="' .$this->columnHeaderClass. '"':'';
@@ -205,6 +229,8 @@ class DataGrid {
 		$tblStart	= "<table{$attr}>\n";
 		$tblEnd		= "</table>\n";
 		
+		if($this->cdelim==='\t')    $this->cdelim = "\t";
+		
 		// build column header
 		$this->_colnames  = explode((strstr($this->columns,"||")  !==false ? "||":","),$this->columns);
 		$this->_colwidths = explode((strstr($this->colWidths,"||")!==false ? "||":","),$this->colWidths);
@@ -215,9 +241,9 @@ class DataGrid {
 		$this->_colcount  = count($this->_colnames);
 		
 		if(!empty($this->columns)) $this->_colcount = count($this->_colnames);
-		elseif(strpos($this->ds,',')!==false)
+		elseif(!is_resource($this->ds) && strpos($this->ds,$this->cdelim)!==false)
 		{
-			$this->_colcount = count(explode(',', substr($this->ds,0,strpos($this->ds,"\n"))));
+			$this->_colcount = count(explode($this->cdelim, substr($this->ds,0,strpos($this->ds,"\n"))));
 		}
 		else $this->_colcount = 1;
 		
@@ -246,25 +272,32 @@ class DataGrid {
 		
 		// build rows
 		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
-		$this->_fieldnames = explode(",",$this->fields);
+		
+		$this->_fieldnames = explode($this->cdelim,$this->fields);
+		
 		if($rowcount==0) $tblRows.= "<tr><td ".$this->_itemStyle." ".$this->_itemClass." colspan='".$this->_colcount."'>".$this->noRecordMsg."</td></tr>\n";
 		else {
 			// render grid items
-			if($this->pageSize<=0) {
-				for($r=0;$r<$rowcount;$r++){
+			if($this->pageSize<=0)
+			{
+				for($r=0;$r<$rowcount;$r++)
+				{
 					$row = $this->_isDataset ? $modx->db->getRow($this->ds):$this->ds[$r];
 					$tblRows.= $this->RenderRowFnc($r+1,$row);
 				}
 			}
-			else {
-				if(!$this->pager) {
+			else
+			{
+				if(!$this->pager)
+				{
 					include_once dirname(__FILE__)."/datasetpager.class.php";
 					$this->pager = new DataSetPager($this->id,$this->ds,$this->pageSize,$this->pageNumber);
 					$this->pager->setRenderRowFnc($this); // pass this object
 					$this->pager->cssStyle = $pagerStyle;
 					$this->pager->cssClass = $pagerClass;
 				}
-				else {
+				else
+				{
 					$this->pager->pageSize	= $this->pageSize;
 					$this->pager->pageNumber= $this->pageNumber;
 				}

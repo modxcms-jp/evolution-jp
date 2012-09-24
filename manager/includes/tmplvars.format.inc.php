@@ -212,6 +212,11 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			$grd->pagerLocation		=$params['ploc'];
 			$grd->pagerClass		=$params['pclass'];
 			$grd->pagerStyle		=$params['pstyle'];
+			
+			$grd->cdelim			=$params['cdelim'];
+			$grd->cwrap				=$params['cwrap'];
+			$grd->src_encode		=$params['enc'];
+			
 			$o = $grd->render();
 			break;
 		case 'htmlentities':
