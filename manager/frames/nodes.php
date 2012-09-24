@@ -8,11 +8,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 	// save folderstate
 	if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
-	if (isset($_GET['savestateonly']))
-	{
-		echo 'send some data'; //??
-		exit;
-	}
 
 	$indent    = $_GET['indent'];
 	$parent    = $_GET['parent'];
