@@ -129,7 +129,7 @@ function deletedocument() {
 // Widget Parameters
 var widgetParams = {};          // name = description;datatype;default or list values - datatype: int, string, list : separated by comma (,)
     widgetParams['date']        = '&format=Date Format;string;%Y年%m月%d日 &default=If no value, use current date;list;Yes,No;No';
-    widgetParams['string']      = '&format=String Format;list;Upper Case,Lower Case,Sentence Case,Capitalize';
+d    widgetParams['string']      = '&format=String Format;list;Upper Case,Lower Case,Sentence Case,Capitalize';
     widgetParams['delim']       = '&delim=Delimiter;string;,';
     widgetParams['hyperlink']   = '&text=Display Text;string; &title=Title;string; &class=Class;string &style=Style;string &target=Target;string &attrib=Attributes;string';
     widgetParams['htmltag']     = '&tagname=Tag Name;string;div &tagid=Tag ID;string &class=Class;string &style=Style;string &attrib=Attributes;string';
@@ -399,6 +399,10 @@ switch($content['type'])
 		$display = '';
 		break;
 	default: $display = 'style="display:none;"';
+}
+if($content['type']==='custom_tv' && $content['elements']==='')
+{
+	$content['elements'] = '<input type="text" id="tv[+field_id+]" name="tv[+field_id+]" value="[+field_value+]" [+field_style+] tvtype="[+field_type+]" onchange="documentDirty=true;" />';
 }
 ?>
   <tr id="elements" <?php echo $display;?>>
