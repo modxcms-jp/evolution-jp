@@ -202,6 +202,7 @@ class LINKLIST
 			$where_recent = "AND {$where_recent} < sc.editedon";
 			$fields .= ',sc.editedon';
 		}
+		else $where_recent = '';
 		
 		if($limit!==0 && preg_match('@^[0-9]+$@',$limit))
 		{
