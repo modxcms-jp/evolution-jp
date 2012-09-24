@@ -213,25 +213,37 @@ class DataGrid {
 		$this->_colcolors = explode((strstr($this->colColors,"||")!==false ? "||":","),$this->colColors);
 		$this->_coltypes  = explode((strstr($this->colTypes,"||") !==false ? "||":","),$this->colTypes);
 		$this->_colcount  = count($this->_colnames);
+		
+		if(!empty($this->columns)) $this->_colcount = count($this->_colnames);
+		elseif(strpos($this->ds,',')!==false)
+		{
+			$this->_colcount = count(explode(',', substr($this->ds,0,strpos($this->ds,"\n"))));
+		}
+		else $this->_colcount = 1;
+		
 		if(!$this->_isDataset) {
 			$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
 			$this->ds = array_chunk($this->ds, $this->_colcount);
 		}
-		$tblColHdr ='<thead>' . PHP_EOL . '<tr>';
-		for($c=0;$c<$this->_colcount;$c++){
-			$name=$this->_colnames[$c];
-			$width=$this->_colwidths[$c];
-			if(!empty($width)) $width = 'width="' . $width . '"';
-			$attr = '';
-			foreach(array($columnHeaderStyle,$columnHeaderClass,$width) as $v)
-			{
-				$v = trim($v);
-				if(!empty($v)) $attr .= ' ' . $v;
+		if(!empty($this->columns))
+		{
+			$tblColHdr ="<thead>\n<tr>";
+			for($c=0;$c<$this->_colcount;$c++){
+				$name=$this->_colnames[$c];
+				$width=$this->_colwidths[$c];
+				if(!empty($width)) $width = 'width="' . $width . '"';
+				$attr = '';
+				foreach(array($columnHeaderStyle,$columnHeaderClass,$width) as $v)
+				{
+					$v = trim($v);
+					if(!empty($v)) $attr .= ' ' . $v;
+				}
+				$tblColHdr .= '<th' . $attr . '>' . $name . '</th>';
 			}
-			$tblColHdr .= '<th' . $attr . '>' . $name . '</th>';
+			$tblColHdr.="</tr></thead>\n";
 		}
-		$tblColHdr.="</tr></thead>\n";
-
+		else $tblColHdr = '';
+		
 		// build rows
 		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
 		$this->_fieldnames = explode(",",$this->fields);
