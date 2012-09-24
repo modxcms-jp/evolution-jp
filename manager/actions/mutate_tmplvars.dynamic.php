@@ -403,11 +403,11 @@ switch($content['type'])
 ?>
   <tr id="elements" <?php echo $display;?>>
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
-	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" style="width:300px;height:110px;" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <th align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?></th>
-    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
+    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
