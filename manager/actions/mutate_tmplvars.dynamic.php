@@ -255,6 +255,7 @@ function implodeParameters(){
 
 function encode(s){
     s=s+'';
+    s = s.replace(/\;/g,'%3B'); // ;
     s = s.replace(/\=/g,'%3D'); // =
     s = s.replace(/\&/g,'%26'); // &
     return s;
@@ -262,6 +263,7 @@ function encode(s){
 
 function decode(s){
     s=s+'';
+    s = s.replace(/\%3B/g,';'); // =
     s = s.replace(/\%3D/g,'='); // =
     s = s.replace(/\%26/g,'&'); // &
     return s;
