@@ -202,8 +202,8 @@ class DataGrid {
 			$v = trim($v);
 			if(!empty($v)) $attr .= ' ' . $v;
 		}
-		$tblStart	= '<table' . $attr . '>' . PHP_EOL;
-		$tblEnd		= '</table>' . PHP_EOL;
+		$tblStart	= "<table{$attr}>\n";
+		$tblEnd		= "</table>\n";
 		
 		// build column header
 		$this->_colnames  = explode((strstr($this->columns,"||")  !==false ? "||":","),$this->columns);
