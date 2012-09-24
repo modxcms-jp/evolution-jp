@@ -87,11 +87,24 @@ $j(function(){
 			case 'option':
 			case 'custom_tv':
 				$j('#elements').fadeIn();
+				var multi = 'KeyA==ValA||KeyB==ValB';
+				var ctv   = '<input type="text" id="tv[+field_id+]" name="tv[+field_id+]" value="[+field_value+]" [+field_style+] tvtype="[+field_type+]" onchange="documentDirty=true;" />';
 				if(itype.val()=='custom_tv')
 				{
 					$j('#elements th:first').css('visibility','hidden');
+					if($j('#elements textarea').val()==multi || $j('#elements textarea').val()=='')
+					{
+						$j('#elements textarea').val(ctv);
+					}
 				}
-				else $j('#elements th:first').css('visibility','visible');
+				else
+				{
+					if($j('#elements textarea').val()==ctv || $j('#elements textarea').val()=='')
+					{
+						$j('#elements textarea').val(multi);
+					}
+					$j('#elements th:first').css('visibility','visible');
+				}
 				break;
 			default:
 				$j('#elements').fadeOut();
