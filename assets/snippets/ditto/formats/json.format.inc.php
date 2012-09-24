@@ -56,9 +56,11 @@ $json_placeholders['json_op'] = (!empty($_REQUEST[$dittoID.'jsonp']) ? $_REQUEST
 $placeholders['*'] = "json_parameters";
 if(!function_exists("json_parameters")) { 
 	function json_parameters($placeholders) {
+		global $modx;
 		$jsonArr = array();
 		foreach ($placeholders as $name=>$value) {
-			$jsonArr["json_".$name] = str_replace(array("\r\n","\r"), '\n', addslashes($value));
+			$value = addslashes(htmlspecialchars($value,ENT_QUOTES, $modx->config['modx_charset']));
+			$jsonArr["json_{$name}"] = str_replace(array("\r\n","\n", "\r"), '\n', $value);
 		}
 		$placeholders = array_merge($jsonArr,$placeholders);
 		return $placeholders;
