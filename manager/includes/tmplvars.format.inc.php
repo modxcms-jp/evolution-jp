@@ -226,27 +226,15 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			if(substr($params['output'], 0, 5) == '@FILE')
 			{
 				$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
-				if( !file_exists($file_name) )
-				{
-					$widget_output = $file_name . ' does not exist';
-				}
-				else
-				{
-					$widget_output = file_get_contents($file_name);
-				}
+				if(is_file($file_name)) $widget_output = file_get_contents($file_name);
+				else                    $widget_output = $file_name . ' does not exist';
 			}
 			elseif(substr($params['output'], 0, 8) == '@INCLUDE')
 			{
 				$file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
-				if( !file_exists($file_name) )
-				{
-					$widget_output = $file_name . ' does not exist';
-				}
-				else
-				{
-					/* The included file needs to set $widget_output. Can be string, array, object */
-					include $file_name;
-				}
+				if(is_file($file_name)) include $file_name;
+				else                    $widget_output = $file_name . ' does not exist';
+				/* The included file needs to set $widget_output. Can be string, array, object */
 			}
 			elseif(substr($params['output'], 0, 6) == '@CHUNK' && $value !== '')
 			{
