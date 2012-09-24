@@ -15,7 +15,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     $j(function(){
         resizeTree();
         restoreTree();
-        window.resize(function(){resizeTree;});
+        $j(window).resize(function(){resizeTree();});
     });
 
     // preload images
