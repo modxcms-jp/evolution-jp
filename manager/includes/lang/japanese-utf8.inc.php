@@ -943,7 +943,7 @@ $_lang["tmplvars_binding_msg"] = 'このフィールドはアットバインデ�
 $_lang["tmplvars_caption"] = '見出し(入力フィールド名)';
 $_lang["tmplvars_default"] = '既定値';
 $_lang["tmplvars_description"] = '説明';
-$_lang["tmplvars_elements"] = '入力時のオプション<br />選択肢A||選択肢B または<br />選択肢名A==値A||選択肢名B==値B<br />のように区切って書きます。';
+$_lang["tmplvars_elements"] = '入力時のオプション<br />選択肢A||選択肢B または<br />選択肢A==値A||選択肢B==値B<br />のように区切って書きます。';
 $_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>投稿画面上に入力フィールドを追加できます。テンプレート内の任意の場所に <strong>[*テンプレート変数名*]</strong> と記述して値を出力します。</p>';
 $_lang["tmplvars_msg"] = 'テンプレート変数及び入力フィールドを設定します。テンプレート変数名には日本語を用いることができます。このテンプレート変数を使用するテンプレートを「テンプレートとの関連付け」で関連付けないと使用できないためご注意ください。<br />入力タイプ「Listbox」や「CheckBox」は「入力時のオプション」を設定できます。';
 $_lang["tmplvars_name"] = '変数名';
