@@ -13,18 +13,11 @@ $uid = $modx->getLoginUserID();
 $script = <<<JS
         <script type="text/javascript">
         function hideConfigCheckWarning(key){
-            var myAjax = new Ajax('index.php?a=118',
+            \$j.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'},function(resp)
             {
-                method: 'post',
-                data: 'action=setsetting&key=_hide_configcheck_' + key + '&value=1'
+                var k = '#' + key + '_warning_wrapper';
+                \$j('fieldset:has(' + k + ')').fadeOut('slow');
             });
-            myAjax.addEvent('onComplete', function(resp)
-            {
-                fieldset = $(key + '_warning_wrapper').getParent().getParent();
-                var sl = new Fx.Slide(fieldset);
-                sl.slideOut();
-            });
-            myAjax.request();
         }
         </script>
 
