@@ -176,7 +176,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
-                $j.get('index.php',{a:'1',f:'nodes',indent:indent,parent:parent,expandAll:expandAll+folderState},rpcLoadData);
+                $j.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -224,18 +224,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'1'},rpcLoadData);
+        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'0'},rpcLoadData);
+        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'2'},rpcLoadData);
+        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
     }
 
     function setSelected(elSel) {
@@ -277,7 +277,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var t_sortby = document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
-        $j.get(url,{a:'1',f:'nodes',indent:'1',parent:'0',expandAll:'2',dt:dt,tree_sortby:t_sortby,tree_sortdir:t_sortdir},rpcLoadData);
+        $j.get(url,{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
