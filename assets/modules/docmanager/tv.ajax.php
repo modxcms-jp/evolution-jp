@@ -25,6 +25,8 @@ $from = "{$tbl_site_tmplvars} tv LEFT JOIN {$tbl_site_tmplvar_templates} ON tv.i
 $rs = $modx->db->select('*', $from, "{$tbl_site_tmplvar_templates}.templateid ='{$tplID}'");
 $total = $modx->db->getRecordCount($rs);
 
+header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
+
 if ($total > 0)
 {
 	require("{$base_path}manager/includes/tmplvars.commands.inc.php");
