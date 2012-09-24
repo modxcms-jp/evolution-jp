@@ -56,7 +56,7 @@ function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $ro
 					$output .= 'url = "'.$thumbnailerUrl.'?src="+escape(url)+"&w='.$w.'&h='.$h.'"; ' . "\n";
 				}
 				
-			$output .= '	
+			$output .= '
 				// Remove the old preview tv'.$tv['id'].'
 				$j("#tv'.$tv['id'].'PreviewContainer").remove();
 				
@@ -66,15 +66,11 @@ function mm_widget_showimagetvs($tvs='', $w=300, $h=100, $thumbnailerUrl='', $ro
 					
 					// Attach a browse event to the picture, so it can trigger too
 					$j("#tv'.$tv['id'].'Preview").click( function() {
-														BrowseServer("tv'.$tv['id'].'");		 
+														BrowseServer("tv'.$tv['id'].'");
 																 });
 				}
-				
 			}).trigger("load"); // Trigger a change event on load
-	
-			
 			';	
-			
 		}
 		
 		$output .= '
