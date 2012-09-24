@@ -324,10 +324,22 @@ EOT;
 		global $modx;
 		$a = array();
 		if(is_array($v)) return $v;
-		else if(is_resource($v)) {
+		elseif(is_resource($v)) {
 			while ($cols = $modx->db->getRow($v,'num')) $a[] = $cols;
 		}
-		else $a = explode("||", $v);
+		else
+		{
+			$s = array('[[','[!','{{','[(','[~');
+			foreach($s as $_)
+			{
+				if(strpos($v,$_)!==false)
+				{
+					$v = $modx->parseDocumentSource($v);
+					break;
+				}
+			}
+			$a = explode('||', $v);
+		}
 		return $a;
 	}
 	
