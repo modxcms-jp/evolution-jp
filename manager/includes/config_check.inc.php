@@ -45,7 +45,7 @@ if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx-
 		{
 			$warnings[] = 'configcheck_templateswitcher_present';
 			$tplName = $row['name'];
-			$script = get_src_TemplateSwitcher_js();
+			$script = get_src_TemplateSwitcher_js($tplName);
 			$modx->regClientScript($script);
 		}
     }
@@ -159,36 +159,27 @@ else
 	$config_check_results = $_lang['configcheck_ok'];
 }
 
-function get_src_TemplateSwitcher_js()
+function get_src_TemplateSwitcher_js($tplName)
 {
-	$script = <<<EOT
+	global $_lang;
+	
+	$script =
+<<<EOT
 <script type="text/javascript">
 function deleteTemplateSwitcher(){
     if(confirm('{$_lang["confirm_delete_plugin"]}')) {
-	var myAjax = new Ajax('index.php?a=118',
+	\$j.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':'{$tplName}'},function(resp)
 	{
-		method: 'post',
-        data: 'action=updateplugin&key=_delete_&lang=$tplName'
+		var k = '#templateswitcher_present_warning_wrapper';
+		\$j('fieldset:has(' + k + ')').fadeOut('slow');
 	});
-	myAjax.addEvent('onComplete', function(resp){
-            fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
-		var sl = new Fx.Slide(fieldset);
-		sl.slideOut();
-	});
-	myAjax.request();
-    }
 }
 function disableTemplateSwitcher(){
-    var myAjax = new Ajax('index.php?a=118', {
-        method: 'post',
-        data: 'action=updateplugin&lang={$tplName}&key=disabled&value=1'
+    \$j.post('index.php', {'a':'118','action':'updateplugin','lang':'{$tplName}','key':'disabled','value':'1'}, function(resp)
+    {
+		var k = '#templateswitcher_present_warning_wrapper';
+		\$j('fieldset:has(' + k + ')').fadeOut('slow');
     });
-    myAjax.addEvent('onComplete', function(resp){
-        fieldset = $('templateswitcher_present_warning_wrapper').getParent().getParent();
-        var sl = new Fx.Slide(fieldset);
-        sl.slideOut();
-    });
-    myAjax.request();
 }
 </script>
 EOT;
