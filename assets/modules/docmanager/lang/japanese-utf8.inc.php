@@ -31,7 +31,7 @@ $_lang['DM_other'] = 'その他';
 //-- buttons
 $_lang['DM_close'] = '閉じる';
 $_lang['DM_cancel'] = '戻る';
-$_lang['DM_go'] = 'Go';
+$_lang['DM_go'] = '選択';
 $_lang['DM_save'] = '更新';
 $_lang['DM_sort_another'] = '別の整列';
 
