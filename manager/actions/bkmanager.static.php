@@ -576,7 +576,7 @@ function import_sql($source,$result_code='import_ok')
 	
 	$settings = getSettings();
 	
-	$source = str_replace(array("\r\n","\r"),"\n",$source);
+	$source = str_replace(array("\r\n","\n","\r"),"\n",$source);
 	$sql_array = preg_split('@;[ \t]*\n@', $source);
 	foreach($sql_array as $sql_entry)
 	{
