@@ -90,7 +90,7 @@ $json_tpl = <<<TPL
 	 "guid":"[(site_url)][~[+id+]~]",
 	 "author":"[+json_author+]",
 	 "description":"[+json_description+]",
-	 "introtext":"[+json_introtext+]",
+	 "introtext":"[+json_introtext+]"
 	},
 
 TPL;
@@ -103,7 +103,7 @@ $json_tpl_last = <<<TPL
 	 "guid":"[(site_url)][~[+id+]~]",
 	 "author":"[+json_author+]",
 	 "description":"[+json_description+]",
-	 "introtext":"[+json_introtext+]",
+	 "introtext":"[+json_introtext+]"
 	}
 TPL;
 
