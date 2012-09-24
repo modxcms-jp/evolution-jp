@@ -372,7 +372,21 @@ function decode(s){
 	        </select>
     </td>
   </tr>
-  <tr id="elements" style="display:none;">
+<?php
+switch($content['type'])
+{
+	case 'dropdown':
+	case 'listbox':
+	case 'listbox-multiple':
+	case 'checkbox':
+	case 'option':
+	case 'custom_tv':
+		$display = '';
+		break;
+	default: $display = 'style="display:none;"';
+}
+?>
+  <tr id="elements" <?php echo $display;?>>
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
 	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
