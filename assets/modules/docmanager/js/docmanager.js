@@ -44,28 +44,28 @@ function getSelectedRadioValue(buttonGroup) {
 }
 
 function changeOtherLabels() {
-   var choice1 = $('choice_label_1');
-   var choice2 = $('choice_label_2');
+   var choice1 = document.getElementById('choice_label_1');
+   var choice2 = document.getElementById('choice_label_2');
 
-   if ($('misc').value=='1') {
-       choice1.innerHTML = $('option1').value;
-       choice2.innerHTML = $('option2').value;
-   } else if ($('misc').value=='2') {
-       choice1.innerHTML = $('option3').value;
-       choice2.innerHTML = $('option4').value;
-   } else if ($('misc').value=='3') {
-       choice1.innerHTML = $('option5').value;
-       choice2.innerHTML = $('option6').value;
-   } else if ($('misc').value=='4') {
-       choice1.innerHTML = $('option7').value;
-       choice2.innerHTML = $('option8').value;
-   } else if ($('misc').value=='5') {
-       choice1.innerHTML = $('option9').value;
-       choice2.innerHTML = $('option10').value;
-   } else if ($('misc').value=='6') {
-       choice1.innerHTML = $('option11').value;
-       choice2.innerHTML = $('option12').value;
-   } else if ($('misc').value=='0') {
+   if ( $j('#misc').val()=='1') {
+       choice1.innerHTML = $j('#option1').val();
+       choice2.innerHTML = $j('#option2').val();
+   } else if ( $j('#misc').val()=='2') {
+       choice1.innerHTML = $j('#option3').val();
+       choice2.innerHTML = $j('#option4').val();
+   } else if ( $j('#misc').val()=='3') {
+       choice1.innerHTML = $j('#option5').val();
+       choice2.innerHTML = $j('#option6').val();
+   } else if ( $j('#misc').val()=='4') {
+       choice1.innerHTML = $j('#option7').val();
+       choice2.innerHTML = $j('#option8').val();
+   } else if ( $j('#misc').val()=='5') {
+       choice1.innerHTML = $j('#option9').val();
+       choice2.innerHTML = $j('#option10').val();
+   } else if ( $j('#misc').val()=='6') {
+       choice1.innerHTML = $j('#option11').val();
+       choice2.innerHTML = $j('#option12').val();
+   } else if ( $j('#misc').val()=='0') {
        choice1.innerHTML = " - ";
        choice2.innerHTML = " - ";
     }
@@ -75,35 +75,35 @@ function postForm() {
     var tabActiveID = getCookie("webfxtab_docManagerPane");
 	
 	if (tabActiveID == '0' || tabActiveID == null) {
-		$('tabaction').value = 'changeTemplate';
-		$('newvalue').value = getSelectedRadioValue(document.template.id); 
+		document.getElementById('tabaction').value = 'changeTemplate';
+		document.getElementById('newvalue').value = getSelectedRadioValue(document.template.id); 
 		
 		document.range.submit(); 
 	} else if (tabActiveID == '1') {
-	    $('pids_tv').value = $('pids').value;
-	    $('template_id').value = getSelectedRadioValue(document.templatevariables.tid);
+	    document.getElementById('pids_tv').value = document.getElementById('pids').value;
+	    document.getElementById('template_id').value = getSelectedRadioValue(document.templatevariables.tid);
 	    
 	    document.templatevariables.submit();
 	} else if (tabActiveID == '2') {		
-		$('tabaction').value = getSelectedRadioValue(document.docgroups.tabAction);
-		$('newvalue').value = getSelectedRadioValue(document.docgroups.docgroupid); 
+		document.getElementById('tabaction').value = getSelectedRadioValue(document.docgroups.tabAction);
+		document.getElementById('newvalue').value = getSelectedRadioValue(document.docgroups.docgroupid); 
 		
 		document.range.submit(); 
 	} else if (tabActiveID == '3') {
 	   /* handled separately using save() function */
 	} else if (tabActiveID == '4') {	
-		$('tabaction').value = 'changeOther';
+		document.getElementById('tabaction').value = 'changeOther';
 
-		$('setoption').value = document.other.misc.value; 
-		$('newvalue').value = getSelectedRadioValue(document.other.choice);
+		document.getElementById('setoption').value = document.other.misc.value; 
+		document.getElementById('newvalue').value = getSelectedRadioValue(document.other.choice);
 
-		$('pubdate').value = document.dates.date_pubdate.value; 
-		$('unpubdate').value = document.dates.date_unpubdate.value; 
-		$('createdon').value = document.dates.date_createdon.value; 
-		$('editedon').value = document.dates.date_editedon.value;
+		document.getElementById('pubdate').value = document.dates.date_pubdate.value; 
+		document.getElementById('unpubdate').value = document.dates.date_unpubdate.value; 
+		document.getElementById('createdon').value = document.dates.date_createdon.value; 
+		document.getElementById('editedon').value = document.dates.date_editedon.value;
 		
-		$('author_createdby').value = document.authors.author_createdby.value; 
-		$('author_editedby').value = document.authors.author_editedby.value;
+		document.getElementById('author_createdby').value = document.authors.author_createdby.value; 
+		document.getElementById('author_editedby').value = document.authors.author_editedby.value;
 		
 		document.range.submit(); 
     }
@@ -111,16 +111,21 @@ function postForm() {
 
 function hideInteraction() {
     var tabActiveID = getCookie("webfxtab_docManagerPane");
-    if (tabActiveID == '1') { 
-        $('tvloading').style.display = 'none';
+    if (tabActiveID == '1')
+    { 
+        document.getElementById('tvloading').style.display = 'none';
     }
-    if (tabActiveID == '3') {
-        if ($('interaction')) {
-            $('interaction').style.display = 'none';
+    if (tabActiveID == '3')
+    {
+        if (document.getElementById('interaction'))
+        {
+            document.getElementById('interaction').style.display = 'none';
         }
         parent.tree.ca = 'move';
-    } else {
-        $('interaction').style.display = '';
+    }
+    else
+    {
+        document.getElementById('interaction').style.display = '';
         parent.tree.ca = '';
     }
     
