@@ -50,14 +50,7 @@ switch ($e->name)
 		
 		$params['css_selectors']   = $modx->config['tinymce_css_selectors'];
 		$params['use_browser']     = $modx->config['use_browser'];
-		if(!empty($usersettings['editor_css_path']))
-		{
-			$params['editor_css_path'] = $usersettings['editor_css_path'];
-		}
-		else
-		{
-			$params['editor_css_path'] = $settings['editor_css_path'];
-		}
+		$params['editor_css_path'] = $modx->config['editor_css_path'];
 		
 		if($modx->isBackend() || (intval($_GET['quickmanagertv']) == 1 && isset($_SESSION['mgrValidated'])))
 		{
