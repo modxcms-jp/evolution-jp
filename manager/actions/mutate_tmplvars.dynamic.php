@@ -461,7 +461,11 @@ if($content['type']==='custom_tv' && $content['elements']==='')
 <?php
 	    while ($row = $modx->db->getRow($rs))
 	    {
-	    	if(isset($_GET['tpl']) && $_GET['tpl'] == $row['id'])
+	    	if($_REQUEST['a']=='300' && $modx->config['default_template']==$row['id'])
+	    	{
+	    		$checked = true;
+	    	}
+	    	elseif(isset($_GET['tpl']) && $_GET['tpl'] == $row['id'])
 	    	{
 	    		$checked = true;
 	    	}
