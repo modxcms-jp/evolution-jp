@@ -231,7 +231,7 @@ class DataGrid {
 		$tblStart	= "<table{$attr}>\n";
 		$tblEnd		= "</table>\n";
 		
-		if($this->cdelim==='\t')    $this->cdelim = "\t";
+		if($this->cdelim==='tab')    $this->cdelim = "\t";
 		
 		// build column header
 		if($this->detectHeader==='first line')
