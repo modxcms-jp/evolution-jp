@@ -146,11 +146,22 @@ class MANAGERMANAGER
 				break;
 				
 				case 'custom_tv':
-					if(strpos($thisTv['elements'],'tvtype="textarea"')!==false)
+					if(strpos($thisTv['elements'],'tvtype="text"')!==false)
+						$t = 'input';
+					elseif(strpos($thisTv['elements'],'tvtype="textarea"')!==false)
 						$t = 'textarea';
 					elseif(strpos($thisTv['elements'],'tvtype="select"')!==false)
 						$t = 'select';
 					elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false)
+					{
+						$t = 'input';
+						$fieldname_suffix = '[]';
+					}
+					elseif(strpos($thisTv['elements'],'<textarea')!==false)
+						$t = 'textarea';
+					elseif(strpos($thisTv['elements'],'<select')!==false)
+						$t = 'select';
+					elseif(strpos($thisTv['elements'],'"checkbox"')!==false)
 					{
 						$t = 'input';
 						$fieldname_suffix = '[]';
