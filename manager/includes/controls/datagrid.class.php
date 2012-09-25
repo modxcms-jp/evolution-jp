@@ -192,8 +192,8 @@ class DataGrid {
 		$cssStyle			= ($this->cssStyle)? 'style="' .$this->cssStyle . '"':'';
 		$cssClass			= ($this->cssClass)? 'class="' .$this->cssClass. '"':'';
 		
-		$pagerClass			= ($this->pagerClass)? 'class="'.$this->pagerClass.'"':'';
-		$pagerStyle			= ($this->pagerStyle)? 'style="'.$this->pagerStyle.'"':'style="background-color:#ffffff;"';
+		$pagerClass			= (isset($this->pagerClass))? 'class="'.$this->pagerClass.'"':'class="pager"';
+		$pagerStyle			= (isset($this->pagerStyle))? 'style="'.$this->pagerStyle.'"':'style="margin:10px 0;background-color:#ffffff;"';
 
 		$this->_itemStyle	= ($this->itemStyle)?    'style="' . $this->itemStyle . '"':'';
 		$this->_itemClass	= ($this->itemClass)?    'class="' . $this->itemClass . '"':'';
@@ -313,11 +313,24 @@ class DataGrid {
 		$ptop = (substr($this->pagerLocation,0,3)=="top")||(substr($this->pagerLocation,0,4)=="both");
 		$pbot = (substr($this->pagerLocation,0,3)=="bot")||(substr($this->pagerLocation,0,4)=="both");
 		if($this->header) $o.="<tr><td colspan='".$this->_colcount."'>".$this->header."</td></tr>";
-		if($tblPager && $ptop) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";
-		$o.=$tblColHdr.$tblRows;
-		if($tblPager && $pbot) $o.="<tr><td align='".(substr($this->pagerLocation,-4)=="left"? "left":"right")."' $pagerClass $pagerStyle colspan='".$this->_colcount."'>".$tblPager."&nbsp;</td></tr>";
-		if($this->footer) $o.="<tr><td colspan='".$this->_colcount."'>".$this->footer."</td></tr>";
+		
+		$tpl = '<div align="[+align+]" [+pagerClass+] [+pagerStyle+]>[+tblPager+]</div>' . "\n";
+		$ph['pagerClass'] = $pagerClass;
+		$ph['pagerStyle'] = $pagerStyle;
+		$ph['tblPager']   = $tblPager;
+		if(substr($this->pagerLocation,-4)=='left') $ph['align'] = 'left';
+		else                                        $ph['align'] = 'right';
+		
+		if($tblPager && $ptop) $o = $modx->parsePlaceholder($tpl,$ph) . $o;
+		
+		$o .= $tblColHdr.$tblRows;
+		
+		if($tblPager && $pbot) $o = $o . $modx->parsePlaceholder($tpl,$ph);
+		
 		$o.= $tblEnd;
+		
+		if($this->footer) $o.='<div class="footer">' . $this->footer . '</div>';
+		
 		return $o;
 	}
 }
