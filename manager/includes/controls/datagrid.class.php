@@ -346,6 +346,6 @@ class DataGrid {
 		
 		if($this->footer) $o = $o . '<div class="gridfooter">' . $this->footer . "</div>\n";
 		
-		return '<div class="grid">' . $o . '</div>';
+		return '<div class="gridwrap">' . $o . '</div>';
 	}
 }
