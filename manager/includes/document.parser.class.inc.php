@@ -2362,8 +2362,37 @@ class DocumentParser {
 			return true;
 		}
 		else return false;
-    }
-
+	}
+	
+	private function _getReferenceListing()
+	{
+		$referenceListing = array();
+		$rs = $this->db->select('id,content', $this->getFullTableName('site_content'), "type='reference'");
+		$rows = $this->db->makeArray($rs);
+		foreach($rows as $row)
+		{
+			extract($row);
+			$content = trim($content);
+			if((strpos($content,'[')!==false || strpos($content,'{')!==false) && strpos($content,'[~')===false)
+			{
+				$content = $this->parseDocumentSource($content);
+			}
+			elseif(strpos($content,'[~')===0)
+			{
+				$content = substr($content,2,-2);
+				if(strpos($content,'[')!==false || strpos($content,'{')!==false)
+				{
+					$content = $this->parseDocumentSource($content);
+				}
+			}
+			$referenceListing[$id] = $content;
+		}
+		
+		$this->referenceListing = $referenceListing;
+		
+		return $referenceListing;
+	}
+	
 	function makeUrl($id, $alias= '', $args= '', $scheme= '')
 	{
 		$url= '';
@@ -2374,6 +2403,20 @@ class DocumentParser {
 		{
 			$this->messageQuit("'{$id}' is not numeric and may not be passed to makeUrl()");
 		}
+		
+		if(!isset($this->referenceListing))
+		{
+			$this->_getReferenceListing();
+		}
+		
+		if(isset($this->referenceListing[$id]))
+		{
+			if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
+			{
+				$id = $this->referenceListing[$id];
+			}
+		}
+		
 		if ($args != '' && $this->config['friendly_urls'] == 1)
 		{
 			// add ? to $args if missing
@@ -2470,16 +2513,9 @@ class DocumentParser {
 		$pieces = preg_split('/(\[~|~\])/',$documentSource);
 		$maxidx = sizeof($pieces);
 		$documentSource = '';
-		if(empty($this->referenceListing))
+		if(!isset($this->referenceListing))
 		{
-			$this->referenceListing = array();
-			$res = $this->db->select('id,content', $this->getFullTableName('site_content'), "type='reference'");
-			$rows = $this->db->makeArray($res);
-			foreach($rows as $row)
-			{
-				extract($row);
-				$this->referenceListing[$id] = $content;
-			}
+			$this->referenceListing = $this->_getReferenceListing();
 		}
 		
 		if ($this->config['friendly_urls'] == 1)
@@ -2500,16 +2536,25 @@ class DocumentParser {
 				if ($idx < $maxidx)
 				{
 					$target = trim($pieces[$idx]);
-					if(isset($this->referenceListing[$target]) && preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
-						$target = $this->referenceListing[$target];
-					elseif(preg_match("/^[0-9]+$/",$target))
-						$target = $aliases[$target];
-					else $target = $this->parseDocumentSource($target);
 					
-					if(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
-					                                        $path = $this->referenceListing[$target];
-					elseif(isset($aliases[$target]) && $use_alias) $path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$target]);
-					else                                    $path = $this->makeFriendlyURL($prefix, $suffix, $target);
+					if(strpos($target,'[~')===false) $target = $this->parseDocumentSource($target);
+					
+					if(preg_match('/^[0-9]+$/',$target))
+					{
+						$id = $target;
+						if(preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
+						{
+							$path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$id]);
+						}
+						else
+						{
+							$path = $this->referenceListing[$id];
+						}
+					}
+					else
+					{
+						$path = $target;
+					}
 					$documentSource .= $path;
 				}
 			}
