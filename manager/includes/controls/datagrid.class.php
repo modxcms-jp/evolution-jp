@@ -326,7 +326,8 @@ class DataGrid {
 		$o = $tblStart;
 		$ptop = (substr($this->pagerLocation,0,3)=="top")||(substr($this->pagerLocation,0,4)=="both");
 		$pbot = (substr($this->pagerLocation,0,3)=="bot")||(substr($this->pagerLocation,0,4)=="both");
-		if($this->header) $o.="<tr><td colspan='".$this->_colcount."'>".$this->header."</td></tr>";
+		
+		if($this->header) $o = '<div class="gridheader">' . $this->header."</div>\n" . $o;
 		
 		$tpl = '<div align="[+align+]" [+pagerClass+] [+pagerStyle+]>[+tblPager+]</div>' . "\n";
 		$ph['pagerClass'] = $pagerClass;
@@ -343,8 +344,8 @@ class DataGrid {
 		
 		$o.= $tblEnd;
 		
-		if($this->footer) $o.='<div class="footer">' . $this->footer . '</div>';
+		if($this->footer) $o = $o . '<div class="gridfooter">' . $this->footer . "</div>\n";
 		
-		return $o;
+		return '<div class="grid">' . $o . '</div>';
 	}
 }
