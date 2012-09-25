@@ -8,7 +8,7 @@
  * @version 	0.3.12.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules; &remove_deprecated_tv_types_pref=Remove deprecated TV types;list;yes,no;yes;
- * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnTVFormRender,OnManagerMainFrameHeaderHTMLBlock
+ * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnManagerMainFrameHeaderHTMLBlock
  * @internal	@modx_category Manager and Admin
  * @internal    @legacy_names Image TV Preview, Show Image TVs
  * @internal    @installset base

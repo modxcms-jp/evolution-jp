@@ -346,9 +346,7 @@ function decode(s){
 <?php
 	$option = array();
 	$option['text']         = 'Text';
-	$option['rawtext']      = 'Raw Text (deprecated)';
 	$option['textarea']     = 'Textarea';
-	$option['rawtextarea']  = 'Raw Textarea (deprecated)';
 	$option['textareamini'] = 'Textarea (Mini)';
 	$option['richtext']     = 'RichText';
 	$option['dropdown']     = 'DropDown List Menu';

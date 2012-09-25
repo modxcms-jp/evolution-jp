@@ -32,10 +32,6 @@ class MANAGERMANAGER
 		
 		// Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 		
-		// Should we remove deprecated Template variable types from the TV creation list?
-		$remove_deprecated_tv_types = ($remove_deprecated_tv_types_pref == 'yes') ? true : false;
-		
-		
 		// When loading widgets / functions, ignore folders / files beginning with these chars
 		$ignore_first_chars = array('.', '_', '!');
 		
@@ -389,34 +385,6 @@ class MANAGERMANAGER
 		<!-- ManagerManager Plugin :: End -->
 				');
 			break;
-		
-		
-		
-		
-		
-		case 'OnTVFormRender':
-		
-			if ($remove_deprecated_tv_types) {
-		
-				// Load the jquery library
-				echo '<!-- Begin ManagerManager output -->';
-			
-				// Create a mask to cover the page while the fields are being rearranged
-				echo '
-					<script type="text/javascript">
-					$j("select[name=type] option").each( function() {
-														var $this = $j(this);
-														if( !($this.text().match("deprecated")==null )) {
-															$this.remove();
-														}
-																  });
-					</script>
-				';
-				echo '<!-- End ManagerManager output -->';
-			}
-		
-		break;
-		
 		
 		case 'OnBeforeDocFormSave':
 			global $template;
