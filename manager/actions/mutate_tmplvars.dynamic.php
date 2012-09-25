@@ -199,7 +199,7 @@ function showParameters(ctrl) {
                             currentParams[key] = ls[0]; // use first list item as default
                         }
                         for(i=0;i<ls.length;i++){
-                            c += '<option value="'+ls[i]+'"'+((ls[i]==value)? ' selected="selected"':'')+'>'+ls[i]+'</option>';
+                            c += '<option value="'+decode(ls[i])+'"'+((decode(ls[i])==value)? ' selected="selected"':'')+'>'+decode(ls[i])+'</option>';
                         }
                         c += '</select>';
                         break;
@@ -271,6 +271,9 @@ function encode(s){
     s = s.replace(/\;/g,'%3B'); // ;
     s = s.replace(/\=/g,'%3D'); // =
     s = s.replace(/\&/g,'%26'); // &
+    s = s.replace(/\,/g,'%2C'); // ,
+    s = s.replace(/\\/g,'%5C'); // \
+    
     return s;
 }
 
@@ -279,6 +282,9 @@ function decode(s){
     s = s.replace(/\%3B/g,';'); // =
     s = s.replace(/\%3D/g,'='); // =
     s = s.replace(/\%26/g,'&'); // &
+    s = s.replace(/\%2C/g,','); // ,
+    s = s.replace(/\%5C/g,'\\'); // \
+    
     return s;
 }
 

@@ -295,8 +295,12 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 
 function decodeParamValue($s)
 {
+	$s = str_replace('%3B',';',$s); // ;
 	$s = str_replace('%3D','=',$s); // =
 	$s = str_replace('%26','&',$s); // &
+	$s = str_replace('%2C',',',$s); // ,
+	$s = str_replace('%5C','\\',$s); // \
+
 	return $s;
 }
 
