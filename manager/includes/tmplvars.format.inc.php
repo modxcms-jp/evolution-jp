@@ -216,6 +216,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			$grd->cdelim			=$params['cdelim'];
 			$grd->cwrap				=$params['cwrap'];
 			$grd->src_encode		=$params['enc'];
+			$grd->detectHeader		=$params['detecthead'];
 			
 			$o = $grd->render();
 			break;
