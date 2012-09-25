@@ -11,6 +11,14 @@
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">
 	        var $j = jQuery.noConflict();
+	        $j(function(){
+	        	$j('table.grid td').css('cursor','pointer');
+				$j('table.grid td').click(function () {
+					var $c = $j(this).parent().children('td').children('input[type=radio]');
+					if($c.prop('checked')) $c.prop('checked', '');
+					else $c.prop('checked', 'checked');
+		    	});
+	        });
             function loadTemplateVars(tplId) {
 			    $j('#tvloading').css('display','block');
 			    $j.ajax(
