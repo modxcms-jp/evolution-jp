@@ -28,7 +28,7 @@ class MANAGERMANAGER
 		global $modx;
 		
 		extract($modx->event->params);
-		$mm_version = '0.3.12'; 
+		$mm_version = '0.3.12.1'; 
 		
 		// Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 		
