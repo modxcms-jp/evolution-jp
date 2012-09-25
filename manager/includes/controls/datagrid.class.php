@@ -51,6 +51,7 @@ class DataGrid {
 	var $cdelim;
 	var $cwrap;
 	var $src_encode;
+	var $detectHeader;
 
 	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
 		global $__DataGridCnt;
@@ -66,6 +67,7 @@ class DataGrid {
 		
 		$this->ds = $ds;
 		$this->cdelim = ',';
+		$this->detectHeader = 'none';
 		
 		$this->src_encode = $modx->config['modx_charset'];
 	}
@@ -232,15 +234,27 @@ class DataGrid {
 		if($this->cdelim==='\t')    $this->cdelim = "\t";
 		
 		// build column header
-		$this->_colnames  = explode((strstr($this->columns,"||")  !==false ? "||":","),$this->columns);
+		if($this->detectHeader==='first line')
+		{
+			list($firstline, $this->ds) = explode("\n", $this->ds, 2);
+			$this->_colnames  = explode($this->cdelim,$firstline);
+		}
+		elseif(!empty($this->columns))
+		{
+			$this->_colnames  = explode((strstr($this->columns,"||")  !==false ? "||":","),$this->columns);
+		}
+		else $this->_colnames = array();
+		
 		$this->_colwidths = explode((strstr($this->colWidths,"||")!==false ? "||":","),$this->colWidths);
 		$this->_colaligns = explode((strstr($this->colAligns,"||")!==false ? "||":","),$this->colAligns);
 		$this->_colwraps  = explode((strstr($this->colWraps,"||") !==false ? "||":","),$this->colWraps);
 		$this->_colcolors = explode((strstr($this->colColors,"||")!==false ? "||":","),$this->colColors);
 		$this->_coltypes  = explode((strstr($this->colTypes,"||") !==false ? "||":","),$this->colTypes);
-		$this->_colcount  = count($this->_colnames);
 		
-		if(!empty($this->columns)) $this->_colcount = count($this->_colnames);
+		if(0 < count($this->_colnames))
+		{
+			$this->_colcount = count($this->_colnames);
+		}
 		elseif(!is_resource($this->ds) && strpos($this->ds,$this->cdelim)!==false)
 		{
 			$this->_colcount = count(explode($this->cdelim, substr($this->ds,0,strpos($this->ds,"\n"))));
@@ -251,7 +265,7 @@ class DataGrid {
 			$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
 			$this->ds = array_chunk($this->ds, $this->_colcount);
 		}
-		if(!empty($this->columns))
+		if(0 < count($this->_colnames))
 		{
 			$tblColHdr ="<thead>\n<tr>";
 			for($c=0;$c<$this->_colcount;$c++){
