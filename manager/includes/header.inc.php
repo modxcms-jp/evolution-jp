@@ -34,19 +34,19 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 		
 		var $j = jQuery.noConflict();
 		
-		$j(function(){
-			$j('.tooltip').powerTip({'fadeInTime':'0','smartPlacement':true});
-		});
-		
-        $j(document_onload());
-        $j.bind('beforeunload', document_onunload());
-        
         function document_onload() {
             stopWorker();
             hideLoader();
             <?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : '' ;?>;
         };
-
+        
+		$j(function(){
+			$j('.tooltip').powerTip({'fadeInTime':'0','smartPlacement':true});
+        	document_onload();
+		});
+		
+        $j.bind('beforeunload', document_onunload());
+        
         function doRefresh(r) {
             try
             {
