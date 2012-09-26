@@ -127,7 +127,7 @@ if ($moduleSQLBaseFile) {
 	// display database results
 	if ($sqlParser->installFailed == true) {
 		$errors += 1;
-		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
+		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</b></span></p>";
 		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
 		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
 		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
@@ -629,7 +629,7 @@ if ($installData && $moduleSQLDataFile)
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;
-		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</span></p>";
+		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</b></span></p>";
 		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
 		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
 		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++)
