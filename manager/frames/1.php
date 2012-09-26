@@ -4,6 +4,7 @@ $_SESSION['browser'] = (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false) ? 'i
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if($_SESSION['mgrForgetPassword']) $action = '28';
 else                               $action = '2';
+$modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
@@ -30,3 +31,5 @@ else                               $action = '2';
 </frameset>
 <noframes>This software requires a browser with support for frames.</noframes>
 </html>
+<?php
+$modx->invokeEvent('OnManagerFrameLoader',array('action'=>$action));
