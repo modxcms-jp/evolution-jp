@@ -518,29 +518,29 @@ EOT;
 					if ($this->noconflictjq == 'true')
 					{
 						$head .= '
-var $j = jQuery.noConflict();
-$j(document).ready(function($)
-';
+						var $j = jQuery.noConflict();
+						$j(function()
+						';
 						$jvar = 'j';
 					}
 					else
 					{
 						// jQuery in normal mode
-						$head .= '$(document).ready(function($)';
+						$head .= '$(function()';
 						$jvar = '';
 					}
 					$head .= '
 {
 $'.$jvar.'("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
 // Bindings
-$'.$jvar.'(document).bind("cbox_open", function()
+$'.$jvar.'.bind("cbox_open", function()
 {
 	$'.$jvar.'("body").css({"overflow":"hidden"});
 	$'.$jvar.'("html").css({"overflow":"hidden"});
 	$'.$jvar.'("#qmEditor").css({"display":"none"});
 });
 
-$'.$jvar.'(document).bind("cbox_closed", function()
+$'.$jvar.'.bind("cbox_closed", function()
 {
 	$'.$jvar.'("body").css({"overflow":"auto"});
 	$'.$jvar.'("html").css({"overflow":"auto"});
@@ -695,8 +695,12 @@ function getCookie(cookieName)
 					// Manager control class
 					$mc = new Mcc();
 					
+					// Get jQuery conflict mode
+					if ($this->noconflictjq == 'true') $jq_mode = '$j';
+					else                               $jq_mode = '$';
+					
 					// Hide default manager action buttons
-					$mc->addLine('$("#actions").hide();');
+					$mc->addLine($jq_mode . '("#actions").hide();');
 					
 					// Get MODx theme
 					$qm_theme = $this->modx->config['manager_theme'];
@@ -704,9 +708,6 @@ function getCookie(cookieName)
 					// Get doc id
 					$doc_id = intval($_REQUEST['id']);
 					
-					// Get jQuery conflict mode
-					if ($this->noconflictjq == 'true') $jq_mode = '$j';
-					else                               $jq_mode = '$';
 					
 					// Add action buttons
 					$mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\" id=\"qmcontrols\" class=\"actionButtons\"><ul><li><a href=\"#\" onclick=\"documentDirty=false;document.mutate.save.click();return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/save.png\" />'.$_lang['save'].'</a></li><li><a href=\"#\" onclick=\"documentDirty=false; parent.'.$jq_mode.'.fn.colorbox.close(); return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/stop.png\"/>'.$_lang['cancel'].'</a></li></ul></div>";');
@@ -719,7 +720,7 @@ function getCookie(cookieName)
 					}
 					
 					// Add control button
-					$mc->addLine('$("body").prepend(controls);');
+					$mc->addLine($jq_mode . '("body").prepend(controls);');
 					
 				// Hide fields to from front-end editors
 					if ($this->hidefields != '')
@@ -1067,10 +1068,13 @@ function getCookie(cookieName)
 	
 	function get_img_prev_src()
 	{
+		if ($this->noconflictjq == 'true') $jq_mode = '$j';
+		else                               $jq_mode = '$';
+		
 		$src = <<< EOT
 <div id="qm-tv-image-preview"><img class="qm-tv-image-preview-drskip qm-tv-image-preview-skip" src="[+site_url+][tv_value+]" alt="" /></div>
 <script type="text/javascript" charset="UTF-8">
-$(document).ready(function()
+{$jq_mode}(function()
 {
 	var previewImage = "#tv[+tv_name+]";
 	var siteUrl = "[+site_url+]";
@@ -1079,18 +1083,18 @@ $(document).ready(function()
 	SetUrl = function(url, width, height, alt)
 	{	// Redefine it to also tell the preview to update
 		OriginalSetUrl(url, width, height, alt);
-		$(previewImage).trigger("change");
+		{$jq_mode}(previewImage).trigger("change");
 	}
-	$(previewImage).change(function()
+	{$jq_mode}(previewImage).change(function()
 	{
-		$("#qm-tv-image-preview").empty();
-		if ($(previewImage).val()!="" )
+		{$jq_mode}("#qm-tv-image-preview").empty();
+		if ({$jq_mode}(previewImage).val()!="" )
 		{
-			$("#qm-tv-image-preview").append('<img class="qm-tv-image-preview-drskip qm-tv-image-preview-skip" src="' + siteUrl + $(previewImage).val()  + '" alt="" />');
+			{$jq_mode}("#qm-tv-image-preview").append('<img class="qm-tv-image-preview-drskip qm-tv-image-preview-skip" src="' + siteUrl + {$jq_mode}(previewImage).val()  + '" alt="" />');
 		}
 		else
 		{
-			$("#qm-tv-image-preview").append("");
+			{$jq_mode}("#qm-tv-image-preview").append("");
 		}
 	});
 });
