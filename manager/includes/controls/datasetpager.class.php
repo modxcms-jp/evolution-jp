@@ -38,10 +38,15 @@ class DataSetPager {
 		
 		// get pagenumber
 		// by setting pager to -1 cause pager to load it's last page number
-		if($pageNumber==-1){
+		if($pageNumber==-1)
+		{
 			$pageNumber = 1;
-			if (isset($_GET["dpgn".$this->id])) $pageNumber = $_GET["dpgn".$this->id];
-			elseif (isset($_PAGE['vs'][$id.'_dpgn'])) {
+			if (isset($_GET["dpgn".$this->id]))
+			{
+				$pageNumber = $_GET["dpgn".$this->id];
+			}
+			elseif (isset($_PAGE['vs'][$id.'_dpgn']))
+			{
 				$pageNumber = $_PAGE['vs'][$id.'_dpgn'];
 			}
 		}
@@ -70,11 +75,9 @@ class DataSetPager {
 		$this->pageSize = $ps;
 	}
 
-	function setRenderRowFnc($fncName, $args = ""){
+	function setRenderRowFnc($fncName, $args = ''){
 		$this->renderRowFnc = &$fncName;
 		$this->renderRowFncArgs = $args;	// extra agruments
-
-
 	}
 
 	function setRenderPagerFnc($fncName, $args = ""){
@@ -84,29 +87,30 @@ class DataSetPager {
 
 	function render(){
 		global $modx,$_PAGE;
-			
+		
 		$isDataset = is_resource($this->ds);
 		
 		if (!$this->selPageStyle) $this->selPageStyle = "font-weight:bold";
 		
 		// get total number of rows
-		$tnr = ($isDataset)? $modx->db->getRecordCount($this->ds):count($this->ds);
+		$tnr = ($isDataset) ? $modx->db->getRecordCount($this->ds) : count($this->ds);
 
 		// render: no records found
-		if($tnr<=0) {
+		if($tnr<=0)
+		{
 			$fnc = $this->renderRowFnc;
 			$args = $this->renderRowFncArgs;
-			if (isset($fnc)) {
-				if($args!="") $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
-				else $this->rows .= $fnc(0,null);				 // otherwise two will be passed
+			if (isset($fnc))
+			{
+				if($args!='') $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
+				else          $this->rows .= $fnc(0,null);		 // otherwise two will be passed
 			}
 			return;
 		}
 
 		// get total pages
 		$tp = ceil($tnr/$this->pageSize);
-		if($this->pageNumber>$tp) $this->pageNumber = 1;
-
+		if($this->pageNumber > $tp) $this->pageNumber = 1;
 		// get page number
 		$p = $this->pageNumber;
 
@@ -118,27 +122,35 @@ class DataSetPager {
 			$fnc = $this->renderPagerFnc;
 			$args = $this->renderPagerFncArgs;
 			if (!isset($fnc)){
+				if($modx->isFrontend()) $url = $modx->makeUrl($modx->documentIdentifier,'','','full') . '?';
+				else                    $url = $_SERVER['PHP_SELF'] . '?';
 				$i=0;
-				foreach($_GET as $n => $v) if($n!='dpgn'.$this->id) {$i++;$url.=(($i>1)? "&":"")."$n=$v";}
+				foreach($_GET as $n => $v)
+				{
+					if($n!='dpgn'.$this->id)
+					{
+						$i++;$url.=(($i>1)? "&":"")."$n=$v";
+					}
+				}
+				
 				if($i>=1)$url.="&";
 			}
-			
 			for($i=1;$i<=$tp;$i++) {
 				if (isset($fnc)) {
-					if($args!="") $this->pager .= $fnc($p,$i,$args);
+					if($args!='') $this->pager .= $fnc($p,$i,$args);
 					else $this->pager .= $fnc($p,$i);
 				}
-				else {
-					$eachargs = "dpgn{$this->id}={$i}";
-					if($i!=1)
+				else
+				{
+					if($p==$i)
 					{
-						$url = $modx->makeUrl($modx->documentIdentifier,'',$eachargs,'full');
+						$this->pager .= ' <span class="' . $this->selPageClass . '" style="' . $this->selPageStyle . '">' . $i . '</span> ';
 					}
 					else
 					{
-						$url = $modx->makeUrl($modx->documentIdentifier,'','','full');
+						$eachurl = "{$url}dpgn{$this->id}={$i}";
+						$this->pager .= ' <a href="' . $eachurl . '" class="' . $this->pageClass . '" style="' . $this->pageStyle. '">' . $i . '</a> ';
 					}
-					$this->pager .=($p==$i)? " <span class='".$this->selPageClass."' style='".$this->selPageStyle."'>$i</span> ":' <a href="' . $url . '" class="' . $this->pageClass . '" style="' . $this->pageStyle.'">' . $i . '</a> ';
 				}
 			}
 		}
