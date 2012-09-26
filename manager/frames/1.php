@@ -12,20 +12,25 @@ $modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 	<title><?php echo $site_name?> - (MODX CMS Manager)</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset?>" />
 </head>
+<?php
+$treePane = '<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">';
+$mainPane = '<frame name="main" src="index.php?a=' . $action . '" scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">';
+?>
 <frameset rows="70,*" border="0">
 	<frame name="mainMenu" src="index.php?a=1&amp;f=menu" scrolling="no" frameborder="0" noresize="noresize">
 <?php if (!$modx_textdir) {
 	// Left-to-Right reading (sidebar on left)
 	?>
-	<frameset cols="260,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
-		<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">
-		<frame name="main" src="index.php?a=<?php echo $action;?>"  scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
+		<frameset cols="260,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
+		<?php echo $treePane; ?>
+		<?php echo $mainPane; ?>
+);">
 <?php } else {
 	// Right-to-Left reading (sidebar on right)
 	?>
     	<frameset cols="*,260" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
-		<frame name="main" src="index.php?a=<?php echo $action;?>" scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">
-		<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">
+		<?php echo $mainPane; ?>
+		<?php echo $treePane; ?>
 <?php } ?>
 	</frameset>
 </frameset>
