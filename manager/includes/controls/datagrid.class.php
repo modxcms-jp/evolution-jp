@@ -179,6 +179,7 @@ class DataGrid {
 				break;
 				
 		}
+		if(isset($this->cwrap) && !empty($this->cwrap)) $value = trim($value,$this->cwrap);
 		return $value;
 	}
 	
@@ -315,7 +316,7 @@ class DataGrid {
 					$this->pager->pageSize	= $this->pageSize;
 					$this->pager->pageNumber= $this->pageNumber;
 				}
-
+				
 				$this->pager->render();
 				$tblRows = $this->pager->getRenderedRows();
 				$tblPager = $this->pager->getRenderedPager();
