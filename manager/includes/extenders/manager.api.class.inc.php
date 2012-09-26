@@ -135,6 +135,22 @@ class ManagerAPI {
 		if(!isset($ext) || $image_limit_width==='' || $img[0] <= $image_limit_width)
 		{
 			$rs = move_uploaded_file($tmp_path, $target_path);
+			if(!$rs)
+			{
+				$target_is_writable = (is_writable(dirname($target_path))) ? 'true' : 'false';
+				
+				$msg  = '$tmp_path = ' . "{$tmp_path}\n";
+				$msg .= '$target_path = ' . "{$target_path}\n";
+				$msg .= '$image_limit_width = ' . "{$image_limit_width}\n";
+				$msg .= '$target_is_writable = ' . "{$target_is_writable}\n";
+				if(isset($ext))
+				{
+					$msg .= 'getimagesize = ' . print_r($img,true);
+				}
+				
+				$msg = str_replace("\n","<br />\n",$msg);
+				$modx->logEvent(1,3,$msg,'move_uploaded_file');
+			}
 			return $rs;
 		}
 		
