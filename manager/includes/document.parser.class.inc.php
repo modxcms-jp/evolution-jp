@@ -2549,20 +2549,19 @@ class DocumentParser {
 				if ($idx < $maxidx)
 				{
 					$target = trim($pieces[$idx]);
-					
-					if(strpos($target,'[~')===false) $target = $this->parseDocumentSource($target);
+					$target = $this->mergeDocumentContent($target);
+					$target = $this->mergeSettingsContent($target);
+					$target = $this->mergeChunkContent($target);
+					$target = $this->evalSnippets($target);
 					
 					if(preg_match('/^[0-9]+$/',$target))
 					{
 						$id = $target;
 						if(preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
 						{
+							$id = $this->referenceListing[$id];
+						}
 							$path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$id]);
-						}
-						else
-						{
-							$path = $this->referenceListing[$id];
-						}
 					}
 					else
 					{
