@@ -688,7 +688,6 @@ REPLACE INTO `{PREFIX}user_roles`
 # Default Site Settings
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
-('manager_theme','{MANAGER_THEME}'),
 ('settings_version',''),
 ('server_offset_time','0'),
 ('manager_language','{MANAGERLANGUAGE}'),
@@ -873,5 +872,3 @@ UPDATE `{PREFIX}user_roles` SET
 	WHERE `id`=1;
 
 # Update any invalid Manager Themes reset the default theme
-
-REPLACE INTO `{PREFIX}system_settings` (setting_name, setting_value) VALUES ('manager_theme','{MANAGER_THEME}');
