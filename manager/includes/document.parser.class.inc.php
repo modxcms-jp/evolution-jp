@@ -53,7 +53,6 @@ class DocumentParser {
     var $qs_hash;
     var $cacheRefreshTime;
     var $error_reporting;
-    var $childrenCache;
     var $processCache;
 
 
@@ -952,7 +951,7 @@ class DocumentParser {
 		
 		$q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
 		$q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
-		if (is_numeric($q) && !$this->getDocumentListing($q))
+		if (is_numeric($q))
 		{ /* we got an ID returned, check to make sure it's not an alias */
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
 			if ($this->config['use_alias_path'] == 1)
@@ -3800,49 +3799,33 @@ class DocumentParser {
 		if($result!==false) return $result;
 		
 		$tbl_site_content = $this->getFullTableName('site_content');
-		$fields = "id, IF(alias='', id, alias) AS alias";
+		
+		$children = array();
+		
 		if($this->config['use_alias_path']==1)
 		{
-			$id = '0';
-		$_a = explode('/', $str);
-		foreach($_a as $v)
-		{
-				if(isset($this->childrenCache[$id])) $d = $this->childrenCache[$id];
-			else
+			if(strpos($str,'/')!==false) $_a = explode('/', $str);
+			else                         $_a[] = $str;
+			$id= 0;
+			
+			foreach($_a as $alias)
 			{
-					$rs = $this->db->select($fields, $tbl_site_content, "deleted=0 and parent={$id}", 'menuindex');
-				$d = array();
-				while($row = $this->db->getRow($rs))
-				{
-					$d[$row['alias']] = $row['id'];
-				}
-					$this->childrenCache[$id] = $d;
+				if($id===false) break;
+				
+				$rs  = $this->db->select('id', $tbl_site_content, "deleted=0 and parent='{$id}' and (alias='{$alias}' OR id='{$alias}')");
+				$row = $this->db->getRow($rs);
+				
+				if($row) $id = $row['id'];
+				else     $id = false;
 			}
-				if(isset($d[$v])) $id = $d[$v];
-			else
-			{
-					$id = false;
-				break;
-			}
-		}
 		}
 		else
 		{
-			if(isset($this->childrenCache[$id])) $d = $this->childrenCache[$id];
-			else
-			{
-				$rs = $this->db->select($fields, $tbl_site_content, "deleted=0", 'parent, menuindex');
-				while($row = $this->db->getRow($rs))
-				{
-					$d[$row['alias']] = $row['id'];
-				}
-				$this->childrenCache[$id] = $d;
-			}
-			if(isset($d[$str])) $id = $d[$str];
-			else
-			{
-				$id = false;
-			}
+			$rs = $this->db->select('id', $tbl_site_content, "deleted=0 and alias='{$alias}'", 'parent, menuindex');
+			$row = $this->db->getRow($rs);
+			
+			if($row) $id = $row['id'];
+			else     $id = false;
 		}
 		$this->setProcessCache($cacheKey,$id,'file');
 		return $id;
