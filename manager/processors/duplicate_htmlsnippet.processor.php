@@ -4,6 +4,7 @@ if(!$modx->hasPermission('new_chunk')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+if(!preg_match('@^[0-9]+$@',$_GET['id'])) exit;
 $id=$_GET['id'];
 
 // duplicate htmlsnippet
