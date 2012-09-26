@@ -710,6 +710,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('use_browser','1'),
 ('fe_editor_lang','{MANAGERLANGUAGE}'),
 ('session.cookie.lifetime','604800'),
+('manager_theme','RevoStyle'),
 ('theme_refresher','');
 
 
