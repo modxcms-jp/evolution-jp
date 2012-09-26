@@ -33,14 +33,14 @@ class SqlParser {
 		}
 		
 		// check to make sure file exists
-		$path = "{$this->base_path}sql/{$filename}";
+		$path = "{$this->base_path}install/sql/{$filename}";
 		if (!is_file($path)) {
 			$this->mysqlErrors[] = array("error" => "File '$path' not found");
 			$this->installFailed = true ;
 			return false;
 		}
 
-		$idata = file_get_contents($filename);
+		$idata = file_get_contents($path);
 
 		$idata = str_replace("\r", '', $idata);
 
