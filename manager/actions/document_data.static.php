@@ -263,7 +263,7 @@ if ($numRecords > 0)
 		
 		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=3&amp;id={$content['id']}&amp;tab=0");
 		$children_output = $pageNavBlock . $modx->table->create($listDocs,$listTableHeader) . $pageNavBlock;
-		$children_output .= '<div><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
+		$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
 else
