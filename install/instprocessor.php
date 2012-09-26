@@ -117,7 +117,7 @@ $sqlParser->managerlanguage = $managerlanguage;
 $sqlParser->autoTemplateLogic = $auto_template_logic;
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installMode < 1) ? 'new' : 'upd';
-
+$sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
 // install/update database

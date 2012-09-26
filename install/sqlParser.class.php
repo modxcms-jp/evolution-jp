@@ -9,6 +9,7 @@ class SqlParser {
 	var $mode;
 	var $dbVersion;
     var $connection_charset, $connection_collation, $autoTemplateLogic,$ignoreDuplicateErrors;
+    var $base_path;
 
 	function SqlParser() {
 		$this->prefix = 'modx_';
@@ -31,10 +32,10 @@ class SqlParser {
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
 		
-		$filename = "sql/{$filename}";
 		// check to make sure file exists
-		if (!file_exists($filename)) {
-			$this->mysqlErrors[] = array("error" => "File '$filename' not found");
+		$path = "{$this->base_path}sql/{$filename}";
+		if (!is_file($path)) {
+			$this->mysqlErrors[] = array("error" => "File '$path' not found");
 			$this->installFailed = true ;
 			return false;
 		}
