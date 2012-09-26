@@ -1143,6 +1143,8 @@ class DocumentParser {
 	// mod by Raymond
 	function mergeDocumentContent($content)
 	{
+		if(strpos($content,'[*')===false) return $content;
+		
 		$replace= array ();
 		preg_match_all('~\[\*(.*?)\*\]~', $content, $matches);
 		$basepath= $this->config['base_path'] . 'manager/includes/';
@@ -1172,6 +1174,8 @@ class DocumentParser {
 		
 	function mergeSettingsContent($content)
 	{
+		if(strpos($content,'[(')===false) return $content;
+		
 		$replace= array ();
 		$matches= array ();
 		if(preg_match_all('~\[\(([a-z\_:]*?)\)\]~', $content, $matches))
@@ -1204,6 +1208,8 @@ class DocumentParser {
 	
 	function mergeChunkContent($content)
 	{
+		if(strpos($content,'{{')===false) return $content;
+		
 		$replace= array ();
 		$matches= array ();
 		$tbl_site_htmlsnippets = $this->getFullTableName('site_htmlsnippets');
@@ -1264,6 +1270,8 @@ class DocumentParser {
 	// Added by Raymond
 	function mergePlaceholderContent($content)
 	{
+		if(strpos($content,'[+')===false) return $content;
+		
 		$replace= array ();
 		$matches= array ();
 		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
@@ -1300,6 +1308,8 @@ class DocumentParser {
 	
 	function mergeCommentedTagsContent($content)
 	{
+		if(strpos($content,'<!-- #modx')===false) return $content;
+		
 		$pieces = explode('<!-- #modx',$content);
 		$stack = '';
 		$i=0;
@@ -1321,6 +1331,8 @@ class DocumentParser {
 	
 	function mergeBenchmarkContent($content)
 	{
+		if(strpos($content,'[^')===false) return $content;
+		
 		$totalTime= ($this->getMicroTime() - $this->tstart);
 		$queryTime= $this->queryTime;
 		$phpTime= $totalTime - $queryTime;
@@ -1441,6 +1453,8 @@ class DocumentParser {
 
 	function evalSnippets($documentSource)
 	{
+		if(strpos($documentSource,'[[')===false) return $documentSource;
+		
 		$etomite= & $this;
 		
 		$stack = $documentSource;
