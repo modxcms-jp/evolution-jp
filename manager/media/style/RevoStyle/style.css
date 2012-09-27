@@ -473,6 +473,10 @@ input.submit {
 	width: auto;
 }
 
+form .imeoff {
+ime-mode:disabled;
+}
+
 /* -------------------------[ Misc stuff ]--- */
 .sectionBody fieldset {
 //	background: none repeat scroll 0 0 #FFFFFF;

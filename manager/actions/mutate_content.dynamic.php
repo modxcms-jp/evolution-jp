@@ -614,7 +614,7 @@ if($thisCategory != '') echo "</optgroup>\n";
 					<table cellpadding="0" cellspacing="0" style="width:333px;">
 						<tr>
 							<td style="white-space:nowrap;">
-								<?php echo input_text('menuindex',$content['menuindex'],'class="number" style="width:40px;"','5');?>
+								<?php echo input_text('menuindex',$content['menuindex'],'style="width:40px;"','5');?>
 								<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
 								<?php echo tooltip($_lang['resource_opt_menu_index_help']);?>
@@ -843,7 +843,7 @@ echo tooltip($_lang['resource_opt_published_help']);
 <?php
 $content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
 ?>
-				<input type="text" id="pub_date" pattern="^[0-9\/\:\- ]+$" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker" value="<?php echo $content['pub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $content['pub_date'];?>" onblur="documentDirty=true;" />
                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_publishdate_help']);?>
@@ -859,7 +859,7 @@ $content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0'
 <?php
 $content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date']!='0') ? $modx->toDateFormat($content['unpub_date']) : '';
 ?>
-				<input type="text" id="unpub_date" pattern="^[0-9\/\:\- ]+$" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker" value="<?php echo $content['unpub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="unpub_date" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker imeoff" value="<?php echo $content['unpub_date'];?>" onblur="documentDirty=true;" />
 				<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_unpublishdate_help']);?>
@@ -1331,8 +1331,15 @@ function input_text($name,$value,$other='',$maxlength='255')
 	$ph['value']     = $value;
 	$ph['maxlength'] = $maxlength;
 	$ph['other']     = $other;
+	$ph['class']     = 'inputBox';
+	switch($name)
+	{
+		case 'menuindex':
+			$ph['class'] .= ' number imeoff';
+			break;
+	}
 	
-	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="inputBox" onchange="documentDirty=true;" [+other+] />';
+	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" onchange="documentDirty=true;" [+other+] />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
 
