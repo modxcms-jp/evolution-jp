@@ -35,7 +35,6 @@ class Qm {
 		
 		// Get plugin parameters
 		$this->jqpath = 'manager/media/script/jquery/jquery.min.js';
-		$this->loadmanagerjq = $loadmanagerjq;
 		$this->loadfrontendjq = $loadfrontendjq;
 		$this->noconflictjq = $noconflictjq;
 		$this->loadtb = $loadtb;
@@ -694,6 +693,7 @@ function getCookie(cookieName)
 					
 					// Manager control class
 					$mc = new Mcc();
+					$mc->noconflictjq = 'true';
 					
 					// Get jQuery conflict mode
 					if ($this->noconflictjq == 'true') $jq_mode = '$j';
@@ -714,10 +714,6 @@ function getCookie(cookieName)
 					
 					// Modify head
 					$mc->head = '<script type="text/javascript">document.body.style.display="none";</script>';
-					if ($this->loadmanagerjq == 'true')
-					{
-						$mc->head .= '<script src="'.$this->modx->config['site_url'].$this->jqpath.'" type="text/javascript"></script>';
-					}
 					
 					// Add control button
 					$mc->addLine($jq_mode . '("body").prepend(controls);');
