@@ -866,7 +866,7 @@ $_lang["settings_properties"] = 'プロパティ';
 $_lang["settings_site"] = 'サイト';
 $_lang["settings_strip_image_paths_message"] = 'ファイルブラウザで選択したファイルのsrc属性を相対パスで投稿画面に渡します。この設定を「いいえ」にした場合は、httpから始まるフルURLになります。投稿画面で利用するRTEによっては、受け取った値をさらに処理することがあるため、ここでの設定は確実ではありません。<br />また、相対パスで運用する場合はフレンドリーURL設定を有効にすると画像やサイト内リンクなどを正しく参照できないことがあります。そのような場合は<a href="http://www.google.com/search?hl=ja&q=html+base+href" target="_blank">baseタグ</a>を利用してください。';
 $_lang["settings_strip_image_paths_title"] = '相対パスを渡す';
-$_lang["settings_templvars"] = 'テンプレート変数';
+$_lang["settings_templvars"] = 'カスタムフィールド(テンプレート変数)';
 $_lang["settings_title"] = 'グローバル設定';
 $_lang["settings_ui"] = '管理画面の設定';
 $_lang["settings_users"] = 'セキュリティ';
