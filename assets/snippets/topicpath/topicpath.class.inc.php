@@ -50,7 +50,7 @@ class TopicPath
 			case 'string':
 			case 'defaultstring':
 			case 'default':
-				$tpl['outer']             = '<div class="topicpath">[+topics+]</div>';
+				$tpl['outer']             = '[+topics+]';
 				$tpl['first_topic_outer'] = '<span class="first">[+topic+]</span>';
 				$tpl['last_topic_outer']  = '<span class="last">[+topic+]</span>';
 				$tpl['other_topic_outer'] = '<span>[+topic+]</span>';
