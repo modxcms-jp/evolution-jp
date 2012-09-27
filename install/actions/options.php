@@ -202,38 +202,38 @@ echo '<strong>' . $_lang['no_update_options'] . '</strong>';
 </form>
 <script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
+    $(function(){
 
-        jQuery('#toggle_check_all').click(function(evt){
+        $('#toggle_check_all').click(function(evt){
             evt.preventDefault();
-            demo = jQuery('#installdata_field').attr('checked');
-            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', true);
+            demo = $('#installdata_field').attr('checked');
+            $('input:checkbox.toggle:not(:disabled)').attr('checked', true);
         });
-        jQuery('#toggle_check_none').click(function(evt){
+        $('#toggle_check_none').click(function(evt){
             evt.preventDefault();
-            demo = jQuery('#installdata_field').attr('checked');
-            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', false);
+            demo = $('#installdata_field').attr('checked');
+            $('input:checkbox.toggle:not(:disabled)').attr('checked', false);
         });
-        jQuery('#toggle_check_toggle').click(function(evt){
+        $('#toggle_check_toggle').click(function(evt){
             evt.preventDefault();
-            jQuery('input:checkbox.toggle:not(:disabled)').attr('checked', function(){
-                return !jQuery(this).attr('checked');
+            $('input:checkbox.toggle:not(:disabled)').attr('checked', function(){
+                return !$(this).attr('checked');
             });
         });
-        jQuery('#installdata_field').click(function(evt){
+        $('#installdata_field').click(function(evt){
             handleSampleDataCheckbox();
         });
 
         var handleSampleDataCheckbox = function(){
-            demo = jQuery('#installdata_field').attr('checked');
-            jQuery('input:checkbox.toggle.demo').each(function(ix, el){
+            demo = $('#installdata_field').attr('checked');
+            $('input:checkbox.toggle.demo').each(function(ix, el){
                 if(demo) {
-                    jQuery(this)
+                    $(this)
                         .attr('checked', true)
                         .attr('disabled', true)
                     ;
         } else {
-                    jQuery(this)
+                    $(this)
                         .attr('disabled', false)
                     ;
       }
