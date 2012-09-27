@@ -1,8 +1,8 @@
 /* PowerTip Plugin */
 #powerTip {
 	cursor: default;
-	background-color: #333; /* fallback for browsers that dont support rgba */
-	background-color: rgba(0, 0, 0, 0.8);
+	background-color: #4c4c4c; /* fallback for browsers that dont support rgba */
+	background-color: rgba(4c, 4c, 4c, 0.8);
 	border-radius: 6px;
 	color: #FFF;
 	display: none;
