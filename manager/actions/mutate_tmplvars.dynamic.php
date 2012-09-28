@@ -37,6 +37,7 @@ if(!is_numeric($id))
 	exit;
 }
 
+global $content;
 $content = array();
 if(isset($_GET['id']))
 {
@@ -418,24 +419,31 @@ if($content['type']==='custom_tv' && $content['elements']==='')
     <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
+<?php
+function selected($target='')
+{
+	global $content;
+	return ($content['display'] === $target) ? 'selected="selected"' : '';
+}
+?>
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:300px;" onchange='documentDirty=true;showParameters(this);'>
-	            <option value="" <?php echo ($content['display']=='')? "selected='selected'":""; ?>>&nbsp;</option>
+	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
 			<optgroup label="Widgets">
-	            <option value="datagrid" <?php echo ($content['display']=='datagrid')? "selected='selected'":""; ?>>Data Grid</option>
-	            <option value="richtext" <?php echo ($content['display']=='richtext')? "selected='selected'":""; ?>>RichText</option>
-                <option value="custom_widget" <?php echo ($content['display']=='custom_widget')? "selected='selected'":""; ?>>Custom Widget</option>
+	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
+	            <option value="richtext" <?php      echo selected('richtext'); ?>>RichText</option>
+                <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
 			</optgroup>
 			<optgroup label="Formats">
-	            <option value="htmlentities" <?php echo ($content['display']=='htmlentities')? "selected='selected'":""; ?>>HTML Entities</option>
-	            <option value="date" <?php echo ($content['display']=='date')? "selected='selected'":""; ?>>Date Formatter</option>
-	            <option value="unixtime" <?php echo ($content['display']=='unixtime')? "selected='selected'":""; ?>>Unixtime</option>
-	            <option value="delim" <?php echo ($content['display']=='delim')? "selected='selected'":""; ?>>Delimited List</option>
-	            <option value="htmltag" <?php echo ($content['display']=='htmltag')? "selected='selected'":""; ?>>HTML Generic Tag</option>
-	            <option value="hyperlink" <?php echo ($content['display']=='hyperlink')? "selected='selected'":""; ?>>Hyperlink</option>
-	            <option value="image" <?php echo ($content['display']=='image')? "selected='selected'":""; ?>>Image</option>
-	            <option value="string" <?php echo ($content['display']=='string')? "selected='selected'":""; ?>>String Formatter</option>
+	            <option value="htmlentities" <?php echo selected('htmlentities'); ?>>HTML Entities</option>
+	            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
+	            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
+	            <option value="delim" <?php        echo selected('delim'); ?>>Delimited List</option>
+	            <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
+	            <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
+	            <option value="image" <?php        echo selected('image'); ?>>Image</option>
+	            <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
 			</optgroup>
 	        </select>
     </td>
