@@ -1547,7 +1547,7 @@ function renderTr($head, $body,$rowstyle='')
 	
 	$tpl =<<< EOT
 	<tr style="height: 24px;[+rowstyle+]">
-		<td width="100" align="left">
+		<td width="120" align="left">
 			<span class="warning">[+head+]</span>
 		</td>
 		<td>
