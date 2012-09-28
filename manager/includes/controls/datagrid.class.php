@@ -209,11 +209,22 @@ class DataGrid {
 		$this->_isDataset = is_resource($this->ds); // if not dataset then treat as array
 		if($this->_isDataset)
 		{
-			$tblc = mysql_num_fields($this->ds);
-			for($i=0;$i<$tblc;$i++)
+			if(isset($this->fields))
 			{
-				$cinfo = mysql_fetch_field($this->ds,$i);
-				$this->_fieldnames[$i] = $cinfo->name;
+				$this->_fieldnames = explode(',', $this->fields);
+				foreach($this->_fieldnames as $i=>$v)
+				{
+					$this->_fieldnames[$i] = trim($v);
+				}
+			}
+			else
+			{
+				$tblc = mysql_num_fields($this->ds);
+				for($i=0;$i<$tblc;$i++)
+				{
+					$cinfo = mysql_fetch_field($this->ds,$i);
+					$this->_fieldnames[$i] = $cinfo->name;
+				}
 			}
 		}
 
