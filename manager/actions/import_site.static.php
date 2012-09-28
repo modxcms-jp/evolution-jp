@@ -436,7 +436,7 @@ function convertLink()
 				$_ = trim($_,'./');
 				if(strpos($_,'/')!==false) $_ = substr($_,strrpos($_,'/'));
 				$_ = $dir . str_replace('.html','',$_);
-				if(!isset($target[$_])) $target[$_] = $modx->getDocumentListing($_);
+				if(!isset($target[$_])) $target[$_] = $modx->getIdFromAlias($_);
 				$target[$_] = trim($target[$_]);
 				if(!empty($target[$_])) $href = '[~' . $target[$_] . '~]';
 				$array[$c] = '<a href="' . $href . '"' . $v;

@@ -82,7 +82,7 @@ if(isset($_REQUEST['submitok'])) {
         $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
         if($url[0]==='/')             $url = preg_replace('@^' . $base_url . '@', '', $url);
         if(substr($url,0,4)==='http') $url = preg_replace('@^' . $site_url . '@', '', $url);
-        $searchid = $modx->getDocumentListing($url);
+        $searchid = $modx->getIdFromAlias($url);
         if (empty($searchid)) $searchid = 'x';
     }
     
