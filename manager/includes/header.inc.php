@@ -42,7 +42,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         
 		$j(function(){
         	document_onload();
-			$j('.tooltip').powerTip({'fadeInTime':'0','smartPlacement':true});
+			$j('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
         $j.bind('beforeunload', document_onunload());
