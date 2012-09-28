@@ -114,7 +114,7 @@ $rss_header = <<<TPL
 	<channel>
 			<title>[*pagetitle*]</title>
 			<link>[(site_url)]</link>
-			<description>[*description*]</description>
+			<description>[*description:strip*]</description>
 			<language>[+rss_lang+]</language>
 			<copyright>[+rss_copyright+]</copyright>
 			<ttl>[+rss_ttl+]</ttl>
@@ -125,7 +125,7 @@ $rss_tpl = <<<TPL
 			<item>
 				<title>[+rss_pagetitle+]</title>
 				<link>[(site_url)][~[+id+]~]</link>
-				<description><![CDATA[ [+summary+] ]]></description>
+				<description><![CDATA[ [+summary:strip+] ]]></description>
 				<pubDate>[+rss_date+]</pubDate>
 				<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
 				<dc:creator>[+rss_author+]</dc:creator>
