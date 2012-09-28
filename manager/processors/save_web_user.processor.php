@@ -25,7 +25,7 @@ $zip = $modx->db->escape($_POST['zip']);
 $gender = !empty($_POST['gender']) ? $_POST['gender'] : 0;
 $photo = $modx->db->escape($_POST['photo']);
 $comment = $modx->db->escape($_POST['comment']);
-$roleid = !empty($_POST['role']) ? $_POST['role'] : 0;
+$role = !empty($_POST['role']) ? $_POST['role'] : 0;
 $failedlogincount = !empty($_POST['failedlogincount']) ? $_POST['failedlogincount'] : 0;
 $blocked = !empty($_POST['blocked']) ? $_POST['blocked'] : 0;
 $blockeduntil = !empty($_POST['blockeduntil']) ? ConvertDate($_POST['blockeduntil']) : 0;
@@ -108,33 +108,31 @@ switch ($_POST['mode']) {
 		));
 
 		// create the user account
-		$sql = "INSERT INTO $tbl_web_users (username, password)
-						VALUES('" . $newusername . "', md5('" . $newpassword . "'));";
-		$rs = $modx->db->query($sql);
-		if (!$rs) {
+		$fields = array();
+		$fields['username'] = $newusername;
+		$fields['password'] = md5($newpassword);
+		$internalKey = $modx->db->insert($fields, $tbl_web_users);
+		if (!$internalKey) {
 			webAlert("An error occurred while attempting to save the user.");
 			exit;
 		}
-		// now get the id
-		if (!$key = $modx->db->->getInsertId()) {
-			//get the key by sql
-		}
-
-		$sql = "INSERT INTO $tbl_web_user_attributes (internalKey, fullname, role, email, phone, mobilephone, fax, zip, state, country, gender, dob, photo, comment, blocked, blockeduntil, blockedafter)
-						VALUES($key, '$fullname', '$roleid', '$email', '$phone', '$mobilephone', '$fax', '$zip', '$state', '$country', '$gender', '$dob', '$photo', '$comment', '$blocked', '$blockeduntil', '$blockedafter');";
-		$rs = $modx->db->query($sql);
-		if (!$rs) {
+		
+		$fields = array();
+		$fields = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
+		$rs = $modx->db->insert($fields,$tbl_web_user_attributes);
+		if (!$rs)
+		{
 			webAlert("An error occurred while attempting to save the user's attributes.");
 			exit;
 		}
 
 		// Save User Settings
-		saveUserSettings($key);
+		saveUserSettings($internalKey);
 
 		// invoke OnWebSaveUser event
 		$modx->invokeEvent('OnWebSaveUser', array (
 			'mode' => 'new',
-			"userid" => $key,
+			'userid' => $internalKey,
 			'username' => $newusername,
 			'userpassword' => $newpassword,
 			'useremail' => $email,
@@ -144,18 +142,24 @@ switch ($_POST['mode']) {
 		// invoke OnWUsrFormSave event
 		$modx->invokeEvent('OnWUsrFormSave', array (
 			'mode' => 'new',
-			"id" => $key
+			'id' => $internalKey
 		));
 
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
-		if ($use_udperms == 1) {
-			if (count($user_groups) > 0) {
-				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) values('" . intval($user_groups[$i]) . "', '" . $key . "')";
-					$rs = $modx->db->query($sql);
-					if (!$rs) {
+		if ($use_udperms == 1)
+		{
+			if (count($user_groups) > 0)
+			{
+				$field = array();
+				foreach($user_groups as $user_group)
+				{
+					$field['webgroup'] = intval($user_group);
+					$field['webuser'] = $internalKey;
+					$rs = $modx->db->insert($field,$tbl_web_groups);
+					if (!$rs)
+					{
 						webAlert("An error occurred while attempting to add the user to a web group.");
 						exit;
 					}
@@ -175,7 +179,7 @@ switch ($_POST['mode']) {
 			header($header);
 		} else {
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "88&id=$key" : "87";
+				$a = ($_POST['stay'] == '2') ? "88&id={$internalKey}" : '87';
 				$stayUrl = "index.php?a={$a}&stay=" . $_POST['stay'];
 			} else {
 				$stayUrl = 'index.php?a=99';
@@ -271,26 +275,11 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		
-		$sql = "UPDATE $tbl_web_user_attributes SET 
-					fullname='" . $fullname . "', 
-					role='$roleid', 
-					email='$email', 
-					phone='$phone',
-					mobilephone='$mobilephone', 
-					fax='$fax', 
-					zip='$zip' , 
-					state='$state', 
-					country='$country', 
-					gender='$gender', 
-					dob='$dob', 
-					photo='$photo', 
-					comment='$comment',
-					failedlogincount='$failedlogincount', 
-					blocked=$blocked, 
-					blockeduntil='$blockeduntil', 
-					blockedafter='$blockedafter' 
-					WHERE internalKey=$id";
-		if (!$rs = $modx->db->query($sql)) {
+		$fields = array();
+		$fields = compact('fullname','role','email','phone','mobilephone','fax','zip','state','country',
+		'gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
+		if (!$rs = $modx->db->update($fields,$tbl_web_user_attributes,"internalKey='{$id}'"))
+		{
 			webAlert("An error occurred while attempting to update the user's attributes.");
 			exit;
 		}
