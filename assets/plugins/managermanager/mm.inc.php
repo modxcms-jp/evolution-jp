@@ -77,7 +77,7 @@ class MANAGERMANAGER
 		// What are the fields we can change, and what types are they?
 		$field['pagetitle']       = array('input', 'pagetitle', 'pagetitle');
 		$field['longtitle']       = array('input', 'longtitle', 'longtitle');
-		$field['description']     = array('input', 'description', 'description');
+		$field['description']     = array('textarea', 'description', 'description');
 		$field['alias']           = array('input', 'alias', 'alias');
 		$field['link_attributes'] = array('input', 'link_attributes', 'link_attributes');
 		$field['menutitle']       = array('input', 'menutitle','menutitle');

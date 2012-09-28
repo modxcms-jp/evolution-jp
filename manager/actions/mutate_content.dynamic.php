@@ -472,7 +472,7 @@ $body  = input_text('longtitle',to_safestr($content['longtitle']),'spellcheck="t
 $body .= tooltip($_lang['resource_long_title_help']);
 renderTr($_lang['long_title'],$body);
 
-$body  = input_text('description',to_safestr($content['description']),'spellcheck="true"');
+$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="" onchange="documentDirty=true;">' . to_safestr($content['description']) . '</textarea>';
 $body .= tooltip($_lang['resource_description_help']);
 renderTr($_lang['resource_description'],$body);
 
