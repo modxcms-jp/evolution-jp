@@ -41,7 +41,7 @@ class PHx {
 			$value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
 				break;
 			case 'strip':
-				$value = preg_replace("~([\n\r\t\s]+)~",' ',$value); break;
+				$value = str_replace(array("\n","\r","\t","\s"), ' ', $value); break;
 			case 'notags':
 			case 'strip_tags':
 				if($opt!=='')

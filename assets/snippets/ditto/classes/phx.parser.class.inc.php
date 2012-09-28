@@ -321,7 +321,7 @@ class PHxParser {
 				$output = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$output);
 					break;
 				case 'strip':
-					$output = preg_replace("~([\n\r\t\s]+)~",' ',$output); break;
+					$output = str_replace(array("\n","\r","\t","\s"), ' ', $output); break;
 				case 'notags':
 				case 'strip_tags':
 					if($modifier_value[$i]!=='')
