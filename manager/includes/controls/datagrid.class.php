@@ -143,10 +143,10 @@ class DataGrid {
 			case "date":
 				if(!empty($value))
 				{
-				if($align=="") $align="right";
-				if(!is_numeric($value)) $value = strtotime($value);
-				if(!$type_format) $type_format = "%A %d, %B %Y";
-				$value = $modx->mb_strftime($type_format,$value);
+					if($align=="") $align="right";
+					if(!is_numeric($value)) $value = strtotime($value);
+					if(!$type_format) $type_format = "%A %d, %B %Y";
+					$value = $modx->mb_strftime($type_format,$value);
 				}
 				else
 				{
