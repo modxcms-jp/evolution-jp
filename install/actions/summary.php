@@ -47,7 +47,6 @@ if (!is_writable("{$base_path}assets/cache")) {
 } else {
     echo echo_ok();
     mkd("{$base_path}assets/cache/rss");
-    if(is_dir("{$base_path}assets/cache/rss")) @file_put_contents("{$base_path}assets/cache/rss/index.html",'');
 }
 echo '</p>';
 
@@ -87,6 +86,10 @@ if(!is_dir("{$base_path}assets/images"))
 	}
 	
 	// cache writable?
+	$dir_images = "{$base_path}content/images";
+	$dir_files  = "{$base_path}content/files";
+	$dir_flash  = "{$base_path}content/flash";
+	$dir_media  = "{$base_path}content/media";
 	
 	echo "<p>" . $_lang['checking_if_content_writable'];
 	if (!is_writable("{$base_path}content")) {
@@ -94,21 +97,16 @@ if(!is_dir("{$base_path}assets/images"))
 	    $errors += 1;
 	} else {
 	    echo echo_ok();
-		mkd("{$base_path}content/images");
-		mkd("{$base_path}content/files");
-		mkd("{$base_path}content/flash");
-		mkd("{$base_path}content/media");
-		
-		if(is_dir("{$base_path}content/images")) @file_put_contents("{$base_path}content/images/index.html",'');
-		if(is_dir("{$base_path}content/files")) @file_put_contents("{$base_path}content/files/index.html",'');
-		if(is_dir("{$base_path}content/flash")) @file_put_contents("{$base_path}content/flash/index.html",'');
-		if(is_dir("{$base_path}content/media")) @file_put_contents("{$base_path}content/media/index.html",'');
+		mkd($dir_images);
+		mkd($dir_files);
+		mkd($dir_flash);
+		mkd($dir_media);
 	}
 	echo '</p>';
 	if (is_writable("{$base_path}content"))
 	{
 		// File Browser directories exists?
-		if (!is_dir("{$base_path}content/images") || !is_dir("{$base_path}content/files") || !is_dir("{$base_path}content/flash") || !is_dir("{$base_path}content/media"))
+		if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_flash) || !is_dir($dir_media))
 		{
 			echo "<p>".$_lang['checking_if_images_exist'];
 			echo echo_failed();
@@ -119,7 +117,7 @@ if(!is_dir("{$base_path}assets/images"))
 		{
 			// File Browser directories writable?
 			echo "<p>".$_lang['checking_if_images_writable'];
-			if (!is_writable("{$base_path}content/images") || !is_writable("{$base_path}content/files") || !is_writable("{$base_path}content/flash") || !is_writable("{$base_path}content/media"))
+			if (!is_writable($dir_images) || !is_writable($dir_files) || !is_writable($dir_flash) || !is_writable($dir_media))
 			{
 			    echo echo_failed();
 			    $errors += 1;
@@ -150,7 +148,6 @@ if (!is_writable("{$base_path}temp")) {
     echo echo_ok();
 	mkd("{$base_path}temp/export");
 	mkd("{$base_path}temp/backup");
-	if(is_dir("{$base_path}temp/export")) @file_put_contents("{$base_path}temp/export/index.html",'');
 	if(is_dir("{$base_path}temp/backup")) @file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
 }
 echo '</p>';
@@ -403,5 +400,10 @@ function mkd($path)
 	
 	$rs = @mkdir($path, true);
 	if($rs) $rs = @chmod($path, 0777);
+	if($rs) @file_put_contents("{$path}/index.html",'');
+	if($rs) @chmod("{$path}/index.html", 0666);
+	
+	if(!$rs) echo echo_failed($path);
+	
 	return $rs;
 }
