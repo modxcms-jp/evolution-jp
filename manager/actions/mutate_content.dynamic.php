@@ -498,10 +498,6 @@ else
 $body .= tooltip($_lang['resource_alias_help']);
 renderTr($_lang['resource_alias'],$body);
 
-$body  = input_text('link_attributes',to_safestr($content['link_attributes']));
-$body .= tooltip($_lang['link_attributes_help']);
-renderTr($_lang['link_attributes'],$body);
-
 if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
 { // Web Link specific
 ?>
@@ -940,6 +936,11 @@ else
 <?php
 	}
 }//if mgrRole
+
+$body  = input_text('link_attributes',to_safestr($content['link_attributes']));
+$body .= tooltip($_lang['link_attributes_help']);
+renderTr($_lang['link_attributes'],$body);
+
 ?>
 
 			<tr style="height: 24px;">
