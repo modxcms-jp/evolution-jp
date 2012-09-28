@@ -26,6 +26,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 		
 		// What's the new value, and does it include PHP?
 		$new_value = ($eval) ? eval($value) : $value;
+		$new_value = $modx->db->escape($new_value);
 		
 		$output = " // ----------- Change defaults -------------- \n";
 		
