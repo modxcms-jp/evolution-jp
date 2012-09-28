@@ -474,7 +474,7 @@ renderTr($_lang['long_title'],$body);
 
 $body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="" onchange="documentDirty=true;">' . to_safestr($content['description']) . '</textarea>';
 $body .= tooltip($_lang['resource_description_help']);
-renderTr($_lang['resource_description'],$body);
+renderTr($_lang['resource_description'],$body,'vertical-align:top;');
 
 $body = '';
 if(isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']==1)
@@ -520,7 +520,7 @@ if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
 }
 $body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="" onchange="documentDirty=true;">' . to_safestr($content['introtext']) . '</textarea>';
 $body .= tooltip($_lang['resource_summary_help']);
-renderTr($_lang['resource_summary'],$body);
+renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
 ?>
 			<tr style="height: 24px;">
 				<td>
@@ -1536,15 +1536,16 @@ EOT;
 	return $scr;
 }
 
-function renderTr($head, $body)
+function renderTr($head, $body,$rowstyle='')
 {
 	global $modx;
 	
 	$ph['head'] = $head;
 	$ph['body'] = $body;
+	$ph['rowstyle'] = $rowstyle;
 	
 	$tpl =<<< EOT
-	<tr style="height: 24px;">
+	<tr style="height: 24px;[+rowstyle+]">
 		<td width="100" align="left">
 			<span class="warning">[+head+]</span>
 		</td>
