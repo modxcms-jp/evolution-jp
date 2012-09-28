@@ -16,7 +16,7 @@ REPLACE INTO `{PREFIX}site_content` VALUES ('4','document','text/html','404 - Do
 
 REPLACE INTO `{PREFIX}site_content` VALUES ('5','document','text/html','新サービスのお知らせ','新サービスのお知らせ','','newservice','','1','0','0','2','0','','<p>新サービスのお知らせです。</p>\n','1','2','0','1','1','1','1300505696','1','1300505697','0','0','0','1300505696','0','','0','0','0','0','0','0','1');
 
-REPLACE INTO `{PREFIX}site_content` VALUES ('6','document','application/rss+xml','RSS フィード','[(site_name)] RSSフィード','','feed.rss','','1','0','0','0','0','','[[Ditto?\n   &parents=`2`\n   &format=`rss`\n   &display=`10`\n]]','0','0','11','0','1','1','1144904400','1','1160062859','0','0','0','1144904400','0','','0','0','0','0','0','0','1');
+REPLACE INTO `{PREFIX}site_content` VALUES ('6','document','application/rss+xml','RSS フィード','[(site_name)] RSSフィード','RSSフィードのサンプルです。','feed.rss','','1','0','0','0','0','','[[Ditto?\n   &parents=`2`\n   &format=`rss`\n   &display=`10`\n]]','0','0','11','0','1','1','1144904400','1','1160062859','0','0','0','1144904400','0','','0','0','0','0','0','0','1');
 
 REPLACE INTO `{PREFIX}site_content` VALUES ('7','document','text/html','サイトをオープンしました。','サイトをオープンしました','','begin','','1','0','0','2','0','','<p>サイトをオープンしました。MODXで作りました。</p>\n','1','2','2','1','1','1','1299728096','1','1299728097','0','0','0','1299728096','0','','0','0','0','0','0','0','1');
 
