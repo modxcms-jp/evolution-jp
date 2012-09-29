@@ -1212,3 +1212,6 @@ $_lang["a95_convert_link_msg"] = 'サイト内リンクをリンクタグに変�
 
 $_lang["a17_image_limit_width_title"] = '画像の横幅の最大値';
 $_lang["a17_image_limit_width_message"] = 'アップロードする画像の横幅を自動的に縮小します。空白にすると処理しません。';
+
+$_lang["enable_bindings_title"]  = '@Bindingsを有効にする';
+$_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings機能</a>を有効にします。この機能は、投稿画面上の入力フィールド(テンプレート変数)に任意のコマンドを記述し、実行するものです。PHP文の実行などが可能なため、複数メンバーでサイトを運用する場合、当機能の運用には注意が必要です。';
