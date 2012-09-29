@@ -122,6 +122,8 @@ switch ($e->name)
 		$params['custom_buttons2']    = $mce_settings['tinymce_custom_buttons2'];
 		$params['custom_buttons3']    = $mce_settings['tinymce_custom_buttons3'];
 		$params['custom_buttons4']    = $mce_settings['tinymce_custom_buttons4'];
+		$params['mce_template_docs']  = $mce_settings['mce_template_docs'];
+		$params['mce_template_chunks']= $mce_settings['mce_template_chunks'];
     	
 		$html = $mce->get_mce_settings($params);
 		$e->output($html);
