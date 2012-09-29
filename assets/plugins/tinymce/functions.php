@@ -194,9 +194,9 @@ class TinyMCE
 			$buttons4 = $params['custom_buttons4'];
 			break;
 		default:
-			$plugins  = 'visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+			$plugins  = 'template,visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,|,fullscreen,help';
-			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,visualblocks,styleprops,removeformat';
+			$buttons2 = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,template,visualblocks,styleprops,removeformat';
 			$buttons3 = '';
 			$buttons4 = '';
 			if(is_dir($params['mce_path'] . 'jscripts/tiny_mce/plugins/quickupload'))
@@ -326,6 +326,8 @@ class TinyMCE
 		}
 			$ph['content_css']         = join(',', $content_css);
 		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$params['mce_url']}js/tinymce.linklist.php'" : 'false';
+		
+		$ph['tpl_list']                = $params['mce_url'] . 'js/get_template.php';
 	
 		$mce_init = file_get_contents($params['mce_path'] . 'js/mce_init.js.inc');
 		

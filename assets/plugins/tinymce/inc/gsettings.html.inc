@@ -1,7 +1,7 @@
 <style type="text/css">
 textarea.mce {width:95%;height:40px;display:block;}
 </style>
-<table id="editorRow_TinyMCE" class="settings">
+<table id="editorRow_TinyMCE" class="settings editorRow">
   <tr class="row1" style="display: [+display+];">
     <th colspan="2" style="color:#707070; background-color:#eeeeee"><h4 style="margin:3px;">[+mce_settings+]</h4></th>
   </tr>
@@ -23,6 +23,16 @@ textarea.mce {width:95%;height:40px;display:block;}
     <div>[+mce_editor_skin_message+]</div>
 	</td>
   </tr>
+
+  <tr class="row1" style="display: [+display+];">
+	<th>[+mce_tpl_title+]</th>
+	<td>
+		<div style="margin-bottom:8px;"><label>[+mce_tpl_docid+] <input onchange="documentDirty=true;" type="text" class="inputBox" style="width: 300px;" name="mce_template_docs" value="[+mce_template_docs+]" /></label></div>
+		<div><label>[+mce_tpl_chunkname+] <input onchange="documentDirty=true;" type="text" class="inputBox" style="width: 300px;" name="mce_template_chunks" value="[+mce_template_chunks+]" /></label></div>
+	<div>[+mce_tpl_msg+]</div>
+	</td>
+  </tr>
+
   <tr class="row1" style="display: [+display+];">
     <th>[+mce_editor_entermode_title+]</th>
     <td>
