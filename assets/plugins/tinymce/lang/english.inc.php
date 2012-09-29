@@ -4,15 +4,15 @@
  * Function:       English language file for TinyMCE
  * Encoding:       ISO-Latin-1
  * Author:         Jeff Whitfield and yama
- * Date:           2012/03/10
- * Version:        3.3
- * MODx version:   0.9.5-1.0.6
+ * Date:           2012/09/29
+ * Version:        3.5.7
+ * MODX version:   0.9.5-1.0.6
 */
 
 $_lang['mce_editor_theme_title'] = 'Theme:';
 $_lang['mce_editor_theme_message'] = 'Here you can select which theme or skin to use with the editor.';
 $_lang['mce_editor_custom_plugins_title'] = 'Custom Plugins:';
-$_lang['mce_editor_custom_plugins_message'] = "Enter the plugins to use for the 'custom' theme as a comma separated list.";
+$_lang['mce_editor_custom_plugins_message'] = "Enter the plugins to use for the 'custom' theme as a comma separated list.<br />Default : template,visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen, advimage,paste,advlink,media,contextmenu,table";
 $_lang['mce_editor_custom_buttons_title'] = 'Custom Buttons:';
 $_lang['mce_editor_custom_buttons_message'] = "Enter the buttons to use for the 'custom' theme as a comma separated list for each row. Be sure that each button has the required plugin enabled in the 'Custom Plugins' setting.";
 $_lang['mce_editor_css_selectors_title'] = 'CSS selectors:';
@@ -37,3 +37,11 @@ $_lang['mce_element_format_title'] = 'Element format';
 $_lang['mce_element_format_message'] = 'This option enables control if elements should be in html or xhtml mode. xhtml is the default state for this option. This means that for example &lt;br /&gt; will be &lt;br&gt; if you set this option to &quot;html&quot;.';
 $_lang['mce_schema_title'] = 'Schema';
 $_lang['mce_schema_message'] = 'The schema option enables you to switch between the HTML4 and HTML5 schema. This controls the valid elements and attributes that can be placed in the HTML. This value can either be the default html4 or html5.';
+
+$_lang['mce_toolbar1_msg'] = 'Default : undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect, pastetext,pasteword,code,|,fullscreen,help';
+$_lang['mce_toolbar2_msg'] = 'Default : image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist, numlist,|,blockquote,outdent,indent,|,table,hr,|,template,visualblocks,styleprops,removeformat';
+
+$_lang['mce_tpl_title'] = 'Template button';
+$_lang['mce_tpl_msg'] = 'You can insert the HTML block which you registered beforehand from toolbar. You make HTML block as resource or a chunk, and can appoint plural number with a comma.';
+$_lang['mce_tpl_docid'] = 'Resource IDs';
+$_lang['mce_tpl_chunkname'] = 'Chunk names';

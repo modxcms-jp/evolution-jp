@@ -4,9 +4,9 @@
  * Function:       Japanese language file for TinyMCE.
  * Encoding:       UTF-8
  * Author:         yama
- * Date:           2010/07/29
- * Version:        2.1.1
- * MODx version:   0.9.5-1.0.5
+ * Date:           2012/09/29
+ * Version:        3.5.7
+ * MODX version:   0.9.5-1.0.6
 */
 
 $_lang['mce_editor_theme_title'] = 'テーマ:';
