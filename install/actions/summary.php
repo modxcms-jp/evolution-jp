@@ -398,12 +398,18 @@ function mkd($path)
 {
 	// if(ini_get('safe_mode') !=0) return;
 	
-	$rs = @mkdir($path, true);
-	if($rs) $rs = @chmod($path, 0777);
-	if($rs) @file_put_contents("{$path}/index.html",'');
-	if($rs) @chmod("{$path}/index.html", 0666);
+	if(!is_dir($path))
+	{
+		$rs = @mkdir($path, true);
+		if($rs) $rs = @chmod($path, 0777);
+	}
 	
-	if(!$rs) echo echo_failed($path);
+	if(!is_file("{$path}/index.html"))
+	{
+		$rs = @file_put_contents("{$path}/index.html",'');
+		if($rs) @chmod("{$path}/index.html", 0666);
+		if(!is_writable("{$path}/index.html")) echo echo_failed($path);
+	}
 	
 	return $rs;
 }
