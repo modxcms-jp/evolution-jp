@@ -45,6 +45,17 @@ function run_update($version)
 	if(104 < $version) {
 		delete_actionphp();
 	}
+	if(104 < $version && $version < 107) {
+		disableEnaBindings(); // jp only
+	}
+}
+
+function disableEnaBindings()
+{
+	global $modx;
+	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
+	
+	$modx->db->update("`disabled`='1'",$tbl_site_plugins,"`name`='Bindings機能の有効無効'"); // jp only
 }
 
 function update_config_custom_contenttype()

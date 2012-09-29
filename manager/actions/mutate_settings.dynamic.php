@@ -752,6 +752,16 @@ $gdAvailable = extension_loaded('gd');
 <input type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden" value="<?php echo addslashes($_lang['system_email_webreminder']);?>" /><br />
 <?php echo $_lang["webpwdreminder_message"] ?></td>
 </tr>
+
+<tr>
+	<th><?php echo $_lang["enable_bindings_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('enable_bindings','1',$enable_bindings=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('enable_bindings','0',$enable_bindings=='0'));?><br />
+		<?php echo $_lang["enable_bindings_message"] ?>
+</td>
+</tr>
+
 <tr class="row1" style="border-bottom:none;">
 <td colspan="2" style="padding:0;">
 <?php
