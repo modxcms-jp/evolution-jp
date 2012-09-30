@@ -550,6 +550,12 @@ class DocumentParser {
 					break;
 			}
 			
+			if(mt_rand(0,99) < 5)
+			{
+				$file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
+				if(1000 < $file_count) $this->clearCache();
+			}
+			
 			$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
 		}
