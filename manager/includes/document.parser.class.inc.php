@@ -158,9 +158,9 @@ class DocumentParser {
 		}
 		
 		// get the settings
-		$this->db->connect();
-		$this->getSettings();
-		$this->initProcessCache();
+		if(!$this->db->conn)      $this->db->connect();
+		if(!isset($this->config)) $this->getSettings();
+		if(!$this->processCache)  $this->initProcessCache();
 		if(!isset($_REQUEST['id']))
 		{
 			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
