@@ -54,7 +54,7 @@ class DocumentParser {
     var $cacheRefreshTime;
     var $error_reporting;
     var $processCache;
-
+    var $http_status_code;
 
     // constructor
 	function DocumentParser()
@@ -146,6 +146,8 @@ class DocumentParser {
 		{
 			set_error_handler(array(& $this,'phpError'));
 		}
+		
+		$this->http_status_code = '200';
 		
 		if(!empty($_SERVER['QUERY_STRING']))
 		{
@@ -304,7 +306,7 @@ class DocumentParser {
 			// validation routines
 			if ($this->documentObject['deleted'] == 1)
 			{
-				$this->sendErrorPage();
+				if($this->http_status_code == '200') $this->sendErrorPage();
 			}
 			//  && !$this->checkPreview()
 			if ($this->documentObject['published'] == 0)
@@ -312,7 +314,7 @@ class DocumentParser {
 			// Can't view unpublished pages
 				if (!$this->hasPermission('view_unpublished'))
 				{
-					$this->sendErrorPage();
+					if($this->http_status_code == '200') $this->sendErrorPage();
 				}
 				else
 				{
@@ -325,7 +327,7 @@ class DocumentParser {
 					// Doesn't have access to this document
 					if (!$udperms->checkPermissions())
 					{
-						$this->sendErrorPage();
+						if($this->http_status_code == '200') $this->sendErrorPage();
 					}
 				}
 			}
@@ -539,6 +541,15 @@ class DocumentParser {
 					$filename = md5($_SERVER['REQUEST_URI']);
 					break;
 			}
+			
+			switch($this->http_status_code)
+			{
+				case '404':
+				case '403':
+					$filename = md5($this->makeUrl($docid));
+					break;
+			}
+			
 			$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
 			file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
 		}
@@ -651,6 +662,7 @@ class DocumentParser {
 		if($this->config['error_page']) $dist = $this->config['error_page'];
 		else                            $dist = $this->config['site_start'];
 		
+		$this->http_status_code = '404';
 		$this->sendForward($dist, 'HTTP/1.0 404 Not Found');
 	}
 	
@@ -664,6 +676,7 @@ class DocumentParser {
 		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
 		else                                   $dist = $this->config['site_start'];
 		
+		$this->http_status_code = '403';
 		$this->sendForward($dist , 'HTTP/1.1 403 Forbidden');
 	}
 
