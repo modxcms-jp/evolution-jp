@@ -55,6 +55,7 @@ class DocumentParser {
     var $error_reporting;
     var $processCache;
     var $http_status_code;
+    var $directParse;
 
     // constructor
 	function DocumentParser()
@@ -134,7 +135,7 @@ class DocumentParser {
 		}
 	}
 	
-	function executeParser()
+	function executeParser($id='')
 	{
 		ob_start();
 		//error_reporting(0);
@@ -161,6 +162,16 @@ class DocumentParser {
 		if(!$this->db->conn)      $this->db->connect();
 		if(!isset($this->config)) $this->getSettings();
 		if(!$this->processCache)  $this->initProcessCache();
+		
+		if(!empty($id))
+		{
+			$_REQUEST['id'] = $id;
+			$_GET['id'] = $id;
+			$_SERVER['REQUEST_URI'] = $this->config['base_url'] . 'index.php?id=' . $id;
+			$this->directParse = 1;
+		}
+		else $this->directParse = 0;
+		
 		if(!isset($_REQUEST['id']))
 		{
 			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
@@ -168,16 +179,19 @@ class DocumentParser {
 		}
 		if($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
 		
-		if(0 < count($_POST)) $this->config['cache_type'] = 0;
+		if(0 < count($_POST) && empty($id)) $this->config['cache_type'] = 0;
 		
-		$this->documentOutput = $this->get_static_pages();
-		if(!empty($this->documentOutput))
+		if(empty($id))
 		{
-			$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
-			$this->invokeEvent('OnWebPagePrerender');
-			echo $this->documentOutput;
-			$this->invokeEvent('OnWebPageComplete');
-			exit;
+			$this->documentOutput = $this->get_static_pages();
+			if(!empty($this->documentOutput))
+			{
+				$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+				$this->invokeEvent('OnWebPagePrerender');
+				echo $this->documentOutput;
+				$this->invokeEvent('OnWebPageComplete');
+				exit;
+			}
 		}
 		
 		// IIS friendly url fix
@@ -373,10 +387,13 @@ class DocumentParser {
 			// Parse document source
 			$this->documentContent= $this->parseDocumentSource($this->documentContent);
 		}
-		register_shutdown_function(array (
-		& $this,
-		'postProcess'
-		)); // tell PHP to call postProcess when it shuts down
+		if($this->directParse==0)
+		{
+			register_shutdown_function(array (
+			& $this,
+			'postProcess'
+			)); // tell PHP to call postProcess when it shuts down
+		}
 		$result = $this->outputContent();
 		return $result;
 	}
