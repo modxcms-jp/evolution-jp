@@ -2238,19 +2238,34 @@ class DocumentParser {
 		return $resourceArray;
 	}
 	
-	function getDocuments($ids= array (), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+	function getDocuments($ids= array(), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
 	{
-		if (count($ids) == 0)
+		if (count($ids) == 0 || empty($ids))
 		{
 			return false;
 		}
 		else
 		{
+			if(is_string($ids))
+			{
+				$ids = explode(',', $ids);
+				foreach($ids as $i=>$id)
+				{
+					$ids[$i] = trim($id);
+				}
+			}
+			
 			$tbl_site_content= $this->getFullTableName('site_content');
 			$tbl_document_groups= $this->getFullTableName('document_groups');
 			
 			// modify field names to use sc. table reference
-			$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+			$fields = explode(',',$fields);
+			foreach($fields as $i=>$field)
+			{
+				$fields[$i] = 'sc.' . trim($field);
+			}
+			$fields = join(',',$fields);
+			
 			if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
 			if ($where != '') $where= "AND {$where}";
 			// get document groups for current user
