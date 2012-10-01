@@ -589,6 +589,41 @@ class DocumentParser {
 		// end post processing
 	}
 	
+	private function _strToArray($str,$prefix='')
+	{
+		if(is_array($str))               $array   = $str;
+		elseif(strpos($str,',')===false) $array[] =$str;
+		else
+		{
+			$array = explode(',', $str);
+			foreach($array as $i=>$v)
+			{
+				$array[$i] = $prefix . trim($v);
+			}
+		}
+		return $array;
+	}
+	
+	function setOption($key, $value='', $mode=0)
+	{
+		if(!isset($this->config[$key]))
+		{
+			$this->config[$key] = $value;
+			if($mode==1)
+			{
+				$f['setting_name']  = $key;
+				$f['setting_value'] = $value;
+				$insert_id = $this->db->insert($f,$this->getFullTableName('system_settings'));
+				if(!$insert_id)
+				{
+					$this->messageQuit('Error while inserting new option into database.', $this->db->lastQuery);
+					exit();
+				}
+				else $this->clearCache();
+			}
+		}
+	}
+	
 	function getMicroTime()
 	{
 		list ($usec, $sec)= explode(' ', microtime());
@@ -1089,7 +1124,7 @@ class DocumentParser {
 		{
 			$pass = false;
 			$usrGrps = $this->getUserDocGroups();
-			$docGrps = explode(',', $docObj['__MODxDocGroups__']);
+			$docGrps = $this->_strToArray($docObj['__MODxDocGroups__']);
 			// check is user has access to doc groups
 			if(is_array($usrGrps))
 			{
@@ -2114,7 +2149,7 @@ class DocumentParser {
 			}
 			else
 			{
-				$params_array = explode(',',$params);
+				$params_array = $this->_strToArray($params);
 				foreach($params_array as $k=>$v)
 				{
 					$k = trim($k);
@@ -2202,8 +2237,8 @@ class DocumentParser {
 		$tbl_site_content= $this->getFullTableName('site_content');
 		$tbl_document_groups= $this->getFullTableName('document_groups');
 		// modify field names to use sc. table reference
-		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+		$fields= join(',', $this->_strToArray($fields,'sc.'));
+		$sort= join(',', $this->_strToArray($sort,'sc.'));
 		// get document groups for current user
 		if ($docgrp= $this->getUserDocGroups())
 		{
@@ -2230,8 +2265,8 @@ class DocumentParser {
 		$tbl_document_groups = $this->getFullTableName('document_groups');
 		
 		// modify field names to use sc. table reference
-		$fields= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
-		$sort= 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+		$fields= join(',', $this->_strToArray($fields,'sc.'));
+		$sort= join(',', $this->_strToArray($sort,'sc.'));
 		// get document groups for current user
 		if ($docgrp= $this->getUserDocGroups())
 		{
@@ -2260,7 +2295,7 @@ class DocumentParser {
 		$tbl_site_content= $this->getFullTableName('site_content');
 		$tbl_document_groups= $this->getFullTableName('document_groups');
 		// modify field names to use sc. table reference
-		$fields = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $fields)));
+		$fields = join(',', $this->_strToArray($fields,'sc.'));
 		if($where != '') $where= "AND {$where}";
 		// get document groups for current user
 		if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
@@ -2269,7 +2304,7 @@ class DocumentParser {
 		$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
 		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
 		$where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
-		$sort = ($sort != '') ? 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort))) : '';
+		$sort = ($sort != '') ? join(',', $this->_strToArray($sort,'sc.')) : '';
 		$orderby = $sort ? "{$sort} {$dir}" : '';
 		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
 		$resourceArray= array ();
@@ -2290,7 +2325,7 @@ class DocumentParser {
 		{
 			if(is_string($ids))
 			{
-				$ids = explode(',', $ids);
+				$ids = $this->_strToArray($ids);
 				foreach($ids as $i=>$id)
 				{
 					$ids[$i] = trim($id);
@@ -2301,14 +2336,14 @@ class DocumentParser {
 			$tbl_document_groups= $this->getFullTableName('document_groups');
 			
 			// modify field names to use sc. table reference
-			$fields = explode(',',$fields);
+			$fields = $this->_strToArray($fields);
 			foreach($fields as $i=>$field)
 			{
 				$fields[$i] = 'sc.' . trim($field);
 			}
 			$fields = join(',',$fields);
 			
-			if($sort !== '')  $sort = 'sc.' . implode(',sc.', preg_replace("/^\s/i", '', explode(',', $sort)));
+			if($sort !== '')  $sort = join(',', $this->_strToArray($sort,'sc.'));
 			if ($where != '') $where= "AND {$where}";
 			// get document groups for current user
 			if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
@@ -2353,7 +2388,7 @@ class DocumentParser {
 			
 			// modify field names to use sc. table reference
 			$fields = preg_replace("/\s/i", '',$fields);
-			$fields = 'sc.' . implode(',sc.', explode(',', $fields));
+			$fields = join(',',$this->_strToArray($fields,'sc.'));
 			
 			$published = ($active == 1) ? 'AND sc.published=1 AND sc.deleted=0' : '';
 			
@@ -2732,7 +2767,7 @@ class DocumentParser {
 		if(!$ph) return $src;
 		elseif(is_string($ph) && strpos($ph,'='))
 		{
-			if(strpos($ph,',')) $pairs   = explode(',',$ph);
+			if(strpos($ph,',')) $pairs   = $this->_strToArray($ph);
 			else                $pairs[] = $ph;
 			
 			unset($ph);
@@ -2856,8 +2891,8 @@ class DocumentParser {
 		{
 			$result= array ();
 			// get user defined template variables
-			$fields= ($tvfields == '') ? 'tv.*' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvfields)));
-			$tvsort= ($tvsort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $tvsort)));
+			$fields= ($tvfields == '') ? 'tv.*' : join(',', $this->_strToArray($tvfields,'tv.'));
+			$tvsort= ($tvsort == '') ? '' : 'tv.' . join(',', $this->_strToArray($tvsort,'tv.'));
 			if ($tvidnames == '*') $query= 'tv.id<>0';
 			else
 			{
@@ -2957,8 +2992,8 @@ class DocumentParser {
 				if (!$resource) return false;
 			}
 			// get user defined template variables
-			$fields= ($fields == '') ? 'tv.*' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $fields)));
-			$sort= ($sort == '') ? '' : 'tv.' . implode(',tv.', preg_replace("/^\s/i", '', explode(',', $sort)));
+			$fields= ($fields == '') ? 'tv.*' : join(',',$this->_strToArray(fields,'tv.'));
+			$sort= ($sort == '') ? '' : join(',',$this->_strToArray($sort,'tv.'));
 			if ($idnames == '*')
 			{
 				$where= 'tv.id<>0';
