@@ -47,6 +47,8 @@ $contentType     = $modx->db->escape($_POST['contentType']);
 $contentdispo    = intval($_POST['content_dispo']);
 $donthit         = intval($_POST['donthit']);
 $hidemenu        = intval($_POST['hidemenu']);
+$editedby = $modx->getLoginUserID();
+$editedon = time();
 
 if (trim($pagetitle) == '')
 {
@@ -216,8 +218,6 @@ switch ($actionToTake)
 		
 		$createdby = $modx->getLoginUserID();
 		$createdon = time();
-		$editedby = $modx->getLoginUserID();
-		$editedon = time();
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		if(!empty($id)) $field['id'] = $id;
 		$newid = $modx->db->insert($field,$tbl_site_content);
@@ -447,33 +447,7 @@ switch ($actionToTake)
 
 		// update the document
 		$field = array();
-		$field['introtext']       = $introtext;
-		$field['content']         = $content;
-		$field['pagetitle']       = $pagetitle;
-		$field['longtitle']       = $longtitle;
-		$field['type']            = $type;
-		$field['description']     = $description;
-		$field['alias']           = $alias;
-		$field['link_attributes'] = $link_attributes;
-		$field['isfolder']        = $isfolder;
-		$field['richtext']        = $richtext;
-		$field['published']       = $published;
-		$field['pub_date']        = $pub_date;
-		$field['unpub_date']      = $unpub_date;
-		$field['parent']          = $parent;
-		$field['template']        = $template;
-		$field['menuindex']       = $menuindex;
-		$field['searchable']      = $searchable;
-		$field['cacheable']       = $cacheable;
-		$field['editedby']        = $modx->getLoginUserID();
-		$field['editedon']        = time();
-		$field['publishedon']     = $publishedon;
-		$field['publishedby']     = $publishedby;
-		$field['contentType']     = $contentType;
-		$field['content_dispo']   = $contentdispo;
-		$field['donthit']         = $donthit;
-		$field['menutitle']       = $menutitle;
-		$field['hidemenu']        = $hidemenu;
+		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,contentdispo,donthit,menutitle,hidemenu,introtext'));
 		$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
 		if (!$rs)
 		{
@@ -550,7 +524,7 @@ switch ($actionToTake)
 			$isWeb     = intval($modx->hasPermission('web_access_permissions'));
 			$fields = 'groups.id, groups.document_group';
 			$from   = "{$tbl_document_groups} AS groups LEFT JOIN {$tbl_documentgroup_names} AS dgn ON dgn.id = groups.document_group";
-			$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = {$id}";
+			$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
 			$rs = $modx->db->select($fields,$from,$where);
 			$old_groups = array();
 			while ($row = $modx->db->getRow($rs))
