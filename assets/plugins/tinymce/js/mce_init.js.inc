@@ -61,6 +61,20 @@ tinyMCE.init({
 	entity_encoding                  : '[+entity_encoding+]',
 	file_browser_callback            : '[+file_browser_callback+]',
 	paste_text_sticky                : true,
+	setup : function(ed)
+	{
+		ed.onPostProcess.add(function(ed, o)
+		{
+			// State get is set when contents is extracted from editor
+			if (o.get)
+			{
+				o.content = o.content.replace('<p>{{', '{{');
+				o.content = o.content.replace('}}</p>', '}}');
+				o.content = o.content.replace(/<p>\[([\[\!\~\^])/g, '[$1');
+				o.content = o.content.replace(/([\]\!\~\^])\]<\/p>/g, '$1]');
+			}
+		});
+	},
 	onchange_callback                : [+onchange_callback+][+terminate+]
 	[+customparams+]
 })
