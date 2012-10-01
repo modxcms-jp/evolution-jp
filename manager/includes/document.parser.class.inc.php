@@ -624,6 +624,37 @@ class DocumentParser {
 		}
 	}
 	
+	function getOption($key, $default = null, $options = null, $skipEmpty = false)
+	{
+		$option= $default;
+		if (is_array($key) || strpos($key,',')!==false)
+		{
+			$key = $this->_strToArray($key);
+			
+			if (!is_array($option))
+			{
+				$default= $option;
+				$option= array();
+			}
+			foreach ($key as $k)
+			{
+				$option[$k]= $this->getOption($k, $default, $options);
+			}
+		}
+		elseif (is_string($key) && !empty($key))
+		{
+			if (is_array($options) && !empty($options) && array_key_exists($key, $options) && (!$skipEmpty || ($skipEmpty && $options[$key] !== '')))
+			{
+				$option= $options[$key];
+			}
+			elseif(is_array($this->config) && !empty($this->config) && array_key_exists($key, $this->config) && (!$skipEmpty || ($skipEmpty && $this->config[$key] !== '')))
+			{
+				$option= $this->config[$key];
+			}
+		}
+		return $option;
+	}
+	
 	function getMicroTime()
 	{
 		list ($usec, $sec)= explode(' ', microtime());
