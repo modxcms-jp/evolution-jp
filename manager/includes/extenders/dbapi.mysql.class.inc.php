@@ -10,6 +10,7 @@ class DBAPI {
 	var $conn;
 	var $config;
 	var $isConnected;
+	var $lastQuery;
 	
 	/**
 	* @name:  DBAPI
@@ -192,6 +193,7 @@ class DBAPI {
 			$this->connect();
 		}
 		$tstart = $modx->getMicroTime();
+		$this->lastQuery = $sql;
 		if (!$result = @ mysql_query($sql, $this->conn))
 		{
 			$modx->messageQuit('Execution of a query to the database failed - ' . $this->getLastError(), $sql);
