@@ -44,7 +44,7 @@ $type            = $_POST['type'];
 $keywords        = $_POST['keywords'];
 $metatags        = $_POST['metatags'];
 $contentType     = $modx->db->escape($_POST['contentType']);
-$contentdispo    = intval($_POST['content_dispo']);
+$content_dispo   = intval($_POST['content_dispo']);
 $donthit         = intval($_POST['donthit']);
 $hidemenu        = intval($_POST['hidemenu']);
 $editedby = $modx->getLoginUserID();
@@ -447,7 +447,7 @@ switch ($actionToTake)
 
 		// update the document
 		$field = array();
-		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,contentdispo,donthit,menutitle,hidemenu,introtext'));
+		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext'));
 		$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
 		if (!$rs)
 		{
