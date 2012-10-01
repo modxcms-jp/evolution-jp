@@ -78,6 +78,12 @@ class DocumentParser {
 		$this->error_reporting = 1;
 		// Don't show PHP errors to the public
 		if($this->checkSession()===false) @ini_set('display_errors','0');
+		if(!isset($this->tstart))
+		{
+			$mtime = explode(' ',microtime());
+			$this->tstart = $mtime[1] + $mtime[0];
+			$this->mstart = memory_get_usage();
+		}
 	}
 
 	// loads an extension from the extenders folder
