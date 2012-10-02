@@ -162,7 +162,7 @@ switch ($_POST['mode']) {
             	switch($_POST['stay'])
             	{
             		case '1': $a = '300'             ;break;
-            		case '2': $a = "301&id={$newid}" ;break;
+            		case '2': $a = "301&id={$id}" ;break;
             	}
                 $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
             } else {
