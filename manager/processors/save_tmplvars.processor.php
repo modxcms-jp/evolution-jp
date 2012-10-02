@@ -90,8 +90,12 @@ switch ($_POST['mode']) {
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] != '0') ? "301&id={$newid}" : "300";
+            if (isset($_POST['stay']) && $_POST['stay'] != '') {
+            	switch($_POST['stay'])
+            	{
+            		case '1': $a = '300'             ;break;
+            		case '2': $a = "301&id={$newid}" ;break;
+            	}
                 $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
             } else {
                 $header = "Location: index.php?a=76";
@@ -154,8 +158,12 @@ switch ($_POST['mode']) {
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] != '0') ? "301&id={$id}" : "300";
+            if (isset($_POST['stay']) && $_POST['stay'] != '') {
+            	switch($_POST['stay'])
+            	{
+            		case '1': $a = '300'             ;break;
+            		case '2': $a = "301&id={$newid}" ;break;
+            	}
                 $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
             } else {
                 $header = 'Location: index.php?a=76';
