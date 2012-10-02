@@ -329,6 +329,7 @@ EOT;
 		}
 		else
 		{
+/*
 			$s = array('[[','[!','{{','[(','[~');
 			foreach($s as $_)
 			{
@@ -338,6 +339,7 @@ EOT;
 					break;
 				}
 			}
+*/
 			$a = explode('||', $v);
 		}
 		return $a;
