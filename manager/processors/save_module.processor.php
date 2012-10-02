@@ -51,7 +51,7 @@ switch ($_POST['mode']) {
 							));
 							
 		// disallow duplicate names for new modules
-		$rs = $modx->db->query('COUNT(id)',$tbl_site_modules,"name = '{$name}'");
+		$rs = $modx->db->select('COUNT(id)',$tbl_site_modules,"name = '{$name}'");
 		$count = $modx->db->getValue($rs);
 		if($count > 0) {
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_module'], $name));
