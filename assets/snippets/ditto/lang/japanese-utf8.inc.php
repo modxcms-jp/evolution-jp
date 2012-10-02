@@ -32,7 +32,7 @@ $_lang['dateFormat'] = "%Y/%m/%d %H:%M";
 
 // Debug Tab Names
 $_lang['info'] = "情報";
-$_lang['modx'] = "MODx";
+$_lang['modx'] = "MODX";
 $_lang['fields'] = "フィールド";
 $_lang['templates'] = "テンプレート";
 $_lang['filters'] = "フィルタ";
@@ -58,4 +58,3 @@ $_lang['ditto_IDs_selected'] = "選択済みID";
 $_lang['ditto_IDs_all'] = "全てのID";
 $_lang['open_dbg_console'] = "デバッグコンソールを開く";
 $_lang['save_dbg_console'] = "デバッグコンソールを保存";
-?>
