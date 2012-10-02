@@ -1,4 +1,5 @@
 <?php
+$default_language = autoDetectLang();
 $ph['lang_options']        = get_lang_options($default_language);
 $ph['_lang_begin']         = $_lang['begin'];
 $ph['_lang_btnnext_value'] = $_lang['btnnext_value'];

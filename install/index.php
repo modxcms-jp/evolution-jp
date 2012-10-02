@@ -22,9 +22,9 @@ $_SESSION['test'] = 1;
 error_reporting(E_ALL & ~E_NOTICE);
 
 require_once("{$base_path}manager/includes/default.config.php");
-require_once("{$installer_path}lang.php");
 require_once("{$base_path}manager/includes/version.inc.php");
 require_once("{$installer_path}functions.php");
+includeLang($default_config);
 
 // session loop-back tester
 if (!$_SESSION['test']) {

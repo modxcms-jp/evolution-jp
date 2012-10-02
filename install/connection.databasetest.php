@@ -7,7 +7,7 @@ $installMode = $_POST['installMode'];
 
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
-require_once('lang.php');
+includeLang($default_config);
 $output = $_lang['status_checking_database'];
 if (!$conn = @ mysql_connect($host, $uid, $pwd))
 {

@@ -1,7 +1,7 @@
 <?php
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
-require_once("lang.php");
+includeLang($default_config);
 
 if(isset($_POST['host'])) $host = $_POST['host'];
 if(isset($_POST['uid']))  $uid  = $_POST['uid'];
