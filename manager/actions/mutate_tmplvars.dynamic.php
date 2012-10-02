@@ -14,7 +14,7 @@ else                       $id = 0;
 
 // check to see the variable editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=301 AND id={$id}");
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=301 AND id='{$id}'");
 $total = $modx->db->getRecordCount($rs);
 if($total>1)
 {
