@@ -446,7 +446,7 @@ $_lang["login_cancelled_site_was_updated"] = 'このサイトはアップデー�
 $_lang["login_captcha_message"] = '画像で表示されるセキュリティコードを入力してください。セキュリティコードが読めない場合は画像をクリックすると画像は再生成されます。もしくはサイト管理者に連絡をお願います。';
 $_lang["login_homepage"] = 'ログインするホームページ';
 $_lang["login_homepage_message"] = 'ログインしたウェブユーザーに対して表示するリソースのIDを入力してください。<br /><strong>※非公開のリソースは指定できません。また該当ユーザーがアクセス権限をもつリソースに限ります。</strong>';
-$_lang["login_message"] = 'MODXへようこそ。ログイン名とパスワードは大文字・小文字を区別します。';
+$_lang["login_message"] = 'ログイン名とパスワードは大文字・小文字を区別します。';
 $_lang["logo_slogan"] = 'MODX Content Manager - \nCreate and do more with less';
 $_lang["logout"] = 'ログアウト';
 $_lang["long_title"] = 'タイトル';
@@ -1059,7 +1059,7 @@ $_lang["websignupemail_message"] = 'ユーザー自らがウェブユーザー�
 $_lang["websignupemail_title"] = 'ウェブサインアップメール';
 $_lang["wednesday"] = '水';
 $_lang["welcome_messages"] = '受信トレイに <strong>%d</strong> 件のメッセージが入っています。<strong>%s</strong> 件が未読です。';
-$_lang["welcome_title"] = 'MODXへようこそ';
+$_lang["welcome_title"] = 'ダッシュボード';
 $_lang["which_editor_message"] = 'デフォルトで使用するリッチテキストエディターを選択してください(※<a href="http://www.modx.com/extras/category/richtexteditors?product=evolution" target="_blank">MODXのダウンロードページ</a>には追加でインストールできるリッチテキストエディターがあります)。';
 $_lang["which_editor_title"] = '使用エディター';
 $_lang["working"] = '処理中';
