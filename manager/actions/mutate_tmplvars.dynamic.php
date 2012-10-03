@@ -75,7 +75,6 @@ $evtOut = $modx->invokeEvent('OnRichTextEditorRegister',array('forfrontend' => 1
 if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
 ?>
 <script language="JavaScript">
-
 $j(function(){
 	$j('select[name="categoryid"]').change(function(){
 		if($j(this).val()=='-1')

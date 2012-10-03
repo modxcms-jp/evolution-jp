@@ -285,7 +285,7 @@ window.addEvent('domready', function() {
 		
 		
 		// Is  something in there?
-		if (src == '') { 			
+		if (src == '') {
 			$$('input[name^=sysevents]').removeProperty('checked'); // Untick all sys events
 			$('pluginName').setProperty('value', '');
 			$('pluginDescription').setProperty('value', '');
