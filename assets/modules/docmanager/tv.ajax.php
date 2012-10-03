@@ -286,15 +286,6 @@ function ParseIntputOptions($v) {
 	}
 	else
 	{
-		$s = array('[[','[!','{{','[(','[~');
-		foreach($s as $_)
-		{
-			if(strpos($v,$_)!==false)
-			{
-				$v = $modx->parseDocumentSource($v);
-				break;
-			}
-		}
 		$a = explode('||', $v);
 	}
 	return $a;
