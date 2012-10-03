@@ -99,7 +99,8 @@ $j(function(){
 			case 'custom_tv':
 				$j('#elements').fadeIn();
 				var multi = 'KeyA==ValA||KeyB==ValB';
-				var ctv   = '<textarea tvtype="textarea" id="tv[+field_id+]" name="tv[+field_id+]" onchange="documentDirty=true;">[+field_value+]</textarea>';
+				<?php $field_id = ($id) ? "tv{$id}" : 'tv[+field_id+]';?>
+				var ctv   = '<textarea tvtype="textarea" id="<?php echo $field_id ;?>" name="<?php echo $field_id ;?>" onchange="documentDirty=true;">[+field_value+]</textarea>';
 				if(itype.val()=='custom_tv')
 				{
 					$j('#elements th:first').css('visibility','hidden');
