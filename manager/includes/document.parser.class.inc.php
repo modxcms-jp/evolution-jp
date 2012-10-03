@@ -3023,7 +3023,7 @@ class DocumentParser {
 				if (!$resource) return false;
 			}
 			// get user defined template variables
-			$fields= ($fields == '') ? 'tv.*' : join(',',$this->_strToArray(fields,'tv.'));
+			$fields= ($fields == '') ? 'tv.*' : join(',',$this->_strToArray($fields,'tv.'));
 			$sort= ($sort == '') ? '' : join(',',$this->_strToArray($sort,'tv.'));
 			if ($idnames == '*')
 			{
