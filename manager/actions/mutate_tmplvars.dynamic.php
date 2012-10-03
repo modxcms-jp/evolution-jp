@@ -313,7 +313,7 @@ function decode(s){
 <input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
 <input type="hidden" name="params" value="<?php echo htmlspecialchars($content['display_params']);?>">
 
-	<h1><?php echo $_lang['tmplvars_title']; ?></h1>
+	<h1><?php echo $_lang['tmplvars_title'];if($id) echo "(ID:tv{$id})"; ?></h1>
 
     <div id="actions">
     	  <ul class="actionButtons">
