@@ -250,7 +250,7 @@ if (is_array($evtOut))
     			if ($_REQUEST['a'] == '12') { ?>
     		  <li id="Button3"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=75';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=75';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 <!-- Tab Start -->
@@ -287,12 +287,12 @@ if (is_array($evtOut))
 		  <tr id="editname" style="display:<?php echo $_GET['a']=='11'||(isset($usernamedata['oldusername']) && $usernamedata['oldusername']!=$usernamedata['username']) ? $displayStyle : 'none' ; ?>">
 			<th><?php echo $_lang['username']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="newusername" class="inputBox" value="<?php echo htmlspecialchars($usernamedata['username']); ?>" onchange='documentDirty=true;' maxlength="100" /></td>
+			<td><input type="text" name="newusername" class="inputBox" value="<?php echo htmlspecialchars($usernamedata['username']); ?>" maxlength="100" /></td>
 		  </tr>
 		  <tr>
 			<th valign="top"><?php echo $_GET['a']=='11' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></th>
 			<td>&nbsp;</td>
-			<td><label><input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a']=="11" ? " checked disabled": "" ; ?>><input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="11" ? 1 : 0 ; ?>" onchange="documentDirty=true;" /></label><br />
+			<td><label><input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a']=="11" ? " checked disabled": "" ; ?>><input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="11" ? 1 : 0 ; ?>" /></label><br />
 				<span style="display:<?php echo $_REQUEST['a']=="11" ? "block": "none" ; ?>" id="passwordBlock">
 				<fieldset style="width:300px">
 				<legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
@@ -300,9 +300,9 @@ if (is_array($evtOut))
 				<label><input type=radio name="passwordgenmethod" value="spec" <?php echo $_POST['passwordgenmethod']=="spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br />
 				<div style="padding-left:20px">
 				<label for="specifiedpassword" style="width:120px"><?php echo $_lang['change_password_new']; ?>:</label>
-				<input type="password" name="specifiedpassword" onchange="documentdirty=true;" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
+				<input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
 				<label for="confirmpassword" style="width:120px"><?php echo $_lang['change_password_confirm']; ?>:</label>
-				<input type="password" name="confirmpassword" onchange="documentdirty=true;" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
+				<input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
 				<small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
 				</div>
 				</fieldset>
@@ -318,13 +318,13 @@ if (is_array($evtOut))
 		  <tr>
 			<th><?php echo $_lang['user_full_name']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_email']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
-			<input type="text" name="email" class="inputBox" value="<?php echo htmlspecialchars($userdata['email']); ?>" onchange="documentDirty=true;" />
+			<input type="text" name="email" class="inputBox" value="<?php echo htmlspecialchars($userdata['email']); ?>" />
 			<input type="hidden" name="oldemail" value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail']:$userdata['email']); ?>" />
 			</td>
 		  </tr>
@@ -364,7 +364,7 @@ else
 }
 $rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 ?>
-		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
+		<select name="role" class="inputBox" style="width:300px">
 		<?php
 
 while ($row = $modx->db->getRow($rs))
@@ -388,33 +388,33 @@ while ($row = $modx->db->getRow($rs))
 		  <tr>
 			<th><?php echo $_lang['user_phone']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_mobile']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" /></td>
 		  </tr>		  
 		  <tr>	  
 			<th><?php echo $_lang['user_fax']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_state']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_zip']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" onchange="documentDirty=true;" /></td>
+			<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_country']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
-			<select size="1" name="country" onchange="documentDirty=true;">
+			<select size="1" name="country">
             <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
 			<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
 				<?php
@@ -437,7 +437,7 @@ while ($row = $modx->db->getRow($rs))
 		  <tr>
 			<th><?php echo $_lang['user_gender']; ?>:</th>
 			<td>&nbsp;</td>
-			<td><select name="gender" onchange="documentDirty=true;">
+			<td><select name="gender">
 				<option value=""></option>
 				<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
 				<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
@@ -448,7 +448,7 @@ while ($row = $modx->db->getRow($rs))
 			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
 			<td>&nbsp;</td>
 			<td>
-				<textarea type="text" name="comment" class="inputBox"  rows="5" onchange="documentDirty=true;"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
+				<textarea type="text" name="comment" class="inputBox"  rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
 			</td>
 		  </tr>
 		<?php if($_GET['a']=='12') { ?>
@@ -471,7 +471,7 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
-			<td>&nbsp;<input type="hidden" name="failedlogincount"  onchange='documentDirty=true;' value="<?php echo $userdata['failedlogincount']; ?>"></td>
+			<td>&nbsp;<input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>"></td>
 			<td><span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
 		  </tr>
 		  <tr>
@@ -535,21 +535,21 @@ $dir->close();
 	  </tr>
           <tr>
             <th><?php echo $_lang["mgr_login_start"] ?></th>
-            <td ><input onchange="documentDirty=true;" type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
+            <td ><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
             <div><?php echo $_lang["mgr_login_start_message"] ?></div>
             </td>
           </tr>
           <tr>
             <th><?php echo $_lang["allow_mgr_access"] ?></th>
             <td>
-            	<label><input onchange="documentDirty=true;" type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?></label><br />
-            	<label><input onchange="documentDirty=true;" type="radio" name="allow_manager_access" value="0" <?php echo isset($usersettings['allow_manager_access']) && $usersettings['allow_manager_access']==0 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['no']; ?></label>
+            	<label><input type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?></label><br />
+            	<label><input type="radio" name="allow_manager_access" value="0" <?php echo isset($usersettings['allow_manager_access']) && $usersettings['allow_manager_access']==0 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['no']; ?></label>
             	<div><?php echo $_lang["allow_mgr_access_message"] ?></div>
             </td>
           </tr>
           <tr>
             <th><?php echo $_lang["login_allowed_ip"] ?></th>
-            <td ><input onchange="documentDirty=true;"  type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $usersettings['allowed_ip']; ?>" />
+            <td ><input  type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $usersettings['allowed_ip']; ?>" />
             <div><?php echo $_lang["login_allowed_ip_message"] ?></div>
             </td>
           </tr>
@@ -588,53 +588,53 @@ $dir->close();
           <tr>
             <th><?php echo $_lang["filemanager_path_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="filemanager_path" value="<?php echo htmlspecialchars(isset($usersettings['filemanager_path']) ? $usersettings['filemanager_path']:""); ?>">
+              <input type='text' maxlength='255' style="width: 300px;" name="filemanager_path" value="<?php echo htmlspecialchars(isset($usersettings['filemanager_path']) ? $usersettings['filemanager_path']:""); ?>">
               <div><?php echo $_lang["filemanager_path_message"];?></div>
               </td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_images_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
-              &nbsp;&nbsp; <label><input onchange="documentDirty=true;" type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+              <input type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
+              &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
               <div><?php echo $_lang["uploadable_images_message"].$_lang["user_upload_message"]?></div>
             </td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_media_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : "" ; ?>">
-				&nbsp;&nbsp; <label><input onchange="documentDirty=true;" type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+              <input type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : "" ; ?>">
+				&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
 				<div><?php echo $_lang["uploadable_media_message"].$_lang["user_upload_message"]?></div>
             </td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_flash_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($usersettings['upload_flash']) ? $usersettings['upload_flash'] : "" ; ?>">
-            &nbsp;&nbsp; <label><input onchange="documentDirty=true;" type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+              <input type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($usersettings['upload_flash']) ? $usersettings['upload_flash'] : "" ; ?>">
+            &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
             <div><?php echo $_lang["uploadable_flash_message"].$_lang["user_upload_message"]?></div>
             </td>
           </tr>
           <tr>
             <th><?php echo $_lang["uploadable_files_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : "" ; ?>">
-            &nbsp;&nbsp; <label><input onchange="documentDirty=true;" type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+              <input type='text' maxlength='255' style="width: 250px;" name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : "" ; ?>">
+            &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
             <div><?php echo $_lang["uploadable_files_message"].$_lang["user_upload_message"]?></div>
             </td>
           </tr>
           <tr class='row2'>
             <th><?php echo $_lang["upload_maxsize_title"]?></th>
             <td>
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
+              <input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
               <div><?php echo $_lang["upload_maxsize_message"]?></div>
             </td>
           </tr>
           <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["which_editor_title"]?></th>
             <td>
-				<select name="which_editor" onchange="documentDirty=true;">
+				<select name="which_editor">
 				<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 					<?php
 
@@ -654,19 +654,19 @@ if (is_array($evtOut))
           </tr>
           <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["editor_css_path_title"]?></th>
-            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
+            <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
             <div><?php echo $_lang["editor_css_path_message"]?></div>
 			</td>
           </tr>
           <tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["rb_base_dir_title"]?></th>
-            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
+            <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
             <div><?php echo $_lang["rb_base_dir_message"]?></div>
               </td>
           </tr>
           <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <th><?php echo $_lang["rb_base_url_title"]?></th>
-            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
+            <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
             <div><?php echo $_lang["rb_base_url_message"]?></div>
               </td>
           </tr>
@@ -713,7 +713,7 @@ if (is_array($evtOut))
         <table class="settings">
           <tr>
             <th><?php echo $_lang["user_photo"] ?></th>
-            <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
+            <td><input type='text' maxlength='255' style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
             <div><?php echo $_lang["user_photo_message"]; ?></div>
               <?php
               	if(!empty($userdata['photo']))
@@ -810,7 +810,7 @@ function ConvertDate($date) {
 function checkbox($name,$value,$label,$cond)
 {
 	global $modx;
-	$tpl = '<label><input onchange="documentDirty=true;" type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
+	$tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
 	$ph['name'] = $name;
 	$ph['value'] = $value;
 	$ph['label'] = $label;

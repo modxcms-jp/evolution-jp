@@ -454,7 +454,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 
@@ -473,7 +473,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		<table border="0" cellspacing="0" cellpadding="0">
 		  <tr>
 			<th align="left"><?php echo $_lang['plugin_name']; ?></th>
-			<td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'>&nbsp;</span></td>
+			<td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;"><span class="warning" id='savingMessage'>&nbsp;</span></td>
 		  </tr>
 		  <tr>
 			<td align="left" valign="top" colspan="2"><label><input name="disabled" type="checkbox" <?php echo $content['disabled']==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $content['disabled']==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span></label>":$_lang['plugin_disabled']; ?></td>
@@ -485,7 +485,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		    	<span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		</div>
-			<textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" onchange="documentDirty=true;" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
+			<textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
 		</div>
 		<!-- PHP text editor end -->
 		</div>
@@ -520,7 +520,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		<tr>
 			<th align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</th>
 			<td align="left">
-			<select name="moduleguid" style="width:300px;" onChange='documentDirty=true;'>
+			<select name="moduleguid" style="width:300px;">
 				<option>&nbsp;</option>
 				<?php echo $options; ?>
 			</select>
@@ -536,7 +536,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		  <tr>
 			<th align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</th>
 			<td align="left" valign="top">
-			<textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
+			<textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange="showParameters(this);"><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>
@@ -626,7 +626,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <table>
 	<tr>
 		<th align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</th>
-		<td align="left"><select name="categoryid" id="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+		<td align="left"><select name="categoryid" id="categoryid" style="width:300px;">
 		<option value="0"><?php echo $_lang["no_category"]; ?></option>
 		<?php
 		    include_once($modx->config['core_path'].'categories.inc.php');
@@ -641,11 +641,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	</tr>
 	<tr id="newcategry" style="display:none;">
 		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" id="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" id="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;"></td>
 	</tr>
 	  <tr>
 		<th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
-		<td align="left"><textarea id="pluginDescription" name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
+		<td align="left"><textarea id="pluginDescription" name="description" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
 	  </tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>

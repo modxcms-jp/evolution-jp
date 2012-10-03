@@ -100,7 +100,7 @@ $j(function(){
 				$j('#elements').fadeIn();
 				var multi = 'KeyA==ValA||KeyB==ValB';
 				<?php $field_id = ($id) ? "tv{$id}" : 'tv[+field_id+]';?>
-				var ctv   = '<textarea tvtype="textarea" id="<?php echo $field_id ;?>" name="<?php echo $field_id ;?>" onchange="documentDirty=true;">[+field_value+]</textarea>';
+				var ctv   = '<textarea tvtype="textarea" id="<?php echo $field_id ;?>" name="<?php echo $field_id ;?>">[+field_value+]</textarea>';
 				if(itype.val()=='custom_tv')
 				{
 					$j('#elements th:first').css('visibility','hidden');
@@ -350,17 +350,17 @@ function decode(s){
 <table>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_name']; ?></th>
-    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;" onchange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id='savingMessage'>&nbsp;</span></td>
+    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;"><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id="savingMessage">&nbsp;</span></td>
   </tr>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_caption']; ?></th>
-    <td align="left"><input name="caption" type="text" maxlength="80" value="<?php echo htmlspecialchars($content['caption']);?>" class="inputBox" style="width:300px;" onchange='documentDirty=true;'></td>
+    <td align="left"><input name="caption" type="text" maxlength="80" value="<?php echo htmlspecialchars($content['caption']);?>" class="inputBox" style="width:300px;"></td>
   </tr>
 
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_type']; ?></th>
     <td align="left">
-    <select id="type" name="type" size="1" class="inputBox" style="width:300px;" onchange="documentDirty=true;">
+    <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
 <?php
 	$option = array();
 	$option['text']         = 'Text';
@@ -418,16 +418,16 @@ switch($content['type'])
 }
 if($content['type']==='custom_tv' && $content['elements']==='')
 {
-	$content['elements'] = '<input type="text" id="tv[+field_id+]" name="tv[+field_id+]" value="[+field_value+]" [+field_style+] tvtype="[+field_type+]" onchange="documentDirty=true;" />';
+	$content['elements'] = '<input type="text" id="tv[+field_id+]" name="tv[+field_id+]" value="[+field_value+]" [+field_style+] tvtype="[+field_type+]"/>';
 }
 ?>
   <tr id="elements" <?php echo $display;?>>
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
-	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" style="width:300px;height:110px;" class="inputBox phptextarea" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
+	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" style="width:300px;height:110px;" class="inputBox phptextarea"><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
     <th align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?></th>
-    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;" onchange='documentDirty=true;'><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
+    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
   </tr>
   <tr>
 <?php
@@ -439,7 +439,7 @@ function selected($target='')
 ?>
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
     <td align="left">
-        <select name="display" size="1" class="inputBox" style="width:300px;" onchange='documentDirty=true;showParameters(this);'>
+        <select name="display" size="1" class="inputBox" style="width:300px;" onchange="showParameters(this);">
 	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
 			<optgroup label="Widgets">
 	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
@@ -518,7 +518,7 @@ function selected($target='')
       <tr>
         <th align="left"><?php echo $_lang['existing_category']; ?></th>
         <td align="left">
-        <select name="categoryid" style="width:300px;" onchange='documentDirty=true;'>
+        <select name="categoryid" style="width:300px;">
         <option value="0"><?php echo $_lang["no_category"]; ?></option>
             <?php
                 include_once($modx->config['core_path'].'categories.inc.php');
@@ -534,11 +534,11 @@ function selected($target='')
       </tr>
       <tr id="newcategry" style="display:none;">
         <th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?></th>
-        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onchange='documentDirty=true;'></td>
+        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;"></td>
       </tr>
 	  <tr>
 	    <th align="left"><?php echo $_lang['tmplvars_description']; ?></th>
-	    <td align="left"><textarea name="description" onchange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+	    <td align="left"><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	  </tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
@@ -547,7 +547,7 @@ function selected($target='')
 <?php } ?>
 	  <tr>
 	    <th align="left"><?php echo $_lang['tmplvars_rank']; ?></th>
-	    <td align="left"><input name="rank" type="text" maxlength="4" value="<?php echo (isset($content['rank'])) ? $content['rank'] : 0;?>" class="inputBox" style="width:300px;" onchange='documentDirty=true;'></td>
+	    <td align="left"><input name="rank" type="text" maxlength="4" value="<?php echo (isset($content['rank'])) ? $content['rank'] : 0;?>" class="inputBox" style="width:300px;"></td>
 	  </tr>
       </table>
 </div>

@@ -371,7 +371,7 @@ function SetUrl(url, width, height, alt) {
         			if ($_REQUEST['a'] == '27') { ?>
         			    <li id="Button6"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img src="<?php echo $_style["icons_preview"]?>" /> <?php echo $_lang['preview']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=106';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=106';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 	<!-- end #actions -->
@@ -392,7 +392,7 @@ function SetUrl(url, width, height, alt) {
 	<table>
 		<tr>
 			<td align="left"><?php echo $_lang['module_name']?>:</td>
-			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" onchange="documentDirty=true;"><span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox"><span class="warning" id="savingMessage">&nbsp;</span></td>
 		</tr>
 		<tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
 			<span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td>
@@ -405,7 +405,7 @@ function SetUrl(url, width, height, alt) {
 			<span style="float:left;font-weight:bold;"><?php echo $_lang['module_code']?></span>
 			<span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		</div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['modulecode'])?></textarea>
+        <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>"><?php echo htmlspecialchars($content['modulecode'])?></textarea>
 	</div>
 	<!-- PHP text editor end -->
 	</div>
@@ -419,7 +419,7 @@ function SetUrl(url, width, height, alt) {
 		<tr>
 			<td align="left"><?php echo $_lang['existing_category']?>:</td>
 			<td align="left">
-			<select name="categoryid" onchange="documentDirty=true;">
+			<select name="categoryid">
 				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
 				include_once($modx->config['core_path'].'categories.inc.php');
@@ -435,18 +435,18 @@ function SetUrl(url, width, height, alt) {
         </tr>
 		<tr id="newcategry" style="display:none;">
 			<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
-			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" onchange="documentDirty=true;"></td>
+			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox"></td>
 		</tr>
 		<tr>
 			<td align="left"><?php echo $_lang['module_desc']?>:</td>
-			<td align="left"><textarea name="description" onchange="documentDirty=true;" style="padding:0;width:300px;height:4em;"><?php echo $content['description'];?></textarea></td>
+			<td align="left"><textarea name="description" style="padding:0;width:300px;height:4em;"><?php echo $content['description'];?></textarea></td>
 		</tr>
 		<tr>
 			<td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:</td>
-			<td align="left"><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td>
+			<td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td>
 		</tr>
-		<tr style="display:none;"><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
-			<td align="left"><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td>
+		<tr style="display:none;"><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
+			<td align="left"><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" /></td>
 		</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 		<tr>
@@ -456,7 +456,7 @@ function SetUrl(url, width, height, alt) {
 <?php } ?>
 		<tr>
 			<td align="left" valign="top"><?php echo $_lang['module_config']?>:</td>
-			<td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);documentDirty=true;" /><?php echo $content['properties']?></textarea><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td>
+			<td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);" /><?php echo $content['properties']?></textarea><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td>
 		</tr>
 		<tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>
@@ -479,11 +479,11 @@ $display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
 ?>
 	<table>
 		<tr>
-			<td align="left" valign="top" colspan="2"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
+			<td align="left" valign="top" colspan="2"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
 		</tr>
 		<tr class="sharedparams" <?php echo $display; ?>>
 			<td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
-			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo ($content['guid']!='') ? $content['guid'] : createGUID(); ?>" class="inputBox" onchange="documentDirty=true;" /><br />
+			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo ($content['guid']!='') ? $content['guid'] : createGUID(); ?>" class="inputBox" /><br />
 			<span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span><br /></td>
 		</tr>
 	</table>

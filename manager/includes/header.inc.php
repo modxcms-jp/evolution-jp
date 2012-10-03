@@ -41,6 +41,9 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
         
 		$j(function(){
+			$j('input').change(function() {documentDirty=true;});
+			$j('textarea').change(function() {documentDirty=true;});
+			$j('select').change(function() {documentDirty=true;});
         	document_onload();
 			$j('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});

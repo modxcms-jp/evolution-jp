@@ -472,7 +472,7 @@ $body  = input_text('longtitle',to_safestr($content['longtitle']),'spellcheck="t
 $body .= tooltip($_lang['resource_long_title_help']);
 renderTr($_lang['long_title'],$body);
 
-$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="" onchange="documentDirty=true;">' . to_safestr($content['description']) . '</textarea>';
+$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . to_safestr($content['description']) . '</textarea>';
 $body .= tooltip($_lang['resource_description_help']);
 renderTr($_lang['resource_description'],$body,'vertical-align:top;');
 
@@ -514,7 +514,7 @@ if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
 			</tr>
 <?php
 }
-$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="" onchange="documentDirty=true;">' . to_safestr($content['introtext']) . '</textarea>';
+$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">' . to_safestr($content['introtext']) . '</textarea>';
 $body .= tooltip($_lang['resource_summary_help']);
 renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
 ?>
@@ -608,8 +608,8 @@ if($thisCategory != '') echo "</optgroup>\n";
 						<tr>
 							<td style="white-space:nowrap;">
 								<?php echo input_text('menuindex',$content['menuindex'],'style="width:40px;"','5');?>
-								<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
-								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
+								<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
+								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
 								<?php echo tooltip($_lang['resource_opt_menu_index_help']);?>
 							</td>
 							<td style="text-align:right;">
@@ -671,7 +671,7 @@ if($parentlookup !== false && is_numeric($parentlookup))
 					<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
 					<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
 					<?php echo tooltip($_lang['resource_parent_help']);?>
-					<input type="hidden" name="parent" value="<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?>" onchange="documentDirty=true;" />
+					<input type="hidden" name="parent" value="<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?>" />
 				</td>
 			</tr>
 		</table>
@@ -688,7 +688,7 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 		$htmlContent = $content['content'];
 ?>
 		<div>
-			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;" onchange="documentDirty=true;"><?php echo htmlspecialchars($htmlContent)?></textarea>
+			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;"><?php echo htmlspecialchars($htmlContent)?></textarea>
 			<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 			<select id="which_editor" name="which_editor" onchange="changeRTE();">
 				<option value="none"><?php echo $_lang['none']?></option>
@@ -714,7 +714,7 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 	}
 	else
 	{
-		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
+		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
 	}
 ?>
 		</div><!-- end .sectionBody -->
@@ -836,7 +836,7 @@ echo tooltip($_lang['resource_opt_published_help']);
 <?php
 $content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
 ?>
-				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $content['pub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $content['pub_date'];?>" />
                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_publishdate_help']);?>
@@ -872,7 +872,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInterna
 {
 ?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
-				<td><select name="type" class="inputBox" onchange="documentDirty=true;" style="width:200px">
+				<td><select name="type" class="inputBox" style="width:200px">
 
                     <option value="document"<?php echo (($content['type'] == 'document' || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
                     <option value="reference"<?php echo (($content['type'] == 'reference' || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
@@ -885,7 +885,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInterna
 	{
 ?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_contentType']?></span></td>
-				<td><select name="contentType" class="inputBox" onchange="documentDirty=true;" style="width:200px">
+				<td><select name="contentType" class="inputBox" style="width:200px">
 <?php
 		if (!$content['contentType']) $content['contentType'] = 'text/html';
 		
@@ -901,7 +901,7 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInterna
 				</td>
 			</tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_opt_contentdispo']?></span></td>
-				<td><select name="content_dispo" size="1" onchange="documentDirty=true;" style="width:200px">
+				<td><select name="content_dispo" size="1" style="width:200px">
 					<option value="0"<?php echo !$content['content_dispo'] ? ' selected="selected"':''?>><?php echo $_lang['inline']?></option>
 					<option value="1"<?php echo $content['content_dispo']==1 ? ' selected="selected"':''?>><?php echo $_lang['attachment']?></option>
 				</select>
@@ -1093,7 +1093,7 @@ if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'])
 			<table border="0" style="width:inherit;">
 			<tr>
 				<td><span class="warning"><?php echo $_lang['keywords']?></span><br />
-				<select name="keywords[]" multiple="multiple" size="16" class="inputBox" style="width: 200px;" onchange="documentDirty=true;">
+				<select name="keywords[]" multiple="multiple" size="16" class="inputBox" style="width: 200px;">
 <?php
 	$keys = array_keys($keywords);
 	for ($i = 0; $i < count($keys); $i++)
@@ -1109,7 +1109,7 @@ if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'])
 				<input type="button" value="<?php echo $_lang['deselect_keywords']?>" onclick="clearKeywordSelection();" />
 				</td>
 				<td><span class="warning"><?php echo $_lang['metatags']?></span><br />
-				<select name="metatags[]" multiple="multiple" size="16" class="inputBox" style="width: 220px;" onchange="documentDirty=true;">
+				<select name="metatags[]" multiple="multiple" size="16" class="inputBox" style="width: 220px;">
 <?php
 	$keys = array_keys($metatags);
 	for ($i = 0; $i < count($keys); $i++)
@@ -1337,7 +1337,7 @@ function input_text($name,$value,$other='',$maxlength='255')
 			break;
 	}
 	
-	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" onchange="documentDirty=true;" [+other+] />';
+	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
 
@@ -1387,7 +1387,7 @@ function input_hidden($name,$cond=true)
 	
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
-	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" onchange="documentDirty=true;" />';
+	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
 	return $modx->parsePlaceholder($tpl,$ph);
 }
 

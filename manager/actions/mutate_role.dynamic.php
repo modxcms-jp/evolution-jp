@@ -95,7 +95,7 @@ function deletedocument() {
 	<?php if($_GET['a']=='35') { ?>
 			<li><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete'] ?></a></li>
 	<?php } ?>
-			<li><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=86';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
+			<li><a href="#" onclick="document.location.href='index.php?a=86';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
 	</ul>
 </div>
 
@@ -105,12 +105,12 @@ function deletedocument() {
   <tr>
     <td><?php echo $_lang['role_name']; ?>:</td>
     <td>&nbsp;</td>
-    <td><input name="name" type="text" maxlength=50 value="<?php echo $roledata['name'] ; ?>" onchange="documentDirty=true;"></td>
+    <td><input name="name" type="text" maxlength=50 value="<?php echo $roledata['name'] ; ?>"></td>
   </tr>
   <tr>
     <td><?php echo $_lang['resource_description']; ?>:</td>
     <td>&nbsp;</td>
-    <td><input name="description" type="text" maxlength=255 value="<?php echo $roledata['description'] ; ?>" size="60" onchange="documentDirty=true;"></td>
+    <td><input name="description" type="text" maxlength=255 value="<?php echo $roledata['description'] ; ?>" size="60"></td>
   </tr>
 </table>
 </fieldset>

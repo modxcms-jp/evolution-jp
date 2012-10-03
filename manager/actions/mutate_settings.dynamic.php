@@ -175,7 +175,7 @@ function confirmLangChange(el, lkey, elupd)
 				</a>
 			</li>
 			<li id="Button5">
-				<a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';">
+				<a href="#" onclick="document.location.href='index.php?a=2';">
 					<img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?>
 				</a>
 			</li>
@@ -242,7 +242,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["language_title"]?></th>
 	<td>
-		<select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true;">
+		<select name="manager_language" size="1" class="inputBox">
 		<?php echo get_lang_options(null, $manager_language);?>
 		</select><br />
 		<?php echo $_lang["language_message"]?>
@@ -251,7 +251,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["charset_title"]?></th>
 	<td>
-		<select name="modx_charset" size="1" class="inputBox" style="width:250px;" onchange="documentDirty=true;">
+		<select name="modx_charset" size="1" class="inputBox" style="width:250px;">
 		<?php include "charsets.php"; ?>
 		</select><br />
 		<?php echo $_lang["charset_message"]?>
@@ -335,7 +335,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["defaulttemplate_title"] ?></th>
 	<td>
-		<select name="default_template" class="inputBox" onchange="documentDirty=true;wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
+		<select name="default_template" class="inputBox" onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
 <?php
 	$tbl_site_templates = $modx->getFullTableName('site_templates');
 	$tbl_categories = $modx->getFullTableName('categories');
@@ -781,7 +781,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <table class="settings">
 <tr>
 <th><?php echo $_lang["manager_theme"]?></th>
-<td><select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
+<td><select name="manager_theme" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
 $dir = dir("media/style/");
 while ($file = $dir->read())
@@ -935,7 +935,7 @@ echo $str;
 <tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["which_editor_title"]?></th>
 <td>
-<select name="which_editor" onchange="documentDirty=true;">
+<select name="which_editor">
 <?php
 // invoke OnRichTextEditorRegister event
 $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
@@ -950,7 +950,7 @@ echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" 
 </tr>
 <tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["fe_editor_lang_title"]?></th>
-<td><select name="fe_editor_lang" size="1" class="inputBox" onchange="documentDirty=true;">
+<td><select name="fe_editor_lang" size="1" class="inputBox">
 <?php echo get_lang_options(null, $fe_editor_lang);?>
 </select><br />
 <?php echo $_lang["fe_editor_lang_message"]?></td>
@@ -1216,14 +1216,14 @@ function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
 	if(empty($maxlength)) $maxlength = '255';
 	if($maxlength<=10) $maxlength = 'maxlength="' . $maxlength . '" style="width:' . $maxlength . 'em;"';
 	else               $maxlength = 'maxlength="' . $maxlength . '"';
-	return '<input onchange="documentDirty=true;" type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
+	return '<input type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
 }
 function form_radio($name,$value,$checked=false,$add='',$disabled=false)
 {
 	if($checked)  $checked  = ' checked="checked"';
 	if($disabled) $disabled = ' disabled';
 	if($add)     $add = ' ' . $add;
-	return '<input onchange="documentDirty=true;" type="radio" name="' . $name . '" value="' . $value . '"' . $checked . $disabled . $add . ' />';
+	return '<input type="radio" name="' . $name . '" value="' . $value . '"' . $checked . $disabled . $add . ' />';
 }
 
 function wrap_label($str='',$object)

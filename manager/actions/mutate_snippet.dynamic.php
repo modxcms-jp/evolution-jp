@@ -297,7 +297,7 @@ function decode(s){
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $style_path; ?>icons/copy.gif" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style['icons_cancel']; ?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=76';"><img src="<?php echo $_style['icons_cancel']; ?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 
@@ -318,7 +318,7 @@ function decode(s){
 		<table>
 		  <tr>
 			<th align="left"><?php echo $_lang['snippet_name']?></th>
-			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;">]]<span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">]]<span class="warning" id="savingMessage">&nbsp;</span></td>
 		  </tr>
 		</table>
 		<!-- PHP text editor start -->
@@ -328,7 +328,7 @@ function decode(s){
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines'];?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
-			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" onchange="documentDirty=true;"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
+			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
 			</div>
 		<!-- PHP text editor end -->
 		  	</div>
@@ -341,7 +341,7 @@ function decode(s){
           <tr>
 			<th align="left"><?php echo $_lang['existing_category']?>:</th>
 			<td align="left">
-			<select name="categoryid" style="width:300px;" onChange="documentDirty=true;">
+			<select name="categoryid" style="width:300px;">
 			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 				<?php
 					include_once($modx->config['core_path'].'categories.inc.php');
@@ -356,12 +356,12 @@ function decode(s){
 		  </tr>
           <tr id="newcategry" style="display:none;">
 			<th align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category']?>:</th>
-			<td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+			<td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;"></td>
 		  </tr>
 		  <tr>
 			<th align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc']?>:</th>
 			<td align="left" style="padding-top:10px">
-				<textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
+				<textarea name="description" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
 		  </tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 		  <tr>
@@ -390,7 +390,7 @@ function decode(s){
           <tr>
 			<th align="left" style="padding-top:10px;"><?php echo $_lang['import_params']?>:</th>
 			<td align="left" valign="top" style="padding-top:10px;">
-				<select name="moduleguid" style="width:300px;" onChange="documentDirty=true;">
+				<select name="moduleguid" style="width:300px;">
 				<?php echo $options; ?>
 				</select>
 			</td>
@@ -402,7 +402,7 @@ function decode(s){
 <?php } ?>
 		  <tr>
 			<th align="left" valign="top"><?php echo $_lang['snippet_properties']?>:</th>
-			<td align="left" valign="top"><textarea name="properties" maxlength="65535" class="inputBox phptextarea" onChange="showParameters(this);documentDirty=true;"><?php echo $content['properties']?></textarea></td>
+			<td align="left" valign="top"><textarea name="properties" maxlength="65535" class="inputBox phptextarea" onChange="showParameters(this);"><?php echo $content['properties']?></textarea></td>
 		  </tr>
 		  <tr id="displayparamrow">
 			<td valign="top" align="left">&nbsp;</td>

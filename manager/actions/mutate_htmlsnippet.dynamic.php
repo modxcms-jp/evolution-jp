@@ -211,7 +211,7 @@ if (is_array($evtOut))
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>	    
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 
@@ -228,7 +228,7 @@ if (is_array($evtOut))
 	<table>
 		<tr>
 			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
-			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>}}<span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">}}<span class="warning" id="savingMessage">&nbsp;</span></td>
 		</tr>
 	</table>
 
@@ -236,7 +236,7 @@ if (is_array($evtOut))
 		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 			<span style="font-weight:bold;"><?php echo $_lang['chunk_code']?></span>
 		</div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%" onchange="documentDirty=true;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
 	</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>
@@ -299,7 +299,7 @@ if (is_array($evtOut))
 	<tr>
 		<th align="left"><?php echo $_lang['existing_category'];?></th>
 		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
-		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+		<select name="categoryid" style="width:300px;">
 			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
 include_once($modx->config['core_path'].'categories.inc.php');
@@ -315,11 +315,11 @@ if ($ds) {
     </tr>
 	<tr id="newcategry" style="display:none;">
 		<th align="left" valign="middle"><?php echo $_lang['new_category']?></th>
-		<td align="left" valign="top"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
+		<td align="left" valign="top"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;"></td>
 	</tr>
 	<tr>
 		<th align="left"><?php echo $_lang['htmlsnippet_desc']?></th>
-		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;" onChange='documentDirty=true;'><?php echo htmlspecialchars($content['description']);?></textarea></td>
+		<td align="left"><textarea name="description" style="padding:0;height:4em;width:300px;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 	<tr>
 		<th align="left" valign="middle"><?php echo $_lang['resource_opt_richtext']?></th>

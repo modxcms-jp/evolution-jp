@@ -138,7 +138,7 @@ function deletedocument() {
     		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 
@@ -160,7 +160,7 @@ function deletedocument() {
 	</div>
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
-	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'>
+	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;">
 	<span class="warning" id='savingMessage'></span>
 	</div>
 	<!-- HTML text editor start -->
@@ -168,7 +168,7 @@ function deletedocument() {
 	    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
-        <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;" onChange='documentDirty=true;'><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
+        <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
 	</div>
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
@@ -180,7 +180,7 @@ function deletedocument() {
 <table>
 	  <tr>
 		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
-		<td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+		<td align="left"><select name="categoryid" style="width:300px;">
 				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 		        <?php
 		            include_once($modx->config['core_path'].'categories.inc.php');
@@ -196,11 +196,11 @@ function deletedocument() {
 	</tr>
 	<tr id="newcategry" style="display:none;">
 		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
+		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;"></td>
 	</tr>
 	<tr>
 		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
-		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+		<td align="left"><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
