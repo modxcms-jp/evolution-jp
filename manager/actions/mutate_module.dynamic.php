@@ -454,7 +454,10 @@ function SetUrl(url, width, height, alt) {
 		</table>
 	</div>
 
-<?php if ($_REQUEST['a'] == '108') { ?>
+<?php if ($_REQUEST['a'] == '107') { ?>
+	<input name="guid" type="hidden" value="<?php echo createGUID(); ?>" />
+<?php }
+elseif ($_REQUEST['a'] == '108') { ?>
 	<!-- Dependencies -->
 	<div class="tab-page" id="tabDepend">
 	<h2 class="tab"><?php echo $_lang['settings_dependencies']?></h2>
@@ -466,7 +469,7 @@ function SetUrl(url, width, height, alt) {
 		</tr>
 		<tr>
 			<td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
-			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br />
+			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo ($content['guid']!='') ? $content['guid'] : createGUID(); ?>" class="inputBox" onchange="documentDirty=true;" /><br />
 			<span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span><br /></td>
 		</tr>
 	</table>
