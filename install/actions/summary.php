@@ -339,8 +339,6 @@ $trimed_db_name = trim($_POST['database_name'], '`');
 echo <<< EOT
 <form name="install" id="install_form" action="index.php?action={$nextAction}" method="post">
   <div>
-    <input type="hidden" value="{$install_language}" name="language" />
-	<input type="hidden" value="{$manager_language}" name="managerlanguage" />
     <input type="hidden" value="{$installMode}" name="installmode" />
     <input type="hidden" value="{$trimed_db_name}" name="database_name" />
     <input type="hidden" value="{$_POST['tableprefix']}" name="tableprefix" />
@@ -375,7 +373,7 @@ foreach ($modules as $i => $module) echo "<input type=\"hidden\" name=\"module[]
 <input type="checkbox" value="1" id="chkagree" name="chkagree" style="line-height:18px" <?php echo isset($_POST['chkagree']) ? 'checked="checked" ':""; ?><?php echo $agreeToggle;?>/><label for="chkagree" style="display:inline;float:none;line-height:18px;"> <?php echo $_lang['iagree_box']?> </label>
 </p>
     <p class="buttonlinks">
-        <a href="javascript:document.getElementById('install_form').action='index.php?action=options&language=<?php $install_language?>';document.getElementById('install_form').submit();" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
+        <a href="javascript:document.getElementById('install_form').action='index.php?action=options';document.getElementById('install_form').submit();" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
         <a id="nextbutton" href="javascript:document.getElementById('install_form').submit();" title="<?php echo $nextButton ?>" style="visibility:<?php echo $nextVisibility;?>"><span><?php echo $nextButton ?></span></a>
     </p>
 </form>

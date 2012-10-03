@@ -1,4 +1,5 @@
 <?php
+$install_language = $_SESSION['install_language'];
 $installMode = intval($_POST['installmode']);
 
 // Determine upgradeability
@@ -75,7 +76,6 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 ?>
 <form name="install" id="install_form" action="index.php?action=options" onsubmit="return validate();" method="post">
   <div>
-    <input type="hidden" value="<?php echo $install_language?>" name="language" />
     <input type="hidden" value="1" name="chkagree" <?php echo isset($_POST['chkagree']) ? 'checked="checked" ':""; ?>/>
     <input type="hidden" value="<?php echo $installMode ?>" name="installmode" />
     <input type="hidden" value="<?php echo isset($database_connection_method) ? $database_connection_method : ''; ?>" name="database_connection_method" />
@@ -160,14 +160,11 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
     <p class="labelHolder"><label for="cmspasswordconfirm"><?php echo $_lang['connection_screen_default_admin_password_confirm']?></label>
       <input id="cmspasswordconfirm" type="password" name="cmspasswordconfirm" value="<?php echo isset($_POST['cmspasswordconfirm']) ? $_POST['cmspasswordconfirm']:"" ?>" />
     </p>
-
-    <input type="hidden" name="managerlanguage" id="managerlanguage_select" value="<?php echo $default_config['manager_language'];?>" />
 </div></div>
 
 <?php
 }
 ?>
-
 
 
 
@@ -180,8 +177,8 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 
 <script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 <script type="text/javascript">
-language ='<?php echo $install_language?>';
-installMode ='<?php echo $installMode ?>';
+var language ='<?php echo $install_language?>';
+var installMode ='<?php echo $installMode ?>';
 </script>
 <script type="text/javascript" src="connection.js"></script>
 

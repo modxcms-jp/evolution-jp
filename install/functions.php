@@ -17,24 +17,23 @@ function includeLang($default_config)
 {
 	global $_lang;
 	
-	$default_language = autoDetectLang();
-	
-	if    (isset($_POST['language'])) $install_language = $_POST['language'];
-	elseif(isset($_GET['language']))  $install_language = $_GET['language'];
-	else                              $install_language = $default_language;
-	
-	if    (isset($_POST['managerlanguage'])) $manager_language = $_POST['managerlanguage'];
-	elseif(isset($_GET['managerlanguage']))  $manager_language = $_GET['managerlanguage'];
-	else                                     $manager_language = $default_language;
+	if(isset($_POST['language'])) 
+	{
+		$install_language = $_POST['language'];
+	}
+	elseif(isset($_SESSION['install_language'])) 
+	{
+		$install_language = $_SESSION['install_language'];
+	}
+	else $install_language = autoDetectLang();
 	
 	# load language file
 	$_lang = array ();
-	if($install_language!==$default_language && file_exists("lang/{$install_language}.inc.php"))
+	if(file_exists("lang/{$install_language}.inc.php"))
 	{
-		 require_once("lang/{$default_language}.inc.php");
 		 require_once("lang/{$install_language}.inc.php");
 	}
-	else require_once("lang/{$default_language}.inc.php");
+	else require_once('lang/english.inc.php');
 }
 
 function modx_escape($s)

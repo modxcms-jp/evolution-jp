@@ -43,7 +43,7 @@ $table_prefix = $_POST['tableprefix'];
 $adminname = $_POST['cmsadmin'];
 $adminemail = $_POST['cmsadminemail'];
 $adminpass = $_POST['cmspassword'];
-$managerlanguage = $_POST['managerlanguage'];
+$managerlanguage = $_SESSION['install_language'];
 //}
 
 // get base path and url

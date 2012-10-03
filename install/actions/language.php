@@ -1,6 +1,7 @@
 <?php
-$default_language = autoDetectLang();
-$ph['lang_options']        = get_lang_options($default_language);
+$install_language = autoDetectLang();
+$_SESSION['install_language'] = $install_language;
+$ph['lang_options']        = get_lang_options($install_language);
 $ph['_lang_begin']         = $_lang['begin'];
 $ph['_lang_btnnext_value'] = $_lang['btnnext_value'];
 echo  parse(get_src_content(),$ph);
@@ -16,14 +17,14 @@ function get_langs()
 	return $langs;
 }
 
-function get_lang_options($default_language)
+function get_lang_options($install_language)
 {
 	$langs = get_langs();
 	
 	foreach ($langs as $language)
 	{
 		$abrv_language = explode('-',$language);
-		$option[] = '<option value="' . $language . '"'. (($language == $default_language) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>'."\n";
+		$option[] = '<option value="' . $language . '"'. (($language == $install_language) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>'."\n";
 	}
 	return join("\n",$option);
 }

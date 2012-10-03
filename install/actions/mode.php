@@ -1,6 +1,7 @@
 <?php
 $upgradeable = get_upgradeable_status();
-
+if(isset($_POST['language'])) $_SESSION['install_language'] = $_POST['language'];
+else $_SESSION['install_language'] = 'japanese-utf8';
 ?>
 <form name="install" id="install_form" action="index.php?action=connection" method="post">
 
@@ -8,10 +9,6 @@ $upgradeable = get_upgradeable_status();
 		echo '	<h2>' . $_lang['welcome_message_welcome'] . '</h2>';
 		echo '	<p>' . $_lang['welcome_message_text'] . ' ' . $_lang['welcome_message_start'] . '</p>';
 	?>
-
-	<div>
-		<input type="hidden" value="<?php echo $install_language?>" name="language" />
-	</div>
 	<h2 style="margin:1em 0"><?php echo $_lang['installation_mode']?></h2>
 	<div>
 		<div class="installImg"><img src="img/install_new.png" alt="new install" /></div>
