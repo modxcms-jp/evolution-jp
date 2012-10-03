@@ -62,7 +62,7 @@ if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
-	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1)
+	if ($content['locked'] == 1 && $modx->hasPermission('save_role') != 1)
 	{
 		$e->setError(3);
 		$e->dumpError();
@@ -311,11 +311,13 @@ if ($ds) {
 		<th align="left" valign="middle"><?php echo $_lang['resource_opt_richtext']?></th>
 		<td align="left" valign="top"><input name="editor_type" type="checkbox"<?php echo $content['editor_type'] == 1 ? ' checked="checked"' : ''?> class="inputBox" value="1" /></td>
 	</tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 	<tr>
 		<td align="left" colspan="2">
 		<label><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 || $content['locked'] == 'on' ? ' checked="checked"' : ''?> class="inputBox" value="on" /> <?php echo $_lang['lock_htmlsnippet']?>
 		<span class="comment"><?php echo $_lang['lock_htmlsnippet_msg']?></span></label></td>
 	</tr>
+<?php } ?>
 </table>
 </div>
 

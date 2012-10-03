@@ -80,7 +80,7 @@ if (isset($_GET['id']))
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
-	if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
+	if ($content['locked'] == 1 && $modx->hasPermission('save_role') != 1) {
 		$e->setError(3);
 		$e->dumpError();
 	}
@@ -423,10 +423,12 @@ function SetUrl(url, width, height, alt) {
 		<tr style="display:none;"><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
 			<td align="left"><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td>
 		</tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 		<tr>
 			<td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
 			<span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module']?></span> <span class="comment"><?php echo $_lang['lock_module_msg']?></span></td>
 		</tr>
+<?php } ?>
 		<tr>
 			<td align="left" valign="top"><?php echo $_lang['module_config']?>:</td>
 			<td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);documentDirty=true;" /><?php echo $content['properties']?></textarea><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td>

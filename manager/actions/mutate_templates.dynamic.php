@@ -63,7 +63,7 @@ if(!empty($id)) {
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['templatename'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
 	{
 		$e->setError(3);
 		$e->dumpError();
@@ -187,10 +187,12 @@ function deletedocument() {
 		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 	    <td align="left" colspan="2">
 	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
 	  </tr>
+<?php } ?>
 </table>
 </div>
 

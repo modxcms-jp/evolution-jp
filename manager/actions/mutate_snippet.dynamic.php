@@ -60,7 +60,7 @@ if(isset($_GET['id'])) {
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['name'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
+	if($content['locked']==1 && $modx->hasPermission('save_role')!=1) {
 		$e->setError(3);
 		$e->dumpError();
 	}
@@ -350,10 +350,12 @@ function decode(s){
 			<td align="left" style="padding-top:10px">
 				<textarea name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
 		  </tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 		  <tr>
 			<td style="padding-top:10px" align="left" valign="top" colspan="2">
 			<label><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" :'';?> class="inputBox"> <b><?php echo $_lang['lock_snippet']?></b> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></label></td>
 		  </tr>
+<?php } ?>
 <?php
 		$from = "{$tbl_site_modules} AS sm ".
 		       "INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 ".

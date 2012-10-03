@@ -56,7 +56,7 @@ if(isset($_GET['id']))
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$content['name'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
 	{
 		$e->setError(3);
 		$e->dumpError();
@@ -632,10 +632,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		<th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea id="pluginDescription" name="description" onChange="documentDirty=true;" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
 	  </tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 		<td align="left" valign="top" colspan="2">
 		<label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <b><?php echo $_lang['lock_plugin']; ?></b> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>
 	  </tr>
+<?php } ?>
 </table>
 </div>
 <input type="submit" name="save" style="display:none">

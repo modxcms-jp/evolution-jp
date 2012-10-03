@@ -55,7 +55,7 @@ if(isset($_GET['id']))
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['caption'];
-	if($content['locked']==1 && $_SESSION['mgrRole']!=1)
+	if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
 	{
 		$e->setError(3);
 		$e->dumpError();
@@ -528,9 +528,11 @@ function selected($target='')
 	    <th align="left"><?php echo $_lang['tmplvars_description']; ?></th>
 	    <td align="left"><textarea name="description" onchange="documentDirty=true;" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	  </tr>
+<?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 	    <td align="left" colspan="2"><label><input name="locked" value="on" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox" /> <b><?php echo $_lang['lock_tmplvars']; ?></b> <span class="comment"><?php echo $_lang['lock_tmplvars_msg']; ?></span></label></td>
 	  </tr>
+<?php } ?>
 	  <tr>
 	    <th align="left"><?php echo $_lang['tmplvars_rank']; ?></th>
 	    <td align="left"><input name="rank" type="text" maxlength="4" value="<?php echo (isset($content['rank'])) ? $content['rank'] : 0;?>" class="inputBox" style="width:300px;" onchange='documentDirty=true;'></td>
