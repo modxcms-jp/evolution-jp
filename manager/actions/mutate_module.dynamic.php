@@ -476,7 +476,7 @@ elseif ($_REQUEST['a'] == '108') { ?>
 	</div>
 	<div class="sectionBody">
 		<p><?php echo $_lang['module_viewdepend_msg']?></p>
-		<p class="actionButtons">
+		<p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
 		<a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_edit_document"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a></p>
 <?php
 	$sql = 'SELECT smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.
