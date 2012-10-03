@@ -103,6 +103,17 @@ $j(function(){
 			$j('input[name="newcategory"]').val('');
 		}
 	});
+	$j('input[name="enable_sharedparams"]').change(function(){
+		var checked = $j('input[name="enable_sharedparams"]').is(':checked');
+		if(checked)
+		{
+			$j('.sharedparams').fadeIn();
+		}
+		else
+		{
+			$j('.sharedparams').fadeOut();
+		}
+	});
 });
 function loadDependencies() {
 	if (documentDirty) {
@@ -463,18 +474,21 @@ elseif ($_REQUEST['a'] == '108') { ?>
 	<h2 class="tab"><?php echo $_lang['settings_dependencies']?></h2>
 	<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabDepend" ) );</script>
 	<div class="sectionBody">
+<?php
+$display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
+?>
 	<table>
 		<tr>
 			<td align="left" valign="top" colspan="2"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
 		</tr>
-		<tr>
+		<tr class="sharedparams" <?php echo $display; ?>>
 			<td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
 			<td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo ($content['guid']!='') ? $content['guid'] : createGUID(); ?>" class="inputBox" onchange="documentDirty=true;" /><br />
 			<span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span><br /></td>
 		</tr>
 	</table>
 	</div>
-	<div class="sectionBody">
+	<div class="sectionBody sharedparams" <?php echo $display; ?>>
 		<p><?php echo $_lang['module_viewdepend_msg']?></p>
 		<p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
 		<a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_edit_document"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a></p>
