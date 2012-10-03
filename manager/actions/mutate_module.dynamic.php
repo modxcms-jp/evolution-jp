@@ -91,6 +91,19 @@ if (isset($_GET['id']))
 
 ?>
 <script type="text/javascript">
+$j(function(){
+	$j('select[name="categoryid"]').change(function(){
+		if($j(this).val()=='-1')
+		{
+			$j('#newcategry').fadeIn();
+		}
+		else
+		{
+			$j('#newcategry').fadeOut();
+			$j('input[name="newcategory"]').val('');
+		}
+	});
+});
 function loadDependencies() {
 	if (documentDirty) {
 		if (!confirm("<?php echo $_lang['confirm_load_depends']?>")) {
@@ -396,7 +409,7 @@ function SetUrl(url, width, height, alt) {
 			<td align="left"><?php echo $_lang['existing_category']?>:</td>
 			<td align="left">
 			<select name="categoryid" onchange="documentDirty=true;">
-				<option>&nbsp;</option>
+				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
 				include_once($modx->config['core_path'].'categories.inc.php');
 				$ds = getCategories();
@@ -406,9 +419,10 @@ function SetUrl(url, width, height, alt) {
 					}
 				}
 ?>
+            <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
             </select></td>
         </tr>
-		<tr>
+		<tr id="newcategry" style="display:none;">
 			<td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
 			<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" onchange="documentDirty=true;"></td>
 		</tr>

@@ -69,7 +69,19 @@ if(isset($_GET['id'])) {
 }
 ?>
 <script type="text/javascript">
-
+$j(function(){
+	$j('select[name="categoryid"]').change(function(){
+		if($j(this).val()=='-1')
+		{
+			$j('#newcategry').fadeIn();
+		}
+		else
+		{
+			$j('#newcategry').fadeOut();
+			$j('input[name="newcategory"]').val('');
+		}
+	});
+});
 function duplicaterecord(){
 	if(confirm("<?php echo $_lang['confirm_duplicate_record']?>")==true) {
 		documentDirty=false;
@@ -330,7 +342,7 @@ function decode(s){
 			<th align="left"><?php echo $_lang['existing_category']?>:</th>
 			<td align="left">
 			<select name="categoryid" style="width:300px;" onChange="documentDirty=true;">
-			<option>&nbsp;</option>
+			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 				<?php
 					include_once($modx->config['core_path'].'categories.inc.php');
 					$ds = getCategories();
@@ -338,10 +350,11 @@ function decode(s){
 						echo '<option value="'.$v['id'].'"'.($content['category']==$v['id']? ' selected="selected"':'').'>'.htmlspecialchars($v['category']).'</option>';
 					}
 				?>
+				<option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
 				</select>
 			</td>
 		  </tr>
-          <tr>
+          <tr id="newcategry" style="display:none;">
 			<th align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category']?>:</th>
 			<td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 		  </tr>

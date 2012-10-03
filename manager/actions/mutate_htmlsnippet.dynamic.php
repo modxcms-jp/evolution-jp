@@ -102,6 +102,19 @@ if($formRestored) $content = array_merge($content, $_POST);
 // Print RTE Javascript function
 ?>
 <script language="javascript" type="text/javascript">
+$j(function(){
+	$j('select[name="categoryid"]').change(function(){
+		if($j(this).val()=='-1')
+		{
+			$j('#newcategry').fadeIn();
+		}
+		else
+		{
+			$j('#newcategry').fadeOut();
+			$j('input[name="newcategory"]').val('');
+		}
+	});
+});
 // Added for RTE selection
 function changeRTE(){
 	var whichEditor = document.getElementById('which_editor');
@@ -287,7 +300,7 @@ if (is_array($evtOut))
 		<th align="left"><?php echo $_lang['existing_category'];?></th>
 		<td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
 		<select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
-			<option>&nbsp;</option>
+			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
 include_once($modx->config['core_path'].'categories.inc.php');
 $ds = getCategories();
@@ -297,9 +310,10 @@ if ($ds) {
 			}
 }
 ?>
+        <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
         </select></td>
     </tr>
-	<tr>
+	<tr id="newcategry" style="display:none;">
 		<th align="left" valign="middle"><?php echo $_lang['new_category']?></th>
 		<td align="left" valign="top"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : ''?>" class="inputBox" style="width:300px;" onChange="documentDirty=true;"></td>
 	</tr>
