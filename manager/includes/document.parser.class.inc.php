@@ -156,7 +156,7 @@ class DocumentParser {
 		
 		$this->http_status_code = '200';
 		
-		if(!empty($_SERVER['QUERY_STRING']))
+		if(!empty($_SERVER['QUERY_STRING']) && $id==='')
 		{
 			$qs = $_GET;
 			if($qs['id']) unset($qs['id']);
@@ -169,7 +169,7 @@ class DocumentParser {
 		if(!isset($this->config)) $this->getSettings();
 		if(!$this->processCache)  $this->initProcessCache();
 		
-		if(!empty($id))
+		if(preg_match('@^[0-9]+$@',$id))
 		{
 			$_REQUEST['id'] = $id;
 			$_GET['id'] = $id;
@@ -185,9 +185,9 @@ class DocumentParser {
 		}
 		if($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
 		
-		if(0 < count($_POST) && empty($id)) $this->config['cache_type'] = 0;
+		if(0 < count($_POST) && $id==='') $this->config['cache_type'] = 0;
 		
-		if(empty($id))
+		if($id==='')
 		{
 			$this->documentOutput = $this->get_static_pages();
 			if(!empty($this->documentOutput))
@@ -201,40 +201,25 @@ class DocumentParser {
 		}
 		
 		// IIS friendly url fix
-		if ($this->config['friendly_urls'] == 1 && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
+		if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
 		{
-			$url= $_SERVER['QUERY_STRING'];
-			$err= substr($url, 0, 3);
-			if ($err == '404' || $err == '405')
-			{
-				$k= array_keys($_GET);
-				unset ($_GET[$k['0']]);
-				unset ($_REQUEST[$k['0']]); // remove 404,405 entry
-				$_SERVER['QUERY_STRING']= $qp['query'];
-				$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
-				if (!empty ($qp['query']))
-				{
-					parse_str($qp['query'], $qv);
-					foreach ($qv as $n => $v)
-					{
-						$_REQUEST[$n]= $_GET[$n]= $v;
-					}
-				}
-				$_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
-				$_REQUEST['q']= $_GET['q']= $qp['path'];
-			}
+			$this->_IIS_furl_fix();
 		}
 		
 		// check site settings
 		$site_status = $this->checkSiteStatus();
-		if ($site_status===false)
+		if($this->directParse==1)
+		{
+			$this->documentMethod     = 'id';
+			$this->documentIdentifier = $id;
+		}
+		elseif ($site_status===false)
 		{
 			header('HTTP/1.0 503 Service Unavailable');
 			if (!$this->config['site_unavailable_page'])
 			{
 				// display offline message
-				$this->documentContent= $this->config['site_unavailable_message'];
-				echo $this->outputContent();
+				echo $this->config['site_unavailable_message'];
 				exit; // stop processing here, as the site's offline
 			}
 			else
@@ -253,6 +238,7 @@ class DocumentParser {
 			$this->documentMethod= $this->getDocumentMethod();
 			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
 		}
+		
 		if ($this->documentMethod == 'none' || ($_SERVER['REQUEST_URI']===$this->config['base_url'] && $site_status!==false))
 		{
 			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
@@ -302,12 +288,36 @@ class DocumentParser {
 					if($this->getIdFromAlias($alias)===false) $this->sendErrorPage();
 			}
 		}
-		
 		// invoke OnWebPageInit event
 		$this->invokeEvent('OnWebPageInit');
 		
 		$result = $this->prepareResponse();
 		return $result;
+	}
+	private function _IIS_furl_fix()
+	{
+		if($this->config['friendly_urls'] != 1) return;
+		
+		$url= $_SERVER['QUERY_STRING'];
+		$err= substr($url, 0, 3);
+		if ($err == '404' || $err == '405')
+		{
+			$k= array_keys($_GET);
+			unset ($_GET[$k['0']]);
+			unset ($_REQUEST[$k['0']]); // remove 404,405 entry
+			$_SERVER['QUERY_STRING']= $qp['query'];
+			$qp= parse_url(str_replace($this->config['site_url'], '', substr($url, 4)));
+			if (!empty ($qp['query']))
+			{
+				parse_str($qp['query'], $qv);
+				foreach ($qv as $n => $v)
+				{
+					$_REQUEST[$n]= $_GET[$n]= $v;
+				}
+			}
+			$_SERVER['PHP_SELF']= $this->config['base_url'] . $qp['path'];
+			$_REQUEST['q']= $_GET['q']= $qp['path'];
+		}
 	}
 	
 	function prepareResponse()
