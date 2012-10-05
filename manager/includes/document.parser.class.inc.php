@@ -970,9 +970,9 @@ class DocumentParser {
 	function getDocumentMethod()
 	{
 		// function to test the query and find the retrieval method
-		if(isset($_REQUEST['q']))        return 'alias';
-		elseif(isset ($_REQUEST['id']))  return 'id';
-		else                             return 'none';
+		if(isset($_REQUEST['q']))       return 'alias';
+		elseif(isset($_REQUEST['id']))  return 'id';
+		else                            return 'none';
 	}
 	
 	function getDocumentIdentifier($method)
@@ -1031,12 +1031,11 @@ class DocumentParser {
 	// check if site is offline
 	function checkSiteStatus()
 	{
-		$siteStatus= $this->config['site_status'];
-		if($siteStatus == 1)
+		if($this->config['site_status'] == 1)
 		{
 			return true; // site online
 		}
-		elseif($siteStatus == 0 && $this->checkSession())
+		elseif($this->config['site_status'] == 0 && $this->checkSession())
 		{
 			return true; // site offline but launched via the manager
 		}
