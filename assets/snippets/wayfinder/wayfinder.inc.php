@@ -26,19 +26,20 @@ class Wayfinder {
 	{
 		global $modx;
 		
-		$this->placeHolders['rowLevel'][]   = '[+wf.wrapper+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.classes+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.classnames+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.link+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.title+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.linktext+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.id+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.alias+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.attributes+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.docid+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.introtext+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.description+]';
-		$this->placeHolders['rowLevel'][]   = '[+wf.subitemcount+]';
+		$_[] = '[+wf.wrapper+]';
+		$_[] = '[+wf.classes+]';
+		$_[] = '[+wf.classnames+]';
+		$_[] = '[+wf.link+]';
+		$_[] = '[+wf.title+]';
+		$_[] = '[+wf.linktext+]';
+		$_[] = '[+wf.id+]';
+		$_[] = '[+wf.alias+]';
+		$_[] = '[+wf.attributes+]';
+		$_[] = '[+wf.docid+]';
+		$_[] = '[+wf.introtext+]';
+		$_[] = '[+wf.description+]';
+		$_[] = '[+wf.subitemcount+]';
+		$this->placeHolders['rowLevel'] = $_;
 		$this->placeHolders['wrapperLevel'] = array('[+wf.wrapper+]','[+wf.classes+]','[+wf.classnames+]');
 		$this->placeHolders['tvs']          = array();
 		
