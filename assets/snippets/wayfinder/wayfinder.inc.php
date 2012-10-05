@@ -486,7 +486,7 @@ class Wayfinder {
 			}
 			elseif($access)
 			{
-				$access = "AND {$access}";
+				$access = "AND ({$access})";
 			}
 			elseif($docgrp)
 			{
