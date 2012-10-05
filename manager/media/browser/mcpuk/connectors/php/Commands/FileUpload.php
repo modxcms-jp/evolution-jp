@@ -31,30 +31,30 @@ class FileUpload {
 	var $fckphp_config;
 	var $type;
 	var $cwd;
-	var $newfolder;
 	
 	function FileUpload($fckphp_config,$type,$cwd)
 	{
-		$this->fckphp_config=$fckphp_config;
-		$this->type=$type;
-		$this->real_cwd   = rtrim($this->fckphp_config['basedir']."/{$type}/{$cwd}",'/');
-		define('IN_MANAGER_MODE', true);
-		define('MODX_API_MODE', true);
-		$base_path = str_replace('\\','/',realpath('../../../../../../../')) . '/';
-		include_once($base_path . 'index.php');
 		global $modx;
-		$modx->db->connect();
+		
+		define('MODX_API_MODE', true);
+		$core_path = str_replace('manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php','',str_replace('\\','/',__FILE__));
+		require_once("{$core_path}index.php");
+		if(!isset($_SESSION['mgrValidated'])) exit;
 		$modx->getSettings();
+		
+		$this->fckphp_config = $fckphp_config;
+		$this->type          = $type;
+		$this->real_cwd      = $modx->config['rb_base_dir']  . "{$type}/{$cwd}";
 	}
 	
 	function cleanFilename($filename)
 	{
-		$n_filename='';
+		$n_filename = '';
 		
 		//Check that it only contains valid characters
 		for($i=0;$i<strlen($filename);$i++)
 		{
-			if (in_array(substr($filename,$i,1),$this->fckphp_config['FileNameAllowedChars']))
+			if(in_array(substr($filename,$i,1),$this->fckphp_config['FileNameAllowedChars']))
 			{
 				$n_filename .= substr($filename,$i,1);
 			}
@@ -69,239 +69,198 @@ class FileUpload {
 		global $modx;
 		$modx->config['new_file_permissions'] = octdec($modx->config['new_file_permissions']);
 		
-		if(!is_dir($this->real_cwd))
-		{
-			@mkdir($this->real_cwd,true);
-			@chmod($this->real_cwd, $modx->config['new_file_permissions']);
-		}
-		
 		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
 		
-		header ('content-type: text/html');
-		if (count($_FILES) < 1) exit(0);
+		if(count($_FILES) < 1) exit(0);
 		
-		if (array_key_exists('NewFile',$_FILES))
+		if($_FILES['NewFile']['name'])
 		{
-			if (! $_FILES['NewFile']['error'] && $_FILES['NewFile']['size']<($typeconfig['MaxSize']))
-			{	// (*1)
-				$filename=explode('/',str_replace("\\",'/',$_FILES['NewFile']['name']));
-				$filename=end($filename);	// (*2)
-				
-				if ($this->cleanFilename($filename) == $filename)
-				{	// (*3)
-					$lastdot=strrpos($filename, '.');
-					
-					if ($lastdot!==false)
-					{
-						$ext=substr($filename,($lastdot+1));
-						$filename=substr($filename,0,$lastdot);
-						
-						if (in_array(strtolower($ext),$typeconfig['AllowedExtensions']))
-						{
-							$test=0;
-							$dirSizes=array();
-							$globalSize=0;
-							$failSizeCheck=false;
-							if ($this->fckphp_config['DiskQuota']['Global']!=-1)
-							{
-								foreach ($this->fckphp_config['ResourceTypes'] as $resType)
-								{
-									$dirSizes[$resType]=
-										$this->getDirSize(
-											$this->fckphp_config['basedir'].'/'.$this->fckphp_config['UserFilesPath']."/$resType");
-									
-									if ($dirSizes[$resType]===false)
-									{
-										//Failed to stat a directory, fall out
-										$failSizeCheck=true;
-										$msg="\\nディスク使用量の測定不能。";
-										break;
-									}
-									$globalSize+=$dirSizes[$resType];
-								}
-								
-								$globalSize+=$_FILES['NewFile']['size'];
-								
-								if (!$failSizeCheck)
-								{
-									if ($globalSize>($this->fckphp_config['DiskQuota']['Global']*1048576))
-									{
-										$failSizeCheck=true;
-										$msg="\\nリソース全体の割当ディスク容量オーバー";
-									}
-								}
-							}
-							
-							if (($typeconfig['DiskQuota']!=-1)&&(!$failSizeCheck))
-							{
-								if ($this->fckphp_config['DiskQuota']['Global']==-1)
-								{
-									$dirSizes[$this->type]=
-										$this->getDirSize(
-											$this->fckphp_config['basedir'].'/'.$this->fckphp_config['UserFilesPath'].'/'.$this->type);
-								}
-								
-								if (($dirSizes[$this->type]+$_FILES['NewFile']['size'])>
-									($typeconfig['DiskQuota']*1048576))
-								{
-									$failSizeCheck=true;	
-									$msg="\\nリソース種類別の割当ディスク容量オーバー";
-								}
-							}
-							
-							if ((($this->fckphp_config['DiskQuota']['Global']!=-1)||($typeconfig['DiskQuota']!=-1))&&$failSizeCheck)
-							{
-								//Disk Quota over
-								$disp="202,'割当ディスク容量オーバー, ".$msg."'";
-							}
-							else
-							{
-								if (file_exists($this->real_cwd."/{$filename}.{$ext}"))
-								{
-									$taskDone=false;
-									
-									//File already exists, try renaming
-									//If there are more than 200 files with
-									//	the same name giveup
-									for ($i=1;(($i<200)&&($taskDone==false));$i++)
-									{
-										$uploaded_name = "{$filename}({$i}).{$ext}";	// (*4)
-										$target_path = $this->real_cwd . "/{$uploaded_name}";
-										if (!file_exists($target_path))
-										{
-											if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
-											{
-												if ($modx->manager->modx_move_uploaded_file($_FILES['NewFile']['tmp_name'],$target_path))
-												{
-													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
-													$disp="201,'..{$uploaded_name}'";
-												}
-												else
-												{
-													$disp="202,'Failed to upload file[1], internal error.'";
-												}
-											}
-											else
-											{
-												if (rename($_FILES['NewFile']['tmp_name'],$target_path))
-												{
-													@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
-													$disp="201,'{$uploaded_name}'";
-												}
-												else
-												{
-													$disp="202,'Failed to upload file[2], internal error.'";
-												}
-											}
-											$taskDone=true;	
-										}
-									}
-									if ($taskDone==false)
-									{
-										$disp="202,'Failed to upload file[3], internal error..'";
-										$uploaded_name = '';
-									}
-								}
-								else
-								{
-									$uploaded_name = "$filename.$ext";	// (*4)
-									$target_path = $this->real_cwd . "/{$uploaded_name}";
-									//Upload file
-									if (is_uploaded_file($_FILES['NewFile']['tmp_name']))
-									{
-										if ($modx->manager->modx_move_uploaded_file($_FILES['NewFile']['tmp_name'],$target_path))
-										{
-											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
-											$disp="0";
-										}
-										else
-										{
-											$disp="202,'Failed to upload file[4], internal error...'";
-										}
-									}
-									else
-									{
-										if (rename($_FILES['NewFile']['tmp_name'],$target_path))
-										{
-											@chmod($target_path,$modx->config['new_file_permissions']); //modified for MODx
-											$disp="0";
-										}
-										else
-										{
-											$disp="202,'Failed to upload file[5], internal error...'";
-										}
-									}
-								}
-								// (*4)
-								if (reset(explode(',', $disp)) != '202')
-								{
-									$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
-									$modx->invokeEvent("OnFileManagerUpload",
-											array(
-												"filepath"	=> $uploaded_path,
-												"filename"	=> $uploaded_name
-											));
-								}
-							}
-						} else {
-							//Disallowed file extension
-							$disp="202,'アップロードできない種類のファイルです。'";
-						}
-						
-					}
-					else
-					{
-						//No file extension to check
-						$disp="202,'種類を判別できないファイル名です。'";
-					}	
-				} else {	// (*3)
-					$disp="202,'ファイル名に使えない文字が含まれています。'";
-				}
-			} else {
-				//Too big
-				$disp="202,'ファイル容量オーバーです。'";
-			}
+			$filename = end(explode('/',str_replace("\\",'/',$_FILES['NewFile']['name'])));	// (*2)
+			$lastdot = strrpos($filename, '.');
+			if($lastdot) $ext = strtolower(substr($filename,($lastdot+1)));
+		}
+		
+		if (!array_key_exists('NewFile',$_FILES)) $disp="202,'Unable to find uploaded file.'"; //No file uploaded with field name NewFile
+		elseif($_FILES['NewFile']['error'] || ($typeconfig['MaxSize']) < $_FILES['NewFile']['size'])
+		{
+			$disp = "202,'ファイル容量オーバーです。'";//Too big
+		}
+		elseif ($this->cleanFilename($filename) !== $filename)
+		{
+			$disp = "202,'ファイル名に使えない文字が含まれています。'";// (*3)
+		}
+		elseif($lastdot===false)
+		{
+			$disp = "202,'種類を判別できないファイル名です。'";//No file extension to check
+		}
+		elseif (!in_array(strtolower($ext),$typeconfig['AllowedExtensions']))
+		{
+			$disp = "202,'アップロードできない種類のファイルです。'";//Disallowed file extension
 		}
 		else
 		{
-			//No file uploaded with field name NewFile
-			$disp="202,'Unable to find uploaded file.'";
+			$filename   = substr($filename,0,$lastdot);
+			$test       = 0;
+			$dirSizes   = array();
+			$globalSize = 0;
+			$failSizeCheck=false;
+			if ($this->fckphp_config['DiskQuota']['Global']!=-1)
+			{
+				foreach ($this->fckphp_config['ResourceTypes'] as $resType)
+				{
+					$dirSizes[$resType] = $this->getDirSize($modx->config['rb_base_dir']."$resType");
+					if ($dirSizes[$resType]===false)
+					{
+						//Failed to stat a directory, fall out
+						$failSizeCheck=true;
+						$msg="\\nディスク使用量を測定できません。";
+						break;
+					}
+					$globalSize+=$dirSizes[$resType];
+				}
+				
+				$globalSize+=$_FILES['NewFile']['size'];
+				
+				if (!$failSizeCheck)
+				{
+					if ($globalSize>($this->fckphp_config['DiskQuota']['Global']*1048576))
+					{
+						$failSizeCheck=true;
+						$msg="\\nリソース全体の割当ディスク容量オーバー";
+					}
+				}
+			}
+			
+			if (($typeconfig['DiskQuota']!=-1)&&(!$failSizeCheck))
+			{
+				if ($this->fckphp_config['DiskQuota']['Global']==-1)
+				{
+					$dirSizes[$this->type]=
+						$this->getDirSize(
+							$modx->config['rb_base_dir'].$this->type);
+				}
+				
+				if (($dirSizes[$this->type]+$_FILES['NewFile']['size']) > ($typeconfig['DiskQuota']*1048576))
+				{
+					$failSizeCheck=true;	
+					$msg="\\nリソース種類別の割当ディスク容量オーバー";
+				}
+			}
+			
+			if ((($this->fckphp_config['DiskQuota']['Global']!=-1)||($typeconfig['DiskQuota']!=-1))&&$failSizeCheck)
+			{
+				//Disk Quota over
+				$disp="202,'割当ディスク容量オーバー, ".$msg."'";
+			}
+			else
+			{
+				$tmp_name = $_FILES['NewFile']['tmp_name'];
+				if (is_file($this->real_cwd."/{$filename}.{$ext}"))
+				{
+					$taskDone=false;
+					
+					for($i=1;($i<200 && $taskDone===false);$i++)
+					{
+						$target = "{$this->real_cwd}/{$filename}({$i}).{$ext}";
+						
+						if (!is_file($target))
+						{
+							if (is_uploaded_file($tmp_name))
+							{
+								if($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
+								{
+									@chmod($target,$modx->config['new_file_permissions']);
+									$disp="201,'..{$target}'";
+								}
+								else $disp="202,'Failed to upload file, internal error.'";
+							}
+							else
+							{
+								if(rename($tmp_name,($target)))
+								{
+									@chmod($target,$modx->config['new_file_permissions']);
+									$disp="201,'{$target}'";
+								}
+								else $disp="202,'Failed to upload file, internal error.'";
+							}
+							$uploaded_name = "{$filename}({$i}).{$ext}";	// (*4)
+							$taskDone=true;
+						}
+					}
+					if ($taskDone==false) $disp="202,'Failed to upload file, internal error..'";
+				}
+				else
+				{
+					//Upload file
+					$target = "$this->real_cwd/{$filename}.{$ext}";
+					if (is_uploaded_file($tmp_name))
+					{
+						if ($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
+						{
+							@chmod($target,$modx->config['new_file_permissions']);
+							$disp="0";
+						}
+						else $disp="202,'Failed to upload file, internal error...'";
+					}
+					else
+					{
+						if (rename($tmp_name,($target)))
+						{
+							@chmod($target,$modx->config['new_file_permissions']);
+							$disp="0";
+						}
+						else $disp="202,'Failed to upload file, internal error...'";
+					}
+					$uploaded_name = "{$filename}.{$ext}";	// (*4)
+				}
+				// (*4)
+				if (reset(explode(',', $disp)) != '202')
+				{
+					$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
+					$modx->invokeEvent('OnFileManagerUpload',
+							array(
+								'filepath'	=> $uploaded_path,
+								'filename'	=> $uploaded_name
+							));
+				}
+			}
 		}
-
-		?>
-		<html>
-		<head>
-			<title>Upload Complete</title>
-		</head>
-		<body>
-		<script type="text/javascript">
-			window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
-		</script>
-		</body>
-		</html>
-		<?php
 		
+		header ('content-type: text/html');
+?>
+<html>
+<head>
+<title>Upload Complete</title>
+</head>
+<body>
+<script type="text/javascript">
+window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
+</script>
+</body>
+</html>
+<?php
 	}
 	
-	function getDirSize($dir) {
+	function getDirSize($dir)
+	{
 		$dirSize=0;
 		$files = scandir($dir);
 		if ($files)
 		{
 			foreach ($files as $file)
 			{
-				if (($file!=".")&&($file!="..")) {
-					if (is_dir($dir.'/'.$file)) {
-						$tmp_dirSize=$this->getDirSize($dir.'/'.$file);
+				if (($file != '.')&&($file != '..'))
+				{
+					if (is_dir("{$dir}/{$file}"))
+					{
+						$tmp_dirSize=$this->getDirSize("{$dir}/{$file}");
 						if ($tmp_dirSize!==false) $dirSize+=$tmp_dirSize;
-					} else {
-						$dirSize+=filesize($dir.'/'.$file);
 					}
+					else $dirSize += filesize("{$dir}/{$file}");
 				}
 			}
-		} else {
-			return false;
 		}
+		else return false;
 		
 		return $dirSize;
 	}

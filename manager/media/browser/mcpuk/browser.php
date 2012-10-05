@@ -1,9 +1,7 @@
 <?php
-$core_path = str_replace('\\','/',realpath('../../../../')) . '/manager/includes/';
-require_once("{$core_path}protect.inc.php");
-require_once("{$core_path}initialize.inc.php");
-require_once("{$core_path}config.inc.php");
-startCMSSession();
+define('MODX_API_MODE', true);
+$core_path = str_replace('manager/media/browser/mcpuk/browser.php','',str_replace('\\','/',__FILE__));
+require_once("{$core_path}index.php");
 if(!isset($_SESSION['mgrValidated']))
 {
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
