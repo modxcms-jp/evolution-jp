@@ -19,8 +19,9 @@
  */
 
 // ** START FOR MODx
+$self = 'manager/media/browser/mcpuk/connectors/php/config.php';
+$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 
-$base_path = str_replace('\\','/',realpath('../../../../../../')) . '/';
 // load configuration file
 // initialize the variables prior to grabbing the config file
 define('IN_MANAGER_MODE', 'true'); // set this so that user_settings will trust us.
