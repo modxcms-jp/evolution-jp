@@ -206,10 +206,10 @@ if(!empty($_FILES['userfile']))
 			$userfiles[$i]['tmp_name'] = $_FILES['userfile']['tmp_name'][$i];
 			$userfiles[$i]['error']    = $_FILES['userfile']['error'][$i];
 			$name = $_FILES['userfile']['name'][$i];
-			if($modx->config['clean_uploaded_filename'])
+			if($modx->config['clean_uploaded_filename']==1)
 			{
 				$nameparts = explode('.', $name);
-				$nameparts = array_map(array($modx, 'stripAlias'), $nameparts);
+				$nameparts = array_map(array($modx, 'stripAlias'), $nameparts,'file_manager');
 				$name = implode('.', $nameparts);
 			}
 			$userfiles[$i]['name'] = $name;

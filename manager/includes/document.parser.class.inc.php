@@ -3883,9 +3883,9 @@ class DocumentParser {
 	 * @param string Alias to be formatted
 	 * @return string Safe alias
 	 */
-    function stripAlias($alias) {
+    function stripAlias($alias, $browserID='') {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias));
+        $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias,'browserID'=>$browserID));
         
         if (!empty($results)) return end($results);//if multiple plugins are registered, only the last one is used
         else                  return urlencode(strip_tags($alias));
