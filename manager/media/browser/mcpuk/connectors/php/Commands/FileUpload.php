@@ -36,6 +36,7 @@ class FileUpload {
 		global $modx;
 		
 		define('MODX_API_MODE', true);
+		define('IN_MANAGER_MODE', 'true');
 		$core_path = str_replace('manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php','',str_replace('\\','/',__FILE__));
 		require_once("{$core_path}index.php");
 		if(!isset($_SESSION['mgrValidated'])) exit;
