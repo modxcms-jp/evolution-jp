@@ -56,13 +56,13 @@ $fckphp_config['modx']['charset'] = $modx->config['modx_charset'];
 // ** END FOR MODx
 
 
-/*------------------------------------------------------------------------------*/
+
 /* HTTP over SSL Detection (shouldnt require changing)				*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['prot']="http";
 $fckphp_config['prot'].=((isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']=='on')?"s":"");
 $fckphp_config['prot'].="://";
-/*==============================================================================*/
+
 
 $baseurl = $rb_base_url;
 $rb_base_url_parse = parse_url($rb_base_url);
@@ -76,15 +76,15 @@ if(empty($rb_base_url_parse['host'])){
     	$baseurl = $site_url.$rb_base_url;        
     }
 }
-/*------------------------------------------------------------------------------*/
-/* The physical path to the document root, Set manually if not using apache	*/
-/*------------------------------------------------------------------------------*/
-$fckphp_config['basedir'] = rtrim($rb_base_dir,'/');
-/*==============================================================================*/
 
-/*------------------------------------------------------------------------------*/
+/* The physical path to the document root, Set manually if not using apache	*/
+
+$fckphp_config['basedir'] = rtrim($rb_base_dir,'/');
+
+
+
 /* Prefix added to image path before sending back to editor			*/
-/*------------------------------------------------------------------------------*/
+
 //$fckphp_config['urlprefix']=$fckphp_config['prot'].$_SERVER['SERVER_NAME'];
 if ($strip_image_paths == 1) {
 	$fckphp_config['urlprefix'] = (substr($baseurl,-1)=="/") ? str_replace($site_url,'',substr($baseurl,0,-1)):$baseurl;
@@ -93,43 +93,28 @@ if ($strip_image_paths == 1) {
 }
 //$fckphp_config['urlprefix']=substr($site_url, 0, strlen($site_url)-1);
 
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Path to user files relative to the document root (no trailing slash)		*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['UserFilesPath'] = '';//(subst($rb_base_url,-1)=="/") ? subst($rb_base_url,0,-1):$rb_base_url;
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Progressbar handler (script that monitors upload progress) (''=none)
-/*------------------------------------------------------------------------------*/
-$fckphp_config['uploadProgressHandler']=''; //No upload progress handler
-//$fckphp_config['uploadProgressHandler']=$fckphp_config['prot'].$_SERVER['SERVER_NAME']."/cgi-bin/progress.cgi"; //Perl upload progress handler
-/*==============================================================================*/
 
-
-/*------------------------------------------------------------------------------*/
 /* Authentication (auth) :-								*/
 /*  - Req		:: Boolean, whether authentication is required		*/
 /*  - HandlerClass	:: Name of class to handle authentication in connector	*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['auth']['Req']=false;
 $fckphp_config['auth']['HandlerClass']='Default';
-/*==============================================================================*/
 
-
-/*------------------------------------------------------------------------------*/
 /* Settings for authentication handler :-					*/
 /*  - SharedKey :: Shared encryption key (as set in test.php in example)	*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['auth']['Handler']['SharedKey']="->Shared_K3y-F0R*5enD1NG^auth3nt1caT10n'Info/To\FILE,Brow5er--!";
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Per resource area settings:-							*/
 /* - AllowedExtensions	:: Array, allowed file extensions (in lowercase)	*/
 /* - AllowedMIME	:: Array, allowed mime types (in lowercase)		*/
@@ -138,7 +123,7 @@ $fckphp_config['auth']['Handler']['SharedKey']="->Shared_K3y-F0R*5enD1NG^auth3nt
 /* - HideFolders	:: Array, RegExp, matching folder names will be hidden	*/
 /* - HideFiles		:: Array, RegExp, matching file names will be hidden	*/
 /* - AllowImageEditing	:: Boolean, whether images in this area may be edited	*/
-/*------------------------------------------------------------------------------*/
+
 //First area options are commented
 
 //File Area
@@ -199,22 +184,17 @@ $fckphp_config['ResourceAreas']['media'] =array(
 	'AllowImageEditing'	=>	false
 	);
 	
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Global Disk Quota - Max size of all resource areas				*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['DiskQuota']['Global']= -1; //no diskquota  //($rb_diskquota) ? $rb_diskquota:50; //In MBytes (default: 50mb)
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Directory and File Naming :-							*/
 /*  -MaxDirNameLength	:: Maximum allowed length of a directory name		*/
 /*  -DirNameAllowedChars :: Array of characters allowed in a directory name	*/
 /*  -FileNameAllowedChars :: Array of characters allowed in a file name		*/
-/*------------------------------------------------------------------------------*/
 
 $fckphp_config['MaxDirNameLength']=25;
 
@@ -230,22 +210,22 @@ $fckphp_config['DirNameAllowedChars']=array();
 	for($i=65;$i<91;$i++) array_push($fckphp_config['DirNameAllowedChars'],chr($i));
 	
 	//Allow space,dash,underscore,dot
-	array_push($fckphp_config['DirNameAllowedChars']," ","-","_",".");
+	array_push($fckphp_config['DirNameAllowedChars'],' ','-','_','.');
 	
 $fckphp_config['FileNameAllowedChars']=$fckphp_config['DirNameAllowedChars'];
 array_push($fckphp_config['FileNameAllowedChars'],')','(','[',']','~');
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
+
+
 /* Debugging :-									*/
 /*  - Debug	:: Boolean, if set to true a copy of the connector output is 	*/
 /*			sent to a file as well as to the client.		*/
 /*  - DebugOutput :: File to send debug output to (absolute path)		*/
-/*------------------------------------------------------------------------------*/
+
 
 $fckphp_config['Debug']=false;
-$fckphp_config['DebugOutput']="fck_conn_dbg";
+$fckphp_config['DebugOutput'] = 'fck_conn_dbg';
 
 #Log PHP errors
 $fckphp_config['Debug_Errors']=false;
@@ -260,25 +240,23 @@ $fckphp_config['Debug_Output']=false;
 /* $_SERVER */ $fckphp_config['Debug_SERVER']=false;
 /* $_SESSIONS */ $fckphp_config['Debug_SESSIONS']=false;
 
-/*==============================================================================*/
 
 
-/*------------------------------------------------------------------------------*/
 /* Internals :-									*/
 /*	ResourceTypes :: Array of valid resource areas				*/
 /*	Commands :: Array of valid commands accepted by the connector		*/
-/*------------------------------------------------------------------------------*/
+
 $fckphp_config['ResourceTypes'] = array('files','images','flash','media');
-$fckphp_config['Commands'] = array(
-				"CreateFolder",
-				"GetFolders",
-				"GetFoldersAndFiles",
-				"FileUpload",
-				"Thumbnail",
-				"DeleteFile",
-				"DeleteFolder",
-				"GetUploadProgress",
-				"RenameFile",
-				"RenameFolder"
-				);
-/*==============================================================================*/
+$fckphp_config['Commands']
+= array(
+'CreateFolder',
+'GetFolders',
+'GetFoldersAndFiles',
+'FileUpload',
+'Thumbnail',
+'DeleteFile',
+'DeleteFolder',
+'GetUploadProgress',
+'RenameFile',
+'RenameFolder'
+);
