@@ -67,6 +67,8 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 				case 100:
 				case 101:
 				case 102:
+				case 300:
+				case 301:
 					$j('input').change(function() {documentDirty=true;});
 					$j('textarea').change(function() {documentDirty=true;});
 					$j('select').change(function() {documentDirty=true;});
