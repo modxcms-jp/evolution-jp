@@ -112,24 +112,6 @@ $extra=(
 
 if (in_array($command,$valid_commands))
 {
-	if ($fckphp_config['auth']['Req']) {
-		require_once "./Auth/".$fckphp_config['auth']['HandlerClass'].".php";
-		
-		$auth=new Auth();
-		$fckphp_config=$auth->authenticate($extra,$fckphp_config);
-		if ($fckphp_config['authSuccess']!==true) {
-			header ("content-type: text/xml");
-			echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-			?>
-<Connector command="authentication_failed" resourceType="authentication_failed">
-	<CurrentFolder path="authentication_failed" url="authentication_failed" />
-	<Error number="-1" />
-</Connector><?php
-			if ($fckphp_config['Debug']===true  && $fckphp_config['Debug_Output']) recordOutput();
-			exit(0);
-		}
-	}
-
 	//bit of validation
 	if (!in_array($type,$valid_resource_types)) {
 		echo "Invalid resource type.";
