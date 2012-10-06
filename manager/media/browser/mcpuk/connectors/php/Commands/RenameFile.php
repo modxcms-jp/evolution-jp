@@ -50,7 +50,7 @@ class RenameFile {
 			if ($this->nameValid($this->newname)) {
 				//Remove thumbnail if it exists
 				$result2=true;
-				$thumb=$this->real_cwd.'/.thumb_'.$this->filename;
+				$thumb=$this->real_cwd.'/.thumb/'.$this->filename;
 				if (file_exists($thumb)) $result2=unlink($thumb);
 				
 				$result1=rename($this->real_cwd.'/'.$this->filename,$this->real_cwd.'/'.$this->newname);

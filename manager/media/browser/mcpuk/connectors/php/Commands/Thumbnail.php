@@ -35,18 +35,22 @@ class Thumbnail {
 		$this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
 		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
+		$this->real_cwd = rtrim($this->real_cwd,'/');
 		$this->filename=str_replace(array("..","/"),"",$_GET['FileName']);
 	}
 	
 	function run() {
 		//$mimeIcon=getMimeIcon($mime);
 		$fullfile=$this->real_cwd.'/'.$this->filename;
-		$thumbfile=$this->real_cwd.'/.thumb_'.$this->filename;
+		$thumbfile=$this->real_cwd.'/.thumb/'.$this->filename;
 		$icon=false;
 		
-		if (file_exists($thumbfile)) {
+		if (is_file($thumbfile)) {
 			$icon=$thumbfile;
 		} else {
+			$thumbdir = dirname($thumbfile);
+			if(!is_dir($thumbdir)) mkdir($thumbdir,true);
+			
 			$mime=$this->getMIME($fullfile);
 			$ext=strtolower($this->getExtension($this->filename));	
 			

@@ -59,7 +59,7 @@ class DeleteFolder {
 					if (is_dir($dir.'/'.$entry)) {
 						$this->delDir($dir.'/'.$entry);	
 					} else {
-						$thumb=$dir.'/.thumb_'.$entry;
+						$thumb=$dir.'/.thumb/'.$entry;
 						if (file_exists($thumb)) if (!unlink($thumb)) return false;
 						if (!unlink($dir.'/'.$entry)) return false;
 					}

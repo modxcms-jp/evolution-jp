@@ -36,7 +36,7 @@ class DeleteFile {
 		$result1=false;
 		$result2=true;
 		
-		$thumb=$this->real_cwd.'/.thumb_'.$this->filename;
+		$thumb=$this->real_cwd.'/.thumb/'.$this->filename;
 		$result1=unlink($this->real_cwd.'/'.$this->filename);
 		if (file_exists($thumb)) $result2=unlink($thumb);
 		
