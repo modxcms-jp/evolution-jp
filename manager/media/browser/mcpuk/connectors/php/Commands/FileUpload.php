@@ -30,7 +30,6 @@
 class FileUpload {
 	var $fckphp_config;
 	var $type;
-	var $cwd;
 	
 	function FileUpload($fckphp_config,$type,$cwd)
 	{
@@ -175,7 +174,7 @@ class FileUpload {
 								if($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
 								{
 									@chmod($target,$modx->config['new_file_permissions']);
-									$disp="201,'..{$target}'";
+									$disp="201,'{$target}'";
 								}
 								else $disp="202,'Failed to upload file, internal error.'";
 							}
