@@ -44,7 +44,10 @@ class FileUpload {
 		
 		$this->fckphp_config = $fckphp_config;
 		$this->type          = $type;
-		$this->real_cwd      = $modx->config['rb_base_dir']  . "{$type}/{$cwd}";
+		$type = rtrim($type,'/');
+		$cwd  = ltrim($cwd,'/');
+		$this->real_cwd = $modx->config['rb_base_dir']  . "{$type}/{$cwd}";
+		$this->real_cwd = rtrim($this->real_cwd,'/');
 	}
 	
 	function cleanFilename($filename)
@@ -218,10 +221,9 @@ class FileUpload {
 				// (*4)
 				if (reset(explode(',', $disp)) != '202')
 				{
-					$uploaded_path = preg_replace('|\\/$|', '', $this->real_cwd);
 					$modx->invokeEvent('OnFileManagerUpload',
 							array(
-								'filepath'	=> $uploaded_path,
+								'filepath'	=> $this->real_cwd,
 								'filename'	=> $uploaded_name
 							));
 				}
