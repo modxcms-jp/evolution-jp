@@ -180,7 +180,7 @@ a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;paddin
 <p><img src="install/img/install_begin.png" /></p>
 <p>MODXがインストールされていないか設定ファイルが見つかりません。</p>
 <p>今すぐインストールしますか？</p>
-<p><a href="install/index.php?action=mode">はい</a> / <a href="http://modx.jp/">いいえ</a></p>
+<p><a href="install/index.php?action=mode&install_language=japanese-utf8">はい</a> / <a href="http://modx.jp/">いいえ</a></p>
 </div></body></html>
 EOT;
 	exit;
