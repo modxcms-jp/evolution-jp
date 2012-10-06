@@ -24,7 +24,15 @@ error_reporting(E_ALL & ~E_NOTICE);
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}manager/includes/version.inc.php");
 require_once("{$installer_path}functions.php");
-includeLang($default_config);
+if(isset($_GET['install_language']) && !empty($_GET['install_language']))
+{
+	$default_language = $_GET['install_language'];
+}
+else $default_language = 'japanese-utf8';
+
+$default_language = setOption('install_language',$default_language);
+
+includeLang($default_language);
 
 // session loop-back tester
 if (!$_SESSION['test']) {
@@ -76,7 +84,7 @@ $errors= 0;
 // get post back status
 $isPostBack = (count($_POST));
 
-$action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language';
+$action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'language';
 
 ob_start();
 include ("{$installer_path}header.php");

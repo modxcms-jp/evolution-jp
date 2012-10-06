@@ -29,6 +29,7 @@ function get_src_header()
 <title>[+pagetitle+]</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="style.css" type="text/css" media="screen">
+<script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 </head>
 <body [+textdir+]>
 <!-- start install screen-->

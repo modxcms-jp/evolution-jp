@@ -1,7 +1,9 @@
 <?php
+session_start();
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
-includeLang($default_config);
+$language = getOption('install_language');
+includeLang($language);
 
 if(isset($_POST['host'])) $host = $_POST['host'];
 if(isset($_POST['uid']))  $uid  = $_POST['uid'];
@@ -17,6 +19,9 @@ if (!$conn) {
     $output = '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
 } else {
     $output = '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
+    setOption('database_server',$host);
+    setOption('database_user',$uid);
+    setOption('database_password',$pwd);
 
     // Mysql version check
     if ( strpos(mysql_get_server_info(), '5.0.51')!==false ) {

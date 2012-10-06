@@ -1,4 +1,19 @@
 <?php
+function setOption($fieldName,$value='')
+{
+//	if($value==='') $value = getOption($fieldName,$value);
+	$_SESSION[$fieldName] = $value;
+	return $value;
+}
+
+function getOption($fieldName)
+{
+	if(isset($_POST[$fieldName]) &&    $_POST[$fieldName]!=='')        return $_POST[$fieldName];
+	elseif(isset($_SESSION[$fieldName]) && $_SESSION[$fieldName]!=='') return $_SESSION[$fieldName];
+	elseif(isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName]!=='')  return $GLOBALS[$fieldName];
+	else return false;
+}
+
 function autoDetectLang()
 {
 	if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) || empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
@@ -13,25 +28,15 @@ function autoDetectLang()
 	return $lang;
 }
 
-function includeLang($default_config)
+function includeLang($language)
 {
 	global $_lang;
 	
-	if(isset($_POST['language'])) 
-	{
-		$install_language = $_POST['language'];
-	}
-	elseif(isset($_SESSION['install_language'])) 
-	{
-		$install_language = $_SESSION['install_language'];
-	}
-	else $install_language = autoDetectLang();
-	
 	# load language file
 	$_lang = array ();
-	if(file_exists("lang/{$install_language}.inc.php"))
+	if(file_exists("lang/{$language}.inc.php"))
 	{
-		 require_once("lang/{$install_language}.inc.php");
+		 require_once("lang/{$language}.inc.php");
 	}
 	else require_once('lang/english.inc.php');
 }
@@ -219,54 +224,61 @@ function parse_docblock($element_dir, $filename)
 	return $params;
 }
 
-
 function clean_up($sqlParser) {
-		$ids = array();
-		$mysqlVerOk = -1;
-
-		if(function_exists("mysql_get_server_info")) {
-			$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.20")>=0);
-		}	
-		
-		// secure web documents - privateweb 
-		mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privateweb = 0 WHERE privateweb = 1");
-		$sql =  "SELECT DISTINCT sc.id 
-				 FROM `".$sqlParser->prefix."site_content` sc
-				 LEFT JOIN `".$sqlParser->prefix."document_groups` dg ON dg.document = sc.id
-				 LEFT JOIN `".$sqlParser->prefix."webgroup_access` wga ON wga.documentgroup = dg.document_group
-				 WHERE wga.id>0";
-		$ds = mysql_query($sql);
-		if(!$ds)
+	$ids = array();
+	$mysqlVerOk = -1;
+	
+	$table_prefix = $sqlParser->prefix;
+	
+	if(function_exists("mysql_get_server_info")) {
+		$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.20")>=0);
+	}	
+	
+	// secure web documents - privateweb 
+	mysql_query("UPDATE `{$table_prefix}site_content` SET privateweb = 0 WHERE privateweb = 1");
+	$sql =  "SELECT DISTINCT sc.id 
+			 FROM `{$table_prefix}site_content` sc
+			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
+			 LEFT JOIN `{$table_prefix}webgroup_access` wga ON wga.documentgroup = dg.document_group
+			 WHERE wga.id>0";
+	$ds = mysql_query($sql);
+	if(!$ds)
+	{
+		echo "An error occurred while executing a query: ".mysql_error();
+	}
+	else {
+		while($r = mysql_fetch_assoc($ds)) $ids[]=$r["id"];
+		if(count($ids)>0) {
+			mysql_query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
+			unset($ids);
+		}
+	}
+	
+	// secure manager documents privatemgr
+	mysql_query("UPDATE `{$table_prefix}site_content` SET privatemgr = 0 WHERE privatemgr = 1");
+	$sql =  "SELECT DISTINCT sc.id 
+			 FROM `{$table_prefix}site_content` sc
+			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
+			 LEFT JOIN `{$table_prefix}membergroup_access` mga ON mga.documentgroup = dg.document_group
+			 WHERE mga.id>0";
+	$ds = mysql_query($sql);
+	if(!$ds)
+	{
+		echo "An error occurred while executing a query: ".mysql_error();
+	}
+	else
+	{
+		while($r = mysql_fetch_assoc($ds))
 		{
-			echo "An error occurred while executing a query: ".mysql_error();
-		}
-		else {
-			while($r = mysql_fetch_assoc($ds)) $ids[]=$r["id"];
-			if(count($ids)>0) {
-				mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
-				unset($ids);
-			}
+			$ids[] = $r['id'];
 		}
 		
-		// secure manager documents privatemgr
-		mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privatemgr = 0 WHERE privatemgr = 1");
-		$sql =  "SELECT DISTINCT sc.id 
-				 FROM `".$sqlParser->prefix."site_content` sc
-				 LEFT JOIN `".$sqlParser->prefix."document_groups` dg ON dg.document = sc.id
-				 LEFT JOIN `".$sqlParser->prefix."membergroup_access` mga ON mga.documentgroup = dg.document_group
-				 WHERE mga.id>0";
-		$ds = mysql_query($sql);
-		if(!$ds)
-		{
-			echo "An error occurred while executing a query: ".mysql_error();
+		if(count($ids)>0) {
+			$ids = join(', ',$ids);
+			mysql_query("UPDATE `{$table_prefix}site_content` SET privatemgr = 1 WHERE id IN ({$ids})");	
+			unset($ids);
 		}
-		else {
-			while($r = mysql_fetch_assoc($ds)) $ids[]=$r["id"];
-			if(count($ids)>0) {
-				mysql_query("UPDATE `".$sqlParser->prefix."site_content` SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");	
-				unset($ids);
-			}
-		}
+	}
 }
 
 // Property Update function
@@ -311,12 +323,12 @@ function getCreateDbCategory($category, $sqlParser) {
     $category_id = 0;
     if(!empty($category)) {
         $category = modx_escape($category);
-        $rs = mysql_query("SELECT id FROM $dbase.`".$table_prefix."categories` WHERE category = '".$category."'");
+        $rs = mysql_query("SELECT id FROM {$dbase}.`{$table_prefix}categories` WHERE category = '{$category}'");
         if(mysql_num_rows($rs) && ($row = mysql_fetch_assoc($rs)))
         {
             $category_id = $row['id'];
         } else {
-            $q = "INSERT INTO $dbase.`".$table_prefix."categories` (`category`) VALUES ('{$category}');";
+            $q = "INSERT INTO {$dbase}.`{$table_prefix}categories` (`category`) VALUES ('{$category}')";
             $rs = mysql_query($q);
             if($rs) {
                 $category_id = mysql_insert_id();
@@ -351,46 +363,36 @@ function get_upgradeable_status()
 	global $base_path;
 	if (file_exists("{$base_path}manager/includes/config.inc.php"))
 	{
-		// Include the file so we can test its validity
 		include("{$base_path}manager/includes/config.inc.php");
-		// We need to have all connection settings - tho prefix may be empty so we have to ignore it
+		
 		if ((!isset($lastInstallTime) || empty($lastInstallTime)))
 		{
 			return 0;
 		}
 		elseif(isset($dbase) && !empty($dbase))
 		{
-			if (!@ $conn = mysql_connect($database_server, $database_user, $database_password))
-			{
-				if(isset($_POST['installmode']) && $_POST['installmode'] == '0')
-				{
-					return 0;
-				}
-				else
-				{
-					return 2;
-				}
-			}
-			elseif (!@ mysql_select_db(trim($dbase, '`'), $conn))
-			{
-				if(isset($_POST['installmode']) && $_POST['installmode'] == '0')
-				{
-					return 0;
-				}
-				else
-				{
-					return 2;
-				}
-			}
+			$conn = @ mysql_connect($database_server, $database_user, $database_password);
+			$rs   = @ mysql_select_db(trim($dbase, '`'), $conn);
+			
+			if(!$conn || !$rs) return 0;
 			else
 			{
+				setOption('database_server', $database_server);
+				setOption('database_user',$database_user);
+				setOption('database_password',$database_password);
+				setOption('database_collation','utf8_general_ci');
+				setOption('database_connection_charset',$database_connection_charset);
+				setOption('database_connection_method', $database_connection_method);
+				if(strpos($database_connection_method, '[+') !== false)
+				{
+					setOption('database_connection_method', 'SET CHARACTER SET');
+				}
+				setOption('dbase',trim($dbase,'`'));
+				setOption('table_prefix', $table_prefix);
 				return 1;
 			}
 		}
-		else
-		{
-			return 2;
-		}
+		else return 0;
 	}
 	else return 0;
 }

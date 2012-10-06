@@ -6,9 +6,9 @@ $('#servertest').click(function()
 	var pars =
 	{
 		'q': url,
-		'host': $('#databasehost').val(),
-		'uid': $('#databaseloginname').val(),
-		'pwd': $('#databaseloginpassword').val(),
+		'host': $('#database_server').val(),
+		'uid': $('#database_user').val(),
+		'pwd': $('#database_password').val(),
 		'database_collation': $('#database_collation').val(),
 		'database_connection_method': $('#database_connection_method').val(),
 		'language': language
@@ -23,9 +23,9 @@ $('#servertest').click(function()
 		var pars =
 		{
 			q: url,
-			host: $('#databasehost').val(),
-			uid:  $('#databaseloginname').val(),
-			pwd:  $('#databaseloginpassword').val(),
+			host: $('#database_server').val(),
+			uid:  $('#database_user').val(),
+			pwd:  $('#database_password').val(),
 			language: language
 		};
 		
@@ -50,11 +50,11 @@ $('#servertest').click(function()
 		var pars = 
 		{
 			'q': url,
-			'host': $('#databasehost').val(),
-			'uid': $('#databaseloginname').val(),
-			'pwd': $('#databaseloginpassword').val(),
-			'database_name': $('#database_name').val(),
-			'tableprefix': $('#tableprefix').val(),
+			'host': $('#database_server').val(),
+			'uid': $('#database_user').val(),
+			'pwd': $('#database_password').val(),
+			'dbase': $('#dbase').val(),
+			'table_prefix': $('#table_prefix').val(),
 			'database_collation': $('#database_collation').val(),
 			'database_connection_method': $('#database_connection_method').val(),
 			'language': language,

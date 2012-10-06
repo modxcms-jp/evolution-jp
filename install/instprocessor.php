@@ -26,25 +26,23 @@ require_once('functions.php');
 
 echo "<p>{$_lang['setup_database']}</p>\n";
 
-$installMode= intval($_POST['installmode']);
+$installmode= getOption('installmode');
 $installData = $_POST['installdata'] == "1" ? 1 : 0;
 
 // get db info from post
-$database_server = $_POST['databasehost'];
-$database_user = $_SESSION['databaseloginname'];
-$database_password = $_SESSION['databaseloginpassword'];
-$database_collation = ($_POST['database_collation']!=='') ? $_POST['database_collation'] : 'utf8_general_ci';
-$database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-$database_connection_charset = $_POST['database_connection_charset'];
-$database_connection_method = $_POST['database_connection_method'];
+$database_server    = getOption('database_server');
+$database_user      = getOption('database_user');
+$database_password  = getOption('database_password');
+$database_collation = 'utf8_general_ci';
+$database_connection_charset = getOption('database_connection_charset');
+$database_connection_method  = getOption('database_connection_method');
 if(strpos($database_connection_method, '[+') !== false) $database_connection_method = 'SET CHARACTER SET';
-$dbase = $_POST['database_name'];
-$table_prefix = $_POST['tableprefix'];
-$adminname = $_POST['cmsadmin'];
-$adminemail = $_POST['cmsadminemail'];
-$adminpass = $_POST['cmspassword'];
-$managerlanguage = $_SESSION['install_language'];
-//}
+$dbase           = getOption('dbase');
+$table_prefix    = getOption('table_prefix');
+$adminname       = getOption('cmsadmin');
+$adminemail      = getOption('cmsadminemail');
+$adminpass       = getOption('cmspassword');
+$managerlanguage = getOption('install_language');
 
 // get base path and url
 define('MODX_API_MODE', true);
@@ -69,7 +67,7 @@ $tbl_site_snippets = getFullTableName('site_snippets');
 $tbl_active_users = getFullTableName('active_users');
 
 // check status of Inherit Parent Template plugin
-if ($installMode != 0)
+if ($installmode != 0)
 {
 	$rs = mysql_query("SELECT properties, disabled FROM {$tbl_site_plugins} WHERE name='Inherit Parent Template'");
 	$row = mysql_fetch_assoc($rs);
@@ -116,7 +114,7 @@ $sqlParser->connection_method = $database_connection_method;
 $sqlParser->managerlanguage = $managerlanguage;
 $sqlParser->autoTemplateLogic = $auto_template_logic;
 $sqlParser->manager_theme = $default_config['manager_theme'];
-$sqlParser->mode = ($installMode < 1) ? 'new' : 'upd';
+$sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
@@ -180,7 +178,7 @@ else
 }
 
 // generate new site_id
-if ($installMode == 0)
+if ($installmode == 0)
 {
 	$siteid = uniqid('');
 	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')");
@@ -668,7 +666,7 @@ if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
 	@chmod("{$base_path}assets/cache/installProc.inc.php", 0755);
 	unlink("{$base_path}assets/cache/installProc.inc.php");
 }
-if(is_writeable($base_path) && $installMode==0)
+if(is_writeable($base_path) && $installmode==0)
 {
 	copy("{$base_path}install/tpl/robots.tpl",    "{$base_path}sample.robots.txt");
 	if(!is_iis()) copy("{$base_path}install/tpl/htaccess.tpl",  "{$base_path}sample.htaccess");
@@ -677,7 +675,7 @@ if(is_writeable($base_path) && $installMode==0)
 // setup completed!
 echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
 echo "<p>" . $_lang['to_log_into_content_manager'] . "</p>";
-if ($installMode == 0)
+if ($installmode == 0)
 {
 	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['installation_note'] . "</p>";
 }
@@ -690,7 +688,9 @@ else
 
 function getFullTableName($table_name)
 {
-	return "`{$_POST['database_name']}`.`{$_POST['tableprefix']}{$table_name}`";
+	$dbase        = getOption('dbase');
+	$table_prefix = getOption('table_prefix');
+	return "`{$dbase}`.`{$table_prefix}{$table_name}`";
 }
 
 function parseProperties($propertyString)

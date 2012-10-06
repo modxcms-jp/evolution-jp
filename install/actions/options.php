@@ -1,62 +1,18 @@
 <?php
-$installMode = intval($_POST['installmode']);
-if ($installMode == 0 || $installMode == 2) {
-    $database_collation = isset($_POST['database_collation']) ? $_POST['database_collation'] : 'utf8_general_ci';
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-    $_POST['database_connection_charset'] = $database_charset;
-    if(empty($_SESSION['databaseloginpassword']))
-        $_SESSION['databaseloginpassword'] = $_POST['databaseloginpassword'];
-    if(empty($_SESSION['databaseloginname']))
-        $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
-}
-elseif ($installMode == 1) {
-    include "{$base_path}manager/includes/config.inc.php";
+if(isset($_POST['installmode'])) setOption('installmode',$_POST['installmode']);
+$installmode = getOption('installmode');
 
-    if (empty($database_collation)) {
-        $database_collation = 'utf8_general_ci';
-    }
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-    if (!isset ($database_connection_charset) || empty ($database_connection_charset)) {
-        $database_connection_charset = $database_charset;
-    }
+if(isset($_POST['cmsadmin']))           setOption('cmsadmin',$_POST['cmsadmin']);
+if(isset($_POST['cmsadminemail']))      setOption('cmsadminemail',$_POST['cmsadminemail']);
+if(isset($_POST['cmspassword']))        setOption('cmspassword',$_POST['cmspassword']);
+if(isset($_POST['cmspasswordconfirm'])) setOption('cmspasswordconfirm',$_POST['cmspasswordconfirm']);
 
-    if (!isset ($database_connection_method) || empty ($database_connection_method)) {
-        $database_connection_method = 'SET CHARACTER SET';
-    }
-    if ($database_connection_method != 'SET NAMES' && $database_connection_charset != $database_charset) {
-        $database_connection_method  = 'SET NAMES';
-    }
-
-    $_POST['database_name'] = $dbase;
-    $_POST['tableprefix'] = $table_prefix;
-    $_POST['database_connection_charset'] = $database_connection_charset;
-    $_POST['database_connection_method'] = $database_connection_method;
-    $_POST['databasehost'] = $database_server;
-    $_SESSION['databaseloginname'] = $database_user;
-    $_SESSION['databaseloginpassword'] = $database_password;
-}
 ?>
 
-<form name="install" id="install_form" action="index.php?action=summary" method="post">
-  <div>
-	<input type="hidden" value="<?php echo $manager_language;?>" name="managerlanguage" />
-    <input type="hidden" value="<?php echo $installMode; ?>" name="installmode" />
-    <input type="hidden" value="<?php echo trim($_POST['database_name'], '`'); ?>" name="database_name" />
-    <input type="hidden" value="<?php echo $_POST['tableprefix']; ?>" name="tableprefix" />
-    <input type="hidden" value="<?php echo $database_collation; ?>" name="database_collation" />
-    <input type="hidden" value="<?php echo $_POST['database_connection_charset']; ?>" name="database_connection_charset" />
-    <input type="hidden" value="<?php echo $_POST['database_connection_method']; ?>" name="database_connection_method" />
-    <input type="hidden" value="<?php echo $_POST['databasehost']; ?>" name="databasehost" />
-    <input type="hidden" value="<?php echo trim($_POST['cmsadmin']); ?>" name="cmsadmin" />
-    <input type="hidden" value="<?php echo trim($_POST['cmsadminemail']); ?>" name="cmsadminemail" />
-    <input type="hidden" value="<?php echo trim($_POST['cmspassword']); ?>" name="cmspassword" />
-    <input type="hidden" value="<?php echo trim($_POST['cmspasswordconfirm']); ?>" name="cmspasswordconfirm" />
-    <input type="hidden" value="1" name="options_selected" />
-  </div>
+<form name="install" id="install_form" action="index.php" method="POST">
+<input type="hidden" name="action" value="summary" />
 
 <?php
-
-
 # load setup information file
 include "{$installer_path}setup.info.php";
 
@@ -70,19 +26,19 @@ else
 }
 
 $chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : "";
-if($installMode == 0)
+if($installmode == 0)
 {
-echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
-echo "<h3>" . $_lang['sample_web_site'] . "</h3>";
-echo "<p><input type=\"checkbox\" name=\"installdata\" id=\"installdata_field\" value=\"1\" $chk />&nbsp;<label for=\"installdata_field\">" . $_lang['install_overwrite'] . " <span class=\"comname\">" . $_lang['sample_web_site'] . "</span></label></p><p><em>&nbsp;" . $_lang['sample_web_site_note'] . "</em></p>";
+	echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
+	echo '<h3>' . $_lang['sample_web_site'] . '</h3>';
+	echo '<p><input type="checkbox" name="installdata" id="installdata_field" value="1" ' . $chk  . '/>&nbsp;<label for="installdata_field">' . $_lang['install_overwrite'] . ' <span class="comname">' . $_lang['sample_web_site'] . '</span></label></p><p><em>&nbsp;' . $_lang['sample_web_site_note'] . "</em></p>";
 }
 echo '<hr />';
 
 // toggle options
-echo "<h4>" . $_lang['checkbox_select_options'] . "</h4>
-    <p class=\"actions\"><a id=\"toggle_check_all\" href=\"#\">" . $_lang['all'] . "</a> <a id=\"toggle_check_none\" href=\"#\">" . $_lang['none'] . "</a> <a id=\"toggle_check_toggle\" href=\"#\">" . $_lang['toggle'] . "</a></p>
-	<br class=\"clear\" />
-	<div id=\"installChoices\">";
+echo '<h4>' . $_lang['checkbox_select_options'] . '</h4>
+    <p class="actions"><a id="toggle_check_all" href="#">' . $_lang['all'] . '</a> <a id="toggle_check_none" href="#">' . $_lang['none'] . '</a> <a id="toggle_check_toggle" href="#">' . $_lang['toggle'] . '</a></p>
+	<br class="clear" />
+	<div id="installChoices">';
 
 $options_selected = isset ($_POST['options_selected']);
 
@@ -110,7 +66,7 @@ if ($limit > 0) {
     for ($i = 0; $i < $limit; $i++) {
         $class = (is_array($moduleTVs[$i][12]) && !in_array('sample', $moduleTVs[$i][12])) ? "toggle" : "toggle demo";
         $chk = in_array($i, $tvs) || (!$options_selected) ? 'checked="checked"' : "";
-        $tvOutput .= "<label><input type=\"checkbox\" name=\"tv[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "</label><hr />\n";
+        $tvOutput .= '<label><input type="checkbox" name="tv[]" value="' . $i . '" class="' . $class . " $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "</label><hr />\n";
     }
     if($tvOutput != '') {
         echo "<h3>" . $_lang['tvs'] . "</h3><br />\n";
@@ -194,52 +150,58 @@ echo '<strong>' . $_lang['no_update_options'] . '</strong>';
 ?>
 	</div>
     <p class="buttonlinks">
-        <a href="javascript:document.getElementById('install_form').action='index.php?action=<?php echo (($installMode == 1) ? 'mode' : 'connection'); ?>';document.getElementById('install_form').submit();" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
-        <a href="javascript:document.getElementById('install_form').submit();" title="<?php echo $_lang['btnnext_value']?>"><span><?php echo $_lang['btnnext_value']?></span></a>
+        <a class="prev" href="#" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
+        <a class="next" href="#" title="<?php echo $_lang['btnnext_value']?>"><span><?php echo $_lang['btnnext_value']?></span></a>
     </p>
 
 </form>
-<script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 <script type="text/javascript">
-    $(function(){
-
-        $('#toggle_check_all').click(function(evt){
-            evt.preventDefault();
-            demo = $('#installdata_field').attr('checked');
-            $('input:checkbox.toggle:not(:disabled)').attr('checked', true);
-        });
-        $('#toggle_check_none').click(function(evt){
-            evt.preventDefault();
-            demo = $('#installdata_field').attr('checked');
-            $('input:checkbox.toggle:not(:disabled)').attr('checked', false);
-        });
-        $('#toggle_check_toggle').click(function(evt){
-            evt.preventDefault();
-            $('input:checkbox.toggle:not(:disabled)').attr('checked', function(){
-                return !$(this).attr('checked');
-            });
-        });
-        $('#installdata_field').click(function(evt){
-            handleSampleDataCheckbox();
-        });
-
-        var handleSampleDataCheckbox = function(){
-            demo = $('#installdata_field').attr('checked');
-            $('input:checkbox.toggle.demo').each(function(ix, el){
-                if(demo) {
-                    $(this)
-                        .attr('checked', true)
-                        .attr('disabled', true)
-                    ;
-        } else {
-                    $(this)
-                        .attr('disabled', false)
-                    ;
-      }
-            });
-    }
-
-        // handle state of demo content checkbox on page load
-        handleSampleDataCheckbox();
-    });
+	var installMode = <?php echo $installmode; ?>;
+	$('a.prev').click(function(){
+		var target = (installMode==1) ? 'mode' : 'connection';
+		$('input[name="action"]').val(target);
+		$('#install_form').submit();
+	});
+	$('a.next').click(function(){
+		$('#install_form').submit();
+	});
+	
+	$('#toggle_check_all').click(function(evt){
+	    evt.preventDefault();
+	    demo = $('#installdata_field').attr('checked');
+	    $('input:checkbox.toggle:not(:disabled)').attr('checked', true);
+	});
+	$('#toggle_check_none').click(function(evt){
+	    evt.preventDefault();
+	    demo = $('#installdata_field').attr('checked');
+	    $('input:checkbox.toggle:not(:disabled)').attr('checked', false);
+	});
+	$('#toggle_check_toggle').click(function(evt){
+	    evt.preventDefault();
+	    $('input:checkbox.toggle:not(:disabled)').attr('checked', function(){
+	        return !$(this).attr('checked');
+	    });
+	});
+	$('#installdata_field').click(function(evt){
+	    handleSampleDataCheckbox();
+	});
+	
+	var handleSampleDataCheckbox = function(){
+	    demo = $('#installdata_field').attr('checked');
+	    $('input:checkbox.toggle.demo').each(function(ix, el){
+	        if(demo) {
+	            $(this)
+	                .attr('checked', true)
+	                .attr('disabled', true)
+	            ;
+	} else {
+	            $(this)
+	                .attr('disabled', false)
+	            ;
+	}
+	    });
+	}
+	
+	// handle state of demo content checkbox on page load
+	handleSampleDataCheckbox();
 </script>

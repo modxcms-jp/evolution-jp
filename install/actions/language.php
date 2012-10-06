@@ -1,6 +1,7 @@
 <?php
 $install_language = autoDetectLang();
-$_SESSION['install_language'] = $install_language;
+setOption('install_language', $install_language);
+
 $ph['lang_options']        = get_lang_options($install_language);
 $ph['_lang_begin']         = $_lang['begin'];
 $ph['_lang_btnnext_value'] = $_lang['btnnext_value'];
@@ -32,15 +33,22 @@ function get_lang_options($install_language)
 function get_src_content()
 {
 	$src = <<< EOT
-<form name="install" id="install_form" action="index.php?action=mode" method="post">
+<form id="install_form" action="index.php" method="POST">
+<input type="hidden" name="action" value="mode" />
     <h2>Choose language:&nbsp;&nbsp;</h2>
-    <select name="language">
+    <select name="install_language">
     [+lang_options+]
     </select>
         <p class="buttonlinks">
-            <a style="display:inline;" href="javascript:document.getElementById('install_form').submit();" title="[+_lang_begin+]"><span>[+_lang_btnnext_value+]</span></a>
+            <a class="next" style="display:inline;" href="#" title="[+_lang_begin+]"><span>[+_lang_btnnext_value+]</span></a>
         </p>
 </form>
+
+<script type="text/javascript">
+	$('a.next').click(function(){
+		$('#install_form').submit();
+	});
+</script>
 EOT;
 	return $src;
 }

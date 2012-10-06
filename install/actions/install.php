@@ -1,5 +1,6 @@
 <h2><?php echo $_lang['install_results']?></h2>
 <?php
+
 ob_start();
 include "{$installer_path}instprocessor.php";
 $content = ob_get_contents();
