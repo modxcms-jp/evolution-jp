@@ -49,7 +49,8 @@ class Thumbnail {
 			$icon=$thumbfile;
 		} else {
 			$thumbdir = dirname($thumbfile);
-			if(!is_dir($thumbdir)) mkdir($thumbdir,true);
+			if(!is_dir($thumbdir)) $rs = mkdir($thumbdir,true);
+			if($rs) chmod($thumbdir,$this->fckphp_config['modx']['folder_permissions']);
 			
 			$mime=$this->getMIME($fullfile);
 			$ext=strtolower($this->getExtension($this->filename));	
