@@ -217,7 +217,7 @@ if(!empty($_FILES['userfile']))
 	printf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, strlen($filemanager_path), strlen($startpath)));
 	if($userfile['error']==0)
 	{
-		echo "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize($userfile['tmp_name']).'</p>';
+		echo "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize(filesize($userfile['tmp_name'])).'</p>';
 	}
 	
 	$userfilename = $userfile['tmp_name'];
