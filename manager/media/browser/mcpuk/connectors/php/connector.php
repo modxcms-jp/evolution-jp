@@ -21,7 +21,9 @@
  */
 //Errors in the config.php could still cause problems.
 
-require_once('../../../../../includes/protect.inc.php');
+$self = 'manager/media/browser/mcpuk/connectors/php/connector.php';
+$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+require_once("{$base_path}manager/includes/protect.inc.php");
 
 global $fckphp_config;
 require_once "config.php";
@@ -82,39 +84,19 @@ $valid_commands=$fckphp_config['Commands'];
 $valid_resource_types=$fckphp_config['ResourceTypes'];
 
 //Get the passed data
-$command=(
-		((isset($_GET['Command']))&&($_GET['Command']!=''))?
-			$_GET['Command']:
-			""
-		);
-		
-$type=strtolower(
-		((isset($_GET['Type']))&&($_GET['Type']!=''))?
-			$_GET['Type']:
-			"files"
-		);
-		
-$cwd=str_replace('..','',
-		(
-		((isset($_GET['CurrentFolder']))&&($_GET['CurrentFolder']!=''))?
-			$_GET['CurrentFolder']:
-			"/"
-		)
-		);
-		
-$cwd = str_replace('..','',$cwd);
-
-$extra=(
-		((isset($_GET['ExtraParams']))&&($_GET['ExtraParams']!=''))?
-			$_GET['ExtraParams']:
-			""
-		);
+$command = (isset($_GET['Command']) && $_GET['Command']!='')             ? $_GET['Command']       : '' ;
+$type    = (isset($_GET['Type']) && $_GET['Type']!='')                   ? $_GET['Type']          : 'files';
+$type    = strtolower($type);
+$cwd     = (isset($_GET['CurrentFolder']) && $_GET['CurrentFolder']!='') ? $_GET['CurrentFolder'] : '/';
+$cwd     = str_replace('..', '', $cwd);
+$extra   = (isset($_GET['ExtraParams']) && $_GET['ExtraParams']!='')     ? $_GET['ExtraParams']   : '';
 
 if (in_array($command,$valid_commands))
 {
 	//bit of validation
-	if (!in_array($type,$valid_resource_types)) {
-		echo "Invalid resource type.";
+	if (!in_array($type,$valid_resource_types))
+	{
+		echo 'Invalid resource type.';
 		if ($fckphp_config['Debug']===true  && $fckphp_config['Debug_Output']) recordOutput();
 		exit(0);
 	}
@@ -138,16 +120,18 @@ if (in_array($command,$valid_commands))
 function recordOutput() {
 	global $fckphp_config;
 
-	if ($fckphp_config['Debug']===true  && $fckphp_config['Debug_Output']) {
+	if ($fckphp_config['Debug']===true  && $fckphp_config['Debug_Output'])
+	{
 		$contents=ob_get_contents();
-		if (strlen($contents)>0) {
-			$oldData=implode("",file($fckphp_config['DebugOutput']));
+		if (strlen($contents)>0)
+		{
+			$oldData=implode('',file($fckphp_config['DebugOutput']));
 			if ($fh=fopen($fckphp_config['DebugOutput'],"w")) {
 				fwrite($fh,"\n".date("d/m/Y H:i:s")."\n");
-				if ($fckphp_config['Debug_GET']) fwrite($fh,"\n\$_GET::\n".print_r($_GET,true)."\n");
-				if ($fckphp_config['Debug_POST']) fwrite($fh,"\n\$_POST::\n".print_r($_POST,true)."\n");
-				if ($fckphp_config['Debug_SERVER']) fwrite($fh,"\n\$_SERVER::\n".print_r($_SERVER,true)."\n");
-				if ($fckphp_config['Debug_SESSIONS']) fwrite($fh,"\n\$_SESSIONS::\n".print_r($_SESSION,true)."\n");
+				if ($fckphp_config['Debug_GET'])      fwrite($fh,"\n\$_GET::\n"      .print_r($_GET,true)    ."\n");
+				if ($fckphp_config['Debug_POST'])     fwrite($fh,"\n\$_POST::\n"     .print_r($_POST,true)   ."\n");
+				if ($fckphp_config['Debug_SERVER'])   fwrite($fh,"\n\$_SERVER::\n"   .print_r($_SERVER,true) ."\n");
+				if ($fckphp_config['Debug_SESSIONS']) fwrite($fh,"\n\$_SESSIONS::\n" .print_r($_SESSION,true)."\n");
 				fwrite($fh,$contents);
 				fwrite($fh,"\n-------------------------------------------------------\n\n\n");
 				fwrite($fh,$oldData); $oldData="";

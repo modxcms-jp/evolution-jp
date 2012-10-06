@@ -117,13 +117,11 @@ oListManager.AddFile = function ( fileName, fileUrl, fileSize, imageEditable )
 
 	oCell.innerHTML = sLink +
 		'<img alt="' + fileName + '" src="' +
-					oConnector.ConnectorUrl +
-					'?Command=Thumbnail&Type=' +
-					oConnector.ResourceType +
-					'&CurrentFolder=' +
-					escape(oConnector.CurrentFolder) +
-					'&FileName=' + escape(fileName) +
-					'&ExtraParams=' + oConnector.ExtraParams +
+					oConnector.ConnectorUrl
+					 + '?Command=Thumbnail&Type=' + oConnector.ResourceType
+					 + '&CurrentFolder=' + escape(oConnector.CurrentFolder)
+					 + '&FileName=' + escape(fileName)
+					 + '&ExtraParams=' + oConnector.ExtraParams +
 					'" width="64" height="64" border="0" class="item"><br />' +
 		fileName + '</a><br />';
 	oCell.innerHTML += dLink + '<img border="0" src="images/delete.gif" width="16" height="16" alt="Delete File" title="Delete File"></a>&nbsp;';
