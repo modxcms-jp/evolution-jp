@@ -517,11 +517,10 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 <input type="hidden" name="a" value="31">
 <input type="hidden" name="path" value="<?php echo $startpath?>">
 
-<div id="uploader" class="actionButtons" style="margin-bottom:10px;">
+<div id="uploader" class="actionButtons" style="margin-top:10px;">
 <input type="file" name="userfile" onchange="document.upload.submit();">
-<span style="width:300px;"><?php echo $_lang['files_uploadfile_msg']?></span>
+<a href="#" onclick="document.upload.submit()" style="display:inline;float:none;"><?php echo '<img src="' . $_style['icons_add'] . '" /> '; echo $_lang['files_uploadfile'];?></a>
 <input type="submit" value="<?php echo $_lang['files_uploadfile']?>" style="display:none;">
-
 </div>
 </form>
 <?php
