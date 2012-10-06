@@ -2208,7 +2208,11 @@ class DocumentParser {
 		$mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
 		$sendto         = (!isset($p['sendto']))   ? $this->config['emailsender']  : $p['sendto'];
 		$mail->Body     = $msg;
-		$mail->AddAddress($sendto);
+		$sendto = explode(',',$sendto);
+		foreach($sendto as $to)
+		{
+			$mail->AddAddress($to);
+		}
 		$rs = $mail->Send();
 		return $rs;
 	}
