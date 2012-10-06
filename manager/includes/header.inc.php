@@ -41,9 +41,37 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
         
 		$j(function(){
-			$j('input').change(function() {documentDirty=true;});
-			$j('textarea').change(function() {documentDirty=true;});
-			$j('select').change(function() {documentDirty=true;});
+			var action = <?php echo $action;?>;
+			switch(action)
+			{
+				case 85:
+				case 27:
+				case 17:
+				case 4:
+				case 87:
+				case 88:
+				case 11:
+				case 12:
+				case 28:
+				case 38:
+				case 35:
+				case 16:
+				case 19:
+				case 22:
+				case 23:
+				case 77:
+				case 78:
+				case 107:
+				case 108:
+				case 113:
+				case 100:
+				case 101:
+				case 102:
+					$j('input').change(function() {documentDirty=true;});
+					$j('textarea').change(function() {documentDirty=true;});
+					$j('select').change(function() {documentDirty=true;});
+				break;
+			}
         	document_onload();
 			$j('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
