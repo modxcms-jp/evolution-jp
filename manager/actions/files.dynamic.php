@@ -195,7 +195,7 @@ if (is_writable($startpath))
 	echo '<ul class="actionButtons">' . $_ . '</ul>';
 }
 
-if(!empty($_FILES['userfile']))     echo fileupload();
+if(!empty($_FILES['userfile'])) $information = fileupload();
 elseif($_POST['mode']=='save')      echo textsave();
 elseif($_REQUEST['mode']=='delete') echo delete_file();
 
@@ -390,6 +390,8 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize)? $upload_maxsize:3145728; ?>">
 <input type="hidden" name="a" value="31">
 <input type="hidden" name="path" value="<?php echo $startpath?>">
+
+<?php if(isset($information)) echo $information;?>
 
 <div id="uploader" class="actionButtons" style="margin-top:10px;">
 <input type="file" name="userfile" onchange="document.upload.submit();">
@@ -690,10 +692,12 @@ function fileupload()
 	}
 	
 	// this seems to be an upload action.
-	$msg .= sprintf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, strlen($filemanager_path), strlen($startpath)));
+	$path = $modx->config['site_url'] . substr($startpath, strlen($filemanager_path), strlen($startpath)) . '/' . $userfile['name'];
+	$msg .= $path;
 	if($userfile['error']==0)
 	{
-		$msg .=  "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize(filesize($userfile['tmp_name'])).'</p>';
+		$img = (strpos($userfile['type'],'image')!==false) ? '<br /><img src="' . $path . '" height="75" />' : '';
+		$msg .=  "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize(filesize($userfile['tmp_name'])).$img.'</p>';
 	}
 	
 	$userfilename = $userfile['tmp_name'];
