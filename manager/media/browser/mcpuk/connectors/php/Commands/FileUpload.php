@@ -80,14 +80,16 @@ class FileUpload {
 			if($lastdot) $ext = strtolower(substr($filename,($lastdot+1)));
 		}
 		
+		if ($this->cleanFilename($filename) !== $filename && $lastdot!==false)
+		{
+			$filename = date('Ymd-his');
+			$disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";// (*3)
+		}
+		
 		if (!array_key_exists('NewFile',$_FILES)) $disp="202,'Unable to find uploaded file.'"; //No file uploaded with field name NewFile
 		elseif($_FILES['NewFile']['error'] || ($typeconfig['MaxSize']) < $_FILES['NewFile']['size'])
 		{
 			$disp = "202,'ファイル容量オーバーです。'";//Too big
-		}
-		elseif ($this->cleanFilename($filename) !== $filename)
-		{
-			$disp = "202,'ファイル名に使えない文字が含まれています。'";// (*3)
 		}
 		elseif($lastdot===false)
 		{
