@@ -195,135 +195,9 @@ if (is_writable($startpath))
 	echo '<ul class="actionButtons">' . $_ . '</ul>';
 }
 
-
-if(!empty($_FILES['userfile']))
-{
-	if(!empty($_FILES['userfile']['tmp_name']))
-	{
-		$userfile['tmp_name'] = $_FILES['userfile']['tmp_name'];
-		$userfile['error']    = $_FILES['userfile']['error'];
-		$name = $_FILES['userfile']['name'];
-		if($modx->config['clean_uploaded_filename']==1)
-		{
-			$nameparts = explode('.', $name);
-			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts,'file_manager');
-			$name = implode('.', $nameparts);
-		}
-		$userfile['name'] = $name;
-		$userfile['type'] = $_FILES['userfile']['type'];
-	}
-	
-	// this seems to be an upload action.
-	printf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, strlen($filemanager_path), strlen($startpath)));
-	if($userfile['error']==0)
-	{
-		echo "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize(filesize($userfile['tmp_name'])).'</p>';
-	}
-	
-	$userfilename = $userfile['tmp_name'];
-	
-	if (is_uploaded_file($userfilename))
-	{
-		// file is uploaded file, process it!
-		if(!in_array(getExtension($userfile['name']), $uploadablefiles))
-		{
-			echo '<p><span class="warning">'.$_lang['files_filetype_notok'].'</span></p>';
-		}
-		else
-		{
-			if(@move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
-			{
-				// Ryan: Repair broken permissions issue with file manager
-				if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN')
-					@chmod($_POST['path']."/".$userfile['name'], $new_file_permissions);
-				// Ryan: End
-				echo '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
-				
-				// invoke OnFileManagerUpload event
-				$modx->invokeEvent('OnFileManagerUpload',
-				array(
-				'filepath'	=> $_POST['path'],
-				'filename'	=> $userfile['name']
-				));
-				// Log the change
-				logFileChange('upload', $_POST['path'].'/'.$userfile['name']);
-			}
-			else
-			{
-				echo '<p><span class="warning">'.$_lang['files_upload_copyfailed'].'</span> '.$_lang["files_upload_permissions_error"].'</p>';
-			}
-		}
-	}
-	else
-	{
-		echo '<br /><span class="warning"><b>'.$_lang['files_upload_error'].':</b>';
-		switch($userfile['error'])
-		{
-			case 0: //no error; possible file attack!
-				echo $_lang['files_upload_error0'];
-				break;
-			case 1: //uploaded file exceeds the upload_max_filesize directive in php.ini
-				echo $_lang['files_upload_error1'];
-				break;
-			case 2: //uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form
-				echo $_lang['files_upload_error2'];
-				break;
-			case 3: //uploaded file was only partially uploaded
-				echo $_lang['files_upload_error3'];
-				break;
-			case 4: //no file was uploaded
-				echo $_lang['files_upload_error4'];
-				break;
-			default: //a default error, just in case!  :)
-				echo $_lang['files_upload_error5'];
-				break;
-		}
-		echo '</span><br />';
-	}
-	echo '<hr/>';
-}
-
-if($_POST['mode']=='save')
-{
-	echo $_lang['editing_file'];
-	$filename = $_POST['path'];
-	$content  = $_POST['content'];
-
-	// Write $content to our opened file.
-	if (file_put_contents($filename, $content) === FALSE)
-	{
-		echo '<span class="warning"><b>'.$_lang['file_not_saved'].'</b></span><br /><br />';
-	}
-	else
-	{
-		echo '<span class="success"><b>'.$_lang['file_saved'].'</b></span><br /><br />';
-		$_REQUEST['mode'] = 'edit';
-	}
-	// Log the change
-	logFileChange('modify', $filename);
-}
-
-
-if($_REQUEST['mode']=='delete')
-{
-	printf($_lang['deleting_file'], str_replace('\\', '/', $_REQUEST['path']));
-	$file = $_REQUEST['path'];
-	if(!$token_check)
-	{
-		echo '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
-	}
-	elseif(!@unlink($file))
-	{
-		echo '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
-	}
-	else
-	{
-		echo '<span class="success"><b>'.$_lang['file_deleted'].'</b></span><br /><br />';
-	}
-
-	// Log the change
-	logFileChange('delete', $file);
-}
+if(!empty($_FILES['userfile']))     echo fileupload();
+elseif($_POST['mode']=='save')      echo textsave();
+elseif($_REQUEST['mode']=='delete') echo delete_file();
 
 if(in_array($startpath,$proteted_path))
 {
@@ -793,4 +667,143 @@ function rrmdir($dir)
 		else              unlink($file);
 	}
 	return rmdir($dir);
+}
+
+function fileupload()
+{
+	global $modx,$_lang,$startpath, $filemanager_path, $uploadablefiles, $new_file_permissions;
+	$msg = '';
+	
+	if(!empty($_FILES['userfile']['tmp_name']))
+	{
+		$userfile['tmp_name'] = $_FILES['userfile']['tmp_name'];
+		$userfile['error']    = $_FILES['userfile']['error'];
+		$name = $_FILES['userfile']['name'];
+		if($modx->config['clean_uploaded_filename']==1)
+		{
+			$nameparts = explode('.', $name);
+			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts,'file_manager');
+			$name = implode('.', $nameparts);
+		}
+		$userfile['name'] = $name;
+		$userfile['type'] = $_FILES['userfile']['type'];
+	}
+	
+	// this seems to be an upload action.
+	$msg .= sprintf("<p>".$_lang['files_uploading']."</p>", $userfile['name'], substr($startpath, strlen($filemanager_path), strlen($startpath)));
+	if($userfile['error']==0)
+	{
+		$msg .=  "<p>".$_lang['files_file_type'].$userfile['type'].", ".$modx->nicesize(filesize($userfile['tmp_name'])).'</p>';
+	}
+	
+	$userfilename = $userfile['tmp_name'];
+	
+	if (is_uploaded_file($userfilename))
+	{
+		// file is uploaded file, process it!
+		if(!in_array(getExtension($userfile['name']), $uploadablefiles))
+		{
+			$msg .=  '<p><span class="warning">'.$_lang['files_filetype_notok'].'</span></p>';
+		}
+		else
+		{
+			if(@move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
+			{
+				// Ryan: Repair broken permissions issue with file manager
+				if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN')
+					@chmod($_POST['path']."/".$userfile['name'], $new_file_permissions);
+				// Ryan: End
+				$msg .=  '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
+				
+				// invoke OnFileManagerUpload event
+				$modx->invokeEvent('OnFileManagerUpload',
+				array(
+				'filepath'	=> $_POST['path'],
+				'filename'	=> $userfile['name']
+				));
+				// Log the change
+				logFileChange('upload', $_POST['path'].'/'.$userfile['name']);
+			}
+			else
+			{
+				$msg .=  '<p><span class="warning">'.$_lang['files_upload_copyfailed'].'</span> '.$_lang["files_upload_permissions_error"].'</p>';
+			}
+		}
+	}
+	else
+	{
+		$msg .=  '<br /><span class="warning"><b>'.$_lang['files_upload_error'].':</b>';
+		switch($userfile['error'])
+		{
+			case 0: //no error; possible file attack!
+				$msg .=  $_lang['files_upload_error0'];
+				break;
+			case 1: //uploaded file exceeds the upload_max_filesize directive in php.ini
+				$msg .=  $_lang['files_upload_error1'];
+				break;
+			case 2: //uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form
+				$msg .=  $_lang['files_upload_error2'];
+				break;
+			case 3: //uploaded file was only partially uploaded
+				$msg .=  $_lang['files_upload_error3'];
+				break;
+			case 4: //no file was uploaded
+				$msg .=  $_lang['files_upload_error4'];
+				break;
+			default: //a default error, just in case!  :)
+				$msg .=  $_lang['files_upload_error5'];
+				break;
+		}
+		$msg .=  '</span><br />';
+	}
+	return $msg;
+}
+
+function textsave()
+{
+	global $_lang;
+	
+	$msg = $_lang['editing_file'];
+	$filename = $_POST['path'];
+	$content  = $_POST['content'];
+
+	// Write $content to our opened file.
+	if (file_put_contents($filename, $content) === FALSE)
+	{
+		$msg .= '<span class="warning"><b>'.$_lang['file_not_saved'].'</b></span><br /><br />';
+	}
+	else
+	{
+		$msg .= '<span class="success"><b>'.$_lang['file_saved'].'</b></span><br /><br />';
+		$_REQUEST['mode'] = 'edit';
+	}
+	// Log the change
+	logFileChange('modify', $filename);
+	return $msg;
+}
+
+function delete_file()
+{
+	global $_lang, $token_check;
+	
+	$msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $_REQUEST['path']));
+	
+	$file = $_REQUEST['path'];
+	if(!$token_check)
+	{
+		$msg .= '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
+	}
+	elseif(!@unlink($file))
+	{
+		$msg .= '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
+	}
+	else
+	{
+		$msg .= '<span class="success"><b>'.$_lang['file_deleted'].'</b></span><br /><br />';
+	}
+
+	// Log the change
+	logFileChange('delete', $file);
+	
+	return $msg;
 }
