@@ -1705,6 +1705,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .dp_cal select {
 	margin: 2px 3px;
 	font-size: 12px;
+	padding:2px;
 }
 .dp_cal select option {
 	padding: 1px 3px;
