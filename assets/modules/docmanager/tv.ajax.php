@@ -4,8 +4,8 @@
  */
 
 define('MODX_API_MODE', true);
-$base_path = realpath('../../../');
-$base_path = str_replace('\\','/',$base_path) . '/';
+$self = 'assets/modules/docmanager/tv.ajax.php';
+$base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 include_once("{$base_path}index.php"); 
 include_once("{$base_path}assets/modules/docmanager/classes/docmanager.class.php");
 $modx->getSettings();

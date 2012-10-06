@@ -6,11 +6,9 @@
  */
 define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
-$core_path = str_replace('\\','/',realpath('../../')) . '/manager/includes/';
-include_once("{$core_path}config.inc.php");
-startCMSSession();
-include_once("{$core_path}document.parser.class.inc.php");
-$modx = new DocumentParser;
+$self = 'manager/includes/session_keepalive.php';
+$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+include_once("{$base_path}index.php");
 $modx->db->connect();
 
 // Keep it alive

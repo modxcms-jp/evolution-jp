@@ -19,11 +19,9 @@ $limit               = 0;
 /* That's it to config! */
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
-$core_path = str_replace('\\','/',realpath('../../../../')) . '/manager/includes/';
-include_once("{$core_path}config.inc.php");
-startCMSSession();
-include_once("{$core_path}document.parser.class.inc.php");
-$modx = new DocumentParser;
+$self = 'assets/plugins/tinymce/js/get_template.php';
+$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+include_once("{$base_path}index.php");
 $modx->db->connect();
 
 /* only display if manager user is logged in */
