@@ -29,7 +29,8 @@ require_once "config.php";
 error_reporting(E_ALL);
 function errorHandler ($errno, $errstr, $errfile, $errline, $errcontext) {
 	$reported=false;
-	if (strpos($errstr,"var: Deprecated.")===false) {
+	if (strpos($errstr,"var: Deprecated.")===false)
+	{
 		global $fckphp_config;
 		if ($fckphp_config['Debug']===true && $fckphp_config['Debug_Errors']===true) {
 			$oldData=implode("",file($fckphp_config['DebugOutput']));
@@ -82,35 +83,35 @@ $valid_resource_types=$fckphp_config['ResourceTypes'];
 
 //Get the passed data
 $command=(
-		((isset($_GET['Command']))&&($_GET['Command']!=""))?
+		((isset($_GET['Command']))&&($_GET['Command']!=''))?
 			$_GET['Command']:
 			""
 		);
 		
 $type=strtolower(
-		((isset($_GET['Type']))&&($_GET['Type']!=""))?
+		((isset($_GET['Type']))&&($_GET['Type']!=''))?
 			$_GET['Type']:
 			"files"
 		);
 		
-$cwd=str_replace("..","",
+$cwd=str_replace('..','',
 		(
-		((isset($_GET['CurrentFolder']))&&($_GET['CurrentFolder']!=""))?
+		((isset($_GET['CurrentFolder']))&&($_GET['CurrentFolder']!=''))?
 			$_GET['CurrentFolder']:
 			"/"
 		)
 		);
 		
-$cwd=str_replace("..","",$cwd);
+$cwd = str_replace('..','',$cwd);
 
 $extra=(
-		((isset($_GET['ExtraParams']))&&($_GET['ExtraParams']!=""))?
+		((isset($_GET['ExtraParams']))&&($_GET['ExtraParams']!=''))?
 			$_GET['ExtraParams']:
 			""
 		);
 
-if (in_array($command,$valid_commands)) {
-
+if (in_array($command,$valid_commands))
+{
 	if ($fckphp_config['auth']['Req']) {
 		require_once "./Auth/".$fckphp_config['auth']['HandlerClass'].".php";
 		
@@ -136,7 +137,7 @@ if (in_array($command,$valid_commands)) {
 		exit(0);
 	}
 	
-	require_once "Commands/$command.php";
+	require_once "Commands/{$command}.php";
 
 	$action=new $command($fckphp_config,$type,$cwd);
 
@@ -194,4 +195,3 @@ function outputHeaders() {
 	// HTTP/1.0
 	header("Pragma: no-cache");
 }
-?> 
