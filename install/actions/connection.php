@@ -1,6 +1,5 @@
 <?php
 $install_language = $_SESSION['install_language'];
-if(!isset($database_connection_charset)) setOption('database_connection_charset','utf8');
 
 if(isset($_POST['installmode'])) setOption('installmode', $_POST['installmode']);
 $installmode = getOption('installmode');
@@ -9,7 +8,7 @@ $upgradeable = 0;
 
 if (is_file("{$base_path}manager/includes/config.inc.php"))
 {
-	global $dbase,$database_server,$database_user,$database_password,$table_prefix,$database_connection_charset;
+	global $dbase,$database_server,$database_user,$database_password,$table_prefix;
 	include_once("{$base_path}manager/includes/config.inc.php");
 }
 
@@ -95,16 +94,6 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 <?php
   }
 ?>
-  <p class="labelHolder">
-    <div id="collation" name="collation">
-		<select id="database_collation" name="database_collation">
-        	<option value="<?php echo isset($_POST['database_collation']) ? $_POST['database_collation']: $database_collation ?>" selected="selected">
-          	<?php echo isset($_POST['database_collation']) ? $_POST['database_collation']: $database_collation ?>
-        	</option>
-    	</select>
-	</div>
-  </p>
-
   <div class="clickHere">
 	&rarr; <a id="databasetest" href="#footer"><?php echo $_lang['connection_screen_database_test_connection']?></a>
   </div>

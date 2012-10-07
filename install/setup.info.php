@@ -17,7 +17,7 @@ $tvPath = "{$installer_path}assets/tvs";
 
 if (is_file("{$base_path}manager/includes/config.inc.php"))
 {
-	global $dbase,$database_server,$database_user,$database_password,$table_prefix,$database_connection_charset;
+	global $dbase,$database_server,$database_user,$database_password,$table_prefix;
 	include_once("{$base_path}manager/includes/config.inc.php");
 }
 
@@ -26,14 +26,13 @@ $database_user     = getOption('database_user');
 $database_password = getOption('database_password');
 $dbase             = getOption('dbase');
 $table_prefix      = getOption('table_prefix');
-$database_connection_charset = getOption('database_connection_charset');
 
 $installMode = getOption('installmode');
 
 $conn = @ mysql_connect($database_server, $database_user, $database_password);
 if (function_exists('mysql_set_charset'))
 {
-	mysql_set_charset($database_connection_charset);
+	mysql_set_charset('utf8');
 }
 $rt = @ mysql_select_db(trim($dbase, '`'), $conn);
 

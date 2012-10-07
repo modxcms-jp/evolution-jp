@@ -43,20 +43,15 @@ function includeLang($language)
 
 function modx_escape($s)
 {
-	global $database_connection_charset;
 	if (function_exists('mysql_set_charset'))
 	{
 		$s = mysql_real_escape_string($s);
 	}
-	elseif ($database_connection_charset=='utf8')
+	else
 	{
 		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
 		$s = mysql_real_escape_string($s);
 		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
-	}
-	else
-	{
-		$s = mysql_escape_string($s);
 	}
 	return $s;
 }
@@ -360,10 +355,11 @@ function is_iis()
 
 function get_upgradeable_status()
 {
-	global $base_path;
+	global $base_path,$database_server, $database_user, $database_password,$dbase;
 	if (file_exists("{$base_path}manager/includes/config.inc.php"))
 	{
-		include("{$base_path}manager/includes/config.inc.php");
+	
+		include_once("{$base_path}manager/includes/config.inc.php");
 		
 		if ((!isset($lastInstallTime) || empty($lastInstallTime)))
 		{
@@ -372,7 +368,7 @@ function get_upgradeable_status()
 		elseif(isset($dbase) && !empty($dbase))
 		{
 			$conn = @ mysql_connect($database_server, $database_user, $database_password);
-			$rs   = @ mysql_select_db(trim($dbase, '`'), $conn);
+			if($conn) $rs   = @ mysql_select_db(trim($dbase, '`'), $conn);
 			
 			if(!$conn || !$rs) return 0;
 			else
@@ -381,7 +377,6 @@ function get_upgradeable_status()
 				setOption('database_user',$database_user);
 				setOption('database_password',$database_password);
 				setOption('database_collation','utf8_general_ci');
-				setOption('database_connection_charset',$database_connection_charset);
 				setOption('database_connection_method', $database_connection_method);
 				if(strpos($database_connection_method, '[+') !== false)
 				{

@@ -40,15 +40,11 @@ else
 	if (!@ mysql_select_db($dbase, $conn))
 	{
 		// create database
-		
-		if(isset($_POST['database_connection_charset'])) setOption('database_connection_charset',$database_connection_charset);
-		$database_connection_charset = getOption('database_connection_charset');
-		
 		if (function_exists('mysql_set_charset'))
 		{
-			mysql_set_charset($database_connection_charset);
+			mysql_set_charset('utf8');
 		}
-		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET {$database_connection_charset} COLLATE {$database_collation}";
+		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET 'utf8' COLLATE {$database_collation}";
 		
 		if(!@ mysql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
 		else                       $output .= span_pass($_lang['status_passed_database_created']);
