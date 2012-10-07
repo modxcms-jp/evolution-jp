@@ -4,6 +4,7 @@
  * MODxMailer Class extends PHPMailer
  * Created by ZeRo (http://www.petit-power.com/)
  * updated by yama (http://kyms.jp/)
+ * updated by kmikage (kmikage@nikujaga.info)
  *
  * -----------------------------------------------------
  * [History]
@@ -32,10 +33,16 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
-		$this->IsMail();
+		$this->Mailer   = $modx->config['sendmail_method'];
 		$this->From     = $modx->config['emailsender'];
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
+		
+		// SMTP Auth for gmail. 2012.10.07 kmikage@nikujaga.info
+		$this->Host     = 'ssl://smtp.gmail.com:465';
+		$this->SMTPAuth = TRUE;
+		$this->Username = '********@gmail.com';
+		$this->Password = '********';
 		
 		switch(strtolower($modx->config['manager_language']))
 		{
