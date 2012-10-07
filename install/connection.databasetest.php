@@ -60,12 +60,10 @@ else
 
 echo $output;
 
-function span_pass($str)
-{
+function span_pass($str) {
 	return '<span id="database_pass" style="color:#388000;">' . $str . '</span>';
 }
 
-function span_fail($str)
-{
+function span_fail($str) {
 	return '<span id="database_fail" style="color:#FF0000;">' . $str . '</span>';
 }
