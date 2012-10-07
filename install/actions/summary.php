@@ -359,7 +359,7 @@ function mkd($path)
 	
 	if(!is_dir($path))
 	{
-		$rs = @mkdir($path, true);
+		$rs = @mkdir($path, 0777, true);
 		if($rs) $rs = @chmod($path, 0777);
 	}
 	
