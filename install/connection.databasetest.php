@@ -20,10 +20,10 @@ if (!$conn = @ mysql_connect($host, $uid, $pwd))
 }
 else
 {
-	$dbase                      = getOption('dbase');
-	$table_prefix               = getOption('table_prefix');
+	$dbase                      = trim($_POST['dbase'],'`');
+	$table_prefix               = $_POST['table_prefix'];
 	$database_collation         = getOption('database_collation');
-	$database_connection_method = getOption('database_connection_method');
+	$database_connection_method = $_POST['database_connection_method'];
 	
 	if(get_magic_quotes_gpc())
 	{
