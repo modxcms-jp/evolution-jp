@@ -36,7 +36,7 @@ else
 	$table_prefix               = modx_escape($table_prefix);
 	$database_collation         = modx_escape($database_collation);
 	$database_connection_method = modx_escape($database_connection_method);
-	$tbl_site_content = "{$dbase}.`{$table_prefix}site_content`";
+	$tbl_site_content = "`{$dbase}`.`{$table_prefix}site_content`";
 	
 	$pass = false;
 	if (!@ mysql_select_db($dbase, $conn))
