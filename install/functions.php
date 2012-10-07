@@ -363,9 +363,10 @@ function get_upgradeable_status()
 		
 		if ((!isset($lastInstallTime) || empty($lastInstallTime)))
 		{
-			return 0;
+			setOption('installmode', 0);
 		}
-		elseif(isset($dbase) && !empty($dbase))
+		
+		if(isset($dbase) && $dbase!=='')
 		{
 			$conn = @ mysql_connect($database_server, $database_user, $database_password);
 			if($conn) $rs   = @ mysql_select_db(trim($dbase, '`'), $conn);
