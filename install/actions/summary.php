@@ -227,7 +227,7 @@ else
     // get db info from post
     $database_server    = getOption('database_server');
     $database_user      = getOption('database_user');
-    $database_password  = getOption('database_passworddatabase_password');
+    $database_password  = getOption('database_password');
 }
 
 echo "<p>".$_lang['creating_database_connection'];
