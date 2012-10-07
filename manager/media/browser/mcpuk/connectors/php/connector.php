@@ -21,9 +21,11 @@
  */
 //Errors in the config.php could still cause problems.
 
+define('IN_MANAGER_MODE', 'true');
+define('MODX_API_MODE', true);
 $self = 'manager/media/browser/mcpuk/connectors/php/connector.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-require_once("{$base_path}manager/includes/protect.inc.php");
+require_once("{$base_path}index.php");
 
 global $fckphp_config;
 require_once "config.php";

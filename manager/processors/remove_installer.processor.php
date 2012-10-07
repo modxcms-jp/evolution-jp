@@ -11,6 +11,7 @@
  *
  */
 define('MODX_API_MODE', true);
+define('IN_MANAGER_MODE', 'true');
 $base_path = str_replace('\\','/',realpath('../../')) . '/';
 include_once("{$base_path}index.php");
 

@@ -46,6 +46,7 @@ $managerlanguage = getOption('install_language');
 
 // get base path and url
 define('MODX_API_MODE', true);
+define('IN_MANAGER_MODE', true);
 require_once("{$base_path}manager/includes/initialize.inc.php");
 startCMSSession();
 $database_type = 'mysql';
