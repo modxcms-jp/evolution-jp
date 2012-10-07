@@ -12,7 +12,8 @@
  */
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
-$base_path = str_replace('\\','/',realpath('../../')) . '/';
+$self = 'manager/processors/remove_installer.processor.php';
+$base_path = str_replace($self,'',str_replace('\\','/',$self));
 include_once("{$base_path}index.php");
 
 $install_dir = "{$base_path}install";

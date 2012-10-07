@@ -30,8 +30,8 @@ class GetFoldersAndFiles {
 		$this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
 		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
-		$base_path = str_replace('\\','/',__FILE__);
-		$base_path = preg_replace('@manager/media/browser/mcpuk/connectors/php/Commands/GetFoldersAndFiles.php$@', '', $base_path);
+		$self = 'manager/media/browser/mcpuk/connectors/php/Commands/GetFoldersAndFiles.php';
+		$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 		if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
 		else                                                             $this->enable_imgedit = true;
 

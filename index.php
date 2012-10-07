@@ -48,7 +48,7 @@
 $mtime = explode(' ', microtime());
 $tstart = $mtime['1'] + $mtime['0'];
 $mstart = memory_get_usage();
-$base_path = str_replace('\\', '/', dirname(__FILE__)) . '/';
+$base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 
 $cache_type = 1;
 $cacheRefreshTime = 0;

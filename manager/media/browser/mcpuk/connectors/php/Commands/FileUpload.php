@@ -37,7 +37,8 @@ class FileUpload {
 		
 		define('MODX_API_MODE', true);
 		define('IN_MANAGER_MODE', 'true');
-		$base_path = str_replace('manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php','',str_replace('\\','/',__FILE__));
+		$self = 'manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php';
+		$base_path = str_replace($self,'',str_replace($self,'',str_replace('\\','/',__FILE__));
 		require_once("{$base_path}index.php");
 		if(!isset($_SESSION['mgrValidated'])) exit;
 		$modx->getSettings();

@@ -55,7 +55,7 @@ $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
-$base_path = str_replace('\\','/',realpath('../')) . '/';
+$base_path = str_replace('manager/index.php','',str_replace('\\','/',__FILE__));
 $core_path = "{$base_path}manager/includes/";
 $incPath = $core_path;
 

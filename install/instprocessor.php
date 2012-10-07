@@ -18,7 +18,8 @@ $create = false;
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
-$base_path = str_replace("\\", '/', realpath('../')) . '/';
+$self = 'install/instprocessor.php';
+$base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
 require_once("{$base_path}manager/includes/default.config.php");

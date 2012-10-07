@@ -1,5 +1,6 @@
 <?php
-$base_path = str_replace('\\','/',realpath('../../')) . '/';
+$self = 'manager/processors/login.processor.php';
+$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
