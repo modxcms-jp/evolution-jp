@@ -38,6 +38,7 @@ else
 	$database_connection_method = modx_escape($database_connection_method);
 	$tbl_site_content = "{$dbase}.`{$table_prefix}site_content`";
 	
+	$pass = false;
 	if (!@ mysql_select_db($dbase, $conn))
 	{
 		// create database
@@ -48,15 +49,26 @@ else
 		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET 'utf8' COLLATE {$database_collation}";
 		
 		if(!@ mysql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
-		else                       $output .= span_pass($_lang['status_passed_database_created']);
+		else
+		{
+			$output .= span_pass($_lang['status_passed_database_created']);
+			$pass = true;
+		}
 	}
 	elseif(@ mysql_query("SELECT COUNT(id) FROM {$tbl_site_content}"))
 		$output .= span_fail($_lang['status_failed_table_prefix_already_in_use']);
 	else
+	{
 		$output .= span_pass($_lang['status_passed']);
-		
-	setOption('dbase',$dbase);
-	setOption('table_prefix',$table_prefix);
+		$pass = true;
+	}
+	if($pass === true)
+	{
+		setOption('dbase',$dbase);
+		setOption('table_prefix',$table_prefix);
+		setOption('database_collation',$database_collation);
+		setOption('database_connection_method',$database_connection_method);
+	}
 }
 
 echo $output;
