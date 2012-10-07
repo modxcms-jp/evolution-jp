@@ -85,10 +85,9 @@ if(!function_exists('startCMSSession'))
 
 function assign_base_path()
 {
-	$conf_dir = str_replace("\\", '/', realpath(dirname(__FILE__)));
-	$mgr_pos = strlen($conf_dir) - strlen('manager/includes');
-	$base_path = substr($conf_dir,0,$mgr_pos);
-	return rtrim($base_path,'/') . '/';
+	$self = 'manager/includes/initialize.inc.php';
+	$base_path = str_replace($self,'',str_replace('\\', '/', __FILE__));
+	return $base_path;
 }
 
 function assign_base_url($base_path)
