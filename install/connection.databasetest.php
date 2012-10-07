@@ -4,7 +4,6 @@ session_start();
 $host = $_POST['host'];
 $uid  = $_POST['uid'];
 $pwd  = $_POST['pwd'];
-$installMode = $_POST['installMode'];
 
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
@@ -49,7 +48,7 @@ else
 		if(!@ mysql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
 		else                       $output .= span_pass($_lang['status_passed_database_created']);
 	}
-	elseif(($installMode == 0) && (@ mysql_query("SELECT COUNT(id) FROM {$tbl_site_content}")))
+	elseif(@ mysql_query("SELECT COUNT(id) FROM {$tbl_site_content}"))
 		$output .= span_fail($_lang['status_failed_table_prefix_already_in_use']);
 	else
 		$output .= span_pass($_lang['status_passed']);
