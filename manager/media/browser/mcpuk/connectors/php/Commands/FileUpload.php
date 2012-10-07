@@ -211,7 +211,7 @@ class FileUpload {
 						if ($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
 						{
 							@chmod($target,$modx->config['new_file_permissions']);
-							$disp="0";
+							$disp='0';
 						}
 						else $disp="202,'Failed to upload file, internal error...'";
 					}
@@ -220,7 +220,7 @@ class FileUpload {
 						if (rename($tmp_name,($target)))
 						{
 							@chmod($target,$modx->config['new_file_permissions']);
-							$disp="0";
+							$disp='0';
 						}
 						else $disp="202,'Failed to upload file, internal error...'";
 					}
@@ -238,6 +238,10 @@ class FileUpload {
 			}
 		}
 		
+		if(!empty($disp) && $disp!=='0' && strpos($disp,'201,')===false)
+		{
+			$modx->logEvent(0,2,$disp,'mcpuk connector');
+		}
 		header ('content-type: text/html');
 ?>
 <html>
