@@ -78,8 +78,10 @@ class FileUpload {
 		
 		if($_FILES['NewFile']['name'])
 		{
+			$filename = explode('/',str_replace("\\",'/',$_FILES['NewFile']['name']));
+			$filename = end($filename);  // (*2)
 			$filename = end(explode('/',str_replace("\\",'/',$_FILES['NewFile']['name'])));	// (*2)
-			$lastdot = strrpos($filename, '.');
+			$lastdot  = strrpos($filename, '.');
 			if($lastdot) $ext = strtolower(substr($filename,($lastdot+1)));
 		}
 		
