@@ -36,14 +36,19 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </style>
 <table class="settings" cellspacing="0" cellpadding="2">
   <tr>
+    <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
+    <td><label><input type="radio" name="generate_mode" value="direct" checked="checked"><?php echo $_lang['a83_mode_direct'];?></label>
+		<label><input type="radio" name="generate_mode" value="crawl"><?php echo $_lang['a83_mode_crawl'];?></label></td>
+  </tr>
+  <tr>
     <td class="head"><?php echo $_lang['export_site_cacheable']; ?></td>
     <td><label><input type="radio" name="includenoncache" value="1" checked="checked"><?php echo $_lang['yes'];?></label>
 		<label><input type="radio" name="includenoncache" value="0"><?php echo $_lang['no'];?></label></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php1']; ?></td>
-    <td><label><input type="radio" name="target" value="0" checked="checked"><?php echo $_lang['export_site.static.php2']; ?></label>
-		<label><input type="radio" name="target" value="1"><?php echo $_lang['export_site.static.php3']; ?></label></td>
+    <td><label><input type="radio" name="target" value="0"><?php echo $_lang['export_site.static.php2']; ?></label>
+		<label><input type="radio" name="target" value="1" checked="checked"><?php echo $_lang['export_site.static.php3']; ?></label></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
@@ -153,10 +158,7 @@ else
 			$row['alias'] = urldecode($row['alias']);
 			$alias = $row['alias'];
 		
-			if(empty($alias))
-			{
-				$filename = $prefix.$id.$suffix;
-			}
+			if(empty($alias)) $filename = "{$prefix}{$id}{$suffix}";
 			else
 			{
 				$pa = pathinfo($alias); // get path info array
@@ -164,9 +166,13 @@ else
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
-			$back_lang = $_lang;
-			$somecontent = $modx->executeParser($id);
-			$_lang = $back_lang;
+			if($_POST['generate_mode']==='direct')
+			{
+				$back_lang = $_lang;
+				$somecontent = $modx->executeParser($id);
+				$_lang = $back_lang;
+			}
+			else $somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
 			
 			if($somecontent !== false)
 			{
@@ -246,10 +252,15 @@ class EXPORT_SITE
 	{
 		global  $modx,$_lang;
 		
-		$back_lang = $_lang;
-		$src = $modx->executeParser($docid);
-		$modx->postProcess();
-		$_lang = $back_lang;
+		if($_POST['generate_mode']==='direct')
+		{
+			$back_lang = $_lang;
+			$src = $modx->executeParser($docid);
+			//$modx->postProcess();
+			$_lang = $back_lang;
+		}
+		else $somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		
 		
 		if($src !== false)
 		{
