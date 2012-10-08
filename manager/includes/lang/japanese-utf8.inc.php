@@ -1219,3 +1219,4 @@ $_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=00728
 $_lang["a83_mode_title"] = '動作モード';
 $_lang["a83_mode_direct"] = '直接生成';
 $_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
+$_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指定可)';

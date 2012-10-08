@@ -51,6 +51,10 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		<label><input type="radio" name="target" value="1" checked="checked"><?php echo $_lang['export_site.static.php3']; ?></label></td>
   </tr>
   <tr>
+    <td class="head"><?php echo $_lang['a83_ignore_ids_title']; ?></td>
+    <td><input type="text" name="ignore_ids" value="" style="width:300px;" /></td>
+  </tr>
+  <tr>
     <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
     <td><input type="text" name="repl_before" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
@@ -124,11 +128,26 @@ else
 	
 	$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 	
+	if($_POST['ignore_ids'] !== '')
+	{
+		$ignore_ids = explode(',', $_POST['ignore_ids']);
+		foreach($ignore_ids as $i=>$v)
+		{
+			$v = $modx->db->escape(trim($v));
+			$ignore_ids[$i] = "'{$v}'";
+		}
+		$ignore_ids = join(',', $ignore_ids);
+		$ignore_ids = "AND NOT id IN ({$ignore_ids})";
+	}
+	else $ignore_ids = '';
+	
+	$export->ignore_ids = $ignore_ids;
+	
 	// Support export alias path
 	
 	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
 	{
-		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache}";
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs  = $modx->db->select('count(id) as total',$tbl_site_content,$where);
 		$row = $modx->db->getRow($rs);
 		$total = $row['total'];
@@ -211,6 +230,8 @@ else
 <?php
 class EXPORT_SITE
 {
+	var $ignore_ids;
+	
 	function EXPORT_SITE()
 	{
 	}
@@ -340,10 +361,12 @@ class EXPORT_SITE
 		global $_lang;
 		global $modx;
 		
+		$ignore_ids = $this->ignore_ids;
+		
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
 		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
-		$where = "parent = {$dirid} AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache}";
+		$where = "parent = {$dirid} AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs = $modx->db->select($fields,$tbl_site_content,$where);
 		$dircontent = array();
 		while($row = $modx->db->getRow($rs))
