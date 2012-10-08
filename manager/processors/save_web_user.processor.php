@@ -195,12 +195,14 @@ switch ($_POST['mode']) {
 			</ul>
 			</div>
 			
+			<div class="section">
 			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
 			<p>
 			<?php echo sprintf($_lang['password_msg'], $newusername, $newpassword); ?>
 			</p>
+			</div>
 			</div>
 			</div>
 		<?php
@@ -354,10 +356,12 @@ switch ($_POST['mode']) {
 			</ul>
 			</div>
 			
+			<div class="section">
 			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
 				<p><?php echo sprintf($_lang["password_msg"], $newusername, $newpassword); ?></p>
+			</div>
 			</div>
 			</div>
 		<?php

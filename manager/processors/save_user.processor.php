@@ -217,17 +217,19 @@ switch ($_POST['mode']) {
 			</ul>
 			</div>
 
+			<div class="section">
 			<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
 			<p>
 			<?php
-			if($_POST['passwordgenmethod'] !== 'spec')
+			if($_POST['passwordgenmethod'] === 'g')
 				echo sprintf($_lang["password_msg"], $newusername, $newpassword);
 			else
 				echo sprintf($_lang["password_msg"], $newusername, '**************');
 			?>
 			</p>
+			</div>
 			</div>
 			</div>
 		<?php
@@ -421,12 +423,14 @@ switch ($_POST['mode']) {
 			</ul>
 			</div>
 
+			<div class="section">
 			<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
 			<p>
 			<?php echo sprintf($_lang["password_msg"], $newusername, $newpassword).(($id == $modx->getLoginUserID()) ? ' '.$_lang['user_changeddata'] : ''); ?>
 			</p>
+			</div>
 			</div>
 			</div>
 		<?php
