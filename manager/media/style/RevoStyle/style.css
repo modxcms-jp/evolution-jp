@@ -1104,9 +1104,6 @@ zoom:1;
 .settings tr {
 	width: 100% !important;
 }
-.settings td, .settings th {
-	background: transparent;
-}
 .settings th {
 	width: 200px !important;
 	text-align: left;
