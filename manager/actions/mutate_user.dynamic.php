@@ -272,13 +272,13 @@ if (is_array($evtOut))
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
 		  <tr>
-			<td colspan="3">
+			<td>
 				<span id="blocked" class="warning"><?php if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0) || $userdata['failedlogins']>3) { ?><b><?php echo $_lang['user_is_blocked']; ?></b><?php } ?></span><br />
 			</td>
 		  </tr>
 		  <?php if(!empty($userdata['id'])) { ?>
 		  <tr id="showname" style="display: <?php echo ($_GET['a']=='12' && (!isset($usernamedata['oldusername'])||$usernamedata['oldusername']==$usernamedata['username'])) ? $displayStyle : 'none';?> ">
-			<td colspan="3">
+			<td>
 				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
 			</td>
@@ -286,12 +286,10 @@ if (is_array($evtOut))
 		  <?php } ?>
 		  <tr id="editname" style="display:<?php echo $_GET['a']=='11'||(isset($usernamedata['oldusername']) && $usernamedata['oldusername']!=$usernamedata['username']) ? $displayStyle : 'none' ; ?>">
 			<th><?php echo $_lang['username']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="newusername" class="inputBox" value="<?php echo htmlspecialchars($usernamedata['username']); ?>" maxlength="100" /></td>
 		  </tr>
 		  <tr>
 			<th valign="top"><?php echo $_GET['a']=='11' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></th>
-			<td>&nbsp;</td>
 			<td><label><input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a']=="11" ? " checked disabled": "" ; ?>><input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="11" ? 1 : 0 ; ?>" /></label><br />
 				<span style="display:<?php echo $_REQUEST['a']=="11" ? "block": "none" ; ?>" id="passwordBlock">
 				<fieldset style="width:300px">
@@ -317,12 +315,10 @@ if (is_array($evtOut))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_full_name']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_email']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 			<input type="text" name="email" class="inputBox" value="<?php echo htmlspecialchars($userdata['email']); ?>" />
 			<input type="hidden" name="oldemail" value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail']:$userdata['email']); ?>" />
@@ -330,7 +326,6 @@ if (is_array($evtOut))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_role']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 <?php
 $tbl_user_roles = $modx->getFullTableName('user_roles');
@@ -387,32 +382,26 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_phone']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_mobile']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" /></td>
 		  </tr>		  
 		  <tr>	  
 			<th><?php echo $_lang['user_fax']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_state']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_zip']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_country']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 			<select size="1" name="country">
             <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
@@ -428,7 +417,6 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_dob']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
 				<a onclick="document.userform.dob.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
@@ -436,7 +424,6 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_gender']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><select name="gender">
 				<option value=""></option>
 				<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
@@ -446,7 +433,6 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 				<textarea type="text" name="comment" class="inputBox"  rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
 			</td>
@@ -454,7 +440,6 @@ while ($row = $modx->db->getRow($rs))
 		<?php if($_GET['a']=='12') { ?>
 		  <tr>
 			<th><?php echo $_lang['user_logincount']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
 		  <?php
@@ -466,22 +451,20 @@ while ($row = $modx->db->getRow($rs))
 		  ?>
 		  <tr>
 			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><?php echo $lastlogin ?></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
-			<td>&nbsp;<input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>"></td>
-			<td><span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
+			<td>
+			<input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>">
+			<span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_block']; ?>:</th>
-			<td>&nbsp;</td>
 			<td><label><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)) ? " checked": "" ; ?>><input type="hidden" name="blocked" value="<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0))?1:0; ?>"></label></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_blockeduntil']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
 				<a onclick="document.userform.blockeduntil.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
@@ -489,7 +472,6 @@ while ($row = $modx->db->getRow($rs))
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_blockedafter']; ?>:</th>
-			<td>&nbsp;</td>
 			<td>
 				<input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
 				<a onclick="document.userform.blockedafter.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
@@ -556,13 +538,13 @@ $dir->close();
           <tr>
             <th><?php echo $_lang["login_allowed_days"] ?></th>
             <td>
-            <label><?php echo checkbox('allowed_days[]','1',$_lang['sunday'],   strpos($usersettings['allowed_days'],'1')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','2',$_lang['monday'],   strpos($usersettings['allowed_days'],'2')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','3',$_lang['tuesday'],  strpos($usersettings['allowed_days'],'3')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','4',$_lang['wednesday'],strpos($usersettings['allowed_days'],'4')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','5',$_lang['thursday'], strpos($usersettings['allowed_days'],'5')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','6',$_lang['friday'],   strpos($usersettings['allowed_days'],'6')!==false);?></label>
-            <label><?php echo checkbox('allowed_days[]','7',$_lang['saturday'], strpos($usersettings['allowed_days'],'7')!==false);?></label>
+            <?php echo checkbox('allowed_days[]','1',$_lang['sunday'],   strpos($usersettings['allowed_days'],'1')!==false);?>
+            <?php echo checkbox('allowed_days[]','2',$_lang['monday'],   strpos($usersettings['allowed_days'],'2')!==false);?>
+            <?php echo checkbox('allowed_days[]','3',$_lang['tuesday'],  strpos($usersettings['allowed_days'],'3')!==false);?>
+            <?php echo checkbox('allowed_days[]','4',$_lang['wednesday'],strpos($usersettings['allowed_days'],'4')!==false);?>
+            <?php echo checkbox('allowed_days[]','5',$_lang['thursday'], strpos($usersettings['allowed_days'],'5')!==false);?>
+            <?php echo checkbox('allowed_days[]','6',$_lang['friday'],   strpos($usersettings['allowed_days'],'6')!==false);?>
+            <?php echo checkbox('allowed_days[]','7',$_lang['saturday'], strpos($usersettings['allowed_days'],'7')!==false);?>
             <div><?php echo $_lang["login_allowed_days_message"]; ?></div>
             </td>
           </tr>
