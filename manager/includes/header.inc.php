@@ -27,6 +27,9 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.powertipmin.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
+    <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
+    <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
