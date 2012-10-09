@@ -31,7 +31,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
-    <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
 		
