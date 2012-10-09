@@ -37,12 +37,6 @@ class MODxMailer extends PHPMailer
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
 		
-		// SMTP Auth for gmail. 2012.10.07 kmikage@nikujaga.info
-		$this->Host     = 'ssl://smtp.gmail.com:465';
-		$this->SMTPAuth = TRUE;
-		$this->Username = '********@gmail.com';
-		$this->Password = '********';
-		
 		switch(strtolower($modx->config['manager_language']))
 		{
 			case 'japanese-utf8':
