@@ -321,11 +321,12 @@ class PHPMailer {
    * @param string $name
    * @return void
    */
-  function AddAddress($address, $name = '') {
-    $cur = count($this->to);
-    $this->to[$cur][0] = trim($address);
-    $this->to[$cur][1] = $name;
-  }
+function AddAddress($address, $name = '')
+{
+	$cur = count($this->to);
+	$this->to[$cur][0] = trim($address);
+	$this->to[$cur][1] = $name;
+}
 
   /**
    * Adds a "Cc" address. Note: this function works
@@ -682,8 +683,9 @@ class PHPMailer {
   function AddrAppend($type, $addr) {
     $addr_str = $type . ': ';
     $addr_str .= $this->AddrFormat($addr[0]);
-    if(count($addr) > 1) {
-      for($i = 1; $i < count($addr); $i++) {
+    $total = count($addr);
+    if($total > 1) {
+      for($i = 1; $i < $total; $i++) {
         $addr_str .= ', ' . $this->AddrFormat($addr[$i]);
       }
     }

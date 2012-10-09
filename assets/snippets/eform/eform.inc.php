@@ -543,7 +543,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				//defaults to html so only test sendasText
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'report'))?false:true;
 
-				if(!$noemail) {
+				if(!$noemail)
+				{
 					if($sendirect) $to = $fields['email'];
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
@@ -559,20 +560,21 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				}
 
 				# send user a copy of the report
-				if($ccsender && $fields['email']) {
+				if($ccsender && $fields['email'])
+				{
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
 					$mail->Subject	= $subject;
 					$mail->Body		= $report;
-					AddAddressToMailer($mail,"to",$fields['email']);
+					AddAddressToMailer($mail,'to',$fields['email']);
 					AttachFilesToMailer($mail,$attachments);
 					if(!$mail->Send()) return 'CCSender: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
 				}
 
 				# send auto-respond email
 				//defaults to html so only test sendasText
-				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext'))?false:true;
+				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext')) ? false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
 					$mail->IsHTML($isHtml);
@@ -580,7 +582,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
 					$mail->Subject	= $subject;
 					$mail->Body		= $autotext;
-					AddAddressToMailer($mail,"to",$fields['email']);
+					AddAddressToMailer($mail,'to',$fields['email']);
 					if(!$mail->Send()) return 'AutoText: ' . $_lang['ef_mail_error'] . $mail->ErrorInfo;
 				}
 
@@ -594,7 +596,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					$mail->FromName	= $fromname;
 					$mail->Subject	= $subject;
 					$mail->Body		= $mobiletext;
-					AddAddressToMailer($mail,"to",$mobile);
+					AddAddressToMailer($mail,'to',$mobile);
 					$mail->Send();
 				}
 
@@ -735,16 +737,16 @@ function formMerge($docText, $docFields, $vClasses='') {
 }
 
 # Adds Addresses to Mailer
-function AddAddressToMailer(&$mail,$type,$addr){
-    $a = explode(",",$addr);
-    for($i=0;$i<count($a);$i++){
-        if(!empty($a[$i])) {
-            if ($type=="to") $mail->AddAddress($a[$i]);
-            elseif ($type=="cc") $mail->AddCC($a[$i]);
-            elseif ($type=="bcc") $mail->AddBCC($a[$i]);
-            elseif ($type=="replyto") $mail->AddReplyTo($a[$i]);
-        }
-    }
+function AddAddressToMailer(&$mail,$type,$addr)
+{
+	$a = explode(',', $addr);
+	foreach($a as $_)
+	{
+		if     ($type=='to')      $mail->AddAddress($_);
+		elseif ($type=='cc')      $mail->AddCC($_);
+		elseif ($type=='bcc')     $mail->AddBCC($_);
+		elseif ($type=='replyto') $mail->AddReplyTo($_);
+	}
 }
 
 # Attach Files to Mailer
