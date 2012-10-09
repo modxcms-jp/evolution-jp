@@ -8,36 +8,22 @@
 	 *
 	 */
 
-	require_once(dirname(__FILE__).'/protect.inc.php');
-
-	$sysMsgs = "";
-	$limit = count($SystemAlertMsgQueque);
-	for($i=0;$i<$limit;$i++) {
-		$sysMsgs .= $SystemAlertMsgQueque[$i]."<hr />";
+	$sysMsgs = '';
+	foreach($SystemAlertMsgQueque as $_) {
+		$sysMsgs .= $_.'<hr />';
 	}
 	// reset message queque
 	unset($_SESSION['SystemAlertMsgQueque']);
 	$_SESSION['SystemAlertMsgQueque'] = array();
 	$SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-	if($sysMsgs!="") {
-?>
-
-<?php // fetch the styles
-	echo '<link rel="stylesheet" type="text/css" href="'.$modx->config['base_url'].'manager/media/style/'.$manager_theme.'/style.css'.'" />';
+	if($sysMsgs!='')
+	{
 ?>
 <script type="text/javascript">
 // <![CDATA[
-window.addEvent('domready', function() {
-			var sysAlert = new Element('div').setProperties({
-				'class': 'sysAlert'
-			});
-			sysAlert.innerHTML = '<?php echo $modx->db->escape($sysMsgs);?>';
-			var boxHtml = new MooPrompt('<?php echo $_lang['sys_alert']; ?>', sysAlert, {
-				buttons: 1,
-				button1: 'Ok',
-				width: 500
-			});
+$j(function() {
+	jAlert('<?php echo $modx->db->escape($sysMsgs);?>','<?php echo $_lang['sys_alert'];?>');
 });
 // ]]>
 </script>
