@@ -4,7 +4,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <script type="text/javascript" src="media/script/tabpane.js"></script>
 <script type="text/javascript">
 	function confirmDelete() {
-		return confirm("<?php echo $_lang['confirm_delete_category'] ?>");
+		return jConfirm("<?php echo $_lang['confirm_delete_category'] ?>");
 	}
 	function deleteCategory(catid) {
 	    if (confirmDelete())
