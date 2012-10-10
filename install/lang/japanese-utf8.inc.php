@@ -103,7 +103,7 @@ $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">�
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定をアップデートできます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベースを変更した場合などにこのオプションを選択してconfig.inc.phpを更新してください。';
 $_lang["installation_upgrade_existing"] = '通常アップデート';
-$_lang["installation_upgrade_existing_note"] = '通常のアップデートはこのオプションを。コアファイル・リソースファイルの両方とデータベースをアップデートします。<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでも<a href="../manager/">バックアップマネージャー</a>でどうぞ。';
+$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでも<a href="../manager/">バックアップマネージャー</a>でどうぞ。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
@@ -203,3 +203,6 @@ $_lang['checking_if_content_writable'] = '<span class="mono">/content</span>デ�
 
 $_lang['checking_if_temp_exists'] = '<span class="mono">/temp</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_temp_writable'] = '<span class="mono">/temp</span>ディレクトリの書き込み属性: ';
+
+$_lang["welcome_message_upd_text"] = 'MODXのアップデートは簡単。インストーラの説明に従って進めてください。';
+$_lang["welcome_message_upd_welcome"] = 'MODXのアップデートを開始します。';
