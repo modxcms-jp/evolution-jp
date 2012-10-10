@@ -1,5 +1,6 @@
 <?php
-$upgradeable = get_upgradeable_status();
+$upgradeable = get_installmode();
+setOption('installmode', $upgradeable);
 ?>
 <form id="install_form" action="index.php" method="POST">
 <input type="hidden" name="action" value="connection" />

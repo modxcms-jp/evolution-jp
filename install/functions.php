@@ -353,42 +353,45 @@ function is_iis()
 	return (strpos($_SERVER['SERVER_SOFTWARE'],'IIS')) ? true : false;
 }
 
-function get_upgradeable_status()
+function get_installmode()
 {
 	global $base_path,$database_server, $database_user, $database_password,$dbase;
-	if (file_exists("{$base_path}manager/includes/config.inc.php"))
-	{
 	
+	$conf_path = "{$base_path}manager/includes/config.inc.php";
+	
+	if (!is_file($conf_path)) $installmode = 0;
+	else
+	{
 		include_once("{$base_path}manager/includes/config.inc.php");
 		
-		if ((!isset($lastInstallTime) || empty($lastInstallTime)))
-		{
-			setOption('installmode', 0);
-		}
-		
-		if(isset($dbase) && $dbase!=='')
+		if(!isset($dbase) || empty($dbase)) $installmode = 0;
+		else
 		{
 			$conn = @ mysql_connect($database_server, $database_user, $database_password);
-			if($conn) $rs   = @ mysql_select_db(trim($dbase, '`'), $conn);
-			
-			if(!$conn || !$rs) return 0;
-			else
+			if($conn && $rs)
 			{
 				setOption('database_server', $database_server);
 				setOption('database_user',$database_user);
 				setOption('database_password',$database_password);
-				setOption('database_collation','utf8_general_ci');
-				setOption('database_connection_method', $database_connection_method);
-				if(strpos($database_connection_method, '[+') !== false)
-				{
-					setOption('database_connection_method', 'SET CHARACTER SET');
-				}
-				setOption('dbase',trim($dbase,'`'));
-				setOption('table_prefix', $table_prefix);
-				return 1;
 			}
+			
+			$dbase = trim($dbase, '`');
+			if($conn) $rs = @ mysql_select_db("`{$dbase}`", $conn);
+			if($rs)
+			{
+				setOption('dbase',$dbase);
+				setOption('table_prefix', $table_prefix);
+				setOption('database_collation','utf8_general_ci');
+				setOption('database_connection_method', 'SET CHARACTER SET');
+				
+				if (!isset($lastInstallTime) || empty($lastInstallTime) || is_null($lastInstallTime))
+				{
+					$installmode = 0;
+				}
+				else $installmode = 1;
+			}
+			else $installmode = 1;
 		}
-		else return 0;
 	}
-	else return 0;
+	return $installmode;
 }
