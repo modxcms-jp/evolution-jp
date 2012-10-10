@@ -5,7 +5,7 @@ setOption('install_language', $install_language);
 $ph['lang_options']        = get_lang_options($install_language);
 $ph['_lang_begin']         = $_lang['begin'];
 $ph['_lang_btnnext_value'] = $_lang['btnnext_value'];
-echo  parse(get_src_content(),$ph);
+echo  parse(getTpl(),$ph);
 
 function get_langs()
 {
@@ -30,9 +30,10 @@ function get_lang_options($install_language)
 	return join("\n",$option);
 }
 
-function get_src_content()
+function getTpl()
 {
-	$src = <<< EOT
+	$tpl = 
+<<< EOT
 <form id="install_form" action="index.php" method="POST">
 <input type="hidden" name="action" value="mode" />
     <h2>Choose language:&nbsp;&nbsp;</h2>
@@ -45,10 +46,10 @@ function get_src_content()
 </form>
 
 <script type="text/javascript">
-	$('a.next').click(function(){
-		$('#install_form').submit();
+	\$('a.next').click(function(){
+		\$('#install_form').submit();
 	});
 </script>
 EOT;
-	return $src;
+	return $tpl;
 }
