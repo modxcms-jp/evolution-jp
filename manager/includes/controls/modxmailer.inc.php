@@ -32,7 +32,6 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
-		$this->Mailer   = $modx->config['sendmail_method'];
 		$this->From     = $modx->config['emailsender'];
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
