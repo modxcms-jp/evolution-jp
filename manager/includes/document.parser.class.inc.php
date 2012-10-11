@@ -1760,20 +1760,6 @@ class DocumentParser {
 		return $snippetObject;
 	}
 	
-	function makeFriendlyURL($pre, $suff, $path) {
-		$elements = explode('/',$path);
-		$alias    = array_pop($elements);
-		$dir      = implode('/', $elements);
-		unset($elements);
-		if((strpos($alias, '.') !== false))
-		{
-			if(isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1) $suff = ''; // jp-edition only
-		}
-		//container_suffix
-		if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
-		return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
-	}
-	
 	function setChunkCache()
 	{
 		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
@@ -3643,6 +3629,7 @@ class DocumentParser {
 	function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
     function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
     function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
+	function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
 
     /***************************************************************************************/
     /* End of API functions								       */

@@ -165,3 +165,18 @@ function getKeywords($id= 0) {
     }
     return $keywords;
 }
+
+function makeFriendlyURL($pre, $suff, $path) {
+	global $modx;
+	$elements = explode('/',$path);
+	$alias    = array_pop($elements);
+	$dir      = implode('/', $elements);
+	unset($elements);
+	if((strpos($alias, '.') !== false))
+	{
+		if(isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']==1) $suff = ''; // jp-edition only
+	}
+	//container_suffix
+	if(substr($alias,0,1) === '[' && substr($alias,-1) === ']') return '[~' . $alias . '~]';
+	return ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
+}
