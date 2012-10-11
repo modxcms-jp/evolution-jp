@@ -2538,7 +2538,6 @@ class DocumentParser {
 	function makeUrl($id, $alias= '', $args= '', $scheme= '')
 	{
 		$url= '';
-		$virtualDir= '';
 		$f_url_prefix = $this->config['friendly_url_prefix'];
 		$f_url_suffix = $this->config['friendly_url_suffix'];
 		if (!is_numeric($id))
@@ -2627,11 +2626,11 @@ class DocumentParser {
 		
 		if ($this->config['xhtml_urls'])
 		{
-			$url = preg_replace("/&(?!amp;)/",'&amp;', $host . $virtualDir . $url);
+			$url = preg_replace("/&(?!amp;)/",'&amp;', $host . $url);
 		}
 		else
 		{
-			$url = $host . $virtualDir . $url;
+			$url = $host . $url;
 		}
 		$rs = $this->invokeEvent('OnMakeUrl',
 				array(
@@ -3031,9 +3030,11 @@ class DocumentParser {
 			// get user defined template variables
 			$fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
 			$sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
-			if ($idnames == '*')
+			
+			if ($idnames == '*') $where= 'tv.id<>0';
+			elseif (preg_match('@^[0-9]+$@',$idnames[0]))
 			{
-				$where= 'tv.id<>0';
+				$where= "tv.id='{$idnames[0]}'";
 			}
 			else
 			{
