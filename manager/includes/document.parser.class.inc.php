@@ -2524,17 +2524,12 @@ class DocumentParser {
 	function makeUrl($id, $alias= '', $args= '', $scheme= '')
 	{
 		$url= '';
-		$f_url_prefix = $this->config['friendly_url_prefix'];
-		$f_url_suffix = $this->config['friendly_url_suffix'];
-		if (!is_numeric($id))
+		if (!preg_match('@^[0-9]+$@',$id))
 		{
 			$this->messageQuit("'{$id}' is not numeric and may not be passed to makeUrl()");
 		}
 		
-		if(!isset($this->referenceListing))
-		{
-			$this->_getReferenceListing();
-		}
+		if(!isset($this->referenceListing)) $this->_getReferenceListing();
 		
 		if(isset($this->referenceListing[$id]))
 		{
@@ -2568,6 +2563,8 @@ class DocumentParser {
 		}
 		if ($this->config['friendly_urls'] == 1)
 		{
+			$f_url_prefix = $this->config['friendly_url_prefix'];
+			$f_url_suffix = $this->config['friendly_url_suffix'];
 			$alPath = '';
 			if(empty($alias))
 			{
@@ -2586,9 +2583,6 @@ class DocumentParser {
 			{
 				$f_url_suffix = ''; // jp-edition only
 			}
-		}
-		if ($this->config['friendly_urls'] == 1)
-		{
 			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix . $args;
 		}
 		else
@@ -3627,8 +3621,8 @@ class DocumentParser {
 	function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
     function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
 	function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-    function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-    function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
+	function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
+	function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
 	function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
 
     /***************************************************************************************/
