@@ -2610,9 +2610,9 @@ class DocumentParser {
 			$url= "index.php?id={$id}{$args}";
 		}
 		
-		$host= $this->config['base_url'];
+		$host = ($scheme !== 'root_rel') ? $this->config['base_url'] : '';
 		// check if scheme argument has been set
-		if ($scheme != '')
+		if ($scheme !== '' && $scheme !== 'root_rel')
 		{
 			// for backward compatibility - check if the desired scheme is different than the current scheme
 			if (is_numeric($scheme) && $scheme != $_SERVER['HTTPS'])
@@ -2689,7 +2689,7 @@ class DocumentParser {
 						{
 							$id = $this->referenceListing[$id];
 						}
-							$path = $this->makeFriendlyURL($prefix, $suffix, $aliases[$id]);
+							$path = $this->makeUrl($id,'','','root_rel');
 					}
 					else
 					{
