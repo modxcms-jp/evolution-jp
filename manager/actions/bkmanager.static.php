@@ -96,7 +96,8 @@ elseif ($mode=='snapshot')
 		echo $modx->parsePlaceholder($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
 		exit;
 	}
-	$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
+	$escaped_table_prefix = str_replace('_', '\\_', $table_prefix);
+	$sql = "SHOW TABLE STATUS FROM {$dbase} LIKE '{$escaped_table_prefix}%'";
 	$rs = $modx->db->query($sql);
 	$tables = array();
 	if(0<$modx->db->getRecordCount($rs))
@@ -208,16 +209,17 @@ else $ph['result_msg'] = '';
 	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
 			<td width="160"><label><input type="checkbox" name="chkselall" onclick="selectAll()" title="Select All Tables" /><b><?php echo $_lang['database_table_tablename']?></b></label></td>
-			<td width="40" align="right"><b><?php echo $_lang['database_table_records']?></b></td>
-			<td width="120" align="right"><b><?php echo $_lang['database_table_datasize']?></b></td>
-			<td width="120" align="right"><b><?php echo $_lang['database_table_overhead']?></b></td>
-			<td width="120" align="right"><b><?php echo $_lang['database_table_effectivesize']?></b></td>
-			<td width="120" align="right"><b><?php echo $_lang['database_table_indexsize']?></b></td>
-			<td width="120" align="right"><b><?php echo $_lang['database_table_totalsize']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_records']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_collation']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_datasize']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_overhead']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_effectivesize']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_indexsize']?></b></td>
+			<td align="right"><b><?php echo $_lang['database_table_totalsize']?></b></td>
 		</tr></thead>
 		<tbody>
 			<?php
-$sql = 'SHOW TABLE STATUS FROM '.$dbase. ' LIKE \'' . str_replace('_', '\\_', $table_prefix) . '%\'';
+$sql = "SHOW TABLE STATUS FROM {$dbase} LIKE '$table_prefix%'";
 $rs = $modx->db->query($sql);
 $limit = $modx->db->getRecordCount($rs);
 for ($i = 0; $i < $limit; $i++) {
@@ -231,6 +233,7 @@ for ($i = 0; $i < $limit; $i++) {
 	echo '<tr bgcolor="'.$bgcolor.'" title="'.$db_status['Comment'].'" style="cursor:default">'."\n".
 	     "\t\t\t\t".'<td><label><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></label></td>'."\n".
 	     "\t\t\t\t".'<td align="right">'.$db_status['Rows'].'</td>'."\n";
+	echo '<td align="right">'.$db_status['Collation'].'</td>'."\n";
 
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
 	$truncateable = array(
@@ -265,7 +268,7 @@ for ($i = 0; $i < $limit; $i++) {
 ?>
 			<tr bgcolor="#CCCCCC">
 				<td valign="top"><b><?php echo $_lang['database_table_totals']?></b></td>
-				<td colspan="2">&nbsp;</td>
+				<td colspan="3">&nbsp;</td>
 				<td dir="ltr" align="right" valign="top"><?php echo $totaloverhead>0 ? '<b style="color:#990033">'.$modx->nicesize($totaloverhead).'</b><br />('.number_format($totaloverhead).' B)' : '-'?></td>
 				<td colspan="2">&nbsp;</td>
 				<td dir="ltr" align="right" valign="top"><?php echo "<b>".$modx->nicesize($total)."</b><br />(".number_format($total)." B)"?></td>
