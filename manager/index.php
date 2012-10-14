@@ -72,7 +72,7 @@ define('IN_ETOMITE_SYSTEM', 'true'); // for backward compatibility with 0.6
 $config_path = "{$core_path}config.inc.php";
 if (!file_exists($config_path)) {
     echo "<h3>Unable to load configuration settings</h3>";
-    echo "Please run the MODx <a href='../install/'>install utility</a>";
+    echo "Please run the MODX <a href='../install/'>install utility</a>";
     exit;
 }
 

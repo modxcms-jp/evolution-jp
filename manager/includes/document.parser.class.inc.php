@@ -2964,10 +2964,10 @@ class DocumentParser {
 		else
 		{
 			$result= array ();
-			for ($i= 0; $i < count($docs); $i++)
+			foreach($docs as $doc)
 			{
-				$tvs= $this->getTemplateVarOutput($tvidnames, $docs[$i]["id"], $published);
-				if ($tvs) $result[$docs[$i]['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+				$tvs= $this->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
+				if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
 			}
 			return $result;
 		}
@@ -3024,7 +3024,7 @@ class DocumentParser {
 					$idnames[$i] = "'" . $this->db->escape($idname) . "'";
 					$i++;
 				}
-				$tvnames = implode(',', $idnames);
+				$tvnames = "'" . join("','", $idnames) . "'";
 				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
 			}
 			if ($docgrp= $this->getUserDocGroups())
@@ -3034,11 +3034,11 @@ class DocumentParser {
 			$tbl_site_tmplvars              = $this->getFullTableName('site_tmplvars');
 			$tbl_site_tmplvar_templates     = $this->getFullTableName('site_tmplvar_templates');
 			$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
-			$fields= "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-			$from  = "{$tbl_site_tmplvars} tv";
-			$from .= " INNER JOIN {$tbl_site_tmplvar_templates} tvtpl  ON tvtpl.tmplvarid = tv.id";
-			$from .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
-			$where = "{$where} AND tvtpl.templateid={$resource['template']}";
+			$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+			$from    = "{$tbl_site_tmplvars} tv";
+			$from   .= " INNER JOIN {$tbl_site_tmplvar_templates} tvtpl  ON tvtpl.tmplvarid = tv.id";
+			$from   .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
+			$where  = "{$where} AND tvtpl.templateid={$resource['template']}";
 			if ($sort)
 			{
 				 $orderby = "{$sort} {$dir}";
@@ -3499,7 +3499,7 @@ class DocumentParser {
 	# invoke an event. $extParams - hash array: name=>value
 	function invokeEvent($evtName, $extParams= array ())
 	{
-		if ($this->safeMode == true)               return false;
+		if (!empty($this->safeMode))               return false;
 		if (!$evtName)                             return false;
 		if (!isset ($this->pluginEvent[$evtName])) return false;
 		
