@@ -43,22 +43,22 @@ $editablefiles       = add_dot($editablefiles);
 $inlineviewablefiles = add_dot($inlineviewablefiles);
 $viewablefiles       = add_dot($viewablefiles);
 
-$proteted_path[] = $modx->config['base_path'] . 'manager';
-$proteted_path[] = $modx->config['base_path'] . 'temp/backup';
-$proteted_path[] = $modx->config['base_path'] . 'assets/backup';
-
-if(!$modx->hasPermission('save_plugin'))   $proteted_path[] = $modx->config['base_path'] . 'assets/plugins';
-if(!$modx->hasPermission('save_snippet'))  $proteted_path[] = $modx->config['base_path'] . 'assets/snippets';
-if(!$modx->hasPermission('save_template')) $proteted_path[] = $modx->config['base_path'] . 'assets/templates';
-if(!$modx->hasPermission('save_module'))   $proteted_path[] = $modx->config['base_path'] . 'assets/modules';
-if(!$modx->hasPermission('empty_cache'))   $proteted_path[] = $modx->config['base_path'] . 'assets/cache';
-if(!$modx->hasPermission('import_static')) {
-	$proteted_path[] = $modx->config['base_path'] . 'temp/import';
-	$proteted_path[] = $modx->config['base_path'] . 'assets/import';
-}
-if(!$modx->hasPermission('export_static')) {
-	$proteted_path[] = $modx->config['base_path'] . 'temp/export';
-	$proteted_path[] = $modx->config['base_path'] . 'assets/export';
+$proteted_path = array();
+if($_SESSION['mgrRole']!=1)
+{
+	if(!$modx->hasPermission('save_plugin'))   $proteted_path[] = $modx->config['base_path'] . 'assets/plugins';
+	if(!$modx->hasPermission('save_snippet'))  $proteted_path[] = $modx->config['base_path'] . 'assets/snippets';
+	if(!$modx->hasPermission('save_template')) $proteted_path[] = $modx->config['base_path'] . 'assets/templates';
+	if(!$modx->hasPermission('save_module'))   $proteted_path[] = $modx->config['base_path'] . 'assets/modules';
+	if(!$modx->hasPermission('empty_cache'))   $proteted_path[] = $modx->config['base_path'] . 'assets/cache';
+	if(!$modx->hasPermission('import_static')) {
+		$proteted_path[] = $modx->config['base_path'] . 'temp/import';
+		$proteted_path[] = $modx->config['base_path'] . 'assets/import';
+	}
+	if(!$modx->hasPermission('export_static')) {
+		$proteted_path[] = $modx->config['base_path'] . 'temp/export';
+		$proteted_path[] = $modx->config['base_path'] . 'assets/export';
+	}
 }
 
 // Mod added by Raymond
