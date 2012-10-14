@@ -463,10 +463,10 @@ function ls($curpath)
 		echo 'Invalid path "',$curpath,'"<br />';
 		return;
 	}
-	$dir = dir($curpath);
+	$dir = scandir($curpath);
 
 	// first, get info
-	while ($file = $dir->read())
+	foreach ($dir as $file)
 	{
 		$newpath = $curpath.$file;
 		if($file==='..'||$file==='.') continue;
@@ -520,7 +520,6 @@ function ls($curpath)
 			$filecounter++;
 		}
 	}
-	$dir->close();
 
 	// dump array entries for directories
 	$folders = count($dirs_array);

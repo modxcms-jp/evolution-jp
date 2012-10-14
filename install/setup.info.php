@@ -40,11 +40,11 @@ $rt = @ mysql_select_db(trim($dbase, '`'), $conn);
 $mt = &$moduleTemplates;
 if(is_dir($templatePath) && is_readable($templatePath))
 {
-	$d = dir($templatePath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$templatePath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl') continue;
-		$params = parse_docblock($templatePath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
@@ -64,18 +64,17 @@ if(is_dir($templatePath) && is_readable($templatePath))
 			);
 		}
 	}
-	$d->close();
 }
 
 // setup Template Variable template files
 $mtv = &$moduleTVs;
 if(is_dir($tvPath) && is_readable($tvPath))
 {
-	$d = dir($tvPath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$tvPath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl') continue;
-		$params = parse_docblock($tvPath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
@@ -97,21 +96,17 @@ if(is_dir($tvPath) && is_readable($tvPath))
 				);
 		}
 	}
-	$d->close();
 }
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
 $mc = &$moduleChunks;
 if(is_dir($chunkPath) && is_readable($chunkPath))
 {
-	$d = dir($chunkPath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$chunkPath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl')
-		{
-			continue;
-		}
-		$params = parse_docblock($chunkPath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
 		
@@ -127,21 +122,17 @@ if(is_dir($chunkPath) && is_readable($chunkPath))
 			);
 		}
 	}
-	$d->close();
 }
 
 // setup snippets template files - array : name, description, type - 0:file or 1:content, file or content,properties
 $ms = &$moduleSnippets;
 if(is_dir($snippetPath) && is_readable($snippetPath))
 {
-	$d = dir($snippetPath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$snippetPath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl')
-		{
-			continue;
-		}
-		$params = parse_docblock($snippetPath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
@@ -158,21 +149,17 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 			);
 		}
 	}
-	$d->close();
 }
 
 // setup plugins template files - array : name, description, type - 0:file or 1:content, file or content,properties
 $mp = &$modulePlugins;
 if(is_dir($pluginPath) && is_readable($pluginPath))
 {
-	$d = dir($pluginPath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$pluginPath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl')
-		{
-			continue;
-		}
-		$params = parse_docblock($pluginPath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && 0 < count($params))
 		{
 		
@@ -194,21 +181,17 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 			);
 		}
 	}
-	$d->close();
 }
 
 // setup modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid,enable_sharedparams
 $mm = &$moduleModules;
 if(is_dir($modulePath) && is_readable($modulePath))
 {
-	$d = dir($modulePath);
-	while (false !== ($tplfile = $d->read()))
+	$files = glob("{$modulePath}/*.tpl");
+	natcasesort($files);
+	foreach ($files as $tplfile)
 	{
-		if(substr($tplfile, -4) != '.tpl')
-		{
-			continue;
-		}
-		$params = parse_docblock($modulePath, $tplfile);
+		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
@@ -227,7 +210,6 @@ if(is_dir($modulePath) && is_readable($modulePath))
 			);
 		}
 	}
-	$d->close();
 }
 
 // setup callback function

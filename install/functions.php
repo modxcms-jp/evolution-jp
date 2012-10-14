@@ -131,10 +131,9 @@ if($params['category']=='chunk')
 	return $result;
 }
 
-function parse_docblock($element_dir, $filename)
+function parse_docblock($fullpath)
 {
 	$params = array();
-	$fullpath = $element_dir . '/' . $filename;
 	if(is_readable($fullpath))
 	{
 		$tpl = @fopen($fullpath, 'r');
