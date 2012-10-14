@@ -59,7 +59,7 @@ if (!function_exists('modx_sanitize_gpc'))
 modx_sanitize_gpc($_GET);
 if (!defined('IN_MANAGER_MODE') || (defined('IN_MANAGER_MODE') && (!IN_MANAGER_MODE || IN_MANAGER_MODE == 'false')))
 {
-    modx_sanitize_gpc($_POST);
+    if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) modx_sanitize_gpc($_POST);
 }
 modx_sanitize_gpc($_COOKIE);
 modx_sanitize_gpc($_REQUEST);
