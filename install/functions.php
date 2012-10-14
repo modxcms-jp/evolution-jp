@@ -375,7 +375,7 @@ function get_installmode()
 			}
 			
 			$dbase = trim($dbase, '`');
-			if($conn) $rs = @ mysql_select_db("`{$dbase}`", $conn);
+			if($conn) $rs = @ mysql_select_db($dbase, $conn);
 			if($rs)
 			{
 				setOption('dbase',$dbase);
