@@ -260,7 +260,7 @@ if ($_REQUEST['a'] == '16')
 <?php
 	if($modx->hasPermission('save_template') && $total > 1)
 	{
-		echo '<li><a href="index.php?a=117&amp;id=' . $_REQUEST['id'] . '">' . $_lang['template_tv_edit'] . '</a></li>';
+		echo '<li><a href="index.php?a=117&amp;id=' . $_REQUEST['id'] . '"><img src="' . $_style['sort'] . '" />' . $_lang['template_tv_edit'] . '</a></li>';
 	}
 ?>
 		</ul>

@@ -97,6 +97,7 @@ $_style['icons_unpublish_resource'] = $style_path.'icons/clock_stop.png';
 $_style['icons_user']               = $style_path.'icons/vcard.png';
 $_style['icons_weblink']            = $style_path.'icons/world_link.png';
 $_style['icons_working']            = $style_path.'icons/exclamation.png'; // top bar
+$_style['sort']                     = $style_path.'icons/sort.png';
 
 // Tabs
 $_style['icons_tab_preview']        = $style_path.'icons/preview.gif';

@@ -96,7 +96,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 		<ul class="actionButtons">
 			<li><a href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?></a></li>
-			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
+			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><img src="<?php echo $_style["sort"] ?>" /> <?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
 		</ul>
 		<?php echo createResourceList('site_plugins',102); ?>
 	</div>
