@@ -88,7 +88,12 @@ set_include_path(get_include_path() . PATH_SEPARATOR . rtrim($core_path,'/'));
 // initiate the content manager class
 include_once "{$core_path}document.parser.class.inc.php";
 $modx = new DocumentParser;
-// $modx->safeMode = true;
+// $modx->safeMode = 1;
+if($_SESSION['safeMode']==1 && $_SESSION['mgrRole']==1)
+{
+	$modx->safeMode = 1;
+}
+
 $etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
