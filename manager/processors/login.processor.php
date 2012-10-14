@@ -277,7 +277,7 @@ $modx->invokeEvent("OnManagerLogin",
                         ));
 
 // check if we should redirect user to a web page
-$id = $modx->db->getValue($modx->db->select('setting_value',$tbl_user_settings,"user='$internalKey' AND setting_name='manager_login_startup'"));
+$id = $modx->db->getValue($modx->db->select('setting_value',$tbl_user_settings,"user='{$internalKey}' AND setting_name='manager_login_startup'"));
 if(isset($id) && $id>0) {
     $header = 'Location: '.$modx->makeUrl($id,'','','full');
     if($_POST['ajax']==1) echo $header;
@@ -291,10 +291,13 @@ else {
 
 // show javascript alert
 function jsAlert($msg){
-	global $modx;
-    if($_POST['ajax']==1) echo "{$msg}\n";
+	global $modx, $modx_manager_charset;
+	header('Content-Type: text/html; charset='.$modx_manager_charset);
+    if($_POST['ajax']==1) echo $msg;
     else {
-    	$msg = addslashes($modx->db->escape($msg));
-        echo "<script>window.setTimeout(\"alert('{$msg}')\",10);history.go(-1)</script>";
+    	$msg = $modx->db->escape($msg);
+        echo "<script>alert('{$msg}');";
+        echo "history.go(-1);";
+        echo "</script>";
     }
 }

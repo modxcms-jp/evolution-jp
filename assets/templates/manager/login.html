@@ -61,6 +61,8 @@
     </style>
 
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
+    <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
 
     <script type="text/javascript">
     /* <![CDATA[ */
@@ -76,7 +78,18 @@
 				var password = $j('#password').val();
 				var rememberme = $j('#rememberme').val();
 				params = {'username':username,'password':password,'rememberme':rememberme,'ajax':'1'};
-                $j.post('processors/login.processor.php',params,ajaxReturn);
+				$j.post('processors/login.processor.php',params,function(response){
+					var header = response.substr(0,9);
+					if (header.toLowerCase()=='location:') top.location = response.substr(10);
+					else {
+					var cimg = document.getElementById('captcha_image');
+					if (cimg) {
+					cimg.src = '../captcha.php?rand=' + Math.random();
+					}
+					jAlert(response);
+					}
+				
+				});
             });  
 			
 			// Initial focus
@@ -84,18 +97,6 @@
 			else                             $j('#username').focus();
 			
         });
-
-        function ajaxReturn(response) {
-            var header = response.substr(0,9);
-            if (header.toLowerCase()=='location:') top.location = response.substr(10);
-            else {
-                var cimg = document.getElementById('captcha_image');
-                if (cimg) {
-                	cimg.src = '../captcha.php?rand=' + Math.random();
-                }
-                alert(response);
-            }
-        }
     /* ]]> */
     </script>
 </head>
@@ -116,7 +117,7 @@
             <div>[+captcha_image+]</div>
             [+captcha_input+]
             <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox" [+remember_me+] /><label for="rememberme" style="cursor:pointer;display:inline;">[+remember_username+]</label>
-            <input type="submit" class="login" id="submitButton" value="[+login_button+]" />
+            <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]" />
             <!-- anything to output before the login box via a plugin ... like the forgot password link? -->
             [+OnManagerLoginFormRender+]
         </div>
