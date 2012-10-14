@@ -46,6 +46,13 @@ $viewablefiles       = add_dot($viewablefiles);
 $proteted_path = array();
 if($_SESSION['mgrRole']!=1)
 {
+	if(!$modx->hasPermission('save_parser'))
+	{
+		$proteted_path[] = $modx->config['base_path'] . 'manager';
+		$proteted_path[] = $modx->config['base_path'] . 'temp/backup';
+		$proteted_path[] = $modx->config['base_path'] . 'assets/backup';
+	}
+	
 	if(!$modx->hasPermission('save_plugin'))   $proteted_path[] = $modx->config['base_path'] . 'assets/plugins';
 	if(!$modx->hasPermission('save_snippet'))  $proteted_path[] = $modx->config['base_path'] . 'assets/snippets';
 	if(!$modx->hasPermission('save_template')) $proteted_path[] = $modx->config['base_path'] . 'assets/templates';
