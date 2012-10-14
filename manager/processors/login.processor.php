@@ -18,10 +18,10 @@ $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 $modx->loadExtension('ManagerAPI');
 $modx->getSettings();
 
-$username = $modx->db->escape($_REQUEST['username']);
-$givenPassword = $modx->db->escape($_REQUEST['password']);
-$captcha_code = $_REQUEST['captcha_code'];
-$rememberme= $_REQUEST['rememberme'];
+$username       = $modx->db->escape($_REQUEST['username']);
+$givenPassword  = $modx->db->escape($_REQUEST['password']);
+$captcha_code   = (isset($_REQUEST['captcha_code'])) ? $_REQUEST['captcha_code'] : '';
+$rememberme     = (isset($_REQUEST['rememberme']))   ? $_REQUEST['rememberme']   : '';
 $failed_allowed = $modx->config['failed_login_attempts'];
 
 $tbl_user_settings   = $modx->getFullTableName('user_settings');
