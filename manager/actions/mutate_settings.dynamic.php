@@ -48,17 +48,16 @@ $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
 
 // load languages and keys
 $lang_keys = array();
-$dir = dir('includes/lang');
-while ($file = $dir->read())
+$dir = scandir("{$base_path}manager/includes/lang");
+foreach ($dir as $file)
 {
 	if(strpos($file, ".inc.php")>0)
 	{
-		$endpos = strpos ($file, ".");
+		$endpos = strpos ($file, '.inc');
 		$languagename = substr($file, 0, $endpos);
 		$lang_keys[$languagename] = get_lang_keys($file);
 	}
 }
-$dir->close();
 
 $isDefaultUnavailableMsg = $site_unavailable_message == $_lang['siteunavailable_message_default'];
 $isDefaultUnavailableMsgJs = $isDefaultUnavailableMsg ? 'true' : 'false';
@@ -783,17 +782,16 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["manager_theme"]?></th>
 <td><select name="manager_theme" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
-$dir = dir("media/style/");
-while ($file = $dir->read())
+$dir = scandir("{$base_path}manager/media/style");
+foreach($dir as $file)
 {
-	if($file!="." && $file!=".." && is_dir("media/style/$file") && substr($file,0,1) != '.')
+	if($file!="." && $file!=".." && is_dir("{$base_path}manager/media/style/{$file}") && substr($file,0,1) != '.')
 	{
 		$themename = $file;
 		$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
 		echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
 	}
 }
-$dir->close();
 ?>
 </select><br />
 <input type="hidden" name="theme_refresher" value="" />
