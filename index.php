@@ -103,7 +103,6 @@ if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
 // harden it
-require_once("{$base_path}manager/includes/protect.inc.php");
 require_once("{$base_path}manager/includes/initialize.inc.php");
 // get the required includes
 if (!isset($database_type)) {
@@ -118,7 +117,8 @@ if (!isset($database_type)) {
 }
 
 set_parser_mode();
-startCMSSession();
+if (session_id() === '') startCMSSession();
+require_once("{$base_path}manager/includes/protect.inc.php");
 
 // initiate a new document parser
 include_once(MODX_MANAGER_PATH . 'includes/document.parser.class.inc.php');
