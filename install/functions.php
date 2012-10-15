@@ -367,7 +367,7 @@ function get_installmode()
 		else
 		{
 			$conn = @ mysql_connect($database_server, $database_user, $database_password);
-			if($conn && $rs)
+			if($conn)
 			{
 				setOption('database_server', $database_server);
 				setOption('database_user',$database_user);
