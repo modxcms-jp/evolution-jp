@@ -3,7 +3,12 @@ if(isset($_POST['installmode'])) setOption('installmode',$_POST['installmode']);
 $installmode = getOption('installmode');
 
 if(isset($_POST['cmsadmin']))           setOption('cmsadmin',$_POST['cmsadmin']);
-if(isset($_POST['cmsadminemail']))      setOption('cmsadminemail',$_POST['cmsadminemail']);
+if(isset($_POST['cmsadminemail'])&&!empty($_POST['cmsadminemail']))
+{
+	setOption('cmsadminemail',$_POST['cmsadminemail']);
+}
+	else setOption('cmsadminemail','myname@example.com');
+	
 if(isset($_POST['cmspassword']))        setOption('cmspassword',$_POST['cmspassword']);
 if(isset($_POST['cmspasswordconfirm'])) setOption('cmspasswordconfirm',$_POST['cmspasswordconfirm']);
 
