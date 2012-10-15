@@ -28,7 +28,6 @@ if(substr($username,-9)===':safemode')
 {
 	$_SESSION['safeMode'] = 1;
 	$username = substr($username,0,-9);
-	echo $username;
 }
 
 $tbl_user_settings   = $modx->getFullTableName('user_settings');
