@@ -57,7 +57,7 @@ if(is_dir($templatePath) && is_readable($templatePath))
 				$description,
 				// Don't think this is gonna be used ... but adding it just in case 'type'
 				$params['type'],
-				"$templatePath/{$params['filename']}",
+				$tplfile,
 				$params['modx_category'],
 				$params['lock_template'],
 				array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
@@ -88,7 +88,7 @@ if(is_dir($tvPath) && is_readable($tvPath))
 					$params['input_default'],
 					$params['output_widget'],
 					$params['output_widget_params'],
-					"$templatePath/{$params['filename']}", /* not currently used */
+					$tplfile, /* not currently used */
 					$params['template_assignments'], /* comma-separated list of template names */
 					$params['modx_category'],
 					$params['lock_tv'],  /* value should be 1 or 0 */
@@ -115,7 +115,7 @@ if(is_dir($chunkPath) && is_readable($chunkPath))
 			$mc[] = array(
 			    $params['name'],
 			    $params['description'],
-			    "$chunkPath/{$params['filename']}",
+			    $tplfile,
 			    $params['modx_category'],
 			    array_key_exists('overwrite', $params) ? $params['overwrite'] : 'true',
 			    array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
@@ -142,7 +142,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 			$ms[] = array(
 			    $params['name'],
 			    $description,
-			    "$snippetPath/{$params['filename']}",
+			    $tplfile,
 			    $params['properties'],
 			    $params['modx_category'],
 			    array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
@@ -171,7 +171,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 			$mp[] = array(
 				$params['name'],
 				$description,
-				"$pluginPath/{$params['filename']}",
+				$tplfile,
 				$params['properties'],
 				$params['events'],
 				$params['guid'],
@@ -201,7 +201,7 @@ if(is_dir($modulePath) && is_readable($modulePath))
 			$mm[] = array(
 			    $params['name'],
 			    $description,
-			    "$modulePath/{$params['filename']}",
+			    $tplfile,
 			    $params['properties'],
 			    $params['guid'],
 			    intval($params['shareparams']),
