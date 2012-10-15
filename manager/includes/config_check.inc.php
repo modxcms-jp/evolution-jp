@@ -8,7 +8,7 @@ if (is_writable('includes/config.inc.php')){
     }
 }
 
-if (file_exists("../install/"))        $warnings[] = 'configcheck_installer';
+if (is_dir('../install/'))             $warnings[] = 'configcheck_installer';
 if (ini_get('register_globals')==TRUE) $warnings[] = 'configcheck_register_globals';
 if (!extension_loaded('gd'))           $warnings[] = 'configcheck_php_gdzip';
 
