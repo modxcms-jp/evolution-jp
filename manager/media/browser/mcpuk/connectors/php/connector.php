@@ -28,12 +28,12 @@ $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once("{$base_path}index.php");
 $mcpuk_path = "{$base_path}manager/media/browser/mcpuk/";
 
-file_put_contents("{$base_path}test.txt","{$base_path}index.php");
 $modx->db->connect();
 
 global $fckphp_config;
 include_once("{$mcpuk_path}connectors/php/config.php");
 
+outputHeaders();
 //These are the commands we may expect
 $valid_commands=$fckphp_config['Commands'];
 $valid_resource_types=$fckphp_config['ResourceTypes'];
@@ -84,4 +84,24 @@ else
 {
 	$modx->logEvent(0,3,'Invalid command.(No reason for me to be here)');
 	exit(0);
+}
+
+function outputHeaders() {
+
+	//Anti browser caching headers
+	//Borrowed from fatboy's implementation  (fatFCK@code247.com)
+	
+	// ensure file is never cached
+	// Date in the past
+	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+	
+	// always modified
+	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+	
+	// HTTP/1.1
+	header("Cache-Control: no-store, no-cache, must-revalidate");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	
+	// HTTP/1.0
+	header("Pragma: no-cache");
 }
