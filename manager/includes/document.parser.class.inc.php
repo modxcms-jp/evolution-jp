@@ -3021,7 +3021,7 @@ class DocumentParser {
 				$i = 0;
 				foreach($idnames as $idname)
 				{
-					$idnames[$i] = "'" . $this->db->escape($idname) . "'";
+					$idnames[$i] = $this->db->escape(trim($idname));
 					$i++;
 				}
 				$tvnames = "'" . join("','", $idnames) . "'";
