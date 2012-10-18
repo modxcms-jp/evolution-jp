@@ -131,6 +131,14 @@ class ManagerAPI {
 	{
 		global $modx,$image_limit_width;
 		
+		$target_path = str_replace('\\','/', $target_path);
+		
+		if(strpos($modx['filemanager_path'], $target_path)!==0)
+		{
+			$msg = "Can't upload to '{$target_path}'.";
+			$modx->logEvent(1,3,$msg,'move_uploaded_file');
+		}
+		
 		if(isset($modx->config['image_limit_width']))
 			$image_limit_width = $modx->config['image_limit_width'];
 		else $image_limit_width = '';
