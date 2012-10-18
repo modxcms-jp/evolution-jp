@@ -16,7 +16,7 @@ class DBAPI {
 	* @name:  DBAPI
 	*
 	*/
-	function DBAPI($host='',$dbase='', $uid='',$pwd='',$prefix=NULL,$charset='',$connection_method='SET CHARACTER SET')
+	function DBAPI($host='',$dbase='', $uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET')
 	{
 		global $database_server,$dbase,$database_user,$database_password,$table_prefix,$database_connection_charset,$database_connection_method;
 		
@@ -25,7 +25,7 @@ class DBAPI {
 		$this->config['user']    = $uid     ? $uid     : $database_user;
 		$this->config['pass']    = $pwd     ? $pwd     : $database_password;
 		$this->config['charset'] = $charset ? $charset : $database_connection_charset;
-		$this->config['connection_method'] = (isset($database_connection_method) ? $database_connection_method : $connection_method);
+		$this->config['connection_method'] = (isset($database_connection_method) ? $database_connection_method : 'SET CHARACTER SET');
 		$this->_dbconnectionmethod = &$this->config['connection_method'];
 		$this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
 		$this->initDataTypes();
