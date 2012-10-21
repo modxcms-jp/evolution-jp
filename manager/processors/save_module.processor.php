@@ -87,9 +87,9 @@ switch ($_POST['mode']) {
 		$f = compact('name','description','icon','enable_resource','resourcefile',
 		             'disabled','wrap','locked','category','enable_sharedparams',
 		             'guid','modulecode','properties','editedon','createdon');
-		$rs = $modx->db->insert($f,$tbl_site_modules);
-		if(!$rs){
-			echo "\$rs not set! New module not saved!";
+		$newid = $modx->db->insert($f,$tbl_site_modules);
+		if(!$newid){
+			echo "\$newid not set! New module not saved!";
 			exit;
 		}
 		else
