@@ -207,7 +207,7 @@ $config_path = "{$base_path}manager/includes/config.inc.php";
 if (!is_file($config_path))
 {
 	// make an attempt to create the file
-	file_put_contents($config_path,'<?php //MODx configuration file ?>');
+	file_put_contents($config_path,'<?php //MODX configuration file ?>');
 }
 @chmod($config_path, 0606);
 $isWriteable = is_writable($config_path);
