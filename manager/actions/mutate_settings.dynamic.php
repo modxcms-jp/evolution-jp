@@ -170,7 +170,7 @@ function confirmLangChange(el, lkey, elupd)
 		<ul class="actionButtons">
 			<li id="Button1">
 				<a href="#" onclick="documentDirty=false; document.settings.submit();">
-					<img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']; ?>
+					<img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
 				</a>
 			</li>
 			<li id="Button5">

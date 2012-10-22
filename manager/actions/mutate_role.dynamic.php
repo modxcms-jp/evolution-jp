@@ -91,7 +91,7 @@ function deletedocument() {
 
 <div id="actions">
 	<ul class="actionButtons">
-			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save'] ?></a></li>
+			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['update'] ?></a></li>
 	<?php if($_GET['a']=='35') { ?>
 			<li><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete'] ?></a></li>
 	<?php } ?>

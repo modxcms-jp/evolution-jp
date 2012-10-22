@@ -904,7 +904,7 @@ $_lang["sort_asc"] = '昇順';
 $_lang["sort_desc"] = '降順';
 $_lang["sort_tree"] = 'ツリーの並べ替え';
 $_lang["source"] = 'ソース';
-$_lang["stay"] = '更新';
+$_lang["stay"] = 'この画面';
 $_lang["stay_new"] = '次の作成';
 $_lang["submit"] = '実行';
 $_lang["sunday"] = '日';
@@ -1220,3 +1220,5 @@ $_lang["a83_mode_title"] = '動作モード';
 $_lang["a83_mode_direct"] = '直接生成';
 $_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
 $_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指定可)';
+
+$_lang["update"] = '更新';

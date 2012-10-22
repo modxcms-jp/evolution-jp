@@ -319,7 +319,7 @@ function decode(s){
     	  <ul class="actionButtons">
     		  <li id="Button1">
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
-    			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
+    			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a><span class="and"> + </span>
     			<select id="stay" name="stay">
     			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>

@@ -1411,7 +1411,7 @@ function ab_save()
 	$ph['onclick'] = 'documentDirty=false; document.mutate.save.click();';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
-	$ph['label'] = $_lang['save'];
+	$ph['label'] = $_lang['update'];
 	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">';
 	if ($modx->hasPermission('new_document'))
 	{

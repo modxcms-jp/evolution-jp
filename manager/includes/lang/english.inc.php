@@ -1218,3 +1218,5 @@ $_lang["a83_mode_title"] = 'Generate mode';
 $_lang["a83_mode_direct"] = 'Direct parse';
 $_lang["a83_mode_crawl"] = 'Crawl (legacy mode)';
 $_lang["a83_ignore_ids_title"] = 'Ignore IDs(comma separate)';
+
+$_lang["update"] = 'Save';
