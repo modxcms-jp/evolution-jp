@@ -275,24 +275,24 @@ function decode(s){
 
 
 // Using Mootools
-window.addEvent('domready', function() {
+$j(function() {
 
 	// Try and populate config fields from the text that is pasted in the PHP box
-	$('phptextarea').addEvent('blur', function() {
+	$j('#phptextarea').bind('blur', function() {
 		
 		// Get the value of the php text field
-		var src = $('phptextarea').value;
+		var src = $j('#phptextarea').val();
 		
 		
 		// Is  something in there?
 		if (src == '') {
-			$$('input[name^=sysevents]').removeProperty('checked'); // Untick all sys events
-			$('pluginName').setProperty('value', '');
-			$('pluginDescription').setProperty('value', '');
-			$('propertiesBox').value = '';
-			$('newcategory').setProperty('value', '');
-			$$('#categoryid option').removeProperty('selected')
-			showParameters($('propertiesBox'));
+			$j('input[name="sysevents[]"]').removeAttr('checked'); // Untick all sys events
+			$j('#pluginName').val('');
+			$j('#pluginDescription').val('');
+			$j('#propertiesBox').val('');
+			$j('#newcategory').val('');
+			$j('#categoryid option').removeAttr('selected')
+			showParameters($j('#propertiesBox'));
 			return; 
 		}
 		
@@ -374,7 +374,7 @@ window.addEvent('domready', function() {
 			
 			
 		// Populate the properties from any old existing values
-		if (oldParams) {		
+		if (oldParams) {
 			
 			// Go through each old param, and set its value if it exists
 			$each(oldParams, function(oldParam, oldName) {
@@ -385,16 +385,16 @@ window.addEvent('domready', function() {
 							
 					switch (oldParam[1]) {
 						case 'list':
-						case 'menu':		
-							var oldValue = oldParam[3];						
+						case 'menu':
+							var oldValue = oldParam[3];
 							theField.setProperty('value', oldValue);
-							setParameter(oldName, oldParam[1], theField);								
+							setParameter(oldName, oldParam[1], theField);
 						break;
 						
 						case 'list-multi':		
-							// Not supporting list-multi yet, as it is broken anyway							
+							// Not supporting list-multi yet, as it is broken anyway
 						break;
-										
+						
 						default:
 							var oldValue = oldParam[2];	
 							theField.setProperty('value', oldValue);
@@ -440,7 +440,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     	  <ul class="actionButtons">
     		  <li id="Button1">
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
-    			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
+    			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
     			<select id="stay" name="stay">
