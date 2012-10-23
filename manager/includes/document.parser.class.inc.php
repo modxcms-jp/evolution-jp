@@ -151,14 +151,14 @@ class DocumentParser {
 		if(!empty($_SERVER['QUERY_STRING']) && $id==='')
 		{
 			$qs = $_GET;
-			if($qs['id']) unset($qs['id']);
+			if(isset($qs['id'])) unset($qs['id']);
 			if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
 			else $this->qs_hash = '';
 		}
 		
 		// get the settings
 		if(!$this->db->conn)      $this->db->connect();
-		if(!isset($this->config)) $this->getSettings();
+		if(!isset($this->config)) $this->config = $this->getSettings();
 		if(!$this->processCache)  $this->initProcessCache();
 		
 		if(preg_match('@^[0-9]+$@',$id))
@@ -957,6 +957,7 @@ class DocumentParser {
 			}
 		}
 		$this->config= array_merge($this->config, $usrSettings);
+		return $this->config;
 	}
 	
 	function getDocumentMethod()
