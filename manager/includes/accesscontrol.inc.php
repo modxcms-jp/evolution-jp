@@ -66,8 +66,15 @@ if(!isset($_SESSION['mgrValidated']))
 	if(!isset($tpl) || empty($tpl))
 	{
 		// load template file
-		$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
-		if(file_exists($tplFile)==false)
+		if(is_file(MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/template/login.html'))
+		{
+			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/template/login.html';
+		}
+		elseif(is_file(MODX_BASE_PATH . 'assets/templates/manager/login.html'))
+		{
+			$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
+		}
+		else
 		{
 			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
 		}
