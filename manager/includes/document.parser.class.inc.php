@@ -144,15 +144,7 @@ class DocumentParser {
 	function executeParser($id='')
 	{
 		ob_start();
-		//error_reporting(0);
-		if (version_compare(phpversion(), '5.0.0', '>='))
-		{
-			set_error_handler(array(& $this,'phpError'), E_ALL);
-		}
-		else
-		{
-			set_error_handler(array(& $this,'phpError'));
-		}
+		set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
 		
 		$this->http_status_code = '200';
 		
