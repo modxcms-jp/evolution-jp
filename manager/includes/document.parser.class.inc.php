@@ -2253,23 +2253,28 @@ class DocumentParser {
 		else return true;
 	}
 	
-	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
 	{
 		$tbl_site_content= $this->getFullTableName('site_content');
 		$tbl_document_groups= $this->getFullTableName('document_groups');
 		// modify field names to use sc. table reference
 		$fields= $this->join(',', explode(',',$fields),'sc.');
 		$sort  = $this->join(',', explode(',',$sort),'sc.');
-		// get document groups for current user
-		if ($docgrp= $this->getUserDocGroups())
-		{
-			$docgrp= implode(',', $docgrp);
-		}
+		
 		// build query
-		$context = ($this->isFrontend() ? 'web' : 'mgr');
-		$cond    = ($docgrp) ? "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'" : '';
 		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
-		$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+		if($where===false)
+		{
+			// get document groups for current user
+			if ($docgrp= $this->getUserDocGroups())
+			{
+				$docgrp= implode(',', $docgrp);
+				$cond = "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'";
+			}
+			else $cond = '';
+			$context = ($this->isFrontend() ? 'web' : 'mgr');
+			$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+		}
 		$orderby = "{$sort} {$dir}";
 		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
 		$resourceArray= array ();
@@ -2282,32 +2287,19 @@ class DocumentParser {
 	
 	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
 	{
-		$tbl_site_content    = $this->getFullTableName('site_content');
-		$tbl_document_groups = $this->getFullTableName('document_groups');
-		
-		// modify field names to use sc. table reference
-		$fields= $this->join(',', explode(',',$fields),'sc.');
-		$sort  = $this->join(',', explode(',',$sort),'sc.');
 		// get document groups for current user
 		if ($docgrp= $this->getUserDocGroups())
 		{
-			$docgrp= implode(",", $docgrp);
+			$docgrp= implode(',', $docgrp);
+			$cond = " OR dg.document_group IN ({$docgrp})";
 		}
-		// build query
+		else $cond = '';
 		if($this->isFrontend()) $context = 'sc.privateweb=0';
 		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-		$cond = ($docgrp) ? " OR dg.document_group IN ({$docgrp})" : '';
-		
-		$fields = "DISTINCT {$fields}";
-		$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg on dg.document = sc.id";
 		$where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
-		$orderby = "{$sort} {$dir}";
-		$result= $this->db->select($fields,$from,$where,$orderby);
-		$resourceArray= array ();
-		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
-		{
-			$resourceArray[] = $this->db->getRow($result);
-		}
+		
+		$resourceArray = $this->getAllChildren($id, $sort, $dir, $fields,$where);
+		
 		return $resourceArray;
 	}
 	
@@ -2898,53 +2890,9 @@ class DocumentParser {
 		if (!$docs) return false;
 		else
 		{
-			$result= array ();
-			// get user defined template variables
-			$fields= ($tvfields == '') ? 'tv.*' :   $this->join(',', explode(',',$tvfields),'tv.');
-			$tvsort= ($tvsort == '') ? '' : 'tv.' . $this->join(',', explode(',',$tvsort,'tv.'),'tv.');
-			if ($tvidnames == '*') $query= 'tv.id<>0';
-			else
+			foreach($docs as $doc)
 			{
-				$join_tvidnames = implode("','", $tvidnames);
-				$query  = is_numeric($tvidnames['0']) ? 'tv.id' : 'tv.name';
-				$query .= " IN ('{$join_tvidnames}')";
-			}
-			if ($docgrp= $this->getUserDocGroups())
-			{
-				$docgrp= implode(',', $docgrp);
-			}
-			$tbl_site_tmplvars              = $this->getFullTableName('site_tmplvars');
-			$tbl_site_tmplvar_templates     = $this->getFullTableName('site_tmplvar_templates');
-			$tbl_site_tmplvar_contentvalues = $this->getFullTableName('site_tmplvar_contentvalues');
-			$docCount= count($docs);
-			for ($i= 0; $i < $docCount; $i++)
-			{
-				$tvs= array ();
-				$docRow= $docs[$i];
-				$docid= $docRow['id'];
-				
-				$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-				$from    = "{$tbl_site_tmplvars} tv INNER JOIN {$tbl_site_tmplvar_templates} tvtpl ON tvtpl.tmplvarid = tv.id";
-				$from   .= " LEFT JOIN {$tbl_site_tmplvar_contentvalues} tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
-				$where   = "{$query} AND tvtpl.templateid = {$docRow['template']}";
-				$orderby = ($tvsort) ? "{$tvsort} {$tvsortdir}" : '';
-				$rs= $this->db->select($fields,$from,$where,$orderby);
-				$total= $this->db->getRecordCount($rs);
-				for ($x= 0; $x < $total; $x++)
-				{
-					$tvs[] = @ $this->db->getRow($rs);
-				}
-				
-				// get default/built-in template variables
-				ksort($docRow);
-				foreach ($docRow as $key => $value)
-				{
-					if ($tvidnames == '*' || in_array($key, $tvidnames))
-					{
-						$tvs[] = array ('name'=>$key, 'value'=>$value);
-					}
-				}
-				if (count($tvs)) $result[] = $tvs;
+				$result[] = $this->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
 			}
 			return $result;
 		}
@@ -2981,7 +2929,9 @@ class DocumentParser {
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
 	{
-		if (($idnames!='*' && !is_array($idnames)) || (is_array($idnames) && count($idnames) == 0))
+		if($idnames!='*' && !is_array($idnames)) $idnames = array($idnames);
+		
+		if (is_array($idnames) && count($idnames) == 0)
 		{
 			return false;
 		}
