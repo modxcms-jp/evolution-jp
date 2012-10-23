@@ -2386,7 +2386,7 @@ class DocumentParser {
 		}
 	}
 
-	function getPageInfo($docid= 0, $active= 1, $fields= 'id, pagetitle, description, alias')
+	function getPageInfo($docid= 0, $activeOnly= 1, $fields= 'id, pagetitle, description, alias')
 	{
 		if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
 		else
@@ -2398,7 +2398,7 @@ class DocumentParser {
 			$fields = preg_replace("/\s/i", '',$fields);
 			$fields = $this->join(',',explode(',',$fields),'sc.');
 			
-			$published = ($active == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
+			$published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
 			
 			// get document groups for current user
 			if($docgrp= $this->getUserDocGroups())
@@ -2417,12 +2417,12 @@ class DocumentParser {
 		}
 	}
 
-	function getParent($pid= -1, $active= 1, $fields= 'id, pagetitle, description, alias, parent')
+	function getParent($pid= -1, $activeOnly= 1, $fields= 'id, pagetitle, description, alias, parent')
 	{
 		if ($pid == -1)
 		{
 			$pid= $this->documentObject['parent'];
-			return ($pid == 0) ? false : $this->getPageInfo($pid, $active, $fields);
+			return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
 		}
 		elseif ($pid == 0)
 		{
@@ -2431,12 +2431,12 @@ class DocumentParser {
 		else
 		{
 			// first get the child document
-			$child= $this->getPageInfo($pid, $active, "parent");
+			$child= $this->getPageInfo($pid, $activeOnly, "parent");
 			
 			// now return the child's parent
 			$pid= ($child['parent']) ? $child['parent'] : 0;
 			
-			return ($pid == 0) ? false : $this->getPageInfo($pid, $active, $fields);
+			return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
 		}
 	}
 		
