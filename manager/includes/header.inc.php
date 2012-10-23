@@ -76,7 +76,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 				case 301:
 					$j('input').change(function() {documentDirty=true;});
 					$j('textarea').change(function() {documentDirty=true;});
-					$j('select').change(function() {documentDirty=true;});
+					$j('select:not(#template)').change(function() {documentDirty=true;});
 				break;
 			}
         	document_onload();
