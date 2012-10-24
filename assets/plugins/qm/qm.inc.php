@@ -28,9 +28,14 @@ class Qm {
 	var $modx;
 
     //_______________________________________________________
-	function Qm(&$modx, $params)
+	function Qm(&$modx, $params=array())
 	{
 		$this->modx = $modx;
+		if(empty($params) || count($params)==0)
+		{
+			$modx->documentOutput = 'QuickManagerをインストールし直してください。';
+			return;
+		}
 		extract($params);
 		
 		// Get plugin parameters
