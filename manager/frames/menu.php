@@ -391,7 +391,7 @@ function buildMenu($target,$item)
 	$menu['element']  = 'element_management,manage_files,manage_metatags';
 	$menu['module']   = 'modules';
 	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions';
-	$menu['tools']    = 'bk_manager,remove_locks unlock-pages,import_site,export_site,edit_settings';
+	$menu['tools']    = 'bk_manager,remove_locks,import_site,export_site,edit_settings';
 	$menu['reports']  = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
 	
 	if(empty($menu[$target])) return false;
