@@ -1222,3 +1222,6 @@ $_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
 $_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指定可)';
 
 $_lang["update"] = '更新';
+
+$_lang["a17_manager_inline_style_title"] = '追加のスタイル';
+$_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';

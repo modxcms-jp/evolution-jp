@@ -82,6 +82,7 @@ $default_config['rb_base_dir']              = defined('MODX_BASE_PATH') ? MODX_B
 $default_config['rb_base_url']              = 'content/';
 $default_config['enable_phx']               = '1';
 $default_config['image_limit_width']         = '';
+$default_config['manager_inline_style']      = "<style type=\"text/css\">body {\n	font-family: \"Helvetica Neue\",Helvetica,Arial,Meiryo,\"Hiragino Kaku Gothic Pro\",\"MS PGothic\",sans-serif;\nfont-size:0.75em;}\n</style>";
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return;
 

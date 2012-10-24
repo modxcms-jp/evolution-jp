@@ -1220,3 +1220,6 @@ $_lang["a83_mode_crawl"] = 'Crawl (legacy mode)';
 $_lang["a83_ignore_ids_title"] = 'Ignore IDs(comma separate)';
 
 $_lang["update"] = 'Save';
+
+$_lang["a17_manager_inline_style_title"] = 'Append style';
+$_lang["a17_manager_inline_style_message"] = 'Append manager style';

@@ -800,6 +800,14 @@ foreach($files as $file)
 </tr>
 
 <tr>
+	<th><?php echo $_lang["a17_manager_inline_style_title"] ?></th>
+	<td>
+		<textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
+		<?php echo $_lang["a17_manager_inline_style_message"] ?>
+	</td>
+</tr>
+
+<tr>
 <th><?php echo $_lang["limit_by_container"] ?></th>
 <td>
 	<?php echo form_text('limit_by_container',$limit_by_container,4);?><br />
