@@ -782,12 +782,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["manager_theme"]?></th>
 <td><select name="manager_theme" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
-$dir = scandir("{$base_path}manager/media/style");
-foreach($dir as $file)
+$files = glob($base_path . 'manager/media/style/*/style.php');
+foreach($files as $file)
 {
-	if($file!="." && $file!=".." && is_dir("{$base_path}manager/media/style/{$file}") && substr($file,0,1) != '.')
+	$file = str_replace('\\','/',$file);
+	if($file!="." && $file!=".." && substr($file,0,1) != '.')
 	{
-		$themename = $file;
+		$themename = substr(dirname($file),strrpos(dirname($file),'/')+1);
 		$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
 		echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
 	}
