@@ -7,7 +7,7 @@ html, body, form, fieldset {
 html {
 	font-size: 100.01%;
 	line-height: 1.5;
-	font-family: "Helvetica Neue",Helvetica,Arial,Tahoma,Verdana,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
+	font-family: "Helvetica Neue",Helvetica, Arial, sans-serif;
 	color: #111;
 }
 body {
@@ -59,7 +59,6 @@ li, dd, blockquote {
 .warning {
 	color: #444;
 	font-weight:bold;
-	font-size:12px;
 }
 .success {
 	color: #090;
@@ -96,21 +95,21 @@ h1 {
 		margin-right: 10px;
 	}
 h2 {
-	font-size: 164%;
+	font-size: 1.64em;
 }
 h4 {
-	font-size: 118%;
+	font-size: 1.18em;
 }
 h5 {
-	font-size: 100%;
+	font-size: 1em;
 	font-weight: bold;
 }
 h6 {
-	font-size: 86%;
+	font-size: 0.9em;
 	font-weight: bold;
 }
 p.caption, p.comment {
-	font-size: 86%;
+	font-size: 0.9em;
 	color: #888;
 }
 button {
@@ -220,7 +219,6 @@ hr {
 #supplementalNav {
 	float: right;
 	background: transparent;
-	font-size: 12px;
 	padding: 0 0 30px;
 	margin: 0;
 	color: #89939E;
@@ -479,11 +477,10 @@ ime-mode:disabled;
 .sectionBody fieldset {
 //	background: none repeat scroll 0 0 #FFFFFF;
 //	border: 1px solid #CCCCCC;
-	font-size: 12px;
 	padding: 15px !important;
 }
 .sectionBody legend {
-	font-size: 14px;
+	font-size: 1.2em;
 	font-weight: bold;
 	padding: 5px 15px;
 	background: #fff;
@@ -496,7 +493,7 @@ ime-mode:disabled;
 			border-radius:3px;
 }
 .sectionBody fieldset h3 {
-	font-size: 14px;
+	font-size: 1.1em;
 	color: #789;
 	font-weight: bold;
 	padding-bottom: 0;
@@ -1120,7 +1117,7 @@ zoom:1;
 	}
 .dynamic-tab-pane-control .tab-row .tab {
 	color: #313131;
-	font-size: 12px;
+	font-size: 1em;
 	cursor: pointer;
 	display: inline;
 	margin: 3px 2px 1px 0;
@@ -1417,7 +1414,7 @@ ul.actionButtons {
 	float:left;
 	border-radius:2px;
 	color:#444;
-	font-size:12px;
+	font-size:1em;
 	text-shadow:0 1px 0 #fff;
 	font-weight:700;
 	outline:medium none;
@@ -1522,7 +1519,7 @@ form#mutate dd {
 	}
 form#mutate dt label,
 form#mutate dt h3.label {
-	font-size: 12px;
+	font-size: 1em;
 	display: inline;
 	float: left;
 	width: 200px;
@@ -1619,7 +1616,7 @@ fieldset#preview iframe {
 fieldset#document_content textarea#ta {
 	width: 100%;
 	height: 400px;
-	font-size: 12px;
+	font-size: 1em;
 }
 
 /*
@@ -1671,7 +1668,7 @@ form#mutate select.tv_url_select {
 
 .custom-title {
 	font-weight: bold;
-	font-size: 12px;
+	font-size: 1em;
 	margin: 0;
 	color: #fff;
 	padding: 6px 6px 4px;
@@ -1679,7 +1676,7 @@ form#mutate select.tv_url_select {
 }
 
 .custom-text {
-	font-size: 12px;
+	font-size: 1em;
 	padding: 4px 8px 8px;
 	background: #fff;
 }
@@ -1750,7 +1747,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 .dp_cal select {
 	margin: 2px 3px;
-	font-size: 12px;
+	font-size: 1em;
 	padding:2px;
 }
 .dp_cal select option {
@@ -1760,7 +1757,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .dp_cal td {
 	width: 14.2857%;
 	text-align: center;
-	font-size: 12px;
+	font-size: 1em;
 	padding: 2px 0;
 }
 .dp_cal th {
