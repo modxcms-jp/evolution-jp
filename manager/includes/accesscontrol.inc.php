@@ -66,17 +66,23 @@ if(!isset($_SESSION['mgrValidated']))
 	if(!isset($tpl) || empty($tpl))
 	{
 		// load template file
-		if(is_file(MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/template/login.html'))
+		$base_path = MODX_BASE_PATH;
+		if(is_file("{$base_path}assets/templates/manager/login.tpl"))
 		{
-			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/template/login.html';
+			$tplFile = "{$base_path}assets/templates/manager/login.tpl";
 		}
-		elseif(is_file(MODX_BASE_PATH . 'assets/templates/manager/login.html'))
+		elseif(is_file("{$base_path}assets/templates/manager/login.html"))
 		{
-			$tplFile = MODX_BASE_PATH . 'assets/templates/manager/login.html';
+			$tplFile = "{$base_path}assets/templates/manager/login.html";
+		}
+		elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/login.tpl"))
+		{
+		
+			$tplFile = "{$base_path}manager/media/style/{$manager_theme}/template/login.tpl";
 		}
 		else
 		{
-			$tplFile = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/login.html';
+			$tplFile = "{$base_path}manager/media/style/default/login.tpl";
 		}
 		$tpl = file_get_contents($tplFile);
 	}

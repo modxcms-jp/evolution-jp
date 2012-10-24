@@ -137,20 +137,28 @@ if(is_array($evtOut)) {
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
-$_ = MODX_BASE_PATH . 'assets/templates/manager/welcome.php';
-if(file_exists($_)) include_once($_);
-unset($_);
-
 if(!isset($tpl) || empty($tpl))
 {
-	$_ = MODX_BASE_PATH . 'assets/templates/manager/welcome.html';
-	if(!file_exists($_))
+	$base_path = MODX_BASE_PATH;
+	$manager_theme = $modx->config['manager_theme'];
+	if(is_file("{$base_path}assets/templates/manager/welcome.tpl"))
 	{
-		$_ = MODX_BASE_PATH . 'manager/media/style/' . $modx->config['manager_theme'] . '/manager/welcome.html';
+		$tpl_path = "{$base_path}assets/templates/manager/welcome.tpl";
 	}
-	$tpl = file_get_contents($_);
+	elseif(is_file("{$base_path}assets/templates/manager/welcome.html"))
+	{
+		$tpl_path = "{$base_path}assets/templates/manager/welcome.html";
+	}
+	elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/welcome.tpl"))
+	{
+		$tpl_path = "{$base_path}manager/media/style/{$manager_theme}/template/welcome.tpl";
+	}
+	else
+	{
+		$tpl_path = "{$base_path}manager/media/style/default/welcome.tpl";
+	}
+	$tpl = file_get_contents($tpl_path);
 }
-unset($_);
 
 // invoke event OnManagerWelcomeHome
 $evtOut = $modx->invokeEvent('OnManagerWelcomeHome');
