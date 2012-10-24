@@ -267,7 +267,6 @@ class DocumentParser {
 			}
 			$this->documentMethod= 'id';
 		}
-		
 		if($this->documentMethod==='id' && isset($alias))
 		{
 			switch($this->documentIdentifier)
@@ -2559,7 +2558,7 @@ class DocumentParser {
 					if(!$this->aliasListing) $this->setAliasListing();
 					
 					$al= $this->aliasListing[$id];
-					if(!empty ($al['path'])) $alPath = $al['path'] . '/';
+					$alPath = ($al && !empty($al['path'])) ? $al['path'] . '/' : '';
 					if ($al && $al['alias']) $alias  = $al['alias'];
 				}
 			}
@@ -3877,13 +3876,12 @@ class DocumentParser {
 		if($this->config['use_alias_path']==1)
 		{
 			if(strpos($alias,'/')!==false) $_a = explode('/', $alias);
-			else                         $_a[] = $alias;
+			else                           $_a[] = $alias;
 			$id= 0;
 			
 			foreach($_a as $alias)
 			{
 				if($id===false) break;
-				
 				$rs  = $this->db->select('id', $tbl_site_content, "deleted=0 and parent='{$id}' and alias='{$alias}'");
 				if(!$rs) $rs  = $this->db->select('id', $tbl_site_content, "deleted=0 and parent='{$id}' and id='{$alias}'");
 				$row = $this->db->getRow($rs);
