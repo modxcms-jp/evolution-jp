@@ -134,7 +134,7 @@ if ($numRecords > 0)
 
 		// context menu
 		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
-		$cm = new ContextMenu("cntxm", 150);
+		$cm = new ContextMenu("cntxm", 180);
 		// $cm->addSeparator();
 		$cm->addItem($_lang["edit_resource"],       "js:menuAction(27)",$_style['icons_edit_document'],($modx->hasPermission('edit_document') ? 0:1));
 		$cm->addItem($_lang["create_resource_here"],"js:menuAction(4)",$_style['icons_new_document'],($modx->hasPermission('new_document') ? 0:1));
