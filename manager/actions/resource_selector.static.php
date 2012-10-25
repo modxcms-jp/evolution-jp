@@ -158,8 +158,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 				<td><?php echo $_lang["search"]; ?></td>
 				<td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td class="actionButtons"><a href="#" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang["go"]; ?></a></td>
-				<td class="actionButtons"><a href="#" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $_style['icons_refresh']?>" /></a></td>
-				<td class="actionButtons"><a href="#" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table']?>" /></a></td>
+				<td class="actionButtons"><a href="#" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $_style['icons_refresh'];?>" style="display:inline;" /></a></td>
+				<td class="actionButtons"><a href="#" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table'];?>" style="display:inline;" /></a></td>
 				</tr>
 				</table>
 			</td>
