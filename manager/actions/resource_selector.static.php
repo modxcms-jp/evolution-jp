@@ -163,7 +163,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 				</tr>
 				</table>
 			</td>
-			<td width="200" class="actionButtons">
+			<td width="230" class="actionButtons">
 				<a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><img src="<?php echo $_style['icons_cancel']?>" /> <?php echo $_lang['cancel']; ?></a>
 				<a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><img src="<?php echo $_style['icons_add']?>" /> <?php echo $_lang['insert']; ?></a>				
 			</td>
