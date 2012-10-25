@@ -145,10 +145,6 @@ if(!isset($tpl) || empty($tpl))
 	{
 		$tpl_path = "{$base_path}assets/templates/manager/welcome.tpl";
 	}
-	elseif(is_file("{$base_path}assets/templates/manager/welcome.html"))
-	{
-		$tpl_path = "{$base_path}assets/templates/manager/welcome.html";
-	}
 	elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/welcome.tpl"))
 	{
 		$tpl_path = "{$base_path}manager/media/style/{$manager_theme}/template/welcome.tpl";

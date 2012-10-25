@@ -71,10 +71,6 @@ if(!isset($_SESSION['mgrValidated']))
 		{
 			$tplFile = "{$base_path}assets/templates/manager/login.tpl";
 		}
-		elseif(is_file("{$base_path}assets/templates/manager/login.html"))
-		{
-			$tplFile = "{$base_path}assets/templates/manager/login.html";
-		}
 		elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/login.tpl"))
 		{
 		
