@@ -5,7 +5,7 @@
  * ログイン画面・ダッシュボードのカスタマイズコード
  *
  * @category 	plugin
- * @version 	1.0.2
+ * @version 	1.0.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerLoginFormPrerender,OnManagerWelcomePrerender
  * @internal	@modx_category Manager and Admin
@@ -15,7 +15,7 @@
 /* 当プラグインの使い方
 
 1. チャンク「ログイン画面」「ダッシュボード」を作成します。
-2. assets/templates/manager/ディレクトリのlogin.html・welcome.htmlの内容を各チャンクにコピー
+2. assets/templates/manager/ディレクトリのlogin.tpl・welcome.tplの内容を各チャンクにコピー
 
 当プラグインを無効にした場合はassets/templates/manager/ディレクトリのコードが出力されます。
 assets/templates/manager/ディレクトリにファイルがない場合はMODX本体内蔵のコードが出力されます。
