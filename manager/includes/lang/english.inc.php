@@ -1223,3 +1223,6 @@ $_lang["update"] = 'Save';
 
 $_lang["a17_manager_inline_style_title"] = 'Append style';
 $_lang["a17_manager_inline_style_message"] = 'Append manager style';
+
+$_lang["configcheck_mgr_tpl"] = 'Extension of manager template filename';
+$_lang["configcheck_mgr_tpl_msg"] = 'Extension of manager template filename is should be ".tpl"';

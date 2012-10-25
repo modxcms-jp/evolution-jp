@@ -1,6 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+$base_path = MODX_BASE_PATH;
+
 if (is_writable('includes/config.inc.php')){
     // Warn if world writable
     if(@fileperms('includes/config.inc.php') & 0x0002) {
@@ -8,6 +10,7 @@ if (is_writable('includes/config.inc.php')){
     }
 }
 
+if (is_file("{$base_path}assets/templates/manager/login.html")) $warnings[] = 'configcheck_mgr_tpl';
 if (is_dir('../install/'))             $warnings[] = 'configcheck_installer';
 if (ini_get('register_globals')==TRUE) $warnings[] = 'configcheck_register_globals';
 if (!extension_loaded('gd'))           $warnings[] = 'configcheck_php_gdzip';
@@ -73,6 +76,9 @@ if (0 < count($warnings))
 		$title = $_lang[$warning];
 		switch ($warning)
 		{
+			case 'configcheck_mgr_tpl':
+				$output = $_lang['configcheck_mgr_tpl_msg'];
+				break;
 			case 'configcheck_configinc';
 				$output = $_lang['configcheck_configinc_msg'];
 				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
