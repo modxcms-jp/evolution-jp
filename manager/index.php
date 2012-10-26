@@ -397,7 +397,7 @@ switch ($action) {
         include_once "actions/mutate_htmlsnippet.dynamic.php";
         include_once "footer.inc.php";
         break;
-    case 77: // get the new snippet action
+    case 77: // get the new chunk action
         include_once "header.inc.php";
         include_once "actions/mutate_htmlsnippet.dynamic.php";
         include_once "footer.inc.php";
