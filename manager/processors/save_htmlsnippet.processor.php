@@ -86,33 +86,29 @@ switch ($_POST['mode']) {
         }
         //do stuff to save the new doc
         $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
-        $rs = $modx->db->insert($field, $tbl_site_htmlsnippets);
-        if (!$rs) {
-            echo "\$rs not set! New Chunk not saved!";
-        } else {
-            // get the id
-            if (!$newid = $modx->db->getInsertId()) {
-                echo "Couldn't get last insert key!";
-                exit;
-            }
-
-            // invoke OnChunkFormSave event
-            $modx->invokeEvent("OnChunkFormSave", array(
-                "mode" => "new",
-                "id" => $newid
-            ));
-
-            // empty cache
-            $modx->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? "78&id={$newid}" : "77";
-                $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
-            } else {
-                $header = "Location: index.php?a=76";
-            }
-            header($header);
+        $newid = $modx->db->insert($field, $tbl_site_htmlsnippets);
+        // get the id
+        if (!$newid) {
+            echo "Couldn't get last insert key!";
+            exit;
         }
+
+        // invoke OnChunkFormSave event
+        $modx->invokeEvent('OnChunkFormSave', array(
+            'mode' => 'new',
+            'id' => $newid
+        ));
+
+        // empty cache
+        $modx->clearCache(); // first empty the cache
+        // finished emptying cache - redirect
+        if ($_POST['stay'] != '') {
+            $a = ($_POST['stay'] == '2') ? "78&id={$newid}" : '77';
+            $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+        } else {
+            $header = 'Location: index.php?a=76';
+        }
+        header($header);
         break;
     case '78':
 

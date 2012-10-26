@@ -60,42 +60,33 @@ switch ($_POST['mode']) {
 		$field['content']      = $template;
 		$field['locked']       = $locked;
 		$field['category']     = $categoryid;
-		$rs = $modx->db->insert($field,$tbl_site_templates);
-		if(!$rs)
+		$newid = $modx->db->insert($field,$tbl_site_templates);
+		if(!$newid)
 		{
-			echo "\$rs not set! New template not saved!";
+			echo "Couldn't get last insert key!";
+			exit;
+		}
+
+		// invoke OnTempFormSave event
+		$modx->invokeEvent("OnTempFormSave",
+								array(
+									"mode"	=> "new",
+									"id"	=> $newid
+							));
+
+		// empty cache
+		$modx->clearCache();
+		// finished emptying cache - redirect
+		if($_POST['stay']!='')
+		{
+			$a = ($_POST['stay']=='2') ? "16&id=$newid":"19";
+			$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
 		}
 		else
 		{
-			// get the id
-			$newid = $modx->db->getInsertId();
-			if(!$newid)
-			{
-				echo "Couldn't get last insert key!";
-				exit;
-			}
-
-			// invoke OnTempFormSave event
-			$modx->invokeEvent("OnTempFormSave",
-									array(
-										"mode"	=> "new",
-										"id"	=> $newid
-								));
-
-			// empty cache
-			$modx->clearCache();
-			// finished emptying cache - redirect
-			if($_POST['stay']!='')
-			{
-				$a = ($_POST['stay']=='2') ? "16&id=$newid":"19";
-				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
-			}
-			else
-			{
-				$header="Location: index.php?a=76";
-			}
-			header($header);
+			$header="Location: index.php?a=76";
 		}
+		header($header);
         break;
     case '16':
 

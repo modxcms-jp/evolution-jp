@@ -69,38 +69,33 @@ switch ($_POST['mode']) {
 		}
 
 		//do stuff to save the new plugin
-        $sql = "INSERT INTO {$tbl_site_plugins} (name, description, plugincode, disabled, moduleguid, locked, properties, category) VALUES('{$name}', '{$description}', '{$plugincode}', {$disabled}, '{$moduleguid}', {$locked}, '{$properties}', {$category});";
-        $rs = $modx->db->query($sql);
-        if(!$rs){
-            echo "\$rs not set! New plugin not saved!";
-        } else {
-            // get the id
-            if(!$newid=$modx->db->getInsertId()) {
-                echo "Couldn't get last insert key!";
-                exit;
-            }
-            
-            // save event listeners
-            saveEventListeners($newid,$sysevents,$_POST['mode']);
-            
-            // invoke OnPluginFormSave event
-            $modx->invokeEvent("OnPluginFormSave",
-                                    array(
-                                        "mode"  => "new",
-                                        "id"    => $newid
-                                    ));
-            
-            // empty cache
-            $modx->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            if($_POST['stay']!='') {
-                $a = ($_POST['stay']=='2') ? "102&id=$newid":"101";
-                $header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
-            } else {
-                $header="Location: index.php?a=76";
-            }
-            header($header);
+		$f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $newid = $modx->db->insert($f, $tbl_site_plugins);
+        if(!$newid) {
+            echo "Couldn't get last insert key!";
+            exit;
         }
+        
+        // save event listeners
+        saveEventListeners($newid,$sysevents,$_POST['mode']);
+        
+        // invoke OnPluginFormSave event
+        $modx->invokeEvent('OnPluginFormSave',
+                                array(
+                                    'mode'  => 'new',
+                                    'id'    => $newid
+                                ));
+        
+        // empty cache
+        $modx->clearCache(); // first empty the cache
+        // finished emptying cache - redirect
+        if($_POST['stay']!='') {
+            $a = ($_POST['stay']=='2') ? "102&id={$newid}":"101";
+            $header="Location: index.php?a={$a}&stay=".$_POST['stay'];
+        } else {
+            $header="Location: index.php?a=76";
+        }
+        header($header);
         break;
     case '102':
 
@@ -112,8 +107,8 @@ switch ($_POST['mode']) {
                                 ));
      
         //do stuff to save the edited plugin
-        $sql = "UPDATE {$tbl_site_plugins} SET name='{$name}', description='{$description}', plugincode='{$plugincode}', disabled={$disabled}, moduleguid='{$moduleguid}', locked={$locked}, properties='{$properties}', category={$category}  WHERE id={$id}";
-        $rs = $modx->db->query($sql);
+        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $rs = $modx->db->update($f, $tbl_site_plugins, "id='{$id}'");
         if(!$rs){
             echo "\$rs not set! Edited plugin not saved!";
         }

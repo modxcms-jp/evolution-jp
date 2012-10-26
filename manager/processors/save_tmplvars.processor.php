@@ -61,42 +61,36 @@ switch ($_POST['mode']) {
 
         // Add new TV
         $field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
-        $rs = $modx->db->insert($field, $tbl_site_tmplvars);
-        if (!$rs) {
-            echo "\$rs not set! New variable not saved!";
-        } else {
-            // get the id
-            $newid = $modx->db->getInsertId();
-            if (!$newid) {
-                echo "Couldn't get last insert key!";
-                exit;
-            }
-
-            // save access permissions
-            saveTemplateAccess();
-            saveDocumentAccessPermissons();
-
-            // invoke OnTVFormSave event
-            $modx->invokeEvent("OnTVFormSave", array(
-                "mode" => "new",
-                "id" => $newid
-            ));
-
-            // empty cache
-            $modx->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            if (isset($_POST['stay']) && $_POST['stay'] != '') {
-            	switch($_POST['stay'])
-            	{
-            		case '1': $a = '300'             ;break;
-            		case '2': $a = "301&id={$newid}" ;break;
-            	}
-                $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
-            } else {
-                $header = "Location: index.php?a=76";
-            }
-            header($header);
+        $newid = $modx->db->insert($field, $tbl_site_tmplvars);
+        if (!$newid) {
+            echo "Couldn't get last insert key!";
+            exit;
         }
+
+        // save access permissions
+        saveTemplateAccess();
+        saveDocumentAccessPermissons();
+
+        // invoke OnTVFormSave event
+        $modx->invokeEvent('OnTVFormSave', array(
+            'mode' => 'new',
+            'id' => $newid
+        ));
+
+        // empty cache
+        $modx->clearCache(); // first empty the cache
+        // finished emptying cache - redirect
+        if (isset($_POST['stay']) && $_POST['stay'] != '') {
+        	switch($_POST['stay'])
+        	{
+        		case '1': $a = '300'             ;break;
+        		case '2': $a = "301&id={$newid}" ;break;
+        	}
+            $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+        } else {
+            $header = "Location: index.php?a=76";
+        }
+        header($header);
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
