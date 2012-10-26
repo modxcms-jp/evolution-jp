@@ -152,7 +152,7 @@ if (0 < count($warnings))
 		$config_check_result[] = "
 <fieldset>
 <p><strong>{$_lang['configcheck_warning']}</strong> {$title}</p>
-<p style=\"padding-left:1em\"><em>".$_lang['configcheck_what']."</em><br />
+<p style=\"padding-left:1em\">
 {$output}{$admin_warning}</p>
 </fieldset>
 ";

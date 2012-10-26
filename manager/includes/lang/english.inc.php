@@ -143,7 +143,6 @@ $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'This means that your U
 $_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = "The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href=\"index.php?a=17\">Go to Configuration options</a>";
 $_lang["configcheck_warning"] = 'Configuration warning: ';
-$_lang["configcheck_what"] = 'What does this mean?';
 $_lang["confirm_block"] = 'Are you sure you want to block this user?';
 $_lang["confirm_delete_eventlog"] = 'Are you sure you want to delete this event log?';
 $_lang["confirm_delete_file"] = 'Are you sure you want to delete the file?\n\nThis may stop your site from working properly! Only delete this file if you know for certain what you are doing will not break anything.';
