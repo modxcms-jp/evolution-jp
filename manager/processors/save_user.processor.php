@@ -9,7 +9,7 @@ $tbl_user_attributes = $modx->getFullTableName('user_attributes');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_member_groups = $modx->getFullTableName('member_groups');
 
-$id = intval($_POST['id']);
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : "New User";
 $fullname = $modx->db->escape($_POST['fullname']);

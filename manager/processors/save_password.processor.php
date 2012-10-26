@@ -4,7 +4,7 @@ if(!$modx->hasPermission('save_password')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$id = $_POST['id'];
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $pass1 = $_POST['pass1'];
 $pass2 = $_POST['pass2'];
 

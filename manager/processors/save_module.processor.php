@@ -7,7 +7,7 @@ if(!$modx->hasPermission('save_module')) {
 
 $tbl_site_modules = $modx->getFullTableName('site_modules');
 
-$id = intval($_POST['id']);
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $resourcefile = $modx->db->escape($_POST['resourcefile']);
