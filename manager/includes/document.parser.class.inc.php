@@ -175,7 +175,7 @@ class DocumentParser {
 			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
 			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
 		}
-		if($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
+		if($_REQUEST['q']=='index.php' || substr($_REQUEST['q'],0,1)==='?') $_REQUEST['q'] = '';
 		
 		if(0 < count($_POST) && $id==='') $this->config['cache_type'] = 0;
 		
