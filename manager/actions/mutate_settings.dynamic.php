@@ -239,15 +239,6 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["language_title"]?></th>
-	<td>
-		<select name="manager_language" size="1" class="inputBox">
-		<?php echo get_lang_options(null, $manager_language);?>
-		</select><br />
-		<?php echo $_lang["language_message"]?>
-	</td>
-</tr>
-<tr>
 	<th><?php echo $_lang["charset_title"]?></th>
 	<td>
 		<select name="modx_charset" size="1" class="inputBox" style="width:250px;">
@@ -804,6 +795,16 @@ foreach($files as $file)
 	<td>
 		<textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
 		<?php echo $_lang["a17_manager_inline_style_message"] ?>
+	</td>
+</tr>
+
+<tr>
+	<th><?php echo $_lang["language_title"]?></th>
+	<td>
+		<select name="manager_language" size="1" class="inputBox">
+		<?php echo get_lang_options(null, $manager_language);?>
+		</select><br />
+		<?php echo $_lang["language_message"]?>
 	</td>
 </tr>
 
