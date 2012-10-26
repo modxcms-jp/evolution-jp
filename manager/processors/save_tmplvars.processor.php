@@ -27,23 +27,18 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } else {
     include_once($modx->config['core_path'].'categories.inc.php');
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = newCategory($_POST['newcategory']);
-    }
+    if ($catCheck) $category = $catCheck;
+    else           $category = newCategory($_POST['newcategory']);
 }
 
-if ($name == '')
-    $name = 'Untitled variable';
-if ($caption == '')
-    $caption = $name;
+if ($name == '')    $name = 'Untitled variable';
+if ($caption == '') $caption = $name;
 switch ($_POST['mode']) {
     case '300':
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent("OnBeforeTVFormSave", array(
-            "mode" => "new",
-            "id" => $id
+        $modx->invokeEvent('OnBeforeTVFormSave', array(
+            'mode' => 'new',
+            'id'=>''
         ));
         if (check_exist_name($name) !== false) {
             $url = "index.php?a=300";
@@ -105,9 +100,9 @@ switch ($_POST['mode']) {
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent("OnBeforeTVFormSave", array(
-            "mode" => "upd",
-            "id" => $id
+        $modx->invokeEvent('OnBeforeTVFormSave', array(
+            'mode' => 'upd',
+            'id' => $id
         ));
         if (check_exist_name($name) !== false) {
             $url = "index.php?id={$id}&a=301";
@@ -151,9 +146,9 @@ switch ($_POST['mode']) {
             saveTemplateAccess();
             saveDocumentAccessPermissons();
             // invoke OnTVFormSave event
-            $modx->invokeEvent("OnTVFormSave", array(
-                "mode" => "upd",
-                "id" => $id
+            $modx->invokeEvent('OnTVFormSave', array(
+                'mode' => 'upd',
+                'id' => $id
             ));
             // empty cache
             $modx->clearCache(); // first empty the cache

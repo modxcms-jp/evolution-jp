@@ -59,20 +59,17 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } else {
     include_once($modx->config['core_path'].'categories.inc.php');
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = newCategory($_POST['newcategory']);
-    }
+    if ($catCheck) $category = $catCheck;
+    else           $category = newCategory($_POST['newcategory']);
 }
 
 switch ($_POST['mode']) {
     case '77':
 
         // invoke OnBeforeChunkFormSave event
-        $modx->invokeEvent("OnBeforeChunkFormSave", array(
-            "mode" => "new",
-            "id" => $id
+        $modx->invokeEvent('OnBeforeChunkFormSave', array(
+            'mode' => 'new',
+            'id' => ''
         ));
 
         // disallow duplicate names for new chunks
@@ -82,9 +79,9 @@ switch ($_POST['mode']) {
             $url = "index.php?a=77";
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
             $modx->manager->saveFormValues(77);
-            include_once "header.inc.php";
+            include_once 'header.inc.php';
             $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            include_once 'footer.inc.php';
             exit;
         }
         //do stuff to save the new doc
@@ -157,9 +154,9 @@ switch ($_POST['mode']) {
             }
 
             // invoke OnChunkFormSave event
-            $modx->invokeEvent("OnChunkFormSave", array(
-                "mode" => "upd",
-                "id" => $id
+            $modx->invokeEvent('OnChunkFormSave', array(
+                'mode' => 'upd',
+                'id' => $id
             ));
 
             // empty cache

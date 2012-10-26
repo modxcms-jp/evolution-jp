@@ -48,7 +48,7 @@ switch ($_POST['mode'])
 		$modx->invokeEvent('OnBeforeSnipFormSave',
 								array(
 									'mode'	=> 'new',
-									'id'	=> $id
+									'id'	=> ''
 								));
 								
 		// disallow duplicate names for new snippets

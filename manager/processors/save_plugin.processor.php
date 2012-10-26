@@ -24,24 +24,21 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } else {
     include_once($modx->config['core_path'].'categories.inc.php');
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = newCategory($_POST['newcategory']);
-    }
+    if ($catCheck) $category = $catCheck;
+    else           $category = newCategory($_POST['newcategory']);
 }
 
-if($name=="") $name = "Untitled plugin";
+if($name=='') $name = 'Untitled plugin';
 
 $tbl_site_plugins = $modx->getFullTableName('site_plugins');
 switch ($_POST['mode']) {
     case '101':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent("OnBeforePluginFormSave",
+        $modx->invokeEvent('OnBeforePluginFormSave',
                                 array(
-                                    "mode"  => "new",
-                                    "id"    => $id
+                                    'mode'  => 'new',
+                                    'id'    => ''
                                 ));
     
 		// disallow duplicate names for new plugins
@@ -110,8 +107,8 @@ switch ($_POST['mode']) {
         // invoke OnBeforePluginFormSave event
         $modx->invokeEvent("OnBeforePluginFormSave",
                                 array(
-                                    "mode"  => "upd",
-                                    "id"    => $id
+                                    'mode'  => 'upd',
+                                    'id'    => $id
                                 ));
      
         //do stuff to save the edited plugin
@@ -125,20 +122,20 @@ switch ($_POST['mode']) {
             saveEventListeners($id,$sysevents,$_POST['mode']);
 
             // invoke OnPluginFormSave event
-            $modx->invokeEvent("OnPluginFormSave",
+            $modx->invokeEvent('OnPluginFormSave',
                                     array(
-                                        "mode"  => "upd",
-                                        "id"    => $id
+                                        'mode'  => 'upd',
+                                        'id'    => $id
                                     ));
             
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
             if($_POST['stay']!='') {
-                $a = ($_POST['stay']=='2') ? "102&id=$id":"101";
-                $header="Location: index.php?a=".$a."&stay=".$_POST['stay'];
+                $a = ($_POST['stay']=='2') ? "102&id={$id}":"101";
+                $header="Location: index.php?a={$a}&stay=".$_POST['stay'];
             } else {
-                $header="Location: index.php?a=76";
+                $header='Location: index.php?a=76';
             }
             header($header);
         }

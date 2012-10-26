@@ -32,11 +32,8 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } else {
     include_once($modx->config['core_path'].'categories.inc.php');
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = newCategory($_POST['newcategory']);
-    }
+    if ($catCheck) $category = $catCheck;
+    else           $category = newCategory($_POST['newcategory']);
 }
 
 if($name=="") $name = "Untitled module";
@@ -46,8 +43,8 @@ switch ($_POST['mode']) {
 		// invoke OnBeforeModFormSave event
 		$modx->invokeEvent("OnBeforeModFormSave",
 							array(
-								"mode"	=> "new",
-								"id"	=> $id
+								'mode'	=> 'new',
+								'id'	=> ''
 							));
 							
 		// disallow duplicate names for new modules
@@ -100,8 +97,8 @@ switch ($_POST['mode']) {
 			// invoke OnModFormSave event
 			$modx->invokeEvent("OnModFormSave",
 								array(
-									"mode"	=> "new",
-									"id"	=> $newid
+									'mode'	=> 'new',
+									'id'	=> $newid
 								));
 			if($_POST['stay']!='')
 			{
@@ -119,10 +116,10 @@ switch ($_POST['mode']) {
         break;
     case '108':
 		// invoke OnBeforeModFormSave event
-		$modx->invokeEvent("OnBeforeModFormSave",
+		$modx->invokeEvent('OnBeforeModFormSave',
 							array(
-								"mode"	=> "upd",
-								"id"	=> $id
+								'mode'	=> 'upd',
+								'id'	=> $id
 							));	
 								
 		// save the edited module
@@ -140,16 +137,16 @@ switch ($_POST['mode']) {
 			saveUserGroupAccessPermissons();
 				
 			// invoke OnModFormSave event
-			$modx->invokeEvent("OnModFormSave",
+			$modx->invokeEvent('OnModFormSave',
 								array(
-									"mode"	=> "upd",
-									"id"	=> $id
+									'mode'	=> 'upd',
+									'id'	=> $id
 								));
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "108&id=$id":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
 			} else {
-				$header="Location: index.php?a=106&r=2";
+				$header='Location: index.php?a=106&r=2';
 			}
 			if($enable_sharedparams!==0) $modx->clearCache();
 			header($header);
@@ -157,7 +154,7 @@ switch ($_POST['mode']) {
         break;
     default:
     	// redirect to view modules
-		header("Location: index.php?a=106&r=2");
+		header('Location: index.php?a=106&r=2');
 }
 exit;
 

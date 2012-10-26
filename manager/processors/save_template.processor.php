@@ -1,8 +1,8 @@
 <?php 
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('save_template')) {	
+if(!$modx->hasPermission('save_template')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $template     = $modx->db->escape($_POST['post']);
@@ -20,14 +20,11 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } else {
     include_once($modx->config['core_path'].'categories.inc.php');
     $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) {
-        $categoryid = $catCheck;
-    } else {
-        $categoryid = newCategory($_POST['newcategory']);
-    }
+    if ($catCheck) $categoryid = $catCheck;
+    else           $categoryid = newCategory($_POST['newcategory']);
 }
 
-if($templatename=="") $templatename = "Untitled template";
+if($templatename=='') $templatename = "Untitled template";
 
 switch ($_POST['mode']) {
     case '19':
@@ -35,9 +32,9 @@ switch ($_POST['mode']) {
 		// invoke OnBeforeTempFormSave event
 		$modx->invokeEvent("OnBeforeTempFormSave",
 								array(
-									"mode"	=> "new",
-									"id"	=> $id
-							));	
+									'mode'=>'new',
+									'id'=>''
+							));
 							
 		// disallow duplicate names for new templates
 		$rs = $modx->db->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
@@ -59,7 +56,7 @@ switch ($_POST['mode']) {
 		//do stuff to save the new doc
 		$field = array();
 		$field['templatename'] = $templatename;
-		$field['description'] = $description;
+		$field['description']  = $description;
 		$field['content']      = $template;
 		$field['locked']       = $locked;
 		$field['category']     = $categoryid;
@@ -103,10 +100,10 @@ switch ($_POST['mode']) {
     case '16':
 
 		// invoke OnBeforeTempFormSave event
-		$modx->invokeEvent("OnBeforeTempFormSave",
+		$modx->invokeEvent('OnBeforeTempFormSave',
 								array(
-									"mode"	=> "upd",
-									"id"	=> $id
+									'mode'	=> 'upd',
+									'id'	=> $id
 							));	   
 		
 		// disallow duplicate names for new templates
