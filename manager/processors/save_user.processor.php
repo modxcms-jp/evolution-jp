@@ -518,6 +518,7 @@ function saveUserSettings($id)
 
 	// determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
 	$defaults = array(
+		'manager_inline_style',
 		'upload_images',
 		'upload_media',
 		'upload_flash',

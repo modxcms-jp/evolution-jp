@@ -575,6 +575,14 @@ $dir->close();
               </td>
           </tr>
           <tr>
+            <th><?php echo $_lang["a17_manager_inline_style_title"]?></th>
+            <td>
+              <textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
+              &nbsp;&nbsp; <label><input type="checkbox" name="default_manager_inline_style" value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+              <div><?php echo $_lang["a17_manager_inline_style_message"];?></div>
+            </td>
+          </tr>
+          <tr>
             <th><?php echo $_lang["uploadable_images_title"]?></th>
             <td>
               <input type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
