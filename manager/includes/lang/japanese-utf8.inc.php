@@ -343,7 +343,7 @@ $_lang["files_upload_error2"] = 'アップロードしようとしたファイ�
 $_lang["files_upload_error3"] = 'アップロードしようとしたファイルは一部分のみアップロードされました。';
 $_lang["files_upload_error4"] = 'アップロードするファイルを選択';
 $_lang["files_upload_error5"] = 'アップロード中に問題が発生しました。';
-$_lang["files_upload_inhibited_msg"] = '<strong>アップロード機能が使用できません。</strong> - アップロードがサポートされているか、PHPがディレクトリに書込権を持っているかを確認してください。<br />';
+$_lang["files_upload_inhibited_msg"] = '<strong>アップロード機能が使用できません。</strong> - アップロードがサポートされているか、PHPがディレクトリに書込パーミッションを持っているかを確認してください。<br />';
 $_lang["files_upload_ok"] = 'ファイルのアップロードが完了しました。';
 $_lang["files_upload_permissions_error"] = 'パーミッションエラー - ファイルをアップロードするディレクトリを書き込み可能にしてください。';
 $_lang["files_uploadfile"] = 'アップロードを実行';
@@ -1225,7 +1225,7 @@ $_lang["update"] = '更新';
 $_lang["a17_manager_inline_style_title"] = '追加のスタイル';
 $_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
 
-$_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイルの拡張子';
+$_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイル';
 $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、ディレクトリごと削除してください。すでにカスタマイズを加えて使用している場合は、同ディレクトリ内のファイルの拡張子を「.tpl」に変更し、manager/media/style/テーマ名/template/ディレクトリに上書きしてください。';
 
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
