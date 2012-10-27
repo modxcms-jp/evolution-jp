@@ -65,6 +65,8 @@ if (!is_writable($modx->config['rb_base_dir'] . 'images')) $warnings[] = 'config
 if(!file_exists($modx->config['rb_base_dir']))      $warnings[] = 'configcheck_rb_base_dir';
 if(!file_exists($modx->config['filemanager_path'])) $warnings[] = 'configcheck_filemanager_path';
 
+if($_SESSION['mgrRole']==1) $warnings[] = 'configcheck_you_are_admin';
+
 // clear file info cache
 clearstatcache();
 
@@ -76,6 +78,9 @@ if (0 < count($warnings))
 		$title = $_lang[$warning];
 		switch ($warning)
 		{
+			case 'configcheck_you_are_admin':
+				$output = $_lang['configcheck_you_are_admin_msg'] ;
+				break;
 			case 'configcheck_mgr_tpl':
 				$output = $_lang['configcheck_mgr_tpl_msg'];
 				break;

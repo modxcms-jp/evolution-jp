@@ -1229,3 +1229,6 @@ $_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイル';
 $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、<a href="index.php?a=31">ディレクトリごと削除</a>してください。すでにカスタマイズを加えて使用している場合は、同ディレクトリ内のファイルの拡張子を「.tpl」に変更し、manager/media/style/テーマ名/template/ディレクトリに上書きしてください。';
 
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
+
+$_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
+$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象とならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用アカウントとして利用してください。';
