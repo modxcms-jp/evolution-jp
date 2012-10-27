@@ -359,7 +359,7 @@ $_lang["forgot_your_password"] = 'パスワードを忘れた場合はこちら'
 $_lang["friday"] = '金';
 $_lang["friendly_alias_message"] = 'フレンドリーURLを使用して、かつリソースがエイリアスを持つ場合、URL表現にエイリアスを用います。このオプションを「はい」に設定することで、フレンドリーURLのプレフィックスとサフィックスもエイリアスに適用されます。例えば、リソースのIDが1、エイリアスが「introduction」、プレフィックスが「」(空白)、サフィックスが「.html」の場合、このオプションを「はい」にすると、URLは「introduction.html」となります。 エイリアスを設定していない場合は、MODXが「1.html」というリンクを生成します。';
 $_lang["friendly_alias_title"] = 'エイリアスを使用';
-$_lang["friendlyurls_message"] = 'MODXインストールディレクトリの<b>sample.htaccessファイルを.htaccessにリネーム</b>する必要があります。ディレクトリの書き込み権限がある場合はグローバル設定更新時に自動的にリネームしますが、自動リネームを行ないたくない場合はsample.htaccessを予め削除しておいてください。動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
+$_lang["friendlyurls_message"] = 'install/tpl/ディレクトリ内のhtaccess.tplを.htaccessとしてMODX設置ディレクトリにコピーしてください。フレンドリーURL機能が動作しない場合は.htaccessを開いて、コメントアウトされている「Options +FollowSymlinks」の記述を有効にしてみてください。';
 $_lang["friendlyurls_title"] = 'フレンドリーURLを使用';
 $_lang["friendlyurlsprefix_message"] = 'フレンドリーURLのプレフィックスを指定してください。例えばプレフィックスを「page」に設定した場合、URLの /index.php?id=2 は、 /page2.htmlというフレンドリーURLに変換されます(サフィックスが .htmlに設定されていると仮定)。';
 $_lang["friendlyurlsprefix_title"] = 'プレフィックス';
@@ -1106,7 +1106,7 @@ $_lang["bkmgr_snapshot_submit"] = 'スナップショットを追加する';
 $_lang["bkmgr_snapshot_list_title"] = 'スナップショットの一覧';
 $_lang["bkmgr_restore_submit"] = 'このデータに戻す';
 $_lang["bkmgr_snapshot_nothing"] = 'スナップショットはありません。';
-$_lang["settings_friendlyurls_alert"] = "フレンドリーURL機能を利用するにはMODXインストールディレクトリの\nsample.htaccessファイルを.htaccessにリネームする必要があります。";
+$_lang["settings_friendlyurls_alert"] = "フレンドリーURL機能を利用するにはinstall/tpl/ディレクトリの\nhtaccess.tplファイルを.htaccessとしてMODX設置ディレクトリにコピーする必要があります。";
 $_lang["settings_friendlyurls_alert2"] = '.htaccessの内容を変更する必要があります。(参考 : install/tpl/htaccess.tpl)';
 
 $_lang["configcheck_rb_base_dir"] = 'ファイルブラウザディレクトリのパス設定が正しくありません。';
