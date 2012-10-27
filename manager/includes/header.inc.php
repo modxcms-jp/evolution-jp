@@ -28,7 +28,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 ?>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
-    <?php echo $manager_inline_style; ?>
+    <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.powertipmin.js" type="text/javascript"></script>
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
