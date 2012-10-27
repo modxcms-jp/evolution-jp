@@ -20,9 +20,9 @@ if($_REQUEST['a']!='8' && isset($_SESSION['mgrValidated'])){
 
     // load template file
 	$base_path = MODX_BASE_PATH;
-	if(is_file("{$base_path}assets/templates/manager/manager.lockout.tpl"))
+	if(is_file("{$base_path}assets/templates/manager/manager.lockout.html"))
 	{
-		$tplFile = "{$base_path}assets/templates/manager/login.tpl";
+		$tplFile = "{$base_path}assets/templates/manager/login.html";
 	}
 	elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/manager.lockout.tpl"))
 	{

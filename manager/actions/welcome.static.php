@@ -141,9 +141,9 @@ if(!isset($tpl) || empty($tpl))
 {
 	$base_path = MODX_BASE_PATH;
 	$manager_theme = $modx->config['manager_theme'];
-	if(is_file("{$base_path}assets/templates/manager/welcome.tpl"))
+	if(is_file("{$base_path}assets/templates/manager/welcome.html"))
 	{
-		$tpl_path = "{$base_path}assets/templates/manager/welcome.tpl";
+		$tpl_path = "{$base_path}assets/templates/manager/welcome.html";
 	}
 	elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/welcome.tpl"))
 	{

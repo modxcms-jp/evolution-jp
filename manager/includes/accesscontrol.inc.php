@@ -67,9 +67,9 @@ if(!isset($_SESSION['mgrValidated']))
 	{
 		// load template file
 		$base_path = MODX_BASE_PATH;
-		if(is_file("{$base_path}assets/templates/manager/login.tpl"))
+		if(is_file("{$base_path}assets/templates/manager/login.html"))
 		{
-			$tplFile = "{$base_path}assets/templates/manager/login.tpl";
+			$tplFile = "{$base_path}assets/templates/manager/login.html";
 		}
 		elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/login.tpl"))
 		{
