@@ -45,7 +45,7 @@ function get_src_header()
 <!-- end header -->
 
 <div id="contentarea">
-    <div class="container_10">        
+    <div class="container_10">
         <!-- start content -->
         <div id="content">
 EOT;
