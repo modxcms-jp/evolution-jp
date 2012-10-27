@@ -95,7 +95,7 @@ $_lang["install_results"] = 'インストールを実行しました。';
 $_lang["install_update"] = '';
 $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_copy"] = '新規インストール - ';
-$_lang["installation_install_new_note"] = 'すでにMODXをインストールしている場合はTableプレフィックスを変更して別インストールできます。';
+$_lang["installation_install_new_note"] = 'MODXを新規インストールします。';
 $_lang["installation_mode"] = 'インストールの選択';
 $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。';
