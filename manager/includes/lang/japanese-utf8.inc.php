@@ -1226,4 +1226,6 @@ $_lang["a17_manager_inline_style_title"] = '追加のスタイル';
 $_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
 
 $_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイルの拡張子';
-$_lang["configcheck_mgr_tpl_msg"] = '管理画面テンプレートファイルの拡張子は「tpl」を認識する仕様になりました。バージョンアップによりカスタマイズが反映されなくなった場合は、<br />assets/templates/manager/ディレクトリ内のテンプレートファイルの拡張子をtplに変更するか、プラグインでカスタマイズ(同梱の管理画面カスタマイズプラグインを参照)してください。カスタマイズの必要がない場合は、このディレクトリを削除してください。';
+$_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、ディレクトリごと削除してください。すでにカスタマイズを加えて使用している場合は、同ディレクトリ内のファイルの拡張子を「.tpl」に変更し、manager/media/style/テーマ名/template/ディレクトリに上書きしてください。';
+
+$_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
