@@ -124,7 +124,7 @@ $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning
 $_lang["configcheck_images"] = 'イメージディレクトリに書き込みできません';
 $_lang["configcheck_images_msg"] = 'イメージディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません';
 $_lang["configcheck_installer"] = 'インストーラーが残されています';
-$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が存在します。アップデートの必要がある場合は<a href="../install/" target="_blank">アップデート作業</a>を行なってください。新規インストール後、またはすでにアップデート作業を行なっている場合は、第三者にアップデートを再実行され、不要な機能のインストールなどを行なわれてしまう可能性がありますので、すぐにディレクトリごと削除してください。';
+$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が存在します。アップデートの必要がある場合は<a href="http://modx.jp/docs/update.html" target="_blank">アップデート作業</a>を行なってください。新規インストール後、またはすでにアップデート作業を行なっている場合は、第三者にアップデートを再実行され、不要な機能のインストールなどを行なわれてしまう可能性がありますので、すぐに<a href="index.php?a=31">ディレクトリごと削除</a>してください。';
 $_lang["configcheck_lang_difference"] = '言語ファイルのエントリー数が異なります';
 $_lang["configcheck_lang_difference_msg"] = '現在選択されている言語ファイルのエントリー数がデフォルト言語ファイル(英語)のエントリー数と異なるため、一部が英語で表示されます。日本語で表示したい場合は、最新の言語ファイルを入手しアップデートする必要があります。';
 $_lang["configcheck_notok"] = '動作環境に問題があります。';
@@ -1226,6 +1226,6 @@ $_lang["a17_manager_inline_style_title"] = '追加のスタイル';
 $_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
 
 $_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイル';
-$_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、ディレクトリごと削除してください。すでにカスタマイズを加えて使用している場合は、同ディレクトリ内のファイルの拡張子を「.tpl」に変更し、manager/media/style/テーマ名/template/ディレクトリに上書きしてください。';
+$_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、<a href="index.php?a=31">ディレクトリごと削除</a>してください。すでにカスタマイズを加えて使用している場合は、同ディレクトリ内のファイルの拡張子を「.tpl」に変更し、manager/media/style/テーマ名/template/ディレクトリに上書きしてください。';
 
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
