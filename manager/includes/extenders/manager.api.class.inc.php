@@ -133,7 +133,7 @@ class ManagerAPI {
 		
 		$target_path = str_replace('\\','/', $target_path);
 		
-		if(strpos($modx['filemanager_path'], $target_path)!==0)
+		if(strpos($target_path, $modx->config['filemanager_path'])!==0)
 		{
 			$msg = "Can't upload to '{$target_path}'.";
 			$modx->logEvent(1,3,$msg,'move_uploaded_file');
