@@ -373,6 +373,44 @@ class PHxParser {
 					$output = $modifier_cmd[$i]($output);
 					break;
 				
+				#####  Resource fields
+				case 'type':
+				case 'contentType':
+				case 'pagetitle':
+				case 'longtitle':
+				case 'description':
+				case 'alias':
+				case 'link_attributes':
+				case 'published':
+				case 'pub_date':
+				case 'unpub_date':
+				case 'parent':
+				case 'isfolder':
+				case 'content':
+				case 'richtext':
+				case 'template':
+				case 'menuindex':
+				case 'searchable':
+				case 'cacheable':
+				case 'createdby':
+				case 'createdon':
+				case 'editedby':
+				case 'editedon':
+				case 'deleted':
+				case 'deletedon':
+				case 'deletedby':
+				case 'publishedon':
+				case 'publishedby':
+				case 'menutitle':
+				case 'donthit':
+				case 'haskeywords':
+				case 'hasmetatags':
+				case 'privateweb':
+				case 'privatemgr':
+				case 'content_dispo':
+				case 'hidemenu':
+					$output = $this->getDocumentObject($output,$modifier_cmd[$i]);
+					break;
 				
 				#####  Special functions 
 				case 'math':
@@ -597,6 +635,27 @@ class PHxParser {
 		}
 		else $str = strftime($format,$timestamp);
 	    return $str;
+	}
+	
+	function getDocumentObject($target,$field='pagetitle')
+	{
+		global $modx;
+		
+		$target = trim($target);
+		if(preg_match('@^[0-9]+$@',$target)) $mode='id';
+		else $mode = 'alias';
+		
+		if(!isset($this->documentObject[$target])) 
+		{
+			$this->documentObject[$target] = $modx->getDocumentObject($mode,$target);
+		}
+		if(is_array($this->documentObject[$target][$field]))
+		{
+			$a = $modx->getTemplateVarOutput($field,$target);
+			$this->documentObject[$target][$field] = $a[$field];
+		}
+		
+		return $this->documentObject[$target][$field];
 	}
 }
 ?>
