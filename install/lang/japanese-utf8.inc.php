@@ -102,8 +102,8 @@ $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にロ�
 $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">インストールは無事に成功しました。</span>';
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定をアップデートできます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベースを変更した場合などにこのオプションを選択してconfig.inc.phpを更新してください。';
-$_lang["installation_upgrade_existing"] = '通常アップデート';
-$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでも<a href="../manager/">バックアップマネージャー</a>でどうぞ。';
+$_lang["installation_upgrade_existing"] = 'アップデート';
+$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでも<a href="../manager/">バックアップマネージャー</a>でどうぞ。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
@@ -196,7 +196,7 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 
 $_lang['checking_if_backup_exists'] = '<span class="mono">/temp/backup</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_backup_writable'] = '<span class="mono">/temp/backup</span>ディレクトリの書き込み属性: ';
-$_lang['no_update_options'] = 'アップデート対象のオプションはありません';
+$_lang['no_update_options'] = 'アップデート対象のオプションはありません。config.inc.phpの「$lastInstallTime」のみを更新します。';
 
 $_lang['checking_if_content_exists'] = '<span class="mono">/content</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_content_writable'] = '<span class="mono">/content</span>ディレクトリの書き込み属性: ';
