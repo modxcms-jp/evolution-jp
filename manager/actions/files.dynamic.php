@@ -101,6 +101,12 @@ if(isset($_REQUEST['path']) && !empty($_REQUEST['path'])) {
 }
 $startpath = rtrim($startpath,'/');
 
+if(!is_readable($startpath))
+{
+	echo $_lang["not_readable_dir"];
+	exit;
+}
+
 // Raymond: get web start path for showing pictures
 $rf = realpath($filemanager_path);
 $rw = realpath('../');
