@@ -90,10 +90,13 @@ function add_dot($array)
 // end settings
 
 // get the current work directory
-if(isset($_REQUEST['path']) && !empty($_REQUEST['path'])) {
-        $_REQUEST['path'] = str_replace('..','',$_REQUEST['path']);
+if(isset($_REQUEST['path']) && !empty($_REQUEST['path']))
+{
+	$_REQUEST['path'] = str_replace('..','',$_REQUEST['path']);
 	$startpath = is_dir($_REQUEST['path']) ? $_REQUEST['path'] : removeLastPath($_REQUEST['path']) ;
-} else {
+}
+else
+{
 	$startpath = $filemanager_path;
 }
 $startpath = rtrim($startpath,'/');
