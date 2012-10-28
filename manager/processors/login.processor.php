@@ -24,10 +24,10 @@ $captcha_code   = (isset($_REQUEST['captcha_code'])) ? $_REQUEST['captcha_code']
 $rememberme     = (isset($_REQUEST['rememberme']))   ? $_REQUEST['rememberme']   : '';
 $failed_allowed = $modx->config['failed_login_attempts'];
 
-if(substr($username,-9)===':safemode')
+if(strpos($username,':safemode')!==false)
 {
 	$_SESSION['safeMode'] = 1;
-	$username = substr($username,0,-9);
+	$username = str_replace(':safemode','',$username);
 }
 
 $tbl_user_settings   = $modx->getFullTableName('user_settings');
