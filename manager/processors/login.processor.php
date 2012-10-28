@@ -29,6 +29,11 @@ if(strpos($username,':safemode')!==false)
 	$_SESSION['safeMode'] = 1;
 	$username = str_replace(':safemode','',$username);
 }
+if(strpos($username,':roleid=')!==false)
+{
+	list($username,$assignRole) = explode(':roleid=',$username);
+	if(!preg_match('@^[0-9]+$@',$assignRole)) $assignRole = 1;
+}
 
 $tbl_user_settings   = $modx->getFullTableName('user_settings');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
@@ -72,7 +77,7 @@ $blocked                = $row['blocked'];
 $blockeduntildate       = $row['blockeduntil'];
 $blockedafterdate       = $row['blockedafter'];
 $registeredsessionid    = $row['sessionid'];
-$role                   = $row['role'];
+$role                   = ($row['role']==1 && $assignRole) ? $assignRole : $row['role'];
 $lastlogin              = $row['lastlogin'];
 $nrlogins               = $row['logincount'];
 $fullname               = $row['fullname'];
