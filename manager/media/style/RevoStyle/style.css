@@ -1264,12 +1264,6 @@ table.sortabletable {
 	border-collapse:collapse;
 }
 
-.sortabletable thead tr {
-	background-color: #86919e;
-}
-.sortabletable tr {
-	background: #fff;
-}
 .sortabletable tr.even {
 	background: #E9F0F3;
 }
