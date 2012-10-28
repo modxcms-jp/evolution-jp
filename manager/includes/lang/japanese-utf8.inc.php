@@ -54,7 +54,7 @@ $_lang["add_tag"] = 'タグ追加';
 $_lang["add_template"] = 'テンプレートを追加';
 $_lang["add_tv"] = 'テンプレート変数を追加';
 $_lang["add_weblink"] = 'ウェブリンクを作成';
-$_lang["administrator_role_message"] = '全ての権限を持ちます。グループ設定に関係なく全領域にアクセスできる特別なロールです。';
+$_lang["administrator_role_message"] = '全ての権限を持つ特権ロール。いくつかの特殊な管理機能が備わっています。通常のコンテンツ管理には向かないためご注意ください。';
 $_lang["administrators"] = '管理者のみ(Administrator)';
 $_lang["after_saving"] = '更新後は';
 $_lang["alert_delete_self"] = '自分自身を削除することはできません。';
@@ -1231,4 +1231,4 @@ $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリ
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
 
 $_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
-$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象にならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用の万能アカウントとして利用してください。';
+$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象にならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用のアカウントとして利用してください。';
