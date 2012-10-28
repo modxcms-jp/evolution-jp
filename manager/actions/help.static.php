@@ -10,9 +10,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 </div>
 
 <div class="sectionBody">
-    <div class="tab-pane" id="resourcesPane">
+    <div class="tab-pane" id="helpPane">
         <script type="text/javascript">
-            tpResources = new WebFXTabPane( document.getElementById( "resourcesPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
+            tpHelp = new WebFXTabPane( document.getElementById( "helpPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
         </script>
 <?php
 $help_dir = MODX_BASE_PATH . 'assets/templates/help';
@@ -51,7 +51,7 @@ foreach($help as $k=>$v) {
     $helpname = str_replace('_', ' ', $helpname);
     echo '<div class="tab-page" id="tab'.$v.'Help">';
     echo '<h2 class="tab">'.$helpname.'</h2>';
-    echo '<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tab'.$v.'Help" ) );</script>';
+    echo '<script type="text/javascript">tpHelp.addTabPage( document.getElementById( "tab'.$v.'Help" ) );</script>';
     include ($help_dir . '/' . $v);
     echo '</div>';
 }
