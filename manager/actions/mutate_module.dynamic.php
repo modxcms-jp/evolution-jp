@@ -334,7 +334,6 @@ function SetUrl(url, width, height, alt) {
 	document.mutate.icon.value = url;
 }
 </script>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css?<?php echo $theme_refresher?>" />
 
 <form name="mutate" id="mutate" class="module" method="post" action="index.php?a=109" enctype="multipart/form-data">

@@ -39,8 +39,6 @@ else
 }
 
 ?>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-
 <h1><?php echo $_lang['web_access_permissions'] ;?></h1>
 
 <div id="actions">

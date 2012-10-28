@@ -451,8 +451,6 @@ echo ab_cancel();
 
 <!-- start main wrapper -->
 <div class="sectionBody">
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
 	tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );

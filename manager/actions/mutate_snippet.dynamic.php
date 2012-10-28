@@ -305,7 +305,6 @@ function decode(s){
 
 <div class="sectionBody">
 <?php echo $_lang['snippet_msg']?>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="snipetPane">
 	<script type="text/javascript">
 		tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );

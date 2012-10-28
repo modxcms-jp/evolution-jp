@@ -183,7 +183,6 @@ else $ph['result_msg'] = '';
 	<?php echo isset($_REQUEST['r']) ? " doRefresh(".$_REQUEST['r'].");" : "" ;?>
 
 </script>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <h1><?php echo $_lang['bk_manager']?></h1>
 
 <div id="actions">

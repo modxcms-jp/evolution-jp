@@ -216,7 +216,6 @@ if (is_array($evtOut))
     </div>
 
 <div class="sectionBody">
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="chunkPane">
 	<script type="text/javascript">
 		tp = new WebFXTabPane( document.getElementById( "chunkPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );

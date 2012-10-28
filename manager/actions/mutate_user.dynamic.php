@@ -262,7 +262,6 @@ if (is_array($evtOut))
 	table.settings th {font-size:inherit;vertical-align:top;text-align:left;}
 	table.settings th,table.settings td {padding:5px;}
 </style>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="userPane">
 	<script type="text/javascript">
 		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );

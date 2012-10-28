@@ -291,7 +291,6 @@ else
 		document.location.href="index.php?id=<?php echo $id;?>&a=51";
 	}
 	</script>
-	<script type="text/javascript" src="media/script/tabpane.js"></script>
 	<script type="text/javascript" src="media/script/tablesort.js"></script>
 	<h1><?php echo $_lang['doc_data_title']?></h1>
 	

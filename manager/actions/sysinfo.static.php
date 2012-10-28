@@ -21,7 +21,6 @@ if(!$modx->hasPermission('logs')) {
 </script>
 
 <div class="sectionBody">
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="sysinfoPane">
 <script type="text/javascript">
 	tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);

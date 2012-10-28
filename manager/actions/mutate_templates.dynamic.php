@@ -142,10 +142,7 @@ function deletedocument() {
     	  </ul>
     </div>
 
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-
 <div class="sectionBody">
-
 <div class="tab-pane" id="templatesPane">
 	<script type="text/javascript">
 		tpResources = new WebFXTabPane( document.getElementById( "templatesPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );

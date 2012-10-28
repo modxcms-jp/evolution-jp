@@ -38,8 +38,6 @@ if ($modx->db->getRecordCount($rs) < 1) {
 }
 
 ?>
-<script type="text/javascript" src="media/script/tabpane.js"></script>
-
 <h1><?php echo $_lang['mgr_access_permissions']?></h1>
 
 <div id="actions">

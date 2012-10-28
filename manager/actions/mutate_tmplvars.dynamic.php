@@ -337,7 +337,6 @@ function decode(s){
     	  </ul>
     </div>
 
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="sectionBody">
 <div class="tab-pane" id="tmplvarsPane">
 	<script type="text/javascript">

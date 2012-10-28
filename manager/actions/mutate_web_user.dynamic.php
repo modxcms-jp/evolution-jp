@@ -257,7 +257,6 @@ function showHide(what, onoff){
 <!-- Tab Start -->
 <div class="sectionBody">
 <link type="text/css" rel="stylesheet" href="media/style/<?php echo $manager_theme; ?>/style.css<?php echo "?$theme_refresher";?>" />
-<script type="text/javascript" src="media/script/tabpane.js"></script>
 <div class="tab-pane" id="webUserPane">
 	<script type="text/javascript">
 		tpUser = new WebFXTabPane(document.getElementById( "webUserPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
