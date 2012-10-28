@@ -63,7 +63,7 @@ $_lang["all_doc_groups"] = 'グループ制限なし(Public)';
 $_lang["all_events"] = '全てのイベント';
 $_lang["all_usr_groups"] = '全ユーザーグループ(Public)';
 $_lang["allow_mgr_access"] = '管理画面へのアクセス(全域)';
-$_lang["allow_mgr_access_message"] = 'このオプションは管理画面へのアクセスをユーザーに許可するかしないかを選択するものです。<br /><strong>※このオプションを「いいえ」に設定すると、ユーザーは上記の「管理画面ログイン開始ページ」か、それが空白ならサイトスタートのページへリダイレクトされます。</strong>';
+$_lang["allow_mgr_access_message"] = 'このオプションは管理画面へのアクセスをユーザーに許可するかしないかを選択するものです。<br />※このオプションを「いいえ」に設定すると、ユーザーは上記の「管理画面ログイン開始ページ」か、それが空白ならサイトスタートのページへリダイレクトされます。';
 $_lang["already_deleted"] = 'はすでに削除されています';
 $_lang["attachment"] = 'ファイルとしてダウンロード';
 $_lang["automatic_alias_message"] = 'pagetitle - リソース名からエイリアスを自動生成します。<br />numbering - コンテナ単位でナンバリングを行ないます。';
@@ -112,7 +112,7 @@ $_lang["collapse_tree"] = 'リソースツリーを縮小';
 $_lang["comment"] = 'コメント';
 $_lang["configcheck_admin"] = '上記のメッセージをシステム管理者に報告してください。';
 $_lang["configcheck_cache"] = 'キャッシュディレクトリに書き込みできません';
-$_lang["configcheck_cache_msg"] = 'キャッシュファイルを更新できません。MODXは動作しますが、キャッシュが利用できないためレスポンスが重くなります。キャッシュを有効にするためには /cache/ ディレクトリを書き込み可能にしてください。';
+$_lang["configcheck_cache_msg"] = 'キャッシュファイルを更新できません。MODXは動作しますが、キャッシュが利用できないためレスポンスが悪化します。/cache/ ディレクトリを書き込み可能にしてください。';
 $_lang["configcheck_configinc"] = '設定ファイルがまだ書き込み可能になっています';
 $_lang["configcheck_configinc_msg"] = '設定ファイルが書き込み可能になっているため、悪意の第三者による操作がしやすい状態になっています。 /manager/includes/config.inc.php のパーミッションを404などに設定し、書込み不可にしてください。';
 $_lang["configcheck_default_msg"] = '原因不明のエラーが存在します。';
@@ -1231,4 +1231,4 @@ $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリ
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
 
 $_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
-$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象とならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用アカウントとして利用してください。';
+$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象にならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用の万能アカウントとして利用してください。';

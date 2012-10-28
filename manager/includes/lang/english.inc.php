@@ -1227,3 +1227,6 @@ $_lang["configcheck_mgr_tpl"] = 'Extension of manager template filename';
 $_lang["configcheck_mgr_tpl_msg"] = 'Extension of manager template filename is should be ".tpl"';
 
 $_lang["not_readable_dir"] = 'Can not read this directory.';
+
+$_lang["configcheck_you_are_admin"] = 'You are loggedin special role';
+$_lang["configcheck_you_are_admin_msg"] = 'You are loggedin special role(Administrator).';
