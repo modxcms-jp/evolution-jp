@@ -1,6 +1,5 @@
 <!-- welcome -->
 <div style="margin: 20px 12px;">
-	<script type="text/javascript" src="media/script/tabpane.js"></script>
 	<div class="tab-pane" id="welcomePane" style="border:0">
     <script type="text/javascript">
         tpPane = new WebFXTabPane(document.getElementById( "welcomePane" ),false);
