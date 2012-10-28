@@ -327,7 +327,7 @@ $item['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('
 $item['site_schedule']   = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
 $item['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
 $item['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
-$item['view_sysinfo']    = item($_lang['view_sysinfo'], 53);// system-info
+$item['view_sysinfo']    = item($_lang['view_sysinfo'], 53,$modx->hasPermission('logs'));// system-info
 
 $sitemenu     = buildMenu('site',$item);
 $elementmenu  = buildMenu('element',$item);
