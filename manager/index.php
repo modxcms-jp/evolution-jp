@@ -88,8 +88,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . rtrim($core_path,'/'));
 // initiate the content manager class
 include_once "{$core_path}document.parser.class.inc.php";
 $modx = new DocumentParser;
-// $modx->safeMode = 1;
-if($_SESSION['safeMode']==1)
+$modx->safeMode = 0;
+if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 {
 	if($_SESSION['mgrRole']==1) $modx->safeMode = 1;
 	else unset($_SESSION['safeMode']);
