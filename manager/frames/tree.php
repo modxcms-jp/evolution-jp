@@ -562,20 +562,27 @@ constructLink(2, $_style["icons_edit_document"], $_lang["edit_resource"], $modx-
 constructLink(3, $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
 constructLink(5, $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
 constructLink(7, $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
-?>
-    <div class="seperator"></div>
-<?php
+if(
+$modx->hasPermission('edit_document')
+|| $modx->hasPermission('new_document')
+|| $modx->hasPermission('save_document')
+)
+{
+	echo '<div class="seperator"></div>';
+}
 constructLink(9, $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
 constructLink(10, $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
 constructLink(4, $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
 constructLink(8, $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
-?>
-    <div class="seperator"></div>
-<?php
+if($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document'))
+{
+	echo '<div class="seperator"></div>';
+}
 constructLink(6, $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
-?>
-    <div class="seperator"></div>
-<?php
+if($modx->hasPermission('new_document'))
+{
+	echo '<div class="seperator"></div>';
+}
 constructLink(1, $_style["icons_resource_overview"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
 constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
 ?>
