@@ -87,13 +87,15 @@ else
 			}
 			$chunks = join("','", $chunks);
 			$where  = "`name` IN ('{$chunks}')";
+			$orderby = "FIELD(name, '{$chunks}')";
 		}
 		else
 		{
 			$where = "`name`='{$chunks}'";
+			$orderby = '';
 		}
 		
-		$rs = $modx->db->select('id,name,description', $tbl_site_htmlsnippets, $where);
+		$rs = $modx->db->select('id,name,description', $tbl_site_htmlsnippets, $where, $orderby);
 		
 		while($row = $modx->db->getRow($rs))
 		{
