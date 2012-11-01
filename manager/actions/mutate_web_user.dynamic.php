@@ -519,7 +519,7 @@ if($use_udperms==1)
 		<div class="sectionBody">
 <?php
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$rs = $modx->db->query('name,id',$tbl_webgroup_names,'','name');
+	$rs = $modx->db->select('name,id',$tbl_webgroup_names,'','name');
 	$tpl = '<input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]<br />';
 	while($row=$modx->db->getRow($rs))
 	{
