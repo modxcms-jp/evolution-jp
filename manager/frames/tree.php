@@ -107,14 +107,22 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function showPopup(id,title,pub,del,e){
         var x,y
         var mnu = document.getElementById('mx_contextmenu');
-        document.getElementById('item9').style.display='block';
-        document.getElementById('item10').style.display='block';
-        document.getElementById('item4').style.display='block';
-        document.getElementById('item8').style.display='block';
-        if(pub==1) document.getElementById('item9').style.display='none';
-        else       document.getElementById('item10').style.display='none';
-        if(del==1) document.getElementById('item4').style.display='none';
-        else       document.getElementById('item8').style.display='none';
+        var permpub = <?php echo $modx->hasPermission('publish_document') ? 1:0; ?>;
+        var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
+        if(permpub==1)
+        {
+	        document.getElementById('item9').style.display='block';
+	        document.getElementById('item10').style.display='block';
+	        if(pub==1) document.getElementById('item9').style.display='none';
+	        else       document.getElementById('item10').style.display='none';
+        }
+        if(permdel==1)
+        {
+	        document.getElementById('item4').style.display='block';
+	        document.getElementById('item8').style.display='block';
+	        if(del==1) document.getElementById('item4').style.display='none';
+	        else       document.getElementById('item8').style.display='none';
+        }
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX > 0 ? e.clientX:e.pageX;
         y = e.clientY > 0 ? e.clientY:e.pageY;
@@ -586,6 +594,6 @@ function constructLink($action, $img, $text, $allowed)
 	if($allowed==1)
 	{
 		echo '<div class="menuLink" id="item'.$action.'" onclick="menuHandler(' . $action . '); hideMenu();">';
+		echo '<img src="' . $img . '" />' . $text . '</div>';
 	}
-	echo '<img src="' . $img . '" />' . $text . '</div>';
 }
