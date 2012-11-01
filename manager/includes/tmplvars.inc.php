@@ -71,7 +71,7 @@
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
 				while (list($item, $itemvalue) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
+					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode('==',$itemvalue);
 					if (strlen($itemvalue)==0) $itemvalue = $item;
 					$field_html .=  '<option value="'.htmlspecialchars($itemvalue).'"'.($itemvalue==$field_value ?' selected="selected"':'').'>'.htmlspecialchars($item).'</option>';
 				}
@@ -320,26 +320,20 @@ EOT;
 		return $field_html;
 	} // end renderFormElement function
 
-	function ParseIntputOptions($v) {
+	function ParseIntputOptions($v)
+	{
 		global $modx;
 		$a = array();
-		if(is_array($v)) return $v;
-		elseif(is_resource($v)) {
-			while ($cols = $modx->db->getRow($v,'num')) $a[] = $cols;
+		if(is_array($v)) $a = $v;
+		elseif(is_resource($v))
+		{
+			while ($cols = $modx->db->getRow($v,'num'))
+			{
+				$a[] = $cols;
+			}
 		}
 		else
 		{
-/*
-			$s = array('[[','[!','{{','[(','[~');
-			foreach($s as $_)
-			{
-				if(strpos($v,$_)!==false)
-				{
-					$v = $modx->parseDocumentSource($v);
-					break;
-				}
-			}
-*/
 			$a = explode('||', $v);
 		}
 		return $a;

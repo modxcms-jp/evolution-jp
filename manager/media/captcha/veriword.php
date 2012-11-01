@@ -2,8 +2,8 @@
 if(!isset($modx))
 {
 	define('MODX_API_MODE',true);
-	$base_path = str_replace('\\','/',__FILE__);
-	$base_path = preg_replace('@manager/media/captcha/veriword.php$@','',$base_path);
+	$self = 'manager/media/captcha/veriword.php';
+	$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 	require_once("{$base_path}index.php");
 	$modx->db->connect();
 	$modx->getSettings();
