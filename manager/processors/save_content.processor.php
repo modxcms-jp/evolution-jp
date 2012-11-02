@@ -48,7 +48,8 @@ $content_dispo   = intval($_POST['content_dispo']);
 $donthit         = intval($_POST['donthit']);
 $hidemenu        = intval($_POST['hidemenu']);
 $editedby = $modx->getLoginUserID();
-$editedon = time();
+$currentdate = time();
+$editedon = $currentdate;
 
 if (trim($pagetitle) == '')
 {
@@ -77,8 +78,6 @@ if($actionToTake==='edit' && empty($id))
 }
 
 $alias = get_alias($id,$alias,$parent,$pagetitle);
-
-$currentdate = time();
 
 if(empty($pub_date)) $pub_date = 0;
 else
@@ -213,11 +212,11 @@ switch ($actionToTake)
 			$published = 0;
 		}
 
-		$publishedon = ($published ? time() : 0);
+		$publishedon = ($published ? $currentdate : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
 		
 		$createdby = $modx->getLoginUserID();
-		$createdon = time();
+		$createdon = $currentdate;
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		if(!empty($id)) $field['id'] = $id;
 		$newid = $modx->db->insert($field,$tbl_site_content);
@@ -369,8 +368,7 @@ switch ($actionToTake)
 			include_once "footer.inc.php";
 			exit;
 		}
-		$today= time();
-		if ($id == $site_start && ($pub_date > $today || $unpub_date != "0"))
+		if ($id == $site_start && ($pub_date > $currentdate || $unpub_date != "0"))
 		{
 			$modx->manager->saveFormValues(27);
 			include_once "header.inc.php";
@@ -415,7 +413,7 @@ switch ($actionToTake)
 		else
 		{
 			// if it was changed from unpublished to published
-			if(!empty($pub_date) && $pub_date<=time() && $published)
+			if(!empty($pub_date) && $pub_date<=$currentdate && $published)
 			{
 				$publishedon = $pub_date;
 				$publishedby = $was['publishedby'];
@@ -432,7 +430,7 @@ switch ($actionToTake)
 			}
 			else
 			{
-				$publishedon = time();
+				$publishedon = $currentdate;
 				$publishedby = $modx->getLoginUserID();
 			}
 		}

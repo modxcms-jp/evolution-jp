@@ -1503,7 +1503,7 @@ class DocumentParser {
 		$etomite= $modx= & $this;
 		if(isset($params) && is_array($params))
 		{
-			foreach($params as $k=>$v)
+			while(list($k,$v) = each($params))
 			{
 				if($v==='false')    $params[$k] = false;
 				elseif($v==='true') $params[$k] = true;
@@ -2025,7 +2025,7 @@ class DocumentParser {
 			
 			foreach ($this->documentMap as $document)
 			{
-				foreach ($document as $p => $c)
+				while(list($p, $c) = each($document))
 				{
 					$childrenList[$p][] = $c;
 				}
@@ -2339,7 +2339,7 @@ class DocumentParser {
 			if(is_string($ids))
 			{
 				$ids = explode(',',$ids);
-				foreach($ids as $i=>$id)
+				while(list($i,$id) = each($ids))
 				{
 					$ids[$i] = trim($id);
 				}
@@ -2756,7 +2756,7 @@ class DocumentParser {
 		if($mode==='chunk') $src= $this->getChunk($chunkName);
 		else                $src = $chunkName;
 		
-		foreach ($chunkArr as $key => $value)
+		while(list($key, $value) = each($chunkArr))
 		{
 			$src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
 		}
@@ -2995,7 +2995,7 @@ class DocumentParser {
 			
 			// get default/built-in template variables
 			ksort($resource);
-			foreach ($resource as $key => $value)
+			while(list($key, $value) = each($resource))
 			{
 				if ($idnames == '*' || in_array($key, $idnames))
 				{
@@ -3065,7 +3065,8 @@ class DocumentParser {
             $subject= get_object_vars($subject);
         }
         if (is_array($subject)) {
-            foreach ($subject as $key => $value) {
+            while(list($key, $value) = each($subject))
+            {
                 $this->toPlaceholder($key, $value, $prefix);
             }
         }
@@ -3532,7 +3533,7 @@ class DocumentParser {
 				}
 			}
 		}
-		foreach($parameter as $k=>$v)
+		while(list($k, $v) = each($parameter))
 		{
 			$v = str_replace('%3D','=',$v);
 			$v = str_replace('%26','&',$v);
