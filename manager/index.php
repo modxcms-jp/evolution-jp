@@ -100,6 +100,7 @@ $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 $modx->db->connect();
 $modx->getSettings();
+//$modx->config['use_captcha'] = 0;
 extract($modx->config);
 
 // include_once the language file
