@@ -25,11 +25,6 @@
     ---------------------------------------------------------------- */
     h1, h2, h3, h4, h5, h6 {font-weight: normal;}
     h1 { font-size: 218%; }
-    h2 { font-size: 164%; }
-    h3 { font-size: 145%; }
-    h4 { font-size: 118%; }
-    h5 { font-size: 100%; font-weight: bold; }
-    h6 { font-size: 86%; font-weight: bold; }
     .warning{color: #821517;font-weight: bold;}
     .success{color: #090;font-weight: bold;}
     a, a:active, a:visited, a:link {color: #333;text-decoration: underline;}
@@ -48,7 +43,7 @@
     label {display: block;font-weight: bold;}
     input {margin: 0 0 10px 0;}
     input.checkbox {float: left;clear: left;margin-right: 3px;}
-    input.text,input#FMP-email {line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url(media/style/[+theme+]/images/misc/input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;}
+    form input.text,input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url(media/style/[+theme+]/images/misc/input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;}
     input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border:1px solid #ccc;}
     .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;}
     .loginLicense a {color: #B2B2B2;}
@@ -114,8 +109,8 @@
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" />
             <label for="password">[+password+] </label>
             <input type="password" class="text" name="password" id="password" tabindex="2" value="" />
-            <p class="caption">[+login_captcha_message+]</p>
-            <div>[+captcha_image+]</div>
+            [+login_captcha_message+]
+            [+captcha_image+]
             [+captcha_input+]
             <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox" [+remember_me+] /><label for="rememberme" style="cursor:pointer;display:inline;">[+remember_username+]</label>
             <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]" />
