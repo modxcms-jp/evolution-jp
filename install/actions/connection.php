@@ -46,8 +46,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 
 ?>
 
-<form id="install_form" action="index.php" method="POST">
-<input type="hidden" name="action" value="options" />
+<form id="install" action="index.php?mode=options" method="POST">
   <div>
     <input type="hidden" value="1" name="chkagree" <?php echo isset($_POST['chkagree']) ? 'checked="checked" ':""; ?>/>
   </div>
@@ -138,8 +137,8 @@ $('#databasetest').click(function(){
 ?>
 
     <p class="buttonlinks">
-        <a href="javascript:void(0)" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
-        <a href="javascript:void(0)" class="next" title="<?php echo $_lang['btnnext_value']?>" style="display:none;"><span><?php echo $_lang['btnnext_value']?></span></a>
+        <a href="javascript:void(0);" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
+        <a href="javascript:void(0);" class="next" title="<?php echo $_lang['btnnext_value']?>" style="display:none;"><span><?php echo $_lang['btnnext_value']?></span></a>
     </p>
 </form>
 
@@ -150,8 +149,8 @@ $('#databasetest').click(function(){
 	});
 	
 	$('a.prev').click(function(){
-		$('input[name="action"]').val('mode');
-		$('#install_form').submit();
+		$('#install_form').attr({action:'index.php?action=mode'});
+		$('#install').submit();
 	});
 	$('a.next').click(function(){
 		if($('#cmspassword').val() !== $('#cmspasswordconfirm').val())
@@ -160,8 +159,7 @@ $('#databasetest').click(function(){
 		}
 		else
 		{
-			$('input[name="action"]').val('options');
-			$('#install_form').submit();
+			$('#install').submit();
 		}
 	});
 	var language ='<?php echo $install_language?>';

@@ -34,20 +34,19 @@ function getTpl()
 {
 	$tpl = 
 <<< EOT
-<form id="install_form" action="index.php" method="POST">
-<input type="hidden" name="action" value="mode" />
-    <h2>Choose language:&nbsp;&nbsp;</h2>
+<form id="install" action="index.php?action=mode" method="POST">
+    <h2>Choose language:</h2>
     <select name="install_language">
     [+lang_options+]
     </select>
         <p class="buttonlinks">
-            <a class="next" style="display:inline;" href="#" title="[+_lang_begin+]"><span>[+_lang_btnnext_value+]</span></a>
+            <a class="next" style="display:inline;" href="javascript:void(0);" title="[+_lang_begin+]"><span>[+_lang_btnnext_value+]</span></a>
         </p>
 </form>
 
 <script type="text/javascript">
 	\$('a.next').click(function(){
-		\$('#install_form').submit();
+		\$('form#install').submit();
 	});
 </script>
 EOT;

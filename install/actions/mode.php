@@ -17,8 +17,7 @@ function getTpl()
 {
 	$tpl = 
 <<< EOT
-<form id="install_form" action="index.php" method="POST">
-<input type="hidden" name="action" value="connection" />
+<form id="install" action="index.php?action=connection" method="POST">
 <h2>[+welcome_title+]</h2>
 <p style="margin-bottom:3em;">[+welcome_text+]</p>
 <div>
@@ -29,21 +28,20 @@ function getTpl()
 	</div>
 </div>
 <p class="buttonlinks">
-    <a href="#" class="prev" title="[+btnback_value+]"><span>[+btnback_value+]</span></a>
-    <a href="#" class="next" title="[+btnnext_value+]"><span>[+btnnext_value+]</span></a>
+    <a href="javascript:void(0);" class="prev" title="[+btnback_value+]"><span>[+btnback_value+]</span></a>
+    <a href="javascript:void(0);" class="next" title="[+btnnext_value+]"><span>[+btnnext_value+]</span></a>
 </p>
 </form>
 
 <script type="text/javascript">
 	var installmode = [+installmode+];
 	\$('a.prev').click(function(){
-		\$('input[name="action"]').val('language');
-		\$('#install_form').submit();
+		\$('form#install').attr({action:'index.php?action=language'});
+		\$('#install').submit();
 	});
 	\$('a.next').click(function(){
-		var target = installmode==1 ? 'options' : 'connection';
-		\$('input[name="action"]').val(target);
-		\$('#install_form').submit();
+		if(installmode==1) \$('form#install').attr({action:'index.php?action=options'});
+		\$('#install').submit();
 	});
 </script>
 EOT;

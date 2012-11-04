@@ -14,7 +14,7 @@ if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_runtime', 0);
     @ ini_set('magic_quotes_sybase', 0);
 }
-
+header("Content-Type: text/html; charset=utf-8");
 // start session
 session_start();
 $_SESSION['test'] = 1;
@@ -25,9 +25,13 @@ error_reporting(E_ALL & ~E_NOTICE);
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}manager/includes/version.inc.php");
 require_once("{$installer_path}functions.php");
-if(isset($_GET['install_language']) && !empty($_GET['install_language']))
+if(isset($_REQUEST['install_language']) && !empty($_REQUEST['install_language']))
 {
-	$default_language = $_GET['install_language'];
+	$default_language = $_REQUEST['install_language'];
+}
+elseif(isset($_SESSION['install_language']) && !empty($_SESSION['install_language']))
+{
+	$default_language = $_SESSION['install_language'];
 }
 else $default_language = 'japanese-utf8';
 
