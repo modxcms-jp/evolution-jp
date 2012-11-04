@@ -173,8 +173,9 @@ class DataGrid {
 				{
 					foreach($row as $k=>$v)
 					{
-						$value = str_replace("[+$k+]",$v,$value);
+						$modx->placeholders[$k] = $v;
 					}
+					$value = $modx->mergePlaceholderContent($value);
 				}
 				break;
 				
