@@ -279,6 +279,7 @@
     width: auto;
     background: none;
     border: 0;
+    list-style-image:none;
 }
 
 #qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv, .qm-save, .qm-cancel  
