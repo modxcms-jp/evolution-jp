@@ -26,8 +26,6 @@ manager/index.php内の「$modx->safeMode = 0;」を「$modx->safeMode = 1;」�
 ログインできます。特権ロール(Administratorロール)のアカウントがある場合は、ユーザ名の末尾に
 「:safemode」を付加することでもセーフモードログインできます。
 
-もしコードを書き間違えてログインできなくなった場合はmanager/index.php内の
-「$modx->safeMode = true;」行頭のコメントアウトを削除してログインし、修正してください。
 ●応用情報
 メンバーごと・ロールごとに制御したい場合は $modx->getLoginUserID() や $_SESSION['mgrRole']の
 値を用いるとよいでしょう。
