@@ -12,6 +12,7 @@ function get_langs()
 	$langs = array();
 	foreach(glob('lang/*.inc.php') as $path)
 	{
+		if(substr($path,5,1)==='.') continue;
 		$langs[] = substr($path,5,strpos($path,'.inc.php')-5);
 	}
 	sort($langs);

@@ -22,7 +22,6 @@ if($limit>1) {
 	}
 }
 // end check for lock
-
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 extract($default_config);
 
@@ -51,9 +50,9 @@ $lang_keys = array();
 $dir = scandir("{$base_path}manager/includes/lang");
 foreach ($dir as $file)
 {
-	if(strpos($file, ".inc.php")>0)
+	$endpos = strpos($file, '.inc.php');
+	if($endpos>0 && substr($file,0,1)!=='.')
 	{
-		$endpos = strpos ($file, '.inc');
 		$languagename = substr($file, 0, $endpos);
 		$lang_keys[$languagename] = get_lang_keys($file);
 	}
