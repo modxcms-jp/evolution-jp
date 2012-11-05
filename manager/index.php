@@ -197,31 +197,7 @@ if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
 $modx->manager->action = $action;
 
 // attempt to foil some simple types of CSRF attacks
-if (isset($modx->config['validate_referer']) && $modx->config['validate_referer']=='1')
-{
-    if (isset($_SERVER['HTTP_REFERER']))
-    {
-        $referer = strip_tags($_SERVER['HTTP_REFERER']);
-        if (!empty($referer))
-        {
-            if (stripos($referer,MODX_SITE_URL)===false)
-            {
-                echo "A possible CSRF attempt was detected from referer: {$referer}.";
-                exit();
-            }
-        }
-        else
-        {
-            echo "A possible CSRF attempt was detected. Check return HTTP_REFERER setting on your browser.";
-            exit();
-        }
-    }
-    else
-    {
-        echo "A possible CSRF attempt was detected. No referer was provided by the server.";
-        exit();
-    }
-}
+$modx->manager->validate_referer($modx->config['validate_referer']);
 
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
