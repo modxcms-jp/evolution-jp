@@ -37,8 +37,8 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 <table class="settings" cellspacing="0" cellpadding="2">
   <tr>
     <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
-    <td><label><input type="radio" name="generate_mode" value="direct" checked="checked"><?php echo $_lang['a83_mode_direct'];?></label>
-		<label><input type="radio" name="generate_mode" value="crawl"><?php echo $_lang['a83_mode_crawl'];?></label></td>
+    <td><label><input type="radio" name="generate_mode" value="direct"><?php echo $_lang['a83_mode_direct'];?></label>
+		<label><input type="radio" name="generate_mode" value="crawl" checked="checked"><?php echo $_lang['a83_mode_crawl'];?></label></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site_cacheable']; ?></td>
