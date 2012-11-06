@@ -83,7 +83,7 @@ function deletedocument() {
 }
 
 </script>
-<form action="index.php?a=36" method="post" name="userform">
+<form action="index.php?a=36" method="post" name="userform" enctype="multipart/form-data">
 <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>">
 <input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
 
