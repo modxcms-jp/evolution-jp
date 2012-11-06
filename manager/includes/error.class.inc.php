@@ -52,25 +52,16 @@ class errorHandler{
 		return $this->errorcode;
 	}
 	
-	function dumpError(){
-?>
-	<html>
-	<head>
-	<title>MODX :: Error</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>">
-	<script>
-		function showError(){
-			alert("<?php echo $this->errormessage; ?>");
-			history.back(-1);
-		}
-		setTimeout("showError()",10);
-	</script>
-	</head>
-	<body>
-	</body>
-	</html>
-<?php
+	function dumpError() {
+		global $_lang;
+		$scr = <<< EOT
+<script>
+	jAlert('{$this->errormessage}', '{$_lang['warning']}', function(){
+		history.back(-1);
+	});
+</script>
+EOT;
+		echo $scr;
 		exit;
 	}
 }
-?>
