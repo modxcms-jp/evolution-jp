@@ -6,7 +6,20 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes');
+// get table names
+$tbl_document_groups            = $modx->getFullTableName('document_groups');
+$tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
+$tbl_member_groups              = $modx->getFullTableName('member_groups');
+$tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
+$tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
+$tbl_site_content               = $modx->getFullTableName('site_content');
+$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
+$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+
+$input = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
+extract($input);
+unset($input);
 
 // preprocess POST values
 if(isset($_POST['id']) && !empty($_POST['id']) && $_POST['id']!='0')
@@ -20,53 +33,30 @@ if(isset($_POST['id']) && !empty($_POST['id']) && $_POST['id']!='0')
 }
 else $id = '';
 
-$introtext       = $modx->db->escape($_POST['introtext']);
-$content         = $modx->db->escape($_POST['ta']);
-$pagetitle       = $modx->db->escape($_POST['pagetitle']);
-$longtitle       = $modx->db->escape($_POST['longtitle']);
-$menutitle       = $modx->db->escape($_POST['menutitle']);
-$description     = $modx->db->escape($_POST['description']);
-$alias           = $modx->stripAlias($modx->db->escape($_POST['alias']));
-$link_attributes = $modx->db->escape($_POST['link_attributes']);
-$isfolder        = $_POST['isfolder'];
-$richtext        = $_POST['richtext'];
-$published       = $_POST['published'];
-$parent          = $_POST['parent'] != '' ? $_POST['parent'] : 0;
-$template        = $_POST['template'];
-$menuindex       = !empty($_POST['menuindex']) ? $_POST['menuindex'] : 0;
-$searchable      = $_POST['searchable'];
-$cacheable       = $_POST['cacheable'];
-$syncsite        = $_POST['syncsite'];
-$pub_date        = $_POST['pub_date'];
-$unpub_date      = $_POST['unpub_date'];
-$document_groups = (isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on') ? array() : $_POST['docgroups'];
-$type            = $_POST['type'];
-$keywords        = $_POST['keywords'];
-$metatags        = $_POST['metatags'];
-$contentType     = $modx->db->escape($_POST['contentType']);
-$content_dispo   = intval($_POST['content_dispo']);
-$donthit         = intval($_POST['donthit']);
-$hidemenu        = intval($_POST['hidemenu']);
-$editedby = $modx->getLoginUserID();
+$introtext       = $modx->db->escape($introtext);
+$content         = $modx->db->escape($ta);
+$pagetitle       = $modx->db->escape($pagetitle);
+$longtitle       = $modx->db->escape($longtitle);
+$menutitle       = $modx->db->escape($menutitle);
+$description     = $modx->db->escape($description);
+$alias           = $modx->stripAlias($modx->db->escape($alias));
+$link_attributes = $modx->db->escape($link_attributes);
+$parent          = $parent != '' ? $parent : 0;
+$menuindex       = !empty($menuindex) ? $menuindex : 0;
+$document_groups = (isset($chkalldocs) && $chkalldocs == 'on') ? array() : $docgroups;
+$contentType     = $modx->db->escape($contentType);
+$content_dispo   = intval($content_dispo);
+$donthit         = intval($donthit);
+$hidemenu        = intval($hidemenu);
+$editedby        = $modx->getLoginUserID();
 $currentdate = time();
-$editedon = $currentdate;
+$editedon        = $currentdate;
 
 if (trim($pagetitle) == '')
 {
 	if ($type == 'reference') $pagetitle = $_lang['untitled_weblink'];
 	else                      $pagetitle = $_lang['untitled_resource'];
 }
-
-// get table names
-$tbl_document_groups            = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
-$tbl_member_groups              = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
-$tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
-$tbl_site_content               = $modx->getFullTableName('site_content');
-$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 
 if($_POST['mode'] == '27') $actionToTake = 'edit';
 else                       $actionToTake = 'new';
@@ -711,7 +701,7 @@ function get_tmplvars($id)
 	global $modx;
 	
 	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
-	$tbl_site_tmplvar_contentvalues =  $modx->getFullTableName('site_tmplvar_contentvalues');
+	$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
 	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
 	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 	$template = $_POST['template'];
@@ -791,15 +781,16 @@ function get_tmplvars($id)
 	return $tmplvars;
 }
 
-function fix_tv_nest($target)
+function fix_tv_nest($target,$input)
 {
 	foreach(explode(',',$target) as $name)
 	{
 		$tv = ($name !== 'ta') ? $name : 'content';
 		$s = "[*{$tv}*]";
 		$r = "[ *{$tv}* ]";
-		$_POST[$name] = str_replace($s,$r,$_POST[$name]);
+		$input[$name] = str_replace($s,$r,$input[$name]);
 	}
+	return $input;
 }
 
 function get_alias($id,$alias,$parent,$pagetitle)

@@ -5,15 +5,20 @@ if (!$modx->hasPermission('save_chunk')) {
     $e->dumpError();
 }
 
+$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+
+$input = $_POST;
+extract($input);
+unset($input);
+
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
-$snippet = $modx->db->escape($_POST['post']);
-$name = (isset($_POST['name']) && $_POST['name'] !== '') ? $modx->db->escape(trim($_POST['name'])) : 'Untitled chunk';
-$description = $modx->db->escape($_POST['description']);
-$locked = $_POST['locked'] == 'on' ? 1 : 0;
-$editor_type = $_POST['editor_type'] == '1' ? 1 : 0;
-$published = $_POST['published'] == '1' ? 1 : 0;
-$pub_date = $_POST['pub_date'];
-$unpub_date = $_POST['unpub_date'];
+
+$snippet = $modx->db->escape($post);
+$name = (isset($name) && $name !== '') ? $modx->db->escape(trim($name)) : 'Untitled chunk';
+$description = $modx->db->escape($description);
+$locked      = $locked == 'on'     ? 1 : 0;
+$editor_type = $editor_type == '1' ? 1 : 0;
+$published   = $published == '1'   ? 1 : 0;
 
 // determine published status
 $currentdate = time();
@@ -29,10 +34,9 @@ if (empty($pub_date)) {
         $modx->webAlert($_lang["mgrlog_dateinvalid"], $url);
         include_once "footer.inc.php";
         exit;
-    } elseif ($pub_date < $currentdate)
-        $published = 1;
-    elseif ($pub_date > $currentdate)
-        $published = 0;
+    }
+    elseif ($pub_date < $currentdate) $published = 1;
+    elseif ($pub_date > $currentdate) $published = 0;
 }
 if (empty($unpub_date))
     $unpub_date = 0;
@@ -45,11 +49,9 @@ else {
         $modx->webAlert($_lang["mgrlog_dateinvalid"], $url);
         include_once "footer.inc.php";
         exit;
-    } elseif ($unpub_date < $currentdate)
-        $published = 0;
+    }
+    elseif ($unpub_date < $currentdate) $published = 0;
 }
-
-$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
