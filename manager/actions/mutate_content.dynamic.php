@@ -453,12 +453,12 @@ echo ab_cancel();
 <div class="sectionBody">
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-	tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+	tpDocEdit = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabGeneral" ) );</script>
+		<script type="text/javascript">tpDocEdit.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
@@ -813,7 +813,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
 		<h2 class="tab"><?php echo $_lang['settings_page_settings']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
+		<script type="text/javascript">tpDocEdit.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start']); ?>
@@ -1084,7 +1084,7 @@ if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'])
 	<!-- META Keywords -->
 	<div class="tab-page" id="tabMeta">
 		<h2 class="tab"><?php echo $_lang['meta_keywords']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
+		<script type="text/javascript">tpDocEdit.addTabPage( document.getElementById( "tabMeta" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 		<tr style="height: 24px;"><td><?php echo $_lang['resource_metatag_help']?><br /><br />
@@ -1240,7 +1240,7 @@ if ($use_udperms == 1)
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
 	<h2 class="tab" id="tab_access_header"><?php echo $_lang['access_permissions']?></h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
+	<script type="text/javascript">tpDocEdit.addTabPage( document.getElementById( "tabAccess" ) );</script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
 		function makePublic(b) {
