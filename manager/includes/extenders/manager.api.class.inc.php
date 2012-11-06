@@ -238,4 +238,26 @@ class ManagerAPI {
 			}
 		}
 	}
+	
+	function checkToken()
+	{
+		if(isset($_POST['token']) && !empty($_POST['token']))    $token = $_POST['token'];
+		elseif(isset($_GET['token']) && !empty($_GET['token']))  $token = $_GET['token'];
+		else                                                     $token = false;
+		
+		if(isset($_SESSION['token']) && !empty($_SESSION['token']) && $_SESSION['token']===$token)
+		{
+			$rs =true;
+		}
+		else $rs = false;
+		$_SESSION['token'] = '';
+		return $rs;
+	}
+	
+	function makeToken()
+	{
+		$newToken = uniqid('');
+		$_SESSION['token'] = $newToken;
+		return $newToken;
+	}
 }
