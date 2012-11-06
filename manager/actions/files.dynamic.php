@@ -4,33 +4,8 @@ if(!$modx->hasPermission('file_manager')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-
-function getToken()
-{
-	if(isset($_POST['token']))    $token = $_POST['token'];
-	elseif(isset($_GET['token'])) $token = $_GET['token'];
-	else                          $token = '';
-	return $token;
-}
-function checkToken($token='')
-{
-	if(empty($token)) $token = getToken();
-	
-	if   (!isset($_SESSION['token']))   $rs = false;
-	elseif(empty($_SESSION['token']))   $rs = false;
-	elseif($_SESSION['token']===$token) $rs = true;
-	else                                $rs = false;
-	$_SESSION['token'] = '';
-	return $rs;
-}
-function initToken()
-{
-	$token = uniqid('');
-	$_SESSION['token'] = $token;
-	return $token;
-}
-$token_check = checkToken();
-$token = initToken();
+$token_check = $modx->manager->checkToken();
+$newToken = $modx->manager->makeToken();
 
 // settings
 $excludes = array('.', '..', '.svn');
@@ -177,7 +152,7 @@ function getFileName(a){
 function deleteFolder (folder,status) {
     if (confirmDeleteFolder(status))
     {
-        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&token=<?php echo $token;?>";
+        window.location.href="index.php?a=31&mode=deletefolder&path="+current_path+"&folderpath="+current_path+'/'+folder+"&token=<?php echo $newToken;?>";
         return false;
     }
 }
@@ -185,7 +160,7 @@ function deleteFolder (folder,status) {
 function deleteFile(file) {
     if (confirmDelete())
     {
-        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file+"&token=<?php echo $token;?>";
+        window.location.href="index.php?a=31&mode=delete&path="+current_path+'/'+file+"&token=<?php echo $newToken;?>";
         return false;
     }
 }
