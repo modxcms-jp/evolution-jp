@@ -38,25 +38,19 @@ switch ($_POST['mode'])
 		break;
 	case '35' :
 		$rs = $modx->db->update($fields, $tbl_user_roles, "id='{$id}'");
-		if (!$rs)
+		if($rs)
+		{
+			$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
+			if(file_exists($cache_path)) $role = unserialize(file_get_contents($cache_path));
+			$role[$id] = time();
+			file_put_contents($cache_path, serialize($role));
+			header('Location: index.php?a=86');
+		}
+		else
 		{
 			echo "An error occured while attempting to update the role. <br />" . $modx->db->getLastError();
-			exit;
 		}
 		break;
 	default :
 		echo "Erm... You supposed to be here now?";
-		exit;
-}
-
-if(isset($rs))
-{
-	$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
-	if(file_exists($cache_path))
-	{
-		$role = unserialize(file_get_contents($cache_path));
-	}
-	$role[$id] = time();
-	file_put_contents($cache_path, serialize($role));
-	header('Location: index.php?a=86');
 }
