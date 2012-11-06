@@ -4,6 +4,10 @@ if(!$modx->hasPermission('delete_role')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+
+$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+$tb_user_roles = $modx->getFullTableName('user_roles');
+
 if( empty($_GET['id']) ){
 	header("Location: index.php?a=86");
 }
@@ -19,9 +23,6 @@ if($id==1){
 	echo "The role you are trying to delete is the admin role. This role cannot be deleted!";
 	exit;
 }
-
-$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-$tb_user_roles = $modx->getFullTableName('user_roles');
 
 $rs = $modx->db->select('count(id)',$tbl_user_attributes,"role={$id}");
 if(!$rs) {

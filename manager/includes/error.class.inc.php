@@ -2,9 +2,9 @@
 // this is the old error handler. Here for legacy, until i replace all the old errors.
 class errorHandler{
 
-var $errorcode;
-var $errors = array();
-		
+	var $errorcode;
+	var $errors = array();
+	
 	function errorHandler()
 	{
 		global $_lang;
