@@ -21,6 +21,7 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx->config['settings_version'];?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
+    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
 <?php
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
@@ -31,7 +32,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.powertipmin.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
