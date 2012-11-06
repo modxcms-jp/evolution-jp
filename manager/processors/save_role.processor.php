@@ -5,10 +5,6 @@ if (!$modx->hasPermission('save_role')) {
     $e->dumpError();
 }
 
-foreach ($_POST as $n => $v)
-{
-	$input[$n] = $modx->db->escape($v); // escape post values
-}
 $tbl_user_roles = $modx->getFullTableName('user_roles');
 
 $input = $_POST;
