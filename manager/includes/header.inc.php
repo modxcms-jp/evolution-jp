@@ -38,6 +38,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <script type="text/javascript">
 		/* <![CDATA[ */
 		
+		var cookiepath = '<?php echo MODX_BASE_URL; ?>';
 		var $j = jQuery.noConflict();
 		
         function document_onload() {

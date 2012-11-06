@@ -174,7 +174,7 @@ WebFXTabPane.setCookie = function ( sName, sValue, nDays ) {
 		expires = "; expires=" + d.toGMTString();
 	}
 
-	document.cookie = sName + "=" + sValue + expires + "; path=/";
+	document.cookie = sName + "=" + sValue + expires + "; path=" + cookiepath;
 };
 
 WebFXTabPane.getCookie = function (sName) {
