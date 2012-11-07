@@ -17,7 +17,7 @@
 $version = '1.5.5r7';
 
 // In manager
-if (isset($_SESSION['mgrValidated']) && defined('IN_PARSER_MODE'))
+if (isset($_SESSION['mgrValidated']))
 {
 	include_once($modx->config['base_path'].'assets/plugins/qm/qm.inc.php');
 	$modx->event->params['version'] = $version;

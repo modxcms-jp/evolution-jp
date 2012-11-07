@@ -40,6 +40,8 @@ switch($modx->event->name)
 	case 'OnManagerWelcomePrerender':
 		$src = $modx->getChunk('ダッシュボード');
 		break;
+	default:
+		return;
 }
 if($src!==false && !empty($src))
 {
