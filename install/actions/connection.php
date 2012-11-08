@@ -46,11 +46,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 
 ?>
 
-<form id="install" action="index.php?mode=options" method="POST">
-  <div>
-    <input type="hidden" value="1" name="chkagree" <?php echo isset($_POST['chkagree']) ? 'checked="checked" ':""; ?>/>
-  </div>
-
+<form id="install" action="index.php?action=options" method="POST">
   <h2><?php echo $_lang['connection_screen_database_info']?></h2>
   <h3><?php echo $_lang['connection_screen_server_connection_information']?></h3>
   <p><?php echo $_lang['connection_screen_server_connection_note']?></p>
@@ -143,13 +139,13 @@ $('#databasetest').click(function(){
 </form>
 
 <script type="text/javascript">
-	if($('#cmspassword').val() != '') $('a.next').css('display','block');
-	$('#cmspassword').change(function(){
+	if($('#cmspasswordconfirm').val() != '') $('a.next').css('display','block');
+	$('#cmspasswordconfirm').focus(function(){
 		$('a.next').css('display','block');
 	});
 	
 	$('a.prev').click(function(){
-		$('#install_form').attr({action:'index.php?action=mode'});
+		$('#install').attr({action:'index.php?action=mode'});
 		$('#install').submit();
 	});
 	$('a.next').click(function(){

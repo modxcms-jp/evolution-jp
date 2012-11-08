@@ -7,8 +7,6 @@ $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 $installer_path = "{$base_path}install/";
 
-if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
-
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_runtime', 0);

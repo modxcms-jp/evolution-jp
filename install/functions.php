@@ -1,7 +1,6 @@
 <?php
 function setOption($fieldName,$value='')
 {
-//	if($value==='') $value = getOption($fieldName,$value);
 	$_SESSION[$fieldName] = $value;
 	return $value;
 }
@@ -22,7 +21,7 @@ function autoDetectLang()
 	switch($lc)
 	{
 		case 'ja': $lang = 'japanese-utf8'        ; break;
-		case 'ru': $lang = 'russian-utf8.inc.php' ; break;
+//		case 'ru': $lang = 'russian-utf8.inc.php' ; break;
 		default  : $lang = 'english'              ;
 	}
 	return $lang;
@@ -71,28 +70,28 @@ function compare_check($params)
 	switch($params['category'])
 	{
 		case 'template':
-			$table = $table_prefix . 'site_templates';
+			$table = "{$table_prefix}site_templates";
 			$name_field = 'templatename';
 			$mode       = 'desc_compare';
 			break;
 		case 'tv':
-			$table = $table_prefix . 'site_tmplvars';
+			$table = "{$table_prefix}site_tmplvars";
 			$mode  = 'desc_compare';
 			break;
 		case 'chunk':
-			$table = $table_prefix . 'site_htmlsnippets';
+			$table = "{$table_prefix}site_htmlsnippets";
 			$mode  = 'name_compare';
 			break;
 		case 'snippet':
-			$table = $table_prefix . 'site_snippets';
+			$table = "{$table_prefix}site_snippets";
 			$mode  = 'version_compare';
 			break;
 		case 'plugin':
-			$table = $table_prefix . 'site_plugins';
+			$table = "{$table_prefix}site_plugins";
 			$mode  = 'version_compare';
 			break;
 		case 'module':
-			$table = $table_prefix . 'site_modules';
+			$table = "{$table_prefix}site_modules";
 			$mode  = 'version_compare';
 			break;
 	}

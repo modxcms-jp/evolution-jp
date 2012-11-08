@@ -13,14 +13,11 @@ global $moduleTVs;
 
 global $errors;
 
-$create = false;
-
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
 $self = 'install/instprocessor.php';
 $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
-if(@file_exists("{$base_path}autoload.php")) include_once("{$base_path}autoload.php");
 
 require_once("{$base_path}manager/includes/default.config.php");
 require_once('functions.php');
@@ -120,28 +117,32 @@ $sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
 // install/update database
-echo "<p>" . $_lang['setup_database_creating_tables'];
-if ($moduleSQLBaseFile) {
+echo '<p>' . $_lang['setup_database_creating_tables'];
+if ($moduleSQLBaseFile)
+{
 	$sqlParser->process($moduleSQLBaseFile);
 	// display database results
-	if ($sqlParser->installFailed == true) {
+	if ($sqlParser->installFailed == true)
+	{
 		$errors += 1;
-		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</b></span></p>";
+		echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span>';
+		echo '</p>';
 		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
 		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
 		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
 			echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
 		}
-		echo "</p>";
-		echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
+		echo '</p>';
+		echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
 		return;
-	} else {
-		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+	}
+	else
+	{
+		echo '<span class="ok">'.$_lang['ok'].'</span></p>';
 	}
 }
 
-// write the config.inc.php file if new installation
-echo "<p>" . $_lang['writing_config_file'];
+echo '<p>' . $_lang['writing_config_file'];
 $src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
 $ph['database_server']             = $database_server;
@@ -174,7 +175,7 @@ if ($config_saved === false)
 }
 else
 {
-	echo '<span class="ok">' . $_lang['ok'] . "</span></p>";
+	echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 }
 
 // generate new site_id
@@ -235,10 +236,10 @@ if (isset ($_POST['template']) || $installData)
 					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';"))
 					{
 						$errors += 1;
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				}
 				else
 				{
@@ -247,10 +248,10 @@ if (isset ($_POST['template']) || $installData)
 					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (id,templatename,description,content,category,locked) VALUES('$id','$name','$desc','$template',$category_id,'$locked');"))
 					{
 						$errors += 1;
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 			}
 		}
@@ -290,22 +291,22 @@ if (isset ($_POST['tv']) || $installData)
 				while($row = mysql_fetch_assoc($rs))
 				{
 					if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};")) {
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
 					$insert = false;
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 			}
 			else
 			{
 				$q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
 				if (!@ mysql_query($q))
 				{
-					echo "<p>" . mysql_error() . "</p>";
+					echo '<p>' . mysql_error() . '</p>';
 					return;
 				}
-				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+				echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 			}
 			
 			// add template assignments
@@ -376,10 +377,10 @@ if (isset ($_POST['chunk']) || $installData)
 					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';"))
 					{
 						$errors += 1;
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				}
 				elseif($count_new_name == 0)
 				{
@@ -390,10 +391,10 @@ if (isset ($_POST['chunk']) || $installData)
 					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);"))
 					{
 						$errors += 1;
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 			}
 		}
@@ -437,19 +438,19 @@ if (isset ($_POST['module']) || $installData)
 					$props = propUpdate($properties,$row['properties']);
 					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';"))
 					{
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				}
 				else
 				{
 					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);"))
 					{
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 			}
 		}
@@ -510,7 +511,7 @@ if (isset ($_POST['plugin']) || $installData)
 						{
 							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};"))
 							{
-								echo "<p>" . mysql_error() . "</p>";
+								echo '<p>' . mysql_error() . '</p>';
 								return;
 							}
 							$insert = false;
@@ -519,7 +520,7 @@ if (isset ($_POST['plugin']) || $installData)
 						{
 							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']};"))
 							{
-								echo "<p>".mysql_error()."</p>";
+								echo '<p>'.mysql_error().'</p>';
 								return;
 							}
 						}
@@ -529,20 +530,20 @@ if (isset ($_POST['plugin']) || $installData)
 						if($props) $properties = $props;
 						if(!@mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);"))
 						{
-							echo "<p>".mysql_error()."</p>";
+							echo '<p>'.mysql_error().'</p>';
 							return;
 						}
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				}
 				else
 				{
 					if(!@ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);"))
 					{
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 				// add system events
 				if(count($events) > 0)
@@ -598,19 +599,19 @@ if (isset ($_POST['snippet']) || $installData)
 					$props = propUpdate($properties,$row['properties']);
 					if (!@ mysql_query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';"))
 					{
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				}
 				else
 				{
 					if (!@ mysql_query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);"))
 					{
-						echo "<p>" . mysql_error() . "</p>";
+						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
-					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 			}
 		}
@@ -622,25 +623,25 @@ if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('ove
 // install data
 if ($installData && $moduleSQLDataFile)
 {
-	echo "<p>" . $_lang['installing_demo_site'];
+	echo '<p>' . $_lang['installing_demo_site'];
 	$sqlParser->process($moduleSQLDataFile);
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;
-		echo "<span class=\"notok\"><b>" . $_lang['database_alerts'] . "</b></span></p>";
-		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
-		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
+		echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span></p>';
+		echo '<p>' . $_lang['setup_couldnt_install'] . '</p>';
+		echo '<p>' . $_lang['installation_error_occured'] . '<br /><br />';
 		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++)
 		{
-			echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
+			echo '<em>' . $sqlParser->mysqlErrors[$i]["error"] . '</em>' . $_lang['during_execution_of_sql'] . '<span class="mono">' . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . '</span>.<hr />';
 		}
-		echo "</p>";
-		echo "<p>" . $_lang['some_tables_not_updated'] . "</p>";
+		echo '</p>';
+		echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
 		return;
 	}
 	else
 	{
-		echo "<span class=\"ok\">".$_lang['ok']."</span></p>";
+		echo '<span class="ok">'.$_lang['ok'].'</span></p>';
 	}
 }
 
@@ -674,14 +675,14 @@ if(is_writeable($base_path) && $installmode==0)
 }
 // setup completed!
 echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
-echo "<p>" . $_lang['to_log_into_content_manager'] . "</p>";
+echo '<p>' . $_lang['to_log_into_content_manager'] . '</p>';
 if ($installmode == 0)
 {
-	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['installation_note'] . "</p>";
+	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['installation_note'] . '</p>';
 }
 else
 {
-	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['upgrade_note'] . "</p>";
+	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['upgrade_note'] . '</p>';
 }
 
 
