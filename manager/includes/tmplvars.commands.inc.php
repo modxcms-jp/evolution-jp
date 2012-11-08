@@ -15,14 +15,14 @@ $BINDINGS = array (
     'NONE'
 );
 
-function ProcessTVCommand($value, $name = '', $docid = '') {
+function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
     global $modx;
     $etomite = & $modx;
     $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
     $nvalue = trim($value);
     if (substr($nvalue, 0, 1) != '@')
         return $value;
-    elseif(empty($modx->config['enable_bindings']))
+    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
     {
         return '@Bindings is disabled.';
     }
