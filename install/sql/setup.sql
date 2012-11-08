@@ -697,7 +697,6 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('error_page','1'),
 ('unauthorized_page','1'),
 ('site_status','1'),
-('auto_template_logic','{AUTOTEMPLATELOGIC}'),
 ('old_template',''),
 ('cache_type','1'),
 ('use_udperms','0'),

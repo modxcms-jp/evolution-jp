@@ -64,39 +64,6 @@ $tbl_system_eventnames = getFullTableName('system_eventnames');
 $tbl_site_snippets = getFullTableName('site_snippets');
 $tbl_active_users = getFullTableName('active_users');
 
-// check status of Inherit Parent Template plugin
-if ($installmode != 0)
-{
-	$rs = mysql_query("SELECT properties, disabled FROM {$tbl_site_plugins} WHERE name='Inherit Parent Template'");
-	$row = mysql_fetch_assoc($rs);
-	if(!$row)
-	{
-		// not installed
-		$auto_template_logic = 'system';
-	}
-	else
-	{
-		if($row['disabled'] == 1)
-		{
-			// installed but disabled
-			$auto_template_logic = 'system';
-		}
-		else
-		{
-			// installed, enabled .. see how it's configured
-			$properties = parseProperties($row['properties']);
-			if(isset($properties['inheritTemplate']))
-			{
-				if($properties['inheritTemplate'] == 'From First Sibling')
-				{
-					$auto_template_logic = 'sibling';
-				}
-			}
-		}
-	}
-}
-if(!isset($auto_template_logic)) $auto_template_logic = 'system';
-
 // open db connection
 $setupPath = realpath(dirname(__FILE__));
 include "{$setupPath}/setup.info.php";
@@ -110,7 +77,6 @@ $sqlParser->connection_charset = 'utf8';
 $sqlParser->connection_collation = $database_collation;
 $sqlParser->connection_method = $database_connection_method;
 $sqlParser->managerlanguage = $managerlanguage;
-$sqlParser->autoTemplateLogic = $auto_template_logic;
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;

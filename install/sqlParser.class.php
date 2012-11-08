@@ -8,7 +8,7 @@ class SqlParser {
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode;
 	var $dbVersion;
-    var $connection_charset, $connection_collation, $autoTemplateLogic,$ignoreDuplicateErrors;
+    var $connection_charset, $connection_collation, $ignoreDuplicateErrors;
     var $base_path;
 
 	function SqlParser() {
@@ -20,7 +20,6 @@ class SqlParser {
 		$this->connection_collation = 'utf8_general_ci';
 		$this->ignoreDuplicateErrors = false;
 		$this->managerlanguage = 'english';
-		$this->autoTemplateLogic = 'system';
 	}
 
 	function process($filename) {
@@ -73,7 +72,6 @@ class SqlParser {
 		$ph['ADMINEMAIL']        = $this->adminemail;
 		$ph['ADMINPASS']         = $this->adminpass;
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
-		$ph['AUTOTEMPLATELOGIC'] = $this->autoTemplateLogic;
 		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');
 		
