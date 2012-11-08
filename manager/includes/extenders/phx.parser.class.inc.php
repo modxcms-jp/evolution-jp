@@ -107,6 +107,12 @@ class PHx {
 			case 'trim':
 			case 'nl2br':
 			case 'md5':
+			case 'urlencode':
+			case 'urldecode':
+			case 'rawurlencode':
+			case 'rawurldecode':
+			case 'base64_encode':
+			case 'base64_ decode':
 				$value = $cmd($value);
 				break;
 			
