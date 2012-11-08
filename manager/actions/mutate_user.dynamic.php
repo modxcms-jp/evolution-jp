@@ -267,17 +267,22 @@ if (is_array($evtOut))
 		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
     <div class="tab-page" id="tabGeneral">
+		<?php if($_GET['id']==$modx->getLoginUserID()) { ?><p><?php echo $_lang['user_edit_self_msg']; ?></p><?php } ?>
     	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
+<?php
+	if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0) || $userdata['failedlogins']>3):
+?>
 		  <tr>
-			<td>
-				<span id="blocked" class="warning"><?php if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0) || $userdata['failedlogins']>3) { ?><b><?php echo $_lang['user_is_blocked']; ?></b><?php } ?></span><br />
+			<td colspan="2">
+				<span id="blocked" class="warning"><b><?php echo $_lang['user_is_blocked']; ?></b></span><br />
 			</td>
 		  </tr>
+<?php endif; ?>
 		  <?php if(!empty($userdata['id'])) { ?>
 		  <tr id="showname" style="display: <?php echo ($_GET['a']=='12' && (!isset($usernamedata['oldusername'])||$usernamedata['oldusername']==$usernamedata['username'])) ? $displayStyle : 'none';?> ">
-			<td>
+			<td colspan="2">
 				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
 			</td>
@@ -481,7 +486,6 @@ while ($row = $modx->db->getRow($rs))
 }
 ?>
 		</table>
-		<?php if($_GET['id']==$modx->getLoginUserID()) { ?><p><?php echo $_lang['user_edit_self_msg']; ?></p><?php } ?>
 	</div>
 	<!-- Settings -->
     <div class="tab-page" id="tabSettings">
