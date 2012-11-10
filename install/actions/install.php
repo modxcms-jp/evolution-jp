@@ -30,8 +30,7 @@ $('#closepage span').click(function(){
 	checked = $('#rminstaller').attr('checked');
 	if(checked) {
 		// remove install folder and files
-		alert('test');
-//		window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
+		window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
 	}
 	else {
 		window.location.href = "../manager/";
