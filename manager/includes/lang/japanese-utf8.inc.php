@@ -289,7 +289,7 @@ $_lang["export_site_failed_no_write"] = 'ファイルを更新できません。
 $_lang["export_site_html"] = 'サイト全体を静的HTMLとしてエクスポート';
 $_lang["export_site_maxtime"] = '最大エクスポート時間(秒)';
 $_lang["export_site_maxtime_message"] = 'エクスポート処理の制限時間を秒数で指定してください(<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの設定</a>を上書きします)。0を入力すると無制限に設定できますが、通常は制限時間を設定するようおすすめします。';
-$_lang["export_site_message"] = '<p>サイト全体をHTMLファイルとしてエクスポート(一括書き出し)できます。書き出したファイルをまとめてサーバ上に転送すれば、通常のサイトと同様の運用が可能です。また、この機能は副次効果として、公開設定になっている全リソースのページキャッシュを一括生成します。</p><ul><li>エクスポートファイルは静的なhtmlファイルなので、スニペットコールは静的な値を出力します。</li><li>リソースにリダイレクトヘッダを送信するスニペットが含まれている場合、エクスポートが失敗することがあります。</li><li>リソースID単位でエクスポートを行ないます。たとえば、10個の公開リソースがある場合は10ページ生成します。そのうちのひとつがページングなどで数ページを管理するものであっても処理しません。</li></ul><p><a href="index.php?a=17">グローバル設定</a>で「フレンドリーURLの使用」を「はい」にしてください。サイトの規模によっては、エクスポートにしばらく時間を要する場合もあります。</p><p>※ファイル名が同じ場合、新しいファイルは既存のファイルに上書きされます。</p>';
+$_lang["export_site_message"] = '<p>サイト全体をHTMLファイルとしてtemp/export/ディレクトリにエクスポート(一括書き出し)できます。書き出したファイルをまとめてサーバ上に転送すれば、通常のサイトと同様の運用が可能です。</p><ul><li>エクスポートファイルは静的なhtmlファイルなので、スニペットコールは静的な値を出力します。</li><li>リソースにリダイレクトヘッダを送信するスニペットが含まれている場合、エクスポートが失敗することがあります。</li><li>リソースID単位でエクスポートを行ないます。たとえば、10個の公開リソースがある場合は10ページ生成します。そのうちのひとつがページングなどで数ページを管理するものであっても処理しません。</li></ul><p><a href="index.php?a=17">グローバル設定</a>で「フレンドリーURLの使用」を「はい」にしてください。サイトの規模によっては、エクスポートにしばらく時間を要する場合もあります。</p><p>※ファイル名が同じ場合、新しいファイルは既存のファイルに上書きされます。</p>';
 $_lang["export_site_numberdocs"] = '<p><strong>%s 個のエクスポート対象リソースが見つかりました。</strong><p/>';
 $_lang["export_site_prefix"] = 'ファイル名のプレフィックス';
 $_lang["export_site_start"] = 'エクスポートの開始';
@@ -396,7 +396,7 @@ $_lang["import_site_failed_no_retrieve_file"] = 'ファイルが見つかりま�
 $_lang["import_site_html"] = 'HTMLからサイトをインポート';
 $_lang["import_site_importing_document"] = 'インポート中のファイル <strong>%s</strong>';
 $_lang["import_site_maxtime"] = 'インポート時間の上限';
-$_lang["import_site_maxtime_message"] = 'MODXがサイトのインポート処理に使用できる最大秒数を指定します。（<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの指定処理秒数</a>を上書きします）「0」を指定すると処理時間を制限しませんが、想定外の負荷が発生する恐れがあるため注意してください。';
+$_lang["import_site_maxtime_message"] = 'MODXがサイトのインポート処理に使用できる最大秒数を指定します。（<a href="http://www.google.com/search?q=php+set_time_limit&hl=ja&lr=lang_ja" target="_blank">PHPの指定処理秒数</a>を上書きします）「0」を指定すると処理時間を制限しませんが、想定外の処理時間を要することもあるためご注意ください。';
 $_lang["import_site_message"] = 'HTMLで記述されたサイトを丸ごとデータベースにインポートします。htmlファイルをディレクトリごと /temp/import/ ディレクトリにコピーし、「インポート開始」ボタンをクリックすればスタートします。ファイル名はエイリアスになり、&lt;title&gt;要素はリソース名 [*pagetitle*] になります。</p><p>&lt;body&gt;要素の内側がそのまま取り込まれます。&lt;head&gt;要素は&lt;title&gt;要素のみ取り込みます。<br />左側のリソースツリー上の任意のリソースをクリックすると<b>「親リソース」</b>(インポート先)を変更できます。';
 $_lang["import_site_skip"] = '処理をスキップしました';
 $_lang["import_site_start"] = 'インポート開始';
@@ -1007,7 +1007,7 @@ $_lang["user_changeddata"] = 'ユーザー情報が変更されました。も�
 $_lang["user_country"] = '国';
 $_lang["user_dob"] = '誕生日';
 $_lang["user_doesnt_exist"] = 'ユーザー登録がありません';
-$_lang["user_edit_self_msg"] = '<b>ユーザー情報を変更した場合は、変更を管理画面に反映させるためにいったんログアウトしてください。</b>';
+$_lang["user_edit_self_msg"] = '<b>自分自身のユーザー情報を変更した場合は、変更を管理画面に反映させるためにいったんログアウトしてください。</b>';
 $_lang["user_email"] = 'メールアドレス';
 $_lang["user_failedlogincount"] = 'ログイン失敗';
 $_lang["user_fax"] = 'Fax';
@@ -1216,7 +1216,7 @@ $_lang["enable_bindings_title"]  = '@Bindingsを有効にする';
 $_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings機能</a>を有効にします。この機能は、投稿画面上の入力フィールド(テンプレート変数)に任意のコマンドを記述し、実行するものです。PHP文の実行などが可能なため、複数メンバーでサイトを運用する場合、当機能の運用には注意が必要です。';
 
 $_lang["a83_mode_title"] = '動作モード';
-$_lang["a83_mode_direct"] = '直接生成';
+$_lang["a83_mode_direct"] = '直接生成(高速)';
 $_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
 $_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指定可)';
 
@@ -1231,4 +1231,4 @@ $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリ
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
 
 $_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
-$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは、グループ管理機能の制御対象にならない・<a href="index.php?a=31">ファイル管理機能</a>においてmanagerディレクトリなど重要な領域にアクセスできる・全てのプラグインの効力を無効とするセーフモードログイン(ユーザ名の末尾に「:safemode」を付ける)を可能とするなど、通常のコンテンツ管理には向かない特殊な性質を持っているため、常用にはおすすめしません。緊急対応用のアカウントとして利用してください。';
+$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは通常のコンテンツ管理には向かない特殊な性質を持っているため、常用アカウントを別途に作り、当アカウントは緊急対応用に用いることをおすすめします。';
