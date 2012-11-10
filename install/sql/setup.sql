@@ -688,7 +688,7 @@ REPLACE INTO `{PREFIX}user_roles`
 # Default Site Settings
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
-('settings_version',''),
+('settings_version','0'),
 ('server_offset_time','0'),
 ('manager_language','{MANAGERLANGUAGE}'),
 ('modx_charset','UTF-8'),
