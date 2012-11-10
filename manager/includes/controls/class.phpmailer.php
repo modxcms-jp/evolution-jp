@@ -905,7 +905,7 @@ function AddAddress($address, $name = '')
       $result .= $this->HeaderLine('Subject', $this->EncodeHeader($this->SecureHeader($this->Subject)));
     }
 
-    if($this->MessageID != '') {
+    if(trim($this->MessageID) != '') {
       $result .= $this->HeaderLine('Message-ID',$this->MessageID);
     } else {
       $result .= sprintf("Message-ID: <%s@%s>%s", $uniq_id, $this->ServerHostname(), $this->LE);
