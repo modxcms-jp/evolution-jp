@@ -32,6 +32,11 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
+		$this->mb_language = 'UNI';
+		$this->encode_header_method = '';
+		
+		$this->Mailer = 'mail';
+		
 		$this->From     = $modx->config['emailsender'];
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
@@ -90,35 +95,50 @@ class MODxMailer extends PHPMailer
 	{
 		global $modx;
 		
-		if($modx->debug)
-		{
-			$modx->debug = false;
-			$debug_info  = 'CharSet = ' . $this->CharSet . "\n";
-			$debug_info .= 'Encoding = ' . $this->Encoding . "\n";
-			$debug_info .= 'mb_language = ' . $this->mb_language . "\n";
-			$debug_info .= 'encode_header_method = ' . $this->encode_header_method . "\n";
-			$log = "<pre>{$debug_info}\n{$header}\n{$body}</pre>";
-			$modx->logEvent(1, 1, $log, 'Debug information');
-		}
+		$org_body = $body;
 		
 		switch(strtolower($modx->config['manager_language']))
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
 				$body = mb_convert_encoding($body, 'JIS', $modx->config['modx_charset']);
-				if(ini_get('safe_mode')) return parent::MailSend($header, $body);
-				else                     return $this->mbMailSend($header, $body);
+				if(ini_get('safe_mode')) $mode = 'normal';
+				else
+				{
+					                     $this->Subject = $this->EncodeHeader($this->Subject);
+					                     $mode = 'mb';
+				}
 				break;
 			default:
+				                         $mode = 'normal';
+		}
+		
+		if($modx->debug)
+		{
+			$debug_info  = 'CharSet = ' . $this->CharSet . "\n";
+			$debug_info .= 'Encoding = ' . $this->Encoding . "\n";
+			$debug_info .= 'mb_language = ' . $this->mb_language . "\n";
+			$debug_info .= 'encode_header_method = ' . $this->encode_header_method . "\n";
+			$debug_info .= "send_mode = {$mode}\n";
+			$debug_info .= 'Subject = ' . $this->Subject . "\n";
+			$log = "<pre>{$debug_info}\n{$header}\n{$org_body}</pre>";
+			$modx->logEvent(1, 1, $log, 'MODxMailer debug information');
+			return true;
+		}
+		switch($mode)
+		{
+			case 'normal':
 				return parent::MailSend($header, $body);
+				break;
+			case 'mb':
+				return $this->mbMailSend($header, $body);
+				break;
 		}
 	}
 		
 	function mbMailSend($header, $body)
 	{
 		global $modx;
-		
-		$this->Subject = $this->EncodeHeader($this->Subject);
 		
 		$to = '';
 		for($i = 0; $i < count($this->to); $i++)
@@ -170,7 +190,7 @@ class MODxMailer extends PHPMailer
 			$msg  = $this->Lang('instantiate') . "<br />\n";
 			$msg .= "{$this->Subject}<br />\n";
 			$msg .= "{$this->FromName}&lt;{$this->From}&gt;<br />\n";
-			$msg .= $body;
+			$msg .= mb_convert_encoding($body,$modx->config['modx_charset'],$this->CharSet);
 			$this->SetError($msg);
 			return false;
 		}
