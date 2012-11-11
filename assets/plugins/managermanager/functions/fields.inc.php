@@ -223,12 +223,16 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates='') {
 				case 'keywords':
 				case 'metatags':
 				case 'which_editor':
-				case 'hidemenu':
-				case 'show_in_menu':
-				case 'menuindex':
 					// Do nothing
 				break;
 				
+				case 'menuindex':
+				case 'hidemenu':
+				case 'show_in_menu':
+					$output .= '$j("input[name=menuindex]").closest("table").closest("tr").next("tr").remove(); ' . "\n";
+					$output .= 'var helpline = $j("input[name=menuindex]").closest("table").closest("tr").appendTo("#tab'.$newtab.'>table:first"); ' . "\n";
+					$output .= 'helpline.after(ruleHtml); '. "\n";
+				break;
 				case 'pub_date':
 					$output .= 'var helpline = $j("input[name=pub_date]").parents("tr").next("tr").appendTo("#tab'.$newtab.'>table:first"); ' . "\n";
 					$output .= '$j(helpline).before($j("input[name=pub_date]").parents("tr")); ' . "\n";
