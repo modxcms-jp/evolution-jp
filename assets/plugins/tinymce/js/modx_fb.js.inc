@@ -11,9 +11,7 @@ function mceOpenServerBrowser(field_name, url, type, win) {
 		case "wmp":
 		case "rmp":
 		case "video":
-		case "flash":
 		case "quicktime":
-		case "shockwave":
 		case "windowsmedia":
 		case "realmedia":
 		case "iframe":
