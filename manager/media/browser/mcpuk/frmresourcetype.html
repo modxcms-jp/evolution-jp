@@ -40,13 +40,17 @@ var aTypes = [
 window.onload = function()
 {
    var bHasType = ( oConnector.ResourceType.length > 0 ) ;
+   var sel;
    cmbTypeObj=document.getElementById("cmbType");
    for ( var i = 0 ; i < aTypes.length ; i++ )
    {
-       if ( !bHasType || aTypes[i][0] ==
-oConnector.ResourceType )
-           AddSelectOption( cmbTypeObj, aTypes[i][1],
-aTypes[i][0] ) ;
+       if (!bHasType || aTypes[i][0] == oConnector.ResourceType )
+       {
+           sel = true;
+       }
+       else sel = false;
+       
+       AddSelectOption( cmbTypeObj, aTypes[i][1],aTypes[i][0], sel ) ;
    }
 }
 

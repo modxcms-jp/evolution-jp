@@ -16,12 +16,13 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
-function AddSelectOption( selectElement, optionText, optionValue )
+function AddSelectOption( selectElement, optionText, optionValue, sel )
 {
 	var oOption = document.createElement("OPTION") ;
 
 	oOption.text	= optionText ;
-	oOption.value	= optionValue ;	
+	oOption.value	= optionValue ;
+	if(sel) oOption.selected = true;
 
 	selectElement.options.add(oOption) ;
 
@@ -82,10 +83,10 @@ oConnector.SendCommand = function( command, params, callBackFunction )
 
 var oIcons = new Object() ;
 
-oIcons.AvailableIconsArray = [ 
+oIcons.AvailableIconsArray = [
 	'ai','avi','bmp','cs','dll','doc','exe','fla','gif','htm','html','jpg','js',
 	'mdb','mp3','pdf','ppt','rdp','swf','swt','txt','vsd','xls','xml','zip' ] ;
-	
+
 oIcons.AvailableIcons = new Object() ;
 
 for ( var i = 0 ; i < oIcons.AvailableIconsArray.length ; i++ )
