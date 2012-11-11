@@ -242,7 +242,7 @@ class FileUpload {
 		{
 			$modx->logEvent(0,2,$disp,'mcpuk connector');
 		}
-		header ('content-type: text/html');
+		header ("content-type: text/html; charset={$modx->config['modx_charset']}");
 ?>
 <html>
 <head>
