@@ -1041,6 +1041,24 @@ class ditto {
 	}
 	
 	// ---------------------------------------------------
+	// Function: formatDate
+	// Render the date in the proper format and encoding
+	// ---------------------------------------------------
+	
+	function formatDate($dateUnixTime, $dateFormat) {
+		global $modx;
+		if(method_exists('modx', 'toDateFormat'))
+		{
+			$dt = $modx->toDateFormat($dateUnixTime, $dateFormat);
+		}
+		else $dt = strftime($dateFormat, (intval($dateUnixTime) + $modx->config["server_offset_time"]));
+		if ($modx->config["modx_charset"] == "UTF-8") {
+			$dt = utf8_encode($dt);
+		}
+		return $dt;
+	}
+	
+	// ---------------------------------------------------
 	// Function: buildURL
 	// Build a URL with regard to Ditto ID
 	// ---------------------------------------------------
