@@ -78,7 +78,7 @@ class MODxMailer extends PHPMailer
 	function EncodeHeader($str, $position = 'text')
 	{
 		global $modx;
-		if($this->encode_header_method=='mb_encode_mimeheader') return mb_encode_mimeheader($str,$this->CharSet);
+		if($this->encode_header_method=='mb_encode_mimeheader') return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
 		
 		switch(strtolower($modx->config['manager_language']))
 		{
