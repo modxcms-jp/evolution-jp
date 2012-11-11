@@ -319,11 +319,6 @@ class ditto {
 			$placeholders = call_user_func($value,$placeholders);
 		}
 		
-		if (count($this->fields["display"]['qe']) > 0) {
-			$placeholders = $this->renderQELinks($this->template->fields['qe'],$resource,$ditto_lang["edit"]." : ".$resource['pagetitle']." : ",$placeholders);
-				// set QE Placeholders
-		}
-		
 		if ($phx == 1) {
 			$PHs = $placeholders;
 			foreach($PHs as $key=>$output) {
@@ -445,49 +440,6 @@ class ditto {
 		if (count($this->fields["display"]["tv"]) >= 0) {
 			$this->addField("published","display","db");
 		}
-	}
-	
-	// ---------------------------------------------------
-	// Function: renderQELinks
-	// Render QE links when needed
-	// ---------------------------------------------------
-
-	function renderQELinks($fields, $resource, $QEPrefix,$placeholders) {
-		global $modx,$dittoID;
-		$table = $modx->getFullTableName("site_modules");
-		$idResult = $modx->db->select("id", $table,"name='QuickEdit'","id","1");
-		$id = $modx->db->getRow($idResult);
-		$id = $id["id"];
-		$custom = array("author","date","url","title");
-		$set = $modx->hasPermission('exec_module');
-		foreach ($fields as $dv) {
-			$ds = $dv;
-			if ($dv == "title") {
-				$ds = "pagetitle";
-			}
-			if (!in_array($dv,$custom) && in_array($dv,$this->fields["display"]["custom"])) {
-				$value =  $this->customPlaceholdersMap[$dv];
-				$ds = $value;
-				if (is_array($value) && $value[0] == "qe") {
-					$value = $value[1];
-					if (substr($value,0,7) == "@GLOBAL") {
-						$key = trim(substr($value,7));
-						$ds = $GLOBALS[$key];
-					}
-				}
-			}
-			
-			$js = "window.open('".$modx->config["site_url"]."manager/index.php?a=112&id=".$id."&doc=".$resource["id"]."&var=".$ds."', 'QuickEditor', 'width=525, height=300, toolbar=0, menubar=0, status=0, alwaysRaised=1, dependent=1');";
-			$url = $this->buildURL("qe_open=true",$modx->documentIdentifier,$dittoID);
-			
-			unset($custom[3]);
-			if ($set && !in_array($dv,$custom)) {
-				$placeholders["#$dv"] = $placeholders["$dv"].'<a href="'.$url.'#" onclick="javascript: '.$js.'" title="'.$QEPrefix.$dv.'" class="QE_Link">&laquo; '.$QEPrefix.$dv.'</a>';
-			} else {
-				$placeholders["#$dv"] = $placeholders["$dv"];
-			}
-		}
-		return $placeholders;
 	}
 	
 	// ---------------------------------------------------
