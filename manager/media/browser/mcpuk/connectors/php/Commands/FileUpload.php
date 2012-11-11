@@ -180,7 +180,7 @@ class FileUpload {
 						{
 							if (is_uploaded_file($tmp_name))
 							{
-								if($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
+								if($modx->manager->modx_move_uploaded_file($tmp_name,$target))
 								{
 									@chmod($target,$modx->config['new_file_permissions']);
 									$disp="201,'{$target}'";
@@ -208,7 +208,7 @@ class FileUpload {
 					$target = "$this->real_cwd/{$filename}.{$ext}";
 					if (is_uploaded_file($tmp_name))
 					{
-						if ($modx->manager->modx_move_uploaded_file($tmp_name,($target)))
+						if ($modx->manager->modx_move_uploaded_file($tmp_name,$target))
 						{
 							@chmod($target,$modx->config['new_file_permissions']);
 							$disp='0';
@@ -276,7 +276,7 @@ window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
 				}
 			}
 		}
-		else return false;
+		else $dirSize = false;
 		
 		return $dirSize;
 	}
