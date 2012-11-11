@@ -2785,7 +2785,7 @@ class DocumentParser {
 	function toDateFormat($timestamp = 0, $mode = '')
 	{
 		$timestamp = trim($timestamp);
-		$timestamp = intval($timestamp);
+		$timestamp = intval($timestamp) + $this->config['server_offset_time'];
 		
 		switch($this->config['datetime_format'])
 		{
