@@ -93,13 +93,10 @@ if ($moduleSQLBaseFile)
 		$errors += 1;
 		echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span>';
 		echo '</p>';
-		
-		echo '<p>' . $_lang['setup_couldnt_install'] . '</p>';
-		echo '<p>' . $_lang['installation_error_occured'] . '<br /><br />';
-		foreach($sqlParser->mysqlErrors as $sqlError)
-		{
-			echo '<em>' . $sqlError['error'] . '</em>' . $_lang['during_execution_of_sql'];
-			echo '<span class="mono">' . strip_tags($sqlError['sql']) . '</span>.<hr />';
+		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
+		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
+		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
+			echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
 		}
 		echo '</p>';
 		echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
@@ -110,7 +107,6 @@ if ($moduleSQLBaseFile)
 		echo '<span class="ok">'.$_lang['ok'].'</span></p>';
 	}
 }
-
 echo '<p>' . $_lang['writing_config_file'];
 $src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
@@ -128,16 +124,19 @@ $config_path = "{$base_path}manager/includes/config.inc.php";
 $config_saved = (@ file_put_contents($config_path, $src));
 
 // try to chmod the config file go-rwx (for suexeced php)
-if($config_saved) @chmod($config_path, 0404);
-else
+@chmod($config_path, 0404);
+
+if ($config_saved === false)
 {
-	echo '<span class="notok">' . $_lang['failed'] . '</span></p>';
+	echo '<span class="notok">' . $_lang['failed'] . "</span></p>";
 	$errors += 1;
-	echo '<p>' . $_lang['cant_write_config_file'] . '<span class="mono">manager/includes/config.inc.php</span></p>';
-	echo '<textarea style="width:400px; height:160px;">';
-	echo $configString;
-	echo '</textarea>';
-	echo '<p>' . $_lang['cant_write_config_file_note'] . '</p>';
+?>
+	<p><?php echo $_lang['cant_write_config_file']?><span class="mono">manager/includes/config.inc.php</span></p>
+	<textarea style="width:400px; height:160px;">
+	<?php echo $configString; ?>
+	</textarea>
+	<p><?php echo $_lang['cant_write_config_file_note']?></p>
+<?php
 }
 else
 {
@@ -153,11 +152,11 @@ if ($installmode == 0)
 else
 {
 	// update site_id if missing
-	$rs = mysql_query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'");
-	if ($rs)
+	$ds = mysql_query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'");
+	if ($ds)
 	{
-		$row = mysql_fetch_assoc($rs);
-		$siteid = $row['setting_value'];
+		$r = mysql_fetch_assoc($ds);
+		$siteid = $r['setting_value'];
 		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3')
 		{
 			$siteid = uniqid('');
