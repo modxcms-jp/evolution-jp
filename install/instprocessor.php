@@ -209,8 +209,7 @@ if (isset ($_POST['template']) || $installData)
 				else
 				{
 					$rs = mysql_query("SELECT * FROM {$tbl_site_templates}");
-					$id = mysql_num_rows($rs) + 1;
-					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (id,templatename,description,content,category,locked) VALUES('$id','$name','$desc','$template',$category_id,'$locked');"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
