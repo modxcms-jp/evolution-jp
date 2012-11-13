@@ -59,6 +59,7 @@ if(!isset($_SESSION['mgrValidated']))
 
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
 	$modx->setPlaceholder('theme',$manager_theme);
+	$modx->setPlaceholder('manager_theme_url',"media/style/{$manager_theme}/");
 
 	global $tpl;
 	// invoke OnManagerLoginFormPrerender event
