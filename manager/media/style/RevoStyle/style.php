@@ -15,16 +15,16 @@ $style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
 
 // Tree Menu Toolbar
 $icon_path = $style_path . 'images/icons/';
-$_style['add_doc_tree']             = '<img src="'.$icon_path.'folder_page_add.png" style="width:16px;height:16px" />';
-$_style['add_weblink_tree']         = '<img src="'.$icon_path.'link_add.png" style="width:16px;height:16px" />';
-$_style['collapse_tree']            = '<img src="'.$icon_path.'arrow_up.png" style="width:16px;height:16px" />';
-$_style['empty_recycle_bin']        = '<img src="'.$icon_path.'trash_full.png" style="width:16px;height:16px" />';
-$_style['empty_recycle_bin_empty']  = '<img src="'.$icon_path.'trash.png" style="width:16px;height:16px" />';
-$_style['expand_tree']              = '<img src="'.$icon_path.'arrow_down.png" style="width:16px;height:16px" />';
-$_style['hide_tree']                = '<img src="'.$icon_path.'application_side_contract.png" style="width:16px;height:16px" />';
-$_style['refresh_tree']             = '<img src="'.$icon_path.'refresh.png" style="width:16px;height:16px" />';
+$_style['add_doc_tree']             = '<img src="'.$icon_path.'folder_page_add.png" />';
+$_style['add_weblink_tree']         = '<img src="'.$icon_path.'link_add.png" />';
+$_style['collapse_tree']            = '<img src="'.$icon_path.'arrow_up.png" />';
+$_style['empty_recycle_bin']        = '<img src="'.$icon_path.'trash_full.png" />';
+$_style['empty_recycle_bin_empty']  = '<img src="'.$icon_path.'trash.png" />';
+$_style['expand_tree']              = '<img src="'.$icon_path.'arrow_down.png" />';
+$_style['hide_tree']                = '<img src="'.$icon_path.'application_side_contract.png" />';
+$_style['refresh_tree']             = '<img src="'.$icon_path.'refresh.png" />';
 $_style['show_tree']                = $icon_path.'application_side_expand.png';
-$_style['sort_tree']                = '<img src="'.$icon_path.'sort.png" style="width:16px;height:16px" />';
+$_style['sort_tree']                = '<img src="'.$icon_path.'sort.png" />';
 
 
 // Tree Icons
@@ -53,7 +53,7 @@ $_style['tree_page_pdf']            = $tree_path.'application_pdf.gif';
 $_style['tree_page_word']           = $tree_path.'application_word.gif';
 $_style['tree_page_excel']          = $tree_path.'application_excel.gif';
 $_style['tree_plusnode']            = $tree_path.'plusnode.gif';
-$_style['tree_showtree']            = '<img src="'.$tree_path.'sitemap.png" width="16" height="16" align="absmiddle" />';
+$_style['tree_showtree']            = '<img src="'.$tree_path.'sitemap.png" align="absmiddle" />';
 $_style['tree_weblink']             = $tree_path.'link_go.png';
 
 $_style['tree_page_secure']         = $tree_path.'application_key.gif';
@@ -104,9 +104,6 @@ $_style['icons_weblink']            = $icon_path.'world_link.png';
 $_style['icons_working']            = $icon_path.'exclamation.png'; // top bar
 $_style['sort']                     = $icon_path.'sort.png';
 
-// Tabs
-$_style['icons_tab_preview']        = $icon_path.'preview.gif';
-
 // Indicators
 $_style['icons_tooltip']            = $icon_path.'b02.gif';
 $_style['icons_tooltip_over']       = $icon_path.'b02_trans.gif';
@@ -123,5 +120,3 @@ $_style['icons_help_large']         = $icon_path.'32x/help.png';
 // Miscellaneous
 $_style['ajax_loader']              = '<p>'.$_lang['loading_page'].'</p><p><img src="'.$style_path.'images/misc/ajax-loader.gif" alt="Please wait" /></p>';
 $_style['tx']                       = $style_path.'images/misc/_tx_.gif';
-$_style['icons_right_arrow']        = $icon_path.'circlerightarrow.gif';
-?>
