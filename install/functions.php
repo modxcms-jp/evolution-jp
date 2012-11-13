@@ -382,7 +382,16 @@ function get_installmode()
 				setOption('database_collation','utf8_general_ci');
 				setOption('database_connection_method', 'SET CHARACTER SET');
 				
-				if (!isset($lastInstallTime) || empty($lastInstallTime) || is_null($lastInstallTime))
+				$tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
+				$settings_version = '0';
+				$rs = mysql_query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
+				if($rs)
+				{
+					$row = mysql_fetch_assoc($rs);
+					$settings_version = $row['setting_value'];
+				}
+				
+				if ($settings_version==0 || empty($settings_version))
 				{
 					$installmode = 0;
 				}
