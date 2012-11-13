@@ -132,7 +132,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY aliasidx (`alias`),
-  KEY typeidx (`type`)
+  KEY typeidx (`type`),
+  FULLTEXT KEY `content_ft_idx` (`pagetitle`,`description`,`content`)
 ) ENGINE=MyISAM COMMENT='Contains the site document tree.';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_htmlsnippets` (
@@ -263,7 +264,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues` (
 	`value` text,
 	PRIMARY KEY  (id),
 	KEY idx_tmplvarid (tmplvarid),
-	KEY idx_id (contentid)
+	KEY idx_id (contentid),
+	FULLTEXT KEY `value_ft_idx` (`value`)
 ) ENGINE=MyISAM COMMENT='Site Template Variables Content Values Link Table';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates` (
@@ -314,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_attributes` (
   `zip` varchar(25) NOT NULL default '',
   `fax` varchar(100) NOT NULL default '',
   `photo` varchar(255) NOT NULL default '' COMMENT 'link to photo',
-  `comment` varchar(255) NOT NULL default '' COMMENT 'short comment',  
+  `comment` text,  
   PRIMARY KEY  (`id`),
   KEY `userid` (`internalKey`)
 ) ENGINE=MyISAM COMMENT='Contains information about the backend users.';
@@ -457,12 +459,12 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_attributes` (
   `sessionid` varchar(100) NOT NULL default '',
   `dob` int(10) NOT NULL DEFAULT '0',
   `gender` int(1) NOT NULL DEFAULT '0' COMMENT '0 - unknown, 1 - Male 2 - female',
-  `country` varchar(5) NOT NULL default '',
+  `country` varchar(25) NOT NULL default '',
   `state` varchar(25) NOT NULL default '',
   `zip` varchar(25) NOT NULL default '',
   `fax` varchar(100) NOT NULL default '',
   `photo` varchar(255) NOT NULL default '' COMMENT 'link to photo',
-  `comment` varchar(255) NOT NULL default '' COMMENT 'short comment',  
+  `comment` text,  
   PRIMARY KEY  (`id`),
   KEY `userid` (`internalKey`)
 ) ENGINE=MyISAM COMMENT='Contains information for web users.';
