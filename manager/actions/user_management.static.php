@@ -28,8 +28,8 @@ $_PAGE['vs']['lm'] = $listmode;
 // context menu
 include_once MODX_BASE_PATH . 'manager/includes/controls/contextmenu.php';
 $cm = new ContextMenu('cntxm', 150);
-$cm->addItem($_lang['edit'],   'js:menuAction(1)', $style_path . 'icons/logging.gif',(!$modx->hasPermission('edit_user') ? 1:0));
-$cm->addItem($_lang['delete'], 'js:menuAction(2)', $style_path . 'icons/delete.gif',(!$modx->hasPermission('delete_user') ? 1:0));
+$cm->addItem($_lang['edit'],   'js:menuAction(1)', $_style['icons_edit_document'],(!$modx->hasPermission('edit_user') ? 1:0));
+$cm->addItem($_lang['delete'], 'js:menuAction(2)', $_style['icons_delete'] ,(!$modx->hasPermission('delete_user') ? 1:0));
 echo $cm->render();
 
 ?>
@@ -103,8 +103,8 @@ echo $cm->render();
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td><a href="#" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang['go']; ?></a></td>
-				<td><a href="#" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $style_path; ?>icons/refresh.gif" style="display:inline;" /></a></td>
-				<td><a href="#" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $style_path; ?>icons/table.gif" style="display:inline;" /></a></td>
+				<td><a href="#" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $_style['icons_refresh']; ?>" style="display:inline;" /></a></td>
+				<td><a href="#" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table']; ?>" style="display:inline;" /></a></td>
 				</tr>
 				</table>
 			</td>

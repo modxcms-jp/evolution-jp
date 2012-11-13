@@ -95,7 +95,6 @@ $header = '
             padding: 3px 5px;
 			margin: 4px 0px;
             border: 1px solid #CCCCCC;
-			background-image: url("' . $style_path . 'misc/fade.gif");
 			background-repeat: repeat-x;
 		}
         #sortableListForm {display:none;}

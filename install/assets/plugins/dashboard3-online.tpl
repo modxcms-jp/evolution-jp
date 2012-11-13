@@ -5,7 +5,7 @@
  * ダッシュボードに「オンラインユーザー」を表示します。
  *
  * @category 	plugin
- * @version 	0.1.1
+ * @version 	0.1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerWelcomeRender
  * @internal	@modx_category Manager and Admin
@@ -47,7 +47,7 @@ else
 	while ($row = $modx->db->getRow($rs))
 	{
 		$currentaction = getAction($row['action'], $row['id']);
-		$webicon = ($row['internalKey']<0)? '<img src="' . $style_path . 'tree/globe.gif" alt="Web user" />':'';
+		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.gif" alt="Web user" />':'';
 		$html.= "<tr bgcolor='#FFFFFF'><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
 	}
         $html.= '
