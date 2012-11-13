@@ -58,6 +58,21 @@ if (trim($pagetitle) == '')
 	else                      $pagetitle = $_lang['untitled_resource'];
 }
 
+$pos = strrpos($alias,'.');
+if($pos!==false && $contentType === 'text/html')
+{
+	$ext = substr($alias,$pos);
+	switch($ext)
+	{
+		case '.xml':$contentType = 'text/xml';break;
+		case '.rss':$contentType = 'application/rss+xml';break;
+		case '.css':$contentType = 'text/css';break;
+		case '.js' :$contentType = 'text/javascript';break;
+		case '.txt':$contentType = 'text/plain';break;
+	}
+}
+
+
 if($_POST['mode'] == '27') $actionToTake = 'edit';
 else                       $actionToTake = 'new';
 
