@@ -15,7 +15,7 @@
  *
  * @author Jeff Whitfield
  * @author Mikko Lammi / updated: 03/09/2010
- * @author yama  / updated: 2011/06/17
+ * @author yama  / updated: 2012/11/12
  */
 
 // Set the name of the plugin folder

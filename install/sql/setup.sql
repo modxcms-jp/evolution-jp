@@ -647,16 +647,12 @@ UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' W
 
 ALTER TABLE `{PREFIX}active_users` MODIFY COLUMN `ip` varchar(50) NOT NULL DEFAULT '';
 
-# end related to #MODX-1321
-# ]]upgrade-able
-
-# forMyISAM[[ - This block of code will be executed during MyISAM storage
-
 ALTER TABLE `{PREFIX}site_content` ADD FULLTEXT `content_ft_idx` (`pagetitle`,`description`,`content`);
 
 ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
-# ]]forMyISAM
+# end related to #MODX-1321
+# ]]upgrade-able
 
 # Insert / Replace system records
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

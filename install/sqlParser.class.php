@@ -55,13 +55,7 @@ class SqlParser {
 		{
 			$engine='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
-			$idata = str_replace('ENGINE=MyISAM', "ENGINE={$engine} {$char_collate}", $idata);
-			if($engine!=='MyISAM')
-			{
-				$s = strpos($idata,'forMyISAM[[');
-				$e = strpos($idata,']]forMyISAM')+10;
-				if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed MyISAM items",$idata);
-			}
+			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
 		}
 		
 		// replace {} tags
