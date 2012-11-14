@@ -408,14 +408,14 @@ while ($row = $modx->db->getRow($rs))
 			<th><?php echo $_lang['user_country']; ?>:</th>
 			<td>
 			<select size="1" name="country">
-            <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
+<?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
 			<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
-				<?php
-				foreach ($_country_lang as $key => $country)
-				{
-					echo '<option value="' . $key . '"'.selected(isset($chosenCountry) && $chosenCountry == $key) .">{$country}</option>\n";
-				}
-				?>
+<?php
+	foreach ($_country_lang as $key => $country)
+	{
+		echo '<option value="' . $key . '"'.selected(isset($chosenCountry) && $chosenCountry == $key) .">{$country}</option>\n";
+	}
+?>
             </select>
             </td>
 		  </tr>
@@ -441,18 +441,18 @@ while ($row = $modx->db->getRow($rs))
 				<textarea type="text" name="comment" class="inputBox"  rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
 			</td>
 		  </tr>
-		<?php if($_GET['a']=='12') { ?>
+<?php if($_GET['a']=='12'): ?>
 		  <tr>
 			<th><?php echo $_lang['user_logincount']; ?>:</th>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
-		  <?php
+<?php
 		      if(!empty($userdata['lastlogin']))
 		      {
 		           $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
 		      }
 		      else $lastlogin = '-';
-		  ?>
+?>
 		  <tr>
 			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
 			<td><?php echo $lastlogin ?></td>
@@ -481,10 +481,7 @@ while ($row = $modx->db->getRow($rs))
 				<a onclick="document.userform.blockedafter.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
 			</td>
 		  </tr>
-		<?php
-
-}
-?>
+<?php endif;?>
 		</table>
 	</div>
 	<!-- Settings -->
