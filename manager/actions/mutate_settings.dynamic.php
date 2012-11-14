@@ -941,17 +941,22 @@ echo $str;
 <tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["which_editor_title"]?></th>
 <td>
-<select name="which_editor">
 <?php
 // invoke OnRichTextEditorRegister event
-$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-echo "<option value='none'".($which_editor=='none' ? " selected='selected'" : "").">".$_lang["none"]."</option>\n";
-if(is_array($evtOut)) for($i=0;$i<count($evtOut);$i++) {
-$editor = $evtOut[$i];
-echo "<option value='$editor'".($which_editor==$editor ? " selected='selected'" : "").">$editor</option>\n";
+$editors = $modx->invokeEvent("OnRichTextEditorRegister");
+if(is_array($editors))
+{
+	$which_editor = '<select name="which_editor">';
+	$which_editor .= '<option value="none"' . ($which_editor=='none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
+	foreach($editors as $editor)
+	{
+		$which_editor .= '<option value="' . $editor . '"' . ($which_editor==$editor ? ' selected="selected"' : '') . '>' . $editor . "</option>\n";
+	}
+	$which_editor .= '</select><br />';
 }
+else $which_editor = '';
+echo $which_editor;
 ?>
-</select><br />
 <?php echo $_lang["which_editor_message"]?></td>
 </tr>
 <tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
