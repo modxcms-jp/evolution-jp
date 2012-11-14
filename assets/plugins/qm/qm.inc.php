@@ -7,13 +7,6 @@
  * @version     1.5.5r5 updated 12/01/2011
  */
 
-$show = TRUE;
-
-if (isset($disabled) && $disabled  != '')
-{
-	$arr = explode(',', $disabled );
-	if (in_array($modx->documentIdentifier, $arr)) return;
-}
 // Replace [*#tv*] with QM+ edit TV button placeholders
 if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
 {
@@ -37,6 +30,12 @@ class Qm {
 			return;
 		}
 		extract($params);
+		
+		if (isset($disabled) && $disabled  != '')
+		{
+			$arr = explode(',', $disabled );
+			if (in_array($modx->documentIdentifier, $arr)) return;
+		}
 		
 		// Get plugin parameters
 		$this->jqpath = 'manager/media/script/jquery/jquery.min.js';

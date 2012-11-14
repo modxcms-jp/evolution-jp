@@ -688,6 +688,8 @@ ALTER TABLE `{PREFIX}site_content` ADD FULLTEXT `content_ft_idx` (`pagetitle`,`d
 
 ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFAULT '0' AFTER `remove_locks`;
+
 # end related to #MODX-1321
 # ]]upgrade-able
 
