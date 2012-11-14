@@ -293,7 +293,7 @@ $j(function() {
 			$j('#newcategory').val('');
 			$j('#categoryid option').removeAttr('selected')
 			showParameters($j('#propertiesBox'));
-			return; 
+			return;
 		}
 		
 		var find_block = /\/\*\*([\s\S]*)\*\//;
@@ -301,7 +301,7 @@ $j(function() {
 		if (theBlock == null) {
 			return;
 		} else {
-			src = theBlock[1];	
+			src = theBlock[1];
 		}
 		
 		
@@ -315,7 +315,7 @@ $j(function() {
 			//theLine = theLine.search(/\s\*\s([A-Za-z0-9])/);
 			var docblock_regexp = /\s\*\s(.+)/;
 			theLine = docblock_regexp.exec(theLine);
-						
+			
 			if (theLine != null) { // Does it have words on it?
 				if (!theParams.name) { // The first non-null line we come across should be the name
 					theParams.name = theLine[1];
@@ -331,18 +331,18 @@ $j(function() {
 							case 'internal':
 								var theInternalLineDetail = line_regexp.exec(theLineDetail[2]);
 								theParams[theInternalLineDetail[1]] = theInternalLineDetail[2];
-							break;	
+							break;
 							default:
 								theParams[theLineDetail[1]] = theLineDetail[2];
 							break;
 						}
 					}
 				}
-			} 
-			
+			}
+		
 		});
 		
-			
+		
 		// Populate the events
 		if (theParams.events) {
 			var events = theParams.events.split(',');
@@ -391,12 +391,12 @@ $j(function() {
 							setParameter(oldName, oldParam[1], theField);
 						break;
 						
-						case 'list-multi':		
+						case 'list-multi':
 							// Not supporting list-multi yet, as it is broken anyway
 						break;
 						
 						default:
-							var oldValue = oldParam[2];	
+							var oldValue = oldParam[2];
 							theField.setProperty('value', oldValue);
 							setParameter(oldName, oldParam[1], theField);
 						break;
@@ -412,7 +412,7 @@ $j(function() {
 				opt.setProperty('selected', 'selected');
 				modx_category_found = true;
 			}
-		}); 
+		});
 		
 		
 		// If not found in the dropdown, create a new category

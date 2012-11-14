@@ -1,9 +1,9 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if(!$modx->hasPermission('edit_module')) {	
+if(!$modx->hasPermission('edit_module')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
@@ -22,7 +22,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	/**
 	 * Resource Selector
 	 * Created by Raymond Irving May, 2005
-	 * 
+	 *
 	 * Selects a resource and returns the id values to the window.opener["callback"]() function as an array.
 	 * The name of the callback function is passed via the url as &cb
 	 */
@@ -85,9 +85,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	function saveSelection() {
 		var ids = [];
 		var ctrl = document.selector['id[]'];
-		if (!ctrl.length && ctrl.checked) ids[0] =  ctrl.value; 
+		if (!ctrl.length && ctrl.checked) ids[0] =  ctrl.value;
 		else for(i=0;i<ctrl.length;i++){
-			if (ctrl[i].checked) ids[ids.length]=ctrl[i].value; 
+			if (ctrl[i].checked) ids[ids.length]=ctrl[i].value;
 		}
 		cb = window.opener["<?php echo $cb; ?>"];
 		if(cb) cb("<?php echo $rt; ?>",ids);
@@ -102,7 +102,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	function resetSearch(){
 		document.selector.search.value="";
 		searchResource()
-	}	
+	}
 
 	function changeListMode(){
 		var m = parseInt(document.selector.listmode.value) ? 1:0;
@@ -128,7 +128,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	// set checkbox value
 	function setCheckbox(chk){
 		var a = window.opener.chkBoxArray;
-		a[chk.value] = chk.checked;		
+		a[chk.value] = chk.checked;
 	};
 	// restore checkboxes
 	setTimeout("restoreChkBoxes();",100);
@@ -165,11 +165,11 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			</td>
 			<td width="230" class="actionButtons">
 				<a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><img src="<?php echo $_style['icons_cancel']?>" /> <?php echo $_lang['cancel']; ?></a>
-				<a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><img src="<?php echo $_style['icons_add']?>" /> <?php echo $_lang['insert']; ?></a>				
+				<a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><img src="<?php echo $_style['icons_add']?>" /> <?php echo $_lang['insert']; ?></a>
 			</td>
 			</tr>
 		</table>
-	</div>	
+	</div>
 	 	</td>
 	 </tr>
 	  <tr>
@@ -186,14 +186,14 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 				$grd->noRecordMsg = $_lang["no_records_found"];
 				$grd->cssClass="grid";
 				$grd->columnHeaderClass="gridHeader";
-				$grd->itemClass="gridItem"; 
-				$grd->altItemClass="gridAltItem"; 
+				$grd->itemClass="gridItem";
+				$grd->altItemClass="gridAltItem";
 				$grd->columns=$_lang["name"]." ,".$_lang["description"];
 				$grd->colTypes = "template:<label><input type='".($sm=='m'? 'checkbox':'radio')."' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>";
 				$grd->fields="name,description";
 				if($_REQUEST['listmode']=='1') $grd->pageSize=0;
 				echo $grd->render();
-			}			
+			}
 		?>
 		</td>
 	  </tr>

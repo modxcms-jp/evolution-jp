@@ -1,4 +1,4 @@
-<?php 
+<?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 ?>
@@ -106,16 +106,16 @@ if($limit<1) {
 	printf('<p>'.$_lang['search_results_returned_msg'].'</p>', $limit);
 ?>
 		<script type="text/javascript" src="media/script/tablesort.js"></script>
-  <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-2 rowstyle-even" id="table-1" width="90%"> 
-    <thead> 
-      <tr bgcolor="#CCCCCC"> 
+  <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-2 rowstyle-even" id="table-1" width="90%">
+    <thead>
+      <tr bgcolor="#CCCCCC">
 		<th width="20"></th>
-        <th class="sortable"><b><?php echo $_lang['search_results_returned_id']; ?></b></th> 
-        <th class="sortable"><b><?php echo $_lang['search_results_returned_title']; ?></b></th> 
+        <th class="sortable"><b><?php echo $_lang['search_results_returned_id']; ?></b></th>
+        <th class="sortable"><b><?php echo $_lang['search_results_returned_title']; ?></b></th>
         <th class="sortable"><b><?php echo $_lang['search_results_returned_desc']; ?></b></th>
 		<th width="20"></th>
-      </tr> 
-    </thead> 
+      </tr>
+    </thead>
     <tbody>
      <?php
     // icons by content type
@@ -134,7 +134,7 @@ if($limit<1) {
         'image/png' => $_style["tree_page_png"]
     );
 
-while ($row = $modx->db->getRow($rs)) { 
+while ($row = $modx->db->getRow($rs)) {
 	// figure out the icon for the document...
 	$icon = "";
 	if ($row['type']=='reference') {
@@ -143,7 +143,7 @@ while ($row = $modx->db->getRow($rs)) {
 		$icon .= isset($icons[$row['contenttype']]) ? $icons[$row['contenttype']] : $_style["tree_page_html"];
 	} else {
 		$icon .= $_style['tree_folder'];
-	} 
+	}
 
 	$tdClass = "";
 	if($row['published'] == 0) {
@@ -152,28 +152,28 @@ while ($row = $modx->db->getRow($rs)) {
 	if($row['deleted'] == 1) {
 		$tdClass .= ' class="deletedNode"';
 	}
-?> 
-    <tr> 
-      <td align="center"><a href="index.php?a=3&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" width="16" height="16" /></a></td> 
-      <td><?php echo $row['id']; ?></td> 
+?>
+    <tr>
+      <td align="center"><a href="index.php?a=3&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" /></a></td>
+      <td><?php echo $row['id']; ?></td>
 <?php
 		if (function_exists('mb_strlen') && function_exists('mb_substr')) {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['pagetitle'], $modx_manager_charset)>70 ? mb_substr($row['pagetitle'], 0, 70, $modx_manager_charset)."..." : $row['pagetitle'] ; ?></td> 
+		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['pagetitle'], $modx_manager_charset)>70 ? mb_substr($row['pagetitle'], 0, 70, $modx_manager_charset)."..." : $row['pagetitle'] ; ?></td>
 		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['description'], $modx_manager_charset)>70 ? mb_substr($row['description'], 0, 70, $modx_manager_charset)."..." : $row['description'] ; ?></td>
 <?php
 		} else {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo strlen($row['pagetitle'])>20 ? substr($row['pagetitle'], 0, 20).'...' : $row['pagetitle'] ; ?></td> 
+		<td<?php echo $tdClass; ?>><?php echo strlen($row['pagetitle'])>20 ? substr($row['pagetitle'], 0, 20).'...' : $row['pagetitle'] ; ?></td>
 		<td<?php echo $tdClass; ?>><?php echo strlen($row['description'])>35 ? substr($row['description'], 0, 35).'...' : $row['description'] ; ?></td>
 <?php
 		}
 ?>
       <td align="center"><img src="<?php echo $icon; ?>" /></td>
-    </tr> 
+    </tr>
 <?php
 	}
-?> 
+?>
     </tbody>
      </table>
 <?php

@@ -148,14 +148,14 @@ echo $cm->render();
 	include_once MODX_BASE_PATH . 'manager/includes/controls/datagrid.class.php';
 	
 	$grd = new DataGrid('',$ds,$modx->config['number_of_results']); // set page size to 0 t show all items
-	$grd->noRecordMsg       = $_lang['no_records_found'];
-	$grd->cssClass          = 'grid';
-	$grd->itemClass         = 'gridItem';
-	$grd->altItemClass      = 'gridAltItem';
-	$grd->fields            = 'username,fullname,email,role,thislogin,logincount,blocked';
-	$grd->columns           = join(',', array($_lang['name'],$_lang['user_full_name'],
-	                                          $_lang['email'],$_lang['role'],$_lang['login_button'],$_lang['user_logincount'],$_lang['user_block']));
-	$grd->colTypes          = join('||',array(
+	$grd->noRecordMsg  = $_lang['no_records_found'];
+	$grd->cssClass     = 'grid';
+	$grd->itemClass    = 'gridItem';
+	$grd->altItemClass = 'gridAltItem';
+	$grd->fields       = 'username,fullname,email,role,thislogin,logincount,blocked';
+	$grd->columns      = join(',', array($_lang['name'],$_lang['user_full_name'],
+	                                     $_lang['email'],$_lang['role'],$_lang['login_button'],$_lang['user_logincount'],$_lang['user_block']));
+	$grd->colTypes     = join('||',array(
 	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a></span>',
 	                          '[+fullname+]',
 	                          'template:[+email+]',

@@ -56,7 +56,7 @@ if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) {
 	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
 	$modx->setPlaceholder('SecurityIcon',$src);
 }
-if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) { 
+if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) {
 	$src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
 	$modx->setPlaceholder('WebUserIcon',$src);
 }
@@ -117,7 +117,7 @@ if (   ($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
     include_once "config_check.inc.php";
     $modx->setPlaceholder('settings_config',$_lang['warning']);
     $modx->setPlaceholder('configcheck_title',$_lang['configcheck_title']);
-    if($config_check_results != $_lang['configcheck_ok']) {    
+    if($config_check_results != $_lang['configcheck_ok']) {
     $modx->setPlaceholder('config_check_results',$config_check_results);
     $modx->setPlaceholder('config_display','block');
     }

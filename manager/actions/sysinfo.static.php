@@ -220,7 +220,7 @@ if(!$modx->hasPermission('logs')) {
                       <td><b>'.$_lang["onlineusers_ipaddress"].'</b></td>
                       <td><b>'.$_lang["onlineusers_lasthit"].'</b></td>
                       <td><b>'.$_lang["onlineusers_action"].'</b></td>
-                      <td><b>'.$_lang["onlineusers_actionid"].'</b></td>		
+                      <td><b>'.$_lang["onlineusers_actionid"].'</b></td>
                     </tr>
                   </thead>
                   <tbody>

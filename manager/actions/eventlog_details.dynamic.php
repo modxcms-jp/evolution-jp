@@ -31,7 +31,7 @@ if(!$ds) {
 	exit;
 }
 else{
-	$content = $modx->db->getRow($ds);	
+	$content = $modx->db->getRow($ds);
 }
 
 ?>
@@ -52,7 +52,7 @@ else{
 			document.location.href="index.php?id=" + document.resource.id.value + "&a=116";
 		}
 	}
-</script> 
+</script>
 
 <form name="resource" method="get">
 <input type="hidden" name="id" value="<?php echo $id; ?>" />

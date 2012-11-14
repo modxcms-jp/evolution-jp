@@ -208,7 +208,7 @@ if (is_array($evtOut))
     		  </li>
     		  <?php
     			if ($_REQUEST['a'] == '78') { ?>
-    		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>	    
+    		  <li id="Button2"><a href="#" onclick="duplicaterecord();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang["duplicate"]; ?></a></li>
     		  <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
     		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=76';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
@@ -280,7 +280,7 @@ if (is_array($evtOut))
 		<th align="left"><?php echo $_lang['page_data_publishdate'];?></th>
 		<td>
 			<input id="pub_date" name="pub_date" type="text" value="<?php echo $content['pub_date'];?>" class="DatePicker" />
-            <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand;">
+            <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">
 			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 		</td>
 	</tr>
@@ -291,7 +291,7 @@ if (is_array($evtOut))
 		<th align="left"><?php echo $_lang['page_data_unpublishdate'];?></th>
 		<td>
 			<input id="unpub_date" name="unpub_date" type="text" value="<?php echo $content['unpub_date'];?>" class="DatePicker" />
-			<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand">
+			<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">
 			<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 		</td>
 	</tr>

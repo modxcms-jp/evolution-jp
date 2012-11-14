@@ -427,7 +427,7 @@ class EXPORT_SITE
 				$dircontent[] = $row['alias'];
 			}
 		}
-		// remove No-MODx files/dirs 
+		// remove No-MODx files/dirs
 		if (!$this->scanDirectory($dirpath, $dircontent)) exit;
 	}
 }

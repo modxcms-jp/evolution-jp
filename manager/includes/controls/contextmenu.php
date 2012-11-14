@@ -24,7 +24,7 @@ class ContextMenu {
 		if ($disabled) $action="";
 		$this->html .= "
 			<div class='".($disabled ? "cntxMnuItemDisabled":"cntxMnuItem")."' $action>
-				<img src='$img' width='16' height='16' align='absmiddle' />&nbsp;$text
+				<img src='$img' align='absmiddle' />&nbsp;$text
 			</div>
 		";
 	}

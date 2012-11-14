@@ -31,7 +31,7 @@ if(isset($_POST['listSubmitted'])) {
 		if ($listName == 'listSubmitted') continue;
 		$orderArray = explode(';', rtrim($listValue, ';'));
 		foreach($orderArray as $key => $item) {
-			if (strlen($item) == 0) continue; 
+			if (strlen($item) == 0) continue;
 			$tmplvar = ltrim($item, 'item_');
 			$sql = 'UPDATE '.$tbl_site_tmplvar_templates.' SET rank='.$key.' WHERE tmplvarid='.$tmplvar.' AND templateid='.$_REQUEST['id'];
 			$modx->db->query($sql);
@@ -103,7 +103,7 @@ $header .= '
         function save() {
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
-    		
+    	
         window.addEvent(\'domready\', function() {
 			new Sortables($(\'sortlist\'),
 			{

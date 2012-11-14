@@ -407,7 +407,7 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo wrap_label($_lang["no"],form_radio('search_default','0',$search_default=='0'));?><br />
 		<?php echo $_lang["defaultsearch_message"] ?></td>
 </tr>
-<tr> 
+<tr>
 	<th><?php echo $_lang["defaultmenuindex_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('auto_menuindex','1',$auto_menuindex=='1'));?><br />
@@ -1146,7 +1146,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <?php
 /**
 * get_lang_keys
-* 
+*
 * @return array of keys from a language file
 */
 function get_lang_keys($filename)
@@ -1164,7 +1164,7 @@ function get_lang_keys($filename)
 }
 /**
 * get_langs_by_key
-* 
+*
 * @return array of languages that define the key in their file
 */
 function get_langs_by_key($key)
@@ -1185,7 +1185,7 @@ function get_langs_by_key($key)
 * get_lang_options
 *
 * returns html option list of languages
-* 
+*
 * @param string $key specify language key to return options of langauges that override it, default return all languages
 * @param string $selected_lang specify language to select in option list, default none
 * @return html option list

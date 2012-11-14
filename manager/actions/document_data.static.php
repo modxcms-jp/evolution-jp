@@ -294,7 +294,7 @@ else
 	<script type="text/javascript" src="media/script/tablesort.js"></script>
 	<h1><?php echo $_lang['doc_data_title']?></h1>
 	
-	<div id="actions">	
+	<div id="actions">
 	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_document')):?>
 		  <li id="Button1">
@@ -442,9 +442,9 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 			<tr><td><?php echo $_lang['resource_opt_show_menu']?>: </td>
 				<td><?php echo $content['hidemenu']==1 ? $_lang['no'] : $_lang['yes']?></td></tr>
 			<tr><td><?php echo $_lang['page_data_web_access']?>: </td>
-				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
+				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
-				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" width="16" height="16" />'?></td></tr>
+				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
 		</table>
 		<table>
 			<tr><td colspan="2"><h3><?php echo $_lang['page_data_markup']?></h3></td></tr>

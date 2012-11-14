@@ -285,12 +285,12 @@ function decode(s){
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
-    			  <span class="and"> + </span>				
+    			  <span class="and"> + </span>
     			<select id="stay" name="stay">
     			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
     			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
     			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
-    			</select>		
+    			</select>
     		  </li>
     		  <?php
     			if ($_GET['a'] == '22') { ?>

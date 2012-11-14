@@ -84,7 +84,6 @@ $header = '
 			padding-left: 20px;
 			margin: 0px;
 			width: 300px;
-			font-family: Arial, sans-serif;
 		}
 
 		ul.sortableList li
@@ -103,10 +102,10 @@ $header = '
         function save() {
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
-    		
+    	
     	window.addEvent(\'domready\', function() {';
-foreach ($sortables as $list) {
-	
+foreach ($sortables as $list)
+{
 	$header .= 'new Sortables($(\''.$list.'\'), {
 	               initialize: function() {
                         $$(\'#'.$list.' li\').each(function(el, i)
