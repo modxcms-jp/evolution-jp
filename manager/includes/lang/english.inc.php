@@ -1230,3 +1230,6 @@ $_lang["not_readable_dir"] = 'Can not read this directory.';
 
 $_lang["configcheck_you_are_admin"] = 'You are loggedin special role';
 $_lang["configcheck_you_are_admin_msg"] = 'You are loggedin special role(Administrator).';
+
+$_lang["login_settings"] = 'Login info';
+$_lang["profile"] = 'Profile';

@@ -1232,3 +1232,6 @@ $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPス�
 
 $_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
 $_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは通常のコンテンツ管理には向かない特殊な性質を持っているため、常用アカウントを別途に作り、当アカウントは緊急対応用に用いることをおすすめします。';
+
+$_lang["login_settings"] = 'ログイン設定';
+$_lang["profile"] = 'プロフィール';

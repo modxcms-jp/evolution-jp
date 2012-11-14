@@ -190,31 +190,29 @@ function changeName(){
 		e1.style.display = "none";
 		e2.style.display = "<?php echo $displayStyle; ?>";
 	}
-};
+}
 
-// showHide - used by custom settings
-function showHide(what, onoff){
-	var all = document.getElementsByTagName( "*" );
-	var l = all.length;
-	var buttonRe = what;
-	var id, el, stylevar;
+function OpenServerBrowser(url, width, height ) {
+	var iLeft = (screen.width  - width) / 2 ;
+	var iTop  = (screen.height - height) / 2 ;
 
-	if(onoff==1) {
-		stylevar = "<?php echo $displayStyle; ?>";
-	} else {
-		stylevar = "none";
-	}
+	var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes" ;
+	sOptions += ",width=" + width ;
+	sOptions += ",height=" + height ;
+	sOptions += ",left=" + iLeft ;
+	sOptions += ",top=" + iTop ;
 
-	for ( var i = 0; i < l; i++ ) {
-		el = all[i]
-		id = el.id;
-		if ( id == "" ) continue;
-		if (buttonRe.test(id)) {
-			el.style.display = stylevar;
-		}
-	}
-};
-
+	var oWindow = window.open( url, "FCKBrowseWindow", sOptions ) ;
+}
+function BrowseServer() {
+	var w = screen.width * 0.7;
+	var h = screen.height * 0.7;
+	OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
+}
+function SetUrl(url, width, height, alt){
+	document.userform.photo.value = url;
+	document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
+}
 </script>
 
 <style type="text/css">
@@ -262,7 +260,7 @@ function showHide(what, onoff){
 		tpUser = new WebFXTabPane(document.getElementById( "webUserPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
     <div class="tab-page" id="tabGeneral">
-    	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
+    	<h2 class="tab"><?php echo $_lang["login_settings"] ?></h2>
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
 		  <tr>
@@ -307,115 +305,91 @@ function showHide(what, onoff){
 				</span>
 			</td>
 		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_full_name']; ?>:</th>
-			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars(isset($_POST['fullname']) ? $_POST['fullname'] : $userdata['fullname']); ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_email']; ?>:</th>
-			<td>
-			<input type="text" name="email" class="inputBox" value="<?php echo  isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" />
-			<input type="hidden" name="oldemail" value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail']:$userdata['email']); ?>" />
-			</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_phone']; ?>:</th>
-			<td><input type="text" name="phone" class="inputBox" value="<?php echo isset($_POST['phone']) ? $_POST['phone'] : $userdata['phone']; ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_mobile']; ?>:</th>
-			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo isset($_POST['mobilephone']) ? $_POST['mobilephone'] : $userdata['mobilephone']; ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_fax']; ?>:</th>
-			<td><input type="text" name="fax" class="inputBox" value="<?php echo isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']; ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_state']; ?>:</th>
-			<td><input type="text" name="state" class="inputBox" value="<?php echo isset($_POST['state']) ? $_POST['state'] : $userdata['state']; ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_zip']; ?>:</th>
-			<td><input type="text" name="zip" class="inputBox" value="<?php echo isset($_POST['zip']) ? $_POST['zip'] : $userdata['zip']; ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_country']; ?>:</th>
-			<td>
-			<select size="1" name="country">
-            <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
-			<option value="" <?php (!isset($chosenCountry) ? ' selected' : '') ?> >&nbsp;</option>
-				<?php
-				foreach ($_country_lang as $key => $country) {
-				 echo "<option value=\"$key\"".(isset($chosenCountry) && $chosenCountry == $key ? ' selected' : '') .">$country</option>";
-				}
-				?>
-            </select>
-            </td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_dob']; ?>:</th>
-			<td>
-				<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
-				<a onclick="document.userform.dob.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
-			</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_gender']; ?>:</th>
-			<td><select name="gender">
-				<option value=""></option>
-				<option value="1" <?php echo ($_POST['gender']=='1'||$userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
-				<option value="2" <?php echo ($_POST['gender']=='2'||$userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
-				</select>
-			</td>
-		  </tr>
-		  <tr>
-			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
-			<td>
-				<textarea type="text" name="comment" class="inputBox" rows="5"><?php echo htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea>
-			</td>
-		  </tr>
-		<?php if($_GET['a']=='88') { ?>
-		  <tr>
-			<th><?php echo $_lang['user_logincount']; ?>:</th>
-			<td><?php echo $userdata['logincount'] ?></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
-			<?php
-				if(!empty($userdata['lastlogin'])) $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
-				else                               $lastlogin = '-';
-			?>
-			<td><?php echo $lastlogin; ?></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
-			<td>
-			<input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>">
-			<span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_block']; ?>:</th>
-			<td><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)||($userdata['blockedafter']<time() && $userdata['blockedafter']!=0)) ? " checked='checked'": "" ; ?> /><input type="hidden" name="blocked" value="<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0))?1:0; ?>"></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_blockeduntil']; ?>:</th>
-			<td>
-				<input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo isset($_POST['blockeduntil']) ? $_POST['blockeduntil'] : ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
-				<a onclick="document.userform.blockeduntil.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
-			</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_blockedafter']; ?>:</th>
-			<td>
-				<input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo isset($_POST['blockedafter']) ? $_POST['blockedafter'] : ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
-				<a onclick="document.userform.blockedafter.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
-			</td>
-		  </tr>
-		<?php
-		}
-		?>
 		</table>
 	</div>
+<!-- Profile -->
+<div class="tab-page" id="tabProfile">
+<h2 class="tab"><?php echo $_lang["profile"] ?></h2>
+<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabProfile" ) );</script>
+<table class="settings">
+<tr>
+	<th><?php echo $_lang['user_full_name']; ?>:</th>
+	<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars(isset($_POST['fullname']) ? $_POST['fullname'] : $userdata['fullname']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_email']; ?>:</th>
+	<td>
+	<input type="text" name="email" class="inputBox" value="<?php echo  isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" />
+	<input type="hidden" name="oldemail" value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail']:$userdata['email']); ?>" />
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_phone']; ?>:</th>
+	<td><input type="text" name="phone" class="inputBox" value="<?php echo isset($_POST['phone']) ? $_POST['phone'] : $userdata['phone']; ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_mobile']; ?>:</th>
+	<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo isset($_POST['mobilephone']) ? $_POST['mobilephone'] : $userdata['mobilephone']; ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_fax']; ?>:</th>
+	<td><input type="text" name="fax" class="inputBox" value="<?php echo isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']; ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_state']; ?>:</th>
+	<td><input type="text" name="state" class="inputBox" value="<?php echo isset($_POST['state']) ? $_POST['state'] : $userdata['state']; ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_zip']; ?>:</th>
+	<td><input type="text" name="zip" class="inputBox" value="<?php echo isset($_POST['zip']) ? $_POST['zip'] : $userdata['zip']; ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_country']; ?>:</th>
+	<td>
+	<select size="1" name="country">
+	<?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
+	<option value="" <?php (!isset($chosenCountry) ? ' selected' : '') ?> >&nbsp;</option>
+	<?php
+	foreach ($_country_lang as $key => $country) {
+	echo "<option value=\"$key\"".(isset($chosenCountry) && $chosenCountry == $key ? ' selected' : '') .">$country</option>";
+	}
+	?>
+	</select>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_dob']; ?>:</th>
+	<td>
+	<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
+	<a onclick="document.userform.dob.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_gender']; ?>:</th>
+	<td><select name="gender">
+	<option value=""></option>
+	<option value="1" <?php echo ($_POST['gender']=='1'||$userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
+	<option value="2" <?php echo ($_POST['gender']=='2'||$userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
+	</select>
+	</td>
+</tr>
+<tr>
+	<th valign="top"><?php echo $_lang['comment']; ?>:</th>
+	<td>
+	<textarea type="text" name="comment" class="inputBox" rows="5"><?php echo htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea>
+	</td>
+</tr>
+<tr>
+	<td nowrap class="warning"><b><?php echo $_lang["user_photo"] ?></b></td>
+	<td><input type="text" maxlength="255" style="width: 150px;" name="photo" value="<?php echo htmlspecialchars(isset($_POST['photo']) ? $_POST['photo'] : $userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
+	<div><?php echo $_lang["user_photo_message"] ?></div>
+	<div>
+	<img name="iphoto" src="<?php echo isset($_POST['photo']) ? MODX_SITE_URL . $_POST['photo'] : !empty($userdata['photo']) ? MODX_SITE_URL.$userdata['photo']: $_style['tx']; ?>" />
+	</div>
+	</td>
+</tr>
+</table>
+</div>
 	<!-- Settings -->
     <div class="tab-page" id="tabSettings">
     	<h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
@@ -428,6 +402,44 @@ function showHide(what, onoff){
             <div><?php echo $_lang["login_homepage_message"] ?></div>
             </td>
           </tr>
+<?php if($_GET['a']=='88'): ?>
+<tr>
+	<th><?php echo $_lang['user_logincount']; ?>:</th>
+	<td><?php echo $userdata['logincount'] ?></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_prevlogin']; ?>:</th>
+	<?php
+	if(!empty($userdata['lastlogin'])) $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
+	else                               $lastlogin = '-';
+	?>
+	<td><?php echo $lastlogin; ?></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
+	<td>
+	<input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>">
+	<span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_block']; ?>:</th>
+	<td><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)||($userdata['blockedafter']<time() && $userdata['blockedafter']!=0)) ? " checked='checked'": "" ; ?> /><input type="hidden" name="blocked" value="<?php echo ($userdata['blocked']==1||($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0))?1:0; ?>"></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_blockeduntil']; ?>:</th>
+	<td>
+	<input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo isset($_POST['blockeduntil']) ? $_POST['blockeduntil'] : ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
+	<a onclick="document.userform.blockeduntil.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_blockedafter']; ?>:</th>
+	<td>
+	<input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo isset($_POST['blockedafter']) ? $_POST['blockedafter'] : ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
+	<a onclick="document.userform.blockedafter.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
+	</td>
+</tr>
+<?php endif; ?>
           <tr>
             <td nowrap class="warning"valign="top"><b><?php echo $_lang["login_allowed_ip"] ?></b></td>
             <td>
@@ -446,45 +458,6 @@ function showHide(what, onoff){
             	<label><input type="checkbox" name="allowed_days[]" value="6" <?php echo strpos($usersettings['allowed_days'],'6')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['friday']; ?></label>
             	<label><input type="checkbox" name="allowed_days[]" value="7" <?php echo strpos($usersettings['allowed_days'],'7')!==false ? "checked='checked'":""; ?> /> <?php echo $_lang['saturday']; ?></label>
             	<div><?php echo $_lang["login_allowed_days_message"] ?></div>
-            </td>
-          </tr>
-		</table>
-	</div>
-	<!-- Photo -->
-    <div class="tab-page" id="tabPhoto">
-    	<h2 class="tab"><?php echo $_lang["settings_photo"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPhoto" ) );</script>
-    	<script type="text/javascript">
-			function OpenServerBrowser(url, width, height ) {
-				var iLeft = (screen.width  - width) / 2 ;
-				var iTop  = (screen.height - height) / 2 ;
-
-				var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes" ;
-				sOptions += ",width=" + width ;
-				sOptions += ",height=" + height ;
-				sOptions += ",left=" + iLeft ;
-				sOptions += ",top=" + iTop ;
-
-				var oWindow = window.open( url, "FCKBrowseWindow", sOptions ) ;
-			}
-			function BrowseServer() {
-				var w = screen.width * 0.7;
-				var h = screen.height * 0.7;
-				OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
-			}
-			function SetUrl(url, width, height, alt){
-				document.userform.photo.value = url;
-				document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
-			}
-		</script>
-        <table class="settings">
-          <tr>
-            <td nowrap class="warning"><b><?php echo $_lang["user_photo"] ?></b></td>
-            <td><input type="text" maxlength="255" style="width: 150px;" name="photo" value="<?php echo htmlspecialchars(isset($_POST['photo']) ? $_POST['photo'] : $userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
-            <div><?php echo $_lang["user_photo_message"] ?></div>
-            <div>
-            	<img name="iphoto" src="<?php echo isset($_POST['photo']) ? MODX_SITE_URL . $_POST['photo'] : !empty($userdata['photo']) ? MODX_SITE_URL.$userdata['photo']: $_style['tx']; ?>" />
-            </div>
             </td>
           </tr>
 		</table>

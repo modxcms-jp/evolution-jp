@@ -16,7 +16,7 @@ switch((int) $_REQUEST['a']) {
     break;
   default:
     $e->setError(3);
-    $e->dumpError();  
+    $e->dumpError();
 }
 
 $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
@@ -190,33 +190,30 @@ function changeName(){
 		e1.style.display = "none";
 		e2.style.display = "<?php echo $displayStyle; ?>";
 	}
-};
+}
 
-// showHide - used by custom settings
-function showHide(what, onoff){
-	var all = document.getElementsByTagName( "*" );
-	var l = all.length;
-	var buttonRe = what;
-	var id, el, stylevar;
+function OpenServerBrowser(url, width, height ) {
+	var iLeft = (screen.width  - width) / 2 ;
+	var iTop  = (screen.height - height) / 2 ;
 
-	if(onoff==1) {
-		stylevar = "<?php echo $displayStyle; ?>";
-	} else {
-		stylevar = "none";
-	}
+	var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes" ;
+	sOptions += ",width=" + width ;
+	sOptions += ",height=" + height ;
+	sOptions += ",left=" + iLeft ;
+	sOptions += ",top=" + iTop ;
 
-	for ( var i = 0; i < l; i++ ) {
-		el = all[i]
-		id = el.id;
-		if ( id == "" ) continue;
-		if (buttonRe.test(id)) {
-			el.style.display = stylevar;
-		}
-	}
-};
-
+	var oWindow = window.open( url, "FCKBrowseWindow", sOptions ) ;
+}
+function BrowseServer() {
+	var w = screen.width * 0.7;
+	var h = screen.height * 0.7;
+	OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
+}
+function SetUrl(url, width, height, alt){
+	document.userform.photo.value = url;
+	document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
+}
 </script>
-
 
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
 <?php
@@ -255,7 +252,6 @@ if (is_array($evtOut))
     </div>
 <!-- Tab Start -->
 <div class="sectionBody">
-<link type="text/css" rel="stylesheet" href="media/style/<?php echo $manager_theme; ?>/style.css<?php echo "?$theme_refresher";?>" />
 <style type="text/css">
 	table.settings {border-collapse:collapse;width:100%;}
 	table.settings tr {border-bottom:1px dotted #ccc;}
@@ -268,7 +264,7 @@ if (is_array($evtOut))
 	</script>
     <div class="tab-page" id="tabGeneral">
 		<?php if($_GET['id']==$modx->getLoginUserID()) { ?><p><?php echo $_lang['user_edit_self_msg']; ?></p><?php } ?>
-    	<h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
+    	<h2 class="tab"><?php echo $_lang["login_settings"] ?></h2>
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
 <?php
@@ -316,10 +312,6 @@ if (is_array($evtOut))
 				</fieldset>
 				</span>
 			</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_full_name']; ?>:</th>
-			<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" /></td>
 		  </tr>
 		  <tr>
 			<th><?php echo $_lang['user_email']; ?>:</th>
@@ -384,74 +376,116 @@ while ($row = $modx->db->getRow($rs))
 		</select>
 			</td>
 		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_phone']; ?>:</th>
-			<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_mobile']; ?>:</th>
-			<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" /></td>
-		  </tr>		  
-		  <tr>	  
-			<th><?php echo $_lang['user_fax']; ?>:</th>
-			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_state']; ?>:</th>
-			<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_zip']; ?>:</th>
-			<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" /></td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_country']; ?>:</th>
-			<td>
-			<select size="1" name="country">
-<?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
-			<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
+</table>
+</div>
+<!-- Profile -->
+<div class="tab-page" id="tabProfile">
+<h2 class="tab"><?php echo $_lang["profile"] ?></h2>
+<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabProfile" ) );</script>
+<table class="settings">
+<tr>
+	<th><?php echo $_lang['user_full_name']; ?>:</th>
+	<td><input type="text" name="fullname" class="inputBox" value="<?php echo htmlspecialchars($userdata['fullname']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_phone']; ?>:</th>
+	<td><input type="text" name="phone" class="inputBox" value="<?php echo htmlspecialchars($userdata['phone']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_mobile']; ?>:</th>
+	<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_fax']; ?>:</th>
+	<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_state']; ?>:</th>
+	<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_zip']; ?>:</th>
+	<td><input type="text" name="zip" class="inputBox" value="<?php echo htmlspecialchars($userdata['zip']); ?>" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_country']; ?>:</th>
+	<td>
+	<select size="1" name="country">
+	<?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
+	<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
 <?php
 	foreach ($_country_lang as $key => $country)
 	{
 		echo '<option value="' . $key . '"'.selected(isset($chosenCountry) && $chosenCountry == $key) .">{$country}</option>\n";
 	}
 ?>
-            </select>
+	</select>
+	</td>
+</tr>
+	<tr>
+	<th><?php echo $_lang['user_dob']; ?>:</th>
+	<td>
+	<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
+	<a onclick="document.userform.dob.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_gender']; ?>:</th>
+	<td><select name="gender">
+	<option value=""></option>
+	<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
+	<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
+	</select>
+	</td>
+</tr>
+<tr>
+	<th valign="top"><?php echo $_lang['comment']; ?>:</th>
+	<td>
+	<textarea type="text" name="comment" class="inputBox"  rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["user_photo"] ?></th>
+	<td><input type="text" maxlength="255" style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" />
+	<input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
+	<div><?php echo $_lang["user_photo_message"]; ?></div>
+	<div>
+	<img name="iphoto" src="<?php echo isset($_POST['photo']) ? MODX_SITE_URL . $_POST['photo'] : !empty($userdata['photo']) ? MODX_SITE_URL.$userdata['photo']: $_style['tx']; ?>" />
+	</div>
+	</td>
+</tr>
+</table>
+</div>
+	<!-- Settings -->
+    <div class="tab-page" id="tabSettings">
+    	<h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
+    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabSettings" ) );</script>
+        <table class="settings">
+          <tr>
+            <th><?php echo $_lang["mgr_login_start"] ?></th>
+            <td ><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
+            <div><?php echo $_lang["mgr_login_start_message"] ?></div>
             </td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_dob']; ?>:</th>
-			<td>
-				<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
-				<a onclick="document.userform.dob.value=''; return true;" onmouseover="window.status='<?php echo $_lang['remove_date']; ?>'; return true;" onmouseout="window.status=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" width="16" height="16" border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
-			</td>
-		  </tr>
-		  <tr>
-			<th><?php echo $_lang['user_gender']; ?>:</th>
-			<td><select name="gender">
-				<option value=""></option>
-				<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
-				<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
-				</select>
-			</td>
-		  </tr>
-		  <tr>
-			<th valign="top"><?php echo $_lang['comment']; ?>:</th>
-			<td>
-				<textarea type="text" name="comment" class="inputBox"  rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
-			</td>
-		  </tr>
+          </tr>
+          <tr>
+            <th><?php echo $_lang["allow_mgr_access"] ?></th>
+            <td>
+            	<label><input type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?></label><br />
+            	<label><input type="radio" name="allow_manager_access" value="0" <?php echo isset($usersettings['allow_manager_access']) && $usersettings['allow_manager_access']==0 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['no']; ?></label>
+            	<div><?php echo $_lang["allow_mgr_access_message"] ?></div>
+            </td>
+          </tr>
 <?php if($_GET['a']=='12'): ?>
 		  <tr>
 			<th><?php echo $_lang['user_logincount']; ?>:</th>
 			<td><?php echo $userdata['logincount'] ?></td>
 		  </tr>
 <?php
-		      if(!empty($userdata['lastlogin']))
-		      {
-		           $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
-		      }
-		      else $lastlogin = '-';
+	if(!empty($userdata['lastlogin']))
+	{
+	   $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
+	}
+	else $lastlogin = '-';
 ?>
 		  <tr>
 			<th><?php echo $_lang['user_prevlogin']; ?>:</th>
@@ -482,53 +516,6 @@ while ($row = $modx->db->getRow($rs))
 			</td>
 		  </tr>
 <?php endif;?>
-		</table>
-	</div>
-	<!-- Settings -->
-    <div class="tab-page" id="tabSettings">
-    	<h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabSettings" ) );</script>
-        <table class="settings">
-	  <tr>
-	    <th><?php echo $_lang["language_title"] ?></th>
-	    <td> <select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
-	    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
-	    <?php
-$activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
-$dir = dir('includes/lang');
-while ($file = $dir->read())
-{
-	if (strpos($file, '.inc.php') !== false)
-	{
-		$endpos = strpos($file, ".");
-		$languagename = trim(substr($file, 0, $endpos));
-		$selectedtext = selected($activelang===$languagename);
-?> 
-                <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option> 
-                <?php
-
-	}
-}
-$dir->close();
-?> 
-              </select>
-              <div><?php echo $_lang["language_message"]; ?></div>
-         </td>
-	  </tr>
-          <tr>
-            <th><?php echo $_lang["mgr_login_start"] ?></th>
-            <td ><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
-            <div><?php echo $_lang["mgr_login_start_message"] ?></div>
-            </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["allow_mgr_access"] ?></th>
-            <td>
-            	<label><input type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?></label><br />
-            	<label><input type="radio" name="allow_manager_access" value="0" <?php echo isset($usersettings['allow_manager_access']) && $usersettings['allow_manager_access']==0 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['no']; ?></label>
-            	<div><?php echo $_lang["allow_mgr_access_message"] ?></div>
-            </td>
-          </tr>
           <tr>
             <th><?php echo $_lang["login_allowed_ip"] ?></th>
             <td ><input  type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $usersettings['allowed_ip']; ?>" />
@@ -548,175 +535,106 @@ $dir->close();
             <div><?php echo $_lang["login_allowed_days_message"]; ?></div>
             </td>
           </tr>
-          <tr>
-          <th><?php echo $_lang["manager_theme"]?></th>
-            <td> <select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date())">
-		<option value=""><?php echo $_lang["user_use_config"]; ?></option>
-<?php
-		$dir = dir("media/style/");
-		while ($file = $dir->read()) {
-			if ($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file,0,1) != '.') {
-				$themename = $file;
-				$attr = 'value="'.$themename.'" ';
-					$attr .= selected(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']);
-				echo "\t\t<option ".rtrim($attr).'>'.ucwords(str_replace("_", " ", $themename))."</option>\n";
-			}
-		}
-		$dir->close();
-?>
-             </select><input type="hidden" name="theme_refresher" value="">
-             <div><?php echo $_lang["manager_theme_message"];?></div></td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["filemanager_path_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 300px;" name="filemanager_path" value="<?php echo htmlspecialchars(isset($usersettings['filemanager_path']) ? $usersettings['filemanager_path']:""); ?>">
-              <div><?php echo $_lang["filemanager_path_message"];?></div>
-              </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["a17_manager_inline_style_title"]?></th>
-            <td>
-              <textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
-              &nbsp;&nbsp; <label><input type="checkbox" name="default_manager_inline_style" value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
-              <div><?php echo $_lang["a17_manager_inline_style_message"];?></div>
-            </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["uploadable_images_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
-              &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
-              <div><?php echo $_lang["uploadable_images_message"].$_lang["user_upload_message"]?></div>
-            </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["uploadable_media_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : "" ; ?>">
-				&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
-				<div><?php echo $_lang["uploadable_media_message"].$_lang["user_upload_message"]?></div>
-            </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["uploadable_flash_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($usersettings['upload_flash']) ? $usersettings['upload_flash'] : "" ; ?>">
-            &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
-            <div><?php echo $_lang["uploadable_flash_message"].$_lang["user_upload_message"]?></div>
-            </td>
-          </tr>
-          <tr>
-            <th><?php echo $_lang["uploadable_files_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 250px;" name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : "" ; ?>">
-            &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
-            <div><?php echo $_lang["uploadable_files_message"].$_lang["user_upload_message"]?></div>
-            </td>
-          </tr>
-          <tr class='row2'>
-            <th><?php echo $_lang["upload_maxsize_title"]?></th>
-            <td>
-              <input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
-              <div><?php echo $_lang["upload_maxsize_message"]?></div>
-            </td>
-          </tr>
-          <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
-            <th><?php echo $_lang["which_editor_title"]?></th>
-            <td>
-				<select name="which_editor">
-				<option value=""><?php echo $_lang["user_use_config"]; ?></option>
-					<?php
+		</table>
+	</div>
 
-$edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
-// invoke OnRichTextEditorRegister event
-$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
-if (is_array($evtOut))
-	for ($i = 0; $i < count($evtOut); $i++) {
+<!-- Interface & editor settings -->
+<div class="tab-page" id="tabPage5">
+<h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
+<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPage5" ) );</script>
+<table class="settings">
+<tr>
+	<th><?php echo $_lang["manager_theme"]?></th>
+	<td> <select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date())">
+	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
+<?php
+	$dir = dir("media/style/");
+	while ($file = $dir->read())
+	{
+		if ($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file,0,1) != '.')
+		{
+			$themename = $file;
+			$attr = 'value="'.$themename.'" ';
+			$attr .= selected(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']);
+			echo "\t\t<option ".rtrim($attr).'>'.ucwords(str_replace("_", " ", $themename))."</option>\n";
+		}
+	}
+	$dir->close();
+?>
+	</select><input type="hidden" name="theme_refresher" value="">
+	<div><?php echo $_lang["manager_theme_message"];?></div></td>
+</tr>
+<tr>
+	<th><?php echo $_lang["a17_manager_inline_style_title"]?></th>
+	<td>
+	<textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
+	&nbsp;&nbsp; <label><input type="checkbox" name="default_manager_inline_style" value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+	<div><?php echo $_lang["a17_manager_inline_style_message"];?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["language_title"] ?></th>
+	<td><select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
+	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
+<?php
+	$activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
+	$dir = dir('includes/lang');
+	while ($file = $dir->read())
+	{
+		if (strpos($file, '.inc.php') !== false)
+		{
+			$endpos = strpos($file, ".");
+			$languagename = trim(substr($file, 0, $endpos));
+			$selectedtext = selected($activelang===$languagename);
+?>
+	<option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $languagename)); ?></option>
+<?php
+		}
+	}
+	$dir->close();
+?>
+	</select>
+	<div><?php echo $_lang["language_message"]; ?></div>
+	</td>
+</tr>
+<tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo $_lang["which_editor_title"]?></th>
+	<td>
+	<select name="which_editor">
+	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
+<?php
+	$edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
+	// invoke OnRichTextEditorRegister event
+	$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+	echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
+	if (is_array($evtOut))
+	for ($i = 0; $i < count($evtOut); $i++)
+	{
 		$editor = $evtOut[$i];
 		echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
 	}
 ?>
-				</select>
-				<div><?php echo $_lang["which_editor_message"]?></div>
-			</td>
-          </tr>
-          <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
-            <th><?php echo $_lang["editor_css_path_title"]?></th>
-            <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
-            <div><?php echo $_lang["editor_css_path_message"]?></div>
-			</td>
-          </tr>
-          <tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-            <th><?php echo $_lang["rb_base_dir_title"]?></th>
-            <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
-            <div><?php echo $_lang["rb_base_dir_message"]?></div>
-              </td>
-          </tr>
-          <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-            <th><?php echo $_lang["rb_base_url_title"]?></th>
-            <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
-            <div><?php echo $_lang["rb_base_url_message"]?></div>
-              </td>
-          </tr>
-		  <tr class='row1'>
-            <td colspan="2" style="padding:0;">
-		        <?php
-
-// invoke OnInterfaceSettingsRender event
-$evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
-if (is_array($evtOut))
-	echo implode("", $evtOut);
+	</select>
+	<div><?php echo $_lang["which_editor_message"]?></div>
+	</td>
+</tr>
+<tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo $_lang["editor_css_path_title"]?></th>
+	<td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
+	<div><?php echo $_lang["editor_css_path_message"]?></div>
+	</td>
+	</tr>
+	<tr class='row1'>
+	<td colspan="2" style="padding:0;">
+<?php
+	// invoke OnInterfaceSettingsRender event
+	$evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
+	if (is_array($evtOut)) echo implode('', $evtOut);
 ?>
-            </td>
-          </tr>
-		</table>
-	</div>
-	<!-- Photo -->
-    <div class="tab-page" id="tabPhoto">
-    	<h2 class="tab"><?php echo $_lang["settings_photo"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPhoto" ) );</script>
-    	<script type="text/javascript">
-			function OpenServerBrowser(url, width, height ) {
-				var iLeft = (screen.width  - width) / 2 ;
-				var iTop  = (screen.height - height) / 2 ;
-
-				var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes" ;
-				sOptions += ",width=" + width ;
-				sOptions += ",height=" + height ;
-				sOptions += ",left=" + iLeft ;
-				sOptions += ",top=" + iTop ;
-
-				var oWindow = window.open( url, "FCKBrowseWindow", sOptions ) ;
-			}
-			function BrowseServer() {
-				var w = screen.width * 0.7;
-				var h = screen.height * 0.7;
-				OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
-			}
-			function SetUrl(url, width, height, alt){
-				document.userform.photo.value = url;
-				document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
-			}
-		</script>
-        <table class="settings">
-          <tr>
-            <th><?php echo $_lang["user_photo"] ?></th>
-            <td><input type='text' maxlength='255' style="width: 150px;" name="photo" value="<?php echo htmlspecialchars($userdata['photo']); ?>" /> <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
-            <div><?php echo $_lang["user_photo_message"]; ?></div>
-              <?php
-              	if(!empty($userdata['photo']))
-              	{
-              	?>
-              <img name="iphoto" src="<?php echo MODX_SITE_URL . $userdata['photo']; ?>" />
-              	<?php
-              	}
-              	?>
-            </td>
-          </tr>
-		</table>
-	</div>
+	</td>
+</tr>
+</table>
+</div>
 <?php
 if ($use_udperms == 1)
 {
@@ -744,6 +662,71 @@ if ($use_udperms == 1)
 		}
 	}
 ?>
+<!-- Miscellaneous settings -->
+<div class="tab-page" id="tabPage7">
+<h2 class="tab"><?php echo $_lang["settings_misc"] ?></h2>
+<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPage7" ) );</script>
+<table class="settings">
+<tr>
+	<th><?php echo $_lang["filemanager_path_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 300px;" name="filemanager_path" value="<?php echo htmlspecialchars(isset($usersettings['filemanager_path']) ? $usersettings['filemanager_path']:""); ?>">
+	<div><?php echo $_lang["filemanager_path_message"];?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["uploadable_images_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : "" ; ?>">
+	&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+	<div><?php echo $_lang["uploadable_images_message"].$_lang["user_upload_message"]?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["uploadable_media_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : "" ; ?>">
+	&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+	<div><?php echo $_lang["uploadable_media_message"].$_lang["user_upload_message"]?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["uploadable_flash_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($usersettings['upload_flash']) ? $usersettings['upload_flash'] : "" ; ?>">
+	&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_flash" value="1" <?php echo isset($usersettings['upload_flash']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+	<div><?php echo $_lang["uploadable_flash_message"].$_lang["user_upload_message"]?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["uploadable_files_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 250px;" name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : "" ; ?>">
+	&nbsp;&nbsp; <label><input type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
+	<div><?php echo $_lang["uploadable_files_message"].$_lang["user_upload_message"]?></div>
+	</td>
+</tr>
+<tr class='row2'>
+	<th><?php echo $_lang["upload_maxsize_title"]?></th>
+	<td>
+	<input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
+	<div><?php echo $_lang["upload_maxsize_message"]?></div>
+	</td>
+</tr>
+	<tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo $_lang["rb_base_dir_title"]?></th>
+	<td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
+	<div><?php echo $_lang["rb_base_dir_message"]?></div>
+	</td>
+</tr>
+<tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo $_lang["rb_base_url_title"]?></th>
+	<td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
+	<div><?php echo $_lang["rb_base_url_message"]?></div>
+	</td>
+	</tr>
+</table>
+</div>
 	<!-- Access -->
 	<div class="tab-page" id="tabAccess">
 		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
