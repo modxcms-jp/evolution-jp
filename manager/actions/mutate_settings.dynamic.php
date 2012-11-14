@@ -1004,6 +1004,24 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <?php echo $_lang["uploadable_files_message"]?></td>
 </tr>
 <tr>
+<th><?php echo $_lang["uploadable_images_title"]?></th>
+<td>
+<?php echo form_text('upload_images',$upload_images);?><br />
+<?php echo $_lang["uploadable_images_message"]?></td>
+</tr>
+<tr>
+<th><?php echo $_lang["uploadable_media_title"]?></th>
+<td>
+<?php echo form_text('upload_media',$upload_media);?><br />
+<?php echo $_lang["uploadable_media_message"]?></td>
+</tr>
+<tr>
+<th><?php echo $_lang["uploadable_flash_title"]?></th>
+<td>
+<?php echo form_text('upload_flash',$upload_flash);?><br />
+<?php echo $_lang["uploadable_flash_message"]?></td>
+</tr>
+<tr>
 <th><?php echo $_lang["upload_maxsize_title"]?></th>
 <td>
 <?php
@@ -1095,24 +1113,6 @@ else return "{$base_path}assets/";
 <td>
 <?php echo $base_path . form_text('rb_base_url',$rb_base_url);?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
-</tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_images_title"]?></th>
-<td>
-<?php echo form_text('upload_images',$upload_images);?><br />
-<?php echo $_lang["uploadable_images_message"]?></td>
-</tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_media_title"]?></th>
-<td>
-<?php echo form_text('upload_media',$upload_media);?><br />
-<?php echo $_lang["uploadable_media_message"]?></td>
-</tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
-<th><?php echo $_lang["uploadable_flash_title"]?></th>
-<td>
-<?php echo form_text('upload_flash',$upload_flash);?><br />
-<?php echo $_lang["uploadable_flash_message"]?></td>
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
