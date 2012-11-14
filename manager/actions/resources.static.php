@@ -2,15 +2,11 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 ?>
 <script type="text/javascript">
-	function confirmDelete() {
-		return jConfirm("<?php echo $_lang['confirm_delete_category'] ?>");
-	}
 	function deleteCategory(catid) {
-	    if (confirmDelete())
-	    {
-	        window.location.href="index.php?a=501&catId="+catid;
-	        return false;
-	    }
+		jConfirm("<?php echo $_lang['confirm_delete_category']; ?>", "<?php echo $_lang['delete_category'];?>",function(r){
+			if(r) document.location.href="index.php?a=501&catId="+catid;
+			else return false;
+		});
 	}
 </script>
 
