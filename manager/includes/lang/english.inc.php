@@ -1224,7 +1224,7 @@ $_lang["a17_manager_inline_style_title"] = 'Append style';
 $_lang["a17_manager_inline_style_message"] = 'Append manager style';
 
 $_lang["configcheck_mgr_tpl"] = 'Extension of manager template filename';
-$_lang["configcheck_mgr_tpl_msg"] = 'Extension of manager template filename is should be ".tpl"';
+$_lang["configcheck_mgr_tpl_msg"] = 'Should be delete <a href="index.php?a=31&mode=drill&path=[+path+]assets/templates">assets/templates/manager/</a> directory';
 
 $_lang["not_readable_dir"] = 'Can not read this directory.';
 

@@ -82,7 +82,8 @@ if (0 < count($warnings))
 				$output = $_lang['configcheck_you_are_admin_msg'] ;
 				break;
 			case 'configcheck_mgr_tpl':
-				$output = $_lang['configcheck_mgr_tpl_msg'];
+				$ph['path'] = urlencode($modx->config['base_path']);
+				$output = $modx->parsePlaceholder($_lang['configcheck_mgr_tpl_msg'],$ph);
 				break;
 			case 'configcheck_configinc';
 				$output = $_lang['configcheck_configinc_msg'];
