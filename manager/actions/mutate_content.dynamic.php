@@ -174,7 +174,7 @@ if (empty($_REQUEST['id']))
 	}
 }
 
-if($_REQUEST['a'] == '4') $content['richtext'] = $modx->config['use_editor'];
+if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') $content['richtext'] = $modx->config['use_editor'];
 
 if (isset ($_POST['which_editor']))
 {
@@ -952,10 +952,6 @@ echo tooltip($_lang['resource_opt_folder_help']);
 ?>
 				</td>
 			</tr>
-<?php
-if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
-{
-?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['resource_opt_richtext']?></span></td>
 				<td>
@@ -968,9 +964,6 @@ if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 ?>
 				</td>
 			</tr>
-<?php
-}
-?>
 			<tr style="height: 24px;">
 				<td width="150"><span class="warning"><?php echo $_lang['track_visitors_title']?></span></td>
 				<td>
@@ -1301,7 +1294,7 @@ if ($use_udperms == 1)
     storeCurTemplate();
 </script>
 <?php
-if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $content['richtext'] == 1)
+if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $use_editor == 1 && $content['richtext'] == 1)
 {
 	if (is_array($replace_richtexteditor))
 	{
