@@ -1977,8 +1977,9 @@ class DocumentParser {
 	/* API functions																/
 	/***************************************************************************************/
 
-	function getParentIds($id, $height= 10)
+	function getParentIds($id='', $height= 10)
 	{
+		if($id==='') $id = $this->documentIdentifier;
 		$parents= array ();
 		
 		if(!$this->aliasListing) $this->setAliasListing();
