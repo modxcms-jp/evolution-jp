@@ -477,16 +477,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 </div><!-- end documentPane -->
 </div><!-- end sectionBody -->
 
-<?php
-if ($show_preview==1)
-{
-?>
-<div class="sectionHeader"><?php echo $_lang['preview']?></div>
-<div class="sectionBody" id="lyr2">
-	<iframe src="../index.php?id=<?php echo $id?>&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
-</div>
-<?php }
-
 
 
 function get_jscript($id,$cm)
