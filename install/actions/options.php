@@ -7,7 +7,7 @@ if(isset($_POST['cmsadminemail'])&&!empty($_POST['cmsadminemail']))
 {
 	setOption('cmsadminemail',$_POST['cmsadminemail']);
 }
-	else setOption('cmsadminemail','myname@example.com');
+	else setOption('cmsadminemail','');
 	
 if(isset($_POST['cmspassword']))        setOption('cmspassword',$_POST['cmspassword']);
 if(isset($_POST['cmspasswordconfirm'])) setOption('cmspasswordconfirm',$_POST['cmspasswordconfirm']);

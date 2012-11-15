@@ -668,6 +668,8 @@ ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `unpub_date` int(20) NOT NULL
 
 ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
 
+ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
+
 ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
 
 ALTER TABLE `{PREFIX}user_settings` DROP PRIMARY KEY;

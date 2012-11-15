@@ -10,7 +10,7 @@ echo $content;
 if ($errors == 0) {
 	// check if install folder is removeable
     if ((is_writable('../install') || is_webmatrix()) && !is_iis()) { ?>
-<label style="float:left;line-height:18px;"><input type="checkbox" id="rminstaller" /><?php echo $_lang['remove_install_folder_auto'] ?></label>
+<label style="float:left;line-height:18px;"><input type="checkbox" id="rminstaller" checked /><?php echo $_lang['remove_install_folder_auto'] ?></label>
 <?php 
     } else {
 ?>
