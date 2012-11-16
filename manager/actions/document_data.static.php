@@ -478,7 +478,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 </div><!-- end sectionBody -->
 
 
-
+<?php
 function get_jscript($id,$cm)
 {
 	global $modx, $_lang;
