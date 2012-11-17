@@ -100,6 +100,7 @@ $_style['icons_table']              = $icon_path.'table.gif';
 $_style['icons_undelete_resource']  = $icon_path.'b092.gif';
 $_style['icons_unpublish_resource'] = $icon_path.'clock_stop.png';
 $_style['icons_user']               = $icon_path.'vcard.png';
+$_style['icons_view_document']      = $icon_path.'context_view.gif';
 $_style['icons_weblink']            = $icon_path.'world_link.png';
 $_style['icons_working']            = $icon_path.'exclamation.png'; // top bar
 $_style['sort']                     = $icon_path.'sort.png';
