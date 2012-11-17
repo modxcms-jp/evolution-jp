@@ -21,21 +21,12 @@ if($limit>1) {
 		}
 	}
 }
-// end check for lock
-$default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
-extract($default_config);
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 
-$tbl_system_settings = $modx->getFullTableName('system_settings');
-$rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
-$settings = array();
+$settings = $modx->config;
 
-while ($row = $modx->db->getRow($rs))
-{
-	$settings[$row['setting_name']] = $row['setting_value'];
-}
 if ($modx->manager->hasFormValues()) {
 	$modx->manager->loadFormValues();
 }
@@ -186,7 +177,6 @@ function confirmLangChange(el, lkey, elupd)
 <?php
 	if(!isset($settings_version) || $settings_version!=$modx_version)
 	{
-		include(MODX_MANAGER_PATH.'includes/upgrades.php');
 	?>
 	<div class='sectionBody'><p><?php echo $_lang['settings_after_install']; ?></p></div>
 <?php
@@ -946,16 +936,17 @@ echo $str;
 $editors = $modx->invokeEvent("OnRichTextEditorRegister");
 if(is_array($editors))
 {
-	$which_editor = '<select name="which_editor">';
-	$which_editor .= '<option value="none"' . ($which_editor=='none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
+	$which_editor_sel = '<select name="which_editor">';
+	$which_editor_sel .= '<option value="none"' . ($which_editor=='none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
 	foreach($editors as $editor)
 	{
-		$which_editor .= '<option value="' . $editor . '"' . ($which_editor==$editor ? ' selected="selected"' : '') . '>' . $editor . "</option>\n";
+		$editor_sel = $which_editor==$editor ? ' selected="selected"' : '';
+		$which_editor_sel .= '<option value="' . $editor . '"' . $editor_sel . '>' . $editor . "</option>\n";
 	}
-	$which_editor .= '</select><br />';
+	$which_editor_sel .= '</select><br />';
 }
-else $which_editor = '';
-echo $which_editor;
+else $which_editor_sel = '';
+echo $which_editor_sel;
 ?>
 <?php echo $_lang["which_editor_message"]?></td>
 </tr>

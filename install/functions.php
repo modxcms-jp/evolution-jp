@@ -7,10 +7,14 @@ function setOption($fieldName,$value='')
 
 function getOption($fieldName)
 {
-	if(isset($_POST[$fieldName]) &&    $_POST[$fieldName]!=='')        return $_POST[$fieldName];
-	elseif(isset($_SESSION[$fieldName]) && $_SESSION[$fieldName]!=='') return $_SESSION[$fieldName];
-	elseif(isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName]!=='')  return $GLOBALS[$fieldName];
-	else return false;
+	if(isset($_POST[$fieldName]) &&    $_POST[$fieldName]!=='')        $rs = $_POST[$fieldName];
+	elseif(isset($_SESSION[$fieldName]) && $_SESSION[$fieldName]!=='') $rs = $_SESSION[$fieldName];
+	elseif(isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName]!=='')  $rs = $GLOBALS[$fieldName];
+	else $rs = false;
+	
+	if($rs!==false) setOption($fieldName,$rs);
+	
+	return $rs;
 }
 
 function autoDetectLang()
@@ -133,87 +137,80 @@ if($params['category']=='chunk')
 function parse_docblock($fullpath)
 {
 	$params = array();
-	if(is_readable($fullpath))
+	if(!is_readable($fullpath)) return false;
+	
+	$tpl = @fopen($fullpath, 'r');
+	if(!$tpl)                   return false;
+	
+	$docblock_start_found = false;
+	$name_found           = false;
+	$description_found    = false;
+	$docblock_end_found   = false;
+	
+	while(!feof($tpl))
 	{
-		$tpl = @fopen($fullpath, 'r');
-		if($tpl)
+		$line = fgets($tpl);
+		if(!$docblock_start_found)
 		{
-			$params['filename'] = $filename;
-			$docblock_start_found = false;
-			$name_found = false;
-			$description_found = false;
-			$docblock_end_found = false;
+			// find docblock start
+			if(strpos($line, '/**') !== false) $docblock_start_found = true;
 			
-			while(!feof($tpl))
+			continue;
+		}
+		elseif(!$name_found)
+		{
+			// find name
+			$ma = null;
+			if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
 			{
-				$line = fgets($tpl);
-				if(!$docblock_start_found)
+				$params['name'] = trim($ma[1]);
+				$name_found = !empty($params['name']);
+			}
+			continue;
+		}
+		elseif(!$description_found)
+		{
+			// find description
+			$ma = null;
+			if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
+			{
+				$params['description'] = trim($ma[1]);
+				$description_found = !empty($params['description']);
+			}
+			continue;
+		}
+		else
+		{
+			$ma = null;
+			if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma))
+			{
+				$param = trim($ma[1]);
+				$val   = trim($ma[2]);
+				if(!empty($param) && !empty($val))
 				{
-					// find docblock start
-					if(strpos($line, '/**') !== false)
+					if($param == 'internal')
 					{
-						$docblock_start_found = true;
-					}
-					continue;
-				}
-				elseif(!$name_found)
-				{
-					// find name
-					$ma = null;
-					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
-					{
-						$params['name'] = trim($ma[1]);
-						$name_found = !empty($params['name']);
-					}
-					continue;
-				}
-				elseif(!$description_found)
-				{
-					// find description
-					$ma = null;
-					if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
-					{
-						$params['description'] = trim($ma[1]);
-						$description_found = !empty($params['description']);
-					}
-					continue;
-				}
-				else
-				{
-					$ma = null;
-					if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma))
-					{
-						$param = trim($ma[1]);
-						$val = trim($ma[2]);
-						if(!empty($param) && !empty($val))
+						$ma = null;
+						if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma))
 						{
-							if($param == 'internal')
-							{
-								$ma = null;
-								if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma))
-								{
-									$param = trim($ma[1]);
-									$val = trim($ma[2]);
-								}
-								//if($val !== '0' && (empty($param) || empty($val))) {
-								if(empty($param))
-								{
-									continue;
-								}
-							}
-							$params[$param] = $val;
+							$param = trim($ma[1]);
+							$val = trim($ma[2]);
 						}
+						
+						//if($val !== '0' && (empty($param) || empty($val))) {
+						if(empty($param)) continue;
 					}
-					elseif(preg_match("/^\s*\*\/\s*$/", $line))
-					{
-						$docblock_end_found = true;
-						break;
-					}
+					$params[$param] = $val;
 				}
 			}
-			@fclose($tpl);
+			elseif(preg_match("/^\s*\*\/\s*$/", $line))
+			{
+				$docblock_end_found = true;
+				break;
+			}
 		}
 	}
+	@fclose($tpl);
 	return $params;
 }
 
@@ -279,14 +276,14 @@ function propUpdate($new,$old)
 {
 	// Split properties up into arrays
 	$returnArr = array();
-	$newArr = explode("&",$new);
-	$oldArr = explode("&",$old);
+	$newArr = explode('&',$new);
+	$oldArr = explode('&',$old);
 	
 	foreach ($newArr as $k => $v)
 	{
 		if(!empty($v))
 		{
-			$tempArr = explode("=",trim($v));
+			$tempArr = explode('=',trim($v));
 			$returnArr[$tempArr[0]] = $tempArr[1];
 		}
 	}
@@ -294,7 +291,7 @@ function propUpdate($new,$old)
 	{
 		if(!empty($v))
 		{
-			$tempArr = explode("=",trim($v));
+			$tempArr = explode('=',trim($v));
 			$returnArr[$tempArr[0]] = $tempArr[1];
 		}
 	}
@@ -305,7 +302,7 @@ function propUpdate($new,$old)
 	// Build new string for new properties value
 	foreach ($returnArr as $k => $v)
 	{
-		$return .= "&$k=$v ";
+		$return .= "&{$k}={$v} ";
 	}
 	return modx_escape($return);
 }
@@ -401,4 +398,46 @@ function get_installmode()
 		}
 	}
 	return $installmode;
+}
+
+function getFullTableName($table_name)
+{
+	$dbase        = getOption('dbase');
+	$table_prefix = getOption('table_prefix');
+	return "`{$dbase}`.`{$table_prefix}{$table_name}`";
+}
+
+function parseProperties($propertyString)
+{
+	$parameter= array ();
+	if (!empty($propertyString))
+	{
+		$tmpParams= explode('&', $propertyString);
+		for ($x= 0; $x < count($tmpParams); $x++)
+		{
+			if (strpos($tmpParams[$x], '=', 0))
+			{
+				$pTmp= explode('=', $tmpParams[$x]);
+				$pvTmp= explode(';', trim($pTmp[1]));
+				if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
+				}
+				elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+				{
+					$parameter[trim($pTmp[0])]= $pvTmp[2];
+				}
+			}
+		}
+	}
+	return $parameter;
+}
+
+function result($status='ok',$ph=array())
+{
+	$ph['status'] = $status;
+	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
+	if(!isset($ph['msg'])) $ph['msg'] = '';
+	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
+	return parse($tpl,$ph);
 }

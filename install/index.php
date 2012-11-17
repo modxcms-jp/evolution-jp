@@ -6,6 +6,7 @@
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 $installer_path = "{$base_path}install/";
+require_once("{$installer_path}functions.php");
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
@@ -17,12 +18,25 @@ header("Content-Type: text/html; charset=utf-8");
 session_start();
 $_SESSION['test'] = 1;
 
+$installmode        = getOption('installmode');
+$database_server    = getOption('database_server');
+$database_user      = getOption('database_user');
+$database_password  = getOption('database_password');
+$database_connection_charset = 'utf8';
+$database_collation          = 'utf8_general_ci';
+$database_connection_method  = 'SET CHARACTER SET';
+$dbase              = getOption('dbase');
+$table_prefix       = getOption('table_prefix');
+$adminname          = getOption('cmsadmin');
+$adminemail         = getOption('cmsadminemail');
+$adminpass          = getOption('cmspassword');
+$managerlanguage    = getOption('install_language');
+
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}manager/includes/version.inc.php");
-require_once("{$installer_path}functions.php");
 if(isset($_REQUEST['install_language']) && !empty($_REQUEST['install_language']))
 {
 	$default_language = $_REQUEST['install_language'];

@@ -24,22 +24,7 @@ require_once('functions.php');
 
 echo "<p>{$_lang['setup_database']}</p>\n";
 
-$installmode= getOption('installmode');
 $installData = $_POST['installdata'] == "1" ? 1 : 0;
-
-// get db info from post
-$database_server    = getOption('database_server');
-$database_user      = getOption('database_user');
-$database_password  = getOption('database_password');
-$database_connection_charset = 'utf8';
-$database_collation = 'utf8_general_ci';
-$database_connection_method = 'SET CHARACTER SET';
-$dbase           = getOption('dbase');
-$table_prefix    = getOption('table_prefix');
-$adminname       = getOption('cmsadmin');
-$adminemail      = getOption('cmsadminemail');
-$adminpass       = getOption('cmspassword');
-$managerlanguage = getOption('install_language');
 
 // get base path and url
 define('MODX_API_MODE', true);
@@ -641,48 +626,4 @@ if ($installmode == 0)
 else
 {
 	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['upgrade_note'] . '</p>';
-}
-
-
-
-function getFullTableName($table_name)
-{
-	$dbase        = getOption('dbase');
-	$table_prefix = getOption('table_prefix');
-	return "`{$dbase}`.`{$table_prefix}{$table_name}`";
-}
-
-function parseProperties($propertyString)
-{
-	$parameter= array ();
-	if (!empty($propertyString))
-	{
-		$tmpParams= explode('&', $propertyString);
-		for ($x= 0; $x < count($tmpParams); $x++)
-		{
-			if (strpos($tmpParams[$x], '=', 0))
-			{
-				$pTmp= explode('=', $tmpParams[$x]);
-				$pvTmp= explode(';', trim($pTmp[1]));
-				if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
-				{
-					$parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
-				}
-				elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
-				{
-					$parameter[trim($pTmp[0])]= $pvTmp[2];
-				}
-			}
-		}
-	}
-	return $parameter;
-}
-
-function result($status='ok',$ph=array())
-{
-	$ph['status'] = $status;
-	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
-	if(!isset($ph['msg'])) $ph['msg'] = '';
-	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
-	return parse($tpl,$ph);
 }

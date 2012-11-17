@@ -44,16 +44,16 @@ class SqlParser {
 		$idata = str_replace("\r", '', $idata);
 
 		// check if in upgrade mode
-		if ($this->mode=='upd') {
-			// remove non-upgradeable parts
-			$s = strpos($idata,'non-upgrade-able[[');
-			$e = strpos($idata,']]non-upgrade-able')+17;
-			if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed non upgradeable items",$idata);
-		}
+		if ($this->mode=='upd') $trim = 'non-upgrade-able';
+		else                    $trim = 'upgrade-able';
+		
+		// remove some parts
+		$s = strpos($idata,"{$trim}[[");
+		$e = strpos($idata,"]]{$trim}") + strlen($trim) + 1;
+		if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed {$trim} items",$idata);
 		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{
-			$engine='MyISAM';
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
 		}

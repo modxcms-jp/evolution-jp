@@ -1,6 +1,4 @@
 <?php
-if(isset($_POST['installmode'])) setOption('installmode',$_POST['installmode']);
-$installmode = getOption('installmode');
 
 if(isset($_POST['cmsadmin']))           setOption('cmsadmin',$_POST['cmsadmin']);
 if(isset($_POST['cmsadminemail'])&&!empty($_POST['cmsadminemail']))
