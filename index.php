@@ -103,14 +103,16 @@ if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
 // harden it
-require_once("{$base_path}manager/includes/initialize.inc.php");
+$core_path = $base_path . 'manager/includes/';
+require_once("{$core_path}initialize.inc.php");
 // get the required includes
-if (!isset($database_type)) {
-    $conf_path = "{$base_path}manager/includes/config.inc.php";
-    if (is_file($conf_path))
-        include_once($conf_path);
-    // Be sure config.inc.php is there and that it contains some important values
-    if ((!isset($lastInstallTime) || empty($lastInstallTime))) {
+if (!isset($database_type))
+{
+    $conf_path = "{$core_path}config.inc.php";
+    if (is_file($conf_path)) include_once($conf_path);
+    
+    if ((!isset($lastInstallTime) || empty($lastInstallTime)))
+    { // Be sure config.inc.php is there and that it contains some important values
         show_install();
         exit;
     }
@@ -118,10 +120,10 @@ if (!isset($database_type)) {
 
 set_parser_mode();
 if (session_id() === '') startCMSSession();
-require_once("{$base_path}manager/includes/protect.inc.php");
+require_once("{$core_path}protect.inc.php");
 
 // initiate a new document parser
-include_once(MODX_MANAGER_PATH . 'includes/document.parser.class.inc.php');
+include_once("{$core_path}document.parser.class.inc.php");
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 

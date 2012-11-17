@@ -508,7 +508,7 @@ switch ($action) {
         break;
     case 118: // call settings ajax include
         ob_clean();
-        include_once "includes/mutate_settings.ajax.php";
+        include_once "{$core_path}mutate_settings.ajax.php";
         break;
     case 30: // get the save settings processor
         include_once "processors/save_settings.processor.php";
