@@ -189,7 +189,7 @@ class DBAPI {
 	* @desc:  Mainly for internal use.
 	* Developers should use select, update, insert, delete where possible
 	*/
-	function query($sql)
+	function query($sql,$watchError=true)
 	{
 		global $modx;
 		if (empty ($this->conn) || !is_resource($this->conn))
@@ -198,9 +198,18 @@ class DBAPI {
 		}
 		$tstart = $modx->getMicroTime();
 		$this->lastQuery = $sql;
-		if (!$result = @ mysql_query($sql, $this->conn))
+		$result = @ mysql_query($sql, $this->conn);
+		if (!$result)
 		{
-			$modx->messageQuit('Execution of a query to the database failed - ' . $this->getLastError(), $sql);
+			switch(mysql_errno())
+			{
+				case 1060:
+				case 1061:
+				case 1091:
+					if(!$watchError) break;
+				default:
+					$modx->messageQuit('Execution of a query to the database failed - ' . $this->getLastError(), $sql);
+			}
 		}
 		else
 		{
