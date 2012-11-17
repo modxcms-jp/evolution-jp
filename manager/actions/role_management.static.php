@@ -17,6 +17,7 @@ if(!$modx->hasPermission('edit_user')) {
   </ul>
 </div>
 
+<div class="section">
 <div class="sectionBody">
 <p><?php echo $_lang['role_management_msg']; ?></p>
 
@@ -52,4 +53,5 @@ while($row = $modx->db->getRow($rs))
 
 ?>
 </ul>
+</div>
 </div>

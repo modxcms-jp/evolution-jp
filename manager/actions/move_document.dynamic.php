@@ -51,7 +51,7 @@ function get_src_content($id,$parent)
 	</ul>
 </div>
 
-<div class="sectionHeader">{$_lang['move_resource_title']}</div>
+<div class="section">
 <div class="sectionBody">
 <p>{$_lang['move_resource_message']}</p>
 <form method="post" action="index.php" name='newdocumentparent'>
@@ -63,6 +63,7 @@ function get_src_content($id,$parent)
 <br />
 <input type="save" value="Move" style="display:none">
 </form>
+</div>
 </div>
 EOT;
 	return $src;
@@ -131,8 +132,9 @@ function show_perm_error()
 {
 	global $_lang;
 	$src = <<< EOT
-<br /><br /><div class="sectionHeader">{$_lang['access_permissions']}</div><div class="sectionBody">
+<br /><br /><div class="section"><div class="sectionHeader">{$_lang['access_permissions']}</div><div class="sectionBody">
 <p>{$_lang['access_permission_denied']}</p>
+</div></div>
 EOT;
 	echo $src;
     include("footer.inc.php");

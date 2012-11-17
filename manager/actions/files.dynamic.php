@@ -101,11 +101,29 @@ else $webstart_path = '../'.$webstart_path;
 <?php
 if(isset($_GET['mode'])&&$_GET['mode']!=='drill') $href= 'a=31&path=' . urlencode($_REQUEST['path']);
 else $href='a=2';
+
+if (is_writable($startpath))
+{
+	$ph = array();
+	$ph['style_path'] = $theme_image_path;
+	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li>';
+	$ph['image']   = 'folder.gif';
+	$ph['subject'] = $_lang['add_folder'];
+	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
+	$_ = $modx->parsePlaceholder($tpl,$ph);
+	
+	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> ' . $_lang['files.dynamic.php1'] . '</a></li>';
+	$ph['image']   = 'page-html.gif';
+	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
+	$_ .=  $modx->parsePlaceholder($tpl,$ph);
+	echo $_;
+}
 ?>
       <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?<?php echo $href;?>';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
   </ul>
 </div>
 
+<div class="section">
 <div class="sectionBody">
 <script type="text/javascript">
 var current_path = '<?php echo $startpath;?>';
@@ -167,23 +185,6 @@ function deleteFile(file) {
 }
 </script>
 <?php
-if (is_writable($startpath))
-{
-	$ph = array();
-	$ph['style_path'] = $theme_image_path;
-	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li>';
-	$ph['image']   = 'folder.gif';
-	$ph['subject'] = $_lang['add_folder'];
-	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
-	$_ = $modx->parsePlaceholder($tpl,$ph);
-	
-	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> ' . $_lang['files.dynamic.php1'] . '</a></li>';
-	$ph['image']   = 'page-html.gif';
-	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
-	$_ .=  $modx->parsePlaceholder($tpl,$ph);
-	echo '<ul class="actionButtons">' . $_ . '</ul>';
-}
-
 if(!empty($_FILES['userfile'])) $information = fileupload();
 elseif($_POST['mode']=='save')      echo textsave();
 elseif($_REQUEST['mode']=='delete') echo delete_file();
@@ -384,7 +385,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 
 <div id="uploader" class="actionButtons" style="margin-top:10px;">
 <input type="file" name="userfile" onchange="document.upload.submit();">
-<a href="#" onclick="document.upload.submit()" style="display:inline;float:none;"><?php echo '<img src="' . $_style['icons_add'] . '" /> '; echo $_lang['files_uploadfile'];?></a>
+<a class="default" href="#" onclick="document.upload.submit()" style="display:inline;float:none;"><?php echo '<img src="' . $_style['icons_add'] . '" /> '; echo $_lang['files_uploadfile'];?></a>
 <input type="submit" value="<?php echo $_lang['files_uploadfile']?>" style="display:none;">
 </div>
 </form>
@@ -397,7 +398,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 
 
 </div>
-
+</div>
 <?php
 
 if($_REQUEST['mode']=="edit" || $_REQUEST['mode']=="view") {
