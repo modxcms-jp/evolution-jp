@@ -34,7 +34,6 @@ class GetFoldersAndFiles {
 		$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 		if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
 		else                                                             $this->enable_imgedit = true;
-
 	}
 	
 	function run() {
@@ -44,8 +43,6 @@ class GetFoldersAndFiles {
 		?>
 <!DOCTYPE Connector [
 
-<?php include "dtd/iso-lat1.ent";?>
-	
 	<!ELEMENT Connector	(CurrentFolder,Folders,Files)>
 		<!ATTLIST Connector command CDATA "noname">
 		<!ATTLIST Connector resourceType CDATA "0">
@@ -70,96 +67,97 @@ class GetFoldersAndFiles {
 	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>" />
 	<Folders>
 <?php
-			$files=array();
-			if (opendir($this->real_cwd))
+		$files=array();
+		if (opendir($this->real_cwd))
+		{
+			/**
+			* Initiate the array to store the foldernames
+			*/
+			$folders_array = array();
+			$filenames = scandir($this->real_cwd);
+			if($filenames)
 			{
-				/**
-				* Initiate the array to store the foldernames
-				*/
-				$folders_array = array();
-				$filenames = scandir($this->real_cwd);
-				if($filenames)
+				foreach ($filenames as $filename)
 				{
-					foreach ($filenames as $filename)
+					if (($filename!=".")&&($filename!=".."))
 					{
-						if (($filename!=".")&&($filename!=".."))
+						if (is_dir($this->real_cwd."/$filename"))
 						{
-							if (is_dir($this->real_cwd."/$filename"))
+							//check if$fckphp_configured not to show this folder
+							$hide=false;
+							for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
 							{
-								//check if$fckphp_configured not to show this folder
-								$hide=false;
-								for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
-								{
-									$pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
-									$hide=(preg_match("/{$pattern}/",$filename) ? true : $hide);
-								}
-								/**
-								* Dont echo the entry, push it in the array
-								*/
-								//if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
-								if (!$hide) array_push($folders_array,$filename);
+								$pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
+								$hide=(preg_match("/{$pattern}/",$filename) ? true : $hide);
 							}
-							else
-							{
-								array_push($files,$filename);
-							}
+							/**
+							* Dont echo the entry, push it in the array
+							*/
+							//if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
+							if (!$hide) array_push($folders_array,$filename);
+						}
+						else
+						{
+							array_push($files,$filename);
 						}
 					}
 				}
-				/**
-			     * Sort the array by the way you like and show it.
-			     */
-			    natcasesort($folders_array);
-                foreach($folders_array as $k=>$v)
-                {
-	               echo '<Folder name="'.$v.'" />'."\n";
-                }
-
 			}
-
-			echo "\t</Folders>\n";
-			echo "\t<Files>\n";
-
 			/**
-			 * The filenames are in the array $files
-			 * SORT IT!
-			 */
-			natcasesort($files);
-            $files = array_values($files);
+		     * Sort the array by the way you like and show it.
+		     */
+		    natcasesort($folders_array);
+            foreach($folders_array as $k=>$v)
+            {
+               echo '<Folder name="'.$v.'" />'."\n";
+            }
+		}
+		echo "\t</Folders>\n";
+		echo "\t<Files>\n";
+		
+		/**
+		 * The filenames are in the array $files
+		 * SORT IT!
+		 */
+		natcasesort($files);
+        $files = array_values($files);
 
-			for ($i=0;$i<sizeof($files);$i++) {
+		for ($i=0;$i<sizeof($files);$i++)
+		{
+			$lastdot=strrpos($files[$i],".");
+			$ext=(($lastdot!==false)?(substr($files[$i],$lastdot+1)):"");
 
-				$lastdot=strrpos($files[$i],".");
-				$ext=(($lastdot!==false)?(substr($files[$i],$lastdot+1)):"");
+			if (in_array(strtolower($ext),$this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
 
-				if (in_array(strtolower($ext),$this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
+				//check if$fckphp_configured not to show this file
+				$editable=$hide=false;
+				for($j=0;$j<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles']);$j++)
+					$hide=(preg_match("/".$this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'][$j]."/",$files[$i])?true:$hide);
 
-					//check if$fckphp_configured not to show this file
-					$editable=$hide=false;
-					for($j=0;$j<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles']);$j++)
-						$hide=(preg_match("/".$this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'][$j]."/",$files[$i])?true:$hide);
-
-					if (!$hide) {
-						if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing'])
+				if (!$hide)
+				{
+					if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing'])
+					{
 						if($this->enable_imgedit)
 						{
 							$editable=$this->isImageEditable($this->real_cwd."/".$files[$i]);
 						}
-                        if(extension_loaded('mbstring')) {
-                            $name = mb_convert_encoding($files [$i] , 'UTF-8', mb_detect_encoding($files[$i] , 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
-                        } else {
-                            $name = $files[$i];
-                        }
-                        // $this->fckphp_config['modx']['charset'] if needed
-                        echo "\t\t<File name=\"".htmlentities($name, ENT_QUOTES, 'UTF-8')."\" size=\"".ceil(filesize($this->real_cwd."/".$files [$i] )/1024)."\" editable=\"" . ( $editable?"1":"0" ) . "\" />\n";
 					}
-
+					if(extension_loaded('mbstring'))
+					{
+						$name = mb_convert_encoding($files [$i] , 'UTF-8', mb_detect_encoding($files[$i] , 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
+					}
+					else
+					{
+						$name = $files[$i];
+					}
+					// $this->fckphp_config['modx']['charset'] if needed
+					echo "\t\t<File name=\"".htmlentities($name, ENT_QUOTES, 'UTF-8')."\" size=\"".ceil(filesize($this->real_cwd."/".$files [$i] )/1024)."\" editable=\"" . ( $editable?"1":"0" ) . "\" />\n";
 				}
-
 			}
-
-			echo "\t</Files>\n";
-			echo "</Connector>\n";
+		}
+		echo "\t</Files>\n";
+		echo "</Connector>\n";
 	}
 	
 	
@@ -191,6 +189,4 @@ class GetFoldersAndFiles {
 			return false;
 		}
 	}
-	
-	
 }
