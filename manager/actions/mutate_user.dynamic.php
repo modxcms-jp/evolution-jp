@@ -19,11 +19,11 @@ switch((int) $_REQUEST['a']) {
     $e->dumpError();
 }
 
-$user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$userid = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='12' AND id='{$user}'");
+$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='12' AND id='{$userid}'");
 if ($modx->db->getRecordCount($rs) > 1)
 {
 	while($lock = $modx->db->getRow($rs))
@@ -42,7 +42,7 @@ if ($_REQUEST['a'] == '12')
 {
 	// get user attribute
 	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-	$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey={$user}");
+	$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey='{$userid}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
 	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
@@ -50,7 +50,7 @@ if ($_REQUEST['a'] == '12')
 	
 	// get user settings
 	$tbl_user_settings = $modx->getFullTableName('user_settings');
-	$rs = $modx->db->select('*',$tbl_user_settings,"user={$user}");
+	$rs = $modx->db->select('*',$tbl_user_settings,"user='{$userid}'");
 	$usersettings = array ();
 	while ($row = $modx->db->getRow($rs))
 	{
@@ -72,7 +72,7 @@ if ($_REQUEST['a'] == '12')
 	
 	$tbl_manager_users = $modx->getFullTableName('manager_users');
 	// get user name
-	$rs = $modx->db->select('*',$tbl_manager_users,"id={$user}");
+	$rs = $modx->db->select('*',$tbl_manager_users,"id='{$userid}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
 	elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}
@@ -177,7 +177,7 @@ function deleteuser() {
 	alert("<?php echo $_lang['alert_delete_self']; ?>");
 <?php } else { ?>
 	if(confirm("<?php echo $_lang['confirm_delete_user']; ?>")==true) {
-		document.location.href="index.php?id=" + document.userform.id.value + "&a=33";
+		document.location.href="index.php?id=" + document.userform.userid.value + "&a=33";
 	}
 <?php } ?>
 }
@@ -220,13 +220,13 @@ function SetUrl(url, width, height, alt){
 
 // invoke OnUserFormPrerender event
 $evtOut = $modx->invokeEvent("OnUserFormPrerender", array (
-	"id" => $user
+	"id" => $userid
 ));
 if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
 <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>">
-<input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
+<input type="hidden" name="userid" value="<?php echo $_GET['id'] ?>">
 <input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0)|| ($userdata['blockedafter']<time() && $userdata['blockedafter']!=0) || $userdata['failedlogins']>3) ? "1":"0" ?>" />
 
 <h1><?php echo $_lang['user_title']; ?></h1>
@@ -325,17 +325,18 @@ if (is_array($evtOut))
 			<td>
 <?php
 $tbl_user_roles = $modx->getFullTableName('user_roles');
-if($_SESSION['mgrRole'] == 1)
+if($_SESSION['mgrRole'] == 1 && $userid==$modx->getLoginUserID())
 {
-	$where = '';
+	$where = 'edit_role=1 AND save_role=1 AND new_role=1';
 }
 elseif($modx->hasPermission('edit_role')
     && $modx->hasPermission('save_role')
     && $modx->hasPermission('delete_role')
     && $modx->hasPermission('new_role')
+    && $userid==$modx->getLoginUserID()
     )
 {
-	$where = '';
+	$where = 'edit_role=1 AND save_role=1 AND new_role=1';
 }
 elseif(!$modx->hasPermission('edit_role')
     && !$modx->hasPermission('save_role')
@@ -345,13 +346,13 @@ elseif(!$modx->hasPermission('edit_role')
 {
 	$where = 'id=' . $userdata['role'];
 }
-elseif(!$modx->hasPermission('edit_role') && $_GET['id']==$modx->getLoginUserID())
+elseif(!$modx->hasPermission('edit_role') && $userid==$modx->getLoginUserID())
 {
 	$where = 'edit_role=0 AND save_role=0 AND delete_role=0 AND new_role=0';
 }
 else
 {
-	$where = 'id != 1';
+	$where = '';
 }
 $rs = $modx->db->select('name, id',$tbl_user_roles,$where);
 ?>
@@ -761,7 +762,7 @@ if ($use_udperms == 1)
 
 // invoke OnUserFormRender event
 $evtOut = $modx->invokeEvent("OnUserFormRender", array (
-	"id" => $user
+	"id" => $userid
 ));
 if (is_array($evtOut))
 	echo implode("", $evtOut);

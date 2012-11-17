@@ -9,7 +9,7 @@ $tbl_user_attributes = $modx->getFullTableName('user_attributes');
 $tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_member_groups = $modx->getFullTableName('member_groups');
 
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
+if(isset($_POST['userid']) && preg_match('@^[0-9]+$@',$_POST['userid'])) $id = $_POST['userid'];
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : "New User";
 $fullname = $modx->db->escape($_POST['fullname']);
@@ -64,7 +64,7 @@ if ($_SESSION['mgrRole'] != 1) {
 			}
 	}
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
-	if ($rs = $modx->db->select('role',$tbl_user_attributes,"internalKey={$id}")) {
+	if ($rs = $modx->db->select('role',$tbl_user_attributes,"internalKey='{$id}'")) {
 		if (0 < $modx->db->getRecordCount($rs))
 		{	// There should only be one if there is one
 			$row = $modx->db->getRow($rs);
