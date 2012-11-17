@@ -87,7 +87,7 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
 </table>
 
 <ul class="actionButtons">
-	<li><a href="#" onclick="document.exportFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["export_site_start"]; ?></a></li>
+	<li><a href="#" class="default" onclick="document.exportFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["export_site_start"]; ?></a></li>
 </ul>
 </form>
 </fieldset>

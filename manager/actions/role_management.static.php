@@ -21,7 +21,7 @@ if(!$modx->hasPermission('edit_user')) {
 <p><?php echo $_lang['role_management_msg']; ?></p>
 
 <ul class="actionButtons">
-	<li><a href="index.php?a=38"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_role']; ?></a></li>
+	<li><a class="default" href="index.php?a=38"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_role']; ?></a></li>
 </ul>
 <ul>
 <?php

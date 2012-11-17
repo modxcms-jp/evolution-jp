@@ -14,7 +14,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 <div id="actions">
   <ul class="actionButtons">
-      <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+      <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
   </ul>
 </div>
 
@@ -31,7 +31,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
 		<div><?php echo $_lang['template_management_msg']; ?></div>
 		<ul class="actionButtons">
-			<li><a href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?></a></li>
+			<li><a class="default" href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?></a></li>
 		</ul>
 		<?php echo createResourceList('site_templates',16,'templatename'); ?>
 	</div>
@@ -48,7 +48,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		-->
 		<div><?php echo $_lang['tmplvars_management_msg']; ?></div>
 			<ul class="actionButtons">
-				<li><a href="index.php?a=300"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_tmplvars']; ?></a></li>
+				<li><a class="default" href="index.php?a=300"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_tmplvars']; ?></a></li>
             </ul>
             <?php echo createResourceList('site_tmplvars',301); ?>
 	</div>
@@ -62,7 +62,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		<div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
-			<li><a href="index.php?a=77"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_htmlsnippet']; ?></a></li>
+			<li><a class="default" href="index.php?a=77"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_htmlsnippet']; ?></a></li>
 		</ul>
 		<?php echo createResourceList('site_htmlsnippets',78); ?>
 	</div>
@@ -76,7 +76,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		<div><?php echo $_lang['snippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
-			<li><a href="index.php?a=23"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_snippet']; ?></a></li>
+			<li><a class="default" href="index.php?a=23"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_snippet']; ?></a></li>
 		</ul>
 		<?php echo createResourceList('site_snippets',22); ?>
 	</div>
@@ -90,7 +90,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		<div><?php echo $_lang['plugin_management_msg']; ?></div>
 
 		<ul class="actionButtons">
-			<li><a href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?></a></li>
+			<li><a class="default" href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?></a></li>
 			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><img src="<?php echo $_style["sort"] ?>" /> <?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
 		</ul>
 		<?php echo createResourceList('site_plugins',102); ?>

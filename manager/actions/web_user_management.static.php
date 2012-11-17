@@ -99,10 +99,10 @@ echo $cm->render();
 	<div class="actionButtons">
 		<table border="0" style="width:100%">
 			<tr>
-			<td><a href="index.php?a=87"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_web_user']; ?></a></td>
+			<td><a class="default" href="index.php?a=87"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_web_user']; ?></a></td>
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
-				<td><a href="#" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang["go"]; ?></a></td>
+				<td><a class="default" href="#" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang["go"]; ?></a></td>
 				<td><a href="#" title="<?php echo $_lang["reset"];?>" onclick="resetSearch();return false;"><img src="<?php echo $_style['icons_refresh']; ?>" style="display:inline;" /></a></td>
 				<td><a href="#" title="<?php echo $_lang["list_mode"];?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table']; ?>" style="display:inline;" /></a></td>
 				</tr>

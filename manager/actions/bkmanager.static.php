@@ -203,7 +203,7 @@ else $ph['result_msg'] = '';
 	<input type="hidden" name="mode" value="" />
 	<p><?php echo $_lang['table_hoverinfo']?></p>
 
-	<p class="actionButtons" style="overflow:hidden;"><a href="#" onclick="backup();return false;"><img src="media/style/<?php echo $modx->config['manager_theme'];?>/images/misc/ed_save.gif" /> <?php echo $_lang['database_table_clickbackup']?></a></p>
+	<p class="actionButtons"><a class="default" href="#" onclick="backup();return false;"><img src="media/style/<?php echo $modx->config['manager_theme'];?>/images/misc/ed_save.gif" /> <?php echo $_lang['database_table_clickbackup']?></a></p>
 	<p><label><input type="checkbox" name="droptables" checked="checked" /><?php echo $_lang['database_table_droptablestatements']?></label></p>
 	<table border="0" cellpadding="1" cellspacing="1" width="100%" bgcolor="#ccc">
 		<thead><tr>
@@ -369,8 +369,8 @@ function checked($cond)
 	<div id="textarea" style="display:<?php echo $t_display;?>;">
 		<textarea name="textarea" style="width:500px;height:200px;"><?php echo $value;?></textarea>
 	</div>
-	<div class="actionButtons" style="margin-top:10px;overflow:hidden;">
-	<a href="#" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang["bkmgr_run_sql_submit"];?></a>
+	<div class="actionButtons" style="margin-top:10px;">
+	<a href="#" class="default" onclick="document.mutate.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang["bkmgr_run_sql_submit"];?></a>
 	</div>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
@@ -387,8 +387,8 @@ function checked($cond)
 	<form method="post" name="snapshot" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="snapshot" />
-	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;overflow:hidden;">
-	<a href="#" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
+	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
+	<a href="#" class="default" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>

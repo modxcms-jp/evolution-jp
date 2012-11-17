@@ -1473,7 +1473,8 @@ ul.actionButtons {
 	color:#3b454f;
 	font-weight:700;
 }
-.actionButtons #Button1 a {
+.actionButtons #Button1 a,
+.actionButtons a.default {
 	color: #fff;
 	box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 2px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.8);
 	text-shadow:0 -1px 0 #2B5F0C;
@@ -1483,14 +1484,16 @@ ul.actionButtons {
 	background:-o-linear-gradient(#8aae4b,#66901b);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#8aae4b,endColorstr=#66901b);
 }
-.actionButtons #Button1 a:hover {
+.actionButtons #Button1 a:hover,
+.actionButtons a:hover.default {
 	background:#90bf40;
 	background:-moz-linear-gradient(#90bf40,#82af33);
 	background:-webkit-gradient(linear,0 0,0 100%,from(#90bf40),to(#82af33));
 	background:-o-linear-gradient(#90bf40,#82af33);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#90bf40,endColorstr=#82af33);
 }
-.actionButtons #Button1 a:active {
+.actionButtons #Button1 a:active,
+.actionButtons a:active.default {
 	background:#749c2f;
 	background:-moz-linear-gradient(#749c2f,#4b7109);
 	background:-webkit-gradient(linear,0 0,0 100%,from(#749c2f),to(#4b7109));

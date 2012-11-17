@@ -84,7 +84,7 @@ if(!isset($_POST['import'])) {
   </tr>
 </table>
 <ul class="actionButtons">
-    <li><a href="#" onclick="document.importFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["import_site_start"]; ?></a></li>
+    <li><a href="#" class="default" onclick="document.importFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["import_site_start"]; ?></a></li>
 </ul>
 </form>
 </fieldset>

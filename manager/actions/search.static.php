@@ -55,7 +55,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
   <tr>
   	<td colspan="4">
 		<ul class="actionButtons">
-		    <li><a href="#" onclick="document.searchform.submitok.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search'] ?></a></li>
+		    <li><a class="default" href="#" onclick="document.searchform.submitok.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search'] ?></a></li>
 		    <li><a href="index.php?a=2"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
 		</ul>
 	</td>
