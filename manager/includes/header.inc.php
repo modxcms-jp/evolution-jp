@@ -19,7 +19,7 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 <head>
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx->config['settings_version'];?>" />
+    <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx_version;?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
 <?php
