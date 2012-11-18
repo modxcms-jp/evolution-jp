@@ -69,11 +69,11 @@
 			case "dropdown": // handler for select boxes
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="1">';
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
-				while (list($item, $itemvalue) = each ($index_list))
+				while (list($label, $item) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode('==',$itemvalue);
-					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<option value="'.htmlspecialchars($itemvalue).'"'.($itemvalue==$field_value ?' selected="selected"':'').'>'.htmlspecialchars($item).'</option>';
+					list($label,$value) = splitOption($label, $item);
+					$selected = ($value==$field_value) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"'.$selected.'>'.htmlspecialchars($label).'</option>';
 				}
 				$field_html .=  "</select>";
 				break;
@@ -81,11 +81,11 @@
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
 				$count = (count($index_list)<8) ? count($index_list) : 8;
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="' . $count . '">';	
-				while (list($item, $itemvalue) = each ($index_list))
+				while (list($label, $item) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<option value="'.htmlspecialchars($itemvalue).'"'.($itemvalue==$field_value ?' selected="selected"':'').'>'.htmlspecialchars($item).'</option>';
+					list($label,$value) = splitOption($label, $item);
+					$selected = (isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected . '>'.htmlspecialchars($label).'</option>';
 				}
 				$field_html .=  "</select>";
 				break;
@@ -94,20 +94,22 @@
 				$count = (count($index_list)<8) ? count($index_list) : 8;
 				$field_value = explode("||",$field_value);
 				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" size="' . $count . '">';
-				while (list($item, $itemvalue) = each ($index_list))
+				while (list($label, $item) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<option value="'.htmlspecialchars($itemvalue).'"'.(in_array($itemvalue,$field_value) ?' selected="selected"':'').'>'.htmlspecialchars($item).'</option>';
+					list($label,$value) = splitOption($label, $item);
+					$selected = (isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected .'>'.htmlspecialchars($label).'</option>';
 				}
 				$field_html .=  "</select>";
 				break;
 			case "url": // handles url input fields
 				$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
 				$field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
-				foreach($urls as $k => $v){
+				foreach($urls as $k => $v)
+				{
 					if(strpos($field_value,$v)===false) $field_html.='<option value="'.$v.'">'.$k.'</option>';
-					else{
+					else
+					{
 						$field_value = str_replace($v,'',$field_value);
 						$field_html.='<option value="'.$v.'" selected="selected">'.$k.'</option>';
 					}
@@ -119,22 +121,24 @@
 				$field_value = !is_array($field_value) ? explode("||",$field_value) : $field_value;
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
 				static $i=0;
-				while (list($item, $itemvalue) = each ($index_list))
+				while (list($label, $item) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.htmlspecialchars($itemvalue).'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. (in_array($itemvalue,$field_value)?" checked='checked'":"").' />'.$item.'</label>';
+					list($label,$value) = splitOption($label, $item);
+					$checked = (isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
+					$value = htmlspecialchars($value);
+					$field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. $checked.' />'.$label.'</label>';
 					$i++;
 				}
 				break;
 			case "option": // handles radio buttons
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
 				static $i=0;
-				while (list($item, $itemvalue) = each ($index_list))
+				while (list($label, $item) = each ($index_list))
 				{
-					list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-					if (strlen($itemvalue)==0) $itemvalue = $item;
-					$field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.htmlspecialchars($itemvalue).'" id="tv_'.$i.'" name="tv'.$field_id.'" '.($itemvalue==$field_value ?'checked="checked"':'').' />'.$item.'</label>';
+					list($label,$value) = splitOption($label, $item);
+					$checked = (isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
+					$value = htmlspecialchars($value);
+					$field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
 					$i++;
 				}
 				break;
@@ -145,49 +149,49 @@
 				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
 					$field_html .= <<< EOT
-					<script type="text/javascript">
-							var lastImageCtrl;
-							var lastFileCtrl;
-							function OpenServerBrowser(url, width, height ) {
-								var iLeft = (screen.width  - width) / 2 ;
-								var iTop  = (screen.height - height) / 2 ;
+<script type="text/javascript">
+		var lastImageCtrl;
+		var lastFileCtrl;
+		function OpenServerBrowser(url, width, height ) {
+			var iLeft = (screen.width  - width) / 2 ;
+			var iTop  = (screen.height - height) / 2 ;
 
-								var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
-								sOptions += ',width=' + width ;
-								sOptions += ',height=' + height ;
-								sOptions += ',left=' + iLeft ;
-								sOptions += ',top=' + iTop ;
+			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
+			sOptions += ',width=' + width ;
+			sOptions += ',height=' + height ;
+			sOptions += ',left=' + iLeft ;
+			sOptions += ',top=' + iTop ;
 
-								var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-							}
-							function BrowseServer(ctrl) {
-								lastImageCtrl = ctrl;
-								var w = screen.width * 0.7;
-								var h = screen.height * 0.7;
-								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
-							}
-							
-							function BrowseFileServer(ctrl) {
-								lastFileCtrl = ctrl;
-								var w = screen.width * 0.7;
-								var h = screen.height * 0.7;
-								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
-							}
-							
-							function SetUrl(url, width, height, alt){
-								if(lastFileCtrl) {
-									var c = document.mutate[lastFileCtrl];
-									if(c) c.value = url;
-									lastFileCtrl = '';
-								} else if(lastImageCtrl) {
-									var c = document.mutate[lastImageCtrl];
-									if(c) c.value = url;
-									lastImageCtrl = '';
-								} else {
-									return;
-								}
-							}
-					</script>
+			var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
+		}
+		function BrowseServer(ctrl) {
+			lastImageCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
+		}
+		
+		function BrowseFileServer(ctrl) {
+			lastFileCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
+		}
+		
+		function SetUrl(url, width, height, alt){
+			if(lastFileCtrl) {
+				var c = document.mutate[lastFileCtrl];
+				if(c) c.value = url;
+				lastFileCtrl = '';
+			} else if(lastImageCtrl) {
+				var c = document.mutate[lastImageCtrl];
+				if(c) c.value = url;
+				lastImageCtrl = '';
+			} else {
+				return;
+			}
+		}
+</script>
 EOT;
 					$ResourceManagerLoaded  = true;
 				}
@@ -202,50 +206,50 @@ EOT;
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
 					$field_html .= <<< EOT
-					<script type="text/javascript">
-							var lastImageCtrl;
-							var lastFileCtrl;
-							function OpenServerBrowser(url, width, height ) {
-								var iLeft = (screen.width  - width) / 2 ;
-								var iTop  = (screen.height - height) / 2 ;
+<script type="text/javascript">
+		var lastImageCtrl;
+		var lastFileCtrl;
+		function OpenServerBrowser(url, width, height ) {
+			var iLeft = (screen.width  - width) / 2 ;
+			var iTop  = (screen.height - height) / 2 ;
 
-								var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
-								sOptions += ',width=' + width ;
-								sOptions += ',height=' + height ;
-								sOptions += ',left=' + iLeft ;
-								sOptions += ',top=' + iTop ;
+			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
+			sOptions += ',width=' + width ;
+			sOptions += ',height=' + height ;
+			sOptions += ',left=' + iLeft ;
+			sOptions += ',top=' + iTop ;
 
-								var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-							}
-							
-								function BrowseServer(ctrl) {
-								lastImageCtrl = ctrl;
-								var w = screen.width * 0.7;
-								var h = screen.height * 0.7;
-								OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
-							}
-										
-							function BrowseFileServer(ctrl) {
-								lastFileCtrl = ctrl;
-								var w = screen.width * 0.7;
-								var h = screen.height * 0.7;
-								OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
-							}
-							
-							function SetUrl(url, width, height, alt){
-								if(lastFileCtrl) {
-									var c = document.mutate[lastFileCtrl];
-									if(c) c.value = url;
-									lastFileCtrl = '';
-								} else if(lastImageCtrl) {
-									var c = document.mutate[lastImageCtrl];
-									if(c) c.value = url;
-									lastImageCtrl = '';
-								} else {
-									return;
-								}
-							}
-					</script>
+			var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
+		}
+		
+		function BrowseServer(ctrl) {
+			lastImageCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
+		}
+		
+		function BrowseFileServer(ctrl) {
+			lastFileCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
+		}
+		
+		function SetUrl(url, width, height, alt){
+			if(lastFileCtrl) {
+				var c = document.mutate[lastFileCtrl];
+				if(c) c.value = url;
+				lastFileCtrl = '';
+			} else if(lastImageCtrl) {
+				var c = document.mutate[lastImageCtrl];
+				if(c) c.value = url;
+				lastImageCtrl = '';
+			} else {
+				return;
+			}
+		}
+</script>
 EOT;
 					$ResourceManagerLoaded  = true;					
 				} 
@@ -368,4 +372,33 @@ EOT;
 		}
 		return $output;
 	}
-?>
+	
+	function splitOption($label, $item)
+	{
+		if(is_array($item))                list($label,$value) = $item;
+		elseif(strpos($item,'==')===false) $value = $label;
+		else                               list($label,$value) = explode('==',$item,2);
+		return array($label,$value);
+	}
+	
+	function isSelected($label,$value,$item,$field_value)
+	{
+		if(strpos($item,'==')!==false && strlen($value)==0)
+		{
+			if(is_array($field_value))
+			{
+				$rs = in_array($label,$field_value);
+			}
+			else $rs = ($label===$field_value);
+		}
+		else
+		{
+			if(is_array($field_value))
+			{
+				$rs = in_array($value,$field_value);
+			}
+			else $rs = ($value===$field_value);
+		}
+		
+		return $rs;
+	}
