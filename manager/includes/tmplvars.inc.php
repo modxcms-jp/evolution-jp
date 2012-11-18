@@ -148,51 +148,7 @@
 				global $content,$use_editor,$which_editor;
 				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
-					$field_html .= <<< EOT
-<script type="text/javascript">
-		var lastImageCtrl;
-		var lastFileCtrl;
-		function OpenServerBrowser(url, width, height ) {
-			var iLeft = (screen.width  - width) / 2 ;
-			var iTop  = (screen.height - height) / 2 ;
-
-			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
-			sOptions += ',width=' + width ;
-			sOptions += ',height=' + height ;
-			sOptions += ',left=' + iLeft ;
-			sOptions += ',top=' + iTop ;
-
-			var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-		}
-		function BrowseServer(ctrl) {
-			lastImageCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
-		}
-		
-		function BrowseFileServer(ctrl) {
-			lastFileCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
-		}
-		
-		function SetUrl(url, width, height, alt){
-			if(lastFileCtrl) {
-				var c = document.mutate[lastFileCtrl];
-				if(c) c.value = url;
-				lastFileCtrl = '';
-			} else if(lastImageCtrl) {
-				var c = document.mutate[lastImageCtrl];
-				if(c) c.value = url;
-				lastImageCtrl = '';
-			} else {
-				return;
-			}
-		}
-</script>
-EOT;
+					$field_html .= tplFileBrowser();
 					$ResourceManagerLoaded  = true;
 				}
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
@@ -205,52 +161,7 @@ EOT;
 				$url_convert = get_js_trim_path_pattern();
 				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
 				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
-					$field_html .= <<< EOT
-<script type="text/javascript">
-		var lastImageCtrl;
-		var lastFileCtrl;
-		function OpenServerBrowser(url, width, height ) {
-			var iLeft = (screen.width  - width) / 2 ;
-			var iTop  = (screen.height - height) / 2 ;
-
-			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
-			sOptions += ',width=' + width ;
-			sOptions += ',height=' + height ;
-			sOptions += ',left=' + iLeft ;
-			sOptions += ',top=' + iTop ;
-
-			var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-		}
-		
-		function BrowseServer(ctrl) {
-			lastImageCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
-		}
-		
-		function BrowseFileServer(ctrl) {
-			lastFileCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
-		}
-		
-		function SetUrl(url, width, height, alt){
-			if(lastFileCtrl) {
-				var c = document.mutate[lastFileCtrl];
-				if(c) c.value = url;
-				lastFileCtrl = '';
-			} else if(lastImageCtrl) {
-				var c = document.mutate[lastImageCtrl];
-				if(c) c.value = url;
-				lastImageCtrl = '';
-			} else {
-				return;
-			}
-		}
-</script>
-EOT;
+					$field_html .= tplFileBrowser();
 					$ResourceManagerLoaded  = true;					
 				} 
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
@@ -401,4 +312,57 @@ EOT;
 		}
 		
 		return $rs;
+	}
+	
+	function tplFileBrowser()
+	{
+		global $modx;
+		
+		$scr =<<<EOT
+<script type="text/javascript">
+		var lastImageCtrl;
+		var lastFileCtrl;
+		function OpenServerBrowser(url, width, height ) {
+			var iLeft = (screen.width  - width) / 2 ;
+			var iTop  = (screen.height - height) / 2 ;
+
+			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
+			sOptions += ',width=' + width ;
+			sOptions += ',height=' + height ;
+			sOptions += ',left=' + iLeft ;
+			sOptions += ',top=' + iTop ;
+
+			var oWindow = window.open( url, 'MODX FileBrowser', sOptions ) ;
+		}
+		
+		function BrowseServer(ctrl) {
+			lastImageCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
+		}
+		
+		function BrowseFileServer(ctrl) {
+			lastFileCtrl = ctrl;
+			var w = screen.width * 0.7;
+			var h = screen.height * 0.7;
+			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
+		}
+		
+		function SetUrl(url, width, height, alt){
+			if(lastFileCtrl) {
+				var c = document.mutate[lastFileCtrl];
+				if(c) c.value = url;
+				lastFileCtrl = '';
+			} else if(lastImageCtrl) {
+				var c = document.mutate[lastImageCtrl];
+				if(c) c.value = url;
+				lastImageCtrl = '';
+			} else {
+				return;
+			}
+		}
+</script>
+EOT;
+		return $scr;
 	}
