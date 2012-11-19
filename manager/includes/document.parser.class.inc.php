@@ -516,13 +516,16 @@ class DocumentParser {
 			$this->invokeEvent('OnLogPageHit');
 		}
 		
+		if(strpos($this->documentOutput,'[^'))
+		{
+			$this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
+		}
 		// invoke OnWebPagePrerender event
 		if (!$noEvent)
 		{
 			$this->invokeEvent('OnWebPagePrerender');
 		}
-		if(strpos($this->documentOutput,'[^')) echo $this->mergeBenchmarkContent($this->documentOutput);
-		else                                   echo $this->documentOutput;
+		echo $this->documentOutput;
 		$result = ob_get_clean();
 		return $result;
 	}

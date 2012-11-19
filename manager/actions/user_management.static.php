@@ -152,17 +152,17 @@ echo $cm->render();
 	$grd->cssClass     = 'grid';
 	$grd->itemClass    = 'gridItem';
 	$grd->altItemClass = 'gridAltItem';
-	$grd->fields       = 'username,fullname,email,role,thislogin,logincount,blocked';
+	$grd->fields       = 'username,fullname,email,rolename,thislogin,logincount,blocked';
 	$grd->columns      = join(',', array($_lang['name'],$_lang['user_full_name'],
 	                                     $_lang['email'],$_lang['role'],$_lang['login_button'],$_lang['user_logincount'],$_lang['user_block']));
 	$grd->colTypes     = join('||',array(
 	                          'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang['click_to_context'].'"><img src="'.$_style['icons_user'] .'" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="'.$_lang['click_to_edit_title'].'">[+value+]</a></span>',
 	                          '[+fullname+]',
-	                          'template:[+email+]',
-	                          'template:[+rolename+]',
+	                          '[+email+]',
+	                          '[+rolename+]',
 	                          'date: ' . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M',
-	                          'template:[+logincount+]',
-	                          'template:[+blocked+]'
+	                          '[+logincount+]',
+	                          '[+blocked+]'
 	                          ));
 	if($listmode=='1')
 	  $grd->pageSize=0;
