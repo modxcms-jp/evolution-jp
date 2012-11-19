@@ -88,7 +88,8 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
             $now = ((float) $usec + (float) $sec);
             $totalTime = ($now - $tstart);
             $totalTime = sprintf('%2.4f s', $totalTime);
-            $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize);
+            $incs = get_included_files();
+            $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize,'[^f^]'=>count($incs));
             $output = strtr($output,$r);
             if (is_file("{$base_path}autoload.php"))
                 $loaded_autoload = include_once("{$base_path}autoload.php");

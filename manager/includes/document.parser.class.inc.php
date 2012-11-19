@@ -1452,6 +1452,7 @@ class DocumentParser {
 		$queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
 		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
 		$total_mem = $this->nicesize($mem - $this->mstart);
+		$incs = get_included_files();
 		
 		$content= str_replace('[^q^]', $queries, $content);
 		$content= str_replace('[^qt^]', $queryTime, $content);
@@ -1459,6 +1460,7 @@ class DocumentParser {
 		$content= str_replace('[^t^]', $totalTime, $content);
 		$content= str_replace('[^s^]', $source, $content);
 		$content= str_replace('[^m^]', $total_mem, $content);
+		$content= str_replace('[^f^]', count($incs), $content);
 		
 		return $content;
 	}

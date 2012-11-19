@@ -48,7 +48,7 @@
 	<div class="footer">
 	<footer>
 	    (c)2012 [(site_name)]<br />
-	    Mem : [^m^], MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], document retrieved from [^s^].
+	    Mem: [^m^], MySQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], include [^f^]files, document retrieved from [^s^].
 	</footer>
 	</div>
 </div>
