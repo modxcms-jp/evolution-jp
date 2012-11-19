@@ -887,9 +887,9 @@ $datetime_format_list = array('dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd');
 $str = '';
 foreach($datetime_format_list as $value)
 {
-$selectedtext = ($datetime_format == $value) ? ' selected' : '';
-$str .= '<option value="' . $value . '"' . $selectedtext . '>';
-$str .= $value . "</option>\n";
+	$selectedtext = ($datetime_format == $value) ? ' selected' : '';
+	$str .= '<option value="' . $value . '"' . $selectedtext . '>';
+	$str .= $value . "</option>\n";
 }
 echo $str;
 ?>
