@@ -354,7 +354,7 @@ else
 {
 	$where = '';
 }
-$rs = $modx->db->select('name, id',$tbl_user_roles,$where);
+$rs = $modx->db->select('name, id',$tbl_user_roles,$where,'save_role DESC, new_role DESC, id ASC');
 ?>
 		<select name="role" class="inputBox" style="width:300px">
 		<?php
