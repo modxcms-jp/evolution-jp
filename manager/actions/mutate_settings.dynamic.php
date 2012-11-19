@@ -591,6 +591,16 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </tr>
 
 <tr>
+<th><?php echo $_lang["default_role_title"] ?></th>
+<td>
+<select name="default_role">
+<?php echo get_role_list();?>
+</select>
+	<div><?php echo $_lang["default_role_message"]?></div>
+</td>
+</tr>
+
+<tr>
 	<th><?php echo $_lang["validate_referer_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('validate_referer','1', $validate_referer=='1'));?><br />
@@ -1231,4 +1241,20 @@ function form_radio($name,$value,$checked=false,$add='',$disabled=false)
 function wrap_label($str='',$object)
 {
 	return '<label>' . $object . "\n" . $str . '</label>';
+}
+
+function get_role_list()
+{
+	global $modx, $default_role;
+	
+	$tbl_user_roles = $modx->getFullTableName('user_roles');
+	$rs = $modx->db->select('id,name', $tbl_user_roles, 'id!=1', 'save_role DESC,new_role DESC,id ASC');
+	$tpl = '<option value="[+id+]" [+selected+]>[+name+]</option>';
+	$options = "\n";
+	while($ph=$modx->db->getRow($rs))
+	{
+		$ph['selected'] = ($default_role == $ph['id']) ? ' selected' : '';
+		$options .= $modx->parsePlaceholder($tpl,$ph);
+	}
+	return $options;
 }

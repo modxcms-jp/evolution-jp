@@ -363,7 +363,7 @@ while ($row = $modx->db->getRow($rs))
 {
 	if ($_REQUEST['a']=='11')
 	{
-		$selectedtext = selected($row['id'] == '1');
+		$selectedtext = selected($row['id'] == $modx->config['default_role']);
 	}
 	else
 	{

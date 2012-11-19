@@ -1233,3 +1233,5 @@ $_lang["configcheck_you_are_admin_msg"] = 'You are loggedin special role(Adminis
 
 $_lang["login_settings"] = 'Login info';
 $_lang["profile"] = 'Profile';
+$_lang["default_role_title"] = 'Default role';
+$_lang["default_role_message"] = 'Default role at create the user settings';
