@@ -40,7 +40,7 @@
 #	
 #	&tpl			- (Optional)
 #		Chunk name or document id to as a template
-#				  
+#	
 #	Note: Templats design:
 #			section 1: login template
 #			section 2: logout template 

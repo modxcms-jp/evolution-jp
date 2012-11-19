@@ -14,7 +14,7 @@ list-style-type: none;
 }
 /* float the list so that the items are in a line and their position relative so that the drop down list will appear in the right place underneath each list item */
 .menu ul li {
-padding:0; 
+padding:0;
 margin:0;
 float:left;
 position:relative;

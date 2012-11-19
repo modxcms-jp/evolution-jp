@@ -50,7 +50,7 @@ if(!$rs)
 }
 
 // invoke OnDocPublished  event
-$modx->invokeEvent("OnDocPublished",array("docid"=>$id));	
+$modx->invokeEvent("OnDocPublished",array("docid"=>$id));
 
 $modx->clearCache();
 

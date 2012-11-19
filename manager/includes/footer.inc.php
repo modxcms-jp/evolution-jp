@@ -1,4 +1,4 @@
-<?php 
+<?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 global $SystemAlertMsgQueque;
 // display system alert window if messages are available

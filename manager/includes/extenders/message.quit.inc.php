@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Message Quit Template
  * 
  */

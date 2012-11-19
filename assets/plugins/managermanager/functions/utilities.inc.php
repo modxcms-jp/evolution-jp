@@ -3,8 +3,8 @@
 
 //---------------------------------------------------------------------------------
 //   Utility functions
-// 
-//--------------------------------------------------------------------------------- 
+//
+//---------------------------------------------------------------------------------
 
 
 // Pass useThisRule a comma separated list of allowed roles and templates, and it will
@@ -185,21 +185,21 @@ function includeCss($url, $output_type='js') {
 
 
 //function tvIdFromName($tv_id) {
-//	
+//
 //	global $modx;
-//	
+//
 //	// Get the DB table names
 //	$tv_table = $modx->getFullTableName('site_tmplvars');
-//	
+//
 //	$tv_id = mysql_escape_string($tv_id);
-//	
+//
 //	$result = $modx->db->query("SELECT id FROM $tv_table tvs WHERE name = '$tv_id'");
 //	$result = $modx->db->makeArray($result);
-//	
-//	
-//	
-//	
-//	
+//
+//
+//
+//
+//
 //	// If we have results, return them, otherwise return false
 //	if ( $modx->db->getRecordCount($result) == 0) {
 //		return false;	

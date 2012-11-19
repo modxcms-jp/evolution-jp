@@ -86,17 +86,17 @@
     padding-left: 20px;
 }
 
-.qm-save 
+.qm-save
 {
     margin-right: 5px;
 }
 
-.qm-cancel 
+.qm-cancel
 {
     margin-right: 20px;
 }
 
-#qm-tv-actions 
+#qm-tv-actions
 {
 	position: fixed;
 	top: 10px;
@@ -115,7 +115,7 @@
 	margin-bottom: 20px;
 }
 
-#qm-tv-description 
+#qm-tv-description
 {
     margin-bottom: 20px;
     font-size: 80%;
@@ -128,7 +128,7 @@
 	border-top-color: #7c7c7c;
 	padding: 4px 4px 4px 4px;
 	background: #fff url(images/input-bg.gif) repeat-x top left;
-}  
+}
 
 .qm-tv-text input
 {
@@ -185,7 +185,7 @@
 	-webkit-transition-duration: 0.7s;
 	-moz-transition-duration: 0.7s;
 	transition-duration: 0.7s;
-}   
+}
  
 #qmEditor *:focus, #qmEditor *:active 
 {

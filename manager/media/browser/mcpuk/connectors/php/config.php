@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
@@ -28,7 +28,7 @@ define('IN_MANAGER_MODE', 'true'); // set this so that user_settings will trust 
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
 
-/** 
+/**
  * Security check user MUST be logged into manager 
  * before being able to run this script
  */
