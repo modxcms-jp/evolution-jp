@@ -85,8 +85,6 @@ if (!$_SESSION['test']) {
 $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
-$moduleSQLBaseFile = 'setup.sql';
-$moduleSQLDataFile = 'sample.sql';
 
 $moduleChunks    = array (); // chunks    - array : name, description, type - 0:file or 1:content, file or content
 $moduleTemplates = array (); // templates - array : name, description, type - 0:file or 1:content, file or content

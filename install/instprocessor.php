@@ -1,9 +1,6 @@
 <?php
 global $moduleName;
 global $moduleVersion;
-global $moduleSQLBaseFile;
-global $moduleSQLDataFile;
-
 global $moduleChunks;
 global $moduleTemplates;
 global $moduleSnippets;
@@ -69,29 +66,29 @@ $sqlParser->ignoreDuplicateErrors = true;
 
 // install/update database
 echo '<p>' . $_lang['setup_database_creating_tables'];
-if ($moduleSQLBaseFile)
+
+$sqlParser->process('both_createtables.sql');
+if($installmode==0) $sqlParser->process('new_setvalues.sql');
+else                $sqlParser->process('upd_fixtables.sql');
+$sqlParser->process('both_fixvalues.sql');
+
+// display database results
+if ($sqlParser->installFailed == true)
 {
-	$sqlParser->process($moduleSQLBaseFile);
-	// display database results
-	if ($sqlParser->installFailed == true)
-	{
-		$errors += 1;
-		echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span>';
-		echo '</p>';
-		echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
-		echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
-		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
-			echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
-		}
-		echo '</p>';
-		echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
-		return;
+	$errors += 1;
+	echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span>';
+	echo '</p>';
+	echo "<p>" . $_lang['setup_couldnt_install'] . "</p>";
+	echo "<p>" . $_lang['installation_error_occured'] . "<br /><br />";
+	for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++) {
+		echo "<em>" . $sqlParser->mysqlErrors[$i]["error"] . "</em>" . $_lang['during_execution_of_sql'] . "<span class='mono'>" . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . "</span>.<hr />";
 	}
-	else
-	{
-		echo '<span class="ok">'.$_lang['ok'].'</span></p>';
-	}
+	echo '</p>';
+	echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
+	return;
 }
+else echo '<span class="ok">'.$_lang['ok'].'</span></p>';
+
 echo '<p>' . $_lang['writing_config_file'];
 $src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
@@ -567,13 +564,16 @@ if (isset ($_POST['snippet']) || $installData)
 	}
 }
 
-if(file_exists("{$base_path}install/sql/override.sql")) $sqlParser->process('override.sql');
+if($installmode ==0 && file_exists("{$base_path}install/sql/new_override.sql"))
+{
+	$sqlParser->process('new_override.sql');
+}
 
 // install data
-if ($installData && $moduleSQLDataFile)
+if ($installData)
 {
 	echo '<p>' . $_lang['installing_demo_site'];
-	$sqlParser->process($moduleSQLDataFile);
+	$sqlParser->process('new_sample.sql');
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;

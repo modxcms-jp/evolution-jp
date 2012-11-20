@@ -38,19 +38,10 @@ class SqlParser {
 			$this->installFailed = true ;
 			return false;
 		}
-
-		$idata = file_get_contents($path);
-
-		$idata = str_replace("\r", '', $idata);
-
-		// check if in upgrade mode
-		if ($this->mode=='upd') $trim = 'non-upgrade-able';
-		else                    $trim = 'upgrade-able';
 		
-		// remove some parts
-		$s = strpos($idata,"{$trim}[[");
-		$e = strpos($idata,"]]{$trim}") + strlen($trim) + 1;
-		if($s && $e) $idata = str_replace(substr($idata,$s,$e-$s)," Removed {$trim} items",$idata);
+		$idata = file_get_contents($path);
+		
+		$idata = str_replace("\r", '', $idata);
 		
 		if(version_compare($this->dbVersion,'4.1.0', '>='))
 		{

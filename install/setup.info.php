@@ -6,8 +6,7 @@ require_once("{$base_path}manager/includes/version.inc.php");
 $moduleName = 'MODX';
 $moduleVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
-$moduleSQLBaseFile = "setup.sql";
-$moduleSQLDataFile = "sample.sql";
+
 $chunkPath = "{$installer_path}assets/chunks";
 $snippetPath = "{$installer_path}assets/snippets";
 $pluginPath = "{$installer_path}assets/plugins";
