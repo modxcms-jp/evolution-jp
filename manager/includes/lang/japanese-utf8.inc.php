@@ -1237,3 +1237,4 @@ $_lang["login_settings"] = 'ログイン設定';
 $_lang["profile"] = 'プロフィール';
 $_lang["default_role_title"] = 'デフォルトのロール';
 $_lang["default_role_message"] = 'ユーザ新規作成時のロール設定のデフォルト値';
+$_lang["change_password_success"] = 'パスワードを更新しました。';
