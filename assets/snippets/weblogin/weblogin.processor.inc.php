@@ -448,8 +448,8 @@ if($id!=$modx->documentIdentifier)
 $modx->invokeEvent("OnWebLogin",
 array(
 "userid"        => $internalKey,
-"username"        => $username,
-"userpassword"    => $givenPassword,
+"username"      => $username,
+"userpassword"  => $givenPassword,
 "rememberme"    => $_POST['rememberme']
 ));
 

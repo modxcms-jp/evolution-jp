@@ -36,40 +36,23 @@ Example Usage:
 */
 
 $wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
+$config_path = "{$wf_base_path}configs/";
 
 //Include a custom config file if specified
-include_once("{$wf_base_path}configs/default.config.php");
+include_once("{$config_path}default.config.php");
 
 $config = (!isset($config)) ? 'default' : trim($config);
-if(substr($config, 0, 6) == '@CHUNK')
-{
-	$config = trim(substr($config, 7));
-	eval('?>' . $modx->getChunk($config));
-}
-elseif(substr($config, 0, 5) == '@FILE')
-{
-	include_once($modx->config['base_path'] . trim(substr($config, 6)));
-}
-elseif(file_exists("{$wf_base_path}configs/{$config}.config.php"))
-{
-	include_once("{$wf_base_path}configs/{$config}.config.php");
-}
-elseif(file_exists("{$wf_base_path}configs/{$config}"))
-{
-	include_once("{$wf_base_path}configs/{$config}");
-}
-elseif(file_exists($modx->config['base_path'] . ltrim($config, '/')))
-{
-	include_once($modx->config['base_path'] . ltrim($config, '/'));
-}
+
+if(substr($config, 0, 6) == '@CHUNK')                           eval('?>' . $modx->getChunk(trim(substr($config, 7))));
+elseif(substr($config, 0, 5) == '@FILE')                        include_once($modx->config['base_path'] . trim(substr($config, 6)));
+elseif(is_file("{$config_path}{$config}.config.php"))           include_once("{$config_path}{$config}.config.php");
+elseif(is_file("{$config_path}{$config}"))                      include_once("{$config_path}{$config}");
+elseif(is_file($modx->config['base_path'].ltrim($config, '/'))) include_once($modx->config['base_path'] . ltrim($config, '/'));
 
 include_once($wf_base_path . 'wayfinder.inc.php');
 
-if (class_exists('Wayfinder')) {
-   $wf = new Wayfinder();
-} else {
-    return 'error: Wayfinder class not found';
-}
+if (class_exists('Wayfinder')) $wf = new Wayfinder();
+else                           return 'error: Wayfinder class not found';
 
 $wf->_config = array(
 	'id' => isset($startId) ? $startId : $modx->documentIdentifier,
@@ -127,13 +110,8 @@ $wf->_templates = array(
 //Process Wayfinder
 $output = $wf->run();
 
-if ($wf->_config['debug']) {
-	$output .= $wf->renderDebugOutput();
-}
+if($wf->_config['debug']) $output .= $wf->renderDebugOutput();
 
 //Ouput Results
-if ($wf->_config['ph']) {
-    $modx->setPlaceholder($wf->_config['ph'],$output);
-} else {
-    return $output;
-}
+if($wf->_config['ph']) $modx->setPlaceholder($wf->_config['ph'],$output);
+else                   return $output;
