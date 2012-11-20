@@ -140,7 +140,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				
 				$attributes = '';
 				$attr = array(
-					'id' => ($tagid ? $tagid : $id), // 'tv' already added to id
+					'id' => ($tagid ? $tagid : $id) . ($i+1), // 'tv' already added to id
 					'class' => $params['class'],
 					'style' => $params['style'],
 				);
