@@ -1,7 +1,7 @@
 <?php
 /**
  * @name ManagerManager
- * @version 0.3.11 (2012-02-15)
+ * @version 0.3.12.1 (2012-02-15)
  * 
  * @for MODx Evolution 1.0.x
  * 
