@@ -260,37 +260,37 @@ class synccache {
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($this->config);
+		$str = "<?php\n" . 'return ' . var_export($this->config, true) . ';';
 		if(!file_put_contents($this->cachePath .'config.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($modx->aliasListing);
+		$str = "<?php\n" . 'return ' . var_export($modx->aliasListing, true) . ';';
 		if(!file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($modx->documentMap);
+		$str = "<?php\n" . 'return ' . var_export($modx->documentMap, true) . ';';
 		if(!file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($modx->chunkCache);
+		$str = "<?php\n" . 'return ' . var_export($modx->chunkCache,true) . ';';
 		if(!file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($modx->snippetCache);
+		$str = "<?php\n" . 'return ' . var_export($modx->snippetCache, true). ';';
 		if(!file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = serialize($modx->pluginCache);
+		$str = "<?php\n" . 'return ' . var_export($modx->pluginCache, 'true') . ';';
 		if(!file_put_contents($this->cachePath .'plugin.siteCache.idx.php', $str, LOCK_EX))
 		{
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");

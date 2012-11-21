@@ -851,10 +851,10 @@ class DocumentParser {
 			$cpath = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
 			if(is_file($cpath))
 			{
-				$str = @file_get_contents($cpath);
-				if($str) $this->config = unserialize($str);
+				$config = @include_once($cpath);
+				if($config) $this->config = $config;
 			}
-			if(!isset($str) || !is_array($this->config) || empty ($this->config))
+			if(!isset($config) || !is_array($this->config) || empty ($this->config))
 			{
 				include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
 				$cache = new synccache();
@@ -864,10 +864,10 @@ class DocumentParser {
 				$included = false;
 				if($rebuilt && is_file($cpath))
 				{
-					$str = file_get_contents($cpath);
-					$this->config = unserialize($str);
+					$config = @include_once($cpath);
+					$this->config = $config;
 				}
-				if(!$str || !$this->config)
+				if(!$config || !$this->config)
 				{
 					$result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
 					while ($row= $this->db->getRow($result, 'both'))
@@ -1760,36 +1760,36 @@ class DocumentParser {
 	
 	function setChunkCache()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
-		if($str) $this->chunkCache = unserialize($str);
+		$chunk = @include_once(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
+		if($chunk) $this->chunkCache = $chunk;
 		else return false;
 	}
 	
 	function setSnippetCache()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/snippet.siteCache.idx.php');
-		if($str) $this->snippetCache = unserialize($str);
+		$snippets = @include_once(MODX_BASE_PATH . 'assets/cache/snippet.siteCache.idx.php');
+		if($snippets) $this->snippetCache = $snippets;
 		else return false;
 	}
 	
 	function setPluginCache()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
-		if($str) $this->pluginCache = unserialize($str);
+		$plugins = @include_once(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
+		if($plugins) $this->pluginCache = $plugins;
 		else return false;
 	}
 	
 	function setdocumentMap()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
-		if($str) $this->documentMap = unserialize($str);
+		$d = @include_once(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+		if($d) $this->documentMap = $d;
 		else return false;
 	}
 	
 	function setAliasListing()
 	{
-		$str = @file_get_contents(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
-		if($str) $this->aliasListing = unserialize($str);
+		$aliases = @include_once(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+		if($aliases) $this->aliasListing = $aliases;
 		else return false;
 	}
 	
@@ -1798,8 +1798,8 @@ class DocumentParser {
 		$path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
 		if(is_file($path_aliases))
 		{
-			$src = file_get_contents($path_aliases);
-			$this->aliases = unserialize($src);
+			$aliases = @include_once($path_aliases);
+			$this->aliases = $aliases;
 		}
 		else
 		{
@@ -1810,7 +1810,8 @@ class DocumentParser {
 			{
 				$aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
 			}
-			file_put_contents($path_aliases,serialize($aliases), LOCK_EX);
+			$cache = "<?php\n" . 'return ' . var_export($aliases, true) . ';';
+			file_put_contents($path_aliases, $cache, LOCK_EX);
 			$this->aliases = $aliases;
 		}
 		return $this->aliases;
