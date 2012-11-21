@@ -7,6 +7,8 @@
  * 		implimentation of the MODx debug console
 */
 
+
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
 class debug extends modxDebugConsole {
 	var $debug;
 	

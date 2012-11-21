@@ -6,6 +6,8 @@
  *  	Ditto's output capabilities to include ATOM
 */
 
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+
 // set placeholders
 $atom_placeholders['atom_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
 /*

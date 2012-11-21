@@ -6,6 +6,8 @@
  *  	Ditto's output capabilities to include JSON
 */
 
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+
 // set json placeholders
 $json_placeholders['json_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
 /*

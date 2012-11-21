@@ -7,6 +7,8 @@
  *  	Ditto's output capabilities to include RSS
 */
 
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+
 // set placeholders
 $rss_placeholders['rss_copyright'] = isset($copyright) ? $copyright: $_lang['default_copyright'];
 /*

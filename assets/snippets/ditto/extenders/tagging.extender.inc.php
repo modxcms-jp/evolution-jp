@@ -1,5 +1,5 @@
 <?php
-
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
 /*
  * Title: Tagging
  * Purpose:

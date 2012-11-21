@@ -236,6 +236,7 @@ class synccache {
 	function buildCache($modx)
 	{
 		$content = "<?php\n";
+		$content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
 		
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		

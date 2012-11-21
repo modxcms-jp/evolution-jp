@@ -20,6 +20,8 @@
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  */
+
+if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
 include_once(MODX_BASE_PATH.'manager/media/browser/mcpuk/connectors/php/Commands/helpers/iconlookup.php');
 
 class Thumbnail {
