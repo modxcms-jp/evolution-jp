@@ -96,6 +96,9 @@ class PHx {
 			case '.':
 				if($value!=='') $value = $value . $opt;
 				break;
+			case 'nl2lf':
+				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
