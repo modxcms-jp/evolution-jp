@@ -302,10 +302,9 @@ class PHx {
 		
 		foreach($modifiers as $cmd=>$opt)
 		{
-			$input = $this->Filter($key,$value, $cmd, $opt);
+			$value = $this->Filter($key,$value, $cmd, $opt);
 		}
-		
-		return $input;
+		return $value;
 	}
 	
 	function splitModifiers($modifiers)
