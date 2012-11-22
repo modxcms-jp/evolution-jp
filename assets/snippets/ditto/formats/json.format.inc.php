@@ -76,7 +76,7 @@ $json_header = '
 [+json_op+]{
  "title":"[*pagetitle*]",
  "link":"[+json_link+]",
- "description":"[*description*]",
+ "description":"[*description:addslashes:nl2lf*]",
  "language":"[+json_lang+]",
  "copyright":"[+json_copyright+]",
  "ttl":"[+json_ttl+]",
