@@ -74,7 +74,7 @@ if(!function_exists("json_parameters")) {
 
 $json_header = '
 [+json_op+]{
- "title":"[*pagetitle*]",
+ "title":"[*pagetitle:addslashes*]",
  "link":"[+json_link+]",
  "description":"[*description:addslashes:nl2lf*]",
  "language":"[+json_lang+]",
