@@ -162,7 +162,7 @@ $rt = $modx->invokeEvent("OnManagerAuthentication",
                         ));
 
 // check if plugin authenticated the user
-if (!$rt||(is_array($rt) && !in_array(TRUE,$rt))) {
+if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt))) {
     // check user password - local authentication
     if($dbasePassword != md5($givenPassword)) {
             jsAlert($e->errors[901]);
