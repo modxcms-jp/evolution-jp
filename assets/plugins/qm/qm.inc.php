@@ -23,6 +23,8 @@ class Qm {
     //_______________________________________________________
 	function Qm(&$modx, $params=array())
 	{
+		if(isset($_GET['a']) && $_GET['a']==='83') return;
+		
 		$this->modx = $modx;
 		if(empty($params) || count($params)==0)
 		{
