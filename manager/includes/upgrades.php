@@ -4,11 +4,11 @@ $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
 $version = intval($version);
 
-if($action==17) $modx->clearCache();
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 extract($default_config, EXTR_SKIP);
 
 run_update($simple_version);
+if($action==17) $modx->clearCache();
 
 if(!isset($_style['sort']))
 {
