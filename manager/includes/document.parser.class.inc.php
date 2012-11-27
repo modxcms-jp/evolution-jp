@@ -1413,20 +1413,37 @@ class DocumentParser {
 	
 	function mergeCommentedTagsContent($content)
 	{
-		if(strpos($content,'<!-- #modx')===false) return $content;
+		if(strpos($content,'<!-- modx')===false) return $content;
 		
-		$pieces = explode('<!-- #modx',$content);
+		$pieces = explode('<!-- modx',$content);
 		$stack = '';
 		$i=0;
 		foreach($pieces as $_)
 		{
-			if($i!==0)
+			if(strpos($_,'-->')!==false)
 			{
 				list($modxelm,$txt) = explode('-->',$_, 2);
 				$modxelm = trim($modxelm);
-				$txt = substr($txt,strpos($txt,'<!-- /#modx'));
-				$txt = substr($txt,strpos($txt,'-->')+3);
 				$_ = $modxelm . $txt;
+			}
+			$stack .= $_;
+			$i++;
+		}
+		return $stack;
+	}
+	
+	function ignoreCommentedTagsContent($content)
+	{
+		if(strpos($content,'<!-- modx:ignore')===false) return $content;
+		$pieces = explode('<!-- modx:ignore',$content);
+		$stack = '';
+		$i=0;
+		foreach($pieces as $_)
+		{
+			if(strpos($_,'<!-- /modx')!==false)
+			{
+				$_ = substr($_,strpos($_,'<!-- /modx'));
+				$_ = substr($_,strpos($_,'-->')+3);
 			}
 			$stack .= $_;
 			$i++;
@@ -1940,7 +1957,8 @@ class DocumentParser {
 			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
 			$source= $this->documentOutput;
 			
-			if(strpos($source,'<!-- #modx')!==false) $source= $this->mergeCommentedTagsContent($source);
+			if(strpos($source,'<!-- modx:ignore')!==false) $source= $this->ignoreCommentedTagsContent($source);
+			if(strpos($source,'<!-- modx')!==false) $source= $this->mergeCommentedTagsContent($source);
 			// combine template and document variables
 			if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
 			// replace settings referenced in document
