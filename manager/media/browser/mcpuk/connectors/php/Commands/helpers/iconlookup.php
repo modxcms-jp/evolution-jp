@@ -80,7 +80,7 @@ function iconLookup($mime,$ext) {
 
 	$icon_basedir = MODX_BASE_PATH.'manager/media/browser/mcpuk/connectors/php/images/';
 
-	if ($mime!="text/plain") {	
+	if ($mime!="text/plain") {
 		//Check specific cases
 		$mimes=array_keys($mimeIcons);
 		if (in_array($mime,$mimes)) {
@@ -94,7 +94,7 @@ function iconLookup($mime,$ext) {
 			if (in_array($mimePrefix,$mimes)) {
 				return $icon_basedir.$mimeIcons[$mimePrefix];
 			} else {
-				return $icon_basedir."empty.png";	
+				return $icon_basedir."empty.png";
 			}
 		}
 	} else {

@@ -57,7 +57,7 @@
 			<div class="sectionHeader">[+modx_news_title+]</div><div class="sectionBody">
 				[+modx_news_content+]
 			</div>
-		</div>	
+		</div>
 
 		<!-- security notices -->
 		<div class="tab-page" id="tabSecurityNotices" style="padding-left:0; padding-right:0">

@@ -47,7 +47,7 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 	oXmlHttp.open( "GET", urlToCall, bAsync ) ;
 	
 	if ( bAsync )
-	{	
+	{
 		oXmlHttp.onreadystatechange = function() 
 		{
 			if ( oXmlHttp.readyState == 4 )
@@ -98,7 +98,7 @@ FCKXml.prototype.SelectSingleNode = function( xpath )
 
 		if ( xPathResult && xPathResult.singleNodeValue )
 			return xPathResult.singleNodeValue ;
-		else	
+		else
 			return null ;
 	}
 }

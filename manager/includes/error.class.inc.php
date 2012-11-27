@@ -46,7 +46,7 @@ class errorHandler{
 		if($custommessage!="") {
 			$this->errormessage=$custommessage;
 		}
-	}	
+	}
 	
 	function getError() {
 		return $this->errorcode;

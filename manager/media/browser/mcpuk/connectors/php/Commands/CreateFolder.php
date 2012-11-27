@@ -38,51 +38,50 @@ class CreateFolder {
 		if (strlen($folderName)>$this->fckphp_config['MaxDirNameLength']) return false;
 		
 		//Check that it only contains valid characters
-		for($i=0;$i<strlen($folderName);$i++) if (!in_array(substr($folderName,$i,1),$this->fckphp_config['DirNameAllowedChars'])) return false;
-		
+		for($i=0;$i<strlen($folderName);$i++)
+		{
+			if (!in_array(substr($folderName,$i,1),$this->fckphp_config['DirNameAllowedChars'])) return false;
+		}
 		//If it got this far all is ok
 		return true;
 	}
 	
-	function run() {
+	function run()
+	{
 		header ("content-type: text/xml");
-		echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-		?>
+		echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
+?>
 <Connector command="CreateFolder" resourceType="<?php echo $this->type; ?>">
 	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
-	<?php
+<?php
 		$newdir=str_replace("//","/",($this->real_cwd."/".$this->newfolder));
 		
 		//Check the new name
-		if ($this->checkFolderName($this->newfolder)) {
+		if ($this->checkFolderName($this->newfolder))
+		{
 			
 			//Check if it already exists
-			if (is_dir($newdir)) {
-				$err_no=101; //Folder already exists
-			} else {
-				
+			if (is_dir($newdir)) $err_no=101; //Folder already exists
+			else
+			{
 				//Check if we can create the directory here
-				if (is_writeable($this->real_cwd)) {
-					
+				if (is_writeable($this->real_cwd))
+				{
 					//Make the directory
-					if (mkdir($newdir,0777)) {
+					if (mkdir($newdir,0777))
+					{
 						$err_no=0; //Success
 						@chmod($newdir,$this->fckphp_config['modx']['folder_permissions']); //added for MODx
-					} else {
-					
-						$err_no=110; //Unknown error
-					}	
-				} else {
-					$err_no=103; //No permissions to create
+					}
+					else $err_no=110; //Unknown error
 				}
+				else $err_no=103; //No permissions to create
 			}
-		} else {
-			$err_no=102; //Invalid Folder Name
 		}
-		
-	?>
+		else $err_no=102; //Invalid Folder Name
+?>
 	<Error number="<?php echo "".$err_no; ?>" />
 </Connector>
-		<?php
+<?php
 	}
 }

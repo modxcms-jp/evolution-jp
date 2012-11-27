@@ -25,6 +25,6 @@ function secureMgrDocument($docid='')
 			 WHERE ".($docid>0 ? " sc.id='$docid' AND ":"")."mga.id>0";
 	$ids = $modx->db->getColumn("id",$sql);
 	if(count($ids)>0) {
-		$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");	
+		$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");
 	}
 }

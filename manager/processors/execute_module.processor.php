@@ -118,7 +118,7 @@ function evalModule($moduleCode,$params){
 	ob_end_clean();
 	if ($php_errormsg) { 
 		if(!strpos($php_errormsg,'Deprecated')) { // ignore php5 strict errors
-			// log error		
+			// log error
 			global $content;
 			$modx->logEvent(1,3,"<b>$php_errormsg</b><br /><br /> $msg",$content['name']." - Module");
 			if($modx->isBackend()) $modx->event->alert("<span style='color:maroon;'><b>".$content['name']." - Module"." runtime error:</b></span><br /><br />An error occurred while loading the module. Please see the event log.");

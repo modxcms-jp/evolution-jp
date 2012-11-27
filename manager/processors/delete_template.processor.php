@@ -17,7 +17,7 @@ if($limit>0) {
 	for ($i=0;$i<$limit;$i++) {
 		$row = $modx->db->getRow($rs);
 		echo $row['id']." - ".$row['pagetitle']."<br />\n";
-	}	
+	}
 	exit;
 }
 
@@ -42,7 +42,7 @@ if(!$rs)
 else
 {
 	$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
-			
+	
 	// invoke OnTempFormDelete event
 	$modx->invokeEvent('OnTempFormDelete',
 							array(

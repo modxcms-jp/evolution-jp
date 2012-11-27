@@ -23,7 +23,7 @@ if(!$modx->hasPermission('delete_template')) {
 		if($count>0)
 		{
 			include_once "header.inc.php";
-		?>	
+		?>
 			<script type="text/javascript">
 				function deletedocument() {
 					document.location.href="index.php?id=<?php echo $id;?>&a=303&force=1";
@@ -48,10 +48,10 @@ if(!$modx->hasPermission('delete_template')) {
 				echo '<li><span style="width: 200px"><a href="index.php?id='.$row['id'].'&a=27">'.$row['pagetitle'].'</a></span>'.($row['description']!='' ? ' - '.$row['description'] : '').'</li>';
 			}
 			echo "</ul>";
-			echo '</div>';		
+			echo '</div>';
 			include_once "footer.inc.php";
 			exit;
-		}	
+		}
 	}
 
 	// invoke OnBeforeTVFormDelete event
@@ -65,7 +65,7 @@ if(!$modx->hasPermission('delete_template')) {
 	if(!$rs) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
-	} else {		
+	} else {
 		header("Location: index.php?a=76");
 	}
 

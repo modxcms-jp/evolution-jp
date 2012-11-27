@@ -34,11 +34,8 @@ class DeleteFolder {
 	
 	function run() {
 		
-		if ($this->delDir($this->real_cwd.'/'.$this->foldername)) {
-			$err_no=0;
-		} else {
-			$err_no=402;
-		}
+		if ($this->delDir($this->real_cwd.'/'.$this->foldername)) $err_no=0;
+		else                                                      $err_no=402;
 		
 		header ("content-type: text/xml");
 		echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
@@ -53,23 +50,32 @@ class DeleteFolder {
 	function delDir($dir)
 	{
 		$files = scandir($dir);
-		if ($files) {
-			foreach($files as $entry) {
-				if (($entry!=".")&&($entry!="..")) {
-					if (is_dir($dir.'/'.$entry)) {
-						$this->delDir($dir.'/'.$entry);	
-					} else {
+		if ($files)
+		{
+			foreach($files as $entry)
+			{
+				if (($entry!=".")&&($entry!=".."))
+				{
+					if (is_dir($dir.'/'.$entry))
+					{
+						$this->delDir($dir.'/'.$entry);
+					}
+					else
+					{
 						$thumb=$dir.'/.thumb/'.$entry;
-						if (file_exists($thumb)) if (!unlink($thumb)) return false;
+						if (is_file($thumb))
+						{
+							if (!unlink($thumb)) return false;
+						}
 						if (!unlink($dir.'/'.$entry)) return false;
 					}
 				}
-			}	
+			}
 			return rmdir($dir);
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
 }
-
-?>

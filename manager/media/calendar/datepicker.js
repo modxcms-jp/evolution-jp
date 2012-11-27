@@ -276,7 +276,7 @@ var DatePicker = new Class({
 		}.bind(this);
 		
 		/* set the onchange event for the month & year select boxes */
-		timeTextBox.onfocus = function(){ dp.active = true; };		
+		timeTextBox.onfocus = function(){ dp.active = true; };
 		timeTextBox.onkeypress = function(e) {
 		  e = new Event(e);
 		  if (e.code == 13) {		  

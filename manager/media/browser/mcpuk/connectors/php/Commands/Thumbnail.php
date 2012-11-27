@@ -142,7 +142,7 @@ class Thumbnail {
 		} else {
 			return false;
 		}
-	}	
+	}
 	
 	function getExtension($filename) {
 		//Get Extension

@@ -3,7 +3,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 if(!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document'))
 {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 
 $id = intval($_REQUEST['id']);
@@ -23,7 +23,7 @@ if(!$udperms->checkPermissions()) {
 	<p><?php echo $_lang['access_permission_denied']; ?></p>
 	<?php
 	include("footer.inc.php");
-	exit;	
+	exit;
 }
 
 if(!$modx->hasPermission('view_unpublished'))
@@ -50,7 +50,7 @@ if(!$rs)
 }
 
 // invoke OnDocPublished  event
-$modx->invokeEvent("OnDocPublished",array("docid"=>$id));
+$modx->invokeEvent('OnDocPublished',array('docid'=>$id));
 
 $modx->clearCache();
 

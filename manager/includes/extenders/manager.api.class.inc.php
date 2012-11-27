@@ -49,13 +49,13 @@ class ManagerAPI {
 				$this->clearSavedFormValues();
 			}
 		}
-	}	
+	}
 	// saved form post from $_POST
 	function saveFormValues($id=0)
 	{
 		$_SESSION['mgrFormValues']  = $_POST;
 		$_SESSION['mgrFormValueId'] = ($id > 0) ? $id : $this->action;
-	}		
+	}
 	// load saved form values into $_POST
 	function loadFormValues()
 	{
@@ -75,7 +75,7 @@ class ManagerAPI {
 	function clearSavedFormValues()
 	{
 		unset($_SESSION['mgrFormValues']);
-		unset($_SESSION['mgrFormValueId']);	
+		unset($_SESSION['mgrFormValueId']);
 	}
 	
 	function get_alias_from_title($id,$pagetitle)

@@ -133,7 +133,7 @@ switch ($_POST['mode']) {
 									array(
 										"mode"	=> "upd",
 										"id"	=> $id
-								));	    		
+								));
 
 			// first empty the cache
 			$modx->clearCache();

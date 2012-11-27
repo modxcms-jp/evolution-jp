@@ -195,7 +195,7 @@ class PHx {
 				$value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
 				
-			// If we haven't yet found the modifier, let's look elsewhere	
+			// If we haven't yet found the modifier, let's look elsewhere
 			default:
 				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
 				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='phx:{$cmd}'");

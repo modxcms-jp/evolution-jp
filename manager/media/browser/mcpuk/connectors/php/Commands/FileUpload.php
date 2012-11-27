@@ -155,7 +155,7 @@ class FileUpload {
 				
 				if (($dirSizes[$this->type]+$_FILES['NewFile']['size']) > ($typeconfig['DiskQuota']*1048576))
 				{
-					$failSizeCheck=true;	
+					$failSizeCheck=true;
 					$msg="\\nリソース種類別の割当ディスク容量オーバー";
 				}
 			}

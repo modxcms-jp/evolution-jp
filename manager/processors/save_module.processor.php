@@ -120,8 +120,8 @@ switch ($_POST['mode']) {
 							array(
 								'mode'	=> 'upd',
 								'id'	=> $id
-							));	
-								
+							));
+							
 		// save the edited module
 		$f = array();
 		$f = compact('name','description','icon','enable_resource','resourcefile',

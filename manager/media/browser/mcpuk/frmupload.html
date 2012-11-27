@@ -113,7 +113,7 @@ function resetProgressBar() {
 	
 //	label.innerHTML="0%"
 	for (i=0;i<(cols.length-1);i++) {
-		cols[i].className="progress_hollow";	
+		cols[i].className="progress_hollow";
 	}
 }
 
@@ -133,7 +133,7 @@ function GetUploadProgressCallback( fckXml ) {
 	var sCurrentFolderPath	= oNode.attributes.getNamedItem('path').value ;
 	var sCurrentFolderUrl	= oNode.attributes.getNamedItem('url').value ;
 
-	// Add the Folders.	
+	// Add the Folders.
 	var oNode = fckXml.SelectSingleNode( 'Connector/Progress' ) ;
 	if (oNode==null) { if(!warned) { alert("Invalid XML response from connector.[3]"); warned=true; } return false; }
 	if ((oNode.attributes.getNamedItem('max')==null)||(oNode.attributes.getNamedItem('value')==null)) {
@@ -163,7 +163,7 @@ function GetUploadProgressCallback( fckXml ) {
 	//label.innerHTML=percentage+"%"
 	for (i=0;i<(cols.length-1);i++) {
 		if (((i+1)*(100/cols.length))<=percentage) {
-			cols[i].className="progress_filled";	
+			cols[i].className="progress_filled";
 		} else {
 			cols[i].className="progress_hollow";
 		}
