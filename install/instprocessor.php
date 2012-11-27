@@ -602,6 +602,10 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 include_once("{$base_path}index.php");
 
 $modx->clearCache(); // always empty cache after install
+foreach(glob("{$base_path}assets/cache/*.idx.php") as $file)
+{
+	@unlink($file);
+}
 
 // try to chmod the cache go-rwx (for suexeced php)
 @chmod("{$base_path}assets/cache/siteCache.idx.php", 0600);
