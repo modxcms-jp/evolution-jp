@@ -11,6 +11,10 @@ if(isset($_REQUEST['id'])) {
 	$id=0;
 }
 
+$tbl_site_module_access = $modx->getFullTableName('site_module_access');
+$tbl_member_groups      = $modx->getFullTableName('member_groups');
+$tbl_site_modules       = $modx->getFullTableName('site_modules');
+
 // make sure the id's a number
 if(!is_numeric($id)) {
 	echo "Passed ID is NaN!";
@@ -19,9 +23,10 @@ if(!is_numeric($id)) {
 
 // check if user has access permission, except admins
 if($_SESSION['mgrRole']!=1){
+	$userid = $modx->getLoginUserID();
 	$sql = "SELECT sma.usergroup,mg.member " .
-		"FROM ".$modx->getFullTableName("site_module_access")." sma " .
-		"LEFT JOIN ".$modx->getFullTableName("member_groups")." mg ON mg.user_group = sma.usergroup AND member='".$modx->getLoginUserID()."'".
+		"FROM {$tbl_site_module_access} sma " .
+		"LEFT JOIN {$tbl_member_groups} mg ON mg.user_group = sma.usergroup AND member='{$userid}'".
 		"WHERE sma.module = '$id'";
 	$rs = $modx->db->query($sql);
 
@@ -52,10 +57,7 @@ if($_SESSION['mgrRole']!=1){
 }
 
 // get module data
-$sql = "SELECT * " .
-		"FROM ".$modx->getFullTableName("site_modules")." " .
-		"WHERE id = $id;";
-$rs = $modx->db->query($sql);
+$rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	echo "<script type='text/javascript'>" .

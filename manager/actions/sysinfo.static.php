@@ -143,7 +143,7 @@ if(!$modx->hasPermission('logs')) {
 		  </thead>
 		  <tbody>
 <?php
-	$rs = $modx->db->query("SHOW TABLE STATUS FROM $dbase LIKE '{$table_prefix}%'");
+	$rs = $modx->db->query("SHOW TABLE STATUS FROM {$dbase} LIKE '{$table_prefix}%'");
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$log_status = $modx->db->getRow($rs);
