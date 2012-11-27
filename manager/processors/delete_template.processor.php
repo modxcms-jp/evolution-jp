@@ -5,10 +5,12 @@ if(!$modx->hasPermission('delete_template')) {
 	$e->dumpError();	
 }
 $id=intval($_GET['id']);
+$tbl_site_content           = $modx->getFullTableName('site_content');
+$tbl_site_templates         = $modx->getFullTableName('site_templates');
+$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
 
 // delete the template, but first check it doesn't have any documents using it
-$sql = "SELECT id, pagetitle FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.template=".$id." and $dbase.`".$table_prefix."site_content`.deleted=0;";
-$rs = $modx->db->query($sql);
+$rs = $modx->db->select('id, pagetitle',$tbl_site_content,"template='{$id}' and deleted=0");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>0) {
 	echo "This template is in use. Please set the documents using the template to another template. Documents using this template:<br />";
@@ -31,14 +33,12 @@ $modx->invokeEvent("OnBeforeTempFormDelete",
 						));
 						
 //ok, delete the document.
-$sql = "DELETE FROM $dbase.`".$table_prefix."site_templates` WHERE $dbase.`".$table_prefix."site_templates`.id=".$id.";";
-$rs = $modx->db->query($sql);
+$rs = $modx->db->delete($tbl_site_templates,"id='{$id}'");
 if(!$rs) {
 	echo "Something went wrong while trying to delete the template...";
 	exit;
 } else {
-	$sql = "DELETE FROM $dbase.`".$table_prefix."site_tmplvar_templates` WHERE $dbase.`".$table_prefix."site_tmplvar_templates`.templateid=".$id.";";
-	$rs = $modx->db->query($sql);
+	$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
 			
 	// invoke OnTempFormDelete event
 	$modx->invokeEvent("OnTempFormDelete",
