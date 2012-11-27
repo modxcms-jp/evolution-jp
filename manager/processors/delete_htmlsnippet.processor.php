@@ -5,6 +5,7 @@ if(!$modx->hasPermission('delete_snippet')) {
 	$e->dumpError();
 }
 $id=intval($_GET['id']);
+$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 // invoke OnBeforeChunkFormDelete event
 $modx->invokeEvent("OnBeforeChunkFormDelete",
@@ -13,8 +14,7 @@ $modx->invokeEvent("OnBeforeChunkFormDelete",
 						));
 
 //ok, delete the chunk.
-$sql = "DELETE FROM $dbase.`".$table_prefix."site_htmlsnippets` WHERE $dbase.`".$table_prefix."site_htmlsnippets`.id=".$id.";";
-$rs = $modx->db->query($sql);
+$rs = $modx->db->delete($tbl_site_htmlsnippets,"id='{$id}'");
 if(!$rs) {
 	echo "Something went wrong while trying to delete the htmlsnippet...";
 	exit;

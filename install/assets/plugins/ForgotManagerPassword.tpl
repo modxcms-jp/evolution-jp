@@ -45,11 +45,10 @@ EOD;
 		}
 		
 		/* Get user info including a hash unique to this user, password, and day */
-		function getUser($user_id=false, $username='', $email='', $hash='')
+		function getUser($username='', $email='', $hash='')
 		{
 			global $modx, $_lang;
 			
-			if($user_id !== false) $user_id = $modx->db->escape($user_id);
 			$username = $modx->db->escape($username);
 			$email    = $modx->db->escape($email);
 			$hash     = $modx->db->escape($hash);
@@ -62,7 +61,6 @@ EOD;
 			$where = '';
 			$user = null;
 			
-			$user_id  = ($user_id == false) ? false : $modx->db->escape($user_id);
 			if(!empty($username))  { $wheres[] = "usr.username = '{$username}'"; }
 			if(!empty($username))  { $wheres[] = "usr.username = '{$username}'"; }
 			if(!empty($email))     { $wheres[] = "attr.email = '{$email}'"; }
@@ -92,7 +90,7 @@ EOD;
 		{
 			global $modx, $_lang;
 			
-			$user = $this->getUser(0, '', $to);
+			$user = $this->getUser('', $to);
 			if(!$user['username']) return;
 			
 			
@@ -214,7 +212,7 @@ if($event_name == 'OnManagerLoginFormRender')
 
 if($event_name == 'OnBeforeManagerLogin')
 {
-	$user = $forgot->getUser(false, '', '', $hash);
+	$user = $forgot->getUser('', '', $hash);
 	if($user && is_array($user) && !$forgot->errors)
 	{
 		$forgot->unblockUser($user['id']);
@@ -223,12 +221,11 @@ if($event_name == 'OnBeforeManagerLogin')
 
 if($event_name == 'OnManagerAuthentication' && $hash && $username)
 {
-	if($hash) $_SESSION['mgrForgetPassword'] = '1';
-	$user = $forgot->getUser(false, '', '', $hash);
+	$_SESSION['mgrForgetPassword'] = '1';
+	$user = $forgot->getUser('', '', $hash);
 	if($user !== null && count($forgot->errors) == 0)
 	{
 		if(isset($_GET['captcha_code'])) $_SESSION['veriword'] = $_GET['captcha_code'];
-		if(!$hash && $_SESSION['mgrForgetPassword']) unset($_SESSION['mgrForgetPassword']);
 		$output =  true;
 	}
 	else $output = false;

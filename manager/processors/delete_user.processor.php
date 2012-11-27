@@ -12,13 +12,14 @@ if($id==$modx->getLoginUserID()) {
 	exit;
 }
 
+$tbl_manager_users   = $modx->getFullTableName('manager_users');
+$tbl_member_groups   = $modx->getFullTableName('member_groups');
+$tbl_user_settings   = $modx->getFullTableName('user_settings');
+$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+
 // get user name
-$sql = "SELECT * FROM $dbase.`".$table_prefix."manager_users` WHERE $dbase.`".$table_prefix."manager_users`.id='".$id."' LIMIT 1;";
-$rs = $modx->db->query($sql);
-if($rs) {
-	$row = $modx->db->getRow($rs);
-	$username = $row['username'];
-}
+$rs = $modx->db->select('username',$tbl_manager_users,"id='{$id}'",'',1);
+if($rs) $username = $modx->db->getValue($rs);
 
 // invoke OnBeforeUserFormDelete event
 $modx->invokeEvent("OnBeforeUserFormDelete",
@@ -27,47 +28,30 @@ $modx->invokeEvent("OnBeforeUserFormDelete",
 						));
 
 //ok, delete the user.
-$sql = "DELETE FROM $dbase.`".$table_prefix."manager_users` WHERE $dbase.`".$table_prefix."manager_users`.id=".$id.";";
-$rs = $modx->db->query($sql);
-if(!$rs) {
-	echo "Something went wrong while trying to delete the user...";
-	exit;
-}
-
-$sql = "DELETE FROM $dbase.`".$table_prefix."member_groups` WHERE $dbase.`".$table_prefix."member_groups`.member=".$id.";";
-$rs = $modx->db->query($sql);
-if(!$rs) {
-	echo "Something went wrong while trying to delete the user's access permissions...";
-	exit;
-}
+$modx->db->delete($tbl_manager_users,"id='{$id}'")
+	or exit("Something went wrong while trying to delete the user...");
+$modx->db->delete($tbl_member_groups,"member='{$id}'")
+	or exit("Something went wrong while trying to delete the user's access permissions...");
 
 // delete user settings
-$sql = "DELETE FROM $dbase.`".$table_prefix."user_settings` WHERE $dbase.`".$table_prefix."user_settings`.user=".$id.";";
-$rs = $modx->db->query($sql);
-if(!$rs) {
-	echo "Something went wrong while trying to delete the user's settings...";
-	exit;
-}
+$modx->db->delete($tbl_user_settings,"user='{$id}'")
+	or exit("Something went wrong while trying to delete the user's settings...");
 
 // delete the attributes
-$sql = "DELETE FROM $dbase.`".$table_prefix."user_attributes` WHERE $dbase.`".$table_prefix."user_attributes`.internalKey=".$id.";";
-$rs = $modx->db->query($sql);
-if(!$rs) {
-	echo "Something went wrong while trying to delete the user attributes...";
-	exit;
-} else {
-	// invoke OnManagerDeleteUser event
-	$modx->invokeEvent("OnManagerDeleteUser",
-						array(
-							"userid"		=> $id,
-							"username"		=> $username
-						));
+$modx->db->delete($tbl_user_attributes,"internalKey='{$id}'")
+	or exit("Something went wrong while trying to delete the user attributes...");
 
-	// invoke OnUserFormDelete event
-	$modx->invokeEvent("OnUserFormDelete",
-						array(
-							"id"	=> $id
-						));
+// invoke OnManagerDeleteUser event
+$modx->invokeEvent("OnManagerDeleteUser",
+					array(
+						"userid"		=> $id,
+						"username"		=> $username
+					));
 
-	header("Location: index.php?a=75");
-}
+// invoke OnUserFormDelete event
+$modx->invokeEvent("OnUserFormDelete",
+					array(
+						"id"	=> $id
+					));
+
+header("Location: index.php?a=75");

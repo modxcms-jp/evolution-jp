@@ -190,12 +190,11 @@ if($use_captcha==1) {
 if($newloginerror) {
 	//increment the failed login counter
     $failedlogins += 1;
-    $sql = "update {$tbl_user_attributes} SET failedlogincount='$failedlogins' where internalKey=$internalKey";
-    $rs = $modx->db->query($sql);
+    $rs = $modx->db->update(array('failedlogincount'=>$failedlogins), $tbl_user_attributes, "internalKey='{$internalKey}'");
     if($failedlogins>=$failed_allowed) {
 		//block user for too many fail attempts
-        $sql = "update {$tbl_user_attributes} SET blockeduntil='".(time()+($blocked_minutes*60))."' where internalKey=$internalKey";
-        $rs = $modx->db->query($sql);
+		$blockeduntil = time()+($blocked_minutes*60);
+        $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), $tbl_user_attributes, "internalKey='{$internalKey}'");
     } else {
 		//sleep to help prevent brute force attacks
         $sleep = (int)$failedlogins/2;
@@ -218,7 +217,7 @@ $_SESSION['mgrInternalKey'] = $internalKey;
 $_SESSION['mgrFailedlogins'] = $failedlogins;
 $_SESSION['mgrLogincount'] = $nrlogins; // login count
 $_SESSION['mgrRole'] = $role;
-$rs = $modx->db->select('* ',$tbl_user_roles,"id={$role}");
+$rs = $modx->db->select('* ',$tbl_user_roles,"id='{$role}'");
 $row = $modx->db->getRow($rs);
 $_SESSION['mgrPermissions'] = $row;
 
