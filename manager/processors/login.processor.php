@@ -161,6 +161,12 @@ $rt = $modx->invokeEvent("OnManagerAuthentication",
                             "rememberme"    => $rememberme
                         ));
 
+$decoded_uri = urldecode($_SERVER['REQUEST_URI']);
+if(strpos($decoded_uri,"'")!==false) {
+	jsAlert("This is illegal login.");
+	return;
+}
+
 // check if plugin authenticated the user
 if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt))) {
     // check user password - local authentication
