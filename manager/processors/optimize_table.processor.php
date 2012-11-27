@@ -1,4 +1,4 @@
-<?php 
+<?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 if(!($modx->hasPermission('settings') && ($modx->hasPermission('logs')||$modx->hasPermission('bk_manager')))) {
 	$e->setError(3);

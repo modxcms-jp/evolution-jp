@@ -1,8 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('exec_module')) {	
+if(!$modx->hasPermission('exec_module')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 
 if(isset($_REQUEST['id'])) {

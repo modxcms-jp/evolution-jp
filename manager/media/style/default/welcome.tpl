@@ -7,7 +7,7 @@
 
 		<!-- home tab -->
 		<div class="tab-page" id="tabhome" style="padding-left:0; padding-right:0;">
-[+OnManagerWelcomePrerender+]			
+[+OnManagerWelcomePrerender+]
 			<h2 class="tab">[+site_name+]</h2>
 			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabhome" ) );</script>
 			<div class="sectionHeader">[+welcome_title+]</div>

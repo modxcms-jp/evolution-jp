@@ -1,9 +1,9 @@
-<?php 
+<?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if(!$modx->hasPermission('new_plugin')) {	
+if(!$modx->hasPermission('new_plugin')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 $id=$_GET['id'];
 

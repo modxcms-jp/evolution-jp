@@ -8,26 +8,28 @@ $id=intval($_GET['id']);
 $tbl_site_snippets = $modx->getFullTableName('site_snippets');
 
 // invoke OnBeforeSnipFormDelete event
-$modx->invokeEvent("OnBeforeSnipFormDelete",
+$modx->invokeEvent('OnBeforeSnipFormDelete',
 						array(
-							"id"	=> $id
+							'id' => $id
 						));
 
 //ok, delete the snippet.
 $rs = $modx->db->delete($tbl_site_snippets,"id='{$id}'");
-if(!$rs) {
+if(!$rs)
+{
 	echo "Something went wrong while trying to delete the snippet...";
 	exit;
-} else {
-		// invoke OnSnipFormDelete event
-		$modx->invokeEvent("OnSnipFormDelete",
-								array(
-									"id"	=> $id
-								));
+}
+else
+{
+	// invoke OnSnipFormDelete event
+	$modx->invokeEvent('OnSnipFormDelete',
+							array(
+								"id"	=> $id
+							));
 
-		// empty cache
-		$modx->clearCache(); // first empty the cache
-		// finished emptying cache - redirect
+	// empty cache
+	$modx->clearCache();
 
-	header("Location: index.php?a=76");
+	header('Location: index.php?a=76');
 }

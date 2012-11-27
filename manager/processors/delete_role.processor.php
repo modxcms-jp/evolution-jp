@@ -28,7 +28,7 @@ $rs = $modx->db->select('count(id)',$tbl_user_attributes,"role={$id}");
 if(!$rs) {
 	echo "Something went wrong while trying to find users with this role...";
 	exit;
-} 
+}
 if($modx->db->getValue($rs)>0){
 	echo "There are users with this role. It can't be deleted.";
 	exit;

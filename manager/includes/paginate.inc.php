@@ -73,7 +73,7 @@ class Paging {
     }
     
     if( ( $this->int_nbr_row - $this->int_cur_position ) > $this->int_num_result ){
-      $int_new_position = $this->int_cur_position + $this->int_num_result;	
+      $int_new_position = $this->int_cur_position + $this->int_num_result;
       $paging['last_link'] = '<a href="' . $this->script_name . '?int_cur_position=' . $this->int_nbr_row.$this->str_ext_argv . '">';
       $paging['next_link'] = '<a href="' . $this->script_name . '?int_cur_position='. $int_new_position . $this->str_ext_argv . '">';
     }

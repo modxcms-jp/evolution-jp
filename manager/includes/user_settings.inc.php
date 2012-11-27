@@ -5,7 +5,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 if (isset($modx))                          $user_id = $modx->getLoginUserID();
 elseif(isset($_SESSION['mgrInternalKey'])) $user_id = $_SESSION['mgrInternalKey'];
 else                                       $user_id = '';
-
 // END HACK
 
 if (!empty($user_id))
@@ -23,6 +22,5 @@ if (!empty($user_id))
 			$modx->config[$row['setting_name']] = $row['setting_value'];
 		}
 	}
-	
 	extract($settings, EXTR_OVERWRITE);
 }

@@ -1,8 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('delete_template')) {	
+if(!$modx->hasPermission('delete_template')) {
 	$e->setError(3);
-	$e->dumpError();	
+	$e->dumpError();
 }
 $id=intval($_GET['id']);
 $tbl_site_content           = $modx->getFullTableName('site_content');
@@ -27,27 +27,30 @@ if($id==$default_template) {
 }
 
 // invoke OnBeforeTempFormDelete event
-$modx->invokeEvent("OnBeforeTempFormDelete",
+$modx->invokeEvent('OnBeforeTempFormDelete',
 						array(
-							"id"	=> $id
+							'id' => $id
 						));
 						
 //ok, delete the document.
 $rs = $modx->db->delete($tbl_site_templates,"id='{$id}'");
-if(!$rs) {
+if(!$rs)
+{
 	echo "Something went wrong while trying to delete the template...";
 	exit;
-} else {
+}
+else
+{
 	$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
 			
 	// invoke OnTempFormDelete event
-	$modx->invokeEvent("OnTempFormDelete",
+	$modx->invokeEvent('OnTempFormDelete',
 							array(
-								"id"	=> $id
+								'id' => $id
 							));
 
 	// empty cache
-	$modx->clearCache(); // first empty the cache		
-	// finished emptying cache - redirect
-	header("Location: index.php?a=76");
+	$modx->clearCache();
+	
+	header('Location: index.php?a=76');
 }
