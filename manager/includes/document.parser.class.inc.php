@@ -832,7 +832,7 @@ class DocumentParser {
 		
 		if(is_file($cpath)) $included= include_once ($cpath);
 		
-		if(!isset($included) || !is_array($this->config) || empty ($this->config))
+		if(!isset($included)||!$included)
 		{
 			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
 			$cache = new synccache();
@@ -852,22 +852,17 @@ class DocumentParser {
 			if(is_file($cpath))
 			{
 				$config = @include_once($cpath);
-				if($config) $this->config = $config;
+				if(isset($config) && is_array($config)) $this->config = $config;
 			}
-			if(!isset($config) || !is_array($this->config) || empty ($this->config))
+			if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 			{
-				include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
-				$cache = new synccache();
-				$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-				$cache->setReport(false);
-				$rebuilt = $cache->buildCache($this);
-				$included = false;
-				if($rebuilt && is_file($cpath))
+				$this->clearCache();
+				if(is_file($cpath))
 				{
 					$config = @include_once($cpath);
-					$this->config = $config;
+					if(isset($config) && is_array($config)) $this->config = $config;
 				}
-				if(!$config || !$this->config)
+				if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 				{
 					$result= $this->db->select('setting_name, setting_value',$this->getFullTableName('system_settings'));
 					while ($row= $this->db->getRow($result, 'both'))
