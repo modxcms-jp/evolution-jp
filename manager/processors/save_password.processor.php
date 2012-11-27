@@ -28,8 +28,6 @@ else
 			"userpassword" => $userinfo['password']
 		));
 	}
-	if($_SESSION['mgrForgetPassword']) unset($_SESSION['mgrForgetPassword']);
-	$_SESSION['onetime_msg'] = '<p class="success">' . $_lang["change_password_success"] . '</p>';
 }
 $_SESSION['onetime_msg'] = $msg;
 header("Location: index.php?a=28");

@@ -7,7 +7,7 @@
  * @category 	plugin
  * @version 	1.1.8
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender 
+ * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender,OnManagerChangePassword 
  * @internal	@modx_category Manager and Admin
  * @internal    @installset base
  */
@@ -230,4 +230,9 @@ if($event_name == 'OnManagerAuthentication' && $hash && $username)
 	}
 	else $output = false;
 	$modx->event->output($output);
+}
+
+if($event_name == 'OnManagerChangePassword' && isset($_SESSION['mgrForgetPassword']))
+{
+	unset($_SESSION['mgrForgetPassword']);
 }
