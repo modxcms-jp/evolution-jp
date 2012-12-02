@@ -45,13 +45,13 @@ EOD;
 		}
 		
 		/* Get user info including a hash unique to this user, password, and day */
-		function getUser($username='', $email='', $hash='')
+		function getUser($username='', $email='', $key='')
 		{
 			global $modx, $_lang;
 			
 			$username = $modx->db->escape($username);
 			$email    = $modx->db->escape($email);
-			$hash     = $modx->db->escape($hash);
+			$key      = $modx->db->escape($key);
 			
 			$tbl_manager_users   = $modx->getFullTableName('manager_users');
 			$tbl_user_attributes = $modx->getFullTableName('user_attributes');
@@ -61,15 +61,14 @@ EOD;
 			$where = '';
 			$user = null;
 			
-			if(!empty($username))  { $wheres[] = "usr.username = '{$username}'"; }
-			if(!empty($username))  { $wheres[] = "usr.username = '{$username}'"; }
-			if(!empty($email))     { $wheres[] = "attr.email = '{$email}'"; }
-			if(!empty($hash))      { $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$hash}'"; } 
+			if(!empty($username)) { $wheres[] = "usr.username = '{$username}'"; }
+			if(!empty($email))    { $wheres[] = "attr.email = '{$email}'"; }
+			if(!empty($key))      { $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'"; } 
 			
 			if($wheres)
 			{
 				$where = implode(' AND ',$wheres);
-				$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS hash";
+				$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS key";
 				$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
 				if($result = $modx->db->select($field,$from,$where,'',1))
 				{
@@ -102,7 +101,7 @@ EOD;
 			$body = <<< EOT
 {$_lang['forgot_password_email_intro']}
 
-{$modx->config['site_url']}manager/index.php?name={$user['username']}&hash={$user['hash']}{$captcha}
+{$modx->config['site_url']}manager/index.php?name={$user['username']}&key={$user['key']}{$captcha}
 {$_lang['forgot_password_email_link']}
 
 {$_lang['forgot_password_email_instructions']}
@@ -172,10 +171,10 @@ $event_name = $modx->event->name;
 $action   = (empty($_GET['action'])   ? ''    : $_GET['action']);
 $username = (empty($_GET['username']) ? false : $_GET['username']);
 $to       = (empty($_GET['email'])    ? ''    : $_GET['email']);
-$hash     = (empty($_GET['hash'])     ? false : $_GET['hash']);
+$key      = (empty($_GET['key'])      ? false : $_GET['key']);
 $forgot   = new ForgotManagerPassword();
 
-if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['hash']) && isset($_GET['name']))
+if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['key']) && isset($_GET['name']))
 {
 	if($modx->config['use_captcha']==='1')
 	{
@@ -183,7 +182,7 @@ if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['hash']) && isset
 	}
 	else $captcha = '';
 
-	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$_GET['name']}&hash={$hash}{$captcha}";
+	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$_GET['name']}&key={$key}{$captcha}";
 	header("Location:{$url}");
 	exit;
 }
@@ -210,19 +209,19 @@ if($event_name == 'OnManagerLoginFormRender')
 	$modx->event->output($output);
 }
 
-if($event_name == 'OnBeforeManagerLogin' && $hash && $username)
+if($event_name == 'OnBeforeManagerLogin' && $key && $username)
 {
-	$user = $forgot->getUser('', '', $hash);
+	$user = $forgot->getUser('', '', $key);
 	if($user && is_array($user) && !$forgot->errors)
 	{
 		$forgot->unblockUser($user['id']);
 	}
 }
 
-if($event_name == 'OnManagerAuthentication' && $hash && $username)
+if($event_name == 'OnManagerAuthentication' && $key && $username)
 {
 	$_SESSION['mgrForgetPassword'] = '1';
-	$user = $forgot->getUser('', '', $hash);
+	$user = $forgot->getUser('', '', $key);
 	if($user !== null && count($forgot->errors) == 0)
 	{
 		if(isset($_GET['captcha_code'])) $_SESSION['veriword'] = $_GET['captcha_code'];
