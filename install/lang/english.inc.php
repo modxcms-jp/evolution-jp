@@ -198,3 +198,4 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 $_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
 $_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/assets/backup</span> directory is writable: ';
 $_lang['no_update_options'] = 'There is no option for update.';
+$_lang["begin_install_msg"] = '<p>MODx is not currently installed or the configuration file cannot be found.</p><p>Do you want to install now?</p>';

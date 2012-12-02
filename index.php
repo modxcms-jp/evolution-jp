@@ -109,14 +109,19 @@ require_once("{$core_path}initialize.inc.php");
 // get the required includes
 if (!isset($database_type))
 {
-    $conf_path = "{$core_path}config.inc.php";
-    if (is_file($conf_path)) include_once($conf_path);
-    
-    if ((!isset($lastInstallTime) || empty($lastInstallTime)))
-    { // Be sure config.inc.php is there and that it contains some important values
-        show_install();
-        exit;
-    }
+	$conf_path = "{$core_path}config.inc.php";
+	if (is_file($conf_path)) include_once($conf_path);
+	
+	if ((!isset($lastInstallTime) || empty($lastInstallTime)))
+	{
+		if(is_file("{$base_path}install/index.php"))
+		{
+			header('Location: install/index.php?action=invite');
+		}
+		else echo 'Not installed.';
+		
+		exit;
+	}
 }
 
 set_parser_mode();

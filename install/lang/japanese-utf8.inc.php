@@ -206,3 +206,4 @@ $_lang['checking_if_temp_writable'] = '<span class="mono">/temp</span>ディレ�
 
 $_lang["welcome_message_upd_text"] = 'MODXのアップデートは簡単。インストーラの説明に従って進めてください。';
 $_lang["welcome_message_upd_welcome"] = 'MODXのアップデートを開始します。';
+$_lang["begin_install_msg"] = '<p>MODXがインストールされていないか設定ファイルが見つかりません。</p><p>今すぐインストールしますか？</p>';

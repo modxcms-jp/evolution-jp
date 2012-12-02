@@ -14,6 +14,14 @@ if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_sybase', 0);
 }
 header("Content-Type: text/html; charset=utf-8");
+
+$action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'language';
+if($action==='invite')
+{
+	invite();
+	exit;
+}
+
 // start session
 session_start();
 $_SESSION['test'] = 1;
@@ -98,8 +106,6 @@ $errors= 0;
 
 // get post back status
 $isPostBack = (count($_POST));
-
-$action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'language';
 
 ob_start();
 include ("{$installer_path}header.php");
