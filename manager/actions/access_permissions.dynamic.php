@@ -95,12 +95,12 @@ if ($modx->db->getRecordCount($rs) < 1) {
 
 				// display the current user group with a rename/delete form
 				echo '<li><form method="post" action="index.php" name="accesspermissions" style="margin-top: 0.5em;" enctype="multipart/form-data">'."\n".
-				     "\t".'<input type="hidden" name="a" value="41" />'."\n".
-				     "\t".'<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
-				     "\t".'<input type="hidden" name="operation" value="rename_user_group" />'."\n".
-				     "\t".'<input type="text" name="newgroupname" value="'.htmlspecialchars($row['name']).'" />&nbsp;'."\n".
-				     "\t".'<input type="submit" value="'.$_lang['rename'].'" />&nbsp;'."\n".
-				     "\t".'<input type="button" value="'.$_lang['delete'].'" onclick="document.location.href=\'index.php?a=41&usergroup='.$row['id'].'&operation=delete_user_group\';" />'."\n".
+				     '<input type="hidden" name="a" value="41" />'."\n".
+				     '<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
+				     '<input type="hidden" name="operation" value="rename_user_group" />'."\n".
+				     '<input type="text" name="newgroupname" value="'.htmlspecialchars($row['name']).'" />&nbsp;'."\n".
+				     '<input type="submit" value="'.$_lang['rename'].'" />&nbsp;'."\n".
+				     '<input type="button" value="'.$_lang['delete'].'" onclick="document.location.href=\'index.php?a=41&usergroup='.$row['id'].'&operation=delete_user_group\';" />'."\n".
 				     '</form>';
 
 				echo "<ul>\n";
@@ -156,9 +156,9 @@ if ($modx->db->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
 		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">'."\n".
-		     "\t".'<thead>'."\n".
-		     "\t".'<tr><td><b>'.$_lang['access_permissions_resource_groups'].'</b></td></tr>'."\n".
-		     "\t".'</thead>'."\n";
+		     '<thead>'."\n".
+		     '<tr><td><b>'.$_lang['access_permissions_resource_groups'].'</b></td></tr>'."\n".
+		     '</thead>'."\n";
 		$pid = '';
 		while ($row = $modx->db->getRow($rs))
 		{
@@ -167,12 +167,12 @@ if ($modx->db->getRecordCount($rs) < 1) {
 				if ($pid != '') echo "</td></tr>\n"; // close previous one
 
 				echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">'."\n".
-				     "\t".'<input type="hidden" name="a" value="41" />'."\n".
-				     "\t".'<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
-				     "\t".'<input type="hidden" name="operation" value="rename_document_group" />'."\n".
-				     "\t".'<input type="text" name="newgroupname" value="'.htmlspecialchars($row['name']).'">&nbsp;'."\n".
-				     "\t".'<input type="submit" value="'.$_lang['rename'].'">'."\n".
-				     "\t".'<input type="button" value="'.$_lang['delete'].'" onclick="document.location.href=\'index.php?a=41&documentgroup='.$row['id'].'&operation=delete_document_group\';" />'."\n".
+				     '<input type="hidden" name="a" value="41" />'."\n".
+				     '<input type="hidden" name="groupid" value="'.$row['id'].'" />'."\n".
+				     '<input type="hidden" name="operation" value="rename_document_group" />'."\n".
+				     '<input type="text" name="newgroupname" value="'.htmlspecialchars($row['name']).'">&nbsp;'."\n".
+				     '<input type="submit" value="'.$_lang['rename'].'">'."\n".
+				     '<input type="button" value="'.$_lang['delete'].'" onclick="document.location.href=\'index.php?a=41&documentgroup='.$row['id'].'&operation=delete_document_group\';" />'."\n".
 				     '</form>';
 
 				echo '</td></tr><tr><td class="row2">'.$_lang['access_permissions_resources_in_group'].' ';

@@ -230,8 +230,8 @@ for ($i = 0; $i < $limit; $i++) {
 	else    $table_string = '';
 
 	echo '<tr bgcolor="'.$bgcolor.'" title="'.$db_status['Comment'].'" style="cursor:default">'."\n".
-	     "\t\t\t\t".'<td><label><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></label></td>'."\n".
-	     "\t\t\t\t".'<td align="right">'.$db_status['Rows'].'</td>'."\n";
+	     '<td><label><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></label></td>'."\n".
+	     '<td align="right">'.$db_status['Rows'].'</td>'."\n";
 	echo '<td align="right">'.$db_status['Collation'].'</td>'."\n";
 
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
@@ -240,15 +240,15 @@ for ($i = 0; $i < $limit; $i++) {
 		$table_prefix.'manager_log',
 	);
 	if($modx->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
-		echo "\t\t\t\t".'<td dir="ltr" align="right">'.
+		echo '<td dir="ltr" align="right">'.
 		     '<a href="index.php?a=54&mode='.$action.'&u='.$db_status['Name'].'" title="'.$_lang['truncate_table'].'">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</a>'.
 		     '</td>'."\n";
 	} else {
-		echo "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</td>'."\n";
+		echo '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</td>'."\n";
 	}
 
 	if($modx->hasPermission('settings')) {
-		echo "\t\t\t\t".'<td align="right">'.($db_status['Data_free'] > 0 ?
+		echo '<td align="right">'.($db_status['Data_free'] > 0 ?
 		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'">'.$modx->nicesize($db_status['Data_free']).'</a>' :
 		     '-').
 		     '</td>'."\n";
@@ -256,10 +256,10 @@ for ($i = 0; $i < $limit; $i++) {
 		echo '<td align="right">'.($db_status['Data_free'] > 0 ? $modx->nicesize($db_status['Data_free']) : '-').'</td>'."\n";
 	}
 
-	echo "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']-$db_status['Data_free']).'</td>'."\n".
-	     "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']).'</td>'."\n".
-	     "\t\t\t\t".'<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']+$db_status['Data_length']+$db_status['Data_free']).'</td>'."\n".
-	     "\t\t\t</tr>";
+	echo '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']-$db_status['Data_free']).'</td>'."\n".
+	     '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']).'</td>'."\n".
+	     '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']+$db_status['Data_length']+$db_status['Data_free']).'</td>'."\n".
+	     "</tr>";
 
 	$total = $total+$db_status['Index_length']+$db_status['Data_length'];
 	$totaloverhead = $totaloverhead+$db_status['Data_free'];
