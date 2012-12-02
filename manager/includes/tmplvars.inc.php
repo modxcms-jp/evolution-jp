@@ -71,7 +71,7 @@
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
 				while (list($label, $item) = each ($index_list))
 				{
-					list($label,$value) = splitOption($label, $item);
+					list($label,$value) = splitOption($item);
 					$selected = ($value==$field_value) ?' selected="selected"':'';
 					$field_html .=  '<option value="'.htmlspecialchars($value).'"'.$selected.'>'.htmlspecialchars($label).'</option>';
 				}
@@ -83,7 +83,7 @@
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="' . $count . '">';	
 				while (list($label, $item) = each ($index_list))
 				{
-					list($label,$value) = splitOption($label, $item);
+					list($label,$value) = splitOption($item);
 					$selected = (isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
 					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected . '>'.htmlspecialchars($label).'</option>';
 				}
@@ -96,7 +96,7 @@
 				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" size="' . $count . '">';
 				while (list($label, $item) = each ($index_list))
 				{
-					list($label,$value) = splitOption($label, $item);
+					list($label,$value) = splitOption($item);
 					$selected = (isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
 					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected .'>'.htmlspecialchars($label).'</option>';
 				}
@@ -121,9 +121,9 @@
 				$field_value = !is_array($field_value) ? explode("||",$field_value) : $field_value;
 				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
 				static $i=0;
-				while (list($label, $item) = each ($index_list))
+				foreach ($index_list as $item)
 				{
-					list($label,$value) = splitOption($label, $item);
+					list($label,$value) = splitOption($item);
 					$checked = (isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
 					$value = htmlspecialchars($value);
 					$field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. $checked.' />'.$label.'</label>';
@@ -135,7 +135,7 @@
 				static $i=0;
 				while (list($label, $item) = each ($index_list))
 				{
-					list($label,$value) = splitOption($label, $item);
+					list($label,$value) = splitOption($item);
 					$checked = (isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
 					$value = htmlspecialchars($value);
 					$field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
@@ -284,11 +284,11 @@
 		return $output;
 	}
 	
-	function splitOption($label, $item)
+	function splitOption($value)
 	{
-		if(is_array($item))                list($label,$value) = $item;
-		elseif(strpos($item,'==')===false) $value = $label;
-		else                               list($label,$value) = explode('==',$item,2);
+		if(is_array($value))                list($label,$value) = $value;
+		elseif(strpos($value,'==')===false) $label = $value;
+		else                                list($label,$value) = explode('==',$value,2);
 		return array($label,$value);
 	}
 	
