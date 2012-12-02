@@ -451,7 +451,17 @@ while ($row = $modx->db->getRow($rs))
 	<input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();" />
 	<div><?php echo $_lang["user_photo_message"]; ?></div>
 	<div>
-	<img name="iphoto" src="<?php echo isset($_POST['photo']) ? MODX_SITE_URL . $_POST['photo'] : !empty($userdata['photo']) ? MODX_SITE_URL.$userdata['photo']: $_style['tx']; ?>" />
+<?php
+	if(isset($_POST['photo']))         $photo = $_POST['photo'];
+	elseif(!empty($userdata['photo'])) $photo = $userdata['photo'];
+	else                               $photo = $modx->config['base_url'] . 'manager/' . $_style['tx'];
+	
+	if(substr($photo,0,1)!=='/' && !preg_match('@^https?://@',$photo))
+	{
+		$photo = $modx->config['base_url'] . $photo;
+	}
+?>
+	<img name="iphoto" src="<?php echo $photo; ?>" />
 	</div>
 	</td>
 </tr>
