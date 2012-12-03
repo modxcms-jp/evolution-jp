@@ -253,7 +253,7 @@ if(count($extenders) > 0) {
             }
             
             if (file_exists($extender_path)){
-                include($extender_path);
+                include_once($extender_path);
             } else {
                 $modx->logEvent(1, 3, $extender . " " . $_lang['extender_does_not_exist'], "Ditto ".$ditto_version);
                 return $extender . " " . $_lang['extender_does_not_exist'];
