@@ -240,25 +240,31 @@ if (class_exists('ditto')) {
 }
 
 //---Initiate Extenders---------------------------------------------- //
-if (isset($tagData)) {
-    $extenders[] = "tagging";
+if (isset($tagData))
+{
+	$extenders[] = "tagging";
 }
-if(count($extenders) > 0) {
-    $extenders = array_unique($extenders);
-    foreach ($extenders as $extender) {
-            if(substr($extender, 0, 5) != "@FILE") {
-                $extender_path = $ditto_base."extenders/".$extender.".extender.inc.php";
-            } else {
-                $extender_path = $modx->config['base_path'].trim(substr($extender, 5));
-            }
-            
-            if (file_exists($extender_path)){
-                include_once($extender_path);
-            } else {
-                $modx->logEvent(1, 3, $extender . " " . $_lang['extender_does_not_exist'], "Ditto ".$ditto_version);
-                return $extender . " " . $_lang['extender_does_not_exist'];
-            }
-    }
+if(count($extenders) > 0)
+{
+	$extenders = array_unique($extenders);
+	foreach ($extenders as $extender)
+	{
+		if(substr($extender, 0, 5) != '@FILE')
+		{
+			$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
+		}
+		else
+		{
+			$extender_path = $modx->config['base_path'] . trim(substr($extender, 5));
+		}
+		
+		if (file_exists($extender_path)) include_once($extender_path);
+		else
+		{
+			$modx->logEvent(1, 3, "{$extender} {$_lang['extender_does_not_exist']}", "Ditto {$ditto_version}");
+			return "{$extender} {$_lang['extender_does_not_exist']}";
+		}
+	}
 }
 
 //---Parameters------------------------------------------------------- /*
