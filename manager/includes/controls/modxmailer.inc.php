@@ -41,26 +41,31 @@ class MODxMailer extends PHPMailer
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
 		
-		switch(strtolower($modx->config['manager_language']))
+		$this->charset = $modx->config['manager_language'];
+		if(isset($modx->config['mail_charset']) && !empty($modx->config['mail_charset']))
+		{
+			$this->charset = $modx->config['mail_charset'];
+		}
+		$this->charset = strtolower($this->charset);
+		
+		switch($this->charset)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
+			case 'japanese':
 				$this->CharSet     = 'ISO-2022-JP';
 				$this->Encoding    = '7bit';
 				$this->mb_language = 'Japanese';
 				$this->encode_header_method = 'mb_encode_mimeheader';
 				$this->IsHTML(false);
 				break;
-			case 'russian-utf8':
-				$this->CharSet     = 'UTF-8';
-				$this->Encoding    = 'base64';
-				$this->mb_language = 'UNI';
-				break;
 			case 'english':
 				$this->CharSet     = 'iso-8859-1';
 				$this->Encoding    = 'quoted-printable';
 				$this->mb_language = 'English';
 				break;
+			case 'utf8':
+			case 'utf-8':
 			default:
 				$this->CharSet     = 'UTF-8';
 				$this->Encoding    = 'base64';
@@ -80,7 +85,7 @@ class MODxMailer extends PHPMailer
 		global $modx;
 		if($this->encode_header_method=='mb_encode_mimeheader') return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
 		
-		switch(strtolower($modx->config['manager_language']))
+		switch($this->charset)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
@@ -97,7 +102,7 @@ class MODxMailer extends PHPMailer
 		
 		$org_body = $body;
 		
-		switch(strtolower($modx->config['manager_language']))
+		switch($this->charset)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
