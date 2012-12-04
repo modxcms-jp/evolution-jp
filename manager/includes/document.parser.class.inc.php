@@ -208,6 +208,7 @@ class DocumentParser {
 		}
 		elseif ($site_status===false)
 		{
+			header("Content-Type: text/html; charset={$this->config['modx_charset']}");
 			header('HTTP/1.0 503 Service Unavailable');
 			if (!$this->config['site_unavailable_page'])
 			{
