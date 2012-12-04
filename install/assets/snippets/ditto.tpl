@@ -249,7 +249,16 @@ if(count($extenders) > 0)
 	$extenders = array_unique($extenders);
 	foreach ($extenders as $extender)
 	{
-		if(substr($extender, 0, 5) != '@FILE')
+		$extender = trim($extender);
+		if(substr($extender, 0, 6) === '@CHUNK')
+		{
+			$chunk = $modx->getChunk(trim(substr($extender, 7)));
+		}
+		elseif($modx->getChunk($extender)!==false)
+		{
+			$chunk = $modx->getChunk($extender);
+		}
+		elseif(substr($extender, 0, 5) != '@FILE')
 		{
 			$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
 		}
@@ -258,7 +267,11 @@ if(count($extenders) > 0)
 			$extender_path = $modx->config['base_path'] . trim(substr($extender, 5));
 		}
 		
-		if (file_exists($extender_path)) include_once($extender_path);
+		if (isset($extender_path) && is_file($extender_path)) include_once($extender_path);
+		elseif(isset($chunk))
+		{
+			eval($chunk);
+		}
 		else
 		{
 			$modx->logEvent(1, 3, "{$extender} {$_lang['extender_does_not_exist']}", "Ditto {$ditto_version}");
