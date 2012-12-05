@@ -390,15 +390,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
 </script>
-
-<!--[if lt IE 7]>
-    <style type="text/css">
-      body { behavior: url(media/script/forIE/htcmime.php?file=csshover.htc) }
-      img { behavior: url(media/script/forIE/htcmime.php?file=pngbehavior.htc); }
-    </style>
-<![endif]-->
-
-
 </head>
 <body onclick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
 
