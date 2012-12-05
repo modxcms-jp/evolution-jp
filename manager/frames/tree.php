@@ -428,7 +428,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <?php
 $fieldtype = strpos($modx->config['resource_tree_node_name'], 'edon')!==false ? 'date' : 'str';
 if(isset($_REQUEST['tree_sortby']))  $_SESSION['tree_sortby']  = $_REQUEST['tree_sortby'];
-else                                 $_SESSION['tree_sortby']  = $modx->config['resource_tree_node_name'];
+else                                 $_SESSION['tree_sortby']  = ($fieldtype==='str') ? 'menuindex' : $modx->config['resource_tree_node_name'];
 if(isset($_REQUEST['tree_sortdir'])) $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
 else                                 $_SESSION['tree_sortdir'] = $fieldtype == 'date' ? 'DESC' : 'ASC';
 ?>
