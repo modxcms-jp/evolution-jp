@@ -66,6 +66,20 @@ if($_REQUEST['a']=='35')
 
 ?>
 <script type="text/javascript">
+$j(function(){
+	$j('#allcheck').click(function(){
+		if(this.checked)
+		{
+			$j('input.click:enabled').attr('checked','checked');
+			$j('input.set').val('1');
+		}
+		else
+		{
+			$j('input.click:enabled').removeAttr('checked');
+			$j('input.set').val('0');
+		}
+	});
+});
 function changestate(element) {
 	documentDirty=true;
 	currval = eval(element).value;
@@ -114,6 +128,7 @@ function deletedocument() {
   </tr>
 </table>
 </fieldset>
+<label><input type="checkbox" id="allcheck" /> Select all</label>
 <style type="text/css">
 label {display:block;}
 table td {vertical-align:top;}
@@ -305,12 +320,12 @@ table td {vertical-align:top;}
 <?php
 function render_form($name, $label, $status='')
 {
-	global $roledata;
+	global $modx,$roledata;
 	
 	$tpl = <<< EOT
 <label>
-	<input name="[+name+]check" type="checkbox" onclick="changestate(document.userform.[+name+])" [+checked+] [+status+]>
-	<input type="hidden" name="[+name+]" value="[+value+]">
+	<input name="[+name+]check" class="click" type="checkbox" onchange="changestate(document.userform.[+name+])" [+checked+] [+status+]>
+	<input type="hidden" class="[+set+]" name="[+name+]" value="[+value+]">
 	[+label+]
 </label>
 
@@ -321,7 +336,9 @@ EOT;
 	{
 		$checked = 'checked';
 		$value   = 1;
+		$set     = 'fix';
 	}
+	else $set = 'set';
 	
 	$output = $tpl;
 	$output = str_replace('[+name+]',    $name, $output);
@@ -329,5 +346,6 @@ EOT;
 	$output = str_replace('[+status+]',  $status, $output);
 	$output = str_replace('[+value+]',   $value, $output);
 	$output = str_replace('[+label+]',   $label, $output);
+	$output = str_replace('[+set+]',     $set, $output);
 	return $output;
 }
