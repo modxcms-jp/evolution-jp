@@ -5,7 +5,7 @@
  */
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-$parsedMessageString = "
+$str = "
 <html><head><title>MODx Content Manager $version &raquo; $release_date</title>
 <style>TD, BODY { font-size: 11px; font-family:verdana; }</style>
 <script type='text/javascript'>
@@ -19,19 +19,19 @@ $parsedMessageString = "
 </head><body>
 ";
 if($is_error) {
-	$parsedMessageString .= "<h3 style='color:red;background:#e0e0e0;padding:2px;'>&nbsp;MODx Parse Error </h3>
+	$str .= "<h3 style='color:red;background:#e0e0e0;padding:2px;'>&nbsp;MODx Parse Error </h3>
 	<table border='0' cellpadding='1' cellspacing='0'>
 	<tr><td colspan='3'>MODx encountered the following error while attempting to parse the requested resource:</td></tr>
 	<tr><td colspan='3'><b style='color:red;'>&laquo; $msg &raquo;</b></td></tr>";
 } else {
-	$parsedMessageString .= "<h3 style='color:#003399; background:#eeeeee;padding:2px;'>&nbsp;MODx Debug/ stop message </h3>
+	$str .= "<h3 style='color:#003399; background:#eeeeee;padding:2px;'>&nbsp;MODx Debug/ stop message </h3>
 	<table border='0' cellpadding='1' cellspacing='0'>
 	<tr><td colspan='3'>The MODx parser recieved the following debug/ stop message:</td></tr>
 	<tr><td colspan='3'><b style='color:#003399;'>&laquo; $msg &raquo;</b></td></tr>";
 }
 
 if(!empty($query)) {
-	$parsedMessageString .= "<tr><td colspan='3'><hr size='1' width='98%' style='color:#e0e0e0'/><b style='color:#999;font-size: 9px;border-left:1px solid #c0c0c0; margin-left:10px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b><hr size='1' width='98%' style='color:#e0e0e0'/>
+	$str .= "<tr><td colspan='3'><hr size='1' width='98%' style='color:#e0e0e0'/><b style='color:#999;font-size: 9px;border-left:1px solid #c0c0c0; margin-left:10px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL:&nbsp;<span id='sqlHolder'>$query</span></b><hr size='1' width='98%' style='color:#e0e0e0'/>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:copyToClip();' style='color:#821517;font-size: 9px; text-decoration: none'>[Copy SQL to ClipBoard]</a><textarea id='holdtext' style='display:none;'></textarea></td></tr>";
 }
 
@@ -51,45 +51,43 @@ if($text!='') {
 		E_USER_NOTICE    => "User Notice",
 	);
 
-	$parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
+	$str .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 
-	$parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
-	$parsedMessageString .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
-	$parsedMessageString .= "</tr>";
+	$str .= "<tr><td valign='top'>&nbsp;&nbsp;Error: </td>";
+	$str .= "<td colspan='2'>$text</td><td>&nbsp;</td>";
+	$str .= "</tr>";
 
-	$parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
-	$parsedMessageString .= "<td colspan='2'>".$errortype[$nr]." - $nr</b></td><td>&nbsp;</td>";
-	$parsedMessageString .= "</tr>";
+	$str .= "<tr><td valign='top'>&nbsp;&nbsp;Error type/ Nr.: </td>";
+	$str .= "<td colspan='2'>".$errortype[$nr]." - $nr</b></td><td>&nbsp;</td>";
+	$str .= "</tr>";
 
-	$parsedMessageString .= "<tr><td>&nbsp;&nbsp;File: </td>";
-	$parsedMessageString .= "<td colspan='2'>$file</td><td>&nbsp;</td>";
-	$parsedMessageString .= "</tr>";
+	$str .= "<tr><td>&nbsp;&nbsp;File: </td>";
+	$str .= "<td colspan='2'>$file</td><td>&nbsp;</td>";
+	$str .= "</tr>";
 
-	$parsedMessageString .= "<tr><td>&nbsp;&nbsp;Line: </td>";
-	$parsedMessageString .= "<td colspan='2'>$line</td><td>&nbsp;</td>";
-	$parsedMessageString .= "</tr>";
+	$str .= "<tr><td>&nbsp;&nbsp;Line: </td>";
+	$str .= "<td colspan='2'>$line</td><td>&nbsp;</td>";
+	$str .= "</tr>";
 	if($source!='') {
-		$parsedMessageString .= "<tr><td valign='top'>&nbsp;&nbsp;Line $line source: </td>";
-		$parsedMessageString .= "<td colspan='2'>$source</td><td>&nbsp;</td>";
-		$parsedMessageString .= "</tr>";
+		$str .= "<tr><td valign='top'>&nbsp;&nbsp;Line $line source: </td>";
+		$str .= "<td colspan='2'>$source</td><td>&nbsp;</td>";
+		$str .= "</tr>";
 	}
 }
 
-$parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>Parser timing</b></td></tr>";
+$str .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>Parser timing</b></td></tr>";
 
-$parsedMessageString .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
-$parsedMessageString .= "<td><i>[[^qt]] s</i></td><td>(<i>[[^q]] Requests</i>)</td>";
-$parsedMessageString .= "</tr>";
+$str .= "<tr><td>&nbsp;&nbsp;MySQL: </td>";
+$str .= "<td><i>[[^qt]] s</i></td><td>(<i>[[^q]] Requests</i>)</td>";
+$str .= "</tr>";
 
-$parsedMessageString .= "<tr><td>&nbsp;&nbsp;PHP: </td>";
-$parsedMessageString .= "<td><i>[[^p]] s</i></td><td>&nbsp;</td>";
-$parsedMessageString .= "</tr>";
+$str .= "<tr><td>&nbsp;&nbsp;PHP: </td>";
+$str .= "<td><i>[[^p]] s</i></td><td>&nbsp;</td>";
+$str .= "</tr>";
 
-$parsedMessageString .= "<tr><td>&nbsp;&nbsp;Total: </td>";
-$parsedMessageString .= "<td><i>[[^t]] s</i></td><td>&nbsp;</td>";
-$parsedMessageString .= "</tr>";
+$str .= "<tr><td>&nbsp;&nbsp;Total: </td>";
+$str .= "<td><i>[[^t]] s</i></td><td>&nbsp;</td>";
+$str .= "</tr>";
 
-$parsedMessageString .= "</table>";
-$parsedMessageString .= "</body></html>";
-
-?>
+$str .= "</table>";
+$str .= "</body></html>";

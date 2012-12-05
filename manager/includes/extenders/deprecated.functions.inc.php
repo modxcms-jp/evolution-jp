@@ -70,7 +70,7 @@ function mergeDocumentMETATags($template) {
         $keywords = $modx->getKeywords();
         if (is_array($keywords) && count($keywords) > 0) {
             $keywords = implode(", ", $keywords);
-            $metas= "\t<meta name=\"keywords\" content=\"$keywords\" />\n";
+            $metas= "\t<meta name=\"keywords\" content=\"{$keywords}\" />\n";
         }
 
     // Don't process when cached
@@ -83,7 +83,7 @@ function mergeDocumentMETATags($template) {
             $tag= strtolower($col['tag']);
             $tagvalue= $col['tagvalue'];
             $tagstyle= $col['http_equiv'] ? 'http-equiv' : 'name';
-            $metas .= "\t<meta $tagstyle=\"$tag\" content=\"$tagvalue\" />\n";
+            $metas .= "\t<meta {$tagstyle}=\"{$tag}\" content=\"{$tagvalue}\" />\n";
         }
 
     // Don't process when cached
@@ -153,13 +153,13 @@ function getKeywords($id= 0) {
     }
     $tblKeywords= $modx->getFullTableName('site_keywords');
     $tblKeywordXref= $modx->getFullTableName('keyword_xref');
-    $sql= "SELECT keywords.keyword FROM " . $tblKeywords . " AS keywords INNER JOIN " . $tblKeywordXref . " AS xref ON keywords.id=xref.keyword_id WHERE xref.content_id = '$id'";
-    $result= $modx->db->query($sql);
+    $from = "{$tblKeywords} AS keywords INNER JOIN {$tblKeywordXref} AS xref ON keywords.id=xref.keyword_id";
+    $result= $modx->db->select('keywords.keyword',$from,"xref.content_id = '{$id}'");
     $limit= $modx->db->getRecordCount($result);
     $keywords= array ();
     if ($limit > 0) {
-        for ($i= 0; $i < $limit; $i++) {
-            $row= $modx->db->getRow($result);
+        while($row= $modx->db->getRow($result))
+        {
             $keywords[]= $row['keyword'];
         }
     }
