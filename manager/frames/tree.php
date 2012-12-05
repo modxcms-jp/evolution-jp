@@ -435,16 +435,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 <div id="floater">
 <?php
+$fieldtype = strpos($modx->config['resource_tree_node_name'], 'edon')!==false ? 'date' : 'str';
 if(isset($_REQUEST['tree_sortby']))  $_SESSION['tree_sortby']  = $_REQUEST['tree_sortby'];
-else                                 $_SESSION['tree_sortby']  = 'menuindex';
+else                                 $_SESSION['tree_sortby']  = $modx->config['resource_tree_node_name'];
 if(isset($_REQUEST['tree_sortdir'])) $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
-else                                 $_SESSION['tree_sortdir'] = 'ASC';
+else                                 $_SESSION['tree_sortdir'] = $fieldtype == 'date' ? 'DESC' : 'ASC';
 ?>
 <form name="sortFrm" id="sortFrm" action="menu.php">
 <table width="100%"  border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
         <select name="sortby" style="font-size: 12px;">
+            <option value="<?php echo $modx->config['resource_tree_node_name'];?>"></option>
             <option value="isfolder" <?php echo select($_SESSION['tree_sortby']=='isfolder');?>><?php echo $_lang['folder']; ?></option>
             <option value="pagetitle" <?php echo select($_SESSION['tree_sortby']=='pagetitle');?>><?php echo $_lang['pagetitle']; ?></option>
             <option value="id" <?php echo select($_SESSION['tree_sortby']=='id');?>><?php echo $_lang['id']; ?></option>

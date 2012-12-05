@@ -153,18 +153,34 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				$has_child = $modx->db->getRecordCount($result2);
 			}
 			
-			if($modx->config['resource_tree_node_name']==='menutitle') $nodetitle = $menutitle ? $menutitle : $pagetitle; //jp-edition only
-			elseif($modx->config['resource_tree_node_name']==='alias') 
+			$resource_tree_node_name = $modx->config['resource_tree_node_name'];
+			switch($resource_tree_node_name)
 			{
-				$nodetitle = $alias ? $alias : $id;
-				if((strpos($alias, '.') === false)
-				    || (isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']!=1))
-				{ // jp-edition only
-					$nodetitle .= $modx->config['friendly_url_suffix'];
-				}
-				$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
+				case 'menutitle':
+					$nodetitle = $menutitle ? $menutitle : $pagetitle;
+					break;
+				case 'alias':
+					$nodetitle = $alias ? $alias : $id;
+					if((strpos($alias, '.') === false) || ($modx->config['suffix_mode']!=1))
+					{
+						$nodetitle .= $modx->config['friendly_url_suffix'];
+					}
+					$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
+					break;
+				case 'pagetitle':
+					$nodetitle = $pagetitle;
+					break;
+				case 'createdon':
+				case 'editedon':
+				case 'publishedon':
+				case 'pub_date':
+				case 'unpub_date':
+					$doc = $modx->getDocumentObject('id',$id);
+					$date = $doc[$resource_tree_node_name];
+					if(!empty($date)) $nodetitle = $modx->toDateFormat($date);
+					else              $nodetitle = '- - -';
+					break;
 			}
-			else $nodetitle = $pagetitle;
 			
 			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
 			$protectedClass = $hasAccess==0 ? ' protectedNode' : '';
@@ -416,9 +432,23 @@ EOT;
 	{
 		if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir']))
 		{
+			global $modx;
+			
 			// This is the first startup, set default sort order
-			$_SESSION['tree_sortby'] = 'menuindex';
-			$_SESSION['tree_sortdir'] = 'ASC';
+			switch($modx->config['resource_tree_node_name'])
+			{
+				case 'createdon':
+				case 'editedon':
+				case 'publishedon':
+				case 'pub_date':
+				case 'unpub_date':
+					$_SESSION['tree_sortby'] = $modx->config['resource_tree_node_name'];
+					$_SESSION['tree_sortdir'] = 'DESC';
+					break;
+				default:
+					$_SESSION['tree_sortby'] = 'menuindex';
+					$_SESSION['tree_sortdir'] = 'ASC';
+			}
 		}
 		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
 		if(empty($orderby)) $orderby = 'menuindex ASC';
