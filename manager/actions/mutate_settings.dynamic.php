@@ -837,7 +837,7 @@ foreach($files as $file)
 	<select name="resource_tree_node_name" size="1" class="inputBox">
 <?php
 	$tpl = '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n";
-	$option = array('pagetitle','menutitle','alias','createdon','editedon','publishedon','pub_date','unpub_date');
+	$option = array('pagetitle','menutitle','alias','createdon','editedon','publishedon');
 	$output = array();
 	foreach($option as $v)
 	{
