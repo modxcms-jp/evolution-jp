@@ -473,12 +473,6 @@ while ($row = $modx->db->getRow($rs))
     	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabSettings" ) );</script>
         <table class="settings">
           <tr>
-            <th><?php echo $_lang["mgr_login_start"] ?></th>
-            <td ><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
-            <div><?php echo $_lang["mgr_login_start_message"] ?></div>
-            </td>
-          </tr>
-          <tr>
             <th><?php echo $_lang["allow_mgr_access"] ?></th>
             <td>
             	<label><input type="radio" name="allow_manager_access" value="1" <?php echo !isset($usersettings['allow_manager_access'])||$usersettings['allow_manager_access']==1 ? 'checked="checked"':'' ; ?> /> <?php echo $_lang['yes']; ?></label><br />
@@ -580,6 +574,12 @@ while ($row = $modx->db->getRow($rs))
 	<textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
 	&nbsp;&nbsp; <label><input type="checkbox" name="default_manager_inline_style" value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
 	<div><?php echo $_lang["a17_manager_inline_style_message"];?></div>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["mgr_login_start"] ?></th>
+	<td ><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
+	<div><?php echo $_lang["mgr_login_start_message"] ?></div>
 	</td>
 </tr>
 <tr>
