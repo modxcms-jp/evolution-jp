@@ -261,6 +261,7 @@ switch ($_POST['mode']) {
 			}
 			$updatepasswordsql = ", password=MD5('{$newpassword}') ";
 		}
+		else $updatepasswordsql = '';
 
 		// check if the username already exist
 		if (!$rs = $modx->db->select('id',$tbl_manager_users,"username='{$newusername}'")) {
@@ -297,31 +298,31 @@ switch ($_POST['mode']) {
 		));
 
 		// update user name and password
-		$sql = "UPDATE $tbl_manager_users SET username='{$newusername}' {$updatepasswordsql} WHERE id={$id}";
+		$sql = "UPDATE {$tbl_manager_users} SET username='{$newusername}' {$updatepasswordsql} WHERE id='{$id}'";
 		if (!$rs = $modx->db->query($sql)) {
 			webAlert("An error occurred while attempting to update the user's data.");
 			exit;
 		}
 
-		$sql = "UPDATE $tbl_user_attributes SET
-					fullname='" . $fullname . "',
-					role='$roleid',
-					email='$email',
-					phone='$phone',
-					mobilephone='$mobilephone',
-					fax='$fax',
-					zip='$zip' ,
-					state='$state',
-					country='$country',
-					gender='$gender',
-					dob='$dob',
-					photo='$photo',
-					comment='$comment',
-					failedlogincount='$failedlogincount',
-					blocked=$blocked,
-					blockeduntil='$blockeduntil',
-					blockedafter='$blockedafter'
-					WHERE internalKey=$id";
+		$sql = "UPDATE {$tbl_user_attributes} SET
+					fullname='{$fullname}',
+					role='{$roleid}',
+					email='{$email}',
+					phone='{$phone}',
+					mobilephone='{$mobilephone}',
+					fax='{$fax}',
+					zip='{$zip}' ,
+					state='{$state}',
+					country='{$country}',
+					gender='{$gender}',
+					dob='{$dob}',
+					photo='{$photo}',
+					comment='{$comment}',
+					failedlogincount='{$failedlogincount}',
+					blocked={$blocked},
+					blockeduntil='{$blockeduntil}',
+					blockedafter='{$blockedafter}'
+					WHERE internalKey='{$id}'";
 		if (!$rs = $modx->db->query($sql)) {
 			webAlert("An error occurred while attempting to update the user's attributes.");
 			exit;
@@ -536,7 +537,6 @@ function saveUserSettings($id)
 
 		$settings[$n] = $v; // this value should be saved
 	}
-
 	foreach ($defaults as $k)
 	{
 		if (isset($settings["default_{$k}"]) && $settings["default_{$k}"] == '1')
@@ -548,7 +548,7 @@ function saveUserSettings($id)
 
 	$tbl_user_settings = $modx->getFullTableName('user_settings');
 
-	$modx->db->delete($tbl_user_settings, "user={$id}");
+	$modx->db->delete($tbl_user_settings, "user='{$id}'");
 
 	$savethese = array();
 	foreach ($settings as $k => $v)
@@ -556,7 +556,6 @@ function saveUserSettings($id)
 		$v = $modx->db->escape($v);
 		$savethese[] = "({$id}, '{$k}', '{$v}')";
 	}
-
 	$values = implode(', ', $savethese);
 	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
 	$rs = $modx->db->query($sql);
