@@ -559,18 +559,17 @@ while ($row = $modx->db->getRow($rs))
 	<td> <select name="manager_theme" size="1" class="inputBox" onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
-	$dir = dir("media/style/");
-	while ($file = $dir->read())
+	$files = glob($base_path . 'manager/media/style/*/style.php');
+	foreach($files as $file)
 	{
-		if ($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file,0,1) != '.')
+		$file = str_replace('\\','/',$file);
+		if($file!="." && $file!=".." && substr($file,0,1) != '.')
 		{
-			$themename = $file;
-			$attr = 'value="'.$themename.'" ';
-			$attr .= selected(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']);
-			echo "\t\t<option ".rtrim($attr).'>'.ucwords(str_replace("_", " ", $themename))."</option>\n";
+			$themename = substr(dirname($file),strrpos(dirname($file),'/')+1);
+			$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
+			echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
 		}
 	}
-	$dir->close();
 ?>
 	</select><input type="hidden" name="theme_refresher" value="">
 	<div><?php echo $_lang["manager_theme_message"];?></div></td>
