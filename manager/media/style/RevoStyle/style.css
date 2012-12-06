@@ -480,7 +480,6 @@ ime-mode:disabled;
 	padding: 15px !important;
 }
 .sectionBody legend {
-	font-size: 1.2em;
 	font-weight: bold;
 	padding: 5px 15px;
 	background: #fff;
@@ -905,7 +904,7 @@ a.hometblink:hover {
 	cursor: pointer;
 	line-height: 25px;
 	overflow: hidden;
-	padding: 0 20px;
+	padding: 0 15px;
 	float: none !important;
 	float: left;
 	display: block;
