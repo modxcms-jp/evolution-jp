@@ -37,8 +37,10 @@ if($_POST['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===
 		}
 	}
 }
-if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
+$_POST['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$_POST['filemanager_path']);
+$_POST['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$_POST['rb_base_dir']);
 if(!file_exists($_POST['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
+if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
 if(0< count($warnings))
 {

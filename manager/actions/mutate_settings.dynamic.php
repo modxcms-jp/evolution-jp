@@ -38,6 +38,8 @@ if(setlocale(LC_CTYPE, 0)==='Japanese_Japan.932')
 	$settings['filemanager_path'] = mb_convert_encoding($settings['filemanager_path'], 'utf-8', 'sjis-win');
 	$settings['rb_base_dir']      = mb_convert_encoding($settings['rb_base_dir'], 'utf-8', 'sjis-win');
 }
+$settings['filemanager_path'] = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['filemanager_path']);
+$settings['rb_base_dir']      = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['rb_base_dir']);
 $settings = array_merge($settings, $_POST);
 
 extract($settings, EXTR_OVERWRITE);
@@ -996,7 +998,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 <th><?php echo $_lang["filemanager_path_title"]?></th>
 <td>
-<?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo $base_path; ?></span><br />
+<?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo '[(base_path)]'; ?></span> <?php echo "({$base_path})";?><br />
 <?php echo form_text('filemanager_path',$filemanager_path,255,'id="filemanager_path"');?>
 <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
 <?php echo $_lang["filemanager_path_message"]?></td>
@@ -1099,15 +1101,12 @@ if(empty($upload_maxsize))
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_dir_title"]?></th>
-<td><?php
-function getResourceBaseDir() {
-global $base_path;
-if(is_dir("{$base_path}content")) return "{$base_path}content/";
-else return "{$base_path}assets/";
-
-}
+<td>
+<?php
+	if(is_dir("{$base_path}content")) $default_rb_base_dir = 'content/';
+	else                              $default_rb_base_dir = 'assets/';
 ?>
-<?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
+<?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo "[(base_path)]{$default_rb_base_dir}";?></span> <?php echo "({$base_path}{$default_rb_base_dir})";?><br />
 <?php echo form_text('rb_base_dir',$rb_base_dir,255,'id="rb_base_dir"');?>
 <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
