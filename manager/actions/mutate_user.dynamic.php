@@ -648,29 +648,6 @@ while ($row = $modx->db->getRow($rs))
 <?php
 if ($use_udperms == 1)
 {
-	$groupsarray = array ();
-
-	if ($_GET['a'] == '12')
-	{ // only do this bit if the user is being edited
-		$tbl_member_groups = $modx->getFullTableName('member_groups');
-		$memberid = $_GET['id'];
-		$rs = $modx->db->select('*',$tbl_member_groups,"member={$memberid}" );
-		$limit = $modx->db->getRecordCount($rs);
-		for ($i = 0; $i < $limit; $i++)
-		{
-			$currentgroup = $modx->db->getRow($rs);
-			$groupsarray[$i] = $currentgroup['user_group'];
-		}
-	}
-
-	// retain selected doc groups between post
-	if (is_array($_POST['user_groups']))
-	{
-		foreach ($_POST['user_groups'] as $n => $v)
-		{
-			$groupsarray[] = $v;
-		}
-	}
 ?>
 <!-- Miscellaneous settings -->
 <div class="tab-page" id="tabPage7">
@@ -743,22 +720,45 @@ if ($use_udperms == 1)
 		<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
 		<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 		<div class="sectionBody">
-		<?php
-			echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-			$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
-			$rs = $modx->db->select('name, id',$tbl_membergroup_names,'','name');
-			$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
-			while($row = $modx->db->getRow($rs))
-			{
-				$src = $tpl;
-				$ph = array();
-				$ph['id'] = $row['id'];
-				$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
-				$ph['name'] = $row['name'];
-				$src = $modx->parsePlaceholder($src,$ph);
-				echo $src;
-			}
-		?>
+<?php
+	$groupsarray = array ();
+
+	if ($_GET['a'] == '12')
+	{ // only do this bit if the user is being edited
+		$tbl_member_groups = $modx->getFullTableName('member_groups');
+		$memberid = $_GET['id'];
+		$rs = $modx->db->select('*',$tbl_member_groups,"member='{$memberid}'" );
+		$limit = $modx->db->getRecordCount($rs);
+		for ($i = 0; $i < $limit; $i++)
+		{
+			$currentgroup = $modx->db->getRow($rs);
+			$groupsarray[$i] = $currentgroup['user_group'];
+		}
+	}
+
+	// retain selected doc groups between post
+	if (is_array($_POST['user_groups']))
+	{
+		foreach ($_POST['user_groups'] as $n => $v)
+		{
+			$groupsarray[] = $v;
+		}
+	}
+	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
+	$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
+	$rs = $modx->db->select('name, id',$tbl_membergroup_names,'','name');
+	$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
+	while($row = $modx->db->getRow($rs))
+	{
+		$src = $tpl;
+		$ph = array();
+		$ph['id'] = $row['id'];
+		$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
+		$ph['name'] = $row['name'];
+		$src = $modx->parsePlaceholder($src,$ph);
+		echo $src;
+	}
+?>
 		</div>
 	</div>
 <?php
