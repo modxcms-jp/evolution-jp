@@ -1135,7 +1135,7 @@ $_lang["mutate_settings.dynamic.php1"] = '標準モード';
 $_lang["mutate_settings.dynamic.php2"] = 'バイパスモード';
 $_lang["mutate_settings.dynamic.php3"] = 'キャッシュ無効';
 $_lang["mutate_settings.dynamic.php4"] = '個別の拡張子表現';
-$_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドット)を含む時にプレフィックスの追加を省略できます。';
+$_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドット)を含む時にサフィックスの追加を省略できます。';
 $_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メールで通知する';
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
 $_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)]([+emailsender+])に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
