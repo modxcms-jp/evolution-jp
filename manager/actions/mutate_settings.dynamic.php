@@ -26,7 +26,7 @@ if($limit>1) {
 // this will prevent user-defined settings from being saved as system setting
 
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
-extract($default_config, EXTR_SKIP);
+if(is_array($default_config)) extract($default_config, EXTR_SKIP);
 
 $settings = $modx->config;
 

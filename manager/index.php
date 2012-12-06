@@ -143,7 +143,7 @@ switch ($action) {
         break;
     default:
         $cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
-        if(file_exists($cache_path))
+        if(is_file($cache_path))
         {
             $role = unserialize(file_get_contents($cache_path));
             if($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']])
