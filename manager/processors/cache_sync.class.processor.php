@@ -326,7 +326,7 @@ class synccache {
 		{
 			$use_alias_path = $modx->db->getValue($modx->db->select('setting_value',$tbl_system_settings,"setting_name='use_alias_path'"));
 		}
-		$fields = "IF(alias='', id, alias) AS alias, id, parent";
+		$fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
 		$rs = $modx->db->select($fields,$tbl_site_content,'deleted=0','parent, menuindex');
 		$row = array();
 		$path = '';
@@ -343,8 +343,9 @@ class synccache {
 			$alias = $modx->db->escape($row['alias']);
 			$docid = $row['id'];
 			$path = $modx->db->escape($path);
-			$parent = $row['parent'];
-			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent);
+			$parent   = $row['parent'];
+			$isfolder = $row['isfolder'];
+			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent, 'isfolder' => $isfolder);
 			$modx->documentMap[] = array($parent => $docid);
 		}
 	}

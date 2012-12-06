@@ -516,6 +516,13 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
 <tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+	<th><?php echo $_lang['make_folders_title'] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('make_folders','1', $make_folders=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('make_folders','0', $make_folders=='0'));?><br />
+		<?php echo $_lang["make_folders_message"] ?></td>
+</tr>
+<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang['mutate_settings.dynamic.php4'];?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />

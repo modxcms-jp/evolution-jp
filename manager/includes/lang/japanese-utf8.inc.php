@@ -1238,3 +1238,6 @@ $_lang["profile"] = 'プロフィール';
 $_lang["default_role_title"] = 'デフォルトのロール';
 $_lang["default_role_message"] = 'ユーザ新規作成時のロール設定のデフォルト値';
 $_lang["change_password_success"] = 'パスワードを更新しました。';
+
+$_lang['make_folders_title'] = 'ディレクトリ表現';
+$_lang['make_folders_message'] = 'コンテナ属性のリソースのサフィックスをスラッシュ( / )にします。';

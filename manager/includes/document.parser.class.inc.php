@@ -2564,10 +2564,15 @@ class DocumentParser {
 				}
 			}
 			
-			if((strpos($alias, '.') !== false) && (isset($this->config['suffix_mode']) && $this->config['suffix_mode']==1))
+			if($al['isfolder']==='1' && $this->config['make_folders']==='1')
 			{
-				$f_url_suffix = ''; // jp-edition only
+				$f_url_suffix = '/';
 			}
+			elseif(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
+			{
+				$f_url_suffix = '';
+			}
+			
 			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix;
 		}
 		else

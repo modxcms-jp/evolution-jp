@@ -1236,3 +1236,6 @@ $_lang["profile"] = 'Profile';
 $_lang["default_role_title"] = 'Default role';
 $_lang["default_role_message"] = 'Default role at create the user settings';
 $_lang["change_password_success"] = 'Change password success!';
+
+$_lang['make_folders_title'] = 'Make end slash URL at the container';
+$_lang['make_folders_message'] = 'The slash to append to Resources set as containers when using FURLs.';

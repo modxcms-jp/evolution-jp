@@ -91,6 +91,7 @@ $default_config['websignupemail_message'] = $_lang['system_email_websignup'];
 $default_config['webpwdreminder_message'] = $_lang['system_email_webreminder'];
 
 $default_config['enable_bindings'] = '0';
+$default_config['make_folders']    = '1';
 
 if(!function_exists('mysql_set_charset'))
 {
