@@ -307,8 +307,8 @@ if (is_array($evtOut))
 				<br />
 				<fieldset style="width:300px">
 				<legend><b><?php echo $_lang['password_method']; ?></b></legend>
-				<label><input type=radio name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo $_lang['password_method_email']; ?></label><br />
-				<label><input type=radio name="passwordnotifymethod" value="s" <?php echo $_POST['passwordnotifymethod']=="e" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_method_screen']; ?></label>
+				<label><input type="radio" name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo $_lang['password_method_email']; ?></label><br />
+				<label><input type="radio" name="passwordnotifymethod" value="s" <?php echo $_POST['passwordnotifymethod']=="e" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_method_screen']; ?></label>
 				</fieldset>
 				</span>
 			</td>
@@ -356,7 +356,7 @@ else
 }
 $rs = $modx->db->select('name, id',$tbl_user_roles,$where,'save_role DESC, new_role DESC, id ASC');
 ?>
-		<select name="role" class="inputBox" style="width:300px">
+		<select name="role" class="inputBox">
 		<?php
 
 while ($row = $modx->db->getRow($rs))
@@ -411,7 +411,7 @@ while ($row = $modx->db->getRow($rs))
 <tr>
 	<th><?php echo $_lang['user_country']; ?>:</th>
 	<td>
-	<select size="1" name="country">
+	<select size="1" name="country" class="inputBox">
 	<?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
 	<option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
 <?php
@@ -426,13 +426,13 @@ while ($row = $modx->db->getRow($rs))
 	<tr>
 	<th><?php echo $_lang['user_dob']; ?>:</th>
 	<td>
-	<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur='documentDirty=true;'>
+	<input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur="documentDirty=true;">
 	<a onclick="document.userform.dob.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif"  border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang['user_gender']; ?>:</th>
-	<td><select name="gender">
+	<td><select name="gender" class="inputBox">
 	<option value=""></option>
 	<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
 	<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
@@ -556,7 +556,7 @@ while ($row = $modx->db->getRow($rs))
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["manager_theme"]?></th>
-	<td> <select name="manager_theme" size="1" class="inputBox" onchange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date())">
+	<td> <select name="manager_theme" size="1" class="inputBox" onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
 	$dir = dir("media/style/");
@@ -585,7 +585,7 @@ while ($row = $modx->db->getRow($rs))
 </tr>
 <tr>
 	<th><?php echo $_lang["language_title"] ?></th>
-	<td><select name="manager_language" size="1" class="inputBox" onchange="documentDirty=true">
+	<td><select name="manager_language" size="1" class="inputBox">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
 	$activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
@@ -611,7 +611,7 @@ while ($row = $modx->db->getRow($rs))
 <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["which_editor_title"]?></th>
 	<td>
-	<select name="which_editor">
+	<select name="which_editor" class="inputBox">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
 	$edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
