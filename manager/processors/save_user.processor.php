@@ -514,7 +514,8 @@ function saveUserSettings($id)
 		'blockedmode',
 		'stay',
 		'save',
-		'theme_refresher'
+		'theme_refresher',
+		'userid'
 	);
 
 	// determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
