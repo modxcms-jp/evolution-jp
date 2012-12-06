@@ -25,6 +25,9 @@ if($limit>1) {
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 
+$default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+extract($default_config, EXTR_SKIP);
+
 $settings = $modx->config;
 
 if ($modx->manager->hasFormValues()) {
