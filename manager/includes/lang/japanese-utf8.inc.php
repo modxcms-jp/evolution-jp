@@ -1139,7 +1139,7 @@ $_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドッ�
 $_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メールで通知する';
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
 $_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)]([+emailsender+])に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
-$_lang["save_user.processor.php1"] = '変更したロールの権限設定を読み込むために、再ログインしてください。';
+$_lang["save_user.processor.php1"] = '変更した設定を反映するために、再ログインしてください。';
 
 $_lang["disabled"] = '無効';
 

@@ -10,6 +10,7 @@ $tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_member_groups = $modx->getFullTableName('member_groups');
 
 if(isset($_POST['userid']) && preg_match('@^[0-9]+$@',$_POST['userid'])) $id = $_POST['userid'];
+$mode = $_POST['mode'];
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : "New User";
 $fullname = $modx->db->escape($_POST['fullname']);
@@ -76,7 +77,7 @@ if ($_SESSION['mgrRole'] != 1) {
 	}
 }
 
-switch ($_POST['mode']) {
+switch ($mode) {
 	case '11' : // new user
 		// check if this user name already exist
 		if (!$rs = $modx->db->select('id',$tbl_manager_users,"username='{$newusername}'"))
@@ -192,8 +193,10 @@ switch ($_POST['mode']) {
 		if ($passwordnotifymethod == 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "12&id=$id" : "11";
+				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$id" : "11";
 				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
+			} elseif($mode==='117') {
+				$header = "Location: index.php?a=2";
 			} else {
 				$header = "Location: index.php?a=75";
 			}
@@ -201,8 +204,10 @@ switch ($_POST['mode']) {
 			exit;
 		} else {
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "12&id=$key" : "11";
+				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$key" : "11";
 				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
+			} elseif($mode==='117') {
+				$stayUrl = "index.php?a=2";
 			} else {
 				$stayUrl = "index.php?a=75";
 			}
@@ -239,6 +244,7 @@ switch ($_POST['mode']) {
 		break;
 
 	case '12' : // edit user
+	case '117' : // edit user profile
 		// generate a new password for this user
 		if ($genpassword == 1) {
 			if ($specifiedpassword != '' && $passwordgenmethod == "spec") {
@@ -408,7 +414,7 @@ switch ($_POST['mode']) {
 		}
 		if ($genpassword == 1 && $passwordnotifymethod == 's') {
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "12&id=$id" : "11";
+				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";
 				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
 			} else {
 				$stayUrl = "index.php?a=75";
@@ -439,8 +445,10 @@ switch ($_POST['mode']) {
 			include_once "footer.inc.php";
 		} else {
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "12&id={$id}" : "11";
+				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";
 				$header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+			} elseif($mode==='117') {
+				$header = "Location: index.php?a=2";
 			} else {
 				$header = "Location: index.php?a=75";
 			}

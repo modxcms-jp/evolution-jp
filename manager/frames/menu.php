@@ -219,7 +219,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	</div>
 
 	<div id="supplementalNav">
-	<?php echo $modx->getLoginUserName(); ?>
+<?php
+	$login_name = $modx->getLoginUserName();
+	if($modx->hasPermission('change_password'))
+		echo "<a href=\"index.php?a=117\">{$login_name}</a>";
+	else echo $login_name;
+?>
 <?php if($modx->hasPermission('messages')) { ?>
 	| <span id="newMail"><a href="index.php?a=10" title="<?php echo $_lang['you_got_mail']?>" target="main"> <img src="<?php echo $_style['icons_mail']?>" /></a></span>
 	<a onclick="this.blur();" href="index.php?a=10" target="main"><?php echo $_lang['messages']?> <span id="msgCounter">( ? / ? )</span></a>
@@ -317,23 +322,24 @@ $item['import_site']   = item($_lang['import_site'], 95,$modx->hasPermission('im
 $item['export_site']   = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
 $item['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
 
-// User Profile Menu
-$item['change_password'] = item($_lang['change_password'], 28,$modx->hasPermission('change_password'));// change password
-$item['messages']        = item($_lang['messages'], 10,$modx->hasPermission('messages'));// messages
-
 // Reports Menu
 $item['site_schedule']   = item($_lang['site_schedule'], 70,$modx->hasPermission('view_schedule'));// site-sched
 $item['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,$modx->hasPermission('view_eventlog'));// eventlog
 $item['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission('logs'));// manager-audit-trail
 $item['view_sysinfo']    = item($_lang['view_sysinfo'], 53,$modx->hasPermission('logs'));// system-info
 
+// User Profile Menu
+$item['change_user_pf']  = item($_lang['profile'], 117,$modx->hasPermission('change_password'));// change password
+$item['change_password'] = item($_lang['change_password'], 28,$modx->hasPermission('change_password'));// change password
+$item['messages']        = item($_lang['messages'], 10,$modx->hasPermission('messages'));// messages
+
 $sitemenu     = buildMenu('site',$item);
 $elementmenu  = buildMenu('element',$item);
 //$modulemenu   = buildMenu('module',$item);//$item['modules']
 $securitymenu = buildMenu('security',$item);
 $toolsmenu    = buildMenu('tools',$item);
-$usermenu     = buildMenu('user',$item);
 $reportsmenu  = buildMenu('reports',$item);
+$usermenu     = buildMenu('user',$item);
 
 // Output Menus where there are items to show
 if (!empty($sitemenu)) {
@@ -357,13 +363,13 @@ if (!empty($toolsmenu)) {
 	echo '<li id="limenu5"><a href="#menu5" onclick="new NavToggle(this); return false;">'.$_lang['tools'].'</a><ul class="subnav" id="menu5">'."\n".
 	     "{$toolsmenu}\n</ul></li>\n";
 }
-if (!empty($usermenu)) {
-	echo '<li id="limenu6"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['user'].'</a><ul class="subnav" id="menu6">'."\n".
-	     "{$usermenu}\n</ul></li>\n";
-}
 if (!empty($reportsmenu)) {
-	echo '<li id="limenu7"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu7">'."\n".
+	echo '<li id="limenu6"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu6">'."\n".
 	     "{$reportsmenu}\n</ul></li>\n";
+}
+if (!empty($usermenu)) {
+	echo '<li id="limenu7"><a href="#menu7" onclick="new NavToggle(this); return false;">'.$_lang['user'].'</a><ul class="subnav" id="menu7">'."\n".
+	     "{$usermenu}\n</ul></li>\n";
 }
 ?>
 	</ul>
@@ -396,7 +402,7 @@ function buildMenu($target,$item)
 	$menu['module']   = 'modules';
 	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions';
 	$menu['tools']    = 'bk_manager,remove_locks,import_site,export_site,edit_settings';
-	$menu['user']     = 'change_password,messages';
+	$menu['user']     = 'change_user_pf,change_password,messages';
 	$menu['reports']  = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
 	
 	if(empty($menu[$target])) return false;
