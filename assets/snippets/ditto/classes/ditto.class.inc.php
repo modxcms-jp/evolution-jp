@@ -1012,8 +1012,11 @@ class ditto {
 			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
 			$query = array();
 			foreach ($_GET as $param=>$value) {
-				if ($param != 'id' && $param != 'q') {
-					$query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
+				if ($param != 'id' && $param != 'q' && is_string($value)) {
+					if (get_magic_quotes_gpc()) {
+						$value = stripslashes($value);
+					}
+					$query[htmlspecialchars($param, ENT_QUOTES)] = rawurlencode($value);
 				}
 			}
 			if (!is_array($args)) {
