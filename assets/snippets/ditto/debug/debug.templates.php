@@ -7,18 +7,15 @@ $dbg_templates["main"] = <<<TPL
         <title>[+title+]</title> 
 		<meta http-equiv="Content-Type" content="text/html; charset=[+charset+]" />
 		<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/style.css" /> 
-		<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/coolButtons2.css" /> 
-	    <link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/tabs.css"/> 
 		<script type="text/javascript" src="[+base_url+]media/script/tabpane.js"></script>
 		<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]debug/debug.template.css" />
         </head>
-
         <body>
 		<div class="sectionHeader">&nbsp;[+title+]</div>
 				   <div class="sectionBody"> 
-			       <div class="tab-pane" id="docManagerPane"> 
+			       <div class="tab-pane" id="dittoDebug"> 
 			       <script type="text/javascript"> 
-						tpResources = new WebFXTabPane( document.getElementById( "docManagerPane" ) ); 
+						tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
 		</script>
 		[+content+]
 		</body>
@@ -37,9 +34,7 @@ TPL;
 $dbg_templates["tab"] = <<<TPL
 		<div class="tab-page" id="tab_[+title+]">  
 				    <h2 class="tab">[+title+]</h2>  
-				    <script type="text/javascript">tpResources.addTabPage( document.getElementById( "tab_[+title+]" ) );</script> 
+				    <script type="text/javascript">tpDittoDebug.addTabPage( document.getElementById( "tab_[+title+]" ) );</script> 
 					[+tab_content+]
 		</div>
 TPL;
-
-?>
