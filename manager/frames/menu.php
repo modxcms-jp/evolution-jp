@@ -222,7 +222,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <?php
 	$login_name = $modx->getLoginUserName();
 	if($modx->hasPermission('change_password'))
-		echo "<a href=\"index.php?a=117\">{$login_name}</a>";
+		echo "<a href=\"index.php?a=117\" target=\"main\">{$login_name}</a>";
 	else echo $login_name;
 ?>
 <?php if($modx->hasPermission('messages')) { ?>
