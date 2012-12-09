@@ -686,7 +686,7 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 		$htmlContent = $content['content'];
 ?>
 		<div>
-			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;"><?php echo htmlspecialchars($htmlContent)?></textarea>
+			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;"><?php echo htmlspecialchars($htmlContent)?></textarea>
 			<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 			<select id="which_editor" name="which_editor" onchange="changeRTE();">
 				<option value="none"><?php echo $_lang['none']?></option>
