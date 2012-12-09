@@ -59,6 +59,7 @@ if(!function_exists('startCMSSession'))
 		global $site_sessionname;
 		$site_sessionname = base_convert(md5(__FILE__),16,36);
 		session_name($site_sessionname);
+		session_set_cookie_params(0,MODX_BASE_URL);
 		session_start();
 		$cookieExpiration= 0;
 		if (isset ($_SESSION['mgrValidated']) || isset ($_SESSION['webValidated']))
