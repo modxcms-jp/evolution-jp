@@ -1423,14 +1423,19 @@ class DocumentParser {
 		$i=0;
 		foreach($pieces as $_)
 		{
-			if(strpos($_,'-->')!==false)
+			$i++;
+			if($i===1)
+			{
+				$stack .= $_;
+				continue;
+			}
+			elseif(strpos($_,'-->')!==false)
 			{
 				list($modxelm,$txt) = explode('-->',$_, 2);
 				$modxelm = trim($modxelm);
 				$_ = $modxelm . $txt;
 			}
 			$stack .= $_;
-			$i++;
 		}
 		return $stack;
 	}
