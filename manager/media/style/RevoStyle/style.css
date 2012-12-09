@@ -98,7 +98,8 @@ h2 {
 	font-size: 1.64em;
 }
 h4 {
-	font-size: 1.18em;
+	font-size: 1em;
+	font-weight: bold;
 }
 h5 {
 	font-size: 1em;
@@ -491,9 +492,9 @@ ime-mode:disabled;
 			-webkit-border-radius:3px;
 			border-radius:3px;
 }
-.sectionBody fieldset h3 {
+.sectionBody h3 {
 	font-size: 1.1em;
-	color: #789;
+	color: #2a3b50;
 	font-weight: bold;
 	padding-bottom: 0;
 	margin-bottom: 0;
