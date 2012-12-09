@@ -180,6 +180,8 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 					if(!empty($date)) $nodetitle = $modx->toDateFormat($date);
 					else              $nodetitle = '- - -';
 					break;
+				default:
+					$nodetitle = $pagetitle;
 			}
 			
 			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
