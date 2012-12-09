@@ -29,6 +29,7 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
     else {
         list ($cmd, $param) = ParseCommand($nvalue);
         $cmd = trim($cmd);
+        $param = trim($param);
         switch ($cmd) {
             case "FILE" :
                 $output = ProcessFile(trim($param));

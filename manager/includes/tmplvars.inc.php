@@ -332,7 +332,7 @@
 			sOptions += ',left=' + iLeft ;
 			sOptions += ',top=' + iTop ;
 
-			var oWindow = window.open( url, 'MODX FileBrowser', sOptions ) ;
+			var oWindow = window.open( url, 'FileBrowser', sOptions ) ;
 		}
 		
 		function BrowseServer(ctrl) {

@@ -11,7 +11,25 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 	
 	// process any TV commands in value
 	$docid= intval($docid) ? intval($docid) : $modx->documentIdentifier;
-	$value = ProcessTVCommand($value, $name, $docid);
+	switch($tvtype)
+	{
+		case 'dropdown':
+		case 'listbox':
+		case 'listbox-multiple':
+		case 'checkbox':
+		case 'option':
+			$src = $tvtype;
+			$values = explode('||',$value);
+			$value = '';
+			foreach($values as $_)
+			{
+				$value .= ProcessTVCommand($_, $name, $docid, $src);
+			}
+			break;
+		default:
+			$src = 'docform';
+			$value = ProcessTVCommand($value, $name, $docid, $src);
+	}
 	
 	$param = array();
 	if($paramstring)
