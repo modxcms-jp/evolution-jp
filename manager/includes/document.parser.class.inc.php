@@ -2564,7 +2564,7 @@ class DocumentParser {
 				}
 			}
 			
-			if($al['isfolder']==='1' && $this->config['make_folders']==='1')
+			if($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
 			{
 				$f_url_suffix = '/';
 			}
