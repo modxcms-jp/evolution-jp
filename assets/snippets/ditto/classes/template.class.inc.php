@@ -153,7 +153,7 @@ class template{
 	// Function: replace
 	// Replcae placeholders with their values
 	// ---------------------------------------------------
-    static function replace( $placeholders, $tpl ) {
+    function replace( $placeholders, $tpl ) {
 		$keys = array();
 		$values = array();
 		foreach ($placeholders as $key=>$value) {
@@ -194,7 +194,7 @@ class template{
 	// 
 	// http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
 	// ---------------------------------------------------
-	static function fetch($tpl){
+	function fetch($tpl){
 		global $modx;
 		$template = "";
 		if ($modx->getChunk($tpl) != "") {

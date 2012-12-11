@@ -34,7 +34,7 @@ class ditto {
 	// Get a list of all available TVs
 	// ---------------------------------------------------
 		
-	private function getTVList() {
+	function getTVList() {
 		global $modx;
 		$table = $modx->getFullTableName("site_tmplvars");
 		$tvs = $modx->db->select("name", $table);
@@ -130,7 +130,7 @@ class ditto {
 	// Determine if the provided field is a tv, a database field, or something else
 	// ---------------------------------------------------
 	
-	private function getDocVarType($field) {
+	function getDocVarType($field) {
 		global $ditto_constantFields;
 		$tvFields = $ditto_constantFields["tv"];
 		$dbFields = $ditto_constantFields["db"];
@@ -372,7 +372,7 @@ class ditto {
 	// Make fields array unique
 	// ---------------------------------------------------
 		
-	private function arrayUnique($array) {
+	function arrayUnique($array) {
 		foreach($array as $u => $a) {
 			foreach ($a as $n => $b) {
 				$array[$u][$n] = array_unique($b);
@@ -447,7 +447,7 @@ class ditto {
 	// Get the author name, or if not available the username
 	// ---------------------------------------------------
 	
-	static function getAuthor($createdby) {
+	function getAuthor($createdby) {
 		global $modx;
 		
 		$user = false;
@@ -464,7 +464,7 @@ class ditto {
 	// Sort resource array if advanced sorting is needed
 	// ---------------------------------------------------
 
-	private function customSort($data, $fields, $order) {
+	function customSort($data, $fields, $order) {
 		// Covert $fields string to array
 		// user contributed
 		foreach (explode(',', $fields) as $s)
@@ -484,7 +484,7 @@ class ditto {
 	// Function: userSort
 	// Sort the resource array by a user defined function
 	// ---------------------------------------------------
-	private function userSort($resource,$sort) {
+	function userSort($resource,$sort) {
 		foreach ($sort['custom'] as $item) {
 			usort($resource,$item[1]);
 		}
@@ -498,7 +498,7 @@ class ditto {
 	// Link: http://de3.php.net/manual/en/function.array-multisort.php#73498
 	// ---------------------------------------------------
 	
-	private function multiSort($resource,$orderBy) {
+	function multiSort($resource,$orderBy) {
 		$sort_arr = array();
 		foreach($resource AS $uniqid => $row){
 			foreach($row AS $key=>$value){
@@ -677,7 +677,7 @@ class ditto {
 	// Get a list of all available parents
 	// ---------------------------------------------------
 		
-	private function getParentList() {
+	function getParentList() {
 		global $modx;
 		$kids = array();
 		if(method_exists($modx, 'setdocumentMap') && !isset($modx->documentMap))
@@ -706,7 +706,7 @@ class ditto {
 	// Apeend a TV to the documents array
 	// ---------------------------------------------------
 		
-	private function appendTV($tvname="",$docIDs){
+	function appendTV($tvname="",$docIDs){
 		global $modx;
 		
 		$baspath= $modx->config["base_path"] . "manager/includes";
@@ -759,7 +759,7 @@ class ditto {
 	// Append keywords's to the resource array
 	// ---------------------------------------------------
 		
-	private function appendKeywords($resource) {
+	function appendKeywords($resource) {
 		$keys = $this->fetchKeywords($resource);
 		$resource["keywords"] = "$keys";
 		return $resource;
@@ -770,7 +770,7 @@ class ditto {
 	// Helper function to <appendKeywords>
 	// ---------------------------------------------------
 		
-	private function fetchKeywords($resource) {
+	function fetchKeywords($resource) {
 		global $modx;
 	  if($resource['haskeywords']==1) {
 	    // insert keywords
@@ -793,7 +793,7 @@ class ditto {
 	// Similar to the modx version by the same name but much faster
 	// ---------------------------------------------------
 
-	private function getChildIDs($IDs, $depth) {
+	function getChildIDs($IDs, $depth) {
 		global $modx;
 		$depth = intval($depth);
 		$kids = array();
@@ -932,7 +932,7 @@ class ditto {
 	// Get an array of documents
 	// ---------------------------------------------------
 	
-	private function getDocumentsIDs($ids= array (), $published= 1) {
+	function getDocumentsIDs($ids= array (), $published= 1) {
 		global $modx;
 	    if (count($ids) == 0) {
 	        return false;
@@ -1007,7 +1007,7 @@ class ditto {
 	// Build a URL with regard to Ditto ID
 	// ---------------------------------------------------
 	
-	static function buildURL($args,$id=false,$dittoIdentifier=false) {
+	function buildURL($args,$id=false,$dittoIdentifier=false) {
 		global $modx, $dittoID;
 			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
 			$query = array();
@@ -1069,9 +1069,9 @@ class ditto {
 			return false;
 		}
 		$next = $start + $summarize;
-		$rNext =  $this->template->replace(array('url'=>self::buildURL("start=$next"),'lang:next'=>$ditto_lang['next']),$tplPaginateNext);
+		$rNext =  $this->template->replace(array('url'=>$this->buildURL("start=$next"),'lang:next'=>$ditto_lang['next']),$tplPaginateNext);
 		$previous = $start - $summarize;
-		$rPrevious =  $this->template->replace(array('url'=>self::buildURL("start=$previous"),'lang:previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
+		$rPrevious =  $this->template->replace(array('url'=>$this->buildURL("start=$previous"),'lang:previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
 		$limten = $summarize + $start;
 		if ($paginateAlwaysShowLinks == 1) {
 			$previousplaceholder = $this->template->replace(array('lang:previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
@@ -1116,7 +1116,7 @@ class ditto {
 			if (($x < $min_x) || ($x > $max_x)) continue;
 			
 			if ($inc != $start) {
-				$pages .= $this->template->replace(array('url'=>self::buildURL("start=$inc"),'page'=>$display),$tplPaginatePage);
+				$pages .= $this->template->replace(array('url'=>$this->buildURL("start=$inc"),'page'=>$display),$tplPaginatePage);
 			} else {
 				$modx->setPlaceholder($dittoID."currentPage", $display);
 				$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
@@ -1163,11 +1163,11 @@ class ditto {
 	// Convert relative urls to absolute URLs
 	// Based on script from http://wintermute.com.au/bits/2005-09/php-relative-absolute-links/
 	// ---------------------------------------------------
-	private function relToAbs($text, $base) {
+	function relToAbs($text, $base) {
 		return preg_replace('#(href|src)="([^:"]*)(?:")#','$1="'.$base.'$2"',$text);
 	}
 	
-	private function mb_strftime($format='', $timestamp='')
+	function mb_strftime($format='', $timestamp='')
 	{
 		global $modx;
 		
