@@ -12,12 +12,14 @@ $_lang['file_does_not_exist'] = "ファイルがありません。ファイル�
 $_lang['extender_does_not_exist'] = "extenderがありません。extendersディレクトリ内のファイルの存在を確認してください。";
 $_lang['default_template'] = <<<TPL
     <div class="ditto_item" id="ditto_item_[+id+]">
-        <h3 class="ditto_pageTitle"><a href="[~[+id+]~]">[+pagetitle+]</a></h3>
-        <div class="ditto_documentInfo">投稿者：<strong>[+author+]</strong>[+date+]</div>
-        <div class="ditto_introText">[+introtext+]</div>
+        <h3><a href="[+url+]">[+pagetitle+]</a></h3>
+        <div>投稿者：[+author+] [+date+]</div>
+        <div>[+introtext+]</div>
     </div>
 TPL;
 $_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チャンク)にプレースホルダが含まれていません。上記のテンプレートの内容を確認してください。</p>";
+$_lang['missing_placeholders_tpl'] = 'One of your Ditto templates are missing placeholders, please check the template below:';
+
 $_lang['no_documents'] = '<p>記事はありません。</p>';
 $_lang['resource_array_error'] = 'リソース配列エラー';
  

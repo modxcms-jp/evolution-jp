@@ -23,6 +23,7 @@ $_lang['default_template'] = <<<TPL
 TPL;
 
 $_lang["bad_tpl"] = "<p>&[+tpl+] either does not contain any placeholders or is an invalid chunk name, code block, or filename. Please check it.</p>";
+$_lang['missing_placeholders_tpl'] = 'One of your Ditto templates are missing placeholders, please check the template below:';
 
 $_lang['no_documents'] = '<p>No documents found.</p>';
 $_lang['resource_array_error'] = 'Resource Array Error';
