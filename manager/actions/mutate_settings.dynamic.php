@@ -25,10 +25,10 @@ if($limit>1) {
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 
-$default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
-if(is_array($default_config)) extract($default_config, EXTR_SKIP);
+if(!is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
 $settings = $modx->config;
+$settings = array_merge($default_config,$settings);
 
 if ($modx->manager->hasFormValues()) {
 	$modx->manager->loadFormValues();
@@ -40,7 +40,7 @@ if(setlocale(LC_CTYPE, 0)==='Japanese_Japan.932')
 }
 $settings['filemanager_path'] = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['filemanager_path']);
 $settings['rb_base_dir']      = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['rb_base_dir']);
-$settings = array_merge($settings, $_POST);
+if(isset($_POST)) $settings = array_merge($settings, $_POST);
 
 extract($settings, EXTR_OVERWRITE);
 

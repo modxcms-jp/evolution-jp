@@ -955,8 +955,14 @@ class DocumentParser {
 			}
 		}
 		$this->config= array_merge($this->config, $usrSettings);
-		$this->config['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
-		$this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
+		if(isset($this->config['filemanager_path']))
+		{
+			$this->config['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
+		}
+		if(isset($this->config['rb_base_dir']))
+		{
+			$this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
+		}
 		return $this->config;
 	}
 	

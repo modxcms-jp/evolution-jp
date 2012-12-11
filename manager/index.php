@@ -118,7 +118,7 @@ include_once("{$core_path}version.inc.php");
 
 if(!isset($settings_version) || $settings_version!=$modx_version)
 {
-	$default_config = include_once($modx->config['base_path'] . 'manager/includes/upgrades.php');
+	include_once($modx->config['base_path'] . 'manager/includes/upgrades.php');
 }
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
