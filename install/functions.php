@@ -134,8 +134,7 @@ if($params['category']=='chunk')
 	return $result;
 }
 
-function parse_docblock($fullpath)
-{
+function parse_docblock($fullpath) {
 	$params = array();
 	if(!is_readable($fullpath)) return false;
 	
@@ -145,21 +144,17 @@ function parse_docblock($fullpath)
 	$docblock_start_found = false;
 	$name_found           = false;
 	$description_found    = false;
-	$docblock_end_found   = false;
 	
 	while(!feof($tpl))
 	{
 		$line = fgets($tpl);
 		if(!$docblock_start_found)
-		{
-			// find docblock start
+		{	// find docblock start
 			if(strpos($line, '/**') !== false) $docblock_start_found = true;
-			
 			continue;
 		}
 		elseif(!$name_found)
-		{
-			// find name
+		{	// find name
 			$ma = null;
 			if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
 			{
@@ -169,8 +164,7 @@ function parse_docblock($fullpath)
 			continue;
 		}
 		elseif(!$description_found)
-		{
-			// find description
+		{	// find description
 			$ma = null;
 			if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
 			{
@@ -196,8 +190,6 @@ function parse_docblock($fullpath)
 							$param = trim($ma[1]);
 							$val = trim($ma[2]);
 						}
-						
-						//if($val !== '0' && (empty($param) || empty($val))) {
 						if(empty($param)) continue;
 					}
 					$params[$param] = $val;
@@ -205,7 +197,6 @@ function parse_docblock($fullpath)
 			}
 			elseif(preg_match("/^\s*\*\/\s*$/", $line))
 			{
-				$docblock_end_found = true;
 				break;
 			}
 		}
