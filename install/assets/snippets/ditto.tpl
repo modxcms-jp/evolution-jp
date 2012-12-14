@@ -182,7 +182,7 @@ $filters = array("custom"=>array(),"parsed"=>array());
     // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
     // $filters["custom"][] = array("source","callback_function");
 
-$orderBy = (isset($orderBy))? $orderBy : '';
+$orderBy = (isset($orderBy))? $orderBy : null;
 $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
     // Variable: orderBy
     // An array that holds all criteria to sort the result set by.
