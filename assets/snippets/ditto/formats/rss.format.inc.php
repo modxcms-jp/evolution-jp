@@ -79,7 +79,7 @@ $rss_placeholders['rss_xsl'] = isset($xsl) ? PHP_EOL . '<?xml-stylesheet type="t
 	Default:
 	None
 */
-$GLOBALS["dateSource"] = isset($dateSource) ? $dateSource : "createdon";
+$GLOBALS["dateSource"] = isset($dateSource) ? $dateSource : "publishedon";
 	// date type to display (values can be createdon, pub_date, editedon)
 	
 // set tpl rss placeholders
@@ -150,5 +150,3 @@ $footer = isset($footer) ? $footer : $rss_footer;
 
 // set emptytext
 $noResults = "      ";
-
-?>
