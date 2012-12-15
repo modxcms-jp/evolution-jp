@@ -3,20 +3,14 @@
  * Filename:       assets/snippets/ditto/lang/japanese-utf-8.inc.php
  * Function:       Default Japanese language file for Ditto.
  * Encoding:       UTF-8
- * Author:         MODx CMS JAPAN and phize.net
- * Date:           2009/07/25
+ * Author:         phize.net, megu, yama
+ * Date:           2012/12/13
 */
 $_lang['language'] = "japanese-utf8";
 $_lang['abbr_lang'] = "ja";
 $_lang['file_does_not_exist'] = "ファイルがありません。ファイルの存在を確認してください。";
 $_lang['extender_does_not_exist'] = "extenderがありません。extendersディレクトリ内のファイルの存在を確認してください。";
-$_lang['default_template'] = <<<TPL
-    <div class="ditto_item" id="ditto_item_[+id+]">
-        <h3><a href="[+url+]">[+pagetitle+]</a></h3>
-        <div>投稿者：[+author+] [+date+]</div>
-        <div>[+introtext+]</div>
-    </div>
-TPL;
+$_lang['default_template'] = '<a href="[+url+]">[+pagetitle+]</a><br />';
 $_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チャンク)にプレースホルダが含まれていません。上記のテンプレートの内容を確認してください。</p>";
 $_lang['missing_placeholders_tpl'] = 'One of your Ditto templates are missing placeholders, please check the template below:';
 
