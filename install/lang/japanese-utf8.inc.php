@@ -5,7 +5,7 @@
  * @author MEGU, yamamoto, TxO
  * @package MODX
  * @subpackage installer_translations
- * @version 1.0.5J-r3
+ * @version 1.0.7J-r1
  * 
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
@@ -81,9 +81,9 @@ $_lang["database_use_failed_note"] = 'データベースのユーザー権限を
 $_lang["default_language"] = '管理画面で使用する言語';
 $_lang["default_language_description"] = '管理画面で使用する言語を選択してください。(※Japanese-eucを選択するとプリインストールされるサンプルコンテンツやアドオンの説明文は文字化けしますのでご注意ください。アドオンの機能は利用できます。)';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
-$_lang["encoding"] = 'utf-8';	//charset encoding for html header
+$_lang["encoding"] = 'utf-8'; //charset encoding for html header
 $_lang["error"] = 'エラー';
-$_lang["errors"] = 'エラー'; //Plural form
+$_lang["errors"] = 'エラー';
 $_lang["failed"] = '確認してください';
 $_lang["help"] = 'Help!';
 $_lang["help_link"] = 'http://modx.jp/docs/install.html';
@@ -103,7 +103,7 @@ $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">�
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定をアップデートできます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベースを変更した場合などにこのオプションを選択してconfig.inc.phpを更新してください。';
 $_lang["installation_upgrade_existing"] = 'アップデート';
-$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでも<a href="../manager/">バックアップマネージャー</a>でどうぞ。';
+$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでもphpMyAdminなどを利用してバックアップをとることをおすすめします。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
@@ -112,7 +112,7 @@ $_lang["modules"] = 'モジュール';
 $_lang["modx_footer1"] = '&copy; 2005-2012 the <a href="http://modx.com/" target="_blank"">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; インストール';
-$_lang["modx_requires_php"] = ', PHP5.0.0以上を推奨します(4.4.2以上であれば動作しますがセキュリティ面に問題があります)';
+$_lang["modx_requires_php"] = ', PHP 5.0.0以上が必要です。';
 $_lang["mysql_5051"] = ' MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします(MODX本体では問題ありません)。';
 $_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします(MODX本体では問題ありません)。';
 $_lang["mysql_version_is"] = ' Version ';
@@ -125,12 +125,9 @@ $_lang["optional_items_new_note"] = '<b>オプションを選択してくださ�
 $_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b>【アップデート時の注意】</b> プラグインに関しては、インストール時に既存プラグインを無効にします。他のエレメントに関しては別名でインストールします。';
 $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPにはセキュリティ上の問題があります。バージョン4.4.8より古いPHPは深刻な脆弱性を抱えており、MODXの稼働自体には問題はありませんが、この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
-$_lang["please_correct_errors"] = 'があります。'; //Plural form
+$_lang["please_correct_errors"] = 'があります。';
 $_lang["plugins"] = 'プラグイン';
 $_lang["preinstall_validation"] = 'インストール前の状態確認';
-$_lang["recommend_setting_change_title"] = 'Recommended Setting Change';
-$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Setting change: <em>Validate HTTP_REFERER headers?</em>';
-$_lang["recommend_setting_change_validate_referer_description"] = 'Your site is not configured to validate the HTTP_REFERER of incoming requests to the Manager. We strongly recommend enabling this setting to reduce the risk of a CSRF (Cross Site Request Forgery) attack.';
 $_lang["remove_install_folder_auto"] = 'インストールディレクトリを自動的に削除する<br />※この操作はサーバ設定によっては実行されないことがあります。<br />削除できなかった場合は、管理画面ログイン時に太文字で警告が表示されますので、手作業で削除してください。';
 $_lang["remove_install_folder_manual"] = '管理画面にログインする前に、&quot;<b>install</b>&quot; フォルダを必ず削除してください。';
 $_lang["retry"] = '再チェック';
@@ -167,12 +164,9 @@ $_lang["status_passed_server"] = '接続できます';
 $_lang["strict_mode"] = ' MySQLがストリクトモードになっています。';
 $_lang["strict_mode_error"] = 'ストリクトモードが無効である必要があります。my.cnfを編集することで、MySQLのモードを変更することができます。あるいは、サーバー管理者へお尋ねください。';
 $_lang["summary_setup_check"] = '<strong>インストール実行前の最終チェックです。</strong>';
-$_lang["system_configuration"] = 'System Configuration';
-$_lang["system_configuration_validate_referer_description"] = 'The <strong>Validate HTTP_REFERER headers</strong> setting is recommended and can protect your site from CSRF attacks, but in some server configurations, can make your manager inaccessible.';
 $_lang["table_prefix_already_inuse"] = ' - このTableプレフィックスはすでに使われています。';
 $_lang["table_prefix_already_inuse_note"] = '異なるテーブルプレフィックスを指定するか、phpMyAdminなどを利用し関連テーブルを削除し、再びインストールを試してみてください。';
 $_lang["table_prefix_not_exist"] = ' - 指定されたTableプレフィックスがデータベース内に存在していなかったため、インストールが完了しませんでした。正しいテーブルプレフィックスを指定し、再度実行してください。';
-$_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the selected database, as it does not contain existing tables with the prefix you specified to be upgraded. Please choose an existing table prefix, and run Setup again.';
 $_lang["templates"] = 'テンプレート';
 $_lang["to_log_into_content_manager"] = 'おつかれさまでした。「インストール終了」ボタンをクリックすると、管理画面のログインページ(manager/index.php)にアクセスします。';
 $_lang["toggle"] = '選択状態を反転';
@@ -184,7 +178,6 @@ $_lang["unable_install_snippet"] = 'スニペットをインストールでき�
 $_lang["unable_install_template"] = 'テンプレートをインストールできません';
 $_lang["upgrade_note"] = '<strong>注意:</strong>管理画面に無事にログインできたら、リソースおよび各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを確認してください。また管理画面内の「イベントログ」を開き、エラーの有無をご確認ください。';
 $_lang["upgraded"] = 'アップデートしました';
-$_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
 $_lang["visit_forum"] = '';
 $_lang["warning"] = '注意 ';
 $_lang["welcome_message_start"] = '';

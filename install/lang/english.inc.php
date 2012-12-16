@@ -9,7 +9,7 @@
  * 
  * Filename:       /install/lang/english/english.inc.php
  * Language:       English
- * Encoding:       iso-8859-1
+ * Encoding:       utf-8
  */
 $_lang["agree_to_terms"] = 'Agree to the License Terms and Install';
 $_lang["alert_database_test_connection"] = 'You need to create your database or test the selection of your database!';
@@ -81,7 +81,7 @@ $_lang["database_use_failed_note"] = 'Please check the database permissions for 
 $_lang["default_language"] = 'Default Manager Language';
 $_lang["default_language_description"] = 'This is the default language that will be used in the MODX Manager back end control panel.';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
-$_lang["encoding"] = 'iso-8859-1';	//charset encoding for html header
+$_lang["encoding"] = 'utf-8';	//charset encoding for html header
 $_lang["error"] = 'error';
 $_lang["errors"] = 'errors';
 $_lang["failed"] = 'FAILED!';
@@ -129,9 +129,6 @@ $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';
 $_lang["preinstall_validation"] = 'Pre-install validation';
-$_lang["recommend_setting_change_title"] = 'Recommended Setting Change';
-$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Setting change: <em>Validate HTTP_REFERER headers?</em>';
-$_lang["recommend_setting_change_validate_referer_description"] = 'Your site is not configured to validate the HTTP_REFERER of incoming requests to the Manager. We strongly recommend enabling this setting to reduce the risk of a CSRF (Cross Site Request Forgery) attack.';
 $_lang["remove_install_folder_auto"] = 'Remove the install folder and files from my website <br />&nbsp;(This operation requires delete permission to the granted to the install folder).';
 $_lang["remove_install_folder_manual"] = 'Please remember to remove the &quot;<b>install</b>&quot; folder before you log into the Content Manager.';
 $_lang["retry"] = 'Retry';
@@ -168,12 +165,9 @@ $_lang["status_passed_server"] = 'passed - collations now available';
 $_lang["strict_mode"] = ' MySQL server strict sql_mode is enabled!';
 $_lang["strict_mode_error"] = 'Certain features of MODX may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQL mode by editing the my.cnf file or contact your server administrator.';
 $_lang["summary_setup_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the setup.';
-$_lang["system_configuration"] = 'System Configuration';
-$_lang["system_configuration_validate_referer_description"] = 'The <strong>Validate HTTP_REFERER headers</strong> setting is recommended and can protect your site from CSRF attacks, but in some server configurations, can make your manager inaccessible.';
 $_lang["table_prefix_already_inuse"] = ' - Table prefix is already in use in this database!';
 $_lang["table_prefix_already_inuse_note"] = 'Setup couldn\'t install into the selected database, as it already contains tables with the prefix you specified. Please choose a new table prefix, and run Setup again.';
 $_lang["table_prefix_not_exist"] = ' - Table prefix does not exist in this database!';
-$_lang["table_prefix_not_exist_note"] = 'Setup couldn\'t install into the selected database, as it does not contain existing tables with the prefix you specified to be upgraded. Please choose an existing table prefix, and run Setup again.';
 $_lang["templates"] = 'Templates';
 $_lang["to_log_into_content_manager"] = 'To log into the Content Manager (manager/index.php) you can click on the `Close` button.';
 $_lang["toggle"] = 'Toggle';
@@ -185,7 +179,6 @@ $_lang["unable_install_snippet"] = 'Unable to install snippet.  File';
 $_lang["unable_install_template"] = 'Unable to install template.  File';
 $_lang["upgrade_note"] = '<strong>Note:</strong> Before browsing your site you should log into the manager with an administrative account, then review and save your System Configuration settings.';
 $_lang["upgraded"] = 'Upgraded';
-$_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
 $_lang["visit_forum"] = ', visit the <a href="http://forums.modx.com/" target="_blank">MODX Forums</a>.';
 $_lang["warning"] = 'WARNING!';
 $_lang["welcome_message_start"] = 'First, choose the type of installation to perform:';
