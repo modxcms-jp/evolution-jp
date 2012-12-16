@@ -15,8 +15,8 @@ function get_src_footer()
 {
 	$src = <<< EOT
 			</div>
-		</div><!-- // content -->
-	</div><!-- // contentarea -->
+		</div>
+	</div>
 <div id="footer">
 	<div id="footer-inner">
 	<div class="container_10">
@@ -26,7 +26,6 @@ function get_src_footer()
 	</div>
 	</div>
 </div>
-<!-- end install screen-->
 </body>
 </html>
 EOT;

@@ -37,7 +37,7 @@ function includeLang($language)
 	
 	# load language file
 	$_lang = array ();
-	if(file_exists("lang/{$language}.inc.php"))
+	if(is_file("lang/{$language}.inc.php"))
 	{
 		 require_once("lang/{$language}.inc.php");
 	}
@@ -124,12 +124,6 @@ function compare_check($params)
 		}
 		elseif($count < 1)                  $result = 'no exists';
 	}
-if($params['category']=='chunk')
-{
-//echo '$old_version=' . $old_version . '<br />';
-//echo '$new_version=' . $new_version . '<br />';
-}
-	
 	
 	return $result;
 }

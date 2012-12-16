@@ -12,8 +12,8 @@ function get_ph_header()
 	$ph['pagetitle']     = $_lang['modx_install'];
 	$ph['textdir']       = $modx_textdir ? ' id="rtl"':'';
 	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
-	$ph['help_title']    = $_lang["help_title"];
-	$ph['help']          = $_lang["help"];
+	$ph['help_title']    = $_lang['help_title'];
+	$ph['help']          = $_lang['help'];
 	$ph['version']       = $moduleName.' '.$moduleVersion;
 	$ph['release_date']  = ($modx_textdir ? '&rlm;':'') . $modx_release_date;
 	return $ph;
@@ -32,7 +32,6 @@ function get_src_header()
 <script type="text/javascript" src="../manager/media/script/jquery/jquery.min.js"></script>
 </head>
 <body [+textdir+]>
-<!-- start install screen-->
 <div id="header">
 	<div class="container_10">
 		<span class="help"><a href="[+help_link+]" target="_blank" title="[+help_title+]">[+help+]</a></span>
@@ -42,11 +41,9 @@ function get_src_header()
 		</div>
 	</div>
 </div>
-<!-- end header -->
 
 <div id="contentarea">
     <div class="container_10">
-        <!-- start content -->
         <div id="content">
 EOT;
 	return $src;

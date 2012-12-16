@@ -12,7 +12,7 @@ if(!isset($vword))
 {
 	$vword = new VeriWord(135,43);
 	$vword->output_image();
-	$vword->destroy_image();
+	imagedestroy($this->im);
 }
 
 #captchaClass.php file below
@@ -173,10 +173,5 @@ class VeriWord {
 			70);
 		
 		return $this->im;
-	}
-	
-	function destroy_image()
-	{
-		imagedestroy($this->im);
 	}
 }
