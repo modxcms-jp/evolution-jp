@@ -31,17 +31,17 @@ function autoDetectLang()
 	return $lang;
 }
 
-function includeLang($language)
+function includeLang($language, $dir='langs/')
 {
 	global $_lang;
 	
 	# load language file
 	$_lang = array ();
-	if(is_file("lang/{$language}.inc.php"))
+	if(is_file("{$dir}{$language}.inc.php"))
 	{
-		 require_once("lang/{$language}.inc.php");
+		 require_once("{$dir}{$language}.inc.php");
 	}
-	else require_once('lang/english.inc.php');
+	else require_once("{$dir}english.inc.php");
 }
 
 function modx_escape($s)
