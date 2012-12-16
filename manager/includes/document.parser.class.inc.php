@@ -1344,7 +1344,7 @@ class DocumentParser {
 				}
 				else
 				{
-					if(!$this->chunkCache) $this->setChunkCache();
+					if(!isset($this->chunkCache)) $this->setChunkCache();
 					$escaped_name = $this->db->escape($key);
 					$where = "`name`='{$escaped_name}' AND `published`='1'";
 					$result= $this->db->select('snippet',$tbl_site_htmlsnippets,$where);
@@ -1787,7 +1787,7 @@ class DocumentParser {
 	{
 		$chunk = @include_once(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
 		if($chunk) $this->chunkCache = $chunk;
-		else return false;
+		else $this->chunkCache = array();
 	}
 	
 	function setSnippetCache()
