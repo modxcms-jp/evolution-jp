@@ -200,6 +200,8 @@ class TinyMCE
 			$buttons3 = $params['custom_buttons3'];
 			$buttons4 = $params['custom_buttons4'];
 			break;
+		case 'default':
+		case 'editor':
 		default:
 			$plugins  = 'template,visualblocks,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 			$buttons1 = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,template,|,fullscreen,help';
