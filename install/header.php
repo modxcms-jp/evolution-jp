@@ -5,13 +5,13 @@ echo parse($src,$ph);
 
 function get_ph_header()
 {
-	global $_lang,$moduleName,$moduleVersion,$modx_textdir,$modx_release_date;
+	global $_lang,$moduleName,$moduleVersion,$modx_textdir,$modx_release_date,$installmode;
 	
 	$ph['language_code'] = $_lang['language_code'];
 	$ph['encoding']      = $_lang['encoding'];
 	$ph['pagetitle']     = $_lang['modx_install'];
 	$ph['textdir']       = $modx_textdir ? ' id="rtl"':'';
-	$ph['help_link']     = $_lang["help_link"];
+	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
 	$ph['help_title']    = $_lang["help_title"];
 	$ph['help']          = $_lang["help"];
 	$ph['version']       = $moduleName.' '.$moduleVersion;
