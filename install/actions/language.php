@@ -10,10 +10,10 @@ echo  parse(getTpl(),$ph);
 function get_langs()
 {
 	$langs = array();
-	foreach(glob('lang/*.inc.php') as $path)
+	foreach(glob('langs/*.inc.php') as $path)
 	{
-		if(substr($path,5,1)==='.') continue;
-		$langs[] = substr($path,5,strpos($path,'.inc.php')-5);
+		if(substr($path,6,1)==='.') continue;
+		$langs[] = substr($path,6,strpos($path,'.inc.php')-6);
 	}
 	sort($langs);
 	return $langs;
