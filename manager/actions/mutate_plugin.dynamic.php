@@ -43,7 +43,7 @@ if($limit>1)
 $tbl_site_plugins = $modx->getFullTableName('site_plugins');
 if(isset($_GET['id']))
 {
-	$rs = $modx->db->select('*',$tbl_site_plugins,"id={$id}");
+	$rs = $modx->db->select('*',$tbl_site_plugins,"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1)
 	{
@@ -551,13 +551,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
    	<p><?php echo $_lang['plugin_event_msg']; ?></p>
 	<table>
 <?php
-
 	// get selected events
 	if(is_numeric($id) && $id > 0)
 	{
 		$evts = array();
 		$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
-		$rs = $modx->db->select('evtid, pluginid',$tbl_site_plugin_events,"pluginid='{$id}'");
+		$rs = $modx->db->select('*',$tbl_site_plugin_events,"pluginid='{$id}'");
 		while($row = $modx->db->getRow($rs))
 		{
 		   $evts[] = $row['evtid'];
@@ -589,26 +588,33 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	$rs = $modx->db->select('*',$tbl_system_eventnames,'','service DESC, groupname, name');
 	if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
 	else
-	while($row = $modx->db->getRow($rs))
 	{
-		// display records
-		if($srv!=$row['service'])
+		$g = 0;
+		while($row = $modx->db->getRow($rs))
 		{
-			$srv=$row['service'];
-			if(count($evtnames)>0) echoEventRows($evtnames);
-     		echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
-			echo '<tr><td colspan="2"><b>'.$services[$srv-1].'</b></td></tr>';
+			// display records
+			$s = $row['service'];
+			if($srv!=$row['service'])
+			{
+				$g++;
+				$srv=$row['service'];
+				if(count($evtnames)>0) echoEventRows($evtnames);
+	     		echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
+				echo '<tr><td colspan="2"><b>'."[{$g}] " . $services[$srv-1].'</b></td></tr>';
+			}
+			// display group name
+			if($grp!=$row['groupname'])
+			{
+				$g++;
+				$grp=$row['groupname'];
+				if(count($evtnames)>0) echoEventRows($evtnames);
+				echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
+				echo '<tr><td colspan="2"><b>'."[{$g}] ".$row['groupname'].'</b></td></tr>';
+			}
+			$evtid = $row['id'];
+			$evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row[id],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name']. '"' . bold(in_array($row[id],$evts)) . '>'."[{$evtid}] ". $row['name'].'</label>'."\n";
+			if(count($evtnames)==2) echoEventRows($evtnames);
 		}
-		// display group name
-		if($grp!=$row['groupname'])
-		{
-			$grp=$row['groupname'];
-			if(count($evtnames)>0) echoEventRows($evtnames);
-			echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
-			echo '<tr><td colspan="2"><b>'.$row['groupname'].'</b></td></tr>';
-		}
-		$evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row[id],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name']. '"' . bold(in_array($row[id],$evts)) . '>'.$row['name'].'</label>'."\n";
-		if(count($evtnames)==2) echoEventRows($evtnames);
 	}
 	if(count($evtnames)>0) echoEventRows($evtnames);
 
