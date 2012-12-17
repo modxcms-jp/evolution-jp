@@ -118,30 +118,30 @@ $rss_header = <<<TPL
 <?xml version="1.0" encoding="[+rss_charset+]" ?>[+rss_xsl+]
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
 	<channel>
-			<title>[*pagetitle*]</title>
-			<link>[(site_url)]</link>
-			<description>[*description:strip*]</description>
-			<language>[+rss_lang+]</language>
-			<copyright>[+rss_copyright+]</copyright>
-			<ttl>[+rss_ttl+]</ttl>
+		<title>[*pagetitle*]</title>
+		<link>[(site_url)]</link>
+		<description>[*description:strip*]</description>
+		<language>[+rss_lang+]</language>
+		<copyright>[+rss_copyright+]</copyright>
+		<ttl>[+rss_ttl+]</ttl>
 TPL;
 
 $rss_tpl = <<<TPL
 
-			<item>
-				<title>[+rss_pagetitle+]</title>
-				<link>[(site_url)][~[+id+]~]</link>
-				<description><![CDATA[ [+summary:strip+] ]]></description>
-				<pubDate>[+rss_date+]</pubDate>
-				<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
-				<dc:creator>[+rss_author+]</dc:creator>
-				[+tagLinks+]
-			</item>
-		
+		<item>
+			<title>[+rss_pagetitle+]</title>
+			<link>[(site_url)][~[+id+]~]</link>
+			<description><![CDATA[ [+summary:strip+] ]]></description>
+			<pubDate>[+rss_date+]</pubDate>
+			<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
+			<dc:creator>[+rss_author+]</dc:creator>
+			[+tagLinks+]
+		</item>
+	
 TPL;
 
 $rss_footer = <<<TPL
-	</channel>
+</channel>
 </rss>
 TPL;
 
