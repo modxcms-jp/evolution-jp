@@ -89,20 +89,20 @@ if(!isset($orderBy ['unparsed'])) $orderBy ['unparsed'] = "{$dateSource} DESC";
 // set tpl rss placeholders
 $placeholders['rss_date'] = array($dateSource,"rss_date");
 $placeholders['rss_pagetitle'] = array("pagetitle","rss_pagetitle");
-$placeholders['rss_author'] = array("createdby","rss_author"); 
+$placeholders['rss_author'] = array("createdby","rss_author");
 
-if(!function_exists("rss_date")) { 
+if(!function_exists("rss_date")) {
 	function rss_date($resource) {
 		global $dateSource;
 		return date("r",  intval($resource[$dateSource]) + $modx->config["server_offset_time"]);
 	}
 }
-if(!function_exists("rss_pagetitle")) { 
+if(!function_exists("rss_pagetitle")) {
 	function rss_pagetitle($resource) {
 		return htmlspecialchars(html_entity_decode($resource['pagetitle'], ENT_QUOTES));
 	}
 }
-if(!function_exists("rss_author")) { 
+if(!function_exists("rss_author")) {
 	function rss_author($resource) {
 		return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
 	}
