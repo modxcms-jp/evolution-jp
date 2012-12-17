@@ -125,10 +125,8 @@ function getWebChangePwdtpl(){
           </table>
           </fieldset> <fieldset style="width:300px">
           <legend><b>New password method</b></legend>
-          <input type="radio" name="passwordgenmethod" value="g" checked />Let this website 
-          generate a password.<br />
-          <input type="radio" name="passwordgenmethod" value="spec" />Let me specify 
-          the password:<br />
+          <label><input type="radio" name="passwordgenmethod" value="g" checked  style="display:inline;" />Let this website generate a password.</label><br />
+          <label><input type="radio" name="passwordgenmethod" value="spec"  style="display:inline;" />Let me specify the password:</label><br />
           <div style="padding-left:20px">
             <table border="0" cellpadding="0">
               <tr>
@@ -154,10 +152,8 @@ function getWebChangePwdtpl(){
           </fieldset>
           <fieldset style="width:300px">
           <legend><b>Password notification method</b></legend>
-          <input type="radio" name="passwordnotifymethod" value="e" />Send the new password 
-          by e-mail.<br />
-          <input type="radio" name="passwordnotifymethod" value="s" checked />Show the new password 
-          on screen.
+          <label><input type="radio" name="passwordnotifymethod" value="e"  style="display:inline;" />Send the new password by email.</label><br />
+          <label><input type="radio" name="passwordnotifymethod" value="s" checked  style="display:inline;" />Show the new password on screen.</label>
           </fieldset></td>
         </tr>
         <tr>
@@ -176,5 +172,3 @@ function getWebChangePwdtpl(){
     ob_end_clean();
     return $t;
 }
-
-?>

@@ -25,7 +25,7 @@ if(!$isPostBack){
         if (document.websignupfrm) document.websignupfrm.username.focus();
         </script>";
     $output .= $tpl;
-} 
+}
 else if ($isPostBack){
 
     $username = $modx->db->escape($modx->stripTags(trim($_POST['username'])));
@@ -39,13 +39,9 @@ else if ($isPostBack){
 
     // load template section #1
     $tpl = $tpls[0];
-    $tpl = str_replace("[+action+]",$modx->makeURL($modx->documentIdentifier),$tpl);
-    $tpl = str_replace("[+username+]",$username,$tpl);
-    $tpl = str_replace("[+fullname+]",$fullname,$tpl);
-    $tpl = str_replace("[+email+]",$email,$tpl);
-    $tpl = str_replace("[+country+]",$country,$tpl);
-    $tpl = str_replace("[+state+]",$state,$tpl);
-    $tpl = str_replace("[+zip+]",$zip,$tpl);
+    $ph = compact('username','fullname','email','country','state','zip');
+    $ph['action'] = $modx->makeURL($modx->documentIdentifier);
+    $tpl = $modx->parsePlaceholder($tpl,$ph);
     $tpl.="<script type='text/javascript'>if (document.websignupfrm) document.websignupfrm.username.focus();</script>";
 
     // check for duplicate user name
@@ -57,12 +53,12 @@ else if ($isPostBack){
         if(!$rs = $modx->db->select('id',$tbl_web_users,"username='{$username}'")){
             $output = webLoginAlert("An error occured while attempting to retreive all users with username $username.").$tpl;
             return;
-        } 
+        }
         $limit = $modx->db->getRecordCount($rs);
         if($limit>0) {
             $output = webLoginAlert("Username is already in use!").$tpl;
             return;
-        }        
+        }
     }
     
     // verify email
@@ -75,7 +71,7 @@ else if ($isPostBack){
     if(!$rs = $modx->db->select('internalKey',$tbl_web_user_attributes,"email='{$email}'")){
         $output = webLoginAlert("An error occured while attempting to retreive all users with email $email.").$tpl;
         return;
-    } 
+    }
     $limit = $modx->db->getRecordCount($rs);
     if($limit>0) {
         $row=$modx->db->getRow($rs);
@@ -85,22 +81,22 @@ else if ($isPostBack){
         }
     }
     
-    // if there is no password, randomly generate a new one 	 
- 	if (isset($_POST['password'])) { 	  	 
-		// verify password 	  	 
+    // if there is no password, randomly generate a new one
+ 	if (isset($_POST['password'])) {
+		// verify password
  	    if ($_POST['password'] != $_POST['confirmpassword']) {
  	  		$output = webLoginAlert("Password typed is mismatched"). $tpl;
- 	  	    return; 	  	 
- 	  	} 	  	 
+ 	  	    return;
+ 	  	}
 
 	    // check password
 	    if (strlen($password) < 6 ) {
 	        $output = webLoginAlert("Password is too short!").$tpl;
 	        return;
-	    } 
+	    }
 	    elseif($password=="") {
 	        $output = webLoginAlert("You didn't specify a password for this user!").$tpl;
-	        return;        
+	        return;
 	    }
  	} else {
  		$password = webLoginGeneratePassword();
@@ -113,18 +109,18 @@ else if ($isPostBack){
     }
 
     // create the user account
-    $sql = "INSERT INTO ".$tbl_web_users." (username, password) 
+    $sql = "INSERT INTO ".$tbl_web_users." (username, password)
             VALUES('".$username."', md5('".$password."'));";
     $rs = $modx->db->query($sql);
     if(!$rs){
         $output = webLoginAlert("An error occured while attempting to save the user.").$tpl;
         return;
-    }         
+    }
     // now get the id
     $key=$modx->db->getInsertId();
 
     // save user attributes
-    $sql = "INSERT INTO ".$tbl_web_user_attributes." (internalKey, fullname, email, zip, state, country) 
+    $sql = "INSERT INTO ".$tbl_web_user_attributes." (internalKey, fullname, email, zip, state, country)
             VALUES($key, '$fullname', '$email', '$zip', '$state', '$country');";
     $rs = $modx->db->query($sql);
     if(!$rs){
@@ -144,7 +140,7 @@ else if ($isPostBack){
             }
         }
     }
-            
+    
     // invoke OnWebSaveUser event
     $modx->invokeEvent("OnWebSaveUser",
                         array(
@@ -158,15 +154,16 @@ else if ($isPostBack){
                         
     // send email notification
     $rt = webLoginSendNewPassword($email,$username,$password,$fullname);
+    $tpl = $modx->parseDocumentSource($tpl);
     if ($rt!==true) { // an error occured
         $output = $rt.$tpl;
         return;
     }
-        
+    
     // display change notification
     $newpassmsg = "A copy of the new password was sent to your email address.";
     $tpl = $tpls[1];
-    $tpl = str_replace("[+newpassmsg+]",$newpassmsg,$tpl);    
+    $tpl = str_replace("[+newpassmsg+]",$newpassmsg,$tpl);
     $output .= $tpl;
 }
 
@@ -174,8 +171,8 @@ else if ($isPostBack){
 function getWebSignuptpl($useCaptcha){
 	$countryOptions = getCountryCode();
     ob_start();
-    ?>
-    <!-- #declare:separator <hr> --> 
+?>
+    <!-- #declare:separator <hr> -->
     <!-- login form section-->
     <form method="post" name="websignupfrm" action="[+action+]">
 	User name : * <input type="text" name="username" size="20" value="[+username+]"><br />
@@ -185,20 +182,22 @@ function getWebSignuptpl($useCaptcha){
 	Confirm password:* <input type="password" name="confirmpassword" size="20"><br />
 	Country :
 	<select size="1" name="country" style="width:300px">
-	<?php echo $countryOptions; ?>
+<?php echo $countryOptions; ?>
 	</select><br />
 	State : <input type="text" name="state" size="20" value="[+state+]"><br />
 	Zip : <input type="text" name="zip" size="20" value="[+zip+]"><br />
-	<?php if ($useCaptcha)
-	{ ?>
+<?php if ($useCaptcha)
+	{
+?>
 	Form code : * <input type="text" name="formcode" style="width:150px" size="20">
-	<a href="[+action+]"><img align="top" src="captcha.php?rand=<?php echo mt_rand(); ?>" /></a><br />
-	<?php
-	} ?>
+	<a href="[+action+]"><img align="top" src="[(site_url)]captcha.php" /></a><br />
+<?php
+	}
+?>
 	<input type="submit" value="Submit" name="cmdwebsignup" />
 	<input type="reset" value="Reset" name="cmdreset" />
     </form>
-    <script language="javascript" type="text/javascript"> 
+    <script language="javascript" type="text/javascript">
         var id = "[+country+]";
         var f = document.websignupfrm;
         var i = parseInt(id);
@@ -209,7 +208,7 @@ function getWebSignuptpl($useCaptcha){
     <span style="font-weight:bold;">Signup completed successfully</span><br />
     Your account was successfully created.<br />
     A copy of your signup information was sent to your email address.<br /><br />
-    <?php 
+<?php
     $t = ob_get_contents();
     ob_end_clean();
     return $t;
@@ -218,10 +217,10 @@ function getWebSignuptpl($useCaptcha){
 function getCountryCode()
 {
 	global $modx;
-	incluede_once($modx->config['base_path'] . 'manager/includes/lang/country/' . $modx->config['manager_language'] . '_country.inc.php');
+	include_once($modx->config['base_path'] . 'manager/includes/lang/country/' . $modx->config['manager_language'] . '_country.inc.php');
 	foreach($_country_lang as $k=>$v)
 	{
-		$option = '<option value="' . $k . '">' . $v . '</option>';
+		$option[] = '<option value="' . $k . '">' . $v . '</option>';
 	}
 	return join("\n",$option);
 }
