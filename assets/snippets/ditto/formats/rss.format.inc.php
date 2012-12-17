@@ -79,11 +79,15 @@ $rss_placeholders['rss_xsl'] = isset($xsl) ? PHP_EOL . '<?xml-stylesheet type="t
 	Default:
 	None
 */
-$GLOBALS["dateSource"] = isset($dateSource) ? $dateSource : "publishedon";
+
+global $dateSource;
+$dateSource = isset($dateSource) ? $dateSource : 'publishedon';
+if(!isset($orderBy ['unparsed'])) $orderBy ['unparsed'] = "{$dateSource} DESC";
+
 	// date type to display (values can be createdon, pub_date, editedon)
 	
 // set tpl rss placeholders
-$placeholders['rss_date'] = array($GLOBALS["dateSource"],"rss_date");
+$placeholders['rss_date'] = array($dateSource,"rss_date");
 $placeholders['rss_pagetitle'] = array("pagetitle","rss_pagetitle");
 $placeholders['rss_author'] = array("createdby","rss_author"); 
 
