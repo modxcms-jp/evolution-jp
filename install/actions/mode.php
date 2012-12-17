@@ -3,11 +3,11 @@ $installmode = get_installmode();
 setOption('installmode', $installmode);
 
 $ph['installmode']   = $installmode;
-$ph['installImg']    = installImg($installmode);
-$ph['welcome_title'] = welcomeTitle($installmode);
-$ph['welcome_text']  = welcomeText($installmode);
-$ph['installTitle']  = installTitle($installmode);
-$ph['installNote']   = installNote($installmode);
+$ph['installImg']    = ($installmode==0) ? 'install_new.png'                       : 'install_upg.png';
+$ph['welcome_title'] = ($installmode==0) ? $_lang['welcome_message_welcome']       : $_lang['welcome_message_upd_welcome'];
+$ph['welcome_text']  = ($installmode==0) ? $_lang['welcome_message_text']          : $_lang['welcome_message_upd_text'];
+$ph['installTitle']  = ($installmode==0) ? $_lang['installation_new_installation'] : $_lang['installation_upgrade_existing'];
+$ph['installNote']   = ($installmode==0) ? $_lang['installation_install_new_note'] : $_lang['installation_upgrade_existing_note'];
 $ph['btnback_value'] = $_lang['btnback_value'];
 $ph['btnnext_value'] = $_lang['btnnext_value'];
 
@@ -46,38 +46,4 @@ function getTpl()
 </script>
 EOT;
 	return $tpl;
-}
-
-function installImg($installmode)
-{
-	if($installmode==0) return 'install_new.png';
-	else                return 'install_upg.png';
-}
-
-function installTitle($installmode)
-{
-	global $_lang;
-	if($installmode==0) return $_lang['installation_new_installation'];
-	else                return $_lang['installation_upgrade_existing'];
-}
-
-function installNote($installmode)
-{
-	global $_lang;
-	if($installmode==0) return $_lang['installation_install_new_note'];
-	else                return $_lang['installation_upgrade_existing_note'];
-}
-
-function welcomeTitle($installmode)
-{
-	global $_lang;
-	if($installmode==0) return $_lang['welcome_message_welcome'];
-	else                return $_lang['welcome_message_upd_welcome'];
-}
-
-function welcomeText($installmode)
-{
-	global $_lang;
-	if($installmode==0) return $_lang['welcome_message_text'];
-	else                return $_lang['welcome_message_upd_text'];
 }

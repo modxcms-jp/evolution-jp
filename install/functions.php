@@ -457,3 +457,28 @@ EOT;
 	
 	exit;
 }
+
+function get_langs()
+{
+	$langs = array();
+	foreach(glob('langs/*.inc.php') as $path)
+	{
+		if(substr($path,6,1)==='.') continue;
+		$langs[] = substr($path,6,strpos($path,'.inc.php')-6);
+	}
+	sort($langs);
+	return $langs;
+}
+
+function get_lang_options($install_language)
+{
+	$langs = get_langs();
+	
+	foreach ($langs as $language)
+	{
+		$abrv_language = explode('-',$language);
+		$option[] = '<option value="' . $language . '"'. (($language == $install_language) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>'."\n";
+	}
+	return join("\n",$option);
+}
+
