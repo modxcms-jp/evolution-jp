@@ -7,12 +7,12 @@ $moduleName = 'MODX';
 $moduleVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 
-$chunkPath = "{$installer_path}assets/chunks";
-$snippetPath = "{$installer_path}assets/snippets";
-$pluginPath = "{$installer_path}assets/plugins";
-$modulePath = "{$installer_path}assets/modules";
-$templatePath = "{$installer_path}assets/templates";
-$tvPath = "{$installer_path}assets/tvs";
+$chunkPath    = "{$base_path}assets/chunks/";
+$snippetPath  = "{$base_path}assets/snippets/";
+$pluginPath   = "{$base_path}assets/plugins/";
+$modulePath   = "{$base_path}assets/modules/";
+$templatePath = "{$base_path}assets/templates/";
+$tvPath       = "{$base_path}assets/tvs/";
 
 if (is_file("{$base_path}manager/includes/config.inc.php"))
 {
@@ -44,7 +44,7 @@ else
 $mt = &$moduleTemplates;
 if(is_dir($templatePath) && is_readable($templatePath))
 {
-	$files = glob("{$templatePath}/*.tpl");
+	$files = glob("{$templatePath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
@@ -74,7 +74,7 @@ if(is_dir($templatePath) && is_readable($templatePath))
 $mtv = &$moduleTVs;
 if(is_dir($tvPath) && is_readable($tvPath))
 {
-	$files = glob("{$tvPath}/*.tpl");
+	$files = glob("{$tvPath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
@@ -106,7 +106,7 @@ if(is_dir($tvPath) && is_readable($tvPath))
 $mc = &$moduleChunks;
 if(is_dir($chunkPath) && is_readable($chunkPath))
 {
-	$files = glob("{$chunkPath}/*.tpl");
+	$files = glob("{$chunkPath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
@@ -132,7 +132,7 @@ if(is_dir($chunkPath) && is_readable($chunkPath))
 $ms = &$moduleSnippets;
 if(is_dir($snippetPath) && is_readable($snippetPath))
 {
-	$files = glob("{$snippetPath}/*.tpl");
+	$files = glob("{$snippetPath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
@@ -159,7 +159,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 $mp = &$modulePlugins;
 if(is_dir($pluginPath) && is_readable($pluginPath))
 {
-	$files = glob("{$pluginPath}/*.tpl");
+	$files = glob("{$pluginPath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
@@ -191,7 +191,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 $mm = &$moduleModules;
 if(is_dir($modulePath) && is_readable($modulePath))
 {
-	$files = glob("{$modulePath}/*.tpl");
+	$files = glob("{$modulePath}*/*.tpl");
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
