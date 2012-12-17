@@ -302,7 +302,7 @@ switch ($action) {
     case 32: // get the save user processor
         include_once "processors/save_user.processor.php";
         break;
-    case 117: // get the edit user profile page 
+    case 119: // get the edit user profile page 
         include_once "header.inc.php";
         include_once "actions/mutate_user_pf.dynamic.php";
         include_once "footer.inc.php";

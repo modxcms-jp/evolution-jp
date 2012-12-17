@@ -118,7 +118,9 @@ $GLOBALS['action_list'] = array(
 	'114'	=> 'View event log',
 	'115'	=> 'View event log details',
 	'116'	=> 'Delete event log',
-	'117'	=> 'Editing user profile',
+	'117'	=> 'Editing tv rank',
+	'118'	=> 'Call settings ajax include',
+	'119'	=> 'Editing user profile',
 
 	'300'	=> 'Create Template Variable',
 	'301'	=> 'Edit Template Variable',
