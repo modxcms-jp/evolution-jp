@@ -97,7 +97,7 @@ switch ($e->name)
         		$mce_settings = array();
         		break;
     		case 12:
-    		case 117:
+    		case 119:
         		$mce_settings = $usersettings;
     			if(!empty($usersettings['tinymce_editor_theme']))
     			{

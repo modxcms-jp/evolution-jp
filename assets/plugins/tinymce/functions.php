@@ -19,7 +19,7 @@ class TinyMCE
 		{
 			case '11':
 			case '12':
-			case '117':
+			case '119':
 				$selected = $this->selected(empty($params['mce_editor_skin']));
 				$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
 				break;
@@ -82,7 +82,7 @@ class TinyMCE
 		{
 			case '11';
 			case '12';
-			case '117';
+			case '119';
 			$selected = empty($params['theme']) ? '"selected"':'';
 			$theme_options .= '<option value="" ' . $selected . '>' . $_lang['mce_theme_global_settings'] . "</option>\n";
 		}
@@ -111,7 +111,7 @@ class TinyMCE
 		{
 			case '11':
 			case '12':
-			case '117':
+			case '119':
 			$ph['entermode_options']  .= '<br />';
 			$ph['entermode_options']  .= '<label><input name="mce_entermode" type="radio" value="" '.  $this->checked(empty($params['mce_entermode'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
 			break;
@@ -123,7 +123,7 @@ class TinyMCE
 		{
 			case '11':
 			case '12':
-			case '117':
+			case '119':
 			$ph['element_format_options']  .= '<br />';
 			$ph['element_format_options']  .= '<label><input name="mce_element_format" type="radio" value="" '.  $this->checked(empty($params['mce_element_format'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
 			break;
@@ -135,7 +135,7 @@ class TinyMCE
 		{
 			case '11':
 			case '12':
-			case '117':
+			case '119':
 			$ph['schema_options']  .= '<br />';
 			$ph['schema_options']  .= '<label><input name="mce_schema" type="radio" value="" '.  $this->checked(empty($params['mce_schema'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
 			break;
