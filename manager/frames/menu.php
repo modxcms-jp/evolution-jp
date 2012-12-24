@@ -359,6 +359,10 @@ if (!empty($securitymenu)) {
 	echo '<li id="limenu4"><a href="#menu4" onclick="new NavToggle(this); return false;">'.$_lang['users'].'</a><ul class="subnav" id="menu4">'."\n".
 	     "{$securitymenu}\n</ul></li>\n";
 }
+if (!empty($usermenu)) {
+	echo '<li id="limenu7"><a href="#menu7" onclick="new NavToggle(this); return false;">'.$_lang['user'].'</a><ul class="subnav" id="menu7">'."\n".
+	     "{$usermenu}\n</ul></li>\n";
+}
 if (!empty($toolsmenu)) {
 	echo '<li id="limenu5"><a href="#menu5" onclick="new NavToggle(this); return false;">'.$_lang['tools'].'</a><ul class="subnav" id="menu5">'."\n".
 	     "{$toolsmenu}\n</ul></li>\n";
@@ -366,10 +370,6 @@ if (!empty($toolsmenu)) {
 if (!empty($reportsmenu)) {
 	echo '<li id="limenu6"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu6">'."\n".
 	     "{$reportsmenu}\n</ul></li>\n";
-}
-if (!empty($usermenu)) {
-	echo '<li id="limenu7"><a href="#menu7" onclick="new NavToggle(this); return false;">'.$_lang['user'].'</a><ul class="subnav" id="menu7">'."\n".
-	     "{$usermenu}\n</ul></li>\n";
 }
 ?>
 	</ul>
