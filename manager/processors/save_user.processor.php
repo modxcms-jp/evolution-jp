@@ -195,7 +195,7 @@ switch ($mode) {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$id" : "11";
 				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
-			} elseif($mode==='117') {
+			} elseif($mode==='119') {
 				$header = "Location: index.php?a=2";
 			} else {
 				$header = "Location: index.php?a=75";
@@ -206,7 +206,7 @@ switch ($mode) {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$key" : "11";
 				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
-			} elseif($mode==='117') {
+			} elseif($mode==='119') {
 				$stayUrl = "index.php?a=2";
 			} else {
 				$stayUrl = "index.php?a=75";
@@ -244,7 +244,7 @@ switch ($mode) {
 		break;
 
 	case '12' : // edit user
-	case '117' : // edit user profile
+	case '119' : // edit user profile
 		// generate a new password for this user
 		if ($genpassword == 1) {
 			if ($specifiedpassword != '' && $passwordgenmethod == "spec") {
@@ -447,7 +447,7 @@ switch ($mode) {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";
 				$header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
-			} elseif($mode==='117') {
+			} elseif($mode==='119') {
 				$header = "Location: index.php?a=2";
 			} else {
 				$header = "Location: index.php?a=75";
