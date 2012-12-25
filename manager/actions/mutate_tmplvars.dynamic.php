@@ -69,10 +69,29 @@ else
 $formRestored = $modx->manager->loadFormValues();
 if($formRestored) $content = array_merge($content, $_POST);
 
+if($content['type']==='custom_tv' && $content['elements']==='')
+{
+	$content['elements'] = '<textarea tvtype="textarea" id="' . $field_id . '" name="' . $field_id . '">[+field_value+]</textarea>';
+}
+
 // get available RichText Editors
 $RTEditors = '';
 $evtOut = $modx->invokeEvent('OnRichTextEditorRegister',array('forfrontend' => 1));
 if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
+
+$form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . htmlspecialchars($content['elements']) . "</textarea>\n";
+
+$tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
+$ph=array();
+$ph['src']   = $_style['icons_tooltip_over'];
+$ph['title'] = $_lang['tmplvars_binding_msg'];
+$ph['alt']   = $_lang['tmplvars_binding_msg'];
+$tooltip_tv_binding = $modx->parsePlaceholder($tooltip_tpl,$ph);
+
+$ph['title'] = $_lang['tmplvars_input_option_msg'];
+$ph['alt']   = $_lang['tmplvars_input_option_msg'];
+$tooltip_input_option = $modx->parsePlaceholder($tooltip_tpl,$ph);
+
 ?>
 <script language="JavaScript">
 $j(function(){
@@ -97,29 +116,22 @@ $j(function(){
 			case 'checkbox':
 			case 'option':
 			case 'custom_tv':
-				$j('#elements').fadeIn();
-				var multi = 'KeyA==ValA||KeyB==ValB';
+				$j('#inputoption').fadeIn();
 				<?php $field_id = ($id) ? "tv{$id}" : 'tv[+field_id+]';?>
 				var ctv   = '<textarea tvtype="textarea" id="<?php echo $field_id ;?>" name="<?php echo $field_id ;?>">[+field_value+]</textarea>';
 				if(itype.val()=='custom_tv')
 				{
-					$j('#elements th:first').css('visibility','hidden');
-					if($j('#elements textarea').val()==multi || $j('#elements textarea').val()=='')
-					{
-						$j('#elements textarea').val(ctv);
-					}
+					$j('#inputoption th:first').css('visibility','hidden');
+					if($j('#inputoption textarea').val()=='') $j('#inputoption textarea').val(ctv);
 				}
 				else
 				{
-					if($j('#elements textarea').val()==ctv || $j('#elements textarea').val()=='')
-					{
-						$j('#elements textarea').val(multi);
-					}
-					$j('#elements th:first').css('visibility','visible');
+					$j('#inputoption th:first').css('visibility','visible');
+					if($j('#inputoption textarea').val()==ctv) $j('#inputoption textarea').val('');
 				}
 				break;
 			default:
-				$j('#elements').fadeOut();
+				$j('#inputoption').fadeOut();
 		}
 	});
 });
@@ -145,7 +157,7 @@ var widgetParams = {};          // name = description;datatype;default or list v
     widgetParams['delim']       = '&delim=Delimiter;string;,';
     widgetParams['hyperlink']   = '&text=Display Text;string; &title=Title;string; &class=Class;string &style=Style;string &target=Target;string &attrib=Attributes;string';
     widgetParams['htmltag']     = '&output=Content;textarea;[+value+] &tagname=Tag Name;string;div &tagid=Tag ID;string &class=Class;string &style=Style;string &attrib=Attributes;string';
-    widgetParams['datagrid']    = '&cdelim=Column Delimiter;list;%2C,tab,|| &cwrap=Column Wrapper;string;" &enc=Src Encode;list;utf-8,sjis-win,sjis,eucjp-win,euc-jp,jis,auto &detecthead=Detect Header;list;first line,none;first line &cols=Column Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;string; &cspace=Cell Spacing;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string; &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
+    widgetParams['datagrid']    = '&cdelim=Column Delimiter;list;%2C,tab,||,:: &cwrap=Column Wrapper;string;" &enc=Src Encode;list;utf-8,sjis-win,sjis,eucjp-win,euc-jp,jis,auto &detecthead=Detect Header;list;first line,none;first line &cols=Column Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;string; &cspace=Cell Spacing;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string; &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
     widgetParams['richtext']    = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?php echo $RTEditors; ?>';
     widgetParams['image']       = '&output=Src;textarea;[+value+] &alttext=Alternate Text;string &align=Align;list;none,baseline,top,middle,bottom,texttop,absmiddle,absbottom,left,right &name=Name;string &class=Class;string &id=ID;string &style=Style;string &attrib=Other Attribs;string';
     widgetParams['custom_widget']       = '&output=Output;textarea;[+value+]';
@@ -185,7 +197,7 @@ function showParameters(ctrl) {
     dp = (widgetParams[df]) ? widgetParams[df].split("&"):"";
     if(!dp) tr.style.display='none';
     else {
-        t='<table width="300" style="margin-bottom:3px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter']; ?></td><td width="50%"><?php echo $_lang['value']; ?></td></tr></thead>';
+        t='<table width="400" style="margin-bottom:3px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter']; ?></td><td width="50%"><?php echo $_lang['value']; ?></td></tr></thead>';
         for(p = 0; p < dp.length; p++) {
             dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
             ar = dp[p].split("=");
@@ -216,7 +228,7 @@ function showParameters(ctrl) {
                         c += '</select>';
                         break;
                     case 'textarea':
-                        c = '<textarea class="inputBox phptextarea" name="prop_'+key+'" cols="25" style="width:220px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
+                        c = '<textarea class="inputBox phptextarea" name="prop_'+key+'" cols="25" style="width:320px;" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" >'+value+'</textarea>';
                         break;
                     default:  // string
                         c = '<input type="text" name="prop_'+key+'" value="'+value+'" size="30" onchange="setParameter(\''+key+'\',\''+dt+'\',this)" />';
@@ -415,18 +427,14 @@ switch($content['type'])
 		break;
 	default: $display = 'style="display:none;"';
 }
-if($content['type']==='custom_tv' && $content['elements']==='')
-{
-	$content['elements'] = '<input type="text" id="tv[+field_id+]" name="tv[+field_id+]" value="[+field_value+]" [+field_style+] tvtype="[+field_type+]"/>';
-}
 ?>
-  <tr id="elements" <?php echo $display;?>>
+  <tr id="inputoption" <?php echo $display;?>>
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
-	<td align="left" nowrap="nowrap"><textarea name="elements" maxlength="65535" style="width:300px;height:110px;" class="inputBox phptextarea"><?php echo htmlspecialchars($content['elements']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
+	<td align="left" nowrap="nowrap"><?php echo $form_elements . $tooltip_input_option;?></td>
   </tr>
   <tr>
     <th align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?></th>
-    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:300px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><img src="<?php echo $_style["icons_tooltip_over"]?>" title="<?php echo $_lang['tmplvars_binding_msg']; ?>" alt="<?php echo $_lang['tmplvars_binding_msg']; ?>" class="tooltip" onclick="alert(this.alt);" style="cursor:help" /></td>
+    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
   </tr>
   <tr>
 <?php
@@ -438,7 +446,7 @@ function selected($target='')
 ?>
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
     <td align="left">
-        <select name="display" size="1" class="inputBox" style="width:300px;" onchange="showParameters(this);">
+        <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
 	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
 			<optgroup label="Widgets">
 	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
