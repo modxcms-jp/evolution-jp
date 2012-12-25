@@ -1,11 +1,11 @@
 <?php
 /**
- * @name ManagerManager
- * @version 0.3.12.1 (2012-02-15)
+ * ManagerManager plugin
+ * @version 0.4 (2012-11-14)
  * 
  * @for MODx Evolution 1.0.x
  * 
- * @author Nick Crossland - www.rckt.co.uk, studio DivanDesign - www.DivanDesign.biz
+ * @author Nick Crossland - www.rckt.co.uk, DivanDesign studio - www.DivanDesign.biz
  * 
  * @description Used to manipulate the display of document fields in the manager.
  * 
@@ -14,6 +14,10 @@
  * @inspiration HideEditor plugin by Timon Reinhard and Gildas; HideManagerFields by Brett @ The Man Can!
  * 
  * @license Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
+ * 
+ * @link http://code.divandesign.biz/modx/managermanager/0.4
+ * 
+ * @copyright 2012
  */
 
 class MANAGERMANAGER
@@ -28,39 +32,28 @@ class MANAGERMANAGER
 		global $modx;
 		
 		extract($modx->event->params);
-		$mm_version = '0.3.12.1'; 
+		$mm_version = '0.4'; 
 		
-		// Bring in some preferences which have been set on the configuration tab of the plugin, and normalise them
 		
-		// When loading widgets / functions, ignore folders / files beginning with these chars
+$pluginDir = $modx->config['base_path'].'assets/plugins/managermanager';
+
+//Include Utilites
+include_once($pluginDir.'/utilities.inc.php');
+
+// When loading widgets, ignore folders / files beginning with these chars
 		$ignore_first_chars = array('.', '_', '!');
-		
-		// Include functions - we'll load all *.inc.php files in the "functions" folder
-		$function_dir = "{$modx->config['base_path']}assets/plugins/managermanager/functions";
-		if ($files = scandir($function_dir))
-		{
-			foreach($files as $file)
-			{
-				if (!in_array(substr($file, 0, 1), $ignore_first_chars) && $file != '..' && substr($file, -8) == '.inc.php')
-				{
-					include_once("{$function_dir}/{$file}");
-				}
-			}
-		}
 		
 		// Include widgets
 		// We look for a PHP file with the same name as the directory - e.g.
 		// /widgets/widgetname/widgetname.php
-		$widget_dir = "{$modx->config['base_path']}assets/plugins/managermanager/widgets";
-		if ($files = scandir($widget_dir))
-		{
-			foreach($files as $file)
-			{
-				if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != '..'  && is_dir($widget_dir.'/'.$file))
-				{
+$widget_dir = $pluginDir.'/widgets';
+if ($handle = opendir($widget_dir)){
+    while (false !== ($file = readdir($handle))){
+        if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != ".."  && is_dir($widget_dir.'/'.$file)){
 					include_once("{$widget_dir}/{$file}/{$file}.php");
 				}
 			}
+    closedir($handle);
 		}
 		
 		// Set variables
@@ -116,7 +109,6 @@ class MANAGERMANAGER
 		// Add in TVs to the list of available fields
 		$all_tvs = $modx->db->makeArray( $modx->db->select('name,type,id,elements', $modx->getFullTableName('site_tmplvars'), '', 'name ASC')   );
 		foreach ($all_tvs as $thisTv) {
-			
 			$n = $thisTv['name']; // What is the field name?
 		
 			// Checkboxes place an underscore in the ID, so accommodate this...
@@ -183,7 +175,6 @@ class MANAGERMANAGER
 			$mm_fields[ 'tv'.$n ] = array('fieldtype'=>$t, 'fieldname'=>'tv'.$thisTv['id'].$fieldname_suffix, 'dbname'=>'', 'tv'=>true);
 		}
 		
-		// Get the contents of the config chunk, and put it in the "make changes" function, to be run at the appropriate moment later on
 		
 		// Check the current event
 		global $e;
@@ -191,20 +182,14 @@ class MANAGERMANAGER
 		
 		// The start of adding or editing a document (before the main form)
 		switch ($e->name) {
-		
-		
 		// if it's the plugin config form, give us a copy of all the relevant values
-		
 		case 'OnPluginFormRender':
 			$plugin_id_editing = $e->params['id']; // The ID of the plugin we're editing
-			$result = $modx->db->select('name, id', $modx->getFullTableName('site_plugins'), "id={$plugin_id_editing}");
-			$all_plugins = $modx->db->makeArray( $result );
-			$plugin_editing_name = $all_plugins[0]['name'];
-		
+			$result = $modx->db->select('name, id', $modx->getFullTableName('site_plugins'), "id='{$plugin_id_editing}'");
+		$plugin_editing_name = $modx->db->getValue($result);
 			
 			// if it's the right plugin
 			if (strtolower($plugin_editing_name) == 'managermanager') {
-			
 				// Get all templates
 				$result = $modx->db->select('templatename, id, description', $modx->getFullTableName('site_templates'), '', 'templatename ASC');
 				$all_templates = $modx->db->makeArray( $result );
@@ -237,10 +222,10 @@ class MANAGERMANAGER
 				}
 				$tvs_table .= '</table>';
 				
-				
 				// Get all roles
 				$result = $modx->db->select('name, id', $modx->getFullTableName('user_roles'), '', 'name ASC');
 				$all_roles = $modx->db->makeArray( $result );
+			
 				$roles_table = '<table>';
 				$roles_table .= '<tr><th class="gridHeader">ID</th><th class="gridHeader">Role name</th></tr>';
 				foreach ($all_roles as $count=>$role) {
@@ -269,6 +254,97 @@ class MANAGERMANAGER
 			break;
 		
 		
+		case 'OnDocFormPrerender':
+			// Load the jquery library
+			echo '<!-- Begin ManagerManager output -->' . "\n";
+			
+			// Create a mask to cover the page while the fields are being rearranged
+			echo '
+				<div id="loadingmask">&nbsp;</div>
+				<script type="text/javascript">
+					$j("#loadingmask").css( {width: "100%", height: $j("body").height(), position: "absolute", zIndex: "1000", backgroundColor: "#ffffff"} );
+				</script>
+			';
+			echo '<!-- End ManagerManager output -->';
+			break;
+			
+	// The main document editing form
+		case 'OnDocFormRender':
+		    // Include the JQuery call
+		    $e->output( '
+		<!-- ManagerManager Plugin :: '.$mm_version.' -->
+		<!-- This document is using template: '. $mm_current_page['template'] .' -->
+		<!-- You are logged into the following role: '. $mm_current_page['role'] .' -->
+				
+		<script type="text/javascript" charset="'.$modx->config['modx_charset'].'">
+		var mm_lastTab = "tabGeneral";
+		var mm_sync_field_count = 0;
+		var synch_field = new Array();
+		
+	$j(document).ready(function(){
+			// Lets handle errors nicely...
+		try {
+			// Change section index depending on Content History running or not
+			var sidx = ($j("div.sectionBody:eq(1)").attr("id") == "ch-body")?1:0;  //ch-body is the CH id name (currently at least)
+			
+			// Give IDs to the sections of the form
+			// This assumes they appear in a certain order
+			$j("div.sectionHeader:eq(sidx)").attr("id", "sectionContentHeader");
+			$j("div.sectionHeader:eq(sidx+1)").attr("id", "sectionTVsHeader");
+		  	
+			$j("div.sectionBody:eq(sidx+1)").attr("id", "sectionContentBody");
+			$j("div.sectionBody:eq(sidx+2)").attr("id", "sectionTVsBody");
+		');
+			
+		// Get the JS for the changes & display the status
+		$e->output($this->make_changes($config_chunk));
+			
+		    // Close it off
+		    $e->output( '
+				// Misc tidying up
+				
+				// General tab table container is too narrow for receiving TVs -- make it a bit wider
+				$j("div#tabGeneral table").attr("width", "100%");
+				
+				// if template variables containers are empty, remove their section
+			if ($j("div.tmplvars :input").length == 0){
+					$j("div.tmplvars").hide();	// Still contains an empty table and some dividers
+					$j("div.tmplvars").prev("div").hide();	// Still contains an empty table and some dividers
+					//$j("#sectionTVsHeader").hide();
+				}
+				
+				// If template category is empty, hide the optgroup
+			$j("#template optgroup").each( function(){
+					var $this = $j(this),
+					visibleOptions = 0;
+					$this.find("option").each( function() {
+						if ($j(this).css("display") != "none") 	visibleOptions++ ;
+					});
+					if (visibleOptions == 0) $this.hide();
+				});
+				
+		}catch(e){
+				// If theres an error, fail nicely
+				alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
+		}finally{
+				// Whatever happens, hide the loading mask
+				$j("#loadingmask").hide();
+			}
+		});
+		</script>
+		<!-- ManagerManager Plugin :: End -->
+				');
+			break;
+
+		
+		case 'OnBeforeDocFormSave':
+			global $template;
+			
+			$mm_current_page['template'] = $template;
+			
+			$this->make_changes($config_chunk);
+		break;
+		
 		case 'OnManagerMainFrameHeaderHTMLBlock':
 			global $action;
 			if(empty($action) && isset($_GET['a'])) $action = $_GET['a'];
@@ -289,137 +365,24 @@ class MANAGERMANAGER
 			
 			break;
 		
-		case 'OnDocFormPrerender':
-			// Load the jquery library
-			echo '<!-- Begin ManagerManager output -->' . "\n";
-			
-			// Create a mask to cover the page while the fields are being rearranged
-			echo '
-				<div id="loadingmask">&nbsp;</div>
-				<script type="text/javascript">
-					$j("#loadingmask").css( {width: "100%", height: $j("body").height(), position: "absolute", zIndex: "1000", backgroundColor: "#ffffff"} );
-				</script>
-			';
-			echo '<!-- End ManagerManager output -->';
-			break;
-			
-			
-		
-		case 'OnDocFormRender':
-			
-			// The main document editing form
-			
-		    // Include the JQuery call
-		    $e->output( '
-		<!-- ManagerManager Plugin :: '.$mm_version.' -->
-		<!-- This document is using template: '. $mm_current_page['template'] .' -->
-		<!-- You are logged into the following role: '. $mm_current_page['role'] .' -->
-				
-		<script type="text/javascript" charset="'.$modx->config['modx_charset'].'">
-		var mm_lastTab = "tabGeneral";
-		var mm_sync_field_count = 0;
-		var synch_field = new Array();
-		
-		$j(function()
-		{
-			
-			// Lets handle errors nicely...
-			try
-			{
-			'
-					);
-			// Get the JS for the changes
-		  	
-			
-			// Where would we get the config file from?
-			$config_file = $modx->config['base_path'] . 'assets/plugins/managermanager/mm_rules.inc.php';
-			
-			// See if there is any chunk output (e.g. it exists, and is not empty)
-			$chunk_output = $modx->getChunk($config_chunk);
-			if (!empty($chunk_output))
-			{
-				$e->output("// Getting rules from chunk: $config_chunk \n\n");
-				eval($chunk_output); // If there is, run it.
-			}
-			else if (is_readable($config_file))
-			{	// If there's no chunk output, read in the file.
-				$e->output("// Getting rules from file: $config_file \n\n");
-				include($config_file);
-			}
-			else
-			{
-				$e->output("// No rules found \n\n");
-			}
-		    
-		    // Close it off
-		    $e->output( '
-			
-				// Misc tidying up
-				
-				// General tab table container is too narrow for receiving TVs -- make it a bit wider
-				$j("div#tabGeneral table").attr("width", "100%");
-				
-				// if template variables containers are empty, remove their section
-				if ($j("div.tmplvars :input").length == 0)
-				{
-					$j("div.tmplvars").hide();	// Still contains an empty table and some dividers
-					$j("div.tmplvars").prev("div").hide();	// Still contains an empty table and some dividers
-					//$j("#sectionTVsHeader").hide();
-				}
-				
-				// If template category is empty, hide the optgroup
-				$j("#template optgroup").each( function()
-				{
-					var $this = $j(this),
-					visibleOptions = 0;
-					$this.find("option").each( function() {
-						if ($j(this).css("display") != "none") 	visibleOptions++ ;
-					});
-					if (visibleOptions == 0) $this.hide();
-				});
-				
-			}
-			catch (e)
-			{
-				// If theres an error, fail nicely
-				alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
-				
-			}
-			finally
-			{
-				
-				// Whatever happens, hide the loading mask
-				$j("#loadingmask").hide();
-			}
-		});
-		</script>
-		<!-- ManagerManager Plugin :: End -->
-				');
-			break;
-		
-		case 'OnBeforeDocFormSave':
-			global $template;
-			
-			$mm_current_page['template'] = $template;
-			
-			$this->make_changes($config_chunk);
-		break;
-		
 		} // end switch
 	}
 	
-	function make_changes($chunk) {
-	
+	function make_changes($chunk){
 		global $modx;	// Global modx object
-		$config_file = $modx->config['base_path'] . 'assets/plugins/managermanager/mm_rules.inc.php';
+		$config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
 		
 		// See if there is any chunk output (e.g. it exists, and is not empty)
 		$chunk_output = $modx->getChunk($chunk);
-		if (!empty($chunk_output)) {
+		if (!empty($chunk_output)){
 			eval($chunk_output); // If there is, run it.
-			return;
-		} else if (is_readable($config_file)) {	// If there's no chunk output, read in the file.
-			include_once($config_file);
+			return "// Getting rules from chunk: $chunk \n\n";
+		}else if (is_readable($config_file)){	// If there's no chunk output, read in the file.
+			include($config_file);
+			return "// Getting rules from file: $config_file \n\n";
+		}else{
+			return "// No rules found \n\n";
 		}
 	}
+
 }
