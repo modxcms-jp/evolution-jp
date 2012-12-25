@@ -60,6 +60,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				if($src)
 				{
 					// We have a valid source
+					$src = $modx->parsePlaceholder($params['output'],array('value'=>$src));
 					$attributes = '';
 					$attr = array(
 						'class' => $params['class'],
@@ -156,9 +157,10 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				$tagvalue = is_array($value[$i]) ? implode(' ', $value[$i]) : $value[$i];
 				if (!$tagvalue) continue;
 				
+				$tagvalue = $modx->parsePlaceholder($params['output'],array('value'=>$tagvalue));
 				$attributes = '';
 				$attr = array(
-					'id' => ($tagid ? $tagid : $id) . ($i+1), // 'tv' already added to id
+					'id' => ($tagid ? $tagid : $tagname) . ($i+1), // 'tv' already added to id
 					'class' => $params['class'],
 					'style' => $params['style'],
 				);
@@ -167,9 +169,17 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 					$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
 				}
 				$attributes .= ' '.$params['attrib']; // add extra
+				$attributes = rtrim($attributes);
 				
 				// Output the HTML Tag
-				$o .= '<'.$tagname.rtrim($attributes).'>'.$tagvalue.'</'.$tagname.'>';
+				switch($tagname)
+				{
+					case 'img':
+						$o .= "<img src=\"{$tagvalue}\" {$attributes} />\n";
+						break;
+					default:
+						$o .= "<{$tagname}{$attributes}>{$tagvalue}</{$tagname}>\n";
+				}
 			}
 			break;
 		case 'richtext':
