@@ -27,6 +27,7 @@
 			case "email": // handles email input fields
 			case "number": // handles the input of numbers
 				if($field_type=='text') $field_type = '';
+				elseif($field_type=='number') $field_type .= ' imeoff';
 				$field_html .=  '<input type="text" class="text ' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' tvtype="'.$field_type.'" />';
 				break;
 			case "textareamini": // handler for textarea mini boxes
