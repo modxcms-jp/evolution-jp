@@ -673,7 +673,7 @@ function fileupload()
 		if($modx->config['clean_uploaded_filename']==1)
 		{
 			$nameparts = explode('.', $name);
-			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts,'file_manager');
+			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts, array('file_manager'));
 			$name = implode('.', $nameparts);
 		}
 		$userfile['name'] = $name;
