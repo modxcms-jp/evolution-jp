@@ -519,8 +519,8 @@ class DBAPI {
      * @return type 
      */
     function get_records($sql_or_table,$where='',$orderby='',$limit=0){
-
-        if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
+        $sql_or_table = trim($sql_or_table);
+        if ((stripos($sql_or_table, 'select')===0)||(stripos($sql_or_table, 'show')===0)){
             $sql = $sql_or_table;
         }else{
             $where = empty($where) ? '' : " WHERE '{$where}'";
