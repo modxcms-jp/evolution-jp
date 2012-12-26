@@ -21,7 +21,7 @@ class DBAPI {
 		global $database_server,$dbase,$database_user,$database_password,$table_prefix,$database_connection_charset,$database_connection_method;
 		
 		$this->config['host']    = $host    ? $host    : $database_server;
-		$this->config['dbase']   = $dbase   ? $dbase   : $dbase;
+		$this->config['dbase']   = $dbase;
 		$this->config['user']    = $uid     ? $uid     : $database_user;
 		$this->config['pass']    = $pwd     ? $pwd     : $database_password;
 		$this->config['charset'] = $charset ? $charset : $database_connection_charset;
