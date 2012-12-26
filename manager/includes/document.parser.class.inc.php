@@ -2251,22 +2251,6 @@ class DocumentParser {
 		}
 	}
 	
-	function remove_locks($action='all',$limit_time=120)
-	{
-		$limit_time = time() - $limit_time;
-		if($action === 'all')
-		{
-			$action = '';
-		}
-		else
-		{
-			$action = intval($action);
-			$action = "action={$action} and";
-		}
-		$tbl_active_users = $this->getFullTableName('active_users');
-		$this->db->delete($tbl_active_users,"{$action} lasthit < {$limit_time}");
-	}
-
     # Returns true if parser is executed in backend (manager) mode
     function isBackend() {
 		if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true')

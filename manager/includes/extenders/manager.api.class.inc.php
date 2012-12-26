@@ -260,4 +260,19 @@ class ManagerAPI {
 		$_SESSION['token'] = $newToken;
 		return $newToken;
 	}
+	
+	function remove_locks($action='all',$limit_time=120)
+	{
+		$limit_time = time() - $limit_time;
+		if($action === 'all')
+		{
+			$action = '';
+		}
+		else
+		{
+			$action = intval($action);
+			$action = "action={$action} and";
+		}
+		$this->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
+	}
 }
