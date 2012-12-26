@@ -667,66 +667,66 @@ class DBAPI {
 	{
 		return mysql_get_server_info();
 	}
-        
-        /**
-         * @name  get_record 
-         * @desc  get row as object from table, like oop style 
-         *        $doc = $modx->db->get_record("site_content","id=1")
-         * 
-         * @param string $table
-         * @param string $where
-         * @param string $orderby
-         * @return an object of row from query, or return false if empty query	
-         */
-        function get_record($table,$where,$orderby=""){
-            $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
-            if ($this->getRecordCount($rs)==0) return false;
-            return $this->getRow($rs,"object");
+    
+    /**
+     * @name  get_record 
+     * @desc  get row as object from table, like oop style 
+     *        $doc = $modx->db->get_record("site_content","id=1")
+     * 
+     * @param string $table
+     * @param string $where
+     * @param string $orderby
+     * @return an object of row from query, or return false if empty query	
+     */
+    function get_record($table,$where,$orderby=""){
+        $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
+        if ($this->getRecordCount($rs)==0) return false;
+        return $this->getRow($rs,"object");
+    }
+
+    /**
+     * @name get_record_sql
+     * @desc  get row as object from sql query
+     * 
+     * @param string $sql
+     * @return an object of row from query, or return false if empty query	 
+     */
+    function get_record_sql($sql){
+        $rs = $this->query($sql);
+        if ($this->getRecordCount($rs)==0) return false;
+        return $this->getRow($rs,"object");
+    }
+    
+    /**
+     * @name get_records
+     * @desc  get array of object by table or sql query
+     *        $docs = $modx->db->get_records("site_content","parent=1");
+     *  or
+     *        $docs = $modx->db->get_records("select * from modx_site_content left join ...");
+     * 
+     * @param type $sql_or_table
+     * @param type $where
+     * @param type $orderby
+     * @param type $limit
+     * @return type 
+     */
+    function get_records($sql_or_table,$where="",$orderby="",$limit=0){
+
+        if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
+            $sql = $sql_or_table;
+        }else{
+            $where = empty($where)?"":" where $where";
+            $orderby = empty($orderby)?"":" order by $orderby";
+            $limit = empty($limit)?"": "limit $limit";
+            $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
         }
 
-        /**
-         * @name get_record_sql
-         * @desc  get row as object from sql query
-         * 
-         * @param string $sql
-         * @return an object of row from query, or return false if empty query	 
-         */
-        function get_record_sql($sql){
-            $rs = $this->query($sql);
-            if ($this->getRecordCount($rs)==0) return false;
-            return $this->getRow($rs,"object");
+        $rs = $this->query($sql);
+        $result = array();
+        while ($row = $this->getRow($rs,"object")){
+            $result[] = $row;
         }
-        
-        /**
-         * @name get_records
-         * @desc  get array of object by table or sql query
-         *        $docs = $modx->db->get_records("site_content","parent=1");
-         *  or
-         *        $docs = $modx->db->get_records("select * from modx_site_content left join ...");
-         * 
-         * @param type $sql_or_table
-         * @param type $where
-         * @param type $orderby
-         * @param type $limit
-         * @return type 
-         */
-        function get_records($sql_or_table,$where="",$orderby="",$limit=0){
-
-            if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
-                $sql = $sql_or_table;
-            }else{
-                $where = empty($where)?"":" where $where";
-                $orderby = empty($orderby)?"":" order by $orderby";
-                $limit = empty($limit)?"": "limit $limit";
-                $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
-            }
-
-            $rs = $this->query($sql);
-            $result = array();
-            while ($row = $this->getRow($rs,"object")){
-                $result[] = $row;
-            }
-            return $result;
+        return $result;
 
         }
 }
