@@ -95,7 +95,7 @@ class synccache {
 		$pattern = realpath($this->cachePath)."/*.{$target}.php";
 		$pattern = str_replace('\\','/',$pattern);
 		$files = glob($pattern,GLOB_NOCHECK);
-		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
+		$filesincache = ($files['0'] !== $pattern) ? count($files) : 0;
 		$deletedfiles = array();
 		if(is_array($files) && 0 < $filesincache)
 		{
