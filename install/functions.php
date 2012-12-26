@@ -25,7 +25,7 @@ function autoDetectLang()
 	switch($lc)
 	{
 		case 'ja': $lang = 'japanese-utf8'        ; break;
-//		case 'ru': $lang = 'russian-utf8.inc.php' ; break;
+		case 'ru': $lang = 'russian-utf8' ; break;
 		default  : $lang = 'english'              ;
 	}
 	return $lang;
