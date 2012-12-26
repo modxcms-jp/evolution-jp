@@ -681,7 +681,7 @@ class DBAPI {
         function get_record($table,$where,$orderby=""){
             $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
             if ($this->getRecordCount($rs)==0) return false;
-            return $this->GetRow($rs,"object");
+            return $this->getRow($rs,"object");
         }
 
         /**
@@ -694,7 +694,7 @@ class DBAPI {
         function get_record_sql($sql){
             $rs = $this->query($sql);
             if ($this->getRecordCount($rs)==0) return false;
-            return $this->GetRow($rs,"object");
+            return $this->getRow($rs,"object");
         }
         
         /**
