@@ -198,11 +198,11 @@ class DBAPI {
 		if(!$from) return false;
 		else
 		{
-			$table = $from;
+			$from = $this->replaceFullTableName($from);
 			if($where != '') $where = "WHERE {$where}";
 			if($orderby !== '') $orderby = "ORDER BY {$orderby}";
 			if($limit != '') $limit = "LIMIT {$limit}";
-			return $this->query("DELETE FROM {$table} {$where} {$orderby} {$limit}");
+			return $this->query("DELETE FROM {$from} {$where} {$orderby} {$limit}");
 		}
 	}
 	
@@ -215,6 +215,7 @@ class DBAPI {
 		if(!$from) return false;
 		else
 		{
+			$from = $this->replaceFullTableName($from);
 			if($where !== '')   $where   = "WHERE {$where}";
 			if($orderby !== '') $orderby = "ORDER BY {$orderby}";
 			if($limit !== '')   $limit   = "LIMIT {$limit}";
@@ -231,6 +232,7 @@ class DBAPI {
 		if(!$table) return false;
 		else
 		{
+			$table = $this->replaceFullTableName($table);
 			if (!is_array($fields)) $pairs = $fields;
 			else 
 			{
@@ -276,6 +278,8 @@ class DBAPI {
 		if (!$intotable) $result = false;
 		else
 		{
+			$intotable = $this->replaceFullTableName($intotable);
+			$fromtable = $this->replaceFullTableName($fromtable);
 			if (!is_array($fields))
 			{
 				$pairs = $fields;
@@ -482,7 +486,8 @@ class DBAPI {
      * @return an object of row from query, or return false if empty query	
      */
     function get_record($table,$where,$orderby=''){
-        $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
+        $table = $this->replaceFullTableName($table,true);
+        $rs = $this->select('*', $table, $where, $orderby, 1);
         if ($this->getRecordCount($rs)==0) return false;
         return $this->getRow($rs,'object');
     }
@@ -521,7 +526,8 @@ class DBAPI {
             $where = empty($where) ? '' : " WHERE '{$where}'";
             $orderby = empty($orderby)?"":" ORDER BY {$orderby}";
             $limit = empty($limit)?"": "LIMIT {$limit}";
-            $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
+            $sql_or_table = $this->replaceFullTableName($sql_or_table,true);
+            $sql = "SELECT * from {$sql_or_table} {$where} {$orderby} {$limit}";
         }
 
         $rs = $this->query($sql);
