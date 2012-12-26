@@ -30,55 +30,7 @@ class DBAPI {
 		$this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
 		$this->initDataTypes();
 	}
-		
-		/**
-		* @name:  initDataTypes
-		* @desc:  called in the constructor to set up arrays containing the types
-		*         of database fields that can be used with specific PHP types
-		*/
-	function initDataTypes()
-	{
-		$this->dataTypes['numeric'] = array (
-			'INT',
-			'INTEGER',
-			'TINYINT',
-			'BOOLEAN',
-			'DECIMAL',
-			'DEC',
-			'NUMERIC',
-			'FLOAT',
-			'DOUBLE PRECISION',
-			'REAL',
-			'SMALLINT',
-			'MEDIUMINT',
-			'BIGINT',
-			'BIT'
-		);
-		$this->dataTypes['string'] = array (
-			'CHAR',
-			'VARCHAR',
-			'BINARY',
-			'VARBINARY',
-			'TINYBLOB',
-			'BLOB',
-			'MEDIUMBLOB',
-			'LONGBLOB',
-			'TINYTEXT',
-			'TEXT',
-			'MEDIUMTEXT',
-			'LONGTEXT',
-			'ENUM',
-			'SET'
-		);
-		$this->dataTypes['date'] = array (
-			'DATE',
-			'DATETIME',
-			'TIMESTAMP',
-			'TIME',
-			'YEAR'
-		);
-	}
-		
+	
 	/**
 	* @name:  connect
 	*
@@ -487,6 +439,147 @@ class DBAPI {
 		}
 	}
 	
+	
+	/**
+	* @name:  makeArray
+	* @desc:  turns a recordset into a multidimensional array
+	* @return: an array of row arrays from recordset, or empty array
+	*          if the recordset was empty, returns false if no recordset
+	*          was passed
+	* @param: $rs Recordset to be packaged into an array
+	*/
+	function makeArray($rs='')
+	{
+		if(!$rs) return false;
+		$rsArray = array();
+		$qty = $this->getRecordCount($rs);
+		for ($i = 0; $i < $qty; $i++)
+		{
+			$rsArray[] = $this->getRow($rs);
+		}
+		return $rsArray;
+	}
+	
+	/**
+	* @name	getVersion
+	* @desc	returns a string containing the database server version
+	*
+	* @return string
+	*/
+	function getVersion()
+	{
+		return mysql_get_server_info();
+	}
+    
+    /**
+     * @name  get_record 
+     * @desc  get row as object from table, like oop style 
+     *        $doc = $modx->db->get_record("site_content","id=1")
+     * 
+     * @param string $table
+     * @param string $where
+     * @param string $orderby
+     * @return an object of row from query, or return false if empty query	
+     */
+    function get_record($table,$where,$orderby=""){
+        $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
+        if ($this->getRecordCount($rs)==0) return false;
+        return $this->getRow($rs,"object");
+    }
+
+    /**
+     * @name get_record_sql
+     * @desc  get row as object from sql query
+     * 
+     * @param string $sql
+     * @return an object of row from query, or return false if empty query	 
+     */
+    function get_record_sql($sql){
+        $rs = $this->query($sql);
+        if ($this->getRecordCount($rs)==0) return false;
+        return $this->getRow($rs,"object");
+    }
+    
+    /**
+     * @name get_records
+     * @desc  get array of object by table or sql query
+     *        $docs = $modx->db->get_records("site_content","parent=1");
+     *  or
+     *        $docs = $modx->db->get_records("select * from modx_site_content left join ...");
+     * 
+     * @param type $sql_or_table
+     * @param type $where
+     * @param type $orderby
+     * @param type $limit
+     * @return type 
+     */
+    function get_records($sql_or_table,$where="",$orderby="",$limit=0){
+
+        if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
+            $sql = $sql_or_table;
+        }else{
+            $where = empty($where)?"":" where $where";
+            $orderby = empty($orderby)?"":" order by $orderby";
+            $limit = empty($limit)?"": "limit $limit";
+            $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
+        }
+
+        $rs = $this->query($sql);
+        $result = array();
+        while ($row = $this->getRow($rs,"object")){
+            $result[] = $row;
+        }
+        return $result;
+
+        }
+	/**
+	* @name:  initDataTypes
+	* @desc:  called in the constructor to set up arrays containing the types
+	*         of database fields that can be used with specific PHP types
+	*/
+	function initDataTypes()
+	{
+		$this->dataTypes['numeric'] = array (
+			'INT',
+			'INTEGER',
+			'TINYINT',
+			'BOOLEAN',
+			'DECIMAL',
+			'DEC',
+			'NUMERIC',
+			'FLOAT',
+			'DOUBLE PRECISION',
+			'REAL',
+			'SMALLINT',
+			'MEDIUMINT',
+			'BIGINT',
+			'BIT'
+		);
+		$this->dataTypes['string'] = array (
+			'CHAR',
+			'VARCHAR',
+			'BINARY',
+			'VARBINARY',
+			'TINYBLOB',
+			'BLOB',
+			'MEDIUMBLOB',
+			'LONGBLOB',
+			'TINYTEXT',
+			'TEXT',
+			'MEDIUMTEXT',
+			'LONGTEXT',
+			'ENUM',
+			'SET'
+		);
+		$this->dataTypes['date'] = array (
+			'DATE',
+			'DATETIME',
+			'TIMESTAMP',
+			'TIME',
+			'YEAR'
+		);
+	}
+	
 	/**
 	* @name:  getXML
 	* @desc:  returns an XML formay of the dataset $ds
@@ -636,97 +729,4 @@ class DBAPI {
 			return $grd->render();
 		}
 	}
-	
-	/**
-	* @name:  makeArray
-	* @desc:  turns a recordset into a multidimensional array
-	* @return: an array of row arrays from recordset, or empty array
-	*          if the recordset was empty, returns false if no recordset
-	*          was passed
-	* @param: $rs Recordset to be packaged into an array
-	*/
-	function makeArray($rs='')
-	{
-		if(!$rs) return false;
-		$rsArray = array();
-		$qty = $this->getRecordCount($rs);
-		for ($i = 0; $i < $qty; $i++)
-		{
-			$rsArray[] = $this->getRow($rs);
-		}
-		return $rsArray;
-	}
-	
-	/**
-	* @name	getVersion
-	* @desc	returns a string containing the database server version
-	*
-	* @return string
-	*/
-	function getVersion()
-	{
-		return mysql_get_server_info();
-	}
-    
-    /**
-     * @name  get_record 
-     * @desc  get row as object from table, like oop style 
-     *        $doc = $modx->db->get_record("site_content","id=1")
-     * 
-     * @param string $table
-     * @param string $where
-     * @param string $orderby
-     * @return an object of row from query, or return false if empty query	
-     */
-    function get_record($table,$where,$orderby=""){
-        $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
-        if ($this->getRecordCount($rs)==0) return false;
-        return $this->getRow($rs,"object");
-    }
-
-    /**
-     * @name get_record_sql
-     * @desc  get row as object from sql query
-     * 
-     * @param string $sql
-     * @return an object of row from query, or return false if empty query	 
-     */
-    function get_record_sql($sql){
-        $rs = $this->query($sql);
-        if ($this->getRecordCount($rs)==0) return false;
-        return $this->getRow($rs,"object");
-    }
-    
-    /**
-     * @name get_records
-     * @desc  get array of object by table or sql query
-     *        $docs = $modx->db->get_records("site_content","parent=1");
-     *  or
-     *        $docs = $modx->db->get_records("select * from modx_site_content left join ...");
-     * 
-     * @param type $sql_or_table
-     * @param type $where
-     * @param type $orderby
-     * @param type $limit
-     * @return type 
-     */
-    function get_records($sql_or_table,$where="",$orderby="",$limit=0){
-
-        if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
-            $sql = $sql_or_table;
-        }else{
-            $where = empty($where)?"":" where $where";
-            $orderby = empty($orderby)?"":" order by $orderby";
-            $limit = empty($limit)?"": "limit $limit";
-            $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
-        }
-
-        $rs = $this->query($sql);
-        $result = array();
-        while ($row = $this->getRow($rs,"object")){
-            $result[] = $row;
-        }
-        return $result;
-
-        }
 }
