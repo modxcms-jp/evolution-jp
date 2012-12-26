@@ -270,7 +270,7 @@ else
 }
 
 if($modx->hasPermission('remove_locks')) {
-	$modx->remove_locks();
+	$modx->manager->remove_locks();
 }
 
 $log = new logHandler;
