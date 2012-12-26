@@ -1,305 +1,197 @@
 <?php
-$class_version = '1.0.3';
-if(!isset($version) || $version !== $class_version) echo 'TopicPath version error';
-
 class TopicPath
 {
 	function TopicPath()
 	{
+		global $modx;
+		if($modx->event->params) extract($modx->event->params);
+		$this->menuitemOnly = 1;
+		$this->ignoreIDs = array();
+		$this->showTopicsAtHome = (!isset($showTopicsAtHome)) ? '0' : $showTopicsAtHome;
+		$this->ignoreIDs        = (!isset($ignoreIDs))        ? array() :explode(',',$ignoreIDs);
+		$this->disabledOn       = (!isset($disabledOn))       ? array() :explode(',',$disabledOn);
+		$this->disabledUnder    = (!isset($disabledUnder))    ? '' :$disabledUnder;
+		$this->menuItemOnly     = (!isset($menuItemOnly))     ? '1' : $menuItemOnly;
+		$this->limit            = (!isset($limit))            ? 100 :$limit;
+		$this->topicGap         = (!isset($topicGap))         ? '...' :$topicGap;
+		$this->titleField       = (!isset($titleField))       ? array('menutitle','pagetitle')              :explode(',',$titleField);
+		$this->descField        = (!isset($descField))        ? array('description','longtitle','pagetitle'):explode(',',$descField);
+		$this->homeId           = (!isset($homeId))           ? $modx->config['site_start'] :$homeId;
+		$this->stopIDs          = (!isset($stopIDs))          ? array() :explode(',', $stopIDs);
+		
+		if(isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
+		if(isset($homeTopicDesc))  $this->homeTopicDesc  = $homeTopicDesc;
+		
+		$this->theme            = $theme;
+		$this->tpl = array();
+		if(isset($tplOuter))        $this->tpl['outer']         = $tplOuter;
+		if(isset($tplHomeTopic))    $this->tpl['home_topic']    = $tplHomeTopic;
+		if(isset($tplCurrentTopic)) $this->tpl['current_topic'] = $tplCurrentTopic;
+		if(isset($tplOtherTopic))   $this->tpl['other_topic']   = $tplOtherTopic;
+		if(isset($tplSeparator))    $this->tpl['separator']     = $tplSeparator;
 	}
 	
 	function getTopicPath()
 	{
 		global $modx;
-		if($modx->event->params) extract($modx->event->params);
+		$id = $modx->documentIdentifier;
 		
-		if(!isset($theme))                $theme             = 'string';
-		if(!isset($pathThruUnPub))        $pathThruUnPub     = 1;
-		if(!isset($showInMenuOnly))       $showInMenuOnly    = 1;
-		if(!isset($showCurrentTopic))     $showCurrentTopic  = 1;
-		if(!isset($currentAsLink))        $currentAsLink     = 0;
-		if(!isset($titleField))           $titleField        = 'menutitle,pagetitle';
-		if(!isset($descField))            $descField         = 'description,longtitle,pagetitle';
-		if(!isset($showTopicsAsLinks))    $showTopicsAsLinks = 1;
-		if(!isset($topicGap))             $topicGap          = '...';
-		if(!isset($showHomeTopic))        $showHomeTopic     = 1;
-		if(!isset($homeId))               $homeId            = $modx->config['site_start'];
-		if(!isset($homeTopicTitle))       $homeTopicTitle    = '';
-		if(!isset($homeTopicDesc))        $homeTopicDesc     = '';
-		if(!isset($showTopicsAtHome))     $showTopicsAtHome  = 0;
-		if(!isset($hideOn))               $hideOn            = '';
-		if(!isset($hideUnder))            $hideUnder         = '';
-		if(!isset($stopIds))              $stopIds           = '';
-		if(!isset($ignoreIds))            $ignoreIds         = '';
-		if(!isset($display))              $display         = 100;
+		$this->disabledOn = $this->getDisableDocs();
 		
-		if(isset($templateSet)) $theme = $templateSet;
-		switch(strtolower($theme))
+		if(!$this->showTopicsAtHome && $id === $modx->config['site_start']) return;
+		elseif(in_array($id,$this->disabledOn))                             return;
+		
+		switch(strtolower($this->theme))
 		{
 			case 'list':
 			case 'li':
-			case 'defaultlist':
-				$tpl['outer']             = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['first_topic_outer'] = '<li class="first">[+topic+]</li>';
-				$tpl['last_topic_outer']  = '<li class="last">[+topic+]</li>';
-				$tpl['other_topic_outer'] = '<li>[+topic+]</li>';
-				$tpl['topic']             = '[+topic+]';
-				$tpl['separator']         = '';
-				break;
-			case 'raw':
-			case 'string':
-			case 'defaultstring':
-			case 'default':
-				$tpl['outer']             = '[+topics+]';
-				$tpl['first_topic_outer'] = '<span class="first">[+topic+]</span>';
-				$tpl['last_topic_outer']  = '<span class="last">[+topic+]</span>';
-				$tpl['other_topic_outer'] = '<span>[+topic+]</span>';
-				$tpl['topic']             = '[+topic+]';
-				$tpl['separator']         = ' &raquo; ';
+				$tpl['outer']         = '<ul class="topicpath">[+topics+]</ul>';
+				$tpl['home_topic']    = '<li class="home"><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['current_topic'] = '<li class="current">[+title+]</li>';
+				$tpl['other_topic']   = '<li><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['separator']     = "\n";
 				break;
 			default:
+				$tpl['outer']          = '[+topics+]';
+				$tpl['home_topic']     = '<a href="[+href+]" class="home" title="[+title+]">[+title+]</a>';
+				$tpl['current_topic']  = '[+title+]';
+				$tpl['other_topic']    = '<a href="[+href+]" title="[+title+]">[+title+]</a>';
+				$tpl['separator']      = ' &raquo; ';
 		}
+		$tpl = array_merge($tpl, $this->tpl);
 		
-		if(isset($tplOuter))           $tpl['outer']             = $tplOuter;
-		if(isset($tplTopic))           $tpl['topic']             = $tplTopic;
-		if(isset($tplFirstTopicOuter)) $tpl['first_topic_outer'] = $tplFirstTopicOuter;
-		if(isset($tplLastTopicOuter))  $tpl['last_topic_outer']  = $tplLastTopicOuter;
-		if(isset($tplOtherTopicOuter)) $tpl['other_topic_outer'] = $tplOtherTopicOuter;
-		if(isset($tplSeparator))       $tpl['separator']         = $tplSeparator;
+		$docs   = $this->getDocs();
+		$topics = $this->setTopics($docs,$tpl);
 		
-		// Return blank if necessary: on home page
-		if ( !$showTopicsAtHome && $homeId == $modx->documentIdentifier )
+		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
+		
+		if(0<count($topics))
 		{
-			return '';
+			$rs = join($tpl['separator'],$topics);
+			$rs = $modx->parsePlaceholder($tpl['outer'],array('topics'=>$rs));
 		}
-		// Return blank if necessary: specified pages
-		if ($hideOn || $hideUnder)
+		else $rs = '';
+		
+		return $rs;
+	}
+	
+	function trimTopics($topics)
+	{
+		$last_topic = array_pop($topics);
+		array_splice($topics,$this->limit-1);
+		$topics[] = $this->topicGap;
+		$topics[] = $last_topic;
+		
+		return $topics;
+	}
+	
+	function isEnable($doc)
+	{
+		if(in_array($doc['id'],$this->ignoreIDs))       $rs = false;
+		elseif($this->menuItemOnly && $doc['hidemenu']) $rs = false;
+		elseif(!$doc['published'])                      $rs = false;
+		else                                            $rs = true;
+		
+		return $rs;
+	}
+	
+	function isEnd($doc)
+	{
+		if(in_array($doc['id'],$this->stopIds) || !$doc['parent'] || ( !$doc['published'] && !$this->pathThruUnPub ))
 		{
-			// Create array of hide pages
-			if(!empty($hideOn))
-			{
-				$hideOn = str_replace(' ','', $hideOn);
-				$hideOn = explode(',', $hideOn);
-			}
-			else $hideOn = array();
-			
-			// Get more hide pages based on parents if needed
-			if ( $hideUnder )
-			{
-				$hiddenKids = array();
-				// Get child pages to hide
-				$rs = $modx->db->select('id',$modx->getFullTableName('site_content'),"parent IN ({$hideUnder})");
-				while ($row = $modx->db->getRow($rs))
-				{
-					$hiddenKids[] = $row['id'];
-				}
-				// Merge with hideOn pages
-				$hideOn = array_merge($hideOn,$hiddenKids);
-			}
-			
-			if (in_array($modx->documentIdentifier,$hideOn))
-			{
-				return '';
-			}
+			$rs = true;
 		}
+		else $rs = false;
 		
-		// Initialize ------------------------------------------------------------------
+		return $rs;
+	}
+	
+	function getDocs()
+	{
+		global $modx;
 		
-		// Put certain parameters in arrays
-		$stopIds    = $this->convert_array($stopIds);
-		$titleField = $this->convert_array($titleField);
-		$descField  = $this->convert_array($descField);
-		$ignoreIds  = $this->convert_array($ignoreIds);
-		
-		if ( $ignoreIdsUnder )
+		$docs = array();
+		$id = $modx->documentIdentifier;
+		$fields = 'id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu';
+		$c = 0;
+		$doc = array();
+		while ($id !== $this->homeId  && $c < 1000 )
 		{
-			$hiddenKids = array();
-			// Get child pages to hide
-			$rs = $modx->db->select('id',$modx->getFullTableName('site_content'),"parent IN ({$ignoreIdsUnder})");
-			while ($row = $modx->db->getRow($rs))
-			{
-				$hiddenKids[] = $row['id'];
-			}
-			$ignoreIds = array_merge($ignoreIds,$hiddenKids);
+			$doc = $modx->getPageInfo($id,0,$fields);
+			if($this->isEnable($doc)) $docs[] = $doc;
+			$id = $doc['parent'];
+			if($id==='0') $id = $this->homeId ;
+			$c++;
 		}
-		
-		/* $topics
-		* Topic elements are: id, parent, pagetitle, longtitle, menutitle, description,
-		* published, hidemenu
-		*/
+		$docs[] = $modx->getPageInfo($this->homeId ,0,$fields);
+		return $docs;
+	}
+	
+	function setTopics($docs,$tpl)
+	{
+		global $modx;
 		$topics = array();
-		$parent = $modx->documentObject['parent'];
-		$output = '';
-		$display += ($showCurrentTopic) ? 1 : 0;
-		
-		// Replace || in snippet parameters that accept them with =
-		$topicGap = str_replace('||','=',$topicGap);
-		
-		// Curent topic ----------------------------------------------------------------
-		
-		// Decide if current page is to be a topic
-		if ( $showCurrentTopic )
+		$docs = array_reverse($docs);
+		$i = 0;
+		$c = count($docs);
+		foreach($docs as $doc)
 		{
-			$topics[] = $modx->documentObject;
-		}
-		
-		// Intermediate topics ---------------------------------------------------------
-		
-		
-		// Iterate through parents till we hit root or a reason to stop
-		$loopSafety = 0;
-		while ( $parent && $parent!=$modx->config['site_start'] && $loopSafety < 1000 )
-		{
-			// Get next topic
-			$doc = $modx->getPageInfo($parent,0,'id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu');
-			
-			// Check for include conditions & add to topics
-			if ($doc['published']
-			    && (!$doc['hidemenu'] || !$showInMenuOnly)
-			    && !in_array($doc['id'],$ignoreIds))
+			$ph = array();
+			if(in_array($doc['id'],$this->stopIDs)) break;
+			$ph['href']  = ($doc['id'] == $modx->config['site_start']) ? $modx->config['base_url'] : $modx->makeUrl($doc['id']);
+			foreach($this->titleField as $f)
 			{
-				// Add topic
-				$topics[] = $doc;
-			}
-			
-			// Check stop conditions
-			if (
-				in_array($doc['id'],$stopIds)                 // Is one of the stop IDs
-				 || !$doc['parent']                           // At root
-				 || ( !$doc['published'] && !$pathThruUnPub ) // Unpublished
-				)
-			{
-				break; // Halt making topics
-			}
-			
-			$parent = $doc['parent']; // Reset parent
-			
-			$loopSafety++; // Increment loop safety
-		}
-		
-		// Home topic ------------------------------------------------------------------
-		$homeTopic = $modx->getPageInfo($homeId,0,'id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu');
-		if($showHomeTopic && $homeId != $modx->documentIdentifier && !empty($homeTopic))
-		{
-			$topics[] = $homeTopic;
-		}
-		
-		// Process each topic ----------------------------------------------------------
-		$pretplTopics = array();
-		
-		foreach ($topics as $row )
-		{
-			// Skip if we've exceeded our topic limit but we're waiting to get to home
-			if (count($pretplTopics) > $display && $row['id'] != $homeId )
-			{
-				continue;
-			}
-			
-			$text  = '';
-			$title = '';
-			
-			// Determine appropriate span/link text: home link specified
-			if ( $row['id'] == $homeId && $homeTopicTitle )
-			{
-				$text = $homeTopicTitle;
-			}
-			else
-			// Determine appropriate span/link text: home link not specified
-			{
-				for ($i = 0; !$text && $i < count($titleField); $i++)
+				if($doc[$f]!=='')
 				{
-					if ( $row[$titleField[$i]] )
-					{
-						$text = $row[$titleField[$i]];
-					}
-				}
-			}
-			
-			// Determine link/span class(es)
-			if ($row['id'] == $homeId )                   $topicClass = 'home';
-			elseif($modx->documentIdentifier==$row['id']) $topicClass = 'current';
-			else                                          $topicClass = 'each';
-			
-			// Make link
-			if (
-			( $row['id'] != $modx->documentIdentifier && $showTopicsAsLinks ) ||
-			( $row['id'] == $modx->documentIdentifier && $currentAsLink )
-			)
-			{
-				// Determine appropriate title for link: home link specified
-				if ($row['id'] == $homeId && $homeTopicDesc )
-				{
-					$title = htmlspecialchars($homeTopicDesc);
-				}
-				else
-				// Determine appropriate title for link: home link not specified
-				{
-					for ($i = 0; !$title && $i < count($descField); $i++)
-					{
-						if ($row[$descField[$i]] )
-						{
-							$title = htmlspecialchars($row[$descField[$i]]);
-						}
-					}
-				}
-				$url = ($row['id'] == $modx->config['site_start']) ? $modx->config['base_url'] : $modx->makeUrl($row['id']);
-				$pretplTopics[] = '<a href="' . $url . '" class="' . $topicClass . '" title="' . $title . '">' . $text . '</a>';
-			}
-			else
-			// Make a span instead of a link
-			{
-				$pretplTopics[] = '<span class="'.$topicClass.'">'.$text.'</span>';
-			}
-			
-			// If we have hit the topic limit
-			if ( count($pretplTopics) == $display )
-			{
-				if ( count($topics) > ($display + (($showHomeTopic) ? 1 : 0)) )
-				{
-					// Add gap
-					$pretplTopics[] = '<span class="hidden">' . $topicGap . '</span>';
-				}
-				
-				// Stop here if we're not looking for the home topic
-				if ( !$showHomeTopic )
-				{
+					$ph['title'] = $doc[$f];
 					break;
 				}
 			}
+			if(!isset($ph['title'])) $ph['title'] = $doc['pagetitle'];
+			
+			foreach($this->descField as $f)
+			{
+				if($doc[$f]!=='')
+				{
+					$ph['desc'] = $doc[$f];
+					break;
+				}
+			}
+			if(!isset($ph['desc'])) $ph['desc'] = $doc['pagetitle'];
+			
+			if(isset($this->homeTopicTitle) && $doc['id'] == $this->homeId)
+			{
+				$ph['title'] = $this->homeTopicTitle;
+			}
+			if(isset($this->homeTopicDesc) && $doc['id'] == $this->homeId)
+			{
+				$ph['desc'] = $this->homeTopicDesc;
+			}
+			
+			$ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
+			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
+			
+			if($i===$c-1)  $topics[$i] = $modx->parsePlaceholder($tpl['current_topic'],$ph);
+			elseif($i===0) $topics[$i] = $modx->parsePlaceholder($tpl['home_topic'],$ph);
+			else           $topics[$i] = $modx->parsePlaceholder($tpl['other_topic'],$ph);
+			
+			$i++;
 		}
-		
-		// Put in correct order for output
-		$pretplTopics = array_reverse($pretplTopics);
-		
-		// Insert topics into topic template
-		$processedTopics = array();
-		$c = 0;
-		$last = count($pretplTopics)-1;
-		foreach ( $pretplTopics as $pc )
-		{
-			$_ = str_replace('[+topic+]', $pc, $tpl['topic']);
-			if($c === 0)         $_ = str_replace('[+topic+]', $_, $tpl['first_topic_outer']);
-			elseif($c === $last) $_ = str_replace('[+topic+]', $_, $tpl['last_topic_outer']);
-			else                 $_ = str_replace('[+topic+]', $_, $tpl['other_topic_outer']);
-			$processedTopics[] = $_;
-			$c++;
-		}
-		
-		// Combine topics together into one string with separator
-		$processedTopics = implode($tpl['separator'],$processedTopics);
-		
-		// Put topics into topic container template
-		$modx->setPlaceholder('topics',$processedTopics);
-		$container = $modx->mergePlaceholderContent($tpl['outer']);
-		// Return topics
-		return $container;
+		return $topics;
 	}
 	
-	function convert_array($str)
+	function getDisableDocs()
 	{
-		if($str == '') return array();
+		global $modx;
+		$tbl_site_content = $modx->getFullTableName('site_content');
 		
-		$str = str_replace(' ','',$str);
-		return explode(',',$str);
+		if(empty($this->disabledUnder)) return $this->disabledOn;
+		
+		$rs = $modx->db->select('id', $tbl_site_content, "parent IN ({$this->disabledUnder})");
+		while ($id = $modx->db->getValue($rs))
+		{
+			$hidden[] = $id;
+		}
+		return array_merge($this->disabledOn,$hidden);
 	}
 }
