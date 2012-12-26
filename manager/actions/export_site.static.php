@@ -101,8 +101,6 @@ else
 	$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
 	@set_time_limit($maxtime);
 	$exportstart = $export->get_mtime();
-
-	$tbl_site_content = $modx->getFullTableName('site_content');
 	
 	if(is_dir(MODX_BASE_PATH . 'temp/export/'))       $filepath = MODX_BASE_PATH . 'temp/export/';
 	elseif(is_dir(MODX_BASE_PATH . 'assets/export/')) $filepath = MODX_BASE_PATH . 'assets/export/';
@@ -148,7 +146,7 @@ else
 	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
 	{
 		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
-		$rs  = $modx->db->select('count(id) as total',$tbl_site_content,$where);
+		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
 		$row = $modx->db->getRow($rs);
 		$total = $row['total'];
 		printf($_lang['export_site_numberdocs'], $total);
@@ -164,7 +162,7 @@ else
 	// Modified for export alias path  2006/3/24 end
 		$fields = 'id, alias, pagetitle';
 		$where = "deleted=0 AND published=1 AND type='document' {$noncache}";
-		$rs = $modx->db->select($fields,$tbl_site_content,$where);
+		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		$total = $modx->db->getRecordCount($rs);
 		printf($_lang['export_site_numberdocs'], $total);
 
@@ -363,11 +361,10 @@ class EXPORT_SITE
 		
 		$ignore_ids = $this->ignore_ids;
 		
-		$tbl_site_content = $modx->getFullTableName('site_content');
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
 		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 		$where = "parent = {$dirid} AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
-		$rs = $modx->db->select($fields,$tbl_site_content,$where);
+		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		$dircontent = array();
 		while($row = $modx->db->getRow($rs))
 		{

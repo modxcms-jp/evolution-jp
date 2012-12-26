@@ -7,16 +7,6 @@ else    $id = 0;
 
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 
-// Get table names (alphabetical)
-$tbl_document_groups       = $modx->getFullTableName('document_groups');
-$tbl_keyword_xref          = $modx->getFullTableName('keyword_xref');
-$tbl_manager_users         = $modx->getFullTableName('manager_users');
-$tbl_site_content          = $modx->getFullTableName('site_content');
-$tbl_site_content_metatags = $modx->getFullTableName('site_content_metatags');
-$tbl_site_keywords         = $modx->getFullTableName('site_keywords');
-$tbl_site_metatags         = $modx->getFullTableName('site_metatags');
-$tbl_site_templates        = $modx->getFullTableName('site_templates');
-
 $modx->checkPublishStatus();
 
 // Get access permissions
@@ -25,7 +15,7 @@ $in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
 // Get the document content
-$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
 $where = "sc.id ='{$id}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.*',$from,$where);
 $content = $modx->db->getRow($rs);
@@ -47,17 +37,17 @@ elseif ($total == 0)
  * "General" tab setup
  */
 // Get Creator's username
-$rs = $modx->db->select('username', $tbl_manager_users,"id='{$content['createdby']}'");
+$rs = $modx->db->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
 if ($row = $modx->db->getRow($rs))
 	$createdbyname = $row['username'];
 
 // Get Editor's username
-$rs = $modx->db->select('username', $tbl_manager_users, "id='{$content['editedby']}'");
+$rs = $modx->db->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
 if ($row = $modx->db->getRow($rs))
 	$editedbyname = $row['username'];
 
 // Get Template name
-$rs = $modx->db->select('templatename', $tbl_site_templates, "id='{$content['template']}'");
+$rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
 if ($row = $modx->db->getRow($rs))
 	$templatename = $row['templatename'];
 
@@ -74,7 +64,7 @@ $metatags_selected = array();
 if ($modx->config['show_meta'])
 {
 	// Get list of current keywords for this document
-	$from = "{$tbl_site_keywords} AS k, {$tbl_keyword_xref} AS x";
+	$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
 	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
 	$orderby = 'k.keyword ASC';
 	$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
@@ -85,7 +75,7 @@ if ($modx->config['show_meta'])
 	
 	// Get list of selected site META tags for this document
 	$field = 'meta.id, meta.name, meta.tagvalue';
-	$from = "{$tbl_site_metatags} AS meta LEFT JOIN {$tbl_site_content_metatags} AS sc ON sc.metatag_id = meta.id";
+	$from = "[+prefix+]site_metatags AS meta LEFT JOIN [+prefix+]site_content_metatags AS sc ON sc.metatag_id = meta.id";
 	$where = "sc.content_id='{$content['id']}'";
 	$rs = $modx->db->select($field,$from,$where);
 	while($row = $modx->db->getRow($rs))
@@ -99,7 +89,7 @@ if ($modx->config['show_meta'])
  */
 
 // Get child document count
-$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
 $where = "sc.parent='{$content['id']}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.id',$from,$where);
 $numRecords = $modx->db->getRecordCount($rs);
@@ -109,7 +99,7 @@ $numRecords = $modx->db->getRecordCount($rs);
 if ($numRecords > 0)
 {
 	// Get child documents (with paging)
-	$from = "{$tbl_site_content} AS sc LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id";
+	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
 	$where = "sc.parent='{$content['id']}' AND ({$access})";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
 	$offset = (is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;

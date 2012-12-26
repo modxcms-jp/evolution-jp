@@ -8,8 +8,6 @@ if(!$modx->hasPermission('manage_metatags')) {
 // initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 
-$tbl_site_keywords = $modx->getFullTableName('site_keywords');
-
 ?>
 <script type="text/javascript">
 
@@ -21,7 +19,7 @@ $tbl_site_keywords = $modx->getFullTableName('site_keywords');
 		var deleteList="";
 	<?php
 		$rs = $modx->db->query($sql);
-		$limit = $modx->db->select('*',$tbl_site_keywords,'','keyword ASC');
+		$limit = $modx->db->select('*','[+prefix+]site_keywords','','keyword ASC');
 		for($i=0;$i<$limit;$i++) {
 		$row=$modx->db->getRow($rs);
 		?>
@@ -164,11 +162,8 @@ $tbl_site_keywords = $modx->getFullTableName('site_keywords');
 	<div>
 	<?php
 
-		$sql = "SELECT * " .
-				"FROM ".$modx->getFullTableName("site_metatags")." st ".
-				"ORDER BY name";
-		$ds = $modx->db->query($sql);
-		include_once $base_path."manager/includes/controls/datagrid.class.php";
+		$ds = $modx->db->select('*','[+prefix+]site_metatags st','','name');
+		include_once "{$base_path}manager/includes/controls/datagrid.class.php";
 		$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 		$grd->noRecordMsg = $_lang["no_records_found"];
 		$grd->cssClass="grid";
@@ -198,7 +193,7 @@ $tbl_site_keywords = $modx->getFullTableName('site_keywords');
 <div class="sectionHeader"><?php echo $_lang['keywords'] ;?></div><div class="sectionBody">
 <?php echo $_lang['keywords_intro'] ;?><br /><br />
 <?php
-	$ds = $modx->db->select('*',$tbl_site_keywords,'','keyword ASC');
+	$ds = $modx->db->select('*','[+prefix+]site_keywords','','keyword ASC');
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang["no_keywords_found"];
 	$grd->cssClass="grid";

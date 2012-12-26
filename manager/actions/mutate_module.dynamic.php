@@ -27,21 +27,8 @@ if ($manager_theme)
         $manager_theme .= '/';
 else    $manager_theme  = '';
 
-// Get table names (alphabetical)
-$tbl_active_users       = $modx->getFullTableName('active_users');
-$tbl_membergroup_names  = $modx->getFullTableName('membergroup_names');
-$tbl_site_content       = $modx->getFullTableName('site_content');
-$tbl_site_htmlsnippets  = $modx->getFullTableName('site_htmlsnippets');
-$tbl_site_module_access = $modx->getFullTableName('site_module_access');
-$tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_modules       = $modx->getFullTableName('site_modules');
-$tbl_site_plugins       = $modx->getFullTableName('site_plugins');
-$tbl_site_snippets      = $modx->getFullTableName('site_snippets');
-$tbl_site_templates     = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
-
 // Check to see the editor isn't locked
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if ($limit > 1)
 {
@@ -66,7 +53,7 @@ if (!is_numeric($id)) {
 
 if (isset($_GET['id']))
 {
-	$rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_modules',"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1)
 	{
@@ -492,7 +479,7 @@ $display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
 		<p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
 		<a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_edit_document"]?>" align="absmiddle" /> <?php echo $_lang['manage_depends']?></a></p>
 <?php
-	$sql = 'SELECT smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.
+	$field = 'smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, '.
 	       'CASE smd.type'.
 	       " WHEN 10 THEN 'Chunk'".
 	       " WHEN 20 THEN 'Document'".
@@ -500,16 +487,15 @@ $display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
 	       " WHEN 40 THEN 'Snippet'".
 	       " WHEN 50 THEN 'Template'".
 	       " WHEN 60 THEN 'TV'" .
-	       'END AS `type` '.
-	       "FROM {$tbl_site_module_depobj} AS smd ".
-	       "LEFT JOIN {$tbl_site_htmlsnippets} AS sc ON sc.id = smd.resource AND smd.type = 10 ".
-	       "LEFT JOIN {$tbl_site_content} AS sd ON sd.id = smd.resource AND smd.type = 20 ".
-	       "LEFT JOIN {$tbl_site_plugins} AS sp ON sp.id = smd.resource AND smd.type = 30 ".
-	       "LEFT JOIN {$tbl_site_snippets} AS ss ON ss.id = smd.resource AND smd.type = 40 ".
-	       "LEFT JOIN {$tbl_site_templates} AS st ON st.id = smd.resource AND smd.type = 50 ".
-	       "LEFT JOIN {$tbl_site_tmplvars} AS sv ON sv.id = smd.resource AND smd.type = 60 ".
-	       "WHERE smd.module='{$id}' ORDER BY smd.type,name";
-$ds = $modx->db->query($sql);
+	       'END AS `type`';
+	$from = '[+prefix+]site_module_depobj AS smd '.
+	       'LEFT JOIN [+prefix+]site_htmlsnippets AS sc ON sc.id = smd.resource AND smd.type = 10 '.
+	       'LEFT JOIN [+prefix+]site_content AS sd ON sd.id = smd.resource AND smd.type = 20 '.
+	       'LEFT JOIN [+prefix+]site_plugins AS sp ON sp.id = smd.resource AND smd.type = 30 '.
+	       'LEFT JOIN [+prefix+]site_snippets AS ss ON ss.id = smd.resource AND smd.type = 40 '.
+	       'LEFT JOIN [+prefix+]site_templates AS st ON st.id = smd.resource AND smd.type = 50 '.
+	       'LEFT JOIN [+prefix+]site_tmplvars AS sv ON sv.id = smd.resource AND smd.type = 60 ';
+$ds = $modx->db->select($field, $from, "smd.module='{$id}' ORDER BY smd.type,name");
 if (!$ds) {
 	echo "An error occured while loading module dependencies.";
 } else {
@@ -538,7 +524,7 @@ if ($use_udperms == 1)
 <?php
 	// fetch user access permissions for the module
 	$groupsarray = array();
-	$rs = $modx->db->select('*',$tbl_site_module_access,"module='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_module_access',"module='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++)
 	{
@@ -573,7 +559,7 @@ if ($use_udperms == 1)
 <?php
 	}
 	$chk = '';
-	$rs = $modx->db->select('name, id',$tbl_membergroup_names);
+	$rs = $modx->db->select('name, id','[+prefix+]membergroup_names');
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++)
 	{

@@ -90,13 +90,17 @@ echo $cm->render();
 	</div>
 
 	<div>
-	<?php
-
-	$sql = "SELECT id,name,description,IF(locked,'".$_lang['yes']."','-') as 'locked',IF(disabled,'".$_lang['yes']."','-') as 'disabled',IF(icon<>'',icon,'".$_style['icons_modules']."') as'icon' " .
-			"FROM ".$modx->getFullTableName("site_modules")." ".
-			(!empty($sqlQuery) ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')":"")." ".
-			"ORDER BY editedon DESC, name ASC";
-	$ds = $modx->db->query($sql);
+<?php
+$yes = $_lang['yes'];
+$icons_modules = $_style['icons_modules'];
+$field = "id,name,description,IF(locked,'{$yes}','-') as 'locked',IF(disabled,'{$yes}','-') as 'disabled',IF(icon<>'',icon,'{$icons_modules}') as'icon'";
+if(!empty($sqlQuery))
+{
+	$where = "(name LIKE '%{$sqlQuery}%') OR (description LIKE '%{$sqlQuery}%')";
+}
+else $where = '';
+$orderby = 'editedon DESC, name ASC';
+	$ds = $modx->db->select($field, '[+prefix+]site_modules', $where, $orderby);
 	include_once $base_path."manager/includes/controls/datagrid.class.php";
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang["no_records_found"];

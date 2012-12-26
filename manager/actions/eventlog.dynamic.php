@@ -5,26 +5,17 @@ if(!$modx->hasPermission('view_eventlog')) {
 	$e->dumpError();
 }
 
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
-
-// Get table Names (alphabetical)
-$tbl_event_log     = $modx->getFullTableName('event_log');
-$tbl_manager_users = $modx->getFullTableName('manager_users');
-$tbl_web_users     = $modx->getFullTableName('web_users');
-
 // initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 
 // get and save search string
 if($_REQUEST['op']=='reset') {
-	$sqlQuery = $query = '';
+	$search = $query = '';
 	$_PAGE['vs']['search']='';
 }
 else {
-	$sqlQuery = $query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
-	if(!is_numeric($sqlQuery)) $sqlQuery = $modx->db->escape($query);
+	$search = $query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
+	if(!is_numeric($search)) $search = $modx->db->escape($query);
 	$_PAGE['vs']['search'] = $query;
 }
 
@@ -121,15 +112,22 @@ echo $cm->render();
 		</table>
 	</div>
 	<div>
-	<?php
-
-	$sql = "SELECT el.id, el.type, el.createdon, el.source, el.eventid,IFNULL(wu.username,mu.username) as 'username' " .
-	       "FROM ".$tbl_event_log." el ".
-	       "LEFT JOIN ".$tbl_manager_users." mu ON mu.id=el.user AND el.usertype=0 ".
-	       "LEFT JOIN ".$tbl_web_users." wu ON wu.id=el.user AND el.usertype=1 ".
-	       ($sqlQuery ? " WHERE ".(is_numeric($sqlQuery)?"(eventid='$sqlQuery') OR ":'')."(source LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')":"")." ".
-	       "ORDER BY el.id DESC";
-	$ds = $modx->db->query($sql);
+<?php
+	$field  = "el.id, el.type, el.createdon, el.source, el.eventid,IFNULL(wu.username,mu.username) as 'username'";
+	$from   = '[+prefix+]event_log el';
+	$from  .= ' LEFT JOIN [+prefix+]manager_users mu ON mu.id=el.user AND el.usertype=0';
+	$from  .= ' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1';
+	$where = '';
+	if($search)
+	{
+		if(is_numeric($search))
+		{
+			$where = "(eventid='{$search}') OR ";
+		}
+		$where .= "(source LIKE '%{$search}%') OR (description LIKE '%{$search}%')";
+	}
+	$orderby = 'el.id DESC';
+	$ds = $modx->db->select($field,$from,$where,$orderby);
 	include_once $base_path."manager/includes/controls/datagrid.class.php";
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang['no_records_found'];
@@ -141,7 +139,7 @@ echo $cm->render();
 	$grd->columns=$_lang['type']." ,".$_lang['source']." ,".$_lang['date']." ,".$_lang['event_id']." ,".$_lang['sysinfo_userid'];
 	$grd->colWidths="34,,150,60";
 	$grd->colAligns="center,,,center,center";
-	$grd->colTypes="template:<a class='gridRowIcon' href='#' onclick='return showContentMenu([+id+],event);' title='".$_lang['click_to_context']."'><img src='media/style/" . $manager_theme ."images/icons/event[+type+].png' /></a>||template:<a href='index.php?a=115&id=[+id+]' title='".$_lang['click_to_view_details']."'>[+source+]</a>||date: " . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M:%S';
+	$grd->colTypes="template:<a class='gridRowIcon' href='#' onclick='return showContentMenu([+id+],event);' title='".$_lang['click_to_context']."'><img src='media/style/" . $manager_theme ."/images/icons/event[+type+].png' /></a>||template:<a href='index.php?a=115&id=[+id+]' title='".$_lang['click_to_view_details']."'>[+source+]</a>||date: " . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M:%S';
 	if($listmode=='1') $grd->pageSize=0;
 	if($_REQUEST['op']=='reset') $grd->pageNumber = 1;
 	// render grid

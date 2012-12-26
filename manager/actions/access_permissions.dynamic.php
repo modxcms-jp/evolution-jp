@@ -5,17 +5,8 @@ if(!$modx->hasPermission('access_permissions')) {
 	$e->dumpError();
 }
 
-// Get table names (alphabetical)
-$tbl_document_groups     = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-$tbl_manager_users       = $modx->getFullTableName('manager_users');
-$tbl_member_groups       = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access  = $modx->getFullTableName('membergroup_access');
-$tbl_membergroup_names   = $modx->getFullTableName('membergroup_names');
-$tbl_site_content        = $modx->getFullTableName('site_content');
-
 // find all document groups, for the select :)
-$rs = $modx->db->select('*',$tbl_documentgroup_names,'','name');
+$rs = $modx->db->select('*','[+prefix+]documentgroup_names','','name');
 if ($modx->db->getRecordCount($rs) < 1) {
 	$docgroupselector = '[no groups to add]';
 } else {
@@ -26,7 +17,7 @@ if ($modx->db->getRecordCount($rs) < 1) {
 	$docgroupselector .= "</select>\n";
 }
 
-$rs = $modx->db->select('*',$tbl_membergroup_names,'','name');
+$rs = $modx->db->select('*','[+prefix+]membergroup_names','','name');
 if ($modx->db->getRecordCount($rs) < 1) {
 	$usrgroupselector = '[no user groups]';
 } else {
@@ -76,9 +67,9 @@ if ($modx->db->getRecordCount($rs) < 1) {
 	<br />
 <?php
 	$field = 'groupnames.*, users.id AS user_id, users.username user_name';
-	$from  = "{$tbl_membergroup_names} AS groupnames";
-	$from .= " LEFT JOIN {$tbl_member_groups} AS groups ON groups.user_group = groupnames.id";
-	$from .= " LEFT JOIN {$tbl_manager_users} AS users ON users.id = groups.member";
+	$from  = "[+prefix+]membergroup_names AS groupnames";
+	$from .= " LEFT JOIN [+prefix+]member_groups AS groups ON groups.user_group = groupnames.id";
+	$from .= " LEFT JOIN [+prefix+]manager_users AS users ON users.id = groups.member";
 	$orderby = 'groupnames.name';
 	$rs = $modx->db->select($field,$from,'',$orderby);
 	if ($modx->db->getRecordCount($rs) < 1)
@@ -147,9 +138,9 @@ if ($modx->db->getRecordCount($rs) < 1) {
 	<br />
 <?php
 	$field = 'dgnames.id, dgnames.name, sc.id AS doc_id, sc.pagetitle AS doc_title';
-	$from  = "{$tbl_documentgroup_names} AS dgnames";
-	$from .= " LEFT JOIN {$tbl_document_groups} AS dg ON dg.document_group = dgnames.id";
-	$from .= " LEFT JOIN {$tbl_site_content} AS sc ON sc.id = dg.document";
+	$from  = "[+prefix+]documentgroup_names AS dgnames";
+	$from .= " LEFT JOIN [+prefix+]document_groups AS dg ON dg.document_group = dgnames.id";
+	$from .= " LEFT JOIN [+prefix+]site_content AS sc ON sc.id = dg.document";
 	$orderby = 'dgnames.name, sc.id';
 	$rs = $modx->db->select($field,$from,'',$orderby);
 	if ($modx->db->getRecordCount($rs) < 1) {
@@ -202,9 +193,9 @@ if ($modx->db->getRecordCount($rs) < 1) {
 	echo '<p>'.$_lang['access_permissions_links_tab'].'</p>';
 
 	$field = 'groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name';
-	$from  = "{$tbl_membergroup_names} AS groupnames";
-	$from .= " LEFT JOIN {$tbl_membergroup_access} AS groupacc ON groupacc.membergroup = groupnames.id";
-	$from .= " LEFT JOIN {$tbl_documentgroup_names} AS dgnames ON dgnames.id = groupacc.documentgroup";
+	$from  = "[+prefix+]membergroup_names AS groupnames";
+	$from .= " LEFT JOIN [+prefix+]membergroup_access AS groupacc ON groupacc.membergroup = groupnames.id";
+	$from .= " LEFT JOIN [+prefix+]documentgroup_names AS dgnames ON dgnames.id = groupacc.documentgroup";
 	$rs = $modx->db->select($field,$from,'','name');
 	if ($modx->db->getRecordCount($rs) < 1)
 	{

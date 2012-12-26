@@ -4,8 +4,7 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$tbl_manager_log = $modx->getFullTableName('manager_log');
-$rs = $modx->db->select('DISTINCT internalKey, username, action, itemid, itemname',$tbl_manager_log);
+$rs = $modx->db->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
 $logs = array();
 while ($row = $modx->db->getRow($rs))
 {

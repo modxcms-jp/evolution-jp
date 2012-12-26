@@ -11,9 +11,6 @@ if(!isset($modx->config['snapshot_path']))
 	elseif(is_dir(MODX_BASE_PATH . 'assets/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
 }
 
-// Get table names (alphabetical)
-$tbl_event_log    = $modx->getFullTableName('event_log');
-
 // Backup Manager by Raymond:
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
@@ -626,8 +623,7 @@ function getSettings()
 {
 	global $modx;
 	
-	$tbl_system_settings = $modx->getFullTableName('system_settings');
-	$rs = $modx->db->select('setting_name, setting_value',$tbl_system_settings);
+	$rs = $modx->db->select('setting_name, setting_value','[+prefix+]system_settings');
 	
 	$settings = array();
 	while ($row = $modx->db->getRow($rs))
@@ -649,9 +645,8 @@ function restoreSettings($settings)
 {
 	global $modx;
 	
-	$tbl_system_settings = $modx->getFullTableName('system_settings');
 	foreach($settings as $k=>$v)
 	{
-		$modx->db->update(array('setting_value'=>$v),$tbl_system_settings,"setting_name='{$k}'");
+		$modx->db->update(array('setting_value'=>$v),'[+prefix+]system_settings',"setting_name='{$k}'");
 	}
 }
