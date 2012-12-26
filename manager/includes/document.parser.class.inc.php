@@ -81,7 +81,7 @@ class DocumentParser {
 		if(!isset($this->tstart))
 		{
 			$mtime = explode(' ',microtime());
-			$this->tstart = $mtime[1] + $mtime[0];
+			$this->tstart = $mtime['1'] + $mtime['0'];
 			$this->mstart = memory_get_usage();
 		}
 	}
@@ -2962,9 +2962,9 @@ class DocumentParser {
 			$sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
 			
 			if ($idnames == '*') $where= 'tv.id<>0';
-			elseif (preg_match('@^[0-9]+$@',$idnames[0]))
+			elseif (preg_match('@^[0-9]+$@',$idnames['0']))
 			{
-				$where= "tv.id='{$idnames[0]}'";
+				$where= "tv.id='{$idnames['0']}'";
 			}
 			else
 			{

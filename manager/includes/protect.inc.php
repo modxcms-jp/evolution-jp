@@ -98,8 +98,8 @@ function FindDangerValue($value, $found = false) {
 			$matches = '';
 			if (preg_match('/^([0.]*2[0125738.]{15,16}10*)e(-[0-9]+)$/i', $item, $matches))
 			{
-				$exp = intval($matches[2]) + 1;
-				if (2.2250738585072011e-307 === floatval("{$matches[1]}e{$exp}"))
+				$exp = intval($matches['2']) + 1;
+				if (2.2250738585072011e-307 === floatval("{$matches['1']}e{$exp}"))
 				{
 					return true;
 				}
