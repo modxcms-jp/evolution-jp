@@ -481,10 +481,10 @@ class DBAPI {
      * @param string $orderby
      * @return an object of row from query, or return false if empty query	
      */
-    function get_record($table,$where,$orderby=""){
+    function get_record($table,$where,$orderby=''){
         $rs = $this->select("*", $this->config['table_prefix'].$table, $where, $orderby, 1);
         if ($this->getRecordCount($rs)==0) return false;
-        return $this->getRow($rs,"object");
+        return $this->getRow($rs,'object');
     }
 
     /**
@@ -497,7 +497,7 @@ class DBAPI {
     function get_record_sql($sql){
         $rs = $this->query($sql);
         if ($this->getRecordCount($rs)==0) return false;
-        return $this->getRow($rs,"object");
+        return $this->getRow($rs,'object');
     }
     
     /**
@@ -513,20 +513,20 @@ class DBAPI {
      * @param type $limit
      * @return type 
      */
-    function get_records($sql_or_table,$where="",$orderby="",$limit=0){
+    function get_records($sql_or_table,$where='',$orderby='',$limit=0){
 
         if ((stripos($sql_or_table, "select")!==false)||(stripos($sql_or_table, "show")!==false)){
             $sql = $sql_or_table;
         }else{
-            $where = empty($where)?"":" where $where";
-            $orderby = empty($orderby)?"":" order by $orderby";
-            $limit = empty($limit)?"": "limit $limit";
+            $where = empty($where) ? '' : " WHERE '{$where}'";
+            $orderby = empty($orderby)?"":" ORDER BY {$orderby}";
+            $limit = empty($limit)?"": "LIMIT {$limit}";
             $sql = "select * from ".$this->config['table_prefix'].$sql_or_table." $where $orderby $limit";
         }
 
         $rs = $this->query($sql);
         $result = array();
-        while ($row = $this->getRow($rs,"object")){
+        while ($row = $this->getRow($rs,'object')){
             $result[] = $row;
         }
         return $result;
