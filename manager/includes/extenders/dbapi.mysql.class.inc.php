@@ -531,7 +531,34 @@ class DBAPI {
         }
         return $result;
 
+    }
+    
+    /**
+     * @name replaceFullTableName
+     * @desc  Get full table name. Append table name and table prefix.
+     * 
+     * @param string $table_name
+     * @return string 
+     */
+    function replaceFullTableName($table_name,$force=false) {
+        
+        $table_name = trim($table_name);
+        $dbase  = trim($this->config['dbase'],'`');
+        $prefix = $this->config['table_prefix'];
+        if(!empty($force))
+        {
+        	$result = "`{$dbase}`.`{$prefix}{$table_name}`";
         }
+        elseif(strpos($table_name,'[+prefix+]')!==false)
+        {
+            $result = preg_replace('@\[\+prefix\+\]([0-9a-zA-Z_]+)@', "`{$dbase}`.`{$prefix}$1`", $table_name);
+        }
+        else $result = $table_name;
+        
+        return $result;
+        
+    }
+    
 	/**
 	* @name:  initDataTypes
 	* @desc:  called in the constructor to set up arrays containing the types
