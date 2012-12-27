@@ -4,7 +4,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $internalKey = $modx->getLoginUserID();
 $username = $_SESSION['mgrShortname'];
 
-
 // invoke OnBeforeManagerLogout event
 $modx->invokeEvent("OnBeforeManagerLogout",
 						array(
@@ -20,10 +19,6 @@ if (isset($_COOKIE[session_name()])) {
 }
 //// now destroy the session
 @session_destroy(); // this sometimes generate an error in iis
-//$sessionID = md5(date('d-m-Y H:i:s'));
-//session_id($sessionID);
-//startCMSSession();
-//session_destroy();
 
 // invoke OnManagerLogout event
 $modx->invokeEvent("OnManagerLogout",
@@ -33,5 +28,4 @@ $modx->invokeEvent("OnManagerLogout",
 						));
 
 // show login screen
-header('Location: ' . $modx->config['base_url'] . 'manager/');
-?>
+header('Location: ' . $modx->config['site_url'] . 'manager/');
