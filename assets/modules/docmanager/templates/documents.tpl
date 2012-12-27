@@ -13,7 +13,7 @@
 	    <input type="hidden" id="author_editedby" name="author_editedby" value="" />
 	    <input type="hidden" id="tabaction" name="tabAction" value ="" /> 
 	    
-	    <input id="pids" name="pids" type="text" style="width:70%;" />  
+	    <input id="pids" name="pids" type="text" style="width:70%;" class="imeoff" />  
 	    <input type="submit" name="fsubmit" onclick="postForm('range');return false;" value="[+lang.DM_select_submit+]" /> 
     </form>
     <br />
