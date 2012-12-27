@@ -30,14 +30,16 @@
 		           <li id="Button1"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="media/style[+theme+]/images/icons/stop.png" align="absmiddle"> [+lang.DM_close+]</a></li>
 		           <li id="Button4"><a href="#" onclick="reset();"><img src="media/style[+theme+]/images/icons/cancel.png" align="absmiddle"> [+lang.DM_cancel+]</a></li>
 		    </ul>
-	    </div>
+	   </div>
 	   
-	    <div class="sectionHeader">[+lang.DM_update_title+]</div> 
-	    <div class="sectionBody"> 
+	   <div class="section"> 
+	   <div class="sectionHeader">[+lang.DM_update_title+]</div> 
+	   <div class="sectionBody"> 
 	       <p>[+update.message+]</p>
 		   <form id="backform" method="post" style="display: none;">
 		      <input type="submit" name="back" value="[+lang.DM_process_back+]" />
 		   </form>
-	    </div>
+	   </div>
+	   </div>
     </body>
 </html>
