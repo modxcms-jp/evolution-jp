@@ -486,7 +486,7 @@ class DBAPI {
      * @return an object of row from query, or return false if empty query	
      */
     function get_record($table,$where,$orderby=''){
-        $table = $this->replaceFullTableName($table,true);
+        $table = $this->replaceFullTableName($table,'force');
         $rs = $this->select('*', $table, $where, $orderby, 1);
         if ($this->getRecordCount($rs)==0) return false;
         return $this->getRow($rs,'object');
@@ -526,7 +526,7 @@ class DBAPI {
             $where = empty($where) ? '' : " WHERE '{$where}'";
             $orderby = empty($orderby)?"":" ORDER BY {$orderby}";
             $limit = empty($limit)?"": "LIMIT {$limit}";
-            $sql_or_table = $this->replaceFullTableName($sql_or_table,true);
+            $sql_or_table = $this->replaceFullTableName($sql_or_table,'force');
             $sql = "SELECT * from {$sql_or_table} {$where} {$orderby} {$limit}";
         }
 
@@ -546,7 +546,7 @@ class DBAPI {
      * @param string $table_name
      * @return string 
      */
-    function replaceFullTableName($table_name,$force=false) {
+    function replaceFullTableName($table_name,$force=null) {
         
         $table_name = trim($table_name);
         $dbase  = trim($this->config['dbase'],'`');
