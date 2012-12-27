@@ -443,7 +443,6 @@ class DBAPI {
 		}
 	}
 	
-	
 	/**
 	* @name:  makeArray
 	* @desc:  turns a recordset into a multidimensional array
@@ -476,16 +475,16 @@ class DBAPI {
 	}
     
     /**
-     * @name  get_record 
+     * @name  getObject 
      * @desc  get row as object from table, like oop style 
-     *        $doc = $modx->db->get_record("site_content","id=1")
+     *        $doc = $modx->db->getObject("site_content","id=1")
      * 
      * @param string $table
      * @param string $where
      * @param string $orderby
      * @return an object of row from query, or return false if empty query	
      */
-    function get_record($table,$where,$orderby=''){
+    function getObject($table,$where,$orderby=''){
         $table = $this->replaceFullTableName($table,'force');
         $rs = $this->select('*', $table, $where, $orderby, 1);
         if ($this->getRecordCount($rs)==0) return false;
@@ -493,24 +492,24 @@ class DBAPI {
     }
 
     /**
-     * @name get_record_sql
+     * @name getObjectSql
      * @desc  get row as object from sql query
      * 
      * @param string $sql
      * @return an object of row from query, or return false if empty query	 
      */
-    function get_record_sql($sql){
+    function getObjectSql($sql){
         $rs = $this->query($sql);
         if ($this->getRecordCount($rs)==0) return false;
         return $this->getRow($rs,'object');
     }
     
     /**
-     * @name get_records
+     * @name getObjects
      * @desc  get array of object by table or sql query
-     *        $docs = $modx->db->get_records("site_content","parent=1");
+     *        $docs = $modx->db->getObjects("site_content","parent=1");
      *  or
-     *        $docs = $modx->db->get_records("select * from modx_site_content left join ...");
+     *        $docs = $modx->db->getObjects("select * from modx_site_content left join ...");
      * 
      * @param type $sql_or_table
      * @param type $where
@@ -518,7 +517,7 @@ class DBAPI {
      * @param type $limit
      * @return type 
      */
-    function get_records($sql_or_table,$where='',$orderby='',$limit=0){
+    function getObjects($sql_or_table,$where='',$orderby='',$limit=0){
         $sql_or_table = trim($sql_or_table);
         if ((stripos($sql_or_table, 'select')===0)||(stripos($sql_or_table, 'show')===0)){
             $sql = $sql_or_table;
