@@ -263,6 +263,8 @@ class ManagerAPI {
 	
 	function remove_locks($action='all',$limit_time=120)
 	{
+		global $modx;
+		
 		$limit_time = time() - $limit_time;
 		if($action === 'all')
 		{
@@ -273,6 +275,6 @@ class ManagerAPI {
 			$action = intval($action);
 			$action = "action={$action} and";
 		}
-		$this->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
+		$modx->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
 	}
 }
