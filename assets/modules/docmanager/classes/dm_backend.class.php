@@ -449,11 +449,16 @@ class DocManagerBackend {
 			$error .= $this->dm->lang['DM_process_novalues'];
 		}
 		$pids = '';
+		$rs = $this->modx->db->select('MAX(id)',$tbl_site_content);
+		$total = $this->modx->db->getValue($rs);
 		
 		/* parse values, and check for invalid entries */
 		foreach ($values as $key => $value) {
 			/* value is a range */
 			$value = trim($value);
+			if(substr($value,0,1)==='-') $value = "0{$value}";
+			if(substr($value,-1)==='-') $value .= $total;
+			
 			if (preg_match('/^[\d]+\-[\d]+$/', $value)) {
 				$match = explode('-', $value);
 
