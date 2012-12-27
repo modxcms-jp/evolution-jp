@@ -454,7 +454,7 @@ class DocManagerBackend {
 		foreach ($values as $key => $value) {
 			/* value is a range */
 			$value = trim($value);
-			if (preg_match('/^[\d]+\-[\d]+$/', trim($value))) {
+			if (preg_match('/^[\d]+\-[\d]+$/', $value)) {
 				$match = explode('-', $value);
 
 				if (($match[1] - $match[0]) < 0) {
