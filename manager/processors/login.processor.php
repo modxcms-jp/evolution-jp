@@ -35,10 +35,7 @@ if(strpos($username,':roleid=')!==false)
 	if(!preg_match('@^[0-9]+$@',$assignRole)) $assignRole = 1;
 }
 
-$tbl_user_settings   = $modx->getFullTableName('user_settings');
-$tbl_manager_users = $modx->getFullTableName('manager_users');
 $tbl_user_attributes = $modx->getFullTableName('user_attributes');
-$tbl_user_roles = $modx->getFullTableName('user_roles');
 
 // invoke OnBeforeManagerLogin event
 $modx->invokeEvent("OnBeforeManagerLogin",
@@ -48,9 +45,9 @@ $modx->invokeEvent("OnBeforeManagerLogin",
                             "rememberme"    => $rememberme
                         ));
 
-$field = "{$tbl_manager_users}.*, {$tbl_user_attributes}.*";
-$from = "{$tbl_manager_users},{$tbl_user_attributes}";
-$where = "BINARY {$tbl_manager_users}.username='{$username}' and {$tbl_user_attributes}.internalKey={$tbl_manager_users}.id";
+$field = "mu.*, ua.*";
+$from = "[+prefix+]manager_users mu,[+prefix+]user_attributes ua";
+$where = "BINARY mu.username='{$username}' and ua.internalKey=mu.id";
 
 $rs = $modx->db->select($field,$from,$where);
 $limit = $modx->db->getRecordCount($rs);
@@ -84,7 +81,7 @@ $fullname               = $row['fullname'];
 $email                  = $row['email'];
 
 // get the user settings from the database
-$rs = $modx->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$internalKey}' AND setting_value!=''");
+$rs = $modx->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$internalKey}' AND setting_value!=''");
 while ($row = $modx->db->getRow($rs))
 {
     ${$row['setting_name']} = $row['setting_value'];
@@ -99,7 +96,7 @@ if($failedlogins>=$failed_allowed && $blockeduntildate>time()) {
 
 // blocked due to number of login errors, but get to try again
 if($failedlogins>=$failed_allowed && $blockeduntildate<time()) {
-    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey={$internalKey}";
+    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey='{$internalKey}'";
     $rs = $modx->db->query($sql);
 }
 
@@ -190,11 +187,11 @@ if($use_captcha==1) {
 if($newloginerror) {
 	//increment the failed login counter
     $failedlogins += 1;
-    $rs = $modx->db->update(array('failedlogincount'=>$failedlogins), $tbl_user_attributes, "internalKey='{$internalKey}'");
+    $rs = $modx->db->update(array('failedlogincount'=>$failedlogins), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
     if($failedlogins>=$failed_allowed) {
 		//block user for too many fail attempts
 		$blockeduntil = time()+($blocked_minutes*60);
-        $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), $tbl_user_attributes, "internalKey='{$internalKey}'");
+        $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
     } else {
 		//sleep to help prevent brute force attacks
         $sleep = (int)$failedlogins/2;
@@ -217,7 +214,7 @@ $_SESSION['mgrInternalKey'] = $internalKey;
 $_SESSION['mgrFailedlogins'] = $failedlogins;
 $_SESSION['mgrLogincount'] = $nrlogins; // login count
 $_SESSION['mgrRole'] = $role;
-$rs = $modx->db->select('* ',$tbl_user_roles,"id='{$role}'");
+$rs = $modx->db->select('* ','[+prefix+]user_roles',"id='{$role}'");
 $row = $modx->db->getRow($rs);
 $_SESSION['mgrPermissions'] = $row;
 
@@ -235,11 +232,9 @@ if(isset($_SESSION['mgrValidated']))
 // get user's document groups
 $dg='';
 $i=0;
-$tbl_member_groups = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access = $modx->getFullTableName('membergroup_access');
 $field ='uga.documentgroup as documentgroup';
-$from = "{$tbl_member_groups} ug INNER JOIN {$tbl_membergroup_access} uga ON uga.membergroup=ug.user_group";
-$rs = $modx->db->select($field,$from,"ug.member={$internalKey}");
+$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
+$rs = $modx->db->select($field,$from,"ug.member='{$internalKey}'");
 while ($row = $modx->db->getRow($rs,'num'))
 {
 	$dg[$i++]=$row[0];
@@ -286,7 +281,7 @@ $modx->invokeEvent("OnManagerLogin",
                         ));
 
 // check if we should redirect user to a web page
-$id = $modx->db->getValue($modx->db->select('setting_value',$tbl_user_settings,"user='{$internalKey}' AND setting_name='manager_login_startup'"));
+$id = $modx->db->getValue($modx->db->select('setting_value','[+prefix+]user_settings',"user='{$internalKey}' AND setting_name='manager_login_startup'"));
 if(isset($id) && $id>0) {
     $header = 'Location: '.$modx->makeUrl($id,'','','full');
     if($_POST['ajax']==1) echo $header;
