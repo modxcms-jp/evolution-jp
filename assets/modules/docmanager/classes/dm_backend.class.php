@@ -453,6 +453,7 @@ class DocManagerBackend {
 		/* parse values, and check for invalid entries */
 		foreach ($values as $key => $value) {
 			/* value is a range */
+			$value = trim($value);
 			if (preg_match('/^[\d]+\-[\d]+$/', trim($value))) {
 				$match = explode('-', $value);
 
@@ -471,7 +472,7 @@ class DocManagerBackend {
 			}
 	
 			/* value is a group for immediate children */
-			elseif (preg_match('/^[\d]+\*$/', trim($value), $match)) {
+			elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
 				$match = rtrim($match[0], '*');
 	
 				$group = $this->modx->db->select('id', $tbl_site_content, 'parent=' . $match);
@@ -492,7 +493,7 @@ class DocManagerBackend {
 				}
 			}
 			/* value is a group for ALL children */
-			elseif (preg_match('/^[\d]+\*\*$/', trim($value), $match)) {
+			elseif (preg_match('/^[\d]+\*\*$/', $value, $match)) {
 				$match = rtrim($match[0], '**');
 				$idarray[] = $match;
 
@@ -511,8 +512,7 @@ class DocManagerBackend {
 				}
 			}
 			/* value is a single document */
-			elseif (preg_match('/^[\d]+$/', trim($value), $match)) {
-				$value = trim($value);
+			elseif (preg_match('/^[\d]+$/', $value, $match)) {
 				if ($returnval == 0) {
 					$idarray[] = ($i + $match[0]);
 				} else {
@@ -633,4 +633,3 @@ class DocManagerBackend {
 		}
 	}
 }
-?>
