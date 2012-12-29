@@ -1144,7 +1144,7 @@ if(empty($upload_maxsize))
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_url_title"]?></th>
 <td>
-<?php echo $base_path . form_text('rb_base_url',$rb_base_url);?><br />
+<?php echo $site_url . form_text('rb_base_url',$rb_base_url);?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
