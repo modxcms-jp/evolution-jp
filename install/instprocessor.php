@@ -129,7 +129,7 @@ else
 if ($installmode == 0)
 {
 	$siteid = uniqid('');
-	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')");
+	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
 }
 else
 {
@@ -142,7 +142,7 @@ else
 		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3')
 		{
 			$siteid = uniqid('');
-			mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','$siteid')");
+			mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
 		}
 	}
 }
