@@ -501,20 +501,20 @@ class Mysqldumper {
 				}
 			}
 			$output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
-			$output .= "#{$lf}# Table structure for table `$tblval`{$lf}";
+			$output .= "#{$lf}# Table structure for table `{$tblval}`{$lf}";
 			$output .= "#{$lf}{$lf}";
 			// Generate DROP TABLE statement when client wants it to.
 			if($this->isDroptables()) {
-				$output .= "DROP TABLE IF EXISTS `$tblval`;{$lf}";
+				$output .= "DROP TABLE IF EXISTS `{$tblval}`;{$lf}";
 			}
 			$output .= "{$createtable[$tblval][0]};{$lf}";
 			$output .= $lf;
-			$output .= "#{$lf}# Dumping data for table `$tblval`{$lf}#{$lf}";
+			$output .= "#{$lf}# Dumping data for table `{$tblval}`{$lf}#{$lf}";
 			$result = $modx->db->select('*',$tblval);
 			$rows = $this->loadObjectList('', $result);
 			foreach($rows as $row) {
 				$insertdump = $lf;
-				$insertdump .= "INSERT INTO `$tblval` VALUES (";
+				$insertdump .= "INSERT INTO `{$tblval}` VALUES (";
 				$arr = $this->object2Array($row);
 				foreach($arr as $key => $value) {
 					$value = addslashes($value);

@@ -6,8 +6,7 @@ if(!$modx->hasPermission('settings'))
 	$e->dumpError();
 }
 // check to see the edit settings page isn't locked
-$tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('internalKey, username', $tbl_active_users, 'action=17');
+$rs = $modx->db->select('internalKey, username', '[+prefix+]active_users', 'action=17');
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
@@ -24,7 +23,6 @@ if($limit>1) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-
 if(!is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
 $settings = $modx->config;
@@ -320,10 +318,8 @@ function confirmLangChange(el, lkey, elupd)
 	<td>
 		<select name="default_template" class="inputBox" onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
 <?php
-	$tbl_site_templates = $modx->getFullTableName('site_templates');
-	$tbl_categories = $modx->getFullTableName('categories');
 	$field = 't.templatename, t.id, c.category';
-	$from = "{$tbl_site_templates} t LEFT JOIN {$tbl_categories} c ON t.category = c.id";
+	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
 	$orderby = 'c.category, t.templatename ASC';
 	$rs = $modx->db->select($field,$from,'',$orderby);
 	$currentCategory = '';
@@ -1256,8 +1252,7 @@ function get_role_list()
 {
 	global $modx, $default_role;
 	
-	$tbl_user_roles = $modx->getFullTableName('user_roles');
-	$rs = $modx->db->select('id,name', $tbl_user_roles, 'id!=1', 'save_role DESC,new_role DESC,id ASC');
+	$rs = $modx->db->select('id,name', '[+prefix+]user_roles', 'id!=1', 'save_role DESC,new_role DESC,id ASC');
 	$tpl = '<option value="[+id+]" [+selected+]>[+name+]</option>';
 	$options = "\n";
 	while($ph=$modx->db->getRow($rs))

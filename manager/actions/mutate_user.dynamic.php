@@ -22,8 +22,7 @@ switch((int) $_REQUEST['a']) {
 $userid = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
-$tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='12' AND id='{$userid}'");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='12' AND id='{$userid}'");
 if ($modx->db->getRecordCount($rs) > 1)
 {
 	while($lock = $modx->db->getRow($rs))
@@ -41,16 +40,14 @@ if ($modx->db->getRecordCount($rs) > 1)
 if ($_REQUEST['a'] == '12')
 {
 	// get user attribute
-	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-	$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey='{$userid}'");
+	$rs = $modx->db->select('*','[+prefix+]user_attributes',"internalKey='{$userid}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
 	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
 	$userdata = $modx->db->getRow($rs);
 	
 	// get user settings
-	$tbl_user_settings = $modx->getFullTableName('user_settings');
-	$rs = $modx->db->select('*',$tbl_user_settings,"user='{$userid}'");
+	$rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
 	$usersettings = array ();
 	while ($row = $modx->db->getRow($rs))
 	{
@@ -70,9 +67,8 @@ if ($_REQUEST['a'] == '12')
 		}
 	}
 	
-	$tbl_manager_users = $modx->getFullTableName('manager_users');
 	// get user name
-	$rs = $modx->db->select('*',$tbl_manager_users,"id='{$userid}'");
+	$rs = $modx->db->select('*','[+prefix+]manager_users',"id='{$userid}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
 	elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}
@@ -324,7 +320,6 @@ if (is_array($evtOut))
 			<th><?php echo $_lang['user_role']; ?>:</th>
 			<td>
 <?php
-$tbl_user_roles = $modx->getFullTableName('user_roles');
 if($_SESSION['mgrRole'] == 1 && $userid==$modx->getLoginUserID())
 {
 	$where = 'edit_role=1 AND save_role=1 AND new_role=1';
@@ -354,7 +349,7 @@ else
 {
 	$where = '';
 }
-$rs = $modx->db->select('name, id',$tbl_user_roles,$where,'save_role DESC, new_role DESC, id ASC');
+$rs = $modx->db->select('name, id','[+prefix+]user_roles',$where,'save_role DESC, new_role DESC, id ASC');
 ?>
 		<select name="role" class="inputBox">
 		<?php
@@ -725,9 +720,8 @@ if ($use_udperms == 1)
 
 	if ($_GET['a'] == '12')
 	{ // only do this bit if the user is being edited
-		$tbl_member_groups = $modx->getFullTableName('member_groups');
 		$memberid = $_GET['id'];
-		$rs = $modx->db->select('*',$tbl_member_groups,"member='{$memberid}'" );
+		$rs = $modx->db->select('*','[+prefix+]member_groups',"member='{$memberid}'" );
 		$limit = $modx->db->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
@@ -745,8 +739,7 @@ if ($use_udperms == 1)
 		}
 	}
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
-	$rs = $modx->db->select('name, id',$tbl_membergroup_names,'','name');
+	$rs = $modx->db->select('name, id','[+prefix+]membergroup_names','','name');
 	$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
 	while($row = $modx->db->getRow($rs))
 	{

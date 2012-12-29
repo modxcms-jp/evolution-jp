@@ -27,11 +27,9 @@ if (isset($_REQUEST['id']))
 else    $id = 0;
 
 // Get table names (alphabetical)
-$tbl_active_users      = $modx->getFullTableName('active_users');
-$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 // Check to see the snippet editor isn't locked
-$rs = $modx->db->select('internalKey, username', $tbl_active_users, "action=78 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
 if ($modx->db->getRecordCount($rs) > 1)
 {
 	while ($row = $modx->db->getRow($rs))
@@ -48,7 +46,7 @@ if ($modx->db->getRecordCount($rs) > 1)
 $content = array();
 if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
 {
-	$rs = $modx->db->select('*',$tbl_site_htmlsnippets,"id='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_htmlsnippets',"id='{$id}'");
 	$total = $modx->db->getRecordCount($rs);
 	if ($total > 1)
 	{
