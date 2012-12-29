@@ -39,10 +39,9 @@ if($limit>1)
 }
 // end check for lock
 
-$tbl_site_plugins = $modx->getFullTableName('site_plugins');
 if(isset($_GET['id']))
 {
-	$rs = $modx->db->select('*',$tbl_site_plugins,"id='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_plugins',"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1)
 	{
@@ -493,13 +492,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
    	<h2 class="tab"><?php echo $_lang["settings_config"] ?></h2>
    	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabProps" ) );</script>
 <?php
-	$sql =	"SELECT sm.id,sm.name,sm.guid " .
-			"FROM ".$modx->getFullTableName("site_modules")." sm ".
-			"INNER JOIN ".$modx->getFullTableName("site_module_depobj")." smd ON smd.module=sm.id AND smd.type=30 ".
-			"INNER JOIN ".$modx->getFullTableName("site_plugins")." sp ON sp.id=smd.resource ".
-			"WHERE smd.resource='$id' AND sm.enable_sharedparams='1' ".
-			"ORDER BY sm.name ";
-	$ds = $modx->db->query($sql);
+	$field = 'sm.id,sm.name,sm.guid';
+	$from  = '[+prefix+]site_modules sm '.
+			'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
+			'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
+	$where = "smd.resource='$id' AND sm.enable_sharedparams='1'";
+	$ds = $modx->db->select($field,$from,$where,'sm.name');
 	$guid_total = $modx->db->getRecordCount($ds);
 	if($guid_total > 0)
 	{
@@ -554,8 +552,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	if(is_numeric($id) && $id > 0)
 	{
 		$evts = array();
-		$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
-		$rs = $modx->db->select('*',$tbl_site_plugin_events,"pluginid='{$id}'");
+		$rs = $modx->db->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
 		while($row = $modx->db->getRow($rs))
 		{
 		   $evts[] = $row['evtid'];
@@ -583,8 +580,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 		"Template Service Events",
 		"User Defined Events"
 	);
-	$tbl_system_eventnames = $modx->getFullTableName('system_eventnames');
-	$rs = $modx->db->select('*',$tbl_system_eventnames,'','service DESC, groupname, name');
+	$rs = $modx->db->select('*','[+prefix+]system_eventnames','','service DESC, groupname, name');
 	if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
 	else
 	{

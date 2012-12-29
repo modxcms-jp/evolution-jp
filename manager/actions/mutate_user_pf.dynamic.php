@@ -9,16 +9,14 @@ if ($_REQUEST['a']!=='119' || !$modx->hasPermission('change_password')) {
 $userid = $modx->getLoginUserID();
 
 // get user attribute
-$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-$rs = $modx->db->select('*',$tbl_user_attributes,"internalKey='{$userid}'");
+$rs = $modx->db->select('*','[+prefix+]user_attributes',"internalKey='{$userid}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
 elseif($limit < 1) {echo 'No user returned!<p>';exit;}
 $userdata = $modx->db->getRow($rs);
 
 // get user settings
-$tbl_user_settings = $modx->getFullTableName('user_settings');
-$rs = $modx->db->select('*',$tbl_user_settings,"user='{$userid}'");
+$rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
 $usersettings = array ();
 while ($row = $modx->db->getRow($rs))
 {
@@ -38,9 +36,8 @@ foreach ($usersettings as $k => $v)
 	}
 }
 
-$tbl_manager_users = $modx->getFullTableName('manager_users');
 // get user name
-$rs = $modx->db->select('*',$tbl_manager_users,"id='{$userid}'");
+$rs = $modx->db->select('*','[+prefix+]manager_users',"id='{$userid}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
 elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}

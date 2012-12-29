@@ -11,21 +11,15 @@ if (isset($_REQUEST['id']))
 else    $id = 0;
 
 // Get table names (alphabetical)
-$tbl_active_users       = $modx->getFullTableName('active_users');
-$tbl_site_content       = $modx->getFullTableName('site_content');
-$tbl_site_htmlsnippets  = $modx->getFullTableName('site_htmlsnippets');
 $tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_modules       = $modx->getFullTableName('site_modules');
 $tbl_site_plugins       = $modx->getFullTableName('site_plugins');
 $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
-$tbl_site_templates     = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvars      = $modx->getFullTableName('site_tmplvars');
 
 // initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=108 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	while($lock = $modx->db->getRow($rs))
@@ -92,7 +86,7 @@ switch ($_REQUEST['op']) {
 				if($row['type']=='40') $snids[$i]=$row['resource'];
 			}
 			// get guid
-			$ds = $modx->db->select('*', $tbl_site_modules, "id='{$id}'");
+			$ds = $modx->db->select('*', '[+prefix+]site_modules', "id='{$id}'");
 			if($ds) {
 				$row = $modx->db->getRow($ds);
 				$guid = $row['guid'];
@@ -114,7 +108,7 @@ switch ($_REQUEST['op']) {
 }
 
 // load record
-$rs = $modx->db->select('*',$tbl_site_modules,"id='{$id}'");
+$rs = $modx->db->select('*','[+prefix+]site_modules',"id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";

@@ -24,14 +24,8 @@ switch((int) $_REQUEST['a'])
 
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
-// Get table Names (alphabetical)
-$tbl_active_users       = $modx->getFullTableName('active_users');
-$tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_modules       = $modx->getFullTableName('site_modules');
-$tbl_site_snippets      = $modx->getFullTableName('site_snippets');
-
 // check to see the snippet editor isn't locked
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=22 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=22 AND id='{$id}'");
 $limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
@@ -49,7 +43,7 @@ if($limit>1) {
 
 
 if(isset($_GET['id'])) {
-	$rs = $modx->db->select('*',$tbl_site_snippets,"id='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_snippets',"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
@@ -369,9 +363,9 @@ function decode(s){
 		  </tr>
 <?php } ?>
 <?php
-		$from = "{$tbl_site_modules} AS sm ".
-		       "INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 ".
-		       "INNER JOIN {$tbl_site_snippets} AS ss ON ss.id=smd.resource ";
+		$from = "[+prefix+]site_modules AS sm ".
+		       "INNER JOIN [+prefix+]site_module_depobj AS smd ON smd.module=sm.id AND smd.type=40 ".
+		       "INNER JOIN [+prefix+]site_snippets AS ss ON ss.id=smd.resource ";
 		$ds = $modx->db->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
 		$guid_total = $modx->db->getRecordCount($ds);
 		if($guid_total > 0)

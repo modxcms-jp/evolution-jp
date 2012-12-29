@@ -28,8 +28,7 @@ default:
 if(!empty($id))
 {
 	// check to see the template editor isn't locked
-	$tbl_active_users = $modx->getFullTableName('active_users');
-	$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=16 AND id={$id}");
+	$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=16 AND id='{$id}'");
 	if($modx->db->getRecordCount($rs)>1)
 	{
 		while ($row = $modx->db->getRow($rs))
@@ -46,8 +45,7 @@ if(!empty($id))
 
 $content = array();
 if(!empty($id)) {
-	$tbl_site_templates = $modx->getFullTableName('site_templates');
-	$rs = $modx->db->select('*',$tbl_site_templates,"id='{$id}'");
+	$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$id}'");
 	$total = $modx->db->getRecordCount($rs);
 	if($total > 1)
 	{
@@ -211,13 +209,10 @@ function deletedocument() {
 <?php
 if ($_REQUEST['a'] == '16')
 {
-	$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-	$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
-	$tbl_categories             = $modx->getFullTableName('categories');
 	$field = "tv.name as 'name', tv.id as 'id', tpl.templateid as tplid, tpl.rank, if(isnull(cat.category),'{$_lang['no_category']}',cat.category) as category, tv.description as 'desc'";
-	$from  = "{$tbl_site_tmplvar_templates} tpl";
-	$from .= " INNER JOIN {$tbl_site_tmplvars} tv ON tv.id = tpl.tmplvarid";
-	$from .= " LEFT JOIN {$tbl_categories} cat ON tv.category = cat.id";
+	$from  = "[+prefix+]site_tmplvar_templates tpl";
+	$from .= " INNER JOIN [+prefix+]site_tmplvars tv ON tv.id = tpl.tmplvarid";
+	$from .= " LEFT JOIN [+prefix+]categories cat ON tv.category = cat.id";
 	$where = "tpl.templateid='{$id}'";
 	$orderby = 'tpl.rank, tv.rank, tv.id';
 	$rs = $modx->db->select($field,$from,$where,$orderby);
