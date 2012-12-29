@@ -309,8 +309,8 @@ function hideSpans(showSpan) {
   <tr>
     <td></td>
     <td>
-		<ul class="actionButtons">
-		        <li><a href="#" onclick="documentDirty=false; document.messagefrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['messages_send']; ?></a></li>
+		<ul class="actionButtons" style="margin-top:15px;">
+		        <li><a href="#" class="primary" onclick="documentDirty=false; document.messagefrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['messages_send']; ?></a></li>
 		        <li><a href="index.php?a=10&t=c"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
 		</ul>
     </td>

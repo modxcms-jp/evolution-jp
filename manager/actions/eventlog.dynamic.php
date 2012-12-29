@@ -102,7 +102,7 @@ echo $cm->render();
 				<table border="0" style="float:right">
 				    <tr>
 				        <td><?php echo $_lang['search']?> </td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query?>" /></td>
-				        <td><a class="default" href="#" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><img src="<?php echo $_style['icons_save'];?>" /><?php echo $_lang['go']?></a></td>
+				        <td><a class="primary" href="#" title="<?php echo $_lang['search']?>" onclick="searchResource();return false;"><img src="<?php echo $_style['icons_save'];?>" /><?php echo $_lang['go']?></a></td>
 				        <td><a href="#" title="<?php echo $_lang['reset']?>" onclick="resetSearch();return false;"><img src="<?php echo $_style['icons_refresh']; ?>" style="display:inline;" /></a></td>
 				        <td><a href="#" title="<?php echo $_lang['list_mode']?>" onclick="changeListMode();return false;"><img src="<?php echo $_style['icons_table'];?>" style="display:inline;" /></a></td>
 				    </tr>
