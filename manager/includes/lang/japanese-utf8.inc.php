@@ -1242,3 +1242,6 @@ $_lang["change_password_success"] = 'パスワードを更新しました。';
 
 $_lang['make_folders_title'] = 'ディレクトリ表現';
 $_lang['make_folders_message'] = 'コンテナ属性のリソースのサフィックスをスラッシュ( / )にします。';
+
+
+$_lang["move_resource_cant_myself"] = '自分自身のサブリソースに移動することはできません。';

@@ -48,8 +48,15 @@ if ($use_udperms == 1 && $current_parent != $new_parent)
 	}
 }
 $children= allChildren($doc_id);
-
-if (!array_search($new_parent, $children))
+if($current_parent == $new_parent)
+{
+	$alert = $_lang["move_resource_new_parent"];
+}
+elseif (array_search($new_parent, $children)!==false)
+{
+	$alert = $_lang["move_resource_cant_myself"];
+}
+else
 {
 	$rs = $modx->db->update('isfolder=1',$tbl_site_content,"id='{$new_parent}'");
 	if(!$rs)
@@ -87,7 +94,6 @@ if (!array_search($new_parent, $children))
 			$alert = 'An error occured while attempting to change the old parent to a regular resource.';
 	}
 }
-else $alert = 'You cannot move a document to a child document!';
 
 if(!isset($alert))
 {
@@ -96,7 +102,13 @@ if(!isset($alert))
 	else                $header="Location: index.php?a=2&r=1";
 	header($header);
 }
-else echo $alert;
+else
+{
+	echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
+	$url = "index.php?a=51&id={$doc_id}";
+	$modx->webAlert($alert, $url);
+	exit;
+}
 
 
 
