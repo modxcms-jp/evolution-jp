@@ -84,22 +84,22 @@ class FileUpload {
 		
 		if($_FILES['NewFile']['name'])
 		{
-			$filename = explode('/',str_replace("\\",'/',$_FILES['NewFile']['name']));
+			$_FILES['NewFile']['name'] = str_replace("\\",'/',$_FILES['NewFile']['name']);
+			$filename = explode('/',$_FILES['NewFile']['name']);
 			$filename = end($filename);  // (*2)
-			$filename = end(explode('/',str_replace("\\",'/',$_FILES['NewFile']['name'])));	// (*2)
-			$lastdot  = strrpos($filename, '.');
-			if($lastdot) $ext = strtolower(substr($filename,($lastdot+1)));
+			if(strpos($filename, '.') !==false)
+			{
+				$ext = strtolower(substr($filename,strrpos($filename, '.')+1));
+			}
 		}
 		
-		if($modx->config['clean_uploaded_filename']==1)
+		if($modx->config['clean_uploaded_filename']==1 && isset($ext))
 		{
-			$nameparts = explode('.', $filename);
-			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts, array('file_browser'));
-			$filename = implode('.', $nameparts);
+			$filename = $modx->stripAlias($filename, array('file_manager'));
 		}
-		elseif ($this->cleanFilename($filename) !== $filename && $lastdot!==false)
+		elseif (isset($ext) && $this->cleanFilename($filename) !== $filename)
 		{
-			$filename = date('Ymd-his');
+			$filename = date('Ymd-his') . ".{$ext}";
 			$disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";// (*3)
 		}
 		
@@ -108,17 +108,17 @@ class FileUpload {
 		{
 			$disp = "202,'ファイル容量オーバーです。'";//Too big
 		}
-		elseif($lastdot===false)
+		elseif(!isset($ext))
 		{
 			$disp = "202,'種類を判別できないファイル名です。'";//No file extension to check
 		}
-		elseif (!in_array(strtolower($ext),$typeconfig['AllowedExtensions']))
+		elseif (!in_array($ext,$typeconfig['AllowedExtensions']))
 		{
 			$disp = "202,'アップロードできない種類のファイルです。'";//Disallowed file extension
 		}
 		else
 		{
-			$filename   = substr($filename,0,$lastdot);
+			$filename   = substr($filename,0,strrpos($filename, '.'));
 			$test       = 0;
 			$dirSizes   = array();
 			$globalSize = 0;
@@ -189,7 +189,8 @@ class FileUpload {
 								if($modx->manager->modx_move_uploaded_file($tmp_name,$target))
 								{
 									@chmod($target,$modx->config['new_file_permissions']);
-									$disp="201,'{$target}'";
+									$basename = basename($target);
+									$disp="201,'{$basename}'";
 								}
 								else $disp="202,'Failed to upload file, internal error.'";
 							}
@@ -198,7 +199,8 @@ class FileUpload {
 								if(rename($tmp_name,($target)))
 								{
 									@chmod($target,$modx->config['new_file_permissions']);
-									$disp="201,'{$target}'";
+									$basename = basename($target);
+									$disp="201,'{$basename}'";
 								}
 								else $disp="202,'Failed to upload file, internal error.'";
 							}
