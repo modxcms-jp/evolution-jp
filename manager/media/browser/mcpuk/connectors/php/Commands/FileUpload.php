@@ -91,7 +91,13 @@ class FileUpload {
 			if($lastdot) $ext = strtolower(substr($filename,($lastdot+1)));
 		}
 		
-		if ($this->cleanFilename($filename) !== $filename && $lastdot!==false)
+		if($modx->config['clean_uploaded_filename']==1)
+		{
+			$nameparts = explode('.', $filename);
+			$nameparts = array_map(array($modx, 'stripAlias'), $nameparts, array('file_browser'));
+			$filename = implode('.', $nameparts);
+		}
+		elseif ($this->cleanFilename($filename) !== $filename && $lastdot!==false)
 		{
 			$filename = date('Ymd-his');
 			$disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";// (*3)
