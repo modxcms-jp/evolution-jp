@@ -18,13 +18,13 @@ else $doc_ids[] = $doc_id;
 $rs = $modx->db->select('parent',$tbl_site_content,"id='{$doc_id}'");
 if(!$rs)
 {
-	echo "An error occured while attempting to find the document's current parent.";
+	echo "An error occured while attempting to find the resource's current parent.";
 	exit;
 }
 $current_parent = $modx->db->getValue($rs);
 $new_parent = intval($_REQUEST['new_parent']);
 
-// check user has permission to move document to chosen location
+// check user has permission to move resource to chosen location
 if ($use_udperms == 1 && $current_parent != $new_parent)
 {
 	include_once MODX_MANAGER_PATH . 'processors/user_documents_permissions.class.php';
@@ -72,7 +72,7 @@ if (!array_search($new_parent, $children))
 		}
 	}
 
-	// finished moving the document, now check to see if the old_parent should no longer be a folder.
+	// finished moving the resource, now check to see if the old_parent should no longer be a folder.
 	$rs = $modx->db->select('count(id)',$tbl_site_content,"parent='{$current_parent}'");
 	if(!$rs)
 		$alert = "An error occured while attempting to find the old parents' children.";
@@ -84,7 +84,7 @@ if (!array_search($new_parent, $children))
 	{
 		$rs = $modx->db->update('isfolder=0',$tbl_site_content,"id='{$current_parent}'");
 		if(!$rs)
-			$alert = 'An error occured while attempting to change the old parent to a regular document.';
+			$alert = 'An error occured while attempting to change the old parent to a regular resource.';
 	}
 }
 else $alert = 'You cannot move a document to a child document!';
@@ -108,7 +108,7 @@ function allChildren($docid)
 	$rs = $modx->db->select('id',$tbl_site_content,"parent='{$docid}'");
 	if(!$rs)
 	{
-		echo "An error occured while attempting to find all of the document's children.";
+		echo "An error occured while attempting to find all of the resource's children.";
 		exit;
 	}
 	else
@@ -152,7 +152,7 @@ function update_parentid($doc_id,$new_parent,$user_id,$menuindex)
 	$rs = $modx->db->update($field,$tbl_site_content,"id='{$doc_id}'");
 	if(!$rs)
 	{
-		echo "An error occured while attempting to move the document to the new parent.";
+		echo "An error occured while attempting to move the resource to the new parent.";
 		exit;
 	}
 }
