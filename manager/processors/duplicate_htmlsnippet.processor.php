@@ -10,8 +10,8 @@ $id=$_GET['id'];
 // duplicate htmlsnippet
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 $tpl = $_lang['duplicate_title_string'];
-$sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category)
-		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, category
+$sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category, editor_type)
+		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, category, editor_type
 		FROM {$tbl_site_htmlsnippets} WHERE id='{$id}'";
 $rs = $modx->db->query($sql);
 
