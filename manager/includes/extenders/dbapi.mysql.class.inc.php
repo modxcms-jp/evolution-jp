@@ -294,6 +294,7 @@ class DBAPI {
 			}
 			if($fromtable)
 			{
+				if(empty($fromfields)) $fromfields = $intotable;
 				if (is_array($fields))
 				{
 					$keys   = array_keys($fields);
