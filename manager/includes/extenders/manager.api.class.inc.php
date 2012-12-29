@@ -277,4 +277,94 @@ class ManagerAPI {
 		}
 		$modx->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
 	}
+	
+	function genHash($password, $seed='1')
+	{
+		global $modx;
+		
+		if(isset($modx->config['pwd_hash_algo']) && !empty($modx->config['pwd_hash_algo']))
+			$algorithm = $modx->config['pwd_hash_algo'];
+		else $algorithm = $this->getHashAlgorithm();
+		
+		$salt = md5($password . $seed);
+		
+		switch($algorithm)
+		{
+			case 'BLOWFISH_Y':
+				$salt = '$2y$07$' . substr($salt,0,22);
+				$mode = '2a';
+				break;
+			case 'BLOWFISH_A':
+				$salt = '$2a$07$' . substr($salt,0,22);
+				$mode = '2c';
+				break;
+			case 'SHA512':
+				$salt = '$6$' . substr($salt,0,16);
+				$mode = '86';
+				break;
+			case 'SHA256':
+				$salt = '$5$' . substr($salt,0,16);
+				$mode = '85';
+				break;
+			case 'MD5':
+				$salt = '$1$' . substr($salt,0,8);
+				$mode = '81';
+				break;
+			default:
+				$salt = substr($salt,0,2);
+				$mode = '80';
+		}
+		
+		$password = sha1($password) . crypt($password,$salt);
+		$padding  = $mode . substr(md5($salt),0,6);
+		$result = 'sha1>' . md5($salt.$password) . $padding;
+		
+		return $result;
+	}
+	
+	function getHashAlgorithm()
+	{
+		if    ($this->checkHashAlgorithm('BLOWFISH_Y')) $result = 'BLOWFISH_Y';
+		elseif($this->checkHashAlgorithm('BLOWFISH_A')) $result = 'BLOWFISH_A';
+		elseif($this->checkHashAlgorithm('SHA512'))     $result = 'SHA512';
+		elseif($this->checkHashAlgorithm('SHA256'))     $result = 'SHA256';
+		elseif($this->checkHashAlgorithm('MD5'))        $result = 'MD5';
+		else                                         $result = 'STD_DES';
+		
+		return $result;
+	}
+	
+	function checkHashAlgorithm($algorithm='')
+	{
+		if(empty($algorithm)) return;
+		
+		switch($algorithm)
+		{
+			case 'BLOWFISH_Y':
+				if(defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1)
+				{
+					if(version_compare('5.3.7', PHP_VERSION) <= 0) $result = true;
+				}
+				break;
+			case 'BLOWFISH_A':
+				if(defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1) $result = true;
+				break;
+			case 'SHA512':
+				if(defined('CRYPT_SHA512') && CRYPT_SHA512 == 1) $result = true;
+				break;
+			case 'SHA256':
+				if(defined('CRYPT_SHA256') && CRYPT_SHA256 == 1) $result = true;
+				break;
+			case 'MD5':
+				if(PHP_VERSION != '5.3.7') $result = true;
+				break;
+			case 'STD_DES':
+				$result = true;
+				break;
+		}
+		
+		if(!isset($result)) $result = false;
+		
+		return $result;
+	}
 }

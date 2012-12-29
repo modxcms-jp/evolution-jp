@@ -482,3 +482,41 @@ function get_lang_options($install_language)
 	return join("\n",$option);
 }
 
+function genHash($password, $seed='1')
+{
+	$salt = md5($password . $seed);
+	
+	if(defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH ==1)
+	{
+		if(version_compare('5.3.7', PHP_VERSION) <= 0) $mode = '2y';
+		else                                           $mode = '2a';
+		$salt = '$' . $mode . '$07$' . substr($salt,0,22);
+	}
+	elseif(defined('CRYPT_SHA512') && CRYPT_SHA512 ==1)
+	{
+		$salt = '$6$' . substr($salt,0,16);
+		$mode = '86';
+	}
+	elseif(defined('CRYPT_SHA256') && CRYPT_SHA256 ==1)
+	{
+		$salt = '$5$' . substr($salt,0,16);
+		$mode = '85';
+	}
+	elseif(PHP_VERSION!='5.3.7')
+	{
+		$salt = '$1$' . substr($salt,0,8);
+		$mode = '81';
+	}
+	else
+	{
+		$salt = substr($salt,0,2);
+		$mode = '80';
+	}
+	
+	$password = sha1($password) . crypt($password,$salt);
+	if($mode==='2y') $mode = '2c';
+	$padding  = $mode . substr(md5($salt),0,6);
+	$result = 'sha1>' . md5($salt.$password) . $padding;
+	
+	return $result;
+}

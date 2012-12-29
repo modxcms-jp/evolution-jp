@@ -133,9 +133,10 @@ switch ($mode) {
 		));
 
 		// build the SQL
-		$sql = "INSERT INTO {$tbl_manager_users} (username, password)
-						VALUES('{$newusername}', md5('{$newpassword}'))";
-		$rs = $modx->db->query($sql);
+		$field = array();
+		$field['username'] = $newusername;
+		$field['password'] = $modx->manager->genHash($newpassword, $id);
+		$rs = $modx->db->insert($field,'[+prefix+]manager_users');
 		if (!$rs) {
 			webAlert("An error occurred while attempting to save the user.");
 			exit;
@@ -265,7 +266,8 @@ switch ($mode) {
 				webAlert("No password generation method specified!");
 				exit;
 			}
-			$updatepasswordsql = ", password=MD5('{$newpassword}') ";
+			$hashed_password = $modx->manager->genHash($newpassword, $id);
+			$updatepasswordsql = ", password='{$hashed_password}'";
 		}
 		else $updatepasswordsql = '';
 

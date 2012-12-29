@@ -55,7 +55,7 @@ class SqlParser {
 		$ph['ADMINNAME']         = $this->adminname;
 		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
 		$ph['ADMINEMAIL']        = $this->adminemail;
-		$ph['ADMINPASS']         = $this->adminpass;
+		$ph['ADMINPASS']         = genHash($this->adminpass, '1');
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['DATE_NOW']          = time();
 		$idata = parse($idata,$ph,'{','}');

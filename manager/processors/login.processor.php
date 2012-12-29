@@ -168,10 +168,27 @@ if(strpos($decoded_uri,"'")!==false) {
 if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
-	if($dbasePassword != md5($givenPassword))
+	if(strpos($dbasePassword,'sha1>')===0)
 	{
-		jsAlert($e->errors[901]);
-		$newloginerror = 1;
+		if($dbasePassword != $modx->manager->genHash($givenPassword, $internalKey))
+		{
+			jsAlert($e->errors[901]);
+			$newloginerror = 1;
+		}
+	}
+	else
+	{
+		if($dbasePassword != md5($givenPassword))
+		{
+			jsAlert($e->errors[901]);
+			$newloginerror = 1;
+		}
+		else
+		{
+			$field = array();
+			$field['password'] = $modx->manager->genHash($givenPassword, $internalKey);
+			$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
+		}
 	}
 }
 

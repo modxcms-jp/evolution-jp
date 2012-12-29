@@ -14,8 +14,8 @@ elseif(32<strlen($password))   $msg = '<p class="fail">Password is too long. Ple
 else
 {
 	$tbl_manager_users = $modx->getFullTableName('manager_users');
-	$f['password'] = md5($password);
 	$uid = $modx->getLoginUserID();
+	$f['password'] = $modx->manager->genHash($password, $uid);
 	$rs = $modx->db->update($f,$tbl_manager_users,"id='{$uid}'");
 	if(!$rs) $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
 	else

@@ -1243,5 +1243,7 @@ $_lang["change_password_success"] = 'パスワードを更新しました。';
 $_lang['make_folders_title'] = 'ディレクトリ表現';
 $_lang['make_folders_message'] = 'コンテナ属性のリソースのサフィックスをスラッシュ( / )にします。';
 
+$_lang["pwd_hash_algo_title"] = 'ハッシュ生成アルゴリズム';
+$_lang["pwd_hash_algo_message"] = 'DBに格納されるパスワード文字列のハッシュ方式。この設定を変更した場合は、全てのユーザのパスワードを再設定する必要があります。';
 
 $_lang["move_resource_cant_myself"] = '自分自身のサブリソースに移動することはできません。';
