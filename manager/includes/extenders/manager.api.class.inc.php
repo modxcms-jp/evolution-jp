@@ -292,11 +292,11 @@ class ManagerAPI {
 		{
 			case 'BLOWFISH_Y':
 				$salt = '$2y$07$' . substr($salt,0,22);
-				$mode = '2a';
+				$mode = '2c';
 				break;
 			case 'BLOWFISH_A':
 				$salt = '$2a$07$' . substr($salt,0,22);
-				$mode = '2c';
+				$mode = '2a';
 				break;
 			case 'SHA512':
 				$salt = '$6$' . substr($salt,0,16);
@@ -310,16 +310,43 @@ class ManagerAPI {
 				$salt = '$1$' . substr($salt,0,8);
 				$mode = '81';
 				break;
+			case 'UNCRYPT':
 			default:
-				$salt = substr($salt,0,2);
 				$mode = '80';
 		}
 		
-		$password = sha1($password) . crypt($password,$salt);
+		if($algorithm!=='UNCRYPT')
+		{
+			$password = sha1($password) . crypt($password,$salt);
+		}
+		else $password = sha1($salt.$password);
+		
 		$padding  = $mode . substr(md5($salt),0,6);
 		$result = 'sha1>' . md5($salt.$password) . $padding;
 		
 		return $result;
+	}
+	
+	function getUserHashAlgorithm($uid)
+	{
+		global $modx;
+		
+		$user = $modx->db->getObject('manager_users',"id='{$uid}'");
+		
+		if(strpos($user->password,'sha1>')!==0) $algo = 'NOSALT';
+		else
+		{
+			switch(substr($user->password,37,2))
+			{
+				case '2c': $algo = 'BLOWFISH_Y'; break;
+				case '2a': $algo = 'BLOWFISH_A'; break;
+				case '86': $algo = 'SHA512'    ; break;
+				case '85': $algo = 'SHA256'    ; break;
+				case '81': $algo = 'MD5'       ; break;
+				case '80': $algo = 'UNCRYPT'   ; break;
+			}
+		}
+		return $algo;
 	}
 	
 	function getHashAlgorithm()
@@ -329,7 +356,7 @@ class ManagerAPI {
 		elseif($this->checkHashAlgorithm('SHA512'))     $result = 'SHA512';
 		elseif($this->checkHashAlgorithm('SHA256'))     $result = 'SHA256';
 		elseif($this->checkHashAlgorithm('MD5'))        $result = 'MD5';
-		else                                         $result = 'STD_DES';
+		else                                            $result = 'UNCRYPT';
 		
 		return $result;
 	}
@@ -358,7 +385,7 @@ class ManagerAPI {
 			case 'MD5':
 				if(PHP_VERSION != '5.3.7') $result = true;
 				break;
-			case 'STD_DES':
+			case 'UNCRYPT':
 				$result = true;
 				break;
 		}

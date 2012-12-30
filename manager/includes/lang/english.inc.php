@@ -1242,6 +1242,6 @@ $_lang['make_folders_title'] = 'Make end slash URL at the container';
 $_lang['make_folders_message'] = 'The slash to append to Resources set as containers when using FURLs.';
 
 $_lang["pwd_hash_algo_title"] = 'Hash algorithm';
-$_lang["pwd_hash_algo_message"] = 'Password hash algorithm. When you change this setting, it is necessary to set the password of all users again.';
+$_lang["pwd_hash_algo_message"] = 'Password hash algorithm.';
 
 $_lang["move_resource_cant_myself"] = 'You cannot move a resource to a child resource!';

@@ -681,20 +681,20 @@ $gdAvailable = extension_loaded('gd');
 	$phm['sel']['SHA512']     = $pwd_hash_algo=='SHA512' ?  1 : 0;
 	$phm['sel']['SHA256']     = $pwd_hash_algo=='SHA256' ?  1 : 0;
 	$phm['sel']['MD5']        = $pwd_hash_algo=='MD5' ?  1 : 0;
-	$phm['sel']['STD_DES']    = $pwd_hash_algo=='STD_DES' ?  1 : 0;
+	$phm['sel']['UNCRYPT']    = $pwd_hash_algo=='UNCRYPT' ?  1 : 0;
 	$phm['e']['BLOWFISH_Y'] = $modx->manager->checkHashAlgorithm('BLOWFISH_Y') ? 0:1;
 	$phm['e']['BLOWFISH_A'] = $modx->manager->checkHashAlgorithm('BLOWFISH_A') ? 0:1;
 	$phm['e']['SHA512']     = $modx->manager->checkHashAlgorithm('SHA512') ? 0:1;
 	$phm['e']['SHA256']     = $modx->manager->checkHashAlgorithm('SHA256') ? 0:1;
 	$phm['e']['MD5']        = $modx->manager->checkHashAlgorithm('MD5') ? 0:1;
-	$phm['e']['STD_DES']    = $modx->manager->checkHashAlgorithm('STD_DES') ? 0:1;
+	$phm['e']['UNCRYPT']    = $modx->manager->checkHashAlgorithm('UNCRYPT') ? 0:1;
 ?>
-	<?php echo wrap_label('BLOWFISH_Y',form_radio('pwd_hash_algo','BLOWFISH_Y',$phm['sel']['BLOWFISH_Y'], '', $phm['e']['BLOWFISH_Y']));?><br />
-	<?php echo wrap_label('BLOWFISH_A',form_radio('pwd_hash_algo','BLOWFISH_A',$phm['sel']['BLOWFISH_A'], '', $phm['e']['BLOWFISH_A']));?><br />
-	<?php echo wrap_label('SHA512'    ,form_radio('pwd_hash_algo','SHA512'    ,$phm['sel']['SHA512']    , '', $phm['e']['SHA512']));?><br />
-	<?php echo wrap_label('SHA256'    ,form_radio('pwd_hash_algo','SHA256'    ,$phm['sel']['SHA256']    , '', $phm['e']['SHA256']));?><br />
-	<?php echo wrap_label('MD5'       ,form_radio('pwd_hash_algo','MD5'       ,$phm['sel']['MD5']       , '', $phm['e']['MD5']));?><br />
-	<?php echo wrap_label('STD_DES'   ,form_radio('pwd_hash_algo','STD_DES'   ,$phm['sel']['STD_DES']   , '', $phm['e']['STD_DES']));?><br />
+	<?php echo wrap_label('CRYPT_BLOWFISH_Y',form_radio('pwd_hash_algo','BLOWFISH_Y',$phm['sel']['BLOWFISH_Y'], '', $phm['e']['BLOWFISH_Y']));?><br />
+	<?php echo wrap_label('CRYPT_BLOWFISH_A',form_radio('pwd_hash_algo','BLOWFISH_A',$phm['sel']['BLOWFISH_A'], '', $phm['e']['BLOWFISH_A']));?><br />
+	<?php echo wrap_label('CRYPT_SHA512'    ,form_radio('pwd_hash_algo','SHA512'    ,$phm['sel']['SHA512']    , '', $phm['e']['SHA512']));?><br />
+	<?php echo wrap_label('CRYPT_SHA256'    ,form_radio('pwd_hash_algo','SHA256'    ,$phm['sel']['SHA256']    , '', $phm['e']['SHA256']));?><br />
+	<?php echo wrap_label('CRYPT_MD5'       ,form_radio('pwd_hash_algo','MD5'       ,$phm['sel']['MD5']       , '', $phm['e']['MD5']));?><br />
+	<?php echo wrap_label('UNCRYPT(32 chars salt + SHA-1 hash)'   ,form_radio('pwd_hash_algo','UNCRYPT'   ,$phm['sel']['UNCRYPT']   , '', $phm['e']['UNCRYPT']));?><br />
 	<?php echo $_lang["pwd_hash_algo_message"]?>
 </td>
 </tr>
