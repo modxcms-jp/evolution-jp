@@ -314,10 +314,10 @@ $item['web_user_management'] = item($_lang['web_user_management_title'], 99,$mod
 $item['role_management']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
 $item['manager_permissions'] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
 $item['web_permissions']     = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
+$item['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
 
 // Tools Menu
 $item['bk_manager']    = item($_lang['bk_manager'], 93,$modx->hasPermission('bk_manager'));// backup-mgr
-$item['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
 $item['import_site']   = item($_lang['import_site'], 95,$modx->hasPermission('import_static'));// import-html
 $item['export_site']   = item($_lang['export_site'], 83,$modx->hasPermission('export_static'));// export-static-site
 $item['edit_settings'] = item($_lang['edit_settings'], 17,$modx->hasPermission('settings'));// configuration
@@ -400,8 +400,8 @@ function buildMenu($target,$item)
 	$menu['site']     = 'home,preview,refresh_site,search,add_resource,add_weblink';
 	$menu['element']  = 'element_management,manage_files,manage_metatags';
 	$menu['module']   = 'modules';
-	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions';
-	$menu['tools']    = 'bk_manager,remove_locks,import_site,export_site,edit_settings';
+	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions,remove_locks';
+	$menu['tools']    = 'bk_manager,import_site,export_site,edit_settings';
 	$menu['user']     = 'change_user_pf,change_password,messages';
 	$menu['reports']  = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
 	
