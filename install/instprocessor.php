@@ -33,7 +33,6 @@ include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx = new DocumentParser;
 $modx->db->connect();
 
-$tbl_site_content = getFullTableName('site_content');
 $tbl_site_plugins = getFullTableName('site_plugins');
 $tbl_system_settings = getFullTableName('system_settings');
 $tbl_site_templates = getFullTableName('site_templates');
@@ -162,7 +161,7 @@ if (isset ($_POST['template']) || $installData)
 			$category = modx_escape($moduleTemplate[4]);
 			$locked = modx_escape($moduleTemplate[5]);
 			$filecontent = $moduleTemplate[3];
-			if (!file_exists($filecontent))
+			if (!is_file($filecontent))
 			{
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 			}
@@ -298,7 +297,7 @@ if (isset ($_POST['chunk']) || $installData)
 			$overwrite = modx_escape($moduleChunk[4]);
 			$filecontent = $moduleChunk[2];
 			
-			if (!file_exists($filecontent))
+			if (!is_file($filecontent))
 			{
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . "{$_lang['unable_install_chunk']} '{$filecontent}' {$_lang['not_found']}</span></p>";
 			}
@@ -364,7 +363,7 @@ if (isset ($_POST['module']) || $installData)
 			$guid = modx_escape($moduleModule[4]);
 			$shared = modx_escape($moduleModule[5]);
 			$category = modx_escape($moduleModule[6]);
-			if (!file_exists($filecontent))
+			if (!is_file($filecontent))
 			{
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . "{$_lang['unable_install_module']} '{$filecontent}' {$_lang['not_found']}</span></p>";
 			}
@@ -426,7 +425,7 @@ if (isset ($_POST['plugin']) || $installData)
 				// parse comma-separated legacy names and prepare them for sql IN clause
 				$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
 			}
-			if(!file_exists($filecontent))
+			if(!is_file($filecontent))
 			{
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 			}
@@ -525,7 +524,7 @@ if (isset ($_POST['snippet']) || $installData)
 			$filecontent = $moduleSnippet[2];
 			$properties  = modx_escape($moduleSnippet[3]);
 			$category    = modx_escape($moduleSnippet[4]);
-			if (!file_exists($filecontent))
+			if (!is_file($filecontent))
 			{
 				echo '<p>&nbsp;&nbsp;' . $name . ': <span class="notok">' . $_lang['unable_install_snippet'] . " '$filecontent' " . $_lang['not_found'] . '.</span></p>';
 			}
@@ -564,7 +563,7 @@ if (isset ($_POST['snippet']) || $installData)
 	}
 }
 
-if($installmode ==0 && file_exists("{$base_path}install/sql/new_override.sql"))
+if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 {
 	$sqlParser->process('new_override.sql');
 }
@@ -602,32 +601,33 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 include_once("{$base_path}index.php");
 
 $modx->clearCache(); // always empty cache after install
-foreach(glob("{$base_path}assets/cache/*.idx.php") as $file)
+$cache_path = "{$base_path}assets/cache/";
+
+$files = glob("{$cache_path}*.idx.php");
+foreach($files as $file)
 {
 	@unlink($file);
 }
 
 // try to chmod the cache go-rwx (for suexeced php)
-@chmod("{$base_path}assets/cache/siteCache.idx.php", 0600);
-@chmod("{$base_path}assets/cache/sitePublishing.idx.php", 0600);
+@chmod("{$cache_path}siteCache.idx.php", 0600);
+@chmod("{$cache_path}sitePublishing.idx.php", 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
 mysql_query("TRUNCATE TABLE {$tbl_active_users}");
 
 // andrazk 20070416 - release manager access
-if (file_exists("{$base_path}assets/cache/installProc.inc.php"))
+if (is_file("{$cache_path}installProc.inc.php"))
 {
-	@chmod("{$base_path}assets/cache/installProc.inc.php", 0755);
-	unlink("{$base_path}assets/cache/installProc.inc.php");
+	@chmod("{$cache_path}installProc.inc.php", 0755);
+	unlink("{$cache_path}installProc.inc.php");
 }
 // setup completed!
 echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
 echo '<p>' . $_lang['to_log_into_content_manager'] . '</p>';
-if ($installmode == 0)
-{
-	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['installation_note'] . '</p>';
-}
-else
-{
-	echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />' . $_lang['upgrade_note'] . '</p>';
-}
+echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
+
+if($installmode == 0) echo $_lang['installation_note'];
+else                  echo $_lang['upgrade_note'];
+
+echo '</p>';
