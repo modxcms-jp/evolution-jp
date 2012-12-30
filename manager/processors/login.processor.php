@@ -168,7 +168,7 @@ if(strpos($decoded_uri,"'")!==false) {
 if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
-	if(strpos($dbasePassword,'sha1>')===0)
+	if(strpos($dbasePassword,'>')!==false)
 	{
 		if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo'])) $modx->config['pwd_hash_algo'] = 'UNCRYPT';
 		$user_algo = $modx->manager->getUserHashAlgorithm($internalKey);

@@ -284,7 +284,7 @@ class ManagerAPI {
 		
 		if(isset($modx->config['pwd_hash_algo']) && !empty($modx->config['pwd_hash_algo']))
 			$algorithm = $modx->config['pwd_hash_algo'];
-		else $algorithm = $this->getHashAlgorithm();
+		else $algorithm = 'UNCRYPT';
 		
 		$salt = md5($password . $seed);
 		
@@ -292,27 +292,27 @@ class ManagerAPI {
 		{
 			case 'BLOWFISH_Y':
 				$salt = '$2y$07$' . substr($salt,0,22);
-				$mode = '2c';
+				$mode = 'bfish_y';
 				break;
 			case 'BLOWFISH_A':
 				$salt = '$2a$07$' . substr($salt,0,22);
-				$mode = '2a';
+				$mode = 'bfish_a';
 				break;
 			case 'SHA512':
 				$salt = '$6$' . substr($salt,0,16);
-				$mode = '86';
+				$mode = 'sha512';
 				break;
 			case 'SHA256':
 				$salt = '$5$' . substr($salt,0,16);
-				$mode = '85';
+				$mode = 'sha256';
 				break;
 			case 'MD5':
 				$salt = '$1$' . substr($salt,0,8);
-				$mode = '81';
+				$mode = 'md5';
 				break;
 			case 'UNCRYPT':
 			default:
-				$mode = '80';
+				$mode = 'uncrypt';
 		}
 		
 		if($algorithm!=='UNCRYPT')
@@ -321,8 +321,7 @@ class ManagerAPI {
 		}
 		else $password = sha1($salt.$password);
 		
-		$padding  = $mode . substr(md5($salt),0,6);
-		$result = 'sha1>' . md5($salt.$password) . $padding;
+		$result = strtolower($algorithm) . '>' . md5($salt.$password) . substr(md5($salt),0,8);
 		
 		return $result;
 	}
@@ -333,32 +332,12 @@ class ManagerAPI {
 		
 		$user = $modx->db->getObject('manager_users',"id='{$uid}'");
 		
-		if(strpos($user->password,'sha1>')!==0) $algo = 'NOSALT';
+		if(strpos($user->password,'>')===false) $algo = 'NOSALT';
 		else
 		{
-			switch(substr($user->password,37,2))
-			{
-				case '2c': $algo = 'BLOWFISH_Y'; break;
-				case '2a': $algo = 'BLOWFISH_A'; break;
-				case '86': $algo = 'SHA512'    ; break;
-				case '85': $algo = 'SHA256'    ; break;
-				case '81': $algo = 'MD5'       ; break;
-				case '80': $algo = 'UNCRYPT'   ; break;
-			}
+			$algo = substr($user->password,0,strpos($user->password,'>'));
 		}
-		return $algo;
-	}
-	
-	function getHashAlgorithm()
-	{
-		if    ($this->checkHashAlgorithm('BLOWFISH_Y')) $result = 'BLOWFISH_Y';
-		elseif($this->checkHashAlgorithm('BLOWFISH_A')) $result = 'BLOWFISH_A';
-		elseif($this->checkHashAlgorithm('SHA512'))     $result = 'SHA512';
-		elseif($this->checkHashAlgorithm('SHA256'))     $result = 'SHA256';
-		elseif($this->checkHashAlgorithm('MD5'))        $result = 'MD5';
-		else                                            $result = 'UNCRYPT';
-		
-		return $result;
+		return strtoupper($algo);
 	}
 	
 	function checkHashAlgorithm($algorithm='')
@@ -383,7 +362,8 @@ class ManagerAPI {
 				if(defined('CRYPT_SHA256') && CRYPT_SHA256 == 1) $result = true;
 				break;
 			case 'MD5':
-				if(PHP_VERSION != '5.3.7') $result = true;
+				if(defined('CRYPT_MD5') && CRYPT_MD5 == 1 && PHP_VERSION != '5.3.7')
+					$result = true;
 				break;
 			case 'UNCRYPT':
 				$result = true;
