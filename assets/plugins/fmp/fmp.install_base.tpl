@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.9
+ * @version 	1.1.9r1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender,OnManagerChangePassword 
  * @internal	@modx_category Manager and Admin
@@ -68,7 +68,7 @@ EOD;
 			if($wheres)
 			{
 				$where = implode(' AND ',$wheres);
-				$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS key";
+				$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS `key`";
 				$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
 				if($result = $modx->db->select($field,$from,$where,'',1))
 				{
