@@ -3131,7 +3131,7 @@ class DocumentParser {
 	function getWebUserInfo($uid)
 	{
 		$field = 'wu.username, wu.password, wua.*';
-		$from = '[+web_users+] wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
+		$from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
 		$rs= $this->db->select($field,$from,"wu.id='$uid'");
 		$limit= $this->db->getRecordCount($rs);
 		if ($limit == 1)
