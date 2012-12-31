@@ -840,6 +840,23 @@ foreach($files as $file)
 		<?php echo $_lang["language_message"]?>
 	</td>
 </tr>
+<?php
+$tmenu_style = 'style="width:350px;"';
+?>
+<tr>
+	<th><?php echo $_lang["topmenu_items_title"]?></th>
+	<td>
+		<table>
+		<tr><td><?php echo  $_lang['site']     . '</td><td>' . form_text('topmenu_site',$topmenu_site,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['elements'] . '</td><td>' . form_text('topmenu_element',$topmenu_element,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['users']    . '</td><td>' . form_text('topmenu_security',$topmenu_security,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['user']     . '</td><td>' . form_text('topmenu_user',$topmenu_user,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['tools']    . '</td><td>' . form_text('topmenu_tools',$topmenu_tools,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['reports']  . '</td><td>' . form_text('topmenu_reports',$topmenu_reports,'',$tmenu_style);?></td></tr>
+		</table>
+		<div><?php echo $_lang["topmenu_items_message"];?></div>
+	</td>
+</tr>
 
 <tr>
 <th><?php echo $_lang["limit_by_container"] ?></th>

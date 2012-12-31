@@ -83,6 +83,12 @@ $default_config['rb_base_url']              = 'content/';
 $default_config['enable_phx']               = '1';
 $default_config['image_limit_width']         = '';
 $default_config['manager_inline_style']      = "<style type=\"text/css\">body {\n	font-family: \"Helvetica Neue\",Helvetica,Arial,Meiryo,\"Hiragino Kaku Gothic Pro\",\"MS PGothic\",sans-serif;\nfont-size:0.75em;}\n</style>";
+$default_config['topmenu_site']             = 'home,preview,refresh_site,search,add_resource,add_weblink';
+$default_config['topmenu_element']          = 'element_management,manage_files,manage_metatags';
+$default_config['topmenu_security']         = 'user_manage,web_user_manage,role_manage,manager_permissions,web_permissions,remove_locks';
+$default_config['topmenu_user']             = 'change_user_pf,change_password,messages';
+$default_config['topmenu_tools']            = 'bk_manager,import_site,export_site,edit_settings';
+$default_config['topmenu_reports']          = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return $default_config;
 

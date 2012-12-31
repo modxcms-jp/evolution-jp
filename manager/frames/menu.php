@@ -309,9 +309,9 @@ $perm_role_management = ($modx->hasPermission('new_role') || $modx->hasPermissio
 $perm_mgruser = ($modx->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
 $perm_webuser = ($modx->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
 
-$item['user_management']     = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
-$item['web_user_management'] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
-$item['role_management']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
+$item['user_manage']     = item($_lang['user_management_title'], 75,$modx->hasPermission('edit_user'));// manager-users
+$item['web_user_manage'] = item($_lang['web_user_management_title'], 99,$modx->hasPermission('edit_web_user'));// web-users
+$item['role_manage']     = item($_lang['role_management_title'], 86, $perm_role_management);// roles
 $item['manager_permissions'] = item($_lang['manager_permissions'], 40,$perm_mgruser);// manager-perms
 $item['web_permissions']     = item($_lang['web_permissions'], 91,$perm_webuser);// web-user-perms
 $item['remove_locks']  = item($_lang['remove_locks'], 'javascript:removeLocks();', $modx->hasPermission('remove_locks'),'');// unlock-pages
@@ -397,13 +397,26 @@ function item($name, $href, $display=1, $attrib='target="main"')
 
 function buildMenu($target,$item)
 {
-	$menu['site']     = 'home,preview,refresh_site,search,add_resource,add_weblink';
-	$menu['element']  = 'element_management,manage_files,manage_metatags';
+	global $modx;
+	
+	if(!isset($modx->config['topmenu_site']))
+	{
+		include(MODX_BASE_PATH . 'manager/includes/default.config.php');
+		$modx->config['topmenu_site'] = $default_config['topmenu_site'];
+		$modx->config['topmenu_element'] = $default_config['topmenu_element'];
+		$modx->config['topmenu_security'] = $default_config['topmenu_security'];
+		$modx->config['topmenu_user'] = $default_config['topmenu_user'];
+		$modx->config['topmenu_tools'] = $default_config['topmenu_tools'];
+		$modx->config['topmenu_reports'] = $default_config['topmenu_reports'];
+	}
+	
+	$menu['site']     = $modx->config['topmenu_site'];
+	$menu['element']  = $modx->config['topmenu_element'];
 	$menu['module']   = 'modules';
-	$menu['security'] = 'user_management,web_user_management,role_management,manager_permissions,web_permissions,remove_locks';
-	$menu['tools']    = 'bk_manager,import_site,export_site,edit_settings';
-	$menu['user']     = 'change_user_pf,change_password,messages';
-	$menu['reports']  = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
+	$menu['security'] = $modx->config['topmenu_security'];
+	$menu['user']     = $modx->config['topmenu_user'];
+	$menu['tools']    = $modx->config['topmenu_tools'];
+	$menu['reports']  = $modx->config['topmenu_reports'];
 	
 	if(empty($menu[$target])) return false;
 	

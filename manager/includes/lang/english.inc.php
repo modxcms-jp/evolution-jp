@@ -1245,3 +1245,6 @@ $_lang["pwd_hash_algo_title"] = 'Hash algorithm';
 $_lang["pwd_hash_algo_message"] = 'Password hash algorithm.';
 
 $_lang["move_resource_cant_myself"] = 'You cannot move a resource to a child resource!';
+
+$_lang["topmenu_items_title"] = 'Top menu structure';
+$_lang["topmenu_items_message"] = 'Top menu structure in the manager interface';
