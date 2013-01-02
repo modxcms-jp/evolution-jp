@@ -388,6 +388,10 @@ class DocumentParser {
 					$row= $this->db->getRow($rs);
 					$this->documentContent= $row['content'];
 				}
+				else
+				{
+					$this->messageQuit('Template does not exist. Or it was deleted.');
+				}
 			}
 			// invoke OnLoadWebDocument event
 			$this->invokeEvent('OnLoadWebDocument');
