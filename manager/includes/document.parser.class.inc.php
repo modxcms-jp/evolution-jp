@@ -381,7 +381,7 @@ class DocumentParser {
 				$rowCount= $this->db->getRecordCount($rs);
 				if($rowCount > 1)
 				{
-					$this->messageQuit('Incorrect number of templates returned from database', $sql);
+					$this->messageQuit('Incorrect number of templates returned from database');
 				}
 				elseif($rowCount == 1)
 				{
