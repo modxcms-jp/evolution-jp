@@ -44,7 +44,7 @@ else
 $mt = &$moduleTemplates;
 if(is_dir($templatePath) && is_readable($templatePath))
 {
-	$files = array_merge(glob("{$templatePath}*/*.install_base.install_base.tpl"),glob("{$templatePath}*.install_base.install_base.tpl"));
+	$files = array_merge(glob("{$templatePath}*/*.install_base.tpl"),glob("{$templatePath}*.install_base.tpl"));
 	natcasesort($files);
 	foreach ($files as $tplfile)
 	{
