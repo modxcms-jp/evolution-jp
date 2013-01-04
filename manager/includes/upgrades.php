@@ -41,10 +41,9 @@ function run_update($version)
 function disableLegacyPlugins()
 {
 	global $modx;
-	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
 	
-	$modx->db->update("`disabled`='1'",$tbl_site_plugins,"`name`='Bindings機能の有効無効'"); // jp only
-	$modx->db->update("`disabled`='1'",$tbl_site_plugins,"`name`='Bottom Button Bar'");
+	$modx->db->update("`disabled`='1'",'[+prefix+]site_plugins',"`name`='Bindings機能の有効無効'"); // jp only
+	$modx->db->update("`disabled`='1'",'[+prefix+]site_plugins',"`name`='Bottom Button Bar'");
 }
 
 function update_config_custom_contenttype()
@@ -66,12 +65,11 @@ function update_config_default_template_method()
 {
 	global $modx,$auto_template_logic;
 	
-	$tbl_site_plugins = $modx->getFullTableName('site_plugins');
-	$rs = $modx->db->select('properties,disabled', $tbl_site_plugins, "`name`='Inherit Parent Template'");
+	$rs = $modx->db->select('properties,disabled', '[+prefix+]site_plugins', "`name`='Inherit Parent Template'");
 	$row = $modx->db->getRow($rs);
 	if($row)
 	{
-		$modx->db->update("`disabled`='1'", $tbl_site_plugins, "`name` IN ('Inherit Parent Template')");
+		$modx->db->update("`disabled`='1'", '[+prefix+]site_plugins', "`name` IN ('Inherit Parent Template')");
 	}
 	if(!$row || !isset($modx->config['auto_template_logic'])) $auto_template_logic = 'sibling'; // not installed
 	else
@@ -95,7 +93,6 @@ function update_config_default_template_method()
 function update_tbl_user_roles()
 {
 	global $modx;
-	$tbl_user_roles = $modx->getFullTableName('user_roles');
 	
 	$f['view_unpublished'] = '1';
 	$f['publish_document'] = '1';
@@ -108,17 +105,17 @@ function update_tbl_user_roles()
 	$f['empty_trash']      = '1';
 	$f['remove_locks']     = '1';
 	$f['view_schedule']    = '1';
-	$modx->db->update($f, $tbl_user_roles, "`id`='1'");
+	$modx->db->update($f, '[+prefix+]user_roles', "`id`='1'");
 }
 
 function update_tbl_system_settings()
 {
-	global $modx;
+	global $modx,$use_udperms;
 	if($modx->config['validate_referer']==='00')         $modx->config['validate_referer'] = '0';
-	if($modx->config['upload_maxsize']==='1048576')      $modx->config['upload_maxsize'] = '';
-	if($modx->config['emailsender']==='you@example.com') $modx->config['emailsender'] = $_SESSION['mgrEmail'];
+	if($modx->config['upload_maxsize']==='1048576')      $modx->config['upload_maxsize']   = '';
+	if($modx->config['emailsender']==='you@example.com') $modx->config['emailsender']      = $_SESSION['mgrEmail'];
 	
-	$rs = $modx->db->select('*',$tbl_document_groups);
+	$rs = $modx->db->select('*','[+prefix+]document_groups');
 	$use_udperms = ($modx->db->getRecordCount($rs)==0) ? '0' : '1';
 	$modx->config['use_udperms'] = $use_udperms;
 }

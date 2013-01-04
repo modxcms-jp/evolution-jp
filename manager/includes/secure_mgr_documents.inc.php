@@ -13,18 +13,21 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 function secureMgrDocument($docid='')
 {
 	global $modx;
-	$tbl_site_content       = $modx->getFullTableName('site_content');
-	$tbl_document_groups    = $modx->getFullTableName('document_groups');
-	$tbl_membergroup_access = $modx->getFullTableName('membergroup_access');
 	
-	$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 0 WHERE ".($docid>0 ? "id='$docid'":"privatemgr = 1"));
-	$sql =  "SELECT DISTINCT sc.id 
-			 FROM {$tbl_site_content} sc
-			 LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id
-			 LEFT JOIN {$tbl_membergroup_access} mga ON mga.documentgroup = dg.document_group
-			 WHERE ".($docid>0 ? " sc.id='$docid' AND ":"")."mga.id>0";
-	$ids = $modx->db->getColumn("id",$sql);
+	if($docid>0) $where = "id='{$docid}'";
+	else         $where = 'privatemgr=1';
+	$modx->db->update(array('privatemgr'=>0), '[+prefix+]site_content', $where);
+	
+	$field = 'sc.id';
+	$from  = '[+prefix+]site_content sc'
+			.' LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id'
+			.' LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group';
+	if($docid>0) $where = "sc.id='{$docid}' AND mga.id > 0";
+	else         $where = 'mga.id > 0';
+	$rs = $modx->db->select($field,$from,$where);
+	$ids = $modx->db->getColumn('id',$rs);
 	if(count($ids)>0) {
-		$modx->db->query("UPDATE {$tbl_site_content} SET privatemgr = 1 WHERE id IN (".implode(", ",$ids).")");
+		$ids = join(', ', $ids);
+		$modx->db->update(array('privatemgr'=>1),'[+prefix+]site_content', "IN ({$ids})");
 	}
 }

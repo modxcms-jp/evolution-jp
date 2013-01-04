@@ -10,8 +10,7 @@ else                                       $user_id = '';
 if (!empty($user_id))
 {
 	// Raymond: grab the user settings from the database.
-	$tbl_user_settings = $modx->getFullTableName('user_settings');
-	$rs = $modx->db->select('setting_name, setting_value',$tbl_user_settings,"user='{$user_id}'");
+	$rs = $modx->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$user_id}'");
 	while ($row = $modx->db->getRow($rs))
 	{
 		$settings[$row['setting_name']] = $row['setting_value'];

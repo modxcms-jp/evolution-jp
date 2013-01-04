@@ -59,7 +59,7 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
                     $modx->setPlaceholder($rvKey, $rvValue);
                 }
                 $param = $modx->mergePlaceholderContent($param);
-                $rs = $modx->db->query("SELECT $param;");
+                $rs = $modx->db->query("SELECT {$param}");
                 $output = $rs;
                 break;
 

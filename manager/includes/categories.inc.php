@@ -6,9 +6,8 @@
 function newCategory($newCat)
 {
 	global $modx;
-	$tbl_categories = $modx->getFullTableName('categories');
 	$field['category'] = $modx->db->escape($newCat);
-	$newCatid = $modx->db->insert($field,$tbl_categories);
+	$newCatid = $modx->db->insert($field,'[+prefix+]categories');
 	if(!$newCatid) $newCatid = 0;
 	return $newCatid;
 }
@@ -17,8 +16,7 @@ function newCategory($newCat)
 function checkCategory($newCat = '')
 {
 	global $modx;
-	$tbl_categories = $modx->getFullTableName('categories');
-	$rs = $modx->db->select('id,category',$tbl_categories,'','category');
+	$rs = $modx->db->select('id,category','[+prefix+]categories','','category');
 	if($rs)
 	{
 		while($row = $modx->db->getRow($rs))
@@ -36,8 +34,7 @@ function checkCategory($newCat = '')
 	function getCategories()
 	{
 		global $modx;
-		$tbl_categories = $modx->getFullTableName('categories');
-		$cats = $modx->db->select('id, category', $tbl_categories, '', 'category');
+		$cats = $modx->db->select('id, category', '[+prefix+]categories', '', 'category');
 		$resourceArray = array();
 		if($cats)
 		{
@@ -58,11 +55,9 @@ function checkCategory($newCat = '')
 			$resetTables = array('site_plugins', 'site_snippets', 'site_htmlsnippets', 'site_templates', 'site_tmplvars', 'site_modules');
 			foreach ($resetTables as $n=>$v)
 			{
-				$tbl = $modx->getFullTableName($v);
 				$field['category'] = '0';
-				$modx->db->update($field, $tbl, "category={$catId}");
+				$modx->db->update($field, "[+prefix+]{$v}", "category='{$catId}'");
 			}
-			$tbl_categories = $modx->getFullTableName('categories');
-			$modx->db->delete($tbl_categories,"id={$catId}");
+			$modx->db->delete('[+prefix+]categories',"id='{$catId}'");
 		}
 	}

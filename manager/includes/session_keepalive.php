@@ -15,9 +15,8 @@ $modx->db->connect();
 if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
 {
 	$uid = $_SESSION['mgrInternalKey'];
-	$tbl_active_users = $modx->getFullTableName('active_users');
 	$timestamp = time();
-	$modx->db->update("lasthit={$timestamp}", $tbl_active_users, "internalKey='{$uid}'");
+	$modx->db->update("lasthit={$timestamp}", '[+prefix+]active_users', "internalKey='{$uid}'");
 	echo '{"status":"ok"}';
 }
 else echo '{"status":null}';
