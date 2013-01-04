@@ -122,7 +122,7 @@
 				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
 				break;
 			case "checkbox": // handles check boxes
-				$field_value = !is_array($field_value) ? explode("||",$field_value) : $field_value;
+				if(!is_array($field_value)) $field_value = explode('||',$field_value);
 				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
 				$index_list = ParseIntputOptions($rs);
 				static $i=0;
@@ -229,8 +229,7 @@
             
 			default: // the default handler -- for errors, mostly
 				$sname = strtolower($field_type);
-				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='input:{$field_type}'");
+				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='input:{$field_type}'");
 				if($modx->db->getRecordCount($result)==1)
 				{
 					$field_html .= eval($modx->db->getValue($result));
