@@ -52,7 +52,9 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
             case "SELECT" : // selects a record from the cms database
                 $rt = array ();
                 $replacementVars = array (
+                    'dbase' => $modx->db->config['dbase'],
                     'DBASE' => $modx->db->config['dbase'],
+                    'prefix' => $modx->db->config['table_prefix'],
                     'PREFIX' => $modx->db->config['table_prefix']
                 );
                 foreach ($replacementVars as $rvKey => $rvValue) {
