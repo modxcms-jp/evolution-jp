@@ -69,7 +69,8 @@
 				break;
 			case "dropdown": // handler for select boxes
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="1">';
-				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
+				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = ParseIntputOptions($rs);
 				while (list($label, $item) = each ($index_list))
 				{
 					list($label,$value) = splitOption($item);
@@ -79,7 +80,8 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox": // handler for select boxes
-				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
+				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = ParseIntputOptions($rs);
 				$count = (count($index_list)<8) ? count($index_list) : 8;
 				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="' . $count . '">';	
 				while (list($label, $item) = each ($index_list))
@@ -91,7 +93,8 @@
 				$field_html .=  "</select>";
 				break;
 			case "listbox-multiple": // handler for select boxes where you can choose multiple items
-				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
+				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = ParseIntputOptions($rs);
 				$count = (count($index_list)<8) ? count($index_list) : 8;
 				$field_value = explode("||",$field_value);
 				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" size="' . $count . '">';
@@ -120,7 +123,8 @@
 				break;
 			case "checkbox": // handles check boxes
 				$field_value = !is_array($field_value) ? explode("||",$field_value) : $field_value;
-				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
+				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = ParseIntputOptions($rs);
 				static $i=0;
 				foreach ($index_list as $item)
 				{
@@ -132,7 +136,8 @@
 				}
 				break;
 			case "option": // handles radio buttons
-				$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id,'','tvform'));
+				$rs = ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = ParseIntputOptions($rs);
 				static $i=0;
 				while (list($label, $item) = each ($index_list))
 				{
