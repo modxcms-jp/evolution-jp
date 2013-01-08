@@ -110,6 +110,7 @@ echo '<table style="margin-bottom:20px;">';
 $mbstring_array = array('mbstring.detect_order',
 'mbstring.encoding_translation',
 'mbstring.func_overload',
+'mbstring.output_buffering',
 'mbstring.http_input',
 'mbstring.http_output',
 'mbstring.internal_encoding',
