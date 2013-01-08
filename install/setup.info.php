@@ -44,8 +44,7 @@ else
 $mt = &$moduleTemplates;
 if(is_dir($templatePath) && is_readable($templatePath))
 {
-	$files = array_merge(glob("{$templatePath}*/*.install_base.tpl"),glob("{$templatePath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($templatePath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);
@@ -74,8 +73,7 @@ if(is_dir($templatePath) && is_readable($templatePath))
 $mtv = &$moduleTVs;
 if(is_dir($tvPath) && is_readable($tvPath))
 {
-	$files = array_merge(glob("{$tvPath}*/*.install_base.tpl"),glob("{$tvPath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($tvPath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);
@@ -106,8 +104,7 @@ if(is_dir($tvPath) && is_readable($tvPath))
 $mc = &$moduleChunks;
 if(is_dir($chunkPath) && is_readable($chunkPath))
 {
-	$files = array_merge(glob("{$chunkPath}*/*.install_base.tpl"), glob("{$chunkPath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($chunkPath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);
@@ -132,8 +129,7 @@ if(is_dir($chunkPath) && is_readable($chunkPath))
 $ms = &$moduleSnippets;
 if(is_dir($snippetPath) && is_readable($snippetPath))
 {
-	$files = array_merge(glob("{$snippetPath}*/*.install_base.tpl"),glob("{$snippetPath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($snippetPath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);
@@ -159,8 +155,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 $mp = &$modulePlugins;
 if(is_dir($pluginPath) && is_readable($pluginPath))
 {
-	$files = array_merge(glob("{$pluginPath}*/*.install_base.tpl"),glob("{$pluginPath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($pluginPath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);
@@ -191,8 +186,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 $mm = &$moduleModules;
 if(is_dir($modulePath) && is_readable($modulePath))
 {
-	$files = array_merge(glob("{$modulePath}*/*.install_base.tpl"),glob("{$modulePath}*.install_base.tpl"));
-	natcasesort($files);
+	$files = collectTpls($modulePath);
 	foreach ($files as $tplfile)
 	{
 		$params = parse_docblock($tplfile);

@@ -490,3 +490,13 @@ function genHash($password, $seed='1')
 	
 	return $result;
 }
+
+function collectTpls($path)
+{
+	$files1 = glob("{$path}*/*.install_base.tpl");
+	$files2 = glob("{$path}*.install_base.tpl");
+	$files = array_merge((array)$files1,(array)$files2);
+	natcasesort($files);
+	
+	return $files;
+}
