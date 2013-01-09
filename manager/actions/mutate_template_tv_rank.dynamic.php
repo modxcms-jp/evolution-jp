@@ -11,12 +11,6 @@ if (!is_numeric($_REQUEST['id'])) {
 }
 $id = intval($_REQUEST['id']);
 
-if ($manager_theme) {
-	$manager_theme .= '/';
-} else  {
-	$manager_theme  = '';
-}
-
 $basePath = $modx->config['base_path'];
 $siteURL = $modx->config['site_url'];
 
@@ -63,7 +57,7 @@ $header = '
 <head>
 	<title>MODx</title>
 	<meta http-equiv="Content-Type" content="text/html; charset='.$modx_manager_charset.'" />
-	<link rel="stylesheet" type="text/css" href="media/style/'.$manager_theme.'style.css" />
+	<link rel="stylesheet" type="text/css" href="media/style/'.$manager_theme.'/style.css" />
 	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>';
 
 $header .= '
@@ -92,7 +86,7 @@ $header .= '
 			padding: 3px 5px;
 			margin: 4px 0px;
 			border: 1px solid #CCCCCC;
-			background-image: url("media/style/'.$manager_theme.'images/misc/fade.gif");
+			background-image: url("media/style/'.$manager_theme.'/images/misc/fade.gif");
 			background-repeat: repeat-x;
 		}
 	</style>
