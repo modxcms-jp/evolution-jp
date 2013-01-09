@@ -55,9 +55,11 @@ if ($action == 27)
 	{
 ?>
 <br /><br />
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['access_permissions']?></div>
 <div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']?></p>
+</div>
 </div>
 <?php
 		include(MODX_MANAGER_PATH.'includes/footer.inc.php');
