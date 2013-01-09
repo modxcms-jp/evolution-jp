@@ -5,7 +5,7 @@
  * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
  *
  * @category 	plugin
- * @version 	1.1.9r1
+ * @version 	1.1.9r2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@events OnManagerLoginFormPrerender,OnBeforeManagerLogin,OnManagerAuthentication,OnManagerLoginFormRender,OnManagerChangePassword 
  * @internal	@modx_category Manager and Admin
@@ -168,10 +168,10 @@ global $_lang;
 
 $output = '';
 $event_name = $modx->event->name;
-$action   = (empty($_GET['action'])   ? ''    : $_GET['action']);
-$username = (empty($_GET['username']) ? false : $_GET['username']);
-$to       = (empty($_GET['email'])    ? ''    : $_GET['email']);
-$key      = (empty($_GET['key'])      ? false : $_GET['key']);
+$action = (empty($_GET['action'])     ? ''    : (is_string($_GET['action'])   ? $_GET['action'] : ''));
+$username = (empty($_GET['username']) ? false : (is_string($_GET['username']) ? $_GET['username'] : ''));
+$to = (empty($_GET['email'])          ? ''    : (is_string($_GET['email'])    ? $_GET['email'] : ''));
+$key = (empty($_GET['key'])           ? false : (is_string($_GET['key'])      ? $_GET['key'] : ''));
 $forgot   = new ForgotManagerPassword();
 
 if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['key']) && isset($_GET['name']))
