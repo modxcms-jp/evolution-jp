@@ -2006,7 +2006,7 @@ class DocumentParser {
 					$passes++; // if content change then increase passes because
 				}
 			} // we have not yet reached maxParserPasses
-			if(strpos($source,'[~')!==false) $source = $this->rewriteUrls($source);
+			if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false) $source = $this->rewriteUrls($source);
 		}
 		return $source;
 	}
