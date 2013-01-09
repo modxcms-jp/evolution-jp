@@ -155,6 +155,8 @@ class TinyMCE
 	{
 		global $modx, $_lang;
 		
+		$str = '';
+		
 		switch($params['theme'])
 		{
 		case 'simple':
@@ -213,9 +215,21 @@ class TinyMCE
 				$plugins = 'quickupload,'. $plugins;
 				$buttons2 = 'quickupload,'. $buttons2;
 			}
+			switch($modx->manager->action)
+			{
+				case '4':
+				case '27':
+					global $content;
+					if($content['template']==0)
+					{
+						$plugins = str_replace('autosave', 'fullpage', $plugins);
+						$buttons2 = 'fullpage,' . $buttons2;
+						$str .= '<style type="text/css">body.mceContentBody {background-color:#f00 !important;}</style>';
+					}
+			}
 		}
 		
-		$str  = $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
+		$str .= $this->build_mce_init($params,$plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
 		$str .= $this->build_tiny_callback($params);
 		if($params['link_list']=='enabled')
 		{
