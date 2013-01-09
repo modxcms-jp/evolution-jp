@@ -9,11 +9,8 @@ if(!$modx->hasPermission('web_access_permissions')) {
 // figure out what the user wants to do...
 
 // Get table names (alphabetical)
-$tbl_document_groups     = $modx->getFullTableName('document_groups');
 $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-$tbl_web_groups          = $modx->getFullTableName('web_groups');
 $tbl_webgroup_access     = $modx->getFullTableName('webgroup_access');
-$tbl_webgroup_names      = $modx->getFullTableName('webgroup_names');
 
 $updategroupaccess = false;
 $operation = $_REQUEST['operation'];
@@ -26,7 +23,7 @@ switch ($operation)
 		else
 		{
 			$f['name'] = $modx->db->escape($newgroup);
-			if(!$id = $modx->db->insert($f,$tbl_webgroup_names))
+			if(!$id = $modx->db->insert($f,'[+prefix+]webgroup_names'))
 			{
 				exit('Failed to insert new group. Possible duplicate group name?');
 			}
@@ -62,7 +59,7 @@ switch ($operation)
 		if(empty($usergroup)) exit("No user group name specified for deletion");
 		else
 		{
-			if(!$rs = $modx->db->delete($tbl_webgroup_names,"id='{$usergroup}'"))
+			if(!$rs = $modx->db->delete('[+prefix+]webgroup_names',"id='{$usergroup}'"))
 			{
 				exit('Unable to delete group. SQL failed.');
 			}
@@ -70,7 +67,7 @@ switch ($operation)
 			{
 				exit('Unable to delete group from access table. SQL failed.');
 			}
-			if(!$rs = $modx->db->delete($tbl_web_groups,"webuser='{$usergroup}'"))
+			if(!$rs = $modx->db->delete('[+prefix+]web_groups',"webuser='{$usergroup}'"))
 			{
 				exit('Unable to delete user-group links. SQL failed.');
 			}
@@ -89,7 +86,7 @@ switch ($operation)
 			{
 				exit("Unable to delete group from access table. SQL failed.");
 			}
-			if(!$rs = $modx->db->delete($tbl_document_groups,"document_group='{$group}'"))
+			if(!$rs = $modx->db->delete('[+prefix+]document_groups',"document_group='{$group}'"))
 			{
 				exit("Unable to delete document-group links. SQL failed.");
 			}
@@ -101,7 +98,7 @@ switch ($operation)
 		$groupid = intval($_REQUEST['groupid']);
 		if(empty($groupid)) exit("No group id specified");
 		$f['name'] = $modx->db->escape($_REQUEST['newgroupname']);
-		if(!$rs = $modx->db->update($f,$tbl_webgroup_names,"id='{$groupid}'",'',1))
+		if(!$rs = $modx->db->update($f,'[+prefix+]webgroup_names',"id='{$groupid}'",'',1))
 		{
 			exit("Failed to update group name. Possible duplicate group name?");
 		}

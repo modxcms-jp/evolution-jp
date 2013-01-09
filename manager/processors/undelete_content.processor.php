@@ -11,11 +11,9 @@ $id = intval($_REQUEST['id']);
 // check permissions on the document
 if(!check_group_perm($id)) disp_access_permission_denied();
 
-$tbl_site_content = $modx->getFullTableName('site_content');
-
 // get the timestamp on which the document was deleted.
 $where = "id='{$id}' AND deleted=1";
-$rs = $modx->db->select('deletedon',$tbl_site_content,$where);
+$rs = $modx->db->select('deletedon','[+prefix+]site_content',$where);
 if($modx->db->getRecordCount($rs)!=1)
 {
 	echo "Couldn't find document to determine it's date of deletion!";
@@ -37,7 +35,7 @@ $field['deletedon'] = '0';
 if(0 < count($children))
 {
 	$docs_to_undelete = implode(' ,', $children);
-	$rs = $modx->db->update($field,$tbl_site_content,"id IN({$docs_to_undelete})");
+	$rs = $modx->db->update($field,'[+prefix+]site_content',"id IN({$docs_to_undelete})");
 	if(!$rs)
 	{
 		echo "Something went wrong while trying to set the document's children to undeleted status...";
@@ -45,7 +43,7 @@ if(0 < count($children))
 	}
 }
 //'undelete' the document.
-$rs = $modx->db->update($field,$tbl_site_content,"id=$id");
+$rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs)
 {
 	echo "Something went wrong while trying to set the document to undeleted status...";
@@ -56,7 +54,7 @@ else
 	// empty cache
 	$modx->clearCache();
 	// finished emptying cache - redirect
-	$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
+	$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
 	$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 	if($pid!=='0') $header="Location: index.php?r=1&a=3&id={$pid}&tab=0{$page}";
 	else           $header="Location: index.php?a=2&r=1";
@@ -71,8 +69,7 @@ function getChildren($parent)
 	global $deltime,$modx;
 	
 	$db->debug = true;
-	$tbl_site_content = $modx->getFullTableName('site_content');
-	$rs = $modx->db->select('id',$tbl_site_content,"parent={$parent} AND deleted=1 AND deletedon={$deltime}");
+	$rs = $modx->db->select('id','[+prefix+]site_content',"parent={$parent} AND deleted=1 AND deletedon='{$deltime}'");
 	if($modx->db->getRecordCount($rs)>0)
 	{
 		// the document has children documents, we'll need to delete those too
@@ -80,7 +77,6 @@ function getChildren($parent)
 		{
 			$children[] = $row['id'];
 			getChildren($row['id']);
-			//echo "Found childNode of parentNode $parent: ".$row['id']."<br />";
 		}
 	}
 }

@@ -5,8 +5,6 @@ if (!$modx->hasPermission('save_chunk')) {
     $e->dumpError();
 }
 
-$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
-
 $input = $_POST;
 extract($input);
 unset($input);
@@ -75,7 +73,7 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for new chunks
-        $rs = $modx->db->select('COUNT(id)', $tbl_site_htmlsnippets, "name='{$name}'");
+        $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', "name='{$name}'");
         $count = $modx->db->getValue($rs);
         if ($count > 0) {
             $url = "index.php?a=77";
@@ -88,7 +86,7 @@ switch ($_POST['mode']) {
         }
         //do stuff to save the new doc
         $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
-        $newid = $modx->db->insert($field, $tbl_site_htmlsnippets);
+        $newid = $modx->db->insert($field, '[+prefix+]site_htmlsnippets');
         // get the id
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -131,9 +129,9 @@ switch ($_POST['mode']) {
         }
 
         //do stuff to save the edited doc
-        $was_name = $modx->db->getValue($modx->db->select('name', $tbl_site_htmlsnippets, "id='{$id}'"));
+        $was_name = $modx->db->getValue($modx->db->select('name', '[+prefix+]site_htmlsnippets', "id='{$id}'"));
         $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
-        $rs = $modx->db->update($field, $tbl_site_htmlsnippets, "id='{$id}'");
+        $rs = $modx->db->update($field, '[+prefix+]site_htmlsnippets', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
@@ -141,14 +139,14 @@ switch ($_POST['mode']) {
             $name = str_replace("'", "''", $name);
             $was_name = str_replace("'", "''", $was_name);
             if ($name !== $was_name) {
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_content'));
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_templates'));
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_htmlsnippets'));
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')", $modx->getFullTableName('site_tmplvar_contentvalues'));
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", $modx->getFullTableName('site_content'));
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", $modx->getFullTableName('site_templates'));
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')", $modx->getFullTableName('site_htmlsnippets'));
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')", $modx->getFullTableName('site_tmplvar_contentvalues'));
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_content');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_templates');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_content');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_templates');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')", '[+prefix+]site_tmplvar_contentvalues');
             }
 
             // invoke OnChunkFormSave event
@@ -174,12 +172,11 @@ switch ($_POST['mode']) {
 
 function check_exist_name($name) { // disallow duplicate names for new chunks
     global $modx;
-    $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
     $where = "name='{$name}'";
     if ($_POST['mode'] == 78) {
         $where = $where . " AND id!={$_POST['id']}";
     }
-    $rs = $modx->db->select('COUNT(id)', $tbl_site_htmlsnippets, $where);
+    $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     $count = $modx->db->getValue($rs);
     if ($count > 0)
         return true;

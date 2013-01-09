@@ -6,9 +6,6 @@ if(!$modx->hasPermission('manage_metatags')) {
 	$e->dumpError();
 }
 
-$tbl_site_keywords = $modx->getFullTableName('site_keywords');
-$tbl_site_metatags = $modx->getFullTableName('site_metatags');
-$tbl_keyword_xref  = $modx->getFullTableName('keyword_xref');
 // get op code
 $opcode = isset($_POST['op']) ? $_POST['op'] : "keys" ;
 
@@ -22,7 +19,7 @@ if($opcode=="addtag") {
 		http_equiv => intval($http_equiv)
 	);
 	if($f["name"] && $f["tagvalue"]) {
-		$modx->db->insert($f,$tbl_site_metatags);
+		$modx->db->insert($f,'[+prefix+]site_metatags');
 	}
 }
 // edit tag
@@ -36,7 +33,7 @@ else if($opcode=="edttag") {
 		http_equiv => intval($http_equiv)
 	);
 	if($f["name"] && $f["tagvalue"]) {
-		$modx->db->update($f,$tbl_site_metatags,"id='{$id}'");
+		$modx->db->update($f,'[+prefix+]site_metatags',"id='{$id}'");
 	}
 }
 // delete
@@ -49,7 +46,7 @@ elseif($opcode=="deltag") {
 			$f[$i] = $modx->db->escape($v);
 		}
 		$tags = join(',',$f);
-		$modx->db->delete($tbl_site_metatags,"id IN('{$tags}')");
+		$modx->db->delete('[+prefix+]site_metatags',"id IN('{$tags}')");
 	}
 }
 else {
@@ -63,7 +60,7 @@ else {
 		if($rename_keywords[$key]!=$value)
 		{
 			$keyword = $modx->db->escape($rename_keywords[$key]);
-			$rs = $modx->db->select('*',$tbl_site_keywords,"BINARY keyword='{$keyword}'");
+			$rs = $modx->db->select('*','[+prefix+]site_keywords',"BINARY keyword='{$keyword}'");
 			$limit = $modx->db->getRecordCount($rs);
 			if($limit > 0)
 			{
@@ -73,7 +70,7 @@ else {
 			else
 			{
 				$value = $modx->db->escape($value);
-				$rs = $modx->db->update("keyword='{$keyword}'", $tbl_site_keywords, "keyword='{$value}'");
+				$rs = $modx->db->update("keyword='{$keyword}'", '[+prefix+]site_keywords', "keyword='{$value}'");
 			}
 		}
 	}
@@ -89,14 +86,14 @@ else {
 
 		$keywords = join(',', $keywords_array);
 		
-		$rs = $modx->db->delete($tbl_keyword_xref, "keyword_id IN('{$keywords}')");
+		$rs = $modx->db->delete('[+prefix+]keyword_xref', "keyword_id IN('{$keywords}')");
 		if(!$rs)
 		{
 			echo "Failure on deletion of xref keys: ".$modx->db->getLastError();
 			exit;
 		}
 
-		$rs = $modx->db->delete($tbl_site_keywords, "id IN('{$keywords}')");
+		$rs = $modx->db->delete('[+prefix+]site_keywords', "id IN('{$keywords}')");
 		if(!$rs)
 		{
 			echo "Failure on deletion of keywords ".$modx->db->getLastError();
@@ -109,7 +106,7 @@ else {
 	if(!empty($_POST['new_keyword'])) {
 		$nk = $modx->db->escape($_POST['new_keyword']);
 
-		$rs = $modx->db->select('*',$tbl_site_keywords,"keyword='{$nk}'");
+		$rs = $modx->db->select('*','[+prefix+]site_keywords',"keyword='{$nk}'");
 		$limit = $modx->db->getRecordCount($rs);
 		if($limit > 0)
 		{
@@ -118,7 +115,7 @@ else {
 		}
 		else
 		{
-			$rs = $modx->db->insert("keyword='{$nk}'",$tbl_site_keywords);
+			$rs = $modx->db->insert("keyword='{$nk}'",'[+prefix+]site_keywords');
 		}
 	}
 }

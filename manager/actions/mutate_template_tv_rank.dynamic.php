@@ -9,16 +9,13 @@ if (!is_numeric($_REQUEST['id'])) {
 	echo 'Template ID is NaN';
 	exit;
 }
+$id = intval($_REQUEST['id']);
 
 if ($manager_theme) {
 	$manager_theme .= '/';
 } else  {
 	$manager_theme  = '';
 }
-
-$tbl_site_templates         = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
 
 $basePath = $modx->config['base_path'];
 $siteURL = $modx->config['site_url'];
@@ -33,21 +30,21 @@ if(isset($_POST['listSubmitted'])) {
 		foreach($orderArray as $key => $item) {
 			if (strlen($item) == 0) continue;
 			$tmplvar = ltrim($item, 'item_');
-			$sql = 'UPDATE '.$tbl_site_tmplvar_templates.' SET rank='.$key.' WHERE tmplvarid='.$tmplvar.' AND templateid='.$_REQUEST['id'];
-			$modx->db->query($sql);
+			$modx->db->update(array('rank'=>$key),'[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
 		}
 	}
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 }
 
-$sql = 'SELECT tv.name AS `name`, tv.id AS `id`, tr.templateid, tr.rank, tm.templatename '.
-       'FROM '.$tbl_site_tmplvar_templates.' AS tr '.
-       'INNER JOIN '.$tbl_site_tmplvars.' AS tv ON tv.id = tr.tmplvarid '.
-       'INNER JOIN '.$tbl_site_templates.' AS tm ON tr.templateid = tm.id '.
-       'WHERE tr.templateid='.(int)$_REQUEST['id'].' ORDER BY tr.rank, tv.rank, tv.id';
+$field  = 'tv.name AS `name`, tv.id AS `id`, tr.templateid, tr.rank, tm.templatename';
+$from   = '[+prefix+]site_tmplvar_templates tr';
+$from  .= ' INNER JOIN [+prefix+]site_tmplvars tv ON tv.id = tr.tmplvarid';
+$from  .= ' INNER JOIN [+prefix+]site_templates tm ON tr.templateid = tm.id';
+$where  = "tr.templateid='{$id}'";
+$orderby = 'tr.rank, tv.rank, tv.id';
 
-$rs = $modx->db->query($sql);
+$rs = $modx->db->select($field,$from,$where,$orderby);
 $limit = $modx->db->getRecordCount($rs);
 
 if($limit>1) {

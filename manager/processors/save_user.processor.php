@@ -5,10 +5,6 @@ if (!$modx->hasPermission('save_user')) {
 	$e->dumpError();
 }
 
-$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-$tbl_manager_users = $modx->getFullTableName('manager_users');
-$tbl_member_groups = $modx->getFullTableName('member_groups');
-
 if(isset($_POST['userid']) && preg_match('@^[0-9]+$@',$_POST['userid'])) $id = $_POST['userid'];
 $mode = $_POST['mode'];
 $oldusername = $_POST['oldusername'];
@@ -30,7 +26,7 @@ $zip = $modx->db->escape($_POST['zip']);
 $gender = !empty ($_POST['gender']) ? $_POST['gender'] : 0;
 $photo = $modx->db->escape($_POST['photo']);
 $comment = $modx->db->escape($_POST['comment']);
-$roleid = !empty ($_POST['role']) ? $_POST['role'] : 0;
+$role = !empty ($_POST['role']) ? $_POST['role'] : 0;
 $failedlogincount = $_POST['failedlogincount'];
 $blocked = !empty ($_POST['blocked']) ? $_POST['blocked'] : 0;
 $blockeduntil = !empty ($_POST['blockeduntil']) ? ConvertDate($_POST['blockeduntil']) : 0;
@@ -52,7 +48,7 @@ if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i", $
 // verify admin security
 if ($_SESSION['mgrRole'] != 1) {
 	// Check to see if user tried to spoof a "1" (admin) role
-	if ($roleid == 1)
+	if ($role == 1)
 	{
 		if(!$modx->hasPermission('edit_role')
 		    || !$modx->hasPermission('save_role')
@@ -65,7 +61,7 @@ if ($_SESSION['mgrRole'] != 1) {
 			}
 	}
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
-	if ($rs = $modx->db->select('role',$tbl_user_attributes,"internalKey='{$id}'")) {
+	if ($rs = $modx->db->select('role','[+prefix+]user_attributes',"internalKey='{$id}'")) {
 		if (0 < $modx->db->getRecordCount($rs))
 		{	// There should only be one if there is one
 			$row = $modx->db->getRow($rs);
@@ -80,7 +76,7 @@ if ($_SESSION['mgrRole'] != 1) {
 switch ($mode) {
 	case '11' : // new user
 		// check if this user name already exist
-		if (!$rs = $modx->db->select('id',$tbl_manager_users,"username='{$newusername}'"))
+		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='{$newusername}'"))
 		{
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
@@ -92,7 +88,7 @@ switch ($mode) {
 		}
 
 		// check if the email address already exist
-		if (!$rs = $modx->db->select('id',$tbl_user_attributes,"email='{$email}'"))
+		if (!$rs = $modx->db->select('id','[+prefix+]user_attributes',"email='{$email}'"))
 		{
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
@@ -136,42 +132,37 @@ switch ($mode) {
 		$field = array();
 		$field['username'] = $newusername;
 		$field['password'] = $modx->manager->genHash($newpassword, $id);
-		$rs = $modx->db->insert($field,'[+prefix+]manager_users');
-		if (!$rs) {
+		$internalKey = $modx->db->insert($field,'[+prefix+]manager_users');
+		if (!$internalKey) {
 			webAlert("An error occurred while attempting to save the user.");
 			exit;
 		}
-		// now get the id
-		if (!$key = $modx->db->getInsertId()) {
-			//get the key by sql
-		}
-
-		$sql = "INSERT INTO {$tbl_user_attributes} (internalKey, fullname, role, email, phone, mobilephone, fax, zip, state, country, gender, dob, photo, comment, blocked, blockeduntil, blockedafter)
-						VALUES($key, '$fullname', '$roleid', '$email', '$phone', '$mobilephone', '$fax', '$zip', '$state', '$country', '$gender', '$dob', '$photo', '$comment', '$blocked', '$blockeduntil', '$blockedafter');";
-		$rs = $modx->db->query($sql);
+		
+		$field = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
+		$rs = $modx->db->insert($field,'[+prefix+]user_attributes');
 		if (!$rs) {
 			webAlert("An error occurred while attempting to save the user's attributes.");
 			exit;
 		}
 
 		// Save User Settings
-		saveUserSettings($key);
+		saveUserSettings($internalKey);
 
 		// invoke OnManagerSaveUser event
 		$modx->invokeEvent("OnManagerSaveUser", array (
 			"mode" => "new",
-			"userid" => $key,
+			"userid" => $internalKey,
 			"username" => $newusername,
 			"userpassword" => $newpassword,
 			"useremail" => $email,
 			"userfullname" => $fullname,
-			"userroleid" => $roleid
+			"userroleid" => $role
 		));
 
 		// invoke OnUserFormSave event
 		$modx->invokeEvent("OnUserFormSave", array (
 			"mode" => "new",
-			"id" => $key
+			"id" => $internalKey
 		));
 		
 		/*******************************************************************************/
@@ -180,8 +171,8 @@ switch ($mode) {
 		if ($use_udperms == 1) {
 			if (count($user_groups) > 0) {
 				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO {$tbl_member_groups} (user_group, member) values('" . intval($user_groups[$i]) . "', $key)";
-					$rs = $modx->db->query($sql);
+					$user_group = intval($user_groups[$i]);
+					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$internalKey),'[+prefix+]member_groups');
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.");
 						exit;
@@ -205,7 +196,7 @@ switch ($mode) {
 			exit;
 		} else {
 			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$key" : "11";
+				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$internalKey}" : "11";
 				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
 			} elseif($mode==='119') {
 				$stayUrl = "index.php?a=2";
@@ -267,12 +258,10 @@ switch ($mode) {
 				exit;
 			}
 			$hashed_password = $modx->manager->genHash($newpassword, $id);
-			$updatepasswordsql = ", password='{$hashed_password}'";
 		}
-		else $updatepasswordsql = '';
 
 		// check if the username already exist
-		if (!$rs = $modx->db->select('id',$tbl_manager_users,"username='{$newusername}'")) {
+		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='{$newusername}'")) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
@@ -286,7 +275,7 @@ switch ($mode) {
 		}
 
 		// check if the email address already exists
-		if (!$rs = $modx->db->select('internalKey',$tbl_user_attributes,"email='{$email}'")) {
+		if (!$rs = $modx->db->select('internalKey','[+prefix+]user_attributes',"email='{$email}'")) {
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
 		}
@@ -306,32 +295,16 @@ switch ($mode) {
 		));
 
 		// update user name and password
-		$sql = "UPDATE {$tbl_manager_users} SET username='{$newusername}' {$updatepasswordsql} WHERE id='{$id}'";
-		if (!$rs = $modx->db->query($sql)) {
+		$field = array();
+		$field['username'] = $newusername;
+		if(isset($hashed_password)) $field['password'] = $hashed_password;
+		if (!$rs = $modx->db->update($field,'[+prefix+]manager_users',"id='{$id}'")) {
 			webAlert("An error occurred while attempting to update the user's data.");
 			exit;
 		}
-
-		$sql = "UPDATE {$tbl_user_attributes} SET
-					fullname='{$fullname}',
-					role='{$roleid}',
-					email='{$email}',
-					phone='{$phone}',
-					mobilephone='{$mobilephone}',
-					fax='{$fax}',
-					zip='{$zip}' ,
-					state='{$state}',
-					country='{$country}',
-					gender='{$gender}',
-					dob='{$dob}',
-					photo='{$photo}',
-					comment='{$comment}',
-					failedlogincount='{$failedlogincount}',
-					blocked={$blocked},
-					blockeduntil='{$blockeduntil}',
-					blockedafter='{$blockedafter}'
-					WHERE internalKey='{$id}'";
-		if (!$rs = $modx->db->query($sql)) {
+		
+		$field = compact('fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
+		if (!$rs = $modx->db->update($field,'[+prefix+]user_attributes',"internalKey='{$id}'")) {
 			webAlert("An error occurred while attempting to update the user's attributes.");
 			exit;
 		}
@@ -347,12 +320,12 @@ switch ($mode) {
 			"userpassword" => $newpassword,
 			"useremail" => $email,
 			"userfullname" => $fullname,
-			"userroleid" => $roleid,
+			"userroleid" => $role,
 			"oldusername" => (($oldusername != $newusername
 		) ? $oldusername : ''), "olduseremail" => (($oldemail != $email) ? $oldemail : '')));
 
 		// invoke OnManagerChangePassword event
-		if ($updatepasswordsql)
+		if (isset($hashed_password))
 			$modx->invokeEvent("OnManagerChangePassword", array (
 				"userid" => $id,
 				"username" => $newusername,
@@ -374,16 +347,15 @@ switch ($mode) {
 		// first, check that up_perms are switched on!
 		if ($use_udperms == 1) {
 			// as this is an existing user, delete his/ her entries in the groups before saving the new groups
-			$sql = "DELETE FROM {$tbl_member_groups} WHERE member=$id;";
-			$rs = $modx->db->query($sql);
+			$rs = $modx->db->delete('[+prefix+]member_groups', "member='{$id}'");
 			if (!$rs) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
 			if (count($user_groups) > 0) {
 				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO {$tbl_member_groups} (user_group, member) values(" . intval($user_groups[$i]) . ", $id)";
-					$rs = $modx->db->query($sql);
+					$user_group = intval($user_groups[$i]);
+					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$id),'[+prefix+]member_groups');
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.<br />$sql;");
 						exit;
@@ -406,10 +378,10 @@ switch ($mode) {
 		}
 		unset($_SESSION['mgrUsrConfigSet']);
 		$modx->getSettings();
-		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $roleid)
+		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $role)
 		{
 			include_once "header.inc.php";
-			$_SESSION['mgrRole'] = $roleid;
+			$_SESSION['mgrRole'] = $role;
 			$modx->webAlert($_lang['save_user.processor.php1'],'index.php?a=75');
 			include_once "footer.inc.php";
 			exit;
