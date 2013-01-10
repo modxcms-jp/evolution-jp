@@ -45,26 +45,31 @@ EOD;
 		}
 		
 		/* Get user info including a hash unique to this user, password, and day */
-		function getUser($email='', $key='')
+		function getUser($key='')
 		{
 			global $modx, $_lang;
 			
-			$email = $modx->db->escape($email);
-			$key   = $modx->db->escape($key);
-			
 			$tbl_manager_users   = $modx->getFullTableName('manager_users');
 			$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+			
 			$site_id = $modx->config['site_id'];
 			$today = date('Yz'); // Year and day of the year
-			$wheres = array();
 			$user = null;
 			
-			if(!empty($email)) $wheres[] = "attr.email = '{$email}'";
-			if(!empty($key))   $wheres[] = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
+			$key   = $modx->db->escape($key);
 			
-			if($wheres)
+			if(strpos($key,'@')!==false)
 			{
-				$where = implode(' AND ',$wheres);
+				$where = "attr.email = '{$key}'";
+			}
+			elseif(!empty($key))
+			{
+				$where = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
+			}
+			else $where = '';
+			
+			if(!empty($where))
+			{
 				$field = "usr.id, usr.username, attr.email, CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) AS `key`";
 				$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
 				if($result = $modx->db->select($field,$from,$where,'',1))
@@ -87,7 +92,7 @@ EOD;
 			global $modx, $_lang;
 			
 			$user = $this->getUser($to);
-			if(!$user['username']) return;
+			if(is_null($user)) return;
 			
 			
 			if($modx->config['use_captcha']==='1')
@@ -162,7 +167,7 @@ EOT;
 		function getVar($varName)
 		{
 			if(isset($_GET[$varName]) && !empty($_GET[$varName]) && is_string($_GET[$varName]))
-			     return $_GET[$varName];
+			     return trim($_GET[$varName]);
 			else return false;
 		}
 	}
@@ -185,7 +190,7 @@ switch($modx->event->name)
 	case 'OnManagerLoginFormPrerender':
 		if($key!==false)
 		{
-			$user = $forgot->getUser('',$key);
+			$user = $forgot->getUser($key);
 			$username = $user['username'];
 			
 			if($modx->config['use_captcha']==='1')
@@ -206,7 +211,8 @@ switch($modx->event->name)
 				$output = $forgot->getForm();
 				break;
 			case 'send_email':
-				if($forgot->sendEmail($to))
+				if(strpos($to,'@')===false) $forgot->errors[] = $_lang['user_doesnt_exist'];
+				elseif($forgot->sendEmail($to))
 				{
 					$output = $_lang['email_sent'];
 				}
@@ -215,13 +221,13 @@ switch($modx->event->name)
 				$output = $forgot->getLink();
 				break;
 		}
-		if($forgot->errors) { $output = $forgot->getErrorOutput() . $forgot->getLink(); }
+		if($forgot->errors) $output = $forgot->getErrorOutput() . $forgot->getLink();
 		$modx->event->output($output);
 		break;
 	case 'OnBeforeManagerLogin':
 		if($key && $username)
 		{
-			$user = $forgot->getUser('', $key);
+			$user = $forgot->getUser($key);
 			if($user && is_array($user) && !$forgot->errors)
 			{
 				$forgot->unblockUser($user['id']);
@@ -232,7 +238,7 @@ switch($modx->event->name)
 		if($key && $username)
 		{
 			$_SESSION['mgrForgetPassword'] = '1';
-			$user = $forgot->getUser('', $key);
+			$user = $forgot->getUser($key);
 			if($user !== null && count($forgot->errors) == 0)
 			{
 				$captcha_code = $forgot->getVar('captcha_code');
