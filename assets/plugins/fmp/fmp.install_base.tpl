@@ -187,8 +187,7 @@ switch($modx->event->name)
 		$user = $forgot->getUser($key);
 		$username = $user['username'];
 		
-		if($modx->config['use_captcha']==='1')
-		{
+		if($modx->config['use_captcha']==='1') {
 			$captcha = '&captcha_code=ignore';
 		}
 		else $captcha = '';
@@ -198,12 +197,10 @@ switch($modx->event->name)
 		exit;
 		break;
 	case 'OnManagerLoginFormRender':
-		if($action==='show_form')
-		{
+		if($action==='show_form') {
 			$output = $forgot->getForm();
 		}
-		elseif($action==='send_email')
-		{
+		elseif($action==='send_email') {
 			if($forgot->sendEmail($to))
 				$output = $_lang['email_sent'];
 			else
@@ -216,8 +213,7 @@ switch($modx->event->name)
 	case 'OnBeforeManagerLogin':
 		if(empty($key)) return;
 		$user = $forgot->getUser($key);
-		if($user && is_array($user) && !$forgot->errors)
-		{
+		if($user && is_array($user) && !$forgot->errors) {
 			$forgot->unblockUser($user['id']);
 		}
 		break;
@@ -225,8 +221,7 @@ switch($modx->event->name)
 		if(empty($key)) return;
 		$_SESSION['mgrForgetPassword'] = '1';
 		$user = $forgot->getUser($key);
-		if($user !== null && count($forgot->errors) == 0)
-		{
+		if($user !== null && count($forgot->errors) == 0) {
 			$captcha_code = $forgot->getVar('captcha_code');
 			if($captcha_code!==false) $_SESSION['veriword'] = $captcha_code;
 			$output =  true;
