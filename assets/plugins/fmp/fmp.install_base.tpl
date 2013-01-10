@@ -172,7 +172,6 @@ EOT;
 
 
 global $_lang;
-$event_name = $modx->event->name;
 
 $forgot = new ForgotManagerPassword();
 
@@ -181,67 +180,74 @@ $to     = $forgot->getVar('email');
 $key    = $forgot->getVar('key');
 
 $output = '';
-if($event_name == 'OnManagerLoginFormPrerender' && $key!==false))
-{
-	$user = $forgot->getUser('',$key);
-	$username = $user['username'];
-	
-	if($modx->config['use_captcha']==='1')
-	{
-		$captcha = '&captcha_code=ignore';
-	}
-	else $captcha = '';
 
-	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$username}&key={$key}{$captcha}";
-	header("Location:{$url}");
-	exit;
-}
-
-if($event_name == 'OnManagerLoginFormRender')
+switch($modx->event->name)
 {
-	switch($action)
-	{
-		case 'show_form':
-			$output = $forgot->getForm();
-			break;
-		case 'send_email':
-			if($forgot->sendEmail($to))
+	case 'OnManagerLoginFormPrerender':
+		if($key!==false)
+		{
+			$user = $forgot->getUser('',$key);
+			$username = $user['username'];
+			
+			if($modx->config['use_captcha']==='1')
 			{
-				$output = $_lang['email_sent'];
+				$captcha = '&captcha_code=ignore';
 			}
-			break;
-		default:
-			$output = $forgot->getLink();
-			break;
-	}
-	
-	if($forgot->errors) { $output = $forgot->getErrorOutput() . $forgot->getLink(); }
-	$modx->event->output($output);
-}
-
-if($event_name == 'OnBeforeManagerLogin' && $key && $username)
-{
-	$user = $forgot->getUser('', $key);
-	if($user && is_array($user) && !$forgot->errors)
-	{
-		$forgot->unblockUser($user['id']);
-	}
-}
-
-if($event_name == 'OnManagerAuthentication' && $key && $username)
-{
-	$_SESSION['mgrForgetPassword'] = '1';
-	$user = $forgot->getUser('', $key);
-	if($user !== null && count($forgot->errors) == 0)
-	{
-		if(isset($_GET['captcha_code'])) $_SESSION['veriword'] = $_GET['captcha_code'];
-		$output =  true;
-	}
-	else $output = false;
-	$modx->event->output($output);
-}
-
-if($event_name == 'OnManagerChangePassword' && isset($_SESSION['mgrForgetPassword']))
-{
-	unset($_SESSION['mgrForgetPassword']);
+			else $captcha = '';
+		
+			$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$username}&key={$key}{$captcha}";
+			header("Location:{$url}");
+			exit;
+		}
+		break;
+	case 'OnManagerLoginFormRender':
+		switch($action)
+		{
+			case 'show_form':
+				$output = $forgot->getForm();
+				break;
+			case 'send_email':
+				if($forgot->sendEmail($to))
+				{
+					$output = $_lang['email_sent'];
+				}
+				break;
+			default:
+				$output = $forgot->getLink();
+				break;
+		}
+		if($forgot->errors) { $output = $forgot->getErrorOutput() . $forgot->getLink(); }
+		$modx->event->output($output);
+		break;
+	case 'OnBeforeManagerLogin':
+		if($key && $username)
+		{
+			$user = $forgot->getUser('', $key);
+			if($user && is_array($user) && !$forgot->errors)
+			{
+				$forgot->unblockUser($user['id']);
+			}
+		}
+		break;
+	case 'OnManagerAuthentication':
+		if($key && $username)
+		{
+			$_SESSION['mgrForgetPassword'] = '1';
+			$user = $forgot->getUser('', $key);
+			if($user !== null && count($forgot->errors) == 0)
+			{
+				$captcha_code = $forgot->getVar('captcha_code');
+				if($captcha_code!==false) $_SESSION['veriword'] = $captcha_code;
+				$output =  true;
+			}
+			else $output = false;
+			$modx->event->output($output);
+		}
+		break;
+	case 'OnManagerChangePassword':
+		if(isset($_SESSION['mgrForgetPassword']))
+		{
+			unset($_SESSION['mgrForgetPassword']);
+		}
+		break;
 }
