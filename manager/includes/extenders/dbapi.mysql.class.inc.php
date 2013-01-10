@@ -115,11 +115,14 @@ class DBAPI {
 	
 	function escape($s)
 	{
-		if(is_array($s) && 0 < count($s))
+		if(is_array($s))
 		{
-			foreach($s as $i=>$v)
+			if(count($s) > 0)
 			{
-				$s[$i] = $this->escape($v);
+				foreach($s as $i=>$v)
+				{
+					$s[$i] = $this->escape($v);
+				}
 			}
 			return $s;
 		}
