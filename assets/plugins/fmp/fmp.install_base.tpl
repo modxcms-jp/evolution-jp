@@ -60,12 +60,12 @@ EOD;
 			$user = null;
 			
 			if(!empty($email)) $wheres[] = "attr.email = '{$email}'";
-			if(!empty($key))   $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'";
+			if(!empty($key))   $wheres[] = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
 			
 			if($wheres)
 			{
 				$where = implode(' AND ',$wheres);
-				$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS `key`";
+				$field = "usr.id, usr.username, attr.email, CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) AS `key`";
 				$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
 				if($result = $modx->db->select($field,$from,$where,'',1))
 				{
