@@ -159,19 +159,29 @@ EOT;
 			}
 			return $output;
 		}
+		
+		function getVar($varName)
+		{
+			if(isset($_GET[$varName]) && !empty($_GET[$varName]) && is_string($_GET[$varName]))
+			     return $_GET[$varName];
+			else return false;
+		}
 	}
 }
 
+
+
 global $_lang;
+$event_name = $modx->event->name;
+
+$forgot = new ForgotManagerPassword();
+
+$action = $forgot->getVar('action');
+$to     = $forgot->getVar('email');
+$key    = $forgot->getVar('key');
 
 $output = '';
-$event_name = $modx->event->name;
-$action = (empty($_GET['action'])     ? ''    : (is_string($_GET['action'])   ? $_GET['action'] : ''));
-$to = (empty($_GET['email'])          ? ''    : (is_string($_GET['email'])    ? $_GET['email'] : ''));
-$key = (empty($_GET['key'])           ? false : (is_string($_GET['key'])      ? $_GET['key'] : ''));
-$forgot   = new ForgotManagerPassword();
-
-if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['key']))
+if($event_name == 'OnManagerLoginFormPrerender' && $key!==false))
 {
 	$user = $forgot->getUser('',$key);
 	$username = $user['username'];
