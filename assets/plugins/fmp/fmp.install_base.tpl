@@ -45,11 +45,10 @@ EOD;
 		}
 		
 		/* Get user info including a hash unique to this user, password, and day */
-		function getUser($username='', $email='', $key='')
+		function getUser($email='', $key='')
 		{
 			global $modx, $_lang;
 			
-			$username = $modx->db->escape($username);
 			$email    = $modx->db->escape($email);
 			$key      = $modx->db->escape($key);
 			
@@ -61,7 +60,6 @@ EOD;
 			$where = '';
 			$user = null;
 			
-			if(!empty($username)) { $wheres[] = "usr.username = '{$username}'"; }
 			if(!empty($email))    { $wheres[] = "attr.email = '{$email}'"; }
 			if(!empty($key))      { $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'"; } 
 			
@@ -89,7 +87,7 @@ EOD;
 		{
 			global $modx, $_lang;
 			
-			$user = $this->getUser('', $to);
+			$user = $this->getUser($to);
 			if(!$user['username']) return;
 			
 			
@@ -101,7 +99,7 @@ EOD;
 			$body = <<< EOT
 {$_lang['forgot_password_email_intro']}
 
-{$modx->config['site_url']}manager/index.php?name={$user['username']}&key={$user['key']}{$captcha}
+{$modx->config['site_url']}manager/index.php?key={$user['key']}{$captcha}
 {$_lang['forgot_password_email_link']}
 
 {$_lang['forgot_password_email_instructions']}
@@ -169,20 +167,22 @@ global $_lang;
 $output = '';
 $event_name = $modx->event->name;
 $action = (empty($_GET['action'])     ? ''    : (is_string($_GET['action'])   ? $_GET['action'] : ''));
-$username = (empty($_GET['username']) ? false : (is_string($_GET['username']) ? $_GET['username'] : ''));
 $to = (empty($_GET['email'])          ? ''    : (is_string($_GET['email'])    ? $_GET['email'] : ''));
 $key = (empty($_GET['key'])           ? false : (is_string($_GET['key'])      ? $_GET['key'] : ''));
 $forgot   = new ForgotManagerPassword();
 
-if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['key']) && isset($_GET['name']))
+if($event_name == 'OnManagerLoginFormPrerender' && isset($_GET['key']))
 {
+	$user = $forgot->getUser('',$key);
+	$username = $user['username'];
+	
 	if($modx->config['use_captcha']==='1')
 	{
 		$captcha = '&captcha_code=ignore';
 	}
 	else $captcha = '';
 
-	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$_GET['name']}&key={$key}{$captcha}";
+	$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$username}&key={$key}{$captcha}";
 	header("Location:{$url}");
 	exit;
 }
@@ -211,7 +211,7 @@ if($event_name == 'OnManagerLoginFormRender')
 
 if($event_name == 'OnBeforeManagerLogin' && $key && $username)
 {
-	$user = $forgot->getUser('', '', $key);
+	$user = $forgot->getUser('', $key);
 	if($user && is_array($user) && !$forgot->errors)
 	{
 		$forgot->unblockUser($user['id']);
@@ -221,7 +221,7 @@ if($event_name == 'OnBeforeManagerLogin' && $key && $username)
 if($event_name == 'OnManagerAuthentication' && $key && $username)
 {
 	$_SESSION['mgrForgetPassword'] = '1';
-	$user = $forgot->getUser('', '', $key);
+	$user = $forgot->getUser('', $key);
 	if($user !== null && count($forgot->errors) == 0)
 	{
 		if(isset($_GET['captcha_code'])) $_SESSION['veriword'] = $_GET['captcha_code'];
