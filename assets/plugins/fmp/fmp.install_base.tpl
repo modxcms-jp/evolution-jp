@@ -45,7 +45,7 @@ EOD;
 		}
 		
 		/* Get user info including a hash unique to this user, password, and day */
-		function getUser($key='')
+		function getUser($key='',$target='key')
 		{
 			global $modx, $_lang;
 			
@@ -56,19 +56,21 @@ EOD;
 			$today = date('Yz'); // Year and day of the year
 			$user = null;
 			
-			$key   = $modx->db->escape($key);
+			$key = $modx->db->escape($key);
 			
-			if(strpos($key,'@')!==false)
+			switch($target)
 			{
-				$where = "attr.email = '{$key}'";
+				case 'key':
+					$where = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
+					break;
+				case 'email':
+					$where = "attr.email = '{$key}'";
+					break;
+				default:
+					$where = '';
 			}
-			elseif(!empty($key))
-			{
-				$where = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
-			}
-			else $where = '';
 			
-			if(!empty($where))
+			if(!empty($key) && is_string($key))
 			{
 				$field = "usr.id, usr.username, attr.email, CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) AS `key`";
 				$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
@@ -91,19 +93,16 @@ EOD;
 		{
 			global $modx, $_lang;
 			
-			$user = $this->getUser($to);
+			$user = $this->getUser($to,'email');
 			if(is_null($user)) return;
 			
+			if($modx->config['use_captcha']==='1') $captcha = '&captcha_code=ignore';
+			else                                   $captcha = '';
 			
-			if($modx->config['use_captcha']==='1')
-			{
-				$captcha = '&captcha_code=ignore';
-			}
-			else $captcha = '';
 			$body = <<< EOT
 {$_lang['forgot_password_email_intro']}
 
-{$modx->config['site_url']}manager/index.php?key={$user['key']}{$captcha}
+{$modx->config['site_url']}manager/index.php?fmpkey={$user['key']}{$captcha}
 {$_lang['forgot_password_email_link']}
 
 {$_lang['forgot_password_email_instructions']}
@@ -111,6 +110,7 @@ EOD;
 EOT;
 			$mail['subject'] = $_lang['password_change_request'];
 			$mail['sendto'] = $to;
+			
 			$result = $modx->sendmail($mail,$body);
 			
 			if(!$result) $this->errors[] = $_lang['error_sending_email'];
@@ -124,9 +124,7 @@ EOT;
 			$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 			$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $tbl_user_attributes, "internalKey='{$user_id}'");
 			
-			if(!$modx->db->getAffectedRows()) { $this->errors[] = $_lang['user_doesnt_exist']; return; }
-			
-			return true;
+			if(!$modx->db->getAffectedRows()) $this->errors[] = $_lang['user_doesnt_exist'];
 		}
 		
 		function checkLang()
@@ -149,18 +147,15 @@ EOT;
 			
 			foreach($eng as $key=>$value)
 			{
-				if(empty($_lang[$key])) { $_lang[$key] = $value; }
-			}  
+				if(empty($_lang[$key])) $_lang[$key] = $value;
+			}
 		}
 		
 		function getErrorOutput()
 		{
-			$output = '';
+			if($this->errors) $output = '<span class="error">'.implode('</span><span class="errors">', $this->errors).'</span>';
+			else              $output = '';
 			
-			if($this->errors)
-			{
-				$output = '<span class="error">'.implode('</span><span class="errors">', $this->errors).'</span>';
-			}
 			return $output;
 		}
 		
@@ -181,79 +176,66 @@ $forgot = new ForgotManagerPassword();
 
 $action = $forgot->getVar('action');
 $to     = $forgot->getVar('email');
-$key    = $forgot->getVar('key');
+$key    = $forgot->getVar('fmpkey');
 
 $output = '';
 
 switch($modx->event->name)
 {
 	case 'OnManagerLoginFormPrerender':
-		if($key!==false)
-		{
-			$user = $forgot->getUser($key);
-			$username = $user['username'];
-			
-			if($modx->config['use_captcha']==='1')
-			{
-				$captcha = '&captcha_code=ignore';
-			}
-			else $captcha = '';
+		if(empty($key)) return;
+		$user = $forgot->getUser($key);
+		$username = $user['username'];
 		
-			$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$username}&key={$key}{$captcha}";
-			header("Location:{$url}");
-			exit;
+		if($modx->config['use_captcha']==='1')
+		{
+			$captcha = '&captcha_code=ignore';
 		}
+		else $captcha = '';
+		
+		$url = "{$modx->config['site_url']}manager/processors/login.processor.php?username={$username}&fmpkey={$key}{$captcha}";
+		header("Location:{$url}");
+		exit;
 		break;
 	case 'OnManagerLoginFormRender':
-		switch($action)
+		if($action==='show_form')
 		{
-			case 'show_form':
-				$output = $forgot->getForm();
-				break;
-			case 'send_email':
-				if(strpos($to,'@')===false) $forgot->errors[] = $_lang['user_doesnt_exist'];
-				elseif($forgot->sendEmail($to))
-				{
-					$output = $_lang['email_sent'];
-				}
-				break;
-			default:
-				$output = $forgot->getLink();
-				break;
+			$output = $forgot->getForm();
 		}
-		if($forgot->errors) $output = $forgot->getErrorOutput() . $forgot->getLink();
+		elseif($action==='send_email')
+		{
+			if($forgot->sendEmail($to))
+				$output = $_lang['email_sent'];
+			else
+				$output = $forgot->getErrorOutput() . $forgot->getLink();
+		}
+		else $output = $forgot->getLink();
+		
 		$modx->event->output($output);
 		break;
 	case 'OnBeforeManagerLogin':
-		if($key && $username)
+		if(empty($key)) return;
+		$user = $forgot->getUser($key);
+		if($user && is_array($user) && !$forgot->errors)
 		{
-			$user = $forgot->getUser($key);
-			if($user && is_array($user) && !$forgot->errors)
-			{
-				$forgot->unblockUser($user['id']);
-			}
+			$forgot->unblockUser($user['id']);
 		}
 		break;
 	case 'OnManagerAuthentication':
-		if($key && $username)
+		if(empty($key)) return;
+		$_SESSION['mgrForgetPassword'] = '1';
+		$user = $forgot->getUser($key);
+		if($user !== null && count($forgot->errors) == 0)
 		{
-			$_SESSION['mgrForgetPassword'] = '1';
-			$user = $forgot->getUser($key);
-			if($user !== null && count($forgot->errors) == 0)
-			{
-				$captcha_code = $forgot->getVar('captcha_code');
-				if($captcha_code!==false) $_SESSION['veriword'] = $captcha_code;
-				$output =  true;
-			}
-			else $output = false;
-			$modx->event->output($output);
+			$captcha_code = $forgot->getVar('captcha_code');
+			if($captcha_code!==false) $_SESSION['veriword'] = $captcha_code;
+			$output =  true;
 		}
+		else $output = false;
+		$modx->event->output($output);
 		break;
 	case 'OnManagerChangePassword':
-		if(isset($_SESSION['mgrForgetPassword']))
-		{
-			unset($_SESSION['mgrForgetPassword']);
-		}
+		if(isset($_SESSION['mgrForgetPassword'])) unset($_SESSION['mgrForgetPassword']);
 		break;
 	default:
 		return;
