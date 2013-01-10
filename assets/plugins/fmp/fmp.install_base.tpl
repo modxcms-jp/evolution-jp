@@ -49,19 +49,18 @@ EOD;
 		{
 			global $modx, $_lang;
 			
-			$email    = $modx->db->escape($email);
-			$key      = $modx->db->escape($key);
+			$email = $modx->db->escape($email);
+			$key   = $modx->db->escape($key);
 			
 			$tbl_manager_users   = $modx->getFullTableName('manager_users');
 			$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 			$site_id = $modx->config['site_id'];
 			$today = date('Yz'); // Year and day of the year
 			$wheres = array();
-			$where = '';
 			$user = null;
 			
-			if(!empty($email))    { $wheres[] = "attr.email = '{$email}'"; }
-			if(!empty($key))      { $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'"; } 
+			if(!empty($email)) $wheres[] = "attr.email = '{$email}'";
+			if(!empty($key))   $wheres[] = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'";
 			
 			if($wheres)
 			{
@@ -77,7 +76,7 @@ EOD;
 				}
 			}
 			
-			if($user == null) { $this->errors[] = $_lang['could_not_find_user']; }
+			if(is_null($user)) $this->errors[] = $_lang['could_not_find_user'];
 			
 			return $user;
 		}
@@ -250,4 +249,6 @@ switch($modx->event->name)
 			unset($_SESSION['mgrForgetPassword']);
 		}
 		break;
+	default:
+		return;
 }
