@@ -144,9 +144,6 @@ $_dfnMaxlength = 6;
             if( $isDebug ) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />"; //always in english!
     }
 
-    //check version differences
-    if(version_compare($version, '1.4.4.7', '<')) return $_lang['ef_version_error'];
-    
     # add debug warning - moved again...
     if( $isDebug ) $debugText .= $_lang['ef_debug_warning'];
 
