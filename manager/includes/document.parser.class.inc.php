@@ -2144,20 +2144,20 @@ class DocumentParser {
     }
 
     # Add an a alert message to the system event log
-	function logEvent($evtid, $type, $msg, $source= 'Parser')
+	function logEvent($evtid, $type, $msg, $title= 'Parser')
 	{
 		$evtid= intval($evtid);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
-		$msg= $this->db->escape($msg);
-		$source= $this->db->escape($source);
+		$msg= $this->db->escape($msg . "\n" . this->config['site_url']);
+		$title= $this->db->escape($title);
 		if (function_exists('mb_substr'))
 		{
-			$source = mb_substr($source, 0, 50 , $this->config['modx_charset']);
+			$title = mb_substr($title, 0, 50 , $this->config['modx_charset']);
 		}
 		else
 		{
-			$source = substr($source, 0, 50);
+			$title = substr($title, 0, 50);
 		}
 		$LoginUserID = $this->getLoginUserID();
 		if ($LoginUserID == '' || $LoginUserID===false) $LoginUserID = '-';
@@ -2165,17 +2165,17 @@ class DocumentParser {
 		$fields['eventid']     = $evtid;
 		$fields['type']        = $type;
 		$fields['createdon']   = time();
-		$fields['source']      = $source;
+		$fields['source']      = $title;
 		$fields['description'] = $msg;
 		$fields['user']        = $LoginUserID;
 		$insert_id = $this->db->insert($fields,'[+prefix+]event_log');
-		if(!$this->db->conn) $source = 'DB connect error';
+		if(!$this->db->conn) $title = 'DB connect error';
 		if(isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0')
 		{
 			if($this->config['send_errormail'] <= $type)
 			{
 				$subject = 'Error mail from ' . $this->config['site_name'];
-				$this->sendmail($subject,$source);
+				$this->sendmail($subject,$msg);
 			}
 		}
 		if (!$insert_id)
