@@ -291,14 +291,17 @@
 	
 	function splitOption($value)
 	{
-		if(is_array($value))                list($label,$value) = $value;
-		elseif(strpos($value,'==')===false) $label = $value;
-		else                                list($label,$value) = explode('==',$value,2);
+		if(is_array($value)) $value = $value['0'];
+		
+		if(strpos($value,'==')===false) $label = $value;
+		else                            list($label,$value) = explode('==',$value,2);
+		
 		return array($label,$value);
 	}
 	
 	function isSelected($label,$value,$item,$field_value)
 	{
+		if(is_array($item)) $item = $item['0'];
 		if(strpos($item,'==')!==false && strlen($value)==0)
 		{
 			if(is_array($field_value))
