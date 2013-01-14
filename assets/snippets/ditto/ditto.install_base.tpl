@@ -223,7 +223,7 @@ foreach ($files as $filename => $filevalue)
     }
     elseif(is_file($filevalue))
     {
-        include($filevalue);
+        include_once($filevalue);
     }
     elseif($filename == "language")
     {
