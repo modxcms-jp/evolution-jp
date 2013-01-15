@@ -322,6 +322,10 @@ else
           	 	$_GET['pid'] = intval($_GET['pid']);
           		echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
           	 }
+          	 elseif(isset($content['parent']) && $content['parent']=='0')
+          	 {
+          		echo "document.location.href='index.php?a=120';";
+          	 }
           	 else
           	 {
           		echo "document.location.href='index.php?a=2';";
