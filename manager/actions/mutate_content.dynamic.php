@@ -1412,17 +1412,17 @@ function ab_cancel()
 	$ph['label'] = $_lang['cancel'];
 	if(isset($content['parent']) && $content['parent']!=='0')
 	{
-		if($content['isfolder']=='0') $href = "a=3&id={$content['parent']}&tab=0";
-		else                          $href = "a=3&id={$id}&tab=0";
+		if($content['isfolder']=='0') $href = "a=120&id={$content['parent']}";
+		else                          $href = "a=120&id={$id}";
 	}
 	elseif($content['isfolder']=='1' && $content['parent']=='0')
 	{
-		$href = "a=3&id={$id}&tab=0";
+		$href = "a=120&id={$id}";
 	}
 	elseif($_GET['pid'])
 	{
 		$_GET['pid'] = intval($_GET['pid']);
-		$href = "a=3&id={$_GET['pid']}&tab=0";
+		$href = "a=120&id={$_GET['pid']}";
 	}
 	else $href = "a=2";
 	$ph['onclick'] = "document.location.href='index.php?{$href}';";

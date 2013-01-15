@@ -14,73 +14,76 @@ if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
 $in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
-// Get the document content
-$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
-$where = "sc.id ='{$id}' AND ({$access})";
-$rs = $modx->db->select('DISTINCT sc.*',$from,$where);
-$content = $modx->db->getRow($rs);
-$total = $modx->db->getRecordCount($rs);
-if ($total > 1)
+if($id!=0)
 {
-	echo "<p>Internal System Error...</p>",
-	     "<p>More results returned than expected. </p>",
-	     "<p><strong>Aborting...</strong></p>";
-	exit;
-}
-elseif ($total == 0)
-{
-	$e->setError(3);
-	$e->dumpError();
-}
-
-/**
- * "General" tab setup
- */
-// Get Creator's username
-$rs = $modx->db->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
-if ($row = $modx->db->getRow($rs))
-	$createdbyname = $row['username'];
-
-// Get Editor's username
-$rs = $modx->db->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
-if ($row = $modx->db->getRow($rs))
-	$editedbyname = $row['username'];
-
-// Get Template name
-$rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
-if ($row = $modx->db->getRow($rs))
-	$templatename = $row['templatename'];
-
-// Set the item name for logging
-$_SESSION['itemname'] = $content['pagetitle'];
-
-foreach($content as $k=>$v)
-{
-	$content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
-}
-
-$keywords = array();
-$metatags_selected = array();
-if ($modx->config['show_meta'])
-{
-	// Get list of current keywords for this document
-	$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
-	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
-	$orderby = 'k.keyword ASC';
-	$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
-	while($row = $modx->db->getRow($rs))
+	// Get the document content
+	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
+	$where = "sc.id ='{$id}' AND ({$access})";
+	$rs = $modx->db->select('DISTINCT sc.*',$from,$where);
+	$content = $modx->db->getRow($rs);
+	$total = $modx->db->getRecordCount($rs);
+	if ($total > 1)
 	{
-		$keywords[$i] = $row['keyword'];
+		echo "<p>Internal System Error...</p>",
+		     "<p>More results returned than expected. </p>",
+		     "<p><strong>Aborting...</strong></p>";
+		exit;
+	}
+	elseif ($total == 0)
+	{
+		$e->setError(3);
+		$e->dumpError();
 	}
 	
-	// Get list of selected site META tags for this document
-	$field = 'meta.id, meta.name, meta.tagvalue';
-	$from = "[+prefix+]site_metatags AS meta LEFT JOIN [+prefix+]site_content_metatags AS sc ON sc.metatag_id = meta.id";
-	$where = "sc.content_id='{$content['id']}'";
-	$rs = $modx->db->select($field,$from,$where);
-	while($row = $modx->db->getRow($rs))
+	/**
+	 * "General" tab setup
+	 */
+	// Get Creator's username
+	$rs = $modx->db->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
+	if ($row = $modx->db->getRow($rs))
+		$createdbyname = $row['username'];
+	
+	// Get Editor's username
+	$rs = $modx->db->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
+	if ($row = $modx->db->getRow($rs))
+		$editedbyname = $row['username'];
+	
+	// Get Template name
+	$rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
+	if ($row = $modx->db->getRow($rs))
+		$templatename = $row['templatename'];
+	
+	// Set the item name for logging
+	$_SESSION['itemname'] = $content['pagetitle'];
+	
+	foreach($content as $k=>$v)
 	{
-		$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
+		$content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
+	}
+	
+	$keywords = array();
+	$metatags_selected = array();
+	if ($modx->config['show_meta'])
+	{
+		// Get list of current keywords for this document
+		$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
+		$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
+		$orderby = 'k.keyword ASC';
+		$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
+		while($row = $modx->db->getRow($rs))
+		{
+			$keywords[$i] = $row['keyword'];
+		}
+		
+		// Get list of selected site META tags for this document
+		$field = 'meta.id, meta.name, meta.tagvalue';
+		$from = "[+prefix+]site_metatags AS meta LEFT JOIN [+prefix+]site_content_metatags AS sc ON sc.metatag_id = meta.id";
+		$where = "sc.content_id='{$id}'";
+		$rs = $modx->db->select($field,$from,$where);
+		while($row = $modx->db->getRow($rs))
+		{
+			$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
+		}
 	}
 }
 
@@ -90,7 +93,7 @@ if ($modx->config['show_meta'])
 
 // Get child document count
 $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
-$where = "sc.parent='{$content['id']}' AND ({$access})";
+$where = "sc.parent='{$id}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.id',$from,$where);
 $numRecords = $modx->db->getRecordCount($rs);
 
@@ -100,7 +103,7 @@ if ($numRecords > 0)
 {
 	// Get child documents (with paging)
 	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
-	$where = "sc.parent='{$content['id']}' AND ({$access})";
+	$where = "sc.parent='{$id}' AND ({$access})";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
 	$offset = (is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
 	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
@@ -251,7 +254,7 @@ if ($numRecords > 0)
 		
 		$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
 		
-		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$content['id']}");
+		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$id}");
 		$children_output = $pageNavBlock . $modx->table->create($listDocs,$listTableHeader) . $pageNavBlock;
 		$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
@@ -282,7 +285,7 @@ else
 	}
 	</script>
 	<script type="text/javascript" src="media/script/tablesort.js"></script>
-	<h1><?php echo $_lang['doc_data_title']?></h1>
+	<h1><?php echo $_lang['view_child_resources_in_container']?></h1>
 	
 	<div id="actions">
 	  <ul class="actionButtons">
@@ -327,116 +330,40 @@ else
 	  </ul>
 	</div>
 
+<div class="section">
 <div class="sectionBody">
-
-<div class="tab-pane" id="childPane">
-	<script type="text/javascript">
-	docSettings = new WebFXTabPane( document.getElementById( "childPane" ), false );
-	</script>
-
+	<!-- View Children -->
+<?php if ($modx->hasPermission('new_document')) { ?>
+	
+			<ul class="actionButtons">
+				<li><a href="index.php?a=4&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
+				<li><a href="index.php?a=72&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
+			</ul>
+<?php }
+	if ($numRecords > 0)
+		echo '<p><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].'</p>'."\n";
+		echo <<< EOT
+<script type="text/javascript">
+	function selectAll() {
+		var f = document.forms['mutate'];
+		var c = f.elements['batch[]'];
+		for(i=0;i<c.length;i++){
+			c[i].checked=f.chkselall.checked;
+		}
+	}
+</script>
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
+<input type="hidden" name="a" value="51" />
+{$children_output}
+</form>
+EOT;
+?>
 <style type="text/css">
 h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 </style>
-	<!-- General -->
-	<div class="tab-page" id="tabdocInfo">
-		<h2 class="tab"><?php echo $_lang['information']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
-		<div class="sectionBody">
-		<h3><?php echo $_lang['page_data_general']?></h3>
-		<table>
-			<tr><td width="200">ID: </td>
-				<td><?php echo $content['id']?></td>
-			</tr>
-			<tr><td><?php echo $_lang['resource_title']?>: </td>
-				<td><?php echo $content['pagetitle']?></td>
-			</tr>
-			<tr><td><?php echo $_lang['long_title']?>: </td>
-				<td><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></td>
-			</tr>
-			<tr><td><?php echo $_lang['resource_description']?>: </td>
-				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<tr><td><?php echo $_lang['resource_summary']?>: </td>
-				<td><?php echo $content['introtext']!='' ? $content['introtext'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<tr><td><?php echo $_lang['type']?>: </td>
-				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td></tr>
-			<tr><td><?php echo $_lang['resource_alias']?>: </td>
-				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<?php if ($modx->config['show_meta']) {?>
-			<tr><td><?php echo $_lang['keywords']?>: </td>
-				<td><?php // Keywords
-				if(count($keywords) != 0)
-					echo join($keywords, ', ');
-				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
-				?></td></tr>
-			<tr><td><?php echo $_lang['metatags']?>: </td>
-				<td><?php // META Tags
-				if(count($metatags_selected) != 0)
-					echo join($metatags_selected, '<br />');
-				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
-				?></td></tr>
-			<?php } ?>
-			</table>
-			<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_changes']?></h3></td></tr>
-			<tr><td width="200"><?php echo $_lang['page_data_created']?>: </td>
-				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td></tr>
-<?php				if ($editedbyname != '') { ?>
-			<tr><td><?php echo $_lang['page_data_edited']?>: </td>
-				<td><?php echo $modx->toDateFormat($content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td></tr>
-<?php				} ?>
-		</table>
-		<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_status']?></h3></td></tr>
-			<tr><td width="200"><?php echo $_lang['page_data_status']?>: </td>
-				<td><?php echo $content['published']==0 ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publisheddoc">'.$_lang['page_data_published'].'</span>'?></td></tr>
-			<tr><td><?php echo $_lang['page_data_publishdate']?>: </td>
-				<td><?php echo $content['pub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['pub_date'])?></td></tr>
-			<tr><td><?php echo $_lang['page_data_unpublishdate']?>: </td>
-				<td><?php echo $content['unpub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['unpub_date'])?></td></tr>
-			<tr><td><?php echo $_lang['page_data_cacheable']?>: </td>
-				<td><?php echo $content['cacheable']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
-			<tr><td><?php echo $_lang['page_data_searchable']?>: </td>
-				<td><?php echo $content['searchable']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
-			<tr><td><?php echo $_lang['resource_opt_menu_index']?>: </td>
-				<td><?php echo $content['menuindex']?></td></tr>
-			<tr><td><?php echo $_lang['resource_opt_show_menu']?>: </td>
-				<td><?php echo $content['hidemenu']==1 ? $_lang['no'] : $_lang['yes']?></td></tr>
-			<tr><td><?php echo $_lang['page_data_web_access']?>: </td>
-				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
-			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
-				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
-		</table>
-		<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_markup']?></h3></td></tr>
-			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
-				<td><?php echo $templatename ?></td></tr>
-			<tr><td><?php echo $_lang['page_data_editor']?>: </td>
-				<td><?php echo $content['richtext']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
-			<tr><td><?php echo $_lang['page_data_folder']?>: </td>
-				<td><?php echo $content['isfolder']==0 ? $_lang['no'] : $_lang['yes']?></td></tr>
-		</table>
-		</div><!-- end sectionBody -->
-	</div><!-- end tab-page -->
 
-	<!-- Page Source -->
-	<div class="tab-page" id="tabSource">
-		<h2 class="tab"><?php echo $_lang['page_data_source']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabSource" ) );</script>
-		<?php
-		$cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-		$cache = @file_get_contents($cache_path);
-		if(!$cache) {
-			$cache = $_lang['page_data_notcached'];
-		} else {
-			$cache = htmlspecialchars($cache, ENT_QUOTES, $modx->config['modx_charset']);
-			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.$cache."</textarea>\n";
-		}
-		echo $cache;
-?>
-	</div><!-- end tab-page -->
-</div><!-- end documentPane -->
-</div><!-- end sectionBody -->
-
+</div>
+</div>
 
 <?php
 function get_jscript($id,$cm)
@@ -520,7 +447,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 				window.location.href='index.php?a=72&pid='+id;
 				break;
 			case 3:		// view
-				window.location.href='index.php?a=3&id='+id;
+				window.location.href='index.php?a=120&id='+id;
 				break;
 		}
 	}

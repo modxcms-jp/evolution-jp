@@ -35,7 +35,7 @@ $modx->clearCache($clearcache);
 $tbl_site_content = $modx->getFullTableName('site_content');
 $pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$newid}'"));
 if($pid==0) $header = "Location: index.php?r=1&a=3&id={$newid}";
-else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
+else        $header = "Location: index.php?r=1&a=120&id={$pid}";
 header($header);
 
 

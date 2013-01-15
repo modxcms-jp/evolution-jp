@@ -339,7 +339,7 @@ switch ($actionToTake)
 			{
 				if($parent!=='0')
 				{
-					$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+					$header = "Location: index.php?a=120&id={$parent}&r=1";
 				}
 				else
 				{
@@ -654,15 +654,15 @@ switch ($actionToTake)
 				}
 				elseif($isfolder==='1' && $parent!=='0')
 				{
-					$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+					$header = "Location: index.php?a=120&id={$parent}&r=1";
 				}
 				elseif($isfolder==='1' && $parent==='0')
 				{
-					$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
+					$header = "Location: index.php?a=120&id={$id}&r=1";
 				}
 				elseif($isfolder==='0' && $parent!=='0')
 				{
-					$header = "Location: index.php?a=3&id={$parent}&r=1&tab=0";
+					$header = "Location: index.php?a=120&id={$parent}&r=1";
 				}
 				else
 				{

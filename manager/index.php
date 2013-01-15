@@ -231,6 +231,11 @@ switch ($action) {
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
         break;
+    case 120: // get the mutate page for changing content
+        include_once "header.inc.php";
+        include_once "actions/resources_list.static.php";
+        include_once "footer.inc.php";
+        break;
     case 27: // get the mutate page for changing content
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";

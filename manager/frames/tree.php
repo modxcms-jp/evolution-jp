@@ -318,9 +318,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
-                parent.main.location.href="index.php?a=2";
+                parent.main.location.href="index.php?a=120";
             } else if(ca=="docinfo") {
-                parent.main.location.href="index.php?a=3&id=" + id + '&tab=0';
+                parent.main.location.href="index.php?a=120&id=" + id;
             } else if(ca=="open") {
                 parent.main.location.href="index.php?a=27&id=" + id;
             } else {
@@ -539,7 +539,10 @@ function menuHandler(action) {
             setActiveFromContextMenu(itemToChange);
             window.open(selectedObjectUrl,'previeWin'); //re-use 'new' window
             break
-
+        case 13 : // resources list
+            setActiveFromContextMenu(itemToChange);
+            top.main.document.location.href="index.php?a=120&id=" + itemToChange;
+            break
         default :
             alert('Unknown operation command.');
     }
@@ -552,6 +555,7 @@ function menuHandler(action) {
     <div id="nameHolder">&nbsp;</div>
 <?php
 constructLink(2, $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
+constructLink(13, $_style["icons_table"], $_lang["view_child_resources_in_container"], $modx->hasPermission('view_document')); // resources list
 constructLink(3, $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
 constructLink(5, $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
 constructLink(7, $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
