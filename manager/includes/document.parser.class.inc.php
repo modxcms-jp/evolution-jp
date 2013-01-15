@@ -2149,7 +2149,7 @@ class DocumentParser {
 		$evtid= intval($evtid);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
-		$msg= $this->db->escape($msg . "\n" . this->config['site_url']);
+		$msg= $this->db->escape($msg . "\n" . $this->config['site_url']);
 		$title= $this->db->escape($title);
 		if (function_exists('mb_substr'))
 		{
