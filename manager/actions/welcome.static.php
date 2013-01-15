@@ -30,6 +30,7 @@ $modx->setPlaceholder('home', $_lang["home"]);
 $modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 $modx->setPlaceholder('site_name',$site_name);
 $modx->setPlaceholder('welcome_title',$_lang['welcome_title']);
+$modx->setPlaceholder('site',$_lang['site']);
 
 // setup message info
 if($modx->hasPermission('messages')) {
