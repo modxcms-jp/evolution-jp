@@ -580,7 +580,7 @@ if($modx->hasPermission('new_document'))
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(1, $_style["icons_resource_overview"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
+constructLink(1, $_style["icons_information"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
 constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
 ?>
 </div>
