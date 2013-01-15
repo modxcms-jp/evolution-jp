@@ -240,8 +240,12 @@ class Wayfinder {
 		else
 		{
 			$usedTemplate = 'rowTpl';
-		}
-		
+	    /* tonatos */
+                if ($resource['last'] && $this->_templates['rowTplLast']){
+                    $usedTemplate = 'rowTplLast';
+                }
+	    /* end tonatos */
+        }
 		//Get the template
 		$useChunk = $this->_templates[$usedTemplate];
 		
