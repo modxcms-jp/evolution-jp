@@ -99,7 +99,7 @@ echo '<p>'.getenv('SERVER_SOFTWARE') .'</p>'. "\n" . "\n";
 echo '<table style="margin-bottom:20px;">';
 foreach($info as $key=>$value)
 {
-    echo '<tr><td style="padding-right:30px;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+    echo '<tr><td style="padding-right:30px;vertical-align:top;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
 }
 echo '</table>' . "\n";
 
