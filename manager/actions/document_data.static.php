@@ -345,34 +345,41 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		<table>
 			<tr><td width="200">ID: </td>
 				<td><?php echo $content['id']?></td>
+				<td>[*id*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_title']?>: </td>
 				<td><?php echo $content['pagetitle']?></td>
+				<td>[*pagetitle*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['long_title']?>: </td>
 				<td><?php echo $content['longtitle']!='' ? $content['longtitle'] : "(<i>".$_lang['not_set']."</i>)"?></td>
+				<td>[*longtitle*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_description']?>: </td>
 				<td><?php echo $content['description']!='' ? $content['description'] : "(<i>".$_lang['not_set']."</i>)"?></td>
+				<td>[*description*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_summary']?>: </td>
 				<td><?php echo $content['introtext']!='' ? $content['introtext'] : "(<i>".$_lang['not_set']."</i>)"?></td>
+				<td>[*introtext*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['type']?>: </td>
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td>
+				<td>[*type*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_alias']?>: </td>
 				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td>
+				<td>[*alias*]</td>
 			</tr>
 			<?php if ($modx->config['show_meta']) {?>
 			<tr><td><?php echo $_lang['keywords']?>: </td>
-				<td><?php // Keywords
+				<td colspan="2"><?php // Keywords
 				if(count($keywords) != 0)
 					echo join($keywords, ', ');
 				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
 				?></td></tr>
 			<tr><td><?php echo $_lang['metatags']?>: </td>
-				<td><?php // META Tags
+				<td colspan="2"><?php // META Tags
 				if(count($metatags_selected) != 0)
 					echo join($metatags_selected, '<br />');
 				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
@@ -380,47 +387,61 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 			<?php } ?>
 			<tr><td width="200"><?php echo $_lang['page_data_created']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td>
+				<td>[*createdon:date*]</td>
 			</tr>
 <?php				if ($editedbyname != '') { ?>
 			<tr><td><?php echo $_lang['page_data_edited']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td>
+				<td>[*editedon:date*]</td>
 			</tr>
 <?php				} ?>
 			<tr><td width="200"><?php echo $_lang['page_data_status']?>: </td>
 				<td><?php echo $content['published']==0 ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publisheddoc">'.$_lang['page_data_published'].'</span>'?></td>
+				<td>[*published*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_publishdate']?>: </td>
 				<td><?php echo $content['pub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['pub_date'])?></td>
+				<td>[*pub_date:date*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_unpublishdate']?>: </td>
 				<td><?php echo $content['unpub_date']==0 ? "(<i>".$_lang['not_set']."</i>)" : $modx->toDateFormat($content['unpub_date'])?></td>
+				<td>[*unpub_date:date*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_cacheable']?>: </td>
 				<td><?php echo $content['cacheable']==0 ? $_lang['no'] : $_lang['yes']?></td>
+				<td>[*cacheable*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_searchable']?>: </td>
 				<td><?php echo $content['searchable']==0 ? $_lang['no'] : $_lang['yes']?></td>
+				<td>[*searchable*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_opt_menu_index']?>: </td>
 				<td><?php echo $content['menuindex']?></td>
+				<td>[*menuindex*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_opt_show_menu']?>: </td>
 				<td><?php echo $content['hidemenu']==1 ? $_lang['no'] : $_lang['yes']?></td>
+				<td>[*hidemenu*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_web_access']?>: </td>
 				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td>
+				<td>[*privateweb*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
 				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td>
+				<td>[*privatemgr*]</td>
 			</tr>
 			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
 				<td><?php echo $templatename ?></td>
+				<td>[*template*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_editor']?>: </td>
 				<td><?php echo $content['richtext']==0 ? $_lang['no'] : $_lang['yes']?></td>
+				<td>[*richtext*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_folder']?>: </td>
 				<td><?php echo $content['isfolder']==0 ? $_lang['no'] : $_lang['yes']?></td>
+				<td>[*isfolder*]</td>
 			</tr>
 		</table>
 		</div><!-- end sectionBody -->
