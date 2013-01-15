@@ -134,26 +134,26 @@ class filter {
 				case 'strpos':
 				case '=~':
 				case 7 :
-					if (strpos($options[$this->array_key], $this->filterValue)===FALSE)
+					if (mb_strpos($options[$this->array_key], $this->filterValue)===FALSE)
 						$unset = 0;
 					break;
 				case '!~':
 				case 8 :
-					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
+					if (mb_strpos($options[$this->array_key], $this->filterValue)!==FALSE)
 						$unset = 0;
 					break;
 				
 				// Cases 9-11 created by highlander
 				case 9 : // case insenstive version of #7 - exclude records that do not contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))===FALSE)
+					if (mb_strpos(mb_strtolower($options[$this->array_key]), mb_strtolower($this->filterValue))===FALSE)
 						$unset = 0;
 					break;
 				case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))!==FALSE)
+					if (mb_strpos(mb_strtolower($options[$this->array_key]), mb_strtolower($this->filterValue))!==FALSE)
 						$unset = 0;
 					break;
 				case 11 : // checks leading character of the field
-					$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
+					$firstChr = mb_strtoupper(mb_substr($options[$this->array_key], 0, 1));
 					if ($firstChr!=$this->filterValue)
 						$unset = 0;
 					break;
