@@ -105,6 +105,7 @@ $wf->_templates = array(
 	'activeParentRowTpl' => isset($activeParentRowTpl) ? $activeParentRowTpl : '',
 	'categoryFoldersTpl' => isset($categoryFoldersTpl) ? $categoryFoldersTpl : '',
 	'startItemTpl' => isset($startItemTpl) ? $startItemTpl : '',
+	'rowTplLast' => isset($rowTplLast) ? $rowTplLast : '',
 );
 
 //Process Wayfinder
