@@ -114,9 +114,8 @@ p.caption, p.comment {
 	color: #888;
 }
 button {
-	color: #821517;
-	font-weight: bold;
 	width: 112px;
+	font:inherit;
 	margin: 0 5px 0 0;
 	cursor: pointer;
 }
