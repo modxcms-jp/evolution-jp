@@ -16,11 +16,6 @@ if (version_compare(phpversion(), "5.3") < 0) {
 header("Content-Type: text/html; charset=utf-8");
 
 $action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'language';
-if($action==='invite')
-{
-	invite();
-	exit;
-}
 
 // start session
 session_start();

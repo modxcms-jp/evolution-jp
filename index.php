@@ -116,7 +116,7 @@ if (!isset($database_type))
 	{
 		if(is_file("{$base_path}install/index.php"))
 		{
-			header('Location: install/index.php?action=invite');
+			header('Location: install/index.php?action=mode');
 		}
 		else echo 'Not installed.';
 		

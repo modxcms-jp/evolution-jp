@@ -427,37 +427,6 @@ function result($status='ok',$ph=array())
 	return parse($tpl,$ph);
 }
 
-function invite()
-{
-	global $_lang;
-	
-	$language = autoDetectLang();
-	includeLang($language);
-	
-	header('Content-Type: text/html; charset=UTF-8');
-	$tpl = <<< EOT
-<html><head><meta name="robots" content="noindex, nofollow">
-<style type="text/css">
-*{margin:0;padding:0}
-html {font-size:100.01%;}
-body{text-align:center;background:#eef0ee;font-size:92.5%;}
-.install{width:530px;padding:10px;border:1px solid #b3c3af;background:#f6ffe0;margin:50px auto;font-family:Helvetica,Arial,sans-serif;text-align:center;}
-p{ margin:20px 0; }
-a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;padding: 5px;}
-</style></head>
-<body>
-<div class="install">
-<p><img src="img/install_begin.png" /></p>
-[+begin_install_msg+]
-<p><a href="index.php?action=mode&install_language={$language}">[+yes+]</a> / <a href="http://modx.jp/">[+no+]</a></p>
-</div></body></html>
-EOT;
-	
-	echo parse($tpl,$_lang);
-	
-	exit;
-}
-
 function get_langs()
 {
 	$langs = array();

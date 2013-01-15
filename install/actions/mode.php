@@ -1,4 +1,6 @@
 <?php
+$install_language = autoDetectLang();
+setOption('install_language', $install_language);
 $installmode = get_installmode();
 setOption('installmode', $installmode);
 
@@ -10,6 +12,7 @@ $ph['installTitle']  = ($installmode==0) ? $_lang['installation_new_installation
 $ph['installNote']   = ($installmode==0) ? $_lang['installation_install_new_note'] : $_lang['installation_upgrade_existing_note'];
 $ph['btnback_value'] = $_lang['btnback_value'];
 $ph['btnnext_value'] = $_lang['btnnext_value'];
+$ph['lang_options']  = get_lang_options($install_language);
 
 echo  parse(getTpl(),$ph);
 
@@ -25,6 +28,9 @@ function getTpl()
 	<div class="installDetails">
 		<h3>[+installTitle+]</h3>
 		<p>[+installNote+]</p>
+		<select name="install_language" style="margin-top:20px;">
+		[+lang_options+]
+		</select>
 	</div>
 </div>
 <p class="buttonlinks">
