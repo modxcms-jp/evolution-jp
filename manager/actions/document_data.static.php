@@ -342,7 +342,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		<h2 class="tab"><?php echo $_lang['information']?></h2>
 		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
 		<div class="sectionBody">
-		<h3><?php echo $_lang['page_data_general']?></h3>
 		<table>
 			<tr><td width="200">ID: </td>
 				<td><?php echo $content['id']?></td>
@@ -375,18 +374,12 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
 				?></td></tr>
 			<?php } ?>
-			</table>
-			<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_changes']?></h3></td></tr>
 			<tr><td width="200"><?php echo $_lang['page_data_created']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td></tr>
 <?php				if ($editedbyname != '') { ?>
 			<tr><td><?php echo $_lang['page_data_edited']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['editedon']+$server_offset_time)?> (<b><?php echo $editedbyname?></b>)</td></tr>
 <?php				} ?>
-		</table>
-		<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_status']?></h3></td></tr>
 			<tr><td width="200"><?php echo $_lang['page_data_status']?>: </td>
 				<td><?php echo $content['published']==0 ? '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>' : '<span class="publisheddoc">'.$_lang['page_data_published'].'</span>'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_publishdate']?>: </td>
@@ -405,9 +398,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['privateweb']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
 				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td></tr>
-		</table>
-		<table>
-			<tr><td colspan="2"><h3><?php echo $_lang['page_data_markup']?></h3></td></tr>
 			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
 				<td><?php echo $templatename ?></td></tr>
 			<tr><td><?php echo $_lang['page_data_editor']?>: </td>
