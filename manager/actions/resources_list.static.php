@@ -189,7 +189,16 @@ if ($numRecords > 0)
 			if($children['isfolder'] == 0)
 			{
 				$link = "index.php?a=27&amp;id={$children['id']}";
-				$iconpath = $_style['tree_page_html'];
+				if($modx->config['site_start']==$children['id'])
+					$iconpath = $_style['tree_page_home'];
+				elseif($modx->config['error_page']==$children['id'])
+					$iconpath = $_style['tree_page_404'];
+				elseif($modx->config['site_unavailable_page']==$children['id'])
+					$iconpath = $_style['tree_page_hourglass'];
+				elseif($modx->config['unauthorized_page']==$children['id'])
+					$iconpath = $_style['tree_page_info'];
+				else
+					$iconpath = $_style['tree_page_html'];
 			}
 			else
 			{
