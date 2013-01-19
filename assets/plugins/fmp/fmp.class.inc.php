@@ -162,7 +162,7 @@ EOD;
 		switch($target)
 		{
 			case 'key':
-				$where = "CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) = '{$key}'";
+				$where = "MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) = '{$key}'";
 				break;
 			case 'email':
 				$where = "attr.email = '{$key}'";
@@ -173,7 +173,7 @@ EOD;
 		
 		if(!empty($key) && is_string($key))
 		{
-			$field = "usr.id, usr.username, attr.email, CONV(MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')),16,36) AS `key`";
+			$field = "usr.id, usr.username, attr.email, MD5(CONCAT(usr.username,usr.password,'{$site_id}','{$today}')) AS `key`";
 			$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
 			if($result = $modx->db->select($field,$from,$where,'',1))
 			{
