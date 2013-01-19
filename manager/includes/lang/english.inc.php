@@ -822,6 +822,7 @@ $_lang["save_all_changes"] = 'Save all changes';
 $_lang["save_tag"] = 'Save tag';
 $_lang["saving"] = 'Saving, please wait...';
 $_lang["search"] = 'Search';
+$_lang["search_resource"] = 'Search';
 $_lang["search_criteria"] = 'Search criteria';
 $_lang["search_criteria_content"] = 'Search by content';
 $_lang["search_criteria_content_msg"] = 'Find all Resources with the entered text in their content.';
