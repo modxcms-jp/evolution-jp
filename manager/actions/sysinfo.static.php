@@ -215,7 +215,6 @@ echo '</table>' . "\n";
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabDatebase" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div>
 <div class="sectionBody" id="lyr4">
-		<p><?php echo $_lang['table_hoverinfo']; ?></p>
 		<table class="grid">
 		 <thead>
 		 <tr>
