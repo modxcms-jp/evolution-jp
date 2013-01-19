@@ -258,7 +258,7 @@ function hideSpans(showSpan) {
 <span id='userspan' style="display:block;"> <?php echo $_lang['messages_select_user']; ?>:&nbsp;
     <?php
     // get all usernames
-    $rs = $modx->db->select('username,id', '[+prefix+]manager_users');
+    $rs = $modx->db->select('mu.username,mu.id', '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id', "mua.blocked='0'");
     ?>
     <select name="user" class="inputBox" style="width:150px">
     <?php
