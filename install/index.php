@@ -102,13 +102,15 @@ $errors= 0;
 // get post back status
 $isPostBack = (count($_POST));
 
-ob_start();
-include ("{$installer_path}header.php");
+$tpl = file_get_contents('template.tpl');
+$ph = ph();
 
+ob_start();
 if (!@include ("{$installer_path}actions/{$action}.php"))
 {
     die ('Invalid install action attempted. [action=' . $action . ']');
 }
+$ph['content'] = ob_get_contents();
+ob_end_clean();
 
-include ("{$installer_path}footer.php");
-ob_end_flush();
+echo parse($tpl,$ph);

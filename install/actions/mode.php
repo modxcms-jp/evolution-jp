@@ -10,7 +10,6 @@ $ph['welcome_title'] = ($installmode==0) ? $_lang['welcome_message_welcome']    
 $ph['welcome_text']  = ($installmode==0) ? $_lang['welcome_message_text']          : $_lang['welcome_message_upd_text'];
 $ph['installTitle']  = ($installmode==0) ? $_lang['installation_new_installation'] : $_lang['installation_upgrade_existing'];
 $ph['installNote']   = ($installmode==0) ? $_lang['installation_install_new_note'] : $_lang['installation_upgrade_existing_note'];
-$ph['btnback_value'] = $_lang['btnback_value'];
 $ph['btnnext_value'] = $_lang['btnnext_value'];
 $ph['lang_options']  = get_lang_options($install_language);
 
@@ -34,17 +33,12 @@ function getTpl()
 	</div>
 </div>
 <p class="buttonlinks">
-    <a href="javascript:void(0);" class="prev" title="[+btnback_value+]"><span>[+btnback_value+]</span></a>
     <a href="javascript:void(0);" class="next" title="[+btnnext_value+]"><span>[+btnnext_value+]</span></a>
 </p>
 </form>
 
 <script type="text/javascript">
 	var installmode = [+installmode+];
-	\$('a.prev').click(function(){
-		\$('form#install').attr({action:'index.php?action=language'});
-		\$('#install').submit();
-	});
 	\$('a.next').click(function(){
 		if(installmode==1) \$('form#install').attr({action:'index.php?action=options'});
 		\$('#install').submit();
