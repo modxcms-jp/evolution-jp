@@ -1424,6 +1424,10 @@ function ab_cancel()
 		$_GET['pid'] = intval($_GET['pid']);
 		$href = "a=120&id={$_GET['pid']}";
 	}
+	elseif($content['parent']=='0')
+	{
+		$href = 'a=120';
+	}
 	else $href = "a=2";
 	$ph['onclick'] = "document.location.href='index.php?{$href}';";
 	

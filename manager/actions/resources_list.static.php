@@ -298,28 +298,38 @@ else
 	
 	<div id="actions">
 	  <ul class="actionButtons">
-<?php if($modx->hasPermission('save_document')):?>
+<?php if($modx->hasPermission('save_document') && $id!=0):?>
 		  <li id="Button1">
 			<a href="#" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a>
 		  </li>
 <?php endif; ?>
-<?php if($modx->hasPermission('save_document')):?>
+<?php if($modx->hasPermission('save_document') && $id!=0):?>
 		  <li id="Button2">
 			<a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a>
 		  </li>
 <?php endif; ?>
-<?php if($modx->hasPermission('new_document')):?>
+<?php if($modx->hasPermission('new_document') && $id!=0):?>
 		  <li id="Button4">
 		    <a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a>
 		  </li>
 <?php endif; ?>
-<?php if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document')):?>
+<?php if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document') && $id!=0):?>
 		  <li id="Button3">
 		    <a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a>
 		  </li>
 <?php endif; ?>
 		  <li id="Button6">
-			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
+<?php
+	if($id==0)
+		$prev = "window.open('" . $modx->config['site_url'] . "','previeWin')";
+	elseif($modx->config['friendly_urls'] == '1')
+	{
+		$prev = "window.open('" . $modx->makeUrl($id) . "','previeWin')";
+	}
+	else
+		$prev = "window.open('../index.php?id=$id','previeWin')";
+?>
+			<a href="#" onclick="<?php echo $prev; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
 		  </li>
           <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
