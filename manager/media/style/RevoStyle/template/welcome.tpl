@@ -8,26 +8,36 @@
 		<!-- home tab -->
 		<div class="tab-page" id="tabhome" style="padding-left:0; padding-right:0;">
 [+OnManagerWelcomePrerender+]
-			<h2 class="tab">[+site+]</h2>
+			<h2 class="tab">[+welcome_title+]</h2>
 			<script type="text/javascript">tpPane.addTabPage( document.getElementById( "tabhome" ) );</script>
-			<div class="sectionHeader">[+welcome_title+]</div>
+			<div class="sectionHeader">[+site_name+]</div>
 			<div class="sectionBody">
-                <h3 style="margin:0;font-weight:normal;margin:7px;">[+site_name+]</h3>
-                <table border="0" cellpadding="5">
+                <table>
                   <tr>
-                    <td width="100" align="right">
+                    <td width="120" align="right" valign="top">
                         <img src='media/style/[+theme+]/images/misc/logo.png' alt='[+logo_slogan+]' />
-                        <br /><br />
                     </td>
                     <td valign="top">
                         [+OnManagerWelcomeHome+]
-                        [+NewDocIcon+]
+                    <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
                         [+ResourcesIcon+]
+                        [+NewDocIcon+]
+                        [+SearchIcon+]
+                        [+MessageIcon+]
+                    </div>
+                    <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
+                        [+ElementsIcon+]
+                        [+FileManagerIcon+]
+                        [+UserManagerIcon+]
+                        [+WebUserManagerIcon+]
+                    </div>
+                    <div>
                         [+SettingsIcon+]
                         [+BackupIcon+]
-                        [+HelpIcon+]
+                        [+EventLogIcon+]
+                        [+SysInfoIcon+]
+                    </div>
                         <br style="clear:both" /><!--+Modules+--><br style="clear:both" />
-                        [+MessageInfo+]
                     </td>
                   </tr>
                 </table>

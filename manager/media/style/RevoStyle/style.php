@@ -111,11 +111,16 @@ $_style['icons_tooltip_over']       = $icon_path.'b02_trans.gif';
 
 // Large Icons
 $_style['icons_backup_large']       = $icon_path.'32x/backup.png';
-$_style['icons_mail_large']         = $icon_path.'32x/mail_generic.gif';
+$_style['icons_mail_large']         = $icon_path.'32x/mail.png';
 $_style['icons_modules_large']      = $icon_path.'32x/modules.gif';
 $_style['icons_resources_large']    = $icon_path.'32x/resources.png';
-$_style['icons_security_large']     = $icon_path.'32x/security.gif';
-$_style['icons_webusers_large']     = $icon_path.'32x/web_users.gif';
+$_style['icons_elements_large']     = $icon_path.'32x/elements.png';
+$_style['icons_security_large']     = $icon_path.'32x/users.png';
+$_style['icons_webusers_large']     = $icon_path.'32x/users.png';
+$_style['icons_sysinfo_large']      = $icon_path.'32x/info.png';
+$_style['icons_search_large']       = $icon_path.'32x/search.png';
+$_style['icons_log_large']          = $icon_path.'32x/log.png';
+$_style['icons_files_large']        = $icon_path.'32x/files.png';
 $_style['icons_help_large']         = $icon_path.'32x/help.png';
 
 // Miscellaneous

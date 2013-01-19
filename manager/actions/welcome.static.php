@@ -49,15 +49,21 @@ if($modx->hasPermission('messages')) {
     {
         $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
     }
-    $modx->setPlaceholder('MessageInfo',$msg);
+	$modx->setPlaceholder('MessageInfo',$msg);
+	$src = get_icon($_lang['inbox'], 10, $_style['icons_mail_large'], $_lang['inbox']);
+	$modx->setPlaceholder('MessageIcon',$src);
 }
 
 // setup icons
-if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) {
+if($modx->hasPermission('view_document')) {
+	$src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'], $_lang['view_child_resources_in_container']);
+	$modx->setPlaceholder('ResourcesIcon',$src);
+}
+if($modx->hasPermission('edit_user')) {
 	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
 	$modx->setPlaceholder('SecurityIcon',$src);
 }
-if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) {
+if($modx->hasPermission('edit_web_user')) {
 	$src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
 	$modx->setPlaceholder('WebUserIcon',$src);
 }
@@ -66,8 +72,8 @@ if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
 	$modx->setPlaceholder('ModulesIcon',$src);
 }
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
-	$src = get_icon($_lang['elements'], 76, $_style['icons_resources_large'], $_lang['element_management']);
-	$modx->setPlaceholder('ResourcesIcon',$src);
+	$src = get_icon($_lang['element_management'], 76, $_style['icons_elements_large'], $_lang['element_management']);
+	$modx->setPlaceholder('ElementsIcon',$src);
 }
 if($modx->hasPermission('bk_manager')) {
 	$src = get_icon($_lang['backup'], 93, $_style['icons_backup_large'], $_lang['bk_manager']);
@@ -77,6 +83,30 @@ if($modx->hasPermission('help')) {
 	$src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['bk_manager']);
 	$modx->setPlaceholder('HelpIcon',$src);
 }
+
+
+if($modx->hasPermission('file_manager')) {
+	$src = get_icon($_lang['manage_files'], 31, $_style['icons_files_large'], $_lang['manage_files']);
+	$modx->setPlaceholder('FileManagerIcon',$src);
+}
+if($modx->hasPermission('new_user')||$modx->hasPermission('edit_user')) {
+	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
+	$modx->setPlaceholder('UserManagerIcon',$src);
+}
+if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) {
+	$src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
+	$modx->setPlaceholder('WebUserManagerIcon',$src);
+}
+if($modx->hasPermission('view_eventlog')) {
+	$src = get_icon($_lang['eventlog'], 114, $_style['icons_log_large'], $_lang['manage_modules']);
+	$modx->setPlaceholder('EventLogIcon',$src);
+}
+if($modx->hasPermission('logs')) {
+	$src = get_icon($_lang['view_sysinfo'], 53, $_style['icons_sysinfo_large'], $_lang['view_sysinfo']);
+	$modx->setPlaceholder('SysInfoIcon',$src);
+}
+$src = get_icon($_lang['search_resource'], 71, $_style['icons_search_large'], $_lang['search_resource']);
+$modx->setPlaceholder('SearchIcon',$src);
 
 // setup modules
 if($modx->hasPermission('exec_module')) {

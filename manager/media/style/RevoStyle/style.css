@@ -493,10 +493,9 @@ ime-mode:disabled;
 }
 .sectionBody h3 {
 	font-size: 1.1em;
-	color: #2a3b50;
 	font-weight: bold;
 	padding-bottom: 0;
-	margin-bottom: 0;
+	margin-bottom: 10px;
 }
 .sectionHeader, .showHideVisible {
 	color: #606060;
@@ -1236,7 +1235,7 @@ a.hometblink, a.hometblink img {
 }
 .wm_button {
 	float: left;
-	margin: 0 5px 2px 12px;
+	margin: 0 12px 2px 0;
 	text-align: center;
 }
 	.rtl .wm_button {
