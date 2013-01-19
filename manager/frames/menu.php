@@ -250,7 +250,7 @@ if($modx->hasPermission('help')) { ?>
 $item['home']         = item($_lang['home'], 2);             // home
 $item['preview']      = item($_lang['preview'], '../', 1, 'target="_blank"'); // preview
 $item['refresh_site'] = item($_lang['refresh_site'], 26,$modx->hasPermission('empty_cache'));    // clear-cache
-$item['search']       = item($_lang['search'], 71);          // search
+$item['search']       = item($_lang['search_resource'], 71);          // search
 $item['add_resource'] = item($_lang['add_resource'], 4,$modx->hasPermission('new_document')); // new-document
 $item['add_weblink']  = item($_lang['add_weblink'], 72,$modx->hasPermission('new_document')); // new-weblink
 
