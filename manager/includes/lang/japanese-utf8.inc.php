@@ -1251,3 +1251,8 @@ $_lang["move_resource_cant_myself"] = '自分自身のサブリソースに移�
 
 $_lang["topmenu_items_title"] = '管理画面のメニュー構成';
 $_lang["topmenu_items_message"] = '管理画面のトップメニューの構成を設定します。権限が割り当てられていない操作はここで指定してもメニュー表示されません。';
+
+$_lang["open"] = '開く';
+
+$_lang["tree_pane_open_default_title"] = 'ツリーペインの初期状態';
+$_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルトで有効にするか閉じておくかを設定します。';

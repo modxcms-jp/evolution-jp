@@ -26,6 +26,7 @@ $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
+if(!isset($tree_pane_open_default)) $tree_pane_open_default = 1;
 ?>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
@@ -37,6 +38,9 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
+		
+		var treeopen = <?php echo $tree_pane_open_default;?>;
+		if(treeopen==0) top.mainMenu.hideTreeFrame();
 		
 		var cookiepath = '<?php echo MODX_BASE_URL; ?>';
 		var $j = jQuery.noConflict();

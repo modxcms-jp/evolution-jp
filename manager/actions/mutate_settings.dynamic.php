@@ -866,6 +866,15 @@ $tmenu_style = 'style="width:350px;"';
 </tr>
 
 <tr>
+<th><?php echo $_lang["tree_pane_open_default_title"] ?></th>
+<td>
+	<?php echo wrap_label($_lang["open"],form_radio('tree_pane_open_default','1',$tree_pane_open_default=='1'));?><br />
+	<?php echo wrap_label($_lang["close"],form_radio('tree_pane_open_default','0',$tree_pane_open_default=='0'));?><br />
+	<?php echo $_lang["tree_pane_open_default_message"]?>
+</td>
+</tr>
+
+<tr>
 <th><?php echo $_lang["tree_page_click"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["edit_resource"],form_radio('tree_page_click','27',$tree_page_click=='27'));?><br />

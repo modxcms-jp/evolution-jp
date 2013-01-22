@@ -1249,3 +1249,8 @@ $_lang["move_resource_cant_myself"] = 'You cannot move a resource to a child res
 
 $_lang["topmenu_items_title"] = 'Top menu structure';
 $_lang["topmenu_items_message"] = 'Top menu structure in the manager interface';
+
+$_lang["open"] = 'Open';
+
+$_lang["tree_pane_open_default_title"] = 'Tree pane default';
+$_lang["tree_pane_open_default_message"] = 'Tree pane default';
