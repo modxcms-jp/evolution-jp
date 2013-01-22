@@ -10,6 +10,14 @@ if(isset($_POST['cmsadminemail'])&&!empty($_POST['cmsadminemail']))
 if(isset($_POST['cmspassword']))        setOption('cmspassword',$_POST['cmspassword']);
 if(isset($_POST['cmspasswordconfirm'])) setOption('cmspasswordconfirm',$_POST['cmspasswordconfirm']);
 
+$templates = getOption('template');
+$tvs       = getOption('tv');
+$chunks    = getOption('chunk');
+$modules   = getOption('module');
+$plugins   = getOption('plugin');
+$snippets  = getOption('snippet');
+setOption('chkagree',$_POST['chkagree']);
+
 ?>
 
 <form name="install" id="install_form" action="index.php?action=summary" method="POST">
@@ -25,7 +33,7 @@ if($installmode === '0')
     echo '<p>' . $_lang['optional_items_new_note'] . "</p>";
 }
 
-$chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : "";
+$chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : '';
 if($installmode == 0)
 {
 	echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
@@ -34,16 +42,15 @@ if($installmode == 0)
 }
 echo '<hr />';
 
-$options_selected = isset ($_POST['options_selected']);
+$options_selected = getOption('options_selected');
 
 // display templates
-$templates = isset ($_POST['template']) ? $_POST['template'] : array ();
 $limit = count($moduleTemplates);
 if ($limit > 0) {
     $tplOutput = '';
     for ($i = 0; $i < $limit; $i++) {
         $class = (is_array($moduleTemplates[$i][6]) && !in_array('sample', $moduleTemplates[$i][6])) ? 'toggle' : 'toggle demo';
-        $chk = in_array($i, $templates) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($templates) && in_array($i, $templates)) || (!$options_selected) ? 'checked="checked"' : "";
         $tplOutput .= "\n<label><input type=\"checkbox\" name=\"template[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTemplates[$i][0] . "</span> - " . $moduleTemplates[$i][1] . "</label><hr />\n";
     }
     if($tplOutput !== '') {
@@ -53,13 +60,12 @@ if ($limit > 0) {
 }
 
 // display template variables
-$tvs = isset ($_POST['tv']) ? $_POST['tv'] : array ();
 $limit = count($moduleTVs);
 if ($limit > 0) {
     $tvOutput = '';
     for ($i = 0; $i < $limit; $i++) {
         $class = (is_array($moduleTVs[$i][12]) && !in_array('sample', $moduleTVs[$i][12])) ? "toggle" : "toggle demo";
-        $chk = in_array($i, $tvs) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($tvs) && in_array($i, $tvs)) || (!$options_selected) ? 'checked="checked"' : "";
         $tvOutput .= "\n<label><input type=\"checkbox\" name=\"tv[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleTVs[$i][0] . "</span> - " . $moduleTVs[$i][2] . "</label><hr />\n";
     }
     if($tvOutput != '') {
@@ -69,13 +75,12 @@ if ($limit > 0) {
 }
 
 // display chunks
-$chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : array ();
 $limit = count($moduleChunks);
 if ($limit > 0) {
     $chunkOutput = '';
     for ($i = 0; $i < $limit; $i++) {
         $class = (is_array($moduleChunks[$i][5]) && !in_array('sample', $moduleChunks[$i][5])) ? "toggle" : "toggle demo";
-        $chk = in_array($i, $chunks) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($chunks) && in_array($i, $chunks)) || (!$options_selected) ? 'checked="checked"' : "";
         $chunkOutput .= "\n<label><input type=\"checkbox\" name=\"chunk[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleChunks[$i][0] . "</span> - " . $moduleChunks[$i][1] . "</label><hr />\n";
     }
     if($chunkOutput != '') {
@@ -85,13 +90,12 @@ if ($limit > 0) {
 }
 
 // display modules
-$modules = isset ($_POST['module']) ? $_POST['module'] : array ();
 $limit = count($moduleModules);
 if ($limit > 0) {
     $moduleOutput = '';
     for ($i = 0; $i < $limit; $i++) {
         $class = (is_array($moduleModules[$i][7]) && !in_array('sample', $moduleModules[$i][7])) ? "toggle" : "toggle demo";
-        $chk = in_array($i, $modules) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($modules) && in_array($i, $modules)) || (!$options_selected) ? 'checked="checked"' : "";
         $moduleOutput .= "\n<label><input type=\"checkbox\" name=\"module[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleModules[$i][0] . "</span> - " . $moduleModules[$i][1] . "</label><hr />\n";
     }
     if($moduleOutput != '') {
@@ -101,7 +105,6 @@ if ($limit > 0) {
 }
 
 // display plugins
-$plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : array ();
 $limit = count($modulePlugins);
 if ($limit > 0) {
     $pluginOutput = '';
@@ -111,7 +114,7 @@ if ($limit > 0) {
         $class = (is_array($modulePlugins[$i][8]) && !in_array('sample', $modulePlugins[$i][8])) ? "toggle" : "toggle demo";
         }
         else $class = 'toggle';
-        $chk = in_array($i, $plugins) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($plugins) && in_array($i, $plugins)) || (!$options_selected) ? 'checked="checked"' : "";
         $pluginOutput .= "\n<label><input type=\"checkbox\" name=\"plugin[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $modulePlugins[$i][0] . "</span> - " . $modulePlugins[$i][1] . "</label><hr />\n";
     }
     if($pluginOutput != '') {
@@ -121,7 +124,6 @@ if ($limit > 0) {
 }
 
 // display snippets
-$snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : array ();
 $limit = count($moduleSnippets);
 if ($limit > 0) {
     $snippetOutput = '';
@@ -131,7 +133,7 @@ if ($limit > 0) {
         $class = (is_array($moduleSnippets[$i][5]) && !in_array('sample', $moduleSnippets[$i][5])) ? "toggle" : "toggle demo";
         }
         else $class = 'toggle';
-        $chk = in_array($i, $snippets) || (!$options_selected) ? 'checked="checked"' : "";
+        $chk = (is_array($snippets) && in_array($i, $snippets)) || (!$options_selected) ? 'checked="checked"' : "";
         $snippetOutput .= "\n<label><input type=\"checkbox\" name=\"snippet[]\" value=\"$i\" class=\"{$class}\" $chk />\n" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleSnippets[$i][0] . "</span> - " . $moduleSnippets[$i][1] . "</label><hr />\n";
     }
     if($snippetOutput != '') {

@@ -1,12 +1,10 @@
 <?php
-function setOption($fieldName,$value='')
-{
+function setOption($fieldName,$value='') {
 	$_SESSION[$fieldName] = $value;
 	return $value;
 }
 
-function getOption($fieldName)
-{
+function getOption($fieldName) {
 	if(isset($_POST[$fieldName]) &&    $_POST[$fieldName]!=='')        $rs = $_POST[$fieldName];
 	elseif(isset($_SESSION[$fieldName]) && $_SESSION[$fieldName]!=='') $rs = $_SESSION[$fieldName];
 	elseif(isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName]!=='')  $rs = $GLOBALS[$fieldName];
@@ -17,8 +15,7 @@ function getOption($fieldName)
 	return $rs;
 }
 
-function autoDetectLang()
-{
+function autoDetectLang() {
 	if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) || empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 		return 'english';
 	$lc = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
@@ -31,27 +28,22 @@ function autoDetectLang()
 	return $lang;
 }
 
-function includeLang($language, $dir='langs/')
-{
+function includeLang($language, $dir='langs/') {
 	global $_lang;
 	
 	# load language file
 	$_lang = array ();
-	if(is_file("{$dir}{$language}.inc.php"))
-	{
+	if(is_file("{$dir}{$language}.inc.php")) {
 		 require_once("{$dir}{$language}.inc.php");
 	}
 	else require_once("{$dir}english.inc.php");
 }
 
-function modx_escape($s)
-{
-	if (function_exists('mysql_set_charset'))
-	{
+function modx_escape($s) {
+	if (function_exists('mysql_set_charset')) {
 		$s = mysql_real_escape_string($s);
 	}
-	else
-	{
+	else {
 		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
 		$s = mysql_real_escape_string($s);
 		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
@@ -59,20 +51,17 @@ function modx_escape($s)
 	return $s;
 }
 
-function compare_check($params)
-{
+function compare_check($params) {
 	global $table_prefix;
 	
 	$name_field  = 'name';
 	$name        = $params['name'];
 	$mode        = 'version_compare';
-	if($params['version'])
-	{
+	if($params['version']) {
 		$new_version = $params['version'];
 	}
 	//print_r($params);
-	switch($params['category'])
-	{
+	switch($params['category']) {
 		case 'template':
 			$table = "{$table_prefix}site_templates";
 			$name_field = 'templatename';

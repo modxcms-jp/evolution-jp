@@ -19,9 +19,15 @@ $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 require_once("{$base_path}manager/includes/default.config.php");
 require_once('functions.php');
 
-echo "<p>{$_lang['setup_database']}</p>\n";
+$installdata  = getOption('installdata');
+$templates    = getOption('template');
+$tvs          = getOption('tv');
+$chunks       = getOption('chunk');
+$snippets     = getOption('snippet');
+$plugins      = getOption('plugin');
+$modules      = getOption('module');
 
-$installData = $_POST['installdata'] == "1" ? 1 : 0;
+echo "<p>{$_lang['setup_database']}</p>\n";
 
 // get base path and url
 define('MODX_API_MODE', true);
@@ -147,14 +153,14 @@ else
 }
 
 // Install Templates
-if (isset ($_POST['template']) || $installData)
+if ($templates!==false || $installData==1)
 {
 	echo "<h3>" . $_lang['templates'] . ":</h3> ";
-	$selTemplates = $_POST['template'];
+	
 	foreach ($moduleTemplates as $k=>$moduleTemplate)
 	{
 		$installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
-		if(in_array($k, $selTemplates) || $installSample)
+		if($installSample || in_array($k, $templates))
 		{
 			$name = modx_escape($moduleTemplate[0]);
 			$desc = modx_escape($moduleTemplate[1]);
@@ -171,15 +177,15 @@ if (isset ($_POST['template']) || $installData)
 				$category_id = getCreateDbCategory($category, $sqlParser);
 				
 				// Strip the first comment up top
-				$template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-				$template = modx_escape($template);
+				$content = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+				$content = modx_escape($content);
 				
 				// See if the template already exists
 				$rs = mysql_query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'");
 				
 				if (mysql_num_rows($rs))
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$content', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -190,7 +196,7 @@ if (isset ($_POST['template']) || $installData)
 				else
 				{
 					$rs = mysql_query("SELECT * FROM {$tbl_site_templates}");
-					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$content',$category_id,'$locked');"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -204,14 +210,13 @@ if (isset ($_POST['template']) || $installData)
 }
 
 // Install Template Variables
-if (isset ($_POST['tv']) || $installData)
+if ($tvs!==false || $installData)
 {
 	echo "<h3>" . $_lang['tvs'] . ":</h3> ";
-	$selTVs = $_POST['tv'];
 	foreach ($moduleTVs as $k=>$moduleTV)
 	{
 		$installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
-		if(in_array($k, $selTVs) || $installSample)
+		if($installSample || in_array($k, $tvs))
 		{
 			$name = modx_escape($moduleTV[0]);
 			$caption = modx_escape($moduleTV[1]);
@@ -267,8 +272,8 @@ if (isset ($_POST['tv']) || $installData)
 				// add tv -> template assignments
 				foreach ($assignments as $assignment)
 				{
-					$template = modx_escape($assignment);
-					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$template';");
+					$templatename = modx_escape($assignment);
+					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$templatename';");
 					if ($ds && $ts)
 					{
 						$tRow = mysql_fetch_assoc($ts);
@@ -282,14 +287,13 @@ if (isset ($_POST['tv']) || $installData)
 }
 
 // Install Chunks
-if (isset ($_POST['chunk']) || $installData)
+if ($chunks!==false || $installData)
 {
 	echo "<h3>" . $_lang['chunks'] . ":</h3> ";
-	$selChunks = $_POST['chunk'];
 	foreach ($moduleChunks as $k=>$moduleChunk)
 	{
 		$installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
-		if(in_array($k, $selChunks) || $installSample)
+		if(in_array($k, $chunks) || $installSample)
 		{
 			$name      = modx_escape($moduleChunk[0]);
 			$desc      = modx_escape($moduleChunk[1]);
@@ -306,8 +310,6 @@ if (isset ($_POST['chunk']) || $installData)
 				// Create the category if it does not already exist
 				$category_id = getCreateDbCategory($category, $sqlParser);
 				
-				$chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-				$chunk = modx_escape($chunk);
 				$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'");
 				$count_original_name = mysql_num_rows($rs);
 				if($overwrite == 'false')
@@ -317,9 +319,11 @@ if (isset ($_POST['chunk']) || $installData)
 					$count_new_name = mysql_num_rows($rs);
 				}
 				$update = $count_original_name > 0 && $overwrite == 'true';
+				$snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+				$snippet = modx_escape($snippet);
 				if ($update)
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$snippet', description='$desc', category=$category_id WHERE name='$name';"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -333,7 +337,7 @@ if (isset ($_POST['chunk']) || $installData)
 					{
 						$name = $newname;
 					}
-					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$snippet',$category_id);"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -347,14 +351,13 @@ if (isset ($_POST['chunk']) || $installData)
 }
 
 // Install Modules
-if (isset ($_POST['module']) || $installData)
+if ($modules!==false || $installData)
 {
 	echo "<h3>" . $_lang['modules'] . ":</h3> ";
-	$selModules = $_POST['module'];
 	foreach ($moduleModules as $k=>$moduleModule)
 	{
 		$installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
-		if(in_array($k, $selModules) || $installSample)
+		if(in_array($k, $modules) || $installSample)
 		{
 			$name = modx_escape($moduleModule[0]);
 			$desc = modx_escape($moduleModule[1]);
@@ -372,16 +375,16 @@ if (isset ($_POST['module']) || $installData)
 				// Create the category if it does not already exist
 				$category = getCreateDbCategory($category, $sqlParser);
 				
-				$module = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
+				$modulecode = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
 				// remove installer docblock
-				$module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
-				$module = modx_escape($module);
+				$modulecode = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $modulecode, 1);
+				$modulecode = modx_escape($modulecode);
 				$rs = mysql_query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'");
 				if (mysql_num_rows($rs))
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$module', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$modulecode', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -390,7 +393,7 @@ if (isset ($_POST['module']) || $installData)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$modulecode','$properties','$guid','$shared', $category);"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -403,14 +406,13 @@ if (isset ($_POST['module']) || $installData)
 }
 
 // Install Plugins
-if (isset ($_POST['plugin']) || $installData)
+if ($plugins!==false || $installData)
 {
 	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
-	$selPlugs = $_POST['plugin'];
 	foreach ($modulePlugins as $k=>$modulePlugin)
 	{
 		$installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
-		if(in_array($k, $selPlugs) || $installSample)
+		if(in_array($k, $plugins) || $installSample)
 		{
 			$name = modx_escape($modulePlugin[0]);
 			$desc = modx_escape($modulePlugin[1]);
@@ -420,20 +422,15 @@ if (isset ($_POST['plugin']) || $installData)
 			$guid = modx_escape($modulePlugin[5]);
 			$category = modx_escape($modulePlugin[6]);
 			$leg_names = '';
-			if(array_key_exists(7, $modulePlugin))
-			{
+			if(array_key_exists(7, $modulePlugin)) {
 				// parse comma-separated legacy names and prepare them for sql IN clause
 				$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
 			}
-			if(!is_file($filecontent))
-			{
+			if(!is_file($filecontent)) {
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-			}
-			else 
-			{
+			} else {
 				// disable legacy versions based on legacy_names provided
-				if(!empty($leg_names))
-				{
+				if(!empty($leg_names)) {
 					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ($leg_names);";
 					$rs = mysql_query($update_query);
 				}
@@ -441,61 +438,51 @@ if (isset ($_POST['plugin']) || $installData)
 				// Create the category if it does not already exist
 				$category = getCreateDbCategory($category, $sqlParser);
 				
-				$plugin = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent), 2));
+				$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent), 2));
 				// remove installer docblock
-				$plugin = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugin, 1);
-				$plugin = modx_escape($plugin);
+				$plugincode = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
+				$plugincode = modx_escape($plugincode);
 				$rs = mysql_query("SELECT * FROM {$tbl_site_plugins} WHERE name='$name' AND disabled='0'");
-				if(mysql_num_rows($rs))
-				{
+				if(mysql_num_rows($rs)) {
 					$insert = true;
-					while($row = mysql_fetch_assoc($rs))
-					{
+					while($row = mysql_fetch_assoc($rs)) {
 						$props = propUpdate($properties,$row['properties']);
-						if($row['description'] == $desc)
-						{
-							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};"))
-							{
+						if($row['description'] == $desc) {
+							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugincode', description='$desc', properties='$props' WHERE id={$row['id']};");
+							if(!$rs) {
 								echo '<p>' . mysql_error() . '</p>';
 								return;
 							}
 							$insert = false;
-						}
-						else
-						{
-							if(!@ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']};"))
-							{
+						} else {
+							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']};");
+							if(!$rs) {
 								echo '<p>'.mysql_error().'</p>';
 								return;
 							}
 						}
 					}
-					if($insert === true)
-					{
+					if($insert === true) {
 						if($props) $properties = $props;
-						if(!@mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);"))
-						{
+						$rs = @mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugincode','$properties','$guid','0',$category);");
+						if(!$rs) {
 							echo '<p>'.mysql_error().'</p>';
 							return;
 						}
 					}
 					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
-				}
-				else
-				{
-					if(!@ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);"))
-					{
+				} else {
+					$rs = @ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugincode','$properties','$guid',$category)";
+					if(!$rs)) {
 						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
 					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . '</span></p>';
 				}
 				// add system events
-				if(count($events) > 0)
-				{
-				$ds=mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc';");
-					if($ds)
-					{
+				if(count($events) > 0) {
+				$ds = mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc';");
+					if($ds) {
 						$row = mysql_fetch_assoc($ds);
 						$id = $row["id"];
 						// remove existing events
@@ -510,14 +497,13 @@ if (isset ($_POST['plugin']) || $installData)
 }
 
 // Install Snippets
-if (isset ($_POST['snippet']) || $installData)
+if ($snippets!==false || $installData)
 {
 	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
-	$selSnips = $_POST['snippet'];
 	foreach ($moduleSnippets as $k=>$moduleSnippet)
 	{
 		$installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
-		if(in_array($k, $selSnips) || $installSample)
+		if(in_array($k, $snippets) || $installSample)
 		{
 			$name = modx_escape($moduleSnippet[0]);
 			$desc = modx_escape($moduleSnippet[1]);
