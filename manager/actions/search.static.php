@@ -98,6 +98,7 @@ if(isset($_REQUEST['submitok'])) {
     $rs = $modx->db->select($fields,$tbl_site_content,$where,'id');
     $limit = $modx->db->getRecordCount($rs);
 ?>
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['search_results']; ?></div><div class="sectionBody">
 <?php
 if($limit<1) {
@@ -179,6 +180,7 @@ while ($row = $modx->db->getRow($rs)) {
 <?php
 }
 ?>
+</div>
 </div>
 <?php
 }
