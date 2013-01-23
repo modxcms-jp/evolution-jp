@@ -373,20 +373,22 @@ var ddMultiple = {
 	}
 };
 //If we have imageTVs on this page, modify the SetUrl function so it triggers a "change" event on the URL field
-if (typeof(SetUrl) != "undefined") {
-	var OldSetUrl = SetUrl; // Copy the existing Image browser SetUrl function						
-	SetUrl = function(url, width, height, alt){	// Redefine it to also tell the preview to update
-		if(lastFileCtrl) {
-			var c = $j(document.mutate[lastFileCtrl]);
-		} else if(lastImageCtrl) {
-			var c = $j(document.mutate[lastImageCtrl]);
-		}
-		OldSetUrl(url, width, height, alt);
-		c.trigger("change");
-	};
+$j(function(){
+	if (typeof(SetUrl) != "undefined") {
+		var OldSetUrl = SetUrl; // Copy the existing Image browser SetUrl function
+		SetUrl = function(url, width, height, alt){	// Redefine it to also tell the preview to update
+			if(lastFileCtrl) {
+				var c = $j(document.mutate[lastFileCtrl]);
+			} else if(lastImageCtrl) {
+				var c = $j(document.mutate[lastImageCtrl]);
+			}
+			OldSetUrl(url, width, height, alt);
+			c.trigger("change");
+		};
+	}
+});
 }
-}
-		';
+';
 
 		foreach ($tvsMas as $tv){
 			if ($tv['type'] == 'image'){
