@@ -472,8 +472,8 @@ if ($plugins!==false || $installData)
 					}
 					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				} else {
-					$rs = @ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugincode','$properties','$guid',$category)";
-					if(!$rs)) {
+					$rs = @ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugincode','$properties','$guid',$category");
+					if(!$rs) {
 						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
