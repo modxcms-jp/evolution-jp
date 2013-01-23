@@ -2481,6 +2481,7 @@ class DocumentParser {
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$sync->setReport($showReport);
 			$sync->setTarget($target);
+			if(isset($params['cacheRefreshTime'])) $sync->cacheRefreshTime = $params['cacheRefreshTime'];
 			$sync->emptyCache(); // first empty the cache
 			return true;
 		}
