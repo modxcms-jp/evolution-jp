@@ -185,7 +185,7 @@ if ($templates!==false || $installData==1)
 				
 				if (mysql_num_rows($rs))
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$content', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$content', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name'"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -196,7 +196,7 @@ if ($templates!==false || $installData==1)
 				else
 				{
 					$rs = mysql_query("SELECT * FROM {$tbl_site_templates}");
-					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$content',$category_id,'$locked');"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$content',$category_id,'$locked')"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -240,7 +240,7 @@ if ($tvs!==false || $installData)
 				$insert = true;
 				while($row = mysql_fetch_assoc($rs))
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};")) {
+					if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']}")) {
 						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
@@ -250,7 +250,7 @@ if ($tvs!==false || $installData)
 			}
 			else
 			{
-				$q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
+				$q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default')";
 				if (!@ mysql_query($q))
 				{
 					echo '<p>' . mysql_error() . '</p>';
@@ -264,7 +264,7 @@ if ($tvs!==false || $installData)
 			if (count($assignments) > 0)
 			{
 				// remove existing tv -> template assignments
-				$ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc';");
+				$ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc'");
 				$row = mysql_fetch_assoc($ds);
 				$id = $row["id"];
 				mysql_query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
@@ -273,7 +273,7 @@ if ($tvs!==false || $installData)
 				foreach ($assignments as $assignment)
 				{
 					$templatename = modx_escape($assignment);
-					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$templatename';");
+					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$templatename'");
 					if ($ds && $ts)
 					{
 						$tRow = mysql_fetch_assoc($ts);
@@ -323,7 +323,7 @@ if ($chunks!==false || $installData)
 				$snippet = modx_escape($snippet);
 				if ($update)
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$snippet', description='$desc', category=$category_id WHERE name='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$snippet', description='$desc', category=$category_id WHERE name='$name'"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -337,7 +337,7 @@ if ($chunks!==false || $installData)
 					{
 						$name = $newname;
 					}
-					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$snippet',$category_id);"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$snippet',$category_id)"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -384,7 +384,7 @@ if ($modules!==false || $installData)
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$modulecode', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$modulecode', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name'"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -393,7 +393,7 @@ if ($modules!==false || $installData)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$modulecode','$properties','$guid','$shared', $category);"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$modulecode','$properties','$guid','$shared', $category)"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -431,7 +431,7 @@ if ($plugins!==false || $installData)
 			} else {
 				// disable legacy versions based on legacy_names provided
 				if(!empty($leg_names)) {
-					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ($leg_names);";
+					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ($leg_names)";
 					$rs = mysql_query($update_query);
 				}
 				
@@ -448,14 +448,14 @@ if ($plugins!==false || $installData)
 					while($row = mysql_fetch_assoc($rs)) {
 						$props = propUpdate($properties,$row['properties']);
 						if($row['description'] == $desc) {
-							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugincode', description='$desc', properties='$props' WHERE id={$row['id']};");
+							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugincode', description='$desc', properties='$props' WHERE id={$row['id']}");
 							if(!$rs) {
 								echo '<p>' . mysql_error() . '</p>';
 								return;
 							}
 							$insert = false;
 						} else {
-							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']};");
+							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']}");
 							if(!$rs) {
 								echo '<p>'.mysql_error().'</p>';
 								return;
@@ -464,7 +464,7 @@ if ($plugins!==false || $installData)
 					}
 					if($insert === true) {
 						if($props) $properties = $props;
-						$rs = @mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugincode','$properties','$guid','0',$category);");
+						$rs = @mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugincode','$properties','$guid','0',$category)");
 						if(!$rs) {
 							echo '<p>'.mysql_error().'</p>';
 							return;
@@ -481,7 +481,7 @@ if ($plugins!==false || $installData)
 				}
 				// add system events
 				if(count($events) > 0) {
-				$ds = mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc';");
+				$ds = mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc'");
 					if($ds) {
 						$row = mysql_fetch_assoc($ds);
 						$id = $row["id"];
@@ -528,7 +528,7 @@ if ($snippets!==false || $installData)
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name';"))
+					if (!@ mysql_query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name'"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -537,7 +537,7 @@ if ($snippets!==false || $installData)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);"))
+					if (!@ mysql_query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category)"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
