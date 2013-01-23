@@ -34,10 +34,10 @@ $_lang["cant_write_config_file"] = '設定ファイルを生成できません�
 $_lang["cant_write_config_file_note"] = '実行後は、サイト名/manager/ にアクセスすることで管理画面にログインできます。';
 $_lang["checkbox_select_options"] = '拡張機能の選択:';
 $_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span>ディレクトリの存在チェック(なければ転送に失敗しています): ';
-$_lang["checking_if_cache_file_writable"] = 'ファイル<span class="mono">/assets/cache/siteCache.idx.php</span>の書き込み属性: ';
-$_lang["checking_if_cache_file2_writable"] = 'ファイル<span class="mono">/assets/cache/sitePublishing.idx.php</span>の書き込み属性: ';
+$_lang["checking_if_cache_file_writable"] = '<span class="mono">/assets/cache/siteCache.idx.php</span>の書き込み属性: ';
+$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/sitePublishing.idx.php</span>の書き込み属性: ';
 $_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span>ディレクトリの書き込み属性: ';
-$_lang["checking_if_config_exist_and_writable"] = 'ファイル<span class="mono">/manager/includes/config.inc.php</span>の存在と書き込み属性: ';
+$_lang["checking_if_config_exist_and_writable"] = '<span class="mono">/manager/includes/config.inc.php</span>の存在と書き込み属性: ';
 $_lang["checking_if_export_exists"] = '<span class="mono">/temp/export</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>ディレクトリの書き込み属性: ';
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
