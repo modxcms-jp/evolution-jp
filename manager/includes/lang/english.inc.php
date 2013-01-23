@@ -6,7 +6,7 @@
  * Author:         The MODX Project Team
  * Date:           23 December 2010
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.6
+ * MODX version:   Evolution 1.0.8
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
