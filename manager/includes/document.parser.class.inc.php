@@ -1378,6 +1378,11 @@ class DocumentParser {
 		return $content;
 	}
 	
+	function mergePh($content)
+	{
+		return mergePlaceholderContent($content);
+	}
+	
 	// Added by Raymond
 	function mergePlaceholderContent($content)
 	{
@@ -1954,6 +1959,11 @@ class DocumentParser {
 			$documentObject= array_merge($documentObject, $tmplvars);
 		}
 		return $documentObject;
+	}
+	
+	function parseDoc($source)
+	{
+		return $this->parseDocumentSource($source);
 	}
 	
 	/**
@@ -3052,6 +3062,10 @@ class DocumentParser {
     }
 
     # sets a value for a placeholder
+    function setPh($name, $value) {
+        $this->placeholders[$name]= $value;
+    }
+    
     function setPlaceholder($name, $value) {
         $this->placeholders[$name]= $value;
     }
