@@ -349,6 +349,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
 />&nbsp;<span
 	p="[+parent+]"
+	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
@@ -383,6 +384,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
+	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
@@ -418,6 +420,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
+	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
