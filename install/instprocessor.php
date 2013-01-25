@@ -555,7 +555,7 @@ if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 }
 
 // install data
-if ($installdata)
+if ($installmode == 0 && $installdata)
 {
 	echo '<p>' . $_lang['installing_demo_site'];
 	$sqlParser->process('new_sample.sql');
