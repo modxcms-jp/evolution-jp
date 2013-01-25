@@ -424,14 +424,14 @@ if ($plugins!==false || $installData)
 			$leg_names = '';
 			if(array_key_exists(7, $modulePlugin)) {
 				// parse comma-separated legacy names and prepare them for sql IN clause
-				$leg_names = "'" . implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7]))) . "'";
+				$leg_names = implode("','", preg_split('/\s*,\s*/', modx_escape($modulePlugin[7])));
 			}
 			if(!is_file($filecontent)) {
 				echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_plugin'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
 			} else {
 				// disable legacy versions based on legacy_names provided
 				if(!empty($leg_names)) {
-					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ($leg_names)";
+					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ('{$leg_names}')";
 					$rs = mysql_query($update_query);
 				}
 				
