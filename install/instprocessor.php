@@ -153,13 +153,13 @@ else
 }
 
 // Install Templates
-if ($templates!==false || $installData==1)
+if ($templates!==false || $installdata==1)
 {
 	echo "<h3>" . $_lang['templates'] . ":</h3> ";
 	
 	foreach ($moduleTemplates as $k=>$moduleTemplate)
 	{
-		$installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
+		$installSample = in_array('sample', $moduleTemplate[6]) && $installdata == 1;
 		if($installSample || in_array($k, $templates))
 		{
 			$name = modx_escape($moduleTemplate[0]);
@@ -210,12 +210,12 @@ if ($templates!==false || $installData==1)
 }
 
 // Install Template Variables
-if ($tvs!==false || $installData)
+if ($tvs!==false || $installdata)
 {
 	echo "<h3>" . $_lang['tvs'] . ":</h3> ";
 	foreach ($moduleTVs as $k=>$moduleTV)
 	{
-		$installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
+		$installSample = in_array('sample', $moduleTV[12]) && $installdata == 1;
 		if($installSample || in_array($k, $tvs))
 		{
 			$name = modx_escape($moduleTV[0]);
@@ -287,12 +287,12 @@ if ($tvs!==false || $installData)
 }
 
 // Install Chunks
-if ($chunks!==false || $installData)
+if ($chunks!==false || $installdata)
 {
 	echo "<h3>" . $_lang['chunks'] . ":</h3> ";
 	foreach ($moduleChunks as $k=>$moduleChunk)
 	{
-		$installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
+		$installSample = in_array('sample', $moduleChunk[5]) && $installdata == 1;
 		if(in_array($k, $chunks) || $installSample)
 		{
 			$name      = modx_escape($moduleChunk[0]);
@@ -351,12 +351,12 @@ if ($chunks!==false || $installData)
 }
 
 // Install Modules
-if ($modules!==false || $installData)
+if ($modules!==false || $installdata)
 {
 	echo "<h3>" . $_lang['modules'] . ":</h3> ";
 	foreach ($moduleModules as $k=>$moduleModule)
 	{
-		$installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
+		$installSample = in_array('sample', $moduleModule[7]) && $installdata == 1;
 		if(in_array($k, $modules) || $installSample)
 		{
 			$name = modx_escape($moduleModule[0]);
@@ -406,12 +406,12 @@ if ($modules!==false || $installData)
 }
 
 // Install Plugins
-if ($plugins!==false || $installData)
+if ($plugins!==false || $installdata)
 {
 	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
 	foreach ($modulePlugins as $k=>$modulePlugin)
 	{
-		$installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
+		$installSample = in_array('sample', $modulePlugin[8]) && $installdata == 1;
 		if(in_array($k, $plugins) || $installSample)
 		{
 			$name = modx_escape($modulePlugin[0]);
@@ -497,12 +497,12 @@ if ($plugins!==false || $installData)
 }
 
 // Install Snippets
-if ($snippets!==false || $installData)
+if ($snippets!==false || $installdata)
 {
 	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
 	foreach ($moduleSnippets as $k=>$moduleSnippet)
 	{
-		$installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
+		$installSample = in_array('sample', $moduleSnippet[5]) && $installdata == 1;
 		if(in_array($k, $snippets) || $installSample)
 		{
 			$name = modx_escape($moduleSnippet[0]);
@@ -555,7 +555,7 @@ if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 }
 
 // install data
-if ($installData)
+if ($installdata)
 {
 	echo '<p>' . $_lang['installing_demo_site'];
 	$sqlParser->process('new_sample.sql');
