@@ -14,7 +14,7 @@ body {
 	font-size: 75%;
 	height: 100%;
 	color:#333333;
-	background: #f7f7f7;
+	background: #eee;
 }
 img, a img {
 	border: 0 !important;
@@ -626,7 +626,8 @@ a img {
 	background-color: #f5f5f5;
 }
 .treeframebody {
-	background-color: #f5f5f5;
+	background: #f5f5f5 url(images/misc/subnav.png) !important;
+	box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.1) inset;
 }
 
 #treeMenu * {
@@ -635,9 +636,7 @@ a img {
 #treeHolder {
 	cursor: default;
 	height: 100%;
-	padding: 15px 5px 0 5px;
-	border-top: 1px solid #fff;
-	background: #f5f5f5;
+	padding: 6px 8px 0;
 	line-height: 1.3em;
 }
 #treeHolder div {
