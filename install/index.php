@@ -3,6 +3,9 @@
  * MODx Installer
  */
 
+// set error reporting
+error_reporting(E_ALL & ~E_NOTICE);
+
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 $installer_path = "{$base_path}install/";
@@ -16,27 +19,6 @@ if (version_compare(phpversion(), "5.3") < 0) {
 header("Content-Type: text/html; charset=utf-8");
 
 $action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
-
-// start session
-session_start();
-$_SESSION['test'] = 1;
-
-$installmode        = getOption('installmode');
-$database_server    = getOption('database_server');
-$database_user      = getOption('database_user');
-$database_password  = getOption('database_password');
-$database_connection_charset = 'utf8';
-$database_collation          = 'utf8_general_ci';
-$database_connection_method  = 'SET CHARACTER SET';
-$dbase              = getOption('dbase');
-$table_prefix       = getOption('table_prefix');
-$adminname          = getOption('cmsadmin');
-$adminemail         = getOption('cmsadminemail');
-$adminpass          = getOption('cmspassword');
-$managerlanguage    = getOption('install_language');
-
-// set error reporting
-error_reporting(E_ALL & ~E_NOTICE);
 
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}manager/includes/version.inc.php");
@@ -54,8 +36,12 @@ $default_language = setOption('install_language',$default_language);
 
 includeLang($default_language);
 
+// start session
+session_start();
+$_SESSION['test'] = 1;
 // session loop-back tester
-if (!$_SESSION['test']) {
+if (!$_SESSION['test'])
+{
     $installBaseUrl = (!isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on') ? 'http://' : 'https://';
     $installBaseUrl .= $_SERVER['HTTP_HOST'];
     if ($_SERVER['SERVER_PORT'] != 80)
@@ -84,6 +70,20 @@ if (!$_SESSION['test']) {
 	exit;
 
 }
+
+$installmode        = getOption('installmode');
+$database_server    = getOption('database_server');
+$database_user      = getOption('database_user');
+$database_password  = getOption('database_password');
+$database_connection_charset = 'utf8';
+$database_collation          = 'utf8_general_ci';
+$database_connection_method  = 'SET CHARACTER SET';
+$dbase              = getOption('dbase');
+$table_prefix       = getOption('table_prefix');
+$adminname          = getOption('cmsadmin');
+$adminemail         = getOption('cmsadminemail');
+$adminpass          = getOption('cmspassword');
+$managerlanguage    = getOption('install_language');
 
 $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;
