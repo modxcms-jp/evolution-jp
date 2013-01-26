@@ -336,6 +336,8 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
+	onmousedown="return false;"
+	onselectstart="return false;"
 >[+spacer+][+pad+]<img
 	id="p[+id+]"
 	align="absmiddle"
@@ -365,7 +367,13 @@ EOT;
 	function get_src_fopen_node()
 	{
 		$src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;">[+spacer+]<img
+<div
+	id="node[+id+]"
+	p="[+parent+]"
+	style="white-space: nowrap;"
+	onmousedown="return false;"
+	onselectstart="return false;"
+>[+spacer+]<img
 	id="s[+id+]"
 	align="absmiddle"
 	style="cursor:pointer"
@@ -401,7 +409,13 @@ EOT;
 	function get_src_fclose_node()
 	{
 		$src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;">[+spacer+]<img
+<div
+	id="node[+id+]"
+	p="[+parent+]"
+	style="white-space: nowrap;"
+	onmousedown="return false;"
+	onselectstart="return false;"
+>[+spacer+]<img
 	id="s[+id+]"
 	align="absmiddle"
 	style="cursor: pointer"
