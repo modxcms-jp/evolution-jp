@@ -43,12 +43,6 @@ $_SESSION['test'] = 1;
 $rs = sessionCheck();
 if (!$rs)
 {
-    $installBaseUrl = (!isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on') ? 'http://' : 'https://';
-    $installBaseUrl .= $_SERVER['HTTP_HOST'];
-    if ($_SERVER['SERVER_PORT'] != 80)
-        $installBaseUrl = str_replace(':' . $_SERVER['SERVER_PORT'], '', $installBaseUrl); // remove port from HTTP_HOST
-    $installBaseUrl .= ($_SERVER['SERVER_PORT'] == 80 || isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) == 'on') ? '' : ':' . $_SERVER['SERVER_PORT'];
-	$retryURL = $installBaseUrl . $_SERVER['SCRIPT_NAME'] . "?action=language";
 	echo '
 <html>
 <head>
@@ -64,7 +58,7 @@ if (!$rs)
 <body>
 	<div class="install">
 		<p>' . $_lang["session_problem"] . '</p>
-		<p><a href="' . $retryURL . '">' .$_lang["session_problem_try_again"] . '</a></p>
+		<p><a href="./">' .$_lang["session_problem_try_again"] . '</a></p>
 	</div>
 </body>
 </html>';
