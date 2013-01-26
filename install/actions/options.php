@@ -20,7 +20,7 @@ setOption('chkagree',$_POST['chkagree']);
 
 ?>
 
-<form name="install" id="install_form" action="index.php?action=summary" method="POST">
+<form id="install" action="index.php?action=summary" method="POST">
 
 <?php
 # load setup information file
@@ -149,13 +149,14 @@ if($echo)
 	// toggle options
 	echo 
 '<h4>' . $_lang['checkbox_select_options'] . '</h4>
-<p class="actions"><a id="toggle_check_all" href="#">' . $_lang['all'] . '</a> <a id="toggle_check_none" href="#">' . $_lang['none'] . '</a> <a id="toggle_check_toggle" href="#">' . $_lang['toggle'] . '</a></p>
+<p class="actions"><a id="toggle_check_all" href="javascript:void(0);">' . $_lang['all'] . '</a> <a id="toggle_check_none" href="javascript:void(0);">' . $_lang['none'] . '</a> <a id="toggle_check_toggle" href="javascript:void(0);">' . $_lang['toggle'] . '</a></p>
 <br class="clear" />
 <div id="installChoices">';
 	echo $echo . '</div>';
 }
 else echo '<strong>' . $_lang['no_update_options'] . '</strong>';
 ?>
+
     <p class="buttonlinks">
         <a class="prev" href="javascript:void(0);" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
         <a class="next" href="javascript:void(0);" title="<?php echo $_lang['btnnext_value']?>"><span><?php echo $_lang['btnnext_value']?></span></a>
@@ -163,14 +164,14 @@ else echo '<strong>' . $_lang['no_update_options'] . '</strong>';
 
 </form>
 <script type="text/javascript">
-	var installMode = <?php echo $installmode; ?>;
+	var installmode = <?php echo $installmode; ?>;
 	$('a.prev').click(function(){
-		var target = (installMode==1) ? 'mode' : 'connection';
-		$('#install_form').attr({action:'index.php?action='+target});
-		$('#install_form').submit();
+		var target = (installmode==1) ? 'mode' : 'connection';
+		$('#install').attr({action:'index.php?action='+target});
+		$('#install').submit();
 	});
 	$('a.next').click(function(){
-		$('#install_form').submit();
+		$('#install').submit();
 	});
 	
 	$('#toggle_check_all').click(function(evt){

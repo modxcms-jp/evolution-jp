@@ -253,7 +253,7 @@ $nextButton= $errors > 0 ? $_lang['retry'] : $_lang['install'];
 $nextVisibility= $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagree\').checked){document.getElementById(\'nextbutton\').style.visibility=\'visible\';}else{document.getElementById(\'nextbutton\').style.visibility=\'hidden\';}"';
 echo <<< EOT
-<form id="install_form" action="index.php?action={$nextAction}" method="post">
+<form id="install" action="index.php?action={$nextAction}" method="POST">
   <div>
     <input type="hidden" value="1" name="options_selected" />
 
@@ -272,11 +272,11 @@ EOT;
 </form>
 <script type="text/javascript">
 $('a.prev').click(function(){
-	$('#install_form').attr({action:'index.php?action=options'});
-	$('#install_form').submit();
+	$('#install').attr({action:'index.php?action=options'});
+	$('#install').submit();
 });
 $('a.next').click(function(){
-	$('#install_form').submit();
+	$('#install').submit();
 });
 </script>
 
