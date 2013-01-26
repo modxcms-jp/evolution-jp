@@ -28,7 +28,7 @@ $modx->db->connect();
 if ($modx->getLoginUserType() !== 'manager')
 {
     // Make output a real JavaScript file!
-    header('Content-type: text/javascript');
+    header('Content-type: application/x-javascript');
     header('pragma: no-cache');
     header('expires: 0');
     
@@ -111,7 +111,7 @@ else
 
 if($output)
 {
-	header('Content-type: text/javascript');
+	header('Content-type: application/x-javascript');
 	header('pragma: no-cache');
 	header('expires: 0');
 	echo $output;
