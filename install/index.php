@@ -40,7 +40,8 @@ includeLang($default_language);
 session_start();
 $_SESSION['test'] = 1;
 // session loop-back tester
-if (!$_SESSION['test'])
+$rs = sessionCheck();
+if (!$rs)
 {
     $installBaseUrl = (!isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on') ? 'http://' : 'https://';
     $installBaseUrl .= $_SERVER['HTTP_HOST'];

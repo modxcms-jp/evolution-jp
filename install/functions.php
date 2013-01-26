@@ -476,3 +476,12 @@ function ph()
 	$ph['footer2']       = $_lang['modx_footer2'];
 	return $ph;
 }
+
+function sessionCheck()
+{
+	if(!isset($_SESSION['test']) || $_SESSION['test']!=1)
+		$rs = false;
+	else $rs = true;
+	
+	return $rs;
+}
