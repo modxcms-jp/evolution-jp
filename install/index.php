@@ -1,6 +1,6 @@
 <?php
 /**
- * MODx Installer
+ * MODX Installer
  */
 
 // set error reporting
@@ -49,10 +49,10 @@ if (!$rs)
 	<title>Install Problem</title>
 	<style type="text/css">
 		*{margin:0;padding:0}
-		body{margin:50px;background:#eee;}
-		.install{padding:10px;border:5px solid #f22;background:#f99;margin:0 auto;font:120%/1em serif;text-align:center;}
+		body{margin:150px;background:#eee;}
+		.install{padding:10px;border:3px solid #ffc565;background:#ffddb4;margin:0 auto;text-align:center;}
 		p{ margin:20px 0; }
-		a{font-size:200%;color:#f22;text-decoration:underline;margin-top:30px;padding:5px;}
+		a{margin-top:30px;padding:5px;}
 	</style>
 </head>
 <body>
@@ -84,18 +84,16 @@ $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 
-$moduleChunks    = array (); // chunks    - array : name, description, type - 0:file or 1:content, file or content
-$moduleTemplates = array (); // templates - array : name, description, type - 0:file or 1:content, file or content
-$moduleSnippets  = array (); // snippets  - array : name, description, type - 0:file or 1:content, file or content,properties
-$modulePlugins   = array (); // plugins   - array : name, description, type - 0:file or 1:content, file or content,properties, events,guid
-$moduleModules   = array (); // modules   - array : name, description, type - 0:file or 1:content, file or content,properties, guid
-$moduleTemplates = array (); // templates - array : name, description, type - 0:file or 1:content, file or content,properties
-$moduleTVs       = array (); // TVs       - array : name, description, type - 0:file or 1:content, file or content,properties
+// type - 0:file or 1:content
+$moduleChunks    = array(); // chunks    - array(name, description, type, file|content)
+$moduleTemplates = array(); // templates - array(name, description, type, file|content)
+$moduleSnippets  = array(); // snippets  - array(name, description, type, file|content, properties)
+$modulePlugins   = array(); // plugins   - array(name, description, type, file|content, properties, events, guid)
+$moduleModules   = array(); // modules   - array(name, description, type, file|content, properties, guid)
+$moduleTemplates = array(); // templates - array(name, description, type, file|content, properties)
+$moduleTVs       = array(); // TVs       - array(name, description, type, file|content, properties)
 
 $errors= 0;
-
-// get post back status
-$isPostBack = (count($_POST));
 
 $tpl = file_get_contents('template.tpl');
 $ph = ph();

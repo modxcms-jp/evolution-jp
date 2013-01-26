@@ -53,8 +53,8 @@ $tbl_active_users = getFullTableName('active_users');
 
 // open db connection
 $setupPath = realpath(dirname(__FILE__));
-include "{$setupPath}/setup.info.php";
-include "{$setupPath}/sqlParser.class.php";
+include_once("{$setupPath}/setup.info.php");
+include_once("{$setupPath}/sqlParser.class.php");
 $sqlParser = new SqlParser();
 $sqlParser->prefix = $table_prefix;
 $sqlParser->adminname = $adminname;
