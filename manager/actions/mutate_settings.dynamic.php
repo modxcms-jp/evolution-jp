@@ -639,6 +639,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </tr>
 
 <tr>
+<th><?php echo $_lang["user_auto_sleep_title"] ?></th>
+<td>
+	<?php echo form_text('auto_sleep_user',$auto_sleep_user,7);?><br />
+<?php echo $_lang["user_auto_sleep_message"] ?></td>
+</tr>
+
+<tr>
 <th><?php echo $_lang['a17_error_reporting_title']; ?></th>
 <td>
 	<?php echo wrap_label($_lang['a17_error_reporting_opt0'],form_radio('error_reporting','0', ($error_reporting==='0')));?><br />

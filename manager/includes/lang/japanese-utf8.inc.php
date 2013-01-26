@@ -1256,3 +1256,6 @@ $_lang["open"] = '開く';
 
 $_lang["tree_pane_open_default_title"] = 'ツリーペインの初期状態';
 $_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルトで有効にするか閉じておくかを設定します。';
+
+$_lang["user_auto_sleep_title"] = 'ユーザを自動的に休止';
+$_lang["user_auto_sleep_message"] = '一定期間ログインしていないユーザを自動的に休止状態にします。ここで日数を設定します。';

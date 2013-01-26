@@ -45,6 +45,14 @@ $modx->invokeEvent("OnBeforeManagerLogin",
                             "rememberme"    => $rememberme
                         ));
 
+if(isset($modx->config['auto_sleep_user'])
+&& !empty($modx->config['auto_sleep_user'])
+&& preg_match('@^[0-9]+$@', $modx->config['auto_sleep_user']))
+{
+	$past = time() - (60 * 60 * 24 * $modx->config['auto_sleep_user']);
+	$modx->db->update('blocked=1', '[+prefix+]user_attributes',"thislogin < {$past} AND role!=1");
+}
+
 $field = "mu.*, ua.*";
 $from = "[+prefix+]manager_users mu,[+prefix+]user_attributes ua";
 $where = "BINARY mu.username='{$username}' and ua.internalKey=mu.id";
