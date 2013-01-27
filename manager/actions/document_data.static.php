@@ -1,6 +1,11 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+if (!$modx->hasPermission('view_document')) {
+	$e->setError(3);
+	$e->dumpError();
+}
+
 if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
 else    $id = 0;
