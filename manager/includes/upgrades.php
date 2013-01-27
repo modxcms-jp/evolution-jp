@@ -30,6 +30,10 @@ function run_update($version)
 		update_config_default_template_method();
 	}
 	
+	if($version < 107) {
+		disableLegacyPlugins();
+	}
+	
 	if(104 < $version) {
 		delete_actionphp();
 	}
