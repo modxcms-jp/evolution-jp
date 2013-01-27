@@ -118,7 +118,7 @@ echo $cm->render();
 	$tbl_user_roles      = $modx->getFullTableName('user_roles');
 	$field  = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
 	$field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
-	$field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";
+	$field .= ",IF(mua.blocked,'{$_lang['user_block']}','-') as blocked";
 	$field .= ",IF(mua.blocked,'unpublished','published') as class";
 	$from  = "{$tbl_manager_users} AS mu";
 	$from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
