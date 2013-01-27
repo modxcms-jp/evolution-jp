@@ -34,7 +34,7 @@ function run_update($version)
 		disableLegacyPlugins();
 	}
 	
-	if(104 < $version) {
+	if(104 < $version && $version < 107) {
 		delete_actionphp();
 	}
 	
