@@ -315,7 +315,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             }
         }
         if(ca=="open" || ca=="docinfo" || ca=="doclist" || ca=="") {
-            <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
                 parent.main.location.href="index.php?a=120";
@@ -326,7 +325,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             } else if(ca=="open") {
                 parent.main.location.href="index.php?a=27&id=" + id;
             } else {
-                // parent.main.location.href="index.php?a=3&id=" + id + getFolderState(); //just added the getvar &opened=
+                <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
                 parent.main.location.href="index.php?a=<?php echo $action; ?>&id=" + id; // edit as default action
             }
         }
