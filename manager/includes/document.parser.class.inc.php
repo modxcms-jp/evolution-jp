@@ -2159,6 +2159,9 @@ class DocumentParser {
 		$evtid= intval($evtid);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
+		$mailbody = strip_tags($msg);
+		$mailbody = urldecode($mailbody);
+		$mailbody = substr($mailbody,0,1000);
 		$msg= $this->db->escape($msg . "\n" . $this->config['site_url']);
 		$title= $this->db->escape($title);
 		if (function_exists('mb_substr'))
@@ -2185,7 +2188,7 @@ class DocumentParser {
 			if($this->config['send_errormail'] <= $type)
 			{
 				$subject = 'Error mail from ' . $this->config['site_name'];
-				$this->sendmail($subject,$msg);
+				$this->sendmail($subject,$mailbody);
 			}
 		}
 		if (!$insert_id)
