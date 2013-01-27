@@ -314,12 +314,14 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 alert('<?php echo $_lang['unable_set_parent']; ?>');
             }
         }
-        if(ca=="open" || ca=="docinfo" || ca=="") {
+        if(ca=="open" || ca=="docinfo" || ca=="doclist" || ca=="") {
             <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
                 parent.main.location.href="index.php?a=120";
             } else if(ca=="docinfo") {
+                parent.main.location.href="index.php?a=3&id=" + id;
+            } else if(ca=="doclist") {
                 parent.main.location.href="index.php?a=120&id=" + id;
             } else if(ca=="open") {
                 parent.main.location.href="index.php?a=27&id=" + id;

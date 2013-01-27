@@ -261,7 +261,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				{
 					case '27': $ph['ca'] = 'open';   break;
 					case '3' : $ph['ca'] = 'docinfo';break;
-					default  : $ph['ca'] = 'docinfo';
+					default  : $ph['ca'] = 'doclist';
 				}
 				
 				if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
@@ -352,7 +352,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 />&nbsp;<span
 	p="[+parent+]"
 	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -393,7 +393,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
 	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -435,7 +435,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
 	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
