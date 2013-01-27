@@ -1259,3 +1259,5 @@ $_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルト
 
 $_lang["user_auto_sleep_title"] = 'ユーザを自動的に休止';
 $_lang["user_auto_sleep_message"] = '一定期間ログインしていないユーザを自動的に休止状態にします。ここで日数を設定します。';
+
+$_lang["resources_list"] = 'リソース一覧';

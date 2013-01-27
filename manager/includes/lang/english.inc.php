@@ -1257,3 +1257,5 @@ $_lang["tree_pane_open_default_message"] = 'Tree pane default';
 
 $_lang["user_auto_sleep_title"] = 'Auto sleep inactive user';
 $_lang["user_auto_sleep_message"] = 'When there is not manager login, in the days that set here, make an applicable user dormancy automatically.';
+
+$_lang["resources_list"] = 'Resources List';
