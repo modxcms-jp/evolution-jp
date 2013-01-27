@@ -1094,7 +1094,7 @@ $_lang["delete_category"] = 'カテゴリー名を削除';
 
 // bkmanager.static.php
 $_lang["bkmgr_alert_mkdir"] = 'ディレクトリにファイルを作成できません。[+snapshot_path+]のパーミッションを確認してください。';
-$_lang["bkmgr_restore_msg"] = '<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。<br />異なる領域に移行する場合は、リストア後にグローバル設定の [(rb_base_dir)]・[(filemanager_path)] の設定をリセットする必要があります。</p>';
+$_lang["bkmgr_restore_msg"] = '<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />※SQL文を実行するだけなので、他の用途にも使えます(拡張機能のインストールなど)。</p>';
 $_lang["bkmgr_restore_title"] = 'リストア';
 $_lang["bkmgr_import_ok"] = 'リストアは正常に実行されました。';
 $_lang["bkmgr_snapshot_ok"] = 'スナップショットは正常に保存されました。';

@@ -156,8 +156,8 @@ if (0 < count($warnings))
 		
 		$admin_warning = $_SESSION['mgrRole']!=1 ? '<br />' . $_lang['configcheck_admin'] : '' ;
 		$config_check_result[] = "
-<fieldset>
-<p><strong>{$_lang['configcheck_warning']}</strong> {$title}</p>
+<fieldset style=\"padding:0;\">
+<p><strong>{$title}</strong></p>
 <p style=\"padding-left:1em\">
 {$output}{$admin_warning}</p>
 </fieldset>

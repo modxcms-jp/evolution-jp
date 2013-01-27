@@ -14,7 +14,7 @@ body {
 	font-size: 75%;
 	height: 100%;
 	color:#333333;
-	background: #eee;
+	background: #f4f4f4;
 }
 img, a img {
 	border: 0 !important;
@@ -475,9 +475,7 @@ ime-mode:disabled;
 
 /* -------------------------[ Misc stuff ]--- */
 .sectionBody fieldset {
-//	background: none repeat scroll 0 0 #FFFFFF;
-//	border: 1px solid #CCCCCC;
-	padding: 15px !important;
+	padding: 15px;
 }
 .sectionBody legend {
 	font-weight: bold;
@@ -549,6 +547,9 @@ ime-mode:disabled;
 		-moz-box-shadow:0px 1px 0px #fff inset;
 		-webkit-box-shadow:0px 1px 0px #fff inset;
 		box-shadow:0px 1px 0px #fff inset;
+	-moz-border-radius:5px 5px 0 0;
+	-webkit-border-radius:5px 5px 0 0;
+	border-radius:5px 5px 0 0;
 }
 	.rtl .sectionHeader {
 		direction: rtl;
@@ -665,6 +666,7 @@ a img {
 	color: #000;
 	cursor: pointer;
 	width: auto;
+	margin-right:2px;
 }
 .treeNodeSelected,
 .treeNodeHover
@@ -1412,7 +1414,7 @@ ul.actionButtons {
 	text-decoration:none;
 	vertical-align:top;
 	white-space:nowrap;
-	box-shadow:0 0 2px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.3);
+	box-shadow:0 0 1px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.3);
 	background:#fafafa;
 	background:-moz-linear-gradient(#FAFAFA,#D2D2D2);
 	background:-webkit-gradient(linear,0 0,0 100%,from(#FAFAFA),to(#D2D2D2));
@@ -1473,7 +1475,7 @@ ul.actionButtons {
 .actionButtons a.primary,
 .actionButtons a.default {
 	color: #fff;
-	box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 2px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.8);
+	box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.8);
 	text-shadow:0 -1px 0 #2B5F0C;
 	background:#66901b;
 	background:-moz-linear-gradient(#8aae4b,#66901b);
