@@ -38,8 +38,19 @@ function run_update($version)
 		delete_actionphp();
 	}
 	
-	disableLegacyPlugins();
+	if(108 <= $version) {
+		updateMenus();
+	}
+	
 	update_tbl_user_roles();
+}
+
+function updateMenus()
+{
+	global $modx;
+	
+	$modx->config['topmenu_site'] = str_replace('home,preview,refresh_site,search,add_resource,add_weblink','home,preview,resource_list,add_resource,add_weblink,search',$modx->config['topmenu_site']);
+	$modx->config['topmenu_tools'] = str_replace('bk_manager,import_site,export_site,edit_settings','bk_manager,refresh_site,import_site,export_site,edit_settings',$modx->config['topmenu_tools']);
 }
 
 function disableLegacyPlugins()
