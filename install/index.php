@@ -38,8 +38,10 @@ includeLang($default_language);
 
 // start session
 session_start();
-$_SESSION['test'] = 1;
+if($_GET['action']==='mode') $_SESSION['test'] = 1;
 // session loop-back tester
+if($_GET['action']!=='mode')
+{
 $rs = sessionCheck();
 if (!$rs)
 {
@@ -63,7 +65,7 @@ if (!$rs)
 </body>
 </html>';
 	exit;
-
+	}
 }
 
 $installmode        = getOption('installmode');
