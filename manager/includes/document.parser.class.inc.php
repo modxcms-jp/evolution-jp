@@ -3688,8 +3688,8 @@ class DocumentParser {
         $str .= "<td>{$request_uri}</td>";
         $str .= '</tr>';
         
-        if($_POST['a'])    $action = $_POST['a'];
-        elseif($_GET['a']) $action = $_GET['a'];
+        if(isset($_GET['a']))      $action = $_GET['a'];
+        elseif(isset($_POST['a'])) $action = $_POST['a'];
         if(isset($action) && !empty($action))
         {
         	include_once($this->config['core_path'] . 'actionlist.inc.php');

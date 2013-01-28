@@ -21,14 +21,14 @@ $mainPane = '<frame name="main" src="index.php?a=' . $action . '" scrolling="aut
 <?php if (!$modx_textdir) {
 	// Left-to-Right reading (sidebar on left)
 	?>
-		<frameset cols="260,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
+		<frameset cols="260,*" border="1" frameborder="3" framespacing="1" bordercolor="#f7f7f7">
 		<?php echo $treePane; ?>
 		<?php echo $mainPane; ?>
 );">
 <?php } else {
 	// Right-to-Left reading (sidebar on right)
 	?>
-    	<frameset cols="*,260" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
+    	<frameset cols="*,260" border="1" frameborder="3" framespacing="1" bordercolor="#f7f7f7">
 		<?php echo $mainPane; ?>
 		<?php echo $treePane; ?>
 <?php } ?>

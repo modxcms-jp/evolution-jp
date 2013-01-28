@@ -104,7 +104,7 @@ if (!file_exists($config_path)) {
 }
 
 // include the database configuration file
-include_once $config_path;
+include_once($config_path);
 
 // start session
 startCMSSession();
@@ -132,7 +132,7 @@ extract($modx->config);
 
 // include_once the language file
 if (!isset($manager_language)) {
-    $manager_language = 'japanese-utf8';
+    $manager_language = 'english';
 }
 $_lang = array();
 include_once("{$core_path}lang/{$manager_language}.inc.php");
