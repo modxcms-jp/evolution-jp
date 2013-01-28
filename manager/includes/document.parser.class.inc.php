@@ -450,13 +450,13 @@ class DocumentParser {
 		// Moved from prepareResponse() by sirlancelot
 		if ($js= $this->getRegisteredClientStartupScripts())
 		{
-			$this->documentOutput= preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->documentOutput);
+			$this->documentOutput= str_ireplace('</head>', "{$js}\n</head>", $this->documentOutput);
 		}
 		
 		// Insert jscripts & html block into template - template must have a </body> tag
 		if ($js= $this->getRegisteredClientScripts())
 		{
-			$this->documentOutput= preg_replace("/(<\/body>)/i", $js . "\n\\1", $this->documentOutput);
+			$this->documentOutput= str_ireplace('</body>', "{$js}\n</body>", $this->documentOutput);
 		}
 		// End fix by sirlancelot
 		
