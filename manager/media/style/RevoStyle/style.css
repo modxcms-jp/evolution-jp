@@ -1057,7 +1057,7 @@ zoom:1;
 	margin-bottom: 3px;
 	background-color: #818181;
 	background-repeat:repeat-x;
-	text-shadow: 0px -1px 0px #2B5F0C;
+	text-shadow: 0px -1px 0px #222;
 			background:-moz-linear-gradient(#818181, #606060);
 			background:-webkit-gradient(linear, 0 0, 0 100%, from(#818181), to(#606060));
 			background:-o-linear-gradient(#818181, #606060);
