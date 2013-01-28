@@ -31,7 +31,7 @@ if($total>1) {
 	for ($i=0;$i<$total;$i++) {
 		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
-			$msg = sprintf($_lang["lock_msg"],$lock['username'],"role");
+			$msg = sprintf($_lang["lock_msg"],$lock['username'],$_lang['role']);
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}

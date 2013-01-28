@@ -33,7 +33,7 @@ if($limit>1) {
 		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
-			$msg = sprintf($_lang['lock_msg'],$lock['username'],"snippet");
+			$msg = sprintf($_lang['lock_msg'],$lock['username'],$_lang['snippet']);
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}

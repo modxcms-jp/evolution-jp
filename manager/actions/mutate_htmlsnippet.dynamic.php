@@ -36,7 +36,7 @@ if ($modx->db->getRecordCount($rs) > 1)
 	{
 		if ($row['internalKey'] != $modx->getLoginUserID())
 		{
-			$msg = sprintf($_lang['lock_msg'], $row['username'], 'chunk');
+			$msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['chunk']);
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}

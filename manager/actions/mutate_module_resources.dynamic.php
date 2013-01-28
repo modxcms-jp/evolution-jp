@@ -26,7 +26,7 @@ if($limit>1) {
 	{
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
-			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
+			$msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['modules']);
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}
