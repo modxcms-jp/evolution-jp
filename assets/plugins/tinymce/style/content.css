@@ -10,14 +10,13 @@ pre {
 	font-size  : 12px;
 	font-style : normal;
 }
+html {
+	box-shadow: inset 0px 4px 3px 0px rgba(70, 70, 70, 0.1);
+}
 
 body {
 	line-height          : 1.5;
 	color                : #333333;
-	background-color     : #FFFFFF;
-	background-attachment: fixed;
-	background-repeat:repeat-x;
-	background-image     : url(textareabg.gif);
 	text-align           : left;
 	margin:8px;
 }
