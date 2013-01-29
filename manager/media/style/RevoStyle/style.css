@@ -953,7 +953,7 @@ a.hometblink:hover {
 	width: 200%;
 	left: 0;
 	border-top: 1px solid #888;
-	border-bottom: 1px solid #FFF;
+	border-bottom: 1px solid #eee;
 }
 	#nav li.active ul.subnav {
 	    right: 0;
