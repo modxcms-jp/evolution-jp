@@ -28,7 +28,8 @@
     form { border: 1px solid #fff; }
     #logo { margin-left: -7px }
     .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;}
-    .body {padding: 20px 20px 20px;display: block;background: #fff;background-image:url(media/style/[+theme+]/images/misc/tabareabg.gif);background-repeat:repeat-x;}
+    .body {padding: 20px 20px 20px;display: block;background: #fff;
+    box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);}
     #mx_loginbox {width: 460px;margin: 30px auto 0;
                                  box-shadow: 0 0 10px #aaa;
                              -moz-box-shadow: 0 0 10px #aaa;
