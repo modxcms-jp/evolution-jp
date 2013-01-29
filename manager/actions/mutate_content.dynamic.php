@@ -461,7 +461,7 @@ $body .= tooltip($_lang['resource_description_help']);
 renderTr($_lang['resource_description'],$body,'vertical-align:top;');
 
 $body = '';
-if(isset($modx->config['suffix_mode']) && $modx->config['suffix_mode']==1)
+if($modx->config['suffix_mode']==1)
 {
 	$body .= get_scr_change_url_suffix($modx->config['friendly_url_suffix']);
 	$onkeyup = 'onkeyup="change_url_suffix();" ';
@@ -471,7 +471,14 @@ if($modx->config['friendly_urls']==='1' && $content['type']!=='reference')
 {
 	$body .= get_alias_path($id,$pid);
 	$body .= input_text('alias',to_safestr(urldecode($content['alias'])), $onkeyup . 'size="20" style="width:120px;"','50');
-	if($modx->config['friendly_urls']==1) $suffix = $modx->config['friendly_url_suffix'];
+	if($modx->config['friendly_urls']==1)
+	{
+		if($modx->config['suffix_mode']==1 && strpos($content['alias'],'.')!==false)
+		{
+			$suffix = '';
+		}
+		else $suffix = $modx->config['friendly_url_suffix'];
+	}
 	else $suffix = '';
 	$body .= '<span id="url_suffix">' . $suffix . '</span>';
 }
