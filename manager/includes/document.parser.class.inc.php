@@ -3629,19 +3629,13 @@ class DocumentParser {
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
-        $str = '
-              <html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
-              <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-              <style>td, body { font-size: 12px; font-family:Verdana; }</style>
-              </head><body>
-              ';
         if ($is_error) {
-            $str .= '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
+            $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
                     <tr><td colspan="2">MODX encountered the following error while attempting to parse the requested resource:</td></tr>
                     <tr><td colspan="2"><b style="color:red;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         } else {
-            $str .= '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
+            $str = '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
                     <tr><td colspan="2">The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan="2"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
@@ -3804,7 +3798,16 @@ class DocumentParser {
         header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        if (isset($_SESSION['mgrValidated'])) echo $str;
+        if (isset($_SESSION['mgrValidated']))
+        {
+	        echo '
+	             <html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
+	             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	             <style>td, body { font-size: 12px; font-family:Verdana; }</style>
+	             </head><body>
+	             ' . $str . '</body></html>';
+        
+        }
         else  echo 'Error';
         ob_end_flush();
 
