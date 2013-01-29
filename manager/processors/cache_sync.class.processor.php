@@ -431,4 +431,15 @@ class synccache {
 		}
 		return $tmpPHP;
 	}
+	
+	function tableOpt()
+	{
+		global $modx;
+		
+		$modx->db->optimize('[+prefix+]site_content');
+		$modx->db->optimize('[+prefix+]active_users');
+		$modx->db->optimize('[+prefix+]manager_log');
+		$modx->db->optimize('[+prefix+]event_log');
+		$modx->db->optimize('[+prefix+]site_htmlsnippets');
+	}
 }
