@@ -392,8 +392,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 </script>
 </head>
-<body onclick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
-
+<body onclick="hideMenu(1);" class="<?php echo $modx_textdir ? ' rtl':''?>">
+<div class="treeframebody">
 <div id="treeSplitter"></div>
 
 <table id="treeMenu" width="100%"  border="0" cellpadding="0" cellspacing="0">
@@ -585,7 +585,7 @@ constructLink(1, $_style["icons_information"], $_lang["resource_overview"], $mod
 constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
 ?>
 </div>
-
+</div>
 </body>
 </html>
 <?php

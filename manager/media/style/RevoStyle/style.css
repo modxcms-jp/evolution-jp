@@ -626,7 +626,7 @@ a img {
 .row3 {
 	background-color: #f5f5f5;
 }
-.treeframebody {
+div.treeframebody {
 	background: #f5f5f5 url(images/misc/subnav.png) !important;
 	-webkit-box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
 	box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
