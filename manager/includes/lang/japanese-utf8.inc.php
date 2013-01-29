@@ -279,7 +279,7 @@ $_lang["eventlog_viewer"] = 'イベントログ';
 $_lang["everybody"] = '全メンバー';
 $_lang["existing_category"] = '既存のカテゴリー';
 $_lang["expand_tree"] = 'リソースツリーを展開';
-$_lang["export_site"] = 'htmlファイルとしてエクスポート';
+$_lang["export_site"] = 'エクスポート';
 $_lang["export_site_cacheable"] = '非キャッシュファイルを含む';
 $_lang["export_site_exporting_document"] = '%s/%s - %s(index.php?id=%s)';
 $_lang["export_site_failed"] = 'スキップ';
@@ -388,7 +388,7 @@ $_lang["import_files_found"] = '<b>インポート対象のリソースが %s個
 $_lang["import_params"] = 'パラメータの関連付け';
 $_lang["import_params_msg"] = 'ドロップダウンメニューからモジュール名を選択することにより、モジュール側から設定値を与えることができます。<br />※対象モジュール側で共有パラメータの設定と関連付けをしておく必要があります。';
 $_lang["import_parent_resource"] = '親リソース';
-$_lang["import_site"] = 'サイトをインポート';
+$_lang["import_site"] = 'インポート';
 $_lang["import_site_failed"] = '失敗しました';
 $_lang["import_site_failed_db_error"] = 'リソースの複製中にデータベースエラーが発生しました:';
 $_lang["import_site_failed_no_open_dir"] = 'ディレクトリを開けませんでした:';
