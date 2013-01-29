@@ -2159,9 +2159,16 @@ class DocumentParser {
 		$evtid= intval($evtid);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
-		$mailbody = strip_tags($msg);
-		$mailbody = urldecode($mailbody);
-		$mailbody = substr($mailbody,0,1000);
+		
+		$mailbody = $msg;
+		$pos = strpos($msg,'<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>');
+		if($pos!==false) $mailbody = substr($mailbody, 0, $pos);
+		$mailbody = strip_tags($mailbody);
+		if(1000 < strlen($mailbody)) $mailbody = substr($mailbody,0,1000);
+		$request_uri = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
+		$ua       = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+		$mailbody .= "\n{$request_uri}\n{$ua}";
+		
 		$msg= $this->db->escape($msg . "\n" . $this->config['site_url']);
 		$title= $this->db->escape($title);
 		if (function_exists('mb_substr'))
