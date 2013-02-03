@@ -284,6 +284,12 @@ class ditto {
 			$placeholders['ditto_iteration'] = $x;
 		}
 		
+		//Added by Andchir
+		//if (in_array("ditto_index",$this->fields["display"]["custom"])) {
+			$r_start = isset($_GET['start']) ? $_GET['start'] : 0;
+      $placeholders['ditto_index'] = $r_start+$x+1;
+		//}
+		
 		// set url placeholder
 		if (in_array("url",$this->fields["display"]["custom"])) {
 			if($resource['id']==$modx->config['site_start'])
