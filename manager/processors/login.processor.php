@@ -50,7 +50,7 @@ if(isset($modx->config['auto_sleep_user'])
 && preg_match('@^[0-9]+$@', $modx->config['auto_sleep_user']))
 {
 	$past = time() - (60 * 60 * 24 * $modx->config['auto_sleep_user']);
-	$modx->db->update('blocked=1', '[+prefix+]user_attributes',"thislogin < {$past} AND role!=1");
+	$modx->db->update('blocked=1', '[+prefix+]user_attributes',"thislogin!=0 AND thislogin < {$past} AND role!=1");
 }
 
 $field = "mu.*, ua.*";
