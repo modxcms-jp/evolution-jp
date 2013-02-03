@@ -1136,21 +1136,21 @@ class ditto {
 			$min_x = $max_x - $max_paginate + 1;
 		}
 		
+		for ($x = 0; $x <= $totalpages -1; $x++) {
+			$inc = $x * $summarize;
+			$display = $x +1;
+			
+			if (($x < $min_x) || ($x > $max_x)) continue;
+			
+			if ($inc != $start) {
+				$pages .= $this->template->replace(array('url'=>$this->buildURL("start=$inc"),'page'=>$display),$tplPaginatePage);
+			} else {
+				$modx->setPlaceholder($dittoID."currentPage", $display);
+				$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
+			}
+		}
 		if(1<$totalpages)
 		{
-			for ($x = 0; $x <= $totalpages -1; $x++) {
-				$inc = $x * $summarize;
-				$display = $x +1;
-				
-				if (($x < $min_x) || ($x > $max_x)) continue;
-				
-				if ($inc != $start) {
-					$pages .= $this->template->replace(array('url'=>$this->buildURL("start=$inc"),'page'=>$display),$tplPaginatePage);
-				} else {
-					$modx->setPlaceholder($dittoID."currentPage", $display);
-					$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
-				}
-			}
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);
 			$modx->setPlaceholder($dittoID."previous", $previousplaceholder);
 			$modx->setPlaceholder($dittoID."pages", $pages);	
