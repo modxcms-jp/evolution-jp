@@ -1026,11 +1026,15 @@ class ditto {
 			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
 			$query = array();
 			foreach ($_GET as $param=>$value) {
-				if ($param != 'id' && $param != 'q' && is_string($value)) {
-					if (get_magic_quotes_gpc()) {
-						$value = stripslashes($value);
+				if ($param != 'id' && $param != 'q') {
+					if(is_array($value)) {
+					  //$query[$param] = $value;
+					  foreach($value as $key => $val) {
+              $query[htmlspecialchars($param, ENT_QUOTES)][] = htmlspecialchars($val, ENT_QUOTES);
+            }
+					}else{
+					  $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
 					}
-					$query[htmlspecialchars($param, ENT_QUOTES)] = rawurlencode($value);
 				}
 			}
 			if (!is_array($args)) {
