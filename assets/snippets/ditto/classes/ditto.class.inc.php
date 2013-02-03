@@ -460,11 +460,15 @@ class ditto {
 		global $modx;
 		
 		$user = false;
-		if($createdby > 0) $user = $modx->getUserInfo($createdby);
-		else               $user = $modx->getWebUserInfo(abs($createdby));
-		
-		if ($user === false) $user = $modx->getUserInfo(1);// get admin user name
-		
+		if ($createdby > 0) {
+			$user = $modx->getUserInfo($createdby);
+		} else {
+			$user = $modx->getWebUserInfo(abs($createdby));
+		}
+		if ($user === false) {
+			// get admin user name
+			$user = $modx->getUserInfo(1);
+		}
 		return ($user['fullname'] != "") ? $user['fullname'] : $user['username'];
 	}
 	
@@ -562,33 +566,35 @@ class ditto {
 
 		// Create where clause
 		$where = array ();
-		if ($hideFolders)    $where[] = 'isfolder = 0';
-		if ($showInMenuOnly) $where[] = 'hidemenu = 0';
-		if ($myWhere != '')  $where[] = $myWhere;
-		
+		if ($hideFolders) {
+			$where[] = 'isfolder = 0';
+		}
+		if ($showInMenuOnly) {
+			$where[] = 'hidemenu = 0';
+		}
+		if ($myWhere != '') {
+			$where[] = $myWhere;
+		}
+		$where = implode(" AND ", $where);
+		$limit = ($limit == 0) ? "" : $limit;
 		// set limit
-		$where = implode(' AND ', $where);
-		$limit = ($limit == 0) ? '' : $limit;
 		
 		$customReset = $this->customReset;
 		if ($keywords) {$this->addField("haskeywords","*","db");$this->addField("hasmetatags","*","db");}
 		if ($this->debug) {$this->addField("pagetitle","backend","db");}
 		if (count($customReset) > 0) {$this->addField("createdon","backend","db");}
 		$resource = $this->getDocuments($documentIDs,$this->fields["backend"]["db"],$TVs,$orderBy,$showPublishedOnly,0,$hidePrivate,$where,$limit,$keywords,$randomize,$dateSource);
-		if ($resource !== false)
-		{
+		if ($resource !== false) {
 			$resource = array_values($resource);
 				// remove #'s from keys
 			$recordCount = count($resource);
 				// count number of records
 
-			if (!$seeThruUnpub)
-			{
+			if (!$seeThruUnpub) {
 				$parentList = $this->getParentList();
 					// get parent list
 			}
-			for ($i = 0; $i < $recordCount; $i++)
-			{
+			for ($i = 0; $i < $recordCount; $i++) {
 				if (!$seeThruUnpub) {
 					$published = $parentList[$resource[$i]["parent"]];
 					if ($published == "0")
@@ -627,17 +633,16 @@ class ditto {
 			foreach ($resource as $key => $value) {
 				$processedIDs[] = $value['id'];
 				$iKey = '#'.$value['id'];
-				foreach ($value as $key=>$v)
-				{
+				foreach ($value as $key=>$v) {
 					if (in_array($key,$readyFields)) {
 						$keep[$iKey][$key] = $v;
 					}
-					if ($this->getDocVarType($key) == "tv:prefix")
-					{
+					if ($this->getDocVarType($key) == "tv:prefix") {
 						if (in_array(substr($key,2),$readyFields)) {
 							$keep[$iKey][$key] = $v;
 						}
 					}
+					
 				}
 			}
 			
@@ -700,12 +705,13 @@ class ditto {
 			}
 		}
 		$parents = array();
-		foreach ($kids as $item => $value)
-		{
-			if ($item != 0)  $pInfo = $modx->getPageInfo($item,0,'published');
-			else             $pInfo["published"] = '1';
-			
-			$parents[$item] = $pInfo['published'];
+		foreach ($kids as $item => $value) {
+			if ($item != 0) {
+				$pInfo = $modx->getPageInfo($item,0,"published");
+			} else {
+				$pInfo["published"] = "1";
+			}
+			$parents[$item] = $pInfo["published"];
 		}
 		return $parents;
 	}
@@ -1155,8 +1161,7 @@ class ditto {
 				$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
 			}
 		}
-		if(1<$totalpages)
-		{
+		if ($totalpages>1){
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);
 			$modx->setPlaceholder($dittoID."previous", $previousplaceholder);
 			$modx->setPlaceholder($dittoID."pages", $pages);	
