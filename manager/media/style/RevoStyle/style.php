@@ -112,6 +112,7 @@ $_style['icons_tooltip_over']       = $icon_path.'b02_trans.gif';
 // Large Icons
 $_style['icons_backup_large']       = $icon_path.'32x/backup.png';
 $_style['icons_mail_large']         = $icon_path.'32x/mail.png';
+$_style['icons_mail_new_large']     = $icon_path.'32x/mail_new.png';
 $_style['icons_modules_large']      = $icon_path.'32x/modules.gif';
 $_style['icons_resources_large']    = $icon_path.'32x/resources.png';
 $_style['icons_elements_large']     = $icon_path.'32x/elements.png';

@@ -44,13 +44,15 @@ if($modx->hasPermission('messages')) {
     {
         $msg .= '<span class="comment">'
              . sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'], "<span style='color:red;'>".$_SESSION['nrnewmessages']."</span>").'</span>';
+        $mail_icon = $_style['icons_mail_new_large'];
     }
     else
     {
         $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
+        $mail_icon = $_style['icons_mail_large'];
     }
 	$modx->setPlaceholder('MessageInfo',$msg);
-	$src = get_icon($_lang['inbox'], 10, $_style['icons_mail_large'], $_lang['inbox']);
+	$src = get_icon($_lang['inbox'], 10, $mail_icon, $_lang['inbox']);
 	$modx->setPlaceholder('MessageIcon',$src);
 }
 
