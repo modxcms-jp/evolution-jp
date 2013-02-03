@@ -862,6 +862,7 @@ class ditto {
 		$limit= ($limit != "") ? "LIMIT $limit" : ""; // LIMIT capabilities - rad14701
 		$tblsc= $modx->getFullTableName("site_content");
 		$tbldg= $modx->getFullTableName("document_groups");
+    $tbltvc = $modx->getFullTableName("site_tmplvar_contentvalues");
 		// modify field names to use sc. table reference
 		$fields= "sc.".implode(",sc.",$fields);
 		if ($randomize != 0) {
@@ -869,7 +870,16 @@ class ditto {
 		} else {
 			$sort= $orderBy['sql'];
 		}
+    
+    //Added by Andchir (http://modx-shopkeeper.ru/)
+		if(substr($where, 0, 5)=="@SQL:"){
+      $where = ($where == "") ? "" : substr(str_replace('@eq','=',$where), 5);
+      $left_join_tvc = "LEFT JOIN $tbltvc tvc ON sc.id = tvc.contentid";
+    }else{
 			$where= ($where == "") ? "" : 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", "", explode('AND', $where)));
+      $left_join_tvc = '';
+    }
+      
 		if ($public) {
 			// get document groups for current user
 			if ($docgrp= $modx->getUserDocGroups())
@@ -880,7 +890,8 @@ class ditto {
 		
 		$published = ($published) ? "AND sc.published=1" : "";
 		
-		$sql = "SELECT DISTINCT $fields FROM $tblsc sc
+		//$sql = "SELECT DISTINCT $fields FROM $tblsc sc 
+    $sql = "SELECT DISTINCT $fields FROM $tblsc sc $left_join_tvc
 		LEFT JOIN $tbldg dg on dg.document = sc.id
 		WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
 		".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
