@@ -1050,7 +1050,16 @@ class ditto {
 			}
 			$queryString = "";
 			foreach ($query as $param=>$value) {
-				$queryString .= '&'.$param.'='.(is_array($value) ? implode(",",$value) : $value);
+				
+        //$queryString .= '&'.$param.'='.(is_array($value) ? implode(",",$value) : $value);
+        
+        if(!is_array($value)){
+          $queryString .= '&'.$param.'='.$value;
+        }else{
+          foreach ($value as $key=>$val){
+            $queryString .= '&'.$param.'[]='.$val;
+          }
+        }
 			}
 			$cID = ($id !== false) ? $id : $modx->documentObject['id'];
 			$url = $modx->makeURL(trim($cID), '', $queryString);
