@@ -745,7 +745,7 @@ class ditto {
 					}
 				}
 			} else {
-				$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
+				$defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type'],$row['contentid']);
 				foreach ($docIDs as $id) {
 					if (!isset($resourceArray["#".$id])) {
 						$resourceArray["#$id"][$tvname] = $defaultOutput;
