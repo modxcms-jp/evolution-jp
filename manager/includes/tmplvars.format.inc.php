@@ -20,11 +20,13 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 		case 'option':
 			$src = $tvtype;
 			$values = explode('||',$value);
-			$value = '';
-			foreach($values as $_)
+			$i = 0;
+			foreach($values as $i=>$v)
 			{
-				$value .= ProcessTVCommand($_, $name, $docid, $src);
+				$values[$i] = ProcessTVCommand($v, $name, $docid, $src);
+				$i++;
 			}
+			$value = join('||', $values);
 			break;
 		default:
 			$src = 'docform';
