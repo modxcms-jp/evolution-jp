@@ -2393,7 +2393,10 @@ class DocumentParser {
 			$fields = "DISTINCT {$fields}";
 			$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 			$ids_str = implode(',',$ids);
-			$where = "(sc.id IN ({$ids_str}) AND sc.published={$published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
+			if(!empty($published)) $where_published = "AND sc.published='{$published}'";
+			else                   $where_published = '';
+			
+			$where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
 			$orderby = ($sort) ? "{$sort} {$dir}" : '';
 			$result= $this->db->select($fields,$from,$where,$orderby,$limit);
 			$resourceArray= array ();
