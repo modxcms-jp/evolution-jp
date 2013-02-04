@@ -485,7 +485,7 @@ function sessionCheck()
 	// session loop-back tester
 	if($_GET['action']!=='mode')
 	{
-	if(!isset($_SESSION['test']) || $_SESSION['test']!=1)
+		if(!isset($_SESSION['test']) || $_SESSION['test']!=1)
 		{
 			echo '
 <html>
