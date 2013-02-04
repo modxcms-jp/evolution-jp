@@ -77,11 +77,9 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
                     $parent_id = $doc['parent'];
 
                     // Grab document regardless of publish status
-                    $doc = $modx->getPageInfo($parent_id, 0, 'id,parent,published');
-                    if ($doc['parent'] != 0 && !$doc['published'])
-                        continue; // hide unpublished docs if we're not at the top
+                    $doc = $modx->getPageInfo($parent_id, 0, 'id,parent');
 
-                    $tv = $modx->getTemplateVar($name, '*', $doc['id'], $doc['published']);
+                    $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
 
                     // inheritance allows other @ bindings to be inherited
                     // if no value is inherited and there is content following the @INHERIT binding,
