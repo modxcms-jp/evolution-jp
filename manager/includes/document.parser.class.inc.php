@@ -1873,16 +1873,14 @@ class DocumentParser {
 		}
 		
 		// allow alias to be full path
-		if($method == 'alias')
-		{
-			$identifier = $this->cleanDocumentIdentifier($identifier);
-			$method = $this->documentMethod;
-		}
-		if($method == 'alias' && $this->config['use_alias_path'] && $this->getIdFromAlias($identifier)!==false)
+		if($method == 'alias' && $this->config['use_alias_path'])
 		{
 			$identifier = $this->getIdFromAlias($identifier);
-			$method = 'id';
+			if($identifier!==false)
+				$method = 'id';
+			else return false;
 		}
+		
 		// get document groups for current user
 		if ($docgrp= $this->getUserDocGroups())
 		{
