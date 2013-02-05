@@ -32,7 +32,7 @@ $newid = duplicateDocument($id);
 $modx->clearCache($clearcache);
 
 // finish cloning - redirect
-$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]_site_content',"id='{$newid}'"));
+$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$newid}'"));
 if($pid==0) $header = "Location: index.php?r=1&a=3&id={$newid}";
 else        $header = "Location: index.php?r=1&a=120&id={$pid}";
 header($header);
@@ -56,7 +56,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$userID = $modx->getLoginUserID();
 
 	// Grab the original document
-	$rs = $modx->db->select('*', '[+prefix+]_site_content', "id='{$docid}'");
+	$rs = $modx->db->select('*', '[+prefix+]site_content', "id='{$docid}'");
 	$content = $modx->db->getRow($rs);
 
 	$content['id'] = set_new_id();
@@ -104,11 +104,11 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
-		$content['menuindex'] = $modx->db->getValue($modx->db->select('max(menuindex)','[+prefix+]_site_content',"parent='{$pid}'"))+1;
+		$content['menuindex'] = $modx->db->getValue($modx->db->select('max(menuindex)','[+prefix+]site_content',"parent='{$pid}'"))+1;
 	}
 
 	// Duplicate the Document
-	$new_id = $modx->db->insert($content, '[+prefix+]_site_content');
+	$new_id = $modx->db->insert($content, '[+prefix+]site_content');
 
 	// duplicate document's TVs & Keywords
 	duplicateKeywords($docid, $new_id);
@@ -122,7 +122,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	));
 
 	// Start duplicating all the child documents that aren't deleted.
-	$rs = $modx->db->select('id', '[+prefix+]_site_content', "parent='{$docid}' AND deleted=0", 'id ASC');
+	$rs = $modx->db->select('id', '[+prefix+]site_content', "parent='{$docid}' AND deleted=0", 'id ASC');
 	if ($modx->db->getRecordCount($rs))
 	{
 		$_toplevel++;
@@ -143,13 +143,13 @@ function set_new_id()
 	switch($modx->config['docid_incrmnt_method'])
 	{
 		case '1':
-			$from = '[+prefix+]_site_content AS T0 LEFT JOIN [+prefix+]_site_content AS T1 ON T0.id + 1 = T1.id';
+			$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
 			$where = "T1.id IS NULL";
 			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
 			$result = $modx->db->getValue($rs);
 			break;
 		case '2':
-			$rs = $modx->db->select('MAX(id)+1', '[+prefix+]_site_content');
+			$rs = $modx->db->select('MAX(id)+1', '[+prefix+]site_content');
 			$result = $modx->db->getValue($rs);
 			break;
 		default:
