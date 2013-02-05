@@ -196,17 +196,19 @@ class template{
 	// ---------------------------------------------------
 	function fetch($tpl){
 		global $modx;
-		$template = "";
-		if ($modx->getChunk($tpl) != "") {
+		$template = '';
+		if ($modx->getChunk($tpl) != '') {
 			$template = $modx->getChunk($tpl);
-		} else if(substr($tpl, 0, 6) == "@FILE:") {
+		} else if(substr($tpl, 0, 5) == '@FILE') {
 			$template = file_get_contents(substr($tpl, 6));
-		} else if(substr($tpl, 0, 6) == "@CODE:") {
+		} else if(substr($tpl, 0, 5) == '@CODE') {
 			$template = substr($tpl, 6);
-		} else if(substr($tpl, 0, 5) == "@FILE") {
-			$template = file_get_contents(trim(substr($tpl, 5)));
-		} else if(substr($tpl, 0, 5) == "@CODE") {
-			$template = trim(substr($tpl, 5));
+		} else if(substr($tpl, 0, 9) == '@DOCUMENT') {
+			$docid = trim(substr($tpl, 10));
+			if(!preg_match('@^[0-9]+$@',$docid))
+				$template = $this->language['missing_placeholders_tpl'];
+			else
+				$template = $modx->getField($docid);
 		} else {
 			$template = $this->language['missing_placeholders_tpl'];
 		}
