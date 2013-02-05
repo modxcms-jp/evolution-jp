@@ -2393,8 +2393,11 @@ class DocumentParser {
 			$fields = "DISTINCT {$fields}";
 			$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 			$ids_str = implode(',',$ids);
-			if(!empty($published)) $where_published = "AND sc.published='{$published}'";
-			else                   $where_published = '';
+			if(!is_null($published)) $published = (string)$published;
+			if($published==='1' || $published==='0')
+				$where_published = "AND sc.published='{$published}'";
+			else
+				$where_published = '';
 			
 			$where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
 			$orderby = ($sort) ? "{$sort} {$dir}" : '';
