@@ -882,16 +882,17 @@ class ditto {
 		} else {
 			$sort= $orderBy['sql'];
 		}
-    
-    //Added by Andchir (http://modx-shopkeeper.ru/)
-		if(substr($where, 0, 5)=="@SQL:"){
-      $where = ($where == "") ? "" : substr(str_replace('@eq','=',$where), 5);
-      $left_join_tvc = "LEFT JOIN $tbltvc tvc ON sc.id = tvc.contentid";
-    }else{
-			$where= ($where == "") ? "" : 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", "", explode('AND', $where)));
-      $left_join_tvc = '';
-    }
-      
+		
+		//Added by Andchir (http://modx-shopkeeper.ru/)
+		$left_join_tvc = '';
+		if(substr($where, 0, 5)==='@SQL:') {
+			$where = substr($where, 5);
+			$where = str_replace('@eq', '=', $where);
+			$left_join_tvc = "LEFT JOIN {$tbltvc} tvc ON sc.id = tvc.contentid";
+		} elseif($where !== '') {
+			$where = 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", '', explode('AND', $where)));
+		}
+		
 		if ($public) {
 			// get document groups for current user
 			if ($docgrp= $modx->getUserDocGroups())
