@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 $host = $_POST['host'];
 $uid  = $_POST['uid'];
 $pwd  = $_POST['pwd'];
@@ -9,6 +7,7 @@ $self = 'install/connection.databasetest.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}install/functions.php");
+install_session_start();
 $language = getOption('install_language');
 includeLang($language);
 

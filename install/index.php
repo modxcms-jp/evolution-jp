@@ -10,6 +10,7 @@ $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 $installer_path = "{$base_path}install/";
 require_once("{$installer_path}functions.php");
+install_session_start();
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
@@ -22,22 +23,14 @@ $action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : '
 
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$base_path}manager/includes/version.inc.php");
-if(isset($_REQUEST['install_language']) && !empty($_REQUEST['install_language']))
-{
-	$default_language = $_REQUEST['install_language'];
-}
-elseif(isset($_SESSION['install_language']) && !empty($_SESSION['install_language']))
-{
-	$default_language = $_SESSION['install_language'];
-}
-else $default_language = 'japanese-utf8';
 
-$default_language = setOption('install_language',$default_language);
+$default_language = getOption('install_language');
+if(!$default_language) $default_language = autoDetectLang();
+if(!isset($_SESSION['install_language'])) setOption('install_language');
 
 includeLang($default_language);
 
 // start session
-session_start();
 sessionCheck();
 
 $installmode        = getOption('installmode');
