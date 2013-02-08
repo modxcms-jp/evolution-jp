@@ -2172,6 +2172,7 @@ class DocumentParser {
 			if($this->config['send_errormail'] <= $type)
 			{
 				$subject = 'Error mail from ' . $this->config['site_name'];
+				$mailbody = urldecode($mailbody);
 				$this->sendmail($subject,$mailbody);
 			}
 		}
