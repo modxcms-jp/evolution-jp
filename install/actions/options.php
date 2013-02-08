@@ -1,14 +1,16 @@
 <?php
 
-if(isset($_POST['cmsadmin']))           setOption('cmsadmin',$_POST['cmsadmin']);
-if(isset($_POST['cmsadminemail'])&&!empty($_POST['cmsadminemail']))
-{
-	setOption('cmsadminemail',$_POST['cmsadminemail']);
-}
-	else setOption('cmsadminemail','');
-	
-if(isset($_POST['cmspassword']))        setOption('cmspassword',$_POST['cmspassword']);
-if(isset($_POST['cmspasswordconfirm'])) setOption('cmspasswordconfirm',$_POST['cmspasswordconfirm']);
+$cmsadmin           = getOption('cmsadmin');
+$cmsadminemail      = getOption('cmsadminemail');
+$cmspassword        = getOption('cmspassword');
+$cmspasswordconfirm = getOption('cmspasswordconfirm');
+$chkagree           = getOption('chkagree');
+
+setOption('cmsadmin',$cmsadmin);
+setOption('cmsadminemail',$cmsadminemail);
+setOption('cmspassword',$cmspassword);
+setOption('cmspasswordconfirm',$cmspasswordconfirm);
+setOption('chkagree',$chkagree);
 
 $templates = getOption('template');
 $tvs       = getOption('tv');
@@ -16,7 +18,6 @@ $chunks    = getOption('chunk');
 $modules   = getOption('module');
 $plugins   = getOption('plugin');
 $snippets  = getOption('snippet');
-setOption('chkagree',$_POST['chkagree']);
 
 ?>
 

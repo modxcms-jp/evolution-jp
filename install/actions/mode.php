@@ -1,15 +1,23 @@
 <?php
-$install_language = autoDetectLang();
-setOption('install_language', $install_language);
+
+$installdata = getOption('installdata');
+$template    = getOption('template');
+$tv          = getOption('tv');
+$chunk       = getOption('chunk');
+$snippet     = getOption('snippet');
+$plugin      = getOption('plugin');
+$module      = getOption('module');
+
+$install_language = getOption('install_language', $install_language);
 $installmode = get_installmode();
 setOption('installmode', $installmode);
-setOption('installdata', $_POST['installdata']);
-setOption('template', $_POST['template']);
-setOption('tv', $_POST['tv']);
-setOption('chunk', $_POST['chunk']);
-setOption('snippet', $_POST['snippet']);
-setOption('plugin', $_POST['plugin']);
-setOption('module',$_POST['module']);
+setOption('installdata', $installdata);
+setOption('template'   , $template);
+setOption('tv'         , $tv);
+setOption('chunk'      , $chunk);
+setOption('snippet'    , $snippet);
+setOption('plugin'     , $plugin);
+setOption('module'     ,$module);
 
 $ph['installmode']   = $installmode;
 $ph['installImg']    = ($installmode==0) ? 'install_new.png'                       : 'install_upg.png';

@@ -1,11 +1,19 @@
 <?php
-setOption('installdata', $_POST['installdata']);
-setOption('template'   , $_POST['template']);
-setOption('tv'         , $_POST['tv']);
-setOption('chunk'      , $_POST['chunk']);
-setOption('snippet'    , $_POST['snippet']);
-setOption('plugin'     , $_POST['plugin']);
-setOption('module'     , $_POST['module']);
+$installdata = getOption('installdata');
+$template    = getOption('template');
+$tv          = getOption('tv');
+$chunk       = getOption('chunk');
+$snippet     = getOption('snippet');
+$plugin      = getOption('plugin');
+$module      = getOption('module');
+
+setOption('installdata', $installdata);
+setOption('template'   , $template);
+setOption('tv'         , $tv);
+setOption('chunk'      , $chunk);
+setOption('snippet'    , $snippet);
+setOption('plugin'     , $plugin);
+setOption('module'     , $module);
 $chkagree = getOption('chkagree');
 
 echo '<h2>' . $_lang['preinstall_validation'] . '</h2>';
@@ -172,7 +180,7 @@ if (!is_file($config_path)) {
 	// make an attempt to create the file
 	file_put_contents($config_path,'<?php //MODX configuration file ?>');
 }
-@chmod($config_path, 0606);
+@chmod($config_path, 0666);
 $isWriteable = is_writable($config_path);
 if (!$isWriteable) {
     $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
