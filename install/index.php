@@ -26,7 +26,8 @@ require_once("{$base_path}manager/includes/version.inc.php");
 
 $default_language = getOption('install_language');
 if(!$default_language) $default_language = autoDetectLang();
-if(!isset($_SESSION['install_language'])) setOption('install_language');
+if(!isset($_SESSION['install_language']) || empty($_SESSION['install_language']))
+	setOption('install_language',$default_language);
 
 includeLang($default_language);
 

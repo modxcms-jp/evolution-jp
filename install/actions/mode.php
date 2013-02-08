@@ -8,7 +8,7 @@ $snippet     = getOption('snippet');
 $plugin      = getOption('plugin');
 $module      = getOption('module');
 
-$install_language = getOption('install_language', $install_language);
+$install_language = getOption('install_language');
 $installmode = get_installmode();
 setOption('installmode', $installmode);
 setOption('installdata', $installdata);
