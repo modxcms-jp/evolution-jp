@@ -901,18 +901,17 @@ class ditto {
 			(!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
 		}
 		
-		$published = ($published) ? "AND sc.published=1" : "";
+		$published = ($published) ? "AND sc.published='1'" : '';
 		
-		//$sql = "SELECT DISTINCT $fields FROM $tblsc sc 
-    $sql = "SELECT DISTINCT $fields FROM $tblsc sc $left_join_tvc
-		LEFT JOIN $tbldg dg on dg.document = sc.id
-		WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
-		".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
-		($sort ? " ORDER BY $sort" : "") . " $limit ";
-
-		$result= $modx->db->query($sql);
+		$field = "DISTINCT {$fields}";
+		$from  = "{$tblsc} sc {$left_join_tvc} LEFT JOIN {$tbldg} dg on dg.document = sc.id";
+		$ids = join(',', $ids);
+		$access = $public ? "AND ({$access})" : '';
+		$where = "sc.id IN ({$ids}) {$published} AND sc.deleted='{$deleted}' {$where} {$access} GROUP BY sc.id";
+		
+		$result= $modx->db->select($fields, $from, $where, $sort, $limit);
 		$resourceArray= array ();
-		$cnt = @$modx->db->getRecordCount($result);
+		$cnt = $modx->db->getRecordCount($result);
 		$TVData = array();
 		$TVIDs = array();
 		if ($cnt) {
