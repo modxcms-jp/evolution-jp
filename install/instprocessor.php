@@ -134,12 +134,12 @@ else
 if ($installmode == 0)
 {
 	$siteid = uniqid('');
-	mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
+	$modx->db->query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
 }
 else
 {
 	// update site_id if missing
-	$ds = mysql_query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'");
+	$ds = $modx->db->query("SELECT setting_name,setting_value FROM {$tbl_system_settings} WHERE setting_name='site_id'");
 	if ($ds)
 	{
 		$r = mysql_fetch_assoc($ds);
@@ -147,7 +147,7 @@ else
 		if ($siteid == '' || $siteid = 'MzGeQ2faT4Dw06+U49x3')
 		{
 			$siteid = uniqid('');
-			mysql_query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
+			$modx->db->query("REPLACE INTO {$tbl_system_settings} (setting_name,setting_value) VALUES('site_id','{$siteid}')");
 		}
 	}
 }
@@ -181,11 +181,11 @@ if ($templates!==false || $installdata==1)
 				$content = modx_escape($content);
 				
 				// See if the template already exists
-				$rs = mysql_query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'");
+				$rs = $modx->db->query("SELECT * FROM {$tbl_site_templates} WHERE templatename='$name'");
 				
 				if (mysql_num_rows($rs))
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_templates} SET content='$content', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name'"))
+					if (!@ $modx->db->query("UPDATE {$tbl_site_templates} SET content='$content', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name'"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -195,8 +195,8 @@ if ($templates!==false || $installdata==1)
 				}
 				else
 				{
-					$rs = mysql_query("SELECT * FROM {$tbl_site_templates}");
-					if (!@ mysql_query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$content',$category_id,'$locked')"))
+					$rs = $modx->db->query("SELECT * FROM {$tbl_site_templates}");
+					if (!@ $modx->db->query("INSERT INTO {$tbl_site_templates} (templatename,description,content,category,locked) VALUES('$name','$desc','$content',$category_id,'$locked')"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -234,13 +234,13 @@ if ($tvs!==false || $installdata)
 			// Create the category if it does not already exist
 			$category = getCreateDbCategory($category, $sqlParser);
 			
-			$rs = mysql_query("SELECT * FROM {$tbl_site_tmplvars} WHERE name='$name'");
+			$rs = $modx->db->query("SELECT * FROM {$tbl_site_tmplvars} WHERE name='$name'");
 			if (mysql_num_rows($rs))
 			{
 				$insert = true;
 				while($row = mysql_fetch_assoc($rs))
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']}")) {
+					if (!@ $modx->db->query("UPDATE {$tbl_site_tmplvars} SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']}")) {
 						echo '<p>' . mysql_error() . '</p>';
 						return;
 					}
@@ -251,7 +251,7 @@ if ($tvs!==false || $installdata)
 			else
 			{
 				$q = "INSERT INTO {$tbl_site_tmplvars} (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default')";
-				if (!@ mysql_query($q))
+				if (!@ $modx->db->query($q))
 				{
 					echo '<p>' . mysql_error() . '</p>';
 					return;
@@ -264,21 +264,21 @@ if ($tvs!==false || $installdata)
 			if (count($assignments) > 0)
 			{
 				// remove existing tv -> template assignments
-				$ds=mysql_query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc'");
+				$ds=$modx->db->query("SELECT id FROM {$tbl_site_tmplvars} WHERE name='$name' AND description='$desc'");
 				$row = mysql_fetch_assoc($ds);
 				$id = $row["id"];
-				mysql_query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
+				$modx->db->query("DELETE FROM {$tbl_site_tmplvar_templates} WHERE tmplvarid = '{$id}'");
 				
 				// add tv -> template assignments
 				foreach ($assignments as $assignment)
 				{
 					$templatename = modx_escape($assignment);
-					$ts = mysql_query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$templatename'");
+					$ts = $modx->db->query("SELECT id FROM {$tbl_site_templates} WHERE templatename='$templatename'");
 					if ($ds && $ts)
 					{
 						$tRow = mysql_fetch_assoc($ts);
 						$templateId = $tRow['id'];
-						mysql_query("INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid) VALUES($id, $templateId)");
+						$modx->db->query("INSERT INTO {$tbl_site_tmplvar_templates} (tmplvarid, templateid) VALUES($id, $templateId)");
 					}
 				}
 			}
@@ -310,12 +310,12 @@ if ($chunks!==false || $installdata)
 				// Create the category if it does not already exist
 				$category_id = getCreateDbCategory($category, $sqlParser);
 				
-				$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'");
+				$rs = $modx->db->query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$name'");
 				$count_original_name = mysql_num_rows($rs);
 				if($overwrite == 'false')
 				{
 					$newname = $name . '-' . str_replace('.', '_', $modx_version);
-					$rs = mysql_query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$newname'");
+					$rs = $modx->db->query("SELECT * FROM {$tbl_site_htmlsnippets} WHERE name='$newname'");
 					$count_new_name = mysql_num_rows($rs);
 				}
 				$update = $count_original_name > 0 && $overwrite == 'true';
@@ -323,7 +323,7 @@ if ($chunks!==false || $installdata)
 				$snippet = modx_escape($snippet);
 				if ($update)
 				{
-					if (!@ mysql_query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$snippet', description='$desc', category=$category_id WHERE name='$name'"))
+					if (!@ $modx->db->query("UPDATE {$tbl_site_htmlsnippets} SET snippet='$snippet', description='$desc', category=$category_id WHERE name='$name'"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -337,7 +337,7 @@ if ($chunks!==false || $installdata)
 					{
 						$name = $newname;
 					}
-					if (!@ mysql_query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$snippet',$category_id)"))
+					if (!@ $modx->db->query("INSERT INTO {$tbl_site_htmlsnippets} (name,description,snippet,category) VALUES('$name','$desc','$snippet',$category_id)"))
 					{
 						$errors += 1;
 						echo '<p>' . mysql_error() . '</p>';
@@ -379,12 +379,12 @@ if ($modules!==false || $installdata)
 				// remove installer docblock
 				$modulecode = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $modulecode, 1);
 				$modulecode = modx_escape($modulecode);
-				$rs = mysql_query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'");
+				$rs = $modx->db->query("SELECT * FROM {$tbl_site_modules} WHERE name='$name'");
 				if (mysql_num_rows($rs))
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE {$tbl_site_modules} SET modulecode='$modulecode', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name'"))
+					if (!@ $modx->db->query("UPDATE {$tbl_site_modules} SET modulecode='$modulecode', description='$desc', properties='$props', enable_sharedparams='$shared' WHERE name='$name'"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -393,7 +393,7 @@ if ($modules!==false || $installdata)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$modulecode','$properties','$guid','$shared', $category)"))
+					if (!@ $modx->db->query("INSERT INTO {$tbl_site_modules} (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$modulecode','$properties','$guid','$shared', $category)"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -432,7 +432,7 @@ if ($plugins!==false || $installdata)
 				// disable legacy versions based on legacy_names provided
 				if(!empty($leg_names)) {
 					$update_query = "UPDATE {$tbl_site_plugins} SET disabled='1' WHERE name IN ('{$leg_names}')";
-					$rs = mysql_query($update_query);
+					$rs = $modx->db->query($update_query);
 				}
 				
 				// Create the category if it does not already exist
@@ -442,20 +442,20 @@ if ($plugins!==false || $installdata)
 				// remove installer docblock
 				$plugincode = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
 				$plugincode = modx_escape($plugincode);
-				$rs = mysql_query("SELECT * FROM {$tbl_site_plugins} WHERE name='$name' AND disabled='0'");
+				$rs = $modx->db->query("SELECT * FROM {$tbl_site_plugins} WHERE name='$name' AND disabled='0'");
 				if(mysql_num_rows($rs)) {
 					$insert = true;
 					while($row = mysql_fetch_assoc($rs)) {
 						$props = propUpdate($properties,$row['properties']);
 						if($row['description'] == $desc) {
-							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET plugincode='$plugincode', description='$desc', properties='$props' WHERE id={$row['id']}");
+							$rs = @ $modx->db->query("UPDATE {$tbl_site_plugins} SET plugincode='$plugincode', description='$desc', properties='$props' WHERE id={$row['id']}");
 							if(!$rs) {
 								echo '<p>' . mysql_error() . '</p>';
 								return;
 							}
 							$insert = false;
 						} else {
-							$rs = @ mysql_query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']}");
+							$rs = @ $modx->db->query("UPDATE {$tbl_site_plugins} SET disabled='1' WHERE id={$row['id']}");
 							if(!$rs) {
 								echo '<p>'.mysql_error().'</p>';
 								return;
@@ -464,7 +464,7 @@ if ($plugins!==false || $installdata)
 					}
 					if($insert === true) {
 						if($props) $properties = $props;
-						$rs = @mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugincode','$properties','$guid','0',$category)");
+						$rs = @$modx->db->query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugincode','$properties','$guid','0',$category)");
 						if(!$rs) {
 							echo '<p>'.mysql_error().'</p>';
 							return;
@@ -472,7 +472,7 @@ if ($plugins!==false || $installdata)
 					}
 					echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . '</span></p>';
 				} else {
-					$rs = @ mysql_query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugincode','$properties','$guid',$category)");
+					$rs = @ $modx->db->query("INSERT INTO {$tbl_site_plugins} (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugincode','$properties','$guid',$category)");
 					if(!$rs) {
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -481,14 +481,14 @@ if ($plugins!==false || $installdata)
 				}
 				// add system events
 				if(count($events) > 0) {
-				$ds = mysql_query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc'");
+				$ds = $modx->db->query("SELECT id FROM {$tbl_site_plugins} WHERE name='$name' AND description='$desc'");
 					if($ds) {
 						$row = mysql_fetch_assoc($ds);
 						$id = $row["id"];
 						// remove existing events
-						mysql_query("DELETE FROM {$tbl_site_plugin_events} WHERE pluginid = '{$id}'");
+						$modx->db->query("DELETE FROM {$tbl_site_plugin_events} WHERE pluginid = '{$id}'");
 						// add new events
-						mysql_query("INSERT INTO {$tbl_site_plugin_events} (pluginid, evtid) SELECT '{$id}' as 'pluginid',se.id as 'evtid' FROM {$tbl_system_eventnames} se WHERE name IN ('" . implode("','", $events) . "')");
+						$modx->db->query("INSERT INTO {$tbl_site_plugin_events} (pluginid, evtid) SELECT '{$id}' as 'pluginid',se.id as 'evtid' FROM {$tbl_system_eventnames} se WHERE name IN ('" . implode("','", $events) . "')");
 					}
 				}
 			}
@@ -523,12 +523,12 @@ if ($snippets!==false || $installdata)
 				// remove installer docblock
 				$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
 				$snippet = modx_escape($snippet);
-				$rs = mysql_query("SELECT * FROM {$tbl_site_snippets} WHERE name='$name'");
+				$rs = $modx->db->query("SELECT * FROM {$tbl_site_snippets} WHERE name='$name'");
 				if (mysql_num_rows($rs))
 				{
 					$row = mysql_fetch_assoc($rs);
 					$props = propUpdate($properties,$row['properties']);
-					if (!@ mysql_query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name'"))
+					if (!@ $modx->db->query("UPDATE {$tbl_site_snippets} SET snippet='$snippet', description='$desc', properties='$props' WHERE name='$name'"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -537,7 +537,7 @@ if ($snippets!==false || $installdata)
 				}
 				else
 				{
-					if (!@ mysql_query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category)"))
+					if (!@ $modx->db->query("INSERT INTO {$tbl_site_snippets} (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category)"))
 					{
 						echo '<p>' . mysql_error() . '</p>';
 						return;
@@ -600,7 +600,7 @@ foreach($files as $file)
 @chmod("{$cache_path}sitePublishing.idx.php", 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
-mysql_query("TRUNCATE TABLE {$tbl_active_users}");
+$modx->db->query("TRUNCATE TABLE {$tbl_active_users}");
 
 // andrazk 20070416 - release manager access
 if (is_file("{$cache_path}installProc.inc.php"))
