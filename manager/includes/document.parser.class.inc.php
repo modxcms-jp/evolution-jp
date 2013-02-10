@@ -2237,6 +2237,8 @@ class DocumentParser {
 	{
 		global $dbase;
 		
+		$dbase = trim($dbase,'`');
+		
 		if($limit < $trim) $trim = $limit;
 		
 		$count = $this->db->getValue($this->db->select('COUNT(id)',"[+prefix+]{$target}"));
@@ -2246,7 +2248,7 @@ class DocumentParser {
 			$trim = ($over + $trim);
 			$this->db->delete("[+prefix+]{$target}",'','',$trim);
 		}
-		$result = $this->db->query("SHOW TABLE STATUS FROM {$dbase}");
+		$result = $this->db->query("SHOW TABLE STATUS FROM `{$dbase}`");
 		while ($row = $this->db->getRow($result))
 		{
 			$this->db->query('OPTIMIZE TABLE ' . $row['Name']);

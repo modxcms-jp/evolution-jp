@@ -4,6 +4,7 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+$dbase = trim($dbase,'`');
 ?>
 <h1><?php echo $_lang["view_sysinfo"]; ?></h1>
 
@@ -39,7 +40,7 @@ if(!$modx->hasPermission('logs')) {
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
 		<?php echo render_tr($_lang['localtime'],strftime('%H:%M:%S', time()+$server_offset_time));?>
 		<?php echo render_tr($_lang['serveroffset'],$server_offset_time/(60*60) . ' h');?>
-		<?php echo render_tr($_lang['database_name'],str_replace('`','',$dbase));?>
+		<?php echo render_tr($_lang['database_name'],$dbase);?>
 		<?php echo render_tr($_lang['database_server'],$database_server);?>
 		<?php echo render_tr($_lang['database_version'],$modx->db->getVersion());?>
 		<?php
@@ -229,7 +230,7 @@ echo '</table>' . "\n";
 		  </thead>
 		  <tbody>
 <?php
-	$rs = $modx->db->query("SHOW TABLE STATUS FROM {$dbase} LIKE '{$table_prefix}%'");
+	$rs = $modx->db->query("SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$table_prefix}%'");
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$log_status = $modx->db->getRow($rs);
