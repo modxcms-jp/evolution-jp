@@ -17,7 +17,6 @@ $self = 'install/instprocessor.php';
 $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 
 require_once("{$base_path}manager/includes/default.config.php");
-require_once('functions.php');
 
 $installdata  = getOption('installdata');
 $templates    = getOption('template');
