@@ -13,7 +13,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	$parent    = $_GET['parent'];
 	$expandAll = $_GET['expandAll'];
 	$output    = '';
-	$theme = "{$manager_theme}/";
 
 	// setup sorting
 	if(isset($_REQUEST['tree_sortby']))
@@ -74,7 +73,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	// get document groups for current user
 	$mgrRole= (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole']==='1') ? '1' : '0';
 	
-	makeHTML($indent,$parent,$expandAll,$theme);
+	makeHTML($indent,$parent,$expandAll);
 	echo $output;
 
     // check for deleted documents on reload
@@ -84,10 +83,10 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_content,"deleted=1");
 		if ($modx->db->getValue($rs) > 0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
 	}
-	function makeHTML($indent,$parent=0,$expandAll,$theme)
+	function makeHTML($indent,$parent=0,$expandAll)
 	{
 		global $modx;
-		global $icons, $iconsPrivate, $theme, $_style,$modx_textdir;
+		global $icons, $iconsPrivate, $_style,$modx_textdir;
 		global $output, $_lang, $opened, $opened2, $closed2, $tree_orderby,$docgrp,$in_docgrp,$mgrRole; //added global vars
 		
 		$pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -279,7 +278,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 					$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fopen_node();
 					$output .= parse_ph($ph,$tpl);
-					makeHTML($indent+1,$id,$expandAll,$theme);
+					makeHTML($indent+1,$id,$expandAll);
 					$output .= '</div></div>';
 				}
 				else
