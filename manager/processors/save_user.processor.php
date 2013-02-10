@@ -61,7 +61,7 @@ if ($_SESSION['mgrRole'] != 1) {
 			}
 	}
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
-	if ($rs = $modx->db->select('role','[+prefix+]user_attributes',"internalKey='{$id}'")) {
+	if (isset($id) && $rs = $modx->db->select('role','[+prefix+]user_attributes',"internalKey='{$id}'")) {
 		if (0 < $modx->db->getRecordCount($rs))
 		{	// There should only be one if there is one
 			$row = $modx->db->getRow($rs);
@@ -90,18 +90,14 @@ switch ($mode) {
 		// check if the email address already exist
 		if (!$rs = $modx->db->select('id','[+prefix+]user_attributes',"email='{$email}'"))
 		{
-			webAlert("An error occurred while attempting to retrieve all users with email $email.");
+			webAlert("An error occurred while attempting to retrieve all users with email {$email}.");
 			exit;
 		}
 		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
-			$row = $modx->db->getRow($rs);
-			if ($row['id'] != $id) {
 				webAlert("Email is already in use!");
 				exit;
-			}
 		}
-
 		// generate a new password for this user
 		if ($specifiedpassword != '' && $passwordgenmethod == "spec") {
 			if (strlen($specifiedpassword) < 6) {
@@ -121,7 +117,6 @@ switch ($mode) {
 			webAlert("No password generation method specified!");
 			exit;
 		}
-
 		// invoke OnBeforeUserFormSave event
 		$modx->invokeEvent("OnBeforeUserFormSave", array (
 			"mode" => "new",
@@ -131,13 +126,15 @@ switch ($mode) {
 		// build the SQL
 		$field = array();
 		$field['username'] = $newusername;
-		$field['password'] = $modx->manager->genHash($newpassword, $id);
 		$internalKey = $modx->db->insert($field,'[+prefix+]manager_users');
 		if (!$internalKey) {
 			webAlert("An error occurred while attempting to save the user.");
 			exit;
 		}
+		$field['password'] = $modx->manager->genHash($newpassword, $internalKey);
+		$modx->db->update($field,'[+prefix+]manager_users',"id='{$internalKey}'");
 		
+		$field = array();
 		$field = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
 		$rs = $modx->db->insert($field,'[+prefix+]user_attributes');
 		if (!$rs) {
