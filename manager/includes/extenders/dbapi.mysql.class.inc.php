@@ -535,7 +535,7 @@ class DBAPI {
         if ((stripos($sql_or_table, 'select')===0)||(stripos($sql_or_table, 'show')===0)){
             $sql = $sql_or_table;
         }else{
-            $where = empty($where) ? '' : " WHERE '{$where}'";
+            $where = empty($where) ? '' : " WHERE {$where}";
             $orderby = empty($orderby)?"":" ORDER BY {$orderby}";
             $limit = empty($limit)?"": "LIMIT {$limit}";
             $sql_or_table = $this->replaceFullTableName($sql_or_table,'force');
