@@ -2142,8 +2142,8 @@ class DocumentParser {
 		if($pos!==false) $mailbody = substr($mailbody, 0, $pos);
 		$mailbody = strip_tags($mailbody);
 		if(1000 < strlen($mailbody)) $mailbody = substr($mailbody,0,1000);
-		$request_uri = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
-		$ua       = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+		$request_uri = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, $this->config['modx_charset']);
+		$ua       = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $this->config['modx_charset']);
 		$mailbody .= "\n{$request_uri}\n{$ua}";
 		
 		$msg= $this->db->escape($msg . "\n" . $this->config['site_url']);
@@ -3610,7 +3610,7 @@ class DocumentParser {
 		if (is_readable($file))
 		{
 			$source= file($file);
-			$source= htmlspecialchars($source[$line -1]);
+			$source= htmlspecialchars($source[$line -1], ENT_QUOTES, $this->config['modx_charset']);
 		}
 		else
 		{
@@ -3626,9 +3626,9 @@ class DocumentParser {
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = $_SERVER['REQUEST_URI'];
-        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
-        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
-        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES, $this->config['modx_charset']);
+        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $this->config['modx_charset']);
+        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES, $this->config['modx_charset']);
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
