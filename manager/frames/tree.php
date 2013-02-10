@@ -17,7 +17,99 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         resizeTree();
         restoreTree();
         $j(window).resize(function(){resizeTree();});
-    });
+        var tree = $j('div#treeRoot');
+        tree.on('click','div',function(){
+        	var str = $j(this).attr("property");
+        	var prop = (new Function("return " + str))();
+        	if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist')
+        		parent.tree.ca=prop.ca;
+        	treeAction(prop.id, prop.pagetitle);
+        	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
+        	$j(this).children('span.treeNode').addClass("treeNodeSelected");
+        });
+        tree.on('mouseenter','span.treeNode',function(){
+        	if(this.className!="treeNodeSelected") {
+        		$j(this).addClass("treeNodeHover");
+        	}
+        });
+        tree.on('mouseleave','span.treeNode',function(){
+        		$j(this).removeClass("treeNodeHover");
+        });
+		tree.on('selectstart', 'div', function() {
+			return false;
+		});
+		tree.on('dblclick','div',function(){
+			var str = $j(this).attr("property");
+			var prop = (new Function("return " + str))();
+			parent.tree.ca='open';
+			treeAction(prop.id, prop.pagetitle);
+			tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
+			$j(this).children('span.treeNode').addClass("treeNodeSelected");
+		}).click(function(){return false;});
+		tree.on('mousedown', 'div', function() {
+			return false;
+		});
+		tree.on('onmousedown', 'div', function() {
+			return false;
+		});
+		tree.on('click','img.icon',function(event){
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
+			return false;
+		});
+		tree.on('contextmenu', 'img.icon', function(event) {
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
+			return false;
+		});
+		tree.on('contextmenu', 'span.treeNode', function(event) {
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
+			return false;
+		});
+		tree.on('mousedown', 'img.icon', function() {
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			itemToChange          = prop.id;
+			selectedObjectName    = prop.pagetitle;
+			selectedObjectDeleted = prop.deleted;
+			selectedObjectUrl     = prop.url;
+			return false;
+		});
+		tree.on('mousedown', 'span.treeNode', function() {
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			itemToChange          = prop.id;
+			selectedObjectName    = prop.pagetitle;
+			selectedObjectDeleted = prop.deleted;
+			selectedObjectUrl     = prop.url;
+			return false;
+		});
+		tree.on('onmousedown', 'span.treeNode', function() {
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			itemToChange          = prop.id;
+			selectedObjectName    = prop.pagetitle;
+			selectedObjectDeleted = prop.deleted;
+			selectedObjectUrl     = prop.url;
+			return false;
+		});
+		tree.on('click','img.toggle',function(event){
+			var str = $j(this).parent().attr("property");
+			var prop = (new Function("return " + str))();
+			toggleNode(this, prop.indent, prop.id, 0, prop.ps);
+			return false;
+		});
+		$j('div#treeHolder').click(function(){
+			if(currSorterState=="block") {
+				currSorterState="none";
+				document.getElementById('floater').style.display=currSorterState;
+			}
+		});
+	});
 
     // preload images
     var i = new Image(18,18);
@@ -247,39 +339,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
     }
 
-    function setSelected(elSel) {
-        var all = document.getElementsByTagName( "SPAN" );
-        var l = all.length;
-
-        for ( var i = 0; i < l; i++ ) {
-            el = all[i]
-            cn = el.className;
-            if (cn=="treeNodeSelected") {
-                el.className="treeNode";
-            }
-        }
-        elSel.className="treeNodeSelected";
-    };
-
-    function setHoverClass(el, dir) {
-        if(el.className!="treeNodeSelected") {
-            if(dir==1) {
-                el.className="treeNodeHover";
-            } else {
-                el.className="treeNode";
-            }
-        }
-    };
-
-    // set Context Node State
-    function setCNS(n, b) {
-        if(b==1) {
-            n.style.backgroundColor="beige";
-        } else {
-            n.style.backgroundColor="";
-        }
-    };
-
     function updateTree() {
         rpcNode = document.getElementById('treeRoot');
         var dt = document.sortFrm.dt.value;
@@ -315,19 +374,19 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             }
         }
         if(ca=="open" || ca=="docinfo" || ca=="doclist" || ca=="") {
-            if(id==0) {
-                // do nothing?
+<?php
+    $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27');
+?>
+            if(id==0)
                 parent.main.location.href="index.php?a=120";
-            } else if(ca=="docinfo") {
+            else if(ca=="docinfo")
                 parent.main.location.href="index.php?a=3&id=" + id;
-            } else if(ca=="doclist") {
+            else if(ca=="doclist")
                 parent.main.location.href="index.php?a=120&id=" + id;
-            } else if(ca=="open") {
+            else if(ca=="open")
                 parent.main.location.href="index.php?a=27&id=" + id;
-            } else {
-                <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
+            else
                 parent.main.location.href="index.php?a=<?php echo $action; ?>&id=" + id; // edit as default action
-            }
         }
         if(ca=="parent") {
             try {

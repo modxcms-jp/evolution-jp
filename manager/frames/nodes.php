@@ -332,31 +332,18 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	{
 		$src = <<< EOT
 <div
+	property="{type:'page',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]'}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
-	onmousedown="return false;"
-	onselectstart="return false;"
 >[+spacer+][+pad+]<img
 	id="p[+id+]"
-	align="absmiddle"
-	title="[+_lang_click_to_context+]"
-	style="cursor: pointer"
+	class="icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
-	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
+	title="[+_lang_click_to_context+]"
 />&nbsp;<span
 	p="[+parent+]"
-	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
 	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</div>
 
 EOT;
@@ -367,37 +354,21 @@ EOT;
 	{
 		$src = <<< EOT
 <div
+	property="{type:'fopen',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]',indent:[+indent+],ps:[+private_status+]}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
-	onmousedown="return false;"
-	onselectstart="return false;"
 >[+spacer+]<img
 	id="s[+id+]"
-	align="absmiddle"
-	style="cursor:pointer"
+	class="toggle"
 	src="[+_style_tree_minusnode+]"
-	onclick="toggleNode(this,[+indent+],[+id+],0,[+private_status+]); return false;"
-	oncontextmenu="this.onclick(event); return false;"
 />&nbsp;<img
 	id="f[+id+]"
-	align="absmiddle"
-	title="[+_lang_click_to_context+]"
-	style="cursor: pointer"
+	class="icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
-	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
+	title="[+_lang_click_to_context+]"
 />&nbsp;<span
-	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
 >[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]<div style="display:block">
 
@@ -409,37 +380,21 @@ EOT;
 	{
 		$src = <<< EOT
 <div
+	property="{type:'fclose',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]',indent:[+indent+],ps:[+private_status+]}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
-	onmousedown="return false;"
-	onselectstart="return false;"
 >[+spacer+]<img
 	id="s[+id+]"
-	align="absmiddle"
-	style="cursor: pointer"
+	class="toggle"
 	src="[+_style_tree_plusnode+]"
-	onclick="toggleNode(this,[+indent+],[+id+],0,[+private_status+]); return false;"
-	oncontextmenu="this.onclick(event); return false;"
 />&nbsp;<img
 	id="f[+id+]"
-	title="[+_lang_click_to_context+]"
-	align="absmiddle"
-	style="cursor: pointer"
+	class="icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
-	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
+	title="[+_lang_click_to_context+]"
 />&nbsp;<span
-	ondblclick="parent.tree.ca='open';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
-	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]<div style="display:none"></div></div>
 
 EOT;
@@ -482,7 +437,7 @@ EOT;
 		$spacer = '';
 		for ($i = 1; $i <= $indent; $i++)
 		{
-			$spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			if(1<$i) $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 		}
 		return $spacer;
 	}

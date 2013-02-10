@@ -641,10 +641,12 @@ div.treeframebody {
 	padding: 6px 8px 0;
 	line-height: 1.3em;
 }
-#treeHolder div {
+#treeHolder {
+	padding-left:12px;
 }
 #treeRoot div img {
 	margin: 0 0 0 -6px;
+	vertical-align:middle;
 }
 	.rtl #treeRoot div img {
 		margin: 0 -6px 0 0;
@@ -668,6 +670,9 @@ div.treeframebody {
 	cursor: pointer;
 	width: auto;
 	margin-right:2px;
+}
+div.treeNode {
+	white-space: nowrap;
 }
 .treeNodeSelected,
 .treeNodeHover
