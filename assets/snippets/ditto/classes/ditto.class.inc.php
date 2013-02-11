@@ -1092,10 +1092,10 @@ class ditto {
 			$output = $this->template->fetch($param);
 		} else if(!empty($param)) {
 			$output = $modx->getChunk($param);
-			if($output==='') $output = $param;
 		} else {
 			$output = $ditto_lang[$langString];
 		}
+		if(trim($output)==='') $output = $param;
 		return $output;
 	}
 
