@@ -199,6 +199,8 @@ class template{
 		$template = '';
 		if ($modx->getChunk($tpl) != '') {
 			$template = $modx->getChunk($tpl);
+		} else if(substr($tpl, 0, 6) == '@CHUNK') {
+			$template = $modx->getChunk(substr($tpl, 7));
 		} else if(substr($tpl, 0, 5) == '@FILE') {
 			$template = file_get_contents(substr($tpl, 6));
 		} else if(substr($tpl, 0, 5) == '@CODE') {
