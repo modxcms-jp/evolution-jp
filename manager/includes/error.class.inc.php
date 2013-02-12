@@ -54,10 +54,11 @@ class errorHandler{
 	
 	function dumpError() {
 		global $_lang;
+		$prev_request_uri = $_SESSION['prev_request_uri'];
 		$scr = <<< EOT
 <script>
 	jAlert('{$this->errormessage}', '{$_lang['warning']}', function(){
-		history.back(-1);
+		top.main.document.location.href='{$prev_request_uri}';
 	});
 </script>
 EOT;
