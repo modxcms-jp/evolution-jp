@@ -202,7 +202,9 @@ class template{
 		} else if(substr($tpl, 0, 6) == '@CHUNK') {
 			$template = $modx->getChunk(substr($tpl, 7));
 		} else if(substr($tpl, 0, 5) == '@FILE') {
-			$template = file_get_contents(substr($tpl, 6));
+			$path = trim(substr($tpl, 6));
+			if(strpos($path, $modx->config['base_url'].'manager/inludes/config.inc.php')===false)
+				$template = file_get_contents($path);
 		} else if(substr($tpl, 0, 5) == '@CODE') {
 			$template = substr($tpl, 6);
 		} else if(substr($tpl, 0, 9) == '@DOCUMENT') {
