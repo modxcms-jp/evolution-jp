@@ -219,7 +219,7 @@ else
 					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
 					exit;
 				}
-				echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
+				else echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 			}
 			else
 			{
