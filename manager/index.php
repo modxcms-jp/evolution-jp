@@ -253,22 +253,15 @@ switch ($action) {
         include_once "actions/document_data.static.php";
         include_once "footer.inc.php";
         break;
-    case 85: // get the mutate page for adding a folder
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 120: // get the mutate page for changing content
         include_once "header.inc.php";
         include_once "actions/resources_list.static.php";
         include_once "footer.inc.php";
         break;
-    case 27: // get the mutate page for changing content
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 4: // get the mutate page for adding content
+    case 27: // get the mutate page for changing content
+    case 85: // get the mutate page for adding a folder
+    case 72: // get the weblink page
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
@@ -306,10 +299,6 @@ switch ($action) {
         include_once "processors/logout.processor.php";
         break;
     case 87: // get the new web user page
-        include_once "header.inc.php";
-        include_once "actions/mutate_web_user.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 88: // get the edit web user page
         include_once "header.inc.php";
         include_once "actions/mutate_web_user.dynamic.php";
@@ -322,10 +311,6 @@ switch ($action) {
         include_once "processors/delete_web_user.processor.php";
         break;
     case 11: // get the new user page
-        include_once "header.inc.php";
-        include_once "actions/mutate_user.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 12: // get the edit user page
         include_once "header.inc.php";
         include_once "actions/mutate_user.dynamic.php";
@@ -353,10 +338,6 @@ switch ($action) {
 
 // role management
     case 38: // get the new role page
-        include_once "header.inc.php";
-        include_once "actions/mutate_role.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 35: // get the edit role page
         include_once "header.inc.php";
         include_once "actions/mutate_role.dynamic.php";
@@ -369,10 +350,6 @@ switch ($action) {
         include_once "processors/delete_role.processor.php";
         break;
     case 16: // get the edit template action
-        include_once "header.inc.php";
-        include_once "actions/mutate_templates.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 19: // get the new template action
         include_once "header.inc.php";
         include_once "actions/mutate_templates.dynamic.php";
@@ -394,10 +371,6 @@ switch ($action) {
         include_once "footer.inc.php";
         break;
     case 22: // get the edit snippet action
-        include_once "header.inc.php";
-        include_once "actions/mutate_snippet.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 23: // get the new snippet action
         include_once "header.inc.php";
         include_once "actions/mutate_snippet.dynamic.php";
@@ -413,10 +386,6 @@ switch ($action) {
         include_once "processors/duplicate_snippet.processor.php";
         break;
     case 78: // get the edit snippet action
-        include_once "header.inc.php";
-        include_once "actions/mutate_htmlsnippet.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 77: // get the new chunk action
         include_once "header.inc.php";
         include_once "actions/mutate_htmlsnippet.dynamic.php";
@@ -447,10 +416,6 @@ switch ($action) {
         include_once "footer.inc.php";
         break;
     case 107: // get the new modul
-        include_once "header.inc.php";
-        include_once "actions/mutate_module.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 108: // get the edit module action
         include_once "header.inc.php";
         include_once "actions/mutate_module.dynamic.php";
@@ -482,10 +447,6 @@ switch ($action) {
         include_once "footer.inc.php";
         break;
     case 101: // get the new plugin action
-        include_once "header.inc.php";
-        include_once "actions/mutate_plugin.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 102: // get the edit plugin action
         include_once "header.inc.php";
         include_once "actions/mutate_plugin.dynamic.php";
@@ -503,12 +464,9 @@ switch ($action) {
 
 // view phpinfo
     case 200: // show phpInfo
-        if($modx->hasPermission('logs'))
-        {
-            include_once "header.inc.php";
-            include_once "actions/phpinfo.static.php";
-            include_once "footer.inc.php";
-        }
+        include_once "header.inc.php";
+        include_once "actions/phpinfo.static.php";
+        include_once "footer.inc.php";
         break;
 
 // errorpage
@@ -598,11 +556,6 @@ switch ($action) {
         include_once "actions/about.static.php";
         include_once "footer.inc.php";
         break;
-    case 72: // get the weblink page
-        include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
-        include_once "footer.inc.php";
-        break;
     case 75: // User management
         include_once "header.inc.php";
         include_once "actions/user_management.static.php";
@@ -656,12 +609,8 @@ switch ($action) {
         include_once "actions/help.static.php";
         include_once "footer.inc.php";
         break;
-    case 300: // Template Variables - Based on Apodigm's Docvars
-        // get the new document variable action
-        include_once "header.inc.php";
-        include_once "actions/mutate_tmplvars.dynamic.php";
-        include_once "footer.inc.php";
-        break;
+              // Template Variables - Based on Apodigm's Docvars
+    case 300: // get the new document variable action
     case 301: // get the edit document variable action
         include_once "header.inc.php";
         include_once "actions/mutate_tmplvars.dynamic.php";
