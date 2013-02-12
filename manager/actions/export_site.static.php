@@ -194,7 +194,7 @@ else
 			else
 			{
 				$pa = pathinfo($alias); // get path info array
-				$tsuffix = !empty($pa[extension]) ? '':$suffix;
+				$tsuffix = !empty($pa['extension']) ? '':$suffix;
 				$filename = $prefix.$alias.$tsuffix;
 			}
 			// get the file
