@@ -107,8 +107,8 @@ else
 	@set_time_limit($maxtime);
 	$exportstart = $export->get_mtime();
 	
-	if(is_dir(MODX_BASE_PATH . 'temp/export/'))       $filepath = MODX_BASE_PATH . 'temp/export/';
-	elseif(is_dir(MODX_BASE_PATH . 'assets/export/')) $filepath = MODX_BASE_PATH . 'assets/export/';
+	if(is_dir(MODX_BASE_PATH . 'temp/export/'))       $filepath = MODX_BASE_PATH . 'temp/export';
+	elseif(is_dir(MODX_BASE_PATH . 'assets/export/')) $filepath = MODX_BASE_PATH . 'assets/export';
 	
 	if(!is_writable($filepath))
 	{
@@ -116,13 +116,13 @@ else
 		include "footer.inc.php";
 		exit;
 	}
-	elseif(strpos($modx->config['base_path'],$filepath)===0 && 0 <= strlen(str_replace($filepath,'',$modx->config['base_path'])))
+	elseif(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
 	{
 		echo $_lang['export_site.static.php6'];
 		include "footer.inc.php";
 		exit;
 	}
-	elseif($modx->config['rb_base_dir'] === $filepath)
+	elseif($modx->config['rb_base_dir'] === "{$filepath}/")
 	{
 		echo $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
 		include "footer.inc.php";
@@ -365,6 +365,7 @@ class EXPORT_SITE
 		global $modx;
 		
 		$ignore_ids = $this->ignore_ids;
+		$dirpath = $dirpath . '/';
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
 		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
