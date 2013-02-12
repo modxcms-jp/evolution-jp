@@ -301,7 +301,7 @@ class EXPORT_SITE
 			$repl_before = $_POST['repl_before'];
 			$repl_after  = $_POST['repl_after'];
 			if($repl_before!==$repl_after) $src = str_replace($repl_before,$repl_after,$src);
-			$result = @file_put_contents($filepath,$src);
+			$result = file_put_contents($filepath,$src);
 			if($result !== false)
 			{
 				echo ' <span class="success">'.$_lang["export_site_success"].'</span><br />';
