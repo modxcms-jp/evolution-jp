@@ -96,6 +96,11 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
 }
 else
 {
+	if($modx->config['friendly_urls']==0)
+	{
+		$modx->config['friendly_urls']  = 1;
+		$modx->config['use_alias_path'] = 1;
+	}
 	$export = new EXPORT_SITE();
 	
 	$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
