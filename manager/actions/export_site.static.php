@@ -391,10 +391,6 @@ class EXPORT_SITE
 				$docname = $this->getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
 				printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
 				$filename = $dirpath.$docname;
-				if (is_dir($filename))
-				{
-					$this->removeDirectoryAll($filename);
-				}
 				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']) || $_POST['target']=='1')
 				{
 					if($row['published']==1)
@@ -435,6 +431,10 @@ class EXPORT_SITE
 						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
 						echo ' <span class="success">' . $_lang['export_site_success'] . '</span>' . $_lang["export_site_success_skip_dir"] . '<br />';
 					}
+				}
+				if($modx->config['make_folders']==='1')
+				{
+					rename($filename,$dirname . '/index.html');
 				}
 				$this->exportDir($row['id'], $dirname . '/', $i, $total);
 				$dircontent[] = $row['alias'];
