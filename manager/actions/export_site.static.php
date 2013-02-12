@@ -148,6 +148,16 @@ else
 	
 	// Support export alias path
 	
+	if (is_dir($filepath))
+	{
+		$export->removeDirectoryAll($filepath);
+		if(!is_dir($filepath))
+		{
+			@mkdir($filepath, 0777, true);
+			@chmod($filepath, 0777);
+		}
+	}
+	
 	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
 	{
 		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
