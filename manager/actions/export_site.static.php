@@ -107,16 +107,9 @@ else
 	@set_time_limit($maxtime);
 	$exportstart = $export->get_mtime();
 	
-	if(is_dir(MODX_BASE_PATH . 'temp/export/'))       $filepath = MODX_BASE_PATH . 'temp/export';
-	elseif(is_dir(MODX_BASE_PATH . 'assets/export/')) $filepath = MODX_BASE_PATH . 'assets/export';
-	
-	if(!is_writable($filepath))
-	{
-		echo $_lang['export_site_target_unwritable'];
-		include "footer.inc.php";
-		exit;
-	}
-	elseif(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
+	if(is_dir(MODX_BASE_PATH . 'temp'))       $filepath = MODX_BASE_PATH . 'temp/export';
+	elseif(is_dir(MODX_BASE_PATH . 'assets')) $filepath = MODX_BASE_PATH . 'assets/export';
+	if(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
 	{
 		echo $_lang['export_site.static.php6'];
 		include "footer.inc.php";
@@ -151,11 +144,17 @@ else
 	if (is_dir($filepath))
 	{
 		$export->removeDirectoryAll($filepath);
-		if(!is_dir($filepath))
-		{
-			@mkdir($filepath, 0777, true);
-			@chmod($filepath, 0777);
-		}
+	}
+	if(!is_dir($filepath))
+	{
+		@mkdir($filepath, 0777, true);
+		@chmod($filepath, 0777);
+	}
+	if(!is_writable($filepath))
+	{
+		echo $_lang['export_site_target_unwritable'];
+		include_once "footer.inc.php";
+		exit;
 	}
 	
 	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
