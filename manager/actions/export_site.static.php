@@ -189,7 +189,11 @@ else
 			$row=$modx->db->getRow($rs);
 
 			$id = $row['id'];
-			printf($_lang['export_site_exporting_document'], $i+1, $total, $row['pagetitle'], $id);
+			$ph['count']     = $i+1;
+			$ph['total']     = $total;
+			$ph['pagetitle'] = $row['pagetitle'];
+			$ph['id']        = $id;
+			echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $ph);
 			$row['alias'] = urldecode($row['alias']);
 			$alias = $row['alias'];
 		
@@ -392,7 +396,12 @@ class EXPORT_SITE
 			if (!$row['wasNull'])
 			{ // needs writing a document
 				$docname = $this->getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
-				printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
+				$ph['count']     = $i;
+				$ph['total']     = $total;
+				$ph['pagetitle'] = $row['pagetitle'];
+				$ph['id']        = $row['id'];
+				echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $ph);
+				$i++;
 				$filename = $dirpath.$docname;
 				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']) || $_POST['target']=='1')
 				{
@@ -423,7 +432,12 @@ class EXPORT_SITE
 					@chmod($dirname, 0777);
 					if ($row['wasNull'])
 					{
-						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
+						$ph['count']     = $i;
+						$ph['total']     = $total;
+						$ph['pagetitle'] = $row['pagetitle'];
+						$ph['id']        = $row['id'];
+						echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $ph);
+						$i++;
 						echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
 					}
 				}
@@ -431,7 +445,12 @@ class EXPORT_SITE
 				{
 					if ($row['wasNull'])
 					{
-						printf($_lang['export_site_exporting_document'], $i++, $total, $row['pagetitle'], $row['id']);
+						$ph['count']     = $i;
+						$ph['total']     = $total;
+						$ph['pagetitle'] = $row['pagetitle'];
+						$ph['id']        = $row['id'];
+						echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $ph);
+						$i++;
 						echo ' <span class="success">' . $_lang['export_site_success'] . '</span>' . $_lang["export_site_success_skip_dir"] . '<br />';
 					}
 				}

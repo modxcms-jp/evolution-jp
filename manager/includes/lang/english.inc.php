@@ -279,7 +279,7 @@ $_lang["existing_category"] = 'Existing Category';
 $_lang["expand_tree"] = 'Expand Site Tree';
 $_lang["export_site"] = 'Export Static HTML';
 $_lang["export_site_cacheable"] = 'Include non-cacheable files:';
-$_lang["export_site_exporting_document"] = '%s/%s - %s(index.php?id=%s)';
+$_lang["export_site_exporting_document"] = '[+count+](index.php?id=[+id+]) - [+pagetitle+]';
 $_lang["export_site_failed"] = 'Failed!';
 $_lang["export_site_failed_no_open"] = 'Cannot open file: ';
 $_lang["export_site_failed_no_retrieve"] = 'Cannot retrieve document.';
