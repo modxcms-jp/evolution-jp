@@ -50,9 +50,12 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
     <td><label><input type="radio" name="target" value="0"><?php echo $_lang['export_site.static.php2']; ?></label>
 		<label><input type="radio" name="target" value="1" checked="checked"><?php echo $_lang['export_site.static.php3']; ?></label></td>
   </tr>
+<?php
+	$ignore_ids = $modx->getOption('ignore_ids');
+?>
   <tr>
     <td class="head"><?php echo $_lang['a83_ignore_ids_title']; ?></td>
-    <td><input type="text" name="ignore_ids" value="" style="width:300px;" /></td>
+    <td><input type="text" name="ignore_ids" value="<?php echo $ignore_ids;?>" style="width:300px;" /></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
@@ -124,6 +127,7 @@ else
 	
 	$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 	
+	$modx->regOption('ignore_ids',$_POST['ignore_ids']);
 	if($_POST['ignore_ids'] !== '')
 	{
 		$ignore_ids = explode(',', $_POST['ignore_ids']);
