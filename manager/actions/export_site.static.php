@@ -17,16 +17,22 @@ if(!$modx->hasPermission('export_static'))
   </ul>
 </div>
 
-<div class="section">
+<script type="text/javascript">
+tpExport = new WebFXTabPane(document.getElementById("exportPane"));
+</script>
+
 <div class="sectionBody">
+<div class="tab-pane" id="exportPane">
+<div class="tab-page" id="tabMain">
+<h2 class="tab"><?php echo $_lang['export_site']?></h2>
+<script type="text/javascript">tpExport.addTabPage( document.getElementById( "tabMain" ) );</script>
+
 <?php
 
 if(!isset($_POST['export']))
 {
-	echo '<p>'.$_lang['export_site_message'].'</p>';
 ?>
 
-<fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;"><legend style="font-weight:bold;"><?php echo $_lang['export_site']; ?></legend>
 <form action="index.php" method="post" name="exportFrm">
 <input type="hidden" name="export" value="export" />
 <input type="hidden" name="a" value="83" />
@@ -93,7 +99,6 @@ if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
 	<li><a href="#" class="default" onclick="document.exportFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["export_site_start"]; ?></a></li>
 </ul>
 </form>
-</fieldset>
 
 <?php
 }
@@ -102,5 +107,15 @@ else
 	include_once($modx->config['base_path'] . 'manager/processors/export_site.processor.php');
 }
 ?>
+
+
+</div>
+<div class="tab-page" id="tabHelp">
+<h2 class="tab"><?php echo $_lang['help']?></h2>
+<script type="text/javascript">tpExport.addTabPage( document.getElementById( "tabHelp" ) );</script>
+<?php
+	echo '<p>'.$_lang['export_site_message'].'</p>';
+?>
+</div>
 </div>
 </div>
