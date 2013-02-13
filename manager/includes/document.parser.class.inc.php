@@ -589,19 +589,26 @@ class DocumentParser {
 	
 	function regOption($key, $initialvalue='')
 	{
-		if(!isset($this->config[$key]))
+		$this->config[$key] = $initialvalue;
+		$f['setting_name']  = $key;
+		$f['setting_value'] = $this->db->escape($initialvalue);
+		$key = $this->db->escape($key);
+		$rs = $this->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
+		
+		if($this->db->getRecordCount($rs)==0)
 		{
-			$this->config[$key] = $initialvalue;
-			$f['setting_name']  = $this->db->escape($key);
-			$f['setting_value'] = $this->db->escape($initialvalue);
 			$insert_id = $this->db->insert($f,'[+prefix+]system_settings');
 			if(!$insert_id)
 			{
 				$this->messageQuit('Error while inserting new option into database.', $this->db->lastQuery);
 				exit();
 			}
-			else $this->clearCache();
 		}
+		else
+		{
+			$this->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
+		}
+		$this->clearCache();
 	}
 	
 	function getOption($key, $default = null, $options = null, $skipEmpty = false)
