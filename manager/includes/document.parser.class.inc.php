@@ -2793,7 +2793,7 @@ class DocumentParser {
 	}
 
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
-	{ // jp-edition only
+	{
 		if(!$ph) return $src;
 		elseif(is_string($ph) && strpos($ph,'='))
 		{
