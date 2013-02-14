@@ -71,21 +71,6 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
     <td class="head"><?php echo $_lang['export_site.static.php5']; ?></td>
     <td><input type="text" name="repl_after" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
   </tr>
-<?php
-if($modx->config['friendly_urls']!=1 || $modx->config['use_alias_path']!=1)
-{
-?>
-  <tr>
-    <td class="head"><?php echo $_lang['export_site_prefix']; ?></td>
-    <td><input type="text" name="prefix" value="<?php echo $modx->config['friendly_url_prefix']; ?>" /></td>
-  </tr>
-  <tr>
-    <td class="head"><?php echo $_lang['export_site_suffix']; ?></td>
-    <td><input type="text" name="suffix" value="<?php echo $modx->config['friendly_url_suffix']; ?>" /></td>
-  </tr>
-<?php
-}
-?>
   <tr>
     <td class="head"><?php echo $_lang['export_site_maxtime']; ?></td>
     <td><input type="text" name="maxtime" value="60" />

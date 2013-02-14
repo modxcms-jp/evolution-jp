@@ -8,144 +8,81 @@ if(!$modx->hasPermission('export_static'))
 
 if(!isset($_POST['export'])) exit;
 
-	if($modx->config['friendly_urls']==0)
-	{
-		$modx->config['friendly_urls']  = 1;
-		$modx->config['use_alias_path'] = 1;
-	}
-	$export = new EXPORT_SITE();
-	
-	$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
-	@set_time_limit($maxtime);
-	$exportstart = $export->get_mtime();
-	
-	if(is_dir(MODX_BASE_PATH . 'temp'))       $filepath = MODX_BASE_PATH . 'temp/export';
-	elseif(is_dir(MODX_BASE_PATH . 'assets')) $filepath = MODX_BASE_PATH . 'assets/export';
-	if(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
-	{
-		echo $_lang['export_site.static.php6'];
-		include "footer.inc.php";
-		exit;
-	}
-	elseif($modx->config['rb_base_dir'] === "{$filepath}/")
-	{
-		echo $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
-		include "footer.inc.php";
-		exit;
-	}
-	
-	$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
-	
-	$modx->regOption('ignore_ids',$_POST['ignore_ids']);
-	if($_POST['ignore_ids'] !== '')
-	{
-		$ignore_ids = explode(',', $_POST['ignore_ids']);
-		foreach($ignore_ids as $i=>$v)
-		{
-			$v = $modx->db->escape(trim($v));
-			$ignore_ids[$i] = "'{$v}'";
-		}
-		$ignore_ids = join(',', $ignore_ids);
-		$ignore_ids = "AND NOT id IN ({$ignore_ids})";
-	}
-	else $ignore_ids = '';
-	
-	$export->ignore_ids = $ignore_ids;
-	
-	// Support export alias path
-	
-	if (is_dir($filepath))
-	{
-		$export->removeDirectoryAll($filepath);
-	}
-	if(!is_dir($filepath))
-	{
-		@mkdir($filepath, 0777, true);
-		@chmod($filepath, 0777);
-	}
-	if(!is_writable($filepath))
-	{
-		echo $_lang['export_site_target_unwritable'];
-		include_once "footer.inc.php";
-		exit;
-	}
-	
-	if($modx->config['friendly_urls']==1 && $modx->config['use_alias_path']==1)
-	{
-		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
-		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
-		$row = $modx->db->getRow($rs);
-		$total = $row['total'];
-		printf($_lang['export_site_numberdocs'], $total);
-		$n = 1;
-		$export->exportDir(0, $filepath, $n, $total);
+if($modx->config['friendly_urls']==0)
+{
+	$modx->config['friendly_urls']  = 1;
+	$modx->config['use_alias_path'] = 1;
+}
+$export = new EXPORT_SITE();
 
-	}
-	else
+$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
+@set_time_limit($maxtime);
+$exportstart = $export->get_mtime();
+
+if(is_dir(MODX_BASE_PATH . 'temp'))       $filepath = MODX_BASE_PATH . 'temp/export';
+elseif(is_dir(MODX_BASE_PATH . 'assets')) $filepath = MODX_BASE_PATH . 'assets/export';
+if(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
+{
+	echo $_lang['export_site.static.php6'];
+	include "footer.inc.php";
+	exit;
+}
+elseif($modx->config['rb_base_dir'] === "{$filepath}/")
+{
+	echo $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
+	include "footer.inc.php";
+	exit;
+}
+
+$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
+
+$modx->regOption('ignore_ids',$_POST['ignore_ids']);
+if($_POST['ignore_ids'] !== '')
+{
+	$ignore_ids = explode(',', $_POST['ignore_ids']);
+	foreach($ignore_ids as $i=>$v)
 	{
-		$prefix = $_POST['prefix'];
-		$suffix = $_POST['suffix'];
-	
-	// Modified for export alias path  2006/3/24 end
-		$fields = 'id, alias, pagetitle';
-		$where = "deleted=0 AND published=1 AND type='document' {$noncache}";
-		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
-		$total = $modx->db->getRecordCount($rs);
-		printf($_lang['export_site_numberdocs'], $total);
-
-		for($i=0; $i<$total; $i++)
-		{
-			$row=$modx->db->getRow($rs);
-
-			$id = $row['id'];
-			$ph['count']     = $i+1;
-			$ph['total']     = $total;
-			$ph['pagetitle'] = $row['pagetitle'];
-			$ph['id']        = $id;
-			echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $ph);
-			$row['alias'] = urldecode($row['alias']);
-			$alias = $row['alias'];
-		
-			if(empty($alias)) $filename = "{$prefix}{$id}{$suffix}";
-			else
-			{
-				$pa = pathinfo($alias); // get path info array
-				$tsuffix = !empty($pa['extension']) ? '':$suffix;
-				$filename = $prefix.$alias.$tsuffix;
-			}
-			// get the file
-			if($_POST['generate_mode']==='direct')
-			{
-				$back_lang = $_lang;
-				$somecontent = $modx->executeParser($id);
-				$_lang = $back_lang;
-			}
-			else $somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$id}");
-			
-			if($somecontent !== false)
-			{
-				// save it
-				$filename = $filepath . $filename;
-				// Write $somecontent to our opened file.
-				$repl_before = $_POST['repl_before'];
-				$repl_after  = $_POST['repl_after'];
-				if($repl_before!==$repl_after) $somecontent = str_replace($repl_before,$repl_after,$somecontent);
-				if(file_put_contents($filename, $somecontent) === FALSE)
-				{
-					echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_writee"].'<br />';
-					exit;
-				}
-				else echo ' <span class="success">'.$_lang['export_site_success'].'</span><br />';
-			}
-			else
-			{
-				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'<br />';
-			}
-		}
+		$v = $modx->db->escape(trim($v));
+		$ignore_ids[$i] = "'{$v}'";
 	}
-	$exportend = $export->get_mtime();
-	$totaltime = ($exportend - $exportstart);
-	printf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
+	$ignore_ids = join(',', $ignore_ids);
+	$ignore_ids = "AND NOT id IN ({$ignore_ids})";
+}
+else $ignore_ids = '';
+
+$export->ignore_ids = $ignore_ids;
+
+// Support export alias path
+
+if (is_dir($filepath))
+{
+	$export->removeDirectoryAll($filepath);
+}
+if(!is_dir($filepath))
+{
+	@mkdir($filepath, 0777, true);
+	@chmod($filepath, 0777);
+}
+if(!is_writable($filepath))
+{
+	echo $_lang['export_site_target_unwritable'];
+	include_once "footer.inc.php";
+	exit;
+}
+
+$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
+$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
+$row = $modx->db->getRow($rs);
+echo sprintf($_lang['export_site_numberdocs'], $row['total']);
+$n = 1;
+$export->exportDir(0, $filepath, $n, $row['total']);
+
+$exportend = $export->get_mtime();
+$totaltime = ($exportend - $exportstart);
+echo sprintf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
+
+
+
 class EXPORT_SITE
 {
 	var $ignore_ids;
