@@ -711,16 +711,8 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 		</div><!-- end .sectionBody -->
 <?php
 }
-?>
-
-<?php
 if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type'] == 'reference' || $_REQUEST['a'] == 72))
 {
-?>
-		<!-- Template Variables -->
-			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
-			<div class="sectionBody tmplvars" id="tv_body">
-<?php
 	if (isset ($_REQUEST['newtemplate'])) $template = $_REQUEST['newtemplate'];
 	elseif (isset ($content['template'])) $template = $content['template'];
 	elseif (isset ($default_template))    $template = $default_template;
@@ -744,6 +736,11 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	$num_of_tv = $modx->db->getRecordCount($rs);
 	if ($num_of_tv > 0)
 	{
+?>
+		<!-- Template Variables -->
+			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
+			<div class="sectionBody tmplvars" id="tv_body">
+<?php
 		echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
@@ -788,16 +785,11 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			}
 		}
 		echo "</table>\n";
-	}
-	else
-	{
-		// There aren't any Template Variables
-		echo "\t<p>".$_lang['tmplvars_novars']."</p>\n";
-	}
 ?>
 			</div>
 			<!-- end .sectionBody .tmplvars -->
 <?php
+	}
 }
 ?>
 
