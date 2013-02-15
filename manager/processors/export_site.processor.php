@@ -23,15 +23,11 @@ if(is_dir(MODX_BASE_PATH . 'temp'))       $filepath = MODX_BASE_PATH . 'temp/exp
 elseif(is_dir(MODX_BASE_PATH . 'assets')) $filepath = MODX_BASE_PATH . 'assets/export';
 if(strpos($modx->config['base_path'],"{$filepath}/")===0 && 0 <= strlen(str_replace("{$filepath}/",'',$modx->config['base_path'])))
 {
-	echo $_lang['export_site.static.php6'];
-	include "footer.inc.php";
-	exit;
+	return $_lang['export_site.static.php6'];
 }
 elseif($modx->config['rb_base_dir'] === "{$filepath}/")
 {
-	echo $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
-	include "footer.inc.php";
-	exit;
+	return $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
 }
 
 $noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
@@ -65,9 +61,7 @@ if(!is_dir($filepath))
 }
 if(!is_writable($filepath))
 {
-	echo $_lang['export_site_target_unwritable'];
-	include_once "footer.inc.php";
-	exit;
+	return $_lang['export_site_target_unwritable'];
 }
 
 $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
@@ -105,14 +99,8 @@ class EXPORT_SITE
 		// if the path is not valid or is not a directory ...
 		if(strpos($directory,MODX_BASE_PATH)===false) return FALSE;
 		
-		if(!file_exists($directory) || !is_dir($directory))
-		{
-			return FALSE;
-		}
-		elseif(!is_readable($directory))
-		{
-			return FALSE;
-		}
+		if(!is_dir($directory))          return FALSE;
+		elseif(!is_readable($directory)) return FALSE;
 		else
 		{
 			foreach(glob($directory . '/*') as $path)
@@ -144,22 +132,11 @@ class EXPORT_SITE
 			$repl_after  = $_POST['repl_after'];
 			if($repl_before!==$repl_after) $src = str_replace($repl_before,$repl_after,$src);
 			$result = file_put_contents($filepath,$src);
-			if($result !== false)
-			{
-				echo ' <span class="success">'.$_lang["export_site_success"].'</span><br />';
-			}
-			else
-			{
-				echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> " . $_lang["export_site_failed_no_write"] . ' - ' . $filepath . '</span><br />';
-				return FALSE;
-			}
+			
+			if($result !== false) return 'success';
+			else                  return 'failed_no_write';
 		}
-		else
-		{
-			echo ' <span class="fail">'.$_lang["export_site_failed"]."</span> ".$_lang["export_site_failed_no_retrieve"].'</span><br />';
-//			return FALSE;
-		}
-		return TRUE;
+		else                      return 'no_retrieve';
 	}
 
 	function getPageName($docid, $alias, $prefix, $suffix)
@@ -218,19 +195,39 @@ class EXPORT_SITE
 		
 		$ignore_ids = $this->ignore_ids;
 		$dirpath = $dirpath . '/';
+		$prefix = $modx->config['friendly_url_prefix'];
+		$suffix = $modx->config['friendly_url_suffix'];
+		
+		$tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span><br />';
+		$ph = array();
+		
+		$ph['status'] = 'fail';
+		$ph['msg1']   = $_lang['export_site_failed'];
+		$ph['msg2']   = $_lang["export_site_failed_no_write"] . ' - ' . $filepath;
+		$msg_failed_no_write    = $modx->parsePlaceholder($tpl,$ph);
+		
+		$ph['msg2']   = $_lang["export_site_failed_no_retrieve"];
+		$msg_failed_no_retrieve = $modx->parsePlaceholder($tpl,$ph);
+		
+		$ph['status'] = 'success';
+		$ph['msg1']   = $_lang['export_site_success'];
+		$ph['msg2']   = '';
+		$msg_success            = $modx->parsePlaceholder($tpl,$ph);
+
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
 		$noncache = $_POST['includenoncache']==1 ? '' : 'AND cacheable=1';
 		$where = "parent = {$dirid} AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		$dircontent = array();
+		$ph = array();
 		while($row = $modx->db->getRow($rs))
 		{
 			$row['alias'] = urldecode($row['alias']);
 			
 			if (!$row['wasNull'])
 			{ // needs writing a document
-				$docname = $this->getPageName($row['id'], $row['alias'], $modx->config['friendly_url_prefix'], $suffix = $modx->config['friendly_url_suffix']);
+				$docname = $this->getPageName($row['id'], $row['alias'], $prefix, $suffix);
 				$ph['count']     = $i;
 				$ph['total']     = $total;
 				$ph['pagetitle'] = $row['pagetitle'];
@@ -242,7 +239,19 @@ class EXPORT_SITE
 				{
 					if($row['published']==1)
 					{
-						if (!$this->writeAPage($row['id'], $filename)) exit;
+						switch($this->writeAPage($row['id'], $filename))
+						{
+							case 'failed_no_write':
+								echo $msg_failed_no_write;
+								exit;
+								break;
+							case 'failed_no_retrieve':
+								echo $msg_failed_no_retrieve;
+								exit;
+								break;
+							default:
+								echo $msg_success;
+						}
 					}
 					else
 					{

@@ -29,7 +29,11 @@ tpExport = new WebFXTabPane(document.getElementById("exportPane"));
 
 <?php
 
-if(!isset($_POST['export']))
+if(isset($_POST['export']))
+{
+	include_once($modx->config['base_path'] . 'manager/processors/export_site.processor.php');
+}
+else
 {
 ?>
 
@@ -86,10 +90,6 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </form>
 
 <?php
-}
-else
-{
-	include_once($modx->config['base_path'] . 'manager/processors/export_site.processor.php');
 }
 ?>
 
