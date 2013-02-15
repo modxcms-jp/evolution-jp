@@ -736,6 +736,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	$num_of_tv = $modx->db->getRecordCount($rs);
 	if ($num_of_tv > 0)
 	{
+	ob_start();
 ?>
 		<!-- Template Variables -->
 			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
@@ -789,6 +790,9 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			</div>
 			<!-- end .sectionBody .tmplvars -->
 <?php
+		$buf = ob_get_contents();
+		ob_end_clean();
+		echo $buf;
 	}
 }
 ?>
