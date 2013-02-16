@@ -3634,7 +3634,7 @@ class DocumentParser {
 
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='') {
 
-        $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
+        $version= isset ($GLOBALS['modx_version']) ? $GLOBALS['modx_version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = $_SERVER['REQUEST_URI'];
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES, $this->config['modx_charset']);
