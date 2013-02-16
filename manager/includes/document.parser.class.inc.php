@@ -617,7 +617,6 @@ class DocumentParser {
 		{
 			$this->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
 		}
-		$this->clearCache();
 	}
 	
 	function getOption($key, $default = null, $options = null, $skipEmpty = false)
