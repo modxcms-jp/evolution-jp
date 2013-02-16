@@ -2225,6 +2225,7 @@ class DocumentParser {
 			$p = $params;
 			unset($params);
 		}
+		if($msg==='') $msg = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
 		include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
 		$mail = new MODxMailer();
 		$mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
