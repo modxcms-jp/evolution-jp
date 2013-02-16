@@ -97,7 +97,7 @@ class EXPORT_SITE
 		return $mtime;
 	}
 	
-	funtcion setUrlMode()
+	function setUrlMode()
 	{
 		global $modx;
 		
