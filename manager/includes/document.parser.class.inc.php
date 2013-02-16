@@ -3653,7 +3653,7 @@ class DocumentParser {
         }
 
         if (!empty ($query)) {
-            $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:5px;color:#333;background-color:#ffffcd;">SQL:<span id="sqlHolder">' . $query . '</span></div>
+            $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:5px;color:#333;background-color:#ffffcd;">SQL &gt; <span id="sqlHolder">' . $query . '</span></div>
                     </td></tr>';
         }
 
@@ -3811,10 +3811,10 @@ class DocumentParser {
         // Display error
         if (isset($_SESSION['mgrValidated']))
         {
-	        echo '
-	             <html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
+	        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
 	             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	             <style>td, body { font-size: 12px; font-family:Verdana; }</style>
+	             <link rel="stylesheet" type="text/css" href="media/style/' . $this->config['manager_theme'] . '/style.css" />
+	             <style>body { padding:10px; } td {font:inherit;}</style>
 	             </head><body>
 	             ' . $str . '</body></html>';
         
