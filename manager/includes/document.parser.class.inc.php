@@ -587,11 +587,11 @@ class DocumentParser {
 		$this->config[$key] = $value;
 	}
 	
-	function regOption($key, $initialvalue='')
+	function regOption($key, $value='')
 	{
-		$this->config[$key] = $initialvalue;
+		$this->config[$key] = $value;
 		$f['setting_name']  = $key;
-		$f['setting_value'] = $this->db->escape($initialvalue);
+		$f['setting_value'] = $this->db->escape($value);
 		$key = $this->db->escape($key);
 		$rs = $this->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
 		
