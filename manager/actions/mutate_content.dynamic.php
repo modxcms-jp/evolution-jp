@@ -745,6 +745,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 		echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
+		$tv_hidden = false;
 		while($row = $modx->db->getRow($rs))
 		{
 			// Go through and display all Template Variables
@@ -782,7 +783,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			}
 			else
 			{
-				echo '<tr style="display:none;"><td colspan="2">' . renderFormElement('hidden', $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."</td></tr>\n";
+				$tv_hidden = true;
 			}
 		}
 		echo "</table>\n";
@@ -792,7 +793,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 <?php
 		$buf = ob_get_contents();
 		ob_end_clean();
-		echo $buf;
+		if(1 < $num_of_tv || $tv_hidden!==true) echo $buf;
 	}
 }
 ?>
