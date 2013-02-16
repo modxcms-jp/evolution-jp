@@ -88,15 +88,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			selectedObjectUrl     = prop.url;
 			return false;
 		});
-		tree.on('onmousedown', 'span.treeNode', function() {
-			var str = $j(this).parent().attr("property");
-			var prop = (new Function("return " + str))();
-			itemToChange          = prop.id;
-			selectedObjectName    = prop.pagetitle;
-			selectedObjectDeleted = prop.deleted;
-			selectedObjectUrl     = prop.url;
-			return false;
-		});
 		tree.on('click','img.toggle',function(event){
 			var str = $j(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
