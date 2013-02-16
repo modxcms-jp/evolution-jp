@@ -597,8 +597,9 @@ class DocumentParser {
 		
 		if($this->db->getRecordCount($rs)==0)
 		{
-			$insert_id = $this->db->insert($f,'[+prefix+]system_settings');
-			if(!$insert_id)
+			$this->db->insert($f,'[+prefix+]system_settings');
+			$diff = $this->db->getAffectedRows();
+			if(!$diff)
 			{
 				$this->messageQuit('Error while inserting new option into database.', $this->db->lastQuery);
 				exit();
