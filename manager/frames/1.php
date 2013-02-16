@@ -1,5 +1,5 @@
 <?php
-if (IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if (IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 $_SESSION['browser'] = (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false) ? 'ie' : 'other';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if($_SESSION['mgrForgetPassword']) $action = '28';
