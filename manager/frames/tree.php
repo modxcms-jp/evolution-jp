@@ -368,8 +368,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <?php
     $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27');
 ?>
-            if(id==0)
+            if(id==0) {
+                $j('div#treeRoot').find('span.treeNodeSelected').removeClass("treeNodeSelected");
                 parent.main.location.href="index.php?a=120";
+            }
             else if(ca=="docinfo")
                 parent.main.location.href="index.php?a=3&id=" + id;
             else if(ca=="doclist")
