@@ -1298,7 +1298,7 @@ class DocumentParser {
 		if(strpos($content,'[*')===false) return $content;
 		
 		$replace= array ();
-		preg_match_all('~\[\*(.*?)\*\]~', $content, $matches);
+		$matches = $this->splitMODXTags($content,'[*','*]');
 		$basepath= $this->config['base_path'] . 'manager/includes/';
 		include_once("{$basepath}tmplvars.format.inc.php");
 		include_once("{$basepath}tmplvars.commands.inc.php");
@@ -1330,7 +1330,8 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches= array ();
-		if(preg_match_all('~\[\(([a-z\_:]*?)\)\]~', $content, $matches))
+		$matches = $this->splitMODXTags($content,'[(',')]');
+		if($matches)
 		{
 			$i= 0;
 			foreach($matches['1'] as $key)
@@ -1363,8 +1364,8 @@ class DocumentParser {
 		if(strpos($content,'{{')===false) return $content;
 		
 		$replace= array ();
-		$matches= array ();
-		if (preg_match_all('~{{(.*?)}}~', $content, $matches))
+		$matches = $this->splitMODXTags($content,'{{','}}');
+		if ($matches)
 		{
 			$i= 0;
 			foreach($matches['1'] as $key)
@@ -1432,7 +1433,8 @@ class DocumentParser {
 		$replace= array ();
 		$matches= array ();
 		$content=$this->mergeSettingsContent($content);
-		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
+		$matches = $this->splitMODXTags($content,'[+','+]');
+		if($matches)
 		{
 			$i= 0;
 			foreach($matches['1'] as $key)
