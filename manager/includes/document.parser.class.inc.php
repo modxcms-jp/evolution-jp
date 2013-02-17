@@ -3874,7 +3874,7 @@ class DocumentParser {
         {
 	        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
 	             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	             <link rel="stylesheet" type="text/css" href="media/style/' . $this->config['manager_theme'] . '/style.css" />
+	             <link rel="stylesheet" type="text/css" href="' . $this->config['site_url'] . 'manager/media/style/' . $this->config['manager_theme'] . '/style.css" />
 	             <style>body { padding:10px; } td {font:inherit;}</style>
 	             </head><body>
 	             ' . $str . '</body></html>';
