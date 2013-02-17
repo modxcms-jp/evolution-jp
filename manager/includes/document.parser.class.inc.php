@@ -1440,7 +1440,6 @@ class DocumentParser {
 		if(strpos($content,'[+')===false) return $content;
 		
 		$replace= array ();
-		$matches= array ();
 		$content=$this->mergeSettingsContent($content);
 		$matches = $this->splitMODXTags($content,'[+','+]');
 		if($matches)
@@ -1450,24 +1449,26 @@ class DocumentParser {
 			{
 				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 				{
-					list($key,$modifiers) = explode(':', $key, 2);
-				}
-				else $modifiers = false;
-				
-				$value= '';
-				if (is_array($this->placeholders) && isset($this->placeholders[$key]))
-				{
-					$value= $this->placeholders[$key];
-				}
-				if ($value === '')
-				{
-					unset ($matches['0'][$i]); // here we'll leave empty placeholders for last.
+					list($name,$modifiers) = explode(':', $key, 2);
 				}
 				else
 				{
-					if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+					$name = $key;
+					$modifiers = false;
+				}
+				
+				$value= '';
+				if (is_array($this->placeholders) && isset($this->placeholders[$name]))
+				{
+					$value= $this->placeholders[$name];
+					if ($value !== '')
+					{
+						if($modifiers!==false) $value = $this->phx->phxFilter($name,$value,$modifiers);
+					}
 					$replace[$i]= $value;
 				}
+				else $replace[$i]= '[+' . $key . '+]';
+				
 				$i++;
 			}
 			$content= str_replace($matches['0'], $replace, $content);
