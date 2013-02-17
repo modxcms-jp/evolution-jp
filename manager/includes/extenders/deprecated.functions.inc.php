@@ -89,7 +89,10 @@ function mergeDocumentMETATags($template) {
     // Don't process when cached
     $modx->documentObject['hasmetatags'] = '0';
     }
-if (isset($metas) && $metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
+if (isset($metas) && $metas) {
+		$template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
+		$template=$this->mergeSettingsContent($template);
+	}
     return $template;
 }
 

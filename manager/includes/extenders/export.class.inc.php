@@ -168,7 +168,7 @@ class EXPORT_SITE
 		$ph['msg2']   = $_lang['export_site_success_skip_dir'];
 		$msg_success_skip_dir = $modx->parsePlaceholder($tpl,$ph);
 		
-		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, editedon, published";
+		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
 		$where = "parent = '{$dirid}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
@@ -186,14 +186,15 @@ class EXPORT_SITE
 			{ // needs writing a document
 				$docname = $this->getFileName($row['id'], $row['alias'], $prefix, $suffix);
 				$filename = $dirpath.$docname;
-				if (!file_exists($filename) || (filemtime($filename) < $row['editedon']) || $_POST['target']=='1')
+				if (!is_file($filename))
 				{
 					if($row['published']==='1')
 					{
-						switch($this->makeFile($row['id'], $filename))
+						$status = $this->makeFile($row['id'], $filename);
+						switch($status)
 						{
-							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ; exit;
-							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve; exit;
+							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ;
+							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve;
 							default:                   $row['status'] = $msg_success;
 						}
 					}

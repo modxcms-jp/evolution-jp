@@ -64,11 +64,6 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
     <td><label><input type="radio" name="includenoncache" value="1" <?php echo $includenoncache1;?>><?php echo $_lang['yes'];?></label>
 		<label><input type="radio" name="includenoncache" value="0" <?php echo $includenoncache0;?>><?php echo $_lang['no'];?></label></td>
   </tr>
-  <tr>
-    <td class="head"><?php echo $_lang['export_site.static.php1']; ?></td>
-    <td><label><input type="radio" name="target" value="0"><?php echo $_lang['export_site.static.php2']; ?></label>
-		<label><input type="radio" name="target" value="1" checked="checked"><?php echo $_lang['export_site.static.php3']; ?></label></td>
-  </tr>
 <?php
 	$ignore_ids = $modx->getOption('ignore_ids');
 ?>
