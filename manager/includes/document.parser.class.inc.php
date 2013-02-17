@@ -1368,6 +1368,7 @@ class DocumentParser {
 				$i++;
 			}
 			$content= str_replace($matches['0'], $replace, $content);
+			$content=$this->mergeSettingsContent($content);
 		}
 		return $content;
 	}
@@ -1384,6 +1385,7 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches= array ();
+		$content=$this->mergeSettingsContent($content);
 		if(preg_match_all('~\[\+(.*?)\+\]~', $content, $matches))
 		{
 			$i= 0;
@@ -1615,6 +1617,7 @@ class DocumentParser {
 		
 		for($i= 0; $i < $passes; $i++)
 		{
+			$stack=$this->mergeSettingsContent($stack);
 			if($i == ($passes -1)) $bt = md5($stack);
 			$pieces = array();
 			$pieces = explode('[[', $stack);
@@ -1977,7 +1980,7 @@ class DocumentParser {
 			// invoke OnParseDocument event
 			$this->documentOutput= $source; // store source code so plugins can
 			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
-			$source= $this->documentOutput;
+			$source = $this->mergeSettingsContent($this->documentOutput);
 			
 			if(strpos($source,'<!-- modx:ignore')!==false) $source= $this->ignoreCommentedTagsContent($source);
 			if(strpos($source,'<!-- modx')!==false) $source= $this->mergeCommentedTagsContent($source);
@@ -1995,7 +1998,10 @@ class DocumentParser {
 			// find and merge snippets
 			if(strpos($source,'[[')!==false) $source= $this->evalSnippets($source);
 			// find and replace Placeholders (must be parsed last) - Added by Raymond
-			if(strpos($source,'[+')!==false) $source= $this->mergePlaceholderContent($source);
+			if(strpos($source,'[+')!==false) {
+				$source= $this->mergePlaceholderContent($source);
+				$source = $this->mergeSettingsContent($source);
+			}
 			if ($this->dumpSnippets == 1)
 			{
 				$this->snipCode .= '</div></fieldset>';
