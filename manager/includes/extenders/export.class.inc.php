@@ -13,11 +13,14 @@ class EXPORT_SITE
 	
 	function EXPORT_SITE()
 	{
+		global $modx;
+		
 		$this->exportstart = $this->get_mtime();
 		$this->count = 0;
 		$this->setUrlMode();
 		$this->dirCheckCount = 0;
 		$this->generate_mode = 'direct';
+		$this->targetDir = $modx->config['base_path'] . 'temp/export';
 	}
 	
 	function setExportDir($dir)

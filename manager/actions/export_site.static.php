@@ -31,8 +31,6 @@ tpExport = new WebFXTabPane(document.getElementById("exportPane"));
 
 if(isset($_POST['export']))
 {
-	$modx->regOption('export_includenoncache',$_POST['includenoncache']);
-	$modx->regOption('ignore_ids',$_POST['ignore_ids']);
 	$rs = include_once($modx->config['base_path'] . 'manager/processors/export_site.processor.php');
 	echo $rs;
 }
@@ -48,10 +46,16 @@ table.settings {width:100%;}
 table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px;font-weight:bold;}
 </style>
 <table class="settings" cellspacing="0" cellpadding="2">
+<?php
+	$generate_mode0 = '';
+	$generate_mode1 = '';
+	if($modx->config['export_generate_mode']==='direct') $generate_mode1 = 'checked="checked"';
+	else                                                 $generate_mode0 = 'checked="checked"';
+?>
   <tr>
     <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
-    <td><label><input type="radio" name="generate_mode" value="direct" checked="checked"><?php echo $_lang['a83_mode_direct'];?></label>
-		<label><input type="radio" name="generate_mode" value="crawl"><?php echo $_lang['a83_mode_crawl'];?></label></td>
+    <td><label><input type="radio" name="generate_mode" value="direct" <?php echo $generate_mode1;?>><?php echo $_lang['a83_mode_direct'];?></label>
+		<label><input type="radio" name="generate_mode" value="crawl"  <?php echo $generate_mode0;?>><?php echo $_lang['a83_mode_crawl'];?></label></td>
   </tr>
 <?php
 	$includenoncache0 = '';
@@ -71,13 +75,17 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
     <td class="head"><?php echo $_lang['a83_ignore_ids_title']; ?></td>
     <td><input type="text" name="ignore_ids" value="<?php echo $ignore_ids;?>" style="width:300px;" /></td>
   </tr>
+<?php
+$repl_before = $modx->getOption('repl_before',$modx->config['site_url']);
+$repl_after  = $modx->getOption('repl_after',$modx->config['site_url']);
+?>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
-    <td><input type="text" name="repl_before" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
+    <td><input type="text" name="repl_before" value="<?php echo $repl_before; ?>" style="width:300px;" /></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php5']; ?></td>
-    <td><input type="text" name="repl_after" value="<?php echo $modx->config['site_url']; ?>" style="width:300px;" /></td>
+    <td><input type="text" name="repl_after" value="<?php echo $repl_after; ?>" style="width:300px;" /></td>
   </tr>
   <tr>
     <td class="head"><?php echo $_lang['export_site_maxtime']; ?></td>
