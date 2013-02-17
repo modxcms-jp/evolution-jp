@@ -1588,7 +1588,7 @@ class DocumentParser {
 					{
 						$v = str_replace('"', '', $v);
 						$v = htmlspecialchars($v,ENT_QUOTES,$this->config['modx_charset']);
-						if(32 < strlen($v)) $v = substr($v,0,32) . '...';
+						if(32 < strlen($v)) $v = mb_substr($v,0,32,$this->config['modx_charset']) . '...';
 						$a[] = '"' . $v . '"';
 					}
 				}
