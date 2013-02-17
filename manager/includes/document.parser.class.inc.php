@@ -1311,12 +1311,21 @@ class DocumentParser {
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
 			else $modifiers = false;
-			$value= $this->documentObject[$key];
-			if (is_array($value))
+			if(isset($this->documentObject[$key]))
 			{
-				$value= getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
+				$value= $this->documentObject[$key];
+				if (is_array($value))
+				{
+					$value= getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
+				}
+				if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
 			}
-			if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+			else
+			{
+				if(strpos($key,'[*')!==false) $key = $this->mergeDocumentContent($key);
+				$value = '[*' . $key . '*]';
+			}
+			
 			$replace[$i]= $value;
 			$i++;
 		}
