@@ -1,6 +1,8 @@
 <?php
 class EXPORT_SITE
 {
+	var $targetDir;
+	var $generate_mode;
 	var $total;
 	var $count;
 	var $ignore_ids;
@@ -11,13 +13,18 @@ class EXPORT_SITE
 	
 	function EXPORT_SITE()
 	{
-		$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
-		@set_time_limit($maxtime);
 		$this->exportstart = $this->get_mtime();
-		$this->repl_before = $_POST['repl_before'];
-		$this->repl_after  = $_POST['repl_after'];
 		$this->count = 0;
 		$this->setUrlMode();
+		$this->dirCheckCount = 0;
+		$this->generate_mode = 'direct';
+	}
+	
+	function setExportDir($dir)
+	{
+		$dir = str_replace('\\','/',$dir);
+		$dir = rtrim($dir, '/');
+		$this->targetDir = $dir;
 	}
 	
 	function get_mtime()
@@ -39,6 +46,31 @@ class EXPORT_SITE
 		}
 	}
 	
+	function getTotal($ignore_ids='', $noncache='0')
+	{
+		global $modx;
+		
+		if($ignore_ids !== '')
+		{
+			$ignore_ids = explode(',', $include_noncache);
+			foreach($ignore_ids as $i=>$v)
+			{
+				$v = $modx->db->escape(trim($v));
+				$ignore_ids[$i] = "'{$v}'";
+			}
+			$ignore_ids = join(',', $ignore_ids);
+			$ignore_ids = "AND NOT id IN ({$ignore_ids})";
+		}
+		else $ignore_ids = '';
+		$this->ignore_ids = $ignore_ids;
+		
+		$noncache = $include_noncache==1 ? '' : 'AND cacheable=1';
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
+		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
+		$row = $modx->db->getRow($rs);
+		return $row['total'];
+	}
+	
 	function removeDirectoryAll($directory)
 	{
 		$directory = rtrim($directory,'/');
@@ -52,17 +84,21 @@ class EXPORT_SITE
 			foreach(glob($directory . '/*') as $path)
 			{
 				if(is_dir($path)) $this->removeDirectoryAll($path);
-				else              @unlink($path);
+				else              $rs = unlink($path);
 			}
 		}
-		return (@rmdir($directory));
+		if($directory !== $this->targetDir)
+		{
+			$rs = rmdir($directory);
+		}
+		return $rs;
 	}
 
-	function writeAPage($docid, $filepath)
+	function makeFile($docid, $filepath)
 	{
 		global  $modx,$_lang;
 		
-		if($_POST['generate_mode']==='direct')
+		if($this->generate_mode==='direct')
 		{
 			$back_lang = $_lang;
 			$src = $modx->executeParser($docid);
@@ -99,13 +135,14 @@ class EXPORT_SITE
 		return $filename;
 	}
 
-	function exportDir($dirid, $dirpath)
+	function exportDir($dirid)
 	{
 		global $_lang;
 		global $modx;
 		
 		$ignore_ids = $this->ignore_ids;
-		$dirpath = $dirpath . '/';
+		$dirpath = $this->targetDir . '/';
+		
 		$prefix = $modx->config['friendly_url_prefix'];
 		$suffix = $modx->config['friendly_url_suffix'];
 		
@@ -153,7 +190,7 @@ class EXPORT_SITE
 				{
 					if($row['published']==='1')
 					{
-						switch($this->writeAPage($row['id'], $filename))
+						switch($this->makeFile($row['id'], $filename))
 						{
 							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ; exit;
 							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve; exit;
@@ -188,7 +225,8 @@ class EXPORT_SITE
 				{
 					rename($filename,$dir_path . '/index.html');
 				}
-				$this->exportDir($row['id'], $dir_path . '/');
+				$this->targetDir = $dir_path;
+				$this->exportDir($row['id']);
 			}
 		}
 		return join("\n", $this->output);
