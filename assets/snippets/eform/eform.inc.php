@@ -692,7 +692,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 # Form Merge
 function formMerge($docText, $docFields, $vClasses='') {
-    global $formats;
+    global $modx,$formats;
     global $lastitems;
     if(!$docText) return '';
 
@@ -730,6 +730,10 @@ function formMerge($docText, $docFields, $vClasses='') {
     }
     $lastitems[count($lastitems)] = "class=\"\""; //removal off empty class attributes
     $docText = str_replace($lastitems,"",$docText);
+    $docText = $modx->mergeDocumentContent($docText);
+    $docText = $modx->mergeSettingsContent($docText);
+    $docText = $modx->mergeChunkContent($docText);
+    $docText = $modx->evalSnippets($docText);
     return $docText;
 }
 
