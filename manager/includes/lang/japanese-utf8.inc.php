@@ -280,7 +280,7 @@ $_lang["everybody"] = '全メンバー';
 $_lang["existing_category"] = '既存のカテゴリー';
 $_lang["expand_tree"] = 'リソースツリーを展開';
 $_lang["export_site"] = 'エクスポート';
-$_lang["export_site_cacheable"] = '非キャッシュファイルを含む';
+$_lang["export_site_cacheable"] = '非キャッシュリソースを含む';
 $_lang["export_site_exporting_document"] = '[+status+] ([+count+]) index.php?id=[+id+] - [+pagetitle+]<br />';
 $_lang["export_site_failed"] = 'スキップ';
 $_lang["export_site_failed_no_open"] = 'ファイルを開けません:';
