@@ -132,7 +132,7 @@ class ManagerAPI {
 		global $modx,$image_limit_width;
 		
 		$target_path = str_replace('\\','/', $target_path);
-		$new_file_permissions = decoct($modx->config['new_file_permissions']);
+		$new_file_permissions = octdec($modx->config['new_file_permissions']);
 		
 		if(strpos($target_path, $modx->config['filemanager_path'])!==0)
 		{
