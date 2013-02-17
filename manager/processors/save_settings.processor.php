@@ -80,6 +80,11 @@ if (isset($_POST) && count($_POST) > 0) {
 				{
 					$v = 'english';
 				}
+				break;
+			case 'new_file_permissions':
+			case 'new_folder_permissions':
+				if(strlen($v)==3) $v = '0' . $v;
+				break;
 			default:
 			break;
 		}
