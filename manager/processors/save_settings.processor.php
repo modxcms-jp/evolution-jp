@@ -85,6 +85,9 @@ if (isset($_POST) && count($_POST) > 0) {
 			case 'new_folder_permissions':
 				if(strlen($v)==3) $v = '0' . $v;
 				break;
+			case 'doc_encoding':
+				$charset = $modx->getMimeName($v);
+				$savethese[] = "('charset', '{$charset}')";
 			default:
 			break;
 		}

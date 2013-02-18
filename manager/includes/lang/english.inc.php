@@ -1259,3 +1259,6 @@ $_lang["user_auto_sleep_title"] = 'Auto sleep inactive user';
 $_lang["user_auto_sleep_message"] = 'When there is not manager login, in the days that set here, make an applicable user dormancy automatically.';
 
 $_lang["resources_list"] = 'Resources List';
+
+$_lang["doc_encoding_title"] = 'Page encoding';
+$_lang["doc_encoding_message"] = 'Set a default encoding to use for the output of the page.';

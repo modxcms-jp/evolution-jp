@@ -216,7 +216,7 @@ class DocumentParser {
 		}
 		elseif ($site_status===false)
 		{
-			header("Content-Type: text/html; charset={$this->config['modx_charset']}");
+			header("Content-Type: text/html; charset={$this->config['charset']}");
 			header('HTTP/1.0 503 Service Unavailable');
 			if (!$this->config['site_unavailable_page'])
 			{
@@ -460,7 +460,7 @@ class DocumentParser {
 			$type = $this->documentObject['contentType'];
 			if(empty($type)) $type = 'text/html';
 			
-			header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
+			header("Content-Type: {$type}; charset={$this->config['charset']}");
 			//            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
 			//                header('HTTP/1.0 404 Not Found');
 			if ($this->documentObject['content_dispo'] == 1)
@@ -513,6 +513,10 @@ class DocumentParser {
 		else                                   echo $this->documentOutput;
 		
 		$result = ob_get_clean();
+		if(strtolower($this->config['doc_encoding'])!=='utf-8')
+		{
+			$result = mb_convert_encoding($result, $this->config['doc_encoding'], 'utf-8');
+		}
 		return $result;
 	}
 	
@@ -2333,6 +2337,17 @@ class DocumentParser {
 		{
 			$this->db->query('OPTIMIZE TABLE ' . $row['Name']);
 		}
+	}
+	
+	function getMimeName($encode)
+	{
+		$rs = $encode;
+		$encode = strtolower($encode);
+		if(strpos($encode,'utf-8')!==false)     $rs = 'UTF-8';
+		elseif(strpos($encode,'sjis')!==false)  $rs = 'Shift_JIS';
+		elseif(strpos($encode,'eucjp')!==false) $rs = 'EUC-JP';
+		elseif(strpos($encode,'cp950')!==false) $rs = 'BIG5';
+		return $rs;
 	}
 	
     # Returns true if parser is executed in backend (manager) mode

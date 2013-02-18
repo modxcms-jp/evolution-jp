@@ -91,6 +91,7 @@ $default_config['topmenu_tools']            = 'bk_manager,refresh_site,import_si
 $default_config['topmenu_reports']          = 'site_schedule,eventlog_viewer,view_logging,view_sysinfo';
 $default_config['tree_pane_open_default']   = '1';
 $default_config['auto_sleep_user']          = '365';
+$default_config['doc_encoding']             = 'UTF-8';
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return $default_config;
 

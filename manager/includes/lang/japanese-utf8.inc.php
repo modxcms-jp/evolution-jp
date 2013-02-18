@@ -94,7 +94,7 @@ $_lang["change_password_confirm"] = 'パスワードをもう一度';
 $_lang["change_password_message"] = 'パスワードの文字数は6～32文字です。';
 $_lang["change_password_new"] = '新しいパスワード';
 $_lang["charset_message"] = '管理画面で使用したいエンコードを選択できます。設定変更後にconfig.inc.php内のエンコード指定も変更する必要があります。<br />※標準ではUTF-8固定です。選択肢を増やしたい場合はcharsets.phpを編集してください。';
-$_lang["charset_title"] = 'エンコード';
+$_lang["charset_title"] = 'システムエンコード';
 $_lang["chunk"] = 'チャンク';
 $_lang["chunk_code"] = 'チャンク コード (html)';
 $_lang["chunk_multiple_id"] = 'エラー: 複数のチャンクが一つのユニークIDを利用しています。';
@@ -1261,3 +1261,6 @@ $_lang["user_auto_sleep_title"] = 'ユーザを自動的に休止';
 $_lang["user_auto_sleep_message"] = '一定期間ログインしていないユーザを自動的に休止状態にします。ここで日数を設定します。';
 
 $_lang["resources_list"] = 'リソース一覧';
+
+$_lang["doc_encoding_title"] = 'ページのエンコード';
+$_lang["doc_encoding_message"] = 'ページの出力に用いるエンコードのデフォルト値を設定します。';

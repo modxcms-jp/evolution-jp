@@ -244,6 +244,15 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang["doc_encoding_title"]?></th>
+	<td>
+		<select name="doc_encoding" size="1" class="inputBox" style="width:250px;">
+		<?php include "site_charsets.php"; ?>
+		</select><br />
+		<?php echo $_lang["doc_encoding_message"]?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["xhtml_urls_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('xhtml_urls','1',$xhtml_urls=='1'));?><br />
