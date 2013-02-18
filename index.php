@@ -138,8 +138,18 @@ $modx->mstart = $mstart;
 $modx->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) $modx->error_reporting = $error_reporting;
 
+$modx->db->connect();
+$modx->getSettings();
+
 // execute the parser if index.php was not included
 if (!MODX_API_MODE) {
     $result = $modx->executeParser();
     echo $result;
+}
+if($modx->isBackend())
+{
+	if (!isset($manager_language)) $manager_language = 'english';
+	$_lang = array();
+	include_once("{$core_path}lang/{$manager_language}.inc.php");
+	header("Content-Type: text/html; charset={$modx_manager_charset}");
 }
