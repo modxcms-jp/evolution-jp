@@ -48,6 +48,7 @@ class EXPORT_SITE
 		{
 			$modx->config['friendly_urls']  = 1;
 			$modx->config['use_alias_path'] = 1;
+			$modx->clearCache();
 		}
 	}
 	
