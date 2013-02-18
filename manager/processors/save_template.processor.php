@@ -5,6 +5,7 @@ if(!$modx->hasPermission('save_template')) {
 	$e->dumpError();
 }
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
+
 $template     = $modx->db->escape($_POST['post']);
 $templatename = $modx->db->escape(trim($_POST['templatename']));
 $description  = $modx->db->escape($_POST['description']);
