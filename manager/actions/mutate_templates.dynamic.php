@@ -174,8 +174,8 @@ function deletedocument() {
 <script type="text/javascript">tpResources.addTabPage( document.getElementById('tabProp') );</script>
 <table>
 	  <tr>
-		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
-		<td align="left"><select name="categoryid" style="width:300px;">
+		<th><?php echo $_lang['existing_category']; ?>:</th>
+		<td><select name="categoryid" style="width:300px;">
 				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 		        <?php
 		            include_once($modx->config['core_path'].'categories.inc.php');
@@ -190,12 +190,12 @@ function deletedocument() {
 		</td>
 	</tr>
 	<tr id="newcategry" style="display:none;">
-		<th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
-		<td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;"></td>
+		<th valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
+		<td valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;"></td>
 	</tr>
 	<tr>
-		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
-		<td align="left"><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
+		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 <?php
 	$doc_encoding = $content['doc_encoding'];
@@ -213,7 +213,7 @@ function deletedocument() {
 	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
-	    <td align="left" colspan="2">
+	    <td colspan="2">
 	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
 	  </tr>
 <?php } ?>
