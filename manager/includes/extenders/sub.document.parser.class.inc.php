@@ -2,10 +2,7 @@
 function sendmail($params=array(), $msg='')
 {
 	global $modx;
-	
-	include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-	return sendmail($params, $msg);
-	
+
 	if(isset($params) && is_string($params))
 	{
 		if(strpos($params,'=')===false)
@@ -48,11 +45,7 @@ function sendmail($params=array(), $msg='')
 
 function rotate_log($target='event_log',$limit=2000, $trim=100)
 {
-	global $modx;
-	
-	include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-	return sendmail($params, $msg);
-	global $dbase;
+	global $modx, $dbase;
 	
 	$dbase = trim($dbase,'`');
 	
