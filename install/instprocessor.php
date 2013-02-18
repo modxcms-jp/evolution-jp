@@ -30,7 +30,6 @@ echo "<p>{$_lang['setup_database']}</p>\n";
 
 // get base path and url
 define('MODX_API_MODE', true);
-define('IN_MANAGER_MODE', true);
 require_once("{$base_path}manager/includes/initialize.inc.php");
 startCMSSession();
 $database_type = 'mysql';
