@@ -352,3 +352,40 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
 
     return false;
 }
+
+function get_backtrace($backtrace)
+{
+	global $modx;
+	
+	$str = "<p><b>Backtrace</b></p>\n";
+	$str  .= '<table>';
+	$backtrace = array_reverse($backtrace);
+	foreach ($backtrace as $key => $val)
+	{
+		$key++;
+		if(substr($val['function'],0,11)==='messageQuit') break;
+		elseif(substr($val['function'],0,8)==='phpError') break;
+		$path = str_replace('\\','/',$val['file']);
+		if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
+		if(!empty($val['args']) && 0 < count($val['args']))
+		{
+			foreach($val['args'] as $v)
+			{
+				if(is_array($v)) $v = 'array()';
+				else
+				{
+					$v = str_replace('"', '', $v);
+					$v = htmlspecialchars($v,ENT_QUOTES,$modx->config['modx_charset']);
+					if(32 < strlen($v)) $v = mb_substr($v,0,32,$modx->config['modx_charset']) . '...';
+					$a[] = '"' . $v . '"';
+				}
+			}
+			$args = join(', ', $a);
+		}
+		else $args = '';
+		$str .= "<tr><td valign=\"top\">{$key}</td>";
+		$str .= "<td>{$val['function']}({$args})<br />{$path} on line {$val['line']}</td>";
+	}
+	$str .= '</table>';
+	return $str;
+}
