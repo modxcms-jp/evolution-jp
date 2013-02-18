@@ -197,6 +197,20 @@ function deletedocument() {
 		<th align="left"><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td align="left"><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
+<?php
+	$doc_encoding = $content['doc_encoding'];
+	$doc_encoding_use_default = ($doc_encoding=='') ? '' : 'secected';
+?>
+	<tr>
+		<th><?php echo $_lang["doc_encoding_title"]?></th>
+		<td>
+			<select name="doc_encoding" size="1" class="inputBox" style="width:250px;">
+			<option value="" <?php echo $doc_encoding_use_default;?>><?php echo $_lang["user_use_config"];?></option>
+			<?php include_once($modx->config['core_path'] . 'site_charsets.php'); ?>
+			</select><br />
+			<?php echo $_lang["doc_encoding_message"]?>
+		</td>
+	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 	    <td align="left" colspan="2">

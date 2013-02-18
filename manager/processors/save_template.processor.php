@@ -8,6 +8,8 @@ if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['i
 $template     = $modx->db->escape($_POST['post']);
 $templatename = $modx->db->escape(trim($_POST['templatename']));
 $description  = $modx->db->escape($_POST['description']);
+$doc_encoding = $modx->db->escape($_POST['doc_encoding']);
+
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
 $tbl_site_templates = $modx->getFullTableName('site_templates');
@@ -25,6 +27,14 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 }
 
 if($templatename=='') $templatename = "Untitled template";
+
+$field = array();
+$field['templatename'] = $templatename;
+$field['description']  = $description;
+$field['content']      = $template;
+$field['locked']       = $locked;
+$field['category']     = $categoryid;
+$field['doc_encoding'] = $doc_encoding;
 
 switch ($_POST['mode']) {
     case '19':
@@ -54,12 +64,6 @@ switch ($_POST['mode']) {
 		}
 
 		//do stuff to save the new doc
-		$field = array();
-		$field['templatename'] = $templatename;
-		$field['description']  = $description;
-		$field['content']      = $template;
-		$field['locked']       = $locked;
-		$field['category']     = $categoryid;
 		$newid = $modx->db->insert($field,$tbl_site_templates);
 		if(!$newid)
 		{
@@ -115,12 +119,6 @@ switch ($_POST['mode']) {
 		}
 		
 		//do stuff to save the edited doc
-		$field = array();
-		$field['templatename'] = $templatename;
-		$field['description']  = $description;
-		$field['content']      = $template;
-		$field['locked']       = $locked;
-		$field['category']     = $categoryid;
 		$rs = $modx->db->update($field,$tbl_site_templates,"id='{$id}'");
 		if(!$rs)
 		{

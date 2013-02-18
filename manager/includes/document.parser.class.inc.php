@@ -360,7 +360,7 @@ class DocumentParser {
 			}
 			else
 			{
-				$rs= $this->db->select('content','[+prefix+]site_templates',"id = '{$this->documentObject['template']}'");
+				$rs= $this->db->select('content,doc_encoding','[+prefix+]site_templates',"id = '{$this->documentObject['template']}'");
 				$rowCount= $this->db->getRecordCount($rs);
 				if($rowCount > 1)
 				{
@@ -370,6 +370,11 @@ class DocumentParser {
 				{
 					$row= $this->db->getRow($rs);
 					$this->documentContent= $row['content'];
+					if(!empty($row['doc_encoding']))
+					{
+						$this->config['doc_encoding'] = $row['doc_encoding'];
+						$this->config['charset']      = $this->getMimeName($row['doc_encoding']);
+					}
 				}
 				else
 				{
