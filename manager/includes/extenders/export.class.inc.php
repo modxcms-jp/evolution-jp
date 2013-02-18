@@ -21,6 +21,7 @@ class EXPORT_SITE
 		$this->dirCheckCount = 0;
 		$this->generate_mode = 'direct';
 		$this->targetDir = $modx->config['base_path'] . 'temp/export';
+		if(!isset($this->total)) $this->getTotal();
 	}
 	
 	function setExportDir($dir)
@@ -64,13 +65,14 @@ class EXPORT_SITE
 			$ignore_ids = join(',', $ignore_ids);
 			$ignore_ids = "AND NOT id IN ({$ignore_ids})";
 		}
-		else $ignore_ids = '';
+		
 		$this->ignore_ids = $ignore_ids;
 		
 		$noncache = $include_noncache==1 ? '' : 'AND cacheable=1';
 		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
 		$row = $modx->db->getRow($rs);
+		$this->total = $row['total'];
 		return $row['total'];
 	}
 	
@@ -138,11 +140,10 @@ class EXPORT_SITE
 		return $filename;
 	}
 
-	function exportDir($dirid)
+	function run($parent=0)
 	{
 		global $_lang;
 		global $modx;
-		
 		$ignore_ids = $this->ignore_ids;
 		$dirpath = $this->targetDir . '/';
 		
@@ -173,7 +174,7 @@ class EXPORT_SITE
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
-		$where = "parent = '{$dirid}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
+		$where = "parent = '{$parent}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		
 		$ph = array();
@@ -230,7 +231,7 @@ class EXPORT_SITE
 					rename($filename,$dir_path . '/index.html');
 				}
 				$this->targetDir = $dir_path;
-				$this->exportDir($row['id']);
+				$this->run($row['id']);
 			}
 		}
 		return join("\n", $this->output);

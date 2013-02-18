@@ -56,7 +56,7 @@ $modx->export->total = $total;
 $modx->export->repl_before = $_POST['repl_before'];
 $modx->export->repl_after  = $_POST['repl_after'];
 
-$output .= $modx->export->exportDir(0);
+$output .= $modx->export->run();
 
 $exportend = $modx->export->get_mtime();
 $totaltime = ($exportend - $modx->export->exportstart);
