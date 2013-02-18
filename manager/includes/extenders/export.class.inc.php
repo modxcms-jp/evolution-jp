@@ -15,6 +15,7 @@ class EXPORT_SITE
 	{
 		global $modx;
 		
+		if(!defined('MODX_BASE_PATH'))  return false;
 		$this->exportstart = $this->get_mtime();
 		$this->count = 0;
 		$this->setUrlMode();
@@ -76,10 +77,12 @@ class EXPORT_SITE
 		return $row['total'];
 	}
 	
-	function removeDirectoryAll($directory)
+	function removeDirectoryAll($directory='')
 	{
+		if(empty($directory)) $directory = $this->targetDir;
 		$directory = rtrim($directory,'/');
 		// if the path is not valid or is not a directory ...
+		if(empty($directory)) return false;
 		if(strpos($directory,MODX_BASE_PATH)===false) return FALSE;
 		
 		if(!is_dir($directory))          return FALSE;
