@@ -217,7 +217,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
 
     $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
-    $str .= '<tr><td valign="top">REQUEST_URI : </td>';
+    $str .= '<tr><td valign="top" style="white-space:nowrap;">REQUEST_URI : </td>';
     $str .= "<td>{$request_uri}</td>";
     $str .= '</tr>';
     
