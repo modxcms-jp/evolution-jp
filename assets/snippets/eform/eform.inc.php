@@ -543,6 +543,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				if(!$noemail)
 				{
 					if($sendirect) $to = $fields['email'];
+					$mail = new MODxMailer();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -559,6 +560,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send user a copy of the report
 				if($ccsender && $fields['email'])
 				{
+					$mail = new MODxMailer();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
@@ -574,6 +576,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$isHtml = ($sendAsText==1 || strstr($sendAsText,'autotext')) ? false:true;
 				if ($autotext && $fields['email']!='') {
 					$autotext = formMerge($autotext,$fields);
+					$mail = new MODxMailer();
 					$mail->IsHTML($isHtml);
 					$mail->From		= ($autosender)? $autosender:$from;
 					$mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
@@ -588,6 +591,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
+					$mail = new MODxMailer();
 					$mail->IsHTML($isHtml);
 					$mail->From		= $from;
 					$mail->FromName	= $fromname;
