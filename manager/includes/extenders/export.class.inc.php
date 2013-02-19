@@ -114,7 +114,7 @@ class EXPORT_SITE
 			
 			$_lang = $back_lang;
 		}
-		else $somecontent = file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		else $src = file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
 		
 		
 		if($src !== false)
@@ -230,9 +230,9 @@ class EXPORT_SITE
 				}
 				
 				
-				if($modx->config['make_folders']==='1')
+				if($modx->config['make_folders']==='1' && $row['published']==='1')
 				{
-					rename($filename,$dir_path . '/index.html');
+					if(is_file($filename)) rename($filename,$dir_path . '/index.html');
 				}
 				$this->targetDir = $dir_path;
 				$this->run($row['id']);
