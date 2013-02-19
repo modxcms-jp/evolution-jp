@@ -1265,14 +1265,19 @@ class DocumentParser {
 		
 		$i=0;
 		$count = count($hash);
+		$safecount = 0;
 		while(0<$count)
 		{
 			
 			$open  = 1;
 			$close = 0;
 			$temp_hash[$i] = '';
-			while($close < $open)
+			$safecount++;
+			while($close < $open && 0 < $count)
 			{
+				$count = count($hash);
+				$safecount++;
+				if(1000<$safecount) break;
 				$temp_hash[$i] .= array_shift($hash);
 				if($i===0)
 				{
@@ -1283,7 +1288,6 @@ class DocumentParser {
 				else                                      $close++;
 			}
 			$i++;
-			$count = count($hash);
 		}
 		
 		$matches=array();
@@ -1332,7 +1336,7 @@ class DocumentParser {
 			else
 			{
 				if(strpos($key,'[*')!==false) $key = $this->mergeDocumentContent($key);
-				$value = '[*' . $key . '*]';
+				$value = '';
 			}
 			
 			$replace[$i]= $value;
