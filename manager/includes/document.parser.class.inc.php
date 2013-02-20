@@ -361,8 +361,24 @@ class DocumentParser {
 			else
 			{
 				$template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
-				if($template->content)
+				if($template->id)
 				{
+					if(!empty($template->parent))
+					{
+						$parent = $this->db->getObject('site_templates',"id='{$template->parent}'");
+						$loopcount = 0;
+						while($loopcount<20)
+						{
+							$loopcount++;
+							if($template->id !== $parent->id)
+							{
+								$template->content = str_replace('[*content*]', $template->content, $parent->content);
+								if(!empty($parent->parent)) $parent = $this->db->getObject('site_templates',"id='{$parent->parent}'");
+								else break;
+							}
+							else break;
+						}
+					}
 					$this->documentContent = $template->content;
 					
 					if(!empty($template->doc_encoding))

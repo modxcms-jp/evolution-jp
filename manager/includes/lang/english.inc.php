@@ -1262,3 +1262,5 @@ $_lang["resources_list"] = 'Resources List';
 
 $_lang["doc_encoding_title"] = 'Page encoding';
 $_lang["doc_encoding_message"] = 'Set a default encoding to use for the output of the page.';
+
+$_lang["template_parent"] = 'Template parent';

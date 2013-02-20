@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   `icon` varchar(255) NOT NULL default '' COMMENT 'url to icon file',
   `template_type` integer NOT NULL DEFAULT '0' COMMENT '0-page,1-content',
   `content` mediumtext,
+  `parent` int(10) NOT NULL default '0',
   `doc_encoding` varchar(20) NOT NULL default '',
   `locked` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)

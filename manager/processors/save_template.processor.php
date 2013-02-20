@@ -10,6 +10,7 @@ $template     = $modx->db->escape($_POST['post']);
 $templatename = $modx->db->escape(trim($_POST['templatename']));
 $description  = $modx->db->escape($_POST['description']);
 $doc_encoding = $modx->db->escape($_POST['doc_encoding']);
+$parent       = $modx->db->escape($_POST['parent']);
 
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
@@ -36,6 +37,7 @@ $field['content']      = $template;
 $field['locked']       = $locked;
 $field['category']     = $categoryid;
 $field['doc_encoding'] = $doc_encoding;
+$field['parent']       = $parent;
 
 switch ($_POST['mode']) {
     case '19':

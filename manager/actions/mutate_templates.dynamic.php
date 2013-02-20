@@ -202,6 +202,12 @@ function deletedocument() {
 	$doc_encoding_use_default = ($doc_encoding=='') ? '' : 'secected';
 ?>
 	<tr>
+		<th><?php echo $_lang["template_parent"]?></th>
+		<td>
+			<input name="parent" type="text" maxlength="5" value="<?php echo htmlspecialchars($content['parent']);?>" class="inputBox" style="width:3em;">
+		</td>
+	</tr>
+	<tr>
 		<th><?php echo $_lang["doc_encoding_title"]?></th>
 		<td>
 			<select name="doc_encoding" size="1" class="inputBox" style="width:250px;">

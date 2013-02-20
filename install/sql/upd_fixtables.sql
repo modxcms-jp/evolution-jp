@@ -203,5 +203,7 @@ ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFA
 
 ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `doc_encoding` varchar(20) NOT NULL default '' AFTER `content`;
 
+ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `parent` int(10) NOT NULL default '0' AFTER `content`;
+
 # end related to #MODX-1321
 

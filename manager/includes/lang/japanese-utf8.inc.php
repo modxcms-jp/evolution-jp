@@ -1264,3 +1264,5 @@ $_lang["resources_list"] = 'リソース一覧';
 
 $_lang["doc_encoding_title"] = 'ページのエンコード';
 $_lang["doc_encoding_message"] = 'ページの出力に用いるエンコードのデフォルト値を設定します。';
+
+$_lang["template_parent"] = '親テンプレート';
