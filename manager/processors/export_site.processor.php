@@ -28,7 +28,6 @@ $modx->export->setExportDir($export_dir);
 $modx->export->removeDirectoryAll($export_dir);
 
 $ignore_ids      = $modx->getOption('export_ignore_ids');
-$generate_mode   = $modx->getOption('export_generate_mode');
 $repl_before     = $modx->getOption('export_repl_before');
 $repl_after      = $modx->getOption('export_repl_after');
 $includenoncache = $modx->getOption('export_includenoncache');
@@ -41,7 +40,6 @@ $modx->regOption('export_repl_after',$_POST['repl_after']);
 
 
 if($ignore_ids!==$_POST['ignore_ids']
- ||$generate_mode!==$_POST['generate_mode']
  ||$includenoncache!==$_POST['includenoncache']
  ||$repl_before!==$_POST['repl_before']
  ||$repl_after !==$_POST['repl_after']) {
