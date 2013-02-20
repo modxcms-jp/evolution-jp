@@ -207,8 +207,7 @@ function deletedocument() {
 			<select name="doc_encoding" size="1" class="inputBox" style="width:250px;">
 			<option value="" <?php echo $doc_encoding_use_default;?>><?php echo $_lang["user_use_config"];?></option>
 			<?php include_once($modx->config['core_path'] . 'site_charsets.php'); ?>
-			</select><br />
-			<?php echo $_lang["doc_encoding_message"]?>
+			</select>
 		</td>
 	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
