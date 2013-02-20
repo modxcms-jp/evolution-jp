@@ -2021,7 +2021,7 @@ class DocumentParser {
 			
 			// invoke OnParseDocument event
 			$this->documentOutput= $source; // store source code so plugins can
-			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
+			$this->invokeEvent('OnParseDocument', array('loopcount'=>$i)); // work on it via $modx->documentOutput
 			$source = $this->mergeSettingsContent($this->documentOutput);
 			
 			if(strpos($source,'<!-- modx:ignore')!==false) $source= $this->ignoreCommentedTagsContent($source);
