@@ -1267,12 +1267,13 @@ class DocumentParser {
 			$close = 0;
 			$temp_hash[$i] = '';
 			$safecount++;
+			if(200<$safecount) break;
 			while($close < $open && 0 < $count)
 			{
-				$count = count($hash);
 				$safecount++;
-				if(1000<$safecount) break;
+				if(200<$safecount) break;
 				$temp_hash[$i] .= array_shift($hash);
+				$count = count($hash);
 				if($i===0)
 				{
 					$i++;
