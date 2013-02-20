@@ -360,20 +360,15 @@ class DocumentParser {
 			}
 			else
 			{
-				$rs= $this->db->select('content,doc_encoding','[+prefix+]site_templates',"id = '{$this->documentObject['template']}'");
-				$rowCount= $this->db->getRecordCount($rs);
-				if($rowCount > 1)
+				$template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
+				if($template->content)
 				{
-					$this->messageQuit('Incorrect number of templates returned from database');
-				}
-				elseif($rowCount == 1)
-				{
-					$row= $this->db->getRow($rs);
-					$this->documentContent= $row['content'];
-					if(!empty($row['doc_encoding']))
+					$this->documentContent = $template->content;
+					
+					if(!empty($template->doc_encoding))
 					{
-						$this->config['doc_encoding'] = $row['doc_encoding'];
-						$this->config['charset']      = $this->getMimeName($row['doc_encoding']);
+						$this->config['doc_encoding'] = $template->doc_encoding;
+						$this->config['charset']      = $this->getMimeName($template->doc_encoding);
 					}
 				}
 				else
