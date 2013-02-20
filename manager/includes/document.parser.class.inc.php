@@ -1268,7 +1268,6 @@ class DocumentParser {
 		$safecount = 0;
 		while(0<$count)
 		{
-			
 			$open  = 1;
 			$close = 0;
 			$temp_hash[$i] = '';
@@ -1289,7 +1288,6 @@ class DocumentParser {
 			}
 			$i++;
 		}
-		
 		$matches=array();
 		$i = 0;
 		foreach($temp_hash as $v)
@@ -1673,7 +1671,7 @@ class DocumentParser {
 				else                                $result = $this->_get_snip_result($piece);
 				
 				$stack .= $result;
-				$loop_count++; // End of foreach loop
+				$loop_count++;
 			}
 			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
