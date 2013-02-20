@@ -449,7 +449,7 @@ class DocumentParser {
 		// End fix by sirlancelot
 		
 		// remove all unused placeholders
-		if (strpos($this->documentOutput, '[+') > -1)
+		if (strpos($this->documentOutput, '[+') !==false)
 		{
 			$matches= array ();
 			preg_match_all('~\[\+(.*?)\+\]~', $this->documentOutput, $matches);
