@@ -1392,6 +1392,12 @@ class DocumentParser {
 				}
 				else $modifiers = false;
 				
+				if(strpos($key,'?')!==false && strpos($key,'=')!==false)
+				{
+					list($key,$properties) = explode('?', $key, 2);
+					$ph = $this->getProperties($properties);
+				}
+				
 				if ($this->getChunk($key)!==false)
 				{
 					$value= $this->getChunk($key);
@@ -1427,6 +1433,7 @@ class DocumentParser {
 					}
 				}
 				if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+				if(isset($ph) && 0<count($ph)) $value = $this->parsePlaceholder($value, $ph);
 				$replace[$i] = $value;
 				$i++;
 			}
@@ -1436,6 +1443,37 @@ class DocumentParser {
 		return $content;
 	}
 	
+	function getProperties($properties)
+	{
+		$_ = explode('&',$properties);
+		$ph = array();
+		foreach($_ as $pair)
+		{
+			if(strpos($pair,'=')!==false) list($k,$v) = explode('=',$pair,2);
+			else {
+				$k = $pair;
+				$v = '';
+			}
+			if(substr($k,0,4) === 'amp;') $k = substr($k,4);
+			$ph[$k] = $this->removeDelim($v);
+		}
+		return $ph;
+	}
+	
+	function removeDelim($str)
+	{
+		$v = trim($str);
+		$left  = substr($v,0,1);
+		$right = substr($v,-1);
+		if( ($right===$left) && ($left==='"' || $left==="'" || $left==='`') )
+		{
+			 $rs = substr($v,1,-1);
+		}
+		else $rs = $str;
+		
+		return $rs;
+	}
+
 	function mergePh($content)
 	{
 		return mergePlaceholderContent($content);
