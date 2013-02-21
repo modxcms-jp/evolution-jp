@@ -23,7 +23,7 @@ else $onetime_msg = '';
 <div class="sectionBody">
 	<?php echo $onetime_msg; ?>
 	<form action="index.php" method="post" name="userform">
-	<input type="hidden" name="a" value="34>" />
+	<input type="hidden" name="a" value="34" />
 	<p><?php echo $_lang['change_password_message']?></p>
 	<table border="0" cellspacing="0" cellpadding="4">
 	<tr>
