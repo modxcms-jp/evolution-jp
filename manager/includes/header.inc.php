@@ -109,8 +109,8 @@ if(!isset($tree_pane_open_default)) $tree_pane_open_default = 1;
 
         var dontShowWorker = false;
         function document_onunload() {
-            if(!dontShowWorker) top.mainMenu.work();
-        };
+            if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
+        }
 
         // set tree to default action.
         if (parent.tree) parent.tree.ca = "open";
