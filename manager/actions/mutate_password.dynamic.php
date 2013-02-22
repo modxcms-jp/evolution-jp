@@ -47,7 +47,6 @@ else $onetime_msg = '';
 	</tr>
 	</table>
 	<input type="submit" name="save" style="display:none">
-		
-</form>
+	</form>
 </div>
 </div>
