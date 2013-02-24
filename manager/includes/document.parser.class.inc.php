@@ -2043,6 +2043,11 @@ class DocumentParser {
 			}
 			$documentObject= array_merge($documentObject, $tmplvars);
 		}
+		if(!isset($documentObject['url'] ))
+		{
+			if($docid===$this->config['site_start']) $documentObject['url'] = $this->config['site_url'];
+			else                                     $documentObject['url'] = $this->makeUrl($docid,'','','full');
+		}
 		return $documentObject;
 	}
 	
