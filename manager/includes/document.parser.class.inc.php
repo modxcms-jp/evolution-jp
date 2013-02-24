@@ -2048,6 +2048,11 @@ class DocumentParser {
 			if($docid===$this->config['site_start']) $documentObject['url'] = $this->config['site_url'];
 			else                                     $documentObject['url'] = $this->makeUrl($docid,'','','full');
 		}
+		if(!isset($documentObject['path'] ))
+		{
+			if($docid===$this->config['site_start']) $documentObject['path'] = '';
+			else                                     $documentObject['path'] = $this->makeUrl($docid,'','','root_rel');
+		}
 		return $documentObject;
 	}
 	
