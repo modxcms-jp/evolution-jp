@@ -1015,11 +1015,16 @@ class ditto {
 			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
 			$query = array();
 			foreach ($_GET as $param=>$value) {
-				if ($param != 'id' && $param != 'q' && is_string($value)) {
-					if (get_magic_quotes_gpc()) {
-						$value = stripslashes($value);
+				if ($param != 'id' && $param != 'q') {
+					$clean_param = htmlspecialchars($param, ENT_QUOTES, $modx->config['modx_charset']);
+					if(is_array($value)) {
+					  //$query[$param] = $value;
+					  foreach($value as $key => $val) {
+              $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES, $modx->config['modx_charset']);
+            }
+					}else{
+					  $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
 					}
-					$query[htmlspecialchars($param, ENT_QUOTES)] = rawurlencode($value);
 				}
 			}
 			if (!is_array($args)) {
@@ -1035,7 +1040,16 @@ class ditto {
 			}
 			$queryString = "";
 			foreach ($query as $param=>$value) {
-				$queryString .= '&'.$param.'='.(is_array($value) ? implode(",",$value) : $value);
+				
+        //$queryString .= '&'.$param.'='.(is_array($value) ? implode(",",$value) : $value);
+        
+        if(!is_array($value)){
+          $queryString .= '&'.$param.'='.$value;
+        }else{
+          foreach ($value as $key=>$val){
+            $queryString .= '&'.$param.'[]='.$val;
+          }
+        }
 			}
 			$cID = ($id !== false) ? $id : $modx->documentObject['id'];
 			$url = $modx->makeURL(trim($cID), '', $queryString);
