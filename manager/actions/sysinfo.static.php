@@ -4,6 +4,7 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+$dbase = trim($dbase,'`');
 ?>
 <h1><?php echo $_lang["view_sysinfo"]; ?></h1>
 
@@ -39,7 +40,7 @@ if(!$modx->hasPermission('logs')) {
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
 		<?php echo render_tr($_lang['localtime'],strftime('%H:%M:%S', time()+$server_offset_time));?>
 		<?php echo render_tr($_lang['serveroffset'],$server_offset_time/(60*60) . ' h');?>
-		<?php echo render_tr($_lang['database_name'],str_replace('`','',$dbase));?>
+		<?php echo render_tr($_lang['database_name'],$dbase);?>
 		<?php echo render_tr($_lang['database_server'],$database_server);?>
 		<?php echo render_tr($_lang['database_version'],$modx->db->getVersion());?>
 		<?php
@@ -92,6 +93,7 @@ $info = array(
               'max_execution_time' => ini_get('max_execution_time') . '秒(PHP処理の制限時間。スクリプト暴走の継続を防止します)',
               'max_input_time' => ini_get('max_input_time') . '秒(POST・GET・ファイルアップロードなどの入力を処理する制限時間。回線の太さの影響を受けることもあります)',
               'session.save_path' => ini_get('session.save_path') . '(セッションデータを保存するディレクトリ。CGI版PHPの場合はユーザの違いが原因でここに書き込み権限がない場合があるため、注意が必要です)',
+              'magic_quotes_gpc' => get_magic_quotes_gpc() ? 'On':'Off' . '(クォート文字を自動的にエスケープします。トラブルの元になりやすいためOffを推奨します)',
               );
 
 echo '<p>'.getenv('SERVER_SOFTWARE') .'</p>'. "\n" . "\n";
@@ -99,7 +101,7 @@ echo '<p>'.getenv('SERVER_SOFTWARE') .'</p>'. "\n" . "\n";
 echo '<table style="margin-bottom:20px;">';
 foreach($info as $key=>$value)
 {
-    echo '<tr><td style="padding-right:30px;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+    echo '<tr><td style="padding-right:30px;vertical-align:top;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
 }
 echo '</table>' . "\n";
 
@@ -214,7 +216,6 @@ echo '</table>' . "\n";
 <script type="text/javascript">tp.addTabPage( document.getElementById( "tabDatebase" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div>
 <div class="sectionBody" id="lyr4">
-		<p><?php echo $_lang['table_hoverinfo']; ?></p>
 		<table class="grid">
 		 <thead>
 		 <tr>
@@ -229,7 +230,7 @@ echo '</table>' . "\n";
 		  </thead>
 		  <tbody>
 <?php
-	$rs = $modx->db->query("SHOW TABLE STATUS FROM {$dbase} LIKE '{$table_prefix}%'");
+	$rs = $modx->db->query("SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$table_prefix}%'");
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$log_status = $modx->db->getRow($rs);
