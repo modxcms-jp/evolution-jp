@@ -114,9 +114,8 @@ p.caption, p.comment {
 	color: #888;
 }
 button {
-	color: #821517;
-	font-weight: bold;
 	width: 112px;
+	font:inherit;
 	margin: 0 5px 0 0;
 	cursor: pointer;
 }
@@ -182,7 +181,6 @@ hr {
 }
 #topbar a:hover {
 	color: #fff;
-	text-decoration: underline;
 }
 #tocText {
 	position: absolute;
@@ -476,9 +474,7 @@ ime-mode:disabled;
 
 /* -------------------------[ Misc stuff ]--- */
 .sectionBody fieldset {
-//	background: none repeat scroll 0 0 #FFFFFF;
-//	border: 1px solid #CCCCCC;
-	padding: 15px !important;
+	padding: 15px;
 }
 .sectionBody legend {
 	font-weight: bold;
@@ -494,7 +490,6 @@ ime-mode:disabled;
 }
 .sectionBody h3 {
 	font-size: 1.1em;
-	color: #2a3b50;
 	font-weight: bold;
 	padding-bottom: 0;
 	margin-bottom: 0;

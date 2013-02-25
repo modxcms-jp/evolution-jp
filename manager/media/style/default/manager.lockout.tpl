@@ -61,7 +61,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-    <strong>MODX</strong>&trade; is licensed under the GPL license. &copy; 2005-2012 <a href="http://modx.com/" target="_blank">MODX</a>.
+    <strong>MODX</strong>&trade; is licensed under the GPL license. &copy; 2005-2013 <a href="http://modx.com/" target="_blank">MODX</a>.
 </p>
 
 
