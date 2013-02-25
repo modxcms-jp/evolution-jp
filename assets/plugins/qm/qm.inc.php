@@ -537,22 +537,6 @@ EOT;
 					$head .= '
 {
 $'.$jvar.'("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
-// Bindings
-$'.$jvar.'.bind("cbox_open", function()
-{
-	$'.$jvar.'("body").css({"overflow":"hidden"});
-	$'.$jvar.'("html").css({"overflow":"hidden"});
-	$'.$jvar.'("#qmEditor").css({"display":"none"});
-});
-
-$'.$jvar.'.bind("cbox_closed", function()
-{
-	$'.$jvar.'("body").css({"overflow":"auto"});
-	$'.$jvar.'("html").css({"overflow":"auto"});
-	$'.$jvar.'("#qmEditor").css({"display":"block"});
-	// Remove manager lock by going to home page
-	$'.$jvar.'.ajax({ type: "GET", url: "'.$this->modx->config['site_url'].'manager/index.php?a=2" });
-});
 
 // Hide QM+ if cookie found
 if (getCookie("hideQM") == 1)
