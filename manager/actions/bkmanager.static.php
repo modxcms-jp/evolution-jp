@@ -5,6 +5,8 @@ if(!$modx->hasPermission('bk_manager')) {
 	$e->dumpError();
 }
 
+$dbase = trim($dbase,'`');
+
 if(!isset($modx->config['snapshot_path']))
 {
 	if(is_dir(MODX_BASE_PATH . 'temp/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'temp/backup/';
@@ -58,8 +60,7 @@ elseif ($mode=='backup')
 	 * Perform MySQLdumper data dump
 	 */
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dbname = str_replace('`', '', $dbase);
-	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbname);
+	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
 	$dumpfinished = $dumper->createDump('callBack');
@@ -94,7 +95,7 @@ elseif ($mode=='snapshot')
 		exit;
 	}
 	$escaped_table_prefix = str_replace('_', '\\_', $table_prefix);
-	$sql = "SHOW TABLE STATUS FROM {$dbase} LIKE '{$escaped_table_prefix}%'";
+	$sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$escaped_table_prefix}%'";
 	$rs = $modx->db->query($sql);
 	$tables = array();
 	if(0<$modx->db->getRecordCount($rs))
@@ -112,8 +113,7 @@ elseif ($mode=='snapshot')
 	$path = "{$modx->config['snapshot_path']}{$today}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dbname = str_replace('`', '', $dbase);
-	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbname);
+	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables(true);
 	$dumpfinished = $dumper->createDump('snapshot');
@@ -215,7 +215,7 @@ else $ph['result_msg'] = '';
 		</tr></thead>
 		<tbody>
 			<?php
-$sql = "SHOW TABLE STATUS FROM {$dbase} LIKE '$table_prefix%'";
+$sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$table_prefix}%'";
 $rs = $modx->db->query($sql);
 $limit = $modx->db->getRecordCount($rs);
 for ($i = 0; $i < $limit; $i++) {
@@ -451,9 +451,12 @@ else
 class Mysqldumper {
 	var $_dbtables;
 	var $_isDroptables;
+	var $database_server;
+	var $dbname;
 
-	function Mysqldumper() {
+	function Mysqldumper($database_server, $database_user, $database_password, $dbname) {
 		// Don't drop tables by default.
+		$this->dbname = $dbname;
 		$this->setDroptables(false);
 	}
 
@@ -464,7 +467,7 @@ class Mysqldumper {
 	function isDroptables()        { return $this->_isDroptables; }
 
 	function createDump($callBack) {
-		global $modx,$database_server,$dbname;
+		global $modx;
 
 		// Set line feed
 		$lf = "\n";
@@ -480,11 +483,11 @@ class Mysqldumper {
 		$output .= "# ".addslashes($modx->config['site_name'])." Database Dump{$lf}";
 		$output .= "# MODX Version:{$modx->config['settings_version']}{$lf}";
 		$output .= "# {$lf}";
-		$output .= "# Host: {$database_server}{$lf}";
+		$output .= "# Host: {$this->database_server}{$lf}";
 		$output .= "# Generation Time: " . $modx->toDateFormat(time()) . $lf;
 		$output .= "# Server version: ". $modx->db->getVersion() . $lf;
 		$output .= "# PHP Version: " . phpversion() . $lf;
-		$output .= "# Database : `{$dbname}`{$lf}";
+		$output .= "# Database : `{$this->dbname}`{$lf}";
 		$output .= "#";
 
 		// Generate dumptext for the tables.
