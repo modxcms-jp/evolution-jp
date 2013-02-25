@@ -28,6 +28,6 @@ function secureMgrDocument($docid='')
 	$ids = $modx->db->getColumn('id',$rs);
 	if(count($ids)>0) {
 		$ids = join(', ', $ids);
-		$modx->db->update(array('privatemgr'=>1),'[+prefix+]site_content', "IN ({$ids})");
+		$modx->db->update(array('privatemgr'=>1),'[+prefix+]site_content', "id IN ({$ids})");
 	}
 }
