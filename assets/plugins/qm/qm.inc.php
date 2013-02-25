@@ -80,7 +80,7 @@ class Qm {
 	function Run()
 	{
 		// Include MODx manager language file
-		global $_lang;
+		global $modx, $_lang;
 		
 		// Get manager language
 		$manager_language = $this->modx->config['manager_language'];
@@ -137,6 +137,8 @@ class Qm {
 				
 			// Display page in front-end
 			case 'OnWebPagePrerender':
+				if($modx->directParse==1) return;
+				
 				// Include_once the language file
 				if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
 				{
