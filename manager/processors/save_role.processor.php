@@ -36,7 +36,7 @@ elseif($_POST['mode']=='35')
 }
 else $search_name = false;
 
-if($search_name!==false)
+if($search_name!==false && $_POST['mode']=='38')
 {
 	$rs = $modx->db->select('id',$tbl_user_roles,"name='{$search_name}'");
 	if(0<$modx->db->getRecordCount($rs))
