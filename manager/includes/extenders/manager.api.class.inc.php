@@ -132,6 +132,7 @@ class ManagerAPI {
 		global $modx,$image_limit_width;
 		
 		$target_path = str_replace('\\','/', $target_path);
+		$new_file_permissions = octdec($modx->config['new_file_permissions']);
 		
 		if(strpos($target_path, $modx->config['filemanager_path'])!==0)
 		{
@@ -172,6 +173,7 @@ class ManagerAPI {
 				$msg = str_replace("\n","<br />\n",$msg);
 				$modx->logEvent(1,3,$msg,'move_uploaded_file');
 			}
+			else @chmod($target_path, $new_file_permissions);
 			return $rs;
 		}
 		
@@ -211,6 +213,7 @@ class ManagerAPI {
 			imagedestroy($tmp_image);
 			imagedestroy($new_image);
 		}
+		if($rs) @chmod($target_path, $new_file_permissions);
 		return $rs;
 	}
 	
