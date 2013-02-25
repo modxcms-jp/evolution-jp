@@ -92,6 +92,7 @@ function get_src_js()
 	global $_lang;
 	$src = <<< EOT
 <script language="javascript">
+top.mainMenu.defaultTreeFrame();
 parent.tree.ca = "move";
 function setMoveValue(pId, pName) {
     if (pId==0 || checkParentChildRelation(pId, pName)) {
