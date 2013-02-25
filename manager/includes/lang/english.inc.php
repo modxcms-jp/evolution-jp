@@ -6,7 +6,7 @@
  * Author:         The MODX Project Team
  * Date:           23 December 2010
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.6
+ * MODX version:   Evolution 1.0.8
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
@@ -279,7 +279,7 @@ $_lang["existing_category"] = 'Existing Category';
 $_lang["expand_tree"] = 'Expand Site Tree';
 $_lang["export_site"] = 'Export Static HTML';
 $_lang["export_site_cacheable"] = 'Include non-cacheable files:';
-$_lang["export_site_exporting_document"] = '%s/%s - %s(index.php?id=%s)';
+$_lang["export_site_exporting_document"] = '[+status+] ([+count+]) index.php?id=[+id+] - [+pagetitle+]<br />';
 $_lang["export_site_failed"] = 'Failed!';
 $_lang["export_site_failed_no_open"] = 'Cannot open file: ';
 $_lang["export_site_failed_no_retrieve"] = 'Cannot retrieve document.';
@@ -822,6 +822,7 @@ $_lang["save_all_changes"] = 'Save all changes';
 $_lang["save_tag"] = 'Save tag';
 $_lang["saving"] = 'Saving, please wait...';
 $_lang["search"] = 'Search';
+$_lang["search_resource"] = 'Search';
 $_lang["search_criteria"] = 'Search criteria';
 $_lang["search_criteria_content"] = 'Search by content';
 $_lang["search_criteria_content_msg"] = 'Find all Resources with the entered text in their content.';
@@ -1248,3 +1249,18 @@ $_lang["move_resource_cant_myself"] = 'You cannot move a resource to a child res
 
 $_lang["topmenu_items_title"] = 'Top menu structure';
 $_lang["topmenu_items_message"] = 'Top menu structure in the manager interface';
+
+$_lang["open"] = 'Open';
+
+$_lang["tree_pane_open_default_title"] = 'Tree pane default';
+$_lang["tree_pane_open_default_message"] = 'Tree pane default';
+
+$_lang["user_auto_sleep_title"] = 'Auto sleep inactive user';
+$_lang["user_auto_sleep_message"] = 'When there is not manager login, in the days that set here, make an applicable user dormancy automatically.';
+
+$_lang["resources_list"] = 'Resources List';
+
+$_lang["doc_encoding_title"] = 'Page encoding';
+$_lang["doc_encoding_message"] = 'Set a default encoding to use for the output of the page.';
+
+$_lang["template_parent"] = 'Template parent';
