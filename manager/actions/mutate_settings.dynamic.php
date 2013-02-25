@@ -25,7 +25,12 @@ if($limit>1) {
 // this will prevent user-defined settings from being saved as system setting
 if(!is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
-$settings = $modx->config;
+$settings = array();
+$rs = $modx->db->select('setting_name, setting_value', '[+prefix+]system_settings');
+while($row = mysql_fetch_assoc($rs))
+{
+	$settings[$row['setting_name']] = $row['setting_value'];
+}
 $settings = array_merge($default_config,$settings);
 
 if ($modx->manager->hasFormValues()) {
