@@ -1,11 +1,11 @@
 <?php
-$installdata = getOption('installdata');
-$template    = getOption('template');
-$tv          = getOption('tv');
-$chunk       = getOption('chunk');
-$snippet     = getOption('snippet');
-$plugin      = getOption('plugin');
-$module      = getOption('module');
+$installdata = $_POST['installdata'];
+$template    = $_POST['template'];
+$tv          = $_POST['tv'];
+$chunk       = $_POST['chunk'];
+$snippet     = $_POST['snippet'];
+$plugin      = $_POST['plugin'];
+$module      = $_POST['module'];
 
 setOption('installdata', $installdata);
 setOption('template'   , $template);

@@ -5,6 +5,7 @@ $cmsadminemail      = getOption('cmsadminemail');
 $cmspassword        = getOption('cmspassword');
 $cmspasswordconfirm = getOption('cmspasswordconfirm');
 $chkagree           = getOption('chkagree');
+$installdata        = getOption('installdata');
 
 setOption('cmsadmin',$cmsadmin);
 setOption('cmsadminemail',$cmsadminemail);
@@ -34,7 +35,7 @@ if($installmode === '0')
     echo '<p>' . $_lang['optional_items_new_note'] . "</p>";
 }
 
-$chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : '';
+$chk = isset ($installdata) && $installdata == "1" ? 'checked="checked"' : '';
 if($installmode == 0)
 {
 	echo '<img src="img/sample_site.png" class="options" alt="Sample Data" />';
