@@ -607,23 +607,32 @@ class DocumentParser {
 		return $str;
 	}
 	
-	function setOption($key, $value='', $mode=0)
+	function setOption($key, $value='')
 	{
-		if(!isset($this->config[$key]))
+		$this->config[$key] = $value;
+	}
+	
+	function regOption($key, $value='')
+	{
+		$this->config[$key] = $value;
+		$f['setting_name']  = $key;
+		$f['setting_value'] = $this->db->escape($value);
+		$key = $this->db->escape($key);
+		$rs = $this->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
+		
+		if($this->db->getRecordCount($rs)==0)
 		{
-			$this->config[$key] = $value;
-			if($mode==1)
+			$this->db->insert($f,'[+prefix+]system_settings');
+			$diff = $this->db->getAffectedRows();
+			if(!$diff)
 			{
-				$f['setting_name']  = $key;
-				$f['setting_value'] = $value;
-				$insert_id = $this->db->insert($f,'[+prefix+]system_settings');
-				if(!$insert_id)
-				{
-					$this->messageQuit('Error while inserting new option into database.', $this->db->lastQuery);
-					exit();
-				}
-				else $this->clearCache();
+				$this->messageQuit('Error while inserting new option into database.', $this->db->lastQuery);
+				exit();
 			}
+		}
+		else
+		{
+			$this->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
 		}
 	}
 	
