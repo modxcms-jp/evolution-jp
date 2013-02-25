@@ -1,7 +1,7 @@
 <?php
-session_start();
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
+install_session_start();
 $language = getOption('install_language');
 includeLang($language);
 

@@ -1,12 +1,16 @@
 <?php
-function setOption($fieldName,$value='')
-{
+function install_session_start() {
+	$session_id = base_convert(md5(__FILE__),16,36);
+	session_id($session_id);
+	session_start();
+}
+
+function setOption($fieldName,$value='') {
 	$_SESSION[$fieldName] = $value;
 	return $value;
 }
 
-function getOption($fieldName)
-{
+function getOption($fieldName) {
 	if(isset($_POST[$fieldName]) &&    $_POST[$fieldName]!=='')        $rs = $_POST[$fieldName];
 	elseif(isset($_SESSION[$fieldName]) && $_SESSION[$fieldName]!=='') $rs = $_SESSION[$fieldName];
 	elseif(isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName]!=='')  $rs = $GLOBALS[$fieldName];
@@ -17,8 +21,7 @@ function getOption($fieldName)
 	return $rs;
 }
 
-function autoDetectLang()
-{
+function autoDetectLang() {
 	if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) || empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 		return 'english';
 	$lc = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
@@ -31,27 +34,22 @@ function autoDetectLang()
 	return $lang;
 }
 
-function includeLang($language, $dir='langs/')
-{
+function includeLang($language, $dir='langs/') {
 	global $_lang;
 	
 	# load language file
 	$_lang = array ();
-	if(is_file("{$dir}{$language}.inc.php"))
-	{
+	if(is_file("{$dir}{$language}.inc.php")) {
 		 require_once("{$dir}{$language}.inc.php");
 	}
 	else require_once("{$dir}english.inc.php");
 }
 
-function modx_escape($s)
-{
-	if (function_exists('mysql_set_charset'))
-	{
+function modx_escape($s) {
+	if (function_exists('mysql_set_charset')) {
 		$s = mysql_real_escape_string($s);
 	}
-	else
-	{
+	else {
 		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
 		$s = mysql_real_escape_string($s);
 		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
@@ -59,20 +57,17 @@ function modx_escape($s)
 	return $s;
 }
 
-function compare_check($params)
-{
+function compare_check($params) {
 	global $table_prefix;
 	
 	$name_field  = 'name';
 	$name        = $params['name'];
 	$mode        = 'version_compare';
-	if($params['version'])
-	{
+	if($params['version']) {
 		$new_version = $params['version'];
 	}
 	//print_r($params);
-	switch($params['category'])
-	{
+	switch($params['category']) {
 		case 'template':
 			$table = "{$table_prefix}site_templates";
 			$name_field = 'templatename';
@@ -427,37 +422,6 @@ function result($status='ok',$ph=array())
 	return parse($tpl,$ph);
 }
 
-function invite()
-{
-	global $_lang;
-	
-	$language = autoDetectLang();
-	includeLang($language);
-	
-	header('Content-Type: text/html; charset=UTF-8');
-	$tpl = <<< EOT
-<html><head><meta name="robots" content="noindex, nofollow">
-<style type="text/css">
-*{margin:0;padding:0}
-html {font-size:100.01%;}
-body{text-align:center;background:#eef0ee;font-size:92.5%;}
-.install{width:530px;padding:10px;border:1px solid #b3c3af;background:#f6ffe0;margin:50px auto;font-family:Helvetica,Arial,sans-serif;text-align:center;}
-p{ margin:20px 0; }
-a{font-size:180%;color:#39b933;text-decoration:underline;margin-top: 30px;padding: 5px;}
-</style></head>
-<body>
-<div class="install">
-<p><img src="img/install_begin.png" /></p>
-[+begin_install_msg+]
-<p><a href="index.php?action=mode&install_language={$language}">[+yes+]</a> / <a href="http://modx.jp/">[+no+]</a></p>
-</div></body></html>
-EOT;
-	
-	echo parse($tpl,$_lang);
-	
-	exit;
-}
-
 function get_langs()
 {
 	$langs = array();
@@ -499,4 +463,56 @@ function collectTpls($path)
 	natcasesort($files);
 	
 	return $files;
+}
+
+function ph()
+{
+	global $_lang,$moduleName,$moduleVersion,$modx_textdir,$modx_release_date,$installmode;
+	
+	$ph['language_code'] = $_lang['language_code'];
+	$ph['encoding']      = $_lang['encoding'];
+	$ph['pagetitle']     = $_lang['modx_install'];
+	$ph['textdir']       = $modx_textdir ? ' id="rtl"':'';
+	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
+	$ph['help_title']    = $_lang['help_title'];
+	$ph['help']          = $_lang['help'];
+	$ph['version']       = $moduleName.' '.$moduleVersion;
+	$ph['release_date']  = ($modx_textdir ? '&rlm;':'') . $modx_release_date;
+	$ph['footer1']       = $_lang['modx_footer1'];
+	$ph['footer2']       = $_lang['modx_footer2'];
+	return $ph;
+}
+
+function sessionCheck()
+{
+	global $_lang;
+	
+	if(!isset($_GET['action']) || $_GET['action']==='mode') $_SESSION['test'] = 1;
+	// session loop-back tester
+	if($_GET['action']!=='mode')
+	{
+		if(!isset($_SESSION['test']) || $_SESSION['test']!=1)
+		{
+			echo '
+<html>
+<head>
+	<title>Install Problem</title>
+	<style type="text/css">
+		*{margin:0;padding:0}
+		body{margin:150px;background:#eee;}
+		.install{padding:10px;border:3px solid #ffc565;background:#ffddb4;margin:0 auto;text-align:center;}
+		p{ margin:20px 0; }
+		a{margin-top:30px;padding:5px;}
+	</style>
+</head>
+<body>
+	<div class="install">
+		<p>' . $_lang["session_problem"] . '</p>
+		<p><a href="./">' .$_lang["session_problem_try_again"] . '</a></p>
+	</div>
+</body>
+</html>';
+		exit;
+		}
+	}
 }

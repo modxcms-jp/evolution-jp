@@ -26,7 +26,7 @@ $database_password = getOption('database_password');
 $dbase             = getOption('dbase');
 $table_prefix      = getOption('table_prefix');
 
-$installMode = getOption('installmode');
+$installmode = getOption('installmode');
 
 $conn = mysql_connect($database_server, $database_user, $database_password);
 mysql_select_db(trim($dbase, '`'), $conn);
@@ -42,7 +42,7 @@ else
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
 $mt = &$moduleTemplates;
-if(is_dir($templatePath) && is_readable($templatePath))
+if($installmode==0 && is_dir($templatePath) && is_readable($templatePath))
 {
 	$files = collectTpls($templatePath);
 	foreach ($files as $tplfile)
@@ -52,7 +52,7 @@ if(is_dir($templatePath) && is_readable($templatePath))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
 				
 			$mt[] = array
 			(
@@ -71,7 +71,7 @@ if(is_dir($templatePath) && is_readable($templatePath))
 
 // setup Template Variable template files
 $mtv = &$moduleTVs;
-if(is_dir($tvPath) && is_readable($tvPath))
+if($installmode==0 && is_dir($tvPath) && is_readable($tvPath))
 {
 	$files = collectTpls($tvPath);
 	foreach ($files as $tplfile)
@@ -80,7 +80,7 @@ if(is_dir($tvPath) && is_readable($tvPath))
 		if(is_array($params) && (count($params)>0))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
             $mtv[] = array(
 					$params['name'],
 					$params['caption'],
@@ -102,7 +102,7 @@ if(is_dir($tvPath) && is_readable($tvPath))
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
 $mc = &$moduleChunks;
-if(is_dir($chunkPath) && is_readable($chunkPath))
+if($installmode==0 && is_dir($chunkPath) && is_readable($chunkPath))
 {
 	$files = collectTpls($chunkPath);
 	foreach ($files as $tplfile)
@@ -111,7 +111,7 @@ if(is_dir($chunkPath) && is_readable($chunkPath))
 		if(is_array($params) && count($params) > 0)
 		{
 		
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
 			
 			$mc[] = array(
 			    $params['name'],
@@ -137,7 +137,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
 			
 			$ms[] = array(
 			    $params['name'],
@@ -165,7 +165,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 			if(!empty($params['version'])) $description = "<strong>{$params['version']}</strong> {$params['description']}";
 			else                           $description = $params['description'];
 			
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
 		
 			$mp[] = array(
 				$params['name'],
@@ -194,7 +194,7 @@ if(is_dir($modulePath) && is_readable($modulePath))
 		{
 			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($installMode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)=='same') continue;
 			
 			$mm[] = array(
 			    $params['name'],

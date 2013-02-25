@@ -1,8 +1,8 @@
 <?php
 $install_language = $_SESSION['install_language'];
 
-if(isset($_POST['installmode'])) setOption('installmode', $_POST['installmode']);
 $installmode = getOption('installmode');
+setOption('installmode', $installmode);
 
 $upgradeable = 0;
 
