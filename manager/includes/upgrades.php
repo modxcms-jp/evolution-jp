@@ -2,7 +2,6 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $simple_version = str_replace('.','',$settings_version);
 $simple_version = substr($simple_version,0,3);
-$version = intval($version);
 
 global $default_config;
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
@@ -30,7 +29,11 @@ function run_update($version)
 		update_config_default_template_method();
 	}
 	
-	if(104 < $version) {
+	if($version < 107) {
+		disableLegacyPlugins();
+	}
+	
+	if(104 < $version && $version < 107) {
 		delete_actionphp();
 	}
 	
@@ -57,7 +60,7 @@ function update_config_custom_contenttype()
 	
 	foreach($search as $v)
 	{
-		if($v == $modx->config['custom_contenttype']) $modx->config['custom_contenttype'] = $replace;
+		if($v === $modx->config['custom_contenttype']) $modx->regOption('custom_contenttype', $replace);
 	}
 }
 
@@ -111,13 +114,13 @@ function update_tbl_user_roles()
 function update_tbl_system_settings()
 {
 	global $modx,$use_udperms;
-	if($modx->config['validate_referer']==='00')         $modx->config['validate_referer'] = '0';
-	if($modx->config['upload_maxsize']==='1048576')      $modx->config['upload_maxsize']   = '';
-	if($modx->config['emailsender']==='you@example.com') $modx->config['emailsender']      = $_SESSION['mgrEmail'];
+	if($modx->config['validate_referer']==='00')         $modx->regOption('validate_referer','0');
+	if($modx->config['upload_maxsize']==='1048576')      $modx->regOption('upload_maxsize','');
+	if($modx->config['emailsender']==='you@example.com') $modx->regOption('emailsender',$_SESSION['mgrEmail']);
 	
 	$rs = $modx->db->select('*','[+prefix+]document_groups');
 	$use_udperms = ($modx->db->getRecordCount($rs)==0) ? '0' : '1';
-	$modx->config['use_udperms'] = $use_udperms;
+	$modx->config['use_udperms'] = $modx->regOption('use_udperms',$use_udperms);
 }
 
 function delete_actionphp()
