@@ -9,6 +9,7 @@ class synccache {
 	var $parents = array();
 	var $target;
 	var $config = array();
+	var $cacheRefreshTime;
 
 	function synccache()
 	{
@@ -185,6 +186,10 @@ class synccache {
 		if($minunpub!=NULL)
 		{
 			$timesArr[] = $minunpub;
+		}
+		if(isset($this->cacheRefreshTime))
+		{
+			$timesArr[] = $this->cacheRefreshTime;
 		}
 		
 		if(count($timesArr)>0) $nextevent = min($timesArr);
