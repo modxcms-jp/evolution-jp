@@ -1534,7 +1534,7 @@ class DocumentParser {
 		unset ($modx->event->params);
 	}
 	
-	function evalSnippet($snippet, $params)
+	function evalSnippet($phpcode, $params)
 	{
 		$etomite= $modx= & $this;
 		if(isset($params) && is_array($params))
@@ -1551,7 +1551,7 @@ class DocumentParser {
 			extract($params, EXTR_SKIP);
 		}
 		ob_start();
-		$result= eval($snippet);
+		$result= eval($phpcode);
 		$msg= ob_get_contents();
 		ob_end_clean();
 		
