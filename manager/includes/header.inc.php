@@ -105,8 +105,8 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 
         var dontShowWorker = false;
         function document_onunload() {
-            if(!dontShowWorker) top.mainMenu.work();
-        };
+            if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
+        }
 
         // set tree to default action.
         if (parent.tree) parent.tree.ca = "open";
