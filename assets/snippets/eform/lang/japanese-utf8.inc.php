@@ -40,5 +40,3 @@ $_lang["ef_thousands_separator"] = ''; //leave empty to use (php) locale, only n
 $_lang["ef_upload_error"] = ": ファイルアップロード中にエラーが発生しました。"; //NEW
 $_lang["ef_upload_exceeded"] = "はアップロードの上限を超えています.";
 $_lang["ef_validation_message"] = "<div class=\"errors\"><strong>いくつかのエラーが見つかりました</strong><br />[+ef_wrapper+]</div>";
-$_lang["ef_version_error"] = "<strong>注意!</strong> eFormのバージョン (version:&nbsp;$version)がインクルードされているファイルのバージョン (version:&nbsp;$fileVersion)と異なります。 同じバージョンのファイルであることを確認してください。";
-?>
