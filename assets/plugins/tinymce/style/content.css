@@ -10,20 +10,19 @@ pre {
 	font-size  : 12px;
 	font-style : normal;
 }
+html {
+	box-shadow: inset 0px 4px 3px 0px rgba(70, 70, 70, 0.1);
+}
 
 body {
-	line-height          : 1.5;
-	color                : #333333;
-	background-color     : #FFFFFF;
-	background-attachment: fixed;
-	background-repeat:repeat-x;
-	background-image     : url(textareabg.gif);
-	text-align           : left;
+	line-height     : 1.5;
+	color           : #333333;
+	text-align      : left;
 	margin:8px;
 }
 
 pre {
-	color                : #555555;
+	color           : #555555;
 }
 
 h1,
@@ -32,8 +31,8 @@ h3,
 h4,
 h5,
 h6 {
-	color         : #111111;
-	letter-spacing: 1px;
+	color           : #111111;
+	letter-spacing  : 1px;
 }
 
 h4,
