@@ -87,13 +87,12 @@ class ManagerAPI {
 		
 		if(!$modx->config['allow_duplicate_alias'])
 		{
-		    $tbl_site_content = $modx->getFullTableName('site_content');
-		    $rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}'");
+		    $rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}'");
 			if(0 < $modx->db->getRecordCount($rs))
 			{
 				$c = 2;
 				$_ = $alias;
-				while(0 < $modx->db->getRecordCount($modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$_}'")))
+				while(0 < $modx->db->getRecordCount($modx->db->select('id','[+prefix+]site_content',"id!='{$id}' AND alias='{$_}'")))
 				{
 					$_  = $alias;
 					$_ .= "_{$c}";
