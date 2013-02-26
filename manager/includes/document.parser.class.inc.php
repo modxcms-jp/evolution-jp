@@ -73,6 +73,7 @@ class DocumentParser {
 		$this->dumpSnippets = false; // feed the parser the execution start time
 		$this->stopOnNotice = false;
 		$this->safeMode     = false;
+		$this->directParse  = 0;
 		// set track_errors ini variable
 		@ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
 		$this->error_reporting = 1;
@@ -176,7 +177,6 @@ class DocumentParser {
 			$_SERVER['REQUEST_URI'] = $this->config['base_url'] . 'index.php?id=' . $id;
 			$this->directParse = 1;
 		}
-		else $this->directParse = 0;
 		
 		if(!isset($_REQUEST['id']))
 		{
