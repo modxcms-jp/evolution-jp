@@ -114,6 +114,15 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+			// Resource API
+			case 'DocAPI' :
+				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/doc.api.class.inc.php'))
+				{
+					$this->doc= new DocAPI;
+					return true;
+				}
+				else return false;
+				break;
 			// PHx
 			case 'PHx' :
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php'))
