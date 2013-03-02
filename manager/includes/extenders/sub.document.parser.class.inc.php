@@ -365,6 +365,10 @@ function get_backtrace($backtrace)
 			foreach($val['args'] as $v)
 			{
 				if(is_array($v)) $v = 'array()';
+				elseif(is_object($v))
+				{
+				    $v = get_class($v);
+				}
 				else
 				{
 					$v = str_replace('"', '', $v);
