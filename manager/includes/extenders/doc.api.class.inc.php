@@ -7,6 +7,10 @@
  */
 
 class DocAPI {
+	function DocAPI()
+	{
+	}
+	
 	function create($f = array(), $groups = false)
 	{
 		global $modx, $_lang;
