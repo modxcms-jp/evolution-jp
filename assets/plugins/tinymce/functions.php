@@ -220,7 +220,7 @@ class TinyMCE
 				case '4':
 				case '27':
 					global $content;
-					if($content['template']==0)
+					if($content['template']==='0')
 					{
 						$plugins = str_replace('autosave', 'fullpage', $plugins);
 						$buttons2 = 'fullpage,' . $buttons2;
