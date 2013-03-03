@@ -11,6 +11,7 @@ $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 $installer_path = "{$base_path}install/";
 require_once("{$installer_path}functions.php");
 install_session_start();
+//session_destroy();
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
@@ -43,9 +44,11 @@ $database_collation          = 'utf8_general_ci';
 $database_connection_method  = 'SET CHARACTER SET';
 $dbase              = getOption('dbase');
 $table_prefix       = getOption('table_prefix');
-$adminname          = getOption('cmsadmin');
-$adminemail         = getOption('cmsadminemail');
-$adminpass          = getOption('cmspassword');
+$adminname          = getOption('adminname');
+$adminemail         = getOption('adminemail');
+$adminpass          = getOption('adminpass');
+$adminpassconfirm   = getOption('adminpassconfirm');
+$install_language   = getOption('install_language');
 $managerlanguage    = getOption('install_language');
 
 $moduleName = "MODX";

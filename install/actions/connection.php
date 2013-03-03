@@ -6,6 +6,17 @@ setOption('installmode', $installmode);
 
 $upgradeable = 0;
 
+if($_POST['setaction']==='options')
+{
+	setOption('installdata', $_POST['installdata']);
+	setOption('template'   , $_POST['template']);
+	setOption('tv'         , $_POST['tv']);
+	setOption('chunk'      , $_POST['chunk']);
+	setOption('snippet'    , $_POST['snippet']);
+	setOption('plugin'     , $_POST['plugin']);
+	setOption('module'     , $_POST['module']);
+}
+
 if (is_file("{$base_path}manager/includes/config.inc.php"))
 {
 	global $dbase,$database_server,$database_user,$database_password,$table_prefix;
@@ -21,9 +32,9 @@ $database_password = getOption('database_password');
 $table_prefix      = getOption('table_prefix', 'modx_');
 if($table_prefix===false)    $table_prefix = setOption('table_prefix', 'modx_');
 
-$cmsadminemail      = getOption('cmsadminemail');
-$cmspassword        = getOption('cmspassword');
-$cmspasswordconfirm = getOption('cmspasswordconfirm');
+$adminemail       = getOption('adminemail');
+$adminpass        = getOption('adminpass');
+$adminpassconfirm = getOption('adminpassconfirm');
 
 if($installmode == 1)
 {
@@ -114,17 +125,17 @@ $('#databasetest').click(function(){
   	<h2><?php echo $_lang['connection_screen_defaults']?></h2>
     <h3><?php echo $_lang['connection_screen_default_admin_user']?></h3>
     <p><?php echo $_lang['connection_screen_default_admin_note']?></p>
-    <p class="labelHolder"><label for="cmsadmin"><?php echo $_lang['connection_screen_default_admin_login']?></label>
-      <input id="cmsadmin" value="<?php echo isset($_POST['cmsadmin']) ? $_POST['cmsadmin']:"admin" ?>" name="cmsadmin" />
+    <p class="labelHolder"><label for="adminname"><?php echo $_lang['connection_screen_default_admin_login']?></label>
+      <input id="adminname" value="<?php echo isset($_POST['adminname']) ? $_POST['adminname']:"admin" ?>" name="adminname" />
     </p>
-    <p class="labelHolder"><label for="cmsadminemail"><?php echo $_lang['connection_screen_default_admin_email']?></label>
-      <input id="cmsadminemail" value="<?php echo $cmsadminemail; ?>" name="cmsadminemail" style="width:300px;" />
+    <p class="labelHolder"><label for="adminemail"><?php echo $_lang['connection_screen_default_admin_email']?></label>
+      <input id="adminemail" value="<?php echo $adminemail; ?>" name="adminemail" style="width:300px;" />
     </p>
-    <p class="labelHolder"><label for="cmspassword"><?php echo $_lang['connection_screen_default_admin_password']?></label>
-      <input id="cmspassword" type="password" name="cmspassword" value="<?php echo $cmspassword; ?>" />
+    <p class="labelHolder"><label for="adminpass"><?php echo $_lang['connection_screen_default_admin_password']?></label>
+      <input id="adminpass" type="password" name="adminpass" value="<?php echo $adminpass; ?>" />
     </p>
-    <p class="labelHolder"><label for="cmspasswordconfirm"><?php echo $_lang['connection_screen_default_admin_password_confirm']?></label>
-      <input id="cmspasswordconfirm" type="password" name="cmspasswordconfirm" value="<?php echo $cmspasswordconfirm; ?>" />
+    <p class="labelHolder"><label for="adminpassconfirm"><?php echo $_lang['connection_screen_default_admin_password_confirm']?></label>
+      <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="<?php echo $adminpassconfirm; ?>" />
     </p>
 </div></div>
 
@@ -139,8 +150,8 @@ $('#databasetest').click(function(){
 </form>
 
 <script type="text/javascript">
-	if($('#cmspasswordconfirm').val() != '') $('a.next').css('display','block');
-	$('#cmspasswordconfirm').focus(function(){
+	if($('#adminpassconfirm').val() != '') $('a.next').css('display','block');
+	$('#adminpassconfirm').focus(function(){
 		$('a.next').css('display','block');
 	});
 	
@@ -149,7 +160,7 @@ $('#databasetest').click(function(){
 		$('#install').submit();
 	});
 	$('a.next').click(function(){
-		if($('#cmspassword').val() !== $('#cmspasswordconfirm').val())
+		if($('#adminpass').val() !== $('#adminpassconfirm').val())
 		{
 			alert("<?php echo $_lang['alert_enter_adminpassword']?>");
 		}

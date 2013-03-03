@@ -1,6 +1,6 @@
 <?php
 
-$installdata = getOption('installdata');
+$installdata = (isset($_POST['installdata'])&&$_POST['installdata']==1) ? 1 : 0;
 $template    = getOption('template');
 $tv          = getOption('tv');
 $chunk       = getOption('chunk');
