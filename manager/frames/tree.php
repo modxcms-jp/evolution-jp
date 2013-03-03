@@ -84,7 +84,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var tree = document.getElementById('treeHolder');
         var tmnu = document.getElementById('treeMenu');
         tree.style.width = (win['width']-20)+'px';
-        tree.style.height = (win['height']-tree.offsetTop-6)+'px';
+        tree.style.height = (win['height']-tree.offsetTop-16)+'px';
         tree.style.overflow = 'auto';
     }
 
