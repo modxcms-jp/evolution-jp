@@ -250,18 +250,24 @@ if(count($extenders) > 0)
 	foreach ($extenders as $extender)
 	{
 		$extender = trim($extender);
+		$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
 		$rs = false;
 		if(substr($extender, 0, 6) === '@CHUNK')
 		{
 			$chunk = $modx->getChunk(trim(substr($extender, 7)));
-			eval($chunk);
-			$rs = true;
+			if(!empty($chunk)) {
+				eval($chunk);
+				$rs = true;
+			}
 		}
 		elseif(substr($extender, 0, 5) === '@FILE')
 		{
-			$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
-			include($extender_path);
-			$rs = true;
+			$extender = trim(substr($extender,6));
+			$extender_path = "{$ditto_base}{$extender}";
+			if(is_file($extender_path)) {
+				include($extender_path);
+				$rs = true;
+			}
 		}
 		else
 		{
@@ -271,11 +277,12 @@ if(count($extenders) > 0)
 				eval($chunk);
 				$rs = true;
 			}
-			elseif(!$chunk && is_file($extender_path))
-			{
+		}
+		
+		if($rs===false && is_file($extender_path))
+		{
 				include($extender_path);
 				$rs = true;
-			}
 		}
 		
 		if($rs===false)
@@ -285,7 +292,6 @@ if(count($extenders) > 0)
 		}
 	}
 }
-
 
 //---Parameters------------------------------------------------------- /*
 if (isset($startID)) {$parents = $startID;}
