@@ -534,5 +534,5 @@ if($use_udperms==1)
 function ConvertDate($date) {
 	global $modx;
 	if ($date == "") {return "0";}
-	else {}          {return $modx->toTimeStamp($date);}
+	else             {return $modx->toTimeStamp($date);}
 }
