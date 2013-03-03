@@ -187,7 +187,7 @@ class synccache {
 		{
 			$timesArr[] = $minunpub;
 		}
-		if(isset($this->cacheRefreshTime))
+		if(isset($this->cacheRefreshTime) && !empty($this->cacheRefreshTime))
 		{
 			$timesArr[] = $this->cacheRefreshTime;
 		}
