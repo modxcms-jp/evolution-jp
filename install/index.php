@@ -43,9 +43,11 @@ $database_collation          = 'utf8_general_ci';
 $database_connection_method  = 'SET CHARACTER SET';
 $dbase              = getOption('dbase');
 $table_prefix       = getOption('table_prefix');
-$adminname          = getOption('cmsadmin');
-$adminemail         = getOption('cmsadminemail');
-$adminpass          = getOption('cmspassword');
+$adminname          = getOption('adminname');
+$adminemail         = getOption('adminemail');
+$adminpass          = getOption('adminpass');
+$adminpassconfirm   = getOption('adminpassconfirm');
+$install_language   = getOption('install_language');
 $managerlanguage    = getOption('install_language');
 
 $moduleName = "MODX";

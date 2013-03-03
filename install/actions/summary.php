@@ -260,13 +260,11 @@ $nextAction= $errors > 0 ? 'summary' : 'install';
 $nextButton= $errors > 0 ? $_lang['retry'] : $_lang['install'];
 $nextVisibility= $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagree\').checked){document.getElementById(\'nextbutton\').style.visibility=\'visible\';}else{document.getElementById(\'nextbutton\').style.visibility=\'hidden\';}"';
-echo <<< EOT
-<form id="install" action="index.php?action={$nextAction}" method="POST">
+?>
+<form id="install" action="index.php?action=<?php echo $nextAction;?>" method="POST">
   <div>
     <input type="hidden" value="1" name="options_selected" />
-
-EOT;
-?>
+    <input type="hidden" name="setaction" value="summary" />
 </div>
 
 <h2><?php echo $_lang['agree_to_terms'];?></h2>

@@ -1,18 +1,8 @@
 <?php
-
-$cmsadmin           = getOption('cmsadmin');
-$cmsadminemail      = getOption('cmsadminemail');
-$cmspassword        = getOption('cmspassword');
-$cmspasswordconfirm = getOption('cmspasswordconfirm');
-$chkagree           = getOption('chkagree');
-$installdata        = getOption('installdata');
-
-setOption('cmsadmin',$cmsadmin);
-setOption('cmsadminemail',$cmsadminemail);
-setOption('cmspassword',$cmspassword);
-setOption('cmspasswordconfirm',$cmspasswordconfirm);
+$chkagree = (isset($_POST['chkagree'])&&$_POST['chkagree']==1) ? 1 : 0;
 setOption('chkagree',$chkagree);
 
+$installdata = getOption('installdata');
 $templates = getOption('template');
 $tvs       = getOption('tv');
 $chunks    = getOption('chunk');
@@ -23,6 +13,7 @@ $snippets  = getOption('snippet');
 ?>
 
 <form id="install" action="index.php?action=summary" method="POST">
+    <input type="hidden" name="setaction" value="options" />
 
 <?php
 # load setup information file
