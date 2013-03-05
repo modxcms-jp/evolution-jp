@@ -343,7 +343,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     else  echo 'Error';
     ob_end_flush();
 
-    return false;
+    exit;
 }
 
 function get_backtrace($backtrace)
