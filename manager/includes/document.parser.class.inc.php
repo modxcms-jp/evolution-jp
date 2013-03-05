@@ -3798,7 +3798,7 @@ class DocumentParser {
         else  echo 'Error';
         ob_end_flush();
 
-        return false;
+        exit;
     }
 
     function getRegisteredClientScripts() {
