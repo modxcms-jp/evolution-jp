@@ -32,6 +32,7 @@ if(!isset($tree_pane_open_default)) $tree_pane_open_default = 1;
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script src="media/script/jquery/jquery.powertipmin.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
