@@ -294,27 +294,21 @@ class ManagerAPI {
 		{
 			case 'BLOWFISH_Y':
 				$salt = '$2y$07$' . substr($salt,0,22);
-				$mode = 'bfish_y';
 				break;
 			case 'BLOWFISH_A':
 				$salt = '$2a$07$' . substr($salt,0,22);
-				$mode = 'bfish_a';
 				break;
 			case 'SHA512':
 				$salt = '$6$' . substr($salt,0,16);
-				$mode = 'sha512';
 				break;
 			case 'SHA256':
 				$salt = '$5$' . substr($salt,0,16);
-				$mode = 'sha256';
 				break;
 			case 'MD5':
 				$salt = '$1$' . substr($salt,0,8);
-				$mode = 'md5';
 				break;
 			case 'UNCRYPT':
-			default:
-				$mode = 'uncrypt';
+				break;
 		}
 		
 		if($algorithm!=='UNCRYPT')
