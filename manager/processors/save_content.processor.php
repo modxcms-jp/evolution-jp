@@ -406,7 +406,7 @@ switch ($actionToTake)
 		}
 
 		// set publishedon and publishedby
-		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby,alias', $tbl_site_content, "id='{$id}'"));
+		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby,alias,parent', $tbl_site_content, "id='{$id}'"));
 
 		// keep original publish state, if change is not permitted
 		if (!$modx->hasPermission('publish_document'))
@@ -466,7 +466,7 @@ switch ($actionToTake)
 		}
 		$tvDeletions = array();
 		$tvChanges = array();
-		foreach ($tmplvars as $field => $value)
+		foreach ($tmplvars as $value)
 		{
 			if (!is_array($value))
 			{
@@ -620,10 +620,11 @@ switch ($actionToTake)
 		// secure manager documents - flag as private
 		include "{$base_path}manager/includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
-
-		if($published  != $was['published'])    $clearcache['target'] = 'pagecache,sitecache';
-		elseif($was['alias']==$fields['alias']) $clearcache['target'] = 'pagecache';
-		else                                    $clearcache['target'] = 'pagecache,sitecache';
+		if($published  != $was['published'])     $clearcache['target'] = 'pagecache,sitecache';
+		elseif($was['alias']!==$field['alias'])  $clearcache['target'] = 'pagecache,sitecache';
+		elseif($was['parent']!=$field['parent']) $clearcache['target'] = 'pagecache,sitecache';
+		else                                     $clearcache['target'] = 'pagecache';
+		
 		if ($syncsite == 1)
 		{
 			$modx->clearCache($clearcache);
