@@ -250,7 +250,7 @@ if(count($extenders) > 0)
 	foreach ($extenders as $extender)
 	{
 		$extender = trim($extender);
-		$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
+		$extender = str_replace('\\','/',$extender);
 		$rs = false;
 		if(substr($extender, 0, 6) === '@CHUNK')
 		{
@@ -262,9 +262,12 @@ if(count($extenders) > 0)
 		}
 		elseif(substr($extender, 0, 5) === '@FILE')
 		{
-			$extender = trim(substr($extender,6));
-			$extender_path = "{$ditto_base}{$extender}";
-			if(is_file($extender_path)) {
+			$extender_path = trim(substr($extender,6));
+			$extender_path = trim($extender_path,'/');
+			$extender_path = $modx->config['base_path'] . $extender_path;
+			if(  strpos($extender_path,'../')===false
+			  && strpos($extender_path,'manager/')!==0
+			  && is_file($extender_path)) {
 				include($extender_path);
 				$rs = true;
 			}
@@ -279,10 +282,11 @@ if(count($extenders) > 0)
 			}
 		}
 		
+		$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
 		if($rs===false && is_file($extender_path))
 		{
-				include($extender_path);
-				$rs = true;
+			include($extender_path);
+			$rs = true;
 		}
 		
 		if($rs===false)
