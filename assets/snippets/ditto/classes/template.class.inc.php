@@ -127,7 +127,7 @@ class template{
 				$fields['xml'][] = substr($field,4);
 			}else if (substr($field, 0, 5) == "json_") {
 				$fields['json'][] = substr($field,5);
-			}else if (substr($field, 0, 4) == "item") {
+			}else if (substr($field, 0, 5) == "item[") {
 				$fields['item'][] = substr($field, 4);
 			}else if (substr($field, 0, 1) == "#") {
 				$fields['qe'][] = substr($field,1);
