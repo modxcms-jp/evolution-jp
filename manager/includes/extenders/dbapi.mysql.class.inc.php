@@ -222,7 +222,7 @@ class DBAPI {
 	* @name:  select
 	*
 	*/
-	function select($fields = "*", $from = '', $where = '', $orderby = '', $limit = '')
+	function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '')
 	{
 		if(!$from) return false;
 		else
