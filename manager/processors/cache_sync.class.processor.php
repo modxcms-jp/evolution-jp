@@ -297,6 +297,10 @@ class synccache {
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
+		if(!is_file($this->cachePath . '.htaccess'))
+		{
+			file_put_contents($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
+		}
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
 		
