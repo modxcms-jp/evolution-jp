@@ -19,11 +19,84 @@ class PHx {
 	// Parser: modifier detection and eXtended processing if needed
 	function Filter($key, $value, $cmd, $opt='')
 	{
-		global $modx;
+		global $modx, $condition;
 		$cmd=strtolower($cmd);
 		
 		switch ($cmd)
 		{
+			#####  Conditional Modifiers 
+			case 'input':
+			case 'if':
+				$value = $opt;
+				break;
+			case 'equals':
+			case 'is':
+			case 'eq':
+				$condition[] = intval($value == $opt); break;
+			case 'notequals':
+			case 'isnot':
+			case 'isnt':
+			case 'ne':
+				$condition[] = intval($value != $opt);break;
+			case 'isgreaterthan':
+			case 'isgt':
+			case 'eg':
+				$condition[] = intval($value >= $opt);break;
+			case 'islowerthan':
+			case 'islt':
+			case 'el':
+				$condition[] = intval($value <= $opt);break;
+			case 'greaterthan':
+			case 'gt':
+				$condition[] = intval($value > $opt);break;
+			case 'lowerthan':
+			case 'lt':
+				$condition[] = intval($value < $opt);break;
+			case 'find':
+				$condition[] = intval(strpos($value, $opt)!==false);break;
+			case 'preg':
+				$condition[] = intval(preg_match($opt,$value));break;
+			case 'isinrole':
+			case 'ir':
+			case 'memberof':
+			case 'mo':
+				// Is Member Of  (same as inrole but this one can be stringed as a conditional)
+				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
+				$grps = (strlen($modifier_value) > 0 ) ? explode(',',$opt) :array();
+				$condition[] = intval($this->isMemberOfWebGroupByUserId($value,$grps));
+				break;
+			case 'or':
+				$condition[] = '||';break;
+			case 'and':
+				$condition[] = '&&';break;
+			case 'show':
+			case 'this':
+				$conditional = implode(' ',$condition);
+				$isvalid = intval(eval('return ('. $conditional. ');'));
+				if (!$isvalid) { $value = NULL;}
+			case 'then':
+				$conditional = implode(' ',$condition);
+				$isvalid = intval(eval('return ('. $conditional. ');'));
+				if ($isvalid) { $value = $opt; }
+				else { $value = NULL; }
+				break;
+			case 'else':
+				$conditional = implode(' ',$condition);
+				$isvalid = intval(eval('return ('. $conditional. ');'));
+				if (!$isvalid) { $value = $opt; }
+				break;
+			case 'select':
+				$raw = explode('&',$opt);
+				$map = array();
+				$c = count($raw);
+				for($m=0; $m<$c; $m++) {
+					$mi = explode('=',$raw[$m]);
+					$map[$mi[0]] = $mi[1];
+				}
+				$value = $map[$value];
+				break;
+			##### End of Conditional Modifiers
+			
 			#####  String Modifiers
 			case 'lcase':
 			case 'strtolower':
