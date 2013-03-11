@@ -332,7 +332,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	{
 		$src = <<< EOT
 <div
-	property="{type:'page',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]',url:[+url+]}"
+	property="{'type':'page','id':[+id+],'pagetitle':[+pagetitle+],'published':[+published+],'deleted':[+deleted+],'ca':'[+ca+]','url':[+url+]}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
@@ -354,7 +354,7 @@ EOT;
 	{
 		$src = <<< EOT
 <div
-	property="{type:'fopen',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]',indent:[+indent+],ps:[+private_status+],url:[+url+]}"
+	property="{'type':'fopen','id':[+id+],'pagetitle':[+pagetitle+],'published':[+published+],'deleted':[+deleted+],'ca':'[+ca+]','indent':[+indent+],'ps':[+private_status+],'url':[+url+]}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
@@ -380,7 +380,7 @@ EOT;
 	{
 		$src = <<< EOT
 <div
-	property="{type:'fclose',id:[+id+],pagetitle:[+pagetitle+],published:[+published+],deleted:[+deleted+],ca:'[+ca+]',indent:[+indent+],ps:[+private_status+],url:[+url+]}"
+	property="{'type':'fclose','id':[+id+],'pagetitle':[+pagetitle+],'published':[+published+],'deleted':[+deleted+],'ca':'[+ca+]','indent':[+indent+],'ps':[+private_status+],'url':[+url+]}"
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
