@@ -233,7 +233,7 @@ class FileUpload {
 					$uploaded_name = "{$filename}.{$ext}";	// (*4)
 				}
 				// (*4)
-				if (reset(explode(',', $disp)) != '202')
+				if (substr($disp,0,3) !== '202')
 				{
 					$modx->invokeEvent('OnFileManagerUpload',
 							array(
@@ -244,7 +244,7 @@ class FileUpload {
 			}
 		}
 		
-		if(!empty($disp) && $disp!=='0' && strpos($disp,'201,')===false)
+		if(!empty($disp) && $disp!=='0' && substr($disp,0,3) !=='201')
 		{
 			$modx->logEvent(0,2,$disp,'mcpuk connector');
 		}
