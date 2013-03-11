@@ -3660,7 +3660,7 @@ class DocumentParser {
 		if (is_readable($file))
 		{
 			$source= file($file);
-			$source= htmlspecialchars($source[$line -1], ENT_QUOTES, $this->config['modx_charset']);
+			$source= htmlspecialchars($source[$line -1]);
 		}
 		else
 		{
