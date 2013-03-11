@@ -4,7 +4,6 @@ $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
-$modx->db->connect();
 
 include_once("{$base_path}manager/includes/settings.inc.php");
 include_once("{$base_path}manager/includes/version.inc.php");
@@ -16,7 +15,6 @@ $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // initiate the content manager class
 $modx->loadExtension('ManagerAPI');
-$modx->getSettings();
 
 $username       = $modx->db->escape($_REQUEST['username']);
 $givenPassword  = $modx->db->escape($_REQUEST['password']);
