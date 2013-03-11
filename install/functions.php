@@ -39,8 +39,9 @@ function includeLang($language, $dir='langs/') {
 	
 	# load language file
 	$_lang = array ();
-	if(strpos($language,'/')!==false || strpos($language,'\\')!==false) {
-		require_once('langs/english.inc.php');
+	$language = str_replace('\\','/',$language);
+	if(strpos($language,'/')!==false) {
+		 require_once('langs/english.inc.php');
 	}
 	elseif(is_file("{$dir}{$language}.inc.php")) {
 		 require_once("{$dir}{$language}.inc.php");
