@@ -650,32 +650,34 @@ function getCookie(cookieName)
 									$content['template'] = $this->tplid;
 									break;
 								case 'selected': // Template is inherited by Inherit Selected Template plugin
+								case 'sibling':
 									// Get parent document id
 									$pid = $content['parent'] ? $content['parent'] : intval($_REQUEST['pid']);
 									
-									// Get inheritTpl TV
-									$tv = $this->modx->getTemplateVar("inheritTpl", "", $pid);
+									if ($this->modx->config['auto_template_logic'] === 'sibling') {
+										// Eoler: template_autologic in Evolution 1.0.5+
+										// http://tracker.modx.com/issues/9586
+										$tv = array();
+										$sibl = $this->modx->getDocumentChildren($pid, 1, 0, 'template', '', 'menuindex', 'ASC', 1);
+										if(empty($sibl)) {
+											$sibl = $this->modx->getDocumentChildren($pid, 0, 0, 'template', '', 'menuindex', 'ASC', 1);
+										}
+										if(!empty($sibl)) {
+											$tv['value'] = $sibl[0]['template'];
+										}
+										else $tv['value'] = ''; // Added by yama
+									}
+									else
+									{
+										// Get inheritTpl TV
+										$tv = $this->modx->getTemplateVar('inheritTpl', '', $pid);
+									}
+
 									
 									// Set template to inherit
 									if ($tv['value'] != '') $content['template'] = $tv['value'];
 									else                    $content['template'] = $this->modx->config['default_template'];
 									break;
-								case 'sibling':
-									if(!isset($_GET['pid']))
-									{
-										$content['template'] = $this->modx->config['default_template'];
-										break;
-									}
-									elseif($sibl = $this->modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1))
-									{
-										$content['template'] = $sibl[0]['template'];
-										break;
-									}
-									elseif($sibl = $this->modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1))
-									{
-										$content['template'] = $sibl[0]['template'];
-										break;
-									}
 								case 'system':
 									$content['template'] = $this->modx->config['default_template'];
 									break;
