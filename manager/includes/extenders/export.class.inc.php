@@ -209,12 +209,12 @@ class EXPORT_SITE
 					else $row['status'] = $msg_failed_no_retrieve;
 				}
 				else     $row['status'] = $msg_success_skip_doc;
-				echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
 			}
 			else
 			{
 				$row['status'] = $msg_success_skip_dir;
-				echo $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
 			}
 			if ($row['isfolder'])
 			{ // needs making a folder
@@ -238,6 +238,6 @@ class EXPORT_SITE
 				$this->run($row['id']);
 			}
 		}
-//		return join("\n", $this->output);
+		return join("\n", $this->output);
 	}
 }

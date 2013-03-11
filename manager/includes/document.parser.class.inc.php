@@ -94,6 +94,7 @@ class DocumentParser {
 		{
 			// Database API
 			case 'DBAPI' :
+				if(!isset($database_type)||empty($database_type)) $database_type = 'mysql';
 				if(include_once(MODX_BASE_PATH . "manager/includes/extenders/dbapi.{$database_type}.class.inc.php"))
 				{
 					$this->db= new DBAPI;
