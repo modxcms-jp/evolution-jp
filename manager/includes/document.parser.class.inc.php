@@ -2756,9 +2756,13 @@ class DocumentParser {
 		return $documentSource;
 	}
     
-	function getConfig($name= '')
+	function getConfig($name= '', $default='')
 	{
-		if(empty($this->config[$name])) return false;
+		if(empty($this->config[$name]))
+		{
+			if($default==='') return false;
+			else              return $default;
+		}
 		else                            return $this->config[$name];
 	}
 		
