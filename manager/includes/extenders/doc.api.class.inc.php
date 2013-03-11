@@ -27,6 +27,7 @@ class DocAPI {
 		$f['editedon']  = $f['createdon'];
 		$f['editedby']  = $f['createdby'];
 		$f['published'] = (!$f['published']) ? '1' : $f['published'];
+		if($f['published']==1 && !isset($f['publishedon'])) $f['publishedon'] = $f['createdon'];
 		$f['template']  = (!$f['template']) ? $modx->config['default_template'] : $f['template'];
 		if ($groups) $f['privatemgr'] = 1;
 		
@@ -34,8 +35,8 @@ class DocAPI {
 		
 		if ($groups && $id)
 		{
-			foreach ($groups as $gr) {
-				$modx->db->insert(array('document_group' => $gr, 'document' => $id), '[+prefix+]document_groups');
+			foreach ($groups as $group) {
+				$modx->db->insert(array('document_group' => $group, 'document' => $id), '[+prefix+]document_groups');
 			}
 		}
 		return $id;
