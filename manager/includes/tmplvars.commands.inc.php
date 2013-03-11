@@ -126,7 +126,7 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
 
         }
         // support for nested bindings
-        return is_string($output) && ($output != $value) ? ProcessTVCommand($output, $name, $docid) : $output;
+        return is_string($output) && ($output != $value) ? ProcessTVCommand($output, $name, $docid, $src) : $output;
     }
 }
 
