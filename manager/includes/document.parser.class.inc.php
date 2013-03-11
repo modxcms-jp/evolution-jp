@@ -1693,7 +1693,7 @@ class DocumentParser {
 		$msg= ob_get_contents();
 		ob_end_clean();
 		
-		if ((0<$this->config['error_reporting']) && $msg && isset($php_errormsg))
+		if ((0<$this->config['error_reporting']) && isset($php_errormsg))
 		{
 			$error_info = error_get_last();
 			if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
@@ -1701,10 +1701,11 @@ class DocumentParser {
 			if(1<$this->config['error_reporting'] || 2<$error_type)
 			{
 				extract($error_info);
+				if($msg===false) $msg = 'ob_get_contents() error';
 				$result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Snippet', $text, $line, $msg);
 				if ($this->isBackend())
 				{
-					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
+					$this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}{$result}</p>");
 				}
 			}
 		}
