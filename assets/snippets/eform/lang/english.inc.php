@@ -40,4 +40,3 @@ $_lang["ef_thousands_separator"] = ""; //leave empty to use (php) locale, only n
 $_lang["ef_upload_error"] = ": error in uploading file.";
 $_lang["ef_upload_exceeded"] = " has exceeded maximum upload limit.";
 $_lang["ef_validation_message"] = "<div class=\"errors\"><strong>Some errors were detected in your form:</strong><br />[+ef_wrapper+]</div>";
-?>
