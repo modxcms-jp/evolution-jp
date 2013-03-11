@@ -61,7 +61,6 @@ class DocumentParser {
 	function DocumentParser()
 	{
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-		$this->loadExtension('PHx') or die('Could not load PHx class.'); // load PHx class
 		if($this->isBackend()) $this->loadExtension('ManagerAPI');
 		
 		// events
@@ -125,12 +124,17 @@ class DocumentParser {
 				break;
 			// PHx
 			case 'PHx' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php'))
+				if(!class_exists('PHx') || !is_object($this->phx))
 				{
-					$this->phx= new PHx;
-					return true;
+					$rs = include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php');
+					if($rs)
+					{
+						$this->phx= new PHx;
+						return true;
+					}
+					else return false;
 				}
-				else return false;
+				else return true;
 				break;
 			case 'MakeTable' :
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/maketable.class.php'))
@@ -1351,7 +1355,11 @@ class DocumentParser {
 				{
 					$value= getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
 				}
-				if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+				if($modifiers!==false)
+				{
+					$this->loadExtension('PHx') or die('Could not load PHx class.');
+					$value = $this->phx->phxFilter($key,$value,$modifiers);
+				}
 			}
 			else
 			{
@@ -1388,7 +1396,11 @@ class DocumentParser {
 				{
 					
 					$value = $this->config[$key];
-					if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+					if($modifiers!==false)
+					{
+						$this->loadExtension('PHx') or die('Could not load PHx class.');
+						$value = $this->phx->phxFilter($key,$value,$modifiers);
+					}
 					
 					$replace[$i]= $value;
 				}
@@ -1458,7 +1470,11 @@ class DocumentParser {
 						$value= $row['snippet'];
 					}
 				}
-				if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+				if($modifiers!==false)
+				{
+					$this->loadExtension('PHx') or die('Could not load PHx class.');
+					$value = $this->phx->phxFilter($key,$value,$modifiers);
+				}
 				if(isset($ph) && 0<count($ph)) $value = $this->parsePlaceholder($value, $ph);
 				$replace[$i] = $value;
 				$i++;
@@ -1534,7 +1550,11 @@ class DocumentParser {
 					$value= $this->placeholders[$name];
 					if ($value !== '')
 					{
-						if($modifiers!==false) $value = $this->phx->phxFilter($name,$value,$modifiers);
+						if($modifiers!==false)
+						{
+							$this->loadExtension('PHx') or die('Could not load PHx class.');
+							$value = $this->phx->phxFilter($name,$value,$modifiers);
+						}
 					}
 					$replace[$i]= $value;
 				}
@@ -1813,7 +1833,11 @@ class DocumentParser {
 			unset($temp_params);
 		}
 		$value = $this->evalSnippet($snippetObject['content'], $params);
-		if($modifiers!==false) $value = $this->phx->phxFilter($key,$value,$modifiers);
+		if($modifiers!==false)
+		{
+			$this->loadExtension('PHx') or die('Could not load PHx class.');
+			$value = $this->phx->phxFilter($key,$value,$modifiers);
+		}
 		
 		if($this->dumpSnippets == 1)
 		{
