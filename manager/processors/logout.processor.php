@@ -28,4 +28,4 @@ $modx->invokeEvent("OnManagerLogout",
 						));
 
 // show login screen
-header('Location: ' . $modx->config['site_url'] . 'manager/');
+header('Location: ' . MODX_SITE_URL . 'manager/');
