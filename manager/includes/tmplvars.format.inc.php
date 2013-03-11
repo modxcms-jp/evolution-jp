@@ -111,6 +111,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 		case 'dateonly':
 			if ($value !='' || $params['default']=='Yes')
 			{
+				if(empty($value)) $value = 'now';
 				$timestamp = getUnixtimeFromDateString($value);
 				$p = $params['format'] ? $params['format'] : $modx->toDateFormat(null, 'formatOnly');
 				$o = strftime($p,$timestamp);
