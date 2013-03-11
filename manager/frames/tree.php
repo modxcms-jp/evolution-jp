@@ -13,38 +13,40 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
     var $j = jQuery.noConflict();
-    $j(function(){
+    jQuery(function(){
         resizeTree();
         restoreTree();
-        $j(window).resize(function(){resizeTree();});
-        var tree = $j('div#treeRoot');
+        jQuery(window).resize(function(){resizeTree();});
+        var tree = jQuery('div#treeRoot');
         tree.on('click','div',function(){
-        	var str = $j(this).attr("property");
+        	var str = jQuery(this).attr("property");
         	var prop = (new Function("return " + str))();
         	if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist')
+        	{
         		parent.tree.ca=prop.ca;
+        	}
         	treeAction(prop.id, prop.pagetitle);
         	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
-        	$j(this).children('span.treeNode').addClass("treeNodeSelected");
+        	jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
         });
         tree.on('mouseenter','span.treeNode',function(){
         	if(this.className!="treeNodeSelected") {
-        		$j(this).addClass("treeNodeHover");
+        		jQuery(this).addClass("treeNodeHover");
         	}
         });
         tree.on('mouseleave','span.treeNode',function(){
-        		$j(this).removeClass("treeNodeHover");
+        		jQuery(this).removeClass("treeNodeHover");
         });
 		tree.on('selectstart', 'div', function() {
 			return false;
 		});
 		tree.on('dblclick','div',function(){
-			var str = $j(this).attr("property");
+			var str = jQuery(this).attr("property");
 			var prop = (new Function("return " + str))();
 			parent.tree.ca='open';
 			treeAction(prop.id, prop.pagetitle);
 			tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
-			$j(this).children('span.treeNode').addClass("treeNodeSelected");
+			jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
 		}).click(function(){return false;});
 		tree.on('mousedown', 'div', function() {
 			return false;
@@ -53,25 +55,25 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.icon',function(event){
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('contextmenu', 'img.icon', function(event) {
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('contextmenu', 'span.treeNode', function(event) {
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('mousedown', 'img.icon', function() {
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -80,7 +82,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('mousedown', 'span.treeNode', function() {
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -89,12 +91,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.toggle',function(event){
-			var str = $j(this).parent().attr("property");
+			var str = jQuery(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			toggleNode(this, prop.indent, prop.id, 0, prop.ps);
 			return false;
 		});
-		$j('div#treeHolder').click(function(){
+		jQuery('div#treeHolder').click(function(){
 			if(currSorterState=="block") {
 				currSorterState="none";
 				document.getElementById('floater').style.display=currSorterState;
