@@ -265,15 +265,15 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
 
     $str .= "<tr><td>MySQL : </td>";
-    $str .= '<td><i>[^qt^] ([^q^] Requests</i>)</td>';
+    $str .= '<td>[^qt^] ([^q^] Requests)</td>';
     $str .= '</tr>';
 
     $str .= "<tr><td>PHP : </td>";
-    $str .= '<td><i>[^p^]</i></td>';
+    $str .= '<td>[^p^]</td>';
     $str .= '</tr>';
 
     $str .= "<tr><td>Total : </td>";
-    $str .= '<td><i>[^t^]</i></td>';
+    $str .= '<td>[^t^]</td>';
     $str .= '</tr>';
 
     $str .= "</table>\n";
@@ -342,7 +342,6 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     }
     else  echo 'Error';
     ob_end_flush();
-
     exit;
 }
 
