@@ -153,11 +153,7 @@ class DocumentParser {
 				else return false;
 				break;
 			case 'DeprecatedAPI':
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php'))
-				{
-					return true;
-				}
-				else return false;
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
 				break;
 			default :
 				return false;
