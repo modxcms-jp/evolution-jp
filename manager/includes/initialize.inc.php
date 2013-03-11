@@ -1,8 +1,8 @@
 <?php
 // check PHP version. MODX Evolution is compatible with php 4 (4.4.2+)
-if(version_compare(phpversion(), '4.4.2') < 0)
+if(version_compare(phpversion(), '5.0.0') < 0)
 {
-	echo 'MODX is compatible with PHP 4.4.2 and higher. Please upgrade your PHP installation!';
+	echo 'MODX is compatible with PHP 5.0.0 and higher. Please upgrade your PHP installation!';
 	exit;
 }
 
