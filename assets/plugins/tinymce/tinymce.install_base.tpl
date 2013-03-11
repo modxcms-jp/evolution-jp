@@ -15,7 +15,7 @@
  *
  * @author Jeff Whitfield
  * @author Mikko Lammi / updated: 03/09/2010
- * @author yama  / updated: 2012/11/20
+ * @author yama  / updated: 2013-03-10
  */
 
 require MODX_BASE_PATH.'assets/plugins/tinymce/plugin.tinymce.php';

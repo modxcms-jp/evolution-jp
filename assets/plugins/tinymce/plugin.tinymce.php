@@ -39,7 +39,7 @@ switch ($e->name)
 			$params['theme']              = $modx->config['tinymce_editor_theme'];
 			$params['mce_editor_skin']    = $modx->config['mce_editor_skin'];
 			$params['mce_entermode']      = $modx->config['mce_entermode'];
-			$params['language']           = get_mce_lang($modx->config['manager_language']);
+			$params['language']           = $mce->get_lang($modx->config['manager_language']);
 			$params['frontend']           = false;
 			$params['custom_plugins']     = $modx->config['tinymce_custom_plugins'];
 			$params['custom_buttons1']    = $modx->config['tinymce_custom_buttons1'];
@@ -58,7 +58,7 @@ switch ($e->name)
 			
 			$params['theme']           = $webtheme;
 			$params['webuser']         = $webuser;
-			$params['language']        = get_mce_lang($frontend_language);
+			$params['language']        = $mce->get_lang($frontend_language);
 			$params['frontend']        = true;
 			$params['custom_plugins']  = $webPlugins;
 			$params['custom_buttons1'] = $webButtons1;
