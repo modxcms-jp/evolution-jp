@@ -222,9 +222,18 @@ class TinyMCE
 					global $content;
 					if($content['template']==='0')
 					{
-						$plugins = str_replace('autosave', 'fullpage', $plugins);
+						$plugins = str_replace('autosave', '', $plugins);
+						$plugins .= ',fullpage';
 						$buttons2 = 'fullpage,' . $buttons2;
-						$str .= '<style type="text/css">body.mceContentBody {background-color:#f00 !important;}</style>';
+					}
+					if(empty($modx->config['mce_template_docs']) && empty($modx->config['mce_template_chunks']))
+					{
+						$plugins = str_replace('template', '', $plugins);
+						$plugins = str_replace(',,', ',', $plugins);
+						$buttons1 = str_replace(',template', '', $buttons1);
+						$buttons2 = str_replace(',template', '', $buttons2);
+						$buttons3 = str_replace(',template', '', $buttons3);
+						$buttons4 = str_replace(',template', '', $buttons4);
 					}
 			}
 		}
