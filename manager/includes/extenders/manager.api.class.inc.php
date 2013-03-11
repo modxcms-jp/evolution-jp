@@ -281,7 +281,7 @@ class ManagerAPI {
 	}
 	
 	function genHash($password, $seed='1')
-	{
+	{ // $seed is user_id basically
 		global $modx;
 		
 		if(isset($modx->config['pwd_hash_algo']) && !empty($modx->config['pwd_hash_algo']))
