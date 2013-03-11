@@ -84,7 +84,7 @@ elseif ($mode=='snapshot')
 		mkdir(rtrim($modx->config['snapshot_path'],'/'));
 		@chmod(rtrim($modx->config['snapshot_path'],'/'), 0777);
 	}
-	if(!file_exists("{$modx->config['snapshot_path']}.htaccess"))
+	if(!is_file("{$modx->config['snapshot_path']}.htaccess"))
 	{
 		$htaccess = "order deny,allow\ndeny from all\n";
 		file_put_contents("{$modx->config['snapshot_path']}.htaccess",$htaccess);
