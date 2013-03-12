@@ -63,7 +63,7 @@ elseif ($mode=='backup')
 	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
-	$dumpfinished = $dumper->createDump('callBack');
+	$dumpfinished = $dumper->createDump('dumpSql');
 	if($dumpfinished)
 	{
 		exit;
@@ -84,7 +84,7 @@ elseif ($mode=='snapshot')
 		mkdir(rtrim($modx->config['snapshot_path'],'/'));
 		@chmod(rtrim($modx->config['snapshot_path'],'/'), 0777);
 	}
-	if(!file_exists("{$modx->config['snapshot_path']}.htaccess"))
+	if(!is_file("{$modx->config['snapshot_path']}.htaccess"))
 	{
 		$htaccess = "order deny,allow\ndeny from all\n";
 		file_put_contents("{$modx->config['snapshot_path']}.htaccess",$htaccess);
@@ -526,15 +526,20 @@ class Mysqldumper {
 				}
 				$output .= rtrim($insertdump,',') . ");";
 			}
-			// invoke callback -- raymond
-			if ($callBack) {
-				if (!$callBack($output)) break;
-				$output = '';
-			}
 		}
-		return ($callBack) ? true: $output;
+		
+		switch($callBack)
+		{
+			case 'dumpSql':
+				dumpSql($output);
+				break;
+			case 'snapshot':
+				snapshot($output);
+				break;
+		}
+		return true;
 	}
-
+	
 	// Private function object2Array.
 	function object2Array($obj) {
 		$array = null;
@@ -574,7 +579,16 @@ class Mysqldumper {
 
 function import_sql($source,$result_code='import_ok')
 {
-	global $modx;
+	global $modx,$e;
+	
+	$rs = $modx->db->select('*','[+prefix+]active_users',"action='27'");
+	if(0 < $modx->db->getRecordCount($rs))
+	{
+		include_once "header.inc.php";  // start normal header
+		$e->setError(5, 'Resource is edit now by any user');
+		$e->dumpError();
+		exit;
+	}
 	
 	$settings = getSettings();
 	
@@ -600,16 +614,18 @@ function import_sql($source,$result_code='import_ok')
 	$_SESSION['result_msg'] = $result_code;
 }
 
-function callBack(&$dumpstring) {
+function dumpSql(&$dumpstring) {
 	global $modx;
 	$today = $modx->toDateFormat(time(),'dateOnly');
 	$today = str_replace('/', '-', $today);
 	$today = strtolower($today);
+	$size = strlen($dumpstring);
 	if(!headers_sent()) {
 	    header('Expires: 0');
         header('Cache-Control: private');
         header('Pragma: cache');
 		header('Content-type: application/download');
+		header("Content-Length: {$size}");
 		header("Content-Disposition: attachment; filename={$today}_database_backup.sql");
 	}
 	echo $dumpstring;
