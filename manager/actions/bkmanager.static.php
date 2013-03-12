@@ -63,7 +63,7 @@ elseif ($mode=='backup')
 	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
-	$dumpfinished = $dumper->createDump('callBack');
+	$dumpfinished = $dumper->createDump('dumpSql');
 	if($dumpfinished)
 	{
 		exit;
@@ -526,15 +526,20 @@ class Mysqldumper {
 				}
 				$output .= rtrim($insertdump,',') . ");";
 			}
-			// invoke callback -- raymond
-			if ($callBack) {
-				if (!$callBack($output)) break;
-				$output = '';
-			}
 		}
-		return ($callBack) ? true: $output;
+		
+		switch($callBack)
+		{
+			case 'dumpSql':
+				dumpSql($output);
+				break;
+			case 'snapshot':
+				snapshot($output);
+				break;
+		}
+		return true;
 	}
-
+	
 	// Private function object2Array.
 	function object2Array($obj) {
 		$array = null;
@@ -600,7 +605,7 @@ function import_sql($source,$result_code='import_ok')
 	$_SESSION['result_msg'] = $result_code;
 }
 
-function callBack(&$dumpstring) {
+function dumpSql(&$dumpstring) {
 	global $modx;
 	$today = $modx->toDateFormat(time(),'dateOnly');
 	$today = str_replace('/', '-', $today);
