@@ -42,6 +42,9 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 			case 'content':
 				$output .= '$j("#content_header").html("'.jsSafe($newlabel).'")';
 			break;
+			case 'menuindex':
+				$output .= '$j("input[name=menuindex]").parents().parents("td:first").prev("td").children("span.warning").empty().prepend("'.jsSafe($newlabel).'");';
+			break;
 			
 			// Ones that follow the regular pattern
 			default:
