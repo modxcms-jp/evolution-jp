@@ -18,6 +18,7 @@ class TopicPath
 		$this->descField        = (!isset($descField))        ? array('description','longtitle','pagetitle'):explode(',',$descField);
 		$this->homeId           = (!isset($homeId))           ? $modx->config['site_start'] :$homeId;
 		$this->stopIDs          = (!isset($stopIDs))          ? array() :explode(',', $stopIDs);
+		$this->order            = (!isset($order))            ? '' : $order;
 		
 		if(isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
 		if(isset($homeTopicDesc))  $this->homeTopicDesc  = $homeTopicDesc;
@@ -67,6 +68,7 @@ class TopicPath
 		
 		if(0<count($topics))
 		{
+			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
 			$rs = join($tpl['separator'],$topics);
 			$rs = $modx->parsePlaceholder($tpl['outer'],array('topics'=>$rs));
 		}
