@@ -605,11 +605,13 @@ function callBack(&$dumpstring) {
 	$today = $modx->toDateFormat(time(),'dateOnly');
 	$today = str_replace('/', '-', $today);
 	$today = strtolower($today);
+	$size = strlen($dumpstring);
 	if(!headers_sent()) {
 	    header('Expires: 0');
         header('Cache-Control: private');
         header('Pragma: cache');
 		header('Content-type: application/download');
+		header("Content-Length: {$size}");
 		header("Content-Disposition: attachment; filename={$today}_database_backup.sql");
 	}
 	echo $dumpstring;
