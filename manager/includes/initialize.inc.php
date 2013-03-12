@@ -23,7 +23,7 @@ require_once("{$base_path}manager/includes/version.inc.php");
 
 if (defined('IN_MANAGER_MODE')) init_mgr();
 
-if (version_compare(PHP_VERSION, '5.3.0') < 0) @set_magic_quotes_runtime(0);
+if (version_compare(PHP_VERSION, '5.4') < 0) @set_magic_quotes_runtime(0);
 
 // include_once the magic_quotes_gpc workaround
 if (get_magic_quotes_gpc()) include_once "{$core_path}quotes_stripper.inc.php";
