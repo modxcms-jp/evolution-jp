@@ -860,14 +860,21 @@ class DocumentParser {
 		
 		if(!isset($included)||!$included)
 		{
-			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
-			$cache = new synccache();
-			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-			$cache->setReport(false);
-			$rebuilt = $cache->buildCache($this);
-			
-			if($rebuilt && is_file($cpath)) include_once($cpath);
+			$rs = $this->rebuildCache();
+			if($rs && is_file($cpath)) include($cpath);
 		}
+	}
+	
+	function rebuildCache($params=array())
+	{
+		include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+		$cache = new synccache();
+		$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+		$cache->setReport(false);
+		if(isset($params['cacheRefreshTime'])) $cache->cacheRefreshTime = $params['cacheRefreshTime'];
+		$rs = $cache->buildCache($this);
+		if($rs) $cache->publish_time_file($this);
+		return $rs;
 	}
 	
 	function getSettings()
@@ -1274,6 +1281,25 @@ class DocumentParser {
 	
 		// clear the cache
 		$this->clearCache();
+	}
+	
+	function setCacheRefreshTime($unixtime)
+	{
+		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
+		if(is_file($cache_path))
+		{
+			include_once($cache_path);
+		}
+		else $this->cacheRefreshTime = 0;
+		
+		if($cacheRefreshTime < $unixtime)
+		{
+			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+			$cache = new synccache();
+			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+			$cache->cacheRefreshTime = $unixtime;
+			$cache->publish_time_file($this);
+		}
 	}
 	
 	function splitMODXTags($content,$left='[+',$right='+]')
