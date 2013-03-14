@@ -579,7 +579,16 @@ class Mysqldumper {
 
 function import_sql($source,$result_code='import_ok')
 {
-	global $modx;
+	global $modx,$e;
+	
+	$rs = $modx->db->select('*','[+prefix+]active_users',"action='27'");
+	if(0 < $modx->db->getRecordCount($rs))
+	{
+		include_once "header.inc.php";  // start normal header
+		$e->setError(5, 'Resource is edit now by any user');
+		$e->dumpError();
+		exit;
+	}
 	
 	$settings = getSettings();
 	
