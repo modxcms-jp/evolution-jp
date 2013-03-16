@@ -32,8 +32,7 @@ $newid = duplicateDocument($id);
 $modx->clearCache($clearcache);
 
 // finish cloning - redirect
-$tbl_site_content = $modx->getFullTableName('site_content');
-$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$newid}'"));
+$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$newid}'"));
 if($pid==0) $header = "Location: index.php?r=1&a=3&id={$newid}";
 else        $header = "Location: index.php?r=1&a=3&id={$pid}&tab=0";
 header($header);
@@ -43,7 +42,6 @@ header($header);
 function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true)
 {
 	global $modx,$_lang;
-	$tbl_site_content = $modx->getFullTableName('site_content');
 	
 	// invoke OnBeforeDocDuplicate event
 	$evtOut = $modx->invokeEvent('OnBeforeDocDuplicate', array(
@@ -58,7 +56,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$userID = $modx->getLoginUserID();
 
 	// Grab the original document
-	$rs = $modx->db->select('*', $tbl_site_content, "id='{$docid}'");
+	$rs = $modx->db->select('*', '[+prefix+]site_content', "id='{$docid}'");
 	$content = $modx->db->getRow($rs);
 
 	$content['id'] = set_new_id();
@@ -106,11 +104,11 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	{
 		$pid = $content['parent'];
 		$pid = intval($content['parent']);
-		$content['menuindex'] = $modx->db->getValue($modx->db->select('max(menuindex)',$tbl_site_content,"parent='{$pid}'"))+1;
+		$content['menuindex'] = $modx->db->getValue($modx->db->select('max(menuindex)','[+prefix+]site_content',"parent='{$pid}'"))+1;
 	}
 
 	// Duplicate the Document
-	$new_id = $modx->db->insert($content, $tbl_site_content);
+	$new_id = $modx->db->insert($content, '[+prefix+]site_content');
 
 	// duplicate document's TVs & Keywords
 	duplicateKeywords($docid, $new_id);
@@ -124,7 +122,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	));
 
 	// Start duplicating all the child documents that aren't deleted.
-	$rs = $modx->db->select('id', $tbl_site_content, "parent={$docid} AND deleted=0", 'id ASC');
+	$rs = $modx->db->select('id', '[+prefix+]site_content', "parent='{$docid}' AND deleted=0", 'id ASC');
 	if ($modx->db->getRecordCount($rs))
 	{
 		$_toplevel++;
@@ -141,18 +139,17 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 function set_new_id()
 {
 	global $modx;
-	$tbl_site_content = $modx->getFullTableName('site_content');
 	
 	switch($modx->config['docid_incrmnt_method'])
 	{
 		case '1':
-			$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+			$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
 			$where = "T1.id IS NULL";
 			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
 			$result = $modx->db->getValue($rs);
 			break;
 		case '2':
-			$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+			$rs = $modx->db->select('MAX(id)+1', '[+prefix+]site_content');
 			$result = $modx->db->getValue($rs);
 			break;
 		default:
@@ -167,8 +164,7 @@ function duplicateKeywords($oldid,$newid){
 	
 	if($modx->config['show_meta']!=1) return;
 	
-	$tblkw = $modx->getFullTableName('keyword_xref');
-	$modx->db->insert('content_id,keyword_id', $tblkw, "{$newid},keyword_id", $tblkw, "content_id='{$oldid}'");
+	$modx->db->insert('content_id,keyword_id', '[+prefix+]keyword_xref', "{$newid},keyword_id", '[+prefix+]keyword_xref', "content_id='{$oldid}'");
 }
 
 // Duplicate Document TVs
