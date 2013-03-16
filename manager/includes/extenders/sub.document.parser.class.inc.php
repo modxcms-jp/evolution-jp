@@ -69,7 +69,7 @@ function logEvent($evtid, $type, $msg, $title= 'Parser')
 {
 	global $modx;
 	
-	$evtid= intval($evtid);
+	$type=(int)$type; 
 	if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 	if (3 < $type) $type= 3;
 	
@@ -95,7 +95,7 @@ function logEvent($evtid, $type, $msg, $title= 'Parser')
 	$LoginUserID = $modx->getLoginUserID();
 	if ($LoginUserID == '' || $LoginUserID===false) $LoginUserID = '-';
 	
-	$fields['eventid']     = $evtid;
+	$fields['eventid']     = intval($evtid);
 	$fields['type']        = $type;
 	$fields['createdon']   = time();
 	$fields['source']      = $title;
