@@ -20,7 +20,7 @@ class EXPORT_SITE
 		$this->count = 0;
 		$this->setUrlMode();
 		$this->dirCheckCount = 0;
-		$this->generate_mode = 'direct';
+		$this->generate_mode = 'crawl';
 		$this->targetDir = $modx->config['base_path'] . 'temp/export';
 		if(!isset($this->total)) $this->getTotal();
 	}
