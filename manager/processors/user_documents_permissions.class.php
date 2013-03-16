@@ -14,7 +14,7 @@ class udperms {
         $document = $this->document;
         $role     = $this->role;
 
-        if($role == 1)                                    return true; // administrator - grant all document permissions
+        if($modx->hasPermission('save_role'))             return true; // administrator - grant all document permissions
         elseif($document == 0 && $udperms_allowroot == 1) return true;
         elseif(empty($modx->config['use_udperms']))       return true; // permissions aren't in use
         
