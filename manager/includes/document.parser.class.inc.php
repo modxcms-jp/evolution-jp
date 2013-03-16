@@ -2626,6 +2626,7 @@ class DocumentParser {
 			{
 				$id = $this->referenceListing[$id];
 			}
+			else return $this->referenceListing[$id];
 		}
 		
 		if ($this->config['friendly_urls'] == 1)
