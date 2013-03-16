@@ -2209,6 +2209,7 @@ class DocumentParser {
 	function logEvent($evtid, $type, $msg, $source= 'Parser')
 	{
 		$evtid= intval($evtid);
+		$type = intval($type);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
 		$msg= $this->db->escape($msg);
