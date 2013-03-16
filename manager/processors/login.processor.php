@@ -291,11 +291,14 @@ if($rememberme == '1')
 	// Are we using secure connection? If so, make sure the cookie is secure
 	global $https_port;
 	
-	$secure = (  (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port);
+	if((isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
+		$secure = 1;
+	else $secure = 0;
+	$expire = time()+60*60*24*365;
 	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], '; HttpOnly' , $secure );
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $expire, $modx->config['base_url'], '; HttpOnly' , $secure);
 	} else {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $expire, $modx->config['base_url'], ''           , $secure, true);
 	}
 }
 else
