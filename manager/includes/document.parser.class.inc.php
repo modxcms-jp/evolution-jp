@@ -1966,6 +1966,8 @@ class DocumentParser {
 	
 	function setdocumentMap()
 	{
+		if(isset($this->documentMap)) return;
+		
 		$d = @include_once(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
 		if($d) $this->documentMap = $d;
 		else return false;
