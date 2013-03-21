@@ -2491,9 +2491,11 @@ class DocumentParser {
 		}
 	}
 
-	function getField($docid='', $field='content')
+	function getField($field='content', $docid='')
 	{
-		if(!preg_match('@^[0-9]+$@',$docid))
+		if(empty($docid) && isset($this->documentIdentifier))
+			$docid = $this->documentIdentifier;
+		elseif(!preg_match('@^[0-9]+$@',$docid))
 			$docid = $this->getIdFromAlias($identifier);
 		
 		if(empty($docid)) return false;

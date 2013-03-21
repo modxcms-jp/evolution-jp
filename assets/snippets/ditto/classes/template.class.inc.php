@@ -212,7 +212,7 @@ class template{
 			if(!preg_match('@^[0-9]+$@',$docid))
 				$template = $this->language['missing_placeholders_tpl'];
 			else
-				$template = $modx->getField($docid);
+				$template = $modx->getField('content',$docid);
 		} else {
 			$template = $this->language['missing_placeholders_tpl'];
 		}
