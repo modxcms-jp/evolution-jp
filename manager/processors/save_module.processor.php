@@ -10,7 +10,7 @@ $tbl_site_modules = $modx->getFullTableName('site_modules');
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
-$resourcefile = $modx->db->escape($_POST['resourcefile']);
+$resourcefile = $modx->db->escape($_POST['sourcefile']);
 $enable_resource = $_POST['enable_resource']=='on' ? 1 : 0 ;
 if(($_POST['icon']!=='') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', $_POST['icon'])==1))
     $_POST['icon'] = '../' . $_POST['icon'];
@@ -72,7 +72,7 @@ switch ($_POST['mode']) {
 			
 
 			include 'header.inc.php';
-			include(dirname(dirname(__FILE__)).'/actions/mutate_module.dynamic.php');
+			include(MODX_BASE_PATH . 'manager/actions/mutate_module.dynamic.php');
 			include 'footer.inc.php';
 			
 			exit;
