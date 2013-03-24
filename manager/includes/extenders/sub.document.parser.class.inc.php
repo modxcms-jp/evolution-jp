@@ -174,7 +174,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     }
 
     if (!empty ($query)) {
-        $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:5px;color:#333;background-color:#ffffcd;">SQL &gt; <span id="sqlHolder">' . $query . '</span></div>
+	        $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">SQL &gt; <span id="sqlHolder">' . $query . '</span></div>
                 </td></tr>';
     }
 
@@ -201,7 +201,11 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
 		$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
 		if ($text != '')
 		{
-			$str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
+				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">Error : ' . $text . '</div></td></tr>';
+		}
+			if($output!='')
+			{
+				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">' . $output . '</div></td></tr>';
 		}
 		$str .= '<tr><td valign="top">ErrorType[num] : </td>';
 		$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
@@ -262,7 +266,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     $str .= '<td>' . $_SERVER['REMOTE_ADDR'] . '</td>';
     $str .= '</tr>';
 
-    $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
+	    $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
     $str .= "<tr><td>MySQL : </td>";
     $str .= '<td>[^qt^] ([^q^] Requests)</td>';
@@ -276,6 +280,10 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     $str .= '<td>[^t^]</td>';
     $str .= '</tr>';
 
+	    $str .= "<tr><td>Memory : </td>";
+	    $str .= '<td>[^m^]</td>';
+	    $str .= '</tr>';
+	    
     $str .= "</table>\n";
 
     $totalTime= ($modx->getMicroTime() - $modx->tstart);
@@ -299,10 +307,6 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
 	$str .= '<br />' . $modx->get_backtrace(debug_backtrace()) . "\n";
 	
-	if(!empty($output))
-	{
-		$str .= '<div style="margin-top:25px;padding:15px;border:1px solid #ccc;"><p><b>Output:</b></p>' . $output . '</div>';
-	}
 
     // Log error
     if(!empty($modx->currentSnippet)) $source = 'Snippet - ' . $modx->currentSnippet;
@@ -335,7 +339,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
         echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
              <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
              <link rel="stylesheet" type="text/css" href="' . $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/style.css" />
-             <style>body { padding:10px; } td {font:inherit;}</style>
+	             <style type="text/css">body { padding:10px; } td {font:inherit;}</style>
              </head><body>
              ' . $str . '</body></html>';
     
@@ -359,28 +363,17 @@ function get_backtrace($backtrace)
 		elseif(substr($val['function'],0,8)==='phpError') break;
 		$path = str_replace('\\','/',$val['file']);
 		if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
-		if(!empty($val['args']) && 0 < count($val['args']))
+		switch($val['type'])
 		{
-			foreach($val['args'] as $v)
-			{
-				if(is_array($v)) $v = 'array()';
-				elseif(is_object($v))
-				{
-				    $v = get_class($v);
-				}
-				else
-				{
-					$v = str_replace('"', '', $v);
-					$v = htmlspecialchars($v,ENT_QUOTES,$modx->config['modx_charset']);
-					if(32 < strlen($v)) $v = mb_substr($v,0,32,$modx->config['modx_charset']) . '...';
-					$a[] = '"' . $v . '"';
-				}
-			}
-			$args = join(', ', $a);
+			case '->':
+			case '::':
+				$functionName = $val['function'] = $val['class'] . $val['type'] . $val['function'];
+				break;
+			default:
+				$functionName = $val['function'];
 		}
-		else $args = '';
 		$str .= "<tr><td valign=\"top\">{$key}</td>";
-		$str .= "<td>{$val['function']}({$args})<br />{$path} on line {$val['line']}</td>";
+    	$str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
 	}
 	$str .= '</table>';
 	return $str;
