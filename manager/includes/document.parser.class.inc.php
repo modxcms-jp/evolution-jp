@@ -3070,10 +3070,6 @@ class DocumentParser {
 				$tvnames = "'" . join("','", $idnames) . "'";
 				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
 			}
-			if ($docgrp= $this->getUserDocGroups())
-			{
-				$docgrp= implode(',', $docgrp);
-			}
 			$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 			$from    = '[+prefix+]site_tmplvars tv';
 			$from   .= ' INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
