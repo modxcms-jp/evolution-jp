@@ -42,22 +42,72 @@ class DocAPI {
 		return $id;
 	}
 	
-	function update($id = 0, $f = array(), $where = '')
+	function update($f = array(), $id = 0, $where = '')
 	{
 		global $modx;
 		
-		if(empty($id) || !preg_match('@^[0-9]+$@', $id)) return;
+		if(!preg_match('@^[0-9]+$@', $id)) return;
+		if(empty($id))
+		{
+			if(isset($modx->documentIdentifier)) $id = $modx->documentIdentifier;
+			else return;
+		}
+		
+		if(is_string($f) && strpos($f,'=')!==false)
+		{
+			list($k,$v) = explode('=',$f,2);
+			$k   = trim($k);
+			$v = trim($v);
+			$f = array();
+			$f[$k] = $v;
+		}
+		
+		$rs = $modx->db->select('id,name', '[+prefix+]site_tmplvars');
+		while($row = $modx->db->getRow($rs))
+		{
+			$tvid   = $row['id'];
+			$tvname = $row['name'];
+			$alltvs[$tvname] = $tvid;
+		}
+		$tv = array();
+		foreach($f as $k=>$v)
+		{
+			if(array_key_exists($k, $alltvs))
+			{
+				$tvid = $alltvs[$k];
+				$modx->db->update(array('value'=>$v), '[+prefix+]site_tmplvar_contentvalues', "tmplvarid='{$tvid}'");
+				unset($f[$k]);
+			}
+		}
 		
 		$f['editedon'] = (!$f['editedon']) ? time() : $f['editedon'];
-		$f['editedby'] = (!$f['editedby']) ? $modx->getLoginUserID() : $f['editedby'];
+		if(!isset($f['editedby']) && isset($_SESSION['mgrInternalKey']))
+		{
+			$f['editedby'] = $_SESSION['mgrInternalKey'];
+		}
 		
 		$where .= " `id`='{$id}'";
 	
 		return $modx->db->update($f, '[+prefix+]site_content', $where);
 	}
 	
-	function delete($id = 0, $f = array(), $where = '')
+	function delete($id = 0, $where = '')
 	{
 		global $modx;
+		
+		if(!preg_match('@^[0-9]+$@', $id)) return;
+		if(empty($id))
+		{
+			if(isset($modx->documentIdentifier)) $id = $modx->documentIdentifier;
+			else return;
+		}
+		
+		$f['deleted']     = '1';
+		$f['published']   = '0';
+		$f['publishedon'] = '';
+		$f['pub_date']    = '';
+		$f['unpub_date']  = '';
+		
+		$modx->db->update($f, '[+prefix+]site_content', "id='{$id}'");
 	}
 }
