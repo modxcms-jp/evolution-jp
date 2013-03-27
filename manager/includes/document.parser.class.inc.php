@@ -2217,10 +2217,10 @@ class DocumentParser {
 
 	function set_childrenList()
 	{
-		$path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.pageCache.php';
-		if(is_file($path_documentmapcache))
+		$path_childrenlistcache = MODX_BASE_PATH . 'assets/cache/childrenlist.siteCache.php';
+		if(is_file($path_childrenlistcache))
 		{
-			$src = file_get_contents($path_documentmapcache);
+			$src = file_get_contents($path_childrenlistcache);
 			$this->childrenList = unserialize($src);
 		}
 		else
@@ -2236,7 +2236,7 @@ class DocumentParser {
 					$childrenList[$p][] = $c;
 				}
 			}
-			file_put_contents($path_documentmapcache,serialize($childrenList), LOCK_EX);
+			file_put_contents($path_childrenlistcache,serialize($childrenList), LOCK_EX);
 			$this->childrenList = $childrenList;
 		}
 		return $this->childrenList;
