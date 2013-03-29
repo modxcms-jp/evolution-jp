@@ -123,25 +123,28 @@ echo $cm->render();
 	$from  = "{$tbl_manager_users} AS mu";
 	$from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
 	$from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
-	if ($_SESSION['mgrRole'] != 1)
+	
+	if($modx->hasPermission('edit_role')
+	    && $modx->hasPermission('save_role')
+	    && $modx->hasPermission('delete_role')
+	    && $modx->hasPermission('new_role')
+	    && $_SESSION['mgrRole'] != 1
+	    )
 	{
+		$where = 'mua.role != 1';
+		}
+	elseif(!$modx->hasPermission('edit_role'))
+		{
+		$where = 'roles.edit_role=0 AND roles.save_role=0 AND roles.delete_role=0 AND roles.new_role=0';
+		}
+	else $where = '';
+	
 		if(!empty($keyword))
 		{
-			$where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) AND mua.role != 1";
-		}
-		else
-		{
-			$where = 'mua.role != 1';
-		}
+		if($where!=='') $where = " AND {$where}";
+		$where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) {$where}";
 	}
-	else
-	{
-		if(!empty($keyword))
-		{
-			$where = "(mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')";
-		}
-		else $where = '';
-	}
+	
 	$orderby = 'mua.blocked ASC, mua.thislogin DESC';
 	$ds = $modx->db->select($field,$from,$where,$orderby);
 	
