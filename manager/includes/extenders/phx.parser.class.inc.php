@@ -319,6 +319,7 @@ class PHx {
 				}
 				break;
 		}
+		$value = str_replace('[+key+]', $key, $value);
 		return $value;
 	}
 	
