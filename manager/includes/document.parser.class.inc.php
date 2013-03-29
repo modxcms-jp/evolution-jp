@@ -1507,8 +1507,11 @@ class DocumentParser {
 		return $content;
 	}
 	
-	function getProperties($properties)
+	function getProperties($properties='')
 	{
+	    if(strpos($properties,'=')===false) return $properties;
+	    
+	    $properties = ltrim($properties,'?');
 		$_ = explode('&',$properties);
 		$ph = array();
 		foreach($_ as $pair)
