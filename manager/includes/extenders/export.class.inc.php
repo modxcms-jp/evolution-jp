@@ -114,7 +114,7 @@ class EXPORT_SITE
 			
 			$_lang = $back_lang;
 		}
-		else $src = file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		else $src = @file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
 		
 		
 		if($src !== false)
