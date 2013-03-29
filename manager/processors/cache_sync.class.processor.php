@@ -318,10 +318,12 @@ class synccache {
 	
 	function _get_aliases($modx)
 	{
-		$friendly_urls = $modx->db->getValue($modx->db->select('setting_value','[+prefix+]system_settings',"setting_name='friendly_urls'"));
+	    $_ = $modx->db->getObject('system_settings',"setting_name='friendly_urls'");
+		$friendly_urls = $_->setting_value;
 		if($friendly_urls==1)
 		{
-			$use_alias_path = $modx->db->getValue($modx->db->select('setting_value','[+prefix+]system_settings',"setting_name='use_alias_path'"));
+		    $_ = $modx->db->getObject('system_settings',"setting_name='use_alias_path'");
+		    $use_alias_path = $_->setting_value;
 		}
 		$fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
