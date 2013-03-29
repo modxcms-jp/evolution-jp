@@ -2867,18 +2867,58 @@ class DocumentParser {
 		else return false;
 	}
 	
-	function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
+	function parseChunk($chunkName, $chunkArr, $left= '[+', $right= '+]',$mode='chunk')
 	{
 		if (!is_array($chunkArr)) return false;
 		
-		if($mode==='chunk') $src= $this->getChunk($chunkName);
-		else                $src = $chunkName;
+		if($mode==='chunk') $content = $this->getChunk($chunkName);
+		else                $content = $chunkName;
 		
-		while(list($key, $value) = each($chunkArr))
+		if (!is_array($chunkArr)) return false;
+		
+		if(strpos($content,':')===false)
 		{
-			$src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
+    		foreach($chunkArr as $key=>$value)
+    		{
+    			$content= str_replace("{$left}{$key}{$right}", $value, $content);
+    		}
 		}
-		return $src;
+		else
+		{
+    		$replace= array ();
+    		$matches= array ();
+    		$matches = $this->splitMODXTags($content,$left,$right);
+    		if($matches)
+    		{
+    			$i= 0;
+    			foreach($matches['1'] as $key)
+    			{
+    				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+    				{
+    					list($key,$modifiers) = explode(':', $key, 2);
+    				}
+    				else $modifiers = false;
+    				
+    				if(isset($chunkArr[$key]))
+    				{
+    					
+    					$value = $chunkArr[$key];
+    					if($modifiers!==false)
+    					{
+    						$this->loadExtension('PHx') or die('Could not load PHx class.');
+    						$value = $this->phx->phxFilter($key,$value,$modifiers);
+    					}
+    					
+    					$replace[$i]= $value;
+    				}
+    				else $replace[$i]= $key;
+    				$i++;
+		}
+    			
+    			$content= str_replace($matches['0'], $replace, $content);
+    		}
+		}
+		return $content;
 	}
 
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
