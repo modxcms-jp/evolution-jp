@@ -972,6 +972,8 @@ a.hometblink:hover {
 #nav li.active ul.subnav a:hover {
 	color: #fff;
 	text-shadow: 0 0 2px #FFF;
+	zoom:1;
+	-ms-filter:"progid:DXImageTransform.Microsoft.DropShadow(color=#ffffff,offx=0,offy=0)";
 }
 #nav li.active ul.subnav a:active {
 	color: #ccc;
