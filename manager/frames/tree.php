@@ -27,7 +27,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         		parent.tree.ca=prop.ca;
         	}
         	treeAction(prop.id, prop.pagetitle);
-        	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
+        	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected").addClass("treeNode");
         	jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
         });
         tree.on('mouseenter','span.treeNode',function(){
@@ -61,14 +61,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
-		tree.on('contextmenu', 'img.icon', function(event) {
-			var str = jQuery(this).parent().attr("property");
-			var prop = (new Function("return " + str))();
-			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
-			return false;
-		});
-		tree.on('contextmenu', 'span.treeNode', function(event) {
-			var str = jQuery(this).parent().attr("property");
+		tree.on('contextmenu', 'div', function(event) {
+			var str = jQuery(this).attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
@@ -524,8 +518,9 @@ else                                 $_SESSION['tree_sortdir'] = $fieldtype == '
 <script type="text/javascript">
 // Set 'treeNodeSelected' class on document node when editing via Context Menu
 function setActiveFromContextMenu( doc_id ){
-    $j('.treeNodeSelected').removeClass('treeNodeSelected');
-    $j('#node'+doc_id+' span:first').attr('class','treeNodeSelected');
+    jQuery('.treeNodeSelected').addClass('treeNode');
+    jQuery('.treeNodeSelected').removeClass('treeNodeSelected');
+    jQuery('#node'+doc_id+' span:first').attr('class','treeNodeSelected');
 }
 
 // Context menu stuff
