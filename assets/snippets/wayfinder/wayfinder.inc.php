@@ -124,7 +124,7 @@ class Wayfinder {
 			$firstItem = 0;
 			
 			//Determine if last item in group
-			if ($counter == ($numSubItems)) $docInfo['last'] = 1;
+			if ($counter == $numSubItems && $numSubItems > 0) $docInfo['last'] = 1;
 			else                            $docInfo['last'] = 0;
 			
 			//Determine if document has children
