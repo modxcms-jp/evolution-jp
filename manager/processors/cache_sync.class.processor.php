@@ -273,11 +273,8 @@ class synccache {
 			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
 		}
 		
-		$str = "<?php\n" . 'return ' . var_export($modx->documentMap, true) . ';';
-		if(!file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
-		}
+		if(is_file($this->cachePath .'documentMap.siteCache.idx.php'))
+		    unlink($this->cachePath .'documentMap.siteCache.idx.php');
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->chunkCache,true) . ';';
 		if(!file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str, LOCK_EX))
@@ -346,7 +343,6 @@ class synccache {
 			$parent   = $row['parent'];
 			$isfolder = $row['isfolder'];
 			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent, 'isfolder' => $isfolder);
-			$modx->documentMap[] = array($parent => $docid);
 		}
 	}
 	

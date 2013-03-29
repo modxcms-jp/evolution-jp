@@ -1968,9 +1968,24 @@ class DocumentParser {
 	{
 		if(isset($this->documentMap)) return;
 		
-		$d = @include_once(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+        $documentmap_cache_path = MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php';
+        if(is_file($documentmap_cache_path)) {
+            $d = @include_once($documentmap_cache_path);
 		if($d) $this->documentMap = $d;
 		else return false;
+        } else {
+            $fields = "id, parent";
+            $rs = $this->db->select($fields,'[+prefix+]site_content','deleted=0','parent');
+            $row = array();
+            while ($row = $this->db->getRow($rs)) {
+                $this->documentMap[] = array($row['parent'] => $row['id']);
+            }
+            $str = "<?php\n" . 'return ' . var_export($this->documentMap, true) . ';';
+            $rs = file_put_contents($documentmap_cache_path, $str, LOCK_EX);
+            if(!$rs) {
+                exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+            }
+        }
 	}
 	
 	function setAliasListing()
