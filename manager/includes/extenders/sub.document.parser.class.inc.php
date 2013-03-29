@@ -132,8 +132,6 @@ function clearCache($params=array())
 {
 	global $modx;
 	
-	if($modx->isBackend() && !$modx->hasPermission('empty_cache')) return;
-	
 	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
 	{
 		$showReport = ($params['showReport']) ? $params['showReport'] : false;
