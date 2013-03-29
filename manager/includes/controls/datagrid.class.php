@@ -250,6 +250,8 @@ class DataGrid {
 			$v = trim($v);
 			if(!empty($v)) $attr .= ' ' . $v;
 		}
+		$tblStart	= "<table{$attr}>\n";
+		$tblEnd		= "</table>\n";
 		
 		if($this->cdelim==='tab')    $this->cdelim = "\t";
 		
@@ -341,7 +343,7 @@ class DataGrid {
 		}
 		
 		// setup header,pager and footer
-		$o = "<table{$attr}>\n";
+		$o = $tblStart;
 		$ptop = (substr($this->pagerLocation,0,3)=="top")||(substr($this->pagerLocation,0,4)=="both");
 		$pbot = (substr($this->pagerLocation,0,3)=="bot")||(substr($this->pagerLocation,0,4)=="both");
 		
@@ -356,7 +358,7 @@ class DataGrid {
 		
 		if($tblPager && $ptop) $o = $modx->parsePlaceholder($tpl,$ph) . $o;
 		$o .= $tblColHdr.$tblRows;
-		$o .= "</table>\n";
+		$o.= $tblEnd;
 		if($tblPager && $pbot) $o = $o . $modx->parsePlaceholder($tpl,$ph);
 		
 		if($this->footer) $o .= '<div class="gridfooter">' . $this->footer . "</div>\n";
