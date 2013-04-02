@@ -8,7 +8,10 @@ if (!$modx->hasPermission('view_document')) {
 
 if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
-else    $id = 0;
+else {
+	$e->setError(1);
+	$e->dumpError();
+}
 
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 
