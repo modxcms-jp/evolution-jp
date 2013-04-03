@@ -1393,16 +1393,18 @@ function ab_save()
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
-	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">';
+	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">[+options+]</select>';
 	if ($modx->hasPermission('new_document'))
 	{
 		$selected = $_REQUEST['stay']=='1' ? ' selected=""' : '';
-		$ph['select'] .= '<option id="stay1" value="1" ' . $selected . ' >' . $_lang['stay_new'] . '</option>';
+		$option[] = '<option id="stay1" value="1" ' . $selected . ' >' . $_lang['stay_new'] . '</option>';
 	}
 	$selected = $_REQUEST['stay']=='2' ? ' selected="selected"' : '';
-	$ph['select'] .= '<option id="stay2" value="2" ' . $selected . ' >' . $_lang['stay'] . '</option>';
+	$option[] = '<option id="stay2" value="2" ' . $selected . ' >' . $_lang['stay'] . '</option>';
 	$selected = $_REQUEST['stay']=='' ? ' selected=""' : '';
-	$ph['select'] .= '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option></select>';
+	$option[] = '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option>';
+	$options = join("\n", $option);
+	$ph['select'] = str_replace('[+options+]', $options, $ph['select']);
 	
 	return $modx->parsePlaceholder($tpl,$ph);
 }
