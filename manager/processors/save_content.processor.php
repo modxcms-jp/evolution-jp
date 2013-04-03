@@ -781,7 +781,8 @@ function get_tmplvars($id)
 				}
 		}
 		// save value if it was modified
-		if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
+		$default_text = $row['default_text'];
+		if (strlen($tmplvar) > 0 && $tmplvar != $default_text)
 		{
 			$tmplvars[$row['id']] = array (
 				$row['id'],
