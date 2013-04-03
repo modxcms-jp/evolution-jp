@@ -38,6 +38,7 @@ if(!$modx->hasPermission('delete_template')) {
 		</ul>
 	</div>
 
+			<div class="section">
 			<div class="sectionHeader"><?php echo $_lang['tmplvars']; ?></div>
 			<div class="sectionBody">
 		<?php
@@ -48,6 +49,7 @@ if(!$modx->hasPermission('delete_template')) {
 				echo '<li><span style="width: 200px"><a href="index.php?id='.$row['id'].'&a=27">'.$row['pagetitle'].'</a></span>'.($row['description']!='' ? ' - '.$row['description'] : '').'</li>';
 			}
 			echo "</ul>";
+			echo '</div>';
 			echo '</div>';
 			include_once "footer.inc.php";
 			exit;
