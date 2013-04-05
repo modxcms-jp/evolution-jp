@@ -37,6 +37,7 @@ function sendmail($params=array(), $msg='')
 	$sendto = explode(',',$sendto);
 	foreach($sendto as $to)
 	{
+		$to = trim($to);
 		$mail->AddAddress($to);
 	}
 	$rs = $mail->Send();
