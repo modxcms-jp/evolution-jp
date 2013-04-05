@@ -5,7 +5,7 @@
 #	Version: 2.2
 #	Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
 #	Modified by Nick to include external files
-#	Modified by yama yamamoto@kyms.ne.jp
+#	Modified by yama yamamoto@kyms.jp
 #	Date: 2012/07/28
 #
 ####*/
@@ -375,6 +375,7 @@ class PHx {
 	
 	function parsePhx($key,$value,$modifiers)
 	{
+		if(empty($modifiers)) return;
 		//if(isset($phx) && is_object($phx))
 		
 		foreach($modifiers as $cmd=>$opt)
@@ -386,76 +387,83 @@ class PHx {
 	
 	function splitModifiers($modifiers)
 	{
+		global $modx;
+		
 		$reslut = array();
-		$in_opt = false;
-		$cmd = '';
-		$opt = '';
 		$delim = '';
-		$r = $modifiers;
-		$c=0;
-		while(!empty($r) && $c < 3000)
+		$remain = $modifiers;
+		$scope = 'key';
+		$key   = '';
+		$value = '';
+		$safecount=0;
+		while($remain!=='' && $safecount < 3000)
 		{
-			$v = substr($r,0,1);
-			$r = substr($r,1);
-			switch($v)
+			$safecount++;
+			$s = substr($remain,0,1);
+			$remain = substr($remain,1);
+			
+			if($scope==='key')
+		{
+				switch($s)
 			{
 				case ':':
-					if($in_opt===false && !empty($cmd))
-					{
-						$reslut[$cmd] = '';
-						$opt = '';
-					}
-					elseif($in_opt===true && !empty($cmd))
-					{
-						$in_opt = false;
-					$reslut[$cmd] = $opt;
-						$delim = '';
-					}
-					$cmd = '';
-					$opt = '';
+				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
 					break;
 				case '=':
-					if($in_opt===true) $opt .= '=';
-					elseif($in_opt===false && $cmd!=='')
+				    	switch($remain['0'])
 					{
-						if($r['0']==='"'||$r['0']==="'"||$r['0']==='`')
-						{
-							$delim = $r['0'];
-							$r = substr($r,1);
-							list($opt, $r) = explode($delim, $r, 2);
-							$reslut[$cmd] = $opt;
-							$cmd = '';
-						}
-					else                $in_opt = true;
+				    	    case '"': case "'": case '`':
+				    	    	$delim = $remain['0'];
+				    	    	$remain = substr($remain,1);
+    							list($value, $remain) = explode($delim, $remain, 2);
+    							$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
+				    	    default:
+				    	    	$scope = 'value';
+				    	    	$value = '';
 					}
 					break;
 				default:
-					if(strpos($r,':')===false && strpos($r,'=')===false)
-					{
-						$reslut[$v.$r] = '';
-						$r = '';
+				    	$key .= $s;
 			}
-					elseif(strpos($r,':')===false && strpos($r,'=')!==false)
+			}
+			else
 					{
-						list($cmd,$opt) = explode('=',$v.$r);
-						if($opt['0']==='"'||$opt['0']==="'"||$opt['0']==='`')
+				switch($s)
 						{
-							$delim = $opt['0'];
-							$opt = trim($opt,$delim);
+				    case ':':
+				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
+				    	$scope = 'key';
+				    	$key   = '';
+				    	break;
+				    default:
+				    	$value .= $s;
+				}
 						}
-						$reslut[$cmd] = $opt;
-						$r = '';
-		}
-					else
-					{
-						if($in_opt===true) $opt .= $v;
-						else               $cmd .= $v;
-					}
-			}
-			$c++;
+			if(strlen($remain)===0 && $key!=='') $reslut[$key]=$value;
 		}
 		
-		if(count($reslut) < 1) $reslut[$cmd] = '';
+		if(count($reslut) < 1) $reslut = false;
+					else
+					{
+			foreach($reslut as $k=>$v)
+			{
+				$safecount=20;
+				while($safecount!==0)
+				{
+					$safecount--;
+					$bt = md5($v);
+    				if(strpos($v,'[*')!==false) $v = $modx->mergeDocumentContent($v);
+    				if(strpos($v,'[(')!==false) $v = $modx->mergeSettingsContent($v);
+    				if(strpos($v,'{{')!==false) $v = $modx->mergeChunkContent($v);
+    				if(strpos($v,'[[')!==false) $v = $modx->evalSnippets($v);
+    				if(md5($v)===$bt)
+					{
+						$reslut[$k] = $v;
+    					break;
+    				}
+					}
+			}
+		}
 		return $reslut;
 	}
 	
