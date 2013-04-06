@@ -171,14 +171,14 @@ function duplicateKeywords($oldid,$newid){
 function duplicateTVs($oldid,$newid){
 	global $modx;
 
-	$tbltvc = $modx->getFullTableName('site_tmplvar_contentvalues');
-	$modx->db->insert('contentid,tmplvarid,value', $tbltvc, "{$newid},tmplvarid,value", $tbltvc, "contentid='{$oldid}'");
+	$table = '[+prefix+]site_tmplvar_contentvalues';
+	$modx->db->insert('contentid,tmplvarid,value', $table, "{$newid},tmplvarid,value", $table, "contentid='{$oldid}'");
 }
 
 // Duplicate Document Access Permissions
 function duplicateAccess($oldid,$newid){
 	global $modx;
 
-	$tbldg = $modx->getFullTableName('document_groups');
-	$modx->db->insert('document,document_group', $tbldg, "{$newid},document_group", $tbldg, "document='{$oldid}'");
+	$table = '[+prefix+]document_groups';
+	$modx->db->insert('document,document_group', $table, "{$newid},document_group", $table, "document='{$oldid}'");
 }
