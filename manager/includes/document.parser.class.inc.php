@@ -792,7 +792,9 @@ class DocumentParser {
 	function sendUnauthorizedPage()
 	{
 		// invoke OnPageUnauthorized event
-		$_REQUEST['refurl'] = $this->documentIdentifier;
+		if(isset($this->documentIdentifier)) $_REQUEST['refurl'] = $this->documentIdentifier;
+		else                                 $_REQUEST['refurl'] = $this->config['site_start'];
+		
 		$this->invokeEvent('OnPageUnauthorized');
 		
 		if($this->config['unauthorized_page']) $dist = $this->config['unauthorized_page'];
