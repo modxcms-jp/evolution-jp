@@ -71,7 +71,8 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
 
             case "INHERIT" :
                 $output = $param; // Default to param value if no content from parents
-                $doc = $modx->getPageInfo($docid, 0, 'id,parent');
+                if(empty($docid) && isset($_REQUEST['pid'])) $doc['parent'] = $_REQUEST['pid'];
+                else                                         $doc = $modx->getPageInfo($docid, 0, 'id,parent');
 
                 while ($doc['parent'] != 0) {
                     $parent_id = $doc['parent'];
