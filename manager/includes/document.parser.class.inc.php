@@ -1332,7 +1332,11 @@ class DocumentParser {
 					continue;
 				}
 				if(strpos($temp_hash[$i],$right)===false) $open++;
-				else                                      $close++;
+				else
+				{
+					$right_count = substr_count($temp_hash[$i],$right);
+					$close += $right_count;
+				}
 			}
 			$i++;
 		}
