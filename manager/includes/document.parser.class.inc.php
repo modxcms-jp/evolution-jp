@@ -755,8 +755,9 @@ class DocumentParser {
 		}
 	}
 	
-	function sendForward($id, $responseCode= '')
+	function sendForward($id='', $responseCode= '')
 	{
+		if(empty($id)) $id = $this->config['site_start'];
 		if ($this->forwards > 0)
 		{
 			$this->forwards= $this->forwards - 1;
