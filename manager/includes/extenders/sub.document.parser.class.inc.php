@@ -205,7 +205,7 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
 			if($output!='')
 			{
 				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">' . $output . '</div></td></tr>';
-		}
+			}
 		$str .= '<tr><td valign="top">ErrorType[num] : </td>';
 		$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
 		$str .= '</tr>';
@@ -305,7 +305,6 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
 
     if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
 	$str .= '<br />' . $modx->get_backtrace(debug_backtrace()) . "\n";
-	
 
     // Log error
     if(!empty($modx->currentSnippet)) $source = 'Snippet - ' . $modx->currentSnippet;
@@ -371,7 +370,7 @@ function get_backtrace($backtrace)
 			default:
 				$functionName = $val['function'];
 		}
-		$str .= "<tr><td valign=\"top\">{$key}</td>";
+    	$str .= "<tr><td valign=\"top\">{$key}</td>";
     	$str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
 	}
 	$str .= '</table>';

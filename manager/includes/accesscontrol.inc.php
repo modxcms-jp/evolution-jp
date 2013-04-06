@@ -11,20 +11,14 @@ $instcheck_path = $modx->config['base_path'] . 'assets/cache/installProc.inc.php
 if (file_exists($instcheck_path))
 {
 	include_once($instcheck_path);
-	if (isset($installStartTime))
-	{
-		if ((time() - $installStartTime) > 5 * 60)
-		{ // if install flag older than 5 minutes, discard
+	if (isset($installStartTime)) {
+		if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
 			unset($installStartTime);
 			@ chmod($instcheck_path, 0755);
 			unlink($instcheck_path);
-		} 
-		else
-		{
-			if ($_SERVER['REQUEST_METHOD'] != 'POST')
-			{
-				if (isset($_COOKIE[session_name()]))
-				{
+		} else {
+			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+				if (isset($_COOKIE[session_name()])) {
 					session_unset();
 					@session_destroy();
 				}
@@ -35,14 +29,10 @@ if (file_exists($instcheck_path))
 }
 
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
-{
-	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime))
-	{
-		if ($_SERVER['REQUEST_METHOD'] != 'POST')
-		{
-			if (isset($_COOKIE[session_name()]))
-			{
+if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
+	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime)) {
+		if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+			if (isset($_COOKIE[session_name()])) {
 				session_unset();
 				@session_destroy();
 			}
