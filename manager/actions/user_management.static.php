@@ -132,15 +132,15 @@ echo $cm->render();
 	    )
 	{
 		$where = 'mua.role != 1';
-		}
+	}
 	elseif(!$modx->hasPermission('edit_role'))
-		{
+	{
 		$where = 'roles.edit_role=0 AND roles.save_role=0 AND roles.delete_role=0 AND roles.new_role=0';
-		}
+	}
 	else $where = '';
 	
-		if(!empty($keyword))
-		{
+	if(!empty($keyword))
+	{
 		if($where!=='') $where = " AND {$where}";
 		$where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) {$where}";
 	}

@@ -1967,15 +1967,15 @@ class DocumentParser {
 		else return false;
 	}
 	
-	function setdocumentMap()
-	{
-		if(isset($this->documentMap)) return;
-		
+    function setdocumentMap()
+    {
+        if(isset($this->documentMap)) return;
+        
         $documentmap_cache_path = MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php';
         if(is_file($documentmap_cache_path)) {
             $d = @include_once($documentmap_cache_path);
-		if($d) $this->documentMap = $d;
-		else return false;
+            if($d) $this->documentMap = $d;
+            else return false;
         } else {
             $fields = "id, parent";
             $rs = $this->db->select($fields,'[+prefix+]site_content','deleted=0','parent');
@@ -1989,7 +1989,7 @@ class DocumentParser {
                 exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
             }
         }
-	}
+    }
 	
 	function setAliasListing()
 	{
@@ -2913,7 +2913,7 @@ class DocumentParser {
     				}
     				else $replace[$i]= $key;
     				$i++;
-		}
+    			}
     			
     			$content= str_replace($matches['0'], $replace, $content);
     		}

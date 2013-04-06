@@ -642,8 +642,8 @@ function unzip($file, $path)
 					{
 						$tmp .= $k.'/';
 						if(!is_dir($tmp)) mkdir($tmp, 0777);
-						}
 					}
+				}
 				if (zip_entry_open($zip, $zip_entry, 'r'))
 				{
 					file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
