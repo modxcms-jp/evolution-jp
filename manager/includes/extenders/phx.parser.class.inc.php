@@ -351,6 +351,7 @@ class PHx {
 		} else {
 			$user = $this->cache['ui'][$userid];
 		}
+		$user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
 		return $user[$field];
 	}
 	 
