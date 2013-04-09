@@ -54,32 +54,14 @@ if(!isset($_SESSION['mgrValidated']))
 	global $tpl;
 	// invoke OnManagerLoginFormPrerender event
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
-	if(!isset($tpl) || empty($tpl))
-	{
-		// load template file
-		$base_path = MODX_BASE_PATH;
-		if(is_file("{$base_path}assets/templates/manager/login.html"))
-		{
-			$tplFile = "{$base_path}assets/templates/manager/login.html";
-		}
-		elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/login.tpl"))
-		{
-		
-			$tplFile = "{$base_path}manager/media/style/{$manager_theme}/template/login.tpl";
-		}
-		else
-		{
-			$tplFile = "{$base_path}manager/media/style/default/login.tpl";
-		}
-		$tpl = file_get_contents($tplFile);
-	}
-	
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
 	$modx->setPlaceholder('site_name',$site_name);
 	$modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 	$modx->setPlaceholder('login_message',$_lang["login_message"]);
+	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
+	$modx->setPlaceholder('year',date('Y'));
 
 	// andrazk 20070416 - notify user of install/update
 	if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
@@ -119,12 +101,50 @@ if(!isset($_SESSION['mgrValidated']))
 	$html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
 	$modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
-    // merge placeholders
-    $tpl = $modx->parseDocumentSource($tpl);
-    $regx = strpos($tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
-    $tpl = preg_replace($regx, '', $tpl); //cleanup
+	// load template
+    if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
+    	$modx->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl'; 
+    }
+    
+    $target = $modx->config['manager_login_tpl'];
+    if(substr($target,0,1)==='@') {
+    	if(substr($target,0,6)==='@CHUNK') {
+    		$target = trim(substr($target,7));
+    		$login_tpl = $modx->getChunk($target);
+    	}
+    	elseif(substr($target,0,5)==='@FILE') {
+    		$target = trim(substr($target,6));
+    		$login_tpl = file_get_contents($target);
+    	}
+    } else {
+    	$chunk = $modx->getChunk($target);
+    	if($chunk!==false && !empty($chunk)) {
+    		$login_tpl = $chunk;
+    	}
+    	elseif(is_file(MODX_BASE_PATH . $target)) {
+    		$target = MODX_BASE_PATH . $target;
+    		$login_tpl = file_get_contents($target);
+    	}
+    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl')) {
+    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl';
+    		$login_tpl = file_get_contents($target);
+    	}
+    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html')) { // ClipperCMS compatible
+    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html';
+    		$login_tpl = file_get_contents($target);
+    	}
+    	else {
+    		$target = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
+    		$login_tpl = file_get_contents($target);
+    	}
+    }
 
-    echo $tpl;
+    // merge placeholders
+    $login_tpl = $modx->parseDocumentSource($login_tpl);
+    $regx = strpos($login_tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
+    $login_tpl = preg_replace($regx, '', $login_tpl); //cleanup
+
+    echo $login_tpl;
 
     exit;
 
