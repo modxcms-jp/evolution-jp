@@ -18,13 +18,15 @@ $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 
 require_once("{$base_path}manager/includes/default.config.php");
 
-$installdata  = getOption('installdata');
-$templates    = getOption('template');
-$tvs          = getOption('tv');
-$chunks       = getOption('chunk');
-$snippets     = getOption('snippet');
-$plugins      = getOption('plugin');
-$modules      = getOption('module');
+$installdata = $_SESSION['installdata'];unset($_SESSION['installdata']);
+$templates   = $_SESSION['template'];   unset($_SESSION['template']);
+$tvs         = $_SESSION['tv'];         unset($_SESSION['tv']);
+$chunks      = $_SESSION['chunk'];      unset($_SESSION['chunk']);
+$snippets    = $_SESSION['snippet'];    unset($_SESSION['snippet']);
+$plugins     = $_SESSION['plugin'];     unset($_SESSION['plugin']);
+$modules     = $_SESSION['module'];     unset($_SESSION['module']);
+
+$installmode = $_SESSION['installmode'];
 
 echo "<p>{$_lang['setup_database']}</p>\n";
 
@@ -35,7 +37,7 @@ startCMSSession();
 $database_type = 'mysql';
 include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx = new DocumentParser;
-$modx->db->connect();
+$modx->db->connect($_SESSION['database_server'], $_SESSION['dbase'], $_SESSION['database_user'], $_SESSION['database_password']);
 
 $tbl_site_plugins = getFullTableName('site_plugins');
 $tbl_system_settings = getFullTableName('system_settings');
@@ -54,14 +56,14 @@ $setupPath = realpath(dirname(__FILE__));
 include_once("{$setupPath}/setup.info.php");
 include_once("{$setupPath}/sqlParser.class.php");
 $sqlParser = new SqlParser();
-$sqlParser->prefix = $table_prefix;
-$sqlParser->adminname  = getOption('adminname');
-$sqlParser->adminpass  = getOption('adminpass');
-$sqlParser->adminemail = getOption('adminemail');
+$sqlParser->prefix = $_SESSION['table_prefix'];
+$sqlParser->adminname  = $_SESSION['adminname'];
+$sqlParser->adminpass  = $_SESSION['adminpass'];
+$sqlParser->adminemail = $_SESSION['adminemail'];
 $sqlParser->connection_charset = 'utf8';
-$sqlParser->connection_collation = $database_collation;
-$sqlParser->connection_method = $database_connection_method;
-$sqlParser->managerlanguage = $managerlanguage;
+$sqlParser->connection_collation = $_SESSION['database_collation'];
+$sqlParser->connection_method = $_SESSION['database_connection_method'];
+$sqlParser->managerlanguage = $_SESSION['managerlanguage'];
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
@@ -69,10 +71,9 @@ $sqlParser->ignoreDuplicateErrors = true;
 
 // install/update database
 echo '<p>' . $_lang['setup_database_creating_tables'];
-
 $sqlParser->process('both_createtables.sql');
 if($installmode==0) $sqlParser->process('new_setvalues.sql');
-else                $sqlParser->process('upd_fixtables.sql');
+else                $sqlParser->process('upd_fixvalues.sql');
 $sqlParser->process('both_fixvalues.sql');
 
 // display database results
@@ -95,12 +96,12 @@ else echo '<span class="ok">'.$_lang['ok'].'</span></p>';
 echo '<p>' . $_lang['writing_config_file'];
 $src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
-$ph['database_server']             = $database_server;
-$ph['database_user']               = modx_escape($database_user);
-$ph['database_password']           = modx_escape($database_password);
-$ph['database_connection_method']  = $database_connection_method;
-$ph['dbase']                       = trim($dbase,'`');
-$ph['table_prefix']                = $table_prefix;
+$ph['database_server']             = $_SESSION['database_server'];
+$ph['database_user']               = modx_escape($_SESSION['database_user']);
+$ph['database_password']           = modx_escape($_SESSION['database_password']);
+$ph['database_connection_method']  = $_SESSION['database_connection_method'];
+$ph['dbase']                       = trim($_SESSION['dbase'],'`');
+$ph['table_prefix']                = $_SESSION['table_prefix'];
 $ph['lastInstallTime']             = time();
 $ph['https_port']                  = '443';
 
@@ -151,10 +152,9 @@ else
 }
 
 // Install Templates
-if ($templates!==false || $installdata==1)
+if ($templates!==false && !empty($templates) || $installdata==1)
 {
 	echo "<h3>" . $_lang['templates'] . ":</h3> ";
-	
 	foreach ($moduleTemplates as $k=>$moduleTemplate)
 	{
 		if(in_array('sample', $moduleTemplate[6]) && $installdata == 1) $installSample = true;
@@ -208,7 +208,7 @@ if ($templates!==false || $installdata==1)
 }
 
 // Install Template Variables
-if ($tvs!==false || $installdata)
+if ($tvs!==false && !empty($tvs) || $installdata)
 {
 	echo "<h3>" . $_lang['tvs'] . ":</h3> ";
 	foreach ($moduleTVs as $k=>$moduleTV)
@@ -285,7 +285,7 @@ if ($tvs!==false || $installdata)
 }
 
 // Install Chunks
-if ($chunks!==false || $installdata)
+if ($chunks!==false && !empty($chunks) || $installdata)
 {
 	echo "<h3>" . $_lang['chunks'] . ":</h3> ";
 	foreach ($moduleChunks as $k=>$moduleChunk)
@@ -349,7 +349,7 @@ if ($chunks!==false || $installdata)
 }
 
 // Install Modules
-if ($modules!==false || $installdata)
+if ($modules!==false && !empty($modules) || $installdata)
 {
 	echo "<h3>" . $_lang['modules'] . ":</h3> ";
 	foreach ($moduleModules as $k=>$moduleModule)
@@ -404,7 +404,7 @@ if ($modules!==false || $installdata)
 }
 
 // Install Plugins
-if ($plugins!==false || $installdata)
+if ($plugins!==false && !empty($plugins) || $installdata)
 {
 	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
 	foreach ($modulePlugins as $k=>$modulePlugin)
@@ -495,7 +495,7 @@ if ($plugins!==false || $installdata)
 }
 
 // Install Snippets
-if ($snippets!==false || $installdata)
+if ($snippets!==false && !empty($snippets) || $installdata)
 {
 	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
 	foreach ($moduleSnippets as $k=>$moduleSnippet)
