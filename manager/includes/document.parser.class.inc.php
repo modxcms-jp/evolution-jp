@@ -1305,66 +1305,59 @@ class DocumentParser {
 		}
 	}
 	
-	function splitMODXTags($content,$left='[+',$right='+]')
-	{
-		$hash = explode($left,$content);
-		foreach($hash as $i=>$v)
-		{
-		  if(0<$i) $hash[$i] = $left.$v;
-		}
-		
-		$i=0;
-		$count = count($hash);
-		$safecount = 0;
-		while(0<$count)
-		{
-			$open  = 1;
-			$close = 0;
-			$temp_hash[$i] = '';
-			$safecount++;
-			if(200<$safecount) break;
-			while($close < $open && 0 < $count)
-			{
-				$safecount++;
-				if(200<$safecount) break;
-				$temp_hash[$i] .= array_shift($hash);
-				$count = count($hash);
-				if($i===0)
-				{
-					$i++;
-					continue;
-				}
-				if(strpos($temp_hash[$i],$right)===false) $open++;
-				else
-				{
-					$right_count = substr_count($temp_hash[$i],$right);
-					$close += $right_count;
-				}
-			}
-			$i++;
-		}
-		$matches=array();
-		$i = 0;
-		foreach($temp_hash as $v)
-		{
-			if(strpos($v,$left)!==false)
-			{
-				$v = substr($v,0,strrpos($v,$right));
-				$matches[0][$i] = $v . $right;
-				$matches[1][$i] = substr($v,strlen($left));
-				$i++;
-			}
-		}
-		return $matches;
-	}
-	
+    function getTagsFromContent($content,$left='[+',$right='+]') {
+        $hash = explode($left,$content);
+        foreach($hash as $i=>$v) {
+          if(0<$i) $hash[$i] = $left.$v;
+        }
+        
+        $i=0;
+        $count = count($hash);
+        $safecount = 0;
+        $temp_hash = array();
+        while(0<$count) {
+            $open  = 1;
+            $close = 0;
+            $temp_hash[$i] = '';
+            $safecount++;
+            if(1000<$safecount) break;
+            while($close < $open && 0 < $count) {
+                $safecount++;
+                if(1000<$safecount) break;
+                $temp_hash[$i] .= array_shift($hash);
+                $count = count($hash);
+                if($i===0) {
+                    $i++;
+                    continue;
+                }
+                if(strpos($temp_hash[$i],$right)===false) $open++;
+                else {
+                    $right_count = substr_count($temp_hash[$i],$right);
+                    $close += $right_count;
+                }
+            }
+            $i++;
+        }
+        $matches=array();
+        $i = 0;
+        foreach($temp_hash as $v) {
+            if(strpos($v,$left)!==false) {
+                $v = substr($v,0,strrpos($v,$right));
+                $matches[0][$i] = $v . $right;
+                $matches[1][$i] = substr($v,strlen($left));
+                $i++;
+            }
+        }
+        return $matches;
+    }
+    
 	// mod by Raymond
 	function mergeDocumentContent($content)
 	{
 		if(strpos($content,'[*')===false) return $content;
 		
 		$replace= array ();
-		$matches = $this->splitMODXTags($content,'[*','*]');
+		$matches = $this->getTagsFromContent($content,'[*','*]');
 		$basepath= $this->config['base_path'] . 'manager/includes/';
 		include_once("{$basepath}tmplvars.format.inc.php");
 		include_once("{$basepath}tmplvars.commands.inc.php");
@@ -1409,7 +1402,7 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches= array ();
-		$matches = $this->splitMODXTags($content,'[(',')]');
+		$matches = $this->getTagsFromContent($content,'[(',')]');
 		if($matches)
 		{
 			$i= 0;
@@ -1447,7 +1440,7 @@ class DocumentParser {
 		if(strpos($content,'{{')===false) return $content;
 		
 		$replace= array ();
-		$matches = $this->splitMODXTags($content,'{{','}}');
+		$matches = $this->getTagsFromContent($content,'{{','}}');
 		if ($matches)
 		{
 			$i= 0;
@@ -1560,7 +1553,7 @@ class DocumentParser {
 		
 		$replace= array ();
 		$content=$this->mergeSettingsContent($content);
-		$matches = $this->splitMODXTags($content,'[+','+]');
+		$matches = $this->getTagsFromContent($content,'[+','+]');
 		if($matches)
 		{
 			$i= 0;
@@ -2899,7 +2892,7 @@ class DocumentParser {
 		{
     		$replace= array ();
     		$matches= array ();
-    		$matches = $this->splitMODXTags($content,$left,$right);
+    		$matches = $this->getTagsFromContent($content,$left,$right);
     		if($matches)
     		{
     			$i= 0;
