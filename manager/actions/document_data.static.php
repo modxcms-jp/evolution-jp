@@ -339,7 +339,7 @@ else
 
 <div class="tab-pane" id="childPane">
 	<script type="text/javascript">
-	docSettings = new WebFXTabPane( document.getElementById( "childPane" ), false );
+	docInfo = new WebFXTabPane( document.getElementById( "childPane" ), false );
 	</script>
 
 <style type="text/css">
@@ -348,7 +348,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 	<!-- General -->
 	<div class="tab-page" id="tabdocInfo">
 		<h2 class="tab"><?php echo $_lang['information']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
+		<script type="text/javascript">docInfo.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
 		<div class="sectionBody">
 		<table>
 			<tr><td width="200">ID: </td>
@@ -458,7 +458,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 	<!-- Page Source -->
 	<div class="tab-page" id="tabSource">
 		<h2 class="tab"><?php echo $_lang['page_data_source']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabSource" ) );</script>
+		<script type="text/javascript">docInfo.addTabPage( document.getElementById( "tabSource" ) );</script>
 		<?php
 		$cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
 		$cache = @file_get_contents($cache_path);
