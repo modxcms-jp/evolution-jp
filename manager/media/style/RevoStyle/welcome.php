@@ -3,6 +3,8 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 function welcomeRevoStyle($modx,$_lang)
 {
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	
 	$tpl = '<a class="hometblink" href="[+action+]"><img src="[(site_url)]manager/media/style/RevoStyle/images/[+imgpath+]" /><br />[+title+]</a>' . "\n";
 	$tpl = '<span class="wm_button" style="border:0">' . $tpl . '</span>';
 	
@@ -24,6 +26,8 @@ function welcomeRevoStyle($modx,$_lang)
 }
 
 function tabYourInfo($modx,$_lang) {
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	
 	$ph = $_lang;
 	
     if(!empty($_SESSION['mgrLastlogin']))
@@ -107,6 +111,7 @@ TPL;
 
 function tabOnlineUser($modx,$_lang)
 {
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
 	$ph = $_lang;
     $timetocheck = (time()-(60*20));//+$server_offset_time;
     
@@ -119,13 +124,14 @@ function tabOnlineUser($modx,$_lang)
     }
     else
     {
+    	$tr = array();
     	while ($row = $modx->db->getRow($rs))
     	{
     		$currentaction = getAction($row['action'], $row['id']);
     		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.gif" alt="Web user" />':'';
     		$tr[] = "<tr><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
     	}
-    	$ph['userlist'] = join("\n",$tr);
+    	if(!empty($tr)) $ph['userlist'] = join("\n",$tr);
         $ph['now'] = strftime('%H:%M:%S', time()+$server_offset_time);
     	$tpl = <<< TPL
 <p>[+onlineusers_message+]<b>[+now+]</b>)</p>
