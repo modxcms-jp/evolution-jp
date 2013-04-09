@@ -389,9 +389,10 @@ class PHx {
 	
 	function parsePhx($key,$value,$modifiers)
 	{
+		global $condition;
 		if(empty($modifiers)) return;
 		//if(isset($phx) && is_object($phx))
-		
+		$condition = array();
 		foreach($modifiers as $cmd=>$opt)
 		{
 			$value = $this->Filter($key,$value, $cmd, $opt);
