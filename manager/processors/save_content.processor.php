@@ -6,16 +6,8 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-// get table names
-$tbl_document_groups            = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names        = $modx->getFullTableName('documentgroup_names');
-$tbl_member_groups              = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access         = $modx->getFullTableName('membergroup_access');
-$tbl_keyword_xref               = $modx->getFullTableName('keyword_xref');
-$tbl_site_content               = $modx->getFullTableName('site_content');
-$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
+// get table name
+$tbl_document_groups = $modx->getFullTableName('document_groups');
 
 $input = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 extract($input);
@@ -44,7 +36,8 @@ $link_attributes = $modx->db->escape($link_attributes);
 $parent          = $parent != '' ? $parent : 0;
 $menuindex       = !empty($menuindex) ? $menuindex : 0;
 $document_groups = (isset($chkalldocs) && $chkalldocs == 'on') ? array() : $docgroups;
-$contentType     = $modx->db->escape($contentType);
+$contentType     = isset($contentType) ? $modx->db->escape($contentType) : 'text/html';
+if($type==='reference') $contentType = '';
 $content_dispo   = intval($content_dispo);
 $donthit         = intval($donthit);
 $hidemenu        = intval($hidemenu);
@@ -124,8 +117,9 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 	$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
 	if(!empty($document_group_list))
 	{
-		$from="{$tbl_membergroup_access} mga, {$tbl_member_groups} mg";
-		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member = {$_SESSION['mgrInternalKey']}";
+		$from='[+tbl_membergroup_access+] mga, [+prefix+]member_groups mg';
+		$mgrInternalKey = $_SESSION['mgrInternalKey'];
+		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
 		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
 		if($count == 0)
 		{
@@ -144,7 +138,7 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
 // get the document, but only if it already exists
 if ($actionToTake != 'new')
 {
-	$rs = $modx->db->select('parent', $tbl_site_content, "id='{$id}'");
+	$rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1)
 	{
@@ -189,13 +183,13 @@ switch ($actionToTake)
 		switch($modx->config['docid_incrmnt_method'])
 		{
 			case '1':
-				$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+				$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
 				$where = "T1.id IS NULL";
 				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
 				$id = $modx->db->getValue($rs);
 				break;
 			case '2':
-				$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+				$rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
 				$id = $modx->db->getValue($rs);
 				break;
 			default:
@@ -224,7 +218,7 @@ switch ($actionToTake)
 		$createdon = $currentdate;
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		if(!empty($id)) $field['id'] = $id;
-		$newid = $modx->db->insert($field,$tbl_site_content);
+		$newid = $modx->db->insert($field,'[+prefix+]site_content');
 		if(!$newid)
 		{
 			$modx->manager->saveFormValues(27);
@@ -246,7 +240,7 @@ switch ($actionToTake)
 		{
 			foreach ($tvChanges as $tv)
 			{
-				$rs = $modx->db->insert($tv, $tbl_site_tmplvar_contentvalues);
+				$rs = $modx->db->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
 			}
 		}
 
@@ -277,7 +271,7 @@ switch ($actionToTake)
 			if($use_udperms && !($isManager || $isWeb) && $parent != 0)
 			{
 				// inherit document access permissions
-				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document = {$parent}";
+				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document='{$parent}'";
 				$saved = $modx->db->query($sql);
 				$docgrp_save_attempt = true;
 			}
@@ -293,7 +287,7 @@ switch ($actionToTake)
 		// update parent folder status
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
+			$rs = $modx->db->update('isfolder = 1', '[+prefix+]site_content', "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the document's parent to a folder.";
@@ -351,19 +345,7 @@ switch ($actionToTake)
 		exit;
 		break;
 	case 'edit' :
-
-		// get the document's current parent
-		$rs = $modx->db->select('parent', $tbl_site_content, "id='{$id}'");
-		if (!$rs) {
-			$modx->manager->saveFormValues(27);
-			echo "An error occured while attempting to find the document's current parent.";
-			exit;
-		}
 		
-		$row = $modx->db->getRow($rs);
-		$oldparent = $row['parent'];
-		$doctype = $row['type'];
-
 		$url = "index.php?a=27&id={$id}";
 		if ($id == $site_start && $published == 0)
 		{
@@ -390,7 +372,7 @@ switch ($actionToTake)
 			exit;
 		}
 		// check to see document is a folder
-		$rs = $modx->db->select('COUNT(id)', $tbl_site_content, 'parent='. $_REQUEST['id']);
+		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent='{$id}'");
 		if (!$rs)
 		{
 			$modx->manager->saveFormValues(27);
@@ -404,16 +386,25 @@ switch ($actionToTake)
 		{
 			$isfolder = '1';
 		}
-
+		
+		$rs = $modx->db->select('published,pub_date,unpub_date,publishedon,publishedby,alias,parent,type', '[+prefix+]site_content', "id='{$id}'");
+		if (!$rs) {
+			$modx->manager->saveFormValues(27);
+			echo "An error occured while attempting to find the document's current parent.";
+			exit;
+		}
+		$dbdoc = $modx->db->getRow($rs);
+		if($dbdoc['type']!=='reference' && $type==='reference')
+		{
+			$content = '';
+		}
 		// set publishedon and publishedby
-		$was = $modx->db->getRow($modx->db->select('published,pub_date,unpub_date,publishedon,publishedby,alias,parent', $tbl_site_content, "id='{$id}'"));
-
 		// keep original publish state, if change is not permitted
 		if (!$modx->hasPermission('publish_document'))
 		{
-			$published  = $was['published'];
-			$pub_date   = $was['pub_date'];
-			$unpub_date = $was['unpub_date'];
+			$published  = $dbdoc['published'];
+			$pub_date   = $dbdoc['pub_date'];
+			$unpub_date = $dbdoc['unpub_date'];
 		}
 		else
 		{
@@ -421,12 +412,12 @@ switch ($actionToTake)
 			if(!empty($pub_date) && $pub_date<=$currentdate && $published)
 			{
 				$publishedon = $pub_date;
-				$publishedby = $was['publishedby'];
+				$publishedby = $dbdoc['publishedby'];
 			}
-			elseif (0<$was['publishedon'] && $published)
+			elseif (0<$dbdoc['publishedon'] && $published)
 			{
-				$publishedon = $was['publishedon'];
-				$publishedby = $was['publishedby'];
+				$publishedon = $dbdoc['publishedon'];
+				$publishedby = $dbdoc['publishedby'];
 			}
 			elseif(!$published)
 			{
@@ -451,14 +442,14 @@ switch ($actionToTake)
 		// update the document
 		$field = array();
 		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext'));
-		$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
+		$rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs)
 		{
 			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
 		}
 		
 		// update template variables
-		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid='{$id}'");
+		$rs = $modx->db->select('id, tmplvarid', '[+prefix+]site_tmplvar_contentvalues', "contentid='{$id}'");
 		$tvIds = array ();
 		while ($row = $modx->db->getRow($rs))
 		{
@@ -491,14 +482,14 @@ switch ($actionToTake)
 		if (!empty($tvDeletions))
 		{
 			$where = 'id IN('.implode(',', $tvDeletions).')';
-			$rs = $modx->db->delete($tbl_site_tmplvar_contentvalues, $where);
+			$rs = $modx->db->delete('[+prefix+]site_tmplvar_contentvalues', $where);
 		}
 			
 		if (!empty($tvAdded))
 		{
 			foreach ($tvAdded as $tv)
 			{
-				$rs = $modx->db->insert($tv, $tbl_site_tmplvar_contentvalues);
+				$rs = $modx->db->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
 			}
 		}
 		
@@ -507,7 +498,7 @@ switch ($actionToTake)
 			foreach ($tvChanges as $tv)
 			{
 				$tvid = $tv[1]['id'];
-				$rs = $modx->db->update($tv[0], $tbl_site_tmplvar_contentvalues, "id='{$tvid}'");
+				$rs = $modx->db->update($tv[0], '[+prefix+]site_tmplvar_contentvalues', "id='{$tvid}'");
 			}
 		}
 
@@ -526,7 +517,7 @@ switch ($actionToTake)
 			$isManager = intval($modx->hasPermission('access_permissions'));
 			$isWeb     = intval($modx->hasPermission('web_access_permissions'));
 			$fields = 'groups.id, groups.document_group';
-			$from   = "{$tbl_document_groups} AS groups LEFT JOIN {$tbl_documentgroup_names} AS dgn ON dgn.id = groups.document_group";
+			$from   = '[+prefix+]document_groups AS groups LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = groups.document_group';
 			$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
 			$rs = $modx->db->select($fields,$from,$where);
 			$old_groups = array();
@@ -558,14 +549,12 @@ switch ($actionToTake)
 			if (!empty($old_groups))
 			{
 				$where = 'id IN (' . implode(',', $old_groups) . ')';
-				$saved = $modx->db->delete($tbl_document_groups,$where) ? $saved : false;
+				$saved = $modx->db->delete('[+prefix+]document_groups',$where) ? $saved : false;
 			}
 			// necessary to remove all permissions as document is public
 			if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on'))
 			{
-				$sql_delete = "DELETE FROM {$tbl_document_groups}";
-				$where = "document={$id}";
-				$saved = $modx->db->delete($tbl_document_groups,$where) ? $saved : false;
+				$saved = $modx->db->delete('[+prefix+]document_groups',"document='{$id}'") ? $saved : false;
 			}
 			if (!$saved)
 			{
@@ -578,7 +567,7 @@ switch ($actionToTake)
 		// do the parent stuff
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
+			$rs = $modx->db->update('isfolder = 1', '[+prefix+]site_content', "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the new parent to a folder.";
@@ -586,7 +575,8 @@ switch ($actionToTake)
 		}
 
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
-		$rs = $modx->db->select('COUNT(id)', $tbl_site_content, "parent={$oldparent}");
+		$oldparent = $dbdoc['parent'];
+		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent='{$oldparent}'");
 		if (!$rs)
 		{
 			echo "An error occured while attempting to find the old parents' children.";
@@ -596,7 +586,7 @@ switch ($actionToTake)
 
 		if ($limit == 0)
 		{
-			$rs = $modx->db->update('isfolder = 0', $tbl_site_content, "id='{$oldparent}'");
+			$rs = $modx->db->update('isfolder = 0', '[+prefix+]site_content', "id='{$oldparent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the old parent to a regular document.";
@@ -620,9 +610,9 @@ switch ($actionToTake)
 		// secure manager documents - flag as private
 		include "{$base_path}manager/includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
-		if($published  != $was['published'])     $clearcache['target'] = 'pagecache,sitecache';
-		elseif($was['alias']!==$field['alias'])  $clearcache['target'] = 'pagecache,sitecache';
-		elseif($was['parent']!=$field['parent']) $clearcache['target'] = 'pagecache,sitecache';
+		if($published  != $dbdoc['published'])     $clearcache['target'] = 'pagecache,sitecache';
+		elseif($dbdoc['alias']!==$field['alias'])  $clearcache['target'] = 'pagecache,sitecache';
+		elseif($dbdoc['parent']!=$field['parent']) $clearcache['target'] = 'pagecache,sitecache';
 		else                                     $clearcache['target'] = 'pagecache';
 		
 		if ($syncsite == 1)
@@ -680,35 +670,35 @@ switch ($actionToTake)
 
 // -- Save META Keywords --
 function saveMETAKeywords($id) {
-	global $modx, $keywords, $metatags,$tbl_keyword_xref,$tbl_site_content,$tbl_site_content_metatags;
+	global $modx, $keywords, $metatags;
 	
 	if ($modx->hasPermission('edit_doc_metatags'))
 	{
 		// keywords - remove old keywords first
-		$modx->db->delete($tbl_keyword_xref, "content_id='{$id}'");
+		$modx->db->delete('[+prefix+]keyword_xref', "content_id='{$id}'");
 		for ($i = 0; $i < count($keywords); $i++) {
 			$kwid = $keywords[$i];
 			$flds = array (
 				'content_id' => $id,
 				'keyword_id' => $kwid
 			);
-			$modx->db->insert($flds, $tbl_keyword_xref);
+			$modx->db->insert($flds, '[+prefix+]keyword_xref');
 		}
 		// meta tags - remove old tags first
-		$modx->db->delete($tbl_site_content_metatags, "content_id='{$id}'");
+		$modx->db->delete('[+prefix+]site_content_metatags', "content_id='{$id}'");
 		for ($i = 0; $i < count($metatags); $i++) {
 			$kwid = $metatags[$i];
 			$flds = array (
 				'content_id' => $id,
 				'metatag_id' => $kwid
 			);
-			$modx->db->insert($flds, $tbl_site_content_metatags);
+			$modx->db->insert($flds, '[+prefix+]site_content_metatags');
 		}
 		$flds = array (
 			'haskeywords' => (count($keywords) ? 1 : 0),
 			'hasmetatags' => (count($metatags) ? 1 : 0)
 		);
-		$modx->db->update($flds, $tbl_site_content, "id={$id}");
+		$modx->db->update($flds, '[+prefix+]site_content', "id={$id}");
 	}
 }
 
@@ -716,10 +706,6 @@ function get_tmplvars($id)
 {
 	global $modx;
 	
-	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
-	$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
-	$tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 	$template = $_POST['template'];
 	
 	// get document groups for current user
@@ -729,10 +715,10 @@ function get_tmplvars($id)
 	}
 	
 	$field = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-	$from = "{$tbl_site_tmplvars} AS tv ";
-	$from .= "INNER JOIN {$tbl_site_tmplvar_templates} AS tvtpl ON tvtpl.tmplvarid = tv.id ";
-	$from .= "LEFT JOIN {$tbl_site_tmplvar_contentvalues} AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$id}' ";
-	$from .= "LEFT JOIN {$tbl_site_tmplvar_access} tva ON tva.tmplvarid=tv.id  ";
+	$from = '[+prefix+]site_tmplvars AS tv ';
+	$from .= "INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id ";
+	$from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$id}' ";
+	$from .= "LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id  ";
 	$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
 	$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
 	$orderby = 'tv.rank';
@@ -840,25 +826,24 @@ function get_alias($id,$alias,$parent,$pagetitle)
 function _check_duplicate_alias($id,$alias,$parent)
 {
 	global $modx;
-	$tbl_site_content = $modx->getFullTableName('site_content');
 	
 	if ($modx->config['use_alias_path']==1)
 	{ // only check for duplicates on the same level if alias_path is on
-		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
+		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
 		$docid = $modx->db->getValue($rs);
 		if($docid < 1)
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent='{$parent}'");
+			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias='' AND parent='{$parent}'");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
 	else
 	{
-		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
+		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
 		$docid = $modx->db->getValue($rs);
 		if($docid < 1)
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias=''");
+			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias=''");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
