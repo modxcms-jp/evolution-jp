@@ -10,6 +10,9 @@
 */
 
 include_once(dirname(__FILE__) . '/welcome.php');
+welcomeRevoStyle($modx,$_lang);
+tabYourInfo($modx,$_lang);
+tabOnlineUser($modx,$_lang);
 
 $style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
 
