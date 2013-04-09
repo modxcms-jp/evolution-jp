@@ -57,6 +57,16 @@ class DocumentParser {
     var $http_status_code;
     var $directParse;
 
+	function __autoload($n)
+	{
+		echo $n;exit;
+	}
+	
+	function __call($name,$args) {
+		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+		if(function_exists($name)) return call_user_func_array($name,$args);
+	}
+	
     // constructor
 	function DocumentParser()
 	{
@@ -1700,12 +1710,6 @@ class DocumentParser {
 		return $msg . $result;
 	}
 	
-	function get_backtrace($backtrace)
-	{
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		return get_backtrace($backtrace);
-	}
-
 	function evalSnippets($documentSource)
 	{
 		if(strpos($documentSource,'[[')===false) return $documentSource;
@@ -2551,12 +2555,6 @@ class DocumentParser {
 	function getSnippetName()
 	{
 		return $this->currentSnippet;
-	}
-	
-    function clearCache($params=array())
-    {
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		return clearCache($params);
 	}
 	
 	private function _getReferenceListing()
