@@ -334,6 +334,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 >[+spacer+][+pad+]<img
 	id="p[+id+]"
 	class="icon"
+	align="absmiddle"
 	src="[+icon+]"
 	title="[+_lang_click_to_context+]"
 />&nbsp;<span
@@ -356,10 +357,12 @@ EOT;
 >[+spacer+]<img
 	id="s[+id+]"
 	class="toggle"
+	align="absmiddle"
 	src="[+_style_tree_minusnode+]"
 />&nbsp;<img
 	id="f[+id+]"
 	class="icon"
+	align="absmiddle"
 	src="[+icon+]"
 	title="[+_lang_click_to_context+]"
 />&nbsp;<span
@@ -382,10 +385,12 @@ EOT;
 >[+spacer+]<img
 	id="s[+id+]"
 	class="toggle"
+	align="absmiddle"
 	src="[+_style_tree_plusnode+]"
 />&nbsp;<img
 	id="f[+id+]"
 	class="icon"
+	align="absmiddle"
 	src="[+icon+]"
 	title="[+_lang_click_to_context+]"
 />&nbsp;<span
@@ -432,7 +437,8 @@ EOT;
 		$spacer = '';
 		for ($i = 1; $i <= $indent; $i++)
 		{
-			if(1<$i) $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			if($i!==1) $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			else       $spacer .= '&nbsp;&nbsp;&nbsp;';
 		}
 		return $spacer;
 	}
