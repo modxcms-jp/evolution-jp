@@ -1,6 +1,5 @@
 <h2><?php echo $_lang['install_results']?></h2>
 <?php
-
 ob_start();
 include_once("{$installer_path}instprocessor.php");
 $content = ob_get_contents();
@@ -26,8 +25,8 @@ if ($errors == 0) {
 <br />
 <script type="text/javascript">
 /* <![CDATA[ */
-$('#closepage span').click(function(){
-	checked = $('#rminstaller').attr('checked');
+jQuery('#closepage span').click(function(){
+	checked = jQuery('#rminstaller').attr('checked');
 	if(checked) {
 		// remove install folder and files
 		window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";

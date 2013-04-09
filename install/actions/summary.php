@@ -1,20 +1,13 @@
 <?php
-$installdata = $_POST['installdata'];
-$template    = $_POST['template'];
-$tv          = $_POST['tv'];
-$chunk       = $_POST['chunk'];
-$snippet     = $_POST['snippet'];
-$plugin      = $_POST['plugin'];
-$module      = $_POST['module'];
+if(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
 
-setOption('installdata', $installdata);
-setOption('template'   , $template);
-setOption('tv'         , $tv);
-setOption('chunk'      , $chunk);
-setOption('snippet'    , $snippet);
-setOption('plugin'     , $plugin);
-setOption('module'     , $module);
-$chkagree = getOption('chkagree');
+if(isset($_POST['installdata'])) $_SESSION['installdata'] = $_POST['installdata'];
+if(isset($_POST['template']))    $_SESSION['template'] = $_POST['template'];
+if(isset($_POST['tv']))          $_SESSION['tv'] = $_POST['tv'];
+if(isset($_POST['chunk']))       $_SESSION['chunk'] = $_POST['chunk'];
+if(isset($_POST['snippet']))     $_SESSION['snippet'] = $_POST['snippet'];
+if(isset($_POST['plugin']))      $_SESSION['plugin'] = $_POST['plugin'];
+if(isset($_POST['module']))      $_SESSION['module'] = $_POST['module'];
 
 echo '<h2>' . $_lang['preinstall_validation'] . '</h2>';
 echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
@@ -277,12 +270,12 @@ $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagre
     </p>
 </form>
 <script type="text/javascript">
-$('a.prev').click(function(){
-	$('#install').attr({action:'index.php?action=options'});
-	$('#install').submit();
+jQuery('a.prev').click(function(){
+	jQuery('#install').attr({action:'index.php?action=options'});
+	jQuery('#install').submit();
 });
-$('a.next').click(function(){
-	$('#install').submit();
+jQuery('a.next').click(function(){
+	jQuery('#install').submit();
 });
 </script>
 
