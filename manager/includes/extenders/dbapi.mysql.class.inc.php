@@ -446,9 +446,13 @@ class DBAPI {
 	* @desc:  returns the value from the first column in the set
 	* @param: $dsq - dataset or query string
 	*/
-	function getValue($dsq)
+	function getValue($dsq, $from='', $where='')
 	{
-		if (!is_resource($dsq)) $dsq = $this->query($dsq);
+		if($from!=='' && $where!=='') {
+			$rs = $this->getObject($from,$where);
+			if($rs[$dsq]) return $rs[$dsq];
+		}
+		elseif (!is_resource($dsq)) $dsq = $this->query($dsq);
 		if ($dsq)
 		{
 			$r = $this->getRow($dsq, 'num');
