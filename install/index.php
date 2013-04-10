@@ -8,6 +8,8 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
+require_once("{$base_path}manager/includes/version.inc.php");
+require_once("{$base_path}manager/includes/default.config.php");
 $installer_path = "{$base_path}install/";
 require_once("{$installer_path}functions.php");
 install_session_start();
@@ -21,9 +23,7 @@ if (version_compare(phpversion(), "5.3") < 0) {
 header("Content-Type: text/html; charset=utf-8");
 
 $action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
-
-require_once("{$base_path}manager/includes/default.config.php");
-require_once("{$base_path}manager/includes/version.inc.php");
+if($action==='mode') $installmode = get_installmode();
 
 if(isset($_POST['install_language']) && !empty($_POST['install_language'])) {
 	$install_language = $_POST['install_language'];
@@ -40,7 +40,6 @@ includeLang($install_language);
 
 // start session
 install_sessionCheck();
-
 
 $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;

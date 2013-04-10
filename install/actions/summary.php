@@ -1,5 +1,6 @@
 <?php
-if(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
+if(isset($_POST['chkagree'])) $chkagree = $_POST['chkagree'];
+elseif(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
 
 if(isset($_POST['installdata'])) $_SESSION['installdata'] = $_POST['installdata'];
 if(isset($_POST['template']))    $_SESSION['template'] = $_POST['template'];
@@ -183,7 +184,7 @@ else  $_ = echo_ok();
 echo p($_ . $_lang['checking_if_config_exist_and_writable']);
 
 
-if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
+if (!@ $conn = mysql_connect($_SESSION['database_server'], $_SESSION['database_user'], $_SESSION['database_password'])) {
     $errors += 1;
     $_ = echo_failed($_lang['database_connection_failed']) . "<p>".$_lang['database_connection_failed_note'];
 } else {

@@ -60,7 +60,8 @@ function modx_escape($s) {
 }
 
 function compare_check($params) {
-	global $table_prefix;
+	
+	$table_prefix = $_SESSION['table_prefix'];
 	
 	$name_field  = 'name';
 	$name        = $params['name'];
@@ -68,7 +69,7 @@ function compare_check($params) {
 	if($params['version']) {
 		$new_version = $params['version'];
 	}
-	//print_r($params);
+	
 	switch($params['category']) {
 		case 'template':
 			$table = "{$table_prefix}site_templates";
@@ -332,7 +333,7 @@ function is_iis()
 
 function get_installmode()
 {
-	global $base_path,$database_server, $database_user, $database_password, $dbase;
+	global $base_path,$database_server, $database_user, $database_password, $dbase, $table_prefix;
 	
 	$conf_path = "{$base_path}manager/includes/config.inc.php";
 	if (!is_file($conf_path)) $installmode = 0;
@@ -576,7 +577,7 @@ function get_database_connection_method() {
 	global $database_connection_method;
 	
 	if(isset($_SESSION['database_connection_method']))
-		$table_prefix = $_SESSION['database_connection_method'];
+		$database_connection_method = $_SESSION['database_connection_method'];
 	elseif(!isset($database_connection_method) || empty($database_connection_method))
 		$database_connection_method = 'SET CHARACTER SET';
 
@@ -587,7 +588,7 @@ function get_database_collation() {
 	global $database_collation;
 	
 	if(isset($_SESSION['database_collation']))
-		$table_prefix = $_SESSION['database_collation'];
+		$database_connection_method = $_SESSION['database_collation'];
 	elseif(!isset($database_collation) || empty($database_collation))
 		$database_collation = 'utf8_general_ci';
 

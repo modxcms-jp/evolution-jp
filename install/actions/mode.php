@@ -5,8 +5,6 @@ if(isset($_POST['adminemail']))        $_SESSION['adminemail']        = $_POST['
 if(isset($_POST['adminpass']))         $_SESSION['adminpass']         = $_POST['adminpass'];
 if(isset($_POST['adminpassconfirm']))  $_SESSION['adminpassconfirm']  = $_POST['adminpassconfirm'];
 
-$installmode = get_installmode();
-
 $ph['installmode']   = $installmode;
 $ph['installImg']    = ($installmode==0) ? 'install_new.png'                       : 'install_upg.png';
 $ph['welcome_title'] = ($installmode==0) ? $_lang['welcome_message_welcome']       : $_lang['welcome_message_upd_welcome'];
