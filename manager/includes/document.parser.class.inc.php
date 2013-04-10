@@ -57,11 +57,6 @@ class DocumentParser {
     var $http_status_code;
     var $directParse;
 
-	function __autoload($n)
-	{
-		echo $n;exit;
-	}
-	
 	function __call($name,$args) {
 		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
 		if(function_exists($name)) return call_user_func_array($name,$args);
@@ -691,107 +686,12 @@ class DocumentParser {
 		return $option;
 	}
 	
-    function _IIS_furl_fix()          {$this->loadExtension('DeprecatedAPI');return _IIS_furl_fix();}
-    
 	function getMicroTime()
 	{
 		list ($usec, $sec)= explode(' ', microtime());
 		return ((float) $usec + (float) $sec);
 	}
 	
-	function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
-	{
-		if (empty($url)) return false;
-		elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
-			$url = $this->makeUrl($url,'','','full');
-		}
-		
-		if ($count_attempts == 1) {
-			// append the redirect count string to the url
-			$currentNumberOfRedirects= isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
-			if ($currentNumberOfRedirects > 3) {
-				$this->messageQuit("Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>");
-			} else {
-				$currentNumberOfRedirects += 1;
-				if (strpos($url, '?') > 0) $url .= '&';
-				else                       $url .= '?';
-				$url .= "err={$currentNumberOfRedirects}";
-			}
-		}
-		if ($type == 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
-		elseif($type == 'REDIRECT_META') {
-			$header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-			echo $header;
-			exit;
-		}
-		elseif($type == 'REDIRECT_HEADER' || empty ($type)) {
-			// check if url has /$base_url
-			global $base_url, $site_url;
-			if (substr($url, 0, strlen($base_url)) == $base_url) {
-				// append $site_url to make it work with Location:
-				$url= $site_url . substr($url, strlen($base_url));
-			}
-			if (strpos($url, "\n") === false) $header= 'Location: ' . $url;
-			else $this->messageQuit('No newline allowed in redirect url.');
-		}
-		if ($responseCode && (strpos($responseCode, '30') !== false)) {
-			header($responseCode);
-		}
-		header($header);
-		exit();
-	}
-	
-	function sendForward($id='', $responseCode= '')
-	{
-		if(empty($id)) $id = $this->config['site_start'];
-		if ($this->forwards > 0)
-		{
-			$this->forwards= $this->forwards - 1;
-			$this->documentIdentifier= $id;
-			$this->documentMethod= 'id';
-			$this->documentObject= $this->getDocumentObject('id', $id);
-			if ($responseCode)
-			{
-				header($responseCode);
-			}
-			echo $this->prepareResponse();
-		}
-		else
-		{
-			header('HTTP/1.0 500 Internal Server Error');
-			die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
-		}
-		exit();
-	}
-	
-	function sendErrorPage()
-	{
-		// invoke OnPageNotFound event
-		$this->invokeEvent('OnPageNotFound');
-		
-		if($this->config['error_page']) $dist = $this->config['error_page'];
-		else                            $dist = $this->config['site_start'];
-		
-		$this->http_status_code = '404';
-		$this->sendForward($dist, 'HTTP/1.0 404 Not Found');
-	}
-	
-	function sendUnauthorizedPage()
-	{
-		// invoke OnPageUnauthorized event
-		if(isset($this->documentIdentifier)) $_REQUEST['refurl'] = $this->documentIdentifier;
-		else                                 $_REQUEST['refurl'] = $this->config['site_start'];
-		
-		$this->invokeEvent('OnPageUnauthorized');
-		
-		if($this->config['unauthorized_page']) $dist = $this->config['unauthorized_page'];
-		elseif($this->config['error_page'])    $dist = $this->config['error_page'];
-		else                                   $dist = $this->config['site_start'];
-		
-		$this->http_status_code = '403';
-		$this->sendForward($dist , 'HTTP/1.1 403 Forbidden');
-	}
-
 	function get_static_pages()
 	{
 		$filepath = $_SERVER['REQUEST_URI'];
@@ -1270,25 +1170,6 @@ class DocumentParser {
 	
 		// clear the cache
 		$this->clearCache();
-	}
-	
-	function setCacheRefreshTime($unixtime)
-	{
-		$cache_path= "{$this->config['base_path']}assets/cache/sitePublishing.idx.php";
-		if(is_file($cache_path))
-		{
-			include_once($cache_path);
-		}
-		else $this->cacheRefreshTime = 0;
-		
-		if($cacheRefreshTime < $unixtime)
-		{
-			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
-			$cache = new synccache();
-			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-			$cache->cacheRefreshTime = $unixtime;
-			$cache->publish_time_file($this);
-		}
 	}
 	
     function getTagsFromContent($content,$left='[+',$right='+]') {
@@ -2257,30 +2138,6 @@ class DocumentParser {
 		return $children;
 	}
 
-	# Displays a javascript alert message in the web browser
-	function webAlert($msg, $url= '')
-	{
-		$msg= addslashes($this->db->escape($msg));
-		if (substr(strtolower($url), 0, 11) == 'javascript:')
-		{
-			$act= '__WebAlert();';
-			$fnc= 'function __WebAlert(){' . substr($url, 11) . '};';
-		}
-		else
-		{
-			$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
-		}
-		$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
-		if ($this->isFrontend())
-		{
-			$this->regClientScript($html);
-		}
-		else
-		{
-			echo $html;
-		}
-	}
-
     # Returns true if user has the currect permission
     function hasPermission($pm) {
         $state= false;
@@ -2290,25 +2147,6 @@ class DocumentParser {
         return $state;
     }
 
-    # Add an a alert message to the system event log
-	function logEvent($evtid, $type, $msg, $title= 'Parser')
-	{
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		logEvent($evtid, $type, $msg, $title);
-	}
-	
-	function sendmail($params=array(), $msg='')
-	{
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		return sendmail($params, $msg);
-	}
-	
-	function rotate_log($target='event_log',$limit=2000, $trim=100)
-	{
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		rotate_log($target, $limit, $trim);
-	}
-	
 	function getMimeName($encode)
 	{
 		$rs = $encode;
@@ -2539,23 +2377,6 @@ class DocumentParser {
 			return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
 		}
 	}
-		
-	function getSnippetId()
-	{
-		if ($this->currentSnippet)
-		{
-			$snip = $this->db->escape($this->currentSnippet);
-			$rs= $this->db->select('id', '[+prefix+]site_snippets', "name='{$snip}'",'',1);
-			$row= @ $this->db->getRow($rs);
-			if ($row['id']) return $row['id'];
-		}
-		return 0;
-	}
-		
-	function getSnippetName()
-	{
-		return $this->currentSnippet;
-	}
 	
 	private function _getReferenceListing()
 	{
@@ -2785,36 +2606,6 @@ class DocumentParser {
 		$v['release_date']= $modx_release_date;
 		$v['full_appname']= $modx_full_appname;
 		return $v;
-	}
-
-	function runSnippet($snippetName, $params= array ())
-	{
-		if (isset ($this->snippetCache[$snippetName]))
-		{
-			$snippet= $this->snippetCache[$snippetName];
-			$properties= $this->snippetCache["{$snippetName}Props"];
-		}
-		else
-		{ // not in cache so let's check the db
-			$esc_name = $this->db->escape($snippetName);
-			$result= $this->db->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_name}'");
-			if ($this->db->getRecordCount($result) == 1)
-			{
-				$row = $this->db->getRow($result);
-				$snippet= $this->snippetCache[$snippetName]= $row['snippet'];
-				$properties= $this->snippetCache["{$snippetName}Props"]= $row['properties'];
-			}
-			else
-			{
-				$snippet= $this->snippetCache[$snippetName]= "return false;";
-				$properties= '';
-			}
-		}
-		// load default params/properties
-		$parameters= $this->parseProperties($properties);
-		$parameters= array_merge($parameters, $params);
-		// run snippet
-		return $this->evalSnippet($snippet, $parameters);
 	}
 		
 	function getChunk($key)
@@ -3334,39 +3125,6 @@ class DocumentParser {
 		}
 	}
 	
-	# Change current web user's password - returns true if successful, oterhwise return error message
-	function changeWebUserPassword($oldPwd, $newPwd)
-	{
-		if ($_SESSION['webValidated'] != 1) return false;
-		
-		$uid = $this->getLoginUserID();
-		$ds = $this->db->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
-		$total = $this->db->getRecordCount($ds);
-		if ($total != 1) return false;
-		
-		$row= $this->db->getRow($ds);
-		if ($row['password'] == md5($oldPwd))
-		{
-			if (strlen($newPwd) < 6) return 'Password is too short!';
-			elseif ($newPwd == '')   return "You didn't specify a password for this user!";
-			else
-			{
-				$newPwd = $this->db->escape($newPwd);
-				$this->db->update("password = md5('{$newPwd}')", '[+prefix+]web_users', "id='{$uid}'");
-				// invoke OnWebChangePassword event
-				$this->invokeEvent('OnWebChangePassword',
-				array
-				(
-					'userid' => $row['id'],
-					'username' => $row['username'],
-					'userpassword' => $newPwd
-				));
-				return true;
-			}
-		}
-		else return 'Incorrect password.';
-	}
-	
 	# returns true if the current web user is a member the specified groups
 	function isMemberOfWebGroup($groupNames= array ())
 	{
@@ -3510,39 +3268,6 @@ class DocumentParser {
         return $t;
     }
 	
-	# add an event listner to a plugin - only for use within the current execution cycle
-	function addEventListener($evtName, $pluginName)
-	{
-		if(!$evtName || !$pluginName) return false;
-		
-		if (!isset($this->pluginEvent[$evtName]))
-		{
-			$this->pluginEvent[$evtName] = array();
-		}
-		
-		$result = array_push($this->pluginEvent[$evtName], $pluginName);
-		
-		return $result; // return array count
-	}
-	
-    # remove event listner - only for use within the current execution cycle
-    function removeEventListener($evtName, $pluginName='') {
-        if (!$evtName)
-            return false;
-        if ( $pluginName == '' ){
-            unset ($this->pluginEvent[$evtName]);
-            return true;
-        }else{
-            foreach($this->pluginEvent[$evtName] as $key => $val){
-                if ($this->pluginEvent[$evtName][$key] == $pluginName){
-                    unset ($this->pluginEvent[$evtName][$key]);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     # remove all event listners - only for use within the current execution cycle
     function removeAllEventListener() {
         unset ($this->pluginEvent);
@@ -3716,12 +3441,6 @@ class DocumentParser {
 		if($result===false) exit();
 		return $result;
 	}
-
-    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
-    {
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		return messageQuit($msg, $query, $is_error, $nr, $file, $source, $text, $line, $output);
-    }
 
     function getRegisteredClientScripts() {
         return implode("\n", $this->jscripts);

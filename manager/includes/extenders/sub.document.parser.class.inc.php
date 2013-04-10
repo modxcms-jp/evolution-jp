@@ -376,3 +376,303 @@ function get_backtrace($backtrace)
 	$str .= '</table>';
 	return $str;
 }
+
+function _IIS_furl_fix()
+{
+	global $modx;
+	
+	if($modx->config['friendly_urls'] != 1) return;
+	
+	$url= $_SERVER['QUERY_STRING'];
+	$err= substr($url, 0, 3);
+	if ($err == '404' || $err == '405')
+	{
+		$k= array_keys($_GET);
+		unset ($_GET[$k['0']]);
+		unset ($_REQUEST[$k['0']]); // remove 404,405 entry
+		$_SERVER['QUERY_STRING']= $qp['query'];
+		$qp= parse_url(str_replace($modx->config['site_url'], '', substr($url, 4)));
+		if (!empty ($qp['query']))
+		{
+			parse_str($qp['query'], $qv);
+			foreach ($qv as $n => $v)
+			{
+				$_REQUEST[$n]= $_GET[$n]= $v;
+			}
+		}
+		$_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
+		$_REQUEST['q']= $_GET['q']= $qp['path'];
+	}
+}
+
+function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
+{
+	global $modx;
+	
+	if (empty($url)) return false;
+	elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
+		$url = $modx->makeUrl($url,'','','full');
+	}
+	
+	if ($count_attempts == 1) {
+		// append the redirect count string to the url
+		$currentNumberOfRedirects= isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+		if ($currentNumberOfRedirects > 3) {
+			$modx->messageQuit("Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>");
+		} else {
+			$currentNumberOfRedirects += 1;
+			if (strpos($url, '?') > 0) $url .= '&';
+			else                       $url .= '?';
+			$url .= "err={$currentNumberOfRedirects}";
+		}
+	}
+	if ($type == 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
+	elseif($type == 'REDIRECT_META') {
+		$header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
+		echo $header;
+		exit;
+	}
+	elseif($type == 'REDIRECT_HEADER' || empty ($type)) {
+		// check if url has /$base_url
+		global $base_url, $site_url;
+		if (substr($url, 0, strlen($base_url)) == $base_url) {
+			// append $site_url to make it work with Location:
+			$url= $site_url . substr($url, strlen($base_url));
+		}
+		if (strpos($url, "\n") === false) $header= 'Location: ' . $url;
+		else $modx->messageQuit('No newline allowed in redirect url.');
+	}
+	if ($responseCode && (strpos($responseCode, '30') !== false)) {
+		header($responseCode);
+	}
+	header($header);
+	exit();
+}
+
+function sendForward($id='', $responseCode= '')
+{
+	global $modx;
+	
+	if(empty($id)) $id = $modx->config['site_start'];
+	if ($modx->forwards > 0)
+	{
+		$modx->forwards= $modx->forwards - 1;
+		$modx->documentIdentifier= $id;
+		$modx->documentMethod= 'id';
+		$modx->documentObject= $modx->getDocumentObject('id', $id);
+		if ($responseCode)
+		{
+			header($responseCode);
+		}
+		echo $modx->prepareResponse();
+	}
+	else
+	{
+		header('HTTP/1.0 500 Internal Server Error');
+		die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
+	}
+	exit();
+}
+
+function sendErrorPage()
+{
+	global $modx;
+	
+	// invoke OnPageNotFound event
+	$modx->invokeEvent('OnPageNotFound');
+	
+	if($modx->config['error_page']) $dist = $modx->config['error_page'];
+	else                            $dist = $modx->config['site_start'];
+	
+	$modx->http_status_code = '404';
+	$modx->sendForward($dist, 'HTTP/1.0 404 Not Found');
+}
+
+function sendUnauthorizedPage()
+{
+	global $modx;
+	
+	// invoke OnPageUnauthorized event
+	if(isset($modx->documentIdentifier)) $_REQUEST['refurl'] = $modx->documentIdentifier;
+	else                                 $_REQUEST['refurl'] = $modx->config['site_start'];
+	
+	$modx->invokeEvent('OnPageUnauthorized');
+	
+	if($modx->config['unauthorized_page']) $dist = $modx->config['unauthorized_page'];
+	elseif($modx->config['error_page'])    $dist = $modx->config['error_page'];
+	else                                   $dist = $modx->config['site_start'];
+	
+	$modx->http_status_code = '403';
+	$modx->sendForward($dist , 'HTTP/1.1 403 Forbidden');
+}
+
+function setCacheRefreshTime($unixtime)
+{
+	global $modx;
+	
+	$cache_path= "{$modx->config['base_path']}assets/cache/sitePublishing.idx.php";
+	if(is_file($cache_path))
+	{
+		include_once($cache_path);
+	}
+	else $modx->cacheRefreshTime = 0;
+	
+	if($cacheRefreshTime < $unixtime)
+	{
+		include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+		$cache = new synccache();
+		$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+		$cache->cacheRefreshTime = $unixtime;
+		$cache->publish_time_file($modx);
+	}
+}
+
+# Displays a javascript alert message in the web browser
+function webAlert($msg, $url= '')
+{
+	global $modx;
+	
+	$msg= addslashes($modx->db->escape($msg));
+	if (substr(strtolower($url), 0, 11) == 'javascript:')
+	{
+		$act= '__WebAlert();';
+		$fnc= 'function __WebAlert(){' . substr($url, 11) . '};';
+	}
+	else
+	{
+		$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
+	}
+	$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
+	if ($modx->isFrontend())
+	{
+		$modx->regClientScript($html);
+	}
+	else
+	{
+		echo $html;
+	}
+}
+
+function getSnippetId()
+{
+	global $modx;
+	
+	if ($modx->currentSnippet)
+	{
+		$snip = $modx->db->escape($modx->currentSnippet);
+		$rs= $modx->db->select('id', '[+prefix+]site_snippets', "name='{$snip}'",'',1);
+		$row= @ $modx->db->getRow($rs);
+		if ($row['id']) return $row['id'];
+	}
+	return 0;
+}
+	
+function getSnippetName()
+{
+	global $modx;
+	
+	return $modx->currentSnippet;
+}
+
+function runSnippet($snippetName, $params= array ())
+{
+	global $modx;
+	
+	if (isset ($modx->snippetCache[$snippetName]))
+	{
+		$snippet= $modx->snippetCache[$snippetName];
+		$properties= $modx->snippetCache["{$snippetName}Props"];
+	}
+	else
+	{ // not in cache so let's check the db
+		$esc_name = $modx->db->escape($snippetName);
+		$result= $modx->db->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_name}'");
+		if ($modx->db->getRecordCount($result) == 1)
+		{
+			$row = $modx->db->getRow($result);
+			$snippet= $modx->snippetCache[$snippetName]= $row['snippet'];
+			$properties= $modx->snippetCache["{$snippetName}Props"]= $row['properties'];
+		}
+		else
+		{
+			$snippet= $modx->snippetCache[$snippetName]= "return false;";
+			$properties= '';
+		}
+	}
+	// load default params/properties
+	$parameters= $modx->parseProperties($properties);
+	$parameters= array_merge($parameters, $params);
+	// run snippet
+	return $modx->evalSnippet($snippet, $parameters);
+}
+# Change current web user's password - returns true if successful, oterhwise return error message
+function changeWebUserPassword($oldPwd, $newPwd)
+{
+	global $modx;
+	
+	if ($_SESSION['webValidated'] != 1) return false;
+	
+	$uid = $modx->getLoginUserID();
+	$ds = $modx->db->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
+	$total = $modx->db->getRecordCount($ds);
+	if ($total != 1) return false;
+	
+	$row= $modx->db->getRow($ds);
+	if ($row['password'] == md5($oldPwd))
+	{
+		if (strlen($newPwd) < 6) return 'Password is too short!';
+		elseif ($newPwd == '')   return "You didn't specify a password for this user!";
+		else
+		{
+			$newPwd = $modx->db->escape($newPwd);
+			$modx->db->update("password = md5('{$newPwd}')", '[+prefix+]web_users', "id='{$uid}'");
+			// invoke OnWebChangePassword event
+			$modx->invokeEvent('OnWebChangePassword',
+			array
+			(
+				'userid' => $row['id'],
+				'username' => $row['username'],
+				'userpassword' => $newPwd
+			));
+			return true;
+		}
+	}
+	else return 'Incorrect password.';
+}
+
+# add an event listner to a plugin - only for use within the current execution cycle
+function addEventListener($evtName, $pluginName)
+{
+	global $modx;
+	
+	if(!$evtName || !$pluginName) return false;
+	
+	if (!isset($modx->pluginEvent[$evtName]))
+	{
+		$modx->pluginEvent[$evtName] = array();
+	}
+	
+	$result = array_push($modx->pluginEvent[$evtName], $pluginName);
+	
+	return $result; // return array count
+}
+
+# remove event listner - only for use within the current execution cycle
+function removeEventListener($evtName, $pluginName='') {
+	global $modx;
+	
+    if (!$evtName)
+        return false;
+    if ( $pluginName == '' ){
+        unset ($modx->pluginEvent[$evtName]);
+        return true;
+    }else{
+        foreach($modx->pluginEvent[$evtName] as $key => $val){
+            if ($modx->pluginEvent[$evtName][$key] == $pluginName){
+                unset ($modx->pluginEvent[$evtName][$key]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
