@@ -20,6 +20,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         jQuery(window).resize(function(){resizeTree();});
         var tree = jQuery('div#treeRoot');
         tree.on('click','div',function(){
+        	hideMenu();
         	var str = jQuery(this).attr("property");
         	var prop = (new Function("return " + str))();
         	if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist')
@@ -441,7 +442,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 </script>
 </head>
-<body onclick="hideMenu(1);" class="<?php echo $modx_textdir ? ' rtl':''?>">
+<body onclick="hideMenu();" class="<?php echo $modx_textdir ? ' rtl':''?>">
 <div class="treeframebody">
 <div id="treeSplitter"></div>
 
