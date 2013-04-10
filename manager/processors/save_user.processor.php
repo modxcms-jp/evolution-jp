@@ -536,6 +536,7 @@ function saveUserSettings($id)
 		$v = $modx->db->escape($v);
 		$savethese[] = "({$id}, '{$k}', '{$v}')";
 	}
+	if(empty($savethese)) return;
 	$values = implode(', ', $savethese);
 	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
 	$rs = $modx->db->query($sql);
