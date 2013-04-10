@@ -3650,22 +3650,22 @@ class DocumentParser {
 		return $parameter;
 	}
 
-	// - deprecated db functions
-	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
-	function dbQuery($sql)               {return $this->db->query($sql);}
-	function recordCount($rs)            {return $this->db->getRecordCount($rs);}
-	function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
-	function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
-	function insertId($rs)               {return $this->db->getInsertId($rs);}
-	function dbClose()                   {$this->db->disconnect();}
-	
+    // - deprecated db functions
+    function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
+    function dbQuery($sql)               {return $this->db->query($sql);}
+    function recordCount($rs)            {return $this->db->getRecordCount($rs);}
+    function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
+    function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
+    function insertId($rs)               {return $this->db->getInsertId($rs);}
+    function dbClose()                   {$this->db->disconnect();}
+    
     // deprecated
-	function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
-	{
-		$this->loadExtension('DeprecatedAPI');
-		return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
-	}
-	
+    function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
+    {
+        $this->loadExtension('DeprecatedAPI');
+        return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
+    }
+    
     function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
     function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
     function putChunk($chunkName)   {return $this->getChunk($chunkName);}
