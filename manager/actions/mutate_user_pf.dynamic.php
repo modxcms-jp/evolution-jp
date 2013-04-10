@@ -324,7 +324,7 @@ foreach($files as $file)
 	if($file!="." && $file!=".." && substr($file,0,1) != '.')
 	{
 		$themename = substr(dirname($file),strrpos(dirname($file),'/')+1);
-		$selectedtext = $themename==$manager_theme ? "selected='selected'" : "" ;
+		$selectedtext = $themename==$usersettings['manager_theme'] ? "selected='selected'" : "" ;
 		echo "<option value='$themename' $selectedtext>".ucwords(str_replace("_", " ", $themename))."</option>";
 	}
 }
