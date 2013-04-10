@@ -3667,15 +3667,15 @@ class DocumentParser {
 	}
 	
     function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
-	function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
+    function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
     function putChunk($chunkName)   {return $this->getChunk($chunkName);}
     function getDocGroups()         {return $this->getUserDocGroups();}
-	function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
+    function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
     function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
-	function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-	function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-	function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
-	function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
+    function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
+    function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
+    function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
+    function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
 
     /***************************************************************************************/
     /* End of API functions								       */
