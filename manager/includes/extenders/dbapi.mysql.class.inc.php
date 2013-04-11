@@ -250,7 +250,12 @@ class DBAPI {
 			{
 				foreach ($fields as $key => $value)
 				{
-					$pair[] = "`{$key}`='{$value}'";
+					$delim = substr($value,0,1);
+					if(($delim==='"'||$delim==="'") && $delim === substr($value,-1))
+					{
+						$pair[] = "`{$key}`={$value}";
+					}
+					else $pair[] = "`{$key}`='{$value}'";
 				}
 				$pairs = join(',',$pair);
 			}
