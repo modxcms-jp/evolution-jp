@@ -24,7 +24,7 @@ class logHandler {
 		return;
 	}
 
-	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname="") {
+	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname='') {
 		global $modx;
 		$this->entry['msg'] = $msg;	// writes testmessage to the object
         $this->entry['action'] = empty($action)? (int) $_REQUEST['a'] : $action;    // writes the action to the object
@@ -33,10 +33,12 @@ class logHandler {
 		$this->entry['internalKey'] = $internalKey == "" ? $modx->getLoginUserID() : $internalKey;
 		$this->entry['username'] = $username == "" ? $modx->getLoginUserName() : $username;
 
-        $this->entry['itemId'] = empty($itemid) ? (int) $_REQUEST['id'] : $itemid;  // writes the id to the object
+		$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '-';
+        $this->entry['itemId'] = empty($itemid) ? (int) $id : $itemid;  // writes the id to the object
 		if($this->entry['itemId'] == 0) $this->entry['itemId'] = "-"; // to stop items having id 0
 
-		$this->entry['itemName'] = $itemname == "" ? $_SESSION['itemname'] : $itemname;	// writes the id to the object
+		if(!isset($itemname)) $itemname = '';
+		$this->entry['itemName'] = !$itemname == '' ? $_SESSION['itemname'] : $itemname;	// writes the id to the object
 		if($this->entry['itemName'] == "") $this->entry['itemName'] = "-"; // to stop item name being empty
 
 		$this->writeToLog();
@@ -82,8 +84,8 @@ class logHandler {
 		}
 		else
 		{
-			$limit = ($modx->config['manager_log_limit']) ? intval($modx->config['manager_log_limit']) : 2000;
-			$trim  = ($modx->config['manager_log_trim'])  ? intval($modx->config['manager_log_trim']) : 100;
+			$limit = (isset($modx->config['manager_log_limit'])) ? intval($modx->config['manager_log_limit']) : 2000;
+			$trim  = (isset($modx->config['manager_log_trim']))  ? intval($modx->config['manager_log_trim']) : 100;
 			if(($insert_id % $trim) === 0)
 			{
 				$modx->rotate_log('manager_log',$limit,$trim);
