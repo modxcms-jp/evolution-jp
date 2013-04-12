@@ -418,7 +418,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 		contextm.style.visibility = "visible";
 		e.cancelBubble=true;
 		return false;
-	};
+	}
 
 	function menuAction(a) {
 		var id = selectedItem;
