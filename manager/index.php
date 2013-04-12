@@ -74,7 +74,7 @@ while(strpos($base_path,'/')!==false)
 if(is_file($base_path . $site_mgr_path)) include_once($base_path . $site_mgr_path);
 if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
 	$src = "<?php\n";
-	$src .= "define('MGR_DIR', '{$mgr_dir}');\n";
+	$src .= "if(!defined('MGR_DIR')) define('MGR_DIR', '{$mgr_dir}');\n";
 	$rs = file_put_contents($base_path . $site_mgr_path,$src);
 	if(!$rs) {
 		echo 'siteManager.php write error';
