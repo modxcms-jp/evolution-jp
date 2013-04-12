@@ -6,6 +6,7 @@
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
+define("MGR_DIR", "manager");
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 require_once("{$base_path}manager/includes/version.inc.php");

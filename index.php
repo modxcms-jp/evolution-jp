@@ -100,6 +100,7 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
         }
     }
 }
+define("MGR_DIR", "manager");
 if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 

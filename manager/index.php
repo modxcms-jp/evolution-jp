@@ -53,6 +53,7 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
+define('MGR_DIR', 'manager');
 define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 $self = str_replace('\\','/',__FILE__);
