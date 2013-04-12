@@ -121,16 +121,16 @@ class DBAPI {
 		if (empty ($this->conn) || !is_resource($this->conn))
 		{
 			$this->connect();
-				}
+		}
 		
         if(is_array($s)) {
             if(count($s) === 0) $s = '';
             else {
                 foreach($s as $i=>$v) {
                   $s[$i] = $this->escape($v,$safecount);
-			}
-		}
-		}
+                }
+            }
+        }
 		elseif (function_exists('mysql_set_charset') && $this->conn)
 		{
 			$s = mysql_real_escape_string($s, $this->conn);
