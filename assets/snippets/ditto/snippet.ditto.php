@@ -1145,7 +1145,7 @@ if ($debug == 1) {
     }
 }
 //outerTpl by Dmi3yy
-if ($outerTpl && $resource) { 
+if (isset($outerTpl) && isset($resource)) { 
   if ($modx->getChunk($outerTpl) != "") {
                         $outerTpl = $modx->getChunk($outerTpl);
         } else if(substr($outerTpl, 0, 5) == "@CODE") {

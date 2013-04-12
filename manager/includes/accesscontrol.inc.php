@@ -165,7 +165,7 @@ else
 	$fields['username']    = $_SESSION['mgrShortname'];
 	$fields['lasthit']     = time();
 	$fields['action']      = $action;
-	$fields['id']          = (preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 	$fields['ip']          = $ip;
 	
 	if($action !== 1)

@@ -87,19 +87,19 @@ if (0 < count($warnings))
 				break;
 			case 'configcheck_configinc';
 				$output = $_lang['configcheck_configinc_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_installer':
 				$output = $_lang['configcheck_installer_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,3,$output,$_lang[$warning]);
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_cache':
 				$output = $_lang['configcheck_cache_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_images':
 				$output = $_lang['configcheck_images_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_rb_base_dir':
 				$output = '$modx->config[\'rb_base_dir\']';
@@ -135,7 +135,7 @@ if (0 < count($warnings))
 				break;
 			case 'configcheck_del_actionphp':
 				$output = $_lang['configcheck_del_actionphp_msg'];
-				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,3,$output,$_lang[$warning]);
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang[$warning]);
 				break;
 			case 'configcheck_templateswitcher_present':
 				$msg = $_lang['configcheck_templateswitcher_present_msg'];
