@@ -186,6 +186,7 @@ switch ($action) {
 // include_once the style variables file
 $theme_dir = "media/style/{$manager_theme}/";
 if(is_file("{$theme_dir}style.php")) include_once("{$theme_dir}style.php");
+if(!isset($modx_textdir)) $modx_textdir = 'ltr';
 
 // check if user is allowed to access manager interface
 if (isset($allow_manager_access) && $allow_manager_access==0) {
@@ -218,7 +219,8 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
     // so we dump the error, thereby stopping the script.
 
 } else {
-    $action= (int) $_REQUEST['a'];
+    if(isset($_REQUEST['a'])) $action= (int) $_REQUEST['a'];
+    else                      $action = '';
 }
 
 if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {

@@ -50,9 +50,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		'text/plain' => $_style["tree_page_secure"],
 		'text/xml'   => $_style["tree_page_xml_secure"],
 		'text/javascript' => $_style["tree_page_js_secure"],
-		'image/gif'  => $_style["tree_page_gif_secure"],
-		'image/jpg'  => $_style["tree_page_jpg_secure"],
-		'image/png'  => $_style["tree_page_png_secure"]
+		'image/gif'  => $_style["tree_page_gif"],
+		'image/jpg'  => $_style["tree_page_jpg"],
+		'image/png'  => $_style["tree_page_png"]
 	);
 
 	if (isset($_SESSION['openedArray']))
@@ -68,7 +68,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	
 	$tree_orderby = get_tree_orderby();
 	if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
-	$in_docgrp = !$docgrp ? '':"OR dg.document_group IN ({$docgrp})";
+	$in_docgrp = !isset($docgrp) ? '':"OR dg.document_group IN ({$docgrp})";
 	
 	// get document groups for current user
 	$mgrRole= (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole']==='1') ? '1' : '0';

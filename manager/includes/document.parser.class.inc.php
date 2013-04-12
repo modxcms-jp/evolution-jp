@@ -168,7 +168,7 @@ class DocumentParser {
 	function executeParser($id='')
 	{
 		ob_start();
-		set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
+		set_error_handler(array(& $this,'phpError')); //error_reporting(0);
 		
 		$this->http_status_code = '200';
 		
@@ -198,8 +198,8 @@ class DocumentParser {
 			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
 			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
 		}
-		if(strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
-		elseif($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
+		if(isset($_REQUEST['q']) && strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
+		elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
 		
 		if(0 < count($_POST) && $id==='') $this->config['cache_type'] = 0;
 		
@@ -1137,6 +1137,7 @@ class DocumentParser {
 			if(is_file($cache_path))
 			{
 				include_once($cache_path);
+				global $cacheRefreshTime;
 				$this->cacheRefreshTime = $cacheRefreshTime;
 			}
 			else $this->cacheRefreshTime = 0;
@@ -1185,11 +1186,11 @@ class DocumentParser {
         while(0<$count) {
             $open  = 1;
             $close = 0;
-            $temp_hash[$i] = '';
             $safecount++;
             if(1000<$safecount) break;
             while($close < $open && 0 < $count) {
                 $safecount++;
+                if(!isset($temp_hash[$i])) $temp_hash[$i] = '';
                 if(1000<$safecount) break;
                 $temp_hash[$i] .= array_shift($hash);
                 $count = count($hash);
@@ -2052,7 +2053,7 @@ class DocumentParser {
 		if($id==='') $id = $this->documentIdentifier;
 		$parents= array ();
 		
-		if(!$this->aliasListing) $this->setAliasListing();
+		if(!isset($this->aliasListing)) $this->setAliasListing();
 		
 		while( $id && 0<$height)
 		{
@@ -2445,7 +2446,7 @@ class DocumentParser {
 				$alias = $id;
 				if ($this->config['friendly_alias_urls'] == 1)
 				{
-					if(!$this->aliasListing) $this->setAliasListing();
+					if(!isset($this->aliasListing)) $this->setAliasListing();
 					
 					$al= $this->aliasListing[$id];
 					$alPath = ($al && !empty($al['path'])) ? $al['path'] . '/' : '';
@@ -3290,7 +3291,7 @@ class DocumentParser {
 		$numEvents= count($el);
 		if ($numEvents > 0)
 		{
-			if(!$this->pluginCache) $this->setPluginCache();
+			if(!isset($this->pluginCache)) $this->setPluginCache();
 			
 			for ($i= 0; $i < $numEvents; $i++)
 			{ // start for loop
@@ -3441,6 +3442,7 @@ class DocumentParser {
 		{
 			$source= '';
 		} //Error $nr in $file at $line: <div><code>$source</code></div>
+		
 		$result = $this->messageQuit('PHP Parse Error', '', true, $nr, $file, $source, $text, $line);
 		if($result===false) exit();
 		return $result;
