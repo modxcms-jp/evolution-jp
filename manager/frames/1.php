@@ -4,12 +4,12 @@ $_SESSION['browser'] = (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false) ? 'i
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if(!isset($modx->config['manager_menu_height'])) $modx->config['manager_menu_height'] = '70';
 if(!isset($modx->config['manager_tree_width']))  $modx->config['manager_tree_width']  = '260';
-if($_SESSION['mgrForgetPassword']) $action = '28';
+if(isset($_SESSION['mgrForgetPassword'])) $action = '28';
 else                               $action = '2';
 $modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-<html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
+<html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
 	<title><?php echo $site_name?> - (MODX CMS Manager)</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset?>" />
@@ -20,7 +20,7 @@ $mainPane = '<frame name="main" src="index.php?a=' . $action . '" scrolling="aut
 ?>
 <frameset rows="<?php echo $modx->config['manager_menu_height'];?>,*" border="0">
 	<frame name="mainMenu" src="index.php?a=1&amp;f=menu" scrolling="no" frameborder="0" noresize="noresize">
-<?php if (!$modx_textdir) {
+<?php if ($modx_textdir==='ltr') {
 	// Left-to-Right reading (sidebar on left)
 	?>
 		<frameset cols="<?php echo $modx->config['manager_tree_width'];?>,*" border="1" frameborder="3" framespacing="1" bordercolor="#f7f7f7">

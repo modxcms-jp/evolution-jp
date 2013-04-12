@@ -54,7 +54,7 @@ $lang_keys = array();
 $dir = scandir("{$base_path}manager/includes/lang");
 foreach ($dir as $filename)
 {
-	if(!preg_match('@\.inc\.php$@',$filename)) continue;
+	if(substr($filename,-8)!=='.inc.php') continue;
 	$languagename = str_replace('.inc.php', '', $filename);
 	$lang_keys[$languagename] = get_lang_keys($filename);
 }

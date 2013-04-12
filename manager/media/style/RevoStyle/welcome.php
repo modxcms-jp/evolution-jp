@@ -26,6 +26,7 @@ function welcomeRevoStyle($modx,$_lang)
 }
 
 function tabYourInfo($modx,$_lang) {
+	global $server_offset_time;
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
 	
 	$ph = $_lang;

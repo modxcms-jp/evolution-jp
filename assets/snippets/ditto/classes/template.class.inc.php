@@ -41,6 +41,7 @@ class template{
 		} else {
 			unset($template["default"]);
 		}
+		$templates = array();
 		foreach ($template as $name=>$tpl) {
 			if(!empty($tpl) && $tpl != "") {
 				$templates[$name] = $this->fetch($tpl);
@@ -185,7 +186,8 @@ class template{
 			$currentTPL = "last";
 		} 
 		$this->current = $currentTPL;
-		return $templates[$currentTPL];
+		if(isset($templates[$currentTPL])) return $templates[$currentTPL];
+		else return '';
 	}
 
 	// ---------------------------------------------------
