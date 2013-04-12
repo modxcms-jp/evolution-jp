@@ -326,7 +326,8 @@ function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr
     		$error_level = 3;
     }
     $modx->logEvent(0, $error_level, $str,$source);
-    if($error_level === 2) return true;
+    if($error_level === 2 && $modx->error_reporting!=='99') return true;
+    if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
 
     // Set 500 response header
     header('HTTP/1.1 500 Internal Server Error');
