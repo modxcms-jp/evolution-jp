@@ -270,8 +270,8 @@ echo '</table>' . "\n";
 			<td dir='ltr' align="right"><?php echo $modx->nicesize($log_status['Index_length']+$log_status['Data_length']+$log_status['Data_free']); ?></td>
 		  </tr>
 <?php
-		$total = $total+$log_status['Index_length']+$log_status['Data_length'];
-		$totaloverhead = $totaloverhead+$log_status['Data_free'];
+		$total = $log_status['Index_length']+$log_status['Data_length'];
+		$totaloverhead = $log_status['Data_free'];
 	}
 ?>
 		  <tr bgcolor="#e0e0e0">
