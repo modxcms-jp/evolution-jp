@@ -839,6 +839,7 @@ foreach($files as $file)
 ?>
 </select><br />
 <input type="hidden" name="theme_refresher" value="" />
+<input type="hidden" name="manager_direction" value="<?php echo isset($manager_direction)&&!empty($manager_direction) ? $manager_direction : 'ltr';?>" />
 <?php echo $_lang["manager_theme_message"]?></td>
 </tr>
 
