@@ -90,7 +90,7 @@ if ($_SESSION['mgrDocgroups']) {
 if ($id != 0)
 {
 	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-	$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
+	$access .= !isset($docgrp) || empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
 	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
 	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
 	$limit = $modx->db->getRecordCount($rs);
@@ -400,7 +400,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 ?>
 <input type="hidden" name="a" value="5" />
 <input type="hidden" name="id" value="<?php echo $id;?>" />
-<?php if($_REQUEST['pid']){?>
+<?php if(isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])){?>
 <input type="hidden" name="pid" value="<?php echo $_REQUEST['pid'];?>" />
 <?php }?>
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a'];?>" />
@@ -719,7 +719,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	else                                  $template = $modx->config['default_template'];
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
-	$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
+	$where_docgrp = !isset($docgrp) || empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
 	
 	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
@@ -746,8 +746,10 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
 		require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
 		$tv_hidden = false;
+		$i = 0;
 		while($row = $modx->db->getRow($rs))
 		{
+			$i++;
 			// Go through and display all Template Variables
 			if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea')
 			{
@@ -1010,7 +1012,7 @@ echo tooltip($_lang['resource_opt_emptycache_help']);
 	</div><!-- end #tabSettings -->
 
 <?php
-if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'])
+if ($modx->hasPermission('edit_doc_metatags') && isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
 {
 	// get list of site keywords
 	$keywords = array();
@@ -1396,12 +1398,12 @@ function ab_save()
 	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">[+options+]</select>';
 	if ($modx->hasPermission('new_document'))
 	{
-		$selected = $_REQUEST['stay']=='1' ? ' selected=""' : '';
+		$selected = isset($_REQUEST['stay']) && $_REQUEST['stay']=='1' ? ' selected=""' : '';
 		$option[] = '<option id="stay1" value="1" ' . $selected . ' >' . $_lang['stay_new'] . '</option>';
 	}
-	$selected = $_REQUEST['stay']=='2' ? ' selected="selected"' : '';
+	$selected = isset($_REQUEST['stay']) && $_REQUEST['stay']=='2' ? ' selected="selected"' : '';
 	$option[] = '<option id="stay2" value="2" ' . $selected . ' >' . $_lang['stay'] . '</option>';
-	$selected = $_REQUEST['stay']=='' ? ' selected=""' : '';
+	$selected = !isset($_REQUEST['stay']) || $_REQUEST['stay']=='' ? ' selected=""' : '';
 	$option[] = '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option>';
 	$options = join("\n", $option);
 	$ph['select'] = str_replace('[+options+]', $options, $ph['select']);
@@ -1425,7 +1427,7 @@ function ab_cancel()
 	{
 		$href = "a=120&id={$id}";
 	}
-	elseif($_GET['pid'])
+	elseif(isset($_GET['pid']) && !empty($_GET['pid']))
 	{
 		$_GET['pid'] = intval($_GET['pid']);
 		$href = "a=120&id={$_GET['pid']}";
