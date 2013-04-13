@@ -17,7 +17,7 @@ $modx->checkPublishStatus();
 
 // Get access permissions
 if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
-$in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
+$in_docgrp = !isset($docgrp) || empty($docgrp) ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
 // Get the document content
@@ -67,7 +67,7 @@ foreach($content as $k=>$v)
 
 $keywords = array();
 $metatags_selected = array();
-if ($modx->config['show_meta']==='1')
+if (isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
 {
 	// Get list of current keywords for this document
 	$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
@@ -90,12 +90,30 @@ if ($modx->config['show_meta']==='1')
 	}
 }
 ?>
+	<script type="text/javascript">
+	function duplicatedocument(){
+		if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
+			document.location.href="index.php?id=<?php echo $id;?>&a=94";
+		}
+	}
+	function deletedocument() {
+		if(confirm("<?php echo $_lang['confirm_delete_resource'];?>")==true) {
+			document.location.href="index.php?id=<?php echo $id;?>&a=6";
+		}
+	}
+	function editdocument() {
+		document.location.href="index.php?id=<?php echo $id;?>&a=27";
+	}
+	function movedocument() {
+		document.location.href="index.php?id=<?php echo $id;?>&a=51";
+	}
+	</script>
 <h1><?php echo $_lang['doc_data_title']?></h1>
 
 <div id="actions">
   <ul class="actionButtons">
 <?php if($modx->hasPermission('save_document')):?>
-	<li id="Button1"><a href="#" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a></li>
+	<li id="Button1"><a href="javascript:void(0)" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a></li>
 <?php endif; ?>
 <?php if($modx->hasPermission('save_document')):?>
 	<li id="Button2"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a></li>
@@ -168,7 +186,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['alias']!='' ? urldecode($content['alias']) : "(<i>".$_lang['not_set']."</i>)"?></td>
 				<td>[*alias*]</td>
 			</tr>
-			<?php if ($modx->config['show_meta']) {?>
+			<?php if (isset($modx->config['show_meta'])&&$modx->config['show_meta']==='1') {?>
 			<tr><td><?php echo $_lang['keywords']?>: </td>
 				<td colspan="2"><?php // Keywords
 				if(count($keywords) != 0)

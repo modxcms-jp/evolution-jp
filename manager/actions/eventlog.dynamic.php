@@ -9,7 +9,7 @@ if(!$modx->hasPermission('view_eventlog')) {
 $modx->manager->initPageViewState();
 
 // get and save search string
-if($_REQUEST['op']=='reset') {
+if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') {
 	$search = $query = '';
 	$_PAGE['vs']['search']='';
 }
@@ -142,7 +142,7 @@ echo $cm->render();
 	$grd->colAligns="right,center,,,center,center";
 	$grd->colTypes="||template:<a class='gridRowIcon' href='#' onclick='return showContentMenu([+id+],event);' title='".$_lang['click_to_context']."'><img src='media/style/" . $manager_theme ."/images/icons/event[+type+].png' /></a>||template:<a href='index.php?a=115&id=[+id+]' title='".$_lang['click_to_view_details']."'>[+source+]</a>||date: " . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M:%S';
 	if($listmode=='1') $grd->pageSize=0;
-	if($_REQUEST['op']=='reset') $grd->pageNumber = 1;
+	if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') $grd->pageNumber = 1;
 	// render grid
 	echo $grd->render();
 	?>
