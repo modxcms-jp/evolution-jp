@@ -10,7 +10,7 @@ if(!($modx->hasPermission('new_module')||$modx->hasPermission('edit_module')||$m
 $modx->manager->initPageViewState();
 
 // get and save search string
-if($_REQUEST['op']=='reset') {
+if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') {
 	$query = '';
 	$_PAGE['vs']['search']='';
 }
@@ -114,7 +114,7 @@ $orderby = 'editedon DESC, name ASC';
 	$grd->colAligns="center,,,center,center";
 	$grd->colTypes="template:<a class='gridRowIcon' href='#' onclick='return showContentMenu([+id+],event);' title='".$_lang["click_to_context"]."'><img src='[+value+]' width='32' height='32' /></a>||template:<a href='index.php?a=108&id=[+id+]' title='".$_lang["module_edit_click_title"]."'>[+value+]</a>";
 	if($listmode=='1') $grd->pageSize=0;
-	if($_REQUEST['op']=='reset') $grd->pageNumber = 1;
+	if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') $grd->pageNumber = 1;
 	// render grid
 	echo $grd->render();
 	?>
