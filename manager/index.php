@@ -53,36 +53,12 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
-define('MGR_DIR', 'manager');
 define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
-$self = str_replace('\\','/',__FILE__);
-$site_mgr_path = 'assets/cache/siteManager.php';
-$base_path = str_replace('/index.php','',$self);
-$mgr_dir = '';
-while(strpos($base_path,'/')!==false)
-{
-	$pos = strrpos($base_path,'/');
-	$mgr_dir  = substr($base_path,strrpos($base_path,'/')+1) . '/' . $mgr_dir;
-	$base_path = substr($base_path,0,strrpos($base_path,'/'));
-	if(is_dir($base_path . '/assets/cache')) {
-		$base_path .= '/';
-		$mgr_dir = trim($mgr_dir,'/');
-		break;
-	}
-}
-if(is_file($base_path . $site_mgr_path)) include_once($base_path . $site_mgr_path);
-if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
-	$src = "<?php\n";
-	$src .= "if(!defined('MGR_DIR')) define('MGR_DIR', '{$mgr_dir}');\n";
-	$rs = file_put_contents($base_path . $site_mgr_path,$src);
-	if(!$rs) {
-		echo 'siteManager.php write error';
-		exit;
-	}
-	header('Location:' . $_SERVER['REQUEST_URI']);
-	exit;
-}
+$self = str_replace('\\','/','manager/index.php');
+$base_path = str_replace('manager/index.php','', str_replace('\\', '/', __FILE__));
+
+if(!defined('MGR_DIR')) define('MGR_DIR', 'manager');
 
 $core_path = "{$base_path}manager/includes/";
 $incPath = $core_path;
