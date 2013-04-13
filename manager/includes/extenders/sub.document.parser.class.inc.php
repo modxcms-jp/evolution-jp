@@ -542,6 +542,7 @@ function webAlert($msg, $url= '')
 	else
 	{
 		$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
+		$fnc = '';
 	}
 	$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
 	if ($modx->isFrontend())

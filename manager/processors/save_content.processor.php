@@ -14,16 +14,15 @@ extract($input);
 unset($input);
 
 // preprocess POST values
-if(isset($_POST['id']) && !empty($_POST['id']) && $_POST['id']!='0')
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$id))
 {
 	$id = $_POST['id'];
-	if(!preg_match('@^[0-9]+$@',$id))
-	{
-		$e->setError(2);
-		$e->dumpError();
-	}
 }
-else $id = '';
+else
+{
+	$e->setError(2);
+	$e->dumpError();
+}
 
 $introtext       = $modx->db->escape($introtext);
 $content         = $modx->db->escape($ta);
@@ -35,6 +34,7 @@ $alias           = $modx->stripAlias($modx->db->escape($alias));
 $link_attributes = $modx->db->escape($link_attributes);
 $parent          = $parent != '' ? $parent : 0;
 $menuindex       = !empty($menuindex) ? $menuindex : 0;
+if(!isset($docgroups)) $docgroups = array();
 $document_groups = (isset($chkalldocs) && $chkalldocs == 'on') ? array() : $docgroups;
 $contentType     = isset($contentType) ? $modx->db->escape($contentType) : 'text/html';
 if($type==='reference') $contentType = '';
@@ -77,7 +77,7 @@ if($actionToTake==='edit' && empty($id))
 
 $alias = get_alias($id,$alias,$parent,$pagetitle);
 
-if(empty($pub_date)) $pub_date = 0;
+if(!isset($pub_date) || empty($pub_date)) $pub_date = 0;
 else
 {
 	$pub_date = $modx->toTimeStamp($pub_date);
@@ -111,7 +111,7 @@ else
 }
 
 // ensure that user has not made this document inaccessible to themselves
-if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
+if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 {
 	$document_group_list = implode(',', $document_groups);
 	$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
