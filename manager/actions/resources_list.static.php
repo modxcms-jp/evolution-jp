@@ -394,10 +394,10 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 <?php
 function get_jscript($id,$cm)
 {
-	global $modx, $_lang;
+	global $modx, $_lang, $modx_textdir;
 	
 	$contextm = $cm->getClientScriptObject();
-	$textdir = $modx_textdir ? '-190' : '';
+	$textdir = $modx_textdir==='rtl' ? '-190' : '';
 	$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
 	
 	$block = <<< EOT
