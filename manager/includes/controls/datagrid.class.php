@@ -54,11 +54,11 @@ class DataGrid {
 	var $detectHeader;
 
 	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
-		global $__DataGridCnt;
+		global $modx, $__DataGridCnt;
 		
 		// set id
 		$__DataGridCnt++;
-		$this->id = $this->id ? $id:"dg".$__DataGridCnt;
+		$this->id = isset($this->id) ? $id:"dg".$__DataGridCnt;
 		
 		// set pager
 		$this->pageSize = $pageSize;
@@ -93,14 +93,14 @@ class DataGrid {
 		for($c=0;$c<$this->_colcount;$c++){
 			$colStyle = $Style;
 			$fld=trim($this->_fieldnames[$c]);
-			$width=$this->_colwidths[$c];
-			$align=$this->_colaligns[$c];
-			$color=$this->_colcolors[$c];
-			$type=$this->_coltypes[$c];
-			$nowrap=$this->_colwraps[$c];
-			$value = $row[($this->_isDataset && $fld) ? $fld:$c];
+			$width  = isset($this->_colwidths[$c]) ? $this->_colwidths[$c] : '';
+			$align  = $this->_colaligns[$c];
+			$color  = isset($this->_colcolors[$c]) ? $this->_colcolors[$c] : '';
+			$type   = isset($this->_coltypes[$c]) ? $this->_coltypes[$c] : '';
+			$nowrap = isset($this->_colwraps[$c]) ? $this->_colwraps[$c] : '';
+			$value  = $row[($this->_isDataset && $fld) ? $fld:$c];
 			if($color && $Style) $colStyle = substr($colStyle,0,-1).";background-color:{$color};'";
-			$value = $this->formatColumnValue($row,$value,$type,$align);
+			$value  = $this->formatColumnValue($row,$value,$type,$align);
 			
 			if($align)  $align  = 'align="'   . $align  . '"';
 			if($color)  $color  = 'bgcolor="' . $color  . '"';
@@ -292,7 +292,7 @@ class DataGrid {
 			$tblColHdr ="<thead>\n<tr>";
 			for($c=0;$c<$this->_colcount;$c++){
 				$name=$this->_colnames[$c];
-				$width=$this->_colwidths[$c];
+				$width=isset($this->_colwidths[$c]) ? $this->_colwidths[$c] : '';
 				if(!empty($width)) $width = 'width="' . $width . '"';
 				$attr = '';
 				foreach(array($columnHeaderStyle,$columnHeaderClass,$width) as $v)

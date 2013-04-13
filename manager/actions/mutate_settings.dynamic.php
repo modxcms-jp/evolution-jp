@@ -23,7 +23,7 @@ if($limit>1) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-if(!is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+if(!isset($default_config) || !is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
 $settings = array();
 $rs = $modx->db->select('setting_name, setting_value', '[+prefix+]system_settings');

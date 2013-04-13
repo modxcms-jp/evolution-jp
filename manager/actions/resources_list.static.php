@@ -14,7 +14,7 @@ $modx->checkPublishStatus();
 
 // Get access permissions
 if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
-$in_docgrp = !$docgrp ? '':" OR dg.document_group IN ({$docgrp})";
+$in_docgrp = !isset($docgrp) || empty($docgrp) ? '':" OR dg.document_group IN ({$docgrp})";
 $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 
 if($id!=0)
@@ -108,7 +108,7 @@ if ($numRecords > 0)
 	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
 	$where = "sc.parent='{$id}' AND ({$access})";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
-	$offset = (is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
+	$offset = (isset($_GET['page']) && preg_match('@^[0-9]+$@',$_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
 	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
 	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
 	$rs = $modx->db->select('DISTINCT sc.*',$from,$where,$orderby,$limit);
