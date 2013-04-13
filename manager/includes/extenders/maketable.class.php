@@ -284,8 +284,10 @@ class MakeTable {
 	 * @param $value Indicates the INPUT form element type attribute.
 	 */
 	function getCellAction($currentActionFieldValue) {
-		if ($this->cellAction) {
-			$cellAction= ' onClick="javascript:window.location=\''.$this->cellAction.$this->actionField.'='.urlencode($currentActionFieldValue).'\'" ';
+		$cellAction = '';
+		if (isset($this->cellAction)&&!empty($this->cellAction)) {
+			$currentActionFieldValue = urlencode($currentActionFieldValue);
+			$cellAction= " onclick=\"javascript:window.location='{$this->cellAction}{$this->actionField}={$currentActionFieldValue}'\" ";
 		}
 		return $cellAction;
 	}
@@ -297,9 +299,10 @@ class MakeTable {
 	 * @param $value The value of the cell.
 	 */
 	function createCellText($currentActionFieldValue, $value) {
-		$cell .= $value;
+		$cell = $value;
 		if ($this->linkAction) {
-			$cell= '<a href="'.$this->linkAction.$this->actionField.'='.urlencode($currentActionFieldValue).'">'.$cell.'</a>';
+			$currentActionFieldValue = urlencode($currentActionFieldValue);
+			$cell= "<a href=\"{$this->linkAction}{$this->actionField}={$currentActionFieldValue}\">{$cell}</a>";
 		}
 		return $cell;
 	}
@@ -342,10 +345,12 @@ class MakeTable {
 		if (is_array($fieldsArray))
 		{
 			$i= 0;
+			$table = '';
+			$header = '';
 			foreach ($fieldsArray as $fieldName => $fieldValue)
 			{
 				$table .= "\t<tr".$this->determineRowClass($i).">\n";
-				$currentActionFieldValue= $fieldValue[$this->actionField];
+				$currentActionFieldValue= isset($fieldValue[$this->actionField]) ? $fieldValue[$this->actionField] : '';
 				if (is_array($this->selectedValues))
 				{
 					$isChecked= array_search($currentActionFieldValue, $this->selectedValues)===false? 0 : 1;
@@ -378,7 +383,7 @@ class MakeTable {
 				$i ++;
 				$table .= "\t</tr>\n";
 			}
-			$table= "\n".'<table'. ($this->tableWidth ? ' width="'.$this->tableWidth.'"' : ''). ($this->tableClass ? ' class="'.$this->tableClass.'"' : ''). ($this->tableID ? ' id="'.$this->tableID.'"' : '').">\n". ($header ? "\t<thead>\n\t<tr class=\"".$this->rowHeaderClass."\">\n".$header."\t</tr>\n\t</thead>\n" : '').$table."</table>\n";
+			$table= "\n".'<table'. ($this->tableWidth ? ' width="'.$this->tableWidth.'"' : ''). ($this->tableClass ? ' class="'.$this->tableClass.'"' : ''). ($this->tableID ? ' id="'.$this->tableID.'"' : '').">\n". (isset($header) ? "\t<thead>\n\t<tr class=\"".$this->rowHeaderClass."\">\n".$header."\t</tr>\n\t</thead>\n" : '').$table."</table>\n";
 			if ($this->formElementType) {
 				$table= "\n".'<form id="'.$this->formName.'" name="'.$this->formName.'" action="'.$this->formAction.'" method="POST">'.$table;
 			}
@@ -418,7 +423,7 @@ class MakeTable {
 	 */
 	function createPagingNavigation($numRecords, $qs='') {
 		global $_lang, $modx;
-		$currentPage= (is_numeric($_GET['page']) ? $_GET['page'] : 1);
+		$currentPage= (isset($_GET['page'])&&is_numeric($_GET['page']) ? $_GET['page'] : 1);
 		if(!defined('MAX_DISPLAY_RECORDS_NUM')) define('MAX_DISPLAY_RECORDS_NUM', $modx->config['number_of_results']);
 		$numPages= ceil($numRecords / MAX_DISPLAY_RECORDS_NUM);
 		if ($numPages > 1)
@@ -453,7 +458,7 @@ class MakeTable {
 				$nav .= $this->createPageLink($currentURL, $numPages, $_lang["pagination_table_last"]);
 			}
 		}
-		if (strlen($nav) > 0)
+		if (isset($nav)&&strlen($nav) > 0)
 		{//changed to display the pagination if exists.
 			$pageNavBlock = '<div id="pagination" class="paginate">'.$_lang["pagination_table_gotopage"].'<ul>'.$nav.'</ul></div>';
 		}
@@ -493,6 +498,7 @@ class MakeTable {
 	 * element.
 	 */
 	function addFormField($value, $isChecked) {
+		$field = '';
 		if ($this->formElementType) {
 			$checked= $isChecked? "checked ": "";
 			$field= "\t\t".'<td><input type="'.$this->formElementType.'" name="'. ($this->formElementName ? $this->formElementName : $value).'"  value="'.$value.'" '.$checked.'/></td>'."\n";
