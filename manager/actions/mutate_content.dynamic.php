@@ -36,8 +36,9 @@ switch ($_REQUEST['a']) {
 }
 
 
-if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
-else                        $id = 0;
+if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
+	 $id = $_REQUEST['id'];
+else $id = 0;
 
 // Get table names (alphabetical)
 
@@ -411,7 +412,7 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 <fieldset id="create_edit">
 	<h1>
 <?php
-if ($id!=0) echo "{$_lang['edit_resource_title']}(ID:{$id})";
+if ($id!==0) echo "{$_lang['edit_resource_title']}(ID:{$id})";
 else        echo $_lang['create_resource_title'];
 ?>
 	</h1>
@@ -808,7 +809,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start']); ?>
+		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start']); ?>
 			<tr style="height: 24px;">
 				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
 				<td>
@@ -1334,7 +1335,7 @@ function input_checkbox($name,$checked,$other='')
 	if($name === 'published')
 	{
 		$id = (isset($_REQUEST['id'])) ? (int)$_REQUEST['id'] : 0;
-		if(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start'])
+		if(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start'])
 		{
 			$ph['other'] = 'disabled="disabled"';
 		}
