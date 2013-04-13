@@ -63,31 +63,6 @@ if($id!=0)
 	{
 		$content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
 	}
-	
-	$keywords = array();
-	$metatags_selected = array();
-	if ($modx->config['show_meta'])
-	{
-		// Get list of current keywords for this document
-		$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
-		$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
-		$orderby = 'k.keyword ASC';
-		$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
-		while($row = $modx->db->getRow($rs))
-		{
-			$keywords[$i] = $row['keyword'];
-		}
-		
-		// Get list of selected site META tags for this document
-		$field = 'meta.id, meta.name, meta.tagvalue';
-		$from = "[+prefix+]site_metatags AS meta LEFT JOIN [+prefix+]site_content_metatags AS sc ON sc.metatag_id = meta.id";
-		$where = "sc.content_id='{$id}'";
-		$rs = $modx->db->select($field,$from,$where);
-		while($row = $modx->db->getRow($rs))
-		{
-			$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
-		}
-	}
 }
 
 /**
