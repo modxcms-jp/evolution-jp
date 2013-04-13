@@ -5,7 +5,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if(!isset($modx->config['manager_menu_height'])) $modx->config['manager_menu_height'] = '70';
 if(!isset($modx->config['manager_tree_width']))  $modx->config['manager_tree_width']  = '260';
 if(isset($_SESSION['mgrForgetPassword'])) $action = '28';
-else                               $action = '2';
+else                                      $action = '2';
 $modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">

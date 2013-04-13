@@ -616,7 +616,7 @@ function getCookie(cookieName)
 			// Edit document in ThickBox frame (MODx manager frame)
 			case 'OnDocFormPrerender':
 				// If there is Qm call, add control buttons and modify to edit document page
-				if (intval($_REQUEST['quickmanager']) == 1)
+				if (isset($_REQUEST['quickmanager']) && intval($_REQUEST['quickmanager']) == 1)
 				{
 					global $content;
 					
