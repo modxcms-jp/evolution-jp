@@ -195,8 +195,8 @@ function deleteFile(file) {
 </script>
 <?php
 if(!empty($_FILES['userfile'])) $information = fileupload();
-elseif($_POST['mode']=='save')      echo textsave();
-elseif($_REQUEST['mode']=='delete') echo delete_file();
+elseif(isset($_POST['mode']) && $_POST['mode']=='save')      echo textsave();
+elseif(isset($_REQUEST['mode']) && $_REQUEST['mode']=='delete') echo delete_file();
 
 if(in_array($startpath,$proteted_path))
 {
@@ -256,7 +256,7 @@ if(substr(strtolower(str_replace('//','/',$startpath."/")), 0, $len)!=strtolower
 }
 
 // Unzip .zip files - by Raymond
-if ($enablefileunzip && $_REQUEST['mode']=='unzip' && is_writable($startpath))
+if ($enablefileunzip && isset($_REQUEST['mode']) && $_REQUEST['mode']=='unzip' && is_writable($startpath))
 {
 	if(!$err = unzip(realpath("{$startpath}/".$_REQUEST['file']),realpath($startpath)))
 	{
@@ -274,7 +274,7 @@ if ($enablefileunzip && $_REQUEST['mode']=='unzip' && is_writable($startpath))
 if (is_writable($startpath))
 {
 	// Delete Folder
-	if($_REQUEST['mode']=='deletefolder')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='deletefolder')
 	{
 		$folder = $_REQUEST['folderpath'];
 		if(!$token_check || !@rrmdir($folder))
@@ -288,7 +288,7 @@ if (is_writable($startpath))
 	}
 
 	// Create folder here
-	if($_REQUEST['mode']=='newfolder')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfolder')
 	{
 		$old_umask = umask(0);
 		$foldername = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
@@ -310,7 +310,7 @@ if (is_writable($startpath))
 		umask($old_umask);
 	}
 	// Create file here
-	if($_REQUEST['mode']=='newfile')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfile')
 	{
 		$old_umask = umask(0);
 		$filename = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
@@ -406,7 +406,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 </div>
 <?php
 
-if($_REQUEST['mode']=="edit" || $_REQUEST['mode']=="view") {
+if(isset($_REQUEST['mode']) && ($_REQUEST['mode']=='edit' || $_REQUEST['mode']=='view')) {
 ?>
 
 <div class="sectionHeader" id="file_editfile"><?php echo $_REQUEST['mode']=="edit" ? $_lang['files_editfile'] : $_lang['files_viewfile']?></div>

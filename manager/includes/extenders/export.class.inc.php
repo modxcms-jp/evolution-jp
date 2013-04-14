@@ -70,7 +70,7 @@ class EXPORT_SITE
 		
 		$this->ignore_ids = $ignore_ids;
 		
-		$noncache = $include_noncache==1 ? '' : 'AND cacheable=1';
+		$noncache = isset($include_noncache) && $include_noncache==1 ? '' : 'AND cacheable=1';
 		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
 		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
 		$row = $modx->db->getRow($rs);
@@ -86,8 +86,8 @@ class EXPORT_SITE
 		if(empty($directory)) return false;
 		if(strpos($directory,MODX_BASE_PATH)===false) return FALSE;
 		
-		if(!is_dir($directory))          return FALSE;
-		elseif(!is_readable($directory)) return FALSE;
+		if(!is_dir($directory))          return false;
+		elseif(!is_readable($directory)) return false;
 		else
 		{
 			foreach(glob($directory . '/*') as $path)

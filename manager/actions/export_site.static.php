@@ -49,8 +49,9 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 <?php
 	$generate_mode0 = '';
 	$generate_mode1 = '';
-	if($modx->config['export_generate_mode']==='direct') $generate_mode1 = 'checked="checked"';
-	else                                                 $generate_mode0 = 'checked="checked"';
+	if(isset($modx->config['export_generate_mode']) && $modx->config['export_generate_mode']==='direct')
+		 $generate_mode1 = 'checked="checked"';
+	else $generate_mode0 = 'checked="checked"';
 ?>
   <tr>
     <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
@@ -60,8 +61,9 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 <?php
 	$includenoncache0 = '';
 	$includenoncache1 = '';
-	if($modx->config['export_includenoncache']==='1') $includenoncache1 = 'checked="checked"';
-	else                                            $includenoncache0 = 'checked="checked"';
+	if(isset($modx->config['export_includenoncache']) && $modx->config['export_includenoncache']==='1')
+		 $includenoncache1 = 'checked="checked"';
+	else $includenoncache0 = 'checked="checked"';
 ?>
   <tr>
     <td class="head"><?php echo $_lang['export_site_cacheable']; ?></td>

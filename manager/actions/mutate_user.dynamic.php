@@ -45,6 +45,7 @@ if ($_REQUEST['a'] == '12')
 	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
 	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
 	$userdata = $modx->db->getRow($rs);
+	if(!isset($userdata['failedlogins']) ) $userdata['failedlogins'] = 0;
 	
 	// get user settings
 	$rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
@@ -232,9 +233,10 @@ if (is_array($evtOut))
     			</a>
     			  <span class="and"> + </span>
     			<select id="stay" name="stay">
-    			  <option id="stay1" value="1" <?php echo selected($_REQUEST['stay']=='1');?> ><?php echo $_lang['stay_new']?></option>
-    			  <option id="stay2" value="2" <?php echo selected($_REQUEST['stay']=='2');?> ><?php echo $_lang['stay']?></option>
-    			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
+<?php $stay = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : '';?>
+    			  <option id="stay1" value="1" <?php echo selected($stay=='1');?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay2" value="2" <?php echo selected($stay=='2');?> ><?php echo $_lang['stay']?></option>
+    			  <option id="stay3" value=""  <?php echo selected($stay=='');?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
     		  <?php

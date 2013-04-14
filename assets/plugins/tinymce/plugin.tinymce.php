@@ -94,19 +94,19 @@ switch ($e->name)
         		break;
     	}
     	
-		$params['theme']              = $mce_settings['tinymce_editor_theme'];
-		$params['mce_editor_skin']    = $mce_settings['mce_editor_skin'];
-		$params['mce_entermode']      = $mce_settings['mce_entermode'];
-		$params['mce_element_format'] = $mce_settings['mce_element_format'];
-		$params['mce_schema']         = $mce_settings['mce_schema'];
-		$params['css_selectors']      = $mce_settings['tinymce_css_selectors'];
-		$params['custom_plugins']     = $mce_settings['tinymce_custom_plugins'];
-		$params['custom_buttons1']    = $mce_settings['tinymce_custom_buttons1'];
-		$params['custom_buttons2']    = $mce_settings['tinymce_custom_buttons2'];
-		$params['custom_buttons3']    = $mce_settings['tinymce_custom_buttons3'];
-		$params['custom_buttons4']    = $mce_settings['tinymce_custom_buttons4'];
-		$params['mce_template_docs']  = $mce_settings['mce_template_docs'];
-		$params['mce_template_chunks']= $mce_settings['mce_template_chunks'];
+		$params['theme']              = isset($mce_settings['tinymce_editor_theme'])    ? $mce_settings['tinymce_editor_theme'] : '';
+		$params['mce_editor_skin']    = isset($mce_settings['mce_editor_skin'])         ? $mce_settings['mce_editor_skin'] : '';
+		$params['mce_entermode']      = isset($mce_settings['mce_entermode'])           ? $mce_settings['mce_entermode'] : '';
+		$params['mce_element_format'] = isset($mce_settings['mce_element_format'])      ? $mce_settings['mce_element_format'] : '';
+		$params['mce_schema']         = isset($mce_settings['mce_schema'])              ? $mce_settings['mce_schema'] : '';
+		$params['css_selectors']      = isset($mce_settings['tinymce_css_selectors'])   ? $mce_settings['tinymce_css_selectors'] : '';
+		$params['custom_plugins']     = isset($mce_settings['tinymce_custom_plugins'])  ? $mce_settings['tinymce_custom_plugins'] : '';
+		$params['custom_buttons1']    = isset($mce_settings['tinymce_custom_buttons1']) ? $mce_settings['tinymce_custom_buttons1'] : '';
+		$params['custom_buttons2']    = isset($mce_settings['tinymce_custom_buttons2']) ? $mce_settings['tinymce_custom_buttons2'] : '';
+		$params['custom_buttons3']    = isset($mce_settings['tinymce_custom_buttons3']) ? $mce_settings['tinymce_custom_buttons3'] : '';
+		$params['custom_buttons4']    = isset($mce_settings['tinymce_custom_buttons4']) ? $mce_settings['tinymce_custom_buttons4'] : '';
+		$params['mce_template_docs']  = isset($mce_settings['mce_template_docs'])       ? $mce_settings['mce_template_docs'] : '';
+		$params['mce_template_chunks']= isset($mce_settings['mce_template_chunks'])     ? $mce_settings['mce_template_chunks'] : '';
     	
 		$html = $mce->get_mce_settings($params);
 		$e->output($html);
