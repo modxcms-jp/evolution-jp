@@ -113,7 +113,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php
 function createResourceList($resourceTable,$action,$nameField = 'name')
 {
-	global $modx, $_lang;
+	global $modx, $_lang, $modx_textdir;
 	
 	$tbl_elm = $modx->getFullTableName($resourceTable);
 	$tbl_categories = $modx->getFullTableName('categories');
@@ -160,6 +160,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		{
 			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
 		}
+		else $class = '';
 		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
 		$tpl .= ' [+description+][+locked+]</li>';
 		$ph['class'] = $class;

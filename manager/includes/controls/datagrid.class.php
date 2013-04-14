@@ -94,7 +94,7 @@ class DataGrid {
 			$colStyle = $Style;
 			$fld=trim($this->_fieldnames[$c]);
 			$width  = isset($this->_colwidths[$c]) ? $this->_colwidths[$c] : '';
-			$align  = $this->_colaligns[$c];
+			$align  = isset($this->_colaligns[$c]) ? $this->_colaligns[$c] : '';
 			$color  = isset($this->_colcolors[$c]) ? $this->_colcolors[$c] : '';
 			$type   = isset($this->_coltypes[$c]) ? $this->_coltypes[$c] : '';
 			$nowrap = isset($this->_colwraps[$c]) ? $this->_colwraps[$c] : '';
