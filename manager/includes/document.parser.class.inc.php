@@ -59,7 +59,7 @@ class DocumentParser {
 
 	function __call($name,$args) {
 		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		if(function_exists($name)) return call_user_func_array($name,$args);
+		if(method_exists($this->sub,$name)) return call_user_func_array(array($this->sub,$name),$args);
 	}
 	
     // constructor
