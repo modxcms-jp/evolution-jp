@@ -107,7 +107,8 @@ if(!isset($_SESSION['mgrValidated']))
     }
     
     $target = $modx->config['manager_login_tpl'];
-    if(substr($target,0,1)==='@') {
+    if(isset($tpl) && !empty($tpl)) $login_tpl = $tpl;
+    elseif(substr($target,0,1)==='@') {
     	if(substr($target,0,6)==='@CHUNK') {
     		$target = trim(substr($target,7));
     		$login_tpl = $modx->getChunk($target);

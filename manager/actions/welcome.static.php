@@ -195,7 +195,8 @@ if(!isset($modx->config['manager_welcome_tpl']) || empty($modx->config['manager_
 }
 
 $target = $modx->config['manager_welcome_tpl'];
-if(substr($target,0,1)==='@') {
+if(isset($tpl) && !empty($tpl)) $welcome_tpl = $tpl;
+elseif(substr($target,0,1)==='@') {
 	if(substr($target,0,6)==='@CHUNK') {
 		$target = trim(substr($target,7));
 		$welcome_tpl = $modx->getChunk($target);
