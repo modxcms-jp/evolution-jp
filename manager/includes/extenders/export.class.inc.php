@@ -96,10 +96,8 @@ class EXPORT_SITE
 				else              $rs = unlink($path);
 			}
 		}
-		if($directory !== $this->targetDir)
-		{
-			$rs = rmdir($directory);
-		}
+		if($directory !== $this->targetDir) $rs = rmdir($directory);
+		
 		return $rs;
 	}
 

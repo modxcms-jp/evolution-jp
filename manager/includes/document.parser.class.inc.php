@@ -2826,7 +2826,7 @@ class DocumentParser {
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
 	{
-		if($idnames!='*' && !is_array($idnames)) $idnames = array($idnames);
+		if($idnames!=='*' && !is_array($idnames)) $idnames = array($idnames);
 		
 		if (is_array($idnames) && count($idnames) == 0)
 		{
