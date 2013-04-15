@@ -36,7 +36,7 @@ class template{
 	// Check to make sure they have fields, and sort the fields
 	// ---------------------------------------------------
 	function process($template) {
-		if (!isset($template["base"])) {
+		if (!isset($template["base"]) || empty($template["base"])) {
 			$template["base"] = $template["default"];
 		} else {
 			unset($template["default"]);
