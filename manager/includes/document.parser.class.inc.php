@@ -2880,6 +2880,13 @@ class DocumentParser {
 			$rs= $this->db->select($fields,$from,$where,$orderby);
 			while($row = $this->db->getRow($rs))
 			{
+				if(!empty($row['display']))
+				{
+                    include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
+                    include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';
+                    $row['output'] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid);
+				}
+				else $row['output'] = $row['value'];
 				$result[] = $row;
 			}
 			
