@@ -21,6 +21,7 @@ class FBROWSER
 	function seturl_js()
 	{
 		$editor = isset($_GET['editor']) ? $_GET['editor'] : '';
+		$editor_path = MODX_BASE_URL . "assets/plugins/{$editor}/";
 		$seturl_js_path = MODX_BASE_PATH . "assets/plugins/{$editor}/seturl.js";
 		
 		if(!strstr($editor,'..') && is_file($seturl_js_path))
@@ -34,14 +35,13 @@ class FBROWSER
 				case 'tinymce' :
 				case 'tinymce3':
 					$editor = htmlspecialchars($editor, ENT_QUOTES);
-					$editor_path = MODX_BASE_URL . "assets/plugins/{$editor}/";
 					$result = file_get_contents(dirname(__FILE__) . '/seturl_js_tinymce.inc');
-					$result = str_replace('[+editor_path+]', $editor_path, $result);
 					break;
 				default:
 				$result = '<script src="seturl.js" type="text/javascript"></script>' . "\n";
 			}
 		}
+		$result = str_replace('[+editor_path+]', $editor_path, $result);
 		return $result;
 	}
 	
