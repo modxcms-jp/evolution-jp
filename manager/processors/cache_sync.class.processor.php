@@ -421,7 +421,7 @@ class synccache {
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
-			if(!$events[$row['evtname']])
+			if(!isset($events[$row['evtname']]) || empty($events[$row['evtname']]))
 			{
 				$events[$row['evtname']] = array();
 			}
