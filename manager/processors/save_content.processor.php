@@ -14,10 +14,7 @@ extract($input);
 unset($input);
 
 // preprocess POST values
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$id))
-{
-	$id = $_POST['id'];
-}
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$id)) $id = $_POST['id'];
 else
 {
 	$e->setError(2);
@@ -44,6 +41,7 @@ $hidemenu        = intval($hidemenu);
 $editedby        = $modx->getLoginUserID();
 $currentdate = time();
 $editedon        = $currentdate;
+$stay = isset($_POST['stay']) ? $_POST['stay'] : '0';
 
 if (trim($pagetitle) == '')
 {
@@ -298,7 +296,6 @@ switch ($actionToTake)
 		if(isset($modx->config['show_meta']) && $modx->config['show_meta']==1) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
-		$header=''; // Redirect header
 		$params = array();
 		$params['mode'] = 'new';
 		$params['id']   = $newid;
@@ -315,32 +312,20 @@ switch ($actionToTake)
 		if($syncsite == 1) $modx->clearCache();
 
 		// redirect/stay options
-		if ( empty($header) )
+		
+		if($stay === '2')                  $a = "a=27&id={$newid}&r=1&stay=2";
+//		elseif($stay === 'aprroval')
+		elseif(!empty($stay))
 		{
-			if ($_POST['stay'] != '')
-			{
-				if ($_POST['mode'] == "72") // weblink
-				{
-					$a = ($_POST['stay'] == '2') ? "27&id={$newid}" : "72&pid={$parent}";
-				}
-				elseif ($_POST['mode'] == "4") // document
-				{
-					$a = ($_POST['stay'] == '2') ? "27&id={$newid}" : "4&pid={$parent}";
-				}
-				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-			}
-			else
-			{
-				if($parent!=='0')
-				{
-					$header = "Location: index.php?a=120&id={$parent}&r=1";
-				}
-				else
-				{
-					$header = "Location: index.php?a=3&id={$newid}&r=1";
-				}
-			}
+			if($_POST['mode'] === '72')    $a = "a=72&pid={$parent}&r=1&stay={$stay}";
+			elseif($_POST['mode'] === '4') $a = "a=4&pid={$parent}&r=1&stay={$stay}";
 		}
+		else
+		{
+			if($parent!=='0')              $a = "a=120&id={$parent}&r=1";
+			else                           $a = "a=3&id={$newid}&r=1";
+		}
+		$header = "Location: index.php?{$a}";
 		header($header);
 		exit;
 		break;
@@ -440,9 +425,9 @@ switch ($actionToTake)
 		$modx->invokeEvent('OnBeforeDocFormSave', $params);
 
 		// update the document
-		$field = array();
-		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext'));
-		$rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
+		$fields = array();
+		$fields = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext'));
+		$rs = $modx->db->update($fields,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs)
 		{
 			echo "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
@@ -597,7 +582,6 @@ switch ($actionToTake)
 		if(isset($modx->config['show_meta']) && $modx->config['show_meta']==1) saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
-		$header=''; // Redirect header
 		$params = array();
 		$params['mode'] = 'upd';
 		$params['id']   = $id;
@@ -613,54 +597,23 @@ switch ($actionToTake)
 		if($published  != $dbdoc['published'])     $clearcache['target'] = 'pagecache,sitecache';
 		elseif($dbdoc['alias']!==$field['alias'])  $clearcache['target'] = 'pagecache,sitecache';
 		elseif($dbdoc['parent']!=$field['parent']) $clearcache['target'] = 'pagecache,sitecache';
-		else                                     $clearcache['target'] = 'pagecache';
+		else                                       $clearcache['target'] = 'pagecache';
 		
-		if ($syncsite == 1)
+		if ($syncsite == 1) $modx->clearCache($clearcache);
+
+		if($stay==='2')                          $a = "a=27&id={$id}&stay=2";
+		elseif(!empty($stay))
 		{
-			$modx->clearCache($clearcache);
+			$id = $_REQUEST['id'];
+			if ($type === 'reference')           $a = "a=72&pid={$parent}&r=1&stay={$stay}"; // weblink
+			else                                 $a = "a=4&pid={$parent}&r=1&stay={$stay}"; // document
 		}
+		elseif($isfolder==='1' && $parent!=='0') $a = "a=120&id={$parent}&r=1";
+		elseif($isfolder==='1' && $parent==='0') $a = "a=120&id={$id}&r=1";
+		elseif($isfolder==='0' && $parent!=='0') $a = "a=120&id={$parent}&r=1";
+		else                                     $a = "a=3&id={$id}&r=1";
 		
-		if ( empty($header) )
-		{
-			if ($_POST['refresh_preview'] == '1')
-			{
-				$header = "Location: ../index.php?id={$id}&z=manprev";
-			}
-			else
-			{
-				if ($_POST['stay'] != '')
-				{
-					$id = $_REQUEST['id'];
-					if ($type == "reference")
-					{
-						// weblink
-						$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$parent}";
-					}
-					else
-					{
-						// document
-						$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$parent}";
-					}
-					$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-				}
-				elseif($isfolder==='1' && $parent!=='0')
-				{
-					$header = "Location: index.php?a=120&id={$parent}&r=1";
-				}
-				elseif($isfolder==='1' && $parent==='0')
-				{
-					$header = "Location: index.php?a=120&id={$id}&r=1";
-				}
-				elseif($isfolder==='0' && $parent!=='0')
-				{
-					$header = "Location: index.php?a=120&id={$parent}&r=1";
-				}
-				else
-				{
-					$header = "Location: index.php?a=3&id={$id}&r=1";
-				}
-			}
-		}
+		$header = "Location: index.php?{$a}";
 		header($header);
 		exit;
 	default :
