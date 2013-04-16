@@ -134,15 +134,16 @@ class subparser {
     function clearCache($params=array())
     {
     	global $modx;
-    	
-    	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
+    	$cache_path = MODX_BASE_PATH . 'assets/cache';
+    	if(!is_dir($cache_path)) mkdir($cache_path,0777,true);
+    	if(opendir($cache_path)!==false)
     	{
     		$showReport = (isset($params['showReport'])) ? $params['showReport'] : false;
     		$target = (isset($params['target']))         ? $params['target'] : 'pagecache,sitecache';
     		
     		include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
     		$sync = new synccache();
-    		$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+    		$sync->setCachepath($cache_path . '/');
     		$sync->setReport($showReport);
     		$sync->setTarget($target);
     		if(isset($params['cacheRefreshTime'])) $sync->cacheRefreshTime = $params['cacheRefreshTime'];
