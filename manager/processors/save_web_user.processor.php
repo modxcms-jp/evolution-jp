@@ -399,7 +399,12 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$ph['saddr'] = $emailsender;
 	$ph['semail'] = $emailsender;
 	$ph['surl'] = $site_url;
+	$ph['username']    = $uid;
+	$ph['password']    = $pwd;
+	$ph['fullname']    = $ufn;
 	$message = $modx->parsePlaceholder($message,$ph);
+	$message = $modx->mergeSettingsContent($message);
+	$message = $modx->evalSnippets($message);
 	if ($modx->sendmail($email,$message) === false) //ignore mail errors in this cas
 	{
 		webAlert("Error while sending mail to {$email}");

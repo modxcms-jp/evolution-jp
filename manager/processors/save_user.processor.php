@@ -444,7 +444,12 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 	$ph['saddr']  = $modx->config['emailsender'];
 	$ph['semail'] = $modx->config['emailsender'];
 	$ph['surl']   = $modx->config['site_url'] . 'manager/';
+	$ph['username']    = $uid;
+	$ph['password']    = $pwd;
+	$ph['fullname']    = $ufn;
 	$message = $modx->parsePlaceholder($message,$ph);
+	$message = $modx->mergeSettingsContent($message);
+	$message = $modx->evalSnippets($message);
 
 	$rs = $modx->sendmail($email,$message);
 	if ($rs === false) //ignore mail errors in this cas
