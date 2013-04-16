@@ -616,8 +616,10 @@ a img {
 		text-align: right;
 	}
 .row1, .row2, .row3 {
-	background-color: #fff;
 	color: #333;
+}
+.row1 {
+	background-color: #fff;
 }
 .row2 {
 	background-color: #C8DAA2;
@@ -625,6 +627,7 @@ a img {
 .row3 {
 	background-color: #f5f5f5;
 }
+
 div.treeframebody {
 	background: #f5f5f5 url(images/misc/subnav.png) !important;
 	-webkit-box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
