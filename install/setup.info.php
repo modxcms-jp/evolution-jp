@@ -158,6 +158,8 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 	$files = collectTpls($pluginPath);
 	foreach ($files as $tplfile)
 	{
+		if(strpos($tplfile,'/mgr_custom/')!==false) continue; //Ignore
+		
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && 0 < count($params))
 		{
