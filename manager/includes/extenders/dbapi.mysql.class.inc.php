@@ -477,10 +477,9 @@ class DBAPI {
 	{
 		if(!$rs) return false;
 		$rsArray = array();
-		$qty = $this->getRecordCount($rs);
-		for ($i = 0; $i < $qty; $i++)
+		while ($row = $this->getRow($rs))
 		{
-			$rsArray[] = $this->getRow($rs);
+			$rsArray[] = $row;
 		}
 		return $rsArray;
 	}
