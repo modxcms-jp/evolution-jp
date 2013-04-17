@@ -113,16 +113,14 @@ function deletedocument() {
 
 <div class="sectionBody">
 <fieldset>
-<table border="0" cellspacing="0" cellpadding="4">
+<table>
   <tr>
     <td><?php echo $_lang['role_name']; ?>:</td>
-    <td>&nbsp;</td>
-    <td><input name="name" type="text" maxlength=50 value="<?php echo $roledata['name'] ; ?>"></td>
+    <td><input name="name" type="text" maxlength="50" value="<?php echo $roledata['name'] ; ?>"></td>
   </tr>
   <tr>
     <td><?php echo $_lang['resource_description']; ?>:</td>
-    <td>&nbsp;</td>
-    <td><input name="description" type="text" maxlength=255 value="<?php echo $roledata['description'] ; ?>" size="60"></td>
+    <td><input name="description" type="text" maxlength="255" value="<?php echo $roledata['description'] ; ?>" size="60"></td>
   </tr>
 </table>
 </fieldset>
