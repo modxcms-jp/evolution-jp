@@ -125,7 +125,7 @@ if ($numRecords > 0)
 		
 		echo get_jscript($id,$cm);
 		
-		$listDocs = array();
+		$docs = array();
 		
 		foreach($resource as $k => $children)
 		{
@@ -211,14 +211,14 @@ if ($numRecords > 0)
 			}
 			else $editedon = '-';
 			
-			$listDocs[] = array(
-				'checkbox' =>    '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />',
-				'docid'    => $children['id'],
-				'title'    => $title,
-				'publishedon' => $publishedon,
-				'editedon' => $editedon,
-				'status'   => $status
-			);
+			$doc = array();
+			$doc['checkbox']    = '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />';
+			$doc['docid']       = $children['id'];
+			$doc['title']       = $title;
+			$doc['publishedon'] = $publishedon;
+			$doc['editedon']    = $editedon;
+			$doc['status']      = $status;
+			$docs[] = $doc;
 		}
 		
 		$modx->loadExtension('MakeTable');
@@ -229,20 +229,19 @@ if ($numRecords > 0)
 		$modx->table->setRowRegularClass('gridItem');
 		$modx->table->setRowAlternateClass('gridAltItem');
 		
-		// Table header
-		$listTableHeader = array(
-			'checkbox' =>    '<input type="checkbox" name="chkselall" onclick="selectAll()" />',
-			'docid' =>    $_lang['id'],
-			'title' =>    $_lang['resource_title'],
-			'publishedon' => $_lang['publish_date'],
-			'editedon' => $_lang['editedon'],
-			'status' =>   $_lang['page_data_status']
-		);
-		
 		$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
 		
+		// Table header
+		$header['checkbox']    = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
+		$header['docid']       = $_lang['id'];
+		$header['title']       = $_lang['resource_title'];
+		$header['publishedon'] = $_lang['publish_date'];
+		$header['editedon']    = $_lang['editedon'];
+		$header['status']      = $_lang['page_data_status'];
+		
+		
 		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$id}");
-		$children_output = $pageNavBlock . $modx->table->create($listDocs,$listTableHeader) . $pageNavBlock;
+		$children_output = $pageNavBlock . $modx->table->create($docs,$header) . $pageNavBlock;
 		$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 	}
 }
