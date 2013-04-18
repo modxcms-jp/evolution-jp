@@ -238,7 +238,7 @@ class Wayfinder {
 			$useId = '';
 		}
 		//Load row values into placholder array
-		$phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
+        $phArray = array($useSub,$useClass,$classNames,$resource['link'],htmlentities($resource['title'], ENT_COMPAT, $charset),htmlentities($resource['linktext'], ENT_COMPAT, $charset),$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],htmlentities($resource['introtext'], ENT_COMPAT, $charset),htmlentities($resource['description'], ENT_COMPAT, $charset),$numChildren);
 		
 		foreach($resource as $k=>$v)
 		{
