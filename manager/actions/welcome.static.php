@@ -83,7 +83,7 @@ if($modx->hasPermission('bk_manager')) {
 	$modx->setPlaceholder('BackupIcon',$src);
 }
 if($modx->hasPermission('help')) {
-	$src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['bk_manager']);
+	$src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['help']);
 	$modx->setPlaceholder('HelpIcon',$src);
 }
 
