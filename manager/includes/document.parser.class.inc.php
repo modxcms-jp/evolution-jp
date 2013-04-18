@@ -2826,81 +2826,76 @@ class DocumentParser {
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
 	{
+		if (is_array($idnames) && count($idnames) == 0) return false;
 		if($idnames!=='*' && !is_array($idnames)) $idnames = array($idnames);
 		
-		if (is_array($idnames) && count($idnames) == 0)
-		{
-			return false;
-		}
-		else
-		{
-			$result= array ();
-			
-			// get document record
-			if ($docid == '')
-			{
+		// get document record
+		if (empty($docid)) {
+			if(isset($this->documentIdentifier) && !empty($this->documentIdentifier)) {
 				$docid = $this->documentIdentifier;
 				$resource= $this->documentObject;
 			}
-			else
-			{
-				$resource= $this->getDocument($docid, '*', $published);
-				if (!$resource) return false;
-			}
-			// get user defined template variables
-			$fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
-			$sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
-			
-			if ($idnames == '*') $where= 'tv.id<>0';
-			elseif (preg_match('@^[0-9]+$@',$idnames['0']))
-			{
-				$where= "tv.id='{$idnames['0']}'";
-			}
-			else
-			{
-				$i = 0;
-				foreach($idnames as $idname)
-				{
-					$idnames[$i] = $this->db->escape(trim($idname));
-					$i++;
-				}
-				$tvnames = "'" . join("','", $idnames) . "'";
-				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
-			}
-			$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-			$from    = '[+prefix+]site_tmplvars tv';
-			$from   .= ' INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
-			$from   .= " LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
-			$where  = "{$where} AND tvtpl.templateid={$resource['template']}";
-			if ($sort)
-			{
-				 $orderby = "{$sort} {$dir}";
-			}
-			else $orderby = '';
-			$rs= $this->db->select($fields,$from,$where,$orderby);
-			while($row = $this->db->getRow($rs))
-			{
-				if(!empty($row['display']))
-				{
-                    include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
-                    include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';
-                    $row['output'] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid);
-				}
-				else $row['output'] = $row['value'];
-				$result[] = $row;
-			}
-			
-			// get default/built-in template variables
-			ksort($resource);
-			while(list($key, $value) = each($resource))
-			{
-				if ($idnames == '*' || in_array($key, $idnames))
-				{
-					$result[] = array ('name'=>$key,'value'=>$value);
-				}
-			}
-			return $result;
+			else return false;
 		}
+		else
+		{
+			$resource= $this->getDocument($docid, '*', $published);
+			if (!$resource) return false;
+		}
+		// get user defined template variables
+		$fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
+		$sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
+		
+		if ($idnames == '*') $where= 'tv.id<>0';
+		elseif (preg_match('@^[0-9]+$@',$idnames['0']))
+		{
+			$where= "tv.id='{$idnames['0']}'";
+		}
+		else
+		{
+			$i = 0;
+			foreach($idnames as $idname)
+			{
+				$idnames[$i] = $this->db->escape(trim($idname));
+				$i++;
+			}
+			$tvnames = "'" . join("','", $idnames) . "'";
+			$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
+		}
+		$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+		$from    = '[+prefix+]site_tmplvars tv';
+		$from   .= ' INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
+		$from   .= " LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
+		$where  = "{$where} AND tvtpl.templateid={$resource['template']}";
+		if ($sort)
+		{
+			 $orderby = "{$sort} {$dir}";
+		}
+		else $orderby = '';
+		$rs= $this->db->select($fields,$from,$where,$orderby);
+		$result= array ();
+		while($row = $this->db->getRow($rs))
+		{
+			if(!empty($row['display']))
+			{
+                include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
+                include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';
+                $row['output'] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid);
+			}
+			else $row['output'] = $row['value'];
+			$result[] = $row;
+		}
+		
+		// get default/built-in template variables
+		ksort($resource);
+		while(list($key, $value) = each($resource))
+		{
+			if ($idnames == '*' || in_array($key, $idnames))
+			{
+				$result[] = array ('name'=>$key,'value'=>$value);
+			}
+		}
+		return $result;
 	}
 
 	# returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
