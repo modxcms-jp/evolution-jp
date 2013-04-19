@@ -109,8 +109,8 @@ elseif ($mode=='snapshot')
 	$today = str_replace(array('/',' '), '-', $today);
 	$today = str_replace(':', '', $today);
 	$today = strtolower($today);
-	global $path;
-	$path = "{$modx->config['snapshot_path']}{$today}.sql";
+	global $path,$modx_version;
+	$path = "{$modx->config['snapshot_path']}{$today}-{$modx_version}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
 	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
@@ -615,7 +615,7 @@ function import_sql($source,$result_code='import_ok')
 }
 
 function dumpSql(&$dumpstring) {
-	global $modx;
+	global $modx,$modx_version;
 	$today = $modx->toDateFormat(time(),'dateOnly');
 	$today = str_replace('/', '-', $today);
 	$today = strtolower($today);
@@ -626,7 +626,7 @@ function dumpSql(&$dumpstring) {
         header('Pragma: cache');
 		header('Content-type: application/download');
 		header("Content-Length: {$size}");
-		header("Content-Disposition: attachment; filename={$today}_database_backup.sql");
+		header("Content-Disposition: attachment; filename={$today}-{$modx_version}_database_backup.sql");
 	}
 	echo $dumpstring;
 	return true;
