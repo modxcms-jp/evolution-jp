@@ -103,7 +103,7 @@ if($modx->hasPermission('new_web_user')||$modx->hasPermission('edit_web_user')) 
 }
 if($modx->hasPermission('view_eventlog')) {
 	if(!isset($_style['icons_log_large'])) $_style['icons_log_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/log.png';
-	$src = get_icon($_lang['eventlog'], 114, $_style['icons_log_large'], $_lang['manage_modules']);
+	$src = get_icon($_lang['eventlog'], 114, $_style['icons_log_large'], $_lang['eventlog']);
 	$modx->setPlaceholder('EventLogIcon',$src);
 }
 if($modx->hasPermission('logs')) {
