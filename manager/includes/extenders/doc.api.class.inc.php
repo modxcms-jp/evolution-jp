@@ -31,6 +31,24 @@ class DocAPI {
 		
 		$this->replaceTVs($f);
 		
+		switch($modx->config['docid_incrmnt_method'])
+		{
+			case '1':
+				$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
+				$where = "T1.id IS NULL";
+				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
+				$docid = $modx->db->getValue($rs);
+				break;
+			case '2':
+				$rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
+				$docid = $modx->db->getValue($rs);
+				break;
+			default:
+				$docid = '';
+		}
+
+		if(!empty($docid)) $f['id'] = $docid;
+		
 		$id = $modx->db->insert($f, '[+prefix+]site_content');
 		
 		if (!empty($groups) && $id)
