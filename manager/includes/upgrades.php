@@ -54,6 +54,15 @@ function updateMenus()
 		$modx->regOption('topmenu_tools','bk_manager,import_site,export_site,search,edit_settings');
 }
 
+function disableOldCarbonTheme() {
+	global $modx;
+
+	$carbon_dir= MODX_BASE_PATH . 'manager/media/style/MODxCarbon/';
+	if(is_dir($carbon_dir . 'manager') && !is_file($carbon_dir . 'welcome.tpl')) {
+		$modx->regOption('manager_theme','RevoStyle');
+	}
+}
+
 function disableLegacyPlugins()
 {
 	global $modx;
