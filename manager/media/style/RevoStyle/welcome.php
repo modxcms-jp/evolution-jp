@@ -1,32 +1,147 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-function welcomeRevoStyle($modx,$_lang)
-{
+function iconMessage() {
+	global $modx,$_lang;
+	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	
-	$tpl = '<a class="hometblink" href="[+action+]"><img src="[(site_url)]manager/media/style/RevoStyle/images/[+imgpath+]" /><br />[+title+]</a>' . "\n";
-	$tpl = '<span class="wm_button" style="border:0">' . $tpl . '</span>';
-	
-	if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
-		$ph['imgpath'] = 'icons/32x/newdoc.png';
-		$ph['action']    = 'index.php?a=4';
-		$ph['title']   = $_lang['add_resource'];
+	$tpl = icontpl();
+	if($modx->hasPermission('messages')) {
+		$ph['imgsrc'] = ($_SESSION['nrnewmessages']>0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
+		$ph['action']    = 'index.php?a=10';
+		$ph['title']   = $_lang['inbox'];
 		$src = $modx->parsePlaceholder($tpl,$ph);
-		$modx->setPlaceholder('NewDocIcon',$src);
-	}
-	
-	if($modx->hasPermission('settings')) {
-		$ph['imgpath'] = 'icons/32x/settings.png';
-		$ph['action']    = 'index.php?a=17';
-		$ph['title']   = $_lang['edit_settings'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
-		$modx->setPlaceholder('SettingsIcon',$src);
+		$modx->setPlaceholder('iconMessage',$src);
 	}
 }
 
-function tabYourInfo($modx,$_lang) {
-	global $server_offset_time;
+function iconElements() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
+		$ph['imgsrc'] = 'icons/32x/elements.png';
+		$ph['action']    = 'index.php?a=76';
+		$ph['title']   = $_lang['element_management'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconElements',$src);
+	}
+}
+
+function iconNewDoc() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
+		$ph['imgsrc'] = 'icons/32x/newdoc.png';
+		$ph['action']    = 'index.php?a=4';
+		$ph['title']   = $_lang['add_resource'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconNewDoc',$src);
+	}
+}
+
+function iconSettings() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('settings')) {
+		$ph['imgsrc'] = 'icons/32x/settings.png';
+		$ph['action']    = 'index.php?a=17';
+		$ph['title']   = $_lang['edit_settings'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconSettings',$src);
+	}
+}
+
+function iconResources() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('view_document')) {
+		$ph['imgsrc'] = 'icons/32x/resources.png';
+		$ph['action']    = 'index.php?a=120';
+		$ph['title']   = $_lang['view_child_resources_in_container'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconResources',$src);
+	}
+}
+
+function iconHelp() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('help')) {
+		$ph['imgsrc'] = 'icons/32x/help.png';
+		$ph['action']    = 'index.php?a=9';
+		$ph['title']   = $_lang['help'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconHelp',$src);
+	}
+}
+
+function iconFileManager() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('file_manager')) {
+		$ph['imgsrc'] = 'icons/32x/files.png';
+		$ph['action']    = 'index.php?a=31';
+		$ph['title']   = $_lang['manage_files'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconFileManager',$src);
+	}
+}
+
+function iconEventLog() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('view_eventlog')) {
+		$ph['imgsrc'] = 'icons/32x/log.png';
+		$ph['action']    = 'index.php?a=114';
+		$ph['title']   = $_lang['eventlog'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconEventLog',$src);
+	}
+}
+
+function iconSysInfo() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	if($modx->hasPermission('logs')) {
+		$ph['imgsrc'] = 'icons/32x/info.png';
+		$ph['action']    = 'index.php?a=53';
+		$ph['title']   = $_lang['view_sysinfo'];
+		$src = $modx->parsePlaceholder($tpl,$ph);
+		$modx->setPlaceholder('iconSysInfo',$src);
+	}
+}
+
+function iconSearch() {
+	global $modx,$_lang;
+	
+	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
+	$tpl = icontpl();
+	$ph['imgsrc'] = 'icons/32x/search.png';
+	$ph['action']    = 'index.php?a=71';
+	$ph['title']   = $_lang['search_resource'];
+	$src = $modx->parsePlaceholder($tpl,$ph);
+	$modx->setPlaceholder('iconSearch',$src);
+}
+
+function tabYourInfo() {
+	global $modx,$_lang,$server_offset_time;
+	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
 	
 	$ph = $_lang;
@@ -110,8 +225,10 @@ TPL;
     $modx->setPlaceholder('tabYourInfo',$tabYourInfo);
 }
 
-function tabOnlineUser($modx,$_lang)
+function tabOnlineUser()
 {
+	global $modx,$_lang;
+	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
 	$ph = $_lang;
     $timetocheck = (time()-(60*20));//+$server_offset_time;
@@ -164,4 +281,9 @@ TPL;
 TPL;
     $tabOnlineUser = $modx->parsePlaceholder($tpl,$ph);
     $modx->setPlaceholder('tabOnlineUser',$tabOnlineUser);
+}
+
+function icontpl()
+{
+	return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="media/style/RevoStyle/images/[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
 }
