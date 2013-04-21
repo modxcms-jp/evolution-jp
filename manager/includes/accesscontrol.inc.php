@@ -134,7 +134,7 @@ if(!isset($_SESSION['mgrValidated']))
     		$login_tpl = file_get_contents($target);
     	}
     }
-    $modx->config['manager_login_tpl'] = $login_tpl;
+    $modx->output = $login_tpl;
 
     // invoke OnManagerLoginFormRender event
     $evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
@@ -142,11 +142,11 @@ if(!isset($_SESSION['mgrValidated']))
     $modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
     // merge placeholders
-    $login_tpl = $modx->parseDocumentSource($modx->config['manager_login_tpl']);
-    $regx = strpos($login_tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
-    $login_tpl = preg_replace($regx, '', $login_tpl); //cleanup
+    $modx->output = $modx->parseDocumentSource($modx->output);
+    $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
+    $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
-    echo $login_tpl;
+    echo $modx->output;
 
     exit;
 
