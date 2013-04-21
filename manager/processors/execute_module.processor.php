@@ -113,8 +113,8 @@ function evalModule($moduleCode,$params){
 		extract($params, EXTR_SKIP);
 	}
 	ob_start();
-		$mod = eval($moduleCode);
-		$msg = ob_get_contents();
+	$mod = eval($moduleCode);
+	$msg = ob_get_contents();
 	ob_end_clean();
 	if ($php_errormsg) { 
 		if(!strpos($php_errormsg,'Deprecated')) { // ignore php5 strict errors
