@@ -42,6 +42,7 @@ function run_update($version)
 	}
 	
 	update_tbl_user_roles();
+	disableOldCarbonTheme();
 }
 
 function updateMenus()
