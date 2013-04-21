@@ -96,11 +96,6 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('remember_username',$_lang["remember_username"]);
 	$modx->setPlaceholder('login_button',$_lang["login_button"]);
 	
-	// invoke OnManagerLoginFormRender event
-	$evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
-	$html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
-	$modx->setPlaceholder('OnManagerLoginFormRender',$html);
-
 	// load template
     if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
     	$modx->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl'; 
@@ -139,13 +134,19 @@ if(!isset($_SESSION['mgrValidated']))
     		$login_tpl = file_get_contents($target);
     	}
     }
+    $modx->output = $login_tpl;
+
+    // invoke OnManagerLoginFormRender event
+    $evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
+    $html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
+    $modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
     // merge placeholders
-    $login_tpl = $modx->parseDocumentSource($login_tpl);
-    $regx = strpos($login_tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
-    $login_tpl = preg_replace($regx, '', $login_tpl); //cleanup
+    $modx->output = $modx->parseDocumentSource($modx->output);
+    $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
+    $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
-    echo $login_tpl;
+    echo $modx->output;
 
     exit;
 
