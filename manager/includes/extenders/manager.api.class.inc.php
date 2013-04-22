@@ -241,10 +241,11 @@ class ManagerAPI {
 		
 		if(isset($_SESSION['token']) && !empty($_SESSION['token']) && $_SESSION['token']===$token)
 		{
-			$rs =true;
+			$rs ='1';
 		}
-		else $rs = false;
+		else $rs = '0';
 		$_SESSION['token'] = '';
+		unset($_SESSION['token']);
 		return $rs;
 	}
 	
