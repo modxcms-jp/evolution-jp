@@ -44,12 +44,16 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 
 if(!isset($_SESSION['mgrValidated']))
 {
-	if(isset($manager_language)) include_once("lang/{$manager_language}.inc.php");// include localized overrides
-	else                         include_once('lang/english.inc.php');
+	if(isset($manager_language)) include_once(MODX_BASE_PATH . "manager/lang/{$manager_language}.inc.php");// include localized overrides
+	else                         include_once(MODX_BASE_PATH . 'manager/lang/english.inc.php');
 
+	$theme_path = MODX_BASE_PATH . "manager/media/style/{$manager_theme}/style.php";
+	if(is_file($theme_path)) include_once($theme_path);
+	
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
 	$modx->setPlaceholder('theme',$manager_theme);
-	$modx->setPlaceholder('manager_theme_url',"media/style/{$manager_theme}/");
+	$modx->setPlaceholder('manager_theme',$manager_theme);
+	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . "media/style/{$manager_theme}/");
 
 	global $tpl;
 	// invoke OnManagerLoginFormPrerender event
@@ -60,7 +64,6 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('site_name',$site_name);
 	$modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 	$modx->setPlaceholder('login_message',$_lang["login_message"]);
-	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
 	$modx->setPlaceholder('year',date('Y'));
 
 	// andrazk 20070416 - notify user of install/update
