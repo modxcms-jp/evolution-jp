@@ -219,25 +219,17 @@ class ManagerAPI {
 	function validate_referer($flag)
 	{
 		if($flag!=1) return;
+		$referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 		
-		if (!isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER']!=='')
+		if(empty($referer))
 		{
 			echo "A possible CSRF attempt was detected. No referer was provided by the server.";
 			exit();
 		}
-		else
+		elseif(stripos($referer,MODX_SITE_URL)===false)
 		{
-			$referer = strip_tags($_SERVER['HTTP_REFERER']);
-			if(stripos($referer,MODX_SITE_URL)===false)
-			{
-				echo "A possible CSRF attempt was detected from referer: {$referer}.";
-				exit();
-			}
-			elseif(empty($referer))
-			{
-				echo "A possible CSRF attempt was detected. Check return HTTP_REFERER setting on your browser.";
-				exit();
-			}
+			echo "A possible CSRF attempt was detected from referer: {$referer}.";
+			exit();
 		}
 	}
 	
