@@ -55,8 +55,9 @@ $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
-$self = str_replace('\\','/','manager/index.php');
-$base_path = str_replace('manager/index.php','', str_replace('\\', '/', __FILE__));
+$self_path = str_replace('\\', '/', __FILE__);
+$trimpos = strlen('manager/index.php') * -1;
+$base_path = substr($self_path,0,$trimpos);
 
 if(!defined('MGR_DIR')) define('MGR_DIR', 'manager');
 
