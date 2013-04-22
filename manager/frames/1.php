@@ -4,8 +4,20 @@ $_SESSION['browser'] = (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')!==false) ? 'i
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if(!isset($modx->config['manager_menu_height'])) $modx->config['manager_menu_height'] = '70';
 if(!isset($modx->config['manager_tree_width']))  $modx->config['manager_tree_width']  = '260';
-if(isset($_SESSION['mgrForgetPassword'])) $action = '28';
-else                                      $action = '2';
+
+if(isset($_SESSION['mainframe']))
+{
+	$action  = $_SESSION['mainframe']['a'];
+	$mainurl = 'index.php?' . http_build_query($_SESSION['mainframe']);
+	unset($_SESSION['mainframe']);
+}
+else
+{
+	if(isset($_SESSION['mgrForgetPassword'])) $action = '28';
+	else                                      $action = '2';
+	$mainurl = "index.php?a={$action}";
+}
+
 $modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
