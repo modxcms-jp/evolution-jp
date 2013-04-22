@@ -737,9 +737,9 @@ function get_tmplvars($id)
 	return $tmplvars;
 }
 
-function fix_tv_nest($target,$input)
+function fix_tv_nest($field,$input)
 {
-	foreach(explode(',',$target) as $name)
+	foreach(explode(',',$field) as $name)
 	{
 		$tv = ($name !== 'ta') ? $name : 'content';
 		$s = "[*{$tv}*]";
