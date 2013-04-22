@@ -742,7 +742,7 @@ function formMerge($docText, $docFields, $vClasses='') {
 }
 
 # Adds Addresses to Mailer
-function AddAddressToMailer(&$mail,$type,$addr)
+function AddAddressToMailer(&$mail,$type='',$addr='')
 {
 	if(empty($addr)) return;
 	$a = explode(',', $addr);
