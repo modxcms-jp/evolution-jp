@@ -429,6 +429,7 @@ class DocumentParser {
 	
 	function outputContent($noEvent= false)
 	{
+		global $site_sessionname;
 		
 		$this->documentOutput= $this->documentContent;
 		
