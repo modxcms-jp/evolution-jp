@@ -1229,6 +1229,7 @@ class DocumentParser {
 	{
 		if(!isset($this->documentIdentifier)) return $content;
 		if(strpos($content,'[*')===false) return $content;
+		if(!isset($this->documentObject) || empty($this->documentObject)) return $content;
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[*','*]');
