@@ -1,6 +1,6 @@
 <?php
-$this->sub = new subparser();
-class subparser {
+$this->sub = new SubParser();
+class SubParser {
     function sendmail($params=array(), $msg='')
     {
     	global $modx;
