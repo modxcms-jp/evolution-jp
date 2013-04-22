@@ -218,7 +218,75 @@ class ManagerAPI {
 	
 	function validate_referer($flag)
 	{
+		global $modx;
+		
 		if($flag!=1) return;
+		// http://localhost/modx/15/manager/index.php?a=27&id=12&frame=main
+        if(isset($_GET['frame']) && $_GET['frame']==='main')
+        {
+        	switch($modx->manager->action)
+        	{
+            	case '3' :
+            	case '120' :
+            	case '4' :
+            	case '27' :
+            	case '85' :
+            	case '72' :
+            	case '8' :
+            	case '87' :
+            	case '88' :
+            	case '11' :
+            	case '12' :
+            	case '119' :
+            	case '28' :
+            	case '35' :
+            	case '38' :
+            	case '16' :
+            	case '19' :
+            	case '22' :
+            	case '23' :
+            	case '77' :
+            	case '78' :
+            	case '18' :
+            	case '106' :
+            	case '107' :
+            	case '108' :
+            	case '100' :
+            	case '101' :
+            	case '102' :
+            	case '200' :
+            	case '31' :
+            	case '40' :
+            	case '91' :
+            	case '41' :
+            	case '92' :
+            	case '17' :
+            	case '53' :
+            	case '13' :
+            	case '10' :
+            	case '70' :
+            	case '71' :
+            	case '59' :
+            	case '75' :
+            	case '99' :
+            	case '86' :
+            	case '76' :
+            	case '83' :
+            	case '93' :
+            	case '95' :
+            	case '9' :
+            	case '301' :
+            	case '302' :
+            	case '115' :
+                	unset($_GET['frame']);
+                	$_SESSION['mainframe'] = $_GET;
+                	header('Location:' . MODX_MANAGER_URL);
+                	exit;
+                	break;
+            	default :
+        	}
+        }
+
 		$referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 		
 		if(empty($referer))
