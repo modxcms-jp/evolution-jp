@@ -113,25 +113,25 @@ class DBAPI {
 		@ mysql_close($this->conn);
 	}
 	
-	function escape($s)
+	function escape($s, $safecount=0)
 	{
-		if(is_array($s))
-		{
-			if(count($s) > 0)
-			{
-				foreach($s as $i=>$v)
-				{
-					$s[$i] = $this->escape($v);
-				}
-			}
-			return $s;
-		}
+		$safecount++;
+		if(1000<$safecount) exit("Too many loops '{$safecount}'");
 		
 		if (empty ($this->conn) || !is_resource($this->conn))
 		{
 			$this->connect();
 		}
-		if (function_exists('mysql_set_charset') && $this->conn)
+		
+        if(is_array($s)) {
+            if(count($s) === 0) $s = '';
+            else {
+                foreach($s as $i=>$v) {
+                  $s[$i] = $this->escape($v,$safecount);
+                }
+            }
+        }
+		elseif (function_exists('mysql_set_charset') && $this->conn)
 		{
 			$s = mysql_real_escape_string($s, $this->conn);
 		}
