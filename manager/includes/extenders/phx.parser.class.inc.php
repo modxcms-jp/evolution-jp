@@ -5,7 +5,7 @@
 #	Version: 2.2
 #	Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
 #	Modified by Nick to include external files
-#	Modified by yama yamamoto@kyms.ne.jp
+#	Modified by yama yamamoto@kyms.jp
 #	Date: 2012/07/28
 #
 ####*/
@@ -14,6 +14,8 @@ class PHx {
 	
 	function PHx()
 	{
+		global $modx;
+		if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
 	}
 	
 	// Parser: modifier detection and eXtended processing if needed
@@ -62,7 +64,7 @@ class PHx {
 			case 'mo':
 				// Is Member Of  (same as inrole but this one can be stringed as a conditional)
 				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
-				$grps = (strlen($modifier_value) > 0 ) ? explode(',',$opt) :array();
+				$grps = ($this->strlen($modifier_value) > 0 ) ? explode(',',$opt) :array();
 				$condition[] = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
 			case 'or':
@@ -100,10 +102,10 @@ class PHx {
 			#####  String Modifiers
 			case 'lcase':
 			case 'strtolower':
-				$value = strtolower($value); break;
+				$value = $this->strtolower($value); break;
 			case 'ucase':
 			case 'strtoupper':
-				$value = strtoupper($value); break;
+				$value = $this->strtoupper($value); break;
 			case 'htmlent':
 			case 'htmlentities':
 				$value = htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']); break;
@@ -131,10 +133,10 @@ class PHx {
 			case 'length':
 			case 'len':
 			case 'strlen':
-				$value = strlen($value); break;
+				$value = $this->strlen($value); break;
 			case 'reverse':
 			case 'strrev':
-				$value = strrev($value); break;
+				$value = $this->strrev($value); break;
 			case 'wordwrap':
 				// default: 70
 			  	$wrapat = intval($opt) ? intval($opt) : 70;
@@ -143,15 +145,15 @@ class PHx {
 			case 'limit':
 				// default: 100
 			  	$limit = intval($opt) ? intval($opt) : 100;
-				$value = mb_substr($value,0,$limit,$modx->config['modx_charset']);
+				$value = $this->substr($value,0,$limit);
 				break;
 			case 'str_shuffle':
 			case 'shuffle':
-				$value = str_shuffle($value); break;
+				$value = $this->str_shuffle($value); break;
 			case 'str_word_count':
 			case 'word_count':
 			case 'wordcount':
-				$value = str_word_count($value); break;
+				$value = $this->str_word_count($value); break;
 			case 'zenhan':
 				if(empty($opt)) $opt='Krns';
 				$value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
@@ -264,33 +266,45 @@ class PHx {
 				break;
 			case 'inrole':
 				// deprecated
-				$grps = (strlen($opt) > 0 ) ? explode(',', $opt) :array();
+				$grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
 				$value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
 				
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
-				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='phx:{$cmd}'");
-				if($modx->db->getRecordCount($result) == 1)
+				$snippetName = 'phx:'.$cmd;
+				if( isset($modx->snippetCache[$snippetName]) )
 				{
-					$php = $modx->db->getValue($result);
+					$php = $modx->snippetCache[$snippetName];
 				}
-				elseif($modx->db->getRecordCount($result) == 0)
+				else
 				{
-					$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
-					if(file_exists($filename))
-					{
-						$php = @file_get_contents($filename);
-						$php = trim($php);
-						$php = preg_replace('@^<\?php@', '', $php);
-						$php = preg_replace('@?>$@', '', $php);
-						$php = preg_replace('@^<\?@', '', $php);
-					}
-					else
-					{
-						$php = false;
-					}
+    				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+    				$esc_snippetName = $modx->db->escape($snippetName);
+    				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='{$esc_snippetName}'");
+    				if($modx->db->getRecordCount($result) == 1)
+    				{
+    					$row = $modx->db->getRow($result);
+    					$php = $row['snippet'];
+    				}
+    				elseif($modx->db->getRecordCount($result) == 0)
+    				{
+    					$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
+    					if(file_exists($filename))
+    					{
+    						$php = @file_get_contents($filename);
+    						$php = trim($php);
+    						$php = preg_replace('@^<\?php@', '', $php);
+    						$php = preg_replace('@?>$@', '', $php);
+    						$php = preg_replace('@^<\?@', '', $php);
+    						$modx->snippetCache[$snippetName.'Props'] = '';
+    					}
+    					else
+    					{
+    						$php = false;
+    					}
+    				}
+    				$modx->snippetCache[$snippetName]= $php;
 				}
 				if($php==='') $php=false;
 				
@@ -319,6 +333,7 @@ class PHx {
 				}
 				break;
 		}
+		$value = str_replace('[+key+]', $key, $value);
 		return $value;
 	}
 	
@@ -336,6 +351,7 @@ class PHx {
 		} else {
 			$user = $this->cache['ui'][$userid];
 		}
+		$user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
 		return $user[$field];
 	}
 	 
@@ -374,8 +390,10 @@ class PHx {
 	
 	function parsePhx($key,$value,$modifiers)
 	{
+		global $condition;
+		if(empty($modifiers)) return;
 		//if(isset($phx) && is_object($phx))
-		
+		$condition = array();
 		foreach($modifiers as $cmd=>$opt)
 		{
 			$value = $this->Filter($key,$value, $cmd, $opt);
@@ -385,76 +403,83 @@ class PHx {
 	
 	function splitModifiers($modifiers)
 	{
+		global $modx;
+		
 		$reslut = array();
-		$in_opt = false;
-		$cmd = '';
-		$opt = '';
 		$delim = '';
-		$r = $modifiers;
-		$c=0;
-		while(!empty($r) && $c < 3000)
+		$remain = $modifiers;
+		$scope = 'key';
+		$key   = '';
+		$value = '';
+		$safecount=0;
+		while($remain!=='' && $safecount < 3000)
 		{
-			$v = substr($r,0,1);
-			$r = substr($r,1);
-			switch($v)
+			$safecount++;
+			$s = substr($remain,0,1);
+			$remain = substr($remain,1);
+			
+			if($scope==='key')
 			{
-				case ':':
-					if($in_opt===false && !empty($cmd))
-					{
-						$reslut[$cmd] = '';
-						$opt = '';
-					}
-					elseif($in_opt===true && !empty($cmd))
-					{
-						$in_opt = false;
-					$reslut[$cmd] = $opt;
-						$delim = '';
-					}
-					$cmd = '';
-					$opt = '';
-					break;
-				case '=':
-					if($in_opt===true) $opt .= '=';
-					elseif($in_opt===false && $cmd!=='')
-					{
-						if($r['0']==='"'||$r['0']==="'"||$r['0']==='`')
-						{
-							$delim = $r['0'];
-							$r = substr($r,1);
-							list($opt, $r) = explode($delim, $r, 2);
-							$reslut[$cmd] = $opt;
-							$cmd = '';
-						}
-					else                $in_opt = true;
-					}
-					break;
-				default:
-					if(strpos($r,':')===false && strpos($r,'=')===false)
-					{
-						$reslut[$v.$r] = '';
-						$r = '';
+				switch($s)
+				{
+				    case ':':
+				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
+				    	break;
+				    case '=':
+				    	switch($remain['0'])
+					    {
+				    	    case '"': case "'": case '`':
+				    	    	$delim = $remain['0'];
+				    	    	$remain = substr($remain,1);
+    							list($value, $remain) = explode($delim, $remain, 2);
+    							$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
+				    	    default:
+				    	    	$scope = 'value';
+				    	    	$value = '';
+				    	}
+				    	break;
+				    default:
+				    	$key .= $s;
+				}
 			}
-					elseif(strpos($r,':')===false && strpos($r,'=')!==false)
-					{
-						list($cmd,$opt) = explode('=',$v.$r);
-						if($opt['0']==='"'||$opt['0']==="'"||$opt['0']==='`')
-						{
-							$delim = $opt['0'];
-							$opt = trim($opt,$delim);
-						}
-						$reslut[$cmd] = $opt;
-						$r = '';
-		}
-					else
-					{
-						if($in_opt===true) $opt .= $v;
-						else               $cmd .= $v;
-					}
+			else
+			{
+				switch($s)
+				{
+				    case ':':
+				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
+				    	$scope = 'key';
+				    	$key   = '';
+				    	break;
+				    default:
+				    	$value .= $s;
+				}
 			}
-			$c++;
+			if($this->strlen($remain)===0 && $key!=='') $reslut[$key]=$value;
 		}
 		
-		if(count($reslut) < 1) $reslut[$cmd] = '';
+		if(count($reslut) < 1) $reslut = false;
+		else
+		{
+			foreach($reslut as $k=>$v)
+			{
+				$safecount=20;
+				while($safecount!==0)
+				{
+					$safecount--;
+					$bt = md5($v);
+    				if(strpos($v,'[*')!==false) $v = $modx->mergeDocumentContent($v);
+    				if(strpos($v,'[(')!==false) $v = $modx->mergeSettingsContent($v);
+    				if(strpos($v,'{{')!==false) $v = $modx->mergeChunkContent($v);
+    				if(strpos($v,'[[')!==false) $v = $modx->evalSnippets($v);
+    				if(md5($v)===$bt)
+					{
+						$reslut[$k] = $v;
+    					break;
+    				}
+				}
+			}
+		}
 		return $reslut;
 	}
 	
@@ -477,5 +502,50 @@ class PHx {
 		}
 		
 		return $this->documentObject[$target][$field];
+	}
+	
+	//mbstring
+	function substr($str, $s, $l = null) {
+		if (function_exists('mb_substr')) return mb_substr($str, $s, $l);
+		return substr($str, $s, $l);
+	}
+	function strlen($str) {
+		if (function_exists('mb_strlen')) return mb_strlen($str);
+		return strlen($str);
+	}
+	function strtolower($str) {
+		if (function_exists('mb_strtolower')) return mb_strtolower($str);
+		return strtolower($str);
+	}
+	function strtoupper($str) {
+		if (function_exists('mb_strtoupper')) return mb_strtoupper($str);
+		return strtoupper($str);
+	}
+	function ucfirst($str) {
+		if (function_exists('mb_strtoupper') && function_exists('mb_substr') && function_exists('mb_strlen')) 
+			return mb_strtoupper(mb_substr($str, 0, 1)).mb_substr($str, 1, mb_strlen($str));
+		return ucfirst($str);
+	}
+	function lcfirst($str) {
+		if (function_exists('mb_strtolower') && function_exists('mb_substr') && function_exists('mb_strlen')) 
+			return mb_strtolower(mb_substr($str, 0, 1)).mb_substr($str, 1, mb_strlen($str));
+		return lcfirst($str);
+	}
+	function ucwords($str) {
+		if (function_exists('mb_convert_case'))
+			return mb_convert_case($str, MB_CASE_TITLE);
+		return ucwords($str);
+	}
+	function strrev($str) {
+		preg_match_all('/./us', $str, $ar);
+		return implode(array_reverse($ar[0]));
+	}
+	function str_shuffle($str) {
+		preg_match_all('/./us', $str, $ar);
+		shuffle($ar[0]);
+		return implode($ar[0]);
+	}
+	function str_word_count($str) {
+		return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
 	}
 }
