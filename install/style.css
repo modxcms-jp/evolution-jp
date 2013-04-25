@@ -75,7 +75,7 @@ h3, h4 {
 color:#585858;
 font-size:1.1em;
 line-height:1.3em;
-margin-bottom:0.75em;
+margin-top:8px;
 }
 
 
@@ -363,7 +363,7 @@ font-size:1.3em;
 	float: right;
 }
 #installChoices {
-	margin:2em 0;
+	margin:1em 0;
 }
 #installChoices h3 {
 	padding: 0 20px;
@@ -379,12 +379,9 @@ font-size:1.3em;
 }
 #installChoices input {
 	margin: 0 10px 10px 0;
-	float: left;
-	display: block;
 }
 #rtl #installChoices input {
 	margin: 0 0 10px 10px;
-	float: right;
 }
 
 p.labelHolder {
@@ -422,6 +419,7 @@ tbody td {
 p.actions {
     line-height: 1;
     margin-top: 3px;
+    overflow:hidden;zoom:1;
 }
 p.actions a {
     margin: 0 5px 1px;

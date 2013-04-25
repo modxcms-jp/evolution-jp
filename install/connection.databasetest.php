@@ -13,10 +13,7 @@ includeLang($language);
 
 $output = $_lang['status_checking_database'];
 
-if (!$conn = @ mysql_connect($host, $uid, $pwd))
-{
-	$output .= span_fail($_lang['status_failed']);
-}
+if(!$conn = @ mysql_connect($host, $uid, $pwd)) $output .= span_fail($_lang['status_failed']);
 else
 {
 	$dbase                      = trim($_POST['dbase'],'`');
@@ -63,10 +60,10 @@ else
 	}
 	if($pass === true)
 	{
-		setOption('dbase',$dbase);
-		setOption('table_prefix',$table_prefix);
-		setOption('database_collation',$database_collation);
-		setOption('database_connection_method',$database_connection_method);
+		$_SESSION['dbase']                      = $dbase;
+		$_SESSION['table_prefix']               = $table_prefix;
+		$_SESSION['database_collation']         = $database_collation;
+		$_SESSION['database_connection_method'] = $database_connection_method;
 	}
 }
 

@@ -1,175 +1,99 @@
 <?php
-$install_language = $_SESSION['install_language'];
 
-$installmode = getOption('installmode');
-setOption('installmode', $installmode);
+//back from next
+if(isset($_POST['installdata'])) $_SESSION['installdata'] = $_POST['installdata'];
+if(isset($_POST['template']))    $_SESSION['template']    = $_POST['template'];
+if(isset($_POST['tv']))          $_SESSION['tv']          = $_POST['tv'];
+if(isset($_POST['chunk']))       $_SESSION['chunk']       = $_POST['chunk'];
+if(isset($_POST['snippet']))     $_SESSION['snippet']     = $_POST['snippet'];
+if(isset($_POST['plugin']))      $_SESSION['plugin']      = $_POST['plugin'];
+if(isset($_POST['module']))      $_SESSION['module']      = $_POST['module'];
 
-$upgradeable = 0;
+if(isset($_POST['installmode'])) $_SESSION['installmode'] = $_POST['installmode'];
+$installmode = $_SESSION['installmode'];
 
-if($_POST['setaction']==='options')
-{
-	setOption('installdata', $_POST['installdata']);
-	setOption('template'   , $_POST['template']);
-	setOption('tv'         , $_POST['tv']);
-	setOption('chunk'      , $_POST['chunk']);
-	setOption('snippet'    , $_POST['snippet']);
-	setOption('plugin'     , $_POST['plugin']);
-	setOption('module'     , $_POST['module']);
-}
+$ph['adminname']        = isset($_SESSION['adminname'])        ? $_SESSION['adminname']       : 'admin';
+$ph['adminemail']       = isset($_SESSION['adminemail'])       ? $_SESSION['adminemail']       : '';
+$ph['adminpass']        = isset($_SESSION['adminpass'])        ? $_SESSION['adminpass']        : '';
+$ph['adminpassconfirm'] = isset($_SESSION['adminpassconfirm']) ? $_SESSION['adminpassconfirm'] : '';
 
-if (is_file("{$base_path}manager/includes/config.inc.php"))
-{
+if (is_file("{$base_path}manager/includes/config.inc.php")) {
 	global $dbase,$database_server,$database_user,$database_password,$table_prefix;
 	include_once("{$base_path}manager/includes/config.inc.php");
 }
 
-$dbase             = getOption('dbase');
-$dbase = trim($dbase, '`');
-$database_server   = getOption('database_server');
-if($database_server===false) $database_server = setOption('database_server','localhost');
-$database_user     = getOption('database_user');
-$database_password = getOption('database_password');
-$table_prefix      = getOption('table_prefix', 'modx_');
-if($table_prefix===false)    $table_prefix = setOption('table_prefix', 'modx_');
-
-$adminemail       = getOption('adminemail');
-$adminpass        = getOption('adminpass');
-$adminpassconfirm = getOption('adminpassconfirm');
+$dbase                      = get_dbase();
+$database_server            = get_database_server();
+$database_user              = get_database_user();
+$database_password          = get_database_password();
+$table_prefix               = get_table_prefix();
+$database_connection_method = get_database_connection_method();
+$database_collation         = get_database_collation();
 
 if($installmode == 1)
 {
 	if(!empty($dbase) && !empty($database_server) && !empty($database_user))
 	{
-		$conn =  mysql_connect($database_server, $database_user, $database_password);
-		if($conn) $rs = mysql_select_db($dbase, $conn);
+		$rs =  mysql_connect($database_server, $database_user, $database_password);
+		if($rs) $rs = mysql_select_db($dbase, $rs);
 		
-		if(!$rs) $upgradeable = getOption('installmode');
-		if($upgradeable===false) $upgradeable = setOption('upgradeable',2);
+		if(!$rs) {
+			$installmode = '2';
+			$_SESSION['installmode'] = '2';
+		}
 	}
 }
 
-setOption('database_collation', 'utf8_general_ci');
+$ph['database_server']   = $database_server;
+$ph['database_user']     = $database_user;
+$ph['database_password'] = $database_password;
+$ph['dbase']             = $dbase;
+$ph['table_prefix']      = $table_prefix;
 
-// determine the database connection method if not specified in the configuration
-if ($upgradeable && (!isset($database_connection_method) || empty($database_connection_method))) {
-    $database_connection_method = 'SET CHARACTER SET';
+$ph['set_block_connection_method'] = get_set_block_connection_method($installmode,$ph);
+$ph['AUH']                         = get_set_block_AUH($installmode,$ph);
+
+$src = file_get_contents("{$base_path}install/tpl/connection.tpl");
+echo  parse($src,$ph);
+
+function get_set_block_connection_method($installmode,$ph) {
+    if ($installmode != 0 && $installmode != 2) $tpl = '';
+	else {
+		$tpl = <<< TPL
+<p class="labelHolder">
+<div id="connection_method" name="connection_method">
+    <input type="hidden" value="SET CHARACTER SET" id="database_connection_method" name="database_connection_method" />
+</div>
+</p>
+TPL;
+	}
+	return parse($tpl,$ph);
 }
 
-?>
-
-<form id="install" action="index.php?action=options" method="POST">
-  <h2><?php echo $_lang['connection_screen_database_info']?></h2>
-  <h3><?php echo $_lang['connection_screen_server_connection_information']?></h3>
-  <p><?php echo $_lang['connection_screen_server_connection_note']?></p>
-
-  <p class="labelHolder"><label for="database_server"><?php echo $_lang['connection_screen_database_host']?></label>
-    <input id="database_server" value="<?php echo $database_server; ?>" name="database_server" />
-  </p>
-  <p class="labelHolder"><label for="database_user"><?php echo $_lang['connection_screen_database_login']?></label>
-    <input id="database_user" name="database_user" value="<?php echo $database_user; ?>" />
-  </p>
-  <p class="labelHolder"><label for="database_password"><?php echo $_lang['connection_screen_database_pass']?></label>
-    <input id="database_password" type="password" name="database_password" value="<?php echo $database_password; ?>" />
-  </p>
-
-<!-- connection test action/status message -->
-  <div class="clickHere">
-	&rarr; <a id="servertest" href="#footer"><?php echo $_lang['connection_screen_server_test_connection']?></a>
-  </div>
-  <div class="status" id="serverstatus" style="display:none;"></div>
-<!-- end connection test action/status message -->
-
-
-<div id="setCollation"><div id="collationMask">
-  <h3><?php echo $_lang['connection_screen_database_connection_information']?></h3>
-  <p><?php echo $_lang['connection_screen_database_connection_note']?></p>
-  <p class="labelHolder"><label for="dbase"><?php echo $_lang['connection_screen_database_name']?></label>
-    <input id="dbase" value="<?php echo $dbase; ?>" name="dbase" />
-  </p>
-  <p class="labelHolder"><label for="table_prefix"><?php echo $_lang['connection_screen_table_prefix']?></label>
-    <input id="table_prefix" value="<?php echo $table_prefix; ?>" name="table_prefix" />
-  </p>
-<?php
-  if (($installmode == 0) || ($installmode == 2)) {
-?>
-  <p class="labelHolder">
-    <div id="connection_method" name="connection_method">
-        <input type="hidden" value="SET CHARACTER SET" id="database_connection_method" name="database_connection_method" />
-    </div>
-  </p>
-<?php
-  }
-?>
-  <div class="clickHere">
-	&rarr; <a id="databasetest" href="#footer"><?php echo $_lang['connection_screen_database_test_connection']?></a>
-  </div>
-  <div class="status" id="databasestatus" style="display:none;">&nbsp;</div>
-</div></div>
-
-<script type="text/javascript">
-$('#servertest').click(function(){
-	var target = $('html, body');
-	target.animate({ scrollTop: $('#footer').offset().top }, 'slow');
-});
-$('#databasetest').click(function(){
-	var target = $('html, body');
-	target.animate({ scrollTop: $('#footer').offset().top }, 'slow');
-});
-</script>
-
-<?php
-  if ($installmode == 0) {
-?>
-
-  <div id="AUH" style="margin-top:1.5em;display:none;"><div id="AUHMask">
-  	<h2><?php echo $_lang['connection_screen_defaults']?></h2>
-    <h3><?php echo $_lang['connection_screen_default_admin_user']?></h3>
-    <p><?php echo $_lang['connection_screen_default_admin_note']?></p>
-    <p class="labelHolder"><label for="adminname"><?php echo $_lang['connection_screen_default_admin_login']?></label>
-      <input id="adminname" value="<?php echo isset($_POST['adminname']) ? $_POST['adminname']:"admin" ?>" name="adminname" />
-    </p>
-    <p class="labelHolder"><label for="adminemail"><?php echo $_lang['connection_screen_default_admin_email']?></label>
-      <input id="adminemail" value="<?php echo $adminemail; ?>" name="adminemail" style="width:300px;" />
-    </p>
-    <p class="labelHolder"><label for="adminpass"><?php echo $_lang['connection_screen_default_admin_password']?></label>
-      <input id="adminpass" type="password" name="adminpass" value="<?php echo $adminpass; ?>" />
-    </p>
-    <p class="labelHolder"><label for="adminpassconfirm"><?php echo $_lang['connection_screen_default_admin_password_confirm']?></label>
-      <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="<?php echo $adminpassconfirm; ?>" />
-    </p>
-</div></div>
-
-<?php
+function get_set_block_AUH($installmode,$ph) {
+	if($installmode != 0) $tpl = '';
+	else {
+		$tpl = <<< TPL
+<div id="AUH" style="margin-top:1.5em;display:none;">
+<div id="AUHMask">
+<h2>[+connection_screen_defaults+]</h2>
+<h3>[+connection_screen_default_admin_user+]</h3>
+<p>[+connection_screen_default_admin_note+]</p>
+<p class="labelHolder"><label for="adminname">[+connection_screen_default_admin_login+]</label>
+  <input id="adminname" value="[+adminname+]" name="adminname" />
+</p>
+<p class="labelHolder"><label for="adminemail">[+connection_screen_default_admin_email+]</label>
+  <input id="adminemail" value="[+adminemail+]" name="adminemail" style="width:300px;" />
+</p>
+<p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
+  <input id="adminpass" type="password" name="adminpass" value="[+adminpass+]" />
+</p>
+<p class="labelHolder"><label for="adminpassconfirm">[+connection_screen_default_admin_password_confirm+]</label>
+  <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="[+adminpassconfirm+]" />
+</p>
+</div>
+</div>
+TPL;
+	}
+	return parse($tpl,$ph);
 }
-?>
-
-    <p class="buttonlinks">
-        <a href="javascript:void(0);" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
-        <a href="javascript:void(0);" class="next" title="<?php echo $_lang['btnnext_value']?>" style="display:none;"><span><?php echo $_lang['btnnext_value']?></span></a>
-    </p>
-</form>
-
-<script type="text/javascript">
-	if($('#adminpassconfirm').val() != '') $('a.next').css('display','block');
-	$('#adminpassconfirm').focus(function(){
-		$('a.next').css('display','block');
-	});
-	
-	$('a.prev').click(function(){
-		$('#install').attr({action:'index.php?action=mode'});
-		$('#install').submit();
-	});
-	$('a.next').click(function(){
-		if($('#adminpass').val() !== $('#adminpassconfirm').val())
-		{
-			alert("<?php echo $_lang['alert_enter_adminpassword']?>");
-		}
-		else
-		{
-			$('#install').submit();
-		}
-	});
-	var language ='<?php echo $install_language?>';
-	var installMode ='<?php echo $installmode ?>';
-</script>
-<script type="text/javascript" src="connection.js"></script>

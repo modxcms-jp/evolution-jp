@@ -20,16 +20,16 @@ if (is_file("{$base_path}manager/includes/config.inc.php"))
 	include_once("{$base_path}manager/includes/config.inc.php");
 }
 
-$database_server   = getOption('database_server');
-$database_user     = getOption('database_user');
-$database_password = getOption('database_password');
-$dbase             = getOption('dbase');
-$table_prefix      = getOption('table_prefix');
+$database_server   = $_SESSION['database_server'];
+$database_user     = $_SESSION['database_user'];
+$database_password = $_SESSION['database_password'];
+$dbase             = trim($_SESSION['dbase'],'`');
+$table_prefix      = $_SESSION['table_prefix'];
 
-$installmode = getOption('installmode');
+$installmode = $_SESSION['installmode'];
 
 $conn = mysql_connect($database_server, $database_user, $database_password);
-mysql_select_db(trim($dbase, '`'), $conn);
+mysql_select_db($dbase, $conn);
 mysql_query("SET CHARACTER SET 'utf8'", $conn);
 if (function_exists('mysql_set_charset'))
 {
@@ -158,6 +158,8 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 	$files = collectTpls($pluginPath);
 	foreach ($files as $tplfile)
 	{
+		if(strpos($tplfile,'/mgr_custom/')!==false) continue; //Ignore
+		
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && 0 < count($params))
 		{
