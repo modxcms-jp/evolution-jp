@@ -86,11 +86,11 @@ if(substr($config, 0, 6) === '@CHUNK')
 }
 elseif(substr($config, 0, 5) === '@FILE')
 {
-	include_once($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
+	@include($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
 }
 elseif($config !== 'default')
 {
-	include_once("{$ditto_base}configs/{$config}.config.php");
+	@include("{$ditto_base}configs/{$config}.config.php");
 }
 
 /*
