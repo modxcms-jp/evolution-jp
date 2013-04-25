@@ -1,7 +1,7 @@
 <?php
 /**
  * mm_requireFields
- * @version 1.1 (2012-11-13)
+ * @version 1.2 (2013-02-11)
  * 
  * Make fields required. Currently works with text fields only.
  * In the future perhaps this could deal with other elements.
@@ -10,20 +10,22 @@
  * 
  * @uses ManagerManager plugin 0.4.
  * 
- * @link http://code.divandesign.biz/modx/mm_requirefields/1.1
+ * @link http://code.divandesign.biz/modx/mm_requirefields/1.2
  * 
- * @copyright 2012
+ * @copyright 2013
  */
 
 function mm_requireFields($fields, $roles='', $templates=''){
-	global $mm_fields, $modx;
+	global $mm_fields, $mm_current_page, $modx;
 	$e = &$modx->event;
-	
-	// if we've been supplied with a string, convert it into an array
-	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	// if we've been supplied with a string, convert it into an array
+		$fields = makeArray($fields);
+		
+		if (count($fields) == 0) return;
+	
 		$output = "//  -------------- mm_requireFields :: Begin ------------- \n";
 		
 		$output .= '
@@ -68,6 +70,12 @@ function mm_requireFields($fields, $roles='', $templates=''){
 
 				// Ones that follow the regular pattern
 				default:
+					//if it's tv & it's not used in current template
+					if ($mm_fields[$field]['tv'] && tplUseTvs($mm_current_page['template'], $field) === false){
+						//Go to next field
+						continue;
+					}
+					
 					// What type is this field?
 					$fieldname = $mm_fields[$field]['fieldname'];
 					
