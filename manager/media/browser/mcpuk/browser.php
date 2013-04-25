@@ -4,7 +4,7 @@ define('IN_MANAGER_MODE', 'true');
 $self = 'manager/media/browser/mcpuk/browser.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 require_once("{$base_path}index.php");
-
+header('X-UA-Compatible: IE=EmulateIE7');
 if(!isset($_SESSION['mgrValidated']))
 {
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
