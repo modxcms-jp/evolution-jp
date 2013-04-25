@@ -322,7 +322,7 @@ var DatePicker = new Class({
 	remove: function(dp){
 		$clear(dp.interval);
 		dp.active = false;
-		if (window.opera) dp.container.empty();
+		if (window.opera && dp.container) dp.container.empty();
 		else if (dp.container) dp.container.remove();
 		dp.calendar = false;
 		dp.container = false;
