@@ -11,6 +11,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>/style.css" />
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
     var $j = jQuery.noConflict();
     $j(function(){
