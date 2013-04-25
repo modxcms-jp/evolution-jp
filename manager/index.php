@@ -55,7 +55,10 @@ $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
-$base_path = str_replace('manager/index.php','',str_replace('\\','/',__FILE__));
+$self_path = str_replace('\\', '/', __FILE__);
+$trimpos = strlen('manager/index.php') * -1;
+$base_path = substr($self_path,0,$trimpos);
+
 $core_path = "{$base_path}manager/includes/";
 $incPath = $core_path;
 
@@ -77,7 +80,7 @@ if (!file_exists($config_path)) {
 }
 
 // include the database configuration file
-include_once $config_path;
+include_once($config_path);
 
 // start session
 startCMSSession();
