@@ -11,20 +11,14 @@ $instcheck_path = $modx->config['base_path'] . 'assets/cache/installProc.inc.php
 if (file_exists($instcheck_path))
 {
 	include_once($instcheck_path);
-	if (isset($installStartTime))
-	{
-		if ((time() - $installStartTime) > 5 * 60)
-		{ // if install flag older than 5 minutes, discard
+	if (isset($installStartTime)) {
+		if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
 			unset($installStartTime);
 			@ chmod($instcheck_path, 0755);
 			unlink($instcheck_path);
-		} 
-		else
-		{
-			if ($_SERVER['REQUEST_METHOD'] != 'POST')
-			{
-				if (isset($_COOKIE[session_name()]))
-				{
+		} else {
+			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+				if (isset($_COOKIE[session_name()])) {
 					session_unset();
 					@session_destroy();
 				}
@@ -35,14 +29,10 @@ if (file_exists($instcheck_path))
 }
 
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
-{
-	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime))
-	{
-		if ($_SERVER['REQUEST_METHOD'] != 'POST')
-		{
-			if (isset($_COOKIE[session_name()]))
-			{
+if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
+	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime)) {
+		if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+			if (isset($_COOKIE[session_name()])) {
 				session_unset();
 				@session_destroy();
 			}
@@ -54,42 +44,27 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated']))
 
 if(!isset($_SESSION['mgrValidated']))
 {
-	if(isset($manager_language)) include_once("lang/{$manager_language}.inc.php");// include localized overrides
-	else                         include_once('lang/english.inc.php');
+	if(isset($manager_language)) include_once(MODX_BASE_PATH . "manager/lang/{$manager_language}.inc.php");// include localized overrides
+	else                         include_once(MODX_BASE_PATH . 'manager/lang/english.inc.php');
 
+	$theme_path = MODX_BASE_PATH . "manager/media/style/{$manager_theme}/style.php";
+	if(is_file($theme_path)) include_once($theme_path);
+	
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
 	$modx->setPlaceholder('theme',$manager_theme);
-	$modx->setPlaceholder('manager_theme_url',"media/style/{$manager_theme}/");
+	$modx->setPlaceholder('manager_theme',$manager_theme);
+	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . "media/style/{$manager_theme}/");
 
 	global $tpl;
 	// invoke OnManagerLoginFormPrerender event
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
-	if(!isset($tpl) || empty($tpl))
-	{
-		// load template file
-		$base_path = MODX_BASE_PATH;
-		if(is_file("{$base_path}assets/templates/manager/login.html"))
-		{
-			$tplFile = "{$base_path}assets/templates/manager/login.html";
-		}
-		elseif(is_file("{$base_path}manager/media/style/{$manager_theme}/template/login.tpl"))
-		{
-		
-			$tplFile = "{$base_path}manager/media/style/{$manager_theme}/template/login.tpl";
-		}
-		else
-		{
-			$tplFile = "{$base_path}manager/media/style/default/login.tpl";
-		}
-		$tpl = file_get_contents($tplFile);
-	}
-	
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
 	$modx->setPlaceholder('site_name',$site_name);
 	$modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 	$modx->setPlaceholder('login_message',$_lang["login_message"]);
+	$modx->setPlaceholder('year',date('Y'));
 
 	// andrazk 20070416 - notify user of install/update
 	if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
@@ -124,17 +99,57 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('remember_username',$_lang["remember_username"]);
 	$modx->setPlaceholder('login_button',$_lang["login_button"]);
 	
-	// invoke OnManagerLoginFormRender event
-	$evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
-	$html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
-	$modx->setPlaceholder('OnManagerLoginFormRender',$html);
+	// load template
+    if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
+    	$modx->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl'; 
+    }
+    
+    $target = $modx->config['manager_login_tpl'];
+    if(isset($tpl) && !empty($tpl)) $login_tpl = $tpl;
+    elseif(substr($target,0,1)==='@') {
+    	if(substr($target,0,6)==='@CHUNK') {
+    		$target = trim(substr($target,7));
+    		$login_tpl = $modx->getChunk($target);
+    	}
+    	elseif(substr($target,0,5)==='@FILE') {
+    		$target = trim(substr($target,6));
+    		$login_tpl = file_get_contents($target);
+    	}
+    } else {
+    	$chunk = $modx->getChunk($target);
+    	if($chunk!==false && !empty($chunk)) {
+    		$login_tpl = $chunk;
+    	}
+    	elseif(is_file(MODX_BASE_PATH . $target)) {
+    		$target = MODX_BASE_PATH . $target;
+    		$login_tpl = file_get_contents($target);
+    	}
+    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl')) {
+    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl';
+    		$login_tpl = file_get_contents($target);
+    	}
+    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html')) { // ClipperCMS compatible
+    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html';
+    		$login_tpl = file_get_contents($target);
+    	}
+    	else {
+    		$target = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
+    		$login_tpl = file_get_contents($target);
+    	}
+    }
+    $modx->output = $login_tpl;
+
+    // invoke OnManagerLoginFormRender event
+    $evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
+    $html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
+    $modx->setPlaceholder('OnManagerLoginFormRender',$html);
 
     // merge placeholders
-    $tpl = $modx->parseDocumentSource($tpl);
-    $regx = strpos($tpl,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
-    $tpl = preg_replace($regx, '', $tpl); //cleanup
+    $modx->output = $modx->parseDocumentSource($modx->output);
+    $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
+    $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
-    echo $tpl;
+    echo $modx->output;
 
     exit;
 
@@ -155,7 +170,7 @@ else
 	$fields['username']    = $_SESSION['mgrShortname'];
 	$fields['lasthit']     = time();
 	$fields['action']      = $action;
-	$fields['id']          = (preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 	$fields['ip']          = $ip;
 	
 	if($action !== 1)
