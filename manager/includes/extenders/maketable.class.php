@@ -417,8 +417,9 @@ class MakeTable {
 	 * @param $qs An optional query string to be appended to the paging links
 	 */
 	function createPagingNavigation($numRecords, $qs='') {
-		global $_lang;
-		$currentPage= (is_numeric($_GET['page']) ? $_GET['page'] : 1);
+		global $_lang, $modx;
+		$currentPage= (isset($_GET['page'])&&is_numeric($_GET['page']) ? $_GET['page'] : 1);
+		if(!defined('MAX_DISPLAY_RECORDS_NUM')) define('MAX_DISPLAY_RECORDS_NUM', $modx->config['number_of_results']);
 		$numPages= ceil($numRecords / MAX_DISPLAY_RECORDS_NUM);
 		if ($numPages > 1)
 		{
