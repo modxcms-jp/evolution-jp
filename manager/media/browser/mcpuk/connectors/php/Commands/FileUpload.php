@@ -42,8 +42,6 @@ class FileUpload {
 			$self = 'manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php';
 			$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 			include_once("{$base_path}index.php");
-			$modx->db->connect();
-			$modx->getSettings();
 		}
 		
 		if(!isset($_SESSION['mgrValidated'])) exit;
@@ -235,7 +233,7 @@ class FileUpload {
 					$uploaded_name = "{$filename}.{$ext}";	// (*4)
 				}
 				// (*4)
-				if (reset(explode(',', $disp)) != '202')
+				if (substr($disp,0,3) !== '202')
 				{
 					$modx->invokeEvent('OnFileManagerUpload',
 							array(
@@ -246,7 +244,7 @@ class FileUpload {
 			}
 		}
 		
-		if(!empty($disp) && $disp!=='0' && strpos($disp,'201,')===false)
+		if(!empty($disp) && $disp!=='0' && substr($disp,0,3) !=='201')
 		{
 			$modx->logEvent(0,2,$disp,'mcpuk connector');
 		}
