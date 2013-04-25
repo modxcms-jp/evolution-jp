@@ -359,9 +359,9 @@ class DataGrid {
 		if($tblPager && $ptop) $o = $modx->parsePlaceholder($tpl,$ph) . $o;
 		$o .= $tblColHdr.$tblRows;
 		$o.= $tblEnd;
-		if($tblPager && $pbot) $o .= $modx->parsePlaceholder($tpl,$ph);
+		if($tblPager && $pbot) $o = $o . $modx->parsePlaceholder($tpl,$ph);
 		
-		if($this->footer) $o = $o . '<div class="gridfooter">' . $this->footer . "</div>\n";
+		if($this->footer) $o .= '<div class="gridfooter">' . $this->footer . "</div>\n";
 		
 		return '<div class="gridwrap">' . $o . '</div>';
 	}
