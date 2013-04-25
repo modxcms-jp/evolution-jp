@@ -58,7 +58,7 @@ class EXPORT_SITE
 		
 		if($ignore_ids !== '')
 		{
-			$ignore_ids = explode(',', $include_noncache);
+			$ignore_ids = explode(',', $ignore_ids);
 			foreach($ignore_ids as $i=>$v)
 			{
 				$v = $modx->db->escape(trim($v));
