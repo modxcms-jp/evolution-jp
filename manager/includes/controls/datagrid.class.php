@@ -54,7 +54,7 @@ class DataGrid {
 	var $detectHeader;
 
 	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
-		global $__DataGridCnt;
+		global $modx, $__DataGridCnt;
 		
 		// set id
 		$__DataGridCnt++;
