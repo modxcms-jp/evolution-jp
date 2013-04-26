@@ -212,7 +212,7 @@ foreach ($files as $filename => $filevalue)
     }
     elseif(is_file($filevalue))
     {
-        include($filevalue);
+        @include($filevalue);
     }
     elseif($filename == "language")
     {
