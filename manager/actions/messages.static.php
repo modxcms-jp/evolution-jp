@@ -28,6 +28,8 @@ if($limit!=1) {
     echo "Wrong number of messages returned!";
 } else {
     $message=$modx->db->getRow($rs);
+    $message['subject'] = decrypt($message['subject']);
+    $message['message'] = decrypt($message['message']);
     if($message['recipient']!=$uid) {
         echo $_lang['messages_not_allowed_to_read'];
     } else {
@@ -100,6 +102,7 @@ if($limit!=1) {
 <div class="sectionHeader"><?php echo $_lang['messages_inbox']; ?></div>
 <div class="sectionBody">
 <?php
+
 // Get  number of rows
 $rs=$modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}'");
 $num_rows = $modx->db->getValue($rs);
@@ -168,6 +171,8 @@ $dotablestuff = 1;
 <?php
         for ($i = 0; $i < $limit; $i++) {
             $message = $modx->db->getRow($rs);
+			$message['subject'] = decrypt($message['subject']);
+			$message['message'] = decrypt($message['message']);
             $sender = $message['sender'];
             if($sender==0) {
                 $sendername = "[System]";
@@ -206,6 +211,8 @@ if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($msgid)) {
         echo "Wrong number of messages returned!";
     } else {
         $message=$modx->db->getRow($rs);
+	    $message['subject'] = decrypt($message['subject']);
+	    $message['message'] = decrypt($message['message']);
         if($message['recipient']!=$uid) {
             echo $_lang['messages_not_allowed_to_read'];
         } else {
@@ -258,7 +265,7 @@ function hideSpans(showSpan) {
 <span id='userspan' style="display:block;"> <?php echo $_lang['messages_select_user']; ?>:&nbsp;
     <?php
     // get all usernames
-    $rs = $modx->db->select('username,id', '[+prefix+]manager_users');
+    $rs = $modx->db->select('mu.username,mu.id', '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id', "mua.blocked='0'");
     ?>
     <select name="user" class="inputBox" style="width:150px">
     <?php
@@ -341,3 +348,19 @@ function msgCountAgain() {
 v = setTimeout('msgCountAgain()', 1500); // do this with a slight delay so it overwrites msgCount()
 
 </script>
+
+<?php
+
+// http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
+function decrypt($encryptedText, $key='modx')
+{
+	$enc = base64_decode($encryptedText);
+	$plaintext = '';
+	$len = strlen($enc);
+	for($i = 0; $i < $len; $i++)
+	{
+		$asciin = ord($enc[$i]);
+		$plaintext .= chr($asciin ^ ord($key[$i]));
+	}
+	return $plaintext;
+}
