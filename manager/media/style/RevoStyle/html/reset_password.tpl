@@ -14,7 +14,7 @@
 	line-height: 1.5; /* http://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/ */
 	font-family: "Helvetica Neue",Helvetica,Arial,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
 	height: 100.01%;color: #333;}
-    body {height:auto;font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("media/style/RevoStyle/images/misc/subnav.png") repeat scroll 0 0 #EEEEEE;}
+    body {font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("media/style/RevoStyle/images/misc/subnav.png") repeat scroll 0 0 #EEEEEE;}
     img, a img {border: 0 !important;text-decoration: none;padding: 0;margin: 0;}
     input {font:inherit;}
     h1, h2, h3, h4, h5, h6, p, pre,
@@ -99,26 +99,32 @@
 </head>
 <body id="login">
 <div id="mx_loginbox">
-    <form method="post" name="loginfrm" id="loginfrm" action="processors/login.processor.php">
-    <!-- anything to output before the login box via a plugin? -->
-    [+OnManagerLoginFormPrerender+]
-        <div class="header"><a href="../">[+site_name+]</a></div>
-        <div class="body">
-			<img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo" />
-            <p class="loginMessage">[+login_message+]</p>
-            <label for="username">[+username+] </label>
-            <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" />
-            <label for="password">[+password+] </label>
-            <input type="password" class="text" name="password" id="password" tabindex="2" value="" />
-            [+login_captcha_message+]
-            [+captcha_image+]
-            [+captcha_input+]
-            <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox" [+remember_me+] /><label for="rememberme" style="cursor:pointer;display:inline;">[+remember_username+]</label>
-            <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]" />
-            <!-- anything to output before the login box via a plugin ... like the forgot password link? -->
-            [+OnManagerLoginFormRender+]
-        </div>
-    </form>
+	<form action="index.php" method="post" name="userform">
+	<input type="hidden" name="a" value="34" />
+	<p><?php echo $_lang['change_password_message']?></p>
+	<table border="0" cellspacing="0" cellpadding="4">
+	<tr>
+		<td><?php echo $_lang["username"]?>:</td>
+		<td><b><?php echo $modx->getLoginUserName();?></b></td>
+	</tr>
+	<tr>
+		<td><?php echo $_lang['change_password_new']?>:</td>
+		<td><input type="password" name="pass1" class="inputBox" style="width:150px" value="" autocomplete="off" /></td>
+	</tr>
+	<tr>
+		<td><?php echo $_lang['change_password_confirm']?>:</td>
+		<td><input type="password" name="pass2" class="inputBox" style="width:150px" value="" autocomplete="off" /></td>
+	</tr>
+	<tr>
+	<td colspan="2">
+	<div class="actionButtons" style="float:right;">
+	<a class="default" href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?></a>
+	</div>
+	</td>
+	</tr>
+	</table>
+	<input type="submit" name="save" style="display:none">
+	</form>
 </div>
 <!-- close #mx_loginbox -->
 

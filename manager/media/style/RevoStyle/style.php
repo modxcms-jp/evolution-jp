@@ -9,7 +9,39 @@
  * MODX version:   1.0.6-
 */
 
+$tab_your_info   = 1;
+$tab_online      = 1;
+
+$iconResources   = 1;
+$iconNewDoc      = 1;
+$iconSearch      = 1;
+$iconMessage     = 1;
+
+$iconElements    = 1;
+$iconSettings    = 1;
+$iconFileManager = 1;
+$iconEventLog    = 1;
+$iconSysInfo     = 1;
+$iconHelp        = 1;
+
 include_once(dirname(__FILE__) . '/welcome.php');
+if(is_file(dirname(__FILE__) . '/config.php')) include(dirname(__FILE__) . '/config.php');
+
+if($tab_your_info==1)   tabYourInfo();
+if($tab_online==1)      tabOnlineUser();
+
+if($iconResources==1)   iconResources();
+if($iconNewDoc==1)      iconNewDoc();
+if($iconSearch==1)      iconSearch();
+if($iconMessage==1)     iconMessage();
+
+if($iconElements==1)    iconElements();
+if($iconFileManager==1) iconFileManager();
+
+if($iconSettings==1)    iconSettings();
+if($iconEventLog==1)    iconEventLog();
+if($iconSysInfo==1)     iconSysInfo();
+if($iconHelp==1)        iconHelp();
 
 $style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
 
@@ -33,8 +65,8 @@ $_style['tree_blanknode']           = $tree_path.'empty.gif';
 $_style['tree_deletedpage']         = $tree_path.'deletedpage.gif';
 $_style['tree_folder']              = $tree_path.'folder.png'; /* folder.png */
 $_style['tree_folderopen']          = $tree_path.'folder.png'; /* folder-open.png */
-$_style['tree_folder_secure']       = $tree_path.'application_double_key.gif';
-$_style['tree_folderopen_secure']   = $tree_path.'application_double_key.gif';
+$_style['tree_folder_secure']       = $tree_path.'application_double_key.png';
+$_style['tree_folderopen_secure']   = $tree_path.'application_double_key.png';
 $_style['tree_globe']               = $tree_path.'globe.gif';
 $_style['tree_linkgo']              = $tree_path.'link_go.png';
 $_style['tree_minusnode']           = $tree_path.'minusnode.gif';
@@ -52,6 +84,9 @@ $_style['tree_page_rss']            = $tree_path.'application_rss.gif';
 $_style['tree_page_pdf']            = $tree_path.'application_pdf.gif';
 $_style['tree_page_word']           = $tree_path.'application_word.gif';
 $_style['tree_page_excel']          = $tree_path.'application_excel.gif';
+$_style['tree_page_jpg']            = $tree_path.'picture.png';
+$_style['tree_page_png']            = $tree_path.'picture.png';
+$_style['tree_page_gif']            = $tree_path.'picture.png';
 $_style['tree_plusnode']            = $tree_path.'plusnode.gif';
 $_style['tree_showtree']            = '<img src="'.$tree_path.'sitemap.png" align="absmiddle" />';
 $_style['tree_weblink']             = $tree_path.'link_go.png';
@@ -111,11 +146,17 @@ $_style['icons_tooltip_over']       = $icon_path.'b02_trans.gif';
 
 // Large Icons
 $_style['icons_backup_large']       = $icon_path.'32x/backup.png';
-$_style['icons_mail_large']         = $icon_path.'32x/mail_generic.gif';
+$_style['icons_mail_large']         = $icon_path.'32x/mail.png';
+$_style['icons_mail_new_large']     = $icon_path.'32x/mail_new.png';
 $_style['icons_modules_large']      = $icon_path.'32x/modules.gif';
 $_style['icons_resources_large']    = $icon_path.'32x/resources.png';
-$_style['icons_security_large']     = $icon_path.'32x/security.gif';
-$_style['icons_webusers_large']     = $icon_path.'32x/web_users.gif';
+$_style['icons_elements_large']     = $icon_path.'32x/elements.png';
+$_style['icons_security_large']     = $icon_path.'32x/users.png';
+$_style['icons_webusers_large']     = $icon_path.'32x/users.png';
+$_style['icons_sysinfo_large']      = $icon_path.'32x/info.png';
+$_style['icons_search_large']       = $icon_path.'32x/search.png';
+$_style['icons_log_large']          = $icon_path.'32x/log.png';
+$_style['icons_files_large']        = $icon_path.'32x/files.png';
 $_style['icons_help_large']         = $icon_path.'32x/help.png';
 
 // Miscellaneous
