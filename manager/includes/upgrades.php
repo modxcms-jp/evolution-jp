@@ -1,44 +1,75 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-$simple_version = str_replace('.','',$settings_version);
-$simple_version = substr($simple_version,0,3);
 
 global $default_config;
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
-run_update($simple_version);
+run_update($settings_version);
 if($action==17) $modx->clearCache();
 
-if(!isset($_style['sort']))
-{
-	global $manager_theme;
-	$manager_theme = $default_config['manager_theme'];
-	$modx->config['manager_theme'] = $default_config['manager_theme'];
-}
+disableOldCarbonTheme();
 
-function run_update($version)
+function run_update($pre_version)
 {
 	global $modx;
 	
-	if($version < 105) {
+	$pre_version = strtolower($pre_version);
+	$pre_version = str_replace(array('j','rc','-r'), array('','RC','-'), $pre_version);
+		
+	if(version_compare($pre_version,'1.0.5') < 0) {
 		update_tbl_system_settings();
+		$msg = 'Update before 1.0.5';
+		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
-	if($version < 106) {
+	if(version_compare($pre_version,'1.0.6') < 0) {
 		update_config_custom_contenttype();
 		update_config_default_template_method();
+		$msg = 'Update before 1.0.6';
+		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
-	if($version < 107) {
+	if(version_compare($pre_version,'1.0.7') < 0) {
 		disableLegacyPlugins();
+		$msg = 'Update before 1.0.7';
+		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
-	if(104 < $version && $version < 107) {
+	if(0 < version_compare($pre_version,'1.0.4') && version_compare($pre_version,'1.0.7') < 0) {
 		delete_actionphp();
+		$msg = 'Delete action.php is success';
+		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
-	disableLegacyPlugins();
+	if(0 <= version_compare($pre_version,'1.0.8')) {
+		updateMenus();
+		$msg = 'Update menu';
+		$modx->logEvent(0,1,$msg,$msg);
+	}
+	
 	update_tbl_user_roles();
+}
+
+function updateMenus()
+{
+	global $modx;
+	
+	if($modx->config['topmenu_site'] === 'home,preview,refresh_site,search,add_resource,add_weblink')
+		$modx->regOption('topmenu_site', 'home,preview,refresh_site,resource_list,add_resource,add_weblink');
+	if($modx->config['topmenu_tools'] === 'bk_manager,import_site,export_site,edit_settings')
+		$modx->regOption('topmenu_tools','bk_manager,import_site,export_site,search,edit_settings');
+}
+
+function disableOldCarbonTheme() {
+	global $modx, $default_config;
+
+	$old_manager_theme = $modx->config['manager_theme'];
+	
+	$old_manager_dir= MODX_BASE_PATH . "manager/media/style/{$old_manager_theme}/";
+	
+	if(is_dir("{$old_manager_dir}manager") && !is_file("{$old_manager_dir}manager")) {
+		$modx->regOption('manager_theme',$default_config['manager_theme']);
+	}
 }
 
 function disableLegacyPlugins()
