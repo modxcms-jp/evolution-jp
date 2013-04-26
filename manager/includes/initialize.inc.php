@@ -28,14 +28,10 @@ if (version_compare(PHP_VERSION, '5.4') < 0) @set_magic_quotes_runtime(0);
 // include_once the magic_quotes_gpc workaround
 if (get_magic_quotes_gpc()) include_once "{$core_path}quotes_stripper.inc.php";
 
-if (!defined('ENT_COMPAT'))   define('ENT_COMPAT', 2);
-if (!defined('ENT_NOQUOTES')) define('ENT_NOQUOTES', 0);
-if (!defined('ENT_QUOTES'))   define('ENT_QUOTES', 3);
-
 // set the document_root :|
 if (!isset($_SERVER["DOCUMENT_ROOT"]) || empty($_SERVER["DOCUMENT_ROOT"]))
 {
-    $_SERVER["DOCUMENT_ROOT"] = str_replace($_SERVER["PATH_INFO"], "", preg_replace("/\\\\/", "/", $_SERVER["PATH_TRANSLATED"]))."/";
+    $_SERVER["DOCUMENT_ROOT"] = str_replace($_SERVER["PATH_INFO"], '', str_replace('\\', '/', $_SERVER["PATH_TRANSLATED"])).'/';
 }
 
 
