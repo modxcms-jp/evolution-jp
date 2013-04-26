@@ -42,8 +42,10 @@ class synccache {
 		return str_replace($q1,$q2,$s);
 	}
 
-	function getParents($id, $path = '') { // modx:returns child's parent
+	function getParents($id, $path = '', $nest=0) { // modx:returns child's parent
 		global $modx;
+		$nest++;
+		if(100<$nest) return;
 		if(empty($this->aliases))
 		{
 			$fields = "id, IF(alias='', id, alias) AS alias, parent";
@@ -65,7 +67,7 @@ class synccache {
 			}
 			else $path = $this->aliases[$id];
 			
-			return $this->getParents($this->parents[$id], $path);
+			return $this->getParents($this->parents[$id], $path, $nest);
 		}
 		return $path;
 	}
