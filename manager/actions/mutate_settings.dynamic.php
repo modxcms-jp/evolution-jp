@@ -52,14 +52,11 @@ $displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
 // load languages and keys
 $lang_keys = array();
 $dir = scandir("{$base_path}manager/includes/lang");
-foreach ($dir as $file)
+foreach ($dir as $filename)
 {
-	$endpos = strpos($file, '.inc.php');
-	if($endpos>0 && substr($file,0,1)!=='.')
-	{
-		$languagename = substr($file, 0, $endpos);
-		$lang_keys[$languagename] = get_lang_keys($file);
-	}
+	if(substr($filename,-8)!=='.inc.php') continue;
+	$languagename = str_replace('.inc.php', '', $filename);
+	$lang_keys[$languagename] = get_lang_keys($filename);
 }
 
 $isDefaultUnavailableMsg = $site_unavailable_message == $_lang['siteunavailable_message_default'];
