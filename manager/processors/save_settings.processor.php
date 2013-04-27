@@ -4,7 +4,11 @@ if(!$modx->hasPermission('settings')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-if($_POST['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===false)
+$data = $_POST;
+// lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
+unset($_POST);
+
+if($data['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===false)
 {
 	$htaccess        = $modx->config['base_path'] . '.htaccess';
 	$sample_htaccess = $modx->config['base_path'] . 'sample.htaccess';
@@ -37,10 +41,10 @@ if($_POST['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===
 		}
 	}
 }
-$_POST['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$_POST['filemanager_path']);
-$_POST['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$_POST['rb_base_dir']);
-if(!file_exists($_POST['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
-if(!file_exists($_POST['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
+$data['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$data['filemanager_path']);
+$data['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$data['rb_base_dir']);
+if(!file_exists($data['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
+if(!file_exists($data['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
 if(0< count($warnings))
 {
@@ -50,9 +54,9 @@ if(0< count($warnings))
 	exit;
 }
 
-if (isset($_POST) && count($_POST) > 0) {
+if (isset($data) && count($data) > 0) {
 	$savethese = array();
-	foreach ($_POST as $k => $v) {
+	foreach ($data as $k => $v) {
 		switch ($k) {
 			case 'site_url':
 			case 'base_url':
@@ -65,7 +69,7 @@ if (isset($_POST) && count($_POST) > 0) {
 			case 'unauthorized_page':
 				if (trim($v) == '' || !is_numeric($v))
 				{
-					$v = $_POST['site_start'];
+					$v = $data['site_start'];
 				}
 				break;
 	
@@ -104,16 +108,14 @@ if (isset($_POST) && count($_POST) > 0) {
 	}
 	
 	// Reset Template Pages
-	if (isset($_POST['reset_template'])) {
-		$template = $_POST['default_template'];
-		$oldtemplate = $_POST['old_template'];
+	if (isset($data['reset_template'])) {
+		$template = $data['default_template'];
+		$oldtemplate = $data['old_template'];
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$reset = $_POST['reset_template'];
+		$reset = $data['reset_template'];
 		if    ($reset==1) $modx->db->update("template='{$template}'", $tbl_site_content, "type='document'");
 		elseif($reset==2) $modx->db->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
 	}
-	// lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
-	unset($_POST);
 	
 	// empty cache
 	$modx->clearCache(); // first empty the cache
