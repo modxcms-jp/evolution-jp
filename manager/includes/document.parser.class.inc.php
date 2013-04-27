@@ -2728,7 +2728,7 @@ class DocumentParser {
 					if(preg_match('/^[0-9]+$/',$target))
 					{
 						$id = $target;
-						if(preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
+						if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
 						{
 							$id = $this->referenceListing[$id];
 						}
