@@ -2029,8 +2029,8 @@ class DocumentParser {
 			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
 			$source= $this->documentOutput;
 			
-			if(strpos($source,'<!-- modx:ignore')!==false) $source= $this->ignoreCommentedTagsContent($source);
-			if(strpos($source,'<!-- modx')!==false) $source= $this->mergeCommentedTagsContent($source);
+			if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
+			if(strpos($source,'<!--@MODX:')!==false) $source= $this->mergeCommentedTagsContent($source);
 			// combine template and document variables
 			if(strpos($source,'[*')!==false) $source= $this->mergeDocumentContent($source);
 			// replace settings referenced in document
