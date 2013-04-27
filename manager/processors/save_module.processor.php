@@ -72,7 +72,7 @@ switch ($_POST['mode']) {
 			
 
 			include 'header.inc.php';
-			include(dirname(dirname(__FILE__)).'/actions/mutate_module.dynamic.php');
+			include(MODX_BASE_PATH . 'manager/actions/mutate_module.dynamic.php');
 			include 'footer.inc.php';
 			
 			exit;
