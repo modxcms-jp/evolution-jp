@@ -78,7 +78,7 @@ $format = (isset($format)) ? strtolower($format) : "html" ;
     "html"
 */
 $config = (isset($config)) ? $config : "default";
-include_once("{$ditto_base}configs/default.config.php");
+@include("{$ditto_base}configs/default.config.php");
 
 if(substr($config, 0, 6) === '@CHUNK')
 {
