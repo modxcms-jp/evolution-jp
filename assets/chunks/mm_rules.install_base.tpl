@@ -1,7 +1,7 @@
 /**
  * mm_rules
  * 
- * ManagerManager用のカスタマイズルール(サンプル)
+ * Default ManagerManager rules. Should be modified for your own sites.
  * 
  * @category	chunk
  * @version 	1.0.5r2
