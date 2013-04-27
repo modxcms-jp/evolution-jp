@@ -35,7 +35,7 @@ if(!empty($id))
 		{
 			if($row['internalKey'] != $modx->getLoginUserID())
 			{
-				$msg = sprintf($_lang['lock_msg'],$row['username'],'template');
+				$msg = sprintf($_lang['lock_msg'],$row['username'],$_lang['template']);
 				$e->setError(5, $msg);
 				$e->dumpError();
 			}
