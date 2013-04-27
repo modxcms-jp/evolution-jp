@@ -51,7 +51,8 @@ $tbl_web_groups          = $modx->getFullTableName('web_groups');
 switch ($_POST['mode']) {
 	case '87' : // new user
 		// check if this user name already exist
-		if (!$rs = $modx->db->select('id',$tbl_web_users,"username='{$newusername}'")) {
+		$esc_newusername = $modx->db->escape($newusername);
+		if (!$rs = $modx->db->select('id',$tbl_web_users,"username='{$esc_newusername}'")) {
 			webAlert("An error occurred while attempting to retrieve all users with username {$newusername}.");
 			exit;
 		}
@@ -237,7 +238,8 @@ switch ($_POST['mode']) {
 		}
 
 		// check if the username already exist
-		if (!$rs = $modx->db->select('id',$tbl_web_users,"username='{$newusername}'")) {
+		$esc_newusername = $modx->db->escape($newusername);
+		if (!$rs = $modx->db->select('id',$tbl_web_users,"username='{$esc_newusername}'")) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
@@ -271,7 +273,8 @@ switch ($_POST['mode']) {
 		));
 
 		// update user name and password
-		$sql = "UPDATE {$tbl_web_users} SET username='{$newusername}'" . $updatepasswordsql . " WHERE id='{$id}'";
+		$esc_newusername = $modx->db->escape($newusername);
+		$sql = "UPDATE {$tbl_web_users} SET username='{$esc_newusername}'" . $updatepasswordsql . " WHERE id='{$id}'";
 		if (!$rs = $modx->db->query($sql)) {
 			webAlert("An error occurred while attempting to update the user's data.");
 			exit;
