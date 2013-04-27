@@ -417,11 +417,11 @@ switch ($mode) {
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";
-				$header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+				$header = "Location: index.php?a={$a}&r=9&stay={$_POST['stay']}";
 			} elseif($mode==='119') {
 				$header = "Location: index.php?a=2";
 			} else {
-				$header = "Location: index.php?a=75";
+				$header = "Location: index.php?a=75&r=9";
 			}
 			header($header);
 			exit;
@@ -536,6 +536,7 @@ function saveUserSettings($id)
 		$v = $modx->db->escape($v);
 		$savethese[] = "({$id}, '{$k}', '{$v}')";
 	}
+	if(empty($savethese)) return;
 	$values = implode(', ', $savethese);
 	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
 	$rs = $modx->db->query($sql);
