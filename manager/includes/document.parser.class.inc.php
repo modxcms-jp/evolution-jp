@@ -1484,30 +1484,19 @@ class DocumentParser {
 		return $content;
 	}
 	
-	function mergeCommentedTagsContent($content)
+	function mergeCommentedTagsContent($content, $left='<!--@MODX:', $right='-->')
 	{
-		if(strpos($content,'<!-- modx')===false) return $content;
-		
-		$pieces = explode('<!-- modx',$content);
-		$stack = '';
-		$i=0;
-		foreach($pieces as $_)
+		if(strpos($content,$left)===false) return $content;
+		$matches = $this->getTagsFromContent($content,$left,$right);
+		if(!empty($matches))
 		{
-			$i++;
-			if($i===1)
+			foreach($matches['1'] as $i=>$v)
 			{
-				$stack .= $_;
-				continue;
+				$matches['1'][$i] = $this->parseDocumentSource($v);
 			}
-			elseif(strpos($_,'-->')!==false)
-			{
-				list($modxelm,$txt) = explode('-->',$_, 2);
-				$modxelm = trim($modxelm);
-				$_ = $modxelm . $txt;
-			}
-			$stack .= $_;
+			$content = str_replace($matches['0'],$matches['1'],$content);
 		}
-		return $stack;
+		return $content;
 	}
 	
 	function ignoreCommentedTagsContent($content)
