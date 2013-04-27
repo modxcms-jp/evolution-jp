@@ -51,9 +51,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		'text/plain' => $_style["tree_page_secure"],
 		'text/xml'   => $_style["tree_page_xml_secure"],
 		'text/javascript' => $_style["tree_page_js_secure"],
-		'image/gif'  => $_style["tree_page_gif_secure"],
-		'image/jpg'  => $_style["tree_page_jpg_secure"],
-		'image/png'  => $_style["tree_page_png_secure"]
+		'image/gif'  => $_style["tree_page_gif"],
+		'image/jpg'  => $_style["tree_page_jpg"],
+		'image/png'  => $_style["tree_page_png"]
 	);
 
 	if (isset($_SESSION['openedArray']))
