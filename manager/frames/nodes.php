@@ -79,8 +79,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
     // check for deleted documents on reload
 	if ($expandAll==2)
 	{
-		$tbl_site_content = $modx->getFullTableName('site_content');
-		$rs = $modx->db->select('COUNT(id)',$tbl_site_content,"deleted=1");
+		$rs = $modx->db->select('COUNT(id)','[+prefix+]site_content',"deleted=1");
 		if ($modx->db->getValue($rs) > 0) echo '<span id="binFull"></span>'; // add a special element to let system now that the bin is full
 	}
 	function makeHTML($indent,$parent=0,$expandAll)
@@ -103,7 +102,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		
 		$field  = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
 		$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
-		$from   = "{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id";
+		$from   = '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 		$where  = "(parent='{$parent}') {$access} GROUP BY sc.id";
 		$result = $modx->db->select($field,$from,$where,$tree_orderby);
 		$has_child = $modx->db->getRecordCount($result);
@@ -452,11 +451,11 @@ EOT;
 			}
 		}
 		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
-		if(empty($orderby)) $orderby = 'menuindex ASC';
+		if(empty($orderby)) $orderby = 'sc.menuindex ASC';
 
 		// Folder sorting gets special setup ;) Add menuindex and pagetitle
-		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ', menuindex ASC';
-		$orderby  .= ', editedon DESC';
+		if($_SESSION['tree_sortby'] == 'isfolder') $orderby .= ', sc.menuindex ASC';
+		$orderby  .= ', sc.editedon DESC';
 		return $orderby;
 	}
 	
