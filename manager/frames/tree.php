@@ -14,10 +14,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
     var $j = jQuery.noConflict();
-    $j(function(){
+    jQuery(function(){
         resizeTree();
         restoreTree();
-        $j(window).resize(function(){resizeTree();});
+        jQuery(window).resize(function(){resizeTree();});
     });
 
     // preload images
@@ -85,7 +85,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var tree = document.getElementById('treeHolder');
         var tmnu = document.getElementById('treeMenu');
         tree.style.width = (win['width']-20)+'px';
-        tree.style.height = (win['height']-tree.offsetTop-16)+'px';
+        tree.style.height = (win['height']-tree.offsetTop-6)+'px';
         tree.style.overflow = 'auto';
     }
 
@@ -112,17 +112,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
         if(permpub==1)
         {
-	        document.getElementById('item9').style.display='block';
-	        document.getElementById('item10').style.display='block';
-	        if(pub==1) document.getElementById('item9').style.display='none';
-	        else       document.getElementById('item10').style.display='none';
+	        document.getElementById('item61').style.display='block';
+	        document.getElementById('item62').style.display='block';
+	        if(pub==1) document.getElementById('item61').style.display='none';
+	        else       document.getElementById('item62').style.display='none';
         }
         if(permdel==1)
         {
-	        document.getElementById('item4').style.display='block';
-	        document.getElementById('item8').style.display='block';
-	        if(del==1) document.getElementById('item4').style.display='none';
-	        else       document.getElementById('item8').style.display='none';
+	        document.getElementById('item6').style.display='block';
+	        document.getElementById('item63').style.display='block';
+	        if(del==1) document.getElementById('item6').style.display='none';
+	        else       document.getElementById('item63').style.display='none';
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX > 0 ? e.clientX:e.pageX;
@@ -392,8 +392,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 </script>
 </head>
-<body onclick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
-
+<body onclick="hideMenu();" class="<?php echo $modx_textdir ? ' rtl':''?>">
+<div class="treeframebody">
 <div id="treeSplitter"></div>
 
 <table id="treeMenu" width="100%"  border="0" cellpadding="0" cellspacing="0">
@@ -469,26 +469,26 @@ else                                 $_SESSION['tree_sortdir'] = $fieldtype == '
 <script type="text/javascript">
 // Set 'treeNodeSelected' class on document node when editing via Context Menu
 function setActiveFromContextMenu( doc_id ){
-    $j('.treeNodeSelected').removeClass('treeNodeSelected');
-    $j('#node'+doc_id+' span:first').attr('class','treeNodeSelected');
+    jQuery('.treeNodeSelected').removeClass('treeNodeSelected');
+    jQuery('#node'+doc_id+' span:first').attr('class','treeNodeSelected');
 }
 
 // Context menu stuff
 function menuHandler(action) {
     switch (action) {
-        case 1 : // view
+        case '3' : // view
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=3&id=" + itemToChange;
             break
-        case 2 : // edit
+        case '27' : // edit
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break
-        case 3 : // new Resource
+        case '4' : // new Resource
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=4&pid=" + itemToChange;
             break
-        case 4 : // delete
+        case '6' : // delete
             if(selectedObjectDeleted==0) {
                 if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
                     top.main.document.location.href="index.php?a=6&id=" + itemToChange;
@@ -497,21 +497,21 @@ function menuHandler(action) {
                 alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
             }
             break
-        case 5 : // move
+        case '51' : // move
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=51&id=" + itemToChange;
             break
-        case 6 : // new Weblink
+        case '72' : // new Weblink
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=72&pid=" + itemToChange;
             break
-        case 7 : // duplicate
+        case '94' : // duplicate
             if(confirm("<?php echo $_lang['confirm_resource_duplicate'] ?>")==true) {
                    setActiveFromContextMenu(itemToChange);
                    top.main.document.location.href="index.php?a=94&id=" + itemToChange;
                }
             break
-        case 8 : // undelete
+        case '63' : // undelete
             if(selectedObjectDeleted==0) {
                 alert("'" + selectedObjectName + "' <?php echo $_lang['not_deleted']; ?>");
             } else {
@@ -520,13 +520,13 @@ function menuHandler(action) {
                 }
             }
             break
-        case 9 : // publish
+        case '61' : // publish
             if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_publish']; ?>")==true) {
                 setActiveFromContextMenu(itemToChange);
                 top.main.document.location.href="index.php?a=61&id=" + itemToChange;
             }
             break
-        case 10 : // unpublish
+        case '62' : // unpublish
             if (itemToChange != <?php echo $modx->config['site_start']?>) {
                 if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_unpublish']; ?>")==true) {
                     setActiveFromContextMenu(itemToChange);
@@ -536,7 +536,7 @@ function menuHandler(action) {
                 alert('Document is linked to site_start variable and cannot be unpublished!');
             }
             break
-        case 12 : // preview
+        case 'pv' : // preview
             setActiveFromContextMenu(itemToChange);
             window.open(selectedObjectUrl,'previeWin'); //re-use 'new' window
             break
@@ -552,10 +552,10 @@ function menuHandler(action) {
 <div id="mx_contextmenu" onselectstart="return false;">
     <div id="nameHolder">&nbsp;</div>
 <?php
-constructLink(2, $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
-constructLink(3, $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
-constructLink(5, $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
-constructLink(7, $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
+constructLink('27', $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
+constructLink('4', $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
+constructLink('51', $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
+constructLink('94', $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
 if(
 $modx->hasPermission('edit_document')
 || $modx->hasPermission('new_document')
@@ -564,24 +564,24 @@ $modx->hasPermission('edit_document')
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(9, $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
-constructLink(10, $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
-constructLink(4, $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
-constructLink(8, $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
+constructLink('61', $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
+constructLink('62', $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
+constructLink('6', $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
+constructLink('63', $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
 if($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document'))
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(6, $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
+constructLink('72', $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
 if($modx->hasPermission('new_document'))
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(1, $_style["icons_resource_overview"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
-constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
+constructLink('3', $_style["icons_information"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
+constructLink('pv', $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
 ?>
 </div>
-
+</div>
 </body>
 </html>
 <?php
@@ -594,7 +594,12 @@ function constructLink($action, $img, $text, $allowed)
 {
 	if($allowed==1)
 	{
-		echo '<div class="menuLink" id="item'.$action.'" onclick="menuHandler(' . $action . '); hideMenu();">';
-		echo '<img src="' . $img . '" />' . $text . '</div>';
+		global $modx;
+		$ph['action'] = $action;
+		$ph['img']    = $img;
+		$ph['text']   = $text;
+		$tpl  = '<div class="menuLink" id="item[+action+]" onclick="menuHandler(\'[+action+]\'); hideMenu();">';
+		$tpl .= '<img src="[+img+]" />[+text+]</div>';
+		echo $modx->parsePlaceholder($tpl, $ph);
 	}
 }
