@@ -112,11 +112,11 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		
 		if($modx->config['tree_page_click']!=='27')
 		{
-			if($modx->config['limit_by_container']==='')             $status = 'asis';
-			elseif($modx->config['limit_by_container'] === '0')      $status = 'container_only';
-			elseif($modx->config['limit_by_container'] < $has_child) $status = 'too_many';
-			else $status = 'asis';
-			if($status!=='asis' && $parent !=='0')
+			if($modx->config['limit_by_container']==='')             $container_status = 'asis';
+			elseif($modx->config['limit_by_container'] === '0')      $container_status = 'container_only';
+			elseif($modx->config['limit_by_container'] < $has_child) $container_status = 'too_many';
+			else $container_status = 'asis';
+			if($container_status!=='asis' && $parent !=='0')
 			{
 				$where  = "(parent={$parent}) AND isfolder=1 {$access} GROUP BY sc.id";
 				$result = $modx->db->select($field,$from,$where,$tree_orderby);
@@ -124,9 +124,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			}
 		}
 		
-		if($has_child==0 && $status !== 'container_only' && $status !== 'asis')
+		if($has_child==0 && $container_status !== 'container_only' && $container_status !== 'asis')
 		{
-			if($status==='too_many')
+			if($container_status==='too_many')
 			{
 				$msg = $_lang['too_many_resources'];
 			}
@@ -134,7 +134,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			
 			if($msg) $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
 		}
-		elseif($has_child==0 && $status !== 'container_only')
+		elseif($has_child==0 && $container_status !== 'container_only')
 		{
 			$msg = $_lang['empty_folder'];
 			if($msg) $output .= '<div style="white-space: nowrap;">'.$spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">'.$msg.'</span></div>';
@@ -145,7 +145,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		{
 			$loop_count++;
 			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
-			if($status === 'container_only' && $isfolder==1)
+			if($container_status === 'container_only' && $isfolder==1)
 			{
 				$where  = "(parent={$id}) AND isfolder=1 {$access} GROUP BY sc.id";
 				$result2 = $modx->db->select($field,$from,$where,$tree_orderby);
@@ -273,7 +273,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				{
 					if ($expandAll == 1) array_push($opened2, $id);
 					
-					$ph['_style_tree_minusnode']  = ($status === 'container_only' && $has_child==0) ? $_style["tree_blanknode"] : $_style["tree_minusnode"];
+					$ph['_style_tree_minusnode']  = ($container_status === 'container_only' && $has_child==0) ? $_style["tree_blanknode"] : $_style["tree_minusnode"];
 					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folderopen_secure"] : $_style["tree_folderopen"];
 					$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fopen_node();
@@ -283,13 +283,13 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				}
 				else
 				{
-					if($status === 'container_only' && $has_child==0) $ph['_style_tree_plusnode'] = $_style["tree_blanknode"];
+					if($container_status === 'container_only' && $has_child==0) $ph['_style_tree_plusnode'] = $_style["tree_blanknode"];
 					else                                                $ph['_style_tree_plusnode'] = $_style["tree_plusnode"];
 					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folder_secure"] : $_style["tree_folder"];
 					$ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fclose_node();
 					$output .= parse_ph($ph,$tpl);
-					if($parent!=0 && $status==='too_many' && $loop_count == $has_child)
+					if($parent!=0 && $container_status==='too_many' && $loop_count == $has_child)
 					{
 						$output .= '<div style="white-space: nowrap;">'. $spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">' . $_lang['too_many_resources'] . '</span></div>';
 					}
