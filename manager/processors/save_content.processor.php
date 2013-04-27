@@ -43,6 +43,7 @@ $alias           = $modx->stripAlias($modx->db->escape($alias));
 $link_attributes = $modx->db->escape($link_attributes);
 $parent          = $parent != '' ? $parent : 0;
 $menuindex       = !empty($menuindex) ? $menuindex : 0;
+if(!isset($docgroups)) $docgroups = array();
 $document_groups = (isset($chkalldocs) && $chkalldocs == 'on') ? array() : $docgroups;
 $contentType     = $modx->db->escape($contentType);
 $content_dispo   = intval($content_dispo);
@@ -118,14 +119,15 @@ else
 }
 
 // ensure that user has not made this document inaccessible to themselves
-if($_SESSION['mgrRole'] != 1 && is_array($document_groups))
+if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 {
 	$document_group_list = implode(',', $document_groups);
 	$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
 	if(!empty($document_group_list))
 	{
-		$from="{$tbl_membergroup_access} mga, {$tbl_member_groups} mg";
-		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member = {$_SESSION['mgrInternalKey']}";
+		$from='[+tbl_membergroup_access+] mga, [+prefix+]member_groups mg';
+		$mgrInternalKey = $_SESSION['mgrInternalKey'];
+		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
 		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
 		if($count == 0)
 		{
@@ -277,7 +279,7 @@ switch ($actionToTake)
 			if($use_udperms && !($isManager || $isWeb) && $parent != 0)
 			{
 				// inherit document access permissions
-				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document = {$parent}";
+				$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document='{$parent}'";
 				$saved = $modx->db->query($sql);
 				$docgrp_save_attempt = true;
 			}
