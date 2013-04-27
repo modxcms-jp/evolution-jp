@@ -7,7 +7,18 @@ class TinyMCE
 	function TinyMCE($params)
 	{
 		$this->mce_path = $params['mce_path'];
-		include_once $params['mce_path'] . 'settings/lang.php';
+	}
+	
+	function get_lang($lang)
+	{
+		switch(strtolower($lang))
+		{
+			case 'russian-utf8' : $lc='ru'; break;
+			case 'japanese-utf8':
+			case 'japanese-euc' : $lc = 'ja'; break;
+			default             : $lc = 'en';
+		}
+		return $lc;
 	}
 	
 	function get_skin_names($params)
