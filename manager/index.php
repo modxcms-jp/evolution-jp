@@ -207,6 +207,8 @@ $modx->manager->action = $action;
 // attempt to foil some simple types of CSRF attacks
 $modx->manager->validate_referer($modx->config['validate_referer']);
 
+$modx->manager->setView($action);
+
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
