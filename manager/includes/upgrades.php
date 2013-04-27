@@ -48,6 +48,7 @@ function run_update($pre_version)
 	}
 	
 	update_tbl_user_roles();
+	disableOldFckEditor();
 }
 
 function updateMenus()
@@ -76,6 +77,16 @@ function disableOldCarbonTheme() {
 	}
 }
 
+function disableOldFckEditor()
+{
+	global $modx, $default_config;
+	
+	$tpl_path = MODX_BASE_PATH . 'assets/plugins/fckeditor/plugin.fckeditor.tpl';
+	if(!is_file($tpl_path)) return;
+	$file = file_get_contents($tpl_path);
+	if(strpos($file,'FCKeditor v2.1.1')===false) return;
+	$modx->regOption('which_editor',$default_config['which_editor']);
+}
 function disableLegacyPlugins()
 {
 	global $modx;
