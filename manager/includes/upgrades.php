@@ -67,7 +67,11 @@ function disableOldCarbonTheme() {
 	
 	$old_manager_dir= MODX_BASE_PATH . "manager/media/style/{$old_manager_theme}/";
 	
-	if(is_dir("{$old_manager_dir}manager") && !is_file("{$old_manager_dir}manager")) {
+	if(
+		 is_dir("{$old_manager_dir}manager")
+	||  is_file("{$old_manager_dir}sysalert_style.php")
+	|| !is_file("{$old_manager_dir}style.php")
+		) {
 		$modx->regOption('manager_theme',$default_config['manager_theme']);
 	}
 }
