@@ -466,7 +466,8 @@ EOT;
 		$spacer = '';
 		for ($i = 1; $i <= $indent; $i++)
 		{
-			$spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			if($i!==1) $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			else       $spacer .= '&nbsp;&nbsp;&nbsp;';
 		}
 		return $spacer;
 	}
