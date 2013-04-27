@@ -20,10 +20,10 @@
                     <td valign="top">
                         [+OnManagerWelcomeHome+]
                     <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
-                        [+iconResources+]
                         [+iconNewDoc+]
                         [+iconSearch+]
                         [+iconMessage+]
+                        [+iconHelp+]
                     </div>
                     <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
                         [+iconElements+]
@@ -36,7 +36,6 @@
                         [+BackupIcon+]
                         [+iconEventLog+]
                         [+iconSysInfo+]
-                        [+iconHelp+]
                     </div>
                         <br style="clear:both" /><!--+Modules+--><br style="clear:both" />
                     </td>

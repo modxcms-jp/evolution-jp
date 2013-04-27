@@ -20,10 +20,10 @@
                     <td valign="top">
                         [+OnManagerWelcomeHome+]
                     <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
-                        [+ResourcesIcon+]
                         [+NewDocIcon+]
                         [+SearchIcon+]
                         [+MessageIcon+]
+                        [+HelpIcon+]
                     </div>
                     <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
                         [+ElementsIcon+]

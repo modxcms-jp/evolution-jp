@@ -57,6 +57,11 @@ if($modx->hasPermission('messages')) {
 }
 
 // setup icons
+if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
+	if(!isset($_style['icons_resources_large'])) $_style['icons_resources_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
+	$src = get_icon($_lang['add_resource'], 4, $_style['icons_resources_large'], $_lang['add_resource']);
+	$modx->setPlaceholder('NewDocIcon',$src);
+}
 if($modx->hasPermission('view_document')) {
 	$src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'], $_lang['view_child_resources_in_container']);
 	$modx->setPlaceholder('ResourcesIcon',$src);
@@ -83,6 +88,7 @@ if($modx->hasPermission('bk_manager')) {
 	$modx->setPlaceholder('BackupIcon',$src);
 }
 if($modx->hasPermission('help')) {
+	if(!isset($_style['icons_help_large'])) $_style['icons_help_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/help.png';
 	$src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['help']);
 	$modx->setPlaceholder('HelpIcon',$src);
 }
@@ -114,6 +120,12 @@ if($modx->hasPermission('logs')) {
 if(!isset($_style['icons_search_large'])) $_style['icons_search_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/search.png';
 $src = get_icon($_lang['search_resource'], 71, $_style['icons_search_large'], $_lang['search_resource']);
 $modx->setPlaceholder('SearchIcon',$src);
+
+if($modx->hasPermission('settings')) {
+	if(!isset($_style['icons_settings_large'])) $_style['icons_settings_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/settings.png';
+	$src = get_icon($_lang['edit_settings'], 17, $_style['icons_settings_large'], $_lang['edit_settings']);
+	$modx->setPlaceholder('SettingsIcon',$src);
+}
 
 // setup modules
 if($modx->hasPermission('exec_module')) {
