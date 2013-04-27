@@ -72,7 +72,9 @@ function disableOldCarbonTheme() {
 		 is_dir("{$old_manager_dir}manager")
 	||  is_file("{$old_manager_dir}sysalert_style.php")
 	|| !is_file("{$old_manager_dir}style.php")
-		) {
+	|| ($old_manager_theme==='MODxCarbon' && !is_dir(MODX_MANAGER_PATH . 'media/style/MODxCarbon/images/icons/32x'))
+	)
+	{
 		$modx->regOption('manager_theme',$default_config['manager_theme']);
 	}
 }
