@@ -13,7 +13,7 @@ include_once('index.php');
 $q = MODX_BASE_PATH . $q;
 $q = str_replace('\\','/',$q);
 
-if(is_file($q) || strtolower(substr($q,-4))!=='.php') exit;
+if(!is_file($q) || strtolower(substr($q,-4))!=='.php') exit;
 
 // permission check
 $allowed = false;
