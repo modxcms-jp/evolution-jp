@@ -338,7 +338,7 @@ class synccache {
 			}
 			else
 			{
-				$path = '';
+				$path = $row['parent'];
 			}
 			$alias = $modx->db->escape($row['alias']);
 			$docid = $row['id'];
