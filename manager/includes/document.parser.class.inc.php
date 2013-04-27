@@ -1499,23 +1499,15 @@ class DocumentParser {
 		return $content;
 	}
 	
-	function ignoreCommentedTagsContent($content)
+	function ignoreCommentedTagsContent($content, $left='<!--@IGNORE:BEGIN-->', $right='<!--@IGNORE:END-->')
 	{
-		if(strpos($content,'<!-- modx:ignore')===false) return $content;
-		$pieces = explode('<!-- modx:ignore',$content);
-		$stack = '';
-		$i=0;
-		foreach($pieces as $_)
+		if(strpos($content,$left)===false) return $content;
+		$matches = $this->getTagsFromContent($content,$left,$right);
+		if(!empty($matches))
 		{
-			if(strpos($_,'<!-- /modx')!==false)
-			{
-				$_ = substr($_,strpos($_,'<!-- /modx'));
-				$_ = substr($_,strpos($_,'-->')+3);
-			}
-			$stack .= $_;
-			$i++;
+			$content = str_replace($matches['0'],'',$content);
 		}
-		return $stack;
+		return $content;
 	}
 	
 	function mergeBenchmarkContent($content)
