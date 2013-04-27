@@ -2459,6 +2459,24 @@ class DocumentParser {
 		}
 	}
 
+	function getField($field='content', $docid='')
+	{
+		if(empty($docid) && isset($this->documentIdentifier))
+			$docid = $this->documentIdentifier;
+		elseif(!preg_match('@^[0-9]+$@',$docid))
+			$docid = $this->getIdFromAlias($identifier);
+		
+		if(empty($docid)) return false;
+		
+		$doc = $this->getDocumentObject('id', $docid);
+		if(is_array($doc[$field]))
+		{
+			$tvs= $this->getTemplateVarOutput($field, $docid);
+			return $tvs[$field];
+		}
+		return $doc[$field];
+	}
+	
 	function getPageInfo($docid= 0, $activeOnly= 1, $fields= 'id, pagetitle, description, alias')
 	{
 		if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
