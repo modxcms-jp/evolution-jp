@@ -32,8 +32,7 @@ if($sendto=='u') {
 	}
 	$private = 1;
 	$fields = compact('recipient','sender','subject','message','postdate','type','private');
-	$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
-	if($rs) pm2email($from,$fields);
+	send_pm($fields, $from);
 }
 
 if($sendto=='g') {
@@ -47,8 +46,7 @@ if($sendto=='g') {
 	if($row['internalKey']!=$sender) {
 		$recipient = $row['internalKey'];
 		$fields = compact('recipient','sender','subject','message','postdate','type','private');
-		$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
-		if($rs) pm2email($from,$fields);
+		send_pm($fields, $from);
 	}
 }
 
@@ -60,8 +58,7 @@ if($sendto=='a') {
 		if($row['id']!=$sender) {
 			$recipient = $row['id'];
 			$fields = compact('recipient','sender','subject','message','postdate','type','private');
-			$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
-			if($rs) pm2email($from,$fields);
+			send_pm($fields, $from);
 		}
 	}
 }
@@ -84,4 +81,28 @@ function pm2email($from,$fields)
 	$params['sendto']   = $modx->db->getValue($modx->db->select('email', '[+prefix+]user_attributes', "internalKey='$recipient'"));
 	$modx->sendmail($params,$msg);
 	usleep(300000);
+}
+
+function send_pm($fields, $from)
+{
+	global $modx;
+	
+	$fields['subject'] = encrypt($fields['subject']);
+	$fields['message'] = encrypt($fields['message']);
+	$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
+	if($rs) pm2email($from,$fields);
+}
+
+// http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
+function encrypt($plaintext, $key='modx')
+{
+	$len = strlen($plaintext);
+	$enc = '';
+	for($i = 0; $i < $len; $i++)
+	{
+		$asciin = ord($plaintext[$i]);
+		$enc .= chr($asciin ^ ord($key[$i]));
+	}
+	$enc = base64_encode($enc);
+	return $enc;
 }
