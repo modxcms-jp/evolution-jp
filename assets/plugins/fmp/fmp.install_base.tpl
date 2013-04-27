@@ -2,7 +2,7 @@
 /**
  * Forgot Manager Login
  * 
- * 管理画面のログインパスワードを忘れた時に、一時的に無条件ログインできるURLを発行
+ * Resets your manager login when you forget your password via email confirmation
  *
  * @category 	plugin
  * @version 	1.2b2
