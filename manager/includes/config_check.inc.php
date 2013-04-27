@@ -3,6 +3,10 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 $base_path = MODX_BASE_PATH;
 
+$sysfiles_check = $modx->manager->checkSystemChecksum();
+if ($sysfiles_check==='modified'){
+      $warnings[] = 'configcheck_sysfiles_mod';
+    }
 if (is_writable('includes/config.inc.php')){
     // Warn if world writable
     if(@fileperms('includes/config.inc.php') & 0x0002) {
@@ -101,6 +105,10 @@ if (0 < count($warnings))
 				$output = $_lang['configcheck_images_msg'];
 				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
+			case 'configcheck_sysfiles_mod':
+				$output = $_lang["configcheck_sysfiles_mod_msg"];
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang[$warning]);
+            break;
 			case 'configcheck_rb_base_dir':
 				$output = '$modx->config[\'rb_base_dir\']';
 				break;
