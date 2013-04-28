@@ -1141,7 +1141,7 @@ class ditto {
 				$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
 			}
 		}
-		if ($totalpages>1){
+		if ($totalpages>1 || $paginateAlwaysShowLinks==1){
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);
 			$modx->setPlaceholder($dittoID."previous", $previousplaceholder);
 			$modx->setPlaceholder($dittoID."pages", $pages);	
