@@ -58,8 +58,8 @@ if($modx->hasPermission('messages')) {
 
 // setup icons
 if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
-	if(!isset($_style['icons_resources_large'])) $_style['icons_resources_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
-	$src = get_icon($_lang['add_resource'], 4, $_style['icons_resources_large'], $_lang['add_resource']);
+	if(!isset($_style['icons_newdoc_large'])) $_style['icons_newdoc_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
+	$src = get_icon($_lang['add_resource'], 4, $_style['icons_newdoc_large'], $_lang['add_resource']);
 	$modx->setPlaceholder('NewDocIcon',$src);
 }
 if($modx->hasPermission('view_document')) {
