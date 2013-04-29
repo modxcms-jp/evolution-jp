@@ -27,10 +27,13 @@ if (!function_exists('modx_sanitize_gpc'))
 {
 	function modx_sanitize_gpc(& $target, $count=0)
 	{
+		global $sanitize_seed;
+
+		$sanitize_seed = 'sanitize_seed_' . base_convert(md5(__FILE__),16,36);
 		$s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
 		foreach($s as $_)
 		{
-			$r[] = " {$_['0']} {$_['1']} ";
+			$r[] = $sanitize_seed . $_['0'] . $sanitize_seed . $_['1'] . $sanitize_seed;
 		}
 		foreach ($target as $key => $value)
 		{
