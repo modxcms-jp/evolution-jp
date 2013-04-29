@@ -5,7 +5,6 @@
 <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]" />
 <meta name="robots" content="noindex, nofollow" />
 <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css" />
-
 <script type="text/javascript">
     function doLogout() {
         top.location = '[+logouturl+]';
@@ -32,38 +31,22 @@
 
 <form method="post" name="loginfrm" id="loginfrm" action="processors/login.processor.php">
 
-    <!-- the logo -->
-    <div id="mx_logobox">
-        <img src='media/style/[+theme+]/images/misc/logoaccess.jpg' alt='[+logo_slogan+]' />
-    </div>
-    <!-- end #mx_logobox -->
-
-
 
     <div id="mx_loginArea">
         <h1 class="siteName">[+site_name+]</h1>
-
         <div class="loginMessage">[+manager_lockout_message+]</div>
-
 		<br />
-
         <input type="button" id="submitButton" value="[+home+]" onclick="return gotoHome();"  />&nbsp;
         <input type="button" id="submitButton" value="[+logout+]" onclick="return doLogout();" />
-
     </div>
-
     <br style="clear:both;height: 1px"/>
 
 </form>
 </div>
-<!-- close #mx_loginbox -->
 
-
-<!-- convert this to a language include -->
 <p class="loginLicense">
     <strong>MODX</strong>&trade; is licensed under the GPL license. &copy; 2005-2013 <a href="http://modx.com/" target="_blank">MODX</a>.
 </p>
-
 
 </body>
 </html>
