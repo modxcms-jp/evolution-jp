@@ -19,19 +19,19 @@ $modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 $treePane = '<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">';
 $mainPane = '<frame name="main" src="index.php?a=' . $action . '" scrolling="auto" frameborder="0" onload="if (top.mainMenu.stopWork()) top.mainMenu.stopWork();">';
 ?>
-<frameset rows="70,*" border="0">
+<frameset rows="<?php echo $modx->config['manager_menu_height'];?>,*" border="0">
 	<frame name="mainMenu" src="index.php?a=1&amp;f=menu" scrolling="no" frameborder="0" noresize="noresize">
 <?php if (!$modx_textdir) {
 	// Left-to-Right reading (sidebar on left)
 	?>
-		<frameset cols="260,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
+		<frameset cols="<?php echo $modx->config['manager_tree_width'];?>,*" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
 		<?php echo $treePane; ?>
 		<?php echo $mainPane; ?>
 );">
 <?php } else {
 	// Right-to-Left reading (sidebar on right)
 	?>
-    	<frameset cols="*,260" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
+    	<frameset cols="*,<?php echo $modx->config['manager_tree_width'];?>" border="1" frameborder="3" framespacing="3" bordercolor="#f7f7f7">
 		<?php echo $mainPane; ?>
 		<?php echo $treePane; ?>
 <?php } ?>
