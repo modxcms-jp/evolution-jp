@@ -5,7 +5,7 @@
  * シンプルかつカスタマイズの自由度が高いメニュービルダー
  *
  * @category 	snippet
- * @version 	2.0.4
+ * @version 	2.0.5
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -39,7 +39,7 @@ $wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
 $config_path = "{$wf_base_path}configs/";
 
 //Include a custom config file if specified
-include("{$config_path}default.config.php");
+@include("{$config_path}default.config.php");
 
 $config = (!isset($config)) ? 'default' : trim($config);
 
