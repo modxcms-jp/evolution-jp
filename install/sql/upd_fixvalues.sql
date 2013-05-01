@@ -210,8 +210,4 @@ ALTER TABLE `{PREFIX}site_content` DROP INDEX `content_ft_idx`;
 
 UPDATE `{PREFIX}site_plugins` SET disabled='1' WHERE `name`='ダッシュボード・あなたの情報' OR `name`='ダッシュボード・オンライン情報';
 
-#1.0.9-1.0.10J
-
-ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `parent` tinyint(4) NOT NULL default '0' AFTER `description`;
-
 
