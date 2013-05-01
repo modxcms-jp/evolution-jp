@@ -31,6 +31,7 @@ $modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 $modx->setPlaceholder('site_name',$site_name);
 $modx->setPlaceholder('welcome_title',$_lang['welcome_title']);
 $modx->setPlaceholder('site',$_lang['site']);
+$modx->setPlaceholder('info',$_lang['info']);
 
 // setup message info
 if($modx->hasPermission('messages')) {
@@ -62,10 +63,6 @@ if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) 
 	$src = get_icon($_lang['add_resource'], 4, $_style['icons_newdoc_large'], $_lang['add_resource']);
 	$modx->setPlaceholder('NewDocIcon',$src);
 }
-if($modx->hasPermission('view_document')) {
-	$src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'], $_lang['view_child_resources_in_container']);
-	$modx->setPlaceholder('ResourcesIcon',$src);
-}
 if($modx->hasPermission('edit_user')) {
 	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
 	$modx->setPlaceholder('SecurityIcon',$src);
@@ -81,7 +78,7 @@ if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
 	if(!isset($_style['icons_elements_large'])) $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
 	$src = get_icon($_lang['element_management'], 76, $_style['icons_elements_large'], $_lang['element_management']);
-	$modx->setPlaceholder('ElementsIcon',$src);
+	$modx->setPlaceholder('ResourcesIcon',$src);
 }
 if($modx->hasPermission('bk_manager')) {
 	$src = get_icon($_lang['backup'], 93, $_style['icons_backup_large'], $_lang['bk_manager']);
