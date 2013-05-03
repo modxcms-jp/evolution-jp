@@ -13,15 +13,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
-    var $j = jQuery.noConflict();
-    jQuery(function(){
+    jQuery(function($){
         resizeTree();
         restoreTree();
-        jQuery(window).resize(function(){resizeTree();});
-        var tree = jQuery('div#treeRoot');
+        $(window).resize(function(){resizeTree();});
+        var tree = $('div#treeRoot');
+        var active;
         tree.on('click','div',function(){
         	hideMenu();
-        	var str = jQuery(this).attr("property");
+        });
+        tree.on('click','div span.treeNode',function(){
+        	hideMenu();
+        	var str = $(this).parent().attr("property");
         	var prop = (new Function("return " + str))();
         	if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist')
         	{
@@ -29,26 +32,26 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         	}
         	treeAction(prop.id, prop.pagetitle);
         	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected").addClass("treeNode");
-        	jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
+        	$(this).addClass("treeNodeSelected");
         });
         tree.on('mouseenter','span.treeNode',function(){
         	if(this.className!="treeNodeSelected") {
-        		jQuery(this).addClass("treeNodeHover");
+        		$(this).addClass("treeNodeHover");
         	}
         });
         tree.on('mouseleave','span.treeNode',function(){
-        		jQuery(this).removeClass("treeNodeHover");
+        		$(this).removeClass("treeNodeHover");
         });
 		tree.on('selectstart', 'div', function() {
 			return false;
 		});
 		tree.on('dblclick','div',function(){
-			var str = jQuery(this).attr("property");
+			var str = $(this).attr("property");
 			var prop = (new Function("return " + str))();
 			parent.tree.ca='open';
 			treeAction(prop.id, prop.pagetitle);
 			tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
-			jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
+			$(this).children('span.treeNode').addClass("treeNodeSelected");
 		}).click(function(){return false;});
 		tree.on('mousedown', 'div', function() {
 			return false;
@@ -57,19 +60,19 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.icon',function(event){
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('contextmenu', 'div', function(event) {
-			var str = jQuery(this).attr("property");
+			var str = $(this).attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('mousedown', 'img.icon', function() {
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -78,7 +81,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('mousedown', 'span.treeNode', function() {
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -87,12 +90,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.toggle',function(event){
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			toggleNode(this, prop.indent, prop.id, 0, prop.ps);
 			return false;
 		});
-		jQuery('div#treeHolder').click(function(){
+		$('div#treeHolder').click(function(){
 			if(currSorterState=="block") {
 				currSorterState="none";
 				document.getElementById('floater').style.display=currSorterState;
@@ -224,18 +227,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             selectedObjectName = selectedObjectName.substr(0, 20) + "...";
         }
         x = x<?php echo $modx_textdir==='rtl' ? '-190' : '';?>;
-        $j('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
-        $j('#mx_contextmenu').css('top' ,y);
-        $j("#nameHolder").text(selectedObjectName);
+        $('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
+        $('#mx_contextmenu').css('top' ,y);
+        $("#nameHolder").text(selectedObjectName);
 
-        $j('#mx_contextmenu').css('visibility','visible');
+        $('#mx_contextmenu').css('visibility','visible');
         _rc = 1;
         setTimeout("_rc = 0;",100);
     }
 
     function hideMenu() {
         if (_rc) return false;
-        $j('#mx_contextmenu').css('visibility','hidden');
+        $('#mx_contextmenu').css('visibility','hidden');
     }
 
     function toggleNode(node,indent,parent,expandAll,privatenode) {
@@ -266,7 +269,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
-                $j.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
+                $.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -314,18 +317,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
     }
 
     function updateTree() {
@@ -334,7 +337,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var t_sortby = document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
@@ -355,6 +358,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
     function treeAction(id, name) {
+    	active = id;
         if(ca=="move") {
             try {
                 parent.main.setMoveValue(id, name);
@@ -367,7 +371,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27');
 ?>
             if(id==0) {
-                $j('div#treeRoot').find('span.treeNodeSelected').removeClass("treeNodeSelected");
+                $('div#treeRoot').find('span.treeNodeSelected').removeClass("treeNodeSelected");
                 parent.main.location.href="index.php?a=120";
             }
             else if(ca=="docinfo")
@@ -412,7 +416,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function saveFolderState() {
         var folderState = getFolderState();
         url = 'index.php?a=1&f=nodes&savestateonly=1'+folderState;
-        $j.get(url);
+        $.get(url);
     }
 
     // show state of recycle bin
@@ -649,7 +653,12 @@ function constructLink($action, $img, $text, $allowed)
 {
 	if($allowed==1)
 	{
-		echo '<div class="menuLink" id="item'.$action.'" onclick="menuHandler(' . $action . '); hideMenu();">';
-		echo '<img src="' . $img . '" />' . $text . '</div>';
+		global $modx;
+		$ph['action'] = $action;
+		$ph['img']    = $img;
+		$ph['text']   = $text;
+		$tpl  = '<div class="menuLink" id="item[+action+]" onclick="menuHandler(\'[+action+]\'); hideMenu();">';
+		$tpl .= '<img src="[+img+]" />[+text+]</div>';
+		echo $modx->parsePlaceholder($tpl, $ph);
 	}
 }
