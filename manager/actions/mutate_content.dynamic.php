@@ -40,7 +40,7 @@ switch ($_REQUEST['a']) {
 
 if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
 	 $id = $_REQUEST['id'];
-else $id = 0;
+else $id = '0';
 
 // Get table names (alphabetical)
 
@@ -90,7 +90,7 @@ if ($_SESSION['mgrDocgroups']) {
 	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
 }
 
-if ($id !== 0)
+if ($id !== '0')
 {
 	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
 	$access .= !isset($docgrp) || empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
