@@ -58,6 +58,8 @@ class DocumentParser {
     var $directParse;
 
 	function __call($name,$args) {
+		include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
+		if(method_exists($this->old,$name)) return call_user_func_array(array($this->old,$name),$args);
 	}
 	
     // constructor
@@ -161,9 +163,6 @@ class DocumentParser {
 			case 'SubParser':
 				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
 				$this->sub = new SubParser();
-				break;
-			case 'DeprecatedAPI':
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
 				break;
 			default :
 				return false;
@@ -3409,33 +3408,6 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->addEventListener($evtName, $pluginName);}
     function removeEventListener($evtName, $pluginName='')
     	{$this->loadExtension('SubParser');$this->sub->removeEventListener($evtName, $pluginName);}
-    
-    // - deprecated db functions
-    function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
-    function dbQuery($sql)               {return $this->db->query($sql);}
-    function recordCount($rs)            {return $this->db->getRecordCount($rs);}
-    function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
-    function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
-    function insertId($rs)               {return $this->db->getInsertId($rs);}
-    function dbClose()                   {$this->db->disconnect();}
-    
-    // deprecated
-    function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
-    {
-        $this->loadExtension('DeprecatedAPI');
-        return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
-    }
-    
-    function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
-    function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
-    function putChunk($chunkName)   {return $this->getChunk($chunkName);}
-    function getDocGroups()         {return $this->getUserDocGroups();}
-    function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
-    function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
-    function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-    function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-    function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
-    function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
 
     /***************************************************************************************/
     /* End of API functions								       */
