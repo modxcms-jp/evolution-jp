@@ -221,7 +221,6 @@ class ManagerAPI {
 		global $modx;
 		
 		if($flag!=1) return;
-		// http://localhost/modx/15/manager/index.php?a=27&id=12&frame=main
         if(isset($_GET['frame']) && $_GET['frame']==='main')
         {
         	switch($modx->manager->action)
