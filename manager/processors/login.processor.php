@@ -335,7 +335,15 @@ if(isset($id) && $id>0)
 }
 else
 {
-    $header = 'Location: '.MODX_SITE_URL.'manager/';
+	if(isset($_SESSION['save_uri']) && !empty($_SESSION['save_uri']))
+	{
+		$uri = $_SESSION['save_uri'];
+		unset($_SESSION['save_uri']);
+	}
+	else $uri = MODX_MANAGER_URL;
+	
+    $header = 'Location: ' . $uri;
+    
     if($_POST['ajax']==1) echo $header;
     else header($header);
 }
