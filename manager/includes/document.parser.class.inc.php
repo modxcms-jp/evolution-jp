@@ -1871,6 +1871,40 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='')
 	{
+		if(isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id']) && isset($_GET['mode']) && $_GET['mode']==='prev')
+		{
+			if(!isset($_SESSION['mgrValidated'])) exit();
+			
+			$this->loadExtension('ManagerAPI');
+			
+            $input = $_POST;
+            $input['id'] = $_GET['id'];
+            $this->documentIdentifier = $_GET['id'];
+            $rs = $this->db->select('id,name','[+prefix+]site_tmplvars');
+            while($row = $this->db->getRow($rs))
+            {
+            	$tvid = 'tv' . $row['id'];
+            	$tvname[$tvid] = $row['name'];
+            }
+            
+            foreach($input as $k=>$v)
+            {
+            	if(isset($tvname[$k]))
+            	{
+            		unset($input[$k]);
+            		$k = $tvname[$k];
+            		$input[$k] = $v;
+            	}
+            	elseif($k==='ta')
+            	{
+            		$input['content'] = $v;
+            		unset($input['ta']);
+            	}
+            }
+            $this->directParse = 1;
+			return $input;
+		}
+			
 		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
 		{
 			$identifier = $method;
