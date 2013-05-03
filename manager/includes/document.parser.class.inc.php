@@ -2121,12 +2121,12 @@ class DocumentParser {
 			foreach ($childrenList[$id] as $childId)
 			{
 				$pkey = $this->aliasListing[$childId]['alias'];
-				if(strlen($this->aliasListing[$childId]['path']))
+				if($this->aliasListing[$childId]['path']!=='')
 				{
 					$pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
 				}
 				
-				if (!strlen($pkey)) $pkey = $childId;
+				if ($pkey!=='') $pkey = $childId;
 				$children[$pkey] = $childId;
 				
 				if ($depth)
