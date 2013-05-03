@@ -783,10 +783,12 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			if ($i > 0 && $i < $num_of_tv) echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 			
 			// post back value
-			if(array_key_exists('tv'.$row['id'], $inputdata))
+			$tvid = 'tv'.$row['id'];
+			if(isset($content[$tvid]))                 $tvPBV = $content[$tvid];
+			elseif(array_key_exists($tvid, $inputdata))
 			{
-				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata['tv'.$row['id']]);
-				else                                   $tvPBV = $inputdata['tv'.$row['id']];
+				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata[$tvid]);
+				else                                   $tvPBV = $inputdata[$tvid];
 			}
 			else                                       $tvPBV = $row['value'];
 
