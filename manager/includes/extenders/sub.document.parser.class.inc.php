@@ -1,5 +1,4 @@
 <?php
-$this->sub = new SubParser();
 class SubParser {
     function sendmail($params=array(), $msg='')
     {

@@ -58,8 +58,6 @@ class DocumentParser {
     var $directParse;
 
 	function __call($name,$args) {
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		if(method_exists($this->sub,$name)) return call_user_func_array(array($this->sub,$name),$args);
 	}
 	
     // constructor
@@ -159,6 +157,10 @@ class DocumentParser {
 					return true;
 				}
 				else return false;
+				break;
+			case 'SubParser':
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+				$this->sub = new SubParser();
 				break;
 			case 'DeprecatedAPI':
 				include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
@@ -3369,6 +3371,45 @@ class DocumentParser {
 		return $parameter;
 	}
 
+    function sendmail($params=array(), $msg='')
+    	{$this->loadExtension('SubParser');$this->sub->sendmail($params, $msg);}
+    function rotate_log($target='event_log',$limit=2000, $trim=100)
+    	{$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
+    function logEvent($evtid, $type, $msg, $title= 'Parser')
+    	{$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
+    function clearCache($params=array())
+    	{$this->loadExtension('SubParser');$this->sub->clearCache($params);}
+    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
+    	{$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
+    function get_backtrace($backtrace)
+    	{$this->loadExtension('SubParser');$this->sub->get_backtrace($backtrace);}
+    function _IIS_furl_fix()
+    	{$this->loadExtension('SubParser');$this->sub->_IIS_furl_fix();}
+    function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
+    function sendForward($id='', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendForward($id, $responseCode);}
+    function sendErrorPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendErrorPage();}
+    function sendUnauthorizedPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
+    function setCacheRefreshTime($unixtime)
+    	{$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
+    function webAlert($msg, $url= '')
+    	{$this->loadExtension('SubParser');$this->sub->webAlert($msg, $url);}
+    function getSnippetId()
+    	{$this->loadExtension('SubParser');$this->sub->getSnippetId();}
+    function getSnippetName()
+    	{$this->loadExtension('SubParser');$this->sub->getSnippetName();}
+    function runSnippet($snippetName, $params= array ())
+    	{$this->loadExtension('SubParser');$this->sub->runSnippet($snippetName, $params);}
+    function changeWebUserPassword($oldPwd, $newPwd)
+    	{$this->loadExtension('SubParser');$this->sub->changeWebUserPassword($oldPwd, $newPwd);}
+    function addEventListener($evtName, $pluginName)
+    	{$this->loadExtension('SubParser');$this->sub->addEventListener($evtName, $pluginName);}
+    function removeEventListener($evtName, $pluginName='')
+    	{$this->loadExtension('SubParser');$this->sub->removeEventListener($evtName, $pluginName);}
+    
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
