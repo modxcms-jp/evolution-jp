@@ -119,11 +119,6 @@ header("Content-Type: text/html; charset={$modx_manager_charset}");
 // include version info
 include_once("{$core_path}version.inc.php");
 
-if(!isset($settings_version) || $settings_version!=$modx_version)
-{
-	include_once($modx->config['base_path'] . 'manager/includes/upgrades.php');
-}
-
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once("{$core_path}accesscontrol.inc.php");
 

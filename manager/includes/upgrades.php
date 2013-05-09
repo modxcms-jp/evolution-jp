@@ -1,37 +1,35 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-global $default_config;
+global $default_config, $settings_version;
 $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
 
 run_update($settings_version);
-if($action==17) $modx->clearCache();
-
-disableOldCarbonTheme();
+$modx->clearCache();
 
 function run_update($pre_version)
 {
-	global $modx;
+	global $modx, $modx_version;
 	
 	$pre_version = strtolower($pre_version);
 	$pre_version = str_replace(array('j','rc','-r'), array('','RC','-'), $pre_version);
 		
 	if(version_compare($pre_version,'1.0.5') < 0) {
 		update_tbl_system_settings();
-		$msg = 'Update before 1.0.5';
+		$msg = "Update 1.0.5 to {$modx_version}";
 		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
 	if(version_compare($pre_version,'1.0.6') < 0) {
 		update_config_custom_contenttype();
 		update_config_default_template_method();
-		$msg = 'Update before 1.0.6';
+		$msg = "Update 1.0.6 to {$modx_version}";
 		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
 	if(version_compare($pre_version,'1.0.7') < 0) {
 		disableLegacyPlugins();
-		$msg = 'Update before 1.0.7';
+		$msg = "Update 1.0.7 to {$modx_version}";
 		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
@@ -48,6 +46,7 @@ function run_update($pre_version)
 	}
 	
 	update_tbl_user_roles();
+	disableOldCarbonTheme();
 	disableOldFckEditor();
 }
 
@@ -76,6 +75,8 @@ function disableOldCarbonTheme() {
 	)
 	{
 		$modx->regOption('manager_theme',$default_config['manager_theme']);
+		$msg = "古い仕様の管理画面テーマを無効にしました";
+		$modx->logEvent(0,1,$msg,$msg);
 	}
 }
 
@@ -88,6 +89,8 @@ function disableOldFckEditor()
 	$file = file_get_contents($tpl_path);
 	if(strpos($file,'FCKeditor v2.1.1')===false) return;
 	$modx->regOption('which_editor',$default_config['which_editor']);
+	$msg = "FCKeditorプラグインを無効にしました";
+	$modx->logEvent(0,1,$msg,$msg);
 }
 function disableLegacyPlugins()
 {
@@ -182,6 +185,8 @@ function delete_actionphp()
 		if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
 		{
 			@unlink($modx->config['base_path'] . 'action.php');
+        	$msg = "脆弱性を持つaction.phpを削除しました";
+        	$modx->logEvent(0,1,$msg,$msg);
 		}
 	}
 }
