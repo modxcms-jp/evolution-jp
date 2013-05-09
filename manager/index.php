@@ -432,12 +432,9 @@ switch ($action) {
 
 // view phpinfo
     case 200: // show phpInfo
-        if($modx->hasPermission('logs'))
-        {
-            include_once "header.inc.php";
-            include_once "actions/phpinfo.static.php";
-            include_once "footer.inc.php";
-        }
+        include_once "header.inc.php";
+        include_once "actions/phpinfo.static.php";
+        include_once "footer.inc.php";
         break;
 
 // errorpage
