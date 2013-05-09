@@ -2159,7 +2159,7 @@ class DocumentParser {
 					$pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
 				}
 				
-				if ($pkey!=='') $pkey = $childId;
+				if ($pkey==='') $pkey = $childId;
 				$children[$pkey] = $childId;
 				
 				if ($depth)
