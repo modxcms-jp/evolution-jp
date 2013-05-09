@@ -2760,6 +2760,7 @@ class DocumentParser {
 	{
 		$str = trim($str);
 		if (empty($str)) return '';
+		if(preg_match('@^[0-9]+$@',$str)) return $str;
 		
 		switch($this->config['datetime_format'])
 		{
