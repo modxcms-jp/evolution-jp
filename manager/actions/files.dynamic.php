@@ -352,7 +352,7 @@ echo '<br />';
 ?>
 <table>
 <tr>
-<td style="width:300px;"><b><?php echo $_lang['files_filename']?></b></td>
+<td><b><?php echo $_lang['files_filename']?></b></td>
 <td><b><?php echo $_lang['files_modified']?></b></td>
 <td><b><?php echo $_lang['files_filesize']?></b></td>
 <td><b><?php echo $_lang['files_fileoptions']?></b></td>
@@ -523,7 +523,7 @@ function ls($curpath)
 	{
 		$filesizes += $dirs_array[$i]['stats']['7'];
 		echo '<tr style="cursor:default;" onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
-		echo '<td>',$dirs_array[$i]['text'],'</td>';
+		echo '<td style="padding-right:10px;">',$dirs_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($dirs_array[$i]['stats']['9']),'</td>';
 		echo '<td dir="ltr">',$modx->nicesize($dirs_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
@@ -539,7 +539,7 @@ function ls($curpath)
 	{
 		$filesizes += $files_array[$i]['stats']['7'];
 		echo '<tr onmouseout="setColor(this,0)" onmouseover="setColor(this,1)">';
-		echo '<td>',$files_array[$i]['text'],'</td>';
+		echo '<td style="padding-right:10px;">',$files_array[$i]['text'],'</td>';
 		echo '<td>',$modx->toDateFormat($files_array[$i]['stats']['9']),'</td>';
 		echo '<td dir="ltr">',$modx->nicesize($files_array[$i]['stats']['7']),'</td>';
 		echo '<td>';
