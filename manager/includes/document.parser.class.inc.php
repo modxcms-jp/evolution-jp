@@ -2460,9 +2460,7 @@ class DocumentParser {
 			}
 			else
 			{
-				$url = $this->referenceListing[$id];
-				$url = urlencode($url);
-				return $url;
+				return $this->referenceListing[$id];
 			}
 		}
 		
