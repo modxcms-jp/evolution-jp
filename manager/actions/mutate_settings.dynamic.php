@@ -478,7 +478,7 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th>Internal PHx function</th>
+	<th>Output Filter</th>
 	<td>
 		<?php echo wrap_label('Enable',form_radio('enable_phx','1', $enable_phx=='1'));?><br />
 		<?php echo wrap_label('Disable',form_radio('enable_phx','0', $enable_phx=='0'));?><br />
