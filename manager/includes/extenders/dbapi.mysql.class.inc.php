@@ -454,8 +454,9 @@ class DBAPI {
 	function getValue($dsq, $from='', $where='')
 	{
 		if($from!=='' && $where!=='') {
+			$from = str_replace('[+prefix+]', '', $from);
 			$rs = $this->getObject($from,$where);
-			if($rs[$dsq]) return $rs[$dsq];
+			if(isset($rs->$dsq)) return $rs->$dsq;
 		}
 		elseif (!is_resource($dsq)) $dsq = $this->query($dsq);
 		if ($dsq)
