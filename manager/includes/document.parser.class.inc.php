@@ -1871,15 +1871,14 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='')
 	{
-		if(isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id']) && isset($_GET['mode']) && $_GET['mode']==='prev')
+		if(isset($_SESSION['mgrValidated']) && !empty($_POST) && isset($_GET['mode']) && $_GET['mode']==='prev')
 		{
-			if(!isset($_SESSION['mgrValidated'])) exit();
-			
 			$this->loadExtension('ManagerAPI');
 			
             $input = $_POST;
-            $input['id'] = $_GET['id'];
-            $this->documentIdentifier = $_GET['id'];
+             $docid = (isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id'])) ? $_GET['id'] : '0';
+             $input['id'] = $docid;
+            $this->documentIdentifier = $docid;
             $rs = $this->db->select('id,name','[+prefix+]site_tmplvars');
             while($row = $this->db->getRow($rs))
             {
