@@ -55,7 +55,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		} catch(oException) {
 			// Delay first run until we're ready...
-			if(msgcheck!=0) setTimeout('updateMail(true)',1000);
+			if(msgcheck!=0) setTimeout('updateMail(true)',1000 * 60);
 		}
 	};
 
