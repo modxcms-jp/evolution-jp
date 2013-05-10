@@ -111,6 +111,7 @@ function deletedocument() {
 	</ul>
 </div>
 
+<div class="section">
 <div class="sectionBody">
 <fieldset>
 <table>
@@ -308,7 +309,7 @@ table td {vertical-align:top;}
 
 <input type="submit" name="save" style="display:none">
 </form>
-
+</div>
 </div>
 
 
