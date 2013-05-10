@@ -214,4 +214,8 @@ UPDATE `{PREFIX}site_plugins` SET disabled='1' WHERE `name`='ダッシュボー�
 
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `parent` tinyint(4) NOT NULL default '0' AFTER `description`;
 
+ALTER TABLE `{PREFIX}site_revision` ADD COLUMN `submittedon` int(20) NOT NULL default '0' AFTER `editedby`;
+
+ALTER TABLE `{PREFIX}site_revision` ADD COLUMN `submittedby` int(10) NOT NULL default '0' AFTER `submittedon`;
+
 
