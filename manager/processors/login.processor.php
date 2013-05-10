@@ -325,6 +325,11 @@ $modx->invokeEvent("OnManagerLogin",
                             "rememberme"    => $rememberme
                         ));
 
+if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
+{
+	include_once($modx->config['base_path'] . 'manager/includes/upgrades.php');
+}
+
 // check if we should redirect user to a web page
 $id = $modx->db->getValue($modx->db->select('setting_value','[+prefix+]user_settings',"user='{$internalKey}' AND setting_name='manager_login_startup'"));
 if(isset($id) && $id>0)
