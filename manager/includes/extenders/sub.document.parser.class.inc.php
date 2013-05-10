@@ -27,6 +27,17 @@ class SubParser {
     		$p = $params;
     		unset($params);
     	}
+    	if(isset($p['sendto']) && preg_match('@^[0-9]+$@',$p['sendto']))
+    	{
+    		$userinfo = $modx->getUserInfo($p['sendto']);
+    		$p['sendto'] = $userinfo['email'];
+    	}
+    	if(isset($p['from']) && preg_match('@^[0-9]+$@',$p['from']))
+    	{
+    		$userinfo = $modx->getUserInfo($p['from']);
+    		$p['from']     = $userinfo['email'];
+    		$p['fromname'] = $userinfo['username'];
+    	}
     	if($msg==='') $msg = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
     	include_once $modx->config['base_path'] . 'manager/includes/extenders/modxmailer.class.inc.php';
     	$mail = new MODxMailer();
