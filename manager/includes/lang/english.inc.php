@@ -1202,7 +1202,7 @@ $_lang['a17_error_reporting_opt1'] = 'Ignore the warning of a slight notice leve
 $_lang['a17_error_reporting_opt2'] = 'Detect all errors except E_NOTICE';
 $_lang['a17_error_reporting_opt99'] = 'Detect all';
 
-$_lang['enable_phx_message'] = 'Enable built-in simple PHx function. The complicated processing including the if judgment statement is not possible in comparison with PHx plugin.';
+$_lang['enable_phx_message'] = 'Enable built-in PHx function.';
 
 $_lang["role_site_schedule"] = 'The list which is in a published status';
 
