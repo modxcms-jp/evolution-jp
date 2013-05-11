@@ -61,7 +61,7 @@ class DocumentParser {
 	function DocumentParser()
 	{
         global $database_server;
-        if($database_server==='localhost') $database_server = '127.0.0.1';
+        if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';
         
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
 		if($this->isBackend()) $this->loadExtension('ManagerAPI');
