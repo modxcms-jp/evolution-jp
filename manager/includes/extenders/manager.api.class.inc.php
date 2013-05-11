@@ -38,9 +38,9 @@ class ManagerAPI {
 	
 	// check for saved form
 	function hasFormValues() {
-		if(isset($_SESSION['mgrFormValueId']))
+		if(isset($_SESSION['mgrFormValueId']) && isset($_SESSION['mgrFormValues']) && !empty($_SESSION['mgrFormValues']))
 		{
-			if($this->action==$_SESSION['mgrFormValueId'])
+			if($this->action==$_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues']))
 			{
 				return true;
 			}
@@ -49,6 +49,7 @@ class ManagerAPI {
 				$this->clearSavedFormValues();
 			}
 		}
+		return false;
 	}
 	// saved form post from $_POST
 	function saveFormValues($id=0)
