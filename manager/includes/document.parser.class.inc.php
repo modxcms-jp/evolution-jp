@@ -179,7 +179,7 @@ class DocumentParser {
 	function executeParser($id='')
 	{
 		ob_start();
-		set_error_handler(array(& $this,'phpError')); //error_reporting(0);
+		set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
 		
 		$this->http_status_code = '200';
 		
