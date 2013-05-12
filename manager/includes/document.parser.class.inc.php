@@ -1294,29 +1294,28 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[(',')]');
-		if($matches)
+		if(empty($matches)) return $content;
+		
+		$i= 0;
+		foreach($matches['1'] as $key)
 		{
-			$i= 0;
-			foreach($matches['1'] as $key)
-			{
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
-					list($key,$modifiers) = explode(':', $key, 2);
-				}
-				else $modifiers = false;
-				
-				if(isset($this->config[$key])) {
-					$value = $this->config[$key];
-					if($modifiers!==false) {
-						$this->loadExtension('PHx') or die('Could not load PHx class.');
-						$value = $this->phx->phxFilter($key,$value,$modifiers);
-					}
-					$replace[$i]= $value;
-				}
-				else $replace[$i]= $key;
-				$i++;
+			if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+				list($key,$modifiers) = explode(':', $key, 2);
 			}
-			$content= str_replace($matches['0'], $replace, $content);
+			else $modifiers = false;
+			
+			if(isset($this->config[$key])) {
+				$value = $this->config[$key];
+				if($modifiers!==false) {
+					$this->loadExtension('PHx') or die('Could not load PHx class.');
+					$value = $this->phx->phxFilter($key,$value,$modifiers);
+				}
+				$replace[$i]= $value;
+			}
+			else $replace[$i]= $key;
+			$i++;
 		}
+		$content= str_replace($matches['0'], $replace, $content);
 		return $content;
 	}
 	
@@ -1326,46 +1325,46 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'{{','}}');
-		if ($matches) {
-			$i= 0;
-			foreach($matches['1'] as $key) {
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
-					list($key,$modifiers) = explode(':', $key, 2);
-				}
-				else $modifiers = false;
-				
-				if(strpos($key,'?')!==false && strpos($key,'=')!==false) {
-					list($key,$properties) = explode('?', $key, 2);
-					$ph = $this->getProperties($properties);
-				}
-				
-				if ($this->getChunk($key)!==false) {
-					$value= $this->getChunk($key);
-				}
-				else {
-					if(!isset($this->chunkCache)) $this->setChunkCache();
-					$escaped_name = $this->db->escape($key);
-					$where = "`name`='{$escaped_name}' AND `published`='1'";
-					$result= $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
-					$total= $this->db->getRecordCount($result);
-					if ($total < 1) {
-						$this->chunkCache[$key]= '';
-						$value= '';
-					} else {
-						$row= $this->db->getRow($result);
-						$this->chunkCache[$key]= $row['snippet'];
-						$value= $row['snippet'];
-					}
-				}
-				if($modifiers!==false) {
-					$this->loadExtension('PHx') or die('Could not load PHx class.');
-					$value = $this->phx->phxFilter($key,$value,$modifiers);
-				}
-				if(isset($ph) && 0<count($ph))
-					$value = $this->parsePlaceholder($value, $ph);
-				$replace[$i] = $value;
-				$i++;
+		if(empty($matches)) return $content;
+		
+		$i= 0;
+		foreach($matches['1'] as $key) {
+			if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+				list($key,$modifiers) = explode(':', $key, 2);
 			}
+			else $modifiers = false;
+			
+			if(strpos($key,'?')!==false && strpos($key,'=')!==false) {
+				list($key,$properties) = explode('?', $key, 2);
+				$ph = $this->getProperties($properties);
+			}
+			
+			if ($this->getChunk($key)!==false) {
+				$value= $this->getChunk($key);
+			}
+			else {
+				if(!isset($this->chunkCache)) $this->setChunkCache();
+				$escaped_name = $this->db->escape($key);
+				$where = "`name`='{$escaped_name}' AND `published`='1'";
+				$result= $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
+				$total= $this->db->getRecordCount($result);
+				if ($total < 1) {
+					$this->chunkCache[$key]= '';
+					$value= '';
+				} else {
+					$row= $this->db->getRow($result);
+					$this->chunkCache[$key]= $row['snippet'];
+					$value= $row['snippet'];
+				}
+			}
+			if($modifiers!==false) {
+				$this->loadExtension('PHx') or die('Could not load PHx class.');
+				$value = $this->phx->phxFilter($key,$value,$modifiers);
+			}
+			if(isset($ph) && 0<count($ph))
+				$value = $this->parsePlaceholder($value, $ph);
+			$replace[$i] = $value;
+			$i++;
 			$content= str_replace($matches['0'], $replace, $content);
 			$content=$this->mergeSettingsContent($content);
 		}
@@ -1419,41 +1418,40 @@ class DocumentParser {
 		$replace= array ();
 		$content=$this->mergeSettingsContent($content);
 		$matches = $this->getTagsFromContent($content,'[+','+]');
-		if($matches)
+		if(empty($matches)) return $content;
+		
+		$i= 0;
+		foreach($matches['1'] as $key)
 		{
-			$i= 0;
-			foreach($matches['1'] as $key)
+			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
 			{
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
-				{
-					list($name,$modifiers) = explode(':', $key, 2);
-				}
-				else
-				{
-					$name = $key;
-					$modifiers = false;
-				}
-				
-				$value= '';
-				if (is_array($this->placeholders) && isset($this->placeholders[$name]))
-				{
-					$value= $this->placeholders[$name];
-					if ($value !== '')
-					{
-						if($modifiers!==false)
-						{
-							$this->loadExtension('PHx') or die('Could not load PHx class.');
-							$value = $this->phx->phxFilter($name,$value,$modifiers);
-						}
-					}
-					$replace[$i]= $value;
-				}
-				else $replace[$i]= '[+' . $key . '+]';
-				
-				$i++;
+				list($name,$modifiers) = explode(':', $key, 2);
 			}
-			$content= str_replace($matches['0'], $replace, $content);
+			else
+			{
+				$name = $key;
+				$modifiers = false;
+			}
+			
+			$value= '';
+			if (is_array($this->placeholders) && isset($this->placeholders[$name]))
+			{
+				$value= $this->placeholders[$name];
+				if ($value !== '')
+				{
+					if($modifiers!==false)
+					{
+						$this->loadExtension('PHx') or die('Could not load PHx class.');
+						$value = $this->phx->phxFilter($name,$value,$modifiers);
+					}
+				}
+				$replace[$i]= $value;
+			}
+			else $replace[$i]= '[+' . $key . '+]';
+			
+			$i++;
 		}
+		$content= str_replace($matches['0'], $replace, $content);
 		return $content;
 	}
 	
@@ -2657,35 +2655,34 @@ class DocumentParser {
     		$replace= array ();
     		$matches= array ();
     		$matches = $this->getTagsFromContent($content,$left,$right);
-    		if($matches)
-    		{
-    			$i= 0;
-    			foreach($matches['1'] as $key)
-    			{
-    				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
-    				{
-    					list($key,$modifiers) = explode(':', $key, 2);
-    				}
-    				else $modifiers = false;
-    				
-    				if(isset($chunkArr[$key]))
-    				{
-    					
-    					$value = $chunkArr[$key];
-    					if($modifiers!==false)
-    					{
-    						$this->loadExtension('PHx') or die('Could not load PHx class.');
-    						$value = $this->phx->phxFilter($key,$value,$modifiers);
-    					}
-    					
-    					$replace[$i]= $value;
-    				}
-    				else $replace[$i]= $key;
-    				$i++;
-    			}
-    			
-    			$content= str_replace($matches['0'], $replace, $content);
-    		}
+    		if(empty($matches)) return $content;
+    		
+			$i= 0;
+			foreach($matches['1'] as $key)
+			{
+				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+				{
+					list($key,$modifiers) = explode(':', $key, 2);
+				}
+				else $modifiers = false;
+				
+				if(isset($chunkArr[$key]))
+				{
+					
+					$value = $chunkArr[$key];
+					if($modifiers!==false)
+					{
+						$this->loadExtension('PHx') or die('Could not load PHx class.');
+						$value = $this->phx->phxFilter($key,$value,$modifiers);
+					}
+					
+					$replace[$i]= $value;
+				}
+				else $replace[$i]= $key;
+				$i++;
+			}
+			
+			$content= str_replace($matches['0'], $replace, $content);
 		}
 		return $content;
 	}
