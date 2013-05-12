@@ -1249,9 +1249,10 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[*','*]');
-		$basepath= $this->config['base_path'] . 'manager/includes/';
-		include_once("{$basepath}tmplvars.format.inc.php");
-		include_once("{$basepath}tmplvars.commands.inc.php");
+		if(empty($matches)) return $content;
+		$core_path= $this->config['base_path'] . 'manager/includes/';
+		include_once("{$core_path}tmplvars.format.inc.php");
+		include_once("{$core_path}tmplvars.commands.inc.php");
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
