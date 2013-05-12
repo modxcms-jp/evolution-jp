@@ -294,7 +294,12 @@ class DocumentParser {
 				}
 				else
 				{
-					$this->sendErrorPage();
+					$alias .= $this->config['friendly_url_suffix'];
+					if ($this->getIdFromAlias($alias)!==false)
+					{
+						$this->documentIdentifier= $this->getIdFromAlias($alias);
+					}
+					else $this->sendErrorPage();
 				}
 			}
 			else
@@ -995,9 +1000,10 @@ class DocumentParser {
 		{
 			$this->virtualDir= '';
 		}
-		
-		$q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
-		$q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
+		$prefix = $this->config['friendly_url_prefix'];
+		$suffix = $this->config['friendly_url_suffix'];
+		if(!empty($prefix) && strpos($q,$prefix)!==false) $q = preg_replace('@^' . $prefix . '@',  '', $q);
+		if(!empty($suffix) && strpos($q,$suffix)!==false) $q = preg_replace('@'  . $suffix . '$@', '', $q);
 		if (is_numeric($q))
 		{ /* we got an ID returned, check to make sure it's not an alias */
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
@@ -2457,13 +2463,13 @@ class DocumentParser {
 				}
 			}
 			
-			if($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
-			{
-				$f_url_suffix = '/';
-			}
-			elseif(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
+			if(strpos($alias, '.') !== false && $this->config['suffix_mode']==='1')
 			{
 				$f_url_suffix = '';
+			}
+			elseif($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
+			{
+				$f_url_suffix = '/';
 			}
 			
 			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix;
