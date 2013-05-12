@@ -3166,111 +3166,6 @@ class DocumentParser {
 		return false;
 	}
 
-	# Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
-	function regClientCSS($src, $media='')
-	{
-		if (empty($src) || isset ($this->loadedjscripts[$src])) return '';
-		
-		$nextpos = max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-		
-		$this->loadedjscripts[$src]['startup'] = true;
-		$this->loadedjscripts[$src]['version'] = '0';
-		$this->loadedjscripts[$src]['pos']     = $nextpos;
-		
-		if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
-		{
-			$this->sjscripts[$nextpos]= $src;
-		}
-		else
-		{
-			$media = $media ? 'media="' . $media . '" ' : '';
-			$this->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
-		}
-	}
-
-    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
-	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-	{
-		if (empty($src)) return ''; // nothing to register
-		
-		if (!is_array($options))
-		{
-			if(is_bool($options))       $options = array('plaintext'=>$options);
-			elseif(is_string($options)) $options = array('name'=>$options);
-			else                        $options = array();
-		}
-		$name      = isset($options['name'])      ? strtolower($options['name']) : '';
-		$version   = isset($options['version'])   ? $options['version'] : '0';
-		$plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
-		$key       = !empty($name)                ? $name : $src;
-		
-		$useThisVer= true;
-		if (isset($this->loadedjscripts[$key]))
-		{ // a matching script was found
-			// if existing script is a startup script, make sure the candidate is also a startup script
-			if ($this->loadedjscripts[$key]['startup']) $startup= true;
-			
-			if (empty($name))
-			{
-				$useThisVer= false; // if the match was based on identical source code, no need to replace the old one
-			}
-			else
-			{
-				$useThisVer = version_compare($this->loadedjscripts[$key]['version'], $version, '<');
-			}
-			
-			if ($useThisVer)
-			{
-				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{ // remove old script from the bottom of the page (new one will be at the top)
-					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-				}
-				else
-				{ // overwrite the old script (the position may be important for dependent scripts)
-					$overwritepos= $this->loadedjscripts[$key]['pos'];
-				}
-			}
-			else
-			{ // Use the original version
-				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{ // need to move the exisiting script to the head
-					$version= $this->loadedjscripts[$key][$version];
-					$src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
-					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-				}
-				else return ''; // the script is already in the right place
-			}
-		}
-		
-		if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
-		{
-			$src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
-		}
-		
-		if ($startup)
-		{
-			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-			$this->sjscripts[$pos]= $src;
-		}
-		else
-		{
-			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
-			$this->jscripts[$pos]= $src;
-		}
-		$this->loadedjscripts[$key]['version']= $version;
-		$this->loadedjscripts[$key]['startup']= $startup;
-		$this->loadedjscripts[$key]['pos']= $pos;
-	}
-	
-    function regClientStartupHTMLBlock($html) {$this->regClientScript($html, true, true);} // Registers Client-side Startup HTML block
-    function regClientHTMLBlock($html)        {$this->regClientScript($html, true);} // Registers Client-side HTML block
-    
-	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-	{
-	                                           $this->regClientScript($src, $options, true);
-	}
-	
     # Remove unwanted html tags and snippet, settings and tags
     function stripTags($html, $allowed= '')
     {
@@ -3429,7 +3324,17 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->addEventListener($evtName, $pluginName);}
     function removeEventListener($evtName, $pluginName='')
     	{$this->loadExtension('SubParser');$this->sub->removeEventListener($evtName, $pluginName);}
-
+	function regClientCSS($src, $media='')
+    	{$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
+	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
+    	{$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options);}
+	function regClientStartupHTMLBlock($html)
+    	{$this->loadExtension('SubParser');$this->sub->regClientStartupHTMLBlock($html);}
+	function regClientHTMLBlock($html)
+    	{$this->loadExtension('SubParser');$this->sub->regClientHTMLBlock($html);}
+	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
+    	{$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
+    	
     /***************************************************************************************/
     /* End of API functions								       */
     /***************************************************************************************/
