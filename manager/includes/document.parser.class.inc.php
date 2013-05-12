@@ -277,12 +277,13 @@ class DocumentParser {
 			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
 		}
 		
-		if ($this->documentMethod == 'alias')
+		if ($this->documentMethod === 'alias')
 		{
 			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-			if ($this->config['use_alias_path'] == 1)
+			if ($this->config['use_alias_path'] === '1')
 			{
 				$alias = $this->documentIdentifier;
+				
 				if(strlen($this->virtualDir) > 0)
 				{
 					$alias = $this->virtualDir . '/' . $alias;
@@ -338,6 +339,7 @@ class DocumentParser {
 		else
 		{
 			// get document object
+			
 			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
 			
 			// validation routines
@@ -992,7 +994,7 @@ class DocumentParser {
 		if ($this->config['use_alias_path'] == 1)
 		{
 			$this->virtualDir = dirname($q);
-			$this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+			$this->virtualDir = ($this->virtualDir === '.') ? '' : $this->virtualDir;
 			$q = explode('/', $q);
 			$q = end($q);
 		}
@@ -1040,7 +1042,7 @@ class DocumentParser {
 		}
 		else
 		{ /* we didn't get an ID back, so instead we assume it's an alias */
-			if ($this->config['friendly_alias_urls'] != 1)
+			if ($this->config['friendly_alias_urls'] !== '1')
 			{
 				$q= $qOrig;
 			}
@@ -1911,7 +1913,7 @@ class DocumentParser {
 		}
 		
 		// allow alias to be full path
-		if($method == 'alias' && $this->config['use_alias_path'])
+		if($method === 'alias' && $this->config['use_alias_path']==='1')
 		{
 			$identifier = $this->getIdFromAlias($identifier);
 			if($identifier!==false)
