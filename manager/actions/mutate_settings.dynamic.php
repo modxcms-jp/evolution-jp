@@ -480,9 +480,9 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th>Output Filter</th>
 	<td>
-		<?php echo wrap_label('Enable',form_radio('enable_phx','1', $enable_phx=='1'));?><br />
-		<?php echo wrap_label('Disable',form_radio('enable_phx','0', $enable_phx=='0'));?><br />
-		<?php echo $_lang["enable_phx_message"] ?>
+		<?php echo wrap_label('Enable',form_radio('output_filter','1', $output_filter=='1'));?><br />
+		<?php echo wrap_label('Disable',form_radio('output_filter','0', $output_filter=='0'));?><br />
+		<?php echo $_lang["output_filter_message"] ?>
 	</td>
 </tr>
 <tr class="row1" style="border-bottom:none;">

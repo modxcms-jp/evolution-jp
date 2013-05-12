@@ -1256,7 +1256,7 @@ class DocumentParser {
 		foreach($matches['1'] as $key)
 		{
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
-			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+			if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 			{
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
@@ -1298,7 +1298,7 @@ class DocumentParser {
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
-			if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+			if(strpos($key,':')!==false && $this->config['output_filter']==='1') {
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
 			else $modifiers = false;
@@ -1328,7 +1328,7 @@ class DocumentParser {
 		
 		$i= 0;
 		foreach($matches['1'] as $key) {
-			if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+			if(strpos($key,':')!==false && $this->config['output_filter']==='1') {
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
 			else $modifiers = false;
@@ -1422,7 +1422,7 @@ class DocumentParser {
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
-			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+			if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 			{
 				list($name,$modifiers) = explode(':', $key, 2);
 			}
@@ -1631,7 +1631,7 @@ class DocumentParser {
 		$except_snip_call = $snip_call['except_snip_call'];
 		
 		$key = $snip_call['name'];
-		if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+		if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 		{
 			list($key,$modifiers) = explode(':', $key, 2);
 			$snip_call['name'] = $key;
@@ -2659,7 +2659,7 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches['1'] as $key)
 			{
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+				if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 				{
 					list($key,$modifiers) = explode(':', $key, 2);
 				}
