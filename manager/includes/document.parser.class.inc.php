@@ -496,10 +496,9 @@ class DocumentParser {
 		// remove all unused placeholders
 		if (strpos($this->documentOutput, '[+') !==false)
 		{
-			$matches= array ();
-			preg_match_all('~\[\+(.*?)\+\]~s', $this->documentOutput, $matches);
-			if ($matches['0'])
-			$this->documentOutput= str_replace($matches['0'], '', $this->documentOutput);
+			$matches = $this->getTagsFromContent($content,'[+','+]');
+			if (!empty($matches))
+				$this->documentOutput= str_replace($matches['0'], '', $this->documentOutput);
 		}
 		
 		if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
