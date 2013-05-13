@@ -3327,7 +3327,7 @@ class DocumentParser {
 	function regClientCSS($src, $media='')
     	{$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
 	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-    	{$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options, $startup);}
 	function regClientStartupHTMLBlock($html)
     	{$this->loadExtension('SubParser');$this->sub->regClientStartupHTMLBlock($html);}
 	function regClientHTMLBlock($html)
