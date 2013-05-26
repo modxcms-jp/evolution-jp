@@ -58,8 +58,8 @@ class DocumentParser {
     var $directParse;
 
 	function __call($name,$args) {
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		if(method_exists($this->sub,$name)) return call_user_func_array(array($this->sub,$name),$args);
+		include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
+		if(method_exists($this->old,$name)) return call_user_func_array(array($this->old,$name),$args);
 	}
 	
     // constructor
@@ -121,6 +121,13 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+			// PHPMailer
+			case 'MODxMailer' :
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/modxmailer.class.inc.php');
+				$this->mail= new MODxMailer;
+				if($this->mail) return true;
+				else            return false;
+				break;
 			// Resource API
 			case 'DocAPI' :
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/doc.api.class.inc.php'))
@@ -160,8 +167,9 @@ class DocumentParser {
 				}
 				else return false;
 				break;
-			case 'DeprecatedAPI':
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
+			case 'SubParser':
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+				$this->sub = new SubParser();
 				break;
 			default :
 				return false;
@@ -1863,6 +1871,40 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='')
 	{
+		if(isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id']) && isset($_GET['mode']) && $_GET['mode']==='prev')
+		{
+			if(!isset($_SESSION['mgrValidated'])) exit();
+			
+			$this->loadExtension('ManagerAPI');
+			
+            $input = $_POST;
+            $input['id'] = $_GET['id'];
+            $this->documentIdentifier = $_GET['id'];
+            $rs = $this->db->select('id,name','[+prefix+]site_tmplvars');
+            while($row = $this->db->getRow($rs))
+            {
+            	$tvid = 'tv' . $row['id'];
+            	$tvname[$tvid] = $row['name'];
+            }
+            
+            foreach($input as $k=>$v)
+            {
+            	if(isset($tvname[$k]))
+            	{
+            		unset($input[$k]);
+            		$k = $tvname[$k];
+            		$input[$k] = $v;
+            	}
+            	elseif($k==='ta')
+            	{
+            		$input['content'] = $v;
+            		unset($input['ta']);
+            	}
+            }
+            $this->directParse = 1;
+			return $input;
+		}
+			
 		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
 		{
 			$identifier = $method;
@@ -2113,12 +2155,12 @@ class DocumentParser {
 			foreach ($childrenList[$id] as $childId)
 			{
 				$pkey = $this->aliasListing[$childId]['alias'];
-				if(strlen($this->aliasListing[$childId]['path']))
+				if($this->aliasListing[$childId]['path']!=='')
 				{
 					$pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
 				}
 				
-				if (!strlen($pkey)) $pkey = $childId;
+				if ($pkey!=='') $pkey = $childId;
 				$children[$pkey] = $childId;
 				
 				if ($depth)
@@ -3369,32 +3411,44 @@ class DocumentParser {
 		return $parameter;
 	}
 
-    // - deprecated db functions
-    function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
-    function dbQuery($sql)               {return $this->db->query($sql);}
-    function recordCount($rs)            {return $this->db->getRecordCount($rs);}
-    function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
-    function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
-    function insertId($rs)               {return $this->db->getInsertId($rs);}
-    function dbClose()                   {$this->db->disconnect();}
-    
-    // deprecated
-    function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
-    {
-        $this->loadExtension('DeprecatedAPI');
-        return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
-    }
-    
-    function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
-    function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
-    function putChunk($chunkName)   {return $this->getChunk($chunkName);}
-    function getDocGroups()         {return $this->getUserDocGroups();}
-    function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
-    function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
-    function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-    function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-    function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
-    function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
+    function sendmail($params=array(), $msg='')
+    	{$this->loadExtension('SubParser');$this->sub->sendmail($params, $msg);}
+    function rotate_log($target='event_log',$limit=2000, $trim=100)
+    	{$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
+    function logEvent($evtid, $type, $msg, $title= 'Parser')
+    	{$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
+    function clearCache($params=array())
+    	{$this->loadExtension('SubParser');$this->sub->clearCache($params);}
+    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
+    	{$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
+    function get_backtrace($backtrace)
+    	{$this->loadExtension('SubParser');$this->sub->get_backtrace($backtrace);}
+    function _IIS_furl_fix()
+    	{$this->loadExtension('SubParser');$this->sub->_IIS_furl_fix();}
+    function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
+    function sendForward($id='', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendForward($id, $responseCode);}
+    function sendErrorPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendErrorPage();}
+    function sendUnauthorizedPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
+    function setCacheRefreshTime($unixtime)
+    	{$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
+    function webAlert($msg, $url= '')
+    	{$this->loadExtension('SubParser');$this->sub->webAlert($msg, $url);}
+    function getSnippetId()
+    	{$this->loadExtension('SubParser');$this->sub->getSnippetId();}
+    function getSnippetName()
+    	{$this->loadExtension('SubParser');$this->sub->getSnippetName();}
+    function runSnippet($snippetName, $params= array ())
+    	{$this->loadExtension('SubParser');$this->sub->runSnippet($snippetName, $params);}
+    function changeWebUserPassword($oldPwd, $newPwd)
+    	{$this->loadExtension('SubParser');$this->sub->changeWebUserPassword($oldPwd, $newPwd);}
+    function addEventListener($evtName, $pluginName)
+    	{$this->loadExtension('SubParser');$this->sub->addEventListener($evtName, $pluginName);}
+    function removeEventListener($evtName, $pluginName='')
+    	{$this->loadExtension('SubParser');$this->sub->removeEventListener($evtName, $pluginName);}
 
     /***************************************************************************************/
     /* End of API functions								       */

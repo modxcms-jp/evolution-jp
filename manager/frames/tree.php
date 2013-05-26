@@ -13,15 +13,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
-    var $j = jQuery.noConflict();
-    jQuery(function(){
+    jQuery(function($){
         resizeTree();
         restoreTree();
-        jQuery(window).resize(function(){resizeTree();});
-        var tree = jQuery('div#treeRoot');
+        $(window).resize(function(){resizeTree();});
+        var tree = $('div#treeRoot');
+        var active;
         tree.on('click','div',function(){
         	hideMenu();
-        	var str = jQuery(this).attr("property");
+        });
+        tree.on('click','div span.treeNode',function(){
+        	hideMenu();
+        	var str = $(this).parent().attr("property");
         	var prop = (new Function("return " + str))();
         	if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist')
         	{
@@ -29,26 +32,26 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         	}
         	treeAction(prop.id, prop.pagetitle);
         	tree.find('span.treeNodeSelected').removeClass("treeNodeSelected").addClass("treeNode");
-        	jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
+        	$(this).addClass("treeNodeSelected");
         });
         tree.on('mouseenter','span.treeNode',function(){
         	if(this.className!="treeNodeSelected") {
-        		jQuery(this).addClass("treeNodeHover");
+        		$(this).addClass("treeNodeHover");
         	}
         });
         tree.on('mouseleave','span.treeNode',function(){
-        		jQuery(this).removeClass("treeNodeHover");
+        		$(this).removeClass("treeNodeHover");
         });
 		tree.on('selectstart', 'div', function() {
 			return false;
 		});
 		tree.on('dblclick','div',function(){
-			var str = jQuery(this).attr("property");
+			var str = $(this).attr("property");
 			var prop = (new Function("return " + str))();
 			parent.tree.ca='open';
 			treeAction(prop.id, prop.pagetitle);
 			tree.find('span.treeNodeSelected').removeClass("treeNodeSelected");
-			jQuery(this).children('span.treeNode').addClass("treeNodeSelected");
+			$(this).children('span.treeNode').addClass("treeNodeSelected");
 		}).click(function(){return false;});
 		tree.on('mousedown', 'div', function() {
 			return false;
@@ -57,19 +60,19 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.icon',function(event){
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('contextmenu', 'div', function(event) {
-			var str = jQuery(this).attr("property");
+			var str = $(this).attr("property");
 			var prop = (new Function("return " + str))();
 			showPopup(prop.id, prop.pagetitle, prop.published, prop.deleted, event);
 			return false;
 		});
 		tree.on('mousedown', 'img.icon', function() {
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -78,7 +81,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('mousedown', 'span.treeNode', function() {
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			itemToChange          = prop.id;
 			selectedObjectName    = prop.pagetitle;
@@ -87,12 +90,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		});
 		tree.on('click','img.toggle',function(event){
-			var str = jQuery(this).parent().attr("property");
+			var str = $(this).parent().attr("property");
 			var prop = (new Function("return " + str))();
 			toggleNode(this, prop.indent, prop.id, 0, prop.ps);
 			return false;
 		});
-		jQuery('div#treeHolder').click(function(){
+		$('div#treeHolder').click(function(){
 			if(currSorterState=="block") {
 				currSorterState="none";
 				document.getElementById('floater').style.display=currSorterState;
@@ -192,17 +195,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
         if(permpub==1)
         {
-	        document.getElementById('item9').style.display='block';
-	        document.getElementById('item10').style.display='block';
-	        if(pub==1) document.getElementById('item9').style.display='none';
-	        else       document.getElementById('item10').style.display='none';
+	        document.getElementById('item61').style.display='block';
+	        document.getElementById('item62').style.display='block';
+	        if(pub==1) document.getElementById('item61').style.display='none';
+	        else       document.getElementById('item62').style.display='none';
         }
         if(permdel==1)
         {
-	        document.getElementById('item4').style.display='block';
-	        document.getElementById('item8').style.display='block';
-	        if(del==1) document.getElementById('item4').style.display='none';
-	        else       document.getElementById('item8').style.display='none';
+	        document.getElementById('item6').style.display='block';
+	        document.getElementById('item63').style.display='block';
+	        if(del==1) document.getElementById('item6').style.display='none';
+	        else       document.getElementById('item63').style.display='none';
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX > 0 ? e.clientX:e.pageX;
@@ -224,18 +227,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             selectedObjectName = selectedObjectName.substr(0, 20) + "...";
         }
         x = x<?php echo $modx_textdir==='rtl' ? '-190' : '';?>;
-        $j('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
-        $j('#mx_contextmenu').css('top' ,y);
-        $j("#nameHolder").text(selectedObjectName);
+        $('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
+        $('#mx_contextmenu').css('top' ,y);
+        $("#nameHolder").text(selectedObjectName);
 
-        $j('#mx_contextmenu').css('visibility','visible');
+        $('#mx_contextmenu').css('visibility','visible');
         _rc = 1;
         setTimeout("_rc = 0;",100);
     }
 
     function hideMenu() {
         if (_rc) return false;
-        $j('#mx_contextmenu').css('visibility','hidden');
+        $('#mx_contextmenu').css('visibility','hidden');
     }
 
     function toggleNode(node,indent,parent,expandAll,privatenode) {
@@ -266,7 +269,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
-                $j.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
+                $.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -314,18 +317,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
     }
 
     function updateTree() {
@@ -334,7 +337,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var t_sortby = document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
+        $.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
@@ -355,6 +358,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
     function treeAction(id, name) {
+    	active = id;
         if(ca=="move") {
             try {
                 parent.main.setMoveValue(id, name);
@@ -367,7 +371,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27');
 ?>
             if(id==0) {
-                $j('div#treeRoot').find('span.treeNodeSelected').removeClass("treeNodeSelected");
+                $('div#treeRoot').find('span.treeNodeSelected').removeClass("treeNodeSelected");
                 parent.main.location.href="index.php?a=120";
             }
             else if(ca=="docinfo")
@@ -412,7 +416,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function saveFolderState() {
         var folderState = getFolderState();
         url = 'index.php?a=1&f=nodes&savestateonly=1'+folderState;
-        $j.get(url);
+        $.get(url);
     }
 
     // show state of recycle bin
@@ -527,19 +531,19 @@ function setActiveFromContextMenu( doc_id ){
 // Context menu stuff
 function menuHandler(action) {
     switch (action) {
-        case 1 : // view
+        case '3' : // view
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=3&id=" + itemToChange;
             break
-        case 2 : // edit
+        case '27' : // edit
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break
-        case 3 : // new Resource
+        case '4' : // new Resource
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=4&pid=" + itemToChange;
             break
-        case 4 : // delete
+        case '6' : // delete
             if(selectedObjectDeleted==0) {
                 if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
                     top.main.document.location.href="index.php?a=6&id=" + itemToChange;
@@ -548,21 +552,21 @@ function menuHandler(action) {
                 alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
             }
             break
-        case 5 : // move
+        case '51' : // move
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=51&id=" + itemToChange;
             break
-        case 6 : // new Weblink
+        case '72' : // new Weblink
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=72&pid=" + itemToChange;
             break
-        case 7 : // duplicate
+        case '94' : // duplicate
             if(confirm("<?php echo $_lang['confirm_resource_duplicate'] ?>")==true) {
                    setActiveFromContextMenu(itemToChange);
                    top.main.document.location.href="index.php?a=94&id=" + itemToChange;
                }
             break
-        case 8 : // undelete
+        case '63' : // undelete
             if(selectedObjectDeleted==0) {
                 alert("'" + selectedObjectName + "' <?php echo $_lang['not_deleted']; ?>");
             } else {
@@ -571,13 +575,13 @@ function menuHandler(action) {
                 }
             }
             break
-        case 9 : // publish
+        case '61' : // publish
             if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_publish']; ?>")==true) {
                 setActiveFromContextMenu(itemToChange);
                 top.main.document.location.href="index.php?a=61&id=" + itemToChange;
             }
             break
-        case 10 : // unpublish
+        case '62' : // unpublish
             if (itemToChange != <?php echo $modx->config['site_start']?>) {
                 if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_unpublish']; ?>")==true) {
                     setActiveFromContextMenu(itemToChange);
@@ -587,11 +591,11 @@ function menuHandler(action) {
                 alert('Document is linked to site_start variable and cannot be unpublished!');
             }
             break
-        case 12 : // preview
+        case 'pv' : // preview
             setActiveFromContextMenu(itemToChange);
             window.open(selectedObjectUrl,'previeWin'); //re-use 'new' window
             break
-        case 13 : // resources list
+        case '120' : // resources list
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=120&id=" + itemToChange;
             break
@@ -606,11 +610,11 @@ function menuHandler(action) {
 <div id="mx_contextmenu" onselectstart="return false;">
     <div id="nameHolder">&nbsp;</div>
 <?php
-constructLink(2, $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
-constructLink(13, $_style["icons_table"], $_lang["view_child_resources_in_container"], $modx->hasPermission('view_document')); // resources list
-constructLink(3, $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
-constructLink(5, $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
-constructLink(7, $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
+constructLink('27', $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
+constructLink('120', $_style["icons_table"], $_lang["view_child_resources_in_container"], $modx->hasPermission('view_document')); // resources list
+constructLink('4', $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
+constructLink('51', $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
+constructLink('94', $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
 if(
 $modx->hasPermission('edit_document')
 || $modx->hasPermission('new_document')
@@ -619,21 +623,21 @@ $modx->hasPermission('edit_document')
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(9, $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
-constructLink(10, $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
-constructLink(4, $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
-constructLink(8, $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
+constructLink('61', $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
+constructLink('62', $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
+constructLink('6', $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
+constructLink('63', $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
 if($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document'))
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(6, $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
+constructLink('72', $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
 if($modx->hasPermission('new_document'))
 {
 	echo '<div class="seperator"></div>';
 }
-constructLink(1, $_style["icons_information"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
-constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
+constructLink('3', $_style["icons_information"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
+constructLink('pv', $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
 ?>
 </div>
 </div>
@@ -649,7 +653,12 @@ function constructLink($action, $img, $text, $allowed)
 {
 	if($allowed==1)
 	{
-		echo '<div class="menuLink" id="item'.$action.'" onclick="menuHandler(' . $action . '); hideMenu();">';
-		echo '<img src="' . $img . '" />' . $text . '</div>';
+		global $modx;
+		$ph['action'] = $action;
+		$ph['img']    = $img;
+		$ph['text']   = $text;
+		$tpl  = '<div class="menuLink" id="item[+action+]" onclick="menuHandler(\'[+action+]\'); hideMenu();">';
+		$tpl .= '<img src="[+img+]" />[+text+]</div>';
+		echo $modx->parsePlaceholder($tpl, $ph);
 	}
 }

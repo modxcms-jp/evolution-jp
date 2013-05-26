@@ -53,11 +53,14 @@ if(!isset($tree_pane_open_default)) $tree_pane_open_default = 1;
         }
         
 		$j(function(){
-			var action = <?php echo $action;?>;
+			var action = <?php echo isset($action) ? $action : 0;?>;
+			var pid = <?php echo isset($_GET['pid']) ? $_GET['pid'] : 0;?>;
 			switch(action)
 			{
-				case 85:
 				case 27:
+				case 72:
+				case 120:
+				case 85:
 				case 17:
 				case 4:
 				case 87:
@@ -85,6 +88,26 @@ if(!isset($tree_pane_open_default)) $tree_pane_open_default = 1;
 					$j('textarea').change(function() {documentDirty=true;});
 					$j('select:not(#template)').change(function() {documentDirty=true;});
 				break;
+			}
+			switch(action)
+			{
+				case 4:
+				case 120:
+			    	if(pid==0) remsel = 1;
+			    	else       remsel = 0;
+					break;
+				case 27:
+				case 72:
+				case 51:
+			    	remsel = 0;
+					break;
+			    default:
+			    	remsel = 1;
+			}
+			if(remsel==1)
+			{
+    			var th = parent.tree.document.getElementById('treeHolder');
+    			$j(th).find('span.treeNodeSelected').removeClass("treeNodeSelected").addClass("treeNode");
 			}
         	document_onload();
 			$j('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});

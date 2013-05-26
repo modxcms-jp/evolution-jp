@@ -1,5 +1,4 @@
 <?php
-$this->sub = new SubParser();
 class SubParser {
     function sendmail($params=array(), $msg='')
     {
@@ -29,7 +28,7 @@ class SubParser {
     		unset($params);
     	}
     	if($msg==='') $msg = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
-    	include_once $modx->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
+    	include_once $modx->config['base_path'] . 'manager/includes/extenders/modxmailer.class.inc.php';
     	$mail = new MODxMailer();
     	$mail->From     = (!isset($p['from']))     ? $modx->config['emailsender']  : $p['from'];
     	$mail->FromName = (!isset($p['fromname'])) ? $modx->config['site_name']    : $p['fromname'];

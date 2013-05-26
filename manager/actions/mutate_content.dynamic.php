@@ -40,7 +40,7 @@ switch ($_REQUEST['a']) {
 
 if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
 	 $id = $_REQUEST['id'];
-else $id = 0;
+else $id = '0';
 
 // Get table names (alphabetical)
 
@@ -90,7 +90,7 @@ if ($_SESSION['mgrDocgroups']) {
 	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
 }
 
-if ($id !== 0)
+if ($id !== '0')
 {
 	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
 	$access .= !isset($docgrp) || empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
@@ -189,6 +189,15 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 <script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
+function openprev(actionurl)
+{
+    window.open(actionurl,"prevWin");
+    document.mutate.target = "prevWin";
+    document.mutate.method = "post";
+    document.mutate.action = actionurl;
+    document.mutate.submit();
+}
+
 $j(function(){
 	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
 	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
@@ -423,6 +432,8 @@ $_SESSION['itemname'] = to_safestr($content['pagetitle']);
 <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : 3145728?>" />
 <input type="hidden" name="refresh_preview" value="0" />
 <input type="hidden" name="newtemplate" value="" />
+<input type="hidden" name="publishedon" value="<?php echo !empty($content['publishedon']) ? $content['publishedon'] : time(); ?>" />
+<input type="hidden" name="editedon" value="<?php echo !empty($content['editedon']) ? $content['editedon'] : time(); ?>" />
 
 <fieldset id="create_edit">
 	<h1>
@@ -783,10 +794,12 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			if ($i > 0 && $i < $num_of_tv) echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 			
 			// post back value
-			if(array_key_exists('tv'.$row['id'], $inputdata))
+			$tvid = 'tv'.$row['id'];
+			if(isset($content[$tvid]))                 $tvPBV = $content[$tvid];
+			elseif(array_key_exists($tvid, $inputdata))
 			{
-				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata['tv'.$row['id']]);
-				else                                   $tvPBV = $inputdata['tv'.$row['id']];
+				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata[$tvid]);
+				else                                   $tvPBV = $inputdata[$tvid];
 			}
 			else                                       $tvPBV = $row['value'];
 
@@ -1394,9 +1407,9 @@ function ab_preview()
 {
 	global $modx, $_style, $_lang, $id;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$ph['onclick'] = "window.open('" . $modx->makeUrl($id,'','','full') . "','prevWin');";
+	$actionurl = $modx->makeUrl($id,'','mode=prev','full'); 	$ph['onclick'] = "openprev('$actionurl');";
 	$ph['icon'] = $_style["icons_preview_resource"];
-	$ph['alt'] = 'icons_preview_resource';
+	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
 	return $modx->parsePlaceholder($tpl,$ph);
 }
@@ -1407,7 +1420,8 @@ function ab_save()
 	
 	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button1"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-	$ph['onclick'] = 'documentDirty=false; document.mutate.save.click();';
+	$ph = array();
+	$ph['onclick'] = "documentDirty=false; document.mutate.action='index.php';document.mutate.target='main';document.mutate.save.click();";
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
