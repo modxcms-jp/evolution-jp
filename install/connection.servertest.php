@@ -19,8 +19,8 @@ if (!$conn) {
     $output = '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
 } else {
     $output = '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
-    $_SESSION['database_server'] = $host;
-    $_SESSION['database_user'] = $uid;
+    $_SESSION['database_server']   = $host;
+    $_SESSION['database_user']     = $uid;
     $_SESSION['database_password'] = $pwd;
 
     // Mysql version check
