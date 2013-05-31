@@ -714,6 +714,7 @@ class SubParser {
 			$media = $media ? 'media="' . $media . '" ' : '';
 			$modx->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
 		}
+		return '';
 	}
 
     # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
@@ -790,21 +791,22 @@ class SubParser {
 		$modx->loadedjscripts[$key]['version']= $version;
 		$modx->loadedjscripts[$key]['startup']= $startup;
 		$modx->loadedjscripts[$key]['pos']= $pos;
+		return '';
 	}
 	
     function regClientStartupHTMLBlock($html) // Registers Client-side Startup HTML block
     {
-    	$this->regClientScript($html, true, true);
+    	return $this->regClientScript($html, true, true);
     }
     
     function regClientHTMLBlock($html) // Registers Client-side HTML block
     {
-    	$this->regClientScript($html, true);
+    	return $this->regClientScript($html, true);
     }
     
 	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
 	function regClientStartupScript($src, $options)
 	{
-        $this->regClientScript($src, $options, true);
+        return $this->regClientScript($src, $options, true);
 	}
 }

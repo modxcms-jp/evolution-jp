@@ -3299,17 +3299,17 @@ class DocumentParser {
 	}
 
     function sendmail($params=array(), $msg='')
-    	{$this->loadExtension('SubParser');$this->sub->sendmail($params, $msg);}
+    	{$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
     function rotate_log($target='event_log',$limit=2000, $trim=100)
     	{$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
     function logEvent($evtid, $type, $msg, $title= 'Parser')
     	{$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
     function clearCache($params=array())
-    	{$this->loadExtension('SubParser');$this->sub->clearCache($params);}
+    	{$this->loadExtension('SubParser');return $this->sub->clearCache($params);}
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
     	{$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
     function get_backtrace($backtrace)
-    	{$this->loadExtension('SubParser');$this->sub->get_backtrace($backtrace);}
+    	{$this->loadExtension('SubParser');return $this->sub->get_backtrace($backtrace);}
     function _IIS_furl_fix()
     	{$this->loadExtension('SubParser');$this->sub->_IIS_furl_fix();}
     function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
@@ -3325,27 +3325,27 @@ class DocumentParser {
     function webAlert($msg, $url= '')
     	{$this->loadExtension('SubParser');$this->sub->webAlert($msg, $url);}
     function getSnippetId()
-    	{$this->loadExtension('SubParser');$this->sub->getSnippetId();}
+    	{$this->loadExtension('SubParser');return $this->sub->getSnippetId();}
     function getSnippetName()
-    	{$this->loadExtension('SubParser');$this->sub->getSnippetName();}
+    	{$this->loadExtension('SubParser');return $this->sub->getSnippetName();}
     function runSnippet($snippetName, $params= array ())
-    	{$this->loadExtension('SubParser');$this->sub->runSnippet($snippetName, $params);}
+    	{$this->loadExtension('SubParser');return $this->sub->runSnippet($snippetName, $params);}
     function changeWebUserPassword($oldPwd, $newPwd)
-    	{$this->loadExtension('SubParser');$this->sub->changeWebUserPassword($oldPwd, $newPwd);}
+    	{$this->loadExtension('SubParser');return $this->sub->changeWebUserPassword($oldPwd, $newPwd);}
     function addEventListener($evtName, $pluginName)
-    	{$this->loadExtension('SubParser');$this->sub->addEventListener($evtName, $pluginName);}
+    	{$this->loadExtension('SubParser');return $this->sub->addEventListener($evtName, $pluginName);}
     function removeEventListener($evtName, $pluginName='')
-    	{$this->loadExtension('SubParser');$this->sub->removeEventListener($evtName, $pluginName);}
+    	{$this->loadExtension('SubParser');return $this->sub->removeEventListener($evtName, $pluginName);}
 	function regClientCSS($src, $media='')
-    	{$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
+    	{$this->loadExtension('SubParser');return $this->sub->regClientCSS($src, $media);}
 	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-    	{$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options, $startup);}
+    	{$this->loadExtension('SubParser');return $this->sub->regClientScript($src, $options, $startup);}
 	function regClientStartupHTMLBlock($html)
-    	{$this->loadExtension('SubParser');$this->sub->regClientStartupHTMLBlock($html);}
+    	{$this->loadExtension('SubParser');return $this->sub->regClientStartupHTMLBlock($html);}
 	function regClientHTMLBlock($html)
-    	{$this->loadExtension('SubParser');$this->sub->regClientHTMLBlock($html);}
+    	{$this->loadExtension('SubParser');return $this->sub->regClientHTMLBlock($html);}
 	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-    	{$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
+    	{$this->loadExtension('SubParser');return $this->sub->regClientStartupScript($src, $options);}
     	
     /***************************************************************************************/
     /* End of API functions								       */
