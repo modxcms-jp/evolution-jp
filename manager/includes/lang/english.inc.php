@@ -6,13 +6,13 @@
  * Author:         The MODX Project Team
  * Date:           23 December 2010
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.8
+ * MODX version:   Evolution 1.0.10
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'MODX is a <a href="http://modxcms.com/what-is-modx.html" target="_blank">PHP Application Framework and Content Management System</a> licensed under the <a href="../assets/docs/license.txt">GNU GPL</a>.';
+$_lang["about_msg"] = 'MODX is a <a href="http://modx.com/" target="_blank">PHP Application Framework and Content Management System</a> licensed under the <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'About MODX';
 $_lang["access_permission_denied"] = 'You do not have the correct permissions for this Resource.';
 $_lang["access_permission_parent_denied"] = 'You do not have permission to create or move a Resource here! Please choose another location.';
@@ -179,7 +179,7 @@ $_lang["create_resource_title"] = 'Create Resource';
 $_lang["create_weblink_here"] = 'Create Weblink here';
 $_lang["createdon"] = 'Creation date';
 $_lang["credits"] = 'Credits';
-$_lang["credits_shouts_msg"] = '<p>MODX is managed and maintained at <a href="http://modxcms.com/about/" target="_blank">modx.com</a>.</p>';
+$_lang["credits_shouts_msg"] = '<p>MODX is managed and maintained at <a href="http://modx.com/" target="_blank">modx.com</a>.</p>';
 $_lang["custom_contenttype_message"] = 'Add custom content types for Resources. To add a new entry, enter the content type in the text box then click the \'Add\' button.';
 $_lang["custom_contenttype_title"] = 'Custom content types';
 $_lang["database_charset"] = 'Database Charset';
@@ -369,7 +369,7 @@ $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = 'User group access';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Help';
-$_lang["help_msg"] = '<p>You can obtain free community support by <a href="http://modxcms.com/forums" target="_blank">visiting the MODX Forums</a>. There is also a growing body of <a href="http://modxcms.com/documentation" target="_blank">MODX Documentation and Guides</a> that touch on virtually every aspect of MODX.</p><p>We are planning to offer commercial support services for MODX as well. Please <a href="mailto:hello@modxcms.com?subject=MODX Commercial Support Inquiry">email us if you\'re interested</a>.</p>';
+$_lang["help_msg"] = '<p>You can obtain free community support by <a href="http://forums.modx.com/" target="_blank">visiting the MODX Forums</a>. There is also a growing body of <a href="http://rtfm.modx.com/display/Evo1/Home" target="_blank">MODX Documentation and Guides</a> that touch on virtually every aspect of MODX.</p><p>We are planning to offer commercial support services for MODX as well. Please <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">email us if you\'re interested</a>.</p>';
 $_lang["help_title"] = 'Help';
 $_lang["hide_tree"] = 'Hide Site Tree';
 $_lang["home"] = 'Home';
