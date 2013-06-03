@@ -451,9 +451,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	if ($_GET['a'] == '102')
     {
     	$params = array('onclick'=>'duplicaterecord();','icon'=>$_style['icons_resource_duplicate'],'label'=>$_lang['duplicate']);
-    	echo $modx->manager->ab($params);
+    	if($modx->hasPermission('new_plugin'))
+    		echo $modx->manager->ab($params);
     	$params = array('onclick'=>'deletedocument();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
-    	echo $modx->manager->ab($params);
+    	if($modx->hasPermission('delete_plugin'))
+    		echo $modx->manager->ab($params);
     }
 	$params = array('onclick'=>"document.location.href='index.php?a=76';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
 	echo $modx->manager->ab($params);

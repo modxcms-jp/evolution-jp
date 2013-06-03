@@ -108,7 +108,8 @@ function deletedocument() {
 	if($_GET['a']=='35')
     {
     	$params = array('onclick'=>'deletedocument();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
-    	echo $modx->manager->ab($params);
+    	if($modx->hasPermission('delete_role'))
+    		echo $modx->manager->ab($params);
     }
 	$params = array('onclick'=>"document.location.href='index.php?a=86';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
 	echo $modx->manager->ab($params);

@@ -353,7 +353,8 @@ function SetUrl(url, width, height, alt) {
     if ($_REQUEST['a'] == '108')
     {
     	$params = array('onclick'=>'deletedocument();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
-    	echo $modx->manager->ab($params);
+    	if($modx->hasPermission('delete_module'))
+    		echo $modx->manager->ab($params);
     }
 	$params = array('onclick'=>"document.location.href='index.php?a=106';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
 	echo $modx->manager->ab($params);
