@@ -39,6 +39,7 @@ else {
 includeLang($install_language);
 
 // start session
+$_SESSION['test'] = 1;
 install_sessionCheck();
 
 $moduleName = "MODX";
