@@ -104,10 +104,15 @@ function deletedocument() {
 <div id="actions">
 	<ul class="actionButtons">
 			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['update'] ?></a></li>
-	<?php if($_GET['a']=='35') { ?>
-			<li><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete'] ?></a></li>
-	<?php } ?>
-			<li><a href="#" onclick="document.location.href='index.php?a=86';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
+<?php
+	if($_GET['a']=='35')
+    {
+    	$params = array('onclick'=>'deletedocument();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
+    	echo $modx->manager->ab($params);
+    }
+	$params = array('onclick'=>"document.location.href='index.php?a=86';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
+	echo $modx->manager->ab($params);
+?>
 	</ul>
 </div>
 
