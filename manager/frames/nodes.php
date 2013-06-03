@@ -140,6 +140,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		}
 		
 		$loop_count = 0;
+		$node_name_source = $modx->config['resource_tree_node_name'];
 		while($row = $modx->db->getRow($result,'num'))
 		{
 			$loop_count++;
@@ -151,17 +152,17 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				$has_child = $modx->db->getRecordCount($result2);
 			}
 			
-			$resource_tree_node_name = $modx->config['resource_tree_node_name'];
-			switch($resource_tree_node_name)
+			switch($node_name_source)
 			{
 				case 'menutitle':
 					$nodetitle = $menutitle ? $menutitle : $pagetitle;
 					break;
 				case 'alias':
 					$nodetitle = $alias ? $alias : $id;
-					if((strpos($alias, '.') === false) || ($modx->config['suffix_mode']!=1))
+					if((strpos($alias, '.') === false) || ($modx->config['suffix_mode']!=='1'))
 					{
-						$nodetitle .= $modx->config['friendly_url_suffix'];
+						if($isfolder!=1 || $modx->config['make_folders']!=='1')
+							$nodetitle .= $modx->config['friendly_url_suffix'];
 					}
 					$nodetitle = $modx->config['friendly_url_prefix'] . $nodetitle;
 					break;
@@ -174,7 +175,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				case 'pub_date':
 				case 'unpub_date':
 					$doc = $modx->getDocumentObject('id',$id);
-					$date = $doc[$resource_tree_node_name];
+					$date = $doc[$node_name_source];
 					if(!empty($date)) $nodetitle = $modx->toDateFormat($date);
 					else              $nodetitle = '- - -';
 					break;
@@ -182,7 +183,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 					$nodetitle = $pagetitle;
 			}
 			
-			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), '', $nodetitle));
+			$nodetitle = htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), ' ', $nodetitle));
 			$protectedClass = $hasAccess==0 ? ' protectedNode' : '';
 			
 			if    ($deleted==1)   $class = 'deletedNode';
