@@ -1,7 +1,7 @@
 <?php
 function install_session_start() {
-	$session_id = base_convert(md5(__FILE__),16,36);
-	session_id($session_id);
+	$site_sessionname = base_convert(md5(__FILE__),16,36);
+	session_name($site_sessionname);
 	session_start();
 }
 
