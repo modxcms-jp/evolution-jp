@@ -1412,7 +1412,8 @@ function ab_preview()
 {
 	global $modx, $_style, $_lang, $id;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$actionurl = $modx->makeUrl($id,'','mode=prev','full'); 	$ph['onclick'] = "openprev('$actionurl');";
+	$actionurl = $modx->makeUrl($id,'','','full');
+	$ph['onclick'] = "openprev('$actionurl');";
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
