@@ -192,10 +192,15 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 function openprev(actionurl)
 {
     window.open(actionurl,"prevWin");
-    document.mutate.target = "prevWin";
-    document.mutate.method = "post";
-    document.mutate.action = actionurl;
-    document.mutate.submit();
+	if(documentDirty==true)
+	{
+		if(actionurl.indexOf('?') == -1) delim = '?';
+		else                             delim = '&';
+        document.mutate.target = "prevWin";
+        document.mutate.method = "post";
+        document.mutate.action = actionurl + delim + 'mode=prev';
+        document.mutate.submit();
+	}
 }
 
 $j(function(){
