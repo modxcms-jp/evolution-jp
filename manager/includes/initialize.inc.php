@@ -116,13 +116,13 @@ function get_base_url($base_path)
 
 function get_site_url($base_url)
 {
-	if(is_https()) $scheme = 'https://';
-	else           $scheme = 'http://';
+	if(is_ssl()) $scheme = 'https://';
+	else         $scheme = 'http://';
 	
 	$host = $_SERVER['HTTP_HOST'];
 	
 	$pos = strpos($host,':');
-	if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || is_https()))
+	if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || is_ssl()))
 	{
 		$host= substr($host,0,$pos);
 	}
@@ -130,7 +130,7 @@ function get_site_url($base_url)
 	return rtrim($site_url,'/') . '/';
 }
 
-function is_https()
+function is_ssl()
 {
 	global $https_port;
 	if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
