@@ -488,7 +488,6 @@ function install_sessionCheck()
 {
 	global $_lang;
 	
-	if(!isset($_GET['action']) || $_GET['action']==='mode') $_SESSION['test'] = 1;
 	// session loop-back tester
 	if($_GET['action']!=='mode')
 	{
