@@ -125,7 +125,7 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_g
 	$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
 	if(!empty($document_group_list))
 	{
-		$from='[+tbl_membergroup_access+] mga, [+prefix+]member_groups mg';
+		$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
 		$mgrInternalKey = $_SESSION['mgrInternalKey'];
 		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
 		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
