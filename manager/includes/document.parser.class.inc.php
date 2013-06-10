@@ -2600,7 +2600,7 @@ class DocumentParser {
 						$target = $this->referenceListing[$target];
 					
 					if($target === $this->config['site_start'])
-						$path = 'index.php';
+						$path = '';
 					elseif(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
 						$path = $this->referenceListing[$target];
 					else
