@@ -7,9 +7,9 @@ if(version_compare(phpversion(), '5.0.0') < 0)
 }
 
 // automatically assign base_path and base_url
-if(!isset($base_path)) $base_path = assign_base_path();
-if(!isset($base_url))  $base_url  = assign_base_url($base_path);
-if(!isset($site_url))  $site_url  = assign_site_url($base_url);
+if(!isset($base_path)) $base_path = get_base_path();
+if(!isset($base_url))  $base_url  = get_base_url($base_path);
+if(!isset($site_url))  $site_url  = get_site_url($base_url);
 if(!isset($core_path)) $core_path = "{$base_path}manager/includes/";
 
 if (!defined('MODX_BASE_PATH'))    define('MODX_BASE_PATH', $base_path);
@@ -78,14 +78,14 @@ if(!function_exists('startCMSSession'))
 	}
 }
 
-function assign_base_path()
+function get_base_path()
 {
 	$self = 'manager/includes/initialize.inc.php';
 	$base_path = str_replace($self,'',str_replace('\\', '/', __FILE__));
 	return $base_path;
 }
 
-function assign_base_url($base_path)
+function get_base_url($base_path)
 {
 	if(defined('IN_MANAGER_MODE'))
 	{
@@ -114,15 +114,15 @@ function assign_base_url($base_path)
 	return $dir;
 }
 
-function assign_site_url($base_url)
+function get_site_url($base_url)
 {
-	if(is_https()) $scheme = 'https://';
-	else           $scheme = 'http://';
+	if(is_ssl()) $scheme = 'https://';
+	else         $scheme = 'http://';
 	
 	$host = $_SERVER['HTTP_HOST'];
 	
 	$pos = strpos($host,':');
-	if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || is_https()))
+	if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || is_ssl()))
 	{
 		$host= substr($host,0,$pos);
 	}
@@ -130,7 +130,7 @@ function assign_site_url($base_url)
 	return rtrim($site_url,'/') . '/';
 }
 
-function is_https()
+function is_ssl()
 {
 	global $https_port;
 	if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
