@@ -168,7 +168,11 @@ var DatePicker = new Class({
 			if (minutes < 10) {
 				minutes = '0' + minutes;
 			}
-			var time = d.getHours() + ':' + minutes;
+			var hours = d.getHours();
+			if (hours < 10) {
+				hours = '0' + hours;
+			}
+			var time = hours + ':' + minutes;
 		} else {
 			var time = dp.time;
 		}

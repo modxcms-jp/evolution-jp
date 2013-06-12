@@ -25,32 +25,30 @@ if(!$modx->hasPermission('edit_role')) {
 	<li><a class="default" href="index.php?a=38"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_role']; ?></a></li>
 </ul>
 <ul>
+<style type="text/css">
+li span {width: 200px;}
+</style>
 <?php
 
-$tbl_user_roles = $modx->getFullTableName('user_roles');
-$rs = $modx->db->select('name, id, description',$tbl_user_roles,'','name');
+$rs = $modx->db->select('name, id, description','[+prefix+]user_roles','','name');
 $total = $modx->db->getRecordCount($rs);
 if($total<1){
 	echo "The request returned no roles!</div>";
 	exit;
 	include_once "footer.inc.php";
 }
-while($row = $modx->db->getRow($rs))
-{
-	if($row['id']==1)
-	{
-?>
-	<li><span style="width: 200px"><i><?php echo "({$row['id']}) {$row['name']}"; ?></i></span> - <i><?php echo $_lang['administrator_role_message']; ?></i></li>
-<?php
-	}
-	else
-	{
-?>
-	<li><span style="width: 200px"><a href="index.php?id=<?php echo $row['id']; ?>&a=35"><?php echo "({$row['id']}) {$row['name']}"; ?></a></span> - <?php echo $row['description']; ?></li>
-<?php
-	}
-}
+$tpl       = '<li><span><a href="index.php?id=[+id+]&a=35">([+id+]) [+name+]</a></span> - [+description+]</li>';
+$admin_tpl = '<li><span><i>([+id+]) [+name+]</i></span> - <i>[+administrator_role_message+]</i></li>';
 
+while($ph = $modx->db->getRow($rs))
+{
+	if($ph['id']==='1')
+	{
+		$ph['administrator_role_message'] = $_lang['administrator_role_message'];
+		echo $modx->parsePlaceholder($admin_tpl, $ph);
+	}
+	else echo $modx->parsePlaceholder($tpl, $ph);
+}
 ?>
 </ul>
 </div>

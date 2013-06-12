@@ -1474,6 +1474,7 @@ ul.actionButtons {
 	font-weight:700;
 }
 .actionButtons #Button1 a,
+.actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
 	color: #fff;

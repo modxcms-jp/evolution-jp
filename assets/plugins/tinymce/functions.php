@@ -352,7 +352,7 @@ class TinyMCE
 		$ph['date_format']             = $modx->toDateFormat(null, 'formatOnly');
 		$ph['time_format']             = '%H:%M:%S';
 		$ph['entity_encoding']         = $params['entity_encoding'];
-		$ph['onchange_callback']       = ($params['frontend']!==false)? "'myCustomOnChangeHandler'" : 'false';
+		$ph['onchange_callback']       = "'OnChangeHandler'";
 		$ph['terminate']               = (!empty($params['customparams'])) ? ',' : '';
 		$ph['customparams']            = rtrim($params['customparams'], ',');
 		$content_css[] = $params['mce_url'] . 'style/content.css';

@@ -14,7 +14,7 @@ extract($input);
 unset($input);
 
 // preprocess POST values
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$id)) $id = $_POST['id'];
+if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 else
 {
 	$e->setError(2);
@@ -115,7 +115,7 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_g
 	$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
 	if(!empty($document_group_list))
 	{
-		$from='[+tbl_membergroup_access+] mga, [+prefix+]member_groups mg';
+		$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
 		$mgrInternalKey = $_SESSION['mgrInternalKey'];
 		$where = " mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
 		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
@@ -601,7 +601,7 @@ switch ($actionToTake)
 		
 		if ($syncsite == 1) $modx->clearCache($clearcache);
 
-		if($stay==='2')                          $a = "a=27&id={$id}&stay=2";
+		if($stay==='2')                          $a = "a=27&id={$id}&r=1&stay=2";
 		elseif(!empty($stay))
 		{
 			$id = $_REQUEST['id'];

@@ -38,7 +38,7 @@ jQuery(function(){
 			'language': language,
 			'installMode': installMode
 		};
-		$.post(url, pars, function(data)
+		jQuery.post(url, pars, function(data)
 		{
 			jQuery('#databasestatus').html(data).fadeIn();
 			if(0<data.indexOf('database_pass'))

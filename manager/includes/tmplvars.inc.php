@@ -10,11 +10,11 @@
 
 		if(!isset($modx->config['imanager_url']))
 		{
-			$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+			$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
 		}
 		if(!isset($modx->config['fmanager_url']))
 		{
-			$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.html?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
+			$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
 		}
 		
 		$field_html ='';

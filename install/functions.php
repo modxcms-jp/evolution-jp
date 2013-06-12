@@ -1,7 +1,7 @@
 <?php
 function install_session_start() {
-	$session_id = base_convert(md5(__FILE__),16,36);
-	session_id($session_id);
+	$site_sessionname = base_convert(md5(__FILE__),16,36);
+	session_name($site_sessionname);
 	session_start();
 }
 
@@ -488,7 +488,6 @@ function install_sessionCheck()
 {
 	global $_lang;
 	
-	if(!isset($_GET['action']) || $_GET['action']==='mode') $_SESSION['test'] = 1;
 	// session loop-back tester
 	if($_GET['action']!=='mode')
 	{

@@ -221,7 +221,6 @@ class ManagerAPI {
 		global $modx;
 		
 		if($flag!=1) return;
-		// http://localhost/modx/15/manager/index.php?a=27&id=12&frame=main
         if(isset($_GET['frame']) && $_GET['frame']==='main')
         {
         	switch($modx->manager->action)
@@ -481,4 +480,13 @@ class ManagerAPI {
 			$_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
 		}
 	}
+    
+    function ab($ph)
+    {
+    	global $modx;
+    	
+    	$tpl = '<li><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
+    	return $modx->parsePlaceholder($tpl,$ph);
+    }
 }

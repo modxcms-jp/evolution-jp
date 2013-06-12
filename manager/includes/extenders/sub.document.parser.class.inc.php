@@ -1,5 +1,4 @@
 <?php
-$this->sub = new SubParser();
 class SubParser {
     function sendmail($params=array(), $msg='')
     {
@@ -28,8 +27,19 @@ class SubParser {
     		$p = $params;
     		unset($params);
     	}
+    	if(isset($p['sendto']) && preg_match('@^[0-9]+$@',$p['sendto']))
+    	{
+    		$userinfo = $modx->getUserInfo($p['sendto']);
+    		$p['sendto'] = $userinfo['email'];
+    	}
+    	if(isset($p['from']) && preg_match('@^[0-9]+$@',$p['from']))
+    	{
+    		$userinfo = $modx->getUserInfo($p['from']);
+    		$p['from']     = $userinfo['email'];
+    		$p['fromname'] = $userinfo['username'];
+    	}
     	if($msg==='') $msg = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
-    	include_once $modx->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
+    	include_once $modx->config['base_path'] . 'manager/includes/extenders/modxmailer.class.inc.php';
     	$mail = new MODxMailer();
     	$mail->From     = (!isset($p['from']))     ? $modx->config['emailsender']  : $p['from'];
     	$mail->FromName = (!isset($p['fromname'])) ? $modx->config['site_name']    : $p['fromname'];
@@ -681,4 +691,122 @@ class SubParser {
         }
         return false;
     }
+	
+	# Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
+	function regClientCSS($src, $media)
+	{
+    	global $modx;
+    	
+		if (empty($src) || isset ($modx->loadedjscripts[$src])) return '';
+		
+		$nextpos = max(array_merge(array(0),array_keys($modx->sjscripts)))+1;
+		
+		$modx->loadedjscripts[$src]['startup'] = true;
+		$modx->loadedjscripts[$src]['version'] = '0';
+		$modx->loadedjscripts[$src]['pos']     = $nextpos;
+		
+		if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
+		{
+			$modx->sjscripts[$nextpos]= $src;
+		}
+		else
+		{
+			$media = $media ? 'media="' . $media . '" ' : '';
+			$modx->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
+		}
+		return '';
+	}
+
+    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
+	function regClientScript($src, $options, $startup)
+	{
+    	global $modx;
+    	
+		if (empty($src)) return ''; // nothing to register
+		
+		if (!is_array($options))
+		{
+			if(is_bool($options))       $options = array('plaintext'=>$options);
+			elseif(is_string($options)) $options = array('name'=>$options);
+			else                        $options = array();
+		}
+		$name      = isset($options['name'])      ? strtolower($options['name']) : '';
+		$version   = isset($options['version'])   ? $options['version'] : '0';
+		$plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
+		$key       = !empty($name)                ? $name : $src;
+		
+		$useThisVer= true;
+		if (isset($modx->loadedjscripts[$key]))
+		{ // a matching script was found
+			// if existing script is a startup script, make sure the candidate is also a startup script
+			if ($modx->loadedjscripts[$key]['startup']) $startup= true;
+			
+			if (empty($name))
+			{
+				$useThisVer= false; // if the match was based on identical source code, no need to replace the old one
+			}
+			else
+			{
+				$useThisVer = version_compare($modx->loadedjscripts[$key]['version'], $version, '<');
+			}
+			
+			if ($useThisVer)
+			{
+				if ($startup==true && $modx->loadedjscripts[$key]['startup']==false)
+				{ // remove old script from the bottom of the page (new one will be at the top)
+					unset($modx->jscripts[$modx->loadedjscripts[$key]['pos']]);
+				}
+				else
+				{ // overwrite the old script (the position may be important for dependent scripts)
+					$overwritepos= $modx->loadedjscripts[$key]['pos'];
+				}
+			}
+			else
+			{ // Use the original version
+				if ($startup==true && $modx->loadedjscripts[$key]['startup']==false)
+				{ // need to move the exisiting script to the head
+					$version= $modx->loadedjscripts[$key][$version];
+					$src= $modx->jscripts[$modx->loadedjscripts[$key]['pos']];
+					unset($modx->jscripts[$modx->loadedjscripts[$key]['pos']]);
+				}
+				else return ''; // the script is already in the right place
+			}
+		}
+		
+		if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
+		{
+			$src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
+		}
+		
+		if ($startup)
+		{
+			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($modx->sjscripts)))+1;
+			$modx->sjscripts[$pos]= $src;
+		}
+		else
+		{
+			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($modx->jscripts)))+1;
+			$modx->jscripts[$pos]= $src;
+		}
+		$modx->loadedjscripts[$key]['version']= $version;
+		$modx->loadedjscripts[$key]['startup']= $startup;
+		$modx->loadedjscripts[$key]['pos']= $pos;
+		return '';
+	}
+	
+    function regClientStartupHTMLBlock($html) // Registers Client-side Startup HTML block
+    {
+    	return $this->regClientScript($html, true, true);
+    }
+    
+    function regClientHTMLBlock($html) // Registers Client-side HTML block
+    {
+    	return $this->regClientScript($html, true);
+    }
+    
+	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
+	function regClientStartupScript($src, $options)
+	{
+        return $this->regClientScript($src, $options, true);
+	}
 }

@@ -331,13 +331,15 @@ class synccache {
 		$path = '';
 		while ($row = $modx->db->getRow($rs))
 		{
-			if ($friendly_urls == 1 && $use_alias_path == 1)
+			if ($friendly_urls === '1')
 			{
-				$path = $this->getParents($row['parent']);
+				if($use_alias_path === '1')
+					$path = $this->getParents($row['parent']);
+				else $path = '';
 			}
 			else
 			{
-				$path = '';
+				$path = $row['parent'];
 			}
 			$alias = $modx->db->escape($row['alias']);
 			$docid = $row['id'];

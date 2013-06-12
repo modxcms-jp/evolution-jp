@@ -19,7 +19,7 @@ class PHx {
 	}
 	
 	// Parser: modifier detection and eXtended processing if needed
-	function Filter($key, $value, $cmd, $opt='')
+	function Filter($phxkey, $value, $cmd, $opt='')
 	{
 		global $modx, $condition;
 		$cmd=strtolower($cmd);
@@ -196,7 +196,7 @@ class PHx {
 			
 			#####  Resource fields
 			case 'id':
-				if($opt) $value = $this->getDocumentObject($opt,$key);
+				if($opt) $value = $this->getDocumentObject($opt,$phxkey);
 				else     $value = $this->getDocumentObject($value,$cmd);
 				break;
 			case 'type':
@@ -272,16 +272,18 @@ class PHx {
 				
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
-				$snippetName = 'phx:'.$cmd;
+				if($modx->config['output_filter']==='1') $prefix = 'phx:';
+				else                                     $prefix = '';
+				$snippetName = $prefix . $cmd;
+				
 				if( isset($modx->snippetCache[$snippetName]) )
 				{
 					$php = $modx->snippetCache[$snippetName];
 				}
 				else
 				{
-    				$tbl_site_snippets = $modx->getFullTableName('site_snippets');
     				$esc_snippetName = $modx->db->escape($snippetName);
-    				$result = $modx->db->select('snippet',$tbl_site_snippets,"name='{$esc_snippetName}'");
+    				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_snippetName}'");
     				if($modx->db->getRecordCount($result) == 1)
     				{
     					$row = $modx->db->getRow($result);
@@ -290,7 +292,7 @@ class PHx {
     				elseif($modx->db->getRecordCount($result) == 0)
     				{
     					$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
-    					if(file_exists($filename))
+    					if(is_file($filename))
     					{
     						$php = @file_get_contents($filename);
     						$php = trim($php);
@@ -308,14 +310,21 @@ class PHx {
 				}
 				if($php==='') $php=false;
 				
-				if($php===false) $html = $modx->getChunk('phx:' . $cmd);
+				if($php===false) $html = $modx->getChunk($prefix . $cmd);
 				else             $html = false;
+
+				if($modx->config['output_filter']==='1') $self = '[+output+]';
+				else                                     $self = '[+input+]';
 				
 				if($php !== false)
 				{
 					ob_start();
 					$options = $opt;
-					$output = $value;
+					if($modx->config['output_filter']==='1') $output = $value;
+					else                                     $input = $value;
+					if($modx->config['output_filter']==='1') $name = $phxkey;
+					else                                     $key  = $phxkey;
+					
 					$custom = eval($php);
 					$msg = ob_get_contents();
 					$value = $msg . $custom;
@@ -323,17 +332,18 @@ class PHx {
 				}
 				elseif($html!==false)
 				{
-					$html = str_replace(array('[+output+]','[+value+]'), $value, $html);
+					$html = str_replace(array($self,'[+value+]'), $value, $html);
 					$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
 				}
 				if($php===false && $html===false && $value!==''
-				   && (strpos($cmd,'[+value+]')!==false || strpos($cmd,'[+output+]')!==false))
+				   && (strpos($cmd,'[+value+]')!==false || strpos($cmd,$self)!==false))
 				{
-					$value = str_replace(array('[+value+]','[+output+]'),$value,$cmd);
+					$value = str_replace(array('[+value+]',$self),$value,$cmd);
 				}
 				break;
 		}
-		$value = str_replace('[+key+]', $key, $value);
+		if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
+		else                                     $value = str_replace('[+name+]', $phxkey, $value);
 		return $value;
 	}
 	

@@ -44,6 +44,11 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 
 if(!isset($_SESSION['mgrValidated']))
 {
+	if(isset($_GET['frame']) && !empty($_GET['frame']))
+	{
+		$_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+	}
+	
 	if(isset($manager_language)) include_once(MODX_BASE_PATH . "manager/lang/{$manager_language}.inc.php");// include localized overrides
 	else                         include_once(MODX_BASE_PATH . 'manager/lang/english.inc.php');
 

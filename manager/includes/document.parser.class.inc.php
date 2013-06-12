@@ -58,15 +58,15 @@ class DocumentParser {
     var $directParse;
 
 	function __call($name,$args) {
-		include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-		if(method_exists($this->sub,$name)) return call_user_func_array(array($this->sub,$name),$args);
+		include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
+		if(method_exists($this->old,$name)) return call_user_func_array(array($this->old,$name),$args);
 	}
 	
     // constructor
 	function __construct()
 	{
         global $database_server;
-        if($database_server==='localhost') $database_server = '127.0.0.1';
+        if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';
         
 		$this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
 		if($this->isBackend()) $this->loadExtension('ManagerAPI');
@@ -121,6 +121,13 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+			// PHPMailer
+			case 'MODxMailer' :
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/modxmailer.class.inc.php');
+				$this->mail= new MODxMailer;
+				if($this->mail) return true;
+				else            return false;
+				break;
 			// Resource API
 			case 'DocAPI' :
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/doc.api.class.inc.php'))
@@ -160,8 +167,9 @@ class DocumentParser {
 				}
 				else return false;
 				break;
-			case 'DeprecatedAPI':
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php');
+			case 'SubParser':
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+				$this->sub = new SubParser();
 				break;
 			default :
 				return false;
@@ -171,7 +179,7 @@ class DocumentParser {
 	function executeParser($id='')
 	{
 		ob_start();
-		set_error_handler(array(& $this,'phpError')); //error_reporting(0);
+		set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
 		
 		$this->http_status_code = '200';
 		
@@ -269,12 +277,13 @@ class DocumentParser {
 			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
 		}
 		
-		if ($this->documentMethod == 'alias')
+		if ($this->documentMethod === 'alias')
 		{
 			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-			if ($this->config['use_alias_path'] == 1)
+			if ($this->config['use_alias_path'] === '1')
 			{
 				$alias = $this->documentIdentifier;
+				
 				if(strlen($this->virtualDir) > 0)
 				{
 					$alias = $this->virtualDir . '/' . $alias;
@@ -286,7 +295,12 @@ class DocumentParser {
 				}
 				else
 				{
-					$this->sendErrorPage();
+					$alias .= $this->config['friendly_url_suffix'];
+					if ($this->getIdFromAlias($alias)!==false)
+					{
+						$this->documentIdentifier= $this->getIdFromAlias($alias);
+					}
+					else $this->sendErrorPage();
 				}
 			}
 			else
@@ -325,6 +339,7 @@ class DocumentParser {
 		else
 		{
 			// get document object
+			
 			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
 			
 			// validation routines
@@ -979,7 +994,7 @@ class DocumentParser {
 		if ($this->config['use_alias_path'] == 1)
 		{
 			$this->virtualDir = dirname($q);
-			$this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+			$this->virtualDir = ($this->virtualDir === '.') ? '' : $this->virtualDir;
 			$q = explode('/', $q);
 			$q = end($q);
 		}
@@ -987,10 +1002,11 @@ class DocumentParser {
 		{
 			$this->virtualDir= '';
 		}
-		
-		$q = preg_replace('@^' . $this->config['friendly_url_prefix'] . '@',  '', $q);
-		$q = preg_replace('@'  . $this->config['friendly_url_suffix'] . '$@', '', $q);
-		if (is_numeric($q))
+		$prefix = $this->config['friendly_url_prefix'];
+		$suffix = $this->config['friendly_url_suffix'];
+		if(!empty($prefix) && strpos($q,$prefix)!==false) $q = preg_replace('@^' . $prefix . '@',  '', $q);
+		if(!empty($suffix) && strpos($q,$suffix)!==false) $q = preg_replace('@'  . $suffix . '$@', '', $q);
+		if (preg_match('@^[1-9][0-9]*$@',$q))
 		{ /* we got an ID returned, check to make sure it's not an alias */
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
 			if ($this->config['use_alias_path'] == 1)
@@ -1026,7 +1042,7 @@ class DocumentParser {
 		}
 		else
 		{ /* we didn't get an ID back, so instead we assume it's an alias */
-			if ($this->config['friendly_alias_urls'] != 1)
+			if ($this->config['friendly_alias_urls'] !== '1')
 			{
 				$q= $qOrig;
 			}
@@ -1141,8 +1157,8 @@ class DocumentParser {
 		{
 			if(is_file($cache_path))
 			{
-				include_once($cache_path);
 				global $cacheRefreshTime;
+				include_once($cache_path);
 				$this->cacheRefreshTime = $cacheRefreshTime;
 			}
 			else $this->cacheRefreshTime = 0;
@@ -1233,14 +1249,15 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[*','*]');
-		$basepath= $this->config['base_path'] . 'manager/includes/';
-		include_once("{$basepath}tmplvars.format.inc.php");
-		include_once("{$basepath}tmplvars.commands.inc.php");
+		if(empty($matches)) return $content;
+		$core_path= $this->config['base_path'] . 'manager/includes/';
+		include_once("{$core_path}tmplvars.format.inc.php");
+		include_once("{$core_path}tmplvars.commands.inc.php");
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
 			$key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
-			if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+			if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 			{
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
@@ -1282,7 +1299,7 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches['1'] as $key)
 			{
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+				if(strpos($key,':')!==false && $this->config['output_filter']==='1') {
 					list($key,$modifiers) = explode(':', $key, 2);
 				}
 				else $modifiers = false;
@@ -1312,7 +1329,7 @@ class DocumentParser {
 		if ($matches) {
 			$i= 0;
 			foreach($matches['1'] as $key) {
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1') {
+				if(strpos($key,':')!==false && $this->config['output_filter']==='1') {
 					list($key,$modifiers) = explode(':', $key, 2);
 				}
 				else $modifiers = false;
@@ -1336,7 +1353,7 @@ class DocumentParser {
 						$result= $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
 						$total= $this->db->getRecordCount($result);
 						if(0 < $total) {
-							$this->chunkCache[$key]= $key;
+							$this->chunkCache[$key]= '';
 							$value= '';
 						} else {
 							$this->chunkCache[$key]= $key;
@@ -1415,7 +1432,7 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches['1'] as $key)
 			{
-				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+				if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 				{
 					list($name,$modifiers) = explode(':', $key, 2);
 				}
@@ -1625,7 +1642,7 @@ class DocumentParser {
 		$except_snip_call = $snip_call['except_snip_call'];
 		
 		$key = $snip_call['name'];
-		if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+		if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 		{
 			list($key,$modifiers) = explode(':', $key, 2);
 			$snip_call['name'] = $key;
@@ -1863,6 +1880,39 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='')
 	{
+		if(isset($_SESSION['mgrValidated']) && !empty($_POST) && isset($_GET['mode']) && $_GET['mode']==='prev')
+		{
+			$this->loadExtension('ManagerAPI');
+			
+            $input = $_POST;
+             $docid = (isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id'])) ? $_GET['id'] : '0';
+             $input['id'] = $docid;
+            $this->documentIdentifier = $docid;
+            $rs = $this->db->select('id,name','[+prefix+]site_tmplvars');
+            while($row = $this->db->getRow($rs))
+            {
+            	$tvid = 'tv' . $row['id'];
+            	$tvname[$tvid] = $row['name'];
+            }
+            
+            foreach($input as $k=>$v)
+            {
+            	if(isset($tvname[$k]))
+            	{
+            		unset($input[$k]);
+            		$k = $tvname[$k];
+            		$input[$k] = $v;
+            	}
+            	elseif($k==='ta')
+            	{
+            		$input['content'] = $v;
+            		unset($input['ta']);
+            	}
+            }
+            $this->directParse = 1;
+			return $input;
+		}
+			
 		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
 		{
 			$identifier = $method;
@@ -1872,7 +1922,7 @@ class DocumentParser {
 		}
 		
 		// allow alias to be full path
-		if($method == 'alias' && $this->config['use_alias_path'])
+		if($method === 'alias' && $this->config['use_alias_path']==='1')
 		{
 			$identifier = $this->getIdFromAlias($identifier);
 			if($identifier!==false)
@@ -2046,23 +2096,8 @@ class DocumentParser {
 		{
 			$current_id = $id;
 			$id = $this->aliasListing[$id]['parent'];
-			if(!$id)
-			{
-				break;
-			}
-			if(strlen($this->aliasListing[$current_id]['path']))
-			{
-				$pkey = $this->aliasListing[$current_id]['path'];
-			}
-			else
-			{
-				$pkey = $this->aliasListing[$id]['alias'];
-			}
-			if(!strlen($pkey))
-			{
-				$pkey = $id;
-			}
-			$parents[$pkey] = $id;
+			if(!$id) break;
+			$parents[$current_id] = $id;
 			$height--;
 		}
 		return $parents;
@@ -2113,12 +2148,12 @@ class DocumentParser {
 			foreach ($childrenList[$id] as $childId)
 			{
 				$pkey = $this->aliasListing[$childId]['alias'];
-				if(strlen($this->aliasListing[$childId]['path']))
+				if($this->aliasListing[$childId]['path']!=='')
 				{
 					$pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
 				}
 				
-				if (!strlen($pkey)) $pkey = $childId;
+				if ($pkey==='') $pkey = $childId;
 				$children[$pkey] = $childId;
 				
 				if ($depth)
@@ -2419,9 +2454,7 @@ class DocumentParser {
 			}
 			else
 			{
-				$url = $this->referenceListing[$id];
-				$url = urlencode($url);
-				return $url;
+				return $this->referenceListing[$id];
 			}
 		}
 		
@@ -2441,13 +2474,13 @@ class DocumentParser {
 				}
 			}
 			
-			if($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
-			{
-				$f_url_suffix = '/';
-			}
-			elseif(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
+			if(strpos($alias, '.') !== false && $this->config['suffix_mode']==='1')
 			{
 				$f_url_suffix = '';
+			}
+			elseif($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
+			{
+				$f_url_suffix = '/';
 			}
 			
 			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix;
@@ -2567,7 +2600,7 @@ class DocumentParser {
 						$target = $this->referenceListing[$target];
 					
 					if($target === $this->config['site_start'])
-						$path = 'index.php';
+						$path = '';
 					elseif(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
 						$path = $this->referenceListing[$target];
 					else
@@ -2637,7 +2670,7 @@ class DocumentParser {
     			$i= 0;
     			foreach($matches['1'] as $key)
     			{
-    				if(strpos($key,':')!==false && $this->config['enable_phx']==='1')
+    				if(strpos($key,':')!==false && $this->config['output_filter']==='1')
     				{
     					list($key,$modifiers) = explode(':', $key, 2);
     				}
@@ -2721,6 +2754,7 @@ class DocumentParser {
 	{
 		$str = trim($str);
 		if (empty($str)) return '';
+		if(preg_match('@^[0-9]+$@',$str)) return $str;
 		
 		switch($this->config['datetime_format'])
 		{
@@ -3144,111 +3178,6 @@ class DocumentParser {
 		return false;
 	}
 
-	# Registers Client-side CSS scripts - these scripts are loaded at inside the <head> tag
-	function regClientCSS($src, $media='')
-	{
-		if (empty($src) || isset ($this->loadedjscripts[$src])) return '';
-		
-		$nextpos = max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-		
-		$this->loadedjscripts[$src]['startup'] = true;
-		$this->loadedjscripts[$src]['version'] = '0';
-		$this->loadedjscripts[$src]['pos']     = $nextpos;
-		
-		if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
-		{
-			$this->sjscripts[$nextpos]= $src;
-		}
-		else
-		{
-			$media = $media ? 'media="' . $media . '" ' : '';
-			$this->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
-		}
-	}
-
-    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
-	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-	{
-		if (empty($src)) return ''; // nothing to register
-		
-		if (!is_array($options))
-		{
-			if(is_bool($options))       $options = array('plaintext'=>$options);
-			elseif(is_string($options)) $options = array('name'=>$options);
-			else                        $options = array();
-		}
-		$name      = isset($options['name'])      ? strtolower($options['name']) : '';
-		$version   = isset($options['version'])   ? $options['version'] : '0';
-		$plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
-		$key       = !empty($name)                ? $name : $src;
-		
-		$useThisVer= true;
-		if (isset($this->loadedjscripts[$key]))
-		{ // a matching script was found
-			// if existing script is a startup script, make sure the candidate is also a startup script
-			if ($this->loadedjscripts[$key]['startup']) $startup= true;
-			
-			if (empty($name))
-			{
-				$useThisVer= false; // if the match was based on identical source code, no need to replace the old one
-			}
-			else
-			{
-				$useThisVer = version_compare($this->loadedjscripts[$key]['version'], $version, '<');
-			}
-			
-			if ($useThisVer)
-			{
-				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{ // remove old script from the bottom of the page (new one will be at the top)
-					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-				}
-				else
-				{ // overwrite the old script (the position may be important for dependent scripts)
-					$overwritepos= $this->loadedjscripts[$key]['pos'];
-				}
-			}
-			else
-			{ // Use the original version
-				if ($startup==true && $this->loadedjscripts[$key]['startup']==false)
-				{ // need to move the exisiting script to the head
-					$version= $this->loadedjscripts[$key][$version];
-					$src= $this->jscripts[$this->loadedjscripts[$key]['pos']];
-					unset($this->jscripts[$this->loadedjscripts[$key]['pos']]);
-				}
-				else return ''; // the script is already in the right place
-			}
-		}
-		
-		if ($useThisVer && $plaintext!=true && (strpos(strtolower($src), "<script") === false))
-		{
-			$src= "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
-		}
-		
-		if ($startup)
-		{
-			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->sjscripts)))+1;
-			$this->sjscripts[$pos]= $src;
-		}
-		else
-		{
-			$pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0),array_keys($this->jscripts)))+1;
-			$this->jscripts[$pos]= $src;
-		}
-		$this->loadedjscripts[$key]['version']= $version;
-		$this->loadedjscripts[$key]['startup']= $startup;
-		$this->loadedjscripts[$key]['pos']= $pos;
-	}
-	
-    function regClientStartupHTMLBlock($html) {$this->regClientScript($html, true, true);} // Registers Client-side Startup HTML block
-    function regClientHTMLBlock($html)        {$this->regClientScript($html, true);} // Registers Client-side HTML block
-    
-	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-	{
-	                                           $this->regClientScript($src, $options, true);
-	}
-	
     # Remove unwanted html tags and snippet, settings and tags
     function stripTags($html, $allowed= '')
     {
@@ -3369,33 +3298,55 @@ class DocumentParser {
 		return $parameter;
 	}
 
-    // - deprecated db functions
-    function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
-    function dbQuery($sql)               {return $this->db->query($sql);}
-    function recordCount($rs)            {return $this->db->getRecordCount($rs);}
-    function fetchRow($rs,$mode='assoc') {return $this->db->getRow($rs, $mode);}
-    function affectedRows($rs)           {return $this->db->getAffectedRows($rs);}
-    function insertId($rs)               {return $this->db->getInsertId($rs);}
-    function dbClose()                   {$this->db->disconnect();}
-    
-    // deprecated
-    function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
-    {
-        $this->loadExtension('DeprecatedAPI');
-        return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
-    }
-    
-    function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
-    function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
-    function putChunk($chunkName)   {return $this->getChunk($chunkName);}
-    function getDocGroups()         {return $this->getUserDocGroups();}
-    function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
-    function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
-    function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-    function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-    function mergeDocumentMETATags($template) {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
-    function makeFriendlyURL($pre,$suff,$path) {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
-
+    function sendmail($params=array(), $msg='')
+    	{$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
+    function rotate_log($target='event_log',$limit=2000, $trim=100)
+    	{$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
+    function logEvent($evtid, $type, $msg, $title= 'Parser')
+    	{$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
+    function clearCache($params=array())
+    	{$this->loadExtension('SubParser');return $this->sub->clearCache($params);}
+    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
+    	{$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
+    function get_backtrace($backtrace)
+    	{$this->loadExtension('SubParser');return $this->sub->get_backtrace($backtrace);}
+    function _IIS_furl_fix()
+    	{$this->loadExtension('SubParser');$this->sub->_IIS_furl_fix();}
+    function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
+    function sendForward($id='', $responseCode= '')
+    	{$this->loadExtension('SubParser');$this->sub->sendForward($id, $responseCode);}
+    function sendErrorPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendErrorPage();}
+    function sendUnauthorizedPage()
+    	{$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
+    function setCacheRefreshTime($unixtime)
+    	{$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
+    function webAlert($msg, $url= '')
+    	{$this->loadExtension('SubParser');$this->sub->webAlert($msg, $url);}
+    function getSnippetId()
+    	{$this->loadExtension('SubParser');return $this->sub->getSnippetId();}
+    function getSnippetName()
+    	{$this->loadExtension('SubParser');return $this->sub->getSnippetName();}
+    function runSnippet($snippetName, $params= array ())
+    	{$this->loadExtension('SubParser');return $this->sub->runSnippet($snippetName, $params);}
+    function changeWebUserPassword($oldPwd, $newPwd)
+    	{$this->loadExtension('SubParser');return $this->sub->changeWebUserPassword($oldPwd, $newPwd);}
+    function addEventListener($evtName, $pluginName)
+    	{$this->loadExtension('SubParser');return $this->sub->addEventListener($evtName, $pluginName);}
+    function removeEventListener($evtName, $pluginName='')
+    	{$this->loadExtension('SubParser');return $this->sub->removeEventListener($evtName, $pluginName);}
+	function regClientCSS($src, $media='')
+    	{$this->loadExtension('SubParser');return $this->sub->regClientCSS($src, $media);}
+	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
+    	{$this->loadExtension('SubParser');return $this->sub->regClientScript($src, $options, $startup);}
+	function regClientStartupHTMLBlock($html)
+    	{$this->loadExtension('SubParser');return $this->sub->regClientStartupHTMLBlock($html);}
+	function regClientHTMLBlock($html)
+    	{$this->loadExtension('SubParser');return $this->sub->regClientHTMLBlock($html);}
+	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
+    	{$this->loadExtension('SubParser');return $this->sub->regClientStartupScript($src, $options);}
+    	
     /***************************************************************************************/
     /* End of API functions								       */
     /***************************************************************************************/
