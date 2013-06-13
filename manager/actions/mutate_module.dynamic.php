@@ -314,7 +314,7 @@ function OpenServerBrowser(url, width, height ) {
 function BrowseServer() {
 	var w = screen.width * 0.7;
 	var h = screen.height * 0.7;
-	OpenServerBrowser("<?php echo $base_url?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url?>", w, h);
+	OpenServerBrowser("<?php echo $base_url?>manager/media/browser/mcpuk/browser.php?Type=images&Connector=<?php echo $base_url?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url?>", w, h);
 }
 
 function SetUrl(url, width, height, alt) {
@@ -349,15 +349,16 @@ function SetUrl(url, width, height, alt) {
     			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
-    		  <?php
-    			if ($_REQUEST['a'] == '108') { ?>
-    		  <li id="Button2"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
-    		  <?php } ?>
-    		  <?php // In Place for future extraction of actionbar
-        			if ($_REQUEST['a'] == '27') { ?>
-        			    <li id="Button6"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img src="<?php echo $_style["icons_preview"]?>" /> <?php echo $_lang['preview']?></a></li>
-    		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=106';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+<?php
+    if ($_REQUEST['a'] == '108')
+    {
+    	$params = array('onclick'=>'deletedocument();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
+    	if($modx->hasPermission('delete_module'))
+    		echo $modx->manager->ab($params);
+    }
+	$params = array('onclick'=>"document.location.href='index.php?a=106';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
+	echo $modx->manager->ab($params);
+?>
     	  </ul>
     </div>
 	<!-- end #actions -->

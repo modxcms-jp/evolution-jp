@@ -55,7 +55,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		} catch(oException) {
 			// Delay first run until we're ready...
-			if(msgcheck!=0) setTimeout('updateMail(true)',1000);
+			if(msgcheck!=0) setTimeout('updateMail(true)',1000 * 60);
 		}
 	};
 
@@ -91,7 +91,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo ($modx_textdir==='ltr' ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
 		} catch(oException) {
-			x=window.setTimeout('hideTreeFrame()', 100);
+			x=window.setTimeout('hideTreeFrame()', 300);
 		}
 	}
 
@@ -104,7 +104,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = defaultFrameWidth;
 			top.__hideTree = false;
 		} catch(oException) {
-			z=window.setTimeout('defaultTreeFrame()', 100);
+			z=window.setTimeout('defaultTreeFrame()', 300);
 		}
 	}
 
@@ -114,7 +114,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.openAll();  // dtree
 		} catch(oException) {
-			zz=window.setTimeout('expandTree()', 100);
+			zz=window.setTimeout('expandTree()', 300);
 		}
 	}
 
@@ -122,7 +122,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			parent.tree.d.closeAll();  // dtree
 		} catch(oException) {
-			yy=window.setTimeout('collapseTree()', 100);
+			yy=window.setTimeout('collapseTree()', 300);
 		}
 	}
 
@@ -135,7 +135,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			elm.style.display = 'block';
 		}
 		top.tree.saveFolderState(); // save folder state
-		setTimeout('top.tree.restoreTree()',100);
+		setTimeout('top.tree.restoreTree()',300);
 	}
 
 	function reloadmenu() {

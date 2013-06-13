@@ -186,7 +186,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			elseif($hidemenu==1)  $class = "notInMenuNode{$protectedClass}";
 			else                  $class = "publishedNode{$protectedClass}";
 			$nodetitleDisplay = '<span class="' . $class . '">' . "{$nodetitle}</span>";
-			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
+			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">&nbsp;' : '' ;
 			$pageIdDisplay = '<small>('.($modx_textdir==='rtl' ? '&rlm;':'').$id.')</small>';
 			$url = $modx->makeUrl($id,'','','full');
 
@@ -214,6 +214,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			$ph['deleted']   = $deleted;
 			$ph['nodetitleDisplay'] = $nodetitleDisplay;
 			$ph['weblinkDisplay']   = $weblinkDisplay;
+			$ph['draftDisplay']   = '';
 			$ph['pageIdDisplay']    = $pageIdDisplay;
 			$ph['_lang_click_to_context'] = $_lang['click_to_context'];
 			
@@ -340,7 +341,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 />&nbsp;<span
 	p="[+parent+]"
 	class="treeNode"
-	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</div>
+	title="[+alt+]">[+draftDisplay+][+weblinkDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div>
 
 EOT;
 		return $src;
@@ -368,7 +369,7 @@ EOT;
 />&nbsp;<span
 	class="treeNode"
 	title="[+alt+]"
->[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]<div style="display:block">
+>[+draftDisplay+][+weblinkDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]<div style="display:block">
 
 EOT;
 		return $src;
@@ -395,7 +396,7 @@ EOT;
 	title="[+_lang_click_to_context+]"
 />&nbsp;<span
 	class="treeNode"
-	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]<div style="display:none"></div></div>
+	title="[+alt+]">[+draftDisplay+][+weblinkDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]<div style="display:none"></div></div>
 
 EOT;
 		return $src;

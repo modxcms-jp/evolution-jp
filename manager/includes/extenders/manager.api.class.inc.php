@@ -480,4 +480,13 @@ class ManagerAPI {
 			$_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
 		}
 	}
+    
+    function ab($ph)
+    {
+    	global $modx;
+    	
+    	$tpl = '<li><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
+    	return $modx->parsePlaceholder($tpl,$ph);
+    }
 }

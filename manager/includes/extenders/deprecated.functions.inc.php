@@ -102,7 +102,7 @@ class OldFunctions {
         }
     if (isset($metas) && $metas) {
     		$template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
-    		$template=$this->mergeSettingsContent($template);
+    		$template=$modx->mergeSettingsContent($template);
     	}
         return $template;
     }

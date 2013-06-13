@@ -601,7 +601,7 @@ switch ($actionToTake)
 		
 		if ($syncsite == 1) $modx->clearCache($clearcache);
 
-		if($stay==='2')                          $a = "a=27&id={$id}&stay=2";
+		if($stay==='2')                          $a = "a=27&id={$id}&r=1&stay=2";
 		elseif(!empty($stay))
 		{
 			$id = $_REQUEST['id'];

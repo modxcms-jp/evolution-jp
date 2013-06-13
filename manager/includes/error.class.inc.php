@@ -54,7 +54,8 @@ class errorHandler{
 	
 	function dumpError() {
 		global $_lang;
-		$prev_request_uri = $_SESSION['prev_request_uri'];
+		if(!isset($_GET['count_attempts'])) $prev_request_uri = $_SESSION['prev_request_uri'] . '&count_attempts=1';
+		else                                $prev_request_uri = 'index.php?a=2';
 		$scr = <<< EOT
 <script>
 	jAlert('{$this->errormessage}', '{$_lang['warning']}', function(){

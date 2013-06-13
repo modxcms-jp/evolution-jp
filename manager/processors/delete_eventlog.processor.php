@@ -7,11 +7,15 @@ if(!$modx->hasPermission('delete_eventlog')) {
 
 $id=intval($_GET['id']);
 
-if(isset($_GET['cls']) && $_GET['cls']==1) $where = '';
-else                                       $where = "id='{$id}'";
-
 // delete event log
-$rs = $modx->db->delete('[+prefix+]event_log',$where);
+if(isset($_GET['cls']) && $_GET['cls']==='1')
+{
+	$rs = $modx->db->truncate('[+prefix+]event_log');
+}
+else
+{
+    $rs = $modx->db->delete('[+prefix+]event_log',"id='{$id}'");
+}
 if(!$rs) {
 	echo "Something went wrong while trying to delete the event log...";
 	exit;
