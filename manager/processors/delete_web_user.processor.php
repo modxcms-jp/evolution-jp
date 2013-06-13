@@ -9,6 +9,7 @@ $id=intval($_GET['id']);
 $tbl_web_users           = $modx->getFullTableName('web_users');
 $tbl_web_groups          = $modx->getFullTableName('web_groups');
 $tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
+$tbl_web_user_settings   = $modx->getFullTableName('web_user_settings');
 
 // get user name
 $rs = $modx->db->select('*',$tbl_web_users,"id='{$id}'",'','1');
@@ -42,7 +43,11 @@ if(!$rs) {
 	echo "Something went wrong while trying to delete the web user attributes...";
 	exit;
 } else {
-	// invoke OnWebDeleteUser event
+
+    //Delete user settings
+    $modx->db->delete($tbl_web_user_settings,"webuser='{$id}'");
+
+    // invoke OnWebDeleteUser event
 	$modx->invokeEvent("OnWebDeleteUser",
 						array(
 							"userid"		=> $id,
