@@ -454,8 +454,9 @@ class DBAPI {
 	function getValue($dsq, $from='', $where='')
 	{
 		if($from!=='' && $where!=='') {
+			$from = str_replace('[+prefix+]', '', $from);
 			$rs = $this->getObject($from,$where);
-			if($rs[$dsq]) return $rs[$dsq];
+			if(isset($rs->$dsq)) return $rs->$dsq;
 		}
 		elseif (!is_resource($dsq)) $dsq = $this->query($dsq);
 		if ($dsq)
@@ -788,6 +789,13 @@ class DBAPI {
 		$table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
 		$rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
 		if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
+		return $rs;
+	}
+	
+	function truncate($table_name)
+	{
+		$table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
+		$rs = $this->query("TRUNCATE TABLE `{$table_name}`");
 		return $rs;
 	}
 }

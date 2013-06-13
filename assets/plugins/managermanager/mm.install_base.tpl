@@ -2,7 +2,7 @@
 /**
  * ManagerManager
  *
- * 投稿画面を自由自在にカスタマイズ。
+ * Customize the MODx Manager to offer bespoke admin functions for end users.
  *
  * @category 	plugin
  * @version 	0.4

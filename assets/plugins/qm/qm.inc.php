@@ -139,6 +139,9 @@ class Qm {
 			case 'OnWebPagePrerender':
 				if($modx->directParse==1) return;
 				
+				if($modx->documentObject['contentType']!=='text/html') return;
+				if($modx->documentObject['content_dispo']==='1') return;
+				
 				// Include_once the language file
 				if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
 				{

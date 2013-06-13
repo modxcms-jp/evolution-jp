@@ -2,7 +2,7 @@
 /**
  * Wayfinder
  * 
- * シンプルかつカスタマイズの自由度が高いメニュービルダー
+ * Completely template-driven and highly flexible menu builder
  *
  * @category 	snippet
  * @version 	2.0.5

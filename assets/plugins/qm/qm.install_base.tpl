@@ -2,7 +2,7 @@
 /**
  * Quick Manager+
  * 
- * 管理画面へのアクセス不要。今開いているページから編集ウィンドウを開きます
+ * Enables QuickManager+ front end content editing support
  *
  * @category 	plugin
  * @version 	1.5.5r7

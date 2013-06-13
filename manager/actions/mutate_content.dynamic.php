@@ -192,10 +192,15 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 function openprev(actionurl)
 {
     window.open(actionurl,"prevWin");
-    document.mutate.target = "prevWin";
-    document.mutate.method = "post";
-    document.mutate.action = actionurl;
-    document.mutate.submit();
+	if(documentDirty==true)
+	{
+		if(actionurl.indexOf('?') == -1) delim = '?';
+		else                             delim = '&';
+        document.mutate.target = "prevWin";
+        document.mutate.method = "post";
+        document.mutate.action = actionurl + delim + 'mode=prev';
+        document.mutate.submit();
+	}
 }
 
 $j(function(){
@@ -1407,7 +1412,8 @@ function ab_preview()
 {
 	global $modx, $_style, $_lang, $id;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$actionurl = $modx->makeUrl($id,'','mode=prev','full'); 	$ph['onclick'] = "openprev('$actionurl');";
+	$actionurl = $modx->makeUrl($id,'','','full');
+	$ph['onclick'] = "openprev('$actionurl');";
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
