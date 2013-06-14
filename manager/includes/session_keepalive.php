@@ -17,6 +17,7 @@ if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
 	$uid = $_SESSION['mgrInternalKey'];
 	$timestamp = time();
 	$modx->db->update("lasthit={$timestamp}", '[+prefix+]active_users', "internalKey='{$uid}'");
+	header('Content-type: application/json');
 	echo '{"status":"ok"}';
 }
 else echo '{"status":null}';
