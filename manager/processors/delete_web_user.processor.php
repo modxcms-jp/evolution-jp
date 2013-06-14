@@ -42,6 +42,9 @@ if(!$rs) {
 	echo "Something went wrong while trying to delete the web user attributes...";
 	exit;
 } else {
+	//Delete user settings
+	$modx->db->delete('[+prefix+]web_user_settings',"webuser='{$id}'");
+	
 	// invoke OnWebDeleteUser event
 	$modx->invokeEvent("OnWebDeleteUser",
 						array(

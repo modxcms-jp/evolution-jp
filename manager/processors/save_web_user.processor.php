@@ -413,8 +413,6 @@ function saveUserSettings($id) {
 	
 	$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
 
-	$modx->db->delete($tbl_web_user_settings, "webuser='{$id}'");
-
 	$settings = array (
 		'login_home',
 		'allowed_ip',
@@ -423,6 +421,7 @@ function saveUserSettings($id) {
 	
 	foreach($settings as $name)
 	{
+		$modx->db->delete('[+prefix+]web_user_settings', "webuser='{$id}' and setting_name='{$name}'");
 		$value = $_POST[$name];
 		if (is_array($value)) $value = implode(',', $value);
 		if ($value != '')
