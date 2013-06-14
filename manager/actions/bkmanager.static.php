@@ -467,7 +467,7 @@ class Mysqldumper {
 	function isDroptables()        { return $this->_isDroptables; }
 
 	function createDump($callBack) {
-		global $modx;
+		global $modx, $table_prefix;
 
 		// Set line feed
 		$lf = "\n";
@@ -502,6 +502,16 @@ class Mysqldumper {
 				if (strstr(",{$this->_dbtables},",",{$tblval},")===false) {
 					continue;
 				}
+			}
+			if($callBack==='snapshot')
+			{
+				switch($tblval)
+				{
+					case $table_prefix.'event_log':
+					case $table_prefix.'manager_log':
+						continue 2;
+				}
+				if(!preg_match('@^'.$table_prefix.'@', $tblval)) continue;
 			}
 			$output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
 			$output .= "#{$lf}# Table structure for table `{$tblval}`{$lf}";
