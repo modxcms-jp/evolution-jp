@@ -521,11 +521,6 @@ class DocumentParser {
 		{
 			$this->invokeEvent('OnWebPagePrerender');
 		}
-		global $sanitize_seed;
-		if(strpos($this->documentOutput, $sanitize_seed)!==false)
-		{
-			$this->documentOutput = str_replace($sanitize_seed, '', $this->documentOutput);
-		}
 		
 		if(strpos($this->documentOutput,'[^')) echo $this->mergeBenchmarkContent($this->documentOutput);
 		else                                   echo $this->documentOutput;
@@ -2112,7 +2107,7 @@ class DocumentParser {
 		}
 		return $parents;
 	}
-
+	
 	function set_childrenList()
 	{
 		$path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.pageCache.php';
