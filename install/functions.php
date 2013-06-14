@@ -2,8 +2,8 @@
 function install_session_start() {
 	$_ = crc32(__FILE__);
 	$_ = sprintf('%u', $_);
-	$_ = base_convert($_,16,36);
-	$site_sessionname = 'e' . $_;
+	$_ = base_convert($_,10,36);
+	$site_sessionname = 'evo' . $_;
 	session_name($site_sessionname);
 	session_start();
 }
