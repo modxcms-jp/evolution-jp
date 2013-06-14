@@ -116,7 +116,7 @@ class EXPORT_SITE
 			
 			$_lang = $back_lang;
 		}
-		else $src = @file_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		else $src = $this->curl_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
 		
 		
 		if($src !== false)
@@ -244,4 +244,18 @@ class EXPORT_SITE
 		}
 		return join("\n", $this->output);
 	}
+	
+    function curl_get_contents($url, $timeout = 30 )
+    {
+    	if(!function_exists('curl_init')) return @file_get_contents($url);
+    	
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
 }
