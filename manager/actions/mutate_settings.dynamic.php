@@ -651,7 +651,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 <th><?php echo $_lang['a17_error_reporting_title']; ?></th>
 <td>
-	<?php echo wrap_label($_lang['a17_error_reporting_opt0'],form_radio('error_reporting','0', ($error_reporting==='0')));?><br />
+	<?php echo wrap_label($_lang['a17_error_reporting_opt0'],form_radio('error_reporting','0', $error_reporting==='0'));?><br />
 	<?php echo wrap_label($_lang['a17_error_reporting_opt1'],form_radio('error_reporting','1', $error_reporting==='1' || !isset($error_reporting)));?><br />
 	<?php echo wrap_label($_lang['a17_error_reporting_opt2'],form_radio('error_reporting','2', $error_reporting==='2'));?><br />
 	<?php echo wrap_label($_lang['a17_error_reporting_opt99'],form_radio('error_reporting','99', $error_reporting==='99'));?><br />
@@ -1289,17 +1289,16 @@ function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
 	else               $maxlength = 'maxlength="' . $maxlength . '"';
 	return '<input type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
 }
-function form_radio($name,$value,$checked=false,$add='',$disabled=false)
-{
+
+function form_radio($name,$value,$checked=false,$add='',$disabled=false) {
 	if($checked)  $checked  = ' checked="checked"';
 	if($disabled) $disabled = ' disabled';
 	if($add)     $add = ' ' . $add;
 	return '<input type="radio" name="' . $name . '" value="' . $value . '"' . $checked . $disabled . $add . ' />';
 }
 
-function wrap_label($str='',$object)
-{
-	return '<label>' . $object . "\n" . $str . '</label>';
+function wrap_label($str='',$object) {
+	return "<label>{$object}\n{$str}</label>";
 }
 
 function get_role_list()
