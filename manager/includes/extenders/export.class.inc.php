@@ -90,16 +90,18 @@ class EXPORT_SITE
 		elseif(!is_readable($directory)) return FALSE;
 		else
 		{
-			foreach(glob($directory . '/*') as $path)
+			$files = glob($directory . '/*');
+			if(!empty($files))
 			{
-				if(is_dir($path)) $this->removeDirectoryAll($path);
-				else              $rs = unlink($path);
+    			foreach($files as $path)
+    			{
+    				if(is_dir($path)) $this->removeDirectoryAll($path);
+    				else              $rs = unlink($path);
+    			}
 			}
 		}
-		if($directory !== $this->targetDir)
-		{
-			$rs = rmdir($directory);
-		}
+		if($directory !== $this->targetDir) $rs = rmdir($directory);
+		
 		return $rs;
 	}
 
