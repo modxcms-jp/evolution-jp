@@ -220,9 +220,9 @@ class EXPORT_SITE
 				$row['status'] = $msg_success_skip_dir;
 				$this->output[] = $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
 			}
-			if ($row['isfolder'])
+			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder
-				$end_dir = (!empty($row['alias'])) ? $row['alias'] : $row['id'];
+				$end_dir = ($row['alias']!=='') ? $row['alias'] : $row['id'];
 				$dir_path = $dirpath . $end_dir;
 				if(strpos($dir_path,MODX_BASE_PATH)===false) return FALSE;
 				if (!is_dir($dir_path))
