@@ -45,6 +45,7 @@ if ($_REQUEST['a'] == '12')
 	if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
 	elseif($limit < 1) {echo 'No user returned!<p>';exit;}
 	$userdata = $modx->db->getRow($rs);
+	if(!isset($userdata['failedlogins']) ) $userdata['failedlogins'] = 0;
 	
 	// get user settings
 	$rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
@@ -239,11 +240,16 @@ if (is_array($evtOut))
     			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
-    		  <?php
-    			if ($_REQUEST['a'] == '12') { ?>
-    		  <li id="Button3"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
-    		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=75';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
+<?php
+    if ($_REQUEST['a'] == '12' && $modx->getLoginUserID()!= $userid)
+    {
+    	$params = array('onclick'=>'deleteuser();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
+    	if($modx->hasPermission('delete_user'))
+    		echo $modx->manager->ab($params);
+    }
+    $params = array('onclick'=>"document.location.href='index.php?a=75';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
+    echo $modx->manager->ab($params);
+?>
     	  </ul>
     </div>
 <!-- Tab Start -->
@@ -300,7 +306,6 @@ if (is_array($evtOut))
 				<small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
 				</div>
 				</fieldset>
-				<br />
 				<fieldset style="width:300px">
 				<legend><b><?php echo $_lang['password_method']; ?></b></legend>
 				<label><input type="radio" name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo $_lang['password_method_email']; ?></label><br />
