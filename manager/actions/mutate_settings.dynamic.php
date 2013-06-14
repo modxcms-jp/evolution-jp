@@ -474,7 +474,7 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo wrap_label('Revolution compatible',form_radio('output_filter','2', $output_filter==='2'));?><br />
 		<?php echo wrap_label('PHx compatible',form_radio('output_filter','1', $output_filter==='1'));?><br />
 		<?php echo wrap_label('Disable',form_radio('output_filter','0', $output_filter==='0'));?><br />
-		<?php echo $_lang["enable_phx_message"] ?>
+		<?php echo $_lang["output_filter_message"] ?>
 	</td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
