@@ -108,7 +108,7 @@ class EXPORT_SITE
 	function makeFile($docid, $filepath)
 	{
 		global  $modx,$_lang;
-		
+		$file_permission = octdec($modx->config['new_file_permissions']);
 		if($this->generate_mode==='direct')
 		{
 			$back_lang = $_lang;
@@ -123,6 +123,7 @@ class EXPORT_SITE
 		{
 			if($this->repl_before!==$this->repl_after) $src = str_replace($this->repl_before,$this->repl_after,$src);
 			$result = file_put_contents($filepath,$src);
+			if($result!==false) @chmod($filepath, $file_permission);
 			
 			if($result !== false) return 'success';
 			else                  return 'failed_no_write';
@@ -185,6 +186,7 @@ class EXPORT_SITE
 		
 		$ph = array();
 		$ph['total']     = $this->total;
+		$folder_permission = octdec($modx->config['new_folder_permissions']);
 		while($row = $modx->db->getRow($rs))
 		{
 			$this->count++;
@@ -227,7 +229,7 @@ class EXPORT_SITE
 				{
 					if (is_file($dir_path)) @unlink($dir_path);
 					mkdir($dir_path);
-					@chmod($dir_path, 0777);
+					@chmod($dir_path, $folder_permission);
 					
 				}
 				
