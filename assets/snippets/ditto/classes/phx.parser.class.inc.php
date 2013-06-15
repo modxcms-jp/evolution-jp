@@ -56,7 +56,7 @@ class PHxParser {
 		if ($this->curPass == $this->maxPasses) return $template;
 		
 		// Set template pre-process hash
-		$st = md5($template);
+		$st = crc32($template);
 		
 		// Replace non-call characters in the template: [, ]
 		$template = preg_replace($this->safetags[0],$this->safetags[1],$template);
@@ -75,7 +75,7 @@ class PHxParser {
 		$template = str_replace($this->safetags[1],$this->safetags[2],$template);
 		
 		// Set template post-process hash
-		$et = md5($template);
+		$et = crc32($template);
 		
 		// If template has changed, parse it once more...
 		if ($st!=$et) $template = $this->Parse($template);
@@ -95,7 +95,7 @@ class PHxParser {
 		global $modx;
 		
 		$this->curPass = $this->curPass + 1;
-		$st = md5($template);
+		$st = crc32($template);
 		
 		//$this->LogSource($template);
 		$this->LogPass();
@@ -201,7 +201,7 @@ class PHxParser {
 			 }
 			 $template = str_replace($var_search, $var_replace, $template);
 		}
-		$et = md5($template); // Post-process template hash
+		$et = crc32($template); // Post-process template hash
 		
 		// Log an event if this was the maximum pass
 		if($this->curPass == $this->maxPasses)
