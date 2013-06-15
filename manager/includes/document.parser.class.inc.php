@@ -1568,6 +1568,7 @@ class DocumentParser {
 			if(1<$this->config['error_reporting'] || 2<$error_type)
 			{
 				extract($error_info);
+				if($msg===false) $msg = 'ob_get_contents() error';
 				$result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Plugin', $text, $line, $msg);
 				if ($this->isBackend())
 				{
