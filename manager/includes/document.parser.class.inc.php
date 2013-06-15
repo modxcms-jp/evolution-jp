@@ -2353,9 +2353,9 @@ class DocumentParser {
 		$orderby = "{$sort} {$dir}";
 		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
 		$resourceArray= array ();
-		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		while ($row = $this->db->getRow($result))
 		{
-			$resourceArray[] = $this->db->getRow($result);
+			$resourceArray[] = $row;
 		}
 		return $resourceArray;
 	}
@@ -2394,9 +2394,9 @@ class DocumentParser {
 		$orderby = $sort ? "{$sort} {$dir}" : '';
 		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
 		$resourceArray= array ();
-		for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+		while ($row = $this->db->getRow($result))
 		{
-			$resourceArray[] = $this->db->getRow($result);
+			$resourceArray[] = $row;
 		}
 		return $resourceArray;
 	}
@@ -2441,9 +2441,9 @@ class DocumentParser {
 			$orderby = ($sort) ? "{$sort} {$dir}" : '';
 			$result= $this->db->select($fields,$from,$where,$orderby,$limit);
 			$resourceArray= array ();
-			for ($i= 0; $i < $this->db->getRecordCount($result); $i++)
+			while ($row = $this->db->getRow($result))
 			{
-				$resourceArray[] = $this->db->getRow($result);
+				$resourceArray[] = $row;
 			}
 			return $resourceArray;
 		}
