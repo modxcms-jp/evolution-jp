@@ -1073,7 +1073,7 @@ class DocumentParser {
 		$suffix = $this->config['friendly_url_suffix'];
 		if(!empty($prefix) && strpos($q,$prefix)!==false) $q = preg_replace('@^' . $prefix . '@',  '', $q);
 		if(!empty($suffix) && strpos($q,$suffix)!==false) $q = preg_replace('@'  . $suffix . '$@', '', $q);
-		if (is_numeric($q))
+		if (preg_match('@^[1-9][0-9]*$@',$q))
 		{ /* we got an ID returned, check to make sure it's not an alias */
 			/* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
 			if ($this->config['use_alias_path'] == 1)
