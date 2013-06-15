@@ -10,7 +10,7 @@ $tbl_site_modules = $modx->getFullTableName('site_modules');
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
-$resourcefile = $modx->db->escape($_POST['resourcefile']);
+$sourcefile = $modx->db->escape($_POST['sourcefile']);
 $enable_resource = $_POST['enable_resource']=='on' ? 1 : 0 ;
 if(($_POST['icon']!=='') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', $_POST['icon'])==1))
     $_POST['icon'] = '../' . $_POST['icon'];
@@ -81,7 +81,7 @@ switch ($_POST['mode']) {
 		// save the new module
 		
 		$f = array();
-		$f = compact('name','description','icon','enable_resource','resourcefile',
+		$f = compact('name','description','icon','enable_resource','sourcefile',
 		             'disabled','wrap','locked','category','enable_sharedparams',
 		             'guid','modulecode','properties','editedon','createdon');
 		$newid = $modx->db->insert($f,$tbl_site_modules);
@@ -124,7 +124,7 @@ switch ($_POST['mode']) {
 							
 		// save the edited module
 		$f = array();
-		$f = compact('name','description','icon','enable_resource','resourcefile',
+		$f = compact('name','description','icon','enable_resource','sourcefile',
 		             'disabled','wrap','locked','category','enable_sharedparams',
 		             'guid','modulecode','properties','editedon');
 		$rs = $modx->db->update($f,$tbl_site_modules,"id='{$id}'");
