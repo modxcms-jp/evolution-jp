@@ -1016,14 +1016,14 @@ class ditto {
 			$query = array();
 			foreach ($_GET as $param=>$value) {
 				if ($param != 'id' && $param != 'q') {
-					$clean_param = htmlspecialchars($param, ENT_QUOTES, $modx->config['modx_charset']);
+					$clean_param = htmlspecialchars($param, ENT_QUOTES);
 					if(is_array($value)) {
 					  //$query[$param] = $value;
 					  foreach($value as $key => $val) {
-              $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES, $modx->config['modx_charset']);
+              $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES);
             }
 					}else{
-					  $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+					  $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES);
 					}
 				}
 			}
