@@ -430,14 +430,14 @@ class DocumentParser {
 			
 			for ($i= 0; $i < $passes; $i++)
 			{
-				if($i == ($passes -1)) $st= md5($this->documentOutput);
+				if($i == ($passes -1)) $st= crc32($this->documentOutput);
 				
 				$this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
 				$this->documentOutput = $this->parseDocumentSource($this->documentOutput);
 				
 				if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 				{
-					$et = md5($this->documentOutput);
+					$et = crc32($this->documentOutput);
 					if($st != $et) $passes++;
 				}
 			}
@@ -1672,7 +1672,7 @@ class DocumentParser {
 		
 		for($i= 0; $i < $passes; $i++)
 		{
-			if($i == ($passes -1)) $bt = md5($stack);
+			if($i == ($passes -1)) $bt = crc32($stack);
 			$pieces = array();
 			$pieces = explode('[[', $stack);
 			$stack = '';
@@ -1689,7 +1689,7 @@ class DocumentParser {
 			}
 			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
-				if($bt != md5($stack)) $passes++;
+				if($bt != crc32($stack)) $passes++;
 			}
 		}
 		return $stack;
@@ -2026,7 +2026,7 @@ class DocumentParser {
 		for ($i= 0; $i < $passes; $i++)
 		{
 			// get source length if this is the final pass
-			if ($i == ($passes -1)) $bt= md5($source);
+			if ($i == ($passes -1)) $bt= crc32($source);
 			if ($this->dumpSnippets == 1)
 			{
 				$this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
@@ -2061,7 +2061,7 @@ class DocumentParser {
 			if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
 				// check if source length was changed
-				if ($bt != md5($source))
+				if ($bt != crc32($source))
 				{
 					$passes++; // if content change then increase passes because
 				}
