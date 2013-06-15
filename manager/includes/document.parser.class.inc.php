@@ -1635,24 +1635,17 @@ class DocumentParser {
 			elseif(substr($val['function'],0,8)==='phpError') break;
 			$path = str_replace('\\','/',$val['file']);
 			if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
-			if(!empty($val['args']) && 0 < count($val['args']))
+    		switch($val['type'])
 			{
-				foreach($val['args'] as $v)
-				{
-					if(is_array($v)) $v = 'array()';
-					else
-					{
-						$v = str_replace('"', '', $v);
-						$v = htmlspecialchars($v,ENT_QUOTES,$this->config['modx_charset']);
-						if(32 < strlen($v)) $v = substr($v,0,32) . '...';
-						$a[] = '"' . $v . '"';
-					}
+    			case '->':
+    			case '::':
+    				$functionName = $val['function'] = $val['class'] . $val['type'] . $val['function'];
+    				break;
+    			default:
+    				$functionName = $val['function'];
 				}
-				$args = join(', ', $a);
-			}
-			else $args = '';
 			$str .= "<tr><td valign=\"top\">{$key}</td>";
-			$str .= "<td>{$val['function']}({$args})<br />{$path} on line {$val['line']}</td>";
+        	$str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
 		}
 		$str .= '</table>';
 		return $str;
