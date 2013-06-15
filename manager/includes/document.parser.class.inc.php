@@ -1061,7 +1061,7 @@ class DocumentParser {
 		if ($this->config['use_alias_path'] == 1)
 		{
 			$this->virtualDir = dirname($q);
-			$this->virtualDir = ($this->virtualDir == '.') ? '' : $this->virtualDir;
+			$this->virtualDir = ($this->virtualDir === '.') ? '' : $this->virtualDir;
 			$q = explode('/', $q);
 			$q = end($q);
 		}
@@ -1679,7 +1679,7 @@ class DocumentParser {
 				else                                $result = $this->_get_snip_result($piece);
 				
 				$stack .= $result;
-				$loop_count++; // End of foreach loop
+				$loop_count++;
 			}
 			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
 			{
@@ -1696,7 +1696,7 @@ class DocumentParser {
 		$except_snip_call = $snip_call['except_snip_call'];
 		
 		$key = $snip_call['name'];
-		if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+		if(strpos($key,':')!==false && $this->config['output_filter']==='1')
 		{
 			list($key,$modifiers) = explode(':', $key, 2);
 			$snip_call['name'] = $key;
@@ -2847,7 +2847,7 @@ class DocumentParser {
 	}
 
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
-	{ // jp-edition only
+	{
 		if(!$ph) return $src;
 		elseif(is_string($ph) && strpos($ph,'='))
 		{
