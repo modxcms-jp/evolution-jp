@@ -1224,6 +1224,7 @@ class DocumentParser {
 		{
 			if(is_file($cache_path))
 			{
+				global $cacheRefreshTime;
 				include_once($cache_path);
 				$this->cacheRefreshTime = $cacheRefreshTime;
 			}
