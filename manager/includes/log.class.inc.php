@@ -24,7 +24,7 @@ class logHandler {
 		return;
 	}
 
-	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname="") {
+	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname='') {
 		global $modx;
 		$this->entry['msg'] = $msg;	// writes testmessage to the object
         $this->entry['action'] = empty($action)? (int) $_REQUEST['a'] : $action;    // writes the action to the object
