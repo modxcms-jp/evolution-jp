@@ -184,34 +184,57 @@ function importFiles($parent,$filedir,$files,$mode) {
 			// create folder
 			$alias = $id;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $alias);
+			
+			$field = array();
+			$field['type'] = 'document';
+			$field['contentType'] = 'text/html';
+			$field['template'] = $modx->config['default_template'];
+			$field['isfolder'] = 1;
+			$field['menuindex'] = 1;
+			$field['parent'] = $parent;
+			$field['published'] = $publish_default;
+			$field['richtext'] = $richtext;
+			$field['searchable'] = $search_default;
+			$field['cacheable'] = $cache_default;
+			$field['createdby'] = $createdby;
+			$field['alias'] = $modx->stripAlias($alias);
+			
+			$create_folder = 0;
+			
 			foreach(array('index.html','index.htm') as $filename)
 			{
 				$filepath = $filedir . $alias . '/' . $filename;
-				if(file_exists($filepath))
+				if(file_exists($filepath) && $create_folder==0)
+				{
+					$create_folder = 1;
+					break;
+				}
+			}
+			if($create_folder==1)
 				{
 					$file = getFileContent($filepath);
 					list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);
 			
 					$date = filemtime($filepath);
-					$field = array();
-					$field['type'] = 'document';
-					$field['contentType'] = 'text/html';
 					$field['pagetitle'] = $pagetitle;
 					$field['longtitle'] = $pagetitle;
 					$field['description'] = $description;
-					$field['alias'] = $modx->stripAlias($alias);
-					$field['published'] = $publish_default;
-					$field['parent'] = $parent;
 					$field['content'] = $modx->db->escape($content);
-					$field['richtext'] = $richtext;
-					$field['template'] = $modx->config['default_template'];
-					$field['searchable'] = $search_default;
-					$field['cacheable'] = $cache_default;
-					$field['createdby'] = $createdby;
 					$field['createdon'] = $date;
 					$field['editedon'] = $date;
-					$field['isfolder'] = 1;
-					$field['menuindex'] = 1;
+			}
+			else
+			{
+				$date = time();
+				$field['pagetitle'] = $_lang['untitled_resource'];
+				$field['longtitle'] = $_lang['untitled_resource'];
+				$field['description'] = '';
+				$field['content'] = '';
+				$field['createdon'] = $date;
+				$field['editedon'] = $date;
+				$newid = $modx->db->insert($field,'[+prefix+]site_content');
+			}
+			
 					$newid = $modx->db->insert($field,'[+prefix+]site_content');
 					if($newid)
 					{
@@ -223,9 +246,6 @@ function importFiles($parent,$filedir,$files,$mode) {
 						echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
 						.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
 						exit;
-					}
-					break;
-				}
 			}
 		}
 		else
