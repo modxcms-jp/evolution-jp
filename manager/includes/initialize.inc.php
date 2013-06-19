@@ -53,7 +53,10 @@ if(!function_exists('startCMSSession'))
 	function startCMSSession()
 	{
 		global $site_sessionname;
-		$site_sessionname = base_convert(md5(__FILE__),16,36);
+		$_ = crc32(__FILE__);
+		$_ = sprintf('%u', $_);
+		$_ = base_convert($_,16,36);
+		$site_sessionname = 'e' . $_;
 		session_name($site_sessionname);
 		session_set_cookie_params(0,MODX_BASE_URL);
 		session_start();
