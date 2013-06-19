@@ -435,6 +435,7 @@ function saveUserSettings($id) {
 			$field['webuser']       = $id;
 			$field['setting_name']  = $name;
 			$field['setting_value'] = $modx->db->escape($value);
+
 			$modx->db->insert($field,$tbl_web_user_settings);
 		}
 	}
