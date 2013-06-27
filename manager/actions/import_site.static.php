@@ -184,68 +184,71 @@ function importFiles($parent,$filedir,$files,$mode) {
 			// create folder
 			$alias = $id;
 			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $alias);
-			
 			$field = array();
 			$field['type'] = 'document';
 			$field['contentType'] = 'text/html';
-			$field['template'] = $modx->config['default_template'];
-			$field['isfolder'] = 1;
-			$field['menuindex'] = 1;
-			$field['parent'] = $parent;
 			$field['published'] = $publish_default;
+			$field['parent'] = $parent;
+			$field['alias'] = $modx->stripAlias($alias);
 			$field['richtext'] = $richtext;
+			$field['template'] = $modx->config['default_template'];
 			$field['searchable'] = $search_default;
 			$field['cacheable'] = $cache_default;
 			$field['createdby'] = $createdby;
-			$field['alias'] = $modx->stripAlias($alias);
-			
-			$create_folder = 0;
-			
+			$field['isfolder'] = 1;
+			$field['menuindex'] = 1;
+			$find = false;
 			foreach(array('index.html','index.htm') as $filename)
 			{
 				$filepath = $filedir . $alias . '/' . $filename;
-				if(file_exists($filepath) && $create_folder==0)
+				if($find===false && file_exists($filepath))
 				{
-					$create_folder = 1;
-					break;
+					$file = getFileContent($filepath);
+					list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);
+			
+					$date = filemtime($filepath);
+					$field['pagetitle'] = $pagetitle;
+					$field['longtitle'] = $pagetitle;
+					$field['description'] = $description;
+					$field['content'] = $modx->db->escape($content);
+					$field['createdon'] = $date;
+					$field['editedon'] = $date;
+					$newid = $modx->db->insert($field,'[+prefix+]site_content');
+					if($newid)
+					{
+						$find = true;
+						echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+						importFiles($newid, $filedir . $alias . '/',$value,'sub');
+					}
+					else
+					{
+						echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
+						.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
+						exit;
+					}
 				}
 			}
-			if($create_folder==1)
-			{
-				$file = getFileContent($filepath);
-				list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);
-				
-				$date = filemtime($filepath);
-				$field['pagetitle'] = $pagetitle;
-				$field['longtitle'] = $pagetitle;
-				$field['description'] = $description;
-				$field['content'] = $modx->db->escape($content);
-				$field['createdon'] = $date;
-				$field['editedon'] = $date;
-			}
-			else
+			if($find===false)
 			{
 				$date = time();
-				$field['pagetitle'] = $_lang['untitled_resource'];
-				$field['longtitle'] = $_lang['untitled_resource'];
-				$field['description'] = '';
+				$field['pagetitle'] = '---';
 				$field['content'] = '';
 				$field['createdon'] = $date;
 				$field['editedon'] = $date;
+				$field['hidemenu'] = '1';
 				$newid = $modx->db->insert($field,'[+prefix+]site_content');
-			}
-			
-			$newid = $modx->db->insert($field,'[+prefix+]site_content');
-			if($newid)
-			{
-				echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
-				importFiles($newid, $filedir . $alias . '/',$value,'sub');
-			}
-			else
-			{
-				echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
-				.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
-				exit;
+				if($newid)
+				{
+					$find = true;
+					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+					importFiles($newid, $filedir . $alias . '/',$value,'sub');
+				}
+				else
+				{
+					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
+					.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
+					exit;
+				}
 			}
 		}
 		else
