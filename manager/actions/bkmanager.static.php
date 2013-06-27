@@ -602,7 +602,7 @@ function import_sql($source,$result_code='import_ok')
 	
 	$settings = getSettings();
 	
-	$source = str_replace(array("\r\n","\n","\r"),"\n",$source);
+	if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\n","\r"),"\n",$source);
 	$sql_array = preg_split('@;[ \t]*\n@', $source);
 	foreach($sql_array as $sql_entry)
 	{
