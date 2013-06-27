@@ -500,6 +500,7 @@ if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
 				<td>
 					<?php $content['content'] = !empty($content['content']) ? strip_tags(stripslashes($content['content'])) : 'http://';?>
 					<?php echo input_text('ta',$content['content']);?>
+					<input type="button" onclick="BrowseFileServer('field_ta')" value="<?php echo $_lang['insert']; ?>">
 					<?php echo tooltip($_lang['resource_weblink_help']);?>
 				</td>
 			</tr>
