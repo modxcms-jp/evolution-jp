@@ -270,18 +270,15 @@ class DocumentParser {
 					$alias = $this->virtualDir . '/' . $alias;
 				}
 				
-				if ($this->getIdFromAlias($alias)!==false)
-				{
-					$this->documentIdentifier= $this->getIdFromAlias($alias);
-				}
-				else
+				$this->documentIdentifier= $this->getIdFromAlias($alias);
+				if($this->documentIdentifier===false)
 				{
 					$alias .= $this->config['friendly_url_suffix'];
-					if ($this->getIdFromAlias($alias)!==false)
+					$this->documentIdentifier = $this->getIdFromAlias($alias);
+					if ($this->documentIdentifier===false)
 					{
-						$this->documentIdentifier= $this->getIdFromAlias($alias);
+						$this->sendErrorPage();
 					}
-					else $this->sendErrorPage();
 				}
 			}
 			else
