@@ -162,7 +162,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				$tagvalue = $modx->parsePlaceholder($params['output'],array('value'=>$tagvalue));
 				$attributes = '';
 				$attr = array(
-					'id' => ($tagid ? $tagid : $tagname) . ($i+1), // 'tv' already added to id
+					'id' => ($tagid ? $tagid : $tagname) . ($i==0?'':'-'.$i), //１周目は指定されたidをそのまま付加する。'tv' already added to id
 					'class' => $params['class'],
 					'style' => $params['style'],
 				);
