@@ -245,6 +245,8 @@ class PHx {
 				break;
 			case 'ifempty':
 				if (empty($value)) $value = $opt; break;
+			case 'ifnotempty':
+				if (!empty($value)) $value = $opt; break;
 			case 'strftime':
 			case 'date':
 				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
