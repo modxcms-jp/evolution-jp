@@ -272,7 +272,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 				$field = array();
 				$field['type'] = 'document';
 				$field['contentType'] = 'text/html';
-					$field['pagetitle'] = $pagetitle;
+				$field['pagetitle'] = $pagetitle;
 				$field['longtitle'] = $pagetitle;
 				$field['description'] = $description;
 				$field['alias'] = $modx->stripAlias($alias);
