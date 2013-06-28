@@ -384,7 +384,7 @@ function treatContent($src,$filename,$alias)
 {
 	global $modx;
 	
-	$src = mb_convert_encoding($src, $modx->config['modx_charset'], 'UTF-8,SJIS,EUC-JP,ASCII');
+	$src = mb_convert_encoding($src, $modx->config['modx_charset'], 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,ASCII');
 	
 	if (preg_match("@<title>(.*)</title>@i",$src,$matches))
 	{
