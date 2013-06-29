@@ -486,7 +486,7 @@ else $onkeyup = '';
 if($modx->config['friendly_urls']==='1' && $content['type']!=='reference')
 {
 	$body .= get_alias_path($id,$pid);
-	$body .= input_text('alias',to_safestr(urldecode($content['alias'])), $onkeyup . 'size="20" style="width:120px;"','50');
+	$body .= input_text('alias',to_safestr($content['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
 	if($modx->config['friendly_urls']==1)
 	{
 		if($modx->config['suffix_mode']==1 && strpos($content['alias'],'.')!==false)
@@ -500,7 +500,7 @@ if($modx->config['friendly_urls']==='1' && $content['type']!=='reference')
 }
 else
 {
-	$body .= input_text('alias',to_safestr(urldecode($content['alias'])),'','100');
+	$body .= input_text('alias',to_safestr($content['alias']),'','100');
 }
 $body .= tooltip($_lang['resource_alias_help']);
 renderTr($_lang['resource_alias'],$body);

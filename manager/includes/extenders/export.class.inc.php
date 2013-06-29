@@ -190,7 +190,6 @@ class EXPORT_SITE
 		while($row = $modx->db->getRow($rs))
 		{
 			$this->count++;
-			$row['alias'] = urldecode($row['alias']);
 			
 			$row['count']     = $this->count;
 			

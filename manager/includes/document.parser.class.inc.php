@@ -56,6 +56,7 @@ class DocumentParser {
     var $processCache;
     var $http_status_code;
     var $directParse;
+    var $decoded_request_uri;
 
     // constructor
 	function DocumentParser()
@@ -75,6 +76,7 @@ class DocumentParser {
 		$this->dumpSnippets = false; // feed the parser the execution start time
 		$this->stopOnNotice = false;
 		$this->safeMode     = false;
+		$this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
 		// set track_errors ini variable
 		@ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
 		$this->error_reporting = 1;
@@ -181,14 +183,14 @@ class DocumentParser {
 		{
 			$_REQUEST['id'] = $id;
 			$_GET['id'] = $id;
-			$_SERVER['REQUEST_URI'] = $this->config['base_url'] . 'index.php?id=' . $id;
+			$this->decoded_request_uri = $this->config['base_url'] . 'index.php?id=' . $id;
 			$this->directParse = 1;
 		}
 		else $this->directParse = 0;
 		
 		if(!isset($_REQUEST['id']))
 		{
-			$_REQUEST['q'] = substr($_SERVER['REQUEST_URI'],strlen($this->config['base_url']));
+			$_REQUEST['q'] = substr($this->decoded_request_uri,strlen($this->config['base_url']));
 			if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
 		}
 		if(strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
@@ -249,7 +251,7 @@ class DocumentParser {
 			$this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
 		}
 		
-		if ($this->documentMethod == 'none' || ($_SERVER['REQUEST_URI']===$this->config['base_url'] && $site_status!==false))
+		if ($this->documentMethod == 'none' || ($this->decoded_request_uri===$this->config['base_url'] && $site_status!==false))
 		{
 			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
 			$this->documentIdentifier = $this->config['site_start'];
@@ -477,7 +479,7 @@ class DocumentParser {
 			{
 				if ($this->documentObject['alias'])
 				{
-					$name= urldecode($this->documentObject['alias']);
+					$name= $this->documentObject['alias'];
 				}
 				else
 				{
@@ -561,7 +563,7 @@ class DocumentParser {
 				case '2':
 					$cacheContent .= serialize($this->documentObject['contentType']);
 					$cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-					$filename = md5($_SERVER['REQUEST_URI']);
+					$filename = md5($this->decoded_request_uri);
 					break;
 			}
 			
@@ -785,7 +787,7 @@ class DocumentParser {
 
 	function get_static_pages()
 	{
-		$filepath = $_SERVER['REQUEST_URI'];
+		$filepath = $this->decoded_request_uri;
 		if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
 		$filepath = substr($filepath,strlen($this->config['base_url']));
 		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
@@ -2626,7 +2628,20 @@ class DocumentParser {
 					
 					$al= $this->aliasListing[$id];
 					$alPath = ($al && !empty($al['path'])) ? $al['path'] . '/' : '';
-					if ($al && $al['alias']) $alias  = $al['alias'];
+					if(!empty($alPath))
+					{
+						$_ = explode('/', $alPath);
+						foreach($_ as $i=>$v)
+						{
+							$_[$i] = urlencode($v);
+						}
+						$alPath = join('/', $_);
+					}
+					if ($al && $al['alias'])
+					{
+						if($this->config['xhtml_urls']==='1') $alias = urlencode($al['alias']);
+						else                                  $alias = $al['alias'];
+					}
 				}
 			}
 			
@@ -3684,7 +3699,7 @@ class DocumentParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $request_uri = $_SERVER['REQUEST_URI'];
+        $request_uri = $this->decoded_request_uri;
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
@@ -3889,7 +3904,7 @@ class DocumentParser {
         $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias,'browserID'=>$browserID));
         
         if (!empty($results)) return end($results);//if multiple plugins are registered, only the last one is used
-        else                  return urlencode(strip_tags($alias));
+        else                  return strip_tags($alias);
     }
     
 	function nicesize($size) {
