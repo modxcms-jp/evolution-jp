@@ -7,15 +7,6 @@
 		global $manager_theme;
 		global $_lang;
 		global $content;
-
-		if(!isset($modx->config['imanager_url']))
-		{
-			$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
-		}
-		if(!isset($modx->config['fmanager_url']))
-		{
-			$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files&Connector={$base_url}manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath={$base_url}";
-		}
 		
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
@@ -150,26 +141,13 @@
 				break;
 			case "image":	// handles image fields using htmlarea image manager
 				global $_lang;
-				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
-				$url_convert = get_js_trim_path_pattern();
-				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
-					$field_html .= tplFileBrowser();
-					$ResourceManagerLoaded  = true;
-				}
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
 				break;
 			case "file": // handles the input of file uploads
 			/* Modified by Timon for use with resource browser */
                 global $_lang;
-				global $ResourceManagerLoaded;
 				global $content,$use_editor,$which_editor;
-				$url_convert = get_js_trim_path_pattern();
-				if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
-				/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
-					$field_html .= tplFileBrowser();
-					$ResourceManagerLoaded  = true;					
-				} 
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
                 
 				break;
@@ -259,36 +237,6 @@
 		return $a;
 	}
 	
-	function get_js_trim_path_pattern()
-	{
-		global $modx;
-		$ph['surl'] = $modx->config['site_url'];
-		$ph['surl_ptn'] = '^' . $ph['surl'];
-		$ph['surl_ptn'] = str_replace('/','\\/',$ph['surl_ptn']);
-		$ph['burl'] = $modx->config['base_url'];
-		$ph['burl_ptn'] = '^' . $ph['burl'];
-		$ph['burl_ptn'] = str_replace('/','\\/',$ph['burl_ptn']);
-		$js_block[] = "var burl_ptn = new RegExp('[+burl_ptn+]');";
-		$js_block[] = "var surl_ptn = new RegExp('[+surl_ptn+]');";
-		if($modx->config['strip_image_paths']==='1')
-		{
-			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'');}";
-			$js_block[] = "else if(url.match(surl_ptn)){url = url.replace(surl_ptn,'');}";
-		}
-		else
-		{
-			$js_block[] = "if(url.match(burl_ptn)){url = url.replace(burl_ptn,'[+surl+]');}";
-			$js_block[] = "else if(url.match(/^[^(http)]/)){url = surl + url;}";
-		}
-		$output = join("\n",$js_block);
-		foreach($ph as $k=>$v)
-		{
-			$k = '[+' . $k . '+]';
-			$output = str_replace($k, $v, $output);
-		}
-		return $output;
-	}
-	
 	function splitOption($value)
 	{
 		if(is_array($value)) $value = $value['0'];
@@ -320,57 +268,4 @@
 		}
 		
 		return $rs;
-	}
-	
-	function tplFileBrowser()
-	{
-		global $modx;
-		
-		$scr =<<<EOT
-<script type="text/javascript">
-		var lastImageCtrl;
-		var lastFileCtrl;
-		function OpenServerBrowser(url, width, height ) {
-			var iLeft = (screen.width  - width) / 2 ;
-			var iTop  = (screen.height - height) / 2 ;
-
-			var sOptions = 'toolbar=no,status=no,resizable=yes,dependent=yes' ;
-			sOptions += ',width=' + width ;
-			sOptions += ',height=' + height ;
-			sOptions += ',left=' + iLeft ;
-			sOptions += ',top=' + iTop ;
-
-			var oWindow = window.open( url, 'FileBrowser', sOptions ) ;
-		}
-		
-		function BrowseServer(ctrl) {
-			lastImageCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['imanager_url']}', w, h);
-		}
-		
-		function BrowseFileServer(ctrl) {
-			lastFileCtrl = ctrl;
-			var w = screen.width * 0.7;
-			var h = screen.height * 0.7;
-			OpenServerBrowser('{$modx->config['fmanager_url']}', w, h);
-		}
-		
-		function SetUrl(url, width, height, alt){
-			if(lastFileCtrl) {
-				var c = document.mutate[lastFileCtrl];
-				if(c) c.value = url;
-				lastFileCtrl = '';
-			} else if(lastImageCtrl) {
-				var c = document.mutate[lastImageCtrl];
-				if(c) c.value = url;
-				lastImageCtrl = '';
-			} else {
-				return;
-			}
-		}
-</script>
-EOT;
-		return $scr;
 	}

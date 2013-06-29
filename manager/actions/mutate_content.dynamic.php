@@ -169,6 +169,22 @@ if (isset ($_POST['which_editor']))
 $dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 ?>
+<?php
+	if(!isset($modx->config['imanager_url']))
+	{
+		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images&ServerPath={$base_url}";
+	}
+	if(!isset($modx->config['fmanager_url']))
+	{
+		$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files&ServerPath={$base_url}";
+	}
+?>
+<script type="text/javascript">
+	var imanager_url = '<?php echo $modx->config['imanager_url']; ?>';
+	var fmanager_url = '<?php echo $modx->config['fmanager_url']; ?>';
+</script>
+<script type="text/javascript" src="media/browser/browser.js"></script>
+
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
 <script type="text/javascript">
