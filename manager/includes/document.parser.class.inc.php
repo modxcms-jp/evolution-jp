@@ -2597,6 +2597,7 @@ class DocumentParser {
 	
 	function makeUrl($id, $alias= '', $args= '', $scheme= '')
 	{
+		if($id==0) return $this->config['site_url'];
 		$url= '';
 		$f_url_prefix = $this->config['friendly_url_prefix'];
 		$f_url_suffix = $this->config['friendly_url_suffix'];
@@ -3968,6 +3969,7 @@ class DocumentParser {
 			foreach($_a as $alias)
 			{
 				if($id===false) break;
+				$alias = $this->db->escape($alias);
 				$rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and alias='{$alias}'");
 				if($this->db->getRecordCount($rs)==0) $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and id='{$alias}'");
 				$row = $this->db->getRow($rs);
