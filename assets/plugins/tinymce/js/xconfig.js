@@ -7,7 +7,7 @@ var mce_valid_elements = "@[id|class|style|title|dir<ltr?rtl|lang|xml::lang|oncl
 + "onkeydown|onkeyup],a[rel|rev|charset|hreflang|tabindex|accesskey|type|"
 + "name|href|target|title|class|onfocus|onblur],strong/b,em/i,strike,u,"
 + "#p[align],-ol[type|compact],-ul[type|compact],-li,br,img[longdesc|usemap|"
-+ "src|border|alt=|title|hspace|vspace|align],-sub,-sup,"
++ "src|border|alt=|title|hspace|vspace|width|height|align],-sub,-sup,"
 + "-blockquote,-table[border|cellspacing|cellpadding|width|frame|rules|"
 + "height|align|summary|bgcolor|background|bordercolor],-tr[rowspan|width|"
 + "height|align|valign|bgcolor|background|bordercolor],tbody,thead,tfoot,"
@@ -22,7 +22,4 @@ var mce_valid_elements = "@[id|class|style|title|dir<ltr?rtl|lang|xml::lang|oncl
 + "input[accept|alt|checked|disabled|maxlength|name|readonly|size|src|type|value],"
 + "kbd,label[for],legend,noscript,optgroup[label|disabled],option[disabled|label|selected|value],"
 + "q[cite],samp,select[disabled|multiple|name|size],small,"
-+ "textarea[cols|rows|disabled|name|readonly],tt,var,big,"
-+ "iframe[*]";
-var mce_extended_valid_elements = "";
-var mce_invalid_elements = "";
++ "textarea[cols|rows|disabled|name|readonly],tt,var,big";
