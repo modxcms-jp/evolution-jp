@@ -69,15 +69,15 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 		<label><input type="radio" name="includenoncache" value="0" <?php echo $includenoncache0;?>><?php echo $_lang['no'];?></label></td>
   </tr>
 <?php
-	$ignore_ids = $modx->getOption('ignore_ids');
+	$ignore_ids = $modx->getOption('export_ignore_ids');
 ?>
   <tr>
     <td class="head"><?php echo $_lang['a83_ignore_ids_title']; ?></td>
     <td><input type="text" name="ignore_ids" value="<?php echo $ignore_ids;?>" style="width:300px;" /></td>
   </tr>
 <?php
-$repl_before = $modx->getOption('repl_before',$modx->config['site_url']);
-$repl_after  = $modx->getOption('repl_after',$modx->config['site_url']);
+$repl_before = $modx->getOption('export_repl_before',$modx->config['site_url']);
+$repl_after  = $modx->getOption('export_repl_after',$modx->config['site_url']);
 ?>
   <tr>
     <td class="head"><?php echo $_lang['export_site.static.php4']; ?></td>
