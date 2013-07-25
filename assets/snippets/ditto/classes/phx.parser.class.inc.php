@@ -420,6 +420,8 @@ class PHxParser {
 					break;
 				case 'ifempty':
 					if (empty($output)) $output = $modifier_value[$i]; break;
+				case 'ifnotempty':
+					if (!empty($output)) $output = $modifier_value[$i]; break;
 				case 'date':
 					$output = $this->mb_strftime($modifier_value[$i],0+$output); break;
 				case 'set':
