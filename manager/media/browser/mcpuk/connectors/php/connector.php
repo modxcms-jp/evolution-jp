@@ -26,6 +26,10 @@ define('MODX_API_MODE', true);
 $self = 'manager/media/browser/mcpuk/connectors/php/connector.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once("{$base_path}index.php");
+if(!isset($_SESSION['mgrValidated']))
+{
+	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+}
 $mcpuk_path = "{$base_path}manager/media/browser/mcpuk/";
 
 $modx->db->connect();
