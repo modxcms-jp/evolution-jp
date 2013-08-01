@@ -66,7 +66,7 @@ class TopicPath
 		
 		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
 		
-		if(0<count($topics))
+		if(1<count($topics))
 		{
 			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
 			$rs = join($tpl['separator'],$topics);
