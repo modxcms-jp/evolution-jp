@@ -228,8 +228,35 @@ INSERT INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
  (1, 'settings_site'), (2, 'settings_furls'),(3,'settings_users'),
  (4,'settings_ui'),(5,'settings_misc');
 
- ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
+ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
 
- ALTER TABLE `{PREFIX}system_settings` add column `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+ALTER TABLE `{PREFIX}system_settings` add column `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
- ALTER TABLE `{PREFIX}system_settings` add column `id_group` int NOT NULL default '1';
+ALTER TABLE `{PREFIX}system_settings` add column `id_group` int NOT NULL default '1';
+
+ALTER TABLE `{PREFIX}system_settings` add column `title` varchar(255) NOT NULL default '';
+
+ALTER TABLE `{PREFIX}system_settings` add column `is_show` int NOT NULL default '1';
+
+ALTER TABLE `{PREFIX}system_settings` add column `description` TEXT NOT NULL;
+
+ALTER TABLE `{PREFIX}system_settings` add column `sort` int NOT NULL;
+
+ALTER TABLE `{PREFIX}system_settings` add column `options` TEXT NOT NULL;
+
+UPDATE `{PREFIX}system_settings` set `title`=CONCAT(`setting_name`,'_title'),`description`=CONCAT(`setting_name`,'_message');
+
+UPDATE `{PREFIX}system_settings` set `is_show`=0 WHERE `setting_name`='settings_version';
+
+UPDATE `{PREFIX}system_settings` set `sort`=1, `options`='text' WHERE `setting_name`='site_name';
+
+UPDATE `{PREFIX}system_settings` set `sort`=2, `options`='textarea' WHERE `setting_name`='site_slogan';
+
+UPDATE `{PREFIX}system_settings` set `sort`=3, `options`='text' WHERE `setting_name`='site_url';
+
+UPDATE `{PREFIX}system_settings` set `sort`=4, `options`='text' WHERE `setting_name`='base_url';
+
+UPDATE `{PREFIX}system_settings` set `sort`=5, `options`='select||UTF-8' WHERE `setting_name`='modx_charset';
+
+UPDATE `{PREFIX}system_settings` set `sort`=6, `options`='select||UTF-8;SJIS-win;eucJP-win;Windows-1251;Windows-1252;KOI8-R;ISO-8859-1;ISO-8859-2;ISO-8859-3;ISO-8859-4;ISO-8859-5;ISO-8859-6;ISO-8859-7;ISO-8859-8;ISO-8859-9;ISO-8859-10;Shift_JIS;EUC-JP;BIG-5' WHERE `setting_name`='doc_encoding';
+

@@ -196,8 +196,10 @@ function confirmLangChange(el, lkey, elupd)
 <?php
 
     function l($text){
-        global $_lang;
-        return (isset($_lang[$text]))?$_lang[$text]:$text;
+        global $_lang, $modx;
+        $result = (isset($_lang[$text]))?$_lang[$text]:$text;
+        $result = $modx->parsePlaceholder($result,array('MODX_SITE_URL'=>MODX_SITE_URL,'MODX_BASE_URL'=>MODX_BASE_URL));
+        return $result;
     }
 
     $groups = $modx->db->GetObjects("system_settings_group");
@@ -209,16 +211,24 @@ function confirmLangChange(el, lkey, elupd)
             <table class="settings">
                 <?php
 
-                $inputs = $modx->db->GetObjects("system_settings","id_group=$group->id");
+                $inputs = $modx->db->GetObjects("system_settings","id_group=$group->id and is_show=1 and `options`!=''","sort");
 
+                //print_r($inputs);
                 foreach($inputs as $input){?>
                 <tr>
-                    <th><?php echo l($input->setting_name."_title")?></th>
-                    <td>
-                        <?print_r($input);?>
-                    </td>
+                    <?php
+
+                    $options = explode("||",$input->options);
+
+                    $field_type = str_replace(array("..","/","\\"),"",$options[0]);
+                    $field_include = MODX_BASE_PATH."manager/includes/field_$field_type.php";
+
+                    if (is_file($field_include)){
+                        include ($field_include);
+                    }
+                    ?>
                 </tr>
-                <?}?>
+                <?php } ?>
 
         </div>
         <?php
