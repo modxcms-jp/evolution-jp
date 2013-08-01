@@ -218,4 +218,18 @@ ALTER TABLE `{PREFIX}site_revision` ADD COLUMN `submittedon` int(20) NOT NULL de
 
 ALTER TABLE `{PREFIX}site_revision` ADD COLUMN `submittedby` int(10) NOT NULL default '0' AFTER `submittedon`;
 
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings_group` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `name` varchar(64) NOT NULL,
+ PRIMARY KEY (`id`)
+);
 
+INSERT INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
+ (1, 'settings_site'), (2, 'settings_furls'),(3,'settings_users'),
+ (4,'settings_ui'),(5,'settings_misc');
+
+ ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
+
+ ALTER TABLE `{PREFIX}system_settings` add column `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+
+ ALTER TABLE `{PREFIX}system_settings` add column `id_group` int NOT NULL default '1';

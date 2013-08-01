@@ -191,6 +191,42 @@ function confirmLangChange(el, lkey, elupd)
 	<script type="text/javascript">
 		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
 	</script>
+
+<!-- New group output-->
+<?php
+
+    function l($text){
+        global $_lang;
+        return (isset($_lang[$text]))?$_lang[$text]:$text;
+    }
+
+    $groups = $modx->db->GetObjects("system_settings_group");
+    foreach($groups as $group){
+        ?>
+        <div class='tab-page' id='tabPage_<?=$group->id?>'>
+            <h2 class="tab"><?=l($group->name)?></h2>
+            <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage_<?=$group->id?>" ) );</script>
+            <table class="settings">
+                <?php
+
+                $inputs = $modx->db->GetObjects("system_settings","id_group=$group->id");
+
+                foreach($inputs as $input){?>
+                <tr>
+                    <th><?php echo l($input->setting_name."_title")?></th>
+                    <td>
+                        <?print_r($input);?>
+                    </td>
+                </tr>
+                <?}?>
+
+        </div>
+        <?php
+    }
+
+?>
+
+
 <!-- Site Settings -->
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo $_lang["settings_site"] ?></h2>
