@@ -233,10 +233,8 @@ function confirmLangChange(el, lkey, elupd)
         </div>
         <?php
     }
-
 ?>
-
-
+<hr><hr><hr>
 <!-- Site Settings -->
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo $_lang["settings_site"] ?></h2>

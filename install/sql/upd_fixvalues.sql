@@ -260,3 +260,17 @@ UPDATE `{PREFIX}system_settings` set `sort`=5, `options`='select||UTF-8' WHERE `
 
 UPDATE `{PREFIX}system_settings` set `sort`=6, `options`='select||UTF-8;SJIS-win;eucJP-win;Windows-1251;Windows-1252;KOI8-R;ISO-8859-1;ISO-8859-2;ISO-8859-3;ISO-8859-4;ISO-8859-5;ISO-8859-6;ISO-8859-7;ISO-8859-8;ISO-8859-9;ISO-8859-10;Shift_JIS;EUC-JP;BIG-5' WHERE `setting_name`='doc_encoding';
 
+UPDATE `{PREFIX}system_settings` set `sort`=7, `options`='radio||yes=1;no=0' WHERE `setting_name`='xhtml_urls';
+
+UPDATE `{PREFIX}system_settings` set `sort`=8, `options`='text' WHERE `setting_name`='site_start';
+
+UPDATE `{PREFIX}system_settings` set `sort`=9, `options`='text' WHERE `setting_name`='error_page';
+
+UPDATE `{PREFIX}system_settings` set `sort`=10, `options`='text' WHERE `setting_name`='unauthorized_page';
+
+UPDATE `{PREFIX}system_settings` set `sort`=11, `options`='radio||online=1;offline=0' WHERE `setting_name`='site_status';
+
+UPDATE `{PREFIX}system_settings` set `sort`=12, `options`='text' WHERE `setting_name`='site_unavailable_page';
+
+
+
