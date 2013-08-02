@@ -72,7 +72,10 @@ if($pos!==false && $contentType === 'text/html')
 		case '.txt':$contentType = 'text/plain';break;
 	}
 }
-
+if($contentType !== 'text/html')
+{
+	$richtext = '0';
+}
 
 if($_POST['mode'] == '27') $actionToTake = 'edit';
 else                       $actionToTake = 'new';
