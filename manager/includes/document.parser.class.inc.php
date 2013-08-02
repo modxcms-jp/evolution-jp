@@ -1129,7 +1129,7 @@ class DocumentParser {
 		{
 			$timestamp = filemtime($cacheFile);
 			$timestamp += $this->config['cache_expire'];
-			if($timestamp <time() )
+			if($timestamp < $_SERVER['REQUEST_TIME'])
 			{
 				@unlink($cacheFile);
 				$this->documentGenerated = 1;
@@ -1229,7 +1229,7 @@ class DocumentParser {
 			}
 			else $this->cacheRefreshTime = 0;
 		}
-		$timeNow= time() + $this->config['server_offset_time'];
+		$timeNow= $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'];
 		
 		if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
 		
@@ -2219,7 +2219,7 @@ class DocumentParser {
 		
 		$fields['eventid']     = $evtid;
 		$fields['type']        = $type;
-		$fields['createdon']   = time();
+		$fields['createdon']   = $_SERVER['REQUEST_TIME'];
 		$fields['source']      = $source;
 		$fields['description'] = $msg;
 		$fields['user']        = $LoginUserID;

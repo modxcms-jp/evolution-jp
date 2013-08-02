@@ -140,7 +140,7 @@ class synccache {
 		
 		// update publish time file
 		$timesArr = array();
-		$current_time = time();
+		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
 		
 		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
 		if(!$result)

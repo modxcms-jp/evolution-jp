@@ -6,6 +6,8 @@ if(version_compare(phpversion(), '5.0.0') < 0)
 	exit;
 }
 
+if(!isset($_SERVER['REQUEST_TIME'])) $_SERVER['REQUEST_TIME'] = time();
+
 // automatically assign base_path and base_url
 if(!isset($base_path)) $base_path = get_base_path();
 if(!isset($base_url))  $base_url  = get_base_url($base_path);
