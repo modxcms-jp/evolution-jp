@@ -53,7 +53,7 @@ class errorHandler{
 	}
 	
 	function dumpError() {
-		global $_lang;
+		global $modx, $_lang;
 		if(!isset($_GET['count_attempts'])) $prev_request_uri = $_SESSION['prev_request_uri'] . '&count_attempts=1';
 		else                                $prev_request_uri = 'index.php?a=2';
 		$scr = <<< EOT
@@ -63,7 +63,9 @@ class errorHandler{
 	});
 </script>
 EOT;
+        include_once($modx->config['base_path'] . 'manager/includes/header.inc.php');
 		echo $scr;
+		include_once($modx->config['base_path'] . 'manager/includes/footer.inc.php');
 		exit;
 	}
 }
