@@ -7,7 +7,7 @@ require_once("{$base_path}index.php");
 header('X-UA-Compatible: IE=EmulateIE7');
 if(!isset($_SESSION['mgrValidated'])) {
 	if(!isset($_SESSION['webValidated'])){
-	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 	}
 }
 
