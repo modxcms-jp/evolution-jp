@@ -99,7 +99,9 @@ echo $cm->render();
 	<div class="actionButtons">
 		<table border="0" style="width:100%">
 			<tr>
+<?php if($modx->hasPermission('new_user')):?>
 			<td><a href="index.php?a=11" class="default"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_user']; ?></a></td>
+<?php endif; ?>
 			<td nowrap="nowrap">
 				<table border="0" style="float:right"><tr><td><?php echo $_lang["search"]; ?></td><td><input class="searchtext" name="search" type="text" size="15" value="<?php echo $query; ?>" /></td>
 				<td><a href="#" class="default" title="<?php echo $_lang["search"];?>" onclick="searchResource();return false;"><?php echo $_lang['go']; ?></a></td>
