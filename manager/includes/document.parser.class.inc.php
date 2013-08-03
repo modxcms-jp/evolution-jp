@@ -2074,29 +2074,14 @@ class DocumentParser {
 		if($id==='') $id = $this->documentIdentifier;
 		$parents= array ();
 		
-		if(!$this->aliasListing) $this->setAliasListing();
+		if(!isset($this->aliasListing)) $this->setAliasListing();
 		
 		while( $id && 0<$height)
 		{
 			$current_id = $id;
 			$id = $this->aliasListing[$id]['parent'];
-			if(!$id)
-			{
-				break;
-			}
-			if(strlen($this->aliasListing[$current_id]['path']))
-			{
-				$pkey = $this->aliasListing[$current_id]['path'];
-			}
-			else
-			{
-				$pkey = $this->aliasListing[$id]['alias'];
-			}
-			if(!strlen($pkey))
-			{
-				$pkey = $id;
-			}
-			$parents[$pkey] = $id;
+			if(!$id) break;
+			$parents[$current_id] = $id;
 			$height--;
 		}
 		return $parents;
