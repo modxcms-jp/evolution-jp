@@ -144,6 +144,9 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('206','OnManagerMainFrameHeaderHTMLBlock','2',''),
 ('207','OnManagerPreFrameLoader','2',''),
 ('208','OnManagerFrameLoader','2',''),
+('209','OnManagerTreeInit','2',''),
+('210','OnManagerTreePrerender','2',''),
+('211','OnManagerTreeRender','2',''),
 ('300','OnMakeUrl','1',''),
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
