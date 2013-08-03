@@ -236,6 +236,7 @@ function SetUrl(url, width, height, alt){
 
 <div id="actions">
 	<ul class="actionButtons">
+<?php if($modx->hasPermission('save_web_user')):?>
 			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['update']; ?></a><span class="and"> + </span>
 			<select id="stay" name="stay">
 			  <?php if ($modx->hasPermission('new_web_user')) { ?>
@@ -245,6 +246,7 @@ function SetUrl(url, width, height, alt){
 			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
 			</select>
 			</li>
+<?php endif; ?>
 			<?php if ($_REQUEST['a'] == '88') { ?>
 			<li><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete']; ?></a></li>
 <?php } ?>

@@ -436,6 +436,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 
     <div id="actions">
     	  <ul class="actionButtons">
+<?php if($modx->hasPermission('save_plugin')):?>
     		  <li id="Button1">
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
@@ -447,6 +448,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     			  <option id="stay3" value=""  <?php echo selected($_REQUEST['stay']=='');?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
+<?php endif; ?>
 <?php
 	if ($_GET['a'] == '102')
     {

@@ -191,6 +191,7 @@ if (is_array($evtOut))
 
     <div id="actions">
     	  <ul class="actionButtons">
+<?php if($modx->hasPermission('save_chunk')):?>
     		  <li id="Button1">
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
@@ -204,6 +205,7 @@ if (is_array($evtOut))
     			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
+<?php endif; ?>
 <?php
     if ($_REQUEST['a'] == '78')
     {

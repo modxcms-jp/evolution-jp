@@ -336,6 +336,7 @@ function SetUrl(url, width, height, alt) {
 	
     <div id="actions">
     	  <ul class="actionButtons">
+<?php if($modx->hasPermission('save_module')):?>
     		  <li id="Button1">
     			<a href="#" onclick="documentDirty=false; document.mutate.save.click();">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
@@ -349,6 +350,7 @@ function SetUrl(url, width, height, alt) {
     			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
     			</select>
     		  </li>
+<?php endif; ?>
 <?php
     if ($_REQUEST['a'] == '108')
     {
