@@ -194,7 +194,7 @@ function confirmLangChange(el, lkey, elupd)
 
 <!-- New group output-->
 <?php
-
+    $depend_list = array();
     function l($text){
         global $_lang, $modx;
         $result = (isset($_lang[$text]))?$_lang[$text]:$text;
@@ -215,7 +215,14 @@ function confirmLangChange(el, lkey, elupd)
 
                 //print_r($inputs);
                 foreach($inputs as $input){?>
-                <tr>
+                    <tr <?php //зависимость от других полей
+                        if (isset($depend_list[$input->setting_name])){
+                            echo "class='".$depend_list[$input->setting_name]."_depend'";
+                            if (empty($settings[$depend_list[$input->setting_name]])){
+                                echo ' style="display:none"';
+                            }
+                        }
+                        ?>">
                     <?php
 
                     $options = explode("||",$input->options);
@@ -229,7 +236,27 @@ function confirmLangChange(el, lkey, elupd)
                     ?>
                 </tr>
                 <?php } ?>
+                <tr class="row1" style="border-bottom:none;">
+                    <td colspan="2" style="padding:0;">
+                        <?php
+                        // invoke custom tab event
+                        $event_name = "OnSystemSettingsRender";
+                        switch ($group->id){
+                            case 1:
+                                $event_name = "OnSiteSettingsRender";
+                                break;
+                            case 2:
+                                $event_name = "OnFriendlyURLSettingsRender";
+                                break;
+                        }
 
+                        $evtOut = $modx->invokeEvent($event_name,array("group_id"=>$group->id));
+
+                        if(is_array($evtOut)) echo implode("",$evtOut);
+                        ?>
+                    </td>
+
+            </table>
         </div>
         <?php
     }

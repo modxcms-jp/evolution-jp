@@ -272,5 +272,48 @@ UPDATE `{PREFIX}system_settings` set `sort`=11, `options`='radio||online=1;offli
 
 UPDATE `{PREFIX}system_settings` set `sort`=12, `options`='text' WHERE `setting_name`='site_unavailable_page';
 
+UPDATE `{PREFIX}system_settings` set `sort`=13, `options`='textarea_lang' WHERE `setting_name`='site_unavailable_message';
+
+UPDATE `{PREFIX}system_settings` set `sort`=14, `options`='radio||yes=1;no=0' WHERE `setting_name`='track_visitors';
+
+UPDATE `{PREFIX}system_settings` set `sort`=15, `options`='radio||defaulttemplate_logic_system_message=system;defaulttemplate_logic_parent_message=parent;defaulttemplate_logic_sibling_message=sibling' WHERE `setting_name`='auto_template_logic';
+
+UPDATE `{PREFIX}system_settings` set `sort`=16, `options`='template' WHERE `setting_name`='default_template';
+
+UPDATE `{PREFIX}system_settings` set `sort`=17, `options`='radio||yes=1;no=0' WHERE `setting_name`='publish_default';
+
+UPDATE `{PREFIX}system_settings` set `sort`=18, `options`='radio||mutate_settings.dynamic.php1=1;mutate_settings.dynamic.php2=2;mutate_settings.dynamic.php3=0' WHERE `setting_name`='cache_type';
+
+UPDATE `{PREFIX}system_settings` set `sort`=19, `options`='radio||yes=1;no=0' WHERE `setting_name`='cache_default';
+
+UPDATE `{PREFIX}system_settings` set `sort`=20, `options`='radio||yes=1;no=0' WHERE `setting_name`='search_default';
+
+UPDATE `{PREFIX}system_settings` set `sort`=21, `options`='radio||yes=1;no=0' WHERE `setting_name`='auto_menuindex';
+
+UPDATE `{PREFIX}system_settings` set `sort`=22, `options`='custom_contenttype' WHERE `setting_name`='custom_contenttype';
+
+UPDATE `{PREFIX}system_settings` set `sort`=23, `options`='radio||docid_incrmnt_method_0=0;docid_incrmnt_method_1=1;docid_incrmnt_method_2=2' WHERE `setting_name`='docid_incrmnt_method';
+
+UPDATE `{PREFIX}system_settings` set `sort`=24, `options`='server_offset' WHERE `setting_name`='server_offset_time';
+
+UPDATE `{PREFIX}system_settings` set `sort`=25, `options`='radio||server_protocol_http=http;server_protocol_https=https' WHERE `setting_name`='server_protocol';
+
+UPDATE `{PREFIX}system_settings` set `sort`=26, `options`='radio||Enable=1;Disable=0' WHERE `setting_name`='output_filter';
+
+UPDATE `{PREFIX}system_settings` set `sort`=27, `id_group`=2, `options`='radio||yes=1;no=0||depend||friendly_url_prefix,friendly_url_suffix,make_folders,friendly_alias_urls,use_alias_path,allow_duplicate_alias,automatic_alias' WHERE `setting_name`='friendly_urls';
+
+UPDATE `{PREFIX}system_settings` set `sort`=28, `id_group`=2, `options`='text' WHERE `setting_name`='friendly_url_prefix';
+
+UPDATE `{PREFIX}system_settings` set `sort`=29, `id_group`=2, `options`='text' WHERE `setting_name`='friendly_url_suffix';
+
+UPDATE `{PREFIX}system_settings` set `sort`=30, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='make_folders';
+
+UPDATE `{PREFIX}system_settings` set `sort`=31, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='friendly_alias_urls';
+
+UPDATE `{PREFIX}system_settings` set `sort`=32, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_alias_path';
+
+UPDATE `{PREFIX}system_settings` set `sort`=33, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_duplicate_alias';
+
+UPDATE `{PREFIX}system_settings` set `sort`=34, `id_group`=2, `options`='radio||pagetitle=1;numbering in each folder=2;disabled=0' WHERE `setting_name`='automatic_alias';
 
 
