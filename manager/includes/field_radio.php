@@ -9,6 +9,8 @@
  * 
  */
 
+if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+
 if ($options[2]=="depend"){
     $depend_fields = explode(",",$options[3]);
     if (!empty($depend_fields)){

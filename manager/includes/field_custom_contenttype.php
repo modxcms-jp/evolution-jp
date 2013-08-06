@@ -6,6 +6,9 @@
  * Time: 21:00
  * To change this template use File | Settings | File Templates.
  */
+
+if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+
 ?>
 
 <th><?=l($input->title)?></th>

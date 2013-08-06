@@ -76,8 +76,8 @@ $_lang["blocked_minutes_title"] = 'アカウントロックの時間';
 $_lang["cache_files_deleted"] = '次のファイルが削除されました';
 $_lang["cancel"] = 'キャンセル';
 $_lang["captcha_code"] = 'セキュリティコード';
-$_lang["captcha_message"] = 'ランダムな文字列を画像で表示し、ユーザーに目視させて入力を求めます。';
-$_lang["captcha_title"] = 'CAPTCHAコードを使用';
+$_lang["use_captcha_message"] = 'ランダムな文字列を画像で表示し、ユーザーに目視させて入力を求めます。';
+$_lang["use_captcha_title"] = 'CAPTCHAコードを使用';
 $_lang["captcha_words_default"] = 'maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma,sake,tai,buri,hirame,unagi,anago,amaebi,ikura,kanpachi,syako';
 $_lang["captcha_words_message"] = '「CAPTCHAコードの使用」を「はい」にした場合に使用されるCAPTCHAワードリストを入力してください。CAPTCHAワードはカンマで区切って入力します。このフィールドには、255文字まで入力することができます。';
 $_lang["captcha_words_title"] = 'CAPTCHA用ワード';
@@ -299,8 +299,8 @@ $_lang["export_site_success_skip_doc"] = '更新されていないためスキ�
 $_lang["export_site_suffix"] = 'ファイル名のサフィックス';
 $_lang["export_site_target_unwritable"] = 'ターゲットディレクトリ内に書き込みができません。ディレクトリが書き込み可能であるか確認して、再度処理を行ってください。';
 $_lang["export_site_time"] = 'エクスポートが完了しました。エクスポートに要した時間は %s 秒です。';
-$_lang["failed_login_message"] = 'ログイン失敗を許容する回数を設定します。ここで設定した回数を超えると一定時間ロックされログインできなくなります。';
-$_lang["failed_login_title"] = 'ログイン失敗を許容する回数';
+$_lang["failed_login_attempts_message"] = 'ログイン失敗を許容する回数を設定します。ここで設定した回数を超えると一定時間ロックされログインできなくなります。';
+$_lang["failed_login_attempts_title"] = 'ログイン失敗を許容する回数';
 $_lang["fe_editor_lang_message"] = 'フロントエンドエディターで用いるリッチテキストエディターの言語を選んでください。';
 $_lang["fe_editor_lang_title"] = 'フロントエンドエディターの言語';
 $_lang["file_delete_file"] = 'ファイルを削除';
@@ -964,7 +964,7 @@ $_lang["track_visitors_message"] = 'このサイトのアクセス解析デー�
 $_lang["track_visitors_title"] = 'アクセスログを記録';
 $_lang["tree_page_click"] = 'リソースツリークリック時の動作';
 $_lang["tree_page_click_message"] = 'リソースツリーをクリックした時の既定の動作を設定します。「自動」を選ぶとリソースがコンテナかどうかで判定します。';
-$_lang["tree_show_protected"] = '権限のないリソースの表示';
+$_lang["tree_show_protected_title"] = '権限のないリソースの表示';
 $_lang["tree_show_protected_message"] = 'ログインしているユーザーが操作権限を持たないリソースも全てリソースツリーに表示します。Windowsフォルダオプションの「全てのファイルとフォルダを表示する」に似ています。権限の設定は<a href="index.php?a=40">「グループ管理」</a>で行ないます。';
 $_lang["truncate_table"] = 'このテーブルの内容を全削除するにはここをクリック';
 $_lang["tuesday"] = '火';
@@ -972,8 +972,8 @@ $_lang["tv"] = 'テンプレート変数';
 $_lang["type"] = 'タイプ';
 $_lang["udperms_allowroot_message"] = 'リソースツリーのルート直下にユーザーがリソースを作成できるようにしますか?';
 $_lang["udperms_allowroot_title"] = 'ルートの使用許可';
-$_lang["udperms_message"] = '会員制サイトを運用する場合や、編集権限を持つページをグループ単位で制限したい場合に必要となる設定です。グループ管理機能を有効にすると、ユーザーの編集権限をユーザーグループごと・リソースグループごとに割り当てることができます。まず当設定を有効にしたうえで<a href="index.php?a=40" target="_self">グループ管理</a>を開き、ユーザーグループとリソースグループを作ってください。次に、それぞれのユーザーグループとリソースグループを関連付けてください。最後に、個別のユーザーをユーザーグループに、個別のリソースをリソースグループに割り当ててください。この設定を「はい」にした場合、全てのリソースを編集する権限を持つのは初期状態ではAdministrator(のロールが割り当てられているユーザ)のみとなります。';
-$_lang["udperms_title"] = 'グループ管理機能を使用';
+$_lang["use_udperms_message"] = '会員制サイトを運用する場合や、編集権限を持つページをグループ単位で制限したい場合に必要となる設定です。グループ管理機能を有効にすると、ユーザーの編集権限をユーザーグループごと・リソースグループごとに割り当てることができます。まず当設定を有効にしたうえで<a href="index.php?a=40" target="_self">グループ管理</a>を開き、ユーザーグループとリソースグループを作ってください。次に、それぞれのユーザーグループとリソースグループを関連付けてください。最後に、個別のユーザーをユーザーグループに、個別のリソースをリソースグループに割り当ててください。この設定を「はい」にした場合、全てのリソースを編集する権限を持つのは初期状態ではAdministrator(のロールが割り当てられているユーザ)のみとなります。';
+$_lang["use_udperms_title"] = 'グループ管理機能を使用';
 $_lang["unable_set_link"] = 'リンクを設定できません。';
 $_lang["unable_set_parent"] = '新しい親リソースを設定できません。';
 $_lang["unauthorized_page_message"] = 'ユーザーがアクセスを許可されていないリソースを要求したとき表示するリソースのIDを入力してください。<br /><strong>※非公開またはウェブユーザー限定のリソースは指定できません。</strong>';
@@ -1044,7 +1044,7 @@ $_lang["view_logging"] = '管理操作ログ';
 $_lang["view_sysinfo"] = 'システム情報';
 $_lang["warning"] = '警告';
 $_lang["warning_not_saved"] = '変更が更新されていません。変更を更新するためには「キャンセル」をクリックし現在のページに戻ってください。また、「OK」をクリックして全ての変更を破棄することもできます。';
-$_lang["warning_visibility"] = 'ダッシュボードの警告表示';
+$_lang["warning_visibility_title"] = 'ダッシュボードの警告表示';
 $_lang["warning_visibility_message"] = 'ダッシュボードの警告を表示する<a href="index.php?a=86">対象ロール</a>を設定します。';
 $_lang["web_access_permissions"] = 'グループ管理(ウェブ)';
 $_lang["web_access_permissions_user_groups"] = 'ウェブユーザーグループ';
@@ -1138,9 +1138,9 @@ $_lang["mutate_settings.dynamic.php2"] = 'バイパスモード';
 $_lang["mutate_settings.dynamic.php3"] = 'キャッシュ無効';
 $_lang["mutate_settings.dynamic.php4"] = '個別の拡張子表現';
 $_lang["mutate_settings.dynamic.php5"] = 'エイリアス名に「 . 」(ドット)を含む時にサフィックスの追加を省略できます。';
-$_lang["mutate_settings.dynamic.php6"] = 'システムエラーを<br />メールで通知する';
+$_lang["send_errormail_title"] = 'システムエラーを<br />メールで通知する';
 $_lang["mutate_settings.dynamic.php7"] = '通知しない';
-$_lang["mutate_settings.dynamic.php8"] = 'エラー発生時に[(emailsender)]([+emailsender+])に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
+$_lang["send_errormail_message"] = 'エラー発生時に[(emailsender)]([+emailsender+])に通知します。エラーの内容の詳細は<a href="index.php?a=114">イベントログ</a>を確認してください。';
 $_lang["save_user.processor.php1"] = '変更した設定を反映するために、再ログインしてください。';
 
 $_lang["disabled"] = '無効';
@@ -1197,8 +1197,8 @@ $_lang["a16_use_resources"] = 'このテンプレートを使用しているリ�
 $_lang["a16_many_resources"] = 'リソース数が多いためここでは表示しません。';
 $_lang["a16_no_resource"] = 'このテンプレートを使用しているリソースはありません。';
 
-$_lang['a17_error_reporting_title'] = 'PHPエラーの検出レベル';
-$_lang['a17_error_reporting_msg'] = 'PHPエラーの検出レベルを設定します。';
+$_lang['error_reporting_title'] = 'PHPエラーの検出レベル';
+$_lang['error_reporting_message'] = 'PHPエラーの検出レベルを設定します。';
 $_lang['a17_error_reporting_opt0'] = '全て無視する';
 $_lang['a17_error_reporting_opt1'] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
 $_lang['a17_error_reporting_opt2'] = 'E_NOTICE 以外の全てのエラーを検出';
@@ -1258,8 +1258,8 @@ $_lang["open"] = '開く';
 $_lang["tree_pane_open_default_title"] = 'ツリーペインの初期状態';
 $_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルトで有効にするか閉じておくかを設定します。';
 
-$_lang["user_auto_sleep_title"] = 'ユーザを自動的に休止';
-$_lang["user_auto_sleep_message"] = '一定期間ログインしていないユーザを自動的に休止状態にします。ここで日数を設定します。';
+$_lang["auto_sleep_user_title"] = 'ユーザを自動的に休止';
+$_lang["auto_sleep_user_message"] = '一定期間ログインしていないユーザを自動的に休止状態にします。ここで日数を設定します。';
 
 $_lang["resources_list"] = 'リソース一覧';
 

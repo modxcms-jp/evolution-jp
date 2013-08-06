@@ -316,4 +316,32 @@ UPDATE `{PREFIX}system_settings` set `sort`=33, `id_group`=2, `options`='radio||
 
 UPDATE `{PREFIX}system_settings` set `sort`=34, `id_group`=2, `options`='radio||pagetitle=1;numbering in each folder=2;disabled=0' WHERE `setting_name`='automatic_alias';
 
+UPDATE `ss_system_settings` set `sort`=35, `id_group`=3, `options`='textarea' WHERE `setting_name`='check_files_onlogin';
 
+UPDATE `ss_system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_udperms';
+
+UPDATE `ss_system_settings` set `sort`=37, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='udperms_allowroot';
+
+UPDATE `ss_system_settings` set `sort`=38, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='tree_show_protected';
+
+UPDATE `ss_system_settings` set `sort`=39, `id_group`=3, `options`='role_list' WHERE `setting_name`='default_role';
+
+UPDATE `ss_system_settings` set `sort`=40, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='validate_referer';
+
+UPDATE `ss_system_settings` set `sort`=41, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_mgr2web';
+
+UPDATE `ss_system_settings` set `sort`=42, `id_group`=3, `options`='text' WHERE `setting_name`='failed_login_attempts';
+
+UPDATE `ss_system_settings` set `sort`=43, `id_group`=3, `options`='text' WHERE `setting_name`='blocked_minutes';
+
+UPDATE `ss_system_settings` set `sort`=44, `id_group`=3, `options`='text' WHERE `setting_name`='auto_sleep_user';
+
+UPDATE `ss_system_settings` set `sort`=45, `id_group`=3, `options`='radio||a17_error_reporting_opt0=0;a17_error_reporting_opt1=1;a17_error_reporting_opt2=2;a17_error_reporting_opt99=99' WHERE `setting_name`='error_reporting';
+
+UPDATE `ss_system_settings` set `sort`=46, `id_group`=3, `options`='radio||mutate_settings.dynamic.php7=0;error=3;error + warning=2;error + warning + information=1' WHERE `setting_name`='send_errormail';
+
+UPDATE `ss_system_settings` set `sort`=47, `id_group`=3, `options`='radio||administrators=0;a17_warning_opt2=2;everybody=1' WHERE `setting_name`='warning_visibility';
+
+UPDATE `ss_system_settings` set `sort`=48, `id_group`=3, `options`='hash_algo' WHERE `setting_name`='pwd_hash_algo';
+
+UPDATE `ss_system_settings` set `sort`=49, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_captcha';

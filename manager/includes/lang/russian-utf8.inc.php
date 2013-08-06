@@ -71,8 +71,8 @@ $_lang["blocked_minutes_title"] = 'Время блокирования:';
 $_lang["cache_files_deleted"] = 'Следующие файлы были удалены:';
 $_lang["cancel"] = 'Отмена';
 $_lang["captcha_code"] = 'Код подтверждения';
-$_lang["captcha_message"] = 'Включите для усиления безопасности. Для авторизации необходимо будет ввести код, нераспознаваемый разного рода скриптами (показанный в виде графического изображения).';
-$_lang["captcha_title"] = 'Использовать код CAPTCHA:';
+$_lang["use_captcha_message"] = 'Включите для усиления безопасности. Для авторизации необходимо будет ввести код, нераспознаваемый разного рода скриптами (показанный в виде графического изображения).';
+$_lang["use_captcha_title"] = 'Использовать код CAPTCHA:';
 $_lang["captcha_words_default"] = 'MODX,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
 $_lang["captcha_words_message"] = 'Здесь вы можете задать список слов для генерирования кода CAPTCHA. Слова в списке должны разделяться запятыми.';
 $_lang["captcha_words_title"] = 'Слова для генерации CAPTCHA-кодов:';
@@ -295,8 +295,8 @@ $_lang["export_site_success_skip_doc"] = 'Пропустить этот ресу
 $_lang["export_site_suffix"] = 'Суффикс файлов:';
 $_lang["export_site_target_unwritable"] = 'Папка экспорта недоступна для записи. Исправьте это и попробуйте снова.';
 $_lang["export_site_time"] = 'Экспорт завершен. Процесс занял %s секунд.';
-$_lang["failed_login_message"] = 'Здесь вы можете ввести количество неудачных попыток входа в систему, которые разрешены, прежде чем пользователь будет заблокирован.';
-$_lang["failed_login_title"] = 'Лимит неудачных попыток входа в систему:';
+$_lang["failed_login_attempts_message"] = 'Здесь вы можете ввести количество неудачных попыток входа в систему, которые разрешены, прежде чем пользователь будет заблокирован.';
+$_lang["failed_login_attempts_title"] = 'Лимит неудачных попыток входа в систему:';
 $_lang["fe_editor_lang_message"] = 'Выберите язык редактора, который будет использоваться во фронтенде.';
 $_lang["fe_editor_lang_title"] = 'Язык фронтенд-редактора:';
 $_lang["file_delete_file"] = 'Удалить файл';
@@ -961,7 +961,7 @@ $_lang["track_visitors_message"] = 'Предоставляет данные дл
 $_lang["track_visitors_title"] = 'Регистрировать посещения:';
 $_lang["tree_page_click"] = 'Режим щелчка мышью на ресурсе';
 $_lang["tree_page_click_message"] = 'Действие по умолчанию при щелчке мышью на ресурсе в дереве сайта.';
-$_lang["tree_show_protected"] = 'Показывать защищенные ресурсы в дереве сайта:';
+$_lang["tree_show_protected_title"] = 'Показывать защищенные ресурсы в дереве сайта:';
 $_lang["tree_show_protected_message"] = 'Если включено \'Нет\', то защищенные ресурсы (включая их дочерние ресурсы) не будут отображаться в дереве сайта.';
 $_lang["truncate_table"] = 'Нажмите для усечения таблицы (TRUNCATE)';
 $_lang["tuesday"] = 'Вторник';
@@ -969,8 +969,8 @@ $_lang["tv"] = 'Параметр (TV)';
 $_lang["type"] = 'Тип';
 $_lang["udperms_allowroot_message"] = 'Разрешить пользователям создавать ресурсы в корневой папке.';
 $_lang["udperms_allowroot_title"] = 'Разрешить доступ к корневой папке:';
-$_lang["udperms_message"] = 'Права доступа позволяют вам определить, какие страницы могут редактировать пользователи. Для этого необходимо, чтобы пользователи принадлежали к группе пользователей, а ресурсы к группе ресурсов, и далее вы можете выбрать, какие группы ресурсов может редактировать та или иная группа пользователей. При первом включении этой функции редактировать ресурсы могут только менеджеры.';
-$_lang["udperms_title"] = 'Использовать права доступа:';
+$_lang["use_udperms_message"] = 'Права доступа позволяют вам определить, какие страницы могут редактировать пользователи. Для этого необходимо, чтобы пользователи принадлежали к группе пользователей, а ресурсы к группе ресурсов, и далее вы можете выбрать, какие группы ресурсов может редактировать та или иная группа пользователей. При первом включении этой функции редактировать ресурсы могут только менеджеры.';
+$_lang["use_udperms_title"] = 'Использовать права доступа:';
 $_lang["unable_set_link"] = 'Невозможно установить ссылку';
 $_lang["unable_set_parent"] = 'Невозможно установить новый родительский ресурс';
 $_lang["unauthorized_page_message"] = 'Введите ID ресурса, который должны будут увидеть посетители, если попытаются зайти на закрытую страницу (403 – доступ запрещен). <b>ПРИМЕЧАНИЕ:</b> убедитесь, что этот ID принадлежит существующему ресурсу, и что этот ресурс опубликован';
@@ -1041,7 +1041,7 @@ $_lang["view_logging"] = 'Протокол системы управления';
 $_lang["view_sysinfo"] = 'Системная информация';
 $_lang["warning"] = 'Предупреждение';
 $_lang["warning_not_saved"] = 'Изменения не были сохранены. Вы можете остаться на этой странице для того, чтобы сохранить изменения (\'Отмена\'), либо покинуть ее, утеряв все изменения (\'OK\').';
-$_lang["warning_visibility"] = 'Показывать предупреждения';
+$_lang["warning_visibility_title"] = 'Показывать предупреждения';
 $_lang["warning_visibility_message"] = 'Показывать отчет о проверке конфигурации на странице приветствия менеджера';
 $_lang["web_access_permissions"] = 'Права доступа для веб-пользователей';
 $_lang["web_access_permissions_user_groups"] = 'Группы веб-пользователей';
@@ -1135,9 +1135,9 @@ $_lang["mutate_settings.dynamic.php2"] = 'Продвинутый режим';
 $_lang["mutate_settings.dynamic.php3"] = 'Кеш отключен';
 $_lang["mutate_settings.dynamic.php4"] = 'Индивидуальные настройки';
 $_lang["mutate_settings.dynamic.php5"] = 'Префикс может не добавляться, если в псевдониме будет использована "." (точка).';
-$_lang["mutate_settings.dynamic.php6"] = 'email для уведомления про системные ошибки.';
+$_lang["send_errormail_title"] = 'email для уведомления про системные ошибки.';
 $_lang["mutate_settings.dynamic.php7"] = 'Не уведомлять';
-$_lang["mutate_settings.dynamic.php8"] = 'Отправка уведомлений  [(emailsender)](' . $modx->config['emailsender'] . ') во время генерации ошибки. Подробный текст ошибки можно найти в системном логе событий.';
+$_lang["send_errormail_message"] = 'Отправка уведомлений  [(emailsender)](' . $modx->config['emailsender'] . ') во время генерации ошибки. Подробный текст ошибки можно найти в системном логе событий.';
 $_lang["save_user.processor.php1"] = 'Пожалуйста, выйдите из системы и войдите снова, чтобы изменения вступили в силу.';
 
 $_lang["disabled"] = 'отключено';
@@ -1176,7 +1176,7 @@ $_lang["The security code you entered didn't validate! Please try to login again
 $_lang["pm2email_title"] = 'PM transmit to email';
 $_lang["pm2email_message"] = 'PM transmit to email.';
 
-$_lang["a17_warning_opt2"] = 'A member with the update authority of Role';
+$_lang["a17_warning_opt2"] = 'Пользователи с соответсвующими правами';
 
 $_lang["docid_incrmnt_method_title"] = 'Автоинкремент ID ресурсов';
 $_lang["docid_incrmnt_method_0"] = 'Автоинкремент базы данных';
@@ -1194,8 +1194,8 @@ $_lang["a16_use_resources"] = 'Ресурсы использующие этот 
 $_lang["a16_many_resources"] = 'Не показывают из-за большого количества ресурсов здесь.';
 $_lang["a16_no_resource"] = 'Нет никаких ресурсов, использующих этот шаблон.';
 
-$_lang['a17_error_reporting_title'] = 'Уровень отображения ошибок PHP';
-$_lang['a17_error_reporting_msg'] = 'Установите уровень отображения ошибок PHP.';
+$_lang['error_reporting_title'] = 'Уровень отображения ошибок PHP';
+$_lang['error_reporting_message'] = 'Установите уровень отображения ошибок PHP.';
 $_lang['a17_error_reporting_opt0'] = 'Игнорировать все';
 $_lang['a17_error_reporting_opt1'] = 'Игнорировать Warning и Notice (<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED++E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
 $_lang['a17_error_reporting_opt2'] = 'Отобраать все ошибки, за исключением E_NOTICE';
@@ -1255,8 +1255,8 @@ $_lang["open"] = 'Открыть';
 $_lang["tree_pane_open_default_title"] = 'Дерево ресурсов';
 $_lang["tree_pane_open_default_message"] = 'Показывать или скрывать дерево ресурсов по умолчанию';
 
-$_lang["user_auto_sleep_title"] = 'Автоматический сон для неактивных пользователей';
-$_lang["user_auto_sleep_message"] = 'Когда пользователь не заходит в админку в течение данного количества дней, он переводится в режим сна';
+$_lang["auto_sleep_user_title"] = 'Автоматический сон для неактивных пользователей';
+$_lang["auto_sleep_user_message"] = 'Когда пользователь не заходит в админку в течение данного количества дней, он переводится в режим сна';
 $_lang["resources_list"] = 'Список ресурсов';
 $_lang["doc_encoding_title"] = 'Кодировка страниц';
 $_lang["doc_encoding_message"] = 'Установить данную кодировку по умолчанию для страниц сайта';
@@ -1266,5 +1266,10 @@ $_lang["template_parent"] = 'Шаблон родителей';
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 setlocale (LC_ALL, 'ru_RU.UTF-8');
+
+$_lang['check_files_onlogin_title'] = 'Проверка системных файлов';
+$_lang['check_files_onlogin_message'] = 'При включении этой опции, важные системные файлы будут проверяться на изменения. Хотя и не очень надежный метод, но он может предупредить вас о взломе MODX системы.';
+
+
 $_lang["resource_opt_alvisibled"] = 'Участвует в URL';
 $_lang["resource_opt_alvisibled_help"] = 'Для участия данного документа в адресной строке поставьте галку, и наоборот - снимите, если псевдоним этого документа нужно убрать из URL.';

@@ -198,7 +198,9 @@ function confirmLangChange(el, lkey, elupd)
     function l($text){
         global $_lang, $modx;
         $result = (isset($_lang[$text]))?$_lang[$text]:$text;
-        $result = $modx->parsePlaceholder($result,array('MODX_SITE_URL'=>MODX_SITE_URL,'MODX_BASE_URL'=>MODX_BASE_URL));
+        $result = $modx->parsePlaceholder($result,array(
+            'MODX_SITE_URL'=>MODX_SITE_URL,'MODX_BASE_URL'=>MODX_BASE_URL,'email_sender'=>$modx->config['email_sender'])
+        );
         return $result;
     }
 
@@ -691,7 +693,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["default_role_title"] ?></th>
 <td>
 <select name="default_role">
-<?php echo get_role_list();?>
+<?php echo "";//get_role_list();?>
 </select>
 	<div><?php echo $_lang["default_role_message"]?></div>
 </td>
@@ -1398,6 +1400,10 @@ function wrap_label($str='',$object) {
 	return "<label>{$object}\n{$str}</label>";
 }
 
+/*
+
+Функция перемещена (move to field_role_list.php)
+
 function get_role_list()
 {
 	global $modx, $default_role;
@@ -1412,3 +1418,4 @@ function get_role_list()
 	}
 	return $options;
 }
+*/
