@@ -410,8 +410,8 @@ $_lang["insert"] = '挿入';
 $_lang["keyword"] = 'キーワード';
 $_lang["keywords"] = 'キーワード';
 $_lang["keywords_intro"] = 'キーワードを編集するには変更したいキーワードの隣のテキストエリアに新しいキーワードを入力するだけです。キーワードを削除するにはキーワードの削除チェックボックスをチェックします。';
-$_lang["language_message"] = '管理画面の使用言語を選択します。必ず「サイト→エンコード」の設定と合わせてください。';
-$_lang["language_title"] = '管理画面の言語';
+$_lang["manager_language_message"] = '管理画面の使用言語を選択します。必ず「サイト→エンコード」の設定と合わせてください。';
+$_lang["manager_language_title"] = '管理画面の言語';
 $_lang["launch_site"] = 'サイトを表示';
 $_lang["link_attributes"] = 'リンク属性';
 $_lang["link_attributes_help"] = "このページ内の任意のリンクの属性を管理します。\n\n例：target=&quot;_blank&quot; ・rel=&quot;lightbox&quot;\nリソース変数：[*link_attributes*]\n\n※この変数はリンクの属性を管理するための特別な機能を持っていないので、他の用途に流用することもできます。";
@@ -462,7 +462,7 @@ $_lang["manage_templates"] = 'テンプレート';
 $_lang["manager"] = '管理画面';
 $_lang["manager_lockout_message"] = '管理画面にログインしています。セッションを閉じたいときは「ログアウト」ボタンをクリックしてください。<br />管理画面のホームあるいはスタート画面に行きたいときは「ホーム」ボタンをクリックします。';
 $_lang["manager_permissions"] = 'グループ管理';
-$_lang["manager_theme"] = '管理画面のテーマ';
+$_lang["manager_theme_title"] = '管理画面のテーマ';
 $_lang["manager_theme_message"] = '管理画面で使用するデザインテーマを選択してください。';
 $_lang["messages"] = 'メッセージ';
 $_lang["messages_all"] = '全員';
@@ -678,7 +678,7 @@ $_lang["refresh_title"] = 'サイトをリフレッシュ';
 $_lang["refresh_tree"] = 'リソースツリーの再描画';
 $_lang["refresh_unpublished"] = '<strong>%s</strong>件のリソースが非公開に戻りました。';
 $_lang["release_date"] = 'リリース日';
-$_lang["remember_last_tab"] = 'アクティブなタブを記憶する';
+$_lang["remember_last_tab_title"] = 'アクティブなタブを記憶する';
 $_lang["remember_last_tab_message"] = 'タブ構成のページ(投稿画面・エレメント編集画面・グローバル設定など)において、最後に開いたタブを記憶します。「Stay mode」を選択すると「更新」を実行した時と一部の管理画面でタブ選択を記憶します。';
 $_lang["remember_username"] = 'ログイン名を記憶する';
 $_lang["remove"] = '削除';
@@ -962,7 +962,7 @@ $_lang["top_howmany_title"] = 'トップ 表示件数';
 $_lang["total"] = '合計';
 $_lang["track_visitors_message"] = 'このサイトのアクセス解析データを蓄積します(※実際には蓄積されません。対応モジュールが必要)。';
 $_lang["track_visitors_title"] = 'アクセスログを記録';
-$_lang["tree_page_click"] = 'リソースツリークリック時の動作';
+$_lang["tree_page_click_title"] = 'リソースツリークリック時の動作';
 $_lang["tree_page_click_message"] = 'リソースツリーをクリックした時の既定の動作を設定します。「自動」を選ぶとリソースがコンテナかどうかで判定します。';
 $_lang["tree_show_protected_title"] = '権限のないリソースの表示';
 $_lang["tree_show_protected_message"] = 'ログインしているユーザーが操作権限を持たないリソースも全てリソースツリーに表示します。Windowsフォルダオプションの「全てのファイルとフォルダを表示する」に似ています。権限の設定は<a href="index.php?a=40">「グループ管理」</a>で行ないます。';
@@ -1081,8 +1081,8 @@ $_lang["day_names"] = '日,月,火,水,木,金,土';
 $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
 $_lang["tree_page_click_option_auto"] = '自動(推奨)';
 $_lang["too_many_resources"] = 'リソース数が多いため非表示';
-$_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード名';
-$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang['resource_tree_node_name_title'] = 'リソースツリーのノード名';
+$_lang['resource_tree_node_name_message'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
 $_lang['cache_type_title'] = 'グローバルキャッシュ';
 $_lang['cache_type_message'] = '「バイパスモード」はプラグインの出力もキャッシュするため、プラグインとの相性問題が発生することがあります。';
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
@@ -1145,7 +1145,7 @@ $_lang["save_user.processor.php1"] = '変更した設定を反映するために
 
 $_lang["disabled"] = '無効';
 
-$_lang["limit_by_container"] = 'コンテナ内の表示数';
+$_lang["limit_by_container_title"] = 'コンテナ内の表示数';
 $_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると表示を抑制します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
 $_lang["allow_mgr2web_title"]   = '認証状態を上書き';
 $_lang["allow_mgr2web_message"] = '管理メンバーとしてログインしている時はウェブユーザとしてもログインしている状態にします。';
@@ -1225,8 +1225,8 @@ $_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指�
 
 $_lang["update"] = '更新';
 
-$_lang["a17_manager_inline_style_title"] = '追加のスタイル';
-$_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
+$_lang["manager_inline_style_title"] = '追加のスタイル';
+$_lang["manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
 
 $_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイル';
 $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、<a href="index.php?a=31&mode=drill&path=[+path+]assets/templates">ディレクトリごと削除</a>してください。すでにカスタマイズを加えて使用している場合は、manager/media/style/テーマ名/html/ディレクトリに上書きしてください。';
@@ -1273,3 +1273,6 @@ $_lang['check_files_onlogin_message'] = 'ログイン時に任意のシステム
 
 $_lang['configcheck_sysfiles_mod'] = '重要なシステムファイルが書き換えられています。';
 $_lang['configcheck_sysfiles_mod_msg'] = '重要なシステムファイルが書き換わっています。外部からの攻撃を受けた可能性があるため、念入りにチェックしてください。問題がなければグローバル設定を更新し、検出情報をリセットしてください。(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
+
+$_lang['yes_full']="はい (Full)";
+$_lang['yes_stay']="はい (Stay mode)";

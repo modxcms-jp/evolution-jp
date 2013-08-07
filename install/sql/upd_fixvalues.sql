@@ -318,7 +318,7 @@ UPDATE `{PREFIX}system_settings` set `sort`=34, `id_group`=2, `options`='radio||
 
 UPDATE `ss_system_settings` set `sort`=35, `id_group`=3, `options`='textarea' WHERE `setting_name`='check_files_onlogin';
 
-UPDATE `ss_system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_udperms';
+UPDATE `ss_system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0||depend||udperms_allowroot,tree_show_protected' WHERE `setting_name`='use_udperms';
 
 UPDATE `ss_system_settings` set `sort`=37, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='udperms_allowroot';
 
@@ -360,3 +360,22 @@ UPDATE `ss_system_settings` set `sort`=55, `id_group`=3, `options`='textarea_lan
 
 UPDATE `ss_system_settings` set `sort`=56, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='enable_bindings';
 
+UPDATE `ss_system_settings` set `sort`=57, `id_group`=4, `options`='manager_theme' WHERE `setting_name`='manager_theme';
+
+UPDATE `ss_system_settings` set `sort`=58, `id_group`=4, `options`='textarea' WHERE `setting_name`='manager_inline_style';
+
+UPDATE `ss_system_settings` set `sort`=59, `id_group`=4, `options`='language' WHERE `setting_name`='manager_language';
+
+UPDATE `ss_system_settings` set `sort`=60, `id_group`=4, `options`='topmenu' WHERE `setting_name`='topmenu_site';
+
+UPDATE `ss_system_settings` set `sort`=61, `id_group`=4, `options`='text' WHERE `setting_name`='limit_by_container';
+
+UPDATE `ss_system_settings` set `sort`=62, `id_group`=4, `options`='radio||open=1;close=0' WHERE `setting_name`='tree_pane_open_default';
+
+UPDATE `ss_system_settings` set `sort`=62, `id_group`=4, `options`='radio||edit_resource=27;doc_data_title=3;tree_page_click_option_auto=auto' WHERE `setting_name`='tree_page_click';
+
+UPDATE `ss_system_settings` set `sort`=63, `id_group`=4, `options`='radio||yes_full=2;yes_stay=1;no=0' WHERE `setting_name`='remember_last_tab';
+
+UPDATE `ss_system_settings` set `sort`=64, `id_group`=4, `options`='select||pagetitle;menutitle;alias;createdon;editedon;publishedon' WHERE `setting_name`='resource_tree_node_name';
+
+UPDATE `ss_system_settings` set `sort`=65, `id_group`=4, `options`='text' WHERE `setting_name`='top_howmany';

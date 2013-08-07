@@ -585,7 +585,7 @@ while ($row = $modx->db->getRow($rs))
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["language_title"] ?></th>
+	<th><?php echo $_lang["manager_language_title"] ?></th>
 	<td><select name="manager_language" size="1" class="inputBox">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
@@ -606,7 +606,7 @@ while ($row = $modx->db->getRow($rs))
 	$dir->close();
 ?>
 	</select>
-	<div><?php echo $_lang["language_message"]; ?></div>
+	<div><?php echo $_lang["manager_language_message"]; ?></div>
 	</td>
 </tr>
 <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">

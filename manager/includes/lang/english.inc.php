@@ -408,8 +408,8 @@ $_lang["insert"] = 'Insert';
 $_lang["keyword"] = 'Keyword';
 $_lang["keywords"] = 'Keywords';
 $_lang["keywords_intro"] = 'To edit a keyword, simply type in the new keyword in the text field next to the keyword you wish to change. To delete a keyword, check the \'delete\' box for that keyword. If you check the keyword\'s delete box, and also change it\'s name, it will be deleted, and the renaming of the keyword will not take place!';
-$_lang["language_message"] = 'Select the language for the MODX Content Manager.';
-$_lang["language_title"] = 'Language';
+$_lang["manager_language_message"] = 'Select the language for the MODX Content Manager.';
+$_lang["manager_language_title"] = 'Language';
 $_lang["launch_site"] = 'View Site';
 $_lang["link_attributes"] = 'Link Attributes';
 $_lang["link_attributes_help"] = 'Enter optional attributes for a link for this page, such as target=&quot;_blank&quot; or rel=&quot;external&quot;.';
@@ -460,7 +460,7 @@ $_lang["manage_templates"] = 'Templates';
 $_lang["manager"] = 'Manager';
 $_lang["manager_lockout_message"] = 'You are currently logged into the Content Manager. If you would like to close your login session please click the "Logout" button. <p />To go to your startup or home page click the "Home" button.';
 $_lang["manager_permissions"] = 'Manager Permissions';
-$_lang["manager_theme"] = 'Manager Theme';
+$_lang["manager_theme_title"] = 'Manager Theme';
 $_lang["manager_theme_message"] = 'Select the Theme for the Content Manager.';
 $_lang["messages"] = 'Messages';
 $_lang["messages_all"] = 'Everyone';
@@ -676,7 +676,7 @@ $_lang["refresh_title"] = 'Refresh site';
 $_lang["refresh_tree"] = 'Refresh Site Tree';
 $_lang["refresh_unpublished"] = '<b>%s</b> Resources were unpublished.';
 $_lang["release_date"] = 'Release date';
-$_lang["remember_last_tab"] = 'Remember tabs';
+$_lang["remember_last_tab_title"] = 'Remember tabs';
 $_lang["remember_last_tab_message"] = 'Tabbed Manager pages load with the last tab viewed instead of defaulting to the first tab';
 $_lang["remember_username"] = 'Remember me';
 $_lang["remove"] = 'Remove';
@@ -961,7 +961,7 @@ $_lang["top_howmany_title"] = 'Top how many';
 $_lang["total"] = 'total';
 $_lang["track_visitors_message"] = 'Provides a hook for analytics Plugins, for example to flag whether or not visits to a specific Resource are logged.';
 $_lang["track_visitors_title"] = 'Enable Stats Tracking';
-$_lang["tree_page_click"] = 'Page Click Behavior';
+$_lang["tree_page_click_title"] = 'Page Click Behavior';
 $_lang["tree_page_click_message"] = 'The default behavior when clicking on a page in the site tree.';
 $_lang["tree_show_protected_title"] = 'Show protected pages';
 $_lang["tree_show_protected_message"] = 'When set to "No", Protected Resources (and all their child-Resources) do not appear in the Site Tree menu. "No" is the legacy setting for MODX.';
@@ -1080,8 +1080,8 @@ $_lang["day_names"] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 $_lang["month_names"] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
 $_lang["tree_page_click_option_auto"] = 'Auto';
 $_lang["too_many_resources"] = 'Undisplayed, there are many resources';
-$_lang['setting_resource_tree_node_name'] = 'The node name of a resource tree';
-$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang['resource_tree_node_name_title'] = 'The node name of a resource tree';
+$_lang['resource_tree_node_name_message'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
 $_lang['cache_type_title'] = 'Cache mode';
 $_lang['cache_type_message'] = 'Selection of "Cache disabled" will repeal all the cache functions. Caching invalid does not recommend.';
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
@@ -1144,7 +1144,7 @@ $_lang["save_user.processor.php1"] = 'In order to read an authority setup of the
 
 $_lang["disabled"] = 'disabled';
 
-$_lang["limit_by_container"] = 'The number of displays in a container';
+$_lang["limit_by_container_title"] = 'The number of displays in a container';
 $_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Containers only';
 $_lang["allow_mgr2web_title"]   = 'Override attestation state';
 $_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
@@ -1224,8 +1224,8 @@ $_lang["a83_ignore_ids_title"] = 'Ignore IDs(comma separate)';
 
 $_lang["update"] = 'Save';
 
-$_lang["a17_manager_inline_style_title"] = 'Append style';
-$_lang["a17_manager_inline_style_message"] = 'Append manager style';
+$_lang["manager_inline_style_title"] = 'Append style';
+$_lang["manager_inline_style_message"] = 'Append manager style';
 
 $_lang["configcheck_mgr_tpl"] = 'Extension of manager template filename';
 $_lang["configcheck_mgr_tpl_msg"] = 'Should be delete <a href="index.php?a=31&mode=drill&path=[+path+]assets/templates">assets/templates/manager/</a> directory';
@@ -1272,3 +1272,6 @@ $_lang['check_files_onlogin_message'] = 'By enabling this option, important syst
 
 $_lang['configcheck_sysfiles_mod'] = 'Important System Files have been modified.';
 $_lang['configcheck_sysfiles_mod_msg'] = 'You have enabled the setting to check important system files to detect possible website script attacks. This doesn\'t necessarily mean that your site has been compromised, however, you should review the changed files.(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
+
+$_lang['yes_full']="Yes (Full)";
+$_lang['yes_stay']="Yes (Stay mode)";

@@ -254,6 +254,9 @@ function confirmLangChange(el, lkey, elupd)
                             case 2:
                                 $event_name = "OnFriendlyURLSettingsRender";
                                 break;
+                            case 3:
+                                $event_name = "OnUserSettingsRender";
+                                break;
                         }
 
                         $evtOut = $modx->invokeEvent($event_name,array("group_id"=>$group->id));
@@ -1361,7 +1364,7 @@ function get_lang_options($key=null, $selected_lang=null)
 	{
 		$languages = get_langs_by_key($key);
 		sort($languages);
-		$lang_options .= '<option value="">'.$_lang['language_title'].'</option>';
+		$lang_options .= '<option value="">'.$_lang['manager_language_title'].'</option>';
 		foreach($languages as $language_name)
 		{
 			$uclanguage_name = ucwords(str_replace("_", " ", $language_name));
