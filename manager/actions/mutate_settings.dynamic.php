@@ -198,9 +198,13 @@ function confirmLangChange(el, lkey, elupd)
     function l($text){
         global $_lang, $modx;
         $result = (isset($_lang[$text]))?$_lang[$text]:$text;
-        $result = $modx->parsePlaceholder($result,array(
-            'MODX_SITE_URL'=>MODX_SITE_URL,'MODX_BASE_URL'=>MODX_BASE_URL,'email_sender'=>$modx->config['email_sender'])
-        );
+
+        //signupemail_message_message - parsePlaceholder remove placeholder in description
+        $result = str_replace(
+            array('MODX_SITE_URL','MODX_BASE_URL','email_sender'),
+            array(MODX_SITE_URL,MODX_BASE_URL,$modx->config['email_sender']),$result);
+
+
         return $result;
     }
 

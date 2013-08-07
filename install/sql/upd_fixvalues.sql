@@ -345,3 +345,18 @@ UPDATE `ss_system_settings` set `sort`=47, `id_group`=3, `options`='radio||admin
 UPDATE `ss_system_settings` set `sort`=48, `id_group`=3, `options`='hash_algo' WHERE `setting_name`='pwd_hash_algo';
 
 UPDATE `ss_system_settings` set `sort`=49, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_captcha';
+
+UPDATE `ss_system_settings` set `sort`=50, `id_group`=3, `options`='text_lang' WHERE `setting_name`='captcha_words';
+
+UPDATE `ss_system_settings` set `sort`=51, `id_group`=3, `options`='text' WHERE `setting_name`='emailsender';
+
+UPDATE `ss_system_settings` set `sort`=52, `id_group`=3, `options`='text_lang' WHERE `setting_name`='emailsubject';
+
+UPDATE `ss_system_settings` set `sort`=53, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='signupemail_message';
+
+UPDATE `ss_system_settings` set `sort`=54, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='websignupemail_message';
+
+UPDATE `ss_system_settings` set `sort`=55, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='webpwdreminder_message';
+
+UPDATE `ss_system_settings` set `sort`=56, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='enable_bindings';
+

@@ -96,9 +96,9 @@ $default_config['check_files_onlogin']      = "index.php\n.htaccess\nmanager/ind
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return $default_config;
 
-$default_config['signupemail_message']    = $_lang['system_email_signup'];
-$default_config['websignupemail_message'] = $_lang['system_email_websignup'];
-$default_config['webpwdreminder_message'] = $_lang['system_email_webreminder'];
+$default_config['signupemail_message']    = $_lang['signupemail_message_default'];
+$default_config['websignupemail_message'] = $_lang['websignupemail_message_default'];
+$default_config['webpwdreminder_message'] = $_lang['webpwdreminder_message_default'];
 
 $default_config['enable_bindings'] = '0';
 $default_config['make_folders']    = '1';
