@@ -379,3 +379,21 @@ UPDATE `ss_system_settings` set `sort`=63, `id_group`=4, `options`='radio||yes_f
 UPDATE `ss_system_settings` set `sort`=64, `id_group`=4, `options`='select||pagetitle;menutitle;alias;createdon;editedon;publishedon' WHERE `setting_name`='resource_tree_node_name';
 
 UPDATE `ss_system_settings` set `sort`=65, `id_group`=4, `options`='text' WHERE `setting_name`='top_howmany';
+
+UPDATE `ss_system_settings` set `sort`=66, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='show_meta';
+
+UPDATE `ss_system_settings` set `sort`=67, `id_group`=4, `options`='text' WHERE `setting_name`='datepicker_offset';
+
+UPDATE `ss_system_settings` set `sort`=68, `id_group`=4, `options`='select||dd-mm-YYYY;mm/dd/YYYY;YYYY/mm/dd' WHERE `setting_name`='datetime_format';
+
+UPDATE `ss_system_settings` set `sort`=69, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_logs';
+
+UPDATE `ss_system_settings` set `sort`=70, `id_group`=4, `options`='text' WHERE `setting_name`='mail_check_timeperiod';
+
+UPDATE `ss_system_settings` set `sort`=71, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_messages';
+
+UPDATE `ss_system_settings` set `sort`=72, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='pm2email';
+
+UPDATE `ss_system_settings` set `sort`=73, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_results';
+
+UPDATE `ss_system_settings` set `sort`=74, `id_group`=4, `options`='radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path' WHERE `setting_name`='use_editor';
