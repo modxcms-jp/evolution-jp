@@ -397,3 +397,12 @@ UPDATE `ss_system_settings` set `sort`=72, `id_group`=4, `options`='radio||yes=1
 UPDATE `ss_system_settings` set `sort`=73, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_results';
 
 UPDATE `ss_system_settings` set `sort`=74, `id_group`=4, `options`='radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path' WHERE `setting_name`='use_editor';
+
+UPDATE `ss_system_settings` set `sort`=75, `id_group`=4, `options`='which_editor' WHERE `setting_name`='which_editor';
+
+UPDATE `ss_system_settings` set `sort`=76, `id_group`=4, `options`='language' WHERE `setting_name`='fe_editor_lang';
+
+UPDATE `ss_system_settings` set `sort`=77, `id_group`=4, `options`='text' WHERE `setting_name`='editor_css_path';
+
+
+

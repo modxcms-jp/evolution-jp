@@ -5,7 +5,7 @@ textarea.mce {width:95%;height:53px;display:block;}
 #editorRow_TinyMCE td,#editorRow_TinyMCE th {border-bottom:1px dotted #ccc;}
 
 </style>
-<table id="editorRow_TinyMCE" class="settings editorRow">
+<table id="editorRow_TinyMCE" class="settings use_editor_depend">
   <tr class="row1" style="display: [+display+];">
     <th colspan="2" style="color:#707070; background-color:#eeeeee"><h4 style="margin:3px;">[+mce_settings+]</h4></th>
   </tr>
