@@ -7,18 +7,19 @@ class TopicPath
 		if($modx->event->params) extract($modx->event->params);
 		$this->menuitemOnly = 1;
 		$this->ignoreIDs = array();
-		$this->showTopicsAtHome = (!isset($showTopicsAtHome)) ? '0' : $showTopicsAtHome;
-		$this->ignoreIDs        = (!isset($ignoreIDs))        ? array() :explode(',',$ignoreIDs);
-		$this->disabledOn       = (!isset($disabledOn))       ? array() :explode(',',$disabledOn);
-		$this->disabledUnder    = (!isset($disabledUnder))    ? '' :$disabledUnder;
-		$this->menuItemOnly     = (!isset($menuItemOnly))     ? '1' : $menuItemOnly;
-		$this->limit            = (!isset($limit))            ? 100 :$limit;
-		$this->topicGap         = (!isset($topicGap))         ? '...' :$topicGap;
-		$this->titleField       = (!isset($titleField))       ? array('menutitle','pagetitle')              :explode(',',$titleField);
-		$this->descField        = (!isset($descField))        ? array('description','longtitle','pagetitle'):explode(',',$descField);
-		$this->homeId           = (!isset($homeId))           ? $modx->config['site_start'] :$homeId;
-		$this->stopIDs          = (!isset($stopIDs))          ? array() :explode(',', $stopIDs);
-		$this->order            = (!isset($order))            ? '' : $order;
+		$this->showTopicsAtHome    = (!isset($showTopicsAtHome))    ? '0' : $showTopicsAtHome;
+		$this->showAtLeastOneTopic = (!isset($showAtLeastOneTopic)) ? '0' : $showAtLeastOneTopic;
+		$this->ignoreIDs           = (!isset($ignoreIDs))           ? array() :explode(',',$ignoreIDs);
+		$this->disabledOn          = (!isset($disabledOn))          ? array() :explode(',',$disabledOn);
+		$this->disabledUnder       = (!isset($disabledUnder))       ? '' :$disabledUnder;
+		$this->menuItemOnly        = (!isset($menuItemOnly))        ? '1' : $menuItemOnly;
+		$this->limit               = (!isset($limit))               ? 100 :$limit;
+		$this->topicGap            = (!isset($topicGap))            ? '...' :$topicGap;
+		$this->titleField          = (!isset($titleField))          ? array('menutitle','pagetitle')              :explode(',',$titleField);
+		$this->descField           = (!isset($descField))           ? array('description','longtitle','pagetitle'):explode(',',$descField);
+		$this->homeId              = (!isset($homeId))              ? $modx->config['site_start'] :$homeId;
+		$this->stopIDs             = (!isset($stopIDs))             ? array() :explode(',', $stopIDs);
+		$this->order               = (!isset($order))               ? '' : $order;
 		
 		if(isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
 		if(isset($homeTopicDesc))  $this->homeTopicDesc  = $homeTopicDesc;
@@ -66,7 +67,7 @@ class TopicPath
 		
 		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
 		
-		if(1<count($topics))
+		if(count($topics) > 1 || count($topic) == 1 && $this->showAtLeastOneTopic)
 		{
 			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
 			$rs = join($tpl['separator'],$topics);
