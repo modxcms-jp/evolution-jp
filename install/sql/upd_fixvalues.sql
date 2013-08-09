@@ -404,5 +404,33 @@ UPDATE `ss_system_settings` set `sort`=76, `id_group`=4, `options`='language' WH
 
 UPDATE `ss_system_settings` set `sort`=77, `id_group`=4, `options`='text' WHERE `setting_name`='editor_css_path';
 
+UPDATE `ss_system_settings` set `sort`=78, `id_group`=5, `options`='path' WHERE `setting_name`='filemanager_path';
 
+UPDATE `ss_system_settings` set `sort`=79, `id_group`=5, `options`='text' WHERE `setting_name`='upload_files';
+
+UPDATE `ss_system_settings` set `sort`=80, `id_group`=5, `options`='text' WHERE `setting_name`='upload_images';
+
+UPDATE `ss_system_settings` set `sort`=81, `id_group`=5, `options`='text' WHERE `setting_name`='upload_media';
+
+UPDATE `ss_system_settings` set `sort`=82, `id_group`=5, `options`='text' WHERE `setting_name`='upload_flash';
+
+UPDATE `ss_system_settings` set `sort`=83, `id_group`=5, `options`='upload_maxsize' WHERE `setting_name`='upload_maxsize';
+
+UPDATE `ss_system_settings` set `sort`=84, `id_group`=5, `options`='text' WHERE `setting_name`='new_file_permissions';
+
+UPDATE `ss_system_settings` set `sort`=85, `id_group`=5, `options`='text' WHERE `setting_name`='new_folder_permissions';
+
+UPDATE `ss_system_settings` set `sort`=86, `id_group`=5, `options`='radio||yes=1;no=0||depend||strip_image_paths,rb_webuser,rb_base_url,clean_uploaded_filename,image_limit_width' WHERE `setting_name`='use_browser';
+
+UPDATE `ss_system_settings` set `sort`=87, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='strip_image_paths';
+
+UPDATE `ss_system_settings` set `sort`=88, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='rb_webuser';
+
+UPDATE `ss_system_settings` set `sort`=89, `id_group`=5, `options`='base_dir' WHERE `setting_name`='rb_base_dir';
+
+UPDATE `ss_system_settings` set `sort`=90, `id_group`=5, `options`='text' WHERE `setting_name`='rb_base_url';
+
+UPDATE `ss_system_settings` set `sort`=91, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='clean_uploaded_filename';
+
+UPDATE `ss_system_settings` set `sort`=92, `id_group`=5, `options`='text' WHERE `setting_name`='image_limit_width';
 

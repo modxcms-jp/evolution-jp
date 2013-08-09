@@ -260,6 +260,9 @@ function confirmLangChange(el, lkey, elupd)
                             case 4:
                                 $event_name = "OnInterfaceSettingsRender";
                                 break;
+                            case 5:
+                                $event_name = "OnMiscSettingsRender";
+                                break;
                         }
 
                         $evtOut = $modx->invokeEvent($event_name,array("group_id"=>$group->id));
