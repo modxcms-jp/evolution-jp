@@ -1276,3 +1276,5 @@ $_lang['configcheck_sysfiles_mod_msg'] = '重要なシステムファイルが�
 
 $_lang['yes_full']="はい (Full)";
 $_lang['yes_stay']="はい (Stay mode)";
+
+$_lang['settings_edit_title']="システム設定の編集";

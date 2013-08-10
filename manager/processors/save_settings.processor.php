@@ -55,7 +55,14 @@ if(0< count($warnings))
 }
 
 if (isset($data) && count($data) > 0) {
+
+    $config_rows = $modx->db->GetObjects("system_settings");
+    $exist_settings = array();
+    foreach($config_rows as $row){
+        $exist_settings[$row->setting_name]=$row->setting_value;
+    }
 	$savethese = array();
+    $updatethese = array();
 	$data['sys_files_checksum'] = $modx->manager->getSystemChecksum($data['check_files_onlogin']);
 	foreach ($data as $k => $v) {
 		switch ($k) {
@@ -76,6 +83,7 @@ if (isset($data) && count($data) > 0) {
 	
 			case 'lst_custom_contenttype':
 			case 'txt_custom_contenttype':
+            case 'a':
 				// Skip these
 				continue 2;
 				break;
@@ -94,24 +102,46 @@ if (isset($data) && count($data) > 0) {
 				break;
 			case 'doc_encoding':
 				$charset = $modx->getMimeName($v);
-				$savethese[] = "('charset', '{$charset}')";
+                if (isset($exist_settings['charset'])){
+                    $updatethese['charset']=$modx->db->escape($v);
+                }else{
+                    $savethese[] = "('charset', '" . $modx->db->escape($v) . "')";
+                }
 			default:
-			break;
+    			break;
 		}
 		$v = is_array($v) ? implode(',', $v) : $v;
 
-		$savethese[] = "('" . $modx->db->escape($k)."', '" . $modx->db->escape($v) . "')";
+        if (isset($exist_settings[$k])){
+            $updatethese[$modx->db->escape($k)]=$modx->db->escape($v);
+        }else{
+		    $savethese[] = "('" . $modx->db->escape($k)."', '" . $modx->db->escape($v) . "')";
+        }
 	}
-	
-	// Run a single query to save all the values
-	$sql = "REPLACE INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value)
-		VALUES ".implode(', ', $savethese);
-	if(!@$rs = $modx->db->query($sql)) {
-		echo "Failed to update setting value!";
-		exit;
-	}
-	
-	// Reset Template Pages
+
+    if (!empty($savethese)){
+        // Run a single query to save all the values
+        $sql = "INSERT INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value)
+            VALUES ".implode(', ', $savethese);
+
+        if(!@$rs = $modx->db->query($sql)) {
+            echo "Failed to update setting value!";
+            exit;
+        }
+    }
+
+    if (!empty($updatethese)){
+        // Run a querys to update values
+        foreach($updatethese as $k=>$v){
+            if (!$modx->db->update("setting_value='$v'","[+prefix+]system_settings","setting_name='$k'")){
+                echo "Failed to update setting value!";
+                exit;
+            }
+        }
+    }
+
+
+    // Reset Template Pages
 	if (isset($data['reset_template'])) {
 		$template = $data['default_template'];
 		$oldtemplate = $data['old_template'];

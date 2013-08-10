@@ -9,6 +9,17 @@
 
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+if (!function_exists("form_text")){
+    function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
+    {
+        if($readonly) $readonly = ' disabled';
+        if($add)      $add = ' ' . $add;
+        if(empty($maxlength)) $maxlength = '255';
+        if($maxlength<=10) $maxlength = 'maxlength="' . $maxlength . '" style="width:' . $maxlength . 'em;"';
+        else               $maxlength = 'maxlength="' . $maxlength . '"';
+        return '<input type="text" ' . $maxlength . ' name="' . $name . '" value="' . $value . '"' . $readonly . $add . ' />';
+    }
+}
 ?>
 
 <th><?=l($input->title)?></th>

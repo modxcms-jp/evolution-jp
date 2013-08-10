@@ -228,15 +228,9 @@ INSERT INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
  (1, 'settings_site'), (2, 'settings_furls'),(3,'settings_users'),
  (4,'settings_ui'),(5,'settings_misc');
 
-ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}system_settings` add column `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
-
 ALTER TABLE `{PREFIX}system_settings` add column `id_group` int NOT NULL default '1';
 
 ALTER TABLE `{PREFIX}system_settings` add column `title` varchar(255) NOT NULL default '';
-
-ALTER TABLE `{PREFIX}system_settings` add column `is_show` int NOT NULL default '1';
 
 ALTER TABLE `{PREFIX}system_settings` add column `description` TEXT NOT NULL;
 
@@ -245,8 +239,6 @@ ALTER TABLE `{PREFIX}system_settings` add column `sort` int NOT NULL;
 ALTER TABLE `{PREFIX}system_settings` add column `options` TEXT NOT NULL;
 
 UPDATE `{PREFIX}system_settings` set `title`=CONCAT(`setting_name`,'_title'),`description`=CONCAT(`setting_name`,'_message');
-
-UPDATE `{PREFIX}system_settings` set `is_show`=0 WHERE `setting_name`='settings_version';
 
 UPDATE `{PREFIX}system_settings` set `sort`=1, `options`='text' WHERE `setting_name`='site_name';
 
@@ -316,121 +308,123 @@ UPDATE `{PREFIX}system_settings` set `sort`=33, `id_group`=2, `options`='radio||
 
 UPDATE `{PREFIX}system_settings` set `sort`=34, `id_group`=2, `options`='radio||pagetitle=1;numbering in each folder=2;disabled=0' WHERE `setting_name`='automatic_alias';
 
-UPDATE `ss_system_settings` set `sort`=35, `id_group`=3, `options`='textarea' WHERE `setting_name`='check_files_onlogin';
+UPDATE `{PREFIX}system_settings` set `sort`=35, `id_group`=3, `options`='textarea' WHERE `setting_name`='check_files_onlogin';
 
-UPDATE `ss_system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0||depend||udperms_allowroot,tree_show_protected' WHERE `setting_name`='use_udperms';
+UPDATE `{PREFIX}system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0||depend||udperms_allowroot,tree_show_protected' WHERE `setting_name`='use_udperms';
 
-UPDATE `ss_system_settings` set `sort`=37, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='udperms_allowroot';
+UPDATE `{PREFIX}system_settings` set `sort`=37, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='udperms_allowroot';
 
-UPDATE `ss_system_settings` set `sort`=38, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='tree_show_protected';
+UPDATE `{PREFIX}system_settings` set `sort`=38, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='tree_show_protected';
 
-UPDATE `ss_system_settings` set `sort`=39, `id_group`=3, `options`='role_list' WHERE `setting_name`='default_role';
+UPDATE `{PREFIX}system_settings` set `sort`=39, `id_group`=3, `options`='role_list' WHERE `setting_name`='default_role';
 
-UPDATE `ss_system_settings` set `sort`=40, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='validate_referer';
+UPDATE `{PREFIX}system_settings` set `sort`=40, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='validate_referer';
 
-UPDATE `ss_system_settings` set `sort`=41, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_mgr2web';
+UPDATE `{PREFIX}system_settings` set `sort`=41, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_mgr2web';
 
-UPDATE `ss_system_settings` set `sort`=42, `id_group`=3, `options`='text' WHERE `setting_name`='failed_login_attempts';
+UPDATE `{PREFIX}system_settings` set `sort`=42, `id_group`=3, `options`='text' WHERE `setting_name`='failed_login_attempts';
 
-UPDATE `ss_system_settings` set `sort`=43, `id_group`=3, `options`='text' WHERE `setting_name`='blocked_minutes';
+UPDATE `{PREFIX}system_settings` set `sort`=43, `id_group`=3, `options`='text' WHERE `setting_name`='blocked_minutes';
 
-UPDATE `ss_system_settings` set `sort`=44, `id_group`=3, `options`='text' WHERE `setting_name`='auto_sleep_user';
+UPDATE `{PREFIX}system_settings` set `sort`=44, `id_group`=3, `options`='text' WHERE `setting_name`='auto_sleep_user';
 
-UPDATE `ss_system_settings` set `sort`=45, `id_group`=3, `options`='radio||a17_error_reporting_opt0=0;a17_error_reporting_opt1=1;a17_error_reporting_opt2=2;a17_error_reporting_opt99=99' WHERE `setting_name`='error_reporting';
+UPDATE `{PREFIX}system_settings` set `sort`=45, `id_group`=3, `options`='radio||a17_error_reporting_opt0=0;a17_error_reporting_opt1=1;a17_error_reporting_opt2=2;a17_error_reporting_opt99=99' WHERE `setting_name`='error_reporting';
 
-UPDATE `ss_system_settings` set `sort`=46, `id_group`=3, `options`='radio||mutate_settings.dynamic.php7=0;error=3;error + warning=2;error + warning + information=1' WHERE `setting_name`='send_errormail';
+UPDATE `{PREFIX}system_settings` set `sort`=46, `id_group`=3, `options`='radio||mutate_settings.dynamic.php7=0;error=3;error + warning=2;error + warning + information=1' WHERE `setting_name`='send_errormail';
 
-UPDATE `ss_system_settings` set `sort`=47, `id_group`=3, `options`='radio||administrators=0;a17_warning_opt2=2;everybody=1' WHERE `setting_name`='warning_visibility';
+UPDATE `{PREFIX}system_settings` set `sort`=47, `id_group`=3, `options`='radio||administrators=0;a17_warning_opt2=2;everybody=1' WHERE `setting_name`='warning_visibility';
 
-UPDATE `ss_system_settings` set `sort`=48, `id_group`=3, `options`='hash_algo' WHERE `setting_name`='pwd_hash_algo';
+UPDATE `{PREFIX}system_settings` set `sort`=48, `id_group`=3, `options`='hash_algo' WHERE `setting_name`='pwd_hash_algo';
 
-UPDATE `ss_system_settings` set `sort`=49, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_captcha';
+UPDATE `{PREFIX}system_settings` set `sort`=49, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_captcha';
 
-UPDATE `ss_system_settings` set `sort`=50, `id_group`=3, `options`='text_lang' WHERE `setting_name`='captcha_words';
+UPDATE `{PREFIX}system_settings` set `sort`=50, `id_group`=3, `options`='text_lang' WHERE `setting_name`='captcha_words';
 
-UPDATE `ss_system_settings` set `sort`=51, `id_group`=3, `options`='text' WHERE `setting_name`='emailsender';
+UPDATE `{PREFIX}system_settings` set `sort`=51, `id_group`=3, `options`='text' WHERE `setting_name`='emailsender';
 
-UPDATE `ss_system_settings` set `sort`=52, `id_group`=3, `options`='text_lang' WHERE `setting_name`='emailsubject';
+UPDATE `{PREFIX}system_settings` set `sort`=52, `id_group`=3, `options`='text_lang' WHERE `setting_name`='emailsubject';
 
-UPDATE `ss_system_settings` set `sort`=53, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='signupemail_message';
+UPDATE `{PREFIX}system_settings` set `sort`=53, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='signupemail_message';
 
-UPDATE `ss_system_settings` set `sort`=54, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='websignupemail_message';
+UPDATE `{PREFIX}system_settings` set `sort`=54, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='websignupemail_message';
 
-UPDATE `ss_system_settings` set `sort`=55, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='webpwdreminder_message';
+UPDATE `{PREFIX}system_settings` set `sort`=55, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='webpwdreminder_message';
 
-UPDATE `ss_system_settings` set `sort`=56, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='enable_bindings';
+UPDATE `{PREFIX}system_settings` set `sort`=56, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='enable_bindings';
 
-UPDATE `ss_system_settings` set `sort`=57, `id_group`=4, `options`='manager_theme' WHERE `setting_name`='manager_theme';
+UPDATE `{PREFIX}system_settings` set `sort`=57, `id_group`=4, `options`='manager_theme' WHERE `setting_name`='manager_theme';
 
-UPDATE `ss_system_settings` set `sort`=58, `id_group`=4, `options`='textarea' WHERE `setting_name`='manager_inline_style';
+UPDATE `{PREFIX}system_settings` set `sort`=58, `id_group`=4, `options`='textarea' WHERE `setting_name`='manager_inline_style';
 
-UPDATE `ss_system_settings` set `sort`=59, `id_group`=4, `options`='language' WHERE `setting_name`='manager_language';
+UPDATE `{PREFIX}system_settings` set `sort`=59, `id_group`=4, `options`='language' WHERE `setting_name`='manager_language';
 
-UPDATE `ss_system_settings` set `sort`=60, `id_group`=4, `options`='topmenu' WHERE `setting_name`='topmenu_site';
+UPDATE `{PREFIX}system_settings` set `sort`=60, `id_group`=4, `options`='topmenu' WHERE `setting_name`='topmenu_site';
 
-UPDATE `ss_system_settings` set `sort`=61, `id_group`=4, `options`='text' WHERE `setting_name`='limit_by_container';
+UPDATE `{PREFIX}system_settings` set `sort`=61, `id_group`=4, `options`='text' WHERE `setting_name`='limit_by_container';
 
-UPDATE `ss_system_settings` set `sort`=62, `id_group`=4, `options`='radio||open=1;close=0' WHERE `setting_name`='tree_pane_open_default';
+UPDATE `{PREFIX}system_settings` set `sort`=62, `id_group`=4, `options`='radio||open=1;close=0' WHERE `setting_name`='tree_pane_open_default';
 
-UPDATE `ss_system_settings` set `sort`=62, `id_group`=4, `options`='radio||edit_resource=27;doc_data_title=3;tree_page_click_option_auto=auto' WHERE `setting_name`='tree_page_click';
+UPDATE `{PREFIX}system_settings` set `sort`=62, `id_group`=4, `options`='radio||edit_resource=27;doc_data_title=3;tree_page_click_option_auto=auto' WHERE `setting_name`='tree_page_click';
 
-UPDATE `ss_system_settings` set `sort`=63, `id_group`=4, `options`='radio||yes_full=2;yes_stay=1;no=0' WHERE `setting_name`='remember_last_tab';
+UPDATE `{PREFIX}system_settings` set `sort`=63, `id_group`=4, `options`='radio||yes_full=2;yes_stay=1;no=0' WHERE `setting_name`='remember_last_tab';
 
-UPDATE `ss_system_settings` set `sort`=64, `id_group`=4, `options`='select||pagetitle;menutitle;alias;createdon;editedon;publishedon' WHERE `setting_name`='resource_tree_node_name';
+UPDATE `{PREFIX}system_settings` set `sort`=64, `id_group`=4, `options`='select||pagetitle;menutitle;alias;createdon;editedon;publishedon' WHERE `setting_name`='resource_tree_node_name';
 
-UPDATE `ss_system_settings` set `sort`=65, `id_group`=4, `options`='text' WHERE `setting_name`='top_howmany';
+UPDATE `{PREFIX}system_settings` set `sort`=65, `id_group`=4, `options`='text' WHERE `setting_name`='top_howmany';
 
-UPDATE `ss_system_settings` set `sort`=66, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='show_meta';
+UPDATE `{PREFIX}system_settings` set `sort`=66, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='show_meta';
 
-UPDATE `ss_system_settings` set `sort`=67, `id_group`=4, `options`='text' WHERE `setting_name`='datepicker_offset';
+UPDATE `{PREFIX}system_settings` set `sort`=67, `id_group`=4, `options`='text' WHERE `setting_name`='datepicker_offset';
 
-UPDATE `ss_system_settings` set `sort`=68, `id_group`=4, `options`='select||dd-mm-YYYY;mm/dd/YYYY;YYYY/mm/dd' WHERE `setting_name`='datetime_format';
+UPDATE `{PREFIX}system_settings` set `sort`=68, `id_group`=4, `options`='select||dd-mm-YYYY;mm/dd/YYYY;YYYY/mm/dd' WHERE `setting_name`='datetime_format';
 
-UPDATE `ss_system_settings` set `sort`=69, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_logs';
+UPDATE `{PREFIX}system_settings` set `sort`=69, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_logs';
 
-UPDATE `ss_system_settings` set `sort`=70, `id_group`=4, `options`='text' WHERE `setting_name`='mail_check_timeperiod';
+UPDATE `{PREFIX}system_settings` set `sort`=70, `id_group`=4, `options`='text' WHERE `setting_name`='mail_check_timeperiod';
 
-UPDATE `ss_system_settings` set `sort`=71, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_messages';
+UPDATE `{PREFIX}system_settings` set `sort`=71, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_messages';
 
-UPDATE `ss_system_settings` set `sort`=72, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='pm2email';
+UPDATE `{PREFIX}system_settings` set `sort`=72, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='pm2email';
 
-UPDATE `ss_system_settings` set `sort`=73, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_results';
+UPDATE `{PREFIX}system_settings` set `sort`=73, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_results';
 
-UPDATE `ss_system_settings` set `sort`=74, `id_group`=4, `options`='radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path' WHERE `setting_name`='use_editor';
+UPDATE `{PREFIX}system_settings` set `sort`=74, `id_group`=4, `options`='radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path' WHERE `setting_name`='use_editor';
 
-UPDATE `ss_system_settings` set `sort`=75, `id_group`=4, `options`='which_editor' WHERE `setting_name`='which_editor';
+UPDATE `{PREFIX}system_settings` set `sort`=75, `id_group`=4, `options`='which_editor' WHERE `setting_name`='which_editor';
 
-UPDATE `ss_system_settings` set `sort`=76, `id_group`=4, `options`='language' WHERE `setting_name`='fe_editor_lang';
+UPDATE `{PREFIX}system_settings` set `sort`=76, `id_group`=4, `options`='language' WHERE `setting_name`='fe_editor_lang';
 
-UPDATE `ss_system_settings` set `sort`=77, `id_group`=4, `options`='text' WHERE `setting_name`='editor_css_path';
+UPDATE `{PREFIX}system_settings` set `sort`=77, `id_group`=4, `options`='text' WHERE `setting_name`='editor_css_path';
 
-UPDATE `ss_system_settings` set `sort`=78, `id_group`=5, `options`='path' WHERE `setting_name`='filemanager_path';
+UPDATE `{PREFIX}system_settings` set `sort`=78, `id_group`=5, `options`='path' WHERE `setting_name`='filemanager_path';
 
-UPDATE `ss_system_settings` set `sort`=79, `id_group`=5, `options`='text' WHERE `setting_name`='upload_files';
+UPDATE `{PREFIX}system_settings` set `sort`=79, `id_group`=5, `options`='text' WHERE `setting_name`='upload_files';
 
-UPDATE `ss_system_settings` set `sort`=80, `id_group`=5, `options`='text' WHERE `setting_name`='upload_images';
+UPDATE `{PREFIX}system_settings` set `sort`=80, `id_group`=5, `options`='text' WHERE `setting_name`='upload_images';
 
-UPDATE `ss_system_settings` set `sort`=81, `id_group`=5, `options`='text' WHERE `setting_name`='upload_media';
+UPDATE `{PREFIX}system_settings` set `sort`=81, `id_group`=5, `options`='text' WHERE `setting_name`='upload_media';
 
-UPDATE `ss_system_settings` set `sort`=82, `id_group`=5, `options`='text' WHERE `setting_name`='upload_flash';
+UPDATE `{PREFIX}system_settings` set `sort`=82, `id_group`=5, `options`='text' WHERE `setting_name`='upload_flash';
 
-UPDATE `ss_system_settings` set `sort`=83, `id_group`=5, `options`='upload_maxsize' WHERE `setting_name`='upload_maxsize';
+UPDATE `{PREFIX}system_settings` set `sort`=83, `id_group`=5, `options`='upload_maxsize' WHERE `setting_name`='upload_maxsize';
 
-UPDATE `ss_system_settings` set `sort`=84, `id_group`=5, `options`='text' WHERE `setting_name`='new_file_permissions';
+UPDATE `{PREFIX}system_settings` set `sort`=84, `id_group`=5, `options`='text' WHERE `setting_name`='new_file_permissions';
 
-UPDATE `ss_system_settings` set `sort`=85, `id_group`=5, `options`='text' WHERE `setting_name`='new_folder_permissions';
+UPDATE `{PREFIX}system_settings` set `sort`=85, `id_group`=5, `options`='text' WHERE `setting_name`='new_folder_permissions';
 
-UPDATE `ss_system_settings` set `sort`=86, `id_group`=5, `options`='radio||yes=1;no=0||depend||strip_image_paths,rb_webuser,rb_base_url,clean_uploaded_filename,image_limit_width' WHERE `setting_name`='use_browser';
+UPDATE `{PREFIX}system_settings` set `sort`=86, `id_group`=5, `options`='radio||yes=1;no=0||depend||strip_image_paths,rb_webuser,rb_base_url,rb_base_dir,clean_uploaded_filename,image_limit_width' WHERE `setting_name`='use_browser';
 
-UPDATE `ss_system_settings` set `sort`=87, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='strip_image_paths';
+UPDATE `{PREFIX}system_settings` set `sort`=87, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='strip_image_paths';
 
-UPDATE `ss_system_settings` set `sort`=88, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='rb_webuser';
+UPDATE `{PREFIX}system_settings` set `sort`=88, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='rb_webuser';
 
-UPDATE `ss_system_settings` set `sort`=89, `id_group`=5, `options`='base_dir' WHERE `setting_name`='rb_base_dir';
+UPDATE `{PREFIX}system_settings` set `sort`=89, `id_group`=5, `options`='base_dir' WHERE `setting_name`='rb_base_dir';
 
-UPDATE `ss_system_settings` set `sort`=90, `id_group`=5, `options`='text' WHERE `setting_name`='rb_base_url';
+UPDATE `{PREFIX}system_settings` set `sort`=90, `id_group`=5, `options`='text' WHERE `setting_name`='rb_base_url';
 
-UPDATE `ss_system_settings` set `sort`=91, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='clean_uploaded_filename';
+UPDATE `{PREFIX}system_settings` set `sort`=91, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='clean_uploaded_filename';
 
-UPDATE `ss_system_settings` set `sort`=92, `id_group`=5, `options`='text' WHERE `setting_name`='image_limit_width';
+UPDATE `{PREFIX}system_settings` set `sort`=92, `id_group`=5, `options`='text' WHERE `setting_name`='image_limit_width';
+
+REPLACE INTO `{PREFIX}system_eventnames` (id,name,service,groupname) VALUES ('101','OnSystemSettingsRender','1','System Settings');
 

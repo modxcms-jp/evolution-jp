@@ -19,9 +19,16 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
         <?php
         $opts = explode(";",$options[1]);
         foreach ($opts as $opt){
-            echo "<option value='$opt'";
-            if ($settings[$input->setting_name]==$opt) echo " selected='selected'";
-            echo ">$opt</option>";
+            if (!empty($opt)){
+                if (strpos($opt,"=")!==false){
+                    list($key,$value) = explode("=",$opt);
+                }else{
+                    $key=$value=$opt;
+                }
+                echo "<option value='$key'";
+                if ($settings[$input->setting_name]==$key) echo " selected='selected'";
+                echo ">$value</option>";
+            }
         }
         ?>
     </select><br />

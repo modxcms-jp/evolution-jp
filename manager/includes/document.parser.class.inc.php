@@ -649,11 +649,16 @@ class DocumentParser {
 		$this->config[$key] = $value;
 	}
 	
-	function regOption($key, $value='')
+	function regOption($key, $value='',$id_group=0,$title='',$description='',$sort=0,$options='')
 	{
 		$this->config[$key] = $value;
 		$f['setting_name']  = $key;
 		$f['setting_value'] = $this->db->escape($value);
+        $f['id_group']=(int)$id_group;
+        $f['title']=$this->db->escape($title);
+        $f['description']=$this->db->escape($description);
+        $f['sort']=(int)$sort;
+        $f['options']=$this->db->escape($options);
 		$key = $this->db->escape($key);
 		$rs = $this->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
 		
@@ -809,7 +814,7 @@ class DocumentParser {
 					$result= $this->db->select('setting_name, setting_value','[+prefix+]system_settings');
 					while ($row= $this->db->getRow($result, 'both'))
 					{
-						$this->config[$row['0']]= $row['1'];
+						$this->config[$row['setting_name']]= $row['setting_value'];
 					}
 				}
 			}

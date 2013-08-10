@@ -26,7 +26,15 @@ if($action == 'get') {
     }
 } elseif($action == 'setsetting') {
 	if(!empty($key) && !empty($value)) {
-        $sql = "REPLACE INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value) VALUES('{$key}', '{$value}');";
+
+        $rs = $modx->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
+
+        if($modx->db->getRecordCount($rs)==0){
+            $sql = "INSERT INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value) VALUES ('{$key}', '{$value}');";
+        }else{
+            $sql = "UPDATE ".$modx->getFullTableName("system_settings")." set setting_value='{$value}' where setting_name='{$key}'";
+        }
+
 		$str = "true";
 		if(!@$rs = $modx->db->query($sql)) {
 			$str = "false";

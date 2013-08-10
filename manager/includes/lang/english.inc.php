@@ -1275,3 +1275,6 @@ $_lang['configcheck_sysfiles_mod_msg'] = 'You have enabled the setting to check 
 
 $_lang['yes_full']="Yes (Full)";
 $_lang['yes_stay']="Yes (Stay mode)";
+
+$_lang['settings_edit_title']="Edit System Settings";
+$_lang['settings_edit_new_tab_title']="Create";

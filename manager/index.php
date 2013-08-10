@@ -478,6 +478,23 @@ switch ($action) {
         include_once "actions/mutate_settings.dynamic.php";
         include_once "footer.inc.php";
         break;
+    case 131:// get the same settings editor
+        include_once "header.inc.php";
+        include_once "actions/mutate_settings_edit.dynamic.php";
+        include_once "footer.inc.php";
+        break;
+    case 132:// edit system settings group
+        include_once "header.inc.php";
+        include_once "actions/mutate_settings_group_edit.dynamic.php";
+        include_once "footer.inc.php";
+        break;
+    case 133:// edit system settings field
+        include_once "header.inc.php";
+        include_once "actions/mutate_settings_field_edit.dynamic.php";
+        include_once "footer.inc.php";
+        break;
+
+
     case 118: // call settings ajax include
         ob_clean();
         include_once "{$core_path}mutate_settings.ajax.php";

@@ -447,8 +447,13 @@ class ManagerAPI {
 	
 	function setSystemChecksum($checksum) {
 		global $modx;
-		$tbl_system_settings = $modx->getFullTableName('system_settings');
-		$sql = "REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES ('sys_files_checksum','{$checksum}')";
+        $rs = $modx->db->select('*','[+prefix+]system_settings', "setting_name='sys_files_checksum'");
+
+        if($modx->db->getRecordCount($rs)==0){
+            $sql = "INSERT INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value) VALUES ('sys_files_checksum', '{$checksum}');";
+        }else{
+            $sql = "UPDATE ".$modx->getFullTableName("system_settings")." set setting_value='{$checksum}' where setting_name='sys_files_checksum'";
+        }
         $modx->db->query($sql);
 	}
 	
