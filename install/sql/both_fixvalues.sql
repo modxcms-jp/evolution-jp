@@ -23,10 +23,39 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('fe_editor_lang','{MANAGERLANGUAGE}'),
 ('session.cookie.lifetime','604800'),
 ('manager_theme','RevoStyle'),
-('theme_refresher','');
+('theme_refresher',''),
+('site_slogan',''),
+('site_url',''),
+('base_url','');
+('doc_encoding',''),
+('xhtml_urls',0),
+('site_unavailable_page',''),
+('site_unavailable_message','')
+('track_visitors',''),
+('auto_template_logic',''),
+('default_template',''),
+('publish_default',''),
+('cache_default',''),
+('search_default',''),
+('auto_menuindex',''),
+('custom_contenttype',''),
+('docid_incrmnt_method',''),
+('server_protocol',''),
+('output_filter',''),
+('friendly_urls',''),
+('friendly_url_prefix',''),
+('friendly_url_suffix',''),
+('make_folders',''),
+('friendly_alias_urls',''),
+('use_alias_path',''),
+('allow_duplicate_alias',''),
+('automatic_alias',''),
+('check_files_onlogin',''),
+('tree_show_protected',''),
+('default_role','');
 
 
-REPLACE INTO `{PREFIX}user_roles` 
+REPLACE INTO `{PREFIX}user_roles`
 (id,name,description,frames,home,view_document,new_document,save_document,publish_document,delete_document,empty_trash,action_ok,logout,help,messages,new_user,edit_user,logs,edit_parser,save_parser,edit_template,settings,credits,new_template,save_template,delete_template,edit_snippet,new_snippet,save_snippet,delete_snippet,edit_chunk,new_chunk,save_chunk,delete_chunk,empty_cache,edit_document,change_password,error_dialog,about,file_manager,save_user,delete_user,save_password,edit_role,save_role,delete_role,new_role,access_permissions,bk_manager,new_plugin,edit_plugin,save_plugin,delete_plugin,new_module,edit_module,save_module,exec_module,delete_module,view_eventlog,delete_eventlog,manage_metatags,edit_doc_metatags,new_web_user,edit_web_user,save_web_user,delete_web_user,web_access_permissions,view_unpublished,import_static,export_static,remove_locks,view_schedule) VALUES 
 (1, 'Administrator', 'Site administrators have full access to all functions',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
 
