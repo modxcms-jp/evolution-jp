@@ -24,6 +24,10 @@ if (!function_exists("form_text")){
 
 <th><?=l($input->title)?></th>
 <td>
-    <?php echo form_text($input->setting_name,$settings[$input->setting_name]);?><br />
+    <?php echo form_text($input->setting_name,$settings[$input->setting_name]);?>
+    <?if ($input->error):?>
+        <span class="fail"><?=$error?></span>
+    <?endif;?>
+    <br />
     <?php echo l($input->description)?>
 </td>

@@ -33,7 +33,7 @@ function l($text){
     return $result;
 }
 
-$id = $_REQUEST['setting_name'];
+$id = $_REQUEST['id'];
 
 ?>
 
@@ -45,6 +45,7 @@ $id = $_REQUEST['setting_name'];
                 <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
             </a>
         </li>
+        <li><a href="index.php?a=134&id=<?=htmlspecialchars($id)?>" onclick="return confirm('<?=l("setting_field_delete_confirm")?>');"><img src="media/style/RevoStyle/images/icons/delete.png" alt="Удалить"> Удалить</a></li>
         <li id="Button5">
             <a href="#" onclick="document.location.href='index.php?a=131';">
                 <img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?>
@@ -61,27 +62,61 @@ $id = $_REQUEST['setting_name'];
 </style>
 <div class="section">
     <div class="sectionBody">
+
+        <?php
+
+        if (isset($_POST['form_submitted_edit_field'])){
+
+            $data = $_POST;
+
+            //Проверяем setting_name смена имени параметра (check duplicate setting_name)
+            if ($data['id']!=$data['setting_name']){
+                $find = $modx->db->GetObject("system_settings","setting_name='".$modx->db->escape($data['setting_name'])."'");
+                if ($find!==false){
+                    $error = l("dublicate_setting_name_error");
+                }
+            }
+
+            if (empty($data['setting_name'])){
+                $error=l("empty_setting_name_error");
+            }
+
+            $settings=$data;
+
+            //Сохраняем при отсутсвие ошибок (save if no error)
+            if (empty($error)){
+                unset($data['a'],$data['id'],$data['form_submitted_edit_field']);
+                if (empty($id)){
+                    $modx->db->insert($data,"[+prefix+]system_settings");
+                }else{
+                    $modx->db->update($data,"[+prefix+]system_settings","setting_name='".$modx->db->escape($id)."'");
+                }
+                $id = $data['setting_name'];
+            }
+
+        }else{
+            $object = $modx->db->GetObject("system_settings","setting_name='".$modx->db->escape($id)."'");
+            if ($object===false){
+                $settings = $_POST;
+            }else{
+                $settings = (array)$object;
+            }
+        };
+        ?>
+
         <form action="index.php" method="post" name="edit_field">
             <input type="hidden" name="a" value="133"/>
-            <input type="hidden" name="old_setting_name" value="<?=htmlspecialchars($id)?>"/>
+            <input type="hidden" name="form_submitted_edit_field" value="1"/>
+            <input type="hidden" name="id" value="<?=htmlspecialchars($id)?>"/>
 
             <table class="settings">
 
                 <tr>
                 <?php
 
-                    $object = $modx->db->GetObject("system_settings","setting_name='".$modx->db->escape($id)."'");
-
-                    if ($object===false){
-                        $settings = $_POST;
-                    }else{
-                        $settings = (array)$object;
-                    }
-
-                    $input = (object)array("title"=>"setting_name_title","description"=>"setting_name_message","setting_name"=>"setting_name");
+                    $input = (object)array("title"=>"setting_name_title","description"=>"setting_name_message","setting_name"=>"setting_name","error"=>$error);
                     include(MODX_BASE_PATH."manager/includes/field_text.php");
                     echo "</tr><tr>";
-
 
                     $input = (object)array("title"=>"setting_id_group_title","description"=>"setting_id_group_message","setting_name"=>"id_group");
                     $groups = $modx->db->GetObjects("system_settings_group");
@@ -91,7 +126,6 @@ $id = $_REQUEST['setting_name'];
                     $options=array("select",$options);
                     include(MODX_BASE_PATH."manager/includes/field_select.php");
                     echo "</tr><tr>";
-
 
                     $input = (object)array("title"=>"setting_title_title","description"=>"setting_title_message","setting_name"=>"title");
                     include(MODX_BASE_PATH."manager/includes/field_text.php");
@@ -113,13 +147,9 @@ $id = $_REQUEST['setting_name'];
                     include(MODX_BASE_PATH."manager/includes/field_text.php");
                     echo "</tr><tr>";
 
-
-
-
-                    ?>
+                ?>
                 </tr>
             </table>
-
         </form>
     </div>
 </div>

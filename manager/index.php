@@ -473,6 +473,7 @@ switch ($action) {
     case 92:
         include_once "processors/web_access_groups.processor.php";
         break;
+
     case 17: // get the settings editor
         include_once "header.inc.php";
         include_once "actions/mutate_settings.dynamic.php";
@@ -492,6 +493,13 @@ switch ($action) {
         include_once "header.inc.php";
         include_once "actions/mutate_settings_field_edit.dynamic.php";
         include_once "footer.inc.php";
+        break;
+    case 134:// delete system settings field
+        include_once "processors/delete_system_field.processor.php";
+        break;
+
+    case 135:// delete system settings group
+        include_once "processors/delete_system_group.processor.php";
         break;
 
 
