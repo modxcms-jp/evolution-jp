@@ -16,7 +16,7 @@ if(!$rs){
 	exit;
 }else{
     //Переносим параметры из этой вкладке в первую
-    $modx->db->update("id_group=1","[+prefix+]system_settings","id_group=$id");
+    $modx->db->update("id_group=1","[+prefix+]system_settings_fields","id_group=$id");
 }
 // empty cache
 header('Location: index.php?a=131');

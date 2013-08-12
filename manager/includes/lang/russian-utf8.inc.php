@@ -1320,4 +1320,8 @@ $_lang['empty_setting_name_error'] = "Обязательное поле";
 $_lang['setting_field_delete_confirm'] = "Вы действительно хотите удалить?";
 $_lang['setting_group_delete_confirm'] = "Вы действительно хотите удалить? Все пераметры данной группы будут перенесены в первую вкладку";
 
+$_lang['setting_edit_tabs']='Редактировать вкладки';
+$_lang['setting_new_tab']  ='Создать новую вкладку';
 
+$_lang['setting_edit_field']='Редактировать параметры';
+$_lang['setting_new_field'] ='Новый параметр';

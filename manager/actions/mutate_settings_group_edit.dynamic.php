@@ -55,7 +55,7 @@ if (empty($group)){
                 <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
             </a>
         </li>
-        <li><a href="index.php?a=135&id=<?=$id?>" onclick="return confirm('<?=l("setting_group_delete_confirm")?>');"><img src="media/style/RevoStyle/images/icons/delete.png" alt="Удалить"> Удалить</a></li>
+        <li><a href="index.php?a=135&id=<?=$id?>" onclick="return confirm('<?=l("setting_group_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
 
         <li id="Button5">
             <a href="#" onclick="document.location.href='index.php?a=131';">

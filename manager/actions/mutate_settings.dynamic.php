@@ -226,7 +226,7 @@ function confirmLangChange(el, lkey, elupd)
             <table class="settings">
                 <?php
 
-                $inputs = $modx->db->GetObjects("system_settings","id_group=$group->id and `options`!=''","sort");
+                $inputs = $modx->db->GetObjects("system_settings_fields","id_group=$group->id and `options`!=''","sort");
 
                 foreach($inputs as $input){?>
                     <tr <?php //зависимость от других полей

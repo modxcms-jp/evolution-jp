@@ -23,86 +23,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('fe_editor_lang','{MANAGERLANGUAGE}'),
 ('session.cookie.lifetime','604800'),
 ('manager_theme','RevoStyle'),
-('theme_refresher',''),
-('site_slogan',''),
-('site_url',''),
-('base_url',''),
-('doc_encoding',''),
-('xhtml_urls',0),
-('site_unavailable_page',''),
-('site_unavailable_message',''),
-('track_visitors',''),
-('auto_template_logic',''),
-('default_template',''),
-('publish_default',''),
-('cache_default',''),
-('search_default',''),
-('auto_menuindex',''),
-('custom_contenttype',''),
-('docid_incrmnt_method',''),
-('server_protocol',''),
-('output_filter',''),
-('friendly_urls',''),
-('friendly_url_prefix',''),
-('friendly_url_suffix',''),
-('make_folders',''),
-('friendly_alias_urls',''),
-('use_alias_path',''),
-('allow_duplicate_alias',''),
-('automatic_alias',''),
-('check_files_onlogin',''),
-('tree_show_protected',''),
-('default_role',''),
-('validate_referer',''),
-('allow_mgr2web',''),
-('auto_sleep_user',''),
-('error_reporting',''),
-('send_errormail',''),
-('warning_visibility',''),
-('pwd_hash_algo',''),
-('captcha_words',''),
-('emailsubject',''),
-('signupemail_message',''),
-('websignupemail_message',''),
-('webpwdreminder_message',''),
-('enable_bindings',''),
-('manager_inline_style',''),
-('topmenu_site',''),
-('topmenu_element',''),
-('topmenu_security',''),
-('topmenu_user',''),
-('topmenu_tools',''),
-('topmenu_reports',''),
-('limit_by_container',''),
-('tree_pane_open_default','1'),
-('tree_page_click',''),
-('remember_last_tab',''),
-('resource_tree_node_name',''),
-('top_howmany',''),
-('show_meta',''),
-('datepicker_offset',''),
-('datetime_format',''),
-('number_of_logs',''),
-('mail_check_timeperiod',''),
-('number_of_messages',''),
-('pm2email',''),
-('number_of_results',''),
-('which_editor',''),
-('editor_css_path',''),
-('filemanager_path',''),
-('upload_files',''),
-('upload_images',''),
-('upload_media',''),
-('upload_flash',''),
-('upload_maxsize',''),
-('new_file_permissions',''),
-('new_folder_permissions',''),
-('strip_image_paths',''),
-('rb_webuser',''),
-('rb_base_dir',''),
-('rb_base_url',''),
-('clean_uploaded_filename',''),
-('image_limit_width','');
+('theme_refresher','');
 
 
 REPLACE INTO `{PREFIX}user_roles`
@@ -229,212 +150,104 @@ REPLACE INTO `{PREFIX}system_eventnames`
 
 # ^ I don't think we need more than 1000 built-in events. Custom events will start at 1001
 
-CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings_group` (
- `id` int(11) NOT NULL AUTO_INCREMENT,
- `name` varchar(64) NOT NULL,
- PRIMARY KEY (`id`)
-);
-
-INSERT INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
+INSERT IGNORE INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
  (1, 'settings_site'), (2, 'settings_furls'),(3,'settings_users'),
  (4,'settings_ui'),(5,'settings_misc');
 
-ALTER TABLE `{PREFIX}system_settings` add column `id_group` int NOT NULL default '1';
 
-ALTER TABLE `{PREFIX}system_settings` add column `title` varchar(255) NOT NULL default '';
+INSERT INTO `{PREFIX}system_settings_fields` (`setting_name`, `id_group`, `title`, `description`, `sort`, `options`) VALUES
+('server_offset_time', 1, 'server_offset_time_title', 'server_offset_time_message', 24, 'server_offset'),
+('manager_language', 4, 'manager_language_title', 'manager_language_message', 59, 'language'),
+('modx_charset', 1, 'modx_charset_title', 'modx_charset_message', 5, 'select||UTF-8'),
+('site_name', 1, 'site_name_title', 'site_name_message', 1, 'text'),
+('site_start', 1, 'site_start_title', 'site_start_message', 8, 'text'),
+('error_page', 1, 'error_page_title', 'error_page_message', 9, 'text'),
+('unauthorized_page', 1, 'unauthorized_page_title', 'unauthorized_page_message', 10, 'text'),
+('site_status', 1, 'site_status_title', 'site_status_message', 11, 'radio||online=1;offline=0'),
+('cache_type', 1, 'cache_type_title', 'cache_type_message', 18, 'radio||mutate_settings.dynamic.php1=1;mutate_settings.dynamic.php2=2;mutate_settings.dynamic.php3=0'),
+('use_udperms', 3, 'use_udperms_title', 'use_udperms_message', 36, 'radio||yes=1;no=0||depend||udperms_allowroot,tree_show_protected'),
+('udperms_allowroot', 3, 'udperms_allowroot_title', 'udperms_allowroot_message', 37, 'radio||yes=1;no=0'),
+('failed_login_attempts', 3, 'failed_login_attempts_title', 'failed_login_attempts_message', 42, 'text'),
+('blocked_minutes', 3, 'blocked_minutes_title', 'blocked_minutes_message', 43, 'text'),
+('use_captcha', 3, 'use_captcha_title', 'use_captcha_message', 49, 'radio||yes=1;no=0'),
+('emailsender', 3, 'emailsender_title', 'emailsender_message', 51, 'text'),
+('use_editor', 4, 'use_editor_title', 'use_editor_message', 74, 'radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path'),
+('use_browser', 5, 'use_browser_title', 'use_browser_message', 86, 'radio||yes=1;no=0||depend||strip_image_paths,rb_webuser,rb_base_url,clean_uploaded_filename,image_limit_width'),
+('fe_editor_lang', 4, 'fe_editor_lang_title', 'fe_editor_lang_message', 76, 'language'),
+('manager_theme', 4, 'manager_theme_title', 'manager_theme_message', 57, 'manager_theme'),
+('site_slogan', 1, 'site_slogan_title', 'site_slogan_message', 2, 'textarea'),
+('site_url', 1, 'site_url_title', 'site_url_message', 3, 'text'),
+('base_url', 1, 'base_url_title', 'base_url_message', 4, 'text'),
+('doc_encoding', 1, 'doc_encoding_title', 'doc_encoding_message', 6, 'select||UTF-8;SJIS-win;eucJP-win;Windows-1251;Windows-1252;KOI8-R;ISO-8859-1;ISO-8859-2;ISO-8859-3;ISO-8859-4;ISO-8859-5;ISO-8859-6;ISO-8859-7;ISO-8859-8;ISO-8859-9;ISO-8859-10;Shift_JIS;EUC-JP;BIG-5'),
+('xhtml_urls', 1, 'xhtml_urls_title', 'xhtml_urls_message', 7, 'radio||yes=1;no=0'),
+('site_unavailable_page', 1, 'site_unavailable_page_title', 'site_unavailable_page_message', 12, 'text'),
+('site_unavailable_message', 1, 'site_unavailable_message_title', 'site_unavailable_message_message', 13, 'textarea_lang'),
+('track_visitors', 1, 'track_visitors_title', 'track_visitors_message', 14, 'radio||yes=1;no=0'),
+('auto_template_logic', 1, 'auto_template_logic_title', 'auto_template_logic_message', 15, 'radio||defaulttemplate_logic_system_message=system;defaulttemplate_logic_parent_message=parent;defaulttemplate_logic_sibling_message=sibling'),
+('default_template', 1, 'default_template_title', 'default_template_message', 16, 'template'),
+('publish_default', 1, 'publish_default_title', 'publish_default_message', 17, 'radio||yes=1;no=0'),
+('cache_default', 1, 'cache_default_title', 'cache_default_message', 19, 'radio||yes=1;no=0'),
+('search_default', 1, 'search_default_title', 'search_default_message', 20, 'radio||yes=1;no=0'),
+('auto_menuindex', 1, 'auto_menuindex_title', 'auto_menuindex_message', 21, 'radio||yes=1;no=0'),
+('custom_contenttype', 1, 'custom_contenttype_title', 'custom_contenttype_message', 22, 'custom_contenttype'),
+('docid_incrmnt_method', 1, 'docid_incrmnt_method_title', 'docid_incrmnt_method_message', 23, 'radio||docid_incrmnt_method_0=0;docid_incrmnt_method_1=1;docid_incrmnt_method_2=2'),
+('server_protocol', 1, 'server_protocol_title', 'server_protocol_message', 25, 'radio||server_protocol_http=http;server_protocol_https=https'),
+('output_filter', 1, 'output_filter_title', 'output_filter_message', 26, 'radio||Enable=1;Disable=0'),
+('friendly_urls', 2, 'friendly_urls_title', 'friendly_urls_message', 27, 'radio||yes=1;no=0||depend||friendly_url_prefix,friendly_url_suffix,make_folders,friendly_alias_urls,use_alias_path,allow_duplicate_alias,automatic_alias'),
+('friendly_url_prefix', 2, 'friendly_url_prefix_title', 'friendly_url_prefix_message', 28, 'text'),
+('friendly_url_suffix', 2, 'friendly_url_suffix_title', 'friendly_url_suffix_message', 29, 'text'),
+('make_folders', 2, 'make_folders_title', 'make_folders_message', 30, 'radio||yes=1;no=0'),
+('friendly_alias_urls', 2, 'friendly_alias_urls_title', 'friendly_alias_urls_message', 31, 'radio||yes=1;no=0'),
+('use_alias_path', 2, 'use_alias_path_title', 'use_alias_path_message', 32, 'radio||yes=1;no=0'),
+('allow_duplicate_alias', 2, 'allow_duplicate_alias_title', 'allow_duplicate_alias_message', 33, 'radio||yes=1;no=0'),
+('automatic_alias', 2, 'automatic_alias_title', 'automatic_alias_message', 34, 'radio||pagetitle=1;numbering in each folder=2;disabled=0'),
+('check_files_onlogin', 3, 'check_files_onlogin_title', 'check_files_onlogin_message', 35, 'textarea'),
+('tree_show_protected', 3, 'tree_show_protected_title', 'tree_show_protected_message', 38, 'radio||yes=1;no=0'),
+('default_role', 3, 'default_role_title', 'default_role_message', 39, 'role_list'),
+('validate_referer', 3, 'validate_referer_title', 'validate_referer_message', 40, 'radio||yes=1;no=0'),
+('allow_mgr2web', 3, 'allow_mgr2web_title', 'allow_mgr2web_message', 41, 'radio||yes=1;no=0'),
+('auto_sleep_user', 3, 'auto_sleep_user_title', 'auto_sleep_user_message', 44, 'text'),
+('error_reporting', 3, 'error_reporting_title', 'error_reporting_message', 45, 'radio||a17_error_reporting_opt0=0;a17_error_reporting_opt1=1;a17_error_reporting_opt2=2;a17_error_reporting_opt99=99'),
+('send_errormail', 3, 'send_errormail_title', 'send_errormail_message', 46, 'radio||mutate_settings.dynamic.php7=0;error=3;error + warning=2;error + warning + information=1'),
+('warning_visibility', 3, 'warning_visibility_title', 'warning_visibility_message', 47, 'radio||administrators=0;a17_warning_opt2=2;everybody=1'),
+('pwd_hash_algo', 3, 'pwd_hash_algo_title', 'pwd_hash_algo_message', 48, 'hash_algo'),
+('captcha_words', 3, 'captcha_words_title', 'captcha_words_message', 50, 'text_lang'),
+('emailsubject', 3, 'emailsubject_title', 'emailsubject_message', 52, 'text_lang'),
+('signupemail_message', 3, 'signupemail_message_title', 'signupemail_message_message', 53, 'textarea_lang'),
+('websignupemail_message', 3, 'websignupemail_message_title', 'websignupemail_message_message', 54, 'textarea_lang'),
+('webpwdreminder_message', 3, 'webpwdreminder_message_title', 'webpwdreminder_message_message', 55, 'textarea_lang'),
+('enable_bindings', 3, 'enable_bindings_title', 'enable_bindings_message', 56, 'radio||yes=1;no=0'),
+('manager_inline_style', 4, 'manager_inline_style_title', 'manager_inline_style_message', 58, 'textarea'),
+('topmenu_site', 4, 'topmenu_site_title', 'topmenu_site_message', 60, 'topmenu'),
+('limit_by_container', 4, 'limit_by_container_title', 'limit_by_container_message', 61, 'text'),
+('tree_pane_open_default', 4, 'tree_pane_open_default_title', 'tree_pane_open_default_message', 62, 'radio||open=1;close=0'),
+('tree_page_click', 4, 'tree_page_click_title', 'tree_page_click_message', 62, 'radio||edit_resource=27;doc_data_title=3;tree_page_click_option_auto=auto'),
+('remember_last_tab', 4, 'remember_last_tab_title', 'remember_last_tab_message', 63, 'radio||yes_full=2;yes_stay=1;no=0'),
+('resource_tree_node_name', 4, 'resource_tree_node_name_title', 'resource_tree_node_name_message', 64, 'select||pagetitle;menutitle;alias;createdon;editedon;publishedon'),
+('top_howmany', 4, 'top_howmany_title', 'top_howmany_message', 65, 'text'),
+('datepicker_offset', 4, 'datepicker_offset_title', 'datepicker_offset_message', 67, 'text'),
+('datetime_format', 4, 'datetime_format_title', 'datetime_format_message', 68, 'select||dd-mm-YYYY;mm/dd/YYYY;YYYY/mm/dd'),
+('number_of_logs', 4, 'number_of_logs_title', 'number_of_logs_message', 69, 'text'),
+('mail_check_timeperiod', 4, 'mail_check_timeperiod_title', 'mail_check_timeperiod_message', 70, 'text'),
+('number_of_messages', 4, 'number_of_messages_title', 'number_of_messages_message', 71, 'text'),
+('pm2email', 4, 'pm2email_title', 'pm2email_message', 72, 'radio||yes=1;no=0'),
+('number_of_results', 4, 'number_of_results_title', 'number_of_results_message', 73, 'text'),
+('which_editor', 4, 'which_editor_title', 'which_editor_message', 75, 'which_editor'),
+('editor_css_path', 4, 'editor_css_path_title', 'editor_css_path_message', 77, 'text'),
+('filemanager_path', 5, 'filemanager_path_title', 'filemanager_path_message', 78, 'path'),
+('upload_files', 5, 'upload_files_title', 'upload_files_message', 79, 'text'),
+('upload_images', 5, 'upload_images_title', 'upload_images_message', 80, 'text'),
+('upload_media', 5, 'upload_media_title', 'upload_media_message', 81, 'text'),
+('upload_flash', 5, 'upload_flash_title', 'upload_flash_message', 82, 'text'),
+('upload_maxsize', 5, 'upload_maxsize_title', 'upload_maxsize_message', 83, 'upload_maxsize'),
+('new_file_permissions', 5, 'new_file_permissions_title', 'new_file_permissions_message', 84, 'text'),
+('new_folder_permissions', 5, 'new_folder_permissions_title', 'new_folder_permissions_message', 85, 'text'),
+('strip_image_paths', 5, 'strip_image_paths_title', 'strip_image_paths_message', 87, 'radio||yes=1;no=0'),
+('rb_webuser', 5, 'rb_webuser_title', 'rb_webuser_message', 88, 'radio||yes=1;no=0'),
+('rb_base_dir', 5, 'rb_base_dir_title', 'rb_base_dir_message', 89, 'base_dir'),
+('rb_base_url', 5, 'rb_base_url_title', 'rb_base_url_message', 90, 'text'),
+('clean_uploaded_filename', 5, 'clean_uploaded_filename_title', 'clean_uploaded_filename_message', 91, 'radio||yes=1;no=0'),
+('image_limit_width', 5, 'image_limit_width_title', 'image_limit_width_message', 92, 'text');
 
-ALTER TABLE `{PREFIX}system_settings` add column `description` TEXT NOT NULL;
-
-ALTER TABLE `{PREFIX}system_settings` add column `sort` int NOT NULL;
-
-ALTER TABLE `{PREFIX}system_settings` add column `options` TEXT NOT NULL;
-
-UPDATE `{PREFIX}system_settings` set `title`=CONCAT(`setting_name`,'_title'),`description`=CONCAT(`setting_name`,'_message');
-
-UPDATE `{PREFIX}system_settings` set `sort`=1, `options`='text' WHERE `setting_name`='site_name';
-
-UPDATE `{PREFIX}system_settings` set `sort`=2, `options`='textarea' WHERE `setting_name`='site_slogan';
-
-UPDATE `{PREFIX}system_settings` set `sort`=3, `options`='text' WHERE `setting_name`='site_url';
-
-UPDATE `{PREFIX}system_settings` set `sort`=4, `options`='text' WHERE `setting_name`='base_url';
-
-UPDATE `{PREFIX}system_settings` set `sort`=5, `options`='select||UTF-8' WHERE `setting_name`='modx_charset';
-
-UPDATE `{PREFIX}system_settings` set `sort`=6, `options`='select||UTF-8;SJIS-win;eucJP-win;Windows-1251;Windows-1252;KOI8-R;ISO-8859-1;ISO-8859-2;ISO-8859-3;ISO-8859-4;ISO-8859-5;ISO-8859-6;ISO-8859-7;ISO-8859-8;ISO-8859-9;ISO-8859-10;Shift_JIS;EUC-JP;BIG-5' WHERE `setting_name`='doc_encoding';
-
-UPDATE `{PREFIX}system_settings` set `sort`=7, `options`='radio||yes=1;no=0' WHERE `setting_name`='xhtml_urls';
-
-UPDATE `{PREFIX}system_settings` set `sort`=8, `options`='text' WHERE `setting_name`='site_start';
-
-UPDATE `{PREFIX}system_settings` set `sort`=9, `options`='text' WHERE `setting_name`='error_page';
-
-UPDATE `{PREFIX}system_settings` set `sort`=10, `options`='text' WHERE `setting_name`='unauthorized_page';
-
-UPDATE `{PREFIX}system_settings` set `sort`=11, `options`='radio||online=1;offline=0' WHERE `setting_name`='site_status';
-
-UPDATE `{PREFIX}system_settings` set `sort`=12, `options`='text' WHERE `setting_name`='site_unavailable_page';
-
-UPDATE `{PREFIX}system_settings` set `sort`=13, `options`='textarea_lang' WHERE `setting_name`='site_unavailable_message';
-
-UPDATE `{PREFIX}system_settings` set `sort`=14, `options`='radio||yes=1;no=0' WHERE `setting_name`='track_visitors';
-
-UPDATE `{PREFIX}system_settings` set `sort`=15, `options`='radio||defaulttemplate_logic_system_message=system;defaulttemplate_logic_parent_message=parent;defaulttemplate_logic_sibling_message=sibling' WHERE `setting_name`='auto_template_logic';
-
-UPDATE `{PREFIX}system_settings` set `sort`=16, `options`='template' WHERE `setting_name`='default_template';
-
-UPDATE `{PREFIX}system_settings` set `sort`=17, `options`='radio||yes=1;no=0' WHERE `setting_name`='publish_default';
-
-UPDATE `{PREFIX}system_settings` set `sort`=18, `options`='radio||mutate_settings.dynamic.php1=1;mutate_settings.dynamic.php2=2;mutate_settings.dynamic.php3=0' WHERE `setting_name`='cache_type';
-
-UPDATE `{PREFIX}system_settings` set `sort`=19, `options`='radio||yes=1;no=0' WHERE `setting_name`='cache_default';
-
-UPDATE `{PREFIX}system_settings` set `sort`=20, `options`='radio||yes=1;no=0' WHERE `setting_name`='search_default';
-
-UPDATE `{PREFIX}system_settings` set `sort`=21, `options`='radio||yes=1;no=0' WHERE `setting_name`='auto_menuindex';
-
-UPDATE `{PREFIX}system_settings` set `sort`=22, `options`='custom_contenttype' WHERE `setting_name`='custom_contenttype';
-
-UPDATE `{PREFIX}system_settings` set `sort`=23, `options`='radio||docid_incrmnt_method_0=0;docid_incrmnt_method_1=1;docid_incrmnt_method_2=2' WHERE `setting_name`='docid_incrmnt_method';
-
-UPDATE `{PREFIX}system_settings` set `sort`=24, `options`='server_offset' WHERE `setting_name`='server_offset_time';
-
-UPDATE `{PREFIX}system_settings` set `sort`=25, `options`='radio||server_protocol_http=http;server_protocol_https=https' WHERE `setting_name`='server_protocol';
-
-UPDATE `{PREFIX}system_settings` set `sort`=26, `options`='radio||Enable=1;Disable=0' WHERE `setting_name`='output_filter';
-
-UPDATE `{PREFIX}system_settings` set `sort`=27, `id_group`=2, `options`='radio||yes=1;no=0||depend||friendly_url_prefix,friendly_url_suffix,make_folders,friendly_alias_urls,use_alias_path,allow_duplicate_alias,automatic_alias' WHERE `setting_name`='friendly_urls';
-
-UPDATE `{PREFIX}system_settings` set `sort`=28, `id_group`=2, `options`='text' WHERE `setting_name`='friendly_url_prefix';
-
-UPDATE `{PREFIX}system_settings` set `sort`=29, `id_group`=2, `options`='text' WHERE `setting_name`='friendly_url_suffix';
-
-UPDATE `{PREFIX}system_settings` set `sort`=30, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='make_folders';
-
-UPDATE `{PREFIX}system_settings` set `sort`=31, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='friendly_alias_urls';
-
-UPDATE `{PREFIX}system_settings` set `sort`=32, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_alias_path';
-
-UPDATE `{PREFIX}system_settings` set `sort`=33, `id_group`=2, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_duplicate_alias';
-
-UPDATE `{PREFIX}system_settings` set `sort`=34, `id_group`=2, `options`='radio||pagetitle=1;numbering in each folder=2;disabled=0' WHERE `setting_name`='automatic_alias';
-
-UPDATE `{PREFIX}system_settings` set `sort`=35, `id_group`=3, `options`='textarea' WHERE `setting_name`='check_files_onlogin';
-
-UPDATE `{PREFIX}system_settings` set `sort`=36, `id_group`=3, `options`='radio||yes=1;no=0||depend||udperms_allowroot,tree_show_protected' WHERE `setting_name`='use_udperms';
-
-UPDATE `{PREFIX}system_settings` set `sort`=37, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='udperms_allowroot';
-
-UPDATE `{PREFIX}system_settings` set `sort`=38, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='tree_show_protected';
-
-UPDATE `{PREFIX}system_settings` set `sort`=39, `id_group`=3, `options`='role_list' WHERE `setting_name`='default_role';
-
-UPDATE `{PREFIX}system_settings` set `sort`=40, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='validate_referer';
-
-UPDATE `{PREFIX}system_settings` set `sort`=41, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='allow_mgr2web';
-
-UPDATE `{PREFIX}system_settings` set `sort`=42, `id_group`=3, `options`='text' WHERE `setting_name`='failed_login_attempts';
-
-UPDATE `{PREFIX}system_settings` set `sort`=43, `id_group`=3, `options`='text' WHERE `setting_name`='blocked_minutes';
-
-UPDATE `{PREFIX}system_settings` set `sort`=44, `id_group`=3, `options`='text' WHERE `setting_name`='auto_sleep_user';
-
-UPDATE `{PREFIX}system_settings` set `sort`=45, `id_group`=3, `options`='radio||a17_error_reporting_opt0=0;a17_error_reporting_opt1=1;a17_error_reporting_opt2=2;a17_error_reporting_opt99=99' WHERE `setting_name`='error_reporting';
-
-UPDATE `{PREFIX}system_settings` set `sort`=46, `id_group`=3, `options`='radio||mutate_settings.dynamic.php7=0;error=3;error + warning=2;error + warning + information=1' WHERE `setting_name`='send_errormail';
-
-UPDATE `{PREFIX}system_settings` set `sort`=47, `id_group`=3, `options`='radio||administrators=0;a17_warning_opt2=2;everybody=1' WHERE `setting_name`='warning_visibility';
-
-UPDATE `{PREFIX}system_settings` set `sort`=48, `id_group`=3, `options`='hash_algo' WHERE `setting_name`='pwd_hash_algo';
-
-UPDATE `{PREFIX}system_settings` set `sort`=49, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='use_captcha';
-
-UPDATE `{PREFIX}system_settings` set `sort`=50, `id_group`=3, `options`='text_lang' WHERE `setting_name`='captcha_words';
-
-UPDATE `{PREFIX}system_settings` set `sort`=51, `id_group`=3, `options`='text' WHERE `setting_name`='emailsender';
-
-UPDATE `{PREFIX}system_settings` set `sort`=52, `id_group`=3, `options`='text_lang' WHERE `setting_name`='emailsubject';
-
-UPDATE `{PREFIX}system_settings` set `sort`=53, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='signupemail_message';
-
-UPDATE `{PREFIX}system_settings` set `sort`=54, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='websignupemail_message';
-
-UPDATE `{PREFIX}system_settings` set `sort`=55, `id_group`=3, `options`='textarea_lang' WHERE `setting_name`='webpwdreminder_message';
-
-UPDATE `{PREFIX}system_settings` set `sort`=56, `id_group`=3, `options`='radio||yes=1;no=0' WHERE `setting_name`='enable_bindings';
-
-UPDATE `{PREFIX}system_settings` set `sort`=57, `id_group`=4, `options`='manager_theme' WHERE `setting_name`='manager_theme';
-
-UPDATE `{PREFIX}system_settings` set `sort`=58, `id_group`=4, `options`='textarea' WHERE `setting_name`='manager_inline_style';
-
-UPDATE `{PREFIX}system_settings` set `sort`=59, `id_group`=4, `options`='language' WHERE `setting_name`='manager_language';
-
-UPDATE `{PREFIX}system_settings` set `sort`=60, `id_group`=4, `options`='topmenu' WHERE `setting_name`='topmenu_site';
-
-UPDATE `{PREFIX}system_settings` set `sort`=61, `id_group`=4, `options`='text' WHERE `setting_name`='limit_by_container';
-
-UPDATE `{PREFIX}system_settings` set `sort`=62, `id_group`=4, `options`='radio||open=1;close=0' WHERE `setting_name`='tree_pane_open_default';
-
-UPDATE `{PREFIX}system_settings` set `sort`=62, `id_group`=4, `options`='radio||edit_resource=27;doc_data_title=3;tree_page_click_option_auto=auto' WHERE `setting_name`='tree_page_click';
-
-UPDATE `{PREFIX}system_settings` set `sort`=63, `id_group`=4, `options`='radio||yes_full=2;yes_stay=1;no=0' WHERE `setting_name`='remember_last_tab';
-
-UPDATE `{PREFIX}system_settings` set `sort`=64, `id_group`=4, `options`='select||pagetitle;menutitle;alias;createdon;editedon;publishedon' WHERE `setting_name`='resource_tree_node_name';
-
-UPDATE `{PREFIX}system_settings` set `sort`=65, `id_group`=4, `options`='text' WHERE `setting_name`='top_howmany';
-
-UPDATE `{PREFIX}system_settings` set `sort`=66, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='show_meta';
-
-UPDATE `{PREFIX}system_settings` set `sort`=67, `id_group`=4, `options`='text' WHERE `setting_name`='datepicker_offset';
-
-UPDATE `{PREFIX}system_settings` set `sort`=68, `id_group`=4, `options`='select||dd-mm-YYYY;mm/dd/YYYY;YYYY/mm/dd' WHERE `setting_name`='datetime_format';
-
-UPDATE `{PREFIX}system_settings` set `sort`=69, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_logs';
-
-UPDATE `{PREFIX}system_settings` set `sort`=70, `id_group`=4, `options`='text' WHERE `setting_name`='mail_check_timeperiod';
-
-UPDATE `{PREFIX}system_settings` set `sort`=71, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_messages';
-
-UPDATE `{PREFIX}system_settings` set `sort`=72, `id_group`=4, `options`='radio||yes=1;no=0' WHERE `setting_name`='pm2email';
-
-UPDATE `{PREFIX}system_settings` set `sort`=73, `id_group`=4, `options`='text' WHERE `setting_name`='number_of_results';
-
-UPDATE `{PREFIX}system_settings` set `sort`=74, `id_group`=4, `options`='radio||yes=1;no=0||depend||which_editor,fe_editor_lang,editor_css_path' WHERE `setting_name`='use_editor';
-
-UPDATE `{PREFIX}system_settings` set `sort`=75, `id_group`=4, `options`='which_editor' WHERE `setting_name`='which_editor';
-
-UPDATE `{PREFIX}system_settings` set `sort`=76, `id_group`=4, `options`='language' WHERE `setting_name`='fe_editor_lang';
-
-UPDATE `{PREFIX}system_settings` set `sort`=77, `id_group`=4, `options`='text' WHERE `setting_name`='editor_css_path';
-
-UPDATE `{PREFIX}system_settings` set `sort`=78, `id_group`=5, `options`='path' WHERE `setting_name`='filemanager_path';
-
-UPDATE `{PREFIX}system_settings` set `sort`=79, `id_group`=5, `options`='text' WHERE `setting_name`='upload_files';
-
-UPDATE `{PREFIX}system_settings` set `sort`=80, `id_group`=5, `options`='text' WHERE `setting_name`='upload_images';
-
-UPDATE `{PREFIX}system_settings` set `sort`=81, `id_group`=5, `options`='text' WHERE `setting_name`='upload_media';
-
-UPDATE `{PREFIX}system_settings` set `sort`=82, `id_group`=5, `options`='text' WHERE `setting_name`='upload_flash';
-
-UPDATE `{PREFIX}system_settings` set `sort`=83, `id_group`=5, `options`='upload_maxsize' WHERE `setting_name`='upload_maxsize';
-
-UPDATE `{PREFIX}system_settings` set `sort`=84, `id_group`=5, `options`='text' WHERE `setting_name`='new_file_permissions';
-
-UPDATE `{PREFIX}system_settings` set `sort`=85, `id_group`=5, `options`='text' WHERE `setting_name`='new_folder_permissions';
-
-UPDATE `{PREFIX}system_settings` set `sort`=86, `id_group`=5, `options`='radio||yes=1;no=0||depend||strip_image_paths,rb_webuser,rb_base_url,rb_base_dir,clean_uploaded_filename,image_limit_width' WHERE `setting_name`='use_browser';
-
-UPDATE `{PREFIX}system_settings` set `sort`=87, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='strip_image_paths';
-
-UPDATE `{PREFIX}system_settings` set `sort`=88, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='rb_webuser';
-
-UPDATE `{PREFIX}system_settings` set `sort`=89, `id_group`=5, `options`='base_dir' WHERE `setting_name`='rb_base_dir';
-
-UPDATE `{PREFIX}system_settings` set `sort`=90, `id_group`=5, `options`='text' WHERE `setting_name`='rb_base_url';
-
-UPDATE `{PREFIX}system_settings` set `sort`=91, `id_group`=5, `options`='radio||yes=1;no=0' WHERE `setting_name`='clean_uploaded_filename';
-
-UPDATE `{PREFIX}system_settings` set `sort`=92, `id_group`=5, `options`='text' WHERE `setting_name`='image_limit_width';
 
 REPLACE INTO `{PREFIX}system_eventnames` (id,name,service,groupname) VALUES ('101','OnSystemSettingsRender','1','System Settings');

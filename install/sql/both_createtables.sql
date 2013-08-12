@@ -510,3 +510,19 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   UNIQUE INDEX `idx_revision` (`target`,`id`,`revision`),
   KEY `status` (`status`)
 ) ENGINE=MyISAM COMMENT='Contains revision data.';
+
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings_group` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `name` varchar(64) NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=MyISAM ;
+
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_settings_fields` (
+  `setting_name` varchar(50) NOT NULL DEFAULT '',
+  `id_group` int(11) NOT NULL DEFAULT '1',
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `sort` int(11) NOT NULL,
+  `options` text NOT NULL,
+  PRIMARY KEY (`setting_name`)
+) ENGINE=MyISAM ;

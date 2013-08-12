@@ -42,7 +42,7 @@ function l($text){
 
     <div class="section">
         <div class="sectionBody">
-            <h2 style="margin-top:0">Редактировать вкладки</h2>
+            <h2 style="margin-top:0"><?=l("setting_edit_tabs")?></h2>
 
             <?php
             //Create new tab
@@ -65,7 +65,7 @@ function l($text){
                 <?endforeach;?>
             </ul>
 
-            <h2>Создать новую вкладку</h2>
+            <h2><?=l("setting_new_tab")?></h2>
             <p><?=l("new_tab_message")?></p>
             <?if (!empty($new_tab_error)):?>
                 <p class="fail"><?=$new_tab_error?></p>
@@ -79,10 +79,10 @@ function l($text){
 
     <div class="section">
         <div class="sectionBody">
-            <h2 style="margin-top:0">Редактировать параметры</h2>
+            <h2 style="margin-top:0"><?=l("setting_edit_field")?></h2>
 
             <div class="actionButtons">
-                <a href="index.php?a=133" class="default">Новый параметр</a>
+                <a href="index.php?a=133" class="default"><?=l("setting_new_field")?></a>
             </div>
 
             <div class="tab-pane" id="settingsPane">
@@ -95,7 +95,7 @@ function l($text){
                     <h2 class="tab"><?=l($group->name)?></h2>
                     <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage_<?=$group->id?>" ) );</script>
                     <ul>
-                    <?php $inputs = $modx->db->GetObjects("system_settings","id_group=$group->id","sort");?>
+                    <?php $inputs = $modx->db->GetObjects("system_settings_fields","id_group=$group->id","sort");?>
 
                     <?foreach($inputs as $input):?>
                         <li>

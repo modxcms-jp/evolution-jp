@@ -1278,3 +1278,48 @@ $_lang['yes_stay']="Yes (Stay mode)";
 
 $_lang['settings_edit_title']="Edit System Settings";
 $_lang['settings_edit_new_tab_title']="Create";
+
+$_lang['new_tab_error'] = "Required field";
+$_lang['new_tab_message'] = "You can use the value of the language file as plain text.";
+$_lang['settings_group_edit_title']="Edit System Settings tab";
+$_lang['settings_group_field_title']="Edit parameter system settings";
+
+$_lang['setting_name_title'] = "Name";
+$_lang['setting_name_message'] = 'This option will be available for display in the templates and chunks as [(parameter name)] in the snippet as $modx->config ["parameter name"]';
+
+$_lang['setting_id_group_title'] = "Tab";
+$_lang['setting_id_group_message'] = "Which tab will display the parameter";
+
+$_lang['setting_title_title'] = "Title";
+$_lang['setting_title_message'] = "Name field on the System Settings tab. You can use the value of the language file as plain text.";
+
+$_lang['setting_description_title'] = "Description";
+$_lang['setting_description_message'] = "Description field on the System Settings tab. You can use the value of the language file as plain text.";
+
+$_lang['setting_sort_title'] = "Position";
+$_lang['setting_sort_message'] = "Position in field list";
+
+$_lang['setting_options_title'] = "The field configuration";
+$_lang['setting_options_message'] = 'Description of how the field will be displayed on the System Settings tab: <br/>
+     field type [||options depending on the type of the field] <br/> <br/> <strong> standard field types </strong>:
+     <ul>
+     <li>text - the text field </li>
+     <li>text_lang - text field with the loading of the default values ​​of the language files </li>
+     <li>textarea - the text box (textarea) </li>
+     <li>text_lang - text box (textarea) with the loading of the default values ​​of the language files </li>
+     <li>select - drop down list format: select||title=value,value2=title2 or select||value1;value2 </li>
+     <li>radio - radio format: radio||title=value,value2=title2[||depend||field1,field2,...]]
+        depend - dependent fields that are hidden or displayed depending on the value of the field </li>
+     </ul><br/>
+     <strong> you can create your own types of fields </strong>, in this case, the file is uploaded /manager/includes/field_{your field type}.php list of options is available as an array $options
+';
+$_lang['dublicate_setting_name_error'] = "This name is already in use";
+$_lang['empty_setting_name_error'] = "Required field";
+$_lang['setting_field_delete_confirm'] = "Are you sure you want to delete?";
+$_lang['setting_group_delete_confirm'] = "Are you sure you want to delete? All parameters of this group will be moved to the first tab";
+
+$_lang['setting_edit_tabs']='Edit tab';
+$_lang['setting_new_tab']  ='Create a new tab';
+
+$_lang['setting_edit_field']='Edit options';
+$_lang['setting_new_field'] ='A new option';

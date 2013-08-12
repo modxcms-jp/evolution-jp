@@ -59,7 +59,7 @@ if (isset($data) && count($data) > 0) {
     $config_rows = $modx->db->GetObjects("system_settings");
     $exist_settings = array();
     foreach($config_rows as $row){
-        $exist_settings[$row->setting_name]=$row->setting_value;
+        $exist_settings[$row->setting_name]=1;
     }
 	$savethese = array();
     $updatethese = array();

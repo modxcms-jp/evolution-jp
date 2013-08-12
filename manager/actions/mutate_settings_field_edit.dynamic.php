@@ -45,7 +45,7 @@ $id = $_REQUEST['id'];
                 <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
             </a>
         </li>
-        <li><a href="index.php?a=134&id=<?=htmlspecialchars($id)?>" onclick="return confirm('<?=l("setting_field_delete_confirm")?>');"><img src="media/style/RevoStyle/images/icons/delete.png" alt="Удалить"> Удалить</a></li>
+        <li><a href="index.php?a=134&id=<?=htmlspecialchars($id)?>" onclick="return confirm('<?=l("setting_field_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
         <li id="Button5">
             <a href="#" onclick="document.location.href='index.php?a=131';">
                 <img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?>
@@ -71,7 +71,7 @@ $id = $_REQUEST['id'];
 
             //Проверяем setting_name смена имени параметра (check duplicate setting_name)
             if ($data['id']!=$data['setting_name']){
-                $find = $modx->db->GetObject("system_settings","setting_name='".$modx->db->escape($data['setting_name'])."'");
+                $find = $modx->db->GetObject("system_settings_fields","setting_name='".$modx->db->escape($data['setting_name'])."'");
                 if ($find!==false){
                     $error = l("dublicate_setting_name_error");
                 }
@@ -87,15 +87,16 @@ $id = $_REQUEST['id'];
             if (empty($error)){
                 unset($data['a'],$data['id'],$data['form_submitted_edit_field']);
                 if (empty($id)){
-                    $modx->db->insert($data,"[+prefix+]system_settings");
+                    $modx->db->insert($data,"[+prefix+]system_settings_fields");
+                    $modx->db->insert_ignore(array("setting_name"=>$data['setting_name']),"[+prefix+]system_settings");
                 }else{
-                    $modx->db->update($data,"[+prefix+]system_settings","setting_name='".$modx->db->escape($id)."'");
+                    $modx->db->update($data,"[+prefix+]system_settings_fields","setting_name='".$modx->db->escape($id)."'");
                 }
                 $id = $data['setting_name'];
             }
 
         }else{
-            $object = $modx->db->GetObject("system_settings","setting_name='".$modx->db->escape($id)."'");
+            $object = $modx->db->GetObject("system_settings_fields","setting_name='".$modx->db->escape($id)."'");
             if ($object===false){
                 $settings = $_POST;
             }else{
@@ -141,11 +142,8 @@ $id = $_REQUEST['id'];
 
                     $input = (object)array("title"=>"setting_options_title","description"=>"setting_options_message","setting_name"=>"options");
                     include(MODX_BASE_PATH."manager/includes/field_text.php");
-                    echo "</tr><tr>";
 
-                    $input = (object)array("title"=>"setting_value_title","description"=>"setting_value_message","setting_name"=>"setting_value");
-                    include(MODX_BASE_PATH."manager/includes/field_text.php");
-                    echo "</tr><tr>";
+
 
                 ?>
                 </tr>
