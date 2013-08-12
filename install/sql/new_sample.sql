@@ -41,6 +41,6 @@ REPLACE INTO `{PREFIX}site_content` VALUES ('15','document','text/html','送信�
 # Dumping data for table `system_settings`
 #
 
-REPLACE INTO `{PREFIX}system_settings` (`setting_name`,`setting_value`,`id_group`,`sort`,`title`,`description`,`options`)VALUES('error_page', '4',1,9,'error_page_title','error_page_description','text');
+REPLACE INTO `{PREFIX}system_settings` VALUES('error_page', '4');
 
-REPLACE INTO `{PREFIX}system_settings` (`setting_name`,`setting_value`,`id_group`,`sort`,`title`,`description`,`options`)VALUES('default_template', '2',1,16,'default_template_title','default_template_description','template');
+REPLACE INTO `{PREFIX}system_settings` VALUES('default_template', '2');

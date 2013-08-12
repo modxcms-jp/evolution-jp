@@ -473,7 +473,6 @@ switch ($action) {
     case 92:
         include_once "processors/web_access_groups.processor.php";
         break;
-
     case 17: // get the settings editor
         include_once "header.inc.php";
         include_once "actions/mutate_settings.dynamic.php";
