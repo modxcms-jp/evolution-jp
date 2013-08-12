@@ -2,12 +2,12 @@
 /**
  * eForm
  * 
- * Robust form parser/processor with validation, multiple sending options, chunk/page support for forms and reports, and file uploads
+ * メール送信フォームなどに使える多機能フォームプロセッサー
  *
  * @category 	snippet
  * @version 	1.4.4.7
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &sendAsText=Отправлять письма текстом;string;1
+ * @internal	@properties &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
  * @internal    @installset base, sample
  */

@@ -2,7 +2,7 @@
 /**
  * TopicPath
  *
- * Breadcrumbs высокую степень свободы в настройке
+ * カスタマイズの自由度が高いパン屑リスト
  * 
  * @category	snippet
  * @version 	2.0.2

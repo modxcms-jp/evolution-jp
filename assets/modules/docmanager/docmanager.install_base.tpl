@@ -1,9 +1,9 @@
 // <?php 
 /**
  * Doc Manager
- *
- * Quickly perform bulk updates to the Documents in your site including templates, publishing details, and permissions
- *
+ * 
+ * テンプレート・権限・公開／非公開などのドキュメント設定を一括変更
+ * 
  * @category	module
  * @version 	1.1
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)

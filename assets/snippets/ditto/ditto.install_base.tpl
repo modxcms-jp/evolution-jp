@@ -2,7 +2,7 @@
 /**
  * Ditto
  * 
- * Summarizes and lists pages to create blogs, catalogs, PR archives, bio listings and more
+ * リソースの一覧を出力。ブログ・索引・目録・新着情報一覧・履歴一覧など
  *
  * @category 	snippet
  * @version 	2.1.4r2
