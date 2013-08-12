@@ -335,6 +335,12 @@ class PHxParser {
 					else $params = '';
 					$output = strip_tags($output,$params);
 					break;
+				case 'toint':
+					$output = intval($output); break;
+				case 'tofloat':
+					$output = floatval($output); break;
+				case 'tobool':
+					$output = boolval($output); break;
 				case 'length':
 				case 'len':
 				case 'strlen':
