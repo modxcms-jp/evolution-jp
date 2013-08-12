@@ -174,6 +174,15 @@ class PHx {
 			case 'nl2lf':
 				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
 				break;
+			case 'toint':
+				$value = intval($value);
+				break;
+			case 'tofloat':
+				$value = floatval($value);
+				break;
+			case 'tobool':
+				$value = boolval($value);
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
