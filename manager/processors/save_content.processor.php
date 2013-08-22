@@ -50,7 +50,7 @@ $content_dispo   = intval($content_dispo);
 $donthit         = intval($donthit);
 $hidemenu        = intval($hidemenu);
 $editedby        = $modx->getLoginUserID();
-$currentdate = time();
+$currentdate     = time();
 $editedon        = $currentdate;
 
 if (trim($pagetitle) == '')
@@ -72,7 +72,7 @@ if($pos!==false && $contentType === 'text/html')
 		case '.txt':$contentType = 'text/plain';break;
 	}
 }
-if($contentType !== 'text/html')
+if($type!=='reference' && $contentType !== 'text/html')
 {
 	$richtext = '0';
 }
