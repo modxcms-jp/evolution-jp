@@ -2967,7 +2967,7 @@ class DocumentParser {
 	# Added By: Raymond Irving - MODx
 	#
 	
-	function getDocumentChildrenTVars($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+	function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
 	{
 		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
 		if (!$docs) return false;
@@ -2981,7 +2981,7 @@ class DocumentParser {
 		}
 	}
 		
-	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= array (), $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
+	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
 	{
 		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
 		if (!$docs) return false;
@@ -3010,7 +3010,7 @@ class DocumentParser {
 	}
 
 	# returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
-	function getTemplateVars($idnames=array(),$fields='*',$docid= '',$published= 1,$sort='rank',$dir='ASC')
+	function getTemplateVars($idnames='*',$fields='*',$docid='',$published= 1,$sort='rank',$dir='ASC')
 	{
 		if($idnames!='*' && !is_array($idnames)) $idnames = array($idnames);
 		
@@ -3087,7 +3087,7 @@ class DocumentParser {
 	}
 
 	# returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
-	function getTemplateVarOutput($idnames= array (), $docid= '', $published= 1, $sep='')
+	function getTemplateVarOutput($idnames= '*', $docid= '', $published= 1, $sep='')
 	{
 		if (is_array($idnames) && count($idnames) == 0)
 		{
