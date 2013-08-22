@@ -414,11 +414,18 @@ if(isset($_REQUEST['mode']) && ($_REQUEST['mode']=='edit' || $_REQUEST['mode']==
 <?php
 $filename=$_REQUEST['path'];
 $buffer = file_get_contents($filename);
+
 // Log the change
 logFileChange('view', $filename);
 if($buffer===false) {
 	echo 'Error opening file for reading.';
 	exit;
+}
+else $ent_buffer = htmlentities($buffer,ENT_COMPAT,$modx_manager_charset);
+if(!empty($buffer) && empty($ent_buffer))
+{
+	$buffer = mb_convert_encoding($buffer,$modx_manager_charset,'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
+	$ent_buffer = htmlentities($buffer,ENT_COMPAT,$modx_manager_charset);
 }
 
 ?>
@@ -437,7 +444,7 @@ if($_REQUEST['mode']=="edit") {
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content" class="phptextarea"><?php echo htmlentities($buffer,ENT_COMPAT,$modx_manager_charset)?></textarea></td>
+    <td><textarea dir="ltr" style="width:100%; height:370px;" name="content" class="phptextarea"><?php echo $ent_buffer; ?></textarea></td>
   </tr>
 </table>
 </form>
