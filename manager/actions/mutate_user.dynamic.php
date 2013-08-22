@@ -327,34 +327,16 @@ if (is_array($evtOut))
 			<th><?php echo $_lang['user_role']; ?>:</th>
 			<td>
 <?php
-if($_SESSION['mgrRole'] == 1 && $userid==$modx->getLoginUserID())
+if($userid==$modx->getLoginUserID())
 {
-	$where = 'edit_role=1 AND save_role=1 AND new_role=1';
-}
-elseif($modx->hasPermission('edit_role')
-    && $modx->hasPermission('save_role')
-    && $modx->hasPermission('delete_role')
-    && $modx->hasPermission('new_role')
-    && $userid==$modx->getLoginUserID()
-    )
-{
-	$where = 'edit_role=1 AND save_role=1 AND new_role=1';
-}
-elseif(!$modx->hasPermission('edit_role')
-    && !$modx->hasPermission('save_role')
-    && !$modx->hasPermission('delete_role')
-    && !$modx->hasPermission('new_role')
-    )
-{
-	$where = 'id=' . $userdata['role'];
-}
-elseif(!$modx->hasPermission('edit_role') && $userid==$modx->getLoginUserID())
-{
-	$where = 'edit_role=0 AND save_role=0 AND delete_role=0 AND new_role=0';
+	if($modx->hasPermission('save_role'))
+		$where = 'save_role=1';
+	else
+		$where = 'save_role=0';
 }
 else
 {
-	$where = '';
+    $where = '';
 }
 $rs = $modx->db->select('name, id','[+prefix+]user_roles',$where,'save_role DESC, new_role DESC, id ASC');
 ?>
