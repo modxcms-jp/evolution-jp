@@ -47,7 +47,7 @@ if(isset($_POST)) $settings = array_merge($settings, $_POST);
 
 extract($settings, EXTR_OVERWRITE);
 
-$displayStyle = ($_SESSION['browser']!=='ie') ? 'table-row' : 'block' ;
+$displayStyle = ($_SESSION['browser']==='modern') ? 'table-row' : 'block' ;
 
 // load languages and keys
 $lang_keys = array();
