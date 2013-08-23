@@ -471,6 +471,7 @@ class Mysqldumper {
 
 		// Set line feed
 		$lf = "\n";
+		$tempfile_path = $modx->config['base_path'] . 'temp/backup/temp.php';
 
 		$result = $modx->db->query('SHOW TABLES');
 		$tables = $this->result2Array(0, $result);
@@ -489,6 +490,8 @@ class Mysqldumper {
 		$output .= "# PHP Version: " . phpversion() . $lf;
 		$output .= "# Database : `{$this->dbname}`{$lf}";
 		$output .= "#";
+		file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+		$output = '';
 
 		// Generate dumptext for the tables.
 		if (isset($this->_dbtables) && count($this->_dbtables)) {
@@ -535,8 +538,17 @@ class Mysqldumper {
 					$insertdump .= "'$value',";
 				}
 				$output .= rtrim($insertdump,',') . ");";
+				if(1048576 < strlen($output))
+				{
+					file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+					$output = '';
+				}
 			}
+			file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+			$output = '';
 		}
+		$output = file_get_contents($tempfile_path);
+		if(!empty($output)) unlink($tempfile_path);
 		
 		switch($callBack)
 		{
