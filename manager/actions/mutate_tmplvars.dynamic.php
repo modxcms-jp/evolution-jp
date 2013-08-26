@@ -9,7 +9,7 @@ if(!$modx->hasPermission('new_template') && $_REQUEST['a']=='300') {
     $e->dumpError();
 }
 
-if(isset($_REQUEST['id'])) $id = $_REQUEST['id'];
+if(isset($_REQUEST['id'])) $id = (int) $_REQUEST['id'];
 else                       $id = 0;
 
 // check to see the variable editor isn't locked
@@ -33,16 +33,15 @@ if($total>1)
 // make sure the id's a number
 if(!is_numeric($id))
 {
-	echo 'Passed ID is NaN!';
-	exit;
+    echo 'Passed ID is NaN!';
+    exit;
 }
 
 global $content;
 $content = array();
 if(isset($_GET['id']))
 {
-	$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-	$rs = $modx->db->select('*',$tbl_site_tmplvars,"id={$id}");
+	$rs = $modx->db->select('*','[+prefix+]site_tmplvars',"id={$id}");
 	$total = $modx->db->getRecordCount($rs);
 	if($total>1)
 	{
@@ -491,9 +490,7 @@ function selected($target='')
 	</style>
 <table width="100%" cellspacing="0" cellpadding="0">
 	<?php
-	    $tbl_site_templates = $modx->getFullTableName('site_templates');
-	    $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-	    $from = "{$tbl_site_templates} as tpl LEFT JOIN {$tbl_site_tmplvar_templates} as stt ON stt.templateid=tpl.id AND stt.tmplvarid={$id}";
+	    $from = '[+prefix+]site_templates as tpl LEFT JOIN [+prefix+]site_tmplvar_templates as stt ON stt.templateid=tpl.id AND stt.tmplvarid='.$id;
 	    $rs = $modx->db->select('id,templatename,tmplvarid',$from);
 ?>
   <tr>
@@ -580,10 +577,6 @@ function selected($target='')
 		{
 			$groupsarray[] = $row['documentgroup'];
 		}
-?>
-
-<!-- Access Permissions -->
-<?php
 		if($modx->hasPermission('access_permissions'))
 		{
 ?>
@@ -616,8 +609,7 @@ function selected($target='')
 <?php
 		}
 		$chk ='';
-		$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-		$rs = $modx->db->select('name, id',$tbl_documentgroup_names);
+		$rs = $modx->db->select('name, id','[+prefix+]documentgroup_names');
 		if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
 		{
 			$groupsarray = $_POST['docgroups'];
