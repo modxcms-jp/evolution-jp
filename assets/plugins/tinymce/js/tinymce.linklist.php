@@ -36,7 +36,6 @@ define('IN_MANAGER_MODE', true);
 $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once("{$base_path}index.php");
-$modx->db->connect(); 
 
 /* only display if manager user is logged in */
 if ($modx->getLoginUserType() !== 'manager')
