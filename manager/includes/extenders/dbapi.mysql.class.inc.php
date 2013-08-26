@@ -786,4 +786,11 @@ class DBAPI {
 		if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
 		return $rs;
 	}
+
+	function truncate($table_name)
+	{
+		$table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
+		$rs = $this->query("TRUNCATE `{$table_name}`");
+		return $rs;
+	}
 }
