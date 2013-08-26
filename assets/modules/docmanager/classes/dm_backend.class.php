@@ -30,6 +30,8 @@ class DocManagerBackend {
     		case 'sortList':
     			echo $this->changeSort($_POST['list']);
     			break;
+			default:
+				echo 'No tab action defined';
     	}
     }
     
