@@ -42,7 +42,7 @@ $modx->db->connect();
 if ($modx->getLoginUserType() !== 'manager')
 {
     // Make output a real JavaScript file!
-    header('Content-type: text/javascript'); // browser will now recognize the file as a valid JS file
+    header('Content-type: application/x-javascript'); // browser will now recognize the file as a valid JS file
     
     // prevent browser from caching
     header('pragma: no-cache');
