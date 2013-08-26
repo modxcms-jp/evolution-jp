@@ -53,7 +53,7 @@
 $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
-define('IN_MANAGER_MODE', "true");  // we use this to make sure files are accessed through
+define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
 $self_path = str_replace('\\', '/', __FILE__);
 $trimpos = strlen('manager/index.php') * -1;
