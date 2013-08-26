@@ -162,6 +162,24 @@ ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`w
 
 ALTER TABLE `{PREFIX}web_user_attributes` MODIFY COLUMN `comment` text;
 
+# Set the private manager group flag
+
+UPDATE {PREFIX}documentgroup_names AS dgn
+  LEFT JOIN {PREFIX}membergroup_access AS mga ON mga.documentgroup = dgn.id
+  LEFT JOIN {PREFIX}webgroup_access AS wga ON wga.documentgroup = dgn.id
+  SET dgn.private_memgroup = (mga.membergroup IS NOT NULL),
+      dgn.private_webgroup = (wga.webgroup IS NOT NULL);
+
+UPDATE `{PREFIX}site_content` SET `type`='reference', `contentType`='text/html' WHERE `type`='' AND `content` REGEXP '^https?://([-\w\.]+)+(:\d+)?/?';
+
+UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/xml' WHERE `type`='' AND `alias` REGEXP '[.period.](rss|xml)$';
+
+UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/javascript' WHERE `type`='' AND `alias` REGEXP '[.period.]js$';
+
+UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/css' WHERE `type`='' AND `alias` REGEXP '[.period.]css$';
+
+UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/html' WHERE `type`='';
+
 #1.0.5-1.0.6
 
 ALTER TABLE `{PREFIX}site_content` MODIFY COLUMN `template` int(10) NOT NULL default '0';
