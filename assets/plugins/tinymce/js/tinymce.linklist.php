@@ -52,7 +52,7 @@ if ($modx->getLoginUserType() !== 'manager')
     exit();
 }
 
-$modx->getSettings(); 
+$modx->getSettings();
 $cache_path = $modx->config['base_path'] . 'assets/cache/mce_linklist.pageCache.php';
 if(file_exists($cache_path))
 {
