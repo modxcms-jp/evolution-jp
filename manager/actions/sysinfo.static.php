@@ -109,21 +109,11 @@ echo '</table>' . "\n";
 
 echo '<h4>mbstring</h4>' . "\n" . "\n";
 echo '<table style="margin-bottom:20px;">';
-$mbstring_array = array('mbstring.detect_order',
-'mbstring.encoding_translation',
-'mbstring.func_overload',
-'mbstring.output_buffering',
-'mbstring.http_input',
-'mbstring.http_output',
-'mbstring.internal_encoding',
-'mbstring.language',
-'mbstring.strict_detection',
-'mbstring.substitute_character');
-
-foreach($mbstring_array as $v)
+$mb_get_info = mb_get_info();
+$mb_get_info['http_input'] = ini_get('mbstring.http_input');
+foreach($mb_get_info as $key=>$value)
 {
-    $key = $v;
-    $value = ini_get($v)!==false ? ini_get($v): 'no value';
+    if(is_array($value)) $value = join(',', $value);
     echo '<tr><td style="padding-right:30px;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
 }
 echo '</table>' . "\n";
