@@ -9,7 +9,7 @@ if(!$modx->hasPermission('view_eventlog')) {
 $modx->manager->initPageViewState();
 
 // get and save search string
-if($_REQUEST['op']=='reset') {
+if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') {
 	$search = $query = '';
 	$_PAGE['vs']['search']='';
 }

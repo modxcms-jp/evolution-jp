@@ -467,9 +467,9 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 
 <div class="sectionBody">
 <p><?php echo $_lang['plugin_msg']; ?></p>
-<div class="tab-pane" id="snipetPane">
+<div class="tab-pane" id="pluginPane">
 	<script type="text/javascript">
-		tp = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+        tp = new WebFXTabPane( document.getElementById( "pluginPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 
 <!-- General -->
@@ -558,8 +558,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<table>
 <?php
 	// get selected events
-	if(is_numeric($id) && $id > 0)
-	{
+    if(is_numeric($id) && $id > 0) {
 		$evts = array();
 		$rs = $modx->db->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
 		while($row = $modx->db->getRow($rs))
