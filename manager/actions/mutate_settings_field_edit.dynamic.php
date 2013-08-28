@@ -85,6 +85,12 @@ $id = $_REQUEST['id'];
 
             //Сохраняем при отсутсвие ошибок (save if no error)
             if (empty($error)){
+
+                //update setting_name in table system_settings
+                if ($data['id']!=$data['setting_name']){
+                    $modx->db->update("setting_name='".$modx->db->escape($data['setting_name'])."'","[+prefix+]system_settings","setting_name='".$modx->db->escape($id)."'");
+                }
+
                 unset($data['a'],$data['id'],$data['form_submitted_edit_field']);
                 if (empty($id)){
                     $modx->db->insert($data,"[+prefix+]system_settings_fields");

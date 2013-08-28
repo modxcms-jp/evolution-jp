@@ -155,7 +155,7 @@ INSERT IGNORE INTO `{PREFIX}system_settings_group` (`id`, `name`) VALUES
  (4,'settings_ui'),(5,'settings_misc');
 
 
-INSERT INTO `{PREFIX}system_settings_fields` (`setting_name`, `id_group`, `title`, `description`, `sort`, `options`) VALUES
+INSERT IGNORE INTO `{PREFIX}system_settings_fields` (`setting_name`, `id_group`, `title`, `description`, `sort`, `options`) VALUES
 ('server_offset_time', 1, 'server_offset_time_title', 'server_offset_time_message', 24, 'server_offset'),
 ('manager_language', 4, 'manager_language_title', 'manager_language_message', 59, 'language'),
 ('modx_charset', 1, 'modx_charset_title', 'modx_charset_message', 5, 'select||UTF-8'),
