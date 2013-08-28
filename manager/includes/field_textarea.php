@@ -11,8 +11,8 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 ?>
 
-<th><?=l($input->title)?></th>
+<th><?php echo l($input->title)?></th>
 <td>
-    <textarea name="<?=$input->setting_name?>" id="<?=$input->setting_name?>" style="width:300px; height: 4em;"><?php echo $settings[$input->setting_name] ?></textarea><br />
+    <textarea name="<?php echo $input->setting_name?>" id="<?php echo $input->setting_name?>" style="width:300px; height: 4em;"><?php echo $settings[$input->setting_name] ?></textarea><br />
     <?php echo l($input->description)?>
 </td>

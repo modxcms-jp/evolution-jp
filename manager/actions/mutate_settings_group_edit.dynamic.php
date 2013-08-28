@@ -55,7 +55,7 @@ if (empty($group)){
                 <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
             </a>
         </li>
-        <li><a href="index.php?a=135&id=<?=$id?>" onclick="return confirm('<?=l("setting_group_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
+        <li><a href="index.php?a=135&id=<?php echo $id?>" onclick="return confirm('<?php echo l("setting_group_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
 
         <li id="Button5">
             <a href="#" onclick="document.location.href='index.php?a=131';">
@@ -81,14 +81,14 @@ if (empty($group)){
         }
 
         ?>
-        <p><?=l("new_tab_message")?></p>
+        <p><?php echo l("new_tab_message")?></p>
         <?if (!empty($new_tab_error)):?>
-            <p class="fail"><?=$new_tab_error?></p>
+            <p class="fail"><?php echo $new_tab_error?></p>
         <?endif;?>
         <form action="index.php" method="post" name="edit_tab">
-            <input type="hidden" name="id" value="<?=$id?>" />
+            <input type="hidden" name="id" value="<?php echo $id?>" />
             <input type="hidden" name="a" value="132"/>
-            <input type="text" name="name" value="<?=htmlspecialchars($new_tab_name)?>" />
+            <input type="text" name="name" value="<?php echo htmlspecialchars($new_tab_name)?>" />
         </form>
     </div>
 </div>

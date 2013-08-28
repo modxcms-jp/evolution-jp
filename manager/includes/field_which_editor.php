@@ -11,7 +11,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 ?>
 
-<th><?=l($input->title)?></th>
+<th><?php echo l($input->title)?></th>
 <td>
     <?php
     // invoke OnRichTextEditorRegister event

@@ -11,9 +11,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 ?>
 
-<th><?=l($input->title)?></th>
+<th><?php echo l($input->title)?></th>
 <td>
-    <select name="<?=$input->setting_name?>" size="1" class="inputBox">
+    <select name="<?php echo $input->setting_name?>" size="1" class="inputBox">
         <?php
         for($i=-24; $i<25; $i++)
         {

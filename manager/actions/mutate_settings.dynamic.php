@@ -220,9 +220,9 @@ function confirmLangChange(el, lkey, elupd)
     $groups = $modx->db->GetObjects("system_settings_group");
     foreach($groups as $group){
         ?>
-        <div class='tab-page' id='tabPage_<?=$group->id?>'>
-            <h2 class="tab"><?=l($group->name)?></h2>
-            <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage_<?=$group->id?>" ) );</script>
+        <div class='tab-page' id='tabPage_<?php echo $group->id?>'>
+            <h2 class="tab"><?php echo l($group->name)?></h2>
+            <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage_<?php echo $group->id?>" ) );</script>
             <table class="settings">
                 <?php
 
@@ -242,7 +242,7 @@ function confirmLangChange(el, lkey, elupd)
                     $options = explode("||",$input->options);
 
                     $field_type = str_replace(array("..","/","\\"),"",$options[0]);
-                    $field_include = MODX_BASE_PATH."manager/includes/field_$field_type.php";
+                    $field_include = MODX_BASE_PATH."manager/includes/field_{$field_type}.php";
 
                     if (is_file($field_include)){
                         include ($field_include);

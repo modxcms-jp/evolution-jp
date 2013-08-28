@@ -21,11 +21,11 @@ if ($options[2]=="depend"){
 
         <script type="text/javascript">
             $j(function(){
-                $j("input[name=<?=$input->setting_name?>]").change(function(){
+                $j("input[name=<?php echo $input->setting_name?>]").change(function(){
                     if (($j(this).val()==1)||($j(this).val()=="yes")){
-                        $j(".<?=$input->setting_name?>_depend").fadeIn();
+                        $j(".<?php echo $input->setting_name?>_depend").fadeIn();
                     }else{
-                        $j(".<?=$input->setting_name?>_depend").fadeOut();
+                        $j(".<?php echo $input->setting_name?>_depend").fadeOut();
                     }
                 });
             });
@@ -37,7 +37,7 @@ if ($options[2]=="depend"){
 
 ?>
 
-<th><?=l($input->title)?></th>
+<th><?php echo l($input->title)?></th>
 <td>
     <?php
     $opts = explode(";",$options[1]);

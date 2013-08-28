@@ -45,7 +45,7 @@ $id = $_REQUEST['id'];
                 <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
             </a>
         </li>
-        <li><a href="index.php?a=134&id=<?=htmlspecialchars($id)?>" onclick="return confirm('<?=l("setting_field_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
+        <li><a href="index.php?a=134&id=<?php echo htmlspecialchars($id)?>" onclick="return confirm('<?php echo l("setting_field_delete_confirm")?>');"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete']?></a></li>
         <li id="Button5">
             <a href="#" onclick="document.location.href='index.php?a=131';">
                 <img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?>
@@ -114,7 +114,7 @@ $id = $_REQUEST['id'];
         <form action="index.php" method="post" name="edit_field">
             <input type="hidden" name="a" value="133"/>
             <input type="hidden" name="form_submitted_edit_field" value="1"/>
-            <input type="hidden" name="id" value="<?=htmlspecialchars($id)?>"/>
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id)?>"/>
 
             <table class="settings">
 

@@ -9,8 +9,8 @@
 
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 ?>
-<th><?=l($input->title)?></th>
-<td><select name="<?=$input->setting_name?>" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
+<th><?php echo l($input->title)?></th>
+<td><select name="<?php echo $input->setting_name?>" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
 $files = glob($base_path . 'manager/media/style/*/style.php');
 foreach($files as $file)
