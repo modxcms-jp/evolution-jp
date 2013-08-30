@@ -41,14 +41,14 @@ class MODxMailer extends PHPMailer
 		$this->Sender   = $modx->config['emailsender']; 
 		$this->FromName = $modx->config['site_name'];
 		
-		$this->charset = $modx->config['manager_language'];
+		$this->CharSet = $modx->config['manager_language'];
 		if(isset($modx->config['mail_charset']) && !empty($modx->config['mail_charset']))
 		{
-			$this->charset = $modx->config['mail_charset'];
+			$this->CharSet = $modx->config['mail_charset'];
 		}
-		$this->charset = strtolower($this->charset);
+		$this->CharSet = strtolower($this->CharSet);
 		
-		switch($this->charset)
+		switch($this->CharSet)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
@@ -85,7 +85,7 @@ class MODxMailer extends PHPMailer
 		global $modx;
 		if($this->encode_header_method=='mb_encode_mimeheader') return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
 		
-		switch($this->charset)
+		switch($this->CharSet)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
@@ -102,7 +102,7 @@ class MODxMailer extends PHPMailer
 		
 		$org_body = $body;
 		
-		switch($this->charset)
+		switch($this->CharSet)
 		{
 			case 'japanese-utf8':
 			case 'japanese-euc':
