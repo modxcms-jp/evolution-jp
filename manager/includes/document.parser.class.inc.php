@@ -3689,26 +3689,20 @@ class DocumentParser {
         $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
-        $str = '
-              <html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
-              <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-              <style>td, body { font-size: 12px; font-family:Verdana; }</style>
-              </head><body>
-              ';
         if ($is_error) {
-            $str .= '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
+	        $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
                     <tr><td colspan="2">MODX encountered the following error while attempting to parse the requested resource:</td></tr>
                     <tr><td colspan="2"><b style="color:red;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         } else {
-            $str .= '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
+	        $str = '<h3 style="color:#003399">&laquo; MODX Debug/ stop message &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
                     <tr><td colspan="2">The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan="2"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         }
 
         if (!empty ($query)) {
-            $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:5px;color:#333;background-color:#ffffcd;">SQL:<span id="sqlHolder">' . $query . '</span></div>
+	        $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">SQL &gt; <span id="sqlHolder">' . $query . '</span></div>
                     </td></tr>';
         }
 
@@ -3735,7 +3729,11 @@ class DocumentParser {
 			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
 			if ($text != '')
 			{
-				$str .= '<tr><td valign="top">' . "Error : </td><td>{$text}</td></tr>";
+				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">Error : ' . $text . '</div></td></tr>';
+			}
+			if($output!='')
+			{
+				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">' . $output . '</div></td></tr>';
 			}
 			$str .= '<tr><td valign="top">ErrorType[num] : </td>';
 			$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
@@ -3755,8 +3753,8 @@ class DocumentParser {
         $str .= "<td>{$request_uri}</td>";
         $str .= '</tr>';
         
-        if(isset($_POST['a']))    $action = $_POST['a'];
-        elseif(isset($_GET['a'])) $action = $_GET['a'];
+	    if(isset($_GET['a']))      $action = $_GET['a'];
+	    elseif(isset($_POST['a'])) $action = $_POST['a'];
         if(isset($action) && !empty($action))
         {
         	include_once($this->config['core_path'] . 'actionlist.inc.php');
@@ -3796,20 +3794,24 @@ class DocumentParser {
         $str .= '<td>' . $_SERVER['REMOTE_ADDR'] . '</td>';
         $str .= '</tr>';
 
-        $str .= '<tr><td colspan="2"><b>Parser timing</b></td></tr>';
+        $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
         $str .= "<tr><td>MySQL : </td>";
-        $str .= '<td><i>[^qt^] ([^q^] Requests</i>)</td>';
+	    $str .= '<td>[^qt^] ([^q^] Requests)</td>';
         $str .= '</tr>';
 
         $str .= "<tr><td>PHP : </td>";
-        $str .= '<td><i>[^p^]</i></td>';
+	    $str .= '<td>[^p^]</td>';
         $str .= '</tr>';
 
         $str .= "<tr><td>Total : </td>";
-        $str .= '<td><i>[^t^]</i></td>';
+	    $str .= '<td>[^t^]</td>';
         $str .= '</tr>';
 
+	    $str .= "<tr><td>Memory : </td>";
+	    $str .= '<td>[^m^]</td>';
+	    $str .= '</tr>';
+	    
         $str .= "</table>\n";
 
         $totalTime= ($this->getMicroTime() - $this->tstart);
@@ -3833,10 +3835,6 @@ class DocumentParser {
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
 		$str .= '<br />' . $this->get_backtrace(debug_backtrace()) . "\n";
 		
-		if(!empty($output))
-		{
-			$str .= '<div style="margin-top:25px;padding:15px;border:1px solid #ccc;"><p><b>Output:</b></p>' . $output . '</div>';
-		}
 
         // Log error
         if(!empty($this->currentSnippet)) $source = 'Snippet - ' . $this->currentSnippet;
@@ -3858,13 +3856,22 @@ class DocumentParser {
         		$error_level = 3;
         }
         $this->logEvent(0, $error_level, $str,$source);
-        if($error_level === 2) return true;
+        if($this->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
 
         // Set 500 response header
-        header('HTTP/1.1 500 Internal Server Error');
+	    if($error_level !== 2) header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        if (isset($_SESSION['mgrValidated'])) echo $str;
+	    if (isset($_SESSION['mgrValidated']))
+	    {
+	        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
+	             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	             <link rel="stylesheet" type="text/css" href="' . $this->config['site_url'] . 'manager/media/style/' . $this->config['manager_theme'] . '/style.css" />
+	             <style type="text/css">body { padding:10px; } td {font:inherit;}</style>
+	             </head><body>
+	             ' . $str . '</body></html>';
+	    
+	    }
         else  echo 'Error';
         ob_end_flush();
 
