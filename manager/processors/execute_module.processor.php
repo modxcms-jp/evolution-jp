@@ -121,7 +121,7 @@ function evalModule($moduleCode,$params){
 		$error_info = error_get_last();
 		if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
 		else                                                         $error_type = 3;
-		if(1<$modx->config['error_reporting'] || 2<$error_type)
+		if(1<$modx->config['error_reporting'] || 8<$error_type)
 		{
 			extract($error_info);
 			$result = $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $content['name'] . ' - Module', $text, $line, $msg);
