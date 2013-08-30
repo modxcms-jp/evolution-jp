@@ -116,12 +116,24 @@ function evalModule($moduleCode,$params){
 	$mod = eval($moduleCode);
 	$msg = ob_get_contents();
 	ob_end_clean();
-	if ((0<$modx->config['error_reporting']) && $msg && isset($php_errormsg))
+	if (isset($php_errormsg))
 	{
 		$error_info = error_get_last();
-		if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
-		else                                                         $error_type = 3;
-		if(1<$modx->config['error_reporting'] || 8<$error_type)
+        switch($error_info['type'])
+        {
+        	case E_NOTICE :
+        		$error_level = 1;
+        	case E_USER_NOTICE :
+        		break;
+        	case E_DEPRECATED :
+        	case E_USER_DEPRECATED :
+        	case E_STRICT :
+        		$error_level = 2;
+        		break;
+        	default:
+        		$error_level = 99;
+        }
+		if($modx->config['error_reporting']==='99' || 2<$error_level)
 		{
 			extract($error_info);
 			$result = $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $content['name'] . ' - Module', $text, $line, $msg);
