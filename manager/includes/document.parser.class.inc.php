@@ -330,7 +330,7 @@ class DocumentParser {
 		else
 		{
 			// get document object
-			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier);
+			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
 			
 			// validation routines
 			if ($this->documentObject['deleted'] == 1)
@@ -1936,7 +1936,7 @@ class DocumentParser {
 	* name: getDocumentObject  - used by parser
 	* desc: returns a document object - $method: alias, id
 	*/
-	function getDocumentObject($method='id', $identifier='')
+	function getDocumentObject($method='id', $identifier='', $isPrepareResponse=false)
 	{
 		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
 		{
@@ -2006,7 +2006,7 @@ class DocumentParser {
 		
 		# this is now the document :) #
 		$documentObject= $this->db->getRow($result);
-        $this->documentObject = & $documentObject;
+        if($isPrepareResponse==='prepareResponse') $this->documentObject = & $documentObject;
         $this->invokeEvent('OnLoadDocumentObject');
 		$docid = $documentObject['id'];
 		
