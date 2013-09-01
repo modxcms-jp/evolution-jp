@@ -166,7 +166,7 @@ $_dfnMaxlength = 6;
 
     // try to get formid from <form> tag id
     preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches);
-    $form_id = isset($matches[1])?$matches[1]:'';
+	$formid = isset($matches[1])?$matches[1]:'';
     //check for <input type='hidden name='formid'...>
     if( !preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i',$tpl) ){
             //insert hidden formid field
