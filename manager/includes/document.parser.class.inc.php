@@ -2006,6 +2006,8 @@ class DocumentParser {
 		
 		# this is now the document :) #
 		$documentObject= $this->db->getRow($result);
+        $this->documentObject = & $documentObject;
+        $this->invokeEvent('OnLoadDocumentObject');
 		$docid = $documentObject['id'];
 		
 		// load TVs and merge with document - Orig by Apodigm - Docvars
