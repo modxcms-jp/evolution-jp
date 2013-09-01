@@ -1272,3 +1272,12 @@ $_lang['check_files_onlogin_message'] = 'ログイン時に任意のシステム
 
 $_lang['configcheck_sysfiles_mod'] = '重要なシステムファイルが書き換えられています。';
 $_lang['configcheck_sysfiles_mod_msg'] = '重要なシステムファイルが書き換わっています。外部からの攻撃を受けた可能性があるため、念入りにチェックしてください。問題がなければグローバル設定を更新し、検出情報をリセットしてください。(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
+
+$_lang["email_method_title"] = 'メール送信方法';
+$_lang["email_method_mail"] = 'mail関数(PHP)';
+$_lang["email_method_smtp"] = 'SMTP';
+$_lang["smtp_auth_title"] = 'SMTP-AUTH';
+$_lang["smtp_host_title"] = 'SMTPサーバ名';
+$_lang["smtp_username_title"] = 'SMTP user name';
+$_lang["smtp_password_title"] = 'SMTP password';
+$_lang["smtp_port_title"] = 'SMTPポート';
