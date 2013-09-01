@@ -147,6 +147,10 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+			case 'SubParser':
+				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+				$this->sub = new SubParser();
+				break;
 			case 'DeprecatedAPI':
 				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php'))
 				{
