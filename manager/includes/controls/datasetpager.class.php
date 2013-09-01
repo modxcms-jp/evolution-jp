@@ -38,15 +38,10 @@ class DataSetPager {
 		
 		// get pagenumber
 		// by setting pager to -1 cause pager to load it's last page number
-		if($pageNumber==-1)
-		{
+		if($pageNumber==-1){
 			$pageNumber = 1;
-			if (isset($_GET["dpgn".$this->id]))
-			{
-				$pageNumber = $_GET["dpgn".$this->id];
-			}
-			elseif (isset($_PAGE['vs'][$id.'_dpgn']))
-			{
+			if (isset($_GET["dpgn".$this->id])) $pageNumber = $_GET["dpgn".$this->id];
+			elseif (isset($_PAGE['vs'][$id.'_dpgn'])) {
 				$pageNumber = $_PAGE['vs'][$id.'_dpgn'];
 			}
 		}
@@ -75,7 +70,7 @@ class DataSetPager {
 		$this->pageSize = $ps;
 	}
 
-	function setRenderRowFnc($fncName, $args = ''){
+	function setRenderRowFnc($fncName, $args = ""){
 		$this->renderRowFnc = &$fncName;
 		$this->renderRowFncArgs = $args;	// extra agruments
 	}
@@ -96,13 +91,11 @@ class DataSetPager {
 		$tnr = ($isDataset) ? $modx->db->getRecordCount($this->ds) : count($this->ds);
 
 		// render: no records found
-		if($tnr<=0)
-		{
+		if($tnr<=0) {
 			$fnc = $this->renderRowFnc;
 			$args = $this->renderRowFncArgs;
-			if (isset($fnc))
-			{
-				if($args!='') $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
+			if (isset($fnc)) {
+				if($args!="") $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
 				else          $this->rows .= $fnc(0,null);		 // otherwise two will be passed
 			}
 			return;
@@ -137,11 +130,10 @@ class DataSetPager {
 			}
 			for($i=1;$i<=$tp;$i++) {
 				if (isset($fnc)) {
-					if($args!='') $this->pager .= $fnc($p,$i,$args);
+					if($args!="") $this->pager .= $fnc($p,$i,$args);
 					else $this->pager .= $fnc($p,$i);
 				}
-				else
-				{
+				else {
 					if($p==$i)
 					{
 						$this->pager .= ' <span class="' . $this->selPageClass . '" style="' . $this->selPageStyle . '">' . $i . '</span> ';
