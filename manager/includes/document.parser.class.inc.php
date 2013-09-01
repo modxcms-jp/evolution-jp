@@ -2520,6 +2520,23 @@ class DocumentParser {
 	
     function clearCache($params=array()) {
     	if($this->isBackend() && !$this->hasPermission('empty_cache')) return;
+    	if(is_string($params) && preg_match('@^[1-9][0-9]*$@',$params))
+    	{
+    		if($this->config['cache_type']==='2')
+    		{
+    			$url = $this->config['base_url'] . $this->makeUrl($params,'','','root_rel');
+    			$filename = md5($url);
+    		}
+    		else
+    			$filename = 'docid_{$params}';
+    		$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
+    		if(is_file($page_cache_path))
+    		{
+    			unlink($page_cache_path);
+    			$this->config['cache_type'] = '0';
+    		}
+    		return;
+    	}
     	
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
