@@ -117,6 +117,13 @@ class DocumentParser {
 				}
 				else return false;
 				break;
+            // PHPMailer
+            case 'MODxMailer' :
+                include_once(MODX_MANAGER_PATH . 'includes/extenders/modxmailer.class.inc.php');
+                $this->mail= new MODxMailer;
+                if($this->mail) return true;
+                else            return false;
+                break;
 			// PHx
 			case 'PHx' :
 				if(!class_exists('PHx') || !is_object($this->phx))
@@ -2252,47 +2259,6 @@ class DocumentParser {
 		}
 	}
 	
-	function sendmail($params=array(), $msg='')
-	{
-		if(isset($params) && is_string($params))
-		{
-			if(strpos($params,'=')===false)
-			{
-				if(strpos($params,'@')!==false) $p['sendto']  = $params;
-				else                            $p['subject'] = $params;
-			}
-			else
-			{
-				$params_array = explode(',',$params);
-				foreach($params_array as $k=>$v)
-				{
-					$k = trim($k);
-					$v = trim($v);
-					$p[$k] = $v;
-				}
-			}
-		}
-		else
-		{
-			$p = $params;
-			unset($params);
-		}
-		include_once $this->config['base_path'] . 'manager/includes/controls/modxmailer.inc.php';
-		$mail = new MODxMailer();
-		$mail->From     = (!isset($p['from']))     ? $this->config['emailsender']  : $p['from'];
-		$mail->FromName = (!isset($p['fromname'])) ? $this->config['site_name']    : $p['fromname'];
-		$mail->Subject  = (!isset($p['subject']))  ? $this->config['emailsubject'] : $p['subject'];
-		$sendto         = (!isset($p['sendto']))   ? $this->config['emailsender']  : $p['sendto'];
-		$mail->Body     = $msg;
-		$sendto = explode(',',$sendto);
-		foreach($sendto as $to)
-		{
-			$mail->AddAddress($to);
-		}
-		$rs = $mail->Send();
-		return $rs;
-	}
-	
 	function rotate_log($target='event_log',$limit=2000, $trim=100)
 	{
 		global $dbase;
@@ -3631,6 +3597,9 @@ class DocumentParser {
 		}
 		return $parameter;
 	}
+	
+    function sendmail($params=array(), $msg='')
+    	{$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
