@@ -372,16 +372,30 @@ class DocumentParser {
 			}
 			else
 			{
-				$rs= $this->db->select('content','[+prefix+]site_templates',"id = '{$this->documentObject['template']}'");
-				$rowCount= $this->db->getRecordCount($rs);
-				if($rowCount > 1)
+				$template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
+				if($template->id)
 				{
-					$this->messageQuit('Incorrect number of templates returned from database');
-				}
-				elseif($rowCount == 1)
-				{
-					$row= $this->db->getRow($rs);
-					$this->documentContent= $row['content'];
+					if(!empty($template->parent))
+					{
+						$parent = $this->db->getObject('site_templates',"id='{$template->parent}'");
+						$loopcount = 0;
+						$check = array();
+						while($loopcount<20)
+						{
+							$loopcount++;
+							if(array_search($parent->id,$check)===false) $check[] = $parent->id;
+							else $this->messageQuit('Template recursive reference parent error.');
+							
+							if($template->id !== $parent->id)
+							{
+								$template->content = str_replace('[*content*]', $template->content, $parent->content);
+								if(!empty($parent->parent)) $parent = $this->db->getObject('site_templates',"id='{$parent->parent}'");
+								else break;
+							}
+							else break;
+						}
+					}
+					$this->documentContent = $template->content;
 				}
 				else
 				{

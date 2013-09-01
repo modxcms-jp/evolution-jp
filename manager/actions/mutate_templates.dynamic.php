@@ -206,6 +206,12 @@ function deletedocument() {
 		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
+	<tr>
+		<th><?php echo $_lang["template_parent"]?></th>
+		<td>
+			<input name="parent" type="text" maxlength="5" value="<?php echo htmlspecialchars($content['parent']);?>" class="inputBox" style="width:3em;">
+		</td>
+	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 	    <td colspan="2">

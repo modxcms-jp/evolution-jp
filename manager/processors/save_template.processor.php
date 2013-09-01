@@ -9,6 +9,8 @@ if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['i
 $template     = $modx->db->escape($_POST['post']);
 $templatename = $modx->db->escape(trim($_POST['templatename']));
 $description  = $modx->db->escape($_POST['description']);
+$parent       = $modx->db->escape($_POST['parent']);
+
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
 
 $tbl_site_templates = $modx->getFullTableName('site_templates');
@@ -33,6 +35,7 @@ $field['description']  = $description;
 $field['content']      = $template;
 $field['locked']       = $locked;
 $field['category']     = $categoryid;
+$field['parent']       = $parent;
 
 switch ($_POST['mode']) {
     case '19':
