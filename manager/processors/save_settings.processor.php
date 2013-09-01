@@ -92,6 +92,14 @@ if (isset($data) && count($data) > 0) {
 			case 'new_folder_permissions':
 				if(strlen($v)==3) $v = '0' . $v;
 				break;
+			case 'smtp_password':
+				if ($v !== '********************') {
+					if(strpos($v,"'")!==false) $v = str_replace("'","\\'",$v);
+					$str = '<?php $smtp_password = ' . "'$v';";
+					file_put_contents($modx->config['base_path'] . 'assets/cache/smtp_info.php', $str);
+				}
+				continue 2;
+				break;
 			default:
 			break;
 		}
