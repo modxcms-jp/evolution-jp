@@ -90,7 +90,7 @@ function send_pm($fields, $from)
 	$fields['subject'] = encrypt($fields['subject']);
 	$fields['message'] = encrypt($fields['message']);
 	$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
-	if($rs) pm2email($from,$fields);
+	if($rs && $modx->config['pm2email']=='1') pm2email($from,$fields);
 }
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
