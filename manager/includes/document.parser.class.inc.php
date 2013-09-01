@@ -2528,7 +2528,7 @@ class DocumentParser {
     			$filename = md5($url);
     		}
     		else
-    			$filename = 'docid_{$params}';
+    			$filename = "docid_{$params}";
     		$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
     		if(is_file($page_cache_path))
     		{
