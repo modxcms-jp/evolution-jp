@@ -388,14 +388,14 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
                     switch ($datatype)  {
 
                         case "integer":
-                            $value = number_format($value);
+							$value = number_format( (float) $value);	//EM~
                             break;
                         case "float":
                             $localeInfo = localeconv();
                             $th_sep = empty($_lang['ef_thousands_separator'])?$localeInfo['thousands_sep']:$_lang['ef_thousands_separator'];
                             $dec_point= $localeInfo['decimal_point'];
 $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
-							$value = number_format($value, 2, $dec_point, $th_sep);
+							$value = number_format((float) $value, 2, $dec_point, $th_sep);	//EM~
 							break;
 						case "date":
 							$format_string = isset($_lang['ef_date_format']) ? $_lang['ef_date_format'] : '%d-%b-%Y %H:%M:%S';
@@ -476,8 +476,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			if( $protectSubmit ){
 				$hash = '';
 				# create a hash of key data
-				if(!is_numeric($protectSubmit))
-				{ //supplied field names
+				if(!is_numeric($protectSubmit)){ //supplied field names
 					$protectSubmit = (strpos($protectSubmit,','))? explode(',',$protectSubmit):array($protectSubmit);
 					foreach($protectSubmit as $fld) $hash .= isset($fields[$fld]) ? $fields[$fld] : '';
 				}
@@ -690,8 +689,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 # Form Merge
 function formMerge($docText, $docFields, $vClasses='') {
-    global $formats;
-    global $lastitems;
+	global $formats, $lastitems;
     if(!$docText) return '';
 
     preg_match_all('~\[\+(.*?)\+\]~', $docText, $matches);
@@ -732,8 +730,7 @@ function formMerge($docText, $docFields, $vClasses='') {
 }
 
 # Adds Addresses to Mailer
-function AddAddressToMailer(&$mail,$type,$addr)
-{
+function AddAddressToMailer(&$mail,$type,$addr){
 	$a = explode(',', $addr);
 	foreach($a as $_)
 	{
@@ -771,8 +768,8 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
     global $modx,$formats,$optionsName,$_lang,$debugText,$fields,$validFormId;
     global $efPostBack;
 
-    $formats =""; //clear formats so values don't persist through multiple snippet calls
-    $labels = "";
+	$formats = array();  //clear formats so values don't persist through multiple snippet calls
+	$labels = array();
 
     $regExpr = "#(<label[^>]*?>)(.*?)</label>#si";;
     preg_match_all($regExpr,$tpl,$matches);
@@ -973,7 +970,7 @@ function buildTagPlaceholder($tag,$attributes,$name){
 }
 
 function attr2array($tag){
-    $expr = "#([a-z0-9_]*?)=(([\"'])[^\\3]*?\\3)#si";
+	$expr = "#([a-z0-9_-]*?)=(([\"'])[^\\3]*?\\3)#si";
     preg_match_all($expr,$tag,$matches);
     foreach($matches[1] as $i => $key)
         $rt[$key]= $matches[2][$i];
@@ -1162,9 +1159,8 @@ function filterEformValue($value,$param){
             $tpl = ( $doc=$modx->getDocument($key,'content',0) )? $doc['content'] :false;
             if(!$tpl )
                 $tpl = ( $doc=$modx->getDocument($key,'content',1) )? $doc['content'] : false;
-        }
-        elseif($key)
-        {
+
+	}elseif( $key ){
             $tpl = ( $doc=$modx->getChunk($key) )? $doc : false;
             //try snippet if chunk is not found
             if(!$tpl) $tpl = ( $doc=$modx->runSnippet($key) )? $doc : false;
