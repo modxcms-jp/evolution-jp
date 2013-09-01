@@ -218,10 +218,6 @@ ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFA
 
 #1.0.8-1.0.8J-r1
 
-ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `doc_encoding` varchar(20) NOT NULL default '' AFTER `content`;
-
-ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `parent` int(10) NOT NULL default '0' AFTER `content`;
-
 # end related to #MODX-1321
 
 ALTER TABLE `{PREFIX}site_content` DROP INDEX `content_ft_idx`;
