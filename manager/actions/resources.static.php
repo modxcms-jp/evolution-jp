@@ -143,7 +143,15 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	$preCat = '';
 	$insideUl = 0;
 	$output = '<ul>';
+	$rows = array();
 	while($row = $modx->db->getRow($rs))
+	{
+		$rows[] = $row;
+	}
+		
+	$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
+	$tpl .= ' [+description+][+locked+]</li>';
+	foreach($rows as $row)
 	{
 		$row['category'] = stripslashes($row['category']); //pixelchutes
 		if ($preCat !== $row['category'])
@@ -160,8 +168,6 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		{
 			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
 		}
-		$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
-		$tpl .= ' [+description+][+locked+]</li>';
 		$ph['class'] = $class;
 		$ph['id'] = $row['id'];
 		$ph['action'] = $action;
@@ -169,12 +175,13 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
 		$ph['description'] = $row['description'];
 		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
+		$src = $tpl;
 		foreach($ph as $k=>$v)
 		{
 			$k = '[+' . $k . '+]';
-			$tpl = str_replace($k,$v,$tpl);
+			$src = str_replace($k,$v,$src);
 		}
-		$output .= $tpl;
+		$output .= $src;
 	
 		$preCat = $row['category'];
 	}
