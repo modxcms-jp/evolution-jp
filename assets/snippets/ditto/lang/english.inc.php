@@ -39,7 +39,7 @@ $_lang['dateFormat'] = "%d-%b-%y %H:%M";
 
 // Debug Tab Names
 $_lang['info'] = "Info";
-$_lang['modx'] = "MODx";
+$_lang['modx'] = "MODX";
 $_lang['fields'] = "Fields";
 $_lang['templates'] = "Templates";
 $_lang['filters'] = "Filters";
