@@ -107,7 +107,7 @@ function update_config_custom_contenttype()
 	$search[] = '';
 	$search[] = 'text/css,text/html,text/javascript,text/plain,text/xml';
 	$search[] = 'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain';
-	$replace  = 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain';
+	$replace  = 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain,application/json';
 	
 	foreach($search as $v)
 	{
