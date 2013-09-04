@@ -60,12 +60,11 @@ else
 {
 	$list = array();
 	$tpl = "['[+title+]', '[+site_url+]assets/plugins/tinymce/js/get_template.php?[+target+]', '[+description+]']";
-	$ph['site_url'] = $modx->config['site_url'];
+	$ph['site_url'] = MODX_SITE_URL;
 	
 	if(isset($ids) && !empty($ids))
 	{
 		$docs = $modx->getDocuments($ids, 1, 0, $fields= 'id,pagetitle,menutitle,description,content');
-		
 		foreach($docs as $i=>$a)
 		{
 			$ph['title']       = ($docs[$i]['menutitle']!=='') ? $docs[$i]['menutitle'] : $docs[$i]['pagetitle'];
