@@ -30,7 +30,6 @@ var DatePicker = new Class({
 		this.yearRange = 10;
 		this.yearStart = (new Date().getFullYear());
 		this.yearOffset = -10;
-		this.dateonly = 0;
 
 		// Pull the rest of the options
 		if(options) {
@@ -48,8 +47,7 @@ var DatePicker = new Class({
 			yearStart: options.yearStart || this.yearStart,
 			yearRange: options.yearRange || this.yearRange,
 			yearOrder: options.yearOrder || this.yearOrder,
-			yearOffset: options.yearOffset || this.yearOffset,
-			dateonly: options.dateonly || this.dateonly
+			yearOffset: options.yearOffset || this.yearOffset
 		};
 		
 		// Finds the entered date, or uses the current date
@@ -229,7 +227,7 @@ var DatePicker = new Class({
 		/* time box */
 		//calTimeRow = new Element('tr');
 		calTimePara = new Element('p', {'class':dp.id + '_calTime'});
-		if(!dp.options.dateonly) timeTextBox.injectInside(calTimePara);
+		timeTextBox.injectInside(calTimePara);
 		//calTimeCell.injectInside(calTimeRow);
 		
 		calTable.injectInside(dp.calendar);
@@ -285,7 +283,7 @@ var DatePicker = new Class({
 		timeTextBox.onfocus = function(){ dp.active = true; };
 		timeTextBox.onkeypress = function(e) {
 		  e = new Event(e);
-		  if (e.code == 13) {
+		  if (e.code == 13) {		  
 				this.dp.value = this.formatValue(this.dp, this.dp.nowYear, parseInt(this.dp.nowMonth) + 1, this.dp.nowDay);
 				this.remove(this.dp);
 				return false;
