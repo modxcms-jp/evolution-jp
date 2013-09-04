@@ -66,7 +66,7 @@ $rss_placeholders['rss_charset'] = isset($charset) ? $charset : $modx->config['m
 	Default:
 	MODx default charset
 */
-$rss_placeholders['rss_xsl'] = isset($xsl) ? PHP_EOL . '<?xml-stylesheet type="text/xsl" href="'.$modx->config['site_url'].$xsl.'" ?>' : ''; 
+$rss_placeholders['rss_xsl'] = isset($xsl) ? "\n" . '<?xml-stylesheet type="text/xsl" href="'.$modx->config['site_url'].$xsl.'" ?>' : ''; 
 /*
 	Param: xsl
 

@@ -55,6 +55,7 @@ class DBAPI {
 				{
 					if($modx->config['send_errormail'] <= 2)
 					{
+						$logtitle    = 'Failed to create the database connection!';
 						$request_uri = $_SERVER['REQUEST_URI'];
 						$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
 						$ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
