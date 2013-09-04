@@ -1775,7 +1775,10 @@ class DocumentParser {
 				}
 				if($delim !== "'")
 				{
-					$pvalue = (strpos($pvalue,'[*')!==false) ? $this->mergeDocumentContent($pvalue) : $pvalue;
+					if(strpos($pvalue,'[*')!==false) $pvalue = $this->mergeDocumentContent($pvalue);
+                    if(strpos($pvalue,'[(')!==false) $pvalue = $this->mergeSettingsContent($pvalue);
+                    if(strpos($pvalue,'{{')!==false) $pvalue = $this->mergeChunkContent($pvalue);
+                    if(strpos($pvalue,'[+')!==false) $pvalue = $this->mergePlaceholderContent($pvalue);
 				}
 				
 				$pname  = str_replace('&amp;', '', $pname);
