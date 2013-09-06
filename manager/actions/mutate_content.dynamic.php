@@ -1301,17 +1301,14 @@ if ($use_udperms == 1)
     storeCurTemplate();
 </script>
 <?php
-if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $use_editor == 1 && $content['richtext'] == 1)
+if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $use_editor == 1 && is_array($replace_richtexteditor) && 0<count($replace_richtexteditor))
 {
-	if (is_array($replace_richtexteditor))
-	{
 		// invoke OnRichTextEditorInit event
 		$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
 			'editor' => $which_editor,
 			'elements' => $replace_richtexteditor
 		));
 		if (is_array($evtOut)) echo implode('', $evtOut);
-	}
 }
 
 function to_safestr($str)
