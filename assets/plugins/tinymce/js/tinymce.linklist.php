@@ -37,9 +37,9 @@ $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 $mtime = microtime();
 $mtime = explode(" ",$mtime);
+include_once("{$base_path}index.php");
 $modx->tstart = $mtime[1] + $mtime[0];;
 $modx->mstart = memory_get_usage();
-include_once("{$base_path}index.php");
 
 /* only display if manager user is logged in */
 if ($modx->getLoginUserType() !== 'manager')
