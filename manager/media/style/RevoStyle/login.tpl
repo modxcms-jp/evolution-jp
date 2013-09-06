@@ -63,20 +63,19 @@
 
     <script type="text/javascript">
     /* <![CDATA[ */
-        var $j = jQuery.noConflict();
         if (top.frames.length!=0) {
             top.location=self.document.location;
         }
         
-        $j(function() {
-            $j('#submitButton').click(function(e) {
-				var $form = $j('#loginfrm');
-				var username = $j('#username').val();
-				var password = $j('#password').val();
-				var rememberme = $j('#rememberme').val();
-				var captcha_code = $j('input[name="captcha_code"]').val();
+        $(function() {
+            $('#submitButton').click(function(e) {
+				var $form = $('#loginfrm');
+				var username = $('#username').val();
+				var password = $('#password').val();
+				var rememberme = $('#rememberme').val();
+				var captcha_code = $('input[name="captcha_code"]').val();
 				params = {'username':username,'password':password,'rememberme':rememberme,'ajax':'1','captcha_code':captcha_code};
-				$j.post('processors/login.processor.php',params,function(response){
+				$.post('processors/login.processor.php',params,function(response){
 					var header = response.substr(0,9);
 					if (header.toLowerCase()=='location:') top.location = response.substr(10);
 					else {
@@ -91,8 +90,8 @@
             });  
 			
 			// Initial focus
-			if ($j('#username').val() != '') $j('#password').focus();
-			else                             $j('#username').focus();
+			if ($('#username').val() != '') $('#password').focus();
+			else                            $('#username').focus();
 			
         });
     /* ]]> */
