@@ -17,6 +17,8 @@ if(!isset($modx->config['snapshot_path']))
 
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
+$dumper = new Mysqldumper();
+
 if ($mode=='restore1')
 {
 	if(isset($_POST['textarea']) && !empty($_POST['textarea']))
@@ -28,7 +30,7 @@ if ($mode=='restore1')
 	{
 		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
 	}
-	import_sql($source);
+	$dumper->import_sql($source);
 	header('Location: index.php?r=9&a=93');
 	exit;
 }
@@ -38,10 +40,10 @@ elseif ($mode=='restore2')
 	if(file_exists($path))
 	{
 		$source = file_get_contents($path);
-		import_sql($source);
-		header('Location: index.php?r=9&a=93');
+    	$dumper->import_sql($source);
+    	header('Location: index.php?r=9&a=93');
+    	exit;
 	}
-	exit;
 }
 elseif ($mode=='backup')
 {
@@ -60,20 +62,20 @@ elseif ($mode=='backup')
 	 * Perform MySQLdumper data dump
 	 */
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
+	$dumper = new Mysqldumper();
+	$dumper->database_server = $database_server;
+	$dumper->dbname          = $dbase;
+	$dumper->table_prefix    = $table_prefix;
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
-	$dumpfinished = $dumper->createDump('dumpSql');
-	if($dumpfinished)
-	{
-		exit;
-	}
-	else
+	$output = $dumper->createDump();
+	$dumper->dumpSql($output);
+	if(!$output)
 	{
 		$e->setError(1, 'Unable to Backup Database');
 		$e->dumpError();
-		exit;
 	}
+	exit;
 
 	// MySQLdumper class can be found below
 }
@@ -113,10 +115,15 @@ elseif ($mode=='snapshot')
 	$path = "{$modx->config['snapshot_path']}{$today}-{$modx_version}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dumper = new Mysqldumper($database_server, $database_user, $database_password, $dbase);
+	$dumper = new Mysqldumper();
+	$dumper->database_server = $database_server;
+	$dumper->dbname          = $dbase;
+	$dumper->table_prefix    = $table_prefix;
+	$dumper->mode            = 'snapshot';
 	$dumper->setDBtables($tables);
 	$dumper->setDroptables(true);
-	$dumpfinished = $dumper->createDump('snapshot');
+	$output = $dumper->createDump();
+	$dumper->snapshot($output);
 	
 	$pattern = "{$modx->config['snapshot_path']}*.sql";
 	$files = glob($pattern,GLOB_NOCHECK);
@@ -130,16 +137,15 @@ elseif ($mode=='snapshot')
 		$limit++;
 	}
 	
-	if($dumpfinished)
+	if(!empty($output))
 	{
 		$_SESSION['result_msg'] = 'snapshot_ok';
 		header("Location: index.php?a=93");
-		exit;
 	} else {
 		$e->setError(1, 'Unable to Backup Database');
 		$e->dumpError();
-		exit;
 	}
+	exit;
 }
 else
 {
@@ -353,10 +359,6 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	}
 }
 
-function checked($cond)
-{
-	if($cond) return ' checked';
-}
 ?>
 	<p>
 	<label><input type="radio" name="sel" onclick="showhide('file');" <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text');?> /> <?php echo $_lang["bkmgr_run_sql_file_label"];?></label>
@@ -453,10 +455,14 @@ class Mysqldumper {
 	var $_isDroptables;
 	var $database_server;
 	var $dbname;
+	var $table_prefix;
 
-	function Mysqldumper($database_server, $database_user, $database_password, $dbname) {
+	function Mysqldumper() {
 		// Don't drop tables by default.
-		$this->dbname = $dbname;
+		$this->database_server = false;
+		$this->dbname          = false;
+		$this->table_prefix    = '';
+		$this->mode            = '';
 		$this->setDroptables(false);
 	}
 
@@ -466,18 +472,21 @@ class Mysqldumper {
 	function setDroptables($state) { $this->_isDroptables = $state; }
 	function isDroptables()        { return $this->_isDroptables; }
 
-	function createDump($callBack) {
-		global $modx, $table_prefix;
+	function createDump() {
+		global $modx;
 
+		if(empty($this->database_server) || empty($this->dbname)) return false;
+
+		$table_prefix = $this->table_prefix;
 		// Set line feed
 		$lf = "\n";
 		$tempfile_path = $modx->config['base_path'] . 'temp/backup/temp.php';
 
 		$result = $modx->db->query('SHOW TABLES');
 		$tables = $this->result2Array(0, $result);
-		foreach ($tables as $tblval) {
-			$result = $modx->db->query("SHOW CREATE TABLE `{$tblval}`");
-			$createtable[$tblval] = $this->result2Array(1, $result);
+		foreach ($tables as $table_name) {
+			$result = $modx->db->query("SHOW CREATE TABLE `{$table_name}`");
+			$createtable[$table_name] = $this->result2Array(1, $result);
 		}
 		// Set header
 		$output  = "#{$lf}";
@@ -499,43 +508,42 @@ class Mysqldumper {
 		} else {
 			unset($this->_dbtables);
 		}
-		foreach ($tables as $tblval) {
+		foreach ($tables as $table_name) {
 			// check for selected table
 			if(isset($this->_dbtables)) {
-				if (strstr(",{$this->_dbtables},",",{$tblval},")===false) {
+				if (strstr(",{$this->_dbtables},",",{$table_name},")===false) {
 					continue;
 				}
 			}
-			if($callBack==='snapshot')
+			if(!preg_match('@^'.$table_prefix.'@', $table_name)) continue;
+			if($this->mode==='snapshot')
 			{
-				switch($tblval)
+				switch($table_name)
 				{
 					case $table_prefix.'event_log':
 					case $table_prefix.'manager_log':
 						continue 2;
 				}
-				if(!preg_match('@^'.$table_prefix.'@', $tblval)) continue;
 			}
 			$output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
-			$output .= "#{$lf}# Table structure for table `{$tblval}`{$lf}";
+			$output .= "#{$lf}# Table structure for table `{$table_name}`{$lf}";
 			$output .= "#{$lf}{$lf}";
 			// Generate DROP TABLE statement when client wants it to.
 			if($this->isDroptables()) {
-				$output .= "DROP TABLE IF EXISTS `{$tblval}`;{$lf}";
+				$output .= "DROP TABLE IF EXISTS `{$table_name}`;{$lf}";
 			}
-			$output .= "{$createtable[$tblval][0]};{$lf}";
+			$output .= "{$createtable[$table_name][0]};{$lf}";
 			$output .= $lf;
-			$output .= "#{$lf}# Dumping data for table `{$tblval}`{$lf}#{$lf}";
-			$result = $modx->db->select('*',$tblval);
-			$rows = $this->loadObjectList('', $result);
-			foreach($rows as $row) {
+			$output .= "#{$lf}# Dumping data for table `{$table_name}`{$lf}#{$lf}";
+			$result = $modx->db->select('*',$table_name);
+			while($row = $modx->db->getRow($result,'object')) {
 				$insertdump = $lf;
-				$insertdump .= "INSERT INTO `{$tblval}` VALUES (";
+				$insertdump .= "INSERT INTO `{$table_name}` VALUES (";
 				$arr = $this->object2Array($row);
-				foreach($arr as $key => $value) {
+				foreach($arr as $value) {
 					$value = addslashes($value);
 					$value = str_replace(array("\r\n","\r","\n"), '\\n', $value);
-					$insertdump .= "'$value',";
+					$insertdump .= "'{$value}',";
 				}
 				$output .= rtrim($insertdump,',') . ");";
 				if(1048576 < strlen($output))
@@ -548,18 +556,9 @@ class Mysqldumper {
 			$output = '';
 		}
 		$output = file_get_contents($tempfile_path);
-		if(!empty($output)) unlink($tempfile_path);
-		
-		switch($callBack)
-		{
-			case 'dumpSql':
-				dumpSql($output);
-				break;
-			case 'snapshot':
-				snapshot($output);
-				break;
-		}
-		return true;
+		if(empty($output)) return false;
+		else unlink($tempfile_path);
+		return $output;
 	}
 	
 	// Private function object2Array.
@@ -576,118 +575,104 @@ class Mysqldumper {
 		return $array;
 	}
 
-	// Private function loadObjectList.
-	function loadObjectList($key='', $resource) {
-		$array = array();
-		while ($row = mysql_fetch_object($resource)) {
-			if ($key)
-			        $array[$row->$key] = $row;
-			else    $array[] = $row;
-		}
-		mysql_free_result($resource);
-		return $array;
-	}
-
 	// Private function result2Array.
 	function result2Array($numinarray = 0, $resource) {
+		global $modx;
 		$array = array();
-		while ($row = mysql_fetch_row($resource)) {
+		while ($row = $modx->db->getRow($resource,'num')) {
 			$array[] = $row[$numinarray];
 		}
-		mysql_free_result($resource);
+		$modx->db->freeResult($resource);
 		return $array;
 	}
+	
+    function dumpSql(&$dumpstring) {
+    	global $modx,$modx_version;
+    	$today = $modx->toDateFormat(time(),'dateOnly');
+    	$today = str_replace('/', '-', $today);
+    	$today = strtolower($today);
+    	$size = strlen($dumpstring);
+    	if(!headers_sent()) {
+    	    header('Expires: 0');
+            header('Cache-Control: private');
+            header('Pragma: cache');
+    		header('Content-type: application/download');
+    		header("Content-Length: {$size}");
+    		header("Content-Disposition: attachment; filename={$today}-{$modx_version}_database_backup.sql");
+    	}
+    	echo $dumpstring;
+    	return true;
+    }
+    
+    function snapshot(&$dumpstring) {
+    	global $path;
+    	file_put_contents($path,$dumpstring,FILE_APPEND);
+    	return true;
+    }
+    
+    function import_sql($source)
+    {
+    	global $modx,$e;
+    	
+    	if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\n","\r"),"\n",$source);
+    	$sql_array = preg_split('@;[ \t]*\n@', $source);
+    	foreach($sql_array as $sql_entry)
+    	{
+    		$sql_entry = trim($sql_entry, "\r\n; ");
+    		if(empty($sql_entry)) continue;
+    		$rs = $modx->db->query($sql_entry);
+    	}
+    	$settings = $this->getSettings();
+    	$this->restoreSettings($settings);
+    	
+    	$modx->clearCache();
+    	if(0 < $modx->db->getRecordCount($rs))
+    	{
+    		while($row = $modx->db->getRow($rs))
+    		{
+    			$_SESSION['last_result'][] = $row;
+    		}
+    	}
+    	
+    	$_SESSION['result_msg'] = 'import_ok';
+    }
+    
+    
+    function getSettings()
+    {
+    	global $modx;
+    	
+    	$rs = $modx->db->select('setting_name, setting_value','[+prefix+]system_settings');
+    	
+    	$settings = array();
+    	while ($row = $modx->db->getRow($rs))
+    	{
+    		switch($row['setting_name'])
+    		{
+    			case 'rb_base_dir':
+    			case 'filemanager_path':
+    			case 'site_url':
+    			case 'base_url':
+    				$settings[$row['setting_name']] = $row['setting_value'];
+    				break;
+    		}
+    	}
+    	return $settings;
+    }
+    
+    function restoreSettings($settings)
+    {
+    	global $modx;
+    	
+    	foreach($settings as $k=>$v)
+    	{
+    		$modx->db->update(array('setting_value'=>$v),'[+prefix+]system_settings',"setting_name='{$k}'");
+    	}
+    }
 }
 
-function import_sql($source,$result_code='import_ok')
+
+function checked($cond)
 {
-	global $modx,$e;
-	
-	$rs = $modx->db->select('*','[+prefix+]active_users',"action='27'");
-	if(0 < $modx->db->getRecordCount($rs))
-	{
-		include_once "header.inc.php";  // start normal header
-		$e->setError(5, 'Resource is edit now by any user');
-		$e->dumpError();
-		exit;
-	}
-	
-	$settings = getSettings();
-	
-	if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\n","\r"),"\n",$source);
-	$sql_array = preg_split('@;[ \t]*\n@', $source);
-	foreach($sql_array as $sql_entry)
-	{
-		$sql_entry = trim($sql_entry, "\r\n; ");
-		if(empty($sql_entry)) continue;
-		$rs = $modx->db->query($sql_entry);
-	}
-	restoreSettings($settings);
-	
-	$modx->clearCache();
-	if(0 < $modx->db->getRecordCount($rs))
-	{
-		while($row = $modx->db->getRow($rs))
-		{
-			$_SESSION['last_result'][] = $row;
-		}
-	}
-	
-	$_SESSION['result_msg'] = $result_code;
-}
-
-function dumpSql(&$dumpstring) {
-	global $modx,$modx_version;
-	$today = $modx->toDateFormat(time(),'dateOnly');
-	$today = str_replace('/', '-', $today);
-	$today = strtolower($today);
-	$size = strlen($dumpstring);
-	if(!headers_sent()) {
-	    header('Expires: 0');
-        header('Cache-Control: private');
-        header('Pragma: cache');
-		header('Content-type: application/download');
-		header("Content-Length: {$size}");
-		header("Content-Disposition: attachment; filename={$today}-{$modx_version}_database_backup.sql");
-	}
-	echo $dumpstring;
-	return true;
-}
-
-function snapshot(&$dumpstring) {
-	global $path;
-	file_put_contents($path,$dumpstring,FILE_APPEND);
-	return true;
-}
-
-function getSettings()
-{
-	global $modx;
-	
-	$rs = $modx->db->select('setting_name, setting_value','[+prefix+]system_settings');
-	
-	$settings = array();
-	while ($row = $modx->db->getRow($rs))
-	{
-		switch($row['setting_name'])
-		{
-			case 'rb_base_dir':
-			case 'filemanager_path':
-			case 'site_url':
-			case 'base_url':
-				$settings[$row['setting_name']] = $row['setting_value'];
-				break;
-		}
-	}
-	return $settings;
-}
-
-function restoreSettings($settings)
-{
-	global $modx;
-	
-	foreach($settings as $k=>$v)
-	{
-		$modx->db->update(array('setting_value'=>$v),'[+prefix+]system_settings',"setting_name='{$k}'");
-	}
+	if($cond) return ' checked';
 }
