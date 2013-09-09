@@ -341,6 +341,30 @@ class DBAPI {
 		return $result;
 	} // __insert
 	
+    /**
+    * @name:  freeResult
+    *
+    */
+    function freeResult($rs) {
+        mysql_free_result($rs);
+    }
+    
+    /**
+    * @name:  fieldName
+    *
+    */
+    function fieldName($rs,$col=0) {
+        return mysql_field_name($rs,$col);
+    }
+    
+    /**
+    * @name:  selectDb
+    *
+    */
+    function selectDb($name) {
+        mysql_select_db($name);
+    }
+
 	/**
 	* @name:  getInsertId
 	*
