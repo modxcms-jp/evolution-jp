@@ -450,7 +450,7 @@ class ditto {
 	// Get the author name, or if not available the username
 	// ---------------------------------------------------
 	
-	function getAuthor($createdby) {
+	static function getAuthor($createdby) {
 		global $modx;
 		
 		$user = false;
@@ -1010,7 +1010,7 @@ class ditto {
 	// Build a URL with regard to Ditto ID
 	// ---------------------------------------------------
 	
-	function buildURL($args,$id=false,$dittoIdentifier=false) {
+	static function buildURL($args,$id=false,$dittoIdentifier=false) {
 		global $modx, $dittoID;
 			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
 			$query = array();
