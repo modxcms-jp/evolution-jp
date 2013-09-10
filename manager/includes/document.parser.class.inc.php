@@ -699,72 +699,6 @@ class DocumentParser {
 		return ((float) $usec + (float) $sec);
 	}
 	
-	function sendRedirect($url, $count_attempts= 0, $type= '', $responseCode= '')
-	{
-		if (empty($url))
-		{
-			return false;
-		}
-		else
-		{
-			if ($count_attempts == 1)
-			{
-				// append the redirect count string to the url
-				$currentNumberOfRedirects= isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
-				if ($currentNumberOfRedirects > 3)
-				{
-					$this->messageQuit("Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>");
-				}
-				else
-				{
-					$currentNumberOfRedirects += 1;
-					if (strpos($url, '?') > 0)
-					{
-						$url .= "&err={$currentNumberOfRedirects}";
-					}
-					else
-					{
-						$url .= "?err={$currentNumberOfRedirects}";
-					}
-				}
-			}
-			if ($type == 'REDIRECT_REFRESH')
-			{
-				$header= 'Refresh: 0;URL=' . $url;
-			}
-			elseif ($type == 'REDIRECT_META')
-			{
-				$header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-				echo $header;
-				exit;
-			}
-			elseif($type == 'REDIRECT_HEADER' || empty ($type))
-			{
-				// check if url has /$base_url
-				global $base_url, $site_url;
-				if (substr($url, 0, strlen($base_url)) == $base_url)
-				{
-					// append $site_url to make it work with Location:
-					$url= $site_url . substr($url, strlen($base_url));
-				}
-				if (strpos($url, "\n") === false)
-				{
-					$header= 'Location: ' . $url;
-				}
-				else
-				{
-					$this->messageQuit('No newline allowed in redirect url.');
-				}
-			}
-			if ($responseCode && (strpos($responseCode, '30') !== false))
-			{
-				header($responseCode);
-			}
-			header($header);
-			exit();
-		}
-	}
-	
 	function sendForward($id, $responseCode= '')
 	{
 		if ($this->forwards > 0)
@@ -3614,6 +3548,8 @@ class DocumentParser {
 	
     function sendmail($params=array(), $msg='')
     	{$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
+    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER', $responseCode= '301')
+    	{$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
