@@ -552,43 +552,12 @@ while ($row = $modx->db->getRow($rs))
 	}
 	else $closeOptGroup = false;
 	
-	if (isset($_REQUEST['newtemplate']))
-	{
-		$selectedtext = ($row['id']==$_REQUEST['newtemplate']) ? ' selected="selected"' : '';
-	}
-	elseif(isset($content['template']))
-	{
-		$selectedtext = ($row['id']==$content['template']) ? ' selected="selected"' : '';
-	}
-	else
-	{
-		switch($auto_template_logic)
-		{
-			case 'sibling':
-				if(!isset($_GET['pid'])) break; // default_template is already set
-				else
-				{
-					$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
-					if(!empty($sibl[0]['template'])) $default_template = $sibl[0]['template'];
-					else
-					{
-						$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
-						if(!empty($sibl[0]['template'])) $default_template = $sibl[0]['template'];
-					}
-					break;
-				}
-			case 'parent':
-				if ($parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template'))
-				{
-					$default_template = $parent['template'];
-					break;
-				}
-			case 'system':
-			
-			default: // default_template is already set
-		}
-		$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
-	}
+	if (isset($_REQUEST['newtemplate'])) $default_template = $_REQUEST['newtemplate'];
+	elseif(isset($content['template']))  $default_template = $content['template'];
+	else                                 $default_template = getDefaultTemplate();
+	
+	$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
+	
 	echo '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
 	$currentCategory = $thisCategory;
 }
@@ -735,10 +704,8 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
 			<div class="sectionBody tmplvars" id="tv_body">
 <?php
-	if (isset ($_REQUEST['newtemplate'])) $template = $_REQUEST['newtemplate'];
-	elseif (isset ($content['template'])) $template = $content['template'];
-	elseif (isset ($default_template))    $template = $default_template;
-	else                                  $template = $modx->config['default_template'];
+	if (isset ($default_template))    $template = $default_template;
+	else                              $template = $modx->config['default_template'];
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
 	$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
@@ -1551,4 +1518,45 @@ function renderTr($head, $body,$rowstyle='')
 	</tr>
 EOT;
 	echo $modx->parsePlaceholder($tpl, $ph);
+}
+
+function getDefaultTemplate()
+{
+	global $modx;
+	
+	switch($modx->config['auto_template_logic'])
+	{
+		case 'sibling':
+			if(!isset($_GET['pid']) || empty($_GET['pid']))
+		    {
+		    	$site_start = $modx->config['site_start'];
+		    	$where = "sc.isfolder=0 AND sc.id!='{$site_start}'";
+		    	$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', $where, 'menuindex', 'ASC', 1);
+		    	if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+			}
+			else
+			{
+				$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+				if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+				else
+				{
+					$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+					if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+				}
+			}
+			break;
+		case 'parent':
+			if (isset($_REQUEST['pid']) && !empty($_REQUEST['pid']))
+			{
+				$parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template');
+				if(isset($parent['template'])) $default_template = $parent['template'];
+			}
+			break;
+		case 'system':
+		default: // default_template is already set
+			$default_template = $modx->config['default_template'];
+	}
+	if(!isset($default_template)) $default_template = $modx->config['default_template']; // default_template is already set
+	
+	return $default_template;
 }
