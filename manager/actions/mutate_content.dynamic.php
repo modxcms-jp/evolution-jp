@@ -537,31 +537,31 @@ renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
 $from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
 $rs = $modx->db->select('t.templatename, t.id, c.category',$from,'', 'c.category, t.templatename ASC');
 
+$default_template = getDefaultTemplate($content);
+
 $currentCategory = '';
+$closeOptGroup = false;
+
 while ($row = $modx->db->getRow($rs))
 {
-	$thisCategory = $row['category'];
-	if($thisCategory == null) $thisCategory = $_lang["no_category"];
+	$each_category = $row['category'];
+	if($each_category == null) $each_category = $_lang["no_category"];
 	
-	if($thisCategory != $currentCategory)
+	if($each_category != $currentCategory)
 	{
 		if($closeOptGroup) echo "</optgroup>\n";
 		
-		echo "<optgroup label=\"{$thisCategory}\">\n";
+		echo "<optgroup label=\"{$each_category}\">\n";
 		$closeOptGroup = true;
 	}
 	else $closeOptGroup = false;
 	
-	if (isset($_REQUEST['newtemplate'])) $default_template = $_REQUEST['newtemplate'];
-	elseif(isset($content['template']))  $default_template = $content['template'];
-	else                                 $default_template = getDefaultTemplate();
-	
 	$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
 	
 	echo '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
-	$currentCategory = $thisCategory;
+	$currentCategory = $each_category;
 }
-if($thisCategory != '') echo "</optgroup>\n";
+if($each_category != '') echo "</optgroup>\n";
 ?>
 					</select>
 					<?php echo tooltip($_lang['page_data_template_help']);?>
@@ -1520,10 +1520,13 @@ EOT;
 	echo $modx->parsePlaceholder($tpl, $ph);
 }
 
-function getDefaultTemplate()
+function getDefaultTemplate($content)
 {
 	global $modx;
 	
+    if (isset($_REQUEST['newtemplate'])) return $_REQUEST['newtemplate'];
+    elseif(isset($content['template']))  return $content['template'];
+    
 	switch($modx->config['auto_template_logic'])
 	{
 		case 'sibling':
