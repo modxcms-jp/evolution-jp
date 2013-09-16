@@ -2512,10 +2512,10 @@ class DocumentParser {
 		return $referenceListing;
 	}
 	
-	function makeUrl($id, $alias= '', $args= '', $scheme= '')
+	function makeUrl($id, $alias= '', $args= '', $scheme= 'relative')
 	{
 		if($id==0) return $this->config['site_url'];
-		$url= '';
+		$makeurl= '';
 		$f_url_prefix = $this->config['friendly_url_prefix'];
 		$f_url_suffix = $this->config['friendly_url_suffix'];
 		if (!preg_match('@^[0-9]+$@',$id))
@@ -2571,14 +2571,43 @@ class DocumentParser {
 			{
 				$f_url_suffix = '/';
 			}
-			
-			$url = $alPath . $f_url_prefix . $alias . $f_url_suffix;
+			$makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
 		}
-		else
+		else $makeurl= "index.php?id={$id}";
+
+		$site_url = $this->config['site_url'];
+		$base_url = $this->config['base_url'];
+		switch($scheme)
 		{
-			$url= "index.php?id={$id}";
+			case 'full':
+				$site_url = $this->config['site_url'];
+				$base_url = '';
+				break;
+			case 'http':
+			case '0':
+				if(strpos($site_url,'http://')!==0)
+					$site_url = 'http' . substr($site_url,strpos($site_url,':'));
+				$base_url = '';
+				break;
+			case 'https':
+			case '1':
+				if(strpos($site_url,'https://')!==0)
+					$site_url = 'https' . substr($site_url,strpos($site_url,':'));
+				$base_url = '';
+				break;
+			case 'absolute':
+			case 'abs':
+				$site_url = '';
+				$base_url = $this->config['base_url'];
+				break;
+			case 'relative':
+			case '-1':
+			default:
+				$site_url = '';
+				$base_url = '';
 		}
 		
+		$url = "{$site_url}{$base_url}{$makeurl}";
 		if($args!=='')
 		{
 			$args = ltrim($args,'?&');
@@ -2586,28 +2615,8 @@ class DocumentParser {
 			else                         $url .= "&{$args}";
 		}
 		
-		$host = ($scheme !== 'root_rel') ? $this->config['base_url'] : '';
-		// check if scheme argument has been set
-		if ($scheme !== '' && $scheme !== 'root_rel')
-		{
-			// for backward compatibility - check if the desired scheme is different than the current scheme
-			if (is_numeric($scheme) && $scheme != $_SERVER['HTTPS'])
-			{
-				$scheme= ($_SERVER['HTTPS'] ? 'http' : 'https');
-			}
+		if($this->config['xhtml_urls']) $url = preg_replace("/&(?!amp;)/",'&amp;', $url);
 		
-			// to-do: check to make sure that $site_url incudes the url :port (e.g. :8080)
-			$host= ($scheme == 'full') ? $this->config['site_url'] : $scheme . '://' . $_SERVER['HTTP_HOST'] . $host;
-		}
-		
-		if ($this->config['xhtml_urls'])
-		{
-			$url = preg_replace("/&(?!amp;)/",'&amp;', $host . $url);
-		}
-		else
-		{
-			$url = $host . $url;
-		}
 		$rs = $this->invokeEvent('OnMakeUrl',
 				array(
 					"id"    => $id,
