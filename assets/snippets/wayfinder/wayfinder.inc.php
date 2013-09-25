@@ -39,6 +39,8 @@ class Wayfinder {
 		$_[] = '[+wf.introtext+]';
 		$_[] = '[+wf.description+]';
 		$_[] = '[+wf.subitemcount+]';
+		$_[] = '[+wf.iteration+]';
+
 		$this->placeHolders['rowLevel'] = $_;
 		$this->placeHolders['wrapperLevel'] = array('[+wf.wrapper+]','[+wf.classes+]','[+wf.classnames+]');
 		$this->placeHolders['tvs']          = array();
@@ -105,6 +107,7 @@ class Wayfinder {
 		$counter = 1;
 		$numSubItems = count($menuDocs);
 		//Loop through each document to render output
+		$iteration=1;
 		foreach ($menuDocs as $docId => $docInfo) {
 			$docInfo['level'] = $level;
 			$docInfo['first'] = $firstItem;
@@ -123,7 +126,7 @@ class Wayfinder {
 			else                        $numChildren = 0;
 			
 			//Render the row output
-			$subMenuOutput .= $this->renderRow($docInfo,$numChildren);
+			$subMenuOutput .= $this->renderRow($docInfo,$numChildren,$iteration++);
 			//Update counter for last check
 			$counter++;
 		}
@@ -165,7 +168,7 @@ class Wayfinder {
 	}
 	
 	//render each rows output
-    function renderRow(&$resource,$numChildren) {
+    function renderRow(&$resource,$numChildren,$iteration) {
         global $modx;
         $output = '';
 		//Determine which template to use
@@ -225,7 +228,7 @@ class Wayfinder {
 		
 		//Setup the new wrapper name and get the class names
 		$useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$resource['id']}+]" : "";
-		$classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['isfolder'],$resource['type']);
+		$classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['isfolder'],$resource['type'],$iteration);
 		$useClass = ($classNames) ? $useClass = ' class="' . $classNames . '"' : '';
 		
 		//Setup the row id if a prefix is specified
@@ -239,7 +242,7 @@ class Wayfinder {
 		}
 		//Load row values into placholder array
 		$charset = $modx->config['modx_charset'];
-        $phArray = array($useSub,$useClass,$classNames,$resource['link'],htmlentities($resource['title'], ENT_COMPAT, $charset),htmlentities($resource['linktext'], ENT_COMPAT, $charset),$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],htmlentities($resource['introtext'], ENT_COMPAT, $charset),htmlentities($resource['description'], ENT_COMPAT, $charset),$numChildren);
+		$phArray = array($useSub,$useClass,$classNames,$resource['link'],htmlentities($resource['title'], ENT_COMPAT, $charset),htmlentities($resource['linktext'], ENT_COMPAT, $charset),$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],htmlentities($resource['introtext'], ENT_COMPAT, $charset),htmlentities($resource['description'], ENT_COMPAT, $charset),$numChildren,$iteration);
 		
 		foreach($resource as $k=>$v)
 		{
@@ -275,7 +278,7 @@ class Wayfinder {
     }
 	
 	//determine style class for current item being processed
-    function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document') {
+    function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document',$iteration=0) {
         global $modx;
         $returnClass = '';
         $hasClass = 0;
@@ -329,6 +332,13 @@ class Wayfinder {
                 $returnClass .= $hasClass ? ' ' . $this->_css['weblink'] : $this->_css['weblink'];
                 $hasClass = 1;
             }
+
+            //Set class for even item (or custom)
+            if (!empty($this->_css['even']) && ($iteration % $this->_config['evenIteration']==0)) {
+                $returnClass .= $hasClass ? ' ' . $this->_css['even'] : $this->_css['even'];
+                $hasClass = 1;
+            }
+
         }
 
         return $returnClass;
@@ -417,6 +427,10 @@ class Wayfinder {
 	        } else {
 	            $menuWhere = ' AND sc.hidemenu=0';
 	        }
+	        if (!empty($this->_config['where'])) {
+	            $menuWhere .= ' AND '.$this->_config['where'];
+	        }
+
 			//add the include docs to the where clause
 			if ($this->_config['includeDocs']) {
 				$menuWhere .= " AND sc.id IN ({$this->_config['includeDocs']})";
