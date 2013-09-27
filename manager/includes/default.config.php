@@ -93,6 +93,8 @@ $default_config['tree_pane_open_default']   = '1';
 $default_config['auto_sleep_user']          = '365';
 $default_config['doc_encoding']             = 'UTF-8';
 $default_config['check_files_onlogin']      = "index.php\n.htaccess\nmanager/index.php\nmanager/includes/config.inc.php";
+$default_config['site_url']                 = MODX_SITE_URL;
+$default_config['base_url']                 = MODX_BASE_URL;
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return $default_config;
 

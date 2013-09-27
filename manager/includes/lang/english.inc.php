@@ -1087,7 +1087,7 @@ $_lang['cache_type_message'] = 'Selection of "Cache disabled" will repeal all th
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
-$_lang["site_url_message"] = 'Example: <b>[+MODX_SITE_URL+]</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
+$_lang["site_url_message"] = 'Example: <b>MODX_SITE_URL</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
 $_lang["chunk_opt_published"] = 'Published';
 $_lang["delete_category"] = 'Are you sure you want to delete this category name?';
 
@@ -1187,7 +1187,7 @@ $_lang["docid_incrmnt_method_2"] = 'MAX value';
 $_lang["docid_incrmnt_method_message"] = 'Resource ID increment method';
 
 $_lang["base_url_title"] = 'Base URL';
-$_lang["base_url_message"] = 'Example: <b>[+MODX_BASE_URL+]</b><br />If it is made blank, it will process automatically.';
+$_lang["base_url_message"] = 'Example: <b>MODX_BASE_URL</b><br />If it is made blank, it will process automatically.';
 
 $_lang["configcheck_del_actionphp"] = 'Security alert: existing action.php. Shold be delete.';
 $_lang["configcheck_del_actionphp_msg"] = 'action.php used by captcha function what is unnecessary.';
