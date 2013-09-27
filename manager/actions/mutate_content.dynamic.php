@@ -531,7 +531,7 @@ if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
             	</td>
 				<td>
 					<?php $content['content'] = !empty($content['content']) ? strip_tags(stripslashes($content['content'])) : 'http://';?>
-					<?php echo input_text('ta',$content['content']],'','9999');?>
+					<?php echo input_text('ta',$content['content'],'','9999');?>
 					<?php echo tooltip($_lang['resource_weblink_help']);?>
 				</td>
 			</tr>
