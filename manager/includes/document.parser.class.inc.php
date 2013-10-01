@@ -97,83 +97,10 @@ class DocumentParser {
 	// loads an extension from the extenders folder
 	function loadExtension($extname)
 	{
-		global $database_type;
-		
-		switch ($extname)
-		{
-			// Database API
-			case 'DBAPI' :
-				if(!isset($database_type)||empty($database_type)) $database_type = 'mysql';
-				if(include_once(MODX_BASE_PATH . "manager/includes/extenders/dbapi.{$database_type}.class.inc.php"))
-				{
-					$this->db= new DBAPI;
-					$this->dbConfig= & $this->db->config; // alias for backward compatibility
-					return true;
-				}
-				else return false;
-				break;
-			// Manager API
-			case 'ManagerAPI' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php'))
-				{
-					$this->manager= new ManagerAPI;
-					return true;
-				}
-				else return false;
-				break;
-			// PHPMailer
-			case 'MODxMailer' :
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/modxmailer.class.inc.php');
-				$this->mail= new MODxMailer;
-				if($this->mail) return true;
-				else            return false;
-				break;
-			// Resource API
-			case 'DocAPI' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/doc.api.class.inc.php'))
-				{
-					$this->doc= new DocAPI;
-					return true;
-				}
-				else return false;
-				break;
-			// PHx
-			case 'PHx' :
-				if(!class_exists('PHx') || !is_object($this->phx))
-				{
-					$rs = include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php');
-					if($rs)
-					{
-						$this->phx= new PHx;
-						return true;
-					}
-					else return false;
-				}
-				else return true;
-				break;
-			case 'MakeTable' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/maketable.class.php'))
-				{
-					$this->table= new MakeTable;
-					return true;
-				}
-				else return false;
-				break;
-			case 'EXPORT_SITE' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/export.class.inc.php'))
-				{
-					$this->export= new EXPORT_SITE;
-					return true;
-				}
-				else return false;
-				break;
-			case 'SubParser':
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
-				$this->sub = new SubParser();
-				break;
-			default :
-				return false;
-		}
+        $extname = trim(str_replace(array("..","/","\\"),"",mb_strtolower($extname)));
+        $filename = MODX_MANAGER_PATH."includes/extenders/{$extname}.extenders.inc.php";
+
+        return is_file($filename) ? include $filename : false;
 	}
 	
 	function executeParser($id='')
