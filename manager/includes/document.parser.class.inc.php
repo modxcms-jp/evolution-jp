@@ -1564,6 +1564,8 @@ class DocumentParser {
 	
 	private function _get_snip_result($piece)
 	{
+	        $start_time = $this->getMicroTime();
+
 		$snip_call        = $this->_split_snip_call($piece);
 		$snip_name        = $snip_call['name'];
 		$except_snip_call = $snip_call['except_snip_call'];
@@ -1646,7 +1648,7 @@ class DocumentParser {
 		
 		if($this->dumpSnippets == 1)
 		{
-			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
+			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b> - '.(($this->getMicroTime()-$start_time)*1000).'ms</legend><textarea style="width:60%;height:200px">' . htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
 		}
 		return $value . $except_snip_call;
 	}
