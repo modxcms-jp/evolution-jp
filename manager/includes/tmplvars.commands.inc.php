@@ -3,17 +3,6 @@
  * Template Variable Data Source @Bindings
  * Created by Raymond Irving Feb, 2005
  */
-global $BINDINGS; // Array of supported bindings. must be upper case
-$BINDINGS = array (
-    'FILE',
-    'CHUNK',
-    'DOCUMENT',
-    'SELECT',
-    'EVAL',
-    'INHERIT',
-    'DIRECTORY',
-    'NONE'
-);
 
 function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
     global $modx;
@@ -32,12 +21,13 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
         $param = trim($param);
         switch ($cmd) {
             case "FILE" :
-                $output = ProcessFile(trim($param));
-                $output = str_replace('@FILE ' . $param, $output, $nvalue);
+            	if(getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
+            	else $output = @file_get_contents($param);
+                if($output===false) $output = " Could not retrieve document '{$file}'.";
                 break;
 
             case "CHUNK" : // retrieve a chunk and process it's content
-                $chunk = $modx->getChunk($param);
+                $chunk = $modx->getChunk(trim($param));
                 $output = $chunk;
                 break;
 
@@ -46,7 +36,7 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
                 if (is_array($rs))
                     $output = $rs['content'];
                 else
-                    $output = "Unable to locate document $param";
+                    $output = "Unable to locate document {$param}";
                 break;
 
             case "SELECT" : // selects a record from the cms database
@@ -131,26 +121,38 @@ function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
     }
 }
 
-function ProcessFile($file) {
-    // get the file
-    $buffer = @file_get_contents($file);
-    if($buffer===false) $buffer = " Could not retrieve document '$file'.";
-    return $buffer;
-}
-
 // ParseCommand - separate @ cmd from params
 function ParseCommand($binding_string)
 {
-	global $BINDINGS;
+    // Array of supported bindings. must be upper case
+    $BINDINGS = array (
+        'FILE',
+        'CHUNK',
+        'DOCUMENT',
+        'SELECT',
+        'EVAL',
+        'INHERIT',
+        'DIRECTORY',
+        'NONE'
+    );
 	$binding_array = array();
 	foreach($BINDINGS as $cmd)
 	{
 		if(strpos($binding_string,'@'.$cmd)===0)
 		{
-			$code = substr($binding_string,strlen($cmd)+1);
-			$binding_array = array($cmd,$code);
+			$code = substr($binding_string,strlen($cmd)+2);
+			$binding_array = array($cmd,trim($code));
 			break;
 		}
 	}
 	return $binding_array;
+}
+
+function getExtention($str)
+{
+	$str = trim($str);
+	$str = strtolower($str);
+	$pos = strrpos($str,'.');
+	if($pos===false) return false;
+	return substr($str,$pos);
 }
