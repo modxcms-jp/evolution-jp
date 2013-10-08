@@ -57,6 +57,9 @@ class DocumentParser {
     var $http_status_code;
     var $directParse;
     var $decoded_request_uri;
+    var $dbConfig;
+    var $pluginCache;
+    var $aliasListing = array();
 
     function __get($property_name)
     {
