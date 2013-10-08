@@ -58,6 +58,15 @@ class DocumentParser {
     var $directParse;
     var $decoded_request_uri;
 
+    function __get($property_name)
+    {
+        $this->messageQuit("\$modx-&gt;{$property_name} is undefined property");
+    }
+    
+    function __call($method_name, $arguments)
+    {
+        $this->messageQuit("\$modx-&gt;{$method_name}() is undefined method");
+    }
     // constructor
 	function DocumentParser()
 	{
