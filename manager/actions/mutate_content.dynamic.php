@@ -172,11 +172,11 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 <?php
 	if(!isset($modx->config['imanager_url']))
 	{
-		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images&ServerPath={$base_url}";
+		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
 	}
 	if(!isset($modx->config['fmanager_url']))
 	{
-		$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files&ServerPath={$base_url}";
+		$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files";
 	}
 ?>
 <script type="text/javascript">

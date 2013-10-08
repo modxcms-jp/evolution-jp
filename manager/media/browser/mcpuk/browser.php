@@ -21,32 +21,33 @@ class FBROWSER
 {
 	function seturl_js()
 	{
-			
-		if(isset($_GET['editor']) && !stristr($_GET['editor'],".."))
-			$seturl_js_filename = 'seturl_js_'  . htmlspecialchars($_GET['editor']) . '.inc';
-		else $seturl_js_filename = '';
-		
-		$seturl_js_path = MODX_BASE_PATH . 'assets/plugins/';
-		
-		if($seturl_js_filename!='' && is_file($seturl_js_path . $seturl_js_filename))
+		if(isset($_GET['editor']) && strpos($editor_name, '..')===false)
+			$editor_name = htmlspecialchars($_GET['editor']);
+		else $editor_name = '';
+		if(!empty($editor_name))
 		{
-			$result = file_get_contents($seturl_js_path . $seturl_js_filename);
+			$seturl_js_path = MODX_BASE_PATH . "assets/plugins/{$editor_name}/seturl_js_{$editor_name}.inc";
+		}
+		else $seturl_js_path = '';
+		
+		if($seturl_js_path!='' && is_file($seturl_js_path))
+		{
+			$result = file_get_contents($seturl_js_path);
 		}
 		else
 		{
-			switch($_GET['editor'])
+			switch($editor_name)
 			{
 				case 'tinymce' :
 				case 'tinymce3':
-					$editor_path = htmlspecialchars($_GET['editorpath'], ENT_QUOTES);
-					$editor_path = rtrim($editor_path, '/') . '/';
 					$result = file_get_contents('seturl_js_tinymce.inc');
-					$result = str_replace('[+editor_path+]', $editor_path, $result);
 					break;
 				default:
 				$result = '<script src="seturl.js" type="text/javascript"></script>' . "\n";
 			}
 		}
+		if(strpos($result,'[+editor_path+]')!==false)
+			$result = str_replace('[+editor_path+]', MODX_BASE_URL . "assets/plugins/{$editor_name}/", $result);
 		return $result;
 	}
 	

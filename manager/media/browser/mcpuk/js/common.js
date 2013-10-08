@@ -53,9 +53,9 @@ function GetMyUrlParam( paramName )
 
 var oConnector = new Object() ;
 oConnector.CurrentFolder	= '/' ;
-oConnector.ServerPath		= GetUrlParam( 'ServerPath' );
 oConnector.UploadHandler	= GetUrlParam( 'UploadHandler' );
-oConnector.ConnectorUrl		= oConnector.ServerPath + 'manager/media/browser/mcpuk/connectors/php/connector.php';
+var pathname = window.location.pathname.replace(/manager\/media\/browser\/mcpuk\/.*$/,'');
+oConnector.ConnectorUrl		= pathname + 'manager/media/browser/mcpuk/connectors/php/connector.php';
 oConnector.ResourceType		= GetUrlParam( 'Type' ) ;
 oConnector.ExtraParams		= GetUrlParam( 'ExtraParams' ) ;
 oConnector.Editor			= GetUrlParam( 'editor' ) ;

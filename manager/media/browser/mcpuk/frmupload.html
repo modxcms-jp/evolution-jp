@@ -29,7 +29,7 @@ var uploading=false;
 
 function SetCurrentFolder( resourceType, folderPath )
 {
-	var sUrl = oConnector.UploadHandler +'?uploadID='+randomnumber+'&Connector='+escape(oConnector.ConnectorUrl)+'&Command=FileUpload' ;
+	var sUrl = oConnector.UploadHandler +'?uploadID='+randomnumber+'&Command=FileUpload' ;
 	sUrl += '&Type=' + resourceType ;
 	sUrl += '&CurrentFolder=' + folderPath ;
 	sUrl += '&ExtraParams=' + oConnector.ExtraParams ;
