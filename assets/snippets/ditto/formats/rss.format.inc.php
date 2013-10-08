@@ -130,10 +130,10 @@ $rss_tpl = <<<TPL
 
 		<item>
 			<title>[+rss_pagetitle+]</title>
-			<link>[(site_url)][~[+id+]~]</link>
+			<link>[+url+]</link>
 			<description><![CDATA[ [+summary:strip+] ]]></description>
 			<pubDate>[+rss_date+]</pubDate>
-			<guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
+			<guid isPermaLink="true">[+url+]</guid>
 			<dc:creator>[+rss_author+]</dc:creator>
 			[+tagLinks+]
 		</item>
