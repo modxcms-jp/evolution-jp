@@ -17,6 +17,10 @@ body                        {color:#444;}
 .navi ul li a:link,
 .navi ul li a:visited,
 .navi ul ul li a,
+div.content .subnavi,
+div.content .subnavi,
+div.content .subnavi a:link,
+div.content .subnavi a:visited,
 .footer,
 .footer a:visited,
 .footer a:link              {color:#ffffff;}
@@ -24,7 +28,8 @@ body                        {color:#444;}
 /* background color **/
 body,div.wrap               {background-color:#ffffff;}
 .navi ul li:hover ul a,
-.navi                       {background-color:#8c969c;}
+.navi,
+div.content .subnavi        {background-color:#8c969c;}
 .navi ul li:hover a,
 .navi ul li:hover li a:hover,
 .navi ul li.active,
@@ -66,7 +71,10 @@ div.navi ul li a            {
                               padding: 8px;
                             }
 div.navi ul li a:link,
-div.navi ul li a:visited    {text-decoration: none;}
+div.navi ul li a:visited,
+div.content .subnavi a:link,
+div.content .subnavi a:visited
+                            {text-decoration: none;}
 div.navi ul li ul           {display: none;}
 div.navi ul li:hover ul a   {
                              filter: alpha(opacity=92);
@@ -87,6 +95,14 @@ div.content                 {
                              padding:20px;
                              border-top:1px solid #eee;
                             }
+div.content .subnavi        {
+                             border:1px solid #8c969c;
+                             border-radius:3px;
+                             float:right;
+                             margin:0 0 10px 10px;
+                             padding:1em;
+                            }
+div.content .subnavi li     {margin-left:1em;}
 
 div.footer                  {
                              padding:30px;

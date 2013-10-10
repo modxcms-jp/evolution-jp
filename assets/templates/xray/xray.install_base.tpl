@@ -4,7 +4,7 @@
  * 「xRay」学習用途向きのシンプルなテンプレート
  *
  * @category	template
- * @version 	1.1
+ * @version 	1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@lock_template 0
  * @internal 	@modx_category Demo Content
