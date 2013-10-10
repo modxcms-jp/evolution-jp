@@ -223,10 +223,10 @@ if(isset($_REQUEST['log_submit'])) {
 		<script type="text/javascript" src="media/script/tablesort.js"></script>
 		<table class="sortabletable rowstyle-even" id="table-1">
 		<thead><tr>
-			<th class="sortable"><b><?php echo $_lang["mgrlog_username"]; ?></b></th>
+			<th class="sortable"><b><?php echo $_lang["mgrlog_time"]; ?></b></th>
 			<th class="sortable"><b><?php echo $_lang["mgrlog_action"]; ?></b></th>
 			<th class="sortable"><b><?php echo $_lang["mgrlog_itemid"]; ?></b></th>
-			<th class="sortable"><b><?php echo $_lang["mgrlog_time"]; ?></b></th>
+			<th class="sortable"><b><?php echo $_lang["mgrlog_username"]; ?></b></th>
 		</tr></thead>
 		<tbody>
 		<?php
@@ -251,10 +251,10 @@ if(isset($_REQUEST['log_submit'])) {
 			//index.php?a=13&searchuser=' . $logentry['internalKey'] . '&action=' . $logentry['action'] . '&itemname=' . $logentry['itemname'] . '&log_submit=true'
 			$user_drill = 'index.php?a=13&searchuser=' . $logentry['internalKey'] . '&itemname=0&log_submit=true'
 			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
-			<td><?php echo '<a href="'.$user_drill.'">'.$logentry['username'].'</a>'; ?></td>
+			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
 			<td><?php echo '[' . $logentry['action'] .'] ' . $logentry['message']; ?></td>
 			<td><?php echo $item ; ?></td>
-			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
+			<td><?php echo '<a href="'.$user_drill.'">'.$logentry['username'].'</a>'; ?></td>
 		</tr>
 		<?php
 		$i++;
