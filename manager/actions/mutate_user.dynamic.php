@@ -385,6 +385,15 @@ while ($row = $modx->db->getRow($rs))
 	<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" /></td>
 </tr>
 <tr>
+	<th><?php echo $_lang['user_street']; ?>:</th>
+	<td><input type="text" name="street" class="inputBox" value="<?php echo htmlspecialchars($userdata['street']); ?>" onchange="documentDirty=true;" /></td>
+</tr>
+<tr>
+	<th><?php echo $_lang['user_city']; ?>:</th>
+	<td><input type="text" name="city" class="inputBox" value="<?php echo htmlspecialchars($userdata['city']); ?>" onchange="documentDirty=true;" /></td>
+</tr>
+
+<tr>
 	<th><?php echo $_lang['user_state']; ?>:</th>
 	<td><input type="text" name="state" class="inputBox" value="<?php echo htmlspecialchars($userdata['state']); ?>" /></td>
 </tr>

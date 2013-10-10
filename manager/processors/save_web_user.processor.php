@@ -20,6 +20,8 @@ $mobilephone = $modx->db->escape($_POST['mobilephone']);
 $fax = $modx->db->escape($_POST['fax']);
 $dob = !empty ($_POST['dob']) ? ConvertDate($_POST['dob']) : 0;
 $country = $_POST['country'];
+$street               = $modx->db->escape($_POST['street']);
+$city                 = $modx->db->escape($_POST['city']);
 $state = $modx->db->escape($_POST['state']);
 $zip = $modx->db->escape($_POST['zip']);
 $gender = !empty($_POST['gender']) ? $_POST['gender'] : 0;
@@ -119,7 +121,7 @@ switch ($_POST['mode']) {
 		}
 		
 		$fields = array();
-		$fields = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
+		$fields = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street','city','state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
 		$rs = $modx->db->insert($fields,$tbl_web_user_attributes);
 		if (!$rs)
 		{
@@ -281,7 +283,7 @@ switch ($_POST['mode']) {
 		}
 		
 		$fields = array();
-		$fields = compact('fullname','role','email','phone','mobilephone','fax','zip','state','country',
+		$fields = compact('fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country',
 		'gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
 		if (!$rs = $modx->db->update($fields,$tbl_web_user_attributes,"internalKey='{$id}'"))
 		{

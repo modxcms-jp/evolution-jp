@@ -1279,3 +1279,6 @@ $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_username_title'] = 'SMTP user name';
 $_lang['smtp_password_title'] = 'SMTP password';
 $_lang['smtp_port_title'] = 'SMTP port';
+
+$_lang["user_street"] = 'Street';
+$_lang["user_city"] = 'City';

@@ -226,4 +226,15 @@ ALTER TABLE `{PREFIX}site_content` DROP INDEX `content_ft_idx`;
 
 UPDATE `{PREFIX}site_plugins` SET disabled='1' WHERE `name`='ダッシュボード・あなたの情報' OR `name`='ダッシュボード・オンライン情報';
 
+#1.0.10-1.0.12J
+
+ALTER TABLE `{PREFIX}user_attributes`
+ ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`,
+ ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;
+
+ALTER TABLE `{PREFIX}web_user_attributes`
+ ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`,
+ ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;
+
+
 
