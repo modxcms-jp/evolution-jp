@@ -68,11 +68,11 @@ if(!isset($_SESSION['webValidated']))
 EOT;
 	// display login
 	$output .= '<div id="WebLoginLayer0" style="position:relative">' . $tpls[0] . '</div>';
-	$output .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tpls[2] . '</div>';
+	$output .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . (isset($tpls[2]) ? $tpls[2] : '') . '</div>';
 	$ref = isset($_REQUEST['refurl']) ? array('refurl' => urlencode($_REQUEST['refurl'])) : array();
 	$output = str_replace("[+action+]",preserveUrl($modx->documentIdentifier,'',$ref),$output);
 	$output = str_replace("[+rememberme+]",(isset($cookieSet) ? 1 : 0),$output);
-	$output = str_replace("[+username+]",$uid,$output);
+	$output = str_replace("[+username+]",(isset($uid) ? $uid : '') ,$output);
 	$output = str_replace("[+checkbox+]",(isset($cookieSet) ? 'checked' : ''),$output);
 	$output = str_replace("[+logintext+]",$loginText,$output);
 	$focus = (!empty($uid)) ? 'password' : 'username';
