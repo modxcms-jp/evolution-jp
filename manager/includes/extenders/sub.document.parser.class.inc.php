@@ -678,7 +678,30 @@ class SubParser {
         return false;
     }
 
-    # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
+	function regClientCSS($src, $media)
+	{
+    	global $modx;
+    	
+		if (empty($src) || isset ($modx->loadedjscripts[$src])) return '';
+		
+		$nextpos = max(array_merge(array(0),array_keys($modx->sjscripts)))+1;
+		
+		$modx->loadedjscripts[$src]['startup'] = true;
+		$modx->loadedjscripts[$src]['version'] = '0';
+		$modx->loadedjscripts[$src]['pos']     = $nextpos;
+		
+		if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
+		{
+			$modx->sjscripts[$nextpos]= $src;
+		}
+		else
+		{
+			$media = $media ? 'media="' . $media . '" ' : '';
+			$modx->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
+		}
+	}
+
+     # Registers Client-side JavaScript 	- these scripts are loaded at the end of the page unless $startup is true
 	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
 	{
 		global $modx;
@@ -756,17 +779,17 @@ class SubParser {
 	
     function regClientStartupHTMLBlock($html) // Registers Client-side Startup HTML block
     {
-    	return $this->regClientScript($html, true, true);
+    	$this->regClientScript($html, true, true);
     }
     
     function regClientHTMLBlock($html) // Registers Client-side HTML block
     {
-    	return $this->regClientScript($html, true);
+    	$this->regClientScript($html, true);
     }
     
 	# Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
 	function regClientStartupScript($src, $options)
 	{
-        return $this->regClientScript($src, $options, true);
+        $this->regClientScript($src, $options, true);
 	}
 }

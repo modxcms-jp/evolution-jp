@@ -3178,13 +3178,13 @@ class DocumentParser {
 	function updateDraft($now)
     	{$this->loadExtension('SubParser');$this->sub->updateDraft($now);}
 	function regClientCSS($src, $media='')
-    	{$this->loadExtension('SubParser');return $this->sub->regClientCSS($src, $media);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
 	function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-    	{$this->loadExtension('SubParser');return $this->sub->regClientScript($src, $options, $startup);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options, $startup);}
 	function regClientStartupHTMLBlock($html)
-    	{$this->loadExtension('SubParser');return $this->sub->regClientStartupHTMLBlock($html);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientStartupHTMLBlock($html);}
 	function regClientHTMLBlock($html)
-    	{$this->loadExtension('SubParser');return $this->sub->regClientHTMLBlock($html);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientHTMLBlock($html);}
 	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
     	{$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
 
