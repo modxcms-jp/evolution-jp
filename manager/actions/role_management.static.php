@@ -25,6 +25,9 @@ if(!$modx->hasPermission('edit_role')) {
 	<li><a class="default" href="index.php?a=38"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_role']; ?></a></li>
 </ul>
 <ul>
+<style type="text/css">
+li span {width: 200px;}
+</style>
 <?php
 
 $tbl_user_roles = $modx->getFullTableName('user_roles');
