@@ -181,12 +181,10 @@ function deleteuser() {
 
 // change name
 function changeName(){
-	if(confirm("<?php echo $_lang['confirm_name_change']; ?>")==true) {
-		var e1 = document.getElementById("showname");
-		var e2 = document.getElementById("editname");
-		e1.style.display = "none";
-		e2.style.display = "<?php echo $displayStyle; ?>";
-	}
+	var e1 = document.getElementById("showname");
+	var e2 = document.getElementById("editname");
+	e1.style.display = "none";
+	e2.style.display = "<?php echo $displayStyle; ?>";
 }
 
 function OpenServerBrowser(url, width, height ) {
