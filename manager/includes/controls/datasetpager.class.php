@@ -70,7 +70,7 @@ class DataSetPager {
 		$this->pageSize = $ps;
 	}
 
-	function setRenderRowFnc($fncName, $args = ""){
+	function setRenderRowFnc($fncName, $args = ''){
 		$this->renderRowFnc = &$fncName;
 		$this->renderRowFncArgs = $args;	// extra agruments
 	}
@@ -95,7 +95,7 @@ class DataSetPager {
 			$fnc = $this->renderRowFnc;
 			$args = $this->renderRowFncArgs;
 			if (isset($fnc)) {
-				if($args!="") $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
+				if($args!='') $this->rows .= $fnc(0,null,$args); // if agrs was specified then we will pass three params
 				else          $this->rows .= $fnc(0,null);		 // otherwise two will be passed
 			}
 			return;
@@ -130,7 +130,7 @@ class DataSetPager {
 			}
 			for($i=1;$i<=$tp;$i++) {
 				if (isset($fnc)) {
-					if($args!="") $this->pager .= $fnc($p,$i,$args);
+					if($args!='') $this->pager .= $fnc($p,$i,$args);
 					else $this->pager .= $fnc($p,$i);
 				}
 				else {
