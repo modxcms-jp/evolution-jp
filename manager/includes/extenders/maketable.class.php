@@ -297,7 +297,7 @@ class MakeTable {
 	 * @param $value The value of the cell.
 	 */
 	function createCellText($currentActionFieldValue, $value) {
-		$cell .= $value;
+		$cell = $value;
 		if ($this->linkAction) {
 			$cell= '<a href="'.$this->linkAction.$this->actionField.'='.urlencode($currentActionFieldValue).'">'.$cell.'</a>';
 		}
@@ -342,6 +342,8 @@ class MakeTable {
 		if (is_array($fieldsArray))
 		{
 			$i= 0;
+			$table = '';
+			$header = '';
 			foreach ($fieldsArray as $fieldName => $fieldValue)
 			{
 				$table .= "\t<tr".$this->determineRowClass($i).">\n";
@@ -493,6 +495,7 @@ class MakeTable {
 	 * element.
 	 */
 	function addFormField($value, $isChecked) {
+		$field = '';
 		if ($this->formElementType) {
 			$checked= $isChecked? "checked ": "";
 			$field= "\t\t".'<td><input type="'.$this->formElementType.'" name="'. ($this->formElementName ? $this->formElementName : $value).'"  value="'.$value.'" '.$checked.'/></td>'."\n";
