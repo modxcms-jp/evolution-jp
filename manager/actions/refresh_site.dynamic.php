@@ -2,14 +2,13 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 $now = time();
-$tbl_site_content = $modx->getFullTableName('site_content');
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
-$rs = $modx->db->update(array('published'=>'1'),$tbl_site_content,$where);
+$rs = $modx->db->update(array('published'=>'1'),'[+prefix+]site_content',$where);
 $num_rows_pub = $modx->db->getAffectedRows();
 
 $where = "unpub_date < {$now} AND unpub_date!=0 AND published=1";
-$rs = $modx->db->update(array('published'=>'0'),$tbl_site_content,$where);
+$rs = $modx->db->update(array('published'=>'0'),'[+prefix+]site_content',$where);
 $num_rows_unpub = $modx->db->getAffectedRows();
 
 ?>
@@ -24,8 +23,7 @@ doRefresh(1);
 if(0<$num_rows_pub)   printf('<p>'.$_lang["refresh_published"].'</p>', $num_rows_pub);
 if(0<$num_rows_unpub) printf('<p>'.$_lang["refresh_unpublished"].'</p>', $num_rows_unpub);
 
-$params['showReport'] = true;
-$modx->clearCache($params);
+$modx->clearCache(array('showReport'=>true));
 
 // invoke OnSiteRefresh event
 $modx->invokeEvent("OnSiteRefresh");
