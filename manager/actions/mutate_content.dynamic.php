@@ -36,8 +36,9 @@ switch ($_REQUEST['a']) {
 }
 
 
-if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
-else                        $id = 0;
+if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
+	 $id = $_REQUEST['id'];
+else $id = '0';
 
 // Get table names (alphabetical)
 
@@ -87,10 +88,10 @@ if ($_SESSION['mgrDocgroups']) {
 	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
 }
 
-if ($id != 0)
+if ($id !== '0')
 {
 	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-	$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
+	$access .= !isset($docgrp) || empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
 	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
 	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
 	$limit = $modx->db->getRecordCount($rs);
@@ -154,7 +155,7 @@ if (empty($_REQUEST['id']))
 	{
 		$content['menuindex'] = 0;
 	}
-	if (!$content['alias'] && $modx->config['automatic_alias'] === '2')
+	if ((!isset($content['alias'])||empty($content['alias'])) && $modx->config['automatic_alias'] === '2')
 	{
 		$content['alias'] = $modx->manager->get_alias_num_in_folder(0,$pid);
 	}
@@ -275,8 +276,8 @@ function setLink(lId) {
 
 function enableParentSelection(b) {
 	parent.tree.ca = "parent";
-	var closed = "<?php echo $_style["tree_folder"] ?>";
 	var opened = "<?php echo $_style["icons_set_parent"] ?>";
+	var closed = "<?php echo $_style["tree_folder"] ?>";
 	if (b) {
 		document.images["plock"].src = opened;
 		allowParentSelection = true;
@@ -708,7 +709,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	else                              $template = $modx->config['default_template'];
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
-	$where_docgrp = !$docgrp ? '' : " OR tva.documentgroup IN ({$docgrp})";
+	$where_docgrp = !isset($docgrp) || empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
 	
 	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
@@ -757,7 +758,7 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			$zindex = ($row['type'] === 'date') ? 'z-index:100;' : '';
 			if($row['type']!=='hidden')
 			{
-				echo '<tr style="height: 24px;"><td valign="top" width="150"><span class="warning">'.$row['caption']."</span>\n".
+				echo '<tr style="height: 24px;"><td valign="top" style="width:150px;white-space:nowrap;"><span class="warning">'.$row['caption']."</span>\n".
 			     '<br /><span class="comment">'.$row['description']."</span></td>\n".
                  '<td valign="top" style="position:relative;'.$zindex.'">'."\n".
                  renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
@@ -994,7 +995,7 @@ echo tooltip($_lang['resource_opt_emptycache_help']);
 	</div><!-- end #tabSettings -->
 
 <?php
-if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'])
+if ($modx->hasPermission('edit_doc_metatags') && isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
 {
 	// get list of site keywords
 	$keywords = array();
@@ -1313,7 +1314,7 @@ function input_checkbox($name,$checked,$other='')
 	if($name === 'published')
 	{
 		$id = (isset($_REQUEST['id'])) ? (int)$_REQUEST['id'] : 0;
-		if(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start'])
+		if(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start'])
 		{
 			$ph['other'] = 'disabled="disabled"';
 		}
