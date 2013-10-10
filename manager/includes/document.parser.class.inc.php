@@ -3186,7 +3186,7 @@ class DocumentParser {
 	function regClientHTMLBlock($html)
     	{$this->loadExtension('SubParser');return $this->sub->regClientHTMLBlock($html);}
 	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-    	{$this->loadExtension('SubParser');return $this->sub->sClientStartupScript($src, $options);}
+    	{$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
