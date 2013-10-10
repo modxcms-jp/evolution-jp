@@ -82,11 +82,11 @@ if(isset($_REQUEST['submitok'])) {
         $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
         if($url[0]==='/')             $url = preg_replace('@^' . $base_url . '@', '', $url);
         if(substr($url,0,4)==='http') $url = preg_replace('@^' . $site_url . '@', '', $url);
+        $url = trim($url,'/');
         $searchid = $modx->getIdFromAlias($url);
         if (empty($searchid)) $searchid = 'x';
     }
     
-    $tbl_site_content = $modx->getFullTableName('site_content');
     $sqladd .= $searchid!=='0'        ? " AND id='{$searchid}' " : '';
     $sqladd .= $searchtitle!=''     ? " AND pagetitle LIKE '%{$searchtitle}%' " : '';
     $sqladd .= $searchlongtitle!='' ? " AND longtitle LIKE '%{$searchlongtitle}%' " : '';
@@ -95,7 +95,7 @@ if(isset($_REQUEST['submitok'])) {
     
     $fields = 'id, contenttype, pagetitle, description, deleted, published, isfolder, type';
     $where  = "1=1 {$sqladd}";
-    $rs = $modx->db->select($fields,$tbl_site_content,$where,'id');
+    $rs = $modx->db->select($fields,'[+prefix+]site_content',$where,'id');
     $limit = $modx->db->getRecordCount($rs);
 ?>
 <div class="section">
