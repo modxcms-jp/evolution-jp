@@ -14,6 +14,7 @@ $modx->db->connect();
 // Keep it alive
 if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
 {
+	$modx->checkPublishStatus();
 	$uid = $_SESSION['mgrInternalKey'];
 	$timestamp = time();
 	$modx->db->update("lasthit={$timestamp}", '[+prefix+]active_users', "internalKey='{$uid}'");
