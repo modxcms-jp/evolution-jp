@@ -2007,7 +2007,7 @@ class DocumentParser {
 	function getChildIds($id, $depth= 10, $children= array ())
 	{
 		// Initialise a static array to index parents->children
-		if(!count($this->childrenList))
+		if(empty($this->childrenList))
 			$childrenList = $this->set_childrenList();
 		else
 			$childrenList = $this->childrenList;
@@ -2017,7 +2017,7 @@ class DocumentParser {
 		{
 			$depth--;
 			
-			if(!$this->aliasListing) $this->setAliasListing();
+			if(empty($this->aliasListing)) $this->setAliasListing();
 			
 			foreach ($childrenList[$id] as $childId)
 			{
