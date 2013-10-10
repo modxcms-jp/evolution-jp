@@ -48,7 +48,7 @@ class DocumentParser {
     var $documentMap;
     var $forwards= 3;
     var $referenceListing;
-    var $childrenList;
+    var $childrenList = array();
     var $safeMode;
     var $qs_hash;
     var $cacheRefreshTime;
