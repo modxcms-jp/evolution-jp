@@ -183,8 +183,8 @@ function deletedocument() {
 <script type="text/javascript">tpResources.addTabPage( document.getElementById('tabProp') );</script>
 <table>
 	  <tr>
-		<th align="left"><?php echo $_lang['existing_category']; ?>:</th>
-		<td align="left"><select name="categoryid" style="width:300px;">
+		<th><?php echo $_lang['existing_category']; ?>:</th>
+		<td><select name="categoryid" style="width:300px;">
 				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 		        <?php
 		            include_once($modx->config['core_path'].'categories.inc.php');
