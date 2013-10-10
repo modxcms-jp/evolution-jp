@@ -89,9 +89,14 @@ function changestate(element) {
 }
 
 function deletedocument() {
-	if(confirm("<?php echo $_lang['confirm_delete_role']; ?>")==true) {
-		document.location.href="index.php?id=" + document.userform.id.value + "&a=37";
-	}
+	jConfirm('<?php echo $_lang['confirm_delete_role']?>','<?php echo $_lang['confirm']?>',
+		function(r)
+		{
+			if(r)
+				document.location.href="index.php?id=" + document.userform.id.value + "&a=37";
+			else return false;
+	    }
+	);
 }
 
 </script>
