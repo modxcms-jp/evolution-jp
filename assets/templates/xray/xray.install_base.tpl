@@ -19,6 +19,7 @@
   <meta name="keywords" content="[*キーワード*]">
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css">
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css">
+  <link rel="stylesheet" type="text/css" href="assets/templates/xray/navi.css">
 </head>
 <body>
 <div class="wrap">
@@ -30,10 +31,7 @@
 	</div>
 	<div class="navi">
 	<nav>
-	    [[Wayfinder
-	    	&startId = `0` // ルート階層のリソースが対象
-	    	&level   = `1` // １階層のみ
-	    ]]
+	    [[Wayfinder?startId=0&level=2]]
 	</nav>
 	</div>
 	<div class="content">
