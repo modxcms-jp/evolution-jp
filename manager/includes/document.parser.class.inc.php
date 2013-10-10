@@ -1964,7 +1964,7 @@ class DocumentParser {
 		if($id==='') $id = $this->documentIdentifier;
 		$parents= array ();
 		
-		if(!isset($this->aliasListing)) $this->setAliasListing();
+		if(empty($this->aliasListing)) $this->setAliasListing();
 		
 		while( $id && 0<$height)
 		{
