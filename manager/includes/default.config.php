@@ -82,7 +82,7 @@ $default_config['rb_base_dir']              = defined('MODX_BASE_PATH') ? MODX_B
 $default_config['rb_base_url']              = 'content/';
 $default_config['output_filter']            = '1';
 $default_config['image_limit_width']        = '';
-$default_config['manager_inline_style']     = "<style type=\"text/css\">body {\n	font-family: \"Helvetica Neue\",Helvetica,Arial,Meiryo,\"Hiragino Kaku Gothic Pro\",\"MS PGothic\",sans-serif;\nfont-size:0.75em;}\n</style>";
+$default_config['manager_inline_style']     = "<style type=\"text/css\">\nbody {font-size:0.75em;}\n</style>";
 $default_config['topmenu_site']             = 'home,preview,refresh_site,search,add_resource,add_weblink';
 $default_config['topmenu_element']          = 'element_management,manage_files,manage_metatags';
 $default_config['topmenu_security']         = 'user_manage,web_user_manage,role_manage,manager_permissions,web_permissions,remove_locks';

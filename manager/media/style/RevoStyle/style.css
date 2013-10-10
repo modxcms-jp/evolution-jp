@@ -7,7 +7,7 @@ html, body, form, fieldset {
 html {
 	font-size: 100.01%;
 	line-height: 1.5;
-	font-family: "Helvetica Neue",Helvetica, Arial, sans-serif;
+	font-family: font-family: Arial,"Helvetica Neue",Helvetica,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
 	color: #111;
 }
 body {

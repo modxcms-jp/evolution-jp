@@ -12,7 +12,7 @@
     html {
 	font-size: 100.01%; /* avoids obscure font-size bug */
 	line-height: 1.5; /* http://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/ */
-	font-family: "Helvetica Neue",Helvetica,Arial,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
+	font-family: Arial,"Helvetica Neue",Helvetica,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
 	height: 100.01%;color: #333;}
     body {height:auto;font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("media/style/RevoStyle/images/misc/subnav.png") repeat scroll 0 0 #EEEEEE;}
     img, a img {border: 0 !important;text-decoration: none;padding: 0;margin: 0;}
