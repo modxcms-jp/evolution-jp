@@ -283,6 +283,7 @@ if (is_array($evtOut))
 	<option value=""></option>
 	<option value="1" <?php echo selected($userdata['gender']=='1'); ?>><?php echo $_lang['user_male']; ?></option>
 	<option value="2" <?php echo selected($userdata['gender']=='2'); ?>><?php echo $_lang['user_female']; ?></option>
+	<option value="3" <?php echo selected($userdata['gender']=='3'); ?>><?php echo $_lang['user_other']; ?></option>
 	</select>
 	</td>
 </tr>
