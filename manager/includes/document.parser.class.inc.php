@@ -1131,13 +1131,11 @@ class DocumentParser {
 					$this->sendErrorPage();
 				}
 			}
-			// Grab the Scripts
-			if(isset($docObj['__MODxSJScripts__'])) $this->sjscripts = $docObj['__MODxSJScripts__'];
-			if(isset($docObj['__MODxJScripts__']))  $this->jscripts  = $docObj['__MODxJScripts__'];
-			
-			// Remove intermediate variables
-			unset($docObj['__MODxDocGroups__'], $docObj['__MODxSJScripts__'], $docObj['__MODxJScripts__']);
 		}
+		// Grab the Scripts
+		if(isset($docObj['__MODxSJScripts__'])) $this->sjscripts = $docObj['__MODxSJScripts__'];
+		if(isset($docObj['__MODxJScripts__']))  $this->jscripts  = $docObj['__MODxJScripts__'];
+		
 		$this->documentObject = $docObj;
 		return $a['1']; // return document content
 	}
