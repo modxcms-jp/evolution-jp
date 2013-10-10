@@ -1,11 +1,11 @@
 /* init **************/
-html                        {font-family:Helvetica,sans-serif;font-size:100.01%;overflow-y:scroll;}
+html                        {font-family:Arial,Helvetica,sans-serif;font-size:100.01%;overflow-y:scroll;}
 body                        {font-size:small;}
-img, h1, ul, li             {margin:0;padding:0;}
-img                         {border:none;vertical-align:bottom;}
 input, select, textarea     {font:inherit;}
 body                        {text-align:center;}
 .wrap                       {text-align:left;}
+img, h1, ul, li             {margin:0;padding:0;}
+img                         {border:none;vertical-align:bottom;}
 
 /* width *************/
 .wrap                       {width:798px;}
@@ -16,14 +16,19 @@ body                        {color:#444;}
 .slogan,
 .navi ul li a:link,
 .navi ul li a:visited,
+.navi ul ul li a,
 .footer,
 .footer a:visited,
 .footer a:link              {color:#ffffff;}
 
 /* background color **/
 body,div.wrap               {background-color:#ffffff;}
+.navi ul li:hover ul a,
 .navi                       {background-color:#8c969c;}
-.navi ul li.active          {background-color:#404d56;}
+.navi ul li:hover a,
+.navi ul li:hover li a:hover,
+.navi ul li.active,
+.navi ul li a:hover         {background-color:#404d56;}
 .footer                     {background-color:#6b7881;}
 .slogan                     {background-color:#65727B;}
 
@@ -39,16 +44,13 @@ div.content                 {
 
 /* block layout *******/
 div.wrap                    {border:1px solid #ddd;}
-
 div.wrap                    {
                              margin:10px auto;
                              box-shadow:0 0 15px #cdcdcd;
                              -moz-box-shadow:0 0 15px #cdcdcd;
                              -webkit-box-shadow:0 0 20px #e5e5e5;
                             }
-div.slogan                  {
-                             padding:5px;
-                            }
+div.slogan                  {padding:5px;}
 div.navi ul                 {
                              overflow:hidden;zoom:1;
                              list-style-type:none;
@@ -56,6 +58,7 @@ div.navi ul                 {
 div.navi ul li              {
                              float:left;
                              letter-spacing:1px;
+                             display: block;
                             }
 
 div.navi ul li a            {
@@ -63,8 +66,20 @@ div.navi ul li a            {
                               padding: 8px;
                             }
 div.navi ul li a:link,
-div.navi ul li a:visited    {
-                             text-decoration: none;
+div.navi ul li a:visited    {text-decoration: none;}
+div.navi ul li ul           {display: none;}
+div.navi ul li:hover ul a   {
+                             filter: alpha(opacity=92);
+                             opacity:0.92;
+                            }
+div.navi ul li:hover ul     {
+                             display: block;
+                             position: absolute;
+                             z-index:10000;
+                            }
+div.navi ul li:hover li     {
+                             float: none;
+                             border-top: 1px solid #ffffff;
                             }
 
 div.content                 {

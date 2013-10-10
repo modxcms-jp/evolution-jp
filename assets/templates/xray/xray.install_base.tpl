@@ -19,7 +19,6 @@
   <meta name="keywords" content="[*キーワード*]">
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/style.css">
   <link rel="stylesheet" type="text/css" href="assets/templates/xray/content.css">
-  <link rel="stylesheet" type="text/css" href="assets/templates/xray/navi.css">
 </head>
 <body>
 <div class="wrap">
