@@ -239,7 +239,12 @@ class Wayfinder {
 		}
 		else
 		{
-			$usedTemplate = 'rowTpl';
+	    /* tonatos */
+            if ($resource['last'] && $this->_templates['rowTplLast']){
+                $usedTemplate = 'rowTplLast';
+            }
+            else $usedTemplate = 'rowTpl';
+	    /* end tonatos */
 		}
 		
 		//Get the template
