@@ -1284,3 +1284,4 @@ $_lang["smtp_port_title"] = 'SMTPポート';
 
 $_lang["user_street"] = '番地';
 $_lang["user_city"] = '市区町村';
+$_lang["user_other"] = 'その他';

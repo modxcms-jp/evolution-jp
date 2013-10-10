@@ -1282,3 +1282,4 @@ $_lang['smtp_port_title'] = 'SMTP port';
 
 $_lang["user_street"] = 'Street';
 $_lang["user_city"] = 'City';
+$_lang["user_other"] = 'Other';
