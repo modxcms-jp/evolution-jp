@@ -194,13 +194,13 @@ switch ($actionToTake)
 		switch($modx->config['docid_incrmnt_method'])
 		{
 			case '1':
-				$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+				$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
 				$where = "T1.id IS NULL";
 				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
 				$id = $modx->db->getValue($rs);
 				break;
 			case '2':
-				$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+				$rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
 				$id = $modx->db->getValue($rs);
 				break;
 			default:
@@ -229,7 +229,7 @@ switch ($actionToTake)
 		$createdon = $currentdate;
 		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
 		if(!empty($id)) $field['id'] = $id;
-		$newid = $modx->db->insert($field,$tbl_site_content);
+		$newid = $modx->db->insert($field,'[+prefix+]site_content');
 		if(!$newid)
 		{
 			$modx->manager->saveFormValues(27);
@@ -251,7 +251,7 @@ switch ($actionToTake)
 		{
 			foreach ($tvChanges as $tv)
 			{
-				$rs = $modx->db->insert($tv, $tbl_site_tmplvar_contentvalues);
+				$rs = $modx->db->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
 			}
 		}
 
@@ -298,7 +298,7 @@ switch ($actionToTake)
 		// update parent folder status
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
+			$rs = $modx->db->update('isfolder = 1', '[+prefix+]site_content', "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the document's parent to a folder.";
@@ -395,7 +395,7 @@ switch ($actionToTake)
 			exit;
 		}
 		// check to see document is a folder
-		$rs = $modx->db->select('COUNT(id)', $tbl_site_content, 'parent='. $_REQUEST['id']);
+		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent='{$id}'");
 		if (!$rs)
 		{
 			$modx->manager->saveFormValues(27);
@@ -463,7 +463,7 @@ switch ($actionToTake)
 		}
 		
 		// update template variables
-		$rs = $modx->db->select('id, tmplvarid', $tbl_site_tmplvar_contentvalues, "contentid='{$id}'");
+		$rs = $modx->db->select('id, tmplvarid', '[+prefix+]site_tmplvar_contentvalues', "contentid='{$id}'");
 		$tvIds = array ();
 		while ($row = $modx->db->getRow($rs))
 		{
@@ -496,14 +496,14 @@ switch ($actionToTake)
 		if (!empty($tvDeletions))
 		{
 			$where = 'id IN('.implode(',', $tvDeletions).')';
-			$rs = $modx->db->delete($tbl_site_tmplvar_contentvalues, $where);
+			$rs = $modx->db->delete('[+prefix+]site_tmplvar_contentvalues', $where);
 		}
 			
 		if (!empty($tvAdded))
 		{
 			foreach ($tvAdded as $tv)
 			{
-				$rs = $modx->db->insert($tv, $tbl_site_tmplvar_contentvalues);
+				$rs = $modx->db->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
 			}
 		}
 		
@@ -512,7 +512,7 @@ switch ($actionToTake)
 			foreach ($tvChanges as $tv)
 			{
 				$tvid = $tv[1]['id'];
-				$rs = $modx->db->update($tv[0], $tbl_site_tmplvar_contentvalues, "id='{$tvid}'");
+				$rs = $modx->db->update($tv[0], '[+prefix+]site_tmplvar_contentvalues', "id='{$tvid}'");
 			}
 		}
 
@@ -531,7 +531,7 @@ switch ($actionToTake)
 			$isManager = intval($modx->hasPermission('access_permissions'));
 			$isWeb     = intval($modx->hasPermission('web_access_permissions'));
 			$fields = 'groups.id, groups.document_group';
-			$from   = "{$tbl_document_groups} AS groups LEFT JOIN {$tbl_documentgroup_names} AS dgn ON dgn.id = groups.document_group";
+			$from   = '[+prefix+]document_groups AS groups LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = groups.document_group';
 			$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
 			$rs = $modx->db->select($fields,$from,$where);
 			$old_groups = array();
@@ -563,14 +563,12 @@ switch ($actionToTake)
 			if (!empty($old_groups))
 			{
 				$where = 'id IN (' . implode(',', $old_groups) . ')';
-				$saved = $modx->db->delete($tbl_document_groups,$where) ? $saved : false;
+				$saved = $modx->db->delete('[+prefix+]document_groups',$where) ? $saved : false;
 			}
 			// necessary to remove all permissions as document is public
 			if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on'))
 			{
-				$sql_delete = "DELETE FROM {$tbl_document_groups}";
-				$where = "document={$id}";
-				$saved = $modx->db->delete($tbl_document_groups,$where) ? $saved : false;
+				$saved = $modx->db->delete('[+prefix+]document_groups',"document='{$id}'") ? $saved : false;
 			}
 			if (!$saved)
 			{
@@ -583,7 +581,7 @@ switch ($actionToTake)
 		// do the parent stuff
 		if ($parent != 0)
 		{
-			$rs = $modx->db->update('isfolder = 1', $tbl_site_content, "id='{$parent}'");
+			$rs = $modx->db->update('isfolder = 1', '[+prefix+]site_content', "id='{$parent}'");
 			if (!$rs)
 			{
 				echo "An error occured while attempting to change the new parent to a folder.";
@@ -690,30 +688,30 @@ function saveMETAKeywords($id) {
 	if ($modx->hasPermission('edit_doc_metatags'))
 	{
 		// keywords - remove old keywords first
-		$modx->db->delete($tbl_keyword_xref, "content_id='{$id}'");
+		$modx->db->delete('[+prefix+]keyword_xref', "content_id='{$id}'");
 		for ($i = 0; $i < count($keywords); $i++) {
 			$kwid = $keywords[$i];
 			$flds = array (
 				'content_id' => $id,
 				'keyword_id' => $kwid
 			);
-			$modx->db->insert($flds, $tbl_keyword_xref);
+			$modx->db->insert($flds, '[+prefix+]keyword_xref');
 		}
 		// meta tags - remove old tags first
-		$modx->db->delete($tbl_site_content_metatags, "content_id='{$id}'");
+		$modx->db->delete('[+prefix+]site_content_metatags', "content_id='{$id}'");
 		for ($i = 0; $i < count($metatags); $i++) {
 			$kwid = $metatags[$i];
 			$flds = array (
 				'content_id' => $id,
 				'metatag_id' => $kwid
 			);
-			$modx->db->insert($flds, $tbl_site_content_metatags);
+			$modx->db->insert($flds, '[+prefix+]site_content_metatags');
 		}
 		$flds = array (
 			'haskeywords' => (count($keywords) ? 1 : 0),
 			'hasmetatags' => (count($metatags) ? 1 : 0)
 		);
-		$modx->db->update($flds, $tbl_site_content, "id={$id}");
+		$modx->db->update($flds, '[+prefix+]site_content', "id={$id}");
 	}
 }
 
@@ -848,21 +846,21 @@ function _check_duplicate_alias($id,$alias,$parent)
 	
 	if ($modx->config['use_alias_path']==1)
 	{ // only check for duplicates on the same level if alias_path is on
-		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
+		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
 		$docid = $modx->db->getValue($rs);
 		if($docid < 1)
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias='' AND parent='{$parent}'");
+			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias='' AND parent='{$parent}'");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
 	else
 	{
-		$rs = $modx->db->select('id',$tbl_site_content,"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
+		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
 		$docid = $modx->db->getValue($rs);
 		if($docid < 1)
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$alias}' AND alias=''");
+			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias=''");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
