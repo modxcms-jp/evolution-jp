@@ -39,6 +39,10 @@
 	</nav>
 	<article>
 	    <h2>[*pagetitle*]</h2>
+	    [[Wayfinder?
+              &outerTpl='@CODE:<ul class="subnavi">[+wf.wrapper+]</ul>'
+              &level=1
+            ]]
 	    [*content*]
 	</article>
 	</div>
