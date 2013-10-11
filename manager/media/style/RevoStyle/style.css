@@ -6,13 +6,12 @@ html, body, form, fieldset {
 }
 html {
 	font-size: 100.01%;
-	line-height: 1.5;
-	font-family: font-family: Arial,"Helvetica Neue",Helvetica,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
-	color: #111;
 }
 body {
+	font-family: Arial,"Helvetica Neue",Helvetica,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
 	font-size: 75%;
 	height: 100%;
+	line-height: 1.5;
 	color:#333333;
 	background: #f4f4f4;
 }
