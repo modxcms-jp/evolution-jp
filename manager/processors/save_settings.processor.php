@@ -85,13 +85,8 @@ if (isset($data) && count($data) > 0) {
 				continue 2;
 				break;
 			case 'manager_language':
-				$langDir = realpath(MODX_BASE_PATH . 'manager/includes/lang');
-				$langFile = realpath(MODX_BASE_PATH . '/manager/includes/lang/' . $v . '.inc.php');
-				$langFileDir = dirname($langFile);
-				if($langDir !== $langFileDir || !file_exists($langFile))
-				{
+				if(!is_file(MODX_CORE_PATH . "lang/{$v}.inc.php"))
 					$v = 'english';
-				}
 				break;
 			case 'new_file_permissions':
 			case 'new_folder_permissions':
