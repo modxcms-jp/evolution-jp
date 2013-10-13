@@ -6,7 +6,7 @@
  */
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
-$self = 'manager/includes/session_keepalive.php';
+$self = MODX_MANAGER_PATH . 'session_keepalive.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once("{$base_path}index.php");
 $modx->db->connect();

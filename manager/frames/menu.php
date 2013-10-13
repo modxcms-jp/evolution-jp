@@ -33,7 +33,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	{
 		var tok = document.getElementById('sessTokenInput').value;
 		var o = Math.random();
-		var url = 'includes/session_keepalive.php';
+		var url = 'session_keepalive.php';
 		
 		$j.getJSON(url, {'tok':tok,'o':o},
 		function(resp)
@@ -402,7 +402,7 @@ function buildMenu($target,$item)
 	
 	if(!isset($modx->config['topmenu_site']))
 	{
-		include(MODX_BASE_PATH . 'manager/includes/default.config.php');
+		include(MODX_CORE_PATH . 'default.config.php');
 		$modx->config['topmenu_site'] = $default_config['topmenu_site'];
 		$modx->config['topmenu_element'] = $default_config['topmenu_element'];
 		$modx->config['topmenu_security'] = $default_config['topmenu_security'];
