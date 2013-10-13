@@ -63,7 +63,7 @@ if ($action == 27)
 </div>
 </div>
 <?php
-		include(MODX_MANAGER_PATH.'includes/footer.inc.php');
+		include(MODX_CORE_PATH . 'footer.inc.php');
 		exit;
 	}
 }
@@ -727,8 +727,8 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	if ($num_of_tv > 0)
 	{
 		echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
-		require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
-		require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
+		require_once(MODX_CORE_PATH . 'tmplvars.inc.php');
+		require_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
 		while($row = $modx->db->getRow($rs))
 		{
 			// Go through and display all Template Variables

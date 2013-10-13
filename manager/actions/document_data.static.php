@@ -110,7 +110,7 @@ if ($numRecords > 0)
 	{
 		$e->setError(1); // sql error
 		$e->dumpError();
-		include($modx->config['base_path'].'manager/includes/footer.inc.php');
+		include(MODX_CORE_PATH . 'footer.inc.php');
 		exit;
 	}
 	else
@@ -123,7 +123,7 @@ if ($numRecords > 0)
 
 
 		// context menu
-		include_once MODX_MANAGER_PATH .'includes/controls/contextmenu.php';
+		include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 		$cm = new ContextMenu("cntxm", 180);
 		// $cm->addSeparator();
 		$cm->addItem($_lang["edit_resource"],       "js:menuAction(27)",$_style['icons_edit_document'],($modx->hasPermission('edit_document') ? 0:1));

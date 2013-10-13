@@ -163,7 +163,7 @@ $modx->manager->initPageViewState();
 	<?php
 
 		$ds = $modx->db->select('*','[+prefix+]site_metatags st','','name');
-		include_once "{$base_path}manager/includes/controls/datagrid.class.php";
+		include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 		$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 		$grd->noRecordMsg = $_lang["no_records_found"];
 		$grd->cssClass="grid";

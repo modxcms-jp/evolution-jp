@@ -502,7 +502,7 @@ $ds = $modx->db->select($field, $from, "smd.module='{$id}' ORDER BY smd.type,nam
 if (!$ds) {
 	echo "An error occured while loading module dependencies.";
 } else {
-	include_once $base_path."manager/includes/controls/datagrid.class.php";
+	include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 	$grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang['no_records_found'];
 	$grd->cssClass = 'grid';

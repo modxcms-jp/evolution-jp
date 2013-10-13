@@ -104,13 +104,13 @@ if($modx->manager->hasFormValues()) {
 // include the country list language file
 $_country_lang = array();
 $base_path = $modx->config['base_path'];
-if($manager_language!="english" && file_exists("{$base_path}manager/includes/lang/country/{$manager_language}_country.inc.php"))
+if($manager_language!="english" && is_file(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php"))
 {
-    include_once "lang/country/".$manager_language."_country.inc.php";
+    include_once(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php");
 }
 else
 {
-    include_once "lang/country/english_country.inc.php";
+    include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
 }
 
 ?>

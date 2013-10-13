@@ -23,7 +23,8 @@ if($limit>1) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-if(!isset($default_config) || !is_array($default_config)) $default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+if(!isset($default_config) || !is_array($default_config))
+	$default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 
 $settings = array();
 $rs = $modx->db->select('setting_name, setting_value', '[+prefix+]system_settings');
@@ -51,7 +52,7 @@ $displayStyle = ($_SESSION['browser']==='modern') ? 'table-row' : 'block' ;
 
 // load languages and keys
 $lang_keys = array();
-$dir = scandir("{$base_path}manager/includes/lang");
+$dir = scandir(MODX_CORE_PATH . 'lang');
 foreach ($dir as $filename)
 {
 	if(substr($filename,-8)!=='.inc.php') continue;
@@ -1259,7 +1260,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 */
 function get_lang_keys($filename)
 {
-	$file = MODX_MANAGER_PATH.'includes/lang/' . $filename;
+	$file = MODX_CORE_PATH . "lang/{$filename}";
 	if(is_file($file) && is_readable($file))
 	{
 		include($file);

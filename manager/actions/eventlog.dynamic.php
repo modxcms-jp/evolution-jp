@@ -24,7 +24,7 @@ $listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode']:$_PAGE['vs']['l
 $_PAGE['vs']['lm'] = $listmode;
 
 // context menu
-include_once $base_path."manager/includes/controls/contextmenu.php";
+include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
 $cm->addItem($_lang['view_log'],"js:menuAction(1)",$_style['icons_save']);
 $cm->addSeparator();
@@ -128,7 +128,7 @@ echo $cm->render();
 	}
 	$orderby = 'el.id DESC';
 	$ds = $modx->db->select($field,$from,$where,$orderby);
-	include_once $base_path."manager/includes/controls/datagrid.class.php";
+	include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang['no_records_found'];
 	$grd->cssClass="grid";
