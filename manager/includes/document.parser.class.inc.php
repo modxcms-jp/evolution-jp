@@ -112,7 +112,7 @@ class DocumentParser {
 			// Database API
 			case 'DBAPI' :
 				if(!isset($database_type)||empty($database_type)) $database_type = 'mysql';
-				if(include_once(MODX_BASE_PATH . "manager/includes/extenders/dbapi.{$database_type}.class.inc.php"))
+				if(include_once(MODX_CORE_PATH . "extenders/dbapi.{$database_type}.class.inc.php"))
 				{
 					$this->db= new DBAPI;
 					$this->dbConfig= & $this->db->config; // alias for backward compatibility
@@ -122,7 +122,7 @@ class DocumentParser {
 				break;
 			// Manager API
 			case 'ManagerAPI' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/manager.api.class.inc.php'))
+				if(include_once(MODX_CORE_PATH . 'extenders/manager.api.class.inc.php'))
 				{
 					$this->manager= new ManagerAPI;
 					return true;
@@ -131,7 +131,7 @@ class DocumentParser {
 				break;
             // PHPMailer
             case 'MODxMailer' :
-                include_once(MODX_MANAGER_PATH . 'includes/extenders/modxmailer.class.inc.php');
+                include_once(MODX_CORE_PATH . 'extenders/modxmailer.class.inc.php');
                 $this->mail= new MODxMailer;
                 if($this->mail) return true;
                 else            return false;
@@ -140,7 +140,7 @@ class DocumentParser {
 			case 'PHx' :
 				if(!class_exists('PHx') || !is_object($this->phx))
 				{
-					$rs = include_once(MODX_BASE_PATH . 'manager/includes/extenders/phx.parser.class.inc.php');
+					$rs = include_once(MODX_CORE_PATH . 'extenders/phx.parser.class.inc.php');
 					if($rs)
 					{
 						$this->phx= new PHx;
@@ -151,7 +151,7 @@ class DocumentParser {
 				else return true;
 				break;
 			case 'MakeTable' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/maketable.class.php'))
+				if(include_once(MODX_CORE_PATH . 'extenders/maketable.class.php'))
 				{
 					$this->table= new MakeTable;
 					return true;
@@ -159,7 +159,7 @@ class DocumentParser {
 				else return false;
 				break;
 			case 'EXPORT_SITE' :
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/export.class.inc.php'))
+				if(include_once(MODX_CORE_PATH . 'extenders/export.class.inc.php'))
 				{
 					$this->export= new EXPORT_SITE;
 					return true;
@@ -167,11 +167,11 @@ class DocumentParser {
 				else return false;
 				break;
 			case 'SubParser':
-				include_once(MODX_BASE_PATH . 'manager/includes/extenders/sub.document.parser.class.inc.php');
+				include_once(MODX_CORE_PATH . 'extenders/sub.document.parser.class.inc.php');
 				$this->sub = new SubParser();
 				break;
 			case 'DeprecatedAPI':
-				if(include_once(MODX_BASE_PATH . 'manager/includes/extenders/deprecated.functions.inc.php'))
+				if(include_once(MODX_CORE_PATH . 'extenders/deprecated.functions.inc.php'))
 				{
 					return true;
 				}
@@ -1241,9 +1241,8 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[*','*]');
-		$basepath= $this->config['base_path'] . 'manager/includes/';
-		include_once("{$basepath}tmplvars.format.inc.php");
-		include_once("{$basepath}tmplvars.commands.inc.php");
+		include_once(MODX_CORE_PATH . 'tmplvars.format.inc.php');
+		include_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
@@ -2507,7 +2506,7 @@ class DocumentParser {
 		
 	function getVersionData()
 	{
-		require_once($this->config["base_path"] . 'manager/includes/version.inc.php');
+		require_once(MODX_CORE_PATH . 'version.inc.php');
 		$v= array ();
 		$v['version']= $modx_version;
 		$v['branch']= $modx_branch;
