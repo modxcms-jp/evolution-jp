@@ -30,7 +30,7 @@ header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
 
 if ($total > 0)
 {
-	require("{$base_path}manager/includes/tmplvars.commands.inc.php");
+	require(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
 	$output.= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
 	
 	for ($i=0; $i<$total; $i++)

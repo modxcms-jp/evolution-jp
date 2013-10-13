@@ -6,9 +6,9 @@ define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
 $modx->db->connect();
 
-include_once("{$base_path}manager/includes/settings.inc.php");
-include_once("{$base_path}manager/includes/version.inc.php");
-include_once("{$base_path}manager/includes/log.class.inc.php");
+include_once(MODX_CORE_PATH . 'settings.inc.php');
+include_once(MODX_CORE_PATH . 'version.inc.php');
+include_once(MODX_CORE_PATH . 'log.class.inc.php');
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
@@ -54,10 +54,10 @@ $limit = $modx->db->getRecordCount($rs);
 
 if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
 $_lang = array();
-include_once("{$base_path}manager/includes/lang/{$modx->config['manager_language']}.inc.php");
+include_once(MODX_CORE_PATH . 'lang/{$modx->config['manager_language']}.inc.php');
 
 // include_once the error handler
-include_once("{$base_path}manager/includes/error.class.inc.php");
+include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
 if($limit==0 || $limit>1) {
@@ -318,7 +318,7 @@ $modx->invokeEvent("OnManagerLogin",
 
 if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
 {
-	include_once($modx->config['base_path'] . 'manager/includes/upgrades.php');
+	include_once(MODX_CORE_PATH . 'upgrades.php');
 }
 
 // check if we should redirect user to a web page

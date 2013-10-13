@@ -63,9 +63,9 @@ class errorHandler{
 	});
 </script>
 EOT;
-        include_once($modx->config['base_path'] . 'manager/includes/header.inc.php');
+        include_once(MODX_CORE_PATH . 'header.inc.php');
 		echo $scr;
-		include_once($modx->config['base_path'] . 'manager/includes/footer.inc.php');
+		include_once(MODX_CORE_PATH . 'footer.inc.php');
 		exit;
 	}
 }

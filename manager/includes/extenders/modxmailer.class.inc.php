@@ -8,7 +8,7 @@
  *******************************************************
  */
 
-include_once MODX_MANAGER_PATH . 'includes/controls/phpmailer/class.phpmailer.php';
+include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');
 
 /* ------------------------------------------------------------------
  *
@@ -29,7 +29,7 @@ class MODxMailer extends PHPMailer
 		$this->mb_language = 'UNI';
 		$this->encode_header_method = '';
 
-		$this->PluginDir = MODX_MANAGER_PATH . 'includes/controls/phpmailer/';
+		$this->PluginDir = MODX_CORE_PATH . 'controls/phpmailer/';
 
 		switch($modx->config['email_method'])
 		{
@@ -91,7 +91,7 @@ class MODxMailer extends PHPMailer
 			mb_language($this->mb_language);
 			mb_internal_encoding($modx->config['modx_charset']);
 		}
-		$exconf = $modx->config['base_path'] . 'manager/includes/controls/phpmailer/config.inc.php';
+		$exconf = MODX_CORE_PATH . 'controls/phpmailer/config.inc.php';
 		if(is_file($exconf)) include_once($exconf);
 	}
 	

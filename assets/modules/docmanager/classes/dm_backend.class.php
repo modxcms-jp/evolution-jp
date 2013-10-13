@@ -597,7 +597,7 @@ class DocManagerBackend {
 	}
 	
 	function logDocumentChange($action) {
-		include_once MODX_BASE_PATH.'manager/includes/log.class.inc.php';
+		include_once(MODX_CORE_PATH . 'log.class.inc.php';
 		$log = new logHandler;
 	
 		switch ($action) {

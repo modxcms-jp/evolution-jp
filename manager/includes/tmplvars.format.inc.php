@@ -213,7 +213,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			$o = getUnixtimeFromDateString($value);
 			break;
 		case 'datagrid':
-			include_once MODX_BASE_PATH.'manager/includes/controls/datagrid.class.php';
+			include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 			$grd = new DataGrid('',$value);
 			$grd->noRecordMsg		=$params['egmsg'];
 			

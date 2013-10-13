@@ -93,7 +93,7 @@ include_once("{$snipPath}weblogin/crypt.class.inc.php");
 
 if ($isPWDActivate || $isPWDReminder || $isLogOut || $isPostBack) {
 	# include the logger class
-	include_once $modx->config['base_path'] . "manager/includes/log.class.inc.php";
+	include_once(MODX_CORE_PATH . 'log.class.inc.php');
 	include_once "{$snipPath}weblogin/weblogin.processor.inc.php";
 }
 

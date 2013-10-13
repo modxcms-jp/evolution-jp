@@ -112,11 +112,11 @@ class Qm {
 					// Normal saving document procedure stops to redirect => Before redirecting secure documents and clear cache
 					
 					// Secure web documents - flag as private (code from: manager/processors/save_content.processor.php)
-					include_once($this->modx->config['base_path']."manager/includes/secure_web_documents.inc.php");
+					include_once(MODX_CORE_PATH . 'secure_web_documents.inc.php');
 					secureWebDocument($key);
 					
 					// Secure manager documents - flag as private (code from: manager/processors/save_content.processor.php)
-					include_once($this->modx->config['base_path']."manager/includes/secure_mgr_documents.inc.php");
+					include_once(MODX_CORE_PATH . 'secure_mgr_documents.inc.php');
 					secureMgrDocument($key);
 					
 					// Clear cache
@@ -143,17 +143,17 @@ class Qm {
 				if($modx->documentObject['content_dispo']==='1') return;
 				
 				// Include_once the language file
-				if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
+				if(!isset($manager_language) || !is_file(MODX_CORE_PATH . "lang/{$manager_language}.inc.php"))
 				{
 					$manager_language = 'english'; // if not set, get the english language file.
 				}
 				// Include default language
-				include_once MODX_MANAGER_PATH."includes/lang/english.inc.php";
+				include_once(MODX_CORE_PATH . 'lang/english.inc.php');
 				
 				// Include user language
-				if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php"))
+				if($manager_language!="english" && is_file(MODX_CORE_PATH . "lang/{$manager_language}.inc.php"))
 				{
-					include_once MODX_MANAGER_PATH."includes/lang/{$manager_language}.inc.php";
+					include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 				}
 				
 				// Get document id
@@ -191,9 +191,9 @@ class Qm {
 					$imagePreview = '';
 					
 					// Includes
-					include_once('manager/includes/tmplvars.inc.php');
-					include_once('manager/includes/tmplvars.commands.inc.php');
-					include_once('manager/includes/tmplvars.format.inc.php');
+					include_once(MODX_CORE_PATH . 'tmplvars.inc.php');
+					include_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
+					include_once(MODX_CORE_PATH . 'tmplvars.format.inc.php');
 					
 					// Get save status
 					if (isset($_POST['save'])) $save = intval($_POST['save']);

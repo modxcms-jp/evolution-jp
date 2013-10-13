@@ -2,7 +2,7 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 global $default_config, $settings_version;
-$default_config = include_once($modx->config['base_path'] . 'manager/includes/default.config.php');
+$default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 
 run_update($settings_version);
 $modx->clearCache();

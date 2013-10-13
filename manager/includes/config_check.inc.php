@@ -7,9 +7,9 @@ $sysfiles_check = $modx->manager->checkSystemChecksum();
 if ($sysfiles_check==='modified'){
       $warnings[] = 'configcheck_sysfiles_mod';
     }
-if (is_writable('includes/config.inc.php')){
+if (is_writable(MODX_CORE_PATH . 'config.inc.php')){
     // Warn if world writable
-    if(@fileperms('includes/config.inc.php') & 0x0002) {
+    if(@fileperms(MODX_CORE_PATH . 'config.inc.php') & 0x0002) {
       $warnings[] = 'configcheck_configinc';
     }
 }

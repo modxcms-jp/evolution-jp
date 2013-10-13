@@ -164,7 +164,7 @@ switch ($_REQUEST['operation'])
 // secure manager documents - flag as private
 if($updategroupaccess==true)
 {
-	include $base_path."manager/includes/secure_mgr_documents.inc.php";
+	include(MODX_CORE_PATH . 'secure_mgr_documents.inc.php');
 	secureMgrDocument();
 
 	// Update the private group column

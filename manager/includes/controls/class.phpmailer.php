@@ -1,2 +1,2 @@
 <?php
-include_once(MODX_MANAGER_PATH . 'includes/controls/phpmailer/class.phpmailer.php');
+include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');

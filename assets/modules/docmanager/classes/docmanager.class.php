@@ -26,10 +26,10 @@ class DocManager {
 			}
 		}
 		
-		include MODX_BASE_PATH.'manager/includes/lang/english.inc.php';
+		include MODX_CORE_PATH.'lang/english.inc.php';
 		if($managerLanguage != 'english') {
-			if (file_exists(MODX_BASE_PATH.'manager/includes/lang/'.$managerLanguage.'.inc.php')) {
-     			include MODX_BASE_PATH.'manager/includes/lang/'.$managerLanguage.'.inc.php';
+			if (is_file(MODX_CORE_PATH."lang/{$managerLanguage}.inc.php")) {
+     			include(MODX_CORE_PATH."lang/{$managerLanguage}.inc.php");
 			}
 		}
 		

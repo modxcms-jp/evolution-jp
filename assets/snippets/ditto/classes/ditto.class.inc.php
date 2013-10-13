@@ -712,9 +712,8 @@ class ditto {
 	function appendTV($tvname="",$docIDs){
 		global $modx;
 		
-		$baspath= $modx->config["base_path"] . "manager/includes";
-	    include_once $baspath . "/tmplvars.format.inc.php";
-	    include_once $baspath . "/tmplvars.commands.inc.php";
+	    include_once MODX_CORE_PATH . 'tmplvars.format.inc.php';
+	    include_once MODX_CORE_PATH . 'tmplvars.commands.inc.php';
 
 		$tb1 = $modx->getFullTableName("site_tmplvar_contentvalues");
 		$tb2 = $modx->getFullTableName("site_tmplvars");
