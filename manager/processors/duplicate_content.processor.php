@@ -61,6 +61,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 
 	$new_id = set_new_id();
 	if(!empty($new_id)) $content['id'] = $new_id;
+	else                unset($content['id']);
 
 	// Once we've grabbed the document object, start doing some modifications
 	if ($_toplevel == 0 && $reset_alias===true)
