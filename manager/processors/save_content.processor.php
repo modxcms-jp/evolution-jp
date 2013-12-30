@@ -53,10 +53,16 @@ $editedby        = $modx->getLoginUserID();
 $currentdate     = time();
 $editedon        = $currentdate;
 
-if (trim($pagetitle) == '')
+if (trim($pagetitle) === '')
 {
 	if ($type == 'reference') $pagetitle = $_lang['untitled_weblink'];
 	else                      $pagetitle = $_lang['untitled_resource'];
+}
+
+if($type==='reference')
+{
+	if(strpos($content,"\n")!==false||strpos($content,'<')!==false||strpos($content,'<')!==false)
+		$content = '';
 }
 
 $pos = strrpos($alias,'.');
