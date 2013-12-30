@@ -201,7 +201,7 @@ if ($numRecords > 0)
 			$tpl = '';
 			$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
 			$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
-			$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:auto;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
+			$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
 			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
 			                     array($icon,$link,$pagetitle,$description), $tpl);
 			
