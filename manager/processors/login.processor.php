@@ -54,7 +54,7 @@ $limit = $modx->db->getRecordCount($rs);
 
 if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
 $_lang = array();
-include_once(MODX_CORE_PATH . 'lang/{$modx->config['manager_language']}.inc.php');
+include_once(MODX_CORE_PATH . 'lang/'.$modx->config['manager_language'].'.inc.php');
 
 // include_once the error handler
 include_once(MODX_CORE_PATH . 'error.class.inc.php');
