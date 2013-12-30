@@ -23,4 +23,5 @@ var mce_valid_elements = "@[id|class|style|title|dir<ltr?rtl|lang|xml::lang|oncl
 + "kbd,label[for],legend,noscript,optgroup[label|disabled],option[disabled|label|selected|value],"
 + "q[cite],samp,select[eform|disabled|multiple|name|size],small,"
 + "textarea[eform|cols|rows|disabled|name|readonly],tt,var,big,"
-+ "article,section,hgroup,figure,figcaption";
++ "article,section,hgroup,figure,figcaption,"
++ "iframe[*]";
