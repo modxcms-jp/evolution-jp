@@ -5,7 +5,7 @@
  * シンプルかつカスタマイズの自由度が高いメニュービルダー
  *
  * @category 	snippet
- * @version 	2.0.5
+ * @version 	2.0.6
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Navigation
@@ -64,7 +64,7 @@ $wf->_config = array(
 	'ignoreHidden' => isset($ignoreHidden) ? $ignoreHidden : FALSE,
 	'hideSubMenus' => isset($hideSubMenus) ? $hideSubMenus : FALSE,
 	'useWeblinkUrl' => isset($useWeblinkUrl) ? $useWeblinkUrl : TRUE,
-	'fullLink' => isset($fullLink) ? $fullLink : FALSE,
+	'fullLink' => isset($fullLink) ? $fullLink : true,
 	'nl' => isset($removeNewLines) ? '' : "\n",
 	'sortOrder' => isset($sortOrder) ? strtoupper($sortOrder) : 'ASC',
 	'sortBy' => isset($sortBy) ? $sortBy : 'menuindex',
