@@ -2364,6 +2364,7 @@ class DocumentParser {
 		switch($scheme)
 		{
 			case 'full':
+			case 'f':
 				$site_url = $this->config['site_url'];
 				$base_url = '';
 				break;
@@ -2374,6 +2375,7 @@ class DocumentParser {
 				$base_url = '';
 				break;
 			case 'https':
+			case 'ssl':
 			case '1':
 				if(strpos($site_url,'https://')!==0)
 					$site_url = 'https' . substr($site_url,strpos($site_url,':'));
@@ -2381,10 +2383,13 @@ class DocumentParser {
 				break;
 			case 'absolute':
 			case 'abs':
+			case 'a':
 				$site_url = '';
 				$base_url = $this->config['base_url'];
 				break;
 			case 'relative':
+			case 'rel':
+			case 'r':
 			case '-1':
 			default:
 				$site_url = '';
