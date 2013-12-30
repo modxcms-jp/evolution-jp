@@ -420,7 +420,7 @@ class SubParser {
 		return $str;
 	}
 
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER', $responseCode= '301')
+    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER')
     {
     	global $modx;
     	

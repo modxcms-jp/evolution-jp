@@ -3150,7 +3150,7 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
     function get_backtrace($backtrace)
     	{$this->loadExtension('SubParser');return $this->sub->get_backtrace($backtrace);}
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER', $responseCode= '301')
+    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER')
     	{$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
     function sendForward($id='', $responseCode= '')
     	{$this->loadExtension('SubParser');$this->sub->sendForward($id, $responseCode);}
