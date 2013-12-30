@@ -19,9 +19,8 @@ var mce_valid_elements = "@[id|class|style|title|dir<ltr?rtl|lang|xml::lang|oncl
 + "|height|src|*],script[src|type],map[name],area[shape|coords|href|alt|target],bdo,"
 + "button,col[align|char|charoff|span|valign|width],colgroup[align|char|charoff|span|"
 + "valign|width],dfn,fieldset,form[action|accept|accept-charset|enctype|method],"
-+ "input[accept|alt|checked|disabled|maxlength|name|readonly|size|src|type|value],"
++ "input[eform|accept|alt|checked|disabled|maxlength|name|readonly|size|src|type|value],"
 + "kbd,label[for],legend,noscript,optgroup[label|disabled],option[disabled|label|selected|value],"
-+ "q[cite],samp,select[disabled|multiple|name|size],small,"
-+ "textarea[cols|rows|disabled|name|readonly],tt,var,big";
-var mce_extended_valid_elements = "";
-var mce_invalid_elements = "";
++ "q[cite],samp,select[eform|disabled|multiple|name|size],small,"
++ "textarea[eform|cols|rows|disabled|name|readonly],tt,var,big,"
++ "article,section,hgroup,figure,figcaption";
