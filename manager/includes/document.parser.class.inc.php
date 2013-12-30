@@ -2424,10 +2424,6 @@ class DocumentParser {
 	
 	function rewriteUrls($documentSource)
 	{
-		// rewrite the urls
-		$pieces = preg_split('/(\[~|~\])/',$documentSource);
-		$maxidx = sizeof($pieces);
-		$documentSource = '';
 		if(!isset($this->referenceListing))
 		{
 			$this->referenceListing = $this->_getReferenceListing();
@@ -2443,6 +2439,10 @@ class DocumentParser {
 			$use_alias = $this->config['friendly_alias_urls'];
 			$prefix    = $this->config['friendly_url_prefix'];
 			$suffix    = $this->config['friendly_url_suffix'];
+			
+			$pieces = preg_split('/(\[~|~\])/',$documentSource);
+			$maxidx = sizeof($pieces);
+			$documentSource = '';
 			
 			for ($idx = 0; $idx < $maxidx; $idx++)
 			{
