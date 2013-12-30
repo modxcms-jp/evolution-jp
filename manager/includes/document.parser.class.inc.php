@@ -2296,7 +2296,7 @@ class DocumentParser {
 		return $referenceListing;
 	}
 	
-	function makeUrl($id, $alias= '', $args= '', $scheme= 'relative')
+	function makeUrl($id, $alias= '', $args= '', $scheme= 'full')
 	{
 		if($id==0) return $this->config['site_url'];
 		$makeurl= '';
