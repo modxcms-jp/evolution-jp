@@ -775,7 +775,14 @@ $gdAvailable = extension_loaded('gd');
 <th><?php echo $_lang["smtp_password_title"] ?></th>
 <td ><input onchange="documentDirty=true;" type="password" maxlength="255" style="width: 250px;" name="smtppw" value="********************" autocomplete="off" /></td>
 </tr>
-
+<tr>
+<th><?php echo $_lang["smtp_secure_title"] ?></th>
+<td>
+<?php echo wrap_label($_lang["none"],form_radio('smtp_secure','', ($smtp_secure=='' || !isset($smtp_secure)) )); ?>
+<?php echo wrap_label("ssl",form_radio('smtp_secure','ssl', ($smtp_secure=='ssl') ));?>
+<?php echo wrap_label("tls",form_radio('smtp_secure','tls', ($smtp_secure=='tls') ));?>
+</td>
+</tr>
 
 
 
