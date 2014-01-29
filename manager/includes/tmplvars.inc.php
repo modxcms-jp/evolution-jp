@@ -239,11 +239,18 @@
 	
 	function splitOption($value)
 	{
-		if(is_array($value)) $value = $value['0'];
-		
-		if(strpos($value,'==')===false) $label = $value;
-		else                            list($label,$value) = explode('==',$value,2);
-		
+		if(is_array($value))
+		{
+			$label=$value[0];
+			$value=$value[1];
+		}
+		else
+		{
+			if(strpos($value,'==')===false)
+				$label = $value;
+			else
+				list($label,$value) = explode('==',$value,2);
+		}
 		return array($label,$value);
 	}
 	
