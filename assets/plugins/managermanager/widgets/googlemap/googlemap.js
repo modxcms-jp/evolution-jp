@@ -1,46 +1,27 @@
 var $j = jQuery.noConflict();
-
+var geocoder;
+var map;
+var addressField;
+var marker;
 
 function googlemap(id,defaultGeoLoc) {
 	mapContainerId = "map_canvas_"+id;
 	// google maps js is loaded async, so we (loop) wait for it
-	if (typeof(GMap2) === 'undefined') {
+	if (!google || !google.maps) {
 		setTimeout('googlemap("'+id+'","'+defaultGeoLoc+'");', 200);
 	}
 	else {
 		$j("#"+id).after("<div id='"+mapContainerId+"' style='width: 500px; height: 300px'>Loading map, please wait...</div>");
+		$j("#"+mapContainerId).after("<input type='text' id='search_address_" + id + "' value=''><input type='button' onclick='geoSearch(" + '"' + mapContainerId + '"' + ");' value='Search'>");
 		$j("#"+mapContainerId).data("googlemap_tvId",id);
 		$j("#"+mapContainerId).data("googlemap_defaultGeoLocation",defaultGeoLoc);
+		addressField = document.getElementById('search_address_'+id);
 		StartGoogleMaps(mapContainerId);
 	}
 }
 
 
 function StartGoogleMaps(mapContainerId) {
-  if (GBrowserIsCompatible()) {
-  
-	var googleBarOptions = {
-		onGenerateMarkerHtmlCallback : function(selectedMarker, div, result) { 
-			var Pos = selectedMarker.getLatLng();
-			marker.setLatLng(Pos);
-			if (!initOverlay) map.addOverlay(marker);
-			$j("#"+tvId).val(Pos.lat() + ',' + Pos.lng());
-			div.innerHTML = "Location saved!"; return div; 
-		},
-		suppressInitialResultSelection : false,
-		showOnLoad : true,
-		searchFormHint : "address / location"
-	};
-  
-	var mapOptions = {
-		googleBarOptions : googleBarOptions
-	  };
-
-	var map = new GMap2(document.getElementById(mapContainerId),mapOptions);
-	map.setUIToDefault();
-	map.disableDoubleClickZoom(); 
-	map.enableGoogleBar();
-
 	
 	var tvId = $j("#"+mapContainerId).data("googlemap_tvId");
 	var defaultGeoLoc = $j("#"+mapContainerId).data("googlemap_defaultGeoLocation");
@@ -50,27 +31,52 @@ function StartGoogleMaps(mapContainerId) {
 	if ($j("#"+tvId).val() != '') {		// TV contains a value already?
 		geoLoc = $j("#"+tvId).val().split(',');
 		initOverlay = true;
-	}
-	else {
+	}else {
 		geoLoc = (defaultGeoLoc != '')? defaultGeoLoc.split(',') : new Array(52.5,13.5);	// get default from mm_rules, otherwise head to berlin
+	}
+
+	var center = new google.maps.LatLng(geoLoc[0], geoLoc[1]);
+	var mapOptions = {
+		disableDoubleClickZoom:true,
+		center: center,
+         zoom: 16,
+         mapTypeId: google.maps.MapTypeId.ROADMAP
+ 	  };
+	map = new google.maps.Map(document.getElementById(mapContainerId),mapOptions);
+	geocoder = new google.maps.Geocoder();
+
+	if (initOverlay) { addMarker(center,tvId); }
+
+	google.maps.event.addListener(map, 'dblclick', function(point) {
+		addMarker(point.latLng,tvId);
+	});
 	}
 	
 
-	var center = new GLatLng(geoLoc[0], geoLoc[1]);
-	map.setCenter(center, 13); 
-	var marker = new GMarker(center, {draggable: true});
-	if (initOverlay) map.addOverlay(marker);
-
-	// double click listener - sets marker
-	GEvent.addListener(map, "dblclick", function(mark,point) {
-			marker.setLatLng(point);
-			if (!initOverlay) map.addOverlay(marker);
-			$j("#"+tvId).val(point.lat() + ',' + point.lng());
+function addMarker(myLatLng,tvId){
+	if(marker){marker.setMap(null);}
+	marker = new google.maps.Marker({
+		position: myLatLng,
+		map: map,
+		draggable:true
 	});
+	map.setCenter(myLatLng);
+	$j("#"+tvId).val(myLatLng.lat() + ',' + myLatLng.lng());
 
 	// drag marker listeners
-	GEvent.addListener(marker, "dragstart", function() { map.closeInfoWindow();	});
-	GEvent.addListener(marker, "dragend", function(point) {  $j("#"+tvId).val(point.lat() + ',' + point.lng()); });
-
-  }
+	//google.maps.event.addListener(marker, "dragstart", function() { map.closeInfoWindow();	});
+	google.maps.event.addListener(marker, "dragend", function(point) {  $j("#"+tvId).val(point.latLng.lat() + ',' + point.latLng.lng()); });
 }
+
+function geoSearch(mapContainerId) {
+	var tvId = $j("#"+mapContainerId).data("googlemap_tvId");
+    geocoder.geocode( {'address': addressField.value}, function(results, status) { 
+            if (status == google.maps.GeocoderStatus.OK) { 
+                var loc = results[0].geometry.location;
+				addMarker(loc,tvId);
+            } else {
+                alert("Not found: " + status); 
+  }
+	});
+};
+
