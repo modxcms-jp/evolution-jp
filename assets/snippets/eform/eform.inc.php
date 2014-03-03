@@ -158,7 +158,10 @@ $_dfnMaxlength = 6;
     if($tpl==$modx->documentIdentifier) return $_lang['ef_is_own_id']."'$tpl'";
 
     //required
-    if(empty($tpl)) $tpl = get_default_tpl();
+    if(empty($tpl)){
+        $formid = "eform";
+        $tpl = get_default_tpl();
+    }
     elseif( $tmp=efLoadTemplate($tpl) ) $tpl = $tmp; else return $_lang['ef_no_doc'] . " '$tpl'";
 
     # check for valid form key
@@ -497,6 +500,8 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			}
 
 			$fields['disclaimer'] = ($disclaimer)? formMerge($disclaimer,$fields):"";
+			$from = ($from)? formMerge($from,$fields):"";
+			$fromname = ($from)? formMerge($fromname,$fields):"";
 			if(isset($fields['subject']))
 			{
 				$subject = $fields['subject'];
@@ -507,9 +512,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			}
 			$fields['subject'] = $subject; //make subject available in report & thank you page
 			$report	= ($report)? formMerge($report,$fields):"";
-			$keywords	= ($keywords)? formMerge($keywords,$fields):"";
-			$from = ($from)? formMerge($from,$fields):"";
-			$fromname	= ($from)? formMerge($fromname,$fields):"";
+			$keywords = ($keywords)? formMerge($keywords,$fields):"";
 
 			$to = formMerge($to,$fields);
 			if(empty($to) || !strpos($to,'@')) $nomail=1;
