@@ -1281,6 +1281,7 @@ $_lang["smtp_host_title"] = 'SMTPサーバ名';
 $_lang["smtp_username_title"] = 'SMTP user name';
 $_lang["smtp_password_title"] = 'SMTP password';
 $_lang["smtp_port_title"] = 'SMTPポート';
+$_lang["smtp_secure_title"] = 'SMTPセキュア';
 
 $_lang["user_street"] = '番地';
 $_lang["user_city"] = '市区町村';
