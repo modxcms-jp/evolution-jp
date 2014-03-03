@@ -307,6 +307,12 @@ form textarea
 			-webkit-box-shadow: 0px 1px 3px #E8E8E8 inset;
 			box-shadow: 0px 1px 3px #E8E8E8 inset;
 }
+form textarea.webui-ignore
+{
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow:none;
+}
 	.rtl form input[type=text],
 	.rtl form textarea {
 		padding: 2px 2px 2px 0;
