@@ -53,7 +53,7 @@ if ($isPWDActivate==1)
 		else
 		{
 			// redirect to password activation notification page
-			$url = $modx->makeURL($pwdActId);
+			$url = $modx->makeURL($pwdActId,'','','full');
 			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
 		}
 	}
@@ -94,7 +94,7 @@ if ($isPWDReminder==1)
 		// built activation url
 		$xhtmlUrlSetting = $modx->config['xhtml_urls'];
 		$modx->config['xhtml_urls'] = false;
-		$url = MODX_SITE_URL . $modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli={$uid}&wlk={$newpwdkey}");
+		$url = $modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli={$uid}&wlk={$newpwdkey}",'full');
 		$modx->config['xhtml_urls'] = $xhtmlUrlSetting;
 		// replace placeholders and send email
 		$ph = array();
