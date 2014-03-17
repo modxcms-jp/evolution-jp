@@ -6,14 +6,15 @@
 defined('IN_PARSER_MODE') or die();
 
 # load tpl
-if(is_numeric($tpl)) $tpl = ($doc=$modx->getDocument($tpl)) ? $doc['content'] : "Document '{$tpl}' not found.";
-elseif($tpl)         $tpl = ($chunk=$modx->getChunk($tpl)) ? $chunk : "Chunk '{$tpl}' not found.";
-else                 $tpl = getWebLogintpl();
+if(is_numeric($tpl)) $code = ($doc=$modx->getDocument($tpl)) ? $doc['content'] : "Document '{$tpl}' not found.";
+elseif($tpl)         $code = ($chunk=$modx->getChunk($tpl))  ? $chunk : "Chunk '{$tpl}' not found.";
+else                 $code = getWebLogintpl();
 
 // extract declarations
-$declare = webLoginExtractDeclarations($tpl);
+$declare = webLoginExtractDeclarations($code);
 $delim = isset($declare['separator']) ? $declare['separator'] : '<!--tpl_separator-->';
-$tpls = explode($delim,$tpl);
+$tpls = explode($delim,$code);
+unset($code);
 
 if(!isset($_SESSION['webValidated']))
 {
