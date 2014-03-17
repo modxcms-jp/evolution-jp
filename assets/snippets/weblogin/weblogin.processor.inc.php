@@ -13,7 +13,6 @@ $tbl_web_user_settings   = $modx->getFullTableName('web_user_settings');
 if ($isPWDActivate==1)
 {
 	$uid     = $modx->db->escape($_REQUEST['wli']);
-	$pwdkey = $_REQUEST['wlk'];
 	
 	$rs  = $modx->db->select('*', $tbl_web_users, "id='{$uid}'");
 	$limit = $modx->db->getRecordCount($rs);
@@ -21,8 +20,8 @@ if ($isPWDActivate==1)
 	{
 		$row = $modx->db->getRow($rs,'assoc');
 		$username = $row['username'];
-		list($newpwd, $newpwdkey) = explode('|',$row['cachepwd']);
-		if($newpwdkey !== $pwdkey)
+		list($newpwd, $token) = explode('|',$row['cachepwd']);
+		if($token !== $_REQUEST['token'])
 		{
 			$output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
 			return;
@@ -84,17 +83,17 @@ if ($isPWDReminder==1)
 	if($limit==1)
 	{
 		$newpwd = webLoginGeneratePassword(8);
-		$newpwdkey = webLoginGeneratePassword(8); // activation key
+		$token = webLoginGeneratePassword(8); // activation key
 		$row = $modx->db->getRow($ds);
 		$uid = $row['id'];
 		//save new password
 		$f = array();
-		$f['cachepwd'] = "{$newpwd}|{$newpwdkey}";
+		$f['cachepwd'] = "{$newpwd}|{$token}";
 		$modx->db->update($f,$tbl_web_users,"id='{$uid}'");
 		// built activation url
 		$xhtmlUrlSetting = $modx->config['xhtml_urls'];
 		$modx->config['xhtml_urls'] = false;
-		$url = $modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli={$uid}&wlk={$newpwdkey}",'full');
+		$url = $modx->makeURL($modx->documentIdentifier,'',"webloginmode=actp&wli={$uid}&token={$token}",'full');
 		$modx->config['xhtml_urls'] = $xhtmlUrlSetting;
 		// replace placeholders and send email
 		$ph = array();
