@@ -17,7 +17,7 @@ $tpls = explode($delim,$tpl);
 
 if(!isset($_SESSION['webValidated']))
 {
-	$output = <<< EOT
+	$form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
         function getElementById(id){
@@ -67,20 +67,21 @@ if(!isset($_SESSION['webValidated']))
     </script>
 EOT;
 	// display login
-	$output .= '<div id="WebLoginLayer0" style="position:relative">' . $tpls[0] . '</div>';
-	$output .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . (isset($tpls[2]) ? $tpls[2] : '') . '</div>';
+	$form .= '<div id="WebLoginLayer0" style="position:relative">' . $tpls[0] . '</div>';
+	$form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . (isset($tpls[2]) ? $tpls[2] : '') . '</div>';
 	$ref = isset($_REQUEST['refurl']) ? array('refurl' => urlencode($_REQUEST['refurl'])) : array();
-	$output = str_replace("[+action+]",preserveUrl($modx->documentIdentifier,'',$ref),$output);
-	$output = str_replace("[+rememberme+]",(isset($cookieSet) ? 1 : 0),$output);
-	$output = str_replace("[+username+]",(isset($uid) ? $uid : '') ,$output);
-	$output = str_replace("[+checkbox+]",(isset($cookieSet) ? 'checked' : ''),$output);
-	$output = str_replace("[+logintext+]",$loginText,$output);
+	$form = str_replace("[+action+]",preserveUrl($modx->documentIdentifier,'',$ref),$form);
+	$form = str_replace("[+rememberme+]",(isset($cookieSet) ? 1 : 0),$form);
+	$form = str_replace("[+username+]",(isset($uid) ? $uid : '') ,$form);
+	$form = str_replace("[+checkbox+]",(isset($cookieSet) ? 'checked' : ''),$form);
+	$form = str_replace("[+logintext+]",$loginText,$form);
 	$focus = (!empty($uid)) ? 'password' : 'username';
-	$output .= <<< EOT
+	$form .= <<< EOT
     <script type="text/javascript">
         if (document.loginfrm) document.loginfrm.{$focus}.focus();
     </script>
 EOT;
+	$output .= $form;
 }
 else
 {
@@ -99,7 +100,7 @@ else
 	$sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-".$_SESSION['webInternalKey'].", '".$_SESSION['webShortname']."', '{$lasthittime}', '998', {$itemid}, '{$ip}')";
 	if(!$rs = $modx->db->query($sql))
 	{
-		$output = "error replacing into active users! SQL: {$sql}";
+		$output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
 	}
 	else
 	{
@@ -111,7 +112,6 @@ else
 		$tpl = str_replace('[+logouttext+]',$logoutText,$tpl);
 		$output .= $tpl;
 	}
-	return $output;
 }
 
 # Returns Default WebLogin tpl
