@@ -33,17 +33,10 @@ function webLoginAlert($msg, $ph=array())
 }
 
 // generate new password
-function webLoginGeneratePassword($length = 10)
+function webLoginGeneratePassword($length = 10, $allow_chars='')
 {
-	$allowable_characters = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-	$ps_len = strlen($allowable_characters);
-	mt_srand((double)microtime()*1000000);
-	$pass = '';
-	for($i = 0; $i < $length; $i++)
-	{
-		$pass .= $allowable_characters[mt_rand(0,$ps_len-1)];
-	}
-	return $pass;
+	if(empty($allow_chars)) $allow_chars = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+	return substr(str_shuffle($allow_chars), 0, $length);
 }
 
 // Send new password to the user
