@@ -23,7 +23,9 @@ if ($isPWDActivate==1)
 		list($newpwd, $token) = explode('|',$row['cachepwd']);
 		if($token !== $_REQUEST['token'])
 		{
+			if(!$actInvalidKey)
 			$output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
+			else $modx->sendRedirect($actInvalidKey);
 			return;
 		}
 		// activate new password
