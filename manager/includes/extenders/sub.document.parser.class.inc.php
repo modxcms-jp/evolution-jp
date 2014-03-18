@@ -421,7 +421,7 @@ class SubParser {
 		return $str;
 	}
 
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER')
+    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
     	global $modx;
     	
