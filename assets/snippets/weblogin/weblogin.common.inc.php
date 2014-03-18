@@ -90,7 +90,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
 		if (empty($url)) $url = '?';
 		else             $url .= '&';
 	}
-	return $modx->makeUrl($docid, $alias, $url);
+	return $modx->makeUrl($docid, $alias, $url,'full');
 }
 	
 	function lang($key,$ph=array())
