@@ -111,3 +111,33 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
 		}
 		return $value;
 	}
+
+function parseText($tpl,$ph=array())
+{
+	if(empty($ph)) return $tpl;
+	foreach($ph as $k=>$v)
+	{
+		$k = "[+{$k}+]";
+		if(strpos($tpl,$k)!==false)
+			$tpl = str_replace($k,$v,$tpl);
+	}
+	return $tpl;
+}
+
+function webLoginGetCode($target)
+{
+	global $modx;
+	if(preg_match('@^[0-9][1-9]*$@',$target))
+	{
+		$doc = $modx->getDocument($target);
+		if($doc)
+			$result = $doc['content'];
+		else $result = "Document '{$tpl}' not found.";
+	}
+	else
+	{
+		$result = $modx->getChunk($target);
+		if(!$result) $result = "Chunk '{$tpl}' not found.";
+	}
+	return $result;
+}
