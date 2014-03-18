@@ -394,14 +394,22 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	global $site_name, $site_start, $site_url;
 	$message = sprintf($websignupemail_message, $uid, $pwd); // use old method
 	// replace placeholders
+	$ph['username'] = $uid;
 	$ph['uid'] = $uid;
-	$ph['pwd'] = $pwd;
+	$ph['fullname'] = $ufn;
 	$ph['ufn'] = $ufn;
-	$ph['sname'] = $site_name;
+	$ph['manager_email'] = $emailsender;
 	$ph['saddr'] = $emailsender;
+	$ph['pwd'] = $pwd;
+	$ph['password'] = $pwd;
+	$ph['sname'] = $site_name;
 	$ph['semail'] = $emailsender;
 	$ph['surl'] = $site_url;
 	$message = $modx->parsePlaceholder($message,$ph);
+	$message = $modx->mergeSettingsContent($message);
+	$message = $modx->mergeChunkContent($message);
+	$message = $modx->rewriteUrls($message);
+	
 	if ($modx->sendmail($email,$message) === false) //ignore mail errors in this cas
 	{
 		webAlert("Error while sending mail to {$email}");
