@@ -52,7 +52,7 @@ if ($isPWDActivate==1)
 		else
 		{
 			// redirect to password activation notification page
-			$url = $modx->makeURL($pwdActId,'','','full');
+			$url = $modx->makeURL($pwdActId,'',"uid={$uid}",'full');
 			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
 		}
 	}
@@ -104,7 +104,7 @@ if ($isPWDReminder==1)
 		$modx->config['xhtml_urls'] = $xhtmlUrlSetting;
 		// replace placeholders and send email
 		$ph = array();
-		$ph['uid']       = $row['username'];
+		$ph['uid']       = $uid;
 		$ph['username']  = $row['username'];
 		$ph['password']  = $newpwd;
 		$ph['pwd']       = $newpwd;

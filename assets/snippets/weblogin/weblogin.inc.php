@@ -22,6 +22,7 @@ if(!isset($tplLogout))   $tplLogout     = $tpls[1];
 
 if(!isset($_SESSION['webValidated']))
 {
+	$username = isset($_POST['username'])? $modx->db->escape(htmlspecialchars(trim($_POST['username']), ENT_QUOTES)):'';
 	$form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -71,16 +72,23 @@ if(!isset($_SESSION['webValidated']))
     //--><!]]>
     </script>
 EOT;
+	if(isset($uid))
+	{
+		$rs = $modx->db->select('*', $tbl_web_users, "id='{$uid}'");
+		$row = $modx->db->getRow($rs);
+		$username = $row['username'];
+	}
+	
 	// display login
 	$form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
 	$form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
 	$ref = isset($_REQUEST['refurl']) ? array('refurl' => urlencode($_REQUEST['refurl'])) : array();
 	$form = str_replace("[+action+]",preserveUrl($modx->documentIdentifier,'',$ref),$form);
 	$form = str_replace("[+rememberme+]",(isset($cookieSet) ? 1 : 0),$form);
-	$form = str_replace("[+username+]",(isset($uid) ? $uid : '') ,$form);
+	$form = str_replace("[+username+]",(isset($username) ? $username : '') ,$form);
 	$form = str_replace("[+checkbox+]",(isset($cookieSet) ? 'checked' : ''),$form);
 	$form = str_replace("[+logintext+]",$loginText,$form);
-	$focus = (!empty($uid)) ? 'password' : 'username';
+	$focus = (!empty($username)) ? 'password' : 'username';
 	$form .= <<< EOT
     <script type="text/javascript">
         if (document.loginfrm) document.loginfrm.{$focus}.focus();
