@@ -39,6 +39,11 @@ $pagetitle       = $modx->db->escape($pagetitle);
 $longtitle       = $modx->db->escape($longtitle);
 $menutitle       = $modx->db->escape($menutitle);
 $description     = $modx->db->escape($description);
+if(substr($alias,-1)==='/')
+{
+	$alias = trim($alias,'/');
+	$isfolder = '1';
+}
 $alias           = $modx->stripAlias($modx->db->escape($alias));
 $link_attributes = $modx->db->escape($link_attributes);
 $parent          = $parent != '' ? $parent : 0;
