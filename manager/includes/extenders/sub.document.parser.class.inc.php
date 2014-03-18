@@ -448,7 +448,7 @@ class SubParser {
     		echo $header;
     		exit;
     	}
-    	elseif($type == 'REDIRECT_HEADER') {
+    	else {
     		// check if url has /$base_url
     		global $base_url, $site_url;
     		if (substr($url, 0, strlen($base_url)) == $base_url) {
