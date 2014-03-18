@@ -30,6 +30,7 @@ class TopicPath
 		if(isset($tplHomeTopic))    $this->tpl['home_topic']    = $tplHomeTopic;
 		if(isset($tplCurrentTopic)) $this->tpl['current_topic'] = $tplCurrentTopic;
 		if(isset($tplOtherTopic))   $this->tpl['other_topic']   = $tplOtherTopic;
+		if(isset($tplReferenceTopic)) $this->tpl['reference_topic'] = $tplReferenceTopic;
 		if(isset($tplSeparator))    $this->tpl['separator']     = $tplSeparator;
 	}
 	
@@ -47,18 +48,20 @@ class TopicPath
 		{
 			case 'list':
 			case 'li':
-				$tpl['outer']         = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['home_topic']    = '<li class="home"><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
-				$tpl['current_topic'] = '<li class="current">[+title+]</li>';
-				$tpl['other_topic']   = '<li><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
-				$tpl['separator']     = "\n";
+				$tpl['outer']            = '<ul class="topicpath">[+topics+]</ul>';
+				$tpl['home_topic']       = '<li class="home"><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['current_topic']    = '<li class="current">[+title+]</li>';
+				$tpl['reference_topic']  = '<li>[+title+]</li>';
+				$tpl['other_topic']      = '<li><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['separator']        = "\n";
 				break;
 			default:
-				$tpl['outer']          = '[+topics+]';
-				$tpl['home_topic']     = '<a href="[+href+]" class="home" title="[+title+]">[+title+]</a>';
-				$tpl['current_topic']  = '[+title+]';
-				$tpl['other_topic']    = '<a href="[+href+]" title="[+title+]">[+title+]</a>';
-				$tpl['separator']      = ' &raquo; ';
+				$tpl['outer']             = '[+topics+]';
+				$tpl['home_topic']        = '<a href="[+href+]" class="home" title="[+title+]">[+title+]</a>';
+				$tpl['current_topic']     = '[+title+]';
+				$tpl['reference_topic']   = '[+title+]';
+				$tpl['other_topic']       = '<a href="[+href+]" title="[+title+]">[+title+]</a>';
+				$tpl['separator']         = ' &raquo; ';
 		}
 		$tpl = array_merge($tpl, $this->tpl);
 		
@@ -115,7 +118,7 @@ class TopicPath
 		
 		$docs = array();
 		$id = $modx->documentIdentifier;
-		$fields = 'id,parent,pagetitle,longtitle,menutitle,description,published,hidemenu';
+		$fields = 'id,type,parent,pagetitle,longtitle,menutitle,description,published,hidemenu';
 		$c = 0;
 		$doc = array();
 		while ($id !== $this->homeId  && $c < 1000 )
@@ -170,12 +173,17 @@ class TopicPath
 			{
 				$ph['desc'] = $this->homeTopicDesc;
 			}
+			$isRf = false;
+			if(isset($tpl['reference_topic']) && $doc['type'] === "reference") {
+				$isRf = true;
+			}
 			
 			$ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
 			
 			if($i===$c-1)  $topics[$i] = $modx->parsePlaceholder($tpl['current_topic'],$ph);
 			elseif($i===0) $topics[$i] = $modx->parsePlaceholder($tpl['home_topic'],$ph);
+			elseif($isRf)  $topics[$i] = $modx->parsePlaceholder($tpl['reference_topic'],$ph);
 			else           $topics[$i] = $modx->parsePlaceholder($tpl['other_topic'],$ph);
 			
 			$i++;
