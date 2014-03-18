@@ -16,6 +16,10 @@ $delim = isset($declare['separator']) ? $declare['separator'] : '<!--tpl_separat
 $tpls = explode($delim,$code);
 unset($code);
 
+if(!isset($tplLogin))    $tplLogin      = $tpls[0];
+if(!isset($tplReminder)) $tplReminder   = (isset($tpls[2])) ? $tpls[2] : '';
+if(!isset($tplLogout))   $tplLogout     = $tpls[1];
+
 if(!isset($_SESSION['webValidated']))
 {
 	$form = <<< EOT
@@ -68,8 +72,8 @@ if(!isset($_SESSION['webValidated']))
     </script>
 EOT;
 	// display login
-	$form .= '<div id="WebLoginLayer0" style="position:relative">' . $tpls[0] . '</div>';
-	$form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . (isset($tpls[2]) ? $tpls[2] : '') . '</div>';
+	$form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
+	$form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
 	$ref = isset($_REQUEST['refurl']) ? array('refurl' => urlencode($_REQUEST['refurl'])) : array();
 	$form = str_replace("[+action+]",preserveUrl($modx->documentIdentifier,'',$ref),$form);
 	$form = str_replace("[+rememberme+]",(isset($cookieSet) ? 1 : 0),$form);
@@ -106,12 +110,11 @@ else
 	else
 	{
 		// display logout
-		$tpl = $tpls[1];
 		$url = preserveUrl($modx->documentObject['id']);
 		$url = $url.((strpos($url,'?')===false) ? '?':'&amp;') . 'webloginmode=lo';
-		$tpl = str_replace('[+action+]',$url,$tpl);
-		$tpl = str_replace('[+logouttext+]',$logoutText,$tpl);
-		$output .= $tpl;
+		$tplLogout = str_replace('[+action+]',$url,$tplLogout);
+		$tplLogout = str_replace('[+logouttext+]',$logoutText,$tplLogout);
+		$output .= $tplLogout;
 	}
 }
 
