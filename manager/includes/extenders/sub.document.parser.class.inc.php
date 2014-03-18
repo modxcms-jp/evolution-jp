@@ -74,7 +74,8 @@ class SubParser {
 				$modx->mail->AddBCC($address,$name);
 			}
 		}
-		if(isset($p['from'])) list($p['fromname'],$p['from']) = $modx->mail->address_split($p['from']);
+		if(isset($p['from']) && strpos($p['from'],'<')!==false && substr($p['from'],-1)==='>')
+			list($p['fromname'],$p['from']) = $modx->mail->address_split($p['from']);
 		$modx->mail->From	 = (!isset($p['from']))  ? $modx->config['emailsender']  : $p['from'];
 		$modx->mail->FromName = (!isset($p['fromname'])) ? $modx->config['site_name'] : $p['fromname'];
 		$modx->mail->Subject  = (!isset($p['subject']))  ? $modx->config['emailsubject'] : $p['subject'];
