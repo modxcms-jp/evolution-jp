@@ -105,7 +105,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
 		{
 			foreach($ph as $k=>$v)
 			{
-				$k = '[+' . $k . '+]';
+			$k = "[+{$k}+]";
 				$value = str_replace($k,$v,$value);
 			}
 		}
