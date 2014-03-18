@@ -226,7 +226,7 @@ class synccache {
 		
 		$rs = file_put_contents($cache_path, $content, LOCK_EX);
 		
-		if (!$rs) exit("Cannot open file ({$filename})");
+		if (!$rs) exit("Cannot open file ({$cache_path})");
 	}
 	
 	/**
