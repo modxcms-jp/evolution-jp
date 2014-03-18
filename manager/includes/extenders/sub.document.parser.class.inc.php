@@ -442,8 +442,8 @@ class SubParser {
     			$url .= "err={$currentNumberOfRedirects}";
     		}
     	}
-    	if ($type == 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
-    	elseif($type == 'REDIRECT_META') {
+    	if    ($type === 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
+    	elseif($type === 'REDIRECT_META') {
     		$header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
     		echo $header;
     		exit;
