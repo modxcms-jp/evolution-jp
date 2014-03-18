@@ -58,7 +58,7 @@ class SubParser {
 		}
 		if(isset($p['cc']))
 		{
-			$p['cc'] = explode(',',$sendto);
+			$p['cc'] = explode(',',$p['cc']);
 			foreach($p['cc'] as $address)
 			{
 				list($name, $address) = $modx->mail->address_split($address);
@@ -67,7 +67,7 @@ class SubParser {
 		}
 		if(isset($p['bcc']))
 		{
-			$p['bcc'] = explode(',',$sendto);
+			$p['bcc'] = explode(',',$p['bcc']);
 			foreach($p['bcc'] as $address)
 			{
 				list($name, $address) = $modx->mail->address_split($address);
