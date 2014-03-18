@@ -18,7 +18,7 @@ if ($isPWDActivate==1)
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit==1)
 	{
-		$row = $modx->db->getRow($rs,'assoc');
+		$row = $modx->db->getRow($rs);
 		$username = $row['username'];
 		list($newpwd, $token) = explode('|',$row['cachepwd']);
 		if($token !== $_REQUEST['token'])
