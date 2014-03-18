@@ -5,6 +5,7 @@ include_once("{$installer_path}instprocessor.php");
 $content = ob_get_contents();
 ob_end_clean();
 echo $content;
+session_destroy();
 
 if ($errors == 0) {
 	// check if install folder is removeable
