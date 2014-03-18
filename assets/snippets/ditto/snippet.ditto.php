@@ -172,6 +172,7 @@ $filters = array('custom'=>array(),'parsed'=>array());
     // $filters["custom"][] = array("source","callback_function");
 
 $orderBy = (isset($orderBy))? trim($orderBy) : null;
+if(substr(strtolower($orderBy),-2)!=='sc') $orderBy .= ' desc';
 $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
     // Variable: orderBy
     // An array that holds all criteria to sort the result set by.
