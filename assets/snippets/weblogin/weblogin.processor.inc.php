@@ -68,10 +68,17 @@ if ($isPWDActivate==1)
 if ($isPWDReminder==1)
 {
 	$email = $_POST['txtwebemail'];
+	if(isset($reminder_message))
+	{
+		if(preg_match('@^[1-9[0-9]*$@',$reminder_message))
+			$message = $modx->getField('content',$reminder_message);
+		else $message = $modx->getChunk($reminder_message);
+	}
+	if(!isset($reminder_message)||empty($message))
 	$message = $modx->config['webpwdreminder_message'];
-	$emailsubject = $modx->config['emailsubject'];
-	$emailsender  = $modx->config['emailsender'];
-	$site_name    = $modx->config['site_name'];
+	if(!isset($reminder_subject))  $reminder_subject  = 'New Password Activation for ' . $modx->config['site_name'];
+	if(!isset($reminder_from))     $reminder_from     = $modx->config['emailsender'];
+	if(!isset($reminder_fromname)) $reminder_fromname = $modx->config['site_name'];
 	// lookup account
 	$sql = "SELECT wu.*, wua.fullname
 	FROM {$tbl_web_users} wu
@@ -103,12 +110,18 @@ if ($isPWDReminder==1)
 		$ph['pwd']       = $newpwd;
 		$ph['ufn']       = $row['fullname'];
 		$ph['fullname']  = $row['fullname'];
-		$ph['sname']     = $site_name;
-		$ph['semail']    = $emailsender;
+		$ph['sname']     = $modx->config['site_name'];
+		$ph['semail']    = $reminder_from;
+		$ph['url']       = $url;
 		$ph['surl']      = $url;
-		$message = $modx->parsePlaceholder($message,$ph);
-		
-		$sent = $modx->sendmail($email,$message) ;         //ignore mail errors in this cas
+		$message = $modx->parsePlaceholder($message,$ph);	
+		$message = $modx->parseDocumentSource($message);
+		$config['from']     = $reminder_from;
+		$config['fromname'] = $reminder_fromname;
+		$config['sendto'] = $email;
+		if(!isset($emailsubject)) $emailsubject = 'パスワード再設定';
+		$config['subject'] = $emailsubject;
+		$sent = $modx->sendmail($config,$message) ;         //ignore mail errors in this cas
 		if(!$sent) // error
 		{
 			$output =  webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator",array('email'=>$email));
