@@ -127,7 +127,7 @@ if ($isPWDReminder==1)
 		$ph['semail']    = $reminder_from;
 		$ph['url']       = $url;
 		$ph['surl']      = $url;
-		$message = $modx->parsePlaceholder($message,$ph);	
+		$message = parseText($message,$ph);
 		$message = $modx->parseDocumentSource($message);
 		$config['from']     = $reminder_from;
 		$config['fromname'] = $reminder_fromname;
