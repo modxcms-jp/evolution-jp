@@ -150,7 +150,12 @@ if ($isPWDReminder==1)
 	}
 	else
 	{
-		$output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
+		if(!$actUserNotFound) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
+		else
+		{
+			$url = $modx->makeURL($actUserNotFound,'','','full');
+			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
+		}
 	}
 	return;
 }
