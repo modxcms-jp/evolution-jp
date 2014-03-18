@@ -20,12 +20,22 @@ if ($isPWDActivate==1)
 	{
 		$row = $modx->db->getRow($rs);
 		$username = $row['username'];
-		list($newpwd, $token) = explode('|',$row['cachepwd']);
+		list($newpwd, $token, $requestedon) = explode('|',$row['cachepwd']);
+		$past = time()-$requestedon;
+		if(!isset($expireTime)) $expireTime = 60*60*24;
 		if($token !== $_REQUEST['token'])
 		{
 			if(!$actInvalidKey)
 			$output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
 			else $modx->sendRedirect($actInvalidKey);
+			return;
+		}
+		elseif($expireTime<$past)
+		{
+			if(!$actExpire)
+				$output = webLoginAlert("It was over expiration time");
+			else
+				$modx->sendRedirect($actExpire);
 			return;
 		}
 		// activate new password
@@ -97,7 +107,8 @@ if ($isPWDReminder==1)
 		$uid = $row['id'];
 		//save new password
 		$f = array();
-		$f['cachepwd'] = "{$newpwd}|{$token}";
+		$requestedon = time();
+		$f['cachepwd'] = "{$newpwd}|{$token}|{$requestedon}";
 		$modx->db->update($f,$tbl_web_users,"id='{$uid}'");
 		// built activation url
 		$xhtmlUrlSetting = $modx->config['xhtml_urls'];
