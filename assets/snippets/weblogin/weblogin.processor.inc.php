@@ -450,7 +450,7 @@ if($id!=$modx->documentIdentifier)
 		$sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-{$_SESSION['webInternalKey']}, '{$_SESSION['webShortname']}', '{$lasthittime}', '{$a}', {$itemid}, '{$ip}')";
 		if(!$ds = $modx->db->query($sql))
 		{
-			$output = "error replacing into active users! SQL: ".$sql;
+			$output = "error replacing into active users! SQL: {$sql}";
 			return;
 		}
 	}
