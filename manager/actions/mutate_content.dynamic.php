@@ -1,6 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+$inputdata = $_POST;
+
 // check permissions
 switch ($_REQUEST['a']) {
 	case 27:
@@ -125,8 +127,8 @@ if ($modx->manager->hasFormValues())
 // sottwell 02-09-2006
 if ($formRestored == true || isset ($_REQUEST['newtemplate']))
 {
-	$content = array_merge($content, $_POST);
-	$content['content'] = $_POST['ta'];
+	$content = array_merge($content, $inputdata);
+	$content['content'] = $inputdata['ta'];
 	if (empty ($content['pub_date'])) unset ($content['pub_date']);
 	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
 	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
@@ -163,9 +165,9 @@ if (empty($_REQUEST['id']))
 
 if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') $content['richtext'] = $modx->config['use_editor'];
 
-if (isset ($_POST['which_editor']))
+if (isset ($inputdata['which_editor']))
 {
-	$which_editor = $_POST['which_editor'];
+	$which_editor = $inputdata['which_editor'];
 }
 $dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
@@ -622,10 +624,10 @@ elseif (isset ($_REQUEST['pid']))
 	if ($_REQUEST['pid'] == 0)   $parentname   = $site_name;
 	else                         $parentlookup = $_REQUEST['pid'];
 }
-elseif (isset($_POST['parent']))
+elseif (isset($inputdata['parent']))
 {
-	if ($_POST['parent'] == 0)   $parentname = $site_name;
-	else                         $parentlookup = $_POST['parent'];
+	if ($inputdata['parent'] == 0)   $parentname = $site_name;
+	else                         $parentlookup = $inputdata['parent'];
 }
 else
 {
@@ -748,10 +750,10 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			if ($i > 0 && $i < $num_of_tv) echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 			
 			// post back value
-			if(array_key_exists('tv'.$row['id'], $_POST))
+			if(array_key_exists('tv'.$row['id'], $inputdata))
 			{
-				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $_POST['tv'.$row['id']]);
-				else                                   $tvPBV = $_POST['tv'.$row['id']];
+				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata['tv'.$row['id']]);
+				else                                   $tvPBV = $inputdata['tv'.$row['id']];
 			}
 			else                                       $tvPBV = $row['value'];
 
@@ -1144,8 +1146,8 @@ if ($use_udperms == 1)
 	$permissions_no = 0; // count permissions the current mgr user doesn't have
 
 	// retain selected doc groups between post
-	if (isset($_POST['docgroups']))
-		$groupsarray = array_merge($groupsarray, $_POST['docgroups']);
+	if (isset($inputdata['docgroups']))
+		$groupsarray = array_merge($groupsarray, $inputdata['docgroups']);
 
 	// Loop through the permissions list
 	while($row = $modx->db->getRow($rs))
