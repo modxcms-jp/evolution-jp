@@ -654,7 +654,7 @@ $_lang["plugin_priority_title"] = 'プラグインの実行順';
 $_lang["plugin_title"] = 'プラグインの作成/編集';
 $_lang["preview"] = 'プレビュー';
 $_lang["preview_msg"] = 'ここには最後に更新した内容をプレビューしています。<a href="#" onclick="saveRefreshPreview();"><img src="media/images/icons/save.gif" align="absmiddle" height="12"> 更新と再描画</a>を行うにはここをクリックしてください。';
-$_lang["preview_resource"] = 'プレビュー(別窓)';
+$_lang["preview_resource"] = 'リソースを表示';
 $_lang["private"] = 'グループ設定';
 $_lang["public"] = 'グループ制限なし';
 $_lang["publish_date"] = '公開日時';

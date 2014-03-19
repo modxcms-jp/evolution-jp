@@ -192,6 +192,19 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 <script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
+function openprev(actionurl)
+{
+    window.open(actionurl,"prevWin");
+//	if(documentDirty==true)
+//	{
+        document.mutate.target = "prevWin";
+        document.mutate.method = "post";
+        document.mutate.action = actionurl;
+        document.mutate.mode.value = 'prev';
+        document.mutate.submit();
+//	}
+}
+
 $j(function(){
 	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
 	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
@@ -1360,9 +1373,13 @@ function ab_preview()
 {
 	global $modx, $_style, $_lang, $id;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$ph['onclick'] = "window.open('" . $modx->makeUrl($id,'','','full') . "','prevWin');";
+	$_ = $modx->config['friendly_urls'];
+	$modx->config['friendly_urls'] = '0';
+	$actionurl = $modx->makeUrl($id,'','','full');
+	$modx->config['friendly_urls'] = $_;
+	$ph['onclick'] = "openprev('$actionurl');";
 	$ph['icon'] = $_style["icons_preview_resource"];
-	$ph['alt'] = 'icons_preview_resource';
+	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
 	return $modx->parsePlaceholder($tpl,$ph);
 }

@@ -1800,6 +1800,43 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='', $isPrepareResponse=false)
 	{
+		if(isset($_SESSION['mgrValidated']) && isset($_POST['mode']) && $_POST['mode']==='prev')
+		{
+			$this->loadExtension('ManagerAPI');
+			
+            $input = $_POST;
+            $docid = (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) ? $_GET['id'] : '0';
+            $input['id'] = $docid;
+            $this->documentIdentifier = $docid;
+            include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
+            include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';
+            $rs = $this->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
+            while($row = $this->db->getRow($rs))
+            {
+            	$tvid = 'tv' . $row['id'];
+            	$tvname[$tvid] = $row['name'];
+            	if(isset($input[$tvid]))
+            		$input[$tvid] = getTVDisplayFormat($row['name'], $input[$tvid], $row['display'], $row['display_params'], $row['type'], $docid);
+            }
+            foreach($input as $k=>$v)
+            {
+            	if(isset($tvname[$k]))
+            	{
+            		unset($input[$k]);
+            		$k = $tvname[$k];
+            		$input[$k] = $v;
+            	}
+            	elseif($k==='ta')
+            	{
+            		$input['content'] = $v;
+            		unset($input['ta']);
+            	}
+            }
+            $this->directParse = 1;
+            $method = 'id';
+            $identifier = $docid;
+		}
+			
 		if(empty($identifier) && $method !== 'id' && $method !== 'alias')
 		{
 			$identifier = $method;
@@ -1892,6 +1929,16 @@ class DocumentParser {
 				);
 			}
 			$documentObject= array_merge($documentObject, $tmplvars);
+		}
+		if(isset($input))
+		{
+			foreach($documentObject as $k=>$v)
+			{
+				if(!isset($input[$k])) continue;
+				if(!is_array($documentObject[$k]))
+					$documentObject[$k] = $input[$k];
+				else $documentObject[$k][1] = $input[$k];
+			}
 		}
 		return $documentObject;
 	}
