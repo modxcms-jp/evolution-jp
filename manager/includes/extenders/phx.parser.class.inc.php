@@ -504,12 +504,13 @@ class PHx {
 		return $reslut;
 	}
 	
-	function getDocumentObject($target,$field='pagetitle')
+	function getDocumentObject($target='',$field='pagetitle')
 	{
 		global $modx;
 		
 		$target = trim($target);
-		if(preg_match('@^[0-9]+$@',$target)) $mode='id';
+		if(empty($target)) $target = $modx->documentIdentifier;
+		if(preg_match('@^[1-9][0-9]*$@',$target)) $mode='id';
 		else $mode = 'alias';
 		
 		if(!isset($this->documentObject[$target])) 
