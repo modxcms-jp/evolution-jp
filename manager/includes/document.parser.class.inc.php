@@ -1800,13 +1800,15 @@ class DocumentParser {
 	*/
 	function getDocumentObject($method='id', $identifier='', $isPrepareResponse=false)
 	{
-		if(isset($_SESSION['mgrValidated']) && isset($_POST['mode']) && $_POST['mode']==='prev')
+		if(isset($_SESSION['mgrValidated'])
+			 && isset($_POST['mode']) && $_POST['mode']==='prev'
+			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
+			)
 		{
 			$this->loadExtension('ManagerAPI');
 			
             $input = $_POST;
-            $docid = (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) ? $_GET['id'] : '0';
-            $input['id'] = $docid;
+            $docid = $_POST['id'];
             $this->documentIdentifier = $docid;
             include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
             include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';

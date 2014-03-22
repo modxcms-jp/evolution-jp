@@ -1,5 +1,6 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+$modx->config['preview_mode'] = '1';
 
 $inputdata = $_POST;
 
@@ -195,14 +196,15 @@ $monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
 function openprev(actionurl)
 {
     window.open(actionurl,"prevWin");
-//	if(documentDirty==true)
-//	{
+    var pmode = <?php echo $modx->config['preview_mode'];?>;
+	if(pmode==1)
+	{
         document.mutate.target = "prevWin";
         document.mutate.method = "post";
         document.mutate.action = actionurl;
         document.mutate.mode.value = 'prev';
         document.mutate.submit();
-//	}
+	}
 }
 
 $j(function(){
@@ -1373,10 +1375,7 @@ function ab_preview()
 {
 	global $modx, $_style, $_lang, $id;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$_ = $modx->config['friendly_urls'];
-	$modx->config['friendly_urls'] = '0';
 	$actionurl = $modx->makeUrl($id,'','','full');
-	$modx->config['friendly_urls'] = $_;
 	$ph['onclick'] = "openprev('$actionurl');";
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
