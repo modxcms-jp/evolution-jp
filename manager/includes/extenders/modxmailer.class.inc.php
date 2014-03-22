@@ -19,14 +19,13 @@ include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');
 
 class MODxMailer extends PHPMailer
 {
-	var $mb_language          = null;
+	var $mb_language          = false;
 	var $encode_header_method = null;
 	
 	function MODxMailer()
 	{
 		global $modx;
 		
-		$this->mb_language = 'UNI';
 		$this->encode_header_method = '';
 
 		$this->PluginDir = MODX_CORE_PATH . 'controls/phpmailer/';
@@ -87,7 +86,7 @@ class MODxMailer extends PHPMailer
 				$this->Encoding    = 'base64';
 				$this->mb_language = 'UNI';
 		}
-	    if(extension_loaded('mbstring'))
+	    if(extension_loaded('mbstring')&&$this->mb_language!==false)
 		{
 			mb_language($this->mb_language);
 			mb_internal_encoding($modx->config['modx_charset']);
