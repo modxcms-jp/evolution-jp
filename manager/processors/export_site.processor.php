@@ -32,6 +32,16 @@ $repl_before     = $modx->getOption('export_repl_before');
 $repl_after      = $modx->getOption('export_repl_after');
 $includenoncache = $modx->getOption('export_includenoncache');
 
+$info=array();
+$info['generate_mode'] = $_POST['generate_mode'];
+$info['ignore_ids']    = $_POST['ignore_ids'];
+$info['repl_after']    = $_POST['repl_before'];
+$info['repl_after']    = $_POST['repl_after'];
+$info['export_dir']    = $export_dir;
+
+$evtOut = $modx->invokeEvent('OnExportPreExec',array('info' => $info));
+if(is_array($evtOut)) echo implode("\n",$evtOut);
+
 $modx->regOption('export_ignore_ids',$_POST['ignore_ids']);
 $modx->regOption('export_generate_mode',$_POST['generate_mode']);
 $modx->regOption('export_includenoncache',$_POST['includenoncache']);
@@ -59,6 +69,18 @@ $output .= $modx->export->run();
 $exportend = $modx->export->get_mtime();
 $totaltime = ($exportend - $modx->export->exportstart);
 $output .= sprintf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
+
+$info=array();
+$info['generate_mode'] = $_POST['generate_mode'];
+$info['ignore_ids']    = $_POST['ignore_ids'];
+$info['repl_after']    = $_POST['repl_before'];
+$info['repl_after']    = $_POST['repl_after'];
+$info['export_dir']    = $export_dir;
+$info['output']    = $output;
+$info['totatlime'] = $totaltime;
+$evtOut = $modx->invokeEvent('OnExportExec',array('info' => $info));
+if(is_array($evtOut)) echo implode("\n",$evtOut);
+
 return $output;
 
 

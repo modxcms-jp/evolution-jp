@@ -149,6 +149,8 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('210','OnManagerTreePrerender','2',''),
 ('211','OnManagerTreeRender','2',''),
 ('300','OnMakeUrl','1',''),
+('301','OnExportPreExec','2',''),
+('302','OnExportExec','2',''),
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 
