@@ -150,6 +150,12 @@ class MODX_INIT {
     function is_ssl()
     {
     	global $https_port;
+    	if(isset($_SERVER['HTTP_HTTPS']))
+    		$_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
+    	elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
+    		$_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
+    	if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==1)
+    		$_SERVER['HTTPS'] = 'on';
     	if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
     	{
     		return true;
