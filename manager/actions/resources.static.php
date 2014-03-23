@@ -115,6 +115,54 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 {
 	global $modx, $_lang;
 	
+	$preCat = '';
+	$insideUl = 0;
+	$output = '<ul>';
+	$rows = getArray($resourceTable,$action,$nameField);
+	$tpl  = '<span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
+	$tpl .= ' [+description+][+locked+]';
+	foreach($rows as $row)
+	{
+		$row['category'] = stripslashes($row['category']); //pixelchutes
+		if ($preCat !== $row['category'])
+		{
+			$output .= $insideUl? '</ul>': '';
+			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
+			$insideUl = 1;
+		}
+		$preCat = $row['category'];
+		if ($resourceTable === 'site_plugins')
+		{
+			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
+		}
+		elseif ($resourceTable === 'site_htmlsnippets')
+		{
+			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
+		}
+		$ph['class'] = $class;
+		$ph['id'] = $row['id'];
+		$ph['action'] = $action;
+		$ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
+		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
+		$ph['description'] = $row['description'];
+		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
+		$src = "<li>{$tpl}</li>";
+		foreach($ph as $k=>$v)
+		{
+			$k = '[+' . $k . '+]';
+			$src = str_replace($k,$v,$src);
+		}
+		$output .= $src;
+	}
+	$output .= $insideUl? '</ul>': '';
+	$output .= '</ul>';
+	return $output;
+}
+
+function getArray($resourceTable,$action,$nameField = 'name')
+{
+	global $modx, $_lang;
+	
 	$tbl_elm = $modx->getFullTableName($resourceTable);
 	$tbl_categories = $modx->getFullTableName('categories');
 	
@@ -140,54 +188,12 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	{
 		return $_lang['no_results'];
 	}
-	$preCat = '';
-	$insideUl = 0;
-	$output = '<ul>';
 	$rows = array();
 	while($row = $modx->db->getRow($rs))
 	{
 		$rows[] = $row;
 	}
-		
-	$tpl  = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
-	$tpl .= ' [+description+][+locked+]</li>';
-	foreach($rows as $row)
-	{
-		$row['category'] = stripslashes($row['category']); //pixelchutes
-		if ($preCat !== $row['category'])
-		{
-			$output .= $insideUl? '</ul>': '';
-			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
-			$insideUl = 1;
-		}
-		if ($resourceTable === 'site_plugins')
-		{
-			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
-		}
-		elseif ($resourceTable === 'site_htmlsnippets')
-		{
-			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
-		}
-		$ph['class'] = $class;
-		$ph['id'] = $row['id'];
-		$ph['action'] = $action;
-		$ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
-		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
-		$ph['description'] = $row['description'];
-		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
-		$src = $tpl;
-		foreach($ph as $k=>$v)
-		{
-			$k = '[+' . $k . '+]';
-			$src = str_replace($k,$v,$src);
-		}
-		$output .= $src;
-	
-		$preCat = $row['category'];
-	}
-	$output .= $insideUl? '</ul>': '';
-	$output .= '</ul>';
-	return $output;
+	return $rows;
 }
 
 function createCategoryList()
