@@ -487,6 +487,6 @@ class ManagerAPI {
     	
     	$tpl = '<li><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
-    	return $modx->parsePlaceholder($tpl,$ph);
+    	return $modx->parseText($tpl,$ph);
     }
 }

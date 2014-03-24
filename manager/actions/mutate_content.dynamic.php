@@ -698,7 +698,7 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 				$ph = array();
 				$ph['editor']   = $editor;
 				$ph['selected'] = ($which_editor == $editor) ? 'selected="selected"' : '';
-				echo $modx->parsePlaceholder($tpl, $ph);
+				echo $modx->parseText($tpl, $ph);
 			}
 		}
 ?>
@@ -1318,7 +1318,7 @@ function input_text($name,$value,$other='',$maxlength='255')
 	}
 	
 	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function input_checkbox($name,$checked,$other='')
@@ -1337,7 +1337,7 @@ function input_checkbox($name,$checked,$other='')
 		}
 	}
 	$tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function checked($cond=false)
@@ -1358,7 +1358,7 @@ function tooltip($msg)
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
 	$ph['msg'] = $msg;
 	$tpl = '&nbsp;&nbsp;<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />';
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function input_hidden($name,$cond=true)
@@ -1368,7 +1368,7 @@ function input_hidden($name,$cond=true)
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
 	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_preview()
@@ -1380,7 +1380,7 @@ function ab_preview()
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_save()
@@ -1404,7 +1404,7 @@ function ab_save()
 	$selected = $_REQUEST['stay']=='' ? ' selected=""' : '';
 	$ph['select'] .= '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option></select>';
 	
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_cancel()
@@ -1431,7 +1431,7 @@ function ab_cancel()
 	else $href = "a=2";
 	$ph['onclick'] = "document.location.href='index.php?{$href}';";
 	
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_move()
@@ -1441,7 +1441,7 @@ function ab_move()
 	$tpl = '<li id="Button2"><a href="#" onclick="movedocument();"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_duplicate()
@@ -1452,7 +1452,7 @@ function ab_duplicate()
 	$ph['icon'] = $_style["icons_resource_duplicate"];
 	$ph['alt'] = 'icons_resource_duplicate';
 	$ph['label'] = $_lang['duplicate'];
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function ab_delete()
@@ -1475,7 +1475,7 @@ function ab_delete()
 		$ph['alt'] = 'icons_undelete_document';
 		$ph['label'] = $_lang['undelete_resource'];
 	}
-	return $modx->parsePlaceholder($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function get_alias_path($id,$pid)
@@ -1536,7 +1536,7 @@ function renderTr($head, $body,$rowstyle='')
 		</td>
 	</tr>
 EOT;
-	echo $modx->parsePlaceholder($tpl, $ph);
+	echo $modx->parseText($tpl, $ph);
 }
 
 function getDefaultTemplate($content)

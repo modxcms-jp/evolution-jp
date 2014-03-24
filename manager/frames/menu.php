@@ -393,7 +393,7 @@ function item($name, $href, $display=1, $attrib='target="main"')
 	
 	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
 	$ph = compact('href','name','attrib');
-	return $modx->parsePlaceholder($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function buildMenu($target,$item)

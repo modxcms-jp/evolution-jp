@@ -111,12 +111,12 @@ if (is_writable($startpath))
 	$ph['image']   = 'folder.gif';
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
-	$_ = $modx->parsePlaceholder($tpl,$ph);
+	$_ = $modx->parseText($tpl,$ph);
 	
 	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> ' . $_lang['files.dynamic.php1'] . '</a></li>';
 	$ph['image']   = 'page-html.gif';
 	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
-	$_ .=  $modx->parsePlaceholder($tpl,$ph);
+	$_ .=  $modx->parseText($tpl,$ph);
 	echo $_;
 }
 ?>
@@ -218,7 +218,7 @@ else
 	$ph['image']   = 'folder.gif';
 	$ph['subject'] = '<a href="index.php?a=31&mode=drill&path=' . $filemanager_path . '">Top</b></a> / ';
 }
-echo $modx->parsePlaceholder($tpl,$ph);
+echo $modx->parseText($tpl,$ph);
 
 $len = strlen($filemanager_path);
 if(substr($startpath, $len, strlen($startpath))=='')

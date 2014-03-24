@@ -163,21 +163,21 @@ class EXPORT_SITE
 		$ph['status'] = 'fail';
 		$ph['msg1']   = $_lang['export_site_failed'];
 		$ph['msg2']   = $_lang["export_site_failed_no_write"] . ' - ' . $dirpath;
-		$msg_failed_no_write    = $modx->parsePlaceholder($tpl,$ph);
+		$msg_failed_no_write    = $modx->parseText($tpl,$ph);
 		
 		$ph['msg2']   = $_lang["export_site_failed_no_retrieve"];
-		$msg_failed_no_retrieve = $modx->parsePlaceholder($tpl,$ph);
+		$msg_failed_no_retrieve = $modx->parseText($tpl,$ph);
 		
 		$ph['status'] = 'success';
 		$ph['msg1']   = $_lang['export_site_success'];
 		$ph['msg2']   = '';
-		$msg_success            = $modx->parsePlaceholder($tpl,$ph);
+		$msg_success            = $modx->parseText($tpl,$ph);
 		
 		$ph['msg2']   = $_lang['export_site_success_skip_doc'];
-		$msg_success_skip_doc = $modx->parsePlaceholder($tpl,$ph);
+		$msg_success_skip_doc = $modx->parseText($tpl,$ph);
 		
 		$ph['msg2']   = $_lang['export_site_success_skip_dir'];
-		$msg_success_skip_dir = $modx->parsePlaceholder($tpl,$ph);
+		$msg_success_skip_dir = $modx->parseText($tpl,$ph);
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
@@ -212,12 +212,12 @@ class EXPORT_SITE
 					else $row['status'] = $msg_failed_no_retrieve;
 				}
 				else     $row['status'] = $msg_success_skip_doc;
-				$this->output[] = $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
 			}
 			else
 			{
 				$row['status'] = $msg_success_skip_dir;
-				$this->output[] = $modx->parsePlaceholder($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
 			}
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder

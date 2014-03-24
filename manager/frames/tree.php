@@ -618,6 +618,6 @@ function constructLink($action, $img, $text, $allowed)
 		$ph['text']   = $text;
 		$tpl  = '<div class="menuLink" id="item[+action+]" onclick="menuHandler(\'[+action+]\'); hideMenu();">';
 		$tpl .= '<img src="[+img+]" />[+text+]</div>';
-		echo $modx->parsePlaceholder($tpl, $ph);
+		echo $modx->parseText($tpl, $ph);
 	}
 }

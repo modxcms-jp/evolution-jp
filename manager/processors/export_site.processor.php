@@ -18,7 +18,7 @@ elseif(is_dir(MODX_BASE_PATH . 'assets')) $export_dir = MODX_BASE_PATH . 'assets
 if(strpos($modx->config['base_path'],"{$export_dir}/")===0 && 0 <= strlen(str_replace("{$export_dir}/",'',$modx->config['base_path'])))
 	return $_lang['export_site.static.php6'];
 elseif($modx->config['rb_base_dir'] === $export_dir . '/')
-	return $modx->parsePlaceholder($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
+	return $modx->parseText($_lang['export_site.static.php7'],'rb_base_url=' . $modx->config['base_url'] . $modx->config['rb_base_url']);
 elseif(!is_writable($export_dir))
 	return $_lang['export_site_target_unwritable'];
 

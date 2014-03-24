@@ -62,7 +62,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				if($src)
 				{
 					// We have a valid source
-					$src = $modx->parsePlaceholder($params['output'],array('value'=>$src));
+					$src = $modx->parseText($params['output'],array('value'=>$src));
 					$attributes = '';
 					$attr = array(
 						'class' => $params['class'],
@@ -159,7 +159,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 				$tagvalue = is_array($value[$i]) ? implode(' ', $value[$i]) : $value[$i];
 				if (!$tagvalue) continue;
 				
-				$tagvalue = $modx->parsePlaceholder($params['output'],array('value'=>$tagvalue));
+				$tagvalue = $modx->parseText($params['output'],array('value'=>$tagvalue));
 				$attributes = '';
 				$attr = array(
 					'id' => ($tagid ? $tagid : $tagname) . ($i==0?'':'-'.$i), //１周目は指定されたidをそのまま付加する。'tv' already added to id
@@ -263,7 +263,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			$widget_output = '';
 			$o = '';
 			/* If we are loading a file */
-			$params['output'] = $modx->parsePlaceholder($params['output'],array('value'=>$value,'tvname'=>$name));
+			$params['output'] = $modx->parseText($params['output'],array('value'=>$value,'tvname'=>$name));
 			if(substr($params['output'], 0, 5) == '@FILE')
 			{
 				$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
@@ -300,7 +300,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$doc
 			{
 			if(strpos($widget_output,'[+')!==false)
 			{
-				$widget_output = $modx->parsePlaceholder($widget_output,array('value'=>$value,'tvname'=>$name));
+				$widget_output = $modx->parseText($widget_output,array('value'=>$value,'tvname'=>$name));
 			}
 				$o = $modx->parseDocumentSource($widget_output);
 			}

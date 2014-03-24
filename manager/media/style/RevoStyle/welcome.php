@@ -10,7 +10,7 @@ function iconMessage() {
 		$ph['imgsrc'] = ($_SESSION['nrnewmessages']>0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
 		$ph['action']    = 'index.php?a=10';
 		$ph['title']   = $_lang['inbox'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconMessage',$src);
 	}
 }
@@ -24,7 +24,7 @@ function iconElements() {
 		$ph['imgsrc'] = 'icons/32x/elements.png';
 		$ph['action']    = 'index.php?a=76';
 		$ph['title']   = $_lang['element_management'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconElements',$src);
 	}
 }
@@ -38,7 +38,7 @@ function iconNewDoc() {
 		$ph['imgsrc'] = 'icons/32x/newdoc.png';
 		$ph['action']    = 'index.php?a=4';
 		$ph['title']   = $_lang['add_resource'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconNewDoc',$src);
 	}
 }
@@ -52,7 +52,7 @@ function iconSettings() {
 		$ph['imgsrc'] = 'icons/32x/settings.png';
 		$ph['action']    = 'index.php?a=17';
 		$ph['title']   = $_lang['edit_settings'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconSettings',$src);
 	}
 }
@@ -66,7 +66,7 @@ function iconResources() {
 		$ph['imgsrc'] = 'icons/32x/resources.png';
 		$ph['action']    = 'index.php?a=120';
 		$ph['title']   = $_lang['view_child_resources_in_container'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconResources',$src);
 	}
 }
@@ -80,7 +80,7 @@ function iconHelp() {
 		$ph['imgsrc'] = 'icons/32x/help.png';
 		$ph['action']    = 'index.php?a=9';
 		$ph['title']   = $_lang['help'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconHelp',$src);
 	}
 }
@@ -94,7 +94,7 @@ function iconFileManager() {
 		$ph['imgsrc'] = 'icons/32x/files.png';
 		$ph['action']    = 'index.php?a=31';
 		$ph['title']   = $_lang['manage_files'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconFileManager',$src);
 	}
 }
@@ -108,7 +108,7 @@ function iconEventLog() {
 		$ph['imgsrc'] = 'icons/32x/log.png';
 		$ph['action']    = 'index.php?a=114';
 		$ph['title']   = $_lang['eventlog'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconEventLog',$src);
 	}
 }
@@ -122,7 +122,7 @@ function iconSysInfo() {
 		$ph['imgsrc'] = 'icons/32x/info.png';
 		$ph['action']    = 'index.php?a=53';
 		$ph['title']   = $_lang['view_sysinfo'];
-		$src = $modx->parsePlaceholder($tpl,$ph);
+		$src = $modx->parseText($tpl,$ph);
 		$modx->setPlaceholder('iconSysInfo',$src);
 	}
 }
@@ -135,7 +135,7 @@ function iconSearch() {
 	$ph['imgsrc'] = 'icons/32x/search.png';
 	$ph['action']    = 'index.php?a=71';
 	$ph['title']   = $_lang['search_resource'];
-	$src = $modx->parsePlaceholder($tpl,$ph);
+	$src = $modx->parseText($tpl,$ph);
 	$modx->setPlaceholder('iconSearch',$src);
 }
 
@@ -183,7 +183,7 @@ function tabYourInfo() {
   </tr>
 </table>
 TPL;
-    $user_info = $modx->parsePlaceholder($tpl,$ph);
+    $user_info = $modx->parseText($tpl,$ph);
     
     // recent document info
     $uid = $modx->getLoginUserID();
@@ -202,7 +202,7 @@ TPL;
     	{
     		$row['editedon'] = $modx->toDateFormat($row['editedon']);
     		$row['description'] = $row['description']!='' ? ' - '.$row['description'] : '';
-    		$recent_info .= $modx->parsePlaceholder($tpl,$row);
+    		$recent_info .= $modx->parseText($tpl,$row);
     	}
     }
     $recent_info.='</ul>';
@@ -221,7 +221,7 @@ TPL;
 	<div class="sectionBody">[+UserInfo+]</div>
 </div>
 TPL;
-    $tabYourInfo = $modx->parsePlaceholder($tpl,$ph);
+    $tabYourInfo = $modx->parseText($tpl,$ph);
     $modx->setPlaceholder('tabYourInfo',$tabYourInfo);
 }
 
@@ -238,7 +238,7 @@ function tabOnlineUser()
     $total = $modx->db->getRecordCount($rs);
     if($total==1)
     {
-    	$ph['OnlineInfo'] = $modx->parsePlaceholder('<p>[+no_active_users_found+]</p>',$ph);
+    	$ph['OnlineInfo'] = $modx->parseText('<p>[+no_active_users_found+]</p>',$ph);
     }
     else
     {
@@ -268,7 +268,7 @@ function tabOnlineUser()
 </tbody>
 </table>
 TPL;
-        $ph['OnlineInfo'] = $modx->parsePlaceholder($tpl,$ph);
+        $ph['OnlineInfo'] = $modx->parseText($tpl,$ph);
     
     }
     $tpl = <<< TPL
@@ -279,7 +279,7 @@ TPL;
     <div class="sectionBody">[+OnlineInfo+]</div>
 </div>
 TPL;
-    $tabOnlineUser = $modx->parsePlaceholder($tpl,$ph);
+    $tabOnlineUser = $modx->parseText($tpl,$ph);
     $modx->setPlaceholder('tabOnlineUser',$tabOnlineUser);
 }
 

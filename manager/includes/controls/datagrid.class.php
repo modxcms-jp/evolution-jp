@@ -356,10 +356,10 @@ class DataGrid {
 		if(substr($this->pagerLocation,-4)=='left') $ph['align'] = 'left';
 		else                                        $ph['align'] = 'right';
 		
-		if($tblPager && $ptop) $o = $modx->parsePlaceholder($tpl,$ph) . $o;
+		if($tblPager && $ptop) $o = $modx->parseText($tpl,$ph) . $o;
 		$o .= $tblColHdr.$tblRows;
 		$o.= $tblEnd;
-		if($tblPager && $pbot) $o = $o . $modx->parsePlaceholder($tpl,$ph);
+		if($tblPager && $pbot) $o = $o . $modx->parseText($tpl,$ph);
 		
 		if($this->footer) $o .= '<div class="gridfooter">' . $this->footer . "</div>\n";
 		

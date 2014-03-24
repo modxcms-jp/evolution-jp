@@ -95,7 +95,7 @@ elseif ($mode=='snapshot')
 	}
 	if(!is_writable(rtrim($modx->config['snapshot_path'],'/')))
 	{
-		echo $modx->parsePlaceholder($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
+		echo $modx->parseText($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
 		exit;
 	}
 	$escaped_table_prefix = str_replace('_', '\\_', $table_prefix);
@@ -384,7 +384,7 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	<h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabSnapshot'));</script>
-	<?php echo $modx->parsePlaceholder($_lang["bkmgr_snapshot_msg"],"snapshot_path={$modx->config['snapshot_path']}");?>
+	<?php echo $modx->parseText($_lang["bkmgr_snapshot_msg"],"snapshot_path={$modx->config['snapshot_path']}");?>
 	<form method="post" name="snapshot" action="index.php">
 	<input type="hidden" name="a" value="93" />
 	<input type="hidden" name="mode" value="snapshot" />

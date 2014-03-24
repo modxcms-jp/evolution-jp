@@ -85,11 +85,11 @@ $ph=array();
 $ph['src']   = $_style['icons_tooltip_over'];
 $ph['title'] = $_lang['tmplvars_binding_msg'];
 $ph['alt']   = $_lang['tmplvars_binding_msg'];
-$tooltip_tv_binding = $modx->parsePlaceholder($tooltip_tpl,$ph);
+$tooltip_tv_binding = $modx->parseText($tooltip_tpl,$ph);
 
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt']   = $_lang['tmplvars_input_option_msg'];
-$tooltip_input_option = $modx->parsePlaceholder($tooltip_tpl,$ph);
+$tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
 
 ?>
 <script language="JavaScript">
