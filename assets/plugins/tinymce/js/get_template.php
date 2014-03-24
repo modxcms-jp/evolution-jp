@@ -70,7 +70,7 @@ else
 			$ph['title']       = ($docs[$i]['menutitle']!=='') ? $docs[$i]['menutitle'] : $docs[$i]['pagetitle'];
 			$ph['target']      = 'docid=' . $docs[$i]['id'];
 			$ph['description'] = $docs[$i]['description'];
-			$list[] = $modx->parsePlaceholder($tpl,$ph);
+			$list[] = parseText($tpl,$ph);
 		}
 	}
 	
@@ -101,7 +101,7 @@ else
 			$ph['title']       = $row['name'];
 			$ph['target']      = 'chunk=' . $row['id'];
 			$ph['description'] = $row['description'];
-			$list[] = $modx->parsePlaceholder($tpl,$ph);
+			$list[] = parseText($tpl,$ph);
 		}
 	}
 	
@@ -114,4 +114,14 @@ if($output)
 	header('pragma: no-cache');
 	header('expires: 0');
 	echo $output;
+}
+
+function parseText($tpl='',$ph=array())
+{
+	foreach($ph as $k=>$v)
+	{
+		$k = "[+{$k}+]";
+		$tpl = str_replace($k,$v,$tpl);
+	}
+	return $tpl;
 }
