@@ -17,23 +17,28 @@ body                        {color:#444;}
 .navi ul li a:link,
 .navi ul li a:visited,
 .navi ul ul li a,
-div.content .subnavi,
-div.content .subnavi,
-div.content .subnavi a:link,
-div.content .subnavi a:visited,
+.content .subnavi,
+.content .subnavi,
+.content .subnavi a:link,
+.content .subnavi a:visited,
 .footer,
 .footer a:visited,
 .footer a:link              {color:#ffffff;}
 
 /* background color **/
-body,div.wrap               {background-color:#ffffff;}
+body,.wrap                  {background-color:#ffffff;}
 .navi ul li:hover ul a,
 .navi,
-div.content .subnavi        {background-color:#8c969c;}
+.content .subnavi           {background-color:#8c969c;}
 .navi ul li:hover a,
 .navi ul li:hover li a:hover,
 .navi ul li.active,
-.navi ul li a:hover         {background-color:#404d56;}
+.navi ul li a:hover,
+.subnavi li:hover a,
+.subnavi li:hover li a:hover,
+.subnavi li.active,
+.subnavi li a:hover
+                            {background-color:#404d56;}
 .footer                     {background-color:#6b7881;}
 .slogan                     {background-color:#65727B;}
 
@@ -42,69 +47,75 @@ body                        {
                              background-image:url(images/bg.png);
                              background-repeat:repeat-x;
                             }
-div.content                 {
+.content                    {
                              background-image:url(images/content_bg.gif);
                              background-repeat:repeat-x;
                             }
 
 /* block layout *******/
-div.wrap                    {border:1px solid #ddd;}
-div.wrap                    {
+.wrap                       {border:1px solid #ddd;}
+.wrap                       {
                              margin:10px auto;
                              box-shadow:0 0 15px #cdcdcd;
                              -moz-box-shadow:0 0 15px #cdcdcd;
                              -webkit-box-shadow:0 0 20px #e5e5e5;
                             }
-div.slogan                  {padding:5px;}
-div.navi ul                 {
+.slogan                     {padding:5px;}
+.navi ul                    {
                              overflow:hidden;zoom:1;
                              list-style-type:none;
                             }
-div.navi ul li              {
+.navi ul li                 {
                              float:left;
                              letter-spacing:1px;
                              display: block;
                             }
 
-div.navi ul li a            {
+.navi ul li a               {
                               display:block;
                               padding: 8px;
                             }
-div.navi ul li a:link,
-div.navi ul li a:visited,
-div.content .subnavi a:link,
-div.content .subnavi a:visited
+.navi ul li a:link,
+.navi ul li a:visited,
+.subnavi a:link,
+.subnavi a:visited
                             {text-decoration: none;}
-div.navi ul li ul           {display: none;}
-div.navi ul li:hover ul a   {
+.navi ul li ul              {display: none;}
+.navi ul li:hover ul a      {
                              filter: alpha(opacity=92);
                              opacity:0.92;
                             }
-div.navi ul li:hover ul     {
+.navi ul li:hover ul        {
                              display: block;
                              position: absolute;
                              z-index:10000;
                             }
-div.navi ul li:hover li     {
+.navi ul li:hover li        {
                              float: none;
                              border-top: 1px solid #ffffff;
                             }
 
-div.content                 {
+.content                    {
                              overflow:hidden;zoom:1;
                              padding:20px;
                              border-top:1px solid #eee;
                             }
-div.content .subnavi        {
+.content .subnavi           {
                              border:1px solid #8c969c;
                              border-radius:3px;
                              float:right;
                              margin:0 0 10px 10px;
-                             padding:1em;
+                             list-style-type:none;
                             }
-div.content .subnavi li     {margin-left:1em;}
+.content .subnavi li        {
+                             margin:0;
+                            }
+.content .subnavi a         {
+                             display:block;
+                             padding:.8em;
+                            }
 
-div.footer                  {
+.footer                     {
                              padding:30px;
                              text-align:center;
                             }
