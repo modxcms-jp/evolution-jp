@@ -3235,6 +3235,30 @@ class DocumentParser {
 	function checkPermissions($docid=false,$duplicateDoc = false)
     	{$this->loadExtension('SubParser');return $this->sub->checkPermissions($docid,$duplicateDoc);}
     	
+    function ProcessTVCommand($value, $name = '', $docid = '', $src='docform')
+    	{$this->loadExtension('SubParser');return $this->sub->ProcessTVCommand($value, $name, $docid, $src);}
+    function ParseCommand($binding_string)
+    	{$this->loadExtension('SubParser');return $this->sub->ParseCommand($binding_string);}
+    function getExtention($str)
+    	{$this->loadExtension('SubParser');return $this->sub->getExtention($str);}
+    function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
+    	{$this->loadExtension('SubParser');return $this->sub->getTVDisplayFormat($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
+	function decodeParamValue($s)
+		{$this->loadExtension('SubParser');return $this->sub->decodeParamValue($s);}
+	function parseInput($src, $delim='||', $type='string', $columns=true)
+		{$this->loadExtension('SubParser');return $this->sub->parseInput($src, $delim, $type, $columns);}
+	function getUnixtimeFromDateString($value)
+		{$this->loadExtension('SubParser');return $this->sub->getUnixtimeFromDateString($value);}
+
+	function renderFormElement($f_type, $f_id, $default_text, $f_elements, $f_value, $f_style='', $row = array())
+		{$this->loadExtension('SubParser');
+		return $this->sub->renderFormElement($f_type,$f_id,$default_text,$f_elements,$f_value, $f_style,$row);}
+	function ParseIntputOptions($v)
+		{$this->loadExtension('SubParser');return $this->sub->ParseIntputOptions($v);}
+	function splitOption($value)
+		{$this->loadExtension('SubParser');return $this->sub->splitOption($value);}
+	function isSelected($label,$value,$item,$field_value)
+		{$this->loadExtension('SubParser');return $this->sub->isSelected($label,$value,$item,$field_value);}
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}

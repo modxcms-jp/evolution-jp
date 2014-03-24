@@ -849,4 +849,825 @@ class SubParser {
 		if ($total == 1) return true;
 		else             return false;
     }
+    
+	/*
+	 * Template Variable Data Source @Bindings
+	 * Created by Raymond Irving Feb, 2005
+	 */
+
+	function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
+	    global $modx;
+	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
+	    $nvalue = trim($value);
+	    if (substr($nvalue, 0, 1) != '@')
+	        return $value;
+	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
+	    {
+	        return '@Bindings is disabled.';
+	    }
+	    else {
+	        list ($cmd, $param) = $this->ParseCommand($nvalue);
+	        $cmd = trim($cmd);
+	        $param = trim($param);
+	        switch ($cmd) {
+	            case "FILE" :
+	            	if($this->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
+	            	else $output = @file_get_contents($param);
+	                if($output===false) $output = " Could not retrieve document '{$file}'.";
+	                break;
+
+	            case "CHUNK" : // retrieve a chunk and process it's content
+	                $chunk = $modx->getChunk(trim($param));
+	                $output = $chunk;
+	                break;
+
+	            case "DOCUMENT" : // retrieve a document and process it's content
+	                $rs = $modx->getDocument($param);
+	                if (is_array($rs))
+	                    $output = $rs['content'];
+	                else
+	                    $output = "Unable to locate document {$param}";
+	                break;
+
+	            case "SELECT" : // selects a record from the cms database
+	                $rt = array ();
+	                $replacementVars = array (
+	                    'dbase' => $modx->db->config['dbase'],
+	                    'DBASE' => $modx->db->config['dbase'],
+	                    'prefix' => $modx->db->config['table_prefix'],
+	                    'PREFIX' => $modx->db->config['table_prefix']
+	                );
+	                foreach ($replacementVars as $rvKey => $rvValue) {
+	                    $modx->setPlaceholder($rvKey, $rvValue);
+	                }
+	                $param = $modx->mergePlaceholderContent($param);
+	                $rs = $modx->db->query("SELECT {$param}");
+	                $output = $rs;
+	                break;
+
+	            case "EVAL" : // evaluates text as php codes return the results
+	                $output = eval ($param);
+	                break;
+
+	            case "INHERIT" :
+	                $output = $param; // Default to param value if no content from parents
+	                if(empty($docid) && isset($_REQUEST['pid'])) $doc['parent'] = $_REQUEST['pid'];
+	                else                                         $doc = $modx->getPageInfo($docid, 0, 'id,parent');
+
+	                while ($doc['parent'] != 0) {
+	                    $parent_id = $doc['parent'];
+
+	                    // Grab document regardless of publish status
+	                    $doc = $modx->getPageInfo($parent_id, 0, 'id,parent');
+
+	                    $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
+
+	                    // inheritance allows other @ bindings to be inherited
+	                    // if no value is inherited and there is content following the @INHERIT binding,
+	                    // that content will be used as the output
+	                    // @todo consider reimplementing *appending* the output the follows an @INHERIT as opposed
+	                    //       to using it as a default/fallback value; perhaps allow choice in behavior with
+	                    //       system setting
+	                    if ((string) $tv['value'] !== '' && !preg_match('%^@INHERIT[\s\n\r]*$%im', $tv['value'])) {
+	                        $output = (string) $tv['value'];
+	                        //$output = str_replace('@INHERIT', $output, $nvalue);
+	                        break 2;
+	                    }
+	                }
+	                break;
+
+	            case 'DIRECTORY' :
+	                $files = array ();
+	                $path = $modx->config['base_path'] . $param;
+	                if (substr($path, -1, 1) != '/') {
+	                    $path .= '/';
+	                }
+	                if (!is_dir($path)) {
+	                    die($path);
+	                    break;
+	                }
+	                $dir = dir($path);
+	                while (($file = $dir->read()) !== false) {
+	                    if (substr($file, 0, 1) != '.') {
+	                        $files[] = "{$file}=={$param}{$file}";
+	                    }
+	                }
+	                asort($files);
+	                $output = implode('||', $files);
+	                break;
+
+	            case 'NULL' :
+	            case 'NONE' :
+	                $output = '';
+	                break;
+
+	            default :
+	                $output = $value;
+	                break;
+
+	        }
+	        // support for nested bindings
+	        return is_string($output) && ($output != $value) ? $this->ProcessTVCommand($output, $name, $docid, $src) : $output;
+	    }
+	}
+
+	// separate @ cmd from params
+	function ParseCommand($binding_string)
+	{
+	    // Array of supported bindings. must be upper case
+	    $BINDINGS = array (
+	        'FILE',
+	        'CHUNK',
+	        'DOCUMENT',
+	        'SELECT',
+	        'EVAL',
+	        'INHERIT',
+	        'DIRECTORY',
+	        'NONE'
+	    );
+		$binding_array = array();
+		foreach($BINDINGS as $cmd)
+		{
+			if(strpos($binding_string,'@'.$cmd)===0)
+			{
+				$code = substr($binding_string,strlen($cmd)+2);
+				$binding_array = array($cmd,trim($code));
+				break;
+			}
+		}
+		return $binding_array;
+	}
+
+	function getExtention($str)
+	{
+		$str = trim($str);
+		$str = strtolower($str);
+		$pos = strrpos($str,'.');
+		if($pos===false) return false;
+		return substr($str,$pos);
+	}
+	
+	/*
+	* Template Variable Display Format
+	* Created by Raymond Irving Feb, 2005
+	*/
+
+	// Added by Raymond 20-Jan-2005
+	function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
+	{
+		global $modx;
+		
+		// process any TV commands in value
+		$docid= intval($docid) ? intval($docid) : $modx->documentIdentifier;
+		switch($tvtype)
+		{
+			case 'dropdown':
+			case 'listbox':
+			case 'listbox-multiple':
+			case 'checkbox':
+			case 'option':
+				$src = $tvtype;
+				$values = explode('||',$value);
+				$i = 0;
+				foreach($values as $i=>$v)
+				{
+					$values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
+					$i++;
+				}
+				$value = join('||', $values);
+				break;
+			default:
+				$src = 'docform';
+				$value = $this->ProcessTVCommand($value, $name, $docid, $src);
+		}
+		
+		$param = array();
+		if($paramstring)
+		{
+			$cp = explode('&',$paramstring);
+			foreach($cp as $p => $v)
+			{
+				$v = trim($v); // trim
+				$ar = explode('=',$v);
+				if (is_array($ar) && count($ar)==2)
+				{
+					$params[$ar[0]] = $this->decodeParamValue($ar[1]);
+				}
+			}
+		}
+
+		$id = "tv{$name}";
+		switch($format)
+		{
+			case 'image':
+				$images = $this->parseInput($value, '||', 'array');
+				$o = '';
+				foreach($images as $image)
+				{
+					if(!is_array($image)) $image = explode('==',$image);
+					$src = $image[0];
+					
+					if($src)
+					{
+						// We have a valid source
+						$src = $modx->parseText($params['output'],array('value'=>$src));
+						$attributes = '';
+						$attr = array(
+							'class' => $params['class'],
+							'src' => $src,
+							'id' => ($params['id'] ? $params['id'] : ''),
+							'alt' => htmlspecialchars($params['alttext']),
+							'style' => $params['style']
+						);
+						if(isset($params['align']) && $params['align'] != 'none')
+						{
+							$attr['align'] = $params['align'];
+						}
+						foreach ($attr as $k => $v)
+						{
+							$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
+						}
+						$attributes .= ' '.$params['attrib'];
+						
+						// Output the image with attributes
+						$o .= '<img'.rtrim($attributes).' />';
+					}
+				}
+				break;
+			case 'delim':	// display as delimitted list
+				$value = $this->parseInput($value,'||');
+				$p = $params['delim'] ? $params['delim']:',';
+				if ($p=="\\n") $p = "\n";
+				$o = str_replace('||',$p,$value);
+				break;
+			case 'string':
+				$value = $this->parseInput($value);
+				$format = strtolower($params['format']);
+				if($format=='zen-han')            $o = mb_convert_kana($value,'as',$modx->config['modx_charset']);
+				else if($format=='han-zen')       $o = mb_convert_kana($value,'AS',$modx->config['modx_charset']);
+				else if($format=='upper case')    $o = strtoupper($value);
+				else if($format=='lower case')    $o = strtolower($value);
+				else if($format=='sentence case') $o = ucfirst($value);
+				else if($format=='capitalize')    $o = ucwords($value);
+				else if($format=='nl2br')         $o = nl2br($value);
+				else if($format=='number format') $o = number_format($value);
+				else if($format=='htmlspecialchars') $o = htmlspecialchars($value,ENT_QUOTES,$modx->config['modx_charset']);
+				else if($format=='htmlentities')  $o = htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
+				else $o = $value;
+				break;
+			case 'date':
+			case 'dateonly':
+				if ($value !='' || $params['default']=='Yes')
+				{
+					$timestamp = $this->getUnixtimeFromDateString($value);
+					$p = $params['format'] ? $params['format'] : $modx->toDateFormat(null, 'formatOnly');
+					$o = strftime($p,$timestamp);
+				}
+				else
+				{
+					$value='';
+				}
+				break;
+			case 'hyperlink':
+				$value = $this->parseInput($value,'||','array');
+				for ($i = 0; $i < count($value); $i++)
+				{
+					list($name,$url) = is_array($value[$i]) ? $value[$i]: explode('==',$value[$i]);
+					if (!$url) $url = $name;
+					if ($url)
+					{
+						if($o) $o.='<br />';
+						$attributes = '';
+						// setup the link attributes
+						$attr = array(
+							'href'   => $url,
+							'title'  => $params['title'] ? htmlspecialchars($params['title']) : $name,
+							'class'  => $params['class'],
+							'style'  => $params['style'],
+							'target' => $params['target'],
+						);
+						foreach ($attr as $k => $v)
+						{
+							$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
+						}
+						$attributes .= ' '.$params['attrib']; // add extra
+						
+						// Output the link
+						$o .= '<a'.rtrim($attributes).'>'. ($params['text'] ? htmlspecialchars($params['text']) : $name) .'</a>';
+					}
+				}
+				break;
+			case 'htmltag':
+				$value = $this->parseInput($value,'||','array');
+				$tagid = $params['tagid'];
+				$tagname = ($params['tagname']) ? $params['tagname'] : 'div';
+				// Loop through a list of tags
+				for ($i = 0; $i < count($value); $i++)
+				{
+					$tagvalue = is_array($value[$i]) ? implode(' ', $value[$i]) : $value[$i];
+					if (!$tagvalue) continue;
+					
+					$tagvalue = $modx->parseText($params['output'],array('value'=>$tagvalue));
+					$attributes = '';
+					$attr = array(
+						'id' => ($tagid ? $tagid : $tagname) . ($i==0?'':'-'.$i), //１周目は指定されたidをそのまま付加する。'tv' already added to id
+						'class' => $params['class'],
+						'style' => $params['style'],
+					);
+					foreach ($attr as $k => $v)
+					{
+						$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
+					}
+					$attributes .= ' '.$params['attrib']; // add extra
+					$attributes = rtrim($attributes);
+					
+					// Output the HTML Tag
+					switch($tagname)
+					{
+						case 'img':
+							$o .= "<img src=\"{$tagvalue}\" {$attributes} />\n";
+							break;
+						default:
+							$o .= "<{$tagname}{$attributes}>{$tagvalue}</{$tagname}>\n";
+					}
+				}
+				break;
+			case 'richtext':
+				$value = $this->parseInput($value);
+				$w = $params['w']? $params['w']:'100%';
+				$h = $params['h']? $params['h']:'400px';
+				$richtexteditor = $params['edt']? $params['edt']: '';
+				$o = '<div class="MODX_RichTextWidget"><textarea id="'.$id.'" name="'.$id.'" style="width:'.$w.'; height:'.$h.';">';
+				$o.= htmlspecialchars($value);
+				$o.= '</textarea></div>';
+				$replace_richtext = array($id);
+				// setup editors
+				if (!empty($replace_richtext) && !empty($richtexteditor))
+				{
+					// invoke OnRichTextEditorInit event
+					$evtOut = $modx->invokeEvent('OnRichTextEditorInit',
+					array(
+						'editor'      => $richtexteditor,
+						'elements'    => $replace_richtext,
+						'forfrontend' => 1,
+						'width'       => $w,
+						'height'      => $h
+					));
+					if(is_array($evtOut)) $o.= implode('',$evtOut);
+				}
+				break;
+			case 'unixtime':
+				$value = $this->parseInput($value);
+				$o = $this->getUnixtimeFromDateString($value);
+				break;
+			case 'datagrid':
+				include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+				$grd = new DataGrid('',$value);
+				$grd->noRecordMsg		=$params['egmsg'];
+				
+				$grd->columnHeaderClass	=$params['chdrc'];
+				$grd->cssClass			=$params['tblc'];
+				$grd->itemClass			=$params['itmc'];
+				$grd->altItemClass		=$params['aitmc'];
+				
+				$grd->columnHeaderStyle	=$params['chdrs'];
+				$grd->cssStyle			=$params['tbls'];
+				$grd->itemStyle			=$params['itms'];
+				$grd->altItemStyle		=$params['aitms'];
+				
+				$grd->columns			=$params['cols'];
+				$grd->fields			=$params['flds'];
+				$grd->colWidths			=$params['cwidth'];
+				$grd->colAligns			=$params['calign'];
+				$grd->colColors			=$params['ccolor'];
+				$grd->colTypes			=$params['ctype'];
+				
+				$grd->cellPadding		=$params['cpad'];
+				$grd->cellSpacing		=$params['cspace'];
+				$grd->header			=$params['head'];
+				$grd->footer			=$params['foot'];
+				$grd->pageSize			=$params['psize'];
+				$grd->pagerLocation		=$params['ploc'];
+				$grd->pagerClass		=$params['pclass'];
+				$grd->pagerStyle		=$params['pstyle'];
+				
+				$grd->cdelim			=$params['cdelim'];
+				$grd->cwrap				=$params['cwrap'];
+				$grd->src_encode		=$params['enc'];
+				$grd->detectHeader		=$params['detecthead'];
+				
+				$o = $grd->render();
+				break;
+			case 'htmlentities':
+				$value= $this->parseInput($value);
+				if($tvtype=='checkbox'||$tvtype=='listbox-multiple')
+				{
+					// remove delimiter from checkbox and listbox-multiple TVs
+					$value = str_replace('||','',$value);
+				}
+				$o = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
+				break;
+			case 'custom_widget':
+				$widget_output = '';
+				$o = '';
+				/* If we are loading a file */
+				$params['output'] = $modx->parseText($params['output'],array('value'=>$value,'tvname'=>$name));
+				if(substr($params['output'], 0, 5) == '@FILE')
+				{
+					$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
+					if(is_file($file_name)) $widget_output = file_get_contents($file_name);
+					else                    $widget_output = $file_name . ' does not exist';
+				}
+				elseif(substr($params['output'], 0, 8) == '@INCLUDE')
+				{
+					$file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
+					if(is_file($file_name)) include $file_name;
+					else                    $widget_output = $file_name . ' does not exist';
+					/* The included file needs to set $widget_output. Can be string, array, object */
+				}
+				elseif(substr($params['output'], 0, 6) == '@CHUNK' && $value !== '')
+				{
+					$chunk_name = trim(substr($params['output'], 7));
+					$widget_output = $modx->getChunk($chunk_name);
+				}
+				elseif(substr($params['output'], 0, 5) == '@EVAL')
+				{
+					$tvname = $name;
+					$eval_str = trim(substr($params['output'], 6));
+					$widget_output = eval($eval_str);
+				}
+				elseif($value !== '')
+				{
+					$widget_output = $params['output'];
+				}
+				else
+				{
+					$widget_output = '';
+				}
+				if(is_string($widget_output)) // Except @INCLUDE
+				{
+				if(strpos($widget_output,'[+')!==false)
+				{
+					$widget_output = $modx->parseText($widget_output,array('value'=>$value,'tvname'=>$name));
+				}
+					$o = $modx->parseDocumentSource($widget_output);
+				}
+				else
+				{
+					$o = $widget_output;
+				}
+				break;
+			
+			default:
+				$value = $this->parseInput($value);
+				if($tvtype=='checkbox'||$tvtype=='listbox-multiple')
+				{
+					// add separator
+					$value = explode('||',$value);
+					$value = implode($sep,$value);
+				}
+				$o = $value;
+				break;
+		}
+		return $o;
+	}
+
+	function decodeParamValue($s)
+	{
+		$s = str_replace('%3B',';',$s); // ;
+		$s = str_replace('%3D','=',$s); // =
+		$s = str_replace('%26','&',$s); // &
+		$s = str_replace('%2C',',',$s); // ,
+		$s = str_replace('%5C','\\',$s); // \
+
+		return $s;
+	}
+
+	// returns an array if a delimiter is present. returns array is a recordset is present
+	function parseInput($src, $delim='||', $type='string', $columns=true)
+	{ // type can be: string, array
+		global $modx;
+		
+		if (is_resource($src))
+		{
+			// must be a recordset
+			$rows = array();
+			$nc = mysql_num_fields($src);
+			while ($cols = $modx->db->getRow($src,'num'))
+			{
+				$rows[] = ($columns)? $cols : implode(' ',$cols);
+			}
+			return ($type=='array')? $rows : implode($delim,$rows);
+		}
+		else
+		{
+			// must be a text
+			if($type=='array') return explode($delim,$src);
+			else               return $src;
+		}
+	}
+
+	function getUnixtimeFromDateString($value)
+	{
+		$timestamp = false;
+		// Check for MySQL or legacy style date
+		$date_match_1 = '/^([0-9]{2})-([0-9]{2})-([0-9]{4})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
+		$date_match_2 = '/^([0-9]{4})-([0-9]{2})-([0-9]{2})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
+		$matches= array();
+		if(strpos($value,'-')!==false)
+		{
+			if(preg_match($date_match_1, $value, $matches))
+			{
+				$timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[1], $matches[3]);
+			}
+			elseif(preg_match($date_match_2, $value, $matches))
+			{
+				$timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
+			}
+		}
+		// If those didn't work, use strtotime to figure out the date
+		if($timestamp === false || $timestamp === -1)
+		{
+			$timestamp = strtotime($value);
+		}
+		return $timestamp;
+	}
+	
+	// DISPLAY FORM ELEMENTS
+	function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style='', $row = array()) {
+		global $modx;
+		global $base_url;
+		global $rb_base_url;
+		global $manager_theme;
+		global $_lang;
+		global $content;
+		
+		$field_html ='';
+		$field_value = ($field_value!="" ? $field_value : $default_text);
+
+		switch (strtolower($field_type)) {
+
+			case "text": // handler for regular text boxes
+			case "rawtext"; // non-htmlentity converted text boxes
+			case "email": // handles email input fields
+			case "number": // handles the input of numbers
+				if($field_type=='text') $field_type = '';
+				elseif($field_type=='number') $field_type .= ' imeoff';
+				$field_html .=  '<input type="text" class="text ' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' tvtype="'.$field_type.'" />';
+				break;
+			case "textareamini": // handler for textarea mini boxes
+				$field_type .= " phptextarea";
+				$field_html .=  '<textarea class="' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" cols="40" rows="5">' . htmlspecialchars($field_value) .'</textarea>';
+				break;
+			case "textarea": // handler for textarea boxes
+			case "rawtextarea": // non-htmlentity convertex textarea boxes
+			case "htmlarea": // handler for textarea boxes (deprecated)
+			case "richtext": // handler for textarea boxes
+				$field_type .= " phptextarea";
+				$field_html .=  '<textarea class="' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" cols="40" rows="15">' . htmlspecialchars($field_value) .'</textarea>';
+				break;
+			case "date":
+				$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
+                if($field_value=='') $field_value=0;
+				$field_html .=  '<input id="tv'.$field_id.'" name="tv'.$field_id.'" class="DatePicker" type="text" value="' . ($field_value==0 || !isset($field_value) ? "" : $field_value) . '" onblur="documentDirty=true;" />';
+				$field_html .=  ' <a onclick="document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].value=\'\';document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].onblur(); return true;" style="cursor:pointer; cursor:hand"><img src="media/style/' . $manager_theme . '/images/icons/cal_nodate.gif" border="0" alt="No date"></a>';
+
+				$field_html .=  '<script type="text/javascript">';
+				$field_html .=  '	window.addEvent(\'domready\', function() {';
+				$field_html .=  '   	new DatePicker($(\'tv'.$field_id.'\'), {\'yearOffset\' : '.$modx->config['datepicker_offset']. ", 'format' : " . "'" . $modx->config['datetime_format']  . ' hh:mm:00\'' . '});';
+				$field_html .=  '});';
+				$field_html .=  '</script>';
+
+				break;
+			case "dateonly":
+				$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
+                if($field_value=='') $field_value=0;
+				$field_html .=  '<input id="tv'.$field_id.'" name="tv'.$field_id.'" class="DatePicker" type="text" value="' . ($field_value==0 || !isset($field_value) ? "" : $field_value) . '" onblur="documentDirty=true;" />';
+				$field_html .=  ' <a onclick="document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].value=\'\';document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].onblur(); return true;" style="cursor:pointer; cursor:hand"><img src="media/style/'.$manager_theme.'/images/icons/cal_nodate.gif" border="0" alt="No date"></a>';
+
+				$field_html .=  '<script type="text/javascript">';
+				$field_html .=  '	window.addEvent(\'domready\', function() {';
+				$field_html .=  '   	new DatePicker($(\'tv'.$field_id.'\'), {\'yearOffset\' : '.$modx->config['datepicker_offset']. ", 'format' : " . "'" . $modx->config['datetime_format'] . "'" . '});';
+				$field_html .=  '});';
+				$field_html .=  '</script>';
+
+				break;
+			case "dropdown": // handler for select boxes
+				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="1">';
+				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = $this->ParseIntputOptions($rs);
+				while (list($label, $item) = each ($index_list))
+				{
+					list($label,$value) = $this->splitOption($item);
+					$selected = ($value==$field_value) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"'.$selected.'>'.htmlspecialchars($label).'</option>';
+				}
+				$field_html .=  "</select>";
+				break;
+			case "listbox": // handler for select boxes
+				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = $this->ParseIntputOptions($rs);
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="' . $count . '">';	
+				while (list($label, $item) = each ($index_list))
+				{
+					list($label,$value) = $this->splitOption($item);
+					$selected = ($this->isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected . '>'.htmlspecialchars($label).'</option>';
+				}
+				$field_html .=  "</select>";
+				break;
+			case "listbox-multiple": // handler for select boxes where you can choose multiple items
+				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = $this->ParseIntputOptions($rs);
+				$count = (count($index_list)<8) ? count($index_list) : 8;
+				$field_value = explode("||",$field_value);
+				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" size="' . $count . '">';
+				while (list($label, $item) = each ($index_list))
+				{
+					list($label,$value) = $this->splitOption($item);
+					$selected = ($this->isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
+					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected .'>'.htmlspecialchars($label).'</option>';
+				}
+				$field_html .=  "</select>";
+				break;
+			case "url": // handles url input fields
+				$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
+				$field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
+				foreach($urls as $k => $v)
+				{
+					if(strpos($field_value,$v)===false) $field_html.='<option value="'.$v.'">'.$k.'</option>';
+					else
+					{
+						$field_value = str_replace($v,'',$field_value);
+						$field_html.='<option value="'.$v.'" selected="selected">'.$k.'</option>';
+					}
+				}
+				$field_html .='</select></td><td>';
+				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
+				break;
+			case "checkbox": // handles check boxes
+				if(!is_array($field_value)) $field_value = explode('||',$field_value);
+				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = $this->ParseIntputOptions($rs);
+				static $i=0;
+				foreach ($index_list as $item)
+				{
+					list($label,$value) = $this->splitOption($item);
+					$checked = ($this->isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
+					$value = htmlspecialchars($value);
+					$field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. $checked.' />'.$label.'</label>';
+					$i++;
+				}
+				break;
+			case "option": // handles radio buttons
+				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+				$index_list = $this->ParseIntputOptions($rs);
+				static $i=0;
+				while (list($label, $item) = each ($index_list))
+				{
+					list($label,$value) = $this->splitOption($item);
+					$checked = ($this->isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
+					$value = htmlspecialchars($value);
+					$field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
+					$i++;
+				}
+				break;
+			case "image":	// handles image fields using htmlarea image manager
+				global $_lang;
+				global $content,$use_editor,$which_editor;
+				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
+				break;
+			case "file": // handles the input of file uploads
+			/* Modified by Timon for use with resource browser */
+                global $_lang;
+				global $content,$use_editor,$which_editor;
+				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
+                
+				break;
+			case "hidden":
+				$field_type = 'hidden';
+				$field_html .=  '<input type="hidden" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value). '" tvtype="' . $field_type.'" />';
+				break;
+
+            case 'custom_tv':
+                $custom_output = '';
+                /* If we are loading a file */
+                if(substr($field_elements, 0, 5) == "@FILE") {
+                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
+                    if( !file_exists($file_name) ) {
+                        $custom_output = $file_name . ' does not exist';
+                    } else {
+                        $custom_output = file_get_contents($file_name);
+                    }
+                } elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
+                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
+                    if( !file_exists($file_name) ) {
+                        $custom_output = $file_name . ' does not exist';
+                    } else {
+                        ob_start();
+                        include $file_name;
+                        $custom_output = ob_get_contents();
+                        ob_end_clean();
+                    }
+                } elseif(substr($field_elements, 0, 6) == "@CHUNK") {
+                    $chunk_name = trim(substr($field_elements, 7));
+                    $chunk_body = $modx->getChunk($chunk_name);
+                    if($chunk_body == false) {
+                        $custom_output = $_lang['chunk_no_exist']
+                            . '(' . $_lang['htmlsnippet_name']
+                            . ':' . $chunk_name . ')';
+                } else {
+                        $custom_output = $chunk_body;
+                    }
+                } elseif(substr($field_elements, 0, 5) == "@EVAL") {
+                    $eval_str = trim(substr($field_elements, 6));
+                    $custom_output = eval($eval_str);
+                } else {
+                    $custom_output = $field_elements;
+                }
+                    $replacements = array(
+                        '[+field_type+]'   => $field_type,
+                        '[+field_id+]'     => $field_id,
+                        '[+default_text+]' => $default_text,
+                        '[+field_value+]'  => htmlspecialchars($field_value),
+                        '[+field_style+]'  => $field_style,
+                        );
+                $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
+                $modx->documentObject = $content;
+                $custom_output = $modx->parseDocumentSource($custom_output);
+                $field_html .= $custom_output;
+                break;
+            
+			default: // the default handler -- for errors, mostly
+				$sname = strtolower($field_type);
+				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='input:{$field_type}'");
+				if($modx->db->getRecordCount($result)==1)
+				{
+					$field_html .= eval($modx->db->getValue($result));
+				}
+				else
+					$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' />';
+		} // end switch statement
+		return $field_html;
+	}
+
+	function ParseIntputOptions($v)
+	{
+		global $modx;
+		$a = array();
+		if(is_array($v)) $a = $v;
+		elseif(is_resource($v))
+		{
+			while ($cols = $modx->db->getRow($v,'num'))
+			{
+				$a[] = $cols;
+			}
+		}
+		else
+		{
+			$a = explode('||', $v);
+		}
+		return $a;
+	}
+	
+	function splitOption($value)
+	{
+		if(is_array($value))
+		{
+			$label=$value[0];
+			$value=$value[1];
+		}
+		else
+		{
+			if(strpos($value,'==')===false)
+				$label = $value;
+			else
+				list($label,$value) = explode('==',$value,2);
+		}
+		return array($label,$value);
+	}
+	
+	function isSelected($label,$value,$item,$field_value)
+	{
+		if(is_array($item)) $item = $item['0'];
+		if(strpos($item,'==')!==false && strlen($value)==0)
+		{
+			if(is_array($field_value))
+			{
+				$rs = in_array($label,$field_value);
+			}
+			else $rs = ($label===$field_value);
+		}
+		else
+		{
+			if(is_array($field_value))
+			{
+				$rs = in_array($value,$field_value);
+			}
+			else $rs = ($value===$field_value);
+		}
+		
+		return $rs;
+	}
 }
