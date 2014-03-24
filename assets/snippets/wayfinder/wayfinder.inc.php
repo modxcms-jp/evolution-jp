@@ -408,6 +408,10 @@ class Wayfinder {
 		global $modx;
 		$depth = !empty($this->_config['level']) ? $this->_config['level'] : 10;
 		$ids = array();
+		
+		if(strtolower(substr($this->_config['id'],0,1))==='u')
+			$this->_config['id'] = $this->getUltimateParent($modx->documentIdentifier);
+		
 		if (!$this->_config['hideSubMenus']) {
 			$ids = $modx->getChildIds($this->_config['id'],$depth);
 		} else { // then hideSubMenus is checked, we don`t need all children
@@ -874,5 +878,15 @@ class Wayfinder {
 		$r = array('&#091;', '&#093;', '&#123;', '&#125;');
 		$value = str_replace($s, $r, $value);
 		return $value;
+	}
+	
+	function getUltimateParent($id)
+	{
+		global $modx;
+		
+		$parents = $modx->getParentIds();
+		if(empty($parents)) return $id;
+		else
+			return array_pop($parents);
 	}
 }
