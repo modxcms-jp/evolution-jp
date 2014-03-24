@@ -178,6 +178,12 @@ class SubParser {
     		}
     		return;
     	}
+    	elseif(is_string($params) && $params==='full')
+    	{
+    		$params = array();
+    		$params['showReport'] = false;
+    		$params['target'] = 'pagecache,sitecache';
+    	}
     	
     	if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
     	{
