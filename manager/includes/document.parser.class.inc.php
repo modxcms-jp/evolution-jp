@@ -2591,7 +2591,7 @@ class DocumentParser {
 		return $src;
 	}
 
-	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
+	function parseText($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{
 		if(!$ph) return $src;
 		elseif(is_string($ph) && strpos($ph,'='))
