@@ -204,7 +204,7 @@ class synccache {
 		}
 		
 		// write the file
-		$cache_path = $this->cachePath . 'sitePublishing.idx.php';
+		$cache_path = $this->cachePath . 'basicConfig.idx.php';
 		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
 		$content .= '$cache_type = ' . "{$setting['cache_type']};\n";
 		if(isset($site_sessionname) && !empty($site_sessionname))

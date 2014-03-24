@@ -595,7 +595,7 @@ foreach($files as $file)
 
 // try to chmod the cache go-rwx (for suexeced php)
 @chmod("{$cache_path}siteCache.idx.php", 0600);
-@chmod("{$cache_path}sitePublishing.idx.php", 0600);
+@chmod("{$cache_path}basicConfig.idx.php", 0600);
 
 // remove any locks on the manager functions so initial manager login is not blocked
 mysql_query("TRUNCATE TABLE {$tbl_active_users}");
