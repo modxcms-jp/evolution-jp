@@ -68,7 +68,6 @@ function getChildren($parent)
 	global $children;
 	global $deltime,$modx;
 	
-	//$db->debug = true;
 	$rs = $modx->db->select('id','[+prefix+]site_content',"parent={$parent} AND deleted=1 AND deletedon='{$deltime}'");
 	if($modx->db->getRecordCount($rs)>0)
 	{
