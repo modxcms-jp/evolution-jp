@@ -19,7 +19,7 @@ $oldemail = $_POST['oldemail'];
 $phone = $modx->db->escape($_POST['phone']);
 $mobilephone = $modx->db->escape($_POST['mobilephone']);
 $fax = $modx->db->escape($_POST['fax']);
-$dob = !empty ($_POST['dob']) ? ConvertDate($_POST['dob']) : 0;
+$dob = !empty ($_POST['dob']) ? $modx->toTimeStamp($_POST['dob']) : 0;
 $country = $_POST['country'];
 $street = $modx->db->escape($_POST['street']);
 $city   = $modx->db->escape($_POST['city']);
@@ -31,8 +31,8 @@ $comment = $modx->db->escape($_POST['comment']);
 $role = !empty ($_POST['role']) ? $_POST['role'] : 0;
 $failedlogincount = $_POST['failedlogincount'];
 $blocked = !empty ($_POST['blocked']) ? $_POST['blocked'] : 0;
-$blockeduntil = !empty ($_POST['blockeduntil']) ? ConvertDate($_POST['blockeduntil']) : 0;
-$blockedafter = !empty ($_POST['blockedafter']) ? ConvertDate($_POST['blockedafter']) : 0;
+$blockeduntil = !empty ($_POST['blockeduntil']) ? $modx->toTimeStamp($_POST['blockeduntil']) : 0;
+$blockedafter = !empty ($_POST['blockedafter']) ? $modx->toTimeStamp($_POST['blockedafter']) : 0;
 $user_groups = $_POST['user_groups'];
 
 // verify password
@@ -545,13 +545,6 @@ function saveUserSettings($id)
 	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
 	$rs = $modx->db->query($sql);
 	if (!$rs) die('Failed to update user settings!');
-}
-
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
-	global $modx;
-	if ($date == '') {return '0';}
-	else {}          {return $modx->toTimeStamp($date);}
 }
 
 // Web alert -  sends an alert to web browser
