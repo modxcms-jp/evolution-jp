@@ -70,8 +70,8 @@ class EXPORT_SITE
 		
 		$this->ignore_ids = $ignore_ids;
 		
-		$noncache = $include_noncache==1 ? '' : 'AND cacheable=1';
-		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
+		$where_cacheable = $noncache==1 ? '' : 'AND cacheable=1';
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$where_cacheable} {$ignore_ids}";
 		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
 		$row = $modx->db->getRow($rs);
 		$this->total = $row['total'];
