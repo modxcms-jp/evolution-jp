@@ -42,6 +42,7 @@
 	    [[Wayfinder?
               &outerTpl='@CODE:<ul class="subnavi">[+wf.wrapper+]</ul>'
               &level=1
+              &startId=ultimateParent
             ]]
 	    [*content*]
 	</article>
