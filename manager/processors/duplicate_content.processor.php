@@ -22,7 +22,7 @@ if(!$modx->checkPermissions($id,true)) {
 
 // Run the duplicator
 $newid = duplicateDocument($id);
-$modx->clearCache($clearcache);
+$modx->clearCache();
 
 // finish cloning - redirect
 $pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$newid}'"));
