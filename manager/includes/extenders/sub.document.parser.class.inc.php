@@ -161,7 +161,7 @@ class SubParser {
     	global $modx;
     	
     	if($modx->isBackend() && !$modx->hasPermission('empty_cache')) return;
-    	if(is_string($params) && preg_match('@^[1-9][0-9]*$@',$params))
+    	if(!is_array($params) && preg_match('@^[1-9][0-9]*$@',$params))
     	{
     		if($modx->config['cache_type']==='2')
     		{
