@@ -1817,8 +1817,6 @@ class DocumentParser {
             {
             	$tvid = 'tv' . $row['id'];
             	$tvname[$tvid] = $row['name'];
-            	if(isset($input[$tvid]))
-            		$input[$tvid] = getTVDisplayFormat($row['name'], $input[$tvid], $row['display'], $row['display_params'], $row['type'], $docid);
             }
             foreach($input as $k=>$v)
             {
