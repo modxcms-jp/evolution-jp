@@ -734,8 +734,6 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 	if ($num_of_tv > 0)
 	{
 		echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
-		require_once(MODX_CORE_PATH . 'tmplvars.inc.php');
-		require_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
 		while($row = $modx->db->getRow($rs))
 		{
 			// Go through and display all Template Variables
@@ -768,12 +766,12 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 				echo '<tr><td valign="top" class="tvname"><span class="warning">'.$row['caption']."</span>\n".
 			     '<br /><span class="comment">'.$row['description']."</span></td>\n".
                  '<td valign="top" style="position:relative;'.$zindex.'">'."\n".
-                 renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
+                 $modx->renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
 			     "</td></tr>\n";
 			}
 			else
 			{
-				echo '<tr style="display:none;"><td colspan="2">' . renderFormElement('hidden', $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."</td></tr>\n";
+				echo '<tr style="display:none;"><td colspan="2">' . $modx->renderFormElement('hidden', $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."</td></tr>\n";
 			}
 		}
 		echo "</table>\n";

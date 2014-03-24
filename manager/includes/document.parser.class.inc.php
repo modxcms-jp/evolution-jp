@@ -1235,8 +1235,7 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[*','*]');
-		include_once(MODX_CORE_PATH . 'tmplvars.format.inc.php');
-		include_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
+		
 		$i= 0;
 		foreach($matches['1'] as $key)
 		{
@@ -1249,7 +1248,7 @@ class DocumentParser {
 			$value= $this->documentObject[$key];
 			if (is_array($value))
 			{
-				$value= getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
+				$value= $this->getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
 			}
 			if($modifiers!==false)
 			{
@@ -1804,8 +1803,7 @@ class DocumentParser {
             $input = $_POST;
             $docid = $_POST['id'];
             $this->documentIdentifier = $docid;
-            include_once $this->config['base_path'] . 'manager/includes/tmplvars.format.inc.php';
-            include_once $this->config['base_path'] . 'manager/includes/tmplvars.commands.inc.php';
+            
             $rs = $this->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
             while($row = $this->db->getRow($rs))
             {
@@ -2845,9 +2843,6 @@ class DocumentParser {
 			if ($result == false) return false;
 			else
 			{
-				$core_path = $this->config['core_path'];
-				include_once "{$core_path}tmplvars.format.inc.php";
-				include_once "{$core_path}tmplvars.commands.inc.php";
 				foreach($result as $row)
 				{
 					if (!$row['id'])
@@ -2856,7 +2851,7 @@ class DocumentParser {
 					}
 					else
 					{
-						$output[$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
+						$output[$row['name']] = $this->getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
 					}
 				}
 				return $output;
