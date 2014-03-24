@@ -362,14 +362,8 @@ class DocumentParser {
 				}
 				else
 				{
-					// Inculde the necessary files to check document permissions
-					include_once ($this->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
-					$udperms= new udperms();
-					$udperms->user= $this->getLoginUserID();
-					$udperms->document= $this->documentIdentifier;
-					$udperms->role= $_SESSION['mgrRole'];
 					// Doesn't have access to this document
-					if (!$udperms->checkPermissions())
+					if (!$this->checkPermissions($this->documentIdentifier))
 					{
 						if($this->http_status_code == '200') $this->sendErrorPage();
 					}

@@ -9,7 +9,7 @@ if(!$modx->hasPermission('delete_document'))
 $id = intval($_REQUEST['id']);
 
 // check permissions on the document
-if(!check_group_perm($id)) disp_access_permission_denied();
+if(!$modx->checkPermissions($id)) disp_access_permission_denied();
 
 // get the timestamp on which the document was deleted.
 $where = "id='{$id}' AND deleted=1";
@@ -79,17 +79,6 @@ function getChildren($parent)
 			getChildren($row['id']);
 		}
 	}
-}
-
-function check_group_perm($id)
-{
-	global $modx;
-	include_once MODX_MANAGER_PATH . 'processors/user_documents_permissions.class.php';
-	$udperms = new udperms();
-	$udperms->user = $modx->getLoginUserID();
-	$udperms->document = $id;
-	$udperms->role = $_SESSION['mgrRole'];
-	return $udperms->checkPermissions();
 }
 
 function disp_access_permission_denied()

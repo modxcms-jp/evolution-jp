@@ -23,7 +23,7 @@ elseif($id==$modx->config['site_unavailable_page'])
 {
 	$warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
 }
-elseif(!check_group_perm($id)) $warning = $_lang['access_permissions'];
+elseif(!$modx->checkPermissions($id)) $warning = $_lang['access_permissions'];
 else $linked = check_linked($id);
 
 if(isset($linked) && $linked!==false)  $warning = 'Linked by ' . 'ID:' . join(', ID:', $linked);
@@ -114,17 +114,6 @@ function getChildren($parent)
 			getChildren($row['id']);
 		}
 	}
-}
-
-function check_group_perm($id)
-{
-	global $modx;
-	include_once './processors/user_documents_permissions.class.php';
-	$udperms = new udperms();
-	$udperms->user = $modx->getLoginUserID();
-	$udperms->document = $id;
-	$udperms->role = $_SESSION['mgrRole'];
-	return $udperms->checkPermissions();
 }
 
 function check_linked($id)

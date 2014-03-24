@@ -9,13 +9,7 @@ $id = $_REQUEST['id'];
 $tbl_site_content = $modx->getFullTableName('site_content');
 
 // check permissions on the document
-include_once "./processors/user_documents_permissions.class.php";
-$udperms = new udperms();
-$udperms->user = $modx->getLoginUserID();
-$udperms->document = $id;
-$udperms->role = $_SESSION['mgrRole'];
-
-if(!$udperms->checkPermissions()) {
+if(!$modx->checkPermissions($id)) {
 	include "header.inc.php";
 	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 	<div class="sectionBody">

@@ -22,12 +22,8 @@ switch ($_REQUEST['a']) {
 			$e->dumpError();
 		} elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
 			// check user has permissions for parent
-			include_once(MODX_MANAGER_PATH.'processors/user_documents_permissions.class.php');
-			$udperms = new udperms();
-			$udperms->user = $modx->getLoginUserID();
-			$udperms->document = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
-			$udperms->role = $_SESSION['mgrRole'];
-			if (!$udperms->checkPermissions()) {
+			$targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
+			if (!$modx->checkPermissions($targetpid)) {
 				$e->setError(3);
 				$e->dumpError();
 			}
@@ -49,13 +45,7 @@ if ($action == 27)
 {
 	//editing an existing document
 	// check permissions on the document
-	include_once(MODX_MANAGER_PATH.'processors/user_documents_permissions.class.php');
-	$udperms = new udperms();
-	$udperms->user = $modx->getLoginUserID();
-	$udperms->document = $id;
-	$udperms->role = $_SESSION['mgrRole'];
-
-	if (!$udperms->checkPermissions())
+	if (!$modx->checkPermissions($id))
 	{
 ?>
 <br /><br />

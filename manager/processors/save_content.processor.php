@@ -180,13 +180,7 @@ if ($use_udperms == 1)
 {
 	if ($existingDocument['parent'] != $parent)
 	{
-		include_once $modx->config['base_path'] . 'manager/processors/user_documents_permissions.class.php';
-		$udperms = new udperms();
-		$udperms->user = $modx->getLoginUserID();
-		$udperms->document = $parent;
-		$udperms->role = $_SESSION['mgrRole'];
-
-		if (!$udperms->checkPermissions())
+		if (!$modx->checkPermissions($parent))
 		{
 			if ($actionToTake == 'new') $url = "index.php?a=4";
 			else                        $url = "index.php?a=27&id={$id}";

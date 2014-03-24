@@ -10,20 +10,13 @@ $id=$_GET['id'];
 $children = array();
 
 // check permissions on the document
-include_once($modx->config['base_path'] . 'manager/processors/user_documents_permissions.class.php');
-$udperms = new udperms();
-$udperms->user = $modx->getLoginUserID();
-$udperms->document = $id;
-$udperms->role = $_SESSION['mgrRole'];
-$udperms->duplicateDoc = true;
-
-if(!$udperms->checkPermissions()) {
-	include "header.inc.php";
+if(!$modx->checkPermissions($id,true)) {
+	include('header.inc.php');
 	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>
 	<?php
-	include("footer.inc.php");
+	include('footer.inc.php');
 	exit;
 }
 

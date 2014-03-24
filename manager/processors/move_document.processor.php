@@ -27,13 +27,7 @@ $new_parent = intval($_REQUEST['new_parent']);
 // check user has permission to move resource to chosen location
 if ($use_udperms == 1 && $current_parent != $new_parent)
 {
-	include_once MODX_MANAGER_PATH . 'processors/user_documents_permissions.class.php';
-	$udperms = new udperms();
-	$udperms->user = $modx->getLoginUserID();
-	$udperms->document = $new_parent;
-	$udperms->role = $_SESSION['mgrRole'];
-	
-	if (!$udperms->checkPermissions())
+	if (!$modx->checkPermissions($new_parent))
 	{
 		include_once('header.inc.php');
 		?>
