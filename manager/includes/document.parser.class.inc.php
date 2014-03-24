@@ -3238,6 +3238,9 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->regClientHTMLBlock($html);}
 	function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
     	{$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
+	function checkPermissions($docid=false,$duplicateDoc = false)
+    	{$this->loadExtension('SubParser');return $this->sub->checkPermissions($docid,$duplicateDoc);}
+    	
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}

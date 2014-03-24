@@ -806,4 +806,47 @@ class SubParser {
 		global $modx;
 		return $modx->parseText($src, $ph, $left, $right, $mode);
 	}
+	
+    function checkPermissions($docid=false,$duplicateDoc = false) {
+        global $modx;
+        
+        if(strpos($docid, ',') !== false)
+        	$docid = substr($docid, 0, strpos($docid, ','));
+        
+        $allowroot = $modx->config['udperms_allowroot'];
+
+        if($modx->hasPermission('save_role'))       return true; // administrator - grant all document permissions
+        elseif($docid == 0 && $allowroot == 1)      return true;
+        elseif(empty($modx->config['use_udperms'])) return true; // permissions aren't in use
+        elseif($docid===false)                      return false;
+        
+        $rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$docid}'");
+        $parent = $modx->db->getValue($rs);
+        if ($this->duplicateDoc == true && $parent == 0 && $allowroot == 0) {
+            return false; // deny duplicate document at root if Allow Root is No
+        }
+
+        // get document groups for current user
+        if (isset($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups'])) {
+        	foreach($_SESSION['mgrDocgroups'] as $v)
+        	{
+        		$docgrp[] = "dg.document_group='{$v}'";
+        	}
+            $docgrps = join(' || ', $docgrp);
+            $where_docgrp = "({$docgrps} || sc.privatemgr = 0)";
+        }
+        else $where_docgrp = 'sc.privatemgr = 0';
+        
+		$field = 'DISTINCT sc.id';
+		$from   = '[+prefix+]site_content sc';
+		$from  .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+		$from  .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
+		$where = "sc.id='{$docid}' AND {$where_docgrp}";
+
+		$rs = $modx->db->select($field, $from, $where);
+		$total = $modx->db->getRecordCount($rs);
+		
+		if ($total == 1) return true;
+		else             return false;
+    }
 }
