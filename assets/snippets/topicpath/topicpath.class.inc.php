@@ -74,7 +74,7 @@ class TopicPath
 		{
 			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
 			$rs = join($tpl['separator'],$topics);
-			$rs = $modx->parsePlaceholder($tpl['outer'],array('topics'=>$rs));
+			$rs = $this->parseText($tpl['outer'],array('topics'=>$rs));
 		}
 		else $rs = '';
 		
@@ -181,10 +181,10 @@ class TopicPath
 			$ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
 			
-			if($i===$c-1)  $topics[$i] = $modx->parsePlaceholder($tpl['current_topic'],$ph);
-			elseif($i===0) $topics[$i] = $modx->parsePlaceholder($tpl['home_topic'],$ph);
-			elseif($isRf)  $topics[$i] = $modx->parsePlaceholder($tpl['reference_topic'],$ph);
-			else           $topics[$i] = $modx->parsePlaceholder($tpl['other_topic'],$ph);
+			if($i===$c-1)  $topics[$i] = $this->parseText($tpl['current_topic'],$ph);
+			elseif($i===0) $topics[$i] = $this->parseText($tpl['home_topic'],$ph);
+			elseif($isRf)  $topics[$i] = $this->parseText($tpl['reference_topic'],$ph);
+			else           $topics[$i] = $this->parseText($tpl['other_topic'],$ph);
 			
 			$i++;
 		}
@@ -204,5 +204,15 @@ class TopicPath
 			$hidden[] = $id;
 		}
 		return array_merge($this->disabledOn,$hidden);
+	}
+	
+	function parseText($tpl='',$ph=array())
+	{
+		foreach($ph as $k=>$v)
+		{
+			$k = "[+{$k}+]";
+			$tpl = str_replace($k,$v,$tpl);
+		}
+		return $tpl;
 	}
 }
