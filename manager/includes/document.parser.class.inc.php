@@ -1832,6 +1832,9 @@ class DocumentParser {
             		unset($input['ta']);
             	}
             }
+            if($input['pub_date']==='')    $input['pub_date']    = '0';
+            if($input['unpub_date']==='')  $input['unpub_date']  = '0';
+            if($input['publishedon']==='') $input['publishedon'] = '0';
             $this->directParse = 1;
             $method = 'id';
             $identifier = $docid;
