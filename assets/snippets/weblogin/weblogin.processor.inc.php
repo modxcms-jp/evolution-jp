@@ -240,7 +240,7 @@ if($limit==0 || $limit>1)
 
 $row = $modx->db->getRow($ds);
 
-$internalKey          = $row['internalKey'];
+$internalKey          = $row['id'];
 $dbasePassword        = $row['password'];
 $failedlogins         = $row['failedlogincount'];
 $blocked              = $row['blocked'];
