@@ -283,7 +283,7 @@ class PHx {
 			case 'googlemap':
 			case 'googlemaps':
 				if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
-				$tpl = '<iframe style="[+style+]" src="http://maps.google.co.jp/maps?q=[+value+]&output=embed&z=15"></iframe>';
+				$tpl = '<iframe style="[+style+]" src="https://maps.google.co.jp/maps?ll=[+value+]&output=embed&z=15"></iframe>';
 				$ph['style'] = $opt;
 				$ph['value'] = $value;
 				$value = $modx->parseText($tpl,$ph);
