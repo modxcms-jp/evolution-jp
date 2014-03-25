@@ -1,20 +1,24 @@
 <?php
 /**
  * mm_hideFields
- * @version 1.1 (2012-11-13)
+ * @version 1.1.1 (2013-05-16)
  *
  * Hide a field.
  * 
  * @uses ManagerManager plugin 0.4.
  * 
- * @link http://code.divandesign.biz/modx/mm_hidefields/1.1
+ * @param fields {comma separated string} - Поля документа (или TV), которые необходимо скрыть. @required
+ * @param roles {comma separated string - Роли, для которых необходимо применить виждет, пустое значение — все роли.
+ * @param templates {comma separated string} - Id шаблонов, для которых необходимо применить виджет, пустое значение — все шаблоны.
  * 
- * @copyright 2012
+ * @link http://code.divandesign.biz/modx/mm_hidefields/1.1.1
+ * 
+ * @copyright 2013
  */
 
-function mm_hideFields($fields, $roles='', $templates=''){
+function mm_hideFields($fields, $roles = '', $templates = ''){
 	global $mm_fields, $modx;
-	$e = &$modx->event;
+	$e = &$modx->Event;
 	
 	// if we've been supplied with a string, convert it into an array
 	$fields = makeArray($fields);
@@ -35,6 +39,7 @@ function mm_hideFields($fields, $roles='', $templates=''){
 				break;
 				
 				case 'hidemenu':
+				case 'hide_menu':
 				case 'show_in_menu':
 					$output .= '$j("input[name=hidemenucheck]").parent("td").hide();';
 				break;

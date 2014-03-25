@@ -32,7 +32,7 @@ function StartGoogleMaps(mapContainerId) {
 		geoLoc = $j("#"+tvId).val().split(',');
 		initOverlay = true;
 	}else {
-		geoLoc = (defaultGeoLoc != '')? defaultGeoLoc.split(',') : new Array(52.5,13.5);	// get default from mm_rules, otherwise head to berlin
+		geoLoc = (defaultGeoLoc != '')? defaultGeoLoc.split(',') : new Array(35.6585805,139.74543289999997);	// get default from mm_rules, otherwise head to berlin
 	}
 
 	var center = new google.maps.LatLng(geoLoc[0], geoLoc[1]);

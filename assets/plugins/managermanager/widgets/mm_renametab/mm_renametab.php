@@ -14,7 +14,7 @@
 
 function mm_renameTab($tab, $newname, $roles = '', $templates = ''){
 	global $modx;
-	$e = &$modx->event;
+	$e = &$modx->Event;
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){

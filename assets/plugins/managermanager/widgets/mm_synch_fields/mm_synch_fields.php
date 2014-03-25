@@ -14,7 +14,7 @@
 
 function mm_synch_fields($fields, $roles = '', $templates = ''){
 	global $modx, $mm_fields;
-	$e = &$modx->event;
+	$e = &$modx->Event;
 	
 	// if we've been supplied with a string, convert it into an array
 	$fields = makeArray($fields);

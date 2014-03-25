@@ -9,7 +9,7 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 	global $modx, $mm_fields,$mm_current_page,$modx_lang_attribute;
 	$e = &$modx->event;
 	
-	if (useThisRule($roles, $templates))
+	if ($e->name==='OnDocFormRender'&&useThisRule($roles, $templates))
 	{
 		$output = '';
 		$callBack ='';
