@@ -280,7 +280,14 @@ class PHx {
 				$grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
 				$value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
 				break;
-				
+			case 'googlemap':
+			case 'googlemaps':
+				if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
+				$tpl = '<iframe style="[+style+]" src="http://maps.google.co.jp/maps?q=[+value+]&output=embed&z=15"></iframe>';
+				$ph['style'] = $opt;
+				$ph['value'] = $value;
+				$value = $modx->parseText($tpl,$ph);
+				break;
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
 				if($modx->config['output_filter']==='1') $prefix = 'phx:';
