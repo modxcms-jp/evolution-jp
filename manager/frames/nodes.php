@@ -9,9 +9,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	// save folderstate
 	if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 
-	$indent    = $_GET['indent'];
-	$parent    = $_GET['parent'];
-	$expandAll = $_GET['expandAll'];
+	$indent    = intval($_GET['indent']);
+	$parent    = intval($_GET['parent']);
+	$expandAll = intval($_GET['expandAll']);
 	$output    = '';
 
 	// setup sorting
@@ -57,7 +57,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 	if (isset($_SESSION['openedArray']))
 	{
-		$opened = explode('|', $_SESSION['openedArray']);
+		$opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
 	}
 	else
 	{
@@ -431,10 +431,9 @@ EOT;
 	
 	function get_tree_orderby()
 	{
+		global $modx;
 		if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir']))
 		{
-			global $modx;
-			
 			// This is the first startup, set default sort order
 			switch($modx->config['resource_tree_node_name'])
 			{
@@ -451,7 +450,8 @@ EOT;
 					$_SESSION['tree_sortdir'] = 'ASC';
 			}
 		}
-		$orderby = trim($_SESSION['tree_sortby']. ' ' .$_SESSION['tree_sortdir']);
+		$orderby = trim($orderby);
+		$orderby = $modx->db->escape($_SESSION['tree_sortby']." ".$_SESSION['tree_sortdir']);
 		if(empty($orderby)) $orderby = 'sc.menuindex ASC';
 
 		// Folder sorting gets special setup ;) Add menuindex and pagetitle

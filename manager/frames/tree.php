@@ -45,7 +45,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <?php
     echo  "var openedArray = new Array();\n";
     if (isset($_SESSION['openedArray'])) {
-            $opened = explode("|", $_SESSION['openedArray']);
+            $opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
 
             foreach ($opened as $item) {
                  printf("openedArray[%d] = 1;\n", $item);
