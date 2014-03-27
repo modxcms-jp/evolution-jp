@@ -159,7 +159,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     }
 
     function toggleNode(node,indent,parent,expandAll,privatenode) {
-        privatenode = (!privatenode || privatenode == '0') ? privatenode = '0' : privatenode = '1';
+        privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
         rpcNode = node.parentNode.lastChild;
 
         var rpcNodeText;
