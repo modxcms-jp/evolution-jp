@@ -24,10 +24,6 @@ if(!$modx->hasPermission('edit_role')) {
 <ul class="actionButtons">
 	<li><a class="default" href="index.php?a=38"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_role']; ?></a></li>
 </ul>
-<ul>
-<style type="text/css">
-li span {width: 200px;}
-</style>
 <?php
 
 $tbl_user_roles = $modx->getFullTableName('user_roles');
@@ -38,6 +34,12 @@ if($total<1){
 	exit;
 	include_once "footer.inc.php";
 }
+?>
+<ul>
+<style type="text/css">
+li span {width: 200px;}
+</style>
+<?php
 while($row = $modx->db->getRow($rs))
 {
 	if($row['id']==1)
