@@ -455,12 +455,9 @@ function selected($target='')
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
 	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
-			<optgroup label="Widgets">
 	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
 	            <option value="richtext" <?php      echo selected('richtext'); ?>>RichText</option>
                 <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
-			</optgroup>
-			<optgroup label="Formats">
 	            <option value="htmlentities" <?php echo selected('htmlentities'); ?>>HTML Entities</option>
 	            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
 	            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
@@ -469,7 +466,6 @@ function selected($target='')
 	            <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
 	            <option value="image" <?php        echo selected('image'); ?>>Image</option>
 	            <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
-			</optgroup>
 	        </select>
     </td>
   </tr>
