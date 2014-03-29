@@ -5,8 +5,6 @@ if (!$modx->hasPermission('save_role')) {
     $e->dumpError();
 }
 
-$tbl_user_roles = $modx->getFullTableName('user_roles');
-
 $input = $_POST;
 extract($input);
 
@@ -30,7 +28,7 @@ if($_POST['mode']=='38')
 }
 elseif($_POST['mode']=='35')
 {
-	$rs = $modx->db->select('name',$tbl_user_roles,"id='{$id}'");
+	$rs = $modx->db->select('name','[+prefix+]user_roles',"id='{$id}'");
 	$row = $modx->db->getRow($rs);
 	if($row['name']!==$name) $search_name = $row['name'];
 }
@@ -38,7 +36,7 @@ else $search_name = false;
 
 if($search_name!==false && $_POST['mode']=='38')
 {
-	$rs = $modx->db->select('id',$tbl_user_roles,"name='{$search_name}'");
+	$rs = $modx->db->select('id','[+prefix+]user_roles', "name='{$search_name}'");
 	if(0<$modx->db->getRecordCount($rs))
 	{
 		echo "An error occured while attempting to save the new role.";
@@ -49,10 +47,10 @@ if($search_name!==false && $_POST['mode']=='38')
 switch ($_POST['mode'])
 {
 	case '38' :
-		$id = $modx->db->insert($fields, $tbl_user_roles);
+		$id = $modx->db->insert($fields, '[+prefix+]user_roles');
 		break;
 	case '35' :
-		$rs = $modx->db->update($fields, $tbl_user_roles, "id='{$id}'");
+		$rs = $modx->db->update($fields, '[+prefix+]user_roles', "id='{$id}'");
 		if($rs)
 		{
 			$cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
