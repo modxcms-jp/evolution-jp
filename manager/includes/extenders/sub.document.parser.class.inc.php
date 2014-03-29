@@ -1221,6 +1221,7 @@ class SubParser {
 				$o = $this->getUnixtimeFromDateString($value);
 				break;
 			case 'datagrid':
+				if (empty($value)) return '';
 				include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 				$grd = new DataGrid('',$value);
 				$grd->noRecordMsg		=$params['egmsg'];
