@@ -455,16 +455,16 @@ function selected($target='')
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
 	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
-	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
-                <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
+            <option value="image" <?php        echo selected('image'); ?>>Image</option>
+            <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
+            <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
+            <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
 	            <option value="htmlentities" <?php echo selected('htmlentities'); ?>>HTML Entities</option>
 	            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
 	            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
 	            <option value="delim" <?php        echo selected('delim'); ?>>Delimited List</option>
-	            <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
-	            <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
-	            <option value="image" <?php        echo selected('image'); ?>>Image</option>
-	            <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
+            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
+            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
 	        </select>
     </td>
   </tr>
