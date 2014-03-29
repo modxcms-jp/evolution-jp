@@ -471,14 +471,14 @@ else                                 $_SESSION['tree_sortdir'] = $fieldtype == '
 <div id="treeHolder">
 <?php
     // invoke OnTreeRender event
-    $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $_REQUEST);
+    $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $modx->db->escape($_REQUEST));
     if (is_array($evtOut))
         echo implode("\n", $evtOut);
 ?>
     <div><?php echo $_style['tree_showtree']; ?>&nbsp;<span class="rootNode" onclick="treeAction(0, '<?php echo addslashes($site_name); ?>');"><b><?php echo $site_name; ?></b></span><div id="treeRoot"></div></div>
 <?php
     // invoke OnTreeRender event
-    $evtOut = $modx->invokeEvent('OnManagerTreeRender', $_REQUEST);
+    $evtOut = $modx->invokeEvent('OnManagerTreeRender', $modx->db->escape($_REQUEST));
     if (is_array($evtOut))
         echo implode("\n", $evtOut);
 ?>
