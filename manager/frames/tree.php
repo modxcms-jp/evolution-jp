@@ -460,7 +460,7 @@ else                                 $_SESSION['tree_sortdir'] = $fieldtype == '
             <option value="DESC" <?php echo select($_SESSION['tree_sortdir']=='DESC');?>><?php echo $_lang['sort_desc']; ?></option>
             <option value="ASC" <?php echo select($_SESSION['tree_sortdir']=='ASC');?>><?php echo $_lang['sort_asc']; ?></option>
         </select>
-        <input type='hidden' name='dt' value='<?php echo $_REQUEST['dt']; ?>' />
+        <input type="hidden" name="dt" value="<?php echo htmlspecialchars($_REQUEST['dt']); ?>" />
     </td>
     <td width="1%"><a href="#" class="treeButton" id="button7" style="text-align:right" onclick="updateTree();showSorter();" title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_lang['sort_tree']; ?></a></td>
   </tr>
