@@ -456,7 +456,6 @@ function selected($target='')
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
 	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
 	            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
-	            <option value="richtext" <?php      echo selected('richtext'); ?>>RichText</option>
                 <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
 	            <option value="htmlentities" <?php echo selected('htmlentities'); ?>>HTML Entities</option>
 	            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
