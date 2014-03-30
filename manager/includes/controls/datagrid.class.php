@@ -282,7 +282,9 @@ class DataGrid {
 		}
 		elseif(!is_resource($this->ds) && strpos($this->ds,$this->cdelim)!==false)
 		{
-			$this->_colcount = count(explode($this->cdelim, substr($this->ds,0,strpos($this->ds,"\n"))));
+			if(strpos($this->ds,"\n")!==false)
+				$this->ds = substr($this->ds,0,strpos($this->ds,"\n"));
+			$this->_colcount = count(explode($this->cdelim, $this->ds));
 		}
 		else $this->_colcount = 1;
 		
