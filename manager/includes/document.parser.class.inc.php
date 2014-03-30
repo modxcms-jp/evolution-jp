@@ -2851,7 +2851,8 @@ class DocumentParser {
 					}
 					else
 					{
-						$output[$row['name']] = $this->outputFilter($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
+						extract($row,EXTR_PREFIX_ALL,'tv');
+						$output[$tvname] = $this->outputFilter($tvname, $tvvalue, $tvdisplay, $tvdisplay_params, $tvtype, $docid, $sep);
 					}
 				}
 				return $output;
