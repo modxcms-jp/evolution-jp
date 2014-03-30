@@ -284,9 +284,15 @@ class DataGrid {
 		else $this->_colcount = 1;
 		
 		if(!$this->_isDataset) {
+			if($this->ds==='')
+				$this->ds = array();
+			else
+			{
 			$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
 			$this->ds = array_chunk($this->ds, $this->_colcount);
 		}
+		}
+		
 		if(0 < count($this->_colnames))
 		{
 			$tblColHdr ="<thead>\n<tr>";
