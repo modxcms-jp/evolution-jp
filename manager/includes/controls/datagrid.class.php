@@ -335,7 +335,10 @@ class DataGrid {
 			{
 				for($r=0;$r<$rowcount;$r++)
 				{
-					$row = $this->_isDataset ? $modx->db->getRow($this->ds):$this->ds[$r];
+					if($this->_isDataset)
+						$row = $modx->db->getRow($this->ds);
+					else
+						$row = $this->ds[$r];
 					$tblRows.= $this->RenderRowFnc($r+1,$row);
 				}
 			}
