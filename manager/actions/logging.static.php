@@ -184,7 +184,7 @@ if(isset($input['log_submit'])) {
 	// build the sql
 	$where = (!empty($sqladd)) ? implode(' AND ', $sqladd) : '';
 	$total = $modx->db->getValue($modx->db->select('COUNT(id)','[+prefix+]manager_log',$where));
-	$orderby = 'timestamp DESC';
+	$orderby = 'timestamp DESC, id DESC';
 	$limit = "{$int_cur_position}, {$int_num_result}";
 	$rs = $modx->db->select('*','[+prefix+]manager_log',$where,$orderby,$limit);
 	if($total<1) {
