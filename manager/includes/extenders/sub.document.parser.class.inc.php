@@ -859,7 +859,7 @@ class SubParser {
 	    global $modx;
 	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
 	    $nvalue = trim($value);
-	    if (substr($nvalue, 0, 1) != '@')
+	    if (substr($nvalue, 0, 1) !== '@')
 	        return $value;
 	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
 	    {
