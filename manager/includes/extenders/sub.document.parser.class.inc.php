@@ -1049,7 +1049,7 @@ class SubParser {
 			{
 				$v = trim($v); // trim
 				$ar = explode('=',$v);
-				if (is_array($ar) && count($ar)==2)
+				if (is_array($ar) && count($ar)==2 && strpos($ar[1],'%')!==false)
 				{
 					$params[$ar[0]] = $this->decodeParamValue($ar[1]);
 				}
