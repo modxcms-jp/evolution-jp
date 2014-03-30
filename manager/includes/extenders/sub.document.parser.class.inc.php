@@ -1129,10 +1129,10 @@ class SubParser {
 				}
 				break;
 			case 'hyperlink':
-				$value = $this->parseInput($value,'||','array');
-				for ($i = 0; $i < count($value); $i++)
+				$urls = $this->parseInput($value,'||','array');
+				foreach ($urls as $url)
 				{
-					list($name,$url) = is_array($value[$i]) ? $value[$i]: explode('==',$value[$i]);
+					list($name,$url) = is_array($url) ? $url: explode('==',$url);
 					if (!$url) $url = $name;
 					if ($url)
 					{
