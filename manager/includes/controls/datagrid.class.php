@@ -93,12 +93,15 @@ class DataGrid {
 		for($c=0;$c<$this->_colcount;$c++){
 			$colStyle = $Style;
 			$fld=trim($this->_fieldnames[$c]);
+			if($this->_isDataset && $fld) $key = $fld;
+			else                          $key = $c;
+			$value = $row[$key];
+			
 			$width=$this->_colwidths[$c];
 			$align=$this->_colaligns[$c];
 			$color=$this->_colcolors[$c];
 			$type=$this->_coltypes[$c];
 			$nowrap=$this->_colwraps[$c];
-			$value = $row[($this->_isDataset && $fld) ? $fld:$c];
 			if($color && $Style) $colStyle = substr($colStyle,0,-1).";background-color:{$color};'";
 			$value = $this->formatColumnValue($row,$value,$type,$align);
 			
@@ -306,7 +309,7 @@ class DataGrid {
 					$v = trim($v);
 					if(!empty($v)) $attr .= ' ' . $v;
 				}
-				$tblColHdr .= '<th' . $attr . '>' . $name . '</th>';
+				$tblColHdr .= "<th{$attr}>{$name}</th>";
 			}
 			$tblColHdr.="</tr></thead>\n";
 		}
