@@ -208,3 +208,29 @@ function _IIS_furl_fix()
 		$_REQUEST['q']= $_GET['q']= $qp['path'];
 	}
 }
+
+# Displays a javascript alert message in the web browser
+function webAlert($msg, $url= '')
+{
+	global $modx;
+	
+	$msg= addslashes($modx->db->escape($msg));
+	if (substr(strtolower($url), 0, 11) == 'javascript:')
+	{
+		$act= '__WebAlert();';
+		$fnc= 'function __WebAlert(){' . substr($url, 11) . '};';
+	}
+	else
+	{
+		$act= $url ? "window.location.href='" . addslashes($url) . "';" : '';
+	}
+	$html= "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
+	if ($modx->isFrontend())
+	{
+		$modx->regClientScript($html);
+	}
+	else
+	{
+		echo $html;
+	}
+}
