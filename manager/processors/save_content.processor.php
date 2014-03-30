@@ -107,10 +107,7 @@ else
 	{
 		$modx->manager->saveFormValues(27);
 		$url = "index.php?a=27&id={$id}";
-		include_once "header.inc.php";
-		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
-		include_once "footer.inc.php";
-		exit;
+		$modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"],$url);
 	}
 	elseif($pub_date < $currentdate) $published = 1;
 	elseif($pub_date > $currentdate) $published = 0;
@@ -124,10 +121,7 @@ else
 	{
 		$modx->manager->saveFormValues(27);
 		$url = "index.php?a=27&id={$id}";
-		include_once "header.inc.php";
-		$modx->webAlert($_lang["mgrlog_dateinvalid"],$url);
-		include_once "footer.inc.php";
-		exit;
+		$modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"],$url);
 	}
 	elseif($unpub_date < $currentdate) $published = 0;
 }
@@ -149,10 +143,7 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_g
 			else                        $url = "index.php?a=27&id={$id}";
 			
 			$modx->manager->saveFormValues($_POST['mode']);
-			include_once "header.inc.php";
-			$modx->webAlert(sprintf($_lang["resource_permissions_error"]), $url);
-			include_once "footer.inc.php";
-			exit;
+			$modx->webAlertAndQuit(sprintf($_lang["resource_permissions_error"]), $url);
 		}
 	}
 }
@@ -185,10 +176,7 @@ if ($use_udperms == 1)
 			if ($actionToTake == 'new') $url = "index.php?a=4";
 			else                        $url = "index.php?a=27&id={$id}";
 			$modx->manager->saveFormValues($_POST['mode']);
-			include_once 'header.inc.php';
-			$modx->webAlert(sprintf($_lang['access_permission_parent_denied'], $docid, $alias), $url);
-			include_once 'footer.inc.php';
-			exit;
+			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $docid, $alias), $url);
 		}
 	}
 }
@@ -378,36 +366,24 @@ switch ($actionToTake)
 		if ($id == $site_start && $published == 0)
 		{
 			$modx->manager->saveFormValues(27);
-			include_once "header.inc.php";
-			$modx->webAlert('Document is linked to site_start variable and cannot be unpublished!',$url);
-			include_once "footer.inc.php";
-			exit;
+			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$url);
 		}
 		if ($id == $site_start && ($pub_date > $currentdate || $unpub_date != "0"))
 		{
 			$modx->manager->saveFormValues(27);
-			include_once "header.inc.php";
-			$modx->webAlert('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
-			include_once "footer.inc.php";
-			exit;
+			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
 		}
 		if ($parent == $id)
 		{
 			$modx->manager->saveFormValues(27);
-			include_once "header.inc.php";
-			$modx->webAlert("Document can not be it's own parent!",$url);
-			include_once "footer.inc.php";
-			exit;
+			$modx->webAlertAndQuit("Document can not be it's own parent!",$url);
 		}
 		// check to see document is a folder
 		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent='{$id}'");
 		if (!$rs)
 		{
 			$modx->manager->saveFormValues(27);
-			include_once "header.inc.php";
-			$modx->webAlert("An error occured while attempting to find the document's children.",$url);
-			include_once "footer.inc.php";
-			exit;
+			$modx->webAlertAndQuit("An error occured while attempting to find the document's children.",$url);
 		}
 		$row = $modx->db->getRow($rs);
 		if ($row['COUNT(id)'] > 0)
@@ -882,10 +858,7 @@ function _check_duplicate_alias($id,$alias,$parent)
 			if($_REQUEST['pid']) $pid = '&pid=' . $_REQUEST['pid'];
 			$url = 'index.php?a=' . $_POST['mode'] . $pid;
 		}
-		include_once "header.inc.php";
-		$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
-		include_once "footer.inc.php";
-		exit;
+		$modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
 	}
 	return $alias;
 }
