@@ -159,7 +159,7 @@ class DataSetPager {
 			while ($i<=$maxitems && ($row = ($isDataset)? $modx->db->getRow($this->ds):$this->ds[$i-1])) {
 				if ($i>=$minitems && $i<=$maxitems){
 					if($fncObject) {
-						if($args!="") $this->rows .= $fnc->RenderRowFnc($i,$row,$args);
+						if($args!='') $this->rows .= $fnc->RenderRowFnc($i,$row,$args);
 						else $this->rows .= $fnc->RenderRowFnc($i,$row);
 					}
 					else  {
