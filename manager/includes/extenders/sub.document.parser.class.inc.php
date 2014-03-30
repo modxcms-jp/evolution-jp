@@ -1056,6 +1056,21 @@ class SubParser {
 			}
 		}
 
+		if(empty($value))
+		{
+			switch($format)
+			{
+				case 'custom_widget':
+				case 'richtext':
+					break;
+				case 'datagrid':
+					if($params['egmsg']==='') return '';
+					break;
+				default:
+					return '';
+			}
+		}
+		
 		$id = "tv{$name}";
 		switch($format)
 		{
@@ -1221,7 +1236,6 @@ class SubParser {
 				$o = $this->getUnixtimeFromDateString($value);
 				break;
 			case 'datagrid':
-				if (empty($value)) return '';
 				include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 				$grd = new DataGrid('',$value);
 				$grd->noRecordMsg		=$params['egmsg'];
