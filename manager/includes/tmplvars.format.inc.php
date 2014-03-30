@@ -1,6 +1,6 @@
 <?php
 function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
-		{global $modx;return $modx->getTVDisplayFormat($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
+		{global $modx;return $modx->outputFilter($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
 function decodeParamValue($s)
 		{global $modx;return $modx->decodeParamValue($s);}
 function parseInput($src, $delim='||', $type='string', $columns=true)

@@ -1248,7 +1248,7 @@ class DocumentParser {
 			$value= $this->documentObject[$key];
 			if (is_array($value))
 			{
-				$value= $this->getTVDisplayFormat($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
+				$value= $this->outputFilter($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
 			}
 			if($modifiers!==false)
 			{
@@ -2851,7 +2851,7 @@ class DocumentParser {
 					}
 					else
 					{
-						$output[$row['name']] = $this->getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
+						$output[$row['name']] = $this->outputFilter($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'], $docid, $sep);
 					}
 				}
 				return $output;
@@ -3236,8 +3236,10 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');return $this->sub->ParseCommand($binding_string);}
     function getExtention($str)
     	{$this->loadExtension('SubParser');return $this->sub->getExtention($str);}
+    function outputFilter($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
+    	{$this->loadExtension('SubParser');return $this->sub->outputFilter($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
     function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
-    	{$this->loadExtension('SubParser');return $this->sub->getTVDisplayFormat($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
+    	{$this->loadExtension('SubParser');return $this->sub->outputFilter($name,$value,$format,$paramstring,$tvtype,$docid,$sep);}
 	function decodeParamValue($s)
 		{$this->loadExtension('SubParser');return $this->sub->decodeParamValue($s);}
 	function parseInput($src, $delim='||', $type='string', $columns=true)

@@ -1013,7 +1013,7 @@ class SubParser {
 	*/
 
 	// Added by Raymond 20-Jan-2005
-	function getTVDisplayFormat($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
+	function outputFilter($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
 	{
 		global $modx;
 		
