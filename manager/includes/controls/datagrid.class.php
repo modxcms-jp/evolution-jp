@@ -318,7 +318,17 @@ class DataGrid {
 		// build rows
 		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
 	
-		if($rowcount==0) $tblRows.= "<tr><td ".$this->_itemStyle." ".$this->_itemClass." colspan='".$this->_colcount."'>".$this->noRecordMsg."</td></tr>\n";
+		
+		if($rowcount==0)
+		{
+			$ph = array();
+			$ph['colspan']     = (1<$this->_colcount) ? 'colspan="' . $this->_colcount . '"' : '';
+			$ph['style']       = $this->_itemStyle;
+			$ph['class']       = $this->_itemClass;
+			$ph['noRecordMsg'] = $this->noRecordMsg;
+			$tpl = "<tr><td [+style+] [+class+] [+colspan+]>[+noRecordMsg+]</td></tr>\n";
+			$tblRows .= $modx->parseText($tpl,$ph);
+		}
 		else {
 			// render grid items
 			if($this->pageSize<=0)
