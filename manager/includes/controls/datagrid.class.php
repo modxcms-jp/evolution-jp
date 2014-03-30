@@ -341,7 +341,7 @@ class DataGrid {
 						$row = $modx->db->getRow($this->ds);
 					else
 						$row = $this->ds[$r];
-					$tblRows.= $this->RenderRowFnc($r+1,$row);
+					if(0<count($row)) $tblRows.= $this->RenderRowFnc($r+1,$row);
 				}
 			}
 			else
