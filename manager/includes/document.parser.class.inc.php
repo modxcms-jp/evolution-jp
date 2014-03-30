@@ -3592,6 +3592,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->splitOption($value);}
 	function isSelected($label,$value,$item,$field_value)
 		{$this->loadExtension('SubParser');return $this->sub->isSelected($label,$value,$item,$field_value);}
+	function webAlertAndQuit($msg, $url= '')
+		{$this->loadExtension('SubParser');return $this->sub->webAlertAndQuit($msg, $url);}
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
