@@ -866,12 +866,12 @@ class SubParser {
 	        return '@Bindings is disabled.';
 	    }
 	    else {
-	        list ($cmd, $param) = $this->ParseCommand($nvalue);
+	        list ($cmd, $param) = $modx->ParseCommand($nvalue);
 	        $cmd = trim($cmd);
 	        $param = trim($param);
 	        switch ($cmd) {
 	            case "FILE" :
-	            	if($this->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
+	            	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
 	            	else $output = @file_get_contents($param);
 	                if($output===false) $output = " Could not retrieve document '{$file}'.";
 	                break;
@@ -967,7 +967,7 @@ class SubParser {
 
 	        }
 	        // support for nested bindings
-	        return is_string($output) && ($output != $value) ? $this->ProcessTVCommand($output, $name, $docid, $src) : $output;
+	        return is_string($output) && ($output != $value) ? $modx->ProcessTVCommand($output, $name, $docid, $src) : $output;
 	    }
 	}
 
