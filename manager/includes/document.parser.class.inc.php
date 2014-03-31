@@ -1034,8 +1034,8 @@ class DocumentParser {
 			}
 			$this->documentMethod= 'alias';
 			return $q;
-			}
 		}
+	}
 
 	function checkCache($id)
 	{
