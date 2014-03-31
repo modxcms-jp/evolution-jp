@@ -1022,8 +1022,14 @@ class DocumentParser {
 			}
 			else
 			{
-				$this->documentMethod = 'id';
-				return $q;
+				$id = $this->getIdFromAlias($q);
+				if($id!==false) {
+					$this->documentMethod = 'id';
+					return $id;
+				} else {
+					$this->documentMethod = 'alias';
+					return $q;
+				}
 			}
 		}
 		else
