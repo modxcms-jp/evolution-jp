@@ -59,21 +59,17 @@ class Wayfinder {
 		//Load the templates
 		$this->checkTemplates();
 		//Register any scripts
-		if ($this->_config['cssTpl'] || $this->_config['jsTpl'])
-		{
+		if ($this->_config['cssTpl'] || $this->_config['jsTpl']) {
 		    $this->regJsCss();
 		}
 		//Get all of the documents
 		$this->docs = $this->getData();
-		if (!empty($this->docs))
-		{
+		if (!empty($this->docs)) {
 			//Sort documents by level for proper wrapper substitution
 			ksort($this->docs);
 			//build the menu
 			return $this->buildMenu();
-		}
-		else
-		{
+		} else {
 			$noneReturn = $this->_config['debug'] ? '<p style="color:red">No documents found for menu.</p>' : '';
 			return $noneReturn;
 		}
@@ -82,23 +78,17 @@ class Wayfinder {
 	function buildMenu() {
 		global $modx;
 		//Loop through all of the menu levels
-		foreach ($this->docs as $level => $subDocs)
-		{
+		foreach ($this->docs as $level => $subDocs) {
 			//Loop through each document group (grouped by parent doc)
-			foreach ($subDocs as $parentId => $docs)
-			{
+			foreach ($subDocs as $parentId => $docs) {
 				//only process document group, if starting at root, hidesubmenus is off, or is in current parenttree
-				if (!$this->_config['hideSubMenus'] || $this->isHere($parentId) || $level <= 1)
-				{
+				if (!$this->_config['hideSubMenus'] || $this->isHere($parentId) || $level <= 1) {
 					//Build the output for the group of documents
 					$menuPart = $this->buildSubMenu($docs,$level);
 					//If we are at the top of the menu start the output, otherwise replace the wrapper with the submenu
-					if (($level == 1 && (!$this->_config['displayStart'] || $this->_config['id'] == 0)) || ($level == 0 && $this->_config['displayStart']))
-					{
+					if (($level == 1 && (!$this->_config['displayStart'] || $this->_config['id'] == 0)) || ($level == 0 && $this->_config['displayStart'])) {
 						$output = $menuPart;
-					}
-					else
-					{
+					} else {
 						$output = str_replace("[+wf.wrapper.{$parentId}+]",$menuPart,$output);
 					}
 				}
@@ -108,27 +98,23 @@ class Wayfinder {
 		return $output;
 	}
 
-	function buildSubMenu($menuDocs,$level)
-	{
+	function buildSubMenu($menuDocs,$level) {
 		global $modx;
 		$subMenuOutput = '';
 		$firstItem = 1;
 		$counter = 1;
 		$numSubItems = count($menuDocs);
-		
 		//Loop through each document to render output
-		foreach ($menuDocs as $docId => $docInfo)
-		{
+		foreach ($menuDocs as $docId => $docInfo) {
 			$docInfo['level'] = $level;
 			$docInfo['first'] = $firstItem;
 			$firstItem = 0;
-			
 			//Determine if last item in group
-			if ($counter == ($numSubItems) && $numSubItems >= 1)
+			if ($counter == ($numSubItems) && $numSubItems > 0) {
 				$docInfo['last'] = 1;
-			else
+			} else {
 				$docInfo['last'] = 0;
-			
+			}
 			//Determine if document has children
 			if(in_array($docInfo['id'],$this->hasChildren)) $docInfo['hasChildren'] = 1;
 			else                                            $docInfo['hasChildren'] = 0;
@@ -142,16 +128,12 @@ class Wayfinder {
 			$counter++;
 		}
 		
-		if ($level > 0)
-		{
+		if ($level > 0) {
 			//Determine which wrapper template to use
-			if ($this->_templates['innerTpl'] && $level > 1)
-			{
+			if ($this->_templates['innerTpl'] && $level > 1) {
 				$useChunk = $this->_templates['innerTpl'];
 				$usedTemplate = 'innerTpl';
-			}
-			else
-			{
+			} else {
 				$useChunk = $this->_templates['outerTpl'];
 				$usedTemplate = 'outerTpl';
 			}
@@ -164,46 +146,36 @@ class Wayfinder {
 			$useClass = ($classNames) ? " class=\"{$classNames}\"" : '';
 			
 			$phArray = array($subMenuOutput,$useClass,$classNames);
-			
 			//Process the wrapper
 			$subMenuOutput = str_replace($this->placeHolders['wrapperLevel'],$phArray,$useChunk);
-			
 			//Debug
-			if ($this->_config['debug'])
-			{
+			if ($this->_config['debug']) {
 				$debugParent = $docInfo['parent'];
 				$debugDocInfo = array();
 				$debugDocInfo['template'] = $usedTemplate;
-				
-				foreach ($this->placeHolders['wrapperLevel'] as $n => $v)
-				{
-					if($v !== '[+wf.wrapper+]') $debugDocInfo[$v] = $phArray[$n];
+				foreach ($this->placeHolders['wrapperLevel'] as $n => $v) {
+					if ($v !== '[+wf.wrapper+]')
+						$debugDocInfo[$v] = $phArray[$n];
 				}
-				
 				$this->addDebugInfo('wrapper',"{$debugParent}","Wrapper for items with parent {$debugParent}.","These fields were used when processing the wrapper for the following documents.",$debugDocInfo);
 			}
 		}
-		
 		//Return the submenu
 		return $subMenuOutput;
 	}
 	
 	//render each rows output
-	function renderRow(&$resource,$numChildren)
-	{
-		global $modx;
-		$output = '';
+    function renderRow(&$resource,$numChildren) {
+        global $modx;
+        $output = '';
 		//Determine which template to use
-		if ($this->_config['displayStart'] && $resource['level'] == 0)
-		{
+        if ($this->_config['displayStart'] && $resource['level'] == 0) {
 			$usedTemplate = 'startItemTpl';
-		}
-		elseif($resource['id'] == $modx->documentObject['id']
+		} elseif ($resource['id'] == $modx->documentObject['id']
 		    && $resource['isfolder']
 		    && $this->_templates['parentRowHereTpl']
 		    && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
-		    && $numChildren)
-		{
+		    && $numChildren) {
 			$usedTemplate = 'parentRowHereTpl';
 		}
 		elseif($resource['id'] == $modx->documentObject['id'] && $this->_templates['innerHereTpl'] && $resource['level'] > 1)
@@ -242,13 +214,12 @@ class Wayfinder {
 		else
 		{
 	    /* tonatos */
-            if ($resource['last'] && $this->_templates['rowTplLast']){
-                $usedTemplate = 'rowTplLast';
-            }
-            else $usedTemplate = 'rowTpl';
+                if ($resource['last'] && $this->_templates['rowTplLast']){
+                    $usedTemplate = 'rowTplLast';
+                }
+                else $usedTemplate = 'rowTpl';
 	    /* end tonatos */
-		}
-		
+        }
 		//Get the template
 		$useChunk = $this->_templates[$usedTemplate];
 		
@@ -276,21 +247,16 @@ class Wayfinder {
 		}
 		
 		//If tvs are used add them to the placeholder array
-		if (!empty($this->tvList))
-		{
+		if (!empty($this->tvList)) {
 			$usePlaceholders = array_merge($this->placeHolders['rowLevel'],$this->placeHolders['tvs']);
-			foreach ($this->tvList as $tvName)
-			{
+			foreach ($this->tvList as $tvName) {
 				$phArray[] = $resource[$tvName];
 			}
-		}
-		else
-		{
+		} else {
 			$usePlaceholders = $this->placeHolders['rowLevel'];
 		}
 		//Debug
-		if ($this->_config['debug'])
-		{
+		if ($this->_config['debug']) {
 			$debugDocInfo = array();
 			$debugDocInfo['template'] = $usedTemplate;
 			foreach ($usePlaceholders as $n => $v)
