@@ -3624,6 +3624,9 @@ class DocumentParser {
 		                            {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
 	function makeFriendlyURL($pre,$suff,$path)
 		                            {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
+	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
+		                            {return $this->parseText($src, $ph, $left, $right, $mode);}
+	
 
     /***************************************************************************************/
     /* End of API functions								       */
