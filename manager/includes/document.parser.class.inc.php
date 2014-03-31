@@ -1794,6 +1794,7 @@ class DocumentParser {
 	function getDocumentObject($method='id', $identifier='', $isPrepareResponse=false)
 	{
 		if(isset($_SESSION['mgrValidated'])
+			 && $isPrepareResponse==='prepareResponse'
 			 && isset($_POST['mode']) && $_POST['mode']==='prev'
 			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
 			)
