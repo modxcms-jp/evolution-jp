@@ -1791,10 +1791,10 @@ class DocumentParser {
 	* name: getDocumentObject  - used by parser
 	* desc: returns a document object - $method: alias, id
 	*/
-	function getDocumentObject($method='id', $identifier='', $isPrepareResponse=false)
+	function getDocumentObject($method='id', $identifier='', $mode='direct')
 	{
 		if(isset($_SESSION['mgrValidated'])
-			 && $isPrepareResponse==='prepareResponse'
+			 && $mode==='prepareResponse'
 			 && isset($_POST['mode']) && $_POST['mode']==='prev'
 			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
 			)
@@ -1898,7 +1898,7 @@ class DocumentParser {
 		
 		# this is now the document :) #
 		$documentObject= $this->db->getRow($result);
-        if($isPrepareResponse==='prepareResponse') $this->documentObject = & $documentObject;
+        if($mode==='prepareResponse') $this->documentObject = & $documentObject;
         $this->invokeEvent('OnLoadDocumentObject');
 		$docid = $documentObject['id'];
 		
