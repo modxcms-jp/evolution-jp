@@ -1233,7 +1233,7 @@ $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリ
 $_lang["not_readable_dir"] = 'ディレクトリが存在しないか、PHPスクリプトがこのディレクトリにアクセスする権限がありません。';
 
 $_lang["configcheck_you_are_admin"] = '特権ロールでログインしています';
-$_lang["configcheck_you_are_admin_msg"] = '<a href="index.php?a=86">特権ロール(Administrator)</a>でログインしています。このロールは通常のコンテンツ管理には向かない特殊な性質を持っているため、常用アカウントを別途に作り、当アカウントは緊急対応用に用いることをおすすめします。';
+$_lang["configcheck_you_are_admin_msg"] = '特権ロール(Administrator)でログインしています。この<a href="index.php?a=86">ロール</a>は通常のコンテンツ管理には向かない特殊な性質を持っているため、<a href="index.php?a=75">ロールを変更</a>することをおすすめします。';
 
 $_lang["login_settings"] = 'ログイン設定';
 $_lang["profile"] = 'プロフィール';
