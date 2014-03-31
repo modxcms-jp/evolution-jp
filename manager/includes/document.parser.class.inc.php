@@ -1012,12 +1012,12 @@ class DocumentParser {
 					))
 				{
 					$this->documentMethod = 'id';
-					return $q;
+					$result = $q;
 				}
 				else
 				{ /* not a valid id in terms of virtualDir, treat as alias */
 					$this->documentMethod = 'alias';
-					return $q;
+					$result = $q;
 				}
 			}
 			else
@@ -1025,10 +1025,10 @@ class DocumentParser {
 				$id = $this->getIdFromAlias($q);
 				if($id!==false) {
 					$this->documentMethod = 'id';
-					return $id;
+					$result = $id;
 				} else {
 					$this->documentMethod = 'alias';
-					return $q;
+					$result = $q;
 				}
 			}
 		}
@@ -1036,11 +1036,12 @@ class DocumentParser {
 		{ /* we didn't get an ID back, so instead we assume it's an alias */
 			if ($this->config['friendly_alias_urls'] != 1)
 			{
-				$q= $qOrig;
+				$q = $qOrig;
 			}
 			$this->documentMethod= 'alias';
-			return $q;
+			$result = $q;
 		}
+		return $result;
 	}
 
 	function checkCache($id)
