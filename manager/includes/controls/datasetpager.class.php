@@ -160,7 +160,6 @@ class DataSetPager {
 				if ($i>=$minitems && $i<=$maxitems){
 					if($fncObject) {
 						if($args!='') $this->rows .= $fnc->RenderRowFnc($i,$row,$args);
-						elseif($i==1&&$row[0]=='') {$this->rows .= '';}
 						else $this->rows .= $fnc->RenderRowFnc($i,$row);
 					}
 					else  {
