@@ -155,7 +155,7 @@ function tplUseTvs($tpl_id, $tvs = '', $types = '', $dbFields = 'id', $resultKey
 
 /**
  * getTplMatchedFields
- * @version 1.0.1 (2013-11-11)
+ * @version 1.0.2 (2014-03-27)
  * 
  * @desc Returns the array that contains only those of passed fields/TVs which are used in the template.
  * 
@@ -171,6 +171,8 @@ function getTplMatchedFields($fields, $tvTypes = '', $tempaleId = ''){
 	//$fields is required
 	if (empty($fields)){return false;}
 	
+	global $mm_fields;
+	
 	//Template of current document by default
 	if (empty($tempaleId)){
 		global $mm_current_page;
@@ -178,8 +180,14 @@ function getTplMatchedFields($fields, $tvTypes = '', $tempaleId = ''){
 		$tempaleId = $mm_current_page['template'];
 	}
 	
+	$docFields = array();
+	
 	//Only document fields
-	$docFields = array_intersect($fields, ddTools::$documentFields);
+	foreach ($fields as $field){
+		if (isset($mm_fields[$field]) && !$mm_fields[$field]['tv']){
+			$docFields[] = $field;
+		}
+	}
 	
 	//If $fields contains no TVs
 	if (count($docFields) == count($fields)){
