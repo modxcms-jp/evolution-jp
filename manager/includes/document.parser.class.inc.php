@@ -793,9 +793,9 @@ class DocumentParser {
 				if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 				{
 					$result= $this->db->select('setting_name, setting_value','[+prefix+]system_settings');
-					while ($row= $this->db->getRow($result, 'both'))
+					while ($row= $this->db->getRow($result))
 					{
-						$this->config[$row['0']]= $row['1'];
+						$this->config[$row['setting_name']]= $row['setting_value'];
 					}
 				}
 			}
@@ -848,9 +848,9 @@ class DocumentParser {
 					$where = "user='{$id}'";
 				}
 				$result= $this->db->select('setting_name, setting_value',$from,$where);
-				while ($row= $this->db->getRow($result, 'both'))
+				while ($row= $this->db->getRow($result))
 				{
-					$usrSettings[$row['0']]= $row['1'];
+					$usrSettings[$row['setting_name']]= $row['setting_value'];
 				}
 				if (isset ($usrType))
 				{
@@ -869,9 +869,9 @@ class DocumentParser {
 			{
 				if($result= $this->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$mgrid}'"))
 				{
-					while ($row= $this->db->getRow($result, 'both'))
+					while ($row= $this->db->getRow($result))
 					{
-						$musrSettings[$row['0']]= $row['1'];
+						$musrSettings[$row['setting_name']]= $row['setting_value'];
 					}
 					$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
 				}
