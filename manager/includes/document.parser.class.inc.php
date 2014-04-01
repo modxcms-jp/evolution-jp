@@ -1622,6 +1622,7 @@ class DocumentParser {
 						}
 						else $pvalue = $params_stack;
 						$pvalue = trim($pvalue);
+						$delim = '';
 				}
 				if($delim !== "'")
 				{
