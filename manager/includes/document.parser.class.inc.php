@@ -871,7 +871,7 @@ class DocumentParser {
 				{
 					while ($row= $this->db->getRow($result, 'both'))
 					{
-						$usrSettings[$row['0']]= $row['1'];
+						$musrSettings[$row['0']]= $row['1'];
 					}
 					$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
 				}
