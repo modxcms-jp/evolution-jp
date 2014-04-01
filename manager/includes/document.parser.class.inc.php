@@ -1768,12 +1768,13 @@ class DocumentParser {
 	function set_aliases()
 	{
 		$path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
+		$aliases = array();
 		if(is_file($path_aliases))
 		{
 			$aliases = @include_once($path_aliases);
 			$this->aliases = $aliases;
 		}
-		else
+		if(empty($aliases))
 		{
 			if(!$this->aliasListing) $this->setAliasListing();
 			
