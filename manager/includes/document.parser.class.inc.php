@@ -2465,48 +2465,49 @@ class DocumentParser {
 		return $url;
 	}
 	
-	function rewriteUrls($documentSource)
+	function rewriteUrls($content)
 	{
+		if(strpos($content,'[~')===false) return $content;
+		
 		if(!isset($this->referenceListing))
 		{
 			$this->referenceListing = $this->_getReferenceListing();
 		}
 		
-		$pieces = preg_split('/(\[~|~\])/',$documentSource);
-		$maxidx = sizeof($pieces);
-		$documentSource = '';
-		
-		for ($idx = 0; $idx < $maxidx; $idx++)
+		$replace= array ();
+		$matches = $this->getTagsFromContent($content,'[~','~]');
+		if($matches)
 		{
-			$documentSource .= $pieces[$idx];
-			$idx++;
-			if ($idx < $maxidx)
+			$i= 0;
+			foreach($matches['1'] as $key)
 			{
-				$target = trim($pieces[$idx]);
-				$target = $this->mergeDocumentContent($target);
-				$target = $this->mergeSettingsContent($target);
-				$target = $this->mergeChunkContent($target);
-				$target = $this->evalSnippets($target);
+				$key = trim($key);
+				$key = $this->mergeDocumentContent($key);
+				$key = $this->mergeSettingsContent($key);
+				$key = $this->mergeChunkContent($key);
+				$key = $this->evalSnippets($key);
 				
-				if(preg_match('/^[0-9]+$/',$target))
+				if(preg_match('/^[0-9]+$/',$key))
 				{
-					$id = $target;
+					$id = $key;
 					if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
 					{
 						$id = $this->referenceListing[$id];
 					}
-					$path = $this->makeUrl($id,'','','rel');
+					$replace[$i] = $this->makeUrl($id,'','','rel');
 				}
 				else
 				{
-					$path = $target;
+					$replace[$i] = $key;
 				}
-				$documentSource .= $path;
+				$i++;
 			}
+			
+			$content= str_replace($matches['0'], $replace, $content);
 		}
-		return $documentSource;
+		return $content;
 	}
-    
+	
 	function getConfig($name= '', $default='')
 	{
 		if(empty($this->config[$name]))
