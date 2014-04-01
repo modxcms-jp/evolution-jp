@@ -2475,58 +2475,33 @@ class DocumentParser {
 		$pieces = preg_split('/(\[~|~\])/',$documentSource);
 		$maxidx = sizeof($pieces);
 		$documentSource = '';
-			
-		if ($this->config['friendly_urls'] == 1)
+		
+		for ($idx = 0; $idx < $maxidx; $idx++)
 		{
-			for ($idx = 0; $idx < $maxidx; $idx++)
+			$documentSource .= $pieces[$idx];
+			$idx++;
+			if ($idx < $maxidx)
 			{
-				$documentSource .= $pieces[$idx];
-				$idx++;
-				if ($idx < $maxidx)
+				$target = trim($pieces[$idx]);
+				$target = $this->mergeDocumentContent($target);
+				$target = $this->mergeSettingsContent($target);
+				$target = $this->mergeChunkContent($target);
+				$target = $this->evalSnippets($target);
+				
+				if(preg_match('/^[0-9]+$/',$target))
 				{
-					$target = trim($pieces[$idx]);
-					$target = $this->mergeDocumentContent($target);
-					$target = $this->mergeSettingsContent($target);
-					$target = $this->mergeChunkContent($target);
-					$target = $this->evalSnippets($target);
-					
-					if(preg_match('/^[0-9]+$/',$target))
+					$id = $target;
+					if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
 					{
-						$id = $target;
-						if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
-						{
-							$id = $this->referenceListing[$id];
-						}
-							$path = $this->makeUrl($id,'','','root_rel');
+						$id = $this->referenceListing[$id];
 					}
-					else
-					{
-						$path = $target;
-					}
-					$documentSource .= $path;
+					$path = $this->makeUrl($id,'','','rel');
 				}
-			}
-		}
-		else
-		{
-			for ($idx = 0; $idx < $maxidx; $idx++)
-			{
-				$documentSource .= $pieces[$idx];
-				$idx++;
-				if ($idx < $maxidx)
+				else
 				{
-					$target = trim($pieces[$idx]);
-					if(isset($this->referenceListing[$target]) && preg_match("/^[0-9]+$/",$this->referenceListing[$target]))
-						$target = $this->referenceListing[$target];
-					
-					if($target === $this->config['site_start'])
-						$path = 'index.php';
-					elseif(isset($this->referenceListing[$target]) && preg_match('@^https?://@', $this->referenceListing[$target]))
-						$path = $this->referenceListing[$target];
-					else
-						$path = 'index.php?id=' . $target;
-					$documentSource .= $path;
+					$path = $target;
 				}
+				$documentSource .= $path;
 			}
 		}
 		return $documentSource;
