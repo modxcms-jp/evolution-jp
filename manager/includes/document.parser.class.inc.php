@@ -2072,7 +2072,7 @@ class DocumentParser {
 				if (!strlen($pkey)) $pkey = $childId;
 				$children[$pkey] = $childId;
 				
-				if ($depth && isset($documentMap_cache[$childId])) {
+				if ($depth && isset($childrenList[$childId])) {
 					$children += $this->getChildIds($childId, $depth);
 				}
 			}
