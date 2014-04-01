@@ -2478,15 +2478,6 @@ class DocumentParser {
 			
 		if ($this->config['friendly_urls'] == 1)
 		{
-			if(!isset($this->aliases) || empty($this->aliases))
-				$aliases = $this->set_aliases();
-			else
-				$aliases = $this->aliases;
-			
-			$use_alias = $this->config['friendly_alias_urls'];
-			$prefix    = $this->config['friendly_url_prefix'];
-			$suffix    = $this->config['friendly_url_suffix'];
-			
 			for ($idx = 0; $idx < $maxidx; $idx++)
 			{
 				$documentSource .= $pieces[$idx];
@@ -2515,7 +2506,6 @@ class DocumentParser {
 					$documentSource .= $path;
 				}
 			}
-			unset($aliases);
 		}
 		else
 		{
