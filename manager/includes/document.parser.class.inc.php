@@ -2314,7 +2314,10 @@ class DocumentParser {
 		$referenceListing = array();
 		$rs = $this->db->select('id,content', '[+prefix+]site_content', "type='reference'");
 		$rows = $this->db->makeArray($rs);
-		if(empty($rows)) return array();
+		if(empty($rows)) {
+			$this->referenceListing = array();
+			return array();
+		}
 		foreach($rows as $row)
 		{
 			extract($row);
