@@ -85,16 +85,6 @@ class Qm {
 		// Get manager language
 		$manager_language = $this->modx->config['manager_language'];
 		
-		// Individual user language setting (if set)
-		$tbl_user_settings = $this->modx->getFullTableName('user_settings');
-		$where = "setting_name='manager_language' AND user={$_SESSION['mgrInternalKey']}";
-		$records = $this->modx->db->select('setting_name, setting_value',$tbl_user_settings,$where);
-		if ($this->modx->db->getRecordCount($records) > 0)
-		{
-			$record = $this->modx->db->getRow($records);
-			$manager_language = $record['setting_value'];
-		}
-		
 		// Get event
 		$e = &$this->modx->event;
 		
