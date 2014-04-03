@@ -323,7 +323,7 @@ function decode(s){
 <input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
 <input type="hidden" name="params" value="<?php echo htmlspecialchars($content['display_params']);?>">
 
-	<h1><?php echo $_lang['tmplvars_title'];if($id) echo "(ID:tv{$id})"; ?></h1>
+	<h1><?php echo $_lang['tmplvars_title'];if($id) echo "(ID:{$id})"; ?></h1>
 
     <div id="actions">
     	  <ul class="actionButtons">
@@ -380,6 +380,7 @@ function decode(s){
     <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
 <?php
 	$option = array();
+	$option['custom_tv']    = 'Custom Input';
 	$option['text']         = 'Text';
 	$option['textarea']     = 'Textarea';
 	$option['textareamini'] = 'Textarea (Mini)';
@@ -397,7 +398,6 @@ function decode(s){
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['hidden']       = 'HIdden';
-	$option['custom_tv']    = 'Custom Input';
 	$tbl_site_snippets = $modx->getFullTableName('site_snippets');
 	$result = $modx->db->select('name',$tbl_site_snippets,"name like'input:%'");
 	if(0 < $modx->db->getRecordCount($result))
@@ -412,6 +412,7 @@ function decode(s){
 	foreach($option as $k=>$v)
 	{
 		$selected = '';
+		if(empty($content['type'])) $content['type'] = 'text';
 		if(strtolower($content['type'])==strtolower($k)) $selected = 'selected="selected"';
 		$row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
 	}
@@ -453,16 +454,16 @@ function selected($target='')
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
-	            <option value="" <?php echo selected(); ?>>&nbsp;</option>
+            <option value="" <?php echo selected(); ?>>&nbsp;</option>
+            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Filter</option>
             <option value="image" <?php        echo selected('image'); ?>>Image</option>
             <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
             <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
             <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
-	            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
-	            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
-	            <option value="delim" <?php        echo selected('delim'); ?>>Delimited List</option>
+            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
+            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
+            <option value="delim" <?php        echo selected('delim'); ?>>Delimited List</option>
             <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
-            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Widget</option>
 	        </select>
     </td>
   </tr>
