@@ -1047,7 +1047,7 @@ class SubParser {
 		global $modx;
 		global $base_url;
 		global $rb_base_url;
-		global $manager_theme;
+		global $manager_theme, $_style;
 		global $_lang;
 		global $content;
 		
@@ -1056,89 +1056,74 @@ class SubParser {
 
 		switch (strtolower($field_type)) {
 
-			case "text": // handler for regular text boxes
+			case "text":    // handler for regular text boxes
 			case "rawtext"; // non-htmlentity converted text boxes
-			case "email": // handles email input fields
-			case "number": // handles the input of numbers
-				if($field_type=='text') $field_type = '';
-				elseif($field_type=='number') $field_type .= ' imeoff';
-				$field_html .=  '<input type="text" class="text ' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' tvtype="'.$field_type.'" />';
+			case "email":   // handles email input fields
+			case "number":  // handles the input of numbers
+				$tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php');
+				if($field_type=='text')       $class = 'text';
+				elseif($field_type=='number') $class = 'text imeoff';
+				else                          $class = "text {$field_type}";
+				$ph['class']  = $class;
+				$ph['id']     = "tv{$field_id}";
+				$ph['name']   = "tv{$field_id}";
+				$ph['value']  = htmlspecialchars($field_value);
+				$ph['style']  = $field_style;
+				$ph['tvtype'] = $field_type;
+				$field_html =  $modx->parseText($tpl,$ph);
 				break;
+			case "textarea":     // handler for textarea boxes
+			case "rawtextarea":  // non-htmlentity convertex textarea boxes
+			case "htmlarea":     // handler for textarea boxes (deprecated)
+			case "richtext":     // handler for textarea boxes
 			case "textareamini": // handler for textarea mini boxes
-				$field_type .= " phptextarea";
-				$field_html .=  '<textarea class="' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" cols="40" rows="5">' . htmlspecialchars($field_value) .'</textarea>';
-				break;
-			case "textarea": // handler for textarea boxes
-			case "rawtextarea": // non-htmlentity convertex textarea boxes
-			case "htmlarea": // handler for textarea boxes (deprecated)
-			case "richtext": // handler for textarea boxes
-				$field_type .= " phptextarea";
-				$field_html .=  '<textarea class="' . $field_type . '" id="tv'.$field_id.'" name="tv'.$field_id.'" cols="40" rows="15">' . htmlspecialchars($field_value) .'</textarea>';
+				$tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/textarea.inc.php');
+				$ph['class']  = "{$field_type} phptextarea";
+				$ph['id']     = "tv{$field_id}";
+				$ph['name']   = "tv{$field_id}";
+				$ph['value']  = htmlspecialchars($field_value);
+				$ph['style']  = $field_style;
+				$ph['tvtype'] = $field_type;
+				$ph['rows']   = $field_type==='textareamini' ? '5' : '15';
+				$field_html =  $modx->parseText($tpl,$ph);
 				break;
 			case "date":
-				$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
-                if($field_value=='') $field_value=0;
-				$field_html .=  '<input id="tv'.$field_id.'" name="tv'.$field_id.'" class="DatePicker" type="text" value="' . ($field_value==0 || !isset($field_value) ? "" : $field_value) . '" onblur="documentDirty=true;" />';
-				$field_html .=  ' <a onclick="document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].value=\'\';document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].onblur(); return true;" style="cursor:pointer; cursor:hand"><img src="media/style/' . $manager_theme . '/images/icons/cal_nodate.gif" border="0" alt="No date"></a>';
-
-				$field_html .=  '<script type="text/javascript">';
-				$field_html .=  '	window.addEvent(\'domready\', function() {';
-				$field_html .=  '   	new DatePicker($(\'tv'.$field_id.'\'), {\'yearOffset\' : '.$modx->config['datepicker_offset']. ", 'format' : " . "'" . $modx->config['datetime_format']  . ' hh:mm:00\'' . '});';
-				$field_html .=  '});';
-				$field_html .=  '</script>';
-
-				break;
 			case "dateonly":
-				$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
-                if($field_value=='') $field_value=0;
-				$field_html .=  '<input id="tv'.$field_id.'" name="tv'.$field_id.'" class="DatePicker" type="text" value="' . ($field_value==0 || !isset($field_value) ? "" : $field_value) . '" onblur="documentDirty=true;" />';
-				$field_html .=  ' <a onclick="document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].value=\'\';document.forms[\'mutate\'].elements[\'tv'.$field_id.'\'].onblur(); return true;" style="cursor:pointer; cursor:hand"><img src="media/style/'.$manager_theme.'/images/icons/cal_nodate.gif" border="0" alt="No date"></a>';
-
-				$field_html .=  '<script type="text/javascript">';
-				$field_html .=  '	window.addEvent(\'domready\', function() {';
-				$field_html .=  '   	new DatePicker($(\'tv'.$field_id.'\'), {\'yearOffset\' : '.$modx->config['datepicker_offset']. ", 'format' : " . "'" . $modx->config['datetime_format'] . "'" . '});';
-				$field_html .=  '});';
-				$field_html .=  '</script>';
-
+				$tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/date.inc.php');
+				$ph['class']           = 'DatePicker';
+				$ph['id']              = 'tv' . str_replace(array('-', '.'),'_', urldecode($field_id));	;
+				$ph['name']            = "tv{$field_id}";
+				$ph['value']           = $field_value==0 || !isset($field_value) ? '' : htmlspecialchars($field_value);
+				$ph['style']           = $field_style;
+				$ph['tvtype']          = $field_type;
+				$ph['cal_nodate']      = $_style['icons_cal_nodate'];
+				$ph['yearOffset']      = $modx->config['datepicker_offset'];
+				$ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
+				$field_html =  $modx->parseText($tpl,$ph);
 				break;
 			case "dropdown": // handler for select boxes
-				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="1">';
-				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
-				while (list($label, $item) = each ($index_list))
-				{
-					list($label,$value) = $this->splitOption($item);
-					$selected = ($value==$field_value) ?' selected="selected"':'';
-					$field_html .=  '<option value="'.htmlspecialchars($value).'"'.$selected.'>'.htmlspecialchars($label).'</option>';
-				}
-				$field_html .=  "</select>";
-				break;
-			case "listbox": // handler for select boxes
-				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
-				$count = (count($index_list)<8) ? count($index_list) : 8;
-				$field_html .=  '<select id="tv'.$field_id.'" name="tv'.$field_id.'" size="' . $count . '">';	
-				while (list($label, $item) = each ($index_list))
-				{
-					list($label,$value) = $this->splitOption($item);
-					$selected = ($this->isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
-					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected . '>'.htmlspecialchars($label).'</option>';
-				}
-				$field_html .=  "</select>";
-				break;
+			case "listbox":  // handler for select boxes
 			case "listbox-multiple": // handler for select boxes where you can choose multiple items
+				$tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/list.inc.php');
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
 				$index_list = $this->ParseIntputOptions($rs);
-				$count = (count($index_list)<8) ? count($index_list) : 8;
-				$field_value = explode("||",$field_value);
-				$field_html .=  '<select id="tv'.$field_id.'[]" name="tv'.$field_id.'[]" multiple="multiple" size="' . $count . '">';
-				while (list($label, $item) = each ($index_list))
+				$tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
+				foreach ($index_list as $label=>$item)
 				{
 					list($label,$value) = $this->splitOption($item);
-					$selected = ($this->isSelected($label,$value,$item,$field_value)) ?' selected="selected"':'';
-					$field_html .=  '<option value="'.htmlspecialchars($value).'"' . $selected .'>'.htmlspecialchars($label).'</option>';
+					$ph2['label']    = $label;
+					$ph2['value']    = $value;
+					$ph2['selected'] = ($value==$field_value) ? 'selected="selected"':'';
+					$options[] = $modx->parseText($tpl2, $ph2);
 				}
-				$field_html .=  "</select>";
+				$ph['options'] = join("\n",$options);
+				$ph['id']      = "tv{$field_id}";
+				$ph['name']    = "tv{$field_id}";
+				$ph['size']   = (count($index_list)<8) ? count($index_list) : 8;
+				$ph['extra'] = '';
+				if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
+				elseif($field_type==='dropdown')     $ph['size']   = '1';
+				$field_html =  $modx->parseText($tpl,$ph);
 				break;
 			case "url": // handles url input fields
 				$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
