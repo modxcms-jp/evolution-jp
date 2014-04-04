@@ -1251,7 +1251,7 @@ class DocumentParser {
 			}
 			if (is_array($value))
 			{
-				$value= $this->outputFilter($value);
+				$value= $this->tvProcessor($value);
 			}
 			if($modifiers!==false)
 			{
@@ -2847,7 +2847,7 @@ class DocumentParser {
 					{
 						$row['docid'] = $docid;
 						$row['sep']   = $sep;
-						$output[$tvname] = $this->outputFilter($row);
+						$output[$tvname] = $this->tvProcessor($row);
 					}
 				}
 				return $output;
@@ -3180,7 +3180,7 @@ class DocumentParser {
 	* Created by Raymond Irving Feb, 2005
 	*/
 	// Added by Raymond 20-Jan-2005
-	function outputFilter($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
+	function tvProcessor($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
 	{
 		if(is_array($value))
 		{
