@@ -77,7 +77,7 @@ $description = str_replace('&amp;amp;','&amp;',$description);
 echo <<<HTML
 	<div class="warning"><img src="media/style/{$manager_theme}/images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
 	<table>
-	<tr><td>{$_lang["event_id"]} </td><td>{$content["eventid"]}</td></tr>
+	<tr><td>{$_lang["event_id"]} </td><td>{$content["id"]}</td></tr>
 	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>
 	<tr><td>{$_lang["date"]} </td><td>$date</td></tr>
 HTML;
