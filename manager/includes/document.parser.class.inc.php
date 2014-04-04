@@ -1251,7 +1251,7 @@ class DocumentParser {
 			}
 			if (is_array($value))
 			{
-				$value= $this->outputFilter($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
+				$value= $this->outputFilter($value);
 			}
 			if($modifiers!==false)
 			{
@@ -2845,8 +2845,9 @@ class DocumentParser {
 					}
 					else
 					{
-						extract($row,EXTR_PREFIX_ALL,'tv');
-						$output[$tvname] = $this->outputFilter($tvname, $tvvalue, $tvdisplay, $tvdisplay_params, $tvtype, $docid, $sep);
+						$row['docid'] = $docid;
+						$row['sep']   = $sep;
+						$output[$tvname] = $this->outputFilter($row);
 					}
 				}
 				return $output;
