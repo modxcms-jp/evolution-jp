@@ -4,7 +4,7 @@
 	if ($value !='' || $params['default']=='Yes')
 	{
 		$timestamp = $this->getUnixtimeFromDateString($value);
-		$p = $params['format'] ? $params['format'] : $this->toDateFormat(null, 'formatOnly');
+		$p = $params['dateformat'] ? $params['dateformat'] : $this->toDateFormat(null, 'formatOnly');
 		$o = strftime($p,$timestamp);
 	}
 	else $o = '';

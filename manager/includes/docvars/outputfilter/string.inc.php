@@ -2,7 +2,7 @@
 	if(!defined('IN_PARSER_MODE') || IN_PARSER_MODE != 'true') exit();
 
 	$value = $this->parseInput($value);
-	$format = strtolower($params['format']);
+	$format = strtolower($stringparams['format']);
 	if($format=='zen-han')            $o = mb_convert_kana($value,'as',$this->config['modx_charset']);
 	else if($format=='han-zen')       $o = mb_convert_kana($value,'AS',$this->config['modx_charset']);
 	else if($format=='upper case')    $o = strtoupper($value);

@@ -11,18 +11,18 @@
 		$tagvalue = is_array($value[$i]) ? implode(' ', $value[$i]) : $value[$i];
 		if (!$tagvalue) continue;
 		
-		$tagvalue = $this->parseText($params['output'],array('value'=>$tagvalue));
+		$tagvalue = $this->parseText($params['tagoutput'],array('value'=>$tagvalue));
 		$attributes = '';
 		$attr = array(
 			'id' => ($tagid ? $tagid : $tagname) . ($i==0 ? '' : "-{$i}"), // 'tv' already added to id
-			'class' => $params['class'],
-			'style' => $params['style'],
+			'class' => $params['tagclass'],
+			'style' => $params['tagstyle'],
 		);
 		foreach ($attr as $k => $v)
 		{
 			$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
 		}
-		$attributes .= ' '.$params['attrib']; // add extra
+		$attributes .= ' '.$params['tagattrib']; // add extra
 		$attributes = rtrim($attributes);
 		
 		// Output the HTML Tag

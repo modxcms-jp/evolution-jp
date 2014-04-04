@@ -14,15 +14,15 @@
 			$attr = array(
 				'href'   => $url,
 				'title'  => $params['title'] ? htmlspecialchars($params['title']) : $name,
-				'class'  => $params['class'],
-				'style'  => $params['style'],
+				'class'  => $params['linkclass'],
+				'style'  => $params['linkstyle'],
 				'target' => $params['target'],
 			);
 			foreach ($attr as $k => $v)
 			{
 				$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
 			}
-			$attributes .= ' '.$params['attrib']; // add extra
+			$attributes .= ' '.$params['linkattrib']; // add extra
 			
 			// Output the link
 			$o .= '<a'.rtrim($attributes).'>'. ($params['text'] ? htmlspecialchars($params['text']) : $name) .'</a>';

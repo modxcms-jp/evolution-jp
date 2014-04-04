@@ -11,13 +11,13 @@
 		if($src)
 		{
 			// We have a valid source
-			$src = $this->parseText($params['output'],array('value'=>$src));
+			$src = $this->parseText($params['imgoutput'],array('value'=>$src));
 			$attr = array(
-				'class' => $params['class'],
+				'class' => $params['imgclass'],
 				'src' => $src,
 				'id' => ($params['id'] ? $params['id'] : ''),
 				'alt' => htmlspecialchars($params['alttext']),
-				'style' => $params['style']
+				'style' => $params['imgstyle']
 			);
 			if(isset($params['align']) && $params['align'] != 'none')
 			{
@@ -28,7 +28,7 @@
 			{
 				if($v) $attributes .= " {$k}=\"{$v}\"";
 			}
-			$attributes .= ' '.$params['attrib'];
+			$attributes .= ' '.$params['imgattrib'];
 			
 			// Output the image with attributes
 			$o .= '<img'.rtrim($attributes).' />';
