@@ -2549,12 +2549,16 @@ class DocumentParser {
 	function getChunk($key)
 	{
 		if(!$this->chunkCache) $this->setChunkCache();
+		if($key==='') return false;
 		
 		if(isset($this->chunkCache[$key]))
 		{
 			return $this->chunkCache[$key];
 		}
-		else return false;
+		else {
+			$this->logEvent(0,'2','Not found chunk name {{'.$key.'}}',"Parser (ResourceID:{$this->documentIdentifier})");
+			return false;
+		}
 	}
 	
 	function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
