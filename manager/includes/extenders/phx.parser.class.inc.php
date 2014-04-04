@@ -23,6 +23,7 @@ class PHx {
 	{
 		global $modx, $condition;
 		$cmd=strtolower($cmd);
+		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
 		
 		switch ($cmd)
 		{
