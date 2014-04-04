@@ -1285,3 +1285,5 @@ $_lang["smtp_secure_title"] = 'SMTPセキュア';
 $_lang["user_street"] = '番地';
 $_lang["user_city"] = '市区町村';
 $_lang["user_other"] = 'その他';
+
+$_lang["view_site"] = 'サイトを表示';

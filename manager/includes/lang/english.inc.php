@@ -1283,3 +1283,5 @@ $_lang['smtp_secure_title'] = 'SMTP secure';
 $_lang["user_street"] = 'Street';
 $_lang["user_city"] = 'City';
 $_lang["user_other"] = 'Other';
+
+$_lang["view_site"] = 'View Site';
