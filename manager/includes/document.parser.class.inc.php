@@ -1925,14 +1925,17 @@ class DocumentParser {
 		{
 			while ($row= $this->db->getRow($rs))
 			{
-				$tmplvars[$row['name']]= array
-				(
-					$row['name'],
-					$row['value'],
-					$row['display'],
-					$row['display_params'],
-					$row['type']
-				);
+				$name = $row['name'];
+				$tmplvars[$name][]       = $row['name'];
+				$tmplvars[$name][]       = $row['value'];
+				$tmplvars[$name][]       = $row['display'];
+				$tmplvars[$name][]       = $row['display_params'];
+				$tmplvars[$name][]       = $row['type'];
+				$tmplvars[$name]['name']           = $row['name'];
+				$tmplvars[$name]['value']          = $row['value'];
+				$tmplvars[$name]['display']        = $row['display'];
+				$tmplvars[$name]['display_params'] = $row['display_params'];
+				$tmplvars[$name]['type']           = $row['type'];
 			}
 			$documentObject= array_merge($documentObject, $tmplvars);
 		}
