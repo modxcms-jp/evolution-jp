@@ -1,39 +1,40 @@
 <?php
 	if(!defined('IN_PARSER_MODE') || IN_PARSER_MODE != 'true') exit();
 
-	$value = $this->parseInput($value,'||','array');
+	$values = $this->parseInput($value,'||','array');
+	unset($value);
 	$tagid = $params['tagid'];
 	$tagname = ($params['tagname']) ? $params['tagname'] : 'div';
 	// Loop through a list of tags
 	$count = count($value);
-	for ($i = 0; $i < $count; $i++)
-	{
-		$tagvalue = is_array($value[$i]) ? implode(' ', $value[$i]) : $value[$i];
+	$i = 0;
+	foreach ($values as $value) {
+		$tagvalue = is_array($value) ? implode(' ', $value) : $value;
 		if (!$tagvalue) continue;
 		
 		$tagvalue = $this->parseText($params['tagoutput'],array('value'=>$tagvalue));
-		$attributes = '';
-		$attr = array(
-			'id' => ($tagid ? $tagid : $tagname) . ($i==0 ? '' : "-{$i}"), // 'tv' already added to id
-			'class' => $params['tagclass'],
-			'style' => $params['tagstyle'],
-		);
-		foreach ($attr as $k => $v)
-		{
-			$attributes.= ($v ? " {$k}=\"{$v}\"" : '');
+		
+		$attr['id']    = ($tagid ? $tagid : $tagname) . ($i==0 ? '' : "-{$i}"); // 'tv' already added to id
+		$attr['class'] = $params['tagclass'];
+		$attr['style'] = $params['tagstyle'];
+		
+		$_ = array();
+		foreach ($attr as $k => $v) {
+			if($v) $_[] = "{$k}=\"{$v}\"";
 		}
-		$attributes .= ' '.$params['tagattrib']; // add extra
-		$attributes = rtrim($attributes);
+		if($params['tagattrib']) $_[] = $params['tagattrib']; // add extra
+		$attributes = join(' ', $_);
+		if($attributes!=='') $attributes = ' '.$attributes;
 		
 		// Output the HTML Tag
-		switch($tagname)
-		{
+		switch($tagname) {
 			case 'img':
 				$o .= "<img src=\"{$tagvalue}\" {$attributes} />\n";
 				break;
 			default:
 				$o .= "<{$tagname}{$attributes}>{$tagvalue}</{$tagname}>\n";
 		}
+		$i++;
 	}
 
 	return $o;
