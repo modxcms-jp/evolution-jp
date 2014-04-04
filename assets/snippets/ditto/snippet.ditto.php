@@ -1129,16 +1129,16 @@ if ($count > 0) {
 
 if ($debug == 1) {
     $ditto_params =& $modx->event_params;
-    if (!isset($_GET["ditto_".$dittoID."debug"])) {
-    $_SESSION["ditto_debug_$dittoID"] = $ditto->debug->render_popup($ditto, $ditto_base, $ditto_version, $ditto_params, $documentIDs, array("db"=>$dbFields,"tv"=>$TVs), $display, $templates, $orderBy, $start, $stop, $total,$filter,$resource);
+    if (!isset($_GET["ditto_{$dittoID}debug"])) {
+    $_SESSION["ditto_debug_{$dittoID}"] = $ditto->debug->render_popup($ditto, $ditto_base, $ditto_version, $ditto_params, $documentIDs, array("db"=>$dbFields,"tv"=>$TVs), $display, $templates, $orderBy, $start, $stop, $total,$filter,$resource);
     }
-    if (isset($_GET["ditto_".$dittoID."debug"])) {
-        switch ($_GET["ditto_".$dittoID."debug"]) {
+    if (isset($_GET["ditto_{$dittoID}debug"])) {
+        switch ($_GET["ditto_{$dittoID}debug"]) {
             case "open" :
-                exit($_SESSION["ditto_debug_$dittoID"]);
+                exit($_SESSION["ditto_debug_{$dittoID}"]);
             break;
             case "save" :
-                $ditto->debug->save($_SESSION["ditto_debug_$dittoID"],"ditto".strtolower($ditto_version)."_debug_doc".$modx->documentIdentifier.".html");
+                $ditto->debug->save($_SESSION["ditto_debug_{$dittoID}"],"ditto".strtolower($ditto_version)."_debug_doc".$modx->documentIdentifier.".html");
             break;
         }
     } else {
@@ -1147,11 +1147,11 @@ if ($debug == 1) {
 }
 //outerTpl by Dmi3yy
 if ($outerTpl && $resource) { 
-  if ($modx->getChunk($outerTpl) != "") {
-                        $outerTpl = $modx->getChunk($outerTpl);
-        } else if(substr($outerTpl, 0, 5) == "@CODE") {
-                        $outerTpl = trim(substr($outerTpl, 6));
-        } 
+  if(substr($outerTpl, 0, 5) == '@CODE') {
+    $outerTpl = trim(substr($outerTpl, 6));
+  } elseif ($modx->getChunk($outerTpl) != '') {
+    $outerTpl = $modx->getChunk($outerTpl);
+  } 
   $output = str_replace('[+ditto+]',$output,$outerTpl);
 }
 
