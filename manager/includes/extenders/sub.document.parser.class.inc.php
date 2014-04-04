@@ -125,7 +125,7 @@ class SubParser {
 			$source = substr($source, 0, 50);
 		}
 		$LoginUserID = $modx->getLoginUserID();
-		if ($LoginUserID == '' || $LoginUserID===false) $LoginUserID = '-';
+		if (empty($LoginUserID)) $LoginUserID = '-';
 		
 		$fields['eventid']     = $evtid;
 		$fields['type']        = $type;
