@@ -201,6 +201,7 @@ class DocumentParser {
 		if(!$this->db->conn)      $this->db->connect();
 		if(!isset($this->config)) $this->config = $this->getSettings();
 		if(!$this->processCache)  $this->initProcessCache();
+		if(!$this->documentMap)   $this->setdocumentMap();
 		
 		if(preg_match('@^[0-9]+$@',$id))
 		{
