@@ -510,18 +510,18 @@ class PHx {
 		return $reslut;
 	}
 	
-	function getDocumentObject($target='',$field='pagetitle')
+	function getDocumentObject($target='',$field='pagetitle',$mode='prepareResponse')
 	{
 		global $modx;
 		
 		$target = trim($target);
 		if(empty($target)) $target = $modx->documentIdentifier;
-		if(preg_match('@^[1-9][0-9]*$@',$target)) $mode='id';
-		else $mode = 'alias';
-		
+		if(preg_match('@^[1-9][0-9]*$@',$target)) $method='id';
+		else $method = 'alias';
+
 		if(!isset($this->documentObject[$target])) 
 		{
-			$this->documentObject[$target] = $modx->getDocumentObject($mode,$target);
+			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,$mode);
 		}
 		if(is_array($this->documentObject[$target][$field]))
 		{
