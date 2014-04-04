@@ -1243,7 +1243,12 @@ class DocumentParser {
 				list($key,$modifiers) = explode(':', $key, 2);
 			}
 			else $modifiers = false;
-			$value= $this->documentObject[$key];
+			if(!isset($this->documentObject[$key])) {
+				$this->logEvent(0,'2',"Not found TV name [*{$key}*]","Parser (ResourceID:{$this->documentIdentifier})");
+				$value = '';
+			} else {
+				$value= $this->documentObject[$key];
+			}
 			if (is_array($value))
 			{
 				$value= $this->outputFilter($value['0'], $value['1'], $value['2'], $value['3'], $value['4']);
