@@ -138,62 +138,7 @@ class synccache {
 	{
 		global $site_sessionname;
 		
-		// update publish time file
-		$timesArr = array();
-		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
-		
-		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
-		if(!$result)
-		{
-			echo "Couldn't determine next publish event!";
-		}
-		
-		$minpub = $modx->db->getValue($result);
-		if($minpub!=NULL)
-		{
-			$timesArr[] = $minpub;
-		}
-		
-		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "{$current_time} < unpub_date");
-		if(!$result)
-		{
-			echo "Couldn't determine next unpublish event!";
-		}
-		$minunpub = $modx->db->getValue($result);
-		if($minunpub!=NULL)
-		{
-			$timesArr[] = $minunpub;
-		}
-		
-		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "{$current_time} < pub_date");
-		if(!$result)
-		{
-			echo "Couldn't determine next publish event!";
-		}
-		
-		$minpub = $modx->db->getValue($result);
-		if($minpub!=NULL)
-		{
-			$timesArr[] = $minpub;
-		}
-		
-		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "{$current_time} < unpub_date");
-		if(!$result)
-		{
-			echo "Couldn't determine next unpublish event!";
-		}
-		$minunpub = $modx->db->getValue($result);
-		if($minunpub!=NULL)
-		{
-			$timesArr[] = $minunpub;
-		}
-		if(isset($this->cacheRefreshTime) && !empty($this->cacheRefreshTime))
-		{
-			$timesArr[] = $this->cacheRefreshTime;
-		}
-		
-		if(count($timesArr)>0) $nextevent = min($timesArr);
-		else                   $nextevent = 0;
+		$cacheRefreshTime = $this->getCacheRefreshTime($modx);
 		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
 		while($row = $modx->db->getRow($rs))
@@ -205,7 +150,7 @@ class synccache {
 		
 		// write the file
 		$cache_path = $this->cachePath . 'basicConfig.idx.php';
-		$content  = "<?php\n\$cacheRefreshTime = {$nextevent};\n";
+		$content  = "<?php\n\$cacheRefreshTime = {$cacheRefreshTime};\n";
 		$content .= '$cache_type = ' . "{$setting['cache_type']};\n";
 		if(isset($site_sessionname) && !empty($site_sessionname))
 		{
@@ -227,6 +172,48 @@ class synccache {
 		$rs = file_put_contents($cache_path, $content, LOCK_EX);
 		
 		if (!$rs) exit("Cannot open file ({$cache_path})");
+	}
+	
+	function getCacheRefreshTime($modx)
+	{
+		// update publish time file
+		$timesArr = array();
+		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
+		
+		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
+		if(!$result) echo "Couldn't determine next publish event!";
+		
+		$minpub = $modx->db->getValue($result);
+		if($minpub!=NULL)
+			$timesArr[] = $minpub;
+		
+		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "{$current_time} < unpub_date");
+		if(!$result) echo "Couldn't determine next unpublish event!";
+		
+		$minunpub = $modx->db->getValue($result);
+		if($minunpub!=NULL)
+			$timesArr[] = $minunpub;
+		
+		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "{$current_time} < pub_date");
+		if(!$result) echo "Couldn't determine next publish event!";
+		
+		$minpub = $modx->db->getValue($result);
+		if($minpub!=NULL)
+			$timesArr[] = $minpub;
+		
+		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "{$current_time} < unpub_date");
+		if(!$result) echo "Couldn't determine next unpublish event!";
+		
+		$minunpub = $modx->db->getValue($result);
+		if($minunpub!=NULL)
+			$timesArr[] = $minunpub;
+		
+		if(isset($this->cacheRefreshTime) && !empty($this->cacheRefreshTime))
+			$timesArr[] = $this->cacheRefreshTime;
+		
+		if(count($timesArr)>0) $cacheRefreshTime = min($timesArr);
+		else                   $cacheRefreshTime = 0;
+		return $cacheRefreshTime;
 	}
 	
 	/**
