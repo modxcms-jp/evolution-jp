@@ -651,7 +651,6 @@ $_lang["plugin_priority_instructions"] = 'Drag to reorder the Plugins under each
 $_lang["plugin_priority_title"] = 'Plugin Execution Order';
 $_lang["plugin_title"] = 'Create/edit Plugin';
 $_lang["preview"] = 'Preview';
-$_lang["preview_msg"] = 'This is a preview of your last saved changes. Click here to <a href="#" onclick="saveRefreshPreview();">Save and Refresh</a> your current changes';
 $_lang["preview_resource"] = 'View Resource';
 $_lang["private"] = 'Private';
 $_lang["public"] = 'Public';
