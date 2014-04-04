@@ -2505,6 +2505,7 @@ class DocumentParser {
 						$id = $this->referenceListing[$id];
 					}
 					$replace[$i] = $this->makeUrl($id,'','','rel');
+					if(!$replace[$i]) $this->logEvent(0,'2',"Can not parse '[~{$key_org}~]'.","Parser (ResourceID:{$this->documentIdentifier})");
 				}
 				else
 				{
