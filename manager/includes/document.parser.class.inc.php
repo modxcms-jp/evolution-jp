@@ -2397,6 +2397,7 @@ class DocumentParser {
 						if($this->config['xhtml_urls']==='1') $alias = urlencode($al['alias']);
 						else                                  $alias = $al['alias'];
 					}
+					else return false;
 				}
 			}
 			
@@ -2410,8 +2411,12 @@ class DocumentParser {
 			}
 			$makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
 		}
-		else $makeurl= "index.php?id={$id}";
-
+		else {
+			if(!$this->aliasListing)  $this->setAliasListing();
+			if(isset($this->aliasListing[$id])) $makeurl= "index.php?id={$id}";
+			else return false;
+		}
+		
 		$site_url = $this->config['site_url'];
 		$base_url = $this->config['base_url'];
 		switch($scheme)
@@ -2491,6 +2496,7 @@ class DocumentParser {
 			$i= 0;
 			foreach($matches['1'] as $key)
 			{
+				$key_org = $key;
 				$key = trim($key);
 				$key = $this->mergeDocumentContent($key);
 				$key = $this->mergeSettingsContent($key);
