@@ -1731,6 +1731,7 @@ class DocumentParser {
 				$snippetObject['name']       = $snip_name;
 				$snippetObject['content']    = $this->snippetCache[$snip_name] = 'return false;';
 				$snippetObject['properties'] = '';
+				$this->logEvent(0,'2','Not found snippet name [['.$snippetObject['name'].']]',"Parser (ResourceID:{$this->documentIdentifier})");
 			}
 		}
 		return $snippetObject;
