@@ -112,7 +112,9 @@ class SubParser {
 		$type = intval($type);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
+		$msg = htmlentities($msg);
 		$msg= $modx->db->escape($msg);
+		$source = htmlentities($source);
 		$source= $modx->db->escape($source);
 		if (function_exists('mb_substr'))
 		{
