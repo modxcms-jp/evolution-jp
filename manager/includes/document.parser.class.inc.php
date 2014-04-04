@@ -371,7 +371,7 @@ class DocumentParser {
 				}
 			}
 			// check whether it's a reference
-			if($this->documentObject['type'] == 'reference')
+			if($this->documentObject['type'] === 'reference')
 			{
 				if(preg_match('@^[0-9]+$@',$this->documentObject['content']))
 				{
