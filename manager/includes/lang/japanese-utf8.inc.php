@@ -696,7 +696,7 @@ $_lang["resource_alias_help"] = "このリソースのエイリアスを指定�
 $_lang["resource_content"] = '本文';
 $_lang["resource_description"] = '説明(description)';
 $_lang["resource_description_help"] = 'リソースに関する任意の説明をここに入力することができます。リソース変数：[*description*]';
-$_lang["resource_duplicate"] = '複製を作る';
+$_lang["resource_duplicate"] = '複製する';
 $_lang["resource_long_title_help"] = 'ページのタイトルです。titleタグなどで利用します。リソース変数：[*longtitle*]';
 $_lang["resource_metatag_help"] = 'このリソースに付加したいMETAタグやキーワードを選択してください。CTRLキーを押しながらクリックすると複数のタグやキーワードを選択できます。選択元とするMETAタグ・キーワードの作成・管理は「エレメント」→<a href="index.php?a=81" target="_self">「METAタグとキーワードの管理」</a>で行ないます。';
 $_lang["resource_opt_contentdispo"] = 'リソースの出力';
@@ -716,7 +716,7 @@ $_lang["resource_opt_richtext_help"] = '通常の記事を書く場合はここ�
 $_lang["resource_opt_show_menu"] = 'メニューに表示';
 $_lang["resource_opt_show_menu_help"] = 'メニューにこのリソースを表示するにはこのオプションをチェックしてください。メニュー作成スニペットにはこのオプションを無視するものもありますのでご注意ください。';
 $_lang["resource_opt_trackvisit_help"] = 'このページへの訪問者をログに記録する(対応モジュールが必要)';
-$_lang["resource_overview"] = '詳細情報を表示';
+$_lang["resource_overview"] = 'リソースの詳細情報';
 $_lang["resource_parent"] = '親リソース';
 $_lang["resource_parent_help"] = 'コンテナアイコンをクリックすると、このリソースの親(コンテナ)を変更できる状態になります。アイコンが変化している状態で、親にしたいリソースをリソースツリー上でクリックしてください。もう一度クリックすると元に戻ります。';
 $_lang["resource_permissions_error"] = 'このリソースを、少なくともアクセス可能な一つ以上のリソースグループへ割り当ててください。';
@@ -940,12 +940,12 @@ $_lang["tmplvar_tmpl_access_msg"] = 'このテンプレート変数を関連付�
 $_lang["tmplvars"] = 'テンプレート変数';
 $_lang["tmplvars_binding_msg"] = 'このフィールドはアットバインド(@CHUNK, @DOCUMENT, @EVAL, @SELECT, @FILE, @INHERIT, @DIRECTORY, @NONE)を使って各種のデータソースから値を代入できます。';
 $_lang["tmplvars_input_option_msg"] = '選択肢A||選択肢B または選択肢A==値A||選択肢B==値Bのように区切って書きます。アットバインドを利用できます。';
-$_lang["tmplvars_caption"] = '見出し(入力フィールド名)';
+$_lang["tmplvars_caption"] = '投稿画面内の見出し';
 $_lang["tmplvars_default"] = '既定値';
 $_lang["tmplvars_description"] = '説明';
 $_lang["tmplvars_elements"] = 'オプション';
 $_lang["tmplvars_management_msg"] = '<h3 style="font-weight:bold;">テンプレート変数の管理</h3><p>投稿画面上に入力フィールドを追加できます。テンプレート内の任意の場所に <strong>[*テンプレート変数名*]</strong> と記述して値を出力します。</p>';
-$_lang["tmplvars_msg"] = 'テンプレート変数及び入力フィールドを設定します。テンプレート変数名には日本語を用いることができます。このテンプレート変数を使用するテンプレートを「テンプレートとの関連付け」で関連付けないと使用できないためご注意ください。<br />入力タイプ「Listbox」や「CheckBox」は「入力時のオプション」を設定できます。';
+$_lang["tmplvars_msg"] = 'テンプレート変数及び入力フィールドを設定します。テンプレート変数名には日本語を用いることができます。このテンプレート変数を使用するテンプレートを「テンプレートとの関連付け」で関連付ける必要があります。';
 $_lang["tmplvars_name"] = '変数名';
 $_lang["tmplvars_novars"] = 'テンプレート変数はありません。';
 $_lang["tmplvars_rank"] = '並べ替え順';
