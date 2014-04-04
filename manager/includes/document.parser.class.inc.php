@@ -1244,7 +1244,7 @@ class DocumentParser {
 			}
 			else $modifiers = false;
 			if(!isset($this->documentObject[$key])) {
-				$this->logEvent(0,'3',"Not found TV name [*{$key}*]","Parser (ResourceID:{$this->documentIdentifier})");
+				//$this->logEvent(0,'1',"Not found TV name [*{$key}*] {$this->decoded_request_uri}","Parser (ResourceID:{$this->documentIdentifier})");
 				$value = '';
 			} else {
 				$value= $this->documentObject[$key];
@@ -1731,7 +1731,7 @@ class DocumentParser {
 				$snippetObject['name']       = $snip_name;
 				$snippetObject['content']    = $this->snippetCache[$snip_name] = 'return false;';
 				$snippetObject['properties'] = '';
-				$this->logEvent(0,'3','Not found snippet name [['.$snippetObject['name'].']]',"Parser (ResourceID:{$this->documentIdentifier})");
+				//$this->logEvent(0,'1','Not found snippet name [['.$snippetObject['name'].']] {$this->decoded_request_uri}',"Parser (ResourceID:{$this->documentIdentifier})");
 			}
 		}
 		return $snippetObject;
@@ -2511,7 +2511,7 @@ class DocumentParser {
 						$id = $this->referenceListing[$id];
 					}
 					$replace[$i] = $this->makeUrl($id,'','','rel');
-					if(!$replace[$i]) $this->logEvent(0,'3',"Can not parse '[~{$key_org}~]'.","Parser (ResourceID:{$this->documentIdentifier})");
+					if(!$replace[$i]) $this->logEvent(0,'1',"Can not parse '[~{$key_org}~]' {$this->decoded_request_uri}","Parser (ResourceID:{$this->documentIdentifier})");
 				}
 				else
 				{
@@ -2556,7 +2556,7 @@ class DocumentParser {
 			return $this->chunkCache[$key];
 		}
 		else {
-			$this->logEvent(0,'3','Not found chunk name {{'.$key.'}}',"Parser (ResourceID:{$this->documentIdentifier})");
+			//$this->logEvent(0,'1','Not found chunk name {{'.$key.'}} '.$this->decoded_request_uri,"Parser (ResourceID:{$this->documentIdentifier})");
 			return false;
 		}
 	}
