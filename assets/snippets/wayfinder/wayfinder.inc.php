@@ -715,17 +715,17 @@ class Wayfinder {
 		// based on version by Doze at http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
 		global $modx;
 		$template = '';
-		if ($modx->getChunk($tpl) != '')
-		{
-			$template = $modx->getChunk($tpl);
-		}
-		elseif(substr($tpl, 0, 5) == '@FILE')
+		if(substr($tpl, 0, 5) == '@FILE')
 		{
 			$template = file_get_contents(substr($tpl, 6));
 		}
 		elseif(substr($tpl, 0, 5) == '@CODE')
 		{
 			$template = substr($tpl, 6);
+		}
+		elseif ($modx->getChunk($tpl) != '')
+		{
+			$template = $modx->getChunk($tpl);
 		}
 		else
 		{
