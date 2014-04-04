@@ -250,6 +250,11 @@ class PHx {
 				$longtitle = $this->getDocumentObject($value,'longtitle');
 				$value = $longtitle ? $longtitle : $pagetitle;
 				break;
+			case 'shorttitle':
+				$pagetitle = $this->getDocumentObject($value,'pagetitle');
+				$menutitle = $this->getDocumentObject($value,'menutitle');
+				$value = $menutitle ? $menutitle : $pagetitle;
+				break;
 			
 			#####  Special functions 
 			case 'math':
