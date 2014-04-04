@@ -1287,3 +1287,4 @@ $_lang["user_city"] = '市区町村';
 $_lang["user_other"] = 'その他';
 
 $_lang["view_site"] = 'サイトを表示';
+$_lang["view_resource"] = 'リソースを表示';

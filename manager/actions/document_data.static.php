@@ -307,7 +307,7 @@ else
 		  </li>
 <?php endif; ?>
 		  <li id="Button6">
-			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['preview']?></a>
+			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['view_resource']?></a>
 		  </li>
           <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
           	 if(isset($content['parent']) && $content['parent']!=='0')
