@@ -205,8 +205,7 @@ class PHx {
 			
 			#####  Resource fields
 			case 'id':
-				if($opt) $value = $this->getDocumentObject($opt,$phxkey);
-				else     $value = $this->getDocumentObject($value,$cmd);
+				if($opt) $value = $this->getDocumentObject($opt,$phxkey,'direct');
 				break;
 			case 'type':
 			case 'contentType':
