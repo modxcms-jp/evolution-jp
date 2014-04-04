@@ -13,8 +13,7 @@ if(isset($_REQUEST['id'])) $id = (int) $_REQUEST['id'];
 else                       $id = 0;
 
 // check to see the variable editor isn't locked
-$tbl_active_users = $modx->getFullTableName('active_users');
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action=301 AND id='{$id}'");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=301 AND id='{$id}'");
 $total = $modx->db->getRecordCount($rs);
 if($total>1)
 {
@@ -380,7 +379,7 @@ function decode(s){
     <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
 <?php
 	$option = array();
-	$option['custom_tv']    = 'Custom Input';
+	$option['custom_tv']    = 'Custom Form';
 	$option['text']         = 'Text';
 	$option['textarea']     = 'Textarea';
 	$option['textareamini'] = 'Textarea (Mini)';
@@ -398,8 +397,7 @@ function decode(s){
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['hidden']       = 'HIdden';
-	$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-	$result = $modx->db->select('name',$tbl_site_snippets,"name like'input:%'");
+	$result = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
 	if(0 < $modx->db->getRecordCount($result))
 	{
 		while($row = $modx->db->getRow($result))
@@ -565,8 +563,7 @@ function selected($target='')
 		$groupsarray = array();
 		
 		// fetch permissions for the variable
-		$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
-		$rs = $modx->db->select('documentgroup',$tbl_site_tmplvar_access,"tmplvarid={$id}");
+		$rs = $modx->db->select('documentgroup','[+prefix+]site_tmplvar_access',"tmplvarid='{$id}'");
 		while($row = $modx->db->getRow($rs))
 		{
 			$groupsarray[] = $row['documentgroup'];
