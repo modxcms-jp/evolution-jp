@@ -2428,6 +2428,8 @@ class DocumentParser {
 			case 'f':
 				$site_url = $this->config['site_url'];
 				$base_url = '';
+				if($id==$this->config['site_start'])
+					$makeurl = '';
 				break;
 			case 'http':
 			case '0':
