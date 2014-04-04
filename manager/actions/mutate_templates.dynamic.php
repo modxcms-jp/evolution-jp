@@ -206,10 +206,29 @@ function deletedocument() {
 		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
+<?php
+	$rs = $modx->db->select('*','[+prefix+]site_templates',"parent!='{$id}'");
+	$parent = array();
+	while($row = $modx->db->getRow($rs))
+	{
+		if($id==$row['id']) continue;
+		$parent[] = array('id'=>$row['id'],'templatename'=>htmlspecialchars($row['templatename']));
+	}
+	$tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
+	$option = array();
+	foreach($parent as $ph)
+	{
+		$ph['selected'] = $content['parent']==$ph['id'] ? 'selected' : '';
+		$option[] = $modx->parseText($tpl, $ph);
+	}
+?>
 	<tr>
 		<th><?php echo $_lang["template_parent"]?></th>
 		<td>
-			<input name="parent" type="text" maxlength="5" value="<?php echo htmlspecialchars($content['parent']);?>" class="inputBox" style="width:3em;">
+			<select name="parent">
+				<option value="">None</option>
+				<?php echo join("\n", $option);?>
+			</select>
 		</td>
 	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
