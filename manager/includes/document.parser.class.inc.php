@@ -3176,7 +3176,7 @@ class DocumentParser {
 	* Created by Raymond Irving Feb, 2005
 	*/
 	// Added by Raymond 20-Jan-2005
-	function outputFilter($name,$value,$format,$paramstring='',$tvtype='',$docid='', $sep='')
+	function outputFilter($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
 	{
 		// process any TV commands in value
 		$docid= intval($docid) ? intval($docid) : $this->documentIdentifier;
