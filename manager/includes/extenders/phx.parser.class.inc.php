@@ -523,7 +523,8 @@ class PHx {
 		{
 			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,$mode);
 		}
-		if(is_array($this->documentObject[$target][$field]))
+		
+		if(isset($this->documentObject[$target][$field])&&is_array($this->documentObject[$target][$field]))
 		{
 			$a = $modx->getTemplateVarOutput($field,$target);
 			$this->documentObject[$target][$field] = $a[$field];
