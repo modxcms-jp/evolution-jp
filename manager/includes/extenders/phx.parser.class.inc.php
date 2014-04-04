@@ -245,6 +245,11 @@ class PHx {
 			case 'hidemenu':
 				$value = $this->getDocumentObject($value,$cmd);
 				break;
+			case 'title':
+				$pagetitle = $this->getDocumentObject($value,'pagetitle');
+				$longtitle = $this->getDocumentObject($value,'longtitle');
+				$value = $longtitle ? $longtitle : $pagetitle;
+				break;
 			
 			#####  Special functions 
 			case 'math':
