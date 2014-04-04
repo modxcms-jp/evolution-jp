@@ -3181,6 +3181,16 @@ class DocumentParser {
 	// Added by Raymond 20-Jan-2005
 	function outputFilter($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
 	{
+		if(is_array($value))
+		{
+			if(isset($value['docid'])) $docid = $value['docid'];
+			if(isset($value['sep']))   $sep   = $value['sep'];
+			$format      = $value['display'];
+			$paramstring = $value['display_params'];
+			$name        = $value['name'];
+			$tvtype      = $value['type'];
+			$value       = $value['value'];
+		}
 		// process any TV commands in value
 		$docid= intval($docid) ? intval($docid) : $this->documentIdentifier;
 		switch($tvtype)
