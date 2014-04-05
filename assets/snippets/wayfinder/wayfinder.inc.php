@@ -191,14 +191,12 @@ class Wayfinder {
             $usedTemplate = 'parentRowTpl';
         } elseif ($resource['level'] > 1 && $this->_templates['innerRowTpl']) {
             $usedTemplate = 'innerRowTpl';
+        } elseif ($resource['last'] && $this->_templates['rowTplLast']) {
+            $usedTemplate = 'rowTplLast'; // By tonatos
         } else {
-	    /* tonatos */
-                if ($resource['last'] && $this->_templates['rowTplLast']){
-                    $usedTemplate = 'rowTplLast';
-                }
-                else $usedTemplate = 'rowTpl';
-	    /* end tonatos */
+            $usedTemplate = 'rowTpl';
         }
+        
         //Get the template
         $useChunk = $this->_templates[$usedTemplate];
 		//Setup the new wrapper name and get the class names
