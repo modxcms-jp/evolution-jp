@@ -165,15 +165,15 @@ class Wayfinder {
 		//Determine which template to use
         if ($this->_config['displayStart'] && $resource['level'] == 0) {
 			$usedTemplate = 'startItemTpl';
-		} elseif ($resource['id'] == $modx->documentObject['id']
+		} elseif ($resource['id'] == $modx->documentIdentifier
 			&& $resource['isfolder']
 			&& $this->_templates['parentRowHereTpl']
 			&& ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
 			&& $numChildren) {
             $usedTemplate = 'parentRowHereTpl';
-        } elseif ($resource['id'] == $modx->documentObject['id'] && $this->_templates['innerHereTpl'] && $resource['level'] > 1) {
+        } elseif ($resource['id'] == $modx->documentIdentifier && $this->_templates['innerHereTpl'] && $resource['level'] > 1) {
             $usedTemplate = 'innerHereTpl';
-        } elseif ($resource['id'] == $modx->documentObject['id'] && $this->_templates['hereTpl']) {
+        } elseif ($resource['id'] == $modx->documentIdentifier && $this->_templates['hereTpl']) {
             $usedTemplate = 'hereTpl';
         } elseif ($resource['isfolder']
             && $this->_templates['activeParentRowTpl']
