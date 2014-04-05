@@ -383,7 +383,7 @@ class Wayfinder {
 		}
 		if (!empty($ids)) {
 			//Setup the fields for the query
-			$fields = "sc.id, sc.menutitle, sc.pagetitle, sc.introtext, sc.menuindex, sc.published, sc.hidemenu, sc.parent, sc.isfolder, sc.description, IF(sc.alias='', sc.id, sc.alias) AS alias, sc.longtitle, sc.type,if(sc.type='reference',sc.content,'') as content, sc.template, sc.link_attributes";
+			$fields = "DISTINCT sc.id, sc.menutitle, sc.pagetitle, sc.introtext, sc.menuindex, sc.published, sc.hidemenu, sc.parent, sc.isfolder, sc.description, IF(sc.alias='', sc.id, sc.alias) AS alias, sc.longtitle, sc.type,if(sc.type='reference',sc.content,'') as content, sc.template, sc.link_attributes";
 	        //Get the table names
 	        $tbl_site_content = $modx->getFullTableName('site_content');
 	        $tbl_document_groups = $modx->getFullTableName('document_groups');
@@ -407,7 +407,7 @@ class Wayfinder {
 			}
 			//add the limit to the query
 			if ($this->_config['limit']) {
-				$sqlLimit = " LIMIT 0, {$this->_config['limit']}";
+				$sqlLimit = "0, {$this->_config['limit']}";
 			} else {
 				$sqlLimit = '';
 			}
@@ -423,36 +423,35 @@ class Wayfinder {
 	        // get document groups for current user
 	        if($docgrp = $modx->getUserDocGroups()) $docgrp = implode(",",$docgrp);
 	        // build query
+	        $access_privateweb = '';
 			if($modx->isFrontend()) {
 				if(!$this->_config['showPrivate']) {
-					$access = "sc.privateweb=0";
+					$access_privateweb = "sc.privateweb=0";
 				}
-				else $access = '';
 			} else {
-				$access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+				$access_privateweb = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
 			}
 			
-			if($access && $docgrp) {
-				$access = "AND ({$access} OR dg.document_group IN ({$docgrp}))";
-			} elseif($access) {
-				$access = "AND ({$access})";
+	        $access = array();
+			if($access_privateweb && $docgrp) {
+				$access[] = "({$access} OR dg.document_group IN ({$docgrp}))";
+			} elseif($access_privateweb) {
+				$access[] = $access_privateweb;
 			} elseif($docgrp) {
-				$access = "AND (sc.privateweb=0 OR dg.document_group IN ({$docgrp}))";
+				$access[] = "AND (sc.privateweb=0 OR dg.document_group IN ({$docgrp}))";
 			}
+			if(!empty($access)) $access = 'AND (' . join(' AND ', $access) . ')';
 			else $access = '';
 			
-			$joind_ids = implode(',',$ids);
 			 if(strpos($modx->db->getVersion(),'5.0.51')===false) $groupby = 'GROUP BY sc.id';
 			 else                                                 $groupby = '';
-			$sql = "
-				SELECT DISTINCT {$fields} FROM {$tbl_site_content} sc
-					LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id
-					WHERE sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids})
-					{$groupby}
-					ORDER BY {$sort} {$this->_config['sortOrder']} {$sqlLimit};
-				";
+			 
 			//run the query
-			$result = $modx->db->query($sql);
+	        $joind_ids = implode(',',$ids);
+			$from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id";
+			$where = "sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids}) {$groupby}";
+			$orderby = "{$sort} {$this->_config['sortOrder']}";
+			$result = $modx->db->select($fields,$from,$where,$orderby,$sqlLimit);
 	        $resourceArray = array();
 			$level = 1;
 			$prevParent = -1;
