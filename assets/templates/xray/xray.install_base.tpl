@@ -4,7 +4,7 @@
  * 「xRay」学習用途向きのシンプルなテンプレート
  *
  * @category	template
- * @version 	1.2
+ * @version 	1.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@lock_template 0
  * @internal 	@modx_category Demo Content
@@ -42,7 +42,7 @@
 	    [[Wayfinder?
               &outerTpl='@CODE:<ul class="subnavi">[+wf.wrapper+]</ul>'
               &level=1
-              &startId=ultimateParent
+              &startId=index.html // index.html index INDEX など先頭がiで指定
             ]]
 	    [*content*]
 	</article>

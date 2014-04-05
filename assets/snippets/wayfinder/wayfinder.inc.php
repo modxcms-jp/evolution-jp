@@ -349,8 +349,8 @@ class Wayfinder {
 		$depth = !empty($this->_config['level']) ? $this->_config['level'] : 10;
 		$ids = array();
 		
-		if(strtolower(substr($this->_config['id'],0,1))==='u')
-			$this->_config['id'] = $this->getUltimateParent($modx->documentIdentifier);
+		if(strtolower(substr($this->_config['id'],0,1))==='i')
+			$this->_config['id'] = $this->getIndexID($modx->documentIdentifier);
 		
 		if (!$this->_config['hideSubMenus']) {
 			$ids = $modx->getChildIds($this->_config['id'],$depth);
@@ -766,13 +766,14 @@ class Wayfinder {
 		return $value;
 	}
 	
-	function getUltimateParent($id)
+	function getIndexID($id)
 	{
 		global $modx;
-		
-		$parents = $modx->getParentIds();
-		if(empty($parents)) return $id;
-		else
-			return array_pop($parents);
+		if($modx->documentObject['parent']==0)   return $id;
+		$where = "parent='{$id}' AND hidemenu=0";
+		$rs = $modx->db->select('*','[+prefix+]site_content',$where);
+		$total = $modx->db->getRecordCount($rs);
+		if(0<$total) return $id;
+		else return $modx->documentObject['parent'];
 	}
 }
