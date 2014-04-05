@@ -426,30 +426,24 @@ class Wayfinder {
 	        // get document groups for current user
 	        if($docgrp = $modx->getUserDocGroups()) $docgrp = implode(",",$docgrp);
 	        // build query
-			if($modx->isFrontend())
-			{
-				if(!$this->_config['showPrivate'])
-				{
+			if($modx->isFrontend()) {
+				if(!$this->_config['showPrivate']) {
 					$access = "sc.privateweb=0";
 				}
-			}
-			else
-			{
+				else $access = '';
+			} else {
 				$access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
 			}
-			if($access && $docgrp)
-			{
+			
+			if($access && $docgrp) {
 				$access = "AND ({$access} OR dg.document_group IN ({$docgrp}))";
-			}
-			elseif($access)
-			{
+			} elseif($access) {
 				$access = "AND ({$access})";
-			}
-			elseif($docgrp)
-			{
+			} elseif($docgrp) {
 				$access = "AND (sc.privateweb=0 OR dg.document_group IN ({$docgrp}))";
 			}
 			else $access = '';
+			
 			$joind_ids = implode(',',$ids);
 			 if(strpos($modx->db->getVersion(),'5.0.51')===false) $groupby = 'GROUP BY sc.id';
 			 else                                                 $groupby = '';
