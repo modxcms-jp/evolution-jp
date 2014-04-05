@@ -20,15 +20,31 @@ class PHx {
 	// Parser: modifier detection and eXtended processing if needed
 	function Filter($phxkey, $value, $cmd, $opt='')
 	{
-		global $modx, $condition;
+		global $modx;
+		
+		$cmd=strtolower($cmd);
 		
 		if($modx->config['output_filter']==='1')
 			$this->elmName = "phx:{$cmd}";
 		else
 			$this->elmName = $cmd;
 		
-		$cmd=strtolower($cmd);
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
+		if(!$modx->snippetCache) $modx->setSnippetCache();
+		if( isset($modx->snippetCache[$this->elmName]) )
+			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
+		elseif(isset($this->chunkCache[$key]))
+			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
+		else
+			$value = $this->getValueFromPreset($phxkey, $value, $cmd, $opt);
+		if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
+		else                                     $value = str_replace('[+name+]', $phxkey, $value);
+		return $value;
+	}
+	
+	function getValueFromPreset($phxkey, $value, $cmd, $opt)
+	{
+		global $modx, $condition;
 		
 		switch ($cmd)
 		{
@@ -305,79 +321,83 @@ class PHx {
 				break;
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
-				if( isset($modx->snippetCache[$this->elmName]) )
+				$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
+				break;
+		}
+		return $value;
+	}
+
+	function getValueFromElement($phxkey, $value, $cmd, $opt)
+	{
+		global $modx;
+		if( isset($modx->snippetCache[$this->elmName]) )
+		{
+			$php = $modx->snippetCache[$this->elmName];
+		}
+		else
+		{
+			$esc_elmName = $modx->db->escape($this->elmName);
+			$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_elmName}'");
+			$total = $modx->db->getRecordCount($result);
+			if($total == 1)
+			{
+				$row = $modx->db->getRow($result);
+				$php = $row['snippet'];
+			}
+			elseif($total == 0)
+			{
+				$modifiers_path = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
+				if(is_file($modifiers_path))
 				{
-					$php = $modx->snippetCache[$this->elmName];
+					$php = @file_get_contents($modifiers_path);
+					$php = trim($php);
+					$php = preg_replace('@^\s*<\?php@', '', $php);
+					$php = preg_replace('@?>\s*$@', '', $php);
+					$php = preg_replace('@^<\?@', '', $php);
+					$modx->snippetCache[$this->elmName.'Props'] = '';
 				}
 				else
 				{
-    				$esc_elmName = $modx->db->escape($this->elmName);
-    				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_elmName}'");
-    				$total = $modx->db->getRecordCount($result);
-    				if($total == 1)
-    				{
-    					$row = $modx->db->getRow($result);
-    					$php = $row['snippet'];
-    				}
-    				elseif($total == 0)
-    				{
-    					$modifiers_path = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
-    					if(is_file($modifiers_path))
-    					{
-    						$php = @file_get_contents($modifiers_path);
-    						$php = trim($php);
-    						$php = preg_replace('@^\s*<\?php@', '', $php);
-    						$php = preg_replace('@?>\s*$@', '', $php);
-    						$php = preg_replace('@^\s*<\?@', '', $php);
-    						$modx->snippetCache[$this->elmName.'Props'] = '';
-    					}
-    					else
-    					{
-    						$php = false;
-    					}
-    				}
-    				else $php = false;
-    				$modx->snippetCache[$this->elmName]= $php;
+					$php = false;
 				}
-				if($php==='') $php=false;
-				
-				if($php===false) $html = $modx->getChunk($this->elmName);
-				else             $html = false;
-
-				if($modx->config['output_filter']==='1') $self = '[+output+]';
-				else                                     $self = '[+input+]';
-				
-				if($php !== false)
-				{
-					ob_start();
-					$options = $opt;
-					if($modx->config['output_filter']==='1') $output = $value;
-					else                                     $input = $value;
-					if($modx->config['output_filter']==='1') $name = $phxkey;
-					else                                     $key  = $phxkey;
-					
-					$custom = eval($php);
-					$msg = ob_get_contents();
-					$value = $msg . $custom;
-					ob_end_clean();
-				}
-				elseif($html!==false && $value!=='')
-				{
-					$html = str_replace(array($self,'[+value+]'), $value, $html);
-					$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
-				}
-				if($php===false && $html===false && $value!==''
-				   && (strpos($cmd,'[+value+]')!==false || strpos($cmd,$self)!==false))
-				{
-					$value = str_replace(array('[+value+]',$self),$value,$cmd);
-				}
-				break;
+			}
+			else $php = false;
+			$modx->snippetCache[$this->elmName]= $php;
 		}
-		if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
-		else                                     $value = str_replace('[+name+]', $phxkey, $value);
+		if($php==='') $php=false;
+		
+		if($php===false) $html = $modx->getChunk($this->elmName);
+		else             $html = false;
+
+		if($modx->config['output_filter']==='1') $self = '[+output+]';
+		else                                     $self = '[+input+]';
+		
+		if($php !== false)
+		{
+			ob_start();
+			$options = $opt;
+			if($modx->config['output_filter']==='1') $output = $value;
+			else                                     $input = $value;
+			if($modx->config['output_filter']==='1') $name = $phxkey;
+			else                                     $key  = $phxkey;
+			
+			$custom = eval($php);
+			$msg = ob_get_contents();
+			$value = $msg . $custom;
+			ob_end_clean();
+		}
+		elseif($html!==false && $value!=='')
+		{
+			$html = str_replace(array($self,'[+value+]'), $value, $html);
+			$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
+		}
+		if($php===false && $html===false && $value!==''
+		   && (strpos($cmd,'[+value+]')!==false || strpos($cmd,$self)!==false))
+		{
+			$value = str_replace(array('[+value+]',$self),$value,$cmd);
+		}
 		return $value;
 	}
-	
 	// Returns the specified field from the user record
 	// positive userid = manager, negative integer = webuser
 	function ModUser($userid,$field) {
