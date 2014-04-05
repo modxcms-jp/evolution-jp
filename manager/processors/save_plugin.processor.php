@@ -41,10 +41,12 @@ switch ($_POST['mode']) {
                                     'id'    => ''
                                 ));
     
-		// disallow duplicate names for new plugins
-		$rs = $modx->db->select('COUNT(id)',$tbl_site_plugins,"name='{$name}'");
+		// disallow duplicate names for active plugins
+		if ($disabled == '0') {
+			$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
 		$count = $modx->db->getValue($rs);
 		if($count > 0) {
+				$modx->manager->saveFormValues(101);
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
 			// prepare a few variables prior to redisplaying form...
@@ -61,11 +63,12 @@ switch ($_POST['mode']) {
 			$content['moduleguid'] = $moduleguid;
 			$content['sysevents'] = $sysevents;
 
-			include 'header.inc.php';
-			include(dirname(dirname(__FILE__)).'/actions/mutate_plugin.dynamic.php');
-			include 'footer.inc.php';
+				include('header.inc.php');
+				include(MODX_BASE_PATH . 'manager/actions/mutate_plugin.dynamic.php');
+				include('footer.inc.php');
 			
 			exit;
+		}
 		}
 
 		//do stuff to save the new plugin
@@ -106,6 +109,34 @@ switch ($_POST['mode']) {
                                     'id'    => $id
                                 ));
      
+		// disallow duplicate names for active plugins
+		if ($disabled == '0') {
+			$rs = $modx->db->select('COUNT(*)', '[+prefix+]site_plugins', "name='{$name}' AND id!='{$id}' AND disabled='0'");
+			if ($modx->db->getValue($rs) > 0) {
+				$modx->manager->saveFormValues(102);
+				$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
+	
+				// prepare a few variables prior to redisplaying form...
+				$content = array();
+				$_REQUEST['a'] = '102';
+				$_GET['a'] = '102';
+				$_GET['stay'] = $_POST['stay'];
+				$content = array_merge($content, $_POST);
+				$content['locked'] = $locked;
+				$content['plugincode'] = $_POST['post'];
+				$content['category'] = $_POST['categoryid'];
+				$content['disabled'] = $disabled;
+				$content['properties'] = $properties;
+				$content['moduleguid'] = $moduleguid;
+				$content['sysevents'] = $sysevents;
+	
+				include('header.inc.php');
+				include(MODX_BASE_PATH . 'manager/actions/mutate_plugin.dynamic.php');
+				include('footer.inc.php');
+				
+				exit;
+			}
+		}
         //do stuff to save the edited plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
         $rs = $modx->db->update($f, $tbl_site_plugins, "id='{$id}'");
