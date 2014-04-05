@@ -49,8 +49,8 @@ class Wayfinder {
 			$this->addDebugInfo('settings','CSS','CSS Settings','Available CSS options.',$this->_css);
 		}
 		//setup here checking array
-		$this->parentTree = $modx->getParentIds($modx->documentIdentifier);
-		$this->parentTree[] = $modx->documentIdentifier;
+		$this->parentTree = $modx->getParentIds($this->_config['hereId']);
+		$this->parentTree[] = $this->_config['hereId'];
 		//Load the templates
 		$this->checkTemplates();
 		//Register any scripts
@@ -292,7 +292,7 @@ class Wayfinder {
                 $hasClass = 1;
             }
             //Set self class if specified
-            if (!empty($this->_css['self']) && $docId == $modx->documentIdentifier) {
+            if (!empty($this->_css['self']) && $docId == $this->_config['hereId']) {
                 $returnClass .= $hasClass ? ' ' . $this->_css['self'] : $this->_css['self'];
                 $hasClass = 1;
             }
@@ -359,8 +359,8 @@ class Wayfinder {
 			// because site root not included in $modx->getParentIds
 			$ids = $modx->getChildIds($this->_config['id'], 1, $ids);
 
-			$parents = array($modx->documentIdentifier);
-			$parents += $modx->getParentIds($modx->documentIdentifier);
+			$parents = array($this->_config['hereId']);
+			$parents += $modx->getParentIds($this->_config['hereId']);
 
 			// if startId not in parents, only show children of startId
 			if ($this->_config['id'] == 0 || in_array($this->_config['id'], $parents)){
