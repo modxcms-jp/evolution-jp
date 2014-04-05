@@ -213,14 +213,17 @@ class Wayfinder {
             $useId = '';
         }
 		//Load row values into placholder array
-		$phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
-		
-		foreach($resource as $k=>$v)
-		{
-			$this->placeHolders['rowLevel'][] = "[+{$k}+]";
-			$phArray[] = $v;
+        $charset = $modx->config['modx_charset'];
+		if ($this->_config['entityEncode']) {
+			$phArray = array($useSub,$useClass,$classNames,$resource['link'],htmlspecialchars($resource['title'], ENT_COMPAT, $charset),htmlspecialchars($resource['linktext'], ENT_COMPAT, $charset),$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],htmlspecialchars($resource['introtext'], ENT_COMPAT, $charset),htmlspecialchars($resource['description'], ENT_COMPAT, $charset),$numChildren);
+		} else {
+			$phArray = array($useSub,$useClass,$classNames,$resource['link'],$resource['title'],$resource['linktext'],$useId,$resource['alias'],$resource['link_attributes'],$resource['id'],$resource['introtext'],$resource['description'],$numChildren);
 		}
-		
+        //Add document variables to the placeholder array
+        foreach ($resource as $dvName => $dvVal) {
+            $this->placeHolders['rowLevel'][] = "[+{$dvName}+]";
+            $phArray[] = $dvVal;
+        }
 		//If tvs are used add them to the placeholder array
 		if (!empty($this->tvList)) {
 			$usePlaceholders = array_merge($this->placeHolders['rowLevel'],$this->placeHolders['tvs']);

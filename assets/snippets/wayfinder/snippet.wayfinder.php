@@ -64,6 +64,7 @@ $wf->_config = array(
 	'titleOfLinks' => isset($titleOfLinks) ? $titleOfLinks : 'pagetitle',
 	'displayStart' => isset($displayStart) ? $displayStart : FALSE,
 	'showPrivate' => isset($showPrivate) ? $showPrivate : FALSE,
+	'entityEncode' => isset($entityEncode) ? $entityEncode : FALSE,
 	'hereId' => isset($hereId) ? intval($hereId) : $modx->documentIdentifier
 );
 
