@@ -326,9 +326,9 @@ class PHx {
     					{
     						$php = @file_get_contents($modifiers_path);
     						$php = trim($php);
-    						$php = preg_replace('@^<\?php@', '', $php);
-    						$php = preg_replace('@?>$@', '', $php);
-    						$php = preg_replace('@^<\?@', '', $php);
+    						$php = preg_replace('@^\s*<\?php@', '', $php);
+    						$php = preg_replace('@?>\s*$@', '', $php);
+    						$php = preg_replace('@^\s*<\?@', '', $php);
     						$modx->snippetCache[$this->elmName.'Props'] = '';
     					}
     					else
