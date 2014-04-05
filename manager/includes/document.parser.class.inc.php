@@ -3220,6 +3220,14 @@ class DocumentParser {
 					$value = $this->ProcessTVCommand($value, $name, $docid, $src);
 		}
 		
+		if(empty($value))
+		{
+			if($format!=='custom_widget' && $format!=='richtext' && $format!=='datagrid')
+				return '';
+			elseif($format==='datagrid' && $params['egmsg']==='')
+				return '';
+		}
+		
 		$param = array();
 		if($paramstring)
 		{
@@ -3238,21 +3246,6 @@ class DocumentParser {
 			}
 		}
 
-		if(empty($value))
-		{
-			switch($format)
-			{
-				case 'custom_widget':
-				case 'richtext':
-					break;
-				case 'datagrid':
-					if($params['egmsg']==='') return '';
-					break;
-				default:
-					return '';
-			}
-		}
-		
 		$id = "tv{$name}";
 		$o = '';
 		switch($format)
