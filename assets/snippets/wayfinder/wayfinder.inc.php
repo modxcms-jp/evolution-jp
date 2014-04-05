@@ -3,7 +3,7 @@
 ::::::::::::::::::::::::::::::::::::::::
  Snippet name: Wayfinder
  Short Desc: builds site navigation
- Version: 2.0.1
+ Version: 2.0.2
  Authors: 
 	Kyle Jaebker (muddydogpaws.com)
 	Ryan Thrash (vertexworks.com)
@@ -388,7 +388,7 @@ class Wayfinder {
 			//Setup the fields for the query
 			$fields = "sc.id, sc.menutitle, sc.pagetitle, sc.introtext, sc.menuindex, sc.published, sc.hidemenu, sc.parent, sc.isfolder, sc.description, IF(sc.alias='', sc.id, sc.alias) AS alias, sc.longtitle, sc.type,if(sc.type='reference',sc.content,'') as content, sc.template, sc.link_attributes";
 	        //Get the table names
-	        $tbl_site_content    = $modx->getFullTableName('site_content');
+	        $tbl_site_content = $modx->getFullTableName('site_content');
 	        $tbl_document_groups = $modx->getFullTableName('document_groups');
 	        //Add the ignore hidden option to the where clause
 	        if ($this->_config['ignoreHidden']) {
@@ -593,8 +593,7 @@ class Wayfinder {
 
 	function getTVList() {
 		global $modx;
-		$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-		$tvs = $modx->db->select('name', $tbl_site_tmplvars);
+		$tvs = $modx->db->select("name", $modx->getFullTableName('site_tmplvars'));
 			// TODO: make it so that it only pulls those that apply to the current template
 		$dbfields = $modx->db->getColumn('name', $tvs); 
 		return $dbfields;
