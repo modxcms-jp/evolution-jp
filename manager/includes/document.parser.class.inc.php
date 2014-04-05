@@ -2857,7 +2857,7 @@ class DocumentParser {
 		}
 	}
 
-# returns the full table name based on db settings
+	# returns the full table name based on db settings
 	function getFullTableName($tbl)
 	{
 		$dbase = trim($this->db->config['dbase'],'`');

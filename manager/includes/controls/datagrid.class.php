@@ -293,9 +293,9 @@ class DataGrid {
 				$this->ds = array();
 			else
 			{
-			$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
-			$this->ds = array_chunk($this->ds, $this->_colcount);
-		}
+				$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
+				$this->ds = array_chunk($this->ds, $this->_colcount);
+			}
 		}
 		
 		if(0 < count($this->_colnames))
@@ -319,7 +319,7 @@ class DataGrid {
 		
 		// build rows
 		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
-	
+		
 		
 		if($rowcount==0)
 		{

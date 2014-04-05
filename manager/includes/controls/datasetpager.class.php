@@ -160,7 +160,7 @@ class DataSetPager {
 				if ($i>=$minitems && $i<=$maxitems){
 					if($fncObject) {
 						if($args!='') $this->rows .= $fnc->RenderRowFnc($i,$row,$args);
-						else $this->rows .= $fnc->RenderRowFnc($i,$row);
+						else          $this->rows .= $fnc->RenderRowFnc($i,$row);
 					}
 					else  {
 						if($args!="") $this->rows .= $fnc($i,$row,$args); // if agrs was specified then we wil pass three params
