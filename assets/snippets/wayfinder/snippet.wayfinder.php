@@ -1,6 +1,5 @@
 <?php
 if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
-
 /*
 ::::::::::::::::::::::::::::::::::::::::
  Snippet name: Wayfinder
@@ -102,8 +101,15 @@ $wf->_templates = array(
 //Process Wayfinder
 $output = $wf->run();
 
-if($wf->_config['debug']) $output .= $wf->renderDebugOutput();
+if ($wf->_config['debug']) {
+	$output .= $wf->renderDebugOutput();
+}
 
 //Ouput Results
-if($wf->_config['ph']) $modx->setPlaceholder($wf->_config['ph'],$output);
-else                   return $output;
+if ($wf->_config['ph']) {
+    $modx->setPlaceholder($wf->_config['ph'],$output);
+    return;
+} else {
+    return $output;
+}
+?>
