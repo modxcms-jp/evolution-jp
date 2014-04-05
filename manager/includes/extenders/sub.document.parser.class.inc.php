@@ -813,7 +813,7 @@ class SubParser {
         }
         else $where_docgrp = 'sc.privatemgr = 0';
         
-		$field = 'DISTINCT sc.id';
+		$field = 'COUNT(DISTINCT sc.id)';
 		$from   = '[+prefix+]site_content sc';
 		$from  .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 		$from  .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
