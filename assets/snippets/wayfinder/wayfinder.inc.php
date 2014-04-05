@@ -196,7 +196,6 @@ class Wayfinder {
         } else {
             $usedTemplate = 'rowTpl';
         }
-        
         //Get the template
         $useChunk = $this->_templates[$usedTemplate];
 		//Setup the new wrapper name and get the class names
@@ -599,29 +598,18 @@ class Wayfinder {
         foreach ($this->_templates as $n => $v) {
             $templateCheck = $this->fetch($v);
             if (empty($v) || !$templateCheck) {
-				switch($n)
-				{
-					case 'outerTpl':
-						$this->_templates['outerTpl'] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
-						break;
-					case 'rowTpl':
-						$this->_templates['rowTpl']   = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
-						break;
-					case 'startItemTpl':
-						$this->_templates['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
-						break;
-					default:
-						$this->_templates[$n] = FALSE;
-				}
-				
-				if ($this->_config['debug'])
-				{
-					$this->addDebugInfo('template',$n,$n,"No template found, using default.",array($n => $this->_templates[$n]));
-				}
-			}
-			else
-			{
-				$this->_templates[$n] = $templateCheck;
+                if ($n === 'outerTpl') {
+                    $this->_templates['outerTpl'] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
+                } elseif ($n === 'rowTpl') {
+                    $this->_templates['rowTpl'] = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
+				} elseif ($n === 'startItemTpl') {
+					$this->_templates['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
+                } else {
+                    $this->_templates[$n] = FALSE;
+                }
+				if ($this->_config['debug']) { $this->addDebugInfo('template',$n,$n,"No template found, using default.",array($n => $this->_templates[$n])); }
+            } else {
+                $this->_templates[$n] = $templateCheck;
 				$check = $this->findTemplateVars($templateCheck);
 				if (is_array($check)) {
 					$nonWayfinderFields = array_merge($check, $nonWayfinderFields);
