@@ -11,7 +11,6 @@
 ####*/
 
 class PHx {
-	
 	function PHx()
 	{
 		global $modx;
@@ -22,6 +21,12 @@ class PHx {
 	function Filter($phxkey, $value, $cmd, $opt='')
 	{
 		global $modx, $condition;
+		
+		if($modx->config['output_filter']==='1')
+			$this->elmName = "phx:{$cmd}";
+		else
+			$this->elmName = $cmd;
+		
 		$cmd=strtolower($cmd);
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
 		
@@ -300,45 +305,43 @@ class PHx {
 				break;
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
-				if($modx->config['output_filter']==='1') $prefix = 'phx:';
-				else                                     $prefix = '';
-				$snippetName = $prefix . $cmd;
-				
-				if( isset($modx->snippetCache[$snippetName]) )
+				if( isset($modx->snippetCache[$this->elmName]) )
 				{
-					$php = $modx->snippetCache[$snippetName];
+					$php = $modx->snippetCache[$this->elmName];
 				}
 				else
 				{
-    				$esc_snippetName = $modx->db->escape($snippetName);
-    				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_snippetName}'");
-    				if($modx->db->getRecordCount($result) == 1)
+    				$esc_elmName = $modx->db->escape($this->elmName);
+    				$result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_elmName}'");
+    				$total = $modx->db->getRecordCount($result);
+    				if($total == 1)
     				{
     					$row = $modx->db->getRow($result);
     					$php = $row['snippet'];
     				}
-    				elseif($modx->db->getRecordCount($result) == 0)
+    				elseif($total == 0)
     				{
-    					$filename = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
-    					if(is_file($filename))
+    					$modifiers_path = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
+    					if(is_file($modifiers_path))
     					{
-    						$php = @file_get_contents($filename);
+    						$php = @file_get_contents($modifiers_path);
     						$php = trim($php);
     						$php = preg_replace('@^<\?php@', '', $php);
     						$php = preg_replace('@?>$@', '', $php);
     						$php = preg_replace('@^<\?@', '', $php);
-    						$modx->snippetCache[$snippetName.'Props'] = '';
+    						$modx->snippetCache[$this->elmName.'Props'] = '';
     					}
     					else
     					{
     						$php = false;
     					}
     				}
-    				$modx->snippetCache[$snippetName]= $php;
+    				else $php = false;
+    				$modx->snippetCache[$this->elmName]= $php;
 				}
 				if($php==='') $php=false;
 				
-				if($php===false) $html = $modx->getChunk($prefix . $cmd);
+				if($php===false) $html = $modx->getChunk($this->elmName);
 				else             $html = false;
 
 				if($modx->config['output_filter']==='1') $self = '[+output+]';
