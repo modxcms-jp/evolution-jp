@@ -57,8 +57,7 @@ $content_dispo   = intval($content_dispo);
 $donthit         = intval($donthit);
 $hidemenu        = intval($hidemenu);
 $editedby        = $modx->getLoginUserID();
-$currentdate     = time();
-$editedon        = $currentdate;
+$editedon        = $_SERVER['REQUEST_TIME'];
 
 if (trim($pagetitle) === '')
 {
@@ -111,8 +110,8 @@ else
 		$url = "index.php?a=27&id={$id}";
 		$modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"],$url);
 	}
-	elseif($pub_date < $currentdate) $published = 1;
-	elseif($pub_date > $currentdate) $published = 0;
+	elseif($pub_date < $_SERVER['REQUEST_TIME']) $published = 1;
+	elseif($pub_date > $_SERVER['REQUEST_TIME']) $published = 0;
 }
 
 if(empty($unpub_date)) $unpub_date = 0;
@@ -125,7 +124,7 @@ else
 		$url = "index.php?a=27&id={$id}";
 		$modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"],$url);
 	}
-	elseif($unpub_date < $currentdate) $published = 0;
+	elseif($unpub_date < $_SERVER['REQUEST_TIME']) $published = 0;
 }
 
 // ensure that user has not made this document inaccessible to themselves
@@ -217,11 +216,11 @@ switch ($actionToTake)
 			$published = 0;
 		}
 
-		$publishedon = ($published ? $currentdate : 0);
+		$publishedon = ($published ? $_SERVER['REQUEST_TIME'] : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
 		
 		$createdby = $modx->getLoginUserID();
-		$createdon = $currentdate;
+		$createdon = $_SERVER['REQUEST_TIME'];
 		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon'));
 		if(!empty($id)) $field['id'] = $id;
 		$newid = $modx->db->insert($field,'[+prefix+]site_content');
@@ -370,7 +369,7 @@ switch ($actionToTake)
 			$modx->manager->saveFormValues(27);
 			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$url);
 		}
-		if ($id == $site_start && ($pub_date > $currentdate || $unpub_date != "0"))
+		if ($id == $site_start && ($pub_date > $_SERVER['REQUEST_TIME'] || $unpub_date != "0"))
 		{
 			$modx->manager->saveFormValues(27);
 			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
@@ -406,7 +405,7 @@ switch ($actionToTake)
 		else
 		{
 			// if it was changed from unpublished to published
-			if(!empty($pub_date) && $pub_date<=$currentdate && $published)
+			if(!empty($pub_date) && $pub_date<=$_SERVER['REQUEST_TIME'] && $published)
 			{
 				$publishedon = $pub_date;
 				$publishedby = $was['publishedby'];
@@ -423,7 +422,7 @@ switch ($actionToTake)
 			}
 			else
 			{
-				$publishedon = $currentdate;
+				$publishedon = $_SERVER['REQUEST_TIME'];
 				$publishedby = $modx->getLoginUserID();
 			}
 		}
