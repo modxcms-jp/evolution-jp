@@ -24,16 +24,10 @@ extract($input);
 unset($input);
 
 // preprocess POST values
-if(isset($_POST['id']) && !empty($_POST['id']) && $_POST['id']!='0')
-{
-	$id = $_POST['id'];
-	if(!preg_match('@^[0-9]+$@',$id))
-	{
-		$e->setError(2);
-		$e->dumpError();
-	}
+if(!preg_match('@^[0-9]+$@',$id)) {
+	$e->setError(2);
+	$e->dumpError();
 }
-else $id = '';
 
 $introtext       = $modx->db->escape($introtext);
 $content         = $modx->db->escape($ta);
@@ -41,29 +35,13 @@ $pagetitle       = $modx->db->escape($pagetitle);
 $longtitle       = $modx->db->escape($longtitle);
 $menutitle       = $modx->db->escape($menutitle);
 $description     = $modx->db->escape($description);
-if(substr($alias,-1)==='/')
-{
-	$alias = trim($alias,'/');
-	$isfolder = '1';
-}
 $alias           = $modx->stripAlias($modx->db->escape($alias));
 $link_attributes = $modx->db->escape($link_attributes);
-$parent          = $parent != '' ? $parent : 0;
 $menuindex       = !empty($menuindex) ? $menuindex : 0;
 if(!isset($docgroups)) $docgroups = array();
 $document_groups = (isset($chkalldocs) && $chkalldocs == 'on') ? array() : $docgroups;
 $contentType     = $modx->db->escape($contentType);
-$content_dispo   = intval($content_dispo);
-$donthit         = intval($donthit);
-$hidemenu        = intval($hidemenu);
 $editedby        = $modx->getLoginUserID();
-$editedon        = $_SERVER['REQUEST_TIME'];
-
-if (trim($pagetitle) === '')
-{
-	if ($type == 'reference') $pagetitle = $_lang['untitled_weblink'];
-	else                      $pagetitle = $_lang['untitled_resource'];
-}
 
 if($type==='reference')
 {
