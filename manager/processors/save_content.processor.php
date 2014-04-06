@@ -201,7 +201,8 @@ switch ($actionToTake)
 				$id = '';
 		}
 		
-		$tmplvars = get_tmplvars($id);
+		if(!empty($id)) $tmplvars = get_tmplvars($id);
+		else            $tmplvars = array();
 		
 		// invoke OnBeforeDocFormSave event
 		$params = array();
@@ -233,12 +234,14 @@ switch ($actionToTake)
 		
 		$tvChanges = array();
 		$field = '';
-		foreach ($tmplvars as $field => $value)
-		{
-			if (is_array($value)) {
-				$tvId = $value[0];
-				$tvVal = $value[1];
-				$tvChanges[] = array('tmplvarid' => $tvId, 'contentid' => $newid, 'value' => $modx->db->escape($tvVal));
+		if(!empty($tmplvars)) {
+			foreach ($tmplvars as $field => $value)
+			{
+				if (is_array($value)) {
+					$tvId = $value[0];
+					$tvVal = $value[1];
+					$tvChanges[] = array('tmplvarid' => $tvId, 'contentid' => $newid, 'value' => $modx->db->escape($tvVal));
+				}
 			}
 		}
 		if(!empty($tvChanges))
