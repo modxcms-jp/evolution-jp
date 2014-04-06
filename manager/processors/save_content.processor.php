@@ -220,7 +220,7 @@ switch ($actionToTake)
 		
 		$createdby = $modx->getLoginUserID();
 		$createdon = $currentdate;
-		$field = compact(explode(',', 'alias,cacheable,content,contentType,content_dispo,createdby,createdon,description,donthit,editedby,editedon,hidemenu,introtext,isfolder,link_attributes,longtitle,menuindex,menutitle,pagetitle,parent,pub_date,published,publishedby,publishedon,richtext,searchable,template,type,unpub_date'));
+		$field = compact(explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon'));
 		if(!empty($id)) $field['id'] = $id;
 		$newid = $modx->db->insert($field,'[+prefix+]site_content');
 		if(!$newid)
