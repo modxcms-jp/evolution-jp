@@ -868,11 +868,74 @@ function _check_duplicate_alias($id,$alias,$parent)
 
 function initValue($input)
 {
-	$fields = 'ta,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext';
-	$fields = explode(',',$fields);
-	foreach($fields as $k=>$v) {
-		if(!isset($input[$k])) $input[$k] = '';
-	}
+	global $modx,$_lang;
 	
+	$fields = 'id,ta,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext';
+	$fields = explode(',',$fields);
+	foreach($fields as $k) {
+		$v = trim($input[$k]);
+		switch($k) {
+			case 'id': // auto_increment
+			case 'parent':
+			case 'template':
+			case 'menuindex':
+			case 'editedby':
+			case 'publishedon':
+			case 'publishedby':
+			case 'content_dispo':
+				if(!isset($input[$k])||!preg_match('@^[0-9]+$@',$v))
+					$input[$k] = 0;
+				break;
+			case 'published':
+			case 'isfolder':
+			case 'donthit':
+			case 'hidemenu':
+				if(!isset($input[$k])||!preg_match('@^[01]$@',$v))
+					$input[$k] = 0;
+				break;
+			case 'richtext':
+			case 'searchable':
+			case 'cacheable':
+				if(!isset($input[$k])||!preg_match('@^[01]$@',$v))
+					$input[$k] = 1;
+				break;
+			case 'pub_date':
+			case 'unpub_date':
+				if(!isset($input[$k])) $input[$k] = 0;
+				else $input[$k] = $modx->toTimeStamp($v);
+				break;
+			case 'editedon':
+				$input['editedon'] = $_SERVER['REQUEST_TIME'];
+				break;
+			case 'type':
+				if(!isset($input[$k])) $input[$k] = 'document';
+				break;
+			case 'contentType':
+				if(!isset($input[$k])) $input[$k] = 'text/html';
+				break;
+			case 'longtitle':
+			case 'description':
+			case 'link_attributes':
+			case 'introtext':
+			case 'menutitle':
+			case 'content':
+				if(!isset($input[$k])) $input[$k] = '';
+				break;
+			case 'pagetitle':
+				if(isset($input['pagetitle'])) continue;
+				if ($input['type'] === 'reference')
+					$input['pagetitle'] = $_lang['untitled_weblink'];
+				else
+					$input['pagetitle'] = $_lang['untitled_resource'];
+				break;
+			case 'alias':
+				if(!isset($input['alias'])) $input['alias'] = '';
+				elseif(substr($input['alias'],-1)==='/') {
+					$input['alias'] = trim($input['alias'],'/');
+					$input['isfolder'] = '1';
+				}
+				break;
+		}
+	}
 	return $input;
 }
