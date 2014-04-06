@@ -785,7 +785,7 @@ function fix_tv_nest($target,$input)
 {
 	foreach(explode(',',$target) as $name)
 	{
-		$tv = ($name !== 'ta') ? $name : 'content';
+		$tv = ($name === 'ta') ? 'content' : $name;
 		$s = "[*{$tv}*]";
 		$r = "[ *{$tv}* ]";
 		$input[$name] = str_replace($s,$r,$input[$name]);
