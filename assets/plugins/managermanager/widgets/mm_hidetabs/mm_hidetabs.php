@@ -14,7 +14,7 @@
 
 function mm_hideTabs($tabs, $roles = '', $templates = ''){
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if we've been supplied with a string, convert it into an array
 	$tabs = makeArray($tabs);

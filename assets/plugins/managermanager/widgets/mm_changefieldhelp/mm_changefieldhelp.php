@@ -1,25 +1,20 @@
 <?php
 /**
  * mm_changeFieldHelp
- * @version 1.1.1 (2013-05-20)
+ * @version 1.1 (2012-11-13)
  *
  * Change the help text of a field.
  * 
- * @uses ManagerManager plugin 0.5.
+ * @uses ManagerManager plugin 0.4.
  * 
- * @param $field {string} - The name of the document field (or TV) this should apply to. @required
- * @param $helptext {string} - The new help text. @required
- * @param $roles {comma separated string} - The roles that the widget is applied to (when this parameter is empty then widget is applied to the all roles). Default: ''.
- * @param $templates {comma separated string} - Id of the templates to which this widget is applied (when this parameter is empty then widget is applied to the all templates). Default: ''.
+ * @link http://code.divandesign.biz/modx/mm_changefieldhelp/1.1
  * 
- * @link http://code.divandesign.biz/modx/mm_changefieldhelp/1.1.1
- * 
- * @copyright 2013
+ * @copyright 2012
  */
 
 function mm_changeFieldHelp($field, $helptext='', $roles='', $templates=''){
 	global $mm_fields, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 
 	if ($helptext == ''){
 		return;

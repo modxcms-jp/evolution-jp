@@ -1,15 +1,18 @@
 <?php
+
+
 //---------------------------------------------------------------------------------
 //   Utility functions
 // 
 //--------------------------------------------------------------------------------- 
+
 
 // Pass useThisRule a comma separated list of allowed roles and templates, and it will
 // return TRUE or FALSE to indicate whether this rule should be run on this page
 function useThisRule($roles='', $templates='') {
 
 	global $mm_current_page, $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	$exclude_roles = false;
 	$exclude_templates = false;
@@ -44,6 +47,10 @@ function useThisRule($roles='', $templates='') {
 	return false;
 }
 
+
+
+
+
 // Makes a commas separated list into an array
 function makeArray($csv) {
 	
@@ -63,6 +70,10 @@ function makeArray($csv) {
 	return $return;
 }
 
+
+
+
+
 // Make an output JS safe
 function jsSafe($str) {
 	global $modx;
@@ -78,302 +89,100 @@ function jsSafe($str) {
 	}
 }
 
-/**
- * tplUseTvs
- * @version 1.2 (2013-09-16)
- *
- * @desc Does the specified template use the specified TVs?
- *
- * @param $tpl_id {integer} - Template ID.
- * @param $tvs {comma separated string; array} - TV names. Default: ''.
- * @param $types {comma separated string; array} - TV types, e.g. image. Default: ''.
- * @param $dbFields {somma separated string} - DB fields which get from 'site_tmplvars' table. Default: 'id'.
- * @param $resultKey {string; false} - DB field, which values are keys of result array. Keys of result array will be numbered if the parameter equals false. Default: false.
- * 
- * @return {array; false}
- */
-function tplUseTvs($tpl_id, $tvs = '', $types = '', $dbFields = 'id', $resultKey = false){
+
+
+
+
+
+// Does the specified template use the specified TVs?
+// $tpl_id = Template ID (int)
+// $tvs = TV names - either array or comma separated list
+// $types = TV types - e.g. image
+function tplUseTvs($tpl_id, $tvs='', $types='') {
 	
 	// If it's a blank template, it can't have TVs
 	if($tpl_id == 0){return false;}
 	
 	global $modx;
 	
-	//Make the TVs, field types and DB fields into an array
-	$fields = makeArray($tvs);
-	$types = makeArray($types);
-	$dbFields = makeArray($dbFields);
+	// Make the TVs and field types into an array
+	$fields = makeArray($tvs); 
+	$types = makeArray($types); 
 	
-	//Add the result key in DB fields if return of an associative array is required & result key is absent there
-	if ($resultKey !== false && !in_array($resultKey, $dbFields)){
-		$dbFields[] = $resultKey;
-	}
-	
-	//Get the DB table names
+	// Get the DB table names
 	$tv_table = $modx->getFullTableName('site_tmplvars');	
 	$rel_table = $modx->getFullTableName('site_tmplvar_templates');
 	
-	//Are we looking at specific TVs, or all?
+	// Are we looking at specific TVs, or all?
 	$tvs_sql = !empty($fields) ? ' AND tvs.name IN ' . makeSqlList($fields) : '';
 	
-	//Are we looking at specific TV types, or all?
+	// Are we looking at specific TV types, or all?
 	$types_sql = !empty($types) ? ' AND type IN ' . makeSqlList($types) : '';
 	
-	//Make the SQL for this template
+	// Make the SQL for this template
 	$cur_tpl = !empty($tpl_id) ? ' AND rel.templateid = ' . $tpl_id : '';
 		
-	//Execute the SQL query
-	$result = $modx->db->query("SELECT ".implode(',', $dbFields)." FROM $tv_table tvs LEFT JOIN $rel_table rel ON rel.tmplvarid = tvs.id WHERE 1=1  $cur_tpl $tvs_sql $types_sql");
-	
-	$recordCount = $modx->db->getRecordCount($result);
-	
+	// Do the SQL query	
+	$result = $modx->db->query("SELECT id FROM $tv_table tvs LEFT JOIN $rel_table rel ON rel.tmplvarid = tvs.id WHERE 1=1  $cur_tpl $tvs_sql $types_sql");
+
 	// If we have results, return them, otherwise return false
-	if ($recordCount == 0){
-		return false;
-	}else{
-		//If return of an associative array is required
-		if ($resultKey !== false){
-			$rsArray = array();
-			
-			for ($i = 0; $i < $recordCount; $i++){
-				$row = $modx->db->getRow($result);
-				
-				//If result contains the result key
-				if (array_key_exists($resultKey, $row)){
-					$rsArray[$row[$resultKey]] = $row;
-				}else{
-					$rsArray[] = $row;
-				}
-			}
-			
-			return $rsArray;
-		}else{
-			return $modx->db->makeArray($result);
-		}
+	if ( $modx->db->getRecordCount($result) == 0) {
+		return false;	
+	} else {
+		return $modx->db->makeArray($result);
 	}
 }
 
-/**
- * getTplMatchedFields
- * @version 1.0.2 (2014-03-27)
- * 
- * @desc Returns the array that contains only those of passed fields/TVs which are used in the template.
- * 
- * @param $fields {comma separated string; array} - Document fields or TVs names. @required
- * @param $tvTypes {comma separated string; array} - TVs types, e.g. image, text. Default: ''.
- * @param $tempaleId {integer} - Template ID. Default: $mm_current_page['template'].
- * 
- * @return {array; false}
- */
-function getTplMatchedFields($fields, $tvTypes = '', $tempaleId = ''){
-	$fields = makeArray($fields);
-	
-	//$fields is required
-	if (empty($fields)){return false;}
-	
-	global $mm_fields;
-	
-	//Template of current document by default
-	if (empty($tempaleId)){
-		global $mm_current_page;
-		
-		$tempaleId = $mm_current_page['template'];
-	}
-	
-	$docFields = array();
-	
-	//Only document fields
-	foreach ($fields as $field){
-		if (isset($mm_fields[$field]) && !$mm_fields[$field]['tv']){
-			$docFields[] = $field;
-		}
-	}
-	
-	//If $fields contains no TVs
-	if (count($docFields) == count($fields)){
-		$fields = $docFields;
-	}else{
-		//Get specified TVs for this template
-		$fields = tplUseTvs($tempaleId, $fields, $tvTypes, 'name', 'name');
-		
-		//If there are no appropriate TVs
-		if ($fields == false){
-			if (!empty($docFields)){
-				$fields = $docFields;
-			}
-		}else{
-			$fields = array_merge(array_keys($fields), $docFields);
-		}
-	}
-	
-	return $fields;
-}
 
-/**
- * makeSqlList
- * @version 1.0.1 (2013-03-19)
- * 
- * @desc Create a MySQL-safe list from an array.
- * 
- * @param $arr {array; comma separated string} - Values.
- */
-function makeSqlList($arr){
+
+
+
+// Create a MySQL-safe list from an array
+function makeSqlList($arr) {
+	global $modx;
 	$arr = makeArray($arr);
-	
-	foreach($arr as $k => $tv){
-        //if (substr($tv, 0, 2) == 'tv') {$tv=substr($tv,2);}
-		// Escape them for MySQL
-		$arr[$k] = "'".mysql_real_escape_string($tv)."'";
+	foreach($arr as $k=>$tv) {
+		$arr[$k] = "'".$modx->db->escape($tv)."'"; // Escape them for MySQL
 	}
-	
-	$sql = " (".implode(',', $arr).") ";
-	
+	$sql = " (".implode(',',$arr).") ";
 	return $sql;
 }
 
-/**
- * includeJsCss
- * @version 1.3.1 (2013-12-10)
- * 
- * @desc Generates the code needed to include an external script file.
- * 
- * @param $source {string} - The URL of the external script or code (if $plaintext == true). @required
- * @param $output_type {'js'; 'html'} - Either js or html - depending on where the output is appearing. Default: 'js'.
- * @param $name {string} - Script name. Default: ''.
- * @param $version {string} - Script version. Default: ''.
- * @param $plaintext {boolean} - Is this plaintext? Default: false.
- * @param $type {''; 'js'; 'css'} - Type of source (required if $plaintext == true). Default: ''.
- * 
- * @return {string} - Code.
- */
-function includeJsCss($source, $output_type = 'js', $name = '', $version = '', $plaintext = false, $type = ''){
-	global $modx, $mm_includedJsCss;
+
+
+
+// Generates the code needed to include an external script file. 
+// $url is the URL of the external script
+// $output_type is either js or html - depending on where the output is appearing
+function includeJs($url, $output_type='js') {
 	
-	$useThisVer = true;
-	$result = '';
-	
-	if ($plaintext){
-		if (empty($name) || empty($version) || empty($type)){
-			return $result;
-		}
-		
-		$nameVersion = array(
-			'name' => $name,
-			'version' => $version,
-			'extension' => $type
-		);
-	}else{
-		if (empty($name) || empty($version)){
-			$nameVersion = ddTools::parseFileNameVersion($source);
-		}else{
-			$temp = pathinfo($source);
-			
-			$nameVersion = array(
-				'name' => $name,
-				'version' => $version,
-				'extension' => !empty($type) ? $type : ($temp['extension'] ? $temp['extension'] : 'js')
-			);
-		}
+	if ($output_type == 'js') {
+		return '$j("head").append(\' <script src="'.$url.'" type="text/javascript"></scr\'+\'ipt> \'); ' . "\n";
+	} else if ($output_type == 'html') {
+		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
+	} else {
+		return;	
 	}
 	
-	//If this script is already included
-	if (isset($mm_includedJsCss[$nameVersion['name']])){
-		//If old < new, use new, else — old
-		$useThisVer = version_compare($mm_includedJsCss[$nameVersion['name']]['version'], $nameVersion['version'], '<');
-	}else{
-		//Add
-		$mm_includedJsCss[$nameVersion['name']] = array();
-	}
-		
-	//If the new version is used
-	if ($useThisVer){
-		//Save the new version
-		$mm_includedJsCss[$nameVersion['name']]['version'] = $nameVersion['version'];
-		
-		$result = $source;
-		
-		if ($nameVersion['extension'] == 'css'){
-			if ($plaintext){
-				$result = '<style type="text/css">'.$result.'</sty\'+\'le>';
-			}else{
-				$result = '<link href="'.$result.'" rel="stylesheet" type="text/css" />';
-			}
-		}else{
-			if ($plaintext){
-				$result = '<script type="text/javascript" charset="'.$modx->config['modx_charset'].'">'.$result.'</script>';
-			}else{
-				$result = '<script src="'.$result.'" type="text/javascript"></script>';
-			}
-			
-			if ($output_type == 'js'){
-				$result = str_replace('</script>', '</scr\'+\'ipt>', $result);
-			}
-		}
-		
-		if ($output_type == 'js'){
-			$result = '$j("head").append(\''.$result.'\');';
-		}
-		
-		$result = $result."\n";
-	}
 	
-	return $result;
 }
 
-/**
- * @deprecated, use the includeJsCss()
- */
-function includeJs($url, $output_type = 'js', $name = '', $version = ''){
-	return includeJsCss($url, $output_type, $name, $version);
-}
 
-/**
- * @deprecated, use the includeJsCss()
- */
-function includeCss($url, $output_type = 'js'){
-	return includeJsCss($url, $output_type);
-}
 
-/**
- * prepareTabId
- * @version 1.0 (2013-05-21)
- * 
- * @desc Prepare id of a tab.
- * 
- * @param $id {string} - Tab id.
- * 
- * @return {string} - Tab id.
- */
-function prepareTabId($id){
-	//General tab by default
-	if ($tab == ''){$tab = 'general';}
-	
-	//If it's one of the default tabs, we need to get the capitalisation right
-	switch ($id){
-		case 'general':
-		case 'settings':
-		case 'access':
-		case 'meta': // version 1.0.0 only, removed in 1.0.1
-			$id = ucfirst($id);
-		break;
+// Generates the code needed to include an external CSS file. 
+// $url is any URL
+// $output_type is either js or html - depending on where the output is appearing
+function includeCss($url, $output_type='js') {
+	if ($output_type == 'js') {
+		return  '$j("head").append(\' <link href="'.$url.'" rel="stylesheet" type="text/css" /> \'); ' . "\n";	
+	} else if ($output_type == 'html') {
+		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
+	} else {
+		return;	
 	}
-	
-	return 'tab'.$id;
 }
 
-/**
- * prepareSectionId
- * @version 1.0 (2013-05-21)
- * 
- * @desc Prepare id of a section.
- * 
- * @param $id {string} - Section id.
- * 
- * @return {string} - Section id.
- */
-function prepareSectionId($id){
-	return 'ddSection'.$id;
-}
+
 
 //function tvIdFromName($tv_id) {
 //	
@@ -400,4 +209,6 @@ function prepareSectionId($id){
 //	}
 //
 //}
+
+
 ?>

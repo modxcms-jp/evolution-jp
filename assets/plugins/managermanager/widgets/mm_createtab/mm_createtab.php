@@ -14,10 +14,11 @@
 
 function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $width = '680'){
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ((($e->name == 'OnDocFormRender') || ($e->name == 'OnPluginFormRender')) && useThisRule($roles, $templates)){
+	if (($e->name == 'OnDocFormRender' || $e->name == 'OnPluginFormRender') && useThisRule($roles, $templates)){
+	
 		// Plugin page tabs use a differen name for the tab object
 		$js_tab_object = ($e->name == 'OnPluginFormRender') ? 'tpSnippet' : 'tpSettings';
 		

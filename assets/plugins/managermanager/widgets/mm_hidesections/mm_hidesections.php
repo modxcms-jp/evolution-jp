@@ -1,54 +1,52 @@
 <?php
 /**
  * mm_hideSections
- * @version 1.2 (2013-05-31)
+ * @version 1.1 (2012-11-13)
  * 
  * Hides sections.
  * 
- * @uses ManagerManager plugin 0.5.
+ * @uses ManagerManager plugin 0.4.
  * 
- * @param $sections {comma separated string} - The id(s) of the sections this should apply to. @required
- * @param $roles {comma separated string} - The roles that the widget is applied to (when this parameter is empty then widget is applied to the all roles).
- * @param $templates {comma separated string} - Id of the templates to which this widget is applied (when this parameter is empty then widget is applied to the all templates).
+ * @link http://code.divandesign.biz/modx/mm_hidesections/1.1
  * 
- * @link http://code.divandesign.biz/modx/mm_hidesections/1.2
- * 
- * @copyright 2013
+ * @copyright 2012
  */
 
 function mm_hideSections($sections, $roles = '', $templates = ''){
 	global $modx;
-	$e = &$modx->Event;
+	$e = &$modx->event;
+	
+	// if we've been supplied with a string, convert it into an array
+	$sections = makeArray($sections);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
-		// if we've been supplied with a string, convert it into an array
-		$sections = makeArray($sections);
-		
-		$output = "\n//  -------------- mm_hideSections :: Begin ------------- \n";
+	if (useThisRule($roles, $templates)){
+		$output = "//  -------------- mm_hideSections :: Begin ------------- \n";
 		
 		foreach($sections as $section){
 			switch ($section){
 				case 'content':
-					$output .= '$j("#content_header, #content_body").hide();'."\n";
+					$output .= '
+					$j("#content_header").hide();
+					$j("#content_body").hide();
+					';
 				break;
 				
 				case 'tvs':
-					$output .= '$j("#tv_header, #tv_body").hide();'."\n";
+					$output .= '
+					$j("#tv_header").hide();
+					$j("#tv_body").hide();
+					';
 				break;
 				
 				case 'access': // These have moved to tabs in 1.0.1
-					$output .= '$j("#sectionAccessHeader, #sectionAccessBody").hide();'."\n";
-				break;
-				
-				default:
-					$section = prepareSectionId($section);
-					
-					$output .= '$j("#'.$section.'_header, #'.$section.'_body").hide();'."\n";
+					$output .= '
+					$j("#sectionAccessHeader").hide();
+					$j("#sectionAccessBody").hide();';
 				break;
 			}
 			
-			$output .= "\n//  -------------- mm_hideSections :: End ------------- \n";
+			$output .= "//  -------------- mm_hideSections :: End ------------- \n";
 			
 			$e->output($output . "\n");
 		}

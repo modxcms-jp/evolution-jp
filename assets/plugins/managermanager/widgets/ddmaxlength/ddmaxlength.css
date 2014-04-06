@@ -3,11 +3,11 @@
 	color: #999999;
 }
 
-.maxLengthWarning {color: #5C0002;}
+.maxLenghtWarning {color: #5C0002;}
 
-.maxLengthError {color: #D40D12;}
+.maxLenghtError {color: #D40D12;}
 
-.maxLengthErrorField {
+.maxLenghtErrorField {
 	background-image: none !important;
 	background-color: #ff9999 !important;
 }
