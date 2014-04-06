@@ -700,7 +700,8 @@ function saveMETAKeywords($id) {
 function get_tmplvars($id)
 {
 	global $modx;
-	
+
+	if(empty($id)) return array();
 	$tbl_site_tmplvars              = $modx->getFullTableName('site_tmplvars');
 	$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
 	$tbl_site_tmplvar_access        = $modx->getFullTableName('site_tmplvar_access');
