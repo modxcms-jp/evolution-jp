@@ -790,6 +790,7 @@ function fix_tv_nest($target,$input)
 		$tv = ($name === 'ta') ? 'content' : $name;
 		$s = "[*{$tv}*]";
 		$r = "[ *{$tv}* ]";
+		if(strpos($input[$name],$s)===false) continue;
 		$input[$name] = str_replace($s,$r,$input[$name]);
 	}
 	return $input;
