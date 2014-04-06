@@ -18,6 +18,8 @@ $tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentv
 $tbl_site_tmplvar_templates     = $modx->getFullTableName('site_tmplvar_templates');
 
 $input = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
+$input = initValue($input);
+
 extract($input);
 unset($input);
 
@@ -861,4 +863,15 @@ function _check_duplicate_alias($id,$alias,$parent)
 		$modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
 	}
 	return $alias;
+}
+
+function initValue($input)
+{
+	$fields = 'ta,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext';
+	$fields = explode(',',$fields);
+	foreach($fields as $k=>$v) {
+		if(!isset($input[$k])) $input[$k] = '';
+	}
+	
+	return $input;
 }
