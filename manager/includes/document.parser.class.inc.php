@@ -2846,7 +2846,7 @@ class DocumentParser {
 					{
 						$row['docid'] = $docid;
 						$row['sep']   = $sep;
-						$output[$tvname] = $this->tvProcessor($row);
+						$output[$row['name']] = $this->tvProcessor($row);
 					}
 				}
 				return $output;
