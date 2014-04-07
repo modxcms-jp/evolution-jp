@@ -1337,4 +1337,17 @@ class SubParser {
             </body></html>";
             exit;
     }
+    
+	function getMimeType($filepath='')
+	{
+		$fp = fopen($filepath, 'rb');
+		$head= fread($fp, 2); fclose($fp);
+		$head = mb_convert_encoding($head, '8BIT');
+		if($head==='BM')                    $mime_type = 'image/bmp';
+		elseif($head==='GI')                $mime_type = 'image/gif';
+		elseif($head===chr(0xFF).chr(0xd8)) $mime_type = 'image/jpeg';
+		elseif($head===chr(0x89).'P')       $mime_type = 'image/png';
+		else $mime_type = false;
+		return $mime_type;
+	}
 }

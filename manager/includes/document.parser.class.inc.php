@@ -3353,6 +3353,9 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->isSelected($label,$value,$item,$field_value);}
 	function webAlertAndQuit($msg, $url= '')
 		{$this->loadExtension('SubParser');return $this->sub->webAlertAndQuit($msg, $url);}
+	function getMimeType($file_path='')
+		{$this->loadExtension('SubParser');return $this->sub->getMimeType($file_path);}
+		
 
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}

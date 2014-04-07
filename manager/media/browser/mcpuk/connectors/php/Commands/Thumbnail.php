@@ -52,8 +52,7 @@ class Thumbnail {
 		} else {
 			$thumbdir = dirname($thumbfile);
 			
-			$finfo = getimagesize($fullfile);
-			$mime = $finfo['mime'];
+			$mime = $this->getMimeType($fullfile);
 			$ext=strtolower($this->getExtension($this->filename));
 			
 			if ($this->isImage($mime,$ext))
@@ -93,8 +92,7 @@ class Thumbnail {
 			}
 		}
 		
-		$finfo = getimagesize($icon);
-		$iconMime = $finfo['mime'];
+		$iconMime = $this->getMimeType($icon);
 		if ($iconMime==false) $iconMime='image/jpeg';
 		
 		header("Content-type: $iconMime",true);
@@ -150,6 +148,18 @@ class Thumbnail {
 		$lastpos=strrpos($this->filename,'.');
 		if ($lastpos!==false) $ext=substr($this->filename,($lastpos+1));
 		return strtolower($ext);
+	}
+	
+	function getMimeType($file_path) {
+		$fp = fopen($file_path, 'rb');
+		$head= fread($fp, 2); fclose($fp);
+		$head = mb_convert_encoding($head, '8BIT');
+		if($head==='BM')                    $mime_type = 'image/bmp';
+		elseif($head==='GI')                $mime_type = 'image/gif';
+		elseif($head===chr(0xFF).chr(0xd8)) $mime_type = 'image/jpeg';
+		elseif($head===chr(0x89).'P')       $mime_type = 'image/png';
+		else $mime_type = false;
+		return $mime_type;
 	}
 	
 	function resizeFromJPEG($file) {
