@@ -201,7 +201,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			foreach(array('index.html','index.htm') as $filename)
 			{
 				$filepath = $filedir . $alias . '/' . $filename;
-				if($find===false && file_exists($filepath))
+				if($find===false && is_file($filepath))
 				{
 					$file = getFileContent($filepath);
 					list($pagetitle,$content,$description) = treatContent($file,$filename,$alias);

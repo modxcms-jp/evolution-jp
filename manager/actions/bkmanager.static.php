@@ -39,7 +39,7 @@ if ($mode=='restore1')
 elseif ($mode=='restore2')
 {
 	$path = $modx->config['snapshot_path'] . $_POST['filename'];
-	if(file_exists($path))
+	if(is_file($path))
 	{
 		$source = file_get_contents($path);
     	$dumper->import_sql($source);

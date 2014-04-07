@@ -8,7 +8,7 @@ if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager')
 
 // andrazk 20070416 - if installer is running, destroy active sessions
 $instcheck_path = $modx->config['base_path'] . 'assets/cache/installProc.inc.php';
-if (file_exists($instcheck_path))
+if (is_file($instcheck_path))
 {
 	include_once($instcheck_path);
 	if (isset($installStartTime)) {

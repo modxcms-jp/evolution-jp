@@ -48,8 +48,8 @@ if($data['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===f
 }
 $data['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$data['filemanager_path']);
 $data['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$data['rb_base_dir']);
-if(!file_exists($data['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
-if(!file_exists($data['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
+if(!is_dir($data['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
+if(!is_dir($data['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
 if(0< count($warnings))
 {

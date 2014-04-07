@@ -16,7 +16,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
         </script>
 <?php
 $help_dir = MODX_BASE_PATH . 'assets/templates/help';
-if(file_exists($help_dir)==false)
+if(is_dir($help_dir)==false)
 {
 	echo '<h3>' . $_lang["credits"] . '</h3>';
 	echo '<div>' . $_lang["about_msg"] . '</div>';

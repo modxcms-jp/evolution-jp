@@ -1192,14 +1192,14 @@ class SubParser {
                 /* If we are loading a file */
                 if(substr($field_elements, 0, 5) == "@FILE") {
                     $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
-                    if( !file_exists($file_name) ) {
+                    if( !is_file($file_name) ) {
                         $custom_output = $file_name . ' does not exist';
                     } else {
                         $custom_output = file_get_contents($file_name);
                     }
                 } elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
                     $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
-                    if( !file_exists($file_name) ) {
+                    if( !is_file($file_name) ) {
                         $custom_output = $file_name . ' does not exist';
                     } else {
                         ob_start();

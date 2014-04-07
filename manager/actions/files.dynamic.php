@@ -642,7 +642,7 @@ function unzip($file, $path)
 				$zip_entry_name = zip_entry_name($zip_entry);
 				$complete_path = $path.str_replace('\\', '/', dirname($zip_entry_name));
 				$complete_name = $path.str_replace('\\', '/', $zip_entry_name);
-				if(!file_exists($complete_path))
+				if(!is_dir($complete_path))
 				{
 					$tmp = '';
 					foreach(explode('/', $complete_path) AS $k)

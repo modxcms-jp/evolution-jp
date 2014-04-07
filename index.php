@@ -54,7 +54,7 @@ $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
-if(file_exists($base_path . 'assets/cache/basicConfig.idx.php'))
+if(is_file($base_path . 'assets/cache/basicConfig.idx.php'))
 {
 	include_once($base_path . 'assets/cache/basicConfig.idx.php');
 }

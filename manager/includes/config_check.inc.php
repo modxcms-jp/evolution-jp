@@ -31,7 +31,7 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
 }
 
 $actionphp = $modx->config['base_path'] . 'action.php';
-if(file_exists($actionphp))
+if(is_file($actionphp))
 {
 	$src = file_get_contents($actionphp);
 	if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
@@ -66,8 +66,8 @@ if(get_sc_value('privateweb',$error_page) == 1)        $warnings[] = 'configchec
 if (!is_writable($modx->config['base_path'] . 'assets/cache'))  $warnings[] = 'configcheck_cache';
 if (!is_writable($modx->config['rb_base_dir'] . 'images')) $warnings[] = 'configcheck_images';
 
-if(!file_exists($modx->config['rb_base_dir']))      $warnings[] = 'configcheck_rb_base_dir';
-if(!file_exists($modx->config['filemanager_path'])) $warnings[] = 'configcheck_filemanager_path';
+if(!is_dir($modx->config['rb_base_dir']))      $warnings[] = 'configcheck_rb_base_dir';
+if(!is_dir($modx->config['filemanager_path'])) $warnings[] = 'configcheck_filemanager_path';
 
 if($_SESSION['mgrRole']==1) $warnings[] = 'configcheck_you_are_admin';
 
