@@ -37,17 +37,16 @@ if($action == 'get') {
 } elseif($action == 'updateplugin') {
 
     if($key == '_delete_' && !empty($lang)) {
-        $sql = "DELETE FROM " . $modx->getFullTableName("site_plugins") . " WHERE name='{$lang}'";
         $str = "true";
-        if(!@$rs = $modx->db->query($sql)) {
-            $str = "false";
+        if(!@$rs = $modx->db->delete('[+prefix+}site_plugins', "name='{$lang}'")) {
+            $str = 'false';
         } else {
             $emptyCache = true;
         }
     } elseif(!empty($key) && !empty($lang) && !empty($value)) {
-        $sql = "UPDATE ".$modx->getFullTableName("site_plugins")." SET {$key}='{$value}' WHERE name = '{$lang}';";
         $str = "true";
-        if(!@$rs = $modx->db->query($sql)) {
+        $rs = $modx->db->update(array($key=>$value),'[+prefix+]site_plugins',"name='{$lang}'")
+        if(!$rs) {
             $str = "false";
         } else {
             $emptyCache = true;
