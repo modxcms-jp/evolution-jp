@@ -57,10 +57,9 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $category = 0;
 } else {
-    include_once($modx->config['core_path'].'categories.inc.php');
-    $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
     if ($catCheck) $category = $catCheck;
-    else           $category = newCategory($_POST['newcategory']);
+    else           $category = $modx->manager->newCategory($_POST['newcategory']);
 }
 
 switch ($_POST['mode']) {

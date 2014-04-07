@@ -308,8 +308,7 @@ if (is_array($evtOut))
 		<select name="categoryid" style="width:300px;">
 			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
-include_once($modx->config['core_path'].'categories.inc.php');
-$ds = getCategories();
+$ds = $modx->manager->getCategories();
 if ($ds) {
 			foreach ($ds as $n => $v) {
 			echo "\t\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] || (empty($content['category']) && $_POST['categoryid'] == $v['id']) ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";

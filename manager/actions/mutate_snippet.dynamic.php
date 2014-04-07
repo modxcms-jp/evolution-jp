@@ -346,8 +346,7 @@ function decode(s){
 			<select name="categoryid" style="width:300px;">
 			<option value="0"><?php echo $_lang["no_category"]; ?></option>
 				<?php
-					include_once($modx->config['core_path'].'categories.inc.php');
-					$ds = getCategories();
+					$ds = $modx->manager->getCategories();
 					if($ds) foreach($ds as $n=>$v){
 						echo '<option value="'.$v['id'].'"'.($content['category']==$v['id']? ' selected="selected"':'').'>'.htmlspecialchars($v['category']).'</option>';
 					}

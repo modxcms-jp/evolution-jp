@@ -21,10 +21,9 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $categoryid = 0;
 } else {
-    include_once($modx->config['core_path'].'categories.inc.php');
-    $catCheck = checkCategory($modx->db->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
     if ($catCheck) $categoryid = $catCheck;
-    else           $categoryid = newCategory($_POST['newcategory']);
+    else           $categoryid = $modx->manager->newCategory($_POST['newcategory']);
 }
 
 if($templatename=='') $templatename = "Untitled template";

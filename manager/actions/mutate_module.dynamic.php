@@ -411,8 +411,7 @@ function SetUrl(url, width, height, alt) {
 			<select name="categoryid">
 				<option value="0"><?php echo $_lang["no_category"]; ?></option>
 <?php
-				include_once($modx->config['core_path'].'categories.inc.php');
-				$ds = getCategories();
+				$ds = $modx->manager->getCategories();
 				if ($ds) {
 					foreach($ds as $n => $v) {
 						echo "\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
