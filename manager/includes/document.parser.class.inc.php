@@ -188,8 +188,11 @@ class DocumentParser {
 		set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
 		
 		$this->http_status_code = '200';
+
+		if(preg_match('@^[0-9]+$@',$id)) $this->directParse = 1;
+		else                             $this->directParse = 0;
 		
-		if(!empty($_SERVER['QUERY_STRING']) && $id==='')
+		if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
 		{
 			$qs = $_GET;
 			if(isset($qs['id'])) unset($qs['id']);
@@ -203,14 +206,12 @@ class DocumentParser {
 		if(!$this->processCache)  $this->initProcessCache();
 		if(!$this->documentMap)   $this->setdocumentMap();
 		
-		if(preg_match('@^[0-9]+$@',$id))
+		if($this->directParse==1)
 		{
 			$_REQUEST['id'] = $id;
 			$_GET['id'] = $id;
-			$this->decoded_request_uri = $this->config['base_url'] . 'index.php?id=' . $id;
-			$this->directParse = 1;
+			$this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
 		}
-		else $this->directParse = 0;
 		
 		if(!isset($_REQUEST['id']))
 		{
@@ -220,9 +221,9 @@ class DocumentParser {
 		if(strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
 		elseif($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
 		
-		if(0 < count($_POST) && $id==='') $this->config['cache_type'] = 0;
+		if($this->directParse==0 && 0 < count($_POST)) $this->config['cache_type'] = 0;
 		
-		if($id==='')
+		if($this->directParse==0)
 		{
 			$this->documentOutput = $this->get_static_pages();
 			if(!empty($this->documentOutput))
@@ -712,7 +713,7 @@ class DocumentParser {
 		if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
 		$filepath = substr($filepath,strlen($this->config['base_url']));
 		if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
-		$filepath = $this->config['base_path'] . 'temp/public_html/' . $filepath;
+		$filepath = $this->config['base_path'] . "temp/public_html/{$filepath}";
 		if(is_file($filepath)!==false)
 		{
 			$ext = strtolower(substr($filepath,strrpos($filepath,'.')));
