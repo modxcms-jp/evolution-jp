@@ -761,7 +761,7 @@ class DocumentParser {
 		
 		if(!isset($included)||!$included)
 		{
-			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+			include_once MODX_CORE_PATH . 'cache_sync.class.php';
 			$cache = new synccache();
 			$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$cache->setReport(false);

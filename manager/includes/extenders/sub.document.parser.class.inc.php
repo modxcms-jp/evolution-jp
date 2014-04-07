@@ -193,7 +193,7 @@ class SubParser {
     		$showReport = ($params['showReport']) ? $params['showReport'] : false;
     		$target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
     		
-			include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+			include_once MODX_CORE_PATH . 'cache_sync.class.php';
 			$sync = new synccache();
 			$sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
 			$sync->setReport($showReport);
