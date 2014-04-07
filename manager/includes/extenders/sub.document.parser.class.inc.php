@@ -1203,7 +1203,7 @@ class SubParser {
                         $custom_output = $file_name . ' does not exist';
                     } else {
                         ob_start();
-                        include $file_name;
+                        include($file_name);
                         $custom_output = ob_get_contents();
                         ob_end_clean();
                     }
