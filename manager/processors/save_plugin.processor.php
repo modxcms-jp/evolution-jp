@@ -29,7 +29,6 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 
 if($name=='') $name = 'Untitled plugin';
 
-$tbl_site_plugins = $modx->getFullTableName('site_plugins');
 switch ($_POST['mode']) {
     case '101':
 
@@ -72,7 +71,7 @@ switch ($_POST['mode']) {
 
 		//do stuff to save the new plugin
 		$f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
-        $newid = $modx->db->insert($f, $tbl_site_plugins);
+        $newid = $modx->db->insert($f, '[+prefix+]site_plugins');
         if(!$newid) {
             echo "Couldn't get last insert key!";
             exit;
@@ -138,7 +137,7 @@ switch ($_POST['mode']) {
 		}
         //do stuff to save the edited plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
-        $rs = $modx->db->update($f, $tbl_site_plugins, "id='{$id}'");
+        $rs = $modx->db->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if(!$rs){
             echo "\$rs not set! Edited plugin not saved!";
         }
