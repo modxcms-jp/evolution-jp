@@ -1807,8 +1807,6 @@ class DocumentParser {
 			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
 			)
 		{
-			$this->loadExtension('ManagerAPI');
-			
             $input = $_POST;
             $docid = $_POST['id'];
             $this->documentIdentifier = $docid;
@@ -2114,77 +2112,6 @@ class DocumentParser {
 			return false;
 		}
 		else return true;
-	}
-	
-	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
-	{
-		// modify field names to use sc. table reference
-		$fields= $this->join(',', explode(',',$fields),'sc.');
-		$sort  = $this->join(',', explode(',',$sort),'sc.');
-		
-		// build query
-		$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-		if($where===false)
-		{
-			// get document groups for current user
-			if ($docgrp= $this->getUserDocGroups())
-			{
-				$docgrp= implode(',', $docgrp);
-				$cond = "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'";
-			}
-			else $cond = '';
-			$context = ($this->isFrontend() ? 'web' : 'mgr');
-			$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
-		}
-		$orderby = "{$sort} {$dir}";
-		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby);
-		$resourceArray= array ();
-		while ($row = $this->db->getRow($result))
-		{
-			$resourceArray[] = $row;
-		}
-		return $resourceArray;
-	}
-	
-	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
-	{
-		// get document groups for current user
-		if ($docgrp= $this->getUserDocGroups())
-		{
-			$docgrp= implode(',', $docgrp);
-			$cond = " OR dg.document_group IN ({$docgrp})";
-		}
-		else $cond = '';
-		if($this->isFrontend()) $context = 'sc.privateweb=0';
-		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-		$where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
-		
-		$resourceArray = $this->getAllChildren($id, $sort, $dir, $fields,$where);
-		
-		return $resourceArray;
-	}
-	
-	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
-	{
-		// modify field names to use sc. table reference
-		$fields = $this->join(',', explode(',',$fields),'sc.');
-		if($where != '') $where= "AND {$where}";
-		// get document groups for current user
-		if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
-		// build query
-		$access  = $this->isFrontend() ? 'sc.privateweb=0' : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-		$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
-		$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-		$where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
-		$sort = ($sort != '') ? $this->join(',', explode(',',$sort),'sc.') : '';
-		$orderby = $sort ? "{$sort} {$dir}" : '';
-		$result= $this->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
-		$resourceArray= array ();
-		while ($row = $this->db->getRow($result))
-		{
-			$resourceArray[] = $row;
-		}
-		return $resourceArray;
 	}
 	
 	function getDocuments($ids= array(), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
@@ -2700,36 +2627,6 @@ class DocumentParser {
 	# Added By: Raymond Irving - MODx
 	#
 	
-	function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
-	{
-		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-		if (!$docs) return false;
-		else
-		{
-			foreach($docs as $doc)
-			{
-				$result[] = $this->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
-			}
-			return $result;
-		}
-	}
-		
-	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
-	{
-		$docs= $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-		if (!$docs) return false;
-		else
-		{
-			$result= array ();
-			foreach($docs as $doc)
-			{
-				$tvs= $this->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
-				if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
-			}
-			return $result;
-		}
-	}
-	
 	// Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
 	# returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVar($idname= '', $fields= '*', $docid= '', $published= 1)
@@ -2921,64 +2818,6 @@ class DocumentParser {
 		else return false;
 	}
 
-    # Returns current user name
-    function getLoginUserName($context= '') {
-        if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
-            return $_SESSION[$context . 'Shortname'];
-        }
-        elseif ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
-            return $_SESSION['webShortname'];
-        }
-        elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
-            return $_SESSION['mgrShortname'];
-        }
-        else return false;
-    }
-
-    # Returns current login user type - web or manager
-    function getLoginUserType() {
-        if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
-            return 'web';
-        }
-        elseif ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
-            return 'manager';
-        } else {
-            return '';
-        }
-    }
-
-	# Returns a record for the manager user
-	function getUserInfo($uid)
-	{
-		$field = 'mu.username, mu.password, mua.*';
-		$from  = '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id';
-		$rs= $this->db->select($field,$from,"mu.id = '$uid'");
-		$limit= $this->db->getRecordCount($rs);
-		if ($limit == 1)
-		{
-			$row= $this->db->getRow($rs);
-			if (!$row['usertype']) $row['usertype']= 'manager';
-			return $row;
-		}
-		else return false;
-	}
-	
-	# Returns a record for the web user
-	function getWebUserInfo($uid)
-	{
-		$field = 'wu.username, wu.password, wua.*';
-		$from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
-		$rs= $this->db->select($field,$from,"wu.id='$uid'");
-		$limit= $this->db->getRecordCount($rs);
-		if ($limit == 1)
-		{
-			$row= $this->db->getRow($rs);
-			if (!$row['usertype']) $row['usertype']= 'web';
-			return $row;
-		}
-		else return false;
-	}
-
     # Returns an array of document groups that current user is assigned to.
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
@@ -3028,31 +2867,6 @@ class DocumentParser {
 			else                    $_SESSION['mgrDocgrpNames'] = $dgn;
 			return $dgn;
 		}
-	}
-	
-	# returns true if the current web user is a member the specified groups
-	function isMemberOfWebGroup($groupNames= array ())
-	{
-		if (!is_array($groupNames)) return false;
-		
-		// check cache
-		$grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
-		if (!is_array($grpNames))
-		{
-			$uid = $this->getLoginUserID();
-			$from  = '[+prefix+]webgroup_names wgn' .
-			         " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
-			$rs = $this->db->select('wgn.name', $from);
-			$grpNames= $this->db->getColumn('name', $rs);
-			
-			// save to cache
-			$_SESSION['webUserGroupNames']= $grpNames;
-		}
-		foreach ($groupNames as $k => $v)
-		{
-			if (in_array(trim($v), $grpNames)) return true;
-		}
-		return false;
 	}
 	
     # Remove unwanted html tags and snippet, settings and tags
@@ -3263,7 +3077,7 @@ class DocumentParser {
 				$o = include(MODX_CORE_PATH . "docvars/outputfilter/{$format}.inc.php");
 				break;
 			default:
-				$value = $this->parseInput($value);
+				if(is_resource($value)) $value = $this->parseInput($value);
 				if($tvtype=='checkbox'||$tvtype=='listbox-multiple')
 				{
 					// add separator
@@ -3353,8 +3167,32 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->webAlertAndQuit($msg, $url);}
 	function getMimeType($file_path='')
 		{$this->loadExtension('SubParser');return $this->sub->getMimeType($file_path);}
-		
+	function getUserInfo($uid)
+		{$this->loadExtension('SubParser');return $this->sub->getUserInfo($uid);}
+	function getWebUserInfo($uid)
+		{$this->loadExtension('SubParser');return $this->sub->getWebUserInfo($uid);}
+	function isMemberOfWebGroup($groupNames= array ())
+		{$this->loadExtension('SubParser');return $this->sub->isMemberOfWebGroup($groupNames);}
+	function getLoginUserType()
+		{$this->loadExtension('SubParser');return $this->sub->getLoginUserType();}
+	function getLoginUserName($context= '')
+		{$this->loadExtension('SubParser');return $this->sub->getLoginUserName($context);}
 
+	function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVars($parentid, $tvidnames, $published, $docsort, $docsortdir, $tvfields, $tvsort, $tvsortdir);}
+	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
+		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVarOutput($parentid, $tvidnames, $published, $docsort, $docsortdir);}
+
+
+
+
+	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
+		{$this->loadExtension('SubParser');return $this->sub->getAllChildren($id, $sort, $dir, $fields,$where);}
+	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+		{$this->loadExtension('SubParser');return $this->sub->getActiveChildren($id, $sort, $dir, $fields);}
+	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildren($parentid, $published, $deleted, $fields, $where, $sort, $dir, $limit);}
+	
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
 	function dbQuery($sql)               {return $this->db->query($sql);}

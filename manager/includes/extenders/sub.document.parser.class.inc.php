@@ -1351,4 +1351,206 @@ class SubParser {
 		else $mime_type = false;
 		return $mime_type;
 	}
+	
+	# returns true if the current web user is a member the specified groups
+	function isMemberOfWebGroup($groupNames= array ())
+	{
+		global $modx;
+		
+		if (!is_array($groupNames)) return false;
+		
+		// check cache
+		$grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
+		if (!is_array($grpNames))
+		{
+			$uid = $modx->getLoginUserID();
+			$from  = '[+prefix+]webgroup_names wgn' .
+			         " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
+			$rs = $modx->db->select('wgn.name', $from);
+			$grpNames= $modx->db->getColumn('name', $rs);
+			
+			// save to cache
+			$_SESSION['webUserGroupNames']= $grpNames;
+		}
+		foreach ($groupNames as $k => $v)
+		{
+			if (in_array(trim($v), $grpNames)) return true;
+		}
+		return false;
+	}
+	
+	# Returns a record for the web user
+	function getWebUserInfo($uid)
+	{
+		global $modx;
+		
+		$field = 'wu.username, wu.password, wua.*';
+		$from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
+		$rs= $modx->db->select($field,$from,"wu.id='$uid'");
+		$limit= $modx->db->getRecordCount($rs);
+		if ($limit == 1)
+		{
+			$row= $modx->db->getRow($rs);
+			if (!$row['usertype']) $row['usertype']= 'web';
+			return $row;
+		}
+		else return false;
+	}
+	
+	# Returns a record for the manager user
+	function getUserInfo($uid)
+	{
+		global $modx;
+		
+		$field = 'mu.username, mu.password, mua.*';
+		$from  = '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id';
+		$rs= $modx->db->select($field,$from,"mu.id = '$uid'");
+		$limit= $modx->db->getRecordCount($rs);
+		if ($limit == 1)
+		{
+			$row= $modx->db->getRow($rs);
+			if (!$row['usertype']) $row['usertype']= 'manager';
+			return $row;
+		}
+		else return false;
+	}
+	
+    # Returns current user name
+    function getLoginUserName($context= '') {
+    	global $modx;
+        if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
+            return $_SESSION[$context . 'Shortname'];
+        }
+        elseif ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
+            return $_SESSION['webShortname'];
+        }
+        elseif ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+            return $_SESSION['mgrShortname'];
+        }
+        else return false;
+    }
+
+    # Returns current login user type - web or manager
+    function getLoginUserType() {
+    	global $modx;
+        if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
+            return 'web';
+        }
+        elseif ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+            return 'manager';
+        } else {
+            return '';
+        }
+    }
+    
+	function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+	{
+		global $modx;
+		
+		$docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
+		if (!$docs) return false;
+		else
+		{
+			foreach($docs as $doc)
+			{
+				$result[] = $modx->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
+			}
+			return $result;
+		}
+	}
+		
+	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
+	{
+		global $modx;
+		
+		$docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
+		if (!$docs) return false;
+		else
+		{
+			$result= array ();
+			foreach($docs as $doc)
+			{
+				$tvs= $modx->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
+				if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+			}
+			return $result;
+		}
+	}
+	
+	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
+	{
+		global $modx;
+		
+		// modify field names to use sc. table reference
+		$fields= $modx->join(',', explode(',',$fields),'sc.');
+		$sort  = $modx->join(',', explode(',',$sort),'sc.');
+		
+		// build query
+		$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+		if($where===false)
+		{
+			// get document groups for current user
+			if ($docgrp= $modx->getUserDocGroups())
+			{
+				$docgrp= implode(',', $docgrp);
+				$cond = "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'";
+			}
+			else $cond = '';
+			$context = ($modx->isFrontend() ? 'web' : 'mgr');
+			$where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+		}
+		$orderby = "{$sort} {$dir}";
+		$result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby);
+		$resourceArray= array ();
+		while ($row = $modx->db->getRow($result))
+		{
+			$resourceArray[] = $row;
+		}
+		return $resourceArray;
+	}
+	
+	function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
+	{
+		global $modx;
+		
+		// get document groups for current user
+		if ($docgrp= $modx->getUserDocGroups())
+		{
+			$docgrp= implode(',', $docgrp);
+			$cond = " OR dg.document_group IN ({$docgrp})";
+		}
+		else $cond = '';
+		if($modx->isFrontend()) $context = 'sc.privateweb=0';
+		else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
+		
+		$resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
+		
+		return $resourceArray;
+	}
+	
+	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+	{
+		global $modx;
+		
+		// modify field names to use sc. table reference
+		$fields = $modx->join(',', explode(',',$fields),'sc.');
+		if($where != '') $where= "AND {$where}";
+		// get document groups for current user
+		if ($docgrp= $modx->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+		// build query
+		$access  = $modx->isFrontend() ? 'sc.privateweb=0' : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+		$access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
+		$from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+		$where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
+		$sort = ($sort != '') ? $modx->join(',', explode(',',$sort),'sc.') : '';
+		$orderby = $sort ? "{$sort} {$dir}" : '';
+		$result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
+		$resourceArray= array ();
+		while ($row = $modx->db->getRow($result))
+		{
+			$resourceArray[] = $row;
+		}
+		return $resourceArray;
+	}
 }
