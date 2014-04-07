@@ -736,11 +736,8 @@ class DocumentParser {
 				case '.png':
 				case '.gif':
 					if($ext==='.ico') $mime_type = 'image/x-icon';
-					else
-					{
-						$info = getImageSize($filepath);
-						$mime_type = $info['mime'];
-					}
+					else              $mime_type = $this->getMimeType($filepath);
+					if(!$mime_type) $this->sendErrorPage();
 					header("Content-type: {$mime_type}");
 					readfile($filepath);
 					exit;
