@@ -2747,7 +2747,7 @@ class DocumentParser {
 	{
 		if($idnames!='*' && !is_array($idnames)) $idnames = array($idnames);
 		
-		if (is_array($idnames) && count($idnames) == 0)
+		if (is_array($idnames) && empty($idnames))
 		{
 			return false;
 		}
@@ -2822,7 +2822,7 @@ class DocumentParser {
 	# returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
 	function getTemplateVarOutput($idnames= '*', $docid= '', $published= 1, $sep='')
 	{
-		if (is_array($idnames) && count($idnames) == 0)
+		if (is_array($idnames) && empty($idnames))
 		{
 			return false;
 		}
