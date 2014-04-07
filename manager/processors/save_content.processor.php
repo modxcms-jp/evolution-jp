@@ -176,46 +176,30 @@ switch ($actionToTake) {
 		exit;
 		break;
 	case 'edit' :
-		// get the document's current parent
-		$rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'");
-		if (!$rs) {
-			$modx->manager->saveFormValues(27);
-			echo "An error occured while attempting to find the document's current parent.";
-			exit;
-		}
-		
-		$row = $modx->db->getRow($rs);
-		$oldparent = $row['parent'];
-		$doctype = $row['type'];
+		$oldparent = getCurrentParent($id);
 
 		$url = "index.php?a=27&id={$id}";
-		if ($id == $site_start && $v['published'] == 0)
-		{
-			$modx->manager->saveFormValues(27);
-			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$url);
-		}
-		if ($id == $site_start && ($v['pub_date'] > $_SERVER['REQUEST_TIME'] || $v['unpub_date'] != "0"))
-		{
-			$modx->manager->saveFormValues(27);
-			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
-		}
-		if ($v['parent'] == $id)
-		{
+		if ($id == $site_start) {
+			if($v['published'] == 0) {
+				$modx->manager->saveFormValues(27);
+				$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$url);
+			} elseif (($v['pub_date'] > $_SERVER['REQUEST_TIME'] || $v['unpub_date'] != "0")) {
+				$modx->manager->saveFormValues(27);
+				$modx->webAlertAndQuit('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$url);
+			}
+		} elseif ($v['parent'] == $id) {
 			$modx->manager->saveFormValues(27);
 			$modx->webAlertAndQuit("Document can not be it's own parent!",$url);
 		}
+		
 		// check to see document is a folder
-		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent='{$id}'");
-		if (!$rs)
-		{
+		$rs = $modx->db->select('COUNT(id) AS count', '[+prefix+]site_content', "parent='{$id}'");
+		if ($rs) {
+			$row = $modx->db->getRow($rs);
+			if ($row['count'] > 0) $v['isfolder'] = '1';
+		} else {
 			$modx->manager->saveFormValues(27);
 			$modx->webAlertAndQuit("An error occured while attempting to find the document's children.",$url);
-		}
-		else {
-			$row = $modx->db->getRow($rs);
-			if ($row['COUNT(id)'] > 0) {
-				$v['isfolder'] = '1';
-			}
 		}
 
 		// set publishedon and publishedby
@@ -264,13 +248,9 @@ switch ($actionToTake) {
 			{
 				$tvId = $value[0];
 				$tvVal = $value[1];
-
-				if (isset($tvIds[$tvId]))
-				{
+				if (isset($tvIds[$tvId])) {
 					$tvChanges[] = array(array('tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal), array('id' => $tvIds[$tvId]));
-				}
-				else
-				{
+				} else {
 					$tvAdded[] = array('tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal);
 				}
 			}
@@ -914,4 +894,19 @@ function setValue($input) {
 		}
 	}
 	return $input;
+}
+
+function getCurrentParent($id) {
+	// get the document's current parent
+	global $modx;
+	
+	$rs = $modx->db->select('*', '[+prefix+]site_content', "id='{$id}'");
+	if (!$rs) {
+		$modx->manager->saveFormValues(27);
+		echo "An error occured while attempting to find the document's current parent.";
+		exit;
+	}
+	
+	$row = $modx->db->getRow($rs);
+	return $row['parent'];
 }
