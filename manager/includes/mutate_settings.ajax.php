@@ -4,7 +4,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
  * mutate_settings.ajax.php
  * 
  */
-require_once(dirname(__FILE__) . '/protect.inc.php');
+require_once(MODX_CORE_PATH . 'protect.inc.php');
 
 $action = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['action']);
 $lang   = preg_replace('/[^A-Za-z0-9_\s\+\-\.\/]/', '', $_POST['lang']);
@@ -20,8 +20,8 @@ $str = '';
 $emptyCache = false;
 
 if($action == 'get') {
-    $langfile = dirname(__FILE__) . '/lang/'.$lang.'.inc.php';
-    if(file_exists($langfile)) {
+    $langfile = MODX_CORE_PATH . "lang/{$lang}.inc.php";
+    if(is_file($langfile)) {
         $str = getLangStringFromFile($langfile, $key);
     }
 } elseif($action == 'setsetting') {

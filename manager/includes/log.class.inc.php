@@ -17,7 +17,7 @@ class logHandler {
 	var $entry = array();
 
 	function logError($msg) {
-		include_once dirname(__FILE__)."/error.class.inc.php";
+		include_once MODX_CORE_PATH . 'error.class.inc.php';
 		$e = new errorHandler;
 		$e->setError(9, "Logging error: ".$msg);
 		$e->dumpError();
