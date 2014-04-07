@@ -54,9 +54,8 @@ class RenameFile {
 				if (file_exists($thumb)) $result2=unlink($thumb);
 				
 				$result1=rename($this->real_cwd.'/'.$this->filename,$this->real_cwd.'/'.$this->newname);
-			} else {
-				$result1=false;
 			}
+			else $result1=false;
 		}
 		
 		header ("content-type: text/xml");
@@ -65,11 +64,8 @@ class RenameFile {
 <Connector command="RenameFile" resourceType="<?php echo $this->type; ?>">
 	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
 	<?php
-		if ($result1&&$result2) {
-			$err_no=0;
-		} else {
-			$err_no=502;
-		}
+		if ($result1&&$result2) $err_no=0;
+		else                    $err_no=502;
 	?>
 	<Error number="<?php echo "".$err_no; ?>" />
 </Connector>
@@ -84,14 +80,11 @@ class RenameFile {
 		if ($lastdot!==false) {
 			$ext=substr($fname,($lastdot+1));
 			$fname=substr($fname,0,$lastdot);
-				
-			if (in_array(strtolower($ext),$type_config['AllowedExtensions'])) {
+			
+			if (in_array(strtolower($ext),$type_config['AllowedExtensions'])) 
 				return true;
-			} else {
+			else
 				return false;
-			}
 		}
 	}
 }
-
-?>

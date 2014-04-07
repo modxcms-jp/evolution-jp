@@ -82,7 +82,7 @@ $base_path = substr($self_path,0,$trimpos);
 $core_path = "{$base_path}manager/includes/";
 $incPath = $core_path;
 
-if (@file_exists("{$base_path}autoload.php")) {
+if (@is_file("{$base_path}autoload.php")) {
     include_once("{$base_path}autoload.php");
 }
 // harden it
@@ -93,7 +93,7 @@ define('IN_ETOMITE_SYSTEM', 'true'); // for backward compatibility with 0.6
 
 // include_once config file
 $config_path = "{$core_path}config.inc.php";
-if (!file_exists($config_path)) {
+if (!is_file($config_path)) {
     echo "<h3>Unable to load configuration settings</h3>";
     echo "Please run the MODX <a href='../install/'>install utility</a>";
     exit;
