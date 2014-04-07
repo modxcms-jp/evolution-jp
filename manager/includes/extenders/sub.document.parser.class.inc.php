@@ -165,13 +165,14 @@ class SubParser {
     	if($modx->isBackend() && !$modx->hasPermission('empty_cache')) return;
     	if(!is_array($params) && preg_match('@^[1-9][0-9]*$@',$params))
     	{
+    		$docid = $params;
     		if($modx->config['cache_type']==='2')
     		{
-    			$url = $modx->config['base_url'] . $modx->makeUrl($params,'','','root_rel');
+    			$url = $modx->config['base_url'] . $modx->makeUrl($docid,'','','root_rel');
     			$filename = md5($url);
     		}
     		else
-    			$filename = "docid_{$params}";
+    			$filename = "docid_{$docid}";
     		$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
     		if(is_file($page_cache_path))
     		{
