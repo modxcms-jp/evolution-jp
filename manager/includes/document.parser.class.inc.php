@@ -628,7 +628,7 @@ class DocumentParser {
 		// end post processing
 	}
 	
-	private function join($delim=',', $array, $prefix='')
+	function join($delim=',', $array, $prefix='')
 	{
 		foreach($array as $i=>$v)
 		{
