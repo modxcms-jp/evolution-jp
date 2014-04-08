@@ -40,12 +40,12 @@ switch ($actionToTake) {
 	case 'new' :
 		$modx->manager->saveFormValues();
 		$return_url = 'index.php?a=' . $_GET['a'];
-		$id = getNewID();
 		
 		// invoke OnBeforeDocFormSave event
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
-		$fields = getInputValues($v,$actionToTake,$dbfields,$id);
+		$temp_id = getNewID();
+		$fields = getInputValues($v,$actionToTake,$dbfields,$temp_id);
 		$fields = $modx->db->escape($fields);
 		$newid = $modx->db->insert($fields,'[+prefix+]site_content');
 		if(!$newid) {
@@ -53,7 +53,7 @@ switch ($actionToTake) {
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 		
-		$tmplvars = get_tmplvars($id,$v['template']);
+		$tmplvars = get_tmplvars($newid,$v['template']);
 		insert_tmplvars($tmplvars);
 
 		setDocPermissions($document_groups,$newid,$v['parent']);
