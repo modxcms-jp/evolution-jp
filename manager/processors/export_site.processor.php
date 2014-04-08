@@ -39,7 +39,7 @@ $info['repl_after']    = $_POST['repl_before'];
 $info['repl_after']    = $_POST['repl_after'];
 $info['export_dir']    = $export_dir;
 
-$evtOut = $modx->invokeEvent('OnExportPreExec',array('info' => $info));
+$evtOut = $modx->invokeEvent('OnExportPreExec',$info);
 if(is_array($evtOut)) echo implode("\n",$evtOut);
 
 $modx->regOption('export_ignore_ids',$_POST['ignore_ids']);
@@ -78,7 +78,7 @@ $info['repl_after']    = $_POST['repl_after'];
 $info['export_dir']    = $export_dir;
 $info['output']    = $output;
 $info['totatlime'] = $totaltime;
-$evtOut = $modx->invokeEvent('OnExportExec',array('info' => $info));
+$evtOut = $modx->invokeEvent('OnExportExec',$info);
 if(is_array($evtOut)) echo implode("\n",$evtOut);
 
 return $output;
