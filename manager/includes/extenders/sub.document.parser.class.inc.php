@@ -1588,4 +1588,18 @@ class SubParser {
         
         return $input;
 	}
+	
+	function loadLexicon($target='manager') {
+		global $modx, $_lang;
+		
+		if (!isset($modx->config['manager_language'])) {
+		    $lang = 'japanese-utf8';
+		}
+		else $langname = $modx->config['manager_language'];
+		if($target==='manager')
+			$target = MODX_CORE_PATH . 'lang/';
+		
+		$_lang = array();
+		include_once("{$target}{$langname}.inc.php");
+	}
 }

@@ -3165,6 +3165,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->getActiveChildren($id, $sort, $dir, $fields);}
 	function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
 		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildren($parentid, $published, $deleted, $fields, $where, $sort, $dir, $limit);}
+	function loadLexicon($target='manager')
+		{$this->loadExtension('SubParser');return $this->sub->loadLexicon($target);}
 	
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}

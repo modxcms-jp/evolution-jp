@@ -127,11 +127,7 @@ $modx->getSettings();
 extract($modx->config);
 
 // include_once the language file
-if (!isset($manager_language)) {
-    $manager_language = 'japanese-utf8';
-}
-$_lang = array();
-include_once("{$core_path}lang/{$manager_language}.inc.php");
+$modx->loadLexicon('manager');
 
 // send the charset header
 header("Content-Type: text/html; charset={$modx_manager_charset}");
