@@ -56,13 +56,13 @@ class errorHandler{
 		global $modx, $_lang;
 		if(!isset($_GET['count_attempts'])) $prev_request_uri = $_SESSION['prev_request_uri'] . '&count_attempts=1';
 		else                                $prev_request_uri = 'index.php?a=2';
-		$scr = <<< EOT
-<script>
-	jAlert('{$this->errormessage}', '{$_lang['warning']}', function(){
-		top.main.document.location.href='{$prev_request_uri}';
-	});
-</script>
-EOT;
+		
+		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl');
+		$ph['message']  = $modx->db->escape($this->errormessage);
+		$ph['warning']  = $_lang['warning'];
+		$ph['url']      = $prev_request_uri;
+		$scr = $modx->parseText($tpl,$ph);
+
         include_once(MODX_CORE_PATH . 'header.inc.php');
 		echo $scr;
 		include_once(MODX_CORE_PATH . 'footer.inc.php');
