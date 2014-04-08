@@ -8,10 +8,13 @@
 	 *
 	 */
 
-	$sysMsgs = '';
+	$alerts = array();
 	foreach($modx->SystemAlertMsgQueque as $_) {
-		$sysMsgs .= $_.'<hr />';
+		$alerts[] = $_;
 	}
+	if(0<count($alerts)) $sysMsgs = implode('<hr />',$alerts);
+	else $sysMsgs = '';
+	
 	// reset message queque
 	unset($_SESSION['SystemAlertMsgQueque']);
 	$_SESSION['SystemAlertMsgQueque'] = array();
