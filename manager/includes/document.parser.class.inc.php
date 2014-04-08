@@ -3088,8 +3088,6 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
     function setCacheRefreshTime($unixtime)
     	{$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
-    function webAlert($msg, $url= '')
-    	{$this->loadExtension('SubParser');$this->sub->webAlert($msg, $url);}
     function getSnippetId()
     	{$this->loadExtension('SubParser');return $this->sub->getSnippetId();}
     function getSnippetName()
