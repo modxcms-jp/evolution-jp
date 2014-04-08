@@ -254,6 +254,11 @@ $rs = $modx->db->select('* ','[+prefix+]user_roles',"id='{$role}'");
 $row = $modx->db->getRow($rs);
 $_SESSION['mgrPermissions'] = $row;
 
+if($_SESSION['mgrPermissions']['messages']==1) {
+	$rs = $modx->db->select('*', '[+prefix+]manager_users');
+	$total = $modx->db->getRecordCount($rs);
+	if($total==1) $_SESSION['mgrPermissions']['messages']='0';
+}
 // successful login so reset fail count and update key values
 if(isset($_SESSION['mgrValidated']))
 {
