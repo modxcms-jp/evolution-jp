@@ -52,10 +52,6 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$rs = $modx->db->select('*', '[+prefix+]site_content', "id='{$docid}'");
 	$content = $modx->db->getRow($rs);
 
-	$new_id = $modx->manager->getNewDocID();
-	if(!empty($new_id)) $content['id'] = $new_id;
-	else                unset($content['id']);
-
 	// Once we've grabbed the document object, start doing some modifications
 	if ($_toplevel == 0 && $reset_alias===true)
 	{
@@ -103,6 +99,10 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	}
 
 	// Duplicate the Document
+	$new_id = $modx->manager->getNewDocID();
+	if(!empty($new_id)) $content['id'] = $new_id;
+	else                unset($content['id']);
+
 	$new_id = $modx->db->insert($content, '[+prefix+]site_content');
 
 	// duplicate document's TVs & Keywords
