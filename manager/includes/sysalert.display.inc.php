@@ -20,7 +20,7 @@
 	$_SESSION['SystemAlertMsgQueque'] = array();
 	$modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-	if($sysMsgs!='')
+	if($sysMsgs!=='')
 	{
 ?>
 <script type="text/javascript">
