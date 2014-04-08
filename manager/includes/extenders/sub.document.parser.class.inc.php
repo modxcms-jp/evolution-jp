@@ -1557,7 +1557,11 @@ class SubParser {
 	function getPreviewObject($input=array()) {
 		global $modx;
 		
-        if(isset($input['id'])) $modx->documentIdentifier = $input['id'];
+        if(!isset($input['id'])||empty($input['id']))
+			$input['id'] = $modx->config['site_start'];
+
+        $modx->documentIdentifier = $input['id'];
+        
         $rs = $modx->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
         while($row = $modx->db->getRow($rs))
         {

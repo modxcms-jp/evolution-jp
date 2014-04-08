@@ -1804,13 +1804,13 @@ class DocumentParser {
 		if(isset($_SESSION['mgrValidated'])
 			 && $mode==='prepareResponse'
 			 && isset($_POST['mode']) && $_POST['mode']==='prev'
-			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
+			 && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
 			)
 		{
 			$previewObject = $this->getPreviewObject($_POST);
             $this->directParse = 1;
             $method = 'id';
-            $identifier = $_POST['id'];
+            $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
 		}
 		else $previewObject = false;

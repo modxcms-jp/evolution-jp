@@ -450,7 +450,7 @@ if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['s
 	echo ab_duplicate();
 	echo ab_delete();
 }
-if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72')
+if ($_REQUEST['a'] !== '72')
 {
 	echo ab_preview();
 }
