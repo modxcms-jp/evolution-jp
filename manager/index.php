@@ -126,6 +126,10 @@ $modx->getSettings();
 //$modx->config['use_captcha'] = 0;
 extract($modx->config);
 
+if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
+    $modx->manager->getMessageCount();
+}
+
 // include_once the language file
 $modx->loadLexicon('manager');
 
@@ -207,10 +211,6 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
 } else {
     if(isset($_REQUEST['a'])) $action= (int) $_REQUEST['a'];
     else                      $action = '';
-}
-
-if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
-    $modx->manager->getMessageCount();
 }
 
 // save page to manager object
