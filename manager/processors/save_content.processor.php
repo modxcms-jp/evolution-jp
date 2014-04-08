@@ -18,7 +18,7 @@ $v = setValue($v);
 
 // preprocess POST values
 $id = $v['id'];
-if(!preg_match('@^[0-9]+$@',$id)) {
+if(!preg_match('@^[0-9]*$@',$id)) {
 	$e->setError(2);
 	$e->dumpError();
 }
