@@ -1553,4 +1553,38 @@ class SubParser {
 		}
 		return $resourceArray;
 	}
+	
+	function getPreviewObject() {
+		global $modx;
+		
+        $input = $_POST;
+        $docid = $_POST['id'];
+        $modx->documentIdentifier = $docid;
+        
+        $rs = $modx->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
+        while($row = $modx->db->getRow($rs))
+        {
+        	$tvid = 'tv' . $row['id'];
+        	$tvname[$tvid] = $row['name'];
+        }
+        foreach($input as $k=>$v)
+        {
+        	if(isset($tvname[$k]))
+        	{
+        		unset($input[$k]);
+        		$k = $tvname[$k];
+        		$input[$k] = $v;
+        	}
+        	elseif($k==='ta')
+        	{
+        		$input['content'] = $v;
+        		unset($input['ta']);
+        	}
+        }
+        if($input['pub_date']==='')    $input['pub_date']    = '0';
+        if($input['unpub_date']==='')  $input['unpub_date']  = '0';
+        if($input['publishedon']==='') $input['publishedon'] = '0';
+        
+        return $input;
+	}
 }
