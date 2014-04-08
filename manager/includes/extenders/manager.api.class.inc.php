@@ -573,4 +573,37 @@ class ManagerAPI {
 		}
 		return $newid;
 	}
+	
+	/**
+	 *	System Alert Message Queue Display file
+	 *	Written By Raymond Irving, April, 2005
+	 *
+	 *	Used to display system alert messages inside the browser
+	 *
+	 */
+
+	function sysAlert($sysAlertMsgQueque='') {
+		global $modx,$_lang;
+		
+		if(empty($sysAlertMsgQueque))
+			$sysAlertMsgQueque = $modx->SystemAlertMsgQueque;
+		if(empty($sysAlertMsgQueque)) return;
+		if(!is_array($sysAlertMsgQueque)) $sysAlertMsgQueque = array($sysAlertMsgQueque);
+		
+		$alerts = array();
+		foreach($sysAlertMsgQueque as $_) {
+			$alerts[] = $_;
+		}
+		$sysMsgs = implode('<hr />',$alerts);
+		
+		// reset message queque
+		unset($_SESSION['SystemAlertMsgQueque']);
+		$_SESSION['SystemAlertMsgQueque'] = array();
+		$sysAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
+	
+		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl');
+		$ph['alerts'] = $modx->db->escape($sysMsgs);
+		$ph['title']  = $_lang['sys_alert'];
+		return $modx->parseText($tpl,$ph);
+	}
 }
