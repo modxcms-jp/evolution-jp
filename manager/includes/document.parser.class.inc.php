@@ -1807,10 +1807,11 @@ class DocumentParser {
 			 && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
 			)
 		{
-			$previewObject = $this->getPreviewObject();
+			$previewObject = $this->getPreviewObject($_POST);
             $this->directParse = 1;
             $method = 'id';
             $identifier = $_POST['id'];
+            $this->documentIdentifier = $identifier;
 		}
 		else $previewObject = false;
 		
@@ -3157,8 +3158,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVars($parentid, $tvidnames, $published, $docsort, $docsortdir, $tvfields, $tvsort, $tvsortdir);}
 	function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
 		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVarOutput($parentid, $tvidnames, $published, $docsort, $docsortdir);}
-	function getPreviewObject()
-		{$this->loadExtension('SubParser');return $this->sub->getPreviewObject();}
+	function getPreviewObject($input)
+		{$this->loadExtension('SubParser');return $this->sub->getPreviewObject($input);}
 
 	function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
 		{$this->loadExtension('SubParser');return $this->sub->getAllChildren($id, $sort, $dir, $fields,$where);}

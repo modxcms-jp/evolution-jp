@@ -1554,13 +1554,10 @@ class SubParser {
 		return $resourceArray;
 	}
 	
-	function getPreviewObject() {
+	function getPreviewObject($input=array()) {
 		global $modx;
 		
-        $input = $_POST;
-        $docid = $_POST['id'];
-        $modx->documentIdentifier = $docid;
-        
+        if(isset($input['id'])) $modx->documentIdentifier = $input['id'];
         $rs = $modx->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
         while($row = $modx->db->getRow($rs))
         {
