@@ -60,6 +60,7 @@ class DocumentParser {
     var $dbConfig;
     var $pluginCache;
     var $aliasListing = array();
+    var $SystemAlertMsgQueque;
 
     function __get($property_name)
     {
@@ -3363,13 +3364,12 @@ class SystemEvent {
 
     // used for displaying a message to the user
     function alert($msg) {
-        global $SystemAlertMsgQueque;
         if ($msg == '')
             return;
-        if (is_array($SystemAlertMsgQueque)) {
+        if (is_array($this->SystemAlertMsgQueque)) {
             if ($this->name && $this->activePlugin)
                 $title= "<div><b>" . $this->activePlugin . "</b> - <span style='color:maroon;'>" . $this->name . "</span></div>";
-            $SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
+            $this->SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
         }
     }
 

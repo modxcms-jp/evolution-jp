@@ -12,7 +12,7 @@ include_once(MODX_CORE_PATH . 'log.class.inc.php');
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
-$SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
+$modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // initiate the content manager class
 $modx->loadExtension('ManagerAPI');

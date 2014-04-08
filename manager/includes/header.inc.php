@@ -1,7 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 global $_lang, $_style, $modx_textdir, $modx_lang_attribute;
-global $action, $SystemAlertMsgQueque, $manager_theme, $modx_charset;
+global $action, $manager_theme, $modx_charset;
 global $manager_language,$modx_version;
 
 if($modx->config['remember_last_tab']!=='2')

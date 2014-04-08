@@ -187,7 +187,7 @@ $e = new errorHandler;
 if (!isset($_SESSION['SystemAlertMsgQueque'])) {
     $_SESSION['SystemAlertMsgQueque'] = array();
 }
-$SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
+$modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // first we check to see if this is a frameset request
 if (!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($_POST['updateMsgCount'])) {
