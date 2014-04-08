@@ -107,7 +107,6 @@ switch ($actionToTake) {
 		
 		// update template variables
 		$tmplvars = get_tmplvars($id,$v['template']);
-		print_r($tmplvars);exit;
 		update_tmplvars($id,$tmplvars);
 		
 		// set document permissions
