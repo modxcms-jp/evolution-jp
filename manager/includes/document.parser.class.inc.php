@@ -1918,7 +1918,7 @@ class DocumentParser {
 				if(!isset($previewObject[$k])) continue;
 				if(!is_array($documentObject[$k]))
 					$documentObject[$k] = $previewObject[$k];
-				else $documentObject[$k][1] = $previewObject[$k];
+				else $documentObject[$k]['value'] = $previewObject[$k];
 			}
 		}
 		return $documentObject;
