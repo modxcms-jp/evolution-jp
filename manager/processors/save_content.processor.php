@@ -44,7 +44,7 @@ switch ($actionToTake) {
 		// invoke OnBeforeDocFormSave event
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
-		$temp_id = getNewID();
+		$temp_id = $modx->manager->getNewDocID();
 		$fields = getInputValues($v,$actionToTake,$dbfields,$temp_id);
 		$fields = $modx->db->escape($fields);
 		$newid = $modx->db->insert($fields,'[+prefix+]site_content');
@@ -528,27 +528,6 @@ function checkDocPermission($id,$document_groups) {
 			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $v['alias']), $url);
 		}
 	}
-}
-
-function getNewID()
-{
-	global $modx;
-	
-	switch($modx->config['docid_incrmnt_method']) {
-		case '1':
-			$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
-			$where = "T1.id IS NULL";
-			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-			$id = $modx->db->getValue($rs);
-			break;
-		case '2':
-			$rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
-			$id = $modx->db->getValue($rs);
-			break;
-		default:
-			$id = '';
-	}
-	return $id;
 }
 
 function setValue($input) {

@@ -52,7 +52,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	$rs = $modx->db->select('*', '[+prefix+]site_content', "id='{$docid}'");
 	$content = $modx->db->getRow($rs);
 
-	$new_id = set_new_id();
+	$new_id = $modx->manager->getNewDocID();
 	if(!empty($new_id)) $content['id'] = $new_id;
 	else                unset($content['id']);
 
@@ -129,28 +129,6 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 
 	// return the new doc id
 	return $new_id;
-}
-
-function set_new_id()
-{
-	global $modx;
-	
-	switch($modx->config['docid_incrmnt_method'])
-	{
-		case '1':
-			$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
-			$where = "T1.id IS NULL";
-			$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-			$result = $modx->db->getValue($rs);
-			break;
-		case '2':
-			$rs = $modx->db->select('MAX(id)+1', '[+prefix+]site_content');
-			$result = $modx->db->getValue($rs);
-			break;
-		default:
-			$result=false;
-	}
-	return $result;
 }
 
 // Duplicate Keywords
