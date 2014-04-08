@@ -22,14 +22,9 @@
 
 	if($sysMsgs!=='')
 	{
-?>
-<script type="text/javascript">
-// <![CDATA[
-$j(function() {
-	jAlert('<?php echo $modx->db->escape($sysMsgs);?>','<?php echo $_lang['sys_alert'];?>');
-});
-// ]]>
-</script>
-<?php
+		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl');
+		$ph['alerts'] = $modx->db->escape($sysMsgs);
+		$ph['title']  = $_lang['sys_alert'];
+		echo $modx->parseText($tpl,$ph);
 	}
 ?>
