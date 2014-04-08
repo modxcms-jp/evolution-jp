@@ -606,4 +606,25 @@ class ManagerAPI {
 		$ph['title']  = $_lang['sys_alert'];
 		return $modx->parseText($tpl,$ph);
 	}
+	
+	function getMessageCount() {
+		global $modx;
+		
+		if(!$modx->hasPermission('messages')) return;
+		
+		$uid = $modx->getLoginUserID();
+		
+		$rs = $modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}' and messageread=0");
+		$new = $modx->db->getValue($rs);
+		
+		$rs = $modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}'");
+		$total = $modx->db->getValue($rs);
+		
+		// ajax response
+		if (isset($_POST['updateMsgCount'])) {
+			echo "{$new},{$total}";
+			exit();
+		}
+		else return array('new'=>$new,'total'=>$total);
+	}
 }

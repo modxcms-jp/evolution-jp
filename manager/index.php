@@ -210,7 +210,7 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
 }
 
 if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
-    include_once("{$core_path}messageCount.inc.php");
+    $modx->manager->getMessageCount();
 }
 
 // save page to manager object

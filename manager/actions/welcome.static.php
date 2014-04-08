@@ -35,9 +35,9 @@ $modx->setPlaceholder('info',$_lang['info']);
 
 // setup message info
 if($modx->hasPermission('messages')) {
-	include_once(MODX_CORE_PATH . 'messageCount.inc.php');
-	$_SESSION['nrtotalmessages'] = $nrtotalmessages;
-	$_SESSION['nrnewmessages'] = $nrnewmessages;
+	$messages = $modx->manager->getMessageCount();
+	$_SESSION['nrtotalmessages'] = $messages['total'];
+	$_SESSION['nrnewmessages']   = $messages['new'];
 
     $msg = '<a href="index.php?a=10"><img src="'.$_style['icons_mail_large'].'" /></a>
     <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;'.$_lang["inbox"].($_SESSION['nrnewmessages']>0 ? " (<span style='color:red'>".$_SESSION['nrnewmessages'].'</span>)':'').'</span><br />';
