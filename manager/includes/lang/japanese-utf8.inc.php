@@ -1223,8 +1223,8 @@ $_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指�
 
 $_lang["update"] = '更新';
 
-$_lang["a17_manager_inline_style_title"] = '追加のスタイル';
-$_lang["a17_manager_inline_style_message"] = '管理画面内に追加したいスタイルがある場合はここで指定します。';
+$_lang["a17_manager_inline_style_title"] = '追加のコード';
+$_lang["a17_manager_inline_style_message"] = '管理画面head要素内に追加したいコードがある場合はここで指定します。';
 
 $_lang["configcheck_mgr_tpl"] = '管理画面テンプレートファイル';
 $_lang["configcheck_mgr_tpl_msg"] = 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、<a href="index.php?a=31&mode=drill&path=[+path+]assets/templates">ディレクトリごと削除</a>してください。すでにカスタマイズを加えて使用している場合は、manager/media/style/テーマ名/html/ディレクトリに上書きしてください。';
