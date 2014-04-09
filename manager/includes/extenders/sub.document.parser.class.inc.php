@@ -1602,6 +1602,7 @@ class SubParser {
 			$modx_lang_attribute = 'ja';
 			$modx_textdir = 'ltr';
 		}
+		$target = rtrim($target, '/') . '/';
 		
 		$_lang = array();
 		include_once("{$target}{$langname}.inc.php");
