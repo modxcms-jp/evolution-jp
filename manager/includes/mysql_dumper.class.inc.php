@@ -21,24 +21,31 @@ class Mysqldumper {
 	var $table_prefix;
 
 	function Mysqldumper() {
+		global $modx;
 		// Don't drop tables by default.
-		$this->database_server = false;
-		$this->dbname          = false;
-		$this->table_prefix    = '';
+		$this->database_server = $modx->db->config['host']==='127.0.0.1' ? 'localhost' : $modx->db->config['host'];
+		$this->dbname          = trim($modx->db->config['dbase'],'`');
+		$this->table_prefix    = $modx->db->config['table_prefix'];
 		$this->mode            = '';
-		$this->setDroptables(false);
+		$this->addDropCommand(false);
+		$this->_isDroptables = true;
+		$this->_dbtables = false;
 	}
 
-	function setDBtables($dbtables) { $this->_dbtables = $dbtables; }
+	function setDBtables($dbtables=false) {
+		if($dbtables===false) $this->_dbtables = $this->getTableNames();
+		else                  $this->_dbtables = $dbtables;
+	}
 
 	// If set to true, it will generate 'DROP TABLE IF EXISTS'-statements for each table.
-	function setDroptables($state) { $this->_isDroptables = $state; }
+	function addDropCommand($state) { $this->_isDroptables = $state; }
 	function isDroptables()        { return $this->_isDroptables; }
 
 	function createDump() {
 		global $modx;
 
 		if(empty($this->database_server) || empty($this->dbname)) return false;
+		if($this->_dbtables===false) $this->setDBtables();
 
 		$table_prefix = $this->table_prefix;
 		// Set line feed
@@ -47,6 +54,7 @@ class Mysqldumper {
 
 		$result = $modx->db->query('SHOW TABLES');
 		$tables = $this->result2Array(0, $result);
+		
 		foreach ($tables as $table_name) {
 			$result = $modx->db->query("SHOW CREATE TABLE `{$table_name}`");
 			$createtable[$table_name] = $this->result2Array(1, $result);
@@ -66,28 +74,42 @@ class Mysqldumper {
 		$output = '';
 
 		// Generate dumptext for the tables.
-		if (isset($this->_dbtables) && count($this->_dbtables)) {
-			$this->_dbtables = implode(',',$this->_dbtables);
-		} else {
-			unset($this->_dbtables);
+		if (isset($this->_dbtables) && !empty($this->_dbtables)) {
+			$this->_dbtables=array_flip($this->_dbtables);
+			foreach($this->_dbtables as $k=>$v) {
+				$this->_dbtables[$k] = '1';
+			}
 		}
+		else return false;
+		
 		foreach ($tables as $table_name) {
 			// check for selected table
-			if(isset($this->_dbtables)) {
-				if (strstr(",{$this->_dbtables},",",{$table_name},")===false) {
-					continue;
-				}
-			}
-			if(!preg_match('@^'.$table_prefix.'@', $table_name)) continue;
+			if(!isset($this->_dbtables[$table_name])) continue;
+			if(!preg_match("@^{$table_prefix}@", $table_name)) continue;
 			if($this->mode==='snapshot')
 			{
 				switch($table_name)
 				{
-					case $table_prefix.'event_log':
-					case $table_prefix.'manager_log':
+					case "{$table_prefix}event_log":
+					case "{$table_prefix}manager_log":
 						continue 2;
 				}
 			}
+			
+			if($this->contentsOnly)
+			{
+				switch($table_name)
+				{
+					case "{$table_prefix}site_content":
+					case "{$table_prefix}site_htmlsnippets":
+					case "{$table_prefix}site_templates":
+					case "{$table_prefix}system_settings":
+						break;
+					default:
+						continue 2;
+				}
+			}
+			
 			$output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
 			$output .= "#{$lf}# Table structure for table `{$table_name}`{$lf}";
 			$output .= "#{$lf}{$lf}";
@@ -169,8 +191,7 @@ class Mysqldumper {
     	return true;
     }
     
-    function snapshot(&$dumpstring) {
-    	global $path;
+    function snapshot($path,&$dumpstring) {
     	file_put_contents($path,$dumpstring,FILE_APPEND);
     	return true;
     }
@@ -231,5 +252,24 @@ class Mysqldumper {
     	{
     		$modx->db->update(array('setting_value'=>$v),'[+prefix+]system_settings',"setting_name='{$k}'");
     	}
+    }
+    function getTableNames($dbname='',$table_prefix='') {
+    	global $modx;
+    	
+		if($table_prefix==='') $table_prefix = $this->table_prefix;
+		$table_prefix = str_replace('_', '\\_', $table_prefix);
+		if($dbname==='') $dbname = $this->dbname;
+		$sql = "SHOW TABLE STATUS FROM `{$dbname}` LIKE '{$table_prefix}%'";
+		$rs = $modx->db->query($sql);
+		
+		$tables = array();
+		if(0<$modx->db->getRecordCount($rs)) {
+			while($row = $modx->db->getRow($rs))
+			{
+				$tables[] = $row['Name'];
+			}
+		}
+		
+		return $tables;
     }
 }

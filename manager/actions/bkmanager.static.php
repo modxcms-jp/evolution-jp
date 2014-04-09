@@ -65,11 +65,8 @@ elseif ($mode=='backup')
 	 */
 	@set_time_limit(120); // set timeout limit to 2 minutes
 	$dumper = new Mysqldumper();
-	$dumper->database_server = $database_server;
-	$dumper->dbname          = $dbase;
-	$dumper->table_prefix    = $table_prefix;
 	$dumper->setDBtables($tables);
-	$dumper->setDroptables((isset($_POST['droptables']) ? true : false));
+	$dumper->addDropCommand((isset($_POST['droptables']) ? true : false));
 	$output = $dumper->createDump();
 	$dumper->dumpSql($output);
 	if(!$output)
@@ -98,17 +95,7 @@ elseif ($mode=='snapshot')
 		echo $modx->parseText($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
 		exit;
 	}
-	$escaped_table_prefix = str_replace('_', '\\_', $table_prefix);
-	$sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$escaped_table_prefix}%'";
-	$rs = $modx->db->query($sql);
-	$tables = array();
-	if(0<$modx->db->getRecordCount($rs))
-	{
-		while($db_status = $modx->db->getRow($rs))
-		{
-			$tables[] = $db_status['Name'];
-		}
-	}
+	
 	$today = $modx->toDateFormat(time());
 	$today = str_replace(array('/',' '), '-', $today);
 	$today = str_replace(':', '', $today);
@@ -118,14 +105,9 @@ elseif ($mode=='snapshot')
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
 	$dumper = new Mysqldumper();
-	$dumper->database_server = $database_server;
-	$dumper->dbname          = $dbase;
-	$dumper->table_prefix    = $table_prefix;
-	$dumper->mode            = 'snapshot';
-	$dumper->setDBtables($tables);
-	$dumper->setDroptables(true);
+	$dumper->mode = 'snapshot';
 	$output = $dumper->createDump();
-	$dumper->snapshot($output);
+	$dumper->snapshot($path,$output);
 	
 	$pattern = "{$modx->config['snapshot_path']}*.sql";
 	$files = glob($pattern,GLOB_NOCHECK);
@@ -230,8 +212,8 @@ for ($i = 0; $i < $limit; $i++) {
 	$db_status = $modx->db->getRow($rs);
 	$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
-	if (isset($tables))
-		$table_string = implode(',', $table);
+	if (isset($dumper->_dbtables)&&!empty($dumper->_dbtables))
+		$table_string = implode(',', $dumper->_dbtables);
 	else    $table_string = '';
 
 	echo '<tr bgcolor="'.$bgcolor.'" title="'.$db_status['Comment'].'" style="cursor:default">'."\n".
