@@ -17,6 +17,7 @@ function get_tpl()
 {
 	$tpl = <<< EOT
 <h1>[+_lang_cleaningup+]</h1>
+<div class="section">
 <div class="sectionBody">
 	<p>[+_lang_actioncomplete+]</p>
 	<script type="text/javascript">
@@ -26,6 +27,7 @@ function get_tpl()
 	}
 	x=window.setTimeout('goHome()',300);
 	</script>
+</div>
 </div>
 EOT;
 	return $tpl;
