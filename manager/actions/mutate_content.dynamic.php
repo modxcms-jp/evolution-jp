@@ -1,416 +1,33 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $modx->config['preview_mode'] = '1';
-
-$inputdata = $_POST;
-
-// check permissions
-switch ($_REQUEST['a']) {
-	case 27:
-		if (!$modx->hasPermission('edit_document')) {
-			$modx->config['remember_last_tab'] = 0;
-			$e->setError(3);
-			$e->dumpError();
-		}
-		$modx->manager->remove_locks('27');
-		break;
-	case 85:
-	case 72:
-	case 4:
-		if (!$modx->hasPermission('new_document')) {
-			$e->setError(3);
-			$e->dumpError();
-		} elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
-			// check user has permissions for parent
-			$targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
-			if (!$modx->checkPermissions($targetpid)) {
-				$e->setError(3);
-				$e->dumpError();
-			}
-		}
-		break;
-	default:
-		$e->setError(3);
-		$e->dumpError();
-}
-
-
 if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
 	 $id = $_REQUEST['id'];
 else $id = '0';
 
-// Get table names (alphabetical)
+checkPermissions($id);
+checkDocLock($id);
 
-if ($action == 27)
+$config = $modx->config;
+$docgrp  = getDocgrp();
+$db_v    = getContentFromDB($id,$docgrp);
+$form_v  = $_POST;
+$doc = mergeContent($db_v,$form_v);
+if($_REQUEST['a']==='27') checkViewUnpubDocPerm($doc['published'],$doc['editedby']);
+
+$doc['menuindex'] = getMenuIndexAtNew($doc['menuindex']);
+$doc['alias']     = getAliasAtNew($doc['alias']);
+$doc['richtext']  = getRteAtNew($doc['richtext']);
+if (isset ($form_v['which_editor']))
 {
-	//editing an existing document
-	// check permissions on the document
-	if (!$modx->checkPermissions($id))
-	{
+	$which_editor = $form_v['which_editor'];
+}
+else $which_editor = $config['which_editor'];
+
+echo getJScripts();
+
+$_SESSION['itemname'] = to_safestr($doc['pagetitle']);
 ?>
-<br /><br />
-<div class="section">
-<div class="sectionHeader"><?php echo $_lang['access_permissions']?></div>
-<div class="sectionBody">
-	<p><?php echo $_lang['access_permission_denied']?></p>
-</div>
-</div>
-<?php
-		include(MODX_CORE_PATH . 'footer.inc.php');
-		exit;
-	}
-}
-
-// Check to see the document isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=27 AND id='{$id}'");
-if (1 < $modx->db->getRecordCount($rs))
-{
-	while($lock = $modx->db->getRow($rs))
-	{
-		if ($lock['internalKey'] != $modx->getLoginUserID())
-		{
-			$msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['resource']);
-			$e->setError(5, $msg);
-			$e->dumpError();
-		}
-	}
-}
-
-// get document groups for current user
-if ($_SESSION['mgrDocgroups']) {
-	$docgrp = implode(',', $_SESSION['mgrDocgroups']);
-}
-
-if ($id !== '0')
-{
-	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-	$access .= !isset($docgrp) || empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
-	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
-	$rs = $modx->db->select('DISTINCT sc.*',$from, "sc.id='{$id}' AND ({$access})");
-	$limit = $modx->db->getRecordCount($rs);
-	if ($limit > 1)
-	{
-		$e->setError(6);
-		$e->dumpError();
-	}
-	if ($limit < 1)
-	{
-		$e->setError(3);
-		$e->dumpError();
-	}
-	$content = $modx->db->getRow($rs);
-}
-else
-{
-	$content = array();
-}
-
-// restore saved form
-$formRestored = false;
-if ($modx->manager->hasFormValues())
-{
-	$modx->manager->loadFormValues();
-	$formRestored = true;
-}
-
-// retain form values if template was changed
-// edited to convert pub_date and unpub_date
-// sottwell 02-09-2006
-if ($formRestored == true || isset ($_REQUEST['newtemplate']))
-{
-	$content = array_merge($content, $inputdata);
-	$content['content'] = $inputdata['ta'];
-	if (empty ($content['pub_date'])) unset ($content['pub_date']);
-	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
-	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
-	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
-}
-
-if ($_REQUEST['a']==27 && $content['published']==='0' && !$modx->hasPermission('view_unpublished'))
-{
-	if($modx->getLoginUserID() != $content['editedby'])
-	{
-		$modx->config['remember_last_tab'] = 0;
-		$e->setError(3);
-		$e->dumpError();
-	}
-}
-
-// increase menu index if this is a new document
-if (empty($_REQUEST['id']))
-{
-	if (is_null($auto_menuindex) || $auto_menuindex)
-	{
-		$pid = intval($_REQUEST['pid']);
-		$content['menuindex'] = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
-	}
-	else
-	{
-		$content['menuindex'] = 0;
-	}
-	if ((!isset($content['alias'])||empty($content['alias'])) && $modx->config['automatic_alias'] === '2')
-	{
-		$content['alias'] = $modx->manager->get_alias_num_in_folder(0,$pid);
-	}
-}
-
-if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72') $content['richtext'] = $modx->config['use_editor'];
-
-if (isset ($inputdata['which_editor']))
-{
-	$which_editor = $inputdata['which_editor'];
-}
-$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
-$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
-?>
-<?php
-	if(!isset($modx->config['imanager_url']))
-	{
-		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
-	}
-	if(!isset($modx->config['fmanager_url']))
-	{
-		$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files";
-	}
-?>
-<script type="text/javascript">
-	var imanager_url = '<?php echo $modx->config['imanager_url']; ?>';
-	var fmanager_url = '<?php echo $modx->config['fmanager_url']; ?>';
-</script>
-<script type="text/javascript" src="media/browser/browser.js"></script>
-
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
-<script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-/* <![CDATA[ */
-function openprev(actionurl)
-{
-    window.open(actionurl,"prevWin");
-    var pmode = <?php echo $modx->config['preview_mode'];?>;
-	if(pmode==1)
-	{
-        document.mutate.target = "prevWin";
-        document.mutate.method = "post";
-        document.mutate.action = actionurl;
-        document.mutate.mode.value = 'prev';
-        document.mutate.submit();
-	}
-}
-
-$j(function(){
-	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
-	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
-	var dayNames = <?php echo $dayNames;?>;
-	var monthNames = <?php echo $monthNames;?>;
-	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	$j("#pub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
-	$j("#unpub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
-});
-
-// save tree folder state
-if (parent.tree) parent.tree.saveFolderState();
-
-function changestate(element) {
-	currval = eval(element).value;
-	if (currval==1) {
-		eval(element).value=0;
-	} else {
-		eval(element).value=1;
-	}
-	documentDirty=true;
-}
-
-function deletedocument() {
-	if (confirm("<?php echo $_lang['confirm_delete_resource']?>")==true) {
-		document.location.href="index.php?id=" + document.mutate.id.value + "&a=6";
-	}
-}
-
-function undeletedocument() {
-	if (confirm("<?php echo $_lang['confirm_undelete']?>")==true) {
-		document.location.href="index.php?id=" + document.mutate.id.value + "&a=63";
-	}
-}
-
-function movedocument() {
-	document.location.href="index.php?id=<?php echo $_REQUEST['id'];?>&a=51";
-}
-
-function duplicatedocument(){
-    if(confirm("<?php echo $_lang['confirm_resource_duplicate']?>")==true) {
-        document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94";
-    }
-}
-
-function resetpubdate() {
-	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
-		if (confirm("<?php echo $_lang['mutate_content.dynamic.php1'];?>")==true) {
-			document.mutate.pub_date.value='';
-			document.mutate.unpub_date.value='';
-		}
-	}
-	documentDirty=true;
-}
-
-var allowParentSelection = false;
-var allowLinkSelection = false;
-
-function enableLinkSelection(b) {
-	parent.tree.ca = "link";
-	var closed = "<?php echo $_style["tree_folder"] ?>";
-	var opened = "<?php echo $_style["icons_set_parent"] ?>";
-	if (b) {
-		document.images["llock"].src = opened;
-		allowLinkSelection = true;
-	}
-	else {
-		document.images["llock"].src = closed;
-		allowLinkSelection = false;
-	}
-}
-
-function setLink(lId) {
-	if (!allowLinkSelection) {
-		window.location.href="index.php?a=3&id="+lId;
-		return;
-	}
-	else {
-		documentDirty=true;
-		document.mutate.ta.value=lId;
-	}
-}
-
-function enableParentSelection(b) {
-	parent.tree.ca = "parent";
-	var opened = "<?php echo $_style["icons_set_parent"] ?>";
-	var closed = "<?php echo $_style["tree_folder"] ?>";
-	if (b) {
-		document.images["plock"].src = opened;
-		allowParentSelection = true;
-	}
-	else {
-		document.images["plock"].src = closed;
-		allowParentSelection = false;
-	}
-}
-
-function setParent(pId, pName) {
-	if (!allowParentSelection) {
-		window.location.href="index.php?a=3&id="+pId;
-		return;
-	}
-	else {
-		if (pId==0 || checkParentChildRelation(pId, pName)) {
-			documentDirty=true;
-			document.mutate.parent.value=pId;
-			var elm = document.getElementById('parentName');
-			if (elm) {
-				elm.innerHTML = (pId + " (" + pName + ")");
-			}
-		}
-	}
-}
-
-// check if the selected parent is a child of this document
-function checkParentChildRelation(pId, pName) {
-	var sp;
-	var id = document.mutate.id.value;
-	var tdoc = parent.tree.document;
-	var pn = (tdoc.getElementById) ? tdoc.getElementById("node"+pId) : tdoc.all["node"+pId];
-	if (!pn) return;
-	if (pn.id.substr(4)==id) {
-		alert("<?php echo $_lang['illegal_parent_self']?>");
-		return;
-	}
-	else {
-		while (pn.getAttribute("p")>0) {
-			pId = pn.getAttribute("p");
-			pn = (tdoc.getElementById) ? tdoc.getElementById("node"+pId) : tdoc.all["node"+pId];
-			if (pn.id.substr(4)==id) {
-				alert("<?php echo $_lang['illegal_parent_child']?>");
-				return;
-			}
-		}
-	}
-	return true;
-}
-
-function clearKeywordSelection() {
-	var opt = document.mutate.elements["keywords[]"].options;
-	for (i = 0; i < opt.length; i++) {
-		opt[i].selected = false;
-	}
-}
-
-function clearMetatagSelection() {
-	var opt = document.mutate.elements["metatags[]"].options;
-	for (i = 0; i < opt.length; i++) {
-		opt[i].selected = false;
-	}
-}
-
-var curTemplate = -1;
-var curTemplateIndex = 0;
-function storeCurTemplate() {
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i=0; i<dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				curTemplate = dropTemplate[i].value;
-				curTemplateIndex = i;
-			}
-		}
-	}
-}
-function changeTemplate() {
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i=0; i<dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				newTemplate = dropTemplate[i].value;
-				break;
-			}
-		}
-	}
-	if (curTemplate == newTemplate) {return;}
-
-	documentDirty=false;
-	document.mutate.a.value = <?php echo $action?>;
-	document.mutate.newtemplate.value = newTemplate;
-	document.mutate.submit();
-}
-
-// Added for RTE selection
-function changeRTE() {
-	var whichEditor = document.getElementById('which_editor');
-	if (whichEditor) {
-		for (var i = 0; i < whichEditor.length; i++) {
-			if (whichEditor[i].selected) {
-				newEditor = whichEditor[i].value;
-				break;
-			}
-		}
-	}
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i = 0; i < dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				newTemplate = dropTemplate[i].value;
-				break;
-			}
-		}
-	}
-
-	documentDirty=false;
-	document.mutate.a.value = <?php echo $action?>;
-	document.mutate.newtemplate.value = newTemplate;
-	document.mutate.which_editor.value = newEditor;
-	document.mutate.submit();
-}
-
-/* ]]> */
-</script>
 
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <?php
@@ -419,14 +36,12 @@ $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
 	'id' => $id
 ));
 if (is_array($evtOut)) echo implode('', $evtOut);
-
-$_SESSION['itemname'] = to_safestr($content['pagetitle']);
 ?>
 <input type="hidden" name="a" value="5" />
 <input type="hidden" name="id" value="<?php echo $id;?>" />
-<?php if($_REQUEST['pid']){?>
+<?php if($_REQUEST['pid']):?>
 <input type="hidden" name="pid" value="<?php echo $_REQUEST['pid'];?>" />
-<?php }?>
+<?php endif;?>
 <input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a'];?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : 3145728?>" />
 <input type="hidden" name="refresh_preview" value="0" />
@@ -444,7 +59,7 @@ else        echo $_lang['create_resource_title'];
 	  <ul class="actionButtons">
 <?php
 echo ab_save();
-if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $modx->config['site_start'])
+if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start'])
 {
 	echo ab_move();
 	echo ab_duplicate();
@@ -463,7 +78,7 @@ echo ab_cancel();
 <div class="sectionBody">
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-	tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+	tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
@@ -472,205 +87,88 @@ echo ab_cancel();
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
-$body  = input_text('pagetitle',to_safestr($content['pagetitle']),'spellcheck="true"');
+$body  = input_text('pagetitle',to_safestr($doc['pagetitle']),'spellcheck="true"');
 $body .= tooltip($_lang['resource_title_help']);
 renderTr($_lang['resource_title'],$body);
 
-$body  = input_text('longtitle',to_safestr($content['longtitle']),'spellcheck="true"');
+$body  = input_text('longtitle',to_safestr($doc['longtitle']),'spellcheck="true"');
 $body .= tooltip($_lang['resource_long_title_help']);
 renderTr($_lang['long_title'],$body);
 
-$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . to_safestr($content['description']) . '</textarea>';
+$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . to_safestr($doc['description']) . '</textarea>';
 $body .= tooltip($_lang['resource_description_help']);
 renderTr($_lang['resource_description'],$body,'vertical-align:top;');
 
 $body = '';
-if($modx->config['suffix_mode']==1)
+if($config['suffix_mode']==1)
 {
-	$body .= get_scr_change_url_suffix($modx->config['friendly_url_suffix']);
+	$body .= get_scr_change_url_suffix($config['friendly_url_suffix']);
 	$onkeyup = 'onkeyup="change_url_suffix();" ';
 }
 else $onkeyup = '';
-if($modx->config['friendly_urls']==='1' && $content['type']!=='reference')
+if($config['friendly_urls']==='1' && $doc['type']!=='reference')
 {
-	$body .= get_alias_path($id,$pid);
-	$body .= input_text('alias',to_safestr($content['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
-	if($modx->config['friendly_urls']==1)
+	$body .= get_alias_path($id);
+	$body .= input_text('alias',to_safestr($doc['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
+	if($config['friendly_urls']==1)
 	{
-		if($modx->config['suffix_mode']==1 && strpos($content['alias'],'.')!==false)
+		if($config['suffix_mode']==1 && strpos($doc['alias'],'.')!==false)
 		{
 			$suffix = '';
 		}
-		else $suffix = $modx->config['friendly_url_suffix'];
+		else $suffix = $config['friendly_url_suffix'];
 	}
 	else $suffix = '';
 	$body .= '<span id="url_suffix">' . $suffix . '</span>';
 }
 else
 {
-	$body .= input_text('alias',to_safestr($content['alias']),'','100');
+	$body .= input_text('alias',to_safestr($doc['alias']),'','100');
 }
 $body .= tooltip($_lang['resource_alias_help']);
 renderTr($_lang['resource_alias'],$body);
 
-if ($content['type'] == 'reference' || $_REQUEST['a'] == '72')
-{ // Web Link specific
-?>
-            <tr style="height: 24px;">
-            	<td>
-            		<span class="warning"><?php echo $_lang['weblink']?></span>
-            		<img name="llock" src="<?php echo $_style["tree_folder"] ?>" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />
-            	</td>
-				<td>
-					<?php $content['content'] = !empty($content['content']) ? strip_tags(stripslashes($content['content'])) : 'http://';?>
-					<?php echo input_text('ta',$content['content']);?>
-					<input type="button" onclick="BrowseFileServer('field_ta')" value="<?php echo $_lang['insert']; ?>">
-					<?php echo tooltip($_lang['resource_weblink_help']);?>
-				</td>
-			</tr>
-<?php
+if ($doc['type'] == 'reference' || $_REQUEST['a'] == '72') {
+	// Web Link specific
+	$head[] = $_lang['weblink'];
+	$head[] = '<img name="llock" src="' . $_style['tree_folder'] . '" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />';
+	$doc['content'] = !empty($doc['content']) ? strip_tags(stripslashes($doc['content'])) : 'http://';
+	$body = input_text('ta',$doc['content']) . tooltip($_lang['resource_weblink_help']);
+	renderTr($head, $body);
 }
-$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">' . to_safestr($content['introtext']) . '</textarea>';
+$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.to_safestr($doc['introtext']).'</textarea>';
 $body .= tooltip($_lang['resource_summary_help']);
 renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
-?>
-			<tr style="height: 24px;">
-				<td>
-					<span class="warning"><?php echo $_lang['page_data_template']?></span>
-				</td>
-				<td>
-					<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">
-					<option value="0">(blank)</option>
-<?php
-$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
-$rs = $modx->db->select('t.templatename, t.id, c.category',$from,'', 'c.category, t.templatename ASC');
+$body = '<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">';
+$body .= '<option value="0">(blank)</option>';
+$body .= get_template_options($doc);
+$body .= '</select>' . tooltip($_lang['page_data_template_help']);
+renderTr($_lang['page_data_template'],$body);
 
-$default_template = getDefaultTemplate($content);
+$body = input_text('menutitle',to_safestr($doc['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
+renderTr($_lang['resource_opt_menu_title'],$body);
 
-$currentCategory = '';
-$closeOptGroup = false;
+$body = menuindex($doc['menuindex'],$doc['hidemenu']);
+renderTr($_lang['resource_opt_menu_index'],$body);
 
-while ($row = $modx->db->getRow($rs))
-{
-	$each_category = $row['category'];
-	if($each_category == null) $each_category = $_lang["no_category"];
-	
-	if($each_category != $currentCategory)
-	{
-		if($closeOptGroup) echo "</optgroup>\n";
-		
-		echo "<optgroup label=\"{$each_category}\">\n";
-		$closeOptGroup = true;
-	}
-	else $closeOptGroup = false;
-	
-	$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
-	
-	echo '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
-	$currentCategory = $each_category;
-}
-if($each_category != '') echo "</optgroup>\n";
+echo renderSplit();
+
+$parentname = getParentName($doc['parent'],$form_v['parent']);
+$body = getParentForm($doc['parent'],$parentname);
+renderTr($_lang['resource_parent'],$body);
 ?>
-					</select>
-					<?php echo tooltip($_lang['page_data_template_help']);?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td style="width:100px;">
-					<span class="warning"><?php echo $_lang['resource_opt_menu_title']?></span>
-				</td>
-				<td>
-					<?php echo input_text('menutitle',to_safestr($content['menutitle']));?>
-					<?php echo tooltip($_lang['resource_opt_menu_title_help']);?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td style="width:100px;">
-					<span class="warning"><?php echo $_lang['resource_opt_menu_index']?></span>
-				</td>
-				<td>
-					<table cellpadding="0" cellspacing="0" style="width:333px;">
-						<tr>
-							<td style="white-space:nowrap;">
-								<?php echo input_text('menuindex',$content['menuindex'],'style="width:40px;"','5');?>
-								<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
-								<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
-								<?php echo tooltip($_lang['resource_opt_menu_index_help']);?>
-							</td>
-							<td style="text-align:right;">
-								<span class="warning"><?php echo $_lang['resource_opt_show_menu']?></span>&nbsp;
-								<?php
-									$cond = ($content['hidemenu']!=1);
-									echo input_checkbox('hidemenu',$cond);
-									echo input_hidden('hidemenu',!$cond);
-									echo tooltip($_lang['resource_opt_show_menu_help']);?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2"><div class="split"></div></td>
-			</tr>
-			<tr style="height: 24px;">
-				<td valign="top">
-					<span class="warning"><?php echo $_lang['resource_parent']?></span>
-				</td>
-				<td valign="top">
-<?php
-$parentlookup = false;
-if (isset ($_REQUEST['id']))
-{
-	if ($content['parent'] == 0) $parentname   = $site_name;
-	else                         $parentlookup = $content['parent'];
-}
-elseif (isset ($_REQUEST['pid']))
-{
-	if ($_REQUEST['pid'] == 0)   $parentname   = $site_name;
-	else                         $parentlookup = $_REQUEST['pid'];
-}
-elseif (isset($inputdata['parent']))
-{
-	if ($inputdata['parent'] == 0)   $parentname = $site_name;
-	else                         $parentlookup = $inputdata['parent'];
-}
-else
-{
-	                             $parentname = $site_name;
-	                             $content['parent'] = 0;
-}
-if($parentlookup !== false && is_numeric($parentlookup))
-{
-	$rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
-	$limit = $modx->db->getRecordCount($rs);
-	if ($limit != 1)
-	{
-		$e->setError(8);
-		$e->dumpError();
-	}
-	$parentrs = $modx->db->getRow($rs);
-	$parentname = $parentrs['pagetitle'];
-}
-?>
-					&nbsp;<img alt="tree_folder" name="plock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
-					<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
-					<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
-					<?php echo tooltip($_lang['resource_parent_help']);?>
-					<input type="hidden" name="parent" value="<?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?>" />
-				</td>
-			</tr>
 		</table>
 <?php
-if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
+if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
 {
 ?>
 		<!-- Content -->
 		<div class="sectionHeader" id="content_header"><?php echo $_lang['resource_content']?></div>
 		<div class="sectionBody" id="content_body">
 <?php
-	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $content['richtext'] == 1)
+	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $doc['richtext'] == 1)
 	{
-		$htmlContent = $content['content'];
+		$htmlContent = $doc['content'];
 ?>
 		<div>
 			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;"><?php echo htmlspecialchars($htmlContent)?></textarea>
@@ -699,13 +197,13 @@ if ($content['type'] == 'document' || $_REQUEST['a'] == '4')
 	}
 	else
 	{
-		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
+		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">',htmlspecialchars($doc['content']),'</textarea></div>'."\n";
 	}
 ?>
 		</div><!-- end .sectionBody -->
 <?php
 }
-if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type'] == 'reference' || $_REQUEST['a'] == 72))
+if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'reference' || $_REQUEST['a'] == 72))
 {
 ?>
 		<!-- Template Variables -->
@@ -713,10 +211,10 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			<div class="sectionBody tmplvars" id="tv_body">
 <?php
 	if (isset ($default_template))    $template = $default_template;
-	else                              $template = $modx->config['default_template'];
+	else                              $template = $config['default_template'];
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
-	$where_docgrp = !isset($docgrp) || empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
+	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
 	
 	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
@@ -753,10 +251,10 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 			if ($i > 0 && $i < $num_of_tv) echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
 			
 			// post back value
-			if(array_key_exists('tv'.$row['id'], $inputdata))
+			if(array_key_exists('tv'.$row['id'], $form_v))
 			{
-				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $inputdata['tv'.$row['id']]);
-				else                                   $tvPBV = $inputdata['tv'.$row['id']];
+				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $form_v['tv'.$row['id']]);
+				else                                   $tvPBV = $form_v['tv'.$row['id']];
 			}
 			else                                       $tvPBV = $row['value'];
 
@@ -796,12 +294,12 @@ if (($content['type'] == 'document' || $_REQUEST['a'] == '4') || ($content['type
 		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$modx->config['site_start']); ?>
+		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']); ?>
 			<tr style="height: 24px;">
 				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
 				<td>
 <?php
-$cond = (isset($content['published']) && $content['published']==1) || (!isset($content['published']) && $publish_default==1);
+$cond = (isset($doc['published']) && $doc['published']==1) || (!isset($doc['published']) && $publish_default==1);
 echo input_checkbox('published',$cond);
 echo input_hidden('published',$cond);
 echo tooltip($_lang['resource_opt_published_help']);
@@ -812,9 +310,9 @@ echo tooltip($_lang['resource_opt_published_help']);
 				<td width="150"><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
 				<td>
 <?php
-$content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0') ? $modx->toDateFormat($content['pub_date']) : '';
+$doc['pub_date'] = (isset($doc['pub_date']) && $doc['pub_date']!='0') ? $modx->toDateFormat($doc['pub_date']) : '';
 ?>
-				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $content['pub_date'];?>" />
+				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $doc['pub_date'];?>" />
                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_publishdate_help']);?>
@@ -822,15 +320,15 @@ $content['pub_date'] = (isset($content['pub_date']) && $content['pub_date']!='0'
 			</tr>
 			<tr>
 				<td></td>
-				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $modx->config['datetime_format']; ?> HH:MM:SS</td>
+				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_unpublishdate']?></span></td>
 				<td>
 <?php
-$content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date']!='0') ? $modx->toDateFormat($content['unpub_date']) : '';
+$doc['unpub_date'] = (isset($doc['unpub_date']) && $doc['unpub_date']!='0') ? $modx->toDateFormat($doc['unpub_date']) : '';
 ?>
-				<input type="text" id="unpub_date" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker imeoff" value="<?php echo $content['unpub_date'];?>" onblur="documentDirty=true;" />
+				<input type="text" id="unpub_date" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker imeoff" value="<?php echo $doc['unpub_date'];?>" onblur="documentDirty=true;" />
 				<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">
 				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
 				<?php echo tooltip($_lang['page_data_unpublishdate_help']);?>
@@ -838,7 +336,7 @@ $content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date'
 			</tr>
 			<tr>
 				<td></td>
-				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $modx->config['datetime_format']; ?> HH:MM:SS</td>
+				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
 			<tr>
 				<td colspan="2"><div class="split"></div></td>
@@ -846,32 +344,32 @@ $content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date'
 		
 <?php
 
-if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $content['createdby'])
+if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $doc['createdby'])
 {
 ?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
 				<td><select name="type" class="inputBox" style="width:200px">
 
-                    <option value="document"<?php echo (($content['type'] == 'document' || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
-                    <option value="reference"<?php echo (($content['type'] == 'reference' || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
+                    <option value="document"<?php echo (($doc['type'] == 'document' || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
+                    <option value="reference"<?php echo (($doc['type'] == 'reference' || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
 					</select>
 					<?php echo tooltip($_lang['resource_type_message']);?>
 					</td>
 				</tr>
 <?php
-	if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
+	if($doc['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 	{
 ?>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_contentType']?></span></td>
 				<td><select name="contentType" class="inputBox" style="width:200px">
 <?php
-		if (!$content['contentType']) $content['contentType'] = 'text/html';
+		if (!$doc['contentType']) $doc['contentType'] = 'text/html';
 		
 		$custom_contenttype = (isset ($custom_contenttype) ? $custom_contenttype : "text/html,text/plain,text/xml");
 		$ct = explode(",", $custom_contenttype);
 		for ($i = 0; $i < count($ct); $i++)
 		{
-			echo "\t\t\t\t\t".'<option value="'.$ct[$i].'"'.($content['contentType'] == $ct[$i] ? ' selected="selected"' : '').'>'.$ct[$i]."</option>\n";
+			echo "\t\t\t\t\t".'<option value="'.$ct[$i].'"'.($doc['contentType'] == $ct[$i] ? ' selected="selected"' : '').'>'.$ct[$i]."</option>\n";
 		}
 	?>
 				</select>
@@ -880,8 +378,8 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInterna
 			</tr>
 			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_opt_contentdispo']?></span></td>
 				<td><select name="content_dispo" size="1" style="width:200px">
-					<option value="0"<?php echo !$content['content_dispo'] ? ' selected="selected"':''?>><?php echo $_lang['inline']?></option>
-					<option value="1"<?php echo $content['content_dispo']==1 ? ' selected="selected"':''?>><?php echo $_lang['attachment']?></option>
+					<option value="0"<?php echo !$doc['content_dispo'] ? ' selected="selected"':''?>><?php echo $_lang['inline']?></option>
+					<option value="1"<?php echo $doc['content_dispo']==1 ? ' selected="selected"':''?>><?php echo $_lang['attachment']?></option>
 				</select>
 				<?php echo tooltip($_lang['resource_opt_contentdispo_help']);?>
 				</td>
@@ -896,13 +394,13 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInterna
 }
 else
 {
-	if ($content['type'] != 'reference' && $_REQUEST['a'] != '72')
+	if ($doc['type'] != 'reference' && $_REQUEST['a'] != '72')
 	{
 		// non-admin managers creating or editing a document resource
 ?>
-            <input type="hidden" name="contentType" value="<?php echo isset($content['contentType']) ? $content['contentType'] : "text/html"?>" />
+            <input type="hidden" name="contentType" value="<?php echo isset($doc['contentType']) ? $doc['contentType'] : "text/html"?>" />
             <input type="hidden" name="type" value="document" />
-            <input type="hidden" name="content_dispo" value="<?php echo isset($content['content_dispo']) ? $content['content_dispo'] : '0'?>" />
+            <input type="hidden" name="content_dispo" value="<?php echo isset($doc['content_dispo']) ? $doc['content_dispo'] : '0'?>" />
 <?php
 	}
 	else
@@ -915,7 +413,7 @@ else
 	}
 }//if mgrRole
 
-$body  = input_text('link_attributes',to_safestr($content['link_attributes']));
+$body  = input_text('link_attributes',to_safestr($doc['link_attributes']));
 $body .= tooltip($_lang['link_attributes_help']);
 renderTr($_lang['link_attributes'],$body);
 
@@ -925,7 +423,7 @@ renderTr($_lang['link_attributes'],$body);
 				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_folder']?></span></td>
 				<td>
 <?php
-$cond = ($content['isfolder']==1||$_REQUEST['a']=='85');
+$cond = ($doc['isfolder']==1||$_REQUEST['a']=='85');
 echo input_checkbox('isfolder',$cond);
 echo input_hidden('isfolder',$cond);
 echo tooltip($_lang['resource_opt_folder_help']);
@@ -937,7 +435,7 @@ echo tooltip($_lang['resource_opt_folder_help']);
 				<td>
 <?php
 	$disabled = ($use_editor!=1) ? ' disabled="disabled"' : '';
-	$cond = (!isset($content['richtext']) || $content['richtext']!=0 || $_REQUEST['a']!='27');
+	$cond = (!isset($doc['richtext']) || $doc['richtext']!=0 || $_REQUEST['a']!='27');
 	echo input_checkbox('richtext',$cond,$disabled);
 	echo input_hidden('richtext',$cond);
 	echo tooltip($_lang['resource_opt_richtext_help']);
@@ -948,7 +446,7 @@ echo tooltip($_lang['resource_opt_folder_help']);
 				<td width="150"><span class="warning"><?php echo $_lang['track_visitors_title']?></span></td>
 				<td>
 <?php
-$cond = ($content['donthit']!=1);
+$cond = ($doc['donthit']!=1);
 echo input_checkbox('donthit',$cond);
 echo input_hidden('donthit',!$cond);
 echo tooltip($_lang['resource_opt_trackvisit_help']);
@@ -959,7 +457,7 @@ echo tooltip($_lang['resource_opt_trackvisit_help']);
 				<td><span class="warning"><?php echo $_lang['page_data_searchable']?></span></td>
 				<td>
 <?php
-$cond = ((isset($content['searchable']) && $content['searchable']==1) || (!isset($content['searchable']) && $search_default==1));
+$cond = ((isset($doc['searchable']) && $doc['searchable']==1) || (!isset($doc['searchable']) && $search_default==1));
 echo input_checkbox('searchable',$cond);
 echo input_hidden('searchable',$cond);
 echo tooltip($_lang['page_data_searchable_help']);
@@ -967,14 +465,14 @@ echo tooltip($_lang['page_data_searchable_help']);
 				</td>
 			</tr>
 <?php
-if($content['type'] !== 'reference' && $_REQUEST['a'] !== '72')
+if($doc['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 {
 ?>
 			<tr style="height: 24px;">
 				<td><span class="warning"><?php echo $_lang['page_data_cacheable']?></span></td>
 				<td>
 <?php
-	$cond = ((isset($content['cacheable']) && $content['cacheable']==1) || (!isset($content['cacheable']) && $cache_default==1));
+	$cond = ((isset($doc['cacheable']) && $doc['cacheable']==1) || (!isset($doc['cacheable']) && $cache_default==1));
 	$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
 	echo input_checkbox('cacheable',$cond,$disabled);
 	echo input_hidden('cacheable',$cond);
@@ -1000,7 +498,7 @@ echo tooltip($_lang['resource_opt_emptycache_help']);
 	</div><!-- end #tabSettings -->
 
 <?php
-if ($modx->hasPermission('edit_doc_metatags') && isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
+if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1')
 {
 	// get list of site keywords
 	$keywords = array();
@@ -1014,10 +512,10 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($modx->config['show_meta'
 		}
 	}
 	// get selected keywords using document's id
-	if (isset ($content['id']) && count($keywords) > 0)
+	if (isset ($doc['id']) && count($keywords) > 0)
 	{
 		$keywords_selected = array();
-		$ds = $modx->db->select('keyword_id', '[+prefix+]keyword_xref', "content_id='{$content['id']}'");
+		$ds = $modx->db->select('keyword_id', '[+prefix+]keyword_xref', "content_id='{$doc['id']}'");
 		$limit = $modx->db->getRecordCount($ds);
 		if ($limit > 0)
 		{
@@ -1040,10 +538,10 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($modx->config['show_meta'
 		}
 	}
 	// get selected META tags using document's id
-	if (isset ($content['id']) && count($metatags) > 0)
+	if (isset ($doc['id']) && count($metatags) > 0)
 	{
 		$metatags_selected = array();
-		$ds = $modx->db->select('metatag_id', '[+prefix+]site_content_metatags', "content_id='{$content['id']}'");
+		$ds = $modx->db->select('metatag_id', '[+prefix+]site_content_metatags', "content_id='{$doc['id']}'");
 		$limit = $modx->db->getRecordCount($ds);
 		if ($limit > 0)
 		{
@@ -1112,7 +610,7 @@ if ($use_udperms == 1)
 	
 	if($_REQUEST['a'] == '27')       $docid = $id;
 	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
-	else                             $docid = $content['parent'];
+	else                             $docid = $doc['parent'];
 	
 	if ($docid > 0)
 	{
@@ -1149,8 +647,8 @@ if ($use_udperms == 1)
 	$permissions_no = 0; // count permissions the current mgr user doesn't have
 
 	// retain selected doc groups between post
-	if (isset($inputdata['docgroups']))
-		$groupsarray = array_merge($groupsarray, $inputdata['docgroups']);
+	if (isset($form_v['docgroups']))
+		$groupsarray = array_merge($groupsarray, $form_v['docgroups']);
 
 	// Loop through the permissions list
 	while($row = $modx->db->getRow($rs))
@@ -1397,17 +895,17 @@ function ab_save()
 
 function ab_cancel()
 {
-	global $modx, $_style, $_lang, $content, $id;
+	global $modx, $_style, $_lang, $doc, $id;
 	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
-	if(isset($content['parent']) && $content['parent']!=='0')
+	if(isset($doc['parent']) && $doc['parent']!=='0')
 	{
-		if($content['isfolder']=='0') $href = "a=3&id={$content['parent']}&tab=0";
+		if($doc['isfolder']=='0') $href = "a=3&id={$doc['parent']}&tab=0";
 		else                          $href = "a=3&id={$id}&tab=0";
 	}
-	elseif($content['isfolder']=='1' && $content['parent']=='0')
+	elseif($doc['isfolder']=='1' && $doc['parent']=='0')
 	{
 		$href = "a=3&id={$id}&tab=0";
 	}
@@ -1445,11 +943,11 @@ function ab_duplicate()
 
 function ab_delete()
 {
-	global $modx, $_style, $_lang, $content;
+	global $modx, $_style, $_lang, $doc;
 	if(!$modx->hasPermission('delete_document')) return;
 	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	if($content['deleted'] === '0')
+	if($doc['deleted'] === '0')
 	{
 		$ph['onclick'] = 'deletedocument();';
 		$ph['icon'] = $_style["icons_delete_document"];
@@ -1466,10 +964,11 @@ function ab_delete()
 	return $modx->parseText($tpl,$ph);
 }
 
-function get_alias_path($id,$pid)
+function get_alias_path($id)
 {
 	global $modx;
-	
+
+	$pid = intval($_REQUEST['pid']);
 	if(!$modx->aliasListing) $modx->setAliasListing();
 	
 	if($modx->config['use_alias_path']==='0') $path = '';
@@ -1483,7 +982,6 @@ function get_alias_path($id,$pid)
 	}
 	elseif($id) $path = $modx->aliasListing[$id]['path'];
 	else        $path = '';
-	
 	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
 	else           $path = $modx->config['base_url'];
 	
@@ -1499,7 +997,7 @@ function get_scr_change_url_suffix($suffix)
 		var a = document.getElementById("field_alias");
 		var s = document.getElementById("url_suffix");
 		if(0 < a.value.indexOf('.')) s.innerHTML = '';
-		else s.innerHTML = '$suffix';
+		else s.innerHTML = '{$suffix}';
 	}
 	</script>
 EOT;
@@ -1510,14 +1008,22 @@ function renderTr($head, $body,$rowstyle='')
 {
 	global $modx;
 	
-	$ph['head'] = $head;
+	if(!is_array($head)) {
+		$ph['head'] = $head;
+		$ph['extra_head'] = '';
+	}
+	else {
+		$ph['head'] = $head[0];
+		$ph['extra_head'] = "\n" . $head[1];
+	}
+	if(is_array($body)) $body = join("\n", $body);
 	$ph['body'] = $body;
 	$ph['rowstyle'] = $rowstyle;
 	
 	$tpl =<<< EOT
 	<tr style="height: 24px;[+rowstyle+]">
 		<td width="120" align="left">
-			<span class="warning">[+head+]</span>
+			<span class="warning">[+head+]</span>[+extra_head+]
 		</td>
 		<td>
 			[+body+]
@@ -1527,12 +1033,12 @@ EOT;
 	echo $modx->parseText($tpl, $ph);
 }
 
-function getDefaultTemplate($content)
+function getDefaultTemplate($template)
 {
 	global $modx;
 	
     if (isset($_REQUEST['newtemplate'])) return $_REQUEST['newtemplate'];
-    elseif(isset($content['template']))  return $content['template'];
+    elseif(isset($template))  return $template;
     
 	switch($modx->config['auto_template_logic'])
 	{
@@ -1569,4 +1075,336 @@ function getDefaultTemplate($content)
 	if(!isset($default_template)) $default_template = $modx->config['default_template']; // default_template is already set
 	
 	return $default_template;
+}
+
+// check permissions
+function checkPermissions($id) {
+	global $modx, $_lang, $e;
+	
+	switch ($_REQUEST['a']) {
+		case 27:
+			if (!$modx->hasPermission('edit_document')) {
+				$modx->config['remember_last_tab'] = 0;
+				$e->setError(3);
+				$e->dumpError();
+			}
+			$modx->manager->remove_locks('27');
+			break;
+		case 85:
+		case 72:
+		case 4:
+			if (!$modx->hasPermission('new_document')) {
+				$e->setError(3);
+				$e->dumpError();
+			} elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
+				// check user has permissions for parent
+				$targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
+				if (!$modx->checkPermissions($targetpid)) {
+					$e->setError(3);
+					$e->dumpError();
+				}
+			}
+			break;
+		default:
+			$e->setError(3);
+			$e->dumpError();
+	}
+	
+	if ($action == 27 && !$modx->checkPermissions($id))
+	{
+		//editing an existing document
+		// check permissions on the document
+?>
+<br /><br />
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['access_permissions']?></div>
+<div class="sectionBody">
+	<p><?php echo $_lang['access_permission_denied']?></p>
+</div>
+</div>
+	<?php
+		include(MODX_CORE_PATH . 'footer.inc.php');
+		exit;
+	}
+}
+
+function checkDocLock($id) {
+	global $modx, $_lang, $e;
+	
+	// Check to see the document isn't locked
+	$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=27 AND id='{$id}'");
+	if (1 < $modx->db->getRecordCount($rs))
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			if ($row['internalKey'] != $modx->getLoginUserID())
+			{
+				$msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['resource']);
+				$e->setError(5, $msg);
+				$e->dumpError();
+			}
+		}
+	}
+}
+
+// get document groups for current user
+function getDocgrp() {
+	if ($_SESSION['mgrDocgroups'])
+		return implode(',', $_SESSION['mgrDocgroups']);
+	else return array();
+}
+
+function getContentFromDB($id,$docgrp) {
+	global $modx,$e;
+	
+	if($id==='0') return array();
+	
+	$access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+	$access .= empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
+	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
+	$rs = $modx->db->select('DISTINCT sc.*', $from, "sc.id='{$id}' AND ({$access})");
+	$limit = $modx->db->getRecordCount($rs);
+	if ($limit > 1)
+	{
+		$e->setError(6);
+		$e->dumpError();
+	}
+	if ($limit < 1)
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+	return $modx->db->getRow($rs);
+}
+
+// restore saved form
+function mergeContent($db_v,$form_v) {
+	global $modx;
+	
+	if ($modx->manager->hasFormValues())
+	{
+		$modx->manager->loadFormValues();
+		$formRestored = true;
+	}
+	$formRestored = false;
+	
+	// retain form values if template was changed
+	// edited to convert pub_date and unpub_date
+	// sottwell 02-09-2006
+	if ($formRestored == false && !isset ($_REQUEST['newtemplate']))
+		return $db_v;
+	else
+	{
+		$doc = array_merge($db_v, $form_v);
+		$doc['content'] = $form_v['ta'];
+		
+		if (empty ($doc['pub_date']))
+			unset ($doc['pub_date']);
+		else
+			$doc['pub_date'] = $modx->toTimeStamp($doc['pub_date']);
+		
+		if (empty ($doc['unpub_date']))
+			unset ($doc['unpub_date']);
+		else
+			$doc['unpub_date'] = $modx->toTimeStamp($doc['unpub_date']);
+	}
+	
+	return $doc;
+}
+
+function checkViewUnpubDocPerm($published,$editedby) {
+	global $modx;
+	
+	if($modx->hasPermission('view_unpublished')) return;
+	if($published!=='0')                         return;
+	
+	$userid = $modx->getLoginUserID();
+	if ($userid != $editedby) {
+		$modx->config['remember_last_tab'] = 0;
+		$e->setError(3);
+		$e->dumpError();
+	}
+}
+
+// increase menu index if this is a new document
+function getMenuIndexAtNew($menuindex) {
+	global $modx;
+	if (!empty($_REQUEST['id'])) return $menuindex;
+	
+	if (is_null($modx->config['auto_menuindex']) || $modx->config['auto_menuindex'])
+	{
+		$pid = intval($_REQUEST['pid']);
+		return $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
+	}
+	else return '0';
+}
+
+function getAliasAtNew($alias) {
+	global $modx;
+	
+	$pid = $_REQUEST['pid'] ? $_REQUEST['pid'] : '0';
+	if (empty($alias) && $modx->config['automatic_alias'] === '2') {
+		return $modx->manager->get_alias_num_in_folder(0,$pid);}
+	else return $alias;
+}
+
+function getRteAtNew($richtext) {
+	global $modx;
+	if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72')
+		return $modx->config['use_editor'];
+	else return $richtext;
+}
+
+function getJScripts() {
+	global $modx,$_lang,$_style,$action;
+	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
+	$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
+	$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+	if(!isset($modx->config['imanager_url']))
+		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
+	
+	if(!isset($modx->config['fmanager_url']))
+		$modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files";
+	
+	$ph['imanager_url'] = $modx->config['imanager_url'];
+	$ph['fmanager_url'] = $modx->config['fmanager_url'];
+	$ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
+	$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
+	$ph['datetime_format'] = $modx->config['datetime_format'];
+	$ph['dayNames'] = $dayNames;
+	$ph['monthNames'] = $monthNames;
+	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
+	$ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
+	$ph['id'] = $_REQUEST['id'];
+	$ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
+	$ph['style_tree_folder'] = $_style["tree_folder"];
+	$ph['style_icons_set_parent'] = $_style["icons_set_parent"];
+	$ph['style_tree_folder'] = $_style["tree_folder"];
+	$ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
+	$ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
+	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
+	$ph['action'] = $action;
+	
+	return $modx->parseText($tpl,$ph);
+}
+
+function get_template_options($doc) {
+	global $modx, $_lang;
+	
+	$options = '';
+	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
+	$rs = $modx->db->select('t.templatename, t.id, c.category', $from,'', 'c.category, t.templatename ASC');
+	
+	$default_template = getDefaultTemplate($doc['template']);
+	
+	$currentCategory = '';
+	$closeOptGroup = false;
+	
+	while ($row = $modx->db->getRow($rs))
+	{
+		$each_category = $row['category'];
+		if($each_category == null) $each_category = $_lang["no_category"];
+		
+		if($each_category != $currentCategory)
+		{
+			if($closeOptGroup) $options .= "</optgroup>\n";
+			
+			$options .= "<optgroup label=\"{$each_category}\">\n";
+			$closeOptGroup = true;
+		}
+		else $closeOptGroup = false;
+		
+		$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
+		
+		$options .= '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
+		$currentCategory = $each_category;
+	}
+	if($each_category != '') $options .= "</optgroup>\n";
+	return $options;
+}
+
+function menuindex($menuindex, $hidemenu) {
+	global $modx, $_lang;
+	$tpl = <<< EOT
+<table cellpadding="0" cellspacing="0" style="width:333px;">
+	<tr>
+		<td style="white-space:nowrap;">
+			[+menuindex+]
+			<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
+			<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
+			[+resource_opt_menu_index_help+]
+		</td>
+		<td style="text-align:right;">
+			<span class="warning">[+resource_opt_show_menu+]</span>&nbsp;
+			[+hidemenu+]
+			[+hidemenu_hidden+]
+			[+resource_opt_show_menu_help+]
+		</td>
+	</tr>
+</table>
+EOT;
+	$ph = array();
+	$ph['menuindex'] = input_text('menuindex',$menuindex,'style="width:40px;"','5');
+	$ph['resource_opt_menu_index_help'] = tooltip($_lang['resource_opt_menu_index_help']);
+	$ph['resource_opt_show_menu'] = $_lang['resource_opt_show_menu'];
+	$cond = ($hidemenu!=1);
+	$ph['hidemenu'] = input_checkbox('hidemenu',$cond);
+	$ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
+	$ph['resource_opt_show_menu_help'] = tooltip($_lang['resource_opt_show_menu_help']);
+	return $modx->parseText($tpl, $ph);
+}
+
+function renderSplit() {
+	$tpl = <<< EOT
+<tr>
+	<td colspan="2"><div class="split"></div></td>
+</tr>
+EOT;
+	return $tpl;
+}
+
+function getParentName(&$v_parent, $dbv_parent) {
+	global $modx;
+	
+	$parentlookup = false;
+	$parentname   = $modx->config['site_name'];
+	if (isset ($_REQUEST['id']))
+		if ($v_parent != 0)             $parentlookup = $v_parent;
+	elseif (isset ($_REQUEST['pid']))
+		if ($_REQUEST['pid'] != 0)      $parentlookup = $_REQUEST['pid'];
+	elseif (isset($form_v['parent']))
+		if ($form_v['parent'] != 0)     $parentlookup = $form_v['parent'];
+	else                                $v_parent = 0;
+		                            
+	if($parentlookup !== false && preg_match('@^[0-9]+$@', $parentlookup))
+	{
+		$rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
+		$limit = $modx->db->getRecordCount($rs);
+		if ($limit != 1)
+		{
+			$e->setError(8);
+			$e->dumpError();
+		}
+		$parentrs = $modx->db->getRow($rs);
+		$parentname = $parentrs['pagetitle'];
+	}
+	
+	return $parentname;
+}
+
+function getParentForm($parent,$pname) {
+	global $modx,$_lang,$_style;
+	
+	$tpl = <<< EOT
+&nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
+<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
+[+pid+] ([+pname+])</span></b>
+[+tooltip+]
+<input type="hidden" name="parent" value="[+pid+]" />
+EOT;
+	$ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $doc['parent'];
+	$ph['pname'] = $pname;
+	$ph['tooltip'] = tooltip($_lang['resource_parent_help']);
+	$ph['icon_tree_folder'] = $_style['tree_folder'];
+	return $modx->parseText($tpl,$ph);
 }
