@@ -833,6 +833,7 @@ function setDocPermissions($document_groups,$newid,$parent) {
 
 // update parent folder status
 function updateParentStatus($parent) {
+	global $modx;
 	if ($parent != 0) {
 		$rs = $modx->db->update('isfolder=1', '[+prefix+]site_content', "id='{$parent}'");
 		if (!$rs) {
