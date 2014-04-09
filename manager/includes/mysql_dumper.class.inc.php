@@ -192,8 +192,7 @@ class Mysqldumper {
     }
     
     function snapshot($path,&$dumpstring) {
-    	file_put_contents($path,$dumpstring,FILE_APPEND);
-    	return true;
+    	return @file_put_contents($path,$dumpstring);
     }
     
     function import_sql($source)
