@@ -13,16 +13,17 @@ $docgrp  = getDocgrp();
 $db_v    = getContentFromDB($id,$docgrp);
 $form_v  = $_POST;
 $doc = mergeContent($db_v,$form_v);
+
 if($_REQUEST['a']==='27') checkViewUnpubDocPerm($doc['published'],$doc['editedby']);
 
 $doc['menuindex'] = getMenuIndexAtNew($doc['menuindex']);
 $doc['alias']     = getAliasAtNew($doc['alias']);
 $doc['richtext']  = getRteAtNew($doc['richtext']);
+
 if (isset ($form_v['which_editor']))
-{
 	$which_editor = $form_v['which_editor'];
-}
-else $which_editor = $config['which_editor'];
+else
+	$which_editor = $config['which_editor'];
 
 echo getJScripts();
 
@@ -32,131 +33,56 @@ $_SESSION['itemname'] = to_safestr($doc['pagetitle']);
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <?php
 // invoke OnDocFormPrerender event
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
-	'id' => $id
-));
-if (is_array($evtOut)) echo implode('', $evtOut);
+$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+if (is_array($evtOut)) echo implode("\n", $evtOut);
+echo "\n" . getOptionFields($id);
+
+if ($id!=0) $title = "{$_lang['edit_resource_title']}(ID:{$id})";
+else        $title = $_lang['create_resource_title'];
 ?>
-<input type="hidden" name="a" value="5" />
-<input type="hidden" name="id" value="<?php echo $id;?>" />
-<?php if($_REQUEST['pid']):?>
-<input type="hidden" name="pid" value="<?php echo $_REQUEST['pid'];?>" />
-<?php endif;?>
-<input type="hidden" name="mode" value="<?php echo (int) $_REQUEST['a'];?>" />
-<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo isset($upload_maxsize) ? $upload_maxsize : 3145728?>" />
-<input type="hidden" name="refresh_preview" value="0" />
-<input type="hidden" name="newtemplate" value="" />
 
 <fieldset id="create_edit">
-	<h1>
-<?php
-if ($id!=0) echo "{$_lang['edit_resource_title']}(ID:{$id})";
-else        echo $_lang['create_resource_title'];
-?>
-	</h1>
+	<h1><?php echo $title;?></h1>
 
-<div id="actions">
-	  <ul class="actionButtons">
 <?php
-echo ab_save();
-if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start'])
-{
-	echo ab_move();
-	echo ab_duplicate();
-	echo ab_delete();
-}
-if ($_REQUEST['a'] !== '72')
-{
-	echo ab_preview();
-}
-echo ab_cancel();
+echo getActionButtons();
 ?>
-	  </ul>
-</div>
 
 <!-- start main wrapper -->
 <div class="sectionBody">
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-	tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+	tpDocs = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
 	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabGeneral" ) );</script>
+		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
-$body  = input_text('pagetitle',to_safestr($doc['pagetitle']),'spellcheck="true"');
-$body .= tooltip($_lang['resource_title_help']);
-renderTr($_lang['resource_title'],$body);
+echo fieldPagetitle($doc['pagetitle']);
+echo fieldLongtitle($doc['longtitle']);
+echo fieldDescription($doc['description']);
+echo fieldAlias($id,$doc['alias'],$doc['type'],$config['suffix_mode'],$config['friendly_url_suffix'],$config['friendly_urls']);
 
-$body  = input_text('longtitle',to_safestr($doc['longtitle']),'spellcheck="true"');
-$body .= tooltip($_lang['resource_long_title_help']);
-renderTr($_lang['long_title'],$body);
+if ($doc['type'] == 'reference' || $_REQUEST['a'] == '72')
+	echo fieldWeblink($doc['content'],$_style['tree_folder']);
 
-$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . to_safestr($doc['description']) . '</textarea>';
-$body .= tooltip($_lang['resource_description_help']);
-renderTr($_lang['resource_description'],$body,'vertical-align:top;');
-
-$body = '';
-if($config['suffix_mode']==1)
-{
-	$body .= get_scr_change_url_suffix($config['friendly_url_suffix']);
-	$onkeyup = 'onkeyup="change_url_suffix();" ';
-}
-else $onkeyup = '';
-if($config['friendly_urls']==='1' && $doc['type']!=='reference')
-{
-	$body .= get_alias_path($id);
-	$body .= input_text('alias',to_safestr($doc['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
-	if($config['friendly_urls']==1)
-	{
-		if($config['suffix_mode']==1 && strpos($doc['alias'],'.')!==false)
-		{
-			$suffix = '';
-		}
-		else $suffix = $config['friendly_url_suffix'];
-	}
-	else $suffix = '';
-	$body .= '<span id="url_suffix">' . $suffix . '</span>';
-}
-else
-{
-	$body .= input_text('alias',to_safestr($doc['alias']),'','100');
-}
-$body .= tooltip($_lang['resource_alias_help']);
-renderTr($_lang['resource_alias'],$body);
-
-if ($doc['type'] == 'reference' || $_REQUEST['a'] == '72') {
-	// Web Link specific
-	$head[] = $_lang['weblink'];
-	$head[] = '<img name="llock" src="' . $_style['tree_folder'] . '" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />';
-	$doc['content'] = !empty($doc['content']) ? strip_tags(stripslashes($doc['content'])) : 'http://';
-	$body = input_text('ta',$doc['content']);
-	$body .= '<input type="button" onclick="BrowseFileServer(\'field_ta\')" value="' . $_lang['insert'] . '">' . tooltip($_lang['resource_weblink_help']);
-	renderTr($head, $body);
-}
-$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.to_safestr($doc['introtext']).'</textarea>';
-$body .= tooltip($_lang['resource_summary_help']);
-renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
-$body = '<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">';
-$body .= '<option value="0">(blank)</option>';
-$body .= get_template_options($doc);
-$body .= '</select>' . tooltip($_lang['page_data_template_help']);
-renderTr($_lang['page_data_template'],$body);
+echo fieldIntrotext($doc['introtext']);
+echo fieldTemplate($doc['template']);
 
 $body = input_text('menutitle',to_safestr($doc['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
-renderTr($_lang['resource_opt_menu_title'],$body);
+echo renderTr($_lang['resource_opt_menu_title'],$body);
 
 $body = menuindex($doc['menuindex'],$doc['hidemenu']);
-renderTr($_lang['resource_opt_menu_index'],$body);
+echo renderTr($_lang['resource_opt_menu_index'],$body);
 
 echo renderSplit();
 
 $parentname = getParentName($doc['parent'],$form_v['parent']);
 $body = getParentForm($doc['parent'],$parentname);
-renderTr($_lang['resource_parent'],$body);
+echo renderTr($_lang['resource_parent'],$body);
 ?>
 		</table>
 <?php
@@ -292,7 +218,7 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
 		<h2 class="tab"><?php echo $_lang['settings_page_settings']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
+		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
@@ -300,7 +226,7 @@ $cond = (isset($doc['published']) && $doc['published']==1) || (!isset($doc['publ
 $body = input_checkbox('published',$cond);
 $body .= input_hidden('published',$cond);
 $body .= tooltip($_lang['resource_opt_published_help']);
-renderTr($_lang['resource_opt_published'],$body);
+echo renderTr($_lang['resource_opt_published'],$body);
 
 $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 $pub_date = (isset($doc['pub_date']) && $doc['pub_date']!='0') ? $modx->toDateFormat($doc['pub_date']) : '';
@@ -308,7 +234,7 @@ $body = $modx->parseText('<input type="text" id="pub_date" [+disabled+] name="pu
 $body .= '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
 $body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
 $body .= tooltip($_lang['page_data_publishdate_help']);
-renderTr($_lang['page_data_publishdate'],$body);
+echo renderTr($_lang['page_data_publishdate'],$body);
 ?>
 			<tr>
 				<td></td>
@@ -320,7 +246,7 @@ $body = $modx->parseText('<input type="text" id="unpub_date" [+disabled+] name="
 $body .= '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
 $body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
 $body .= tooltip($_lang['page_data_unpublishdate_help']);
-renderTr($_lang['page_data_unpublishdate'],$body);
+echo renderTr($_lang['page_data_unpublishdate'],$body);
 ?>
 			<tr>
 				<td></td>
@@ -345,7 +271,7 @@ EOT;
 	$ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
 	$ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
 	$body = $modx->parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
-	renderTr($_lang['resource_type'],$body);
+	echo renderTr($_lang['resource_type'],$body);
 	
 	if($doc['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 	{
@@ -367,7 +293,7 @@ EOT;
 		$ph = array();
 		$ph['option'] = join("\n", $option);
 		$body = $modx->parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
-		renderTr($_lang['page_data_contentType'],$body);
+		echo renderTr($_lang['page_data_contentType'],$body);
 		$tpl = <<< EOT
 <select name="content_dispo" size="1" style="width:200px">
 	<option value="0" [+sel_inline+]>[+inline+]</option>
@@ -380,7 +306,7 @@ EOT;
 		$ph['inline']     = $_lang['inline'];
 		$ph['attachment'] = $_lang['attachment'];
 		$body = $modx->parseText($tpl,$ph);
-		renderTr($_lang['resource_opt_contentdispo'],$body);
+		echo renderTr($_lang['resource_opt_contentdispo'],$body);
 	}
 ?>
 			<tr>
@@ -411,85 +337,49 @@ else
 
 $body  = input_text('link_attributes',to_safestr($doc['link_attributes']));
 $body .= tooltip($_lang['link_attributes_help']);
-renderTr($_lang['link_attributes'],$body);
+echo renderTr($_lang['link_attributes'],$body);
 
-?>
-
-			<tr style="height: 24px;">
-				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_folder']?></span></td>
-				<td>
-<?php
 $cond = ($doc['isfolder']==1||$_REQUEST['a']=='85');
-echo input_checkbox('isfolder',$cond);
-echo input_hidden('isfolder',$cond);
-echo tooltip($_lang['resource_opt_folder_help']);
-?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['resource_opt_richtext']?></span></td>
-				<td>
-<?php
-	$disabled = ($use_editor!=1) ? ' disabled="disabled"' : '';
-	$cond = (!isset($doc['richtext']) || $doc['richtext']!=0 || $_REQUEST['a']!='27');
-	echo input_checkbox('richtext',$cond,$disabled);
-	echo input_hidden('richtext',$cond);
-	echo tooltip($_lang['resource_opt_richtext_help']);
-?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td width="150"><span class="warning"><?php echo $_lang['track_visitors_title']?></span></td>
-				<td>
-<?php
+$body = input_checkbox('isfolder',$cond);
+$body .= input_hidden('isfolder',$cond);
+$body .= tooltip($_lang['resource_opt_folder_help']);
+echo renderTr($_lang['resource_opt_folder'],$body);
+
+$disabled = ($use_editor!=1) ? ' disabled="disabled"' : '';
+$cond = (!isset($doc['richtext']) || $doc['richtext']!=0 || $_REQUEST['a']!='27');
+$body = input_checkbox('richtext',$cond,$disabled);
+$body .= input_hidden('richtext',$cond);
+$body .= tooltip($_lang['resource_opt_richtext_help']);
+echo renderTr($_lang['resource_opt_richtext'],$body);
+
 $cond = ($doc['donthit']!=1);
-echo input_checkbox('donthit',$cond);
-echo input_hidden('donthit',!$cond);
-echo tooltip($_lang['resource_opt_trackvisit_help']);
-?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['page_data_searchable']?></span></td>
-				<td>
-<?php
+$body = input_checkbox('donthit',$cond);
+$body .= input_hidden('donthit',!$cond);
+$body .= tooltip($_lang['resource_opt_trackvisit_help']);
+echo renderTr($_lang['track_visitors_title'],$body);
+
 $cond = ((isset($doc['searchable']) && $doc['searchable']==1) || (!isset($doc['searchable']) && $search_default==1));
-echo input_checkbox('searchable',$cond);
-echo input_hidden('searchable',$cond);
-echo tooltip($_lang['page_data_searchable_help']);
-?>
-				</td>
-			</tr>
-<?php
+$body = input_checkbox('searchable',$cond);
+$body .= input_hidden('searchable',$cond);
+$body .= tooltip($_lang['page_data_searchable_help']);
+echo renderTr($_lang['page_data_searchable'],$body);
+
 if($doc['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 {
-?>
-			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['page_data_cacheable']?></span></td>
-				<td>
-<?php
 	$cond = ((isset($doc['cacheable']) && $doc['cacheable']==1) || (!isset($doc['cacheable']) && $cache_default==1));
 	$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
-	echo input_checkbox('cacheable',$cond,$disabled);
-	echo input_hidden('cacheable',$cond);
-	echo tooltip($_lang['page_data_cacheable_help']);
-?>
-				</td>
-			</tr>
-<?php
+	$body = input_checkbox('cacheable',$cond,$disabled);
+	$body .= input_hidden('cacheable',$cond);
+	$body .= tooltip($_lang['page_data_cacheable_help']);
+	echo renderTr($_lang['page_data_cacheable'],$body);
 }
-?>
-			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['resource_opt_emptycache']?></span></td>
-				<td>
-<?php
+
 $disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
-echo input_checkbox('syncsite',true,$disabled);
-echo input_hidden('syncsite');
-echo tooltip($_lang['resource_opt_emptycache_help']);
+$body = input_checkbox('syncsite',true,$disabled);
+$body .= input_hidden('syncsite');
+$body .= tooltip($_lang['resource_opt_emptycache_help']);
+echo renderTr($_lang['resource_opt_emptycache'],$body);
 ?>
-				</td>
-			</tr>
 		</table>
 	</div><!-- end #tabSettings -->
 
@@ -551,7 +441,7 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && 
 	<!-- META Keywords -->
 	<div class="tab-page" id="tabMeta">
 		<h2 class="tab"><?php echo $_lang['meta_keywords']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
+		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabMeta" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 		<tr style="height: 24px;"><td><?php echo $_lang['resource_metatag_help']?><br /><br />
@@ -561,12 +451,11 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && 
 				<select name="keywords[]" multiple="multiple" size="16" class="inputBox" style="width: 200px;">
 <?php
 	$keys = array_keys($keywords);
-	for ($i = 0; $i < count($keys); $i++)
+	foreach ($keys as $key)
 	{
-		$key = $keys[$i];
 		$value = $keywords[$key];
 		$selected = $keywords_selected[$key];
-		echo "\t\t\t\t".'<option value="'.$key.'"'.$selected.'>'.$value."</option>\n";
+		echo '<option value="'.$key.'"'.$selected.'>'.$value."</option>\n";
 	}
 ?>
 				</select>
@@ -576,13 +465,12 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && 
 				<td><span class="warning"><?php echo $_lang['metatags']?></span><br />
 				<select name="metatags[]" multiple="multiple" size="16" class="inputBox" style="width: 220px;">
 <?php
-	$keys = array_keys($metatags);
-	for ($i = 0; $i < count($keys); $i++)
+	$tags = array_keys($metatags);
+	foreach ($tags as $tag)
 	{
-		$key = $keys[$i];
-		$value = $metatags[$key];
-		$selected = $metatags_selected[$key];
-		echo "\t\t\t\t".'<option value="'.$key.'"'.$selected.'>'.$value."</option>\n";
+		$value = $metatags[$tag];
+		$selected = $metatags_selected[$tag];
+		echo '<option value="'.$tag.'"'.$selected.'>'.$value."</option>\n";
 	}
 ?>
 				</select>
@@ -707,7 +595,7 @@ if ($use_udperms == 1)
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
 	<h2 class="tab" id="tab_access_header"><?php echo $_lang['access_permissions']?></h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
+	<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabAccess" ) );</script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
 		function makePublic(b) {
@@ -1009,8 +897,13 @@ function renderTr($head, $body,$rowstyle='')
 		$ph['extra_head'] = '';
 	}
 	else {
-		$ph['head'] = $head[0];
-		$ph['extra_head'] = "\n" . $head[1];
+		$i = 0;
+		foreach($head as $v) {
+			if($i===0) $ph['head'] = $v;
+			else $extra_head[] = $v;
+			$i++;
+		}
+		$ph['extra_head'] = join("\n", $extra_head);
 	}
 	if(is_array($body)) $body = join("\n", $body);
 	$ph['body'] = $body;
@@ -1026,7 +919,7 @@ function renderTr($head, $body,$rowstyle='')
 		</td>
 	</tr>
 EOT;
-	echo $modx->parseText($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function getDefaultTemplate($template)
@@ -1285,14 +1178,14 @@ function getJScripts() {
 	return $modx->parseText($tpl,$ph);
 }
 
-function get_template_options($doc) {
+function get_template_options($template) {
 	global $modx, $_lang;
 	
 	$options = '';
 	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
 	$rs = $modx->db->select('t.templatename, t.id, c.category', $from,'', 'c.category, t.templatename ASC');
 	
-	$default_template = getDefaultTemplate($doc['template']);
+	$default_template = getDefaultTemplate($template);
 	
 	$currentCategory = '';
 	$closeOptGroup = false;
@@ -1407,4 +1300,135 @@ EOT;
 	$ph['tooltip'] = tooltip($_lang['resource_parent_help']);
 	$ph['icon_tree_folder'] = $_style['tree_folder'];
 	return $modx->parseText($tpl,$ph);
+}
+
+function getOptionFields($id) {
+	global $modx;
+	
+	$tpl = <<< EOT
+<input type="hidden" name="a" value="5" />
+<input type="hidden" name="id" value="[+id+]" />
+<input type="hidden" name="mode" value="[+a+]" />
+<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
+<input type="hidden" name="refresh_preview" value="0" />
+<input type="hidden" name="newtemplate" value="" />
+EOT;
+	if($_REQUEST['pid']) {
+	$tpl .= '<input type="hidden" name="pid" value="' . $_REQUEST['pid'] . '" />';
+	}
+	$ph['id'] = $id;
+	$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
+	$ph['a'] = (int) $_REQUEST['a'];
+	return $modx->parseText($tpl,$ph);
+}
+
+function getActionButtons() {
+	global $modx;
+	
+	$tpl = <<< EOT
+<div id="actions">
+	<ul class="actionButtons">
+		[+saveButton+]
+		[+moveButton+]
+		[+duplicateButton+]
+		[+deleteButton+]
+		[+previewButton+]
+		[+cancelButton+]
+	</ul>
+</div>
+EOT;
+	$ph['saveButton']      = ab_save();
+	if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start']) {
+		$ph['moveButton']      = ab_move();
+		$ph['duplicateButton'] = ab_duplicate();
+		$ph['deleteButton']    = ab_delete();
+	}
+	if ($_REQUEST['a'] !== '72') {
+		$ph['previewButton']   = ab_preview();
+	}
+	$ph['cancelButton']    = ab_cancel();
+	
+	$rs = $modx->parseText($tpl,$ph);
+	
+	return preg_replace('@\[\+[^\]]+\+\]@','',$rs);
+}
+
+function fieldPagetitle($pagetitle) {
+	global $_lang;
+	$body  = input_text('pagetitle',to_safestr($pagetitle),'spellcheck="true"');
+	$body .= tooltip($_lang['resource_title_help']);
+	return renderTr($_lang['resource_title'],$body);
+}
+
+function fieldLongtitle($longtitle) {
+	global $_lang;
+	$body  = input_text('longtitle',to_safestr($longtitle),'spellcheck="true"');
+	$body .= tooltip($_lang['resource_long_title_help']);
+	return renderTr($_lang['long_title'],$body);
+}
+
+function fieldDescription($description) {
+	global $_lang;
+	$description = to_safestr($description);
+	$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . $description . '</textarea>';
+	$body .= tooltip($_lang['resource_description_help']);
+	return  renderTr($_lang['resource_description'],$body,'vertical-align:top;');
+}
+
+function fieldAlias($id,$alias,$type,$suffix_mode,$friendly_url_suffix,$friendly_urls) {
+	global $_lang;
+	$body = '';
+	$onkeyup = '';
+	if($suffix_mode==1)
+	{
+		$body = get_scr_change_url_suffix($friendly_url_suffix);
+		$onkeyup = 'onkeyup="change_url_suffix();" ';
+	}
+	
+	if($friendly_urls==='1' && $type!=='reference')
+	{
+		$body .= get_alias_path($id);
+		$body .= input_text('alias',to_safestr($alias), $onkeyup . 'size="20" style="width:120px;"','50');
+		$suffix = '';
+		if($friendly_urls==1) {
+			if($suffix_mode!=1 || strpos($alias,'.')===false)
+				$suffix = $friendly_url_suffix;
+		}
+		$body .= '<span id="url_suffix">' . $suffix . '</span>';
+	}
+	else
+	{
+		$body .= input_text('alias',to_safestr($alias),'','100');
+	}
+	$body .= tooltip($_lang['resource_alias_help']);
+	return renderTr($_lang['resource_alias'],$body);
+}
+
+// Web Link specific
+function fieldWeblink($weblink,$icon_tree_folder) {
+	global $_lang;
+	$head[] = $_lang['weblink'];
+	$head[] = '<img name="llock" src="' . $icon_tree_folder . '" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />';
+	$weblink = !empty($weblink) ? strip_tags(stripslashes($weblink)) : 'http://';
+	$body[] = input_text('ta',$weblink);
+	$body[] = '<input type="button" onclick="BrowseFileServer(\'field_ta\')" value="' . $_lang['insert'] . '">';
+	$body[] = tooltip($_lang['resource_weblink_help']);
+	echo renderTr($head, $body);
+}
+
+function fieldIntrotext($introtext) {
+	global $_lang;
+	$introtext = to_safestr($introtext);
+	$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.$introtext.'</textarea>';
+	$body .= tooltip($_lang['resource_summary_help']);
+	return renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
+}
+
+function fieldTemplate($template) {
+	global $_lang;
+	$body = '<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">';
+	$body .= '<option value="0">(blank)</option>';
+	$body .= get_template_options($template);
+	$body .= '</select>' . tooltip($_lang['page_data_template_help']);
+	return renderTr($_lang['page_data_template'],$body);
 }
