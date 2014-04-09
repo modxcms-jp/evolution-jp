@@ -1600,7 +1600,7 @@ class SubParser {
 			$target = MODX_CORE_PATH . 'lang/';
 			$modx_manager_charset = 'utf-8';
 			$modx_lang_attribute = 'ja';
-			//$modx_textdir = 'ltr';
+			$modx_textdir = 'ltr';
 		}
 		
 		$_lang = array();

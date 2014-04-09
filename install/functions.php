@@ -478,10 +478,10 @@ function ph()
 	else                                $installmode = get_installmode();
 
 	$ph['pagetitle']     = $_lang['modx_install'];
-	$ph['textdir']       = $modx_textdir ? ' id="rtl"':'';
+	$ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
 	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
 	$ph['version']       = $moduleName.' '.$moduleVersion;
-	$ph['release_date']  = ($modx_textdir ? '&rlm;':'') . $modx_release_date;
+	$ph['release_date']  = (($modx_textdir && $modx_textdir==='rtl') ? '&rlm;':'') . $modx_release_date;
 	$ph['footer1']       = $_lang['modx_footer1'];
 	$ph['footer2']       = $_lang['modx_footer2'];
 	return $ph;

@@ -8,9 +8,9 @@ if ($manager_theme) $manager_theme .= '/';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
+<html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset?>" />
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
 	<title>nav</title>
 	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css?<?php echo $modx_version;?>" />
 	<?php echo $modx->config['manager_inline_style']; ?>
@@ -20,8 +20,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	// TREE FUNCTIONS - FRAME
 	// These functions affect the tree frame and any items that may be pointing to the tree.
 	var currentFrameState = 'open';
-	var defaultFrameWidth = '<?php echo !$modx_textdir ? '260,*' : '*,260'?>';
-	var userDefinedFrameWidth = '<?php echo !$modx_textdir ? '260,*' : '*,260'?>';
+	var defaultFrameWidth = '<?php echo $modx_textdir==='ltr' ? '260,*' : '*,260'?>';
+	var userDefinedFrameWidth = '<?php echo $modx_textdir==='ltr' ? '260,*' : '*,260'?>';
 
 	var workText;
 	var buildText;
@@ -88,7 +88,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		try {
 			var elm = document.getElementById('tocText');
 			if(elm) elm.innerHTML = "<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>";
-			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo (!$modx_textdir ? '0,*' : '*,0')?>';
+			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo ($modx_textdir==='ltr' ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
 		} catch(oException) {
 			x=window.setTimeout('hideTreeFrame()', 100);
@@ -209,9 +209,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	</script>
 </head>
 
-<body id="topMenu" class="<?php echo $modx_textdir ? 'rtl':'ltr'?>">
+<body id="topMenu" class="<?php echo $modx_textdir==='rtl' ? 'rtl':'ltr'?>">
 
-<div id="tocText"<?php echo $modx_textdir ? ' class="tocTextRTL"' : '' ?>></div>
+<div id="tocText"<?php echo $modx_textdir==='rtl' ? ' class="tocTextRTL"' : '' ?>></div>
 <div id="topbar">
 <div id="topbar-container">
 	<div id="statusbar">

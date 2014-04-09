@@ -4,7 +4,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
+<html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
     <title>Document Tree</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
@@ -143,7 +143,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         if(selectedObjectName.length>20) {
             selectedObjectName = selectedObjectName.substr(0, 20) + "...";
         }
-        x = x<?php echo $modx_textdir ? '-190' : '';?>;
+        x = x<?php echo $modx_textdir==='rtl' ? '-190' : '';?>;
         $j('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
         $j('#mx_contextmenu').css('top' ,y);
         $j("#nameHolder").text(selectedObjectName);
@@ -392,7 +392,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 </script>
 </head>
-<body onclick="hideMenu();" class="<?php echo $modx_textdir ? ' rtl':''?>">
+<body onclick="hideMenu();" class="<?php echo $modx_textdir==='rtl' ? ' rtl':''?>">
 <?php
     // invoke OnTreePrerender event
     $evtOut = $modx->invokeEvent('OnManagerTreeInit',$_REQUEST);

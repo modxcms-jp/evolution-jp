@@ -192,7 +192,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			else                  $class = "publishedNode{$protectedClass}";
 			$nodetitleDisplay = '<span class="' . $class . '">' . "{$nodetitle}</span>";
 			$weblinkDisplay = $type=="reference" ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
-			$pageIdDisplay = '<small>('.($modx_textdir ? '&rlm;':'').$id.')</small>';
+			$pageIdDisplay = '<small>('.($modx_textdir==='rtl' ? '&rlm;':'').$id.')</small>';
 			$url = $modx->makeUrl($id,'','','full');
 
 			$alt  = "[{$id}] ";

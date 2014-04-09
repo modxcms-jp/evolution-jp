@@ -474,7 +474,7 @@ function get_jscript($id,$cm)
 	global $modx, $_lang;
 	
 	$contextm = $cm->getClientScriptObject();
-	$textdir = $modx_textdir ? '-190' : '';
+	$textdir = $modx_textdir==='rtl' ? '-190' : '';
 	$page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
 	
 	$block = <<< EOT

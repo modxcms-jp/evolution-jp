@@ -143,7 +143,7 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 		$ph['id'] = $row['id'];
 		$ph['action'] = $action;
 		$ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
-		$ph['rlm'] = $modx_textdir ? '&rlm;' : '';
+		$ph['rlm'] = $modx_textdir==='rtl' ? '&rlm;' : '';
 		$ph['description'] = $row['description'];
 		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
 		$src = "<li>{$tpl}</li>";
