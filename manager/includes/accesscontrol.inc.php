@@ -168,8 +168,6 @@ else
 	else                                            $ip = 'UNKNOWN';
 	
 	$_SESSION['ip'] = $ip;
-
-	$action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 	
 	$fields['internalKey'] = $modx->getLoginUserID();
 	$fields['username']    = $_SESSION['mgrShortname'];

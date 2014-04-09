@@ -139,6 +139,8 @@ header("Content-Type: text/html; charset={$modx_manager_charset}");
 // include version info
 include_once("{$core_path}version.inc.php");
 
+$action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
+
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once("{$core_path}accesscontrol.inc.php");
 
