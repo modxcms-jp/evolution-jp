@@ -1595,8 +1595,13 @@ class SubParser {
 		    $lang = 'japanese-utf8';
 		}
 		else $langname = $modx->config['manager_language'];
-		if($target==='manager')
+		if($target==='manager') {
+			global $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
 			$target = MODX_CORE_PATH . 'lang/';
+			$modx_manager_charset = 'utf-8';
+			$modx_lang_attribute = 'ja';
+			$modx_textdir = 'ltr';
+		}
 		
 		$_lang = array();
 		include_once("{$target}{$langname}.inc.php");
