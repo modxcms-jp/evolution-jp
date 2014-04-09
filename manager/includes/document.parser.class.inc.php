@@ -3168,6 +3168,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->getDocumentChildren($parentid, $published, $deleted, $fields, $where, $sort, $dir, $limit);}
 	function loadLexicon($target='manager')
 		{$this->loadExtension('SubParser');return $this->sub->loadLexicon($target);}
+	function snapshot($filename='',$target='')
+		{$this->loadExtension('SubParser');return $this->sub->snapshot($filename,$target);}
 	
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}

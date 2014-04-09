@@ -1607,4 +1607,40 @@ class SubParser {
 		$_lang = array();
 		include_once("{$target}{$langname}.inc.php");
 	}
+	
+	function snapshot($filename='', $target='') {
+		global $modx, $modx_version;
+		
+		if(is_array($filename)) {
+			if(!isset($filename['filename'])) $filename = '';
+			else                              $filename = $filename['filename'];
+			if(!isset($filename['target'])) $target = '';
+			else                              $target = $filename['target'];
+		}
+		
+		if(strpos($filename,'/')!==false) return;
+		if(strpos($filename,'\\')!==false) return;
+		if($target!=='') $target = substr(strtolower($target),0,1);
+		
+		if(!isset($modx->config['snapshot_path'])||empty($modx->config['snapshot_path'])) {
+			if(is_dir(MODX_BASE_PATH . 'temp/backup')) $snapshot_path = MODX_BASE_PATH . 'temp/backup/';
+			elseif(is_dir(MODX_BASE_PATH . 'assets/backup')) $snapshot_path = MODX_BASE_PATH . 'assets/backup/';
+		}
+		else $snapshot_path = $modx->config['snapshot_path'];
+		
+		if($filename==='') {
+			$today = $modx->toDateFormat(time());
+			$today = str_replace(array('/',' '), '-', $today);
+			$today = str_replace(':', '', $today);
+			$today = strtolower($today);
+			$filename = "{$today}-{$modx_version}.sql";
+		}
+		
+		include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
+		$dumper = new Mysqldumper();
+		$dumper->mode = 'snapshot';
+		if($target==='c') $dumper->contentsOnly = true;
+		$output = $dumper->createDump();
+		return $dumper->snapshot($snapshot_path.$filename,$output);
+	}
 }
