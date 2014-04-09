@@ -100,13 +100,13 @@ elseif ($mode=='snapshot')
 	$today = str_replace(':', '', $today);
 	$today = strtolower($today);
 	global $path,$modx_version;
-	$path = "{$modx->config['snapshot_path']}{$today}-{$modx_version}.sql";
+	$filename = "{$today}-{$modx_version}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
 	$dumper = new Mysqldumper();
 	$dumper->mode = 'snapshot';
 	$output = $dumper->createDump();
-	$dumper->snapshot($path,$output);
+	$dumper->snapshot($modx->config['snapshot_path'].$filename,$output);
 	
 	$pattern = "{$modx->config['snapshot_path']}*.sql";
 	$files = glob($pattern,GLOB_NOCHECK);
