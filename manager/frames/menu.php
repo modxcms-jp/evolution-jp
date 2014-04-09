@@ -159,7 +159,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			x=window.setTimeout('reloadmenu()',500);
 		}
 		if(rFrame==10) {
-			window.top.location.href = "../manager/";
+			setInterval(function() {
+			    window.top.location.href = "../manager/";
+			}, 1000);
 		}
 	}
 
