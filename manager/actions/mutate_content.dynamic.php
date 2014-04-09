@@ -133,7 +133,8 @@ if ($doc['type'] == 'reference' || $_REQUEST['a'] == '72') {
 	$head[] = $_lang['weblink'];
 	$head[] = '<img name="llock" src="' . $_style['tree_folder'] . '" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />';
 	$doc['content'] = !empty($doc['content']) ? strip_tags(stripslashes($doc['content'])) : 'http://';
-	$body = input_text('ta',$doc['content']) . tooltip($_lang['resource_weblink_help']);
+	$body = input_text('ta',$doc['content']);
+	$body .= '<input type="button" onclick="BrowseFileServer(\'field_ta\')" value="' . $_lang['insert'] . '">' . tooltip($_lang['resource_weblink_help']);
 	renderTr($head, $body);
 }
 $body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.to_safestr($doc['introtext']).'</textarea>';
@@ -294,97 +295,92 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-		<?php $pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']); ?>
-			<tr style="height: 24px;">
-				<td width="150"><span class="warning"><?php echo $_lang['resource_opt_published']?></span></td>
-				<td>
 <?php
 $cond = (isset($doc['published']) && $doc['published']==1) || (!isset($doc['published']) && $publish_default==1);
-echo input_checkbox('published',$cond);
-echo input_hidden('published',$cond);
-echo tooltip($_lang['resource_opt_published_help']);
+$body = input_checkbox('published',$cond);
+$body .= input_hidden('published',$cond);
+$body .= tooltip($_lang['resource_opt_published_help']);
+renderTr($_lang['resource_opt_published'],$body);
+
+$pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+$pub_date = (isset($doc['pub_date']) && $doc['pub_date']!='0') ? $modx->toDateFormat($doc['pub_date']) : '';
+$body = $modx->parseText('<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />', array('disabled'=>$pub_disabled,'pub_date'=>$pub_date));
+$body .= '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
+$body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
+$body .= tooltip($_lang['page_data_publishdate_help']);
+renderTr($_lang['page_data_publishdate'],$body);
 ?>
-				</td>
-			</tr>
-			<tr style="height: 24px;">
-				<td width="150"><span class="warning"><?php echo $_lang['page_data_publishdate']?></span></td>
-				<td>
-<?php
-$doc['pub_date'] = (isset($doc['pub_date']) && $doc['pub_date']!='0') ? $modx->toDateFormat($doc['pub_date']) : '';
-?>
-				<input type="text" id="pub_date" <?php echo $pub_disabled ?> name="pub_date" class="DatePicker imeoff" value="<?php echo $doc['pub_date'];?>" />
-                <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">
-				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
-				<?php echo tooltip($_lang['page_data_publishdate_help']);?>
-				</td>
-			</tr>
 			<tr>
 				<td></td>
 				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
-			<tr style="height: 24px;">
-				<td><span class="warning"><?php echo $_lang['page_data_unpublishdate']?></span></td>
-				<td>
 <?php
-$doc['unpub_date'] = (isset($doc['unpub_date']) && $doc['unpub_date']!='0') ? $modx->toDateFormat($doc['unpub_date']) : '';
+$unpub_date = (isset($doc['unpub_date']) && $doc['unpub_date']!='0') ? $modx->toDateFormat($doc['unpub_date']) : '';
+$body = $modx->parseText('<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />', array('disabled'=>$pub_disabled,'unpub_date'=>$unpub_date));
+$body .= '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
+$body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
+$body .= tooltip($_lang['page_data_unpublishdate_help']);
+renderTr($_lang['page_data_unpublishdate'],$body);
 ?>
-				<input type="text" id="unpub_date" <?php echo $pub_disabled ?> name="unpub_date" class="DatePicker imeoff" value="<?php echo $doc['unpub_date'];?>" onblur="documentDirty=true;" />
-				<a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">
-				<img src="<?php echo $_style["icons_cal_nodate"] ?>" alt="<?php echo $_lang['remove_date']?>" /></a>
-				<?php echo tooltip($_lang['page_data_unpublishdate_help']);?>
-				</td>
-			</tr>
 			<tr>
 				<td></td>
 				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
 			</tr>
-			<tr>
-				<td colspan="2"><div class="split"></div></td>
-			</tr>
-		
+<?php
+	echo renderSplit();
+?>
 <?php
 
 if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $doc['createdby'])
 {
-?>
-			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_type']?></span></td>
-				<td><select name="type" class="inputBox" style="width:200px">
-
-                    <option value="document"<?php echo (($doc['type'] == 'document' || $_REQUEST['a'] == '85' || $_REQUEST['a'] == '4') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_webpage"];?></option>
-                    <option value="reference"<?php echo (($doc['type'] == 'reference' || $_REQUEST['a'] == '72') ? ' selected="selected"' : "");?> ><?php echo $_lang["resource_type_weblink"];?></option>
-					</select>
-					<?php echo tooltip($_lang['resource_type_message']);?>
-					</td>
-				</tr>
-<?php
+	$tpl = <<< EOT
+<select name="type" class="inputBox" style="width:200px">
+    <option value="document" [+selected_doc+]>[+resource_type_webpage+]</option>
+    <option value="reference" [+selected_ref+]>[+resource_type_weblink+]</option>
+</select>
+EOT;
+	$ph = array();
+	$ph['selected_ref'] = ($doc['type']==='reference' || $_REQUEST['a'] == '72') ? 'selected' : '';
+	$ph['selected_doc'] = empty($ph['selected_ref']) ? 'selected' : '';
+	$ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
+	$ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
+	$body = $modx->parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
+	renderTr($_lang['resource_type'],$body);
+	
 	if($doc['type'] !== 'reference' && $_REQUEST['a'] !== '72')
 	{
-?>
-			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_contentType']?></span></td>
-				<td><select name="contentType" class="inputBox" style="width:200px">
-<?php
+		$tpl = <<< EOT
+<select name="contentType" class="inputBox" style="width:200px">
+	[+option+]
+</select>
+EOT;
 		if (!$doc['contentType']) $doc['contentType'] = 'text/html';
-		
 		$custom_contenttype = (isset ($custom_contenttype) ? $custom_contenttype : "text/html,text/plain,text/xml");
-		$ct = explode(",", $custom_contenttype);
-		for ($i = 0; $i < count($ct); $i++)
+		$ct = explode(',', $custom_contenttype);
+		$option = array();
+		foreach ($ct as $value)
 		{
-			echo "\t\t\t\t\t".'<option value="'.$ct[$i].'"'.($doc['contentType'] == $ct[$i] ? ' selected="selected"' : '').'>'.$ct[$i]."</option>\n";
+			$ph['selected'] = $doc['contentType'] === $value ? ' selected' : '';
+			$ph['value'] = $value;
+			$option[] = $modx->parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
 		}
-	?>
-				</select>
-				<?php echo tooltip($_lang['page_data_contentType_help']);?>
-				</td>
-			</tr>
-			<tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_opt_contentdispo']?></span></td>
-				<td><select name="content_dispo" size="1" style="width:200px">
-					<option value="0"<?php echo !$doc['content_dispo'] ? ' selected="selected"':''?>><?php echo $_lang['inline']?></option>
-					<option value="1"<?php echo $doc['content_dispo']==1 ? ' selected="selected"':''?>><?php echo $_lang['attachment']?></option>
-				</select>
-				<?php echo tooltip($_lang['resource_opt_contentdispo_help']);?>
-				</td>
-			</tr>
-<?php
+		$ph = array();
+		$ph['option'] = join("\n", $option);
+		$body = $modx->parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
+		renderTr($_lang['page_data_contentType'],$body);
+		$tpl = <<< EOT
+<select name="content_dispo" size="1" style="width:200px">
+	<option value="0" [+sel_inline+]>[+inline+]</option>
+	<option value="1" [+sel_attachment+]>[+attachment+]</option>
+</select>
+EOT;
+		$ph = array();
+		$ph['sel_attachment'] = $doc['content_dispo']==1 ? 'selected' : '';
+		$ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
+		$ph['inline']     = $_lang['inline'];
+		$ph['attachment'] = $_lang['attachment'];
+		$body = $modx->parseText($tpl,$ph);
+		renderTr($_lang['resource_opt_contentdispo'],$body);
 	}
 ?>
 			<tr>
@@ -1260,6 +1256,7 @@ function getJScripts() {
 	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 	$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+	$base_url = $modx->config['base_url'];
 	if(!isset($modx->config['imanager_url']))
 		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
 	
@@ -1368,14 +1365,17 @@ function getParentName(&$v_parent, $dbv_parent) {
 	
 	$parentlookup = false;
 	$parentname   = $modx->config['site_name'];
-	if (isset ($_REQUEST['id']))
+	if (isset ($_REQUEST['id'])) {
 		if ($v_parent != 0)             $parentlookup = $v_parent;
-	elseif (isset ($_REQUEST['pid']))
+	}
+	elseif (isset ($_REQUEST['pid'])) {
 		if ($_REQUEST['pid'] != 0)      $parentlookup = $_REQUEST['pid'];
-	elseif (isset($form_v['parent']))
-		if ($form_v['parent'] != 0)     $parentlookup = $form_v['parent'];
+	}
+	elseif (isset($v_parent)) {
+		if ($v_parent != 0)             $parentlookup = $v_parent;
+	}
 	else                                $v_parent = 0;
-		                            
+	
 	if($parentlookup !== false && preg_match('@^[0-9]+$@', $parentlookup))
 	{
 		$rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
@@ -1402,7 +1402,7 @@ function getParentForm($parent,$pname) {
 [+tooltip+]
 <input type="hidden" name="parent" value="[+pid+]" />
 EOT;
-	$ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $doc['parent'];
+	$ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $parent;
 	$ph['pname'] = $pname;
 	$ph['tooltip'] = tooltip($_lang['resource_parent_help']);
 	$ph['icon_tree_folder'] = $_style['tree_folder'];
