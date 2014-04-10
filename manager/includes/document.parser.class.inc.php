@@ -69,7 +69,8 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
-        $this->messageQuit("\$modx-&gt;{$method_name}() is undefined method");
+        include_once(MODX_MANAGER_PATH . 'includes/extenders/deprecated.functions.inc.php');
+        if(method_exists($this->old,$method_name)) return call_user_func_array(array($this->old,$method_name),$arguments);
     }
     // constructor
 	function DocumentParser()

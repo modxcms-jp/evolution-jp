@@ -1,4 +1,6 @@
 <?php
+$this->old = new OldFunctions();
+class OldFunctions {
 function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
 {
 	global $modx;
@@ -233,4 +235,5 @@ function webAlert($msg, $url= '')
 	{
 		echo $html;
 	}
+}
 }
