@@ -1886,8 +1886,12 @@ class DocumentParser {
 		$docid = $documentObject['id'];
 		
 		// load TVs and merge with document - Orig by Apodigm - Docvars
-		
-		$field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) as value,tv.display,tv.display_params,tv.type";
+		$f[] = 'tv.name';
+		$f[] = "IF(tvc.value!='',tvc.value,tv.default_text) as value";
+		$f[] = 'tv.display';
+		$f[] = 'tv.display_params';
+		$f[] = 'tv.type';
+		$field = implode(',',$f);
 		$from  = "[+prefix+]site_tmplvars tv ";
 		$from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id ";
 		$from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
@@ -2610,34 +2614,26 @@ class DocumentParser {
 	{
 		if($idnames!='*' && !is_array($idnames)) $idnames = array($idnames);
 		
-		if (is_array($idnames) && empty($idnames))
-		{
+		if (is_array($idnames) && empty($idnames)):
 			return false;
-		}
-		else
-		{
+		else:
 			$result= array ();
 			
 			// get document record
-			if ($docid == '')
-			{
+			if ($docid == ''):
 				$docid = $this->documentIdentifier;
 				$resource= $this->documentObject;
-			}
-			else
-			{
+			else:
 				$resource= $this->getDocument($docid, '*', $published);
 				if (!$resource) return false;
-			}
+			endif;
 			// get user defined template variables
 			$fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
 			$sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
 			
 			if ($idnames == '*') $where= 'tv.id<>0';
 			elseif (preg_match('@^[0-9]+$@',$idnames['0']))
-			{
 				$where= "tv.id='{$idnames['0']}'";
-			}
 			else
 			{
 				$i = 0;
@@ -2650,19 +2646,18 @@ class DocumentParser {
 				$where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
 			}
 			if ($docgrp= $this->getUserDocGroups())
-			{
 				$docgrp= implode(',', $docgrp);
-			}
+			
 			$fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 			$from    = '[+prefix+]site_tmplvars tv';
 			$from   .= ' INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
 			$from   .= " LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
 			$where  = "{$where} AND tvtpl.templateid={$resource['template']}";
+			
 			if ($sort)
-			{
 				 $orderby = "{$sort} {$dir}";
-			}
 			else $orderby = '';
+			
 			$rs= $this->db->select($fields,$from,$where,$orderby);
 			while($row = $this->db->getRow($rs))
 			{
@@ -2679,7 +2674,7 @@ class DocumentParser {
 				}
 			}
 			return $result;
-		}
+		endif;
 	}
 
 	# returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
