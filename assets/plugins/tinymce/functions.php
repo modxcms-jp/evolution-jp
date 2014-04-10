@@ -284,7 +284,7 @@ class TinyMCE
     			if($modx->manager->action=='4' || $modx->manager->action=='27')
     			{
     				global $content;
-    				if($content['template']==='0')
+    				if(isset($content['template']) && $content['template']==='0')
     				{
     					$plugins = str_replace('autosave', '', $plugins);
     					if(strpos($plugins,'fullpage')===false) $plugins .= ',fullpage';
