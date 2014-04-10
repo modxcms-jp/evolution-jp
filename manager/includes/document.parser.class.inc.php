@@ -64,7 +64,7 @@ class DocumentParser {
 
     function __get($property_name)
     {
-        $this->messageQuit("\$modx-&gt;{$property_name} is undefined property");
+        $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
     
     function __call($method_name, $arguments)
