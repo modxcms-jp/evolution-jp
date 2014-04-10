@@ -22,9 +22,9 @@ $doc['alias']     = getAliasAtNew($doc['alias']);
 $doc['richtext']  = getRteAtNew($doc['richtext']);
 
 if (isset ($form_v['which_editor']))
-	$which_editor = $form_v['which_editor'];
+	$selected_editor = $form_v['which_editor'];
 else
-	$which_editor = $config['which_editor'];
+	$selected_editor = $config['which_editor'];
 
 echo getJScripts();
 
@@ -99,7 +99,7 @@ if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
 			foreach ($evtOut as $editor):
 				$ph = array();
 				$ph['editor']   = $editor;
-				$ph['selected'] = ($which_editor == $editor) ? 'selected' : '';
+				$ph['selected'] = ($selected_editor === $editor) ? 'selected' : '';
 				$editors[] = $modx->parseText($tpl, $ph);
 			endforeach;
 		endif;
@@ -652,7 +652,7 @@ if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') 
 {
 	// invoke OnRichTextEditorInit event
 	$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
-		'editor' => $which_editor,
+		'editor' => $selected_editor,
 		'elements' => $rte_field
 	));
 	if (is_array($evtOut)) echo implode('', $evtOut);
