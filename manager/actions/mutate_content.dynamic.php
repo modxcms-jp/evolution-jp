@@ -29,31 +29,49 @@ else
 echo getJScripts();
 
 $_SESSION['itemname'] = to_safestr($doc['pagetitle']);
-?>
 
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
-<?php
 // invoke OnDocFormPrerender event
 $evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
-if (is_array($evtOut)) echo implode("\n", $evtOut);
-echo "\n" . getOptionFields($id);
 
-if ($id!=0) $title = "{$_lang['edit_resource_title']}(ID:{$id})";
-else        $title = $_lang['create_resource_title'];
-?>
+$tpl = <<< EOT
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
+<input type="hidden" name="a" value="5" />
+<input type="hidden" name="id" value="[+id+]" />
+<input type="hidden" name="mode" value="[+a+]" />
+<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
+<input type="hidden" name="refresh_preview" value="0" />
+<input type="hidden" name="newtemplate" value="" />
+<input type="hidden" name="pid" value="[+pid+]" />
+[+invokeEvent+]
 
 <fieldset id="create_edit">
-	<h1><?php echo $title;?></h1>
+	<h1>[+title+]</h1>
 
-<?php
-echo getActionButtons();
+[+actionButtons+]
+
+EOT;
+
+$ph = array();
+$ph['invokeEvent']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
+$ph['id'] = $id;
+$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
+$ph['a'] = (int) $_REQUEST['a'];
+if(!$_REQUEST['pid'])
+	$tpl = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl);
+else $ph['pid'] = $_REQUEST['pid'];
+$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+$ph['actionButtons'] = getActionButtons($id,$doc['parent'],$doc['isfolder'],$doc['deleted']);
+
+echo $modx->parseText($tpl,$ph);
+
 ?>
+<?php $remember_last_tab = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';?>
 
 <!-- start main wrapper -->
 <div class="sectionBody">
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-	tpDocs = new WebFXTabPane(document.getElementById("documentPane"), <?php echo (($config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+		tpDocs = new WebFXTabPane(document.getElementById("documentPane"), <?php echo $remember_last_tab;?> );
 	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
@@ -127,71 +145,62 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 <?php
 	if (isset ($default_template))    $template = $default_template;
 	else                              $template = $config['default_template'];
-	
-	$session_mgrRole = $_SESSION['mgrRole'];
-	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
-	
-	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-	$from = "
-		[+prefix+]site_tmplvars                         AS tv 
-		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 
-		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
-		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
-		";
-	$where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";
-	
-	$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
-	$num_of_tv = $modx->db->getRecordCount($rs);
-	if ($num_of_tv > 0)
-	{
+
+	$tvs = getTVs($id,$template,$docgrp);
+	$total = count($tvs);
+	if (0<$total):
+		$i = 0;
+		$tpl = <<< EOT
+<tr>
+	<td valign="top" class="tvname">
+	<span class="warning">[+caption+]</span><br />
+	<span class="comment">[+description+]</span>
+	</td>
+	<td valign="top" style="position:relative;[+zindex+]">
+    [+FormElement+]
+	</td>
+</tr>
+EOT;
 		echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
-		while($row = $modx->db->getRow($rs))
-		{
+		foreach($tvs as $tv):
 			// Go through and display all Template Variables
-			if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea')
-			{
+			if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
 				// Add richtext editor to the list
 				if (is_array($rte_field))
-				{
-					$rte_field = array_merge($rte_field, array('tv' . $row['id']));
-				}
+					$rte_field = array_merge($rte_field, array('tv' . $tv['id']));
 				else
-				{
-					$rte_field = array('tv' . $row['id']);
-				}
-			}
+					$rte_field = array('tv' . $tv['id']);
+			endif;
+			
 			// splitter
-			if ($i > 0 && $i < $num_of_tv) echo "\t\t",'<tr><td colspan="2"><div class="split"></div></td></tr>',"\n";
+			if (0 < $i && $i < $total) echo "\t\t" . renderSplit() . "\n";
 			
 			// post back value
-			if(array_key_exists('tv'.$row['id'], $form_v))
-			{
-				if($row['type'] == 'listbox-multiple') $tvPBV = implode('||', $form_v['tv'.$row['id']]);
-				else                                   $tvPBV = $form_v['tv'.$row['id']];
-			}
-			else                                       $tvPBV = $row['value'];
-
-			$zindex = ($row['type'] === 'date') ? 'z-index:100;' : '';
-			if($row['type']!=='hidden')
-			{
-				echo '<tr><td valign="top" class="tvname"><span class="warning">'.$row['caption']."</span>\n".
-			     '<br /><span class="comment">'.$row['description']."</span></td>\n".
-                 '<td valign="top" style="position:relative;'.$zindex.'">'."\n".
-                 $modx->renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."\n".
-			     "</td></tr>\n";
-			}
-			else
-			{
-				echo '<tr style="display:none;"><td colspan="2">' . $modx->renderFormElement('hidden', $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row)."</td></tr>\n";
-			}
-		}
+			if(array_key_exists('tv'.$tv['id'], $form_v)):
+				if($tv['type'] == 'listbox-multiple') $tvPBV = implode('||', $form_v['tv'.$tv['id']]);
+				else                                   $tvPBV = $form_v['tv'.$tv['id']];
+			else:                                      $tvPBV = $tv['value'];
+			endif;
+			
+			
+			if($tv['type']!=='hidden'):
+				$ph = array();
+				$ph['caption']     = $tv['caption'];
+				$ph['description'] = $tv['description'];
+				$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
+				$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+				echo $modx->parseText($tpl,$ph);
+			else:
+				$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+				echo '<tr style="display:none;"><td colspan="2">' . $formElement . "</td></tr>\n";
+			endif;
+			$i++;
+		endforeach;
 		echo "</table>\n";
-	}
-	else
-	{
+	else:
 		// There aren't any Template Variables
 		echo "\t<p>".$_lang['tmplvars_novars']."</p>\n";
-	}
+	endif;
 ?>
 			</div>
 			<!-- end .sectionBody .tmplvars -->
@@ -725,9 +734,9 @@ function input_hidden($name,$cond=true)
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_preview()
+function ab_preview($id)
 {
-	global $modx, $_style, $_lang, $id;
+	global $modx, $_style, $_lang;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$actionurl = $modx->makeUrl($id,'','','full');
 	$ph['onclick'] = "openprev('$actionurl');return false;";
@@ -761,19 +770,19 @@ function ab_save()
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_cancel()
+function ab_cancel($id,$parent='0',$isfolder)
 {
-	global $modx, $_style, $_lang, $doc, $id;
+	global $modx, $_style, $_lang;
 	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
-	if(isset($doc['parent']) && $doc['parent']!=='0')
+	if($parent!=='0')
 	{
-		if($doc['isfolder']=='0') $href = "a=3&id={$doc['parent']}&tab=0";
+		if($isfolder=='0') $href = "a=3&id={$parent}&tab=0";
 		else                          $href = "a=3&id={$id}&tab=0";
 	}
-	elseif($doc['isfolder']=='1' && $doc['parent']=='0')
+	elseif($isfolder=='1' && $parent=='0')
 	{
 		$href = "a=3&id={$id}&tab=0";
 	}
@@ -809,13 +818,13 @@ function ab_duplicate()
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_delete()
+function ab_delete($deleted)
 {
-	global $modx, $_style, $_lang, $doc;
+	global $modx, $_style, $_lang;
 	if(!$modx->hasPermission('delete_document')) return;
 	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	if($doc['deleted'] === '0')
+	if($deleted === '0')
 	{
 		$ph['onclick'] = 'deletedocument();';
 		$ph['icon'] = $_style["icons_delete_document"];
@@ -1286,27 +1295,7 @@ EOT;
 	return $modx->parseText($tpl,$ph);
 }
 
-function getOptionFields($id) {
-	global $modx;
-	
-	$tpl = <<< EOT
-<input type="hidden" name="a" value="5" />
-<input type="hidden" name="id" value="[+id+]" />
-<input type="hidden" name="mode" value="[+a+]" />
-<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
-<input type="hidden" name="refresh_preview" value="0" />
-<input type="hidden" name="newtemplate" value="" />
-EOT;
-	if($_REQUEST['pid']) {
-	$tpl .= '<input type="hidden" name="pid" value="' . $_REQUEST['pid'] . '" />';
-	}
-	$ph['id'] = $id;
-	$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
-	$ph['a'] = (int) $_REQUEST['a'];
-	return $modx->parseText($tpl,$ph);
-}
-
-function getActionButtons() {
+function getActionButtons($id,$parent,$isfolder,$deleted) {
 	global $modx;
 	
 	$tpl = <<< EOT
@@ -1325,12 +1314,12 @@ EOT;
 	if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start']) {
 		$ph['moveButton']      = ab_move();
 		$ph['duplicateButton'] = ab_duplicate();
-		$ph['deleteButton']    = ab_delete();
+		$ph['deleteButton']    = ab_delete($deleted);
 	}
 	if ($_REQUEST['a'] !== '72') {
-		$ph['previewButton']   = ab_preview();
+		$ph['previewButton']   = ab_preview($id);
 	}
-	$ph['cancelButton']    = ab_cancel();
+	$ph['cancelButton']    = ab_cancel($id,$parent,$isfolder);
 	
 	$rs = $modx->parseText($tpl,$ph);
 	
@@ -1434,4 +1423,31 @@ function fieldParent($doc_parent,$formv_parent) {
 	$parentname = getParentName($doc_parent,$formv_parent);
 	$body = getParentForm($doc_parent,$parentname);
 	return renderTr($_lang['resource_parent'],$body);
+}
+
+function getTVs($id,$template,$docgrp) {
+	global $modx;
+	
+	$session_mgrRole = $_SESSION['mgrRole'];
+	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
+	
+	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+	$from = "
+		[+prefix+]site_tmplvars                         AS tv 
+		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 
+		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
+		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
+		";
+	$where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";
+	
+	$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
+	if(0<$modx->db->getRecordCount($rs))
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			$tvs[$row['name']] = $row;
+		}
+	}
+	else $tvs = array();
+	return $tvs;
 }
