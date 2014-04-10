@@ -1643,4 +1643,26 @@ class SubParser {
 		$output = $dumper->createDump();
 		return $dumper->snapshot($snapshot_path.$filename,$output);
 	}
+	
+    /**
+     * Returns the MODX version information as version, branch, release date and full application name.
+     *
+     * @return array
+     */
+   
+    function getVersionData($data=null) {
+    	global $modx;
+        $out=array();
+        if(empty($modx->version) || !is_array($modx->version)){
+            //include for compatibility modx version < 1.0.10
+            include MODX_MANAGER_PATH . "includes/version.inc.php";
+            $modx->version=array();
+            $modx->version['version']= isset($modx_version) ? $modx_version : '';
+            $modx->version['branch']= isset($modx_branch) ? $modx_branch : '';
+            $modx->version['release_date']= isset($modx_release_date) ? $modx_release_date : '';
+            $modx->version['full_appname']= isset($modx_full_appname) ? $modx_full_appname : '';
+            $modx->version['new_version'] = isset($modx->config['newversiontext']) ? $modx->config['newversiontext'] : '';
+        }
+        return (!is_null($data) && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
+    }
 }

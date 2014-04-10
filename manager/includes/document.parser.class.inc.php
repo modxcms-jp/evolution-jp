@@ -2442,17 +2442,6 @@ class DocumentParser {
 		else                            return $this->config[$name];
 	}
 		
-	function getVersionData()
-	{
-		require_once(MODX_CORE_PATH . 'version.inc.php');
-		$v= array ();
-		$v['version']= $modx_version;
-		$v['branch']= $modx_branch;
-		$v['release_date']= $modx_release_date;
-		$v['full_appname']= $modx_full_appname;
-		return $v;
-	}
-
 	function getChunk($key)
 	{
 		if(!$this->chunkCache) $this->setChunkCache();
@@ -3170,6 +3159,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->loadLexicon($target);}
 	function snapshot($filename='',$target='')
 		{$this->loadExtension('SubParser');return $this->sub->snapshot($filename,$target);}
+	function getVersionData($data=null)
+		{$this->loadExtension('SubParser');return $this->sub->getVersionData($data);}
 	
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
