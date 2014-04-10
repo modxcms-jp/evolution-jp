@@ -113,7 +113,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php
 function createResourceList($resourceTable,$action,$nameField = 'name')
 {
-	global $modx, $_lang;
+	global $modx, $_lang, $modx_textdir;
 	
 	$preCat = '';
 	$insideUl = 0;
@@ -121,76 +121,75 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 	$rows = getArray($resourceTable,$action,$nameField);
 	$tpl  = '<span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
 	$tpl .= ' [+description+][+locked+]';
-	foreach($rows as $row)
-	{
-		$row['category'] = stripslashes($row['category']); //pixelchutes
-		if ($preCat !== $row['category'])
-		{
-			$output .= $insideUl? '</ul>': '';
-			$output .= '<li><strong>'.$row['category'].'</strong><ul>';
-			$insideUl = 1;
-		}
-		$preCat = $row['category'];
-		if ($resourceTable === 'site_plugins')
-		{
-			$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
-		}
-		elseif ($resourceTable === 'site_htmlsnippets')
-		{
-			$class = ($row['published']==='0') ? 'class="unpublished"' : '';
-		}
-		$ph['class'] = $class;
-		$ph['id'] = $row['id'];
+	
+	if(is_array($rows) && 0<count($rows)):
 		$ph['action'] = $action;
-		$ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
-		$ph['rlm'] = $modx_textdir==='rtl' ? '&rlm;' : '';
-		$ph['description'] = $row['description'];
-		$ph['locked'] = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
-		$src = "<li>{$tpl}</li>";
-		foreach($ph as $k=>$v)
-		{
-			$k = '[+' . $k . '+]';
-			$src = str_replace($k,$v,$src);
-		}
-		$output .= $src;
-	}
+		$ph['rlm']    = $modx_textdir==='rtl' ? '&rlm;' : '';
+		foreach($rows as $row):
+			$row['category'] = stripslashes($row['category']); //pixelchutes
+			if ($preCat !== $row['category']):
+				$output .= $insideUl ? '</ul>': '';
+				$output .= '<li><strong>'.$row['category'].'</strong><ul>';
+				$insideUl = 1;
+			endif;
+			$preCat = $row['category'];
+			
+			if ($resourceTable === 'site_plugins')
+				$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
+			elseif ($resourceTable === 'site_htmlsnippets')
+				$class = ($row['published']==='0') ? 'class="unpublished"' : '';
+			else $class = '';
+			
+			$ph['id']          = $row['id'];
+			$ph['class']       = $class;
+			$ph['name']        = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
+			$ph['description'] = $row['description'];
+			$ph['locked']      = $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : '';
+			$src = "<li>{$tpl}</li>";
+			foreach($ph as $k=>$v):
+				$k = "[+{$k}+]";
+				$src = str_replace($k,$v,$src);
+			endforeach;
+			$output .= $src;
+		endforeach;
+	else:
+		$output .= $rows;
+	endif;
 	$output .= $insideUl? '</ul>': '';
 	$output .= '</ul>';
 	return $output;
 }
 
-function getArray($resourceTable,$action,$nameField = 'name')
+function getArray($element_name,$action,$nameField = 'name')
 {
 	global $modx, $_lang;
 	
-	$tbl_elm = $modx->getFullTableName($resourceTable);
+	$tbl_element_name = $modx->getFullTableName($element_name);
 	$tbl_categories = $modx->getFullTableName('categories');
 	
-	switch($resourceTable)
+	switch($element_name)
 	{
 		case 'site_plugins':
-			$add_field = "{$tbl_elm}.disabled,";
+			$add_field = "{$tbl_element_name}.disabled,";
 			break;
 		case 'site_htmlsnippets':
-			$add_field = "{$tbl_elm}.published,";
+			$add_field = "{$tbl_element_name}.published,";
 			break;
 		default:
 			$add_field = '';
 	}
 	
-	$fields = "{$add_field} {$tbl_elm}.{$nameField} as name, {$tbl_elm}.id, {$tbl_elm}.description, {$tbl_elm}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
-	$from   ="{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
+	$fields = "{$add_field} {$tbl_element_name}.{$nameField} as name, {$tbl_element_name}.id, {$tbl_element_name}.description, {$tbl_element_name}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$from   ="{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
 	$orderby = 'category,name';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit<1)
-	{
 		return $_lang['no_results'];
-	}
+	
 	$rows = array();
-	while($row = $modx->db->getRow($rs))
-	{
+	while($row = $modx->db->getRow($rs)) {
 		$rows[] = $row;
 	}
 	return $rows;
