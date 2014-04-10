@@ -272,15 +272,18 @@ if(isset($_SESSION['mgrValidated']))
 
 // get user's document groups
 $dg='';
-$i=0;
 $field ='uga.documentgroup as documentgroup';
 $from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
 $rs = $modx->db->select($field,$from,"ug.member='{$internalKey}'");
-while ($row = $modx->db->getRow($rs,'num'))
-{
-	$dg[$i++]=$row[0];
-}
-$_SESSION['mgrDocgroups'] = $dg;
+if(0<$modx->db->getRecordCount($rs)):
+	while ($row = $modx->db->getRow($rs))
+	{
+		$dg[]=$row['documentgroup'];
+	}
+	$_SESSION['mgrDocgroups'] = $dg;
+else:
+	$_SESSION['mgrDocgroups'] = array();
+endif;
 
 if($rememberme == '1')
 {
