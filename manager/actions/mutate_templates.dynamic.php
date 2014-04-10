@@ -206,7 +206,8 @@ function deletedocument() {
 		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	</tr>
 <?php
-	$rs = $modx->db->select('*','[+prefix+]site_templates',"parent!='{$id}'");
+	$where = $id ? "parent!='{$id}'" : '';
+	$rs = $modx->db->select('*','[+prefix+]site_templates',$where);
 	$parent = array();
 	while($row = $modx->db->getRow($rs))
 	{
