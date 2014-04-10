@@ -13,6 +13,7 @@ $docgrp  = getDocgrp();
 $db_v    = getContentFromDB($id,$docgrp);
 $form_v  = $_POST;
 $doc = mergeContent($db_v,$form_v);
+$content = &$doc; //Be compatible with old plugins
 
 if($_REQUEST['a']==='27') checkViewUnpubDocPerm($doc['published'],$doc['editedby']);
 
