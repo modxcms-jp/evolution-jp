@@ -76,23 +76,21 @@ echo fieldParent($doc['parent'],$form_v['parent']);
 ?>
 		</table>
 <?php
-if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
-{
+if ($doc['type'] == 'document' || $_REQUEST['a'] == '4'):
 ?>
 		<!-- Content -->
 		<div class="sectionHeader" id="content_header"><?php echo $_lang['resource_content']?></div>
 		<div class="sectionBody" id="content_body">
 <?php
-	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $doc['richtext'] == 1)
-	{
+	$htmlcontent = htmlspecialchars($doc['content']);
+	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $doc['richtext'] == 1):
 ?>
 		<div>
-	<?php $htmlcontent = htmlspecialchars($doc['content'])?>
 			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;"><?php echo $htmlcontent;?></textarea>
 			<span class="warning"><?php echo $_lang['which_editor_title']?></span>
 <?php
 		// invoke OnRichTextEditorRegister event
-		$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+		$evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
 		if (is_array($evtOut)):
 			$tpl = '<option value="[+editor+]" [+selected+]>[+editor+]</option>' . "\n";
 			$editors = array();
@@ -113,17 +111,15 @@ if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
 		</div>
 <?php
 		$rte_field = array('ta');
-	}
-	else
-	{
-		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">',htmlspecialchars($doc['content']),'</textarea></div>'."\n";
-	}
+	else:
+		echo "\t".'<div><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea></div>'."\n";
+	endif;
 ?>
 		</div><!-- end .sectionBody -->
 <?php
-}
-if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'reference' || $_REQUEST['a'] == 72))
-{
+endif;
+
+if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'reference' || $_REQUEST['a'] == 72)):
 ?>
 		<!-- Template Variables -->
 			<div class="sectionHeader" id="tv_header"><?php echo $_lang['settings_templvars']?></div>
@@ -142,10 +138,8 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
 		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
 		";
-	$where = "
-		tvtpl.templateid='{$template}'
-		AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})
-		";
+	$where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";
+	
 	$rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
 	$num_of_tv = $modx->db->getRecordCount($rs);
 	if ($num_of_tv > 0)
@@ -201,9 +195,7 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 ?>
 			</div>
 			<!-- end .sectionBody .tmplvars -->
-<?php
-}
-?>
+<?php endif;?>
 
 	</div><!-- end #tabGeneral -->
 
@@ -1032,7 +1024,7 @@ function checkDocLock($id) {
 function getDocgrp() {
 	if ($_SESSION['mgrDocgroups'])
 		return implode(',', $_SESSION['mgrDocgroups']);
-	else return array();
+	else return '';
 }
 
 function getContentFromDB($id,$docgrp) {
