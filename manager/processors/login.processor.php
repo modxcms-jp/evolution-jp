@@ -270,17 +270,7 @@ if(isset($_SESSION['mgrValidated']))
 	$_SESSION['mgrLastlogin'] = $now;
 }
 
-// get user's document groups
-$field ='uga.documentgroup as documentgroup';
-$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
-$rs = $modx->db->select($field,$from,"ug.member='{$internalKey}'");
-$documentgroup = array();
-if(0<$modx->db->getRecordCount($rs)) {
-	while ($row = $modx->db->getRow($rs)) {
-		$documentgroup[]=$row['documentgroup'];
-	}
-}
-$_SESSION['mgrDocgroups'] = $documentgroup;
+$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($internalKey);
 
 if($rememberme == '1'):
     $_SESSION['modx.mgr.session.cookie.lifetime']= intval($modx->config['session.cookie.lifetime']);
