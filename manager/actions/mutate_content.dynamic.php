@@ -103,10 +103,12 @@ if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
 			endforeach;
 		endif;
 ?>
+			<?php if(!empty($editors)): ;?>
 			<select id="which_editor" name="which_editor" onchange="changeRTE();">
 				<option value="none"><?php echo $_lang['none']?></option>
-				<?php if(!empty($editors)) echo implode("\n", $editors);?>
+				<?php echo implode("\n", $editors);?>
 			</select>
+			<?php endif;?>
 		</div>
 <?php
 		$rte_field = array('ta');
