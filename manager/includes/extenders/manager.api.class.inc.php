@@ -627,4 +627,19 @@ class ManagerAPI {
 		}
 		else return array('new'=>$new,'total'=>$total);
 	}
+	
+	// get user's document groups
+	function getMgrDocgroups($uid) {
+		global $modx;
+		$field ='uga.documentgroup as documentgroup';
+		$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
+		$rs = $modx->db->select($field,$from,"ug.member='{$uid}'");
+		$documentgroup = array();
+		if(0<$modx->db->getRecordCount($rs)) {
+			while ($row = $modx->db->getRow($rs)) {
+				$documentgroup[]=$row['documentgroup'];
+			}
+		}
+		return $documentgroup;
+	}
 }
