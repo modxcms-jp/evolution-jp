@@ -58,31 +58,20 @@ echo getActionButtons();
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
 		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabGeneral" ) );</script>
-
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
 echo fieldPagetitle($doc['pagetitle']);
 echo fieldLongtitle($doc['longtitle']);
 echo fieldDescription($doc['description']);
 echo fieldAlias($id,$doc['alias'],$doc['type'],$config['suffix_mode'],$config['friendly_url_suffix'],$config['friendly_urls']);
-
 if ($doc['type'] == 'reference' || $_REQUEST['a'] == '72')
 	echo fieldWeblink($doc['content'],$_style['tree_folder']);
-
 echo fieldIntrotext($doc['introtext']);
 echo fieldTemplate($doc['template']);
-
-$body = input_text('menutitle',to_safestr($doc['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
-echo renderTr($_lang['resource_opt_menu_title'],$body);
-
-$body = menuindex($doc['menuindex'],$doc['hidemenu']);
-echo renderTr($_lang['resource_opt_menu_index'],$body);
-
-echo renderSplit();
-
-$parentname = getParentName($doc['parent'],$form_v['parent']);
-$body = getParentForm($doc['parent'],$parentname);
-echo renderTr($_lang['resource_parent'],$body);
+echo fieldMenutitle($doc['menutitle']);
+echo fieldMenuindex($doc['menuindex'],$doc['hidemenu']);
+echo renderSplit();// ------------------------------------------------------------
+echo fieldParent($doc['parent'],$form_v['parent']);
 ?>
 		</table>
 <?php
@@ -95,32 +84,32 @@ if ($doc['type'] == 'document' || $_REQUEST['a'] == '4')
 <?php
 	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $use_editor == 1 && $doc['richtext'] == 1)
 	{
-		$htmlContent = $doc['content'];
 ?>
 		<div>
-			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;"><?php echo htmlspecialchars($htmlContent)?></textarea>
+	<?php $htmlcontent = htmlspecialchars($doc['content'])?>
+			<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;"><?php echo $htmlcontent;?></textarea>
 			<span class="warning"><?php echo $_lang['which_editor_title']?></span>
-			<select id="which_editor" name="which_editor" onchange="changeRTE();">
-				<option value="none"><?php echo $_lang['none']?></option>
 <?php
 		// invoke OnRichTextEditorRegister event
 		$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-		if (is_array($evtOut))
-		{
+		if (is_array($evtOut)):
 			$tpl = '<option value="[+editor+]" [+selected+]>[+editor+]</option>' . "\n";
-			foreach ($evtOut as $editor)
-			{
+			$editors = array();
+			foreach ($evtOut as $editor):
 				$ph = array();
 				$ph['editor']   = $editor;
-				$ph['selected'] = ($which_editor == $editor) ? 'selected="selected"' : '';
-				echo $modx->parseText($tpl, $ph);
-			}
-		}
+				$ph['selected'] = ($which_editor == $editor) ? 'selected' : '';
+				$editors[] = $modx->parseText($tpl, $ph);
+			endforeach;
+		endif;
 ?>
+			<select id="which_editor" name="which_editor" onchange="changeRTE();">
+				<option value="none"><?php echo $_lang['none']?></option>
+				<?php if(!empty($editors)) echo implode("\n", $editors);?>
 			</select>
 		</div>
 <?php
-		$replace_richtexteditor = array('ta');
+		$rte_field = array('ta');
 	}
 	else
 	{
@@ -165,13 +154,13 @@ if (($doc['type'] == 'document' || $_REQUEST['a'] == '4') || ($doc['type'] == 'r
 			if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea')
 			{
 				// Add richtext editor to the list
-				if (is_array($replace_richtexteditor))
+				if (is_array($rte_field))
 				{
-					$replace_richtexteditor = array_merge($replace_richtexteditor, array('tv' . $row['id']));
+					$rte_field = array_merge($rte_field, array('tv' . $row['id']));
 				}
 				else
 				{
-					$replace_richtexteditor = array('tv' . $row['id']);
+					$rte_field = array('tv' . $row['id']);
 				}
 			}
 			// splitter
@@ -656,12 +645,12 @@ if ($use_udperms == 1)
     storeCurTemplate();
 </script>
 <?php
-if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $use_editor == 1 && is_array($replace_richtexteditor) && 0<count($replace_richtexteditor))
+if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $use_editor == 1 && is_array($rte_field) && 0<count($rte_field))
 {
 	// invoke OnRichTextEditorInit event
 	$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
 		'editor' => $which_editor,
-		'elements' => $replace_richtexteditor
+		'elements' => $rte_field
 	));
 	if (is_array($evtOut)) echo implode('', $evtOut);
 }
@@ -1431,4 +1420,23 @@ function fieldTemplate($template) {
 	$body .= get_template_options($template);
 	$body .= '</select>' . tooltip($_lang['page_data_template_help']);
 	return renderTr($_lang['page_data_template'],$body);
+}
+
+function fieldMenutitle($menutitle) {
+	global $_lang;
+	$body = input_text('menutitle',to_safestr($menutitle)) . tooltip($_lang['resource_opt_menu_title_help']);
+	echo renderTr($_lang['resource_opt_menu_title'],$body);
+}
+
+function fieldMenuindex($menuindex,$hidemenu) {
+	global $_lang;
+	$body = menuindex($menuindex,$hidemenu);
+	return renderTr($_lang['resource_opt_menu_index'],$body);
+}
+
+function fieldParent($doc_parent,$formv_parent) {
+	global $_lang;
+	$parentname = getParentName($doc_parent,$formv_parent);
+	$body = getParentForm($doc_parent,$parentname);
+	return renderTr($_lang['resource_parent'],$body);
 }
