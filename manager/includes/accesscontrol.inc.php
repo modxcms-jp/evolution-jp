@@ -193,5 +193,6 @@ else
 			echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
 			exit;
 		}
+		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($fields['internalKey']);
 	}
 }
