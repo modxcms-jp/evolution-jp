@@ -179,18 +179,18 @@ function deletedocument() {
 				list($head,$foot) = explode('[*content*]',$parent['content'],2);
 		endif;
 	endif;
-	$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;border-bottom:none;font-family: 'Courier New','Courier', monospace";
+	$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
 	if($head!==''):
 		$head = trim($head);
 		$head = htmlspecialchars($head, ENT_QUOTES, $modx->config['modx_charset']);
 		$head = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$head);
-		$head = "<div style=\"{$divstyle}\">" . $head . '</div>';
+		$head = "<div style=\"{$divstyle}border-bottom:none;\">" . $head . '</div>';
 	endif;
 	if($foot!==''):
 		$foot = trim($foot);
 		$foot = htmlspecialchars($foot, ENT_QUOTES, $modx->config['modx_charset']);
 		$foot = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$foot);
-		$foot = "<div style=\"{$divstyle}\">" . $foot . '</div>';
+		$foot = "<div style=\"{$divstyle}border-top:none;\">" . $foot . '</div>';
 	endif;
 ?>
 	<div style="width:100%;position:relative">
