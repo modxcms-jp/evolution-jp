@@ -168,44 +168,36 @@ if(strpos($decoded_uri,"'")!==false) {
 if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
-	if(strpos($dbasePassword,'>')!==false)
-	{
-		if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo'])) $modx->config['pwd_hash_algo'] = 'UNCRYPT';
+	if(strpos($dbasePassword,'>')!==false):
+		if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo']))
+			$modx->config['pwd_hash_algo'] = 'UNCRYPT';
 		$user_algo = $modx->manager->getUserHashAlgorithm($internalKey);
 		
-		if($user_algo !== $modx->config['pwd_hash_algo'])
-		{
+		if($user_algo !== $modx->config['pwd_hash_algo']):
 			$bk_pwd_hash_algo = $modx->config['pwd_hash_algo'];
 			$modx->config['pwd_hash_algo'] = $user_algo;
-		}
+		endif;
 		
-		if($dbasePassword != $modx->manager->genHash($givenPassword, $internalKey))
-		{
+		if($dbasePassword != $modx->manager->genHash($givenPassword, $internalKey)):
 			jsAlert($e->errors[901]);
 			$newloginerror = 1;
-		}
-		elseif(isset($bk_pwd_hash_algo))
-		{
+		elseif(isset($bk_pwd_hash_algo)):
 			$modx->config['pwd_hash_algo'] = $bk_pwd_hash_algo;
 			$field = array();
 			$field['password'] = $modx->manager->genHash($givenPassword, $internalKey);
 			$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
-		}
-	}
-	else
-	{
-		if($dbasePassword != md5($givenPassword))
-		{
+		endif;
+		
+	else:
+		if($dbasePassword != md5($givenPassword)):
 			jsAlert($e->errors[901]);
 			$newloginerror = 1;
-		}
-		else
-		{
+		else:
 			$field = array();
 			$field['password'] = $modx->manager->genHash($givenPassword, $internalKey);
 			$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
-		}
-	}
+		endif;
+	endif;
 }
 
 if($use_captcha==1) {
