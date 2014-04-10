@@ -285,8 +285,7 @@ else:
 	$_SESSION['mgrDocgroups'] = array();
 endif;
 
-if($rememberme == '1')
-{
+if($rememberme == '1'):
     $_SESSION['modx.mgr.session.cookie.lifetime']= intval($modx->config['session.cookie.lifetime']);
 	
 	// Set a cookie separate from the session cookie with the username in it.
@@ -299,18 +298,15 @@ if($rememberme == '1')
 	} else {
 		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
 	}
-}
-else
-{
+else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
 	// Remove the Remember Me cookie
 	setcookie ('modx_remember_manager', "", time() - 3600, $modx->config['base_url']);
-}
+endif;
 
-if($modx->hasPermission('remove_locks')) {
+if($modx->hasPermission('remove_locks'))
 	$modx->manager->remove_locks();
-}
 
 $log = new logHandler;
 $log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODX");
