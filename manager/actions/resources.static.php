@@ -111,14 +111,14 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 </div>
 
 <?php
-function createResourceList($resourceTable,$action,$nameField = 'name')
+function createResourceList($element_name,$action,$nameField = 'name')
 {
 	global $modx, $_lang, $modx_textdir;
 	
 	$preCat = '';
 	$insideUl = 0;
 	$output = '<ul>';
-	$rows = getArray($resourceTable,$action,$nameField);
+	$rows = getArray($element_name,$action,$nameField);
 	$tpl  = '<span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
 	$tpl .= ' [+description+][+locked+]';
 	
@@ -134,9 +134,9 @@ function createResourceList($resourceTable,$action,$nameField = 'name')
 			endif;
 			$preCat = $row['category'];
 			
-			if ($resourceTable === 'site_plugins')
+			if ($element_name === 'site_plugins')
 				$class = $row['disabled'] ? 'class="disabledPlugin"' : '';
-			elseif ($resourceTable === 'site_htmlsnippets')
+			elseif ($element_name === 'site_htmlsnippets')
 				$class = ($row['published']==='0') ? 'class="unpublished"' : '';
 			else $class = '';
 			
@@ -170,16 +170,18 @@ function getArray($element_name,$action,$nameField = 'name')
 	switch($element_name)
 	{
 		case 'site_plugins':
-			$add_field = "{$tbl_element_name}.disabled,";
+			$f[] = "{$tbl_element_name}.disabled";
 			break;
 		case 'site_htmlsnippets':
-			$add_field = "{$tbl_element_name}.published,";
+			$f[] = "{$tbl_element_name}.published";
 			break;
-		default:
-			$add_field = '';
 	}
-	
-	$fields = "{$add_field} {$tbl_element_name}.{$nameField} as name, {$tbl_element_name}.id, {$tbl_element_name}.description, {$tbl_element_name}.locked, if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$f[] = "{$tbl_element_name}.{$nameField} as name";
+	$f[] = "{$tbl_element_name}.id";
+	$f[] = "{$tbl_element_name}.description";
+	$f[] = "{$tbl_element_name}.locked";
+	$f[] = "if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+	$fields = implode(',', $f);
 	$from   ="{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
 	$orderby = 'category,name';
 
@@ -190,7 +192,7 @@ function getArray($element_name,$action,$nameField = 'name')
 	
 	$rows = array();
 	while($row = $modx->db->getRow($rs)) {
-		$rows[] = $row;
+		$rows[$row['id']] = $row;
 	}
 	return $rows;
 }
