@@ -45,13 +45,6 @@ $modx->invokeEvent("OnBeforeManagerLogin",
                             "rememberme"    => $rememberme
                         ));
 
-$field = "mu.*, ua.*";
-$from = "[+prefix+]manager_users mu,[+prefix+]user_attributes ua";
-$where = "BINARY mu.username='{$username}' and ua.internalKey=mu.id";
-
-$rs = $modx->db->select($field,$from,$where);
-$limit = $modx->db->getRecordCount($rs);
-
 if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
 $_lang = array();
 include_once(MODX_CORE_PATH . 'lang/'.$modx->config['manager_language'].'.inc.php');
@@ -60,7 +53,13 @@ include_once(MODX_CORE_PATH . 'lang/'.$modx->config['manager_language'].'.inc.ph
 include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
-if($limit==0 || $limit>1) {
+$field = "mu.*, ua.*";
+$from = "[+prefix+]manager_users mu,[+prefix+]user_attributes ua";
+$where = "BINARY mu.username='{$username}' and ua.internalKey=mu.id";
+$rs = $modx->db->select($field,$from,$where);
+
+$total = $modx->db->getRecordCount($rs);
+if($total!=1) {
     jsAlert($e->errors[900]);
     return;
 }
@@ -74,7 +73,7 @@ $blocked                = $row['blocked'];
 $blockeduntildate       = $row['blockeduntil'];
 $blockedafterdate       = $row['blockedafter'];
 $registeredsessionid    = $row['sessionid'];
-$role                   = ($row['role']==1 && $assignRole) ? $assignRole : $row['role'];
+$role                   = ($row['role']==1 && isset($assignRole)) ? $assignRole : $row['role'];
 $lastlogin              = $row['lastlogin'];
 $nrlogins               = $row['logincount'];
 $fullname               = $row['fullname'];
@@ -252,6 +251,7 @@ $_SESSION['mgrLogincount'] = $nrlogins; // login count
 $_SESSION['mgrRole'] = $role;
 $rs = $modx->db->select('* ','[+prefix+]user_roles',"id='{$role}'");
 $row = $modx->db->getRow($rs);
+
 $_SESSION['mgrPermissions'] = $row;
 
 if($_SESSION['mgrPermissions']['messages']==1) {
