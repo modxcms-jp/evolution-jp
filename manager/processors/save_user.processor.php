@@ -33,7 +33,6 @@ $failedlogincount = $_POST['failedlogincount'];
 $blocked = !empty ($_POST['blocked']) ? $_POST['blocked'] : 0;
 $blockeduntil = !empty ($_POST['blockeduntil']) ? $modx->toTimeStamp($_POST['blockeduntil']) : 0;
 $blockedafter = !empty ($_POST['blockedafter']) ? $modx->toTimeStamp($_POST['blockedafter']) : 0;
-$user_groups = $_POST['user_groups'];
 
 // verify password
 if ($passwordgenmethod == "spec" && $_POST['specifiedpassword'] != $_POST['confirmpassword']) {
@@ -167,17 +166,18 @@ switch ($mode) {
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
-		if ($use_udperms == 1) {
-			if (count($user_groups) > 0) {
-				for ($i = 0; $i < count($user_groups); $i++) {
-					$user_group = intval($user_groups[$i]);
+		if ($modx->config['use_udperms'] == 1) {
+			$user_groups = $_POST['user_groups'];
+			if (0 < count($user_groups)):
+				foreach ($user_groups as $user_group):
+					$user_group = intval($user_group);
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$internalKey),'[+prefix+]member_groups');
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.");
 						exit;
 					}
-				}
-			}
+				endforeach;
+			endif;
 		}
 		// end of user_groups stuff!
 
@@ -344,23 +344,24 @@ switch ($mode) {
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
-		if ($use_udperms == 1) {
+		if ($modx->config['use_udperms'] == 1) {
 			// as this is an existing user, delete his/ her entries in the groups before saving the new groups
 			$rs = $modx->db->delete('[+prefix+]member_groups', "member='{$id}'");
 			if (!$rs) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
-			if (count($user_groups) > 0) {
-				for ($i = 0; $i < count($user_groups); $i++) {
-					$user_group = intval($user_groups[$i]);
+			$user_groups = $_POST['user_groups'];
+			if (0 < count($user_groups)):
+				foreach ($user_groups as $user_group):
+					$user_group = intval($user_group);
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$id),'[+prefix+]member_groups');
 					if (!$rs) {
-						webAlert("An error occurred while attempting to add the user to a user_group.<br />$sql;");
+						webAlert("An error occurred while attempting to add the user to a user_group.");
 						exit;
 					}
-				}
-			}
+				endforeach;
+			endif;
 		}
 		// end of user_groups stuff!
 		/*******************************************************************************/
