@@ -69,6 +69,12 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
+    	$info = debug_backtrace();
+    	$m[] = "\$modx-&gt;{$method_name}() is undefined method\n";
+    	$m[] = $this->decoded_request_uri;
+    	$m[] = str_replace('\\','/',$info[0]['file']) . '(line:' . $info[0]['line'] . ')';
+    	$msg = implode('<br />', $m);
+    	$this->logEvent(0, 1, $msg, 'Call undefined method');
         include_once(MODX_MANAGER_PATH . 'includes/extenders/deprecated.functions.inc.php');
         if(method_exists($this->old,$method_name)) return call_user_func_array(array($this->old,$method_name),$arguments);
     }
