@@ -168,11 +168,38 @@ function deletedocument() {
 	<span class="warning" id='savingMessage'></span>
 	</div>
 	<!-- HTML text editor start -->
+<?php
+	$head = '';
+	$foot = '';
+	if($content['parent']!=='0'):
+		$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$content['parent']}'");
+		if($modx->db->getRecordCount($rs)==1):
+			$parent = $modx->db->getRow($rs);
+			if(strpos($parent['content'],'[*content*]')!==false)
+				list($head,$foot) = explode('[*content*]',$parent['content'],2);
+		endif;
+	endif;
+	$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;border-bottom:none;font-family: 'Courier New','Courier', monospace";
+	if($head!==''):
+		$head = trim($head);
+		$head = htmlspecialchars($head, ENT_QUOTES, $modx->config['modx_charset']);
+		$head = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$head);
+		$head = "<div style=\"{$divstyle}\">" . $head . '</div>';
+	endif;
+	if($foot!==''):
+		$foot = trim($foot);
+		$foot = htmlspecialchars($foot, ENT_QUOTES, $modx->config['modx_charset']);
+		$foot = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$foot);
+		$foot = "<div style=\"{$divstyle}\">" . $foot . '</div>';
+	endif;
+?>
 	<div style="width:100%;position:relative">
 	    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
+	<?php echo $head;?>
         <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
+	<?php echo $foot;?>
 	</div>
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
