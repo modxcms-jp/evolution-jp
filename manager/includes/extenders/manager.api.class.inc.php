@@ -79,12 +79,15 @@ class ManagerAPI {
 		unset($_SESSION['mgrFormValueId']);
 	}
 	
-	function get_alias_from_title($id,$pagetitle)
+	function get_alias_from_title($id=0,$pagetitle='')
 	{
 	    global $modx;
 	    if($id==='') $id = 0;
-	    
-		$alias = strtolower($modx->stripAlias(trim($pagetitle)));
+
+	    $pagetitle = trim($pagetitle);
+	    if($pagetitle!=='')
+	    	$alias = strtolower($modx->stripAlias($pagetitle));
+	    return '';
 		
 		if(!$modx->config['allow_duplicate_alias'])
 		{
