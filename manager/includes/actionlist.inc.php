@@ -75,7 +75,7 @@ $GLOBALS['action_list'] = array(
 	'71' => 'Searching',
 	'72' => 'Adding a weblink',
 	'73' => 'Editing a weblink',
-		//case "74" : return "Changing personal preferences"; break;
+	'74' => 'Changing personal preferences',
 	'75' => 'User/ role management',
 	'76' => 'Element management',
 	'77' => 'Creating a new Chunk (HTML Snippet)',
@@ -120,7 +120,6 @@ $GLOBALS['action_list'] = array(
 	'116' => 'Delete event log',
 	'117' => 'Editing tv rank',
 	'118' => 'Call settings ajax include',
-	'119' => 'Editing user profile',
 
 	'300' => 'Create Template Variable',
 	'301' => 'Edit Template Variable',

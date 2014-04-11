@@ -225,7 +225,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <?php
 	$login_name = $modx->getLoginUserName();
 	if($modx->hasPermission('change_password'))
-		echo "<a href=\"index.php?a=119\" target=\"main\">{$login_name}</a>";
+		echo "<a href=\"index.php?a=74\" target=\"main\">{$login_name}</a>";
 	else echo $login_name;
 ?>
 <?php if($modx->hasPermission('messages')) { ?>
@@ -332,7 +332,7 @@ $item['view_logging']    = item($_lang['view_logging'], 13,$modx->hasPermission(
 $item['view_sysinfo']    = item($_lang['view_sysinfo'], 53,$modx->hasPermission('logs'));// system-info
 
 // User Profile Menu
-$item['change_user_pf']  = item($_lang['profile'], 119,$modx->hasPermission('change_password'));// change password
+$item['change_user_pf']  = item($_lang['profile'], 74,$modx->hasPermission('change_password'));// change password
 $item['change_password'] = item($_lang['change_password'], 28,$modx->hasPermission('change_password'));// change password
 $item['messages']        = item($_lang['messages'], 10,$modx->hasPermission('messages'));// messages
 

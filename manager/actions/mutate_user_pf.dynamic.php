@@ -1,7 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if ($_REQUEST['a']!=='119' || !$modx->hasPermission('change_password')) {
+if ($_REQUEST['a']!=='74' || !$modx->hasPermission('change_password')) {
   $e->setError(3);
   $e->dumpError();
 }
@@ -151,7 +151,7 @@ $evtOut = $modx->invokeEvent("OnUserFormPrerender", array (
 if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
-<input type="hidden" name="mode" value="119">
+<input type="hidden" name="mode" value="74">
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <input type="hidden" name="newusername" value="<?php echo $usernamedata['username']; ?>" />
 <input type="hidden" name="role" value="<?php echo $userdata['role']; ?>" />
@@ -173,7 +173,7 @@ if (is_array($evtOut))
     			</select>
     		  </li>
     		  <?php
-    			if ($_REQUEST['a'] == '119') { ?>
+    			if ($_REQUEST['a'] == '74') { ?>
     		  <li id="Button3"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
     		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
