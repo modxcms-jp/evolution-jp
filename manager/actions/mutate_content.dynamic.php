@@ -118,47 +118,25 @@ $ph['sectionTV']      =  sectionTV();
 
 echo $modx->parseText($tpl,$ph);
 
-?>
+$tpl = <<< EOT
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
-		<h2 class="tab"><?php echo $_lang['settings_page_settings']?></h2>
+		<h2 class="tab">[+_lang_settings_page_settings+]</h2>
 		<script type="text/javascript">
 			tpSettings.addTabPage(document.getElementById('tabSettings'));
 		</script>
-
+		
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-<?php
-$cond = (isset($docObject['published']) && $docObject['published']==1) || (!isset($docObject['published']) && $publish_default==1);
-$body = input_checkbox('published',$cond);
-$body .= input_hidden('published',$cond);
-$body .= tooltip($_lang['resource_opt_published_help']);
-echo renderTr($_lang['resource_opt_published'],$body);
+EOT;
 
-$pub_disabled = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
-$pub_date = (isset($docObject['pub_date']) && $docObject['pub_date']!='0') ? $modx->toDateFormat($docObject['pub_date']) : '';
-$body = $modx->parseText('<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />', array('disabled'=>$pub_disabled,'pub_date'=>$pub_date));
-$body .= '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
-$body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
-$body .= tooltip($_lang['page_data_publishdate_help']);
-echo renderTr($_lang['page_data_publishdate'],$body);
-?>
-			<tr>
-				<td></td>
-				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
-			</tr>
-<?php
-$unpub_date = (isset($docObject['unpub_date']) && $docObject['unpub_date']!='0') ? $modx->toDateFormat($docObject['unpub_date']) : '';
-$body = $modx->parseText('<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />', array('disabled'=>$pub_disabled,'unpub_date'=>$unpub_date));
-$body .= '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
-$body .= $modx->parseText('<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>',array('icons_cal_nodate'=>$_style["icons_cal_nodate"],'remove_date'=>$_lang['remove_date']));
-$body .= tooltip($_lang['page_data_unpublishdate_help']);
-echo renderTr($_lang['page_data_unpublishdate'],$body);
-?>
-			<tr>
-				<td></td>
-				<td style="line-height:1;margin:0;color: #555;font-size:10px"><?php echo $config['datetime_format']; ?> HH:MM:SS</td>
-			</tr>
-<?php
+$ph = array();
+$ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
+echo $modx->parseText($tpl,$ph);
+
+echo fieldPublished();
+echo fieldPub_date($id);
+echo fieldUnpub_date($id);
+
 echo renderSplit();
 
 if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $docObject['createdby'])
@@ -990,20 +968,23 @@ function mergeContent($db_v,$form_v) {
 		$docObject = array_merge($db_v, $form_v);
 		if(isset($form_v['ta'])) $docObject['content'] = $form_v['ta'];
 		
-		if (empty ($docObject['pub_date']))
-			unset ($docObject['pub_date']);
-		else
-			$docObject['pub_date'] = $modx->toTimeStamp($docObject['pub_date']);
-		
-		if (empty ($docObject['unpub_date']))
-			unset ($docObject['unpub_date']);
-		else
-			$docObject['unpub_date'] = $modx->toTimeStamp($docObject['unpub_date']);
 	endif;
 	
 	$docObject['menuindex'] = getMenuIndexAtNew($docObject['menuindex']);
 	$docObject['alias']     = getAliasAtNew($docObject['alias']);
 	$docObject['richtext']  = getRteAtNew($docObject['richtext']);
+	if(!isset($docObject['published'])) $docObject['published'] = $modx->config['publish_default'];
+	
+	if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
+		$docObject['pub_date'] = '';
+	else
+		$docObject['pub_date'] = $modx->toDateFormat($docObject['pub_date']);
+	
+	if (!isset($docObject['unpub_date'])||empty($docObject['unpub_date']))
+		$docObject['unpub_date'] = '';
+	else
+		$docObject['unpub_date'] = $modx->toDateFormat($docObject['unpub_date']);
+	
 	if(empty($docObject['type'])) {
 		if($_REQUEST['a']==='4') $docObject['type'] = 'document';
 		elseif($_REQUEST['a']==='72') $docObject['type'] = 'reference';
@@ -1527,4 +1508,57 @@ function sectionTV() {
 		$ph['body'] = implode("\n",$output);
 		return $modx->parseText($tpl,$ph);
 	endif;
+}
+
+function fieldPublished() {
+	global $_lang,$docObject;
+	$body = input_checkbox('published',$docObject['published']==='1');
+	$body .= input_hidden('published',$docObject['published']==='1');
+	$body .= tooltip($_lang['resource_opt_published_help']);
+	return renderTr($_lang['resource_opt_published'],$body);
+}
+
+function fieldPub_date($id) {
+	global $modx,$_lang,$_style,$config,$docObject;
+	
+	$tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
+	$tpl[] = '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
+	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+	$tpl[] = <<< EOT
+<tr>
+	<td></td>
+	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
+</tr>
+EOT;
+	$tpl[] = tooltip($_lang['page_data_publishdate_help']);
+	$tpl = implode("\n",$tpl);
+	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+	$ph['pub_date']         = $docObject['pub_date'];
+	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
+	$ph['remove_date']      = $_lang['remove_date'];
+	$ph['datetime_format']  = $config['datetime_format'];
+	$body = $modx->parseText($tpl,$ph);
+	return renderTr($_lang['page_data_publishdate'],$body);
+}
+
+function fieldUnpub_date($id) {
+	global $modx,$_lang,$_style,$config,$docObject;
+	$tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
+	$tpl[] = '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
+	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+	$tpl[] = <<< EOT
+<tr>
+	<td></td>
+	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
+</tr>
+EOT;
+	$tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
+	$tpl = implode("\n",$tpl);
+	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+	$ph['unpub_date']       = $docObject['unpub_date'];
+	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
+	$ph['remove_date']      = $_lang['remove_date'];
+	$ph['datetime_format']  = $config['datetime_format'];
+	$body = $modx->parseText($tpl,$ph);
+	return renderTr($_lang['page_data_unpublishdate'],$body);
 }
