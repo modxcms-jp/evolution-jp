@@ -73,12 +73,12 @@ $tpl = <<< EOT
 <div class="sectionBody">
 <div class="tab-pane" id="documentPane">
 	<script type="text/javascript">
-		tpDocs = new WebFXTabPane(document.getElementById("documentPane"), [+remember_last_tab+] );
+		tpSettings = new WebFXTabPane(document.getElementById("documentPane"), [+remember_last_tab+] );
 	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab">[+_lang_settings_general+]</h2>
-		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabGeneral" ) );</script>
+		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 		[+fieldPagetitle+]
 		[+fieldLongtitle+]
@@ -204,7 +204,7 @@ EOT;
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
 		<h2 class="tab"><?php echo $_lang['settings_page_settings']?></h2>
-		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabSettings" ) );</script>
+		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 <?php
@@ -427,7 +427,7 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && 
 	<!-- META Keywords -->
 	<div class="tab-page" id="tabMeta">
 		<h2 class="tab"><?php echo $_lang['meta_keywords']?></h2>
-		<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabMeta" ) );</script>
+		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
 
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 		<tr style="height: 24px;"><td><?php echo $_lang['resource_metatag_help']?><br /><br />
@@ -581,7 +581,7 @@ if ($use_udperms == 1)
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
 	<h2 class="tab" id="tab_access_header"><?php echo $_lang['access_permissions']?></h2>
-	<script type="text/javascript">tpDocs.addTabPage( document.getElementById( "tabAccess" ) );</script>
+	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
 		function makePublic(b) {
