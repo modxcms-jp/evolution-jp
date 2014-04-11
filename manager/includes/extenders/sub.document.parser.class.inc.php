@@ -104,7 +104,7 @@ class SubParser {
 		}
 	}
 	
-	function logEvent($evtid, $type, $msg, $source= 'Parser')
+	function logEvent($evtid, $type, $msg, $title= 'Parser')
 	{
 		global $modx;
 		
@@ -113,15 +113,15 @@ class SubParser {
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
 		$msg= $modx->db->escape($msg);
-		$source = htmlentities($source);
-		$source= $modx->db->escape($source);
+		$title = htmlentities($title);
+		$title= $modx->db->escape($title);
 		if (function_exists('mb_substr'))
 		{
-			$source = mb_substr($source, 0, 50 , $modx->config['modx_charset']);
+			$title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
 		}
 		else
 		{
-			$source = substr($source, 0, 50);
+			$title = substr($title, 0, 50);
 		}
 		$LoginUserID = $modx->getLoginUserID();
 		if (empty($LoginUserID)) $LoginUserID = '-';
@@ -129,11 +129,11 @@ class SubParser {
 		$fields['eventid']     = $evtid;
 		$fields['type']        = $type;
 		$fields['createdon']   = $_SERVER['REQUEST_TIME'];
-		$fields['source']      = $source;
+		$fields['source']      = $title;
 		$fields['description'] = $msg;
 		$fields['user']        = $LoginUserID;
 		$insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
-		if(!$modx->db->conn) $source = 'DB connect error';
+		if(!$modx->db->conn) $title = 'DB connect error';
 		if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
 		{
 			if($modx->config['send_errormail'] <= $type)
