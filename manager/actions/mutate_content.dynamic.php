@@ -1180,18 +1180,16 @@ function getParentName(&$v_parent) {
 	}
 	else                                $v_parent = 0;
 	
-	if($parentlookup !== false && preg_match('@^[0-9]+$@', $parentlookup))
-	{
+	if($parentlookup !== false && preg_match('@^[1-9][0-9]*$@', $parentlookup)):
 		$rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
 		$limit = $modx->db->getRecordCount($rs);
-		if ($limit != 1)
-		{
+		if ($limit != 1):
 			$e->setError(8);
 			$e->dumpError();
-		}
+		endif;
 		$parentrs = $modx->db->getRow($rs);
 		$parentname = $parentrs['pagetitle'];
-	}
+	endif;
 	
 	return $parentname;
 }
