@@ -69,14 +69,24 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
+        include_once(MODX_MANAGER_PATH . 'includes/extenders/deprecated.functions.inc.php');
+        if(method_exists($this->old,$method_name)):
+        	$error_type=1;
+        	$title = 'Call deprecated method';
+        	$msg = htmlspecialchars("\$modx->{$method_name}() is deprecated function");
+        else:
+        	$error_type=3;
+        	$title = 'Call undefined method';
+        	$msg = htmlspecialchars("\$modx->{$method_name}() is undefined function");
+        endif;
     	$info = debug_backtrace();
-    	$m[] = "\$modx-&gt;{$method_name}() is undefined method\n";
+    	$m[] = $msg;
     	$m[] = $this->decoded_request_uri;
     	$m[] = str_replace('\\','/',$info[0]['file']) . '(line:' . $info[0]['line'] . ')';
     	$msg = implode('<br />', $m);
-    	$this->logEvent(0, 1, $msg, 'Call undefined method');
-        include_once(MODX_MANAGER_PATH . 'includes/extenders/deprecated.functions.inc.php');
-        if(method_exists($this->old,$method_name)) return call_user_func_array(array($this->old,$method_name),$arguments);
+        $this->logEvent(0, $error_type, $msg, $title);
+        if(method_exists($this->old,$method_name))
+        	return call_user_func_array(array($this->old,$method_name),$arguments);
     }
     // constructor
 	function DocumentParser()
