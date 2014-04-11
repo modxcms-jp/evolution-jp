@@ -1,7 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $modx->config['preview_mode'] = '1';
-if (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id']))
+if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
 	 $id = $_REQUEST['id'];
 else $id = '0';
 
@@ -11,18 +11,41 @@ checkDocLock($id);
 global $config, $docObject;
 $config = & $modx->config;
 $docgrp  = getDocgrp();
-$db_v    = getContentFromDB($id,$docgrp);
+global $default_template; // For plugins (ManagerManager etc...)
+$default_template = getDefaultTemplate();
+$initial_v = $id==='0' ? getInitialValues() : array();
+
+function getInitialValues() {
+	global $modx,$default_template;
+	
+	$init_v['menuindex'] = getMenuIndexAtNew();
+	$init_v['alias']     = getAliasAtNew();
+	$init_v['template']  = $default_template;
+	$init_v['richtext']  = $modx->config['use_editor'];
+	$init_v['published'] = $modx->config['publish_default'];
+	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
+	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
+	$init_v['contentType'] = 'text/html';
+	$init_v['content_dispo'] = '0';
+	$init_v['which_editor'] = $modx->config['which_editor'];
+	$init_v['searchable'] = $modx->config['search_default'];
+	$init_v['cacheable'] = $modx->config['cache_default'];
+	return $init_v;
+}
+$db_v    = getValuesFromDB($id,$docgrp);
 $form_v  = $_POST ? $_POST : array();
 
-$docObject = mergeContent($db_v,$form_v);
+$docObject = mergeValues($initial_v,$db_v,$form_v);
+
 $content = &$docObject; //Be compatible with old plugins
 
 $tvObject = getTmplvars($id,$docgrp);
 $docObject = $docObject + $tvObject;
 
-global $default_template, $template, $selected_editor;
-$default_template = getDefaultTemplate();
+global $template, $selected_editor;
+
 $template = $docObject['template'];
+
 $selected_editor = (isset ($form_v['which_editor'])) ? $form_v['which_editor'] : $config['which_editor'];
 
 checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
@@ -162,7 +185,6 @@ EOT;
 	[+option+]
 </select>
 EOT;
-		if (!$docObject['contentType']) $docObject['contentType'] = 'text/html';
 		$custom_contenttype = (isset ($custom_contenttype) ? $custom_contenttype : "text/html,text/plain,text/xml");
 		$ct = explode(',', $custom_contenttype);
 		$option = array();
@@ -202,9 +224,9 @@ else
 	{
 		// non-admin managers creating or editing a document resource
 ?>
-            <input type="hidden" name="contentType" value="<?php echo isset($docObject['contentType']) ? $docObject['contentType'] : "text/html"?>" />
+            <input type="hidden" name="contentType" value="<?php echo $docObject['contentType'];?>" />
             <input type="hidden" name="type" value="document" />
-            <input type="hidden" name="content_dispo" value="<?php echo isset($docObject['content_dispo']) ? $docObject['content_dispo'] : '0'?>" />
+            <input type="hidden" name="content_dispo" value="<?php echo $docObject['content_dispo'];?>" />
 <?php
 	}
 	else
@@ -240,7 +262,7 @@ $body .= input_hidden('donthit',!$cond);
 $body .= tooltip($_lang['resource_opt_trackvisit_help']);
 echo renderTr($_lang['track_visitors_title'],$body);
 
-$cond = ((isset($docObject['searchable']) && $docObject['searchable']==1) || (!isset($docObject['searchable']) && $search_default==1));
+$cond = ($docObject['searchable']==1);
 $body = input_checkbox('searchable',$cond);
 $body .= input_hidden('searchable',$cond);
 $body .= tooltip($_lang['page_data_searchable_help']);
@@ -248,7 +270,7 @@ echo renderTr($_lang['page_data_searchable'],$body);
 
 if($docObject['type'] === 'document')
 {
-	$cond = ((isset($docObject['cacheable']) && $docObject['cacheable']==1) || (!isset($docObject['cacheable']) && $cache_default==1));
+	$cond = ($docObject['cacheable']==1);
 	$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
 	$body = input_checkbox('cacheable',$cond,$disabled);
 	$body .= input_hidden('cacheable',$cond);
@@ -806,10 +828,9 @@ EOT;
 
 function getDefaultTemplate()
 {
-	global $modx, $docObject;
+	global $modx;
 	
     if (isset($_REQUEST['newtemplate']))  return $_REQUEST['newtemplate'];
-    elseif(isset($docObject['template'])) return $docObject['template'];
     
 	switch($modx->config['auto_template_logic'])
 	{
@@ -925,7 +946,7 @@ function getDocgrp() {
 	else return '';
 }
 
-function getContentFromDB($id,$docgrp) {
+function getValuesFromDB($id,$docgrp) {
 	global $modx,$e;
 	
 	if($id==='0') return array();
@@ -949,7 +970,7 @@ function getContentFromDB($id,$docgrp) {
 }
 
 // restore saved form
-function mergeContent($db_v,$form_v) {
+function mergeValues($initial_v,$db_v,$form_v) {
 	global $modx;
 	
 	if ($modx->manager->hasFormValues())
@@ -963,17 +984,13 @@ function mergeContent($db_v,$form_v) {
 	// edited to convert pub_date and unpub_date
 	// sottwell 02-09-2006
 	if ($formRestored == false && !isset ($_REQUEST['newtemplate'])):
-		$docObject = $db_v;
+		$docObject = array_merge($initial_v,$db_v);
 	else:
-		$docObject = array_merge($db_v, $form_v);
+		$docObject = array_merge($initial_v,$db_v, $form_v);
 		if(isset($form_v['ta'])) $docObject['content'] = $form_v['ta'];
 		
 	endif;
 	
-	$docObject['menuindex'] = getMenuIndexAtNew($docObject['menuindex']);
-	$docObject['alias']     = getAliasAtNew($docObject['alias']);
-	$docObject['richtext']  = getRteAtNew($docObject['richtext']);
-	if(!isset($docObject['published'])) $docObject['published'] = $modx->config['publish_default'];
 	
 	if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
 		$docObject['pub_date'] = '';
@@ -984,11 +1001,6 @@ function mergeContent($db_v,$form_v) {
 		$docObject['unpub_date'] = '';
 	else
 		$docObject['unpub_date'] = $modx->toDateFormat($docObject['unpub_date']);
-	
-	if(empty($docObject['type'])) {
-		if($_REQUEST['a']==='4') $docObject['type'] = 'document';
-		elseif($_REQUEST['a']==='72') $docObject['type'] = 'reference';
-	}
 	
 	return $docObject;
 }
@@ -1009,11 +1021,9 @@ function checkViewUnpubDocPerm($published,$editedby) {
 }
 
 // increase menu index if this is a new document
-function getMenuIndexAtNew($menuindex) {
+function getMenuIndexAtNew() {
 	global $modx;
-	if (!empty($_REQUEST['id'])) return $menuindex;
-	
-	if (is_null($modx->config['auto_menuindex']) || $modx->config['auto_menuindex'])
+	if (isset($_REQUEST['pid'])&&$modx->config['auto_menuindex']==='1')
 	{
 		$pid = intval($_REQUEST['pid']);
 		return $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
@@ -1021,20 +1031,13 @@ function getMenuIndexAtNew($menuindex) {
 	else return '0';
 }
 
-function getAliasAtNew($alias) {
+function getAliasAtNew() {
 	global $modx;
 	
 	$pid = $_REQUEST['pid'] ? $_REQUEST['pid'] : '0';
-	if (empty($alias) && $modx->config['automatic_alias'] === '2') {
-		return $modx->manager->get_alias_num_in_folder(0,$pid);}
-	else return $alias;
-}
-
-function getRteAtNew($richtext) {
-	global $modx;
-	if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '72')
-		return $modx->config['use_editor'];
-	else return $richtext;
+	if($modx->config['automatic_alias'] === '2')
+		return $modx->manager->get_alias_num_in_folder(0,$pid);
+	else return '';
 }
 
 function getJScripts() {
@@ -1095,7 +1098,7 @@ function get_template_options() {
 		}
 		else $closeOptGroup = false;
 		
-		$selectedtext = ($row['id']==$default_template) ? ' selected="selected"' : '';
+		$selectedtext = ($row['id']==$docObject['template']) ? ' selected="selected"' : '';
 		
 		$options .= '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
 		$currentCategory = $each_category;
@@ -1524,13 +1527,13 @@ function fieldPub_date($id) {
 	$tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
 	$tpl[] = '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+	$tpl[] = tooltip($_lang['page_data_publishdate_help']);
 	$tpl[] = <<< EOT
 <tr>
 	<td></td>
 	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
 </tr>
 EOT;
-	$tpl[] = tooltip($_lang['page_data_publishdate_help']);
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 	$ph['pub_date']         = $docObject['pub_date'];
@@ -1546,13 +1549,13 @@ function fieldUnpub_date($id) {
 	$tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
 	$tpl[] = '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+	$tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
 	$tpl[] = <<< EOT
 <tr>
 	<td></td>
 	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
 </tr>
 EOT;
-	$tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 	$ph['unpub_date']       = $docObject['unpub_date'];
