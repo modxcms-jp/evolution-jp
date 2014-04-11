@@ -482,34 +482,31 @@ function selected($target='')
 	</style>
 <table width="100%" cellspacing="0" cellpadding="0">
 	<?php
-	    $from = '[+prefix+]site_templates as tpl LEFT JOIN [+prefix+]site_tmplvar_templates as stt ON stt.templateid=tpl.id AND stt.tmplvarid='.$id;
+	    $from  = '[+prefix+]site_templates as tpl';
+		$from .= " LEFT JOIN [+prefix+]site_tmplvar_templates as stt ON stt.templateid=tpl.id AND stt.tmplvarid='{$id}'";
 	    $rs = $modx->db->select('id,templatename,tmplvarid',$from);
 ?>
   <tr>
     <td>
 <?php
-	    while ($row = $modx->db->getRow($rs))
-	    {
+	if(0<$modx->db->getRecordCount($rs)):
+	    while ($row = $modx->db->getRow($rs)):
 	    	if($_REQUEST['a']=='300' && $modx->config['default_template']==$row['id'])
-	    	{
 	    		$checked = true;
-	    	}
 	    	elseif(isset($_GET['tpl']) && $_GET['tpl'] == $row['id'])
-	    	{
 	    		$checked = true;
-	    	}
 	    	elseif($id == 0 && is_array($_POST['template']))
-	    	{
 	    		$checked = in_array($row['id'], $_POST['template']);
-	    	}
 	    	else
-	    	{
 	    		$checked = $row['tmplvarid'];
-	    	}
-	    	$checked = $checked ? ' checked="checked"':'';
-	        echo '<label><input type="checkbox" name="template[]" value="' . $row['id'] . '"' . $checked . ' />' . $row['templatename'] . '</label>';
-	    }
-	?>
+	    	
+	    	$ph['checked']      = $checked ? 'checked':'';
+	    	$ph['id']           = $row['id'];
+	    	$ph['templatename'] = $row['templatename'];
+	    	echo $modx->parseText('<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] />[+templatename+]</label>',$ph);
+	    endwhile;
+	endif;
+?>
     </td>
   </tr>
 </table>
