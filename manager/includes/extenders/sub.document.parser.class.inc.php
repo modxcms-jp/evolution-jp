@@ -139,7 +139,7 @@ class SubParser {
 			if($modx->config['send_errormail'] <= $type)
 			{
 				$subject = 'Error mail from ' . $modx->config['site_name'];
-				$modx->sendmail($subject,"{$source}\n{$modx->decoded_request_uri}");
+				$modx->sendmail($subject,print_r($fields,true));
 			}
 		}
 		if (!$insert_id)
