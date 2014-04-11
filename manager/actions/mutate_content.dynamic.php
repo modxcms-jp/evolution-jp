@@ -1,9 +1,8 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $modx->config['preview_mode'] = '1';
-if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
-	 $id = $_REQUEST['id'];
-else $id = '0';
+
+$id = getDocId(); // New is '0'
 
 checkPermissions($id);
 checkDocLock($id);
@@ -260,7 +259,8 @@ $cond = ($docObject['donthit']!=1);
 $body = input_checkbox('donthit',$cond);
 $body .= input_hidden('donthit',!$cond);
 $body .= tooltip($_lang['resource_opt_trackvisit_help']);
-echo renderTr($_lang['track_visitors_title'],$body);
+if($modx->config['track_visitors']==='1')
+	echo renderTr($_lang['track_visitors_title'],$body);
 
 $cond = ($docObject['searchable']==1);
 $body = input_checkbox('searchable',$cond);
@@ -271,14 +271,14 @@ echo renderTr($_lang['page_data_searchable'],$body);
 if($docObject['type'] === 'document')
 {
 	$cond = ($docObject['cacheable']==1);
-	$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
+	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
 	$body = input_checkbox('cacheable',$cond,$disabled);
 	$body .= input_hidden('cacheable',$cond);
 	$body .= tooltip($_lang['page_data_cacheable_help']);
 	echo renderTr($_lang['page_data_cacheable'],$body);
 }
 
-$disabled = ($cache_type==0) ? ' disabled="disabled"' : '';
+$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
 $body = input_checkbox('syncsite',true,$disabled);
 $body .= input_hidden('syncsite');
 $body .= tooltip($_lang['resource_opt_emptycache_help']);
@@ -598,13 +598,15 @@ function input_text($name,$value,$other='',$maxlength='255')
 function input_checkbox($name,$checked,$other='')
 {
 	global $modx;
+
 	$ph['name']    = $name;
 	$ph['checked'] = ($checked) ? 'checked="checked"' : '';
 	$ph['other']   = $other;
 	$ph['resetpubdate'] = ($name == 'published') ? 'resetpubdate();' : '';
 	if($name === 'published')
 	{
-		$id = (isset($_REQUEST['id'])) ? (int)$_REQUEST['id'] : 0;
+		$id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+		
 		if(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start'])
 		{
 			$ph['other'] = 'disabled="disabled"';
@@ -1564,4 +1566,11 @@ EOT;
 	$ph['datetime_format']  = $config['datetime_format'];
 	$body = $modx->parseText($tpl,$ph);
 	return renderTr($_lang['page_data_unpublishdate'],$body);
+}
+
+function getDocId() {
+	if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
+		 $id = $_REQUEST['id'];
+	else $id = '0';
+	return $id;
 }
