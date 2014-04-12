@@ -438,6 +438,15 @@ function confirmLangChange(el, lkey, elupd)
 </tr>
 
 <tr>
+	<th>Output Filter</th>
+	<td>
+		<?php echo wrap_label('Revolution compatible',form_radio('output_filter','2', $output_filter==='2'));?><br />
+		<?php echo wrap_label('PHx compatible',form_radio('output_filter','1', $output_filter==='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('output_filter','0', $output_filter==='0'));?><br />
+		<?php echo $_lang["output_filter_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["serveroffset_title"] ?></th>
 	<td>
 		<select name="server_offset_time" size="1" class="inputBox">
@@ -451,15 +460,6 @@ function confirmLangChange(el, lkey, elupd)
 ?>
 		</select><br />
 		<?php printf($_lang["serveroffset_message"], strftime('%H:%M:%S', time()), strftime('%H:%M:%S', time()+$server_offset_time)); ?>
-	</td>
-</tr>
-<tr>
-	<th>Output Filter</th>
-	<td>
-		<?php echo wrap_label('Revolution compatible',form_radio('output_filter','2', $output_filter==='2'));?><br />
-		<?php echo wrap_label('PHx compatible',form_radio('output_filter','1', $output_filter==='1'));?><br />
-		<?php echo wrap_label($_lang['disabled'],form_radio('output_filter','0', $output_filter==='0'));?><br />
-		<?php echo $_lang["output_filter_message"] ?>
 	</td>
 </tr>
 <tr>
