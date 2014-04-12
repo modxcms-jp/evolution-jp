@@ -150,9 +150,9 @@ $pager .=  $array_paging['next_link'] ."&gt;&gt;". (isset($array_paging['next_li
 // only the results you would like...
 $rs = $modx->db->select('*', '[+prefix+]user_messages', "recipient='{$uid}'", 'postdate DESC', "{$int_cur_position}, {$int_num_result}");
 $limit = $modx->db->getRecordCount($rs);
-if($limit<1) {
+if($limit<1):
     echo $_lang['messages_no_messages'];
-} else {
+else:
 echo $pager;
 $dotablestuff = 1;
 ?>
@@ -169,18 +169,17 @@ $dotablestuff = 1;
     </thead>
     <tbody>
 <?php
-        for ($i = 0; $i < $limit; $i++) {
-            $message = $modx->db->getRow($rs);
+        while($message = $modx->db->getRow($rs)) :
 			$message['subject'] = decrypt($message['subject']);
 			$message['message'] = decrypt($message['message']);
             $sender = $message['sender'];
-            if($sender==0) {
+            if($sender==0):
                 $sendername = "[System]";
-            } else {
-                $rs2 = $modx->db->select('username', '[+prefix+]manager_users', "id={$sender}");
+            else:
+                $rs2 = $modx->db->select('username', '[+prefix+]manager_users', "id='{$sender}'");
                 $row2 = $modx->db->getRow($rs2);
                 $sendername = $row2['username'];
-            }
+            endif;
             $messagestyle = $message['messageread']==0 ? "messageUnread" : "messageRead";
 ?>
     <tr>
@@ -191,8 +190,8 @@ $dotablestuff = 1;
       <td ><?php echo $modx->toDateFormat($message['postdate']+$server_offset_time); ?></td>
     </tr>
     <?php
-            }
-    }
+        endwhile;
+endif;
 
 if($dotablestuff==1) { ?>
 </tbody>
