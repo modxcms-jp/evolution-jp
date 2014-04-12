@@ -205,6 +205,14 @@ function confirmLangChange(el, lkey, elupd)
 </style>
 <table class="settings">
 <tr>
+	<th><?php echo $_lang["sitestatus_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["online"], form_radio('site_status','1',$site_status=='1'));?><br />
+		<?php echo wrap_label($_lang["offline"],form_radio('site_status','0',$site_status=='0'));?><br />
+		<?php echo $_lang["sitestatus_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["sitename_title"] ?></th>
 	<td>
 		<?php echo form_text('site_name',$site_name);?><br />
@@ -270,14 +278,6 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["sitestatus_title"] ?></th>
-	<td>
-		<?php echo wrap_label($_lang["online"], form_radio('site_status','1',$site_status=='1'));?><br />
-		<?php echo wrap_label($_lang["offline"],form_radio('site_status','0',$site_status=='0'));?><br />
-		<?php echo $_lang["sitestatus_message"] ?>
-	</td>
-</tr>
-<tr>
 	<th><?php echo $_lang["siteunavailable_page_title"] ?></th>
 	<td>
 		<?php echo form_text('site_unavailable_page',$site_unavailable_page,10);?><br />
@@ -298,23 +298,6 @@ function confirmLangChange(el, lkey, elupd)
 		<input type="hidden" name="siteunavailable_message_default" id="siteunavailable_message_default_hidden" value="<?php echo addslashes($_lang['siteunavailable_message_default']);?>" /><br />
 		<?php echo $_lang['siteunavailable_message'];?>
 	</td>
-</tr>
-<tr>
-	<th><?php echo $_lang["track_visitors_title"] ?></th>
-	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('track_visitors','1',$track_visitors=='1'));?><br />
-		<?php echo wrap_label($_lang["no"], form_radio('track_visitors','0',$track_visitors=='0'));?><br />
-		<?php echo $_lang["track_visitors_message"] ?>
-	</td>
-</tr>
-<tr>
-<th><?php echo $_lang["defaulttemplate_logic_title"];?></th>
-<td>
-<?php echo wrap_label($_lang["defaulttemplate_logic_system_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'system'));?><br />
-<?php echo wrap_label($_lang["defaulttemplate_logic_parent_message"],form_radio('auto_template_logic','parent',$auto_template_logic == 'parent'));?><br />
-<?php echo wrap_label($_lang["defaulttemplate_logic_sibling_message"],form_radio('auto_template_logic','sibling',$auto_template_logic == 'sibling'));?><br />
-	<?php echo $_lang["defaulttemplate_logic_general_message"];?>
-</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["defaulttemplate_title"] ?></th>
@@ -370,11 +353,12 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th><?php echo $_lang["defaultpublish_title"] ?></th>
+<th><?php echo $_lang["defaulttemplate_logic_title"];?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('publish_default','1',$publish_default=='1'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('publish_default','0',$publish_default=='0'));?><br />
-		<?php echo $_lang["defaultpublish_message"] ?>
+<?php echo wrap_label($_lang["defaulttemplate_logic_system_message"],form_radio('auto_template_logic','system',$auto_template_logic == 'system'));?><br />
+<?php echo wrap_label($_lang["defaulttemplate_logic_parent_message"],form_radio('auto_template_logic','parent',$auto_template_logic == 'parent'));?><br />
+<?php echo wrap_label($_lang["defaulttemplate_logic_sibling_message"],form_radio('auto_template_logic','sibling',$auto_template_logic == 'sibling'));?><br />
+	<?php echo $_lang["defaulttemplate_logic_general_message"];?>
 	</td>
 </tr>
 <tr>
@@ -395,6 +379,14 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang["defaultpublish_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('publish_default','1',$publish_default=='1'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('publish_default','0',$publish_default=='0'));?><br />
+		<?php echo $_lang["defaultpublish_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["defaultsearch_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('search_default','1',$search_default=='1'));?><br />
@@ -407,6 +399,15 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo wrap_label($_lang["yes"],form_radio('auto_menuindex','1',$auto_menuindex=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('auto_menuindex','0',$auto_menuindex=='0'));?><br />
 		<?php echo $_lang["defaultmenuindex_message"] ?>
+	</td>
+</tr>
+<tr>
+	<th><?php echo $_lang["docid_incrmnt_method_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["docid_incrmnt_method_0"],form_radio('docid_incrmnt_method','0', $docid_incrmnt_method=='0'));?><br />
+		<?php echo wrap_label($_lang["docid_incrmnt_method_1"],form_radio('docid_incrmnt_method','1', $docid_incrmnt_method=='1'));?><br />
+		<?php echo wrap_label($_lang["docid_incrmnt_method_2"],form_radio('docid_incrmnt_method','2', $docid_incrmnt_method=='2'));?><br />
+		<?php echo $_lang["docid_incrmnt_method_message"] ?>
 	</td>
 </tr>
 <tr>
@@ -435,15 +436,6 @@ function confirmLangChange(el, lkey, elupd)
 		<?php echo $_lang["custom_contenttype_message"] ?>
 	</td>
 </tr>
-<tr>
-	<th><?php echo $_lang["docid_incrmnt_method_title"] ?></th>
-	<td>
-		<?php echo wrap_label($_lang["docid_incrmnt_method_0"],form_radio('docid_incrmnt_method','0', $docid_incrmnt_method=='0'));?><br />
-		<?php echo wrap_label($_lang["docid_incrmnt_method_1"],form_radio('docid_incrmnt_method','1', $docid_incrmnt_method=='1'));?><br />
-		<?php echo wrap_label($_lang["docid_incrmnt_method_2"],form_radio('docid_incrmnt_method','2', $docid_incrmnt_method=='2'));?><br />
-		<?php echo $_lang["docid_incrmnt_method_message"] ?>
-	</td>
-</tr>
 
 <tr>
 	<th><?php echo $_lang["serveroffset_title"] ?></th>
@@ -462,6 +454,15 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th>Output Filter</th>
+	<td>
+		<?php echo wrap_label('Revolution compatible',form_radio('output_filter','2', $output_filter==='2'));?><br />
+		<?php echo wrap_label('PHx compatible',form_radio('output_filter','1', $output_filter==='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('output_filter','0', $output_filter==='0'));?><br />
+		<?php echo $_lang["output_filter_message"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["server_protocol_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["server_protocol_http"],form_radio('server_protocol','http', $server_protocol=='http'));?><br />
@@ -470,12 +471,11 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
-	<th>Output Filter</th>
+	<th><?php echo $_lang["track_visitors_title"] ?></th>
 	<td>
-		<?php echo wrap_label('Revolution compatible',form_radio('output_filter','2', $output_filter==='2'));?><br />
-		<?php echo wrap_label('PHx compatible',form_radio('output_filter','1', $output_filter==='1'));?><br />
-		<?php echo wrap_label('Disable',form_radio('output_filter','0', $output_filter==='0'));?><br />
-		<?php echo $_lang["output_filter_message"] ?>
+		<?php echo wrap_label($_lang["yes"],form_radio('track_visitors','1',$track_visitors=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('track_visitors','0',$track_visitors=='0'));?><br />
+		<?php echo $_lang["track_visitors_message"] ?>
 	</td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
