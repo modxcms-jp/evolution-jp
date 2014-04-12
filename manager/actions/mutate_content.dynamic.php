@@ -243,7 +243,9 @@ $body .= tooltip($_lang['link_attributes_help']);
 echo renderTr($_lang['link_attributes'],$body);
 
 $cond = ($docObject['isfolder']==1||$_REQUEST['a']=='85');
-$body = input_checkbox('isfolder',$cond);
+$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
+$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
+$body = input_checkbox('isfolder',$cond,$disabled);
 $body .= input_hidden('isfolder',$cond);
 $body .= tooltip($_lang['resource_opt_folder_help']);
 echo renderTr($_lang['resource_opt_folder'],$body);
