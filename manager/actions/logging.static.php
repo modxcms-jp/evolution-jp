@@ -234,34 +234,28 @@ if(isset($input['log_submit'])) {
 		<tbody>
 		<?php
 		// grab the entire log file...
+		$tpl = <<< EOT
+<tr class="[+class+]">
+	<td>[+datetime+]</td>
+	<td>[[+action+]] [+message+]</td>
+	<td>[+title+]</td>
+	<td><a href="index.php?a=13&searchuser=[+internalKey+]&itemname=0&log_submit=true">[+username+]</a></td>
+</tr>
+EOT;
 		$logentries = array();
 		$i = 0;
-		while ($logentry = $modx->db->getRow($rs))
-		{
-			if(!preg_match("/^[0-9]+$/", $logentry['itemid']))
-			{
-				$item = '<div style="text-align:center;">-</div>';
-			}
-			elseif($logentry['action']==3||$logentry['action']==27||$logentry['action']==5)
-			{
-				$item = '<a href="index.php?a=3&amp;id=' . $logentry['itemid'] . '">'
-				        . '[' . $logentry['itemid'] . '] ' . $logentry['itemname'] . '</a>';
-			}
+		while ($row = $modx->db->getRow($rs)):
+			if(!preg_match('/^[0-9]+$/', $row['itemid']))
+				$row['title'] = '<div style="text-align:center;">-</div>';
+			elseif($row['action']==3||$row['action']==27||$row['action']==5)
+				$row['title'] = $modx->parseText('<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]][+itemname+]</a>',$row);
 			else
-			{
-				$item = '[' . $logentry['itemid'] . '] ' . $logentry['itemname'];
-			}
-			//index.php?a=13&searchuser=' . $logentry['internalKey'] . '&action=' . $logentry['action'] . '&itemname=' . $logentry['itemname'] . '&log_submit=true'
-			$user_drill = 'index.php?a=13&searchuser=' . $logentry['internalKey'] . '&itemname=0&log_submit=true'
-			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
-			<td><?php echo $modx->toDateFormat($logentry['timestamp']+$server_offset_time); ?></td>
-			<td><?php echo '[' . $logentry['action'] .'] ' . $logentry['message']; ?></td>
-			<td><?php echo $item ; ?></td>
-			<td><?php echo '<a href="'.$user_drill.'">'.$logentry['username'].'</a>'; ?></td>
-		</tr>
-		<?php
+				$row['title'] = $modx->parseText('[[+itemid+]] [+itemname+]',$row);
+			$row['class'] = $i % 2 ? 'even' : '';
+			$row['datetime'] = $modx->toDateFormat($row['timestamp']+$server_offset_time);
+			echo $modx->parseText($tpl,$row);
 		$i++;
-		}
+		endwhile;
 		?>
 	</tbody>
 	</table>
