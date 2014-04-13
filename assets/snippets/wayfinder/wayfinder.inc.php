@@ -434,7 +434,7 @@ class Wayfinder {
 			
 	        $access = array();
 			if($access_privateweb && $docgrp) {
-				$access[] = "({$access} OR dg.document_group IN ({$docgrp}))";
+				$access[] = "({$access_privateweb} OR dg.document_group IN ({$docgrp}))";
 			} elseif($access_privateweb) {
 				$access[] = $access_privateweb;
 			} elseif($docgrp) {
