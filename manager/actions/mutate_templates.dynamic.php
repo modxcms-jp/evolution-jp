@@ -43,10 +43,10 @@ if(!empty($id))
 	} // end check for lock
 }
 
-$content = array();
+$templateObject = array();
 if(!empty($id)) {
-	$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
+	$templateObject = $modx->db->getObject('site_templates',"id='{$id}'");
+	$total = count($templateObject);
 	if($total > 1)
 	{
 		echo "Oops, something went terribly wrong...<p>";
@@ -59,9 +59,8 @@ if(!empty($id)) {
 		echo "No database record has been found for this template. <p>Aborting.";
 		exit;
 	}
-	$content = $modx->db->getRow($rs);
-	$_SESSION['itemname']=$content['templatename'];
-	if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
+	$_SESSION['itemname']=$templateObject->templatename;
+	if($templateObject->locked==1 && $modx->hasPermission('save_role')!=1)
 	{
 		$e->setError(3);
 		$e->dumpError();
@@ -72,7 +71,8 @@ else
 	$_SESSION['itemname']="New template";
 }
 
-$content = array_merge($content, $_POST);
+$templateObject = array_merge((array)$templateObject, $_POST);
+$templateObject = (object) $templateObject;
 
 ?>
 <script type="text/javascript">
@@ -106,7 +106,7 @@ function deletedocument() {
 
 </script>
 
-<form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
+<form name="mutate" method="POST" action="index.php" enctype="multipart/form-data">
 <?php
 	// invoke OnTempFormPrerender event
 	$evtOut = $modx->invokeEvent("OnTempFormPrerender",array("id" => $id));
@@ -164,42 +164,50 @@ function deletedocument() {
 	</div>
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
-	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['templatename']);?>" class="inputBox" style="width:300px;">
+	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:300px;">
 	<span class="warning" id='savingMessage'></span>
 	</div>
 	<!-- HTML text editor start -->
 <?php
-	$head = '';
-	$foot = '';
-	if($content['parent']!=='0'):
-		$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$content['parent']}'");
-		if($modx->db->getRecordCount($rs)==1):
-			$parent = $modx->db->getRow($rs);
-			if(strpos($parent['content'],'[*content*]')!==false)
-				list($head,$foot) = explode('[*content*]',$parent['content'],2);
-		endif;
-	endif;
-	$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
-	if($head!==''):
-		$head = trim($head);
-		$head = htmlspecialchars($head, ENT_QUOTES, $modx->config['modx_charset']);
-		$head = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$head);
-		$head = "<div style=\"{$divstyle}border-bottom:none;\">" . $head . '</div>';
-	endif;
-	if($foot!==''):
-		$foot = trim($foot);
-		$foot = htmlspecialchars($foot, ENT_QUOTES, $modx->config['modx_charset']);
-		$foot = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$foot);
-		$foot = "<div style=\"{$divstyle}border-top:none;\">" . $foot . '</div>';
-	endif;
+	if($templateObject->parent!=='0')
+			$parent = getParentValues($templateObject->parent);
+	
+    if(!empty($parent)) {
+		$head = $parent['head'];
+		$foot = $parent['foot'];
+    }
+    
+function getParentValues($parent) {
+	global $modx;
+	
+	$parent = $modx->db->getObject('site_templates',"id='{$parent}'");
+	if(count($parent)==1 && strpos($parent->content,'[*content*]')!==false) {
+		$content = explode('[*content*]',$parent->content,2);
+		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
+		$head = convert($content[0]);
+		$head = "<div style=\"{$divstyle}border-bottom:none;\">{$head}</div>";
+		$foot = convert($content[1]);
+		$foot = "<div style=\"{$divstyle}border-top:none;\">{$foot}</div>";
+		return compact('head','foot');
+	}
+	else return array();
+}
+
+function convert($value) {
+	global $modx;
+	$value = trim($value);
+	$value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+	$value = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$value);
+	return $value;
+}
 ?>
 	<div style="width:100%;position:relative">
 	    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
-	<?php echo $head;?>
-        <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height: 370px;"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['content']); ?></textarea>
-	<?php echo $foot;?>
+	<?php if(isset($head)) echo $head;?>
+        <textarea dir="ltr" name="content" class="phptextarea" style="width:100%; height: 370px;"><?php echo htmlspecialchars($templateObject->content); ?></textarea>
+	<?php if(isset($foot)) echo $foot;?>
 	</div>
 	<!-- HTML text editor end -->
 	<input type="submit" name="save" style="display:none">
@@ -226,11 +234,11 @@ function deletedocument() {
 	</tr>
 	<tr id="newcategry" style="display:none;">
 		<th valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</th>
-		<td valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($content['newcategory']) ? $content['newcategory'] : '' ?>" class="inputBox" style="width:300px;"></td>
+		<td valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo isset($templateObject->newcategory) ? $templateObject->newcategory : '' ?>" class="inputBox" style="width:300px;"></td>
 	</tr>
 	<tr>
 		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
-		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
+		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($templateObject->description);?></textarea></td>
 	</tr>
 <?php
 	$where = $id ? "parent!='{$id}'" : '';
@@ -245,7 +253,7 @@ function deletedocument() {
 	$option = array();
 	foreach($parent as $ph)
 	{
-		$ph['selected'] = $content['parent']==$ph['id'] ? 'selected' : '';
+		$ph['selected'] = $templateObject->parent==$ph['id'] ? 'selected' : '';
 		$option[] = $modx->parseText($tpl, $ph);
 	}
 ?>
@@ -261,7 +269,7 @@ function deletedocument() {
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
 	    <td colspan="2">
-	    <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
+	    <label><input name="locked" type="checkbox" <?php echo $templateObject->locked==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>
 	  </tr>
 <?php } ?>
 </table>
