@@ -63,6 +63,7 @@ if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cac
     session_cache_limiter('');
     session_start();
     if (!isset($_SESSION['mgrValidated'])) {
+    	session_write_close();
         $target = $base_path . 'assets/cache/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
