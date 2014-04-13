@@ -21,41 +21,30 @@ switch((int) $_REQUEST['a']) {
 
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
-
 // check to see the plugin editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='102' AND id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
-if($limit>1)
-{
-    while($lock = $modx->db->getRow)
-    {
-        if($lock['internalKey']!=$modx->getLoginUserID())
-        {
-            $msg = sprintf($_lang["lock_msg"],$lock['username'],$_lang['plugin']);
-            $e->setError(5, $msg);
-            $e->dumpError();
-        }
-    }
+$active_user = $modx->db->getObject('active_users',"action='102' AND id='{$id}'");
+if(1<count($active_user) && $active_user->internalKey!=$modx->getLoginUserID()) {
+    $msg = sprintf($_lang['lock_msg'],$active_user->username,$_lang['plugin']);
+    $e->setError(5, $msg);
+    $e->dumpError();
 }
 // end check for lock
 
 if(isset($_GET['id']))
 {
-    $rs = $modx->db->select('*','[+prefix+]site_plugins',"id='{$id}'");
-    $limit = $modx->db->getRecordCount($rs);
-    if($limit>1)
-    {
+    $pluginObject = $modx->db->getObject('site_plugins',"id='{$id}'");
+    
+    $total = count($pluginObject);
+    if(1<$total):
         echo "Multiple plugins sharing same unique id. Not good.<p>";
         exit;
-    }
-    if($limit<1)
-    {
+    elseif($total<1):
         header("Location: {$modx->config['site_url']}");
-    }
-    $content = $modx->db->getRow($rs);
-    $_SESSION['itemname']=$content['name'];
-    if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
-    {
+    endif;
+    
+    $_SESSION['itemname'] = $pluginObject->name;
+    
+    if($pluginObject->locked==1 && $modx->hasPermission('save_role')!=1) {
         $e->setError(3);
         $e->dumpError();
     }
@@ -429,7 +418,7 @@ $j(function() {
 $evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
-    <input type="hidden" name="id" value="<?php echo $content['id'];?>">
+    <input type="hidden" name="id" value="<?php echo $pluginObject->id;?>">
     <input type="hidden" name="mode" value="<?php echo $_GET['a'];?>">
 
     <h1><?php echo $_lang['plugin_title']; ?></h1>
@@ -479,10 +468,10 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     <table border="0" cellspacing="0" cellpadding="0">
       <tr>
 			<th align="left"><?php echo $_lang['plugin_name']; ?></th>
-        <td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;"><span class="warning" id='savingMessage'>&nbsp;</span></td>
+        <td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($pluginObject->name);?>" class="inputBox" style="width:300px;"><span class="warning" id='savingMessage'>&nbsp;</span></td>
       </tr>
       <tr>
-        <td align="left" valign="top" colspan="2"><label><input name="disabled" type="checkbox" <?php echo $content['disabled']==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $content['disabled']==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span></label>":$_lang['plugin_disabled']; ?></td>
+        <td align="left" valign="top" colspan="2"><label><input name="disabled" type="checkbox" <?php echo $pluginObject->disabled==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $pluginObject->disabled==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span></label>":$_lang['plugin_disabled']; ?></td>
       </tr>
     </table>
     <!-- PHP text editor start -->
@@ -491,7 +480,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 <span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
                 <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
         </div>
-        <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
+        <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
         </div>
         <!-- PHP text editor end -->
         </div>
@@ -513,7 +502,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
         $options = '';
         while($row = $modx->db->getRow($ds))
         {
-            $options .= "<option value='".$row['guid']."'". selected($content["moduleguid"]==$row["guid"]) . ">".htmlspecialchars($row["name"])."</option>";
+            $options .= "<option value='".$row['guid']."'". selected($pluginObject->moduleguid==$row["guid"]) . ">".htmlspecialchars($row["name"])."</option>";
         }
     }
 ?>
@@ -541,7 +530,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
           <tr>
             <th align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</th>
             <td align="left" valign="top">
-            <textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange="showParameters(this);"><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
+            <textarea class="phptextarea inputBox" name="properties" id="propertiesBox" onblur='showParameters(this);' onChange="showParameters(this);"><?php echo $pluginObject->properties;?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" onclick="showParameters(this);" /></td>
           </tr>
           <tr id="displayparamrow">
             <td valign="top" align="left">&nbsp;</td>
@@ -569,9 +558,9 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     }
     else
     {
-        if(isset($content['sysevents']) && is_array($content['sysevents']))
+        if(isset($pluginObject->sysevents) && is_array($pluginObject->sysevents))
         {
-            $evts = $content['sysevents'];
+            $evts = $pluginObject->sysevents;
         }
         else
         {
@@ -640,7 +629,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
         <?php
             $ds = $modx->manager->getCategories();
             if($ds) foreach($ds as $n=>$v){
-                echo "<option value='".$v['id']."'" . selected($content["category"]==$v["id"]) . ">".htmlspecialchars($v["category"])."</option>";
+                echo "<option value='".$v['id']."'" . selected($pluginObject->category==$v["id"]) . ">".htmlspecialchars($v["category"])."</option>";
             }
         ?>
         <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
@@ -653,12 +642,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     </tr>
       <tr>
         <th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
-        <td align="left"><textarea id="pluginDescription" name="description" style="padding:0;height:4em;"><?php echo $content['description'];?></textarea></td>
+        <td align="left"><textarea id="pluginDescription" name="description" style="padding:0;height:4em;"><?php echo $pluginObject->description;?></textarea></td>
       </tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
       <tr>
         <td align="left" valign="top" colspan="2">
-        <label><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <b><?php echo $_lang['lock_plugin']; ?></b> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>
+        <label><input name="locked" type="checkbox" <?php echo $pluginObject->locked==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <b><?php echo $_lang['lock_plugin']; ?></b> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>
       </tr>
 <?php } ?>
 </table>
