@@ -633,7 +633,7 @@ class DocumentParser {
 					break;
 			}
 			
-			if(mt_rand(0,99) < 5)
+			if(mt_rand(0,99) < 1)
 			{
 				$file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
 				if(1000 < $file_count) $this->clearCache();
