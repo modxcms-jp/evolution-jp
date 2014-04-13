@@ -1,6 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-$modx->config['preview_mode'] = '1';
+if(!isset($modx->config['preview_mode']))      $modx->config['preview_mode'] = '1';
+if(!isset($modx->config['tvs_below_content'])) $modx->config['tvs_below_content'] = '1';
 
 $id = getDocId(); // New is '0'
 
@@ -54,6 +55,11 @@ $tpl = <<< EOT
 
 [+actionButtons+]
 
+<div class="sectionBody">
+<div class="tab-pane" id="documentPane">
+	<script type="text/javascript">
+		tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
+	</script>
 EOT;
 
 // invoke OnDocFormPrerender event
@@ -70,23 +76,18 @@ if(!$_REQUEST['pid'])
 else $ph['pid'] = $_REQUEST['pid'];
 $ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
 $ph['actionButtons'] = getActionButtons($id,$docObject->parent,$docObject->isfolder,$docObject->deleted);
+$ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 
 echo $modx->parseText($tpl,$ph);
 
 $tpl = <<< EOT
 <!-- start main wrapper -->
-<div class="sectionBody">
-<div class="tab-pane" id="documentPane">
-	<script type="text/javascript">
-		tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
-	</script>
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab">[+_lang_settings_general+]</h2>
 		<script type="text/javascript">
 			tpSettings.addTabPage(document.getElementById('tabGeneral'));
 		</script>
-		
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 			[+fieldPagetitle+]
 			[+fieldLongtitle+]
@@ -100,14 +101,12 @@ $tpl = <<< EOT
 			[+renderSplit+]
 			[+fieldParent+]
 		</table>
-		
 		[+sectionContent+]
 		[+sectionTV+]
 	</div><!-- end #tabGeneral -->
 EOT;
 
 $ph = array();
-$ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 $ph['_lang_settings_general'] = $_lang['settings_general'];
 $ph['fieldPagetitle']   = fieldPagetitle();
 $ph['fieldLongtitle']   = fieldLongtitle();
@@ -122,9 +121,26 @@ $ph['renderSplit']      = renderSplit();
 $ph['fieldParent']      = fieldParent();
 
 $ph['sectionContent'] =  sectionContent();
-$ph['sectionTV']      =  sectionTV();
+$ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
 
 echo $modx->parseText($tpl,$ph);
+
+$tpl = <<< EOT
+<!-- TVs -->
+<div class="tab-page" id="tabTv">
+	<h2 class="tab">[+_lang_tv+]</h2>
+	<script type="text/javascript">
+		tpSettings.addTabPage(document.getElementById('tabTv'));
+	</script>
+	[+TVFields+]
+</div>
+EOT;
+
+$ph['TVFields'] =  fieldsTV();
+$ph['_lang_tv'] = $_lang['tmplvars'];
+if($modx->config['tvs_below_content']==='0'&&0<count($tmplVars))
+	echo $modx->parseText($tpl,$ph);
+
 
 $tpl = <<< EOT
 	<!-- Settings -->
@@ -133,360 +149,134 @@ $tpl = <<< EOT
 		<script type="text/javascript">
 			tpSettings.addTabPage(document.getElementById('tabSettings'));
 		</script>
-		
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
+			[+fieldPublished+]
+			[+fieldPub_date+]
+			[+fieldUnpub_date+]
+			[+renderSplit+]
+			[+fieldType+]
+			[+fieldContentType+]
+			[+fieldContent_dispo+]
+			[+renderSplit+]
+			[+fieldLink_attributes+]
+			[+fieldIsfolder+]
+			[+fieldRichtext+]
+			[+fieldDonthit+]
+			[+fieldSearchable+]
+			[+fieldCacheable+]
+			[+fieldSyncsite+]
+		</table>
+	</div><!-- end #tabSettings -->
 EOT;
 
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
+$ph['fieldPublished']  =  fieldPublished();
+$ph['fieldPub_date']   = fieldPub_date($id);
+$ph['fieldUnpub_date'] = fieldUnpub_date($id);
+$ph['renderSplit'] = renderSplit();
+$ph['fieldType'] = fieldType();
+if($docObject->type !== 'reference') {
+	$ph['fieldContentType'] = fieldContentType();
+	$ph['fieldContent_dispo'] = fieldContent_dispo();
+} else {
+	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject->contentType . '" />';
+	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject->content_dispo . '" />';
+}
+$ph['fieldLink_attributes'] = fieldLink_attributes();
+$ph['fieldIsfolder']   = fieldIsfolder();
+$ph['fieldRichtext']   = fieldRichtext();
+$ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() : '';
+$ph['fieldSearchable'] = fieldSearchable();
+$ph['fieldCacheable']  = $docObject->type === 'document' ? fieldCacheable() : '';
+$ph['fieldSyncsite']   = fieldSyncsite();
 echo $modx->parseText($tpl,$ph);
 
-echo fieldPublished();
-echo fieldPub_date($id);
-echo fieldUnpub_date($id);
 
-echo renderSplit();
 
-if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '73' || $_SESSION['mgrInternalKey'] == $docObject->createdby)
-{
+if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1'):
 	$tpl = <<< EOT
-<select name="type" class="inputBox" style="width:200px">
-    <option value="document" [+selected_doc+]>[+resource_type_webpage+]</option>
-    <option value="reference" [+selected_ref+]>[+resource_type_weblink+]</option>
-</select>
-EOT;
-	$ph = array();
-	$ph['selected_ref'] = ($docObject->type==='reference') ? 'selected' : '';
-	$ph['selected_doc'] = empty($ph['selected_ref']) ? 'selected' : '';
-	$ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
-	$ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
-	$body = $modx->parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
-	echo renderTr($_lang['resource_type'],$body);
-	
-	if($docObject->type !== 'reference')
-	{
-		$tpl = <<< EOT
-<select name="contentType" class="inputBox" style="width:200px">
-	[+option+]
-</select>
-EOT;
-		$custom_contenttype = (isset ($custom_contenttype) ? $custom_contenttype : "text/html,text/plain,text/xml");
-		$ct = explode(',', $custom_contenttype);
-		$option = array();
-		foreach ($ct as $value)
-		{
-			$ph['selected'] = $docObject->contentType === $value ? ' selected' : '';
-			$ph['value'] = $value;
-			$option[] = $modx->parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
-		}
-		$ph = array();
-		$ph['option'] = join("\n", $option);
-		$body = $modx->parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
-		echo renderTr($_lang['page_data_contentType'],$body);
-		$tpl = <<< EOT
-<select name="content_dispo" size="1" style="width:200px">
-	<option value="0" [+sel_inline+]>[+inline+]</option>
-	<option value="1" [+sel_attachment+]>[+attachment+]</option>
-</select>
-EOT;
-		$ph = array();
-		$ph['sel_attachment'] = $docObject->content_dispo==1 ? 'selected' : '';
-		$ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
-		$ph['inline']     = $_lang['inline'];
-		$ph['attachment'] = $_lang['attachment'];
-		$body = $modx->parseText($tpl,$ph);
-		echo renderTr($_lang['resource_opt_contentdispo'],$body);
-	}
-?>
-			<tr>
-				<td colspan="2"><div class="split"></div></td>
-			</tr>
-<?php
-}
-else
-{
-	if ($docObject->type === 'document')
-	{
-		// non-admin managers creating or editing a document resource
-?>
-            <input type="hidden" name="contentType" value="<?php echo $docObject->contentType;?>" />
-            <input type="hidden" name="type" value="document" />
-            <input type="hidden" name="content_dispo" value="<?php echo $docObject->content_dispo;?>" />
-<?php
-	}
-	else
-	{
-		// non-admin managers creating or editing a reference (weblink) resource
-?>
-            <input type="hidden" name="type" value="reference" />
-            <input type="hidden" name="contentType" value="text/html" />
-<?php
-	}
-}//if mgrRole
-
-$body  = input_text('link_attributes',to_safestr($docObject->link_attributes));
-$body .= tooltip($_lang['link_attributes_help']);
-echo renderTr($_lang['link_attributes'],$body);
-
-$cond = ($docObject->isfolder==1||$_REQUEST['a']=='85');
-$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
-$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
-$body = input_checkbox('isfolder',$cond,$disabled);
-$body .= input_hidden('isfolder',$cond);
-$body .= tooltip($_lang['resource_opt_folder_help']);
-echo renderTr($_lang['resource_opt_folder'],$body);
-
-$disabled = ($modx->config['use_editor']!=1) ? ' disabled="disabled"' : '';
-$cond = (!isset($docObject->richtext) || $docObject->richtext!=0 || $_REQUEST['a']!='27');
-$body = input_checkbox('richtext',$cond,$disabled);
-$body .= input_hidden('richtext',$cond);
-$body .= tooltip($_lang['resource_opt_richtext_help']);
-echo renderTr($_lang['resource_opt_richtext'],$body);
-
-$cond = ($docObject->donthit!=1);
-$body = input_checkbox('donthit',$cond);
-$body .= input_hidden('donthit',!$cond);
-$body .= tooltip($_lang['resource_opt_trackvisit_help']);
-if($modx->config['track_visitors']==='1')
-	echo renderTr($_lang['track_visitors_title'],$body);
-
-$cond = ($docObject->searchable==1);
-$body = input_checkbox('searchable',$cond);
-$body .= input_hidden('searchable',$cond);
-$body .= tooltip($_lang['page_data_searchable_help']);
-echo renderTr($_lang['page_data_searchable'],$body);
-
-if($docObject->type === 'document')
-{
-	$cond = ($docObject->cacheable==1);
-	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
-	$body = input_checkbox('cacheable',$cond,$disabled);
-	$body .= input_hidden('cacheable',$cond);
-	$body .= tooltip($_lang['page_data_cacheable_help']);
-	echo renderTr($_lang['page_data_cacheable'],$body);
-}
-
-$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
-$body = input_checkbox('syncsite',true,$disabled);
-$body .= input_hidden('syncsite');
-$body .= tooltip($_lang['resource_opt_emptycache_help']);
-echo renderTr($_lang['resource_opt_emptycache'],$body);
-?>
-		</table>
-	</div><!-- end #tabSettings -->
-
-<?php
-if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1')
-{
-	// get list of site keywords
-	$keywords = array();
-	$ds = $modx->db->select('id,keyword', '[+prefix+]site_keywords', '', 'keyword ASC');
-	$limit = $modx->db->getRecordCount($ds);
-	if ($limit > 0)
-	{
-		while($row = $modx->db->getRow($ds))
-		{
-			$keywords[$row['id']] = $row['keyword'];
-		}
-	}
-	// get selected keywords using document's id
-	if (isset ($docObject->id) && count($keywords) > 0)
-	{
-		$keywords_selected = array();
-		$ds = $modx->db->select('keyword_id', '[+prefix+]keyword_xref', "content_id='{$docObject->id}'");
-		$limit = $modx->db->getRecordCount($ds);
-		if ($limit > 0)
-		{
-			while($row = $modx->db->getRow($ds))
-			{
-				$keywords_selected[$row['keyword_id']] = ' selected="selected"';
-			}
-		}
-	}
-	
-	// get list of site META tags
-	$metatags = array();
-	$ds = $modx->db->select('*', '[+prefix+]site_metatags');
-	$limit = $modx->db->getRecordCount($ds);
-	if ($limit > 0)
-	{
-		while($row = $modx->db->getRow($ds))
-		{
-			$metatags[$row['id']] = $row['name'];
-		}
-	}
-	// get selected META tags using document's id
-	if (isset ($docObject->id) && count($metatags) > 0)
-	{
-		$metatags_selected = array();
-		$ds = $modx->db->select('metatag_id', '[+prefix+]site_content_metatags', "content_id='{$docObject->id}'");
-		$limit = $modx->db->getRecordCount($ds);
-		if ($limit > 0)
-		{
-			while($row = $modx->db->getRow($ds))
-			{
-				$metatags_selected[$row['metatag_id']] = ' selected="selected"';
-			}
-		}
-	}
-?>
-	<!-- META Keywords -->
-	<div class="tab-page" id="tabMeta">
-		<h2 class="tab"><?php echo $_lang['meta_keywords']?></h2>
-		<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
-
-		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-		<tr style="height: 24px;"><td><?php echo $_lang['resource_metatag_help']?><br /><br />
-			<table border="0" style="width:inherit;">
-			<tr>
-				<td><span class="warning"><?php echo $_lang['keywords']?></span><br />
+<!-- META Keywords -->
+<div class="tab-page" id="tabMeta">
+	<h2 class="tab">[+_lang_meta_keywords+]</h2>
+	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
+	<table width="99%" border="0" cellspacing="5" cellpadding="0">
+	<tr style="height: 24px;"><td>[+_lang_resource_metatag_help+]<br /><br />
+		<table border="0" style="width:inherit;">
+		<tr>
+			<td>
+				<span class="warning">[+_lang_keywords+]</span><br />
 				<select name="keywords[]" multiple="multiple" size="16" class="inputBox" style="width: 200px;">
-<?php
-	$keys = array_keys($keywords);
-	foreach ($keys as $key)
-	{
-		$value = $keywords[$key];
-		$selected = $keywords_selected[$key];
-		echo '<option value="'.$key.'"'.$selected.'>'.$value."</option>\n";
-	}
-?>
+				[+keywords+]
 				</select>
 				<br />
-				<input type="button" value="<?php echo $_lang['deselect_keywords']?>" onclick="clearKeywordSelection();" />
-				</td>
-				<td><span class="warning"><?php echo $_lang['metatags']?></span><br />
+				<input type="button" value="[+_lang_deselect_keywords+]" onclick="clearKeywordSelection();" />
+			</td>
+			<td>
+				<span class="warning">[+_lang_metatags+]</span><br />
 				<select name="metatags[]" multiple="multiple" size="16" class="inputBox" style="width: 220px;">
-<?php
-	$tags = array_keys($metatags);
-	foreach ($tags as $tag)
-	{
-		$value = $metatags[$tag];
-		$selected = $metatags_selected[$tag];
-		echo '<option value="'.$tag.'"'.$selected.'>'.$value."</option>\n";
-	}
-?>
+				[+metatags+]
 				</select>
 				<br />
-				<input type="button" class="button" value="<?php echo $_lang['deselect_metatags']?>" onclick="clearMetatagSelection();" />
-				</td>
-			</tr>
-			</table>
+				<input type="button" class="button" value="[+_lang_deselect_metatags+]" onclick="clearMetatagSelection();" />
 			</td>
 		</tr>
 		</table>
-	</div><!-- end #tabMeta -->
-<?php
-}
+		</td>
+	</tr>
+	</table>
+</div><!-- end #tabMeta -->
+EOT;
+	$keywords = getKeywords();
+	$option = array();
+	if(0<count($keywords)):
+		$keywords_selected = getSelectedKeywords();
+		$keys = array_keys($keywords);
+		$option = array();
+		foreach ($keys as $key)
+		{
+			$value = $keywords[$key];
+			$selected = $keywords_selected[$key];
+			$option[] = '<option value="'.$key.'"'.$selected.'>'."{$value}</option>";
+		}
+	endif;
+	$ph['_lang_meta_keywords'] = $_lang['meta_keywords'];
+	$ph['_lang_resource_metatag_help'] = $_lang['keywords'];
+	$ph['_lang_keywords'] = $_lang['resource_metatag_help'];
+	$ph['keywords'] = implode("\n",$option);
+	$ph['_lang_deselect_keywords'] = $_lang['deselect_keywords'];
+	
+	$metatags = getMetatags();
+	$option = array();
+	if(0<count($metatags)):
+		$metatags_selected = getSelectedMetatags();
+		$tags = array_keys($metatags);
+		foreach ($tags as $tag)
+		{
+			$value = $metatags[$tag];
+			$selected = $metatags_selected[$tag];
+			$option[] = '<option value="'.$tag.'"'.$selected.'>'."{$value}</option>";
+		}
+	endif;
+	$ph['metatags'] = implode("\n",$option);
+	$ph['_lang_deselect_metatags'] = $_lang['deselect_metatags'];
+	$ph['_lang_metatags'] = $_lang['metatags'];
+	echo $modx->parseText($tpl,$ph);
+endif;
 
 /*******************************
  * Document Access Permissions */
-if ($use_udperms == 1)
+if ($modx->config['use_udperms'] == 1)
 {
-	$groupsarray = array();
+	global $permissions_yes, $permissions_no;
+	$permissions = getUDGroups($id);
 	
-	if($_REQUEST['a'] == '27')       $docid = $id;
-	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
-	else                             $docid = $docObject->parent;
-	
-	if ($docid > 0)
-	{
-		// Load up, the permissions from the parent (if new document) or existing document
-		$rs = $modx->db->select('id, document_group','[+prefix+]document_groups',"document='{$docid}'");
-		while ($currentgroup = $modx->db->getRow($rs))
-		{
-			$groupsarray[] = $currentgroup['document_group'].','.$currentgroup['id'];
-		}
-		// Load up the current permissions and names
-		$field = 'dgn.*, groups.id AS link_id';
-		$from  = "[+prefix+]documentgroup_names AS dgn LEFT JOIN [+prefix+]document_groups AS groups ON groups.document_group = dgn.id  AND groups.document = {$docid}";
-	}
-	else
-	{
-		// Just load up the names, we're starting clean
-		$field = '*, NULL AS link_id';
-		$from  = '[+prefix+]documentgroup_names';
-	}
-	// Query the permissions and names from above
-	$rs = $modx->db->select($field,$from,'','name');
-
-	$isManager = $modx->hasPermission('access_permissions');
-	$isWeb     = $modx->hasPermission('web_access_permissions');
-
-	// Setup Basic attributes for each Input box
-	$inputAttributes['type']    = 'checkbox';
-	$inputAttributes['class']   = 'checkbox';
-	$inputAttributes['name']    = 'docgroups[]';
-	$inputAttributes['onclick'] = 'makePublic(false)';
-	
-	$permissions = array(); // New Permissions array list (this contains the HTML)
-	$permissions_yes = 0; // count permissions the current mgr user has
-	$permissions_no = 0; // count permissions the current mgr user doesn't have
-
-	// retain selected doc groups between post
-	if (isset($form_v['docgroups']))
-		$groupsarray = array_merge($groupsarray, $form_v['docgroups']);
-
-	// Loop through the permissions list
-	while($row = $modx->db->getRow($rs))
-	{
-		// Create an inputValue pair (group ID and group link (if it exists))
-		$inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
-		$inputId    = 'group-'.$row['id'];
-
-		$checked    = in_array($inputValue, $groupsarray);
-		if ($checked) $notPublic = true; // Mark as private access (either web or manager)
-
-		// Skip the access permission if the user doesn't have access...
-		if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1'))
-			continue;
-
-		// Setup attributes for this Input box
-		$inputAttributes['id']    = $inputId;
-		$inputAttributes['value'] = $inputValue;
-		if ($checked)
-		        $inputAttributes['checked'] = 'checked';
-		else    unset($inputAttributes['checked']);
-
-		// Create attribute string list
-		$inputString = array();
-		foreach ($inputAttributes as $k => $v)
-		{
-			$inputString[] = $k.'="'.$v.'"';
-		}
-
-		// Make the <input> HTML
-        $inputHTML = '<input '.implode(' ', $inputString).' />' . "\n";
-
-		// does user have this permission?
-		$from = "[+prefix+]membergroup_access mga, [+prefix+]member_groups mg";
-		$where = "mga.membergroup = mg.user_group AND mga.documentgroup = {$row['id']} AND mg.member = {$_SESSION['mgrInternalKey']}";
-		$rsp = $modx->db->select('COUNT(mg.id)',$from,$where);
-		$count = $modx->db->getValue($rsp);
-		
-		if($count > 0) ++$permissions_yes;
-		else           ++$permissions_no;
-		
-		$permissions[] = "\t\t".'<li>'.$inputHTML.'<label for="'.$inputId.'">'.$row['name'].'</label></li>';
-	}
-	// if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-	if($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0))
-	{
-		$permissions = array();
-	}
-
 	// See if the Access Permissions section is worth displaying...
-	if (!empty($permissions))
-	{
-		// Add the "All Document Groups" item if we have rights in both contexts
-		if ($isManager && $isWeb)
-		{
-			array_unshift($permissions,"\t\t".'<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . checked(!$notPublic) . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>');
-		// Output the permissions list...
-		}
-?>
+	if (!empty($permissions)):
+		$tpl = <<< EOT
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
-	<h2 class="tab" id="tab_access_header"><?php echo $_lang['access_permissions']?></h2>
+	<h2 class="tab" id="tab_access_header">[+_lang_access_permissions+]</h2>
 	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
@@ -510,21 +300,22 @@ if ($use_udperms == 1)
 		}
 		/* ]]> */
 	</script>
-	<p><?php echo $_lang['access_permissions_docs_message']?></p>
+	<p>[+_lang_access_permissions_docs_message+]</p>
 	<ul>
-	<?php echo implode("\n", $permissions)."\n"; ?>
+		[+UDGroups+]
 	</ul>
 </div><!--div class="tab-page" id="tabAccess"-->
-<?php
-	} // !empty($permissions)
+EOT;
+		$ph = array();
+		$ph['_lang_access_permissions'] = $_lang['access_permissions'];
+		$ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
+		$ph['UDGroups'] = implode("\n", $permissions);
+		echo $modx->parseText($tpl,$ph);
 	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)
            && ($_SESSION['mgrPermissions']['access_permissions'] == 1
-           || $_SESSION['mgrPermissions']['web_access_permissions'] == 1))
-	{
-?>
-	<p><?php echo $_lang["access_permissions_docs_collision"];?></p>
-<?php
-	}
+           || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)):
+		echo '<p>' . $_lang["access_permissions_docs_collision"] . '</p>';
+	endif;
 }
 /* End Document Access Permissions *
  ***********************************/
@@ -532,12 +323,11 @@ if ($use_udperms == 1)
 
 <input type="submit" name="save" style="display:none" />
 <?php
-
 	// invoke OnDocFormRender event
 	$evtOut = $modx->invokeEvent('OnDocFormRender', array(
 		'id' => $id,
 	));
-	if (is_array($evtOut)) echo implode('', $evtOut);
+	if (is_array($evtOut)) echo implode("\n", $evtOut);
 ?>
 </div><!--div class="tab-pane" id="documentPane"-->
 </div><!--div class="sectionBody"-->
@@ -548,14 +338,17 @@ if ($use_udperms == 1)
     storeCurTemplate();
 </script>
 <?php
-if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') && $modx->config['use_editor'] == 1 && is_array($rte_field) && 0<count($rte_field))
-{
-	// invoke OnRichTextEditorInit event
-	$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
-		'editor' => $selected_editor,
-		'elements' => $rte_field
-	));
-	if (is_array($evtOut)) echo implode('', $evtOut);
+if($modx->config['use_editor'] == 1) {
+	if(is_array($rte_field) && 0<count($rte_field)) {
+		if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') {
+			// invoke OnRichTextEditorInit event
+			$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+				'editor' => $selected_editor,
+				'elements' => $rte_field
+			));
+			if (is_array($evtOut)) echo implode('', $evtOut);
+		}
+	}
 }
 
 function to_safestr($str)
@@ -1450,56 +1243,61 @@ EOT;
 }
 
 function sectionTV() {
+	global $modx, $_lang;
+	$tpl = getTplSectionTV();
+	$ph = array();
+	$ph['header'] = $_lang['settings_templvars'];
+	$ph['body'] = fieldsTV();
+	return $modx->parseText($tpl,$ph);
+}
+
+function fieldsTV() {
 	global $modx, $_lang, $docObject, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
 	$form_v = $_POST ? $_POST : array();
-	if (0<$total):
-		$i = 0;
-		$output = array();
-		$output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
-		foreach($tmplVars as $tv):
-			$tvid = 'tv' . $tv['id'];
-			// Go through and display all Template Variables
-			if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
-				// Add richtext editor to the list
-				if (is_array($rte_field))
-					$rte_field = array_merge($rte_field, array($tvid));
-				else
-					$rte_field = array($tvid);
-			endif;
-			
-			// splitter
-			if (0 < $i && $i < $total) $output[] = renderSplit();
-			
-			// post back value
-			if(array_key_exists($tvid, $form_v)):
-				if($tv['type'] === 'listbox-multiple') $tvPBV = implode('||', $form_v[$tvid]);
-				else                                   $tvPBV = $form_v[$tvid];
-			else:                                      $tvPBV = $tv['value'];
-			endif;
-			
-			if($tv['type']!=='hidden'):
-				$ph = array();
-				$ph['caption']     = $tv['caption'];
-				$ph['description'] = $tv['description'];
-				$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-				$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-				$output[] = $modx->parseText($tpl,$ph);
-			else:
-				$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-				$output[] = '<tr style="display:none;"><td colspan="2">' . $formElement . "</td></tr>\n";
-			endif;
-			$i++;
-		endforeach;
-		$output[] = '</table>';
-		$tpl = getTplSectionTV();
-		$ph = array();
-		$ph['header'] = $_lang['settings_templvars'];
-		$ph['body'] = implode("\n",$output);
-		return $modx->parseText($tpl,$ph);
-	endif;
+	if(empty($total)) return '';
+	
+	$i = 0;
+	$output = array();
+	$output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
+	foreach($tmplVars as $tv):
+		$tvid = 'tv' . $tv['id'];
+		// Go through and display all Template Variables
+		if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
+			// Add richtext editor to the list
+			if (is_array($rte_field))
+				$rte_field = array_merge($rte_field, array($tvid));
+			else
+				$rte_field = array($tvid);
+		endif;
+		
+		// splitter
+		if (0 < $i && $i < $total) $output[] = renderSplit();
+		
+		// post back value
+		if(array_key_exists($tvid, $form_v)):
+			if($tv['type'] === 'listbox-multiple') $tvPBV = implode('||', $form_v[$tvid]);
+			else                                   $tvPBV = $form_v[$tvid];
+		else:                                      $tvPBV = $tv['value'];
+		endif;
+		
+		if($tv['type']!=='hidden'):
+			$ph = array();
+			$ph['caption']     = $tv['caption'];
+			$ph['description'] = $tv['description'];
+			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
+			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+			$output[] = $modx->parseText($tpl,$ph);
+		else:
+			$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+			$output[] = '<tr style="display:none;"><td colspan="2">' . $formElement . "</td></tr>\n";
+		endif;
+		$i++;
+	endforeach;
+	$output[] = '</table>';
+	return implode("\n",$output);
 }
 
 function fieldPublished() {
@@ -1578,4 +1376,316 @@ function getInitialValues() {
 	$init_v['searchable'] = $modx->config['search_default'];
 	$init_v['cacheable'] = $modx->config['cache_default'];
 	return $init_v;
+}
+
+function fieldLink_attributes() {
+	global $modx,$_lang,$docObject;
+	$body  = input_text('link_attributes',to_safestr($docObject->link_attributes));
+	$body .= tooltip($_lang['link_attributes_help']);
+	return renderTr($_lang['link_attributes'],$body);
+}
+
+function fieldIsfolder() {
+	global $modx,$_lang,$docObject;
+	$cond = ($docObject->isfolder==1||$_REQUEST['a']=='85');
+	$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
+	$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
+	$body = input_checkbox('isfolder',$cond,$disabled);
+	$body .= input_hidden('isfolder',$cond);
+	$body .= tooltip($_lang['resource_opt_folder_help']);
+	return renderTr($_lang['resource_opt_folder'],$body);
+}
+
+function fieldRichtext() {
+	global $modx,$_lang,$docObject;
+	$disabled = ($modx->config['use_editor']!=1) ? ' disabled="disabled"' : '';
+	$cond = (!isset($docObject->richtext) || $docObject->richtext!=0 || $_REQUEST['a']!='27');
+	$body = input_checkbox('richtext',$cond,$disabled);
+	$body .= input_hidden('richtext',$cond);
+	$body .= tooltip($_lang['resource_opt_richtext_help']);
+	return renderTr($_lang['resource_opt_richtext'],$body);
+}
+
+function fieldDonthit() {
+	global $modx,$_lang,$docObject;
+	$cond = ($docObject->donthit!=1);
+	$body = input_checkbox('donthit',$cond);
+	$body .= input_hidden('donthit',!$cond);
+	$body .= tooltip($_lang['resource_opt_trackvisit_help']);
+	return renderTr($_lang['track_visitors_title'],$body);
+}
+
+
+function fieldSearchable() {
+	global $modx,$_lang,$docObject;
+	$cond = ($docObject->searchable==1);
+	$body = input_checkbox('searchable',$cond);
+	$body .= input_hidden('searchable',$cond);
+	$body .= tooltip($_lang['page_data_searchable_help']);
+	return renderTr($_lang['page_data_searchable'],$body);
+}
+
+function fieldCacheable() {
+	global $modx,$_lang,$docObject;
+	$cond = ($docObject->cacheable==1);
+	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
+	$body = input_checkbox('cacheable',$cond,$disabled);
+	$body .= input_hidden('cacheable',$cond);
+	$body .= tooltip($_lang['page_data_cacheable_help']);
+	return renderTr($_lang['page_data_cacheable'],$body);
+}
+
+function fieldSyncsite() {
+	global $modx,$_lang,$docObject;
+	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
+	$body = input_checkbox('syncsite',true,$disabled);
+	$body .= input_hidden('syncsite');
+	$body .= tooltip($_lang['resource_opt_emptycache_help']);
+	return renderTr($_lang['resource_opt_emptycache'],$body);
+}
+
+function fieldType() {
+	global $modx,$_lang,$docObject;
+	
+	$tpl = <<< EOT
+<select name="type" class="inputBox" style="width:200px">
+    <option value="document" [+selected_doc+]>[+resource_type_webpage+]</option>
+    <option value="reference" [+selected_ref+]>[+resource_type_weblink+]</option>
+</select>
+EOT;
+	$ph = array();
+	$ph['selected_ref'] = ($docObject->type==='reference') ? 'selected' : '';
+	$ph['selected_doc'] = empty($ph['selected_ref']) ? 'selected' : '';
+	$ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
+	$ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
+	$body = $modx->parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
+	return renderTr($_lang['resource_type'],$body);
+}
+
+function fieldContentType() {
+	global $modx,$_lang,$docObject;
+	
+	if($docObject->type === 'reference') return;
+	$tpl = <<< EOT
+<select name="contentType" class="inputBox" style="width:200px">
+	[+option+]
+</select>
+EOT;
+	$ct = explode(',', $modx->config['custom_contenttype']);
+	$option = array();
+	foreach ($ct as $value)
+	{
+		$ph['selected'] = $docObject->contentType === $value ? ' selected' : '';
+		$ph['value'] = $value;
+		$option[] = $modx->parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
+	}
+	$ph = array();
+	$ph['option'] = join("\n", $option);
+	$body = $modx->parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
+	return renderTr($_lang['page_data_contentType'],$body);
+}
+
+function fieldContent_dispo() {
+	global $modx,$_lang,$docObject;
+	
+	if($docObject->type === 'reference') return;
+	$tpl = <<< EOT
+<select name="content_dispo" size="1" style="width:200px">
+	<option value="0" [+sel_inline+]>[+inline+]</option>
+	<option value="1" [+sel_attachment+]>[+attachment+]</option>
+</select>
+EOT;
+	$ph = array();
+	$ph['sel_attachment'] = $docObject->content_dispo==1 ? 'selected' : '';
+	$ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
+	$ph['inline']     = $_lang['inline'];
+	$ph['attachment'] = $_lang['attachment'];
+	$body = $modx->parseText($tpl,$ph);
+	return renderTr($_lang['resource_opt_contentdispo'],$body);
+}
+
+function getKeywords() {
+	global $modx;
+	
+	// get list of site keywords
+	$rs = $modx->db->select('id,keyword', '[+prefix+]site_keywords', '', 'keyword ASC');
+	$total = $modx->db->getRecordCount($rs);
+	$keywords = array();
+	if (0<$total)
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			$keywords[$row['id']] = $row['keyword'];
+		}
+	}
+	return $keywords;
+}
+
+function getSelectedKeywords() {
+	global $modx;
+	// get selected keywords using document's id
+	$keywords_selected = array();
+	if (isset ($docObject->id) && 0<count($keywords))
+	{
+		$rs = $modx->db->select('keyword_id', '[+prefix+]keyword_xref', "content_id='{$docObject->id}'");
+		$total = $modx->db->getRecordCount($rs);
+		if (0<$total)
+		{
+			while($row = $modx->db->getRow($rs))
+			{
+				$keywords_selected[$row['keyword_id']] = ' selected="selected"';
+			}
+		}
+	}
+	return $keywords_selected;
+}
+
+function getMetatags() {
+	global $modx;
+	// get list of site META tags
+	$rs = $modx->db->select('*', '[+prefix+]site_metatags');
+	$total = $modx->db->getRecordCount($rs);
+	$metatags = array();
+	if (0<$total)
+	{
+		while($row = $modx->db->getRow($rs))
+		{
+			$metatags[$row['id']] = $row['name'];
+		}
+	}
+	return $metatags;
+}
+
+function getSelectedMetatags() {
+	// get selected META tags using document's id
+	$metatags_selected = array();
+	if (isset ($docObject->id) && count($metatags) > 0)
+	{
+		$rs = $modx->db->select('metatag_id', '[+prefix+]site_content_metatags', "content_id='{$docObject->id}'");
+		$total = $modx->db->getRecordCount($rs);
+		if (0<$total)
+		{
+			while($row = $modx->db->getRow($rs))
+			{
+				$metatags_selected[$row['metatag_id']] = ' selected="selected"';
+			}
+		}
+	}
+	return $metatags_selected;
+}
+
+function getGroups($docid) {
+	global $modx;
+	// Load up, the permissions from the parent (if new document) or existing document
+	$rs = $modx->db->select('id, document_group','[+prefix+]document_groups',"document='{$docid}'");
+	$groupsarray = array();
+	while ($row = $modx->db->getRow($rs))
+	{
+		$groupsarray[] = $row['document_group'].','.$row['id'];
+	}
+	return $groupsarray;
+}
+
+function getUDGroups($id) {
+	global $modx,$_lang,$docObject,$permissions_yes, $permissions_no;
+	
+	$form_v = $_POST;
+	$groupsarray = array();
+	
+	if($_REQUEST['a'] == '27')       $docid = $id;
+	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
+	else                             $docid = $docObject->parent;
+	
+	if (0<$docid)
+	{
+		$groupsarray = getGroups($docid);
+		// Load up the current permissions and names
+		$field = 'dgn.*, groups.id AS link_id';
+		$from[] = '[+prefix+]documentgroup_names AS dgn';
+		$from[] = "LEFT JOIN [+prefix+]document_groups AS groups ON groups.document_group = dgn.id AND groups.document = {$docid}";
+		$from = implode(' ', $from);
+	}
+	else
+	{
+		// Just load up the names, we're starting clean
+		$field = '*, NULL AS link_id';
+		$from  = '[+prefix+]documentgroup_names';
+	}
+
+	$isManager = $modx->hasPermission('access_permissions');
+	$isWeb     = $modx->hasPermission('web_access_permissions');
+
+	// Setup Basic attributes for each Input box
+	$inputAttributes['type']    = 'checkbox';
+	$inputAttributes['class']   = 'checkbox';
+	$inputAttributes['name']    = 'docgroups[]';
+	$inputAttributes['onclick'] = 'makePublic(false)';
+	
+	$permissions = array(); // New Permissions array list (this contains the HTML)
+	$permissions_yes = 0; // count permissions the current mgr user has
+	$permissions_no = 0; // count permissions the current mgr user doesn't have
+
+	// retain selected doc groups between post
+	if (isset($form_v['docgroups']))
+		$groupsarray = array_merge($groupsarray, $form_v['docgroups']);
+
+	// Query the permissions and names from above
+	$rs = $modx->db->select($field,$from,'','name');
+	
+	// Loop through the permissions list
+	while($row = $modx->db->getRow($rs)):
+		// Create an inputValue pair (group ID and group link (if it exists))
+		$inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
+		$inputId    = 'group-'.$row['id'];
+
+		$checked    = in_array($inputValue, $groupsarray);
+		if ($checked) $notPublic = true; // Mark as private access (either web or manager)
+
+		// Skip the access permission if the user doesn't have access...
+		if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1'))
+			continue;
+
+		// Setup attributes for this Input box
+		$inputAttributes['id']    = $inputId;
+		$inputAttributes['value'] = $inputValue;
+		if ($checked)
+		        $inputAttributes['checked'] = 'checked';
+		else    unset($inputAttributes['checked']);
+
+		// Create attribute string list
+		$inputString = array();
+		foreach ($inputAttributes as $k => $v)
+		{
+			$inputString[] = $k.'="'.$v.'"';
+		}
+
+		// Make the <input> HTML
+        $inputHTML = '<input '.implode(' ', $inputString).' />' . "\n";
+
+		// does user have this permission?
+		$from = "[+prefix+]membergroup_access mga, [+prefix+]member_groups mg";
+		$where = "mga.membergroup = mg.user_group AND mga.documentgroup = {$row['id']} AND mg.member = {$_SESSION['mgrInternalKey']}";
+		$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
+		
+		if($count > 0) ++$permissions_yes;
+		else           ++$permissions_no;
+		
+		$permissions[] = "\t\t".'<li>'.$inputHTML.'<label for="'.$inputId.'">'.$row['name'].'</label></li>';
+	endwhile;
+	
+	if(!empty($permissions)) {
+		// Add the "All Document Groups" item if we have rights in both contexts
+		if ($isManager && $isWeb)
+		{
+			array_unshift($permissions,"\t\t".'<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . checked(!$notPublic) . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>');
+		// Output the permissions list...
+		}
+	}
+
+		// if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
+	if($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0))
+	{
+		$permissions = array();
+	}
+	return $permissions;
 }
