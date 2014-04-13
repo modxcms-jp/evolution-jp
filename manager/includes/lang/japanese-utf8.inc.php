@@ -36,7 +36,7 @@ $_lang["access_permissions_resource_groups"] = 'リソースグループ';
 $_lang["access_permissions_resources_in_group"] = '<strong>グループ内リソース:</strong>';
 $_lang["access_permissions_resources_tab"] = 'IDの上にマウスポインタを重ねるとリソース名を確認できます。リソースをグループに加えるには、リソース編集画面を個別に開いて「所属グループ」タブで設定してください。管理画面とウェブページを区別して扱わないため、両方のグループを作る場合はグループ名を工夫するとよいでしょう。';
 $_lang["access_permissions_user_groups"] = 'ユーザーグループ';
-$_lang["access_permissions_user_message"] = 'このユーザーを所属させたいユーザーグループを選択してください。ユーザは所属しているグループに割り当てられたリソースとpublicリソースのみを編集できます。';
+$_lang["access_permissions_user_message"] = 'このユーザーを所属させたい<a href="index.php?a=40">ユーザーグループ</a>を選択してください。ユーザは所属しているグループに割り当てられたリソースとpublicリソースのみを編集できます。';
 $_lang["access_permissions_users_in_group"] = '<strong>グループ内ユーザー:</strong>';
 $_lang["access_permissions_users_tab"] = '管理画面を扱うユーザのグループと、ウェブページにアクセスする権限を持つユーザのグループは区別されます。ユーザーをグループに参加させるには、個々のユーザー設定で編集する必要があります。<br />※Administrator(ID=1のロールを持つユーザ)は常に全てのリソースにアクセスすることができるため、Administratorをグループに追加する必要はありません。';
 $_lang["account_email"] = 'メールアドレス';
@@ -566,7 +566,7 @@ $_lang["no_docs_pending_unpublishing"] = '公開取り消しを予定してい�
 $_lang["no_edits_creates"] = '最近作成または編集したリソースはありません。';
 $_lang["no_groups_found"] = '';
 $_lang["no_keywords_found"] = 'キーワードはありません';
-$_lang["no_records_found"] = 'レコードはありません。';
+$_lang["no_records_found"] = 'データがありません。';
 $_lang["no_results"] = '何もありません';
 $_lang["nologentries_message"] = '<a href="index.php?a=13">管理操作ログ</a>閲覧時、1ページあたりに表示されるログエントリー数を入力してください。';
 $_lang["nologentries_title"] = 'ログエントリー数';
