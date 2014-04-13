@@ -444,6 +444,7 @@ class DBAPI {
 			}
 			return $col;
 		}
+		else return array ();
 	}
 	
 	/**
