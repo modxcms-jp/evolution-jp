@@ -6,7 +6,6 @@ if(!$modx->hasPermission('save_template')) {
 }
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 
-$template     = $modx->db->escape($_POST['post']);
 $templatename = $modx->db->escape(trim($_POST['templatename']));
 $description  = $modx->db->escape($_POST['description']);
 $parent       = $modx->db->escape($_POST['parent']);
@@ -31,7 +30,7 @@ if($templatename=='') $templatename = "Untitled template";
 $field = array();
 $field['templatename'] = $templatename;
 $field['description']  = $description;
-$field['content']      = $template;
+$field['content']      = $modx->db->escape($_POST['content']);
 $field['locked']       = $locked;
 $field['category']     = $categoryid;
 $field['parent']       = $parent;
