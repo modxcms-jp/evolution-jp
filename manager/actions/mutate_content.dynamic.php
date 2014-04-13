@@ -9,41 +9,25 @@ checkDocLock($id);
 
 global $config, $docObject;
 $config = & $modx->config;
-$docgrp  = getDocgrp();
+$docgrp = getDocgrp();
+
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 $initial_v = $id==='0' ? getInitialValues() : array();
 
-function getInitialValues() {
-	global $modx,$default_template;
-	
-	$init_v['menuindex'] = getMenuIndexAtNew();
-	$init_v['alias']     = getAliasAtNew();
-	$init_v['template']  = $default_template;
-	$init_v['richtext']  = $modx->config['use_editor'];
-	$init_v['published'] = $modx->config['publish_default'];
-	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
-	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
-	$init_v['contentType'] = 'text/html';
-	$init_v['content_dispo'] = '0';
-	$init_v['which_editor'] = $modx->config['which_editor'];
-	$init_v['searchable'] = $modx->config['search_default'];
-	$init_v['cacheable'] = $modx->config['cache_default'];
-	return $init_v;
-}
-$db_v    = getValuesFromDB($id,$docgrp);
-$form_v  = $_POST ? $_POST : array();
+$db_v   = getValuesFromDB($id,$docgrp);
+$form_v = $_POST ? $_POST : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
-$tmplVars = getTmplvars($id,$docgrp);
+$tmplVars  = getTmplvars($id,$docgrp);
 $docObject = $docObject + $tmplVars;
 
 $content = $docObject; //Be compatible with old plugins
 
 $docObject = (object) $docObject;
 
-global $template, $selected_editor;
+global $template, $selected_editor; // For plugins (ManagerManager etc...)
 
 $template = $docObject->template;
 
@@ -1576,4 +1560,22 @@ function getDocId() {
 		 $id = $_REQUEST['id'];
 	else $id = '0';
 	return $id;
+}
+
+function getInitialValues() {
+	global $modx,$default_template;
+	
+	$init_v['menuindex'] = getMenuIndexAtNew();
+	$init_v['alias']     = getAliasAtNew();
+	$init_v['template']  = $default_template;
+	$init_v['richtext']  = $modx->config['use_editor'];
+	$init_v['published'] = $modx->config['publish_default'];
+	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
+	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
+	$init_v['contentType'] = 'text/html';
+	$init_v['content_dispo'] = '0';
+	$init_v['which_editor'] = $modx->config['which_editor'];
+	$init_v['searchable'] = $modx->config['search_default'];
+	$init_v['cacheable'] = $modx->config['cache_default'];
+	return $init_v;
 }
