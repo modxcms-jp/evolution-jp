@@ -6,10 +6,6 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-// get table names
-$tbl_document_groups            = $modx->getFullTableName('document_groups');
-$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
-
 $dbfields = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
 
 $form_v = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
@@ -208,8 +204,10 @@ switch ($actionToTake) {
 
 // -- Save META Keywords --
 function saveMETAKeywords($id) {
-	global $modx, $keywords, $metatags,$tbl_site_content_metatags;
-
+	global $modx, $keywords, $metatags;
+	
+	$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
+	
 	if(!isset($modx->config['show_meta']) || !$modx->config['show_meta']==1)
 		return;
 	
@@ -916,6 +914,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 	$saved = true;
 	if (!empty($insertions))
 	{
+		$tbl_document_groups = $modx->getFullTableName('document_groups');
 		$sql_insert = 'INSERT INTO '.$tbl_document_groups.' (document_group, document) VALUES '.implode(',', $insertions);
 		$saved = $modx->db->query($sql_insert) ? $saved : false;
 	}
