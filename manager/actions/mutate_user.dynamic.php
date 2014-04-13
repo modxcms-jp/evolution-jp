@@ -737,17 +737,21 @@ if ($use_udperms == 1)
 	}
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
 	$rs = $modx->db->select('name, id','[+prefix+]membergroup_names','','name');
-	$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
-	while($row = $modx->db->getRow($rs))
-	{
-		$src = $tpl;
-		$ph = array();
-		$ph['id'] = $row['id'];
-		$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
-		$ph['name'] = $row['name'];
-		$src = $modx->parseText($src,$ph);
-		echo $src;
-	}
+	if($modx->db->getRecordCount($rs)<1):
+		echo '<div class="actionButtons"><a href="index.php?a=40" class="primary">Create user group</a></div>';
+	else:
+		$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
+		while($row = $modx->db->getRow($rs))
+		{
+			$src = $tpl;
+			$ph = array();
+			$ph['id'] = $row['id'];
+			$ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
+			$ph['name'] = $row['name'];
+			$src = $modx->parseText($src,$ph);
+			echo $src;
+		}
+	endif;
 ?>
 		</div>
 	</div>
