@@ -33,7 +33,7 @@ class PHx {
 		if(!$modx->snippetCache) $modx->setSnippetCache();
 		if( isset($modx->snippetCache[$this->elmName]) )
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
-		elseif(isset($this->chunkCache[$key]))
+		elseif(isset($this->chunkCache[$phxkey]))
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
 		else
 			$value = $this->getValueFromPreset($phxkey, $value, $cmd, $opt);
