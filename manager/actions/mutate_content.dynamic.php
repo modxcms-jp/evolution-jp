@@ -48,7 +48,6 @@ $tpl['head'] = <<< EOT
 	<input type="hidden" name="id" value="[+id+]" />
 	<input type="hidden" name="mode" value="[+a+]" />
 	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
-	<input type="hidden" name="refresh_preview" value="0" />
 	<input type="hidden" name="newtemplate" value="" />
 	<input type="hidden" name="pid" value="[+pid+]" />
 	<input type="submit" name="save" style="display:none" />
