@@ -138,6 +138,7 @@ class SubParser {
 		{
 			if($modx->config['send_errormail'] <= $type)
 			{
+				$fields['description'] = strip_tags($fields['description']);
 				$subject = 'Error mail from ' . $modx->config['site_name'];
 				$modx->sendmail($subject,print_r($fields,true));
 			}
