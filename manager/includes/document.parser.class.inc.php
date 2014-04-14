@@ -2416,7 +2416,7 @@ class DocumentParser {
 						$id = $this->referenceListing[$id];
 					}
 					$replace[$i] = $this->makeUrl($id,'','','rel');
-					if(!$replace[$i]) $this->logEvent(0,'1',"Can not parse '[~{$key_org}~]' {$this->decoded_request_uri}","Parser (ResourceID:{$this->documentIdentifier})");
+					if(!$replace[$i]) $this->logEvent(0,'1',"Can not parse linktag '[~{$key_org}~]' {$this->decoded_request_uri}","Missing parse link tag(ResourceID:{$this->documentIdentifier})");
 				}
 				else
 				{
