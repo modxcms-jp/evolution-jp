@@ -161,12 +161,31 @@ switch ($actionToTake) {
 				$id = $_REQUEST['id'];
 				if ($form_v['type'] == "reference")
 				{
-					$header = "Location: index.php?a=3&id={$form_v['parent']}&r=1&tab=0";
+					// weblink
+					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$form_v['parent']}";
 				}
 				else
 				{
-					$header = "Location: index.php?a=3&id={$id}&r=1";
+					// document
+					$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$form_v['parent']}";
 				}
+				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
+			}
+			elseif($form_v['isfolder']==='1' && $form_v['parent']!=='0')
+			{
+				$header = "Location: index.php?a=3&id={$form_v['parent']}&tab=0&r=1";
+			}
+			elseif($form_v['isfolder']==='1' && $form_v['parent']==='0')
+			{
+				$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
+			}
+			elseif($form_v['isfolder']==='0' && $form_v['parent']!=='0')
+			{
+				$header = "Location: index.php?a=3&id={$form_v['parent']}&r=1&tab=0";
+			}
+			else
+			{
+				$header = "Location: index.php?a=3&id={$id}&r=1";
 			}
 		}
 		header($header);
