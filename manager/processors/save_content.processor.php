@@ -62,12 +62,10 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnDocFormSave', array('mode'=>'new','id'=>$newid));
 
 		// secure web documents - flag as private
-		include(MODX_CORE_PATH . 'secure_web_documents.inc.php');
-		secureWebDocument($newid);
+		$modx->manager->setWebDocsAsPrivate($newid);
 
 		// secure manager documents - flag as private
-		include(MODX_CORE_PATH . 'secure_mgr_documents.inc.php');
-		secureMgrDocument($newid);
+		$modx->manager->setMgrDocsAsPrivate($newid);
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
 
@@ -141,12 +139,10 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnDocFormSave', $params);
 
 		// secure web documents - flag as private
-		include(MODX_CORE_PATH.'secure_web_documents.inc.php');
-		secureWebDocument($id);
+		$modx->manager->setWebDocsAsPrivate($id);
 
 		// secure manager documents - flag as private
-		include(MODX_CORE_PATH . 'secure_mgr_documents.inc.php');
-		secureMgrDocument($id);
+		$modx->manager->setMgrDocsAsPrivate($id);
 		
 		if($form_v['published']  != $db_v['published']) $clearcache['target'] = 'pagecache,sitecache';
 		elseif($db_v['alias']!==$form_v['alias'])       $clearcache['target'] = 'pagecache,sitecache';
