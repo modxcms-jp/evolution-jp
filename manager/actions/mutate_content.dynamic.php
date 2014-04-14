@@ -14,10 +14,10 @@ $docgrp = getDocgrp();
 
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
-$initial_v = $id==='0' ? getInitialValues() : array();
 
-$db_v   = getValuesFromDB($id,$docgrp);
-$form_v = $_POST ? $_POST : array();
+$initial_v = $id==='0' ? getInitialValues() : array();
+$db_v      = $id==='0' ? array()            : getValuesFromDB($id,$docgrp);
+$form_v    = $_POST    ? $_POST             : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
@@ -25,6 +25,7 @@ $tmplVars  = getTmplvars($id,$docgrp);
 $docObject = $docObject + $tmplVars;
 
 $content = $docObject; //Be compatible with old plugins
+$modx->documentObject = & $content;
 
 $docObject = (object) $docObject;
 
@@ -857,10 +858,10 @@ function getJScripts() {
 }
 
 function get_template_options() {
-	global $modx, $_lang, $docObject, $default_template;
+	global $modx, $_lang, $docObject;
 	
 	$options = '';
-	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
+	$from = '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id';
 	$rs = $modx->db->select('t.templatename, t.id, c.category', $from,'', 'c.category, t.templatename ASC');
 	
 	$currentCategory = '';
@@ -880,9 +881,9 @@ function get_template_options() {
 		}
 		else $closeOptGroup = false;
 		
-		$selectedtext = ($row['id']==$docObject->template) ? ' selected="selected"' : '';
-		
-		$options .= '<option value="'.$row['id'].'"'.$selectedtext.'>'.$row['templatename']."</option>\n";
+		$selected = ($row['id']==$docObject->template) ? ' selected' : '';
+		$ph = array('id'=>$row['id'],'selected'=>$selected,'templatename'=>$row['templatename']);
+		$options .= $modx->parseText('<option value="[+id+]" [+selected+]>[+templatename+]</option>',$ph);
 		$currentCategory = $each_category;
 	}
 	if($each_category != '') $options .= "</optgroup>\n";
