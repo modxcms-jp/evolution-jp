@@ -32,9 +32,10 @@ $document_groups = (isset($_POST['chkalldocs']) && $_POST['chkalldocs'] === 'on'
 
 checkDocPermission($id,$document_groups);
 
+$modx->manager->saveFormValues();
+
 switch ($actionToTake) {
 	case 'new' :
-		$modx->manager->saveFormValues();
 		$return_url = 'index.php?a=' . $_GET['a'];
 		
 		// invoke OnBeforeDocFormSave event
@@ -52,7 +53,7 @@ switch ($actionToTake) {
 		$tmplvars = get_tmplvars($newid,$form_v['template']);
 		insert_tmplvars($tmplvars);
 
-		setDocPermissions($document_groups,$newid,$form_v['parent']);
+		setDocPermissionsNew($document_groups,$newid,$form_v['parent']);
 
 		updateParentStatus($form_v['parent']);
 		saveMETAKeywords($newid);
@@ -73,7 +74,6 @@ switch ($actionToTake) {
 		goNextAction($newid,$form_v['parent']);
 		break;
 	case 'edit' :
-		$modx->manager->saveFormValues();
 		$return_url = "index.php?a=27&id={$id}";
 		$db_v = getExistsValues($id, $return_url);
 		
@@ -789,7 +789,7 @@ function update_tmplvars($id,$tmplvars) {
 }
 
 // document access permissions
-function setDocPermissions($document_groups,$newid,$parent) {
+function setDocPermissionsNew($document_groups,$newid,$parent) {
 	global $modx;
 	$tbl_document_groups = $modx->getFullTableName('document_groups');
 	
