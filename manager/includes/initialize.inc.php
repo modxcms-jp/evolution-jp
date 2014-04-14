@@ -19,7 +19,7 @@ if (!defined('MODX_SITE_URL'))     define('MODX_SITE_URL', $site_url);
 if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', "{$base_path}manager/");
 if (!defined('MODX_MANAGER_URL'))  define('MODX_MANAGER_URL', "{$site_url}manager/");
 
-require_once("{$base_path}manager/includes/version.inc.php");
+require_once(MODX_CORE_PATH . 'version.inc.php');
 
 if (defined('IN_MANAGER_MODE')) $init->init_mgr();
 

@@ -872,7 +872,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["manager_theme"]?></th>
 <td><select name="manager_theme" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
 <?php
-$files = glob($base_path . 'manager/media/style/*/style.php');
+$files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
 foreach($files as $file)
 {
 	$file = str_replace('\\','/',$file);

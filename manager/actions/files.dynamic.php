@@ -614,8 +614,6 @@ function logFileChange($type, $filename)
 	$string = sprintf($string, $filename);
 	$log->initAndWriteLog($string, '', '', '', $type, $filename);
 
-	// HACK: change the global action to prevent double logging
-	// @see manager/index.php @ 915
 	global $action; $action = 1;
 }
 

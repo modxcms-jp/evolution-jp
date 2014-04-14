@@ -326,7 +326,7 @@ if (is_array($evtOut))
 	<td> <select name="manager_theme" size="1" class="inputBox" onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
 	<option value=""><?php echo $_lang["user_use_config"]; ?></option>
 <?php
-$files = glob($base_path . 'manager/media/style/*/style.php');
+$files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
 foreach($files as $file)
 {
 	$file = str_replace('\\','/',$file);

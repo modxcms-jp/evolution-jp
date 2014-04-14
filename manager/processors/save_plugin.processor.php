@@ -62,7 +62,7 @@ switch ($_POST['mode']) {
 			$content['sysevents'] = $sysevents;
 
 				include('header.inc.php');
-				include(MODX_BASE_PATH . 'manager/actions/mutate_plugin.dynamic.php');
+				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
 				include('footer.inc.php');
 			
 			exit;
@@ -111,7 +111,7 @@ switch ($_POST['mode']) {
 		if ($disabled == '0') {
 			$rs = $modx->db->select('COUNT(*)', '[+prefix+]site_plugins', "name='{$name}' AND id!='{$id}' AND disabled='0'");
 			if ($modx->db->getValue($rs) > 0) {
-				$modx->manager->saveFormValues(102);
+				$modx->manager->saveFormValues();
 				$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 	
 				// prepare a few variables prior to redisplaying form...
@@ -129,7 +129,7 @@ switch ($_POST['mode']) {
 				$content['sysevents'] = $sysevents;
 	
 				include('header.inc.php');
-				include(MODX_BASE_PATH . 'manager/actions/mutate_plugin.dynamic.php');
+				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
 				include('footer.inc.php');
 				
 				exit;
