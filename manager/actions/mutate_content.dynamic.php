@@ -320,26 +320,27 @@ EOT;
 }
 /* End Document Access Permissions *
  ***********************************/
-?>
 
+$tpl = <<< EOT
 <input type="submit" name="save" style="display:none" />
-<?php
-	// invoke OnDocFormRender event
-	$evtOut = $modx->invokeEvent('OnDocFormRender', array(
-		'id' => $id,
-	));
-	if (is_array($evtOut)) echo implode("\n", $evtOut);
-?>
+	[+OnDocFormRender+]
 </div><!--div class="tab-pane" id="documentPane"-->
 </div><!--div class="sectionBody"-->
 </fieldset>
 </form>
-
 <script type="text/javascript">
     storeCurTemplate();
 </script>
-<?php
-if($modx->config['use_editor'] == 1) {
+[+OnRichTextEditorInit+]
+EOT;
+
+// invoke OnDocFormRender event
+$OnDocFormRender = $modx->invokeEvent('OnDocFormRender', array(
+	'id' => $id,
+));
+
+$OnRichTextEditorInit = '';
+if($modx->config['use_editor'] === '1') {
 	if(is_array($rte_field) && 0<count($rte_field)) {
 		if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') {
 			// invoke OnRichTextEditorInit event
@@ -347,10 +348,17 @@ if($modx->config['use_editor'] == 1) {
 				'editor' => $selected_editor,
 				'elements' => $rte_field
 			));
-			if (is_array($evtOut)) echo implode('', $evtOut);
+			if (is_array($evtOut)) $OnRichTextEditorInit = implode('', $evtOut);
 		}
 	}
 }
+$ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
+$ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
+echo $modx->parseText($tpl,$ph);
+
+
+
+/* functions -------------------------------------------------------------------*/
 
 function to_safestr($str)
 {
