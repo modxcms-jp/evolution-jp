@@ -69,7 +69,7 @@ switch ($actionToTake) {
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
 
-		goNextAction($newid,$form_v['parent']);
+		goNextActionNew($newid,$form_v['parent']);
 		break;
 	case 'edit' :
 		$return_url = "index.php?a=27&id={$id}";
@@ -838,7 +838,7 @@ function updateParentStatus($parent) {
 }
 
 // redirect/stay options
-function goNextAction($id, $parent) {
+function goNextActionNew($id, $parent) {
 	if ($_POST['stay'] != '')
 	{
 		if ($_POST['mode'] == '72') // weblink
