@@ -138,9 +138,15 @@ class SubParser {
 		{
 			if($modx->config['send_errormail'] <= $type)
 			{
-				$fields['description'] = strip_tags($fields['description']);
+				$body['site_url'] = $modx->config['site_url'];
+				$body['request_uri'] = $modx->decoded_request_uri;
+				$body['source'] = $fields['source'];
+				if(!empty($modx->event->activePlugin))
+					$body['plugin'] = $modx->event->activePlugin;
+				if(!empty($modx->currentSnippet))
+					$body['snippet'] = $modx->currentSnippet;
 				$subject = 'Error mail from ' . $modx->config['site_name'];
-				$modx->sendmail($subject,print_r($fields,true));
+				$modx->sendmail($subject,print_r($body,true));
 			}
 		}
 		if (!$insert_id)
