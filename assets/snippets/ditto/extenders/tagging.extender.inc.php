@@ -327,10 +327,42 @@ if(!class_exists("tagging")) {
 					$url = ditto::buildURL("tags={$tag}&start=0",$tagDocID);
 					$tagList[] = template::replace(array('url'=>$url,'tag'=>$tag),$tpl);
 				}
-				$output = $modx->makeList($tagList, $ulroot='ditto_tag_list', $ulprefix='ditto_tag_', $type='', $ordered=false, $tablevel=0);
+				$output = $this->makeList($tagList, $ulroot='ditto_tag_list', $ulprefix='ditto_tag_', $type='', $ordered=false, $tablevel=0);
 			}
 			
 			return ($format != "rss" && $format != "xml" && $format != "atom") ? substr($output,0,-1*strlen($this->displayDelimiter)) : $output;
+		}
+		
+		function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0) {
+			// first find out whether the value passed is an array
+			if (!is_array($array)) return '<ul><li>Bad list</li></ul>';
+			
+			$tabs= '';
+			for ($i= 0; $i < $tablevel; $i++)
+			{
+				$tabs .= "\t";
+			}
+			
+			$tag = ($ordered == true) ? 'ol' : 'ul';
+			
+			if(!empty($type)) $typestr= " style='list-style-type: {$type}'";
+			else              $typestr= '';
+			
+			$listhtml= "{$tabs}<{$tag} class='{$ulroot}'{$typestr}>\n";
+			foreach ($array as $key => $value)
+			{
+				if (is_array($value))
+				{
+					$line = $this->makeList($value, "{$ulprefix}{$ulroot}", $ulprefix, $type, $ordered, $tablevel +2);
+					$listhtml .= "{$tabs}\t<li>{$key}\n{$line}{$tabs}\t</li>\n";
+				}
+				else
+				{
+					$listhtml .= "{$tabs}\t<li>{$value}</li>\n";
+				}
+			}
+			$listhtml = "{$tabs}</{$tag}>\n";
+			return $listhtml;
 		}
 	}
 }
