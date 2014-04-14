@@ -839,29 +839,24 @@ function updateParentStatus($parent) {
 
 // redirect/stay options
 function goNextActionNew($id, $parent) {
-	if ($_POST['stay'] != '')
-	{
-		if ($_POST['mode'] == '72') // weblink
-		{
-			$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$parent}";
-		}
-		elseif ($_POST['mode'] == "4") // document
-		{
-			$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$parent}";
-		}
-		$stay = $_POST['stay'];
-		$header = "Location: index.php?a={$a}&r=1&stay={$stay}";
-	}
-	else
-	{
-		if($parent!=='0')
-		{
-			$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
-		}
-		else
-		{
-			$header = "Location: index.php?a=3&id={$id}&r=1";
-		}
+	$form_v['type'] == $_POST;
+	switch($form_v['stay']) {
+		case '1':
+			$header = 'Location: index.php?';
+			if($form_v['type']==='document')
+				$header .= 'a=4';
+			elseif($form_v['type']==='reference')
+				$header .= 'a=72';
+			$header .= "pid={$parent}&r=1";
+			break;
+		case '2':
+			$header = "Location: index.php?a=27&id={$id}&r=1&stay=2";
+			break;
+		default:
+			if($parent!=='0')
+				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+			else
+				$header = "Location: index.php?a=3&id={$id}&r=1";
 	}
 	header($header);
 	exit;
