@@ -454,9 +454,9 @@ function checkViewUnpubDocPerm($published,$editedby) {
 // increase menu index if this is a new document
 function getMenuIndexAtNew() {
 	global $modx;
-	if (isset($_REQUEST['pid'])&&$modx->config['auto_menuindex']==='1')
+	if ($modx->config['auto_menuindex']==='1')
 	{
-		$pid = intval($_REQUEST['pid']);
+		$pid = isset($_REQUEST['pid']) ? intval($_REQUEST['pid']) : 0;
 		return $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
 	}
 	else return '0';
