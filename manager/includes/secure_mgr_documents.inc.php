@@ -10,8 +10,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
  *
  */
 
-function secureMgrDocument($docid='')
-{
+function secureMgrDocument($docid='') {
 	global $modx;
 	
 	if($docid>0) $where = "id='{$docid}'";
@@ -27,7 +26,7 @@ function secureMgrDocument($docid='')
 	$rs = $modx->db->select($field,$from,$where);
 	$ids = $modx->db->getColumn('id',$rs);
 	if(count($ids)>0) {
-		$ids = join(', ', $ids);
+		$ids = implode(',', $ids);
 		$modx->db->update(array('privatemgr'=>1),'[+prefix+]site_content', "id IN ({$ids})");
 	}
 }

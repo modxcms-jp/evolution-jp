@@ -13,14 +13,20 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 function secureWebDocument($docid='') {
 	global $modx;
 	
-	$modx->db->query("UPDATE ".$modx->getFullTableName("site_content")." SET privateweb = 0 WHERE ".($docid>0 ? "id='$docid'":"privateweb = 1"));
-	$sql =  "SELECT DISTINCT sc.id 
-			 FROM ".$modx->getFullTableName("site_content")." sc
-			 LEFT JOIN ".$modx->getFullTableName("document_groups")." dg ON dg.document = sc.id
-			 LEFT JOIN ".$modx->getFullTableName("webgroup_access")." wga ON wga.documentgroup = dg.document_group
-			 WHERE ".($docid>0 ? " sc.id='$docid' AND ":"")."wga.id>0";
-	$ids = $modx->db->getColumn("id",$sql);
+	if($docid>0) $where = "id='{$docid}'";
+	else         $where = 'privateweb=1';
+	$modx->db->update(array('privateweb'=>0), '[+prefix+]site_content', $where);
+	
+	$field = 'DISTINCT sc.id';
+	$from  = '[+prefix+]site_content sc'
+			.' LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id'
+			.' LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group';
+	if($docid>0) $where = "sc.id='{$docid}' AND wga.id > 0";
+	else         $where = 'wga.id > 0';
+	$rs = $modx->db->select($field,$from,$where);
+	$ids = $modx->db->getColumn('id',$rs);
 	if(count($ids)>0) {
-		$modx->db->query("UPDATE ".$modx->getFullTableName("site_content")." SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");
+		$ids = implode(',', $ids);
+		$modx->db->update(array('privateweb'=>1),'[+prefix+]site_content', "id IN ({$ids})");
 	}
 }
