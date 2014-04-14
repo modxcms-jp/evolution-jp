@@ -3160,25 +3160,9 @@ class DocumentParser {
 	function insertId($rs)               {return $this->db->getInsertId($rs);}
 	function dbClose()                   {$this->db->disconnect();}
 	
-    // deprecated
-	function makeList($array,$ulroot='root',$ulprefix='sub_',$type='',$ordered= false,$tablevel= 0)
-	{
-		$this->loadExtension('DeprecatedAPI');
-		return makeList($array,$ulroot,$ulprefix,$type,$ordered,$tablevel);
-	}
-	
-    function getUserData()          {$this->loadExtension('DeprecatedAPI');return getUserData();}
-	function insideManager()        {$this->loadExtension('DeprecatedAPI');return insideManager();}
     function putChunk($chunkName)   {return $this->getChunk($chunkName);}
     function getDocGroups()         {return $this->getUserDocGroups();}
 	function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
-    function getMETATags($id= 0)    {$this->loadExtension('DeprecatedAPI');return getMETATags($id);}
-	function userLoggedIn()         {$this->loadExtension('DeprecatedAPI');return userLoggedIn();}
-	function getKeywords($id= 0)    {$this->loadExtension('DeprecatedAPI');return getKeywords($id);}
-	function mergeDocumentMETATags($template)
-		                            {$this->loadExtension('DeprecatedAPI');return mergeDocumentMETATags($template);}
-	function makeFriendlyURL($pre,$suff,$path)
-		                            {$this->loadExtension('DeprecatedAPI');return makeFriendlyURL($pre, $suff, $path);}
 	function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 		                            {return $this->parseText($src, $ph, $left, $right, $mode);}
 	
