@@ -41,49 +41,44 @@ checkViewUnpubDocPerm($docObject->published,$docObject->editedby);// Only a=27
 
 $_SESSION['itemname'] = to_safestr($docObject->pagetitle);
 
-$tpl = <<< EOT
+$tpl['head'] = <<< EOT
 [+JScripts+]
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
-<input type="hidden" name="a" value="5" />
-<input type="hidden" name="id" value="[+id+]" />
-<input type="hidden" name="mode" value="[+a+]" />
-<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
-<input type="hidden" name="refresh_preview" value="0" />
-<input type="hidden" name="newtemplate" value="" />
-<input type="hidden" name="pid" value="[+pid+]" />
-[+OnDocFormPrerender+]
-
-<fieldset id="create_edit">
+	<input type="hidden" name="a" value="5" />
+	<input type="hidden" name="id" value="[+id+]" />
+	<input type="hidden" name="mode" value="[+a+]" />
+	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
+	<input type="hidden" name="refresh_preview" value="0" />
+	<input type="hidden" name="newtemplate" value="" />
+	<input type="hidden" name="pid" value="[+pid+]" />
+	<input type="submit" name="save" style="display:none" />
+	[+OnDocFormPrerender+]
+	
+	<fieldset id="create_edit">
 	<h1>[+title+]</h1>
 
-[+actionButtons+]
+	[+actionButtons+]
 
-<div class="sectionBody">
-<div class="tab-pane" id="documentPane">
-	<script type="text/javascript">
-		tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
-	</script>
+	<div class="sectionBody">
+	<div class="tab-pane" id="documentPane">
+		<script type="text/javascript">
+			tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
+		</script>
 EOT;
 
-// invoke OnDocFormPrerender event
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+$tpl['foot'] = <<< EOT
+		[+OnDocFormRender+]
+	</div><!--div class="tab-pane" id="documentPane"-->
+	</div><!--div class="sectionBody"-->
+	</fieldset>
+</form>
+<script type="text/javascript">
+    storeCurTemplate();
+</script>
+[+OnRichTextEditorInit+]
+EOT;
 
-$ph = array();
-$ph['JScripts'] = getJScripts();
-$ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
-$ph['id'] = $id;
-$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
-$ph['a'] = (int) $_REQUEST['a'];
-if(!$_REQUEST['pid'])
-	$tpl = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl);
-else $ph['pid'] = $_REQUEST['pid'];
-$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
-$ph['actionButtons'] = getActionButtons($id,$docObject->parent,$docObject->isfolder,$docObject->deleted);
-$ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
-
-echo $modx->parseText($tpl,$ph);
-
-$tpl = <<< EOT
+$tpl['tab-page']['general'] = <<< EOT
 <!-- start main wrapper -->
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
@@ -109,26 +104,7 @@ $tpl = <<< EOT
 	</div><!-- end #tabGeneral -->
 EOT;
 
-$ph = array();
-$ph['_lang_settings_general'] = $_lang['settings_general'];
-$ph['fieldPagetitle']   = fieldPagetitle();
-$ph['fieldLongtitle']   = fieldLongtitle();
-$ph['fieldDescription'] = fieldDescription();
-$ph['fieldAlias']       = fieldAlias($id);
-$ph['fieldWeblink']     = ($docObject->type==='reference') ? fieldWeblink() : '';
-$ph['fieldIntrotext']   = fieldIntrotext();
-$ph['fieldTemplate']    = fieldTemplate();
-$ph['fieldMenutitle']   = fieldMenutitle();
-$ph['fieldMenuindex']   = fieldMenuindex();
-$ph['renderSplit']      = renderSplit();
-$ph['fieldParent']      = fieldParent();
-
-$ph['sectionContent'] =  sectionContent();
-$ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
-
-echo $modx->parseText($tpl,$ph);
-
-$tpl = <<< EOT
+$tpl['tab-page']['tv'] = <<< EOT
 <!-- TVs -->
 <div class="tab-page" id="tabTv">
 	<h2 class="tab">[+_lang_tv+]</h2>
@@ -139,13 +115,7 @@ $tpl = <<< EOT
 </div>
 EOT;
 
-$ph['TVFields'] =  fieldsTV();
-$ph['_lang_tv'] = $_lang['tmplvars'];
-if($modx->config['tvs_below_content']==='0'&&0<count($tmplVars))
-	echo $modx->parseText($tpl,$ph);
-
-
-$tpl = <<< EOT
+$tpl['tab-page']['settings'] = <<< EOT
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
 		<h2 class="tab">[+_lang_settings_page_settings+]</h2>
@@ -172,33 +142,7 @@ $tpl = <<< EOT
 	</div><!-- end #tabSettings -->
 EOT;
 
-$ph = array();
-$ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
-$ph['fieldPublished']  =  fieldPublished();
-$ph['fieldPub_date']   = fieldPub_date($id);
-$ph['fieldUnpub_date'] = fieldUnpub_date($id);
-$ph['renderSplit'] = renderSplit();
-$ph['fieldType'] = fieldType();
-if($docObject->type !== 'reference') {
-	$ph['fieldContentType'] = fieldContentType();
-	$ph['fieldContent_dispo'] = fieldContent_dispo();
-} else {
-	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject->contentType . '" />';
-	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject->content_dispo . '" />';
-}
-$ph['fieldLink_attributes'] = fieldLink_attributes();
-$ph['fieldIsfolder']   = fieldIsfolder();
-$ph['fieldRichtext']   = fieldRichtext();
-$ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() : '';
-$ph['fieldSearchable'] = fieldSearchable();
-$ph['fieldCacheable']  = $docObject->type === 'document' ? fieldCacheable() : '';
-$ph['fieldSyncsite']   = fieldSyncsite();
-echo $modx->parseText($tpl,$ph);
-
-
-
-if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1'):
-	$tpl = <<< EOT
+$tpl['tab-page']['meta'] = <<< EOT
 <!-- META Keywords -->
 <div class="tab-page" id="tabMeta">
 	<h2 class="tab">[+_lang_meta_keywords+]</h2>
@@ -230,6 +174,111 @@ if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && 
 	</table>
 </div><!-- end #tabMeta -->
 EOT;
+
+$tpl['tab-page']['access'] = <<< EOT
+<!-- Access Permissions -->
+<div class="tab-page" id="tabAccess">
+	<h2 class="tab" id="tab_access_header">[+_lang_access_permissions+]</h2>
+	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		function makePublic(b) {
+			var notPublic = false;
+			var f = document.forms['mutate'];
+			var chkpub = f['chkalldocs'];
+			var chks = f['docgroups[]'];
+			if (!chks && chkpub) {
+				chkpub.checked=true;
+				return false;
+			} else if (!b && chkpub) {
+				if (!chks.length) notPublic = chks.checked;
+				else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
+				chkpub.checked = !notPublic;
+			} else {
+				if (!chks.length) chks.checked = (b) ? false : chks.checked;
+				else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
+				chkpub.checked = true;
+			}
+		}
+		/* ]]> */
+	</script>
+	<p>[+_lang_access_permissions_docs_message+]</p>
+	<ul>
+		[+UDGroups+]
+	</ul>
+</div><!--div class="tab-page" id="tabAccess"-->
+EOT;
+
+// invoke OnDocFormPrerender event
+$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+
+$ph = array();
+$ph['JScripts'] = getJScripts();
+$ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
+$ph['id'] = $id;
+$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
+$ph['a'] = (int) $_REQUEST['a'];
+if(!$_REQUEST['pid'])
+	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
+else $ph['pid'] = $_REQUEST['pid'];
+$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+$ph['actionButtons'] = getActionButtons($id,$docObject->parent,$docObject->isfolder,$docObject->deleted);
+$ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
+
+echo $modx->parseText($tpl['head'],$ph);
+
+
+$ph = array();
+$ph['_lang_settings_general'] = $_lang['settings_general'];
+$ph['fieldPagetitle']   = fieldPagetitle();
+$ph['fieldLongtitle']   = fieldLongtitle();
+$ph['fieldDescription'] = fieldDescription();
+$ph['fieldAlias']       = fieldAlias($id);
+$ph['fieldWeblink']     = ($docObject->type==='reference') ? fieldWeblink() : '';
+$ph['fieldIntrotext']   = fieldIntrotext();
+$ph['fieldTemplate']    = fieldTemplate();
+$ph['fieldMenutitle']   = fieldMenutitle();
+$ph['fieldMenuindex']   = fieldMenuindex();
+$ph['renderSplit']      = renderSplit();
+$ph['fieldParent']      = fieldParent();
+
+$ph['sectionContent'] =  sectionContent();
+$ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
+
+echo $modx->parseText($tpl['tab-page']['general'],$ph);
+
+
+$ph['TVFields'] =  fieldsTV();
+$ph['_lang_tv'] = $_lang['tmplvars'];
+if($modx->config['tvs_below_content']==='0'&&0<count($tmplVars))
+	echo $modx->parseText($tpl['tab-page']['tv'],$ph);
+
+$ph = array();
+$ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
+$ph['fieldPublished']  =  fieldPublished();
+$ph['fieldPub_date']   = fieldPub_date($id);
+$ph['fieldUnpub_date'] = fieldUnpub_date($id);
+$ph['renderSplit'] = renderSplit();
+$ph['fieldType'] = fieldType();
+if($docObject->type !== 'reference') {
+	$ph['fieldContentType'] = fieldContentType();
+	$ph['fieldContent_dispo'] = fieldContent_dispo();
+} else {
+	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject->contentType . '" />';
+	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject->content_dispo . '" />';
+}
+$ph['fieldLink_attributes'] = fieldLink_attributes();
+$ph['fieldIsfolder']   = fieldIsfolder();
+$ph['fieldRichtext']   = fieldRichtext();
+$ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() : '';
+$ph['fieldSearchable'] = fieldSearchable();
+$ph['fieldCacheable']  = $docObject->type === 'document' ? fieldCacheable() : '';
+$ph['fieldSyncsite']   = fieldSyncsite();
+echo $modx->parseText($tpl['tab-page']['settings'],$ph);
+
+
+
+if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1'):
 	$keywords = getKeywords();
 	$option = array();
 	if(0<count($keywords)):
@@ -264,7 +313,7 @@ EOT;
 	$ph['metatags'] = implode("\n",$option);
 	$ph['_lang_deselect_metatags'] = $_lang['deselect_metatags'];
 	$ph['_lang_metatags'] = $_lang['metatags'];
-	echo $modx->parseText($tpl,$ph);
+	echo $modx->parseText($tpl['tab-page']['meta'],$ph);
 endif;
 
 /*******************************
@@ -276,44 +325,11 @@ if ($modx->config['use_udperms'] == 1)
 	
 	// See if the Access Permissions section is worth displaying...
 	if (!empty($permissions)):
-		$tpl = <<< EOT
-<!-- Access Permissions -->
-<div class="tab-page" id="tabAccess">
-	<h2 class="tab" id="tab_access_header">[+_lang_access_permissions+]</h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		function makePublic(b) {
-			var notPublic = false;
-			var f = document.forms['mutate'];
-			var chkpub = f['chkalldocs'];
-			var chks = f['docgroups[]'];
-			if (!chks && chkpub) {
-				chkpub.checked=true;
-				return false;
-			} else if (!b && chkpub) {
-				if (!chks.length) notPublic = chks.checked;
-				else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
-				chkpub.checked = !notPublic;
-			} else {
-				if (!chks.length) chks.checked = (b) ? false : chks.checked;
-				else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
-				chkpub.checked = true;
-			}
-		}
-		/* ]]> */
-	</script>
-	<p>[+_lang_access_permissions_docs_message+]</p>
-	<ul>
-		[+UDGroups+]
-	</ul>
-</div><!--div class="tab-page" id="tabAccess"-->
-EOT;
 		$ph = array();
 		$ph['_lang_access_permissions'] = $_lang['access_permissions'];
 		$ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
 		$ph['UDGroups'] = implode("\n", $permissions);
-		echo $modx->parseText($tpl,$ph);
+		echo $modx->parseText($tpl['tab-page']['access'],$ph);
 	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)
            && ($_SESSION['mgrPermissions']['access_permissions'] == 1
            || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)):
@@ -322,19 +338,6 @@ EOT;
 }
 /* End Document Access Permissions *
  ***********************************/
-
-$tpl = <<< EOT
-<input type="submit" name="save" style="display:none" />
-	[+OnDocFormRender+]
-</div><!--div class="tab-pane" id="documentPane"-->
-</div><!--div class="sectionBody"-->
-</fieldset>
-</form>
-<script type="text/javascript">
-    storeCurTemplate();
-</script>
-[+OnRichTextEditorInit+]
-EOT;
 
 // invoke OnDocFormRender event
 $OnDocFormRender = $modx->invokeEvent('OnDocFormRender', array(
@@ -356,7 +359,5 @@ if($modx->config['use_editor'] === '1') {
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
-echo $modx->parseText($tpl,$ph);
-
-
+echo $modx->parseText($tpl['foot'],$ph);
 
