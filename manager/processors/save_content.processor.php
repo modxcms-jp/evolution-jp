@@ -52,7 +52,7 @@ switch ($actionToTake) {
 		
 		if(!empty($form_v['template'])) {
 			$tmplvars = get_tmplvars($newid,$form_v['template']);
-			insert_tmplvars($tmplvars);
+			insert_tmplvars($newid,$tmplvars);
 		}
 
 		setDocPermissionsNew($document_groups,$newid,$form_v['parent']);
@@ -662,7 +662,7 @@ function getExistsValues($id, $return_url) {
 	return $row;
 }
 
-function insert_tmplvars($tmplvars) {
+function insert_tmplvars($newid,$tmplvars) {
 	global $modx;
 	if(empty($tmplvars)) return;
 	$tvChanges = array();
