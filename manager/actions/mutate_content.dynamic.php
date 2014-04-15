@@ -23,7 +23,7 @@ $form_v    = $_POST    ? $_POST             : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
-$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
+$tmplVars  = getTmplvars($id,$docgrp);
 $docObject = $docObject + $tmplVars;
 
 $content = $docObject; //Be compatible with old plugins
@@ -220,7 +220,7 @@ if(!$_REQUEST['pid'])
 	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
 else $ph['pid'] = $_REQUEST['pid'];
 $ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
-$ph['actionButtons'] = getActionButtons($id,$docObject->parent,$docObject->isfolder,$docObject->deleted);
+$ph['actionButtons'] = getActionButtons($id);
 $ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 
 echo $modx->parseText($tpl['head'],$ph);

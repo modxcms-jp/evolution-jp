@@ -113,28 +113,20 @@ function ab_save()
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_cancel($id,$parent='0',$isfolder)
+function ab_cancel($id)
 {
-	global $modx, $_style, $_lang;
+	global $modx, $_style, $_lang, $docObject;
+	
 	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
-	if($parent!=='0')
-	{
-		if($isfolder=='0') $href = "a=3&id={$parent}&tab=0";
-		else                          $href = "a=3&id={$id}&tab=0";
-	}
-	elseif($isfolder=='1' && $parent=='0')
-	{
+	if($docObject->isfolder=='1')
 		$href = "a=3&id={$id}&tab=0";
-	}
-	elseif($_GET['pid'])
-	{
-		$_GET['pid'] = intval($_GET['pid']);
-		$href = "a=3&id={$_GET['pid']}&tab=0";
-	}
-	else $href = "a=2";
+	elseif(!empty($docObject->parent))
+		$href = "a=3&id={$docObject->parent}&tab=0";
+	else
+		$href = "a=2";
 	$ph['onclick'] = "document.location.href='index.php?{$href}';";
 	
 	return $modx->parseText($tpl,$ph);
@@ -161,13 +153,14 @@ function ab_duplicate()
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_delete($deleted)
+function ab_delete()
 {
-	global $modx, $_style, $_lang;
+	global $modx, $_style, $_lang, $docObject;
+	
 	if(!$modx->hasPermission('delete_document')) return;
 	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	if($deleted === '0')
+	if($docObject->deleted === '0')
 	{
 		$ph['onclick'] = 'deletedocument();';
 		$ph['icon'] = $_style["icons_delete_document"];
@@ -610,8 +603,8 @@ EOT;
 	return $modx->parseText($tpl,$ph);
 }
 
-function getActionButtons($id,$parent,$isfolder,$deleted) {
-	global $modx;
+function getActionButtons($id) {
+	global $modx, $docObject;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -629,12 +622,12 @@ EOT;
 	if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start']) {
 		$ph['moveButton']      = ab_move();
 		$ph['duplicateButton'] = ab_duplicate();
-		$ph['deleteButton']    = ab_delete($deleted);
+		$ph['deleteButton']    = ab_delete();
 	}
 	if ($_REQUEST['a'] !== '72') {
 		$ph['previewButton']   = ab_preview($id);
 	}
-	$ph['cancelButton']    = ab_cancel($id,$parent,$isfolder);
+	$ph['cancelButton']    = ab_cancel($id);
 	
 	$rs = $modx->parseText($tpl,$ph);
 	
@@ -742,11 +735,19 @@ function fieldParent() {
 	return renderTr($_lang['resource_parent'],$body);
 }
 
-function getTmplvars($id,$template,$docgrp) {
-	global $modx;
+function getTmplvars($id,$docgrp) {
+	global $modx, $docObject;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
 	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
+	
+	if(isset ($_REQUEST['newtemplate']))
+	      $template = $_REQUEST['newtemplate'];
+	elseif(isset($docObject->template))
+		$template = $docObject->template;
+	else  $template = $modx->config['default_template'];
+	
+	if(empty($template)) return array();
 	
 	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
@@ -995,6 +996,7 @@ function getInitialValues() {
 	$init_v['published'] = $modx->config['publish_default'];
 	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
 	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
+	if(isset($_GET['pid'])) $init_v['parent'] = $_GET['pid'];
 	$init_v['contentType'] = 'text/html';
 	$init_v['content_dispo'] = '0';
 	$init_v['which_editor'] = $modx->config['which_editor'];
