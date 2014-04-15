@@ -6,7 +6,7 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-$dbfields = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
+$db_v_names = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
 
 $form_v = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $form_v = initValue($form_v);
@@ -42,16 +42,18 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
 		$temp_id = $modx->manager->getNewDocID();
-		$fields = getInputValues($form_v,$actionToTake,$dbfields,$temp_id);
-		$fields = $modx->db->escape($fields);
-		$newid = $modx->db->insert($fields,'[+prefix+]site_content');
+		$values = getInputValues($form_v,'new',$db_v_names,$temp_id);
+		$values = $modx->db->escape($values);
+		$newid = $modx->db->insert($values,'[+prefix+]site_content');
 		if(!$newid) {
 			$msg = 'An error occured while attempting to save the new document: ' . $modx->db->getLastError();
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 		
-		$tmplvars = get_tmplvars($newid,$form_v['template']);
-		insert_tmplvars($tmplvars);
+		if(!empty($form_v['template'])) {
+			$tmplvars = get_tmplvars($newid,$form_v['template']);
+			insert_tmplvars($tmplvars);
+		}
 
 		setDocPermissionsNew($document_groups,$newid,$form_v['parent']);
 
@@ -61,14 +63,10 @@ switch ($actionToTake) {
 		// invoke OnDocFormSave event
 		$modx->invokeEvent('OnDocFormSave', array('mode'=>'new','id'=>$newid));
 
-		// secure web documents - flag as private
 		$modx->manager->setWebDocsAsPrivate($newid);
-
-		// secure manager documents - flag as private
 		$modx->manager->setMgrDocsAsPrivate($newid);
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
-
 		goNextAction($newid,$form_v['parent']);
 		break;
 	case 'edit' :
@@ -78,70 +76,44 @@ switch ($actionToTake) {
 		checkStartDoc($id,$form_v['published'],$form_v['pub_date'],$form_v['unpub_date'],$return_url);
 		checkParentID($id,$form_v['parent'],$return_url);
 		
-		$form_v['isfolder'] = getFolderStatus($id,$form_v['isfolder'],$return_url);
+		$form_v['isfolder'] = checkFolderStatus($id,$form_v['isfolder']);
 
 		// set publishedon and publishedby
-		$form_v['published']   = getPublishPermission('published',$form_v,$db_v);
-		$form_v['pub_date']    = getPublishPermission('pub_date',$form_v,$db_v);
-		$form_v['unpub_date']  = getPublishPermission('unpub_date',$form_v,$db_v);
+		$form_v['published']   = checkPublished($form_v,$db_v);
+		$form_v['pub_date']    = checkPub_date($form_v,$db_v);
+		$form_v['unpub_date']  = checkUnpub_date($form_v,$db_v);
 		$form_v['publishedon'] = checkPublishedon($form_v,$db_v);
 		$form_v['publishedby'] = checkPublishedby($form_v,$db_v);
 		
 		// invoke OnBeforeDocFormSave event
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd','id'=>$id));
 		
-		// update the document
-		$fields = getInputValues($form_v,$actionToTake,$dbfields,$id);
-		$fields = $modx->db->escape($fields);
-		$rs = $modx->db->update($fields,'[+prefix+]site_content',"id='{$id}'");
+		$values = getInputValues($form_v,'edit',$db_v_names,$id);
+		$values = $modx->db->escape($values);
+		$rs = $modx->db->update($values,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs) {
 			$msg = "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 		
-		// update template variables
-		$tmplvars = get_tmplvars($id,$form_v['template']);
-		update_tmplvars($id,$tmplvars);
+		if(!empty($form_v['template'])) {
+			$tmplvars = get_tmplvars($id,$form_v['template']);
+			update_tmplvars($id,$tmplvars);
+		}
 		
-		// set document permissions
-		// setDocPermissions($document_groups,$newid,$form_v['parent']);
 		setDocPermissionsEdit($document_groups,$id);
 
-		// do the parent stuff
 		updateParentStatus($form_v['parent']);
 		
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
-		
-		$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent={$db_v['parent']}");
-		if (!$rs)
-		{
-			echo "An error occured while attempting to find the old parents' children.";
-		}
-		$row = $modx->db->getRow($rs);
-		$limit = $row['COUNT(id)'];
-
-		if ($limit == 0)
-		{
-			$rs = $modx->db->update('isfolder = 0', '[+prefix+]site_content', "id='{$db_v['parent']}'");
-			if (!$rs)
-			{
-				echo "An error occured while attempting to change the old parent to a regular document.";
-			}
-		}
+		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
 		saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
-		
-		$params = array();
-		$params['mode'] = 'upd';
-		$params['id']   = $id;
-		$modx->invokeEvent('OnDocFormSave', $params);
+		$modx->invokeEvent('OnDocFormSave', array('mode'=>'upd','id'=>$id));
 
-		// secure web documents - flag as private
 		$modx->manager->setWebDocsAsPrivate($id);
-
-		// secure manager documents - flag as private
 		$modx->manager->setMgrDocsAsPrivate($id);
 		
 		if($form_v['published']  != $db_v['published']) $clearcache['target'] = 'pagecache,sitecache';
@@ -568,9 +540,9 @@ function setValue($form_v) {
 	return $form_v;
 }
 
-function getInputValues($form_v,$mode,$dbfields,$id) {
+function getInputValues($form_v,$mode,$db_v_names,$id) {
 	if($id) $fields['id'] = $id;
-	foreach($dbfields as $key) {
+	foreach($db_v_names as $key) {
 		if(!isset($form_v[$key])) $form_v[$key] = '';
 		$fields[$key] = $form_v[$key];
 	}
@@ -601,7 +573,7 @@ function checkParentID($id,$parent,$return_url) {
 	}
 }
 
-function getFolderStatus($id,$isfolder,$return_url) {
+function checkFolderStatus($id,$isfolder) {
 	global $modx;
 	
 	// check to see document is a folder
@@ -621,6 +593,18 @@ function getPublishPermission($field_name,$form_v,$db_v) {
 	if (!$modx->hasPermission('publish_document'))
 		return $db_v[$field_name];
 	else return $form_v[$field_name];
+}
+
+function checkPublished($form_v,$db_v) {
+	return getPublishPermission('published',$form_v,$db_v);
+}
+
+function checkPub_date($form_v,$db_v) {
+	return getPublishPermission('pub_date',$form_v,$db_v);
+}
+
+function checkUnpub_date($form_v,$db_v) {
+	return getPublishPermission('unpub_date',$form_v,$db_v);
 }
 
 function checkPublishedon($form_v,$db_v) {
@@ -882,5 +866,18 @@ function setDocPermissionsEdit($document_groups,$id) {
 	{
 		$msg = 'An error occured while saving document groups.';
 		$modx->webAlertAndQuit($msg);
+	}
+}
+
+function folder2doc($parent) {
+	global $modx;
+	$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', "parent={$parent}");
+	if (!$rs)
+		echo "An error occured while attempting to find the old parents' children.";
+	$row = $modx->db->getRow($rs);
+	if ($row['COUNT(id)'] == 0) {
+		$rs = $modx->db->update('isfolder = 0', '[+prefix+]site_content', "id='{$parent}'");
+		if (!$rs)
+			echo "An error occured while attempting to change the old parent to a regular document.";
 	}
 }
