@@ -58,13 +58,15 @@ switch ($actionToTake) {
 		setDocPermissionsNew($document_groups,$newid,$form_v['parent']);
 
 		updateParentStatus($form_v['parent']);
-		saveMETAKeywords($newid);
+		if(isset($modx->config['show_meta'])) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
 		$modx->invokeEvent('OnDocFormSave', array('mode'=>'new','id'=>$newid));
 
-		$modx->manager->setWebDocsAsPrivate($newid);
-		$modx->manager->setMgrDocsAsPrivate($newid);
+		if($modx->config['use_udperms']==='1') {
+			$modx->manager->setWebDocsAsPrivate($newid);
+			$modx->manager->setMgrDocsAsPrivate($newid);
+		}
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
 		goNextAction($newid,$form_v['parent']);
@@ -108,22 +110,24 @@ switch ($actionToTake) {
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
-		saveMETAKeywords($id);
+		if(isset($modx->config['show_meta'])) saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
 		$modx->invokeEvent('OnDocFormSave', array('mode'=>'upd','id'=>$id));
 
-		$modx->manager->setWebDocsAsPrivate($id);
-		$modx->manager->setMgrDocsAsPrivate($id);
+		if($modx->config['use_udperms']==='1') {
+			$modx->manager->setWebDocsAsPrivate($id);
+			$modx->manager->setMgrDocsAsPrivate($id);
+		}
 		
-		if($form_v['published']  != $db_v['published']) $clearcache['target'] = 'pagecache,sitecache';
-		elseif($db_v['alias']!==$form_v['alias'])       $clearcache['target'] = 'pagecache,sitecache';
-		elseif($db_v['parent']!=$form_v['parent'])      $clearcache['target'] = 'pagecache,sitecache';
-		else                                       $clearcache['target'] = 'pagecache';
-		if ($form_v['syncsite'] == 1) $modx->clearCache($clearcache);
-		
+		if ($form_v['syncsite'] === '1') {
+			if($form_v['published']===$db_v['published']&&$form_v['alias']===$db_v['alias']&&$form_v['parent']===$db_v['parent'])
+				$clearcache['target'] = 'pagecache';
+			else
+				$clearcache['target'] = 'pagecache,sitecache';
+			$modx->clearCache($clearcache);
+		}
 		goNextAction($id,$form_v['parent']);
-		exit;
 	default :
 		header("Location: index.php?a=7");
 		exit;
@@ -135,38 +139,38 @@ function saveMETAKeywords($id) {
 	$keywords = $_POST['keywords'];
 	$metatags = $_POST['metatags'];
 	
-	if(!isset($modx->config['show_meta']) || !$modx->config['show_meta']==1)
+	if(!$keywords&&!$metatags) return;
+	if(!isset($modx->config['show_meta']) || $modx->config['show_meta']==0)
+		return;
+	if (!$modx->hasPermission('edit_doc_metatags'))
 		return;
 	
-	if ($modx->hasPermission('edit_doc_metatags'))
-	{
-		// keywords - remove old keywords first
-		$modx->db->delete('[+prefix+]keyword_xref', "content_id='{$id}'");
-		foreach($keywords as $keyword) {
-			$flds = array (
-				'content_id' => $id,
-				'keyword_id' => $keyword
-			);
-			$flds = $modx->db->escape($flds);
-			$modx->db->insert($flds, '[+prefix+]keyword_xref');
-		}
-		// meta tags - remove old tags first
-		$modx->db->delete('[+prefix+]site_content_metatags', "content_id='{$id}'");
-		foreach($metatag as $metatag) {
-			$flds = array (
-				'content_id' => $id,
-				'metatag_id' => $metatag
-			);
-			$flds = $modx->db->escape($flds);
-			$modx->db->insert($flds, '[+prefix+]site_content_metatags');
-		}
+	// keywords - remove old keywords first
+	$modx->db->delete('[+prefix+]keyword_xref', "content_id='{$id}'");
+	foreach($keywords as $keyword) {
 		$flds = array (
-			'haskeywords' => (count($keywords) ? 1 : 0),
-			'hasmetatags' => (count($metatags) ? 1 : 0)
+			'content_id' => $id,
+			'keyword_id' => $keyword
 		);
 		$flds = $modx->db->escape($flds);
-		$modx->db->update($flds, '[+prefix+]site_content', "id={$id}");
+		$modx->db->insert($flds, '[+prefix+]keyword_xref');
 	}
+	// meta tags - remove old tags first
+	$modx->db->delete('[+prefix+]site_content_metatags', "content_id='{$id}'");
+	foreach($metatag as $metatag) {
+		$flds = array (
+			'content_id' => $id,
+			'metatag_id' => $metatag
+		);
+		$flds = $modx->db->escape($flds);
+		$modx->db->insert($flds, '[+prefix+]site_content_metatags');
+	}
+	$flds = array (
+		'haskeywords' => (count($keywords) ? 1 : 0),
+		'hasmetatags' => (count($metatags) ? 1 : 0)
+	);
+	$flds = $modx->db->escape($flds);
+	$modx->db->update($flds, '[+prefix+]site_content', "id='{$id}'");
 }
 
 function get_tmplvars($id,$template)
@@ -755,7 +759,7 @@ function setDocPermissionsNew($document_groups,$newid,$parent) {
 	{
 		$isManager = $modx->hasPermission('access_permissions');
 		$isWeb     = $modx->hasPermission('web_access_permissions');
-		if($modx->config['use_udperms'] && !($isManager || $isWeb) && $parent != 0) {
+		if($modx->config['use_udperms']==1 && !($isManager || $isWeb) && $parent != 0) {
 			// inherit document access permissions
 			$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document='{$parent}'";
 			$saved = $modx->db->query($sql);
