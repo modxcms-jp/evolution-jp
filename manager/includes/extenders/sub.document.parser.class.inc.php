@@ -1672,4 +1672,31 @@ class SubParser {
         }
         return (!is_null($data) && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
     }
+	
+	function _IIS_furl_fix()
+	{
+		global $modx;
+		
+		if($modx->config['friendly_urls'] != 1) return;
+		
+		$url= $_SERVER['QUERY_STRING'];
+		$err= substr($url, 0, 3);
+		if ($err !== '404' && $err !== '405') return;
+		
+		$k= array_keys($_GET);
+		unset ($_GET[$k['0']]);
+		unset ($_REQUEST[$k['0']]); // remove 404,405 entry
+		$_SERVER['QUERY_STRING']= $qp['query'];
+		$qp= parse_url(str_replace($modx->config['site_url'], '', substr($url, 4)));
+		if (!empty ($qp['query']))
+		{
+			parse_str($qp['query'], $qv);
+			foreach ($qv as $n => $v)
+			{
+				$_REQUEST[$n]= $_GET[$n]= $v;
+			}
+		}
+		$_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
+		$_REQUEST['q']= $_GET['q']= $qp['path'];
+	}
 }

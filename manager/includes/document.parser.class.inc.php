@@ -721,8 +721,6 @@ class DocumentParser {
 		return $option;
 	}
 	
-    function _IIS_furl_fix()          {$this->loadExtension('DeprecatedAPI');return _IIS_furl_fix();}
-    
 	function getMicroTime()
 	{
 		list ($usec, $sec)= explode(' ', microtime());
@@ -3150,6 +3148,9 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->snapshot($filename,$target);}
 	function getVersionData($data=null)
 		{$this->loadExtension('SubParser');return $this->sub->getVersionData($data);}
+	function _IIS_furl_fix()
+		{$this->loadExtension('SubParser');return _IIS_furl_fix();}
+
 	
 	// - deprecated db functions
 	function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
