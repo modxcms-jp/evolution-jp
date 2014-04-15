@@ -742,19 +742,11 @@ function fieldParent() {
 	return renderTr($_lang['resource_parent'],$body);
 }
 
-function getTmplvars($id,$docgrp) {
-	global $modx, $docObject;
+function getTmplvars($id,$template,$docgrp) {
+	global $modx;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
 	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
-	
-	if(isset ($_REQUEST['newtemplate']))
-	      $template = $_REQUEST['newtemplate'];
-	elseif(isset($docObject->template))
-		$template = $docObject->template;
-	else  $template = $modx->config['default_template'];
-	
-	if(empty($template)) return array();
 	
 	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
