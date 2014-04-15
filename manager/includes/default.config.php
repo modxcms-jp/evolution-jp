@@ -109,7 +109,7 @@ if(!function_exists('mysql_set_charset'))
 	$_lang['settings_after_install'] .= '<br /><strong style="color:red;">この環境では日本語以外の文字(中国語・韓国語・一部の機種依存文字など)を入力できません。</strong>対応が必要な場合は、サーバ環境のUTF-8エンコードの扱いを整備したうえで、dbapi.mysql.class.inc.phpのescape関数の処理を書き換えてください。mb_convert_encodingの処理を行なっている行が2行ありますので、これを削除します。';
 }
 
-switch($settings_version)
+switch($modx->config['settings_version'])
 {
 	case '1.0.5J-r11':
 	case '1.0.6J':

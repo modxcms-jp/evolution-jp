@@ -32,7 +32,6 @@ $modx->documentObject = & $content;
 $docObject = (object) $docObject;
 
 global $template, $selected_editor; // For plugins (ManagerManager etc...)
-
 $template = $docObject->template;
 
 $selected_editor = (isset ($form_v['which_editor'])) ? $form_v['which_editor'] : $config['which_editor'];
