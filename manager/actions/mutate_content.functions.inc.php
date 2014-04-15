@@ -735,17 +735,11 @@ function fieldParent() {
 	return renderTr($_lang['resource_parent'],$body);
 }
 
-function getTmplvars($id,$docgrp) {
+function getTmplvars($id,$template,$docgrp) {
 	global $modx, $docObject;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
 	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
-	
-	if(isset ($_REQUEST['newtemplate']))
-	      $template = $_REQUEST['newtemplate'];
-	elseif(isset($docObject->template))
-		$template = $docObject->template;
-	else  $template = $modx->config['default_template'];
 	
 	if(empty($template)) return array();
 	
@@ -991,17 +985,24 @@ function getInitialValues() {
 	
 	$init_v['menuindex'] = getMenuIndexAtNew();
 	$init_v['alias']     = getAliasAtNew();
-	$init_v['template']  = $default_template;
 	$init_v['richtext']  = $modx->config['use_editor'];
 	$init_v['published'] = $modx->config['publish_default'];
-	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
-	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
-	if(isset($_GET['pid'])) $init_v['parent'] = $_GET['pid'];
 	$init_v['contentType'] = 'text/html';
 	$init_v['content_dispo'] = '0';
 	$init_v['which_editor'] = $modx->config['which_editor'];
 	$init_v['searchable'] = $modx->config['search_default'];
 	$init_v['cacheable'] = $modx->config['cache_default'];
+	
+	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
+	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
+	
+	if(isset($_GET['pid'])) $init_v['parent'] = $_GET['pid'];
+	
+	if(isset ($_REQUEST['newtemplate']))
+		$init_v['template'] = $_REQUEST['newtemplate'];
+	else
+		$init_v['template']  = $default_template;
+	
 	return $init_v;
 }
 

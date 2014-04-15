@@ -23,7 +23,7 @@ $form_v    = $_POST    ? $_POST             : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
-$tmplVars  = getTmplvars($id,$docgrp);
+$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
 $docObject = $docObject + $tmplVars;
 
 $content = $docObject; //Be compatible with old plugins
