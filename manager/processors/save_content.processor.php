@@ -69,7 +69,7 @@ switch ($actionToTake) {
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
 
-		goNextActionNew($newid,$form_v['parent']);
+		goNextAction($newid,$form_v['parent']);
 		break;
 	case 'edit' :
 		$return_url = "index.php?a=27&id={$id}";
@@ -150,38 +150,7 @@ switch ($actionToTake) {
 		else                                       $clearcache['target'] = 'pagecache';
 		if ($form_v['syncsite'] == 1) $modx->clearCache($clearcache);
 		
-		if ($_POST['stay'] != '')
-		{
-			$id = $_REQUEST['id'];
-			if ($form_v['type'] == "reference")
-			{
-				// weblink
-				$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "72&pid={$form_v['parent']}";
-			}
-			else
-			{
-				// document
-				$a = ($_POST['stay'] == '2') ? "27&id={$id}" : "4&pid={$form_v['parent']}";
-			}
-			$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
-		}
-		elseif($form_v['isfolder']==='1' && $form_v['parent']!=='0')
-		{
-			$header = "Location: index.php?a=3&id={$form_v['parent']}&tab=0&r=1";
-		}
-		elseif($form_v['isfolder']==='1' && $form_v['parent']==='0')
-		{
-			$header = "Location: index.php?a=3&id={$id}&tab=0&r=1";
-		}
-		elseif($form_v['isfolder']==='0' && $form_v['parent']!=='0')
-		{
-			$header = "Location: index.php?a=3&id={$form_v['parent']}&r=1&tab=0";
-		}
-		else
-		{
-			$header = "Location: index.php?a=3&id={$id}&r=1";
-		}
-		header($header);
+		goNextAction($id,$form_v['parent']);
 		exit;
 	default :
 		header("Location: index.php?a=7");
@@ -828,8 +797,8 @@ function updateParentStatus($parent) {
 }
 
 // redirect/stay options
-function goNextActionNew($id, $parent) {
-	$form_v['type'] == $_POST;
+function goNextAction($id, $parent) {
+	$form_v = $_POST;
 	switch($form_v['stay']) {
 		case '1':
 			$header = 'Location: index.php?';
