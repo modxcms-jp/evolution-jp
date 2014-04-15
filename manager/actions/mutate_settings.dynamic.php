@@ -980,8 +980,7 @@ $tmenu_style = 'style="width:350px;"';
 </tr>
 <?php
 $rs = $modx->db->query("SHOW TABLES LIKE '{$table_prefix}site_metatags'");
-if(0 < $modx->db->getRecordCount($rs))
-{ ?>
+if(0 < $modx->db->getRecordCount($rs)) : ?>
 <tr>
 <th><?php echo $_lang["show_meta"] ?></th>
 <td>
@@ -990,7 +989,7 @@ if(0 < $modx->db->getRecordCount($rs))
 	<?php echo $_lang["show_meta_message"]?>
 </td>
 </tr>
-<?php } ?>
+<?php endif; ?>
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
 <td>

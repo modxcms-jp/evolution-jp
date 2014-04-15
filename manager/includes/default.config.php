@@ -47,7 +47,6 @@ $default_config['send_errormail']           = '3';
 $default_config['server_offset_time']       = '0';
 $default_config['server_protocol']          = 'http';
 $default_config['session.cookie.lifetime']  = '604800';
-$default_config['show_meta']                = '0';
 $default_config['site_name']                = 'My MODX Site';
 $default_config['site_slogan']              = 'ここにサイトのスローガン文を表示します。';
 $default_config['site_start']               = '1';

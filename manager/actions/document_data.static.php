@@ -61,7 +61,7 @@ foreach($content as $k=>$v)
 
 $keywords = array();
 $metatags_selected = array();
-if ($modx->config['show_meta'])
+if (isset($modx->config['show_meta'])&&$modx->config['show_meta']==='1')
 {
 	// Get list of current keywords for this document
 	$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
@@ -391,7 +391,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['type']=='reference' ? $_lang['weblink'] : $_lang['resource']?></td></tr>
 			<tr><td><?php echo $_lang['resource_alias']?>: </td>
 				<td><?php echo $content['alias']!='' ? $content['alias'] : "(<i>".$_lang['not_set']."</i>)"?></td></tr>
-			<?php if ($modx->config['show_meta']) {?>
+			<?php if (isset($modx->config['show_meta'])&&$modx->config['show_meta']==='1') {?>
 			<tr><td><?php echo $_lang['keywords']?>: </td>
 				<td><?php // Keywords
 				if(count($keywords) != 0)

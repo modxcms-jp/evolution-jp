@@ -131,9 +131,9 @@ switch ($actionToTake) {
 
 // -- Save META Keywords --
 function saveMETAKeywords($id) {
-	global $modx, $keywords, $metatags;
-	
-	$tbl_site_content_metatags      = $modx->getFullTableName('site_content_metatags');
+	global $modx;
+	$keywords = $_POST['keywords'];
+	$metatags = $_POST['metatags'];
 	
 	if(!isset($modx->config['show_meta']) || !$modx->config['show_meta']==1)
 		return;

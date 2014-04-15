@@ -135,7 +135,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 function duplicateKeywords($oldid,$newid){
 	global $modx;
 	
-	if($modx->config['show_meta']!=1) return;
+	if(!isset($modx->config['show_meta'])||$modx->config['show_meta']==='0') return;
 	
 	$modx->db->insert('content_id,keyword_id', '[+prefix+]keyword_xref', "{$newid},keyword_id", '[+prefix+]keyword_xref', "content_id='{$oldid}'");
 }
