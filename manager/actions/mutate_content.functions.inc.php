@@ -263,40 +263,24 @@ function getDefaultTemplate()
 	global $modx;
 	
     if (isset($_REQUEST['newtemplate']))  return $_REQUEST['newtemplate'];
-    
-	switch($modx->config['auto_template_logic'])
-	{
-		case 'sibling':
-			if(!isset($_GET['pid']) || empty($_GET['pid']))
-		    {
-		    	$site_start = $modx->config['site_start'];
-		    	$where = "sc.isfolder=0 AND sc.id!='{$site_start}'";
-		    	$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', $where, 'menuindex', 'ASC', 1);
-		    	if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
-			}
-			else
-			{
-				$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
-				if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
-				else
-				{
-					$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
-					if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
-				}
-			}
-			break;
-		case 'parent':
-			if (isset($_REQUEST['pid']) && !empty($_REQUEST['pid']))
-			{
-				$parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template');
-				if(isset($parent['template'])) $default_template = $parent['template'];
-			}
-			break;
-		case 'system':
-		default: // default_template is already set
-			$default_template = $modx->config['default_template'];
+	$pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
+	$site_start = $modx->config['site_start'];
+
+	if($modx->config['auto_template_logic']==='sibling') :
+		$where = "id!='{$site_start}' AND isfolder=0 AND parent='{$pid}'";
+		$orderby = 'published DESC,menuindex ASC';
+		$rs = $modx->db->select('template', '[+prefix+]site_content', $where, $orderby, '1');
+	elseif($modx->config['auto_template_logic']==='parent' && $pid!=0) :
+		$rs = $modx->db->select('template','[+prefix+]site_content',"id='{$pid}'");
+	endif;
+		
+	if(isset($rs)&&$modx->db->getRecordCount($rs)==1) {
+		$row = $modx->db->getRow($rs);
+		$default_template = $row['template'];
 	}
-	if(!isset($default_template)) $default_template = $modx->config['default_template']; // default_template is already set
+	
+	if(!isset($default_template))
+		$default_template = $modx->config['default_template']; // default_template is already set
 	
 	return $default_template;
 }
