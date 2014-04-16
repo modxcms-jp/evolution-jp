@@ -256,7 +256,6 @@ function SetUrl(url, width, height, alt){
 
 <!-- Tab Start -->
 <div class="sectionBody">
-<link type="text/css" rel="stylesheet" href="media/style/<?php echo $manager_theme; ?>/style.css<?php echo "?$theme_refresher";?>" />
 <div class="tab-pane" id="webUserPane">
 	<script type="text/javascript">
 		tpUser = new WebFXTabPane(document.getElementById( "webUserPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
@@ -289,9 +288,8 @@ function SetUrl(url, width, height, alt){
 				<input name="newpasswordcheck" type="checkbox" onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);">
 				<?php endif;?>
 				<input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="87" ? 1 : 0 ; ?>" /><br />
-				<span style="display:<?php echo $_REQUEST['a']=="87" ? "block": "none" ; ?>" id="passwordBlock">
-				<fieldset style="width:300px">
-				<legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
+				<div style="display:<?php echo $_REQUEST['a']=="87" ? "block": "none" ; ?>" id="passwordBlock">
+				<fieldset style="width:300px;padding:0;">
 				<label><input type=radio name="passwordgenmethod" value="g" <?php echo $_POST['passwordgenmethod']=="spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br />
 				<label><input type=radio name="passwordgenmethod" value="spec" <?php echo $_POST['passwordgenmethod']=="spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label> <br />
 				<div style="padding-left:20px">
@@ -299,16 +297,15 @@ function SetUrl(url, width, height, alt){
 				<input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
 				<label for="confirmpassword" style="width:120px"><?php echo $_lang['change_password_confirm']; ?>:</label>
 				<input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
-				<small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
+				<span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span>
 				</div>
 				</fieldset>
 				<br />
-				<fieldset style="width:300px">
-				<legend><b><?php echo $_lang['password_method']; ?></b></legend>
+				<fieldset style="width:300px;padding:0;">
 				<label><input type=radio name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo $_lang['password_method_email']; ?></label><br />
 				<label><input type=radio name="passwordnotifymethod" value="s" <?php echo $_POST['passwordnotifymethod']=="e" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_method_screen']; ?></label>
 				</fieldset>
-				</span>
+				</div>
 			</td>
 		  </tr>
 			<tr>
