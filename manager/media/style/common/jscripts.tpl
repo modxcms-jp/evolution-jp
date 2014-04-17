@@ -3,8 +3,20 @@
 	var fmanager_url = '[+fmanager_url+]';
 </script>
 <script type="text/javascript" src="media/browser/browser.js"></script>
-
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
+<script type="text/javascript">
+jQuery(function(){
+	var dpOffset = [+datepicker_offset+];
+	var dpformat = '[+datetime_format+]' + ' hh:mm:00';
+	var dayNames = [+dayNames+];
+	var monthNames = [+monthNames+];
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	jQuery("#pub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
+	jQuery("#unpub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
+});
+</script>
+
 <script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -21,17 +33,6 @@ function openprev(actionurl)
         document.mutate.submit();
 	}
 }
-
-$j(function(){
-	var dpOffset = [+datepicker_offset+];
-	var dpformat = "[+datetime_format+]" + ' hh:mm:00';
-	var dayNames = [+dayNames+];
-	var monthNames = [+monthNames+];
-	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	$j("#pub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
-	$j("#unpub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
-});
 
 // save tree folder state
 if (parent.tree) parent.tree.saveFolderState();
