@@ -2,8 +2,7 @@
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
     <title>Document Tree</title>
@@ -13,7 +12,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
-    var $j = jQuery.noConflict();
     jQuery(function(){
         resizeTree();
         restoreTree();
@@ -42,8 +40,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     var selectedObjectName = "";
     var _rc = 0; // added to fix onclick body event from closing ctx menu
 
+    var openedArray = new Array();
 <?php
-    echo  "var openedArray = new Array();\n";
     if (isset($_SESSION['openedArray'])) {
             $opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
 
@@ -144,18 +142,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             selectedObjectName = selectedObjectName.substr(0, 20) + "...";
         }
         x = x<?php echo $modx_textdir==='rtl' ? '-190' : '';?>;
-        $j('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
-        $j('#mx_contextmenu').css('top' ,y);
-        $j("#nameHolder").text(selectedObjectName);
+        jQuery('#mx_contextmenu').css('left',x); //offset menu to the left if rtl is selected
+        jQuery('#mx_contextmenu').css('top' ,y);
+        jQuery("#nameHolder").text(selectedObjectName);
 
-        $j('#mx_contextmenu').css('visibility','visible');
+        jQuery('#mx_contextmenu').css('visibility','visible');
         _rc = 1;
         setTimeout("_rc = 0;",100);
     }
 
     function hideMenu() {
         if (_rc) return false;
-        $j('#mx_contextmenu').css('visibility','hidden');
+        jQuery('#mx_contextmenu').css('visibility','hidden');
     }
 
     function toggleNode(node,indent,parent,expandAll,privatenode) {
@@ -186,7 +184,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
                 rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
-                $j.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
+                jQuery.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':parent,'expandAll':expandAll+folderState},rpcLoadData);
             } else {
                 rpcNode.style.display = 'block';
                 //Jeroen set opened
@@ -234,18 +232,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
+        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
+        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
+        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
     }
 
     function setSelected(elSel) {
@@ -287,7 +285,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var t_sortby = document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
-        $j.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
+        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
@@ -362,7 +360,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     function saveFolderState() {
         var folderState = getFolderState();
         url = 'index.php?a=1&f=nodes&savestateonly=1'+folderState;
-        $j.get(url);
+        jQuery.get(url);
     }
 
     // show state of recycle bin
