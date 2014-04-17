@@ -9,36 +9,29 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	// save folderstate
 	if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 
+	// setup sorting
+	if(isset($_REQUEST['tree_sortby']))  $_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
+	if(isset($_REQUEST['tree_sortdir'])) $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
+
 	$indent    = intval($_GET['indent']);
 	$parent    = intval($_GET['parent']);
 	$expandAll = intval($_GET['expandAll']);
 	$output    = '';
 
-	// setup sorting
-	if(isset($_REQUEST['tree_sortby']))
-	{
-		$_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
-	}
-	if(isset($_REQUEST['tree_sortdir']))
-	{
-		$_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
-	}
-
     // icons by content type
-
 	$icons = array(
 		'application/rss+xml'      => $_style["tree_page_rss"],
 		'application/pdf'          => $_style["tree_page_pdf"],
 		'application/vnd.ms-word'  => $_style["tree_page_word"],
 		'application/vnd.ms-excel' => $_style["tree_page_excel"],
-		'text/css'   => $_style["tree_page_css"],
-		'text/html'  => $_style["tree_page_html"],
-		'text/plain' => $_style["tree_page"],
-		'text/xml'   => $_style["tree_page_xml"],
-		'text/javascript' => $_style["tree_page_js"],
-		'image/gif'  => $_style["tree_page_gif"],
-		'image/jpg'  => $_style["tree_page_jpg"],
-		'image/png'  => $_style["tree_page_png"]
+		'text/css'                 => $_style["tree_page_css"],
+		'text/html'                => $_style["tree_page_html"],
+		'text/plain'               => $_style["tree_page"],
+		'text/xml'                 => $_style["tree_page_xml"],
+		'text/javascript'          => $_style["tree_page_js"],
+		'image/gif'                => $_style["tree_page_gif"],
+		'image/jpg'                => $_style["tree_page_jpg"],
+		'image/png'                => $_style["tree_page_png"]
 	);
 	$iconsPrivate = array(
 		'application/rss+xml'      => $_style["tree_page_rss_secure"],
@@ -56,13 +49,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 	);
 
 	if (isset($_SESSION['openedArray']))
-	{
 		$opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
-	}
 	else
-	{
 		$opened = array();
-	}
 	$opened2 = array();
 	$closed2 = array();
 	
@@ -141,8 +130,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 		
 		$loop_count = 0;
 		$node_name_source = $modx->config['resource_tree_node_name'];
-		while($row = $modx->db->getRow($result,'num'))
-		{
+		while($row = $modx->db->getRow($result,'num')):
 			$loop_count++;
 			list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
 			if($container_status === 'container_only' && $isfolder==1)
@@ -224,21 +212,19 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 			
 			if (!$isfolder)
 			{
-				$icon = ($privateweb||$privatemgr) ? $_style["tree_page_secure"] : $_style["tree_page"];
-				
-				if ($privateweb||$privatemgr)
-				{
-					if (isset($iconsPrivate[$contenttype])) $icon = $iconsPrivate[$contenttype];
-				}
-				else
-				{
-					if (isset($icons[$contenttype]))        $icon = $icons[$contenttype];
-				}
-				
 				if($id == $modx->config['site_start'])                $icon = $_style["tree_page_home"];
 				elseif($id == $modx->config['error_page'])            $icon = $_style["tree_page_404"];
 				elseif($id == $modx->config['site_unavailable_page']) $icon = $_style["tree_page_hourglass"];
 				elseif($id == $modx->config['unauthorized_page'])     $icon = $_style["tree_page_info"];
+				else {
+					if (!$privateweb&&!$privatemgr) :
+						if (isset($icons[$contenttype]))              $icon = $icons[$contenttype];
+						else                                          $icon = $_style['tree_page'];
+					else :
+						if (isset($iconsPrivate[$contenttype]))       $icon = $iconsPrivate[$contenttype];
+						else                                          $icon = $_style['tree_page_secure'];
+					endif;
+				}
 				
 				$ph['pid']       = "'p{$id}'";
 				$ph['pad']       = $pad;
@@ -250,7 +236,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 					default  : $ph['ca'] = 'open';
 				}
 				$tpl = get_src_page_node();
-				$output .= parse_ph($ph,$tpl);
+				$output .= $modx->parseText($tpl,$ph);
 			}
 			else
 			{
@@ -277,7 +263,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folderopen_secure"] : $_style["tree_folderopen"];
 					$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fopen_node();
-					$output .= parse_ph($ph,$tpl);
+					$output .= $modx->parseText($tpl,$ph);
 					makeHTML($indent+1,$id,$expandAll);
 					$output .= '</div></div>';
 				}
@@ -285,10 +271,10 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				{
 					if($container_status === 'container_only' && $has_child==0) $ph['_style_tree_plusnode'] = $_style["tree_blanknode"];
 					else                                                $ph['_style_tree_plusnode'] = $_style["tree_plusnode"];
-					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style["tree_folder_secure"] : $_style["tree_folder"];
+					$ph['icon'] = ($privateweb == 1 || $privatemgr == 1) ? $_style['tree_folder_secure'] : $_style['tree_folder'];
 					$ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 					$tpl = get_src_fclose_node();
-					$output .= parse_ph($ph,$tpl);
+					$output .= $modx->parseText($tpl,$ph);
 					if($parent!=0 && $container_status==='too_many' && $loop_count == $has_child)
 					{
 						$output .= '<div style="white-space: nowrap;">'. $spacer.$pad.'<img align="absmiddle" src="'.$_style["tree_deletedpage"].'">&nbsp;<span class="emptyNode">' . $_lang['too_many_resources'] . '</span></div>';
@@ -315,17 +301,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 				}
 				echo '</script> ';
 			}
-		}
-	}
-	
-	function parse_ph($ph,$tpl)
-	{
-		foreach($ph as $k=>$v)
-		{
-			$k = '[+'.$k . '+]';
-			$tpl = str_replace($k,$v,$tpl);
-		}
-		return $tpl;
+		endwhile;
 	}
 	
 	function get_src_page_node()
