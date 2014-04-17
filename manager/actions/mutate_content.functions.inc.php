@@ -604,7 +604,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-	global $modx, $docObject;
+	global $modx;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -649,7 +649,7 @@ function fieldLongtitle() {
 }
 
 function fieldDescription() {
-	global $_lang;
+	global $docObject,$_lang;
 	$description = to_safestr($docObject->description);
 	$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . $description . '</textarea>';
 	$body .= tooltip($_lang['resource_description_help']);
@@ -736,7 +736,7 @@ function fieldParent() {
 }
 
 function getTmplvars($id,$template,$docgrp) {
-	global $modx, $docObject;
+	global $modx;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
 	$where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
@@ -872,7 +872,7 @@ function sectionTV() {
 }
 
 function fieldsTV() {
-	global $modx, $_lang, $docObject, $tmplVars, $rte_field;
+	global $modx, $_lang, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
@@ -1064,7 +1064,7 @@ function fieldCacheable() {
 }
 
 function fieldSyncsite() {
-	global $modx,$_lang,$docObject;
+	global $modx,$_lang;
 	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
 	$body = input_checkbox('syncsite',true,$disabled);
 	$body .= input_hidden('syncsite');
@@ -1150,7 +1150,7 @@ function getKeywords() {
 }
 
 function getSelectedKeywords() {
-	global $modx;
+	global $modx,$docObject;
 	// get selected keywords using document's id
 	$keywords_selected = array();
 	if (isset ($docObject->id) && 0<count($keywords))
@@ -1185,6 +1185,7 @@ function getMetatags() {
 }
 
 function getSelectedMetatags() {
+	global $modx,$docObject;
 	// get selected META tags using document's id
 	$metatags_selected = array();
 	if (isset ($docObject->id) && count($metatags) > 0)
