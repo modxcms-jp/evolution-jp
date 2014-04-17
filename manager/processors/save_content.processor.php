@@ -6,8 +6,7 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-$db_v_names = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
-
+global $form_v;
 $form_v = fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $form_v = initValue($form_v);
 $form_v = setValue($form_v);
@@ -42,7 +41,7 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
 		$temp_id = $modx->manager->getNewDocID();
-		$values = getInputValues($form_v,'new',$db_v_names,$temp_id);
+		$values = getInputValues($temp_id,'new');
 		$values = $modx->db->escape($values);
 		$newid = $modx->db->insert($values,'[+prefix+]site_content');
 		if(!$newid) {
@@ -51,13 +50,13 @@ switch ($actionToTake) {
 		}
 		
 		if(!empty($form_v['template'])) {
-			$tmplvars = get_tmplvars($newid,$form_v['template']);
+			$tmplvars = get_tmplvars($newid);
 			insert_tmplvars($newid,$tmplvars);
 		}
 
-		setDocPermissionsNew($document_groups,$newid,$form_v['parent']);
+		setDocPermissionsNew($document_groups,$newid);
 
-		updateParentStatus($form_v['parent']);
+		updateParentStatus();
 		if(isset($modx->config['show_meta'])) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
@@ -69,28 +68,28 @@ switch ($actionToTake) {
 		}
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
-		goNextAction($newid,$form_v['parent']);
+		goNextAction($newid);
 		break;
 	case 'edit' :
 		$return_url = "index.php?a=27&id={$id}";
 		$db_v = getExistsValues($id, $return_url);
 		
-		checkStartDoc($id,$form_v['published'],$form_v['pub_date'],$form_v['unpub_date'],$return_url);
-		checkParentID($id,$form_v['parent'],$return_url);
+		checkStartDoc($id,$return_url);
+		$form_v['parent']   = checkParentID($id,$return_url);
 		
-		$form_v['isfolder'] = checkFolderStatus($id,$form_v['isfolder']);
+		$form_v['isfolder'] = checkFolderStatus($id);
 
 		// set publishedon and publishedby
-		$form_v['published']   = checkPublished($form_v,$db_v);
-		$form_v['pub_date']    = checkPub_date($form_v,$db_v);
-		$form_v['unpub_date']  = checkUnpub_date($form_v,$db_v);
-		$form_v['publishedon'] = checkPublishedon($form_v,$db_v);
-		$form_v['publishedby'] = checkPublishedby($form_v,$db_v);
+		$form_v['published']   = checkPublished($db_v);
+		$form_v['pub_date']    = checkPub_date($db_v);
+		$form_v['unpub_date']  = checkUnpub_date($db_v);
+		$form_v['publishedon'] = checkPublishedon($db_v);
+		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd','id'=>$id));
 		
-		$values = getInputValues($form_v,'edit',$db_v_names,$id);
+		$values = getInputValues($id,'edit');
 		$values = $modx->db->escape($values);
 		$rs = $modx->db->update($values,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs) {
@@ -99,13 +98,13 @@ switch ($actionToTake) {
 		}
 		
 		if(!empty($form_v['template'])) {
-			$tmplvars = get_tmplvars($id,$form_v['template']);
+			$tmplvars = get_tmplvars($id);
 			update_tmplvars($id,$tmplvars);
 		}
 		
 		setDocPermissionsEdit($document_groups,$id);
 
-		updateParentStatus($form_v['parent']);
+		updateParentStatus();
 		
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
@@ -127,7 +126,7 @@ switch ($actionToTake) {
 				$clearcache['target'] = 'pagecache,sitecache';
 			$modx->clearCache($clearcache);
 		}
-		goNextAction($id,$form_v['parent']);
+		goNextAction($id);
 	default :
 		header("Location: index.php?a=7");
 		exit;
@@ -173,10 +172,12 @@ function saveMETAKeywords($id) {
 	$modx->db->update($flds, '[+prefix+]site_content', "id='{$id}'");
 }
 
-function get_tmplvars($id,$template)
+function get_tmplvars($id)
 {
 	global $modx;
 
+	$template = $form_v['template'];
+	
 	if(empty($template)) return array();
 	
 	// get document groups for current user
@@ -197,50 +198,33 @@ function get_tmplvars($id,$template)
 	$rs = $modx->db->select($field,$from,$where,$orderby);
 	
 	$tmplvars = array ();
-	while ($row = $modx->db->getRow($rs))
-	{
+	while ($row = $modx->db->getRow($rs)):
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
-		if($row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
-		{
-			if(!isset($_POST[$tvid]))
-			{
-				continue;
-			}
-		}
+		if(!isset($_POST[$tvid]) && $row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
+			continue;
 		
-		if($row['type']==='url')
-		{
-			$tmplvar = $_POST[$tvid];
-			if($_POST["{$tvid}_prefix"] !== '--')
-			{
+		if($row['type']==='url') {
+			if($_POST["{$tvid}_prefix"] !== '--') {
 				$tmplvar = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $tmplvar);
 				$tmplvar = $_POST["{$tvid}_prefix"] . $tmplvar;
 			}
+			else $tmplvar = $_POST[$tvid];
 		}
-		elseif($row['type']==='file')
-		{
-			$tmplvar = $_POST[$tvid];
-		}
-		else
-		{
-			if(is_array($_POST[$tvid]))
-			{
+		elseif($row['type']==='file')    $tmplvar = $_POST[$tvid];
+		else {
+			if(is_array($_POST[$tvid])) {
 				// handles checkboxes & multiple selects elements
 				$feature_insert = array ();
 				$lst = $_POST[$tvid];
-				foreach($lst as $v)
-				{
+				foreach($lst as $v) {
 					$feature_insert[count($feature_insert)] = $v;
 				}
 				$tmplvar = implode('||', $feature_insert);
 			}
-			elseif(isset($_POST[$tvid]))
-			{
-				$tmplvar = $_POST[$tvid];
-			}
-			else $tmplvar = '';
+			elseif(isset($_POST[$tvid])) $tmplvar = $_POST[$tvid];
+			else                         $tmplvar = '';
 		}
 		// save value if it was modified
 		if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
@@ -250,12 +234,8 @@ function get_tmplvars($id,$template)
 				$tmplvar
 			);
 		}
-		else
-		{
-			// Mark the variable for deletion
-			$tmplvars[$row['name']] = $row['id'];
-		}
-	}
+		else $tmplvars[$row['name']] = $row['id']; // Mark the variable for deletion
+	endwhile;
 	return $tmplvars;
 }
 
@@ -278,6 +258,7 @@ function get_alias($id,$alias,$parent,$pagetitle)
 	// friendly url alias checks
 	if ($modx->config['friendly_urls'])
 	{
+		if(!$parent) $parent = '0';
 		if ($alias && !$modx->config['allow_duplicate_alias'])
 		{ // check for duplicate alias name if not allowed
 			$alias = _check_duplicate_alias($id,$alias,$parent);
@@ -408,7 +389,7 @@ function initValue($form_v)
 }
 
 function checkDocPermission($id,$document_groups) {
-	global $modx,$_lang,$e;
+	global $modx,$form_v,$_lang,$e;
 	// ensure that user has not made this document inaccessible to themselves
 	if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 	{
@@ -544,7 +525,10 @@ function setValue($form_v) {
 	return $form_v;
 }
 
-function getInputValues($form_v,$mode,$db_v_names,$id) {
+function getInputValues($id,$mode) {
+	global $form_v;
+	
+	$db_v_names = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
 	if($id) $fields['id'] = $id;
 	foreach($db_v_names as $key) {
 		if(!isset($form_v[$key])) $form_v[$key] = '';
@@ -557,10 +541,13 @@ function getInputValues($form_v,$mode,$db_v_names,$id) {
 	return $fields;
 }
 
-function checkStartDoc($id,$published,$pub_date,$unpub_date,$return_url) {
-	global $modx;
-	
+function checkStartDoc($id,$return_url) {
+	global $modx,$form_v;
+
 	if ($id == $modx->config['site_start']) {
+		$published  = $form_v['published'];
+		$pub_date   = $form_v['pub_date'];
+		$unpub_date = $form_v['unpub_date'];
 		if($published == 0) {
 			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$return_url);
 		} elseif (($pub_date > $_SERVER['REQUEST_TIME'] || $unpub_date != "0")) {
@@ -569,17 +556,19 @@ function checkStartDoc($id,$published,$pub_date,$unpub_date,$return_url) {
 	}
 }
 
-function checkParentID($id,$parent,$return_url) {
-	global $modx;
-	
-	if ($parent == $id) {
+function checkParentID($id,$return_url) {
+	global $modx,$form_v;
+
+	if ($form_v['parent'] == $id) {
 		$modx->webAlertAndQuit("Document can not be it's own parent!",$url);
 	}
+	else return $form_v['parent'];
 }
 
-function checkFolderStatus($id,$isfolder) {
-	global $modx;
+function checkFolderStatus($id) {
+	global $modx,$form_v;
 	
+	$isfolder = $form_v['isfolder'];
 	// check to see document is a folder
 	$rs = $modx->db->select('COUNT(id) AS count', '[+prefix+]site_content', "parent='{$id}'");
 	if ($rs) {
@@ -592,27 +581,27 @@ function checkFolderStatus($id,$isfolder) {
 }
 
 // keep original publish state, if change is not permitted
-function getPublishPermission($field_name,$form_v,$db_v) {
-	global $modx;
+function getPublishPermission($field_name,$db_v) {
+	global $modx,$form_v;
 	if (!$modx->hasPermission('publish_document'))
 		return $db_v[$field_name];
 	else return $form_v[$field_name];
 }
 
-function checkPublished($form_v,$db_v) {
-	return getPublishPermission('published',$form_v,$db_v);
+function checkPublished($db_v) {
+	return getPublishPermission('published',$db_v);
 }
 
-function checkPub_date($form_v,$db_v) {
-	return getPublishPermission('pub_date',$form_v,$db_v);
+function checkPub_date($db_v) {
+	return getPublishPermission('pub_date',$db_v);
 }
 
-function checkUnpub_date($form_v,$db_v) {
-	return getPublishPermission('unpub_date',$form_v,$db_v);
+function checkUnpub_date($db_v) {
+	return getPublishPermission('unpub_date',$db_v);
 }
 
-function checkPublishedon($form_v,$db_v) {
-	global $modx;
+function checkPublishedon($db_v) {
+	global $modx,$form_v;
 	
 	if(!$modx->hasPermission('publish_document'))
 		return $db_v['publishedon'];
@@ -631,8 +620,8 @@ function checkPublishedon($form_v,$db_v) {
 	}
 }
 
-function checkPublishedby($form_v,$db_v) {
-	global $modx;
+function checkPublishedby($db_v) {
+	global $modx,$form_v;
 	
 	if(!$modx->hasPermission('publish_document'))
 		return $db_v['publishedon'];
@@ -732,8 +721,9 @@ function update_tmplvars($id,$tmplvars) {
 }
 
 // document access permissions
-function setDocPermissionsNew($document_groups,$newid,$parent) {
-	global $modx;
+function setDocPermissionsNew($document_groups,$newid) {
+	global $modx,$form_v;
+	$parent = $form_v['parent'];
 	$tbl_document_groups = $modx->getFullTableName('document_groups');
 	
 	$docgrp_save_attempt = false;
@@ -773,8 +763,9 @@ function setDocPermissionsNew($document_groups,$newid,$parent) {
 }
 
 // update parent folder status
-function updateParentStatus($parent) {
-	global $modx;
+function updateParentStatus() {
+	global $modx,$form_v;
+	$parent = $form_v['parent'];
 	if ($parent != 0) {
 		$rs = $modx->db->update('isfolder=1', '[+prefix+]site_content', "id='{$parent}'");
 		if (!$rs) {
@@ -785,8 +776,10 @@ function updateParentStatus($parent) {
 }
 
 // redirect/stay options
-function goNextAction($id, $parent) {
-	$form_v = $_POST;
+function goNextAction($id) {
+	global $form_v;
+	
+	$parent = $form_v['parent'];
 	switch($form_v['stay']) {
 		case '1':
 			$header = 'Location: index.php?';
