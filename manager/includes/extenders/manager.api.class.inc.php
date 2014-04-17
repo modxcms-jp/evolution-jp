@@ -110,20 +110,20 @@ class ManagerAPI {
 		return $alias;
 	}
 	
-	function get_alias_num_in_folder($id,$parent)
+	function get_alias_num_in_folder($id='0',$parent='0')
 	{
 		global $modx;
-	    if($id==='') $id = 0;
-	    
-		$tbl_site_content = $modx->getFullTableName('site_content');
 		
-		$rs = $modx->db->select('MAX(cast(alias as SIGNED))',$tbl_site_content,"id<>'{$id}' AND parent='{$parent}' AND alias REGEXP '^[0-9]+$'");
+	    if(empty($id))     $id     = '0';
+	    if(empty($parent)) $parent = '0';
+	    
+		$rs = $modx->db->select('MAX(cast(alias as SIGNED))','[+prefix+]site_content',"id<>'{$id}' AND parent='{$parent}' AND alias REGEXP '^[0-9]+$'");
 		$_ = $modx->db->getValue($rs);
 		if(empty($_)) $_ = 0;
 		$_++;
 		while(!isset($noduplex))
 		{
-			$rs = $modx->db->select('id',$tbl_site_content,"id='{$_}' AND parent={$parent} AND alias=''");
+			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$_}' AND parent={$parent} AND alias=''");
 			if($modx->db->getRecordCount($rs)==0) $noduplex = true;
 			else $_++;
 		}
