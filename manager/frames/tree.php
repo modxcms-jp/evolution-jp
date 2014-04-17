@@ -563,41 +563,50 @@ function menuHandler(action) {
 }
 
 </script>
-
+<?php
+function getTplCtxMenu() {
+	$tpl = <<< EOT
 <!-- Contextual Menu Popup Code -->
 <div id="mx_contextmenu" onselectstart="return false;">
     <div id="nameHolder">&nbsp;</div>
-<?php
-constructLink('27', $_style["icons_edit_document"], $_lang["edit_resource"], $modx->hasPermission('edit_document')); // edit
-constructLink('4', $_style["icons_new_document"], $_lang["create_resource_here"], $modx->hasPermission('new_document')); // new Resource
-constructLink('51', $_style["icons_move_document"] , $_lang["move_resource"], $modx->hasPermission('save_document')); // move
-constructLink('94', $_style["icons_resource_duplicate"], $_lang["resource_duplicate"], $modx->hasPermission('new_document')); // duplicate
-if(
-$modx->hasPermission('edit_document')
-|| $modx->hasPermission('new_document')
-|| $modx->hasPermission('save_document')
-)
-{
-	echo '<div class="seperator"></div>';
+		[+itemEditDoc+]
+		[+itemNewDoc+]
+		[+itemMoveDoc+]
+		[+itemDuplicateDoc+]
+		[+=========1+]
+		[+itemPubDoc+][+itemUnPubDoc+]
+		[+itemDelDoc+][+itemUndelDoc+]
+		[+=========2+]
+		[+itemWebLink+]
+		[+=========3+]
+		[+itemDocInfo+]
+		[+itemViewPage+]
+	</div>
+</div>
+EOT;
+	return $tpl;
 }
-constructLink('61', $_style["icons_publish_document"], $_lang["publish_resource"], $modx->hasPermission('publish_document')); // publish
-constructLink('62', $_style["icons_unpublish_resource"], $_lang["unpublish_resource"], $modx->hasPermission('publish_document')); // unpublish
-constructLink('6', $_style["icons_delete"], $_lang["delete_resource"], $modx->hasPermission('delete_document')); // delete
-constructLink('63', $_style["icons_undelete_resource"], $_lang["undelete_resource"], $modx->hasPermission('delete_document')); // undelete
-if($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document'))
-{
-	echo '<div class="seperator"></div>';
-}
-constructLink('72', $_style["icons_weblink"], $_lang["create_weblink_here"], $modx->hasPermission('new_document')); // new Weblink
-if($modx->hasPermission('new_document'))
-{
-	echo '<div class="seperator"></div>';
-}
-constructLink('3', $_style["icons_information"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
-constructLink('pv', $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
+
+$ph = array();
+$ph['itemEditDoc']      = itemEditDoc(); // edit
+$ph['itemNewDoc']       = itemNewDoc(); // new Resource
+$ph['itemMoveDoc']      = itemMoveDoc(); // move
+$ph['itemDuplicateDoc'] = itemDuplicateDoc(); // duplicate
+$ph['=========1']       = itemSeperator1();
+$ph['itemPubDoc']       = itemPubDoc(); // publish
+$ph['itemUnPubDoc']     = itemUnPubDoc(); // unpublish
+$ph['itemDelDoc']       = itemDelDoc(); // delete
+$ph['itemUndelDoc']     = itemUndelDoc(); // undelete
+$ph['=========2']       = itemSeperator2();
+$ph['itemWebLink']      = itemWebLink(); //  new Weblink
+$ph['=========3']       = itemSeperator3();
+$ph['itemDocInfo']      = itemDocInfo(); // undelete
+$ph['itemViewPage']     = itemViewPage(); // preview
+
+$tpl = getTplCtxMenu();
+echo $modx->parseText($tpl,$ph);
+
 ?>
-</div>
-</div>
 </body>
 </html>
 <?php
@@ -606,16 +615,155 @@ function select($cond=false)
 	return ($cond) ? ' selected="selected"' : '';
 }
 
-function constructLink($action, $img, $text, $allowed)
-{
-	if($allowed==1)
-	{
-		global $modx;
-		$ph['action'] = $action;
-		$ph['img']    = $img;
-		$ph['text']   = $text;
-		$tpl  = '<div class="menuLink" id="item[+action+]" onclick="menuHandler(\'[+action+]\'); hideMenu();">';
-		$tpl .= '<img src="[+img+]" />[+text+]</div>';
-		echo $modx->parseText($tpl, $ph);
-	}
+function tplMenuItem() {
+	$tpl = <<< EOT
+<div class="menuLink" id="item[+action+]" onclick="menuHandler('[+action+]'); hideMenu();">
+	<img src="[+img+]" />[+text+]
+</div>
+EOT;
+	return $tpl;
+}
+
+function itemEditDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('edit_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '27';
+	$ph['img']    = $_style['icons_edit_document'];
+	$ph['text']   = $_lang['edit_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemNewDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('new_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '4';
+	$ph['img']    = $_style['icons_new_document'];
+	$ph['text']   = $_lang['create_resource_here'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemMoveDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('save_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '51';
+	$ph['img']    = $_style['icons_move_document'];
+	$ph['text']   = $_lang['move_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemDuplicateDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('new_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '94';
+	$ph['img']    = $_style['icons_resource_duplicate'];
+	$ph['text']   = $_lang['resource_duplicate'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemSeperator1() {
+	global $modx;
+	
+	if($modx->hasPermission('edit_document') || $modx->hasPermission('new_document')|| $modx->hasPermission('save_document'))
+		return '<div class="seperator"></div>';
+	else return '';
+}
+
+function itemPubDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('publish_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '61';
+	$ph['img']    = $_style['icons_publish_document'];
+	$ph['text']   = $_lang['publish_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemUnPubDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('publish_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '62';
+	$ph['img']    = $_style['icons_unpublish_resource'];
+	$ph['text']   = $_lang['unpublish_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemDelDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('delete_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '6';
+	$ph['img']    = $_style['icons_delete'];
+	$ph['text']   = $_lang['delete_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemUndelDoc() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('delete_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '63';
+	$ph['img']    = $_style['icons_undelete_resource'];
+	$ph['text']   = $_lang['undelete_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemSeperator2() {
+	global $modx;
+	
+	if($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document'))
+		return '<div class="seperator"></div>';
+	else return '';
+}
+
+function itemWebLink() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('new_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '72';
+	$ph['img']    = $_style['icons_weblink'];
+	$ph['text']   = $_lang['create_weblink_here'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemSeperator3() {
+	global $modx;
+	
+	if($modx->hasPermission('new_document'))
+		return '<div class="seperator"></div>';
+	else return '';
+}
+
+function itemDocInfo() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('view_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '3';
+	$ph['img']    = $_style['icons_information'];
+	$ph['text']   = $_lang['resource_overview'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemViewPage() {
+	global $modx,$_style,$_lang;
+	
+	$tpl = tplMenuItem();
+	$ph['action'] = 'pv';
+	$ph['img']    = $_style['icons_information'];
+	$ph['text']   = $_lang['preview_resource'];
+	return $modx->parseText($tpl, $ph);
 }
