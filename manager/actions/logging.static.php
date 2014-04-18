@@ -4,8 +4,8 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$input = $_REQUEST;
-$input = $modx->db->escape($input);
+$form_v = $_REQUEST;
+$form_v = $modx->db->escape($form_v);
 
 $rs = $modx->db->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
 $logs = array();
@@ -53,8 +53,9 @@ window.addEvent('domready', function() {
 <?php
 	// get all users currently in the log
 	$logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
+	$form_v = $_REQUEST;
 	foreach ($logs_user as $row) {
-		$selectedtext = $row['internalKey'] == $input['searchuser'] ? ' selected="selected"' : '';
+		$selectedtext = $row['internalKey'] == $form_v['searchuser'] ? ' selected="selected"' : '';
 		echo "\t\t".'<option value="'.$row['internalKey'].'"'.$selectedtext.'>'.$row['username']."</option>\n";
 	}
 ?>	</select>
@@ -72,7 +73,7 @@ window.addEvent('domready', function() {
 	foreach ($logs_actions as $row) {
 		$action = getAction($row['action']);
 		if ($action == 'Idle') continue;
-		$selectedtext = $row['action'] == $input['action'] ? ' selected="selected"' : '';
+		$selectedtext = $row['action'] == $form_v['action'] ? ' selected="selected"' : '';
 		echo "\t\t".'<option value="'.$row['action'].'"'.$selectedtext.'>'.$row['action'].' - '.$action."</option>\n";
 	}
 ?>	</select>
@@ -81,7 +82,7 @@ window.addEvent('domready', function() {
   <tr bgcolor="#ffffff">
     <td><b><?php echo $_lang["mgrlog_msg"]; ?></b></td>
     <td align="right">
-      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $input['message']; ?>" />
+      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $form_v['message']; ?>" />
     </td>
   </tr>
   <tr bgcolor="#ffffff">
@@ -93,7 +94,7 @@ window.addEvent('domready', function() {
 	// get all itemid currently in logging
 	$logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
 	foreach ($logs_items as $row) {
-		$selectedtext = $row['itemid'] == $input['itemid'] ? ' selected="selected"' : '';
+		$selectedtext = $row['itemid'] == $form_v['itemid'] ? ' selected="selected"' : '';
 		echo "\t\t".'<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
 	}
 ?>	</select>
@@ -108,7 +109,7 @@ window.addEvent('domready', function() {
 	// get all itemname currently in logging
 	$logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
 	foreach ($logs_names as $row) {
-		$selectedtext = $row['itemname'] == $input['itemname'] ? ' selected="selected"' : '';
+		$selectedtext = $row['itemname'] == $form_v['itemname'] ? ' selected="selected"' : '';
 		echo "\t\t".'<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
 	}
 ?>	</select>
@@ -117,21 +118,21 @@ window.addEvent('domready', function() {
   <tr bgcolor="#eeeeee">
     <td><b><?php echo $_lang["mgrlog_datefr"]; ?></b></td>
         <td align="right">
-        	<input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($input['datefrom']) ? $input['datefrom'] : "" ; ?>" />
+        	<input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($form_v['datefrom']) ? $form_v['datefrom'] : "" ; ?>" />
 		  	<a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
 	  </td>
   </tr>
   <tr bgcolor="#ffffff">
     <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
     <td align="right">
-		  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($input['dateto']) ? $input['dateto'] : "" ; ?>" />
+		  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($form_v['dateto']) ? $form_v['dateto'] : "" ; ?>" />
 		  <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
 		 </td>
       </tr>
   <tr bgcolor="#eeeeee">
     <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
     <td align="right">
-      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($input['nrresults']) ? $input['nrresults'] : $number_of_logs; ?>" /><img src="<?php echo $_style['tx']; ?>" border="0" />
+      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs; ?>" /><img src="<?php echo $_style['tx']; ?>" border="0" />
     </td>
   </tr>
   <tr bgcolor="#FFFFFF">
@@ -153,33 +154,33 @@ window.addEvent('domready', function() {
 <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div>
 <div class="sectionBody" id="lyr2">
 <?php
-if(isset($input['log_submit'])) {
+if(isset($form_v['log_submit'])) {
 	// get the selections the user made.
 	$sqladd = array();
-	if($input['searchuser']!=0)	$sqladd[] = "internalKey='".intval($input['searchuser'])."'";
-	if($input['action']!=0)	$sqladd[] = "action=".intval($input['action']);
-	if($input['itemid']!=0 || $input['itemid']=="-")
-					$sqladd[] = "itemid='".$input['itemid']."'";
-	if($input['itemname']!='0')	$sqladd[] = "itemname='".$modx->db->escape($input['itemname'])."'";
-	if($input['message']!="")	$sqladd[] = "message LIKE '%".$modx->db->escape($input['message'])."%'";
+	if($form_v['searchuser']!=0)	$sqladd[] = "internalKey='".intval($form_v['searchuser'])."'";
+	if($form_v['action']!=0)	$sqladd[] = "action=".intval($form_v['action']);
+	if($form_v['itemid']!=0 || $form_v['itemid']=="-")
+					$sqladd[] = "itemid='".$form_v['itemid']."'";
+	if($form_v['itemname']!='0')	$sqladd[] = "itemname='".$modx->db->escape($form_v['itemname'])."'";
+	if($form_v['message']!="")	$sqladd[] = "message LIKE '%".$modx->db->escape($form_v['message'])."%'";
 	// date stuff
-	if($input['datefrom']!="")	$sqladd[] = "timestamp>".convertdate($input['datefrom']);
-	if($input['dateto']!="")	$sqladd[] = "timestamp<".convertdate($input['dateto']);
+	if($form_v['datefrom']!="")	$sqladd[] = "timestamp>".convertdate($form_v['datefrom']);
+	if($form_v['dateto']!="")	$sqladd[] = "timestamp<".convertdate($form_v['dateto']);
 
 	// If current position is not set, set it to zero
-	if( !isset( $input['int_cur_position'] ) || $input['int_cur_position'] == 0 ){
+	if( !isset( $form_v['int_cur_position'] ) || $form_v['int_cur_position'] == 0 ){
 		 $int_cur_position = 0;
 	} else {
-		$int_cur_position = $input['int_cur_position'];
+		$int_cur_position = $form_v['int_cur_position'];
 	}
 
 	// Number of result to display on the page, will be in the LIMIT of the sql query also
-	$int_num_result = is_numeric($input['nrresults']) ? $input['nrresults'] : $number_of_logs;
+	$int_num_result = is_numeric($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs;
 
-	$extargv = "&a=13&searchuser=".$input['searchuser']."&action=".$input['action'].
-		"&itemid=".$input['itemid']."&itemname=".$input['itemname']."&message=".
-		$input['message']."&dateto=".$input['dateto']."&datefrom=".
-		$input['datefrom']."&nrresults=".$int_num_result."&log_submit=".$input['log_submit']; // extra argv here (could be anything depending on your page)
+	$extargv = "&a=13&searchuser=".$form_v['searchuser']."&action=".$form_v['action'].
+		"&itemid=".$form_v['itemid']."&itemname=".$form_v['itemname']."&message=".
+		$form_v['message']."&dateto=".$form_v['dateto']."&datefrom=".
+		$form_v['datefrom']."&nrresults=".$int_num_result."&log_submit=".$form_v['log_submit']; // extra argv here (could be anything depending on your page)
 
 	// build the sql
 	$where = (!empty($sqladd)) ? implode(' AND ', $sqladd) : '';
