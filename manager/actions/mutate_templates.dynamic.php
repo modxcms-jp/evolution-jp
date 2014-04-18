@@ -164,8 +164,30 @@ function deletedocument() {
 	</div>
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
-	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:300px;">
+	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:200px;">
 	<span class="warning" id='savingMessage'></span>
+<?php
+	$where = $id ? "parent!='{$id}'" : '';
+	$rs = $modx->db->select('*','[+prefix+]site_templates',$where);
+	$parent = array();
+	while($row = $modx->db->getRow($rs))
+	{
+		if($id==$row['id']) continue;
+		$parent[] = array('id'=>$row['id'],'templatename'=>htmlspecialchars($row['templatename']));
+	}
+	$tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
+	$option = array();
+	foreach($parent as $ph)
+	{
+		$ph['selected'] = $templateObject->parent==$ph['id'] ? 'selected' : '';
+		$option[] = $modx->parseText($tpl, $ph);
+	}
+echo $_lang["template_parent"];
+?>
+		<select name="parent">
+			<option value="">None</option>
+			<?php echo join("\n", $option);?>
+		</select>
 	</div>
 	<!-- HTML text editor start -->
 <?php
@@ -216,32 +238,6 @@ function deletedocument() {
 	<tr>
 		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($templateObject->description);?></textarea></td>
-	</tr>
-<?php
-	$where = $id ? "parent!='{$id}'" : '';
-	$rs = $modx->db->select('*','[+prefix+]site_templates',$where);
-	$parent = array();
-	while($row = $modx->db->getRow($rs))
-	{
-		if($id==$row['id']) continue;
-		$parent[] = array('id'=>$row['id'],'templatename'=>htmlspecialchars($row['templatename']));
-	}
-	$tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
-	$option = array();
-	foreach($parent as $ph)
-	{
-		$ph['selected'] = $templateObject->parent==$ph['id'] ? 'selected' : '';
-		$option[] = $modx->parseText($tpl, $ph);
-	}
-?>
-	<tr>
-		<th><?php echo $_lang["template_parent"]?></th>
-		<td>
-			<select name="parent">
-				<option value="">None</option>
-				<?php echo join("\n", $option);?>
-			</select>
-		</td>
 	</tr>
 <?php if($modx->hasPermission('save_role')==1) {?>
 	  <tr>
