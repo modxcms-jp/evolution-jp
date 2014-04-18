@@ -219,10 +219,7 @@ switch ($mode) {
 			<div id="disp">
 			<p>
 			<?php
-			if($_POST['passwordgenmethod'] === 'g')
 				echo sprintf($_lang["password_msg"], $newusername, $newpassword);
-			else
-				echo sprintf($_lang["password_msg"], $newusername, '**************');
 			?>
 			</p>
 			</div>
