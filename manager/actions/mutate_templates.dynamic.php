@@ -177,29 +177,6 @@ function deletedocument() {
 		$foot = $parent['foot'];
     }
     
-function getParentValues($parent) {
-	global $modx;
-	
-	$parent = $modx->db->getObject('site_templates',"id='{$parent}'");
-	if(count($parent)==1 && strpos($parent->content,'[*content*]')!==false) {
-		$content = explode('[*content*]',$parent->content,2);
-		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
-		$head = convert($content[0]);
-		$head = "<div style=\"{$divstyle}border-bottom:none;\">{$head}</div>";
-		$foot = convert($content[1]);
-		$foot = "<div style=\"{$divstyle}border-top:none;\">{$foot}</div>";
-		return compact('head','foot');
-	}
-	else return array();
-}
-
-function convert($value) {
-	global $modx;
-	$value = trim($value);
-	$value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
-	$value = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$value);
-	return $value;
-}
 ?>
 	<div style="width:100%;position:relative">
 	    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
@@ -359,4 +336,28 @@ function get_resources($id,$modx,$_lang)
 		$result = join(', ', $items);
 	}
 	return "<p>{$result}</p>";
+}
+
+function getParentValues($parent) {
+	global $modx;
+	
+	$parent = $modx->db->getObject('site_templates',"id='{$parent}'");
+	if(count($parent)==1 && strpos($parent->content,'[*content*]')!==false) {
+		$content = explode('[*content*]',$parent->content,2);
+		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
+		$head = convert($content[0]);
+		$head = "<div style=\"{$divstyle}border-bottom:none;\">{$head}</div>";
+		$foot = convert($content[1]);
+		$foot = "<div style=\"{$divstyle}border-top:none;\">{$foot}</div>";
+		return compact('head','foot');
+	}
+	else return array();
+}
+
+function convert($value) {
+	global $modx;
+	$value = trim($value);
+	$value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+	$value = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$value);
+	return $value;
 }
