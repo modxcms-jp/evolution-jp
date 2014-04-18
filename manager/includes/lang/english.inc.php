@@ -1286,3 +1286,6 @@ $_lang["user_other"] = 'Other';
 
 $_lang["view_site"] = 'View Site';
 $_lang["view_resource"] = 'View Resource';
+
+$_lang["general"] = 'General';
+$_lang["option"] = 'Option';

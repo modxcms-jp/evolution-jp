@@ -500,11 +500,11 @@ $_lang["mgrlog_datecheckfalse"] = 'checkdate() で誤りを検出しました。
 $_lang["mgrlog_datefr"] = 'この日付から';
 $_lang["mgrlog_dateinvalid"] = '日付の形式が正しくありません。';
 $_lang["mgrlog_dateto"] = 'この日付まで';
-$_lang["mgrlog_emptysrch"] = 'この問合せの結果は空でした。（マッチするログエントリーが無かったということです）';
+$_lang["mgrlog_emptysrch"] = '検索結果はありません。';
 $_lang["mgrlog_field"] = '分類';
 $_lang["mgrlog_itemid"] = '操作対象のID';
 $_lang["mgrlog_itemname"] = '操作対象名';
-$_lang["mgrlog_msg"] = 'アクション(文字列)';
+$_lang["mgrlog_msg"] = 'キーワード';
 $_lang["mgrlog_noquery"] = '検索されていません。';
 $_lang["mgrlog_qresults"] = '結果';
 $_lang["mgrlog_query"] = 'ログの検索';
@@ -1288,3 +1288,6 @@ $_lang["user_other"] = 'その他';
 
 $_lang["view_site"] = 'サイトを表示';
 $_lang["view_resource"] = 'リソースを表示';
+
+$_lang["general"] = '一般';
+$_lang["option"] = 'オプション';
