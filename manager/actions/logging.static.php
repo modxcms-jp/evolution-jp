@@ -154,6 +154,7 @@ window.addEvent('domready', function() {
 
 </form>
 
+<?php if(isset($_POST['log_submit'])||isset($_GET['log_submit'])) :?>
 <div class="section">
 <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div>
 <div class="sectionBody" id="lyr2">
@@ -276,6 +277,9 @@ EOT;
 } else {
     echo $_lang["mgrlog_noquery"];
 }
+endif;
+
+
 
 function array_unique_multi($array, $checkKey) {
 	// Use the builtin if we're not a multi-dimensional array
