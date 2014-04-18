@@ -4,8 +4,6 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$form_v = $_REQUEST;
-$form_v = $modx->db->escape($form_v);
 
 $rs = $modx->db->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
 $logs = array();
@@ -157,15 +155,16 @@ window.addEvent('domready', function() {
 if(isset($form_v['log_submit'])) {
 	// get the selections the user made.
 	$sqladd = array();
-	if($form_v['searchuser']!=0)	$sqladd[] = "internalKey='".intval($form_v['searchuser'])."'";
-	if($form_v['action']!=0)	$sqladd[] = "action=".intval($form_v['action']);
+	$form_v = $modx->db->escape($form_v);
+	if($form_v['searchuser']!=0) $sqladd[] = "internalKey='".intval($form_v['searchuser'])."'";
+	if($form_v['action']!=0)     $sqladd[] = "action=".intval($form_v['action']);
 	if($form_v['itemid']!=0 || $form_v['itemid']=="-")
-					$sqladd[] = "itemid='".$form_v['itemid']."'";
-	if($form_v['itemname']!='0')	$sqladd[] = "itemname='".$modx->db->escape($form_v['itemname'])."'";
-	if($form_v['message']!="")	$sqladd[] = "message LIKE '%".$modx->db->escape($form_v['message'])."%'";
+	                            $sqladd[] = "itemid='".$form_v['itemid']."'";
+	if($form_v['itemname']!='0') $sqladd[] = "itemname='".$form_v['itemname']."'";
+	if($form_v['message']!="")   $sqladd[] = "message LIKE '%".$form_v['message']."%'";
 	// date stuff
-	if($form_v['datefrom']!="")	$sqladd[] = "timestamp>".convertdate($form_v['datefrom']);
-	if($form_v['dateto']!="")	$sqladd[] = "timestamp<".convertdate($form_v['dateto']);
+	if($form_v['datefrom']!="")  $sqladd[] = "timestamp>".convertdate($form_v['datefrom']);
+	if($form_v['dateto']!="")    $sqladd[] = "timestamp<".convertdate($form_v['dateto']);
 
 	// If current position is not set, set it to zero
 	if( !isset( $form_v['int_cur_position'] ) || $form_v['int_cur_position'] == 0 ){
