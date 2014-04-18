@@ -11,7 +11,7 @@ while ($row = $modx->db->getRow($rs))
 {
 	$logs[] = $row;
 }
-
+$form_v = $_REQUEST;
 ?>
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
@@ -30,123 +30,129 @@ window.addEvent('domready', function() {
   </ul>
 </div>
 
-<div class="section">
-<div class="sectionHeader"><?php echo $_lang["mgrlog_query"]?></div>
-<div class="sectionBody" id="lyr1">
-<p><?php echo $_lang["mgrlog_query_msg"]?></p>
-<form action="index.php?a=13" name="logging" method="POST">
-<table border="0" cellpadding="2" cellspacing="0">
- <thead>
-  <tr>
-    <td width="200"><b><?php echo $_lang["mgrlog_field"]?></b></td>
-    <td align="right"><b><?php echo $_lang["mgrlog_value"]?></b></td>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-    <td><b><?php echo $_lang["mgrlog_user"]?></b></td>
-    <td align="right">
-	<select name="searchuser" class="inputBox" style="width:240px">
-		<option value="0"><?php echo $_lang["mgrlog_anyall"]?></option>
-<?php
-	// get all users currently in the log
-	$logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
-	$form_v = $_REQUEST;
-	foreach ($logs_user as $row) {
-		$selectedtext = $row['internalKey'] == $form_v['searchuser'] ? ' selected="selected"' : '';
-		echo "\t\t".'<option value="'.$row['internalKey'].'"'.$selectedtext.'>'.$row['username']."</option>\n";
-	}
-?>	</select>
-    </td>
-  </tr>
-  <tr bgcolor="#eeeeee">
-    <td><b><?php echo $_lang["mgrlog_action"]; ?></b></td>
-    <td align="right">
-	<select name="action" class="inputBox" style="width:240px;">
-		<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
-<?php
-	// get all available actions in the log
-	include_once($modx->config['core_path'] . 'actionlist.inc.php');
-	$logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
-	foreach ($logs_actions as $row) {
-		$action = getAction($row['action']);
-		if ($action == 'Idle') continue;
-		$selectedtext = $row['action'] == $form_v['action'] ? ' selected="selected"' : '';
-		echo "\t\t".'<option value="'.$row['action'].'"'.$selectedtext.'>'.$row['action'].' - '.$action."</option>\n";
-	}
-?>	</select>
-    </td>
-  </tr>
-  <tr bgcolor="#ffffff">
-    <td><b><?php echo $_lang["mgrlog_msg"]; ?></b></td>
-    <td align="right">
-      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $form_v['message']; ?>" />
-    </td>
-  </tr>
-  <tr bgcolor="#ffffff">
-    <td><b><?php echo $_lang["mgrlog_itemid"]; ?></b></td>
-    <td align="right">
-	<select name="itemid" class="inputBox" style="width:240px">
-		<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
-<?php
-	// get all itemid currently in logging
-	$logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
-	foreach ($logs_items as $row) {
-		$selectedtext = $row['itemid'] == $form_v['itemid'] ? ' selected="selected"' : '';
-		echo "\t\t".'<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
-	}
-?>	</select>
-    </td>
-  </tr>
-  <tr bgcolor="#eeeeee">
-    <td><b><?php echo $_lang["mgrlog_itemname"]; ?></b></td>
-    <td align="right">
-	<select name="itemname" class="inputBox" style="width:240px">
-		<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
-<?php
-	// get all itemname currently in logging
-	$logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
-	foreach ($logs_names as $row) {
-		$selectedtext = $row['itemname'] == $form_v['itemname'] ? ' selected="selected"' : '';
-		echo "\t\t".'<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
-	}
-?>	</select>
-    </td>
-  </tr>
-  <tr bgcolor="#eeeeee">
-    <td><b><?php echo $_lang["mgrlog_datefr"]; ?></b></td>
-        <td align="right">
-        	<input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($form_v['datefrom']) ? $form_v['datefrom'] : "" ; ?>" />
-		  	<a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
-	  </td>
-  </tr>
-  <tr bgcolor="#ffffff">
-    <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
-    <td align="right">
-		  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($form_v['dateto']) ? $form_v['dateto'] : "" ; ?>" />
-		  <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
-		 </td>
-      </tr>
-  <tr bgcolor="#eeeeee">
-    <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
-    <td align="right">
-      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs; ?>" /><img src="<?php echo $_style['tx']; ?>" border="0" />
-    </td>
-  </tr>
-  <tr bgcolor="#FFFFFF">
-    <td colspan="2">
-	<ul class="actionButtons">
+<div class="sectionBody">
+<form action="index.php?a=13" name="logging" class="mutate" method="POST">
+<div class="tab-pane" id="logPane">
+	<script type="text/javascript">
+		tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
+	</script>
+	<div class="tab-page" id="tabGeneral">
+		<h2 class="tab"><?php echo $_lang['general'];?></h2>
+		<script type="text/javascript">
+			tpSettings.addTabPage(document.getElementById('tabGeneral'));
+		</script>
+		<table border="0" cellpadding="2" cellspacing="0">
+		 <tbody>
+		  <tr bgcolor="#ffffff">
+		    <td style="width:120px;"><b><?php echo $_lang["mgrlog_msg"]; ?></b></td>
+		    <td align="right">
+		      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $form_v['message']; ?>" />
+		    </td>
+		  </tr>
+		</table>
+	</div>
+	<div class="tab-page" id="tabSettings">
+		<h2 class="tab"><?php echo $_lang['option'];?></h2>
+		<script type="text/javascript">
+			tpSettings.addTabPage(document.getElementById('tabSettings'));
+		</script>
+		<table border="0" cellpadding="2" cellspacing="0">
+		 <tbody>
+		  <tr>
+		    <td><b><?php echo $_lang["mgrlog_user"]?></b></td>
+		    <td align="right">
+			<select name="searchuser" class="inputBox" style="width:240px">
+				<option value="0"><?php echo $_lang["mgrlog_anyall"]?></option>
+		<?php
+			// get all users currently in the log
+			$logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
+			foreach ($logs_user as $row) {
+				$selectedtext = $row['internalKey'] == $form_v['searchuser'] ? ' selected="selected"' : '';
+				echo "\t\t".'<option value="'.$row['internalKey'].'"'.$selectedtext.'>'.$row['username']."</option>\n";
+			}
+		?>	</select>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td><b><?php echo $_lang["mgrlog_action"]; ?></b></td>
+		    <td align="right">
+			<select name="action" class="inputBox" style="width:240px;">
+				<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+		<?php
+			// get all available actions in the log
+			include_once($modx->config['core_path'] . 'actionlist.inc.php');
+			$logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
+			foreach ($logs_actions as $row) {
+				$action = getAction($row['action']);
+				if ($action == 'Idle') continue;
+				$selectedtext = $row['action'] == $form_v['action'] ? ' selected="selected"' : '';
+				echo "\t\t".'<option value="'.$row['action'].'"'.$selectedtext.'>'.$row['action'].' - '.$action."</option>\n";
+			}
+		?>	</select>
+		    </td>
+		  </tr>
+		  <tr bgcolor="#ffffff">
+		    <td><b><?php echo $_lang["mgrlog_itemid"]; ?></b></td>
+		    <td align="right">
+			<select name="itemid" class="inputBox" style="width:240px">
+				<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+		<?php
+			// get all itemid currently in logging
+			$logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
+			foreach ($logs_items as $row) {
+				$selectedtext = $row['itemid'] == $form_v['itemid'] ? ' selected="selected"' : '';
+				echo "\t\t".'<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
+			}
+		?>	</select>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td><b><?php echo $_lang["mgrlog_itemname"]; ?></b></td>
+		    <td align="right">
+			<select name="itemname" class="inputBox" style="width:240px">
+				<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+		<?php
+			// get all itemname currently in logging
+			$logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
+			foreach ($logs_names as $row) {
+				$selectedtext = $row['itemname'] == $form_v['itemname'] ? ' selected="selected"' : '';
+				echo "\t\t".'<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
+			}
+		?>	</select>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td><b><?php echo $_lang["mgrlog_datefr"]; ?></b></td>
+		        <td align="right">
+		        	<input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($form_v['datefrom']) ? $form_v['datefrom'] : "" ; ?>" />
+				  	<a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+			  </td>
+		  </tr>
+		  <tr bgcolor="#ffffff">
+		    <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
+		    <td align="right">
+				  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($form_v['dateto']) ? $form_v['dateto'] : "" ; ?>" />
+				  <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+				 </td>
+		      </tr>
+		  <tr>
+		    <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
+		    <td align="right">
+		      <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs; ?>" /><img src="<?php echo $_style['tx']; ?>" border="0" />
+		    </td>
+		  </tr>
+		  </tbody>
+		</table>
+	</div>
+	<ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
 		<li><a href="#" class="default" onclick="document.logging.log_submit.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search']; ?></a></li>
 		<li><a href="index.php?a=2"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
 	</ul>
       <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none;" />
-    </td>
-  </tr>
-  </tbody>
-</table>
+</div>
+</div>
+
 </form>
-</div>
-</div>
 
 <div class="section">
 <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div>
