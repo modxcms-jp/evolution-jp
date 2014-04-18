@@ -174,7 +174,7 @@ function saveMETAKeywords($id) {
 
 function get_tmplvars($id)
 {
-	global $modx;
+	global $modx,$form_v;
 
 	$template = $form_v['template'];
 	
