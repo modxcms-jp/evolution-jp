@@ -23,20 +23,27 @@ class PHx {
 		global $modx;
 		
 		$cmd=strtolower($cmd);
-		
-		if($modx->config['output_filter']==='1')
-			$this->elmName = "phx:{$cmd}";
-		else
-			$this->elmName = $cmd;
-		
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
 		if(!$modx->snippetCache) $modx->setSnippetCache();
-		if( isset($modx->snippetCache[$this->elmName]) )
+		if(isset($modx->snippetCache["phx:{$cmd}"])) {
+			$this->elmName = "phx:{$cmd}";
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
-		elseif(isset($this->chunkCache[$phxkey]))
+		}
+		elseif(isset($modx->snippetCache[$cmd])) {
+			$this->elmName = $cmd;
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
-		else
+		}
+		elseif(isset($modx->chunkCache["phx:{$cmd}"])) {
+			$this->elmName = "phx:{$cmd}";
+			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
+		}
+		elseif(isset($modx->chunkCache[$cmd])) {
+			$this->elmName = $cmd;
+			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
+		}
+		else {
 			$value = $this->getValueFromPreset($phxkey, $value, $cmd, $opt);
+		}
 		if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
 		else                                     $value = str_replace('[+name+]', $phxkey, $value);
 		return $value;
