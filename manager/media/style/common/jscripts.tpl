@@ -12,12 +12,8 @@ jQuery(function(){
 	var monthNames = [+monthNames+];
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	jQuery("#pub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
-	jQuery("#unpub_date").mask(dpformat.replace(/[0Ya-z]/g,'9'));
 });
 </script>
-
-<script src="media/script/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 /* <![CDATA[ */
 function openprev(actionurl)
