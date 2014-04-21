@@ -141,6 +141,7 @@ class SubParser {
 				$body['site_url'] = $modx->config['site_url'];
 				$body['request_uri'] = $modx->decoded_request_uri;
 				$body['source'] = $fields['source'];
+				$body['IP'] = $_SERVER['REMOTE_ADDR'];
 				if(!empty($modx->event->activePlugin))
 					$body['plugin'] = $modx->event->activePlugin;
 				if(!empty($modx->currentSnippet))
