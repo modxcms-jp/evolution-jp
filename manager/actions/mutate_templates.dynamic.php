@@ -224,7 +224,7 @@ echo $_lang["template_parent"];
 					$ds = $modx->manager->getCategories();
 					if($ds) foreach($ds as $n=>$v)
 					{
-						echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+						echo "<option value='".$v['id']."'".($templateObject->category==$v['id']? " selected='selected'":"").">".htmlspecialchars($v['category'])."</option>";
 					}
 				?>
 				<option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
