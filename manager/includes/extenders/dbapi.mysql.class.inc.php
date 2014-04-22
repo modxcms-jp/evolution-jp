@@ -819,4 +819,21 @@ class DBAPI {
 		$rs = $this->query("TRUNCATE TABLE `{$table_name}`");
 		return $rs;
 	}
+	
+    function importSql($source,$watchError=true)
+    {
+    	global $modx;
+    	
+    	if(is_file($source)) $source = file_get_contents($source);
+    	
+    	if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\r"),"\n",$source);
+    	$source = str_replace('{PREFIX}',$this->config['table_prefix'],$source);
+    	$sql_array = preg_split('@;[ \t]*\n@', $source);
+    	foreach($sql_array as $sql_entry)
+    	{
+    		$sql_entry = trim($sql_entry);
+    		if(empty($sql_entry)) continue;
+    		$rs = $modx->db->query($sql_entry,$watchError);
+    	}
+    }
 }
