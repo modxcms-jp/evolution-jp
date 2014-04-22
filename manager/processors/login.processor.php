@@ -301,7 +301,7 @@ $modx->invokeEvent("OnManagerLogin",
 
 if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
 {
-	include_once(MODX_CORE_PATH . 'upgrades.php');
+	include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
 }
 
 // check if we should redirect user to a web page
