@@ -551,7 +551,7 @@ class PHx {
 		return $reslut;
 	}
 	
-	function getDocumentObject($target='',$field='pagetitle',$mode='prepareResponse')
+	function getDocumentObject($target='',$field='pagetitle')
 	{
 		global $modx;
 		
@@ -562,7 +562,7 @@ class PHx {
 
 		if(!isset($this->documentObject[$target])) 
 		{
-			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,$mode);
+			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,'phx');
 		}
 		
 		if(isset($this->documentObject[$target][$field])&&is_array($this->documentObject[$target][$field]))
