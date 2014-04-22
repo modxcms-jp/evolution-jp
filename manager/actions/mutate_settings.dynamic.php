@@ -21,6 +21,9 @@ if($limit>1) {
 	}
 }
 
+if(!isset($settings_version) || $settings_version!=$modx_version)
+	$modx->db->importSql(MODX_CORE_PATH . 'upgrades/fix_dbstructure.sql', false);
+
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 if(!isset($default_config) || !is_array($default_config))
