@@ -556,7 +556,7 @@ class PHx {
 		global $modx;
 		
 		$target = trim($target);
-		if(empty($target)) $target = $modx->documentIdentifier;
+		if(empty($target)) $target = $modx->config['site_start'];
 		if(preg_match('@^[1-9][0-9]*$@',$target)) $method='id';
 		else $method = 'alias';
 
