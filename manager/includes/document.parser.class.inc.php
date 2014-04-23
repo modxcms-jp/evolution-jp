@@ -1942,6 +1942,7 @@ class DocumentParser {
 			$source= $this->documentOutput;
 			
 			if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
+			if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
 			if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
 			// combine template and document variables
 			if(strpos($source,'[*')!==false)                   $source= $this->mergeDocumentContent($source);
