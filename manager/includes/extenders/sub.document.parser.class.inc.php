@@ -617,8 +617,11 @@ class SubParser {
 			elseif ($newPwd == '')   return "You didn't specify a password for this user!";
 			else
 			{
-				$newPwd = $modx->db->escape($newPwd);
-				$modx->db->update("password = md5('{$newPwd}')", '[+prefix+]web_users', "id='{$uid}'");
+				$f = array();
+				$f['password'] = md5($newPwd);
+				$f['cachepwd'] = '';
+				$f = $modx->db->escape($f);
+				$modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
 				// invoke OnWebChangePassword event
 				$modx->invokeEvent('OnWebChangePassword',
 				array
