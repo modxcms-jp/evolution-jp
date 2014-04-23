@@ -39,9 +39,8 @@ if ($isPWDActivate==1)
 			return;
 		}
 		// activate new password
-		$newpwd = md5($newpwd);
 		$f = array();
-		$f['password'] = $newpwd;
+		$f['password'] = md5($newpwd);
 		$f['cachepwd'] = '';
 		$rs = $modx->db->update($f,$tbl_web_users,"id='{$uid}'");
 		
