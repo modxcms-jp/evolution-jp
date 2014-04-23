@@ -1426,6 +1426,41 @@ class DocumentParser {
 		return $content;
 	}
 	
+	function mergeConditionalTagsContent($content, $left='<!--@IF ', $right='<!--@ENDIF-->')
+	{
+		if(strpos($content,$left)===false) return $content;
+		$matches = $this->getTagsFromContent($content,$left,$right);
+		if(!empty($matches))
+		{
+			foreach($matches['0'] as $i=>$v)
+			{
+				$cmd = substr($v,8,strpos($v,'-->')-8);
+				$cmd = trim($cmd);
+				$cond = substr($cmd,0,1)!=='!' ? true : false;
+				if($cond===false) $cmd = ltrim($cmd,'!');
+				switch(substr($cmd,0,2)) {
+					case '[*':
+						$cmd = $this->mergeDocumentContent($cmd);
+						break;
+				}
+				$cmdlen = strlen($cmd);
+				if(strpos($matches['1'][$i],'<!--@ELSE-->')) {
+					list($if_content,$else_content) = explode('<!--@ELSE-->',$matches['1'][$i]);
+				} else {
+					$if_content = $matches['1'][$i];
+					$else_content = '';
+				}
+					
+				if( ($cond===true && empty($cmd)) || ($cond===false && !empty($cmd)) )
+					$matches['1'][$i] = $else_content;
+				else
+					$matches['1'][$i] = substr($if_content,strpos($if_content,'-->')+3);
+			}
+			$content = str_replace($matches['0'],$matches['1'],$content);
+		}
+		return $content;
+	}
+	
 	function mergeBenchmarkContent($content)
 	{
 		if(strpos($content,'[^')===false) return $content;
@@ -1941,6 +1976,7 @@ class DocumentParser {
 			$this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
 			$source= $this->documentOutput;
 			
+			if(strpos($source,'<!--@IF ')!==false)             $source= $this->mergeConditionalTagsContent($source);
 			if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
 			if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
 			if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
