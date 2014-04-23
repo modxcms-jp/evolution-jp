@@ -16,7 +16,11 @@ if ($isPWDActivate==1)
 	
 	$rs  = $modx->db->select('*', $tbl_web_users, "id='{$uid}'");
 	$limit = $modx->db->getRecordCount($rs);
-	if($limit==1)
+	if($limit!=1) {
+		$output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
+		return;
+	}
+	else
 	{
 		$row = $modx->db->getRow($rs);
 		$username = $row['username'];
@@ -63,11 +67,6 @@ if ($isPWDActivate==1)
 			$url = $modx->makeURL($pwdActId,'',"uid={$uid}",'full');
 			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
 		}
-	}
-	else
-	{
-		// error
-		$output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
 	}
 	return;
 }
