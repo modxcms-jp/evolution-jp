@@ -447,26 +447,22 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 		</table>
 		</div><!-- end sectionBody -->
 	</div><!-- end tab-page -->
-
+<?php
+		$cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
+		$cache = @file_get_contents($cache_path);
+		if($cache) :
+			$cache = htmlspecialchars($cache, ENT_QUOTES, $modx->config['modx_charset']);
+			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.$cache."</textarea>\n";
+?>
 	<!-- Page Source -->
 	<div class="tab-page" id="tabSource">
 		<h2 class="tab"><?php echo $_lang['page_data_source']?></h2>
 		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabSource" ) );</script>
-		<?php
-		$cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-		$cache = @file_get_contents($cache_path);
-		if(!$cache) {
-			$cache = $_lang['page_data_notcached'];
-		} else {
-			$cache = htmlspecialchars($cache, ENT_QUOTES, $modx->config['modx_charset']);
-			$cache = $_lang['page_data_cached'].'<p><textarea style="width: 100%; height: 400px;">'.$cache."</textarea>\n";
-		}
-		echo $cache;
-?>
+		<?php echo $cache;?>
 	</div><!-- end tab-page -->
+<?php endif;?>
 </div><!-- end documentPane -->
 </div><!-- end sectionBody -->
-
 
 <?php
 function get_jscript($id,$cm)
