@@ -49,15 +49,12 @@ if ($isPWDActivate==1)
 		$rs2 = $modx->db->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
 		
 		// invoke OnWebChangePassword event
-		if(!$rs || !$rs2)
-		{
-			$modx->invokeEvent('OnWebChangePassword',
-			array(
-			'userid'       => $uid,
-			'username'     => $username,
-			'userpassword' => $newpwd
-			));
-		}
+		$modx->invokeEvent('OnWebChangePassword',
+		array(
+		'userid'       => $uid,
+		'username'     => $username,
+		'userpassword' => $newpwd
+		));
 		
 		if(!$rs || !$rs2)  $output = webLoginAlert("Error while activating password.");
 		elseif(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
