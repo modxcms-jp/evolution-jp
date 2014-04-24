@@ -186,55 +186,52 @@ function get_tmplvars($id)
 		$docgrp = implode(',', $_SESSION['mgrDocgroups']);
 	}
 	
-	$field = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-	$from = "[+prefix+]site_tmplvars AS tv ";
-	$from .= "INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id ";
-	$from .= 'LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id ';
-	if($id) $from .= " AND tvc.contentid = '{$id}' ";
-	$from .= "LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id  ";
+	$from[] = '[+prefix+]site_tmplvars AS tv';
+	$from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id';
+	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id';
+	if($id) $from[] = "AND tvc.contentid = '{$id}'";
+	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id';
 	$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
 	$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
 	$orderby = 'tv.rank';
-	$rs = $modx->db->select($field,$from,$where,$orderby);
+	$from = join(' ', $from);
+	$rs = $modx->db->select('DISTINCT tv.*',$from,$where,$orderby);
 	
 	$tmplvars = array ();
 	while ($row = $modx->db->getRow($rs)):
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
-		if(!isset($_POST[$tvid]) && $row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
+		if(!isset($form_v[$tvid]) && $row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
 			continue;
 		
 		if($row['type']==='url') {
-			if($_POST["{$tvid}_prefix"] !== '--') {
-				$tmplvar = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $tmplvar);
-				$tmplvar = $_POST["{$tvid}_prefix"] . $tmplvar;
+			if($form_v["{$tvid}_prefix"] !== '--') {
+				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $value);
+				$value = $form_v["{$tvid}_prefix"] . $value;
 			}
-			else $tmplvar = $_POST[$tvid];
+			else $value = $form_v[$tvid];
 		}
-		elseif($row['type']==='file')    $tmplvar = $_POST[$tvid];
+		elseif($row['type']==='file')    $value = $form_v[$tvid];
 		else {
-			if(is_array($_POST[$tvid])) {
+			if(is_array($form_v[$tvid])) {
 				// handles checkboxes & multiple selects elements
 				$feature_insert = array ();
-				$lst = $_POST[$tvid];
+				$lst = $form_v[$tvid];
 				foreach($lst as $v) {
 					$feature_insert[count($feature_insert)] = $v;
 				}
-				$tmplvar = implode('||', $feature_insert);
+				$value = implode('||', $feature_insert);
 			}
-			elseif(isset($_POST[$tvid])) $tmplvar = $_POST[$tvid];
-			else                         $tmplvar = '';
+			elseif(isset($form_v[$tvid])) $value = $form_v[$tvid];
+			else                          $value = '';
 		}
 		// save value if it was modified
-		if (strlen($tmplvar) > 0 && $tmplvar != $row['default_text'])
+		if (strlen($value) > 0 && $value != $row['default_text'])
 		{
-			$tmplvars[$row['id']] = array (
-				$row['id'],
-				$tmplvar
-			);
+			$tmplvars[$row['id']] = $value;
 		}
-		else $tmplvars[$row['name']] = $row['id']; // Mark the variable for deletion
+		else $tmplvars[$row['id']] = false; // Mark the variable for deletion
 	endwhile;
 	return $tmplvars;
 }
@@ -651,15 +648,15 @@ function getExistsValues($id, $return_url) {
 	return $row;
 }
 
-function insert_tmplvars($newid,$tmplvars) {
+function insert_tmplvars($docid,$tmplvars) {
 	global $modx;
 	if(empty($tmplvars)) return;
 	$tvChanges = array();
-	$tv['contentid'] = $newid;
-	foreach ($tmplvars as $value) {
-		if (is_array($value)) {
-			$tv['tmplvarid'] = $value[0];
-			$tv['value']     = $value[1];
+	$tv['contentid'] = $docid;
+	foreach ($tmplvars as $tmplvarid=>$value) {
+		if ($value!==false) {
+			$tv['tmplvarid'] = $tmplvarid;
+			$tv['value']     = $value;
 			$tvChanges[] = $tv;
 		}
 	}
@@ -671,27 +668,27 @@ function insert_tmplvars($newid,$tmplvars) {
 	}
 }
 
-function update_tmplvars($id,$tmplvars) {
+function update_tmplvars($docid,$tmplvars) {
 	global $modx;
 	if(empty($tmplvars)) return;
 	$tvChanges   = array();
 	$tvAdded     = array();
 	$tvDeletions = array();
-	$rs = $modx->db->select('id, tmplvarid', '[+prefix+]site_tmplvar_contentvalues', "contentid='{$id}'");
+	$rs = $modx->db->select('id, tmplvarid', '[+prefix+]site_tmplvar_contentvalues', "contentid='{$docid}'");
 	$tvIds = array ();
 	while ($row = $modx->db->getRow($rs))
 	{
 		$tvIds[$row['tmplvarid']] = $row['id'];
 	}
-	$tv['contentid'] = $id;
-	foreach ($tmplvars as $tmplvar)
+	$tv['contentid'] = $docid;
+	foreach ($tmplvars as $tmplvarid=>$value)
 	{
-		if (!is_array($tmplvar)) {
-			if (isset($tvIds[$tmplvar])) $tvDeletions[] = $tvIds[$tmplvar];
+		if ($value===false) {
+			if (isset($tvIds[$tmplvarid])) $tvDeletions[] = $tvIds[$tmplvarid];
 		} else {
-			$tv['tmplvarid'] = $tmplvar[0];
-			$tv['value']     = $tmplvar[1];
-			if (isset($tvIds[$tmplvar[0]])) {
+			$tv['tmplvarid'] = $tmplvarid;
+			$tv['value']     = $value;
+			if (isset($tvIds[$tmplvarid])) {
 				$tvChanges[] = $tv;
 			} else {
 				$tvAdded[] = $tv;
@@ -703,7 +700,6 @@ function update_tmplvars($id,$tmplvars) {
 		$where = 'id IN('.implode(',', $tvDeletions).')';
 		$rs = $modx->db->delete('[+prefix+]site_tmplvar_contentvalues', $where);
 	}
-		
 	if (!empty($tvAdded)) {
 		foreach ($tvAdded as $tv) {
 			$tv = $modx->db->escape($tv);
@@ -715,7 +711,7 @@ function update_tmplvars($id,$tmplvars) {
 		foreach ($tvChanges as $tv) {
 			$tv = $modx->db->escape($tv);
 			$tvid = $tv['tmplvarid'];
-			$rs = $modx->db->update($tv, '[+prefix+]site_tmplvar_contentvalues', "id='{$tvid}'");
+			$rs = $modx->db->update($tv, '[+prefix+]site_tmplvar_contentvalues', "tmplvarid='{$tvid}' AND contentid='{$docid}'");
 		}
 	}
 }
