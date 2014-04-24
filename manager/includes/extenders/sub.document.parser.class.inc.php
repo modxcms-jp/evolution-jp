@@ -1331,6 +1331,8 @@ class SubParser {
             $fnc = substr($url, 11);
         } elseif ($url) {
             $fnc = "window.location.href='" . addslashes($url) . "';";
+        } elseif(isset($_SESSION['previous_request_uri'])) {
+            $fnc = "window.location.href='" . $_SESSION['previous_request_uri'] . "';";
         } else {
             $fnc = "history.back(-1);";
         }
