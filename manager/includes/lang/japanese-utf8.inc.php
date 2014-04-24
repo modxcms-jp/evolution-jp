@@ -1291,3 +1291,5 @@ $_lang["view_resource"] = 'リソースを表示';
 
 $_lang["general"] = '一般';
 $_lang["option"] = 'オプション';
+
+$_lang["bk_different_version"] = 'MODXのバージョンが異なります。';

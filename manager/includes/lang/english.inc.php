@@ -1289,3 +1289,5 @@ $_lang["view_resource"] = 'View Resource';
 
 $_lang["general"] = 'General';
 $_lang["option"] = 'Option';
+
+$_lang["bk_different_version"] = 'Version is different';

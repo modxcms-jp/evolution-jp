@@ -31,7 +31,12 @@ if ($mode=='restore1')
 	{
 		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
 	}
+	$rs = checkVersion($source);
 	$dumper->import_sql($source);
+		if(!$rs) {
+			$modx->webAlertAndQuit($_lang['bk_different_version']);
+			exit;
+		}
 	header('Location: index.php?r=9&a=93');
 	exit;
 }
@@ -41,6 +46,11 @@ elseif ($mode=='restore2')
 	if(is_file($path))
 	{
 		$source = file_get_contents($path);
+		$rs = checkVersion($source);
+		if(!$rs) {
+			$modx->webAlertAndQuit($_lang['bk_different_version']);
+			exit;
+		}
     	$dumper->import_sql($source);
     	header('Location: index.php?r=9&a=93');
     	exit;
@@ -422,4 +432,18 @@ else
 function checked($cond)
 {
 	if($cond) return ' checked';
+}
+
+function checkVersion($src) {
+	global $modx;
+	$src = substr($src,0,200);
+	$chkstr = strtolower('# MODX Version:');
+	$pos = strpos($src,$chkstr)+strlen($chkstr);
+	if($pos===false) return true;
+	$src = substr($src,$pos);
+	$version = substr($src,0,strpos($src,"\n"));
+	$version = trim($version);
+	if($version===$modx->config['settings_version'])
+		return true;
+	else return false;
 }
