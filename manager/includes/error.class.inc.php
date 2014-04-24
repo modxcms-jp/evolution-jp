@@ -54,13 +54,13 @@ class errorHandler{
 	
 	function dumpError() {
 		global $modx, $_lang;
-		if(!isset($_GET['count_attempts'])) $prev_request_uri = $_SESSION['prev_request_uri'] . '&count_attempts=1';
-		else                                $prev_request_uri = 'index.php?a=2';
+		if(!isset($_GET['count_attempts'])) $previous_request_uri = $_SESSION['previous_request_uri'] . '&count_attempts=1';
+		else                                $previous_request_uri = 'index.php?a=2';
 		
 		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl');
 		$ph['message']  = $modx->db->escape($this->errormessage);
 		$ph['warning']  = $_lang['warning'];
-		$ph['url']      = $prev_request_uri;
+		$ph['url']      = $previous_request_uri;
 		$scr = $modx->parseText($tpl,$ph);
 
         include_once(MODX_CORE_PATH . 'header.inc.php');
