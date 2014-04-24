@@ -51,9 +51,7 @@ elseif ($mode=='backup')
 	$tables = isset($_POST['chk']) ? $_POST['chk'] : '';
 	if (!is_array($tables))
 	{
-		echo '<html><body>'.
-		     '<script type="text/javascript">alert(\'Please select a valid table from the list below\');</script>'.
-		     '</body></html>';
+		$modx->webAlertAndQuit('Please select a valid table from the list below','history.back(-1);');
 		exit;
 	}
 
