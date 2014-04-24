@@ -1326,7 +1326,7 @@ class SubParser {
      * @param string $url URL to redirect to
      */
     function webAlertAndQuit($msg, $url= "") {
-        global $modx_manager_charset;
+        global $modx,$modx_manager_charset;
         if (substr(strtolower($url), 0, 11) == "javascript:") {
             $fnc = substr($url, 11);
         } elseif ($url) {
@@ -1337,6 +1337,7 @@ class SubParser {
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
+            <link rel=\"stylesheet\" type=\"text/css\" href=\"media/style/{$modx->config['manager_theme']}/style.css\" />
             <script>
                 function __alertQuit() {
                     alert('" . addslashes($msg) . "');
@@ -1345,7 +1346,6 @@ class SubParser {
                 window.setTimeout('__alertQuit();',100);
             </script>
             </head><body>
-            <p>{$msg}</p>
             </body></html>";
             exit;
     }
