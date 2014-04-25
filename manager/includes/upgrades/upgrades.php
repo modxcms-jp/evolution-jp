@@ -39,25 +39,9 @@ function run_update($pre_version)
 		$modx->logEvent(0,1,$msg,$msg);
 	}
 	
-	if(0 <= version_compare($pre_version,'1.0.8')) {
-		updateMenus();
-		$msg = 'Update menu';
-		$modx->logEvent(0,1,$msg,$msg);
-	}
-	
 	update_tbl_user_roles();
 	disableOldCarbonTheme();
 	disableOldFckEditor();
-}
-
-function updateMenus()
-{
-	global $modx;
-	
-	if($modx->config['topmenu_site'] === 'home,preview,refresh_site,search,add_resource,add_weblink')
-		$modx->regOption('topmenu_site', 'home,preview,refresh_site,resource_list,add_resource,add_weblink');
-	if($modx->config['topmenu_tools'] === 'bk_manager,import_site,export_site,edit_settings')
-		$modx->regOption('topmenu_tools','bk_manager,import_site,export_site,search,edit_settings');
 }
 
 function disableOldCarbonTheme() {
