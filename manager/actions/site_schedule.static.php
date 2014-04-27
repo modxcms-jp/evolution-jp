@@ -4,7 +4,6 @@ if(!$modx->hasPermission('view_schedule')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$tbl_site_content = $modx->getFullTableName('site_content');
 ?>
 
 <script type="text/javascript" src="media/script/tablesort.js"></script>
@@ -23,7 +22,7 @@ $tbl_site_content = $modx->getFullTableName('site_content');
 $field = 'id, pagetitle, pub_date';
 $where = 'pub_date > ' . time();
 $orderby = 'pub_date ASC';
-$rs = $modx->db->select($field,$tbl_site_content,$where,$orderby);
+$rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
 if($total<1) {
 	echo "<p>".$_lang["no_docs_pending_publishing"]."</p>";
@@ -65,7 +64,7 @@ if($total<1) {
 $field = 'id, pagetitle, unpub_date';
 $where = 'unpub_date > ' . time();
 $orderby = 'unpub_date ASC';
-$rs = $modx->db->select($field,$tbl_site_content,$where,$orderby);
+$rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
 if($total<1) {
 	echo "<p>".$_lang["no_docs_pending_unpublishing"]."</p>";
