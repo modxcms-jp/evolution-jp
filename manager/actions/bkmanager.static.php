@@ -103,7 +103,7 @@ elseif ($mode=='snapshot')
 		exit;
 	}
 	
-	$today = $modx->toDateFormat(time());
+	$today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
 	$today = str_replace(array('/',' '), '-', $today);
 	$today = str_replace(':', '', $today);
 	$today = strtolower($today);

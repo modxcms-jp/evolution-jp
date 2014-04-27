@@ -164,7 +164,7 @@ function importFiles($parent,$filedir,$files,$mode) {
     global $_lang, $allowedfiles;
     global $search_default, $cache_default, $publish_default;
     
-    $createdon = time();
+    $createdon = $_SERVER['REQUEST_TIME'];
     $createdby = $modx->getLoginUserID();
     if (!is_array($files)) return;
 	if ($_POST['object']=='all')
@@ -230,7 +230,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			}
 			if($find===false)
 			{
-				$date = time();
+				$date = $_SERVER['REQUEST_TIME'];
 				$field['pagetitle'] = '---';
 				$field['content'] = '';
 				$field['createdon'] = $date;

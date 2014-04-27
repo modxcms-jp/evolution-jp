@@ -152,7 +152,7 @@ if ($numRecords > 0)
 			{
 				$children[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
 			}
-			if($children['published'] == 0 && (time() < $children['pub_date'] || $children['unpub_date'] < time()))
+			if($children['published'] == 0 && ($_SERVER['REQUEST_TIME'] < $children['pub_date'] || $children['unpub_date'] < $_SERVER['REQUEST_TIME']))
 			{
 				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
 			}

@@ -1,7 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-$now = time();
+$now = $_SERVER['REQUEST_TIME'];
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
 $rs = $modx->db->update(array('published'=>'1'),'[+prefix+]site_content',$where);

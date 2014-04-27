@@ -20,7 +20,7 @@ if(!$modx->hasPermission('view_schedule')) {
 <div class="sectionBody" id="lyr1">
 <?php
 $field = 'id, pagetitle, pub_date';
-$where = 'pub_date > ' . time();
+$where = 'pub_date > ' . $_SERVER['REQUEST_TIME'];
 $orderby = 'pub_date ASC';
 $rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
@@ -62,7 +62,7 @@ if($total<1) {
 <div class="sectionBody" id="lyr2"><?php
 //$db->debug = true;
 $field = 'id, pagetitle, unpub_date';
-$where = 'unpub_date > ' . time();
+$where = 'unpub_date > ' . $_SERVER['REQUEST_TIME'];
 $orderby = 'unpub_date ASC';
 $rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
