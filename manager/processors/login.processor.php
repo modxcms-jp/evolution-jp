@@ -86,7 +86,7 @@ while ($row = $modx->db->getRow($rs))
     ${$row['setting_name']} = $row['setting_value'];
 }
 // blocked due to number of login errors.
-if($failedlogins>=$failed_allowed && $blockeduntildate>time()) {
+if($failedlogins>=$failed_allowed && $blockeduntildate>$_SERVER['REQUEST_TIME']) {
     $modx->db->update('blocked=1','[+prefix+]user_attributes',"internalKey='{$internalKey}'");
     @session_destroy();
     session_unset();
@@ -95,8 +95,8 @@ if($failedlogins>=$failed_allowed && $blockeduntildate>time()) {
 }
 
 // blocked due to number of login errors, but get to try again
-if($failedlogins>=$failed_allowed && $blockeduntildate<time()) {
-    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".(time()-1)."' where internalKey='{$internalKey}'";
+if($failedlogins>=$failed_allowed && $blockeduntildate<$_SERVER['REQUEST_TIME']) {
+    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".($_SERVER['REQUEST_TIME']-1)."' where internalKey='{$internalKey}'";
     $rs = $modx->db->query($sql);
 }
 
@@ -109,7 +109,7 @@ if($blocked=="1") {
 }
 
 // blockuntil: this user has a block until date
-if($blockeduntildate>time()) {
+if($blockeduntildate>$_SERVER['REQUEST_TIME']) {
     @session_destroy();
     session_unset();
     jsAlert("You are blocked and cannot log in! Please try again later.");
@@ -117,7 +117,7 @@ if($blockeduntildate>time()) {
 }
 
 // blockafter: this user has a block after date
-if($blockedafterdate>0 && $blockedafterdate<time()) {
+if($blockedafterdate>0 && $blockedafterdate<$_SERVER['REQUEST_TIME']) {
     @session_destroy();
     session_unset();
     jsAlert("You are blocked and cannot log in! Please try again later.");
@@ -217,7 +217,7 @@ if($newloginerror) {
     $rs = $modx->db->update(array('failedlogincount'=>$failedlogins), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
     if($failedlogins>=$failed_allowed) {
 		//block user for too many fail attempts
-		$blockeduntil = time()+($blocked_minutes*60);
+		$blockeduntil = $_SERVER['REQUEST_TIME']+($blocked_minutes*60);
         $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
     } else {
 		//sleep to help prevent brute force attacks
@@ -254,7 +254,7 @@ if($_SESSION['mgrPermissions']['messages']==1) {
 // successful login so reset fail count and update key values
 if(isset($_SESSION['mgrValidated']))
 {
-	$now = time();
+	$now = $_SERVER['REQUEST_TIME'];
 	$currentsessionid = session_id();
 	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin={$now}, sessionid='{$currentsessionid}'";
     $sql = "update {$tbl_user_attributes} SET {$field} where internalKey={$internalKey}";
@@ -273,15 +273,15 @@ if($rememberme == '1'):
 	
 	$secure = (  (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port);
 	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], '; HttpOnly' , $secure );
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $_SERVER['REQUEST_TIME']+60*60*24*365, $modx->config['base_url'], '; HttpOnly' , $secure );
 	} else {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], time()+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
+		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $_SERVER['REQUEST_TIME']+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
 	}
 else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
 	// Remove the Remember Me cookie
-	setcookie ('modx_remember_manager', "", time() - 3600, $modx->config['base_url']);
+	setcookie ('modx_remember_manager', "", $_SERVER['REQUEST_TIME'] - 3600, $modx->config['base_url']);
 endif;
 
 if($modx->hasPermission('remove_locks'))
