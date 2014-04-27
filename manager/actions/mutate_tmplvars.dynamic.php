@@ -453,7 +453,7 @@ function selected($target='')
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
             <option value="" <?php echo selected(); ?>>&nbsp;</option>
-            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Filter</option>
+            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Processor</option>
             <option value="image" <?php        echo selected('image'); ?>>Image</option>
             <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
             <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
