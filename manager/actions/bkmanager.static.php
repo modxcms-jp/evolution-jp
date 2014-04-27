@@ -437,7 +437,7 @@ function checked($cond)
 function checkVersion($src) {
 	global $modx;
 	$src = substr($src,0,200);
-	$chkstr = strtolower('# MODX Version:');
+	$chkstr = '# MODX Version:';
 	$pos = strpos($src,$chkstr)+strlen($chkstr);
 	if($pos===false) return true;
 	$src = substr($src,$pos);
