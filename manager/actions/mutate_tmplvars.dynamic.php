@@ -115,7 +115,7 @@ $j(function(){
 			case 'option':
 			case 'custom_tv':
 				$j('#inputoption').fadeIn();
-				var ctv = '<textarea name="[+field_name+]">[+field_value+]</textarea>';
+				var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
 				if(itype.val()=='custom_tv')
 				{
 					$j('#inputoption th:first').css('visibility','hidden');

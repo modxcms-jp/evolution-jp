@@ -1238,8 +1238,10 @@ class SubParser {
                         '[+field_type+]'   => $field_type,
                         '[+field_id+]'     => $field_id,
                         '[+field_name+]'   => "tv{$field_id}",
+                        '[+name+]'         => "tv{$field_id}",
                         '[+default_text+]' => $default_text,
                         '[+field_value+]'  => htmlspecialchars($field_value),
+                        '[+value+]'        => htmlspecialchars($field_value),
                         '[+field_style+]'  => $field_style,
                         );
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
