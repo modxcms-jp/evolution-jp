@@ -1929,6 +1929,7 @@ class DocumentParser {
 			while ($row= $this->db->getRow($rs))
 			{
 				$name = $row['name'];
+				if(isset($documentObject[$name])) continue;
 				$tmplvars[$name][]       = $row['name'];
 				$tmplvars[$name][]       = $row['value'];
 				$tmplvars[$name][]       = $row['display'];
