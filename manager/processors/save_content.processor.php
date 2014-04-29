@@ -279,7 +279,7 @@ function get_alias($id,$alias,$parent,$pagetitle)
 
 function _check_duplicate_alias($id,$alias,$parent)
 {
-	global $modx;
+	global $modx,$_lang;
 	
 	if ($modx->config['use_alias_path']==1)
 	{ // only check for duplicates on the same level if alias_path is on
