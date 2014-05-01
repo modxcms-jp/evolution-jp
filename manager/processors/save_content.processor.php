@@ -303,17 +303,14 @@ function _check_duplicate_alias($id,$alias,$parent)
 	}
 	if ($docid > 0)
 	{
-		if ($_POST['mode'] == '27')
-		{
-			$modx->manager->saveFormValues(27);
-			$url = "index.php?a=27&id={$id}";
-		}
-		else
-		{
 			$modx->manager->saveFormValues($_POST['mode']);
-			if($_REQUEST['pid']) $pid = '&pid=' . $_REQUEST['pid'];
-			$url = 'index.php?a=' . $_POST['mode'] . $pid;
-		}
+		
+		$url = 'index.php?a=' . $_POST['mode'];
+		if ($_POST['mode'] == '27') $url .= "&id={$id}";
+		elseif($_REQUEST['pid'])    $url .= '&pid=' . $_REQUEST['pid'];
+		
+		if($_REQUEST['stay']) $url .= '&stay=' . $_REQUEST['stay'];
+		
 		$modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
 	}
 	return $alias;
