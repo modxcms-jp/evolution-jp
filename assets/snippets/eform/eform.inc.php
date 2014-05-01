@@ -59,7 +59,7 @@ if(isset($eFormCSS)) $cssStyle = $eFormCSS;
 
 # Snippet customize settings
 $from   = (isset($from)) ? $from : $modx->config['emailsender'];
-$formid = (isset($formid)) ? $formid : '';
+$formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode: '';
 $params = array (
    // Snippet Path
@@ -159,17 +159,19 @@ $_dfnMaxlength = 6;
 
     //required
     if(empty($tpl)){
-        $formid = "eform";
         $tpl = get_default_tpl();
     }
     elseif( $tmp=efLoadTemplate($tpl) ) $tpl = $tmp; else return $_lang['ef_no_doc'] . " '$tpl'";
 
-    # check for valid form key
-    if ($formid=='') $formid = 'eform';
-
     // try to get formid from <form> tag id
-    preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches);
-	$formid = isset($matches[1])?$matches[1]:'';
+    if(preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches))
+    	$formid = $matches[1];
+    elseif(preg_match('/<input[^>]*?name=[\'"]formid[\'"][^>]*?>/i',$tpl,$matches)) {
+    	$_ = $matches[0];
+    	if(preg_match('@value=[\'"]([^\'"]*?)[\'"]@',$_,$matches)) {
+    		$formid = $matches[1];
+    	}
+    }
     //check for <input type='hidden name='formid'...>
     if( !preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i',$tpl) ){
             //insert hidden formid field
