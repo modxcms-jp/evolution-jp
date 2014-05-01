@@ -48,6 +48,9 @@ class CreateFolder {
 	
 	function run()
 	{
+		global $modx;
+		$folder_permissions = octdec($modx->config['new_folder_permissions']);
+		
 		header ("content-type: text/xml");
 		echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
 ?>
@@ -71,7 +74,7 @@ class CreateFolder {
 					if (mkdir($newdir,0777))
 					{
 						$err_no=0; //Success
-						@chmod($newdir,$this->fckphp_config['modx']['folder_permissions']); //added for MODx
+						@chmod($newdir,$folder_permissions); //added for MODx
 					}
 					else $err_no=110; //Unknown error
 				}

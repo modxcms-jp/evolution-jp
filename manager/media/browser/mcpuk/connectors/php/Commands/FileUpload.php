@@ -116,8 +116,7 @@ class FileUpload {
 		}
 		else
 		{
-			$filename   = substr($filename,0,strrpos($filename, '.'));
-			$test       = 0;
+			$basename   = substr($filename,0,strrpos($filename, '.'));
 			$dirSizes   = array();
 			$globalSize = 0;
 			$failSizeCheck=false;
@@ -138,23 +137,18 @@ class FileUpload {
 				
 				$globalSize+=$_FILES['NewFile']['size'];
 				
-				if (!$failSizeCheck)
-				{
-					if ($globalSize>($this->fckphp_config['DiskQuota']['Global']*1048576))
+				if (!$failSizeCheck && $globalSize>($this->fckphp_config['DiskQuota']['Global']*1048576))
 					{
 						$failSizeCheck=true;
 						$msg="\\nリソース全体の割当ディスク容量オーバー";
 					}
 				}
-			}
 			
 			if (($typeconfig['DiskQuota']!=-1)&&(!$failSizeCheck))
 			{
 				if ($this->fckphp_config['DiskQuota']['Global']==-1)
 				{
-					$dirSizes[$this->type]=
-						$this->getDirSize(
-							$modx->config['rb_base_dir'].$this->type);
+					$dirSizes[$this->type] = $this->getDirSize($modx->config['rb_base_dir'].$this->type);
 				}
 				
 				if (($dirSizes[$this->type]+$_FILES['NewFile']['size']) > ($typeconfig['DiskQuota']*1048576))
@@ -172,73 +166,42 @@ class FileUpload {
 			else
 			{
 				$tmp_name = $_FILES['NewFile']['tmp_name'];
-				if (is_file($this->real_cwd."/{$filename}.{$ext}"))
-				{
-					$taskDone=false;
-					
-					for($i=1;($i<200 && $taskDone===false);$i++)
-					{
-						$target = "{$this->real_cwd}/{$filename}({$i}).{$ext}";
-						
+				$filename = "{$basename}.{$ext}";
+				$target = "{$this->real_cwd}/{$filename}";
 						if (!is_file($target))
 						{
-							if (is_uploaded_file($tmp_name))
-							{
-								if($modx->manager->modx_move_uploaded_file($tmp_name,$target))
-								{
-									@chmod($target,$modx->config['new_file_permissions']);
-									$basename = basename($target);
-									$disp="201,'{$basename}'";
-								}
+					//Upload file
+					$rs = $this->file_upload($tmp_name,$target);
+					if($rs) $disp='0';
 								else $disp="202,'Failed to upload file, internal error.'";
 							}
 							else
 							{
-								if(rename($tmp_name,($target)))
+					$taskDone=false;
+					
+					for($i=1;($i<200 && $taskDone===false);$i++)
 								{
-									@chmod($target,$modx->config['new_file_permissions']);
-									$basename = basename($target);
-									$disp="201,'{$basename}'";
-								}
+						$filename = "{$basename}({$i}).{$ext}";
+						$target = "{$this->real_cwd}/{$filename}";
+						
+						if (is_file($target)) continue;
+						
+						$rs = $this->file_upload($tmp_name,$target);
+						if($rs) $disp = "201,'{$filename}'";
 								else $disp="202,'Failed to upload file, internal error.'";
-							}
-							$uploaded_name = "{$filename}({$i}).{$ext}";	// (*4)
+						
 							$taskDone=true;
 						}
-					}
 					if ($taskDone==false) $disp="202,'Failed to upload file, internal error..'";
 				}
-				else
-				{
-					//Upload file
-					$target = "$this->real_cwd/{$filename}.{$ext}";
-					if (is_uploaded_file($tmp_name))
-					{
-						if ($modx->manager->modx_move_uploaded_file($tmp_name,$target))
-						{
-							@chmod($target,$modx->config['new_file_permissions']);
-							$disp='0';
-						}
-						else $disp="202,'Failed to upload file, internal error...'";
-					}
-					else
-					{
-						if (rename($tmp_name,($target)))
-						{
-							@chmod($target,$modx->config['new_file_permissions']);
-							$disp='0';
-						}
-						else $disp="202,'Failed to upload file, internal error...'";
-					}
-					$uploaded_name = "{$filename}.{$ext}";	// (*4)
-				}
+				
 				// (*4)
 				if (substr($disp,0,3) !== '202')
 				{
-					$modx->invokeEvent('OnFileManagerUpload',
+					$modx->invokeEvent('OnFileBrowserUpload',
 							array(
 								'filepath'	=> $this->real_cwd,
-								'filename'	=> $uploaded_name
+								'filename'	=> $filename
 							));
 				}
 			}
@@ -285,5 +248,21 @@ window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
 		else $dirSize = false;
 		
 		return $dirSize;
+	}
+	
+	function file_upload($tmp_name,$target) {
+		global $modx;
+		
+		if (is_uploaded_file($tmp_name)):
+			if($modx->manager->modx_move_uploaded_file($tmp_name,$target))
+				return @chmod($target,$modx->config['new_file_permissions']);
+			else
+				return false;
+		else:
+			if(rename($tmp_name,($target)))
+				return @chmod($target,$modx->config['new_file_permissions']);
+			else
+				return false;
+		endif;
 	}
 }

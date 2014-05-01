@@ -42,9 +42,13 @@ class Thumbnail {
 	
 	function run()
 	{
+		global $modx;
+		
 		//$mimeIcon=getMimeIcon($mime);
 		$fullfile=$this->real_cwd.'/'.$this->filename;
 		$thumbfile=$this->real_cwd.'/.thumb/'.$this->filename;
+		$file_permissions   = octdec($modx->config['new_file_permissions']);
+		$folder_permissions = octdec($modx->config['new_folder_permissions']);
 		$icon=false;
 		
 		if (is_file($thumbfile)) {
@@ -52,47 +56,32 @@ class Thumbnail {
 		} else {
 			$thumbdir = dirname($thumbfile);
 			
-			$mime = $this->getMimeType($fullfile);
+			$mime = $modx->getMimeType($fullfile);
 			$ext=strtolower($this->getExtension($this->filename));
 			
 			if ($this->isImage($mime,$ext))
 			{
-				if(!is_dir($thumbdir)) $rs = mkdir($thumbdir,$this->fckphp_config['modx']['folder_permissions'],true);
-				if($rs) chmod($thumbdir,$this->fckphp_config['modx']['folder_permissions']);
+				if(!is_dir($thumbdir)) $rs = mkdir($thumbdir,$folder_permissions,true);
+				if($rs) chmod($thumbdir,$folder_permissions);
 				//Try and find a thumbnail, else try to generate one
 				//	else send generic picture icon.
 				
 				if($this->isJPEG($mime,$ext))    $result=$this->resizeFromJPEG($fullfile);
-				elseif($this->isGIF($mime,$ext)) $result=$this->resizeFromGIF($fullfile);
 				elseif($this->isPNG($mime,$ext)) $result=$this->resizeFromPNG($fullfile);
+				elseif($this->isGIF($mime,$ext)) $result=$this->resizeFromGIF($fullfile);
+				else $result = false;
 				
-				if ($result!==false)
+				if ($result!==false && function_exists('imagejpeg'))
 				{
-					if (function_exists("imagejpeg")) {
 						imagejpeg($result,$thumbfile,80);
-						@chmod($thumbfile,$this->fckphp_config['modx']['file_permissions']);
+					@chmod($thumbfile,$file_permissions);
 						$icon=$thumbfile;
-					} elseif (function_exists("imagepng")) {
-						imagepng($result,$thumbfile);
-						@chmod($thumbfile,$this->fckphp_config['modx']['file_permissions']);
-						$icon=$thumbfile;
-					} elseif (function_exists("imagegif")) {
-						imagegif($result,$thumbfile);
-						@chmod($thumbfile,$this->fckphp_config['modx']['file_permissions']);
-						$icon=$thumbfile;
-					} else {
-						$icon=iconLookup($mime,$ext);
 					}
-					
-				} else {
-					$icon=iconLookup($mime,$ext);
-				}
-			} else {
-				$icon=iconLookup($mime,$ext);
 			}
+			if($icon===false) $icon=iconLookup($mime,$ext);
 		}
 		
-		$iconMime = $this->getMimeType($icon);
+		$iconMime = $modx->getMimeType($icon);
 		if ($iconMime==false) $iconMime='image/jpeg';
 		
 		header("Content-type: $iconMime",true);
@@ -148,18 +137,6 @@ class Thumbnail {
 		$lastpos=strrpos($this->filename,'.');
 		if ($lastpos!==false) $ext=substr($this->filename,($lastpos+1));
 		return strtolower($ext);
-	}
-	
-	function getMimeType($file_path) {
-		$fp = fopen($file_path, 'rb');
-		$head= fread($fp, 2); fclose($fp);
-		$head = mb_convert_encoding($head, '8BIT');
-		if($head==='BM')                    $mime_type = 'image/bmp';
-		elseif($head==='GI')                $mime_type = 'image/gif';
-		elseif($head===chr(0xFF).chr(0xd8)) $mime_type = 'image/jpeg';
-		elseif($head===chr(0x89).'P')       $mime_type = 'image/png';
-		else $mime_type = false;
-		return $mime_type;
 	}
 	
 	function resizeFromJPEG($file) {

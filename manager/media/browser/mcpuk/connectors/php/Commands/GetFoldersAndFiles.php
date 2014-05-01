@@ -151,7 +151,6 @@ class GetFoldersAndFiles {
 					{
 						$name = $files[$i];
 					}
-					// $this->fckphp_config['modx']['charset'] if needed
 					echo "\t\t<File name=\"".htmlentities($name, ENT_QUOTES, 'UTF-8')."\" size=\"".ceil(filesize($this->real_cwd."/".$files [$i] )/1024)."\" editable=\"" . ( $editable?"1":"0" ) . "\" />\n";
 				}
 			}

@@ -54,20 +54,10 @@ $upload_images = explode(',',strtolower($upload_images));
 $upload_media  = explode(',',strtolower($upload_media));
 $upload_flash  = explode(',',strtolower($upload_flash));
 
-// avoid problems when passing strings into CHMOD
-$fckphp_config['modx']['file_permissions'] = octdec($new_file_permissions);
-$fckphp_config['modx']['folder_permissions'] = octdec($new_folder_permissions);
-$fckphp_config['modx']['charset'] = $modx->config['modx_charset'];
-// ** END FOR MODx
-
-
-
 /* HTTP over SSL Detection (shouldnt require changing)				*/
-
-$fckphp_config['prot']="http";
-$fckphp_config['prot'].=((isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']=='on')?"s":"");
-$fckphp_config['prot'].="://";
-
+if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS']!=='on')
+	$fckphp_config['prot'] = 'http://';
+else $fckphp_config['prot'] = 'https://';
 
 $baseurl = $rb_base_url;
 $rb_base_url_parse = parse_url($rb_base_url);
