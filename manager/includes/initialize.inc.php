@@ -51,11 +51,11 @@ if(!function_exists('startCMSSession'))
 			}
 			if ($cookieLifetime)
 			{
-				$cookieExpiration= time() + $cookieLifetime;
+				$cookieExpiration= $_SERVER['REQUEST_TIME'] + $cookieLifetime;
 			}
 			if (!isset($_SESSION['modx.session.created.time']))
 			{
-				$_SESSION['modx.session.created.time'] = time();
+				$_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
 			}
 		}
 		setcookie(session_name(), session_id(), $cookieExpiration, MODX_BASE_URL);
