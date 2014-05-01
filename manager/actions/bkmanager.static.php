@@ -438,8 +438,9 @@ function checkVersion($src) {
 	global $modx;
 	$src = substr($src,0,200);
 	$chkstr = '# MODX Version:';
-	$pos = strpos($src,$chkstr)+strlen($chkstr);
+	$pos = strpos($src,$chkstr);
 	if($pos===false) return true;
+	$pos += strlen($chkstr);
 	$src = substr($src,$pos);
 	$version = substr($src,0,strpos($src,"\n"));
 	$version = trim($version);
