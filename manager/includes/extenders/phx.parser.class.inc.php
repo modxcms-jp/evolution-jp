@@ -228,7 +228,7 @@ class PHx {
 			case 'rawurlencode':
 			case 'rawurldecode':
 			case 'base64_encode':
-			case 'base64_ decode':
+			case 'base64_decode':
 				$value = $cmd($value);
 				break;
 			
