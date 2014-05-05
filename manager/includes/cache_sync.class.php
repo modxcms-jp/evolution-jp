@@ -344,13 +344,14 @@ class synccache {
 	function _get_content_types($modx)
 	{
 		$rs = $modx->db->select('id, contentType','[+prefix+]site_content',"contentType != 'text/html'");
-		$tmpPHP = '$c = &$this->contentTypes;' . "\n";
+		$_[] = '$c = &$this->contentTypes;';
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
-			$tmpPHP .= '$c['.$row['id'].']'." = '".$row['contentType']."';\n";
+			extract($row);
+			$_[] = '$c' . "[{$id}] = '{$contentType}';";
 		}
-		return $tmpPHP;
+		return join("\n", $_) . "\n";
 	}
 	
 	function _get_chunks($modx)
@@ -405,11 +406,14 @@ class synccache {
 	function _get_events($modx)
 	{
 		$fields  = 'sysevt.name as `evtname`, plugs.name';
-		$from    = "[+prefix+]system_eventnames sysevt INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid";
+		$from[] = '[+prefix+]system_eventnames sysevt';
+		$from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
+		$from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
+		$from = join(' ', $from);
 		$where   = 'plugs.disabled=0';
 		$orderby = 'sysevt.name,pe.priority';
 		$rs = $modx->db->select($fields,$from,$where,$orderby);
-		$tmpPHP = '$e = &$this->pluginEvent;' . "\n";
+		$_[] = '$e = &$this->pluginEvent;';
 		$events = array();
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
@@ -422,9 +426,10 @@ class synccache {
 		}
 		foreach($events as $evtname => $pluginnames)
 		{
-			$tmpPHP .= '$e[\''.$evtname.'\'] = array(\''.implode("','",$this->escapeSingleQuotes($pluginnames))."');\n";
+			$pluginnames = implode("','",$this->escapeSingleQuotes($pluginnames));
+			$_[] = '$e' . "['{$evtname}'] = array('{$pluginnames}');";
 		}
-		return $tmpPHP;
+		return join("\n",$_) . "\n";
 	}
 	
 	function tableOpt()
