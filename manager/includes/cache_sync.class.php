@@ -280,7 +280,13 @@ class synccache {
 		if(!is_writable($cache_path)) chmod($cache_path, 0646);
 		
 		if(!@file_put_contents($cache_path, $content, LOCK_EX)) {
-			exit("{$filename} - ".$_lang['file_not_saved']);
+			$msg = "{$cache_path} - ".$_lang['file_not_saved'];
+			if(defined('IN_MANAGER_MODE')) {
+				header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
+				echo '<link rel="stylesheet" type="text/css" href="' . $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/style.css" />';
+				$msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
+			}
+			exit($msg);
 		}
 	}
 	
