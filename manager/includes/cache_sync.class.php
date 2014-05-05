@@ -223,6 +223,8 @@ class synccache {
 	*/
 	function buildCache($modx)
 	{
+		global $_lang;
+		
 		$content = "<?php\n";
 		$content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
 		
@@ -245,43 +247,43 @@ class synccache {
 		
 		if(!@file_put_contents($this->cachePath .'siteCache.idx.php', $content, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($this->config, true) . ';';
 		if(!@file_put_contents($this->cachePath .'config.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('config.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->aliasListing, true) . ';';
 		if(!@file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('aliasListing.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->documentMap, true) . ';';
 		if(!@file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('documentMap.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->chunkCache,true) . ';';
 		if(!@file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('chunk.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->snippetCache, true). ';';
 		if(!@file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('snippet.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		$str = "<?php\n" . 'return ' . var_export($modx->pluginCache, 'true') . ';';
 		if(!@file_put_contents($this->cachePath .'plugin.siteCache.idx.php', $str, LOCK_EX))
 		{
-			exit("Cannot write main MODX cache file! Make sure the '{$this->cachePath}' directory is writable!");
+			exit('plugin.siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
 		if(!is_file($this->cachePath . '.htaccess'))
