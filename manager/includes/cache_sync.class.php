@@ -250,41 +250,12 @@ class synccache {
 			exit('siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
-		$str = "<?php\n" . 'return ' . var_export($this->config, true) . ';';
-		if(!@file_put_contents($this->cachePath .'config.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('config.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
-		
-		$str = "<?php\n" . 'return ' . var_export($modx->aliasListing, true) . ';';
-		if(!@file_put_contents($this->cachePath .'aliasListing.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('aliasListing.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
-		
-		$str = "<?php\n" . 'return ' . var_export($modx->documentMap, true) . ';';
-		if(!@file_put_contents($this->cachePath .'documentMap.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('documentMap.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
-		
-		$str = "<?php\n" . 'return ' . var_export($modx->chunkCache,true) . ';';
-		if(!@file_put_contents($this->cachePath .'chunk.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('chunk.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
-		
-		$str = "<?php\n" . 'return ' . var_export($modx->snippetCache, true). ';';
-		if(!@file_put_contents($this->cachePath .'snippet.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('snippet.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
-		
-		$str = "<?php\n" . 'return ' . var_export($modx->pluginCache, 'true') . ';';
-		if(!@file_put_contents($this->cachePath .'plugin.siteCache.idx.php', $str, LOCK_EX))
-		{
-			exit('plugin.siteCache.idx.php - '.$_lang['file_not_saved']);
-		}
+		$this->cache_put_contents('config.siteCache.idx.php'      , $this->config);
+		$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
+		$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+		$this->cache_put_contents('chunk.siteCache.idx.php'       , $modx->chunkCache);
+		$this->cache_put_contents('snippet.siteCache.idx.php'     , $modx->snippetCache);
+		$this->cache_put_contents('plugin.siteCache.idx.php'      , $modx->pluginCache);
 		
 		if(!is_file($this->cachePath . '.htaccess'))
 		{
@@ -294,6 +265,18 @@ class synccache {
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
 		
 		return true;
+	}
+	
+	function cache_put_contents($filename,$content) {
+		global $modx,$_lang;
+		if(is_array($content)) {
+			$content = var_export($content, 'true');
+			$br = "\n";
+			$content = "<?php{$br}return {$content};";
+		}
+		if(!@file_put_contents($this->cachePath .$filename, $content, LOCK_EX)) {
+			exit("{$filename} - ".$_lang['file_not_saved']);
+		}
 	}
 	
 	function _get_settings($modx)
