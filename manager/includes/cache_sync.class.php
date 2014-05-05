@@ -274,7 +274,12 @@ class synccache {
 			$br = "\n";
 			$content = "<?php{$br}return {$content};";
 		}
-		if(!@file_put_contents($this->cachePath .$filename, $content, LOCK_EX)) {
+		
+		$cache_path = $this->cachePath .$filename;
+		
+		if(!is_writable($cache_path)) chmod($cache_path, 0646);
+		
+		if(!@file_put_contents($cache_path, $content, LOCK_EX)) {
 			exit("{$filename} - ".$_lang['file_not_saved']);
 		}
 	}
