@@ -24,26 +24,25 @@ class PHx {
 		
 		$cmd=strtolower($cmd);
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
+		$this->elmName = '';
 		if(!$modx->snippetCache) $modx->setSnippetCache();
 		if(isset($modx->snippetCache["phx:{$cmd}"])) {
 			$this->elmName = "phx:{$cmd}";
-			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
 		}
 		elseif(isset($modx->snippetCache[$cmd])) {
 			$this->elmName = $cmd;
-			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
 		}
 		elseif(isset($modx->chunkCache["phx:{$cmd}"])) {
 			$this->elmName = "phx:{$cmd}";
-			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
 		}
 		elseif(isset($modx->chunkCache[$cmd])) {
 			$this->elmName = $cmd;
+		}
+		if($this->elmName!=='')
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
-		}
-		else {
+		else
 			$value = $this->getValueFromPreset($phxkey, $value, $cmd, $opt);
-		}
+		
 		if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
 		else                                     $value = str_replace('[+name+]', $phxkey, $value);
 		return $value;
