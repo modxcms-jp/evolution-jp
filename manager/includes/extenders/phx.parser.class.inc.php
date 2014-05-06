@@ -102,17 +102,17 @@ class PHx {
 			case 'show':
 			case 'this':
 				$conditional = implode(' ',$condition);
-				$isvalid = intval(eval('return ('. $conditional. ');'));
+				$isvalid = intval(eval("return ({$conditional});"));
 				if (!$isvalid) { $value = NULL;}
 			case 'then':
 				$conditional = implode(' ',$condition);
-				$isvalid = intval(eval('return ('. $conditional. ');'));
+				$isvalid = intval(eval("return ({$conditional});"));
 				if ($isvalid) { $value = $opt; }
 				else { $value = NULL; }
 				break;
 			case 'else':
 				$conditional = implode(' ',$condition);
-				$isvalid = intval(eval('return ('. $conditional. ');'));
+				$isvalid = intval(eval("return ({$conditional});"));
 				if (!$isvalid) { $value = $opt; }
 				break;
 			case 'select':
