@@ -775,11 +775,11 @@ class DocumentParser {
 	
 	function getSiteCache()
 	{
-		$cpath = MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
+		$cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
 		
-		if(is_file($cpath)) $included= include_once ($cpath);
+		if(is_file($cache_path)) $config= include($cache_path);
 		
-		if(!isset($included)||!$included)
+		if(!isset($config)||!$config)
 		{
 			include_once MODX_CORE_PATH . 'cache_sync.class.php';
 			$cache = new synccache();
@@ -787,128 +787,77 @@ class DocumentParser {
 			$cache->setReport(false);
 			$rebuilt = $cache->buildCache($this);
 			
-			if($rebuilt && is_file($cpath)) include_once($cpath);
+			if($rebuilt && is_file($cache_path)) $config = include($cache_path);
+			else $config = false;
 		}
+		
+		return $config;
 	}
 	
 	function getSettings()
 	{
+		include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
-			$cpath = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
-			if(is_file($cpath))
-			{
-				$config = @include_once($cpath);
-				if(isset($config) && is_array($config)) $this->config = $config;
-			}
-			if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
-			{
-				$this->clearCache();
-				if(is_file($cpath))
-				{
-					$config = @include_once($cpath);
-					if(isset($config) && is_array($config)) $this->config = $config;
-				}
-				if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
-				{
-					$result= $this->db->select('setting_name, setting_value','[+prefix+]system_settings');
-					while ($row= $this->db->getRow($result))
-					{
-						$this->config[$row['setting_name']]= $row['setting_value'];
-					}
-				}
-			}
-			$this->getSiteCache();
-			
-			// added for backwards compatibility - garry FS#104
-			$this->config['etomite_charset'] = & $this->config['modx_charset'];
-			
-			// store base_url and base_path inside config array
-			if(!isset($this->config['base_url']) || empty($this->config['base_url']))
-			{
-				$this->config['base_url']= MODX_BASE_URL;
-			}
-			$this->config['base_path']= MODX_BASE_PATH;
-			$this->config['core_path']= MODX_CORE_PATH;
-			if(!isset($this->config['site_url']) || empty($this->config['site_url']))
-			{
-				$this->config['site_url']= MODX_SITE_URL;
-			}
+			$this->config = $this->getSiteCache();
 		}
+		
+		// added for backwards compatibility - garry FS#104
+		$this->config['etomite_charset'] = & $this->config['modx_charset'];
+		
+		// store base_url and base_path inside config array
+		$this->config['base_path']= MODX_BASE_PATH;
+		$this->config['core_path']= MODX_CORE_PATH;
+		if(empty($this->config['base_url']))
+			$this->config['base_url']= MODX_BASE_URL;
+		if(empty($this->config['site_url']))
+			$this->config['site_url']= MODX_SITE_URL;
+		
 		// load user setting if user is logged in
 		$usrSettings= array();
-		if ($id= $this->getLoginUserID())
+		$uid= $this->getLoginUserID('web');
+		if (!empty($uid))
 		{
-			$usrType= $this->getLoginUserType();
-			if (isset ($usrType) && $usrType == 'manager')
-			{
-				$usrType= 'mgr';
-			}
-			
-			if ($usrType == 'mgr' && $this->isBackend())
-			{
-				// invoke the OnBeforeManagerPageInit event, only if in backend
-				$this->invokeEvent('OnBeforeManagerPageInit');
-			}
-			if (isset ($_SESSION["{$usrType}UsrConfigSet"]) && 0 < count($_SESSION["{$usrType}UsrConfigSet"]))
-			{
-				$usrSettings= & $_SESSION["{$usrType}UsrConfigSet"];
-			}
+			if (isset ($_SESSION['webUsrConfigSet']) && 0 < count($_SESSION['webUsrConfigSet']))
+				$usrSettings= & $_SESSION['webUsrConfigSet'];
 			else
 			{
-				if ($usrType == 'web')
-				{
-					$from  = '[+prefix+]web_user_settings';
-					$where ="webuser='{$id}'";
-				}
-				else
-				{
-					$from  = '[+prefix+]user_settings';
-					$where = "user='{$id}'";
-				}
-				$result= $this->db->select('setting_name, setting_value',$from,$where);
-				while ($row= $this->db->getRow($result))
-				{
-					$usrSettings[$row['setting_name']]= $row['setting_value'];
-				}
-				if (isset ($usrType))
-				{
-					$_SESSION[$usrType . 'UsrConfigSet']= $usrSettings; // store user settings in session
+				$result= $this->db->select('setting_name, setting_value', '[+prefix+]web_user_settings', "webuser='{$uid}'");
+				if($result) {
+					while ($row= $this->db->getRow($result))
+					{
+						$usrSettings[$row['setting_name']]= $row['setting_value'];
+					}
+					$_SESSION['webUsrConfigSet']= $usrSettings;
 				}
 			}
 		}
-		if($this->isFrontend() && $mgrid= $this->getLoginUserID('mgr'))
+		$uid= $this->getLoginUserID('mgr');
+		if(!empty($uid))
 		{
+			if($this->isBackend()) $this->invokeEvent('OnBeforeManagerPageInit');
 			$musrSettings= array ();
-			if(isset ($_SESSION['mgrUsrConfigSet']))
-			{
+			if(isset ($_SESSION['mgrUsrConfigSet']) && 0 < count($_SESSION['mgrUsrConfigSet']))
 				$musrSettings= & $_SESSION['mgrUsrConfigSet'];
-			}
 			else
 			{
-				if($result= $this->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$mgrid}'"))
-				{
+				$result= $this->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$uid}'");
+				if($result) {
 					while ($row= $this->db->getRow($result))
 					{
 						$musrSettings[$row['setting_name']]= $row['setting_value'];
 					}
-					$_SESSION['mgrUsrConfigSet']= $musrSettings; // store user settings in session
+					$_SESSION['mgrUsrConfigSet']= $musrSettings;
 				}
 			}
-			if(!empty ($musrSettings))
-			{
+			if(!empty ($musrSettings)&&!empty($usrSettings))
 				$usrSettings= array_merge($musrSettings, $usrSettings);
-			}
 		}
-		$this->config= array_merge($this->config, $usrSettings);
-		if(isset($this->config['filemanager_path']))
-		{
+		if(!empty($usrSettings)) $this->config= array_merge($this->config, $usrSettings);
+		if(strpos($this->config['filemanager_path'],'[(')!==false)
 			$this->config['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
-		}
-		if(isset($this->config['rb_base_dir']))
-		{
+		if(strpos($this->config['rb_base_dir'],'[(')!==false)
 			$this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
-		}
 		return $this->config;
 	}
 	
