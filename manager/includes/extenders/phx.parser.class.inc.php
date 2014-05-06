@@ -24,6 +24,8 @@ class PHx {
 		
 		$cmd=strtolower($cmd);
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
+		$value = $modx->parseDocumentSource($value);
+		
 		$this->elmName = '';
 		if(!$modx->snippetCache) $modx->setSnippetCache();
 		if(isset($modx->snippetCache["phx:{$cmd}"])) {

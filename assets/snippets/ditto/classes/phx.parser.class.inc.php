@@ -234,6 +234,7 @@ class PHxParser {
 			$output = trim($output);
 			$this->Log("  |--- Modifier = '". $modifier_cmd[$i] ."'");
 			if ($modifier_value[$i] != '') $this->Log("  |--- Options = '". $modifier_value[$i] ."'");
+			$output = $modx->parseDocumentSource($output);
 			switch ($modifier_cmd[$i])
 			{
 				#####  Conditional Modifiers 
