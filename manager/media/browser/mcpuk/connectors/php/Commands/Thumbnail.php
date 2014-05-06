@@ -73,10 +73,10 @@ class Thumbnail {
 				
 				if ($result!==false && function_exists('imagejpeg'))
 				{
-						imagejpeg($result,$thumbfile,80);
+					imagejpeg($result,$thumbfile,80);
 					@chmod($thumbfile,$file_permissions);
-						$icon=$thumbfile;
-					}
+					$icon=$thumbfile;
+				}
 			}
 			if($icon===false) $icon=iconLookup($mime,$ext);
 		}

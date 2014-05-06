@@ -247,8 +247,8 @@ echo $modx->parseText($tpl['tab-page']['general'],$ph);
 
 
 if($modx->config['tvs_below_content']==='0'&&0<count($tmplVars)) {
-$ph['TVFields'] =  fieldsTV();
-$ph['_lang_tv'] = $_lang['tmplvars'];
+	$ph['TVFields'] = fieldsTV();
+	$ph['_lang_tv'] = $_lang['tmplvars'];
 	echo $modx->parseText($tpl['tab-page']['tv'],$ph);
 }
 

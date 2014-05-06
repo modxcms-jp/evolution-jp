@@ -77,7 +77,6 @@ function iconLookup($mime,$ext) {
 			"txt"=>"doc.png"
 			);
 
-
 	$icon_basedir = MODX_BASE_PATH.'manager/media/browser/mcpuk/connectors/php/images/';
 
 	if ($mime!="text/plain") {

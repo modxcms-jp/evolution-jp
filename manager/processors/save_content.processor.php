@@ -303,7 +303,7 @@ function _check_duplicate_alias($id,$alias,$parent)
 	}
 	if ($docid > 0)
 	{
-			$modx->manager->saveFormValues($_POST['mode']);
+		$modx->manager->saveFormValues($_POST['mode']);
 		
 		$url = 'index.php?a=' . $_POST['mode'];
 		if ($_POST['mode'] == '27') $url .= "&id={$id}";

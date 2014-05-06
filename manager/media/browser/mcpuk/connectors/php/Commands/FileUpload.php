@@ -138,11 +138,11 @@ class FileUpload {
 				$globalSize+=$_FILES['NewFile']['size'];
 				
 				if (!$failSizeCheck && $globalSize>($this->fckphp_config['DiskQuota']['Global']*1048576))
-					{
-						$failSizeCheck=true;
-						$msg="\\nリソース全体の割当ディスク容量オーバー";
-					}
+				{
+					$failSizeCheck=true;
+					$msg="\\nリソース全体の割当ディスク容量オーバー";
 				}
+			}
 			
 			if (($typeconfig['DiskQuota']!=-1)&&(!$failSizeCheck))
 			{
@@ -168,19 +168,19 @@ class FileUpload {
 				$tmp_name = $_FILES['NewFile']['tmp_name'];
 				$filename = "{$basename}.{$ext}";
 				$target = "{$this->real_cwd}/{$filename}";
-						if (!is_file($target))
-						{
+				if (!is_file($target))
+				{
 					//Upload file
 					$rs = $this->file_upload($tmp_name,$target);
 					if($rs) $disp='0';
-								else $disp="202,'Failed to upload file, internal error.'";
-							}
-							else
-							{
+					else    $disp="202,'Failed to upload file, internal error.'";
+				}
+				else
+				{
 					$taskDone=false;
 					
 					for($i=1;($i<200 && $taskDone===false);$i++)
-								{
+					{
 						$filename = "{$basename}({$i}).{$ext}";
 						$target = "{$this->real_cwd}/{$filename}";
 						
@@ -188,10 +188,10 @@ class FileUpload {
 						
 						$rs = $this->file_upload($tmp_name,$target);
 						if($rs) $disp = "201,'{$filename}'";
-								else $disp="202,'Failed to upload file, internal error.'";
+						else    $disp = "202,'Failed to upload file, internal error.'";
 						
-							$taskDone=true;
-						}
+						$taskDone=true;
+					}
 					if ($taskDone==false) $disp="202,'Failed to upload file, internal error..'";
 				}
 				
