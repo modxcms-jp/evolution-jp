@@ -812,6 +812,10 @@ class DocumentParser {
 			$this->config['base_url']= MODX_BASE_URL;
 		if(empty($this->config['site_url']))
 			$this->config['site_url']= MODX_SITE_URL;
+		if(empty($this->config['error_page']))
+			$this->config['error_page'] = $this->config['start_page'];
+		if(empty($this->config['unauthorized_page']))
+			$this->config['unauthorized_page'] = $this->config['error_page'];
 		
 		// load user setting if user is logged in
 		$usrSettings= array();
@@ -1818,35 +1822,23 @@ class DocumentParser {
 		$result= $this->db->select('sc.*',$from,$where,'',1);
 		if ($this->db->getRecordCount($result) < 1)
 		{
-			if ($this->config['unauthorized_page'])
-			{
-				// method may still be alias, while identifier is not full path alias, e.g. id not found above
-				if ($method === 'alias')
-				{
-					$field = 'dg.id';
-					$from = "[+prefix+]document_groups dg, [+prefix+]site_content sc";
-					$where =  "dg.document = sc.id AND sc.alias = '{$identifier}'";
-				}
-				else
-				{
-					$field = 'id';
-					$from = '[+prefix+]document_groups';
-					$where =  "document = '{$identifier}'";
-				}
-				// check if file is not public
-				$seclimit= $this->db->getRecordCount($this->db->select($field,$from,$where,'',1));
-			}
-			if ($seclimit > 0)
-			{
-				// match found but not publicly accessible, send the visitor to the unauthorized_page
-				if ($this->isBackend()) return false;
-				else $this->sendUnauthorizedPage();
-			}
-			else
-			{
-				if ($this->isBackend()) return false;
-				else $this->sendErrorPage();
-			}
+			if ($this->isBackend()) return false;
+			
+			// method may still be alias, while identifier is not full path alias, e.g. id not found above
+			if ($method === 'alias') :
+				$field = 'dg.id';
+				$from = "[+prefix+]document_groups dg, [+prefix+]site_content sc";
+				$where =  "dg.document = sc.id AND sc.alias = '{$identifier}'";
+			else:
+				$field = 'id';
+				$from = '[+prefix+]document_groups';
+				$where =  "document = '{$identifier}'";
+			endif;
+			
+			// check if file is not public
+			$total= $this->db->getRecordCount($this->db->select($field,$from,$where,'',1));
+			if ($total > 0) $this->sendUnauthorizedPage();
+			else            $this->sendErrorPage();
 		}
 		
 		# this is now the document :) #
