@@ -879,13 +879,9 @@ class DocumentParser {
 				break;
 			case 'id' :
 				if (!preg_match('@^[0-9]+$@', $_REQUEST['id']))
-				{
 					$this->sendErrorPage();
-				}
 				else
-				{
 					$docIdentifier= intval($_REQUEST['id']);
-				}
 				break;
 			default:
 				$docIdentifier= $this->config['site_start'];
@@ -1808,13 +1804,12 @@ class DocumentParser {
 			else return false;
 		}
 		// get document groups for current user
-		if ($docgrp= $this->getUserDocGroups())
-		{
-			$docgrp= implode(',', $docgrp);
-		}
+		if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+		
 		// get document (add so)
-		if($this->isFrontend()) $access= "sc.privateweb=0";
-		else                    $access= "sc.privatemgr=0";
+		if($this->isFrontend()) $access= 'sc.privateweb=0';
+		else                    $access= 'sc.privatemgr=0';
+		
 		if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
 		$access .= " OR 1='{$_SESSION['mgrRole']}'";
 		
