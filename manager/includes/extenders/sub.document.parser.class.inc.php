@@ -1058,12 +1058,7 @@ class SubParser {
 	
 	// DISPLAY FORM ELEMENTS
 	function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style='', $row = array()) {
-		global $modx;
-		global $base_url;
-		global $rb_base_url;
-		global $manager_theme, $_style;
-		global $_lang;
-		global $content;
+		global $modx,$_style,$_lang,$content;
 		
 		$field_html ='';
 		$field_value = ($field_value!="" ? $field_value : $default_text);
@@ -1182,14 +1177,10 @@ class SubParser {
 				}
 				break;
 			case "image":	// handles image fields using htmlarea image manager
-				global $_lang;
-				global $content,$use_editor,$which_editor;
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
 				break;
 			case "file": // handles the input of file uploads
 			/* Modified by Timon for use with resource browser */
-                global $_lang;
-				global $content,$use_editor,$which_editor;
 				$field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
                 
 				break;
