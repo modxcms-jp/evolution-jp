@@ -843,120 +843,90 @@ class SubParser {
 	 * Created by Raymond Irving Feb, 2005
 	 */
 
-	function ProcessTVCommand($value, $name = '', $docid = '', $src='docform') {
+	function ProcessTVCommand($input, $name = '', $docid = '', $src='docform') {
 	    global $modx;
 	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
-	    $nvalue = trim($value);
-	    if (substr($nvalue, 0, 1) !== '@')
-	        return $value;
+	    $input = trim($input);
+	    if (substr($input, 0, 1) !== '@')
+	        return $input;
 	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
-	    {
 	        return '@Bindings is disabled.';
-	    }
-	    else {
-	        list ($cmd, $param) = $modx->ParseCommand($nvalue);
-	        $cmd = trim($cmd);
-	        $param = trim($param);
-	        switch ($cmd) {
-	            case "FILE" :
-	            	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
-	            	else $output = @file_get_contents($param);
-	                if($output===false) $output = " Could not retrieve document '{$file}'.";
-	                break;
 
-	            case "CHUNK" : // retrieve a chunk and process it's content
-	                $chunk = $modx->getChunk(trim($param));
-	                $output = $chunk;
-	                break;
+        list ($cmd, $param) = $modx->ParseCommand($input);
+        $cmd = '@'.trim($cmd);
+        $param = trim($param);
+        switch ($cmd) {
+            case '@FILE' :
+            	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
+            	else                                     $output = @file_get_contents($param);
+                if($output===false) $output = " Could not retrieve document '{$file}'.";
+                break;
+            case '@CHUNK' : // retrieve a chunk and process it's content
+                $output = $modx->getChunk(trim($param));
+                break;
+            case '@DOCUMENT' : // retrieve a document and process it's content
+                $rs = $modx->getDocument($param);
+                if (is_array($rs)) $output = $rs['content'];
+                else               $output = "Unable to locate document {$param}";
+                break;
+            case '@SELECT' : // selects a record from the cms database
+                $rt = array ();
+                $ph = array (
+                    'dbase' => $modx->db->config['dbase'],
+                    'DBASE' => $modx->db->config['dbase'],
+                    'prefix' => $modx->db->config['table_prefix'],
+                    'PREFIX' => $modx->db->config['table_prefix']
+                );
+                $param = $modx->parseText($param,$ph);
+                $rs = $modx->db->query("SELECT {$param}");
+                if($modx->db->getRecordCount($rs)==0) return;
+                $output = $rs;
+                break;
+            case '@EVAL' : // evaluates text as php codes return the results
+                $output = eval ($param);
+                break;
+            case '@INHERIT' :
+                $output = $param; // Default to param value if no content from parents
+                if(empty($docid) && isset($_REQUEST['pid'])) $doc['parent'] = $_REQUEST['pid'];
+                else                                         $doc = $modx->getPageInfo($docid, 0, 'id,parent');
 
-	            case "DOCUMENT" : // retrieve a document and process it's content
-	                $rs = $modx->getDocument($param);
-	                if (is_array($rs))
-	                    $output = $rs['content'];
-	                else
-	                    $output = "Unable to locate document {$param}";
-	                break;
-
-	            case "SELECT" : // selects a record from the cms database
-	                $rt = array ();
-	                $replacementVars = array (
-	                    'dbase' => $modx->db->config['dbase'],
-	                    'DBASE' => $modx->db->config['dbase'],
-	                    'prefix' => $modx->db->config['table_prefix'],
-	                    'PREFIX' => $modx->db->config['table_prefix']
-	                );
-	                foreach ($replacementVars as $rvKey => $rvValue) {
-	                    $modx->setPlaceholder($rvKey, $rvValue);
-	                }
-	                $param = $modx->mergePlaceholderContent($param);
-	                $rs = $modx->db->query("SELECT {$param}");
-	                $output = $rs;
-	                break;
-
-	            case "EVAL" : // evaluates text as php codes return the results
-	                $output = eval ($param);
-	                break;
-
-	            case "INHERIT" :
-	                $output = $param; // Default to param value if no content from parents
-	                if(empty($docid) && isset($_REQUEST['pid'])) $doc['parent'] = $_REQUEST['pid'];
-	                else                                         $doc = $modx->getPageInfo($docid, 0, 'id,parent');
-
-	                while ($doc['parent'] != 0) {
-	                    $parent_id = $doc['parent'];
-
-	                    // Grab document regardless of publish status
-	                    $doc = $modx->getPageInfo($parent_id, 0, 'id,parent');
-
-	                    $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
-
-	                    // inheritance allows other @ bindings to be inherited
-	                    // if no value is inherited and there is content following the @INHERIT binding,
-	                    // that content will be used as the output
-	                    // @todo consider reimplementing *appending* the output the follows an @INHERIT as opposed
-	                    //       to using it as a default/fallback value; perhaps allow choice in behavior with
-	                    //       system setting
-	                    if ((string) $tv['value'] !== '' && !preg_match('%^@INHERIT[\s\n\r]*$%im', $tv['value'])) {
-	                        $output = (string) $tv['value'];
-	                        //$output = str_replace('@INHERIT', $output, $nvalue);
-	                        break 2;
-	                    }
-	                }
-	                break;
-
-	            case 'DIRECTORY' :
-	                $files = array ();
-	                $path = $modx->config['base_path'] . $param;
-	                if (substr($path, -1, 1) != '/') {
-	                    $path .= '/';
-	                }
-	                if (!is_dir($path)) {
-	                    die($path);
-	                    break;
-	                }
-	                $dir = dir($path);
-	                while (($file = $dir->read()) !== false) {
-	                    if (substr($file, 0, 1) != '.') {
-	                        $files[] = "{$file}=={$param}{$file}";
-	                    }
-	                }
-	                asort($files);
-	                $output = implode('||', $files);
-	                break;
-
-	            case 'NULL' :
-	            case 'NONE' :
-	                $output = '';
-	                break;
-
-	            default :
-	                $output = $value;
-	                break;
-
-	        }
-	        // support for nested bindings
-	        return is_string($output) && ($output != $value) ? $modx->ProcessTVCommand($output, $name, $docid, $src) : $output;
-	    }
+                while ($doc['parent'] != 0) {
+                    $doc = $modx->getPageInfo($doc['parent'], 0, 'id,parent'); // Grab document regardless of publish status
+                    $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
+                    $value = (string) $tv['value'];
+                    if ($value !== '' && substr($value,0,8)!=='@INHERIT') {
+                        $output = $value;
+                        break 2;
+                    }
+                }
+                break;
+            case '@DIRECTORY' :
+                $files = array ();
+                $path = $modx->config['base_path'] . $param;
+                $path = rtrim($path,'/');
+                if (!is_dir($path)) exit($path);
+                
+                $dir = dir($path);
+                while (($file = $dir->read()) !== false) {
+                    if (substr($file, 0, 1) != '.') {
+                        $files[] = "{$file}=={$param}{$file}";
+                    }
+                }
+                asort($files);
+                $output = implode('||', $files);
+                break;
+            case '@NULL' :
+            case '@NONE' :
+                $output = '';
+                break;
+            default :
+                $output = $input;
+                break;
+        }
+        // support for nested bindings
+        if(is_string($output) && substr($output,0,1)==='@' && $output != $input)
+        	return $this->ProcessTVCommand($output, $name, $docid, $src);
+        else return $output;
 	}
 
 	// separate @ cmd from params
