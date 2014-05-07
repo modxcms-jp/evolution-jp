@@ -1057,11 +1057,16 @@ class SubParser {
 	}
 	
 	// DISPLAY FORM ELEMENTS
-	function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style='', $row = array()) {
+	function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
 		global $modx,$_style,$_lang,$content;
 		
-		$field_html ='';
-		$field_value = ($field_value!="" ? $field_value : $default_text);
+		if(substr($default_text, 0, 6) === '@@EVAL' && $field_value===$default_text) {
+	     	$eval_str = trim(substr($default_text, 7));
+	    	$default_text = eval($eval_str);
+	    	$field_value = $default_text;
+	    }
+		
+		$field_html = '';
 
 		switch (strtolower($field_type)) {
 
