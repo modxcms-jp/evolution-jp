@@ -207,7 +207,7 @@ function get_tmplvars($id)
 		
 		if($row['type']==='url') {
 			if($form_v["{$tvid}_prefix"] !== '--') {
-				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $value);
+				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $form_v[$tvid]);
 				$value = $form_v["{$tvid}_prefix"] . $value;
 			}
 			else $value = $form_v[$tvid];
