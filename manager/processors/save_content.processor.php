@@ -227,6 +227,10 @@ function get_tmplvars($id)
 			else                          $value = '';
 		}
 		// save value if it was modified
+		if(substr($row['default_text'], 0, 6) === '@@EVAL') {
+	     	$eval_str = trim(substr($row['default_text'], 7));
+	    	$row['default_text'] = eval($eval_str);
+	    }
 		if (strlen($value) > 0 && $value != $row['default_text'])
 		{
 			$tmplvars[$row['id']] = $value;
