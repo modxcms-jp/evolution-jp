@@ -974,8 +974,7 @@ class SubParser {
 	        'NONE'
 	    );
 		$binding_array = array();
-		foreach($BINDINGS as $cmd)
-		{
+		foreach($BINDINGS as $cmd) {
 			if(strpos($binding_string,'@'.$cmd)===0)
 			{
 				$code = substr($binding_string,strlen($cmd)+2);
@@ -1140,17 +1139,18 @@ class SubParser {
 				$field_html =  $modx->parseText($tpl,$ph);
 				break;
 			case "url": // handles url input fields
-				$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
 				$field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
+				$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
+				$tpl = '<option value="[+value+]" [+selected+]>[+name+]</option>';
+				$option = array();
 				foreach($urls as $k => $v)
 				{
-					if(strpos($field_value,$v)===false) $field_html.='<option value="'.$v.'">'.$k.'</option>';
-					else
-					{
+					$selected = (strpos($field_value,$v)!==false) ? 'selected' : '';
+					if(strpos($field_value,$v)!==false)
 						$field_value = str_replace($v,'',$field_value);
-						$field_html.='<option value="'.$v.'" selected="selected">'.$k.'</option>';
-					}
+					$option[] = $modx->parseText($tpl,array('name'=>$k,'value'=>$v,'selected'=>$selected));
 				}
+				$field_html .= join("\n", $option) . "\n";
 				$field_html .='</select></td><td>';
 				$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
 				break;
