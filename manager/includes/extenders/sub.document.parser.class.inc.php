@@ -1584,8 +1584,9 @@ class SubParser {
         	if(isset($tvname[$k]))
         	{
         		unset($input[$k]);
-        		$k = $tvname[$k];
-        		$input[$k] = $v;
+        		$name = $tvname[$k];
+        		if(isset($input["{$k}_prefix"])) $v = $input["{$k}_prefix"] . $v;
+        		$input[$name] = $v;
         	}
         	elseif($k==='ta')
         	{
