@@ -1676,5 +1676,3 @@ class SubParser {
 		$_REQUEST['q']= $_GET['q']= $qp['path'];
 	}
 }
-;
-		else                    $context = 
