@@ -124,7 +124,7 @@ class SubParser {
 			$title = substr($title, 0, 50);
 		}
 		$LoginUserID = $modx->getLoginUserID();
-		if (empty($LoginUserID)) $LoginUserID = '-';
+		if (empty($LoginUserID)) $LoginUserID = '0';
 		
 		$fields['eventid']     = $evtid;
 		$fields['type']        = $type;
@@ -1676,3 +1676,5 @@ class SubParser {
 		$_REQUEST['q']= $_GET['q']= $qp['path'];
 	}
 }
+;
+		else                    $context = 
