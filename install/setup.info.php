@@ -28,6 +28,17 @@ $table_prefix      = $_SESSION['table_prefix'];
 
 $installmode = $_SESSION['installmode'];
 
+$conn = mysql_connect($database_server, $database_user, $database_password);
+mysql_select_db($dbase, $conn);
+mysql_query("SET CHARACTER SET 'utf8'", $conn);
+if (function_exists('mysql_set_charset'))
+{
+	mysql_set_charset('utf8');
+}
+else
+{
+	mysql_query("SET NAMES 'utf8'");
+}
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
 $mt = &$moduleTemplates;
