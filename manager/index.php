@@ -58,6 +58,7 @@ $self      = str_replace('\\','/',__FILE__);
 $self_dir  = str_replace('/index.php','',$self);
 $mgr_dir   = substr($self_dir,strrpos($self_dir,'/')+1);
 $base_path = str_replace($mgr_dir . '/index.php','',$self);
+if(!is_dir("{$base_path}assets/cache")) mkdir("{$base_path}assets/cache");
 $site_mgr_path = $base_path . 'assets/cache/siteManager.php';
 if(is_file($site_mgr_path)) include_once($site_mgr_path);
 if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
