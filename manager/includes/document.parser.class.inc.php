@@ -119,6 +119,7 @@ class DocumentParser {
 			$this->tstart = $mtime['1'] + $mtime['0'];
 			$this->mstart = memory_get_usage();
 		}
+		if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
 	}
 
 	// loads an extension from the extenders folder
