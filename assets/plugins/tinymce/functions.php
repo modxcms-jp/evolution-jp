@@ -16,7 +16,7 @@ class TinyMCE
 	{
 		switch(strtolower($lang))
 		{
-			case 'russian-utf8' : $lc='ru'; break;
+			case 'russian-utf8' : $lc = 'ru'; break;
 			case 'japanese-utf8':
 			case 'japanese-euc' : $lc = 'ja'; break;
 			default             : $lc = 'en';
@@ -281,7 +281,7 @@ class TinyMCE
     				$plugins = 'quickupload,'. $plugins;
     				$buttons2 = 'quickupload,'. $buttons2;
     			}
-    			if($modx->manager->action=='4' || $modx->manager->action=='27')
+    			if($modx->manager->action=='4' || $modx->manager->action=='27' || $modx->manager->action=='78')
     			{
     				global $content;
     				if(isset($content['template']) && $content['template']==='0')
@@ -427,7 +427,7 @@ class TinyMCE
 		{
 			$content_css[] = MODX_SITE_URL . $params['editor_css_path'];
 		}
-			$ph['content_css']         = join(',', $content_css);
+		$ph['content_css']             = join(',', $content_css);
 		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$mce_url}js/tinymce.linklist.php'" : 'false';
 		
 		$ph['tpl_list']                = "{$mce_url}js/get_template.php";
