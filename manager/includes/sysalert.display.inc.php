@@ -1,2 +1,2 @@
 <?php
-	$modx->sysAlert();
+	$modx->manager->sysAlert();
