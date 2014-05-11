@@ -9,6 +9,10 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 require_once("{$base_path}manager/includes/version.inc.php");
+$moduleName = "MODX";
+$moduleVersion = $modx_branch.' '.$modx_version;
+$moduleRelease = $modx_release_date;
+
 require_once("{$base_path}manager/includes/default.config.php");
 $installer_path = "{$base_path}install/";
 require_once("{$installer_path}functions.php");
@@ -41,10 +45,6 @@ includeLang($install_language);
 // start session
 $_SESSION['test'] = 1;
 install_sessionCheck();
-
-$moduleName = "MODX";
-$moduleVersion = $modx_branch.' '.$modx_version;
-$moduleRelease = $modx_release_date;
 
 $errors= 0;
 
