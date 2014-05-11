@@ -98,9 +98,8 @@ if(!isset($alert))
 }
 else
 {
-	echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
-	$url = "index.php?a=51&id={$doc_id}";
-	$modx->webAlert($alert, $url);
+	$url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id={$doc_id}';";
+	$modx->webAlertAndQuit($alert, $url);
 	exit;
 }
 
@@ -146,9 +145,8 @@ function update_parentid($doc_id,$new_parent,$user_id,$menuindex)
 		if(0<$find)
 		{
 			$target_id = $modx->db->getValue($rs);
-			echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
-			$url = "index.php?a=27&id={$doc_id}";
-			$modx->webAlert(sprintf($_lang["duplicate_alias_found"], $target_id, $alias), $url);
+			$url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=27&id={$doc_id}';";
+			$modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $target_id, $alias), $url);
 			exit;
 		}
 	}

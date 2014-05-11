@@ -55,7 +55,7 @@ if(0< count($warnings))
 {
 	$modx->manager->saveFormValues('17');
 	$msg = join("\n",$warnings);
-	$modx->webAlert($msg,'index.php?a=17');
+	$modx->webAlertAndQuit($msg,'index.php?a=17');
 	exit;
 }
 

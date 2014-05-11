@@ -377,10 +377,8 @@ switch ($mode) {
 		$modx->getSettings();
 		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $role)
 		{
-			include_once "header.inc.php";
 			$_SESSION['mgrRole'] = $role;
-			$modx->webAlert($_lang['save_user.processor.php1'],'index.php?a=75');
-			include_once "footer.inc.php";
+			$modx->webAlertAndQuit($_lang['save_user.processor.php1'],'index.php?a=75');
 			exit;
 		}
 		if ($genpassword == 1 && $passwordnotifymethod == 's') {
@@ -551,9 +549,7 @@ function webAlert($msg) {
 	$mode = $_POST['mode'];
 	$url = "index.php?a={$mode}" . ($mode == '12' ? "&id={$id}" : '');
 	$modx->manager->saveFormValues($mode);
-	include_once "header.inc.php";
-	$modx->webAlert($msg, $url);
-	include_once "footer.inc.php";
+	$modx->webAlertAndQuit($msg, $url);
 }
 
 // Generate password

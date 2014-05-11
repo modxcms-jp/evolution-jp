@@ -453,9 +453,7 @@ function webAlert($msg) {
 	$mode = $_POST['mode'];
 	$url = "index.php?a={$mode}" . ($mode == '88' ? "&id={$id}" : '');
 	$modx->manager->saveFormValues($mode);
-	include_once 'header.inc.php';
-	$modx->webAlert($msg, $url);
-	include_once 'footer.inc.php';
+	$modx->webAlertAndQuit($msg, $url);
 }
 
 // Generate password

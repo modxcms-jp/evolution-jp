@@ -27,14 +27,7 @@ if(isset($linked) && $linked!==false)
 
 if(isset($warning))
 {
-	include('header.inc.php');
-	?>
-<div class="sectionHeader">Warning</div>
-<div class="sectionBody">
-<p><?php $modx->webAlert($warning,'javascript:history.back();'); ?></p>
-<?php
-	include('footer.inc.php');
-	exit;
+	$modx->webAlertAndQuit($warning,'javascript:history.back();');
 }
 
 $children = array();

@@ -27,10 +27,7 @@ if (empty($pub_date)) {
     $pub_date = $modx->toTimeStamp($pub_date);
     if (empty($pub_date)) {
         $modx->manager->saveFormValues(78);
-        $url = "index.php?a=78&id={$id}";
-        include_once "header.inc.php";
-        $modx->webAlert($_lang["mgrlog_dateinvalid"], $url);
-        include_once "footer.inc.php";
+        $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
         exit;
     }
     elseif ($pub_date < $currentdate) $published = 1;
@@ -42,10 +39,7 @@ else {
     $unpub_date = $modx->toTimeStamp($unpub_date);
     if (empty($unpub_date)) {
         $modx->manager->saveFormValues(78);
-        $url = "index.php?a=78&id={$id}";
-        include_once "header.inc.php";
-        $modx->webAlert($_lang["mgrlog_dateinvalid"], $url);
-        include_once "footer.inc.php";
+        $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
         exit;
     }
     elseif ($unpub_date < $currentdate) $published = 0;
@@ -75,12 +69,9 @@ switch ($_POST['mode']) {
         $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', "name='{$name}'");
         $count = $modx->db->getValue($rs);
         if ($count > 0) {
-            $url = "index.php?a=77";
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
             $modx->manager->saveFormValues(77);
-            include_once 'header.inc.php';
-            $modx->webAlert($msg, $url);
-            include_once 'footer.inc.php';
+            $modx->webAlertAndQuit($msg, 'index.php?a=77');
             exit;
         }
         //do stuff to save the new doc
@@ -118,12 +109,9 @@ switch ($_POST['mode']) {
         ));
 
         if (check_exist_name($name) !== false) {
-            $url = "index.php?a=78&id={$id}";
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
             $modx->manager->saveFormValues(78);
-            include_once "header.inc.php";
-            $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            $modx->webAlertAndQuit($msg, "index.php?a=78&id={$id}");
             exit;
         }
 

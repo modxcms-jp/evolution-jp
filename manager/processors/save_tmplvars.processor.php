@@ -40,21 +40,15 @@ switch ($_POST['mode']) {
             'id'=>''
         ));
         if (check_exist_name($name) !== false) {
-            $url = "index.php?a=300";
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
             $modx->manager->saveFormValues(300);
-            include_once "header.inc.php";
-            $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            $modx->webAlertAndQuit($msg, 'index.php?a=300');
             exit;
         }
         if (check_reserved_names($name) !== false) {
-            $url = "index.php?a=300";
             $msg = sprintf($_lang['reserved_name_warning'], $name);
             $modx->manager->saveFormValues(300);
-            include_once "header.inc.php";
-            $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            $modx->webAlertAndQuit($msg, 'index.php?a=300');
             exit;
         }
 
@@ -98,21 +92,15 @@ switch ($_POST['mode']) {
             'id' => $id
         ));
         if (check_exist_name($name) !== false) {
-            $url = "index.php?id={$id}&a=301";
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
             $modx->manager->saveFormValues(301);
-            include_once "header.inc.php";
-            $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
             exit;
         }
         if (check_reserved_names($name) !== false) {
-            $url = "index.php?id={$id}&a=301";
             $msg = sprintf($_lang['reserved_name_warning'], $name);
             $modx->manager->saveFormValues(301);
-            include_once "header.inc.php";
-            $modx->webAlert($msg, $url);
-            include_once "footer.inc.php";
+            $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
             exit;
         }
         // update TV
