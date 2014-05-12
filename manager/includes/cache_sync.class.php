@@ -269,6 +269,7 @@ class synccache {
 	
 	function cache_put_contents($filename,$content) {
 		global $modx,$_lang;
+		if(empty($content)) return;
 		if(is_array($content)) {
 			$content = var_export($content, 'true');
 			$br = "\n";
