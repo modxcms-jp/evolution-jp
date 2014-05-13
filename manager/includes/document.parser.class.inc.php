@@ -855,8 +855,7 @@ class DocumentParser {
 					$_SESSION['mgrUsrConfigSet']= $musrSettings;
 				}
 			}
-			if(!empty ($musrSettings)&&!empty($usrSettings))
-				$usrSettings= array_merge($musrSettings, $usrSettings);
+			$usrSettings= array_merge($musrSettings, $usrSettings);
 		}
 		if(!empty($usrSettings)) $this->config= array_merge($this->config, $usrSettings);
 		if(strpos($this->config['filemanager_path'],'[(')!==false)
