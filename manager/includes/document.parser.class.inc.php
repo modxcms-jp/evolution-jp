@@ -1779,10 +1779,12 @@ class DocumentParser {
 	{
 		if(isset($_SESSION['mgrValidated'])
 			 && $mode==='prepareResponse'
-			 && isset($_POST['mode']) && $_POST['mode']==='prev'
 			 && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
 			)
 		{
+			if(!isset($_POST['token']) || !isset($_SESSION['token']) || $_POST['token']!==$_SESSION['token']) {
+				exit('Can not preview');
+			}
 			$previewObject = $this->getPreviewObject($_POST);
             $this->directParse = 1;
             $method = 'id';

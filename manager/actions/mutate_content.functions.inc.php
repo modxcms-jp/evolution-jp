@@ -95,7 +95,7 @@ function ab_save()
 	
 	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button1"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-	$ph['onclick'] = "documentDirty=false; document.mutate.action='index.php';document.mutate.target='main'; document.mutate.mode.value=" . (int)$_REQUEST['a'] . ";document.mutate.save.click();";
+	$ph['onclick'] = "documentDirty=false; document.mutate.action='index.php';document.mutate.target='main';document.mutate.save.click();";
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];

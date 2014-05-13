@@ -25,7 +25,6 @@ function openprev(actionurl)
         document.mutate.target = "prevWin";
         document.mutate.method = "post";
         document.mutate.action = actionurl;
-        document.mutate.mode.value = 'prev';
         document.mutate.submit();
 	}
 }

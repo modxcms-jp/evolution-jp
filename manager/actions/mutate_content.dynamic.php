@@ -49,6 +49,7 @@ $tpl['head'] = <<< EOT
 	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
 	<input type="hidden" name="newtemplate" value="" />
 	<input type="hidden" name="pid" value="[+pid+]" />
+	<input type="hidden" name="token" value="[+token+]" />
 	<input type="submit" name="save" style="display:none" />
 	[+OnDocFormPrerender+]
 	
@@ -222,6 +223,8 @@ else $ph['pid'] = $_REQUEST['pid'];
 $ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
 $ph['actionButtons'] = getActionButtons($id);
 $ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
+$ph['token'] = $modx->genToken();
+$_SESSION['token'] = $ph['token'];
 
 echo $modx->parseText($tpl['head'],$ph);
 
