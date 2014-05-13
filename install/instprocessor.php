@@ -214,7 +214,7 @@ if ($tvs!==false && !empty($tvs) || $installdata)
 	foreach ($moduleTVs as $k=>$moduleTV)
 	{
 		if(in_array('sample', $moduleTV[12]) && $installdata == 1) $installSample = true;;
-		if($installSample || in_array($k, $tvs))
+		if(in_array($k, $tvs) || $installSample)
 		{
 			$name = modx_escape($moduleTV[0]);
 			$caption = modx_escape($moduleTV[1]);
