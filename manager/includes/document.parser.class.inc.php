@@ -3124,6 +3124,8 @@ class DocumentParser {
 		{$this->loadExtension('SubParser');return $this->sub->getVersionData($data);}
 	function _IIS_furl_fix()
 		{$this->loadExtension('SubParser');return $this->sub->_IIS_furl_fix();}
+	function genToken()
+		{$this->loadExtension('SubParser');return $this->sub->genToken();}
 
 	
 	// - deprecated db functions

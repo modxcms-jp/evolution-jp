@@ -1676,4 +1676,12 @@ class SubParser {
 		$_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
 		$_REQUEST['q']= $_GET['q']= $qp['path'];
 	}
+	
+	function genToken() {
+		global $modx;
+		$key = md5(mt_rand());
+		$key = base_convert($key,16,36);
+		$key = substr($key,0,12);
+		return $key;
+	}
 }
