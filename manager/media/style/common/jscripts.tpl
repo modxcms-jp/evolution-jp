@@ -16,6 +16,7 @@ jQuery(function(){
 </script>
 <script type="text/javascript">
 /* <![CDATA[ */
+var gotosave;
 function openprev(actionurl)
 {
     window.open(actionurl,"prevWin");

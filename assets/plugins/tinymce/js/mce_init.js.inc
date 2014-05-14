@@ -1,9 +1,6 @@
 <script language="javascript" type="text/javascript" src="[+mce_url+]tiny_mce/tiny_mce.js?refresh=[+refresh_seed+]"></script>
 <script language="javascript" type="text/javascript" src="[+mce_url+]js/xconfig.js"></script>
 <script language="javascript" type="text/javascript">
-function modxOnChangeHandler(inst) {
-    documentDirty=true;
-}
 tinyMCE.init({
 	theme                            : 'advanced',
 	skin                             : '[+skin+]',
@@ -76,7 +73,7 @@ tinyMCE.init({
 			}
 		});
 	},
-	onchange_callback                : [+onchange_callback+][+terminate+]
+	onchange_callback                : function(){if(!gotosave) documentDirty=true;}[+terminate+]
 	[+customparams+]
 });
 </script>
