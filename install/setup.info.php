@@ -40,14 +40,13 @@ if($installmode==0 && is_dir($templatePath) && is_readable($templatePath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
-			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-			
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($installmode==1 && compare_check($params)==='same') continue;
 				
+			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$mt[] = array
 			(
 				$params['name'],
-				$description,
+				$params['description'],
 				// Don't think this is gonna be used ... but adding it just in case 'type'
 				$params['type'],
 				$tplfile,
@@ -69,12 +68,12 @@ if($installmode==0 && is_dir($tvPath) && is_readable($tvPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
-			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
 			if($installmode==1 && compare_check($params)=='same') continue;
+			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
             $mtv[] = array(
 					$params['name'],
 					$params['caption'],
-					$description,
+					$params['description'],
 					$params['input_type'],
 					$params['input_options'],
 					$params['input_default'],
@@ -125,13 +124,11 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
-			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-			
 			if($installmode==1 && compare_check($params)=='same') continue;
-			
+			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$ms[] = array(
 			    $params['name'],
-			    $description,
+			    $params['description'],
 			    $tplfile,
 			    $params['properties'],
 			    $params['modx_category'],
@@ -154,14 +151,13 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 		if(is_array($params) && 0 < count($params))
 		{
 		
-			if(!empty($params['version'])) $description = "<strong>{$params['version']}</strong> {$params['description']}";
-			else                           $description = $params['description'];
+			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
 			if($installmode==1 && compare_check($params)=='same') continue;
 		
 			$mp[] = array(
 				$params['name'],
-				$description,
+				$params['description'],
 				$tplfile,
 				$params['properties'],
 				$params['events'],
@@ -184,13 +180,13 @@ if(is_dir($modulePath) && is_readable($modulePath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
-			$description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
+			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
 			if($installmode==1 && compare_check($params)=='same') continue;
 			
 			$mm[] = array(
 			    $params['name'],
-			    $description,
+			    $params['description'],
 			    $tplfile,
 			    $params['properties'],
 			    $params['guid'],

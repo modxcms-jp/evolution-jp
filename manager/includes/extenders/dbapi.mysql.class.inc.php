@@ -11,6 +11,11 @@ class DBAPI {
 	var $config;
 	var $isConnected;
 	var $lastQuery;
+	var $hostname;
+	var $dbname;
+	var $username;
+	var $password;
+	var $table_prefix;
 	
 	/**
 	* @name:  DBAPI
@@ -29,6 +34,13 @@ class DBAPI {
 		$this->_dbconnectionmethod = &$this->config['connection_method'];
 		$this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
 		$this->initDataTypes();
+		$this->hostname = $this->config['host'];
+		$this->dbname   = $this->config['dbase'];
+		$this->username = $this->config['user'];
+		$this->password = $this->config['pass'];
+		$this->table_prefix = $this->config['table_prefix'];
+		$this->charset           = $this->config['charset'];
+		$this->connection_method = $this->config['connection_method'];
 	}
 	
 	/**
@@ -38,10 +50,11 @@ class DBAPI {
 	function connect($host = '', $dbase = '', $uid = '', $pwd = '', $persist = 0)
 	{
 		global $modx;
-		if(!$uid)   $uid   = $this->config['user'];
-		if(!$pwd)   $pwd   = $this->config['pass'];
-		if(!$host)  $host  = $this->config['host'];
-		if(!$dbase) $dbase = $this->config['dbase'];
+		if(!$host)  $host  = $this->hostname;
+		if(!$dbase) $dbase = $this->dbname;
+		if(!$uid)   $uid   = $this->username;
+		if(!$pwd)   $pwd   = $this->password;
+		
 		$tstart = $modx->getMicroTime();
 		$safe_count = 0;
 		while(!$this->conn && $safe_count<3)
@@ -82,7 +95,7 @@ class DBAPI {
 				$modx->messageQuit("Failed to select the database '{$dbase}'!");
 				exit;
 			}
-			@mysql_query("{$this->config['connection_method']} {$this->config['charset']}", $this->conn);
+			@mysql_query("{$this->connection_method} {$this->charset}", $this->conn);
 			$tend = $modx->getMicroTime();
 			$totaltime = $tend - $tstart;
 			if ($modx->dumpSQL)
@@ -92,11 +105,11 @@ class DBAPI {
 			}
 			if (function_exists('mysql_set_charset'))
 			{
-				mysql_set_charset($this->config['charset']);
+				mysql_set_charset($this->charset);
 			}
 			else
 			{
-				@mysql_query("SET NAMES {$this->config['charset']}", $this->conn);
+				@mysql_query("SET NAMES {$this->charset}", $this->conn);
 			}
 			$this->isConnected = true;
 			// FIXME (Fixed by line below):
@@ -136,7 +149,7 @@ class DBAPI {
 		{
 			$s = mysql_real_escape_string($s, $this->conn);
 		}
-		elseif ($this->config['charset']=='utf8' && $this->conn)
+		elseif ($this->charset=='utf8' && $this->conn)
 		{
 			$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
 			$s = mysql_real_escape_string($s, $this->conn);
@@ -591,8 +604,8 @@ class DBAPI {
     function replaceFullTableName($table_name,$force=null) {
         
         $table_name = trim($table_name);
-        $dbase  = trim($this->config['dbase'],'`');
-        $prefix = $this->config['table_prefix'];
+        $dbase  = trim($this->dbname,'`');
+        $prefix = $this->table_prefix;
         if(!empty($force))
         {
         	$result = "`{$dbase}`.`{$prefix}{$table_name}`";
@@ -807,7 +820,7 @@ class DBAPI {
 	
 	function optimize($table_name)
 	{
-		$table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
+		$table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
 		$rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
 		if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
 		return $rs;
@@ -815,7 +828,7 @@ class DBAPI {
 
 	function truncate($table_name)
 	{
-		$table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
+		$table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
 		$rs = $this->query("TRUNCATE TABLE `{$table_name}`");
 		return $rs;
 	}
@@ -827,7 +840,7 @@ class DBAPI {
     	if(is_file($source)) $source = file_get_contents($source);
     	
     	if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\r"),"\n",$source);
-    	$source = str_replace('{PREFIX}',$this->config['table_prefix'],$source);
+    	$source = str_replace('{PREFIX}',$this->table_prefix,$source);
     	$sql_array = preg_split('@;[ \t]*\n@', $source);
     	foreach($sql_array as $sql_entry)
     	{

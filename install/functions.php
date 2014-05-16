@@ -293,21 +293,21 @@ function propUpdate($new,$old)
 	return modx_escape($return);
 }
 
-function getCreateDbCategory($category, $sqlParser) {
-    $dbase = $sqlParser->dbname;
-    $table_prefix = $sqlParser->prefix;
+function getCreateDbCategory($category) {
+	global $modx;
+	
     $category_id = 0;
     if(!empty($category)) {
-        $category = modx_escape($category);
-        $rs = mysql_query("SELECT id FROM {$dbase}.`{$table_prefix}categories` WHERE category = '{$category}'");
-        if(mysql_num_rows($rs) && ($row = mysql_fetch_assoc($rs)))
+        $category = $modx->db->escape($category);
+        $rs = $modx->db->select('id', '[+prefix+]categories', "category='{$category}'");
+        if(0<$modx->db->getRecordCount($rs))
         {
+        	$row = $modx->db->getRow($rs);
             $category_id = $row['id'];
         } else {
-            $q = "INSERT INTO {$dbase}.`{$table_prefix}categories` (`category`) VALUES ('{$category}')";
-            $rs = mysql_query($q);
+            $rs = $modx->db->insert(array('category'=>$category), '[+prefix+]categories');
             if($rs) {
-                $category_id = mysql_insert_id();
+                $category_id = $rs;
             }
         }
     }
