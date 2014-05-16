@@ -1,11 +1,6 @@
 <?php
 //:: MODx Installer Setup file 
 //:::::::::::::::::::::::::::::::::::::::::
-require_once("{$base_path}manager/includes/version.inc.php");
-
-$moduleName = 'MODX';
-$moduleVersion = $modx_branch.' '.$modx_version;
-$moduleRelease = $modx_release_date;
 
 $chunkPath    = "{$base_path}assets/chunks/";
 $snippetPath  = "{$base_path}assets/snippets/";
@@ -14,12 +9,7 @@ $modulePath   = "{$base_path}assets/modules/";
 $templatePath = "{$base_path}assets/templates/";
 $tvPath       = "{$base_path}assets/tvs/";
 
-if (is_file("{$base_path}manager/includes/config.inc.php"))
-{
-	global $dbase,$database_server,$database_user,$database_password,$table_prefix;
-	include_once("{$base_path}manager/includes/config.inc.php");
-}
-
+global $dbase,$database_server,$database_user,$database_password,$table_prefix;
 $database_server   = $_SESSION['database_server'];
 $database_user     = $_SESSION['database_user'];
 $database_password = $_SESSION['database_password'];
