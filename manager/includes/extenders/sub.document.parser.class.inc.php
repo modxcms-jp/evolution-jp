@@ -80,6 +80,7 @@ class SubParser {
 		$modx->mail->FromName = (!isset($p['fromname'])) ? $modx->config['site_name'] : $p['fromname'];
 		$modx->mail->Subject  = (!isset($p['subject']))  ? $modx->config['emailsubject'] : $p['subject'];
 		$modx->mail->Body	 = $p['body'];
+		if (isset($p['type']) && $p['type'] == 'text') $this->mail->IsHTML(false);
 		$rs = $modx->mail->send();
 		return $rs;
 	}
