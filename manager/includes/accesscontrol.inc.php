@@ -16,29 +16,30 @@ if (is_file($instcheck_path))
 			unset($installStartTime);
 			@ chmod($instcheck_path, 0755);
 			unlink($instcheck_path);
-		} else {
-			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-				if (isset($_COOKIE[session_name()])) {
-					session_unset();
-					@session_destroy();
-				}
-				$installGoingOn = 1;
-			}
-		}
-	}
-}
-
-// andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
-	if (isset($_SESSION['modx.session.created.time']) && ($_SESSION['modx.session.created.time'] < $lastInstallTime)) {
-		if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+		} elseif ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			if (isset($_COOKIE[session_name()])) {
 				session_unset();
 				@session_destroy();
 			}
-			header('HTTP/1.0 307 Redirect');
-			header('Location: '.MODX_MANAGER_URL.'index.php?installGoingOn=2');
+			$installGoingOn = 1;
 		}
+	}
+}
+if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
+
+// andrazk 20070416 - if session started before install and was not destroyed yet
+if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
+	if (isset($_SESSION['modx.session.created.time'])
+		&& ($_SESSION['modx.session.created.time'] < $lastInstallTime)
+		&& $_SERVER['REQUEST_METHOD'] != 'POST'
+		)
+	{
+		if (isset($_COOKIE[session_name()])) {
+			session_unset();
+			@session_destroy();
+		}
+		header('HTTP/1.0 307 Redirect');
+		header('Location: '. MODX_MANAGER_URL . 'index.php?installGoingOn=2');
 	}
 }
 
@@ -72,7 +73,6 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('year',date('Y'));
 
 	// andrazk 20070416 - notify user of install/update
-	if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
 	if (isset($installGoingOn))
 	{
 		switch ($installGoingOn)
