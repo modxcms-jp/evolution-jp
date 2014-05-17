@@ -232,11 +232,10 @@ class SubParser {
                     <tr><td colspan="2">The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan="2"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         }
-
-        if (!empty ($query)) {
-	        $str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">SQL &gt; <span id="sqlHolder">' . $query . '</span></div>
-                    </td></tr>';
-        }
+        
+        $codetpl = '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">[+code+]</div></td></tr>';
+        
+        if (!empty ($query)) $str .= $modx->parseText($codetpl,array('code'=>$query));
 
         $errortype= array (
             E_ERROR             => "ERROR",
@@ -256,28 +255,19 @@ class SubParser {
             E_USER_DEPRECATED   => "USER DEPRECATED"
         );
 
+        $tpl = '<tr><td valign="top">[+left+]</td><tr><td>[+right+]</td></tr>';
 		if(!empty($nr) || !empty($file))
 		{
 			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
-			if ($text != '')
-			{
-				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">Error : ' . $text . '</div></td></tr>';
-			}
-			if($output!='')
-			{
-				$str .= '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">' . $output . '</div></td></tr>';
-			}
-			$str .= '<tr><td valign="top">ErrorType[num] : </td>';
-			$str .= '<td>' . $errortype [$nr] . "[{$nr}]</td>";
-			$str .= '</tr>';
-			$str .= "<tr><td>File : </td><td>{$file}</td></tr>";
-			$str .= "<tr><td>Line : </td><td>{$line}</td></tr>";
+			if ($text != '') $str .= $modx->parseText($codetpl,array('code'=>"Error : {$text}"));
+			if($output!='')  $str .= $modx->parseText($codetpl,array('code'=>$output));
+			$str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>"[{$nr}]"));
+			$str .= $modx->parseText($tpl,array('left'=>'File : ','right'=>$file));
+			$str .= $modx->parseText($tpl,array('left'=>'Line : ','right'=>$line));
 		}
         
         if ($source != '')
-        {
-            $str .= "<tr><td>Source : </td><td>{$source}</td></tr>";
-        }
+        	$str .= $modx->parseText($tpl,array('left'=>'Source : ','right'=>$source));
 
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
@@ -293,9 +283,7 @@ class SubParser {
         	global $action_list;
         	if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
         	else $actionName = '';
-			$str .= '<tr><td valign="top">Manager action : </td>';
-			$str .= "<td>{$action}{$actionName}</td>";
-			$str .= '</tr>';
+        	$str .= $modx->parseText($tpl,array('left'=>'Manager action : ','right'=>"{$action}{$actionName}"));
         }
         
         if(preg_match('@^[0-9]+@',$modx->documentIdentifier))
@@ -303,66 +291,29 @@ class SubParser {
         	$resource  = $modx->getDocumentObject('id',$modx->documentIdentifier);
         	$url = $modx->makeUrl($modx->documentIdentifier,'','','full');
         	$link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
-			$str .= '<tr><td valign="top">Resource : </td>';
-			$str .= '<td>[' . $modx->documentIdentifier . ']' . $link . '</td></tr>';
+        	$str .= $modx->parseText($tpl,array('left'=>'Resource : ','right'=>"[{$modx->documentIdentifier}]{$link}"));
         }
 
         if(!empty($modx->currentSnippet))
-        {
-            $str .= "<tr><td>Current Snippet : </td>";
-            $str .= '<td>' . $modx->currentSnippet . '</td></tr>';
-        }
+        	$str .= $modx->parseText($tpl,array('left'=>'Current Snippet : ','right'=>$modx->currentSnippet));
 
         if(!empty($modx->event->activePlugin))
-        {
-            $str .= "<tr><td>Current Plugin : </td>";
-            $str .= '<td>' . $modx->event->activePlugin . '(' . $modx->event->name . ')' . '</td></tr>';
-        }
+        	$str .= $modx->parseText($tpl,array('left'=>'Current Plugin : ', 'right'=>"{$modx->event->activePlugin}({$modx->event->name})"));
 
-        $str .= "<tr><td>Referer : </td><td>{$referer}</td></tr>";
-        $str .= "<tr><td>User Agent : </td><td>{$ua}</td></tr>";
-
-        $str .= "<tr><td>IP : </td>";
-        $str .= '<td>' . $_SERVER['REMOTE_ADDR'] . '</td>';
-        $str .= '</tr>';
+        $str .= $modx->parseText($tpl,array('left'=>'Referer : '    , 'right'=>$referer));
+        $str .= $modx->parseText($tpl,array('left'=>'User Agent : ' , 'right'=>$ua));
+        $str .= $modx->parseText($tpl,array('left'=>'IP : '         , 'right'=>$_SERVER['REMOTE_ADDR']));
 
         $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
-        $str .= "<tr><td>MySQL : </td>";
-	    $str .= '<td>[^qt^] ([^q^] Requests)</td>';
-        $str .= '</tr>';
-
-        $str .= "<tr><td>PHP : </td>";
-	    $str .= '<td>[^p^]</td>';
-        $str .= '</tr>';
-
-        $str .= "<tr><td>Total : </td>";
-	    $str .= '<td>[^t^]</td>';
-        $str .= '</tr>';
-
-	    $str .= "<tr><td>Memory : </td>";
-	    $str .= '<td>[^m^]</td>';
-	    $str .= '</tr>';
+        $str .= $modx->parseText($tpl,array('left'=>'MySQL : '  , 'right'=>'[^qt^] ([^q^] Requests)'));
+        $str .= $modx->parseText($tpl,array('left'=>'PHP : '    , 'right'=>'[^p^]'));
+        $str .= $modx->parseText($tpl,array('left'=>'Total : '  , 'right'=>'[^t^]'));
+        $str .= $modx->parseText($tpl,array('left'=>'Memory : ' , 'right'=>'[^m^]'));
 	    
         $str .= "</table>\n";
 
-        $totalTime= ($modx->getMicroTime() - $modx->tstart);
-
-		$mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
-		$total_mem = $modx->nicesize($mem - $modx->mstart);
-		
-        $queryTime= $modx->queryTime;
-        $phpTime= $totalTime - $queryTime;
-        $queries= isset ($modx->executedQueries) ? $modx->executedQueries : 0;
-        $queryTime= sprintf("%2.4f s", $queryTime);
-        $totalTime= sprintf("%2.4f s", $totalTime);
-        $phpTime= sprintf("%2.4f s", $phpTime);
-
-        $str= str_replace('[^q^]', $queries, $str);
-        $str= str_replace('[^qt^]',$queryTime, $str);
-        $str= str_replace('[^p^]', $phpTime, $str);
-        $str= str_replace('[^t^]', $totalTime, $str);
-        $str= str_replace('[^m^]', $total_mem, $str);
+        $str = $modx->mergeBenchmarkContent($str);
 
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
 		$str .= '<br />' . $modx->get_backtrace(debug_backtrace()) . "\n";
