@@ -835,13 +835,17 @@ function sectionContent() {
 	$htmlcontent = htmlspecialchars($docObject->content);
 	
 	$ph['header'] = $_lang['resource_content'];
+	$planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
 	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $modx->config['use_editor'] == 1 && $docObject->richtext == 1):
 		// invoke OnRichTextEditorRegister event
 		$editors = $modx->invokeEvent('OnRichTextEditorRegister');
-		$ph['body'] = rteContent($htmlcontent,$editors);
+		if(!empty($editors))
+			$ph['body'] = rteContent($htmlcontent,$editors);
+		else
+			$ph['body'] = $planetpl;
 		$rte_field = array('ta');
 	else:
-		$ph['body'] = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
+		$ph['body'] = $planetpl;
 	endif;
 	
 	return $modx->parseText($tpl,$ph);
