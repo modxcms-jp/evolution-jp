@@ -797,7 +797,9 @@ class DocumentParser {
 	
 	function getSettings()
 	{
-		include_once(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+		$cache_path = MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
+		if(is_file($cache_path))
+			include_once($cache_path);
 		if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
 		{
 			$this->config = $this->getSiteCache();
@@ -842,7 +844,7 @@ class DocumentParser {
 		{
 			if($this->isBackend()) $this->invokeEvent('OnBeforeManagerPageInit');
 			$musrSettings= array ();
-			if(isset ($_SESSION['mgrUsrConfigSet']) && 0 < count($_SESSION['mgrUsrConfigSet']))
+			if(isset ($_SESSION['mgrUsrConfigSet']) && is_array($_SESSION['mgrUsrConfigSet']))
 				$musrSettings= & $_SESSION['mgrUsrConfigSet'];
 			else
 			{
