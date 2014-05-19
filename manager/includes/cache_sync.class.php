@@ -278,7 +278,8 @@ class synccache {
 		
 		$cache_path = $this->cachePath .$filename;
 		
-		if(!is_writable($cache_path)) chmod($cache_path, 0646);
+		if(is_file($cache_path)&&!is_writable($cache_path))
+			chmod($cache_path, 0646);
 		
 		if(!@file_put_contents($cache_path, $content, LOCK_EX)) {
 			$msg = "{$cache_path} - ".$_lang['file_not_saved'];
