@@ -633,7 +633,6 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 // initiate a new document parser
 include_once("{$base_path}index.php");
 
-$modx->clearCache(); // always empty cache after install
 $cache_path = "{$base_path}assets/cache/";
 
 $files = glob("{$cache_path}*.idx.php");
@@ -645,6 +644,8 @@ foreach($files as $file)
 // try to chmod the cache go-rwx (for suexeced php)
 @chmod("{$cache_path}siteCache.idx.php", 0600);
 @chmod("{$cache_path}basicConfig.idx.php", 0600);
+
+$modx->clearCache(); // always empty cache after install
 
 // remove any locks on the manager functions so initial manager login is not blocked
 $modx->db->truncate('[+prefix+]active_users');
