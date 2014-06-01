@@ -7,7 +7,7 @@ if(!$modx->hasPermission('bk_manager')) {
 
 $dbase = trim($dbase,'`');
 
-if(!isset($modx->config['snapshot_path'])) {
+if(!isset($modx->config['snapshot_path'])||strpos($modx->config['snapshot_path'],MODX_BASE_PATH)===false) {
 	if(is_dir(MODX_BASE_PATH . 'temp/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'temp/backup/';
 	elseif(is_dir(MODX_BASE_PATH . 'assets/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
 }
