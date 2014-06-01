@@ -170,7 +170,7 @@ class SubParser {
     function clearCache($params=array()) {
     	global $modx;
     	
-    	if($modx->isBackend() && !$modx->hasPermission('empty_cache')) return;
+    	if(isset($_SESSION['mgrPermissions']) && !$modx->hasPermission('empty_cache')) return;
     	if(!is_array($params) && preg_match('@^[1-9][0-9]*$@',$params))
     	{
     		$docid = $params;
