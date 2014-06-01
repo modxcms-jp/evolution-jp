@@ -784,7 +784,7 @@ function goNextAction($id) {
 				$header .= 'a=4';
 			elseif($form_v['type']==='reference')
 				$header .= 'a=72';
-			$header .= "&pid={$parent}&r=1";
+			$header .= "&pid={$parent}&r=1&stay=1";
 			break;
 		case '2':
 			$header = "Location: index.php?a=27&id={$id}&r=1&stay=2";
