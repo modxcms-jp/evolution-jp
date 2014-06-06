@@ -24,7 +24,7 @@ include_once('index.php');
 $q = MODX_BASE_PATH . $q;
 $q = str_replace('\\','/',$q);
 
-if(!is_file($q) || strtolower(substr($q,-4))!=='.php') {
+if(!is_file($q) || strtolower(substr($q,-4))!=='.php' || strpos($q,MODX_BASE_PATH.'manager/')===0) {
 	header('HTTP/1.1 404 Not Found');
 	exit();
 }
