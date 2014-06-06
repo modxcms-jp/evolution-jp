@@ -4,6 +4,14 @@
 // Any PHP files in these directories can be executed by any user.
 $allowed_dirs = array('assets/snippets/ajaxSearch/');
 
+// set some settings, and address some IE issues
+@ini_set('url_rewriter.tags', '');
+@ini_set('session.use_trans_sid', 0);
+@ini_set('session.use_only_cookies',1);
+session_cache_limiter('');
+header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
+header('Cache-Control: private, must-revalidate');
+
 if(isset($_GET['q']) && $_GET['q']!=='')       $q = $_GET['q'];
 elseif(isset($_POST['q']) && $_POST['q']!=='') $q = $_POST['q'];
 else exit;
