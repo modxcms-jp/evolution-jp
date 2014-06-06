@@ -5,6 +5,7 @@ $init->check_phpvar();
 $init->fix_request_time();
 $init->fix_document_root();
 $init->fix_magic_quotes();
+$init->fix_server_addr();
 
 // automatically assign base_path and base_url
 if(!isset($base_path)) $base_path = $init->get_base_path();
@@ -193,5 +194,11 @@ class MODX_INIT {
     function fix_request_time()
     {
     	if(!isset($_SERVER['REQUEST_TIME'])) $_SERVER['REQUEST_TIME'] = time();
+    }
+    
+    function fix_server_addr()
+    {
+    	if(!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR']))
+    		$_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
     }
 }
