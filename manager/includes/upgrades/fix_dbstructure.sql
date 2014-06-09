@@ -237,5 +237,9 @@ ALTER TABLE `{PREFIX}web_user_attributes`
  ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`,
  ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;
 
+#1.0.13J-r1-1.0.13J-r2
+
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues`
+ MODIFY COLUMN `value` mediumtext;
 
 
