@@ -84,7 +84,7 @@ if ($sqlParser->installFailed == true)
 }
 else echo '<span class="ok">'.$_lang['ok'].'</span></p>';
 
-$src = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
+$configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
 $ph['database_server']             = $_SESSION['database_server'];
 $ph['database_user']               = $modx->db->escape($_SESSION['database_user']);
@@ -95,9 +95,9 @@ $ph['table_prefix']                = $_SESSION['table_prefix'];
 $ph['lastInstallTime']             = time();
 $ph['https_port']                  = '443';
 
-$src = parse($src, $ph);
+$configString = parse($configString, $ph);
 $config_path = "{$base_path}manager/includes/config.inc.php";
-$config_saved = (@ file_put_contents($config_path, $src));
+$config_saved = (@ file_put_contents($config_path, $configString));
 
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($config_path, 0404);
@@ -108,10 +108,8 @@ if ($config_saved === false)
 	echo '<span class="notok">' . $_lang['failed'] . "</span></p>";
 	$errors += 1;
 ?>
-	<p><?php echo $_lang['cant_write_config_file'];?><span class="mono">manager/includes/config.inc.php</span></p>
-	<textarea style="width:400px; height:160px;">
-	<?php echo $configString; ?>
-	</textarea>
+	<p><?php echo $_lang['cant_write_config_file'];?><br /><span class="mono">manager/includes/config.inc.php</span></p>
+	<textarea style="width:100%; height:200px;font-size:inherit;font-family:'Courier New','Courier', monospace;"><?php echo htmlspecialchars($configString); ?></textarea>
 	<p><?php echo $_lang['cant_write_config_file_note']?></p>
 <?php
 }
