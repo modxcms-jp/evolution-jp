@@ -7,14 +7,12 @@ if(!$modx->hasPermission('settings'))
 }
 // check to see the edit settings page isn't locked
 $rs = $modx->db->select('internalKey, username', '[+prefix+]active_users', 'action=17');
-$limit = $modx->db->getRecordCount($rs);
-if($limit>1) {
-	for ($i=0;$i<$limit;$i++)
+if(1<$modx->db->getRecordCount($rs)) {
+	while($row = $modx->db->getRow($rs))
 	{
-		$lock = $modx->db->getRow($rs);
-		if($lock['internalKey']!=$modx->getLoginUserID())
+		if($row['internalKey']!=$modx->getLoginUserID())
 		{
-			$msg = sprintf($_lang["lock_settings_msg"],$lock['username']);
+			$msg = sprintf($_lang["lock_settings_msg"],$row['username']);
 			$e->setError(5, $msg);
 			$e->dumpError();
 		}
