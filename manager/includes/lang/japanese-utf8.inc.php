@@ -1293,3 +1293,7 @@ $_lang["general"] = '一般';
 $_lang["option"] = 'オプション';
 
 $_lang["bk_different_version"] = 'MODXのバージョンが異なります。';
+
+$_lang['configcheck_danger_ajaxsearch'] = 'AjaxSearchスニペットをアップデートしてください。';
+$_lang['configcheck_danger_ajaxsearch_msg'] = 'インストールされているAjaxSearchスニペットには深刻な脆弱性が存在します。必ずアップデートしてください。不要な場合は assets/snippets/ajaxSearch/ ディレクトリを削除してください。';
+

@@ -1291,3 +1291,7 @@ $_lang["general"] = 'General';
 $_lang["option"] = 'Option';
 
 $_lang["bk_different_version"] = 'Version is different';
+
+$_lang['configcheck_danger_ajaxsearch'] = 'You should update AjaxSearch snippet.';
+$_lang['configcheck_danger_ajaxsearch_msg'] = 'There is serious vulnerability in installed AjaxSearch. Please update it by all means. When you are unnecessary, please delete the assets/snippets/ajaxSearch/ directory.';
+

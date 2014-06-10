@@ -3,6 +3,9 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 $base_path = MODX_BASE_PATH;
 
+$rs = checkAjaxSearch();
+if($rs) $warnings[] = 'configcheck_danger_ajaxsearch';
+
 $sysfiles_check = $modx->manager->checkSystemChecksum();
 if ($sysfiles_check==='modified'){
       $warnings[] = 'configcheck_sysfiles_mod';
@@ -108,7 +111,11 @@ if (0 < count($warnings))
 			case 'configcheck_sysfiles_mod':
 				$output = $_lang["configcheck_sysfiles_mod_msg"];
 				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang[$warning]);
-            break;
+				break;
+			case 'configcheck_danger_ajaxsearch':
+				$output = $_lang["configcheck_danger_ajaxsearch_msg"];
+				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang['configcheck_danger_ajaxsearch']);
+				break;
 			case 'configcheck_rb_base_dir':
 				$output = '$modx->config[\'rb_base_dir\']';
 				break;
@@ -212,4 +219,16 @@ function get_sc_value($field,$where)
 	$tbl_site_content = $modx->getFullTableName('site_content');
 	$where = "id={$where}";
 	return $modx->db->getValue($modx->db->select($field,$tbl_site_content,$where));
+}
+
+function checkAjaxSearch()
+{
+	$target_path = MODX_BASE_PATH . 'assets/snippets/ajaxSearch/classes/ajaxSearchConfig.class.inc.php';
+	if(is_file($target_path))
+	{
+		$content = file_get_contents($target_path);
+		if(strpos($content,'remove any @BINDINGS')===false)
+			return true;
+	}
+	return false;
 }
