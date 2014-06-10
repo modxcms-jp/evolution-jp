@@ -45,7 +45,7 @@ if($action == 'get') {
         }
     } elseif(!empty($key) && !empty($lang) && !empty($value)) {
         $str = "true";
-        $rs = $modx->db->update(array($key=>$value),'[+prefix+]site_plugins',"name='{$lang}'")
+        $rs = $modx->db->update(array($key=>$value),'[+prefix+]site_plugins',"name='{$lang}'");
         if(!$rs) {
             $str = "false";
         } else {
