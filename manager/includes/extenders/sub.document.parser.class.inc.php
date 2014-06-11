@@ -830,7 +830,6 @@ class SubParser {
                     'PREFIX' => $modx->db->config['table_prefix']
                 );
                 $param = $modx->parseText($param,$ph);
-                $param = $modx->db->escape($param);
                 $rs = $modx->db->query("SELECT {$param}");
                 if($modx->db->getRecordCount($rs)==0) return;
                 $output = $rs;
