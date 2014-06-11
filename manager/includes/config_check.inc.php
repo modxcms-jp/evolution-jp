@@ -26,7 +26,7 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
 {
 	if(isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1')
 	{
-		if ($modx->db->getValue($modx->db->select('COUNT(setting_value)',$modx->getFullTableName('system_settings'),"setting_name='validate_referer' AND setting_value='0'")))
+		if ($modx->db->getValue($modx->db->select('COUNT(setting_value)','[+prefix+]system_settings',"setting_name='validate_referer' AND setting_value='0'")))
 		{
 			$warnings[] = 'configcheck_validate_referer';
 		}
