@@ -1040,15 +1040,18 @@ class SubParser {
 			case "listbox":  // handler for select boxes
 			case "listbox-multiple": // handler for select boxes where you can choose multiple items
 				$tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/list.inc.php');
+				if($field_type==='listbox-multiple')
+					$tpl = str_replace('[+name+]','[+name+][]',$tpl);
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
 				$index_list = $this->ParseIntputOptions($rs);
 				$tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
+				$field_values = explode('||',$field_value);
 				foreach ($index_list as $label=>$item)
 				{
 					list($label,$value) = $this->splitOption($item);
 					$ph2['label']    = $label;
-					$ph2['value']    = $value;
-					$ph2['selected'] = ($value==$field_value) ? 'selected="selected"':'';
+					$ph2['value']    =  htmlspecialchars($value);
+					$ph2['selected'] = in_array($value,$field_values) ? 'selected="selected"':'';
 					$options[] = $modx->parseText($tpl2, $ph2);
 				}
 				$ph['options'] = join("\n",$options);
