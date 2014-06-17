@@ -35,8 +35,8 @@ REPLACE INTO `{PREFIX}user_roles`
 
 REPLACE INTO `{PREFIX}system_eventnames` 
 (id,name,service,groupname) VALUES 
-('1','OnDocPublished','5',''), 
-('2','OnDocUnPublished','5',''),
+('1','OnDocPublished','1','Documents'), 
+('2','OnDocUnPublished','1','Documents'),
 ('3','OnWebPagePrerender','5',''),
 ('4','OnWebLogin','3',''),
 ('5','OnBeforeWebLogout','3',''),
@@ -105,7 +105,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('68','OnBeforeWUsrFormDelete','1','Web Users'),
 ('69','OnWUsrFormDelete','1','Web Users'),
 ('70','OnSiteRefresh','1',''),
-('71','OnFileManagerUpload','1',''),
+('71','OnFileManagerUpload','2',''),
 ('72','OnModFormPrerender','1','Modules'),
 ('73','OnModFormRender','1','Modules'),
 ('74','OnBeforeModFormDelete','1','Modules'),
