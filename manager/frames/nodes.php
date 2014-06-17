@@ -418,7 +418,7 @@ function getIcon($id, $contenttype, $isfolder='0') {
 	elseif($id == $modx->config['unauthorized_page'])     $rs = $_style["tree_page_info"];
 	else {
 		if (!$privateweb&&!$privatemgr) :
-			if($isfolder)                                 $rs = $_style['tree_folderopen'];
+			if($isfolder)                                 $rs = $_style['tree_folder'];
 			elseif (isset($icons[$contenttype]))          $rs = $icons[$contenttype];
 			else                                          $rs = $_style['tree_page'];
 		else :
