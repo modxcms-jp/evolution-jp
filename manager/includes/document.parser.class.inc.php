@@ -2977,7 +2977,7 @@ class DocumentParser {
 		if(empty($value))
 		{
 			if($format!=='custom_widget' && $format!=='richtext' && $format!=='datagrid')
-				return '';
+				return $value;
 			elseif($format==='datagrid' && $params['egmsg']==='')
 				return '';
 		}
