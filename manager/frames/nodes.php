@@ -90,6 +90,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	
 	$loop_count = 0;
 	$node_name_source = $modx->config['resource_tree_node_name'];
+	global $privateweb,$privatemgr;
 	while($row = $modx->db->getRow($result,'num')):
 		$loop_count++;
 		list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
