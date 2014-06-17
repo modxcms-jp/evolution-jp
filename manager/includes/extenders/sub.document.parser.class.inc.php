@@ -139,16 +139,23 @@ class SubParser {
 		{
 			if($modx->config['send_errormail'] <= $type)
 			{
-				$body['site_url'] = $modx->config['site_url'];
-				$body['request_uri'] = $modx->decoded_request_uri;
-				$body['source'] = $fields['source'];
+				$body['URL'] = $modx->config['site_url'] . ltrim($modx->decoded_request_uri,'/');
+				$body['Source'] = $fields['source'];
 				$body['IP'] = $_SERVER['REMOTE_ADDR'];
+				$hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+				if(!empty($hostname))
+					$body['Host name'] = $hostname;
 				if(!empty($modx->event->activePlugin))
-					$body['plugin'] = $modx->event->activePlugin;
+					$body['Plugin'] = $modx->event->activePlugin;
 				if(!empty($modx->currentSnippet))
-					$body['snippet'] = $modx->currentSnippet;
+					$body['Snippet'] = $modx->currentSnippet;
 				$subject = 'Error mail from ' . $modx->config['site_name'];
-				$modx->sendmail($subject,print_r($body,true));
+				foreach($body as $k=>$v)
+				{
+					$mailbody[] = "[{$k}] {$v}";
+				}
+				$mailbody = join("\n",$mailbody);
+				$modx->sendmail($subject,$mailbody);
 			}
 		}
 		if (!$insert_id)
