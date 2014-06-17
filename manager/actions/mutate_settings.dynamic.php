@@ -304,6 +304,7 @@ function confirmLangChange(el, lkey, elupd)
 	<th><?php echo $_lang["defaulttemplate_title"] ?></th>
 	<td>
 		<select name="default_template" class="inputBox" onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
+		<option value="">(blank)</option>
 <?php
 	$field = 't.templatename, t.id, c.category';
 	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
