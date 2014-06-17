@@ -124,7 +124,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-&copy; 2005-2013 by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
+&copy; 2005-2014 by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
 </p>
 </body>
 </html>
