@@ -47,7 +47,7 @@ $style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
 
 // Tree Menu Toolbar
 $icon_path = $style_path . 'images/icons/';
-$_style['add_doc_tree']             = '<img src="'.$icon_path.'folder_page_add.png" />';
+$_style['add_doc_tree']             = '<img src="'.$icon_path.'page_add.png" />';
 $_style['add_weblink_tree']         = '<img src="'.$icon_path.'link_add.png" />';
 $_style['collapse_tree']            = '<img src="'.$icon_path.'arrow_up.png" />';
 $_style['empty_recycle_bin']        = '<img src="'.$icon_path.'trash_full.png" />';
@@ -64,7 +64,7 @@ $tree_path = $style_path . 'images/tree/';
 $_style['tree_blanknode']           = $tree_path.'empty.gif';
 $_style['tree_deletedpage']         = $tree_path.'deletedpage.gif';
 $_style['tree_folder']              = $tree_path.'folder.png'; /* folder.png */
-$_style['tree_folderopen']          = $tree_path.'folder.png'; /* folder-open.png */
+$_style['tree_folderopen']          = $tree_path.'folderopen.png'; /* folder-open.png */
 $_style['tree_folder_secure']       = $tree_path.'application_double_key.png';
 $_style['tree_folderopen_secure']   = $tree_path.'application_double_key.png';
 $_style['tree_globe']               = $tree_path.'globe.gif';
