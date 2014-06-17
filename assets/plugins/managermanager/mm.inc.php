@@ -255,6 +255,7 @@ if ($handle = opendir($widget_dir)){
 		
 		
 		case 'OnDocFormPrerender':
+			if($this->rule_exists($config_chunk)) $modx->config['tvs_below_content'] = '1';
 			// Load the jquery library
 			echo '<!-- Begin ManagerManager output -->' . "\n";
 			
@@ -385,4 +386,19 @@ if ($handle = opendir($widget_dir)){
 		}
 	}
 
+	function rule_exists($chunk_name)
+	{
+		global $modx;
+		$rt = $modx->getChunk($chunk_name);
+		$config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
+		if(!empty($rt)) return true;
+		elseif(is_readable($config_file))
+		{
+			$src = file_get_contents($config_file);
+			$src = trim($src);
+			if(!empty($src))      return true;
+			else                  return false;
+		}
+		else                      return false;
+	}
 }
