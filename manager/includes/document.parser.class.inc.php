@@ -2395,7 +2395,15 @@ class DocumentParser {
 						$id = $this->referenceListing[$id];
 					}
 					$replace[$i] = $this->makeUrl($id,'','','rel');
-					if(!$replace[$i]) $this->logEvent(0,'1',"Can not parse linktag '[~{$key_org}~]' {$this->decoded_request_uri}","Missing parse link tag(ResourceID:{$this->documentIdentifier})");
+					if(!$replace[$i])
+					{
+						$ph['linktag']     = "[~{$key_org}~]";
+						$ph['request_uri'] = $this->decoded_request_uri;
+						$ph['docid']       = $this->documentIdentifier;
+						$tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>';
+						$tpl = $this->parseText($tpl,$ph);
+						$this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
+					}
 				}
 				else
 				{
