@@ -81,7 +81,7 @@
 					else {
 					var cimg = document.getElementById('captcha_image');
 					if (cimg) {
-					cimg.src = '../captcha.php?rand=' + Math.random();
+					cimg.src = '../captcha.php';
 					}
 					jAlert(response);
 					}

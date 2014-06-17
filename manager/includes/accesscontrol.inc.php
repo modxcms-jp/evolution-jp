@@ -86,7 +86,7 @@ if(!isset($_SESSION['mgrValidated']))
 	if($use_captcha==1)
 	{
 		$modx->setPlaceholder('login_captcha_message','<p style="margin-top:10px;">' . $_lang["login_captcha_message"] . '</p>');
-		$captcha_image = '<img id="captcha_image" src="../captcha.php?rand=' . mt_rand() . '" alt="'.$_lang["login_captcha_message"].'" />';
+		$captcha_image = '<img id="captcha_image" src="../captcha.php" alt="'.$_lang["login_captcha_message"].'" />';
 		$captcha_image = '<a href="'.MODX_MANAGER_URL.'" class="loginCaptcha">' . $captcha_image . '</a>';
 		$modx->setPlaceholder('captcha_image',"<div>{$captcha_image}</div>");
 		$modx->setPlaceholder('captcha_input','<label>'.$_lang["captcha_code"].'<input type="text" class="text" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" /></label>');
