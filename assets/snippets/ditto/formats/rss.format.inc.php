@@ -81,7 +81,7 @@ $rss_placeholders['rss_xsl'] = isset($xsl) ? "\n" . '<?xml-stylesheet type="text
 */
 
 global $dateSource;
-$dateSource = isset($dateSource) ? $dateSource : 'publishedon';
+$dateSource = isset($modx->event->params['dateSource']) ? $modx->event->params['dateSource'] : 'publishedon';
 if(!isset($orderBy ['unparsed'])) $orderBy ['unparsed'] = "{$dateSource} DESC";
 
 	// date type to display (values can be createdon, pub_date, editedon)
