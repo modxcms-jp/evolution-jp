@@ -12,10 +12,10 @@ if($modx->config['remember_last_tab']!=='2')
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
+$textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo  $mxla . '" lang="' .  $mxla . '"' . ($modx_textdir==='rtl' ? ' dir="rtl"' : ''); ?>>
+<!DOCTYPE html>
+<html lang="<?php echo  $mxla;?>" dir="<?php echo  $textdir;?>">
 <head>
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>" />
