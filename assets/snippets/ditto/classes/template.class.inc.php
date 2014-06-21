@@ -84,7 +84,13 @@ class template{
 	// Find al the template variables in the template
 	// ---------------------------------------------------
 	function findTemplateVars($tpl) {
-		preg_match_all('~\[\+(.*?)\+\]~', $tpl, $matches);
+		global $modx;
+		
+		if(method_exists($modx, 'getTagsFromContent'))
+			$matches = $modx->getTagsFromContent($tpl);
+		else
+			preg_match_all('~\[\+(.*?)\+\]~', $tpl, $matches);
+		
 		$TVs = array();
 		foreach($matches[1] as $tv) {
 			$match = explode(":", $tv);
