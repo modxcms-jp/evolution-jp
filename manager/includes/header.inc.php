@@ -45,7 +45,9 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         function document_onload() {
             stopWorker();
             hideLoader();
-            <?php echo isset($_REQUEST['r']) ? " doRefresh({$_REQUEST['r']});" : '' ;?>
+<?php
+	if(isset($_REQUEST['r'])) echo 'doRefresh(' . $_REQUEST['r'] . ");\n";
+?>
         }
         
 		$j(function(){
