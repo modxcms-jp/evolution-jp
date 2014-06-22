@@ -3299,6 +3299,11 @@ class DocumentParser {
 			$rs = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and alias='{$alias}'", 'parent, menuindex');
 			$row = $this->db->getRow($rs);
 			
+			if(!$row && preg_match('@^[1-9][0-9]*$@',$alias))
+			{
+				$rs = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and id='{$alias}'");
+				$row = $this->db->getRow($rs);
+			}
 			if($row) $id = $row['id'];
 			else     $id = false;
 		}
