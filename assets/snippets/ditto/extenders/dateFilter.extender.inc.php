@@ -81,7 +81,7 @@ $dateSource = isset($dateSource) ? $dateSource : "createdon";
 	Related:
 	- <dateFormat>
 */
-$dateFilterDefault = isset($dateFilterDefault) ? $dateFilterDefault : 0;
+if(!isset($dateFilterDefault)) $dateFilterDefault = 0;
 /*
 	Param: dateFilterDefault
 
