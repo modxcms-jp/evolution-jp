@@ -1396,8 +1396,11 @@ class DocumentParser {
 					case '[*':
 						$cmd = $this->mergeDocumentContent($cmd);
 						break;
+					case '[[':
+						$cmd = $this->evalSnippets($cmd);
+						break;
 				}
-				$cmdlen = strlen($cmd);
+				$cmd = trim($cmd);
 				if(strpos($matches['1'][$i],'<!--@ELSE-->')) {
 					list($if_content,$else_content) = explode('<!--@ELSE-->',$matches['1'][$i]);
 				} else {
