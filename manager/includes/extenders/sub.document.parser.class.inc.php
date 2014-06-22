@@ -1266,13 +1266,15 @@ class SubParser {
         } else {
             $fnc = "history.back(-1);";
         }
+        $msg = addslashes($msg);
+        $msg = str_replace("\n",'\n',$msg);
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
             <link rel=\"stylesheet\" type=\"text/css\" href=\"media/style/{$modx->config['manager_theme']}/style.css\" />
             <script>
                 function __alertQuit() {
-                    alert('" . addslashes($msg) . "');
+                    alert('" . $msg . "');
                     {$fnc}
                 }
                 window.setTimeout('__alertQuit();',100);
