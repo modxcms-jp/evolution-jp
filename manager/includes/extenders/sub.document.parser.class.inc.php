@@ -139,7 +139,7 @@ class SubParser {
 		{
 			if($modx->config['send_errormail'] <= $type)
 			{
-				$body['URL'] = $modx->config['site_url'] . ltrim($modx->decoded_request_uri,'/');
+				$body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
 				$body['Source'] = $fields['source'];
 				$body['IP'] = $_SERVER['REMOTE_ADDR'];
 				$hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
