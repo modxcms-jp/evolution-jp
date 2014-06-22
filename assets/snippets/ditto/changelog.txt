@@ -325,7 +325,7 @@
 [FIXED] Changelog dates
 
 [2007-3-21: REVISION 0000]
-[REMOVED] Debug Console MODx Tab
+[REMOVED] Debug Console MODX Tab
 [FIXED] Debug Console fields
 
 [2007-3-22: REVISION 0000]
