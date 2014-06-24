@@ -185,7 +185,7 @@ function deletedocument() {
 echo $_lang["template_parent"];
 ?>
 		<select name="parent">
-			<option value="">None</option>
+			<option value="0">None</option>
 			<?php echo join("\n", $option);?>
 		</select>
 	</div>
