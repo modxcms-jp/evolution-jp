@@ -584,6 +584,12 @@ switch ($action) {
         # header and footer will be handled interally
         include_once "actions/bkmanager.static.php";
         break;
+    case 305: // Backup Manager
+        include_once "processors/restore.processor.php";
+        break;
+    case 307: // Backup Manager
+        include_once "processors/snapshot.processor.php";
+        break;
     case 94: // get the duplicate processor
         include_once "processors/duplicate_content.processor.php";
         break;

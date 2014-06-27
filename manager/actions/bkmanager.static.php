@@ -5,8 +5,6 @@ if(!$modx->hasPermission('bk_manager')) {
 	$e->dumpError();
 }
 
-$dbase = trim($dbase,'`');
-
 if(!isset($modx->config['snapshot_path'])||strpos($modx->config['snapshot_path'],MODX_BASE_PATH)===false) {
 	if(is_dir(MODX_BASE_PATH . 'temp/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'temp/backup/';
 	elseif(is_dir(MODX_BASE_PATH . 'assets/backup/')) $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
@@ -20,43 +18,7 @@ include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 
 $dumper = new Mysqldumper();
 
-if ($mode=='restore1')
-{
-	if(isset($_POST['textarea']) && !empty($_POST['textarea']))
-	{
-		$source = trim($_POST['textarea']);
-		$_SESSION['textarea'] = $source . "\n";
-	}
-	else
-	{
-		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
-	}
-	$rs = checkVersion($source);
-	$dumper->import_sql($source);
-		if(!$rs) {
-			$modx->webAlertAndQuit($_lang['bk_different_version']);
-			exit;
-		}
-	header('Location: index.php?r=9&a=93');
-	exit;
-}
-elseif ($mode=='restore2')
-{
-	$path = $modx->config['snapshot_path'] . $_POST['filename'];
-	if(is_file($path))
-	{
-		$source = file_get_contents($path);
-		$rs = checkVersion($source);
-		if(!$rs) {
-			$modx->webAlertAndQuit($_lang['bk_different_version']);
-			exit;
-		}
-    	$dumper->import_sql($source);
-    	header('Location: index.php?r=9&a=93');
-    	exit;
-	}
-}
-elseif ($mode=='backup')
+if ($mode=='backup')
 {
 	$tables = isset($_POST['chk']) ? $_POST['chk'] : '';
 	if (!is_array($tables))
@@ -71,7 +33,6 @@ elseif ($mode=='backup')
 	 * Perform MySQLdumper data dump
 	 */
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dumper = new Mysqldumper();
 	$dumper->setDBtables($tables);
 	$dumper->addDropCommand((isset($_POST['droptables']) ? true : false));
 	$output = $dumper->createDump();
@@ -99,7 +60,7 @@ elseif ($mode=='snapshot')
 	}
 	if(!is_writable(rtrim($modx->config['snapshot_path'],'/')))
 	{
-		echo $modx->parseText($_lang["bkmgr_alert_mkdir"],$modx->config['snapshot_path']);
+		echo $modx->parseText($_lang["bkmgr_alert_mkdir"],array('snapshot_path'=>$modx->config['snapshot_path']));
 		exit;
 	}
 	
@@ -111,7 +72,6 @@ elseif ($mode=='snapshot')
 	$filename = "{$today}-{$modx_version}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
-	$dumper = new Mysqldumper();
 	$dumper->mode = 'snapshot';
 	$output = $dumper->createDump();
 	$dumper->snapshot($modx->config['snapshot_path'].$filename,$output);
@@ -185,7 +145,7 @@ else $ph['result_msg'] = '';
   </ul>
 </div>
 
-<div class="sectionBody" id="lyr4">
+<div class="sectionBody">
 	<div class="tab-pane" id="dbmPane">
 	<script type="text/javascript">
 	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
@@ -212,51 +172,52 @@ else $ph['result_msg'] = '';
 		</tr></thead>
 		<tbody>
 			<?php
+$dbase = trim($dbase,'`');
 $sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$table_prefix}%'";
 $rs = $modx->db->query($sql);
-$limit = $modx->db->getRecordCount($rs);
-for ($i = 0; $i < $limit; $i++) {
-	$db_status = $modx->db->getRow($rs);
+$i = 0;
+while($row = $modx->db->getRow($rs)) {
 	$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
 	if (isset($dumper->_dbtables)&&!empty($dumper->_dbtables))
-		$table_string = implode(',', $dumper->_dbtables);
-	else    $table_string = '';
+		 $table_string = implode(',', $dumper->_dbtables);
+	else $table_string = '';
 
-	echo '<tr bgcolor="'.$bgcolor.'" title="'.$db_status['Comment'].'" style="cursor:default">'."\n".
-	     '<td><label><input type="checkbox" name="chk[]" value="'.$db_status['Name'].'"'.(strstr($table_string,$db_status['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$db_status['Name'].'</b></label></td>'."\n".
-	     '<td align="right">'.$db_status['Rows'].'</td>'."\n";
-	echo '<td align="right">'.$db_status['Collation'].'</td>'."\n";
+	echo '<tr bgcolor="'.$bgcolor.'" title="'.$row['Comment'].'" style="cursor:default">'."\n".
+	     '<td><label><input type="checkbox" name="chk[]" value="'.$row['Name'].'"'.(strstr($table_string,$row['Name']) === false ? '' : ' checked="checked"').' /><b style="color:#009933">'.$row['Name'].'</b></label></td>'."\n".
+	     '<td align="right">'.$row['Rows'].'</td>'."\n";
+	echo '<td align="right">'.$row['Collation'].'</td>'."\n";
 
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
 	$truncateable = array(
 		$table_prefix.'event_log',
 		$table_prefix.'manager_log',
 	);
-	if($modx->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
+	if($modx->hasPermission('settings') && in_array($row['Name'], $truncateable) && $row['Rows'] > 0) {
 		echo '<td dir="ltr" align="right">'.
-		     '<a href="index.php?a=54&mode='.$action.'&u='.$db_status['Name'].'" title="'.$_lang['truncate_table'].'">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</a>'.
+		     '<a href="index.php?a=54&mode='.$action.'&u='.$row['Name'].'" title="'.$_lang['truncate_table'].'">'.$modx->nicesize($row['Data_length']+$row['Data_free']).'</a>'.
 		     '</td>'."\n";
 	} else {
-		echo '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']+$db_status['Data_free']).'</td>'."\n";
+		echo '<td dir="ltr" align="right">'.$modx->nicesize($row['Data_length']+$row['Data_free']).'</td>'."\n";
 	}
 
 	if($modx->hasPermission('settings')) {
-		echo '<td align="right">'.($db_status['Data_free'] > 0 ?
-		     '<a href="index.php?a=54&mode='.$action.'&t='.$db_status['Name'].'" title="'.$_lang['optimize_table'].'">'.$modx->nicesize($db_status['Data_free']).'</a>' :
+		echo '<td align="right">'.($row['Data_free'] > 0 ?
+		     '<a href="index.php?a=54&mode='.$action.'&t='.$row['Name'].'" title="'.$_lang['optimize_table'].'">'.$modx->nicesize($row['Data_free']).'</a>' :
 		     '-').
 		     '</td>'."\n";
 	} else {
-		echo '<td align="right">'.($db_status['Data_free'] > 0 ? $modx->nicesize($db_status['Data_free']) : '-').'</td>'."\n";
+		echo '<td align="right">'.($row['Data_free'] > 0 ? $modx->nicesize($row['Data_free']) : '-').'</td>'."\n";
 	}
 
-	echo '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Data_length']-$db_status['Data_free']).'</td>'."\n".
-	     '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']).'</td>'."\n".
-	     '<td dir="ltr" align="right">'.$modx->nicesize($db_status['Index_length']+$db_status['Data_length']+$db_status['Data_free']).'</td>'."\n".
+	echo '<td dir="ltr" align="right">'.$modx->nicesize($row['Data_length']-$row['Data_free']).'</td>'."\n".
+	     '<td dir="ltr" align="right">'.$modx->nicesize($row['Index_length']).'</td>'."\n".
+	     '<td dir="ltr" align="right">'.$modx->nicesize($row['Index_length']+$row['Data_length']+$row['Data_free']).'</td>'."\n".
 	     "</tr>";
 
-	$total = $total+$db_status['Index_length']+$db_status['Data_length'];
-	$totaloverhead = $totaloverhead+$db_status['Data_free'];
+	$total = $total+$row['Index_length']+$row['Data_length'];
+	$totaloverhead = $totaloverhead+$row['Data_free'];
+	$i++;
 }
 ?>
 			<tr bgcolor="#CCCCCC">
@@ -283,7 +244,7 @@ if ($totaloverhead > 0) {
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
 	<?php echo $_lang["bkmgr_restore_msg"]; ?>
 	<form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
-	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="a" value="305" />
 	<input type="hidden" name="mode" value="restore1" />
 	<script type="text/javascript">
 	function showhide(a)
@@ -375,7 +336,7 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	<script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabSnapshot'));</script>
 	<?php echo $modx->parseText($_lang["bkmgr_snapshot_msg"],"snapshot_path={$modx->config['snapshot_path']}");?>
 	<form method="post" name="snapshot" action="index.php">
-	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="a" value="307" />
 	<input type="hidden" name="mode" value="snapshot" />
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
 	<a href="#" class="primary" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
@@ -390,7 +351,7 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 <div class="sectionHeader"><?php echo $_lang["bkmgr_snapshot_list_title"];?></div>
 <div class="sectionBody">
 	<form method="post" name="restore2" action="index.php">
-	<input type="hidden" name="a" value="93" />
+	<input type="hidden" name="a" value="305" />
 	<input type="hidden" name="mode" value="restore2" />
 	<input type="hidden" name="filename" value="" />
 <?php
@@ -432,19 +393,4 @@ else
 function checked($cond)
 {
 	if($cond) return ' checked';
-}
-
-function checkVersion($src) {
-	global $modx;
-	$src = substr($src,0,200);
-	$chkstr = '# MODX Version:';
-	$pos = strpos($src,$chkstr);
-	if($pos===false) return true;
-	$pos += strlen($chkstr);
-	$src = substr($src,$pos);
-	$version = substr($src,0,strpos($src,"\n"));
-	$version = trim($version);
-	if($version===$modx->config['settings_version'])
-		return true;
-	else return false;
 }
