@@ -66,15 +66,12 @@ EOT;
 function batch_move()
 {
 	global $modx;
-	print_r($_REQUEST['batch']);
 	foreach($_REQUEST['batch'] as $v)
 	{
 		$ids[] = sprintf("id='%s'",$modx->db->escape($v));
 	}
 	$where = join(' OR ', $ids);
-	echo $where;
-	$tblsc = $modx->getFullTableName('site_content');
-	$rs = $modx->db->select('pagetitle', $tblsc, $where);
+	$rs = $modx->db->select('pagetitle', '[+prefix+]site_content', $where);
 	while($row=$modx->db->getRow($rs))
 	{
 		echo $row['pagetitle'] . '<br />';
