@@ -1,66 +1,53 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-/**
- * mutate_settings.ajax.php
- * 
- */
-require_once(MODX_CORE_PATH . 'protect.inc.php');
 
-$action = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['action']);
-$lang   = preg_replace('/[^A-Za-z0-9_\s\+\-\.\/]/', '', $_POST['lang']);
-$key    = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['key']);
-$value  = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['value']);
+if(!isset($_POST['action'])) exit;
+if(isset($_POST['key'])  && preg_match('@[^A-Za-z0-9_\-\./]@',     $_POST['key']))    exit;
+if(isset($_POST['value'])&& preg_match('@[^A-Za-z0-9_\-\./]@',     $_POST['value']))  exit;
+if(isset($_POST['lang']) && preg_match('@[^A-Za-z0-9_\s\+\-\./]@', $_POST['lang']))   exit;
 
-$action = $modx->db->escape($action);
-$lang = $modx->db->escape($lang);
-$key = $modx->db->escape($key);
-$value = $modx->db->escape($value);
+$post = $modx->db->escape($_POST);
+$post_lang   = $post['lang'];
+$post_key    = $post['key'];
+$post_value  = $post['value'];
 
-$str = '';
-$emptyCache = false;
-
-if($action == 'get') {
-    $langfile = MODX_CORE_PATH . "lang/{$lang}.inc.php";
-    if(is_file($langfile)) {
-        $str = getLangStringFromFile($langfile, $key);
-    }
-} elseif($action == 'setsetting') {
-	if(!empty($key) && !empty($value)) {
-        $sql = "REPLACE INTO ".$modx->getFullTableName("system_settings")." (setting_name, setting_value) VALUES('{$key}', '{$value}');";
-		$str = "true";
-		if(!@$rs = $modx->db->query($sql)) {
-			$str = "false";
-        } else {
-            $emptyCache = true;
-		}
-	}
-} elseif($action == 'updateplugin') {
-
-    if($key == '_delete_' && !empty($lang)) {
-        $str = "true";
-        if(!@$rs = $modx->db->delete('[+prefix+}site_plugins', "name='{$lang}'")) {
-            $str = 'false';
-        } else {
-            $emptyCache = true;
-        }
-    } elseif(!empty($key) && !empty($lang) && !empty($value)) {
-        $str = "true";
-        $rs = $modx->db->update(array($key=>$value),'[+prefix+]site_plugins',"name='{$lang}'");
-        if(!$rs) {
-            $str = "false";
-        } else {
-            $emptyCache = true;
-        }
-    }
+if($_POST['action']==='get')
+{
+	echo getStringFromLangFile($post_key,$post_lang);
+	return;
 }
 
-if($emptyCache) {
-    $modx->clearCache();
+$output = '';
+$tbl_system_settings = $modx->getFullTableName('system_settings');
+switch($_POST['action'])
+{
+	case 'setsetting':
+		if(!empty($post_key) && !empty($post_value))
+			$rs = @ $modx->db->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
+		break;
+	case 'updateplugin':
+	    if($post_key == '_delete_' && !empty($post_lang))
+	    	$rs = @ $modx->db->delete('[+prefix+}site_plugins', "name='{$post_lang}'");
+	    elseif(!empty($post_key) && !empty($post_lang) && !empty($post_value))
+	        $rs = @ $modx->db->update(array($post_key=>$post_value),'[+prefix+]site_plugins',"name='{$post_lang}'");
+		break;
 }
 
-echo $str;
+if(isset($rs)&&!empty($rs)) $output = 'true';
+else                        $output = 'false';
 
-function getLangStringFromFile($file, $key) {
-    include($file);
-    return $_lang[$key];
+if($output==='true') $modx->clearCache();
+
+echo $output;
+
+
+
+function getStringFromLangFile($key,$lang) {
+     $langfile_path = MODX_CORE_PATH . "lang/{$lang}.inc.php";
+    if(strpos($langfile_path,'..')!==false || !is_file($langfile_path))
+    	return;
+    
+    include($langfile_path);
+    if(isset($_lang[$key])) return $_lang[$key];
+    else                    return '';
 }
