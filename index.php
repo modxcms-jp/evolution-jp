@@ -58,7 +58,7 @@ if(is_file($base_path . 'assets/cache/basicConfig.idx.php'))
 {
 	include_once($base_path . 'assets/cache/basicConfig.idx.php');
 }
-if ($cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cacheRefreshTime==0) && $site_status!=='0') {
+if (!defined('MODX_API_MODE')&&$cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cacheRefreshTime==0) && $site_status!=='0') {
     session_name($site_sessionname);
     session_cache_limiter('');
     session_start();
@@ -125,7 +125,7 @@ if (!isset($database_type))
 	}
 }
 
-set_parser_mode();
+if(!defined('MODX_API_MODE')) set_parser_mode();
 if (session_id() === '') startCMSSession();
 require_once("{$core_path}protect.inc.php");
 
@@ -140,7 +140,7 @@ $modx->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) $modx->error_reporting = $error_reporting;
 
 // execute the parser if index.php was not included
-if (!MODX_API_MODE) {
+if (defined('IN_PARSER_MODE')&&IN_PARSER_MODE==='true') {
     $result = $modx->executeParser();
     echo $result;
 }
