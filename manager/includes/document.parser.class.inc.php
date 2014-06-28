@@ -2459,9 +2459,9 @@ class DocumentParser {
 		return $src;
 	}
 
-	function parseText($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
+	function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
 	{
-		if(!$ph) return $src;
+		if(!$ph) return $content;
 		elseif(is_string($ph) && strpos($ph,'='))
 		{
 			if(strpos($ph,',')) $pairs   = explode(',',$ph);
@@ -2475,7 +2475,30 @@ class DocumentParser {
 				$ph[$k] = $v;
 			}
 		}
-		return $this->parseChunk($src, $ph, $left, $right, $mode);
+		$matches = $this->getTagsFromContent($content,$left,$right);
+		if(!$matches) return $content;
+		$i= 0;
+		$replace= array ();
+		foreach($matches['1'] as $key):
+			if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+				list($key,$modifiers) = explode(':', $key, 2);
+			else $modifiers = false;
+			
+			if(isset($ph[$key]))
+			{
+				$value = $ph[$key];
+				if($modifiers!==false)
+				{
+					$this->loadExtension('PHx') or die('Could not load PHx class.');
+					$value = $this->phx->phxFilter($key,$value,$modifiers);
+				}
+				$replace[$i]= $value;
+			}
+			else $replace[$i]= $key;
+			$i++;
+		endforeach;
+		$content= str_replace($matches['0'], $replace, $content);
+		return $content;
 	}
 	
 	function toDateFormat($timestamp = 0, $mode = '')
