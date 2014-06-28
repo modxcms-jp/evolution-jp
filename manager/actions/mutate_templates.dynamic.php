@@ -200,7 +200,12 @@ echo $_lang["template_parent"];
 	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
 	<?php if(isset($head)) echo $head;?>
-        <textarea dir="ltr" name="content" class="phptextarea" style="width:100%; height: 370px;"><?php echo htmlspecialchars($templateObject->content); ?></textarea>
+	<?php
+		if($templateObject->locked==1)
+			$readonly = 'readonly';
+		else $readonly = '';
+	?>
+        <textarea dir="ltr" name="content" <?php echo $readonly;?> class="phptextarea" style="width:100%; height: 370px;"><?php echo htmlspecialchars($templateObject->content); ?></textarea>
 	<?php if(isset($foot)) echo $foot;?>
 	</div>
 	<!-- HTML text editor end -->

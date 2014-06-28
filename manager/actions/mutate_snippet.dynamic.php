@@ -326,7 +326,12 @@ function decode(s){
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines'];?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
-			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
+<?php
+	if($content['locked'] === '1')
+		$readonly = 'readonly';
+	else $readonly = '';
+?>
+			<textarea class="phptextarea" dir="ltr" <?php echo $readonly;?> name="post" style="width:100%; height:370px;" wrap="soft"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
 			</div>
 		<!-- PHP text editor end -->
 		  	</div>

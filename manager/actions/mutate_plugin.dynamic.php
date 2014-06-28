@@ -475,7 +475,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 <span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
                 <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
         </div>
-        <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
+<?php
+	if($pluginObject->locked === '1')
+		$readonly = 'readonly';
+	else $readonly = '';
+?>
+        <textarea dir="ltr" name="post" <?php echo $readonly;?> style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
         </div>
         <!-- PHP text editor end -->
         </div>

@@ -237,7 +237,12 @@ if (is_array($evtOut))
 		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 			<span style="font-weight:bold;"><?php echo $_lang['chunk_code']?></span>
 		</div>
-        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+<?php
+	if($content['locked'] === '1' || $content['locked'] === 'on')
+		$readonly = 'readonly';
+	else $readonly = '';
+?>
+        <textarea dir="ltr" class="phptextarea" name="post" <?php echo $readonly;?> style="height:350px;width:100%"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
 	</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>
