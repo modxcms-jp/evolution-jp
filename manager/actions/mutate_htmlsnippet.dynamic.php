@@ -330,7 +330,7 @@ if ($ds) {
 		<th align="left" valign="middle"><?php echo $_lang['resource_opt_richtext']?></th>
 		<td align="left" valign="top"><input name="editor_type" type="checkbox"<?php echo $content['editor_type'] == 1 ? ' checked="checked"' : ''?> class="inputBox" value="1" /></td>
 	</tr>
-<?php if($modx->hasPermission('save_role')==1) {?>
+<?php if($modx->hasPermission('save_chunk')==1) {?>
 	<tr>
 		<td align="left" colspan="2">
 		<label><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 || $content['locked'] == 'on' ? ' checked="checked"' : ''?> class="inputBox" value="on" /> <?php echo $_lang['lock_htmlsnippet']?>

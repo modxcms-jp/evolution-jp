@@ -644,7 +644,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
         <th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
         <td align="left"><textarea id="pluginDescription" name="description" style="padding:0;height:4em;"><?php echo $pluginObject->description;?></textarea></td>
       </tr>
-<?php if($modx->hasPermission('save_role')==1) {?>
+<?php if($modx->hasPermission('save_plugin')==1) {?>
       <tr>
         <td align="left" valign="top" colspan="2">
         <label><input name="locked" type="checkbox" <?php echo $pluginObject->locked==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <b><?php echo $_lang['lock_plugin']; ?></b> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label></td>

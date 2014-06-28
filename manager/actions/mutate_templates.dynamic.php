@@ -239,7 +239,7 @@ echo $_lang["template_parent"];
 		<th><?php echo $_lang['template_desc']; ?>:&nbsp;&nbsp;</th>
 		<td><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($templateObject->description);?></textarea></td>
 	</tr>
-<?php if($modx->hasPermission('save_role')==1) {?>
+<?php if($modx->hasPermission('save_template')==1) {?>
 	  <tr>
 	    <td colspan="2">
 	    <label><input name="locked" type="checkbox" <?php echo $templateObject->locked==1 ? "checked='checked'" : "" ;?> class="inputBox"> <?php echo $_lang['lock_template']; ?> <span class="comment"><?php echo $_lang['lock_template_msg']; ?></span></label></td>

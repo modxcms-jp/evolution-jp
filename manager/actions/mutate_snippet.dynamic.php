@@ -365,7 +365,7 @@ function decode(s){
 			<td align="left" style="padding-top:10px">
 				<textarea name="description" style="padding:0;height:4em;"><?php echo $content['description']?></textarea></td>
 		  </tr>
-<?php if($modx->hasPermission('save_role')==1) {?>
+<?php if($modx->hasPermission('save_snippet')==1) {?>
 		  <tr>
 			<td style="padding-top:10px" align="left" valign="top" colspan="2">
 			<label><input  style="padding:0;margin:0;" name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" :'';?> class="inputBox"> <b><?php echo $_lang['lock_snippet']?></b> <span class="comment"><?php echo $_lang['lock_snippet_msg']?></span></label></td>

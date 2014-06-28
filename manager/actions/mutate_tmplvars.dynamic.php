@@ -539,7 +539,7 @@ function selected($target='')
 	    <th align="left"><?php echo $_lang['tmplvars_description']; ?></th>
 	    <td align="left"><textarea name="description" style="padding:0;height:4em;"><?php echo htmlspecialchars($content['description']);?></textarea></td>
 	  </tr>
-<?php if($modx->hasPermission('save_role')==1) {?>
+<?php if($modx->hasPermission('save_template')==1) {?>
 	  <tr>
 	    <td align="left" colspan="2"><label><input name="locked" value="on" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> class="inputBox" /> <b><?php echo $_lang['lock_tmplvars']; ?></b> <span class="comment"><?php echo $_lang['lock_tmplvars_msg']; ?></span></label></td>
 	  </tr>
