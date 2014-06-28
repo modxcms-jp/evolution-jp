@@ -6,8 +6,6 @@
 	background: #FFF;
 	border: solid 5px #999;
 	color: #000;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	cursor: default;
 }
