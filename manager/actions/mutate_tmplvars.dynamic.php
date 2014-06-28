@@ -53,11 +53,6 @@ if(isset($_GET['id']))
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['caption'];
-	if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
-	{
-		$e->setError(3);
-		$e->dumpError();
-	}
 }
 else
 {

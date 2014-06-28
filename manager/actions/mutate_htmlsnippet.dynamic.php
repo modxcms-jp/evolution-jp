@@ -60,11 +60,6 @@ if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
-	if ($content['locked'] == 1 && $modx->hasPermission('save_role') != 1)
-	{
-		$e->setError(3);
-		$e->dumpError();
-	}
 }
 else
 {

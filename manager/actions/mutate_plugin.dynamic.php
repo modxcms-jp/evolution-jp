@@ -43,11 +43,6 @@ if(isset($_GET['id']))
     endif;
     
     $_SESSION['itemname'] = $pluginObject->name;
-    
-    if($pluginObject->locked==1 && $modx->hasPermission('save_role')!=1) {
-        $e->setError(3);
-        $e->dumpError();
-    }
 }
 else
 {

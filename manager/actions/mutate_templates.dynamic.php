@@ -60,11 +60,6 @@ if(!empty($id)) {
 		exit;
 	}
 	$_SESSION['itemname']=$templateObject->templatename;
-	if($templateObject->locked==1 && $modx->hasPermission('save_role')!=1)
-	{
-		$e->setError(3);
-		$e->dumpError();
-	}
 }
 else
 {
