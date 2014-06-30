@@ -712,4 +712,8 @@ class ManagerAPI {
 		else $ids = '';
 		return $ids;
 	}
+	
+	function getStylePath() {
+		return MODX_MANAGER_PATH . 'media/style/';
+	}
 }
