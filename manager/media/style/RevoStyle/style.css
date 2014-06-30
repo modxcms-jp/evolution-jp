@@ -256,6 +256,12 @@ input, select, textarea, option, optgroup, td {
 	.rtl td {
 		text-align: right;
 	}
+textarea[readonly],
+textarea[readonly]:focus {
+	background-color:#eee;
+	cursor:default;
+	text-shadow:1px 1px #fff;
+}
 optgroup {
 	font-style:normal;
 	font-weight:bold;
