@@ -1254,6 +1254,10 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </tr>
 </table>
 </div>
+<?php
+	$evtOut = $modx->invokeEvent('OnSystemSettingsRender');
+	if(is_array($evtOut)) echo implode('',$evtOut);
+?>
 </div>
 </div>
 </form>

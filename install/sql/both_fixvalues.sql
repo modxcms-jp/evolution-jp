@@ -148,6 +148,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('209','OnManagerTreeInit','2',''),
 ('210','OnManagerTreePrerender','2',''),
 ('211','OnManagerTreeRender','2',''),
+('212','OnSystemSettingsRender','1','System Settings'),
 ('300','OnMakeUrl','1',''),
 ('301','OnExportPreExec','2',''),
 ('302','OnExportExec','2',''),
