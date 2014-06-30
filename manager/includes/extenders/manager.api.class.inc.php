@@ -732,4 +732,20 @@ class ManagerAPI {
 		if(!isset($ph['content'])) $ph['content'] = 'content';
 		return $modx->parseText($tpl,$ph);
 	}
+	
+	function renderSection($ph) {
+		global $modx;
+		
+		$style_path = $this->getStylePath();
+		
+		if(is_file("{$style_path}common/block_section.tpl"))
+			$tpl = file_get_contents("{$style_path}common/block_section.tpl");
+		else $tpl = false;
+		
+		if(!$tpl) return;
+		if(!isset($ph['id']))      $ph['id']      = uniqid('id');
+		if(!isset($ph['title']))   $ph['title']   = 'title';
+		if(!isset($ph['content'])) $ph['content'] = 'content';
+		return $modx->parseText($tpl,$ph);
+	}
 }
