@@ -772,7 +772,7 @@ $gdAvailable = extension_loaded('gd');
 </tr>
 <tr>
 <th><?php echo $_lang["smtp_password_title"] ?></th>
-<td ><input onchange="documentDirty=true;" type="password" maxlength="255" style="width: 250px;" name="smtppw" value="********************" autocomplete="off" /></td>
+<td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtppw" value="********************" autocomplete="off" /></td>
 </tr>
 <tr>
 <th><?php echo $_lang["smtp_secure_title"] ?></th>
