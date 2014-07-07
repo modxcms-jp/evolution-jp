@@ -24,7 +24,7 @@ $form_v    = $_POST    ? $_POST             : array();
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
 $content = $docObject; //Be compatible with old plugins
-$modx->documentObject = & $content;
+$modx->documentObject = & $docObject;
 
 // invoke OnDocFormPrerender event
 $evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
