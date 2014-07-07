@@ -23,11 +23,14 @@ $form_v    = $_POST    ? $_POST             : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
 
-$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
-$docObject = $docObject + $tmplVars;
-
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = & $content;
+
+// invoke OnDocFormPrerender event
+$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+
+$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
+$docObject = $docObject + $tmplVars;
 
 $docObject = (object) $docObject;
 
@@ -207,9 +210,6 @@ $tpl['tab-page']['access'] = <<< EOT
 	</ul>
 </div><!--div class="tab-page" id="tabAccess"-->
 EOT;
-
-// invoke OnDocFormPrerender event
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
 
 $ph = array();
 $ph['JScripts'] = getJScripts();
