@@ -1103,7 +1103,7 @@ class SubParser {
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
 				$index_list = $this->ParseIntputOptions($rs);
 				static $i=0;
-				while (list($label, $item) = each ($index_list))
+				foreach ($index_list as $item)
 				{
 					list($label,$value) = $this->splitOption($item);
 					$checked = ($this->isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
