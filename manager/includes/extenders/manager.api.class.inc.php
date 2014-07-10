@@ -724,10 +724,26 @@ class ManagerAPI {
 		
 		if(is_file("{$style_path}common/block_tabpane.tpl"))
 			$tpl = file_get_contents("{$style_path}common/block_tabpane.tpl");
+		else return;
+		
+		if(!isset($ph['id']))        $ph['id']        = 'tab'.uniqid('id');
+		if(!isset($ph['tab-pages'])) $ph['tab-pages'] = 'content';
+		elseif(is_array($ph['tab-pages'])) join("\n", $ph['tab-pages']);
+		
+		return $modx->parseText($tpl,$ph);
+	}
+	
+	function renderTabPage($ph) {
+		global $modx;
+		
+		$style_path = $this->getStylePath();
+		
+		if(is_file("{$style_path}common/block_tabpage.tpl"))
+			$tpl = file_get_contents("{$style_path}common/block_tabpage.tpl");
 		else $tpl = false;
 		
 		if(!$tpl) return;
-		if(!isset($ph['id']))      $ph['id']      = uniqid('id');
+		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
 		return $modx->parseText($tpl,$ph);
@@ -743,7 +759,23 @@ class ManagerAPI {
 		else $tpl = false;
 		
 		if(!$tpl) return;
-		if(!isset($ph['id']))      $ph['id']      = uniqid('id');
+		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
+		if(!isset($ph['title']))   $ph['title']   = 'title';
+		if(!isset($ph['content'])) $ph['content'] = 'content';
+		return $modx->parseText($tpl,$ph);
+	}
+	
+	function renderTr($ph) {
+		global $modx;
+		
+		$style_path = $this->getStylePath();
+		
+		if(is_file("{$style_path}common/block_tr.tpl"))
+			$tpl = file_get_contents("{$style_path}common/block_tr.tpl");
+		else $tpl = false;
+		
+		if(!$tpl) return;
+		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
 		return $modx->parseText($tpl,$ph);

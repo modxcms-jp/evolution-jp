@@ -1,5 +1,6 @@
-<div class="tab-page" id="[+id+]">
-<h2 class="tab">[+title+]</h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById("[+id+]") );</script>
-	[+content+]
+<div class="tab-pane" id="[+id+]">
+	<script type="text/javascript">
+	    [+id+] = new WebFXTabPane(document.getElementById('[+id+]')); 
+	</script>
+	[+tab-pages+]
 </div>
