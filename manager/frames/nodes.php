@@ -105,7 +105,6 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		$pagetitle = addslashes($pagetitle);
 		$pagetitle = htmlspecialchars($pagetitle,ENT_QUOTES,$modx->config['modx_charset']);
 		$nodetitle = addslashes($nodetitle);
-		$nodetitle = htmlspecialchars($nodetitle, ENT_QUOTES, $modx->config['modx_charset']);
 		$ph['pagetitle'] = "'{$pagetitle}'";
 		$ph['nodetitle'] = "'{$nodetitle}'";
 		$url = $modx->makeUrl($id,'','','full');
