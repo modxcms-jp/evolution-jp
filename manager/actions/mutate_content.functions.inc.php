@@ -504,7 +504,7 @@ function get_template_options() {
 			$options .= "<optgroup label=\"{$each_category}\">\n";
 			$closeOptGroup = true;
 		}
-		else $closeOptGroup = false;
+		else $closeOptGroup = true;
 		
 		$selected = ($row['id']==$docObject->template) ? ' selected' : '';
 		$ph = array('id'=>$row['id'],'selected'=>$selected,'templatename'=>$row['templatename']);
