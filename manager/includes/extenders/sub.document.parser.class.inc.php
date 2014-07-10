@@ -1214,7 +1214,7 @@ class SubParser {
 		if(is_array($value))
 		{
 			$label=$value[0];
-			$value=$value[1];
+			$value= isset($value[1]) ? $value[1] : $value[0];
 		}
 		else
 		{
