@@ -3212,7 +3212,7 @@ class DocumentParser {
 		if (is_readable($file))
 		{
 			$source= file($file);
-			$source= htmlspecialchars($source[$line -1]);
+			$source= $source[$line -1];
 		}
 		else
 		{
