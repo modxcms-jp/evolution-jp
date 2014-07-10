@@ -53,7 +53,7 @@ class DocumentParser {
     var $qs_hash;
     var $cacheRefreshTime;
     var $error_reporting;
-    var $processCache;
+    var $processCache = array();
     var $http_status_code;
     var $directParse;
     var $decoded_request_uri;
