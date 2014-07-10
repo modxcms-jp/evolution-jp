@@ -326,11 +326,12 @@ class SubParser {
 		
 
         // Log error
-        if(!empty($modx->currentSnippet)) $source = 'Snippet - ' . $modx->currentSnippet;
-        elseif(!empty($modx->event->activePlugin)) $source = 'Plugin - ' . $modx->event->activePlugin;
-        elseif($source!=='') $source = 'Parser - ' . $source;
-        elseif($query!=='')  $source = 'SQL Query';
-        else             $source = 'Parser';
+        if(!empty($modx->currentSnippet))          $source = 'Snippet - ' . $modx->currentSnippet;
+        elseif(!empty($modx->event->activePlugin)) $source = 'Plugin - '  . $modx->event->activePlugin;
+        elseif($source!=='')                       $source = 'Parser - '  . $source;
+        elseif($query!=='')                        $source = 'SQL Query';
+        else                                       $source = 'Parser';
+        
         if(isset($actionName) && !empty($actionName)) $source .= $actionName;
         switch($nr)
         {
