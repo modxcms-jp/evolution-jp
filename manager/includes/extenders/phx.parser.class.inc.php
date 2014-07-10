@@ -22,7 +22,6 @@ class PHx {
 	{
 		global $modx;
 		
-		$cmd=strtolower($cmd);
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
 		if($cmd!=='id') $value = $modx->parseDocumentSource($value);
 		
