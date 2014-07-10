@@ -1394,10 +1394,8 @@ class DocumentParser {
 				if($cond===false) $cmd = ltrim($cmd,'!');
 				switch(substr($cmd,0,2)) {
 					case '[*':
-						$cmd = $this->mergeDocumentContent($cmd);
-						break;
 					case '[[':
-						$cmd = $this->evalSnippets($cmd);
+						$cmd = $this->parseDocumentSource($cmd);
 						break;
 				}
 				$cmd = trim($cmd);
