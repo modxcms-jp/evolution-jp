@@ -6,6 +6,7 @@ $init->fix_request_time();
 $init->fix_document_root();
 $init->fix_magic_quotes();
 $init->fix_server_addr();
+$init->fix_ssl();
 
 // automatically assign base_path and base_url
 if(!isset($base_path)) $base_path = $init->get_base_path();
@@ -151,12 +152,7 @@ class MODX_INIT {
     function is_ssl()
     {
     	global $https_port;
-    	if(isset($_SERVER['HTTP_HTTPS']))
-    		$_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
-    	elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
-    		$_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
-    	if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==1)
-    		$_SERVER['HTTPS'] = 'on';
+    	
     	if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port)
     	{
     		return true;
@@ -200,5 +196,18 @@ class MODX_INIT {
     {
     	if(!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR']))
     		$_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
+    }
+    
+    function fix_ssl()
+    {
+    	if(isset($_SERVER['HTTP_HTTPS']))
+    		$_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
+    	elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
+    		$_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
+    	if(isset($_SERVER['HTTPS']))
+    	{
+    		if($_SERVER['HTTPS']==1) $_SERVER['HTTPS'] = 'on';
+    		elseif($_SERVER['HTTPS']==='off') unset($_SERVER['HTTPS']);
+    	}
     }
 }
