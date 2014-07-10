@@ -2492,7 +2492,7 @@ class DocumentParser {
 				}
 				$replace[$i]= $value;
 			}
-			else $replace[$i]= $key;
+			else $replace[$i]= "{$left}{$key}{$right}";
 			$i++;
 		endforeach;
 		$content= str_replace($matches['0'], $replace, $content);
