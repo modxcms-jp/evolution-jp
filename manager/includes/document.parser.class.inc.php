@@ -1144,11 +1144,11 @@ class DocumentParser {
 		$where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
 		$rs = $this->db->update($fields,'[+prefix+]site_htmlsnippets',$where);
 	
-		unset($this->chunkCache);
-		$this->setChunkCache();
-	
 		// clear the cache
 		$this->clearCache();
+		
+		unset($this->chunkCache);
+		$this->setChunkCache();
 	}
 	
     function getTagsFromContent($content,$left='[+',$right='+]') {
