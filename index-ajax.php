@@ -13,7 +13,7 @@ if(isset($_POST['ucfg'])&& strpos($_POST['ucfg'],'@EVAL')!==false) force_exit();
 $base_path = str_replace('\\','/',dirname(__FILE__)) . '/';
 $q = $base_path . $q;
 $q = str_replace('\\','/',$q);
-$q = ltrim($q,'./');
+
 $file_ext = strtolower(substr($q,-4));
 
 if(!is_file($q) || $file_ext!=='.php' || strpos($q, "{$base_path}assets/snippets/")!==0)
