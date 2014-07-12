@@ -1517,6 +1517,9 @@ class SubParser {
         {
         	if(isset($tvname[$k]))
         	{
+				if(is_array($v)) {
+					$v = implode('||', $v);
+				}
         		unset($input[$k]);
         		$name = $tvname[$k];
         		if(isset($input["{$k}_prefix"])) $v = $input["{$k}_prefix"] . $v;
