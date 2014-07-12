@@ -216,12 +216,7 @@ function get_tmplvars($id)
 		else {
 			if(is_array($form_v[$tvid])) {
 				// handles checkboxes & multiple selects elements
-				$feature_insert = array ();
-				$lst = $form_v[$tvid];
-				foreach($lst as $v) {
-					$feature_insert[count($feature_insert)] = $v;
-				}
-				$value = implode('||', $feature_insert);
+				$value = implode('||', $form_v[$tvid]);
 			}
 			elseif(isset($form_v[$tvid])) $value = $form_v[$tvid];
 			else                          $value = '';
