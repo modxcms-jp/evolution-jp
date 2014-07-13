@@ -425,7 +425,7 @@ class DBAPI {
 	*/
 	function getRow($ds, $mode = 'assoc')
 	{
-		if($ds)
+		if (is_resource($ds))
 		{
 			switch($mode)
 			{
