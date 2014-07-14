@@ -483,6 +483,7 @@ class PHx {
 		while($remain!=='' && $safecount < 3000)
 		{
 			$safecount++;
+			$bt = md5($remain);
 			$s = substr($remain,0,1);
 			$remain = substr($remain,1);
 			
@@ -524,6 +525,7 @@ class PHx {
 				}
 			}
 			if($this->strlen($remain)===0 && $key!=='') $reslut[$key]=$value;
+			if(md5($remain)===$bt) break;
 		}
 		
 		if(count($reslut) < 1) $reslut = false;
