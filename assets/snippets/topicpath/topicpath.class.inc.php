@@ -65,7 +65,7 @@ class TopicPath
 		}
 		$tpl = array_merge($tpl, $this->tpl);
 		
-		$docs   = $this->getDocs();
+		$docs   = $this->getDocs($modx->documentIdentifier);
 		$topics = $this->setTopics($docs,$tpl);
 		
 		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
@@ -112,24 +112,22 @@ class TopicPath
 		return $rs;
 	}
 	
-	function getDocs()
+	function getDocs($docid)
 	{
 		global $modx;
 		
 		$docs = array();
-		$id = $modx->documentIdentifier;
-		$fields = 'id,type,parent,pagetitle,longtitle,menutitle,description,published,hidemenu';
 		$c = 0;
 		$doc = array();
-		while ($id !== $this->homeId  && $c < 1000 )
+		while ($docid !== $this->homeId  && $c < 1000 )
 		{
-			$doc = $modx->getPageInfo($id,0,$fields);
+			$doc = $modx->getPageInfo($docid,0,'*');
 			if($this->isEnable($doc)) $docs[] = $doc;
-			$id = $doc['parent'];
-			if($id==='0') $id = $this->homeId ;
+			$docid = $doc['parent'];
+			if($docid==='0') $docid = $this->homeId ;
 			$c++;
 		}
-		$docs[] = $modx->getPageInfo($this->homeId ,0,$fields);
+		$docs[] = $modx->getPageInfo($this->homeId ,0,'*');
 		return $docs;
 	}
 	
@@ -142,7 +140,7 @@ class TopicPath
 		$c = count($docs);
 		foreach($docs as $doc)
 		{
-			$ph = array();
+			$ph = $doc;
 			if(in_array($doc['id'],$this->stopIDs)) break;
 			$ph['href']  = ($doc['id'] == $modx->config['site_start']) ? $modx->config['site_url'] : $modx->makeUrl($doc['id'],'','','full');
 			foreach($this->titleField as $f)
