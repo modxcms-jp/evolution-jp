@@ -106,16 +106,25 @@ else $href='a=2';
 if (is_writable($startpath))
 {
 	$ph = array();
+	$_ = '';
+	if($_REQUEST['mode']=='edit')
+	{
+		$tpl = '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>';
+		$ph['icons_save'] = $_style["icons_save"];
+		$ph['lang_save']  = $_lang['save'];
+		$_ = $modx->parseText($tpl,$ph) . "\n";
+	}
 	$ph['style_path'] = $style_path;
 	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+subject+]</a></li>';
 	$ph['image']   = 'folder.gif';
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
-	$_ = $modx->parseText($tpl,$ph);
+	$_ .= $modx->parseText($tpl,$ph);
 	
-	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> ' . $_lang['files.dynamic.php1'] . '</a></li>';
+	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+style_path+]tree/[+image+]" alt="" /> [+lang_newfile+]</a></li>';
 	$ph['image']   = 'page-html.gif';
 	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
+	$ph['lang_newfile']   = $_lang['files.dynamic.php1'];
 	$_ .=  $modx->parseText($tpl,$ph);
 	echo $_;
 }
@@ -409,6 +418,7 @@ if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && 
 if(isset($_REQUEST['mode']) && ($_REQUEST['mode']=='edit' || $_REQUEST['mode']=='view')) {
 ?>
 
+<div class="section">
 <div class="sectionHeader" id="file_editfile"><?php echo $_REQUEST['mode']=="edit" ? $_lang['files_editfile'] : $_lang['files_viewfile']?></div>
 <div class="sectionBody">
 <?php
@@ -429,15 +439,7 @@ if(!empty($buffer) && empty($ent_buffer))
 }
 
 ?>
-<?php
 
-if($_REQUEST['mode']=="edit") {
-?>
-<ul class="actionButtons">
-	<li><a href="#" onclick="document.editFile.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save']?></a></li>
-	<li><a href="index.php?a=31&path=<?php echo urlencode($_REQUEST['path'])?>"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-</ul>
-<?php } ?>
 <form action="index.php" method="post" name="editFile">
 <input type="hidden" name="a" value="31" />
 <input type="hidden" name="mode" value="save" />
@@ -448,6 +450,7 @@ if($_REQUEST['mode']=="edit") {
   </tr>
 </table>
 </form>
+</div>
 </div>
 <?php
 }
