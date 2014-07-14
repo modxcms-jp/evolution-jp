@@ -1351,7 +1351,7 @@ class DocumentParser {
 				if($modifiers!==false)
 				{
 					$this->loadExtension('PHx') or die('Could not load PHx class.');
-					$value = $this->phx->phxFilter($name,$value,$modifiers);
+					$value = $this->phx->phxFilter($key,$value,$modifiers);
 				}
 				$replace[$i]= $value;
 			else:
