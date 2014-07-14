@@ -235,7 +235,6 @@ class DocumentParser {
 		// get the settings
 		if(!$this->db->conn)      $this->db->connect();
 		if(!isset($this->config)) $this->config = $this->getSettings();
-		if(!$this->processCache)  $this->initProcessCache();
 		if(!$this->documentMap)   $this->setdocumentMap();
 		
 		if($this->directParse==1)
@@ -3264,35 +3263,6 @@ class DocumentParser {
 		return round($size,2).' '.$a[$pos];
 	}
 	
-	function initProcessCache()
-	{
-		$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
-		if(is_file($cache_path))
-		{
-			$src = file_get_contents($cache_path);
-			$this->processCache = unserialize($src);
-		}
-		else $this->processCache = array();
-	}
-	
-	function setProcessCache($key, $value, $mode='mem')
-	{
-		$this->processCache[$key] = $value;
-		
-		if($mode==='file')
-		{
-			$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
-			file_put_contents($cache_path,serialize($this->processCache), LOCK_EX);
-		}
-		
-	}
-	
-	function getProcessCache($key)
-	{
-		if(isset($this->processCache[$key])) return $this->processCache[$key];
-		else                                 return false;
-	}
-	
 	function getDocumentListing($str)
 	{
 		return $this->getIdFromAlias($str);
@@ -3301,7 +3271,7 @@ class DocumentParser {
 	function getIdFromAlias($alias)
 	{
 		$cacheKey = md5(__FUNCTION__ . $alias);
-		$result = $this->getProcessCache($cacheKey);
+		$result = $this->getCache($cacheKey);
 		if($result!==false) return $result;
 		
 		$children = array();
@@ -3337,8 +3307,35 @@ class DocumentParser {
 			if($row) $id = $row['id'];
 			else     $id = false;
 		}
-		$this->setProcessCache($cacheKey,$id,'file');
+		$this->setCache($cacheKey,$id);
 		return $id;
+	}
+	
+	function setCache($key, $value, $mode='file')
+	{
+		$this->processCache[$key] = $value;
+		
+		if($mode==='file')
+		{
+			$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
+			file_put_contents($cache_path,'<?php return '.var_export($this->processCache,true).';', LOCK_EX);
+		}
+		
+	}
+	
+	function getCache($key)
+	{
+		if(!isset($this->processCache[$key]))
+		{
+			$cache_path = $this->config['base_path'] . 'assets/cache/process.pageCache.php';
+			if(is_file($cache_path))
+			{
+				$processCache = include($cache_path);
+				if(is_array($processCache)) $this->processCache = $processCache;
+			}
+		}
+		if(isset($this->processCache[$key])) return $this->processCache[$key];
+		else                                 return false;
 	}
 	
     // End of class.
