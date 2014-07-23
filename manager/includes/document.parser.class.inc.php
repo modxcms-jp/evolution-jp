@@ -211,6 +211,14 @@ class DocumentParser {
 				include_once(MODX_CORE_PATH . 'extenders/sub.document.parser.class.inc.php');
 				$this->sub = new SubParser();
 				break;
+			case 'REVISION' :
+				if(include_once(MODX_CORE_PATH . 'extenders/revision.class.inc.php'))
+				{
+					$this->rev= new REVISION;
+					return true;
+				}
+				else return false;
+				break;
 			case 'DeprecatedAPI':
 				if(include_once(MODX_CORE_PATH . 'extenders/deprecated.functions.inc.php'))
 				{
