@@ -330,10 +330,10 @@ class DocumentParser {
 			$this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
 		}
 		
-		if ($this->documentMethod == 'alias')
+		if ($this->documentMethod === 'alias')
 		{
 			// Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-			if ($this->config['use_alias_path'] == 1)
+			if ($this->config['use_alias_path'] === '1')
 			{
 				$alias = $this->documentIdentifier;
 				if(strlen($this->virtualDir) > 0)
@@ -533,7 +533,7 @@ class DocumentParser {
 		// End fix by sirlancelot
 		
 		// remove all unused placeholders
-		if (strpos($this->documentOutput, '[+') > -1)
+		if (strpos($this->documentOutput, '[+') !==false)
 		{
 			$matches= array ();
 			preg_match_all('~\[\+(.*?)\+\]~', $this->documentOutput, $matches);
