@@ -2346,6 +2346,8 @@ class DocumentParser {
 			case 'a':
 				$site_url = '';
 				$base_url = $this->config['base_url'];
+				if($id==$this->config['site_start'])
+					$makeurl = '';
 				break;
 			case 'relative':
 			case 'rel':
