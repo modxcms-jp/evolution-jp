@@ -328,9 +328,17 @@ class ditto {
 				$placeholders[$key] = str_replace( array_keys( $contentVars ), array_values( $contentVars ), $output );
 			}
 			unset($PHs);
-			$phx = new prePHx($template);
-			$phx->setPlaceholders($placeholders);
-			$output = $phx->output();
+			if(isset($modx->config['output_filter']) && $modx->config['output_filter']!=='0')
+			{
+				$modx->toPlaceholders($placeholders);
+				$output = $modx->mergePlaceholderContent($template);
+			}
+			else
+			{
+				$phx = new prePHx($template);
+				$phx->setPlaceholders($placeholders);
+				$output = $phx->output();
+			}
 		} else {
 		 	$output = $this->template->replace($placeholders,$template);
 			$output = $this->template->replace($contentVars,$output);
