@@ -168,6 +168,15 @@ class DocumentParser {
                 if($this->mail) return true;
                 else            return false;
                 break;
+			// Resource API
+			case 'DocAPI' :
+				if(include_once(MODX_CORE_PATH . 'extenders/doc.api.class.inc.php'))
+				{
+					$this->doc= new DocAPI;
+					return true;
+				}
+				else return false;
+				break;
 			// PHx
 			case 'PHx' :
 				if(!class_exists('PHx') || !is_object($this->phx))
