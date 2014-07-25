@@ -23,7 +23,6 @@ class PHx {
 		global $modx;
 		
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
-		if($cmd!=='id') $value = $modx->parseDocumentSource($value);
 		
 		$this->elmName = '';
 		if(!$modx->snippetCache) $modx->setSnippetCache();
