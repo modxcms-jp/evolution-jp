@@ -2484,7 +2484,7 @@ class DocumentParser {
 		return $src;
 	}
 
-	function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
+	function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
 	{
 		if(!$ph) return $content;
 		elseif(is_string($ph) && strpos($ph,'='))
@@ -2519,7 +2519,8 @@ class DocumentParser {
 				}
 				$replace[$i]= $value;
 			}
-			else $replace[$i]= "{$left}{$key}{$right}";
+			elseif($cleanup) $replace[$i] = '';
+			else             $replace[$i] = $matches['0'];
 			$i++;
 		endforeach;
 		$content= str_replace($matches['0'], $replace, $content);
