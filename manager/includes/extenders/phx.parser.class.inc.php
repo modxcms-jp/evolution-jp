@@ -282,7 +282,33 @@ class PHx {
 				$menutitle = $this->getDocumentObject($value,'menutitle');
 				$value = $menutitle ? $menutitle : $pagetitle;
 				break;
-			
+				
+			#####  User info
+			case 'username':
+			case 'fullname':
+			case 'role':
+			case 'email':
+			case 'phone': 
+			case 'mobilephone': 
+			case 'blocked':
+			case 'blockeduntil':
+			case 'blockedafter':
+			case 'logincount':
+			case 'lastlogin':
+			case 'thislogin':
+			case 'failedlogincount':
+			case 'dob':
+			case 'gender':
+			case 'country':
+			case 'street':
+			case 'city':
+			case 'state':
+			case 'zip':
+			case 'fax':
+			case 'photo':
+			case 'comment':
+				$value = $this->ModUser($value,$cmd,'fuzzy');
+				break;
 			#####  Special functions 
 			case 'math':
 				$filter = preg_replace("~([a-zA-Z\n\r\t\s])~",'',$opt);
@@ -406,7 +432,7 @@ class PHx {
 	}
 	// Returns the specified field from the user record
 	// positive userid = manager, negative integer = webuser
-	function ModUser($userid,$field) {
+	function ModUser($userid,$field,$fuzzy=false) {
 		global $modx;
 		if (!isset($this->cache['ui']) || !array_key_exists($userid, $this->cache['ui'])) {
 			if (intval($userid) < 0) {
@@ -419,7 +445,23 @@ class PHx {
 			$user = $this->cache['ui'][$userid];
 		}
 		$user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
-		return $user[$field];
+		
+		if($fuzzy)
+		{
+			switch($field)
+			{
+				case 'lastlogin':
+				case 'thislogin':
+				case 'dob':
+					$value = $modx->toDateFormat($user[$field]);
+					break;
+				default:
+					$value = $user[$field];
+			}
+		}
+		else $value = $user[$field];
+		
+		return $value;
 	}
 	 
 	 // Returns true if the user id is in one the specified webgroups
