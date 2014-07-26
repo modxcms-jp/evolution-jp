@@ -492,3 +492,24 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
   KEY `webuserid` (`webuser`)
 ) ENGINE=MyISAM COMMENT='Contains web user settings.';
 
+CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
+  `internalKey` int(10) NOT NULL auto_increment,
+  `element` varchar(32) NOT NULL default 'resource' COMMENT 'resource, template, chunk, snippet, plugin, module',
+  `id` int(10) NOT NULL default '0',
+  `revision` int(10) NOT NULL default '0',
+  `status` varchar(20) NOT NULL default 'inherit' COMMENT 'inherit,pending,draft,auto-draft,future,private',
+  `description` varchar(255) NOT NULL default '',
+  `content` mediumtext,
+  `editedon` int(20) NOT NULL default '0',
+  `editedby` int(10) NOT NULL default '0',
+  `submittedon` int(20) NOT NULL default '0',
+  `submittedby` int(10) NOT NULL default '0',
+  `approvedon` int(20) NOT NULL default '0',
+  `approvedby` int(10) NOT NULL default '0',
+  `pub_date` int(20) NOT NULL default '0',
+  `unpub_date` int(20) NOT NULL default '0',
+  `checksum` varchar(50) NOT NULL default '0',
+  PRIMARY KEY `internalKey` (`internalKey`),
+  UNIQUE INDEX `idx_revision` (`element`,`id`,`revision`),
+  KEY `status` (`status`)
+) ENGINE=MyISAM COMMENT='Contains revision data.';
