@@ -608,6 +608,7 @@ class DBAPI {
         $prefix = $this->table_prefix;
         if(!empty($force))
         {
+        	$table_name = str_replace('[+prefix+]','',$table_name);
         	$result = "`{$dbase}`.`{$prefix}{$table_name}`";
         }
         elseif(strpos($table_name,'[+prefix+]')!==false)
