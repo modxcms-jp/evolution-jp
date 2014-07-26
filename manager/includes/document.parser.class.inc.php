@@ -1254,6 +1254,19 @@ class DocumentParser {
 				$this->loadExtension('PHx') or die('Could not load PHx class.');
 				$value = $this->phx->phxFilter($key,$value,$modifiers);
 			}
+			else
+			{
+				switch($key)
+				{
+					case 'createdon':
+					case 'editedon':
+					case 'publishedon':
+					case 'pub_date':
+					case 'unpub_date':
+						$value = $this->toDateFormat($value);
+						break;
+				}
+			}
 			$replace[$i]= $value;
 			$i++;
 		endforeach;
