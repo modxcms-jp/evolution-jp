@@ -1265,6 +1265,12 @@ class DocumentParser {
 					case 'unpub_date':
 						$value = $this->toDateFormat($value);
 						break;
+					case 'createdby':
+					case 'editedby':
+					case 'publishedby':
+						$_ = $this->getUserInfo($value);
+						$value = $_['username'];
+						break;
 				}
 			}
 			$replace[$i]= $value;
