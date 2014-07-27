@@ -87,14 +87,14 @@ else
 // restore saved form
 $formRestored = false;
 if ($modx->manager->hasFormValues()) {
-	$modx->manager->loadFormValues();
+	$form_v = $modx->manager->loadFormValues();
 	// restore post values
-	$userdata = array_merge($userdata, $_POST);
+	$userdata = array_merge($userdata, $form_v);
 	$userdata['dob'] = ConvertDate($userdata['dob']);
 	$usernamedata['username'] = $userdata['newusername'];
-	$usernamedata['oldusername'] = $_POST['oldusername'];
+	$usernamedata['oldusername'] = $form_v['oldusername'];
 	$usersettings = array_merge($usersettings, $userdata);
-	$usersettings['allowed_days'] = is_array($_POST['allowed_days']) ? implode(",", $_POST['allowed_days']) : "";
+	$usersettings['allowed_days'] = is_array($form_v['allowed_days']) ? implode(",", $form_v['allowed_days']) : "";
 	extract($usersettings, EXTR_OVERWRITE);
 }
 

@@ -70,26 +70,23 @@ else
 $formRestored = false;
 if ($modx->manager->hasFormValues())
 {
-	$modx->manager->loadFormValues();
+	$form_v = $modx->manager->loadFormValues();
 	$formRestored = true;
 }
 
 if ($formRestored == true || isset ($_REQUEST['changeMode']))
 {
-	$content = array_merge($content, $_POST);
-	$content['content'] = $_POST['ta'];
+	$content = array_merge($content, $form_v);
+	$content['content'] = $form_v['ta'];
 	if (empty ($content['pub_date'])) unset ($content['pub_date']);
 	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
 	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
 	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
 }
 
-if (isset($_POST['which_editor']))
-        $which_editor = $_POST['which_editor'];
+if (isset($form_v['which_editor']))
+        $which_editor = $form_v['which_editor'];
 elseif(!isset($content['editor_type']) || empty($content['editor_type'])) $which_editor = 'none';
-
-$formRestored = $modx->manager->loadFormValues();
-if($formRestored) $content = array_merge($content, $_POST);
 
 
 // Print RTE Javascript function

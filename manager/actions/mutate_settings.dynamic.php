@@ -33,7 +33,7 @@ while($row = mysql_fetch_assoc($rs))
 $settings = array_merge($default_config,$settings);
 
 if ($modx->manager->hasFormValues()) {
-	$modx->manager->loadFormValues();
+	$_POST = $modx->manager->loadFormValues();
 }
 if(setlocale(LC_CTYPE, 0)==='Japanese_Japan.932')
 {

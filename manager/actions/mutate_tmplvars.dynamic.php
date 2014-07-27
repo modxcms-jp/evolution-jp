@@ -59,8 +59,8 @@ else
 	$_SESSION['itemname']="New Template Variable";
 }
 
-$formRestored = $modx->manager->loadFormValues();
-if($formRestored) $content = array_merge($content, $_POST);
+$form_v = $modx->manager->loadFormValues();
+if($form_v) $content = array_merge($content, $form_v);
 
 if($content['type']==='custom_tv' && $content['elements']==='')
 {
