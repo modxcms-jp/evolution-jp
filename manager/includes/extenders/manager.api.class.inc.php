@@ -68,7 +68,7 @@ class ManagerAPI {
 				$_POST[$k]=$v;
 			}
 			$this->clearSavedFormValues();
-			return true;
+			return $_POST;
 		}
 		else return false;
 	}
