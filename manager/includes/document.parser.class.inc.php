@@ -807,6 +807,7 @@ class DocumentParser {
 		$cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
 		
 		if(is_file($cache_path)) $config= include($cache_path);
+		$this->setChunkCache();
 		
 		if(!isset($config)||!$config)
 		{
