@@ -356,6 +356,7 @@ class synccache {
 	{
 		$rs = $modx->db->select('name,snippet','[+prefix+]site_htmlsnippets', "`published`='1'");
 		$row = array();
+		$modx->chunkCache = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			$name = $modx->db->escape($row['name']);
