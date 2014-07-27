@@ -384,7 +384,7 @@ function mergeValues($initial_v,$db_v,$form_v) {
 	
 	if ($modx->manager->hasFormValues())
 	{
-		$modx->manager->loadFormValues();
+		$form_v = $modx->manager->loadFormValues();
 		$formRestored = true;
 	}
 	else $formRestored = false;
