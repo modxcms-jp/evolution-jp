@@ -474,6 +474,19 @@ class SubParser {
 		exit();
 	}
 	
+	function sendUnavailablePage()
+	{
+		global $modx;
+		
+		if($modx->config['site_unavailable_page'])
+			$dist = $modx->config['site_unavailable_page'];
+		else
+			$dist = $modx->config['site_start'];
+		
+		$modx->http_status_code = '503';
+		$modx->sendForward($dist, 'HTTP/1.0 503 Service Unavailable');
+	}
+	
 	function sendErrorPage()
 	{
 		global $modx;

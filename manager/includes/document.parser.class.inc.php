@@ -3125,6 +3125,8 @@ class DocumentParser {
     	{$this->loadExtension('SubParser');$this->sub->sendErrorPage();}
     function sendUnauthorizedPage()
     	{$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
+    function sendUnavailablePage()
+    	{$this->loadExtension('SubParser');$this->sub->sendUnavailablePage();}
     function setCacheRefreshTime($unixtime)
     	{$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
     function getSnippetId()
