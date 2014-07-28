@@ -254,7 +254,7 @@ if($modx->config['tvs_below_content']==='0'&&0<count($tmplVars)) {
 	$ph['_lang_tv'] = $_lang['tmplvars'];
 	echo $modx->parseText($tpl['tab-page']['tv'],$ph);
 }
-
+if(is_array($docObject)) $docObject = (object) $docObject;
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
 $ph['fieldPublished']  =  fieldPublished();
