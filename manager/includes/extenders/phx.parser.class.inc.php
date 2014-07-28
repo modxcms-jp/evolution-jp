@@ -453,6 +453,8 @@ class PHx {
 				case 'lastlogin':
 				case 'thislogin':
 				case 'dob':
+				case 'blockeduntil':
+				case 'blockedafter':
 					$value = $modx->toDateFormat($user[$field]);
 					break;
 				default:
