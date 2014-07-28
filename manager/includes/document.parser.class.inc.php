@@ -252,6 +252,9 @@ class DocumentParser {
 		// get the settings
 		if(!$this->db->conn)      $this->db->connect();
 		if(!isset($this->config)) $this->config = $this->getSettings();
+		
+		if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
+		
 		if(!$this->documentMap)   $this->setdocumentMap();
 		
 		if($this->directParse==1)
@@ -291,29 +294,10 @@ class DocumentParser {
 			$this->_IIS_furl_fix();
 		}
 		
-		// check site settings
-		$site_status = $this->checkSiteStatus();
 		if($this->directParse==1)
 		{
 			$this->documentMethod     = 'id';
 			$this->documentIdentifier = $id;
-		}
-		elseif ($site_status===false)
-		{
-			header("Content-Type: text/html; charset={$this->config['modx_charset']}");
-			header('HTTP/1.0 503 Service Unavailable');
-			if (!$this->config['site_unavailable_page'])
-			{
-				// display offline message
-				echo $this->config['site_unavailable_message'];
-				exit; // stop processing here, as the site's offline
-			}
-			else
-			{
-				// setup offline page document settings
-				$this->documentMethod= 'id';
-				$this->documentIdentifier= $this->config['site_unavailable_page'];
-			}
 		}
 		else
 		{
@@ -328,7 +312,7 @@ class DocumentParser {
 		$path = $this->decoded_request_uri;
 		$pos = strpos($path,'?');
 		if($pos!==false) $path = substr($path,0,$pos);
-		if ($this->documentMethod == 'none' || ($path===$this->config['base_url'] && $site_status!==false))
+		if ($this->documentMethod == 'none' || ($path===$this->config['base_url']))
 		{
 			$this->documentMethod= 'id'; // now we know the site_start, change the none method to id
 			$this->documentIdentifier = $this->config['site_start'];
@@ -399,26 +383,21 @@ class DocumentParser {
 			$this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
 			
 			// validation routines
-			if ($this->documentObject['deleted'] == 1)
+			if($this->checkSiteStatus()===false)
 			{
-				if($this->http_status_code == '200') $this->sendErrorPage();
+				if (!$this->config['site_unavailable_page'])
+					$this->documentObject['content'] = $this->config['site_unavailable_message'];
 			}
 			
-			if ($this->documentObject['published'] == 0)
+			if($this->http_status_code == '200')
 			{
-			// Can't view unpublished pages
-				if (!$this->hasPermission('view_unpublished'))
+				if ($this->documentObject['published'] == 0)
 				{
-					if($this->http_status_code == '200') $this->sendErrorPage();
+					if (!$this->hasPermission('view_unpublished') || !$this->checkPermissions($this->documentIdentifier))
+						$this->sendErrorPage();
 				}
-				else
-				{
-					// Doesn't have access to this document
-					if (!$this->checkPermissions($this->documentIdentifier))
-					{
-						if($this->http_status_code == '200') $this->sendErrorPage();
-					}
-				}
+				elseif ($this->documentObject['deleted'] == 1)
+					$this->sendErrorPage();
 			}
 			// check whether it's a reference
 			if($this->documentObject['type'] === 'reference')
@@ -657,8 +636,13 @@ class DocumentParser {
 			switch($this->http_status_code)
 			{
 				case '404':
+					$filename = 'error404';
+					break;
 				case '403':
-					$filename = md5($this->makeUrl($docid));
+					$filename = 'error403';
+					break;
+				case '503':
+					$filename = 'error503';
 					break;
 			}
 			
@@ -1036,9 +1020,22 @@ class DocumentParser {
 
 	function checkCache($id)
 	{
-		
 		if(isset($this->config['cache_type']) && $this->config['cache_type'] == 0) return ''; // jp-edition only
-		$cacheFile = "{$this->config['base_path']}assets/cache/docid_{$id}{$this->qs_hash}.pageCache.php";
+		switch($this->http_status_code)
+		{
+			case '404':
+				$filename = 'error404';
+				break;
+			case '403':
+				$filename = 'error403';
+				break;
+			case '503':
+				$filename = 'error503';
+				break;
+			default:
+				$filename = "docid_{$id}{$this->qs_hash}";
+		}
+		$cacheFile = "{$this->config['base_path']}assets/cache/{$filename}.pageCache.php";
 		
 		if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
 		
