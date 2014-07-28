@@ -458,7 +458,6 @@ class SubParser {
 			$modx->forwards= $modx->forwards - 1;
 			$modx->documentIdentifier= $id;
 			$modx->documentMethod= 'id';
-			$modx->documentObject= $modx->getDocumentObject('id', $id);
 			if ($responseCode)
 			{
 				header($responseCode);
