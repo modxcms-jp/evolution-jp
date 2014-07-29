@@ -760,9 +760,6 @@ if ($use_udperms == 1)
 <?php
 }
 ?>
-</div>
-</div>
-<input type="submit" name="save" style="display:none">
 <?php
 
 // invoke OnUserFormRender event
@@ -772,6 +769,9 @@ $evtOut = $modx->invokeEvent("OnUserFormRender", array (
 if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
+</div>
+</div>
+<input type="submit" name="save" style="display:none">
 </form>
 <?php
 function selected($cond=false)
