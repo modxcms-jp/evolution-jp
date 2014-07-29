@@ -764,7 +764,8 @@ if ($use_udperms == 1)
 
 // invoke OnUserFormRender event
 $evtOut = $modx->invokeEvent("OnUserFormRender", array (
-	"id" => $userid
+	"id" => $userid,
+	'usersettings'=>$usersettings
 ));
 if (is_array($evtOut))
 	echo implode("", $evtOut);
