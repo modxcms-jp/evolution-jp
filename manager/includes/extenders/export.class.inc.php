@@ -128,7 +128,7 @@ class EXPORT_SITE
 			if($result !== false) return 'success';
 			else                  return 'failed_no_write';
 		}
-		else                      return 'no_retrieve';
+		else                      return 'failed_no_open';
 	}
 
 	function getFileName($docid, $alias='', $prefix, $suffix)
@@ -168,6 +168,9 @@ class EXPORT_SITE
 		$ph['msg2']   = $_lang["export_site_failed_no_retrieve"];
 		$msg_failed_no_retrieve = $modx->parseText($tpl,$ph);
 		
+		$ph['msg2']   = $_lang["export_site_failed_no_open"];
+		$msg_failed_no_open = $modx->parseText($tpl,$ph);
+		
 		$ph['status'] = 'success';
 		$ph['msg1']   = $_lang['export_site_success'];
 		$ph['msg2']   = '';
@@ -204,9 +207,9 @@ class EXPORT_SITE
 						$status = $this->makeFile($row['id'], $filename);
 						switch($status)
 						{
-							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ; break;
-							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve; break;
-							default:                   $row['status'] = $msg_success;
+							case 'failed_no_write' : $row['status'] = $msg_failed_no_write ; break;
+							case 'failed_no_open'  : $row['status'] = $msg_failed_no_open  ; break;
+							default                : $row['status'] = $msg_success;
 						}
 					}
 					else $row['status'] = $msg_failed_no_retrieve;
