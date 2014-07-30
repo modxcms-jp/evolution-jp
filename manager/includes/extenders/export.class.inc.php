@@ -204,8 +204,8 @@ class EXPORT_SITE
 						$status = $this->makeFile($row['id'], $filename);
 						switch($status)
 						{
-							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ;
-							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve;
+							case 'failed_no_write'   : $row['status'] = $msg_failed_no_write   ; break;
+							case 'failed_no_retrieve': $row['status'] = $msg_failed_no_retrieve; break;
 							default:                   $row['status'] = $msg_success;
 						}
 					}
