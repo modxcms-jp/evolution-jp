@@ -468,5 +468,12 @@ function parseNode($tpl,$ph) {
 	$node = $modx->parseText($tpl,$ph);
     $node = "{$evtOut}{$node}";
 	
+    $ph['node'] = $node;
+    $evtOut = $modx->invokeEvent('OnManagerNodeRender',$ph);
+    if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
+    else $evtOut = '';
+    
+    if ($evtOut !== '') $node = $evtOut;
+    
     return $node;
 }
