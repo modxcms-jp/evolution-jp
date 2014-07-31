@@ -128,7 +128,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				default  : $ph['ca'] = 'open';
 			}
 			$tpl = tplPageNode();
-			$output .= $modx->parseText($tpl,$ph);
+			$output .= parseNode($tpl,$ph);
 		}
 		else
 		{
@@ -160,7 +160,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				else
 					$ph['_style_tree_minusnode']  = $_style['tree_minusnode'];
 				$tpl = getFopenNode();
-				$output .= $modx->parseText($tpl,$ph);
+				$output .= parseNode($tpl,$ph);
 				$output = getNodes($indent+1,$id,$expandAll,$output);
 				$output .= '</div></div>';
 			}
@@ -171,7 +171,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				else
 					$ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
 				$tpl = tplFcloseNode();
-				$output .= $modx->parseText($tpl,$ph);
+				$output .= parseNode($tpl,$ph);
 				if($parent!=0 && $container_status==='too_many' && $loop_count == $has_child)
 				{
 					$tpl = tplEmptyFolder();
@@ -456,4 +456,11 @@ function getAlt($id,$alias='',$menuindex,$hidemenu,$privatemgr,$privateweb) {
 function tplEmptyFolder() {
 	return '<div style="white-space:nowrap;">[+spacer+]<img align="absmiddle" src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
 
+}
+
+function parseNode($tpl,$ph) {
+	global $modx;
+
+	$node = $modx->parseText($tpl,$ph);
+    return $node;
 }
