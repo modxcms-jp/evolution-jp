@@ -461,6 +461,12 @@ function tplEmptyFolder() {
 function parseNode($tpl,$ph) {
 	global $modx;
 
+    $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $ph);
+    if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
+    else $evtOut = '';
+    
 	$node = $modx->parseText($tpl,$ph);
+    $node = "{$evtOut}{$node}";
+	
     return $node;
 }
