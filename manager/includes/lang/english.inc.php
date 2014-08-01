@@ -1295,3 +1295,5 @@ $_lang["bk_different_version"] = 'Version is different';
 $_lang['configcheck_danger_ajaxsearch'] = 'You should update AjaxSearch snippet.';
 $_lang['configcheck_danger_ajaxsearch_msg'] = 'There is serious vulnerability in installed AjaxSearch. Please update it by all means. When you are unnecessary, please delete the assets/snippets/ajaxSearch/ directory.';
 
+$_lang["user_allowed_parents"] = 'Allowed resources';
+$_lang["user_allowed_parents_message"] = 'Set editable resource id as parent id';
