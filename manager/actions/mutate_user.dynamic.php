@@ -474,6 +474,13 @@ while ($row = $modx->db->getRow($rs))
             	<div><?php echo $_lang["allow_mgr_access_message"] ?></div>
             </td>
           </tr>
+<tr>
+	<th><?php echo $_lang['user_allowed_parents']; ?>:</th>
+	<td>
+	<input type="text" name="allowed_parents" class="inputBox" value="<?php echo htmlspecialchars($usersettings['allowed_parents']); ?>" />
+	<div><?php echo $_lang["user_allowed_parents_message"] ?></div>
+	</td>
+</tr>
 <?php if($_GET['a']=='12'): ?>
 		  <tr>
 			<th><?php echo $_lang['user_logincount']; ?>:</th>

@@ -128,7 +128,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				default  : $ph['ca'] = 'open';
 			}
 			$tpl = tplPageNode();
-			$output .= parseNode($tpl,$ph);
+			$output .= parseNode($tpl,$ph,$id);
 		}
 		else
 		{
@@ -160,7 +160,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				else
 					$ph['_style_tree_minusnode']  = $_style['tree_minusnode'];
 				$tpl = getFopenNode();
-				$output .= parseNode($tpl,$ph);
+				$output .= parseNode($tpl,$ph,$id);
 				$output = getNodes($indent+1,$id,$expandAll,$output);
 				$output .= '</div></div>';
 			}
@@ -171,7 +171,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				else
 					$ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
 				$tpl = tplFcloseNode();
-				$output .= parseNode($tpl,$ph);
+				$output .= parseNode($tpl,$ph,$id);
 				if($parent!=0 && $container_status==='too_many' && $loop_count == $has_child)
 				{
 					$tpl = tplEmptyFolder();
@@ -458,9 +458,10 @@ function tplEmptyFolder() {
 
 }
 
-function parseNode($tpl,$ph) {
+function parseNode($tpl,$ph,$id) {
 	global $modx;
 
+	if($modx->manager->isAllowed($id)===false) return;
     $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $ph);
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';

@@ -5,6 +5,13 @@ if (isset($_REQUEST['id']))
         $id = (int)$_REQUEST['id'];
 else    $id = 0;
 
+$isAllowed = $modx->manager->isAllowed($id);
+if (!$isAllowed)
+{
+	$e->setError(3);
+	$e->dumpError();
+}
+
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
 
@@ -548,9 +555,14 @@ EOT;
 
 function getReturnAction($content)
 {
+	global $modx;
+	
 	if(isset($content['parent'])) $parent = $content['parent'];
 	elseif(isset($_GET['pid']))   $parent = $_GET['pid'];
 	else $parent = 0;
+	
+	$isAllowed = $modx->manager->isAllowed($parent);
+	if(!$isAllowed) $parent = 0;
 	
 	if($parent==0) $a = 'a=2';
 	else           $a = "a=3&id={$parent}&tab=0";

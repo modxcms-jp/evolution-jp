@@ -282,6 +282,13 @@ function getDefaultTemplate()
 function checkPermissions($id) {
 	global $modx, $_lang, $e;
 	
+	$isAllowed = $modx->manager->isAllowed($id);
+	if (!$isAllowed)
+	{
+		$e->setError(3);
+		$e->dumpError();
+	}
+	
 	switch ($_REQUEST['a']) {
 		case 27:
 			if (!$modx->hasPermission('edit_document')) {
