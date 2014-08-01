@@ -780,4 +780,29 @@ class ManagerAPI {
 		if(!isset($ph['content'])) $ph['content'] = 'content';
 		return $modx->parseText($tpl,$ph);
 	}
+	
+	function isAllowed($id)
+	{
+		global $modx;
+		
+		if(!isset($modx->config['allowed_parents']) || empty($modx->config['allowed_parents']))
+			return true;
+		
+		if(!isset($modx->user_allowed_docs))
+		{
+			$modx->user_allowed_docs = array();
+			$allowed_parents = explode(',', $modx->config['allowed_parents']);
+			foreach($allowed_parents as $parent)
+			{
+				$parent = trim($parent);
+				$allowed_docs = $modx->getChildIds($parent);
+				$allowed_docs[] = $parent;
+				$modx->user_allowed_docs = array_merge($modx->user_allowed_docs,$allowed_docs);
+			}
+		}
+		
+		if(!in_array($id,$modx->user_allowed_docs))
+			return false;
+		else return true;
+	}
 }
