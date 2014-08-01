@@ -157,31 +157,6 @@ class EXPORT_SITE
 		$prefix = $modx->config['friendly_url_prefix'];
 		$suffix = $modx->config['friendly_url_suffix'];
 		
-		$tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>';
-		$ph = array();
-		
-		$ph['status'] = 'fail';
-		$ph['msg1']   = $_lang['export_site_failed'];
-		$ph['msg2']   = $_lang["export_site_failed_no_write"] . ' - ' . $dirpath;
-		$msg_failed_no_write    = $modx->parseText($tpl,$ph);
-		
-		$ph['msg2']   = $_lang["export_site_failed_no_retrieve"];
-		$msg_failed_no_retrieve = $modx->parseText($tpl,$ph);
-		
-		$ph['msg2']   = $_lang["export_site_failed_no_open"];
-		$msg_failed_no_open = $modx->parseText($tpl,$ph);
-		
-		$ph['status'] = 'success';
-		$ph['msg1']   = $_lang['export_site_success'];
-		$ph['msg2']   = '';
-		$msg_success            = $modx->parseText($tpl,$ph);
-		
-		$ph['msg2']   = $_lang['export_site_success_skip_doc'];
-		$msg_success_skip_doc = $modx->parseText($tpl,$ph);
-		
-		$ph['msg2']   = $_lang['export_site_success_skip_dir'];
-		$msg_success_skip_dir = $modx->parseText($tpl,$ph);
-		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
 		$where = "parent = '{$parent}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
@@ -190,6 +165,14 @@ class EXPORT_SITE
 		$ph = array();
 		$ph['total']     = $this->total;
 		$folder_permission = octdec($modx->config['new_folder_permissions']);
+		
+		$msg_failed_no_write    = $this->makeMsg('failed_no_write'   ,'fail');
+		$msg_failed_no_open     = $this->makeMsg('failed_no_open'    ,'fail');
+		$msg_failed_no_retrieve = $this->makeMsg('failed_no_retrieve','fail');
+		$msg_success            = $this->makeMsg('success');
+		$msg_success_skip_doc   = $this->makeMsg('success_skip_doc');
+		$msg_success_skip_dir   = $this->makeMsg('success_skip_dir');
+		
 		while($row = $modx->db->getRow($rs))
 		{
 			$this->count++;
@@ -207,8 +190,8 @@ class EXPORT_SITE
 						$status = $this->makeFile($row['id'], $filename);
 						switch($status)
 						{
-							case 'failed_no_write' : $row['status'] = $msg_failed_no_write ; break;
-							case 'failed_no_open'  : $row['status'] = $msg_failed_no_open  ; break;
+							case 'failed_no_write' : $row['status'] = $msg_failed_no_write; break;
+							case 'failed_no_open'  : $row['status'] = $msg_failed_no_open ; break;
 							default                : $row['status'] = $msg_success;
 						}
 					}
@@ -219,7 +202,7 @@ class EXPORT_SITE
 			}
 			else
 			{
-				$row['status'] = $msg_success_skip_dir;
+				$row['status']  = $msg_success_skip_dir;
 				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
 			}
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
@@ -247,7 +230,7 @@ class EXPORT_SITE
 		return join("\n", $this->output);
 	}
 	
-    function curl_get_contents($url, $timeout = 30 )
+    function curl_get_contents($url, $timeout = 30)
     {
     	if(!function_exists('curl_init')) return @file_get_contents($url);
     	
@@ -259,5 +242,34 @@ class EXPORT_SITE
         $result = curl_exec($ch);
         curl_close($ch);
         return $result;
+    }
+    
+    function makeMsg($cond, $status='success')
+    {
+    	global $modx,$_lang;
+    	
+		$tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>';
+		$ph = array();
+		
+		$ph['status'] = $status;
+		
+		if($status==='success') $ph['msg1'] = $_lang['export_site_success'];
+		else                    $ph['msg1'] = $_lang['export_site_failed'];
+		
+		if($cond==='failed_no_write')
+			$ph['msg2'] = $_lang["export_site_failed_no_write"] . ' - ' . $this->targetDir . '/';
+		elseif($cond==='failed_no_retrieve')
+			$ph['msg2'] = $_lang["export_site_failed_no_retrieve"];
+		elseif($cond==='failed_no_open')
+			$ph['msg2'] = $_lang["export_site_failed_no_open"];
+		elseif($cond==='success_skip_doc')
+			$ph['msg2'] = $_lang['export_site_success_skip_doc'];
+		elseif($cond==='success_skip_dir')
+			$ph['msg2'] = $_lang['export_site_success_skip_dir'];
+		else
+			$ph['msg2'] = '';
+		
+		$result = $modx->parseText($tpl,$ph);
+		return $result;
     }
 }
