@@ -5,59 +5,59 @@ define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once("{$base_path}index.php");
 $modx->db->connect();
+$modx->getSettings();
+extract($modx->config);
 
-include_once(MODX_CORE_PATH . 'settings.inc.php');
 include_once(MODX_CORE_PATH . 'version.inc.php');
 include_once(MODX_CORE_PATH . 'log.class.inc.php');
+
+$decoded_uri = urldecode($_SERVER['REQUEST_URI']);
+if(strpos($decoded_uri,"'")!==false) {
+	jsAlert("This is illegal login.");
+	return;
+}
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// initiate the content manager class
-$modx->loadExtension('ManagerAPI');
-$modx->getSettings();
+$formv_password     = $modx->db->escape($_POST['password']);
+$formv_captcha_code = (isset($_POST['captcha_code'])) ? $_POST['captcha_code'] : '';
+$formv_rememberme   = (isset($_POST['rememberme']))   ? $_POST['rememberme']   : '';
 
-$username       = $modx->db->escape($_REQUEST['username']);
-$givenPassword  = $modx->db->escape($_REQUEST['password']);
-$captcha_code   = (isset($_REQUEST['captcha_code'])) ? $_REQUEST['captcha_code'] : '';
-$rememberme     = (isset($_REQUEST['rememberme']))   ? $_REQUEST['rememberme']   : '';
-$failed_allowed = $modx->config['failed_login_attempts'];
-
-if(strpos($username,':safemode')!==false)
+$formv_username = $modx->db->escape($_POST['username']);
+if(strpos($formv_username,':safemode')!==false)
 {
 	$_SESSION['safeMode'] = 1;
-	$username = str_replace(':safemode','',$username);
+	$formv_username = str_replace(':safemode','',$formv_username);
 }
-if(strpos($username,':roleid=')!==false)
+elseif(strpos($formv_username,':roleid=')!==false)
 {
-	list($username,$assignRole) = explode(':roleid=',$username);
-	if(!preg_match('@^[0-9]+$@',$assignRole)) $assignRole = 1;
+	list($formv_username,$forceRole) = explode(':roleid=',$formv_username,2);
+	if(!preg_match('@^[0-9]+$@',$forceRole)) $forceRole = 1;
 }
-
-$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 
 // invoke OnBeforeManagerLogin event
-$modx->invokeEvent("OnBeforeManagerLogin",
-                        array(
-                            "username"      => $username,
-                            "userpassword"  => $givenPassword,
-                            "rememberme"    => $rememberme
-                        ));
+$info = array();
+$info['username']     = $formv_username;
+$info['userpassword'] = $formv_password;
+$info['rememberme']   = $formv_rememberme;
+$modx->invokeEvent('OnBeforeManagerLogin', $info);
 
-if(!isset($modx->config['manager_language'])) $modx->config['manager_language'] = 'english';
+if(isset($modx->config['manager_language'])) $manager_language = $modx->config['manager_language'];
+else                                         $manager_language = 'english';
+
 $_lang = array();
-include_once(MODX_CORE_PATH . 'lang/'.$modx->config['manager_language'].'.inc.php');
+include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 
 // include_once the error handler
 include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
-$field = "mu.*, ua.*";
-$from = "[+prefix+]manager_users mu,[+prefix+]user_attributes ua";
-$where = "BINARY mu.username='{$username}' and ua.internalKey=mu.id";
-$rs = $modx->db->select($field,$from,$where);
-
+$field = 'mu.*, ua.*';
+$from = '[+prefix+]manager_users mu,[+prefix+]user_attributes ua';
+$where = "BINARY mu.username='{$formv_username}' and ua.internalKey=mu.id";
+$rs = $modx->db->select($field, $from, $where);
 $total = $modx->db->getRecordCount($rs);
 if($total!=1) {
     jsAlert($e->errors[900]);
@@ -66,182 +66,159 @@ if($total!=1) {
 
 $row = $modx->db->getRow($rs);
 
-$internalKey            = $row['internalKey'];
-$dbasePassword          = $row['password'];
-$failedlogins           = $row['failedlogincount'];
-$blocked                = $row['blocked'];
-$blockeduntildate       = $row['blockeduntil'];
-$blockedafterdate       = $row['blockedafter'];
-$registeredsessionid    = $row['sessionid'];
-$role                   = ($row['role']==1 && isset($assignRole)) ? $assignRole : $row['role'];
-$lastlogin              = $row['lastlogin'];
-$nrlogins               = $row['logincount'];
-$fullname               = $row['fullname'];
-$email                  = $row['email'];
+$dbv_internalKey      = $row['internalKey'];
+$dbv_password         = $row['password'];
+$dbv_failedlogincount = $row['failedlogincount'];
+$dbv_blocked          = $row['blocked'];
+$dbv_blockeduntil     = $row['blockeduntil'];
+$dbv_role             = ($row['role']==1 && isset($forceRole)) ? $forceRole : $row['role'];
+$dbv_logincount       = $row['logincount'];
+$dbv_fullname         = $row['fullname'];
+$dbv_email            = $row['email'];
+
+// blocked due to number of login errors.
+if($_SERVER['REQUEST_TIME']<$dbv_blockeduntil)
+{
+	if($modx->config['failed_login_attempts']<=$dbv_failedlogincount)
+	{
+	    $modx->db->update('blocked=1','[+prefix+]user_attributes',"internalKey='{$dbv_internalKey}'");
+	    @session_destroy();
+	    session_unset();
+	    jsAlert($e->errors[902]);
+	    return;
+	}
+}
+elseif($dbv_blocked==1)
+{
+	$dbv_failedlogincount  = '0';
+	$dbv_blocked           = '0';
+	$dbv_failedlogincount   = '0';
+	$f = array();
+	$f['failedlogincount'] = '0';
+	$f['blocked']          = '0';
+	$f['blockedafter']     = '0';
+	$f['blockeduntil']     = '0';
+    $rs = $modx->db->update($f, '[+prefix+]user_attributes',"internalKey='{$dbv_internalKey}'");
+}
 
 // get the user settings from the database
-$rs = $modx->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$internalKey}' AND setting_value!=''");
+$rs = $modx->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$dbv_internalKey}' AND setting_value!=''");
 while ($row = $modx->db->getRow($rs))
 {
-    ${$row['setting_name']} = $row['setting_value'];
-}
-// blocked due to number of login errors.
-if($failedlogins>=$failed_allowed && $blockeduntildate>$_SERVER['REQUEST_TIME']) {
-    $modx->db->update('blocked=1','[+prefix+]user_attributes',"internalKey='{$internalKey}'");
-    @session_destroy();
-    session_unset();
-    jsAlert($e->errors[902]);
-    return;
-}
-
-// blocked due to number of login errors, but get to try again
-if($failedlogins>=$failed_allowed && $blockeduntildate<$_SERVER['REQUEST_TIME']) {
-    $sql = "UPDATE {$tbl_user_attributes} SET failedlogincount='0', blockeduntil='".($_SERVER['REQUEST_TIME']-1)."' where internalKey='{$internalKey}'";
-    $rs = $modx->db->query($sql);
-}
-
-// this user has been blocked by an admin, so no way he's loggin in!
-if($blocked=="1") {
-    @session_destroy();
-    session_unset();
-    jsAlert($e->errors[903]);
-    return;
-}
-
-// blockuntil: this user has a block until date
-if($blockeduntildate>$_SERVER['REQUEST_TIME']) {
-    @session_destroy();
-    session_unset();
-    jsAlert("You are blocked and cannot log in! Please try again later.");
-    return;
-}
-
-// blockafter: this user has a block after date
-if($blockedafterdate>0 && $blockedafterdate<$_SERVER['REQUEST_TIME']) {
-    @session_destroy();
-    session_unset();
-    jsAlert("You are blocked and cannot log in! Please try again later.");
-    return;
+    $user_settings{$row['setting_name']} = $row['setting_value'];
 }
 
 // allowed ip
-if ($allowed_ip) {
-        if(($hostname = gethostbyaddr($_SERVER['REMOTE_ADDR'])) && ($hostname != $_SERVER['REMOTE_ADDR'])) {
-          if(gethostbyname($hostname) != $_SERVER['REMOTE_ADDR']) {
-            jsAlert("Your hostname doesn't point back to your IP!");
-            return;
-          }
-        }
-        if(!in_array($_SERVER['REMOTE_ADDR'], explode(',',str_replace(' ','',$allowed_ip)))) {
-          jsAlert("You are not allowed to login from this location.");
-          return;
-        }
+if ($user_settings['allowed_ip'])
+{
+	$hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+	if($hostname!==false && $hostname != $_SERVER['REMOTE_ADDR'])
+	{
+		if(gethostbyname($hostname) != $_SERVER['REMOTE_ADDR'])
+		{
+			jsAlert("Your hostname doesn't point back to your IP!");
+			return;
+		}
+	}
+	$user_settings['allowed_ip'] = str_replace(' ','',$user_settings['allowed_ip']);
+	if(!in_array($_SERVER['REMOTE_ADDR'], explode(',',$user_settings['allowed_ip'])))
+	{
+		jsAlert("You are not allowed to login from this location.");
+		return;
+	}
 }
 
 // allowed days
-if ($allowed_days) {
+if ($user_settings['allowed_days']) {
     $date = getdate();
     $day = $date['wday']+1;
-    if (strpos($allowed_days,"$day")===false) {
+    if (strpos($user_settings['allowed_days'], $day)===false) {
         jsAlert("You are not allowed to login at this time. Please try again later.");
         return;
     }
 }
 
-// invoke OnManagerAuthentication event
-$rt = $modx->invokeEvent("OnManagerAuthentication",
-                        array(
-                            "userid"        => $internalKey,
-                            "username"      => $username,
-                            "userpassword"  => $givenPassword,
-                            "savedpassword" => $dbasePassword,
-                            "rememberme"    => $rememberme
-                        ));
+$modx->loadExtension('ManagerAPI');
 
-$decoded_uri = urldecode($_SERVER['REQUEST_URI']);
-if(strpos($decoded_uri,"'")!==false) {
-	jsAlert("This is illegal login.");
-	return;
-}
+// invoke OnManagerAuthentication event
+$info = array();
+$info['userid']        = $dbv_internalKey;
+$info['username']      = $formv_username;
+$info['userpassword']  = $formv_password;
+$info['savedpassword'] = $dbv_password;
+$info['rememberme']    = $formv_rememberme;
+
+$rt = $modx->invokeEvent('OnManagerAuthentication', $info);
 
 // check if plugin authenticated the user
-if (!isset($rt)||!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
+if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
-	if(strpos($dbasePassword,'>')!==false):
+	$hashed_password = $modx->manager->genHash($formv_password, $dbv_internalKey);
+	if(strpos($dbv_password,'>')!==false)
+	{
 		if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo']))
 			$modx->config['pwd_hash_algo'] = 'UNCRYPT';
-		$user_algo = $modx->manager->getUserHashAlgorithm($internalKey);
 		
-		if($user_algo !== $modx->config['pwd_hash_algo']):
+		$user_algo = $modx->manager->getUserHashAlgorithm($dbv_internalKey);
+		
+		if($user_algo !== $modx->config['pwd_hash_algo'])
+		{
 			$bk_pwd_hash_algo = $modx->config['pwd_hash_algo'];
 			$modx->config['pwd_hash_algo'] = $user_algo;
-		endif;
+		}
 		
-		if($dbasePassword != $modx->manager->genHash($givenPassword, $internalKey)):
+		if($dbv_password != $hashed_password)
+		{
 			jsAlert($e->errors[901]);
-			$newloginerror = 1;
-		elseif(isset($bk_pwd_hash_algo)):
+			failedLogin($dbv_internalKey,$dbv_failedlogincount);
+			return;
+		}
+		elseif(isset($bk_pwd_hash_algo))
+		{
 			$modx->config['pwd_hash_algo'] = $bk_pwd_hash_algo;
-			$field = array();
-			$field['password'] = $modx->manager->genHash($givenPassword, $internalKey);
-			$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
-		endif;
-		
-	else:
-		if($dbasePassword != md5($givenPassword)):
+			$modx->db->update(array('password'=>$hashed_password), '[+prefix+]manager_users', "username='{$formv_username}'");
+		}
+	}
+	else
+	{
+		if($dbv_password != md5($formv_password))
+		{
 			jsAlert($e->errors[901]);
-			$newloginerror = 1;
-		else:
-			$field = array();
-			$field['password'] = $modx->manager->genHash($givenPassword, $internalKey);
-			$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
-		endif;
-	endif;
+			failedLogin($dbv_internalKey,$dbv_failedlogincount);
+			return;
+		}
+		else
+		{
+			$modx->db->update(array('password'=>$hashed_password), '[+prefix+]manager_users', "username='{$formv_username}'");
+		}
+	}
 }
 
-if($use_captcha==1) {
+if($modx->config['use_captcha']==1) {
 	if (!isset ($_SESSION['veriword'])) {
 		jsAlert('Captcha is not configured properly.');
 		return;
 	}
-	elseif ($_SESSION['veriword'] != $captcha_code) {
+	elseif ($_SESSION['veriword'] != $formv_captcha_code) {
         jsAlert($e->errors[905]);
-        $newloginerror = 1;
+        failedLogin($dbv_internalKey,$dbv_failedlogincount);
+        return;
     }
-}
-
-if($newloginerror) {
-	//increment the failed login counter
-    $failedlogins += 1;
-    $rs = $modx->db->update(array('failedlogincount'=>$failedlogins), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
-    if($failedlogins>=$failed_allowed) {
-		//block user for too many fail attempts
-		$blockeduntil = $_SERVER['REQUEST_TIME']+($blocked_minutes*60);
-        $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), '[+prefix+]user_attributes', "internalKey='{$internalKey}'");
-    } else {
-		//sleep to help prevent brute force attacks
-        $sleep = (int)$failedlogins/2;
-        if($sleep>5) $sleep = 5;
-        sleep($sleep);
-    }
-	@session_destroy();
-	session_unset();
-    return;
 }
 
 $_SESSION['usertype'] = 'manager'; // user is a backend user
 
 // get permissions
-$_SESSION['mgrShortname'] = $username;
-$_SESSION['mgrFullname'] = $fullname;
-$_SESSION['mgrEmail'] = $email;
-$_SESSION['mgrValidated'] = 1;
-$_SESSION['mgrInternalKey'] = $internalKey;
-$_SESSION['mgrFailedlogins'] = $failedlogins;
-$_SESSION['mgrLogincount'] = $nrlogins; // login count
-$_SESSION['mgrRole'] = $role;
-$rs = $modx->db->select('* ','[+prefix+]user_roles',"id='{$role}'");
+$_SESSION['mgrShortname']    = $formv_username;
+$_SESSION['mgrFullname']     = $dbv_fullname;
+$_SESSION['mgrEmail']        = $dbv_email;
+$_SESSION['mgrValidated']    = 1;
+$_SESSION['mgrInternalKey']  = $dbv_internalKey;
+$_SESSION['mgrFailedlogins'] = $dbv_failedlogincount;
+$_SESSION['mgrLogincount']   = $dbv_logincount; // login count
+$_SESSION['mgrRole']         = $dbv_role;
+$rs = $modx->db->select('* ','[+prefix+]user_roles',"id='{$dbv_role}'");
 $row = $modx->db->getRow($rs);
 
 $_SESSION['mgrPermissions'] = $row;
@@ -256,48 +233,49 @@ if(isset($_SESSION['mgrValidated']))
 {
 	$now = $_SERVER['REQUEST_TIME'];
 	$currentsessionid = session_id();
-	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin={$now}, sessionid='{$currentsessionid}'";
-    $sql = "update {$tbl_user_attributes} SET {$field} where internalKey={$internalKey}";
+	$field = "failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin='{$now}', sessionid='{$currentsessionid}'";
+	$tbl_user_attributes = $modx->getFullTableName('user_attributes');
+    $sql = "update {$tbl_user_attributes} SET {$field} where internalKey='{$dbv_internalKey}'";
     $rs = $modx->db->query($sql);
 	$_SESSION['mgrLastlogin'] = $now;
 }
 
-$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($internalKey);
+$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($dbv_internalKey);
 
-if($rememberme == '1'):
+if($formv_rememberme == '1'):
     $_SESSION['modx.mgr.session.cookie.lifetime']= intval($modx->config['session.cookie.lifetime']);
 	
 	// Set a cookie separate from the session cookie with the username in it.
 	// Are we using secure connection? If so, make sure the cookie is secure
 	global $https_port;
-	
-	$secure = (  (isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port);
+	$expire = $_SERVER['REQUEST_TIME']+60*60*24*365;
+	$path = $modx->config['base_url'];
+	$secure = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == $https_port) ? true : false;
 	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $_SERVER['REQUEST_TIME']+60*60*24*365, $modx->config['base_url'], '; HttpOnly' , $secure );
+		setcookie('modx_remember_manager', $formv_username, $expire, $path, '; HttpOnly' , $secure );
 	} else {
-		setcookie('modx_remember_manager', $_SESSION['mgrShortname'], $_SERVER['REQUEST_TIME']+60*60*24*365, $modx->config['base_url'], NULL, $secure, true);
+		setcookie('modx_remember_manager', $formv_username, $expire, $path, NULL,          $secure, true);
 	}
 else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
 	// Remove the Remember Me cookie
-	setcookie ('modx_remember_manager', "", $_SERVER['REQUEST_TIME'] - 3600, $modx->config['base_url']);
+    $expire = $_SERVER['REQUEST_TIME'] - 3600;
+	setcookie ('modx_remember_manager', '', $expire, $modx->config['base_url']);
 endif;
 
-if($modx->hasPermission('remove_locks'))
-	$modx->manager->remove_locks();
+if($modx->hasPermission('remove_locks')) $modx->manager->remove_locks();
 
 $log = new logHandler;
-$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $_SESSION['mgrShortname'], "58", "-", "MODX");
+$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $formv_username, '58', '-', 'MODX');
 
 // invoke OnManagerLogin event
-$modx->invokeEvent("OnManagerLogin",
-                        array(
-                            "userid"        => $internalKey,
-                            "username"      => $username,
-                            "userpassword"  => $givenPassword,
-                            "rememberme"    => $rememberme
-                        ));
+$info = array();
+$info['userid']       = $dbv_internalKey;
+$info['username']     = $formv_username;
+$info['userpassword'] = $formv_password;
+$info['rememberme']   = $formv_rememberme;
+$modx->invokeEvent('OnManagerLogin', $info);
 
 if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
 {
@@ -305,8 +283,7 @@ if(isset($settings_version) && !empty($settings_version) && $settings_version!=$
 }
 
 // check if we should redirect user to a web page
-$id = $modx->db->getValue($modx->db->select('setting_value','[+prefix+]user_settings',"user='{$internalKey}' AND setting_name='manager_login_startup'"));
-if(isset($id) && $id>0) {
+if(isset($user_settings['manager_login_startup']) && $user_settings['manager_login_startup']>0) {
     $header = 'Location: '.$modx->makeUrl($id,'','','full');
     if($_POST['ajax']==1) echo $header;
     else header($header);
@@ -320,7 +297,7 @@ else
 	}
 	else $uri = MODX_MANAGER_URL;
 	
-    $header = 'Location: ' . $uri;
+    $header = "Location: {$uri}";
     
     if($_POST['ajax']==1) echo $header;
     else header($header);
@@ -337,4 +314,26 @@ function jsAlert($msg){
         echo "history.go(-1);";
         echo "</script>";
     }
+}
+
+function failedLogin($dbv_internalKey,$dbv_failedlogincount)
+{
+	global $modx;
+	
+	//increment the failed login counter
+    $dbv_failedlogincount += 1;
+    $f = array('failedlogincount'=>$dbv_failedlogincount);
+    $rs = $modx->db->update($f, '[+prefix+]user_attributes', "internalKey='{$dbv_internalKey}'");
+    if($modx->config['failed_login_attempts']<=$dbv_failedlogincount) {
+		//block user for too many fail attempts
+		$blockeduntil = $_SERVER['REQUEST_TIME']+($modx->config['blocked_minutes']*60);
+        $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), '[+prefix+]user_attributes', "internalKey='{$dbv_internalKey}'");
+    } else {
+		//sleep to help prevent brute force attacks
+        $sleep = (int) $dbv_failedlogincount/2;
+        if(5<$sleep) $sleep = 5;
+        sleep($sleep);
+    }
+	@session_destroy();
+	session_unset();
 }
