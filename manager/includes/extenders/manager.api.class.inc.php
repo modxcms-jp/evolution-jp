@@ -281,6 +281,7 @@ class ManagerAPI {
             	case '301' :
             	case '302' :
             	case '115' :
+            	case '112' :
                 	unset($_GET['frame']);
                 	$_SESSION['mainframe'] = $_GET;
                 	header('Location:' . MODX_MANAGER_URL);
