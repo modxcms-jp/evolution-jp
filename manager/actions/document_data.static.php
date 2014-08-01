@@ -6,6 +6,7 @@ if (isset($_REQUEST['id']))
 else    $id = 0;
 
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
+if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
 
 $modx->checkPublishStatus();
 
@@ -309,21 +310,8 @@ else
 		  <li id="Button6">
 			<a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['view_resource']?></a>
 		  </li>
-          <li id="Button5"><a href="#" onclick="documentDirty=false;<?php
-          	 if(isset($content['parent']) && $content['parent']!=='0')
-          	 {
-          		echo "document.location.href='index.php?a=3&id={$content['parent']}&tab=0';";
-          	 }
-          	 elseif($_GET['pid'])
-          	 {
-          	 	$_GET['pid'] = intval($_GET['pid']);
-          		echo "document.location.href='index.php?a=3&id={$_GET['pid']}&tab=0';";
-          	 }
-          	 else
-          	 {
-          		echo "document.location.href='index.php?a=2';";
-          	 }
-          	?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+		<?php $action = getReturnAction($content); ?>
+          <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='<?php echo $action;?>';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 	  </ul>
 	</div>
 
@@ -556,4 +544,16 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 </script>
 EOT;
 	return $block;
+}
+
+function getReturnAction($content)
+{
+	if(isset($content['parent'])) $parent = $content['parent'];
+	elseif(isset($_GET['pid']))   $parent = $_GET['pid'];
+	else $parent = 0;
+	
+	if($parent==0) $a = 'a=2';
+	else           $a = "a=3&id={$parent}&tab=0";
+		
+	return 'index.php?' . $a;
 }
