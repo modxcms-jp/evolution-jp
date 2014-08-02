@@ -89,7 +89,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             height = document.body.clientHeight;
         }
 
-        return {'width':width,'height':height}
+        return {'width':width,'height':height};
     }
 
     function resizeTree() {
@@ -331,13 +331,15 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 alert('<?php echo $_lang['unable_set_parent']; ?>');
             }
         }
-        if(ca=="open" || ca=="docinfo" || ca=="") {
+        if(ca=="open" || ca=="docinfo" || ca=="doclist" || ca=="") {
             <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
                 parent.main.location.href="index.php?a=2";
             } else if(ca=="docinfo") {
-                parent.main.location.href="index.php?a=3&id=" + id + '&tab=0';
+                parent.main.location.href="index.php?a=3&id=" + id;
+            } else if(ca=="doclist") {
+                parent.main.location.href="index.php?a=120&id=" + id;
             } else if(ca=="open") {
                 parent.main.location.href="index.php?a=27&id=" + id;
             } else {
@@ -574,6 +576,10 @@ function menuHandler(action) {
             setActiveFromContextMenu(itemToChange);
             window.open(selectedObjectUrl,'previeWin'); //re-use 'new' window
             break;
+        case '120' : // resources list
+            setActiveFromContextMenu(itemToChange);
+            top.main.document.location.href="index.php?a=120&id=" + itemToChange;
+            break;
 
         default :
             alert('Unknown operation command.');
@@ -588,6 +594,7 @@ function getTplCtxMenu() {
 <div id="mx_contextmenu" onselectstart="return false;">
     <div id="nameHolder">&nbsp;</div>
 		[+itemEditDoc+]
+		[+itemDocList+]
 		[+itemNewDoc+]
 		[+itemMoveDoc+]
 		[+itemDuplicateDoc+]
@@ -607,6 +614,7 @@ EOT;
 
 $ph = array();
 $ph['itemEditDoc']      = itemEditDoc(); // edit
+$ph['itemDocList']      = itemDocList(); // Resource list
 $ph['itemNewDoc']       = itemNewDoc(); // new Resource
 $ph['itemMoveDoc']      = itemMoveDoc(); // move
 $ph['itemDuplicateDoc'] = itemDuplicateDoc(); // duplicate
@@ -650,6 +658,17 @@ function itemEditDoc() {
 	$ph['action'] = '27';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang['edit_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemDocList() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('view_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '120';
+	$ph['img']    = $_style['icons_table'];
+	$ph['text']   = $_lang['view_child_resources_in_container'];
 	return $modx->parseText($tpl, $ph);
 }
 

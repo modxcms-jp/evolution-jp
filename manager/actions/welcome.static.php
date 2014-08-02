@@ -63,6 +63,10 @@ if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) 
 	$src = get_icon($_lang['add_resource'], 4, $_style['icons_newdoc_large'], $_lang['add_resource']);
 	$modx->setPlaceholder('NewDocIcon',$src);
 }
+if($modx->hasPermission('view_document')) {
+	$src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'], $_lang['view_child_resources_in_container']);
+	$modx->setPlaceholder('iconResources',$src);
+}
 if($modx->hasPermission('edit_user')) {
 	$src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
 	$modx->setPlaceholder('SecurityIcon',$src);

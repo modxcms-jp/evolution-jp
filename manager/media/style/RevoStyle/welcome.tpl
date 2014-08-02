@@ -21,6 +21,7 @@
                         [+OnManagerWelcomeHome+]
                     <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
                         [+iconNewDoc+]
+                        [+iconResources+]
                         [+iconSearch+]
                         [+iconMessage+]
                         [+iconHelp+]

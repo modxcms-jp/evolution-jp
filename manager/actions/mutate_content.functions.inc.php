@@ -122,9 +122,9 @@ function ab_cancel($id)
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
 	if($docObject->isfolder=='1')
-		$href = "a=3&id={$id}&tab=0";
+		$href = "a=120&id={$id}";
 	elseif(!empty($docObject->parent))
-		$href = "a=3&id={$docObject->parent}&tab=0";
+		$href = "a=120&id={$docObject->parent}";
 	else
 		$href = "a=2";
 	$ph['onclick'] = "document.location.href='index.php?{$href}';";

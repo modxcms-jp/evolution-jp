@@ -138,7 +138,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			{
 				case '27': $ph['ca'] = 'open';   break;
 				case '3' : $ph['ca'] = 'docinfo';break;
-				default  : $ph['ca'] = 'docinfo';
+				default  : $ph['ca'] = 'doclist';
 			}
 			
 			if($container_status === 'container_only' && $isfolder==1)
@@ -223,7 +223,7 @@ function tplPageNode()
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
 />&nbsp;<span
 	p="[+parent+]"
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -257,7 +257,7 @@ EOT;
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
@@ -292,7 +292,7 @@ function tplFcloseNode()
 	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 />&nbsp;<span
-	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
+	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	onmouseover="setHoverClass(this, 1);"
 	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"

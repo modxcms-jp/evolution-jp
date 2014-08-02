@@ -786,7 +786,7 @@ function goNextAction($id) {
 			break;
 		default:
 			if($parent!=='0')
-				$header = "Location: index.php?a=3&id={$parent}&tab=0&r=1";
+				$header = "Location: index.php?a=120&id={$parent}&r=1";
 			else
 				$header = "Location: index.php?a=3&id={$id}&r=1";
 	}

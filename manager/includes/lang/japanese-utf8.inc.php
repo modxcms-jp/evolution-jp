@@ -1299,3 +1299,5 @@ $_lang['configcheck_danger_ajaxsearch_msg'] = 'インストールされている
 
 $_lang["user_allowed_parents"] = '許可するリソース';
 $_lang["user_allowed_parents_message"] = '編集を許可するリソースを親リソースのIDで指定します。';
+
+$_lang["view_child_resources_in_container"] = 'リソース一覧';

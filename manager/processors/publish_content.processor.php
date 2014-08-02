@@ -50,6 +50,6 @@ $modx->clearCache();
 
 $pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
-if($pid!=='0') $header="Location: index.php?r=1&a=3&id={$pid}&tab=0{$page}";
+if($pid!=='0') $header="Location: index.php?r=1&a=120&id={$pid}{$page}";
 else           $header="Location: index.php?a=2&r=1";
 header($header);

@@ -92,7 +92,7 @@ else
 if(!isset($alert))
 {
 	$modx->clearCache();
-	if($new_parent!==0) $header="Location: index.php?a=3&id={$new_parent}&tab=0&r=1";
+	if($new_parent!==0) $header="Location: index.php?a=120&id={$new_parent}&r=1";
 	else                $header="Location: index.php?a=2&r=1";
 	header($header);
 }

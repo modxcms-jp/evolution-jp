@@ -35,7 +35,7 @@ echo get_src_content($id,$parent);
 function get_src_content($id,$parent)
 {
 	global $_lang,$_style;
-	$redirect = $parent==0 ? 'index.php?a=2' : "index.php?a=3&amp;id={$parent}&amp;tab=0";
+	$redirect = $parent==0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
 	$src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">

@@ -1297,3 +1297,5 @@ $_lang['configcheck_danger_ajaxsearch_msg'] = 'There is serious vulnerability in
 
 $_lang["user_allowed_parents"] = 'Allowed resources';
 $_lang["user_allowed_parents_message"] = 'Set editable resource id as parent id';
+
+$_lang["view_child_resources_in_container"] = 'View children';
