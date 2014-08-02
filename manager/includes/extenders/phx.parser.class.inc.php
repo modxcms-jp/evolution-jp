@@ -116,6 +116,7 @@ class PHx {
 				if (!$isvalid) { $value = $opt; }
 				break;
 			case 'select':
+			case 'switch':
 				$raw = explode('&',$opt);
 				$map = array();
 				$c = count($raw);
