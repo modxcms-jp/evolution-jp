@@ -790,20 +790,28 @@ class ManagerAPI {
 			return true;
 		
 		if(!isset($modx->user_allowed_docs))
-		{
-			$modx->user_allowed_docs = array();
-			$allowed_parents = explode(',', $modx->config['allowed_parents']);
-			foreach($allowed_parents as $parent)
-			{
-				$parent = trim($parent);
-				$allowed_docs = $modx->getChildIds($parent);
-				$allowed_docs[] = $parent;
-				$modx->user_allowed_docs = array_merge($modx->user_allowed_docs,$allowed_docs);
-			}
-		}
+			$modx->user_allowed_docs = $this->getUserAllowedDocs();
 		
 		if(!in_array($id,$modx->user_allowed_docs))
 			return false;
 		else return true;
+	}
+	
+	function getUserAllowedDocs()
+	{
+		global $modx;
+		
+		$modx->user_allowed_docs = array();
+		$allowed_parents = explode(',', $modx->config['allowed_parents']);
+		if(empty($allowed_parents)) return;
+		
+		foreach($allowed_parents as $parent)
+		{
+			$parent = trim($parent);
+			$allowed_docs = $modx->getChildIds($parent);
+			$allowed_docs[] = $parent;
+			$modx->user_allowed_docs = array_merge($modx->user_allowed_docs,$allowed_docs);
+		}
+		return $modx->user_allowed_docs;
 	}
 }
