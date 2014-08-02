@@ -797,6 +797,26 @@ class ManagerAPI {
 		else return true;
 	}
 	
+	function isContainAllowed($id)
+	{
+		global $modx;
+		if($this->isAllowed($id)) return true;
+		
+		$childlen = $modx->getChildIds($id);
+		if(empty($childlen)) return false;
+		
+		$findflag = false;
+		foreach($childlen as $child)
+		{
+			if(in_array($child,$modx->user_allowed_docs))
+			{
+				$findflag = true;
+				break;
+			}
+		}
+		return $findflag;
+	}
+	
 	function getUserAllowedDocs()
 	{
 		global $modx;
