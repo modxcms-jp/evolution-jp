@@ -283,7 +283,7 @@ function checkPermissions($id) {
 	global $modx, $_lang, $e;
 	
 	$isAllowed = $modx->manager->isAllowed($id);
-	if (!$isAllowed)
+	if (!isset($_GET['pid'])&&!$isAllowed)
 	{
 		$e->setError(3);
 		$e->dumpError();

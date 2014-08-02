@@ -185,22 +185,22 @@ switch ($mode) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$id" : "11";
-				$header = "Location: index.php?a=" . $a . "&stay=" . $_POST['stay'];
+				$header = "Location: index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
 			} elseif($mode==='74') {
-				$header = "Location: index.php?a=2";
+				$header = "Location: index.php?r=3&a=2";
 			} else {
-				$header = "Location: index.php?a=75";
+				$header = "Location: index.php?r=3&a=75";
 			}
 			header($header);
 			exit;
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$internalKey}" : "11";
-				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
+				$stayUrl = "index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
 			} elseif($mode==='74') {
-				$stayUrl = "index.php?a=2";
+				$stayUrl = "index.php?r=3&a=2";
 			} else {
-				$stayUrl = "index.php?a=75";
+				$stayUrl = "index.php?r=3&a=75";
 			}
 			
 			include_once "header.inc.php";
@@ -415,11 +415,11 @@ switch ($mode) {
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";
-				$header = "Location: index.php?a={$a}&r=9&stay={$_POST['stay']}";
+				$header = "Location: index.php?a={$a}&r=3&stay={$_POST['stay']}";
 			} elseif($mode==='74') {
-				$header = "Location: index.php?a=2";
+				$header = "Location: index.php?r=3&a=2";
 			} else {
-				$header = "Location: index.php?a=75&r=9";
+				$header = "Location: index.php?a=75&r=3";
 			}
 			header($header);
 			exit;
@@ -541,6 +541,7 @@ function saveUserSettings($id)
 	$sql = "INSERT INTO {$tbl_user_settings} (user, setting_name, setting_value) VALUES {$values}";
 	$rs = $modx->db->query($sql);
 	if (!$rs) die('Failed to update user settings!');
+	unset($_SESSION['openedArray']);
 }
 
 // Web alert -  sends an alert to web browser

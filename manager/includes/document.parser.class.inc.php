@@ -418,8 +418,7 @@ class DocumentParser {
 			// get the template and start parsing!
 			if(!$this->documentObject['template'])
 			{
-				$template = (object) array();
-				$template->content = '[*content*]'; // use blank template
+				$this->documentContent= '[*content*]'; // use blank template
 			}
 			else
 			{
@@ -446,6 +445,7 @@ class DocumentParser {
 							else break;
 						}
 					}
+					$this->documentContent = $template->content;
 				}
 				else
 				{
@@ -456,7 +456,7 @@ class DocumentParser {
 			$this->invokeEvent('OnLoadWebDocument');
 			
 			// Parse document source
-			$this->documentContent= $this->parseDocumentSource($template->content);
+			$this->documentContent= $this->parseDocumentSource($this->documentContent);
 		}
 		if($this->directParse==0)
 		{

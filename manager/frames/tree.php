@@ -42,8 +42,26 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     var openedArray = new Array();
 <?php
-    if (isset($_SESSION['openedArray'])) {
-            $opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
+	if(!isset($_SESSION['openedArray']) && $modx->config['allowed_parents'])
+    {
+    	$allowed_parents = explode(',', $modx->config['allowed_parents']);
+		foreach($allowed_parents as $allowed_parent)
+		{
+			$_ = $modx->getParentIds($allowed_parent);
+			if(!$_) break;
+			foreach($_ as $v)
+			{
+				$openedArray[] = $v;
+			}
+		}
+		if($openedArray) $_SESSION['openedArray'] = join('|',$openedArray);
+	}
+	
+	if(isset($_SESSION['openedArray']))      $openedArray = explode('|', $_SESSION['openedArray']);
+	else $openedArray = false;
+	
+    if ($openedArray) {
+            $opened = array_filter(array_map('intval', $openedArray));
 
             foreach ($opened as $item) {
                  printf("openedArray[%d] = 1;\n", $item);

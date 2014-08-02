@@ -160,8 +160,13 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				else
 					$ph['_style_tree_minusnode']  = $_style['tree_minusnode'];
 				$tpl = getFopenNode();
-				$output .= parseNode($tpl,$ph,$id);
-				$output = getNodes($indent+1,$id,$expandAll,$output);
+				$parseNode = parseNode($tpl,$ph,$id,$parent);
+				if($parseNode)
+				{
+					$output .= $parseNode;
+					$indent++;
+				}
+				$output = getNodes($indent,$id,$expandAll,$output);
 				$output .= '</div></div>';
 			}
 			else

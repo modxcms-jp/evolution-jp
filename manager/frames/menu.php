@@ -154,6 +154,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		if(rFrame==2) {
 			x=window.setTimeout('reloadmenu()',100);
 		}
+		if(rFrame==3) {
+			top.tree.location.href = 'index.php?a=1&f=tree';
+		}
 		if(rFrame==9) {
 			y=window.setTimeout('reloadtree()',100);
 			x=window.setTimeout('reloadmenu()',500);
