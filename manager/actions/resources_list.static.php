@@ -316,6 +316,7 @@ else
 		}
 	}
 </script>
+{$topicPath}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="a" value="51" />
 {$children_output}
@@ -441,4 +442,29 @@ function getReturnAction($content)
 	else                 $a = "a=120&id={$parent}";
 		
 	return 'index.php?' . $a;
+}
+
+function getTopicPath($id)
+{
+	global $modx;
+	
+	if($id==0) return;
+	$parents[] = $modx->config['site_start'];
+	$parents = array_merge($parents,array_reverse($modx->getParentIds($id)));
+	
+	$parents[] = $id;
+	
+	foreach($parents as $topic)
+	{
+		$doc = $modx->getDocumentObject('id',$topic);
+		if($topic==$modx->config['site_start'])
+			$topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
+		elseif($topic==$id)
+			$topics[] = sprintf('%s', $doc['alias']);
+		elseif($modx->manager->isAllowed($topic))
+			$topics[] = sprintf('<a href="index.php?a=120&id=%s">%s</a>', $topic, $doc['alias']);
+		else
+			$topics[] = sprintf('%s', $doc['alias']);
+	}
+	return '<div style="margin-bottom:10px;">' . join(' / ', $topics) . '</div>';
 }
