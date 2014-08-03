@@ -305,7 +305,7 @@ else
 			</ul>
 <?php }
 	if ($numRecords > 0)
-		echo '<p><span class="publishedDoc">'.$numRecords.'</span> '.$_lang['resources_in_container'].'</p>'."\n";
+		$topicPath = getTopicPath($id);
 		echo <<< EOT
 <script type="text/javascript">
 	function selectAll() {
