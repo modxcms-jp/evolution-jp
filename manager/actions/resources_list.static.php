@@ -412,7 +412,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 				window.location.href='index.php?a=72&pid='+id;
 				break;
 			case 3:		// view
-				window.location.href='index.php?a=120&id='+id;
+				window.location.href='index.php?a=3&id='+id;
 				break;
 		}
 	}
