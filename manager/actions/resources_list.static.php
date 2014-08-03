@@ -428,14 +428,17 @@ function getReturnAction($content)
 	global $modx;
 	
 	if(isset($content['parent'])) $parent = $content['parent'];
-	elseif(isset($_GET['pid']))   $parent = $_GET['pid'];
-	else $parent = 0;
+	else $parent = 'root';
 	
-	$isAllowed = $modx->manager->isAllowed($parent);
-	if(!$isAllowed) $parent = 0;
+	if($parent!=='root')
+	{
+		$isAllowed = $modx->manager->isAllowed($parent);
+		if(!$isAllowed) $parent = 0;
+	}
 	
-	if($parent==0) $a = 'a=2';
-	else           $a = "a=120&id={$parent}";
+	if($parent==='root') $a = 'a=2';
+	elseif($parent==0)   $a = 'a=120';
+	else                 $a = "a=120&id={$parent}";
 		
 	return 'index.php?' . $a;
 }
