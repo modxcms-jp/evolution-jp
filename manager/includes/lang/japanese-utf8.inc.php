@@ -1298,6 +1298,6 @@ $_lang['configcheck_danger_ajaxsearch'] = 'AjaxSearchスニペットをアップ
 $_lang['configcheck_danger_ajaxsearch_msg'] = 'インストールされているAjaxSearchスニペットには深刻な脆弱性が存在します。必ずアップデートしてください。不要な場合は assets/snippets/ajaxSearch/ ディレクトリを削除してください。';
 
 $_lang["user_allowed_parents"] = '許可するリソース';
-$_lang["user_allowed_parents_message"] = '編集を許可するリソースを親リソースのIDで指定します。';
+$_lang["user_allowed_parents_message"] = '編集を許可するリソースを親リソースのIDで指定します。(複数指定可)';
 
 $_lang["view_child_resources_in_container"] = 'リソース一覧';

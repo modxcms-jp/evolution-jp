@@ -822,7 +822,10 @@ class ManagerAPI {
 		global $modx;
 		
 		$modx->user_allowed_docs = array();
-		$allowed_parents = explode(',', $modx->config['allowed_parents']);
+		$allowed_parents = trim($modx->config['allowed_parents']);
+		$allowed_parents = preg_replace('@\s+@', ' ', $allowed_parents);
+		$allowed_parents = str_replace(array(' ','|'), ',', $allowed_parents);
+		$allowed_parents = explode(',', $allowed_parents);
 		if(empty($allowed_parents)) return;
 		
 		foreach($allowed_parents as $parent)
