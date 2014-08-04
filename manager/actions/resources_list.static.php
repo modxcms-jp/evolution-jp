@@ -68,180 +68,156 @@ else $content = array();
  */
 
 // Get child document count
-$from = array();
-$from[] = '[+prefix+]site_content AS sc';
-$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
-$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.id = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
-$from = join(' ',$from);
-$where = "sc.parent='{$id}' AND ({$access})";
-$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
-$offset = (isset($_GET['page']) && preg_match('@^[0-9]+$@',$_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
-define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
-$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
-$rs = $modx->db->select('DISTINCT sc.*,rev.status',$from,$where,$orderby,$limit);
+$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
+$where = "sc.parent='{$content['id']}' AND ({$access})";
+$rs = $modx->db->select('DISTINCT sc.id',$from,$where);
 $numRecords = $modx->db->getRecordCount($rs);
 
 if ($numRecords > 0)
 {
-	if (!$rs)
+	$from = array();
+	$from[] = '[+prefix+]site_content AS sc';
+	$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
+	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.id = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
+	$from = join(' ',$from);
+	$where = "sc.parent='{$id}' AND ({$access})";
+	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
+	$offset = (isset($_GET['page']) && preg_match('@^[0-9]+$@',$_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
+	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
+	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
+	$rs = $modx->db->select('DISTINCT sc.*,rev.status',$from,$where,$orderby,$limit);
+	$resource = array();
+	while($row = $modx->db->getRow($rs))
 	{
-		$e->setError(1); // sql error
-		$e->dumpError();
-		include(MODX_CORE_PATH . 'footer.inc.php');
-		exit;
+		$resource[] = $row;
 	}
-	else
+
+	// context menu
+	include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
+	$cm = new ContextMenu('cntxm', 180);
+	$contextMenu = getContextMenu($cm);
+	echo $contextMenu;
+	
+	echo get_jscript($id,$cm);
+	
+	$docs = array();
+	
+	foreach($resource as $k => $children)
 	{
-		$resource = array();
-		while($row = $modx->db->getRow($rs))
+		$isAllowed = $modx->manager->isContainAllowed($children['id']);
+		if(!$isAllowed) continue;
+		foreach($children as $k=>$v)
 		{
-			$resource[] = $row;
+			$children[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
 		}
-
-
-		// context menu
-		include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
-		$cm = new ContextMenu("cntxm", 180);
-		// $cm->addSeparator();
-		$cm->addItem($_lang["edit_resource"],       "js:menuAction(27)",$_style['icons_edit_document'],($modx->hasPermission('edit_document') ? 0:1));
-		$cm->addItem($_lang["create_resource_here"],"js:menuAction(4)",$_style['icons_new_document'],($modx->hasPermission('new_document') ? 0:1));
-		$cm->addItem($_lang["move_resource"],       "js:menuAction(51)",$_style['icons_move_document'],($modx->hasPermission('save_document') ? 0:1));
-		$cm->addItem($_lang["resource_duplicate"],  "js:menuAction(94)",$_style['icons_resource_duplicate'],($modx->hasPermission('new_document') ? 0:1));
-		$cm->addSeparator();
-		$cm->addItem($_lang["publish_resource"],   "js:menuAction(61)",$_style['icons_publish_document'],($modx->hasPermission('publish_document') ? 0:1));
-		$cm->addItem($_lang["unpublish_resource"], "js:menuAction(62)",$_style['icons_unpublish_resource'],($modx->hasPermission('publish_document') ? 0:1));
-		$cm->addItem($_lang["delete_resource"],    "js:menuAction(6)",$_style['icons_delete'],($modx->hasPermission('delete_document') ? 0:1));
-		$cm->addItem($_lang["undelete_resource"],  "js:menuAction(63)",$_style['icons_undelete_resource'],($modx->hasPermission('delete_document') ? 0:1));
-		$cm->addSeparator();
-		$cm->addItem($_lang["create_weblink_here"], "js:menuAction(72)",$_style['icons_weblink'],($modx->hasPermission('new_document') ? 0:1));
-		$cm->addSeparator();
-		$cm->addItem($_lang["resource_overview"], "js:menuAction(3)",$_style['icons_resource_overview'],($modx->hasPermission('view_document') ? 0:1));
-		//$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
-		echo $cm->render();
-		
-		echo get_jscript($id,$cm);
-		
-		$docs = array();
-		
-		foreach($resource as $k => $children)
+		if($children['published'] == 0 && ($_SERVER['REQUEST_TIME'] < $children['pub_date'] || $children['unpub_date'] < $_SERVER['REQUEST_TIME']))
 		{
-			$isAllowed = $modx->manager->isContainAllowed($children['id']);
-			if(!$isAllowed) continue;
-			foreach($children as $k=>$v)
-			{
-				$children[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
-			}
-			if($children['published'] == 0 && ($_SERVER['REQUEST_TIME'] < $children['pub_date'] || $children['unpub_date'] < $_SERVER['REQUEST_TIME']))
-			{
-				$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
-			}
-			else
-			{
-				$status = '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>';
-			}
-			$description = $children['description'];
-			$len_title = mb_strlen($children['pagetitle'], $modx->config['modx_charset']);
-			$len_desc  = mb_strlen($description, $modx->config['modx_charset']);
-			$len_total = $len_title + $len_desc;
-			if($len_total < 50)
-			{
-				if(!empty($description)) $description = ' <span style="color:#777;">' . $description . '</span>';
-			}
-			else
-			{
-				$description = '<br /><div style="color:#777;">' . $description . '</div>';
-			}
-			
-			$classes = array();
-			$classes[] = 'withmenu';
-			if($children['deleted']==='1')   $classes[] = 'deletedNode';
-			if($children['published']==='0') $classes[] = 'unpublishedNode';
-			$class = ' class="' . join(' ',$classes) . '"';
-			
-			$tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
-			$pagetitle = str_replace(array('[+class+]','[+pagetitle+]','[+id+]'),
-			                         array($class,$children['pagetitle'],$children['id']),$tpl);
-			
-			if($children['isfolder'] == 0)
-			{
-				$link = "index.php?a=27&amp;id={$children['id']}";
-				if($modx->config['site_start']==$children['id'])
-					$iconpath = $_style['tree_page_home'];
-				elseif($modx->config['error_page']==$children['id'])
-					$iconpath = $_style['tree_page_404'];
-				elseif($modx->config['site_unavailable_page']==$children['id'])
-					$iconpath = $_style['tree_page_hourglass'];
-				elseif($modx->config['unauthorized_page']==$children['id'])
-					$iconpath = $_style['tree_page_info'];
-				else
-					$iconpath = $_style['tree_page_html'];
-			}
-			else
-			{
-				$link = "index.php?a=120&amp;id={$children['id']}";
-				$iconpath = $_style['tree_folder'];
-			}
-			
-			if( $children['type']==='reference')
-			{
-				$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
-			}
-			$tpl = '';
-			$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
-			$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
-			$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
-			$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
-			                     array($icon,$link,$pagetitle,$description), $tpl);
-			
-			if($children['publishedon']!=='0')
-			{
-				$publishedon = '<span class="nowrap">' . $modx->toDateFormat($children['publishedon']) . '</span>';
-			}
-			elseif(!empty($children['pub_date']))
-			{
-				$publishedon = '<span class="nowrap disable">' . $modx->toDateFormat($children['pub_date']) . '</span>';
-			}
-			else $publishedon = '-';
-			
-			if($children['editedon']!=='0')
-			{
-				$editedon = '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>';
-			}
-			else $editedon = '-';
-			
-			$doc = array();
-			$doc['checkbox']    = '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />';
-			$doc['docid']       = $children['id'];
-			$doc['title']       = $title;
-			$doc['publishedon'] = $publishedon;
-			$doc['editedon']    = $editedon;
-			$doc['status']      = $status;
-			$docs[] = $doc;
+			$status = '<span class="unpublishedDoc">'.$_lang['page_data_unpublished'].'</span>';
+		}
+		else
+		{
+			$status = '<span class="publishedDoc">'.$_lang['page_data_published'].'</span>';
+		}
+		$description = $children['description'];
+		$len_title = mb_strlen($children['pagetitle'], $modx->config['modx_charset']);
+		$len_desc  = mb_strlen($description, $modx->config['modx_charset']);
+		$len_total = $len_title + $len_desc;
+		if($len_total < 50)
+		{
+			if(!empty($description)) $description = ' <span style="color:#777;">' . $description . '</span>';
+		}
+		else
+		{
+			$description = '<br /><div style="color:#777;">' . $description . '</div>';
 		}
 		
-		$modx->loadExtension('MakeTable');
+		$classes = array();
+		$classes[] = 'withmenu';
+		if($children['deleted']==='1')   $classes[] = 'deletedNode';
+		if($children['published']==='0') $classes[] = 'unpublishedNode';
+		$class = ' class="' . join(' ',$classes) . '"';
 		
-		// CSS style for table
-		$modx->table->setTableClass('grid');
-		$modx->table->setRowHeaderClass('gridHeader');
-		$modx->table->setRowRegularClass('gridItem');
-		$modx->table->setRowAlternateClass('gridAltItem');
+		$tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
+		$pagetitle = str_replace(array('[+class+]','[+pagetitle+]','[+id+]'),
+		                         array($class,$children['pagetitle'],$children['id']),$tpl);
 		
-		$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
+		if($children['isfolder'] == 0)
+		{
+			$link = "index.php?a=27&amp;id={$children['id']}";
+			if($modx->config['site_start']==$children['id'])
+				$iconpath = $_style['tree_page_home'];
+			elseif($modx->config['error_page']==$children['id'])
+				$iconpath = $_style['tree_page_404'];
+			elseif($modx->config['site_unavailable_page']==$children['id'])
+				$iconpath = $_style['tree_page_hourglass'];
+			elseif($modx->config['unauthorized_page']==$children['id'])
+				$iconpath = $_style['tree_page_info'];
+			else
+				$iconpath = $_style['tree_page_html'];
+		}
+		else
+		{
+			$link = "index.php?a=120&amp;id={$children['id']}";
+			$iconpath = $_style['tree_folder'];
+		}
 		
-		// Table header
-		$header['checkbox']    = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
-		$header['docid']       = $_lang['id'];
-		$header['title']       = $_lang['resource_title'];
-		$header['publishedon'] = $_lang['publish_date'];
-		$header['editedon']    = $_lang['editedon'];
-		$header['status']      = $_lang['page_data_status'];
+		if( $children['type']==='reference')
+		{
+			$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
+		}
+		$tpl = '';
+		$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
+		$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
+		$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
+		$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
+		                     array($icon,$link,$pagetitle,$description), $tpl);
 		
+		if($children['publishedon']!=='0')
+		{
+			$publishedon = '<span class="nowrap">' . $modx->toDateFormat($children['publishedon']) . '</span>';
+		}
+		elseif(!empty($children['pub_date']))
+		{
+			$publishedon = '<span class="nowrap disable">' . $modx->toDateFormat($children['pub_date']) . '</span>';
+		}
+		else $publishedon = '-';
 		
-		$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$id}");
-		$children_output = $pageNavBlock . $modx->table->create($docs,$header) . $pageNavBlock;
-		$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
+		if($children['editedon']!=='0')
+		{
+			$editedon = '<span class="nowrap">' . $modx->toDateFormat($children['editedon']) . '</span>';
+		}
+		else $editedon = '-';
+		
+		$doc = array();
+		$doc['checkbox']    = '<input type="checkbox" name="batch[]" value="' . $children['id'] . '" />';
+		$doc['docid']       = $children['id'];
+		$doc['title']       = $title;
+		$doc['publishedon'] = $publishedon;
+		$doc['editedon']    = $editedon;
+		$doc['status']      = $status;
+		$docs[] = $doc;
 	}
+	
+	$modx->loadExtension('MakeTable');
+	
+	// CSS style for table
+	$modx->table->setTableClass('grid');
+	$modx->table->setRowHeaderClass('gridHeader');
+	$modx->table->setRowRegularClass('gridItem');
+	$modx->table->setRowAlternateClass('gridAltItem');
+	$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
+	
+	// Table header
+	$header['checkbox']    = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
+	$header['docid']       = $_lang['id'];
+	$header['title']       = $_lang['resource_title'];
+	$header['publishedon'] = $_lang['publish_date'];
+	$header['editedon']    = $_lang['editedon'];
+	$header['status']      = $_lang['page_data_status'];
+	
+	$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$id}");
+	$children_output = $pageNavBlock . $modx->table->create($docs,$header) . $pageNavBlock;
+	$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 }
 else
 {
@@ -467,4 +443,50 @@ function getTopicPath($id)
 			$topics[] = sprintf('%s', $doc['alias']);
 	}
 	return '<div style="margin-bottom:10px;">' . join(' / ', $topics) . '</div>';
+}
+
+function getContextMenu($cm)
+{
+	global $modx, $_lang, $_style;
+	extract($_lang, EXTR_PREFIX_ALL, 'lang');
+	extract($_style);
+	
+	// $cm->addSeparator();
+	if($modx->hasPermission('edit_document'))
+		$cm->addItem($lang_edit_resource,       "js:menuAction(27)",$icons_edit_document);
+	if($modx->hasPermission('new_document'))
+		$cm->addItem($lang_create_resource_here,"js:menuAction(4)",$icons_new_document);
+	if($modx->hasPermission('save_document')&&$modx->hasPermission('publish_document'))
+		$cm->addItem($lang_move_resource,       "js:menuAction(51)",$icons_move_document);
+	if($modx->hasPermission('new_document'))
+		$cm->addItem($lang_resource_duplicate,  "js:menuAction(94)",$icons_resource_duplicate);
+	if(0<$cm->i)
+	{
+		$cm->addSeparator();
+		$cm->i = 0;
+	}
+	if($modx->hasPermission('publish_document'))
+		$cm->addItem($lang_publish_resource,   "js:menuAction(61)",$icons_publish_document);
+	if($modx->hasPermission('publish_document'))
+		$cm->addItem($lang_unpublish_resource, "js:menuAction(62)",$icons_unpublish_resource);
+	if($modx->hasPermission('delete_document'))
+		$cm->addItem($lang_delete_resource,    "js:menuAction(6)",$icons_delete);
+	if($modx->hasPermission('delete_document'))
+		$cm->addItem($lang_undelete_resource,  "js:menuAction(63)",$icons_undelete_resource);
+	if(0<$cm->i)
+	{
+		$cm->addSeparator();
+		$cm->i = 0;
+	}
+	if($modx->hasPermission('new_document'))
+		$cm->addItem($lang_create_weblink_here, "js:menuAction(72)",$icons_weblink);
+	if(0<$cm->i)
+	{
+		$cm->addSeparator();
+		$cm->i = 0;
+	}
+	if($modx->hasPermission('view_document'))
+		$cm->addItem($lang_resource_overview, "js:menuAction(3)",$icons_resource_overview);
+	//$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
+	return $cm->render();
 }
