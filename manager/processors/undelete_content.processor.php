@@ -15,14 +15,9 @@ if(!$modx->checkPermissions($id)) disp_access_permission_denied();
 $where = "id='{$id}' AND deleted=1";
 $rs = $modx->db->select('deletedon','[+prefix+]site_content',$where);
 if($modx->db->getRecordCount($rs)!=1)
-{
-	echo "Couldn't find document to determine it's date of deletion!";
-	exit;
-}
+	exit("Couldn't find document to determine it's date of deletion!");
 else
-{
 	$deltime = $modx->db->getValue($rs);
-}
 
 $children = array();
 getChildren($id);

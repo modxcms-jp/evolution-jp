@@ -44,7 +44,7 @@ switch ($_POST['mode']) {
 			$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
 		$count = $modx->db->getValue($rs);
 		if($count > 0) {
-				$modx->manager->saveFormValues(101);
+			$modx->manager->saveFormValues(101);
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
 			// prepare a few variables prior to redisplaying form...
