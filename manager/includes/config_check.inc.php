@@ -62,10 +62,10 @@ if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx-
     }
 }
 
-if(get_sc_value('published',$unauthorized_page) == 0)  $warnings[] = 'configcheck_unauthorizedpage_unpublished';
-if(get_sc_value('published',$error_page) == 0)         $warnings[] = 'configcheck_errorpage_unpublished';
-if(get_sc_value('privateweb',$unauthorized_page) == 1) $warnings[] = 'configcheck_unauthorizedpage_unavailable';
-if(get_sc_value('privateweb',$error_page) == 1)        $warnings[] = 'configcheck_errorpage_unavailable';
+if(get_sc_value('published',$unauthorized_page) === '0')  $warnings[] = 'configcheck_unauthorizedpage_unpublished';
+if(get_sc_value('published',$error_page) === '0')         $warnings[] = 'configcheck_errorpage_unpublished';
+if(get_sc_value('privateweb',$unauthorized_page) === '1') $warnings[] = 'configcheck_unauthorizedpage_unavailable';
+if(get_sc_value('privateweb',$error_page) === '1')        $warnings[] = 'configcheck_errorpage_unavailable';
 
 if (!is_writable($modx->config['base_path'] . 'assets/cache'))  $warnings[] = 'configcheck_cache';
 if (!is_writable($modx->config['rb_base_dir'] . 'images')) $warnings[] = 'configcheck_images';
@@ -214,12 +214,12 @@ EOT;
 return $script;
 }
 
-function get_sc_value($field,$where)
+function get_sc_value($field,$id)
 {
 	global $modx;
-	$tbl_site_content = $modx->getFullTableName('site_content');
-	$where = "id={$where}";
-	return $modx->db->getValue($modx->db->select($field,$tbl_site_content,$where));
+	if(empty($id)) return true;
+	$where = "id='{$id}'";
+	return $modx->db->getValue($modx->db->select($field,'[+prefix+]site_content',$where));
 }
 
 function checkAjaxSearch()
