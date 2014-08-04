@@ -1214,6 +1214,7 @@ class DocumentParser {
     		}
     		$tags[] = substr($fetch,0,strrpos($fetch,$right));
         }
+        if(!$tags) return array();
         foreach($tags as $tag)
         {
         	if(strpos($tag,$left)!==false)
