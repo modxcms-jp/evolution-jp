@@ -2795,7 +2795,7 @@ class DocumentParser {
             $subject= get_object_vars($subject);
         }
         if (is_array($subject)) {
-            while(list($key, $value) = each($subject))
+            foreach($subject as $key=>$value)
             {
                 $this->toPlaceholder($key, $value, $prefix);
             }
