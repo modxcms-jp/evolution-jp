@@ -149,15 +149,15 @@ table td {vertical-align:top;}
 <fieldset>
 <h3><?php echo $_lang['page_data_general']; ?></h3>
 <?php
-	//echo render_form('frames',          $_lang['role_frames'], 'disabled');
-	//echo render_form('home',            $_lang['role_home'], 'disabled');
+	echo render_form('frames',          $_lang['role_frames'], 'disabled');
+	echo render_form('home',            $_lang['role_home'], 'disabled');
 	echo render_form('messages',        $_lang['role_messages']);
-	//echo render_form('logout',          $_lang['role_logout'], 'disabled');
+	echo render_form('logout',          $_lang['role_logout'], 'disabled');
 	echo render_form('help',            $_lang['role_help']);
-	//echo render_form('action_ok',       $_lang['role_actionok'], 'disabled');
-	//echo render_form('error_dialog',    $_lang['role_errors'], 'disabled');
-	//echo render_form('about',           $_lang['role_about'], 'disabled');
-	//echo render_form('credits',         $_lang['role_credits'], 'disabled');
+	echo render_form('action_ok',       $_lang['role_actionok'], 'disabled');
+	echo render_form('error_dialog',    $_lang['role_errors'], 'disabled');
+	echo render_form('about',           $_lang['role_about'], 'disabled');
+	echo render_form('credits',         $_lang['role_credits'], 'disabled');
 	echo render_form('change_password', $_lang['role_change_password']);
 	echo render_form('save_password',   $_lang['role_save_password']);
 ?>
@@ -167,7 +167,7 @@ table td {vertical-align:top;}
 <fieldset>
 <h3><?php echo $_lang['role_content_management']; ?></h3>
 <?php
-	//echo render_form('view_document',     $_lang['role_view_docdata'], 'disabled');
+	echo render_form('view_document',     $_lang['role_view_docdata'], 'disabled');
 	echo render_form('new_document',      $_lang['role_create_doc']);
 	echo render_form('edit_document',     $_lang['role_edit_doc']);
 	echo render_form('save_document',     $_lang['role_save_doc']);
