@@ -73,7 +73,7 @@ if (isset($data) && count($data) > 0) {
 				break;
 			case 'error_page':
 			case 'unauthorized_page':
-				if (trim($v) == '' || !is_numeric($v))
+				if (trim($v) !== '' && !is_numeric($v))
 				{
 					$v = $data['site_start'];
 				}
