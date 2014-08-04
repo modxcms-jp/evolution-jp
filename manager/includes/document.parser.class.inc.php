@@ -1175,52 +1175,57 @@ class DocumentParser {
 	}
 	
     function getTagsFromContent($content,$left='[+',$right='+]') {
+    	$_ = $this->_getTagsFromContent($content,$left,$right);
+        foreach($_ as $v)
+        {
+	        $tags[0][] = "{$left}{$v}{$right}";
+	        $tags[1][] = $v;
+        }
+        return $tags;
+    }
+    
+    function _getTagsFromContent($content,$left='[+',$right='+]') {
+    	
         $hash = explode($left,$content);
-        foreach($hash as $i=>$v) {
-          if(0<$i) $hash[$i] = $left.$v;
-        }
+        if(!empty($hash)) array_shift($hash);
+        else return;
         
-        $i=0;
-        $count = count($hash);
-        $safecount = 0;
-        $temp_hash = array();
-        while(0<$count) :
-            $open  = 1;
-            $close = 0;
-            $safecount++;
-            if(1000<$safecount) break;
-            while($close < $open && 0 < $count) :
-                $safecount++;
-                if(!isset($temp_hash[$i])) $temp_hash[$i] = '';
-                if(1000<$safecount) break;
-                $remain = array_shift($hash);
-                $remain = explode($right,$remain);
-                foreach($remain as $v)
-            	{
-            		if($close < $open)
-                	{
-                		$close++;
-                		$temp_hash[$i] .= "{$v}{$right}";
-            		}
-            		else break;
-                }
-                $count = count($hash);
-                if(0<$i && strpos($temp_hash[$i],$right)===false) $open++;
-            endwhile;
-            $i++;
-        endwhile;
-        
-        $matches=array();
-        $i = 0;
-        foreach($temp_hash as $v) {
-            if(strpos($v,$left)!==false) {
-                $v = substr($v,0,strrpos($v,$right));
-                $matches[0][$i] = "{$v}{$right}";
-                $matches[1][$i] = substr($v,strlen($left));
-                $i++;
-            }
+        while(!empty($hash))
+    	{
+    		$fetch = array_shift($hash);
+    		if(strpos($fetch,$right)===false)
+        	{
+        		$safeCount = 0;
+        		$nest_level = 1;
+        		while(0 <= $nest_level)
+    			{
+    				$str = array_shift($hash);
+    				if(strpos($str, $right)===false) $nest_level++;
+    				else
+        			{
+        				$right_count = substr_count($str,$right);
+        				$nest_level = $nest_level - $right_count;
+    				}
+    				
+    				$fetch .= "{$left}{$str}";
+    				$safeCount++;
+    				if(1000<$safeCount) exit('Fetch tags error');
+        		}
+    		}
+    		$tags[] = substr($fetch,0,strrpos($fetch,$right));
         }
-        return $matches;
+        foreach($tags as $tag)
+        {
+        	if(strpos($tag,$left)!==false)
+        	{
+        		$fetch = $this->_getTagsFromContent($tag,$left,$right);
+        		foreach($fetch as $v)
+        		{
+        			$tags[] = $v;
+        		}
+        	}
+        }
+        return $tags;
     }
     
 	// mod by Raymond
@@ -1383,6 +1388,7 @@ class DocumentParser {
 			if ($value !== ''):
 				if($modifiers!==false)
 				{
+					$modifiers = $this->mergePlaceholderContent($modifiers);
 					$this->loadExtension('PHx') or die('Could not load PHx class.');
 					$value = $this->phx->phxFilter($key,$value,$modifiers);
 				}
