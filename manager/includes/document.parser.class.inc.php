@@ -1340,7 +1340,7 @@ class DocumentParser {
 				$where = "`name`='{$escaped_name}' AND `published`='1'";
 				$result= $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
 				$total= $this->db->getRecordCount($result);
-				if (0 == $total)
+				if (1 == $total)
 				{
 					$row= $this->db->getRow($result);
 					$this->chunkCache[$key]= $row['snippet'];
