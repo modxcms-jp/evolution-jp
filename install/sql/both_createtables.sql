@@ -495,8 +495,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}web_user_settings` (
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   `internalKey` int(10) NOT NULL auto_increment,
   `element` varchar(32) NOT NULL default 'resource' COMMENT 'resource, template, chunk, snippet, plugin, module',
-  `id` int(10) NOT NULL default '0',
-  `revision` int(10) NOT NULL default '0',
+  `docid` int(10) NOT NULL default '0' COMMENT 'Resource ID',
+  `version` int(10) NOT NULL default '0',
   `status` varchar(20) NOT NULL default 'inherit' COMMENT 'inherit,pending,draft,auto-draft,future,private',
   `description` varchar(255) NOT NULL default '',
   `content` mediumtext,
@@ -510,6 +510,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   `unpub_date` int(20) NOT NULL default '0',
   `checksum` varchar(50) NOT NULL default '0',
   PRIMARY KEY `internalKey` (`internalKey`),
-  UNIQUE INDEX `idx_revision` (`element`,`id`,`revision`),
+  UNIQUE INDEX `idx_revision` (`element`,`docid`,`version`),
   KEY `status` (`status`)
 ) ENGINE=MyISAM COMMENT='Contains revision data.';

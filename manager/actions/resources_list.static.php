@@ -78,7 +78,7 @@ if ($numRecords > 0)
 	$from = array();
 	$from[] = '[+prefix+]site_content AS sc';
 	$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
-	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.id = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
+	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.docid = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
 	$from = join(' ',$from);
 	$where = "sc.parent='{$id}' AND ({$access})";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
