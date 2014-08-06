@@ -1770,7 +1770,7 @@ class DocumentParser {
 	{
 		if(isset($this->chunkCache)) return;
 		$chunk = @include_once(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
-		if($chunk) $this->chunkCache = $chunk;
+		if(is_array($chunk)) $this->chunkCache = $chunk;
 		else $this->chunkCache = array();
 	}
 	
