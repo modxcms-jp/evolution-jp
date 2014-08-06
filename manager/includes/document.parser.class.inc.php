@@ -1197,7 +1197,7 @@ class DocumentParser {
         	{
         		$safeCount = 0;
         		$nest_level = 1;
-        		while(0 <= $nest_level)
+        		while(0 <= $nest_level && !empty($hash))
     			{
     				$str = array_shift($hash);
     				if(strpos($str, $right)===false) $nest_level++;
