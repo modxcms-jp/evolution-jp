@@ -1338,11 +1338,10 @@ class DocumentParser {
 				if(!isset($this->chunkCache)) $this->setChunkCache();
 				$escaped_name = $this->db->escape($key);
 				$where = "`name`='{$escaped_name}' AND `published`='1'";
-				$result= $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
-				$total= $this->db->getRecordCount($result);
-				if (1 == $total)
+				$rs    = $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
+				if ($this->db->getRecordCount($rs)==1)
 				{
-					$row= $this->db->getRow($result);
+					$row= $this->db->getRow($rs);
 					$this->chunkCache[$key]= $row['snippet'];
 					$value= $row['snippet'];
 				}
