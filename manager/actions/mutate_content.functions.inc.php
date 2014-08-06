@@ -99,16 +99,22 @@ function ab_save()
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
-	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">';
+	
+	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
+	
+	$selected = array(1=>'', 2=>'', 3=>'');
+	if ($modx->hasPermission('new_document')
+		&& $_REQUEST['stay']=='1') $selected[1] = 'selected';
+	elseif($_REQUEST['stay']=='2') $selected[2] = 'selected';
+	elseif($_REQUEST['stay']=='')  $selected[3] = 'selected';
+	
 	if ($modx->hasPermission('new_document'))
-	{
-		$selected = $_REQUEST['stay']=='1' ? ' selected=""' : '';
-		$ph['select'] .= '<option id="stay1" value="1" ' . $selected . ' >' . $_lang['stay_new'] . '</option>';
-	}
-	$selected = $_REQUEST['stay']=='2' ? ' selected="selected"' : '';
-	$ph['select'] .= '<option id="stay2" value="2" ' . $selected . ' >' . $_lang['stay'] . '</option>';
-	$selected = $_REQUEST['stay']=='' ? ' selected=""' : '';
-	$ph['select'] .= '<option id="stay3" value="" ' . $selected . '>' . $_lang['close'] . '</option></select>';
+		$option[] = sprintf('<option id="stay1" value="1" %s >%s</option>', $selected[1], $_lang['stay_new']);
+	
+	$option[] = sprintf('<option id="stay2" value="2" %s >%s</option>'    , $selected[2], $_lang['stay']);
+	$option[] = sprintf('<option id="stay3" value="" %s >%s</option>'     , $selected[3], $_lang['close']);
+	
+	$ph['select'] = sprintf($ph['select'], join("\n", $option));
 	
 	return $modx->parseText($tpl,$ph);
 }
