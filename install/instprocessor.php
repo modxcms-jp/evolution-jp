@@ -1,12 +1,12 @@
 <?php
-global $moduleName;
-global $moduleVersion;
-global $moduleChunks;
-global $moduleTemplates;
-global $moduleSnippets;
-global $modulePlugins;
-global $moduleModules;
-global $moduleTVs;
+global $cmsName;
+global $cmsVersion;
+global $tplChunks;
+global $tplTemplates;
+global $tplSnippets;
+global $tplPlugins;
+global $tplModules;
+global $tplTVs;
 
 global $errors;
 
@@ -19,16 +19,18 @@ $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 require_once("{$base_path}manager/includes/default.config.php");
 
 $installdata = $_SESSION['installdata'];unset($_SESSION['installdata']);
-$templates   = $_SESSION['template'];   unset($_SESSION['template']);
-$tvs         = $_SESSION['tv'];         unset($_SESSION['tv']);
-$chunks      = $_SESSION['chunk'];      unset($_SESSION['chunk']);
-$snippets    = $_SESSION['snippet'];    unset($_SESSION['snippet']);
-$plugins     = $_SESSION['plugin'];     unset($_SESSION['plugin']);
-$modules     = $_SESSION['module'];     unset($_SESSION['module']);
+$formvTemplates   = $_SESSION['template'];   unset($_SESSION['template']);
+$formvTvs         = $_SESSION['tv'];         unset($_SESSION['tv']);
+$formvChunks      = $_SESSION['chunk'];      unset($_SESSION['chunk']);
+$formvSnippets    = $_SESSION['snippet'];    unset($_SESSION['snippet']);
+$formvPlugins     = $_SESSION['plugin'];     unset($_SESSION['plugin']);
+$formvModules     = $_SESSION['module'];     unset($_SESSION['module']);
 
 $installmode = $_SESSION['installmode'];
 
-echo "<p>{$_lang['setup_database']}</p>\n";
+extract($_lang, EXTR_PREFIX_ALL, 'lang');
+
+echo "<p>{$lang_setup_database}</p>\n";
 // get base path and url
 define('MODX_API_MODE', true);
 require_once("{$base_path}manager/includes/initialize.inc.php");
@@ -62,7 +64,7 @@ $sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
 // install/update database
-echo '<p>' . $_lang['setup_database_creating_tables'];
+echo "<p>{$lang_setup_database_creating_tables}";
 $sqlParser->process('both_createtables.sql');
 if($installmode==0) $sqlParser->process('new_setvalues.sql');
 else                $sqlParser->process('upd_fixvalues.sql');
@@ -71,18 +73,17 @@ $sqlParser->process('both_fixvalues.sql');
 if ($sqlParser->installFailed == true)
 {
 	$errors += 1;
-	echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span>';
-	echo '</p>';
-	echo '<p>' . $_lang['setup_couldnt_install'] . '</p>';
-	echo '<p>' . $_lang['installation_error_occured'] . '<br /><br />';
+	printf('<span class="notok"><b>%s</b></span></p>', $lang_database_alerts);
+	printf('<p>%s</p>',                                $lang_setup_couldnt_install);
+	printf('<p>%s<br /><br />',                        $lang_installation_error_occured);
 	foreach ($sqlParser->mysqlErrors as $err) {
-		echo '<em>' . $err['error'] . '</em>' . $_lang['during_execution_of_sql'] . '<span class="mono">' . strip_tags($err['sql']) . '</span>.<hr />';
+		printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], $lang_during_execution_of_sql, strip_tags($err['sql']));
 	}
 	echo '</p>';
-	echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
+	echo "<p>{$lang_some_tables_not_updated}</p>";
 	return;
 }
-else echo '<span class="ok">'.$_lang['ok'].'</span></p>';
+else printf('<span class="ok">%s</span></p>', $lang_ok);
 
 $configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
 $ph['database_type']               = 'mysql';
@@ -97,50 +98,41 @@ $ph['https_port']                  = '443';
 
 $configString = parse($configString, $ph);
 $config_path = "{$base_path}manager/includes/config.inc.php";
-$config_saved = (@ file_put_contents($config_path, $configString));
+$config_saved = @ file_put_contents($config_path, $configString);
 
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($config_path, 0404);
 
-echo '<p>' . $_lang['writing_config_file'];
+echo "<p>{$lang_writing_config_file}";
 if ($config_saved === false)
 {
-	echo '<span class="notok">' . $_lang['failed'] . "</span></p>";
+	printf('<span class="notok">%s</span></p>', $lang_failed);
 	$errors += 1;
-?>
-	<p><?php echo $_lang['cant_write_config_file'];?><br /><span class="mono">manager/includes/config.inc.php</span></p>
-	<textarea style="width:100%; height:200px;font-size:inherit;font-family:'Courier New','Courier', monospace;"><?php echo htmlspecialchars($configString); ?></textarea>
-	<p><?php echo $_lang['cant_write_config_file_note']?></p>
-<?php
+	printf('<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>', $lang_cant_write_config_file);
+	echo '<textarea style="width:100%; height:200px;font-size:inherit;font-family:\'Courier New\',\'Courier\', monospace;">';
+	echo htmlspecialchars($configString);
+	echo '</textarea>';
+	echo "<p>{$lang_cant_write_config_file_note}</p>";
 }
 else
-{
-	echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
-}
+	printf('<span class="ok">%s</span></p>', $lang_ok);
 
-// generate new site_id
-
-if ($installmode == 0)
+if ($installmode == 0) // generate new site_id
 {
-	
-	$site_id = uniqid('');
-	$query = "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','{$site_id}')";
+	$uniqid = uniqid('');
+	$query = "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','{$uniqid}')";
 	$query = str_replace('[+prefix+]',$modx->db->table_prefix,$query);
 	$modx->db->query($query);
-	
 }
-else
+else  // update site_id if missing
 {
-	// update site_id if missing
-	$ds = $modx->db->select('*', '[+prefix+]system_settings', "setting_name='site_id'");
-	if ($ds)
+	$dbv_site_id = $modx->db->getObject('system_settings', "setting_name='site_id'");
+	if ($dbv_site_id)
 	{
-		$row = $modx->db->getRow($ds);
-		$site_id = $row['setting_value'];
-		if ($site_id == '' || $site_id = 'MzGeQ2faT4Dw06+U49x3')
+		if ($dbv_site_id->setting_value == '' || $dbv_site_id->setting_value = 'MzGeQ2faT4Dw06+U49x3')
 		{
-			$site_id = uniqid('');
-			$query = "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','{$site_id}')";
+			$uniqid = uniqid('');
+			$query = "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','{$uniqid}')";
 			$query = str_replace('[+prefix+]',$modx->db->table_prefix,$query);
 			$modx->db->query($query);
 		}
@@ -148,46 +140,46 @@ else
 }
 
 // Install Templates
-if ($templates!==false && !empty($templates) || $installdata==1)
+if ($installmode==0 && ($formvTemplates!==false && !empty($formvTemplates) || $installdata==1))
 {
-	echo "<h3>" . $_lang['templates'] . ":</h3> ";
+	echo "<h3>{$lang_templates}:</h3>";
 	
-	foreach ($moduleTemplates as $k=>$moduleTemplate)
+	foreach ($tplTemplates as $i=>$tplInfo)
 	{
-		if(!in_array($k, $templates)
-			&&
-		  (!in_array('sample', $moduleTemplate[6]) || $installdata != 1))
-			continue;
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else $installSample = false;
 		
-		$templatename = $modx->db->escape($moduleTemplate[0]);
-		$tpl_file_path = $moduleTemplate[3];
+		if(!in_array($i, $formvTemplates) && !$installSample) continue;
+		
+		$templatename  = $tplInfo['templatename'];
+		$tpl_file_path = $tplInfo['tpl_file_path'];
 		
 		if (!is_file($tpl_file_path)) {
-			echo ng($templatename,$_lang['unable_install_template'] . " '{$tpl_file_path}' " . $_lang['not_found']);
+			echo ng($templatename, "{$lang_unable_install_template} '{$tpl_file_path}' {$lang_not_found}");
 			continue;
 		}
 		
-		// Strip the first comment up top
-		$content = file_get_contents($tpl_file_path);
 		$f = array();
-		$f['content'] = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $content, 1);
-		$f['description'] = $moduleTemplate[1];
-		// Create the category if it does not already exist
-		$f['category'] = getCreateDbCategory($moduleTemplate[4]);
-		$f['locked'] = $moduleTemplate[5];
+		$content = file_get_contents($tpl_file_path);
+		$f['content']     = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $content, 1);
+		$f['description'] = $tplInfo['description'];
+		$f['category']    = getCreateDbCategory($tplInfo['category']); // Create the category if it does not already exist
+		$f['locked']      = $tplInfo['locked'];
 		$f = $modx->db->escape($f);
 		
 		// See if the template already exists
-		$rs = $modx->db->select('*', '[+prefix+]site_templates', "templatename='{$templatename}'");
-		if (0<$modx->db->getRecordCount($rs))
+		$templatename = $modx->db->escape($templatename);
+		$dbv_template = $modx->db->getObject('site_templates', "templatename='{$templatename}'");
+		if ($dbv_template)
 		{
 			if (!@ $modx->db->update($f, '[+prefix+]site_templates', "templatename='{$templatename}'"))
 			{
 				$errors += 1;
-				echo '<p>' . $modx->db->getLastError() . '</p>';
+				showError();
 				return;
 			}
-			else echo ok($templatename,$_lang['upgraded']);
+			else echo ok($templatename,$lang_upgraded);
 		}
 		else
 		{
@@ -195,86 +187,82 @@ if ($templates!==false && !empty($templates) || $installdata==1)
 			if (!@ $modx->db->insert($f, '[+prefix+]site_templates'))
 			{
 				$errors += 1;
-				echo '<p>' . $modx->db->getLastError() . '</p>';
+				showError();
 				return;
 			}
-			else echo ok($templatename,$_lang['installed']);
+			else echo ok($templatename,$lang_installed);
 		}
 	}
 }
 
 // Install Template Variables
-if ($tvs!==false && !empty($tvs) || $installdata)
+if ($installmode==0 && ($formvTvs!==false && !empty($formvTvs) || $installdata==1))
 {
-	echo "<h3>" . $_lang['tvs'] . ":</h3> ";
-	foreach ($moduleTVs as $k=>$moduleTV):
-		if(!in_array($k, $tvs)) {
-			if(!in_array('sample', $moduleTV[12]) || $installdata != 1)
-				continue;
-		}
+	echo "<h3>{$lang_tvs}:</h3> ";
+	foreach ($tplTVs as $i=>$tplInfo):
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else $installSample = false;
 		
-		$name = $modx->db->escape($moduleTV[0]);
+		if(!in_array($i, $formvTvs) && !$installSample) continue;
+		
+		$name = $modx->db->escape($tplInfo['name']);
 		$f = array();
-		$f['type'] = $moduleTV[3];
-		$f['caption'] = $moduleTV[1];
-		$f['description'] = $moduleTV[2];
-		$f['category'] = getCreateDbCategory($moduleTV[10]);
-		$f['locked'] = $moduleTV[11];
-		$f['elements'] = $moduleTV[4];
-		$f['default_text'] = $moduleTV[5];
-		$f['display'] = $moduleTV[6];
-		$f['display_params'] = $moduleTV[7];
+		$f['type']           = $tplInfo['input_type'];
+		$f['caption']        = $tplInfo['caption'];
+		$f['description']    = $tplInfo['description'];
+		$f['category']       = getCreateDbCategory($tplInfo['category']);
+		$f['locked']         = $tplInfo['locked'];
+		$f['elements']       = $tplInfo['elements'];
+		$f['default_text']   = $tplInfo['default_text'];
+		$f['display']        = $tplInfo['display'];
+		$f['display_params'] = $tplInfo['display_params'];
 		$f = $modx->db->escape($f);
 		
-		$rs = $modx->db->select('*', '[+prefix+]site_tmplvars', "name='{$name}'");
-		if ($modx->db->getRecordCount($rs))
+		$dbv_tmplvar = $modx->db->getObject('site_tmplvars', "name='{$name}'");
+		if ($dbv_tmplvar)
 		{
-			$insert = true;
-			$row = $modx->db->getRow($rs);
-			$id = $row['id'];
-			$rs = $modx->db->update($f, '[+prefix+]site_tmplvars', "id='{$id}'");
-			if ($rs) {
-				$insert = false;
-				echo ok($name,$_lang['upgraded']);
-			} else {
-				echo '<p>' . $modx->db->getLastError() . '</p>';
+			if (!@ $modx->db->update($f, '[+prefix+]site_tmplvars', "id='{$dbv_tmplvar->id}'"))
+			{
+				$errors += 1;
+				showError();
 				return;
 			}
+			else echo ok($name,$lang_upgraded);
 		}
 		else
 		{
 			$f['name'] = $name;
-			$rs = $modx->db->insert($f, '[+prefix+]site_tmplvars');
-			if ($rs) {
-				echo ok($name,$_lang['installed']);
-			} else {
-				echo '<p>' . $modx->db->getLastError() . '</p>';
+			if (!@ $modx->db->insert($f, '[+prefix+]site_tmplvars'))
+			{
+				$errors += 1;
+				showError();
 				return;
 			}
+			else echo ok($name,$lang_installed);
 		}
 		
 		// add template assignments
-		$assignments = explode(',', $moduleTV[9]);
-		if(empty($assignments)) continue;
+		$templatenames = explode(',', $tplInfo['template_assignments']);
+		if(empty($templatenames)) continue;
 		
 		// remove existing tv -> template assignments
 		$description = $f['description'];
-		$rs = $modx->db->select('id', '[+prefix+]site_tmplvars', "name='{$name}' AND description='{$description}'");
-		if($modx->db->getRecordCount($rs)==0) continue;
 		
-		$row = $modx->db->getRow($rs);
-		$tmplvarid = $row['id'];
-		$modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvarid}'");
+		$dbv_tmplvar = $modx->db->getObject('site_tmplvars', "name='{$name}' AND description='{$description}'");
+		if($dbv_tmplvar)
+			$modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='{$dbv_tmplvar->id}'");
+		else
+			continue;
 		
 		// add tv -> template assignments
-		foreach ($assignments as $templatename) {
+		foreach ($templatenames as $templatename)
+		{
 			$templatename = $modx->db->escape($templatename);
-			$rs = $modx->db->select('id', '[+prefix+]site_templates', "templatename='{$templatename}'");
-			if (0<$modx->db->getRecordCount($rs))
+			$dbv_template = $modx->db->getObject('site_templates', "templatename='{$templatename}'");
+			if ($dbv_template)
 			{
-				$row = $modx->db->getRow($ts);
-				$templateid = $row['id'];
-				$f = array('tmplvarid'=>$tmplvarid, 'templateid'=>$templateid);
+				$f = array('tmplvarid'=>$tmplvarid, 'templateid'=>$dbv_template->id);
 				$modx->db->insert($f, '[+prefix+]site_tmplvar_templates');
 			}
 		}
@@ -282,314 +270,290 @@ if ($tvs!==false && !empty($tvs) || $installdata)
 }
 
 // Install Chunks
-if ($chunks!==false && !empty($chunks) || $installdata)
+if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 {
-	echo "<h3>" . $_lang['chunks'] . ":</h3> ";
-	foreach ($moduleChunks as $k=>$moduleChunk)
+	echo "<h3>{$lang_chunks}:</h3>";
+	foreach ($tplChunks as $i=>$tplInfo)
 	{
-		if(!in_array($k, $chunks)) {
-			if(!in_array('sample', $moduleChunk[5]) || $installdata != 1)
-				continue;
-		}
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else $installSample = false;
 		
-		$name      = $modx->db->escape($moduleChunk[0]);
-		$desc      = $modx->db->escape($moduleChunk[1]);
-		$category  = $modx->db->escape($moduleChunk[3]);
-		$overwrite = $modx->db->escape($moduleChunk[4]);
-		$tpl_file_path = $moduleChunk[2];
+		if(!in_array($i, $formvModules) && !$installSample) continue;
+		
+		$overwrite = $tplInfo['overwrite'];
+		
+		$name = $modx->db->escape($tplInfo['name']);
+		$dbv_chunk = $modx->db->getObject('site_htmlsnippets', "name='{$name}'");
+		if($dbv_chunk && $overwrite=='true') $update = true;
+		else                                 $update = false;
+		
+		$tpl_file_path = $tplInfo['tpl_file_path'];
 		
 		if (!is_file($tpl_file_path))
 		{
-			echo ng($name,"{$_lang['unable_install_chunk']} '{$tpl_file_path}' {$_lang['not_found']}");
+			echo ng($name,"{$lang_unable_install_chunk} '{$tpl_file_path}' {$lang_not_found}");
+			continue;
+		}
+		$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', file_get_contents($tpl_file_path), 1);
+		
+		$f = array();
+		$f['description'] = $tplInfo['description'];
+		$f['snippet']     = $snippet;
+		$f['category']    = getCreateDbCategory($tplInfo['category']);
+		$f = $modx->db->escape($f);
+		
+		if ($update)
+		{
+			if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
+			{
+				$errors += 1;
+				showError();
+				return;
+			}
+			echo ok($name,$lang_upgraded);
 		}
 		else
 		{
-			// Create the category if it does not already exist
-			$category_id = getCreateDbCategory($category);
-			
-			$rs = $modx->db->select('*', '[+prefix+]site_htmlsnippets', "name='{$name}'");
-			$count_original_name = $modx->db->getRecordCount($rs);
 			if($overwrite == 'false')
 			{
-				$newname = $name . '-' . str_replace('.', '_', $modx_version);
-				$rs = $modx->db->select('*', '[+prefix+]site_htmlsnippets', "name='{$newname}'");
-				$count_new_name = $modx->db->getRecordCount($rs);
-			}
-			$update = $count_original_name > 0 && $overwrite == 'true';
-			$snippet = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($tpl_file_path), 1);
-			$snippet = $modx->db->escape($snippet);
-			if ($update)
-			{
-				$f = array('snippet'=>$snippet, 'description'=>$desc, 'category'=>$category_id);
-				if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
+				$rs =true;
+				$i = 0;
+				while($rs === true)
 				{
-					$errors += 1;
-					echo '<p>' . $modx->db->getLastError() . '</p>';
-					return;
-				}
-				echo ok($name,$_lang['upgraded']);
-			}
-			elseif($count_new_name == 0)
-			{
-				if($count_original_name > 0 && $overwrite == 'false')
-				{
+					$newname = $tplInfo['name'] . '-' . str_replace('.', '_', $modx_version);
+					if(0<$i) $newname . "({$i})";
+					$newname = $modx->db->escape($newname);
+					$rs = $modx->db->getObject('site_htmlsnippets', "name='{$newname}'");
 					$name = $newname;
+					$i++;
 				}
-				$f = array('name'=>$name,'description'=>$desc,'snippet'=>$snippet,'category'=>$category_id);
-				if (!@ $modx->db->insert($f, '[+prefix+]site_htmlsnippets'))
-				{
-					$errors += 1;
-					echo '<p>' . $modx->db->getLastError() . '</p>';
-					return;
-				}
-				echo ok($name,$_lang['installed']);
 			}
+			$f['name'] = $name;
+			if (!@ $modx->db->insert($f, '[+prefix+]site_htmlsnippets'))
+			{
+				$errors += 1;
+				showError();
+				return;
+			}
+			echo ok($name,$lang_installed);
 		}
 	}
 }
 
 // Install Modules
-if ($modules!==false && !empty($modules) || $installdata)
+if ($formvModules!==false && !empty($formvModules) || $installdata)
 {
-	echo "<h3>" . $_lang['modules'] . ":</h3> ";
-	foreach ($moduleModules as $k=>$moduleModule)
+	echo "<h3>{$lang_modules}:</h3>";
+	foreach ($tplModules as $i=>$tplInfo)
 	{
-		if(in_array('sample', $moduleModule[7]) && $installdata == 1) $installSample = true;
-		if(in_array($k, $modules) || $installSample)
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else $installSample = false;
+		
+		if(!in_array($i, $formvModules) && !$installSample) continue;
+		
+		$name = $tplInfo['name'];
+		$tpl_file_path = $tplInfo['tpl_file_path'];
+		if (!is_file($tpl_file_path))
 		{
-			$name = $modx->db->escape($moduleModule[0]);
-			$desc = $modx->db->escape($moduleModule[1]);
-			$filecontent = $moduleModule[2];
-			$properties = $modx->db->escape($moduleModule[3]);
-			$guid = $modx->db->escape($moduleModule[4]);
-			$shared = $modx->db->escape($moduleModule[5]);
-			$category = $modx->db->escape($moduleModule[6]);
-			if (!is_file($filecontent))
+			echo ng($name,"{$lang_unable_install_module} '{$tpl_file_path}' {$lang_not_found}");
+			continue;
+		}
+		
+		$f = array();
+		$f['description'] = $tplInfo['description'];
+		$modulecode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
+		$f['modulecode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $modulecode, 1);
+		$f['properties']  = $tplInfo['properties'];
+		$f['enable_sharedparams'] = $tplInfo['shareparams'];
+		$f = $modx->db->escape($f);
+		
+		$name = $modx->db->escape($name);
+		$dbv_module = $modx->db->getObject('site_modules', "name='{$name}'");
+		if ($dbv_module)
+		{
+			$props = propUpdate($properties,$dbv_module->properties);
+			if (!@ $modx->db->update($f, '[+prefix+]site_modules', "name='{$name}'"))
 			{
-				echo ng($name,"{$_lang['unable_install_module']} '{$filecontent}' {$_lang['not_found']}");
+				$errors += 1;
+				showError();
+				return;
 			}
-			else
+			echo ok($name,$lang_upgraded);
+		}
+		else
+		{
+			$f['name']     = $name;
+			$f['guid']     = $modx->db->escape($tplInfo['guid']);
+			$f['category'] = getCreateDbCategory($tplInfo['category']);
+			if (!@ $modx->db->insert($f, '[+prefix+]site_modules'))
 			{
-				// Create the category if it does not already exist
-				$category = getCreateDbCategory($category);
-				
-				$modulecode = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
-				// remove installer docblock
-				$modulecode = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $modulecode, 1);
-				$modulecode = $modx->db->escape($modulecode);
-				$rs = $modx->db->select('*', '[+prefix+]site_modules', "name='{$name}'");
-				if ($modx->db->getRecordCount($rs))
-				{
-					$row = $modx->db->getRow($rs);
-					$props = propUpdate($properties,$row['properties']);
-					$f = array('modulecode'=>$modulecode, 'description'=>$desc, 'properties'=>$props, 'enable_sharedparams'=>$shared);
-					if (!@ $modx->db->update($f, '[+prefix+]site_modules', "name='{$name}'"))
-					{
-						echo '<p>' . $modx->db->getLastError() . '</p>';
-						return;
-					}
-					echo ok($name,$_lang['upgraded']);
-				}
-				else
-				{
-					$f = array();
-					$f['name']        = $name;
-					$f['description'] = $desc;
-					$f['modulecode']  = $modulecode;
-					$f['properties']  = $properties;
-					$f['guid']        = $guid;
-					$f['enable_sharedparams'] = $shared;
-					$f['category']    = $category;
-					if (!@ $modx->db->insert($f, '[+prefix+]site_modules'))
-					{
-						echo '<p>' . $modx->db->getLastError() . '</p>';
-						return;
-					}
-					echo ok($name,$_lang['installed']);
-				}
+				$errors += 1;
+				showError();
+				return;
 			}
+			echo ok($name,$lang_installed);
 		}
 	}
 }
 
 // Install Plugins
-if ($plugins!==false && !empty($plugins) || $installdata)
+if ($formvPlugins!==false && !empty($formvPlugins) || $installdata)
 {
-	echo "<h3>" . $_lang['plugins'] . ":</h3> ";
-	foreach ($modulePlugins as $k=>$modulePlugin)
-	{
-		if(in_array('sample', $modulePlugin[8]) && $installdata == 1) $installSample = true;
+	echo "<h3>{$lang_plugins}:</h3>";
+	
+	foreach ($tplPlugins as $i=>$tplInfo):
 		
-		if(in_array($k, $plugins) || $installSample)
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else $installSample = false;
+		
+		if(!in_array($i, $formvPlugins) && !$installSample) continue;
+		
+		$name        = $tplInfo['name'];
+		$tpl_file_path = $tplInfo['tpl_file_path'];
+		if(!is_file($tpl_file_path))
 		{
-			$name = $modx->db->escape($modulePlugin[0]);
-			$desc = $modx->db->escape($modulePlugin[1]);
-			$filecontent = $modulePlugin[2];
-			$properties = $modx->db->escape($modulePlugin[3]);
-			$events = explode(',', $modulePlugin[4]);
-			$guid = $modx->db->escape($modulePlugin[5]);
-			$category = $modx->db->escape($modulePlugin[6]);
-			$leg_names = '';
-			if(array_key_exists(7, $modulePlugin)) {
-				// parse comma-separated legacy names and prepare them for sql IN clause
-				$leg_names = implode("','", preg_split('/\s*,\s*/', $modx->db->escape($modulePlugin[7])));
+			echo ng($name, $lang_unable_install_plugin . " '{$tpl_file_path}' " . $lang_not_found);
+			continue;
+		}
+		
+		// parse comma-separated legacy names and prepare them for sql IN clause
+		if(array_key_exists('legacy_names', $tplInfo))
+		{
+			$_ = array();
+			$array_legacy_names = explode(',', $tplInfo['legacy_names']);
+			while($v = array_shift($array_legacy_names))
+			{
+				$_[] = trim($v);
 			}
-			if(!is_file($filecontent)) {
-				echo ng($name, $_lang['unable_install_plugin'] . " '{$filecontent}' " . $_lang['not_found']);
-			} else {
-				// disable legacy versions based on legacy_names provided
-				if(!empty($leg_names)) {
-					$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "name IN ('{$leg_names}')");
-				}
-				
-				// Create the category if it does not already exist
-				$category = getCreateDbCategory($category);
-				
-				$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent), 2));
-				// remove installer docblock
-				$plugincode = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
-				$plugincode = $modx->db->escape($plugincode);
-				
-				$rs = $modx->db->select('*', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
-				
-				if(0<$modx->db->getRecordCount($rs))
-				{
-					$insert = true;
-					
-					while($row = $modx->db->getRow($rs)):
-						$props = propUpdate($properties,$row['properties']);
-						$id = $row['id'];
-						if($row['description'] === $desc)
-						{
-							$f = array();
-							$f['plugincode']  = $plugincode;
-							$f['description'] = $desc;
-							$f['properties']  = $props;
-							$rs = $modx->db->update($f, '[+prefix+]site_plugins', "id='{$id}'");
-							if($rs) $insert = false;
-						}
-						else
-						{
-							$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "id='{$id}'");
-						}
-						if(!$rs) {
-							echo '<p>' . $modx->db->getLastError() . '</p>';
-							return;
-						}
-					endwhile;
-					if($insert === true) {
-						if($props) $properties = $props;
-						$f = array();
-						$f['name']        = $name;
-						$f['description'] = $desc;
-						$f['plugincode']  = $plugincode;
-						$f['properties']  = $properties;
-						$f['moduleguid']  = $guid;
-						$f['disabled']    = '0';
-						$f['category']    = $category;
-						$rs = $modx->db->insert($f, '[+prefix+]site_plugins');
-						if(!$rs) {
-							echo '<p>'.$modx->db->getLastError().'</p>';
-							return;
-						}
-					}
-					echo ok($name,$_lang['upgraded']);
-				}
-				else
-				{
-					$f = array();
-					$f['name']        = $name;
-					$f['description'] = $desc;
-					$f['plugincode']  = $plugincode;
-					$f['properties']  = $properties;
-					$f['moduleguid']  = $guid;
-					$f['category']    = $category;
-					$rs = $modx->db->insert($f, '[+prefix+]site_plugins');
-					if(!$rs) {
-						echo '<p>' . $modx->db->getLastError() . '</p>';
-						return;
-					}
-					echo ok($name,$_lang['installed']);
-				}
-				// add system events
-				if(count($events) > 0)
-				{
-					
-					$ds = $modx->db->select('id', '[+prefix+]site_plugins', "name='{$name}' AND description='{$desc}'");
-					if($ds) {
-						$row = $modx->db->getRow($ds);
-						$id = $row["id"];
-						// remove existing events
-						$modx->db->delete('[+prefix+]site_plugin_events', "pluginid = '{$id}'");
-						// add new events
-						$events = implode("','", $events);
-						$selected = "SELECT '{$id}' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('{$events}')";
-						$query = "INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) {$selected}";
-						$query = str_replace('[+prefix+]',$modx->db->table_prefix,$query);
-						$modx->db->query($query);
-					}
-				}
+			$legacy_names = join(',', $_);
+			// disable legacy versions based on legacy_names provided
+			if(!empty($legacy_names))
+			{
+				$legacy_names = $modx->db->escape($legacy_names);
+				$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "name IN ('{$legacy_names}')");
 			}
 		}
-	}
+		
+		$name = $modx->db->escape($name);
+		$dbv_plugin = $modx->db->getObject('site_plugins', "name='{$name}' AND disabled='0'");
+		
+		$f = array();
+		$f['description'] = $tplInfo['description'];
+		$f['plugincode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
+		$f['properties']  = propUpdate($tplInfo['properties'],$dbv_plugin->properties);
+		$f = $modx->db->escape($f);
+		
+		$guid = $modx->db->escape($tplInfo['guid']);
+		$category = getCreateDbCategory($tplInfo['category']);
+		if($dbv_plugin)
+		{
+			$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
+			
+			if($dbv_plugin->description === $tplInfo['description'])
+				$rs = $modx->db->update($f, '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+			else
+			{
+				$f['name']        = $name;
+				$f['moduleguid']  = $guid;
+				$f['disabled']    = '0';
+				$f['category']    = $category;
+				$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+				if($rs) $rs = $modx->db->insert($f, '[+prefix+]site_plugins');
+			}
+			
+			if(!$rs) {
+				$errors += 1;
+				showError();
+				return;
+			}
+			else echo ok($name,$lang_upgraded);
+			$pluginId = $dbv_plugin->id;
+		}
+		else
+		{
+			$f['name']        = $name;
+			$f['moduleguid']  = $guid;
+			$f['category']    = $category;
+			$pluginId = $modx->db->insert($f, '[+prefix+]site_plugins');
+			if(!$pluginId) {
+				$errors += 1;
+				showError();
+				return;
+			}
+			echo ok($name,$lang_installed);
+		}
+		
+		// add system events
+		$events = explode(',', $tplInfo['events']);
+		if(count($events) > 0)
+		{
+			// remove existing events
+			$modx->db->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");
+			
+			// add new events
+			$events = implode("','", $events);
+			$selected = "SELECT '{$pluginId}' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('{$events}')";
+			$query = "INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) {$selected}";
+			$query = str_replace('[+prefix+]',$modx->db->table_prefix,$query);
+			$modx->db->query($query);
+		}
+	endforeach;
 }
 
 // Install Snippets
-if ($snippets!==false && !empty($snippets) || $installdata)
+if ($formvSnippets!==false && !empty($formvSnippets) || $installdata)
 {
-	echo "<h3>" . $_lang['snippets'] . ":</h3> ";
-	foreach ($moduleSnippets as $k=>$moduleSnippet)
+	echo "<h3>{$lang_snippets}:</h3>";
+	foreach ($tplSnippets as $k=>$tplInfo)
 	{
-		if(in_array('sample', $moduleSnippet[5]) && $installdata == 1) $installSample = true;
-		if(in_array($k, $snippets) || $installSample)
+		if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
+			$installSample = true;
+		else
+			$installSample = false;
+		
+		if(!in_array($k, $formvSnippets) && !$installSample) continue;
+		
+		$name = $modx->db->escape($tplInfo['name']);
+		$tpl_file_path = $tplInfo['tpl_file_path'];
+		if (!is_file($tpl_file_path))
 		{
-			$name = $modx->db->escape($moduleSnippet[0]);
-			$desc = $modx->db->escape($moduleSnippet[1]);
-			$filecontent = $moduleSnippet[2];
-			$properties  = $modx->db->escape($moduleSnippet[3]);
-			$category    = $modx->db->escape($moduleSnippet[4]);
-			if (!is_file($filecontent))
+			echo ng($name, "{$lang_unable_install_snippet} '{$tpl_file_path}' {$lang_not_found}");
+			continue;
+		}
+		
+		$f = array();
+		$snippet = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path)));
+		$f['snippet']     = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
+		$f['description'] = $tplInfo['description'];
+		$f['properties']  = $tplInfo['properties'];
+		$f = $modx->db->escape($f);
+		
+		$dbv_snippet = $modx->db->getObject('site_snippets', "name='{$name}'");
+		if ($dbv_snippet)
+		{
+			$props = propUpdate($properties,$dbv_snippet->properties);
+			if (!@ $modx->db->update($f, '[+prefix+]site_snippets', "name='{$name}'"))
 			{
-				echo ng($name, $_lang['unable_install_snippet'] . " '{$filecontent}' " . $_lang['not_found']);
+				$errors += 1;
+				showError();
+				return;
 			}
-			else
+			echo ok($name,$lang_upgraded);
+		}
+		else
+		{
+			$f['name']     = $name;
+			$f['category'] = getCreateDbCategory($tplInfo['category']);
+			if (!@ $modx->db->insert($f, '[+prefix+]site_snippets'))
 			{
-				// Create the category if it does not already exist
-				$category = getCreateDbCategory($category);
-				
-				$snippet = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($filecontent)));
-				// remove installer docblock
-				$snippet = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
-				$snippet = $modx->db->escape($snippet);
-				$rs = $modx->db->select('*', '[+prefix+]site_snippets', "name='{$name}'");
-				if ($modx->db->getRecordCount($rs))
-				{
-					$row = $modx->db->getRow($rs);
-					$props = propUpdate($properties,$row['properties']);
-					$f = array('snippet'=>$snippet,'description'=>$desc,'properties'=>$props);
-					if (!@ $modx->db->update($f, '[+prefix+]site_snippets', "name='{$name}'"))
-					{
-						echo '<p>' . $modx->db->getLastError() . '</p>';
-						return;
-					}
-					echo ok($name,$_lang['upgraded']);
-				}
-				else
-				{
-					$f = array();
-					$f['name']        = $name;
-					$f['description'] = $desc;
-					$f['snippet']     = $snippet;
-					$f['properties']  = $properties;
-					$f['category']    = $category;
-					if (!@ $modx->db->insert($f, '[+prefix+]site_snippets'))
-					{
-						echo '<p>' . $modx->db->getLastError() . '</p>';
-						return;
-					}
-					echo ok($name,$_lang['installed']);
-				}
+				$errors += 1;
+				showError();
+				return;
 			}
+			echo ok($name,$lang_installed);
 		}
 	}
 }
@@ -602,25 +566,25 @@ if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 // install data
 if ($installmode == 0 && $installdata)
 {
-	echo '<p>' . $_lang['installing_demo_site'];
+	echo "<p>{$lang_installing_demo_site}";
 	$sqlParser->process('new_sample.sql');
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;
-		echo '<span class="notok"><b>' . $_lang['database_alerts'] . '</b></span></p>';
-		echo '<p>' . $_lang['setup_couldnt_install'] . '</p>';
-		echo '<p>' . $_lang['installation_error_occured'] . '<br /><br />';
-		for ($i = 0; $i < count($sqlParser->mysqlErrors); $i++)
+		printf('<span class="notok"><b>%s</b></span></p>', $lang_database_alerts);
+		echo "<p>{$lang_setup_couldnt_install}</p>";
+		echo "<p>{$lang_installation_error_occured}<br /><br />";
+		foreach($sqlParser->mysqlErrors as $info)
 		{
-			echo '<em>' . $sqlParser->mysqlErrors[$i]["error"] . '</em>' . $_lang['during_execution_of_sql'] . '<span class="mono">' . strip_tags($sqlParser->mysqlErrors[$i]["sql"]) . '</span>.<hr />';
+			printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />',$info['error'],$lang_during_execution_of_sql,strip_tags($info['sql']));
 		}
 		echo '</p>';
-		echo '<p>' . $_lang['some_tables_not_updated'] . '</p>';
+		echo "<p>{$lang_some_tables_not_updated}</p>";
 		return;
 	}
 	else
 	{
-		echo '<span class="ok">'.$_lang['ok'].'</span></p>';
+		printf('<span class="ok">%s</span></p>', $lang_ok);
 	}
 }
 
@@ -655,19 +619,24 @@ if (is_file("{$cache_path}installProc.inc.php"))
 	unlink("{$cache_path}installProc.inc.php");
 }
 // setup completed!
-echo "<p><b>" . $_lang['installation_successful'] . "</b></p>";
-echo '<p>' . $_lang['to_log_into_content_manager'] . '</p>';
+echo "<p><b>{$lang_installation_successful}</b></p>";
+echo "<p>{$lang_to_log_into_content_manager}</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
 
-if($installmode == 0) echo $_lang['installation_note'];
-else                  echo $_lang['upgrade_note'];
+if($installmode == 0) echo $lang_installation_note;
+else                  echo $lang_upgrade_note;
 
 echo '</p>';
 
 function ok($name,$msg) {
-	return "<p>&nbsp;&nbsp;{$name}: " . '<span class="ok">' . $msg . "</span></p>\n";
+	return sprintf('<p>&nbsp;&nbsp;%s: <span class="ok">%s</span></p>', $name, $msg) . "\n";
 }
 
 function ng($name,$msg) {
-	return "<p>&nbsp;&nbsp;{$name}: " . '<span class="notok">' . $msg . "</span></p>\n";
+	return sprintf('<p>&nbsp;&nbsp;%s: <span class="notok">%s</span></p>', $name, $msg) . "\n";
+}
+
+function showError() {
+	global $modx;
+	printf('<p>%s</p>', $modx->db->getLastError());
 }

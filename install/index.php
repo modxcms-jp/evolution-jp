@@ -11,8 +11,8 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
 require_once("{$base_path}manager/includes/version.inc.php");
-$moduleName = "MODX";
-$moduleVersion = $modx_branch.' '.$modx_version;
+$cmsName = "MODX";
+$cmsVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 
 require_once("{$base_path}manager/includes/default.config.php");

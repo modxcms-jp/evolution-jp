@@ -299,16 +299,12 @@ function getCreateDbCategory($category) {
     $category_id = 0;
     if(!empty($category)) {
         $category = $modx->db->escape($category);
-        $rs = $modx->db->select('id', '[+prefix+]categories', "category='{$category}'");
-        if(0<$modx->db->getRecordCount($rs))
+        $dbv_category = $modx->db->getObject('categories', "category='{$category}'");
+        if($dbv_category) $category_id = $dbv_category->id;
+        else
         {
-        	$row = $modx->db->getRow($rs);
-            $category_id = $row['id'];
-        } else {
-            $rs = $modx->db->insert(array('category'=>$category), '[+prefix+]categories');
-            if($rs) {
-                $category_id = $rs;
-            }
+            $category_id = $modx->db->insert(array('category'=>$category), '[+prefix+]categories');
+            if(!$category_id) exit('Get category id error');
         }
     }
     return $category_id;
@@ -472,7 +468,7 @@ function collectTpls($path)
 
 function ph()
 {
-	global $_lang,$moduleName,$moduleVersion,$modx_textdir,$modx_release_date;
+	global $_lang,$cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
 
 	if(isset($_SESSION['installmode'])) $installmode = $_SESSION['installmode'];
 	else                                $installmode = get_installmode();
@@ -480,7 +476,7 @@ function ph()
 	$ph['pagetitle']     = $_lang['modx_install'];
 	$ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
 	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
-	$ph['version']       = $moduleName.' '.$moduleVersion;
+	$ph['version']       = $cmsName.' '.$cmsVersion;
 	$ph['release_date']  = (($modx_textdir && $modx_textdir==='rtl') ? '&rlm;':'') . $modx_release_date;
 	$ph['footer1']       = $_lang['modx_footer1'];
 	$ph['footer2']       = $_lang['modx_footer2'];
