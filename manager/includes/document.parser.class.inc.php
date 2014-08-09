@@ -559,7 +559,7 @@ class DocumentParser {
 				header($header);
 			}
 		}
-		if($this->config['cache_type'] !=2&&strpos($this->documentOutput,'[^')!==false)
+		if($this->config['cache_type'] !=2&&strpos($this->documentOutput,'^]')!==false)
 		{
 			$this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
 		}
@@ -585,7 +585,7 @@ class DocumentParser {
 			$this->invokeEvent('OnWebPagePrerender');
 		}
 		
-		if(strpos($this->documentOutput,'[^')!==false)
+		if(strpos($this->documentOutput,'^]')!==false)
 			echo $this->mergeBenchmarkContent($this->documentOutput);
 		else
 			echo $this->documentOutput;
@@ -1466,7 +1466,7 @@ class DocumentParser {
 	
 	function mergeBenchmarkContent($content)
 	{
-		if(strpos($content,'[^')===false) return $content;
+		if(strpos($content,'^]')===false) return $content;
 		
 		$totalTime= ($this->getMicroTime() - $this->tstart);
 		$queryTime= $this->queryTime;
