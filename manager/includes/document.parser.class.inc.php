@@ -793,7 +793,6 @@ class DocumentParser {
 		$cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
 		
 		if(is_file($cache_path)) $config= include($cache_path);
-		$this->setChunkCache();
 		
 		if(!isset($config)||!$config)
 		{
@@ -819,6 +818,8 @@ class DocumentParser {
 		{
 			$this->config = $this->getSiteCache();
 		}
+		
+		if($this->config['cache_type']!=='1') $this->setChunkCache();
 		
 		// added for backwards compatibility - garry FS#104
 		$this->config['etomite_charset'] = & $this->config['modx_charset'];
@@ -1547,6 +1548,7 @@ class DocumentParser {
 			extract($params, EXTR_SKIP);
 		}
 		ob_start();
+		if(!$this->chunkCache) $this->setChunkCache();
 		$result= eval($phpcode);
 		$msg= ob_get_contents();
 		ob_end_clean();
