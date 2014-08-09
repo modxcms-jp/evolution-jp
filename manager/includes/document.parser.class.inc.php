@@ -66,6 +66,8 @@ class DocumentParser {
     {
     	if($property_name==='documentMap')
     		$this->setdocumentMap();
+    	elseif($property_name==='chunkCache')
+    		$this->setChunkCache();
     	else
     		$this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
