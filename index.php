@@ -127,7 +127,12 @@ if (!isset($database_type))
 
 if(!defined('MODX_API_MODE')) set_parser_mode();
 if (session_id() === '') startCMSSession();
-require_once("{$core_path}protect.inc.php");
+$find = false;
+foreach($_COOKIE as $v)
+{
+	if(strpos($v,']')!==false||strpos($v,'}}')!==false) $find = true;
+}
+if(!empty($_GET)||!empty($_POST)||$find) require_once("{$core_path}protect.inc.php");
 
 // initiate a new document parser
 include_once("{$core_path}document.parser.class.inc.php");
