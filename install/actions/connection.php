@@ -1,13 +1,15 @@
 <?php
 
 //back from next
-if(isset($_POST['installdata'])) $_SESSION['installdata'] = $_POST['installdata'];
-if(isset($_POST['template']))    $_SESSION['template']    = $_POST['template'];
-if(isset($_POST['tv']))          $_SESSION['tv']          = $_POST['tv'];
-if(isset($_POST['chunk']))       $_SESSION['chunk']       = $_POST['chunk'];
-if(isset($_POST['snippet']))     $_SESSION['snippet']     = $_POST['snippet'];
-if(isset($_POST['plugin']))      $_SESSION['plugin']      = $_POST['plugin'];
-if(isset($_POST['module']))      $_SESSION['module']      = $_POST['module'];
+if($prevAction==='options') {
+	$_SESSION['installdata'] = $_POST['installdata'] ? $_POST['installdata'] : '';
+	$_SESSION['template']    = $_POST['template'];
+	$_SESSION['tv']          = $_POST['tv'];
+	$_SESSION['chunk']       = $_POST['chunk'];
+	$_SESSION['snippet']     = $_POST['snippet'];
+	$_SESSION['plugin']      = $_POST['plugin'];
+	$_SESSION['module']      = $_POST['module'];
+}
 
 if(isset($_POST['installmode'])) $_SESSION['installmode'] = $_POST['installmode'];
 $installmode = $_SESSION['installmode'];

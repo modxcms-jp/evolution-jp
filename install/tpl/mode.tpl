@@ -1,4 +1,5 @@
 <form id="install" action="index.php?action=connection" method="POST">
+<input type="hidden" name="prev_action" value="mode" />
 <input type="hidden" name="installmode" value="[+installmode+]" />
 <h2>[+welcome_title+]</h2>
 <p style="margin-bottom:3em;">[+welcome_text+]</p>

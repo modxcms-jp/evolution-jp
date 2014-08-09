@@ -437,46 +437,39 @@ if ($formvPlugins!==false && !empty($formvPlugins) || $installdata)
 			}
 		}
 		
-		$name = $modx->db->escape($name);
-		$dbv_plugin = $modx->db->getObject('site_plugins', "name='{$name}' AND disabled='0'");
-		
 		$f = array();
+		$f['name']        = $name;
 		$f['description'] = $tplInfo['description'];
+		$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
 		$f['plugincode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
 		$f['properties']  = propUpdate($tplInfo['properties'],$dbv_plugin->properties);
+		$f['disabled']    = '0';
+		$f['moduleguid']  = $modx->db->escape($tplInfo['guid']);
 		$f = $modx->db->escape($f);
 		
-		$guid = $modx->db->escape($tplInfo['guid']);
-		$category = getCreateDbCategory($tplInfo['category']);
-		if($dbv_plugin)
+		$pluginId = false;
+		
+		$name = $modx->db->escape($name);
+		$dbv_plugin = $modx->db->getObject('site_plugins', "name='{$name}' AND disabled='0'");
+		if($dbv_plugin!==false && $dbv_plugin->description !== $tplInfo['description'])
 		{
-			$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
-			
-			if($dbv_plugin->description === $tplInfo['description'])
-				$rs = $modx->db->update($f, '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
-			else
+			$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+			if($rs)
 			{
-				$f['name']        = $name;
-				$f['moduleguid']  = $guid;
-				$f['disabled']    = '0';
-				$f['category']    = $category;
-				$rs = $modx->db->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
-				if($rs) $rs = $modx->db->insert($f, '[+prefix+]site_plugins');
+				$f['category']  = $modx->db->escape($dbv_plugin->category);
+				$pluginId = $modx->db->insert($f, '[+prefix+]site_plugins');
 			}
-			
-			if(!$rs) {
+			if(!$rs || !$pluginId)
+			{
 				$errors += 1;
 				showError();
 				return;
 			}
 			else echo ok($name,$lang_upgraded);
-			$pluginId = $dbv_plugin->id;
 		}
 		else
 		{
-			$f['name']        = $name;
-			$f['moduleguid']  = $guid;
-			$f['category']    = $category;
+			$f['category']    = getCreateDbCategory($tplInfo['category']);
 			$pluginId = $modx->db->insert($f, '[+prefix+]site_plugins');
 			if(!$pluginId) {
 				$errors += 1;
@@ -488,7 +481,7 @@ if ($formvPlugins!==false && !empty($formvPlugins) || $installdata)
 		
 		// add system events
 		$events = explode(',', $tplInfo['events']);
-		if(count($events) > 0)
+		if($pluginId && count($events) > 0)
 		{
 			// remove existing events
 			$modx->db->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");

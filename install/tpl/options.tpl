@@ -1,5 +1,5 @@
 <form id="install" action="index.php?action=summary" method="POST">
-    <input type="hidden" name="setaction" value="options" />
+<input type="hidden" name="prev_action" value="options" />
 <h2>[+optional_items+]</h2>
 <p>[+optional_items_new_note+]</p>
 [+install_sample_site+]

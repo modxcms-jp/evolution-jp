@@ -258,7 +258,7 @@ $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagre
 <form id="install" action="index.php?action=<?php echo $nextAction;?>" method="POST">
   <div>
     <input type="hidden" value="1" name="options_selected" />
-    <input type="hidden" name="setaction" value="summary" />
+    <input type="hidden" name="prev_action" value="summary" />
 </div>
 
 <h2><?php echo $_lang['agree_to_terms'];?></h2>

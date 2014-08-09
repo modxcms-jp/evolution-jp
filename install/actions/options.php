@@ -1,4 +1,8 @@
 <?php
+if(($prevAction==='connection'||$prevAction==='mode') && !isset($_SESSION['installdata']))
+	$selDefault = 'all';
+else $selDefault = false;
+
 if(isset($_POST['chkagree'])) $_SESSION['chkagree'] = $_POST['chkagree'];
 
 $installdata   = !isset($_SESSION['installdata']) ? false : $_SESSION['installdata'];
@@ -74,12 +78,14 @@ TPL;
 }
 
 function block_templates($tplTemplates,$formTemplates,$ph) {
+	global $selDefault;
+	
 	if(count($tplTemplates) === 0) return '';
 	
     $tpl = '<label><input type="checkbox" name="template[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplTemplates as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formTemplates) && in_array($i, $formTemplates)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formTemplates) && in_array($i, $formTemplates)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['templatename'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+templates+]</h3>\n" . join("\n", $_);
@@ -88,11 +94,14 @@ function block_templates($tplTemplates,$formTemplates,$ph) {
 }
 
 function block_tvs($tplTVs,$formTvs,$ph) {
+	global $selDefault;
+	
     if (count($tplTVs) === 0) return '';
+    
     $tpl = '<label><input type="checkbox" name="tv[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplTVs as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formTvs) && in_array($i, $formTvs)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formTvs) && in_array($i, $formTvs)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['name'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+tvs+]</h3>\n" . join("\n", $_);
@@ -101,12 +110,14 @@ function block_tvs($tplTVs,$formTvs,$ph) {
 }
 
 function block_chunks($tplChunks,$formChunks,$ph) {
+	global $selDefault;
+	
     if (count($tplChunks) === 0) return '';
     
 	$tpl = '<label><input type="checkbox" name="chunk[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplChunks as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formChunks) && in_array($i, $formChunks)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formChunks) && in_array($i, $formChunks)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['name'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+chunks+]</h3>\n" . join("\n", $_);
@@ -115,11 +126,14 @@ function block_chunks($tplChunks,$formChunks,$ph) {
 }
 
 function block_modules($tplModules,$formModules,$ph) {
+	global $selDefault;
+	
     if (count($tplModules) === 0) return '';
+    
 	$tpl = '<label><input type="checkbox" name="module[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplModules as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formModules) && in_array($i, $formModules)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formModules) && in_array($i, $formModules)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['name'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+modules+]</h3>\n" . join("\n", $_);
@@ -128,12 +142,14 @@ function block_modules($tplModules,$formModules,$ph) {
 }
 
 function block_plugins($tplPlugins, $formPlugins, $ph) {
+	global $selDefault;
+	
     if (count($tplPlugins) === 0) return '';
     
     $tpl = '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplPlugins as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formPlugins) && in_array($i, $formPlugins)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formPlugins) && in_array($i, $formPlugins)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['name'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+plugins+]</h3>\n" . join("\n", $_);
@@ -142,12 +158,14 @@ function block_plugins($tplPlugins, $formPlugins, $ph) {
 }
 
 function block_snippets($tplSnippets,$formSnippets,$ph) {
+	global $selDefault;
+	
     if (count($tplSnippets) === 0) return '';
     
     $tpl = '<label><input type="checkbox" name="snippet[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label><br />';
     foreach($tplSnippets as $i=>$v) {
         $class = is_array($v['installset']) && !in_array('sample', $v['installset']) ? 'toggle' : 'toggle demo';
-        $checked = (is_array($formSnippets) && in_array($i, $formSnippets)) ? 'checked':'';
+        $checked = ($selDefault==='all' || is_array($formSnippets) && in_array($i, $formSnippets)) ? 'checked':'';
         $_[] = sprintf($tpl, $i, $class, $checked, $v['name'], $v['description']);
     }
     if(!empty($_)) $tpl = "<h3>[+snippets+]</h3>\n" . join("\n", $_);

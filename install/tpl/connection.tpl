@@ -1,4 +1,5 @@
 <form id="install" action="index.php?action=options" method="POST">
+<input type="hidden" name="prev_action" value="connection" />
   <h2>[+connection_screen_database_info+]</h2>
   <h3>[+connection_screen_server_connection_information+]</h3>
   <p>[+connection_screen_server_connection_note+]</p>

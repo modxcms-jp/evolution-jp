@@ -19,7 +19,15 @@ require_once("{$base_path}manager/includes/default.config.php");
 $installer_path = "{$base_path}install/";
 require_once("{$installer_path}functions.php");
 install_session_start();
-//session_destroy();
+
+if(isset($_SESSION['prevAction'])) {
+	$prevAction = $_SESSION['prevAction'];
+}
+$_SESSION['prevAction'] = '';
+if(isset($_REQUEST['action'])) {
+	$_SESSION['prevAction'] = $_REQUEST['action'];
+}
+else $_SESSION['prevAction'] = 'mode';
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
