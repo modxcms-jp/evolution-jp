@@ -257,8 +257,6 @@ class DocumentParser {
 		
 		if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
 		
-		if(!$this->documentMap)   $this->setdocumentMap();
-		
 		if($this->directParse==1)
 		{
 			$_REQUEST['id'] = $id;
@@ -1548,7 +1546,7 @@ class DocumentParser {
 			extract($params, EXTR_SKIP);
 		}
 		ob_start();
-		if(!$this->chunkCache) $this->setChunkCache();
+		if(!isset($this->chunkCache)) $this->setChunkCache();
 		$result= eval($phpcode);
 		$msg= ob_get_contents();
 		ob_end_clean();
