@@ -272,8 +272,15 @@ class synccache {
 		if(empty($content)) return;
 		if(is_array($content)) {
 			$content = var_export($content, 'true');
+			if(strpos($filename,'documentMap')!==false)
+			{
+				$content = str_replace("\n", ''    , $content);
+				$content = str_replace('),', "),\n", $content);
+			}
 			$br = "\n";
 			$content = "<?php{$br}return {$content};";
+			if(strpos($filename,'documentMap')!==false)
+				$content = str_replace('return array (', "return array (\n", $content);
 		}
 		
 		$cache_path = $this->cachePath .$filename;
