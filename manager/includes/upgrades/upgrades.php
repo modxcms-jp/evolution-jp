@@ -42,6 +42,7 @@ function run_update($pre_version)
 	update_tbl_user_roles();
 	disableOldCarbonTheme();
 	disableOldFckEditor();
+	updateTopMenu();
 }
 
 function disableOldCarbonTheme() {
@@ -171,6 +172,19 @@ function delete_actionphp()
 			@unlink($modx->config['base_path'] . 'action.php');
         	$msg = "脆弱性を持つaction.phpを削除しました";
         	$modx->logEvent(0,1,$msg,$msg);
+		}
+	}
+}
+
+function updateTopMenu() {
+	global $modx;
+
+	if(isset($modx->config['topmenu_site'])) {
+		$topmenu_site = 'home,preview,refresh_site,search,resource_list,add_resource,add_weblink';
+		switch($modx->config['topmenu_site'])
+		{
+			case 'home,preview,refresh_site,search,add_resource,add_weblink':
+				$modx->regOption('topmenu_site',$topmenu_site);
 		}
 	}
 }
