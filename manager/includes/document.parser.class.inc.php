@@ -2031,6 +2031,7 @@ class DocumentParser {
 	
 	function set_childrenList()
 	{
+		if($this->childrenList) return $this->childrenList;
 		$path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.pageCache.php';
 		if(is_file($path_documentmapcache))
 		{
