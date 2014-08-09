@@ -109,6 +109,7 @@ class SubParser {
 	{
 		global $modx;
 		
+		if(!$modx->config) $modx->getSettings();
 		$evtid= intval($evtid);
 		$type = intval($type);
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
