@@ -2471,14 +2471,14 @@ class DocumentParser {
 	
 	function getConfig($name= '', $default='')
 	{
-		if(empty($this->config[$name]))
+		if(!isset($this->config[$name]))
 		{
 			if($default==='') return false;
 			else              return $default;
 		}
-		else                            return $this->config[$name];
+		else                  return $this->config[$name];
 	}
-		
+	
 	function getChunk($key)
 	{
 		if(!$this->chunkCache) $this->setChunkCache();
