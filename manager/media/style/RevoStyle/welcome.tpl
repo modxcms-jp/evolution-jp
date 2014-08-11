@@ -14,7 +14,7 @@
 			<div class="sectionBody">
                 <table>
                   <tr>
-                    <td width="120" align="right" valign="top">
+                    <td width="120" align="center" valign="top">
                         <img src='media/style/[+theme+]/images/misc/logo.png' alt='[+logo_slogan+]' />
                     </td>
                     <td valign="top">
