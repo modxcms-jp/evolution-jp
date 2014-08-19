@@ -3018,6 +3018,8 @@ class DocumentParser {
 	// Added by Raymond 20-Jan-2005
 	function tvProcessor($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
 	{
+		$modx = & $this;
+		
 		if(is_array($value))
 		{
 			if(isset($value['docid'])) $docid = $value['docid'];
