@@ -150,7 +150,9 @@ class synccache {
 		
 		// write the file
 		$cache_path = $this->cachePath . 'basicConfig.idx.php';
-		$content  = "<?php\n\$cacheRefreshTime = {$cacheRefreshTime};\n";
+		$content  = "<?php\n";
+		$content .= '$recent_update = ' . "{$_SERVER['REQUEST_TIME']};\n";
+		$content .= '$cacheRefreshTime = ' . "{$cacheRefreshTime};\n";
 		$content .= '$cache_type = ' . "{$setting['cache_type']};\n";
 		if(isset($site_sessionname) && !empty($site_sessionname))
 		{
@@ -167,6 +169,11 @@ class synccache {
 		if(isset($setting['base_url']) && !empty($setting['base_url']))
 		{
 			$content .= '$base_url = '      . "'{$setting['base_url']}';\n";
+		}
+		
+		if(isset($setting['conditional_get']) && !empty($setting['conditional_get']))
+		{
+			$content .= '$conditional_get = '. "'{$setting['conditional_get']}';\n";
 		}
 		
 		$rs = @file_put_contents($cache_path, $content, LOCK_EX);

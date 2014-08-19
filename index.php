@@ -57,6 +57,8 @@ $site_status = '1';
 if(is_file($base_path . 'assets/cache/basicConfig.idx.php'))
 {
 	include_once($base_path . 'assets/cache/basicConfig.idx.php');
+	if(isset($conditional_get)&&$conditional_get==1)
+		include_once("{$base_path}/manager/includes/conditional_get.inc.php");
 }
 if (!defined('MODX_API_MODE')&&$cache_type == 2 && count($_POST) < 1 && (time() < $cacheRefreshTime || $cacheRefreshTime==0) && $site_status!=='0') {
     session_name($site_sessionname);

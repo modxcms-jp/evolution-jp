@@ -370,6 +370,14 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang['setting_conditional_get'] ?></th>
+	<td>
+		<?php echo wrap_label($_lang['enabled'] ,form_radio('conditional_get','1',$conditional_get=='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('conditional_get','0',$conditional_get=='0'));?><br />
+		<?php echo $_lang["setting_conditional_get_desc"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang["defaultcache_title"] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('cache_default','1',$cache_default=='1'));?><br />
