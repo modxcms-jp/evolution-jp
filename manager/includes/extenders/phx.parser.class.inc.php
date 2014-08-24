@@ -478,21 +478,25 @@ class PHx {
 		if (intval($userid) < 0) { $userid = -($userid); }
 		
 		// Creates an array with all webgroups the user id is in
-		if (!array_key_exists($userid, $this->cache['mo'])) {
-			$tbl = $modx->getFullTableName('webgroup_names');
-			$tbl2 = $modx->getFullTableName('web_groups');
-			$sql = "SELECT wgn.name FROM $tbl wgn INNER JOIN $tbl2 wg ON wg.webgroup=wgn.id AND wg.webuser='{$userid}'";
+		if (!array_key_exists($userid, $this->cache['mo']))
+		{
+			$tbl_webgroup_names = $modx->getFullTableName('webgroup_names');
+			$tbl_web_groups     = $modx->getFullTableName('web_groups');
+			$sql = "SELECT wgn.name FROM {$tbl_webgroup_names} wgn INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser='{$userid}'";
 			$this->cache['mo'][$userid] = $grpNames = $modx->db->getColumn('name',$sql);
-		} else {
-			$grpNames = $this->cache['mo'][$userid];
 		}
+		else $grpNames = $this->cache['mo'][$userid];
+		
 		// Check if a supplied group matches a webgroup from the array we just created
 		foreach($groupNames as $k=>$v)
+		{
 			if(in_array(trim($v),$grpNames)) return true;
+		}
 		
 		// If we get here the above logic did not find a match, so return false
 		return false;
-	 }
+	}
+	 
 	function phxFilter($key,$value,$modifiers)
 	{
 		$modifiers = $this->splitModifiers($modifiers);
@@ -517,12 +521,12 @@ class PHx {
 	{
 		global $modx;
 		
-		$reslut = $this->toArray($modifiers);
+		$result = $this->toArray($modifiers);
 		
-		if(count($reslut) < 1) $reslut = false;
+		if(count($result) < 1) $result = false;
 		else
 		{
-			foreach($reslut as $k=>$v)
+			foreach($result as $k=>$v)
 			{
 				$safecount=20;
 				while($safecount!==0)
@@ -535,13 +539,13 @@ class PHx {
     				if(strpos($v,'[[')!==false) $v = $modx->evalSnippets($v);
     				if($v===$bt)
 					{
-						$reslut[$k] = $v;
+						$result[$k] = $v;
     					break;
     				}
 				}
 			}
 		}
-		return $reslut;
+		return $result;
 	}
 	
 	function toArray($modifiers)
