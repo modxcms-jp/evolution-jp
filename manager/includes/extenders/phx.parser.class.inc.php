@@ -504,7 +504,7 @@ class PHx {
 	{
 		global $condition;
 		if(empty($modifiers)) return;
-		//if(isset($phx) && is_object($phx))
+		
 		$condition = array();
 		foreach($modifiers as $cmd=>$opt)
 		{
@@ -517,60 +517,7 @@ class PHx {
 	{
 		global $modx;
 		
-		$reslut = array();
-		$delim = '';
-		$remain = $modifiers;
-		$scope = 'key';
-		$key   = '';
-		$value = '';
-		$safecount=0;
-		while($remain!=='' && $safecount < 3000)
-		{
-			$safecount++;
-			$bt = md5($remain);
-			$s = substr($remain,0,1);
-			$remain = substr($remain,1);
-			
-			if($scope==='key')
-			{
-				switch($s)
-				{
-				    case ':':
-				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
-				    	break;
-				    case '=':
-				    	switch($remain['0'])
-					    {
-				    	    case '"': case "'": case '`':
-				    	    	$delim = $remain['0'];
-				    	    	$remain = substr($remain,1);
-    							list($value, $remain) = explode($delim, $remain, 2);
-    							$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
-				    	    default:
-				    	    	$scope = 'value';
-				    	    	$value = '';
-				    	}
-				    	break;
-				    default:
-				    	$key .= $s;
-				}
-			}
-			else
-			{
-				switch($s)
-				{
-				    case ':':
-				    	$key=trim($key); $reslut[$key]=$value; $key=''; $value='';
-				    	$scope = 'key';
-				    	$key   = '';
-				    	break;
-				    default:
-				    	$value .= $s;
-				}
-			}
-			if($this->strlen($remain)===0 && $key!=='') $reslut[$key]=$value;
-			if(md5($remain)===$bt) break;
-		}
+		$reslut = $this->toArray($modifiers);
 		
 		if(count($reslut) < 1) $reslut = false;
 		else
@@ -581,12 +528,12 @@ class PHx {
 				while($safecount!==0)
 				{
 					$safecount--;
-					$bt = md5($v);
+					$bt = $v;
     				if(strpos($v,'[*')!==false) $v = $modx->mergeDocumentContent($v);
     				if(strpos($v,'[(')!==false) $v = $modx->mergeSettingsContent($v);
     				if(strpos($v,'{{')!==false) $v = $modx->mergeChunkContent($v);
     				if(strpos($v,'[[')!==false) $v = $modx->evalSnippets($v);
-    				if(md5($v)===$bt)
+    				if($v===$bt)
 					{
 						$reslut[$k] = $v;
     					break;
@@ -595,6 +542,60 @@ class PHx {
 			}
 		}
 		return $reslut;
+	}
+	
+	function toArray($modifiers)
+	{
+		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
+			return array($modifiers=>'');
+		
+		$result = array();
+		$remain = $modifiers;
+		$key   = '';
+		$value = null;
+		while($remain!=='')
+		{
+			$bt = $remain;
+			$char   = substr($remain,0,1);
+			$remain = substr($remain,1);
+			
+			if($char===':')
+				$value = '';
+			elseif($char==='=')
+			{
+		    	$nextchar = substr($remain,0,1);
+		    	$value ='';
+		    	if(in_array($nextchar, array('"', "'", '`')))
+					list($null, $value, $remain) = explode($nextchar, $remain, 3);
+		    	else
+		    	{
+	    	    	if(strpos($remain,':')!==false)
+	    	    		list($value, $remain) = explode(':', $remain, 2);
+	    	    	else
+	    			{
+	    				$value = $remain;
+	    				$remain = '';
+	    	    	}
+		    	}
+			}
+			else $key .= $char;
+			
+			if(!is_null($value))
+			{
+    	    	$key=trim($key);
+    	    	if($key!=='') $result[$key]=$value;
+    	    	
+    	    	$key   = '';
+    	    	$value = null;
+			}
+			
+			if($remain===$bt) break;
+		}
+		
+		$lastkey = trim($key);
+		if($lastkey!=='') $result[$lastkey] = '';
+		
+		return $result;
 	}
 	
 	function getDocumentObject($target='',$field='pagetitle')
