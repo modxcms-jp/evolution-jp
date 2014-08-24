@@ -71,14 +71,14 @@ function pm2email($from,$fields)
 	global $modx;
 	if($modx->config['pm2email'] == '0') return;
 	
-	extract($fields);
+	extract($fields,EXTR_PREFIX_ALL,'f');
 	
-	$msg = $message ."\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
+	$msg = $f_message ."\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
 	$msg = $modx->mergeSettingsContent($msg);
 	$params['from']     = $from['email'];
 	$params['fromname'] = $from['fullname'];
-	$params['subject']  = $subject;
-	$params['sendto']   = $modx->db->getValue($modx->db->select('email', '[+prefix+]user_attributes', "internalKey='$recipient'"));
+	$params['subject']  = $f_subject;
+	$params['sendto']   = $modx->db->getValue($modx->db->select('email', '[+prefix+]user_attributes', "internalKey='{$recipient}'"));
 	$modx->sendmail($params,$msg);
 	usleep(300000);
 }
@@ -87,10 +87,10 @@ function send_pm($fields, $from)
 {
 	global $modx;
 	
+	if($modx->config['pm2email']=='1') pm2email($from,$fields);
 	$fields['subject'] = encrypt($fields['subject']);
 	$fields['message'] = encrypt($fields['message']);
 	$rs = $modx->db->insert($fields,'[+prefix+]user_messages');
-	if($rs && $modx->config['pm2email']=='1') pm2email($from,$fields);
 }
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
