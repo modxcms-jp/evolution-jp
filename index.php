@@ -130,9 +130,13 @@ if (!isset($database_type))
 if(!defined('MODX_API_MODE')) set_parser_mode();
 if (session_id() === '') startCMSSession();
 $find = false;
-foreach($_COOKIE as $v)
+if(isset($_COOKIE)&&!empty($_COOKIE))
 {
-	if(strpos($v,']')!==false||strpos($v,'}}')!==false) $find = true;
+	foreach($_COOKIE as $v)
+	{
+		if(!is_string($v)) continue;
+		if(strpos($v,']')!==false||strpos($v,'}}')!==false) $find = true;
+	}
 }
 if(!empty($_GET)||!empty($_POST)||$find) require_once("{$core_path}protect.inc.php");
 
