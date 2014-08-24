@@ -189,7 +189,7 @@ class Qm {
 					if (isset($_POST['save'])) $save = intval($_POST['save']);
 					
 					// Get TV name
-					$tvName = strip_tags(urldecode($_GET['tvname']));
+					$tvName = strip_tags($_GET['tvname']);
 					
 					// Get TV array
 					$tv = $this->modx->getTemplateVar($tvName, '*', $docID);

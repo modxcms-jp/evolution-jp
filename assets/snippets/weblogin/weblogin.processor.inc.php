@@ -482,7 +482,7 @@ array(
 if(isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl']))
 {
 	// last accessed page
-	$targetPageId= urldecode($_REQUEST['refurl']);
+	$targetPageId= $_REQUEST['refurl'];
 	if (strpos($targetPageId, 'q=') !== false)
 	{
 		$urlPos = strpos($targetPageId, 'q=')+2;
@@ -498,7 +498,7 @@ if(isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl']))
 	}
 	else
 	{
-		$url = urldecode($_REQUEST['refurl']);
+		$url = $_REQUEST['refurl'];
 	}
 	$modx->sendRedirect($url);
 }
