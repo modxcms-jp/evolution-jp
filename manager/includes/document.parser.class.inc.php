@@ -2430,45 +2430,43 @@ class DocumentParser {
 		
 		$replace= array ();
 		$matches = $this->getTagsFromContent($content,'[~','~]');
-		if($matches)
+		if(!$matches) return $content;
+		
+		$i= 0;
+		foreach($matches['1'] as $key)
 		{
-			$i= 0;
-			foreach($matches['1'] as $key)
-			{
-				$key_org = $key;
-				$key = trim($key);
-				$key = $this->mergeDocumentContent($key);
-				$key = $this->mergeSettingsContent($key);
-				$key = $this->mergeChunkContent($key);
-				$key = $this->evalSnippets($key);
-				
-				if(preg_match('/^[0-9]+$/',$key))
-				{
-					$id = $key;
-					if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
-					{
-						$id = $this->referenceListing[$id];
-					}
-					$replace[$i] = $this->makeUrl($id,'','','rel');
-					if(!$replace[$i])
-					{
-						$ph['linktag']     = "[~{$key_org}~]";
-						$ph['request_uri'] = $this->decoded_request_uri;
-						$ph['docid']       = $this->documentIdentifier;
-						$tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>';
-						$tpl = $this->parseText($tpl,$ph);
-						$this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
-					}
-				}
-				else
-				{
-					$replace[$i] = $key;
-				}
-				$i++;
-			}
+			$key_org = $key;
+			$key = trim($key);
+			$key = $this->mergeDocumentContent($key);
+			$key = $this->mergeSettingsContent($key);
+			$key = $this->mergeChunkContent($key);
+			$key = $this->evalSnippets($key);
 			
-			$content= str_replace($matches['0'], $replace, $content);
+			if(preg_match('/^[0-9]+$/',$key))
+			{
+				$id = $key;
+				if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
+				{
+					$id = $this->referenceListing[$id];
+				}
+				$replace[$i] = $this->makeUrl($id,'','','rel');
+				if(!$replace[$i])
+				{
+					$ph['linktag']     = "[~{$key_org}~]";
+					$ph['request_uri'] = $this->decoded_request_uri;
+					$ph['docid']       = $this->documentIdentifier;
+					$tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>';
+					$tpl = $this->parseText($tpl,$ph);
+					$this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
+				}
+			}
+			else
+			{
+				$replace[$i] = $key;
+			}
+			$i++;
 		}
+		$content = str_replace($matches['0'], $replace, $content);
 		return $content;
 	}
 	
