@@ -554,50 +554,47 @@ class PHx {
 			return array($modifiers=>'');
 		
 		$result = array();
-		$remain = $modifiers;
+		$_tmp = $modifiers;
 		$key   = '';
 		$value = null;
-		while($remain!=='')
+		while($_tmp!=='')
 		{
-			$bt = $remain;
-			$char   = substr($remain,0,1);
-			$remain = substr($remain,1);
+			$bt = $_tmp;
+			$char = substr($_tmp,0,1);
+			$_tmp = substr($_tmp,1);
 			
-			if($char===':')
-				$value = '';
-			elseif($char==='=')
+			if($char==='=')
 			{
-		    	$nextchar = substr($remain,0,1);
-		    	$value ='';
+		    	$nextchar = substr($_tmp,0,1);
 		    	if(in_array($nextchar, array('"', "'", '`')))
-					list($null, $value, $remain) = explode($nextchar, $remain, 3);
+					list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
+		    	elseif(strpos($_tmp,':')!==false)
+		    		list($value, $_tmp)        = explode(':', $_tmp, 2);
 		    	else
-		    	{
-	    	    	if(strpos($remain,':')!==false)
-	    	    		list($value, $remain) = explode(':', $remain, 2);
-	    	    	else
-	    			{
-	    				$value = $remain;
-	    				$remain = '';
-	    	    	}
-		    	}
+    			{
+    				$value = $_tmp;
+    				$_tmp = '';
+    	    	}
 			}
-			else $key .= $char;
+			elseif($char===':') $value = '';
+			else                $key .= $char;
 			
 			if(!is_null($value))
 			{
     	    	$key=trim($key);
-    	    	if($key!=='') $result[$key]=$value;
+    	    	$result[$key]=$value;
     	    	
     	    	$key   = '';
     	    	$value = null;
 			}
 			
-			if($remain===$bt) break;
+			if($_tmp===$bt)
+			{
+				$key = trim($key);
+				if($key!=='') $result[$key] = '';
+				break;
+			}
 		}
-		
-		$lastkey = trim($key);
-		if($lastkey!=='') $result[$lastkey] = '';
 		
 		return $result;
 	}
