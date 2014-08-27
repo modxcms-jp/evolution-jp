@@ -179,7 +179,8 @@ class TopicPath
 			$ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
 			
-			if($i===$c-1)  $topics[$i] = $this->parseText($tpl['current_topic'],$ph);
+			if($i===$c-1&&$doc['id']==$modx->documentIdentifier)
+				           $topics[$i] = $this->parseText($tpl['current_topic'],$ph);
 			elseif($i===0) $topics[$i] = $this->parseText($tpl['home_topic'],$ph);
 			elseif($isRf)  $topics[$i] = $this->parseText($tpl['reference_topic'],$ph);
 			else           $topics[$i] = $this->parseText($tpl['other_topic'],$ph);
