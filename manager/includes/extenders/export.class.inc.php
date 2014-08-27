@@ -249,7 +249,7 @@ class EXPORT_SITE
 		return join("\n", $this->output);
 	}
 	
-    function curl_get_contents($url, $timeout = 30)
+    function curl_get_contents($url, $timeout = 10 )
     {
     	if(!function_exists('curl_init')) return @file_get_contents($url);
     	
