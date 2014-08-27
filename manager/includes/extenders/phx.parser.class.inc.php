@@ -582,7 +582,7 @@ class PHx {
 			if(!is_null($value))
 			{
     	    	$key=trim($key);
-    	    	$result[$key]=$value;
+    	    	if($key!=='') $result[$key]=$value;
     	    	
     	    	$key   = '';
     	    	$value = null;
