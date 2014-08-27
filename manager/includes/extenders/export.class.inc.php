@@ -131,7 +131,11 @@ class EXPORT_SITE
 			
 			$_lang = $back_lang;
 		}
-		else $src = $this->curl_get_contents(MODX_SITE_URL . "index.php?id={$docid}");
+		else
+		{
+			$url = $modx->makeUrl($docid,'','','full');
+			$src = $this->curl_get_contents($url);
+		}
 		
 		
 		if($src !== false)
