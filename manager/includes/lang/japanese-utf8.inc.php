@@ -1123,6 +1123,7 @@ $_lang["export_site.static.php4"] = '文字列を置換(置換前)';
 $_lang["export_site.static.php5"] = '文字列を置換(置換後)';
 $_lang["export_site.static.php6"] = '/manager/ ディレクトリより上の階層にはファイルを出力できません。';
 $_lang["export_site.static.php7"] = '[+rb_base_url+] ディレクトリにはファイルを出力できません。';
+$_lang["export_site_exit_maxtime"] = '[+count+]/[+total+] - 制限時間([+maxtime+]秒)を超えました。処理を中断します。';
 $_lang["files.dynamic.php1"] = 'テキストファイルを新規作成';
 $_lang["files.dynamic.php2"] = 'このディレクトリは参照できません';
 $_lang["files.dynamic.php3"] = 'ファイル名が不正です。';

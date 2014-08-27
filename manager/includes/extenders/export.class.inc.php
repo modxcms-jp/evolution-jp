@@ -10,6 +10,7 @@ class EXPORT_SITE
 	var $repl_before;
 	var $repl_after;
 	var $output = array();
+	var $maxtime;
 	
 	function EXPORT_SITE()
 	{
@@ -22,7 +23,13 @@ class EXPORT_SITE
 		$this->dirCheckCount = 0;
 		$this->generate_mode = 'crawl';
 		$this->targetDir = $modx->config['base_path'] . 'temp/export';
+		$this->maxtime = 60;
 		if(!isset($this->total)) $this->getTotal();
+	}
+	
+	function getPastTime()
+	{
+		return time() - $_SERVER['REQUEST_TIME'];
 	}
 	
 	function setExportDir($dir)
@@ -108,6 +115,14 @@ class EXPORT_SITE
 	function makeFile($docid, $filepath)
 	{
 		global  $modx,$_lang;
+		
+		$pastTime = $this->getPastTime();
+		if(!empty($this->maxtime) && $this->maxtime < $pastTime)
+		{
+			$msg = $modx->parseText($_lang['export_site_exit_maxtime'], array('count'=>$this->count, 'total'=>$this->total, 'maxtime'=>$this->maxtime));
+			exit($msg);
+		}
+		
 		$file_permission = octdec($modx->config['new_file_permissions']);
 		if($this->generate_mode==='direct')
 		{

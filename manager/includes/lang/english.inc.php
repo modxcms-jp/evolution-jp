@@ -1121,6 +1121,7 @@ $_lang["export_site.static.php4"] = 'Replace string (before)';
 $_lang["export_site.static.php5"] = 'Replace string (after)';
 $_lang["export_site.static.php6"] = 'Target';
 $_lang["export_site.static.php7"] = 'Files cannot be outputted to [+rb_base_url+]';
+$_lang["export_site_exit_maxtime"] = '[+count+]/[+total+] - Over maxtime([+maxtime+] sec) exit';
 $_lang["files.dynamic.php1"] = 'create text file';
 $_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
 $_lang["files.dynamic.php3"] = 'There is a problem in a file name.';

@@ -6,11 +6,7 @@ if(!$modx->hasPermission('export_static'))
 	$e->dumpError();
 }
 
-$maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
-@set_time_limit($maxtime);
-
 $modx->loadExtension('EXPORT_SITE');
-
 
 if(is_dir(MODX_BASE_PATH . 'temp'))       $export_dir = MODX_BASE_PATH . 'temp/export';
 elseif(is_dir(MODX_BASE_PATH . 'assets')) $export_dir = MODX_BASE_PATH . 'assets/export';
@@ -22,8 +18,11 @@ elseif($modx->config['rb_base_dir'] === $export_dir . '/')
 elseif(!is_writable($export_dir))
 	return $_lang['export_site_target_unwritable'];
 
-$modx->export->generate_mode = $_POST['generate_mode'];
+$maxtime = (preg_match('@^[0-9]+$@',$_POST['maxtime'])) ? $_POST['maxtime'] : 60;
+//@set_time_limit($maxtime);
 
+$modx->export->maxtime       = $maxtime;
+$modx->export->generate_mode = $_POST['generate_mode'];
 $modx->export->setExportDir($export_dir);
 $modx->export->removeDirectoryAll($export_dir);
 
