@@ -261,6 +261,16 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         $result = curl_exec($ch);
+        if(!$result)
+    	{
+    		$i = 0;
+    		while($i<3)
+        	{
+        		sleep(1);
+        		$result = curl_exec($ch);
+        		$i++;
+    		}
+        }
         curl_close($ch);
         return $result;
     }
