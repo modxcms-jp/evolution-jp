@@ -786,6 +786,12 @@ class ManagerAPI {
 	{
 		global $modx;
 		
+		if(!$id)
+		{
+			if($_REQUEST['pid']) $id = $_REQUEST['pid'];
+			else return true;
+		}
+		
 		if(!isset($modx->config['allowed_parents']) || empty($modx->config['allowed_parents']))
 			return true;
 		
