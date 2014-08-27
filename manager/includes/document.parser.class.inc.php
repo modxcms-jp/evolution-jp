@@ -1592,158 +1592,164 @@ class DocumentParser {
 		return $msg . $result;
 	}
 	
-	function evalSnippets($documentSource)
+	function evalSnippets($content)
 	{
-		if(strpos($documentSource,'[[')===false) return $documentSource;
+		if(strpos($content,'[[')===false) return $content;
 		
 		$etomite= & $this;
 		
-		$stack = $documentSource;
-		unset($documentSource);
-		
-		$passes = $this->minParserPasses;
-		
 		if(!$this->snippetCache) $this->setSnippetCache();
+		$matches = $this->getTagsFromContent($content,'[[',']]');
 		
-		for($i= 0; $i < $passes; $i++)
+		if(!$matches) return $content;
+		$i= 0;
+		$replace= array ();
+		foreach($matches['1'] as $value)
 		{
-			if($i == ($passes -1)) $bt = crc32($stack);
-			$pieces = array();
-			$pieces = explode('[[', $stack);
-			$stack = '';
-			$loop_count = 0;
-			
-			foreach($pieces as $piece)
-			{
-				if($loop_count < 1)                 $result = $piece;
-				elseif(strpos($piece,']]')===false) $result = '[[' . $piece;
-				else                                $result = $this->_get_snip_result($piece);
-				
-				$stack .= $result;
-				$loop_count++;
-			}
-			if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
-			{
-				if($bt != crc32($stack)) $passes++;
-			}
+			if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
+			$replace[$i] = $this->_get_snip_result($value);
+			$i++;
 		}
-		return $stack;
+		$content = str_replace($matches['0'], $replace, $content);
+		return $content;
 	}
 	
 	private function _get_snip_result($piece)
 	{
-		$snip_call        = $this->_split_snip_call($piece);
-		$snip_name        = $snip_call['name'];
-		$except_snip_call = $snip_call['except_snip_call'];
+		$snip_call = $this->_split_snip_call($piece);
+		$snip_name = $snip_call['name'];
 		
-		$key = $snip_call['name'];
-		if(strpos($key,':')!==false && $this->config['output_filter']==='1')
+		if(strpos($snip_name,':')!==false && $this->config['output_filter']==='1')
 		{
-			list($key,$modifiers) = explode(':', $key, 2);
-			$snip_call['name'] = $key;
+			list($snip_name,$modifiers) = explode(':', $snip_name, 2);
+			$snip_call['name'] = $snip_name;
 		}
 		else $modifiers = false;
 		
 		$snippetObject = $this->_get_snip_properties($snip_call);
-		
-		$params   = array ();
 		$this->currentSnippet = $snippetObject['name'];
 		
-		if(isset($snippetObject['properties'])) $params = $this->parseProperties($snippetObject['properties']);
-		else                                    $params = '';
 		// current params
-		if(!empty($snip_call['params'])):
-			$snip_call['params'] = ltrim($snip_call['params'], '?');
-			
-			$i = 0;
-			$limit = 50;
-			$params_stack = $snip_call['params'];
-			while(!empty($params_stack) && $i < $limit):
-				if(strpos($params_stack,'=')!==false) list($pname,$params_stack) = explode('=',$params_stack,2);
-				else {
-					$pname=$params_stack;
-					$params_stack = '';
-				}
-				$params_stack = trim($params_stack);
-				$delim = substr($params_stack, 0, 1);
-				$temp_params = array();
-				switch($delim):
-					case '`':
-					case '"':
-					case "'":
-						$params_stack = substr($params_stack,1);
-						list($pvalue,$params_stack) = explode($delim,$params_stack,2);
-						$params_stack = trim($params_stack);
-						if(substr($params_stack, 0, 2)==='//')
-						{
-							$params_stack = strstr($params_stack, "\n");
-						}
-						break;
-					default:
-						if(strpos($params_stack, '&')!==false)
-						{
-							list($pvalue,$params_stack) = explode('&',$params_stack,2);
-						}
-						else $pvalue = $params_stack;
-						$pvalue = trim($pvalue);
-						$delim = '';
-				endswitch;
-				
-				if($delim !== "'")
-				{
-					if(strpos($pvalue,'[*')!==false) $pvalue = $this->mergeDocumentContent($pvalue);
-                    if(strpos($pvalue,'[(')!==false) $pvalue = $this->mergeSettingsContent($pvalue);
-                    if(strpos($pvalue,'{{')!==false) $pvalue = $this->mergeChunkContent($pvalue);
-                    if(strpos($pvalue,'[+')!==false) $pvalue = $this->mergePlaceholderContent($pvalue);
-				}
-				
-				$pname  = str_replace('&amp;', '', $pname);
-				$pname  = trim($pname);
-				$pname  = trim($pname,'&');
-				$params[$pname] = $pvalue;
-				$params_stack = trim($params_stack);
-				if($params_stack!=='') $params_stack = '&' . ltrim($params_stack,'&');
-				$i++;
-			endwhile;
-			unset($temp_params);
-		endif;
+		$params = $this->_snipParamsToArray($snip_call['params']);
+		
+		if(isset($snippetObject['properties']))
+		{
+			$default_params = $this->parseProperties($snippetObject['properties']);
+			$params = array_merge($default_params,$params);
+		}
 		
 		$value = $this->evalSnippet($snippetObject['content'], $params);
 		if($modifiers!==false)
 		{
 			$this->loadExtension('PHx') or die('Could not load PHx class.');
-			$value = $this->phx->phxFilter($key,$value,$modifiers);
+			$value = $this->phx->phxFilter($snip_name,$value,$modifiers);
 		}
 		
 		if($this->dumpSnippets == 1)
 		{
-			$this->snipCode .= '<fieldset><legend><b>' . $snippetObject['name'] . '</b></legend><textarea style="width:60%;height:200px">' . htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']) . '</textarea></fieldset>';
+			$this->snipCode .= sprintf('<fieldset><legend><b>%s</b></legend><textarea style="width:60%;height:200px">%s</textarea></fieldset>', $snippetObject['name'], htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']));
 		}
-		return $value . $except_snip_call;
+		return $value;
+	}
+	
+	function _snipParamsToArray($string='')
+	{
+		if(empty($string)) return array();
+		
+		$_tmp = $string;
+		$_tmp = ltrim($_tmp, '?&');
+		$params = array();
+		while($_tmp!==''):
+			$bt = $_tmp;
+			$char = substr($_tmp,0,1);
+			$_tmp = substr($_tmp,1);
+			
+			if($char==='=')
+			{
+				$_tmp = trim($_tmp);
+		    	$nextchar = substr($_tmp,0,1);
+		    	if(in_array($nextchar, array('"', "'", '`')))
+				{
+					list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
+					if($nextchar !== "'")
+					{
+						if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
+						if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
+						if(strpos($value,'{{')!==false) $value = $this->mergeChunkContent($value);
+						if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
+					}
+		    	}
+		    	elseif(strpos($_tmp,'&')!==false)
+				{
+		    		list($value, $_tmp) = explode('&', $_tmp, 2);
+		    		$value = trim($value);
+		    	}
+		    	else
+    			{
+    				$value = $_tmp;
+    				$_tmp = '';
+    	    	}
+			}
+			elseif($char==='&')
+			{
+				$value = '';
+			}
+			else $key .= $char;
+			
+			if(!is_null($value))
+			{
+				if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
+				$key=trim($key);
+				$params[$key]=$value;
+				
+				$key   = '';
+				$value = null;
+
+				$_tmp = ltrim($_tmp, " ,\t");
+				if(substr($_tmp, 0, 2)==='//') $_tmp = strstr($_tmp, "\n");
+			}
+			
+			if($_tmp===$bt)
+			{
+				$key = trim($key);
+				if($key!=='') $params[$key] = '';
+				break;
+			}
+		endwhile;
+		
+		return $params;
 	}
 	
 	private function _split_snip_call($src)
 	{
 		list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
+
+		$pos['?']  = strpos($call, '?');
+		$pos['&']  = strpos($call, '&');
+		$pos['=']  = strpos($call, '=');
+		$pos['lf'] = strpos($call, "\n");
 		
-		if(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, '?') < strpos($call, "\n")):
-			list($name,$params) = explode('?',$call,2);
-		elseif(strpos($call, '?') !== false && strpos($call, "\n")!==false && strpos($call, "\n") < strpos($call, '?')):
-			list($name,$params) = explode("\n",$call,2);
-		elseif(strpos($call, '?') !== false):
-			list($name,$params) = explode('?',$call,2);
-		elseif((strpos($call, '&') !== false) && (strpos($call, '=') !== false) && (strpos($call, '?') === false)):
+		if($pos['?'] !== false)
+		{
+			if($pos['lf']!==false && $pos['?'] < $pos['lf'])
+				list($name,$params) = explode('?',$call,2);
+			elseif($pos['lf']!==false && $pos['lf'] < $pos['?'])
+				list($name,$params) = explode("\n",$call,2);
+			else
+				list($name,$params) = explode('?',$call,2);
+		}
+		elseif($pos['&'] !== false && $pos['='] !== false && $pos['?'] === false)
 			list($name,$params) = explode('&',$call,2);
-			$params = "&{$params}";
-		elseif(strpos($call, "\n") !== false):
+		elseif($pos['lf'] !== false)
 			list($name,$params) = explode("\n",$call,2);
-		else:
+		else
+		{
 			$name   = $call;
 			$params = '';
-		endif;
+		}
 		
 		$snip['name']   = trim($name);
-		$snip['params'] = $params;
+		$snip['params'] = $params = ltrim($params,"?& \t\n");
 		return $snip;
 	}
 	
