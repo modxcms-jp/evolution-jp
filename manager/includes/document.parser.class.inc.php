@@ -1186,67 +1186,67 @@ class DocumentParser {
     }
     
     function _getTagsFromContent($content, $left='[+',$right='+]') {
-    	
-		$safeCount = 0;
-		$_tmp = $content;
-		if(strpos($_tmp,']]>')!==false) $_tmp = str_replace(']]>','',$_tmp);
-		$count_left  = 0;
-		$count_right = 0;
-		$strlen_left  = strlen($left);
-		$strlen_right = strlen($right);
+        
+        $safeCount = 0;
+        $_tmp = $content;
+        if(strpos($_tmp,']]>')!==false) $_tmp = str_replace(']]>','',$_tmp);
+        $count_left  = 0;
+        $count_right = 0;
+        $strlen_left  = strlen($left);
+        $strlen_right = strlen($right);
         while(strpos($_tmp,$left)!==false)
-    	{
-    		$bt = $_tmp;
-    		
-    		$pos_left  = strpos($_tmp, $left);
-    		if($pos_left===false) break;
-    		$pos_left += $strlen_left;
-    		
-    		$pos_right = strpos($_tmp, $right);
-    		if($pos_right===false) break;
-    		
-    		$strlen_tag = $pos_right - $pos_left;
-    		if($strlen_tag <= 0) break;
-    		
-    		$fetch = substr($_tmp, $pos_left, $strlen_tag);
-    		$_tmp = substr($_tmp, $pos_right+$strlen_right);
-    		
-    		$count_left  = substr_count($fetch,$left);
-    		$count_right = substr_count($fetch,$right);
-    		
-			while($count_left > $count_right)
-			{
-				$bt2 = $fetch;
-				$fetch .= $right;
-				$pos_right = strpos($_tmp, $right);
-				if($pos_right===false) break;
-				
-				$fetch .= substr($_tmp,0,$pos_right);
-				$_tmp = substr($_tmp, $pos_right+$strlen_right);
-	    		$count_left  = substr_count($fetch,$left);
-	    		$count_right = substr_count($fetch,$right);
-	    		
-	    		if($fetch==$bt2) break;
-			}
-			
-    		$tags[] = $fetch;
-    		
-    		if($bt == $_tmp) break;
-			$safeCount++;
-			if(1000<$safeCount) exit('Fetch tags error');
+        {
+            $bt = $_tmp;
+            
+            $pos_left  = strpos($_tmp, $left);
+            if($pos_left===false) break;
+            $pos_left += $strlen_left;
+            
+            $pos_right = strpos($_tmp, $right);
+            if($pos_right===false) break;
+            
+            $strlen_tag = $pos_right - $pos_left;
+            if($strlen_tag <= 0) break;
+            
+            $fetch = substr($_tmp, $pos_left, $strlen_tag);
+            $_tmp = substr($_tmp, $pos_right+$strlen_right);
+            
+            $count_left  = substr_count($fetch,$left);
+            $count_right = substr_count($fetch,$right);
+            
+            while($count_left > $count_right)
+            {
+                $bt2 = $fetch;
+                $fetch .= $right;
+                $pos_right = strpos($_tmp, $right);
+                if($pos_right===false) break;
+                
+                $fetch .= substr($_tmp,0,$pos_right);
+                $_tmp = substr($_tmp, $pos_right+$strlen_right);
+                $count_left  = substr_count($fetch,$left);
+                $count_right = substr_count($fetch,$right);
+                
+                if($fetch==$bt2) break;
+            }
+            
+            $tags[] = $fetch;
+            
+            if($bt == $_tmp) break;
+            $safeCount++;
+            if(1000<$safeCount) exit('Fetch tags error');
         }
         if(!$tags) return array();
         
         foreach($tags as $tag)
         {
-        	if(strpos($tag,$left)!==false)
-        	{
-        		$fetch = $this->_getTagsFromContent($tag,$left,$right);
-        		foreach($fetch as $v)
-        		{
-        			$tags[] = $v;
-        		}
-        	}
+            if(strpos($tag,$left)!==false)
+            {
+                $fetch = $this->_getTagsFromContent($tag,$left,$right);
+                foreach($fetch as $v)
+                {
+                    $tags[] = $v;
+                }
+            }
         }
         return $tags;
     }
