@@ -65,7 +65,7 @@ class TopicPath
 		}
 		$tpl = array_merge($tpl, $this->tpl);
 		
-		$docs   = $this->getDocs($modx->documentIdentifier);
+		$docs   = $this->getDocs($id);
 		$topics = $this->setTopics($docs,$tpl);
 		
 		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
