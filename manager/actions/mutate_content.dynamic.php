@@ -8,7 +8,7 @@ include_once(MODX_MANAGER_PATH . 'actions/mutate_content.functions.inc.php');
 $id = getDocId(); // New is '0'
 
 checkPermissions($id);
-checkDocLock($id);
+if($id) checkDocLock($id);
 
 global $config, $docObject;
 $config = & $modx->config;
