@@ -251,6 +251,8 @@ class EXPORT_SITE
 	
     function curl_get_contents($url, $timeout = 10 )
     {
+    	if($this->count % 200 == 0) sleep(1);
+    	
     	if(!extension_loaded('curl')) return @file_get_contents($url);
     	
         $ch = curl_init();
