@@ -259,6 +259,10 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS,3);
+        if(defined('CURLOPT_AUTOREFERER'))
+        	curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         $result = curl_exec($ch);
         if(!$result)
