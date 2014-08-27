@@ -9,8 +9,8 @@ $id=$_GET['id'];
 // duplicate template
 $tpl = $_lang['duplicate_title_string'];
 $tbl_site_templates = $modx->getFullTableName('site_templates');
-$sql = "INSERT INTO {$tbl_site_templates} (templatename, description, content, category)
-		SELECT REPLACE('{$tpl}','[+title+]',templatename) AS 'templatename', description, content, category
+$sql = "INSERT INTO {$tbl_site_templates} (templatename, description, content, category, parent)
+		SELECT REPLACE('{$tpl}','[+title+]',templatename) AS 'templatename', description, content, category, parent
 		FROM {$tbl_site_templates} WHERE id={$id}";
 $rs = $modx->db->query($sql);
 
