@@ -954,6 +954,7 @@ a.hometblink:hover {
 	position: fixed;
 	bottom:0;
 	width: 200%;
+	top:43px;
 	left: 0;
 	border-top: 1px solid #888;
 	border-bottom: 1px solid #eee;
@@ -983,7 +984,7 @@ a.hometblink:hover {
 }
 #nav li.active ul.subnav,
 #nav li.active ul.subnav a {
-	background: #444444;
+	background-color: #626262;
 	background:-moz-linear-gradient(#626262, #444444);
 	background:-webkit-gradient(linear, 0 0, 0 100%, from(#626262), to(#444444));
 	background:-o-linear-gradient(#626262, #444444);
