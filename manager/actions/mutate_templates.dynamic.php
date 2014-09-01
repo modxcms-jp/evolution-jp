@@ -340,11 +340,12 @@ function getParentValues($parent) {
 	$parent = $modx->db->getObject('site_templates',"id='{$parent}'");
 	if(count($parent)==1 && strpos($parent->content,'[*content*]')!==false) {
 		$content = explode('[*content*]',$parent->content,2);
-		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;font-family: 'Courier New','Courier', monospace";
+		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;";
+		$prestyle = "white-space: pre-wrap;display:block;width:auto; font-family: 'Courier New','Courier', monospace;";
 		$head = convert($content[0]);
-		$head = "<div style=\"{$divstyle}border-bottom:none;\">{$head}</div>";
+		$head = sprintf('<div style="%s border-bottom:none;"><pre style="%s">%s</pre></div>',$divstyle,$prestyle,$head);
 		$foot = convert($content[1]);
-		$foot = "<div style=\"{$divstyle}border-top:none;\">{$foot}</div>";
+		$foot = sprintf('<div style="%s border-top:none;"><pre style="%s">%s</pre></div>',$divstyle,$prestyle,$foot);
 		return compact('head','foot');
 	}
 	else return array();
