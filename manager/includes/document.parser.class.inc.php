@@ -2015,7 +2015,8 @@ class DocumentParser {
             // find and merge snippets
             if(strpos($source,'[[')!==false)                   $source= $this->evalSnippets($source);
             // find and replace Placeholders (must be parsed last) - Added by Raymond
-            if(strpos($source,'[+')!==false)                   $source= $this->mergePlaceholderContent($source);
+            if(strpos($source,'[+')!==false
+             &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
             if ($this->dumpSnippets == 1)
             {
