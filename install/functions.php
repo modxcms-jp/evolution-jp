@@ -340,6 +340,7 @@ function get_installmode()
 	else
 	{
 		include_once("{$base_path}manager/includes/config.inc.php");
+		error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
 		
 		if(!isset($dbase) || empty($dbase)) $installmode = 0;
 		else
