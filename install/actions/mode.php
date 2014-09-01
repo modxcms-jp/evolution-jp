@@ -1,9 +1,9 @@
 <?php
 
 //back from next
-if(isset($_POST['adminemail']))        $_SESSION['adminemail']        = $_POST['adminemail'];
-if(isset($_POST['adminpass']))         $_SESSION['adminpass']         = $_POST['adminpass'];
-if(isset($_POST['adminpassconfirm']))  $_SESSION['adminpassconfirm']  = $_POST['adminpassconfirm'];
+if(isset($_POST['adminemail']))       $_SESSION['adminemail']       = $_POST['adminemail'];
+if(isset($_POST['adminpass']))        $_SESSION['adminpass']        = $_POST['adminpass'];
+if(isset($_POST['adminpassconfirm'])) $_SESSION['adminpassconfirm'] = $_POST['adminpassconfirm'];
 
 $ph['installmode']   = $installmode;
 $ph['installImg']    = ($installmode==0) ? 'install_new.png'                       : 'install_upg.png';
