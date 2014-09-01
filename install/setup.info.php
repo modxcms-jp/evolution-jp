@@ -9,7 +9,7 @@ $modulePath   = "{$base_path}assets/modules/";
 $templatePath = "{$base_path}assets/templates/";
 $tvPath       = "{$base_path}assets/tvs/";
 
-global $dbase,$database_server,$database_user,$database_password,$table_prefix;
+global $_lang,$dbase,$database_server,$database_user,$database_password,$table_prefix;
 $database_server   = $_SESSION['database_server'];
 $database_user     = $_SESSION['database_user'];
 $database_password = $_SESSION['database_password'];
@@ -19,6 +19,8 @@ $table_prefix      = $_SESSION['table_prefix'];
 $installmode = $_SESSION['installmode'];
 
 $conn = mysql_connect($database_server, $database_user, $database_password);
+if(!$conn) exit($_lang['alert_database_test_connection_failed']);
+
 mysql_select_db($dbase, $conn);
 mysql_query("SET CHARACTER SET 'utf8'", $conn);
 if (function_exists('mysql_set_charset'))
