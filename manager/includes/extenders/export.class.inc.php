@@ -24,6 +24,7 @@ class EXPORT_SITE
 		$this->generate_mode = 'crawl';
 		$this->targetDir = $modx->config['base_path'] . 'temp/export';
 		$this->maxtime = 60;
+		$modx->config['site_status'] = '1';
 		if(!isset($this->total)) $this->getTotal();
 	}
 	
