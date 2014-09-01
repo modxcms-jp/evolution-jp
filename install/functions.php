@@ -103,7 +103,7 @@ function compare_check($params) {
 	$sql = "SELECT * FROM `{$table}` WHERE `{$name_field}`='{$name}'";
 	if($params['category']=='plugin') $sql .= " AND `disabled`='0'";
 	$rs = mysql_query($sql);
-	if(!$rs) echo "An error occurred while executing a query: ".mysql_error();
+	if(!$rs) echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
 	else     
 	{
 		$row = mysql_fetch_assoc($rs);
@@ -220,7 +220,7 @@ function clean_up($sqlParser) {
 	$ds = mysql_query($sql);
 	if(!$ds)
 	{
-		echo "An error occurred while executing a query: ".mysql_error();
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
 	}
 	else {
 		while($r = mysql_fetch_assoc($ds)) $ids[]=$r["id"];
@@ -240,7 +240,7 @@ function clean_up($sqlParser) {
 	$ds = mysql_query($sql);
 	if(!$ds)
 	{
-		echo "An error occurred while executing a query: ".mysql_error();
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
 	}
 	else
 	{
