@@ -562,27 +562,6 @@ class ManagerAPI {
 		}
 	}
 	
-	function getNewDocID()
-	{
-		global $modx;
-		
-		switch($modx->config['docid_incrmnt_method']) {
-			case '1':
-				$from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
-				$where = "T1.id IS NULL";
-				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-				$newid = $modx->db->getValue($rs);
-				break;
-			case '2':
-				$rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
-				$newid = $modx->db->getValue($rs);
-				break;
-			default:
-				$newid = '';
-		}
-		return $newid;
-	}
-	
 	/**
 	 *	System Alert Message Queue Display file
 	 *	Written By Raymond Irving, April, 2005

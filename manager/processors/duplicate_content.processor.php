@@ -24,6 +24,8 @@ if(!$modx->checkPermissions($id,true)) {
 $newid = duplicateDocument($id);
 $modx->clearCache();
 
+$modx->loadExtension('DocAPI');
+
 // finish cloning - redirect
 $pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$newid}'"));
 if($pid==0) $header = "Location: index.php?r=1&a=3&id={$newid}";
@@ -99,7 +101,7 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	}
 
 	// Duplicate the Document
-	$new_id = $modx->manager->getNewDocID();
+	$new_id = $modx->doc->getNewDocID();
 	if(!empty($new_id)) $content['id'] = $new_id;
 	else                unset($content['id']);
 
