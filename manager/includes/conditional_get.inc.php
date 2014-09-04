@@ -15,9 +15,11 @@ $etag          = md5($last_modified);
 $HTTP_IF_MODIFIED_SINCE = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? $_SERVER['HTTP_IF_MODIFIED_SINCE'] : false;
 $HTTP_IF_NONE_MATCH     = isset($_SERVER['HTTP_IF_NONE_MATCH'])     ? $_SERVER['HTTP_IF_NONE_MATCH']     : false;
 
+header('Pragma: no-cache');
 if ($HTTP_IF_MODIFIED_SINCE == $last_modified || strpos($HTTP_IF_NONE_MATCH,$etag)!==false)
 {
 	header('HTTP/1.1 304 Not Modified');
+	header('Content-Length: 0');
 	exit;
 }
 else
