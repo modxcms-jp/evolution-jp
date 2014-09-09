@@ -193,6 +193,7 @@ class Qm {
 					
 					// Get TV array
 					$tv = $this->modx->getTemplateVar($tvName, '*', $docID);
+					$field_name = isset($tv['id']) ? $tv['id'] : $tv['name'];
 					
 					// Handle default TVs
 					switch ($tvName)
@@ -229,7 +230,7 @@ class Qm {
 								}
 							}
 							// Render TV html
-							$tvHtml = renderFormElement($tv['type'], addslashes($tv['name']), $tv['default_text'], $tv['elements'], $tv['value']);
+							$tvHtml = renderFormElement($tv['type'], addslashes($field_name), $tv['default_text'], $tv['elements'], $tv['value']);
 							
 							// Get jQuery conflict mode
 							if ($this->noconflictjq == 'true') $jq_mode = '$j';
