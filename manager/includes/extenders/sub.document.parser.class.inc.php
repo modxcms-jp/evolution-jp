@@ -1202,7 +1202,7 @@ class SubParser {
 				else
 					$field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' />';
 		} // end switch statement
-		return $field_html;
+		return trim($field_html);
 	}
 
 	function ParseIntputOptions($v)

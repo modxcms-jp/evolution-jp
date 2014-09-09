@@ -926,17 +926,20 @@ function fieldsTV() {
 		else:                                      $tvPBV = $tv['value'];
 		endif;
 		
-		if($tv['type']!=='hidden'):
+		if($tv['type']!=='hidden')
+		{
 			$ph = array();
 			$ph['caption']     = $tv['caption'];
 			$ph['description'] = $tv['description'];
 			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
 			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-			$output[] = $modx->parseText($tpl,$ph);
-		else:
+			if($ph['FormElement']!=='') $output[] = $modx->parseText($tpl,$ph);
+		}
+		else
+		{
 			$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
 			$output[] = '<tr style="display:none;"><td colspan="2">' . $formElement . "</td></tr>\n";
-		endif;
+		}
 		$i++;
 	endforeach;
 	$output[] = '</table>';
