@@ -355,6 +355,5 @@ function convert($value) {
 	global $modx;
 	$value = trim($value);
 	$value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
-	$value = str_replace(array(' ',"\n"),array('&nbsp;','<br />'),$value);
 	return $value;
 }
