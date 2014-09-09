@@ -139,7 +139,7 @@ if ($isPWDReminder==1)
 		if(!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.",array('email'=>$email));
 		else // redirect to password request notification page
 		{
-			$url = $modx->makeURL($pwdReqId);
+			$url = $modx->makeURL($pwdReqId,'','','full');
 			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
 		}
 	}
