@@ -2670,12 +2670,12 @@ class DocumentParser {
         $str = '';
         foreach($pieces as $v)
         {
-        if    ($v == '%a')             $str .= $a[$w];
-        elseif($v == '%A')             $str .= $A[$w];
-        elseif($v == '%p')             $str .= $p[$ampm];
-        elseif($v == '%P')             $str .= $P[$ampm];
-        elseif(strpos($v,'%')!==false) $str .= strftime($v, $timestamp);
-        else                           $str .= $v;
+            if    ($v == '%a')             $str .= $a[$w];
+            elseif($v == '%A')             $str .= $A[$w];
+            elseif($v == '%p')             $str .= $p[$ampm];
+            elseif($v == '%P')             $str .= $P[$ampm];
+            elseif(strpos($v,'%')!==false) $str .= strftime($v, $timestamp);
+            else                           $str .= $v;
         }
         return $str;
     }
@@ -2718,7 +2718,7 @@ class DocumentParser {
             $fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
             $sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
             
-            if ($idnames == '*') $where= 'tv.id<>0';
+            if ($idnames === '*') $where= 'tv.id<>0';
             elseif (preg_match('@^[0-9]+$@',$idnames['0']))
                 $where= "tv.id='{$idnames['0']}'";
             else
