@@ -673,7 +673,7 @@ div.treeframebody {
 	color: #000;
 	cursor: pointer;
 	width: auto;
-	margin-right:2px;
+	margin-right:0;
 }
 div.treeNode {
 	white-space: nowrap;
