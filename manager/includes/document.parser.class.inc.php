@@ -2729,7 +2729,7 @@ class DocumentParser {
                     $i++;
                 }
                 $tvnames = "'" . join("','", $idnames) . "'";
-                $where = (is_numeric($idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
+                $where = (preg_match('@^[1-9][0-9]*$@',$idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
             }
             if ($docgrp= $this->getUserDocGroups())
                 $docgrp= implode(',', $docgrp);
