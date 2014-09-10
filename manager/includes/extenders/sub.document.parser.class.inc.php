@@ -1186,8 +1186,13 @@ class SubParser {
                         '[+field_style+]'  => $field_style,
                         );
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
-                if(isset($content['id'])) $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
-                $modx->documentIdentifier = $content['id'];
+                if(isset($content['id']))
+                {
+                	if(!isset($modx->getDocumentObject))
+                		$modx->documentObject = $modx->getDocumentObject('id',$content['id']);
+                	if(!isset($modx->documentIdentifier))
+                		$modx->documentIdentifier = $content['id'];
+                }
                 $custom_output = $modx->parseDocumentSource($custom_output);
                 $field_html .= $custom_output;
                 break;
