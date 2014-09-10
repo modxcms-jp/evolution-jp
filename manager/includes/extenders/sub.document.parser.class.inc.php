@@ -1669,4 +1669,25 @@ class SubParser {
 		$key = substr($key,0,12);
 		return $key;
 	}
+
+    function setCacheRefreshTime($unixtime=0)
+    {
+    	global $modx;
+    	
+    	if($unixtime==0) return;
+    	
+    	$cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.idx.php";
+    	if(is_file($cache_path)) include_once($cache_path);
+    	else                     $modx->cacheRefreshTime = 0;
+    	
+    	if($unixtime < $cacheRefreshTime || $cacheRefreshTime == 0)
+    	{
+    		include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+    		$cache = new synccache();
+    		$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+    		$cache->cacheRefreshTime = $unixtime;
+    		$cache->publish_time_file($modx);
+    	}
+    }
+    
 }
