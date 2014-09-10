@@ -62,6 +62,7 @@ class DocumentParser {
     var $SystemAlertMsgQueque;
     var $functionCache;
     var $functionCacheBeginCount;
+    var $uaType;
 
     function __get($property_name)
     {
@@ -659,8 +660,9 @@ class DocumentParser {
                 $file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
                 if(1000 < $file_count) $this->clearCache();
             }
-            
-            $page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
+            if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
+            	mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
+            $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
             if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
             {
@@ -673,6 +675,28 @@ class DocumentParser {
         $this->invokeEvent('OnWebPageComplete');
         
         // end post processing
+    }
+    
+    function getUaType()
+    {
+		$ua = strtolower($_SERVER['HTTP_USER_AGENT']);
+		
+		if(strpos($ua, 'ipad')!==false)          $type = 'tablet';
+		elseif(strpos($ua, 'iphone')!==false)    $type = 'smartphone';
+		elseif(strpos($ua, 'android')!==false)
+		{
+			if(strpos($ua, 'mobile')!==false)    $type = 'smartphone';
+			else                                 $type = 'tablet';
+		}
+		elseif(strpos($ua, 'windows phone')!==false)
+		                                         $type = 'smartphone';
+		elseif(strpos($ua, 'docomo')!==false)    $type = 'mobile';
+		elseif(strpos($ua, 'softbank')!==false)  $type = 'mobile';
+		elseif(strpos($ua, 'up.browser')!==false)
+			                                     $type = 'mobile';
+		else                                     $type = 'default';
+		
+    	return $type;
     }
     
     function join($delim=',', $array, $prefix='')
@@ -1049,7 +1073,8 @@ class DocumentParser {
             default:
                 $filename = "docid_{$id}{$this->qs_hash}";
         }
-        $cacheFile = "{$this->config['base_path']}assets/cache/{$filename}.pageCache.php";
+        
+        $cacheFile = "{$this->config['base_path']}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
         
         if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
         
