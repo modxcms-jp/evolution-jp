@@ -60,6 +60,8 @@ class DocumentParser {
     var $pluginCache;
     var $aliasListing = array();
     var $SystemAlertMsgQueque;
+    var $functionCache;
+    var $functionCacheBeginCount;
 
     function __get($property_name)
     {
@@ -253,6 +255,13 @@ class DocumentParser {
         // get the settings
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
+        
+        $this->functionCache = array();
+        if(is_file(MODX_BASE_PATH . 'assets/cache/function.pageCache.php'))
+        {
+        	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.pageCache.php');
+        	$this->functionCacheBeginCount = count($this->functionCache);
+        }
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
@@ -653,6 +662,11 @@ class DocumentParser {
             
             $page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
+            if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
+            {
+            	$str = '<?php return ' . var_export($this->functionCache, true) . ';';
+            	file_put_contents("{$base_path}assets/cache/function.pageCache.php", $str, LOCK_EX);
+            }
         }
         
         // Useful for example to external page counters/stats packages
@@ -3344,10 +3358,16 @@ class DocumentParser {
     {
         return $this->getIdFromAlias($str);
     }
+    function setFunctionCache($cacheKey,$value)
+    {
+    	$this->functionCache[$cacheKey] = $value;
+    }
     
     function getIdFromAlias($alias)
     {
         $cacheKey = md5(__FUNCTION__ . $alias);
+        if(isset($this->functionCache[$cacheKey]))
+        	return $this->functionCache[$cacheKey];
         
         $children = array();
         
@@ -3382,6 +3402,7 @@ class DocumentParser {
             if($row) $id = $row['id'];
             else     $id = false;
         }
+        $this->functionCache[$cacheKey] = $id;
         return $id;
     }
     
