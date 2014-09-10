@@ -50,14 +50,10 @@
 
 #qm-tv-body
 {
-	font-family: Arial, Helvetica, sans-serif;
-	color: #111;
-	font-size: 1em;
 }
 
 #qm-tv-tv
 {
-	font-size: 80%;
 }
 
 .qm-save, .qm-cancel 
@@ -108,17 +104,12 @@
 
 #qm-tv-body h1 
 {
-	font-size: 120%;
-	letter-spacing: 1px;
-	color: #333333;
-	font-weight: normal;
 	margin-bottom: 20px;
 }
 
 #qm-tv-description
 {
     margin-bottom: 20px;
-    font-size: 80%;
 }
 
 .qm-tv-text input, .qm-tv-textarea textarea, .qm-tv-image input[type=text], .qm-tv-file input[type=text]

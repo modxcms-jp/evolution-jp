@@ -245,12 +245,14 @@ class Qm {
 						}
 						
 						// Page output: header
+						$theme = $this->modx->config['manager_theme'];
 						$output = <<< EOT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title></title>
+<link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}manager/media/style/{$theme}/style.css" />
 <link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}assets/plugins/qm/css/style.css" />
 <!--[if IE]><link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}assets/plugins/qm/css/ie.css" /><![endif]-->
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}assets/plugins/qm/css/ie7.css" /><![endif]-->
@@ -294,9 +296,10 @@ EOT;
 
 <div id="qm-tv-description">'.$tv['description'].'</div>
 
-<div id="qm-tv-tv" class="qm-tv-'.$tv['type'].'">
+<div class="section">
+<div id="qm-tv-tv" class="sectionBody qm-tv-'.$tv['type'].'">
 '.$tvHtml.'
-</div>
+</div></div>
 
 '.$imagePreview.'
 
