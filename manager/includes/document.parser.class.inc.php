@@ -1229,7 +1229,9 @@ class DocumentParser {
         
         $safeCount = 0;
         $_tmp = $content;
-        if(strpos($_tmp,']]>')!==false) $_tmp = str_replace(']]>','',$_tmp);
+        if(strpos($_tmp,']]>')!==false)  $_tmp = str_replace(']]>', '',$_tmp);
+        if(strpos($_tmp,';}}')!==false)  $_tmp = str_replace(';}}', '',$_tmp);
+        if(strpos($_tmp,'{{}}')!==false) $_tmp = str_replace('{{}}','',$_tmp);
         $count_left  = 0;
         $count_right = 0;
         $strlen_left  = strlen($left);
