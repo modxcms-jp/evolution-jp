@@ -62,11 +62,6 @@ else
 $form_v = $modx->manager->loadFormValues();
 if($form_v) $content = array_merge($content, $form_v);
 
-if($content['type']==='custom_tv' && $content['elements']==='')
-{
-	$content['elements'] = '<textarea tvtype="textarea" id="' . $field_id . '" name="' . $field_id . '">[+field_value+]</textarea>';
-}
-
 // get available RichText Editors
 $RTEditors = '';
 $evtOut = $modx->invokeEvent('OnRichTextEditorRegister',array('forfrontend' => 1));
