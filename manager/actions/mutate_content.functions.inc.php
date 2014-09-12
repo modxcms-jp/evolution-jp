@@ -904,7 +904,9 @@ function fieldsTV() {
 	
 	$i = 0;
 	$output = array();
+	$hidden = array();
 	$output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
+	$splitLine = renderSplit();
 	foreach($tmplVars as $tv):
 		$tvid = 'tv' . $tv['id'];
 		// Go through and display all Template Variables
@@ -915,9 +917,6 @@ function fieldsTV() {
 			else
 				$rte_field = array($tvid);
 		endif;
-		
-		// splitter
-		if (0 < $i && $i < $total) $output[] = renderSplit();
 		
 		// post back value
 		if(array_key_exists($tvid, $form_v)):
@@ -933,17 +932,25 @@ function fieldsTV() {
 			$ph['description'] = $tv['description'];
 			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
 			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-			if($ph['FormElement']!=='') $output[] = $modx->parseText($tpl,$ph);
+			if($ph['FormElement']!=='')
+			{
+				$output[] = $modx->parseText($tpl,$ph);
+				if (0 < $i && $i < $total) $output[] = $splitLine;
+			}
 		}
 		else
 		{
 			$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-			$output[] = '<tr style="display:none;"><td colspan="2">' . $formElement . "</td></tr>\n";
+			$hidden[] = $formElement;
 		}
 		$i++;
 	endforeach;
+	
+	if(!empty($output) && $output[$total+1]===$splitLine) array_pop($output);
+	
 	$output[] = '</table>';
-	return implode("\n",$output);
+	
+	return join("\n",$output) . join("\n", $hidden);
 }
 
 function fieldPublished() {
