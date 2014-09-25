@@ -916,6 +916,10 @@ class SubParser {
 	        'NONE'
 	    );
 		$binding_array = array();
+		
+		if(strpos($binding_string,'@@EVAL')===0)
+			$binding_string = substr($binding_string,1);
+		
 		foreach($BINDINGS as $cmd) {
 			if(strpos($binding_string,'@'.$cmd)===0)
 			{
