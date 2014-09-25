@@ -245,14 +245,6 @@ class DocumentParser {
         if(preg_match('@^[0-9]+$@',$id)) $this->directParse = 1;
         else                             $this->directParse = 0;
         
-        if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
-        {
-            $qs = $_GET;
-            if(isset($qs['id'])) unset($qs['id']);
-            if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
-            else $this->qs_hash = '';
-        }
-        
         // get the settings
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
@@ -264,6 +256,13 @@ class DocumentParser {
         {
         	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.pageCache.php');
         	$this->functionCacheBeginCount = count($this->functionCache);
+        }
+        if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
+        {
+            $qs = $_GET;
+            if(isset($qs['id'])) unset($qs['id']);
+            if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
+            else $this->qs_hash = '';
         }
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
