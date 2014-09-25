@@ -2646,7 +2646,6 @@ class DocumentParser {
         {
             $strTime = $dateFormat;
         }
-        if($timestamp==0) $strTime = preg_replace('@[0-9a-zA-Z]@','0',$strTime);
         return $strTime;
     }
     
