@@ -1218,6 +1218,7 @@ class DocumentParser {
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
         $_ = $this->_getTagsFromContent($content,$left,$right);
+        if(empty($_)) return array();
         foreach($_ as $v)
         {
             $tags[0][] = "{$left}{$v}{$right}";
@@ -1240,44 +1241,37 @@ class DocumentParser {
         while(strpos($_tmp,$left)!==false)
         {
             $bt = $_tmp;
+            $key = '';
             
             $pos_left  = strpos($_tmp, $left);
-            if($pos_left===false) break;
-            $pos_left += $strlen_left;
-            
             $pos_right = strpos($_tmp, $right);
-            if($pos_right===false) break;
+            if($pos_left===false || $pos_right===false) break;
             
-            $strlen_tag = $pos_right - $pos_left;
-            if($strlen_tag <= 0) break;
+            $pos_left += strlen($left);
             
-            $fetch = substr($_tmp, $pos_left, $strlen_tag);
-            $_tmp = substr($_tmp, $pos_right+$strlen_right);
+            $_tmp = substr($_tmp,$pos_left);
+            list($key, $_tmp) = explode($right, $_tmp, 2);
             
-            $count_left  = substr_count($fetch,$left);
-            $count_right = substr_count($fetch,$right);
-            
-            while($count_left > $count_right)
+            $_tmp = $_tmp;
+            $count_left = substr_count($key,$left);
+            if(0 < $count_left)
             {
-                $bt2 = $fetch;
-                $fetch .= $right;
-                $pos_right = strpos($_tmp, $right);
-                if($pos_right===false) break;
-                
-                $fetch .= substr($_tmp,0,$pos_right);
-                $_tmp = substr($_tmp, $pos_right+$strlen_right);
-                $count_left  = substr_count($fetch,$left);
-                $count_right = substr_count($fetch,$right);
-                
-                if($fetch==$bt2) break;
+                while(0<$count_left)
+                {
+                    if(strpos($_tmp,$right)===false) break;
+                    list($str, $_tmp) = explode($right, $_tmp, 2);
+                    $key .= $right . $str;
+                    $count_left--;
+                }
             }
             
-            $tags[] = $fetch;
+            $tags[] = $key;
             
             if($bt == $_tmp) break;
             $safeCount++;
             if(1000<$safeCount) exit('Fetch tags error');
         }
+        
         if(!$tags) return array();
         
         foreach($tags as $tag)
