@@ -88,7 +88,7 @@ class synccache {
 		if(isset($result) && $this->showReport==true) $this->showReport($result);
 	}
 	
-	function emptyPageCache($target)
+	function emptyPageCache($target='pageCache')
 	{
 		$filesincache = 0;
 		$deletedfilesincache = 0;
@@ -99,14 +99,15 @@ class synccache {
 		$deletedfiles = array();
 		if(is_array($files) && 0 < $filesincache)
 		{
-			while ($file = array_shift($files))
+			$cachedir_len = strlen(MODX_BASE_PATH . 'assets/cache/');
+			while ($file_path = array_shift($files))
 			{
-				$name = basename($file);
-				if (strpos($name,".{$target}")!==false && !in_array($name, $deletedfiles))
+				$name = substr($file_path,$cachedir_len);
+				if (strpos($name,'pageCache')!==false && !in_array($name, $deletedfiles))
 				{
 					$deletedfilesincache++;
 					$deletedfiles[] = $name;
-					unlink($file);
+					unlink($file_path);
 				}
 			}
 		}
