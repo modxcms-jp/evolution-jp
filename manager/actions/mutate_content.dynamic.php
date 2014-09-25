@@ -45,7 +45,7 @@ $_SESSION['itemname'] = to_safestr($docObject->pagetitle);
 
 $tpl['head'] = <<< EOT
 [+JScripts+]
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
 	<input type="hidden" name="a" value="5" />
 	<input type="hidden" name="id" value="[+id+]" />
 	<input type="hidden" name="mode" value="[+a+]" />
