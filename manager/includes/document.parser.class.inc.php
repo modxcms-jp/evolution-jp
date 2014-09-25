@@ -685,6 +685,7 @@ class DocumentParser {
 		
 		if(strpos($ua, 'ipad')!==false)          $type = 'tablet';
 		elseif(strpos($ua, 'iphone')!==false)    $type = 'smartphone';
+		elseif(strpos($ua, 'ipod')!==false)      $type = 'smartphone';
 		elseif(strpos($ua, 'android')!==false)
 		{
 			if(strpos($ua, 'mobile')!==false)    $type = 'smartphone';
@@ -696,7 +697,7 @@ class DocumentParser {
 		elseif(strpos($ua, 'softbank')!==false)  $type = 'mobile';
 		elseif(strpos($ua, 'up.browser')!==false)
 			                                     $type = 'mobile';
-		else                                     $type = 'default';
+		else                                     $type = 'pc';
 		
     	return $type;
     }
