@@ -1302,3 +1302,6 @@ $_lang["user_allowed_parents"] = 'Allowed resources';
 $_lang["user_allowed_parents_message"] = 'Set editable resource id as parent id';
 
 $_lang["view_child_resources_in_container"] = 'View children';
+
+$_lang["setting_individual_cache"] = 'Cache for each device';
+$_lang["setting_individual_cache_desc"] = 'Generate cache for each device.(PC / Smart phone / Tablet)';

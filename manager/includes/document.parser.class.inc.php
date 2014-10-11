@@ -249,7 +249,9 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
         
-        $this->uaType = $this->getUaType();
+        if($this->config['individual_cache']==1)
+            $this->uaType = $this->getUaType();
+        else $this->uaType = 'pages';
         
         $this->functionCache = array();
         if(is_file(MODX_BASE_PATH . 'assets/cache/function.pageCache.php'))

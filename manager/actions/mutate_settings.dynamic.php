@@ -370,6 +370,14 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang['setting_individual_cache'] ?></th>
+	<td>
+		<?php echo wrap_label($_lang['enabled'] ,form_radio('individual_cache','1',$individual_cache=='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('individual_cache','0',$individual_cache=='0'));?><br />
+		<?php echo $_lang["setting_individual_cache_desc"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang['setting_conditional_get'] ?></th>
 	<td>
 		<?php echo wrap_label($_lang['enabled'] ,form_radio('conditional_get','1',$conditional_get=='1'));?><br />
