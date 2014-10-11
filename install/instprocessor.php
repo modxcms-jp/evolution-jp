@@ -222,18 +222,25 @@ if ($installmode==0 && ($formvTvs!==false && !empty($formvTvs) || $installdata==
 		$dbv_tmplvar = $modx->db->getObject('site_tmplvars', "name='{$name}'");
 		if ($dbv_tmplvar)
 		{
-			if (!@ $modx->db->update($f, '[+prefix+]site_tmplvars', "id='{$dbv_tmplvar->id}'"))
+			$tmplvarid = $dbv_tmplvar->id;
+			$rs = $modx->db->update($f, '[+prefix+]site_tmplvars', "id='{$tmplvarid}'");
+			if (!$rs)
 			{
 				$errors += 1;
 				showError();
 				return;
 			}
-			else echo ok($name,$lang_upgraded);
+			else
+			{
+				$modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='{$dbv_tmplvar->id}'");
+				echo ok($name,$lang_upgraded);
+			}
 		}
 		else
 		{
 			$f['name'] = $name;
-			if (!@ $modx->db->insert($f, '[+prefix+]site_tmplvars'))
+			$tmplvarid = $modx->db->insert($f, '[+prefix+]site_tmplvars');
+			if (!$tmplvarid)
 			{
 				$errors += 1;
 				showError();
@@ -245,15 +252,6 @@ if ($installmode==0 && ($formvTvs!==false && !empty($formvTvs) || $installdata==
 		// add template assignments
 		$templatenames = explode(',', $tplInfo['template_assignments']);
 		if(empty($templatenames)) continue;
-		
-		// remove existing tv -> template assignments
-		$description = $f['description'];
-		
-		$dbv_tmplvar = $modx->db->getObject('site_tmplvars', "name='{$name}' AND description='{$description}'");
-		if($dbv_tmplvar)
-			$modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='{$dbv_tmplvar->id}'");
-		else
-			continue;
 		
 		// add tv -> template assignments
 		foreach ($templatenames as $templatename)
