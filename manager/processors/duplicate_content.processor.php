@@ -21,10 +21,10 @@ if(!$modx->checkPermissions($id,true)) {
 }
 
 // Run the duplicator
+$modx->loadExtension('DocAPI');
 $newid = duplicateDocument($id);
 $modx->clearCache();
 
-$modx->loadExtension('DocAPI');
 
 // finish cloning - redirect
 $pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$newid}'"));
