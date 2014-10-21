@@ -4,7 +4,7 @@
 	$widget_output = '';
 	$o = '';
 	/* If we are loading a file */
-	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name));
+	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name),'[+','+]',false);
 	if(substr($params['output'], 0, 5) == '@FILE')
 	{
 		$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
@@ -41,7 +41,7 @@
 	{
 	if(strpos($widget_output,'[+')!==false)
 	{
-		$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name));
+		$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name),'[+','+]',false);
 	}
 		$o = $this->parseDocumentSource($widget_output);
 	}
