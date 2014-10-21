@@ -2611,7 +2611,7 @@ class DocumentParser {
                 $replace[$i]= $value;
             }
             elseif($cleanup) $replace[$i] = '';
-            else             $replace[$i] = $matches['0'];
+            else             $replace[$i] = $matches['0'][$i];
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
