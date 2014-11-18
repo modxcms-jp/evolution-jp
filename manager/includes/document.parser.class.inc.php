@@ -1229,8 +1229,6 @@ class DocumentParser {
     }
     
     function _getTagsFromContent($content, $left='[+',$right='+]') {
-        
-        $safeCount = 0;
         $_tmp = $content;
         if(strpos($_tmp,']]>')!==false)  $_tmp = str_replace(']]>', '',$_tmp);
         if(strpos($_tmp,';}}')!==false)  $_tmp = str_replace(';}}', '',$_tmp);
@@ -1239,40 +1237,26 @@ class DocumentParser {
         $count_right = 0;
         $strlen_left  = strlen($left);
         $strlen_right = strlen($right);
-        while(strpos($_tmp,$left)!==false)
+        $key = '';
+        $c = 0;
+        while($_tmp!=='')
         {
             $bt = $_tmp;
-            $key = '';
-            
-            $pos_left  = strpos($_tmp, $left);
-            $pos_right = strpos($_tmp, $right);
-            if($pos_left===false || $pos_right===false) break;
-            
-            $pos_left += strlen($left);
-            
-            $_tmp = substr($_tmp,$pos_left);
-            list($key, $_tmp) = explode($right, $_tmp, 2);
-            
-            $_tmp = $_tmp;
-            $count_left = substr_count($key,$left);
-            if(0 < $count_left)
+            $key .= substr($_tmp,0,1);
+            $_tmp = substr($_tmp,1);
+            if(substr($key,-$strlen_right)===$right)
             {
-                while(0<$count_left)
+                if(substr_count($key,$left)===substr_count($key,$right))
                 {
-                    if(strpos($_tmp,$right)===false) break;
-                    list($str, $_tmp) = explode($right, $_tmp, 2);
-                    $key .= $right . $str;
-                    $count_left--;
+                    $key = substr($key, (strpos($key,$left) + $strlen_left) );
+                    $tags[] = substr($key,0,strlen($key)-$strlen_right);
+                    $key = '';
                 }
             }
-            
-            $tags[] = $key;
-            
-            if($bt == $_tmp) break;
-            $safeCount++;
-            if(1000<$safeCount) exit('Fetch tags error');
+            if($bt === $_tmp) break;
+            if(1000000<$c) exit('Fetch tags error');
+            $c++;
         }
-        
         if(!$tags) return array();
         
         foreach($tags as $tag)
