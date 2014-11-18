@@ -192,7 +192,7 @@ $files = array (
     "format"         => "{$ditto_base}formats/{$format}.format.inc.php"
 );
 
-if ($phx == 1 && (!isset($modx->config['output_filter']) || $modx->config['output_filter']==='0')) {
+if ($phx == 1) {
     $files["prePHx_class"]     = "{$ditto_base}classes/phx.pre.class.inc.php";
 }
 if (isset($randomize)) {
