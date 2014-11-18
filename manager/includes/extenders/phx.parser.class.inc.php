@@ -234,7 +234,7 @@ class PHx {
 			
 			#####  Resource fields
 			case 'id':
-				if($opt) $value = $this->getDocumentObject($opt,$phxkey,'direct');
+				if($opt) $value = $this->getDocumentObject($opt,$phxkey);
 				break;
 			case 'type':
 			case 'contentType':
@@ -608,9 +608,9 @@ class PHx {
 		if(preg_match('@^[1-9][0-9]*$@',$target)) $method='id';
 		else $method = 'alias';
 
-		if(!isset($this->documentObject[$target])) 
+		if(!isset($this->documentObject[$target]))
 		{
-			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,'phx');
+			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,'direct');
 		}
 		
 		if(isset($this->documentObject[$target][$field])&&is_array($this->documentObject[$target][$field]))
@@ -618,6 +618,7 @@ class PHx {
 			$a = $modx->getTemplateVarOutput($field,$target);
 			$this->documentObject[$target][$field] = $a[$field];
 		}
+		else $this->documentObject[$target][$field] = false;
 		
 		return $this->documentObject[$target][$field];
 	}

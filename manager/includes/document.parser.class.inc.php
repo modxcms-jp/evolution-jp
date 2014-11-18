@@ -1946,7 +1946,7 @@ class DocumentParser {
         $result= $this->db->select('sc.*',$from,$where,'',1);
         if ($this->db->getRecordCount($result) < 1)
         {
-            if ($this->isBackend()) return false;
+            if ($this->isBackend()||$mode==='direct') return false;
             
             // method may still be alias, while identifier is not full path alias, e.g. id not found above
             if ($method === 'alias') :
