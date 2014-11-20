@@ -1328,7 +1328,7 @@ class DocumentParser {
         $content= str_replace($matches['0'], $replace, $content);
         return $content;
     }
-        
+    
     function mergeSettingsContent($content)
     {
         if(strpos($content,'[(')===false) return $content;
@@ -2085,10 +2085,10 @@ class DocumentParser {
     function set_childrenList()
     {
         if($this->childrenList) return $this->childrenList;
-        $path_documentmapcache = MODX_BASE_PATH . 'assets/cache/documentmap.siteCache.php';
-        if(is_file($path_documentmapcache))
+        $path_childrenListCache = MODX_BASE_PATH . 'assets/cache/childrenList.siteCache.idx.php';
+        if(is_file($path_childrenListCache))
         {
-            $src = file_get_contents($path_documentmapcache);
+            $src = file_get_contents($path_childrenListCache);
             $this->childrenList = unserialize($src);
         }
         else
@@ -2104,7 +2104,7 @@ class DocumentParser {
                     $childrenList[$p][] = $c;
                 }
             }
-            file_put_contents($path_documentmapcache,serialize($childrenList), LOCK_EX);
+            file_put_contents($path_childrenListCache,serialize($childrenList), LOCK_EX);
             $this->childrenList = $childrenList;
         }
         return $this->childrenList;
