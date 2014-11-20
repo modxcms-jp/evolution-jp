@@ -268,7 +268,8 @@ class SubParser {
 			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
 			if ($text != '') $str .= $modx->parseText($codetpl,array('code'=>"Error : {$text}"));
 			if($output!='')  $str .= $modx->parseText($codetpl,array('code'=>$output));
-			$str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>"[{$nr}]"));
+			if(!isset($errortype[$nr])) $errortype[$nr] = '';
+			$str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>$errortype[$nr]."[{$nr}]"));
 			$str .= $modx->parseText($tpl,array('left'=>'File : ','right'=>$file));
 			$str .= $modx->parseText($tpl,array('left'=>'Line : ','right'=>$line));
 		}
