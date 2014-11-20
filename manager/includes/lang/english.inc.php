@@ -1305,3 +1305,6 @@ $_lang["view_child_resources_in_container"] = 'View children';
 
 $_lang["setting_individual_cache"] = 'Cache for each device';
 $_lang["setting_individual_cache_desc"] = 'Generate cache for each device.(PC / Smart phone / Tablet)';
+
+$_lang["logtitle_login_disp_warning"] = 'Warning - Can not output login page';
+$_lang["logmsg_login_disp_warning"] = 'Disable plugins';

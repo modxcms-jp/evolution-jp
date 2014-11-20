@@ -1307,3 +1307,6 @@ $_lang["view_child_resources_in_container"] = 'リソース一覧';
 
 $_lang["setting_individual_cache"] = 'デバイスごとのキャッシュ';
 $_lang["setting_individual_cache_desc"] = 'デバイスごとにキャッシュを生成します。(PC / スマートフォン / タブレット)';
+
+$_lang["logtitle_login_disp_warning"] = 'ログイン画面の表示に問題あり';
+$_lang["logmsg_login_disp_warning"] = 'プラグインを一時的に無効にしました。';

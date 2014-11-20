@@ -62,6 +62,16 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . "media/style/{$manager_theme}/");
 
 	global $tpl;
+	
+    $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
+    if(is_file($touch_path))
+    {
+        $modx->safeMode = 1;
+        $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
+    	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
+    }
+    else touch($touch_path);
+    
 	// invoke OnManagerLoginFormPrerender event
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
@@ -151,6 +161,10 @@ if(!isset($_SESSION['mgrValidated']))
 
     // merge placeholders
     $modx->output = $modx->parseDocumentSource($modx->output);
+    
+    if(is_file($touch_path) && !empty($modx->output))
+        unlink($touch_path);
+    
     $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
     $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
