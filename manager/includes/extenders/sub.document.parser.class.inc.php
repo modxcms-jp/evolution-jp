@@ -105,6 +105,13 @@ class SubParser {
 		}
 	}
 	
+	function addLog($title='no title',$msg='',$type=1)
+	{
+		if($title==='') $title = 'no title';
+		if($msg==='')   $msg   = $_SERVER['REQUEST_URI'];
+		$this->logEvent(0, $type, $msg, $title);
+	}
+	
 	function logEvent($evtid, $type, $msg, $title= 'Parser')
 	{
 		global $modx;

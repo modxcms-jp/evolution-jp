@@ -3168,6 +3168,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
     function rotate_log($target='event_log',$limit=2000, $trim=100)
         {$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
+    function addLog($title='no title',$msg='',$type=1)
+        {$this->loadExtension('SubParser');$this->sub->addLog($title,$msg,$type);}
     function logEvent($evtid, $type, $msg, $title= 'Parser')
         {$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
     function clearCache($params=array())
