@@ -204,6 +204,8 @@ class DBAPI {
 					$file = str_replace('\\','/',$v['file']);
 					$line = $v['line'];
 					$function = $v['function'];
+					if($function==='evalSnippet'&&!empty($modx->currentSnippet))
+						$function .= sprintf('(%s)',$modx->currentSnippet);
 					$bt .= "{$function} - {$file}[{$line}]<br />";
 				}
 				$modx->queryCode .= '<fieldset style="text-align:left">';

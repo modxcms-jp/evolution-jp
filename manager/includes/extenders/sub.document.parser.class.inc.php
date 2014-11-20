@@ -372,6 +372,7 @@ class SubParser {
 
 	function get_backtrace($backtrace)
 	{
+		global $modx;
 		$str = "<p><b>Backtrace</b></p>\n";
 		$str  .= '<table>';
 		$backtrace = array_reverse($backtrace);
@@ -390,7 +391,8 @@ class SubParser {
     				break;
     			default:
     				$functionName = $val['function'];
-				}
+			}
+			if($functionName==='evalSnippet'&&!empty($modx->currentSnippet)) $functionName .= sprintf('(%s)',$modx->currentSnippet);
 			$str .= "<tr><td valign=\"top\">{$key}</td>";
         	$str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
 		}
