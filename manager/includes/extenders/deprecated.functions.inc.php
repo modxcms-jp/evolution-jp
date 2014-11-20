@@ -208,4 +208,57 @@ class OldFunctions {
 			echo $html;
 		}
 	}
+    
+    function makeDocumentListing()
+    {
+        global $modx;
+        
+        $cache_path = MODX_BASE_PATH . 'assets/cache/documentListing.siteCache.idx.php';
+        if(is_file($cache_path))
+            $d = @include_once(MODX_BASE_PATH . 'assets/cache/documentListing.siteCache.idx.php');
+        if($d)
+        {
+            $modx->documentListing = $d;
+            return $modx->documentListing;
+        }
+        
+        $field = "IF(alias='', id, alias) AS alias, id, parent";
+        $rs = $modx->db->select($field, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        while ($row = $modx->db->getRow($rs))
+        {
+            $docs[$row['id']] = array('alias'=>$row['alias'],'parent'=>$row['parent']);
+        }
+        
+        foreach($docs as $docid=>$doc)
+        {
+            if ($modx->config['friendly_urls'] !== '1' || $modx->config['use_alias_path'] !== '1')
+                $key = $doc['alias'];
+            else
+            {
+                $_ = array();
+                $_[] = $doc['alias'];
+                $pid = $doc['parent'];
+                if($pid!=='0')
+                {
+                    $c = 0;
+                    while($c < 50)
+                    {
+                        if(!isset($docs[$pid])) exit('error');
+                        $doc = $docs[$pid];
+                        $_[] = $doc['alias'];
+                        $pid = $doc['parent'];
+                        if($pid==='0') break;
+                        $c++;
+                        if($c===50) exit('over');
+                    }
+                    $_ = array_reverse($_);
+                }
+                $key = join('/',$_);
+            }
+            $modx->documentListing[$key] = $docid;
+            $str = "<?php\n// Deprecated since 1.0.6\nreturn " . var_export($modx->documentListing, true) . ';';
+            file_put_contents($cache_path, $str, LOCK_EX);
+        }
+        return $modx->documentListing;
+    }
 }

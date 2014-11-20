@@ -32,7 +32,6 @@ class DocumentParser {
     var $currentSnippet;
     var $aliases;
     var $entrypage;
-    var $documentListing;
     var $dumpSnippets;
     var $snipCode;
     var $chunkCache;
@@ -68,6 +67,8 @@ class DocumentParser {
     {
         if($property_name==='documentMap')
             $this->setdocumentMap();
+        elseif($property_name==='documentListing')
+            return $this->makeDocumentListing();
         elseif($property_name==='chunkCache')
             $this->setChunkCache();
         else
