@@ -255,6 +255,7 @@ class DocumentParser {
         else $this->uaType = 'pages';
         
         $this->functionCache = array();
+        $this->functionCacheBeginCount = 0;
         if(is_file(MODX_BASE_PATH . 'assets/cache/function.pageCache.php'))
         {
         	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.pageCache.php');
@@ -668,6 +669,7 @@ class DocumentParser {
             	mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
+            
             if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
             {
             	$str = '<?php return ' . var_export($this->functionCache, true) . ';';
