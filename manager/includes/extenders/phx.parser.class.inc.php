@@ -613,10 +613,13 @@ class PHx {
 			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,'direct');
 		}
 		
-		if(isset($this->documentObject[$target][$field])&&is_array($this->documentObject[$target][$field]))
+		if(isset($this->documentObject[$target][$field]))
 		{
-			$a = $modx->getTemplateVarOutput($field,$target);
-			$this->documentObject[$target][$field] = $a[$field];
+			if(is_array($this->documentObject[$target][$field]))
+			{
+				$a = $modx->getTemplateVarOutput($field,$target);
+				$this->documentObject[$target][$field] = $a[$field];
+			}
 		}
 		else $this->documentObject[$target][$field] = false;
 		
