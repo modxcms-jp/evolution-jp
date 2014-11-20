@@ -115,7 +115,7 @@ class SubParser {
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
 		$msg= $modx->db->escape($msg);
-		$title = htmlspecialchars($title);
+		$title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
 		$title= $modx->db->escape($title);
 		if (function_exists('mb_substr'))
 		{
@@ -225,9 +225,9 @@ class SubParser {
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = $modx->decoded_request_uri;
-        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
-        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
-        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES, $modx->config['modx_charset']);
+        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $modx->config['modx_charset']);
+        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES, $modx->config['modx_charset']);
         if ($is_error) {
 	        $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
