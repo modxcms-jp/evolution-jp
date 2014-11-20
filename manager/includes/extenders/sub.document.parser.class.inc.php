@@ -262,7 +262,7 @@ class SubParser {
             E_USER_DEPRECATED   => "USER DEPRECATED"
         );
 
-        $tpl = '<tr><td valign="top">[+left+]</td><tr><td>[+right+]</td></tr>';
+        $tpl = '<tr><td valign="top">[+left+]</td><td>[+right+]</td></tr>';
 		if(!empty($nr) || !empty($file))
 		{
 			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
