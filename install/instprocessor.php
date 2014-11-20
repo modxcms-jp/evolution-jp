@@ -596,7 +596,7 @@ foreach($files as $file)
 
 // try to chmod the cache go-rwx (for suexeced php)
 @chmod("{$cache_path}siteCache.idx.php", 0600);
-@chmod("{$cache_path}basicConfig.idx.php", 0600);
+@chmod("{$cache_path}basicConfig.php", 0600);
 
 $modx->clearCache(); // always empty cache after install
 

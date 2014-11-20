@@ -1175,7 +1175,7 @@ class DocumentParser {
     
     function checkPublishStatus()
     {
-        $cache_path= "{$this->config['base_path']}assets/cache/basicConfig.idx.php";
+        $cache_path= "{$this->config['base_path']}assets/cache/basicConfig.php";
         if($this->cacheRefreshTime=='')
         {
             if(is_file($cache_path))

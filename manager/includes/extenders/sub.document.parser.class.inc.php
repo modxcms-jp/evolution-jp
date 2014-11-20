@@ -1680,7 +1680,7 @@ class SubParser {
     	
     	if($unixtime==0) return;
     	
-    	$cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.idx.php";
+    	$cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.php";
     	if(is_file($cache_path)) include_once($cache_path);
     	else                     $modx->cacheRefreshTime = 0;
     	

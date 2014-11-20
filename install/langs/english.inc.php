@@ -35,7 +35,7 @@ $_lang["cant_write_config_file_note"] = 'Once that\'s been done, you can log int
 $_lang["checkbox_select_options"] = 'Checkbox select options:';
 $_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories exist: ';
 $_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/assets/cache/siteCache.idx.php</span> file is writable: ';
-$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/basicConfig.idx.php</span> file is writable: ';
+$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/basicConfig.php</span> file is writable: ';
 $_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories are writable: ';
 $_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/manager/includes/config.inc.php</span> exists and is writable: ';
 $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/export</span> directory exists: ';

@@ -54,9 +54,9 @@ $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
-if(is_file($base_path . 'assets/cache/basicConfig.idx.php'))
+if(is_file($base_path . 'assets/cache/basicConfig.php'))
 {
-	include_once($base_path . 'assets/cache/basicConfig.idx.php');
+	include_once($base_path . 'assets/cache/basicConfig.php');
 	if(isset($conditional_get)&&$conditional_get==1)
 		include_once("{$base_path}/manager/includes/conditional_get.inc.php");
 }

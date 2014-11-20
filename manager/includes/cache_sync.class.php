@@ -150,7 +150,7 @@ class synccache {
 		}
 		
 		// write the file
-		$cache_path = $this->cachePath . 'basicConfig.idx.php';
+		$cache_path = $this->cachePath . 'basicConfig.php';
 		$content  = "<?php\n";
 		$content .= '$recent_update = ' . "{$_SERVER['REQUEST_TIME']};\n";
 		$content .= '$cacheRefreshTime = ' . "{$cacheRefreshTime};\n";

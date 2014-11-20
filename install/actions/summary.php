@@ -67,9 +67,9 @@ if (is_writable("{$base_path}assets/cache")) {
 	else $_ =  echo_ok();
 	echo p($_ . $_lang['checking_if_cache_file_writable']);
 	
-    file_put_contents("{$base_path}assets/cache/basicConfig.idx.php",'<?php $cacheRefreshTime=0; ?>');
+    file_put_contents("{$base_path}assets/cache/basicConfig.php",'<?php $cacheRefreshTime=0; ?>');
 	
-	if (!is_writable("{$base_path}assets/cache/basicConfig.idx.php")) {
+	if (!is_writable("{$base_path}assets/cache/basicConfig.php")) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
