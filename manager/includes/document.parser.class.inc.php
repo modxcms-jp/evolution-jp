@@ -459,6 +459,10 @@ class DocumentParser {
                             else break;
                         }
                     }
+                    
+                    if(substr($template->content,0,5)==='@FILE')
+                        $template->content = $this->atBindFile($template->content);
+                    
                     $this->documentContent = $template->content;
                 }
                 else
