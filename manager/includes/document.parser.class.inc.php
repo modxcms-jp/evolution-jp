@@ -1237,9 +1237,10 @@ class DocumentParser {
     
     function _getTagsFromContent($content, $left='[+',$right='+]') {
         $_tmp = $content;
-        if(strpos($_tmp,']]>')!==false)  $_tmp = str_replace(']]>', '',$_tmp);
-        if(strpos($_tmp,';}}')!==false)  $_tmp = str_replace(';}}', '',$_tmp);
-        if(strpos($_tmp,'{{}}')!==false) $_tmp = str_replace('{{}}','',$_tmp);
+        $spacer = md5('dummy');
+        if(strpos($_tmp,']]>')!==false)  $_tmp = str_replace(']]>', "]{$spacer}]>",$_tmp);
+        if(strpos($_tmp,';}}')!==false)  $_tmp = str_replace(';}}', ";}{$spacer}}",$_tmp);
+        if(strpos($_tmp,'{{}}')!==false) $_tmp = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$_tmp);
         $count_left  = 0;
         $count_right = 0;
         $strlen_left  = strlen($left);
@@ -1276,6 +1277,14 @@ class DocumentParser {
                     $tags[] = $v;
                 }
             }
+        }
+        $i = 0;
+        foreach($tags as $tag)
+        {
+            if(strpos($tag,"]{$spacer}]>")!==false)           $tags[$i] = str_replace("]{$spacer}]>", ']]>', $tag);
+            if(strpos($tag,";}{$spacer}}")!==false)           $tags[$i] = str_replace(";}{$spacer}}", ';}}', $tag);
+            if(strpos($tag,"{{$spacer}{}{$spacer}}")!==false) $tags[$i] = str_replace("{{$spacer}{}{$spacer}}", '{{}}',$tag);
+            $i++;
         }
         return $tags;
     }
