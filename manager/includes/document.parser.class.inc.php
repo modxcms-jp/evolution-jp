@@ -1687,7 +1687,7 @@ class DocumentParser {
         
         if($this->dumpSnippets == 1)
         {
-            $this->snipCode .= sprintf('<fieldset><legend><b>%s</b></legend><textarea style="width:60%;height:200px">%s</textarea></fieldset>', $snippetObject['name'], htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']));
+            $this->snipCode .= sprintf('<fieldset><legend><b>%s</b></legend><textarea style="width:60%%;height:200px">%s</textarea></fieldset>', $snippetObject['name'], htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']));
         }
         return $value;
     }
