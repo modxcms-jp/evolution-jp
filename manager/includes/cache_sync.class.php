@@ -89,7 +89,7 @@ class synccache {
 			$this->purgeCacheFiles('siteCache');
 			$this->buildCache($modx);
 		}
-		$this->publish_time_file($modx);
+		$this->publishBasicConfig();
 		if(isset($result) && $this->showReport==true) $this->showReport($result);
 	}
 	
@@ -99,12 +99,12 @@ class synccache {
 		$deletedfilesincache = 0;
 		
 		if($target==='pageCache')
-			$pattern = realpath($this->cachePath)."/*/*.pageCache.php";
+			$pattern = realpath($this->cachePath) . '/*/*.pageCache.php';
 		elseif($target==='siteCache')
-			$pattern = realpath($this->cachePath)."/*.{$target}.idx.php";
+			$pattern = realpath($this->cachePath) . "/*.{$target}.idx.php";
 		else
-			$pattern = realpath($this->cachePath)."/*.{$target}.php";
-			
+			$pattern = realpath($this->cachePath) . "/*.{$target}.php";
+		
 		$pattern = str_replace('\\','/',$pattern);
 		$files = glob($pattern,GLOB_NOCHECK);
 		$filesincache = ($files['0'] !== $pattern) ? count($files) : 0;
@@ -147,11 +147,13 @@ class synccache {
 	/****************************************************************************/
 	/*  PUBLISH TIME FILE                                                       */
 	/****************************************************************************/
-	function publish_time_file($modx)
+	function publishBasicConfig($cacheRefreshTime='')
 	{
-		global $site_sessionname;
+		global $modx,$site_sessionname;
 		
-		$cacheRefreshTime = $this->getCacheRefreshTime($modx);
+		$cacheRefreshTimeFromDB = $this->getCacheRefreshTime();
+		if(!preg_match('@^[0-9]+$]@',$cacheRefreshTime) || $cacheRefreshTimeFromDB < $cacheRefreshTime)
+			$cacheRefreshTime = $cacheRefreshTimeFromDB;
 		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
 		while($row = $modx->db->getRow($rs))
@@ -163,39 +165,35 @@ class synccache {
 		
 		// write the file
 		$cache_path = $this->cachePath . 'basicConfig.php';
-		$content  = "<?php\n";
-		$content .= '$recent_update = ' . "{$_SERVER['REQUEST_TIME']};\n";
-		$content .= '$cacheRefreshTime = ' . "{$cacheRefreshTime};\n";
-		$content .= '$cache_type = ' . "{$setting['cache_type']};\n";
+		$content = array();
+		$content[] = '<?php';
+		$content[] = sprintf('$recent_update = %s;'   , $_SERVER['REQUEST_TIME']);
+		$content[] = sprintf('$cacheRefreshTime = %s;', $cacheRefreshTime);
+		$content[] = sprintf('$cache_type = %s;',       $setting['cache_type']);
 		if(isset($site_sessionname) && !empty($site_sessionname))
-		{
-			$content .= '$site_sessionname = ' . "'{$site_sessionname}';\n";
-		}
-		$content .= '$site_status = '      . "'{$setting['site_status']}';\n";
-		$content .= '$error_reporting = ' . "'{$setting['error_reporting']}';\n";
+			$content[] = sprintf('$site_sessionname = "%s";', $site_sessionname);
+		
+		$content[] = sprintf('$site_status = %s;',      $setting['site_status']);
+		$content[] = sprintf('$error_reporting = "%s";',$setting['error_reporting']);
 		
 		if(isset($setting['site_url']) && !empty($setting['site_url']))
-		{
-			$content .= '$site_url = '      . "'{$setting['site_url']}';\n";
-		}
+			$content[] = sprintf('$site_url = "%s";',   $setting['site_url']);
 		
 		if(isset($setting['base_url']) && !empty($setting['base_url']))
-		{
-			$content .= '$base_url = '      . "'{$setting['base_url']}';\n";
-		}
+			$content[] = sprintf('$base_url = "%s";',   $setting['base_url']);
 		
 		if(isset($setting['conditional_get']) && !empty($setting['conditional_get']))
-		{
-			$content .= '$conditional_get = '. "'{$setting['conditional_get']}';\n";
-		}
+			$content[] = sprintf('$conditional_get = "%s";', $setting['conditional_get']);
 		
-		$rs = @file_put_contents($cache_path, $content, LOCK_EX);
+		$rs = @file_put_contents($cache_path, join("\n",$content), LOCK_EX);
 		
 		if (!$rs) exit("Cannot open file ({$cache_path})");
 	}
 	
-	function getCacheRefreshTime($modx)
+	function getCacheRefreshTime()
 	{
+		global $modx;
+		
 		// update publish time file
 		$timesArr = array();
 		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
