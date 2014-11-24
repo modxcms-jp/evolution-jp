@@ -521,35 +521,6 @@ class PHx {
 	{
 		global $modx;
 		
-		$result = $this->toArray($modifiers);
-		
-		if(count($result) < 1) $result = false;
-		else
-		{
-			foreach($result as $k=>$v)
-			{
-				$safecount=20;
-				while($safecount!==0)
-				{
-					$safecount--;
-					$bt = $v;
-    				if(strpos($v,'[*')!==false) $v = $modx->mergeDocumentContent($v);
-    				if(strpos($v,'[(')!==false) $v = $modx->mergeSettingsContent($v);
-    				if(strpos($v,'{{')!==false) $v = $modx->mergeChunkContent($v);
-    				if(strpos($v,'[[')!==false) $v = $modx->evalSnippets($v);
-    				if($v===$bt)
-					{
-						$result[$k] = $v;
-    					break;
-    				}
-				}
-			}
-		}
-		return $result;
-	}
-	
-	function toArray($modifiers)
-	{
 		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
 			return array($modifiers=>'');
 		
@@ -563,21 +534,18 @@ class PHx {
 			$char = substr($_tmp,0,1);
 			$_tmp = substr($_tmp,1);
 			
+			if($key===''&&$char==='=') exit('PHx parse error');
+			
 			if($char==='=')
 			{
 		    	$nextchar = substr($_tmp,0,1);
-		    	if(in_array($nextchar, array('"', "'", '`')))
-					list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
-		    	elseif(strpos($_tmp,':')!==false)
-		    		list($value, $_tmp)        = explode(':', $_tmp, 2);
-		    	else
-    			{
-    				$value = $_tmp;
-    				$_tmp = '';
-    	    	}
+				if(in_array($nextchar, array('"', "'", '`'))) {list($value,$_tmp) = $this->_delimRoop($_tmp,$nextchar);}
+		    	elseif(strpos($_tmp,':')!==false)             list($value,$_tmp) = explode(':', $_tmp, 2);
+		    	else                                          list($value,$_tmp) = array('',$_tmp);
 			}
 			elseif($char===':') $value = '';
-			else                $key .= $char;
+			else
+				$key .= $char;
 			
 			if(!is_null($value))
 			{
@@ -596,7 +564,62 @@ class PHx {
 			}
 		}
 		
+		if(empty($result)) return array();
+		
+		foreach($result as $k=>$v)
+		{
+			$result[$k] = $this->parseDocumentSource($v);
+		}
+		
 		return $result;
+	}
+	
+	
+	function _delimRoop($_tmp,$nextchar)
+	{
+		$delim = $nextchar;
+		$_tmp = substr($_tmp,1);
+		$value = '';
+		$c = 0;
+		while($c < 65000)
+		{
+			$bt = $_tmp;
+			$char = substr($_tmp,0,1);
+			$_tmp = substr($_tmp,1);
+			$c++;
+			if($char===$delim && (substr($_tmp,0,1)===':'))
+				break;
+			else
+				$value .= $char;
+			
+			if($delim===$_tmp) break;
+			elseif($bt === $_tmp)  break;
+			elseif($_tmp==='')     break;
+		}
+		if($value===$delim) $value = '';
+		if($delim==='`'||$delim==='"')
+			$value = $this->parseDocumentSource($value);
+		
+		return array($value,$_tmp);
+	}
+	
+	function parseDocumentSource($content='')
+	{
+		global $modx;
+		
+		$c=0;
+		while($c < 20)
+		{
+			$bt = $content;
+			if(strpos($content,'[*')!==false && $modx->documentIdentifier)
+				                              $content = $modx->mergeDocumentContent($content);
+			if(strpos($content,'[(')!==false) $content = $modx->mergeSettingsContent($content);
+			if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
+			if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
+			if($content===$bt) break;
+			$c++;
+		}
+		return $content;
 	}
 	
 	function getDocumentObject($target='',$field='pagetitle')
