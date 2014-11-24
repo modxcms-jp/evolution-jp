@@ -1252,8 +1252,10 @@ class DocumentParser {
             $bt = $_tmp;
             $key .= substr($_tmp,0,1);
             $_tmp = substr($_tmp,1);
-            if(substr($key,-$strlen_right)===$right)
+            $strpos_left = strpos($key,$left);
+            if($strpos_left!==false && substr($key,-$strlen_right)===$right)
             {
+                $key = substr($key,$strpos_left);
                 if(substr_count($key,$left)===substr_count($key,$right))
                 {
                     $key = substr($key, (strpos($key,$left) + $strlen_left) );
