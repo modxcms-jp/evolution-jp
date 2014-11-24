@@ -1704,4 +1704,48 @@ class SubParser {
     	}
     }
     
+    function atBindFile($content='')
+    {
+    	if($content==='')                      return '';
+    	elseif(substr($content,0,5)!=='@FILE') return $content;
+    	
+    	if(strpos($content,"\n")!==false)
+    		list($firstLine,$remain) = explode("\n", $content, 2);
+    	else
+    	{
+    		$firstLine = $content;
+    		$remain    = '';
+    	}
+    	
+    	$_ = substr($firstLine,6);
+    	$_ = trim($_);
+    	
+    	if(is_file(MODX_BASE_PATH . $_))
+    		$file_path = MODX_BASE_PATH . $_;
+    	elseif(substr($_,0,1)==='/')
+    	{
+    		if(is_file($_) && MODX_BASE_PATH===substr($_,0,strlen(MODX_BASE_PATH)))
+    			$file_path = $_;
+    		elseif(MODX_BASE_PATH . trim($file_path,'/'))
+    			$file_path = MODX_BASE_PATH . trim($file_path,'/');
+    		else $file_path = false;
+    	}
+    	elseif(is_file(MODX_BASE_PATH . "assets/templates/{$_}"))
+    		$file_path = MODX_BASE_PATH . "assets/templates/{$_}";
+    	else
+    		$file_path = false;
+    	
+    	if($file_path)
+    	{
+    		$content = file_get_contents($file_path);
+	    	if($content)
+	    	{
+	    		global $modx,$recent_update;
+	    		$filemtime = filemtime($file_path);
+	    		if($recent_update < $filemtime)
+	    			$modx->clearCache();
+	    		return $content;
+	    	}
+    	}
+    }
 }

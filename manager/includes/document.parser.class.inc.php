@@ -3277,7 +3277,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->_IIS_furl_fix();}
     function genToken()
         {$this->loadExtension('SubParser');return $this->sub->genToken();}
-
+    function atBindFile($content='')
+        {$this->loadExtension('SubParser');return $this->sub->atBindFile($content);}
     
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
