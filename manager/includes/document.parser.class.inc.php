@@ -2031,7 +2031,7 @@ class DocumentParser {
             if ($i == ($passes -1)) $bt= crc32($source);
             if ($this->dumpSnippets == 1)
             {
-                $this->snipCode .= "<fieldset><legend><b style='color: #821517;'>PARSE PASS " . ($i +1) . "</b></legend>The following snippets (if any) were parsed during this pass.<div style='width:100%' align='center'>";
+                $this->snipCode .= '<fieldset><legend><b style="color: #821517;">PARSE PASS ' . ($i +1) . '</b></legend>The following snippets (if any) were parsed during this pass.<div style="width:100%;text-align:left;">';
             }
             
             // invoke OnParseDocument event
@@ -2558,7 +2558,6 @@ class DocumentParser {
             return $this->chunkCache[$key];
         }
         else {
-            //$this->logEvent(0,'1','Not found chunk name {{'.$key.'}} '.$this->decoded_request_uri,"Parser (ResourceID:{$this->documentIdentifier})");
             return false;
         }
     }
