@@ -72,6 +72,8 @@ if ($modx->manager->hasFormValues())
 {
 	$form_v = $modx->manager->loadFormValues();
 	$formRestored = true;
+}else{
+	$form_v = $_POST;
 }
 
 if ($formRestored == true || isset ($_REQUEST['changeMode']))
