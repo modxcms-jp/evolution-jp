@@ -265,8 +265,8 @@ class ditto {
 		$placeholders = array();
 		$contentVars = array();
 		foreach ($resource as $name=>$value) {
-			$placeholders["$name"] = $value;
-			$contentVars["[*$name*]"] = $value;
+			$placeholders[$name]        = $value;
+			$contentVars["[*{$name}*]"] = $value;
 		}
 
 		// set author placeholder
