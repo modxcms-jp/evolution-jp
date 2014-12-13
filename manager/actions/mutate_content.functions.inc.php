@@ -556,7 +556,7 @@ function menuindex() {
 </table>
 EOT;
 	$ph = array();
-	$ph['menuindex'] = input_text('menuindex',$docObject->menuindex,'style="width:40px;"','5');
+	$ph['menuindex'] = input_text('menuindex',$docObject->menuindex,'style="width:62px;"','8');
 	$ph['resource_opt_menu_index_help'] = tooltip($_lang['resource_opt_menu_index_help']);
 	$ph['resource_opt_show_menu'] = $_lang['resource_opt_show_menu'];
 	$cond = ($docObject->hidemenu!=1);
