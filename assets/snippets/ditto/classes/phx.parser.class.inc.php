@@ -430,6 +430,7 @@ class PHxParser {
 				case 'ifnotempty':
 					if (!empty($output)) $output = $modifier_value[$i]; break;
 				case 'date':
+					if(!preg_match('@^[0-9]+$@',$output)) $output = strtotime($output);
 					$output = $this->mb_strftime($modifier_value[$i],0+$output); break;
 				case 'set':
 					$c = $i+1;
