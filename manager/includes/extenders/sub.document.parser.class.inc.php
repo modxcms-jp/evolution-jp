@@ -1704,34 +1704,29 @@ class SubParser {
     	}
     }
     
-    function atBindFile($content='')
+    function atBindFile($str='')
     {
-    	if($content==='')                      return '';
-    	elseif(substr($content,0,5)!=='@FILE') return $content;
+    	if($str==='')                      return '';
+    	elseif(substr($str,0,5)!=='@FILE') return $str;
     	
-    	if(strpos($content,"\n")!==false)
-    		list($firstLine,$remain) = explode("\n", $content, 2);
-    	else
+    	if(strpos($str,"\n")!==false)
+    		$str = substr($str,0,strpos("\n",$str));
+    	
+    	$str = substr($str,6);
+    	$str = trim($str);
+    	
+    	if(is_file(MODX_BASE_PATH . $str))
+    		$file_path = MODX_BASE_PATH . $str;
+    	elseif(substr($str,0,1)==='/')
     	{
-    		$firstLine = $content;
-    		$remain    = '';
-    	}
-    	
-    	$_ = substr($firstLine,6);
-    	$_ = trim($_);
-    	
-    	if(is_file(MODX_BASE_PATH . $_))
-    		$file_path = MODX_BASE_PATH . $_;
-    	elseif(substr($_,0,1)==='/')
-    	{
-    		if(is_file($_) && MODX_BASE_PATH===substr($_,0,strlen(MODX_BASE_PATH)))
-    			$file_path = $_;
+    		if(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
+    			$file_path = $str;
     		elseif(MODX_BASE_PATH . trim($file_path,'/'))
     			$file_path = MODX_BASE_PATH . trim($file_path,'/');
     		else $file_path = false;
     	}
-    	elseif(is_file(MODX_BASE_PATH . "assets/templates/{$_}"))
-    		$file_path = MODX_BASE_PATH . "assets/templates/{$_}";
+    	elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
+    		$file_path = MODX_BASE_PATH . "assets/templates/{$str}";
     	else
     		$file_path = false;
     	
