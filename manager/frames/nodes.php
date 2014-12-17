@@ -470,7 +470,6 @@ function parseNode($tpl,$param,$id) {
 	$modx->config['limit_by_container'] = '';
 	if($modx->manager->isAllowed($id)===false) return;
 	$modx->config['limit_by_container'] = $_tmp;
-    $modx->event->data->param = & $param;
     $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $param);
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
