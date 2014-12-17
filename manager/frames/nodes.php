@@ -463,22 +463,22 @@ function tplEmptyFolder() {
 
 }
 
-function parseNode($tpl,$ph,$id) {
+function parseNode($tpl,$param,$id) {
 	global $modx;
 
 	$_tmp = $modx->config['limit_by_container'];
 	$modx->config['limit_by_container'] = '';
 	if($modx->manager->isAllowed($id)===false) return;
 	$modx->config['limit_by_container'] = $_tmp;
-    $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $ph);
+    $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $param);
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
     
-	$node = $modx->parseText($tpl,$ph);
+	$node = $modx->parseText($tpl,$param);
     $node = "{$evtOut}{$node}";
 	
-    $ph['node'] = $node;
-    $evtOut = $modx->invokeEvent('OnManagerNodeRender',$ph);
+    $param['node'] = $node;
+    $evtOut = $modx->invokeEvent('OnManagerNodeRender',$param);
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
     
