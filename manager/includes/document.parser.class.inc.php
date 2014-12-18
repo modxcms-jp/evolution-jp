@@ -437,6 +437,9 @@ class DocumentParser {
             else
             {
                 $template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
+                if(substr($template->content,0,5)==='@FILE')
+                    $template->content = $this->atBindFile($template->content);
+                
                 if($template->id)
                 {
                     if(!empty($template->parent))
@@ -452,6 +455,8 @@ class DocumentParser {
                             
                             if($template->id !== $parent->id)
                             {
+                                if(substr($parent->content,0,5)==='@FILE')
+                                    $parent->content = $this->atBindFile($parent->content);
                                 $template->content = str_replace('[*content*]', $template->content, $parent->content);
                                 if(!empty($parent->parent)) $parent = $this->db->getObject('site_templates',"id='{$parent->parent}'");
                                 else break;
@@ -459,9 +464,6 @@ class DocumentParser {
                             else break;
                         }
                     }
-                    
-                    if(substr($template->content,0,5)==='@FILE')
-                        $template->content = $this->atBindFile($template->content);
                     
                     $this->documentContent = $template->content;
                 }
@@ -1490,8 +1492,9 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeConditionalTagsContent($content, $left='<!--@IF ', $right='<!--@ENDIF-->')
+    function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<!--@ENDIF-->')
     {
+        if(strpos($content,'<!--@IF ')===false) $content = str_replace('<!--@IF ',$left,$content);
         if(strpos($content,$left)===false) return $content;
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!empty($matches))
@@ -1505,6 +1508,9 @@ class DocumentParser {
                 switch(substr($cmd,0,2)) {
                     case '[*':
                     case '[[':
+                    case '[!':
+                        if(strpos($cmd,'[!')!==false)
+                            $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
                         $cmd = $this->parseDocumentSource($cmd);
                         break;
                 }
@@ -2044,7 +2050,7 @@ class DocumentParser {
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
             $source= $this->documentOutput;
             
-            if(strpos($source,'<!--@IF ')!==false)             $source= $this->mergeConditionalTagsContent($source);
+            if(strpos($source,'<!--@IF')!==false)             $source= $this->mergeConditionalTagsContent($source);
             if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
             if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
             if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
