@@ -29,13 +29,15 @@
 		$eval_str = trim(substr($params['output'], 6));
 		$widget_output = eval($eval_str);
 	}
+	elseif($value==='')
+		return;
 	else
 		$widget_output = $params['output'];
 	
 	if(is_string($widget_output)) // Except @INCLUDE
 	{
-	if(strpos($widget_output,'[+')!==false)
-		$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name),'[+','+]',false);
+		if(strpos($widget_output,'[+')!==false)
+			$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name),'[+','+]',false);
 		
 		$o = $this->parseDocumentSource($widget_output);
 	}
