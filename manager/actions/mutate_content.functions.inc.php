@@ -506,7 +506,8 @@ function get_template_options() {
 	
 	$options = '';
 	$from = '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id';
-	$rs = $modx->db->select('t.templatename, t.id, c.category', $from,'', 'c.category, t.templatename ASC');
+	$field = sprintf("t.templatename, t.id, IFNULL(c.category,'%s') AS category", $_lang['no_category']);
+	$rs = $modx->db->select($field, $from,'', 'c.category, t.templatename ASC');
 	
 	$currentCategory = '';
 	$closeOptGroup = false;
@@ -514,20 +515,18 @@ function get_template_options() {
 	while ($row = $modx->db->getRow($rs))
 	{
 		$each_category = $row['category'];
-		if($each_category == null) $each_category = $_lang["no_category"];
 		
 		if($each_category != $currentCategory)
 		{
 			if($closeOptGroup) $options .= "</optgroup>\n";
 			
-			$options .= "<optgroup label=\"{$each_category}\">\n";
+			$options .= sprintf('<optgroup label="%s">',$each_category);
 			$closeOptGroup = true;
 		}
 		else $closeOptGroup = true;
 		
 		$selected = ($row['id']==$docObject->template) ? ' selected' : '';
-		$ph = array('id'=>$row['id'],'selected'=>$selected,'templatename'=>$row['templatename']);
-		$options .= $modx->parseText('<option value="[+id+]" [+selected+]>[+templatename+]</option>',$ph);
+		$options .= sprintf('<option value="%s" %s>%s</option>',$row['id'],$selected,$row['templatename']);
 		$currentCategory = $each_category;
 	}
 	if($each_category != '') $options .= "</optgroup>\n";
