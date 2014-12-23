@@ -431,7 +431,11 @@ class PHxParser {
 					if (!empty($output)) $output = $modifier_value[$i]; break;
 				case 'date':
 					if(!preg_match('@^[0-9]+$@',$output)) $output = strtotime($output);
-					$output = $this->mb_strftime($modifier_value[$i],0+$output); break;
+					if(strpos($modifier_value[$i],'%')!==false)
+						$output = $this->mb_strftime($modifier_value[$i],0+$output);
+					else
+						$output = date($modifier_value[$i],0+$output);
+					break;
 				case 'set':
 					$c = $i+1;
 					if ($count>$c&&$modifier_cmd[$c]=='value') $output = preg_replace('~([^a-zA-Z0-9])~','',$modifier_value[$i]);
