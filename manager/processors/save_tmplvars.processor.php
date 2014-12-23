@@ -197,7 +197,7 @@ function saveDocumentAccessPermissons() {
             foreach ($docgroups as $dgkey => $value) {
                 $field['tmplvarid'] = $id;
                 $field['documentgroup'] = stripslashes($value);
-                $rs = $modx->db->insert($field, $tbl_site_tmplvar_access);
+                $rs = $modx->db->insert($field, '[+prefix+]site_tmplvar_access');
                 if (!$rs) {
                     echo "An error occured while attempting to save template variable acess permissions.";
                     exit;
