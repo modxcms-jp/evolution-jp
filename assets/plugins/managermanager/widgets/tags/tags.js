@@ -41,13 +41,12 @@ var $j = jQuery.noConflict();
 
 				// Is the tag already in the list? If so, remove it
 				var thePos = $j.inArray(newTag, oldTags);
-				var tagSpacer = (delimiter == ' ') ? '': ' ';
 				if (thePos != -1) {
 					oldTags.splice(thePos, 1);
-					$j(theEntry).val(oldTags.join(delimiter+tagSpacer));
+					$j(theEntry).val(oldTags.join(delimiter));
 				} else { // Not in the list, so add it
 					oldTags.push(newTag);
-					$j(theEntry).val(oldTags.join(delimiter+tagSpacer));
+					$j(theEntry).val(oldTags.join(delimiter));
 				}
 				addHilights();
 			};
