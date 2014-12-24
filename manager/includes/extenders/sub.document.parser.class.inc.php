@@ -830,7 +830,12 @@ class SubParser {
 	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
 	    $input = trim($input);
 	    if (substr($input, 0, 1) !== '@')
+		{
+	        if(strpos($input,'[!')!==false)
+	            $input = str_replace(array('[!','!]'),array('[[',']]'),$input);
+	        if(strpos($input,'[[')!==false) $input = $modx->evalSnippets($input);
 	        return $input;
+	    }
 	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
 	        return '@Bindings is disabled.';
 
