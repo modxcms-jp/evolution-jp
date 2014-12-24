@@ -1768,6 +1768,10 @@ class DocumentParser {
     
     private function _split_snip_call($src)
     {
+        $spacer = md5('dummy');
+        if(strpos($src,']]>')!==false)
+            $src = str_replace(']]>', "]{$spacer}]>",$src);
+        
         list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
 
         $pos['?']  = strpos($call, '?');
@@ -1795,6 +1799,8 @@ class DocumentParser {
         }
         
         $snip['name']   = trim($name);
+        if(strpos($params,$spacer)!==false)
+            $params = str_replace("]{$spacer}]>",']]>',$params);
         $snip['params'] = $params = ltrim($params,"?& \t\n");
         return $snip;
     }
