@@ -639,7 +639,9 @@ class PHx {
 			$this->documentObject[$target] = $modx->getDocumentObject($method,$target,'direct');
 		}
 		
-		if(isset($this->documentObject[$target][$field]))
+		if($this->documentObject[$target]['publishedon']==='0')
+			return '';
+		elseif(isset($this->documentObject[$target][$field]))
 		{
 			if(is_array($this->documentObject[$target][$field]))
 			{
