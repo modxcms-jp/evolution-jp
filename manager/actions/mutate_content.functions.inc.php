@@ -927,7 +927,7 @@ function fieldsTV() {
 		if($tv['type']!=='hidden')
 		{
 			$ph = array();
-			$ph['caption']     = $tv['caption'];
+			$ph['caption']     = htmlspecialchars($tv['caption'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['description'] = $tv['description'];
 			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
 			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
