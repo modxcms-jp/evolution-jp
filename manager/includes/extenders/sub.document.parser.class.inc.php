@@ -912,8 +912,9 @@ class SubParser {
         }
         // support for nested bindings
         if(is_string($output) && substr($output,0,1)==='@' && $output != $input)
-        	return $this->ProcessTVCommand($output, $name, $docid, $src);
-        else return $output;
+            $output = $this->ProcessTVCommand($output, $name, $docid, $src);
+        
+        return $output;
 	}
 
 	// separate @ cmd from params
