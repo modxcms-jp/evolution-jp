@@ -23,6 +23,13 @@ class PHx {
 		global $modx;
 		
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
+		if(preg_match('@^[1-9][/0-9]*$@',$cmd))
+		{
+			if(strpos($cmd,'/')!==false)
+				$cmd = substr($cmd,strrpos($cmd,'/')+1);
+			$opt = $cmd;
+			$cmd = 'id';
+		}
 		
 		$this->elmName = '';
 		if(!$modx->snippetCache) $modx->setSnippetCache();
