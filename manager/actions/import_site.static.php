@@ -77,9 +77,8 @@ if(!isset($_POST['import'])) {
   <tr>
 	<td nowrap="nowrap" valign="top"><b><?php echo $_lang["a95_convert_link"]; ?></b></td>
     <td>&nbsp;</td>
-    <td><input type="checkbox" id="convert_link" name="convert_link" value="on" />
-        <br />
-		<?php echo $_lang["a95_convert_link_msg"]; ?>
+    <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on" />
+		<?php echo $_lang["a95_convert_link_msg"]; ?></label>
     </td>
   </tr>
 </table>
