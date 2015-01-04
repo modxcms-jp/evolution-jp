@@ -422,51 +422,61 @@ function convertLink()
 {
 	global $modx;
 	
-	$rs = $modx->db->select('id,content','[+prefix+]site_content');
+	$rs = $modx->db->select('*','[+prefix+]site_content');
+	$site_url = $modx->config['site_url'];
+	$lenBaseUrl = strlen($modx->config['base_url']);
+	$lenSiteUrl = strlen($site_url);
+	$alias = array();
 	while($row=$modx->db->getRow($rs))
 	{
 		$id = $row['id'];
-		$array = explode('<a href=',$row['content']);
-		$c = 0;
-		foreach($array as $v)
+		$_ = explode('<a href="',$row['content']);
+		$i=0;
+		$s = array();
+		$r = array();
+		foreach($_ as $v)
 		{
-			if($v[0]==='"')
+			if(strpos($v,'"')!==false) $v = substr($v,0,strpos($v,'"'));
+			else continue;
+			
+			$bv = $v;
+			switch($v)
 			{
-				$v=substr($v,1);
-				list($href,$v) = explode('"',$v,2);
-				$_ = $href;
-				if(strpos($_,$modx->config['site_url'])!==false)
-				{
-					$_ = $modx->config['base_url'] . str_replace($modx->config['site_url'],'',$_);
-				}
-				if($_[0]==='/') $_ = substr($_,1);
-				$_ = str_replace('/index.html','.html',$_);
-				$level = substr_count($_,'../');
-				if(1<$level)
-				{
-					if(!isset($p[$id])) $p[$id] = $modx->getParentIds($id);
-					$k = array_keys($p[$id]);
-					while(0<$level)
+				case '/':
+				case $site_url:
+				case "{$site_url}index.html":
+				case "{$site_url}index.htm":
+					$v = '[(site_url)]';
+					break;
+				default:
+					if(substr($v,-11)==='/index.html')    $v = substr($v,0,-11);
+					elseif(substr($v,-10)==='/index.htm') $v = substr($v,0,-10);
+					elseif(substr($v,-5)==='.html')       $v = substr($v,0,-5);
+					elseif(substr($v,-4)==='.htm')        $v = substr($v,0,-4);
+					
+					if(substr($v,0,$lenBaseUrl)===$modx->config['base_url'])
+						$v = substr($v,$lenBaseUrl);
+					elseif(substr($v,0,$lenSiteUrl)===$site_url)
+						$v = substr($v,$lenSiteUrl);
+					
+					$v = trim($v,'/');
+					if(isset($alias[$v])) $docid = $alias[$v];
+					else                  $docid = $alias[$v] = $modx->getIdFromAlias($v);
+					
+					if($docid)
 					{
-						$dir = array_shift($k);
-						$level--;
+						if($docid==$modx->config['site_start'])
+							$v = '[(site_url)]';
+						else
+							$v = "[~{$docid}~]";
 					}
-					if($dir!='') $dir .= '/';
-				}
-				else $dir = '';
-				
-				$_ = trim($_,'./');
-				if(strpos($_,'/')!==false) $_ = substr($_,strrpos($_,'/'));
-				$_ = $dir . str_replace('.html','',$_);
-				if(!isset($target[$_])) $target[$_] = $modx->getIdFromAlias($_);
-				$target[$_] = trim($target[$_]);
-				if(!empty($target[$_])) $href = '[~' . $target[$_] . '~]';
-				$array[$c] = '<a href="' . $href . '"' . $v;
 			}
-			$c++;
+			$s[$i] = sprintf('<a href="%s"',$bv);
+			$r[$i] = sprintf('<a href="%s"',$v);
+			$i++;
 		}
-		$content = join('',$array);
-		$f['content'] = $modx->db->escape($content);
+		$f['content'] = str_replace($s,$r,$row['content']);
+		$f['content'] = $modx->db->escape($f['content']);
 		$modx->db->update($f,'[+prefix+]site_content',"id='{$id}'");
 	}
 }
