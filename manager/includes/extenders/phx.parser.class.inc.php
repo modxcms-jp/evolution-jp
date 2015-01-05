@@ -331,7 +331,7 @@ class PHx {
 			case 'date':
 				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
 				if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
-				if(strpos($modifier_value[$i],'%')!==false)
+				if(strpos($opt,'%')!==false)
 					$value = $modx->mb_strftime($opt,0+$value);
 				else
 					$value = date($opt,0+$value);
