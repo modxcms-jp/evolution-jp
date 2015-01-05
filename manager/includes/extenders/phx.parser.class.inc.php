@@ -249,6 +249,7 @@ class PHx {
 			case 'longtitle':
 			case 'description':
 			case 'alias':
+			case 'introtext':
 			case 'link_attributes':
 			case 'published':
 			case 'pub_date':
