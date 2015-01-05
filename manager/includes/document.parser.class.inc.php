@@ -1494,7 +1494,7 @@ class DocumentParser {
     
     function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<!--@ENDIF-->')
     {
-        if(strpos($content,'<!--@IF ')===false) $content = str_replace('<!--@IF ',$left,$content);
+        if(strpos($content,'<!--@IF ')!==false) $content = str_replace('<!--@IF ',$left,$content);
         if(strpos($content,$left)===false) return $content;
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!empty($matches))
