@@ -1449,17 +1449,14 @@ class DocumentParser {
                 $value = $this->placeholders[$key];
             else $value = '';
             
-            if ($value !== ''):
-                if($modifiers!==false)
-                {
-                    $modifiers = $this->mergePlaceholderContent($modifiers);
-                    $this->loadExtension('PHx') or die('Could not load PHx class.');
-                    $value = $this->phx->phxFilter($key,$value,$modifiers);
-                }
-                $replace[$i]= $value;
-            else:
-                unset ($matches['0'][$i]); // here we'll leave empty placeholders for last.
-            endif;
+            if($modifiers!==false)
+            {
+                $modifiers = $this->mergePlaceholderContent($modifiers);
+                $this->loadExtension('PHx') or die('Could not load PHx class.');
+                $value = $this->phx->phxFilter($key,$value,$modifiers);
+            }
+            if ($value === '') unset ($matches['0'][$i]); // here we'll leave empty placeholders for last.
+            else               $replace[$i]= $value;
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
