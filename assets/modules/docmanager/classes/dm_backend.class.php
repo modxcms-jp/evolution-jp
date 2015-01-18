@@ -86,7 +86,7 @@ class DocManagerBackend {
     		foreach ($items as $key => $value) {
     			$key++;
     			$id = ltrim($value, 'item_');
-    			if (is_numeric($id)) {
+    			if (is_numeric($id) && is_numeric($key) ) {
 	    			$sql = 'UPDATE '.$this->modx->getFullTableName('site_content') ." set menuindex={$key} WHERE id={$id}";
 					$this->modx->db->query($sql);
     			}
