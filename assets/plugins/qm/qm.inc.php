@@ -978,6 +978,7 @@ function getCookie(cookieName)
 		$tvContentTemp = '';
 		
 		// Escape TV content
+		$tvName = $this->modx->db->escape($tvName);
 		$tvContent = $this->modx->db->escape($tvContent);
 		
 		// Invoke OnBeforeDocFormSave event
