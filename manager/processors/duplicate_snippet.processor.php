@@ -5,6 +5,11 @@ if(!$modx->hasPermission('new_snippet')) {
 	$e->dumpError();
 }
 $id=$_GET['id'];
+if( !preg_match('/^[0-9]+\z/',$id) )
+{
+	echo 'Value of $id is invalid.';
+	exit;
+}
 
 // duplicate Snippet
 $tbl_site_snippets = $modx->getFullTableName('site_snippets');
