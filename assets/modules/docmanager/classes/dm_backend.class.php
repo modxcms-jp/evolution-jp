@@ -282,7 +282,7 @@ class DocManagerBackend {
 		$doc_id = $doc_vals[0];
 		$error = $doc_vals[1];
 		
-		if (!empty($docgroup)) {
+		if (!empty($docgroup) && is_numeric($docgroup) ) {
 			switch ($action) {
 				case 'pushDocGroup' :
 					if (count($doc_id) > 0) {
