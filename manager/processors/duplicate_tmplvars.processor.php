@@ -5,6 +5,11 @@ if(!$modx->hasPermission('edit_template')) {
 	$e->dumpError();
 }
 $id=$_GET['id'];
+if( !preg_match('/^[0-9]+\z/',$id) )
+{
+        echo 'Value of $id is invalid.';
+        exit;
+}
 
 // duplicate TV
 $tpl = $_lang['duplicate_title_string'];
