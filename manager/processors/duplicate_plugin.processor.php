@@ -6,6 +6,11 @@ if(!$modx->hasPermission('new_plugin')) {
 	$e->dumpError();
 }
 $id=$_GET['id'];
+if( !preg_match('/^[0-9]+\z/',$id) )
+{
+        echo 'Value of $id is invalid.';
+        exit;
+}
 
 // duplicate Plugin
 $tbl_site_plugins = $modx->getFullTableName('site_plugins');
