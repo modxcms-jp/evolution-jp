@@ -421,9 +421,9 @@ class PHx {
 			ob_start();
 			$options = $opt;
 			if($modx->config['output_filter']==='1') $output = $value;
-			else                                     $input = $value;
-			if($modx->config['output_filter']==='1') $name = $phxkey;
-			else                                     $key  = $phxkey;
+			else                                     $input  = $value;
+			if($modx->config['output_filter']==='1') $name   = $phxkey;
+			else                                     $key    = $phxkey;
 			
 			$custom = eval($php);
 			$msg = ob_get_contents();
