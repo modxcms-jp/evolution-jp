@@ -1649,7 +1649,6 @@ class DocumentParser {
         $replace= array ();
         foreach($matches['1'] as $value)
         {
-            if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
             $replace[$i] = $this->_get_snip_result($value);
             $i++;
         }
@@ -1706,6 +1705,7 @@ class DocumentParser {
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
             $_tmp = substr($_tmp,1);
+            $doParse = false;
             
             if($char==='=')
             {
@@ -1714,18 +1714,13 @@ class DocumentParser {
                 if(in_array($nextchar, array('"', "'", '`')))
                 {
                     list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
-                    if($nextchar !== "'")
-                    {
-                        if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
-                        if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
-                        if(strpos($value,'{{')!==false) $value = $this->mergeChunkContent($value);
-                        if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
-                    }
+                    if($nextchar !== "'") $doParse = true;
                 }
                 elseif(strpos($_tmp,'&')!==false)
                 {
                     list($value, $_tmp) = explode('&', $_tmp, 2);
                     $value = trim($value);
+                    $doParse = true;
                 }
                 else
                 {
@@ -1743,6 +1738,14 @@ class DocumentParser {
             {
                 if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
                 $key=trim($key);
+                if($doParse)
+                {
+                    if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
+                    if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
+                    if(strpos($value,'{{')!==false) $value = $this->mergeChunkContent($value);
+                    if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
+                    if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
+                }
                 $params[$key]=$value;
                 
                 $key   = '';
