@@ -1763,14 +1763,12 @@ class DocumentParser {
         return $params;
     }
     
-    private function _split_snip_call($src)
+    private function _split_snip_call($call)
     {
         $spacer = md5('dummy');
-        if(strpos($src,']]>')!==false)
-            $src = str_replace(']]>', "]{$spacer}]>",$src);
+        if(strpos($call,']]>')!==false)
+            $call = str_replace(']]>', "]{$spacer}]>",$call);
         
-        list($call,$snip['except_snip_call']) = explode(']]', $src, 2);
-
         $pos['?']  = strpos($call, '?');
         $pos['&']  = strpos($call, '&');
         $pos['=']  = strpos($call, '=');
