@@ -164,9 +164,10 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				if($parseNode)
 				{
 					$output .= $parseNode;
-					$indent++;
 				}
+				$indent++;
 				$output = getNodes($indent,$id,$expandAll,$output);
+				$indent--;
 				$output .= '</div></div>';
 			}
 			else
