@@ -250,6 +250,13 @@ var ddMultiple = {
 					$field.val((new Date).getTime());
 				}
 				col.hide();
+			}else if(ddMultiple[id].coloumns[key] == "date"){
+				$field.remove();
+				ddMultiple.makeDate(val[key], ddMultiple[id].coloumnsTitle[key], col);
+			}else if(ddMultiple[id].coloumns[key] == "textarea"){
+				$field.remove();
+				ddMultiple.makeTextarea(val[key], ddMultiple[id].coloumnsTitle[key], ddMultiple[id].colWidth[key], col);
+			//Если richtext
 			}else if(ddMultiple[id].coloumns[key] == "select"){
 				$field.remove();
 				ddMultiple.makeSelect(val[key], ddMultiple[id].coloumnsTitle[key], ddMultiple[id].coloumnsData[key], ddMultiple[id].colWidth[key], col);
@@ -348,6 +355,22 @@ var ddMultiple = {
 				$this.siblings(".ddField_image").hide();
 			}
 		})/*.trigger("change.ddEvents")*/;
+	},
+	//Make date field
+	makeDate: function(value, title, $fieldCol){
+		//name нужен для DatePicker`а
+		var $field = $j("<input type=\"text\" title=\"" + title + "\" class=\"ddField DatePicker\" name=\"ddMultipleDate\" />").val(value).appendTo($fieldCol);
+
+		new DatePicker($field.get(0), {
+			"yearOffset": ' . $modx->config['datepicker_offset'].',
+			"format": "' . $modx->config["datetime_format"] . '" + " hh:mm:00"
+		});
+		
+		return $field;
+	},
+	//Make textarea field
+	makeTextarea: function(value, title, width, fieldCol){
+		return $j("<textarea title=\"" + title + "\" style=\"width:" + width + "px;\" class=\"ddField\">" + value + "</textarea>").appendTo(fieldCol);
 	},
 	//Функция создания списка
 	makeSelect: function(value, title, data, width, fieldCol){
