@@ -256,9 +256,9 @@ class DocumentParser {
         
         $this->functionCache = array();
         $this->functionCacheBeginCount = 0;
-        if(is_file(MODX_BASE_PATH . 'assets/cache/function.pageCache.php'))
+        if(is_file(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php'))
         {
-        	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.pageCache.php');
+        	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
         	$this->functionCacheBeginCount = count($this->functionCache);
         }
         if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
@@ -679,7 +679,7 @@ class DocumentParser {
             if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
             {
             	$str = '<?php return ' . var_export($this->functionCache, true) . ';';
-            	file_put_contents("{$base_path}assets/cache/function.pageCache.php", $str, LOCK_EX);
+            	file_put_contents("{$base_path}assets/cache/function.siteCache.idx.php", $str, LOCK_EX);
             }
         }
         
