@@ -425,11 +425,11 @@ class PHx {
 			if($modx->config['output_filter']==='1') $name   = $phxkey;
 			else                                     $key    = $phxkey;
 			
-			$modx->event->info->phname  = $phxkey;
-			$modx->event->info->phvalue = $value;
-			$modx->event->info->options = $opt;
+			$modx->vars['name']   = & $phxkey;
+			$modx->vars['value']  = & $value;
+			$modx->vars['option'] = & $opt;
 			$custom = eval($php);
-			unset($modx->event->info);
+			$modx->vars = array();
 			$msg = ob_get_contents();
 			$value = $msg . $custom;
 			ob_end_clean();
