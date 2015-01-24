@@ -8,6 +8,7 @@
 class DocumentParser {
     var $db; // db object
     var $event, $Event; // event object
+    var $vars = array();
     var $pluginEvent = array();
     var $config= null;
     var $rs;
