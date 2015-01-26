@@ -49,9 +49,9 @@ if(!isset($_SESSION['mgrValidated']))
 	{
 		$_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
 	}
-	
-	if(isset($manager_language)) include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");// include localized overrides
-	else                         include_once(MODX_CORE_PATH . 'lang/english.inc.php');
+	// include localized overrides
+	if(!isset($manager_language)) $manager_language = 'english';
+	include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 
 	$theme_path = MODX_MANAGER_PATH . "media/style/{$manager_theme}/style.php";
 	if(is_file($theme_path)) include_once($theme_path);
