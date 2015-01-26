@@ -471,9 +471,10 @@ function parseNode($tpl,$param,$id) {
 	$modx->config['limit_by_container'] = '';
 	if($modx->manager->isAllowed($id)===false) return;
 	$modx->config['limit_by_container'] = $_tmp;
-    $modx->event->data->param = & $param;
+	$modx->event->vars = array();
+    $modx->event->vars = & $param;
+    $modx->event->vars['tpl'] = & $tpl;
     $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $param);
-    unset($modx->event->data->param);
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
     
@@ -482,6 +483,7 @@ function parseNode($tpl,$param,$id) {
 	
     $param['node'] = $node;
     $evtOut = $modx->invokeEvent('OnManagerNodeRender',$param);
+    $modx->event->vars = array();
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
     
