@@ -1716,6 +1716,7 @@ class DocumentParser {
                 {
                     list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
                     if($nextchar !== "'") $doParse = true;
+                    if(strpos($value,'[+')===false) $doParse = true;
                 }
                 elseif(strpos($_tmp,'&')!==false)
                 {
