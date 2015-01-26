@@ -8,7 +8,6 @@
 class DocumentParser {
     var $db; // db object
     var $event, $Event; // event object
-    var $vars = array();
     var $pluginEvent = array();
     var $config= null;
     var $rs;
@@ -63,6 +62,7 @@ class DocumentParser {
     var $functionCache;
     var $functionCacheBeginCount;
     var $uaType;
+    var $phvars = array();
 
     function __get($property_name)
     {
