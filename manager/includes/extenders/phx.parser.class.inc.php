@@ -435,7 +435,7 @@ class PHx {
 			$value = $msg . $custom;
 			ob_end_clean();
 		}
-		elseif($html!==false && $value!=='')
+		elseif($html!==false && isset($value) && $value!=='')
 		{
 			$html = str_replace(array($self,'[+value+]'), $value, $html);
 			$value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
