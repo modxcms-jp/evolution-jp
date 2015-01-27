@@ -203,6 +203,8 @@ class MODX_INIT {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
         elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
             $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
+        elseif(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'on' && $this->is_ssl())
+            $_SERVER['HTTPS'] = 'on';
         if(isset($_SERVER['HTTPS']))
         {
             if($_SERVER['HTTPS']==1) $_SERVER['HTTPS'] = 'on';
