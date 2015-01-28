@@ -3470,6 +3470,8 @@ class SystemEvent {
     var $_globalVariables;
     var $activated;
     var $activePlugin;
+    var $params = array();
+    var $vars = array();
 
     function SystemEvent($name= '') {
         $this->_resetEventObject();
