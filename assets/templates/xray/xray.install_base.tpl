@@ -49,7 +49,7 @@
 	</div>
 	<div class="footer">
 	<footer>
-	    (c)2014 [(site_name)]<br />
+	    (c)2015 [(site_name)]<br />
 	    Mem: [^m^], SQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], include [^f^]files, page retrieved from [^s^].
 	</footer>
 	</div>
