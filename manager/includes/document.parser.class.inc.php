@@ -1593,7 +1593,7 @@ class DocumentParser {
         }
         else
         {
-            echo $msg . $result;
+            return $msg . $result;
         }
     }
     
@@ -3050,7 +3050,8 @@ class DocumentParser {
                     $parameter= array_merge($parameter, $extParams);
                 
                 // eval plugin
-                $this->evalPlugin($pluginCode, $parameter);
+                $rs = $this->evalPlugin($pluginCode, $parameter);
+                if($rs) $e->output($rs);
                 $e->setAllGlobalVariables();
                 if ($e->_output != '')
                     $results[]= $e->_output;
