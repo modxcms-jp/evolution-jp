@@ -3383,7 +3383,12 @@ class DocumentParser {
      */
     function stripAlias($alias, $browserID='') {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', array ('alias'=>$alias,'browserID'=>$browserID));
+        $params = array ('alias'=>&$alias,'browserID'=>$browserID);
+        $this->event->vars = $params;
+        $_ = $alias;
+        $results = $this->invokeEvent('OnStripAlias', $params);
+        $this->event->vars = array();
+        if($alias!==$_) $this->event->output($alias);
         
         if (!empty($results)) return end($results);//if multiple plugins are registered, only the last one is used
         else                  return strip_tags($alias);

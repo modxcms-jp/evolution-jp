@@ -182,6 +182,8 @@ if (   ($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
 // load template file
 global $tpl;
 // invoke event OnManagerWelcomePrerender
+$modx->event->vars = array();
+$modx->event->vars['tpl'] = & $tpl;
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
 if(is_array($evtOut)) {
     $output = implode('',$evtOut);
@@ -197,6 +199,7 @@ if(is_array($evtOut)) {
 
 // invoke event OnManagerWelcomeRender
 $evtOut = $modx->invokeEvent('OnManagerWelcomeRender');
+$modx->event->vars = array();
 if(is_array($evtOut)) {
     $output = implode('',$evtOut);
     $modx->setPlaceholder('OnManagerWelcomeRender', $output);

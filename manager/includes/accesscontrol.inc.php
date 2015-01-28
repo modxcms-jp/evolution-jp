@@ -75,7 +75,10 @@ if(!isset($_SESSION['mgrValidated']))
     else touch($touch_path);
     
 	// invoke OnManagerLoginFormPrerender event
+    $modx->event->vars = array();
+    $modx->event->vars['tpl'] = & $tpl;
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
+    $modx->event->vars = array();
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
