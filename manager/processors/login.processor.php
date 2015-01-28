@@ -132,7 +132,7 @@ if ($user_settings['allowed_ip'])
 if ($user_settings['allowed_days']) {
     $date = getdate();
     $day = $date['wday']+1;
-    if (strpos($user_settings['allowed_days'], $day)===false) {
+    if (strpos($user_settings['allowed_days'], (string)$day)===false) {
         jsAlert("You are not allowed to login at this time. Please try again later.");
         return;
     }
