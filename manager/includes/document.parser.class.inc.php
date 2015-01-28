@@ -3005,12 +3005,12 @@ class DocumentParser {
         {
             if(!$this->pluginCache) $this->setPluginCache();
             
+            $e= & $this->event;
             for ($i= 0; $i < $numEvents; $i++)
             { // start for loop
                 $pluginName= $el[$i];
                 $pluginName = stripslashes($pluginName);
                 // reset event object
-                $e= & $this->event;
                 $e->_resetEventObject();
                 $e->name= $evtName;
                 $e->activePlugin= $pluginName;
