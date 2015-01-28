@@ -41,6 +41,7 @@ class DocumentParser {
     var $dumpSQL;
     var $queryCode;
     var $virtualDir;
+    var $ph;
     var $placeholders;
     var $sjscripts = array();
     var $jscripts = array();
@@ -119,6 +120,7 @@ class DocumentParser {
         // events
         $this->event= new SystemEvent();
         $this->Event= & $this->event; //alias for backward compatibility
+        $this->ph = & $this->placeholders;
         
         $this->minParserPasses = 1; // min number of parser recursive loops or passes
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
