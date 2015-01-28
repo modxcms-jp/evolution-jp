@@ -2487,16 +2487,16 @@ class DocumentParser {
         }
         
         if($this->config['xhtml_urls']) $url = preg_replace("/&(?!amp;)/",'&amp;', $url);
-        
-        $rs = $this->invokeEvent('OnMakeUrl',
-                array(
-                    "id"    => $id,
-                    "alias" => $alias,
-                    "args"  => $args,
-                    "scheme"=> $scheme,
-                    "url"   => $url
-                )
-            );
+        $params = array();
+        $params['id']     = $id;
+        $params['alias']  = $alias;
+        $params['args']   = $args;
+        $params['scheme'] = $scheme;
+        $params['url']    = & $url;
+        $this->event->vars = array();
+        $this->event->vars = $params;
+        $rs = $this->invokeEvent('OnMakeUrl',$params);
+        $this->event->vars = array();
         if (!empty($rs))
         {
             $url = end($rs);
