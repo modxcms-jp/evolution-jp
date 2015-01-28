@@ -1570,6 +1570,7 @@ class DocumentParser {
         }
         ob_start();
         $result = eval($pluginCode);
+        unset ($modx->event->params);
         $msg= ob_get_contents();
         ob_end_clean();
         if ($msg && isset ($php_errormsg))
@@ -1592,7 +1593,6 @@ class DocumentParser {
         {
             echo $msg . $result;
         }
-        unset ($modx->event->params);
     }
     
     function evalSnippet($phpcode, $params)
