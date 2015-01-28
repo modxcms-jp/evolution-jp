@@ -43,6 +43,8 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 	}
 }
 
+$style_path = MODX_MANAGER_PATH . 'media/style/';
+$theme_path = MODX_MANAGER_PATH . "{$style_path}{$manager_theme}/";
 if(!isset($_SESSION['mgrValidated']))
 {
 	if(isset($_GET['frame']) && !empty($_GET['frame']))
@@ -53,7 +55,7 @@ if(!isset($_SESSION['mgrValidated']))
 	if(!isset($manager_language)) $manager_language = 'english';
 	include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 
-	$theme_path = MODX_MANAGER_PATH . "media/style/{$manager_theme}/style.php";
+	$theme_path = MODX_MANAGER_PATH . "{$theme_path}style.php";
 	if(is_file($theme_path)) include_once($theme_path);
 	
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
@@ -68,7 +70,7 @@ if(!isset($_SESSION['mgrValidated']))
     {
         $modx->safeMode = 1;
         $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
-    	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
+    	$tpl = file_get_contents("{$style_path}common/login.tpl");
     }
     else touch($touch_path);
     
@@ -116,7 +118,7 @@ if(!isset($_SESSION['mgrValidated']))
 	
 	// load template
     if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
-    	$modx->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl'; 
+    	$modx->config['manager_login_tpl'] = "{$style_path}common/login.tpl"; 
     }
     
     $target = $modx->config['manager_login_tpl'];
@@ -139,16 +141,16 @@ if(!isset($_SESSION['mgrValidated']))
     		$target = MODX_BASE_PATH . $target;
     		$login_tpl = file_get_contents($target);
     	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl')) {
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl';
+    	elseif(is_file("{$theme_path}login.tpl")) {
+    		$target = "{$theme_path}login.tpl";
     		$login_tpl = file_get_contents($target);
     	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html')) { // ClipperCMS compatible
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html';
+    	elseif(is_file("{$theme_path}html/login.html")) { // ClipperCMS compatible
+    		$target = "{$theme_path}html/login.html";
     		$login_tpl = file_get_contents($target);
     	}
     	else {
-    		$target = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
+    		$target = "{$style_path}common/login.tpl";
     		$login_tpl = file_get_contents($target);
     	}
     }
@@ -189,7 +191,6 @@ else
 	$fields['action']      = $action;
 	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 	$fields['ip']          = $ip;
-	
 	if($action !== 1)
 	{
 		foreach($fields as $k=>$v)
