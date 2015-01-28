@@ -2397,12 +2397,11 @@ class DocumentParser {
             $alPath = '';
             if(empty($alias))
             {
+                if(!$this->aliasListing) $this->setAliasListing();
+                $al= $this->aliasListing[$id];
                 $alias = $id;
                 if ($this->config['friendly_alias_urls'] == 1)
                 {
-                    if(!$this->aliasListing) $this->setAliasListing();
-                    
-                    $al= $this->aliasListing[$id];
                     $alPath = ($al && !empty($al['path'])) ? $al['path'] . '/' : '';
                     if(!empty($alPath))
                     {
