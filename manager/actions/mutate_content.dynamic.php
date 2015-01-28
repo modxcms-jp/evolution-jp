@@ -22,26 +22,25 @@ $db_v      = $id==='0' ? array()            : getValuesFromDB($id,$docgrp);
 $form_v    = $_POST    ? $_POST             : array();
 
 $docObject = mergeValues($initial_v,$db_v,$form_v);
-
 $content = $docObject; //Be compatible with old plugins
-$modx->documentObject = (array) $docObject;
-
-// invoke OnDocFormPrerender event
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
 
 $tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
 $docObject = $docObject + $tmplVars;
+$modx->documentObject = & $docObject;
 
-$docObject = (object) $docObject;
+$modx->event->vars['documentObject'] = & $docObject;
+// invoke OnDocFormPrerender event
+$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+$modx->event->vars = array();
 
 global $template, $selected_editor; // For plugins (ManagerManager etc...)
-$template = $docObject->template;
+$template = $docObject['template'];
 
 $selected_editor = (isset ($form_v['which_editor'])) ? $form_v['which_editor'] : $config['which_editor'];
 
-checkViewUnpubDocPerm($docObject->published,$docObject->editedby);// Only a=27
+checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
 
-$_SESSION['itemname'] = to_safestr($docObject->pagetitle);
+$_SESSION['itemname'] = to_safestr($docObject['pagetitle']);
 
 $tpl['head'] = <<< EOT
 [+JScripts+]
@@ -235,7 +234,7 @@ $ph['fieldPagetitle']   = fieldPagetitle();
 $ph['fieldLongtitle']   = fieldLongtitle();
 $ph['fieldDescription'] = fieldDescription();
 $ph['fieldAlias']       = fieldAlias($id);
-$ph['fieldWeblink']     = ($docObject->type==='reference') ? fieldWeblink() : '';
+$ph['fieldWeblink']     = ($docObject['type']==='reference') ? fieldWeblink() : '';
 $ph['fieldIntrotext']   = fieldIntrotext();
 $ph['fieldTemplate']    = fieldTemplate();
 $ph['fieldMenutitle']   = fieldMenutitle();
@@ -254,7 +253,6 @@ if($modx->config['tvs_below_content']==0&&0<count($tmplVars)) {
 	$ph['_lang_tv'] = $_lang['tmplvars'];
 	echo $modx->parseText($tpl['tab-page']['tv'],$ph);
 }
-if(is_array($docObject)) $docObject = (object) $docObject;
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
 $ph['fieldPublished']  =  fieldPublished();
@@ -262,19 +260,19 @@ $ph['fieldPub_date']   = fieldPub_date($id);
 $ph['fieldUnpub_date'] = fieldUnpub_date($id);
 $ph['renderSplit'] = renderSplit();
 $ph['fieldType'] = fieldType();
-if($docObject->type !== 'reference') {
+if($docObject['type'] !== 'reference') {
 	$ph['fieldContentType'] = fieldContentType();
 	$ph['fieldContent_dispo'] = fieldContent_dispo();
 } else {
-	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject->contentType . '" />';
-	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject->content_dispo . '" />';
+	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject['contentType'] . '" />';
+	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject['content_dispo'] . '" />';
 }
 $ph['fieldLink_attributes'] = fieldLink_attributes();
 $ph['fieldIsfolder']   = fieldIsfolder();
 $ph['fieldRichtext']   = fieldRichtext();
 $ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() : '';
 $ph['fieldSearchable'] = fieldSearchable();
-$ph['fieldCacheable']  = $docObject->type === 'document' ? fieldCacheable() : '';
+$ph['fieldCacheable']  = $docObject['type'] === 'document' ? fieldCacheable() : '';
 $ph['fieldSyncsite']   = fieldSyncsite();
 echo $modx->parseText($tpl['tab-page']['settings'],$ph);
 
