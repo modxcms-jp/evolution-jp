@@ -2384,12 +2384,16 @@ class DocumentParser {
         }
         
         if(!isset($this->referenceListing)) $this->_getReferenceListing();
-        
+
+        $isReference=false;
+        $orgId=0;
         if(isset($this->referenceListing[$id]))
         {
             if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
             {
+                $orgId=$id;
                 $id = $this->referenceListing[$id];
+                $isReference=true;
             }
             else return $this->referenceListing[$id];
         }
@@ -2490,11 +2494,13 @@ class DocumentParser {
         
         if($this->config['xhtml_urls']) $url = preg_replace("/&(?!amp;)/",'&amp;', $url);
         $params = array();
-        $params['id']     = $id;
-        $params['alias']  = $alias;
-        $params['args']   = $args;
-        $params['scheme'] = $scheme;
-        $params['url']    = & $url;
+        $params['id']          = $id;
+        $params['alias']       = $alias;
+        $params['args']        = $args;
+        $params['scheme']      = $scheme;
+        $params['url']         = & $url;
+        $params['isReference'] = $isReference;
+        $params['orgId']       = $orgId;
         $this->event->vars = array();
         $this->event->vars = $params;
         $rs = $this->invokeEvent('OnMakeUrl',$params);
