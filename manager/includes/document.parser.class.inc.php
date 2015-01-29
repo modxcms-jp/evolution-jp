@@ -3066,6 +3066,7 @@ class DocumentParser {
             }
         }
         $e->activePlugin= '';
+        $e->_resetEventObject();
         return $results;
     }
 
