@@ -2385,15 +2385,15 @@ class DocumentParser {
         
         if(!isset($this->referenceListing)) $this->_getReferenceListing();
 
-        $isReference=false;
+        $type='document';
         $orgId=0;
         if(isset($this->referenceListing[$id]))
         {
+            $type='reference';
             if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
             {
                 $orgId=$id;
                 $id = $this->referenceListing[$id];
-                $isReference=true;
             }
             else return $this->referenceListing[$id];
         }
@@ -2499,7 +2499,7 @@ class DocumentParser {
         $params['args']        = $args;
         $params['scheme']      = $scheme;
         $params['url']         = & $url;
-        $params['isReference'] = $isReference;
+        $params['type']        = $type; // document or reference
         $params['orgId']       = $orgId;
         $this->event->vars = array();
         $this->event->vars = $params;
