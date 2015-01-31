@@ -44,7 +44,7 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 }
 
 $style_path = MODX_MANAGER_PATH . 'media/style/';
-$theme_path = MODX_MANAGER_PATH . "{$style_path}{$manager_theme}/";
+$theme_path = "{$style_path}{$manager_theme}/";
 if(!isset($_SESSION['mgrValidated']))
 {
 	if(isset($_GET['frame']) && !empty($_GET['frame']))
@@ -55,7 +55,6 @@ if(!isset($_SESSION['mgrValidated']))
 	if(!isset($manager_language)) $manager_language = 'english';
 	include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 
-	$theme_path = MODX_MANAGER_PATH . "{$theme_path}style.php";
 	if(is_file($theme_path)) include_once($theme_path);
 	
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
