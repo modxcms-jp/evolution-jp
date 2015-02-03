@@ -3006,67 +3006,63 @@ class DocumentParser {
         if (!$evtName)                             return false;
         if (!isset ($this->pluginEvent[$evtName])) return false;
         
-        $el= $this->pluginEvent[$evtName];
+        if(count($this->pluginEvent[$evtName])==0) return array();
+        
+        if(!$this->pluginCache) $this->setPluginCache();
+        
+        $this->event->name= $evtName;
         $results= array ();
-        $numEvents= count($el);
-        if ($numEvents > 0)
+        
+        foreach($this->pluginEvent[$evtName] as $pluginName)
         {
-            if(!$this->pluginCache) $this->setPluginCache();
+            $pluginName = stripslashes($pluginName);
+            // reset event object
+            $this->event->_resetEventObject();
             
-            $e= & $this->event;
-            for ($i= 0; $i < $numEvents; $i++)
-            { // start for loop
-                $pluginName= $el[$i];
-                $pluginName = stripslashes($pluginName);
-                // reset event object
-                $e->_resetEventObject();
-                $e->name= $evtName;
-                $e->activePlugin= $pluginName;
-                
-                // get plugin code
-                if (isset ($this->pluginCache[$pluginName]))
+            // get plugin code and properties
+            if (isset ($this->pluginCache[$pluginName]))
+            {
+                $pluginCode           = $this->pluginCache[$pluginName];
+                if(isset($this->pluginCache["{$pluginName}Props"]))
+                    $pluginProperties = $this->pluginCache["{$pluginName}Props"];
+                else
+                    $pluginProperties = '';
+            }
+            else
+            {
+                $result= $this->db->select('*','[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
+                if ($this->db->getRecordCount($result) == 1)
                 {
-                    $pluginCode= $this->pluginCache[$pluginName];
-                    $pluginProperties= isset($this->pluginCache["{$pluginName}Props"]) ? $this->pluginCache["{$pluginName}Props"] : '';
+                    $row = $this->db->getRow($result);
+                    $pluginCode       = $row['plugincode'];
+                    $pluginProperties = $row['properties'];
                 }
                 else
                 {
-                    $fields = '`name`, plugincode, properties';
-                    $where = "`name`='{$pluginName}' AND disabled=0";
-                    $result= $this->db->select($fields,'[+prefix+]site_plugins',$where);
-                    if ($this->db->getRecordCount($result) == 1)
-                    {
-                        $row= $this->db->getRow($result);
-                        
-                        $pluginCode                      = $row['plugincode'];
-                        $this->pluginCache[$row['name']] = $row['plugincode']; 
-                        $pluginProperties= $this->pluginCache["{$row['name']}Props"]= $row['properties'];
-                    }
-                    else
-                    {
-                        $pluginCode                      = 'return false;';
-                        $this->pluginCache[$pluginName]  = 'return false;';
-                        $pluginProperties= '';
-                    }
+                    $pluginCode       = 'return false;';
+                    $pluginProperties = '';
                 }
-                
-                // load default params/properties
-                $parameter= $this->parseProperties($pluginProperties);
-                if (!empty($extParams))
-                    $parameter= array_merge($parameter, $extParams);
-                
-                // eval plugin
-                $rs = $this->evalPlugin($pluginCode, $parameter);
-                if($rs) $e->output($rs);
-                $e->setAllGlobalVariables();
-                if ($e->_output != '')
-                    $results[]= $e->_output;
-                if ($e->_propagate != true)
-                    break;
+                $this->pluginCache[$pluginName]          = $pluginCode;
+                $this->pluginCache["{$pluginName}Props"] = $pluginProperties;
             }
+            
+            // load default params/properties
+            $parameter= $this->parseProperties($pluginProperties);
+            if (!empty($extParams))
+                $parameter= array_merge($parameter, $extParams);
+            
+            // eval plugin
+            $this->event->activePlugin= $pluginName;
+            $rs = $this->evalPlugin($pluginCode, $parameter);
+            $this->event->activePlugin= '';
+            
+            if($rs)$this->event->output($rs);
+            
+            $this->event->setAllGlobalVariables();
+            if ($this->event->_output != '')      $results[]=$this->event->_output;
+            if ($this->event->_propagate != true) break;
         }
-        $e->activePlugin= '';
-        $e->_resetEventObject();
+        $this->event->name= '';
         return $results;
     }
 
@@ -3483,6 +3479,7 @@ class SystemEvent {
     function SystemEvent($name= '') {
         $this->_resetEventObject();
         $this->name= $name;
+        $this->activePlugin = '';
     }
 
     // used for displaying a message to the user
@@ -3540,7 +3537,6 @@ class SystemEvent {
 
     function _resetEventObject() {
         unset ($this->returnedValues);
-        $this->name= '';
         $this->_output= '';
         $this->_globalVariables=array();
         $this->_propagate= true;
