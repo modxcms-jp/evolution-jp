@@ -1453,7 +1453,7 @@ class DocumentParser {
                 $value = $this->placeholders[$key];
             else $value = '';
             
-            if($modifiers!==false)
+            if($modifiers!==false&&isset($this->placeholders[$key]))
             {
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $this->loadExtension('PHx') or die('Could not load PHx class.');
