@@ -46,7 +46,7 @@ class DocumentParser {
     var $sjscripts = array();
     var $jscripts = array();
     var $loadedjscripts = array();
-    var $documentMap;
+    var $documentMap = array();
     var $forwards= 3;
     var $referenceListing;
     var $childrenList = array();
@@ -1875,7 +1875,7 @@ class DocumentParser {
     {
         $d = @include_once(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
         if($d) $this->documentMap = $d;
-        else return false;
+        else return array();
     }
     
     function setAliasListing()
