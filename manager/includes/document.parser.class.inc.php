@@ -1719,7 +1719,6 @@ class DocumentParser {
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
             $_tmp = substr($_tmp,1);
-            $doParse = false;
             
             if($char==='=')
             {
@@ -1728,14 +1727,11 @@ class DocumentParser {
                 if(in_array($nextchar, array('"', "'", '`')))
                 {
                     list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
-                    if($nextchar !== "'") $doParse = true;
-                    if(strpos($value,'[+')===false) $doParse = true;
                 }
                 elseif(strpos($_tmp,'&')!==false)
                 {
                     list($value, $_tmp) = explode('&', $_tmp, 2);
                     $value = trim($value);
-                    $doParse = true;
                 }
                 else
                 {
@@ -1753,7 +1749,7 @@ class DocumentParser {
             {
                 if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
                 $key=trim($key);
-                if($doParse)
+                if(substr($value,0,6)!=='@CODE:')
                 {
                     if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
                     if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
