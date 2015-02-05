@@ -3076,9 +3076,9 @@ class DocumentParser {
     # parses a resource property string and returns the result as an array
     function parseProperties($propertyString)
     {
-        $parameter= array ();
-        if (empty($propertyString)) return $parameter;
+        if (empty($propertyString)) return array();
         
+        $parameter= array ();
         $tmpParams= explode('&', $propertyString);
         foreach ($tmpParams as $tmpParam)
         {
