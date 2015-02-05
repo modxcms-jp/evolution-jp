@@ -11,6 +11,7 @@
 ####*/
 
 class PHx {
+	var $placeholders = array();
 	function PHx()
 	{
 		global $modx;
@@ -598,6 +599,7 @@ class PHx {
 		foreach($result as $k=>$v)
 		{
 			$result[$k] = $this->parseDocumentSource($v);
+			$result[$k] = $modx->parseText($v,$this->placeholders);
 		}
 		
 		return $result;
@@ -678,6 +680,21 @@ class PHx {
 		else $this->documentObject[$target][$field] = false;
 		
 		return $this->documentObject[$target][$field];
+	}
+	
+	function setPlaceholders($value = '', $key = '', $path = '') {
+		$keypath = !empty($path) ? $path . "." . $key : $key;
+	    if (is_array($value)) {
+			foreach ($value as $subkey => $subval) {
+				$this->setPlaceholders($subval, $subkey, $keypath);
+			}
+		}
+		else $this->setPHxVariable($keypath, $value);
+	}
+	
+	// Sets a placeholder variable which can only be access by PHx
+	function setPHxVariable($name, $value) {
+		if ($name != 'phx') $this->placeholders[$name] = $value;
 	}
 	
 	//mbstring
