@@ -2641,6 +2641,17 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
+        if(strpos($content,$left)!==false)
+        {
+            $i=0;
+            while($i<1000)
+            {
+                $bt = $content;
+                $content = $this->parseText($content,$ph,$left,$right,$cleanup);
+                if($bt===$content) break;
+                $i++;
+            }
+        }
         return $content;
     }
     
