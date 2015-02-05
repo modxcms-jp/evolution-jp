@@ -330,8 +330,18 @@ class ditto {
 			unset($PHs);
 			if(isset($modx->config['output_filter']) && $modx->config['output_filter']!=='0')
 			{
-				$modx->toPlaceholders($placeholders);
-				$output = $modx->mergePlaceholderContent($template);
+				$modx->loadExtension('PHx') or die('Could not load PHx class.');
+				$modx->phx->setPlaceholders($placeholders);
+                $i=0;
+                $template = $modx->parseText($template,$modx->phx->placeholders);
+                while($i<1000)
+                {
+                    $bt = $template;
+                    $template = $modx->parseText($template,$modx->phx->placeholders);
+                    if($bt===$template) break;
+                    $i++;
+                }
+				$output = $template;
 			}
 			else
 			{
@@ -353,11 +363,6 @@ class ditto {
 
 		return $output;
 	}
-	
-	// ---------------------------------------------------
-	// Function: parseFields
-	// Find the fields that are contained in the custom placeholders or those that are needed in other functions
-	// ---------------------------------------------------
 	
 	function parseFields($placeholders,$seeThruUnpub,$dateSource,$randomize) {
 		$this->parseCustomPlaceholders($placeholders);
