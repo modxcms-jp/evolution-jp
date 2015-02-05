@@ -3,6 +3,7 @@
 if(!isset($recent_update)||empty($recent_update)) return;
 if(!isset($conditional_get)||$conditional_get!=1) return;
 if(!empty($_POST))return;
+if(defined('MODX_API_MODE')) return;
 
 session_name($site_sessionname);
 session_cache_limiter('');
