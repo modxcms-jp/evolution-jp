@@ -2610,6 +2610,7 @@ class DocumentParser {
     function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
     {
         if(!$ph) return $content;
+        if(strpos($content,$left)===false) return $content;
         elseif(is_string($ph) && strpos($ph,'='))
         {
             if(strpos($ph,',')) $pairs   = explode(',',$ph);
