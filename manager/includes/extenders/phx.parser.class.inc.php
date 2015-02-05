@@ -23,6 +23,19 @@ class PHx {
 		global $modx;
 		
 		if($phxkey==='documentObject') $value = $modx->documentIdentifier;
+		$i=0;
+		$parsed = false;
+		while($i<1000)
+		{
+			$bt = $cmd;
+			if(strpos($cmd,'[*')!==false) $cmd = $modx->mergeDocumentContent($cmd);
+			if(strpos($cmd,'[(')!==false) $cmd = $modx->mergeSettingsContent($cmd);
+			if(strpos($cmd,'{{')!==false) $cmd = $modx->mergeChunkContent($cmd);
+			if(strpos($cmd,'[[')!==false) $cmd = $modx->evalSnippets($cmd);
+			if($bt===$cmd) break;
+			$i++;
+			if($i===1000) exit('Parse over');
+		}
 		if(preg_match('@^[1-9][/0-9]*$@',$cmd))
 		{
 			if(strpos($cmd,'/')!==false)
