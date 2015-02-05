@@ -239,6 +239,8 @@ function get_tmplvars($id)
 function get_alias($id,$alias,$parent,$pagetitle)
 {
 	global $modx;
+	
+	if($alias) $alias = $modx->stripAlias($alias);
 	// friendly url alias checks
 	if ($modx->config['friendly_urls'])
 	{
