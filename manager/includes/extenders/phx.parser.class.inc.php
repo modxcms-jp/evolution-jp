@@ -636,6 +636,7 @@ class PHx {
 			if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
 			if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
 			if($content===$bt) break;
+			if($c===1000) exit('Parse over');
 			$c++;
 		}
 		return $content;
