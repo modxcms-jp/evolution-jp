@@ -1445,6 +1445,7 @@ class DocumentParser {
         $i= 0;
         $replace = array();
         foreach($matches['1'] as $key):
+            $doReplace = true;
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -1453,13 +1454,22 @@ class DocumentParser {
                 $value = $this->placeholders[$key];
             else $value = '';
             
-            if($modifiers!==false&&isset($this->placeholders[$key]))
+            if($modifiers!==false)
             {
-                $modifiers = $this->mergePlaceholderContent($modifiers);
-                $this->loadExtension('PHx') or die('Could not load PHx class.');
-                $value = $this->phx->phxFilter($key,$value,$modifiers);
+                if(isset($this->placeholders[$key]))
+                {
+                    $modifiers = $this->mergePlaceholderContent($modifiers);
+                    $this->loadExtension('PHx') or die('Could not load PHx class.');
+                    $value = $this->phx->phxFilter($key,$value,$modifiers);
+                }
+                else
+                    $doReplace = false;
             }
-            if ($value === '') unset ($matches['0'][$i]); // here we'll leave empty placeholders for last.
+            // here we'll leave empty placeholders for last.
+            if ($value === '' || $doReplace===false) {
+                unset ($matches['0'][$i]);
+                unset ($matches['1'][$i]);
+            }
             else               $replace[$i]= $value;
             $i++;
         endforeach;
