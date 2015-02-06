@@ -133,7 +133,7 @@ class DocumentParser {
         @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
-        if($this->checkSession()===false) @ini_set('display_errors','0');
+        if($this->checkSession()===false && !defined('MODX_API_MODE')) @ini_set('display_errors','0');
         if(!isset($this->tstart))
         {
             $mtime = explode(' ',microtime());
