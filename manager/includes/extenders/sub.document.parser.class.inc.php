@@ -1736,6 +1736,8 @@ class SubParser {
     	
     	if($file_path)
     	{
+    		global $modx,$recent_update;
+    		if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
     		$content = file_get_contents($file_path);
 	    	if($content)
 	    	{
