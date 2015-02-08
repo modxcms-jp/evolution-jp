@@ -1745,4 +1745,9 @@ class SubParser {
 	    	}
     	}
     }
+    
+    function setOption($key, $value='')
+    {
+        $this->config[$key] = $value;
+    }
 }

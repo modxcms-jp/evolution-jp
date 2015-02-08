@@ -727,11 +727,6 @@ class DocumentParser {
         return $str;
     }
     
-    function setOption($key, $value='')
-    {
-        $this->config[$key] = $value;
-    }
-    
     function regOption($key, $value='')
     {
         $this->config[$key] = $value;
