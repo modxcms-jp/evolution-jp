@@ -1815,7 +1815,7 @@ class DocumentParser {
         else return false;
     }
     
-    function setPluginCache()
+    function getPluginCache()
     {
         $plugins = @include_once(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
         if($plugins) $this->pluginCache = $plugins;
@@ -2960,7 +2960,7 @@ class DocumentParser {
         
         if(count($this->pluginEvent[$evtName])==0) return array();
         
-        if(!$this->pluginCache) $this->setPluginCache();
+        if(!$this->pluginCache) $this->getPluginCache();
         
         $this->event->name= $evtName;
         $results= array ();
