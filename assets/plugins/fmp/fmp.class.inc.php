@@ -106,16 +106,14 @@ class ForgotManagerPassword {
 	function unBlock($key)
 	{
 		global $modx, $_lang;
-		$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 		
 		if(empty($key)) return;
 		
 		$user = $this->getUser($key);
-		
-		if($user && is_array($user) && !$this->errors) {
-			$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $tbl_user_attributes, "internalKey='{$user['id']}'");
-			if(!$modx->db->getAffectedRows()) $this->errors[] = $_lang['user_doesnt_exist'];
-		}
+		if(!isset($user['id'])) $this->errors[] = $_lang['user_doesnt_exist'];
+		elseif(!$this->errors)
+    		$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $modx->getFullTableName('user_attributes'), "internalKey='{$user['id']}'");
+		else return false;
 	}
 	
 	function getAuthStatus($key)
@@ -172,20 +170,15 @@ EOD;
 				$where = '';
 		}
 		
+		$user = array();
 		if(!empty($key) && is_string($key))
 		{
 			$field = "usr.id, usr.username, attr.email, MD5(CONCAT(auser.lasthit,usr.password)) AS `key`";
 			$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey INNER JOIN {$tbl_active_users} auser ON usr.username = auser.username";
-			if($result = $modx->db->select($field,$from,$where,'',1))
-			{
-				if($modx->db->getRecordCount($result)==1)
-				{
-					$user = $modx->db->getRow($result);
-				}
-			}
+		    $result = $modx->db->select($field,$from,$where,'',1);
+			if($result) $user = $modx->db->getRow($result);
 		}
-		
-		if(is_null($user)) $this->errors[] = $_lang['could_not_find_user'];
+		if(empty($user)) $this->errors[] = $_lang['could_not_find_user'];
 		
 		return $user;
 	}
