@@ -932,6 +932,8 @@ class DocumentParser {
             $this->config['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
         if(strpos($this->config['rb_base_dir'],'[(')!==false)
             $this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
+        if(!isset($this->config['modx_charset'])||empty($this->config['modx_charset']))
+            $this->config['modx_charset'] = 'utf-8';
         return $this->config;
     }
     
