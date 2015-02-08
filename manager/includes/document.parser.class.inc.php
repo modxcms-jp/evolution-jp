@@ -3264,7 +3264,13 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->genToken();}
     function atBindFile($content='')
         {$this->loadExtension('SubParser');return $this->sub->atBindFile($content);}
-    
+    function getOption($key, $default = null, $options = null, $skipEmpty = false)
+        {$this->loadExtension('SubParser');return $this->sub->getOption($key, $default, $options, $skipEmpty);}
+    function setOption($key, $value='')
+        {$this->loadExtension('SubParser');return $this->sub->setOption($key, $value);}
+    function regOption($key, $value='')
+        {$this->loadExtension('SubParser');return $this->sub->regOption($key, $value);}
+        
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
