@@ -2964,54 +2964,29 @@ class DocumentParser {
         
         $this->event->name= $evtName;
         $results= array ();
-        
         foreach($this->pluginEvent[$evtName] as $pluginName)
         {
             $pluginName = stripslashes($pluginName);
+            
             // reset event object
             $this->event->_resetEventObject();
             
             // get plugin code and properties
-            if (isset ($this->pluginCache[$pluginName]))
-            {
-                $pluginCode           = $this->pluginCache[$pluginName];
-                if(isset($this->pluginCache["{$pluginName}Props"]))
-                    $pluginProperties = $this->pluginCache["{$pluginName}Props"];
-                else
-                    $pluginProperties = '';
-            }
-            else
-            {
-                $result= $this->db->select('*','[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
-                if ($this->db->getRecordCount($result) == 1)
-                {
-                    $row = $this->db->getRow($result);
-                    $pluginCode       = $row['plugincode'];
-                    $pluginProperties = $row['properties'];
-                }
-                else
-                {
-                    $pluginCode       = 'return false;';
-                    $pluginProperties = '';
-                }
-                $this->pluginCache[$pluginName]          = $pluginCode;
-                $this->pluginCache["{$pluginName}Props"] = $pluginProperties;
-            }
+            $pluginCode       = $this->getPluginCode($pluginName);
+            $pluginProperties = $this->getPluginProperties($pluginName);
             
             // load default params/properties
-            $parameter= $this->parseProperties($pluginProperties);
-            if (!empty($extParams))
-                $parameter= array_merge($parameter, $extParams);
+            $parameter = $this->parseProperties($pluginProperties);
+            if (!empty($extParams)) $parameter= array_merge($parameter, $extParams);
             
             // eval plugin
             $this->event->activePlugin= $pluginName;
-            $rs = $this->evalPlugin($pluginCode, $parameter);
+            $output = $this->evalPlugin($pluginCode, $parameter);
+            if($output) $this->event->_output .= $output;
             $this->event->activePlugin= '';
             
-            if($rs)$this->event->output($rs);
-            
             $this->event->setAllGlobalVariables();
-            if ($this->event->_output != '')      $results[]=$this->event->_output;
+            if ($this->event->_output != '') $results[]=$this->event->_output;
             if ($this->event->_propagate != true) break;
         }
         $this->event->name= '';
