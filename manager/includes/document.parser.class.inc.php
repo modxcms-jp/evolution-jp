@@ -3017,7 +3017,39 @@ class DocumentParser {
         $this->event->name= '';
         return $results;
     }
-
+    
+    function getPluginCode($pluginName)
+    {
+        if(!isset ($this->pluginCache[$pluginName]))
+            $this->setPluginCache($pluginName);
+        return $this->pluginCache[$pluginName];
+    }
+    
+    function getPluginProperties($pluginName)
+    {
+        if(!isset ($this->pluginCache["{$pluginName}Props"]))
+            $this->setPluginCache($pluginName);
+        return $this->pluginCache["{$pluginName}Props"];
+    }
+    
+    function setPluginCache($pluginName)
+    {
+        $result= $this->db->select('*','[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
+        if ($this->db->getRecordCount($result) == 1)
+        {
+            $row = $this->db->getRow($result);
+            $code       = $row['plugincode'];
+            $properties = $row['properties'];
+        }
+        else
+        {
+            $code       = 'return false;';
+            $properties = '';
+        }
+        $this->pluginCache[$pluginName]          = $code;
+        $this->pluginCache["{$pluginName}Props"] = $properties;
+    }
+    
     # parses a resource property string and returns the result as an array
     function parseProperties($propertyString)
     {
