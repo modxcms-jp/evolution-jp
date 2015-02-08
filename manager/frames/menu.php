@@ -282,17 +282,14 @@ $item['modules']['module_management'] = item($_lang['module_management'], 106,$p
 if($modx->hasPermission('exec_module'))
 {
 	// Each module
-	$tbl_site_modules       = $modx->getFullTableName('site_modules');
-	$tbl_site_module_access = $modx->getFullTableName('site_module_access');
-	$tbl_member_groups      = $modx->getFullTableName('member_groups');
 	$uid = $modx->getLoginUserID();
 	if ($_SESSION['mgrRole'] != 1)
 	{
 		// Display only those modules the user can execute
 		$field = 'sm.id, sm.name, mg.member';
-		$from = "{$tbl_site_modules}                 AS sm "
-		       ."LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id "
-		       ."LEFT JOIN {$tbl_member_groups}      AS mg  ON sma.usergroup = mg.user_group";
+		$from = '[+prefix+]site_modules                 AS sm '
+		       .'LEFT JOIN [+prefix+]site_module_access AS sma ON sma.module = sm.id '
+		       .'LEFT JOIN [+prefix+]member_groups      AS mg  ON sma.usergroup = mg.user_group';
 		$where   = "(mg.member IS NULL OR mg.member='{$uid}') AND sm.disabled != 1";
 		$orderby = 'sm.editedon DESC';
 		$rs = $modx->db->select($field, $from, $where, $orderby);
@@ -300,15 +297,15 @@ if($modx->hasPermission('exec_module'))
 	else
 	{
 		// Admins get the entire list
-		$rs = $modx->db->select('id,name', $tbl_site_modules, 'disabled != 1', 'editedon DESC');
+		$rs = $modx->db->select('id,name', '[+prefix+]site_modules', 'disabled != 1', 'editedon DESC');
 	}
-	
+
+	$item['modules']=array();
 	while ($content = $modx->db->getRow($rs))
 	{
 		$item['modules'][$content['name']] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
 	}
-	if(0<count($item['modules'])) $modulemenu = join("\n", $item['modules']);
-	else                          $modulemenu = false;
+	$modulemenu = $item['modules'];
 }
 
 // Security menu items (users)
@@ -349,35 +346,22 @@ $reportsmenu  = buildMenu('reports',$item);
 $usermenu     = buildMenu('user',$item);
 
 // Output Menus where there are items to show
-if (!empty($sitemenu)) {
-	echo '<li id="limenu1" class="active"><a href="#menu1" onclick="new NavToggle(this); return false;">'.$_lang['site'].'</a><ul class="subnav" id="menu1">'."\n".
-	     "{$sitemenu}\n</ul></li>\n";
-	     
-}
-if (!empty($elementmenu)) {
-	echo '<li id="limenu2"><a href="#menu2" onclick="new NavToggle(this); return false;">'.$_lang['elements'].'</a><ul class="subnav" id="menu2">'."\n".
-	     "{$elementmenu}\n</ul></li>\n";
-}
-if (!empty($modulemenu)) {
-	echo '<li id="limenu3"><a href="#menu3" onclick="new NavToggle(this); return false;">'.$_lang['modules'].'</a><ul class="subnav" id="menu3">'."\n".
-	     "{$modulemenu}\n</ul></li>\n";
-}
-if (!empty($securitymenu)) {
-	echo '<li id="limenu4"><a href="#menu4" onclick="new NavToggle(this); return false;">'.$_lang['users'].'</a><ul class="subnav" id="menu4">'."\n".
-	     "{$securitymenu}\n</ul></li>\n";
-}
-if (!empty($usermenu)) {
-	echo '<li id="limenu7"><a href="#menu7" onclick="new NavToggle(this); return false;">'.$_lang['user'].'</a><ul class="subnav" id="menu7">'."\n".
-	     "{$usermenu}\n</ul></li>\n";
-}
-if (!empty($toolsmenu)) {
-	echo '<li id="limenu5"><a href="#menu5" onclick="new NavToggle(this); return false;">'.$_lang['tools'].'</a><ul class="subnav" id="menu5">'."\n".
-	     "{$toolsmenu}\n</ul></li>\n";
-}
-if (!empty($reportsmenu)) {
-	echo '<li id="limenu6"><a href="#menu6" onclick="new NavToggle(this); return false;">'.$_lang['reports'].'</a><ul class="subnav" id="menu6">'."\n".
-	     "{$reportsmenu}\n</ul></li>\n";
-}
+$tpl = '<li id="limenu[+id+]"><a href="#menu[+id+]" onclick="new NavToggle(this); return false;">[+name+]</a><ul class="subnav" id="menu[+id+]">[+menuitem+]</ul></li>'."\n";
+$tplActive = str_replace(']"><a',']" class="active"><a',$tpl);
+if (!empty($sitemenu))
+	echo $modx->parseText($tplActive,array('id'=>'1','name'=>$_lang['site'],'menuitem'=>join("\n",$sitemenu)));
+if (!empty($elementmenu))
+	echo $modx->parseText($tpl,array('id'=>'2','name'=>$_lang['elements'],'menuitem'=>join("\n",$elementmenu)));
+if (!empty($modulemenu))
+	echo $modx->parseText($tpl,array('id'=>'3','name'=>$_lang['modules'],'menuitem'=>join("\n",$modulemenu)));
+if (!empty($securitymenu))
+	echo $modx->parseText($tpl,array('id'=>'4','name'=>$_lang['users'],'menuitem'=>join("\n",$securitymenu)));
+if (!empty($usermenu))
+	echo $modx->parseText($tpl,array('id'=>'7','name'=>$_lang['user'],'menuitem'=>join("\n",$usermenu)));
+if (!empty($toolsmenu))
+	echo $modx->parseText($tpl,array('id'=>'5','name'=>$_lang['tools'],'menuitem'=>join("\n",$toolsmenu)));
+if (!empty($reportsmenu))
+	echo $modx->parseText($tpl,array('id'=>'6','name'=>$_lang['reports'],'menuitem'=>join("\n",$reportsmenu)));
 ?>
 	</ul>
 </div>
@@ -391,15 +375,9 @@ if (!empty($reportsmenu)) {
 <?php
 function item($name, $href, $display=1, $attrib='target="main"')
 {
-	global $modx;
-	
 	if($display==0) return false;
-	
 	if(is_int($href)) $href = "index.php?a={$href}";
-	
-	$tpl = '<li><a onclick="this.blur();" href="[+href+]" [+attrib+]>[+name+]</a></li>';
-	$ph = compact('href','name','attrib');
-	return $modx->parseText($tpl, $ph);
+	return sprintf('<li><a onclick="this.blur();" href="%s" %s>%s</a></li>', $href,$attrib,$name);
 }
 
 function buildMenu($target,$item)
@@ -409,12 +387,7 @@ function buildMenu($target,$item)
 	if(!isset($modx->config['topmenu_site']))
 	{
 		include(MODX_CORE_PATH . 'default.config.php');
-		$modx->config['topmenu_site'] = $default_config['topmenu_site'];
-		$modx->config['topmenu_element'] = $default_config['topmenu_element'];
-		$modx->config['topmenu_security'] = $default_config['topmenu_security'];
-		$modx->config['topmenu_user'] = $default_config['topmenu_user'];
-		$modx->config['topmenu_tools'] = $default_config['topmenu_tools'];
-		$modx->config['topmenu_reports'] = $default_config['topmenu_reports'];
+		$default_config = & $modx->config;
 	}
 	
 	$menu['site']     = $modx->config['topmenu_site'];
@@ -438,7 +411,6 @@ function buildMenu($target,$item)
 			unset($item['modules'][$v]);
 		}
 	}
-	
-	if(0<count($result)) return join("\n", $result);
-	else                 return false;
+
+	return $result;
 }
