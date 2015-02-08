@@ -45,6 +45,7 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 
 $style_path = MODX_MANAGER_PATH . 'media/style/';
 $theme_path = "{$style_path}{$manager_theme}/";
+$touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
 if(!isset($_SESSION['mgrValidated']))
 {
 	if(isset($_GET['frame']) && !empty($_GET['frame']))
@@ -64,7 +65,6 @@ if(!isset($_SESSION['mgrValidated']))
 
 	global $tpl;
 	
-    $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
     if(is_file($touch_path))
     {
         $modx->safeMode = 1;
@@ -212,4 +212,5 @@ else
 		}
 		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($fields['internalKey']);
 	}
+    if(is_file($touch_path)) unlink($touch_path);
 }
