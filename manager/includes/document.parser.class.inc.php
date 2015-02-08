@@ -61,7 +61,7 @@ class DocumentParser {
     var $pluginCache;
     var $aliasListing = array();
     var $SystemAlertMsgQueque;
-    var $functionCache;
+    var $functionCache = array();
     var $functionCacheBeginCount;
     var $uaType;
     var $phvars = array();
@@ -262,8 +262,12 @@ class DocumentParser {
         $this->functionCacheBeginCount = 0;
         if(is_file(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php'))
         {
-        	$this->functionCache = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
-        	$this->functionCacheBeginCount = count($this->functionCache);
+        	$_ = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
+        	if(is_array($_)) 
+        	{
+        		$this->functionCache = $_;
+            	$this->functionCacheBeginCount = count($this->functionCache);
+        	}
         }
         if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
         {
