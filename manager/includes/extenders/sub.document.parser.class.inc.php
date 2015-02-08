@@ -1782,4 +1782,30 @@ class SubParser {
         }
         return $option;
     }
+    
+    function regOption($key, $value='')
+    {
+    	global $modx;
+    	
+        $modx->config[$key] = $value;
+        $f['setting_name']  = $key;
+        $f['setting_value'] = $modx->db->escape($value);
+        $key = $modx->db->escape($key);
+        $rs = $modx->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
+        
+        if($modx->db->getRecordCount($rs)==0)
+        {
+            $modx->db->insert($f,'[+prefix+]system_settings');
+            $diff = $modx->db->getAffectedRows();
+            if(!$diff)
+            {
+                $modx->messageQuit('Error while inserting new option into database.', $modx->db->lastQuery);
+                exit();
+            }
+        }
+        else
+        {
+            $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
+        }
+    }
 }
