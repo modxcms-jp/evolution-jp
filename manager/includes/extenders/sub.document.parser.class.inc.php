@@ -1712,9 +1712,7 @@ class SubParser {
     
     function atBindFile($str='')
     {
-    	if($str==='')                      return '';
-    	elseif(substr($str,0,5)!=='@FILE') return $str;
-    	
+    	if(strpos($str,'@FILE')!==0) return $str;
     	if(strpos($str,"\n")!==false)
     		$str = substr($str,0,strpos("\n",$str));
     	
@@ -1741,9 +1739,7 @@ class SubParser {
     		$content = file_get_contents($file_path);
 	    	if($content)
 	    	{
-	    		global $modx,$recent_update;
-	    		$filemtime = filemtime($file_path);
-	    		if($recent_update < $filemtime)
+	    		if($recent_update < filemtime($file_path))
 	    			$modx->clearCache();
 	    		return $content;
 	    	}
