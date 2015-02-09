@@ -230,7 +230,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			if($find===false)
 			{
 				$date = $_SERVER['REQUEST_TIME'];
-				$field['pagetitle'] = '---';
+				$field['pagetitle'] = $field['alias'];
 				$field['content'] = '';
 				$field['createdon'] = $date;
 				$field['editedon'] = $date;
