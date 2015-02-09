@@ -176,13 +176,12 @@ function importFiles($parent,$filedir,$files,$mode) {
 		$richtext         = '1';
 	}
 	
-	foreach($files as $id => $value)
+	foreach($files as $alias => $value)
 	{
 		if(is_array($value))
 		{
 			// create folder
-			$alias = $id;
-			echo sprintf('<span>%s - %s</span>', $alias, $_lang['import_site_importing_document']);
+			echo "<span>{$alias}</span>";
 			$field = array();
 			$field['type'] = 'document';
 			$field['contentType'] = 'text/html';
@@ -258,7 +257,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			$fparts = explode('.',$value);
 			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
-			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
+			echo sprintf('<span>'.$_lang['import_site_importing_document'].'</span>', $filename);
 			
 			if(!in_array($ext,$allowedfiles)) echo sprintf(' - <span class="fail">%s</span><br />', $_lang['import_site_skip']) . "\n";
 			else
@@ -315,22 +314,21 @@ function getFiles($directory,$listing = array(), $count = 0)
 {
 	global $_lang;
 	global $filesfound;
-	$dummy = $count;
+	$c = $count;
 	if ($files = scandir($directory))
 	{
 		foreach($files as $file)
 		{
-			if ($file=='.' || $file=='..') continue;
-			elseif ($h = @opendir($directory.$file."/"))
+			if ($file==='.' || $file==='..') continue;
+			elseif (is_dir("{$directory}{$file}/"))
 			{
-				closedir($h);
 				$count = -1;
-				$listing[$file] = getFiles($directory.$file."/",array(), $count + 1);
+				$listing[$file] = getFiles("{$directory}{$file}/",array(), $count + 1);
 			}
 			elseif(strpos($file,'.htm')!==false)
 			{
-				$listing[$dummy] = $file;
-				$dummy = $dummy + 1;
+				$listing[$c] = $file;
+				$c++;
 				$filesfound++;
 			}
 		}
@@ -338,7 +336,7 @@ function getFiles($directory,$listing = array(), $count = 0)
 	else
 	{
 		$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_open_dir'], $directory);
-		echo sprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
+		echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
 	}
 	return ($listing);
 }
@@ -350,7 +348,7 @@ function getFileContent($filepath)
 	if(!$buffer=file_get_contents($filepath))
 	{
 		$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], $filepath);
-		echo sprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
+		echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
 	}
 	else return $buffer;
 }
