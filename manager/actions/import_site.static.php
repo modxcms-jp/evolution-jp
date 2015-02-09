@@ -181,6 +181,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 		if(is_array($value))
 		{
 			// create folder
+			if(substr($alias,0,2)==='d#') $alias = substr($alias,2);
 			echo "<span>{$alias}</span>";
 			$field = array();
 			$field['type'] = 'document';
@@ -323,7 +324,7 @@ function getFiles($directory,$listing = array(), $count = 0)
 			elseif (is_dir("{$directory}{$file}/"))
 			{
 				$count = -1;
-				$listing[$file] = getFiles("{$directory}{$file}/",array(), $count + 1);
+				$listing["d#{$file}"] = getFiles("{$directory}{$file}/",array(), $count + 1);
 			}
 			elseif(strpos($file,'.htm')!==false)
 			{
