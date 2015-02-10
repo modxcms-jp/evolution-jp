@@ -390,7 +390,7 @@ function treatContent($src,$filename,$alias)
 		$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
 	}
 	else $pagetitle = $alias;
-	if(!$pagetitle) $pagetitle = $alias;
+	if(!$pagetitle||strpos($pagetitle,'index.htm')!==false) $pagetitle = $alias;
 	
 	if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$src,$matches))
 	{
