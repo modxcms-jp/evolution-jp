@@ -4,15 +4,14 @@ if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_
 {
 	$modx->config['mail_check_timeperiod'] = 0;
 }
-if ($manager_theme) $manager_theme .= '/';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
+<html <?php if($modx_textdir==='rtl') echo 'dir="rtl"';?>lang="<?php echo $mxla;?>" xml:lang="<?php echo $mxla;?>">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>" />
 	<title>nav</title>
-	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>style.css?<?php echo $modx_version;?>" />
+	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>/style.css?<?php echo $modx_version;?>" />
 	<?php echo $modx->config['manager_inline_style']; ?>
 	<script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
 	<script src="media/script/jquery/jquery-migrate.min.js"></script>
@@ -387,9 +386,8 @@ function buildMenu($target,$item)
 	if(!isset($modx->config['topmenu_site']))
 	{
 		include(MODX_CORE_PATH . 'default.config.php');
-		$default_config = & $modx->config;
+		$modx->config = $default_config;
 	}
-	
 	$menu['site']     = $modx->config['topmenu_site'];
 	$menu['element']  = $modx->config['topmenu_element'];
 	$menu['module']   = 'modules';
