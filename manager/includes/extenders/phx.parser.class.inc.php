@@ -18,6 +18,13 @@ class PHx {
 		if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
 	}
 	
+	function phxFilter($key,$value,$modifiers)
+	{
+		$modifiers = $this->splitModifiers($modifiers);
+		$value = $this->parsePhx($key,$value,$modifiers);
+		return $value;
+	}
+	
 	// Parser: modifier detection and eXtended processing if needed
 	function Filter($phxkey, $value, $cmd, $opt='')
 	{
@@ -517,13 +524,6 @@ class PHx {
 		return false;
 	}
 	 
-	function phxFilter($key,$value,$modifiers)
-	{
-		$modifiers = $this->splitModifiers($modifiers);
-		$value = $this->parsePhx($key,$value,$modifiers);
-		return $value;
-	}
-	
 	function parsePhx($key,$value,$modifiers)
 	{
 		global $condition;
