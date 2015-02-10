@@ -428,9 +428,11 @@ class PHx {
 			else                                     $key    = $phxkey;
 			
 			$modx->filter = array();
-			$modx->filter['name']   = & $phxkey;
-			$modx->filter['value']  = & $value;
-			$modx->filter['option'] = & $opt;
+			$modx->filter['name']    = & $phxkey;
+			$modx->filter['value']   = & $value;
+			$modx->filter['input']   = & $value;
+			$modx->filter['option']  = & $opt;
+			$modx->filter['options'] = & $opt;
 			$custom = eval($php);
 			$modx->filter = array();
 			$msg = ob_get_contents();
