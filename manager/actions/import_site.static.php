@@ -182,7 +182,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 		{
 			// create folder
 			if(substr($alias,0,2)==='d#') $alias = substr($alias,2);
-			echo "<span>{$alias}</span>";
+			echo "<span>{$alias}/</span>";
 			$field = array();
 			$field['type'] = 'document';
 			$field['contentType'] = 'text/html';
@@ -258,7 +258,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			$fparts = explode('.',$value);
 			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
-			echo sprintf('<span>'.$_lang['import_site_importing_document'].'</span>', $filename);
+			echo "<span>{$filename}</span>";
 			
 			if(!in_array($ext,$allowedfiles)) echo sprintf(' - <span class="fail">%s</span><br />', $_lang['import_site_skip']) . "\n";
 			else
