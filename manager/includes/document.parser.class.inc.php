@@ -64,7 +64,7 @@ class DocumentParser {
     var $functionCache = array();
     var $functionCacheBeginCount;
     var $uaType;
-    var $phvars = array();
+    var $filter = array();
 
     function __get($property_name)
     {
