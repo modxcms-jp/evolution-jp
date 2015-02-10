@@ -21,7 +21,10 @@ class PHx {
 	function phxFilter($key,$value,$modifiers)
 	{
 		$modifiers = $this->splitModifiers($modifiers);
+		$modx->filter = array();
+		$modx->filter['name']    = & $phxkey;
 		$value = $this->parsePhx($key,$value,$modifiers);
+		$modx->filter = array();
 		return $value;
 	}
 	
@@ -434,14 +437,11 @@ class PHx {
 			if($modx->config['output_filter']==='1') $name   = $phxkey;
 			else                                     $key    = $phxkey;
 			
-			$modx->filter = array();
-			$modx->filter['name']    = & $phxkey;
 			$modx->filter['value']   = & $value;
 			$modx->filter['input']   = & $value;
 			$modx->filter['option']  = & $opt;
 			$modx->filter['options'] = & $opt;
 			$custom = eval($php);
-			$modx->filter = array();
 			$msg = ob_get_contents();
 			$value = $msg . $custom;
 			ob_end_clean();
