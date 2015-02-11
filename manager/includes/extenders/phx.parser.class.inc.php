@@ -20,6 +20,8 @@ class PHx {
 	
 	function phxFilter($key,$value,$modifiers)
 	{
+		global $modx;
+		
 		$modifiers = $this->splitModifiers($modifiers);
 		$modx->filter = array();
 		$modx->filter['name']    = & $phxkey;
