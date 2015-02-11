@@ -30,6 +30,75 @@ class PHx {
 		return $value;
 	}
 	
+	function splitModifiers($modifiers)
+	{
+		global $modx;
+		
+		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
+			return array($modifiers=>'');
+		
+		$result = array();
+		$key   = '';
+		$value = null;
+		while($modifiers!=='')
+		{
+			$bt = $modifiers;
+			$char = substr($modifiers,0,1);
+			$modifiers = substr($modifiers,1);
+			
+			if($key===''&&$char==='=') exit('PHx parse error');
+			
+			if($char==='=')
+			{
+		    	$nextchar = substr($modifiers,0,1);
+				if(in_array($nextchar, array('"', "'", '`'))) list($value,$modifiers) = $this->_delimRoop($modifiers,$nextchar);
+		    	elseif(strpos($modifiers,':')!==false)        list($value,$modifiers) = explode(':', $modifiers, 2);
+		    	else                                          list($value,$modifiers) = array('',$modifiers);
+			}
+			elseif($char===':') $value = '';
+			else                $key .= $char;
+			
+			if(!is_null($value))
+			{
+    	    	$key=trim($key);
+    	    	if($key!=='') $result[$key]=$value;
+    	    	
+    	    	$key   = '';
+    	    	$value = null;
+			}
+			
+			if($modifiers===$bt)
+			{
+				$key = trim($key);
+				if($key!=='') $result[$key] = '';
+				break;
+			}
+		}
+		
+		if(empty($result)) return array();
+		
+		foreach($result as $k=>$v)
+		{
+			$result[$k] = $this->parseDocumentSource($v);
+			$result[$k] = $modx->parseText($v,$this->placeholders);
+		}
+		
+		return $result;
+	}
+	
+	function parsePhx($key,$value,$modifiers)
+	{
+		global $condition;
+		if(empty($modifiers)) return;
+		
+		$condition = array();
+		foreach($modifiers as $cmd=>$opt)
+		{
+			$value = $this->Filter($key,$value, $cmd, $opt);
+		}
+		return $value;
+	}
+	
 	// Parser: modifier detection and eXtended processing if needed
 	function Filter($phxkey, $value, $cmd, $opt='')
 	{
@@ -525,78 +594,6 @@ class PHx {
 		// If we get here the above logic did not find a match, so return false
 		return false;
 	}
-	 
-	function parsePhx($key,$value,$modifiers)
-	{
-		global $condition;
-		if(empty($modifiers)) return;
-		
-		$condition = array();
-		foreach($modifiers as $cmd=>$opt)
-		{
-			$value = $this->Filter($key,$value, $cmd, $opt);
-		}
-		return $value;
-	}
-	
-	function splitModifiers($modifiers)
-	{
-		global $modx;
-		
-		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
-			return array($modifiers=>'');
-		
-		$result = array();
-		$_tmp = $modifiers;
-		$key   = '';
-		$value = null;
-		while($_tmp!=='')
-		{
-			$bt = $_tmp;
-			$char = substr($_tmp,0,1);
-			$_tmp = substr($_tmp,1);
-			
-			if($key===''&&$char==='=') exit('PHx parse error');
-			
-			if($char==='=')
-			{
-		    	$nextchar = substr($_tmp,0,1);
-				if(in_array($nextchar, array('"', "'", '`'))) {list($value,$_tmp) = $this->_delimRoop($_tmp,$nextchar);}
-		    	elseif(strpos($_tmp,':')!==false)             list($value,$_tmp) = explode(':', $_tmp, 2);
-		    	else                                          list($value,$_tmp) = array('',$_tmp);
-			}
-			elseif($char===':') $value = '';
-			else
-				$key .= $char;
-			
-			if(!is_null($value))
-			{
-    	    	$key=trim($key);
-    	    	if($key!=='') $result[$key]=$value;
-    	    	
-    	    	$key   = '';
-    	    	$value = null;
-			}
-			
-			if($_tmp===$bt)
-			{
-				$key = trim($key);
-				if($key!=='') $result[$key] = '';
-				break;
-			}
-		}
-		
-		if(empty($result)) return array();
-		
-		foreach($result as $k=>$v)
-		{
-			$result[$k] = $this->parseDocumentSource($v);
-			$result[$k] = $modx->parseText($v,$this->placeholders);
-		}
-		
-		return $result;
-	}
-	
 	
 	function _delimRoop($_tmp,$nextchar)
 	{
