@@ -1244,7 +1244,9 @@ class SubParser {
 		}
 		else
 		{
-			$a = explode('||', $v);
+			$v = trim($v);
+    		if(strpos($v,'||')!==false) $a = explode('||', $v);
+    		else                        $a = explode("\n", $v);
 		}
 		return $a;
 	}
@@ -1263,6 +1265,8 @@ class SubParser {
 			else
 				list($label,$value) = explode('==',$value,2);
 		}
+		$label = trim($label);
+		$value = trim($value);
 		return array($label,$value);
 	}
 	
