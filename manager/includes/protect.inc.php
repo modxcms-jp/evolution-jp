@@ -8,12 +8,8 @@ if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']
     die();
 
 // Unregister globals
-if (@ ini_get('register_globals')) {
-    foreach ($_REQUEST as $key => $value) {
-        $$key = null; // This is NOT paranoid because
-        unset ($$key); // unset may not work.
-    }
-}
+if (@ ini_get('register_globals')) exit('Can not use register_globals');
+
 if (!function_exists('modx_sanitize_gpc'))
 {
 	function modx_sanitize_gpc(& $target, $count=0)
