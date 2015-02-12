@@ -631,6 +631,25 @@ class ManagerAPI {
 		return $documentgroup;
 	}
 	
+	function getMemberGroups($uid='') {
+		global $modx;
+		$field ='user_group,name';
+		if($uid==='') $uid = $modx->getLoginUserID();
+		if(preg_match('@^[1-9][0-9]*$@',$uid))
+		{
+			$where = "ug.member='{$uid}'";
+		}
+		else $where = '';
+		$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id';
+		$rs = $modx->db->select($field,$from,$where);
+		$group = array();
+		if(0<$modx->db->getRecordCount($rs)) {
+			while ($row = $modx->db->getRow($rs)) {
+				$group[$row['user_group']]=$row['name'];
+			}
+		}
+		return $group;
+	}
 	/**
 	 *	Secure Manager Documents
 	 *	This script will mark manager documents as private
