@@ -49,18 +49,18 @@ class TopicPath
 			case 'list':
 			case 'li':
 				$tpl['outer']            = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['home_topic']       = '<li class="home"><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['home_topic']       = '<li class="home"><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
 				$tpl['current_topic']    = '<li class="current">[+title+]</li>';
 				$tpl['reference_topic']  = '<li>[+title+]</li>';
-				$tpl['other_topic']      = '<li><a href="[+href+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['other_topic']      = '<li><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
 				$tpl['separator']        = "\n";
 				break;
 			default:
 				$tpl['outer']             = '[+topics+]';
-				$tpl['home_topic']        = '<a href="[+href+]" class="home" title="[+title+]">[+title+]</a>';
+				$tpl['home_topic']        = '<a href="[+url+]" class="home" title="[+title+]">[+title+]</a>';
 				$tpl['current_topic']     = '[+title+]';
 				$tpl['reference_topic']   = '[+title+]';
-				$tpl['other_topic']       = '<a href="[+href+]" title="[+title+]">[+title+]</a>';
+				$tpl['other_topic']       = '<a href="[+url+]" title="[+title+]">[+title+]</a>';
 				$tpl['separator']         = ' &raquo; ';
 		}
 		$tpl = array_merge($tpl, $this->tpl);
@@ -142,7 +142,8 @@ class TopicPath
 		{
 			$ph = $doc;
 			if(in_array($doc['id'],$this->stopIDs)) break;
-			$ph['href']  = ($doc['id'] == $modx->config['site_start']) ? $modx->config['site_url'] : $modx->makeUrl($doc['id'],'','','full');
+			$ph['url']  = ($doc['id'] == $modx->config['site_start']) ? $modx->config['site_url'] : $modx->makeUrl($doc['id'],'','','full');
+			$ph['href'] = & $ph['url'];
 			foreach($this->titleField as $f)
 			{
 				if($doc[$f]!=='')
