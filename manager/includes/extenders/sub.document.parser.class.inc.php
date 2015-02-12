@@ -1021,6 +1021,10 @@ class SubParser {
 	function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
 		global $modx,$_style,$_lang,$content;
 		
+	    if(substr($field_elements, 0, 5) === '<?php') $field_elements = "@@EVAL\n".substr($field_elements,6);
+	    if(substr($default_text, 0, 5) === '<?php')   $default_text   = "@@EVAL\n".substr($default_text,6);
+	    if(substr($field_value, 0, 5) === '<?php')    $field_value    = "@@EVAL\n".substr($field_value,6);
+	    
 		if(substr($default_text, 0, 6) === '@@EVAL' && $field_value===$default_text) {
 	     	$eval_str = trim(substr($default_text, 7));
 	    	$default_text = eval($eval_str);

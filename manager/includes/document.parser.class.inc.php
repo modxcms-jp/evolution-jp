@@ -3090,6 +3090,7 @@ class DocumentParser {
                 $i = 0;
                 foreach($values as $i=>$v)
                 {
+                    if(substr($v, 0, 5) === '<?php') $v = "@@EVAL\n".substr($v,6);
                     if(substr($v,0,1)==='@')
                         $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
                     $i++;
