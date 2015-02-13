@@ -277,6 +277,7 @@ $item['manage_metatags']    = item($_lang['manage_metatags'], 81, $perm_manage_m
 
 // Modules Menu Items
 $perm_module_management = ($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) ? 1 : 0;
+$item['modules']=array();
 $item['modules']['module_management'] = item($_lang['module_management'], 106,$perm_module_management);// manage-modules
 if($modx->hasPermission('exec_module'))
 {
@@ -299,7 +300,6 @@ if($modx->hasPermission('exec_module'))
 		$rs = $modx->db->select('id,name', '[+prefix+]site_modules', 'disabled != 1', 'editedon DESC');
 	}
 
-	$item['modules']=array();
 	while ($content = $modx->db->getRow($rs))
 	{
 		$item['modules'][$content['name']] = item($content['name'], "index.php?a=112&amp;id={$content['id']}");
