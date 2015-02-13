@@ -100,14 +100,12 @@ class synccache {
 		
 		if($target==='pageCache')
 			$pattern = realpath($this->cachePath) . '/*/*.pageCache.php';
-		elseif($target==='siteCache')
-			$pattern = realpath($this->cachePath) . "/*.{$target}.idx.php";
 		else
-			$pattern = realpath($this->cachePath) . "/*.{$target}.php";
+			$pattern = realpath($this->cachePath) . '/*.php';
 		
 		$pattern = str_replace('\\','/',$pattern);
 		$files = glob($pattern,GLOB_NOCHECK);
-		$filesincache = ($files['0'] !== $pattern) ? count($files) : 0;
+		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
 		$deletedfiles = array();
 		if(is_array($files) && 0 < $filesincache)
 		{
@@ -115,7 +113,7 @@ class synccache {
 			while ($file_path = array_shift($files))
 			{
 				$name = substr($file_path,$cachedir_len);
-				if (strpos($name,$target)!==false && !in_array($name, $deletedfiles))
+				if (!in_array($name, $deletedfiles))
 				{
 					$deletedfilesincache++;
 					$deletedfiles[] = $name;
