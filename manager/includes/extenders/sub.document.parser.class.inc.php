@@ -376,7 +376,47 @@ class SubParser {
 
         exit;
     }
-
+    
+    function recDebugInfo()
+    {
+    	global $modx;
+    	
+    	$incs = get_included_files();
+    	$backtrace = array_reverse(debug_backtrace());
+    	$i=0;
+    	foreach($incs as $v)
+    	{
+    		$incs[$i] = str_replace('\\','/',$v);
+    		$i++;
+    	}
+    	$i=0;
+    	foreach($backtrace as $v)
+    	{
+    		if(isset($v['object'])) unset($backtrace[$i]['object']);
+    		if(isset($v['file'])) $backtrace[$i]['file'] = str_replace('\\','/',$v['file']);
+    		if(isset($v['args'])&&empty($v['args'])) unset($backtrace[$i]['args']);
+			if($v['class']==='DocumentParser'&&$v['type']==='->')
+    		{
+    			unset($backtrace[$i]['file']);
+    			unset($backtrace[$i]['class']);
+    			unset($backtrace[$i]['type']);
+    			$backtrace[$i]['function'] = '$modx->'.$v['function'] . '()';
+			}
+			elseif(isset($v['class']))
+			{
+    			if(strpos($v['file'],'document.parser.class.inc.php')!==false)
+    				unset($backtrace[$i]['file']);
+    			unset($backtrace[$i]['class']);
+    			unset($backtrace[$i]['type']);
+    			$backtrace[$i]['function'] = $v['class'] . $v['type'] .$v['function'] . '()';
+			}
+    		
+    		$i++;
+    	}
+    	$msg = '<pre>' . print_r($incs,true) . print_r($backtrace,true) . '</pre>';
+    	$this->addLog('Debug log',$msg,1);
+    }
+    
 	function get_backtrace()
 	{
 		global $modx;
