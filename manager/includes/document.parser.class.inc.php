@@ -66,7 +66,6 @@ class DocumentParser {
     var $uaType;
     var $filter = array();
     var $functionLog = array();
-    var $debugLog;
 
     function __get($property_name)
     {
@@ -615,7 +614,7 @@ class DocumentParser {
             echo $this->documentOutput;
         
         $result = ob_get_clean();
-        if($this->debugLog) $this->recDebugInfo();
+        if($this->debug) $this->recDebugInfo();
         return $result;
     }
     
@@ -1244,7 +1243,7 @@ class DocumentParser {
         if(strpos($content,'[*')===false) return $content;
         if(!isset($this->documentObject) || empty($this->documentObject)) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
@@ -1291,7 +1290,7 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-		if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+		if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1307,7 +1306,7 @@ class DocumentParser {
     {
         if(strpos($content,'[(')===false) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,'[(',')]');
         if(!$matches) return $content;
@@ -1336,7 +1335,7 @@ class DocumentParser {
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1344,7 +1343,7 @@ class DocumentParser {
     {
         if(strpos($content,'{{')===false) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,'{{','}}');
         if(!$matches) return $content;
@@ -1386,7 +1385,7 @@ class DocumentParser {
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1395,7 +1394,7 @@ class DocumentParser {
     {
         if(strpos($content,'[+')===false) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $replace= array ();
         $content=$this->mergeSettingsContent($content);
@@ -1433,7 +1432,7 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1441,7 +1440,7 @@ class DocumentParser {
     {
         if(strpos($content,$left)===false) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!empty($matches))
@@ -1452,7 +1451,7 @@ class DocumentParser {
             }
             $content = str_replace($matches['0'],$matches['1'],$content);
         }
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1469,7 +1468,7 @@ class DocumentParser {
     
     function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<!--@ENDIF-->')
     {
-    	if ($this->debugLog) $fstart = $this->getMicroTime();
+    	if ($this->debug) $fstart = $this->getMicroTime();
     	
         if(strpos($content,'<!--@IF ')!==false) $content = str_replace('<!--@IF ',$left,$content);
         if(strpos($content,$left)===false) return $content;
@@ -1506,7 +1505,7 @@ class DocumentParser {
             }
             $content = str_replace($matches['0'],$matches['1'],$content);
         }
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     
@@ -1514,7 +1513,7 @@ class DocumentParser {
     {
         if(strpos($content,'^]')===false) return $content;
         
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         
         $totalTime= ($this->getMicroTime() - $this->tstart);
         $queryTime= $this->queryTime;
@@ -1537,7 +1536,7 @@ class DocumentParser {
         $content= str_replace('[^m^]', $total_mem, $content);
         $content= str_replace('[^f^]', count($incs), $content);
         
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         
         return $content;
     }
@@ -1581,7 +1580,7 @@ class DocumentParser {
     function evalSnippet($phpcode, $params)
     {
         $etomite= $modx= & $this;
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         if(isset($params) && is_array($params))
         {
             while(list($k,$v) = each($params))
@@ -1617,7 +1616,7 @@ class DocumentParser {
             }
         }
         unset ($modx->event->params);
-        if ($this->debugLog) $this->addLogEntry($this->currentSnippet,$fstart);
+        if ($this->debug) $this->addLogEntry($this->currentSnippet,$fstart);
         $this->currentSnippet = '';
         return $msg . $result;
     }
@@ -2583,7 +2582,7 @@ class DocumentParser {
     function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
     {
         if(!$ph) return $content;
-        if ($this->debugLog) $fstart = $this->getMicroTime();
+        if ($this->debug) $fstart = $this->getMicroTime();
         if(strpos($content,$left)===false) return $content;
         elseif(is_string($ph) && strpos($ph,'='))
         {
@@ -2622,7 +2621,7 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debugLog) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
     

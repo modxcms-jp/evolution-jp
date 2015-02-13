@@ -413,7 +413,18 @@ class SubParser {
     		
     		$i++;
     	}
-    	$msg = '<pre>' . print_r($incs,true) . print_r($backtrace,true) . print_r($modx->functionLog,true) . '</pre>';
+    	
+		$tend = $modx->getMicroTime();
+		$totaltime = $tend - $modx->tstart;
+		$totaltimemsg = sprintf('Total time %2.4f s',$totaltime);
+		$info['request_uri']    = $modx->decoded_request_uri;
+		if(isset($modx->documentIdentifier))
+			$info['docid']      = $modx->documentIdentifier;
+		$info['Total time']     = $totaltimemsg;
+		$info['included_files'] = print_r($incs,true);
+		$info['backtrace']      = print_r($backtrace,true);
+		$info['functions']      = print_r($modx->functionLog,true);
+    	$msg = '<pre>' . print_r($info,true) .'</pre>';
     	$this->addLog('Debug log',$msg,1);
     }
     
@@ -452,7 +463,7 @@ class SubParser {
     function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
     	global $modx;
-    	if($this->debugLog)
+    	if($this->debug)
     	{
             register_shutdown_function(array (& $modx,'recDebugInfo'));
     	}
