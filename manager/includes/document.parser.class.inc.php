@@ -352,20 +352,14 @@ class DocumentParser {
             if ($this->config['use_alias_path'] === '1')
             {
                 $alias = $this->documentIdentifier;
-                if(strlen($this->virtualDir) > 0)
-                {
-                    $alias = $this->virtualDir . '/' . $alias;
-                }
+                if(strlen($this->virtualDir) > 0) $alias = $this->virtualDir . '/' . $alias;
                 
                 $this->documentIdentifier= $this->getIdFromAlias($alias);
                 if($this->documentIdentifier===false)
                 {
-                    $alias .= $this->config['friendly_url_suffix'];
-                    $this->documentIdentifier = $this->getIdFromAlias($alias);
+                    $this->documentIdentifier = $this->getIdFromAlias($alias . $this->config['friendly_url_suffix']);
                     if ($this->documentIdentifier===false)
-                    {
                         $this->sendErrorPage();
-                    }
                 }
             }
             else
@@ -693,10 +687,8 @@ class DocumentParser {
             	file_put_contents("{$base_path}assets/cache/function.siteCache.idx.php", $str, LOCK_EX);
             }
         }
-        
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
-        
         // end post processing
     }
     
@@ -1682,7 +1674,7 @@ class DocumentParser {
             $value = $this->phx->phxFilter($snip_name,$value,$modifiers);
         }
         
-        if($this->dumpSnippets == 1)
+        if($this->dumpSnippets)
         {
             $this->snipCode .= sprintf('<fieldset><legend><b>%s</b></legend><textarea style="width:60%%;height:200px">%s</textarea></fieldset>', $snippetObject['name'], htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']));
         }
@@ -2036,7 +2028,7 @@ class DocumentParser {
         {
             // get source length if this is the final pass
             if ($i == ($passes -1)) $bt= crc32($source);
-            if ($this->dumpSnippets == 1)
+            if ($this->dumpSnippets)
             {
                 $this->snipCode .= '<fieldset><legend><b style="color: #821517;">PARSE PASS ' . ($i +1) . '</b></legend>The following snippets (if any) were parsed during this pass.<div style="width:100%;text-align:left;">';
             }
@@ -2065,7 +2057,7 @@ class DocumentParser {
             if(strpos($source,'[+')!==false
              &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
-            if ($this->dumpSnippets == 1)
+            if ($this->dumpSnippets)
             {
                 $this->snipCode .= '</div></fieldset>';
             }
