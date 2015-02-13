@@ -616,7 +616,7 @@ class PHx {
 			elseif($_tmp==='')    break;
 		}
 		if($value===$delim) $value = '';
-		if($delim==='`'||$delim==='"')
+		if(!empty($value))
 			$value = $this->parseDocumentSource($value);
 		
 		return array($value,$_tmp);
