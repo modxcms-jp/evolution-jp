@@ -452,6 +452,10 @@ class SubParser {
     function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
     	global $modx;
+    	if($this->debugLog)
+    	{
+            register_shutdown_function(array (& $modx,'recDebugInfo'));
+    	}
     	
     	if (empty($url)) return false;
     	elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
