@@ -331,7 +331,7 @@ class SubParser {
         $str = $modx->mergeBenchmarkContent($str);
 
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
-		$str .= '<br />' . $modx->get_backtrace(debug_backtrace()) . "\n";
+		$str .= '<br />' . $modx->get_backtrace() . "\n";
 		
 
         // Log error
@@ -377,12 +377,12 @@ class SubParser {
         exit;
     }
 
-	function get_backtrace($backtrace)
+	function get_backtrace()
 	{
 		global $modx;
 		$str = "<p><b>Backtrace</b></p>\n";
 		$str  .= '<table>';
-		$backtrace = array_reverse($backtrace);
+		$backtrace = array_reverse(debug_backtrace());
 		foreach ($backtrace as $key => $val)
 		{
 			$key++;
@@ -394,6 +394,8 @@ class SubParser {
 			{
     			case '->':
     			case '::':
+    				if($val['class']==='DocumentParser'&&$val['type']==='->')
+    					$val['class'] = '$modx';
     				$functionName = $val['function'] = $val['class'] . $val['type'] . $val['function'];
     				break;
     			default:

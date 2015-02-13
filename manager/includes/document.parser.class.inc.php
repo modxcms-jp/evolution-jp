@@ -3173,8 +3173,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->clearCache($params);}
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
         {$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
-    function get_backtrace($backtrace)
-        {$this->loadExtension('SubParser');return $this->sub->get_backtrace($backtrace);}
+    function get_backtrace()
+        {$this->loadExtension('SubParser');return $this->sub->get_backtrace();}
     function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
         {$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
     function sendForward($id='', $responseCode= '')
