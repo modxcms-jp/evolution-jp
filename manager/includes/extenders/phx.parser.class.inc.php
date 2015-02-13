@@ -403,7 +403,7 @@ class PHx {
 				break;
 			#####  Special functions 
 			case 'math':
-				$filter = preg_replace("~([a-zA-Z\n\r\t\s])~",'',$opt);
+				$filter = preg_replace('@([a-zA-Z\n\r\t\s])@','',$opt);
 				$filter = str_replace('?',$value,$filter);
 				$value = eval('return '.$filter.';');
 				break;
