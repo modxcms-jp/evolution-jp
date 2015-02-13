@@ -70,7 +70,7 @@ if (!defined('MODX_API_MODE')
     session_start();
     if (!isset($_SESSION['mgrValidated'])) {
         session_write_close();
-        $target = $base_path . 'assets/cache/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
+        $target = $base_path . 'assets/cache/pages/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));

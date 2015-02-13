@@ -255,7 +255,7 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
         
-        if($this->config['individual_cache']==1)
+        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
             $this->uaType = $this->getUaType();
         else $this->uaType = 'pages';
         
