@@ -595,9 +595,8 @@ class PHx {
 		return false;
 	}
 	
-	function _delimRoop($_tmp,$nextchar)
+	function _delimRoop($_tmp,$delim)
 	{
-		$delim = $nextchar;
 		$_tmp = substr($_tmp,1);
 		$value = '';
 		$c = 0;
@@ -612,9 +611,9 @@ class PHx {
 			else
 				$value .= $char;
 			
-			if($delim===$_tmp) break;
-			elseif($bt === $_tmp)  break;
-			elseif($_tmp==='')     break;
+			if($delim===$_tmp)    break;
+			elseif($bt === $_tmp) break;
+			elseif($_tmp==='')    break;
 		}
 		if($value===$delim) $value = '';
 		if($delim==='`'||$delim==='"')
