@@ -611,7 +611,7 @@ class PHx {
 			else
 				$value .= $char;
 			
-			if($delim===$_tmp)    break;
+			if($delim===$_tmp)    {$_tmp='';break;}
 			elseif($bt === $_tmp) break;
 			elseif($_tmp==='')    break;
 		}
