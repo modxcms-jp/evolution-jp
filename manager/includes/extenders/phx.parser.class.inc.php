@@ -61,7 +61,7 @@ class PHx {
 			if(!is_null($value))
 			{
     	    	$key=trim($key);
-    	    	if($key!=='') $result[$key]=$value;
+    	    	if($key!=='') $result[]=array('cmd'=>$key,'opt'=>$value);
     	    	
     	    	$key   = '';
     	    	$value = null;
@@ -70,17 +70,17 @@ class PHx {
 			if($modifiers===$bt)
 			{
 				$key = trim($key);
-				if($key!=='') $result[$key] = '';
+				if($key!=='') $result[] = array('cmd'=>$key,'opt'=>'');
 				break;
 			}
 		}
 		
 		if(empty($result)) return array();
 		
-		foreach($result as $k=>$v)
+		foreach($result as $i=>$a)
 		{
-			$result[$k] = $this->parseDocumentSource($v);
-			$result[$k] = $modx->parseText($v,$this->placeholders);
+			$result[$i]['opt'] = $this->parseDocumentSource($a['opt']);
+			$result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders);
 		}
 		
 		return $result;
@@ -92,9 +92,9 @@ class PHx {
 		if(empty($modifiers)) return;
 		
 		$condition = array();
-		foreach($modifiers as $cmd=>$opt)
+		foreach($modifiers as $i=>$a)
 		{
-			$value = $this->Filter($key,$value, $cmd, $opt);
+			$value = $this->Filter($key,$value, $a['cmd'], $a['opt']);
 		}
 		return $value;
 	}
