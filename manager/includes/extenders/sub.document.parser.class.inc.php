@@ -413,7 +413,7 @@ class SubParser {
     		
     		$i++;
     	}
-    	$msg = '<pre>' . print_r($incs,true) . print_r($backtrace,true) . '</pre>';
+    	$msg = '<pre>' . print_r($incs,true) . print_r($backtrace,true) . print_r($modx->functionLog,true) . '</pre>';
     	$this->addLog('Debug log',$msg,1);
     }
     
