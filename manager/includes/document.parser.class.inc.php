@@ -1180,26 +1180,39 @@ class DocumentParser {
     }
     
     function _getTagsFromContent($content, $left='[+',$right='+]') {
-        $_tmp = $content;
-        $spacer = md5('dummy');
-        if(strpos($_tmp,']]>')!==false)  $_tmp = str_replace(']]>', "]{$spacer}]>",$_tmp);
-        if(strpos($_tmp,';}}')!==false)  $_tmp = str_replace(';}}', ";}{$spacer}}",$_tmp);
-        if(strpos($_tmp,'{{}}')!==false) $_tmp = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$_tmp);
-        $count_left  = 0;
-        $count_right = 0;
+        if(strpos($content,$left)===false) return array();
+        $spacer = md5('<<<MODX>>>');
+        if(strpos($content,']]>')!==false)  $content = str_replace(']]>', "]{$spacer}]>",$content);
+        if(strpos($content,';}}')!==false)  $content = str_replace(';}}', ";}{$spacer}}",$content);
+        if(strpos($content,'{{}}')!==false) $content = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$content);
+        $_ = explode($left,$content);
+        $piece = array();
+        $c_ = count($_)-1;
+        foreach($_ as $i=>$v)
+        {
+            if($i===0) continue;
+            $piece[] = $left;
+            if(strpos($v,$right)===false) $piece[] = $v;
+            else
+            {
+                $__ = explode($right,$v);
+                $c__ = count($__)-1;
+                foreach($__ as $i=>$v)
+                {
+                    $piece[] = $v;
+                    if($i<$c__) $piece[] = $right;
+                }
+            }
+        }
+        
         $strlen_left  = strlen($left);
         $strlen_right = strlen($right);
         $key = '';
-        $c = 0;
-        while($_tmp!=='')
+        foreach($piece as $v)
         {
-            $bt = $_tmp;
-            $key .= substr($_tmp,0,1);
-            $_tmp = substr($_tmp,1);
-            $strpos_left = strpos($key,$left);
-            if($strpos_left!==false && substr($key,-$strlen_right)===$right)
+            $key .= $v;
+            if(substr($key,-$strlen_right)===$right)
             {
-                $key = substr($key,$strpos_left);
                 if(substr_count($key,$left)===substr_count($key,$right))
                 {
                     $key = substr($key, (strpos($key,$left) + $strlen_left) );
@@ -1207,9 +1220,6 @@ class DocumentParser {
                     $key = '';
                 }
             }
-            if($bt === $_tmp) break;
-            if(1000000<$c) exit('Fetch tags error');
-            $c++;
         }
         if(!$tags) return array();
         
@@ -1227,9 +1237,7 @@ class DocumentParser {
         $i = 0;
         foreach($tags as $tag)
         {
-            if(strpos($tag,"]{$spacer}]>")!==false)           $tags[$i] = str_replace("]{$spacer}]>", ']]>', $tag);
-            if(strpos($tag,";}{$spacer}}")!==false)           $tags[$i] = str_replace(";}{$spacer}}", ';}}', $tag);
-            if(strpos($tag,"{{$spacer}{}{$spacer}}")!==false) $tags[$i] = str_replace("{{$spacer}{}{$spacer}}", '{{}}',$tag);
+            if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
             $i++;
         }
         return $tags;
