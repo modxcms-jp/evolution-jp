@@ -516,7 +516,8 @@ class PHx {
 			$this->vars['options'] = & $opt;
 			$custom = eval($php);
 			$msg = ob_get_contents();
-			$value = $msg . $custom;
+			$result = $msg . $custom;
+			if($result) $value = $result;
 			ob_end_clean();
 		}
 		elseif($html!==false && isset($value) && $value!=='')

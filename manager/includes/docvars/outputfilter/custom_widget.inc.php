@@ -34,7 +34,13 @@
 	{
 		$tvname = $name;
 		$eval_str = trim(substr($params['output'], 6));
-		$widget_output = eval($eval_str);
+		ob_start();
+		$return = eval($eval_str);
+		$msg = ob_get_contents();
+		$result = $msg . $return;
+		if($result) $widget_output = $result;
+		else $widget_output = $value;
+		ob_end_clean();
 	}
 	elseif($value==='')
 		return;
