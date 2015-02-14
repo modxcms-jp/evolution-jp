@@ -331,13 +331,13 @@ class ditto {
 			if(isset($modx->config['output_filter']) && $modx->config['output_filter']!=='0')
 			{
 				$modx->loadExtension('PHx') or die('Could not load PHx class.');
-				$modx->phx->setPlaceholders($placeholders);
+				$modx->filter->setPlaceholders($placeholders);
                 $i=0;
-                $template = $modx->parseText($template,$modx->phx->placeholders);
+                $template = $modx->parseText($template,$modx->filter->placeholders);
                 while($i<1000)
                 {
                     $bt = $template;
-                    $template = $modx->parseText($template,$modx->phx->placeholders);
+                    $template = $modx->parseText($template,$modx->filter->placeholders);
                     if($bt===$template) break;
                     $i++;
                 }
