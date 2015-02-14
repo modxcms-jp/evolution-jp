@@ -1297,7 +1297,11 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-		if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
         return $content;
     }
     
@@ -1342,7 +1346,11 @@ class DocumentParser {
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
         return $content;
     }
     
@@ -1392,7 +1400,11 @@ class DocumentParser {
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
         return $content;
     }
     
@@ -1439,7 +1451,11 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
         return $content;
     }
     
@@ -2628,7 +2644,11 @@ class DocumentParser {
             $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
-        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
+        if ($this->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
         return $content;
     }
     
