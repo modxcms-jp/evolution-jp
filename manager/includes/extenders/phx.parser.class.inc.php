@@ -11,7 +11,10 @@
 ####*/
 
 class PHx {
+	
 	var $placeholders = array();
+	var $vars = array();
+	
 	function PHx()
 	{
 		global $modx;
@@ -23,10 +26,10 @@ class PHx {
 		global $modx;
 		
 		$modifiers = $this->splitModifiers($modifiers);
-		$modx->filter = array();
-		$modx->filter['name']    = & $phxkey;
+		$this->vars = array();
+		$this->vars['name']    = & $phxkey;
 		$value = $this->parsePhx($key,$value,$modifiers);
-		$modx->filter = array();
+		$this->vars = array();
 		return $value;
 	}
 	
@@ -507,11 +510,10 @@ class PHx {
 			else                                     $input  = $value;
 			if($modx->config['output_filter']==='1') $name   = $phxkey;
 			else                                     $key    = $phxkey;
-			
-			$modx->filter['value']   = & $value;
-			$modx->filter['input']   = & $value;
-			$modx->filter['option']  = & $opt;
-			$modx->filter['options'] = & $opt;
+			$this->vars['value']   = & $value;
+			$this->vars['input']   = & $value;
+			$this->vars['option']  = & $opt;
+			$this->vars['options'] = & $opt;
 			$custom = eval($php);
 			$msg = ob_get_contents();
 			$value = $msg . $custom;
