@@ -35,7 +35,7 @@ class PHx {
 		global $modx;
 		
 		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
-			return array($modifiers=>'');
+			return array(array('cmd'=>$modifiers,'opt'=>''));
 		
 		$result = array();
 		$key   = '';
