@@ -10,7 +10,7 @@
 	$modx->tvfilter = new stdClass();
 	$modx->tvfilter->vars['name']    = & $name;
 	$modx->tvfilter->vars['value']   = & $value;
-	$modx->tvfilter->vars['input']   = & $value;g
+	$modx->tvfilter->vars['input']   = & $value;
 	
 	if(substr($params['output'], 0, 5) == '@FILE')
 	{
