@@ -347,14 +347,12 @@ $OnDocFormRender = $modx->invokeEvent('OnDocFormRender', array(
 $OnRichTextEditorInit = '';
 if($modx->config['use_editor'] === '1') {
 	if(is_array($rte_field) && 0<count($rte_field)) {
-		if($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27' || $_REQUEST['a'] == '72') {
-			// invoke OnRichTextEditorInit event
-			$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
-				'editor' => $selected_editor,
-				'elements' => $rte_field
-			));
-			if (is_array($evtOut)) $OnRichTextEditorInit = implode('', $evtOut);
-		}
+		// invoke OnRichTextEditorInit event
+		$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+			'editor' => $selected_editor,
+			'elements' => $rte_field
+		));
+		if (is_array($evtOut)) $OnRichTextEditorInit = implode('', $evtOut);
 	}
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
