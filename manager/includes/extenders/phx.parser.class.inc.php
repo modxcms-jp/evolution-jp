@@ -91,13 +91,15 @@ class PHx {
 	
 	function parsePhx($key,$value,$modifiers)
 	{
-		global $condition;
+		global $modx,$condition;
 		if(empty($modifiers)) return;
 		
 		$condition = array();
 		foreach($modifiers as $i=>$a)
 		{
+			if ($modx->debug) $fstart = $modx->getMicroTime();
 			$value = $this->Filter($key,$value, $a['cmd'], $a['opt']);
+			if ($modx->debug) $modx->addLogEntry('$modx->filter->'.__FUNCTION__."(:{$a['cmd']})",$fstart);
 		}
 		return $value;
 	}
