@@ -7,10 +7,10 @@
 	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name),'[+','+]',false);
 	
 	if(substr($params['output'], 0, 5)==='<?php') $params['output'] = "@EVAL:\n" . substr($params['output'],5);
-	$modx->filter = new stdClass();
-	$modx->filter->vars['name']    = & $name;
-	$modx->filter->vars['value']   = & $value;
-	$modx->filter->vars['input']   = & $value;
+	$modx->tvfilter = new stdClass();
+	$modx->tvfilter->vars['name']    = & $name;
+	$modx->tvfilter->vars['value']   = & $value;
+	$modx->tvfilter->vars['input']   = & $value;g
 	
 	if(substr($params['output'], 0, 5) == '@FILE')
 	{
@@ -47,7 +47,7 @@
 	else
 		$widget_output = $params['output'];
 	
-	$modx->filter->vars = array();
+	$modx->tvfilter->vars = array();
 	
 	if(is_string($widget_output)) // Except @INCLUDE
 	{
