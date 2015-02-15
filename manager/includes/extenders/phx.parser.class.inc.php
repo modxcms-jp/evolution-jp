@@ -510,14 +510,14 @@ class PHx {
 			else                                     $input  = $value;
 			if($modx->config['output_filter']==='1') $name   = $phxkey;
 			else                                     $key    = $phxkey;
+			$bt = $value;
 			$this->vars['value']   = & $value;
 			$this->vars['input']   = & $value;
 			$this->vars['option']  = & $opt;
 			$this->vars['options'] = & $opt;
 			$custom = eval($php);
 			$msg = ob_get_contents();
-			$result = $msg . $custom;
-			if($result) $value = $result;
+			if($value===$bt) $value = $msg . $custom;
 			ob_end_clean();
 		}
 		elseif($html!==false && isset($value) && $value!=='')
