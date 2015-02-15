@@ -252,9 +252,8 @@ switch ($action) {
         include_once "footer.inc.php";
         break;
     case 4: // get the mutate page for adding content
-    case 27: // get the mutate page for changing content
-    case 85: // get the mutate page for adding a folder
     case 72: // get the weblink page
+    case 27: // get the mutate page for changing content
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";

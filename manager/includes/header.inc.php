@@ -54,7 +54,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 			var action = <?php echo $action;?>;
 			switch(action)
 			{
-				case 85:
 				case 27:
 				case 17:
 				case 4:

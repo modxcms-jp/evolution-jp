@@ -304,7 +304,6 @@ function checkPermissions($id) {
 			}
 			$modx->manager->remove_locks('27');
 			break;
-		case 85:
 		case 72:
 		case 4:
 			if (!$modx->hasPermission('new_document')) {
@@ -1048,7 +1047,7 @@ function fieldLink_attributes() {
 
 function fieldIsfolder() {
 	global $modx,$_lang,$docObject;
-	$cond = ($docObject['isfolder']==1||$_REQUEST['a']=='85');
+	$cond = ($docObject['isfolder']==1);
 	$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
 	$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
 	$body = input_checkbox('isfolder',$cond,$disabled);

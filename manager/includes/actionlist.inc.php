@@ -86,7 +86,6 @@ $GLOBALS['action_list'] = array(
 	'81' => 'Managing keywords',
 	'83' => 'Exporting a resource to HTML',
 	'84' => 'Load Element Selector',
-	'85' => 'Create Folder',
 	'86' => 'Role management',
 	'87' => 'Create new web user',
 	'88' => 'Editing web user',
