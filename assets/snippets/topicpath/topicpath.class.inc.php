@@ -64,6 +64,10 @@ class TopicPath
 				$tpl['Separator']         = ' &raquo; ';
 		}
 		$tpl = array_merge($tpl, $this->tpl);
+		foreach($tpl as $i=>$v)
+		{
+			if(substr($v,0,5)==='@CODE') $tpl[$i] = substr($v,6);
+		}
 		
 		$docs   = $this->getDocs($id);
 		$topics = $this->setTopics($docs,$tpl);
