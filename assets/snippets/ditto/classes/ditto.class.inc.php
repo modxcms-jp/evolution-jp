@@ -1147,10 +1147,10 @@ class ditto {
 			if (($x < $min_x) || ($x > $max_x)) continue;
 			
 			if ($inc != $start) {
-				$pages .= $this->template->replace(array('url'=>$this->buildURL("start=$inc"),'page'=>$display),$tplPaginatePage);
+				$pages .= $modx->parseText(array('url'=>$this->buildURL("start={$inc}"),'page'=>$display),$tplPaginatePage);
 			} else {
 				$modx->setPlaceholder($dittoID."currentPage", $display);
-				$pages .= $this->template->replace(array('page'=>$display),$tplPaginateCurrentPage);
+				$pages .= $modx->parseText(array('page'=>$display),$tplPaginateCurrentPage);
 			}
 		}
 		if ($totalpages>1 || $paginateAlwaysShowLinks==1){
