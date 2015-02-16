@@ -1100,13 +1100,21 @@ class ditto {
 			return false;
 		}
 		$next = $start + $summarize;
-		$rNext =  $this->template->replace(array('url'=>$this->buildURL("start=$next"),'lang:next'=>$ditto_lang['next']),$tplPaginateNext);
+		if(strpos($tplPaginateNext,'lang:next')!==false)
+			$tplPaginateNext     = str_replace('lang:next','lang%next',$tplPaginateNext);
+		if(strpos($tplPaginatePrevious,'lang:previous')!==false)
+			$tplPaginatePrevious = str_replace('lang:previous','lang%previous',$tplPaginatePrevious);
+		$rNext =  $modx->parseText(array('url'=>$this->buildURL("start={$next}"),'lang%next'=>$ditto_lang['next']),$tplPaginateNext);
 		$previous = $start - $summarize;
-		$rPrevious =  $this->template->replace(array('url'=>$this->buildURL("start=$previous"),'lang:previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
+		$rPrevious =  $modx->parseText(array('url'=>$this->buildURL("start={$previous}"),'lang%previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
 		$limten = $summarize + $start;
 		if ($paginateAlwaysShowLinks == 1) {
-			$previousplaceholder = $this->template->replace(array('lang:previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
-			$nextplaceholder = $this->template->replace(array('lang:next'=>$ditto_lang['next']),$tplPaginateNextOff);
+    		if(strpos($tplPaginatePreviousOff,'lang:previous')!==false)
+    			$tplPaginatePreviousOff = str_replace('lang:previous','lang%previous',$tplPaginatePreviousOff);
+    		if(strpos($tplPaginateNextOff,'lang:next')!==false)
+    			$tplPaginateNextOff     = str_replace('lang:next','lang%next',$tplPaginateNextOff);
+			$previousplaceholder = $modx->parseText(array('lang%previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
+			$nextplaceholder = $modx->parseText(array('lang%next'=>$ditto_lang['next']),$tplPaginateNextOff);
 		} else {
 			$previousplaceholder = "";
 			$nextplaceholder = "";
