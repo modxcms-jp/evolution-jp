@@ -2604,6 +2604,8 @@ class DocumentParser {
 
     function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
     {
+    	if(is_array($content)&&is_string($ph)) {list($ph,$content) = array($content,$ph);}
+        
         if(!$ph) return $content;
         if ($this->debug) $fstart = $this->getMicroTime();
         if(strpos($content,$left)===false) return $content;
