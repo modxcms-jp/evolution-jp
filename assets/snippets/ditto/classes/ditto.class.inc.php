@@ -683,7 +683,7 @@ class ditto {
 	function getParentList() {
 		global $modx;
 		$kids = array();
-		if(method_exists($modx, 'setdocumentMap') && !isset($modx->documentMap))
+		if(method_exists($modx, 'setdocumentMap') && empty($modx->documentMap))
 		{
 			$modx->setdocumentMap();
 		}
@@ -801,7 +801,7 @@ class ditto {
 		$kids = array();
 		$docIDs = array();
 		
-		if(method_exists($modx, 'setdocumentMap') && !isset($modx->documentMap))
+		if(method_exists($modx, 'setdocumentMap') && empty($modx->documentMap))
 		{
 			$modx->setdocumentMap();
 		}
