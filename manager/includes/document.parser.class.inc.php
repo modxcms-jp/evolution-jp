@@ -1729,9 +1729,11 @@ class DocumentParser {
             }
             elseif($char==='&')
             {
-                $value = '';
+                if(trim($key)!=='') $value = '';
+                else continue;
             }
-            else $key .= $char;
+            else
+                if($key!==''||trim($char)!=='') $key .= $char;
             
             if(!is_null($value))
             {
