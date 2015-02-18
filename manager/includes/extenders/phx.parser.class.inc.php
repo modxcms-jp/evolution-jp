@@ -134,6 +134,7 @@ class PHx {
 		elseif(isset($modx->chunkCache[$cmd])) {
 			$this->elmName = $cmd;
 		}
+		$cmd = strtolower($cmd);
 		if($this->elmName!=='')
 			$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
 		else
