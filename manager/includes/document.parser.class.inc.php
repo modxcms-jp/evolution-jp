@@ -1644,6 +1644,14 @@ class DocumentParser {
         $replace= array ();
         foreach($matches[1] as $i=>$value)
         {
+            foreach($matches[0] as $find=>$tag)
+            {
+                if(isset($replace[$find]) && strpos($value,$tag)!==false)
+                {
+                    $value = str_replace($tag,$replace[$find],$value);
+                    break;
+                }
+            }
             $replace[$i] = $this->_get_snip_result($value);
         }
         $content = str_replace($matches['0'], $replace, $content);
