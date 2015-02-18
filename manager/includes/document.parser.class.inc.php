@@ -1185,61 +1185,54 @@ class DocumentParser {
         if(strpos($content,']]>')!==false)  $content = str_replace(']]>', "]{$spacer}]>",$content);
         if(strpos($content,';}}')!==false)  $content = str_replace(';}}', ";}{$spacer}}",$content);
         if(strpos($content,'{{}}')!==false) $content = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$content);
-        $_ = explode($left,$content);
-        $piece = array();
-        $c_ = count($_)-1;
-        foreach($_ as $i=>$v)
-        {
-            if($i===0) continue;
-            $piece[] = $left;
-            if(strpos($v,$right)===false) $piece[] = $v;
-            else
-            {
-                $__ = explode($right,$v);
-                $c__ = count($__)-1;
-                foreach($__ as $i=>$v)
-                {
-                    $piece[] = $v;
-                    if($i<$c__) $piece[] = $right;
-                }
-            }
-        }
         
-        $strlen_left  = strlen($left);
-        $strlen_right = strlen($right);
-        $key = '';
-        foreach($piece as $v)
-        {
-            $key .= $v;
-            if(substr($key,-$strlen_right)===$right)
-            {
-                if(substr_count($key,$left)===substr_count($key,$right))
-                {
-                    $key = substr($key, (strpos($key,$left) + $strlen_left) );
-                    $tags[] = substr($key,0,strlen($key)-$strlen_right);
-                    $key = '';
-                }
+        $lp = explode($left,$content);
+        $piece = array();
+        foreach($lp as $lv) {
+            $rp = explode($right,$lv);
+            foreach($rp as $i=>$rv) {
+                $piece[] = $rv;
+                $piece[] = $right;
             }
+            array_pop($piece);
+            $piece[] = $left;
+        }
+        array_pop($piece);
+        
+        $lc=0;
+        $rc=0;
+        $fetch = '';
+        foreach($piece as $v) {
+            if($v===$left) {
+                if(0<$lc) $fetch .= $v;
+                $lc++;
+            }
+            elseif($v===$right) {
+                $rc++;
+                if($fetch!==''&&$lc===$rc) {
+                    $tags[] = $fetch;
+                    $fetch = '';
+                    $lc=0;
+                    $rc=0;
+                }
+                else $fetch .= $v;
+            }
+            elseif(0<$lc) $fetch .= $v;
+            else continue;
         }
         if(!$tags) return array();
-        
-        foreach($tags as $tag)
-        {
-            if(strpos($tag,$left)!==false)
-            {
-                $fetch = $this->_getTagsFromContent($tag,$left,$right);
-                foreach($fetch as $v)
-                {
-                    $tags[] = $v;
-                }
+
+        foreach($tags as $tag) {
+            if(strpos($tag,$left)!==false) {
+                $innerTags = $this->_getTagsFromContent($tag,$left,$right);
+                $tags = array_merge($innerTags,$tags);
             }
         }
-        $i = 0;
-        foreach($tags as $tag)
-        {
+        
+        foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
-            $i++;
         }
+        
         return $tags;
     }
     
