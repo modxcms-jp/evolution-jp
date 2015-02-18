@@ -614,9 +614,9 @@ class DocumentParser {
         else
             echo $this->documentOutput;
         
-        $result = ob_get_clean();
+        $echo = ob_get_clean();
         if($this->debug) $this->recDebugInfo();
-        return $result;
+        return $echo;
     }
     
     function postProcess()
@@ -1569,11 +1569,11 @@ class DocumentParser {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        $result = eval($pluginCode);
+        $return = eval($pluginCode);
         unset ($modx->event->params);
-        $msg= ob_get_contents();
+        $echo = ob_get_contents();
         ob_end_clean();
-        if ($msg && isset ($php_errormsg))
+        if ($echo && isset ($php_errormsg))
         {
             $error_info = error_get_last();
             if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
@@ -1581,17 +1581,17 @@ class DocumentParser {
             if(1<$this->config['error_reporting'] || 2<$error_type)
             {
                 extract($error_info);
-                if($msg===false) $msg = 'ob_get_contents() error';
-                $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Plugin', $text, $line, $msg);
+                if($echo===false) $echo = 'ob_get_contents() error';
+                $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Plugin', $text, $line, $echo);
                 if ($this->isBackend())
                 {
-                    $this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$msg}</p>");
+                    $this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$echo}</p>");
                 }
             }
         }
         else
         {
-            return $msg . $result;
+            return $echo . $return;
         }
     }
     
@@ -1614,11 +1614,11 @@ class DocumentParser {
         }
         ob_start();
         if(!isset($this->chunkCache)) $this->setChunkCache();
-        $result= eval($phpcode);
-        $msg= ob_get_contents();
+        $return= eval($phpcode);
+        $echo= ob_get_contents();
         ob_end_clean();
         
-        if ((0<$this->config['error_reporting']) && $msg && isset($php_errormsg))
+        if ((0<$this->config['error_reporting']) && $echo && isset($php_errormsg))
         {
             $error_info = error_get_last();
             if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
@@ -1626,17 +1626,17 @@ class DocumentParser {
             if(1<$this->config['error_reporting'] || 2<$error_type)
             {
                 extract($error_info);
-                $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Snippet', $text, $line, $msg);
+                $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Snippet', $text, $line, $echo);
                 if ($this->isBackend())
                 {
-                    $this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
+                    $this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$echo}</p>");
                 }
             }
         }
         unset ($modx->event->params);
         if ($this->debug) $this->addLogEntry($this->currentSnippet,$fstart);
         $this->currentSnippet = '';
-        return $msg . $result;
+        return $echo . $return;
     }
     
     function evalSnippets($content)
