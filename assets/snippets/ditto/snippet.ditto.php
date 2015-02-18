@@ -207,7 +207,7 @@ if ($debug == 1) {
 $files = array_unique($files);
 foreach ($files as $filename => $filevalue)
 {
-    if(is_file($filevalue) && strpos($filename,'class'))
+    if(strpos($filename,'class') && is_file($filevalue))
     {
         include_once($filevalue);
     }
