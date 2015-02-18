@@ -1250,9 +1250,8 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
         
-        $i= 0;
         $replace= array ();
-        foreach($matches['1'] as $key):
+        foreach($matches['1'] as $i=>$key):
             $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
             
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
@@ -1289,7 +1288,6 @@ class DocumentParser {
                 }
             }
             $replace[$i]= $value;
-            $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
         if ($this->debug)
@@ -1317,9 +1315,8 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[(',')]');
         if(!$matches) return $content;
         
-        $i= 0;
         $replace= array ();
-        foreach($matches['1'] as $key):
+        foreach($matches['1'] as $i=>$key):
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -1337,7 +1334,6 @@ class DocumentParser {
                 $replace[$i]= $value;
             }
             else $replace[$i]= $key;
-            $i++;
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
@@ -1358,9 +1354,8 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'{{','}}');
         if(!$matches) return $content;
         
-        $i= 0;
         $replace= array ();
-        foreach($matches['1'] as $key):
+        foreach($matches['1'] as $i=>$key):
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -1391,7 +1386,6 @@ class DocumentParser {
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;
-            $i++;
         endforeach;
         
         $content= str_replace($matches['0'], $replace, $content);
@@ -1414,9 +1408,8 @@ class DocumentParser {
         $content=$this->mergeSettingsContent($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
-        $i= 0;
         $replace = array();
-        foreach($matches['1'] as $key):
+        foreach($matches['1'] as $i=>$key):
             $doReplace = true;
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
@@ -1443,7 +1436,6 @@ class DocumentParser {
                 unset ($matches['1'][$i]);
             }
             else               $replace[$i]= $value;
-            $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
         if ($this->debug)
@@ -1649,12 +1641,10 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[[',']]');
         
         if(!$matches) return $content;
-        $i= 0;
         $replace= array ();
-        foreach($matches['1'] as $value)
+        foreach($matches[1] as $i=>$value)
         {
             $replace[$i] = $this->_get_snip_result($value);
-            $i++;
         }
         $content = str_replace($matches['0'], $replace, $content);
         return $content;
@@ -2521,8 +2511,7 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[~','~]');
         if(!$matches) return $content;
         
-        $i= 0;
-        foreach($matches['1'] as $key)
+        foreach($matches['1'] as $i=>$key)
         {
             $key_org = $key;
             $key = trim($key);
@@ -2553,7 +2542,6 @@ class DocumentParser {
             {
                 $replace[$i] = $key;
             }
-            $i++;
         }
         $content = str_replace($matches['0'], $replace, $content);
         return $content;
@@ -2619,9 +2607,8 @@ class DocumentParser {
         }
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!$matches) return $content;
-        $i= 0;
         $replace= array ();
-        foreach($matches['1'] as $key):
+        foreach($matches['1'] as $i=>$key):
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -2638,7 +2625,6 @@ class DocumentParser {
             }
             elseif($cleanup) $replace[$i] = '';
             else             $replace[$i] = $matches['0'][$i];
-            $i++;
         endforeach;
         $content= str_replace($matches['0'], $replace, $content);
         if ($this->debug)
