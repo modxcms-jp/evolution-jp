@@ -19,6 +19,7 @@ class PHx {
 	{
 		global $modx;
 		if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
+		$this->placeholders['phx'] = '';
 	}
 	
 	function phxFilter($key,$value,$modifiers)
