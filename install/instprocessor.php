@@ -283,8 +283,8 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 		
 		$name = $modx->db->escape($tplInfo['name']);
 		$dbv_chunk = $modx->db->getObject('site_htmlsnippets', "name='{$name}'");
-		if($dbv_chunk && $overwrite=='true') $update = true;
-		else                                 $update = false;
+		if($dbv_chunk) $update = true;
+		else           $update = false;
 		
 		$tpl_file_path = $tplInfo['tpl_file_path'];
 		
@@ -303,16 +303,6 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 		
 		if ($update)
 		{
-			if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
-			{
-				$errors += 1;
-				showError();
-				return;
-			}
-			echo ok($name,$lang_upgraded);
-		}
-		else
-		{
 			if($overwrite == 'false')
 			{
 				$rs =true;
@@ -327,6 +317,16 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 					$i++;
 				}
 			}
+			if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
+			{
+				$errors += 1;
+				showError();
+				return;
+			}
+			echo ok($name,$lang_upgraded);
+		}
+		else
+		{
 			$f['name'] = $name;
 			if (!@ $modx->db->insert($f, '[+prefix+]site_htmlsnippets'))
 			{
