@@ -221,7 +221,7 @@ class ditto {
 		$parsedFilters = array("basic"=>array(),"custom"=>array());
 		$filters = explode($globalDelimiter, $filter);
 		if ($filter && count($filters) > 0) {
-			foreach ($filters AS $filter) {
+			foreach ($filters as $filter) {
 				if (!empty($filter)) {
 					$filterArray = explode($localDelimiter, $filter);
 					$source = $filterArray[0];
@@ -312,7 +312,7 @@ class ditto {
 		$customPlaceholders = $ph;
 		// set custom placeholder
 		foreach ($ph as $name=>$value) {
-			if ($name != "*") {
+			if ($name !== "*") {
 				$placeholders[$name] = call_user_func($value[1],$resource);
 				unset($customPlaceholders[$name]);
 			}
@@ -516,8 +516,8 @@ class ditto {
 	
 	function multiSort($resource,$orderBy) {
 		$sort_arr = array();
-		foreach($resource AS $uniqid => $row){
-			foreach($row AS $key=>$value){
+		foreach($resource as $uniqid => $row){
+			foreach($row as $key=>$value){
 				$sort_arr[$key][$uniqid] = $value;
 			}
 		}
