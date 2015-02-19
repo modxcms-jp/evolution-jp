@@ -888,10 +888,8 @@ class SubParser {
 	    $input = trim($input);
 	    if (substr($input, 0, 1) !== '@')
 		{
-	        if(strpos($input,'[!')!==false)
-	            $input = str_replace(array('[!','!]'),array('[[',']]'),$input);
-	        if(strpos($input,'[[')!==false) $input = $modx->evalSnippets($input);
-	        return $input;
+		    if(strpos($input,'||')===false && strpos(trim($input),"\n")!==false)
+		    	return str_replace("\n",'||',$input);
 	    }
 	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
 	        return '@Bindings is disabled.';
@@ -1306,8 +1304,7 @@ class SubParser {
 		else
 		{
 			$v = trim($v);
-    		if(strpos($v,'||')!==false) $a = explode('||', $v);
-    		else                        $a = explode("\n", $v);
+    		$a = explode('||', $v);
 		}
 		return $a;
 	}
