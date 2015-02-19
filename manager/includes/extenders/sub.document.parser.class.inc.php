@@ -894,7 +894,7 @@ class SubParser {
 	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
 	        return '@Bindings is disabled.';
 
-        list ($cmd, $param) = $modx->ParseCommand($input);
+        list ($cmd, $param) = $this->ParseCommand($input);
         $cmd = '@'.trim($cmd);
         $param = trim($param);
         switch ($cmd) {
