@@ -1142,7 +1142,7 @@ class SubParser {
 				if($field_type==='listbox-multiple')
 					$tpl = str_replace('[+name+]','[+name+][]',$tpl);
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				$tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
 				$field_values = explode('||',$field_value);
 				foreach ($index_list as $label=>$item)
@@ -1181,7 +1181,7 @@ class SubParser {
 			case "checkbox": // handles check boxes
 				if(!is_array($field_value)) $field_value = explode('||',$field_value);
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				static $i=0;
 				foreach ($index_list as $item)
 				{
@@ -1194,7 +1194,7 @@ class SubParser {
 				break;
 			case "option": // handles radio buttons
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				static $i=0;
 				foreach ($index_list as $item)
 				{
@@ -1289,7 +1289,7 @@ class SubParser {
 		return trim($field_html);
 	}
 
-	function ParseIntputOptions($v)
+	function ParseInputOptions($v)
 	{
 		global $modx;
 		$a = array();

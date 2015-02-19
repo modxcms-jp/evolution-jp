@@ -3279,8 +3279,8 @@ class DocumentParser {
     function renderFormElement($f_type, $f_id, $default_text, $f_elements, $f_value, $f_style='', $row = array())
         {$this->loadExtension('SubParser');
         return $this->sub->renderFormElement($f_type,$f_id,$default_text,$f_elements,$f_value, $f_style,$row);}
-    function ParseIntputOptions($v)
-        {$this->loadExtension('SubParser');return $this->sub->ParseIntputOptions($v);}
+    function ParseInputOptions($v)
+        {$this->loadExtension('SubParser');return $this->sub->ParseInputOptions($v);}
     function splitOption($value)
         {$this->loadExtension('SubParser');return $this->sub->splitOption($value);}
     function isSelected($label,$value,$item,$field_value)
