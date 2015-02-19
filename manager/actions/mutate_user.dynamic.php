@@ -646,10 +646,6 @@ while ($row = $modx->db->getRow($rs))
 </tr>
 </table>
 </div>
-<?php
-if ($use_udperms == 1)
-{
-?>
 <!-- Miscellaneous settings -->
 <div class="tab-page" id="tabPage7">
 <h2 class="tab"><?php echo $_lang["settings_misc"] ?></h2>
@@ -715,6 +711,10 @@ if ($use_udperms == 1)
 	</tr>
 </table>
 </div>
+<?php
+if ($use_udperms == 1)
+{
+?>
 	<!-- Access -->
 	<div class="tab-page" id="tabAccess">
 		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
