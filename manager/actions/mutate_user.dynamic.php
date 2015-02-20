@@ -694,7 +694,7 @@ while ($row = $modx->db->getRow($rs))
 	<th><?php echo $_lang["upload_maxsize_title"]?></th>
 	<td>
 	<input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
-	<div><?php echo $_lang["upload_maxsize_message"]?></div>
+	<div><?php echo sprintf($_lang["upload_maxsize_message"],$modx->manager->getUploadMaxsize())?></div>
 	</td>
 </tr>
 	<tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
