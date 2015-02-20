@@ -898,6 +898,16 @@ class SubParser {
         $cmd = '@'.trim($cmd);
         $param = trim($param);
         switch ($cmd) {
+            case '@PARSE' :
+            case '@MODX' :
+                $output = trim($param);
+                if(strpos($output,'[!')!==false)
+                    $output = str_replace(array('[!','!]'),array('[[',']]'),$output);
+                if(strpos($output,'[*')!==false) $output = $modx->mergeDocumentContent($output);
+                if(strpos($output,'[(')!==false) $output = $modx->mergeSettingsContent($output);
+                if(strpos($output,'{{')!==false) $output = $modx->mergeChunkContent($output);
+                if(strpos($output,'[[')!==false) $output = $modx->evalSnippets($output);
+                break;
             case '@FILE' :
             	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
             	else                                     $output = @file_get_contents($param);
@@ -977,6 +987,8 @@ class SubParser {
 	{
 	    // Array of supported bindings. must be upper case
 	    $BINDINGS = array (
+	        'PARSE',
+	        'MODX',
 	        'FILE',
 	        'CHUNK',
 	        'DOCUMENT',
