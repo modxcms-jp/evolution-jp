@@ -309,6 +309,9 @@ class PHx {
 			case 'tobool':
 				$value = boolval($value);
 				break;
+			case 'addbreak':
+				$value = $this->addbreak($value);
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
@@ -737,4 +740,27 @@ class PHx {
 	function str_word_count($str) {
 		return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
 	}
-}
+	
+    function addbreak($text)
+    {
+        global $modx;
+        
+        if(isset($modx->documentObject['richtext'])&&$modx->documentObject['richtext']==1)
+            return $text;
+        
+        $text = $this->parseDocumentSource($text);
+        
+        $blockElms  = 'br,table,tbody,tr,td,th,thead,tfoot,caption,colgroup,div';
+        $blockElms .= ',dl,dd,dt,ul,ol,li,pre,select,option,form,map,area,blockquote';
+        $blockElms .= ',address,math,style,input,p,h1,h2,h3,h4,h5,h6,hr,object,param,embed';
+        $blockElms = explode(',', $blockElms);
+        $lines = explode("\n",$text);
+        foreach($lines as $i=>$line)
+        {
+            $line = rtrim($line);
+            if(!preg_match("@</?{$blocks}" . '[^>]*>$@',$line))
+                $lines[$i] = "${line}<br />";
+        }
+        return join("\n", $lines);
+    }
+ }
