@@ -1158,16 +1158,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["upload_maxsize_title"]?></th>
 <td>
 <?php
-if(version_compare(ini_get('upload_max_filesize'), ini_get('post_max_size'),'<'))
-{
-	$limit_size = ini_get('upload_max_filesize');
-}
-else $limit_size = ini_get('post_max_size');
-
-if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
-{
-	$limit_size = ini_get('memory_limit');
-}
+$limit_size = $modx->manager->getUploadMaxsize();
 if(empty($upload_maxsize))
 {
 	$limit_size_bytes = $limit_size;
