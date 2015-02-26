@@ -1829,11 +1829,13 @@ class SubParser {
     
     function getOption($key, $default = null, $options = null, $skipEmpty = false)
     {
+    	global $modx;
+    	
         $option= $default;
-        if (is_array($key) || strpos($key,',')!==false)
+        
+        if(strpos($key,',')!==false) $key = explode(',',$key);
+        if (is_array($key))
         {
-            $key = explode(',',$key);
-            
             if (!is_array($option))
             {
                 $default= $option;
@@ -1851,9 +1853,9 @@ class SubParser {
             {
                 $option= $options[$key];
             }
-            elseif(is_array($this->config) && !empty($this->config) && array_key_exists($key, $this->config) && (!$skipEmpty || ($skipEmpty && $this->config[$key] !== '')))
+            elseif(is_array($modx->config) && !empty($modx->config) && array_key_exists($key, $modx->config) && (!$skipEmpty || ($skipEmpty && $modx->config[$key] !== '')))
             {
-                $option= $this->config[$key];
+                $option= $modx->config[$key];
             }
         }
         return $option;
