@@ -181,7 +181,7 @@ if(is_dir($modulePath) && is_readable($modulePath))
 		    $p['guid']          = $params['guid'];
 		    $p['shareparams']   = intval($params['shareparams']);
 		    $p['category']      = $params['modx_category'];
-		    $p['installset']    = array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false;
+		    $p['installset']    = array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : array();
 			$tplModules[] = $p;
 		}
 	}

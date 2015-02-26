@@ -277,7 +277,7 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 			$installSample = true;
 		else $installSample = false;
 		
-		if(!in_array($i, $formvModules) && !$installSample) continue;
+		if(!in_array($i, $formvChunks) && !$installSample) continue;
 		
 		$overwrite = $tplInfo['overwrite'];
 		
