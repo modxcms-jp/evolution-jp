@@ -886,12 +886,8 @@ class SubParser {
 	    global $modx;
 	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
 	    $input = trim($input);
-	    if (substr($input, 0, 1) !== '@')
-		{
-		    if(strpos($input,'||')===false && strpos(trim($input),"\n")!==false)
-		    	return str_replace("\n",'||',$input);
-	    }
-	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
+	    
+	    if(substr($input,0,1)==='@' && $modx->config['enable_bindings']!=1 && $src==='docform')
 	        return '@Bindings is disabled.';
 
         list ($cmd, $param) = $this->ParseCommand($input);
@@ -900,13 +896,13 @@ class SubParser {
         switch ($cmd) {
             case '@PARSE' :
             case '@MODX' :
+                if(strpos($param,'[!')!==false)
+                    $param = str_replace(array('[!','!]'),array('[[',']]'),$param);
+                if(strpos($param,'[*')!==false) $param = $modx->mergeDocumentContent($param);
+                if(strpos($param,'[(')!==false) $param = $modx->mergeSettingsContent($param);
+                if(strpos($param,'{{')!==false) $param = $modx->mergeChunkContent($param);
+                if(strpos($param,'[[')!==false) $param = $modx->evalSnippets($param);
                 $output = trim($param);
-                if(strpos($output,'[!')!==false)
-                    $output = str_replace(array('[!','!]'),array('[[',']]'),$output);
-                if(strpos($output,'[*')!==false) $output = $modx->mergeDocumentContent($output);
-                if(strpos($output,'[(')!==false) $output = $modx->mergeSettingsContent($output);
-                if(strpos($output,'{{')!==false) $output = $modx->mergeChunkContent($output);
-                if(strpos($output,'[[')!==false) $output = $modx->evalSnippets($output);
                 break;
             case '@FILE' :
             	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
@@ -1233,7 +1229,7 @@ class SubParser {
             case 'custom_tv':
                 $custom_output = '';
                 /* If we are loading a file */
-                if(substr($field_elements, 0, 5) == "@FILE") {
+                if(substr($field_elements, 0, 5) == '@FILE') {
                     $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
                     if( !is_file($file_name) ) {
                         $custom_output = $file_name . ' does not exist';
@@ -1316,6 +1312,8 @@ class SubParser {
 		else
 		{
 			$v = trim($v);
+		    if(strpos($v,'||')===false && strpos(trim($v),"\n")!==false)
+		    	$v = str_replace("\n",'||',$v);
     		$a = explode('||', $v);
 		}
 		return $a;
