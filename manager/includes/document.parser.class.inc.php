@@ -1190,40 +1190,42 @@ class DocumentParser {
         
         $lp = explode($left,$content);
         $piece = array();
-        foreach($lp as $lv) {
-            $rp = explode($right,$lv);
-            foreach($rp as $i=>$rv) {
-                $piece[] = $rv;
-                $piece[] = $right;
+        foreach($lp as $lc=>$lv) {
+            if($lc!==0) $piece[] = $left;
+            if(strpos($lv,$right)===false) $piece[] = $lv;
+            else {
+                $rp = explode($right,$lv);
+                foreach($rp as $rc=>$rv) {
+                    if($rc!==0) $piece[] = $right;
+                    $piece[] = $rv;
+                }
             }
-            array_pop($piece);
-            $piece[] = $left;
         }
-        array_pop($piece);
-        
         $lc=0;
         $rc=0;
         $fetch = '';
         foreach($piece as $v) {
             if($v===$left) {
-                if(0<$lc) $fetch .= $v;
+                if(0<$lc) $fetch .= $left;
                 $lc++;
             }
             elseif($v===$right) {
+                if($lc===0) continue;
                 $rc++;
-                if($fetch!==''&&$lc===$rc) {
-                    $tags[] = $fetch;
+                if($lc===$rc) {
+                    $tags[] = $fetch; // Fetch and reset
                     $fetch = '';
                     $lc=0;
                     $rc=0;
                 }
-                else $fetch .= $v;
+                else $fetch .= $right;
+            } else {
+                if(0<$lc) $fetch .= $v;
+                else continue;
             }
-            elseif(0<$lc) $fetch .= $v;
-            else continue;
         }
         if(!$tags) return array();
-
+        
         foreach($tags as $tag) {
             if(strpos($tag,$left)!==false) {
                 $innerTags = $this->_getTagsFromContent($tag,$left,$right);
@@ -1234,7 +1236,6 @@ class DocumentParser {
         foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
         }
-        
         return $tags;
     }
     
