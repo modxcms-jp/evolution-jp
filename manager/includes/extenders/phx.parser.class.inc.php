@@ -238,6 +238,7 @@ class PHx {
 			case 'html_entity_decode':
 				$value = html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']); break;
 			case 'esc':
+			case 'escape':
 				$value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value));
 			$value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
 				break;
@@ -286,6 +287,7 @@ class PHx {
 			case 'hanzen':
 				if(empty($opt)) $opt='KAS';
 				$value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
+			case 'replace':
 			case 'str_replace':
 				if(empty($opt) || strpos($opt,',')===false) break;
 				list($s,$r) = explode(',',$opt,2);
