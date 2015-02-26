@@ -1146,6 +1146,7 @@ if ($debug == 1) {
     }
 }
 //outerTpl by Dmi3yy
+if(isset($tplOuter)) $outerTpl = $tplOuter;
 if ($outerTpl && $resource) { 
   if(substr($outerTpl, 0, 5) == '@CODE') {
     $outerTpl = trim(substr($outerTpl, 6));
