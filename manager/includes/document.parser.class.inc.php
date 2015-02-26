@@ -2236,45 +2236,17 @@ class DocumentParser {
         if($published==='1' || $published==='0')
             $where_published = "AND sc.published='{$published}'";
         else
+            $where_published = '';
+        
+        $where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
+        $orderby = ($sort) ? "{$sort} {$dir}" : '';
+        $result= $this->db->select($fields,$from,$where,$orderby,$limit);
+        $resourceArray= array ();
+        while ($row = $this->db->getRow($result))
         {
-            if(is_string($ids))
-            {
-                $ids = explode(',',$ids);
-                while(list($i,$id) = each($ids))
-                {
-                    $ids[$i] = trim($id);
-                }
-            }
-            
-            // modify field names to use sc. table reference
-            $fields = $this->join(',', explode(',',$fields),'sc.');
-            
-            if($sort !== '')  $sort = $this->join(',', explode(',',$sort),'sc.');
-            if ($where != '') $where= "AND {$where}";
-            // get document groups for current user
-            if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
-            $context = ($this->isFrontend()) ? 'web' : 'mgr';
-            $cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
-            
-            $fields = "DISTINCT {$fields}";
-            $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-            $ids_str = implode(',',$ids);
-            if(!is_null($published)) $published = (string)$published;
-            if($published==='1' || $published==='0')
-                $where_published = "AND sc.published='{$published}'";
-            else
-                $where_published = '';
-            
-            $where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
-            $orderby = ($sort) ? "{$sort} {$dir}" : '';
-            $result= $this->db->select($fields,$from,$where,$orderby,$limit);
-            $resourceArray= array ();
-            while ($row = $this->db->getRow($result))
-            {
-                $resourceArray[] = $row;
-            }
-            return $resourceArray;
+            $resourceArray[] = $row;
         }
+        return $resourceArray;
     }
 
     function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
@@ -2339,20 +2311,15 @@ class DocumentParser {
             $pid= $this->documentObject['parent'];
             return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
         }
-        elseif ($pid == 0)
-        {
-            return false;
-        }
-        else
-        {
-            // first get the child document
-            $child= $this->getPageInfo($pid, $activeOnly, "parent");
-            
-            // now return the child's parent
-            $pid= ($child['parent']) ? $child['parent'] : 0;
-            
-            return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
-        }
+        elseif ($pid == 0) return false;
+        
+        // first get the child document
+        $child= $this->getPageInfo($pid, $activeOnly, "parent");
+        
+        // now return the child's parent
+        $pid= ($child['parent']) ? $child['parent'] : 0;
+        
+        return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
     }
     
     private function _getReferenceListing()
