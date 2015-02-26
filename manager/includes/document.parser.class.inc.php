@@ -2208,10 +2208,33 @@ class DocumentParser {
     
     function getDocuments($ids= array(), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
     {
-        if (count($ids) == 0 || empty($ids))
+        if (count($ids) == 0 || empty($ids)) return false;
+        
+        if(is_string($ids))
         {
-            return false;
+            $ids = explode(',',$ids);
+            while(list($i,$id) = each($ids))
+            {
+                $ids[$i] = trim($id);
+            }
         }
+        
+        // modify field names to use sc. table reference
+        $fields = $this->join(',', explode(',',$fields),'sc.');
+        
+        if($sort !== '')  $sort = $this->join(',', explode(',',$sort),'sc.');
+        if ($where != '') $where= "AND {$where}";
+        // get document groups for current user
+        if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
+        $context = ($this->isFrontend()) ? 'web' : 'mgr';
+        $cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
+        
+        $fields = "DISTINCT {$fields}";
+        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+        $ids_str = implode(',',$ids);
+        if(!is_null($published)) $published = (string)$published;
+        if($published==='1' || $published==='0')
+            $where_published = "AND sc.published='{$published}'";
         else
         {
             if(is_string($ids))
@@ -2257,14 +2280,12 @@ class DocumentParser {
     function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
     {
         if ($id == 0) return false;
-        else
-        {
-            $tmpArr[]= $id;
-            $docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
-            
-            if ($docs != false) return $docs['0'];
-            else                return false;
-        }
+        
+        $tmpArr[]= $id;
+        $docs= $this->getDocuments($tmpArr, $published, $deleted, $fields, '', '', '', 1);
+        
+        if ($docs != false) return $docs['0'];
+        else                return false;
     }
 
     function getField($field='content', $docid='')
@@ -2288,29 +2309,27 @@ class DocumentParser {
     function getPageInfo($docid= 0, $activeOnly= 1, $fields= 'id, pagetitle, description, alias')
     {
         if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
-        else
+        
+        // modify field names to use sc. table reference
+        $fields = preg_replace("/\s/i", '',$fields);
+        $fields = $this->join(',',explode(',',$fields),'sc.');
+        
+        $published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
+        
+        // get document groups for current user
+        if($docgrp= $this->getUserDocGroups())
         {
-            // modify field names to use sc. table reference
-            $fields = preg_replace("/\s/i", '',$fields);
-            $fields = $this->join(',',explode(',',$fields),'sc.');
-            
-            $published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
-            
-            // get document groups for current user
-            if($docgrp= $this->getUserDocGroups())
-            {
-                $docgrp= implode(',', $docgrp);
-            }
-            if($this->isFrontend()) $context = "sc.privateweb='0'";
-            else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr='0'";
-            $cond   =  ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
-            
-            $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-            $where = "(sc.id='{$docid}' {$published}) AND ({$context} {$cond})";
-            $result = $this->db->select($fields,$from,$where,'',1);
-            $pageInfo = $this->db->getRow($result);
-            return $pageInfo;
+            $docgrp= implode(',', $docgrp);
         }
+        if($this->isFrontend()) $context = "sc.privateweb='0'";
+        else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr='0'";
+        $cond   =  ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
+        
+        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+        $where = "(sc.id='{$docid}' {$published}) AND ({$context} {$cond})";
+        $result = $this->db->select($fields,$from,$where,'',1);
+        $pageInfo = $this->db->getRow($result);
+        return $pageInfo;
     }
 
     function getParent($pid= -1, $activeOnly= 1, $fields= 'id, pagetitle, description, alias, parent')
