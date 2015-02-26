@@ -104,14 +104,13 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		$ph['spacer']    = $spacer;
 		$pagetitle = addslashes($pagetitle);
 		$pagetitle = htmlspecialchars($pagetitle,ENT_QUOTES,$modx->config['modx_charset']);
-		$nodetitle = addslashes($nodetitle);
 		$ph['pagetitle'] = "'{$pagetitle}'";
-		$ph['nodetitle'] = "'{$nodetitle}'";
+		$ph['nodetitle'] = "'".addslashes($nodetitle)."'";
 		$url = $modx->makeUrl($id,'','','full');
 		$ph['url']       = "'{$url}'";
 		$ph['published'] = $published;
 		$ph['deleted']   = $deleted;
-		$ph['nodetitleDisplay'] = '<span class="' . $class . '">' . "{$nodetitle}</span>";
+		$ph['nodetitleDisplay'] = '<span class="' . $class . '">' . $nodetitle . '</span>';
 		$ph['weblinkDisplay']   = $type==='reference' ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 		$ph['pageIdDisplay']    = '<small>('.($modx_textdir==='rtl' ? '&rlm;':'').$id.')</small>';
 		$ph['_lang_click_to_context'] = $_lang['click_to_context'];
@@ -381,7 +380,7 @@ function getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias) {
 			$rs = $pagetitle;
 	}
 	
-	return htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), ' ', $rs));
+	return htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), ' ', strip_tags($rs)));
 }
 
 function getIcon($id, $contenttype, $isfolder='0') {
