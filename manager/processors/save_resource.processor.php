@@ -82,7 +82,7 @@ switch ($actionToTake) {
 		$form_v['published']   = checkPublished($db_v);
 		$form_v['pub_date']    = checkPub_date($db_v);
 		$form_v['unpub_date']  = checkUnpub_date($db_v);
-		$form_v['publishedon'] = checkPublishedon($db_v);
+		$form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
 		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
@@ -366,7 +366,10 @@ function getInputValues($id=0,$mode='new') {
 		if(!isset($form_v[$key])) $form_v[$key] = '';
 		$fields[$key] = $form_v[$key];
 	}
-	if($mode==='edit') {
+	if($mode==='new') {
+    	$fields['publishedon'] = checkPublishedon(0);
+	}
+	elseif($mode==='edit') {
 		unset($fields['createdby']);
 		unset($fields['createdon']);
 	}
@@ -432,18 +435,18 @@ function checkUnpub_date($db_v) {
 	return getPublishPermission('unpub_date',$db_v);
 }
 
-function checkPublishedon($db_v) {
+function checkPublishedon($timestamp) {
 	global $modx,$form_v;
 	
 	if(!$modx->hasPermission('publish_document'))
-		return $db_v['publishedon'];
+		return $timestamp;
 	else
 	{
 		// if it was changed from unpublished to published
 		if(!empty($form_v['pub_date']) && $form_v['pub_date']<=$_SERVER['REQUEST_TIME'] && $form_v['published'])
 			$publishedon = $form_v['pub_date'];
-		elseif (0<$db_v['publishedon'] && $form_v['published'])
-			$publishedon = $db_v['publishedon'];
+		elseif (0<$timestamp && $form_v['published'])
+			$publishedon = $timestamp;
 		elseif(!$form_v['published'])
 			$publishedon = 0;
 		else
