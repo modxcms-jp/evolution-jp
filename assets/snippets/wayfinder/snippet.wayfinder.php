@@ -31,10 +31,10 @@ $config_path = "{$wf_base_path}configs/";
 $config = (!isset($config)) ? 'default' : trim($config);
 
 if(substr($config, 0, 6) == '@CHUNK')                           eval('?>' . $modx->getChunk(trim(substr($config, 7))));
-elseif(substr($config, 0, 5) == '@FILE')                        include_once($modx->config['base_path'] . trim(substr($config, 6)));
-elseif(is_file("{$config_path}{$config}.config.php"))           include_once("{$config_path}{$config}.config.php");
-elseif(is_file("{$config_path}{$config}"))                      include_once("{$config_path}{$config}");
-elseif(is_file($modx->config['base_path'].ltrim($config, '/'))) include_once($modx->config['base_path'] . ltrim($config, '/'));
+elseif(substr($config, 0, 5) == '@FILE')                        include($modx->config['base_path'] . trim(substr($config, 6)));
+elseif(is_file("{$config_path}{$config}.config.php"))           include("{$config_path}{$config}.config.php");
+elseif(is_file("{$config_path}{$config}"))                      include("{$config_path}{$config}");
+elseif(is_file($modx->config['base_path'].ltrim($config, '/'))) include($modx->config['base_path'] . ltrim($config, '/'));
 
 include_once($wf_base_path . 'wayfinder.inc.php');
 
