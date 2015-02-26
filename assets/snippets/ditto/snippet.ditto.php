@@ -207,7 +207,7 @@ if ($debug == 1) {
 $files = array_unique($files);
 foreach ($files as $filename => $filevalue)
 {
-    if(strpos($filename,'class') && is_file($filevalue))
+    if(strpos($filename,'class')!==false && is_file($filevalue))
     {
         include_once($filevalue);
     }
@@ -764,10 +764,10 @@ $save = (isset($save))? $save : 0;
     Default:
         0 - off; returns output
 */
-$tplAlt = (isset($tplAlt)) ? $tplAlt : '';
-$tplFirst = (isset($tplFirst)) ? $tplFirst : '';
-$tplLast = (isset($tplLast)) ? $tplLast : '';
-$tplCurrentDocument = (isset($tplCurrentDocument)) ? $tplCurrentDocument : '';
+if(!isset($tplAlt))             $tplAlt = '';
+if(!isset($tplFirst))           $tplFirst = '';
+if(!isset($tplLast))            $tplLast = '';
+if(!isset($tplCurrentDocument)) $tplCurrentDocument = '';
 $templates = array(
     "default" => "@CODE ".$_lang['default_template'],
     "base" => $tpl,
