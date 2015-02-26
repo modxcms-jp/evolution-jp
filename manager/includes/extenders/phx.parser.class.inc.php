@@ -38,7 +38,7 @@ class PHx {
 	{
 		global $modx;
 		
-		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false)
+		if(strpos($modifiers,':')===false && strpos($modifiers,'=')===false && strpos($modifiers,'(')===false)
 			return array(array('cmd'=>$modifiers,'opt'=>''));
 		
 		$result = array();
@@ -52,13 +52,15 @@ class PHx {
 			
 			if($key===''&&$char==='=') exit('PHx parse error');
 			
-			if($char==='=')
+			if    ($char==='=')
 			{
 		    	$nextchar = substr($modifiers,0,1);
 				if(in_array($nextchar, array('"', "'", '`'))) list($value,$modifiers) = $this->_delimRoop($modifiers,$nextchar);
 		    	elseif(strpos($modifiers,':')!==false)        list($value,$modifiers) = explode(':', $modifiers, 2);
 		    	else                                          list($value,$modifiers) = array('',$modifiers);
 			}
+			elseif($char==='(' && strpos($modifiers,')')!==false)
+				list($value,$modifiers) = explode(')', $modifiers, 2);
 			elseif($char===':') $value = '';
 			else                $key .= $char;
 			
