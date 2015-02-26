@@ -76,10 +76,6 @@ $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
 $ph=array();
 $ph['src']   = $_style['icons_tooltip_over'];
-$ph['title'] = $_lang['tmplvars_binding_msg'];
-$ph['alt']   = $_lang['tmplvars_binding_msg'];
-$tooltip_tv_binding = $modx->parseText($tooltip_tpl,$ph);
-
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt']   = $_lang['tmplvars_input_option_msg'];
 $tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
