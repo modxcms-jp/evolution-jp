@@ -61,7 +61,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	else $openedArray = false;
 	
     if ($openedArray) {
-            $opened = array_filter(array_map('intval', $openedArray));
+    	foreach($openedArray as $i=>$v) {
+    		$openedArray[$i] = (int) $v;
+    	}
+            $opened = array_filter($openedArray);
 
             foreach ($opened as $item) {
                  printf("openedArray[%d] = 1;\n", $item);

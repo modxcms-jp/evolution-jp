@@ -17,8 +17,13 @@ $indent    = intval($_GET['indent']);
 $parent    = intval($_GET['parent']);
 $expandAll = intval($_GET['expandAll']);
 
-if (isset($_SESSION['openedArray']))
-	$opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
+if (isset($_SESSION['openedArray'])) {
+	$openedArray = explode('|', $_SESSION['openedArray']);
+	foreach($openedArray as $i=>$v) {
+		$openedArray[$i] = (int) $v;
+	}
+	$opened = array_filter($openedArray);
+}
 else
 	$opened = array();
 $opened2 = array();
