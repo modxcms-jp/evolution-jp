@@ -239,7 +239,7 @@ class PHx {
 				$value = html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']); break;
 			case 'esc':
 			case 'escape':
-				$value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value));
+				$value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
 			$value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
 				break;
 			case 'strip':
