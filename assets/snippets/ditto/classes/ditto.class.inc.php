@@ -333,13 +333,14 @@ class ditto {
 				$modx->loadExtension('PHx') or die('Could not load PHx class.');
 				$modx->filter->setPlaceholders($placeholders);
                 $i=0;
-                $template = $modx->parseText($template,$modx->filter->placeholders);
-                while($i<1000)
+                $bt = '';
+                while($bt !== $template)
                 {
                     $bt = $template;
-                    $template = $modx->parseText($template,$modx->filter->placeholders);
+                    $template = $modx->parseText($template,$modx->filter->placeholders,'[+','+]',false);
                     if($bt===$template) break;
                     $i++;
+                    if(1000<$i) $modx->messageQuit('Ditto parse over');
                 }
 				$output = $template;
 			}
