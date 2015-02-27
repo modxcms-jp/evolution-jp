@@ -620,6 +620,7 @@ class PHx {
 			$char = substr($_tmp,0,1);
 			$_tmp = substr($_tmp,1);
 			$c++;
+			if(64000<$c) exit('phx parse over');
 			if($char===$delim && (substr($_tmp,0,1)===':'))
 				break;
 			else
