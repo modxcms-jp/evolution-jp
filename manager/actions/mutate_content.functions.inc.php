@@ -933,7 +933,7 @@ function fieldsTV() {
 			if($ph['FormElement']!=='')
 			{
 				$output[] = $modx->parseText($tpl,$ph);
-				if (0 < $i && $i < $total) $output[] = $splitLine;
+				if ($i < $total) $output[] = $splitLine;
 			}
 		}
 		else
