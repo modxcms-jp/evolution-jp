@@ -936,7 +936,6 @@ $_lang["tmplvar_inuse"] = 'The following Resource(s) are currently using this Te
 $_lang["tmplvar_tmpl_access"] = 'Template Access';
 $_lang["tmplvar_tmpl_access_msg"] = 'Select the Templates that are allowed to access/process this Template Variable';
 $_lang["tmplvars"] = 'Template Variables';
-$_lang["tmplvars_binding_msg"] = 'This field supports data source bindings using the @ commands (@CHUNK, @DOCUMENT, @EVAL, @SELECT, @FILE, @INHERIT, @DIRECTORY, @NONE)';
 $_lang["tmplvars_input_option_msg"] = 'Ex) OptionA||OptionB or OptionA==ValA||OptionB==ValB usable @ commands.';
 $_lang["tmplvars_caption"] = 'Caption';
 $_lang["tmplvars_default"] = 'Default Value';

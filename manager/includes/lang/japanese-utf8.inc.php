@@ -938,7 +938,6 @@ $_lang["tmplvar_inuse"] = 'このテンプレート変数は下記のリソー�
 $_lang["tmplvar_tmpl_access"] = 'テンプレートとの関連付け';
 $_lang["tmplvar_tmpl_access_msg"] = 'このテンプレート変数を関連付けるテンプレートを選択してください。';
 $_lang["tmplvars"] = 'テンプレート変数';
-$_lang["tmplvars_binding_msg"] = 'このフィールドはアットバインド(@CHUNK, @DOCUMENT, @EVAL, @SELECT, @FILE, @INHERIT, @DIRECTORY, @NONE)を使って各種のデータソースから値を代入できます。';
 $_lang["tmplvars_input_option_msg"] = '選択肢A||選択肢B または選択肢A==値A||選択肢B==値Bのように区切って書きます。アットバインドを利用できます。';
 $_lang["tmplvars_caption"] = '投稿画面内の見出し';
 $_lang["tmplvars_default"] = '既定値';
