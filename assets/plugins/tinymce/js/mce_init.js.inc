@@ -72,8 +72,7 @@ tinyMCE.init({
 				o.content = o.content.replace(/([\]\!\~\^])\]<\/p>/g, '$1]');
 			}
 		});
-	},
-	onchange_callback                : function(){if(!gotosave) documentDirty=true;}[+terminate+]
+	}[+terminate+]
 	[+customparams+]
 });
 </script>
