@@ -41,7 +41,9 @@ class ditto {
 			// TODO: make it so that it only pulls those that apply to the current template
 		$dbfields = array();
 		while ($dbfield = $modx->db->getRow($tvs))
+		{
 			$dbfields[] = $dbfield['name'];
+		}
 		return $dbfields;
 	}
 	
@@ -152,7 +154,7 @@ class ditto {
 	// ---------------------------------------------------
 
 	function parseOrderBy($orderBy,$randomize) {
-		if ($randomize != 0) {return false;}
+		if ($randomize != 0) return false;
 		$orderBy['sql'] = array();
 
 		foreach ($orderBy['parsed'] as $item) {
@@ -259,9 +261,8 @@ class ditto {
 	function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$phx=1,$x=0) {
 		global $modx,$ditto_lang;
 
-		if (!is_array($resource)) {
-			return $ditto_lang["resource_array_error"];
-		}
+		if (!is_array($resource)) return $ditto_lang["resource_array_error"];
+		
 		$placeholders = array();
 		$contentVars = array();
 		foreach ($resource as $name=>$value) {
@@ -485,7 +486,9 @@ class ditto {
 		// Covert $fields string to array
 		// user contributed
 		foreach (explode(',', $fields) as $s)
+		{
 			$sortfields[] = trim($s);
+		}
 
 		$code = "";
 		for ($c = 0; $c < count($sortfields); $c++)
@@ -1024,49 +1027,45 @@ class ditto {
 	// ---------------------------------------------------
 	
 	static function buildURL($args,$id=false,$dittoIdentifier=false) {
-		global $modx, $dittoID;
-			$dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
-			$query = array();
-			foreach ($_GET as $param=>$value) {
-				if ($param != 'id' && $param != 'q') {
-					$clean_param = htmlspecialchars($param, ENT_QUOTES);
-					if(is_array($value)) {
-					  //$query[$param] = $value;
-					  foreach($value as $key => $val) {
-              $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES);
+        global $modx, $dittoID;
+        $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
+        $query = array();
+        foreach ($_GET as $param=>$value) {
+            if ($param != 'id' && $param != 'q') {
+                $clean_param = htmlspecialchars($param, ENT_QUOTES);
+                if(is_array($value)) {
+                    //$query[$param] = $value;
+                    foreach($value as $key => $val) {
+                        $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES);
+                    }
+                }
+                else $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES);
             }
-					}else{
-					  $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES);
-					}
-				}
-			}
-			if (!is_array($args)) {
-				$args = explode("&",$args);
-				foreach ($args as $arg) {
-					$arg = explode("=",$arg);
-					$query[$dittoID.$arg[0]] = rawurlencode(trim($arg[1]));
-				}
-			} else {
-				foreach ($args as $name=>$value) {
-					$query[$dittoID.$name] = rawurlencode(trim($value));
-				}
-			}
-			$queryString = "";
-			foreach ($query as $param=>$value) {
-				
-        //$queryString .= '&'.$param.'='.(is_array($value) ? implode(",",$value) : $value);
-        
-        if(!is_array($value)){
-          $queryString .= '&'.$param.'='.$value;
-        }else{
-          foreach ($value as $key=>$val){
-            $queryString .= '&'.$param.'[]='.$val;
-          }
         }
-			}
-			$cID = ($id !== false) ? $id : $modx->documentObject['id'];
-			$url = $modx->makeURL(trim($cID), '', $queryString);
-			return ($modx->config['xhtml_urls']) ? $url : str_replace("&","&amp;",$url);
+        if (!is_array($args)) {
+            $args = explode('&',$args);
+            foreach ($args as $arg) {
+                $arg = explode('=',$arg);
+                $query[$dittoID.$arg[0]] = rawurlencode(trim($arg[1]));
+            }
+        } else {
+            foreach ($args as $name=>$value) {
+                $query[$dittoID.$name] = rawurlencode(trim($value));
+            }
+        }
+        $queryString = '';
+        foreach ($query as $param=>$value) {
+            if(!is_array($value)){
+                $queryString .= "&{$param}={$value}";
+            } else {
+                foreach ($value as $key=>$val) {
+                    $queryString .= "&{$param}[]{$val}";
+                }
+            }
+        }
+        $cID = ($id !== false) ? $id : $modx->documentObject['id'];
+        $url = $modx->makeURL(trim($cID), '', $queryString);
+        return ($modx->config['xhtml_urls']) ? $url : str_replace('&','&amp;',$url);
 	}
 	
 	// ---------------------------------------------------
