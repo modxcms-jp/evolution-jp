@@ -1671,7 +1671,7 @@ class DocumentParser {
         }
         else $modifiers = false;
         
-        $snippetObject = $this->_get_snip_properties($snip_call);
+        $snippetObject = $this->_getSnippetObject($snip_call['name']);
         $this->currentSnippet = $snippetObject['name'];
         
         // current params
@@ -1805,43 +1805,39 @@ class DocumentParser {
         return $snip;
     }
     
-    private function _get_snip_properties($snip_call)
+    private function _getSnippetObject($snip_name)
     {
-        $snip_name  = $snip_call['name'];
-        
         if(isset($this->snippetCache[$snip_name]))
         {
             $snippetObject['name']    = $snip_name;
             $snippetObject['content'] = $this->snippetCache[$snip_name];
-            if(isset($this->snippetCache[$snip_name . 'Props']))
+            if(isset($this->snippetCache["{$snip_name}Props"]))
             {
-                $snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'];
+                $snippetObject['properties'] = $this->snippetCache["{$snip_name}Props"];
             }
         }
         else
         {
-            $esc_snip_name = $this->db->escape($snip_name);
-            // get from db and store a copy inside cache
-            $result= $this->db->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_snip_name}'");
-            $added = false;
-            if($this->db->getRecordCount($result) == 1)
+            $where = sprintf("name='%s'",$this->db->escape($snip_name));
+            $rs= $this->db->select('name,snippet,properties','[+prefix+]site_snippets',$where);
+            $count = $this->db->getRecordCount($rs);
+            if(1<$count) exit('Error $modx->_getSnippetObject()'.$snip_name);
+            if($count)
             {
-                $row = $this->db->getRow($result);
-                if($row['name'] == $snip_name)
-                {
-                    $snippetObject['name']       = $row['name'];
-                    $snippetObject['content']    = $this->snippetCache[$snip_name]           = $row['snippet'];
-                    $snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'] = $row['properties'];
-                    $added = true;
-                }
+                $row = $this->db->getRow($rs);
+                $snip_content = $row['snippet'];
+                $snip_prop    = $row['properties'];
             }
-            if($added === false)
+            else
             {
-                $snippetObject['name']       = $snip_name;
-                $snippetObject['content']    = $this->snippetCache[$snip_name] = 'return false;';
-                $snippetObject['properties'] = '';
-                //$this->logEvent(0,'1','Not found snippet name [['.$snippetObject['name'].']] {$this->decoded_request_uri}',"Parser (ResourceID:{$this->documentIdentifier})");
+                $snip_content = 'return false;';
+                $snip_prop    = '';
             }
+            $snippetObject['name']       = $snip_name;
+            $snippetObject['content']    = $snip_content;
+            $snippetObject['properties'] = $snip_prop;
+            $this->snippetCache[$snip_name]          = $snip_content;
+            $this->snippetCache["{$snip_name}Props"] = $snip_prop;
         }
         return $snippetObject;
     }
