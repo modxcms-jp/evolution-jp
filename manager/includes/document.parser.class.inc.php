@@ -1911,7 +1911,7 @@ class DocumentParser {
     
     function set_aliases()
     {
-        $path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.pageCache.php';
+        $path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.siteCache.idx.php';
         $aliases = array();
         if(is_file($path_aliases))
         {
@@ -1925,7 +1925,7 @@ class DocumentParser {
             $aliases= array ();
             foreach ($this->aliasListing as $doc)
             {
-                $aliases[$doc['id']]= (strlen($doc['path']) > 0 ? $doc['path'] . '/' : '') . $doc['alias'];
+                $aliases[$doc['id']]= (0<strlen($doc['path']) ? $doc['path'] . '/' : '') . $doc['alias'];
             }
             $cache = "<?php\n" . 'return ' . var_export($aliases, true) . ';';
             file_put_contents($path_aliases, $cache, LOCK_EX);
