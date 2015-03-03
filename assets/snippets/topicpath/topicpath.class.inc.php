@@ -126,6 +126,7 @@ class TopicPath
 		while ($docid !== $this->homeId  && $c < 1000 )
 		{
 			$doc = $modx->getPageInfo($docid,0,'*');
+			if($doc['id'] == $modx->documentIdentifier) $doc['hidemenu'] = false;
 			if($this->isEnable($doc)) $docs[] = $doc;
 			$docid = $doc['parent'];
 			if($docid==='0') $docid = $this->homeId ;
