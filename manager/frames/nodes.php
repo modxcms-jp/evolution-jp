@@ -99,7 +99,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	while($row = $modx->db->getRow($result,'num')):
 		$loop_count++;
 		list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
-		$nodetitle = getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias);
+		$nodetitle = getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias,$isfolder);
 		
 		$class = getClassName($published,$deleted,$hidemenu,$hasAccess);
 		
@@ -351,7 +351,7 @@ function get_spacer($indent)
 	return $spacer;
 }
 
-function getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias) {
+function getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias,$isfolder) {
 	global $modx;
 	
 	switch($node_name_source)
