@@ -869,81 +869,77 @@ class ditto {
 	// ---------------------------------------------------
 	
 	function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $public= 1, $where= '', $limit= "",$keywords=0,$randomize=0,$dateSource=false) {
-	global $modx;
-
-	if (count($ids) == 0) {
-		return false;
-	} else {
-		sort($ids);
-		$limit= ($limit != "") ? "LIMIT $limit" : ""; // LIMIT capabilities - rad14701
-		$tblsc= $modx->getFullTableName("site_content");
-		$tbldg= $modx->getFullTableName("document_groups");
-		// modify field names to use sc. table reference
-		$fields= "sc.".implode(",sc.",$fields);
-		if ($randomize != 0) {
-			$sort = "RAND()";
-		} else {
-			$sort= $orderBy['sql'];
-		}
-			$where= ($where == "") ? "" : 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", "", explode('AND', $where)));
-		if ($public) {
-			// get document groups for current user
-			if ($docgrp= $modx->getUserDocGroups())
-			$docgrp= implode(",", $docgrp);
-			$access= ($modx->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-			(!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-		}
-		
-		$published = ($published) ? "AND sc.published=1" : "";
-		
-		$sql = "SELECT DISTINCT $fields FROM $tblsc sc
-		LEFT JOIN $tbldg dg on dg.document = sc.id
-		WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
-		".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
-		($sort ? " ORDER BY $sort" : "") . " $limit ";
-
-		$result= $modx->db->query($sql);
-		$resourceArray= array ();
-		$cnt = @$modx->db->getRecordCount($result);
-		$TVData = array();
-		$TVIDs = array();
-		if ($cnt) {
-			for ($i= 0; $i < $cnt; $i++) {
-				$resource = $modx->db->getRow($result);
-				if ($modx->config["server_offset_time"] != 0 && $dateSource !== false) {
-					$dateValue = (is_int($resource[$dateSource]) !== true) ? $resource[$dateSource] : strtotime($resource[$dateSource]);
-					$resource[$dateSource] = $dateValue + $modx->config["server_offset_time"];
-				}
-				if($keywords) {
-					$resource = $this->appendKeywords($resource);
-				}
-				if ($this->prefetch == true && $this->sortOrder !== false) $resource["ditto_sort"] = $this->sortOrder[$resource["id"]];
-					$TVIDs[] = $resource["id"];
-					$resourceArray["#".$resource["id"]] = $resource;
-					if (count($this->prefetch["resource"]) > 0) {
-						$x = "#".$resource["id"];
-						$resourceArray[$x] = array_merge($resource,$this->prefetch["resource"][$x]);
-							// merge the prefetch array and the normal array
-					}
-				}
-
-				$TVs = array_unique($TVs);
-				if (count($TVs) > 0) {
-					foreach($TVs as $tv){
-						$TVData = array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
-					}
-				}
-
-				$resourceArray = array_merge_recursive($resourceArray,$TVData);
-				if ($this->prefetch == true && $this->sortOrder !== false) {
-					$resourceArray = $this->customSort($resourceArray,"ditto_sort","ASC");
-				}
-		
-				return $resourceArray;
-			} else {
-				return false;
+    	global $modx;
+    
+    	if (count($ids) == 0) return false;
+    	
+    	sort($ids);
+    	$limit= ($limit != "") ? "LIMIT $limit" : ""; // LIMIT capabilities - rad14701
+    	$tblsc= $modx->getFullTableName("site_content");
+    	$tbldg= $modx->getFullTableName("document_groups");
+    	// modify field names to use sc. table reference
+    	$fields= "sc.".implode(",sc.",$fields);
+    	if ($randomize != 0) {
+    		$sort = "RAND()";
+    	} else {
+    		$sort= $orderBy['sql'];
+    	}
+    	$where= ($where == "") ? "" : 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", "", explode('AND', $where)));
+    	if ($public) {
+    		// get document groups for current user
+    		if ($docgrp= $modx->getUserDocGroups())
+    		$docgrp= implode(",", $docgrp);
+    		$access= ($modx->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
+    		(!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
+    	}
+    	
+    	$published = ($published) ? "AND sc.published=1" : "";
+    	
+    	$sql = "SELECT DISTINCT $fields FROM $tblsc sc
+    	LEFT JOIN $tbldg dg on dg.document = sc.id
+    	WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
+    	".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
+    	($sort ? " ORDER BY $sort" : "") . " $limit ";
+    
+    	$rs= $modx->db->query($sql);
+    	if (!$modx->db->getRecordCount($rs)) return false;
+    	$resourceArray= array ();
+    	$TVData = array();
+    	$TVIDs = array();
+    	
+    	while($row = $modx->db->getRow($rs)) {
+    		$docid = $row['id'];
+    		if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
+    			$dateValue = (is_int($row[$dateSource]) !== true) ? $row[$dateSource] : strtotime($row[$dateSource]);
+    			$row[$dateSource] = $dateValue + $modx->config['server_offset_time'];
+    		}
+    		if($keywords) $row = $this->appendKeywords($row);
+    		
+    		if ($this->prefetch == true && $this->sortOrder !== false)
+    			$row['ditto_sort'] = $this->sortOrder[$docid];
+    		
+    		$TVIDs[] = $docid;
+    		$x = "#{$docid}";
+    		$resourceArray[$x] = $row;
+    		if (count($this->prefetch['resource']) > 0) {
+    			$resourceArray[$x] = array_merge($row,$this->prefetch['resource'][$x]);
+    				// merge the prefetch array and the normal array
+    		}
+    	}
+        
+		$TVs = array_unique($TVs);
+		if (0<count($TVs)) {
+			foreach($TVs as $tv){
+				$TVData = array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
 			}
 		}
+
+		$resourceArray = array_merge_recursive($resourceArray,$TVData);
+		if ($this->prefetch == true && $this->sortOrder !== false) {
+			$resourceArray = $this->customSort($resourceArray,'ditto_sort','ASC');
+		}
+
+		return $resourceArray;
 	}
 	
 	// ---------------------------------------------------
@@ -953,28 +949,23 @@ class ditto {
 	
 	function getDocumentsIDs($ids= array (), $published= 1) {
 		global $modx;
-	    if (count($ids) == 0) {
-	        return false;
-	    } else {
-	        $tblsc= $modx->getFullTableName("site_content");
-	        $tbldg= $modx->getFullTableName("document_groups");
-	        if ($docgrp= $modx->getUserDocGroups())
-	            $docgrp= implode(",", $docgrp);
-	        $access= ($modx->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-	         (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-			$published = ($published) ? "AND sc.published=1" : "";
-			$sql= "SELECT DISTINCT sc.id FROM $tblsc sc
-	                LEFT JOIN $tbldg dg on dg.document = sc.id
-	                WHERE (sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=0)
-	                AND ($access)
-	                GROUP BY sc.id ";
-	        $result= $modx->db->query($sql);
-	        $resourceArray= array ();
-	        for ($i= 0; $i < @ $modx->db->getRecordCount($result); $i++) {
-	            array_push($resourceArray, @ $modx->db->getRow($result));
-	        }
-	        return $resourceArray;
-	    }
+	    if (count($ids) == 0) return false;
+	    
+        $tblsc= $modx->getFullTableName("site_content");
+        $tbldg= $modx->getFullTableName("document_groups");
+		$published = ($published) ? 'AND sc.published=1' : '';
+        if ($docgrp= $modx->getUserDocGroups())
+            $docgrp= sprintf(' OR dg.document_group IN ({%s})', implode(',', $docgrp));
+        else $docgrp = '';
+        $access= $modx->isFrontend() ? "sc.privateweb=0" : sprintf("1='%s' OR sc.privatemgr=0",$_SESSION['mgrRole']) . $docgrp;
+		$from  = "{$tblsc} sc LEFT JOIN $tbldg dg on dg.document = sc.id";
+		$where = sprintf('(sc.id IN (%s) %s AND sc.deleted=0) AND (%s) GROUP BY sc.id', join($ids, ','), $published, $access);
+        $result= $modx->db->select('DISTINCT sc.id', $from, $where);
+        $resourceArray= array ();
+        while($row = $modx->db->getRow($result)) {
+            $resourceArray[] = $row;
+        }
+        return $resourceArray;
 	}
 	
 	// ---------------------------------------------------
