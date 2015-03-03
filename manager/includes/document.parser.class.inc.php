@@ -1271,7 +1271,26 @@ class DocumentParser {
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
-            if(!isset($this->documentObject[$key])) $value = '';
+            if(strpos($key,'@')!==false)
+            {
+                list($key,$str) = explode('@',$key,2);
+                if(strpos($str,'/')!==false) list($top,$str) = explode('/',$str,2);
+                else $top = 0;
+                switch(strtolower($str))
+                {
+                    case 'parent':
+                        $str = $this->documentObject['parent'];
+                        if($str==0) $str = $this->config['site_start'];
+                        break;
+                    case 'ultimateparent':
+                    case 'uparent':
+                        $str = $this->getUltimateParentId($this->documentIdentifier,$top);
+                }
+                if(preg_match('@^[1-9][0-9]*$@',$str))
+                    $value = $this->getField($key,$str);
+                else $value = '';
+            }
+            elseif(!isset($this->documentObject[$key])) $value = '';
             else $value= $this->documentObject[$key];
             
             if (is_array($value)) $value= $this->tvProcessor($value);
