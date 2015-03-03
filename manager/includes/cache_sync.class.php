@@ -15,6 +15,7 @@ class synccache {
 	{
 		if(empty($this->target))      $this->target = 'pagecache,sitecache';
 		if(defined('MODX_BASE_PATH')) $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
+		$this->cacheRefreshTime = '';
 	}
 	
 	function setTarget($target)
@@ -196,38 +197,30 @@ class synccache {
 		$timesArr = array();
 		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
 		
-		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
-		if(!$result) echo "Couldn't determine next publish event!";
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
+		if(!$rs) echo "Couldn't determine next publish event!";
+		$minpub_content = $modx->db->getValue($rs);
 		
-		$minpub = $modx->db->getValue($result);
-		if($minpub!=NULL)
-			$timesArr[] = $minpub;
+		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "{$current_time} < unpub_date");
+		if(!$rs) echo "Couldn't determine next unpublish event!";
+		$minunpub_content = $modx->db->getValue($rs);
 		
-		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "{$current_time} < unpub_date");
-		if(!$result) echo "Couldn't determine next unpublish event!";
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "{$current_time} < pub_date");
+		if(!$rs) echo "Couldn't determine next publish event!";
+		$minpub_chunk = $modx->db->getValue($rs);
 		
-		$minunpub = $modx->db->getValue($result);
-		if($minunpub!=NULL)
-			$timesArr[] = $minunpub;
+		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "{$current_time} < unpub_date");
+		if(!$rs) echo "Couldn't determine next unpublish event!";
+		$minunpub_chunk = $modx->db->getValue($rs);
 		
-		$result = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "{$current_time} < pub_date");
-		if(!$result) echo "Couldn't determine next publish event!";
+		if(!empty($this->cacheRefreshTime))
+			                        $timesArr[] = $this->cacheRefreshTime;
+		if($minpub_content!=NULL)   $timesArr[] = $minpub_content;
+		if($minunpub_content!=NULL) $timesArr[] = $minunpub_content;
+		if($minpub_chunk!=NULL)     $timesArr[] = $minpub_chunk;
+		if($minunpub_chunk!=NULL)   $timesArr[] = $minunpub_chunk;
 		
-		$minpub = $modx->db->getValue($result);
-		if($minpub!=NULL)
-			$timesArr[] = $minpub;
-		
-		$result = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "{$current_time} < unpub_date");
-		if(!$result) echo "Couldn't determine next unpublish event!";
-		
-		$minunpub = $modx->db->getValue($result);
-		if($minunpub!=NULL)
-			$timesArr[] = $minunpub;
-		
-		if(isset($this->cacheRefreshTime) && !empty($this->cacheRefreshTime))
-			$timesArr[] = $this->cacheRefreshTime;
-		
-		if(count($timesArr)>0) $cacheRefreshTime = min($timesArr);
+		if(0<count($timesArr)) $cacheRefreshTime = min($timesArr);
 		else                   $cacheRefreshTime = 0;
 		return $cacheRefreshTime;
 	}
@@ -329,36 +322,23 @@ class synccache {
 	
 	function _get_aliases($modx)
 	{
-	    $_ = $modx->db->getObject('system_settings',"setting_name='friendly_urls'");
-		$friendly_urls = $_->setting_value;
+	    $friendly_urls = $modx->db->getValue('setting_value','system_settings',"setting_name='friendly_urls'");
 		if($friendly_urls==1)
-		{
-		    $_ = $modx->db->getObject('system_settings',"setting_name='use_alias_path'");
-		    $use_alias_path = $_->setting_value;
-		}
+		    $use_alias_path = $modx->db->getValue('setting_value','system_settings',"setting_name='use_alias_path'");
+		else $use_alias_path = '';
 		$fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
 		$row = array();
 		$path = '';
 		while ($row = $modx->db->getRow($rs))
 		{
-			if ($friendly_urls === '1')
-			{
-				if($use_alias_path === '1')
-					$path = $this->getParents($row['parent']);
-				else $path = '';
-			}
-			else
-			{
-				$path = $row['parent'];
-			}
-			$alias = $modx->db->escape($row['alias']);
+			if($use_alias_path==='1')     $path = $this->getParents($row['parent']);
+			elseif($use_alias_path==='0') $path = '';
+			else                          $path = $row['parent'];
+			
 			$docid = $row['id'];
-			$path = $modx->db->escape($path);
-			$parent   = $row['parent'];
-			$isfolder = $row['isfolder'];
-			$modx->aliasListing[$docid] = array('id' => $docid, 'alias' => $alias, 'path' => $path, 'parent' => $parent, 'isfolder' => $isfolder);
-			$modx->documentMap[] = array($parent => $docid);
+			$modx->aliasListing[$docid] = array('id'=>$docid, 'alias'=>$row['alias'], 'path'=>$path, 'parent'=>$row['parent'], 'isfolder'=>$row['isfolder']);
+			$modx->documentMap[] = array($row['parent'] => $docid);
 		}
 	}
 	
