@@ -1153,7 +1153,7 @@ if ($outerTpl && $resource) {
   } elseif ($modx->getChunk($outerTpl) != '') {
     $outerTpl = $modx->getChunk($outerTpl);
   } 
-  $output = str_replace(array('[+ditto+]','[+documents+]'),$output,$outerTpl);
+    $output = str_replace(array('[+ditto+]','[+documents+]','[+docs+]'),$output,$outerTpl);
 }
 
 return ($save != 3) ? $output : "";
