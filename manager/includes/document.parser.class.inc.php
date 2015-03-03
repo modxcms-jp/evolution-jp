@@ -74,6 +74,8 @@ class DocumentParser {
             return $this->makeDocumentListing();
         elseif($property_name==='chunkCache')
             $this->setChunkCache();
+        elseif($property_name==='aliasListing')
+            $this->setAliasListing();
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
