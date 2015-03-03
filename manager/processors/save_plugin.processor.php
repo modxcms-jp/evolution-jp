@@ -15,6 +15,7 @@ $properties = $modx->db->escape($_POST['properties']);
 $disabled = $_POST['disabled']=="on" ? '1' : '0';
 $moduleguid = $modx->db->escape($_POST['moduleguid']);
 $sysevents = $_POST['sysevents'];
+if(empty($sysevents)) $sysevents[] = 90; // Default OnWebPageInit
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
