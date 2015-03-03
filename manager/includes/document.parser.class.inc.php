@@ -1243,6 +1243,14 @@ class DocumentParser {
         return $tags;
     }
     
+    function getUltimateParentId($id,$top=0) {
+        while ($id) {
+            if($top===$id) break;
+            $last_id = $id;
+            $id = $this->aliasListing[$id]['parent'];
+        }
+        return $last_id;
+    }
     // mod by Raymond
     function mergeDocumentContent($content)
     {
