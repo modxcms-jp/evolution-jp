@@ -5,5 +5,8 @@ if (count($modx->SystemAlertMsgQueque)>0) {
 	echo $modx->manager->sysAlert($modx->SystemAlertMsgQueque);
 }
 ?>
+<script>
+nanobar.go(100);
+</script>
 </body>
 </html>

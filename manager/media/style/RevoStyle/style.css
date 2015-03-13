@@ -1810,3 +1810,5 @@ strong[style*='color:#EF1D1D'] {
 
 .tmplvars tr {height: 24px;}
 .tvname {width:150px;}
+
+#loadingBar div {background-color:#91ba49;}
