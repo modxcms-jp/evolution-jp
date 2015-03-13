@@ -72,9 +72,13 @@ tinyMCE.init({
 				o.content = o.content.replace(/([\]\!\~\^])\]<\/p>/g, '$1]');
 			}
 		});
-	}[+terminate+]
+	},
+	onchange_callback                : [+onchange_callback+][+terminate+]
 	[+customparams+]
 });
+function myCustomOnChangeHandler() {
+if(!gotosave) documentDirty = true;
+}
 </script>
 
 <style type="text/css">

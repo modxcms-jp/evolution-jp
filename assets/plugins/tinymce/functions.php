@@ -411,6 +411,7 @@ class TinyMCE
 		$ph['date_format']             = $modx->toDateFormat(null, 'formatOnly');
 		$ph['time_format']             = '%H:%M:%S';
 		$ph['entity_encoding']         = $params['entity_encoding'];
+		$ph['onchange_callback']       = "'myCustomOnChangeHandler'";
 		$ph['terminate']               = (!empty($params['customparams'])) ? ',' : '';
 		$ph['customparams']            = rtrim($params['customparams'], ',');
 		$content_css[] = "{$mce_url}style/content.css";
