@@ -17,12 +17,11 @@ $docgrp = getDocgrp();
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
-if($id) $docObject = getInitialValues();
-else    $docObject = getValuesFromDB($id,$docgrp);
+$initial_v = $id==='0' ? getInitialValues() : array();
+$db_v      = $id==='0' ? array()            : getValuesFromDB($id,$docgrp);
+$form_v    = $_POST    ? $_POST             : array();
 
-if($_POST)
-    $docObject = mergeValues($docObject,$_POST);
-
+$docObject = mergeValues($initial_v,$db_v,$form_v);
 $content = $docObject; //Be compatible with old plugins
 
 $tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
