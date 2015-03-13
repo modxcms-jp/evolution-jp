@@ -142,8 +142,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <input type="hidden" name="rt" value="<?php echo $rt; ?>" />
 <input type="hidden" name="sm" value="<?php echo $sm; ?>" />
 <input type="hidden" name="cb" value="<?php echo $cb; ?>" />
+<div class="section" style="margin:1em;">
 <div class="sectionHeader" style="margin:0px"><?php echo $title." - ".$_lang['element_selector_title']; ?></div>
-<div class="sectionBody" style="margin-top:5px;margin-right:0px;margin-left:0px;border:0px;">
+<div class="sectionBody" style="margin-right:0px;margin-left:0px;">
 <p><?php echo $_lang['element_selector_msg']; ?></p>
 <!-- resources -->
 	 <table width="100%" border="0" cellspacing="1" cellpadding="2">
@@ -198,7 +199,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		</td>
 	  </tr>
 	</table>
-</div>
+</div></div>
 </form>
 </body>
 </html>

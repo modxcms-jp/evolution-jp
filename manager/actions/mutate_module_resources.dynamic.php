@@ -201,6 +201,7 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 	</ul>
 </div>
 
+<div class="section">
 <div class="sectionHeader"><?php echo $content["name"]." - ".$_lang['module_resource_title']; ?></div>
 <div class="sectionBody">
 <p><img src="<?php echo $_style["icons_modules"] ?>" alt="" align="left" /><?php echo $_lang['module_resource_msg']; ?></p>
@@ -242,6 +243,6 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 	<ul class="actionButtons">
 		<li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['remove']; ?></a></li>
 	</ul>
-</div>
+</div></div>
 <input type="submit" name="save" style="display:none">
 </form>
