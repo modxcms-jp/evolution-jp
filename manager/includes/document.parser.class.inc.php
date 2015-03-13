@@ -1183,7 +1183,7 @@ class DocumentParser {
         return $tags;
     }
     
-    function _getTagsFromContent($content, $left='[+',$right='+]', $nestLevel=0) {
+    function _getTagsFromContent($content, $left='[+',$right='+]') {
         if(strpos($content,$left)===false) return array();
         $spacer = md5('<<<MODX>>>');
         if(strpos($content,']]>')!==false)  $content = str_replace(']]>', "]{$spacer}]>",$content);
@@ -1228,15 +1228,13 @@ class DocumentParser {
         }
         if(!$tags) return array();
         
-        $nestLevel++;
-        if(10<$nestLevel) exit('getTagsFromContent nest level error');
         foreach($tags as $tag) {
             if(strpos($tag,$left)!==false) {
-                $innerTags = $this->_getTagsFromContent($tag,$left,$right,$nestLevel);
+                $innerTags = $this->_getTagsFromContent($tag,$left,$right);
                 $tags = array_merge($innerTags,$tags);
             }
         }
-        $nestLevel--;
+        
         foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
         }
