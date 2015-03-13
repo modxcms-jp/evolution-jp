@@ -82,6 +82,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 					$j('input').change(function() {documentDirty=true;});
 					$j('textarea').change(function() {documentDirty=true;});
 					$j('select:not(#template,#which_editor)').change(function() {documentDirty=true;});
+					gotosave=false;
 				break;
 			}
         	document_onload();
