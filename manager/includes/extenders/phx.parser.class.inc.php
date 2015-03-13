@@ -316,6 +316,12 @@ class PHx {
 			case 'addbreak':
 				$value = $this->addbreak($value);
 				break;
+			case 'nl2br':
+				if($modx->config['mce_element_format']==='html')
+					$value = nl2br($value,false);
+				else
+					$value = nl2br($value);
+				break;
 			
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
@@ -325,7 +331,6 @@ class PHx {
 			case 'ltrim':
 			case 'rtrim':
 			case 'trim':
-			case 'nl2br':
 			case 'md5':
 			case 'urlencode':
 			case 'urldecode':
