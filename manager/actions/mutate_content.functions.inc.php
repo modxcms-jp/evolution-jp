@@ -327,15 +327,15 @@ function checkPermissions($id) {
 	{
 		//editing an existing document
 		// check permissions on the document
-		$_ = array();
-        $_[] = '<br /><br />';
-        $_[] = '<div class="section">';
-        $_[] = sprintf('<div class="sectionHeader">%s</div>',$_lang['access_permissions']);
-        $_[] = '<div class="sectionBody">';
-        $_[] = sprintf('	<p>%s</p>',$_lang['access_permission_denied']);
-        $_[] = '</div>';
-        $_[] = '</div>';
-        echo join("\n",$_);
+?>
+<br /><br />
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['access_permissions']?></div>
+<div class="sectionBody">
+	<p><?php echo $_lang['access_permission_denied']?></p>
+</div>
+</div>
+	<?php
 		include(MODX_CORE_PATH . 'footer.inc.php');
 		exit;
 	}
