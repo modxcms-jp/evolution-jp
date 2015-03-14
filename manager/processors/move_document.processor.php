@@ -140,7 +140,7 @@ function update_parentid($doc_id,$new_parent,$user_id,$menuindex)
 	{
 		$rs = $modx->db->select("IF(alias='', id, alias) AS alias",$tbl_site_content, "id='{$doc_id}'");
 		$alias = $modx->db->getValue($rs);
-		$rs = $modx->db->select('id',$tbl_site_content, "parent='{$new_parent}' AND (alias='{$alias}' OR id='{$alias}')");
+		$rs = $modx->db->select('id',$tbl_site_content, "parent='{$new_parent}' AND (alias='{$alias}' OR (alias='' AND id='{$alias}'))");
 		$find = $modx->db->getRecordcount($rs);
 		if(0<$find)
 		{
