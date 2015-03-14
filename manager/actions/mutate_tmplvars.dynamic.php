@@ -386,7 +386,7 @@ function decode(s){
 	$option['number']       = 'Number';
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
-	$option['hidden']       = 'HIdden';
+	$option['hidden']       = 'Hidden';
 	$result = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
 	if(0 < $modx->db->getRecordCount($result))
 	{
