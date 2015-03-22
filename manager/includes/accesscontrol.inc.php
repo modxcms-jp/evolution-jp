@@ -210,7 +210,7 @@ else
 			echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
 			exit;
 		}
-		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($fields['internalKey']);
+		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($modx->getLoginUserID());
 	}
     if(is_file($touch_path)) unlink($touch_path);
 }
