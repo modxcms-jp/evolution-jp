@@ -616,8 +616,9 @@ class ManagerAPI {
 	}
 	
 	// get user's document groups
-	function getMgrDocgroups($uid) {
+	function getMgrDocgroups($uid=0) {
 		global $modx;
+		if(empty($uid)) $uid=$modx->getLoginUserID();
 		$field ='uga.documentgroup as documentgroup';
 		$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
 		$rs = $modx->db->select($field,$from,"ug.member='{$uid}'");
@@ -630,10 +631,10 @@ class ManagerAPI {
 		return $documentgroup;
 	}
 	
-	function getMemberGroups($uid='') {
+	function getMemberGroups($uid=0) {
 		global $modx;
+		if(empty($uid)) $uid = $modx->getLoginUserID();
 		$field ='user_group,name';
-		if($uid==='') $uid = $modx->getLoginUserID();
 		if(preg_match('@^[1-9][0-9]*$@',$uid))
 		{
 			$where = "ug.member='{$uid}'";
