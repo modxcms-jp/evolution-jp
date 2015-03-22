@@ -57,7 +57,7 @@ class PHx {
 		    	$nextchar = substr($modifiers,0,1);
 				if(in_array($nextchar, array('"', "'", '`'))) list($value,$modifiers) = $this->_delimRoop($modifiers,$nextchar);
 		    	elseif(strpos($modifiers,':')!==false)        list($value,$modifiers) = explode(':', $modifiers, 2);
-		    	else                                          list($value,$modifiers) = array('',$modifiers);
+		    	else                                          list($value,$modifiers) = array($modifiers,'');
 			}
 			elseif($char==='(' && strpos($modifiers,')')!==false)
 				list($value,$modifiers) = explode(')', $modifiers, 2);
