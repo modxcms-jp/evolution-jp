@@ -108,6 +108,7 @@ class SubParser {
 	function addLog($title='no title',$msg='',$type=1)
 	{
 		if($title==='') $title = 'no title';
+		if(is_array($msg)) $msg = '<pre>'.print_r($msg,true).'</pre>';
 		if($msg==='')   $msg   = $_SERVER['REQUEST_URI'];
 		$this->logEvent(0, $type, $msg, $title);
 	}
