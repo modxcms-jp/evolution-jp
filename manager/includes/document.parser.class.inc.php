@@ -607,9 +607,7 @@ class DocumentParser {
         
         // invoke OnWebPagePrerender event
         if (!$noEvent)
-        {
             $this->invokeEvent('OnWebPagePrerender');
-        }
         
         if(strpos($this->documentOutput,'^]')!==false)
             echo $this->mergeBenchmarkContent($this->documentOutput);
@@ -1261,7 +1259,6 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
         
-        $replace= array ();
         foreach($matches['1'] as $i=>$key):
             $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
             
@@ -1385,7 +1382,7 @@ class DocumentParser {
         if(!$matches) return $content;
         
         $replace= array ();
-        foreach($matches['1'] as $i=>$key):
+        foreach($matches['1'] as $i=>$key) {
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -1416,7 +1413,7 @@ class DocumentParser {
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;
-        endforeach;
+        }
         
         $content= str_replace($matches['0'], $replace, $content);
         if ($this->debug)
@@ -1431,6 +1428,7 @@ class DocumentParser {
     function mergePlaceholderContent($content)
     {
         if(strpos($content,'[+')===false) return $content;
+        if(!is_array($this->placeholders)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
         
@@ -2081,7 +2079,7 @@ class DocumentParser {
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
             $source= $this->documentOutput;
             
-            if(strpos($source,'<!--@IF')!==false)             $source= $this->mergeConditionalTagsContent($source);
+            if(strpos($source,'<!--@IF')!==false)              $source= $this->mergeConditionalTagsContent($source);
             if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
             if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
             if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
@@ -2581,8 +2579,8 @@ class DocumentParser {
     
     function getChunk($key)
     {
-        if(!$this->chunkCache) $this->setChunkCache();
         if($key==='') return false;
+        if(!$this->chunkCache) $this->setChunkCache();
         
         if(isset($this->chunkCache[$key]))
         {
