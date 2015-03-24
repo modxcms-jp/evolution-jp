@@ -11,8 +11,8 @@ if((!isset($_REQUEST['t']) || $_REQUEST['t']=='') && (!isset($_REQUEST['u']) || 
 		$e->dumpError();
 }
 
-if (isset($_REQUEST['t']))     $sql = "OPTIMIZE TABLE {$dbase}.`".$modx->db->escape($_REQUEST['t'])."`";
-elseif (isset($_REQUEST['u'])) $sql = "TRUNCATE TABLE {$dbase}.`".$modx->db->escape($_REQUEST['u'])."`";
+if (isset($_REQUEST['t']))     $sql = sprintf('OPTIMIZE TABLE %s.`%s`', $dbase, $modx->db->escape($_REQUEST['t']));
+elseif (isset($_REQUEST['u'])) $sql = sprintf('TRUNCATE TABLE %s.`%s`', $dbase, $modx->db->escape($_REQUEST['u']));
 
 if($sql) $rs = $modx->db->query($sql);
 
