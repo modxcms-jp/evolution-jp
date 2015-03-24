@@ -1273,12 +1273,18 @@ class DocumentParser {
                 else $top = 0;
                 switch(strtolower($str))
                 {
+                    case 'site_start':
+                        $str = $this->config['site_start'];
+                        break;
                     case 'parent':
+                    case 'p':
                         $str = $this->documentObject['parent'];
                         if($str==0) $str = $this->config['site_start'];
                         break;
                     case 'ultimateparent':
                     case 'uparent':
+                    case 'up':
+                    case 'u':
                         $str = $this->getUltimateParentId($this->documentIdentifier,$top);
                 }
                 if(preg_match('@^[1-9][0-9]*$@',$str))
