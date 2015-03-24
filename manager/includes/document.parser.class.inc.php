@@ -1882,9 +1882,15 @@ class DocumentParser {
     
     function setdocumentMap()
     {
-        $d = @include_once(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
-        if($d) $this->documentMap = $d;
-        else return false;
+        $fields = 'id, parent';
+        $rs = $this->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
+        $this->documentMap = array();
+        while ($row = $this->db->getRow($rs))
+        {
+            $docid  = $row['id'];
+            $parent = $row['parent'];
+            $this->documentMap[] = array($row['parent'] => $row['id']);
+        }
     }
     
     function setAliasListing()
