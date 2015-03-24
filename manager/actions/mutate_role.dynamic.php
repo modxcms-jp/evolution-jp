@@ -174,8 +174,6 @@ table td {vertical-align:top;}
 	echo render_form('publish_document',  $_lang['role_publish_doc']);
 	echo render_form('delete_document',   $_lang['role_delete_doc']);
 	echo render_form('empty_trash',       $_lang['role_empty_trash']);
-	if(isset($modx->config['show_meta'])&&$modx->config['show_meta']==1)
-		echo render_form('edit_doc_metatags', $_lang['role_edit_doc_metatags']);
 	echo render_form('empty_cache',       $_lang['role_cache_refresh']);
 	echo render_form('view_unpublished',  $_lang['role_view_unpublished']);
 	echo render_form('view_schedule',     $_lang['role_site_schedule']);
@@ -311,8 +309,6 @@ table td {vertical-align:top;}
 	echo render_form('settings',        $_lang['role_edit_settings']);
 	echo render_form('file_manager',    $_lang['role_file_manager']);
 	echo render_form('bk_manager',      $_lang['role_bk_manager']);
-	if(isset($modx->config['show_meta'])&&$modx->config['show_meta']==1)
-		echo render_form('manage_metatags', $_lang['role_manage_metatags']);
 	echo render_form('import_static',   $_lang['role_import_static']);
 	echo render_form('export_static',   $_lang['role_export_static']);
 	echo render_form('remove_locks',    $_lang['role_remove_locks']);

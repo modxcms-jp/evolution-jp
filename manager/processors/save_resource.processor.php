@@ -56,7 +56,6 @@ switch ($actionToTake) {
 		setDocPermissionsNew($document_groups,$newid);
 
 		updateParentStatus();
-		if(isset($modx->config['show_meta'])) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
 		$modx->event->vars = array('mode'=>'new','id'=>$newid);
@@ -111,8 +110,6 @@ switch ($actionToTake) {
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
-		if(isset($modx->config['show_meta'])) saveMETAKeywords($id);
-
 		// invoke OnDocFormSave event
 		$modx->event->vars = array('mode'=>'upd','id'=>$id);
 		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
@@ -135,46 +132,6 @@ switch ($actionToTake) {
 	default :
 		header("Location: index.php?a=7");
 		exit;
-}
-
-// -- Save META Keywords --
-function saveMETAKeywords($id) {
-	global $modx;
-	$keywords = $_POST['keywords'];
-	$metatags = $_POST['metatags'];
-	
-	if(!$keywords&&!$metatags) return;
-	if(!isset($modx->config['show_meta']) || $modx->config['show_meta']==0)
-		return;
-	if (!$modx->hasPermission('edit_doc_metatags'))
-		return;
-	
-	// keywords - remove old keywords first
-	$modx->db->delete('[+prefix+]keyword_xref', "content_id='{$id}'");
-	foreach($keywords as $keyword) {
-		$flds = array (
-			'content_id' => $id,
-			'keyword_id' => $keyword
-		);
-		$flds = $modx->db->escape($flds);
-		$modx->db->insert($flds, '[+prefix+]keyword_xref');
-	}
-	// meta tags - remove old tags first
-	$modx->db->delete('[+prefix+]site_content_metatags', "content_id='{$id}'");
-	foreach($metatag as $metatag) {
-		$flds = array (
-			'content_id' => $id,
-			'metatag_id' => $metatag
-		);
-		$flds = $modx->db->escape($flds);
-		$modx->db->insert($flds, '[+prefix+]site_content_metatags');
-	}
-	$flds = array (
-		'haskeywords' => (count($keywords) ? 1 : 0),
-		'hasmetatags' => (count($metatags) ? 1 : 0)
-	);
-	$flds = $modx->db->escape($flds);
-	$modx->db->update($flds, '[+prefix+]site_content', "id='{$id}'");
 }
 
 function get_tmplvars($id)

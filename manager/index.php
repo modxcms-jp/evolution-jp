@@ -568,14 +568,6 @@ switch ($action) {
         include_once "actions/resources.static.php";
         include_once "footer.inc.php";
         break;
-    case 81: // keywords management
-        include_once "header.inc.php";
-        include_once "actions/manage_metatags.dynamic.php";
-        include_once "footer.inc.php";
-        break;
-    case 82:
-        include_once "processors/metatags.processor.php";
-        break;
     case 83: // Export to file
         include_once "header.inc.php";
         include_once "actions/export_site.static.php";

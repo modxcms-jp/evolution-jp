@@ -20,7 +20,7 @@ function iconElements() {
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
 	$tpl = icontpl();
-	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
+	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) {
 		$ph['imgsrc'] = 'icons/32x/elements.png';
 		$ph['action']    = 'index.php?a=76';
 		$ph['title']   = $_lang['element_management'];

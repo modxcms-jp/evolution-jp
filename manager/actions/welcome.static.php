@@ -79,7 +79,7 @@ if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
 	$src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
 	$modx->setPlaceholder('ModulesIcon',$src);
 }
-if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
+if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) {
 	if(!isset($_style['icons_elements_large'])) $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
 	$src = get_icon($_lang['element_management'], 76, $_style['icons_elements_large'], $_lang['element_management']);
 	$modx->setPlaceholder('ResourcesIcon',$src);

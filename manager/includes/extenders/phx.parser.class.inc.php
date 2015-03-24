@@ -548,7 +548,6 @@ class PHx {
 			case 'menutitle':
 			case 'donthit':
 			case 'haskeywords':
-			case 'hasmetatags':
 			case 'privateweb':
 			case 'privatemgr':
 			case 'content_dispo':

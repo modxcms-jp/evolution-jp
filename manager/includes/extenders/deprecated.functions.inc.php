@@ -65,61 +65,6 @@ class OldFunctions {
 	function getDocGroups()         {global $modx;return $modx->getUserDocGroups();} // deprecated
 	function changePassword($o, $n) {return changeWebUserPassword($o, $n);} // deprecated
 	
-	function mergeDocumentMETATags($template) {
-		global $modx;
-	    if ($modx->documentObject['haskeywords'] == 1) {
-	        // insert keywords
-	        $keywords = $modx->getKeywords();
-	        if (is_array($keywords) && count($keywords) > 0) {
-	            $keywords = implode(", ", $keywords);
-	            $metas= "\t<meta name=\"keywords\" content=\"{$keywords}\" />\n";
-	        }
-	
-	    // Don't process when cached
-	    $modx->documentObject['haskeywords'] = '0';
-	    }
-	    if ($modx->documentObject['hasmetatags'] == 1) {
-	        // insert meta tags
-	        $tags= $modx->getMETATags();
-	        foreach ($tags as $n => $col) {
-	            $tag= strtolower($col['tag']);
-	            $tagvalue= $col['tagvalue'];
-	            $tagstyle= $col['http_equiv'] ? 'http-equiv' : 'name';
-	            $metas .= "\t<meta {$tagstyle}=\"{$tag}\" content=\"{$tagvalue}\" />\n";
-	        }
-	
-	    // Don't process when cached
-	    $modx->documentObject['hasmetatags'] = '0';
-	    }
-	if (isset($metas) && $metas) $template = preg_replace("/(<head>)/i", "\\1\n\t" . trim($metas), $template);
-	    return $template;
-	}
-	
-	function getMETATags($id= 0) {
-		global $modx;
-	    if ($id == 0) {
-	        $id= $modx->documentObject['id'];
-	    }
-	    $sql= "SELECT smt.* " .
-	    "FROM " . $modx->getFullTableName("site_metatags") . " smt " .
-	    "INNER JOIN " . $modx->getFullTableName("site_content_metatags") . " cmt ON cmt.metatag_id=smt.id " .
-	    "WHERE cmt.content_id = '$id'";
-	    $ds= $modx->db->query($sql);
-	    $limit= $modx->db->getRecordCount($ds);
-	    $metatags= array ();
-	    if ($limit > 0) {
-	        for ($i= 0; $i < $limit; $i++) {
-	            $row= $modx->db->getRow($ds);
-	            $metatags[$row['name']]= array (
-	                "tag" => $row['tag'],
-	                "tagvalue" => $row['tagvalue'],
-	                "http_equiv" => $row['http_equiv']
-	            );
-	        }
-	    }
-	    return $metatags;
-	}
-	
 	function userLoggedIn()
 	{
 		global $modx;
@@ -146,26 +91,6 @@ class OldFunctions {
 		{
 			return false;
 		}
-	}
-	
-	function getKeywords($id= 0) {
-		global $modx;
-	    if ($id == 0) {
-	        $id= $modx->documentObject['id'];
-	    }
-	    $tblKeywords= $modx->getFullTableName('site_keywords');
-	    $tblKeywordXref= $modx->getFullTableName('keyword_xref');
-	    $from = "{$tblKeywords} AS keywords INNER JOIN {$tblKeywordXref} AS xref ON keywords.id=xref.keyword_id";
-	    $result= $modx->db->select('keywords.keyword',$from,"xref.content_id = '{$id}'");
-	    $limit= $modx->db->getRecordCount($result);
-	    $keywords= array ();
-	    if ($limit > 0) {
-	        while($row= $modx->db->getRow($result))
-	        {
-	            $keywords[]= $row['keyword'];
-	        }
-	    }
-	    return $keywords;
 	}
 	
 	function makeFriendlyURL($pre, $suff, $path) {

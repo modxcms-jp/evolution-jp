@@ -143,38 +143,6 @@ $tpl['tab-page']['settings'] = <<< EOT
 	</div><!-- end #tabSettings -->
 EOT;
 
-$tpl['tab-page']['meta'] = <<< EOT
-<!-- META Keywords -->
-<div class="tab-page" id="tabMeta">
-	<h2 class="tab">[+_lang_meta_keywords+]</h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabMeta" ) );</script>
-	<table width="99%" border="0" cellspacing="5" cellpadding="0">
-	<tr style="height: 24px;"><td>[+_lang_resource_metatag_help+]<br /><br />
-		<table border="0" style="width:inherit;">
-		<tr>
-			<td>
-				<span class="warning">[+_lang_keywords+]</span><br />
-				<select name="keywords[]" multiple="multiple" size="16" class="inputBox" style="width: 200px;">
-				[+keywords+]
-				</select>
-				<br />
-				<input type="button" value="[+_lang_deselect_keywords+]" onclick="clearKeywordSelection();" />
-			</td>
-			<td>
-				<span class="warning">[+_lang_metatags+]</span><br />
-				<select name="metatags[]" multiple="multiple" size="16" class="inputBox" style="width: 220px;">
-				[+metatags+]
-				</select>
-				<br />
-				<input type="button" class="button" value="[+_lang_deselect_metatags+]" onclick="clearMetatagSelection();" />
-			</td>
-		</tr>
-		</table>
-		</td>
-	</tr>
-	</table>
-</div><!-- end #tabMeta -->
-EOT;
 
 $tpl['tab-page']['access'] = <<< EOT
 <!-- Access Permissions -->
@@ -277,44 +245,6 @@ $ph['fieldSyncsite']   = fieldSyncsite();
 echo $modx->parseText($tpl['tab-page']['settings'],$ph);
 
 
-
-if ($modx->hasPermission('edit_doc_metatags') && isset($config['show_meta']) && $config['show_meta']==='1'):
-	$keywords = getKeywords();
-	$option = array();
-	if(0<count($keywords)):
-		$keywords_selected = getSelectedKeywords();
-		$keys = array_keys($keywords);
-		$option = array();
-		foreach ($keys as $key)
-		{
-			$value = $keywords[$key];
-			$selected = $keywords_selected[$key];
-			$option[] = '<option value="'.$key.'"'.$selected.'>'."{$value}</option>";
-		}
-	endif;
-	$ph['_lang_meta_keywords'] = $_lang['meta_keywords'];
-	$ph['_lang_resource_metatag_help'] = $_lang['keywords'];
-	$ph['_lang_keywords'] = $_lang['resource_metatag_help'];
-	$ph['keywords'] = implode("\n",$option);
-	$ph['_lang_deselect_keywords'] = $_lang['deselect_keywords'];
-	
-	$metatags = getMetatags();
-	$option = array();
-	if(0<count($metatags)):
-		$metatags_selected = getSelectedMetatags();
-		$tags = array_keys($metatags);
-		foreach ($tags as $tag)
-		{
-			$value = $metatags[$tag];
-			$selected = $metatags_selected[$tag];
-			$option[] = '<option value="'.$tag.'"'.$selected.'>'."{$value}</option>";
-		}
-	endif;
-	$ph['metatags'] = implode("\n",$option);
-	$ph['_lang_deselect_metatags'] = $_lang['deselect_metatags'];
-	$ph['_lang_metatags'] = $_lang['metatags'];
-	echo $modx->parseText($tpl['tab-page']['meta'],$ph);
-endif;
 
 /*******************************
  * Document Access Permissions */

@@ -107,8 +107,6 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 
 	$new_id = $modx->db->insert($content, '[+prefix+]site_content');
 
-	// duplicate document's TVs & Keywords
-	duplicateKeywords($docid, $new_id);
 	duplicateTVs($docid, $new_id);
 	duplicateAccess($docid, $new_id);
 	
@@ -131,15 +129,6 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 
 	// return the new doc id
 	return $new_id;
-}
-
-// Duplicate Keywords
-function duplicateKeywords($oldid,$newid){
-	global $modx;
-	
-	if(!isset($modx->config['show_meta'])||$modx->config['show_meta']==='0') return;
-	
-	$modx->db->insert('content_id,keyword_id', '[+prefix+]keyword_xref', "{$newid},keyword_id", '[+prefix+]keyword_xref', "content_id='{$oldid}'");
 }
 
 // Duplicate Document TVs

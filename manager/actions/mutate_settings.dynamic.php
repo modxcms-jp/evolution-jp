@@ -993,18 +993,6 @@ $tmenu_style = 'style="width:350px;"';
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
-<?php
-$rs = $modx->db->query("SHOW TABLES LIKE '{$table_prefix}site_metatags'");
-if(0 < $modx->db->getRecordCount($rs)) : ?>
-<tr>
-<th><?php echo $_lang["show_meta"] ?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('show_meta','1',$show_meta=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('show_meta','0',$show_meta=='0'));?><br />
-	<?php echo $_lang["show_meta_message"]?>
-</td>
-</tr>
-<?php endif; ?>
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
 <td>

@@ -269,11 +269,9 @@ if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')
 	$perm_element_management = 1;
 }
 else $perm_element_management = 0;
-$perm_manage_metatags = ($modx->hasPermission('manage_metatags') && isset($modx->config['show_meta']) && $modx->config['show_meta'] == 1) ? 1 : 0;
 
 $item['element_management'] = item($_lang['element_management'], 76,$perm_element_management);// Elements
 $item['manage_files']       = item($_lang['manage_files'], 31,$modx->hasPermission('file_manager'));// Manage-Files
-$item['manage_metatags']    = item($_lang['manage_metatags'], 81, $perm_manage_metatags); // Manage-Metatags
 
 // Modules Menu Items
 $perm_module_management = ($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) ? 1 : 0;
