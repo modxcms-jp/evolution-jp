@@ -29,17 +29,22 @@ if(!is_writable(rtrim($snapshot_path,'/')))
 	exit;
 }
 
-$today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
-$today = str_replace(array('/',' '), '-', $today);
-$today = str_replace(':', '', $today);
-$today = strtolower($today);
-global $path,$modx_version;
-$filename = "{$today}-{$modx_version}.sql";
+if(!$_POST['file_name'])
+{
+    $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
+    $today = str_replace(array('/',' '), '-', $today);
+    $today = str_replace(':', '', $today);
+    $today = strtolower($today);
+    global $path,$modx_version;
+    $filename = "{$today}-{$modx_version}.sql";
+}
+else $filename = $_POST['file_name'];
 
 @set_time_limit(120); // set timeout limit to 2 minutes
 include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 $dumper = new Mysqldumper();
 $dumper->mode = 'snapshot';
+$dumper->contentsOnly = $_POST['contentsOnly'] ? 1:0;
 $output = $dumper->createDump();
 $dumper->snapshot($snapshot_path.$filename,$output);
 
