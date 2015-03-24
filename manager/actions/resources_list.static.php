@@ -12,46 +12,10 @@ if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
 
 $modx->checkPublishStatus();
 
-// Get access permissions
-if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
-$in_docgrp = !isset($docgrp) || empty($docgrp) ? '':" OR dg.document_group IN ({$docgrp})";
-$access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
-
 if($id!=0)
 {
-	// Get the document content
-	$from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
-	$where = "sc.id ='{$id}' AND ({$access})";
-	$rs = $modx->db->select('DISTINCT sc.*',$from,$where);
+	$rs = $modx->db->select('*','[+prefix+]site_content',"id='{$id}'");
 	$content = $modx->db->getRow($rs);
-	$total = $modx->db->getRecordCount($rs);
-	if ($total > 1)
-	{
-		echo "<p>Internal System Error...</p>",
-		     "<p>More results returned than expected. </p>",
-		     "<p><strong>Aborting...</strong></p>";
-		exit;
-	}
-	elseif ($total == 0)
-	{
-		$e->setError(3);
-		$e->dumpError();
-	}
-	
-	// Get Creator's username
-	$rs = $modx->db->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
-	if ($row = $modx->db->getRow($rs))
-		$createdbyname = $row['username'];
-	
-	// Get Editor's username
-	$rs = $modx->db->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
-	if ($row = $modx->db->getRow($rs))
-		$editedbyname = $row['username'];
-	
-	// Get Template name
-	$rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
-	if ($row = $modx->db->getRow($rs))
-		$templatename = $row['templatename'];
 	
 	// Set the item name for logging
 	$_SESSION['itemname'] = $content['pagetitle'];
@@ -62,14 +26,23 @@ if($id!=0)
 	}
 }
 else $content = array();
-
+if(!isset($content['id'])) $content['id']=0;
 /**
  * "View Children" tab setup
  */
 
+// Get access permissions
+
+if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);
+else $docgrp = '';
+$in_docgrp = empty($docgrp) ? '':" OR dg.document_group IN ({$docgrp})";
+
+$access = $modx->config['tree_show_protected'] ? '' : sprintf("AND (1='%s' OR sc.privatemgr=0 %s)",$_SESSION['mgrRole'] , $in_docgrp);
+
 // Get child document count
+
 $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
-$where = "sc.parent='{$content['id']}' AND ({$access})";
+$where = "sc.parent='{$content['id']}' {$access}";
 $rs = $modx->db->select('DISTINCT sc.id',$from,$where);
 $numRecords = $modx->db->getRecordCount($rs);
 
@@ -80,12 +53,13 @@ if ($numRecords > 0)
 	$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
 	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.docid = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
 	$from = join(' ',$from);
-	$where = "sc.parent='{$id}' AND ({$access})";
+	$where = "sc.parent='{$id}' {$access} GROUP BY sc.id";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
 	$offset = (isset($_GET['page']) && preg_match('@^[0-9]+$@',$_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
 	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
 	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
-	$rs = $modx->db->select('DISTINCT sc.*,rev.status',$from,$where,$orderby,$limit);
+	$field = sprintf('DISTINCT sc.*, MAX(IF(1=%s OR sc.privatemgr=0 %s, 1, 0)) AS has_access, rev.status', $_SESSION['mgrRole'], $in_docgrp);
+	$rs = $modx->db->select($field,$from,$where,$orderby,$limit);
 	$resource = array();
 	while($row = $modx->db->getRow($rs))
 	{
@@ -134,6 +108,7 @@ if ($numRecords > 0)
 		$classes = array();
 		$classes[] = 'withmenu';
 		if($children['deleted']==='1')   $classes[] = 'deletedNode';
+		if($children['has_access']==='0') $classes[] = 'protectedNode';
 		if($children['published']==='0') $classes[] = 'unpublishedNode';
 		$class = ' class="' . join(' ',$classes) . '"';
 		
@@ -144,7 +119,9 @@ if ($numRecords > 0)
 		if($children['isfolder'] == 0)
 		{
 			$link = "index.php?a=27&amp;id={$children['id']}";
-			if($modx->config['site_start']==$children['id'])
+			if($children['privatemgr']==1)
+				$iconpath = $_style['tree_page_html_secure'];
+			elseif($modx->config['site_start']==$children['id'])
 				$iconpath = $_style['tree_page_home'];
 			elseif($modx->config['error_page']==$children['id'])
 				$iconpath = $_style['tree_page_404'];
@@ -158,7 +135,10 @@ if ($numRecords > 0)
 		else
 		{
 			$link = "index.php?a=120&amp;id={$children['id']}";
-			$iconpath = $_style['tree_folder'];
+			if($children['privatemgr']==1)
+				$iconpath = $_style['tree_folderopen_secure'];
+			else
+				$iconpath = $_style['tree_folder'];
 		}
 		
 		if( $children['type']==='reference')
@@ -432,7 +412,8 @@ function getTopicPath($id)
 	
 	foreach($parents as $topic)
 	{
-		$doc = $modx->getDocumentObject('id',$topic);
+		$rs = $modx->db->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$topic}'");
+		$doc = $modx->db->getRow($rs);
 		if($topic==$modx->config['site_start'])
 			$topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
 		elseif($topic==$id)
