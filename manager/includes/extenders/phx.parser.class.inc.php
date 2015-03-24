@@ -414,7 +414,7 @@ class PHx {
 				if($value!=='') $value = $value . $opt;
 				break;
 			case 'nl2lf':
-				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), "\n", $value);
+				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
 				break;
 			case 'toint':
 				$value = intval($value);
@@ -639,14 +639,6 @@ class PHx {
 				$ph['style'] = $opt;
 				$ph['value'] = $value;
 				$value = $modx->parseText($tpl,$ph);
-				break;
-			case 'googlesearch':
-			case 'google':
-				if($modx->config['manager_language']==='japanese-utf8')
-					$tpl = 'https://www.google.co.jp/search?q=%s&lr=lang_ja';
-				else
-					$tpl = 'https://www.google.com/search?q=%s';
-				$value = sprintf($tpl, urlencode($value));
 				break;
 			case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
