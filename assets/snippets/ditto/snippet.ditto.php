@@ -1147,12 +1147,14 @@ if ($debug == 1) {
 }
 //outerTpl by Dmi3yy
 if(isset($tplOuter)) $outerTpl = $tplOuter;
-if ($outerTpl && $resource) { 
-  if(substr($outerTpl, 0, 5) == '@CODE') {
+if ($outerTpl) { 
+  if(!$resource) $output = '';
+  elseif(substr($outerTpl, 0, 5) == '@CODE')
     $outerTpl = trim(substr($outerTpl, 6));
-  } elseif ($modx->getChunk($outerTpl) != '') {
+  elseif ($modx->getChunk($outerTpl) != '')
     $outerTpl = $modx->getChunk($outerTpl);
-  } 
+  
+  if($output)
     $output = str_replace(array('[+ditto+]','[+documents+]','[+docs+]'),$output,$outerTpl);
 }
 
