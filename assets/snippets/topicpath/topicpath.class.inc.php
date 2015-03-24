@@ -213,6 +213,11 @@ class TopicPath
 	
 	function parseText($tpl='',$ph=array())
 	{
+		global $modx;
+		
+		if(method_exists($modx, 'parseText'))
+			return $modx->parseText($tpl,$ph);
+		
 		foreach($ph as $k=>$v)
 		{
 			$k = "[+{$k}+]";
