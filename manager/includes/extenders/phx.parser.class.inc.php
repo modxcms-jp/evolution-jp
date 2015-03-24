@@ -2,11 +2,10 @@
 /*####
 #
 #	Name: PHx class(Placeholders Xtended)
-#	Version: 2.2
 #	Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
 #	Modified by Nick to include external files
 #	Modified by yama yamamoto@kyms.jp
-#	Date: 2012/07/28
+#	Date: 2015/03/23
 #
 ####*/
 
@@ -14,10 +13,12 @@ class PHx {
 	
 	var $placeholders = array();
 	var $vars = array();
+	var $cache = array();
 	
 	function PHx()
 	{
 		global $modx;
+		
 		if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
 		$this->placeholders['phx'] = '';
 	}
@@ -25,7 +26,7 @@ class PHx {
 	function phxFilter($key,$value,$modifiers)
 	{
 		global $modx;
-		
+		$modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
 		$modifiers = $this->splitModifiers($modifiers);
 		$this->vars = array();
 		$this->vars['name']    = & $phxkey;
@@ -47,20 +48,36 @@ class PHx {
 		while($modifiers!=='')
 		{
 			$bt = $modifiers;
-			$char = substr($modifiers,0,1);
-			$modifiers = substr($modifiers,1);
+			$char = $this->substr($modifiers,0,1);
+			$modifiers = $this->substr($modifiers,1);
 			
 			if($key===''&&$char==='=') exit('PHx parse error');
 			
 			if    ($char==='=')
 			{
-		    	$nextchar = substr($modifiers,0,1);
+		    	$nextchar = $this->substr($modifiers,0,1);
 				if(in_array($nextchar, array('"', "'", '`'))) list($value,$modifiers) = $this->_delimRoop($modifiers,$nextchar);
 		    	elseif(strpos($modifiers,':')!==false)        list($value,$modifiers) = explode(':', $modifiers, 2);
 		    	else                                          list($value,$modifiers) = array($modifiers,'');
 			}
 			elseif($char==='(' && strpos($modifiers,')')!==false)
-				list($value,$modifiers) = explode(')', $modifiers, 2);
+			{
+				$delim = $this->substr($modifiers,0,1);
+				switch($delim)
+				{
+					case '"':
+					case "'":
+					case '`':
+						if(strpos($modifiers,"{$delim})")!==false)
+					    {
+							list($value,$modifiers) = explode("{$delim})", $modifiers, 2);
+							$value = substr($value,1);
+						}
+						break;
+					default:
+						list($value,$modifiers) = explode(')', $modifiers, 2);
+				}
+			}
 			elseif($char===':') $value = '';
 			else                $key .= $char;
 			
@@ -72,6 +89,8 @@ class PHx {
     	    	$key   = '';
     	    	$value = null;
 			}
+			elseif($key!==''&&$modifiers==='')
+				$result[]=array('cmd'=>$key,'opt'=>'');
 			
 			if($modifiers===$bt)
 			{
@@ -98,6 +117,18 @@ class PHx {
 		if(empty($modifiers)) return;
 		
 		$condition = array();
+
+		foreach($modifiers as $m)
+		{
+			$lastKey = $m['cmd'];
+		}
+		$_ = explode(',','equals,is,eq,notequals,isnot,isnt,ne,isgreaterthan,isgt,eg,islowerthan,islt,el,greaterthan,gt,lowerthan,lt,find,preg');
+		if(in_array($lastKey,$_))
+		{
+			$modifiers[] = array('cmd'=>'then','opt'=>'1');
+			$modifiers[] = array('cmd'=>'else','opt'=>'0');
+		}
+		
 		foreach($modifiers as $i=>$a)
 		{
 			if ($modx->debug) $fstart = $modx->getMicroTime();
@@ -117,7 +148,7 @@ class PHx {
 		if(preg_match('@^[1-9][/0-9]*$@',$cmd))
 		{
 			if(strpos($cmd,'/')!==false)
-				$cmd = substr($cmd,strrpos($cmd,'/')+1);
+				$cmd = $this->substr($cmd,strrpos($cmd,'/')+1);
 			$opt = $cmd;
 			$cmd = 'id';
 		}
@@ -147,9 +178,20 @@ class PHx {
 		return $value;
 	}
 	
+	function isEmpty($cmd,$value)
+	{
+		if($value!=='') return false;
+		
+		$_ = explode(',', 'id,ifempty,input,if,equals,is,eq,notequals,isnot,isnt,ne,find,preg,or,and,show,this,then,else,select,switch,summary,smart_description,smart_desc,isinrole,ir,memberof,mo');
+		if(in_array($cmd,$_)) return false;
+		else                  return true;
+	}
+	
 	function getValueFromPreset($phxkey, $value, $cmd, $opt)
 	{
 		global $modx, $condition;
+		
+		if($this->isEmpty($cmd,$value)) return;
 		
 		switch ($cmd)
 		{
@@ -184,15 +226,16 @@ class PHx {
 			case 'find':
 				$condition[] = intval(strpos($value, $opt)!==false);break;
 			case 'preg':
+			case 'preg_match':
 				$condition[] = intval(preg_match($opt,$value));break;
 			case 'isinrole':
 			case 'ir':
 			case 'memberof':
 			case 'mo':
 				// Is Member Of  (same as inrole but this one can be stringed as a conditional)
-				if ($value == '&_PHX_INTERNAL_&') $value = $this->user['id'];
-				$grps = ($this->strlen($modifier_value) > 0 ) ? explode(',',$opt) :array();
-				$condition[] = intval($this->isMemberOfWebGroupByUserId($value,$grps));
+        		$userID = $modx->getLoginUserID();
+				$grps = ($this->strlen($opt) > 0 ) ? explode(',',$opt) :array();
+				$condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
 				break;
 			case 'or':
 				$condition[] = '||';break;
@@ -203,6 +246,7 @@ class PHx {
 				$conditional = implode(' ',$condition);
 				$isvalid = intval(eval("return ({$conditional});"));
 				if (!$isvalid) { $value = NULL;}
+				break;
 			case 'then':
 				$conditional = implode(' ',$condition);
 				$isvalid = intval(eval("return ({$conditional});"));
@@ -230,38 +274,65 @@ class PHx {
 			#####  String Modifiers
 			case 'lcase':
 			case 'strtolower':
+			case 'lower_case':
 				$value = $this->strtolower($value); break;
 			case 'ucase':
 			case 'strtoupper':
+			case 'upper_case':
 				$value = $this->strtoupper($value); break;
 			case 'htmlent':
 			case 'htmlentities':
 				$value = htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']); break;
 			case 'html_entity_decode':
-				$value = html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']); break;
+			case 'decode_html':
+				$value = html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']);
+				break;
 			case 'esc':
 			case 'escape':
 				$value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
-			$value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
+		    	$value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
+				break;
+			case 'sql_escape':
+			case 'encode_js':
+				$value = $modx->db->escape($value);
+				break;
+			case 'htmlspecialchars':
+			case 'hsc':
+			case 'encode_html':
+				$value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
+				break;
+			case 'spam_protect':
+				$value = str_replace(array('@','.'),array('&#64;','&#46;'),$value);
+				$value = sprintf("<script>document.write('%s');</script>",$value);
 				break;
 			case 'strip':
-				$value = str_replace(array("\n","\r","\t","\s"), ' ', $value); break;
+				if($opt==='') $opt = ' ';
+				$value = preg_replace('/[\n\r\t\s]+/', $opt, $value); break;
+			case 'strip_linefeeds':
+				$value = str_replace(array("\n","\r"), '', $value); break;
 			case 'notags':
 			case 'strip_tags':
+			case 'remove_html':
 				if($opt!=='')
 				{
 					foreach(explode(',',$opt) as $v)
 					{
+						$v = trim($v,'</> ');
 						$param[] = "<{$v}>";
 					}
 					$params = join(',',$param);
 				}
 				else $params = '';
+				if(!strpos($params,'<br>')===false) {
+					$value = preg_replace('@(<br[ /]*>)\n@','$1',$value);
+					$value = preg_replace('@<br[ /]*>@',"\n",$value);
+				}
 				$value = strip_tags($value,$params);
 				break;
 			case 'length':
 			case 'len':
 			case 'strlen':
+			case 'count_characters':
 				$value = $this->strlen($value); break;
 			case 'reverse':
 			case 'strrev':
@@ -271,10 +342,40 @@ class PHx {
 			  	$wrapat = intval($opt) ? intval($opt) : 70;
 				$value = preg_replace("~(\b\w+\b)~e","wordwrap('\\1',\$wrapat,' ',1)",$value);
 				break;
+			case 'wrap_text':
+			  	$width = preg_match('/^[1-9][0-9]*$/',$opt) ? $opt : 70;
+			  	if($modx->config['manager_language']==='japanese-utf8')
+				{
+					$chunk = array();
+					$c=0;
+					while($c<10000)
+			  		{
+			  			$c++;
+			  			if($this->strlen($value)<$width)
+						{
+							$chunk[] = $value;
+							break;
+			  			}
+			  			$chunk[] = $this->substr($value,0,$width);
+			  			$value = $this->substr($value,$width);
+					}
+					$value = join("\n",$chunk);
+			  	}
+			  	else
+			  		$value = wordwrap($value,$width,"\n",true);
+				break;
 			case 'limit':
 				// default: 100
 			  	$limit = intval($opt) ? intval($opt) : 100;
 				$value = $this->substr($value,0,$limit);
+				break;
+			case 'summary':
+			case 'smart_description':
+			case 'smart_desc':
+			  	if(strpos($opt,',')) list($limit,$delim) = explode(',', $opt);
+				elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
+				else {$limit=100;$delim='';}
+				$value = $this->getSummary($value, $limit, $delim);
 				break;
 			case 'str_shuffle':
 			case 'shuffle':
@@ -296,13 +397,24 @@ class PHx {
 				if($value!=='') $value = str_replace($s,$r,$value);
 				break;
 			case 'replace_to':
-				if($value!=='') $value = str_replace(array('[+value+]','[+output+]'),$value,$opt);
+				if($value!=='') $value = str_replace(array('[+value+]','[+output+]','{value}'),$value,$opt);
 				break;
+			case 'preg_replace':
+			case 'regex_replace':
+				if(empty($opt) || strpos($opt,',')===false) break;
+				list($s,$r) = explode(',',$opt,2);
+				if($value!=='') $value = preg_replace($s,$r,$value);
+				break;
+			case 'sprintf':
+			case 'string_format':
+				if($value!=='') $value = sprintf($opt,$value);
+				break;
+			case 'cat':
 			case '.':
 				if($value!=='') $value = $value . $opt;
 				break;
 			case 'nl2lf':
-				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
+				if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), "\n", $value);
 				break;
 			case 'toint':
 				$value = intval($value);
@@ -316,13 +428,48 @@ class PHx {
 			case 'addbreak':
 				$value = $this->addbreak($value);
 				break;
-			case 'nl2br':
-				if($modx->config['mce_element_format']==='html')
-					$value = nl2br($value,false);
-				else
-					$value = nl2br($value);
+			case 'capitalize':
+				$_ = explode(' ',$value);
+				foreach($_ as $i=>$v)
+				{
+					$_[$i] = ucfirst($v);
+				}
+				$value = join(' ',$_);
 				break;
-			
+		    case 'count_paragraphs':
+		    	$value = trim($value);
+		    	$value = preg_replace('/\r/', '', $value);
+		    	$value = count(preg_split('/\n+/',$value));
+		    	break;
+		    case 'count_words':
+		    	$value = trim($value);
+		    	$value = count(preg_split('/\s+/',$value));
+		    	break;
+			case 'urlencode':
+			case 'encode_url':
+				$value = urlencode($value);
+				break;
+			case 'sha1':
+			case 'encode_sha1':
+				$value = sha1($value);
+				break;
+			case 'trim_to':
+				if(strpos($opt,'+'))
+					list($len,$str) = explode('+',$opt,2);
+				else {
+					$len = $opt;
+					$str = '';
+				}
+				if(preg_match('/^[1-9][0-9]*$/',$len)) {
+					$value = $this->substr($value,0,$len) . $str;
+				}
+				elseif(preg_match('/^\-[1-9][0-9]*$/',$len)) {
+					$value = $this->substr($value,$len) . $str;
+				}
+				break;
+			case 'br2nl':
+				$value = preg_replace('@<br[\s/]*>@i', "\n", $value);
+				break;
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
 			case 'lcfirst':
@@ -331,8 +478,8 @@ class PHx {
 			case 'ltrim':
 			case 'rtrim':
 			case 'trim':
+			case 'nl2br':
 			case 'md5':
-			case 'urlencode':
 			case 'urldecode':
 			case 'rawurlencode':
 			case 'rawurldecode':
@@ -346,7 +493,7 @@ class PHx {
 				if($opt) $value = $this->getDocumentObject($opt,$phxkey);
 				break;
 			case 'type':
-			case 'contentType':
+			case 'contenttype':
 			case 'pagetitle':
 			case 'longtitle':
 			case 'description':
@@ -381,6 +528,7 @@ class PHx {
 			case 'privatemgr':
 			case 'content_dispo':
 			case 'hidemenu':
+				if($cmd==='contenttype') $cmd = 'contentType';
 				$value = $this->getDocumentObject($value,$cmd);
 				break;
 			case 'title':
@@ -418,20 +566,22 @@ class PHx {
 			case 'fax':
 			case 'photo':
 			case 'comment':
-				$value = $this->ModUser($value,$cmd,'fuzzy');
+				$value = $this->ModUser($value,$cmd);
 				break;
 			#####  Special functions 
 			case 'math':
-				$filter = preg_replace('@([a-zA-Z\n\r\t\s])@','',$opt);
-				$filter = str_replace('?',$value,$filter);
-				$value = eval('return '.$filter.';');
+				$filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
+				$filter = str_replace(array('?','%s'),$value,$filter);
+				$value = eval("return {$filter};");
 				break;
 			case 'ifempty':
+			case '_default':
 				if (empty($value)) $value = $opt; break;
 			case 'ifnotempty':
 				if (!empty($value)) $value = $opt; break;
 			case 'strftime':
 			case 'date':
+			case 'dateformat':
 				if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
 				if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
 				if(strpos($opt,'%')!==false)
@@ -465,6 +615,31 @@ class PHx {
 				$ph['value'] = $value;
 				$value = $modx->parseText($tpl,$ph);
 				break;
+			case 'googlesearch':
+			case 'google':
+				if($modx->config['manager_language']==='japanese-utf8')
+					$tpl = 'https://www.google.co.jp/search?q=%s&lr=lang_ja';
+				else
+					$tpl = 'https://www.google.com/search?q=%s';
+				$value = sprintf($tpl, urlencode($value));
+				break;
+			case 'datagrid':
+                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+                $grd = new DataGrid();
+                $grd->ds = trim($value);
+                $grd->itemStyle = '';
+                $grd->altItemStyle = '';
+                $pos = strpos($value,"\n");
+                if($pos) $_ = substr($value,0,$pos);
+                else $_ = $pos;
+                $grd->cdelim = strpos($_,"\t")!==false ? 'tab' : ',';
+                $value = $grd->render();
+                break;
+            case 'setvar':
+            	$modx->placeholders[$opt] = $value;
+            	return;
+            	break;
+
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
 				$value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
@@ -550,7 +725,7 @@ class PHx {
 	}
 	// Returns the specified field from the user record
 	// positive userid = manager, negative integer = webuser
-	function ModUser($userid,$field,$fuzzy=false) {
+	function ModUser($userid,$field) {
 		global $modx;
 		if (!isset($this->cache['ui']) || !array_key_exists($userid, $this->cache['ui'])) {
 			if (intval($userid) < 0) {
@@ -564,24 +739,7 @@ class PHx {
 		}
 		$user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
 		
-		if($fuzzy)
-		{
-			switch($field)
-			{
-				case 'lastlogin':
-				case 'thislogin':
-				case 'dob':
-				case 'blockeduntil':
-				case 'blockedafter':
-					$value = $modx->toDateFormat($user[$field]);
-					break;
-				default:
-					$value = $user[$field];
-			}
-		}
-		else $value = $user[$field];
-		
-		return $value;
+		return $user[$field];
 	}
 	 
 	 // Returns true if the user id is in one the specified webgroups
@@ -595,14 +753,13 @@ class PHx {
 		if (intval($userid) < 0) { $userid = -($userid); }
 		
 		// Creates an array with all webgroups the user id is in
-		if (!array_key_exists($userid, $this->cache['mo']))
+		if (isset($this->cache['mo'][$userid])) $grpNames = $this->cache['mo'][$userid];
+		else
 		{
-			$tbl_webgroup_names = $modx->getFullTableName('webgroup_names');
-			$tbl_web_groups     = $modx->getFullTableName('web_groups');
-			$sql = "SELECT wgn.name FROM {$tbl_webgroup_names} wgn INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser='{$userid}'";
-			$this->cache['mo'][$userid] = $grpNames = $modx->db->getColumn('name',$sql);
+			$from = sprintf("[+prefix+]webgroup_names wgn INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='%s'",$userid);
+			$rs = $modx->db->select('wgn.name',$from);
+			$this->cache['mo'][$userid] = $grpNames = $modx->db->getColumn('name',$rs);
 		}
-		else $grpNames = $this->cache['mo'][$userid];
 		
 		// Check if a supplied group matches a webgroup from the array we just created
 		foreach($groupNames as $k=>$v)
@@ -616,17 +773,23 @@ class PHx {
 	
 	function _delimRoop($_tmp,$delim)
 	{
-		$_tmp = substr($_tmp,1);
+		$debugbt = $_tmp;
+		$_tmp = $this->substr($_tmp,1);
 		$value = '';
 		$c = 0;
 		while($c < 65000)
 		{
 			$bt = $_tmp;
-			$char = substr($_tmp,0,1);
-			$_tmp = substr($_tmp,1);
+			$char = $this->substr($_tmp,0,1);
+			$_tmp = $this->substr($_tmp,1);
 			$c++;
-			if($c===65000) exit('phx parse over');
-			if($char===$delim && (substr($_tmp,0,1)===':'))
+			if($c===65000)
+			{
+				global $modx;
+				$modx->addLog('PHx _delimRoop debug',$debugbt);
+				exit('phx parse over');
+			}
+			if($char===$delim && ($this->substr($_tmp,0,1)===':'))
 				break;
 			else
 				$value .= $char;
@@ -656,8 +819,8 @@ class PHx {
 			if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
 			if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
 			if($content===$bt) break;
-			if($c===1000) exit('Parse over');
 			$c++;
+			if($c===20) exit('Parse over');
 		}
 		return $content;
 	}
@@ -708,11 +871,24 @@ class PHx {
 	
 	//mbstring
 	function substr($str, $s, $l = null) {
-		if (function_exists('mb_substr')) return mb_substr($str, $s, $l);
+		global $modx;
+		if(is_null($l)) $l = $this->strlen($str);
+		if (function_exists('mb_substr'))
+		{
+			if(strpos($str,"\r")!==false)
+				$str = str_replace(array("\r\n","\r"), "\n", $str);
+			return mb_substr($str, $s, $l, $modx->config['modx_charset']);
+		}
 		return substr($str, $s, $l);
 	}
+	function strpos($haystack,$needle,$offset=0) {
+		global $modx;
+		if (function_exists('mb_strpos')) return mb_strpos($haystack,$needle,$offset,$modx->config['modx_charset']);
+		return $this->strlen($haystack,$needle,$offset);
+	}
 	function strlen($str) {
-		if (function_exists('mb_strlen')) return mb_strlen($str);
+		global $modx;
+		if (function_exists('mb_strlen')) return mb_strlen(str_replace("\r\n", "\n", $str),$modx->config['modx_charset']);
 		return strlen($str);
 	}
 	function strtolower($str) {
@@ -724,13 +900,13 @@ class PHx {
 		return strtoupper($str);
 	}
 	function ucfirst($str) {
-		if (function_exists('mb_strtoupper') && function_exists('mb_substr') && function_exists('mb_strlen')) 
-			return mb_strtoupper(mb_substr($str, 0, 1)).mb_substr($str, 1, mb_strlen($str));
+		if (function_exists('mb_strtoupper')) 
+			return mb_strtoupper($this->substr($str, 0, 1)).$this->substr($str, 1, $this->strlen($str));
 		return ucfirst($str);
 	}
 	function lcfirst($str) {
-		if (function_exists('mb_strtolower') && function_exists('mb_substr') && function_exists('mb_strlen')) 
-			return mb_strtolower(mb_substr($str, 0, 1)).mb_substr($str, 1, mb_strlen($str));
+		if (function_exists('mb_strtolower')) 
+			return mb_strtolower($this->substr($str, 0, 1)).$this->substr($str, 1, $this->strlen($str));
 		return lcfirst($str);
 	}
 	function ucwords($str) {
@@ -755,10 +931,8 @@ class PHx {
     {
         global $modx;
         
-        if(isset($modx->documentObject['richtext'])&&$modx->documentObject['richtext']==1)
-            return $text;
-        
         $text = $this->parseDocumentSource($text);
+        $text = str_replace(array("\r\n","\r","\n"),"\n",$text);
         
         $blockElms  = 'br,table,tbody,tr,td,th,thead,tfoot,caption,colgroup,div';
         $blockElms .= ',dl,dd,dt,ul,ol,li,pre,select,option,form,map,area,blockquote';
@@ -773,4 +947,51 @@ class PHx {
         }
         return join("\n", $lines);
     }
- }
+    
+    function getSummary($content='', $limit=100, $delim='')
+    {
+    	global $modx;
+    	if($delim==='') $delim = $modx->config['manager_language']==='japanese-utf8' ? '。' : '.';
+    	$limit = intval($limit);
+    	
+    	if($content==='' && isset($modx->documentObject['content']))
+    		$content = $modx->documentObject['content'];
+    	
+    	$content = $this->parseDocumentSource($content);
+    	$content = strip_tags($content);
+    	$content = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$content);
+    	if(preg_match('/\s+/',$content))
+    		$content = preg_replace('/\s+/',' ',$content);
+    	$content = trim($content);
+    	
+    	$pos = $this->strpos($content, $delim);
+    	
+    	if($pos!==false && $pos<$limit)
+    	{
+    		$_ = explode($delim, $content);
+    		$text = '';
+    		foreach($_ as $value)
+    		{
+    			if($limit <= $this->strlen($text.$value.$delim)) break;
+    			$text .= $value.$delim;
+    		}
+    	}
+    	else $text = $content;
+    	
+    	if($limit<$this->strlen($text) && strpos($text,' ')!==false)
+    	{
+    		$_ = explode(' ', $text);
+    		$text = '';
+    		foreach($_ as $value)
+    		{
+    			if($limit <= $this->strlen($text.$value.' ')) break;
+    			$text .= $value . ' ';
+    		}
+    		if($text==='') $text = $content;
+    	}
+    	
+    	if($limit < $this->strlen($text)) $text = $this->substr($text, 0, $limit);
+    	
+    	return $text;
+    }
+}
