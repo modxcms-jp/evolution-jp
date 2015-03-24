@@ -5,7 +5,7 @@
 #	Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
 #	Modified by Nick to include external files
 #	Modified by yama yamamoto@kyms.jp
-#	Date: 2015/03/23
+#	Date: 2015/03/24
 #
 ####*/
 
@@ -470,21 +470,33 @@ class PHx {
 			case 'br2nl':
 				$value = preg_replace('@<br[\s/]*>@i', "\n", $value);
 				break;
+			case 'ltrim':
+			case 'rtrim':
+			case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
+				if($opt==='')
+					$value = $cmd($value);
+				else $value = $cmd($value,$opt);
+				break;
+			case 'nl2br':
+				if($opt!=='false') $opt = true;
+				else               $opt = false;
+				$value = nl2br($value, $opt);
+				break;
+			case 'base64_decode':
+				if($opt!=='false') $opt = true;
+				else               $opt = false;
+				$value = base64_decode($value,$opt);
+				break;
 			// These are all straight wrappers for PHP functions
 			case 'ucfirst':
 			case 'lcfirst':
 			case 'ucwords':
 			case 'addslashes':
-			case 'ltrim':
-			case 'rtrim':
-			case 'trim':
-			case 'nl2br':
 			case 'md5':
 			case 'urldecode':
 			case 'rawurlencode':
 			case 'rawurldecode':
 			case 'base64_encode':
-			case 'base64_decode':
 				$value = $cmd($value);
 				break;
 			
