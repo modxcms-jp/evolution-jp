@@ -1648,7 +1648,7 @@ class DocumentParser {
         return $echo . $return;
     }
     
-    function evalSnippets($content)
+    function evalSnippets($content,$nest=0)
     {
         if(strpos($content,'[[')===false) return $content;
         
