@@ -65,6 +65,7 @@ class DocumentParser {
     var $functionCacheBeginCount;
     var $uaType;
     var $functionLog = array();
+    var $currentSnippetCall;
 
     function __get($property_name)
     {
@@ -1660,7 +1661,7 @@ class DocumentParser {
             }
         }
         unset ($modx->event->params);
-        if ($this->debug) $this->addLogEntry($this->currentSnippet,$fstart);
+        if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
         $this->currentSnippet = '';
         return $echo . $return;
     }
