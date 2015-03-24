@@ -34,7 +34,7 @@ $set['full']['b2'] = 'cut,copy,paste,pastetext,pasteword,|,search,replace,|,bull
 $set['full']['b3'] = 'tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen';
 $set['full']['b4'] = 'insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak,restoredraft';
 
-$set['default']['p']  = 'visualblocks,template,autolink,inlinepopups,autosave,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
+$set['default']['p']  = 'visualblocks,template,autolink,inlinepopups,save,advlist,style,fullscreen,advimage,paste,advlink,media,contextmenu,table';
 $set['default']['b1'] = 'undo,redo,|,bold,forecolor,backcolor,strikethrough,formatselect,fontsizeselect,pastetext,pasteword,code,template,|,fullscreen,help';
 $set['default']['b2'] = 'image,media,link,unlink,anchor,|,justifyleft,justifycenter,justifyright,|,bullist,numlist,|,blockquote,outdent,indent,|,table,hr,|,visualblocks,styleprops,removeformat';
 $set['default']['b3'] = '';
