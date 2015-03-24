@@ -19,6 +19,7 @@ class Mysqldumper {
 	var $database_server;
 	var $dbname;
 	var $table_prefix;
+	var $contentsOnly;
 
 	function Mysqldumper() {
 		global $modx;
@@ -104,6 +105,10 @@ class Mysqldumper {
 					case "{$table_prefix}site_htmlsnippets":
 					case "{$table_prefix}site_templates":
 					case "{$table_prefix}system_settings":
+					case "{$table_prefix}site_tmplvars":
+					case "{$table_prefix}site_tmplvar_access":
+					case "{$table_prefix}site_tmplvar_contentvalues":
+					case "{$table_prefix}site_tmplvar_templates":
 						break;
 					default:
 						continue 2;
@@ -121,11 +126,11 @@ class Mysqldumper {
 			$output .= $lf;
 			$output .= "#{$lf}# Dumping data for table `{$table_name}`{$lf}#{$lf}";
 			$result = $modx->db->select('*',$table_name);
-			while($row = $modx->db->getRow($result,'object')) {
+			while($row = $modx->db->getRow($result)) {
 				$insertdump = $lf;
 				$insertdump .= "INSERT INTO `{$table_name}` VALUES (";
-				$arr = $this->object2Array($row);
-				foreach($arr as $value) {
+				if($table_name==="{$table_prefix}system_settings") $row = $this->convertValues($row);
+				foreach($row as $value) {
 					$value = addslashes($value);
 					if(strpos($value,"\r\n")!==false) $value = str_replace("\r\n", "\n", $value);
 					if(strpos($value,"\r")!==false)   $value = str_replace("\r", "\n", $value);
@@ -146,6 +151,28 @@ class Mysqldumper {
 		if(empty($output)) return false;
 		else unlink($tempfile_path);
 		return $output;
+	}
+	
+	function convertValues($row)
+	{
+		switch($row['setting_name'])
+		{
+			case 'filemanager_path':
+			case 'rb_base_dir':
+			case 'sys_files_checksum':
+			if(strpos($row['setting_value'],MODX_BASE_PATH)!==false)
+				$row['setting_value'] = str_replace(MODX_BASE_PATH,'[(base_path)]',$row['setting_value']);
+    			break;
+			case 'site_url':
+			if($row['setting_value']===MODX_SITE_URL)
+				$row['setting_value'] = '[(site_url)]';
+    			break;
+			case 'base_url':
+			if($row['setting_value']===MODX_BASE_URL)
+				$row['setting_value'] = '[(base_url)]';
+    			break;
+		}
+		return $row;
 	}
 	
 	// Private function object2Array.
@@ -230,13 +257,23 @@ class Mysqldumper {
     	$settings = array();
     	while ($row = $modx->db->getRow($rs))
     	{
-    		switch($row['setting_name'])
+    		$name  = $row['setting_name'];
+    		$value = $row['setting_value'];
+    		switch($name)
     		{
     			case 'rb_base_dir':
     			case 'filemanager_path':
+    			case 'sys_files_checksum':
+    				if(strpos($value,'[(base_path)]')!==false)
+    					$settings[$name] = str_replace('[(base_path)]',MODX_BASE_PATH,$value);
+    				break;
     			case 'site_url':
+    				if($value==='[(site_url)]')
+    					$settings['site_url'] = MODX_SITE_URL;
+    				break;
     			case 'base_url':
-    				$settings[$row['setting_name']] = $row['setting_value'];
+    				if($value==='[(base_url)]')
+    					$settings['base_url'] = MODX_BASE_URL;
     				break;
     		}
     	}

@@ -1307,3 +1307,6 @@ $_lang["setting_individual_cache_desc"] = 'Generate cache for each device.(PC / 
 
 $_lang["logtitle_login_disp_warning"] = 'Warning - Can not output login page';
 $_lang["logmsg_login_disp_warning"] = 'Disable plugins';
+
+$_lang["bk.contentOnly"] = 'Contents only';
+$_lang["bk.fileName"] = 'File name';

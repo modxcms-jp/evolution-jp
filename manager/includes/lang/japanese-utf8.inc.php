@@ -418,7 +418,7 @@ $_lang["link_attributes_help"] = "このページ内の任意のリンクの属�
 $_lang["list_mode"] = 'リストモードのON/OFF - グリッドに全てのレコードをリストするために使われます。';
 $_lang["loading_doc_tree"] = 'リソースツリーのローディング中';
 $_lang["loading_menu"] = 'メニューをローディング中';
-$_lang["loading_page"] = 'ページを読み込み中';
+$_lang["loading_page"] = '読み込み中';
 $_lang["localtime"] = 'ローカル時刻';
 $_lang["lock_htmlsnippet"] = 'チャンクの編集をロック';
 $_lang["lock_htmlsnippet_msg"] = '誤操作による書き換えを防ぎます。';
@@ -1309,3 +1309,6 @@ $_lang["setting_individual_cache_desc"] = 'デバイスごとにキャッシュ�
 
 $_lang["logtitle_login_disp_warning"] = 'ログイン画面の表示に問題あり';
 $_lang["logmsg_login_disp_warning"] = 'プラグインを一時的に無効にしました。';
+
+$_lang["bk.contentOnly"] = 'コンテンツデータのみ';
+$_lang["bk.fileName"] = 'ファイル名';
