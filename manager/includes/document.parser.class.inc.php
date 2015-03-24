@@ -1473,7 +1473,13 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!empty($matches))
         {
-            $content = str_replace($matches['0'],'',$content);
+            foreach($matches['0'] as $i=>$v)
+            {
+                $addBreakMatches[$i] = $v."\n";
+            }
+            $content = str_replace($addBreakMatches,'',$content);
+            if(strpos($content,$left)!==false)
+                $content = str_replace($matches['0'],'',$content);
         }
         return $content;
     }
