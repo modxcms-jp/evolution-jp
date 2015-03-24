@@ -2579,13 +2579,20 @@ class DocumentParser {
         if($key==='') return false;
         if(!$this->chunkCache) $this->setChunkCache();
         
-        if(isset($this->chunkCache[$key]))
+        if(!isset($this->chunkCache[$key]))
         {
-            return $this->chunkCache[$key];
+            $where = sprintf("`name`='%s' AND `published`='1'",  $this->db->escape($key));
+            $rs    = $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
+            if ($this->db->getRecordCount($rs)==1)
+            {
+                $row= $this->db->getRow($rs);
+                $value = $row['snippet'];
+            }
+            else $value = '';
+            
+            $this->chunkCache[$key] = $value;
         }
-        else {
-            return false;
-        }
+        return $this->chunkCache[$key];
     }
     
     function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
