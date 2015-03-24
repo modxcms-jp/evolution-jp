@@ -1394,25 +1394,7 @@ class DocumentParser {
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
-            if ($this->getChunk($key)!==false):
-                $value= $this->getChunk($key);
-            else:
-                if(!isset($this->chunkCache)) $this->setChunkCache();
-                $escaped_name = $this->db->escape($key);
-                $where = "`name`='{$escaped_name}' AND `published`='1'";
-                $rs    = $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
-                if ($this->db->getRecordCount($rs)==1)
-                {
-                    $row= $this->db->getRow($rs);
-                    $this->chunkCache[$key]= $row['snippet'];
-                    $value= $row['snippet'];
-                }
-                else
-                {
-                    $this->chunkCache[$key]= '';
-                    $value= '';
-                }
-            endif;
+            $value= $this->getChunk($key);
             
             if($modifiers!==false)
             {
