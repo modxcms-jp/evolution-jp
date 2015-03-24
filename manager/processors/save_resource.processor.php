@@ -36,6 +36,7 @@ switch ($actionToTake) {
 		$return_url = 'index.php?a=' . $_GET['a'];
 		
 		// invoke OnBeforeDocFormSave event
+		$modx->event->vars = array('mode'=>'new','dg'=>&$document_groups);
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
 		$temp_id = $modx->doc->getNewDocID();
@@ -58,7 +59,8 @@ switch ($actionToTake) {
 		if(isset($modx->config['show_meta'])) saveMETAKeywords($newid);
 
 		// invoke OnDocFormSave event
-		$modx->invokeEvent('OnDocFormSave', array('mode'=>'new','id'=>$newid));
+		$modx->event->vars = array('mode'=>'new','id'=>$newid);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($newid);
@@ -86,7 +88,8 @@ switch ($actionToTake) {
 		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
-		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd','id'=>$id));
+		$modx->event->vars = array('mode'=>'upd','id'=>$id);
+		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
 		
 		$values = getInputValues($id,'edit');
 		$values = $modx->db->escape($values);
@@ -111,7 +114,8 @@ switch ($actionToTake) {
 		if(isset($modx->config['show_meta'])) saveMETAKeywords($id);
 
 		// invoke OnDocFormSave event
-		$modx->invokeEvent('OnDocFormSave', array('mode'=>'upd','id'=>$id));
+		$modx->event->vars = array('mode'=>'upd','id'=>$id);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($id);
