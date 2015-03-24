@@ -11,6 +11,7 @@
 	$modx->tvfilter->vars['name']    = & $name;
 	$modx->tvfilter->vars['value']   = & $value;
 	$modx->tvfilter->vars['input']   = & $value;
+	$modx->tvfilter->vars['docid']   = & $docid;
 	
 	if(substr($params['output'], 0, 5) == '@FILE')
 	{
