@@ -1887,4 +1887,49 @@ class SubParser {
             $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
         }
     }
+    function mergeInlineFilter($content)
+    {
+        global $modx;
+        
+        if(strpos($content,'[+@')===false) return $content;
+        
+        if ($modx->debug) $fstart = $modx->getMicroTime();
+        
+        $matches = $modx->getTagsFromContent($content,'[+@','+]');
+        if(!$matches) return $content;
+        
+        $replace= array ();
+        foreach($matches['1'] as $i=>$key) {
+            $delim = substr($key,0,1);
+            switch($delim)
+            {
+                case '"':
+                case '`':
+                case "'":
+                    if(substr_count($key,$delim)==1) break;
+                    $key = substr($key,1);
+                    list($body,$remain) = explode($delim,$key,2);
+                    $key = str_replace(':', md5(':'),$body) . $remain;
+            }
+            if(strpos($key,':')!==false && $modx->config['output_filter']!=='0')
+                list($key,$modifiers) = explode(':', $key, 2);
+            else $modifiers = false;
+            if(strpos($key,md5(':'))!==false) $key = str_replace(md5(':'),':',$key);
+            $value = $key;
+            if($modifiers!==false)
+            {
+                $modx->loadExtension('PHx') or die('Could not load PHx class.');
+                $value = $modx->filter->phxFilter($key,$value,$modifiers);
+            }
+            $replace[$i] = $value;
+        }
+        
+        $content= str_replace($matches['0'], $replace, $content);
+        if ($modx->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $modx->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
+        return $content;
+    }
 }

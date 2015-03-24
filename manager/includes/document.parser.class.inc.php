@@ -2083,6 +2083,8 @@ class DocumentParser {
             if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
             if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
             if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
+            
+            if(strpos($source,'[+@')!==false)                  $source= $this->mergeInlineFilter($source);
             // combine template and document variables
             if(strpos($source,'[*')!==false)                   $source= $this->mergeDocumentContent($source);
             // replace settings referenced in document
@@ -3343,7 +3345,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->regOption($key, $value);}
     function recDebugInfo()
         {$this->loadExtension('SubParser');return $this->sub->recDebugInfo();}
-        
+    function mergeInlineFilter($content)
+        {$this->loadExtension('SubParser');return $this->sub->mergeInlineFilter($content);}
         
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
