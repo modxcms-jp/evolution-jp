@@ -1085,9 +1085,10 @@ class SubParser {
 	function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
 		global $modx,$_style,$_lang,$content;
 		
-	    if(substr($field_elements, 0, 5) === '<?php') $field_elements = "@@EVAL\n".substr($field_elements,6);
-	    if(substr($default_text, 0, 5) === '<?php')   $default_text   = "@@EVAL\n".substr($default_text,6);
-	    if(substr($field_value, 0, 5) === '<?php')    $field_value    = "@@EVAL\n".substr($field_value,6);
+	    if(substr($field_elements, 0, 5) === '<?php')  $field_elements = "@EVAL:\n".substr($field_elements,6);
+	    if(substr($field_elements, 0, 6) === '@@EVAL') $field_elements = "@EVAL:\n".substr($field_elements,7);
+	    if(substr($default_text, 0, 5) === '<?php')    $default_text   = "@@EVAL:\n".substr($default_text,6);
+	    if(substr($field_value, 0, 5) === '<?php')     $field_value    = "@@EVAL:\n".substr($field_value,6);
 	    
 		if(substr($default_text, 0, 6) === '@@EVAL' && $field_value===$default_text) {
 	     	$eval_str = trim(substr($default_text, 7));
@@ -1276,7 +1277,9 @@ class SubParser {
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 if(isset($content['id']))
                 {
-                	if(!isset($modx->getDocumentObject))
+                    global $docObject;
+                    if($docObject) $modx->documentObject = $docObject;
+                	elseif(!isset($modx->getDocumentObject))
                 		$modx->documentObject = $modx->getDocumentObject('id',$content['id']);
                 	if(!isset($modx->documentIdentifier))
                 		$modx->documentIdentifier = $content['id'];
@@ -1778,8 +1781,7 @@ class SubParser {
     		include_once MODX_CORE_PATH . 'cache_sync.class.php';
     		$cache = new synccache();
     		$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-    		$cache->cacheRefreshTime = $unixtime;
-    		$cache->publish_time_file($modx);
+    		$cache->publishBasicConfig($unixtime);
     	}
     }
     
