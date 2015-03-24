@@ -1484,19 +1484,22 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<!--@ENDIF-->')
+    function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<@ENDIF-->')
     {
-    	if ($this->debug) $fstart = $this->getMicroTime();
-    	
+        if ($this->debug) $fstart = $this->getMicroTime();
+        
         if(strpos($content,'<!--@IF ')!==false) $content = str_replace('<!--@IF ',$left,$content);
         if(strpos($content,$left)===false) return $content;
+        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->','<@ELSE>',$content);
+        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->','<@ENDIF-->',$content);
         $matches = $this->getTagsFromContent($content,$left,$right);
         if(!empty($matches))
         {
             foreach($matches['0'] as $i=>$v)
             {
-                $cmd = substr($v,8,strpos($v,'-->')-8);
+                $cmd = substr($v,8,strpos($v,'>')-8);
                 $cmd = trim($cmd);
+                if(substr($cmd,-2)==='--') $cmd = substr($cmd,0,-2);
                 $cond = substr($cmd,0,1)!=='!' ? true : false;
                 if($cond===false) $cmd = ltrim($cmd,'!');
                 switch(substr($cmd,0,2)) {
@@ -1509,19 +1512,25 @@ class DocumentParser {
                         break;
                 }
                 $cmd = trim($cmd);
-                if(strpos($matches['1'][$i],'<!--@ELSE-->')) {
-                    list($if_content,$else_content) = explode('<!--@ELSE-->',$matches['1'][$i]);
+                if(strpos($matches['1'][$i],'<@ELSE>')!==false) {
+                    list($if_content,$else_content) = explode('<@ELSE>',$matches['1'][$i]);
                 } else {
                     $if_content = $matches['1'][$i];
                     $else_content = '';
                 }
                     
                 if( ($cond===true && empty($cmd)) || ($cond===false && !empty($cmd)) )
-                    $matches['1'][$i] = $else_content;
+                    $matches['1'][$i] = trim($else_content);
                 else
-                    $matches['1'][$i] = substr($if_content,strpos($if_content,'-->')+3);
+                    $matches['1'][$i] = substr($if_content,strpos($if_content,'>')+1);
             }
-            $content = str_replace($matches['0'],$matches['1'],$content);
+            foreach($matches['0'] as $i=>$v)
+            {
+                $addBreakMatches[$i] = $v."\n";
+            }
+            $content = str_replace($addBreakMatches,$matches['1'],$content);
+            if(strpos($content,$left)!==false)
+                $content = str_replace($matches['0'],$matches['1'],$content);
         }
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
