@@ -893,11 +893,10 @@ function sectionTV() {
 }
 
 function fieldsTV() {
-	global $modx, $_lang, $tmplVars, $rte_field;
+	global $modx, $form_v,$_lang, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
-	$form_v = $_POST ? $_POST : array();
 	if(empty($total)) return '';
 	
 	$i = 0;
