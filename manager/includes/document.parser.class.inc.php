@@ -1420,41 +1420,26 @@ class DocumentParser {
         if(!is_array($this->placeholders)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
-        
-        $replace= array ();
         $content=$this->mergeSettingsContent($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
-        $replace = array();
-        foreach($matches['1'] as $i=>$key):
-            $doReplace = true;
+    	foreach($matches['1'] as $i=>$key) {
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
-            if (is_array($this->placeholders) && isset($this->placeholders[$key]))
-                $value = $this->placeholders[$key];
-            else $value = '';
+            if (isset($this->placeholders[$key])) $value = $this->placeholders[$key];
+            elseif($key==='phx') $value = '';
+            else continue;
             
             if($modifiers!==false)
             {
-                if(isset($this->placeholders[$key]))
-                {
-                    $modifiers = $this->mergePlaceholderContent($modifiers);
-                    $this->loadExtension('PHx') or die('Could not load PHx class.');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
-                }
-                else
-                    $doReplace = false;
+                $this->loadExtension('PHx') or die('Could not load PHx class.');
+                $modifiers = $this->mergePlaceholderContent($modifiers);
+                $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
-            // here we'll leave empty placeholders for last.
-            if ($value === '' || $doReplace===false) {
-                unset ($matches['0'][$i]);
-                unset ($matches['1'][$i]);
-            }
-            else               $replace[$i]= $value;
-        endforeach;
-        $content= str_replace($matches['0'], $replace, $content);
+            $content= str_replace($matches['0'][$i], $value, $content);
+        }
         if ($this->debug)
         {
             $_ = join(', ', $matches['0']);
