@@ -1321,9 +1321,9 @@ class DocumentParser {
                         break;
                 }
             }
-            $replace[$i]= $value;
+            $content= str_replace($matches['0'][$i], $value, $content);
         endforeach;
-        $content= str_replace($matches['0'], $replace, $content);
+        
         if ($this->debug)
         {
             $_ = join(', ', $matches['0']);
