@@ -477,7 +477,20 @@ class PHx {
 					$value = $cmd($value);
 				else $value = $cmd($value,$opt);
 				break;
-			case 'nl2br':
+        	case 'nl2br':
+				if($opt!=='')
+				{
+					$opt = strtolower($opt);
+					if($opt==='false') $opt = false;
+					elseif($opt==0)    $opt = false;
+					else               $opt = true;
+				}
+            	elseif($modx->config['mce_element_format']==='html')
+            	                       $opt = false;
+				else                   $opt = true;
+            	$value = nl2br($value,$opt);
+            	break;
+				case 'nl2br':
 				if($opt!=='false') $opt = true;
 				else               $opt = false;
 				$value = nl2br($value, $opt);
