@@ -1719,7 +1719,7 @@ class DocumentParser {
         
         $_tmp = $string;
         $_tmp = ltrim($_tmp, '?&');
-        $params = array();
+        $temp_params = array();
         while($_tmp!==''):
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
@@ -1764,7 +1764,7 @@ class DocumentParser {
                     if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
                     if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
                 }
-                $params[$key]=$value;
+                $temp_params[][$key]=$value;
                 
                 $key   = '';
                 $value = null;
@@ -1776,11 +1776,27 @@ class DocumentParser {
             if($_tmp===$bt)
             {
                 $key = trim($key);
-                if($key!=='') $params[$key] = '';
+                if($key!=='') $temp_params[][$key] = '';
                 break;
             }
         endwhile;
-        
+        foreach($temp_params as $p)
+        {
+            $k = key($p);
+            if(substr($k,-2)==='[]')
+            {
+                $k = substr($k,0,-2);
+                $params[$k][] = current($p);
+            }
+            elseif(strpos($k,'[')!==false && substr($k,-1)===']')
+            {
+                list($k, $subk) = explode('[', $k, 2);
+                $subk = substr($subk,0,-1);
+                $params[$k][$subk] = current($p);
+            }
+            else
+                $params[$k] = current($p);
+        }
         return $params;
     }
     
