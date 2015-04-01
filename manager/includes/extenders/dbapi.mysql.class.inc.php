@@ -852,4 +852,14 @@ class DBAPI {
     		$rs = $modx->db->query($sql_entry,$watchError);
     	}
     }
+    
+    function table_exists($table_name)
+    {
+        $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
+        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $this->dbname, $table_name);
+        $rs = $this->query($sql);
+        
+        return 0<$this->getRecordCount($rs) ? 1 : 0;
+    }
+    
 }
