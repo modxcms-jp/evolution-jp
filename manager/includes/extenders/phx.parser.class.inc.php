@@ -639,6 +639,14 @@ class PHx {
 				$ph['value'] = $value;
 				$value = $modx->parseText($tpl,$ph);
 				break;
+			case 'youtube':
+			case 'youtube16x9':
+				if(empty($opt)) $opt = 560;
+				$h = round($opt*0.5625);
+				$tpl = '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>';
+				$value = sprintf($tpl,$opt,$h,$value);
+				break;
+			//case 'youtube4x3':%s*0.75＋25
 			case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
                 $grd = new DataGrid();
