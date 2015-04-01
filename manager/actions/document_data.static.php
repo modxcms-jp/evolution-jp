@@ -101,7 +101,7 @@ foreach($content as $k=>$v)
 <?php if($modx->hasPermission('save_document')):?>
 	<li id="Button2"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a></li>
 <?php endif; ?>
-<?php if($modx->hasPermission('new_document')):?>
+<?php if($modx->hasPermission('new_document')&&$modx->hasPermission('save_document')):?>
 	<li id="Button4"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a></li>
 <?php endif; ?>
 <?php if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document')):?>
