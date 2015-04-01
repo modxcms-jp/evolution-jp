@@ -196,12 +196,14 @@ class SubParser {
     		}
     		else
     			$filename = "docid_{$docid}";
-    		$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
-    		if(is_file($page_cache_path))
-    		{
-    			unlink($page_cache_path);
-    			$modx->config['cache_type'] = '0';
-    		}
+    		
+			$_ = array('pages','pc','smartphone','tablet','mobile');
+			foreach($_ as $uaType)
+			{
+        		if(is_file(MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php"))
+        			unlink($page_cache_path);
+			}
+			$modx->config['cache_type'] = '0';
     		return;
     	}
     	elseif(is_string($params) && $params==='full')
