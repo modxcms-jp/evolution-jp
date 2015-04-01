@@ -54,8 +54,10 @@ class ManagerAPI {
 	// saved form post from $_POST
 	function saveFormValues($id=0)
 	{
+		if(!$_POST) return false;
 		$_SESSION['mgrFormValues']  = $_POST;
 		$_SESSION['mgrFormValueId'] = ($id > 0) ? $id : $this->action;
+		return true;
 	}
 	// load saved form values into $_POST
 	function loadFormValues()
