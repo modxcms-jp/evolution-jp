@@ -2060,9 +2060,11 @@ class DocumentParser {
             foreach($documentObject as $k=>$v)
             {
                 if(!isset($previewObject[$k])) continue;
-                if( $snapObject[$k] !=  $documentObject[$k] ) continue; // Priority is higher changing on OnLoadDocumentObject event.
                 if(!is_array($documentObject[$k]))
+                {
+                    if( $snapObject[$k] !=  $documentObject[$k] ) continue; // Priority is higher changing on OnLoadDocumentObject event.
                     $documentObject[$k] = $previewObject[$k];
+                }
                 else $documentObject[$k]['value'] = $previewObject[$k];
             }
         }
