@@ -651,6 +651,15 @@ class PHx {
                 $grd->cdelim = strpos($_,"\t")!==false ? 'tab' : ',';
                 $value = $grd->render();
                 break;
+            case 'rotate':
+            case 'evenodd':
+                if(strpos($opt,',')===false) $opt = 'odd,even';
+                $_ = explode(',', $opt);
+                $c = count($_);
+                $i = $value + $c;
+                $i = $i % $c;
+                $value = $_[$i];
+                break;
             case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
