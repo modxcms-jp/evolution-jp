@@ -660,7 +660,29 @@ class PHx {
                 $i = $i % $c;
                 $value = $_[$i];
                 break;
-            case 'setvar':
+            case 'getimage':
+                $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
+                preg_match_all($pattern , $value , $images);
+                //header('content-type:text/plain');print_r($images);exit;
+                if($opt==='')
+                {
+                    if($images[1][0]) $value = $images[1][0];
+                    else               $value = '';
+                }
+                else
+                {
+                    $value = '';
+                    foreach($images[0] as $i=>$image)
+                    {
+                        if(strpos($image,$opt)!==false)
+                        {
+                            $value = $images[1][$i];
+                            break;
+                        }
+                    }
+                }
+                break;
+                case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
             	break;
