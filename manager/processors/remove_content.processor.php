@@ -1,6 +1,6 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('delete_document')) {
+if(!$modx->hasPermission('empty_trash')) {
 	$e->setError(3);
 	$e->dumpError();
 }
