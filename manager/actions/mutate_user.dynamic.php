@@ -712,7 +712,7 @@ while ($row = $modx->db->getRow($rs))
 </table>
 </div>
 <?php
-if ($use_udperms == 1)
+if ($modx->config['use_udperms'] == 1)
 {
 ?>
 	<!-- Access -->
