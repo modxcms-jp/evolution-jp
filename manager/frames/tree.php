@@ -140,8 +140,16 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         {
 	        document.getElementById('item6').style.display='block';
 	        document.getElementById('item63').style.display='block';
-	        if(del==1) document.getElementById('item6').style.display='none';
-	        else       document.getElementById('item63').style.display='none';
+	        document.getElementById('item64').style.display='block';
+	        if(del==1)
+        	{
+	        	document.getElementById('item6').style.display='none';
+	        		        }
+	        else
+	        {
+	        	document.getElementById('item63').style.display='none';
+	        	document.getElementById('item64').style.display='none';
+	        }
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX > 0 ? e.clientX:e.pageX;
@@ -559,6 +567,15 @@ function menuHandler(action) {
                 }
             }
             break;
+        case '64' : // delete
+            if(selectedObjectDeleted==1) {
+                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
+                    top.main.document.location.href="index.php?a=64&id=" + itemToChange;
+                }
+            } else {
+                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
+            }
+            break;
         case '61' : // publish
             if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_publish']; ?>")==true) {
                 setActiveFromContextMenu(itemToChange);
@@ -603,7 +620,7 @@ function getTplCtxMenu() {
 		[+itemDuplicateDoc+]
 		[+=========1+]
 		[+itemPubDoc+][+itemUnPubDoc+]
-		[+itemDelDoc+][+itemUndelDoc+]
+		[+itemDelDoc+][+itemUndelDoc+][+itemDelDocComplete+]
 		[+=========2+]
 		[+itemWebLink+]
 		[+=========3+]
@@ -626,6 +643,7 @@ $ph['itemPubDoc']       = itemPubDoc(); // publish
 $ph['itemUnPubDoc']     = itemUnPubDoc(); // unpublish
 $ph['itemDelDoc']       = itemDelDoc(); // delete
 $ph['itemUndelDoc']     = itemUndelDoc(); // undelete
+$ph['itemDelDocComplete']     = itemDelDocComplete(); // undelete
 $ph['=========2']       = itemSeperator2();
 $ph['itemWebLink']      = itemWebLink(); //  new Weblink
 $ph['=========3']       = itemSeperator3();
@@ -757,6 +775,17 @@ function itemUndelDoc() {
 	$ph['action'] = '63';
 	$ph['img']    = $_style['icons_undelete_resource'];
 	$ph['text']   = $_lang['undelete_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemDelDocComplete() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('empty_trash')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '64';
+	$ph['img']    = $_style['icons_delete_complete'];
+	$ph['text']   = $_lang['delete_resource_complete'];
 	return $modx->parseText($tpl, $ph);
 }
 
