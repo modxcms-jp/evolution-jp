@@ -682,7 +682,7 @@ class PHx {
                     }
                 }
                 break;
-                case 'setvar':
+            case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
             	break;
