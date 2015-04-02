@@ -603,11 +603,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $use_udperms=='1','id="udPerms1"'));?><br />
-	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $use_udperms=='0','id="udPerms0"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $modx->config['use_udperms']=='1','id="udPerms1"'));?><br />
+	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $modx->config['use_udperms']=='0','id="udPerms0"'));?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
-<tr class="udPerms row2" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row2" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
@@ -615,7 +615,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
-<tr class="udPerms row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row1" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />

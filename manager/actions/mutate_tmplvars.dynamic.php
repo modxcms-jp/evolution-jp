@@ -544,7 +544,7 @@ function selected($target='')
 
 <!-- Access Permissions -->
 <?php
-	if($use_udperms==1)
+	if($modx->config['use_udperms']==1)
 	{
 		$groupsarray = array();
 		

@@ -48,7 +48,7 @@ else
 </div>
 
 <div class="sectionBody">
-<p><?php echo $_lang['access_permissions_introtext'];?></p><?php echo $use_udperms!=1 ? '<p>'.$_lang['access_permissions_off'].'</p>' : '' ;?>
+<p><?php echo $_lang['access_permissions_introtext'];?></p><?php echo $modx->config['use_udperms']!=1 ? '<p>'.$_lang['access_permissions_off'].'</p>' : '' ;?>
 
 <div class="tab-pane" id="tabPane1">
 <script type="text/javascript">tp1 = new WebFXTabPane( document.getElementById( "tabPane1" ), true );</script>
