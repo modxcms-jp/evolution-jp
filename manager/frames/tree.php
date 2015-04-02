@@ -136,6 +136,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	        if(pub==1) document.getElementById('item61').style.display='none';
 	        else       document.getElementById('item62').style.display='none';
         }
+        else
+        {
+        	if(document.getElementById('item51') != null)
+        		document.getElementById('item51').style.display='none';
+        }
+        
         if(permdel==1)
         {
 	        document.getElementById('item6').style.display='block';
