@@ -1800,6 +1800,7 @@ class SubParser {
     	
     	$str = substr($str,6);
     	$str = trim($str);
+    	$str = str_replace('\\','/',$str);
     	
     	if(is_file(MODX_BASE_PATH . $str))
     		$file_path = MODX_BASE_PATH . $str;
