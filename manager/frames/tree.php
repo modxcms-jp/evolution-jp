@@ -145,7 +145,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	        if(del==1)
         	{
 	        	document.getElementById('item6').style.display='none';
-	        		        }
+	        	document.getElementById('item61').style.display='none';
+	        	document.getElementById('item62').style.display='none';
+	        }
 	        else
 	        {
 	        	document.getElementById('item63').style.display='none';
