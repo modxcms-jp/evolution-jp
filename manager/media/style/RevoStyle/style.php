@@ -111,6 +111,7 @@ $_style['icons_cancel']             = $icon_path.'stop.png';
 $_style['icons_close']              = $icon_path.'stop.png';
 $_style['icons_delete']             = $icon_path.'delete.png';
 $_style['icons_delete_document']    = $icon_path.'delete.png';
+$_style['icons_delete_complete']    = $icon_path.'trash_full.png';
 $_style['icons_resource_overview']  = $icon_path.'page_white_magnify.png';
 $_style['icons_resource_duplicate'] = $icon_path.'page_white_copy.png';
 $_style['icons_edit_document']      = $icon_path.'write.png';
