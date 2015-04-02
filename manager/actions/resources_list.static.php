@@ -10,6 +10,8 @@ else    $id = 0;
 
 if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
 
+$modx->loadExtension('DocAPI');
+
 $modx->checkPublishStatus();
 
 if($id!=0)
@@ -51,7 +53,7 @@ if ($numRecords > 0)
 	$from = array();
 	$from[] = '[+prefix+]site_content AS sc';
 	$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
-	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.docid = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='future') AND rev.element='resource' ";
+	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource' ";
 	$from = join(' ',$from);
 	$where = "sc.parent='{$id}' {$access} GROUP BY sc.id";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
@@ -107,9 +109,9 @@ if ($numRecords > 0)
 		
 		$classes = array();
 		$classes[] = 'withmenu';
-		if($children['deleted']==='1')   $classes[] = 'deletedNode';
+		if($children['deleted']==='1')    $classes[] = 'deletedNode';
 		if($children['has_access']==='0') $classes[] = 'protectedNode';
-		if($children['published']==='0') $classes[] = 'unpublishedNode';
+		if($children['published']==='0')  $classes[] = 'unpublishedNode';
 		$class = ' class="' . join(' ',$classes) . '"';
 		
 		$tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
@@ -135,22 +137,31 @@ if ($numRecords > 0)
 		else
 		{
 			$link = "index.php?a=120&amp;id={$children['id']}";
-			if($children['privatemgr']==1)
-				$iconpath = $_style['tree_folderopen_secure'];
-			else
-				$iconpath = $_style['tree_folder'];
+			if($children['privatemgr']==1) $iconpath = $_style['tree_folderopen_secure'];
+			else                           $iconpath = $_style['tree_folder'];
+				
 		}
 		
 		if( $children['type']==='reference')
-		{
-			$pagetitle = '<img src="' . $_style['tree_weblink'] . '" /> ' . $pagetitle;
-		}
+			$pagetitle = sprintf('<img src="%s" /> %s', $_style['tree_weblink'], $pagetitle);
+		
 		$tpl = '';
 		$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
 		$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
-		$tpl = '<div style="float:left;">[+icon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+$description+]</a>';
-		$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+$description+]'),
-		                     array($icon,$link,$pagetitle,$description), $tpl);
+		switch($children['status'])
+		{
+			case 'draft':
+    			$statusIcon = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['tree_draft']);
+    			break;
+			case 'standby':
+				$statusIcon = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['icons_date']);
+    			break;
+		    default:
+		    	$statusIcon = '';
+		}
+		$tpl = '<div style="float:left;">[+icon+][+statusIcon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+description+]</a>';
+		$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+description+]','[+statusIcon+]'),
+		                     array($icon,$link,$pagetitle,$description,$statusIcon), $tpl);
 		
 		if($children['publishedon']!=='0')
 		{
@@ -235,14 +246,14 @@ else
 		echo sprintf($tpl,'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
 	if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
-	if($modx->hasPermission('new_document') && $id!=0 && $modx->manager->isAllowed($id))
+	if($modx->doc->canCopyDoc() && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"], $_lang['duplicate']);
 	if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button3', 'deletedocument();', $_style["icons_delete_document"], $_lang['delete']);
 	
 	$url = $modx->makeUrl($id);
 	$prev = "window.open('{$url}','previeWin')";
-	echo sprintf($tpl,'Button6', $prev, $_style["icons_preview_resource"], $_lang['view_resource']);
+	echo sprintf($tpl,'Button6', $prev, $_style["icons_preview_resource"], $id==0 ? $_lang["view_site"] : $_lang['view_resource']);
 	$action = getReturnAction($content);
 	$action = "documentDirty=false;document.location.href='{$action}'";
 	echo sprintf($tpl,'Button5', $action, $_style["icons_cancel"], $_lang['cancel']);

@@ -1144,6 +1144,10 @@ class DocumentParser {
         
         if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
         
+        $rs = $this->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$timeNow}");
+        if(0<$this->db->getRecordCount($rs))
+            $this->updateDraft($timeNow);
+        
         // now, check for documents that need publishing
         $fields = "published='1', publishedon=pub_date";
         $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
@@ -2676,7 +2680,7 @@ class DocumentParser {
     
     function toDateFormat($timestamp = 0, $mode = '')
     {
-        if($timestamp==0&&$mode==='') return 0;
+        if($timestamp==0&&$mode==='') return '';
         
         $timestamp = trim($timestamp);
         $timestamp = intval($timestamp) + $this->config['server_offset_time'];

@@ -1941,4 +1941,26 @@ class SubParser {
         }
         return $content;
     }
+	function updateDraft($now)
+	{
+    	global $modx;
+    	
+		$rs = $modx->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
+		if(!$modx->db->getRecordCount($rs)) return;
+		
+		$modx->loadExtension('REVISION');
+		$modx->loadExtension('DocAPI');
+		while($row = $modx->db->getRow($rs))
+		{
+			$draft = $modx->revision->getDraft($row['elmid']);
+			if(!empty($row['pub_date']))
+				$draft['pub_date'] = $row['pub_date'];
+			
+			$draft['editedon'] = $row['editedon'];
+			$draft['editedby'] = $row['editedby'];
+			
+			$modx->doc->update($draft,$row['elmid']);
+		}
+		$modx->db->delete('[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
+	}
 }

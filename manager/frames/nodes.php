@@ -59,8 +59,10 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	$access = $modx->config['tree_show_protected'] ? '':"AND (1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp})";
 	
 	$field  = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
-	$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access";
-	$from   = '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+	$field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access, rev.status AS status";
+	$from   = '[+prefix+]site_content AS sc';
+	$from   .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
+	$from   .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
 	$where  = "parent='{$parent}' {$access} GROUP BY sc.id";
 	$result = $modx->db->select($field,$from,$where,$tree_orderby);
 	$has_child = $modx->db->getRecordCount($result);
@@ -98,12 +100,16 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	global $privateweb,$privatemgr;
 	while($row = $modx->db->getRow($result,'num')):
 		$loop_count++;
-		list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess) = $row;
+		list($id,$pagetitle,$menutitle,$parent,$isfolder,$published,$deleted,$type,$menuindex,$hidemenu,$alias,$contenttype,$privateweb,$privatemgr,$hasAccess,$hasDraft) = $row;
 		$nodetitle = getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias,$isfolder);
 		
 		$class = getClassName($published,$deleted,$hidemenu,$hasAccess);
 		
 		$ph['id']        = $id;
+		$ph['hasdraft']    = !empty($hasDraft) ? 1 : 0;
+		if($hasDraft==='draft')       $draftDisplay = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['tree_draft']);
+		elseif($hasDraft==='standby') $draftDisplay = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['icons_date']);
+		else                          $draftDisplay = '';
 		$ph['alt']       = getAlt($id,$alias,$menuindex,$hidemenu,$privatemgr,$privateweb);
 		$ph['parent']    = $parent;
 		$ph['spacer']    = $spacer;
@@ -118,6 +124,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		$ph['nodetitleDisplay'] = '<span class="' . $class . '">' . $nodetitle . '</span>';
 		$ph['weblinkDisplay']   = $type==='reference' ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 		$ph['pageIdDisplay']    = '<small>('.($modx_textdir==='rtl' ? '&rlm;':'').$id.')</small>';
+		$ph['draftDisplay']   = $draftDisplay;
 		$ph['_lang_click_to_context'] = $_lang['click_to_context'];
 		
 		if (!$isfolder)
@@ -221,7 +228,7 @@ function tplPageNode()
 	title="[+_lang_click_to_context+]"
 	style="cursor: pointer"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmouseover="setCNS(this, 1)"
 	onmouseout="setCNS(this, 0)"
@@ -234,7 +241,7 @@ function tplPageNode()
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
-	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]</div>
+	title="[+alt+]">[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]</div>
 
 EOT;
 		return $src;
@@ -256,7 +263,7 @@ EOT;
 	title="[+_lang_click_to_context+]"
 	style="cursor: pointer"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmouseover="setCNS(this, 1)"
 	onmouseout="setCNS(this, 0)"
@@ -269,7 +276,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:block">
+>[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:block">
 
 EOT;
 	return $src;
@@ -291,7 +298,7 @@ function tplFcloseNode()
 	align="absmiddle"
 	style="cursor: pointer"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmouseover="setCNS(this, 1)"
 	onmouseout="setCNS(this, 0)"
@@ -303,7 +310,7 @@ function tplFcloseNode()
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
-	title="[+alt+]">[+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:none"></div></div>
+	title="[+alt+]">[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span> [+pageIdDisplay+]<div style="display:none"></div></div>
 
 EOT;
 	return $src;

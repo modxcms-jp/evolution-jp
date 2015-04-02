@@ -77,7 +77,7 @@ function input_hidden($name,$cond=true)
 	return $modx->parseText($tpl,$ph);
 }
 
-function ab_preview($id)
+function ab_preview($id=0)
 {
 	global $modx, $_style, $_lang;
 	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -93,9 +93,8 @@ function ab_save()
 {
 	global $modx, $_style, $_lang;
 	
-	if(!$modx->hasPermission('save_document')) return;
-	$tpl = '<li id="Button1"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-	$ph['onclick'] = "gotosave=true;documentDirty=false; document.mutate.action='index.php';document.mutate.target='main';document.mutate.save.click();";
+	$tpl = '<li id="Button1" class="primary"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
+	$ph['onclick'] = "documentDirty=false; document.mutate.action='index.php';document.mutate.target='main';document.mutate.save.click();";
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
@@ -108,7 +107,7 @@ function ab_save()
 	elseif($_REQUEST['stay']=='2') $selected[2] = 'selected';
 	elseif($_REQUEST['stay']=='')  $selected[3] = 'selected';
 	
-	if ($modx->hasPermission('new_document'))
+	if ($modx->manager->action==27&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
 		$option[] = sprintf('<option id="stay1" value="1" %s >%s</option>', $selected[1], $_lang['stay_new']);
 	
 	$option[] = sprintf('<option id="stay2" value="2" %s >%s</option>'    , $selected[2], $_lang['stay']);
@@ -116,6 +115,49 @@ function ab_save()
 	
 	$ph['select'] = sprintf($ph['select'], join("\n", $option));
 	
+	return $modx->parseText($tpl,$ph);
+}
+
+function ab_open_draft($id)
+{
+	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	
+	$tpl = '<li id="Button4" class="opendraft"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_save"];
+	$ph['alt'] = 'icons_draft';
+	if($modx->hasDraft)
+	{
+		$ph['label'] = '下書きを開く';
+		$ph['onclick'] = "document.location.href='index.php?a=131&id={$id}';";
+	}
+	
+	return $modx->parseText($tpl,$ph);
+}
+
+function ab_create_draft($id)
+{
+	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	
+	if(!$modx->hasPermission('edit_document')) return;
+	
+	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_save"];
+	$ph['alt'] = 'icons_draft';
+	$ph['label'] = $_lang['save_draft'];
+	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=128;document.mutate.target='main';document.mutate.save.click();";
+	
+	return $modx->parseText($tpl,$ph);
+}
+
+function ab_publish_draft($id)
+{
+	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	
+	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_save"];
+	$ph['alt'] = 'icons_draft';
+	$ph['label'] = $_lang['publish_draft'];
+	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=129;document.mutate.target='main';document.mutate.save.click();";
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -141,7 +183,7 @@ function ab_cancel($id)
 function ab_move()
 {
 	global $modx, $_style, $_lang;
-	if(!$modx->hasPermission('save_document')) return;
+	
 	$tpl = '<li id="Button2"><a href="#" onclick="movedocument();"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
@@ -151,7 +193,7 @@ function ab_move()
 function ab_duplicate()
 {
 	global $modx, $_style, $_lang;
-	if(!$modx->hasPermission('new_document')) return;
+	
 	$tpl = '<li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_resource_duplicate"];
 	$ph['alt'] = 'icons_resource_duplicate';
@@ -163,8 +205,6 @@ function ab_delete()
 {
 	global $modx, $_style, $_lang, $docObject;
 	
-	if(!$modx->hasPermission('delete_document')) return;
-	if(!$modx->hasPermission('save_document')) return;
 	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	if($docObject['deleted'] === '0')
 	{
@@ -180,6 +220,18 @@ function ab_delete()
 		$ph['alt'] = 'icons_undelete_document';
 		$ph['label'] = $_lang['undelete_resource'];
 	}
+	return $modx->parseText($tpl,$ph);
+}
+
+function ab_delete_draft()
+{
+	global $modx, $_style, $_lang, $docObject;
+	
+	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=130;document.mutate.target='main';document.mutate.save.click();";
+	$ph['icon'] = $_style["icons_delete_document"];
+	$ph['alt'] = 'icons_delete_document';
+	$ph['label'] = $_lang['delete_draft'];
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -295,9 +347,9 @@ function checkPermissions($id) {
 		$e->dumpError();
 	}
 	
-	switch ($_REQUEST['a']) {
+	switch ($modx->manager->action) {
 		case 27:
-			if (!$modx->hasPermission('edit_document')) {
+			if (!$modx->hasPermission('view_document')) {
 				$modx->config['remember_last_tab'] = 0;
 				$e->setError(3);
 				$e->dumpError();
@@ -318,24 +370,30 @@ function checkPermissions($id) {
 				}
 			}
 			break;
+		case 131:
+			if (!$modx->hasPermission('view_document')) {
+				$e->setError(3);
+				$e->dumpError();
+			}
+			break;
 		default:
 			$e->setError(3);
 			$e->dumpError();
 	}
 	
-	if ($_REQUEST['a'] == 27 && !$modx->checkPermissions($id))
+	if ($modx->manager->action == 27 && !$modx->checkPermissions($id))
 	{
 		//editing an existing document
 		// check permissions on the document
-?>
-<br /><br />
-<div class="section">
-<div class="sectionHeader"><?php echo $_lang['access_permissions']?></div>
-<div class="sectionBody">
-	<p><?php echo $_lang['access_permission_denied']?></p>
-</div>
-</div>
-	<?php
+		$_ = array();
+        $_[] = '<br /><br />';
+        $_[] = '<div class="section">';
+        $_[] = sprintf('<div class="sectionHeader">%s</div>',$_lang['access_permissions']);
+        $_[] = '<div class="sectionBody">';
+        $_[] = sprintf('	<p>%s</p>',$_lang['access_permission_denied']);
+        $_[] = '</div>';
+        $_[] = '</div>';
+        echo join("\n",$_);
 		include(MODX_CORE_PATH . 'footer.inc.php');
 		exit;
 	}
@@ -345,7 +403,8 @@ function checkDocLock($id) {
 	global $modx, $_lang, $e;
 	
 	// Check to see the document isn't locked
-	$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=27 AND id='{$id}'");
+	$action = $modx->manager->action==131 ? '131' : '27';
+	$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='{$action}' AND id='{$id}'");
 	if (1 < $modx->db->getRecordCount($rs))
 	{
 		while($row = $modx->db->getRow($rs))
@@ -391,26 +450,20 @@ function getValuesFromDB($id,$docgrp) {
 }
 
 // restore saved form
-function mergeValues($initial_v,$db_v,$form_v) {
+function mergeReloadValues($docObject) {
 	global $modx;
 	
 	if ($modx->manager->hasFormValues())
-	{
-		$form_v = $modx->manager->loadFormValues();
-		$formRestored = true;
-	}
-	else $formRestored = false;
+		$restore_v = $modx->manager->loadFormValues();
 	
 	// retain form values if template was changed
 	// edited to convert pub_date and unpub_date
 	// sottwell 02-09-2006
-	if ($formRestored == false && !isset ($_REQUEST['newtemplate'])):
-		$docObject = array_merge($initial_v,$db_v);
-	else:
-		$docObject = array_merge($initial_v,$db_v, $form_v);
-		if(isset($form_v['ta'])) $docObject['content'] = $form_v['ta'];
-		
-	endif;
+	if ($restore_v != false)
+	{
+		$docObject = array_merge($docObject, $restore_v);
+		if(isset($restore_v['ta'])) $docObject['content'] = $restore_v['ta'];
+	}
 	
 	if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
 		$docObject['pub_date'] = '';
@@ -434,7 +487,7 @@ function mergeValues($initial_v,$db_v,$form_v) {
 function checkViewUnpubDocPerm($published,$editedby) {
 	global $modx;
 	
-	if($_REQUEST['a']!=='27') return;
+	if($modx->manager->action!=='27') return;
 	if($modx->hasPermission('view_unpublished')) return;
 	if($published!=='0')                         return;
 	
@@ -495,7 +548,9 @@ function getJScripts() {
 	$ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
 	$ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
 	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
-	$ph['action'] = $action;
+	if($modx->manager->action==131||!$modx->hasPermission('save_document'))
+		$ph['action'] = '131';
+	else $ph['action'] = '27';
 	
 	return $modx->parseText($tpl,$ph);
 }
@@ -621,7 +676,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-	global $modx;
+	global $modx, $saveTarget;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -630,20 +685,55 @@ function getActionButtons($id) {
 		[+moveButton+]
 		[+duplicateButton+]
 		[+deleteButton+]
+		[+draftButton+]
 		[+previewButton+]
 		[+cancelButton+]
 	</ul>
 </div>
 EOT;
-	$ph['saveButton']      = ab_save();
-	if ($_REQUEST['a'] !== '4' && $_REQUEST['a'] !== '72' && $id != $config['site_start']) {
-		$ph['moveButton']      = ab_move();
-		$ph['duplicateButton'] = ab_duplicate();
-		$ph['deleteButton']    = ab_delete();
+	if($modx->manager->action==4||$modx->manager->action==72)
+	{
+    	if($modx->hasPermission('new_document'))
+    		$ph['saveButton'] = ab_save();
 	}
-	if ($_REQUEST['a'] !== '72') {
-		$ph['previewButton']   = ab_preview($id);
+	elseif($modx->manager->action==27)
+	{
+    	if($modx->hasPermission('save_document'))
+    		$ph['saveButton'] = ab_save();
 	}
+	elseif($modx->manager->action==131)
+	{
+			$ph['saveButton'] = ab_save();
+	}
+	else $ph['saveButton'] = '';
+	
+	if ($id != $config['site_start']) {
+		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
+		{
+    		$ph['moveButton']                                     = ab_move();
+    		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
+    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = ab_delete();
+		}
+		elseif($modx->manager->action == 131 && $modx->hasDraft)
+			$ph['deleteButton']    = ab_delete_draft();
+		else $ph['deleteButton']   = '';
+	}
+	
+	if ($modx->manager->action == 27)
+	{
+		if($modx->hasDraft) $ph['draftButton'] = ab_open_draft($id);
+		else                $ph['draftButton'] = ab_create_draft($id);
+		
+	}
+	elseif($modx->manager->action == 131)
+	{
+		if($modx->hasPermission('save_document')) $ph['draftButton'] = ab_publish_draft($id);
+		else                                      $ph['draftButton'] = '';
+	}
+	else $ph['draftButton']    = '';
+	
+	$ph['previewButton']   = ab_preview($id);
+	
 	$ph['cancelButton']    = ab_cancel($id);
 	
 	$rs = $modx->parseText($tpl,$ph);
@@ -652,29 +742,29 @@ EOT;
 }
 
 function fieldPagetitle() {
-	global $_lang, $docObject;
-	$body  = input_text('pagetitle',to_safestr($docObject['pagetitle']),'spellcheck="true"');
+	global $modx,$_lang;
+	$body  = input_text('pagetitle',to_safestr($modx->documentObject['pagetitle']),'spellcheck="true"');
 	$body .= tooltip($_lang['resource_title_help']);
 	return renderTr($_lang['resource_title'],$body);
 }
 
 function fieldLongtitle() {
-	global $docObject,$_lang;
-	$body  = input_text('longtitle',to_safestr($docObject['longtitle']),'spellcheck="true"');
+	global $modx,$_lang;
+	$body  = input_text('longtitle',to_safestr($modx->documentObject['longtitle']),'spellcheck="true"');
 	$body .= tooltip($_lang['resource_long_title_help']);
 	return renderTr($_lang['long_title'],$body);
 }
 
 function fieldDescription() {
-	global $docObject,$_lang;
-	$description = to_safestr($docObject['description']);
+	global $modx,$_lang;
+	$description = to_safestr($modx->documentObject['description']);
 	$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . $description . '</textarea>';
 	$body .= tooltip($_lang['resource_description_help']);
 	return  renderTr($_lang['resource_description'],$body,'vertical-align:top;');
 }
 
 function fieldAlias($id) {
-	global $config,$docObject,$_lang;
+	global $modx,$config,$_lang;
 	
 	$body = '';
 	$onkeyup = '';
@@ -684,20 +774,20 @@ function fieldAlias($id) {
 		$onkeyup = 'onkeyup="change_url_suffix();" ';
 	}
 	
-	if($config['friendly_urls']==='1' && $docObject['type']==='document')
+	if($config['friendly_urls']==='1' && $modx->documentObject['type']==='document')
 	{
 		$body .= get_alias_path($id);
-		$body .= input_text('alias',to_safestr($docObject['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
+		$body .= input_text('alias',to_safestr($modx->documentObject['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
 		$suffix = '';
 		if($config['friendly_urls']==1) {
-			if($config['suffix_mode']!=1 || strpos($docObject['alias'],'.')===false)
+			if($config['suffix_mode']!=1 || strpos($modx->documentObject['alias'],'.')===false)
 				$suffix = $config['friendly_url_suffix'];
 		}
 		$body .= '<span id="url_suffix">' . $suffix . '</span>';
 	}
 	else
 	{
-		$body .= input_text('alias',to_safestr($docObject['alias']),'','100');
+		$body .= input_text('alias',to_safestr($modx->documentObject['alias']),'','100');
 	}
 	$body .= tooltip($_lang['resource_alias_help']);
 	return renderTr($_lang['resource_alias'],$body);
@@ -853,7 +943,7 @@ function sectionContent() {
 	
 	$ph['header'] = $_lang['resource_content'];
 	$planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
-	if (($_REQUEST['a'] == '4' || $_REQUEST['a'] == '27') && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
+	if (($modx->manager->action == '4' || $modx->manager->action == '27' || $modx->manager->action == '131') && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
 		// invoke OnRichTextEditorRegister event
 		$editors = $modx->invokeEvent('OnRichTextEditorRegister');
 		if(!empty($editors))
@@ -893,10 +983,11 @@ function sectionTV() {
 }
 
 function fieldsTV() {
-	global $modx, $form_v,$_lang, $tmplVars, $rte_field;
+	global $modx, $_lang, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
+	$form_v = $_POST ? $_POST : array();
 	if(empty($total)) return '';
 	
 	$i = 0;
@@ -951,17 +1042,30 @@ function fieldsTV() {
 }
 
 function fieldPublished() {
-	global $_lang,$docObject;
-	$published = $docObject['published'];
-	$body = input_checkbox('published',$published==='1');
-	$body .= input_hidden('published',$published==='1');
+	global $modx,$_lang;
+	if(!$modx->hasPermission('publish_document'))
+	{
+		switch($modx->manager->action)
+    	{
+    		case 27:
+    		case 131:
+    			$published = $modx->documentObject['published'];
+    			break;
+    		default:
+    			$published = 0;
+    	}
+	}
+	else $published = $modx->documentObject['published'];
+	
+	$body = input_checkbox('published',$published==1);
+	$body .= input_hidden('published',$published==1);
 	$body .= tooltip($_lang['resource_opt_published_help']);
 	return renderTr($_lang['resource_opt_published'],$body);
 }
 
-function fieldPub_date($id) {
+function fieldPub_date($id=0) {
 	global $modx,$_lang,$_style,$config,$docObject;
-	
+
 	$tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
 	$tpl[] = '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
@@ -974,16 +1078,34 @@ function fieldPub_date($id) {
 EOT;
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
-	$ph['pub_date']         = $docObject['pub_date'];
+	
+	$ph['pub_date']         = $modx->toDateFormat($docObject['pub_date']);
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $config['datetime_format'];
 	$body = $modx->parseText($tpl,$ph);
-	return renderTr($_lang['page_data_publishdate'],$body);
+	switch($modx->manager->action)
+	{
+		case 27:
+		case 4:
+		case 72:
+    		return renderTr($_lang['page_data_publishdate'],$body);
+		case 131:
+		    return renderTr($_lang['draft_data_publishdate'],$body);
+	}
 }
 
 function fieldUnpub_date($id) {
 	global $modx,$_lang,$_style,$config,$docObject;
+	if(!$modx->hasPermission('publish_document')) return '';
+	switch($modx->manager->action)
+	{
+		case 27:
+		case 4:
+		case 72:
+			break;
+		default:return '';
+	}
 	$tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
 	$tpl[] = '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
@@ -996,7 +1118,7 @@ function fieldUnpub_date($id) {
 EOT;
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
-	$ph['unpub_date']       = $docObject['unpub_date'];
+	$ph['unpub_date']       = $modx->toDateFormat($docObject['unpub_date']);
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $config['datetime_format'];
@@ -1024,8 +1146,8 @@ function getInitialValues() {
 	$init_v['searchable'] = $modx->config['search_default'];
 	$init_v['cacheable'] = $modx->config['cache_default'];
 	
-	if($_REQUEST['a']==='4')      $init_v['type'] = 'document';
-	elseif($_REQUEST['a']==='72') $init_v['type'] = 'reference';
+	if($modx->manager->action==='4')      $init_v['type'] = 'document';
+	elseif($modx->manager->action==='72') $init_v['type'] = 'reference';
 	
 	if(isset($_GET['pid'])) $init_v['parent'] = $_GET['pid'];
 	
@@ -1056,9 +1178,9 @@ function fieldIsfolder() {
 }
 
 function fieldRichtext() {
-	global $modx,$_lang,$docObject;
+	global $modx,$_lang;
 	$disabled = ($modx->config['use_editor']!=1) ? ' disabled="disabled"' : '';
-	$cond = (!isset($docObject['richtext']) || $docObject['richtext']!=0 || $_REQUEST['a']!='27');
+	$cond = (!isset($modx->documentObject['richtext']) || $modx->documentObject['richtext']!=0 || $modx->manager->action!='27');
 	$body = input_checkbox('richtext',$cond,$disabled);
 	$body .= input_hidden('richtext',$cond);
 	$body .= tooltip($_lang['resource_opt_richtext_help']);
@@ -1096,7 +1218,7 @@ function fieldCacheable() {
 
 function fieldSyncsite() {
 	global $modx,$_lang;
-	$disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
+	$disabled = ($modx->config['cache_type']==0) ? ' disabled' : '';
 	$body = input_checkbox('syncsite',true,$disabled);
 	$body .= input_hidden('syncsite');
 	$body .= tooltip($_lang['resource_opt_emptycache_help']);
@@ -1181,7 +1303,7 @@ function getUDGroups($id) {
 	$form_v = $_POST;
 	$groupsarray = array();
 	
-	if($_REQUEST['a'] == '27')       $docid = $id;
+	if($modx->manager->action == '27')       $docid = $id;
 	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
 	else                             $docid = $docObject['parent'];
 	
@@ -1278,3 +1400,191 @@ function getUDGroups($id) {
 	}
 	return $permissions;
 }
+
+function getTplHead()
+{
+	$tpl = <<< EOT
+[+JScripts+]
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
+	<input type="hidden" name="a" value="[+a+]" />
+	<input type="hidden" name="id" value="[+id+]" />
+	<input type="hidden" name="mode" value="[+mode+]" />
+	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
+	<input type="hidden" name="newtemplate" value="" />
+	<input type="hidden" name="pid" value="[+pid+]" />
+	<input type="hidden" name="token" value="[+token+]" />
+	<input type="submit" name="save" style="display:none" />
+	[+OnDocFormPrerender+]
+	
+	<fieldset id="create_edit">
+	<h1 class="[+class+]">[+title+]</h1>
+
+	[+actionButtons+]
+
+	<div class="sectionBody">
+	<div class="tab-pane" id="documentPane">
+		<script type="text/javascript">
+			tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
+		</script>
+EOT;
+	return $tpl;
+}
+
+function getTplFoot()
+{
+	$tpl = <<< EOT
+		[+OnDocFormRender+]
+	</div><!--div class="tab-pane" id="documentPane"-->
+	</div><!--div class="sectionBody"-->
+	</fieldset>
+</form>
+<script type="text/javascript">
+    storeCurTemplate();
+</script>
+[+OnRichTextEditorInit+]
+EOT;
+    return $tpl;
+}
+
+function getTplTabGeneral()
+{
+	$tpl = <<< EOT
+<!-- start main wrapper -->
+	<!-- General -->
+	<div class="tab-page" id="tabGeneral">
+		<h2 class="tab">[+_lang_settings_general+]</h2>
+		<script type="text/javascript">
+			tpSettings.addTabPage(document.getElementById('tabGeneral'));
+		</script>
+		<table width="99%" border="0" cellspacing="5" cellpadding="0">
+			[+fieldPagetitle+]
+			[+fieldLongtitle+]
+			[+fieldDescription+]
+			[+fieldAlias+]
+			[+fieldWeblink+]
+			[+fieldIntrotext+]
+			[+fieldTemplate+]
+			[+fieldMenutitle+]
+			[+fieldMenuindex+]
+			[+renderSplit+]
+			[+fieldParent+]
+		</table>
+		[+sectionContent+]
+		[+sectionTV+]
+	</div><!-- end #tabGeneral -->
+EOT;
+	return $tpl;
+}
+
+function getTplTabTV()
+{
+	$tpl = <<< EOT
+<!-- TVs -->
+<div class="tab-page" id="tabTv">
+	<h2 class="tab">[+_lang_tv+]</h2>
+	<script type="text/javascript">
+		tpSettings.addTabPage(document.getElementById('tabTv'));
+	</script>
+	[+TVFields+]
+</div>
+EOT;
+	return $tpl;
+}
+
+function getTplTabSettings()
+{
+	$tpl = <<< EOT
+	<!-- Settings -->
+	<div class="tab-page" id="tabSettings">
+		<h2 class="tab">[+_lang_settings_page_settings+]</h2>
+		<script type="text/javascript">
+			tpSettings.addTabPage(document.getElementById('tabSettings'));
+		</script>
+		<table width="99%" border="0" cellspacing="5" cellpadding="0">
+			[+fieldPublished+]
+			[+fieldPub_date+]
+			[+fieldUnpub_date+]
+			[+renderSplit+]
+			[+fieldType+]
+			[+fieldContentType+]
+			[+fieldContent_dispo+]
+			[+renderSplit+]
+			[+fieldLink_attributes+]
+			[+fieldIsfolder+]
+			[+fieldRichtext+]
+			[+fieldDonthit+]
+			[+fieldSearchable+]
+			[+fieldCacheable+]
+			[+fieldSyncsite+]
+		</table>
+	</div><!-- end #tabSettings -->
+EOT;
+	return $tpl;
+}
+
+function getTplTabAccess()
+{
+	$tpl = <<< EOT
+<!-- Access Permissions -->
+<div class="tab-page" id="tabAccess">
+	<h2 class="tab" id="tab_access_header">[+_lang_access_permissions+]</h2>
+	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		function makePublic(b) {
+			var notPublic = false;
+			var f = document.forms['mutate'];
+			var chkpub = f['chkalldocs'];
+			var chks = f['docgroups[]'];
+			if (!chks && chkpub) {
+				chkpub.checked=true;
+				return false;
+			} else if (!b && chkpub) {
+				if (!chks.length) notPublic = chks.checked;
+				else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
+				chkpub.checked = !notPublic;
+			} else {
+				if (!chks.length) chks.checked = (b) ? false : chks.checked;
+				else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
+				chkpub.checked = true;
+			}
+		}
+		/* ]]> */
+	</script>
+	<p>[+_lang_access_permissions_docs_message+]</p>
+	<ul>
+		[+UDGroups+]
+	</ul>
+</div><!--div class="tab-page" id="tabAccess"-->
+EOT;
+	return $tpl;
+}
+
+function mergeDraft($id,$content, $saveTarget)
+{
+	global $modx;
+    if($saveTarget==='draft')
+    {
+        $revision_content = $modx->revision->getDraft($id);
+        if(!empty($revision_content))
+        {
+        	$rev = $modx->db->getObject('site_revision', "elmid='{$id}'");
+        	$content = array_merge($content, $revision_content);
+        	foreach($content as $k=>$v)
+        	{
+        		if(is_array($v) && isset($v['id']))
+        		{
+        			$id = $v['id'];
+        			if(isset($revision_content["tv{$id}"]))
+        			{
+        				$content[$k]['value'] = $revision_content["tv{$id}"];
+        				if(isset($content["tv{$id}"])) unset($content["tv{$id}"]);
+        			}
+        		}
+        	}
+        }
+    }
+    if(!$modx->hasPermission('publish_document')) $content['published'] = '0';
+    return $content;
+}
+

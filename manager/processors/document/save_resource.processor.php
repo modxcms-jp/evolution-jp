@@ -36,7 +36,6 @@ switch ($actionToTake) {
 		$return_url = 'index.php?a=' . $_GET['a'];
 		
 		// invoke OnBeforeDocFormSave event
-		$modx->event->vars = array('mode'=>'new','dg'=>&$document_groups);
 		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'new'));
 
 		$temp_id = $modx->doc->getNewDocID();
@@ -58,8 +57,7 @@ switch ($actionToTake) {
 		updateParentStatus();
 
 		// invoke OnDocFormSave event
-		$modx->event->vars = array('mode'=>'new','id'=>$newid);
-		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
+		$modx->invokeEvent('OnDocFormSave', array('mode'=>'new','id'=>$newid));
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($newid);
@@ -87,8 +85,7 @@ switch ($actionToTake) {
 		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
-		$modx->event->vars = array('mode'=>'upd','id'=>$id);
-		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
+		$modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd','id'=>$id));
 		
 		$values = getInputValues($id,'edit');
 		$values = $modx->db->escape($values);
@@ -111,8 +108,7 @@ switch ($actionToTake) {
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
 		// invoke OnDocFormSave event
-		$modx->event->vars = array('mode'=>'upd','id'=>$id);
-		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
+		$modx->invokeEvent('OnDocFormSave', array('mode'=>'upd','id'=>$id));
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($id);

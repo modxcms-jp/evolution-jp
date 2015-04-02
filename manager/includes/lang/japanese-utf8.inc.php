@@ -746,7 +746,7 @@ $_lang["role_delete_template"] = 'テンプレートを削除';
 $_lang["role_delete_user"] = 'ユーザーを削除';
 $_lang["role_delete_web_user"] = 'ウェブユーザーを削除';
 $_lang["role_edit_chunk"] = 'チャンクを編集';
-$_lang["role_edit_doc"] = 'リソース編集画面を開く';
+$_lang["role_edit_doc"] = 'リソースを編集';
 $_lang["role_edit_module"] = 'モジュール編集画面を開く';
 $_lang["role_edit_plugin"] = 'プラグイン編集画面を開く';
 $_lang["role_edit_role"] = 'ロール編集画面を開く';
@@ -1291,6 +1291,14 @@ $_lang["setting_individual_cache_desc"] = 'デバイスごとにキャッシュ�
 
 $_lang["logtitle_login_disp_warning"] = 'ログイン画面の表示に問題あり';
 $_lang["logmsg_login_disp_warning"] = 'プラグインを一時的に無効にしました。';
+
+$_lang["save_draft"] = '下書き保存';
+$_lang["publish_draft"] = '下書きを採用';
+$_lang["create_draft_title"] = '下書きの作成';
+$_lang["edit_draft_title"] = '下書きの編集';
+$_lang["edit_draft"] = '下書きを編集';
+$_lang["delete_draft"] = '下書きを削除';
+$_lang["draft_data_publishdate"] = '差替開始日時';
 
 $_lang["bk.contentOnly"] = 'コンテンツデータのみ';
 $_lang["bk.fileName"] = 'ファイル名';

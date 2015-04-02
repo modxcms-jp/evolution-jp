@@ -124,13 +124,15 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
       return scrOfY;
     }
 
-    function showPopup(id,title,pub,del,e){
+    function showPopup(id,title,pub,del,draft,e){
         var x,y
         var mnu = document.getElementById('mx_contextmenu');
         var permpub = <?php echo $modx->hasPermission('publish_document') ? 1:0; ?>;
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
         if(permpub==1)
         {
+            if(draft==1) document.getElementById('item27draft').style.display='block';
+            else         document.getElementById('item27draft').style.display='none';
 	        document.getElementById('item61').style.display='block';
 	        document.getElementById('item62').style.display='block';
 	        if(pub==1) document.getElementById('item61').style.display='none';
@@ -140,6 +142,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         {
         	if(document.getElementById('item51') != null)
         		document.getElementById('item51').style.display='none';
+        	
+            if(draft==1)
+        	{
+        		document.getElementById('item27').style.display='none';
+        		document.getElementById('item27draft').style.display='block';
+            }
+            else
+            {
+            	document.getElementById('item27').style.display='block';
+        		document.getElementById('item27draft').style.display='none';
+            }
         }
         
         if(permdel==1)
@@ -541,18 +554,13 @@ function menuHandler(action) {
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break;
+        case '27draft' : // edit draft
+            setActiveFromContextMenu(itemToChange);
+            top.main.document.location.href="index.php?a=131&id=" + itemToChange;
+            break
         case '4' : // new Resource
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=4&pid=" + itemToChange;
-            break;
-        case '6' : // delete
-            if(selectedObjectDeleted==0) {
-                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
-                    top.main.document.location.href="index.php?a=6&id=" + itemToChange;
-                }
-            } else {
-                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
-            }
             break;
         case '51' : // move
             setActiveFromContextMenu(itemToChange);
@@ -567,6 +575,15 @@ function menuHandler(action) {
                    setActiveFromContextMenu(itemToChange);
                    top.main.document.location.href="index.php?a=94&id=" + itemToChange;
                }
+            break;
+        case '6' : // delete
+            if(selectedObjectDeleted==0) {
+                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
+                    top.main.document.location.href="index.php?a=6&id=" + itemToChange;
+                }
+            } else {
+                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
+            }
             break;
         case '63' : // undelete
             if(selectedObjectDeleted==0) {
@@ -634,6 +651,7 @@ function getTplCtxMenu() {
 		[+=========2+]
 		[+itemWebLink+]
 		[+=========3+]
+		[+itemEditDraft+]
 		[+itemDocInfo+]
 		[+itemViewPage+]
 	</div>
@@ -657,6 +675,7 @@ $ph['itemDelDocComplete']     = itemDelDocComplete(); // undelete
 $ph['=========2']       = itemSeperator2();
 $ph['itemWebLink']      = itemWebLink(); //  new Weblink
 $ph['=========3']       = itemSeperator3();
+$ph['itemEditDraft']    = itemEditDraft(); // edit draft
 $ph['itemDocInfo']      = itemDocInfo(); // undelete
 $ph['itemViewPage']     = itemViewPage(); // preview
 
@@ -689,6 +708,17 @@ function itemEditDoc() {
 	$ph['action'] = '27';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang['edit_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemEditDraft() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('edit_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '27draft';
+	$ph['img']    = $_style['icons_edit_document'];
+	$ph['text']   = $_lang["edit_draft"];
 	return $modx->parseText($tpl, $ph);
 }
 

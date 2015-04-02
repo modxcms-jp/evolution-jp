@@ -254,12 +254,13 @@ switch ($action) {
     case 4: // get the mutate page for adding content
     case 72: // get the weblink page
     case 27: // get the mutate page for changing content
+    case 131: // get the mutate page for changing draft content
         include_once "header.inc.php";
         include_once "actions/mutate_content.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 5: // get the save processor
-        include_once "processors/save_content.processor.php";
+        include_once "processors/document/save_resource.processor.php";
         break;
     case 6: // get the delete processor
         include_once "processors/delete_content.processor.php";
@@ -452,6 +453,20 @@ switch ($action) {
         break;
     case 105: // get the duplicate processor
         include_once "processors/duplicate_plugin.processor.php";
+        break;
+    case 127: // get review action
+        include_once "header.inc.php";
+        include_once "actions/revision.dynamic.php";
+        include_once "footer.inc.php";
+        break;
+    case 128: // save draft action
+        include_once "processors/document/save_draft_content.processor.php";
+        break;
+    case 129: // publish draft action
+        include_once "processors/document/publish_draft_content.processor.php";
+        break;
+    case 130: // delete draft action
+        include_once "processors/document/delete_draft_content.processor.php";
         break;
 
 // view phpinfo

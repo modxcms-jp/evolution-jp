@@ -63,6 +63,16 @@ $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
+$rs = $modx->db->table_exists('[+prefix+]site_revision');
+if($rs)
+{
+	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
+    if(!$rs) {
+    	$sql = 'DROP TABLE ' . $sqlParser->prefix . 'site_revision';
+    	$modx->db->query($sql);
+    }
+}
+
 // install/update database
 echo "<p>{$lang_setup_database_creating_tables}";
 $sqlParser->process('both_createtables.sql');

@@ -1290,6 +1290,15 @@ $_lang["setting_individual_cache_desc"] = 'Generate cache for each device.(PC / 
 $_lang["logtitle_login_disp_warning"] = 'Warning - Can not output login page';
 $_lang["logmsg_login_disp_warning"] = 'Disable plugins';
 
+$_lang["edit_draft"] = 'Edit draft';
+$_lang["save_draft"] = 'Save draft';
+$_lang["publish_draft"] = 'Publish draft';
+$_lang["create_draft_title"] = 'Create draft';
+$_lang["edit_draft_title"] = 'Edit draft';
+$_lang["edit_draft"] = 'Edit draft';
+$_lang["delete_draft"] = 'Delete draft';
+$_lang["draft_data_publishdate"] = 'Publish draft';
+
 $_lang["bk.contentOnly"] = 'Contents only';
 $_lang["bk.fileName"] = 'File name';
 $_lang["delete_resource_complete"] = 'Delete complete';

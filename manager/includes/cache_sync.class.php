@@ -146,13 +146,18 @@ class synccache {
 	/****************************************************************************/
 	/*  PUBLISH TIME FILE                                                       */
 	/****************************************************************************/
-	function publishBasicConfig($cacheRefreshTime='')
+	function publishBasicConfig($cacheRefreshTime=0)
 	{
 		global $modx,$site_sessionname;
-		
 		$cacheRefreshTimeFromDB = $this->getCacheRefreshTime();
-		if(!preg_match('@^[0-9]+$]@',$cacheRefreshTime) || $cacheRefreshTimeFromDB < $cacheRefreshTime)
-			$cacheRefreshTime = $cacheRefreshTimeFromDB;
+		if(!preg_match('@^[1-9][0-9]*$@',$cacheRefreshTime))
+			$cacheRefreshTime = 0;
+		
+		if(0 < $cacheRefreshTimeFromDB)
+		{
+			if($cacheRefreshTime==0 || $cacheRefreshTimeFromDB < $cacheRefreshTime)
+				$cacheRefreshTime = $cacheRefreshTimeFromDB;
+		}
 		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
 		while($row = $modx->db->getRow($rs))

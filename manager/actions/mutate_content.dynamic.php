@@ -4,6 +4,7 @@ if(!isset($modx->config['preview_mode']))      $modx->config['preview_mode'] = '
 if(!isset($modx->config['tvs_below_content'])) $modx->config['tvs_below_content'] = '0';
 
 include_once(MODX_MANAGER_PATH . 'actions/mutate_content.functions.inc.php');
+$modx->loadExtension('DocAPI');
 
 $id = getDocId(); // New is '0'
 
@@ -17,15 +18,33 @@ $docgrp = getDocgrp();
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
-$initial_v = $id==='0' ? getInitialValues() : array();
-$db_v      = $id==='0' ? array()            : getValuesFromDB($id,$docgrp);
-$form_v    = $_POST    ? $_POST             : array();
+if($id) $docObject = getValuesFromDB($id,$docgrp);
+else    $docObject = getInitialValues();
 
-$docObject = mergeValues($initial_v,$db_v,$form_v);
-$content = $docObject; //Be compatible with old plugins
+if($id) {
+    $modx->loadExtension('REVISION');
+    $modx->revisionObject = $modx->revision->getRevisionObject($id);
+}
+else $modx->revisionObject = array();
+if(isset($modx->revisionObject['draft'])) $modx->hasDraft = '1';
 
 $tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
 $docObject = $docObject + $tmplVars;
+
+if($id && $modx->manager->action==131)
+{
+    $docObject = mergeDraft($id, $docObject, 'draft');
+    foreach($tmplVars as $k=>$v)
+    {
+    	$tmplVars[$k] = $docObject[$k];
+    }
+}
+
+$modx->manager->saveFormValues();
+if($_POST)
+    $docObject = mergeReloadValues($docObject);
+
+$content = $docObject; //Be compatible with old plugins
 $modx->documentObject = & $docObject;
 
 $modx->event->vars['documentObject'] = & $docObject;
@@ -42,159 +61,42 @@ checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=
 
 $_SESSION['itemname'] = to_safestr($docObject['pagetitle']);
 
-$tpl['head'] = <<< EOT
-[+JScripts+]
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
-	<input type="hidden" name="a" value="5" />
-	<input type="hidden" name="id" value="[+id+]" />
-	<input type="hidden" name="mode" value="[+a+]" />
-	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
-	<input type="hidden" name="newtemplate" value="" />
-	<input type="hidden" name="pid" value="[+pid+]" />
-	<input type="hidden" name="token" value="[+token+]" />
-	<input type="submit" name="save" style="display:none" />
-	[+OnDocFormPrerender+]
-	
-	<fieldset id="create_edit">
-	<h1>[+title+]</h1>
-
-	[+actionButtons+]
-
-	<div class="sectionBody">
-	<div class="tab-pane" id="documentPane">
-		<script type="text/javascript">
-			tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
-		</script>
-EOT;
-
-$tpl['foot'] = <<< EOT
-		[+OnDocFormRender+]
-	</div><!--div class="tab-pane" id="documentPane"-->
-	</div><!--div class="sectionBody"-->
-	</fieldset>
-</form>
-<script type="text/javascript">
-    storeCurTemplate();
-</script>
-[+OnRichTextEditorInit+]
-EOT;
-
-$tpl['tab-page']['general'] = <<< EOT
-<!-- start main wrapper -->
-	<!-- General -->
-	<div class="tab-page" id="tabGeneral">
-		<h2 class="tab">[+_lang_settings_general+]</h2>
-		<script type="text/javascript">
-			tpSettings.addTabPage(document.getElementById('tabGeneral'));
-		</script>
-		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-			[+fieldPagetitle+]
-			[+fieldLongtitle+]
-			[+fieldDescription+]
-			[+fieldAlias+]
-			[+fieldWeblink+]
-			[+fieldIntrotext+]
-			[+fieldTemplate+]
-			[+fieldMenutitle+]
-			[+fieldMenuindex+]
-			[+renderSplit+]
-			[+fieldParent+]
-		</table>
-		[+sectionContent+]
-		[+sectionTV+]
-	</div><!-- end #tabGeneral -->
-EOT;
-
-$tpl['tab-page']['tv'] = <<< EOT
-<!-- TVs -->
-<div class="tab-page" id="tabTv">
-	<h2 class="tab">[+_lang_tv+]</h2>
-	<script type="text/javascript">
-		tpSettings.addTabPage(document.getElementById('tabTv'));
-	</script>
-	[+TVFields+]
-</div>
-EOT;
-
-$tpl['tab-page']['settings'] = <<< EOT
-	<!-- Settings -->
-	<div class="tab-page" id="tabSettings">
-		<h2 class="tab">[+_lang_settings_page_settings+]</h2>
-		<script type="text/javascript">
-			tpSettings.addTabPage(document.getElementById('tabSettings'));
-		</script>
-		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-			[+fieldPublished+]
-			[+fieldPub_date+]
-			[+fieldUnpub_date+]
-			[+renderSplit+]
-			[+fieldType+]
-			[+fieldContentType+]
-			[+fieldContent_dispo+]
-			[+renderSplit+]
-			[+fieldLink_attributes+]
-			[+fieldIsfolder+]
-			[+fieldRichtext+]
-			[+fieldDonthit+]
-			[+fieldSearchable+]
-			[+fieldCacheable+]
-			[+fieldSyncsite+]
-		</table>
-	</div><!-- end #tabSettings -->
-EOT;
-
-
-$tpl['tab-page']['access'] = <<< EOT
-<!-- Access Permissions -->
-<div class="tab-page" id="tabAccess">
-	<h2 class="tab" id="tab_access_header">[+_lang_access_permissions+]</h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		function makePublic(b) {
-			var notPublic = false;
-			var f = document.forms['mutate'];
-			var chkpub = f['chkalldocs'];
-			var chks = f['docgroups[]'];
-			if (!chks && chkpub) {
-				chkpub.checked=true;
-				return false;
-			} else if (!b && chkpub) {
-				if (!chks.length) notPublic = chks.checked;
-				else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
-				chkpub.checked = !notPublic;
-			} else {
-				if (!chks.length) chks.checked = (b) ? false : chks.checked;
-				else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
-				chkpub.checked = true;
-			}
-		}
-		/* ]]> */
-	</script>
-	<p>[+_lang_access_permissions_docs_message+]</p>
-	<ul>
-		[+UDGroups+]
-	</ul>
-</div><!--div class="tab-page" id="tabAccess"-->
-EOT;
+$tpl['head'] = getTplHead();
+$tpl['foot'] = getTplFoot();
+$tpl['tab-page']['general']  = getTplTabGeneral();
+$tpl['tab-page']['tv']       = getTplTabTV();
+$tpl['tab-page']['settings'] = getTplTabSettings();
+$tpl['tab-page']['access']   = getTplTabAccess();
 
 $ph = array();
 $ph['JScripts'] = getJScripts();
 $ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $ph['id'] = $id;
 $ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
-$ph['a'] = (int) $_REQUEST['a'];
+$ph['mode'] = $modx->manager->action;
+$ph['a'] = ($modx->manager->action==27&&$modx->hasPermission('save_document')) ? '5' : '128' ;
+// 5:save_resource.processor.php 128:save_draft_content.processor.php
+
 if(!$_REQUEST['pid'])
 	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
 else $ph['pid'] = $_REQUEST['pid'];
-$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+
+if($modx->manager->action==131)
+{
+	$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
+    $ph['class'] = 'draft';
+}
+else
+{
+	$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+    $ph['class'] = '';
+}
 $ph['actionButtons'] = getActionButtons($id);
 $ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 $ph['token'] = $modx->genToken();
 $_SESSION['token'] = $ph['token'];
 
 echo $modx->parseText($tpl['head'],$ph);
-
 
 $ph = array();
 $ph['_lang_settings_general'] = $_lang['settings_general'];
@@ -229,11 +131,11 @@ $ph['fieldUnpub_date'] = fieldUnpub_date($id);
 $ph['renderSplit'] = renderSplit();
 $ph['fieldType'] = fieldType();
 if($docObject['type'] !== 'reference') {
-	$ph['fieldContentType'] = fieldContentType();
+	$ph['fieldContentType']   = fieldContentType();
 	$ph['fieldContent_dispo'] = fieldContent_dispo();
 } else {
-	$ph['fieldContentType'] = '<input type="hidden" name="contentType" value="' . $docObject['contentType'] . '" />';
-	$ph['fieldContent_dispo'] = '<input type="hidden" name="content_dispo" value="' . $docObject['content_dispo'] . '" />';
+	$ph['fieldContentType']   = sprintf('<input type="hidden" name="contentType" value="%s" />',$docObject['contentType']);
+	$ph['fieldContent_dispo'] = sprintf('<input type="hidden" name="content_dispo" value="%s" />',$docObject['content_dispo']);
 }
 $ph['fieldLink_attributes'] = fieldLink_attributes();
 $ph['fieldIsfolder']   = fieldIsfolder();
