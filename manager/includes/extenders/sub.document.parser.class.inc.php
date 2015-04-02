@@ -916,6 +916,7 @@ class SubParser {
                 $output = $modx->getChunk(trim($param));
                 break;
             case '@DOCUMENT' : // retrieve a document and process it's content
+            case '@DOC' :
                 $rs = $modx->getDocument($param);
                 if (is_array($rs)) $output = $rs['content'];
                 else               $output = "Unable to locate document {$param}";
@@ -952,9 +953,10 @@ class SubParser {
                 }
                 break;
             case '@DIRECTORY' :
+            case '@DIR' :
                 $files = array ();
+                $param = trim($param,'/');
                 $path = $modx->config['base_path'] . $param;
-                $path = rtrim($path,'/');
                 if (!is_dir($path)) exit($path);
                 
                 $dir = dir($path);
@@ -991,10 +993,13 @@ class SubParser {
 	        'FILE',
 	        'CHUNK',
 	        'DOCUMENT',
+	        'DOC',
 	        'SELECT',
 	        'EVAL',
 	        'INHERIT',
 	        'DIRECTORY',
+	        'DIR',
+	        'NULL',
 	        'NONE'
 	    );
 		$binding_array = array();
