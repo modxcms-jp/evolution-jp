@@ -720,7 +720,7 @@ function itemMoveDoc() {
 function itemDuplicateDoc() {
 	global $modx,$_style,$_lang;
 	
-	if(!$modx->hasPermission('new_document')) return '';
+	if(!$modx->hasPermission('new_document')||!$modx->hasPermission('save_document')) return '';
 	$tpl = tplMenuItem();
 	$ph['action'] = '94';
 	$ph['img']    = $_style['icons_resource_duplicate'];
