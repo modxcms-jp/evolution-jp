@@ -1292,3 +1292,4 @@ $_lang["logmsg_login_disp_warning"] = 'Disable plugins';
 
 $_lang["bk.contentOnly"] = 'Contents only';
 $_lang["bk.fileName"] = 'File name';
+$_lang["delete_resource_complete"] = 'Delete complete';

@@ -1294,3 +1294,4 @@ $_lang["logmsg_login_disp_warning"] = 'プラグインを一時的に無効に�
 
 $_lang["bk.contentOnly"] = 'コンテンツデータのみ';
 $_lang["bk.fileName"] = 'ファイル名';
+$_lang["delete_resource_complete"] = '完全に削除';
