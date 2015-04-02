@@ -1820,6 +1820,7 @@ class SubParser {
     	{
     		global $modx,$recent_update;
     		if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
+    		if($str===MODX_CORE_PATH . 'config.inc.php') return 'Could not retrieve core file.';
     		$content = file_get_contents($file_path);
 	    	if($content)
 	    	{
