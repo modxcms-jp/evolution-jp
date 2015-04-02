@@ -179,14 +179,14 @@ function saveTemplateAccess() {
 }
 
 function saveDocumentAccessPermissons() {
-    global $modx, $id, $newid, $use_udperms;
+    global $modx, $id, $newid;
 
     if ($newid)
         $id = $newid;
     $docgroups = $_POST['docgroups'];
 
     // check for permission update access
-    if ($use_udperms == 1) {
+    if ($modx->config['use_udperms'] == 1) {
         // delete old permissions on the tv
         $rs = $modx->db->delete('[+prefix+]site_tmplvar_access', "tmplvarid='{$id}'");
         if (!$rs) {
