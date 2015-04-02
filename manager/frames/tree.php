@@ -140,7 +140,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         {
 	        document.getElementById('item6').style.display='block';
 	        document.getElementById('item63').style.display='block';
-	        document.getElementById('item64').style.display='block';
+	        if(document.getElementById('item64') != null)
+	        	document.getElementById('item64').style.display='block';
 	        if(del==1)
         	{
 	        	document.getElementById('item6').style.display='none';
@@ -148,7 +149,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	        else
 	        {
 	        	document.getElementById('item63').style.display='none';
-	        	document.getElementById('item64').style.display='none';
+	        	if(document.getElementById('item64') != null)
+	        		document.getElementById('item64').style.display='none';
 	        }
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
