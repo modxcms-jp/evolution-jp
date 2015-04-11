@@ -295,7 +295,7 @@ class DataGrid {
 				$this->ds = array();
 			else
 			{
-				$delim = strpos($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]+/";
+				$delim = '@['.$this->cdelim."\n]@";
 				$this->ds = preg_split($delim,$this->ds);
 				$this->ds = array_chunk($this->ds, $this->_colcount);
 			}
