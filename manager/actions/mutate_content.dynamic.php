@@ -74,7 +74,7 @@ $ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $ph['id'] = $id;
 $ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
 $ph['mode'] = $modx->manager->action;
-$ph['a'] = ($modx->manager->action==27&&$modx->hasPermission('save_document')) ? '5' : '128' ;
+$ph['a'] = ($modx->manager->action!=131&&$modx->hasPermission('save_document')) ? '5' : '128' ;
 // 5:save_resource.processor.php 128:save_draft_content.processor.php
 
 if(!$_REQUEST['pid'])
