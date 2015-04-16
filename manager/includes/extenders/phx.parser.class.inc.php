@@ -283,6 +283,11 @@ class PHx {
 				$menutitle = $this->getDocumentObject($value,'menutitle');
 				$value = $menutitle ? $menutitle : $pagetitle;
 				break;
+			case 'templatename':
+				$template = $this->getDocumentObject($value,'template');
+				$templateObject = $modx->db->getObject('site_templates',"id='{$template}'");
+				$value = $templateObject !== false ? $templateObject->templatename : '(blank)';
+				break;
 				
 			#####  User info
 			case 'username':
