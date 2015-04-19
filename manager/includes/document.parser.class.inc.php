@@ -462,7 +462,18 @@ class DocumentParser {
                             {
                                 if(substr($parent->content,0,5)==='@FILE')
                                     $parent->content = $this->atBindFile($parent->content);
-                                $template->content = str_replace('[*content*]', $template->content, $parent->content);
+                                if(strpos($parent->content,'[*content*]')!==false)
+                                    $template->content = str_replace('[*content*]', $template->content, $parent->content);
+                                elseif(strpos($parent->content,'[*content:')!==false)
+                                {
+                                    $matches = $this->getTagsFromContent($parent->content,'[*content:','*]');
+                                    if($matches[0])
+                                    {
+                                        $modifier = $matches[1][0];
+                                        $template->content = str_replace($matches[0][0], $template->content, $parent->content);
+                                        $template->content = str_replace('[*content*]',"[*content:{$modifier}*]",$template->content);
+                                    }
+                                }
                                 if(!empty($parent->parent)) $parent = $this->db->getObject('site_templates',"id='{$parent->parent}'");
                                 else break;
                             }
