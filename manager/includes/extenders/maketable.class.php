@@ -130,7 +130,7 @@ class MakeTable {
 	 * for each column.
 	 */
 	
-	function create($fieldsArray, $fieldHeadersArray=array()) {return  renderTable($fieldsArray, $fieldHeadersArray);}
+	function create($fieldsArray, $fieldHeadersArray=array()) {return  $this->renderTable($fieldsArray, $fieldHeadersArray);}
 	function renderTable($fieldsArray, $fieldHeadersArray=array())
 	{
 		if (!is_array($fieldsArray)) return '';
@@ -260,7 +260,7 @@ EOT;
 	 * @param $totalRecords The number of records to show per page.
 	 * @param $currentURL An optional query string to be appended to the paging links
 	 */
-	function createPagingNavigation($totalRecords, $currentURL='') {return renderPagingNavigation($totalRecords, $currentURL);}
+	function createPagingNavigation($totalRecords, $currentURL='') {return $this->renderPagingNavigation($totalRecords, $currentURL);}
 	function renderPagingNavigation($totalRecords, $currentURL='') {
 		global $_lang, $modx;
 		
@@ -473,6 +473,8 @@ EOT;
 	 * 
 	 * @param $value A class for regular table rows.
 	 */
+	
+	function setRowRegularClass($value) {$this->setRowDefaultClass($value);}
 	function setRowDefaultClass($value) {
 		$this->rowDefaultClass= $value;
 	}
