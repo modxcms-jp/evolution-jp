@@ -1264,7 +1264,7 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
         
-        foreach($matches[1] as $i=>$key):
+        foreach($matches[1] as $i=>$key) {
             $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
             
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
@@ -1326,7 +1326,7 @@ class DocumentParser {
                 }
             }
             $content= str_replace($matches[0][$i], $value, $content);
-        endforeach;
+        }
         
         if ($this->debug)
         {
@@ -1354,7 +1354,7 @@ class DocumentParser {
         if(!$matches) return $content;
         
         $replace= array ();
-        foreach($matches[1] as $i=>$key):
+        foreach($matches[1] as $i=>$key) {
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -1372,7 +1372,7 @@ class DocumentParser {
                 $replace[$i]= $value;
             }
             else $replace[$i]= $key;
-        endforeach;
+        }
         
         $content= str_replace($matches[0], $replace, $content);
         if ($this->debug)
