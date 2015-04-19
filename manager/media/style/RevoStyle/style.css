@@ -1307,11 +1307,16 @@ table.sortabletable {
 	margin: 0 0 0 1px;
 	padding:0;
 }
-#pagination li a {
+#pagination li a,
+#pagination li span {
 	padding: 3px 8px;
 	border: 1px solid #D9E7C2;
 	text-decoration: none;
 	color: #333;
+}
+#pagination li span {
+    color:#D9E7C2;
+    cursor:default;
 }
 #pagination li.currentPage a, #pagination li a:hover {
 	color: #fff;
