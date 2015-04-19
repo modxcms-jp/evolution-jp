@@ -57,9 +57,10 @@ if ($numRecords > 0)
 	$from = join(' ',$from);
 	$where = "sc.parent='{$id}' {$access} GROUP BY sc.id";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
-	$offset = (isset($_GET['page']) && preg_match('@^[0-9]+$@',$_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
-	define('MAX_DISPLAY_RECORDS_NUM',$modx->config['number_of_results']);
-	$limit = ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
+	if(isset($_GET['page']) && preg_match('@^[1-9][0-9]*$@',$_GET['page']))
+		$offset =  $_GET['page'] - 1;
+	else $offset = 0;
+	$limit = ($offset * $modx->config['number_of_results']) . ', ' . $modx->config['number_of_results'];
 	$field = sprintf('DISTINCT sc.*, MAX(IF(1=%s OR sc.privatemgr=0 %s, 1, 0)) AS has_access, rev.status', $_SESSION['mgrRole'], $in_docgrp);
 	$rs = $modx->db->select($field,$from,$where,$orderby,$limit);
 	$resource = array();
@@ -194,7 +195,7 @@ if ($numRecords > 0)
 	// CSS style for table
 	$modx->table->setTableClass('grid');
 	$modx->table->setRowHeaderClass('gridHeader');
-	$modx->table->setRowRegularClass('gridItem');
+	$modx->table->setRowDefaultClass('gridItem');
 	$modx->table->setRowAlternateClass('gridAltItem');
 	$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
 	
@@ -205,9 +206,10 @@ if ($numRecords > 0)
 	$header['publishedon'] = $_lang['publish_date'];
 	$header['editedon']    = $_lang['editedon'];
 	$header['status']      = $_lang['page_data_status'];
-	
-	$pageNavBlock = $modx->table->createPagingNavigation($numRecords,"a=120&amp;id={$id}");
-	$children_output = $pageNavBlock . $modx->table->create($docs,$header) . $pageNavBlock;
+	$qs = 'a=120';
+	if($id) $qs .= "&id={$id}";
+	$pageNavBlock = $modx->table->renderPagingNavigation($numRecords,$qs);
+	$children_output = $pageNavBlock . $modx->table->renderTable($docs,$header) . $pageNavBlock;
 	$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 }
 else
