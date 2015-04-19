@@ -265,12 +265,12 @@ class DocumentParser {
         $this->functionCacheBeginCount = 0;
         if(is_file(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php'))
         {
-        	$_ = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
-        	if(is_array($_)) 
-        	{
-        		$this->functionCache = $_;
-            	$this->functionCacheBeginCount = count($this->functionCache);
-        	}
+            $_ = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
+            if(is_array($_)) 
+            {
+                $this->functionCache = $_;
+                $this->functionCacheBeginCount = count($this->functionCache);
+            }
         }
         if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
         {
@@ -678,14 +678,14 @@ class DocumentParser {
                 if(1000 < $file_count) $this->clearCache();
             }
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
-            	mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
+                mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
             
             if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
             {
-            	$str = '<?php return ' . var_export($this->functionCache, true) . ';';
-            	file_put_contents("{$base_path}assets/cache/function.siteCache.idx.php", $str, LOCK_EX);
+                $str = '<?php return ' . var_export($this->functionCache, true) . ';';
+                file_put_contents("{$base_path}assets/cache/function.siteCache.idx.php", $str, LOCK_EX);
             }
         }
         // Useful for example to external page counters/stats packages
@@ -695,25 +695,25 @@ class DocumentParser {
     
     function getUaType()
     {
-		$ua = strtolower($_SERVER['HTTP_USER_AGENT']);
-		
-		if(strpos($ua, 'ipad')!==false)          $type = 'tablet';
-		elseif(strpos($ua, 'iphone')!==false)    $type = 'smartphone';
-		elseif(strpos($ua, 'ipod')!==false)      $type = 'smartphone';
-		elseif(strpos($ua, 'android')!==false)
-		{
-			if(strpos($ua, 'mobile')!==false)    $type = 'smartphone';
-			else                                 $type = 'tablet';
-		}
-		elseif(strpos($ua, 'windows phone')!==false)
-		                                         $type = 'smartphone';
-		elseif(strpos($ua, 'docomo')!==false)    $type = 'mobile';
-		elseif(strpos($ua, 'softbank')!==false)  $type = 'mobile';
-		elseif(strpos($ua, 'up.browser')!==false)
-			                                     $type = 'mobile';
-		else                                     $type = 'pc';
-		
-    	return $type;
+        $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
+        
+        if(strpos($ua, 'ipad')!==false)          $type = 'tablet';
+        elseif(strpos($ua, 'iphone')!==false)    $type = 'smartphone';
+        elseif(strpos($ua, 'ipod')!==false)      $type = 'smartphone';
+        elseif(strpos($ua, 'android')!==false)
+        {
+            if(strpos($ua, 'mobile')!==false)    $type = 'smartphone';
+            else                                 $type = 'tablet';
+        }
+        elseif(strpos($ua, 'windows phone')!==false)
+                                                 $type = 'smartphone';
+        elseif(strpos($ua, 'docomo')!==false)    $type = 'mobile';
+        elseif(strpos($ua, 'softbank')!==false)  $type = 'mobile';
+        elseif(strpos($ua, 'up.browser')!==false)
+                                                 $type = 'mobile';
+        else                                     $type = 'pc';
+        
+        return $type;
     }
     
     function join($delim=',', $array, $prefix='')
@@ -1338,10 +1338,10 @@ class DocumentParser {
     
     function addLogEntry($fname,$fstart)
     {
-		$tend = $this->getMicroTime();
-		$totaltime = $tend - $fstart;
-		$msg = sprintf('%s %2.4f s',$fname,$totaltime);
-		$this->functionLog[] = $msg;
+        $tend = $this->getMicroTime();
+        $totaltime = $tend - $fstart;
+        $msg = sprintf('%s %2.4f s',$fname,$totaltime);
+        $this->functionLog[] = $msg;
     }
     
     function mergeSettingsContent($content)
@@ -2630,7 +2630,7 @@ class DocumentParser {
 
     function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
     {
-    	if(is_array($content)&&is_string($ph)) {list($ph,$content) = array($content,$ph);}
+        if(is_array($content)&&is_string($ph)) {list($ph,$content) = array($content,$ph);}
         
         if(!$ph) return $content;
         if ($this->debug) $fstart = $this->getMicroTime();
@@ -3470,14 +3470,14 @@ class DocumentParser {
     }
     function setFunctionCache($cacheKey,$value)
     {
-    	$this->functionCache[$cacheKey] = $value;
+        $this->functionCache[$cacheKey] = $value;
     }
     
     function getIdFromAlias($alias)
     {
         $cacheKey = md5(__FUNCTION__ . $alias);
         if(isset($this->functionCache[$cacheKey]))
-        	return $this->functionCache[$cacheKey];
+            return $this->functionCache[$cacheKey];
         
         $children = array();
         
