@@ -857,4 +857,13 @@ class ManagerAPI {
         	$limit_size = $memory_limit;
     	return $limit_size;
 	}
+	
+	function getTplModule()
+	{
+        ob_start();
+        include_once(MODX_CORE_PATH . 'header.inc.php');
+        echo '[+content+]';
+        include_once(MODX_CORE_PATH . 'footer.inc.php');
+        return ob_get_clean();
+	}
 }

@@ -1,6 +1,6 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-global $_lang, $_style, $modx_textdir, $modx_lang_attribute;
+global $modx, $_lang, $_style, $modx_textdir, $modx_lang_attribute;
 global $action, $manager_theme, $modx_charset;
 global $manager_language,$modx_version;
 
