@@ -1276,7 +1276,7 @@ class DocumentParser {
         if(!$matches) return $content;
         
         foreach($matches[1] as $i=>$key) {
-            $key= substr($key, 0, 1) == '#' ? substr($key, 1) : $key; // remove # for QuickEdit format
+            if(substr($key, 0, 1) == '#') $key = substr($key, 1); // remove # for QuickEdit format
             
             if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
                 list($key,$modifiers) = explode(':', $key, 2);
