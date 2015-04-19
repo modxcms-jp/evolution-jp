@@ -129,4 +129,25 @@ if (isset($data) && count($data) > 0) {
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 }
+
+setPermission($data);
+
 header("Location: index.php?a=7&r=10");
+
+function setPermission($config)
+{
+    if(!is_dir($config['rb_base_dir'].'images')) mkd($config['rb_base_dir'].'images');
+    if(!is_dir($config['rb_base_dir'].'files'))  mkd($config['rb_base_dir'].'files');
+    if(!is_dir($config['rb_base_dir'].'media'))  mkd($config['rb_base_dir'].'media');
+    if(!is_dir($config['rb_base_dir'].'flash'))  mkd($config['rb_base_dir'].'flash');
+    if(!is_dir(MODX_BASE_PATH.'temp/export'))    mkd(MODX_BASE_PATH.'temp/export');
+    if(!is_dir(MODX_BASE_PATH.'temp/backup'))    mkd(MODX_BASE_PATH.'temp/backup');
+    
+    if(is_writable(MODX_CORE_PATH.'config.inc.php')) @chmod(MODX_CORE_PATH.'config.inc.php', 0444);
+}
+
+function mkd($path) {
+	$rs = @mkdir($path, 0777, true);
+	if($rs) $rs = @chmod($path, 0777);
+	return $rs;
+}
