@@ -393,7 +393,7 @@ function decode(s){
 		while($row = $modx->db->getRow($result))
 		{
 			$input_name = trim(substr($row['name'],6));
-			$option[$input_name] = ucwords($input_name);
+			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
 		}
 	}
 	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%'");
@@ -402,7 +402,7 @@ function decode(s){
 		while($row = $modx->db->getRow($result))
 		{
 			$input_name = trim(substr($row['name'],6));
-			$option[$input_name] = ucwords($input_name);
+			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
 		}
 	}
 	if($content['type']=='') $content['type']=='text';
