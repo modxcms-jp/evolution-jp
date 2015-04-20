@@ -11,8 +11,8 @@ $newToken = $modx->manager->makeToken();
 $style_path = $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/images/';
 $excludes = array('.', '..', '.svn');
 $alias_suffix = (!empty($friendly_url_suffix)) ? ','.ltrim($friendly_url_suffix,'.') : '';
-$editablefiles       = explode(',', 'txt,php,shtml,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
-$inlineviewablefiles = explode(',', 'txt,php,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
+$editablefiles       = explode(',', 'txt,php,tpl,shtml,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
+$inlineviewablefiles = explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess'.$alias_suffix);
 $viewablefiles       = explode(',', 'jpg,gif,png,ico');
 
 $editablefiles       = add_dot($editablefiles);
