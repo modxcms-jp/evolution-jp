@@ -396,7 +396,7 @@ function decode(s){
 			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
 		}
 	}
-	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%'");
+	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
 	if(0 < $modx->db->getRecordCount($result))
 	{
 		while($row = $modx->db->getRow($result))
