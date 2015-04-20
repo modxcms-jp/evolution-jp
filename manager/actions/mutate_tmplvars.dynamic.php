@@ -396,6 +396,15 @@ function decode(s){
 			$option[$input_name] = $input_name;
 		}
 	}
+	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%'");
+	if(0 < $modx->db->getRecordCount($result))
+	{
+		while($row = $modx->db->getRow($result))
+		{
+			$input_name = trim(substr($row['name'],6));
+			$option[$input_name] = $input_name;
+		}
+	}
 	if($content['type']=='') $content['type']=='text';
 	foreach($option as $k=>$v)
 	{
