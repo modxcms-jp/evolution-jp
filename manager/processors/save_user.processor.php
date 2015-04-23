@@ -41,7 +41,7 @@ if ($passwordgenmethod == "spec" && $_POST['specifiedpassword'] != $_POST['confi
 }
 
 // verify email
-if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i", $email)) {
+if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", $email)) {
 	webAlert("E-mail address doesn't seem to be valid!");
 	exit;
 }
@@ -434,15 +434,24 @@ switch ($mode) {
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
 	global $modx,$_lang;
-	$message = sprintf($modx->config['signupemail_message'], $uid, $pwd); // use old method
-	$ph['uid']    = $uid;
-	$ph['pwd']    = $pwd;
-	$ph['ufn']    = $ufn;
-	$ph['sname']  = $modx->config['site_name'];
-	$ph['saddr']  = $modx->config['emailsender'];
-	$ph['semail'] = $modx->config['emailsender'];
-	$ph['surl']   = $modx->config['site_url'] . 'manager/';
-	$message = $modx->parseText($message,$ph);
+	$ph['username'] = $uid;
+	$ph['uid']      = $uid;
+	$ph['password'] = $pwd;
+	$ph['pwd']      = $pwd;
+	$ph['fullname'] = $ufn;
+	$ph['ufn']      = $ufn;
+	$site_name      = $modx->config['site_name'];
+	$ph['site_name'] = $site_name;
+	$ph['sname']    = $site_name;
+	$admin_email    = $modx->config['emailsender'];
+	$ph['manager_email'] = $admin_email;
+	$ph['saddr']    = $admin_email;
+	$ph['semail']   = $admin_email;
+	$site_url       = $modx->config['site_url'];
+	$ph['site_url'] = $site_url;
+	$ph['surl']     = "{$site_url}manager/";
+	$message = $modx->parseText($modx->config['signupemail_message'],$ph);
+	$message = $modx->mergeSettingsContent($message);
 
 	$rs = $modx->sendmail($email,$message);
 	if ($rs === false) //ignore mail errors in this cas

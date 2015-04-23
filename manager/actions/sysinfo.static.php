@@ -36,7 +36,7 @@ $dbase = trim($dbase,'`');
 		<?php echo render_tr($_lang['modx_version'],$modx_version);?>
 		<?php echo render_tr($_lang['release_date'],$modx_release_date);?>
 		<?php echo render_tr('phpInfo()','<a href="#" onclick="viewPHPInfo();return false;">' . $_lang['view'] . '</a>');?>
-		<?php echo render_tr($_lang['udperms_title'],($use_udperms==1 ? $_lang['enabled'] : $_lang['disabled']));?>
+		<?php echo render_tr($_lang['udperms_title'],($modx->config['use_udperms']==1 ? $_lang['enabled'] : $_lang['disabled']));?>
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
 		<?php echo render_tr($_lang['localtime'],strftime('%H:%M:%S', time()+$server_offset_time));?>
 		<?php echo render_tr($_lang['serveroffset'],$server_offset_time/(60*60) . ' h');?>

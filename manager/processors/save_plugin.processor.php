@@ -15,6 +15,7 @@ $properties = $modx->db->escape($_POST['properties']);
 $disabled = $_POST['disabled']=="on" ? '1' : '0';
 $moduleguid = $modx->db->escape($_POST['moduleguid']);
 $sysevents = $_POST['sysevents'];
+if(empty($sysevents)) $sysevents[] = 90; // Default OnWebPageInit
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
@@ -178,10 +179,13 @@ function saveEventListeners($id,$sysevents,$mode) {
     $tblSitePluginEvents = $modx->getFullTableName('site_plugin_events');
     $sql = "INSERT INTO {$tblSitePluginEvents} (pluginid,evtid,priority) VALUES ";
     for($i=0;$i<count($sysevents);$i++){
+        $event = $sysevents[$i];
+        if( !preg_match('/^[0-9]+\z/',$event) ){ continue; } //ignore invalid data
+
         if ($mode == '101') {
-            $prioritySql = "select max(priority) as priority from {$tblSitePluginEvents} where evtid={$sysevents[$i]}";
+            $prioritySql = "select max(priority) as priority from {$tblSitePluginEvents} where evtid={$event}";
         } else {
-            $prioritySql = "select priority from {$tblSitePluginEvents} where evtid={$sysevents[$i]} and pluginid={$id}";
+            $prioritySql = "select priority from {$tblSitePluginEvents} where evtid={$event} and pluginid={$id}";
         }
         $rs = $modx->db->query($prioritySql);
         $prevPriority = $modx->db->getRow($rs);
@@ -191,7 +195,7 @@ function saveEventListeners($id,$sysevents,$mode) {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] : 1;
         }
         if($i>0) $sql.=",";
-        $sql.= "(".$id.",".$sysevents[$i].",".$priority.")";
+        $sql.= "(".$id.",".$event.",".$priority.")";
     }
     $modx->db->query("DELETE FROM {$tblSitePluginEvents} WHERE pluginid={$id}");
     if (count($sysevents)>0) $modx->db->query($sql);

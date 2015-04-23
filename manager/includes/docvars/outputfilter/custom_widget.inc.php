@@ -4,7 +4,15 @@
 	$widget_output = '';
 	$o = '';
 	/* If we are loading a file */
-	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name));
+	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name),'[+','+]',false);
+	
+	if(substr($params['output'], 0, 5)==='<?php') $params['output'] = "@EVAL:\n" . substr($params['output'],5);
+	$modx->tvfilter = new stdClass();
+	$modx->tvfilter->vars['name']    = & $name;
+	$modx->tvfilter->vars['value']   = & $value;
+	$modx->tvfilter->vars['input']   = & $value;
+	$modx->tvfilter->vars['docid']   = & $docid;
+	
 	if(substr($params['output'], 0, 5) == '@FILE')
 	{
 		$file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
@@ -27,22 +35,26 @@
 	{
 		$tvname = $name;
 		$eval_str = trim(substr($params['output'], 6));
-		$widget_output = eval($eval_str);
+		ob_start();
+		$return = eval($eval_str);
+		$msg = ob_get_contents();
+		$result = $msg . $return;
+		if($result) $widget_output = $result;
+		else $widget_output = $value;
+		ob_end_clean();
 	}
-	elseif($value !== '')
-	{
-		$widget_output = $params['output'];
-	}
+	elseif($value==='')
+		return;
 	else
-	{
-		$widget_output = '';
-	}
+		$widget_output = $params['output'];
+	
+	$modx->tvfilter->vars = array();
+	
 	if(is_string($widget_output)) // Except @INCLUDE
 	{
-	if(strpos($widget_output,'[+')!==false)
-	{
-		$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name));
-	}
+		if(strpos($widget_output,'[+')!==false)
+			$widget_output = $this->parseText($widget_output,array('value'=>$value,'tvname'=>$name),'[+','+]',false);
+		
 		$o = $this->parseDocumentSource($widget_output);
 	}
 	else

@@ -53,7 +53,7 @@ class DataGrid {
 	var $src_encode;
 	var $detectHeader;
 
-	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {
+	function DataGrid($id='',$ds='',$pageSize=20,$pageNumber=-1) {
 		global $modx, $__DataGridCnt;
 		
 		// set id
@@ -68,6 +68,10 @@ class DataGrid {
 		$this->ds = $ds;
 		$this->cdelim = ',';
 		$this->detectHeader = 'none';
+		$this->itemStyle = "style='color:#333333;'";
+		$this->altItemStyle = "style='color:#333333;background-color:#eeeeee'";
+		$this->itemClass    = 'cell';
+		$this->altItemClass = 'altCell';
 		
 		$this->src_encode = $modx->config['modx_charset'];
 	}
@@ -233,8 +237,6 @@ class DataGrid {
 		}
 
 		if(!$cssStyle && !$cssClass) $cssStyle = '';
-		if(!$this->_itemStyle && !$this->_itemClass) $this->_itemStyle = "style='color:#333333;'";
-		if(!$this->_altItemStyle && !$this->_altItemClass) $this->_altItemStyle = "style='color:#333333;background-color:#eeeeee'";
 
 		if($this->_isDataset && !$this->columns) {
 			$cols = mysql_num_fields($this->ds);
@@ -283,8 +285,8 @@ class DataGrid {
 		elseif(!is_resource($this->ds) && strpos($this->ds,$this->cdelim)!==false)
 		{
 			if(strpos($this->ds,"\n")!==false)
-				$this->ds = substr($this->ds,0,strpos($this->ds,"\n"));
-			$this->_colcount = count(explode($this->cdelim, $this->ds));
+				$_ = substr($this->ds,0,strpos($this->ds,"\n"));
+			$this->_colcount = count(explode($this->cdelim, $_));
 		}
 		else $this->_colcount = 1;
 		
@@ -293,7 +295,8 @@ class DataGrid {
 				$this->ds = array();
 			else
 			{
-				$this->ds = preg_split((strstr($this->ds,"||")!==false ? "/\|\|/":"/[,\t\n]/"),$this->ds);
+				$delim = '@['.$this->cdelim."\n]@";
+				$this->ds = preg_split($delim,$this->ds);
 				$this->ds = array_chunk($this->ds, $this->_colcount);
 			}
 		}

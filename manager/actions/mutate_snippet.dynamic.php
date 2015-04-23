@@ -331,7 +331,7 @@ function decode(s){
 		$readonly = 'readonly';
 	else $readonly = '';
 ?>
-			<textarea class="phptextarea" dir="ltr" <?php echo $readonly;?> name="post" style="width:100%; height:370px;" wrap="soft"><?php echo "<?php"."\n".trim(htmlspecialchars($content['snippet']))."\n"."?>"?></textarea>
+			<textarea class="phptextarea" dir="ltr" <?php echo $readonly;?> name="post" style="width:100%; height:370px;" wrap="soft"><?php echo trim(htmlspecialchars($content['snippet']));?></textarea>
 			</div>
 		<!-- PHP text editor end -->
 		  	</div>

@@ -485,7 +485,7 @@ function SetUrl(url, width, height, alt){
 		</table>
 	</div>
 <?php
-if($use_udperms==1)
+if($modx->config['use_udperms']==1)
 {
 	$groupsarray = array();
 	

@@ -90,6 +90,7 @@ $_style['tree_page_gif']            = $tree_path.'picture.png';
 $_style['tree_plusnode']            = $tree_path.'plusnode.gif';
 $_style['tree_showtree']            = '<img src="'.$tree_path.'sitemap.png" align="absmiddle" />';
 $_style['tree_weblink']             = $tree_path.'link_go.png';
+$_style['tree_draft']               = $tree_path.'pencil.png';
 
 $_style['tree_page_secure']         = $tree_path.'application_key.gif';
 $_style['tree_page_blank_secure']   = $tree_path.'application_html_secure.gif';
@@ -111,6 +112,7 @@ $_style['icons_cancel']             = $icon_path.'stop.png';
 $_style['icons_close']              = $icon_path.'stop.png';
 $_style['icons_delete']             = $icon_path.'delete.png';
 $_style['icons_delete_document']    = $icon_path.'delete.png';
+$_style['icons_delete_complete']    = $icon_path.'trash_full.png';
 $_style['icons_resource_overview']  = $icon_path.'page_white_magnify.png';
 $_style['icons_resource_duplicate'] = $icon_path.'page_white_copy.png';
 $_style['icons_edit_document']      = $icon_path.'write.png';
@@ -139,6 +141,7 @@ $_style['icons_view_document']      = $icon_path.'context_view.gif';
 $_style['icons_weblink']            = $icon_path.'world_link.png';
 $_style['icons_working']            = $icon_path.'exclamation.png'; // top bar
 $_style['sort']                     = $icon_path.'sort.png';
+$_style['icons_date']               = $icon_path.'date.gif';
 
 // Indicators
 $_style['icons_tooltip']            = $icon_path.'b02.gif';

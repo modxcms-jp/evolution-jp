@@ -179,14 +179,14 @@ function saveTemplateAccess() {
 }
 
 function saveDocumentAccessPermissons() {
-    global $modx, $id, $newid, $use_udperms;
+    global $modx, $id, $newid;
 
     if ($newid)
         $id = $newid;
     $docgroups = $_POST['docgroups'];
 
     // check for permission update access
-    if ($use_udperms == 1) {
+    if ($modx->config['use_udperms'] == 1) {
         // delete old permissions on the tv
         $rs = $modx->db->delete('[+prefix+]site_tmplvar_access', "tmplvarid='{$id}'");
         if (!$rs) {
@@ -197,7 +197,7 @@ function saveDocumentAccessPermissons() {
             foreach ($docgroups as $dgkey => $value) {
                 $field['tmplvarid'] = $id;
                 $field['documentgroup'] = stripslashes($value);
-                $rs = $modx->db->insert($field, $tbl_site_tmplvar_access);
+                $rs = $modx->db->insert($field, '[+prefix+]site_tmplvar_access');
                 if (!$rs) {
                     echo "An error occured while attempting to save template variable acess permissions.";
                     exit;

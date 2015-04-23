@@ -32,7 +32,7 @@ $recent              = 0;
 /* That's it to config! */
 $tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
 define('MODX_API_MODE', true);
-define("IN_MANAGER_MODE", "true");
+define('IN_MANAGER_MODE', 'true');
 $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 $mtime = microtime();

@@ -2,13 +2,15 @@
 if(isset($_POST['chkagree'])) $chkagree = $_POST['chkagree'];
 elseif(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
 
-$_SESSION['installdata'] = isset($_POST['installdata']) ? $_POST['installdata'] : '';
-$_SESSION['template']    = isset($_POST['template'])    ? $_POST['template'] : '';
-$_SESSION['tv']          = isset($_POST['tv'])          ? $_POST['tv'] : '';
-$_SESSION['chunk']       = isset($_POST['chunk'])       ? $_POST['chunk'] : '';
-$_SESSION['snippet']     = isset($_POST['snippet'])     ? $_POST['snippet'] : '';
-$_SESSION['plugin']      = isset($_POST['plugin'])      ? $_POST['plugin'] : '';
-$_SESSION['module']      = isset($_POST['module'])      ? $_POST['module'] : '';
+if($prevAction ==='options'){
+   $_SESSION['installdata'] = isset($_POST['installdata']) ? $_POST['installdata'] : array();
+   $_SESSION['template']    = isset($_POST['template'])    ? $_POST['template']    : array();
+   $_SESSION['tv']          = isset($_POST['tv'])          ? $_POST['tv']          : array();
+   $_SESSION['chunk']       = isset($_POST['chunk'])       ? $_POST['chunk']       : array();
+   $_SESSION['snippet']     = isset($_POST['snippet'])     ? $_POST['snippet']     : array();
+   $_SESSION['plugin']      = isset($_POST['plugin'])      ? $_POST['plugin']      : array();
+   $_SESSION['module']      = isset($_POST['module'])      ? $_POST['module']      : array();
+}
 
 echo '<h2>' . $_lang['preinstall_validation'] . '</h2>';
 echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
@@ -67,9 +69,9 @@ if (is_writable("{$base_path}assets/cache")) {
 	else $_ =  echo_ok();
 	echo p($_ . $_lang['checking_if_cache_file_writable']);
 	
-    file_put_contents("{$base_path}assets/cache/basicConfig.idx.php",'<?php $cacheRefreshTime=0; ?>');
+    file_put_contents("{$base_path}assets/cache/basicConfig.php",'<?php $cacheRefreshTime=0; ?>');
 	
-	if (!is_writable("{$base_path}assets/cache/basicConfig.idx.php")) {
+	if (!is_writable("{$base_path}assets/cache/basicConfig.php")) {
 		$_ = echo_failed();
 		$errors += 1;
 	}

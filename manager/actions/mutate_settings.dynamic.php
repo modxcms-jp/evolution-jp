@@ -227,14 +227,14 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["site_url_title"] ?></th>
 	<td>
-		<?php echo form_text('site_url',$site_url);?><br />
+		<?php echo form_text('site_url',str_replace('[(site_url)]', MODX_SITE_URL, $site_url));?><br />
 		<?php echo $modx->parseText($_lang["site_url_message"],array('MODX_SITE_URL'=>MODX_SITE_URL)) ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["base_url_title"] ?></th>
 	<td>
-		<?php echo form_text('base_url',$base_url);?><br />
+		<?php echo form_text('base_url',str_replace('[(base_url)]', MODX_BASE_URL, $base_url));?><br />
 		<?php echo $modx->parseText($_lang["base_url_message"],array('MODX_BASE_URL'=>MODX_BASE_URL)) ?>
 	</td>
 </tr>
@@ -603,11 +603,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $use_udperms=='1','id="udPerms1"'));?><br />
-	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $use_udperms=='0','id="udPerms0"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $modx->config['use_udperms']=='1','id="udPerms1"'));?><br />
+	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $modx->config['use_udperms']=='0','id="udPerms0"'));?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
-<tr class="udPerms row2" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row2" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
@@ -615,7 +615,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
-<tr class="udPerms row1" style="display: <?php echo $use_udperms==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms row1" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
@@ -993,18 +993,6 @@ $tmenu_style = 'style="width:350px;"';
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
-<?php
-$rs = $modx->db->query("SHOW TABLES LIKE '{$table_prefix}site_metatags'");
-if(0 < $modx->db->getRecordCount($rs)) : ?>
-<tr>
-<th><?php echo $_lang["show_meta"] ?></th>
-<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('show_meta','1',$show_meta=='1'));?><br />
-	<?php echo wrap_label($_lang["no"],form_radio('show_meta','0',$show_meta=='0'));?><br />
-	<?php echo $_lang["show_meta_message"]?>
-</td>
-</tr>
-<?php endif; ?>
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
 <td>
@@ -1049,8 +1037,8 @@ echo $str;
 <tr>
 	<th><?php echo $_lang["pm2email_title"] ?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('pm2email','1',$xhtml_urls=='1'));?><br />
-		<?php echo wrap_label($_lang["no"], form_radio('pm2email','0',$xhtml_urls=='0'));?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('pm2email','1',$pm2email=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('pm2email','0',$pm2email=='0'));?><br />
 		<?php echo $_lang["pm2email_message"] ?>
 	</td>
 </tr>
@@ -1158,16 +1146,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["upload_maxsize_title"]?></th>
 <td>
 <?php
-if(version_compare(ini_get('upload_max_filesize'), ini_get('post_max_size'),'<'))
-{
-	$limit_size = ini_get('upload_max_filesize');
-}
-else $limit_size = ini_get('post_max_size');
-
-if(version_compare(ini_get('memory_limit'), $limit_size,'<'))
-{
-	$limit_size = ini_get('memory_limit');
-}
+$limit_size = $modx->manager->getUploadMaxsize();
 if(empty($upload_maxsize))
 {
 	$limit_size_bytes = $limit_size;

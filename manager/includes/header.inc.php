@@ -1,6 +1,6 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-global $_lang, $_style, $modx_textdir, $modx_lang_attribute;
+global $modx, $_lang, $_style, $modx_textdir, $modx_lang_attribute;
 global $action, $manager_theme, $modx_charset;
 global $manager_language,$modx_version;
 
@@ -34,6 +34,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
+    <script src="media/script/nanobar.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -54,7 +55,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 			var action = <?php echo $action;?>;
 			switch(action)
 			{
-				case 85:
 				case 27:
 				case 17:
 				case 4:
@@ -81,7 +81,8 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 				case 301:
 					$j('input').change(function() {documentDirty=true;});
 					$j('textarea').change(function() {documentDirty=true;});
-					$j('select:not(#template)').change(function() {documentDirty=true;});
+					$j('select:not(#template,#which_editor)').change(function() {documentDirty=true;});
+					gotosave=false;
 				break;
 			}
         	document_onload();
@@ -175,5 +176,8 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     </script>
 </head>
 <body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir==='rtl' ? ' class="rtl"':''?>>
-
+<script>
+var nanobar = new Nanobar({id: 'loadingBar'});
+nanobar.go(50);
+</script>
 <div id="preLoader"><table width="100%" border="0" cellpadding="0"><tr><td align="center"><div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div></td></tr></table></div>

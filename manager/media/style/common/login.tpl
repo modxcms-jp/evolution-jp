@@ -48,8 +48,6 @@
     .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;}
     .loginLicense a {color: #B2B2B2;}
     .notice {width: 100%;padding: 5px;border: 1px solid #eee;background-color: #F4F4F4;color: #707070;}
-    #preLoader {position: absolute;z-index: 50000;width: 100%;height: 100%;text-align: center;vertical-align: middle;}
-    .preLoaderText {background-color: #fff;width: 300px;height: 150px;padding: 50px;border: 1px solid #039;}
 	.loginMessage {font-size:12px;color: #999;padding-top: 10px;}
 	input#FMP-email {width:300px;}
 	label#FMP-email_label {padding-left:0;}
@@ -124,7 +122,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-&copy; 2005-2014 by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
+&copy; 2005-2015 by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
 </p>
 </body>
 </html>

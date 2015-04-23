@@ -14,7 +14,8 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 
 <div class="section">
 <div class="sectionBody">
-<form action="index.php?a=71" method="post" name="searchform" enctype="multipart/form-data">
+<form action="index.php" method="post" name="searchform" enctype="multipart/form-data">
+<input type="hidden" name="a" value="71" />
 <table width="100%" border="0">
   <tr>
     <td width="120"><?php echo $_lang['search_criteria_id']; ?></td>
@@ -97,6 +98,22 @@ if(isset($_REQUEST['submitok'])) {
     $where  = "1=1 {$sqladd}";
     $rs = $modx->db->select($fields,'[+prefix+]site_content',$where,'id');
     $limit = $modx->db->getRecordCount($rs);
+    if($modx->hasPermission('edit_document')) {
+    	$action = '27';
+    	$itemicon = $_style['icons_edit_document'];
+    }
+	else {
+		$action = '3';
+		$itemicon = $_style['icons_resource_overview'];
+	}
+/*
+	if($limit==1) {
+		$row = $modx->db->getRow($rs);
+		$docid = $row['id'];
+		echo sprintf("<script>location.href='index.php?a=%s&id=%s';</script>",$action,$docid);
+		exit;
+	}
+*/
 ?>
 <div class="section">
 <div class="sectionHeader"><?php echo $_lang['search_results']; ?></div><div class="sectionBody">
@@ -155,7 +172,7 @@ while ($row = $modx->db->getRow($rs)) {
 	}
 ?>
     <tr>
-      <td align="center"><a href="index.php?a=3&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['icons_resource_overview']; ?>" /></a></td>
+      <td align="center"><a href="index.php?a=<?php echo $action;?>&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $itemicon; ?>" /></a></td>
       <td><?php echo $row['id']; ?></td>
 <?php
 		if (function_exists('mb_strlen') && function_exists('mb_substr')) {

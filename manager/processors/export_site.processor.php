@@ -49,6 +49,7 @@ $modx->regOption('export_repl_after',$_POST['repl_after']);
 
 
 if($ignore_ids!==$_POST['ignore_ids']
+ ||$generate_mode!==$_POST['generate_mode']
  ||$includenoncache!==$_POST['includenoncache']
  ||$repl_before!==$_POST['repl_before']
  ||$repl_after !==$_POST['repl_after']) {

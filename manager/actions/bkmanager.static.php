@@ -329,7 +329,14 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	if(isset($result)) echo '<div style="margin-top:20px;"><p style="font-weight:bold;"><?php echo $_lang["bkmgr_run_sql_result"];?></p>' . $result . '</div>';
 ?>
 </div>
-
+<?php
+    $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
+    $today = str_replace(array('/',' '), '-', $today);
+    $today = str_replace(':', '', $today);
+    $today = strtolower($today);
+    global $modx_version;
+    $filename = "{$today}-{$modx_version}.sql";
+?>
 <div class="tab-page" id="tabSnapshot">
 	<h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
@@ -338,14 +345,18 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	<form method="post" name="snapshot" action="index.php">
 	<input type="hidden" name="a" value="307" />
 	<input type="hidden" name="mode" value="snapshot" />
+	<table>
+	<tr><th><?php echo $_lang["bk.contentOnly"];?></th><td><input type="checkbox" name="contentsOnly" value="1" /></td></tr>
+	<tr><th><?php echo $_lang["bk.fileName"];?></th><td><input type="text" name="file_name" size="50" value="<?php echo $filename;?>" /></td></tr>
+	</table>
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-	<a href="#" class="primary" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
+	<a href="#" class="primary" onclick="nanobar.go(30);document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>
 	<style type="text/css">
 	table {background-color:#fff;border-collapse:collapse;}
-	table td {border:1px solid #ccc;padding:4px;}
+	table td {padding:4px;}
 	.msg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
 	</style>
 <div class="sectionHeader"><?php echo $_lang["bkmgr_snapshot_list_title"];?></div>
@@ -362,12 +373,18 @@ if(is_array($files) && 0 < $total)
 {
 	echo '<ul>';
 	arsort($files);
-	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
+	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="nanobar.go(30);document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
 	while ($file = array_shift($files))
 	{
+		$timestamp = filemtime($file);
 		$filename = substr($file,strrpos($file,'/')+1);
 		$filesize = $modx->nicesize(filesize($file));
-		echo str_replace(array('[+filename+]','[+filesize+]'),array($filename,$filesize),$tpl);
+		$output[$timestamp] = str_replace(array('[+filename+]','[+filesize+]'),array($filename,$filesize),$tpl);
+	}
+	krsort($output);
+	foreach($output as $v)
+	{
+		echo $v;
 	}
 	echo '</ul>';
 }

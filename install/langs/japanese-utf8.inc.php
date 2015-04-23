@@ -35,7 +35,7 @@ $_lang["cant_write_config_file_note"] = '実行後は、サイト名/manager/ �
 $_lang["checkbox_select_options"] = '拡張機能の選択:';
 $_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span>ディレクトリの存在チェック(なければ転送に失敗しています): ';
 $_lang["checking_if_cache_file_writable"] = '<span class="mono">/assets/cache/siteCache.idx.php</span>の書き込み属性: ';
-$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/basicConfig.idx.php</span>の書き込み属性: ';
+$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/basicConfig.php</span>の書き込み属性: ';
 $_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span>ディレクトリの書き込み属性: ';
 $_lang["checking_if_config_exist_and_writable"] = '<span class="mono">/manager/includes/config.inc.php</span>の存在と書き込み属性: ';
 $_lang["checking_if_export_exists"] = '<span class="mono">/temp/export</span>ディレクトリの存在(なければ転送に失敗しています): ';
@@ -110,7 +110,7 @@ $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
-$_lang["modx_footer1"] = '&copy; 2005-2014 the <a href="http://modx.com/" target="_blank"">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005-2015 the <a href="http://modx.com/" target="_blank"">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; インストール';
 $_lang["modx_requires_php"] = ', PHP 5.0.0以上が必要です。';

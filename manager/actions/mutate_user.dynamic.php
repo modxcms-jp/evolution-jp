@@ -646,10 +646,6 @@ while ($row = $modx->db->getRow($rs))
 </tr>
 </table>
 </div>
-<?php
-if ($use_udperms == 1)
-{
-?>
 <!-- Miscellaneous settings -->
 <div class="tab-page" id="tabPage7">
 <h2 class="tab"><?php echo $_lang["settings_misc"] ?></h2>
@@ -698,7 +694,7 @@ if ($use_udperms == 1)
 	<th><?php echo $_lang["upload_maxsize_title"]?></th>
 	<td>
 	<input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : "" ; ?>">
-	<div><?php echo $_lang["upload_maxsize_message"]?></div>
+	<div><?php echo sprintf($_lang["upload_maxsize_message"],$modx->manager->getUploadMaxsize())?></div>
 	</td>
 </tr>
 	<tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
@@ -715,6 +711,10 @@ if ($use_udperms == 1)
 	</tr>
 </table>
 </div>
+<?php
+if ($modx->config['use_udperms'] == 1)
+{
+?>
 	<!-- Access -->
 	<div class="tab-page" id="tabAccess">
 		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>

@@ -88,6 +88,9 @@ h1 {
 	border-radius: 3px;
 	margin: 8px 15px 10px;
 }
+h1.draft {
+    background-color: #F4E2C3;
+}
 	.rtl h1 {
 		margin-right: 10px;
 	}
@@ -706,7 +709,7 @@ div.treeNode {
 	text-decoration: none;
 }
 .protectedNode {
-	color: #aaa;
+	color: #77d;
 }
 
 #treeSplitter {
@@ -796,8 +799,9 @@ a.hometblink:hover {
 	background-color: #fff;
 	width: 300px;
 	height: 150px;
+    margin-top:30px;
 	padding: 50px;
-	border: 1px solid #039;
+	border: 1px solid #999;
 }
 /* -------------------------[ contextmenu in editing modules ]--- */
 .contextMenu {
@@ -1303,11 +1307,16 @@ table.sortabletable {
 	margin: 0 0 0 1px;
 	padding:0;
 }
-#pagination li a {
+#pagination li a,
+#pagination li span {
 	padding: 3px 8px;
 	border: 1px solid #D9E7C2;
 	text-decoration: none;
 	color: #333;
+}
+#pagination li span {
+    color:#D9E7C2;
+    cursor:default;
 }
 #pagination li.currentPage a, #pagination li a:hover {
 	color: #fff;
@@ -1410,9 +1419,8 @@ ul.actionButtons {
 	vertical-align:top;
 	white-space:nowrap;
 	box-shadow:0 0 1px rgba(0,0,0,0.4),0 1px 1px rgba(0,0,0,0.3);
-	background:#fafafa;
-	background:-moz-linear-gradient(#FAFAFA,#D2D2D2);
-	background:-webkit-gradient(linear,0 0,0 100%,from(#FAFAFA),to(#D2D2D2));
+	background-color:#fafafa;
+	background:linear-gradient(#FAFAFA,#D2D2D2);
 	background:-o-linear-gradient(#FAFAFA,#D2D2D2);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#FAFAFA,endColorstr=#D2D2D2);
 	zoom:1;
@@ -1445,6 +1453,12 @@ ul.actionButtons {
 	padding:2px 4px;
 	color:#777;
 	border-width:0;
+}
+
+.actionButtons .opendraft a {
+	background-color:#faf1d4;
+	background:linear-gradient(#faf1d4,#e9e0c3);
+	background:-o-linear-gradient(#faf1d4,#e9e0c3);
 }
 
 .actionButtons select,.actionButtons span.and {
@@ -1810,3 +1824,5 @@ strong[style*='color:#EF1D1D'] {
 
 .tmplvars tr {height: 24px;}
 .tvname {width:150px;}
+
+#loadingBar div {background-color:#91ba49;}

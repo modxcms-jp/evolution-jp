@@ -1,29 +1,32 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if(!$modx->hasPermission('delete_document')) {
+if(!$modx->hasPermission('empty_trash')) {
 	$e->setError(3);
 	$e->dumpError();
 }
 
-$tbl_site_content = $modx->getFullTableName('site_content');
-$rs = $modx->db->select('id',$tbl_site_content,'deleted=1');
-$ids = array();
-if($modx->db->getRecordCount($rs)>0)
+if(isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
+	$ids = array($_REQUEST['id']);
+else
 {
-	while($row=$modx->db->getRow($rs))
-	{
-		array_push($ids, @$row['id']);
-	}
+    $rs = $modx->db->select('id','[+prefix+]site_content','deleted=1');
+    $ids = array();
+    if($modx->db->getRecordCount($rs)>0)
+    {
+    	while($row=$modx->db->getRow($rs))
+    	{
+    		$ids[] = $row['id'];
+    	}
+    }
 }
 
 // invoke OnBeforeEmptyTrash event
-$modx->invokeEvent("OnBeforeEmptyTrash",
-						array(
-							"ids"=>$ids
-						));
+$modx->event->vars['ids'] = & $ids;
+$modx->invokeEvent('OnBeforeEmptyTrash',$modx->event->vars);
 
 // remove the document groups link.
 $tbl_document_groups = $modx->getFullTableName('document_groups');
+$tbl_site_content = $modx->getFullTableName('site_content');
 $sql = "DELETE {$tbl_document_groups}
 		FROM {$tbl_document_groups}
 		INNER JOIN {$tbl_site_content} ON {$tbl_site_content}.id = {$tbl_document_groups}.document
@@ -45,11 +48,8 @@ if(!$rs) {
 	exit;
 } else {
 	// invoke OnEmptyTrash event
-	$modx->invokeEvent("OnEmptyTrash",
-						array(
-							"ids"=>$ids
-						));
-
+	$modx->invokeEvent('OnEmptyTrash',$modx->event->vars);
+	$modx->event->vars = array();
 	// empty cache
 	$modx->clearCache(); // first empty the cache
 	// finished emptying cache - redirect

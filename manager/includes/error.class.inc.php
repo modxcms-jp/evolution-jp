@@ -54,7 +54,13 @@ class errorHandler{
 	
 	function dumpError() {
 		global $modx, $_lang;
-		if(!isset($_GET['count_attempts'])) $previous_request_uri = $_SESSION['previous_request_uri'] . '&count_attempts=1';
+		if(!isset($_GET['count_attempts']))
+		{
+			if(strpos($_SESSION['previous_request_uri'],'&count_attempts')===false)
+				$previous_request_uri = $_SESSION['previous_request_uri'] . '&count_attempts=1';
+			else
+				$previous_request_uri = $_SESSION['previous_request_uri'];
+		}
 		else                                $previous_request_uri = 'index.php?a=2';
 		
 		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl');

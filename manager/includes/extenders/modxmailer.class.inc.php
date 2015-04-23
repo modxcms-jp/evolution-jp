@@ -153,7 +153,7 @@ class MODxMailer extends PHPMailer
 			$debug_info .= 'Subject = ' . $this->Subject . "\n";
 			$log = "<pre>{$debug_info}\n{$header}\n{$org_body}</pre>";
 			$modx->logEvent(1, 1, $log, 'MODxMailer debug information');
-			return true;
+			//return true;
 		}
 		switch($mode)
 		{

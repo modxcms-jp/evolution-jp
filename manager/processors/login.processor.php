@@ -24,8 +24,8 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 $formv_password     = $modx->db->escape($_POST['password']);
 $formv_captcha_code = (isset($_POST['captcha_code'])) ? $_POST['captcha_code'] : '';
 $formv_rememberme   = (isset($_POST['rememberme']))   ? $_POST['rememberme']   : '';
-
-$formv_username = $modx->db->escape($_POST['username']);
+$formv_username = $_POST['username'] ? $_POST['username'] : $_GET['username'];
+$formv_username = $modx->db->escape($formv_username);
 if(strpos($formv_username,':safemode')!==false)
 {
 	$_SESSION['safeMode'] = 1;
@@ -132,7 +132,7 @@ if ($user_settings['allowed_ip'])
 if ($user_settings['allowed_days']) {
     $date = getdate();
     $day = $date['wday']+1;
-    if (strpos($user_settings['allowed_days'], $day)===false) {
+    if (strpos($user_settings['allowed_days'], (string)$day)===false) {
         jsAlert("You are not allowed to login at this time. Please try again later.");
         return;
     }

@@ -39,10 +39,8 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
 		}
 		
 		// Insert some JS
+		$output .= '<!--[if IE]><script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/tags/m3/excanvas.compiled.js"></script><![endif]-->'."\n";
 		$output .= includeJs($modx->config['base_url'] .'assets/plugins/managermanager/widgets/colors/farbtastic.js');
-		
-		// Insert some CSS
-		$output .= includeCss($modx->config['base_url'] .'assets/plugins/managermanager/widgets/colors/farbtastic.css');
 		
 		// Go through each of the fields supplied
 		foreach ($fields as $tv){
@@ -60,10 +58,10 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
 					// mark the document as dirty, or the value wont be saved
 					$j("#'.$tv_id.'").trigger("change");
 				});
+				documentDirty = false;
 				';
 		}
 		
 		$e->output($output . "\n");
 	}
 }
-?>

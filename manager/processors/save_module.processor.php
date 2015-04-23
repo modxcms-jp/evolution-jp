@@ -161,7 +161,6 @@ exit;
 function saveUserGroupAccessPermissons(){
 	global $modx;
 	global $id,$newid;
-	global $use_udperms;
 	
 	$tbl_site_module_access = $modx->getFullTableName('site_module_access');
 	
@@ -169,7 +168,7 @@ function saveUserGroupAccessPermissons(){
 	$usrgroups = $_POST['usrgroups'];
 
 	// check for permission update access
-	if($use_udperms==1)
+	if($modx->config['use_udperms']==1)
 	{
 		// delete old permissions on the module
 		

@@ -44,12 +44,12 @@
               &level=1
               &startId=index.html // index.html index INDEX など先頭がiで指定
             ]]
-	    [*content*]
+	    [*content:addbreak*]
 	</article>
 	</div>
 	<div class="footer">
 	<footer>
-	    (c)2014 [(site_name)]<br />
+	    (c)2015 [(site_name)]<br />
 	    Mem: [^m^], SQL: [^qt^], [^q^] request(s), PHP: [^p^], total: [^t^], include [^f^]files, page retrieved from [^s^].
 	</footer>
 	</div>

@@ -43,17 +43,19 @@ if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
 	}
 }
 
+$style_path = MODX_MANAGER_PATH . 'media/style/';
+$theme_path = "{$style_path}{$manager_theme}/";
+$touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
 if(!isset($_SESSION['mgrValidated']))
 {
 	if(isset($_GET['frame']) && !empty($_GET['frame']))
 	{
 		$_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
 	}
-	
-	if(isset($manager_language)) include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");// include localized overrides
-	else                         include_once(MODX_CORE_PATH . 'lang/english.inc.php');
+	// include localized overrides
+	if(!isset($manager_language)) $manager_language = 'english';
+	include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 
-	$theme_path = MODX_MANAGER_PATH . "media/style/{$manager_theme}/style.php";
 	if(is_file($theme_path)) include_once($theme_path);
 	
 	$modx->setPlaceholder('modx_charset',$modx_manager_charset);
@@ -62,8 +64,20 @@ if(!isset($_SESSION['mgrValidated']))
 	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . "media/style/{$manager_theme}/");
 
 	global $tpl;
+	
+    if(is_file($touch_path))
+    {
+        $modx->safeMode = 1;
+        $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
+    	$tpl = file_get_contents("{$style_path}common/login.tpl");
+    }
+    else touch($touch_path);
+    
 	// invoke OnManagerLoginFormPrerender event
+    $modx->event->vars = array();
+    $modx->event->vars['tpl'] = & $tpl;
 	$evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
+    $modx->event->vars = array();
 	$html = is_array($evtOut) ? implode('',$evtOut) : '';
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
@@ -106,7 +120,7 @@ if(!isset($_SESSION['mgrValidated']))
 	
 	// load template
     if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
-    	$modx->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl'; 
+    	$modx->config['manager_login_tpl'] = "{$style_path}common/login.tpl"; 
     }
     
     $target = $modx->config['manager_login_tpl'];
@@ -129,16 +143,16 @@ if(!isset($_SESSION['mgrValidated']))
     		$target = MODX_BASE_PATH . $target;
     		$login_tpl = file_get_contents($target);
     	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl')) {
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/login.tpl';
+    	elseif(is_file("{$theme_path}login.tpl")) {
+    		$target = "{$theme_path}login.tpl";
     		$login_tpl = file_get_contents($target);
     	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html')) { // ClipperCMS compatible
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/login.html';
+    	elseif(is_file("{$theme_path}html/login.html")) { // ClipperCMS compatible
+    		$target = "{$theme_path}html/login.html";
     		$login_tpl = file_get_contents($target);
     	}
     	else {
-    		$target = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
+    		$target = "{$style_path}common/login.tpl";
     		$login_tpl = file_get_contents($target);
     	}
     }
@@ -151,6 +165,10 @@ if(!isset($_SESSION['mgrValidated']))
 
     // merge placeholders
     $modx->output = $modx->parseDocumentSource($modx->output);
+    
+    if(is_file($touch_path) && !empty($modx->output))
+        unlink($touch_path);
+    
     $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
     $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
@@ -175,7 +193,6 @@ else
 	$fields['action']      = $action;
 	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 	$fields['ip']          = $ip;
-	
 	if($action !== 1)
 	{
 		foreach($fields as $k=>$v)
@@ -193,6 +210,7 @@ else
 			echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
 			exit;
 		}
-		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($fields['internalKey']);
+		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($modx->getLoginUserID());
 	}
+    if(is_file($touch_path)) unlink($touch_path);
 }

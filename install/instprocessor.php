@@ -63,6 +63,16 @@ $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
 $sqlParser->ignoreDuplicateErrors = true;
 
+$rs = $modx->db->table_exists('[+prefix+]site_revision');
+if($rs)
+{
+	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
+    if(!$rs) {
+    	$sql = 'DROP TABLE ' . $sqlParser->prefix . 'site_revision';
+    	$modx->db->query($sql);
+    }
+}
+
 // install/update database
 echo "<p>{$lang_setup_database_creating_tables}";
 $sqlParser->process('both_createtables.sql');
@@ -277,14 +287,14 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 			$installSample = true;
 		else $installSample = false;
 		
-		if(!in_array($i, $formvModules) && !$installSample) continue;
+		if(!in_array($i, $formvChunks) && !$installSample) continue;
 		
 		$overwrite = $tplInfo['overwrite'];
 		
 		$name = $modx->db->escape($tplInfo['name']);
 		$dbv_chunk = $modx->db->getObject('site_htmlsnippets', "name='{$name}'");
-		if($dbv_chunk && $overwrite=='true') $update = true;
-		else                                 $update = false;
+		if($dbv_chunk) $update = true;
+		else           $update = false;
 		
 		$tpl_file_path = $tplInfo['tpl_file_path'];
 		
@@ -303,16 +313,6 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 		
 		if ($update)
 		{
-			if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
-			{
-				$errors += 1;
-				showError();
-				return;
-			}
-			echo ok($name,$lang_upgraded);
-		}
-		else
-		{
 			if($overwrite == 'false')
 			{
 				$rs =true;
@@ -327,6 +327,16 @@ if ($formvChunks!==false && !empty($formvChunks) || $installdata)
 					$i++;
 				}
 			}
+			if (!@ $modx->db->update($f, '[+prefix+]site_htmlsnippets', "name='{$name}'"))
+			{
+				$errors += 1;
+				showError();
+				return;
+			}
+			echo ok($name,$lang_upgraded);
+		}
+		else
+		{
 			$f['name'] = $name;
 			if (!@ $modx->db->insert($f, '[+prefix+]site_htmlsnippets'))
 			{
@@ -596,7 +606,7 @@ foreach($files as $file)
 
 // try to chmod the cache go-rwx (for suexeced php)
 @chmod("{$cache_path}siteCache.idx.php", 0600);
-@chmod("{$cache_path}basicConfig.idx.php", 0600);
+@chmod("{$cache_path}basicConfig.php", 0600);
 
 $modx->clearCache(); // always empty cache after install
 

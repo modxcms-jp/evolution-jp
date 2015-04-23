@@ -251,19 +251,6 @@ class DocAPI {
 		return $result;
 	}
 	
-	function fix_tv_nest($target,$form_v)
-	{
-		foreach(explode(',',$target) as $name)
-		{
-			$tv = ($name === 'ta') ? 'content' : $name;
-			$s = "[*{$tv}*]";
-			$r = "[ *{$tv}* ]";
-			if(strpos($form_v[$name],$s)===false) continue;
-			$form_v[$name] = str_replace($s,$r,$form_v[$name]);
-		}
-		return $form_v;
-	}
-	
 	function initValue($form_v)
 	{
 		global $modx;
@@ -435,4 +422,100 @@ class DocAPI {
 		}
 		return $newid;
 	}
+	
+    function convertPubStatus($f) // published, pub_date, unpub_date
+    {
+    	global $modx;
+    
+    	$currentdate = time();
+    	
+        if(isset($f['pub_date']) && !empty($f['pub_date']))
+        {
+        	$f['pub_date'] = $modx->toTimeStamp($f['pub_date']);
+        	
+        	if($f['pub_date'] < $currentdate) $f['published'] = 1;
+        	else                              $f['published'] = 0;
+        }
+        else $f['pub_date'] = 0;
+        
+        if(isset($f['unpub_date']) && !empty($f['unpub_date']))
+        {
+        	$f['unpub_date'] = $modx->toTimeStamp($f['unpub_date']);
+        	
+        	if($f['unpub_date'] < $currentdate) $f['published'] = 0;
+        	else                                $f['published'] = 1;
+        }
+        else $f['unpub_date'] = 0;
+        
+        return $f;
+    }
+    
+	function fix_tv_nest($target,$form_v)
+	{
+		foreach(explode(',',$target) as $name)
+		{
+			$tv = ($name === 'ta') ? 'content' : $name;
+			$s = "[*{$tv}*]";
+			$r = "[ *{$tv}* ]";
+			if(strpos($form_v[$name],$s)===false) continue;
+			$form_v[$name] = str_replace($s,$r,$form_v[$name]);
+		}
+        if(isset($form_v['ta']))
+        {
+        	$form_v['content'] = $form_v['ta'];
+        	unset($form_v['ta']);
+        }
+		return $form_v;
+	}
+	
+    function canSaveDoc()
+    {
+    	global $modx;
+    	
+    	return $modx->hasPermission('save_document');
+    }
+    
+    function canPublishDoc()
+    {
+    	global $modx;
+    	if($modx->hasPermission('new_document')) return 1;
+    	elseif(!$modx->documentObject['published']) return 1;
+    	else return 0;
+    }
+    
+    function canSaveDraft()
+    {
+    	global $modx;
+    	return 1;
+    }
+    
+    function canMoveDoc()
+    {
+    	global $modx;
+    	return $modx->hasPermission('save_document');
+    }
+    
+    function canCopyDoc()
+    {
+    	global $modx;
+    	return ($modx->hasPermission('new_document')&&$modx->hasPermission('save_document'));
+    }
+    
+    function canDeleteDoc()
+    {
+    	global $modx;
+    	return ($modx->hasPermission('save_document')&&$modx->hasPermission('delete_document'));
+    }
+    
+    function canCreateDoc()
+    {
+    	global $modx;
+    	return $modx->hasPermission('new_document');
+    }
+    
+    function canEditDoc()
+    {
+    	global $modx;
+    	return $modx->hasPermission('edit_document');
+    }
 }

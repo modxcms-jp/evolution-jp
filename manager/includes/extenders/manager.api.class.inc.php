@@ -54,8 +54,10 @@ class ManagerAPI {
 	// saved form post from $_POST
 	function saveFormValues($id=0)
 	{
+		if(!$_POST) return false;
 		$_SESSION['mgrFormValues']  = $_POST;
 		$_SESSION['mgrFormValueId'] = ($id > 0) ? $id : $this->action;
+		return true;
 	}
 	// load saved form values into $_POST
 	function loadFormValues()
@@ -232,9 +234,8 @@ class ManagerAPI {
             	case '3' :
             	case '120' :
             	case '4' :
-            	case '27' :
-            	case '85' :
             	case '72' :
+            	case '27' :
             	case '8' :
             	case '87' :
             	case '88' :
@@ -482,7 +483,7 @@ class ManagerAPI {
 	
 	function setView($action)
 	{
-		$actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,85,86,87,88,9,91,93,95,99,998,999');
+		$actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
 		if(in_array($action,$actions))
 		{
 			if(isset($_SESSION['current_request_uri'])) $_SESSION['previous_request_uri'] = $_SESSION['current_request_uri'];
@@ -617,8 +618,9 @@ class ManagerAPI {
 	}
 	
 	// get user's document groups
-	function getMgrDocgroups($uid) {
+	function getMgrDocgroups($uid=0) {
 		global $modx;
+		if(empty($uid)) $uid=$modx->getLoginUserID();
 		$field ='uga.documentgroup as documentgroup';
 		$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
 		$rs = $modx->db->select($field,$from,"ug.member='{$uid}'");
@@ -631,6 +633,25 @@ class ManagerAPI {
 		return $documentgroup;
 	}
 	
+	function getMemberGroups($uid=0) {
+		global $modx;
+		if(empty($uid)) $uid = $modx->getLoginUserID();
+		$field ='user_group,name';
+		if(preg_match('@^[1-9][0-9]*$@',$uid))
+		{
+			$where = "ug.member='{$uid}'";
+		}
+		else $where = '';
+		$from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id';
+		$rs = $modx->db->select($field,$from,$where);
+		$group = array();
+		if(0<$modx->db->getRecordCount($rs)) {
+			while ($row = $modx->db->getRow($rs)) {
+				$group[$row['user_group']]=$row['name'];
+			}
+		}
+		return $group;
+	}
 	/**
 	 *	Secure Manager Documents
 	 *	This script will mark manager documents as private
@@ -821,5 +842,28 @@ class ManagerAPI {
 			$modx->user_allowed_docs = array_merge($modx->user_allowed_docs,$allowed_docs);
 		}
 		return $modx->user_allowed_docs;
+	}
+	
+	function getUploadMaxsize()
+	{
+		$upload_max_filesize = ini_get('upload_max_filesize');
+		$post_max_size       = ini_get('post_max_size');
+		$memory_limit        = ini_get('memory_limit');
+        if(version_compare($upload_max_filesize, $post_max_size,'<'))
+        	$limit_size = $upload_max_filesize;
+        else $limit_size = $post_max_size;
+        
+        if(version_compare($memory_limit, $limit_size,'<'))
+        	$limit_size = $memory_limit;
+    	return $limit_size;
+	}
+	
+	function getTplModule()
+	{
+        ob_start();
+        include_once(MODX_CORE_PATH . 'header.inc.php');
+        echo '[+content+]';
+        include_once(MODX_CORE_PATH . 'footer.inc.php');
+        return ob_get_clean();
 	}
 }

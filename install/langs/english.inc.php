@@ -35,7 +35,7 @@ $_lang["cant_write_config_file_note"] = 'Once that\'s been done, you can log int
 $_lang["checkbox_select_options"] = 'Checkbox select options:';
 $_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories exist: ';
 $_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/assets/cache/siteCache.idx.php</span> file is writable: ';
-$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/basicConfig.idx.php</span> file is writable: ';
+$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/basicConfig.php</span> file is writable: ';
 $_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories are writable: ';
 $_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/manager/includes/config.inc.php</span> exists and is writable: ';
 $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/export</span> directory exists: ';
@@ -110,7 +110,7 @@ $_lang["installing_demo_site"] = 'Installing demo site: ';
 $_lang["language_code"] = 'en';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';
-$_lang["modx_footer1"] = '&copy; 2005-2014 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005-2015 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; Install';
 $_lang["modx_requires_php"] = ', and MODX requires PHP 4.4.0 or later';

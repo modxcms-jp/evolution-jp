@@ -86,7 +86,7 @@ class DocManagerBackend {
     		foreach ($items as $key => $value) {
     			$key++;
     			$id = ltrim($value, 'item_');
-    			if (is_numeric($id)) {
+    			if (is_numeric($id) && is_numeric($key) ) {
 	    			$sql = 'UPDATE '.$this->modx->getFullTableName('site_content') ." set menuindex={$key} WHERE id={$id}";
 					$this->modx->db->query($sql);
     			}
@@ -282,7 +282,7 @@ class DocManagerBackend {
 		$doc_id = $doc_vals[0];
 		$error = $doc_vals[1];
 		
-		if (!empty($docgroup)) {
+		if (!empty($docgroup) && is_numeric($docgroup) ) {
 			switch ($action) {
 				case 'pushDocGroup' :
 					if (count($doc_id) > 0) {

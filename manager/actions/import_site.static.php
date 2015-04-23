@@ -16,9 +16,9 @@ $allowedfiles = array('html','htm','shtml','xml');
         document.importFrm.parent.value=pId;
         document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
         if(pId!=0)
-        document.getElementById('reset').disabled=true;
+            document.getElementById('reset').disabled=true;
         else
-        document.getElementById('reset').disabled=false;
+            document.getElementById('reset').disabled=false;
     }
 </script>
 
@@ -58,33 +58,32 @@ if(!isset($_POST['import'])) {
     </td>
   </tr>
   <tr>
-	<td nowrap="nowrap" valign="top"><b><?php echo $_lang["import_site.static.php1"]; ?></b></td>
+	<td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site.static.php1']; ?></b></td>
     <td>&nbsp;</td>
     <td><input type="checkbox" id="reset" name="reset" value="on" />
         <br />
-		<?php echo $_lang["import_site.static.php2"]; ?>
+		<?php echo $_lang['import_site.static.php2']; ?>
     </td>
   </tr>
   <tr>
-    <td nowrap="nowrap" valign="top"><b><?php echo $_lang["import_site.static.php3"]; ?></b></td>
+    <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site.static.php3']; ?></b></td>
     <td>&nbsp;</td>
     <td>
-    <label><input type="radio" name="object" value="body" checked="checked" /> <?php echo $_lang["import_site.static.php4"]; ?></label>
-    <label><input type="radio" name="object" value="all" /> <?php echo $_lang["import_site.static.php5"]; ?></label>
+    <label><input type="radio" name="object" value="body" checked="checked" /> <?php echo $_lang['import_site.static.php4']; ?></label>
+    <label><input type="radio" name="object" value="all" /> <?php echo $_lang['import_site.static.php5']; ?></label>
         <br />
     </td>
   </tr>
   <tr>
-	<td nowrap="nowrap" valign="top"><b><?php echo $_lang["a95_convert_link"]; ?></b></td>
+	<td nowrap="nowrap" valign="top"><b><?php echo $_lang['a95_convert_link']; ?></b></td>
     <td>&nbsp;</td>
-    <td><input type="checkbox" id="convert_link" name="convert_link" value="on" />
-        <br />
-		<?php echo $_lang["a95_convert_link_msg"]; ?>
+    <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on" />
+		<?php echo $_lang['a95_convert_link_msg']; ?></label>
     </td>
   </tr>
 </table>
 <ul class="actionButtons">
-    <li><a href="#" class="default" onclick="document.importFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["import_site_start"]; ?></a></li>
+    <li><a href="#" class="default" onclick="document.importFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['import_site_start']; ?></a></li>
 </ul>
 </form>
 </fieldset>
@@ -97,7 +96,7 @@ else
 	$modx->clearCache();
 ?>
 <ul class="actionButtons">
-    <li><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang["close"]; ?></a></li>
+    <li><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_close"] ?>" /> <?php echo $_lang['close']; ?></a></li>
 </ul>
 <script type="text/javascript">
 top.mainMenu.reloadtree();
@@ -140,7 +139,7 @@ function run()
 	$files = pop_index($files);
 	
 	// no. of files to import
-	$output .= sprintf('<p>' . $_lang['import_files_found'] . '</p>', $filesfound);
+	$output .= sprintf('<p>%s %s</p>', $_lang['import_files_found'], $filesfound);
 	
 	// import files
 	if(0 < count($files))
@@ -152,7 +151,7 @@ function run()
 	$mtime = microtime(); $mtime = explode(' ', $mtime); $mtime = $mtime[1] + $mtime[0];
 	$importend = $mtime;
 	$totaltime = ($importend - $importstart);
-	$output .= sprintf ('<p>'.$_lang['import_site_time'].'</p>', round($totaltime, 3));
+	$output .= sprintf('<p>%s %s</p>', $_lang['import_site_time'], round($totaltime, 3));
 	
 	if($_POST['convert_link']=='on') convertLink();
 	
@@ -177,13 +176,13 @@ function importFiles($parent,$filedir,$files,$mode) {
 		$richtext         = '1';
 	}
 	
-	foreach($files as $id => $value)
+	foreach($files as $alias => $value)
 	{
 		if(is_array($value))
 		{
 			// create folder
-			$alias = $id;
-			printf('<span>'.$_lang['import_site_importing_document'].'</span>', $alias);
+			if(substr($alias,0,2)==='d#') $alias = substr($alias,2);
+			echo "<span>{$alias}/</span>";
 			$field = array();
 			$field['type'] = 'document';
 			$field['contentType'] = 'text/html';
@@ -217,13 +216,13 @@ function importFiles($parent,$filedir,$files,$mode) {
 					if($newid)
 					{
 						$find = true;
-						echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+						echo sprintf(' - <span class="success">%s</span><br />',$_lang['import_site_success']) . "\n";
 						importFiles($newid, $filedir . $alias . '/',$value,'sub');
 					}
 					else
 					{
-						echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
-						.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
+						$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_db_error'], $modx->db->getLastError());
+						echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
 						exit;
 					}
 				}
@@ -231,7 +230,7 @@ function importFiles($parent,$filedir,$files,$mode) {
 			if($find===false)
 			{
 				$date = $_SERVER['REQUEST_TIME'];
-				$field['pagetitle'] = '---';
+				$field['pagetitle'] = $field['alias'];
 				$field['content'] = '';
 				$field['createdon'] = $date;
 				$field['editedon'] = $date;
@@ -240,13 +239,13 @@ function importFiles($parent,$filedir,$files,$mode) {
 				if($newid)
 				{
 					$find = true;
-					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+					echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
 					importFiles($newid, $filedir . $alias . '/',$value,'sub');
 				}
 				else
 				{
-					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
-					.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
+					$vs = array($_lang['import_site_failed'],$_lang['import_site_failed_db_error'],$modx->db->getLastError());
+					echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
 					exit;
 				}
 			}
@@ -259,9 +258,9 @@ function importFiles($parent,$filedir,$files,$mode) {
 			$fparts = explode('.',$value);
 			$alias = $fparts[0];
 			$ext = (count($fparts)>1)? $fparts[count($fparts)-1]:"";
-			printf("<span>".$_lang['import_site_importing_document']."</span>", $filename);
+			echo "<span>{$filename}</span>";
 			
-			if(!in_array($ext,$allowedfiles)) echo ' - <span class="fail">'.$_lang["import_site_skip"].'</span><br />' . "\n";
+			if(!in_array($ext,$allowedfiles)) echo sprintf(' - <span class="fail">%s</span><br />', $_lang['import_site_skip']) . "\n";
 			else
 			{
 				$filepath = $filedir . $filename;
@@ -270,33 +269,33 @@ function importFiles($parent,$filedir,$files,$mode) {
 				
 				$date = filemtime($filepath);
 				$field = array();
-				$field['type'] = 'document';
+				$field['type']        = 'document';
 				$field['contentType'] = 'text/html';
-				$field['pagetitle'] = $pagetitle;
-				$field['longtitle'] = $pagetitle;
+				$field['pagetitle']   = $pagetitle;
+				$field['longtitle']   = $pagetitle;
 				$field['description'] = $description;
-				$field['alias'] = $modx->stripAlias($alias);
-				$field['published'] = $publish_default;
-				$field['parent'] = $parent;
-				$field['content'] = $modx->db->escape($content);
-				$field['richtext'] = $richtext;
-				$field['template'] = $modx->config['default_template'];
-				$field['searchable'] = $search_default;
-				$field['cacheable'] = $cache_default;
-				$field['createdby'] = $createdby;
-				$field['createdon'] = $date;
-				$field['editedon'] = $date;
-				$field['isfolder'] = 0;
-				$field['menuindex'] = ($alias=='index') ? 0 : 2;
+				$field['alias']       = $modx->stripAlias($alias);
+				$field['published']   = $publish_default;
+				$field['parent']      = $parent;
+				$field['content']     = $modx->db->escape($content);
+				$field['richtext']    = $richtext;
+				$field['template']    = $modx->config['default_template'];
+				$field['searchable']  = $search_default;
+				$field['cacheable']   = $cache_default;
+				$field['createdby']   = $createdby;
+				$field['createdon']   = $date;
+				$field['editedon']    = $date;
+				$field['isfolder']    = 0;
+				$field['menuindex']   = ($alias=='index') ? 0 : 2;
 				$newid = $modx->db->insert($field,'[+prefix+]site_content');
 				if($newid)
 				{
-					echo ' - <span class="success">'.$_lang['import_site_success'] . '</span><br />' . "\n";
+					echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
 				}
 				else
 				{
-					echo '<span class="fail">'.$_lang["import_site_failed"]."</span> "
-					.$_lang["import_site_failed_db_error"].$modx->db->getLastError();
+					$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_db_error'], $modx->db->getLastError());
+					echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
 					exit;
 				}
 				
@@ -316,30 +315,29 @@ function getFiles($directory,$listing = array(), $count = 0)
 {
 	global $_lang;
 	global $filesfound;
-	$dummy = $count;
+	$c = $count;
 	if ($files = scandir($directory))
 	{
 		foreach($files as $file)
 		{
-			if ($file=='.' || $file=='..') continue;
-			elseif ($h = @opendir($directory.$file."/"))
+			if ($file==='.' || $file==='..') continue;
+			elseif (is_dir("{$directory}{$file}/"))
 			{
-				closedir($h);
 				$count = -1;
-				$listing[$file] = getFiles($directory.$file."/",array(), $count + 1);
+				$listing["d#{$file}"] = getFiles("{$directory}{$file}/",array(), $count + 1);
 			}
 			elseif(strpos($file,'.htm')!==false)
 			{
-				$listing[$dummy] = $file;
-				$dummy = $dummy + 1;
+				$listing[$c] = $file;
+				$c++;
 				$filesfound++;
 			}
 		}
 	}
 	else
 	{
-		echo '<p><span class="fail">'.$_lang["import_site_failed"]."</span> "
-		.$_lang["import_site_failed_no_open_dir"].$directory.".</p>";
+		$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_open_dir'], $directory);
+		echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
 	}
 	return ($listing);
 }
@@ -350,8 +348,8 @@ function getFileContent($filepath)
 	// get the file
 	if(!$buffer=file_get_contents($filepath))
 	{
-		echo '<p><span class="fail">' . $_lang['import_site_failed']."</span> "
-		.$_lang["import_site_failed_no_retrieve_file"].$filepath.".</p>";
+		$vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], $filepath);
+		echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
 	}
 	else return $buffer;
 }
@@ -392,7 +390,7 @@ function treatContent($src,$filename,$alias)
 		$pagetitle = str_replace('[*pagetitle*]','',$pagetitle);
 	}
 	else $pagetitle = $alias;
-	if(!$pagetitle) $pagetitle = $alias;
+	if(!$pagetitle||strpos($pagetitle,'index.htm')!==false) $pagetitle = $alias;
 	
 	if (preg_match('@<meta[^>]+"description"[^>]+content=[\'"](.*)[\'"].+>@i',$src,$matches))
 	{
@@ -423,51 +421,61 @@ function convertLink()
 {
 	global $modx;
 	
-	$rs = $modx->db->select('id,content','[+prefix+]site_content');
+	$rs = $modx->db->select('*','[+prefix+]site_content');
+	$site_url = $modx->config['site_url'];
+	$lenBaseUrl = strlen($modx->config['base_url']);
+	$lenSiteUrl = strlen($site_url);
+	$alias = array();
 	while($row=$modx->db->getRow($rs))
 	{
 		$id = $row['id'];
-		$array = explode('<a href=',$row['content']);
-		$c = 0;
-		foreach($array as $v)
+		$_ = explode('<a href="',$row['content']);
+		$i=0;
+		$s = array();
+		$r = array();
+		foreach($_ as $v)
 		{
-			if($v[0]==='"')
+			if(strpos($v,'"')!==false) $v = substr($v,0,strpos($v,'"'));
+			else continue;
+			
+			$bv = $v;
+			switch($v)
 			{
-				$v=substr($v,1);
-				list($href,$v) = explode('"',$v,2);
-				$_ = $href;
-				if(strpos($_,$modx->config['site_url'])!==false)
-				{
-					$_ = $modx->config['base_url'] . str_replace($modx->config['site_url'],'',$_);
-				}
-				if($_[0]==='/') $_ = substr($_,1);
-				$_ = str_replace('/index.html','.html',$_);
-				$level = substr_count($_,'../');
-				if(1<$level)
-				{
-					if(!isset($p[$id])) $p[$id] = $modx->getParentIds($id);
-					$k = array_keys($p[$id]);
-					while(0<$level)
+				case '/':
+				case $site_url:
+				case "{$site_url}index.html":
+				case "{$site_url}index.htm":
+					$v = '[(site_url)]';
+					break;
+				default:
+					if(substr($v,-11)==='/index.html')    $v = substr($v,0,-11);
+					elseif(substr($v,-10)==='/index.htm') $v = substr($v,0,-10);
+					elseif(substr($v,-5)==='.html')       $v = substr($v,0,-5);
+					elseif(substr($v,-4)==='.htm')        $v = substr($v,0,-4);
+					
+					if(substr($v,0,$lenBaseUrl)===$modx->config['base_url'])
+						$v = substr($v,$lenBaseUrl);
+					elseif(substr($v,0,$lenSiteUrl)===$site_url)
+						$v = substr($v,$lenSiteUrl);
+					
+					$v = trim($v,'/');
+					if(isset($alias[$v])) $docid = $alias[$v];
+					else                  $docid = $alias[$v] = $modx->getIdFromAlias($v);
+					
+					if($docid)
 					{
-						$dir = array_shift($k);
-						$level--;
+						if($docid==$modx->config['site_start'])
+							$v = '[(site_url)]';
+						else
+							$v = "[~{$docid}~]";
 					}
-					if($dir!='') $dir .= '/';
-				}
-				else $dir = '';
-				
-				$_ = trim($_,'./');
-				if(strpos($_,'/')!==false) $_ = substr($_,strrpos($_,'/'));
-				$_ = $dir . str_replace('.html','',$_);
-				if(!isset($target[$_])) $target[$_] = $modx->getIdFromAlias($_);
-				$target[$_] = trim($target[$_]);
-				if(!empty($target[$_])) $href = '[~' . $target[$_] . '~]';
-				$array[$c] = '<a href="' . $href . '"' . $v;
 			}
-			$c++;
+			$s[$i] = sprintf('<a href="%s"',$bv);
+			$r[$i] = sprintf('<a href="%s"',$v);
+			$i++;
 		}
-		$content = join('',$array);
-		$f['content'] = $modx->db->escape($content);
+		$f['content'] = str_replace($s,$r,$row['content']);
+		$f['content'] = $modx->db->escape($f['content']);
 		$modx->db->update($f,'[+prefix+]site_content',"id='{$id}'");
 	}
 }

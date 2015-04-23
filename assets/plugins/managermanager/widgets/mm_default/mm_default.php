@@ -137,7 +137,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 					$output .= '
 					$j("input[name=richtextcheck]").removeAttr("checked");
 					// Make the RTE displayed match the default value that has been set here
-					if (originalRichtextValue != "none") {
+					if (originalRichtextValue&&originalRichtextValue != "none") {
 						$j("#which_editor").val("none");
 						changeRTE();
 					}				

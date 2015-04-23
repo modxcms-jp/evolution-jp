@@ -515,7 +515,7 @@ if (!$ds) {
 </div>
 <?php } ?>
 <?php
-if ($use_udperms == 1)
+if ($modx->config['use_udperms'] == 1)
 {
 ?>
 <!-- Access permissions -->

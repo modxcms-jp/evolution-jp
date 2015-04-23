@@ -252,6 +252,7 @@ EOT;
 		$logentries = array();
 		$i = 0;
 		while ($row = $modx->db->getRow($rs)):
+			$row['itemname'] = htmlspecialchars($row['itemname'],ENT_QUOTES,$modx->config['modx_charset']);
 			if(!preg_match('/^[0-9]+$/', $row['itemid']))
 				$row['title'] = '<div style="text-align:center;">-</div>';
 			elseif($row['action']==3||$row['action']==27||$row['action']==5)

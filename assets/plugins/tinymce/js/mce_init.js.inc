@@ -73,9 +73,12 @@ tinyMCE.init({
 			}
 		});
 	},
-	onchange_callback                : function(){if(!gotosave) documentDirty=true;}[+terminate+]
+	onchange_callback                : [+onchange_callback+][+terminate+]
 	[+customparams+]
 });
+function myCustomOnChangeHandler() {
+if(!gotosave) documentDirty = true;
+}
 </script>
 
 <style type="text/css">

@@ -105,6 +105,14 @@ class SubParser {
 		}
 	}
 	
+	function addLog($title='no title',$msg='',$type=1)
+	{
+		if($title==='') $title = 'no title';
+		if(is_array($msg)) $msg = '<pre>'.print_r($msg,true).'</pre>';
+		if($msg==='')   $msg   = $_SERVER['REQUEST_URI'];
+		$this->logEvent(0, $type, $msg, $title);
+	}
+	
 	function logEvent($evtid, $type, $msg, $title= 'Parser')
 	{
 		global $modx;
@@ -115,7 +123,7 @@ class SubParser {
 		if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
 		if (3 < $type) $type= 3;
 		$msg= $modx->db->escape($msg);
-		$title = htmlspecialchars($title);
+		$title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
 		$title= $modx->db->escape($title);
 		if (function_exists('mb_substr'))
 		{
@@ -188,12 +196,14 @@ class SubParser {
     		}
     		else
     			$filename = "docid_{$docid}";
-    		$page_cache_path = "{$base_path}assets/cache/{$filename}.pageCache.php";
-    		if(is_file($page_cache_path))
-    		{
-    			unlink($page_cache_path);
-    			$modx->config['cache_type'] = '0';
-    		}
+    		
+			$_ = array('pages','pc','smartphone','tablet','mobile');
+			foreach($_ as $uaType)
+			{
+        		if(is_file(MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php"))
+        			unlink($page_cache_path);
+			}
+			$modx->config['cache_type'] = '0';
     		return;
     	}
     	elseif(is_string($params) && $params==='full')
@@ -225,9 +235,9 @@ class SubParser {
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
 		$release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
         $request_uri = $modx->decoded_request_uri;
-        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
-        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
-        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES, $modx->config['modx_charset']);
+        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $modx->config['modx_charset']);
+        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES, $modx->config['modx_charset']);
         if ($is_error) {
 	        $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
@@ -262,13 +272,14 @@ class SubParser {
             E_USER_DEPRECATED   => "USER DEPRECATED"
         );
 
-        $tpl = '<tr><td valign="top">[+left+]</td><tr><td>[+right+]</td></tr>';
+        $tpl = '<tr><td valign="top">[+left+]</td><td>[+right+]</td></tr>';
 		if(!empty($nr) || !empty($file))
 		{
 			$str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
 			if ($text != '') $str .= $modx->parseText($codetpl,array('code'=>"Error : {$text}"));
 			if($output!='')  $str .= $modx->parseText($codetpl,array('code'=>$output));
-			$str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>"[{$nr}]"));
+			if(!isset($errortype[$nr])) $errortype[$nr] = '';
+			$str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>$errortype[$nr]."[{$nr}]"));
 			$str .= $modx->parseText($tpl,array('left'=>'File : ','right'=>$file));
 			$str .= $modx->parseText($tpl,array('left'=>'Line : ','right'=>$line));
 		}
@@ -323,7 +334,7 @@ class SubParser {
         $str = $modx->mergeBenchmarkContent($str);
 
         if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
-		$str .= '<br />' . $modx->get_backtrace(debug_backtrace()) . "\n";
+		$str .= '<br />' . $modx->get_backtrace() . "\n";
 		
 
         // Log error
@@ -368,12 +379,64 @@ class SubParser {
 
         exit;
     }
-
-	function get_backtrace($backtrace)
+    
+    function recDebugInfo()
+    {
+    	global $modx;
+    	
+    	$incs = get_included_files();
+    	$backtrace = array_reverse(debug_backtrace());
+    	$i=0;
+    	foreach($incs as $v)
+    	{
+    		$incs[$i] = str_replace('\\','/',$v);
+    		$i++;
+    	}
+    	$i=0;
+    	foreach($backtrace as $v)
+    	{
+    		if(isset($v['object'])) unset($backtrace[$i]['object']);
+    		if(isset($v['file'])) $backtrace[$i]['file'] = str_replace('\\','/',$v['file']);
+    		if(isset($v['args'])&&empty($v['args'])) unset($backtrace[$i]['args']);
+			if($v['class']==='DocumentParser'&&$v['type']==='->')
+    		{
+    			unset($backtrace[$i]['file']);
+    			unset($backtrace[$i]['class']);
+    			unset($backtrace[$i]['type']);
+    			$backtrace[$i]['function'] = '$modx->'.$v['function'] . '()';
+			}
+			elseif(isset($v['class']))
+			{
+    			if(strpos($v['file'],'document.parser.class.inc.php')!==false)
+    				unset($backtrace[$i]['file']);
+    			unset($backtrace[$i]['class']);
+    			unset($backtrace[$i]['type']);
+    			$backtrace[$i]['function'] = $v['class'] . $v['type'] .$v['function'] . '()';
+			}
+    		
+    		$i++;
+    	}
+    	
+		$tend = $modx->getMicroTime();
+		$totaltime = $tend - $modx->tstart;
+		$totaltimemsg = sprintf('Total time %2.4f s',$totaltime);
+		$info['request_uri']    = $modx->decoded_request_uri;
+		if(isset($modx->documentIdentifier))
+			$info['docid']      = $modx->documentIdentifier;
+		$info['Total time']     = $totaltimemsg;
+		$info['included_files'] = print_r($incs,true);
+		$info['backtrace']      = print_r($backtrace,true);
+		$info['functions']      = print_r($modx->functionLog,true);
+    	$msg = '<pre>' . print_r($info,true) .'</pre>';
+    	$this->addLog('Debug log',$msg,1);
+    }
+    
+	function get_backtrace()
 	{
+		global $modx;
 		$str = "<p><b>Backtrace</b></p>\n";
 		$str  .= '<table>';
-		$backtrace = array_reverse($backtrace);
+		$backtrace = array_reverse(debug_backtrace());
 		foreach ($backtrace as $key => $val)
 		{
 			$key++;
@@ -385,11 +448,14 @@ class SubParser {
 			{
     			case '->':
     			case '::':
+    				if($val['class']==='DocumentParser'&&$val['type']==='->')
+    					$val['class'] = '$modx';
     				$functionName = $val['function'] = $val['class'] . $val['type'] . $val['function'];
     				break;
     			default:
     				$functionName = $val['function'];
-				}
+			}
+			if($functionName==='evalSnippet'&&!empty($modx->currentSnippet)) $functionName .= sprintf('(%s)',$modx->currentSnippet);
 			$str .= "<tr><td valign=\"top\">{$key}</td>";
         	$str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
 		}
@@ -400,6 +466,10 @@ class SubParser {
     function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
     	global $modx;
+    	if($this->debug)
+    	{
+            register_shutdown_function(array (& $modx,'recDebugInfo'));
+    	}
     	
     	if (empty($url)) return false;
     	elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
@@ -819,15 +889,24 @@ class SubParser {
 	    global $modx;
 	    $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
 	    $input = trim($input);
-	    if (substr($input, 0, 1) !== '@')
-	        return $input;
-	    elseif($modx->config['enable_bindings']!=1 && $src==='docform')
+	    
+	    if(substr($input,0,1)==='@' && $modx->config['enable_bindings']!=1 && $src==='docform')
 	        return '@Bindings is disabled.';
 
-        list ($cmd, $param) = $modx->ParseCommand($input);
+        list ($cmd, $param) = $this->ParseCommand($input);
         $cmd = '@'.trim($cmd);
         $param = trim($param);
         switch ($cmd) {
+            case '@PARSE' :
+            case '@MODX' :
+                if(strpos($param,'[!')!==false)
+                    $param = str_replace(array('[!','!]'),array('[[',']]'),$param);
+                if(strpos($param,'[*')!==false) $param = $modx->mergeDocumentContent($param);
+                if(strpos($param,'[(')!==false) $param = $modx->mergeSettingsContent($param);
+                if(strpos($param,'{{')!==false) $param = $modx->mergeChunkContent($param);
+                if(strpos($param,'[[')!==false) $param = $modx->evalSnippets($param);
+                $output = trim($param);
+                break;
             case '@FILE' :
             	if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
             	else                                     $output = @file_get_contents($param);
@@ -837,6 +916,7 @@ class SubParser {
                 $output = $modx->getChunk(trim($param));
                 break;
             case '@DOCUMENT' : // retrieve a document and process it's content
+            case '@DOC' :
                 $rs = $modx->getDocument($param);
                 if (is_array($rs)) $output = $rs['content'];
                 else               $output = "Unable to locate document {$param}";
@@ -873,9 +953,10 @@ class SubParser {
                 }
                 break;
             case '@DIRECTORY' :
+            case '@DIR' :
                 $files = array ();
+                $param = trim($param,'/');
                 $path = $modx->config['base_path'] . $param;
-                $path = rtrim($path,'/');
                 if (!is_dir($path)) exit($path);
                 
                 $dir = dir($path);
@@ -897,8 +978,9 @@ class SubParser {
         }
         // support for nested bindings
         if(is_string($output) && substr($output,0,1)==='@' && $output != $input)
-        	return $this->ProcessTVCommand($output, $name, $docid, $src);
-        else return $output;
+            $output = $this->ProcessTVCommand($output, $name, $docid, $src);
+        
+        return $output;
 	}
 
 	// separate @ cmd from params
@@ -906,13 +988,18 @@ class SubParser {
 	{
 	    // Array of supported bindings. must be upper case
 	    $BINDINGS = array (
+	        'PARSE',
+	        'MODX',
 	        'FILE',
 	        'CHUNK',
 	        'DOCUMENT',
+	        'DOC',
 	        'SELECT',
 	        'EVAL',
 	        'INHERIT',
 	        'DIRECTORY',
+	        'DIR',
+	        'NULL',
 	        'NONE'
 	    );
 		$binding_array = array();
@@ -1005,6 +1092,11 @@ class SubParser {
 	function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
 		global $modx,$_style,$_lang,$content;
 		
+	    if(substr($field_elements, 0, 5) === '<?php')  $field_elements = "@EVAL:\n".substr($field_elements,6);
+	    if(substr($field_elements, 0, 6) === '@@EVAL') $field_elements = "@EVAL:\n".substr($field_elements,7);
+	    if(substr($default_text, 0, 5) === '<?php')    $default_text   = "@@EVAL:\n".substr($default_text,6);
+	    if(substr($field_value, 0, 5) === '<?php')     $field_value    = "@@EVAL:\n".substr($field_value,6);
+	    
 		if(substr($default_text, 0, 6) === '@@EVAL' && $field_value===$default_text) {
 	     	$eval_str = trim(substr($default_text, 7));
 	    	$default_text = eval($eval_str);
@@ -1067,7 +1159,7 @@ class SubParser {
 				if($field_type==='listbox-multiple')
 					$tpl = str_replace('[+name+]','[+name+][]',$tpl);
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				$tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
 				$field_values = explode('||',$field_value);
 				foreach ($index_list as $label=>$item)
@@ -1106,7 +1198,7 @@ class SubParser {
 			case "checkbox": // handles check boxes
 				if(!is_array($field_value)) $field_value = explode('||',$field_value);
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				static $i=0;
 				foreach ($index_list as $item)
 				{
@@ -1119,7 +1211,7 @@ class SubParser {
 				break;
 			case "option": // handles radio buttons
 				$rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-				$index_list = $this->ParseIntputOptions($rs);
+				$index_list = $this->ParseInputOptions($rs);
 				static $i=0;
 				foreach ($index_list as $item)
 				{
@@ -1146,7 +1238,7 @@ class SubParser {
             case 'custom_tv':
                 $custom_output = '';
                 /* If we are loading a file */
-                if(substr($field_elements, 0, 5) == "@FILE") {
+                if(substr($field_elements, 0, 5) == '@FILE') {
                     $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
                     if( !is_file($file_name) ) {
                         $custom_output = $file_name . ' does not exist';
@@ -1192,7 +1284,9 @@ class SubParser {
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 if(isset($content['id']))
                 {
-                	if(!isset($modx->getDocumentObject))
+                    global $docObject;
+                    if($docObject) $modx->documentObject = $docObject;
+                	elseif(!isset($modx->getDocumentObject))
                 		$modx->documentObject = $modx->getDocumentObject('id',$content['id']);
                 	if(!isset($modx->documentIdentifier))
                 		$modx->documentIdentifier = $content['id'];
@@ -1214,7 +1308,7 @@ class SubParser {
 		return trim($field_html);
 	}
 
-	function ParseIntputOptions($v)
+	function ParseInputOptions($v)
 	{
 		global $modx;
 		$a = array();
@@ -1228,7 +1322,10 @@ class SubParser {
 		}
 		else
 		{
-			$a = explode('||', $v);
+			$v = trim($v);
+		    if(strpos($v,'||')===false && strpos(trim($v),"\n")!==false)
+		    	$v = str_replace("\n",'||',$v);
+    		$a = explode('||', $v);
 		}
 		return $a;
 	}
@@ -1247,6 +1344,8 @@ class SubParser {
 			else
 				list($label,$value) = explode('==',$value,2);
 		}
+		$label = trim($label);
+		$value = trim($value);
 		return array($label,$value);
 	}
 	
@@ -1680,18 +1779,188 @@ class SubParser {
     	
     	if($unixtime==0) return;
     	
-    	$cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.idx.php";
+    	$cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.php";
     	if(is_file($cache_path)) include_once($cache_path);
     	else                     $modx->cacheRefreshTime = 0;
     	
     	if($unixtime < $cacheRefreshTime || $cacheRefreshTime == 0)
     	{
-    		include_once MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php';
+    		include_once MODX_CORE_PATH . 'cache_sync.class.php';
     		$cache = new synccache();
     		$cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-    		$cache->cacheRefreshTime = $unixtime;
-    		$cache->publish_time_file($modx);
+    		$cache->publishBasicConfig($unixtime);
     	}
     }
     
+    function atBindFile($str='')
+    {
+    	if(strpos($str,'@FILE')!==0) return $str;
+    	if(strpos($str,"\n")!==false)
+    		$str = substr($str,0,strpos("\n",$str));
+    	
+    	$str = substr($str,6);
+    	$str = trim($str);
+    	$str = str_replace('\\','/',$str);
+    	
+    	if(is_file(MODX_BASE_PATH . $str))
+    		$file_path = MODX_BASE_PATH . $str;
+    	elseif(substr($str,0,1)==='/')
+    	{
+    		if(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
+    			$file_path = $str;
+    		elseif(MODX_BASE_PATH . trim($file_path,'/'))
+    			$file_path = MODX_BASE_PATH . trim($file_path,'/');
+    		else $file_path = false;
+    	}
+    	elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
+    		$file_path = MODX_BASE_PATH . "assets/templates/{$str}";
+    	else
+    		$file_path = false;
+    	
+    	if($file_path)
+    	{
+    		global $modx,$recent_update;
+    		if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
+    		if($str===MODX_CORE_PATH . 'config.inc.php') return 'Could not retrieve core file.';
+    		$content = file_get_contents($file_path);
+	    	if($content)
+	    	{
+	    		if($recent_update < filemtime($file_path))
+	    			$modx->clearCache();
+	    		return $content;
+	    	}
+    	}
+    }
+    
+    function setOption($key, $value='')
+    {
+        $this->config[$key] = $value;
+    }
+    
+    function getOption($key, $default = null, $options = null, $skipEmpty = false)
+    {
+    	global $modx;
+    	
+        $option= $default;
+        
+        if(strpos($key,',')!==false) $key = explode(',',$key);
+        if (is_array($key))
+        {
+            if (!is_array($option))
+            {
+                $default= $option;
+                $option= array();
+            }
+            foreach ($key as $k)
+            {
+                $k = trim($k);
+                $option[$k]= $this->getOption($k, $default, $options);
+            }
+        }
+        elseif (is_string($key) && !empty($key))
+        {
+            if (is_array($options) && !empty($options) && array_key_exists($key, $options) && (!$skipEmpty || ($skipEmpty && $options[$key] !== '')))
+            {
+                $option= $options[$key];
+            }
+            elseif(is_array($modx->config) && !empty($modx->config) && array_key_exists($key, $modx->config) && (!$skipEmpty || ($skipEmpty && $modx->config[$key] !== '')))
+            {
+                $option= $modx->config[$key];
+            }
+        }
+        return $option;
+    }
+    
+    function regOption($key, $value='')
+    {
+    	global $modx;
+    	
+        $modx->config[$key] = $value;
+        $f['setting_name']  = $key;
+        $f['setting_value'] = $modx->db->escape($value);
+        $key = $modx->db->escape($key);
+        $rs = $modx->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
+        
+        if($modx->db->getRecordCount($rs)==0)
+        {
+            $modx->db->insert($f,'[+prefix+]system_settings');
+            $diff = $modx->db->getAffectedRows();
+            if(!$diff)
+            {
+                $modx->messageQuit('Error while inserting new option into database.', $modx->db->lastQuery);
+                exit();
+            }
+        }
+        else
+        {
+            $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
+        }
+    }
+    function mergeInlineFilter($content)
+    {
+        global $modx;
+        
+        if(strpos($content,'[+@')===false) return $content;
+        
+        if ($modx->debug) $fstart = $modx->getMicroTime();
+        
+        $matches = $modx->getTagsFromContent($content,'[+@','+]');
+        if(!$matches) return $content;
+        
+        $replace= array ();
+        foreach($matches['1'] as $i=>$key) {
+            $delim = substr($key,0,1);
+            switch($delim)
+            {
+                case '"':
+                case '`':
+                case "'":
+                    if(substr_count($key,$delim)==1) break;
+                    $key = substr($key,1);
+                    list($body,$remain) = explode($delim,$key,2);
+                    $key = str_replace(':', md5(':'),$body) . $remain;
+            }
+            if(strpos($key,':')!==false && $modx->config['output_filter']!=='0')
+                list($key,$modifiers) = explode(':', $key, 2);
+            else $modifiers = false;
+            if(strpos($key,md5(':'))!==false) $key = str_replace(md5(':'),':',$key);
+            $value = $key;
+            if($modifiers!==false)
+            {
+                $modx->loadExtension('PHx') or die('Could not load PHx class.');
+                $value = $modx->filter->phxFilter($key,$value,$modifiers);
+            }
+            $replace[$i] = $value;
+        }
+        
+        $content= str_replace($matches['0'], $replace, $content);
+        if ($modx->debug)
+        {
+            $_ = join(', ', $matches['0']);
+            $modx->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+        }
+        return $content;
+    }
+	function updateDraft($now)
+	{
+    	global $modx;
+    	
+		$rs = $modx->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
+		if(!$modx->db->getRecordCount($rs)) return;
+		
+		$modx->loadExtension('REVISION');
+		$modx->loadExtension('DocAPI');
+		while($row = $modx->db->getRow($rs))
+		{
+			$draft = $modx->revision->getDraft($row['elmid']);
+			if(!empty($row['pub_date']))
+				$draft['pub_date'] = $row['pub_date'];
+			
+			$draft['editedon'] = $row['editedon'];
+			$draft['editedby'] = $row['editedby'];
+			
+			$modx->doc->update($draft,$row['elmid']);
+		}
+		$modx->db->delete('[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
+	}
 }

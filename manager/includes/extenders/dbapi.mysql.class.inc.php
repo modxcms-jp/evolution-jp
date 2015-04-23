@@ -204,6 +204,8 @@ class DBAPI {
 					$file = str_replace('\\','/',$v['file']);
 					$line = $v['line'];
 					$function = $v['function'];
+					if($function==='evalSnippet'&&!empty($modx->currentSnippet))
+						$function .= sprintf('(%s)',$modx->currentSnippet);
 					$bt .= "{$function} - {$file}[{$line}]<br />";
 				}
 				$modx->queryCode .= '<fieldset style="text-align:left">';
@@ -849,5 +851,24 @@ class DBAPI {
     		if(empty($sql_entry)) continue;
     		$rs = $modx->db->query($sql_entry,$watchError);
     	}
+    }
+    
+    function table_exists($table_name)
+    {
+        $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
+        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $this->dbname, $table_name);
+        $rs = $this->query($sql);
+        
+        return 0<$this->getRecordCount($rs) ? 1 : 0;
+    }
+    
+    function field_exists($field_name,$table_name)
+    {
+        if(!$this->table_exists($table_name)) return 0;
+        
+        $table_name = $this->replaceFullTableName($table_name);
+        $rs = $this->query("DESCRIBE {$table_name} {$field_name}");
+        
+        return $this->getRow($rs) ? 1 : 0;
     }
 }

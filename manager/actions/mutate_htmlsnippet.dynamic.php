@@ -72,6 +72,8 @@ if ($modx->manager->hasFormValues())
 {
 	$form_v = $modx->manager->loadFormValues();
 	$formRestored = true;
+}else{
+	$form_v = $_POST;
 }
 
 if ($formRestored == true || isset ($_REQUEST['changeMode']))
@@ -106,14 +108,17 @@ $j(function(){
 	});
 });
 // Added for RTE selection
-function changeRTE(){
+function changeRTE() {
 	var whichEditor = document.getElementById('which_editor');
-	if (whichEditor) for (var i=0; i<whichEditor.length; i++){
-		if (whichEditor[i].selected){
-			newEditor = whichEditor[i].value;
-			break;
+	if (whichEditor) {
+		for (var i = 0; i < whichEditor.length; i++) {
+			if (whichEditor[i].selected) {
+				newEditor = whichEditor[i].value;
+				break;
+			}
 		}
 	}
+	else newEditor = '';
 
 	documentDirty=false;
 	document.mutate.a.value = <?php echo $action?>;
@@ -243,7 +248,7 @@ if (is_array($evtOut))
 	</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>
-			<select id="which_editor" name="which_editor" onchange="changeRTE();">
+			<select id="which_editor" name="which_editor" onchange="gotosave=true;documentDirty=false;changeRTE();">
 				<option value="none"<?php echo $which_editor == 'none' ? ' selected="selected"' : ''?>><?php echo $_lang['none']?></option>
 <?php
 // invoke OnRichTextEditorRegister event

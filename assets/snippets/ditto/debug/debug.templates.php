@@ -11,6 +11,7 @@ $dbg_templates["main"] = <<<TPL
 		<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]debug/debug.template.css" />
         </head>
         <body>
+		<div class="section">
 		<div class="sectionHeader">&nbsp;[+title+]</div>
 				   <div class="sectionBody"> 
 			       <div class="tab-pane" id="dittoDebug"> 
@@ -18,6 +19,9 @@ $dbg_templates["main"] = <<<TPL
 						tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
 		</script>
 		[+content+]
+		</div>
+		</div>
+		</div>
 		</body>
 </html>
 TPL;

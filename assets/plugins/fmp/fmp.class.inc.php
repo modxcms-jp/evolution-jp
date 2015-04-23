@@ -106,16 +106,14 @@ class ForgotManagerPassword {
 	function unBlock($key)
 	{
 		global $modx, $_lang;
-		$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 		
 		if(empty($key)) return;
 		
 		$user = $this->getUser($key);
-		
-		if($user && is_array($user) && !$this->errors) {
-			$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $tbl_user_attributes, "internalKey='{$user['id']}'");
-			if(!$modx->db->getAffectedRows()) $this->errors[] = $_lang['user_doesnt_exist'];
-		}
+		if(!isset($user['id'])) $this->errors[] = $_lang['user_doesnt_exist'];
+		elseif(!$this->errors)
+    		$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $modx->getFullTableName('user_attributes'), "internalKey='{$user['id']}'");
+		else return false;
 	}
 	
 	function getAuthStatus($key)
@@ -152,10 +150,8 @@ EOD;
 		
 		$tbl_manager_users   = $modx->getFullTableName('manager_users');
 		$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-		$tbl_active_users    = $modx->getFullTableName('active_users');
 		
 		$site_id = $modx->config['site_id'];
-		$today = date('Yz'); // Year and day of the year
 		$user = null;
 		
 		$key = $modx->db->escape($key);
@@ -163,7 +159,7 @@ EOD;
 		switch($target)
 		{
 			case 'key':
-				$where = "MD5(CONCAT(auser.lasthit,usr.password)) = '{$key}'";
+				$where = "MD5(CONCAT(attr.lastlogin,usr.password))='{$key}'";
 				break;
 			case 'email':
 				$where = "attr.email = '{$key}'";
@@ -172,20 +168,16 @@ EOD;
 				$where = '';
 		}
 		
+		$user = array();
 		if(!empty($key) && is_string($key))
 		{
-			$field = "usr.id, usr.username, attr.email, MD5(CONCAT(auser.lasthit,usr.password)) AS `key`";
-			$from = "{$tbl_manager_users} usr INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey INNER JOIN {$tbl_active_users} auser ON usr.username = auser.username";
-			if($result = $modx->db->select($field,$from,$where,'',1))
-			{
-				if($modx->db->getRecordCount($result)==1)
-				{
-					$user = $modx->db->getRow($result);
-				}
-			}
+			$field = "usr.id, usr.username, attr.email, MD5(CONCAT(attr.lastlogin,usr.password)) AS `key`";
+			$from[] = "{$tbl_manager_users} usr";
+			$from[] = "INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
+		    $result = $modx->db->select($field, join(' ',$from), $where,'',1);
+			if($result) $user = $modx->db->getRow($result);
 		}
-		
-		if(is_null($user)) $this->errors[] = $_lang['could_not_find_user'];
+		if(empty($user)) $this->errors[] = $_lang['could_not_find_user'];
 		
 		return $user;
 	}

@@ -45,10 +45,10 @@ if(!function_exists('startCMSSession'))
         $cookieExpiration= 0;
         if (isset ($_SESSION['mgrValidated']) || isset ($_SESSION['webValidated']))
         {
-            $contextKey= isset ($_SESSION['mgrValidated']) ? 'mgr' : 'web';
-            if (isset ($_SESSION['modx.' . $contextKey . '.session.cookie.lifetime']) && is_numeric($_SESSION['modx.' . $contextKey . '.session.cookie.lifetime']))
+            $context= isset ($_SESSION['mgrValidated']) ? 'mgr' : 'web';
+            if (isset ($_SESSION["modx{$context}.session.cookie.lifetime"]) && is_numeric($_SESSION["modx{$context}.session.cookie.lifetime"]))
             {
-                $cookieLifetime= intval($_SESSION['modx.' . $contextKey . '.session.cookie.lifetime']);
+                $cookieLifetime= intval($_SESSION["modx{$context}.session.cookie.lifetime"]);
             }
             if ($cookieLifetime)
             {
@@ -132,19 +132,22 @@ class MODX_INIT {
         return $dir;
     }
     
-    function get_site_url($base_url)
+    function get_host_name()
     {
-        if($this->is_ssl()) $scheme = 'https://';
-        else         $scheme = 'http://';
-        
         $host = $_SERVER['HTTP_HOST'];
-        
         $pos = strpos($host,':');
         if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || $this->is_ssl()))
         {
             $host= substr($host,0,$pos);
         }
-        $site_url = $scheme . $host . $base_url;
+        return $host;
+    }
+    
+    function get_site_url($base_url)
+    {
+        $scheme = $this->is_ssl() ? 'https://' : 'http://';
+        $host = $this->get_host_name();
+        $site_url = "{$scheme}{$host}{$base_url}";
         return rtrim($site_url,'/') . '/';
     }
     
@@ -203,6 +206,8 @@ class MODX_INIT {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
         elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
             $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
+        elseif(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'on' && $this->is_ssl())
+            $_SERVER['HTTPS'] = 'on';
         if(isset($_SERVER['HTTPS']))
         {
             if($_SERVER['HTTPS']==1) $_SERVER['HTTPS'] = 'on';

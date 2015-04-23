@@ -72,30 +72,6 @@ foreach($content as $k=>$v)
 	$content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
 }
 
-$keywords = array();
-$metatags_selected = array();
-if (isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
-{
-	// Get list of current keywords for this document
-	$from = "[+prefix+]site_keywords AS k, [+prefix+]keyword_xref AS x";
-	$where = "k.id = x.keyword_id AND x.content_id = '{$id}'";
-	$orderby = 'k.keyword ASC';
-	$rs = $modx->db->select('k.keyword',$from,$where,$orderby);
-	while($row = $modx->db->getRow($rs))
-	{
-		$keywords[$i] = $row['keyword'];
-	}
-	
-	// Get list of selected site META tags for this document
-	$field = 'meta.id, meta.name, meta.tagvalue';
-	$from = "[+prefix+]site_metatags AS meta LEFT JOIN [+prefix+]site_content_metatags AS sc ON sc.metatag_id = meta.id";
-	$where = "sc.content_id='{$content['id']}'";
-	$rs = $modx->db->select($field,$from,$where);
-	while($row = $modx->db->getRow($rs))
-	{
-		$metatags_selected[] = $row['name'].': <i>'.$row['tagvalue'].'</i>';
-	}
-}
 ?>
 	<script type="text/javascript">
 	function duplicatedocument(){
@@ -125,7 +101,7 @@ if (isset($modx->config['show_meta']) && $modx->config['show_meta']==='1')
 <?php if($modx->hasPermission('save_document')):?>
 	<li id="Button2"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a></li>
 <?php endif; ?>
-<?php if($modx->hasPermission('new_document')):?>
+<?php if($modx->hasPermission('new_document')&&$modx->hasPermission('save_document')):?>
 	<li id="Button4"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate']?></a></li>
 <?php endif; ?>
 <?php if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document')):?>
@@ -193,20 +169,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['alias']!='' ? $content['alias'] : "(<i>".$_lang['not_set']."</i>)"?></td>
 				<td>[*alias*]</td>
 			</tr>
-			<?php if (isset($modx->config['show_meta'])&&$modx->config['show_meta']==='1') {?>
-			<tr><td><?php echo $_lang['keywords']?>: </td>
-				<td colspan="2"><?php // Keywords
-				if(count($keywords) != 0)
-					echo join($keywords, ', ');
-				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
-				?></td></tr>
-			<tr><td><?php echo $_lang['metatags']?>: </td>
-				<td colspan="2"><?php // META Tags
-				if(count($metatags_selected) != 0)
-					echo join($metatags_selected, '<br />');
-				else    echo '(<i>' . $_lang['not_set'] . '</i>)';
-				?></td></tr>
-			<?php } ?>
 			<tr><td width="200"><?php echo $_lang['page_data_created']?>: </td>
 				<td><?php echo $modx->toDateFormat($content['createdon']+$server_offset_time)?> (<b><?php echo $createdbyname?></b>)</td>
 				<td>[*createdon:date*]</td>

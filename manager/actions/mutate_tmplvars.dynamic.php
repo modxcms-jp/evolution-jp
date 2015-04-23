@@ -76,10 +76,6 @@ $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
 $ph=array();
 $ph['src']   = $_style['icons_tooltip_over'];
-$ph['title'] = $_lang['tmplvars_binding_msg'];
-$ph['alt']   = $_lang['tmplvars_binding_msg'];
-$tooltip_tv_binding = $modx->parseText($tooltip_tpl,$ph);
-
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt']   = $_lang['tmplvars_input_option_msg'];
 $tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
@@ -390,14 +386,23 @@ function decode(s){
 	$option['number']       = 'Number';
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
-	$option['hidden']       = 'HIdden';
+	$option['hidden']       = 'Hidden';
 	$result = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
 	if(0 < $modx->db->getRecordCount($result))
 	{
 		while($row = $modx->db->getRow($result))
 		{
 			$input_name = trim(substr($row['name'],6));
-			$option[$input_name] = $input_name;
+			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
+		}
+	}
+	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+	if(0 < $modx->db->getRecordCount($result))
+	{
+		while($row = $modx->db->getRow($result))
+		{
+			$input_name = trim(substr($row['name'],6));
+			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
 		}
 	}
 	if($content['type']=='') $content['type']=='text';
@@ -548,7 +553,7 @@ function selected($target='')
 
 <!-- Access Permissions -->
 <?php
-	if($use_udperms==1)
+	if($modx->config['use_udperms']==1)
 	{
 		$groupsarray = array();
 		

@@ -207,7 +207,7 @@ if ($debug == 1) {
 $files = array_unique($files);
 foreach ($files as $filename => $filevalue)
 {
-    if(is_file($filevalue) && strpos($filename,'class'))
+    if(strpos($filename,'class')!==false && is_file($filevalue))
     {
         include_once($filevalue);
     }
@@ -764,10 +764,10 @@ $save = (isset($save))? $save : 0;
     Default:
         0 - off; returns output
 */
-$tplAlt = (isset($tplAlt)) ? $tplAlt : '';
-$tplFirst = (isset($tplFirst)) ? $tplFirst : '';
-$tplLast = (isset($tplLast)) ? $tplLast : '';
-$tplCurrentDocument = (isset($tplCurrentDocument)) ? $tplCurrentDocument : '';
+if(!isset($tplAlt))             $tplAlt = '';
+if(!isset($tplFirst))           $tplFirst = '';
+if(!isset($tplLast))            $tplLast = '';
+if(!isset($tplCurrentDocument)) $tplCurrentDocument = '';
 $templates = array(
     "default" => "@CODE ".$_lang['default_template'],
     "base" => $tpl,
@@ -924,7 +924,7 @@ if ($count > 0) {
             - <paginate>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePrevious = isset($tplPaginatePrevious)? $ditto->template->fetch($tplPaginatePrevious) : "<a href='[+url+]' class='ditto_previous_link'>[+lang:previous+]</a>";
+        $tplPaginatePrevious = isset($tplPaginatePrevious)? $ditto->template->fetch($tplPaginatePrevious) : '<a href="[+url+]" class="ditto_previous_link">[+lang:previous+]</a>';
         /*
             Param: tplPaginatePrevious
 
@@ -944,7 +944,7 @@ if ($count > 0) {
             - <tplPaginateNext>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateNext = isset($tplPaginateNext)? $ditto->template->fetch($tplPaginateNext) : "<a href='[+url+]' class='ditto_next_link'>[+lang:next+]</a>";
+        $tplPaginateNext = isset($tplPaginateNext)? $ditto->template->fetch($tplPaginateNext) : '<a href="[+url+]" class="ditto_next_link">[+lang:next+]</a>';
         /*
             Param: tplPaginateNext
 
@@ -964,7 +964,7 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateNextOff = isset($tplPaginateNextOff)? $ditto->template->fetch($tplPaginateNextOff) : "<span class='ditto_next_off ditto_off'>[+lang:next+]</span>";
+        $tplPaginateNextOff = isset($tplPaginateNextOff)? $ditto->template->fetch($tplPaginateNextOff) : '<span class="ditto_next_off ditto_off">[+lang:next+]</span>';
         /*
             Param: tplPaginateNextOff
 
@@ -983,7 +983,7 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePreviousOff = isset($tplPaginatePreviousOff)? $ditto->template->fetch($tplPaginatePreviousOff) : "<span class='ditto_previous_off ditto_off'>[+lang:previous+]</span>";
+        $tplPaginatePreviousOff = isset($tplPaginatePreviousOff)? $ditto->template->fetch($tplPaginatePreviousOff) : '<span class="ditto_previous_off ditto_off">[+lang:previous+]</span>';
         /*
             Param: tplPaginatePreviousOff
 
@@ -1002,7 +1002,7 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePage = isset($tplPaginatePage)? $ditto->template->fetch($tplPaginatePage) : "<a class='ditto_page' href='[+url+]'>[+page+]</a>";
+        $tplPaginatePage = isset($tplPaginatePage)? $ditto->template->fetch($tplPaginatePage) : '<a class="ditto_page" href="[+url+]">[+page+]</a>';
         /*
             Param: tplPaginatePage
 
@@ -1022,7 +1022,7 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateCurrentPage = isset($tplPaginateCurrentPage)? $ditto->template->fetch($tplPaginateCurrentPage) : "<span class='ditto_currentpage'>[+page+]</span>";
+        $tplPaginateCurrentPage = isset($tplPaginateCurrentPage)? $ditto->template->fetch($tplPaginateCurrentPage) : '<span class="ditto_currentpage">[+page+]</span>';
         /*
             Param: tplPaginateCurrentPage
 
@@ -1128,7 +1128,7 @@ if ($count > 0) {
 // ---------------------------------------------------
 
 if ($debug == 1) {
-    $ditto_params =& $modx->event_params;
+    $ditto_params =& $modx->event->params;
     if (!isset($_GET["ditto_{$dittoID}debug"])) {
     $_SESSION["ditto_debug_{$dittoID}"] = $ditto->debug->render_popup($ditto, $ditto_base, $ditto_version, $ditto_params, $documentIDs, array("db"=>$dbFields,"tv"=>$TVs), $display, $templates, $orderBy, $start, $stop, $total,$filter,$resource);
     }
@@ -1146,13 +1146,16 @@ if ($debug == 1) {
     }
 }
 //outerTpl by Dmi3yy
-if ($outerTpl && $resource) { 
-  if(substr($outerTpl, 0, 5) == '@CODE') {
+if(isset($tplOuter)) $outerTpl = $tplOuter;
+if ($outerTpl) { 
+  if(!$resource) $output = '';
+  elseif(substr($outerTpl, 0, 5) == '@CODE')
     $outerTpl = trim(substr($outerTpl, 6));
-  } elseif ($modx->getChunk($outerTpl) != '') {
+  elseif ($modx->getChunk($outerTpl) != '')
     $outerTpl = $modx->getChunk($outerTpl);
-  } 
-  $output = str_replace('[+ditto+]',$output,$outerTpl);
+  
+  if($output)
+    $output = str_replace(array('[+ditto+]','[+documents+]','[+docs+]'),$output,$outerTpl);
 }
 
 return ($save != 3) ? $output : "";

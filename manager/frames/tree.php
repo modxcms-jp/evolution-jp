@@ -61,7 +61,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	else $openedArray = false;
 	
     if ($openedArray) {
-            $opened = array_filter(array_map('intval', $openedArray));
+    	foreach($openedArray as $i=>$v) {
+    		$openedArray[$i] = (int) $v;
+    	}
+            $opened = array_filter($openedArray);
 
             foreach ($opened as $item) {
                  printf("openedArray[%d] = 1;\n", $item);
@@ -121,24 +124,55 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
       return scrOfY;
     }
 
-    function showPopup(id,title,pub,del,e){
+    function showPopup(id,title,pub,del,draft,e){
         var x,y
         var mnu = document.getElementById('mx_contextmenu');
         var permpub = <?php echo $modx->hasPermission('publish_document') ? 1:0; ?>;
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
         if(permpub==1)
         {
+            if(draft==1) document.getElementById('item27draft').style.display='block';
+            else         document.getElementById('item27draft').style.display='none';
 	        document.getElementById('item61').style.display='block';
 	        document.getElementById('item62').style.display='block';
 	        if(pub==1) document.getElementById('item61').style.display='none';
 	        else       document.getElementById('item62').style.display='none';
         }
+        else
+        {
+        	if(document.getElementById('item51') != null)
+        		document.getElementById('item51').style.display='none';
+        	
+            if(draft==1)
+        	{
+        		document.getElementById('item27').style.display='none';
+        		document.getElementById('item27draft').style.display='block';
+            }
+            else
+            {
+            	document.getElementById('item27').style.display='block';
+        		document.getElementById('item27draft').style.display='none';
+            }
+        }
+        
         if(permdel==1)
         {
 	        document.getElementById('item6').style.display='block';
 	        document.getElementById('item63').style.display='block';
-	        if(del==1) document.getElementById('item6').style.display='none';
-	        else       document.getElementById('item63').style.display='none';
+	        if(document.getElementById('item64') != null)
+	        	document.getElementById('item64').style.display='block';
+	        if(del==1)
+        	{
+	        	document.getElementById('item6').style.display='none';
+	        	document.getElementById('item61').style.display='none';
+	        	document.getElementById('item62').style.display='none';
+	        }
+	        else
+	        {
+	        	document.getElementById('item63').style.display='none';
+	        	if(document.getElementById('item64') != null)
+	        		document.getElementById('item64').style.display='none';
+	        }
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
         x = e.clientX > 0 ? e.clientX:e.pageX;
@@ -520,18 +554,13 @@ function menuHandler(action) {
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break;
+        case '27draft' : // edit draft
+            setActiveFromContextMenu(itemToChange);
+            top.main.document.location.href="index.php?a=131&id=" + itemToChange;
+            break
         case '4' : // new Resource
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=4&pid=" + itemToChange;
-            break;
-        case '6' : // delete
-            if(selectedObjectDeleted==0) {
-                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
-                    top.main.document.location.href="index.php?a=6&id=" + itemToChange;
-                }
-            } else {
-                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
-            }
             break;
         case '51' : // move
             setActiveFromContextMenu(itemToChange);
@@ -547,6 +576,15 @@ function menuHandler(action) {
                    top.main.document.location.href="index.php?a=94&id=" + itemToChange;
                }
             break;
+        case '6' : // delete
+            if(selectedObjectDeleted==0) {
+                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
+                    top.main.document.location.href="index.php?a=6&id=" + itemToChange;
+                }
+            } else {
+                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
+            }
+            break;
         case '63' : // undelete
             if(selectedObjectDeleted==0) {
                 alert("'" + selectedObjectName + "' <?php echo $_lang['not_deleted']; ?>");
@@ -554,6 +592,15 @@ function menuHandler(action) {
                 if(confirm("'" + selectedObjectName + "' <?php echo $_lang['confirm_undelete']; ?>")==true) {
                     top.main.document.location.href="index.php?a=63&id=" + itemToChange;
                 }
+            }
+            break;
+        case '64' : // delete
+            if(selectedObjectDeleted==1) {
+                if(confirm("'" + selectedObjectName + "'\n\n<?php echo $_lang['confirm_delete_resource']; ?>")==true) {
+                    top.main.document.location.href="index.php?a=64&id=" + itemToChange;
+                }
+            } else {
+                alert("'" + selectedObjectName + "' <?php echo $_lang['already_deleted']; ?>");
             }
             break;
         case '61' : // publish
@@ -600,10 +647,11 @@ function getTplCtxMenu() {
 		[+itemDuplicateDoc+]
 		[+=========1+]
 		[+itemPubDoc+][+itemUnPubDoc+]
-		[+itemDelDoc+][+itemUndelDoc+]
+		[+itemDelDoc+][+itemUndelDoc+][+itemDelDocComplete+]
 		[+=========2+]
 		[+itemWebLink+]
 		[+=========3+]
+		[+itemEditDraft+]
 		[+itemDocInfo+]
 		[+itemViewPage+]
 	</div>
@@ -623,9 +671,11 @@ $ph['itemPubDoc']       = itemPubDoc(); // publish
 $ph['itemUnPubDoc']     = itemUnPubDoc(); // unpublish
 $ph['itemDelDoc']       = itemDelDoc(); // delete
 $ph['itemUndelDoc']     = itemUndelDoc(); // undelete
+$ph['itemDelDocComplete']     = itemDelDocComplete(); // undelete
 $ph['=========2']       = itemSeperator2();
 $ph['itemWebLink']      = itemWebLink(); //  new Weblink
 $ph['=========3']       = itemSeperator3();
+$ph['itemEditDraft']    = itemEditDraft(); // edit draft
 $ph['itemDocInfo']      = itemDocInfo(); // undelete
 $ph['itemViewPage']     = itemViewPage(); // preview
 
@@ -658,6 +708,17 @@ function itemEditDoc() {
 	$ph['action'] = '27';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang['edit_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemEditDraft() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('edit_document')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '27draft';
+	$ph['img']    = $_style['icons_edit_document'];
+	$ph['text']   = $_lang["edit_draft"];
 	return $modx->parseText($tpl, $ph);
 }
 
@@ -697,7 +758,7 @@ function itemMoveDoc() {
 function itemDuplicateDoc() {
 	global $modx,$_style,$_lang;
 	
-	if(!$modx->hasPermission('new_document')) return '';
+	if(!$modx->hasPermission('new_document')||!$modx->hasPermission('save_document')) return '';
 	$tpl = tplMenuItem();
 	$ph['action'] = '94';
 	$ph['img']    = $_style['icons_resource_duplicate'];
@@ -754,6 +815,17 @@ function itemUndelDoc() {
 	$ph['action'] = '63';
 	$ph['img']    = $_style['icons_undelete_resource'];
 	$ph['text']   = $_lang['undelete_resource'];
+	return $modx->parseText($tpl, $ph);
+}
+
+function itemDelDocComplete() {
+	global $modx,$_style,$_lang;
+	
+	if(!$modx->hasPermission('empty_trash')) return '';
+	$tpl = tplMenuItem();
+	$ph['action'] = '64';
+	$ph['img']    = $_style['icons_delete_complete'];
+	$ph['text']   = $_lang['delete_resource_complete'];
 	return $modx->parseText($tpl, $ph);
 }
 
