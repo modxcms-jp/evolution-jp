@@ -1,5 +1,5 @@
 <?php
-	if(!defined('IN_PARSER_MODE') || IN_PARSER_MODE != 'true') exit();
+	if(!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
 	$value = $this->parseInput($value);
 	$w = $params['w']? $params['w']:'100%';

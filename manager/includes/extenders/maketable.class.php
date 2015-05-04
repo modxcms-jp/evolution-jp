@@ -593,4 +593,7 @@ EOT;
 	function setAllOption() {
 		$this->allOption= 1;
 	}
+	function setPageLimit($total) {
+		$this->pageLimit = $total;
+	}
 }
