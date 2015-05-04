@@ -1832,6 +1832,21 @@ class SubParser {
     	}
     }
     
+    function atBindUrl($str='')
+    {
+    	if(strpos($str,'@URL')!==0) return $str;
+    	if(strpos($str,"\n")!==false)
+    		$str = substr($str,0,strpos("\n",$str));
+    	
+    	$str = substr($str,5);
+    	$str = trim($str);
+    	if(strpos($str,'http')!==0) return 'Error @URL';
+    	
+    	$content = file_get_contents($str);
+    	
+    	return $content;
+    }
+    
     function setOption($key, $value='')
     {
         $this->config[$key] = $value;
