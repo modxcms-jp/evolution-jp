@@ -129,12 +129,12 @@ if ($handle = opendir($widget_dir)){
 				
 				case 'listbox-multiple':
 					$t = 'select';
-					$fieldname_suffix = '[]';
+					$fieldname_suffix = '\\\\[\\\\]';
 				break;
 				
 				case 'checkbox':
 					$t = 'input';
-					$fieldname_suffix = '[]';
+					$fieldname_suffix = '\\\\[\\\\]';
 				break;
 				
 				case 'custom_tv':
@@ -147,7 +147,7 @@ if ($handle = opendir($widget_dir)){
 					elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false)
 					{
 						$t = 'input';
-						$fieldname_suffix = '[]';
+						$fieldname_suffix = '\\\\[\\\\]';
 					}
 					elseif(strpos($thisTv['elements'],'<textarea')!==false)
 						$t = 'textarea';
@@ -156,7 +156,7 @@ if ($handle = opendir($widget_dir)){
 					elseif(strpos($thisTv['elements'],'"checkbox"')!==false)
 					{
 						$t = 'input';
-						$fieldname_suffix = '[]';
+						$fieldname_suffix = '\\\\[\\\\]';
 					}
 					else
 						$t = 'input';
