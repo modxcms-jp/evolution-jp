@@ -25,7 +25,7 @@ $current_parent = $modx->db->getValue($rs);
 $new_parent = intval($_REQUEST['new_parent']);
 
 // check user has permission to move resource to chosen location
-if ($use_udperms == 1 && $current_parent != $new_parent)
+if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
 {
 	if (!$modx->checkPermissions($new_parent))
 	{
