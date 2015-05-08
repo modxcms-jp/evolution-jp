@@ -73,8 +73,12 @@ class DBAPI {
 						$request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
 						$ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
 						$referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+						$ip          = $_SERVER['REMOTE_ADDR'];
+						$remote_host = $_SERVER['REMOTE_HOST'] ? $_SERVER['REMOTE_HOST'].'(REMOTE_HOST)'."\n" : '';
+						$hostname    = gethostbyaddr($ip);
+						$time = date('Y-m-d H:i:s');
 						$subject = 'Missing to create the database connection! from ' . $modx->config['site_name'];
-						$msg = "{$logtitle}<br />{$request_uri}<br />{$ua}<br />{$referer}";
+						$msg = "{$logtitle}\n{$request_uri}\n{$ua}\n{$ip}\n{$remote_host}{$hostname}(hostname)\n{$referer}\n{$time}";
 						$modx->sendmail($subject,$msg);
 					}
 				}
