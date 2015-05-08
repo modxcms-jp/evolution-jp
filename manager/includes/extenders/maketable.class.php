@@ -258,10 +258,10 @@ EOT;
 	 * Generates optional paging navigation controls for the table.
 	 * 
 	 * @param $totalRecords The number of records to show per page.
-	 * @param $currentURL An optional query string to be appended to the paging links
+	 * @param $base_url An optional query string to be appended to the paging links
 	 */
-	function createPagingNavigation($totalRecords, $currentURL='') {return $this->renderPagingNavigation($totalRecords, $currentURL);}
-	function renderPagingNavigation($totalRecords, $currentURL='') {
+	function createPagingNavigation($totalRecords, $base_url='') {return $this->renderPagingNavigation($totalRecords, $base_url);}
+	function renderPagingNavigation($totalRecords, $base_url='') {
 		global $_lang, $modx;
 		
 		if(!isset($_GET['page'])||!preg_match('@^[1-9][0-9]*$@',$_GET['page']))
@@ -273,11 +273,11 @@ EOT;
 		if ($totalPages<2) return '';
 		
 		$navlink = array();
-		if(!empty($currentURL)) $currentURL = "?{$currentURL}";
+		if(!empty($base_url)) $base_url = "?{$base_url}";
 		if (1<$currentPage)
 		{
-			$navlink[] = $this->createPageLink($currentURL, 1, $_lang['pagination_table_first']);
-			$navlink[] = $this->createPageLink($currentURL, $currentPage -1, '&lt;');
+			$navlink[] = $this->createPageLink($base_url, 1, $_lang['pagination_table_first']);
+			$navlink[] = $this->createPageLink($base_url, $currentPage -1, '&lt;');
 		} else {
 			$navlink[] = sprintf('<li><span>%s</span></li>',$_lang['pagination_table_first']);
 			$navlink[] = '<li><span>&lt;</span></li>';
@@ -287,15 +287,15 @@ EOT;
 		while ($i < 10 && ($currentPage + $offset <= $totalPages))
 		{
 			if ($currentPage == $currentPage + $offset)
-				$navlink[] = $this->createPageLink($currentURL, $currentPage + $offset, $currentPage + $offset, true);
+				$navlink[] = $this->createPageLink($base_url, $currentPage + $offset, $currentPage + $offset, true);
 			else
-				$navlink[] = $this->createPageLink($currentURL, $currentPage + $offset, $currentPage + $offset);
+				$navlink[] = $this->createPageLink($base_url, $currentPage + $offset, $currentPage + $offset);
 			$i++;
 			$offset++;
 		}
 		if (0<$totalPages-$currentPage) {
-			$navlink[] = $this->createPageLink($currentURL, $currentPage +1, '&gt;');
-			$navlink[] = $this->createPageLink($currentURL, $totalPages, $_lang['pagination_table_last']);
+			$navlink[] = $this->createPageLink($base_url, $currentPage +1, '&gt;');
+			$navlink[] = $this->createPageLink($base_url, $totalPages, $_lang['pagination_table_last']);
 		} else {
 			$navlink[] = '<li><span>&gt;</span></li>';
 			$navlink[] = sprintf('<li><span>%s</span></li>',$_lang['pagination_table_last']);
