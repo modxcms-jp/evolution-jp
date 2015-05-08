@@ -60,7 +60,7 @@ if ($numRecords > 0)
 	if(isset($_GET['page']) && preg_match('@^[1-9][0-9]*$@',$_GET['page']))
 		$offset =  $_GET['page'] - 1;
 	else $offset = 0;
-	$limit = ($offset * $modx->config['number_of_results']) . ', ' . $modx->config['number_of_results'];
+	$limit = sprintf('%s,%s', ($offset*$modx->config['number_of_results']), $modx->config['number_of_results']);
 	$field = sprintf('DISTINCT sc.*, MAX(IF(1=%s OR sc.privatemgr=0 %s, 1, 0)) AS has_access, rev.status', $_SESSION['mgrRole'], $in_docgrp);
 	$rs = $modx->db->select($field,$from,$where,$orderby,$limit);
 	$resource = array();
@@ -198,6 +198,7 @@ if ($numRecords > 0)
 	$modx->table->setRowDefaultClass('gridItem');
 	$modx->table->setRowAlternateClass('gridAltItem');
 	$modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
+	$modx->table->setPageLimit($modx->config['number_of_results']);
 	
 	// Table header
 	$header['checkbox']    = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
