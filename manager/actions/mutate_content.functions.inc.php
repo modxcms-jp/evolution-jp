@@ -487,7 +487,7 @@ function mergeReloadValues($docObject) {
 function checkViewUnpubDocPerm($published,$editedby) {
 	global $modx;
 	
-	if($modx->manager->action!=='27') return;
+	if($modx->manager->action!=27) return;
 	if($modx->hasPermission('view_unpublished')) return;
 	if($published!=='0')                         return;
 	
@@ -943,7 +943,7 @@ function sectionContent() {
 	
 	$ph['header'] = $_lang['resource_content'];
 	$planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
-	if (($modx->manager->action == '4' || $modx->manager->action == '27' || $modx->manager->action == '131') && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
+	if (($modx->manager->action == 4 || $modx->manager->action == 27 || $modx->manager->action == 131) && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
 		// invoke OnRichTextEditorRegister event
 		$editors = $modx->invokeEvent('OnRichTextEditorRegister');
 		if(!empty($editors))
@@ -1146,8 +1146,8 @@ function getInitialValues() {
 	$init_v['searchable'] = $modx->config['search_default'];
 	$init_v['cacheable'] = $modx->config['cache_default'];
 	
-	if($modx->manager->action==='4')      $init_v['type'] = 'document';
-	elseif($modx->manager->action==='72') $init_v['type'] = 'reference';
+	if($modx->manager->action==4)      $init_v['type'] = 'document';
+	elseif($modx->manager->action==72) $init_v['type'] = 'reference';
 	
 	if(isset($_GET['pid'])) $init_v['parent'] = $_GET['pid'];
 	
@@ -1180,7 +1180,7 @@ function fieldIsfolder() {
 function fieldRichtext() {
 	global $modx,$_lang;
 	$disabled = ($modx->config['use_editor']!=1) ? ' disabled="disabled"' : '';
-	$cond = (!isset($modx->documentObject['richtext']) || $modx->documentObject['richtext']!=0 || $modx->manager->action!='27');
+	$cond = (!isset($modx->documentObject['richtext']) || $modx->documentObject['richtext']!=0 || $modx->manager->action!=27);
 	$body = input_checkbox('richtext',$cond,$disabled);
 	$body .= input_hidden('richtext',$cond);
 	$body .= tooltip($_lang['resource_opt_richtext_help']);
@@ -1303,7 +1303,7 @@ function getUDGroups($id) {
 	$form_v = $_POST;
 	$groupsarray = array();
 	
-	if($modx->manager->action == '27')       $docid = $id;
+	if($modx->manager->action == 27)       $docid = $id;
 	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
 	else                             $docid = $docObject['parent'];
 	
