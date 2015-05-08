@@ -480,21 +480,17 @@ class PHx {
         	case 'nl2br':
 				if($opt!=='')
 				{
+					$opt = trim($opt);
 					$opt = strtolower($opt);
 					if($opt==='false') $opt = false;
-					elseif($opt==0)    $opt = false;
+					elseif($opt==='0') $opt = false;
 					else               $opt = true;
 				}
-            	elseif($modx->config['mce_element_format']==='html')
+            	elseif(isset($modx->config['mce_element_format'])&&$modx->config['mce_element_format']==='html')
             	                       $opt = false;
 				else                   $opt = true;
             	$value = nl2br($value,$opt);
             	break;
-				case 'nl2br':
-				if($opt!=='false') $opt = true;
-				else               $opt = false;
-				$value = nl2br($value, $opt);
-				break;
 			case 'base64_decode':
 				if($opt!=='false') $opt = true;
 				else               $opt = false;
