@@ -859,8 +859,9 @@ class DBAPI {
     
     function table_exists($table_name)
     {
+        $dbname = trim($this->dbname,'`');
         $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
-        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $this->dbname, $table_name);
+        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $dbname, $table_name);
         $rs = $this->query($sql);
         
         return 0<$this->getRecordCount($rs) ? 1 : 0;
