@@ -676,7 +676,6 @@ class PHx {
             case 'getimage':
                 $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
                 preg_match_all($pattern , $value , $images);
-                //header('content-type:text/plain');print_r($images);exit;
                 if($opt==='')
                 {
                     if($images[1][0]) $value = $images[1][0];
