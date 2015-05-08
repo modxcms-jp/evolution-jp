@@ -3372,6 +3372,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->genToken();}
     function atBindFile($content='')
         {$this->loadExtension('SubParser');return $this->sub->atBindFile($content);}
+    function atBindUrl($content='')
+        {$this->loadExtension('SubParser');return $this->sub->atBindUrl($content);}
     function getOption($key, $default = null, $options = null, $skipEmpty = false)
         {$this->loadExtension('SubParser');return $this->sub->getOption($key, $default, $options, $skipEmpty);}
     function setOption($key, $value='')
