@@ -303,7 +303,7 @@ EOT;
 		
 		if (empty($navlink)) return '';
 		else
-			return sprintf('<div id="pagination" class="paginate">%s<ul>%s</ul></div>',$_lang['pagination_table_gotopage'],join("\n",$navlink));
+			return sprintf('<div id="pagination" class="paginate"><ul>%s</ul></div>',join("\n",$navlink));
 	}
 	
 	/**
