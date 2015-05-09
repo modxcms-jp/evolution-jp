@@ -696,7 +696,9 @@ class DocumentParser {
             if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
             {
                 $str = '<?php return ' . var_export($this->functionCache, true) . ';';
-                file_put_contents("{$base_path}assets/cache/function.siteCache.idx.php", $str, LOCK_EX);
+                file_put_contents("{$base_path}assets/cache/".getmypid()."_function.siteCache.idx.php.", $str, LOCK_EX);
+                rename("{$base_path}assets/cache/".getmypid()."_function.siteCache.idx.php.",
+                       "{$base_path}assets/cache/function.siteCache.idx.php");
             }
         }
         // Useful for example to external page counters/stats packages
