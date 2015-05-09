@@ -444,6 +444,8 @@ class DocumentParser {
                 $template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
                 if(substr($template->content,0,5)==='@FILE')
                     $template->content = $this->atBindFile($template->content);
+                elseif(substr($template->content,0,4)==='@URL')
+                    $template->content = $this->atBindUrl($template->content);
                 
                 if($template->id)
                 {
@@ -462,6 +464,8 @@ class DocumentParser {
                             {
                                 if(substr($parent->content,0,5)==='@FILE')
                                     $parent->content = $this->atBindFile($parent->content);
+                                elseif(substr($template->content,0,4)==='@URL')
+                                    $parent->content = $this->atBindUrl($parent->content);
                                 if(strpos($parent->content,'[*content*]')!==false)
                                     $template->content = str_replace('[*content*]', $template->content, $parent->content);
                                 elseif(strpos($parent->content,'[*content:')!==false)
@@ -1524,6 +1528,8 @@ class DocumentParser {
                     case '[*':
                     case '[[':
                     case '[!':
+                    case '[(':
+                    case '{{':
                         if(strpos($cmd,'[!')!==false)
                             $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
                         $cmd = $this->parseDocumentSource($cmd);
@@ -1679,6 +1685,32 @@ class DocumentParser {
         $replace= array ();
         foreach($matches[1] as $i=>$value)
         {
+            if(substr($value,0,2)==='$_')
+            {
+                $key = $value;
+                if(strpos($key,':')!==false)
+                    list($key,$modifiers) = explode(':', $key, 2);
+                else $modifiers = false;
+                $key = str_replace(array('(',')'),array("['","']"),$key);
+                if(strpos($key,'$_SESSION')!==false)
+                {
+                    $_ = $_SESSION;
+                    $key = str_replace('$_SESSION','$_',$key);
+                    if(isset($_['mgrFormValues'])) unset($_['mgrFormValues']);
+                    if(isset($_['token'])) unset($_['token']);
+                }
+                if(strpos($key,'[')!==false)
+                    $value = eval("return {$key};");
+                else
+                    $value = eval("return print_r({$key},true);");
+                if($modifiers!==false)
+                {
+                    $this->loadExtension('PHx') or die('Could not load PHx class.');
+                    $value = $this->filter->phxFilter($key,$value,$modifiers);
+                }
+                $replace[$i] = $value;
+                continue;
+            }
             foreach($matches[0] as $find=>$tag)
             {
                 if(isset($replace[$find]) && strpos($value,$tag)!==false)
@@ -3374,6 +3406,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->genToken();}
     function atBindFile($content='')
         {$this->loadExtension('SubParser');return $this->sub->atBindFile($content);}
+    function atBindUrl($content='')
+        {$this->loadExtension('SubParser');return $this->sub->atBindUrl($content);}
     function getOption($key, $default = null, $options = null, $skipEmpty = false)
         {$this->loadExtension('SubParser');return $this->sub->getOption($key, $default, $options, $skipEmpty);}
     function setOption($key, $value='')

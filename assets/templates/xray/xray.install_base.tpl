@@ -44,7 +44,7 @@
               &level=1
               &startId=index.html // index.html index INDEX など先頭がiで指定
             ]]
-	    [*content:addbreak*]
+	    [*content*]
 	</article>
 	</div>
 	<div class="footer">

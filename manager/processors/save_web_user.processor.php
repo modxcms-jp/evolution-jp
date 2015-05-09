@@ -151,7 +151,7 @@ switch ($_POST['mode']) {
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
-		if ($use_udperms == 1)
+		if ($modx->config['use_udperms'] == 1)
 		{
 			if (count($user_groups) > 0)
 			{
@@ -322,7 +322,7 @@ switch ($_POST['mode']) {
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
 		// first, check that up_perms are switched on!
-		if ($use_udperms == 1) {
+		if ($modx->config['use_udperms'] == 1) {
 			// as this is an existing user, delete his/ her entries in the groups before saving the new groups
 			$rs = $modx->db->delete($tbl_web_groups,"webuser='{$id}'");
 			if (!$rs) {
