@@ -1297,11 +1297,20 @@ class SubParser {
             
             default: // the default handler -- for errors, mostly
                 $sname = strtolower($field_type);
-                $result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='input:{$field_type}'");
-                if($modx->db->getRecordCount($result)==1)
+                if(substr($field_elements, 0, 5) == "@EVAL")
                 {
-                    $field_html .= eval($modx->db->getValue($result));
+                    $eval_str = trim(substr($field_elements, 6));
                 }
+                else
+                {
+                    $result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='input:{$field_type}'");
+                    if($modx->db->getRecordCount($result)==1)
+                    {
+                        $eval_str = eval($modx->db->getValue($result));
+                    }
+                }
+                if(isset($eval_str))
+                    $field_html .= eval($eval_str);
                 else
                     $field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' />';
         } // end switch statement
