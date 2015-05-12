@@ -104,6 +104,13 @@ $j(function(){
 			case 'checkbox':
 			case 'option':
 			case 'custom_tv':
+<?php
+$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+while($row = $modx->db->getRow($result)){
+$type = strtolower(str_replace("input:","",$row["name"]));
+echo "\t\t\tcase '".$type."':\n";
+}
+?>
 				$j('#inputoption').fadeIn();
 				var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
 				if(itype.val()=='custom_tv')
@@ -431,6 +438,11 @@ switch($content['type'])
 		break;
 	default: $display = 'style="display:none;"';
 }
+$res1 = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+$name1 = strtolower(substr($modx->db->getValue($res1),6));
+$res2 = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
+$name2 = strtolower(substr($modx->db->getValue($res2),6));
+if($name1 == $content['type'] || $name2 == $content['type']) $display = '';
 ?>
   <tr id="inputoption" <?php echo $display;?>>
 	<th align="left" valign="top"><?php echo $_lang['tmplvars_elements']; ?></th>
