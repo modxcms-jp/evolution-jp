@@ -1250,9 +1250,6 @@ $_lang["doc_encoding_message"] = 'ページの出力に用いるエンコード�
 
 $_lang["template_parent"] = '親テンプレート';
 
-$_lang['check_files_onlogin_title'] = 'ログイン時の改竄チェック';
-$_lang['check_files_onlogin_message'] = 'ログイン時に任意のシステムファイルに対して改竄チェックを行ないます。問題がない場合はグローバル設定を更新すれば警告をリセットできます。';
-
 $_lang['configcheck_sysfiles_mod'] = '重要なシステムファイルが書き換えられています。';
 $_lang['configcheck_sysfiles_mod_msg'] = '重要なシステムファイルが書き換わっています。外部からの攻撃を受けた可能性があるため、念入りにチェックしてください。問題がなければグローバル設定を更新し、検出情報をリセットしてください。(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
 

@@ -61,7 +61,6 @@ if(0< count($warnings))
 
 if (isset($data) && count($data) > 0) {
 	$savethese = array();
-	$data['sys_files_checksum'] = $modx->manager->getSystemChecksum($data['check_files_onlogin']);
 	foreach ($data as $k => $v) {
 		switch ($k) {
 			case 'site_url':

@@ -594,13 +594,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage4" ) );</script>
 <table class="settings">
 <tr>
-    <th><?php echo $_lang["check_files_onlogin_title"] ?></th>
-    <td>
-      <textarea name="check_files_onlogin"><?php echo $check_files_onlogin;?></textarea><br />
-        <?php echo $_lang["check_files_onlogin_message"] ?>
-	</td>
-</tr>
-<tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
 	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $modx->config['use_udperms']=='1','id="udPerms1"'));?><br />

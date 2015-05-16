@@ -159,7 +159,6 @@ class Mysqldumper {
 		{
 			case 'filemanager_path':
 			case 'rb_base_dir':
-			case 'sys_files_checksum':
 			if(strpos($row['setting_value'],MODX_BASE_PATH)!==false)
 				$row['setting_value'] = str_replace(MODX_BASE_PATH,'[(base_path)]',$row['setting_value']);
     			break;
@@ -263,7 +262,6 @@ class Mysqldumper {
     		{
     			case 'rb_base_dir':
     			case 'filemanager_path':
-    			case 'sys_files_checksum':
     				if(strpos($value,'[(base_path)]')!==false)
     					$settings[$name] = str_replace('[(base_path)]',MODX_BASE_PATH,$value);
     				break;

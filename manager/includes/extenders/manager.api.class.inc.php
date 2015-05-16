@@ -441,46 +441,6 @@ class ManagerAPI {
 		return $result;
 	}
 
-	function getSystemChecksum($check_files) {
-		global $modx;
-		
-		$check_files = trim($check_files);
-		$check_files = explode("\n", $check_files);
-		foreach($check_files as $file) {
-			$file = trim($file);
-			$file = MODX_BASE_PATH . $file;
-			if(!is_file($file)) continue;
-			$_[$file]= md5_file($file);
-		}
-		return serialize($_);
-	}
-	
-	function setSystemChecksum($checksum) {
-		global $modx;
-		$tbl_system_settings = $modx->getFullTableName('system_settings');
-		$sql = "REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES ('sys_files_checksum','{$checksum}')";
-        $modx->db->query($sql);
-	}
-	
-	function checkSystemChecksum() {
-		global $modx;
-
-		if(!isset($modx->config['check_files_onlogin']) || empty($modx->config['check_files_onlogin'])) return '0';
-		
-		$current = $this->getSystemChecksum($modx->config['check_files_onlogin']);
-		if(empty($current)) return;
-		
-		if(!isset($modx->config['sys_files_checksum']) || empty($modx->config['sys_files_checksum']))
-		{
-			$this->setSystemChecksum($current);
-			return;
-		}
-		if($current===$modx->config['sys_files_checksum']) $result = '0';
-		else                                               $result = 'modified';
-
-		return $result;
-	}
-	
 	function setView($action)
 	{
 		$actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');

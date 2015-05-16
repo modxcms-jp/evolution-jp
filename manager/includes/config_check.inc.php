@@ -6,10 +6,6 @@ $base_path = MODX_BASE_PATH;
 $rs = checkAjaxSearch();
 if($rs) $warnings[] = 'configcheck_danger_ajaxsearch';
 
-$sysfiles_check = $modx->manager->checkSystemChecksum();
-if ($sysfiles_check==='modified'){
-      $warnings[] = 'configcheck_sysfiles_mod';
-    }
 if (is_writable(MODX_CORE_PATH . 'config.inc.php')) @chmod(MODX_CORE_PATH . 'config.inc.php', 0444);
 if (is_writable(MODX_CORE_PATH . 'config.inc.php')){
     // Warn if world writable
