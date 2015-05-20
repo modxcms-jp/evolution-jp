@@ -65,20 +65,7 @@ class RESOURCE_API
     global $modx;
 
     $this->modx = &$modx;
-
-    if( $this->isInt($id,1) )
-    {
-      //Load content
-      //$this->id=$id;
-      $rs  = $this->modx->db->select('*','[+prefix+]site_content','id='.$id);
-      $row = $this->modx->db->getRow($rs);
-      if( !empty($row) )
-        $this->content = $row;
-      else
-        $this->content = $this->content_lists;
-    }
-    else
-      $this->content = $this->content_lists;
+    $this->load($id);
   }
 
   /*
@@ -112,6 +99,29 @@ class RESOURCE_API
       return false;
   }
 
+  /*
+   * load resource
+   *
+   * @param $id Resource id
+   * @return bool  
+   *
+   */
+	public function load($id)
+  {
+    $this->content = $this->content_lists;
+    if( $this->isInt($id,1) )
+    {
+      $rs  = $this->modx->db->select('*','[+prefix+]site_content','id='.$id);
+      $row = $this->modx->db->getRow($rs);
+      if( !empty($row) )
+      {
+        $this->content = $row;
+        return true;
+      }
+    }
+    return false;
+  }
+  
   /*
    * save resource
    *
