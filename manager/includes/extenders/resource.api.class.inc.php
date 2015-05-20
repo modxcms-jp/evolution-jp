@@ -7,8 +7,14 @@
 class ResourceObject
 {
 
+  const LOG_INFO = 1;
+  const LOG_WARN = 2;
+  const LOG_ERR  = 3;
+  
   //private $id='';             //Resource ID
-  private $content = array(); // site content
+  private $content = array(); // Site content
+  private $logLevel = self::LOG_ERR; //Output log level
+  private $lastLog = '';      // Last log message
   private $modx;
 
   //content table column (name => default value(null=sql default))
@@ -56,14 +62,18 @@ class ResourceObject
   /*
    * __construct
    *
-   * @param $id   Resource ID(blank=New resource)
+   * @param $id    Resource ID(blank=New resource)
+   * @param $level Log level
    * @return none
    *
    */
-	public function __construct($id='')
+	public function __construct($id='',$level='')
   {
     global $modx;
 
+    if( $this->isInt($level,1) )
+      $this->logLevel = $level;
+    
     $this->modx = &$modx;
     $this->load($id);
   }
@@ -150,7 +160,7 @@ class ResourceObject
         if( isset($this->content[$val]) && !is_null($this->content[$val]) )
           $c[$val] = $this->content[$val];
         else
-          $this->modx->logEvent(0,1,'Fields not exsist:'.$val,'ResourceObject');
+          $this->logWarn('Fields not exsist:'.$val);
       }
     }
 
@@ -174,13 +184,12 @@ class ResourceObject
     else
     {
       //insert
-      $this->modx->logEvent(0,1,'data='.print_r($c,true),'[debug]ResourceObject');
       $id = $this->modx->db->insert($c,'[+prefix+]site_content');
     }
 
     if( $id !== false && $clearCache )
       $this->modx->clearCache();
-    
+            
     return $id;
   }
 
@@ -218,6 +227,33 @@ class ResourceObject
     $this->content['deletedon'] = '';
     //$this->content['deletedby'] = 1;
     return $this->save('deleted,deletedon',$clearCache);
+  }
+
+  /*
+   * logging / loginfo / logwarn / logerr
+   *
+   * @param level Log level
+   * @param msg Log massages
+   * @return bool   
+   *
+   */
+	public function logging($level,$msg='')
+  {
+    $this->lastLog = $msg;
+    if( $this->logLevel <= $level )
+      $this->modx->logEvent(4,$level,$msg,'Resource Object');      
+  }
+	public function loginfo($msg='')
+  {
+    $this->logging(self::LOG_INFO,$msg);   
+  }
+	public function logwarn($msg='')
+  {
+    $this->logging(self::LOG_WARN,$msg);   
+  }
+	public function logerr($msg='')
+  {
+    $this->logging(self::LOG_ERR,$msg);   
   }
   
   //--- Sub method (This method might be good to be another share class.)
