@@ -4,7 +4,7 @@
  *
  */
 
-class RESOURCE_API
+class ResourceObject
 {
 
   //private $id='';             //Resource ID
@@ -150,7 +150,7 @@ class RESOURCE_API
         if( isset($this->content[$val]) && !is_null($this->content[$val]) )
           $c[$val] = $this->content[$val];
         else
-          $this->modx->logEvent(0,1,'Fields not exsist:'.$val,'Resource API');
+          $this->modx->logEvent(0,1,'Fields not exsist:'.$val,'ResourceObject');
       }
     }
 
@@ -174,7 +174,7 @@ class RESOURCE_API
     else
     {
       //insert
-      $this->modx->logEvent(0,1,'data='.print_r($c,true),'[debug]Resource API');
+      $this->modx->logEvent(0,1,'data='.print_r($c,true),'[debug]ResourceObject');
       $id = $this->modx->db->insert($c,'[+prefix+]site_content');
     }
 
