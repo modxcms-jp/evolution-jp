@@ -60,8 +60,9 @@ $mgr_dir   = substr($self_dir,strrpos($self_dir,'/')+1);
 $base_path = str_replace($mgr_dir . '/index.php','',$self);
 if(!is_dir("{$base_path}assets/cache")) mkdir("{$base_path}assets/cache");
 $site_mgr_path = $base_path . 'assets/cache/siteManager.php';
-if(is_file($site_mgr_path)) include_once($site_mgr_path);
-if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
+
+if( !is_file($site_mgr_path) )
+{
 	$src = "<?php\n";
 	$src .= "define('MGR_DIR', '{$mgr_dir}');\n";
 	$rs = file_put_contents($site_mgr_path,$src);
@@ -69,8 +70,11 @@ if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
 		echo 'siteManager.php write error';
 		exit;
 	}
-	sleep(1);
-	header('Location:' . $_SERVER['REQUEST_URI']);
+}
+include_once($site_mgr_path);
+if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir)
+{
+	echo 'MGR_DIR not found or error.';
 	exit;
 }
 
