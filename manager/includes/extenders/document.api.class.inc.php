@@ -104,9 +104,12 @@ class Document
 	public function setField($field='content',$val='')
   {
     if( array_key_exists($field,$this->content_lists) )
+    {
       $this->content[$field] = $val;
-    else
-      return false;
+      return true;
+    }
+    $this->logWarn('Field not exist:'.$field);
+    return true;
   }
 
   /*
@@ -160,7 +163,7 @@ class Document
         if( isset($this->content[$val]) && !is_null($this->content[$val]) )
           $c[$val] = $this->content[$val];
         else
-          $this->logWarn('Fields not exsist:'.$val);
+          $this->logWarn('Fields not exist:'.$val);
       }
     }
 
@@ -230,6 +233,18 @@ class Document
   }
 
   /*
+   * lastLog
+   *
+   * @param none
+   * @return string Log message
+   *
+   */
+	public function lastLog()
+  {
+    return $this->lastLog;
+  }
+
+  /*
    * logging / loginfo / logwarn / logerr
    *
    * @param level Log level
@@ -237,21 +252,21 @@ class Document
    * @return bool   
    *
    */
-	public function logging($level,$msg='')
+	private function logging($level,$msg='')
   {
     $this->lastLog = $msg;
     if( $this->logLevel <= $level )
       $this->modx->logEvent(4,$level,$msg,'Document Object');      
   }
-	public function loginfo($msg='')
+	private function loginfo($msg='')
   {
     $this->logging(self::LOG_INFO,$msg);   
   }
-	public function logwarn($msg='')
+	private function logwarn($msg='')
   {
     $this->logging(self::LOG_WARN,$msg);   
   }
-	public function logerr($msg='')
+	private function logerr($msg='')
   {
     $this->logging(self::LOG_ERR,$msg);   
   }
