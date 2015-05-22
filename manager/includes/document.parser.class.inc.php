@@ -118,7 +118,7 @@ class DocumentParser {
         if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';
         
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->loadExtension('ResourceAPI');
+        $this->loadExtension('DocumentAPI');
         if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
         // events
@@ -181,9 +181,9 @@ class DocumentParser {
                 if($this->mail) return true;
                 else            return false;
                 break;
-            // Resource API
-            case 'ResourceAPI' :
-                if( !include_once(MODX_CORE_PATH . 'extenders/resource.api.class.inc.php') )
+            // Document API
+            case 'DocumentAPI' :
+                if( !include_once(MODX_CORE_PATH . 'extenders/document.api.class.inc.php') )
                   return false;
                 break;
             // Resource API

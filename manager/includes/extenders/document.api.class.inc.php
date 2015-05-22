@@ -4,7 +4,7 @@
  *
  */
 
-class ResourceObject
+class Document
 {
 
   const LOG_INFO = 1;
@@ -241,7 +241,7 @@ class ResourceObject
   {
     $this->lastLog = $msg;
     if( $this->logLevel <= $level )
-      $this->modx->logEvent(4,$level,$msg,'Resource Object');      
+      $this->modx->logEvent(4,$level,$msg,'Document Object');      
   }
 	public function loginfo($msg='')
   {
