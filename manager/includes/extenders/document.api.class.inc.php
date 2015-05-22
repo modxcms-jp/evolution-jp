@@ -79,13 +79,13 @@ class Document
   }
 
   /*
-   * getField
+   * Get field
    *
    * @param $field Resource column name
    * @return string
    *
    */
-	public function getField($field='content')
+	public function get($field='content')
   {
     if( !empty($field) && array_key_exists($field,$this->content) )
       return $this->content[$field];
@@ -94,14 +94,14 @@ class Document
   }
 
   /*
-   * setField
+   * Set field
    *
    * @param $field Resource column name
    * @param $val   new value
    * @return bool
    *
    */
-	public function setField($field='content',$val='')
+	public function set($field='content',$val='')
   {
     if( array_key_exists($field,$this->content_lists) )
     {
@@ -256,7 +256,7 @@ class Document
   {
     $this->lastLog = $msg;
     if( $this->logLevel <= $level )
-      $this->modx->logEvent(4,$level,$msg,'Document Object');      
+      $this->modx->logEvent(4,$level,$msg,'Document Object');
   }
 	private function loginfo($msg='')
   {
