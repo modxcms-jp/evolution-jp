@@ -1248,9 +1248,6 @@ $_lang["doc_encoding_message"] = 'Set a default encoding to use for the output o
 
 $_lang["template_parent"] = 'Template parent';
 
-$_lang['configcheck_sysfiles_mod'] = 'Important System Files have been modified.';
-$_lang['configcheck_sysfiles_mod_msg'] = 'You have enabled the setting to check important system files to detect possible website script attacks. This doesn\'t necessarily mean that your site has been compromised, however, you should review the changed files.(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
-
 $_lang['email_method_title'] = 'Sendmail method';
 $_lang['email_method_mail'] = 'mail() PHP function';
 $_lang['email_method_smtp'] = 'SMTP Server';
