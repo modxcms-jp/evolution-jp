@@ -1299,3 +1299,6 @@ $_lang["draft_data_publishdate"] = 'Publish draft';
 $_lang["bk.contentOnly"] = 'Contents only';
 $_lang["bk.fileName"] = 'File name';
 $_lang["delete_resource_complete"] = 'Delete complete';
+
+$_lang["enable_draft_title"] = 'Draft function';
+$_lang["enable_draft_message"] = 'Show draft UI.';

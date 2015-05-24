@@ -1300,3 +1300,6 @@ $_lang["draft_data_publishdate"] = '差替開始日時';
 $_lang["bk.contentOnly"] = 'コンテンツデータのみ';
 $_lang["bk.fileName"] = 'ファイル名';
 $_lang["delete_resource_complete"] = '完全に削除';
+
+$_lang["enable_draft_title"] = '下書き機能';
+$_lang["enable_draft_message"] = '下書き機能の操作ボタンなどを表示します。無効にしても下書きデータは失われません。';

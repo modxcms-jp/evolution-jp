@@ -91,6 +91,7 @@ $default_config['topmenu_reports']          = 'site_schedule,eventlog_viewer,vie
 $default_config['tree_pane_open_default']   = '1';
 $default_config['auto_sleep_user']          = '365';
 $default_config['doc_encoding']             = 'UTF-8';
+$default_config['enable_draft']             = '1';
 
 if(!isset($_GET['a']) || $_GET['a'] !=='17') return $default_config;
 

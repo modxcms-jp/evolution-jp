@@ -122,6 +122,8 @@ function ab_open_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
 	
+	if(!$modx->config['enable_draft']) return;
+	
 	$tpl = '<li id="Button4" class="opendraft"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
@@ -137,6 +139,8 @@ function ab_open_draft($id)
 function ab_create_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	
+	if(!$modx->config['enable_draft']) return;
 	
 	if(!$modx->hasPermission('edit_document')) return;
 	

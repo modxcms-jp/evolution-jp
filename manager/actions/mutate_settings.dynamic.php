@@ -914,6 +914,15 @@ foreach($files as $file)
 		<?php echo $_lang["language_message"]?>
 	</td>
 </tr>
+<tr>
+	<th><?php echo $_lang["enable_draft_title"]?></th>
+	<td>
+    	<?php echo wrap_label($_lang["enabled"],form_radio('enable_draft','1',$enable_draft=='1'));?><br />
+    	<?php echo wrap_label($_lang["disabled"],form_radio('enable_draft','0',$enable_draft=='0'));?><br />
+		<?php echo $_lang["enable_draft_message"]?>
+	</td>
+</tr>
+
 <?php
 $tmenu_style = 'style="width:350px;"';
 ?>

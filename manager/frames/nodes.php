@@ -107,9 +107,15 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		
 		$ph['id']        = $id;
 		$ph['hasdraft']    = !empty($hasDraft) ? 1 : 0;
-		if($hasDraft==='draft')       $draftDisplay = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['tree_draft']);
-		elseif($hasDraft==='standby') $draftDisplay = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['icons_date']);
-		else                          $draftDisplay = '';
+		
+		$draftDisplay = '';
+		if($modx->config['enable_draft'])
+	    {
+	    	$tpl = '&nbsp;<img src="%s">&nbsp;';
+    		if($hasDraft==='draft')       $draftDisplay = sprintf($tpl,$_style['tree_draft']);
+    		elseif($hasDraft==='standby') $draftDisplay = sprintf($tpl,$_style['icons_date']);
+		}
+		
 		$ph['alt']       = getAlt($id,$alias,$menuindex,$hidemenu,$privatemgr,$privateweb);
 		$ph['parent']    = $parent;
 		$ph['spacer']    = $spacer;

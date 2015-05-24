@@ -149,17 +149,24 @@ if ($numRecords > 0)
 		$tpl = '';
 		$tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
 		$icon = str_replace(array('[+iconpath+]','[+id+]'),array($iconpath,$children['id']),$tpl);
-		switch($children['status'])
+		
+		if($modx->config['enable_draft'])
 		{
-			case 'draft':
-    			$statusIcon = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['tree_draft']);
-    			break;
-			case 'standby':
-				$statusIcon = sprintf('&nbsp;<img src="%s">&nbsp;',$_style['icons_date']);
-    			break;
-		    default:
-		    	$statusIcon = '';
+			$tpl = '&nbsp;<img src="%s">&nbsp;';
+    		switch($children['status'])
+    		{
+    			case 'draft':
+        			$statusIcon = sprintf($tpl,$_style['tree_draft']);
+        			break;
+    			case 'standby':
+    				$statusIcon = sprintf($tpl,$_style['icons_date']);
+        			break;
+    		    default:
+    		    	$statusIcon = '';
+    		}
 		}
+		else $statusIcon = '';
+		
 		$tpl = '<div style="float:left;">[+icon+][+statusIcon+]</div><a href="[+link+]" style="overflow:hidden;display:block;color:#333;">[+pagetitle+][+description+]</a>';
 		$title = str_replace(array('[+icon+]','[+link+]','[+pagetitle+]','[+description+]','[+statusIcon+]'),
 		                     array($icon,$link,$pagetitle,$description,$statusIcon), $tpl);
