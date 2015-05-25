@@ -222,7 +222,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             // expand
             if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/plusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_minusnode"]; ?>';
-                folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folderopen"]; ?>' :'<?php echo $_style["tree_folderopen_secure"]; ?>';
+                if(id!=<?php echo $modx->config["site_start"];?>)
+                    folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folderopen"]; ?>' :'<?php echo $_style["tree_folderopen_secure"]; ?>';
             }
 
             rpcNodeText = rpcNode.innerHTML;
@@ -247,7 +248,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             // collapse
             if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/minusnode.gif')>-1) {
                 signImg.src = '<?php echo $_style["tree_plusnode"]; ?>';
-                folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folder"]; ?>' : '<?php echo $_style["tree_folder_secure"]; ?>';
+                if(id!=<?php echo $modx->config["site_start"];?>)
+                    folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folder"]; ?>' : '<?php echo $_style["tree_folder_secure"]; ?>';
             }
             //rpcNode.innerHTML = '';
             rpcNode.style.display = 'none';
