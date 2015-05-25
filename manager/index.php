@@ -70,8 +70,10 @@ if( !is_file($site_mgr_path) )
 		echo 'siteManager.php write error';
 		exit;
 	}
+	define('MGR_DIR', $mgr_dir);
 }
-include_once($site_mgr_path);
+else include_once($site_mgr_path);
+
 if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir)
 {
 	echo 'MGR_DIR not found or error.';
