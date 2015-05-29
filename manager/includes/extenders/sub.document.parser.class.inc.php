@@ -98,7 +98,7 @@ class SubParser {
             $trim = ($over + $trim);
             $modx->db->delete("[+prefix+]{$target}",'','',$trim);
         }
-        $result = $modx->db->query("SHOW TABLE STATUS FROM {$dbase}");
+        $result = $modx->db->query("SHOW TABLE STATUS FROM `{$dbase}`");
         while ($row = $modx->db->getRow($result))
         {
             $modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
