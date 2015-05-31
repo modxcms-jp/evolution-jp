@@ -3436,7 +3436,7 @@ class DocumentParser {
     
     function putChunk($chunkName)   {return $this->getChunk($chunkName);}
     function getDocGroups()         {return $this->getUserDocGroups();}
-    function changePassword($o, $n) {return changeWebUserPassword($o, $n);}
+    function changePassword($o, $n) {return $this->changeWebUserPassword($o, $n);}
     function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
                                     {return $this->parseText($src, $ph, $left, $right, $mode);}
     

@@ -105,10 +105,6 @@ if (0 < count($warnings))
 				$output = $_lang['configcheck_images_msg'];
 				if(!$_SESSION["mgrConfigCheck"]) $modx->logEvent(0,2,$output,$_lang[$warning]);
 				break;
-			case 'configcheck_sysfiles_mod':
-				$output = $_lang["configcheck_sysfiles_mod_msg"];
-				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang[$warning]);
-				break;
 			case 'configcheck_danger_ajaxsearch':
 				$output = $_lang["configcheck_danger_ajaxsearch_msg"];
 				if(!isset($_SESSION["mgrConfigCheck"])) $modx->logEvent(0,3,$output,$_lang['configcheck_danger_ajaxsearch']);

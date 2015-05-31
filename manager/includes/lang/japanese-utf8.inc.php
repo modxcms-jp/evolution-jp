@@ -1250,9 +1250,6 @@ $_lang["doc_encoding_message"] = 'ページの出力に用いるエンコード�
 
 $_lang["template_parent"] = '親テンプレート';
 
-$_lang['configcheck_sysfiles_mod'] = '重要なシステムファイルが書き換えられています。';
-$_lang['configcheck_sysfiles_mod_msg'] = '重要なシステムファイルが書き換わっています。外部からの攻撃を受けた可能性があるため、念入りにチェックしてください。問題がなければグローバル設定を更新し、検出情報をリセットしてください。(index.php, .htaccess, manager/index.php, manager/includes/config.inc.php)';
-
 $_lang["email_method_title"] = 'メール送信方法';
 $_lang["email_method_mail"] = 'mail関数(PHP)';
 $_lang["email_method_smtp"] = 'SMTP';
@@ -1300,3 +1297,6 @@ $_lang["draft_data_publishdate"] = '差替開始日時';
 $_lang["bk.contentOnly"] = 'コンテンツデータのみ';
 $_lang["bk.fileName"] = 'ファイル名';
 $_lang["delete_resource_complete"] = '完全に削除';
+
+$_lang["enable_draft_title"] = '下書き機能';
+$_lang["enable_draft_message"] = '下書き機能の操作ボタンなどを表示します。無効にしても下書きデータは失われません。';

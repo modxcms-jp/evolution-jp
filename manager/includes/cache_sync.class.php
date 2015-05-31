@@ -180,10 +180,10 @@ class synccache {
 		$content[] = sprintf('$site_status = %s;',      $setting['site_status']);
 		$content[] = sprintf('$error_reporting = "%s";',$setting['error_reporting']);
 		
-		if(isset($setting['site_url']) && !empty($setting['site_url']))
+		if(isset($setting['site_url']) && !empty($setting['site_url']) && strpos($setting['site_url'],'[(')===false)
 			$content[] = sprintf('$site_url = "%s";',   $setting['site_url']);
 		
-		if(isset($setting['base_url']) && !empty($setting['base_url']))
+		if(isset($setting['base_url']) && !empty($setting['base_url']) && strpos($setting['base_url'],'[(')===false)
 			$content[] = sprintf('$base_url = "%s";',   $setting['base_url']);
 		
 		if(isset($setting['conditional_get']) && !empty($setting['conditional_get']))

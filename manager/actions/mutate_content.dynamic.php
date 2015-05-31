@@ -21,7 +21,7 @@ $default_template = getDefaultTemplate();
 if($id) $docObject = getValuesFromDB($id,$docgrp);
 else    $docObject = getInitialValues();
 
-if($id) {
+if($id && $modx->config['enable_draft']) {
     $modx->loadExtension('REVISION');
     $modx->revisionObject = $modx->revision->getRevisionObject($id);
 }
