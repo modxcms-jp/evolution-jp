@@ -554,7 +554,13 @@ function getJScripts() {
 	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
 	if($modx->manager->action==131||!$modx->hasPermission('save_document'))
 		$ph['action'] = '131';
-	else $ph['action'] = '27';
+	else
+	{
+		if( empty($_REQUEST['id']) )
+			$ph['action'] = '4';
+		else
+			$ph['action'] = '27';
+	}
 	
 	return $modx->parseText($tpl,$ph);
 }
