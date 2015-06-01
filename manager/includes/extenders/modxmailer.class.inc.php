@@ -110,6 +110,17 @@ class MODxMailer extends PHPMailer
 		if(strpos($this->Body, $sanitize_seed)!==false)    $this->Body = str_replace($sanitize_seed, '', $this->Body);
 		if(strpos($this->Subject, $sanitize_seed)!==false) $this->Subject = str_replace($sanitize_seed, '', $this->Subject);
 		
+		$target = array(
+					"sanitized_by_modx& #039"=>"'",
+					"sanitized_by_modx& #145"=>"'",
+					"sanitized_by_modx& #146"=>"'",
+					"sanitized_by_modx& #034"=>"\"",
+					"sanitized_by_modx& #147"=>"\"",
+					"sanitized_by_modx& #148"=>"\"",
+					"&quot;"=>"\""
+				);
+		$this->Body = str_replace(array_keys($target), array_values($target), $this->Body);
+
         try {
             if(!$this->PreSend()) return false;
             return $this->PostSend();
