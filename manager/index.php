@@ -233,7 +233,8 @@ $modx->manager->setView($action);
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
-$evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", array("action" => $action));
+$tmp = array("action" => $action);
+$evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", $tmp);
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 switch ($action) {

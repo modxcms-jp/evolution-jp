@@ -33,10 +33,11 @@ if ($caption == '') $caption = $name;
 switch ($_POST['mode']) {
     case '300':
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent('OnBeforeTVFormSave', array(
-            'mode' => 'new',
-            'id'=>''
-        ));
+        $tmp = array(
+          'mode' => 'new',
+          'id'=>''
+        );
+        $modx->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
             $modx->manager->saveFormValues(300);
@@ -63,10 +64,11 @@ switch ($_POST['mode']) {
         saveDocumentAccessPermissons();
 
         // invoke OnTVFormSave event
-        $modx->invokeEvent('OnTVFormSave', array(
+        $tmp = array(
             'mode' => 'new',
             'id' => $newid
-        ));
+        );
+        $modx->invokeEvent('OnTVFormSave', $tmp);
 
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -85,10 +87,11 @@ switch ($_POST['mode']) {
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent('OnBeforeTVFormSave', array(
-            'mode' => 'upd',
-            'id' => $id
-        ));
+        $tmp = array(
+          'mode' => 'upd',
+          'id' => $id
+        );
+        $modx->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
             $modx->manager->saveFormValues(301);
@@ -125,10 +128,11 @@ switch ($_POST['mode']) {
             saveTemplateAccess();
             saveDocumentAccessPermissons();
             // invoke OnTVFormSave event
-            $modx->invokeEvent('OnTVFormSave', array(
+            $tmp = array(
                 'mode' => 'upd',
                 'id' => $id
-            ));
+            );
+            $modx->invokeEvent('OnTVFormSave', $tmp);
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect

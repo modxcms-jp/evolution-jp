@@ -9,10 +9,8 @@ if(!$modx->hasPermission('delete_plugin')) {
 $id=intval($_GET['id']);
 
 // invoke OnBeforePluginFormDelete event
-$modx->invokeEvent('OnBeforePluginFormDelete',
-						array(
-							'id' => $id
-						));
+$tmp = array('id' => $id);
+$modx->invokeEvent('OnBeforePluginFormDelete',$tmp);
 
 // delete the plugin.
 $rs = $modx->db->delete('[+prefix+]site_plugins',"id='{$id}'");
@@ -33,10 +31,8 @@ else
 	else
 	{
 		// invoke OnPluginFormDelete event
-		$modx->invokeEvent('OnPluginFormDelete',
-								array(
-									'id' => $id
-								));
+    $tmp = array('id' => $id);
+		$modx->invokeEvent('OnPluginFormDelete',$tmp);
 		// empty cache
 		$modx->clearCache();
 		header('Location: index.php?a=76');

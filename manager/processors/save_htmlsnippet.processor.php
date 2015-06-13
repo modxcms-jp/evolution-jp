@@ -60,10 +60,11 @@ switch ($_POST['mode']) {
     case '77':
 
         // invoke OnBeforeChunkFormSave event
-        $modx->invokeEvent('OnBeforeChunkFormSave', array(
-            'mode' => 'new',
-            'id' => ''
-        ));
+        $tmp = array(
+              'mode' => 'new',
+              'id' => ''
+        );
+        $modx->invokeEvent('OnBeforeChunkFormSave', $tmp);
 
         // disallow duplicate names for new chunks
         $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', "name='{$name}'");
@@ -84,10 +85,11 @@ switch ($_POST['mode']) {
         }
 
         // invoke OnChunkFormSave event
-        $modx->invokeEvent('OnChunkFormSave', array(
+        $tmp = array(
             'mode' => 'new',
             'id' => $newid
-        ));
+        );
+        $modx->invokeEvent('OnChunkFormSave', $tmp);
 
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -103,10 +105,11 @@ switch ($_POST['mode']) {
     case '78':
 
         // invoke OnBeforeChunkFormSave event
-        $modx->invokeEvent("OnBeforeChunkFormSave", array(
-            "mode" => "upd",
-            "id" => $id
-        ));
+        $tmp = array(
+          "mode" => "upd",
+          "id" => $id
+        );
+        $modx->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
@@ -137,10 +140,11 @@ switch ($_POST['mode']) {
             }
 
             // invoke OnChunkFormSave event
-            $modx->invokeEvent('OnChunkFormSave', array(
+            $tmp = array(
                 'mode' => 'upd',
                 'id' => $id
-            ));
+            );
+            $modx->invokeEvent('OnChunkFormSave', $tmp);
 
             // empty cache
             $modx->clearCache(); // first empty the cache

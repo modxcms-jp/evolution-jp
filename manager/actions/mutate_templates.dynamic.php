@@ -104,7 +104,8 @@ function deletedocument() {
 <form name="mutate" method="POST" action="index.php" enctype="multipart/form-data">
 <?php
 	// invoke OnTempFormPrerender event
-	$evtOut = $modx->invokeEvent("OnTempFormPrerender",array("id" => $id));
+  $tmp = array("id" => $id);
+	$evtOut = $modx->invokeEvent("OnTempFormPrerender",$tmp);
 	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="a" value="20">
@@ -308,7 +309,8 @@ if ($_REQUEST['a'] == '16')
 
 <?php
 // invoke OnTempFormRender event
-$evtOut = $modx->invokeEvent("OnTempFormRender",array('id' => $id));
+$tmp = array('id' => $id);
+$evtOut = $modx->invokeEvent("OnTempFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>

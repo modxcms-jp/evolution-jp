@@ -726,11 +726,11 @@ function fileupload()
 				$msg .=  '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
 				
 				// invoke OnFileManagerUpload event
-				$modx->invokeEvent('OnFileManagerUpload',
-				array(
+        $tmp = array(
 				'filepath'	=> $_POST['path'],
 				'filename'	=> $userfile['name']
-				));
+				);
+				$modx->invokeEvent('OnFileManagerUpload', $tmp);
 				// Log the change
 				logFileChange('upload', $_POST['path'].'/'.$userfile['name']);
 			}

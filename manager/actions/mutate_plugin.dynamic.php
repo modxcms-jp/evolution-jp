@@ -410,7 +410,8 @@ $j(function() {
 <form name="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
 <?php
 // invoke OnPluginFormPrerender event
-$evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));
+$tmp = array("id" => $id);
+$evtOut = $modx->invokeEvent("OnPluginFormPrerender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
     <input type="hidden" name="id" value="<?php echo $pluginObject->id;?>">
@@ -657,7 +658,8 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </div>
 <?php
 // invoke OnPluginFormRender event
-$evtOut = $modx->invokeEvent("OnPluginFormRender",array("id" => $id));
+$tmp = array("id" => $id);
+$evtOut = $modx->invokeEvent("OnPluginFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>

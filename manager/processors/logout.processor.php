@@ -5,11 +5,11 @@ $internalKey = $modx->getLoginUserID();
 $username = $_SESSION['mgrShortname'];
 
 // invoke OnBeforeManagerLogout event
-$modx->invokeEvent("OnBeforeManagerLogout",
-						array(
+$tmp = array(
 							"userid"		=> $internalKey,
 							"username"		=> $username
-						));
+);
+$modx->invokeEvent("OnBeforeManagerLogout",$tmp);
 
 //// Unset all of the session variables.
 //$_SESSION = array();
@@ -21,11 +21,11 @@ if (isset($_COOKIE[session_name()])) {
 @session_destroy(); // this sometimes generate an error in iis
 
 // invoke OnManagerLogout event
-$modx->invokeEvent("OnManagerLogout",
-						array(
+$tmp = array(
 							"userid"		=> $internalKey,
 							"username"		=> $username
-						));
+);
+$modx->invokeEvent("OnManagerLogout",$tmp);
 
 // show login screen
 header('Location: ' . MODX_SITE_URL . 'manager/');

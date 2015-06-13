@@ -31,10 +31,11 @@ switch ($_REQUEST['operation'])
 				warning("Failed to insert new group. Possible duplicate group name?");
 			}
 			// invoke OnManagerCreateGroup event
-			$modx->invokeEvent('OnManagerCreateGroup', array(
+      $tmp = array(
 				'groupid'   => $groupid,
 				'groupname' => $groupname,
-			));
+			);
+			$modx->invokeEvent('OnManagerCreateGroup', $tmp);
 		}
 		break;
 	case "add_document_group" :
@@ -53,10 +54,11 @@ switch ($_REQUEST['operation'])
 			}
 			
 			// invoke OnCreateDocGroup event
-			$modx->invokeEvent('OnCreateDocGroup', array(
+      $tmp = array(
 				'groupid'   => $groupid,
 				'groupname' => $groupname,
-			));
+			);
+			$modx->invokeEvent('OnCreateDocGroup', $tmp);
 		}
 		break;
 	case "delete_user_group" :

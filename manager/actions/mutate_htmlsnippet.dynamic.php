@@ -172,9 +172,8 @@ function resetpubdate() {
 <?php
 
 // invoke OnChunkFormPrerender event
-$evtOut = $modx->invokeEvent('OnChunkFormPrerender', array(
-	'id' => $id,
-));
+$tmp = array('id' => $id);
+$evtOut = $modx->invokeEvent('OnChunkFormPrerender', $tmp);
 if (is_array($evtOut))
 	echo implode('', $evtOut);
 
@@ -265,9 +264,8 @@ if (is_array($evtOut))
 <?php
 
 // invoke OnChunkFormRender event
-$evtOut = $modx->invokeEvent('OnChunkFormRender', array(
-	'id' => $id,
-));
+$tmp = array('id' => $id);
+$evtOut = $modx->invokeEvent('OnChunkFormRender', $tmp);
 if (is_array($evtOut))
 	echo implode('', $evtOut);
 ?>
@@ -349,12 +347,12 @@ if ($ds) {
 <?php
 // invoke OnRichTextEditorInit event
 if ($use_editor == 1) {
-	$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+  $tmp = array(
 		'editor' => $which_editor,
 		'elements' => array(
 			'post',
-		),
-	));
+		));
+	$evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
 	if (is_array($evtOut))
 		echo implode('', $evtOut);
 }

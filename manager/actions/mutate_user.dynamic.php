@@ -214,9 +214,8 @@ function SetUrl(url, width, height, alt){
 <?php
 
 // invoke OnUserFormPrerender event
-$evtOut = $modx->invokeEvent("OnUserFormPrerender", array (
-	"id" => $userid
-));
+$tmp = array ("id" => $userid);
+$evtOut = $modx->invokeEvent("OnUserFormPrerender", $tmp);
 if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
@@ -770,10 +769,11 @@ if ($modx->config['use_udperms'] == 1)
 <?php
 
 // invoke OnUserFormRender event
-$evtOut = $modx->invokeEvent("OnUserFormRender", array (
+$tmp = array (
 	"id" => $userid,
 	'usersettings'=>$usersettings
-));
+);
+$evtOut = $modx->invokeEvent("OnUserFormRender", $tmp);
 if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>

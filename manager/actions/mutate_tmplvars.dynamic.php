@@ -64,7 +64,8 @@ if($form_v) $content = array_merge($content, $form_v);
 
 // get available RichText Editors
 $RTEditors = '';
-$evtOut = $modx->invokeEvent('OnRichTextEditorRegister',array('forfrontend' => 1));
+$tmp = array('forfrontend' => 1);
+$evtOut = $modx->invokeEvent('OnRichTextEditorRegister',$tmp);
 if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
 
 if($content['locked']==='1')
@@ -311,7 +312,8 @@ function decode(s){
 <form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
-    $evtOut = $modx->invokeEvent('OnTVFormPrerender',array('id' => $id));
+    $tmp = array('id' => $id);
+    $evtOut = $modx->invokeEvent('OnTVFormPrerender',$tmp);
     if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="id" value="<?php echo $content['id'];?>">
@@ -640,7 +642,8 @@ function selected($target='')
 ?>
 <?php
     // invoke OnTVFormRender event
-    $evtOut = $modx->invokeEvent('OnTVFormRender',array('id' => $id));
+    $tmp = array('id' => $id);
+    $evtOut = $modx->invokeEvent('OnTVFormRender',$tmp);
     if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 </div>

@@ -40,11 +40,11 @@ if($name=="") $name = "Untitled module";
 switch ($_POST['mode']) {
     case '107':
 		// invoke OnBeforeModFormSave event
-		$modx->invokeEvent("OnBeforeModFormSave",
-							array(
+    $tmp = array(
 								'mode'	=> 'new',
 								'id'	=> ''
-							));
+    );
+		$modx->invokeEvent("OnBeforeModFormSave",$tmp);
 							
 		// disallow duplicate names for new modules
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_modules,"name = '{$name}'");
@@ -94,11 +94,11 @@ switch ($_POST['mode']) {
 			saveUserGroupAccessPermissons();
 			
 			// invoke OnModFormSave event
-			$modx->invokeEvent("OnModFormSave",
-								array(
+      $tmp = array(
 									'mode'	=> 'new',
 									'id'	=> $newid
-								));
+      );
+			$modx->invokeEvent("OnModFormSave",$tmp);
 			if($_POST['stay']!='')
 			{
 				$stay = $_POST['stay'];
@@ -115,11 +115,11 @@ switch ($_POST['mode']) {
         break;
     case '108':
 		// invoke OnBeforeModFormSave event
-		$modx->invokeEvent('OnBeforeModFormSave',
-							array(
+      $tmp array(
 								'mode'	=> 'upd',
 								'id'	=> $id
-							));
+      );
+		$modx->invokeEvent('OnBeforeModFormSave',$tmp);
 							
 		// save the edited module
 		$f = array();
@@ -136,11 +136,11 @@ switch ($_POST['mode']) {
 			saveUserGroupAccessPermissons();
 				
 			// invoke OnModFormSave event
-			$modx->invokeEvent('OnModFormSave',
-								array(
+      $tmp = array(
 									'mode'	=> 'upd',
 									'id'	=> $id
-								));
+      );
+			$modx->invokeEvent('OnModFormSave',$tmp);
 			if($_POST['stay']!='') {
 				$a = ($_POST['stay']=='2') ? "108&id=$id":"107";
 				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];

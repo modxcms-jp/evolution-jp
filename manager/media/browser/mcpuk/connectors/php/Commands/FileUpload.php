@@ -198,11 +198,11 @@ class FileUpload {
 				// (*4)
 				if (substr($disp,0,3) !== '202')
 				{
-					$modx->invokeEvent('OnFileBrowserUpload',
-							array(
+          $tmp = array(
 								'filepath'	=> $this->real_cwd,
 								'filename'	=> $filename
-							));
+          );
+					$modx->invokeEvent('OnFileBrowserUpload',$tmp);
 				}
 			}
 		}

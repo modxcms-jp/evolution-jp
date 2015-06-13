@@ -320,7 +320,8 @@ function SetUrl(url, width, height, alt) {
 <form name="mutate" id="mutate" class="module" method="post" action="index.php?a=109" enctype="multipart/form-data">
 <?php
     // invoke OnModFormPrerender event
-    $evtOut = $modx->invokeEvent('OnModFormPrerender', array('id' => $id));
+    $tmp = array('id' => $id);
+    $evtOut = $modx->invokeEvent('OnModFormPrerender', $tmp);
     if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 <input type="hidden" name="id" value="<?php echo $content['id']?>">
@@ -593,7 +594,8 @@ if ($modx->config['use_udperms'] == 1)
 <input type="submit" name="save" style="display:none;">
 <?php
 // invoke OnModFormRender event
-$evtOut = $modx->invokeEvent('OnModFormRender', array('id' => $id));
+$tmp = array('id' => $id);
+$evtOut = $modx->invokeEvent('OnModFormRender', $tmp);
 if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 </form>

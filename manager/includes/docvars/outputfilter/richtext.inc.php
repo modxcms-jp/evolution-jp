@@ -13,14 +13,14 @@
 	if (!empty($replace_richtext) && !empty($richtexteditor))
 	{
 		// invoke OnRichTextEditorInit event
-		$evtOut = $this->invokeEvent('OnRichTextEditorInit',
-		array(
+    $tmp = array(
 			'editor'      => $richtexteditor,
 			'elements'    => $replace_richtext,
 			'forfrontend' => 1,
 			'width'       => $w,
 			'height'      => $h
-		));
+		);
+		$evtOut = $this->invokeEvent('OnRichTextEditorInit',$tmp);
 		if(is_array($evtOut)) $o.= implode('',$evtOut);
 	}
 

@@ -21,11 +21,12 @@ else
 	{
 		$userinfo = $modx->getUserInfo($uid);
 		$msg = '<p class="success">' . $_lang["change_password_success"] . '</p>';
-		$modx->invokeEvent("OnManagerChangePassword", array (
+    $tmp = array (
 			"userid" => $uid,
 			"username" => $userinfo['username'],
 			"userpassword" => $userinfo['password']
-		));
+		);
+		$modx->invokeEvent("OnManagerChangePassword", $tmp);
 	}
 }
 $_SESSION['onetime_msg'] = $msg;

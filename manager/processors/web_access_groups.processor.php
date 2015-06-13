@@ -29,10 +29,11 @@ switch ($operation)
 			}
 			
 			// invoke OnWebCreateGroup event
-			$modx->invokeEvent('OnWebCreateGroup', array(
+      $tmp = array(
 				'groupid'   => $id,
 				'groupname' => $newgroup,
-			));
+			);
+			$modx->invokeEvent('OnWebCreateGroup', $tmp);
 		}
 		break;
 	case 'add_document_group' :
@@ -47,10 +48,11 @@ switch ($operation)
 			}
 			
 			// invoke OnCreateDocGroup event
-			$modx->invokeEvent('OnCreateDocGroup', array(
+      $tmp = array(
 				'groupid'   => $id,
 				'groupname' => $newgroup,
-			));
+			);
+			$modx->invokeEvent('OnCreateDocGroup', $tmp);
 		}
 		break;
 	case 'delete_user_group' :

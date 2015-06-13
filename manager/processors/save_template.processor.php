@@ -39,11 +39,11 @@ switch ($_POST['mode']) {
     case '19':
     
 		// invoke OnBeforeTempFormSave event
-		$modx->invokeEvent("OnBeforeTempFormSave",
-								array(
+      $tmp = array(
 									'mode'=>'new',
 									'id'=>''
-							));
+      );
+		$modx->invokeEvent("OnBeforeTempFormSave",$tmp);
 							
 		// disallow duplicate names for new templates
 		$rs = $modx->db->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
@@ -71,11 +71,11 @@ switch ($_POST['mode']) {
 		}
 
 		// invoke OnTempFormSave event
-		$modx->invokeEvent("OnTempFormSave",
-								array(
+    $tmp = array(
 									"mode"	=> "new",
 									"id"	=> $newid
-							));
+    );
+		$modx->invokeEvent("OnTempFormSave",$tmp);
 
 		// empty cache
 		$modx->clearCache();
@@ -94,11 +94,11 @@ switch ($_POST['mode']) {
     case '16':
 
 		// invoke OnBeforeTempFormSave event
-		$modx->invokeEvent('OnBeforeTempFormSave',
-								array(
+      $tmp = array(
 									'mode'	=> 'upd',
 									'id'	=> $id
-							));	   
+      );
+		$modx->invokeEvent('OnBeforeTempFormSave',$tmp);	   
 		
 		// disallow duplicate names for new templates
 		$rs = $modx->db->select('COUNT(id)',$tbl_site_templates,"templatename = '{$templatename}' AND id != '{$id}'");
@@ -126,11 +126,11 @@ switch ($_POST['mode']) {
 		else
 		{
 			// invoke OnTempFormSave event
-			$modx->invokeEvent("OnTempFormSave",
-									array(
+      $tmp = array(
 										"mode"	=> "upd",
 										"id"	=> $id
-								));
+      );
+			$modx->invokeEvent("OnTempFormSave",$tmp);
 
 			// first empty the cache
 			$modx->clearCache();

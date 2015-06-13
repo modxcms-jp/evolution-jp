@@ -263,7 +263,8 @@ function decode(s){
 <form name="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
 <?php
 	// invoke OnSnipFormPrerender event
-	$evtOut = $modx->invokeEvent("OnSnipFormPrerender",array("id" => $id));
+  $tmp = array("id" => $id);
+	$evtOut = $modx->invokeEvent("OnSnipFormPrerender",$tmp);
 	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 	<input type="hidden" name="id" value="<?php echo $content['id']?>">
@@ -417,7 +418,8 @@ function decode(s){
 	</div>
 <?php
 // invoke OnSnipFormRender event
-$evtOut = $modx->invokeEvent("OnSnipFormRender",array("id" => $id));
+$tmp = array("id" => $id);
+$evtOut = $modx->invokeEvent("OnSnipFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>

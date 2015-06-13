@@ -34,11 +34,11 @@ switch ($_POST['mode']) {
     case '101':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent('OnBeforePluginFormSave',
-                                array(
-                                    'mode'  => 'new',
-                                    'id'    => ''
-                                ));
+      $tmp = array(
+        'mode'  => 'new',
+        'id'    => ''
+      );
+        $modx->invokeEvent('OnBeforePluginFormSave',$tmp);
     
 		// disallow duplicate names for active plugins
 		if ($disabled == '0') {
@@ -82,11 +82,11 @@ switch ($_POST['mode']) {
         saveEventListeners($newid,$sysevents,$_POST['mode']);
         
         // invoke OnPluginFormSave event
-        $modx->invokeEvent('OnPluginFormSave',
-                                array(
-                                    'mode'  => 'new',
-                                    'id'    => $newid
-                                ));
+        $tmp = array(
+          'mode'  => 'new',
+          'id'    => $newid
+        );
+        $modx->invokeEvent('OnPluginFormSave',$tmp);
         
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -102,11 +102,11 @@ switch ($_POST['mode']) {
     case '102':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent("OnBeforePluginFormSave",
-                                array(
-                                    'mode'  => 'upd',
-                                    'id'    => $id
-                                ));
+      $tmp = array(
+        'mode'  => 'upd',
+        'id'    => $id
+      );
+        $modx->invokeEvent("OnBeforePluginFormSave",$tmp);
      
 		// disallow duplicate names for active plugins
 		if ($disabled == '0') {
@@ -147,11 +147,11 @@ switch ($_POST['mode']) {
             saveEventListeners($id,$sysevents,$_POST['mode']);
 
             // invoke OnPluginFormSave event
-            $modx->invokeEvent('OnPluginFormSave',
-                                    array(
-                                        'mode'  => 'upd',
-                                        'id'    => $id
-                                    ));
+            $tmp = array(
+              'mode'  => 'upd',
+              'id'    => $id
+            );
+            $modx->invokeEvent('OnPluginFormSave',$tmp);
             
             // empty cache
             $modx->clearCache(); // first empty the cache

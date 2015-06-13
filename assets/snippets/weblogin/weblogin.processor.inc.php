@@ -52,12 +52,12 @@ if ($isPWDActivate==1)
 		$rs2 = $modx->db->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
 		
 		// invoke OnWebChangePassword event
-		$modx->invokeEvent('OnWebChangePassword',
-		array(
+    $tmp = array(
 		'userid'       => $uid,
 		'username'     => $username,
 		'userpassword' => $newpwd
-		));
+		);
+		$modx->invokeEvent('OnWebChangePassword',$tmp);
 		
 		if(!$rs || !$rs2)  $output = webLoginAlert("Error while activating password.");
 		elseif(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
@@ -325,14 +325,14 @@ if (isset($modx->config['allowed_days']))
 }
 
 // invoke OnWebAuthentication event
-$rt = $modx->invokeEvent("OnWebAuthentication",
-array(
+$tmp = array(
 "userid"        => $internalKey,
 "username"      => $username,
 "userpassword"  => $givenPassword,
 "savedpassword" => $dbasePassword,
 "rememberme"    => $rememberme
-));
+);
+$rt = $modx->invokeEvent("OnWebAuthentication",$tmp);
 // check if plugin authenticated the user
 if (!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
 {
@@ -470,13 +470,13 @@ if($id!=$modx->documentIdentifier)
 }
 
 // invoke OnWebLogin event
-$modx->invokeEvent("OnWebLogin",
-array(
+$tmp = array(
 "userid"        => $internalKey,
 "username"      => $username,
 "userpassword"  => $givenPassword,
 "rememberme"    => $_POST['rememberme']
-));
+);
+$modx->invokeEvent("OnWebLogin",$tmp);
 
 // redirect
 if(isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl']))

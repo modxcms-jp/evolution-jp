@@ -27,10 +27,8 @@ if($id==$default_template) {
 }
 
 // invoke OnBeforeTempFormDelete event
-$modx->invokeEvent('OnBeforeTempFormDelete',
-						array(
-							'id' => $id
-						));
+$tmp = array('id' => $id);
+$modx->invokeEvent('OnBeforeTempFormDelete',$tmp);
 						
 //ok, delete the document.
 $rs = $modx->db->delete($tbl_site_templates,"id='{$id}'");
@@ -44,10 +42,8 @@ else
 	$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
 	
 	// invoke OnTempFormDelete event
-	$modx->invokeEvent('OnTempFormDelete',
-							array(
-								'id' => $id
-							));
+  $tmp = array('id' => $id);
+	$modx->invokeEvent('OnTempFormDelete',$tmp);
 
 	// empty cache
 	$modx->clearCache();

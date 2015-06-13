@@ -666,13 +666,13 @@ class SubParser {
                 $modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
                 $modx->db->update("blockeduntil='0'", '[+prefix+]web_user_attributes', "internalKey='{$uid}'");
                 // invoke OnWebChangePassword event
-                $modx->invokeEvent('OnWebChangePassword',
-                array
+                $tmp = array
                 (
                     'userid' => $row['id'],
                     'username' => $row['username'],
                     'userpassword' => $newPwd
-                ));
+                );
+                $modx->invokeEvent('OnWebChangePassword',$tmp);
                 return true;
             }
         }

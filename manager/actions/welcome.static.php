@@ -186,8 +186,8 @@ $modx->event->vars = array();
 $modx->event->vars['tpl'] = & $tpl;
 $evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
 if(is_array($evtOut)) {
-    $output = implode('',$evtOut);
-    $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
+  $output = implode('',$evtOut);
+  $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
 // invoke event OnManagerWelcomeHome

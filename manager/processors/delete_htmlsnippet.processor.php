@@ -8,10 +8,8 @@ $id=intval($_GET['id']);
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 
 // invoke OnBeforeChunkFormDelete event
-$modx->invokeEvent("OnBeforeChunkFormDelete",
-						array(
-							"id"	=> $id
-						));
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnBeforeChunkFormDelete",$tmp);
 
 //ok, delete the chunk.
 $rs = $modx->db->delete($tbl_site_htmlsnippets,"id='{$id}'");
@@ -20,10 +18,8 @@ if(!$rs) {
 	exit;
 } else {
 	// invoke OnChunkFormDelete event
-	$modx->invokeEvent("OnChunkFormDelete",
-							array(
-								"id"	=> $id
-							));
+  $tmp = array("id"	=> $id);
+	$modx->invokeEvent("OnChunkFormDelete",$tmp);
 
 	// empty cache
 	$modx->clearCache(); // first empty the cache

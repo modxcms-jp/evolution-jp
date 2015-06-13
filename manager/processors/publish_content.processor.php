@@ -41,7 +41,8 @@ if(!$rs)
 	exit("An error occured while attempting to publish the document.");
 
 // invoke OnDocPublished  event
-$modx->invokeEvent('OnDocPublished',array('docid'=>$id));
+$tmp = array('docid'=>$id);
+$modx->invokeEvent('OnDocPublished',$tmp);
 
 $modx->clearCache();
 

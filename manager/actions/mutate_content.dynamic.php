@@ -49,7 +49,8 @@ $modx->documentObject = & $docObject;
 
 $modx->event->vars['documentObject'] = & $docObject;
 // invoke OnDocFormPrerender event
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', array('id' => $id));
+$tmp = array('id' => $id);
+$evtOut = $modx->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = array();
 
 global $template, $selected_editor; // For plugins (ManagerManager etc...)
@@ -172,18 +173,18 @@ if ($modx->config['use_udperms'] == 1)
  ***********************************/
 
 // invoke OnDocFormRender event
-$OnDocFormRender = $modx->invokeEvent('OnDocFormRender', array(
-	'id' => $id,
-));
+$tmp = array('id' => $id);
+$OnDocFormRender = $modx->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
 if($modx->config['use_editor'] === '1') {
 	if(is_array($rte_field) && 0<count($rte_field)) {
 		// invoke OnRichTextEditorInit event
-		$evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+    $tmp = array(
 			'editor' => $selected_editor,
 			'elements' => $rte_field
-		));
+		);
+		$evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
 		if (is_array($evtOut)) $OnRichTextEditorInit = implode('', $evtOut);
 	}
 }

@@ -119,10 +119,11 @@ switch ($mode) {
 			exit;
 		}
 		// invoke OnBeforeUserFormSave event
-		$modx->invokeEvent("OnBeforeUserFormSave", array (
+    $tmp = array (
 			"mode" => "new",
 			"id" => $id
-		));
+		);
+		$modx->invokeEvent("OnBeforeUserFormSave", $tmp);
 
 		// build the SQL
 		$field = array();
@@ -147,7 +148,7 @@ switch ($mode) {
 		saveUserSettings($internalKey);
 
 		// invoke OnManagerSaveUser event
-		$modx->invokeEvent("OnManagerSaveUser", array (
+    $tmp = array (
 			"mode" => "new",
 			"userid" => $internalKey,
 			"username" => $newusername,
@@ -155,13 +156,15 @@ switch ($mode) {
 			"useremail" => $email,
 			"userfullname" => $fullname,
 			"userroleid" => $role
-		));
+		);
+		$modx->invokeEvent("OnManagerSaveUser", $tmp);
 
 		// invoke OnUserFormSave event
-		$modx->invokeEvent("OnUserFormSave", array (
+    $tmp = array (
 			"mode" => "new",
 			"id" => $internalKey
-		));
+		);
+		$modx->invokeEvent("OnUserFormSave", $tmp);
 		
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
@@ -285,10 +288,11 @@ switch ($mode) {
 		}
 
 		// invoke OnBeforeUserFormSave event
-		$modx->invokeEvent("OnBeforeUserFormSave", array (
+    $tmp = array (
 			"mode" => "upd",
 			"id" => $id
-		));
+		);
+		$modx->invokeEvent("OnBeforeUserFormSave", $tmp);
 
 		// update user name and password
 		$field = array();
@@ -309,7 +313,7 @@ switch ($mode) {
 		saveUserSettings($id);
 
 		// invoke OnManagerSaveUser event
-		$modx->invokeEvent("OnManagerSaveUser", array (
+    $tmp = array (
 			"mode" => "upd",
 			"userid" => $id,
 			"username" => $newusername,
@@ -318,25 +322,28 @@ switch ($mode) {
 			"userfullname" => $fullname,
 			"userroleid" => $role,
 			"oldusername" => (($oldusername != $newusername
-		) ? $oldusername : ''), "olduseremail" => (($oldemail != $email) ? $oldemail : '')));
+      ) ? $oldusername : ''), "olduseremail" => (($oldemail != $email) ? $oldemail : ''));
+		$modx->invokeEvent("OnManagerSaveUser", $tmp);
 
 		// invoke OnManagerChangePassword event
 		if (isset($hashed_password))
-			$modx->invokeEvent("OnManagerChangePassword", array (
+      $tmp = array (
 				"userid" => $id,
 				"username" => $newusername,
 				"userpassword" => $newpassword
-			));
+			);
+			$modx->invokeEvent("OnManagerChangePassword", $tmp);
 
 		if ($passwordnotifymethod == 'e' && $genpassword == 1) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 		}
 
 		// invoke OnUserFormSave event
-		$modx->invokeEvent("OnUserFormSave", array (
+    $tmp = array (
 			"mode" => "upd",
 			"id" => $id
-		));
+		);
+		$modx->invokeEvent("OnUserFormSave", $tmp);
 		$modx->clearCache();
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in

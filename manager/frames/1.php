@@ -18,7 +18,8 @@ else
 	$mainurl = "index.php?a={$action}";
 }
 
-$modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
+$tmp = array('action'=>$action);
+$modx->invokeEvent('OnManagerPreFrameLoader',$tmp);
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
@@ -51,4 +52,5 @@ $mainPane = '<frame name="main" src="' . $mainurl . '" scrolling="auto" framebor
 <noframes>This software requires a browser with support for frames.</noframes>
 </html>
 <?php
-$modx->invokeEvent('OnManagerFrameLoader',array('action'=>$action));
+$tmp = array('action'=>$action);
+$modx->invokeEvent('OnManagerFrameLoader',$tmp);

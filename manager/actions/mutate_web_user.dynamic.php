@@ -225,7 +225,8 @@ function SetUrl(url, width, height, alt){
 <form action="index.php?a=89" method="post" name="userform" enctype="multipart/form-data">
 <?php
 	// invoke OnWUsrFormPrerender event
-	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender",array("id" => $user));
+  $tmp = array("id" => $user);
+	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender",$tmp);
 	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>" />
@@ -537,7 +538,8 @@ if($modx->config['use_udperms']==1)
 <input type="submit" name="save" style="display:none">
 <?php
 	// invoke OnWUsrFormRender event
-	$evtOut = $modx->invokeEvent("OnWUsrFormRender",array("id" => $user));
+  $tmp = array("id" => $user);
+	$evtOut = $modx->invokeEvent("OnWUsrFormRender",$tmp);
 	if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>

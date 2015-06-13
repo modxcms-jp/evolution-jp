@@ -22,10 +22,8 @@ $rs = $modx->db->select('username',$tbl_manager_users,"id='{$id}'",'',1);
 if($rs) $username = $modx->db->getValue($rs);
 
 // invoke OnBeforeUserFormDelete event
-$modx->invokeEvent("OnBeforeUserFormDelete",
-						array(
-							"id"	=> $id
-						));
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnBeforeUserFormDelete",$tmp);
 
 //ok, delete the user.
 $modx->db->delete($tbl_manager_users,"id='{$id}'")
@@ -42,16 +40,14 @@ $modx->db->delete($tbl_user_attributes,"internalKey='{$id}'")
 	or exit("Something went wrong while trying to delete the user attributes...");
 
 // invoke OnManagerDeleteUser event
-$modx->invokeEvent("OnManagerDeleteUser",
-					array(
+$tmp = array(
 						"userid"		=> $id,
 						"username"		=> $username
-					));
+);
+$modx->invokeEvent("OnManagerDeleteUser",$tmp);
 
 // invoke OnUserFormDelete event
-$modx->invokeEvent("OnUserFormDelete",
-					array(
-						"id"	=> $id
-					));
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnUserFormDelete",$tmp);
 
 header("Location: index.php?a=75");

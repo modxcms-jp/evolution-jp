@@ -147,7 +147,13 @@ class DocumentParser {
         if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
     }
 
-    // loads an extension from the extenders folder
+    /*
+     * loads an extension from the extenders folder
+     *
+     * @param $extname Extension name
+     * @return bool or Object
+     * 
+     */
     function loadExtension($extname)
     {
         global $database_type;
@@ -243,6 +249,10 @@ class DocumentParser {
                     return true;
                 }
                 else return false;
+                break;
+            case 'ConfigMediation':
+                include_once(MODX_CORE_PATH . 'extenders/config.mediation.class.php');
+                return new CONFIG_MEDIATION($this);
                 break;
             default :
                 return false;
@@ -1606,6 +1616,7 @@ class DocumentParser {
         if (is_array($params))
         {
             extract($params, EXTR_SKIP);
+            $modx->event->cm->setParams($params);
         }
         ob_start();
         $return = eval($pluginCode);
@@ -3088,7 +3099,7 @@ class DocumentParser {
     }
 
     # invoke an event. $extParams - hash array: name=>value
-    function invokeEvent($evtName, $extParams= array ())
+    function invokeEvent($evtName, &$extParams= array ())
     {
         if (!empty($this->safeMode))               return false;
         if (!$evtName)                             return false;
@@ -3106,6 +3117,8 @@ class DocumentParser {
             
             // reset event object
             $this->event->_resetEventObject();
+            $preCm = $this->event->cm;
+            $this->event->cm = $this->loadExtension('ConfigMediation');
             
             // get plugin code and properties
             $pluginCode       = $this->getPluginCode($pluginName);
@@ -3118,11 +3131,21 @@ class DocumentParser {
             // eval plugin
             $this->event->activePlugin= $pluginName;
             $output = $this->evalPlugin($pluginCode, $parameter);
-            if($output) $this->event->_output .= $output;
+            if($output) $this->event->cm->addOutput($output);
             $this->event->activePlugin= '';
             
             $this->event->setAllGlobalVariables();
-            if ($this->event->_output != '') $results[]=$this->event->_output;
+            if ($this->event->_output != '') $results[]=$this->event->_output; /* deprecation */
+            if ($this->event->cm->hasOutput) $results[]=$this->event->cm->showOutput();
+            foreach ( $extParams as $key => $val)
+            {
+              $tmp = $this->event->cm->getParam($key);
+              if( $val != $tmp )
+                $extParams[$key] = $tmp;
+            }
+            $cm = $this->event->cm;
+            unset($cm);
+            $this->event->cm = $preCm;
             if ($this->event->_propagate != true) break;
         }
         $this->event->name= '';
@@ -3583,6 +3606,7 @@ class SystemEvent {
     var $activePlugin;
     var $params = array();
     var $vars = array();
+    var $cm = null;
 
     function SystemEvent($name= '') {
         $this->_resetEventObject();
@@ -3603,7 +3627,10 @@ class SystemEvent {
 
     // used for rendering an out on the screen
     function output($msg) {
-        $this->_output .= $msg;
+      if( is_object($this->cm) )
+      {
+        $this->cm->addOutput($msg);
+      }
     }
 
     // get global variables

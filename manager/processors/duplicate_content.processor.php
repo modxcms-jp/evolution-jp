@@ -39,9 +39,10 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	global $modx,$_lang;
 	
 	// invoke OnBeforeDocDuplicate event
-	$evtOut = $modx->invokeEvent('OnBeforeDocDuplicate', array(
+  $tmp = array(
 		'id' => $docid
-	));
+	);
+	$evtOut = $modx->invokeEvent('OnBeforeDocDuplicate', $tmp);
 
 	// if( !in_array( 'false', array_values( $evtOut ) ) ){}
 	// TODO: Determine necessary handling for duplicateDocument "return $newparent" if OnBeforeDocDuplicate were able to conditially control duplication 
@@ -111,10 +112,11 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0, $reset_alias=true
 	duplicateAccess($docid, $new_id);
 	
 	// invoke OnDocDuplicate event
-	$evtOut = $modx->invokeEvent('OnDocDuplicate', array(
+  $tmp = array(
 		'id' => $docid,
 		'new_id' => $new_id
-	));
+	);
+	$evtOut = $modx->invokeEvent('OnDocDuplicate', $tmp);
 
 	// Start duplicating all the child documents that aren't deleted.
 	$rs = $modx->db->select('id', '[+prefix+]site_content', "parent='{$docid}' AND deleted=0", 'id ASC');

@@ -7,10 +7,8 @@ if(!$modx->hasPermission('delete_module')) {
 $id=intval($_GET['id']);
 
 // invoke OnBeforeModFormDelete event
-$modx->invokeEvent("OnBeforeModFormDelete",
-						array(
-							"id"	=> $id
-						));
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnBeforeModFormDelete",$tmp);
 
 //ok, delete the module.
 $sql = "DELETE FROM ".$modx->getFullTableName("site_modules")." WHERE id=".$id.";";
@@ -30,10 +28,8 @@ else {
 	$rs = $modx->db->query($sql);
 
 	// invoke OnModFormDelete event
-	$modx->invokeEvent("OnModFormDelete",
-							array(
-								"id"	=> $id
-							));
+  $tmp = array("id"	=> $id);
+	$modx->invokeEvent("OnModFormDelete",$tmp);
 
 
 	// empty cache

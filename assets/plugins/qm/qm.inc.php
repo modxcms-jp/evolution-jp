@@ -223,7 +223,8 @@ class Qm {
 							if($tv['type'] == 'richtext')
 							{
 								// Invoke OnRichTextEditorInit event
-								$eventOutput = $this->modx->invokeEvent("OnRichTextEditorInit", array('editor'=>$this->modx->config['which_editor'], 'elements'=>array('tv'.$tvName)));
+                $tmp = array('editor'=>$this->modx->config['which_editor'], 'elements'=>array('tv'.$tvName));
+								$eventOutput = $this->modx->invokeEvent("OnRichTextEditorInit", $tmp);
 								if(is_array($eventOutput))
 								{
 									$editorHtml = implode("",$eventOutput);
@@ -982,7 +983,8 @@ function getCookie(cookieName)
 		$tvContent = $this->modx->db->escape($tvContent);
 		
 		// Invoke OnBeforeDocFormSave event
-		$this->modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd', 'id'=>$pageId));
+    $tmp = array('mode'=>'upd', 'id'=>$pageId);
+		$this->modx->invokeEvent('OnBeforeDocFormSave', $tmp);
 		
 		// Handle checkboxes and other arrays, TV to be saved must be e.g. value1||value2||value3
 		if (is_array($tvContent))
@@ -1040,7 +1042,8 @@ function getCookie(cookieName)
 		{
 			// No errors
 			// Invoke OnDocFormSave event
-			$this->modx->invokeEvent('OnDocFormSave', array('mode'=>'upd', 'id'=>$pageId));
+      $tmp = array('mode'=>'upd', 'id'=>$pageId);
+			$this->modx->invokeEvent('OnDocFormSave', $tmp);
 			// Clear cache
 			$this->clearCache();
 		}

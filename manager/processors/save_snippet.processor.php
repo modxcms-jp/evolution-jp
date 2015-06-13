@@ -44,11 +44,11 @@ switch ($_POST['mode'])
 {
 	case '23':
 		// invoke OnBeforeSnipFormSave event
-		$modx->invokeEvent('OnBeforeSnipFormSave',
-								array(
+    $tmp = array(
 									'mode'	=> 'new',
 									'id'	=> ''
-								));
+    );
+		$modx->invokeEvent('OnBeforeSnipFormSave',$tmp);
 								
 		// disallow duplicate names for new snippets
 		$rs = $modx->db->select('COUNT(id)', $tbl_site_snippets, "name = '{$name}'");
@@ -93,11 +93,11 @@ switch ($_POST['mode'])
 		}
 		
 		// invoke OnSnipFormSave event
-		$modx->invokeEvent('OnSnipFormSave',
-								array(
+    $tmp = array(
 									'mode'	=> 'new',
 									'id'	=> $newid
-								));
+    );
+		$modx->invokeEvent('OnSnipFormSave',$tmp);
 		// empty cache
 		$modx->clearCache(); // first empty the cache
 		// finished emptying cache - redirect
@@ -115,11 +115,11 @@ switch ($_POST['mode'])
 		
 	case '22':
 		// invoke OnBeforeSnipFormSave event
-		$modx->invokeEvent('OnBeforeSnipFormSave',
-								array(
+    $tmp = array(
 									'mode'	=> 'upd',
 									'id'	=> $id
-								));
+    );
+		$modx->invokeEvent('OnBeforeSnipFormSave',$tmp);
 								
 		//do stuff to save the edited doc
 		$field = array();
@@ -139,11 +139,11 @@ switch ($_POST['mode'])
 		else
 		{
 			// invoke OnSnipFormSave event
-			$modx->invokeEvent('OnSnipFormSave',
-									array(
+      $tmp = array(
 										'mode'	=> 'upd',
 										'id'	=> $id
-									));
+      );
+			$modx->invokeEvent('OnSnipFormSave',$tmp);
 			// empty cache
 			$modx->clearCache(); // first empty the cache
 			//if($_POST['runsnippet']) run_snippet($snippet);

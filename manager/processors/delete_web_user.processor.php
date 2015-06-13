@@ -19,10 +19,8 @@ if($rs) {
 
 
 // invoke OnBeforeWUsrFormDelete event
-$modx->invokeEvent("OnBeforeWUsrFormDelete",
-					array(
-						"id"	=> $id
-					));
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnBeforeWUsrFormDelete",$tmp);
 
 // delete the user.
 $rs = $modx->db->delete($tbl_web_users,"id='{$id}'");
@@ -46,17 +44,15 @@ if(!$rs) {
 	$modx->db->delete('[+prefix+]web_user_settings',"webuser='{$id}'");
 	
 	// invoke OnWebDeleteUser event
-	$modx->invokeEvent("OnWebDeleteUser",
-						array(
+  $tmp = array(
 							"userid"		=> $id,
 							"username"		=> $username
-						));
+  );
+	$modx->invokeEvent("OnWebDeleteUser",$tmp);
 
 	// invoke OnWUsrFormDelete event
-	$modx->invokeEvent("OnWUsrFormDelete",
-						array(
-							"id"	=> $id
-						));
+  $tmp = array("id"	=> $id);
+	$modx->invokeEvent("OnWUsrFormDelete",$tmp);
 
 	header("Location: index.php?a=99");
 }

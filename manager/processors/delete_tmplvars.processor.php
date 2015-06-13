@@ -57,10 +57,8 @@ if(!$modx->hasPermission('delete_template')) {
 	}
 
 	// invoke OnBeforeTVFormDelete event
-	$modx->invokeEvent("OnBeforeTVFormDelete",
-							array(
-								"id"	=> $id
-							));
+  $tmp = array("id" => $id);
+	$modx->invokeEvent("OnBeforeTVFormDelete",$tmp);
 						
 	// delete variable
 	$rs = $modx->db->delete($tbl_site_tmplvars, "id='{$id}'");
@@ -81,7 +79,5 @@ if(!$modx->hasPermission('delete_template')) {
 	$modx->db->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
 
 	// invoke OnTVFormDelete event
-	$modx->invokeEvent("OnTVFormDelete",
-							array(
-								"id"	=> $id
-							));
+  $tmp = array( "id"	=> $id);
+	$modx->invokeEvent("OnTVFormDelete",$tmp);

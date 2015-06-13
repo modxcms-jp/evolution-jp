@@ -105,10 +105,11 @@ switch ($_POST['mode']) {
 		}
 
 		// invoke OnBeforeWUsrFormSave event
-		$modx->invokeEvent('OnBeforeWUsrFormSave', array (
+    $tmp = array (
 			'mode' => 'new',
 			'id' => $id
-		));
+		);
+		$modx->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
 		// create the user account
 		$fields = array();
@@ -133,20 +134,22 @@ switch ($_POST['mode']) {
 		saveUserSettings($internalKey);
 
 		// invoke OnWebSaveUser event
-		$modx->invokeEvent('OnWebSaveUser', array (
+    $tmp = array (
 			'mode' => 'new',
 			'userid' => $internalKey,
 			'username' => $newusername,
 			'userpassword' => $newpassword,
 			'useremail' => $email,
 			'userfullname' => $fullname
-		));
+		);
+    $modx->invokeEvent('OnWebSaveUser', $tmp);
 
 		// invoke OnWUsrFormSave event
-		$modx->invokeEvent('OnWUsrFormSave', array (
+    $tmp = array (
 			'mode' => 'new',
 			'id' => $internalKey
-		));
+		);
+		$modx->invokeEvent('OnWUsrFormSave', $tmp);
 
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
@@ -269,10 +272,11 @@ switch ($_POST['mode']) {
 		}
 
 		// invoke OnBeforeWUsrFormSave event
-		$modx->invokeEvent('OnBeforeWUsrFormSave', array (
+    $tmp = array (
 			'mode' => 'upd',
 			'id' => $id
-		));
+		);
+		$modx->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
 		// update user name and password
 		$esc_newusername = $modx->db->escape($newusername);
@@ -295,7 +299,7 @@ switch ($_POST['mode']) {
 		saveUserSettings($id);
 
 		// invoke OnWebSaveUser event
-		$modx->invokeEvent('OnWebSaveUser', array (
+    $tmp = array (
 			'mode' => 'upd',
 			'userid' => $id,
 			'username' => $newusername,
@@ -303,21 +307,24 @@ switch ($_POST['mode']) {
 			'useremail' => $email,
 			'userfullname' => $fullname,
 			'oldusername' => (($oldusername != $newusername
-		) ? $oldusername : ''), 'olduseremail' => (($oldemail != $email) ? $oldemail : '')));
+      ) ? $oldusername : ''), 'olduseremail' => (($oldemail != $email) ? $oldemail : ''));
+		$modx->invokeEvent('OnWebSaveUser', $tmp);
 
 		// invoke OnWebChangePassword event
 		if ($updatepasswordsql)
-			$modx->invokeEvent('OnWebChangePassword', array (
+      $tmp = array (
 				'userid' => $id,
 				'username' => $newusername,
 				'userpassword' => $newpassword
-			));
-
-		// invoke OnWUsrFormSave event
-		$modx->invokeEvent('OnWUsrFormSave', array (
-			'mode' => 'upd',
-			'id' => $id
-		));
+			);
+			$modx->invokeEvent('OnWebChangePassword', $tmp);
+      
+      // invoke OnWUsrFormSave event
+      $tmp = array (
+        'mode' => 'upd',
+        'id' => $id
+      );
+      $modx->invokeEvent('OnWUsrFormSave', $tmp);
 
 		/*******************************************************************************/
 		// put the user in the user_groups he/ she should be in
