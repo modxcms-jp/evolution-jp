@@ -410,9 +410,16 @@ class DocumentParser {
         $this->documentContent= $this->checkCache($this->documentIdentifier);
         if ($this->documentContent != '')
         {
-            $this->invokeEvent('OnLoadWebPageCache'); // invoke OnLoadWebPageCache  event
+          $params = array('useCache' => true);
+          $this->invokeEvent('OnLoadWebPageCache',$params); // invoke OnLoadWebPageCache  event
+          if( $params['useCache'] != true ) //no use cache
+          {
+            $this->config['cache_type'] = 0;
+            $this->documentContent = '';
+          }
         }
-        else
+
+        if ($this->documentContent == '')
         {
             // get document object
             $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
@@ -1203,7 +1210,7 @@ class DocumentParser {
     
         // clear the cache
         $this->clearCache();
-        
+
         unset($this->chunkCache);
         $this->setChunkCache();
     }
