@@ -361,7 +361,7 @@ class SubParser {
         if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
 
         // Set 500 response header
-        if($error_level !== 2) header('HTTP/1.1 500 Internal Server Error');
+        if(2 < $error_level) header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
         if (isset($_SESSION['mgrValidated']))
