@@ -29,7 +29,7 @@ class PHx {
 		$modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
 		$modifiers = $this->splitModifiers($modifiers);
 		$this->vars = array();
-		$this->vars['name']    = & $phxkey;
+		$this->vars['name']    = & $key;
 		$value = $this->parsePhx($key,$value,$modifiers);
 		$this->vars = array();
 		return $value;
