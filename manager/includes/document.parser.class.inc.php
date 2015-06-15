@@ -2060,11 +2060,12 @@ class DocumentParser {
         if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
         
         // get document (add so)
-        if($this->isFrontend()) $access= 'sc.privateweb=0';
-        else                    $access= 'sc.privatemgr=0';
-        
-        if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
-        if(isset($_SESSION['mgrRole'])) $access .= " OR 1='{$_SESSION['mgrRole']}'";
+        $_ = array();
+        if($this->isFrontend())         $_[] = 'sc.privateweb=0';
+        else                            $_[] = 'sc.privatemgr=0';
+        if($docgrp)                     $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
+        if(isset($_SESSION['mgrRole'])) $_[] = sprintf("1='%s'", $_SESSION['mgrRole']);
+        $access = join(' OR ', $_);
         
         $from = "[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id";
         $where ="sc.{$method}='{$identifier}' AND ($access)";
