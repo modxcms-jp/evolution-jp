@@ -2292,10 +2292,11 @@ class DocumentParser {
 
     # Returns true if user has the currect permission
     function hasPermission($pm) {
-        $state= false;
-        $pms= $_SESSION['mgrPermissions'];
-        if ($pms)
-            $state= ($pms[$pm] == 1);
+        
+        if (isset($_SESSION['mgrPermissions']) && !empty($_SESSION['mgrPermissions']))
+            $state= ($_SESSION['mgrPermissions'][$pm] == 1);
+        else $state= false;
+        
         return $state;
     }
     
