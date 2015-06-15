@@ -410,7 +410,7 @@ class DocumentParser {
     function prepareResponse()
     {
         // we now know the method and identifier, let's check the cache
-        $this->documentContent= $this->checkCache($this->documentIdentifier);
+        $this->documentContent= $this->getCache($this->documentIdentifier);
         if ($this->documentContent != '')
         {
           $params = array('useCache' => true);
@@ -1058,6 +1058,11 @@ class DocumentParser {
     }
 
     function checkCache($id)
+    {
+    	return $this->getCache($id);
+    }
+    
+    function getCache($id)
     {
         if(isset($this->config['cache_type']) && $this->config['cache_type'] == 0) return ''; // jp-edition only
         switch($this->http_status_code)
