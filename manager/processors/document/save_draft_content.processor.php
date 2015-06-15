@@ -13,7 +13,7 @@ $modx->loadExtension('REVISION');
 $modx->loadExtension('DocAPI');
 
 $fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
-$fields = $modx->doc->convertPubStatus($fields);
+$fields = $modx->doc->fixPubStatus($fields);
 $docid = $_POST['id'];
 $rs = $modx->revision->save($docid,$fields,'draft');
 

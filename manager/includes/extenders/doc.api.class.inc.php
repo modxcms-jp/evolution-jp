@@ -423,7 +423,7 @@ class DocAPI {
 		return $newid;
 	}
 	
-    function convertPubStatus($f) // published, pub_date, unpub_date
+    function fixPubStatus($f) // published, pub_date, unpub_date
     {
     	global $modx;
     
