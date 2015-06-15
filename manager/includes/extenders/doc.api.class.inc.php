@@ -450,7 +450,7 @@ class DocAPI {
         return $f;
     }
     
-	function fix_tv_nest($target,$form_v)
+	function fixTvNest($target,$form_v)
 	{
 		foreach(explode(',',$target) as $name)
 		{

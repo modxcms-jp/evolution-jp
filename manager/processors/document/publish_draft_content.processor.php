@@ -12,7 +12,7 @@ $modx->loadExtension('DocAPI');
 
 $docid = $_POST['id'];
 
-$fields = $modx->doc->fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
+$fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $fields = $modx->doc->convertPubStatus($fields);
 
 if(time() < $fields['pub_date'])
