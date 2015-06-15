@@ -2061,7 +2061,7 @@ class DocumentParser {
         else                    $access= 'sc.privatemgr=0';
         
         if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
-        $access .= " OR 1='{$_SESSION['mgrRole']}'";
+        if(isset($_SESSION['mgrRole'])) $access .= " OR 1='{$_SESSION['mgrRole']}'";
         
         $from = "[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id";
         $where ="sc.{$method}='{$identifier}' AND ($access)";
