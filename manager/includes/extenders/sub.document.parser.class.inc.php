@@ -831,12 +831,6 @@ class SubParser {
         $this->regClientScript($src, $options, true);
     }
     
-    function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
-    {
-        global $modx;
-        return $modx->parseText($src, $ph, $left, $right, $mode);
-    }
-    
     function checkPermissions($docid=false,$duplicateDoc = false) {
         global $modx;
         
