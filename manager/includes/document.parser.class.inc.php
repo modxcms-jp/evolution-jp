@@ -1573,7 +1573,7 @@ class DocumentParser {
                     $if_content = $matches[1][$i];
                     $else_content = '';
                 }
-                    
+                if(preg_match('@^[0-9<= \-\+\*/\(\)%!]*$@', $cmd)) $cmd = (int) eval("return {$cmd};");
                 if( ($cond===true && empty($cmd)) || ($cond===false && !empty($cmd)) )
                     $matches[1][$i] = trim($else_content);
                 else
