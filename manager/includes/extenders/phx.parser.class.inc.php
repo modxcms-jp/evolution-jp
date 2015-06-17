@@ -394,7 +394,12 @@ class PHx {
 			case 'replace':
 			case 'str_replace':
 				if(empty($opt) || strpos($opt,',')===false) break;
-				list($s,$r) = explode(',',$opt,2);
+				if    (substr_count($opt, ',') ==1) $delim = ',';
+				elseif(substr_count($opt, '|') ==1) $delim = '|';
+				elseif(substr_count($opt, '=>')==1) $delim = '=>';
+				elseif(substr_count($opt, '/') ==1) $delim = '/';
+				else break;
+				list($s,$r) = explode($delim,$opt);
 				if($value!=='') $value = str_replace($s,$r,$value);
 				break;
 			case 'replace_to':
