@@ -275,4 +275,32 @@ class REVISION
         }
         return $input;
     }
+    function publishDraft($fields)
+    {
+        global $modx;
+        
+        $modx->loadExtension('DocAPI');
+        
+        $docid = $fields['id'];
+        
+        $fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$fields);
+        $fields = $modx->doc->fixPubStatus($fields);
+        
+        if($_SERVER['REQUEST_TIME'] < $fields['pub_date'])
+        {
+        	$modx->revision->save($docid,$fields,'standby');
+        	
+        	$f = array('pub_date' => $fields['pub_date']);
+        	$modx->db->update($f,'[+prefix+]site_revision',"elmid='{$docid}'");
+        	$modx->setCacheRefreshTime($fields['pub_date']);
+        	return 'reserved';
+        }
+        else
+        {
+        	$fields = $modx->db->escape($fields);
+        	$rs = $modx->doc->update($fields, $docid);
+        	$modx->revision->delete($docid, 'draft');
+        	return 'published';
+        }
+    }
 }
