@@ -695,6 +695,28 @@ class PHx {
                     }
                 }
                 break;
+
+            case 'filesize':
+                if($value == '') return ;
+                $filename = $value;
+                
+                $site_url = $modx->config['site_url'];
+                if(strpos($filename,$site_url) === 0)
+                    $filename = substr($filename,0,strlen($site_url));
+                $filename = trim($filename,'/');
+                
+                $opt = trim($opt,'/');
+                if($opt!=='') $opt .= '/';
+                
+                $filename = MODX_BASE_PATH.$opt.$filename;
+                
+                if(is_file($filename)){
+                    $size = filesize($filename);
+                    clearstatcache();
+                    return $size;
+                }
+                else return;
+                break;
             case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
