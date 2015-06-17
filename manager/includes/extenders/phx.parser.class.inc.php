@@ -717,6 +717,10 @@ class PHx {
                 }
                 else return;
                 break;
+            case 'nicesize':
+                    return $modx->nicesize($value);
+                break;
+                
             case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
