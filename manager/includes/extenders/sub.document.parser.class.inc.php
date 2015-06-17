@@ -1782,17 +1782,10 @@ class SubParser {
         
         if($unixtime==0) return;
         
-        $cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.php";
-        if(is_file($cache_path)) include_once($cache_path);
-        else                     $modx->cacheRefreshTime = 0;
-        
-        if($unixtime < $cacheRefreshTime || $cacheRefreshTime == 0)
-        {
-            include_once MODX_CORE_PATH . 'cache_sync.class.php';
-            $cache = new synccache();
-            $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-            $cache->publishBasicConfig($unixtime);
-        }
+        include_once MODX_CORE_PATH . 'cache_sync.class.php';
+        $cache = new synccache();
+        $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+        $cache->publishBasicConfig($unixtime);
     }
     
     function atBindFile($str='')
