@@ -1555,17 +1555,9 @@ class DocumentParser {
                 if(substr($cmd,-2)==='--') $cmd = substr($cmd,0,-2);
                 $cond = substr($cmd,0,1)!=='!' ? true : false;
                 if($cond===false) $cmd = ltrim($cmd,'!');
-                switch(substr($cmd,0,2)) {
-                    case '[*':
-                    case '[[':
-                    case '[!':
-                    case '[(':
-                    case '{{':
-                        if(strpos($cmd,'[!')!==false)
-                            $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
-                        $cmd = $this->parseDocumentSource($cmd);
-                        break;
-                }
+                if(strpos($cmd,'[!')!==false)
+                    $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
+                $cmd = $this->parseDocumentSource($cmd);
                 $cmd = trim($cmd);
                 if(strpos($matches[1][$i],'<@ELSE>')!==false) {
                     list($if_content,$else_content) = explode('<@ELSE>',$matches[1][$i]);
