@@ -1194,7 +1194,7 @@ class DocumentParser {
         
         $rs = $this->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$timeNow}");
         if(0<$this->db->getRecordCount($rs))
-            $this->updateDraft($timeNow);
+            $this->updateDraft();
         
         // now, check for documents that need publishing
         $fields = "published='1', publishedon=pub_date";
@@ -3367,8 +3367,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->addEventListener($evtName, $pluginName);}
     function removeEventListener($evtName, $pluginName='')
         {$this->loadExtension('SubParser');return $this->sub->removeEventListener($evtName, $pluginName);}
-    function updateDraft($now)
-        {$this->loadExtension('SubParser');$this->sub->updateDraft($now);}
+    function updateDraft()
+        {$this->loadExtension('SubParser');$this->sub->updateDraft();}
     function regClientCSS($src, $media='')
         {$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
     function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)

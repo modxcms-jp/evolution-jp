@@ -1952,9 +1952,11 @@ class SubParser {
         }
         return $content;
     }
-    function updateDraft($now)
+    function updateDraft()
     {
         global $modx;
+        
+        $now = $_SERVER['REQUEST_TIME'];
         
         $rs = $modx->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
         if(!$modx->db->getRecordCount($rs)) return;
