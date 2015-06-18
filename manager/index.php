@@ -250,7 +250,7 @@ switch ($action) {
         break;
     case 3: // get the page to show document's data
         include_once "header.inc.php";
-        include_once "actions/document_data.static.php";
+        include_once "actions/document/document_data.static.php";
         include_once "footer.inc.php";
         break;
     case 120: // get the mutate page for changing content
@@ -263,7 +263,7 @@ switch ($action) {
     case 27: // get the mutate page for changing content
     case 131: // get the mutate page for changing draft content
         include_once "header.inc.php";
-        include_once "actions/mutate_content.dynamic.php";
+        include_once "actions/document/mutate_content.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 5: // get the save processor
@@ -278,7 +278,7 @@ switch ($action) {
     break;
     case 51: // get the move action
         include_once "header.inc.php";
-        include_once "actions/move_document.dynamic.php";
+        include_once "actions/document/move_document.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 52: // get the move document processor
@@ -463,7 +463,7 @@ switch ($action) {
         break;
     case 127: // get review action
         include_once "header.inc.php";
-        include_once "actions/revision.dynamic.php";
+        include_once "actions/document/revision.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 132: // open draft action
@@ -612,7 +612,7 @@ switch ($action) {
         include_once "processors/snapshot.processor.php";
         break;
     case 94: // get the duplicate processor
-        include_once "processors/duplicate_content.processor.php";
+        include_once "processors/document/duplicate_content.processor.php";
         break;
     case 95: // Import Document from file
         include_once "header.inc.php";

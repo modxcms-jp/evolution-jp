@@ -3,7 +3,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 if(!isset($modx->config['preview_mode']))      $modx->config['preview_mode'] = '1';
 if(!isset($modx->config['tvs_below_content'])) $modx->config['tvs_below_content'] = '0';
 
-include_once(MODX_MANAGER_PATH . 'actions/mutate_content.functions.inc.php');
+include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
 $modx->loadExtension('DocAPI');
 
 $id = getDocId(); // New is '0'
