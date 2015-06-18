@@ -671,9 +671,12 @@ class DocumentParser {
          && $this->documentObject['published'] == 1)
         {
             $docid = $this->documentIdentifier;
-            
+            $param = array('makeCache' => true);
             // invoke OnBeforeSaveWebPageCache event
-            $this->invokeEvent('OnBeforeSaveWebPageCache');
+            $this->invokeEvent('OnBeforeSaveWebPageCache',$param);
+            if( $param['makeCache'] != true )
+              return;
+
             // get and store document groups inside document object. Document groups will be used to check security on cache pages
             $dsq = $this->db->select('document_group', '[+prefix+]document_groups', "document='{$docid}'");
             $docGroups= $this->db->getColumn('document_group', $dsq);
