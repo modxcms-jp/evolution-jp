@@ -466,6 +466,9 @@ switch ($action) {
         include_once "actions/revision.dynamic.php";
         include_once "footer.inc.php";
         break;
+    case 132: // open draft action
+        include_once "processors/document/create_draft_content.processor.php";
+        break;
     case 128: // save draft action
         include_once "processors/document/save_draft_content.processor.php";
         break;

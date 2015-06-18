@@ -1285,7 +1285,7 @@ $_lang["logtitle_login_disp_warning"] = 'Warning - Can not output login page';
 $_lang["logmsg_login_disp_warning"] = 'Disable plugins';
 
 $_lang["edit_draft"] = 'Edit draft';
-$_lang["save_draft"] = 'Save draft';
+$_lang["create_draft"] = 'Create draft';
 $_lang["publish_draft"] = 'Publish draft';
 $_lang["create_draft_title"] = 'Create draft';
 $_lang["edit_draft_title"] = 'Edit draft';

@@ -1883,9 +1883,10 @@ class DocumentParser {
         $pos['?']  = strpos($call, '?');
         $pos['&']  = strpos($call, '&');
         $pos['=']  = strpos($call, '=');
+        $pos[':']  = strpos($call, ':');
         $pos['lf'] = strpos($call, "\n");
         
-        if($pos['?'] !== false)
+        if($pos['?'] !== false && $pos['?']<$pos[':'])
         {
             if($pos['lf']!==false && $pos['?'] < $pos['lf'])
                 list($name,$params) = explode('?',$call,2);

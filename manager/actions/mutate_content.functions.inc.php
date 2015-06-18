@@ -147,8 +147,8 @@ function ab_create_draft($id)
 	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
-	$ph['label'] = $_lang['save_draft'];
-	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=128;document.mutate.target='main';document.mutate.save.click();";
+	$ph['label'] = $_lang['create_draft'];
+	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=132;document.mutate.target='main';document.mutate.save.click();";
 	
 	return $modx->parseText($tpl,$ph);
 }
