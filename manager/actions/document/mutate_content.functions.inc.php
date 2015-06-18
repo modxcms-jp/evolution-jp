@@ -147,8 +147,8 @@ function ab_create_draft($id)
 	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
-	$ph['label'] = $_lang['save_draft'];
-	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=128;document.mutate.target='main';document.mutate.save.click();";
+	$ph['label'] = $_lang['create_draft'];
+	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=132;document.mutate.target='main';document.mutate.save.click();";
 	
 	return $modx->parseText($tpl,$ph);
 }
@@ -1087,7 +1087,8 @@ function fieldPub_date($id=0) {
 </tr>
 EOT;
 	$tpl = implode("\n",$tpl);
-	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+	if($modx->manager->action!=131)
+		$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 	
 	$ph['pub_date']         = $modx->toDateFormat($docObject['pub_date']);
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];

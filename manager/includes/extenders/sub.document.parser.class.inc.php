@@ -98,7 +98,7 @@ class SubParser {
             $trim = ($over + $trim);
             $modx->db->delete("[+prefix+]{$target}",'','',$trim);
         }
-        $result = $modx->db->query('SHOW TABLE STATUS FROM `' .trim($dbase,'`') .'`');
+        $result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($dbase,'`')));
         while ($row = $modx->db->getRow($result))
         {
             $modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
@@ -361,7 +361,7 @@ class SubParser {
         if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
 
         // Set 500 response header
-        if($error_level !== 2) header('HTTP/1.1 500 Internal Server Error');
+        if(2 < $error_level) header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
         if (isset($_SESSION['mgrValidated']))
@@ -829,12 +829,6 @@ class SubParser {
     function regClientStartupScript($src, $options)
     {
         $this->regClientScript($src, $options, true);
-    }
-    
-    function parsePlaceholder($src='', $ph=array(), $left= '[+', $right= '+]',$mode='ph')
-    {
-        global $modx;
-        return $modx->parseText($src, $ph, $left, $right, $mode);
     }
     
     function checkPermissions($docid=false,$duplicateDoc = false) {
@@ -1788,17 +1782,10 @@ class SubParser {
         
         if($unixtime==0) return;
         
-        $cache_path= "{$modx->config['base_path']}assets/cache/basicConfig.php";
-        if(is_file($cache_path)) include_once($cache_path);
-        else                     $modx->cacheRefreshTime = 0;
-        
-        if($unixtime < $cacheRefreshTime || $cacheRefreshTime == 0)
-        {
-            include_once MODX_CORE_PATH . 'cache_sync.class.php';
-            $cache = new synccache();
-            $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-            $cache->publishBasicConfig($unixtime);
-        }
+        include_once MODX_CORE_PATH . 'cache_sync.class.php';
+        $cache = new synccache();
+        $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+        $cache->publishBasicConfig($unixtime);
     }
     
     function atBindFile($str='')
@@ -1965,9 +1952,11 @@ class SubParser {
         }
         return $content;
     }
-    function updateDraft($now)
+    function updateDraft()
     {
         global $modx;
+        
+        $now = $_SERVER['REQUEST_TIME'];
         
         $rs = $modx->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$now}");
         if(!$modx->db->getRecordCount($rs)) return;

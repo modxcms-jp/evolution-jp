@@ -118,8 +118,11 @@ class DocumentParser {
         if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';
         
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->loadExtension('DocumentAPI');
-        if($this->isBackend()) $this->loadExtension('ManagerAPI');
+        if($this->isBackend())
+        {
+            $this->loadExtension('DocumentAPI');
+            $this->loadExtension('ManagerAPI');
+        }
         
         // events
         $this->event= new SystemEvent();
@@ -407,7 +410,7 @@ class DocumentParser {
     function prepareResponse()
     {
         // we now know the method and identifier, let's check the cache
-        $this->documentContent= $this->checkCache($this->documentIdentifier);
+        $this->documentContent= $this->getCache($this->documentIdentifier);
         if ($this->documentContent != '')
         {
           $params = array('useCache' => true);
@@ -1056,6 +1059,11 @@ class DocumentParser {
 
     function checkCache($id)
     {
+    	return $this->getCache($id);
+    }
+    
+    function getCache($id)
+    {
         if(isset($this->config['cache_type']) && $this->config['cache_type'] == 0) return ''; // jp-edition only
         switch($this->http_status_code)
         {
@@ -1186,7 +1194,7 @@ class DocumentParser {
         
         $rs = $this->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$timeNow}");
         if(0<$this->db->getRecordCount($rs))
-            $this->updateDraft($timeNow);
+            $this->updateDraft();
         
         // now, check for documents that need publishing
         $fields = "published='1', publishedon=pub_date";
@@ -1547,17 +1555,9 @@ class DocumentParser {
                 if(substr($cmd,-2)==='--') $cmd = substr($cmd,0,-2);
                 $cond = substr($cmd,0,1)!=='!' ? true : false;
                 if($cond===false) $cmd = ltrim($cmd,'!');
-                switch(substr($cmd,0,2)) {
-                    case '[*':
-                    case '[[':
-                    case '[!':
-                    case '[(':
-                    case '{{':
-                        if(strpos($cmd,'[!')!==false)
-                            $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
-                        $cmd = $this->parseDocumentSource($cmd);
-                        break;
-                }
+                if(strpos($cmd,'[!')!==false)
+                    $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
+                $cmd = $this->parseDocumentSource($cmd);
                 $cmd = trim($cmd);
                 if(strpos($matches[1][$i],'<@ELSE>')!==false) {
                     list($if_content,$else_content) = explode('<@ELSE>',$matches[1][$i]);
@@ -1565,7 +1565,7 @@ class DocumentParser {
                     $if_content = $matches[1][$i];
                     $else_content = '';
                 }
-                    
+                if(preg_match('@^[0-9<= \-\+\*/\(\)%!]*$@', $cmd)) $cmd = (int) eval("return {$cmd};");
                 if( ($cond===true && empty($cmd)) || ($cond===false && !empty($cmd)) )
                     $matches[1][$i] = trim($else_content);
                 else
@@ -1883,9 +1883,10 @@ class DocumentParser {
         $pos['?']  = strpos($call, '?');
         $pos['&']  = strpos($call, '&');
         $pos['=']  = strpos($call, '=');
+        $pos[':']  = strpos($call, ':');
         $pos['lf'] = strpos($call, "\n");
         
-        if($pos['?'] !== false)
+        if($pos['?'] !== false && $pos['?']<$pos[':'])
         {
             if($pos['lf']!==false && $pos['?'] < $pos['lf'])
                 list($name,$params) = explode('?',$call,2);
@@ -2057,11 +2058,12 @@ class DocumentParser {
         if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
         
         // get document (add so)
-        if($this->isFrontend()) $access= 'sc.privateweb=0';
-        else                    $access= 'sc.privatemgr=0';
-        
-        if($docgrp) $access .= " OR dg.document_group IN ({$docgrp})";
-        $access .= " OR 1='{$_SESSION['mgrRole']}'";
+        $_ = array();
+        if($this->isFrontend())         $_[] = 'sc.privateweb=0';
+        else                            $_[] = 'sc.privatemgr=0';
+        if($docgrp)                     $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
+        if(isset($_SESSION['mgrRole'])) $_[] = sprintf("1='%s'", $_SESSION['mgrRole']);
+        $access = join(' OR ', $_);
         
         $from = "[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id";
         $where ="sc.{$method}='{$identifier}' AND ($access)";
@@ -2289,10 +2291,11 @@ class DocumentParser {
 
     # Returns true if user has the currect permission
     function hasPermission($pm) {
-        $state= false;
-        $pms= $_SESSION['mgrPermissions'];
-        if ($pms)
-            $state= ($pms[$pm] == 1);
+        
+        if (isset($_SESSION['mgrPermissions']) && !empty($_SESSION['mgrPermissions']))
+            $state= ($_SESSION['mgrPermissions'][$pm] == 1);
+        else $state= false;
+        
         return $state;
     }
     
@@ -3365,8 +3368,8 @@ class DocumentParser {
         {$this->loadExtension('SubParser');return $this->sub->addEventListener($evtName, $pluginName);}
     function removeEventListener($evtName, $pluginName='')
         {$this->loadExtension('SubParser');return $this->sub->removeEventListener($evtName, $pluginName);}
-    function updateDraft($now)
-        {$this->loadExtension('SubParser');$this->sub->updateDraft($now);}
+    function updateDraft()
+        {$this->loadExtension('SubParser');$this->sub->updateDraft();}
     function regClientCSS($src, $media='')
         {$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
     function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)

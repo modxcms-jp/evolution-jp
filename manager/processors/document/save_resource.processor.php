@@ -8,7 +8,7 @@ if (!$modx->hasPermission('save_document')) {
 
 global $form_v;
 $modx->loadExtension('DocAPI');
-$form_v = $modx->doc->fix_tv_nest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
+$form_v = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $form_v = $modx->doc->initValue($form_v);
 $form_v = $modx->doc->setValue($form_v);
 

@@ -14,6 +14,7 @@ class PHx {
 	var $placeholders = array();
 	var $vars = array();
 	var $cache = array();
+	var $bt;
 	
 	function PHx()
 	{
@@ -29,7 +30,7 @@ class PHx {
 		$modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
 		$modifiers = $this->splitModifiers($modifiers);
 		$this->vars = array();
-		$this->vars['name']    = & $phxkey;
+		$this->vars['name']    = & $key;
 		$value = $this->parsePhx($key,$value,$modifiers);
 		$this->vars = array();
 		return $value;
@@ -393,7 +394,12 @@ class PHx {
 			case 'replace':
 			case 'str_replace':
 				if(empty($opt) || strpos($opt,',')===false) break;
-				list($s,$r) = explode(',',$opt,2);
+				if    (substr_count($opt, ',') ==1) $delim = ',';
+				elseif(substr_count($opt, '|') ==1) $delim = '|';
+				elseif(substr_count($opt, '=>')==1) $delim = '=>';
+				elseif(substr_count($opt, '/') ==1) $delim = '/';
+				else break;
+				list($s,$r) = explode($delim,$opt);
 				if($value!=='') $value = str_replace($s,$r,$value);
 				break;
 			case 'replace_to':
@@ -694,6 +700,32 @@ class PHx {
                     }
                 }
                 break;
+
+            case 'filesize':
+                if($value == '') return ;
+                $filename = $value;
+                
+                $site_url = $modx->config['site_url'];
+                if(strpos($filename,$site_url) === 0)
+                    $filename = substr($filename,0,strlen($site_url));
+                $filename = trim($filename,'/');
+                
+                $opt = trim($opt,'/');
+                if($opt!=='') $opt .= '/';
+                
+                $filename = MODX_BASE_PATH.$opt.$filename;
+                
+                if(is_file($filename)){
+                    $size = filesize($filename);
+                    clearstatcache();
+                    return $size;
+                }
+                else return;
+                break;
+            case 'nicesize':
+                    return $modx->nicesize($value);
+                break;
+                
             case 'setvar':
             	$modx->placeholders[$opt] = $value;
             	return;
@@ -760,14 +792,14 @@ class PHx {
 			else                                     $input  = $value;
 			if($modx->config['output_filter']==='1') $name   = $phxkey;
 			else                                     $key    = $phxkey;
-			$bt = $value;
+			$this->bt = $value;
 			$this->vars['value']   = & $value;
 			$this->vars['input']   = & $value;
 			$this->vars['option']  = & $opt;
 			$this->vars['options'] = & $opt;
 			$custom = eval($php);
 			$msg = ob_get_contents();
-			if($value===$bt) $value = $msg . $custom;
+			if($value===$this->bt) $value = $msg . $custom;
 			ob_end_clean();
 		}
 		elseif($html!==false && isset($value) && $value!=='')
