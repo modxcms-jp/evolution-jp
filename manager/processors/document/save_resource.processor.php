@@ -36,20 +36,27 @@ switch ($actionToTake) {
 		$return_url = 'index.php?a=' . $_GET['a'];
 		
 		// invoke OnBeforeDocFormSave event
-    $tmp = array('mode'=>'new');
-		$modx->invokeEvent('OnBeforeDocFormSave', $tmp);
-
 		$temp_id = $modx->doc->getNewDocID();
 		$values = getInputValues($temp_id,'new');
+    if(!empty($form_v['template']))
+			$tmplvars = get_tmplvars();
+    else
+      $tmplvars = array();
+    
+    $param = array('mode'     => 'new',
+                   'doc_vars' => &$values,
+                   'tv_vars'  => &$tmplvars);
+
+		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+
 		$values = $modx->db->escape($values);
 		$newid = $modx->db->insert($values,'[+prefix+]site_content');
 		if(!$newid) {
 			$msg = 'An error occured while attempting to save the new document: ' . $modx->db->getLastError();
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
-		
-		if(!empty($form_v['template'])) {
-			$tmplvars = get_tmplvars($newid);
+
+    if(!empty($tmplvars)) {
 			insert_tmplvars($newid,$tmplvars);
 		}
 
@@ -87,10 +94,19 @@ switch ($actionToTake) {
 		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
-    $tmp = array('mode'=>'upd','id'=>$id);
-		$modx->invokeEvent('OnBeforeDocFormSave', $tmp);
-		
 		$values = getInputValues($id,'edit');
+    if(!empty($form_v['template']))
+			$tmplvars = get_tmplvars($id);
+    else
+      $tmplvars = array();
+
+    $param = array('mode'     => 'upd',
+                   'id'       => $id,
+                   'doc_vars' => &$values,
+                   'tv_vars'  => &$tmplvars);
+
+		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+		
 		$values = $modx->db->escape($values);
 		$rs = $modx->db->update($values,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs) {
@@ -98,8 +114,7 @@ switch ($actionToTake) {
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 		
-		if(!empty($form_v['template'])) {
-			$tmplvars = get_tmplvars($id);
+		if(!empty($tmplvars)) {
 			update_tmplvars($id,$tmplvars);
 		}
 		
