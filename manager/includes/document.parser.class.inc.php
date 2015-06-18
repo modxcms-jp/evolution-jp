@@ -194,6 +194,7 @@ class DocumentParser {
             case 'DocumentAPI' :
                 if( !include_once(MODX_CORE_PATH . 'extenders/document.api.class.inc.php') )
                   return false;
+                return true;
                 break;
             // Resource API
             case 'DocAPI' :
