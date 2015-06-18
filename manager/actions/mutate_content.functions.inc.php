@@ -1087,7 +1087,8 @@ function fieldPub_date($id=0) {
 </tr>
 EOT;
 	$tpl = implode("\n",$tpl);
-	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+	if($modx->manager->action!=131)
+		$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 	
 	$ph['pub_date']         = $modx->toDateFormat($docObject['pub_date']);
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
