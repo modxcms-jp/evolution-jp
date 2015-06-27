@@ -730,6 +730,32 @@ class PHx {
             	$modx->placeholders[$opt] = $value;
             	return;
             	break;
+            
+            case 'children':
+            case 'childids':
+                if($value=='') $value = 0; // 値がない場合はルートと見なす
+                $published = 1;
+                $_ = explode(',',$opt);
+                $where = array();
+                foreach($_ as $opt) {
+                    switch(trim($opt)) {
+                        case 'page'; case '!folder'; case '!isfolder': $where[] = 'sc.isfolder=0'; break;
+                        case 'folder'; case 'isfolder':                $where[] = 'sc.isfolder=1'; break;
+                        case 'menu'; case 'show_menu':                 $where[] = 'sc.hidemenu=0'; break;
+                        case '!menu'; case '!show_menu':               $where[] = 'sc.hidemenu=1'; break;
+                        case 'published':                              $published = 1; break;
+                        case '!published':                             $published = 0; break;
+                    }
+                }
+                $where = join(' AND ', $where);
+                
+                $IDs = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
+                foreach((array)$IDs as $id){ // $IDs が null だった時にエラーになるため型キャスト
+                    $result[] = $id[id];
+                }
+                return join(',', $result);
+                break;
+
 
 			// If we haven't yet found the modifier, let's look elsewhere
 			default:
