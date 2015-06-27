@@ -154,6 +154,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('300','OnMakeUrl','1',''),
 ('301','OnExportPreExec','2',''),
 ('302','OnExportExec','2',''),
+('303','OnGetConfig','1',''),
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 
