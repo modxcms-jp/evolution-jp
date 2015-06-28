@@ -1175,15 +1175,24 @@ class SubParser {
                 break;
             case "url": // handles url input fields
                 $field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
-                $urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
+                $urls= array(''=>'--', 'DocID'=>'DocID', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
                 $tpl = '<option value="[+value+]" [+selected+]>[+name+]</option>';
                 $option = array();
                 foreach($urls as $k => $v)
                 {
+                  if( $k == 'DocID' )
+                  {
+                    $tmp = preg_replace('/\A\[~([0-9]+)~\]\z/','$1',$field_value);
+                    $selected = ($tmp != $field_value) ? 'selected' : '';
+                    $field_value = $tmp;
+                  }
+                  else
+                  {
                     $selected = (strpos($field_value,$v)!==false) ? 'selected' : '';
                     if(strpos($field_value,$v)!==false)
-                        $field_value = str_replace($v,'',$field_value);
-                    $option[] = $modx->parseText($tpl,array('name'=>$k,'value'=>$v,'selected'=>$selected));
+                      $field_value = str_replace($v,'',$field_value);
+                  }
+                  $option[] = $modx->parseText($tpl,array('name'=>$k,'value'=>$v,'selected'=>$selected));
                 }
                 $field_html .= join("\n", $option) . "\n";
                 $field_html .='</select></td><td>';
@@ -1647,7 +1656,13 @@ class SubParser {
                 }
                 unset($input[$k]);
                 $name = $tvname[$k];
-                if(isset($input["{$k}_prefix"])) $v = $input["{$k}_prefix"] . $v;
+                if( isset($input["{$k}_prefix"]) )
+                {
+                  if( $input["{$k}_prefix"] != 'DocID' )
+                    $v = $input["{$k}_prefix"] . $v;
+                  elseif( preg_match('/\A[0-9]+\z/',$v) )
+                    $v = '[~' . $v . '~]';
+                }
                 $input[$name] = $v;
             }
             elseif($k==='ta')

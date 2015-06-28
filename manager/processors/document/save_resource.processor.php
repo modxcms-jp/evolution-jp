@@ -183,7 +183,11 @@ function get_tmplvars($id)
 			continue;
 		
 		if($row['type']==='url') {
-			if($form_v["{$tvid}_prefix"] !== '--') {
+			if( $form_v["{$tvid}_prefix"] === 'DocID' ){
+        $value = $form_v[$tvid];
+        if( preg_match('/\A[0-9]+\z/',$value) ) 
+          $value = '[~' . $value . '~]';
+      }elseif($form_v["{$tvid}_prefix"] !== '--') {
 				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $form_v[$tvid]);
 				$value = $form_v["{$tvid}_prefix"] . $value;
 			}
