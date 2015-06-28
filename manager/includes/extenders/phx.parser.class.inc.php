@@ -741,17 +741,16 @@ class PHx {
                     switch(trim($opt)) {
                         case 'page'; case '!folder'; case '!isfolder': $where[] = 'sc.isfolder=0'; break;
                         case 'folder'; case 'isfolder':                $where[] = 'sc.isfolder=1'; break;
-                        case 'menu'; case 'show_menu':                 $where[] = 'sc.hidemenu=0'; break;
-                        case '!menu'; case '!show_menu':               $where[] = 'sc.hidemenu=1'; break;
-                        case 'published':                              $published = 1; break;
+                        case  'menu';  case  'show_menu':              $where[] = 'sc.hidemenu=0'; break;
+                        case '!menu';  case '!show_menu':              $where[] = 'sc.hidemenu=1'; break;
+                        case  'published':                             $published = 1; break;
                         case '!published':                             $published = 0; break;
                     }
                 }
                 $where = join(' AND ', $where);
-                
-                $IDs = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
-                foreach((array)$IDs as $id){ // $IDs が null だった時にエラーになるため型キャスト
-                    $result[] = $id[id];
+                $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
+                foreach((array)$children as $child){ // $children が null だった時にエラーになるため型キャスト
+                    $result[] = $child['id'];
                 }
                 return join(',', $result);
                 break;
