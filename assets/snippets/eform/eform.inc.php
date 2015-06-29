@@ -1174,6 +1174,7 @@ function filterEformValue($value,$param){
             //try snippet if chunk is not found
             if(!$tpl) $tpl = ( $doc=$modx->runSnippet($key) )? $doc : false;
         }
+        $modx->parseDocumentSource($tpl);
         return $tpl;
     }
 
