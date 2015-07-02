@@ -66,6 +66,7 @@ class DocumentParser {
     var $uaType;
     var $functionLog = array();
     var $currentSnippetCall;
+    var $hasDraft;
 
     function __get($property_name)
     {
