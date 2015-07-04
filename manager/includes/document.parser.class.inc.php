@@ -2631,6 +2631,9 @@ class DocumentParser {
         {
             $url = end($rs);
         }
+        if( $url != $params['url'] )
+          $url = $params['url'];
+        
         return $url;
     }
     
