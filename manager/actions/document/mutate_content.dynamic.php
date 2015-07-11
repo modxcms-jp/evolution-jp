@@ -53,10 +53,10 @@ $tmp = array('id' => $id);
 $evtOut = $modx->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = array();
 
-global $template, $selected_editor; // For plugins (ManagerManager etc...)
+global $template; // For plugins (ManagerManager etc...)
 $template = $docObject['template'];
 
-$selected_editor = (isset ($form_v['which_editor'])) ? $form_v['which_editor'] : $config['which_editor'];
+$selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : $config['which_editor'];
 
 checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
 
@@ -70,7 +70,7 @@ $tpl['tab-page']['settings'] = getTplTabSettings();
 $tpl['tab-page']['access']   = getTplTabAccess();
 
 $ph = array();
-$ph['JScripts'] = getJScripts();
+$ph['JScripts'] = getJScripts($id);
 $ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $ph['id'] = $id;
 $ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
@@ -82,15 +82,16 @@ if(!$_REQUEST['pid'])
 	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
 else $ph['pid'] = $_REQUEST['pid'];
 
-if($modx->manager->action==131)
+switch($modx->manager->action)
 {
-	$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
-    $ph['class'] = 'draft';
-}
-else
-{
-	$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
-    $ph['class'] = '';
+	case 132:
+	case 131:
+		$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
+        $ph['class'] = 'draft';
+	    break;
+	default:
+		$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+		$ph['class'] = '';
 }
 $ph['actionButtons'] = getActionButtons($id);
 $ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';

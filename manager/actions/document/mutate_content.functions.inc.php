@@ -80,9 +80,7 @@ function input_hidden($name,$cond=true)
 function ab_preview($id=0)
 {
 	global $modx, $_style, $_lang;
-	$tpl = '<li id="Button5"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$actionurl = $modx->makeUrl($id,'','','full');
-	$ph['onclick'] = "openprev('$actionurl');return false;";
+	$tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
@@ -93,8 +91,7 @@ function ab_save()
 {
 	global $modx, $_style, $_lang;
 	
-	$tpl = '<li id="Button1" class="primary"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-	$ph['onclick'] = "documentDirty=false; document.mutate.action='index.php';document.mutate.target='main';document.mutate.save.click();";
+	$tpl = '<li id="save" class="primary"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
@@ -122,17 +119,12 @@ function ab_open_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
 	
-	if(!$modx->config['enable_draft']) return;
+	if(!$modx->config['enable_draft'] || !$modx->hasDraft) return;
 	
-	$tpl = '<li id="Button4" class="opendraft"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="opendraft" class="opendraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
-	if($modx->hasDraft)
-	{
-		$ph['label'] = '下書きを開く';
-		$ph['onclick'] = "document.location.href='index.php?a=131&id={$id}';";
-	}
-	
+	$ph['label'] = '下書きを開く';
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -144,11 +136,10 @@ function ab_create_draft($id)
 	
 	if(!$modx->hasPermission('edit_document')) return;
 	
-	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="createdraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['create_draft'];
-	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=132;document.mutate.target='main';document.mutate.save.click();";
 	
 	return $modx->parseText($tpl,$ph);
 }
@@ -157,11 +148,10 @@ function ab_publish_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
 	
-	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="publishdraft"><a href="#""><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['publish_draft'];
-	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=129;document.mutate.target='main';document.mutate.save.click();";
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -169,18 +159,10 @@ function ab_cancel($id)
 {
 	global $modx, $_style, $_lang, $docObject;
 	
-	$tpl = '<li id="Button4"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="cancel"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
-	if($docObject['isfolder']=='1')
-		$href = "a=120&id={$id}";
-	elseif(!empty($docObject['parent']))
-		$href = "a=120&id={$docObject['parent']}";
-	else
-		$href = "a=2";
-	$ph['onclick'] = "document.location.href='index.php?{$href}';";
-	
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -188,7 +170,7 @@ function ab_move()
 {
 	global $modx, $_style, $_lang;
 	
-	$tpl = '<li id="Button2"><a href="#" onclick="movedocument();"><img src="[+icon+]" /> [+label+]</a></li>';
+	$tpl = '<li id="move"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
 	return $modx->parseText($tpl,$ph);
@@ -198,7 +180,7 @@ function ab_duplicate()
 {
 	global $modx, $_style, $_lang;
 	
-	$tpl = '<li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_resource_duplicate"];
 	$ph['alt'] = 'icons_resource_duplicate';
 	$ph['label'] = $_lang['duplicate'];
@@ -209,21 +191,21 @@ function ab_delete()
 {
 	global $modx, $_style, $_lang, $docObject;
 	
-	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	if($docObject['deleted'] === '0')
-	{
-		$ph['onclick'] = 'deletedocument();';
-		$ph['icon'] = $_style["icons_delete_document"];
-		$ph['alt'] = 'icons_delete_document';
-		$ph['label'] = $_lang['delete'];
-	}
-	else
-	{
-		$ph['onclick'] = 'undeletedocument();';
-		$ph['icon'] = $_style["icons_undelete_resource"];
-		$ph['alt'] = 'icons_undelete_document';
-		$ph['label'] = $_lang['undelete_resource'];
-	}
+	$tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_delete_document"];
+	$ph['alt'] = 'icons_delete_document';
+	$ph['label'] = $_lang['delete'];
+	return $modx->parseText($tpl,$ph);
+}
+
+function ab_undelete()
+{
+	global $modx, $_style, $_lang, $docObject;
+	
+	$tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$ph['icon'] = $_style["icons_undelete_resource"];
+	$ph['alt'] = 'icons_undelete_document';
+	$ph['label'] = $_lang['undelete_resource'];
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -231,8 +213,7 @@ function ab_delete_draft()
 {
 	global $modx, $_style, $_lang, $docObject;
 	
-	$tpl = '<li id="Button3"><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$ph['onclick'] = "documentDirty=false;document.mutate.action='index.php';document.mutate.a.value=130;document.mutate.target='main';document.mutate.save.click();";
+	$tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_delete_document"];
 	$ph['alt'] = 'icons_delete_document';
 	$ph['label'] = $_lang['delete_draft'];
@@ -374,6 +355,7 @@ function checkPermissions($id) {
 				}
 			}
 			break;
+		case 132:
 		case 131:
 			if (!$modx->hasPermission('view_document')) {
 				$e->setError(3);
@@ -460,9 +442,6 @@ function mergeReloadValues($docObject) {
 	if ($modx->manager->hasFormValues())
 		$restore_v = $modx->manager->loadFormValues();
 	
-	// retain form values if template was changed
-	// edited to convert pub_date and unpub_date
-	// sottwell 02-09-2006
 	if ($restore_v != false)
 	{
 		$docObject = array_merge($docObject, $restore_v);
@@ -484,6 +463,8 @@ function mergeReloadValues($docObject) {
 		$docObject['unpub_date'] = $modx->toTimeStamp($docObject['unpub_date']);
 		$docObject['unpub_date'] = $modx->toDateFormat($docObject['unpub_date']);
 	}
+	
+	if(isset ($_POST['which_editor'])) $docObject['which_editor'] = $_POST['which_editor'];
 	
 	return $docObject;
 }
@@ -523,8 +504,8 @@ function getAliasAtNew() {
 	else return '';
 }
 
-function getJScripts() {
-	global $modx,$_lang,$_style,$action;
+function getJScripts($docid) {
+	global $modx,$_lang,$_style,$action, $docObject;
 	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 	$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
@@ -537,6 +518,7 @@ function getJScripts() {
 	
 	$ph['imanager_url'] = $modx->config['imanager_url'];
 	$ph['fmanager_url'] = $modx->config['fmanager_url'];
+	$ph['preview_url']  = $modx->makeUrl($docid,'','','full');
 	$ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
 	$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
 	$ph['datetime_format'] = $modx->config['datetime_format'];
@@ -544,7 +526,9 @@ function getJScripts() {
 	$ph['monthNames'] = $monthNames;
 	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
 	$ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
-	$ph['id'] = $_REQUEST['id'];
+	$ph['id'] = $docid;
+	$ph['docParent']   = $docObject['parent'];
+	$ph['docIsFolder'] = $docObject['isfolder'];
 	$ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
 	$ph['style_tree_folder'] = $_style["tree_folder"];
 	$ph['style_icons_set_parent'] = $_style["icons_set_parent"];
@@ -552,15 +536,7 @@ function getJScripts() {
 	$ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
 	$ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
 	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
-	if($modx->manager->action==131||!$modx->hasPermission('save_document'))
-		$ph['action'] = '131';
-	else
-	{
-		if( empty($_REQUEST['id']) )
-			$ph['action'] = '4';
-		else
-			$ph['action'] = '27';
-	}
+	$ph['action'] = $modx->manager->action;
 	
 	return $modx->parseText($tpl,$ph);
 }
@@ -686,7 +662,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-	global $modx, $saveTarget;
+	global $modx, $saveTarget, $docObject;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -701,28 +677,31 @@ function getActionButtons($id) {
 	</ul>
 </div>
 EOT;
-	if($modx->manager->action==4||$modx->manager->action==72)
+	switch($modx->manager->action)
 	{
-    	if($modx->hasPermission('new_document'))
+		case '4':
+		case '72':
+    	    if($modx->hasPermission('new_document'))
     		$ph['saveButton'] = ab_save();
-	}
-	elseif($modx->manager->action==27)
-	{
-    	if($modx->hasPermission('save_document'))
+    	    break;
+		case '27':
+    	    if($modx->hasPermission('save_document'))
     		$ph['saveButton'] = ab_save();
-	}
-	elseif($modx->manager->action==131)
-	{
+        	break;
+		case '132':
+		case '131':
 			$ph['saveButton'] = ab_save();
+        	break;
+		default:
+		    $ph['saveButton'] = '';
 	}
-	else $ph['saveButton'] = '';
 	
 	if ($id != $config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
     		$ph['moveButton']                                     = ab_move();
     		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
-    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = ab_delete();
+    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted'] == 0 ? ab_delete() : ab_undelete();;
 		}
 		elseif($modx->manager->action == 131 && $modx->hasDraft)
 			$ph['deleteButton']    = ab_delete_draft();
@@ -825,7 +804,7 @@ function fieldIntrotext() {
 
 function fieldTemplate() {
 	global $_lang;
-	$body = '<select id="template" name="template" class="inputBox" onchange="changeTemplate();" style="width:308px">';
+	$body = '<select id="template" name="template" class="inputBox" style="width:308px">';
 	$body .= '<option value="0">(blank)</option>';
 	$body .= get_template_options();
 	$body .= '</select>' . tooltip($_lang['page_data_template_help']);
@@ -910,7 +889,7 @@ function getEditors($editors) {
 	
 	if(!empty($options)) {
 		$tpl = <<< EOT
-<select id="which_editor" name="which_editor" onchange="changeRTE();">
+<select id="which_editor" name="which_editor">
 	<option value="none">[+_lang_none+]</option>
 	[+options+]
 </select>
@@ -1416,7 +1395,7 @@ function getTplHead()
 {
 	$tpl = <<< EOT
 [+JScripts+]
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" target="main" onsubmit="documentDirty=false;">
 	<input type="hidden" name="a" value="[+a+]" />
 	<input type="hidden" name="id" value="[+id+]" />
 	<input type="hidden" name="mode" value="[+mode+]" />
@@ -1449,9 +1428,6 @@ function getTplFoot()
 	</div><!--div class="sectionBody"-->
 	</fieldset>
 </form>
-<script type="text/javascript">
-    storeCurTemplate();
-</script>
 [+OnRichTextEditorInit+]
 EOT;
     return $tpl;

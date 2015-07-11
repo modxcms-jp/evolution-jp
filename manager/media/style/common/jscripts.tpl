@@ -12,22 +12,85 @@ jQuery(function(){
 	var monthNames = [+monthNames+];
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	jQuery('#save a').click(function(){
+    	documentDirty=false;
+    	jQuery('#mutate').submit();
+	});
+	jQuery('#createdraft').click(function(){
+    	document.location.href='index.php?a=132&id=[+id+]';
+	});
+	jQuery('#opendraft').click(function(){
+    	document.location.href='index.php?a=131&id=[+id+]';
+	});
+	jQuery('#opendraft').click(function(){
+		documentDirty=false;
+		document.mutate.a.value=133;
+		jQuery('#mutate').submit();
+	});
+	jQuery('#delete').click(function(){
+    	if (confirm("[+lang_confirm_delete_resource+]")==true)
+    		document.location.href="index.php?id=[+id+]&a=6";
+	});
+	jQuery('#undelete').click(function(){
+    	if (confirm("[+lang_confirm_undelete+]")==true)
+    		document.location.href="index.php?id=[+id+]&a=63";
+	});
+	jQuery('#deletedraft').click(function(){
+		documentDirty=false;
+		document.mutate.a.value=130;
+		jQuery('#mutate').submit();
+	});
+	jQuery('#move').click(function(){
+    	document.location.href="index.php?id=[+id+]&a=51";
+	});
+	jQuery('#duplicate').click(function(){
+        if(confirm("[+lang_confirm_resource_duplicate+]")==true)
+            document.location.href="index.php?id=[+id+]&a=94";
+	});
+
+	jQuery('#preview').click(function(){
+        window.open('[+preview_url+]','prevWin');
+        var pmode = [+preview_mode+];
+    	if(pmode==1)
+    	{
+        	jQuery('#mutate').attr({'action':'[+preview_url+]','target':'prevWin'});
+            jQuery('#mutate').submit();
+            prevWin.focus()
+        	jQuery('#mutate').attr({'action':'index.php','target':'main'});
+    	}
+    	return false;
+	});
+	jQuery('#cancel').click(function(){
+		var docIsFolder = [+docIsFolder+];
+		var docParent   = [+docParent+];
+    	if(docIsFolder==1)    document.location.href = 'index.php?a=120&id=' + '[+id+]';
+    	else if(docParent!=0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
+    	else                  document.location.href = 'index.php?a=2';
+	});
+	var curTemplate = -1;
+	curTemplate = jQuery('#template').val();
+	jQuery('#template').change(function(){
+		newTemplate = jQuery('#template').val();
+		if (curTemplate != newTemplate) {
+        	documentDirty=false;
+        	jQuery('#mutate input[name="a"]').val([+action+]);
+        	jQuery('#mutate input[name="newtemplate"]').val(newTemplate);
+        	jQuery('#mutate').submit();
+		}
+	});
+	jQuery('#which_editor').change(function(){
+		newTemplate = jQuery('#template').val();
+		newEditor   = jQuery('#which_editor').val();
+    	documentDirty=false;
+    	jQuery('#mutate input[name="a"]').val([+action+]);
+    	jQuery('#mutate input[name="newtemplate"]').val(newTemplate);
+    	jQuery('#which_editor').val(newEditor);
+    	jQuery('#mutate').submit();
+	});
 });
 </script>
 <script type="text/javascript">
 /* <![CDATA[ */
-function openprev(actionurl)
-{
-    window.open(actionurl,"prevWin");
-    var pmode = [+preview_mode+];
-	if(pmode==1)
-	{
-        document.mutate.target = "prevWin";
-        document.mutate.method = "post";
-        document.mutate.action = actionurl;
-        document.mutate.submit();
-	}
-}
 
 // save tree folder state
 if (parent.tree) parent.tree.saveFolderState();
@@ -40,28 +103,6 @@ function changestate(element) {
 		eval(element).value=1;
 	}
 	documentDirty=true;
-}
-
-function deletedocument() {
-	if (confirm("[+lang_confirm_delete_resource+]")==true) {
-		document.location.href="index.php?id=" + document.mutate.id.value + "&a=6";
-	}
-}
-
-function undeletedocument() {
-	if (confirm("[+lang_confirm_undelete+]")==true) {
-		document.location.href="index.php?id=" + document.mutate.id.value + "&a=63";
-	}
-}
-
-function movedocument() {
-	document.location.href="index.php?id=[+id+]&a=51";
-}
-
-function duplicatedocument(){
-    if(confirm("[+lang_confirm_resource_duplicate+]")==true) {
-        document.location.href="index.php?id=[+id+]&a=94";
-    }
 }
 
 function resetpubdate() {
@@ -155,79 +196,6 @@ function checkParentChildRelation(pId, pName) {
 		}
 	}
 	return true;
-}
-
-function clearKeywordSelection() {
-	var opt = document.mutate.elements["keywords[]"].options;
-	for (i = 0; i < opt.length; i++) {
-		opt[i].selected = false;
-	}
-}
-
-function clearMetatagSelection() {
-	var opt = document.mutate.elements["metatags[]"].options;
-	for (i = 0; i < opt.length; i++) {
-		opt[i].selected = false;
-	}
-}
-
-var curTemplate = -1;
-var curTemplateIndex = 0;
-function storeCurTemplate() {
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i=0; i<dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				curTemplate = dropTemplate[i].value;
-				curTemplateIndex = i;
-			}
-		}
-	}
-}
-function changeTemplate() {
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i=0; i<dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				newTemplate = dropTemplate[i].value;
-				break;
-			}
-		}
-	}
-	if (curTemplate == newTemplate) {return;}
-
-	documentDirty=false;
-	document.mutate.a.value = [+action+];
-	document.mutate.newtemplate.value = newTemplate;
-	document.mutate.submit();
-}
-
-// Added for RTE selection
-function changeRTE() {
-	var whichEditor = document.getElementById('which_editor');
-	if (whichEditor) {
-		for (var i = 0; i < whichEditor.length; i++) {
-			if (whichEditor[i].selected) {
-				newEditor = whichEditor[i].value;
-				break;
-			}
-		}
-	}
-	var dropTemplate = document.getElementById('template');
-	if (dropTemplate) {
-		for (var i = 0; i < dropTemplate.length; i++) {
-			if (dropTemplate[i].selected) {
-				newTemplate = dropTemplate[i].value;
-				break;
-			}
-		}
-	}
-
-	documentDirty=false;
-	document.mutate.a.value = [+action+];
-	document.mutate.newtemplate.value = newTemplate;
-	document.mutate.which_editor.value = newEditor;
-	document.mutate.submit();
 }
 
 /* ]]> */
