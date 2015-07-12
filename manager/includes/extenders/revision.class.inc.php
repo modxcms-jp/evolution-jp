@@ -131,7 +131,7 @@ class REVISION
     	{
     		$ph['name']  = $k;
     		$ph['value'] = htmlentities($v, ENT_QUOTES, 'UTF-8');
-    		$form[] = $modx->parsePlaceholder($tpl,$ph);
+    		$form[] = $modx->parseText($tpl,$ph);
     	}
     	return join("\n", $form);
     }
