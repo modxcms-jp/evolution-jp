@@ -129,7 +129,7 @@ echo $cm->render();
 	$grd->itemClass="gridItem";
 	$grd->altItemClass="gridAltItem";
 	$grd->fields="id,username,fullname,email,gender,blocked";
-	$grd->columns=$_lang["icon"]." ,".$_lang["name"]." ,".$_lang["user_full_name"]." ,".$_lang["email"]." ,".$_lang["user_gender"]." ,".$_lang["user_block"];
+	$grd->columns=$_lang["icon"]." ,".$_lang["username"]." ,".$_lang["user_full_name"]." ,".$_lang["email"]." ,".$_lang["user_gender"]." ,".$_lang["user_block"];
 	$grd->colWidths="34,,,,40,34";
 	$grd->colAligns="center,,,,center,center";
 	$grd->colTypes='template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="'.$_lang["click_to_context"].'"><img src="' . $_style['icons_user'] . '" /></a>||template:<a href="index.php?a=88&id=[+id+]" title="'.$_lang["click_to_edit_title"].'">[+value+]</a>';
