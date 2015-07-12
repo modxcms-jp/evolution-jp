@@ -1281,7 +1281,6 @@ class SubParser {
                         '[+value+]'        => htmlspecialchars($field_value),
                         '[+field_style+]'  => $field_style,
                         );
-                $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 if(isset($content['id']))
                 {
                     global $docObject;
@@ -1292,6 +1291,7 @@ class SubParser {
                         $modx->documentIdentifier = $content['id'];
                 }
                 $custom_output = $modx->parseDocumentSource($custom_output);
+                $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 $field_html .= $custom_output;
                 break;
             
