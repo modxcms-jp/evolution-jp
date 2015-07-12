@@ -527,8 +527,8 @@ function getJScripts($docid) {
 	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
 	$ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
 	$ph['id'] = $docid;
-	$ph['docParent']   = $docObject['parent'];
-	$ph['docIsFolder'] = $docObject['isfolder'];
+	$ph['docParent']   = empty($docObject['parent'])?'0':$docObject['parent'];
+	$ph['docIsFolder'] = empty($docObject['isfolder'])?'0':$docObject['isfolder'];
 	$ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
 	$ph['style_tree_folder'] = $_style["tree_folder"];
 	$ph['style_icons_set_parent'] = $_style["icons_set_parent"];
