@@ -878,7 +878,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <table class="settings">
 <tr>
 <th><?php echo $_lang["manager_theme"]?></th>
-<td><select name="manager_theme" size="1" class="inputBox" onchange="document.forms['settings'].theme_refresher.value = Date.parse(new Date())">
+<td><select name="manager_theme" size="1" class="inputBox">
 <?php
 $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
 foreach($files as $file)
@@ -893,7 +893,6 @@ foreach($files as $file)
 }
 ?>
 </select><br />
-<input type="hidden" name="theme_refresher" value="" />
 <?php echo $_lang["manager_theme_message"]?></td>
 </tr>
 
