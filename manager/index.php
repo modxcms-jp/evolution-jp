@@ -261,6 +261,7 @@ switch ($action) {
     case 4: // get the mutate page for adding content
     case 72: // get the weblink page
     case 27: // get the mutate page for changing content
+    case 132: // get the mutate page for changing draft content
     case 131: // get the mutate page for changing draft content
         include_once "header.inc.php";
         include_once "actions/document/mutate_content.dynamic.php";
@@ -289,6 +290,11 @@ switch ($action) {
         break;
     case 62: // get the processor for publishing content
         include_once "processors/unpublish_content.processor.php";
+        break;
+    case 133: // get the mutate page for changing draft content
+        include_once "header.inc.php";
+        include_once "actions/document/publish_draft.dynamic.php";
+        include_once "footer.inc.php";
         break;
     case 7: // get the wait page (so the tree can reload)
         include_once "header.inc.php";
@@ -466,7 +472,7 @@ switch ($action) {
         include_once "actions/document/revision.dynamic.php";
         include_once "footer.inc.php";
         break;
-    case 132: // open draft action
+    case '13x': // open draft action
         include_once "processors/document/create_draft_content.processor.php";
         break;
     case 128: // save draft action

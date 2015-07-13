@@ -2,8 +2,15 @@
 // 128
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if (!$modx->hasPermission('save_document')) {
+if(!$modx->hasPermission('save_document')) {
 	$e->setError(3);
+	$e->dumpError();
+}
+
+if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id']))
+	$id = $_GET['id'];
+else {
+	$e->setError(2);
 	$e->dumpError();
 }
 
