@@ -1821,16 +1821,18 @@ class SubParser {
         $str = trim($str);
         $str = str_replace('\\','/',$str);
         
-        if(is_file(MODX_BASE_PATH . $str))
-            $file_path = MODX_BASE_PATH . $str;
-        elseif(substr($str,0,1)==='/')
+        if(substr($str,0,1)==='/')
         {
-            if(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
+            if(is_file($str) && MODX_MANAGER_PATH===substr($str,0,strlen(MODX_MANAGER_PATH)))
+                $file_path = false;
+            elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
                 $file_path = $str;
             elseif(MODX_BASE_PATH . trim($file_path,'/'))
                 $file_path = MODX_BASE_PATH . trim($file_path,'/');
             else $file_path = false;
         }
+        elseif(is_file(MODX_BASE_PATH . $str))
+            $file_path = MODX_BASE_PATH . $str;
         elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
             $file_path = MODX_BASE_PATH . "assets/templates/{$str}";
         else
@@ -1840,7 +1842,6 @@ class SubParser {
         {
             global $modx,$recent_update;
             if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
-            if($str===MODX_CORE_PATH . 'config.inc.php') return 'Could not retrieve core file.';
             $content = file_get_contents($file_path);
             if($content)
             {
