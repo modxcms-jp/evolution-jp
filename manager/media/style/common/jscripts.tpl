@@ -10,6 +10,8 @@ jQuery(function(){
 	var dpformat = '[+datetime_format+]' + ' hh:mm:00';
 	var dayNames = [+dayNames+];
 	var monthNames = [+monthNames+];
+        var prevWin;
+
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	jQuery('#save a').click(function(){
@@ -49,13 +51,15 @@ jQuery(function(){
 	});
 
 	jQuery('#preview').click(function(){
-        window.open('[+preview_url+]','prevWin');
+            if( prevWin && !prevWin.closed ) {
+                prevWin.close();
+            }
+        prevWin = window.open('[+preview_url+]','prevWin');
         var pmode = [+preview_mode+];
     	if(pmode==1)
     	{
         	jQuery('#mutate').attr({'action':'[+preview_url+]','target':'prevWin'});
             jQuery('#mutate').submit();
-            prevWin.focus()
         	jQuery('#mutate').attr({'action':'index.php','target':'main'});
     	}
     	return false;
