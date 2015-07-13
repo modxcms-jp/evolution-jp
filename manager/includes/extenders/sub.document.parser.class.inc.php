@@ -1605,22 +1605,33 @@ class SubParser {
         return $resourceArray;
     }
     
-    function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+    function getDocumentChildren($parentid=0, $published=1, $deleted=0, $fields='*', $customWhere='', $sort='menuindex', $dir='ASC', $limit='')
     {
         global $modx;
         
         // modify field names to use sc. table reference
         $fields = $modx->join(',', explode(',',$fields),'sc.');
-        if($where != '') $where= "AND {$where}";
-        // get document groups for current user
-        if ($docgrp= $modx->getUserDocGroups()) $docgrp= implode(',', $docgrp);
-        // build query
-        $access  = $modx->isFrontend() ? 'sc.privateweb=0' : "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-        $access .= !$docgrp ? '' : " OR dg.document_group IN ({$docgrp})";
+        
         $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $where = "sc.parent = '{$parentid}' AND sc.published={$published} AND sc.deleted={$deleted} {$where} AND ({$access}) GROUP BY sc.id";
-        $sort = ($sort != '') ? $modx->join(',', explode(',',$sort),'sc.') : '';
-        $orderby = $sort ? "{$sort} {$dir}" : '';
+        
+        if($modx->isFrontend())         $access = 'sc.privateweb=0';
+        elseif($_SESSION['mgrRole']!=1) $access = 'sc.privatemgr=0';
+        if($docgrp = $modx->getUserDocGroups())
+            $access .= sprintf(' OR dg.document_group IN (%s)', join(',', $docgrp));
+        
+        $_ = array();
+        $_[] = "sc.parent='{$parentid}'";
+        $_[] = "sc.published={$published}";
+        $_[] = "sc.deleted={$deleted}";
+        if($customWhere != '') $_[] = "AND {$customWhere}";
+        if($access!='')        $_[] = "({$access})";
+        $where = join(' AND ', $_) . ' GROUP BY sc.id';
+        
+        if(strpos($sort,',')!==false)
+            $orderby = $modx->join(',', explode(',',$sort),'sc.');
+        else
+            $orderby = "{$sort} {$dir}";
+        
         $result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
         $resourceArray= array ();
         while ($row = $modx->db->getRow($result))
