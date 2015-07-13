@@ -1286,6 +1286,7 @@ $_lang["logmsg_login_disp_warning"] = 'Disable plugins';
 
 $_lang["edit_draft"] = 'Edit draft';
 $_lang["create_draft"] = 'Create draft';
+$_lang["open_draft"] = '下書きを開く';
 $_lang["publish_draft"] = 'Publish draft';
 $_lang["create_draft_title"] = 'Create draft';
 $_lang["edit_draft_title"] = 'Edit draft';

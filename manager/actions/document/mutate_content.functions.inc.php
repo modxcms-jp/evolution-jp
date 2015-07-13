@@ -104,7 +104,7 @@ function ab_save()
 	elseif($_REQUEST['stay']=='2') $selected[2] = 'selected';
 	elseif($_REQUEST['stay']=='')  $selected[3] = 'selected';
 	
-	if ($modx->manager->action!=131&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
+	if ($modx->manager->action!=132&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
 		$option[] = sprintf('<option id="stay1" value="1" %s >%s</option>', $selected[1], $_lang['stay_new']);
 	
 	$option[] = sprintf('<option id="stay2" value="2" %s >%s</option>'    , $selected[2], $_lang['stay']);
@@ -124,7 +124,7 @@ function ab_open_draft($id)
 	$tpl = '<li id="opendraft" class="opendraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
-	$ph['label'] = '下書きを開く';
+	$ph['label'] = $_lang["open_draft"];
 	return $modx->parseText($tpl,$ph);
 }
 

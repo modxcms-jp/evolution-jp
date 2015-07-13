@@ -1287,6 +1287,7 @@ $_lang["logtitle_login_disp_warning"] = 'ログイン画面の表示に問題あ
 $_lang["logmsg_login_disp_warning"] = 'プラグインを一時的に無効にしました。';
 
 $_lang["create_draft"] = '下書きを作成';
+$_lang["open_draft"] = '下書きを開く';
 $_lang["publish_draft"] = '下書きを採用';
 $_lang["create_draft_title"] = '下書きの作成';
 $_lang["edit_draft_title"] = '下書きの編集';
