@@ -22,7 +22,7 @@ jQuery(function(){
 	jQuery('#opendraft').click(function(){
     	document.location.href='index.php?a=131&id=[+id+]';
 	});
-	jQuery('#opendraft').click(function(){
+	jQuery('#publishdraft').click(function(){
 		documentDirty=false;
 		document.mutate.a.value=133;
 		jQuery('#mutate').submit();
@@ -55,14 +55,13 @@ jQuery(function(){
     	{
         	jQuery('#mutate').attr({'action':'[+preview_url+]','target':'prevWin'});
             jQuery('#mutate').submit();
-            prevWin.focus()
         	jQuery('#mutate').attr({'action':'index.php','target':'main'});
     	}
     	return false;
 	});
 	jQuery('#cancel').click(function(){
-		var docIsFolder = [+docIsFolder+];
-		var docParent   = [+docParent+];
+		var docIsFolder = '[+docIsFolder+]';
+		var docParent   = '[+docParent+]';
     	if(docIsFolder==1)    document.location.href = 'index.php?a=120&id=' + '[+id+]';
     	else if(docParent!=0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
     	else                  document.location.href = 'index.php?a=2';
