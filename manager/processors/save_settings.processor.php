@@ -99,6 +99,15 @@ if (isset($data) && count($data) > 0) {
 				}
 				else $k = '';
 				break;
+			case 'a':
+			case 'reload_site_unavailable':
+			case 'reload_captcha_words':
+			case 'reload_emailsubject':
+			case 'reload_signupemail_message':
+			case 'reload_websignupemail_message':
+			case 'reload_system_email_webreminder_message':
+				$k = '';
+				break;
 			default:
 			break;
 		}
