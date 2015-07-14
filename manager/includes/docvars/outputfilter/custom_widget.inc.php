@@ -38,10 +38,12 @@
 		ob_start();
 		$return = eval($eval_str);
 		$msg = ob_get_contents();
-		$result = $msg . $return;
-		if($result) $widget_output = $result;
-		else $widget_output = $value;
 		ob_end_clean();
+		if( $return === false ){
+			$widget_output = $value;
+		}else{
+			$widget_output = $msg . $return;
+		}
 	}
 	elseif($value==='')
 		return;
