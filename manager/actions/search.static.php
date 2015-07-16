@@ -172,8 +172,20 @@ while ($row = $modx->db->getRow($rs)) {
 	}
 ?>
     <tr>
-      <td align="center"><a href="index.php?a=<?php echo $action;?>&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $itemicon; ?>" /></a></td>
-      <td><?php echo $row['id']; ?></td>
+      <td align="center">
+        <a href="index.php?a=<?php echo $action;?>&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>">
+          <img src="<?php echo $itemicon; ?>" /></a>
+      </td>
+      <td>
+<?php
+  if ($row['isfolder'] == 1) {
+?>
+    <a href="index.php?a=120&id=<?php echo $row['id']; ?>" title="<?php echo $_lang['search_view_docdata']; ?>"><img src="<?php echo $_style['tree_folder']; ?>" /></a>
+<?php
+  }
+  echo $row['id'];
+?>
+      </td>
 <?php
 		if (function_exists('mb_strlen') && function_exists('mb_substr')) {
 ?>
