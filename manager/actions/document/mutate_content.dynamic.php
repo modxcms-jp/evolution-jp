@@ -7,6 +7,9 @@ include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.
 $modx->loadExtension('DocAPI');
 
 $id = getDocId(); // New is '0'
+if($modx->manager->action==132||$modx->manager->action==131)
+	$modx->doc->mode = 'draft';
+else $modx->doc->mode = 'normal';
 
 checkPermissions($id);
 if($id) checkDocLock($id);
@@ -75,24 +78,21 @@ $ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $ph['id'] = $id;
 $ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
 $ph['mode'] = $modx->manager->action;
-$ph['a'] = ($modx->manager->action!=131&&$modx->hasPermission('save_document')) ? '5' : '128' ;
+$ph['a'] = ($modx->doc->mode==='normal'&&$modx->hasPermission('save_document')) ? '5' : '128' ;
 // 5:save_resource.processor.php 128:save_draft_content.processor.php
 
 if(!$_REQUEST['pid'])
 	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
 else $ph['pid'] = $_REQUEST['pid'];
 
-switch($modx->manager->action)
-{
-	case 132:
-	case 131:
-		$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
-        $ph['class'] = 'draft';
-	    break;
-	default:
-		$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
-		$ph['class'] = '';
+if($modx->doc->mode==='normal') {
+	$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+	$ph['class'] = '';
+} else {
+	$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
+    $ph['class'] = 'draft';
 }
+
 $ph['actionButtons'] = getActionButtons($id);
 $ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 $ph['token'] = $modx->genToken();
@@ -127,10 +127,14 @@ if($modx->config['tvs_below_content']==0&&0<count($tmplVars)) {
 }
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
-$ph['fieldPublished']  =  fieldPublished();
-$ph['fieldPub_date']   = fieldPub_date($id);
-$ph['fieldUnpub_date'] = fieldUnpub_date($id);
-$ph['renderSplit'] = renderSplit();
+
+if($modx->doc->mode==='normal') {
+	$ph['fieldPublished'] =  fieldPublished();
+	$ph['fieldPub_date']  = fieldPub_date($id);
+	$ph['fieldUnpub_date'] = fieldUnpub_date($id);
+	$ph['renderSplit'] = renderSplit();
+}
+
 $ph['fieldType'] = fieldType();
 if($docObject['type'] !== 'reference') {
 	$ph['fieldContentType']   = fieldContentType();

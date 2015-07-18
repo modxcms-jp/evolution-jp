@@ -1293,7 +1293,7 @@ $_lang["create_draft_title"] = '下書きの作成';
 $_lang["edit_draft_title"] = '下書きの編集';
 $_lang["edit_draft"] = '下書きを編集';
 $_lang["delete_draft"] = '下書きを削除';
-$_lang["draft_data_publishdate"] = '差替開始日時';
+$_lang["draft_data_publishdate"] = '差替日時';
 
 $_lang["bk.contentOnly"] = 'コンテンツデータのみ';
 $_lang["bk.fileName"] = 'ファイル名';

@@ -98,17 +98,20 @@ function ab_save()
 	
 	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
 	
-	$selected = array(1=>'', 2=>'', 3=>'');
+	$selected = array('new'=>'', 'stay'=>'', 'close'=>'');
 	if ($modx->hasPermission('new_document')
-		&& $_REQUEST['stay']=='1') $selected[1] = 'selected';
-	elseif($_REQUEST['stay']=='2') $selected[2] = 'selected';
-	elseif($_REQUEST['stay']=='')  $selected[3] = 'selected';
+		&& $_REQUEST['stay']=='new')    $selected['new']   = 'selected';
+	elseif($_REQUEST['stay']=='stay')   $selected['stay']  = 'selected';
+	elseif($_REQUEST['stay']=='close')  $selected['close'] = 'selected';
+	else                                $selected['close'] = 'selected';
 	
 	if ($modx->manager->action!=132&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
-		$option[] = sprintf('<option id="stay1" value="1" %s >%s</option>', $selected[1], $_lang['stay_new']);
+		$option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
 	
-	$option[] = sprintf('<option id="stay2" value="2" %s >%s</option>'    , $selected[2], $_lang['stay']);
-	$option[] = sprintf('<option id="stay3" value="" %s >%s</option>'     , $selected[3], $_lang['close']);
+	$option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
+	if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document'))
+		$option[] = sprintf('<option id="stay4" value="publish_draft">%s</option>'     , '下書きを採用');
+	$option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], $_lang['close']);
 	
 	$ph['select'] = sprintf($ph['select'], join("\n", $option));
 	
@@ -141,17 +144,6 @@ function ab_create_draft($id)
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['create_draft'];
 	
-	return $modx->parseText($tpl,$ph);
-}
-
-function ab_publish_draft($id)
-{
-	global $modx, $_style, $_lang, $docObject,$saveTarget;
-	
-	$tpl = '<li id="publishdraft"><a href="#""><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-	$ph['icon'] = $_style["icons_save"];
-	$ph['alt'] = 'icons_draft';
-	$ph['label'] = $_lang['publish_draft'];
 	return $modx->parseText($tpl,$ph);
 }
 
@@ -506,9 +498,16 @@ function getAliasAtNew() {
 
 function getJScripts($docid) {
 	global $modx,$_lang,$_style,$action, $docObject;
-	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
+	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/calendar/datepicker.tpl');
 	$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
 	$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
+	$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
+	$ph['datetime_format'] = $modx->config['datetime_format'];
+	$ph['dayNames'] = $dayNames;
+	$ph['monthNames'] = $monthNames;
+	$content = $modx->parseText($tpl,$ph);
+	
+	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	$base_url = $modx->config['base_url'];
 	if(!isset($modx->config['imanager_url']))
 		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
@@ -520,15 +519,11 @@ function getJScripts($docid) {
 	$ph['fmanager_url'] = $modx->config['fmanager_url'];
 	$ph['preview_url']  = $modx->makeUrl($docid,'','','full');
 	$ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
-	$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
-	$ph['datetime_format'] = $modx->config['datetime_format'];
-	$ph['dayNames'] = $dayNames;
-	$ph['monthNames'] = $monthNames;
 	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
 	$ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
 	$ph['id'] = $docid;
-	$ph['docParent']   = empty($docObject['parent'])?'0':$docObject['parent'];
-	$ph['docIsFolder'] = empty($docObject['isfolder'])?'0':$docObject['isfolder'];
+	$ph['docParent']   = $docObject['parent'];
+	$ph['docIsFolder'] = $docObject['isfolder'];
 	$ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
 	$ph['style_tree_folder'] = $_style["tree_folder"];
 	$ph['style_icons_set_parent'] = $_style["icons_set_parent"];
@@ -538,7 +533,7 @@ function getJScripts($docid) {
 	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
 	$ph['action'] = $modx->manager->action;
 	
-	return $modx->parseText($tpl,$ph);
+	return $content . $modx->parseText($tpl,$ph);
 }
 
 function get_template_options() {
@@ -713,11 +708,6 @@ EOT;
 		if($modx->hasDraft) $ph['draftButton'] = ab_open_draft($id);
 		else                $ph['draftButton'] = ab_create_draft($id);
 		
-	}
-	elseif($modx->manager->action == 131)
-	{
-		if($modx->hasPermission('save_document')) $ph['draftButton'] = ab_publish_draft($id);
-		else                                      $ph['draftButton'] = '';
 	}
 	else $ph['draftButton']    = '';
 	
@@ -1034,15 +1024,10 @@ function fieldPublished() {
 	global $modx,$_lang;
 	if(!$modx->hasPermission('publish_document'))
 	{
-		switch($modx->manager->action)
-    	{
-    		case 27:
-    		case 131:
-    			$published = $modx->documentObject['published'];
-    			break;
-    		default:
-    			$published = 0;
-    	}
+		if($modx->manager->action==27)
+			$published = $modx->documentObject['published'];
+		else
+			$published = 0;
 	}
 	else $published = $modx->documentObject['published'];
 	
@@ -1056,7 +1041,7 @@ function fieldPub_date($id=0) {
 	global $modx,$_lang,$_style,$config,$docObject;
 
 	$tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
-	$tpl[] = '<a onclick="document.mutate.pub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand;">';
+	$tpl[] = '<a style="cursor:pointer; cursor:hand;">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
 	$tpl[] = tooltip($_lang['page_data_publishdate_help']);
 	$tpl[] = <<< EOT
@@ -1066,36 +1051,19 @@ function fieldPub_date($id=0) {
 </tr>
 EOT;
 	$tpl = implode("\n",$tpl);
-	if($modx->manager->action!=131)
-		$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+	$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
 	
 	$ph['pub_date']         = $modx->toDateFormat($docObject['pub_date']);
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $config['datetime_format'];
 	$body = $modx->parseText($tpl,$ph);
-	switch($modx->manager->action)
-	{
-		case 27:
-		case 4:
-		case 72:
-    		return renderTr($_lang['page_data_publishdate'],$body);
-		case 131:
-		    return renderTr($_lang['draft_data_publishdate'],$body);
-	}
+	return renderTr($_lang['page_data_publishdate'],$body);
 }
 
 function fieldUnpub_date($id) {
 	global $modx,$_lang,$_style,$config,$docObject;
 	if(!$modx->hasPermission('publish_document')) return '';
-	switch($modx->manager->action)
-	{
-		case 27:
-		case 4:
-		case 72:
-			break;
-		default:return '';
-	}
 	$tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
 	$tpl[] = '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';

@@ -3,17 +3,8 @@
 	var fmanager_url = '[+fmanager_url+]';
 </script>
 <script type="text/javascript" src="media/browser/browser.js"></script>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
 jQuery(function(){
-	var dpOffset = [+datepicker_offset+];
-	var dpformat = '[+datetime_format+]' + ' hh:mm:00';
-	var dayNames = [+dayNames+];
-	var monthNames = [+monthNames+];
-        var prevWin;
-
-	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	jQuery('#save a').click(function(){
     	documentDirty=false;
     	jQuery('#mutate').submit();
@@ -23,11 +14,6 @@ jQuery(function(){
 	});
 	jQuery('#opendraft').click(function(){
     	document.location.href='index.php?a=131&id=[+id+]';
-	});
-	jQuery('#publishdraft').click(function(){
-		documentDirty=false;
-		document.mutate.a.value=133;
-		jQuery('#mutate').submit();
 	});
 	jQuery('#delete').click(function(){
     	if (confirm("[+lang_confirm_delete_resource+]")==true)
@@ -70,6 +56,11 @@ jQuery(function(){
     	if(docIsFolder==1)    document.location.href = 'index.php?a=120&id=' + '[+id+]';
     	else if(docParent!=0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
     	else                  document.location.href = 'index.php?a=2';
+	});
+	jQuery('#pub_date a').click(function(){
+		jQuery('#pub_date').val('');
+		documentDirty=true;
+		return true;
 	});
 	var curTemplate = -1;
 	curTemplate = jQuery('#template').val();

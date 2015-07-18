@@ -595,16 +595,16 @@ function goNextAction($id) {
 	
 	$parent = $form_v['parent'];
 	switch($form_v['stay']) {
-		case '1':
+		case 'new':
 			$header = 'Location: index.php?';
 			if($form_v['type']==='document')
 				$header .= 'a=4';
 			elseif($form_v['type']==='reference')
 				$header .= 'a=72';
-			$header .= "&pid={$parent}&r=1&stay=1";
+			$header .= "&pid={$parent}&r=1&stay=new";
 			break;
-		case '2':
-			$header = "Location: index.php?a=27&id={$id}&r=1&stay=2";
+		case 'stay':
+			$header = "Location: index.php?a=27&id={$id}&r=1&stay=stay";
 			break;
 		default:
 			if($parent!=='0')

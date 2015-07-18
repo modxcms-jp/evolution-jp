@@ -1,6 +1,9 @@
 <?php
 
 class DocAPI {
+	
+	var $mode;
+	
 	function DocAPI()
 	{
 	}
