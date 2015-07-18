@@ -42,6 +42,7 @@ function setStandBy($docid, $pub_date) {
 	$f['pub_date'] = $pub_date;
 	$f['status']   = 'standby';
 	$modx->db->update($f, '[+prefix+]site_revision', "elmid='{$docid}'");
+	$modx->setCacheRefreshTime($pub_date);
 	return 'set_standby';
 }
 
