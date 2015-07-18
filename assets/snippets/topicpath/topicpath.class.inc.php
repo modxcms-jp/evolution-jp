@@ -215,14 +215,25 @@ class TopicPath
 	{
 		global $modx;
 		
-		if(method_exists($modx, 'parseText'))
-			return $modx->parseText($tpl,$ph);
-		
 		foreach($ph as $k=>$v)
 		{
 			$k = "[+{$k}+]";
 			$tpl = str_replace($k,$v,$tpl);
 		}
+		
+		$modx->loadExtension('PHx') or die('Could not load PHx class.');
+		$modx->filter->setPlaceholders($ph);
+        $i=0;
+        $bt = '';
+        while($bt !== $tpl)
+        {
+            $bt = $tpl;
+            $tpl = $modx->parseText($tpl,$modx->filter->placeholders,'[+','+]',false);
+            if($bt===$tpl) break;
+            $i++;
+            if(1000<$i) $modx->messageQuit('TopicPath parse over');
+        }
+		
 		return $tpl;
 	}
 }
