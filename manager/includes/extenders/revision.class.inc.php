@@ -293,7 +293,7 @@ class REVISION
         	$f = array('pub_date' => $fields['pub_date']);
         	$modx->db->update($f,'[+prefix+]site_revision',"elmid='{$docid}'");
         	$modx->setCacheRefreshTime($fields['pub_date']);
-        	return 'reserved';
+        	return 'standby';
         }
         else
         {
