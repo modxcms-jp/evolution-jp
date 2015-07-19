@@ -105,7 +105,7 @@ class PHx {
         
         foreach($result as $i=>$a)
         {
-            $result[$i]['opt'] = $this->parseDocumentSource($a['opt']);
+            $a['opt'] = $this->parseDocumentSource($a['opt']);
             $result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders);
         }
         
