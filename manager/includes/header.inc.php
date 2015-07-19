@@ -132,9 +132,10 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
 
         var documentDirty=false;
+        var gotosave = false;
 
         function checkDirt(evt) {
-            if(documentDirty==true)
+            if(documentDirty==true && gotosave==false)
             {
 				var message = "<?php echo $_lang['warning_not_saved']; ?>";
 				

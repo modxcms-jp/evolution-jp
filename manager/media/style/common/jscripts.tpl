@@ -7,6 +7,7 @@
 jQuery(function(){
 	jQuery('#save a').click(function(){
     	documentDirty=false;
+    	gotosave = true;
     	jQuery('#mutate').submit();
 	});
 	jQuery('#createdraft').click(function(){
