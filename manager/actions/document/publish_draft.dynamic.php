@@ -91,11 +91,11 @@ function getTplDraft()
     </div>
     <div class="section">
     <div class="sectionBody">
-	<p>
-	下書きを保存しました。この下書きを採用します。
+	<p class="okmsg">
+	下書きを保存しました。
 	</p>
-    	<div>
-    		<label><input name="publish_now" id="publish_now" type="checkbox" class="checkbox" checked /> 今すぐ採用する</label>
+    	<div style="margin-bottom:1em;">
+    		<label><input name="publish_now" id="publish_now" type="checkbox" class="checkbox" checked /> この下書きを今すぐ採用する</label>
     	</div>
     	<div id="pubdate" style="display:none;">
         	<table width="99%" border="0" cellspacing="5" cellpadding="0">
