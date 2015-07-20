@@ -922,7 +922,7 @@ function sectionContent() {
 	
 	$ph['header'] = $_lang['resource_content'];
 	$planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
-	if (($modx->manager->action == 4 || $modx->manager->action == 27 || $modx->manager->action == 131) && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
+	if (($modx->manager->action == 4 || $modx->manager->action == 27 || $modx->manager->action == 131 || $modx->manager->action == 132) && $modx->config['use_editor'] == 1 && $docObject['richtext'] == 1):
 		// invoke OnRichTextEditorRegister event
 		$editors = $modx->invokeEvent('OnRichTextEditorRegister');
 		if(!empty($editors))
