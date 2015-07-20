@@ -31,7 +31,7 @@ if($id && $modx->config['enable_draft']) {
 else $modx->revisionObject = array();
 if(isset($modx->revisionObject['draft'])) $modx->hasDraft = '1';
 
-$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
+$tmplVars  = getTmplvars($id,$default_template,$docgrp);
 $docObject = $docObject + $tmplVars;
 
 if($id && $modx->manager->action==131)
