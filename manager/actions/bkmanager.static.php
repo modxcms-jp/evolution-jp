@@ -108,10 +108,10 @@ if(isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '')
 	switch($_SESSION['result_msg'])
 	{
 		case 'import_ok':
-			$ph['result_msg'] = '<div class="msg">' . $_lang["bkmgr_import_ok"] . '</div>';
+			$ph['result_msg'] = '<div class="okmsg">' . $_lang["bkmgr_import_ok"] . '</div>';
 			break;
 		case 'snapshot_ok':
-			$ph['result_msg'] = '<div class="msg">' . $_lang["bkmgr_snapshot_ok"] . '</div>';
+			$ph['result_msg'] = '<div class="okmsg">' . $_lang["bkmgr_snapshot_ok"] . '</div>';
 			break;
 	}
 	$_SESSION['result_msg'] = '';
@@ -357,7 +357,6 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	<style type="text/css">
 	table {background-color:#fff;border-collapse:collapse;}
 	table td {padding:4px;}
-	.msg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
 	</style>
 <div class="sectionHeader"><?php echo $_lang["bkmgr_snapshot_list_title"];?></div>
 <div class="sectionBody">

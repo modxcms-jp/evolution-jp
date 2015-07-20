@@ -1826,3 +1826,5 @@ strong[style*='color:#EF1D1D'] {
 .tvname {width:150px;}
 
 #loadingBar div {background-color:#91ba49;}
+
+.okmsg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
