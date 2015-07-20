@@ -6,6 +6,7 @@
 <script type="text/javascript">
 jQuery(function(){
 	var prevWin;
+	var docMode = '[+docMode+]';
 
 	jQuery('#save a').click(function(){
     	documentDirty=false;
@@ -56,9 +57,10 @@ jQuery(function(){
 	jQuery('#cancel').click(function(){
 		var docIsFolder = '[+docIsFolder+]';
 		var docParent   = '[+docParent+]';
-    	if(docIsFolder==1)    document.location.href = 'index.php?a=120&id=' + '[+id+]';
-    	else if(docParent!=0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
-    	else                  document.location.href = 'index.php?a=2';
+		if(docMode=='draft')   document.location.href = 'index.php?a=3&id=' + '[+id+]';
+    	else if(docIsFolder==1)document.location.href = 'index.php?a=120&id=' + '[+id+]';
+    	else if(docParent!=0)  document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
+    	else                   document.location.href = 'index.php?a=2';
 	});
 	jQuery('#pub_date a').click(function(){
 		jQuery('#pub_date').val('');

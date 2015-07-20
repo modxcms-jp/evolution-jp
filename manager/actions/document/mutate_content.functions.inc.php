@@ -524,6 +524,7 @@ function getJScripts($docid) {
 	$ph['id'] = $docid;
 	$ph['docParent']   = $docObject['parent'];
 	$ph['docIsFolder'] = $docObject['isfolder'];
+	$ph['docMode'] = $modx->doc->mode;
 	$ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
 	$ph['style_tree_folder'] = $_style["tree_folder"];
 	$ph['style_icons_set_parent'] = $_style["icons_set_parent"];
