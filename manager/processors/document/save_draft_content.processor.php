@@ -24,14 +24,12 @@ $fields = $modx->doc->fixPubStatus($fields);
 
 $rs = $modx->revision->save($docid,$fields,'draft');
 
-if($_POST['stay']==='2')
-	$header = "Location: index.php?a=131&id={$docid}&stay=2";
-if($_POST['stay']==='publish_draft')
-	$header = "Location: index.php?a=133&id={$docid}&r=1";
-elseif($rs==='new')
-	$header = "Location: index.php?a=131&id={$docid}&r=1";
-else
-	$header = "Location: index.php?a=3&id={$docid}&r=1";
-
+switch($_POST['stay'])
+{
+	case 'new'          : $header = "Location: index.php?a=131&id={$docid}&r=1";   break;
+	case 'stay'         : $header = "Location: index.php?a=131&id={$docid}&stay=stay";break;
+	case 'publish_draft': $header = "Location: index.php?a=133&id={$docid}&r=1";   break;
+	default:              $header = "Location: index.php?a=3&id={$docid}&r=1";
+}
 header($header);
 exit;
