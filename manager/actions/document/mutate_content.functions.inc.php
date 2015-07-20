@@ -986,11 +986,24 @@ function fieldsTV() {
 		endif;
 		
 		// post back value
-		if(array_key_exists($tvid, $form_v)):
-			if($tv['type'] === 'listbox-multiple') $tvPBV = implode('||', $form_v[$tvid]);
-			else                                   $tvPBV = $form_v[$tvid];
-		else:                                      $tvPBV = $tv['value'];
-		endif;
+		if(array_key_exists($tvid, $form_v)){
+			switch( $tv['type'] ){
+			case 'listbox-multiple':
+				$tvPBV = implode('||', $form_v[$tvid]);
+				break;
+			case 'url':
+				if( $form_v[$tvid.'_prefix'] == 'DocID' ){
+					$tvPBV = '[~' . $form_v[$tvid] . '~]';
+				}else{
+					$tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
+				}
+				break;
+			default:
+				$tvPBV = $form_v[$tvid];
+			}
+		}else{
+			$tvPBV = $tv['value'];
+		}
 		
 		if($tv['type']!=='hidden')
 		{
