@@ -5,6 +5,8 @@
 <script type="text/javascript" src="media/browser/browser.js"></script>
 <script type="text/javascript">
 jQuery(function(){
+	var prevWin;
+
 	jQuery('#save a').click(function(){
     	documentDirty=false;
     	gotosave = true;
