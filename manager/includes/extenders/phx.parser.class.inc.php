@@ -975,18 +975,18 @@ class PHx {
     }
     
     function setPlaceholders($value = '', $key = '', $path = '') {
-        $keypath = !empty($path) ? $path . "." . $key : $key;
+        if($path!=='') $key = "{$path}.{$key}";
         if (is_array($value)) {
             foreach ($value as $subkey => $subval) {
-                $this->setPlaceholders($subval, $subkey, $keypath);
+                $this->setPlaceholders($subval, $subkey, $key);
             }
         }
-        else $this->setPHxVariable($keypath, $value);
+        else $this->setPHxVariable($key, $value);
     }
     
     // Sets a placeholder variable which can only be access by PHx
-    function setPHxVariable($name, $value) {
-        if ($name != 'phx') $this->placeholders[$name] = $value;
+    function setPHxVariable($key, $value) {
+        if ($key != 'phx') $this->placeholders[$key] = $value;
     }
     
     //mbstring
