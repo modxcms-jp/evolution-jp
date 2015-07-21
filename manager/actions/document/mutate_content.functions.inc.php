@@ -290,7 +290,6 @@ function getDefaultTemplate()
 {
 	global $modx;
 	
-    if (isset($_REQUEST['newtemplate']))  return $_REQUEST['newtemplate'];
 	$pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
 	$site_start = $modx->config['site_start'];
 
