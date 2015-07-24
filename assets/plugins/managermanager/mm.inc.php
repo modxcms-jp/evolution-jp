@@ -162,6 +162,11 @@ if ($handle = opendir($widget_dir)){
 						$t = 'input';
 				break;
 				
+				case 'tags':
+					$t = 'select';
+					$fieldname_suffix = '\\\\[\\\\]';
+				break;
+                                
 				default:
 					$t = 'input';
 				break;
