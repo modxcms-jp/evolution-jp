@@ -388,6 +388,7 @@ SQL_QUERY;
 		$this->content = $this->content_lists;
 		$this->tv = array();
 		if( !$this->isInt($id,1) ){
+			$this->logerr('リソースIDの指定が不正です。');
 			return false;
 		}else{
 			$rs  = $this->modx->db->select('*','[+prefix+]site_content','id='.$id);
