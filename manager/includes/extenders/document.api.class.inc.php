@@ -78,7 +78,12 @@ class Document
 			$this->logLevel = $level;
 
 		$this->modx = &$modx;
-		$this->load($id);
+		if( empty($id) ){
+			$this->content = $this->content_lists;
+			$this->tv = array();
+		}else{
+			$this->load($id);
+		}
 	}
 
 	/*
