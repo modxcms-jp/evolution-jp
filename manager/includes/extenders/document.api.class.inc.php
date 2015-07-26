@@ -556,6 +556,41 @@ SQL_QUERY;
 	}
 
 	/*
+	 * リソースの完全削除
+	 *
+	 * DBから削除します。
+	 * $this->content も初期化されます。
+	 *
+	 * @param $clearCache Clear cache
+	 * @return bool   
+	 *
+	 */
+	public function erase($clearCache=true){
+		if( $this->DocumentExist($this->content['id']) ){
+			$id = $this->content['id'];
+			//tvの削除 -> content削除
+			foreach( $this->tv as $k => $v ){
+				$this->modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
+										"tmplvarid = $k AND contentid = $id");
+			}
+			$rs = $this->modx->db->delete('[+prefix+]site_content',"id = $id");
+
+			if( $rs ){
+				$this->content = $this->content_lists;
+				$this->tv = array();
+			}
+			
+			if( $rs !== false && $clearCache ){
+				$this->modx->clearCache();
+			}
+			return $rs;
+
+		}
+		$this->logErr('リソースが存在しません。');
+		return false;
+	}
+
+	/*
 	 * lastLog
 	 *
 	 * @param none
