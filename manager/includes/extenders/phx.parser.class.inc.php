@@ -378,6 +378,14 @@ class PHx {
                 else {$limit=100;$delim='';}
                 $value = $this->getSummary($value, $limit, $delim);
                 break;
+            case 'substr':
+                if(empty($opt)) break;
+                if(strpos($opt,',')!==false) {
+                    list($b,$e) = explode(',',$opt,2);
+                    $value = $this->substr($value,$b,$e);
+                }
+                else $value = $this->substr($value,$b);
+                break;
             case 'str_shuffle':
             case 'shuffle':
                 $value = $this->str_shuffle($value); break;
