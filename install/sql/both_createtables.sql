@@ -507,7 +507,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   `approvedon` int(20) NOT NULL DEFAULT '0',
   `approvedby` int(10) NOT NULL DEFAULT '0',
   `pub_date` int(20) NOT NULL DEFAULT '0',
-  `unpub_date` int(20) NOT NULL DEFAULT '0',
   `checksum` varchar(50) NOT NULL DEFAULT '0',
   PRIMARY KEY (`internalKey`),
   UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`),
