@@ -115,7 +115,7 @@ switch ($_POST['mode']) {
         break;
     case '108':
 		// invoke OnBeforeModFormSave event
-      $tmp array(
+      $tmp = array(
 								'mode'	=> 'upd',
 								'id'	=> $id
       );
