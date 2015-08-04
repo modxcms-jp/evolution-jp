@@ -1196,6 +1196,7 @@ class SubParser {
                 $field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
                 break;
             case "checkbox": // handles check boxes
+                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
                 if(!is_array($field_value)) $field_value = explode('||',$field_value);
                 $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
                 $index_list = $this->ParseInputOptions($rs);
@@ -1204,8 +1205,13 @@ class SubParser {
                 {
                     list($label,$value) = $this->splitOption($item);
                     $checked = ($this->isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
-                    $value = htmlspecialchars($value);
-                    $field_html .=  '<label for="tv_'.$i.'"><input type="checkbox" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'[]" '. $checked.' />'.$label.'</label>';
+                    $ph['id']      = "tv{$field_id}_{$i}";
+                    $ph['name']    = "tv{$field_id}[]";
+                    $ph['value']   = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+                    $ph['tvtype']  = $field_type;
+                    $ph['label']   = $label;
+                    $ph['checked'] = $checked;
+                    $field_html .=  $modx->parseText($tpl,$ph);
                     $i++;
                 }
                 break;
