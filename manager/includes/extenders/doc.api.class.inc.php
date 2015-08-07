@@ -521,4 +521,15 @@ class DocAPI {
     	global $modx;
     	return $modx->hasPermission('edit_document');
     }
+    
+    function existsDoc($id = 0) {
+        global $modx;
+        $rs = $modx->db->select('id','[+prefix+]site_content', "id='{$id}'");
+        if($modx->db->getRecordCount($rs)==0) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 }
