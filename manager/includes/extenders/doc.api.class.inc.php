@@ -97,6 +97,7 @@ class DocAPI {
 		$where .= " `id`='{$id}'";
 
 		$f = $this->correctResourceFields($f);
+		$f = $modx->db->escape($f);
 		$rs = $modx->db->update($f, '[+prefix+]site_content', $where);
 		if($rs!==false) $modx->clearCache();
 		return $rs;
