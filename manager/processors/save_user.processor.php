@@ -77,7 +77,7 @@ if ($_SESSION['mgrRole'] != 1) {
 switch ($mode) {
 	case '11' : // new user
 		// check if this user name already exist
-		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='{$newusername}'"))
+		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='".$modx->db->escape($newusername)."'") )
 		{
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
@@ -127,7 +127,7 @@ switch ($mode) {
 
 		// build the SQL
 		$field = array();
-		$field['username'] = $newusername;
+		$field['username'] = $modx->db->escape($newusername);
 		$internalKey = $modx->db->insert($field,'[+prefix+]manager_users');
 		if (!$internalKey) {
 			webAlert("An error occurred while attempting to save the user.");
@@ -260,7 +260,7 @@ switch ($mode) {
 		}
 
 		// check if the username already exist
-		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='{$newusername}'")) {
+		if (!$rs = $modx->db->select('id','[+prefix+]manager_users',"username='".$modx->db->escape($newusername)."'")) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
@@ -296,7 +296,7 @@ switch ($mode) {
 
 		// update user name and password
 		$field = array();
-		$field['username'] = $newusername;
+		$field['username'] = $modx->db->escape($newusername);
 		if(isset($hashed_password)) $field['password'] = $hashed_password;
 		if (!$rs = $modx->db->update($field,'[+prefix+]manager_users',"id='{$id}'")) {
 			webAlert("An error occurred while attempting to update the user's data.");

@@ -236,7 +236,7 @@ switch ($_POST['mode']) {
 				webAlert("No password generation method specified!");
 				exit;
 			}
-			$updatepasswordsql = ", password=MD5('$newpassword') ";
+			$updatepasswordsql = ", password=MD5('".$modx->db->escape($newpassword)."') ";
 		}
 		if ($passwordnotifymethod == 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);

@@ -97,6 +97,7 @@ class DocAPI {
 		$where .= " `id`='{$id}'";
 
 		$f = $this->correctResourceFields($f);
+		$f = $modx->db->escape($f);
 		$rs = $modx->db->update($f, '[+prefix+]site_content', $where);
 		if($rs!==false) $modx->clearCache();
 		return $rs;
@@ -235,7 +236,7 @@ class DocAPI {
         		$rs = $modx->db->select('*','[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvarid}' AND templateid='{$template}'");
         		if($modx->db->getRecordCount($rs)==1)
         		{
-        		    $value = $inputFields[$tmplvarname];
+        		    $value = $modx->db->escape($inputFields[$tmplvarname]);
         		    $key = false;
             		$rs = $modx->db->select('*','[+prefix+]site_tmplvar_contentvalues', "tmplvarid='{$tmplvarid}' AND contentid='{$id}'");
             		if($modx->db->getRecordCount($rs)==0)
