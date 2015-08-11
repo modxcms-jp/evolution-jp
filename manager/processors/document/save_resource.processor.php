@@ -38,15 +38,15 @@ switch ($actionToTake) {
 		// invoke OnBeforeDocFormSave event
 		$temp_id = $modx->doc->getNewDocID();
 		$values = getInputValues($temp_id,'new');
-    if(!empty($form_v['template']))
+		if(!empty($form_v['template']))
 			$tmplvars = get_tmplvars();
-    else
-      $tmplvars = array();
-    
-    $param = array('mode'     => 'new',
-                   'doc_vars' => &$values,
-                   'tv_vars'  => &$tmplvars);
-
+		else
+			$tmplvars = array();
+		
+		$param = array('mode'	 => 'new',
+					   'doc_vars' => &$values,
+					   'tv_vars'  => &$tmplvars);
+	
 		$modx->invokeEvent('OnBeforeDocFormSave', $param);
 
 		$values = $modx->db->escape($values);
@@ -56,7 +56,7 @@ switch ($actionToTake) {
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 
-    if(!empty($tmplvars)) {
+		if(!empty($tmplvars)) {
 			insert_tmplvars($newid,$tmplvars);
 		}
 
@@ -65,7 +65,7 @@ switch ($actionToTake) {
 		updateParentStatus();
 
 		// invoke OnDocFormSave event
-    $tmp = array('mode'=>'new','id'=>$newid);
+		$tmp = array('mode'=>'new','id'=>$newid);
 		$modx->invokeEvent('OnDocFormSave', $tmp);
 
 		if($modx->config['use_udperms']==='1') {
@@ -88,22 +88,22 @@ switch ($actionToTake) {
 
 		// set publishedon and publishedby
 		$form_v['published']   = checkPublished($db_v);
-		$form_v['pub_date']    = checkPub_date($db_v);
+		$form_v['pub_date']	= checkPub_date($db_v);
 		$form_v['unpub_date']  = checkUnpub_date($db_v);
 		$form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
 		$form_v['publishedby'] = checkPublishedby($db_v);
 		
 		// invoke OnBeforeDocFormSave event
 		$values = getInputValues($id,'edit');
-    if(!empty($form_v['template']))
+		if(!empty($form_v['template']))
 			$tmplvars = get_tmplvars($id);
-    else
-      $tmplvars = array();
+		else
+			$tmplvars = array();
 
-    $param = array('mode'     => 'upd',
-                   'id'       => $id,
-                   'doc_vars' => &$values,
-                   'tv_vars'  => &$tmplvars);
+	$param = array('mode'	 => 'upd',
+				   'id'	   => $id,
+				   'doc_vars' => &$values,
+				   'tv_vars'  => &$tmplvars);
 
 		$modx->invokeEvent('OnBeforeDocFormSave', $param);
 		
@@ -126,7 +126,7 @@ switch ($actionToTake) {
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
 		// invoke OnDocFormSave event
-    $tmp = array('mode'=>'upd','id'=>$id);
+		$tmp = array('mode'=>'upd','id'=>$id);
 		$modx->invokeEvent('OnDocFormSave', $tmp);
 
 		if($modx->config['use_udperms']==='1') {
@@ -184,29 +184,29 @@ function get_tmplvars($id)
 		
 		if($row['type']==='url') {
 			if( $form_v["{$tvid}_prefix"] === 'DocID' ){
-        $value = $form_v[$tvid];
-        if( preg_match('/\A[0-9]+\z/',$value) ) 
-          $value = '[~' . $value . '~]';
-      }elseif($form_v["{$tvid}_prefix"] !== '--') {
+		$value = $form_v[$tvid];
+		if( preg_match('/\A[0-9]+\z/',$value) ) 
+		  $value = '[~' . $value . '~]';
+	  }elseif($form_v["{$tvid}_prefix"] !== '--') {
 				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $form_v[$tvid]);
 				$value = $form_v["{$tvid}_prefix"] . $value;
 			}
 			else $value = $form_v[$tvid];
 		}
-		elseif($row['type']==='file')    $value = $form_v[$tvid];
+		elseif($row['type']==='file')	$value = $form_v[$tvid];
 		else {
 			if(is_array($form_v[$tvid])) {
 				// handles checkboxes & multiple selects elements
 				$value = implode('||', $form_v[$tvid]);
 			}
 			elseif(isset($form_v[$tvid])) $value = $form_v[$tvid];
-			else                          $value = '';
+			else						  $value = '';
 		}
 		// save value if it was modified
 		if(substr($row['default_text'], 0, 6) === '@@EVAL') {
-	     	$eval_str = trim(substr($row['default_text'], 7));
-	    	$row['default_text'] = eval($eval_str);
-	    }
+		 	$eval_str = trim(substr($row['default_text'], 7));
+			$row['default_text'] = eval($eval_str);
+		}
 		if (strlen($value) > 0 && $value != $row['default_text'])
 		{
 			$tmplvars[$row['id']] = $value;
@@ -276,7 +276,7 @@ function _check_duplicate_alias($id,$alias,$parent)
 		
 		$url = 'index.php?a=' . $_POST['mode'];
 		if ($_POST['mode'] == '27') $url .= "&id={$id}";
-		elseif($_REQUEST['pid'])    $url .= '&pid=' . $_REQUEST['pid'];
+		elseif($_REQUEST['pid'])	$url .= '&pid=' . $_REQUEST['pid'];
 		
 		if($_REQUEST['stay']) $url .= '&stay=' . $_REQUEST['stay'];
 		
@@ -300,7 +300,7 @@ function checkDocPermission($id,$document_groups=array()) {
 			if($count == 0)
 			{
 				if ($actionToTake == 'new') $url = 'index.php?a=4';
-				else                        $url = "index.php?a=27&id={$id}";
+				else						$url = "index.php?a=27&id={$id}";
 				
 				$modx->manager->saveFormValues();
 				$modx->webAlertAndQuit(sprintf($_lang["resource_permissions_error"]), $url);
@@ -329,7 +329,7 @@ function checkDocPermission($id,$document_groups=array()) {
 		
 		if (!$modx->checkPermissions($form_v['parent'])) {
 			if ($actionToTake == 'new') $url = "index.php?a=4";
-			else                        $url = "index.php?a=27&id={$id}";
+			else						$url = "index.php?a=27&id={$id}";
 			$modx->manager->saveFormValues();
 			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $form_v['alias']), $url);
 		}
@@ -347,7 +347,7 @@ function getInputValues($id=0,$mode='new') {
 		$fields[$key] = $form_v[$key];
 	}
 	if($mode==='new') {
-    	$fields['publishedon'] = checkPublishedon(0);
+		$fields['publishedon'] = checkPublishedon(0);
 	}
 	elseif($mode==='edit') {
 		unset($fields['createdby']);
@@ -474,7 +474,7 @@ function insert_tmplvars($docid,$tmplvars) {
 	foreach ($tmplvars as $tmplvarid=>$value) {
 		if ($value!==false) {
 			$tv['tmplvarid'] = $tmplvarid;
-			$tv['value']     = $value;
+			$tv['value']	 = $value;
 			$tvChanges[] = $tv;
 		}
 	}
@@ -490,7 +490,7 @@ function update_tmplvars($docid,$tmplvars) {
 	global $modx;
 	if(empty($tmplvars)) return;
 	$tvChanges   = array();
-	$tvAdded     = array();
+	$tvAdded	 = array();
 	$tvDeletions = array();
 	$rs = $modx->db->select('id, tmplvarid', '[+prefix+]site_tmplvar_contentvalues', "contentid='{$docid}'");
 	$tvIds = array ();
@@ -505,7 +505,7 @@ function update_tmplvars($docid,$tmplvars) {
 			if (isset($tvIds[$tmplvarid])) $tvDeletions[] = $tvIds[$tmplvarid];
 		} else {
 			$tv['tmplvarid'] = $tmplvarid;
-			$tv['value']     = $value;
+			$tv['value']	 = $value;
 			if (isset($tvIds[$tmplvarid])) {
 				$tvChanges[] = $tv;
 			} else {
@@ -562,7 +562,7 @@ function setDocPermissionsNew($document_groups,$newid) {
 	else
 	{
 		$isManager = $modx->hasPermission('access_permissions');
-		$isWeb     = $modx->hasPermission('web_access_permissions');
+		$isWeb	 = $modx->hasPermission('web_access_permissions');
 		if($modx->config['use_udperms']==1 && !($isManager || $isWeb) && $parent != 0) {
 			// inherit document access permissions
 			$sql = "INSERT INTO {$tbl_document_groups} (document_group, document) SELECT document_group, {$newid} FROM {$tbl_document_groups} WHERE document='{$parent}'";
@@ -595,13 +595,13 @@ function goNextAction($id) {
 	
 	$parent = $form_v['parent'];
 	if($form_v['type']==='reference') $a = '4';
-	else                              $a = '72';
+	else							  $a = '72';
 	switch($form_v['stay']) {
 		case 'new':  $header = "Location: index.php?a={$a}&pid={$parent}&r=1&stay=new"; break;
 		case 'stay': $header = "Location: index.php?a=27&id={$id}&r=1&stay=stay"; break;
 		default:
 			if($parent!=0) $header = "Location: index.php?a=120&id={$parent}&r=1";
-			else           $header = "Location: index.php?a=3&id={$id}&r=1";
+			else		   $header = "Location: index.php?a=3&id={$id}&r=1";
 	}
 	header($header);
 	exit;
@@ -623,7 +623,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 
 	// grab the current set of permissions on this document the user can access
 	$isManager = intval($modx->hasPermission('access_permissions'));
-	$isWeb     = intval($modx->hasPermission('web_access_permissions'));
+	$isWeb	 = intval($modx->hasPermission('web_access_permissions'));
 	$fields = 'groups.id, groups.document_group';
 	$from   = '[+prefix+]document_groups AS groups LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = groups.document_group';
 	$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
