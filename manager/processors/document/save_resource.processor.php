@@ -43,11 +43,11 @@ switch ($actionToTake) {
 		else
 			$tmplvars = array();
 		
-		$param = array('mode'	 => 'new',
+		$modx->event->vars = array('mode'	 => 'new',
 					   'doc_vars' => &$values,
 					   'tv_vars'  => &$tmplvars);
 	
-		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
 
 		$values = $modx->db->escape($values);
 		$newid = $modx->db->insert($values,'[+prefix+]site_content');
@@ -65,8 +65,8 @@ switch ($actionToTake) {
 		updateParentStatus();
 
 		// invoke OnDocFormSave event
-		$tmp = array('mode'=>'new','id'=>$newid);
-		$modx->invokeEvent('OnDocFormSave', $tmp);
+		$modx->event->vars = array('mode'=>'new','id'=>$newid);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($newid);
@@ -100,12 +100,12 @@ switch ($actionToTake) {
 		else
 			$tmplvars = array();
 
-	$param = array('mode'	 => 'upd',
+		$modx->event->vars = array('mode'	 => 'upd',
 				   'id'	   => $id,
 				   'doc_vars' => &$values,
 				   'tv_vars'  => &$tmplvars);
 
-		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
 		
 		$values = $modx->db->escape($values);
 		$rs = $modx->db->update($values,'[+prefix+]site_content',"id='{$id}'");
@@ -126,8 +126,8 @@ switch ($actionToTake) {
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
 		// invoke OnDocFormSave event
-		$tmp = array('mode'=>'upd','id'=>$id);
-		$modx->invokeEvent('OnDocFormSave', $tmp);
+		$modx->event->vars = array('mode'=>'upd','id'=>$id);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($id);
