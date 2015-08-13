@@ -42,22 +42,22 @@ switch ($actionToTake) {
 			$tmplvars = get_tmplvars();
 		else
 			$tmplvars = array();
-		
-		$modx->event->vars = array('mode'	 => 'new',
-					   'doc_vars' => &$values,
-					   'tv_vars'  => &$tmplvars);
-	
-		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
 
-		$values = $modx->db->escape($values);
+		$param = array('mode'  => 'new',
+					   'doc_vars' => $values,
+					   'tv_vars'  => $tmplvars);
+
+		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+
+		$values = $modx->db->escape($param['doc_vars']);
 		$newid = $modx->db->insert($values,'[+prefix+]site_content');
 		if(!$newid) {
 			$msg = 'An error occured while attempting to save the new document: ' . $modx->db->getLastError();
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 
-		if(!empty($tmplvars)) {
-			insert_tmplvars($newid,$tmplvars);
+		if(!empty($param['tv_vars'])) {
+			insert_tmplvars($newid,$param['tv_vars']);
 		}
 
 		setDocPermissionsNew($document_groups,$newid);
@@ -100,22 +100,22 @@ switch ($actionToTake) {
 		else
 			$tmplvars = array();
 
-		$modx->event->vars = array('mode'	 => 'upd',
-				   'id'	   => $id,
-				   'doc_vars' => &$values,
-				   'tv_vars'  => &$tmplvars);
-
-		$modx->invokeEvent('OnBeforeDocFormSave', $modx->event->vars);
+		$param = array('mode' => 'upd',
+					   'id'   => $id,
+					   'doc_vars' => $values,
+					   'tv_vars'  => $tmplvars);
 		
-		$values = $modx->db->escape($values);
+		$modx->invokeEvent('OnBeforeDocFormSave', $param);
+		
+		$values = $modx->db->escape($param['doc_vars']);
 		$rs = $modx->db->update($values,'[+prefix+]site_content',"id='{$id}'");
 		if (!$rs) {
 			$msg = "An error occured while attempting to save the edited document. The generated SQL is: <i> {$sql} </i>.";
 			$modx->webAlertAndQuit($msg, $return_url);
 		}
 		
-		if(!empty($tmplvars)) {
-			update_tmplvars($id,$tmplvars);
+		if(!empty($param['tv_vars'])) {
+			update_tmplvars($id,$param['tv_vars']);
 		}
 		
 		setDocPermissionsEdit($document_groups,$id);
