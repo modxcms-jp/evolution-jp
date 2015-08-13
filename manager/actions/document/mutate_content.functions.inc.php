@@ -1274,7 +1274,7 @@ function getUDGroups($id) {
 	$form_v = $_POST;
 	$groupsarray = array();
 	
-	if($modx->manager->action == 27)       $docid = $id;
+	if($modx->manager->action == 27) $docid = $id;
 	elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
 	else                             $docid = $docObject['parent'];
 	
