@@ -45,7 +45,7 @@ class REVISION
     				foreach($row as $k=>$v)
     			    {
     			    	if($k==='content') continue;
-    			    	$obj[$status][$k] = $v;
+    			    	$obj['draft'][$k] = $v;
     				}
     				break;
     		}
@@ -179,9 +179,6 @@ class REVISION
         $input['contentType']     = $resource['contentType'];
         $input['content_dispo']   = $resource['content_dispo'];
         $input['hidemenu']        = $resource['hidemenu'];
-		$input['published']       = $resource['published'];
-		$input['pub_date']        = $resource['pub_date'];
-		$input['unpub_date']      = $resource['unpub_date'];
         foreach($resource as $k=>$v)
         {
         	if(substr($k,0,2)==='tv') $input[$k] = $v;
@@ -200,11 +197,12 @@ class REVISION
         
     	$rs = $modx->db->select('*','[+prefix+]site_revision', "elmid='{$elmid}'", 'version DESC');
     	$exists_version = $modx->db->getRow($rs);
+    	$total = $modx->db->getRecordCount($rs);
     	
     	$revision_content = serialize($input);
     	$revision_content = $modx->db->escape($revision_content);
     	$checksum = md5($revision_content);
-    	if(empty($exists_version) || $exists_version['checksum'] !== $checksum)
+    	if(empty($total) || $exists_version['checksum'] !== $checksum)
     	{
     		$f = array();
     		$f['elmid']         = $elmid;
@@ -217,7 +215,6 @@ class REVISION
     //		$f['unpub_date'] = $unpub_datey;
     		$f['checksum']   = $checksum;
     		
-    		$total = $modx->db->getRecordCount($rs);
     		switch($status)
     		{
     		    case 'inherit':
