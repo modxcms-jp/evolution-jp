@@ -380,7 +380,7 @@ function checkDocLock($id) {
 	global $modx, $_lang, $e;
 	
 	// Check to see the document isn't locked
-	$action = $modx->manager->action==131 ? '131' : '27';
+	$action = $modx->manager->action;
 	$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='{$action}' AND id='{$id}'");
 	if (1 < $modx->db->getRecordCount($rs))
 	{
