@@ -358,7 +358,7 @@ switch ($action) {
     case 16: // get the edit template action
     case 19: // get the new template action
         include_once "header.inc.php";
-        include_once "actions/mutate_templates.dynamic.php";
+        include_once "actions/element/mutate_templates.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 20: // get the save processor
@@ -373,13 +373,13 @@ switch ($action) {
     case 117:
         // change the tv rank for selected template
         //include_once "header.inc.php"; - in action file
-        include_once "actions/mutate_template_tv_rank.dynamic.php";
+        include_once "actions/element/mutate_template_tv_rank.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 22: // get the edit snippet action
     case 23: // get the new snippet action
         include_once "header.inc.php";
-        include_once "actions/mutate_snippet.dynamic.php";
+        include_once "actions/element/mutate_snippet.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 24: // get the save processor
@@ -394,7 +394,7 @@ switch ($action) {
     case 78: // get the edit snippet action
     case 77: // get the new chunk action
         include_once "header.inc.php";
-        include_once "actions/mutate_htmlsnippet.dynamic.php";
+        include_once "actions/element/mutate_htmlsnippet.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 79: // get the save processor
@@ -449,13 +449,13 @@ switch ($action) {
         break;
     case 100: // change the plugin priority
         //include_once "header.inc.php"; - in action file
-        include_once "actions/mutate_plugin_priority.dynamic.php";
+        include_once "actions/element/mutate_plugin_priority.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 101: // get the new plugin action
     case 102: // get the edit plugin action
         include_once "header.inc.php";
-        include_once "actions/mutate_plugin.dynamic.php";
+        include_once "actions/element/mutate_plugin.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 103: // get the save processor
@@ -497,7 +497,7 @@ switch ($action) {
 // file manager
     case 31: // get the page to manage files
         include_once "header.inc.php";
-        include_once "actions/files.dynamic.php";
+        include_once "actions/element/files.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 40: // access permissions
@@ -593,7 +593,7 @@ switch ($action) {
         break;
     case 76: // template/ snippet management
         include_once "header.inc.php";
-        include_once "actions/resources.static.php";
+        include_once "actions/element/resources.static.php";
         include_once "footer.inc.php";
         break;
     case 83: // Export to file
@@ -631,7 +631,7 @@ switch ($action) {
     case 300: // get the new document variable action
     case 301: // get the edit document variable action
         include_once "header.inc.php";
-        include_once "actions/mutate_tmplvars.dynamic.php";
+        include_once "actions/element/mutate_tmplvars.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 302: // get the save processor
