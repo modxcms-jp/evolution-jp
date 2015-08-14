@@ -418,13 +418,13 @@ switch ($action) {
         break;
     case 106: // get module management
         include_once "header.inc.php";
-        include_once "actions/modules.static.php";
+        include_once "actions/element/modules.static.php";
         include_once "footer.inc.php";
         break;
     case 107: // get the new modul
     case 108: // get the edit module action
         include_once "header.inc.php";
-        include_once "actions/mutate_module.dynamic.php";
+        include_once "actions/element/mutate_module.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 109: // get the save processor
@@ -444,7 +444,7 @@ switch ($action) {
         break;
     case 113: // get the module resources (dependencies) action
         include_once "header.inc.php";
-        include_once "actions/mutate_module_resources.dynamic.php";
+        include_once "actions/element/mutate_module_resources.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 100: // change the plugin priority
