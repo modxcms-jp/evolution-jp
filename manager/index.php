@@ -485,7 +485,7 @@ switch ($action) {
 // view phpinfo
     case 200: // show phpInfo
         include_once "header.inc.php";
-        include_once "actions/phpinfo.static.php";
+        include_once "actions/report/phpinfo.static.php";
         include_once "footer.inc.php";
         break;
 
@@ -530,7 +530,7 @@ switch ($action) {
         break;
     case 53: // get the settings editor
         include_once "header.inc.php";
-        include_once "actions/sysinfo.static.php";
+        include_once "actions/report/sysinfo.static.php";
         include_once "footer.inc.php";
         break;
     case 54: // get the table optimizer/truncate processor
@@ -538,7 +538,7 @@ switch ($action) {
         break;
     case 13: // view logging
         include_once "header.inc.php";
-        include_once "actions/logging.static.php";
+        include_once "actions/report/logging.static.php";
         include_once "footer.inc.php";
         break;
     case 55: // get the settings editor
@@ -563,7 +563,7 @@ switch ($action) {
         break;
     case 70: // get the schedule page
         include_once "header.inc.php";
-        include_once "actions/site_schedule.static.php";
+        include_once "actions/report/site_schedule.static.php";
         include_once "footer.inc.php";
         break;
     case 71: // get the search page
@@ -645,12 +645,12 @@ switch ($action) {
         break;
     case 114: // Event viewer: show event message log
         include_once "header.inc.php";
-        include_once "actions/eventlog.dynamic.php";
+        include_once "actions/report/eventlog.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 115: // get event log details viewer
         include_once "header.inc.php";
-        include_once "actions/eventlog_details.dynamic.php";
+        include_once "actions/report/eventlog_details.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 116: // get the event log delete processor
