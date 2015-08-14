@@ -394,10 +394,10 @@ class PHx {
             case 'wordcount':
                 $value = $this->str_word_count($value); break;
             case 'zenhan':
-                if(empty($opt)) $opt='Krns';
+                if(empty($opt)) $opt='VKas';
                 $value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
             case 'hanzen':
-                if(empty($opt)) $opt='KAS';
+                if(empty($opt)) $opt='VKAS';
                 $value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
             case 'replace':
             case 'str_replace':
