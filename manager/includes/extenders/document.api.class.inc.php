@@ -39,7 +39,7 @@ class Document
 				'content' => null ,
 				'richtext' => null ,
 				'template' => null ,
-				'menuindex' => null ,
+				'menuindex' => 'auto' ,
 				'searchable' => null ,
 				'cacheable' => null ,
 				'createdby' => null ,
@@ -418,6 +418,7 @@ SQL_QUERY;
 	public function save($fields='*',$clearCache=true){
 		$c  = array(); //新規/更新対象content
 		$tv = array(); //新規/更新対象tv
+
 		if( empty($fields) || $fields == '*' ){
 			foreach( $this->content as $key => $val ){
 				if( !is_null($this->content[$key]) ){
@@ -444,19 +445,51 @@ SQL_QUERY;
 			}
 		}
 
-		// 日付調整
-		foreach( $this->content_type_date as $val ){
-			if( isset($c[$val]) && $c[$val] == 'now()' )
-				$c[$val] = time();
-		}
-
 		//idは途中エラー時はfalseに変化
 		if( $this->isInt($this->content['id'],1) ){
 			$id = $this->content['id'];
 		}else{
 			$id = 0; //新規
 		}
+
+		// 日付調整
+		foreach( $this->content_type_date as $val ){
+			if( isset($c[$val]) && $c[$val] == 'now()' )
+				$c[$val] = time();
+		}
+
+		//親リソース調整
+		if( isset($c['parent']) ){ //nullの時に無視したいのであえてisset()を利用、同じような理由のif文が複数有
+			if( !$this->isInt($c['parent'],0) ){
+				$c['parent'] = 0;
+			}
+		}
 		
+		//メニューインデックス調整
+		if( isset($c['menuindex']) ){
+			if( $c['menuindex'] == 'auto' ){
+				//自動採番
+				if( $id != 0 && !array_key_exists('parent',$c) ){
+					$rs = $this->modx->db->select('parent','[+prefix+]site_content',"id=$id");
+					if( $row = $this->modx->db->getRow($rs) ){
+						$pid = $row['parent'];
+					}
+				}elseif( isset($c['parent']) && !empty($c['parent']) ){
+					$pid = $c['parent'];
+				}else{
+					$pid = 0;
+				}
+				$rs = $this->modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
+				if( $row = $this->modx->db->getRow($rs) ){
+					$c['menuindex'] = $row['menuindex'];
+				}else{
+					$c['menuindex'] = 0;
+				}
+			}elseif( !$this->isInt($c['menuindex'],0) ){
+				$c['menuindex'] = 0;
+			}
+		}
+
 		//content登録
 		unset($c['id']);
 		if( !empty($c) ){
