@@ -245,7 +245,7 @@ switch ($action) {
         break;
     case 2: // get the home page
         include_once "header.inc.php";
-        include_once "actions/welcome.static.php";
+        include_once "actions/main/welcome.static.php";
         include_once "footer.inc.php";
         break;
     case 3: // get the page to show document's data
@@ -255,7 +255,7 @@ switch ($action) {
         break;
     case 120: // get the mutate page for changing content
         include_once "header.inc.php";
-        include_once "actions/resources_list.static.php";
+        include_once "actions/document/resources_list.static.php";
         include_once "footer.inc.php";
         break;
     case 4: // get the mutate page for adding content
@@ -413,7 +413,7 @@ switch ($action) {
         break;
     case 26: // get the cache emptying processor
         include_once "header.inc.php";
-        include_once "actions/refresh_site.dynamic.php";
+        include_once "actions/main/refresh_site.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 106: // get module management
@@ -568,7 +568,7 @@ switch ($action) {
         break;
     case 71: // get the search page
         include_once "header.inc.php";
-        include_once "actions/search.static.php";
+        include_once "actions/main/search.static.php";
         include_once "footer.inc.php";
         break;
     case 59: // get the about page
