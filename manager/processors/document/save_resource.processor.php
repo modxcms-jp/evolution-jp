@@ -27,8 +27,6 @@ $document_groups = getDocGroups();
 
 checkDocPermission($id,$document_groups);
 
-$modx->loadExtension('REVISION');
-
 $modx->manager->saveFormValues();
 
 switch ($actionToTake) {
