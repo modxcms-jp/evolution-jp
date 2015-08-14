@@ -47,15 +47,15 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </style>
 <table class="settings" cellspacing="0" cellpadding="2">
 <?php
-	$generate_mode0 = '';
-	$generate_mode1 = '';
-	if($modx->config['export_generate_mode']==='direct') $generate_mode1 = 'checked="checked"';
-	else                                                 $generate_mode0 = 'checked="checked"';
+	$generate_mode = $modx->config['export_generate_mode'];
 ?>
   <tr>
     <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
-    <td><label><input type="radio" name="generate_mode" value="direct" <?php echo $generate_mode1;?>><?php echo $_lang['a83_mode_direct'];?></label>
-		<label><input type="radio" name="generate_mode" value="crawl"  <?php echo $generate_mode0;?>><?php echo $_lang['a83_mode_crawl'];?></label></td>
+    <td>
+		<label><input type="radio" name="generate_mode" value="crawl"  <?php echo $generate_mode==='crawl'?'checked':'';?>><?php echo $_lang['a83_mode_crawl'];?></label>
+		<label><input type="radio" name="generate_mode" value="crawl_furl"  <?php echo $generate_mode==='crawl_furl'?'checked':'';?>><?php echo $_lang['a83_mode_crawl'];?></label>
+	    <label><input type="radio" name="generate_mode" value="direct" <?php echo $generate_mode==='direct'?'checked':''; ?>><?php echo $_lang['a83_mode_direct'];?></label>
+	</td>
   </tr>
 <?php
 	$includenoncache0 = '';

@@ -518,7 +518,7 @@ switch ($action) {
         break;
     case 17: // get the settings editor
         include_once "header.inc.php";
-        include_once "actions/mutate_settings.dynamic.php";
+        include_once "actions/tool/mutate_settings.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 118: // call settings ajax include
@@ -598,7 +598,7 @@ switch ($action) {
         break;
     case 83: // Export to file
         include_once "header.inc.php";
-        include_once "actions/export_site.static.php";
+        include_once "actions/tool/export_site.static.php";
         include_once "footer.inc.php";
         break;
     case 84: // Resource Selector
@@ -606,7 +606,7 @@ switch ($action) {
         break;
     case 93: // Backup Manager
         # header and footer will be handled interally
-        include_once "actions/bkmanager.static.php";
+        include_once "actions/tool/bkmanager.static.php";
         break;
     case 305: // Backup Manager
         include_once "processors/restore.processor.php";
@@ -619,7 +619,7 @@ switch ($action) {
         break;
     case 95: // Import Document from file
         include_once "header.inc.php";
-        include_once "actions/import_site.static.php";
+        include_once "actions/tool/import_site.static.php";
         include_once "footer.inc.php";
         break;
     case 9: // get the help page
