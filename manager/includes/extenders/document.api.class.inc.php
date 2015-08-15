@@ -480,7 +480,7 @@ SQL_QUERY;
 					$pid = 0;
 				}
 				$rs = $this->modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
-				if( $row = $this->modx->db->getRow($rs) ){
+				if( ($row = $this->modx->db->getRow($rs)) && !empty($row['menuindex']) ){
 					$c['menuindex'] = $row['menuindex'];
 				}else{
 					$c['menuindex'] = 0;
