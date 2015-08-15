@@ -311,7 +311,7 @@ class Document
 		$this->content['template'] = $tid;
 		//tv読み直し
 		$this->tv = array();
-		if( $this->DocumentExist($this->content['id']) ){
+		if( $this->documentExist($this->content['id']) ){
 			//tv読み込み(値付)
 			$sql = <<< SQL_QUERY
 SELECT tv.id
@@ -362,11 +362,16 @@ SQL_QUERY;
 	/*
 	 * リソースの存在確認
 	 *
+	 * 実際にリソースがあるか確認。
+	 *
 	 * @param $id リソースID
 	 * @return bool  
 	 *
 	 */
-	public function DocumentExist($id){
+	public function documentExist($id=''){
+		if( empty($id) && isset($this->content['id']) ){
+			$id=$this->content['id'];
+		}
 		if( !$this->isInt($id,1) ){
 			return false;
 		}
@@ -448,6 +453,10 @@ SQL_QUERY;
 		//idは途中エラー時はfalseに変化
 		if( $this->isInt($this->content['id'],1) ){
 			$id = $this->content['id'];
+			if( !$this->documentExist($id) ){
+				$this->logerr('存在しないリソースIDを指定しています:'.$id);
+				return false;
+			}
 		}else{
 			$id = 0; //新規
 		}
@@ -599,7 +608,7 @@ SQL_QUERY;
 	 *
 	 */
 	public function erase($clearCache=true){
-		if( $this->DocumentExist($this->content['id']) ){
+		if( $this->documentExist($this->content['id']) ){
 			$id = $this->content['id'];
 			//tvの削除 -> content削除
 			foreach( $this->tv as $k => $v ){
