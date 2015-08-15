@@ -1198,7 +1198,7 @@ class DocumentParser {
         
         if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
         
-        $rs = $this->db->select('*','[+prefix+]site_revision', "status='standby' AND pub_date<{$timeNow}");
+        $rs = $this->db->select('*','[+prefix+]site_revision', "pub_date<{$timeNow}");
         if(0<$this->db->getRecordCount($rs))
             $this->updateDraft();
         
