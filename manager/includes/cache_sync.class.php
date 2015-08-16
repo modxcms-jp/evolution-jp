@@ -219,12 +219,17 @@ class synccache {
 		if(!$rs) echo "Couldn't determine next unpublish event!";
 		$minunpub_chunk = $modx->db->getValue($rs);
 		
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_revision', "{$current_time} < pub_date");
+		if(!$rs) echo "Couldn't determine next publish event!";
+		$minpub_revision = $modx->db->getValue($rs);
+		
 		if(!empty($this->cacheRefreshTime))
 			                        $timesArr[] = $this->cacheRefreshTime;
 		if($minpub_content!=NULL)   $timesArr[] = $minpub_content;
 		if($minunpub_content!=NULL) $timesArr[] = $minunpub_content;
 		if($minpub_chunk!=NULL)     $timesArr[] = $minpub_chunk;
 		if($minunpub_chunk!=NULL)   $timesArr[] = $minunpub_chunk;
+		if($minpub_revision!=NULL)  $timesArr[] = $minpub_revision;
 		
 		if(0<count($timesArr)) $cacheRefreshTime = min($timesArr);
 		else                   $cacheRefreshTime = 0;
