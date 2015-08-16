@@ -171,8 +171,9 @@ class synccache {
 		$cache_path = $this->cachePath . 'basicConfig.php';
 		$content = array();
 		$content[] = '<?php';
-		$content[] = sprintf('$recent_update = %s;'   , $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time']);
-		$content[] = sprintf('$cacheRefreshTime = %s;', $cacheRefreshTime);
+		$recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
+		$content[] = sprintf('$recent_update = %s; // %s'   , $recent_update, date('Y-m-d H:i:s',$recent_update));
+		$content[] = sprintf('$cacheRefreshTime = %s; // %s', $cacheRefreshTime, date('Y-m-d H:i:s',$cacheRefreshTime));
 		$content[] = sprintf('$cache_type = %s;',       $setting['cache_type']);
 		if(isset($site_sessionname) && !empty($site_sessionname))
 			$content[] = sprintf('$site_sessionname = "%s";', $site_sessionname);
