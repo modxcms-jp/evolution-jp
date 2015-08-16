@@ -38,8 +38,7 @@ if($total<1) {
     </thead>
     <tbody>
 <?php
-	for ($i=0;$i<$total;$i++) {
-		$row = $modx->db->getRow($rs);
+	while ($row = $modx->db->getRow($rs)) {
 ?>
     <tr>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle']?></a></td>
@@ -80,13 +79,53 @@ if($total<1) {
     </thead>
     <tbody>
 <?php
-	for ($i=0;$i<$total;$i++) {
-		$row = $modx->db->getRow($rs);
+	while ($row = $modx->db->getRow($rs)) {
 ?>
     <tr>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
 	  <td><?php echo $row['id'] ;?></td>
       <td><?php echo $modx->toDateFormat($row['unpub_date']+$server_offset_time) ;?></td>
+    </tr>
+<?php
+	}
+?>
+	</tbody>
+</table>
+<?php
+}
+?>
+</div>
+</div>
+
+<div class="section">
+<div class="sectionHeader">更新を予定している下書きリソースの一覧</div>
+<div class="sectionBody" id="lyr2"><?php
+//$db->debug = true;
+$field = 'rv.*, sc.*, rv.pub_date AS pub_date';
+$where = '0<rv.pub_date';
+$orderby = 'rv.pub_date ASC';
+$rs = $modx->db->select($field,'[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',$where,$orderby);
+$total = $modx->db->getRecordCount($rs);
+if($total<1) {
+	echo "<p>".$_lang["no_docs_pending_unpublishing"]."</p>";
+} else {
+?>
+  <table border="0" cellpadding="2" cellspacing="0"  class="sortabletable sortable-onload-3 rowstyle-even" id="table-2" width="100%">
+    <thead>
+      <tr bgcolor="#CCCCCC">
+        <th class="sortable"><b><?php echo $_lang['resource'];?></b></th>
+        <th class="sortable"><b><?php echo $_lang['id'];?></b></th>
+        <th class="sortable"><b>更新予約日時</b></th>
+      </tr>
+    </thead>
+    <tbody>
+<?php
+	while ($row = $modx->db->getRow($rs)) {
+?>
+    <tr>
+      <td><a href="index.php?a=131&id=<?php echo $row['elmid'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
+	  <td><?php echo $row['elmid'] ;?></td>
+      <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time) ;?></td>
     </tr>
 <?php
 	}

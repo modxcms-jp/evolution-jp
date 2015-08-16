@@ -1223,7 +1223,7 @@ class SubParser {
                 {
                     list($label,$value) = $this->splitOption($item);
                     $checked = ($this->isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
-                    $value = htmlspecialchars($value);
+                    $value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
                     $field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
                     $i++;
                 }
