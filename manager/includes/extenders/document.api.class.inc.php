@@ -13,12 +13,13 @@ class Document
 	const LOG_WARN = 2;
 	const LOG_ERR  = 3;
 
+	public static $modx=null; //MODXオブジェクトを指定しないとこのクラスは動作しません
+
 	//private $id='';                  // Resource ID
 	private $content = array();        // Site content
 	private $tv      = array();        // Template Value
 	private $logLevel = self::LOG_ERR; // Output log level
 	private $lastLog = '';             // Last log message
-	private $modx;
 
 	//content table column (name => default value(null=sql default))
 	private $content_lists
@@ -72,12 +73,9 @@ class Document
 	 *
 	 */
 	public function __construct($id='',$level=''){
-		global $modx;
-
-		if( $this->isInt($level,1) )
+		if( self::isInt($level,1) )
 			$this->logLevel = $level;
 
-		$this->modx = &$modx;
 		if( empty($id) ){
 			$this->content = $this->content_lists;
 			$this->tv = array();
@@ -278,8 +276,8 @@ class Document
 	 *
 	 */
 	public function setTemplate($name){
-		$rs  = $this->modx->db->select('id','[+prefix+]site_templates',"templatename= '" . $this->modx->db->escape($name) . "'");
-		if( $row = $this->modx->db->getRow($rs) ){
+		$rs  = self::$modx->db->select('id','[+prefix+]site_templates',"templatename= '" . self::$modx->db->escape($name) . "'");
+		if( $row = self::$modx->db->getRow($rs) ){
 			return $this->setTemplatebyID($row['id']);
 		}
 		$this->logWarn('無効なテンプレート名を指定しています。');
@@ -298,12 +296,12 @@ class Document
 	 *
 	 */
 	public function setTemplatebyID($tid){
-		if( !$this->isInt($tid,0) ){
+		if( !self::isInt($tid,0) ){
 			return false;
 		}
 		if( $tid != 0 ){
-			$rs  = $this->modx->db->select('id','[+prefix+]site_templates',"id= $tid");
-			if( !($row = $this->modx->db->getRow($rs)) ){
+			$rs  = self::$modx->db->select('id','[+prefix+]site_templates',"id= $tid");
+			if( !($row = self::$modx->db->getRow($rs)) ){
 				$this->logWarn('無効なテンプレートIDを指定しています。');
 				$tid = 0;
 			}
@@ -311,7 +309,7 @@ class Document
 		$this->content['template'] = $tid;
 		//tv読み直し
 		$this->tv = array();
-		if( $this->DocumentExist($this->content['id']) ){
+		if( self::documentExist($this->content['id']) ){
 			//tv読み込み(値付)
 			$sql = <<< SQL_QUERY
 SELECT tv.id
@@ -327,9 +325,9 @@ WHERE tvt.templateid = {$this->content['template']}
 
 SQL_QUERY;
 
-			$sql = str_replace('[+prefix+]',$this->modx->db->config['table_prefix'],$sql);
-			$rs  = $this->modx->db->query($sql);
-			while( $row = $this->modx->db->getRow($rs) ){
+			$sql = str_replace('[+prefix+]',self::$modx->db->config['table_prefix'],$sql);
+			$rs  = self::$modx->db->query($sql);
+			while( $row = self::$modx->db->getRow($rs) ){
 				$this->tv[$row['id']]['name']    = $row['name'];
 				$this->tv[$row['id']]['value']   = $row['value'];
 				$this->tv[$row['id']]['default'] = $row['default_text'];
@@ -348,33 +346,15 @@ FROM [+prefix+]site_tmplvars AS tv
 WHERE st.id = {$this->content['template']}
 SQL_QUERY;
 
-			$sql = str_replace('[+prefix+]',$this->modx->db->config['table_prefix'],$sql);
-			$rs  = $this->modx->db->query($sql);
-			while( $row = $this->modx->db->getRow($rs) ){
+			$sql = str_replace('[+prefix+]',self::$modx->db->config['table_prefix'],$sql);
+			$rs  = self::$modx->db->query($sql);
+			while( $row = self::$modx->db->getRow($rs) ){
 				$this->tv[$row['id']]['name']    = $row['name'];
 				$this->tv[$row['id']]['value']   = $row['default_text'];
 				$this->tv[$row['id']]['default'] = $row['default_text'];
 			}
 		}	
 		return true;
-	}
-
-	/*
-	 * リソースの存在確認
-	 *
-	 * @param $id リソースID
-	 * @return bool  
-	 *
-	 */
-	public function DocumentExist($id){
-		if( !$this->isInt($id,1) ){
-			return false;
-		}
-		$rs  = $this->modx->db->select('id','[+prefix+]site_content',"id = $id");
-		if( $row = $this->modx->db->getRow($rs) ){
-			return true;
-		}
-		return false;
 	}
 
 	/*
@@ -387,12 +367,12 @@ SQL_QUERY;
 	public function load($id){
 		$this->content = $this->content_lists;
 		$this->tv = array();
-		if( !$this->isInt($id,1) ){
+		if( !self::isInt($id,1) ){
 			$this->logerr('リソースIDの指定が不正です。');
 			return false;
 		}else{
-			$rs  = $this->modx->db->select('*','[+prefix+]site_content','id='.$id);
-			$row = $this->modx->db->getRow($rs);
+			$rs  = self::$modx->db->select('*','[+prefix+]site_content','id='.$id);
+			$row = self::$modx->db->getRow($rs);
 			if( empty($row) ){
 				$this->logerr('リソースの読み込みに失敗しました。');
 				return false;
@@ -446,8 +426,12 @@ SQL_QUERY;
 		}
 
 		//idは途中エラー時はfalseに変化
-		if( $this->isInt($this->content['id'],1) ){
+		if( self::isInt($this->content['id'],1) ){
 			$id = $this->content['id'];
+			if( !self::documentExist($id) ){
+				$this->logerr('存在しないリソースIDを指定しています:'.$id);
+				return false;
+			}
 		}else{
 			$id = 0; //新規
 		}
@@ -460,7 +444,7 @@ SQL_QUERY;
 
 		//親リソース調整
 		if( isset($c['parent']) ){ //nullの時に無視したいのであえてisset()を利用、同じような理由のif文が複数有
-			if( !$this->isInt($c['parent'],0) ){
+			if( !self::isInt($c['parent'],0) ){
 				$c['parent'] = 0;
 			}
 		}
@@ -470,8 +454,8 @@ SQL_QUERY;
 			if( $c['menuindex'] == 'auto' ){
 				//自動採番
 				if( $id != 0 && !array_key_exists('parent',$c) ){
-					$rs = $this->modx->db->select('parent','[+prefix+]site_content',"id=$id");
-					if( $row = $this->modx->db->getRow($rs) ){
+					$rs = self::$modx->db->select('parent','[+prefix+]site_content',"id=$id");
+					if( $row = self::$modx->db->getRow($rs) ){
 						$pid = $row['parent'];
 					}
 				}elseif( isset($c['parent']) && !empty($c['parent']) ){
@@ -479,13 +463,13 @@ SQL_QUERY;
 				}else{
 					$pid = 0;
 				}
-				$rs = $this->modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
-				if( ($row = $this->modx->db->getRow($rs)) && !empty($row['menuindex']) ){
+				$rs = self::$modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
+				if( ($row = self::$modx->db->getRow($rs)) && !empty($row['menuindex']) ){
 					$c['menuindex'] = $row['menuindex'];
 				}else{
 					$c['menuindex'] = 0;
 				}
-			}elseif( !$this->isInt($c['menuindex'],0) ){
+			}elseif( !self::isInt($c['menuindex'],0) ){
 				$c['menuindex'] = 0;
 			}
 		}
@@ -493,15 +477,15 @@ SQL_QUERY;
 		//content登録
 		unset($c['id']);
 		if( !empty($c) ){
-			$c = $this->modx->db->escape($c);
+			$c = self::$modx->db->escape($c);
 
 			if( $id != 0 ){
 				//update
-				if( !$this->modx->db->update($c,'[+prefix+]site_content','id='.$id) )
+				if( !self::$modx->db->update($c,'[+prefix+]site_content','id='.$id) )
 					$id = false;
 			}else{
 				//insert
-				$id = $this->modx->db->insert($c,'[+prefix+]site_content');
+				$id = self::$modx->db->insert($c,'[+prefix+]site_content');
 			}
 		}
 		
@@ -518,23 +502,23 @@ SQL_QUERY;
 			foreach( $tv as $k => $v ){
 				if( $v['value'] === $v['default'] ){
 					//デフォルト時は削除
-					if( $this->isInt($k,1) ){
-						$this->modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
+					if( self::isInt($k,1) ){
+						self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
 												"tmplvarid = $k AND contentid = $id");
 					}
 				}else{
-					$rs  = $this->modx->db->select('id','[+prefix+]site_tmplvar_contentvalues',"tmplvarid = $k AND contentid = $id");
-					if( $row = $this->modx->db->getRow($rs) ){
-						$rs = $this->modx->db->update(array( 'value' => $this->modx->db->escape($v['value']) ),
+					$rs  = self::$modx->db->select('id','[+prefix+]site_tmplvar_contentvalues',"tmplvarid = $k AND contentid = $id");
+					if( $row = self::$modx->db->getRow($rs) ){
+						$rs = self::$modx->db->update(array( 'value' => self::$modx->db->escape($v['value']) ),
 													  '[+prefix+]site_tmplvar_contentvalues',
 													  "tmplvarid = $k AND contentid = $id");
 						if( !$rs ){
 							$errflag = true;
 						}
 					}else{
-						$rs = $this->modx->db->insert(array( 'tmplvarid' => $k ,
+						$rs = self::$modx->db->insert(array( 'tmplvarid' => $k ,
 															 'contentid' => $id ,
-															 'value' => $this->modx->db->escape($v['value'])
+															 'value' => self::$modx->db->escape($v['value'])
 						                                   ),
 													  '[+prefix+]site_tmplvar_contentvalues');
 						if( !$rs ){
@@ -549,7 +533,7 @@ SQL_QUERY;
 		}
 		
 		if( $id !== false && $clearCache )
-			$this->modx->clearCache();
+			self::$modx->clearCache();
             
 		return $id;
 	}
@@ -562,7 +546,7 @@ SQL_QUERY;
 	 *
 	 */
 	public function delete($clearCache=true){
-		if( !$this->isInt($this->content['id'],1) )
+		if( !self::isInt($this->content['id'],1) )
 			return false;
 
 		$this->content['deleted'] = 1;
@@ -579,48 +563,13 @@ SQL_QUERY;
 	 *
 	 */
 	public function undelete($clearCache=true){
-		if( !$this->isInt($this->content['id'],1) )
+		if( !self::isInt($this->content['id'],1) )
 			return false;
 
 		$this->content['deleted'] = 0;
 		$this->content['deletedon'] = '';
 		//$this->content['deletedby'] = 1;
 		return $this->save('deleted,deletedon',$clearCache);
-	}
-
-	/*
-	 * リソースの完全削除
-	 *
-	 * DBから削除します。
-	 * $this->content も初期化されます。
-	 *
-	 * @param $clearCache Clear cache
-	 * @return bool   
-	 *
-	 */
-	public function erase($clearCache=true){
-		if( $this->DocumentExist($this->content['id']) ){
-			$id = $this->content['id'];
-			//tvの削除 -> content削除
-			foreach( $this->tv as $k => $v ){
-				$this->modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
-										"tmplvarid = $k AND contentid = $id");
-			}
-			$rs = $this->modx->db->delete('[+prefix+]site_content',"id = $id");
-
-			if( $rs ){
-				$this->content = $this->content_lists;
-				$this->tv = array();
-			}
-			
-			if( $rs !== false && $clearCache ){
-				$this->modx->clearCache();
-			}
-			return $rs;
-
-		}
-		$this->logErr('リソースが存在しません。');
-		return false;
 	}
 
 	/*
@@ -634,6 +583,102 @@ SQL_QUERY;
 		return $this->lastLog;
 	}
 
+	//--- 以下はstaticメソッド
+	/*
+	 * リソースの存在確認
+	 *
+	 * 実際にリソースがあるか確認。
+	 *
+	 * @param $id リソースID
+	 * @return bool  
+	 *
+	 */
+	public static function documentExist($id){
+		if( !self::isInt($id,1) ){
+			return false;
+		}
+		$rs  = self::$modx->db->select('id','[+prefix+]site_content',"id = $id");
+		if( $row = self::$modx->db->getRow($rs) ){
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * リソースの公開/非公開
+	 *
+	 * 対象リソースを公開/非公開にする。
+	 * onPubを省略したら現在の状態を返す。
+	 *
+	 * @param $id リソースID
+	 * @param $onPub 1…公開/0…非公開(true/falseでも可)
+	 * @param $clearCache キャッシュクリアの有無
+	 * @return 1/0/bool
+	 *
+	 */
+	public static function chPublish($id,$onPub=null,$clearCache=true){
+		if( !self::isInt($id,1) )
+			return false;
+
+		if( is_null($onPub) ){
+			//値の参照
+			$rs  = self::$modx->db->select('id,published','[+prefix+]site_content',"id = $id");
+			if( $row = self::$modx->db->getRow($rs) ){
+				return $row['published'];
+			}
+			return false;
+		}
+
+		//値の更新
+		$onPub = self::bool2Int($onPub);
+		if( self::documentExist($id) ){
+			if( self::$modx->db->update( array('published' =>$onPub),'[+prefix+]site_content',"id = $id") ){
+				if( $clearCache )
+					self::$modx->clearCache();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * リソースの完全削除
+	 *
+	 * DBからリソースを削除します。
+	 * 削除フラグが落ちていると削除しません。
+	 *
+	 * @param $id リソースID
+	 * @param $force trueの場合、強制削除(削除フラグ無視)(デフォルト:false)
+	 * @param $recursive trueの場合、子リソースも削除(※未実装機能)
+	 * @param $clearCache Clear cache
+	 * @return bool
+	 *
+	 */
+	public static function erase($id,$force=false,$recursive=false,$clearCache=true){
+		if( self::documentExist($id) ){
+			if( $force == false ){
+				$rs  = self::$modx->db->select('id,deleted','[+prefix+]site_content',"id = $id");
+				if( ($row = self::$modx->db->getRow($rs)) && $row['deleted'] != 1 ){
+					return false;
+				}
+			}
+
+			//tvの削除 -> content削除
+			self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',"contentid = $id");
+			$rs = self::$modx->db->delete('[+prefix+]site_content',"id = $id");
+
+			//子リソースの削除(※未実装)
+			//...
+
+			if( $rs !== false && $clearCache ){
+				self::$modx->clearCache();
+			}
+			return $rs;
+		}
+		return false;
+	}
+
+	//--- 以下はプライベートメソッド
 	/*
 	 * logging / loginfo / logwarn / logerr
 	 *
@@ -645,7 +690,7 @@ SQL_QUERY;
 	private function logging($level,$msg=''){
 		$this->lastLog = $msg;
 		if( $this->logLevel <= $level )
-			$this->modx->logEvent(4,$level,$msg,'Document Object API');
+			self::$modx->logEvent(4,$level,$msg,'Document Object API');
 	}
 	
 	private function loginfo($msg=''){
@@ -693,7 +738,7 @@ SQL_QUERY;
 	 * @return bool
 	 *
 	 */
-	private function isInt($param,$min=null,$max=null){
+	private static function isInt($param,$min=null,$max=null){
 		if( !preg_match('/\A[0-9]+\z/', $param) ){
 			return false;
 		}
@@ -705,4 +750,23 @@ SQL_QUERY;
 		}
 		return true;
 	}  
+
+	/*
+	 * bool型をIntに変換
+	 *
+	 * DBに登録できるようboolを0/1に変換。
+	 * $paramに1/0が渡ってきた場合はそのまま返す。
+	 * 認識できない$paramはすべて 0 とする。
+	 *
+	 * @param $param bool or 0/1
+	 * @return 0/1
+	 *
+	 */
+	private static function bool2Int($param){
+		if( $param === true || $param == 1 ){
+			return 1;
+		}
+		return 0;
+	}
+
 }
