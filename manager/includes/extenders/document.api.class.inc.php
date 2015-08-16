@@ -309,7 +309,7 @@ class Document
 		$this->content['template'] = $tid;
 		//tv読み直し
 		$this->tv = array();
-		if( $this->documentExist($this->content['id']) ){
+		if( self::documentExist($this->content['id']) ){
 			//tv読み込み(値付)
 			$sql = <<< SQL_QUERY
 SELECT tv.id
@@ -355,29 +355,6 @@ SQL_QUERY;
 			}
 		}	
 		return true;
-	}
-
-	/*
-	 * リソースの存在確認
-	 *
-	 * 実際にリソースがあるか確認。
-	 *
-	 * @param $id リソースID
-	 * @return bool  
-	 *
-	 */
-	public function documentExist($id=''){
-		if( empty($id) && isset($this->content['id']) ){
-			$id=$this->content['id'];
-		}
-		if( !self::isInt($id,1) ){
-			return false;
-		}
-		$rs  = self::$modx->db->select('id','[+prefix+]site_content',"id = $id");
-		if( $row = self::$modx->db->getRow($rs) ){
-			return true;
-		}
-		return false;
 	}
 
 	/*
@@ -451,7 +428,7 @@ SQL_QUERY;
 		//idは途中エラー時はfalseに変化
 		if( self::isInt($this->content['id'],1) ){
 			$id = $this->content['id'];
-			if( !$this->documentExist($id) ){
+			if( !self::documentExist($id) ){
 				$this->logerr('存在しないリソースIDを指定しています:'.$id);
 				return false;
 			}
@@ -606,7 +583,7 @@ SQL_QUERY;
 	 *
 	 */
 	public function erase($clearCache=true){
-		if( $this->documentExist($this->content['id']) ){
+		if( self::documentExist($this->content['id']) ){
 			$id = $this->content['id'];
 			//tvの削除 -> content削除
 			foreach( $this->tv as $k => $v ){
@@ -639,6 +616,64 @@ SQL_QUERY;
 	 */
 	public function lastLog(){
 		return $this->lastLog;
+	}
+
+	//--- 以下はstaticメソッド
+	/*
+	 * リソースの存在確認
+	 *
+	 * 実際にリソースがあるか確認。
+	 *
+	 * @param $id リソースID
+	 * @return bool  
+	 *
+	 */
+	public static function documentExist($id){
+		if( !self::isInt($id,1) ){
+			return false;
+		}
+		$rs  = self::$modx->db->select('id','[+prefix+]site_content',"id = $id");
+		if( $row = self::$modx->db->getRow($rs) ){
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * リソースの公開/非公開
+	 *
+	 * 対象リソースを公開/非公開にする。
+	 * onPubを省略したら現在の状態を返す。
+	 *
+	 * @param $id リソースID
+	 * @param $onPub 1…公開/0…非公開(true/falseでも可)
+	 * @param $clearCache キャッシュクリアの有無
+	 * @return 1/0/bool
+	 *
+	 */
+	public static function chPublish($id,$onPub=null,$clearCache=true){
+		if( !self::isInt($id,1) )
+			return false;
+
+		if( is_null($onPub) ){
+			//値の参照
+			$rs  = self::$modx->db->select('id,published','[+prefix+]site_content',"id = $id");
+			if( $row = self::$modx->db->getRow($rs) ){
+				return $row['published'];
+			}
+			return false;
+		}
+
+		//値の更新
+		$onPub = self::bool2Int($onPub);
+		if( self::documentExist($id) ){
+			if( self::$modx->db->update( array('published' =>$onPub),'[+prefix+]site_content',"id = $id") ){
+				if( $clearCache )
+					self::$modx->clearCache();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//--- 以下はプライベートメソッド
@@ -713,4 +748,23 @@ SQL_QUERY;
 		}
 		return true;
 	}  
+
+	/*
+	 * bool型をIntに変換
+	 *
+	 * DBに登録できるようboolを0/1に変換。
+	 * $paramに1/0が渡ってきた場合はそのまま返す。
+	 * 認識できない$paramはすべて 0 とする。
+	 *
+	 * @param $param bool or 0/1
+	 * @return 0/1
+	 *
+	 */
+	private static function bool2Int($param){
+		if( $param === true || $param == 1 ){
+			return 1;
+		}
+		return 0;
+	}
+
 }
