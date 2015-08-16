@@ -652,6 +652,53 @@ SQL_QUERY;
 	}
 
 	/*
+	 * リソースの削除/削除復活
+	 *
+	 * 対象リソースを削除、削除状態から復活させる
+	 * onDelを省略したら現在の状態を返す。
+	 *
+	 * @param $id リソースID
+	 * @param $onDel 1…削除/0…削除復活(true/falseでも可)
+	 * @param $clearCache キャッシュクリアの有無
+	 * @return 1/0/bool
+	 *
+	 */
+	public static function chDelete($id,$onDel=null,$clearCache=true){
+		if( !self::isInt($id,1) )
+			return false;
+
+		if( is_null($onDel) ){
+			//値の参照
+			$rs  = self::$modx->db->select('id,deleted','[+prefix+]site_content',"id = $id");
+			if( $row = self::$modx->db->getRow($rs) ){
+				return $row['deleted'];
+			}
+			return false;
+		}
+
+		//値の更新
+		$onDel = self::bool2Int($onDel);
+		if( self::documentExist($id) ){
+			$p = array();
+			$p['deleted'] = $onDel;
+			if( $onDel == 1 ){
+				$p['deletedby'] = self::getLoginMgrUserID();
+				$p['deletedon'] = time();
+			}else{
+				$p['deletedby'] = 0;
+				$p['deletedon'] = 0;
+			}
+
+			if( self::$modx->db->update( $p,'[+prefix+]site_content',"id = $id") ){
+				if( $clearCache )
+					self::$modx->clearCache();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
 	 * リソースの完全削除
 	 *
 	 * DBからリソースを削除します。
