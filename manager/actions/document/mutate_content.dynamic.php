@@ -29,7 +29,6 @@ if($id && $modx->config['enable_draft']) {
     $modx->revisionObject = $modx->revision->getRevisionObject($id);
 }
 else $modx->revisionObject = array();
-if(isset($modx->revisionObject['draft'])) $modx->hasDraft = '1';
 
 if( isset($_REQUEST['newtemplate']) && preg_match('/\A[0-9]+\z/',$_REQUEST['newtemplate']) )
   $docObject['template'] = $_REQUEST['newtemplate'];

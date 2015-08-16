@@ -129,10 +129,18 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         var mnu = document.getElementById('mx_contextmenu');
         var permpub = <?php echo $modx->hasPermission('publish_document') ? 1:0; ?>;
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
+        if(draft==1)
+    	{
+        	document.getElementById('itemcreateDraft').style.display='none';
+        	document.getElementById('itemeditDraft').style.display  ='block';
+        }
+        else
+        {
+        	document.getElementById('itemcreateDraft').style.display='block';
+        	document.getElementById('itemeditDraft').style.display  ='none';
+        }
         if(permpub==1)
         {
-            if(draft==1) document.getElementById('item27draft').style.display='block';
-            else         document.getElementById('item27draft').style.display='none';
 	        document.getElementById('item61').style.display='block';
 	        document.getElementById('item62').style.display='block';
 	        if(pub==1) document.getElementById('item61').style.display='none';
@@ -144,15 +152,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         		document.getElementById('item51').style.display='none';
         	
             if(draft==1)
-        	{
         		document.getElementById('item27').style.display='none';
-        		document.getElementById('item27draft').style.display='block';
-            }
             else
-            {
             	document.getElementById('item27').style.display='block';
-        		document.getElementById('item27draft').style.display='none';
-            }
         }
         
         if(permdel==1)
@@ -556,7 +558,11 @@ function menuHandler(action) {
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=27&id=" + itemToChange;
             break;
-        case '27draft' : // edit draft
+        case 'createDraft' : // createt draft
+            setActiveFromContextMenu(itemToChange);
+            top.main.document.location.href="index.php?a=132&id=" + itemToChange;
+            break
+        case 'editDraft' : // edit draft
             setActiveFromContextMenu(itemToChange);
             top.main.document.location.href="index.php?a=131&id=" + itemToChange;
             break
@@ -653,6 +659,7 @@ function getTplCtxMenu() {
 		[+=========2+]
 		[+itemWebLink+]
 		[+=========3+]
+		[+itemCreateDraft+]
 		[+itemEditDraft+]
 		[+itemDocInfo+]
 		[+itemViewPage+]
@@ -677,6 +684,7 @@ $ph['itemDelDocComplete']     = itemDelDocComplete(); // undelete
 $ph['=========2']       = itemSeperator2();
 $ph['itemWebLink']      = itemWebLink(); //  new Weblink
 $ph['=========3']       = itemSeperator3();
+$ph['itemCreateDraft']  = itemCreateDraft(); // create draft
 $ph['itemEditDraft']    = itemEditDraft(); // edit draft
 $ph['itemDocInfo']      = itemDocInfo(); // undelete
 $ph['itemViewPage']     = itemViewPage(); // preview
@@ -713,12 +721,21 @@ function itemEditDoc() {
 	return $modx->parseText($tpl, $ph);
 }
 
+function itemCreateDraft() {
+	global $modx,$_style,$_lang;
+	
+	$tpl = tplMenuItem();
+	$ph['action'] = 'createDraft';
+	$ph['img']    = $_style['icons_new_document'];
+	$ph['text']   = $_lang["create_draft"];
+	return $modx->parseText($tpl, $ph);
+}
+
 function itemEditDraft() {
 	global $modx,$_style,$_lang;
 	
-	if(!$modx->hasPermission('edit_document')) return '';
 	$tpl = tplMenuItem();
-	$ph['action'] = '27draft';
+	$ph['action'] = 'editDraft';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang["edit_draft"];
 	return $modx->parseText($tpl, $ph);

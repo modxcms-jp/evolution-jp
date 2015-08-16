@@ -122,8 +122,6 @@ function ab_open_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
 	
-	if(!$modx->config['enable_draft'] || !$modx->hasDraft) return;
-	
 	$tpl = '<li id="opendraft" class="opendraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
@@ -691,22 +689,28 @@ EOT;
 		    $ph['saveButton'] = '';
 	}
 	
-	if ($id != $config['site_start']) {
+	$ph['moveButton']      = '';
+	$ph['duplicateButton'] = '';
+	$ph['deleteButton']    = '';
+	if($modx->doc->mode==='draft') {
+		if($modx->revision->hasDraft||$modx->revision->hasStandby)
+			$ph['deleteButton']    = ab_delete_draft();
+	}
+	elseif ($id != $config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
     		$ph['moveButton']                                     = ab_move();
     		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
-    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted'] == 0 ? ab_delete() : ab_undelete();;
+    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
 		}
-		elseif($modx->manager->action == 131 && $modx->hasDraft)
-			$ph['deleteButton']    = ab_delete_draft();
-		else $ph['deleteButton']   = '';
 	}
 	
 	if ($modx->manager->action == 27)
 	{
-		if($modx->hasDraft) $ph['draftButton'] = ab_open_draft($id);
-		else                $ph['draftButton'] = ab_create_draft($id);
+		if($modx->revision->hasDraft||$modx->revision->hasStandby)
+			$ph['draftButton'] = ab_open_draft($id);
+		else
+			$ph['draftButton'] = ab_create_draft($id);
 		
 	}
 	else $ph['draftButton']    = '';

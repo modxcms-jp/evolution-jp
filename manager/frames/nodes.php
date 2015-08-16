@@ -65,7 +65,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	$from   .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
 	$where  = "parent='{$parent}' {$access} GROUP BY sc.id";
 	$result = $modx->db->select($field,$from,$where,$tree_orderby);
-	$has_child = $modx->db->getRecordCount($result);
+	$hasChild = $modx->db->getRecordCount($result);
 	
 	if(!isset($modx->config['limit_by_container'])) $modx->config['limit_by_container'] = '';
 	
@@ -73,18 +73,18 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	{
 		if($modx->config['limit_by_container']==='')             $container_status = 'asis';
 		elseif($modx->config['limit_by_container'] === '0')      $container_status = 'container_only';
-		elseif($modx->config['limit_by_container'] < $has_child) $container_status = 'too_many';
+		elseif($modx->config['limit_by_container'] < $hasChild) $container_status = 'too_many';
 		else $container_status = 'asis';
 		if($container_status!=='asis' && $parent !=='0')
 		{
 			$where  = "isfolder=1 AND {$where}";
 			$result = $modx->db->select($field,$from,$where,$tree_orderby);
-			$has_child = $modx->db->getRecordCount($result);
+			$hasChild = $modx->db->getRecordCount($result);
 		}
 	}
 	
 	$pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-	if($has_child==0 && $container_status !== 'container_only')
+	if($hasChild==0 && $container_status !== 'container_only')
 	{
 		if($container_status==='too_many') $msg = $_lang['too_many_resources'];
 		else                               $msg = $_lang['empty_folder'];
@@ -162,7 +162,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			{
 				$where  = "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id";
 				$result = $modx->db->select($field,$from,$where,$tree_orderby);
-				$has_child = $modx->db->getRecordCount($result);
+				$hasChild = $modx->db->getRecordCount($result);
 			}
 			
 			$ph['icon'] = getIcon($id,$contenttype,$isfolder);
@@ -172,7 +172,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			if ($expandAll ==1 || ($expandAll == 2 && in_array($id, $opened)))
 			{
 				if($expandAll == 1) array_push($opened2, $id);
-				if($container_status === 'container_only' && $has_child==0)
+				if($container_status === 'container_only' && $hasChild==0)
 					$ph['_style_tree_minusnode']  = $_style['tree_blanknode'];
 				else
 					$ph['_style_tree_minusnode']  = $_style['tree_minusnode'];
@@ -189,13 +189,13 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			}
 			else
 			{
-				if($container_status === 'container_only' && $has_child==0)
+				if($container_status === 'container_only' && $hasChild==0)
 					$ph['_style_tree_plusnode'] = $_style['tree_blanknode'];
 				else
 					$ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
 				$tpl = tplFcloseNode();
 				$output .= parseNode($tpl,$ph,$id);
-				if($parent!=0 && $container_status==='too_many' && $loop_count == $has_child)
+				if($parent!=0 && $container_status==='too_many' && $loop_count == $hasChild)
 				{
 					$tpl = tplEmptyFolder();
 					$param = array('spacer'=>$spacer.$pad,'icon_deletedpage'=>$_style['tree_deletedpage'],'msg'=>$_lang['too_many_resources']);

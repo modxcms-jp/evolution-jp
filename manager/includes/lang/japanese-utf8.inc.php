@@ -1278,7 +1278,7 @@ $_lang['configcheck_danger_ajaxsearch_msg'] = 'インストールされている
 $_lang["user_allowed_parents"] = '許可するリソース';
 $_lang["user_allowed_parents_message"] = '編集を許可するリソースを親リソースのIDで指定します。(複数指定可)';
 
-$_lang["view_child_resources_in_container"] = 'リソース一覧';
+$_lang["view_child_resources_in_container"] = 'サブリソース一覧';
 
 $_lang["setting_individual_cache"] = 'デバイスごとのキャッシュ';
 $_lang["setting_individual_cache_desc"] = 'デバイスごとにキャッシュを生成します。(PC / スマートフォン / タブレット)';

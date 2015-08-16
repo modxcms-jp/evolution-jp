@@ -113,8 +113,8 @@ if($total<1) {
   <table border="0" cellpadding="2" cellspacing="0"  class="sortabletable sortable-onload-3 rowstyle-even" id="table-2" width="100%">
     <thead>
       <tr bgcolor="#CCCCCC">
-        <th class="sortable"><b><?php echo $_lang['resource'];?></b></th>
         <th class="sortable"><b><?php echo $_lang['id'];?></b></th>
+        <th class="sortable"><b><?php echo $_lang['resource'];?></b></th>
         <th class="sortable"><b>更新予約日時</b></th>
       </tr>
     </thead>
@@ -123,8 +123,8 @@ if($total<1) {
 	while ($row = $modx->db->getRow($rs)) {
 ?>
     <tr>
-      <td><a href="index.php?a=131&id=<?php echo $row['elmid'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
 	  <td><?php echo $row['elmid'] ;?></td>
+      <td><a href="index.php?a=131&id=<?php echo $row['elmid'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
       <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time) ;?></td>
     </tr>
 <?php

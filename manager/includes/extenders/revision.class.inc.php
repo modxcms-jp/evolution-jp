@@ -39,16 +39,11 @@ class REVISION
     	while($row = $modx->db->getRow($rs))
     	{
     		$status = $row['status'];
-    		switch($status)
-    		{
-    			case 'draft'     :
-    				foreach($row as $k=>$v)
-    			    {
-    			    	if($k==='content') continue;
-    			    	$obj['draft'][$k] = $v;
-    				}
-    				break;
-    		}
+			foreach($row as $k=>$v)
+		    {
+		    	if($k==='content') continue;
+		    	$obj[$status][$k] = $v;
+			}
     	}
     	return $obj;
     }
