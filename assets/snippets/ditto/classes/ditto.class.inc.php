@@ -841,12 +841,14 @@ class ditto {
     	$tbldg= $modx->getFullTableName("document_groups");
     	// modify field names to use sc. table reference
     	$fields= "sc.".implode(",sc.",$fields);
-    	if ($randomize != 0) {
-    		$sort = "RAND()";
-    	} else {
-    		$sort= $orderBy['sql'];
+    	
+    	if($where!=='') {
+    		$_ = explode('AND', $where);
+    		foreach($_ as $i=>$v) {
+    			$_[$i] = trim($v);
+    		}
+    		$where = 'AND sc.' . join(' AND sc.', $_);
     	}
-    	$where= ($where == "") ? "" : 'AND sc.' . implode('AND sc.', preg_replace("/^\s/i", "", explode('AND', $where)));
     	if ($public) {
     		// get document groups for current user
     		if ($docgrp= $modx->getUserDocGroups())
@@ -856,6 +858,9 @@ class ditto {
     	}
     	
     	$published = ($published) ? "AND sc.published=1" : "";
+    	
+    	if ($randomize != 0) $sort = 'RAND()';
+    	else                 $sort = $orderBy['sql'];
     	
     	$sql = "SELECT DISTINCT $fields FROM $tblsc sc
     	LEFT JOIN $tbldg dg on dg.document = sc.id
