@@ -573,41 +573,6 @@ SQL_QUERY;
 	}
 
 	/*
-	 * リソースの完全削除
-	 *
-	 * DBから削除します。
-	 * $this->content も初期化されます。
-	 *
-	 * @param $clearCache Clear cache
-	 * @return bool   
-	 *
-	 */
-	public function erase($clearCache=true){
-		if( self::documentExist($this->content['id']) ){
-			$id = $this->content['id'];
-			//tvの削除 -> content削除
-			foreach( $this->tv as $k => $v ){
-				self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
-										"tmplvarid = $k AND contentid = $id");
-			}
-			$rs = self::$modx->db->delete('[+prefix+]site_content',"id = $id");
-
-			if( $rs ){
-				$this->content = $this->content_lists;
-				$this->tv = array();
-			}
-			
-			if( $rs !== false && $clearCache ){
-				self::$modx->clearCache();
-			}
-			return $rs;
-
-		}
-		$this->logErr('リソースが存在しません。');
-		return false;
-	}
-
-	/*
 	 * lastLog
 	 *
 	 * @param none
@@ -672,6 +637,43 @@ SQL_QUERY;
 					self::$modx->clearCache();
 				return true;
 			}
+		}
+		return false;
+	}
+
+	/*
+	 * リソースの完全削除
+	 *
+	 * DBからリソースを削除します。
+	 * 削除フラグが落ちていると削除しません。
+	 *
+	 * @param $id リソースID
+	 * @param $force trueの場合、強制削除(削除フラグ無視)(デフォルト:false)
+	 * @param $recursive trueの場合、子リソースも削除(※未実装機能)
+	 * @param $clearCache Clear cache
+	 * @return bool
+	 *
+	 */
+	public static function erase($id,$force=false,$recursive=false,$clearCache=true){
+		if( self::documentExist($id) ){
+			if( $force == false ){
+				$rs  = self::$modx->db->select('id,deleted','[+prefix+]site_content',"id = $id");
+				if( ($row = self::$modx->db->getRow($rs)) && $row['deleted'] != 1 ){
+					return false;
+				}
+			}
+
+			//tvの削除 -> content削除
+			self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',"contentid = $id");
+			$rs = self::$modx->db->delete('[+prefix+]site_content',"id = $id");
+
+			//子リソースの削除(※未実装)
+			//...
+
+			if( $rs !== false && $clearCache ){
+				self::$modx->clearCache();
+			}
+			return $rs;
 		}
 		return false;
 	}
