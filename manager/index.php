@@ -602,7 +602,7 @@ switch ($action) {
         include_once "footer.inc.php";
         break;
     case 84: // Resource Selector
-        include_once "actions/resource_selector.static.php";
+        include_once "actions/element/resource_selector.static.php";
         break;
     case 93: // Backup Manager
         # header and footer will be handled interally
