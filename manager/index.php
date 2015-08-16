@@ -238,10 +238,10 @@ $evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", $tmp);
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 
-if(in_array($action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,22,23,78,77,18,26,106,107,108,113,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
+if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,22,23,78,77,18,26,106,107,108,113,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
     include_once 'header.inc.php';
 
-switch ($action) {
+switch ($modx->manager->action) {
     case 1 : //frame management - show the requested frame  
         // get the requested frame
         $frame = preg_replace('/[^a-z0-9]/i','',$_REQUEST['f']);
@@ -588,11 +588,11 @@ switch ($action) {
         include_once "footer.inc.php";
 }
 
-if(in_array($action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,117,22,23,78,77,18,26,106,107,108,112,113,100,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
+if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,117,22,23,78,77,18,26,106,107,108,112,113,100,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
     include_once 'footer.inc.php';
 
 // log action, unless it's a frame request
-switch ($action) {
+switch ($modx->manager->action) {
     case 1:
     case 7:
     case 2:

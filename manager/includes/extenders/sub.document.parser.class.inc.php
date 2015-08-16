@@ -1986,7 +1986,7 @@ class SubParser {
     {
         global $modx;
         
-        $now = $_SERVER['REQUEST_TIME'];
+        $now = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
         
         $rs = $modx->db->select('*','[+prefix+]site_revision', "pub_date!=0 AND pub_date<{$now}");
         if(!$modx->db->getRecordCount($rs)) return;
