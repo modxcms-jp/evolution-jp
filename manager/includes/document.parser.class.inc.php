@@ -120,6 +120,7 @@ class DocumentParser {
         
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
+        Document::$modx=$this;
         if($this->isBackend())
         {
             $this->loadExtension('ManagerAPI');

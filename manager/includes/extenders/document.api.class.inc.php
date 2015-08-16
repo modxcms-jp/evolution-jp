@@ -13,12 +13,13 @@ class Document
 	const LOG_WARN = 2;
 	const LOG_ERR  = 3;
 
+	public static $modx=null; //MODXオブジェクトを指定しないとこのクラスは動作しません
+
 	//private $id='';                  // Resource ID
 	private $content = array();        // Site content
 	private $tv      = array();        // Template Value
 	private $logLevel = self::LOG_ERR; // Output log level
 	private $lastLog = '';             // Last log message
-	private $modx;
 
 	//content table column (name => default value(null=sql default))
 	private $content_lists
@@ -72,12 +73,9 @@ class Document
 	 *
 	 */
 	public function __construct($id='',$level=''){
-		global $modx;
-
 		if( $this->isInt($level,1) )
 			$this->logLevel = $level;
 
-		$this->modx = &$modx;
 		if( empty($id) ){
 			$this->content = $this->content_lists;
 			$this->tv = array();
@@ -278,8 +276,8 @@ class Document
 	 *
 	 */
 	public function setTemplate($name){
-		$rs  = $this->modx->db->select('id','[+prefix+]site_templates',"templatename= '" . $this->modx->db->escape($name) . "'");
-		if( $row = $this->modx->db->getRow($rs) ){
+		$rs  = self::$modx->db->select('id','[+prefix+]site_templates',"templatename= '" . self::$modx->db->escape($name) . "'");
+		if( $row = self::$modx->db->getRow($rs) ){
 			return $this->setTemplatebyID($row['id']);
 		}
 		$this->logWarn('無効なテンプレート名を指定しています。');
@@ -302,8 +300,8 @@ class Document
 			return false;
 		}
 		if( $tid != 0 ){
-			$rs  = $this->modx->db->select('id','[+prefix+]site_templates',"id= $tid");
-			if( !($row = $this->modx->db->getRow($rs)) ){
+			$rs  = self::$modx->db->select('id','[+prefix+]site_templates',"id= $tid");
+			if( !($row = self::$modx->db->getRow($rs)) ){
 				$this->logWarn('無効なテンプレートIDを指定しています。');
 				$tid = 0;
 			}
@@ -327,9 +325,9 @@ WHERE tvt.templateid = {$this->content['template']}
 
 SQL_QUERY;
 
-			$sql = str_replace('[+prefix+]',$this->modx->db->config['table_prefix'],$sql);
-			$rs  = $this->modx->db->query($sql);
-			while( $row = $this->modx->db->getRow($rs) ){
+			$sql = str_replace('[+prefix+]',self::$modx->db->config['table_prefix'],$sql);
+			$rs  = self::$modx->db->query($sql);
+			while( $row = self::$modx->db->getRow($rs) ){
 				$this->tv[$row['id']]['name']    = $row['name'];
 				$this->tv[$row['id']]['value']   = $row['value'];
 				$this->tv[$row['id']]['default'] = $row['default_text'];
@@ -348,9 +346,9 @@ FROM [+prefix+]site_tmplvars AS tv
 WHERE st.id = {$this->content['template']}
 SQL_QUERY;
 
-			$sql = str_replace('[+prefix+]',$this->modx->db->config['table_prefix'],$sql);
-			$rs  = $this->modx->db->query($sql);
-			while( $row = $this->modx->db->getRow($rs) ){
+			$sql = str_replace('[+prefix+]',self::$modx->db->config['table_prefix'],$sql);
+			$rs  = self::$modx->db->query($sql);
+			while( $row = self::$modx->db->getRow($rs) ){
 				$this->tv[$row['id']]['name']    = $row['name'];
 				$this->tv[$row['id']]['value']   = $row['default_text'];
 				$this->tv[$row['id']]['default'] = $row['default_text'];
@@ -375,8 +373,8 @@ SQL_QUERY;
 		if( !$this->isInt($id,1) ){
 			return false;
 		}
-		$rs  = $this->modx->db->select('id','[+prefix+]site_content',"id = $id");
-		if( $row = $this->modx->db->getRow($rs) ){
+		$rs  = self::$modx->db->select('id','[+prefix+]site_content',"id = $id");
+		if( $row = self::$modx->db->getRow($rs) ){
 			return true;
 		}
 		return false;
@@ -396,8 +394,8 @@ SQL_QUERY;
 			$this->logerr('リソースIDの指定が不正です。');
 			return false;
 		}else{
-			$rs  = $this->modx->db->select('*','[+prefix+]site_content','id='.$id);
-			$row = $this->modx->db->getRow($rs);
+			$rs  = self::$modx->db->select('*','[+prefix+]site_content','id='.$id);
+			$row = self::$modx->db->getRow($rs);
 			if( empty($row) ){
 				$this->logerr('リソースの読み込みに失敗しました。');
 				return false;
@@ -479,8 +477,8 @@ SQL_QUERY;
 			if( $c['menuindex'] == 'auto' ){
 				//自動採番
 				if( $id != 0 && !array_key_exists('parent',$c) ){
-					$rs = $this->modx->db->select('parent','[+prefix+]site_content',"id=$id");
-					if( $row = $this->modx->db->getRow($rs) ){
+					$rs = self::$modx->db->select('parent','[+prefix+]site_content',"id=$id");
+					if( $row = self::$modx->db->getRow($rs) ){
 						$pid = $row['parent'];
 					}
 				}elseif( isset($c['parent']) && !empty($c['parent']) ){
@@ -488,8 +486,8 @@ SQL_QUERY;
 				}else{
 					$pid = 0;
 				}
-				$rs = $this->modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
-				if( ($row = $this->modx->db->getRow($rs)) && !empty($row['menuindex']) ){
+				$rs = self::$modx->db->select('(max(menuindex) + 1) AS menuindex','[+prefix+]site_content',"parent=$pid");
+				if( ($row = self::$modx->db->getRow($rs)) && !empty($row['menuindex']) ){
 					$c['menuindex'] = $row['menuindex'];
 				}else{
 					$c['menuindex'] = 0;
@@ -502,15 +500,15 @@ SQL_QUERY;
 		//content登録
 		unset($c['id']);
 		if( !empty($c) ){
-			$c = $this->modx->db->escape($c);
+			$c = self::$modx->db->escape($c);
 
 			if( $id != 0 ){
 				//update
-				if( !$this->modx->db->update($c,'[+prefix+]site_content','id='.$id) )
+				if( !self::$modx->db->update($c,'[+prefix+]site_content','id='.$id) )
 					$id = false;
 			}else{
 				//insert
-				$id = $this->modx->db->insert($c,'[+prefix+]site_content');
+				$id = self::$modx->db->insert($c,'[+prefix+]site_content');
 			}
 		}
 		
@@ -528,22 +526,22 @@ SQL_QUERY;
 				if( $v['value'] === $v['default'] ){
 					//デフォルト時は削除
 					if( $this->isInt($k,1) ){
-						$this->modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
+						self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
 												"tmplvarid = $k AND contentid = $id");
 					}
 				}else{
-					$rs  = $this->modx->db->select('id','[+prefix+]site_tmplvar_contentvalues',"tmplvarid = $k AND contentid = $id");
-					if( $row = $this->modx->db->getRow($rs) ){
-						$rs = $this->modx->db->update(array( 'value' => $this->modx->db->escape($v['value']) ),
+					$rs  = self::$modx->db->select('id','[+prefix+]site_tmplvar_contentvalues',"tmplvarid = $k AND contentid = $id");
+					if( $row = self::$modx->db->getRow($rs) ){
+						$rs = self::$modx->db->update(array( 'value' => self::$modx->db->escape($v['value']) ),
 													  '[+prefix+]site_tmplvar_contentvalues',
 													  "tmplvarid = $k AND contentid = $id");
 						if( !$rs ){
 							$errflag = true;
 						}
 					}else{
-						$rs = $this->modx->db->insert(array( 'tmplvarid' => $k ,
+						$rs = self::$modx->db->insert(array( 'tmplvarid' => $k ,
 															 'contentid' => $id ,
-															 'value' => $this->modx->db->escape($v['value'])
+															 'value' => self::$modx->db->escape($v['value'])
 						                                   ),
 													  '[+prefix+]site_tmplvar_contentvalues');
 						if( !$rs ){
@@ -558,7 +556,7 @@ SQL_QUERY;
 		}
 		
 		if( $id !== false && $clearCache )
-			$this->modx->clearCache();
+			self::$modx->clearCache();
             
 		return $id;
 	}
@@ -612,10 +610,10 @@ SQL_QUERY;
 			$id = $this->content['id'];
 			//tvの削除 -> content削除
 			foreach( $this->tv as $k => $v ){
-				$this->modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
+				self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
 										"tmplvarid = $k AND contentid = $id");
 			}
-			$rs = $this->modx->db->delete('[+prefix+]site_content',"id = $id");
+			$rs = self::$modx->db->delete('[+prefix+]site_content',"id = $id");
 
 			if( $rs ){
 				$this->content = $this->content_lists;
@@ -623,7 +621,7 @@ SQL_QUERY;
 			}
 			
 			if( $rs !== false && $clearCache ){
-				$this->modx->clearCache();
+				self::$modx->clearCache();
 			}
 			return $rs;
 
@@ -632,6 +630,7 @@ SQL_QUERY;
 		return false;
 	}
 
+	
 	/*
 	 * lastLog
 	 *
@@ -643,6 +642,7 @@ SQL_QUERY;
 		return $this->lastLog;
 	}
 
+	//--- 以下はプライベートメソッド
 	/*
 	 * logging / loginfo / logwarn / logerr
 	 *
@@ -654,7 +654,7 @@ SQL_QUERY;
 	private function logging($level,$msg=''){
 		$this->lastLog = $msg;
 		if( $this->logLevel <= $level )
-			$this->modx->logEvent(4,$level,$msg,'Document Object API');
+			self::$modx->logEvent(4,$level,$msg,'Document Object API');
 	}
 	
 	private function loginfo($msg=''){
