@@ -307,7 +307,7 @@ switch ($action) {
     case 87: // get the new web user page
     case 88: // get the edit web user page
         include_once "header.inc.php";
-        include_once "actions/mutate_web_user.dynamic.php";
+        include_once "actions/permission/mutate_web_user.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 89: // get the save web user processor
@@ -319,7 +319,7 @@ switch ($action) {
     case 11: // get the new user page
     case 12: // get the edit user page
         include_once "header.inc.php";
-        include_once "actions/mutate_user.dynamic.php";
+        include_once "actions/permission/mutate_user.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 32: // get the save user processor
@@ -327,12 +327,12 @@ switch ($action) {
         break;
     case 74: // get the edit user profile page 
         include_once "header.inc.php";
-        include_once "actions/mutate_user_pf.dynamic.php";
+        include_once "actions/permission/mutate_user_pf.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 28: // get the change password page
         include_once "header.inc.php";
-        include_once "actions/mutate_password.dynamic.php";
+        include_once "actions/permission/mutate_password.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 34: // get the save new password page
@@ -346,7 +346,7 @@ switch ($action) {
     case 38: // get the new role page
     case 35: // get the edit role page
         include_once "header.inc.php";
-        include_once "actions/mutate_role.dynamic.php";
+        include_once "actions/permission/mutate_role.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 36: // get the save role page
@@ -502,12 +502,12 @@ switch ($action) {
         break;
     case 40: // access permissions
         include_once "header.inc.php";
-        include_once "actions/access_permissions.dynamic.php";
+        include_once "actions/permission/access_permissions.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 91:
         include_once "header.inc.php";
-        include_once "actions/web_access_permissions.dynamic.php";
+        include_once "actions/permission/web_access_permissions.dynamic.php";
         include_once "footer.inc.php";
         break;
     case 41: // access groups processor
@@ -549,7 +549,7 @@ switch ($action) {
         break;
     case 10: // get the messages page
         include_once "header.inc.php";
-        include_once "actions/messages.static.php";
+        include_once "actions/permission/messages.static.php";
         include_once "footer.inc.php";
         break;
     case 65: // get the message deleter
@@ -578,17 +578,17 @@ switch ($action) {
         break;
     case 75: // User management
         include_once "header.inc.php";
-        include_once "actions/user_management.static.php";
+        include_once "actions/permission/user_management.static.php";
         include_once "footer.inc.php";
         break;
     case 99:
         include_once "header.inc.php";
-        include_once "actions/web_user_management.static.php";
+        include_once "actions/permission/web_user_management.static.php";
         include_once "footer.inc.php";
         break;
     case 86:
         include_once "header.inc.php";
-        include_once "actions/role_management.static.php";
+        include_once "actions/permission/role_management.static.php";
         include_once "footer.inc.php";
         break;
     case 76: // template/ snippet management
@@ -624,7 +624,7 @@ switch ($action) {
         break;
     case 9: // get the help page
         include_once "header.inc.php";
-        include_once "actions/help.static.php";
+        include_once "actions/tool/help.static.php";
         include_once "footer.inc.php";
         break;
               // Template Variables - Based on Apodigm's Docvars
