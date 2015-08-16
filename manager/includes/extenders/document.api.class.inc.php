@@ -632,7 +632,17 @@ SQL_QUERY;
 		//値の更新
 		$onPub = self::bool2Int($onPub);
 		if( self::documentExist($id) ){
-			if( self::$modx->db->update( array('published' =>$onPub),'[+prefix+]site_content',"id = $id") ){
+			$p = array();
+			$p['published'] = $onPub;
+			if( $onPub == 1 ){
+				$p['publishedby'] = self::getLoginMgrUserID();
+				$p['publishedon'] = time();
+			}else{
+				$p['publishedby'] = 0;
+				$p['publishedon'] = 0;
+			}
+
+			if( self::$modx->db->update( $p,'[+prefix+]site_content',"id = $id") ){
 				if( $clearCache )
 					self::$modx->clearCache();
 				return true;
@@ -769,4 +779,21 @@ SQL_QUERY;
 		return 0;
 	}
 
+	/*
+	 * ログインユーザIDを取得
+	 *
+	 * $modx->getLoginUserID()のラッパー
+	 * 管理ユーザ専用とし、falseを返した際に0を返すように変更
+	 *
+	 * @param なし
+	 * @return ユーザ名ID
+	 *
+	 */
+	private static function getLoginMgrUserID(){
+		$u = self::$modx->getLoginUserID('mgr');
+		if( empty($u) ){
+			return 0;
+		}
+		return $u;
+	}
 }
