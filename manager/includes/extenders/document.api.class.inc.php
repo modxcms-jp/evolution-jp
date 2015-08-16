@@ -73,7 +73,7 @@ class Document
 	 *
 	 */
 	public function __construct($id='',$level=''){
-		if( $this->isInt($level,1) )
+		if( self::isInt($level,1) )
 			$this->logLevel = $level;
 
 		if( empty($id) ){
@@ -296,7 +296,7 @@ class Document
 	 *
 	 */
 	public function setTemplatebyID($tid){
-		if( !$this->isInt($tid,0) ){
+		if( !self::isInt($tid,0) ){
 			return false;
 		}
 		if( $tid != 0 ){
@@ -370,7 +370,7 @@ SQL_QUERY;
 		if( empty($id) && isset($this->content['id']) ){
 			$id=$this->content['id'];
 		}
-		if( !$this->isInt($id,1) ){
+		if( !self::isInt($id,1) ){
 			return false;
 		}
 		$rs  = self::$modx->db->select('id','[+prefix+]site_content',"id = $id");
@@ -390,7 +390,7 @@ SQL_QUERY;
 	public function load($id){
 		$this->content = $this->content_lists;
 		$this->tv = array();
-		if( !$this->isInt($id,1) ){
+		if( !self::isInt($id,1) ){
 			$this->logerr('リソースIDの指定が不正です。');
 			return false;
 		}else{
@@ -449,7 +449,7 @@ SQL_QUERY;
 		}
 
 		//idは途中エラー時はfalseに変化
-		if( $this->isInt($this->content['id'],1) ){
+		if( self::isInt($this->content['id'],1) ){
 			$id = $this->content['id'];
 			if( !$this->documentExist($id) ){
 				$this->logerr('存在しないリソースIDを指定しています:'.$id);
@@ -467,7 +467,7 @@ SQL_QUERY;
 
 		//親リソース調整
 		if( isset($c['parent']) ){ //nullの時に無視したいのであえてisset()を利用、同じような理由のif文が複数有
-			if( !$this->isInt($c['parent'],0) ){
+			if( !self::isInt($c['parent'],0) ){
 				$c['parent'] = 0;
 			}
 		}
@@ -492,7 +492,7 @@ SQL_QUERY;
 				}else{
 					$c['menuindex'] = 0;
 				}
-			}elseif( !$this->isInt($c['menuindex'],0) ){
+			}elseif( !self::isInt($c['menuindex'],0) ){
 				$c['menuindex'] = 0;
 			}
 		}
@@ -525,7 +525,7 @@ SQL_QUERY;
 			foreach( $tv as $k => $v ){
 				if( $v['value'] === $v['default'] ){
 					//デフォルト時は削除
-					if( $this->isInt($k,1) ){
+					if( self::isInt($k,1) ){
 						self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
 												"tmplvarid = $k AND contentid = $id");
 					}
@@ -569,7 +569,7 @@ SQL_QUERY;
 	 *
 	 */
 	public function delete($clearCache=true){
-		if( !$this->isInt($this->content['id'],1) )
+		if( !self::isInt($this->content['id'],1) )
 			return false;
 
 		$this->content['deleted'] = 1;
@@ -586,7 +586,7 @@ SQL_QUERY;
 	 *
 	 */
 	public function undelete($clearCache=true){
-		if( !$this->isInt($this->content['id'],1) )
+		if( !self::isInt($this->content['id'],1) )
 			return false;
 
 		$this->content['deleted'] = 0;
@@ -630,7 +630,6 @@ SQL_QUERY;
 		return false;
 	}
 
-	
 	/*
 	 * lastLog
 	 *
@@ -702,7 +701,7 @@ SQL_QUERY;
 	 * @return bool
 	 *
 	 */
-	private function isInt($param,$min=null,$max=null){
+	private static function isInt($param,$min=null,$max=null){
 		if( !preg_match('/\A[0-9]+\z/', $param) ){
 			return false;
 		}
