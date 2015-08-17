@@ -92,7 +92,7 @@ elseif($dbv_blocked==1)
 {
 	$dbv_failedlogincount  = '0';
 	$dbv_blocked           = '0';
-	$dbv_failedlogincount   = '0';
+	$dbv_failedlogincount  = '0';
 	$f = array();
 	$f['failedlogincount'] = '0';
 	$f['blocked']          = '0';
