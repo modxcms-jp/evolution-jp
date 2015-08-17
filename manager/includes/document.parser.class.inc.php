@@ -2083,7 +2083,11 @@ class DocumentParser {
         {
             $this->loadExtension('REVISION');
             if(!isset($_SESSION['mgrValidated']))
-                exit('You are not logged in.');
+            {
+                $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+                header('location:'.MODX_MANAGER_URL);
+                exit;
+            }
             
             $previewObject = $this->revision->getDraft($identifier);
             $this->config['cache_type'] = 0;
