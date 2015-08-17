@@ -2079,7 +2079,7 @@ class DocumentParser {
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
         }
-        elseif($_GET['preview'])
+        elseif(isset($_GET['revision']))
         {
             if(!isset($_SESSION['mgrValidated']))
             {
