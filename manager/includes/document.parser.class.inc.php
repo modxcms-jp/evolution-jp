@@ -2081,7 +2081,6 @@ class DocumentParser {
         }
         elseif($_GET['preview'])
         {
-            $this->loadExtension('REVISION');
             if(!isset($_SESSION['mgrValidated']))
             {
                 $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
@@ -2089,6 +2088,7 @@ class DocumentParser {
                 exit;
             }
             
+            $this->loadExtension('REVISION');
             $previewObject = $this->revision->getDraft($identifier);
             $this->config['cache_type'] = 0;
         }
