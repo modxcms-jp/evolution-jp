@@ -110,22 +110,26 @@ if($total<1) {
 	echo "<p>".$_lang["no_docs_pending_unpublishing"]."</p>";
 } else {
 ?>
-  <table border="0" cellpadding="2" cellspacing="0"  class="sortabletable sortable-onload-3 rowstyle-even" id="table-2" width="100%">
+  <table border="0" cellpadding="2" cellspacing="0"  class="sortabletable sortable-onload-2 rowstyle-even" id="table-2" width="100%">
     <thead>
       <tr bgcolor="#CCCCCC">
         <th class="sortable"><b><?php echo $_lang['id'];?></b></th>
         <th class="sortable"><b><?php echo $_lang['resource'];?></b></th>
-        <th class="sortable"><b>更新予約日時</b></th>
+        <th class="sortable">更新予約日時</th>
+        <th class="sortable">操作</th>
       </tr>
     </thead>
     <tbody>
 <?php
 	while ($row = $modx->db->getRow($rs)) {
+        $editLink = 'index.php?a=131&id=' . $row['elmid'];
+        $prevLink = $modx->makeUrl($row['elmid']).'?revision='.$row['version'];
 ?>
     <tr>
-	  <td><?php echo $row['elmid'] ;?></td>
-      <td><a href="index.php?a=131&id=<?php echo $row['elmid'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
+      <td><?php echo $row['elmid'] ;?></td>
+      <td><a href="<?php echo $editLink;?>"><?php echo $row['pagetitle'] ;?></a></td>
       <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time) ;?></td>
+      <td><a href="<?php echo $prevLink;?>" target="_blank">プレビュー</a></td>
     </tr>
 <?php
 	}
