@@ -339,13 +339,13 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_templates.dynamic.php";
         break;
     case 20: // get the save processor
-        include_once "processors/save_template.processor.php";
+        include_once "processors/template/save_template.processor.php";
         break;
     case 21: // get the delete processor
-        include_once "processors/delete_template.processor.php";
+        include_once "processors/template/delete_template.processor.php";
         break;
     case 96: // get the duplicate template processor
-        include_once "processors/duplicate_template.processor.php";
+        include_once "processors/template/duplicate_template.processor.php";
         break;
     case 117:
         // change the tv rank for selected template
@@ -356,13 +356,13 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_snippet.dynamic.php";
         break;
     case 24: // get the save processor
-        include_once "processors/save_snippet.processor.php";
+        include_once "processors/snippet/save_snippet.processor.php";
         break;
     case 25: // get the delete processor
-        include_once "processors/delete_snippet.processor.php";
+        include_once "processors/snippet/delete_snippet.processor.php";
         break;
     case 98: // get the duplicate processor
-        include_once "processors/duplicate_snippet.processor.php";
+        include_once "processors/snippet/duplicate_snippet.processor.php";
         break;
     case 78: // get the edit snippet action
     case 77: // get the new chunk action
@@ -414,13 +414,13 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_plugin.dynamic.php";
         break;
     case 103: // get the save processor
-        include_once "processors/save_plugin.processor.php";
+        include_once "processors/plugin/save_plugin.processor.php";
         break;
     case 104: // get the delete processor
-        include_once "processors/delete_plugin.processor.php";
+        include_once "processors/plugin/delete_plugin.processor.php";
         break;
     case 105: // get the duplicate processor
-        include_once "processors/duplicate_plugin.processor.php";
+        include_once "processors/plugin/duplicate_plugin.processor.php";
         break;
     case 127: // get review action
         include_once "actions/document/revision.dynamic.php";
@@ -487,10 +487,10 @@ switch ($modx->manager->action) {
         include_once "actions/permission/messages.static.php";
         break;
     case 65: // get the message deleter
-        include_once "processors/delete_message.processor.php";
+        include_once "processors/pm/delete_message.processor.php";
         break;
     case 66: // get the message deleter
-        include_once "processors/send_message.processor.php";
+        include_once "processors/pm/send_message.processor.php";
         break;
     case 67: // get the lock remover
         include_once "processors/remove_locks.processor.php";
@@ -547,13 +547,13 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_tmplvars.dynamic.php";
         break;
     case 302: // get the save processor
-        include_once "processors/save_tmplvars.processor.php";
+        include_once "processors/tmplvars/save_tmplvars.processor.php";
         break;
     case 303: // get the delete processor
-        include_once "processors/delete_tmplvars.processor.php";
+        include_once "processors/tmplvars/delete_tmplvars.processor.php";
         break;
     case 304: // get the duplicate processor
-        include_once "processors/duplicate_tmplvars.processor.php";
+        include_once "processors/tmplvars/duplicate_tmplvars.processor.php";
         break;
     case 114: // Event viewer: show event message log
         include_once "actions/report/eventlog.dynamic.php";
