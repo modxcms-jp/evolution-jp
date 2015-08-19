@@ -299,17 +299,17 @@ switch ($modx->manager->action) {
         include_once "actions/permission/mutate_web_user.dynamic.php";
         break;
     case 89: // get the save web user processor
-        include_once "processors/save_web_user.processor.php";
+        include_once "processors/permission/save_web_user.processor.php";
         break;
     case 90: // get the delete web user page
-        include_once "processors/delete_web_user.processor.php";
+        include_once "processors/permission/delete_web_user.processor.php";
         break;
     case 11: // get the new user page
     case 12: // get the edit user page
         include_once "actions/permission/mutate_user.dynamic.php";
         break;
     case 32: // get the save user processor
-        include_once "processors/save_user.processor.php";
+        include_once "processors/permission/save_user.processor.php";
         break;
     case 74: // get the edit user profile page 
         include_once "actions/permission/mutate_user_pf.dynamic.php";
@@ -318,10 +318,10 @@ switch ($modx->manager->action) {
         include_once "actions/permission/mutate_password.dynamic.php";
         break;
     case 34: // get the save new password page
-        include_once "processors/save_password.processor.php";
+        include_once "processors/permission/save_password.processor.php";
         break;
     case 33: // get the delete user page
-        include_once "processors/delete_user.processor.php";
+        include_once "processors/permission/delete_user.processor.php";
         break;
 // role management
     case 38: // get the new role page
@@ -329,10 +329,10 @@ switch ($modx->manager->action) {
         include_once "actions/permission/mutate_role.dynamic.php";
         break;
     case 36: // get the save role page
-        include_once "processors/save_role.processor.php";
+        include_once "processors/permission/save_role.processor.php";
         break;
     case 37: // get the delete role page
-        include_once "processors/delete_role.processor.php";
+        include_once "processors/permission/delete_role.processor.php";
         break;
     case 16: // get the edit template action
     case 19: // get the new template action
@@ -453,10 +453,10 @@ switch ($modx->manager->action) {
         include_once "actions/permission/web_access_permissions.dynamic.php";
         break;
     case 41: // access groups processor
-        include_once "processors/access_groups.processor.php";
+        include_once "processors/permission/access_groups.processor.php";
         break;
     case 92:
-        include_once "processors/web_access_groups.processor.php";
+        include_once "processors/permission/web_access_groups.processor.php";
         break;
     case 17: // get the settings editor
         include_once "actions/tool/mutate_settings.dynamic.php";
