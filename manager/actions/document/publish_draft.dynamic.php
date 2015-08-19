@@ -64,14 +64,18 @@ EOT;
 function getTplDraft()
 {
 	$tpl = <<< EOT
+<style>
+	label {display:block;}
+</style>
 [+JScripts+]
 <script>
 	jQuery(function(){
-		jQuery('#publish_now').click(function(){
-			if(jQuery(this).is(':checked')) {
-				jQuery('#pubdate').css('display','none');
+		jQuery("input[name='publishoption']").click(function(){
+			var val = jQuery("input[name='publishoption']:checked").val();
+			if(val=='now') {
+				jQuery('#pubdate').fadeOut();
 			}
-			else jQuery('#pubdate').css('display','block');
+			else jQuery('#pubdate').fadeIn();
     	});
 	});
 </script>
@@ -95,7 +99,9 @@ function getTplDraft()
 	下書きを保存しました。
 	</p>
     	<div style="margin-bottom:1em;">
-    		<label><input name="publish_now" id="publish_now" type="checkbox" class="checkbox" checked /> この下書きを今すぐ採用する</label>
+    		<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
+    		<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
+    		<label style="color:#ccc;"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
     	</div>
     	<div id="pubdate" style="display:none;">
         	<table width="99%" border="0" cellspacing="5" cellpadding="0">

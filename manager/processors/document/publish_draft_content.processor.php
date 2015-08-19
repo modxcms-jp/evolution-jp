@@ -20,7 +20,7 @@ else {
 $modx->loadExtension('REVISION');
 $modx->loadExtension('DocAPI');
 
-if(!isset($_POST['publish_now']) && !empty($_POST['pub_date']))
+if($_POST['publishoption']==='reserve' && !empty($_POST['pub_date']))
 {
 	$pub_date = $modx->toTimeStamp($_POST['pub_date']);
 	if($_SERVER['REQUEST_TIME'] < $pub_date)

@@ -267,23 +267,23 @@ switch ($modx->manager->action) {
         include_once "processors/document/save_resource.processor.php";
         break;
     case 6: // get the delete processor
-        include_once "processors/delete_content.processor.php";
+        include_once "processors/document/delete_content.processor.php";
         break;
     case 63: // get the undelete processor
         
-        include_once "processors/undelete_content.processor.php";
+        include_once "processors/document/undelete_content.processor.php";
     break;
     case 51: // get the move action
         include_once "actions/document/move_document.dynamic.php";
         break;
     case 52: // get the move document processor
-        include_once "processors/move_document.processor.php";
+        include_once "processors/document/move_document.processor.php";
         break;
     case 61: // get the processor for publishing content
-        include_once "processors/publish_content.processor.php";
+        include_once "processors/document/publish_content.processor.php";
         break;
     case 62: // get the processor for publishing content
-        include_once "processors/unpublish_content.processor.php";
+        include_once "processors/document/unpublish_content.processor.php";
         break;
     case 133: // get the mutate page for changing draft content
         include_once "actions/document/publish_draft.dynamic.php";
@@ -481,7 +481,7 @@ switch ($modx->manager->action) {
         include_once "processors/empty_table.processor.php";
         break;
     case 64: // get the Recycle bin emptier
-        include_once "processors/remove_content.processor.php";
+        include_once "processors/document/remove_content.processor.php";
         break;
     case 10: // get the messages page
         include_once "actions/permission/messages.static.php";
