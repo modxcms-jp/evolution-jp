@@ -267,23 +267,23 @@ switch ($modx->manager->action) {
         include_once "processors/document/save_resource.processor.php";
         break;
     case 6: // get the delete processor
-        include_once "processors/delete_content.processor.php";
+        include_once "processors/document/delete_content.processor.php";
         break;
     case 63: // get the undelete processor
         
-        include_once "processors/undelete_content.processor.php";
+        include_once "processors/document/undelete_content.processor.php";
     break;
     case 51: // get the move action
         include_once "actions/document/move_document.dynamic.php";
         break;
     case 52: // get the move document processor
-        include_once "processors/move_document.processor.php";
+        include_once "processors/document/move_document.processor.php";
         break;
     case 61: // get the processor for publishing content
-        include_once "processors/publish_content.processor.php";
+        include_once "processors/document/publish_content.processor.php";
         break;
     case 62: // get the processor for publishing content
-        include_once "processors/unpublish_content.processor.php";
+        include_once "processors/document/unpublish_content.processor.php";
         break;
     case 133: // get the mutate page for changing draft content
         include_once "actions/document/publish_draft.dynamic.php";
@@ -369,13 +369,13 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_htmlsnippet.dynamic.php";
         break;
     case 79: // get the save processor
-        include_once "processors/save_htmlsnippet.processor.php";
+        include_once "processors/chunk/save_htmlsnippet.processor.php";
         break;
     case 80: // get the delete processor
-        include_once "processors/delete_htmlsnippet.processor.php";
+        include_once "processors/chunk/delete_htmlsnippet.processor.php";
         break;
     case 97: // get the duplicate processor
-        include_once "processors/duplicate_htmlsnippet.processor.php";
+        include_once "processors/chunk/duplicate_htmlsnippet.processor.php";
         break;
     case 18: // get the credits page
         include_once "actions/credits.static.php";
@@ -391,17 +391,17 @@ switch ($modx->manager->action) {
         include_once "actions/element/mutate_module.dynamic.php";
         break;
     case 109: // get the save processor
-        include_once "processors/save_module.processor.php";
+        include_once "processors/module/save_module.processor.php";
         break;
     case 110: // get the delete processor
-        include_once "processors/delete_module.processor.php";
+        include_once "processors/module/delete_module.processor.php";
         break;
     case 111: // get the duplicate processor
-        include_once "processors/duplicate_module.processor.php";
+        include_once "processors/module/duplicate_module.processor.php";
         break;
     case 112:
         // execute/run the module
-        include_once "processors/execute_module.processor.php";
+        include_once "processors/module/execute_module.processor.php";
         break;
     case 113: // get the module resources (dependencies) action
         include_once "actions/element/mutate_module_resources.dynamic.php";
@@ -472,16 +472,16 @@ switch ($modx->manager->action) {
         include_once "actions/report/sysinfo.static.php";
         break;
     case 54: // get the table optimizer/truncate processor
-        include_once "processors/optimize_table.processor.php";
+        include_once "processors/db/optimize_table.processor.php";
         break;
     case 13: // view logging
         include_once "actions/report/logging.static.php";
         break;
     case 55: // get the settings editor
-        include_once "processors/empty_table.processor.php";
+        include_once "processors/db/empty_table.processor.php";
         break;
     case 64: // get the Recycle bin emptier
-        include_once "processors/remove_content.processor.php";
+        include_once "processors/document/remove_content.processor.php";
         break;
     case 10: // get the messages page
         include_once "actions/permission/messages.static.php";
@@ -527,10 +527,10 @@ switch ($modx->manager->action) {
         include_once "actions/tool/bkmanager.static.php";
         break;
     case 305: // Backup Manager
-        include_once "processors/restore.processor.php";
+        include_once "processors/backup/restore.processor.php";
         break;
     case 307: // Backup Manager
-        include_once "processors/snapshot.processor.php";
+        include_once "processors/backup/snapshot.processor.php";
         break;
     case 94: // get the duplicate processor
         include_once "processors/document/duplicate_content.processor.php";

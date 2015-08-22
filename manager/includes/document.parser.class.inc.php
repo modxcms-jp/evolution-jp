@@ -66,7 +66,6 @@ class DocumentParser {
     var $uaType;
     var $functionLog = array();
     var $currentSnippetCall;
-    var $hasDraft;
 
     function __get($property_name)
     {
@@ -1300,13 +1299,13 @@ class DocumentParser {
     }
     
     function getUltimateParentId($id,$top=0) {
-        while ($id) {
-            if($top===$id) break;
-            if($last_id===$id) break;
-            $last_id = $id;
+        $i=0;
+        while ($id &&$i<20) {
+            if($top==$this->aliasListing[$id]['parent']) break;
             $id = $this->aliasListing[$id]['parent'];
+            $i++;
         }
-        return $last_id;
+        return $id;
     }
     // mod by Raymond
     function mergeDocumentContent($content,$convertDate=true)
@@ -1330,26 +1329,42 @@ class DocumentParser {
             if(strpos($key,'@')!==false)
             {
                 list($key,$str) = explode('@',$key,2);
-                if(strpos($str,'/')!==false) list($top,$str) = explode('/',$str,2);
-                else $top = 0;
-                switch(strtolower($str))
+                $context = strtolower($str);
+                if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
+                    $context = 'alias';
+                elseif(substr($str,0,1)==='u' && strpos($str,'(')!==false)
+                    $context = 'uparent';
+                switch($context)
                 {
                     case 'site_start':
-                        $str = $this->config['site_start'];
+                        $docid = $this->config['site_start'];
                         break;
                     case 'parent':
                     case 'p':
-                        $str = $this->documentObject['parent'];
-                        if($str==0) $str = $this->config['site_start'];
+                        $docid = $this->documentObject['parent'];
+                        if($docid==0) $docid = $this->config['site_start'];
                         break;
                     case 'ultimateparent':
                     case 'uparent':
                     case 'up':
                     case 'u':
-                        $str = $this->getUltimateParentId($this->documentIdentifier,$top);
+                        if(strpos($str,'(')!==false) {
+                            $top = substr($str,strpos($str,'('));
+                            $top = trim($top,'()"\'');
+                        }
+                        else $top = 0;
+                        $docid = $this->getUltimateParentId($this->documentIdentifier,$top);
+                        break;
+                    case 'alias':
+                        $str = substr($str,strpos($str,'('));
+                        $str = trim($str,'()"\'');
+                        $docid = $this->getIdFromAlias($str);
+                        break;
+                    default:
+                        $docid = $str;
                 }
-                if(preg_match('@^[1-9][0-9]*$@',$str))
-                    $value = $this->getField($key,$str);
+                if(preg_match('@^[1-9][0-9]*$@',$docid))
+                    $value = $this->getField($key,$docid);
                 else $value = '';
             }
             elseif(!isset($this->documentObject[$key])) $value = '';
@@ -2063,6 +2078,19 @@ class DocumentParser {
             $method = 'id';
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
+        }
+        elseif(isset($_GET['revision']))
+        {
+            if(!isset($_SESSION['mgrValidated']))
+            {
+                $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+                header('location:'.MODX_MANAGER_URL);
+                exit;
+            }
+            
+            $this->loadExtension('REVISION');
+            $previewObject = $this->revision->getDraft($identifier);
+            $this->config['cache_type'] = 0;
         }
         else $previewObject = false;
         

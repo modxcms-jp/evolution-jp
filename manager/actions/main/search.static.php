@@ -131,7 +131,6 @@ if($limit<1) {
         <th class="sortable"><b><?php echo $_lang['search_results_returned_id']; ?></b></th>
         <th class="sortable"><b><?php echo $_lang['search_results_returned_title']; ?></b></th>
         <th class="sortable"><b><?php echo $_lang['search_results_returned_desc']; ?></b></th>
-		<th width="20"></th>
       </tr>
     </thead>
     <tbody>
@@ -189,17 +188,16 @@ while ($row = $modx->db->getRow($rs)) {
 <?php
 		if (function_exists('mb_strlen') && function_exists('mb_substr')) {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['pagetitle'], $modx_manager_charset)>70 ? mb_substr($row['pagetitle'], 0, 70, $modx_manager_charset)."..." : $row['pagetitle'] ; ?></td>
+		<td<?php echo $tdClass; ?>><img src="<?php echo $icon; ?>" /> <?php echo mb_strlen($row['pagetitle'], $modx_manager_charset)>70 ? mb_substr($row['pagetitle'], 0, 70, $modx_manager_charset)."..." : $row['pagetitle'] ; ?></td>
 		<td<?php echo $tdClass; ?>><?php echo mb_strlen($row['description'], $modx_manager_charset)>70 ? mb_substr($row['description'], 0, 70, $modx_manager_charset)."..." : $row['description'] ; ?></td>
 <?php
 		} else {
 ?>
-		<td<?php echo $tdClass; ?>><?php echo strlen($row['pagetitle'])>20 ? substr($row['pagetitle'], 0, 20).'...' : $row['pagetitle'] ; ?></td>
+		<td<?php echo $tdClass; ?>><img src="<?php echo $icon; ?>" /> <?php echo strlen($row['pagetitle'])>20 ? substr($row['pagetitle'], 0, 20).'...' : $row['pagetitle'] ; ?></td>
 		<td<?php echo $tdClass; ?>><?php echo strlen($row['description'])>35 ? substr($row['description'], 0, 35).'...' : $row['description'] ; ?></td>
 <?php
 		}
 ?>
-      <td align="center"><img src="<?php echo $icon; ?>" /></td>
     </tr>
 <?php
 	}
