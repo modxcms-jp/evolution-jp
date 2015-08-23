@@ -210,7 +210,7 @@ class DocumentParser {
             case 'PHx' :
                 if(!class_exists('PHx') || !is_object($this->filter))
                 {
-                    $rs = include_once(MODX_CORE_PATH . 'extenders/phx.parser.class.inc.php');
+                    $rs = include_once(MODX_CORE_PATH . 'extenders/modifiers.class.inc.php');
                     if($rs)
                     {
                         $this->filter= new PHx;
