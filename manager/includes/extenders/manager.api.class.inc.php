@@ -258,6 +258,7 @@ class ManagerAPI {
             	case '100' :
             	case '101' :
             	case '102' :
+            	case '131' :
             	case '200' :
             	case '31' :
             	case '40' :
