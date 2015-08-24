@@ -1328,6 +1328,8 @@ class DocumentParser {
             
             if(strpos($key,'@')!==false)
             {
+                if(strpos($key,'/u')!==false)
+                    $key = str_replace(array('@','/u'),array('@u(',')u'),$key);
                 list($key,$str) = explode('@',$key,2);
                 $context = strtolower($str);
                 if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
