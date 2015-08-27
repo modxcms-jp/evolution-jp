@@ -1749,8 +1749,9 @@ class DocumentParser {
                 }
                 if(strpos($key,'[')!==false)
                     $value = eval("return {$key};");
-                else
+                elseif(0<eval("return count({$key});"))
                     $value = eval("return print_r({$key},true);");
+                else $value = '';
                 if($modifiers!==false)
                 {
                     $this->loadExtension('PHx') or die('Could not load PHx class.');
