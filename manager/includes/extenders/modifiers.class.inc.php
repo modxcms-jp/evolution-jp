@@ -426,6 +426,10 @@ class PHx {
             case 'string_format':
                 if($value!=='') $value = sprintf($opt,$value);
                 break;
+            case 'number_format':
+                    if($opt=='') $opt = 0;
+                    $value = number_format($value,$opt);
+                    break;
                         case 'money_format':
                                 setlocale(LC_MONETARY,setlocale(LC_TIME,0));
                                 if($value!=='') $value = money_format($opt,$value);
