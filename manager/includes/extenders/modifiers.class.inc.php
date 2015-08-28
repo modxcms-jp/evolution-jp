@@ -604,6 +604,10 @@ class PHx {
                 $templateObject = $modx->db->getObject('site_templates',"id='{$template}'");
                 $value = $templateObject !== false ? $templateObject->templatename : '(blank)';
                 break;
+            case 'getfield':
+                if(!$opt) $opt = 'content';
+                $value = $modx->getField($opt,$value);
+                break;
                 
             #####  User info
             case 'username':
