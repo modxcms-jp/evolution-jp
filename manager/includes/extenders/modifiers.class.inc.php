@@ -335,6 +335,9 @@ class PHx {
             case 'strlen':
             case 'count_characters':
                 $value = $this->strlen($value); break;
+            case 'strpos':
+                if($opt!=0&&empty($opt)) return $value;
+                $value = $this->strpos($value,$opt); break;
             case 'reverse':
             case 'strrev':
                 $value = $this->strrev($value); break;
