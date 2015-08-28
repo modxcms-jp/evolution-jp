@@ -430,10 +430,10 @@ class PHx {
                     if($opt=='') $opt = 0;
                     $value = number_format($value,$opt);
                     break;
-                        case 'money_format':
-                                setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                                if($value!=='') $value = money_format($opt,$value);
-                                break;
+            case 'money_format':
+                    setlocale(LC_MONETARY,setlocale(LC_TIME,0));
+                    if($value!=='') $value = money_format($opt,$value);
+                    break;
             case 'cat':
             case '.':
                 if($value!=='') $value = $value . $opt;
