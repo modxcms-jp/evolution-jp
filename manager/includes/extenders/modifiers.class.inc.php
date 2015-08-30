@@ -242,6 +242,7 @@ class PHx {
                 $condition[] = intval(fnmatch($opt, $value)!==false);break;
             case 'is_file':
             case 'is_dir':
+            case 'file_exists':
                 if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
                 $condition[] = intval($cmd($opt)!==false);break;
             case 'regex':
