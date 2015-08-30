@@ -237,6 +237,7 @@ class PHx {
                 $userID = $modx->getLoginUserID();
                 $grps = ($this->strlen($opt) > 0 ) ? explode(',',$opt) :array();
                 $condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
+                $modx->qs_hash = md5($modx->qs_hash.$userID);
                 break;
             case 'or':
                 $condition[] = '||';break;
