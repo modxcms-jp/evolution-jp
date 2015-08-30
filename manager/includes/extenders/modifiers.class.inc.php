@@ -205,15 +205,18 @@ class PHx {
             case 'is':
             case 'equals':
                 $condition[] = intval($value == $opt); break;
+            case 'neq':
             case 'ne':
             case 'notequals':
             case 'isnot':
             case 'isnt':
                 $condition[] = intval($value != $opt);break;
+            case 'gte':
             case 'isgreaterthan':
             case 'isgt':
             case 'eg':
                 $condition[] = intval($value >= $opt);break;
+            case 'lte':
             case 'islowerthan':
             case 'islt':
             case 'el':
@@ -226,6 +229,7 @@ class PHx {
                 $condition[] = intval($value < $opt);break;
             case 'find':
                 $condition[] = intval(strpos($value, $opt)!==false);break;
+            case 'regex':
             case 'preg':
             case 'preg_match':
                 $condition[] = intval(preg_match($opt,$value));break;
