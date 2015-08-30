@@ -241,10 +241,10 @@ class PHx {
             case 'memberof':
             case 'mo':
                 // Is Member Of  (same as inrole but this one can be stringed as a conditional)
-                $userID = $modx->getLoginUserID();
+                $userID = $modx->getLoginUserID('web');
                 $grps = ($this->strlen($opt) > 0 ) ? explode(',',$opt) :array();
                 $condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
-                $modx->qs_hash = md5($modx->qs_hash.$userID);
+                $modx->qs_hash = md5($modx->qs_hash."^{$userID}^");
                 break;
             case 'or':
                 $condition[] = '||';break;
