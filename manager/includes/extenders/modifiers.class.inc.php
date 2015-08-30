@@ -234,6 +234,12 @@ class PHx {
             case 'in':
                 $opt = explode(',', $opt);
                 $condition[] = intval(in_array($value, $opt)!==false);break;
+            case 'wildcard_match':
+            case 'wcard_match':
+            case 'wildcard':
+            case 'wcard':
+            case 'fnmatch':
+                $condition[] = intval(fnmatch($opt, $value)!==false);break;
             case 'regex':
             case 'preg':
             case 'preg_match':
