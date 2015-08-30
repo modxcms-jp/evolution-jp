@@ -201,14 +201,14 @@ class PHx {
             case 'if':
                 $value = $opt;
                 break;
-            case 'equals':
-            case 'is':
             case 'eq':
+            case 'is':
+            case 'equals':
                 $condition[] = intval($value == $opt); break;
+            case 'ne':
             case 'notequals':
             case 'isnot':
             case 'isnt':
-            case 'ne':
                 $condition[] = intval($value != $opt);break;
             case 'isgreaterthan':
             case 'isgt':
@@ -218,11 +218,11 @@ class PHx {
             case 'islt':
             case 'el':
                 $condition[] = intval($value <= $opt);break;
-            case 'greaterthan':
             case 'gt':
+            case 'greaterthan':
                 $condition[] = intval($value > $opt);break;
-            case 'lowerthan':
             case 'lt':
+            case 'lowerthan':
                 $condition[] = intval($value < $opt);break;
             case 'find':
                 $condition[] = intval(strpos($value, $opt)!==false);break;
