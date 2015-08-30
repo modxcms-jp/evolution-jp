@@ -368,6 +368,14 @@ class PHx {
                   else
                       $value = wordwrap($value,$width,"\n",true);
                 break;
+            case 'substr':
+                if(empty($opt)) break;
+                if(strpos($opt,',')!==false) {
+                    list($b,$e) = explode(',',$opt,2);
+                    $value = $this->substr($value,$b,$e);
+                }
+                else $value = $this->substr($value,$b);
+                break;
             case 'limit':
                 // default: 100
                   $limit = intval($opt) ? intval($opt) : 100;
@@ -380,14 +388,6 @@ class PHx {
                 elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
                 else {$limit=100;$delim='';}
                 $value = $this->getSummary($value, $limit, $delim);
-                break;
-            case 'substr':
-                if(empty($opt)) break;
-                if(strpos($opt,',')!==false) {
-                    list($b,$e) = explode(',',$opt,2);
-                    $value = $this->substr($value,$b,$e);
-                }
-                else $value = $this->substr($value,$b);
                 break;
             case 'str_shuffle':
             case 'shuffle':
