@@ -15,6 +15,7 @@ class PHx {
     var $vars = array();
     var $cache = array();
     var $bt;
+    var $srcValue;
     
     function PHx()
     {
@@ -27,6 +28,7 @@ class PHx {
     function phxFilter($key,$value,$modifiers)
     {
         global $modx;
+        $this->srcValue = $value;
         $modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
         $modifiers = $this->splitModifiers($modifiers);
         $this->vars = array();
@@ -255,6 +257,7 @@ class PHx {
                 $conditional = implode(' ',$condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if (!$isvalid) { $value = NULL;}
+                elseif($opt==='src') $value = $this->srcValue;
                 break;
             case 'then':
                 $conditional = implode(' ',$condition);
