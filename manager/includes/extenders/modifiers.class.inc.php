@@ -240,6 +240,9 @@ class PHx {
             case 'wcard':
             case 'fnmatch':
                 $condition[] = intval(fnmatch($opt, $value)!==false);break;
+            case 'is_file':
+                if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
+                $condition[] = intval($cmd($opt)!==false);break;
             case 'regex':
             case 'preg':
             case 'preg_match':
