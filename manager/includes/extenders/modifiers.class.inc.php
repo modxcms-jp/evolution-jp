@@ -229,6 +229,9 @@ class PHx {
                 $condition[] = intval($value < $opt);break;
             case 'find':
                 $condition[] = intval(strpos($value, $opt)!==false);break;
+            case 'in':
+                $opt = explode(',', $opt);
+                $condition[] = intval(in_array($value, $opt)!==false);break;
             case 'regex':
             case 'preg':
             case 'preg_match':
