@@ -305,7 +305,6 @@ class PHx {
                 break;
             case 'spam_protect':
                 $value = str_replace(array('@','.'),array('&#64;','&#46;'),$value);
-                $value = sprintf("<script>document.write('%s');</script>",$value);
                 break;
             case 'strip':
                 if($opt==='') $opt = ' ';
