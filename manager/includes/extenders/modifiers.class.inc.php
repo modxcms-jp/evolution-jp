@@ -243,6 +243,7 @@ class PHx {
             case 'is_file':
             case 'is_dir':
             case 'file_exists':
+            case 'is_readable':
                 if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
                 $condition[] = intval($cmd($opt)!==false);break;
             case 'regex':
