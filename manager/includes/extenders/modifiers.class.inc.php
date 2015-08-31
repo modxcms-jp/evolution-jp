@@ -247,6 +247,10 @@ class PHx {
             case 'is_writable':
                 if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
                 $condition[] = intval($cmd($opt)!==false);break;
+            case 'is_image':
+                if(!is_file($value)) {$condition[]='0';break;}
+                $_ = getimagesize($value);
+                $condition[] = intval($_[0]);break;
             case 'regex':
             case 'preg':
             case 'preg_match':
