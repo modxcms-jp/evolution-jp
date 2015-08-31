@@ -629,6 +629,16 @@ class PHx {
             case 'photo':
             case 'comment':
                 return $this->ModUser($value,$cmd);
+            case 'userinfo':
+                if(empty($opt)) $opt = 'username';
+                return $this->ModUser($value,$opt);
+            case 'webuserinfo':
+                if(empty($opt)) $opt = 'username';
+                return $this->ModUser(-$value,$opt);
+            case 'inrole':
+                // deprecated
+                $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
+                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
             #####  Special functions 
             case 'math':
                 $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
@@ -652,16 +662,6 @@ class PHx {
                 if(empty($opt)) $opt = '%H:%M';
                 if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
                 return $modx->mb_strftime($opt,0+$value);
-            case 'userinfo':
-                if(empty($opt)) $opt = 'username';
-                return $this->ModUser($value,$opt);
-            case 'webuserinfo':
-                if(empty($opt)) $opt = 'username';
-                return $this->ModUser(-$value,$opt);
-            case 'inrole':
-                // deprecated
-                $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
-                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
             case 'googlemap':
             case 'googlemaps':
                 if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
