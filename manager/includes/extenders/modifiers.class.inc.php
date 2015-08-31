@@ -156,20 +156,14 @@ class PHx {
             $cmd = 'id';
         }
         
-        $this->elmName = '';
         if(!$modx->snippetCache) $modx->setSnippetCache();
-        if(isset($modx->snippetCache["phx:{$cmd}"])) {
-            $this->elmName = "phx:{$cmd}";
-        }
-        elseif(isset($modx->snippetCache[$cmd])) {
-            $this->elmName = $cmd;
-        }
-        elseif(isset($modx->chunkCache["phx:{$cmd}"])) {
-            $this->elmName = "phx:{$cmd}";
-        }
-        elseif(isset($modx->chunkCache[$cmd])) {
-            $this->elmName = $cmd;
-        }
+        
+        if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
+        elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
+        elseif(isset($modx->chunkCache["phx:{$cmd}"])) $this->elmName = "phx:{$cmd}";
+        elseif(isset($modx->chunkCache[$cmd]))         $this->elmName = $cmd;
+        else                                           $this->elmName = '';
+        
         $cmd = strtolower($cmd);
         if($this->elmName!=='')
             $value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
@@ -299,7 +293,7 @@ class PHx {
                 return $map[$value];
             ##### End of Conditional Modifiers
             
-            #####  Encode / Decode / Escape
+            #####  Encode / Decode / Hash / Escape
             case 'htmlent':
             case 'htmlentities':
                 return htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
@@ -349,11 +343,14 @@ class PHx {
                 if($opt!=='false') $opt = true;
                 else               $opt = false;
                 return base64_decode($value,$opt);
+            case 'encode_sha1': $cmd = 'sha1';
             case 'addslashes':
             case 'urldecode':
             case 'rawurlencode':
             case 'rawurldecode':
             case 'base64_encode':
+            case 'md5':
+            case 'sha1':
                 return $cmd($value);
             
             #####  String Modifiers
@@ -365,17 +362,44 @@ class PHx {
             case 'strtoupper':
             case 'upper_case':
                 return $this->strtoupper($value);
+            case 'capitalize':
+                $_ = explode(' ',$value);
+                foreach($_ as $i=>$v)
+                {
+                    $_[$i] = ucfirst($v);
+                }
+                return join(' ',$_);
+            case 'zenhan':
+                if(empty($opt)) $opt='VKas';
+                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
+            case 'hanzen':
+                if(empty($opt)) $opt='VKAS';
+                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
+            case 'str_shuffle':
+            case 'shuffle':
+                return $this->str_shuffle($value);
+            case 'reverse':
+            case 'strrev':
+                return $this->strrev($value);
             case 'length':
             case 'len':
             case 'strlen':
             case 'count_characters':
                 return $this->strlen($value);
+            case 'count_words':
+                $value = trim($value);
+                return count(preg_split('/\s+/',$value));
+            case 'str_word_count':
+            case 'word_count':
+            case 'wordcount':
+                return $this->str_word_count($value);
+            case 'count_paragraphs':
+                $value = trim($value);
+                $value = preg_replace('/\r/', '', $value);
+                return count(preg_split('/\n+/',$value));
             case 'strpos':
                 if($opt!=0&&empty($opt)) return $value;
                 return $this->strpos($value,$opt);
-            case 'reverse':
-            case 'strrev':
-                return $this->strrev($value);
             case 'wordwrap':
                 // default: 70
                   $wrapat = intval($opt) ? intval($opt) : 70;
@@ -409,9 +433,21 @@ class PHx {
                 }
                 else return $this->substr($value,$b);
             case 'limit':
-                // default: 100
-                  $limit = intval($opt) ? intval($opt) : 100;
-                return $this->substr($value,0,$limit);
+            case 'trim_to': // http://www.movabletype.jp/documentation/appendices/modifiers/trim_to.html
+                if(strpos($opt,'+')!==false)
+                    list($len,$str) = explode('+',$opt,2);
+                else {
+                    $len = $opt;
+                    $str = '';
+                }
+                if($len==='') $len = 100;
+                if(preg_match('/^[1-9][0-9]*$/',$len)) {
+                    return $this->substr($value,0,$len) . $str;
+                }
+                elseif(preg_match('/^\-[1-9][0-9]*$/',$len)) {
+                    return $this->substr($value,$len) . $str;
+                }
+                break;
             case 'summary':
             case 'smart_description':
             case 'smart_desc':
@@ -419,19 +455,6 @@ class PHx {
                 elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
                 else {$limit=100;$delim='';}
                 return $this->getSummary($value, $limit, $delim);
-            case 'str_shuffle':
-            case 'shuffle':
-                return $this->str_shuffle($value);
-            case 'str_word_count':
-            case 'word_count':
-            case 'wordcount':
-                return $this->str_word_count($value);
-            case 'zenhan':
-                if(empty($opt)) $opt='VKas';
-                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
-            case 'hanzen':
-                if(empty($opt)) $opt='VKAS';
-                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
             case 'replace':
             case 'str_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
@@ -452,6 +475,11 @@ class PHx {
                 list($s,$r) = explode(',',$opt,2);
                 if($value!=='') return preg_replace($s,$r,$value);
                 break;
+            case 'cat':
+            case 'concatenate':
+            case '.':
+                if($value!=='') return $value . $opt;
+                break;
             case 'sprintf':
             case 'string_format':
                 if($value!=='') return sprintf($opt,$value);
@@ -463,70 +491,13 @@ class PHx {
                     setlocale(LC_MONETARY,setlocale(LC_TIME,0));
                     if($value!=='') return money_format($opt,$value);
                     break;
-            case 'cat':
-            case '.':
-                if($value!=='') return $value . $opt;
-                break;
+            case 'tobool':
+                return boolval($value);
             case 'nl2lf':
                 if($value!=='') return str_replace(array("\r\n","\n", "\r"), '\n', $value);
                 break;
-            case 'toint':
-                return intval($value);
-            case 'tofloat':
-                return floatval($value);
-            case 'tobool':
-                return boolval($value);
-            case 'round':
-            case 'floor':
-            case 'ceil':
-                if(!$opt) $opt = 0;
-                return $cmd($value,$opt);
-            case 'max':
-            case 'min':
-                return $cmd(explode(',',$value));
-            case 'abs':
-                return abs($value);
-            case 'addbreak':
-                return $this->addbreak($value);
-            case 'capitalize':
-                $_ = explode(' ',$value);
-                foreach($_ as $i=>$v)
-                {
-                    $_[$i] = ucfirst($v);
-                }
-                return join(' ',$_);
-            case 'count_paragraphs':
-                $value = trim($value);
-                $value = preg_replace('/\r/', '', $value);
-                return count(preg_split('/\n+/',$value));
-            case 'count_words':
-                $value = trim($value);
-                return count(preg_split('/\s+/',$value));
-            case 'sha1':
-            case 'encode_sha1':
-                return sha1($value);
-            case 'trim_to':
-                if(strpos($opt,'+'))
-                    list($len,$str) = explode('+',$opt,2);
-                else {
-                    $len = $opt;
-                    $str = '';
-                }
-                if(preg_match('/^[1-9][0-9]*$/',$len)) {
-                    return $this->substr($value,0,$len) . $str;
-                }
-                elseif(preg_match('/^\-[1-9][0-9]*$/',$len)) {
-                    return $this->substr($value,$len) . $str;
-                }
-                break;
             case 'br2nl':
                 return preg_replace('@<br[\s/]*>@i', "\n", $value);
-            case 'ltrim':
-            case 'rtrim':
-            case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
-                if($opt==='')
-                    return $cmd($value);
-                else return $cmd($value,$opt);
             case 'nl2br':
                 if($opt!=='')
                 {
@@ -540,13 +511,53 @@ class PHx {
                                        $opt = false;
                 else                   $opt = true;
                 return nl2br($value,$opt);
+            case 'addbreak':
+                return $this->addbreak($value);
+            case 'ltrim':
+            case 'rtrim':
+            case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
+                if($opt==='')
+                    return $cmd($value);
+                else return $cmd($value,$opt);
             // These are all straight wrappers for PHP functions
             case 'ucfirst':
             case 'lcfirst':
             case 'ucwords':
-            case 'md5':
                 return $cmd($value);
             
+            #####  Date time format
+            case 'strftime':
+            case 'date':
+            case 'dateformat':
+                if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
+                if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
+                if(strpos($opt,'%')!==false)
+                    return $modx->mb_strftime($opt,0+$value);
+                else
+                    return date($opt,0+$value);
+            case 'time':
+                if(empty($opt)) $opt = '%H:%M';
+                if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
+                return $modx->mb_strftime($opt,0+$value);
+            #####  mathematical function
+            case 'toint':
+                return intval($value);
+            case 'tofloat':
+                return floatval($value);
+            case 'round':
+            case 'floor':
+            case 'ceil':
+                if(!$opt) $opt = 0;
+                return $cmd($value,$opt);
+            case 'max':
+            case 'min':
+                return $cmd(explode(',',$value));
+            case 'abs':
+                return abs($value);
+            case 'math':
+                $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
+                $filter = str_replace(array('?','%s'),$value,$filter);
+                return eval("return {$filter};");
             #####  Resource fields
             case 'id':
                 if($opt) return $this->getDocumentObject($opt,$phxkey);
@@ -603,115 +614,30 @@ class PHx {
             case 'getfield':
                 if(!$opt) $opt = 'content';
                 return $modx->getField($opt,$value);
-                
-            #####  User info
-            case 'username':
-            case 'fullname':
-            case 'role':
-            case 'email':
-            case 'phone': 
-            case 'mobilephone': 
-            case 'blocked':
-            case 'blockeduntil':
-            case 'blockedafter':
-            case 'logincount':
-            case 'lastlogin':
-            case 'thislogin':
-            case 'failedlogincount':
-            case 'dob':
-            case 'gender':
-            case 'country':
-            case 'street':
-            case 'city':
-            case 'state':
-            case 'zip':
-            case 'fax':
-            case 'photo':
-            case 'comment':
-                return $this->ModUser($value,$cmd);
-            case 'userinfo':
-                if(empty($opt)) $opt = 'username';
-                return $this->ModUser($value,$opt);
-            case 'webuserinfo':
-                if(empty($opt)) $opt = 'username';
-                return $this->ModUser(-$value,$opt);
-            case 'inrole':
-                // deprecated
-                $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
-                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
-            #####  Special functions 
-            case 'math':
-                $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
-                $filter = str_replace(array('?','%s'),$value,$filter);
-                return eval("return {$filter};");
-            case 'ifempty':
-            case '_default':
-                if (empty($value)) return $opt; break;
-            case 'ifnotempty':
-                if (!empty($value)) return $opt; break;
-            case 'strftime':
-            case 'date':
-            case 'dateformat':
-                if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
-                if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
-                if(strpos($opt,'%')!==false)
-                    return $modx->mb_strftime($opt,0+$value);
-                else
-                    return date($opt,0+$value);
-            case 'time':
-                if(empty($opt)) $opt = '%H:%M';
-                if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
-                return $modx->mb_strftime($opt,0+$value);
-            case 'googlemap':
-            case 'googlemaps':
-                if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
-                $tpl = '<iframe style="[+style+]" src="https://maps.google.co.jp/maps?ll=[+value+]&output=embed&z=15"></iframe>';
-                $ph['style'] = $opt;
-                $ph['value'] = $value;
-                return $modx->parseText($tpl,$ph);
-            case 'youtube':
-            case 'youtube16x9':
-                if(empty($opt)) $opt = 560;
-                $h = round($opt*0.5625);
-                $tpl = '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>';
-                return sprintf($tpl,$opt,$h,$value);
-            //case 'youtube4x3':%s*0.75＋25
-            case 'datagrid':
-                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                $grd = new DataGrid();
-                $grd->ds = trim($value);
-                $grd->itemStyle = '';
-                $grd->altItemStyle = '';
-                $pos = strpos($value,"\n");
-                if($pos) $_ = substr($value,0,$pos);
-                else $_ = $pos;
-                $grd->cdelim = strpos($_,"\t")!==false ? 'tab' : ',';
-                return $grd->render();
-            case 'rotate':
-            case 'evenodd':
-                if(strpos($opt,',')===false) $opt = 'odd,even';
-                $_ = explode(',', $opt);
-                $c = count($_);
-                $i = $value + $c;
-                $i = $i % $c;
-                return $_[$i];
-            case 'getimage':
-                $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
-                preg_match_all($pattern , $value , $images);
-                $value = '';
-                if($opt==='')
-                {
-                    if($images[1][0])  return $images[1][0];
-                    else               return '';
-                }
-                else
-                {
-                    foreach($images[0] as $i=>$image)
-                    {
-                        if(strpos($image,$opt)!==false) return $images[1][$i];
+            case 'children':
+            case 'childids':
+                if($value=='') $value = 0; // 値がない場合はルートと見なす
+                $published = 1;
+                $_ = explode(',',$opt);
+                $where = array();
+                foreach($_ as $opt) {
+                    switch(trim($opt)) {
+                        case 'page'; case '!folder'; case '!isfolder': $where[] = 'sc.isfolder=0'; break;
+                        case 'folder'; case 'isfolder':                $where[] = 'sc.isfolder=1'; break;
+                        case  'menu';  case  'show_menu':              $where[] = 'sc.hidemenu=0'; break;
+                        case '!menu';  case '!show_menu':              $where[] = 'sc.hidemenu=1'; break;
+                        case  'published':                             $published = 1; break;
+                        case '!published':                             $published = 0; break;
                     }
-                    break;
                 }
+                $where = join(' AND ', $where);
+                $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
+                foreach((array)$children as $child){ // $children が null だった時にエラーになるため型キャスト
+                    $result[] = $child['id'];
+                }
+                return join(',', $result);
+                
+            #####  File system
             case 'getimageinfo':
             case 'imageinfo':
                 if(!is_file($value)) return '';
@@ -767,33 +693,102 @@ class PHx {
                 }
                 else return '';
                 break;
+            #####  User info
+            case 'username':
+            case 'fullname':
+            case 'role':
+            case 'email':
+            case 'phone': 
+            case 'mobilephone': 
+            case 'blocked':
+            case 'blockeduntil':
+            case 'blockedafter':
+            case 'logincount':
+            case 'lastlogin':
+            case 'thislogin':
+            case 'failedlogincount':
+            case 'dob':
+            case 'gender':
+            case 'country':
+            case 'street':
+            case 'city':
+            case 'state':
+            case 'zip':
+            case 'fax':
+            case 'photo':
+            case 'comment':
+                return $this->ModUser($value,$cmd);
+            case 'userinfo':
+                if(empty($opt)) $opt = 'username';
+                return $this->ModUser($value,$opt);
+            case 'webuserinfo':
+                if(empty($opt)) $opt = 'username';
+                return $this->ModUser(-$value,$opt);
+            case 'inrole':
+                // deprecated
+                $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
+                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
+            #####  Special functions 
+            case 'ifempty':
+            case '_default':
+                if (empty($value)) return $opt; break;
+            case 'ifnotempty':
+                if (!empty($value)) return $opt; break;
+            case 'datagrid':
+                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+                $grd = new DataGrid();
+                $grd->ds = trim($value);
+                $grd->itemStyle = '';
+                $grd->altItemStyle = '';
+                $pos = strpos($value,"\n");
+                if($pos) $_ = substr($value,0,$pos);
+                else $_ = $pos;
+                $grd->cdelim = strpos($_,"\t")!==false ? 'tab' : ',';
+                return $grd->render();
+            case 'rotate':
+            case 'evenodd':
+                if(strpos($opt,',')===false) $opt = 'odd,even';
+                $_ = explode(',', $opt);
+                $c = count($_);
+                $i = $value + $c;
+                $i = $i % $c;
+                return $_[$i];
+            case 'getimage':
+                $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
+                preg_match_all($pattern , $value , $images);
+                $value = '';
+                if($opt==='')
+                {
+                    if($images[1][0])  return $images[1][0];
+                    else               return '';
+                }
+                else
+                {
+                    foreach($images[0] as $i=>$image)
+                    {
+                        if(strpos($image,$opt)!==false) return $images[1][$i];
+                    }
+                    break;
+                }
             case 'nicesize':
                     return $modx->nicesize($value);
+            case 'googlemap':
+            case 'googlemaps':
+                if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
+                $tpl = '<iframe style="[+style+]" src="https://maps.google.co.jp/maps?ll=[+value+]&output=embed&z=15"></iframe>';
+                $ph['style'] = $opt;
+                $ph['value'] = $value;
+                return $modx->parseText($tpl,$ph);
+            case 'youtube':
+            case 'youtube16x9':
+                if(empty($opt)) $opt = 560;
+                $h = round($opt*0.5625);
+                $tpl = '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>';
+                return sprintf($tpl,$opt,$h,$value);
+            //case 'youtube4x3':%s*0.75＋25
             case 'setvar':
                 $modx->placeholders[$opt] = $value;
                 return;
-            case 'children':
-            case 'childids':
-                if($value=='') $value = 0; // 値がない場合はルートと見なす
-                $published = 1;
-                $_ = explode(',',$opt);
-                $where = array();
-                foreach($_ as $opt) {
-                    switch(trim($opt)) {
-                        case 'page'; case '!folder'; case '!isfolder': $where[] = 'sc.isfolder=0'; break;
-                        case 'folder'; case 'isfolder':                $where[] = 'sc.isfolder=1'; break;
-                        case  'menu';  case  'show_menu':              $where[] = 'sc.hidemenu=0'; break;
-                        case '!menu';  case '!show_menu':              $where[] = 'sc.hidemenu=1'; break;
-                        case  'published':                             $published = 1; break;
-                        case '!published':                             $published = 0; break;
-                    }
-                }
-                $where = join(' AND ', $where);
-                $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
-                foreach((array)$children as $child){ // $children が null だった時にエラーになるため型キャスト
-                    $result[] = $child['id'];
-                }
-                return join(',', $result);
             case 'dummy':
                     return $value;
                 
