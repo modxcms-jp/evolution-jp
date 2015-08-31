@@ -705,7 +705,31 @@ class PHx {
                     }
                     break;
                 }
-
+            case 'getimageinfo':
+            case 'imageinfo':
+                if(!is_file($value)) return '';
+                $_ = getimagesize($value);
+                if(!$_[0]) return '';
+                $info['width']  = $_[0];
+                $info['height'] = $_[1];
+                if    ($_[0] > $_[1]) $info['aspect'] = 'landscape';
+                elseif($_[0] < $_[1]) $info['aspect'] = 'portrait';
+                else                  $info['aspect'] = 'square';
+                switch($_[2]) {
+                    case IMAGETYPE_GIF  : $info['type'] = 'gif'; break;
+                    case IMAGETYPE_JPEG : $info['type'] = 'jpg'; break;
+                    case IMAGETYPE_PNG  : $info['type'] = 'png'; break;
+                    default             : $info['type'] = 'unknown';
+                }
+                $info['attrib'] = $_[3];
+                switch($opt) {
+                    case 'width' : return $info['width'];
+                    case 'height': return $info['height'];
+                    case 'type'  : return $info['type'];
+                    case 'attrib': return $info['attrib'];
+                    default      : return print_r($info,true);
+                }
+            
             case 'file_get_contents':
             case 'readfile':
                 if(!is_file($value)) return $value;
