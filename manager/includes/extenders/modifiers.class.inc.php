@@ -738,6 +738,9 @@ class PHx {
             case 'readfile':
                 if(!is_file($value)) return $value;
                 elseif(strpos($value,MODX_MANAGER_PATH)!==false) exit('Can not read core file');
+                $ext = strtolower(substr($value,-4));
+                if($ext==='.php') exit('Can not read php file');
+                if($ext==='.cgi') exit('Can not read cgi file');
                 return file_get_contents($value);
             case 'filesize':
                 if($value == '') return '';
