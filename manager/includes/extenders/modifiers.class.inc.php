@@ -299,15 +299,7 @@ class PHx {
                 return $map[$value];
             ##### End of Conditional Modifiers
             
-            #####  String Modifiers
-            case 'lcase':
-            case 'strtolower':
-            case 'lower_case':
-                return $this->strtolower($value);
-            case 'ucase':
-            case 'strtoupper':
-            case 'upper_case':
-                return $this->strtoupper($value);
+            #####  Encode / Decode / Escape
             case 'htmlent':
             case 'htmlentities':
                 return htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
@@ -350,6 +342,29 @@ class PHx {
                     $value = preg_replace('@<br[ /]*>@',"\n",$value);
                 }
                 return strip_tags($value,$params);
+            case 'urlencode':
+            case 'encode_url':
+                return urlencode($value);
+            case 'base64_decode':
+                if($opt!=='false') $opt = true;
+                else               $opt = false;
+                return base64_decode($value,$opt);
+            case 'addslashes':
+            case 'urldecode':
+            case 'rawurlencode':
+            case 'rawurldecode':
+            case 'base64_encode':
+                return $cmd($value);
+            
+            #####  String Modifiers
+            case 'lcase':
+            case 'strtolower':
+            case 'lower_case':
+                return $this->strtolower($value);
+            case 'ucase':
+            case 'strtoupper':
+            case 'upper_case':
+                return $this->strtoupper($value);
             case 'length':
             case 'len':
             case 'strlen':
@@ -487,9 +502,6 @@ class PHx {
             case 'count_words':
                 $value = trim($value);
                 return count(preg_split('/\s+/',$value));
-            case 'urlencode':
-            case 'encode_url':
-                return urlencode($value);
             case 'sha1':
             case 'encode_sha1':
                 return sha1($value);
@@ -528,20 +540,11 @@ class PHx {
                                        $opt = false;
                 else                   $opt = true;
                 return nl2br($value,$opt);
-            case 'base64_decode':
-                if($opt!=='false') $opt = true;
-                else               $opt = false;
-                return base64_decode($value,$opt);
             // These are all straight wrappers for PHP functions
             case 'ucfirst':
             case 'lcfirst':
             case 'ucwords':
-            case 'addslashes':
             case 'md5':
-            case 'urldecode':
-            case 'rawurlencode':
-            case 'rawurldecode':
-            case 'base64_encode':
                 return $cmd($value);
             
             #####  Resource fields
