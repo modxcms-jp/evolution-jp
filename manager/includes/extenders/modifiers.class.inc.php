@@ -201,8 +201,8 @@ class PHx {
             #####  Conditional Modifiers 
             case 'input':
             case 'if':
-                $value = $opt;
-                break;
+                if(!$opt) return $value;
+                return $opt;
             case 'eq':
             case 'is':
             case 'equals':
@@ -269,19 +269,19 @@ class PHx {
             case 'this':
                 $conditional = implode(' ',$condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if (!$isvalid) { $value = NULL;}
-                elseif($opt==='src') $value = $this->srcValue;
+                if (!$isvalid)       return NULL;
+                elseif($opt==='src') return $this->srcValue;
                 break;
             case 'then':
                 $conditional = implode(' ',$condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if ($isvalid) { $value = $opt; }
-                else { $value = NULL; }
+                if ($isvalid)  return $opt;
+                else           return NULL;
                 break;
             case 'else':
                 $conditional = implode(' ',$condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if (!$isvalid) { $value = $opt; }
+                if (!$isvalid) return $opt;
                 break;
             case 'select':
             case 'switch':
@@ -292,48 +292,42 @@ class PHx {
                     $mi = explode('=',$raw[$m]);
                     $map[$mi[0]] = $mi[1];
                 }
-                $value = $map[$value];
-                break;
+                return $map[$value];
             ##### End of Conditional Modifiers
             
             #####  String Modifiers
             case 'lcase':
             case 'strtolower':
             case 'lower_case':
-                $value = $this->strtolower($value); break;
+                return $this->strtolower($value);
             case 'ucase':
             case 'strtoupper':
             case 'upper_case':
-                $value = $this->strtoupper($value); break;
+                return $this->strtoupper($value);
             case 'htmlent':
             case 'htmlentities':
-                $value = htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']); break;
+                return htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
             case 'html_entity_decode':
             case 'decode_html':
-                $value = html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']);
-                break;
+                return html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']);
             case 'esc':
             case 'escape':
                 $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
-                $value = str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
-                break;
+                return str_replace(array('[', ']', '`'),array('&#91;', '&#93;', '&#96;'),$value);
             case 'sql_escape':
             case 'encode_js':
-                $value = $modx->db->escape($value);
-                break;
+                return $modx->db->escape($value);
             case 'htmlspecialchars':
             case 'hsc':
             case 'encode_html':
-                $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
-                break;
+                return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
             case 'spam_protect':
-                $value = str_replace(array('@','.'),array('&#64;','&#46;'),$value);
-                break;
+                return str_replace(array('@','.'),array('&#64;','&#46;'),$value);
             case 'strip':
                 if($opt==='') $opt = ' ';
-                $value = preg_replace('/[\n\r\t\s]+/', $opt, $value); break;
+                return preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'strip_linefeeds':
-                $value = str_replace(array("\n","\r"), '', $value); break;
+                return str_replace(array("\n","\r"), '', $value);
             case 'notags':
             case 'strip_tags':
             case 'remove_html':
@@ -351,24 +345,22 @@ class PHx {
                     $value = preg_replace('@(<br[ /]*>)\n@','$1',$value);
                     $value = preg_replace('@<br[ /]*>@',"\n",$value);
                 }
-                $value = strip_tags($value,$params);
-                break;
+                return strip_tags($value,$params);
             case 'length':
             case 'len':
             case 'strlen':
             case 'count_characters':
-                $value = $this->strlen($value); break;
+                return $this->strlen($value);
             case 'strpos':
                 if($opt!=0&&empty($opt)) return $value;
-                $value = $this->strpos($value,$opt); break;
+                return $this->strpos($value,$opt);
             case 'reverse':
             case 'strrev':
-                $value = $this->strrev($value); break;
+                return $this->strrev($value);
             case 'wordwrap':
                 // default: 70
                   $wrapat = intval($opt) ? intval($opt) : 70;
-                $value = preg_replace("~(\b\w+\b)~e","wordwrap('\\1',\$wrapat,' ',1)",$value);
-                break;
+                return preg_replace("~(\b\w+\b)~e","wordwrap('\\1',\$wrapat,' ',1)",$value);
             case 'wrap_text':
                   $width = preg_match('/^[1-9][0-9]*$/',$opt) ? $opt : 70;
                   if($modx->config['manager_language']==='japanese-utf8')
@@ -386,45 +378,41 @@ class PHx {
                           $chunk[] = $this->substr($value,0,$width);
                           $value = $this->substr($value,$width);
                     }
-                    $value = join("\n",$chunk);
+                    return join("\n",$chunk);
                   }
                   else
-                      $value = wordwrap($value,$width,"\n",true);
-                break;
+                      return wordwrap($value,$width,"\n",true);
             case 'substr':
                 if(empty($opt)) break;
                 if(strpos($opt,',')!==false) {
                     list($b,$e) = explode(',',$opt,2);
-                    $value = $this->substr($value,$b,$e);
+                    return $this->substr($value,$b,$e);
                 }
-                else $value = $this->substr($value,$b);
-                break;
+                else return $this->substr($value,$b);
             case 'limit':
                 // default: 100
                   $limit = intval($opt) ? intval($opt) : 100;
-                $value = $this->substr($value,0,$limit);
-                break;
+                return $this->substr($value,0,$limit);
             case 'summary':
             case 'smart_description':
             case 'smart_desc':
                   if(strpos($opt,',')) list($limit,$delim) = explode(',', $opt);
                 elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
                 else {$limit=100;$delim='';}
-                $value = $this->getSummary($value, $limit, $delim);
-                break;
+                return $this->getSummary($value, $limit, $delim);
             case 'str_shuffle':
             case 'shuffle':
-                $value = $this->str_shuffle($value); break;
+                return $this->str_shuffle($value);
             case 'str_word_count':
             case 'word_count':
             case 'wordcount':
-                $value = $this->str_word_count($value); break;
+                return $this->str_word_count($value);
             case 'zenhan':
                 if(empty($opt)) $opt='VKas';
-                $value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
+                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
             case 'hanzen':
                 if(empty($opt)) $opt='VKAS';
-                $value = mb_convert_kana($value,$opt,$modx->config['modx_charset']); break;
+                return mb_convert_kana($value,$opt,$modx->config['modx_charset']);
             case 'replace':
             case 'str_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
@@ -434,86 +422,73 @@ class PHx {
                 elseif(substr_count($opt, '/') ==1) $delim = '/';
                 else break;
                 list($s,$r) = explode($delim,$opt);
-                if($value!=='') $value = str_replace($s,$r,$value);
+                if($value!=='') return str_replace($s,$r,$value);
                 break;
             case 'replace_to':
-                if($value!=='') $value = str_replace(array('[+value+]','[+output+]','{value}'),$value,$opt);
+                if($value!=='') return str_replace(array('[+value+]','[+output+]','{value}'),$value,$opt);
                 break;
             case 'preg_replace':
             case 'regex_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
                 list($s,$r) = explode(',',$opt,2);
-                if($value!=='') $value = preg_replace($s,$r,$value);
+                if($value!=='') return preg_replace($s,$r,$value);
                 break;
             case 'sprintf':
             case 'string_format':
-                if($value!=='') $value = sprintf($opt,$value);
+                if($value!=='') return sprintf($opt,$value);
                 break;
             case 'number_format':
                     if($opt=='') $opt = 0;
-                    $value = number_format($value,$opt);
-                    break;
+                    return number_format($value,$opt);
             case 'money_format':
                     setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                    if($value!=='') $value = money_format($opt,$value);
+                    if($value!=='') return money_format($opt,$value);
                     break;
             case 'cat':
             case '.':
-                if($value!=='') $value = $value . $opt;
+                if($value!=='') return $value . $opt;
                 break;
             case 'nl2lf':
-                if($value!=='') $value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
+                if($value!=='') return str_replace(array("\r\n","\n", "\r"), '\n', $value);
                 break;
             case 'toint':
-                $value = intval($value);
-                break;
+                return intval($value);
             case 'tofloat':
-                $value = floatval($value);
-                break;
+                return floatval($value);
             case 'tobool':
-                $value = boolval($value);
-                break;
+                return boolval($value);
             case 'round':
             case 'floor':
             case 'ceil':
                 if(!$opt) $opt = 0;
-                $value = $cmd($value,$opt);
-                break;
+                return $cmd($value,$opt);
             case 'max':
             case 'min':
-                $value = $cmd(explode(',',$value));
-                break;
+                return $cmd(explode(',',$value));
             case 'abs':
-                $value = abs($value);
-                break;
+                return abs($value);
             case 'addbreak':
-                $value = $this->addbreak($value);
-                break;
+                return $this->addbreak($value);
             case 'capitalize':
                 $_ = explode(' ',$value);
                 foreach($_ as $i=>$v)
                 {
                     $_[$i] = ucfirst($v);
                 }
-                $value = join(' ',$_);
-                break;
+                return join(' ',$_);
             case 'count_paragraphs':
                 $value = trim($value);
                 $value = preg_replace('/\r/', '', $value);
-                $value = count(preg_split('/\n+/',$value));
-                break;
+                return count(preg_split('/\n+/',$value));
             case 'count_words':
                 $value = trim($value);
-                $value = count(preg_split('/\s+/',$value));
-                break;
+                return count(preg_split('/\s+/',$value));
             case 'urlencode':
             case 'encode_url':
-                $value = urlencode($value);
-                break;
+                return urlencode($value);
             case 'sha1':
             case 'encode_sha1':
-                $value = sha1($value);
-                break;
+                return sha1($value);
             case 'trim_to':
                 if(strpos($opt,'+'))
                     list($len,$str) = explode('+',$opt,2);
@@ -522,22 +497,20 @@ class PHx {
                     $str = '';
                 }
                 if(preg_match('/^[1-9][0-9]*$/',$len)) {
-                    $value = $this->substr($value,0,$len) . $str;
+                    return $this->substr($value,0,$len) . $str;
                 }
                 elseif(preg_match('/^\-[1-9][0-9]*$/',$len)) {
-                    $value = $this->substr($value,$len) . $str;
+                    return $this->substr($value,$len) . $str;
                 }
                 break;
             case 'br2nl':
-                $value = preg_replace('@<br[\s/]*>@i', "\n", $value);
-                break;
+                return preg_replace('@<br[\s/]*>@i', "\n", $value);
             case 'ltrim':
             case 'rtrim':
             case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
                 if($opt==='')
-                    $value = $cmd($value);
-                else $value = $cmd($value,$opt);
-                break;
+                    return $cmd($value);
+                else return $cmd($value,$opt);
             case 'nl2br':
                 if($opt!=='')
                 {
@@ -550,13 +523,11 @@ class PHx {
                 elseif(isset($modx->config['mce_element_format'])&&$modx->config['mce_element_format']==='html')
                                        $opt = false;
                 else                   $opt = true;
-                $value = nl2br($value,$opt);
-                break;
+                return nl2br($value,$opt);
             case 'base64_decode':
                 if($opt!=='false') $opt = true;
                 else               $opt = false;
-                $value = base64_decode($value,$opt);
-                break;
+                return base64_decode($value,$opt);
             // These are all straight wrappers for PHP functions
             case 'ucfirst':
             case 'lcfirst':
@@ -567,12 +538,11 @@ class PHx {
             case 'rawurlencode':
             case 'rawurldecode':
             case 'base64_encode':
-                $value = $cmd($value);
-                break;
+                return $cmd($value);
             
             #####  Resource fields
             case 'id':
-                if($opt) $value = $this->getDocumentObject($opt,$phxkey);
+                if($opt) return $this->getDocumentObject($opt,$phxkey);
                 break;
             case 'type':
             case 'contenttype':
@@ -610,27 +580,22 @@ class PHx {
             case 'content_dispo':
             case 'hidemenu':
                 if($cmd==='contenttype') $cmd = 'contentType';
-                $value = $this->getDocumentObject($value,$cmd);
-                break;
+                return $this->getDocumentObject($value,$cmd);
             case 'title':
                 $pagetitle = $this->getDocumentObject($value,'pagetitle');
                 $longtitle = $this->getDocumentObject($value,'longtitle');
-                $value = $longtitle ? $longtitle : $pagetitle;
-                break;
+                return $longtitle ? $longtitle : $pagetitle;
             case 'shorttitle':
                 $pagetitle = $this->getDocumentObject($value,'pagetitle');
                 $menutitle = $this->getDocumentObject($value,'menutitle');
-                $value = $menutitle ? $menutitle : $pagetitle;
-                break;
+                return $menutitle ? $menutitle : $pagetitle;
             case 'templatename':
                 $template = $this->getDocumentObject($value,'template');
                 $templateObject = $modx->db->getObject('site_templates',"id='{$template}'");
-                $value = $templateObject !== false ? $templateObject->templatename : '(blank)';
-                break;
+                return $templateObject !== false ? $templateObject->templatename : '(blank)';
             case 'getfield':
                 if(!$opt) $opt = 'content';
-                $value = $modx->getField($opt,$value);
-                break;
+                return $modx->getField($opt,$value);
                 
             #####  User info
             case 'username':
@@ -656,62 +621,53 @@ class PHx {
             case 'fax':
             case 'photo':
             case 'comment':
-                $value = $this->ModUser($value,$cmd);
-                break;
+                return $this->ModUser($value,$cmd);
             #####  Special functions 
             case 'math':
                 $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
                 $filter = str_replace(array('?','%s'),$value,$filter);
-                $value = eval("return {$filter};");
-                break;
+                return eval("return {$filter};");
             case 'ifempty':
             case '_default':
-                if (empty($value)) $value = $opt; break;
+                if (empty($value)) return $opt; break;
             case 'ifnotempty':
-                if (!empty($value)) $value = $opt; break;
+                if (!empty($value)) return $opt; break;
             case 'strftime':
             case 'date':
             case 'dateformat':
                 if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
                 if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
                 if(strpos($opt,'%')!==false)
-                    $value = $modx->mb_strftime($opt,0+$value);
+                    return $modx->mb_strftime($opt,0+$value);
                 else
-                    $value = date($opt,0+$value);
-                break;
+                    return date($opt,0+$value);
             case 'time':
                 if(empty($opt)) $opt = '%H:%M';
                 if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
-                $value = $modx->mb_strftime($opt,0+$value);
-                break;
+                return $modx->mb_strftime($opt,0+$value);
             case 'userinfo':
                 if(empty($opt)) $opt = 'username';
-                $value = $this->ModUser($value,$opt);
-                break;
+                return $this->ModUser($value,$opt);
             case 'webuserinfo':
                 if(empty($opt)) $opt = 'username';
-                $value = $this->ModUser(-$value,$opt);
-                break;
+                return $this->ModUser(-$value,$opt);
             case 'inrole':
                 // deprecated
                 $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
-                $value = intval($this->isMemberOfWebGroupByUserId($value,$grps));
-                break;
+                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
             case 'googlemap':
             case 'googlemaps':
                 if(empty($opt)) $opt = 'border:none;width:500px;height:350px;';
                 $tpl = '<iframe style="[+style+]" src="https://maps.google.co.jp/maps?ll=[+value+]&output=embed&z=15"></iframe>';
                 $ph['style'] = $opt;
                 $ph['value'] = $value;
-                $value = $modx->parseText($tpl,$ph);
-                break;
+                return $modx->parseText($tpl,$ph);
             case 'youtube':
             case 'youtube16x9':
                 if(empty($opt)) $opt = 560;
                 $h = round($opt*0.5625);
                 $tpl = '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>';
-                $value = sprintf($tpl,$opt,$h,$value);
-                break;
+                return sprintf($tpl,$opt,$h,$value);
             //case 'youtube4x3':%s*0.75＋25
             case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
@@ -723,8 +679,7 @@ class PHx {
                 if($pos) $_ = substr($value,0,$pos);
                 else $_ = $pos;
                 $grd->cdelim = strpos($_,"\t")!==false ? 'tab' : ',';
-                $value = $grd->render();
-                break;
+                return $grd->render();
             case 'rotate':
             case 'evenodd':
                 if(strpos($opt,',')===false) $opt = 'odd,even';
@@ -732,29 +687,24 @@ class PHx {
                 $c = count($_);
                 $i = $value + $c;
                 $i = $i % $c;
-                $value = $_[$i];
-                break;
+                return $_[$i];
             case 'getimage':
                 $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
                 preg_match_all($pattern , $value , $images);
+                $value = '';
                 if($opt==='')
                 {
-                    if($images[1][0]) $value = $images[1][0];
-                    else               $value = '';
+                    if($images[1][0])  return $images[1][0];
+                    else               return '';
                 }
                 else
                 {
-                    $value = '';
                     foreach($images[0] as $i=>$image)
                     {
-                        if(strpos($image,$opt)!==false)
-                        {
-                            $value = $images[1][$i];
-                            break;
-                        }
+                        if(strpos($image,$opt)!==false) return $images[1][$i];
                     }
+                    break;
                 }
-                break;
 
             case 'file_get_contents':
             case 'readfile':
@@ -785,13 +735,9 @@ class PHx {
                 break;
             case 'nicesize':
                     return $modx->nicesize($value);
-                break;
-                
             case 'setvar':
                 $modx->placeholders[$opt] = $value;
                 return;
-                break;
-            
             case 'children':
             case 'childids':
                 if($value=='') $value = 0; // 値がない場合はルートと見なす
@@ -814,13 +760,9 @@ class PHx {
                     $result[] = $child['id'];
                 }
                 return join(',', $result);
-                break;
-
             case 'dummy':
                     return $value;
-                break;
                 
-
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $value = $this->getValueFromElement($phxkey, $value, $cmd, $opt);
