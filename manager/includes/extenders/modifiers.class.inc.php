@@ -710,8 +710,7 @@ class PHx {
             case 'readfile':
                 if(!is_file($value)) return $value;
                 elseif(strpos($value,MODX_MANAGER_PATH)!==false) exit('Can not read core file');
-                $value = file_get_contents($value);
-                break;
+                return file_get_contents($value);
             case 'filesize':
                 if($value == '') return '';
                 $filename = $value;
