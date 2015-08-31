@@ -713,7 +713,7 @@ class PHx {
                 $value = file_get_contents($value);
                 break;
             case 'filesize':
-                if($value == '') return ;
+                if($value == '') return '';
                 $filename = $value;
                 
                 $site_url = $modx->config['site_url'];
@@ -731,7 +731,7 @@ class PHx {
                     clearstatcache();
                     return $size;
                 }
-                else return;
+                else return '';
                 break;
             case 'nicesize':
                     return $modx->nicesize($value);
