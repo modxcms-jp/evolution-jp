@@ -920,6 +920,11 @@ foreach($files as $file)
 
 <?php
 $tmenu_style = 'style="width:350px;"';
+$topmenu_element  = getModifiedConfig('topmenu_site');
+$topmenu_security = getModifiedConfig('topmenu_element');
+$topmenu_user     = getModifiedConfig('topmenu_security');
+$topmenu_tools    = getModifiedConfig('topmenu_user');
+$topmenu_reports  = getModifiedConfig('topmenu_tools');
 ?>
 <tr>
 	<th><?php echo $_lang["topmenu_items_title"]?></th>
@@ -1368,4 +1373,12 @@ function get_role_list()
 		$options .= $modx->parseText($tpl,$ph);
 	}
 	return $options;
+}
+
+function getModifiedConfig($key) {
+	global $settings,$defaut_config;
+	if(substr($settings[$key],0,2)==='* ')
+		return substr($settings[$key],2);
+	else
+		return $defaut_config[$key];
 }

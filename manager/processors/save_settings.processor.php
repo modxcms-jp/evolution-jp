@@ -46,6 +46,8 @@ if($form_v['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')==
 		}
 	}
 }
+$default_config = include_once(MODX_CORE_PATH . 'default.config.php');
+
 $form_v['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['filemanager_path']);
 $form_v['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['rb_base_dir']);
 if(!is_dir($form_v['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
@@ -108,6 +110,14 @@ if (isset($form_v) && count($form_v) > 0) {
 			case 'reload_system_email_webreminder_message':
 				$k = '';
 				break;
+            case 'topmenu_site':
+            case 'topmenu_element':
+            case 'topmenu_security':
+            case 'topmenu_user':
+            case 'topmenu_tools':
+            case 'topmenu_reports':
+				$v = setModifiedConfig($v,$default_config[$k]);
+				break;
 			default:
 			break;
 		}
@@ -158,4 +168,9 @@ function mkd($path) {
 	$rs = @mkdir($path, 0777, true);
 	if($rs) $rs = @chmod($path, 0777);
 	return $rs;
+}
+
+function setModifiedConfig($form_v,$defaut_v) {
+	if($form_v!==$defaut_v) return "* {$form_v}";
+	else                    return $defaut_v;
 }
