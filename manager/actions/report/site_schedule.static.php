@@ -107,7 +107,7 @@ $orderby = 'rv.pub_date ASC';
 $rs = $modx->db->select($field,'[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
 if($total<1) {
-	echo "<p>".$_lang["no_docs_pending_unpublishing"]."</p>";
+	echo "<p>更新を予定している下書きリソースはありません。</p>";
 } else {
 ?>
   <table border="0" cellpadding="2" cellspacing="0"  class="sortabletable sortable-onload-2 rowstyle-even" id="table-2" width="100%">
