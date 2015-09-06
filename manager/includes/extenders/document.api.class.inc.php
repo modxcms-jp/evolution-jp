@@ -13,13 +13,18 @@ class Document
 	const LOG_WARN = 2;
 	const LOG_ERR  = 3;
 
+	//リソースのステータス一覧
+	const ST_RELEASED = 'released';
+	const ST_DRAFT    = 'draft';
+
 	public static $modx=null; //MODXオブジェクトを指定しないとこのクラスは動作しません
 
 	//private $id='';                  // Resource ID
-	private $content = array();        // Site content
-	private $tv      = array();        // Template Value
+	private $status   = 'released';    // リソースの状態(本番:released、下書き:draft等)
+	private $content  = array();       // Site content
+	private $tv       = array();       // Template Value
 	private $logLevel = self::LOG_ERR; // Output log level
-	private $lastLog = '';             // Last log message
+	private $lastLog  = '';            // Last log message
 
 	//content table column (name => default value(null=sql default))
 	private $content_lists
@@ -67,12 +72,13 @@ class Document
 	/*
 	 * __construct
 	 *
-	 * @param $id    Resource ID(blank=New resource)
-	 * @param $level Log level
+	 * @param $id    リソースID(blank=New resource)
+	 * @param $status 読み込むリソースのステータス(新規の時は利用されない)
+	 * @param $level ログレベル
 	 * @return none
 	 *
 	 */
-	public function __construct($id='',$level=''){
+	public function __construct($id='',$status=self::ST_RELEASED,$level=''){
 		if( self::isInt($level,1) )
 			$this->logLevel = $level;
 
@@ -80,7 +86,7 @@ class Document
 			$this->content = $this->content_lists;
 			$this->tv = array();
 		}else{
-			$this->load($id);
+			$this->load($id,$status);
 		}
 	}
 
@@ -358,15 +364,18 @@ SQL_QUERY;
 	}
 
 	/*
-	 * load resource
+	 * リソースの読み込み
 	 *
-	 * @param $id Resource id
+	 * @param $id リソースID
+	 * @param $status 読み込むリソースのステータス
 	 * @return bool  
 	 *
 	 */
-	public function load($id){
+	public function load($id,$status=self::ST_RELEASED){
+		//初期化
 		$this->content = $this->content_lists;
 		$this->tv = array();
+
 		if( !self::isInt($id,1) ){
 			$this->logerr('リソースIDの指定が不正です。');
 			return false;
@@ -380,10 +389,53 @@ SQL_QUERY;
 			$this->content = $row;
 			//tv読み込み
 			$this->setTemplatebyID($this->content['template']);			
+
+			//下書き等の上書き
+			//※すべてのデータを保持している分けではないので、リリースデータに上書き
+			switch( $status ){
+			case self::ST_DRAFT:
+
+				$rs = self::$modx->db->select('content','[+prefix+]site_revision',"elmid=$id AND status='draft'");
+				if( $row = self::$modx->db->getRow($rs) ){
+					$row = unserialize($row['content']);
+					foreach( $row as $k => $v ){
+						if( preg_match('/^tv([0-9]+)(.*)$/',$k,$mt) ){
+
+							if( is_array($v) ){
+								//rivisionテーブルに保存されているデータは一部リソース編集画面のPOSTフォーマットに合わせているのでその調整
+								//チェックボックス
+								$this->tv[$mt[1]]['value'] = implode('||',$v);
+							}else{
+								$this->tv[$mt[1]]['value'] = $v;
+							}
+						}elseif( isset($this->content[$k]) ){
+							$this->content[$k] = $v;
+						}
+					}
+					self::$modx->logEvent(1,1,print_r($this->content,true),'debug3');
+				}else{
+					$this->logWarn('下書きが存在しません。');
+					return false;
+				}
+
+				break;
+			default:
+			}
 		}
 		return true;
 	}
-  
+
+	/*
+	 * 下書きリソースの読み込み
+	 *
+	 * @param $id リソースID
+	 * @return bool
+	 *
+	 */
+	public function loadDraft($id){
+		return $this->load($id,self::ST_DRAFT);
+	}
+
 	/*
 	 * リソースの保存
 	 *
