@@ -266,8 +266,8 @@ class PHx {
             case 'this':
                 $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if (!$isvalid)       return NULL;
-                elseif($opt==='src') return $this->srcValue;
+                if ($isvalid) return $this->srcValue;
+                else          return NULL;
                 break;
             case 'then':
                 $conditional = implode(' ',$this->condition);
