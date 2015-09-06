@@ -1324,7 +1324,7 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             if(substr($key, 0, 1) == '#') $key = substr($key, 1); // remove # for QuickEdit format
             
-            if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
@@ -1430,7 +1430,7 @@ class DocumentParser {
         
         $replace= array ();
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
@@ -1469,7 +1469,7 @@ class DocumentParser {
         
         $replace= array ();
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
@@ -1503,7 +1503,7 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
@@ -1781,7 +1781,7 @@ class DocumentParser {
         $snip_call = $this->_split_snip_call($piece);
         $snip_name = $snip_call['name'];
         
-        if(strpos($snip_name,':')!==false && $this->config['output_filter']==='1')
+        if(strpos($snip_name,':')!==false)
         {
             list($snip_name,$modifiers) = explode(':', $snip_name, 2);
             $snip_call['name'] = $snip_name;
@@ -2789,7 +2789,7 @@ class DocumentParser {
         if(!$matches) return $content;
         $replace= array ();
         foreach($matches[1] as $i=>$key):
-            if(strpos($key,':')!==false && $this->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             

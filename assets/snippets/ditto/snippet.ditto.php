@@ -126,19 +126,24 @@ $debug = isset($debug)? $debug : 0;
     Related:
     - <debug>
 */
-$phx = (isset($phx))? $phx : 1;
+if(!isset($modifier_mode)&&isset($phx)) {
+	if($phx==1) $modifier_mode = 'phx';
+	else        $modifier_mode = 'none';
+}
+else            $modifier_mode = 'normal';
 /*
-    Param: phx
+    Param: modifier_mode
 
     Purpose:
-    Use PHx formatting
+    Use modifier mode
 
     Options:
-    0 - off
-    1 - on
+    normal - core internal modifiers function
+    phx    - legacy phx function
+    none   - off
     
     Default:
-    1 - on
+    normal
 */
 $extenders = isset($extenders) ? explode(",",$extenders) : array();
 /*
@@ -192,7 +197,7 @@ $files = array (
     "format"         => "{$ditto_base}formats/{$format}.format.inc.php"
 );
 
-if ($phx == 1 && (!isset($modx->config['output_filter']) || $modx->config['output_filter']==='0')) {
+if ($modifier_mode==='phx') {
     $files["prePHx_class"]     = "{$ditto_base}classes/phx.pre.class.inc.php";
 }
 if (isset($randomize)) {
@@ -1093,7 +1098,7 @@ if ($count > 0) {
         for ($x=$start;$x<$stop;$x++) {
             $template = $ditto->template->determine($templates,$x,0,$stop,$resource[$x]["id"]);
                 // choose the template to use and set the code of that template to the template variable
-            $renderedOutput = $ditto->render($resource[$x], $template, $removeChunk, $dateSource, $dateFormat, $placeholders,$phx,abs($start-$x),$stop);
+            $renderedOutput = $ditto->render($resource[$x], $template, $removeChunk, $dateSource, $dateFormat, $placeholders,$modifier_mode,abs($start-$x),$stop);
                 // render the output using the correct template, in the correct format and language
             $modx->setPlaceholder($dittoID."item[".abs($start-$x)."]",$renderedOutput);
             /*

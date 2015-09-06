@@ -79,7 +79,6 @@ $default_config['error_reporting']          = '1';
 $default_config['filemanager_path']         = defined('MODX_BASE_PATH') ? MODX_BASE_PATH:'';
 $default_config['rb_base_dir']              = defined('MODX_BASE_PATH') ? MODX_BASE_PATH . 'content/':'';
 $default_config['rb_base_url']              = 'content/';
-$default_config['output_filter']            = '1';
 $default_config['image_limit_width']        = '';
 $default_config['manager_inline_style']     = "<style type=\"text/css\">\nbody {font-size:0.75em;}\n</style>";
 $default_config['topmenu_site']             = 'home,preview,refresh_site,search,resource_list,add_resource,add_weblink';

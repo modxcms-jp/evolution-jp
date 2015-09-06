@@ -258,7 +258,7 @@ class ditto {
 	// Render the document output
 	// ---------------------------------------------------
 	
-	function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$phx=1,$x=0) {
+	function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$modifier_mode='normal',$x=0) {
 		global $modx,$ditto_lang;
 
 		if (!is_array($resource)) return $ditto_lang["resource_array_error"];
@@ -323,38 +323,38 @@ class ditto {
 			$placeholders = call_user_func($value,$placeholders);
 		}
 		
-		if ($phx == 1) {
-			$PHs = $placeholders;
-			foreach($PHs as $key=>$output) {
-				$placeholders[$key] = str_replace( array_keys( $contentVars ), array_values( $contentVars ), $output );
-			}
-			unset($PHs);
-			if(isset($modx->config['output_filter']) && $modx->config['output_filter']!=='0')
-			{
-				$modx->loadExtension('PHx') or die('Could not load PHx class.');
-				$modx->filter->setPlaceholders($placeholders);
-                $i=0;
-                $bt = '';
-                while($bt !== $template)
-                {
-                    $bt = $template;
-                    $template = $modx->parseText($template,$modx->filter->placeholders,'[+','+]',false);
-                    if($bt===$template) break;
-                    $i++;
-                    if(1000<$i) $modx->messageQuit('Ditto parse over');
-                }
-				$output = $template;
-			}
-			else
-			{
-				$phx = new prePHx($template);
-				$phx->setPlaceholders($placeholders);
-				$output = $phx->output();
-			}
-		} else {
+		$PHs = $placeholders;
+		foreach($PHs as $key=>$output) {
+			$placeholders[$key] = str_replace( array_keys( $contentVars ), array_values( $contentVars ), $output );
+		}
+		unset($PHs);
+		if($modifier_mode==='normal')
+		{
+			$modx->loadExtension('PHx') or die('Could not load PHx class.');
+			$modx->filter->setPlaceholders($placeholders);
+            $i=0;
+            $bt = '';
+            while($bt !== $template)
+            {
+                $bt = $template;
+                $template = $modx->parseText($template,$modx->filter->placeholders,'[+','+]',false);
+                if($bt===$template) break;
+                $i++;
+                if(1000<$i) $modx->messageQuit('Ditto parse over');
+            }
+			$output = $template;
+		}
+		elseif($modifier_mode==='phx')
+		{
+			$phx = new prePHx($template);
+			$phx->setPlaceholders($placeholders);
+			$output = $phx->output();
+		}
+		else {
 		 	$output = $this->template->replace($placeholders,$template);
 			$output = $this->template->replace($contentVars,$output);
 		}
+		
 		if ($removeChunk) {
 			foreach ($removeChunk as $chunk) {
 				$output = str_replace('{{'.$chunk.'}}',"",$output);

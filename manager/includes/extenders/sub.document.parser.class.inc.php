@@ -1961,7 +1961,7 @@ class SubParser {
                     list($body,$remain) = explode($delim,$key,2);
                     $key = str_replace(':', md5(':'),$body) . $remain;
             }
-            if(strpos($key,':')!==false && $modx->config['output_filter']!=='0')
+            if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             if(strpos($key,md5(':'))!==false) $key = str_replace(md5(':'),':',$key);

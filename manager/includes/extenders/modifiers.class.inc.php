@@ -169,8 +169,8 @@ class PHx {
         else
             $value = $this->getValueFromPreset($phxkey, $value, $cmd, $opt);
         
-        if($modx->config['output_filter']==='1') $value = str_replace('[+key+]', $phxkey, $value);
-        else                                     $value = str_replace('[+name+]', $phxkey, $value);
+        $value = str_replace('[+key+]', $phxkey, $value);
+        
         return $value;
     }
     
@@ -842,17 +842,14 @@ class PHx {
         if($php===false) $html = $modx->getChunk($this->elmName);
         else             $html = false;
 
-        if($modx->config['output_filter']==='1') $self = '[+output+]';
-        else                                     $self = '[+input+]';
+        $self = '[+output+]';
         
         if($php !== false)
         {
             ob_start();
             $options = $opt;
-            if($modx->config['output_filter']==='1') $output = $value;
-            else                                     $input  = $value;
-            if($modx->config['output_filter']==='1') $name   = $phxkey;
-            else                                     $key    = $phxkey;
+            $output = $value;
+            $name   = $phxkey;
             $this->bt = $value;
             $this->vars['value']   = & $value;
             $this->vars['input']   = & $value;
