@@ -1187,8 +1187,6 @@ $_lang['a17_error_reporting_opt1'] = '通知レベルの軽度の警告を無視
 $_lang['a17_error_reporting_opt2'] = 'E_NOTICE 以外の全てのエラーを検出';
 $_lang['a17_error_reporting_opt99'] = '全て検出する';
 
-$_lang['output_filter_message'] = 'Output Filterを有効にします。既存のスニペットをモディファイアとして使えますが、プリセットモディファイア名とスニペット名が重複すると、そのモディファイアは意図どおりに動作しないためご注意ください。<br />※例：「date」というスニペットが存在するとdateモディファイアの機能が上書きされます。';
-
 $_lang["role_site_schedule"] = '公開状態の一覧';
 
 $_lang["a95_convert_link"] = 'リンクタグ変換';
