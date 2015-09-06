@@ -108,7 +108,7 @@ class PHx {
         foreach($result as $i=>$a)
         {
             $a['opt'] = $this->parseDocumentSource($a['opt']);
-            $result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders);
+            $result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders,'[+','+]',false);
         }
         
         return $result;
@@ -467,6 +467,7 @@ class PHx {
                 if($value!=='') return str_replace($s,$r,$value);
                 break;
             case 'replace_to':
+            case 'tpl':
                 if($value!=='') return str_replace(array('[+value+]','[+output+]','{value}'),$value,$opt);
                 break;
             case 'preg_replace':
