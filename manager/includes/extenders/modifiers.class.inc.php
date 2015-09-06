@@ -16,6 +16,7 @@ class PHx {
     var $cache = array();
     var $bt;
     var $srcValue;
+    var $condition = array();
     
     function PHx()
     {
@@ -116,11 +117,9 @@ class PHx {
     
     function parsePhx($key,$value,$modifiers)
     {
-        global $modx,$condition;
+        global $modx;
         if(empty($modifiers)) return;
         
-        $condition = array();
-
         foreach($modifiers as $m)
         {
             $lastKey = $m['cmd'];
@@ -186,7 +185,7 @@ class PHx {
     
     function getValueFromPreset($phxkey, $value, $cmd, $opt)
     {
-        global $modx, $condition;
+        global $modx;
         
         if($this->isEmpty($cmd,$value)) return;
         
@@ -200,55 +199,55 @@ class PHx {
             case 'eq':
             case 'is':
             case 'equals':
-                $condition[] = intval($value == $opt); break;
+                $this->condition[] = intval($value == $opt); break;
             case 'neq':
             case 'ne':
             case 'notequals':
             case 'isnot':
             case 'isnt':
-                $condition[] = intval($value != $opt);break;
+                $this->condition[] = intval($value != $opt);break;
             case 'gte':
             case 'isgreaterthan':
             case 'isgt':
             case 'eg':
-                $condition[] = intval($value >= $opt);break;
+                $this->condition[] = intval($value >= $opt);break;
             case 'lte':
             case 'islowerthan':
             case 'islt':
             case 'el':
-                $condition[] = intval($value <= $opt);break;
+                $this->condition[] = intval($value <= $opt);break;
             case 'gt':
             case 'greaterthan':
-                $condition[] = intval($value > $opt);break;
+                $this->condition[] = intval($value > $opt);break;
             case 'lt':
             case 'lowerthan':
-                $condition[] = intval($value < $opt);break;
+                $this->condition[] = intval($value < $opt);break;
             case 'find':
-                $condition[] = intval(strpos($value, $opt)!==false);break;
+                $this->condition[] = intval(strpos($value, $opt)!==false);break;
             case 'in':
                 $opt = explode(',', $opt);
-                $condition[] = intval(in_array($value, $opt)!==false);break;
+                $this->condition[] = intval(in_array($value, $opt)!==false);break;
             case 'wildcard_match':
             case 'wcard_match':
             case 'wildcard':
             case 'wcard':
             case 'fnmatch':
-                $condition[] = intval(fnmatch($opt, $value)!==false);break;
+                $this->condition[] = intval(fnmatch($opt, $value)!==false);break;
             case 'is_file':
             case 'is_dir':
             case 'file_exists':
             case 'is_readable':
             case 'is_writable':
                 if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
-                $condition[] = intval($cmd($opt)!==false);break;
+                $this->condition[] = intval($cmd($opt)!==false);break;
             case 'is_image':
-                if(!is_file($value)) {$condition[]='0';break;}
+                if(!is_file($value)) {$this->condition[]='0';break;}
                 $_ = getimagesize($value);
-                $condition[] = intval($_[0]);break;
+                $this->condition[] = intval($_[0]);break;
             case 'regex':
             case 'preg':
             case 'preg_match':
-                $condition[] = intval(preg_match($opt,$value));break;
+                $this->condition[] = intval(preg_match($opt,$value));break;
             case 'isinrole':
             case 'ir':
             case 'memberof':
@@ -256,28 +255,28 @@ class PHx {
                 // Is Member Of  (same as inrole but this one can be stringed as a conditional)
                 $userID = $modx->getLoginUserID('web');
                 $grps = ($this->strlen($opt) > 0 ) ? explode(',',$opt) :array();
-                $condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
+                $this->condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
                 $modx->qs_hash = md5($modx->qs_hash."^{$userID}^");
                 break;
             case 'or':
-                $condition[] = '||';break;
+                $this->condition[] = '||';break;
             case 'and':
-                $condition[] = '&&';break;
+                $this->condition[] = '&&';break;
             case 'show':
             case 'this':
-                $conditional = implode(' ',$condition);
+                $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if (!$isvalid)       return NULL;
                 elseif($opt==='src') return $this->srcValue;
                 break;
             case 'then':
-                $conditional = implode(' ',$condition);
+                $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if ($isvalid)  return $opt;
                 else           return NULL;
                 break;
             case 'else':
-                $conditional = implode(' ',$condition);
+                $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if (!$isvalid) return $opt;
                 break;
