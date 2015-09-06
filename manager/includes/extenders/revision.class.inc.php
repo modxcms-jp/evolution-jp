@@ -176,7 +176,18 @@ class REVISION
         $input['hidemenu']        = $resource['hidemenu'];
         foreach($resource as $k=>$v)
         {
-        	if(substr($k,0,2)==='tv') $input[$k] = $v;
+            if(substr($k,0,2)==='tv'){
+                if( !isset($resource["{$k}_prefix"]) ){
+                    $input[$k] = $v;
+                }else{
+                    //tvがリンクの時の例外処理
+                    if( $resource["{$k}_prefix"] == 'DocID' )
+                        $input[$k] = "[~{$v}~]";
+                    else
+                        $input[$k] = $resource["{$k}_prefix"] . $v;
+                }
+            }
+
         }
         return $input;
     }
