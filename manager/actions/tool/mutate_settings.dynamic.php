@@ -44,6 +44,11 @@ $settings['filemanager_path'] = preg_replace('@^' . MODX_BASE_PATH . '@', '[(bas
 $settings['rb_base_dir']      = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['rb_base_dir']);
 if(isset($_POST)) $settings = array_merge($settings, $_POST);
 
+if(strpos($settings['site_url'],'[(site_url)]')!==false)
+	$settings['site_url'] = str_replace('[(site_url)]', MODX_SITE_URL, $settings['site_url']);
+if(strpos($settings['base_url'],'[(base_url)]')!==false)
+	$settings['base_url'] = str_replace('[(base_url)]', MODX_BASE_URL, $settings['base_url']);
+
 extract($settings, EXTR_OVERWRITE);
 
 $displayStyle = ($_SESSION['browser']==='modern') ? 'table-row' : 'block' ;
@@ -213,7 +218,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitename_title"] ?></th>
 	<td>
-		<?php echo form_text('site_name',$site_name);?><br />
+		<?php echo form_text('site_name');?><br />
 		<?php echo $_lang["sitename_message"] ?>
 	</td>
 </tr>
@@ -227,14 +232,14 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["site_url_title"] ?></th>
 	<td>
-		<?php echo form_text('site_url',str_replace('[(site_url)]', MODX_SITE_URL, $site_url));?><br />
+		<?php echo form_text('site_url');?><br />
 		<?php echo $modx->parseText($_lang["site_url_message"],array('MODX_SITE_URL'=>MODX_SITE_URL)) ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["base_url_title"] ?></th>
 	<td>
-		<?php echo form_text('base_url',str_replace('[(base_url)]', MODX_BASE_URL, $base_url));?><br />
+		<?php echo form_text('base_url');?><br />
 		<?php echo $modx->parseText($_lang["base_url_message"],array('MODX_BASE_URL'=>MODX_BASE_URL)) ?>
 	</td>
 </tr>
@@ -258,27 +263,27 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["sitestart_title"] ?></th>
 	<td>
-		<?php echo form_text('site_start',$site_start,10);?><br />
+		<?php echo form_text('site_start',10);?><br />
 		<?php echo $_lang["sitestart_message"] ?></td>
 </tr>
 <tr>
 	<th><?php echo $_lang["errorpage_title"] ?></th>
 	<td>
-		<?php echo form_text('error_page',$error_page,10);?><br />
+		<?php echo form_text('error_page',10);?><br />
 		<?php echo $_lang["errorpage_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["unauthorizedpage_title"] ?></th>
 	<td>
-		<?php echo form_text('unauthorized_page',$unauthorized_page,10);?><br />
+		<?php echo form_text('unauthorized_page',10);?><br />
 		<?php echo $_lang["unauthorizedpage_message"] ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["siteunavailable_page_title"] ?></th>
 	<td>
-		<?php echo form_text('site_unavailable_page',$site_unavailable_page,10);?><br />
+		<?php echo form_text('site_unavailable_page',10);?><br />
 		<?php echo $_lang["siteunavailable_page_message"] ?>
 	</td>
 </tr>
@@ -428,7 +433,7 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["custom_contenttype_title"] ?></th>
 	<td>
-		<?php echo form_text('txt_custom_contenttype','',100,'style="width:200px;"');?>
+		<?php echo form_text('txt_custom_contenttype',100,'style="width:200px;"');?>
 		<input type="button" value="<?php echo $_lang["add"]; ?>" onclick='addContentType()' /><br />
 		<table>
 			<tr>
@@ -512,13 +517,13 @@ function confirmLangChange(el, lkey, elupd)
 <tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsprefix_title"] ?></th>
 	<td>
-		<?php echo form_text('friendly_url_prefix',$friendly_url_prefix,50);?><br />
+		<?php echo form_text('friendly_url_prefix',50);?><br />
 		<?php echo $_lang["friendlyurlsprefix_message"] ?></td>
 </tr>
 <tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsuffix_title"] ?></th>
 	<td>
-		<?php echo form_text('friendly_url_suffix',$friendly_url_suffix,50);?><br />
+		<?php echo form_text('friendly_url_suffix',50);?><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
 <tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
@@ -638,13 +643,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 <th><?php echo $_lang["failed_login_title"] ?></th>
 <td>
-	<?php echo form_text('failed_login_attempts',$failed_login_attempts,3);?><br />
+	<?php echo form_text('failed_login_attempts',3);?><br />
 <?php echo $_lang["failed_login_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["blocked_minutes_title"] ?></th>
 <td>
-	<?php echo form_text('blocked_minutes',$blocked_minutes,7);?><br />
+	<?php echo form_text('blocked_minutes',7);?><br />
 <?php echo $_lang["blocked_minutes_message"] ?></td>
 </tr>
 
@@ -726,14 +731,14 @@ $gdAvailable = extension_loaded('gd');
 </select>
 </th>
 <td>
-	<?php echo form_text('captcha_words',$captcha_words,255,'id="captcha_words_input" style="width:400px"');?><br />
+	<?php echo form_text('captcha_words',255,'id="captcha_words_input" style="width:400px"');?><br />
 <input type="hidden" name="captcha_words_default" id="captcha_words_default_hidden" value="<?php echo addslashes($_lang["captcha_words_default"]);?>" /><br />
 <?php echo $_lang["captcha_words_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["emailsender_title"] ?></th>
 <td>
-	<?php echo form_text('emailsender',$emailsender);?><br />
+	<?php echo form_text('emailsender');?><br />
 <?php echo $_lang["emailsender_message"] ?></td>
 </tr>
 
@@ -800,7 +805,7 @@ $gdAvailable = extension_loaded('gd');
 </select>
 </th>
 <td>
-	<?php echo form_text('emailsubject',$emailsubject,null,'id="emailsubject_field"');?><br />
+	<?php echo form_text('emailsubject',null,'id="emailsubject_field"');?><br />
 <input type="hidden" name="emailsubject_default" id="emailsubject_default_hidden" value="<?php echo addslashes($_lang['emailsubject_default']);?>" /><br />
 <?php echo $_lang["emailsubject_message"] ?></td>
 </tr>
@@ -920,12 +925,12 @@ $tmenu_style = 'style="width:350px;"';
 	<th><?php echo $_lang["topmenu_items_title"]?></th>
 	<td>
 		<table>
-		<tr><td><?php echo  $_lang['site']     . '</td><td>' . form_text('topmenu_site',$topmenu_site,'',$tmenu_style);?></td></tr>
-		<tr><td><?php echo  $_lang['elements'] . '</td><td>' . form_text('topmenu_element',$topmenu_element,'',$tmenu_style);?></td></tr>
-		<tr><td><?php echo  $_lang['users']    . '</td><td>' . form_text('topmenu_security',$topmenu_security,'',$tmenu_style);?></td></tr>
-		<tr><td><?php echo  $_lang['user']     . '</td><td>' . form_text('topmenu_user',$topmenu_user,'',$tmenu_style);?></td></tr>
-		<tr><td><?php echo  $_lang['tools']    . '</td><td>' . form_text('topmenu_tools',$topmenu_tools,'',$tmenu_style);?></td></tr>
-		<tr><td><?php echo  $_lang['reports']  . '</td><td>' . form_text('topmenu_reports',$topmenu_reports,'',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['site']     . '</td><td>' . form_text('topmenu_site','',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['elements'] . '</td><td>' . form_text('topmenu_element','',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['users']    . '</td><td>' . form_text('topmenu_security','',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['user']     . '</td><td>' . form_text('topmenu_user','',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['tools']    . '</td><td>' . form_text('topmenu_tools','',$tmenu_style);?></td></tr>
+		<tr><td><?php echo  $_lang['reports']  . '</td><td>' . form_text('topmenu_reports','',$tmenu_style);?></td></tr>
 		</table>
 		<div><?php echo $_lang["topmenu_items_message"];?></div>
 	</td>
@@ -934,7 +939,7 @@ $tmenu_style = 'style="width:350px;"';
 <tr>
 <th><?php echo $_lang["limit_by_container"] ?></th>
 <td>
-	<?php echo form_text('limit_by_container',$limit_by_container,4);?><br />
+	<?php echo form_text('limit_by_container',4);?><br />
 <?php echo $_lang["limit_by_container_message"]?></td>
 </tr>
 
@@ -981,14 +986,14 @@ $tmenu_style = 'style="width:350px;"';
 <tr>
 	<th><?php echo $_lang["top_howmany_title"] ?></th>
 	<td>
-		<?php echo form_text('top_howmany',$top_howmany,3);?><br />
+		<?php echo form_text('top_howmany',3);?><br />
 		<?php echo $_lang["top_howmany_message"] ?>
 	</td>
 </tr>
 <tr>
 <th><?php echo $_lang["datepicker_offset"] ?></th>
 <td>
-	<?php echo form_text('datepicker_offset',$datepicker_offset,5);?><br />
+	<?php echo form_text('datepicker_offset',5);?><br />
 <?php echo $_lang["datepicker_offset_message"]?></td>
 </tr>
 <tr>
@@ -1011,19 +1016,19 @@ echo $str;
 <tr>
 <th><?php echo $_lang["nologentries_title"]?></th>
 <td>
-	<?php echo form_text('number_of_logs',$number_of_logs,3);?><br />
+	<?php echo form_text('number_of_logs',3);?><br />
 <?php echo $_lang["nologentries_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["mail_check_timeperiod_title"] ?></th>
 <td>
-	<?php echo form_text('mail_check_timeperiod',$mail_check_timeperiod,5);?><br />
+	<?php echo form_text('mail_check_timeperiod',5);?><br />
 <?php echo $_lang["mail_check_timeperiod_message"] ?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["nomessages_title"]?></th>
 <td>
-	<?php echo form_text('number_of_messages',$number_of_messages,5);?><br />
+	<?php echo form_text('number_of_messages',5);?><br />
 <?php echo $_lang["nomessages_message"]?></td>
 </tr>
 <tr>
@@ -1037,7 +1042,7 @@ echo $str;
 <tr>
 <th><?php echo $_lang["noresults_title"]?></th>
 <td>
-	<?php echo form_text('number_of_results',$number_of_results,5);?><br />
+	<?php echo form_text('number_of_results',5);?><br />
 <?php echo $_lang["noresults_message"]?></td>
 </tr>
 
@@ -1082,7 +1087,7 @@ echo $which_editor_sel;
 <tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["editor_css_path_title"]?></th>
 <td>
-<?php echo form_text('editor_css_path',$editor_css_path,'','style="width:400px;"');?><br />
+<?php echo form_text('editor_css_path','','style="width:400px;"');?><br />
 <?php echo $_lang["editor_css_path_message"]?></td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
@@ -1106,32 +1111,32 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["filemanager_path_title"]?></th>
 <td>
 <?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo '[(base_path)]'; ?></span> <?php echo "({$base_path})";?><br />
-<?php echo form_text('filemanager_path',$filemanager_path,255,'id="filemanager_path"');?>
+<?php echo form_text('filemanager_path',255,'id="filemanager_path"');?>
 <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
 <?php echo $_lang["filemanager_path_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_files_title"]?></th>
 <td>
-<?php echo form_text('upload_files',$upload_files);?><br />
+<?php echo form_text('upload_files');?><br />
 <?php echo $_lang["uploadable_files_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_images_title"]?></th>
 <td>
-<?php echo form_text('upload_images',$upload_images);?><br />
+<?php echo form_text('upload_images');?><br />
 <?php echo $_lang["uploadable_images_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_media_title"]?></th>
 <td>
-<?php echo form_text('upload_media',$upload_media);?><br />
+<?php echo form_text('upload_media');?><br />
 <?php echo $_lang["uploadable_media_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["uploadable_flash_title"]?></th>
 <td>
-<?php echo form_text('upload_flash',$upload_flash);?><br />
+<?php echo form_text('upload_flash');?><br />
 <?php echo $_lang["uploadable_flash_message"]?></td>
 </tr>
 <tr>
@@ -1155,19 +1160,19 @@ if(empty($upload_maxsize))
 	$upload_maxsize = $limit_size_bytes;
 }
 ?>
-<?php echo form_text('upload_maxsize',intval($upload_maxsize));?><br />
+<?php echo form_text('upload_maxsize');?><br />
 <?php echo sprintf($_lang["upload_maxsize_message"],$limit_size);?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_file_permissions_title"]?></th>
 <td>
-<?php echo form_text('new_file_permissions',$new_file_permissions,4);?><br />
+<?php echo form_text('new_file_permissions',4);?><br />
 <?php echo $_lang["new_file_permissions_message"]?></td>
 </tr>
 <tr>
 <th><?php echo $_lang["new_folder_permissions_title"]?></th>
 <td>
-<?php echo form_text('new_folder_permissions',$new_folder_permissions,4);?><br />
+<?php echo form_text('new_folder_permissions',4);?><br />
 <?php echo $_lang["new_folder_permissions_message"]?></td>
 </tr>
 
@@ -1205,14 +1210,14 @@ if(empty($upload_maxsize))
 	else                              $default_rb_base_dir = 'assets/';
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo "[(base_path)]{$default_rb_base_dir}";?></span> <?php echo "({$base_path}{$default_rb_base_dir})";?><br />
-<?php echo form_text('rb_base_dir',$rb_base_dir,255,'id="rb_base_dir"');?>
+<?php echo form_text('rb_base_dir',255,'id="rb_base_dir"');?>
 <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_url_title"]?></th>
 <td>
-<?php echo $site_url . form_text('rb_base_url',$rb_base_url);?><br />
+<?php echo $site_url . form_text('rb_base_url');?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
@@ -1226,7 +1231,7 @@ if(empty($upload_maxsize))
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["a17_image_limit_width_title"]?></th>
 <td>
-<?php echo form_text('image_limit_width',$image_limit_width);?>px<br />
+<?php echo form_text('image_limit_width');?>px<br />
 <?php echo $_lang["a17_image_limit_width_message"]?></td>
 </tr>
 
@@ -1325,8 +1330,12 @@ function get_lang_options($key=null, $selected_lang=null)
 	}
 }
 
-function form_text($name,$value,$maxlength='255',$add='',$readonly=false)
+function form_text($name,$maxlength='255',$add='',$readonly=false)
 {
+	global $settings;
+	
+	$value = isset($settings[$name]) ? $settings[$name] : '';
+	
 	if($readonly) $readonly = ' disabled';
 	if($add)      $add = ' ' . $add;
 	if(empty($maxlength)) $maxlength = '255';
