@@ -4,11 +4,11 @@ if(!$modx->hasPermission('settings')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$data = $_POST;
+$form_v = $_POST;
 // lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
 unset($_POST);
 
-if($data['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===false)
+if($form_v['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===false)
 {
 	$htaccess        = $modx->config['base_path'] . '.htaccess';
 	$sample_htaccess = $modx->config['base_path'] . 'sample.htaccess';
@@ -46,10 +46,10 @@ if($data['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===f
 		}
 	}
 }
-$data['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$data['filemanager_path']);
-$data['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$data['rb_base_dir']);
-if(!is_dir($data['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
-if(!is_dir($data['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
+$form_v['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['filemanager_path']);
+$form_v['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['rb_base_dir']);
+if(!is_dir($form_v['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
+if(!is_dir($form_v['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
 if(0< count($warnings))
 {
@@ -59,9 +59,9 @@ if(0< count($warnings))
 	exit;
 }
 
-if (isset($data) && count($data) > 0) {
+if (isset($form_v) && count($form_v) > 0) {
 	$savethese = array();
-	foreach ($data as $k => $v) {
+	foreach ($form_v as $k => $v) {
 		switch ($k) {
 			case 'site_url':
 			case 'base_url':
@@ -74,7 +74,7 @@ if (isset($data) && count($data) > 0) {
 			case 'unauthorized_page':
 				if (trim($v) !== '' && !is_numeric($v))
 				{
-					$v = $data['site_start'];
+					$v = $form_v['site_start'];
 				}
 				break;
 	
@@ -125,11 +125,11 @@ if (isset($data) && count($data) > 0) {
 	}
 	
 	// Reset Template Pages
-	if (isset($data['reset_template'])) {
-		$template = $data['default_template'];
-		$oldtemplate = $data['old_template'];
+	if (isset($form_v['reset_template'])) {
+		$template = $form_v['default_template'];
+		$oldtemplate = $form_v['old_template'];
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$reset = $data['reset_template'];
+		$reset = $form_v['reset_template'];
 		if    ($reset==1) $modx->db->update("template='{$template}'", $tbl_site_content, "type='document'");
 		elseif($reset==2) $modx->db->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
 	}
@@ -138,7 +138,7 @@ if (isset($data) && count($data) > 0) {
 	$modx->clearCache(); // first empty the cache
 }
 
-setPermission($data);
+setPermission($form_v);
 
 header("Location: index.php?a=7&r=10");
 
