@@ -299,7 +299,7 @@ class DocumentParser {
             if(isset($qs['id'])) unset($qs['id']);
             if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
             else $this->qs_hash = '';
-            $userID = $modx->getLoginUserID('web');
+            $userID = $this->getLoginUserID('web');
             if($userID) $this->qs_hash = md5($this->qs_hash."^{$userID}^");
         }
         
