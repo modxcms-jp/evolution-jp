@@ -62,7 +62,6 @@ class DocumentParser {
     var $aliasListing = array();
     var $SystemAlertMsgQueque;
     var $functionCache = array();
-    var $functionCacheBeginCount;
     var $uaType;
     var $functionLog = array();
     var $currentSnippetCall;
@@ -275,17 +274,6 @@ class DocumentParser {
             $this->uaType = $this->getUaType();
         else $this->uaType = 'pages';
         
-        $this->functionCache = array();
-        $this->functionCacheBeginCount = 0;
-        if(is_file(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php'))
-        {
-            $_ = include_once(MODX_BASE_PATH . 'assets/cache/function.siteCache.idx.php');
-            if(is_array($_)) 
-            {
-                $this->functionCache = $_;
-                $this->functionCacheBeginCount = count($this->functionCache);
-            }
-        }
         if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
         {
             $qs = $_GET;
@@ -722,14 +710,6 @@ class DocumentParser {
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
-            
-            if($this->functionCache && count($this->functionCache)!=$this->functionCacheBeginCount)
-            {
-                $str = '<?php return ' . var_export($this->functionCache, true) . ';';
-                file_put_contents("{$base_path}assets/cache/".getmypid()."_function.siteCache.idx.php.", $str, LOCK_EX);
-                rename("{$base_path}assets/cache/".getmypid()."_function.siteCache.idx.php.",
-                       "{$base_path}assets/cache/function.siteCache.idx.php");
-            }
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
