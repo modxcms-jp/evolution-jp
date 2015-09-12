@@ -210,15 +210,8 @@ class DocumentParser {
             case 'PHx' :
                 if(!class_exists('PHx') || !is_object($this->filter))
                 {
-                    $rs = include_once(MODX_CORE_PATH . 'extenders/modifiers.class.inc.php');
-                    if($rs)
-                    {
-                        $this->filter= new PHx;
-                        return true;
-                    }
-                    else return false;
+                    $rs = include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 }
-                else return true;
                 break;
             case 'MakeTable' :
                 if(include_once(MODX_CORE_PATH . 'extenders/maketable.class.php'))
