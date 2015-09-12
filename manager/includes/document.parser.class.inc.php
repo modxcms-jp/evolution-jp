@@ -3594,7 +3594,7 @@ class DocumentParser {
     
     function getIdFromAlias($alias)
     {
-        $cacheKey = md5(__FUNCTION__ . $alias);
+        $cacheKey = __FUNCTION__.md5($alias);
         if(isset($this->functionCache[$cacheKey]))
             return $this->functionCache[$cacheKey];
         
