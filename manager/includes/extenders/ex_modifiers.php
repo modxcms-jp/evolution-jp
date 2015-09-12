@@ -872,54 +872,6 @@ class PHx {
         }
         return $value;
     }
-    // Returns the specified field from the user record
-    // positive userid = manager, negative integer = webuser
-    function ModUser($userid,$field) {
-        global $modx;
-        if (!isset($this->cache['ui']) || !array_key_exists($userid, $this->cache['ui'])) {
-            if (intval($userid) < 0) {
-                $user = $modx->getWebUserInfo(-($userid));
-            } else {
-                $user = $modx->getUserInfo($userid);
-            }
-            $this->cache['ui'][$userid] = $user;
-        } else {
-            $user = $this->cache['ui'][$userid];
-        }
-        $user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
-        
-        return $user[$field];
-    }
-     
-     // Returns true if the user id is in one the specified webgroups
-     function isMemberOfWebGroupByUserId($userid=0,$groupNames=array()) {
-        global $modx;
-        
-        // if $groupNames is not an array return false
-        if(!is_array($groupNames)) return false;
-        
-        // if the user id is a negative number make it positive
-        if (intval($userid) < 0) { $userid = -($userid); }
-        
-        // Creates an array with all webgroups the user id is in
-        if (isset($this->cache['mo'][$userid])) $grpNames = $this->cache['mo'][$userid];
-        else
-        {
-            $from = sprintf("[+prefix+]webgroup_names wgn INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='%s'",$userid);
-            $rs = $modx->db->select('wgn.name',$from);
-            $this->cache['mo'][$userid] = $grpNames = $modx->db->getColumn('name',$rs);
-        }
-        
-        // Check if a supplied group matches a webgroup from the array we just created
-        foreach($groupNames as $k=>$v)
-        {
-            if(in_array(trim($v),$grpNames)) return true;
-        }
-        
-        // If we get here the above logic did not find a match, so return false
-        return false;
-    }
-    
     function _delimRoop($_tmp,$delim)
     {
         $debugbt = $_tmp;
@@ -1078,76 +1030,22 @@ class PHx {
     
     function addbreak($text)
     {
-        global $modx;
-        
-        $text = $this->parseDocumentSource($text);
-        $text = str_replace(array("\r\n","\r"),"\n",$text);
-        
-        $blockElms  = 'br,table,tbody,tr,td,th,thead,tfoot,caption,colgroup,div';
-        $blockElms .= ',dl,dd,dt,ul,ol,li,pre,select,option,form,map,area,blockquote';
-        $blockElms .= ',address,math,style,input,p,h1,h2,h3,h4,h5,h6,hr,object,param,embed';
-        $blockElms .= ',noframes,noscript,section,article,aside,hgroup,footer,address,code';
-        $blockElms = explode(',', $blockElms);
-        $lines = explode("\n",$text);
-        $c = count($lines);
-        foreach($lines as $i=>$line)
-        {
-            $line = rtrim($line);
-            if($i===$c-1) break;
-            foreach($blockElms as $block)
-            {
-                if(preg_match("@</?{$block}" . '[^>]*>$@',$line))
-                    continue 2;
-            }
-            $lines[$i] = "{$line}<br />";
-        }
-        return join("\n", $lines);
+        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_addbreak.php');
     }
     
     function getSummary($content='', $limit=100, $delim='')
     {
-        global $modx;
-        if($delim==='') $delim = $modx->config['manager_language']==='japanese-utf8' ? '。' : '.';
-        $limit = intval($limit);
-        
-        if($content==='' && isset($modx->documentObject['content']))
-            $content = $modx->documentObject['content'];
-        
-        $content = $this->parseDocumentSource($content);
-        $content = strip_tags($content);
-        $content = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$content);
-        if(preg_match('/\s+/',$content))
-            $content = preg_replace('/\s+/',' ',$content);
-        $content = trim($content);
-        
-        $pos = $this->strpos($content, $delim);
-        
-        if($pos!==false && $pos<$limit)
-        {
-            $_ = explode($delim, $content);
-            $text = '';
-            foreach($_ as $value)
-            {
-                if($limit <= $this->strlen($text.$value.$delim)) break;
-                $text .= $value.$delim;
-            }
-        }
-        else $text = $content;
-        
-        if($limit<$this->strlen($text) && strpos($text,' ')!==false)
-        {
-            $_ = explode(' ', $text);
-            $text = '';
-            foreach($_ as $value)
-            {
-                if($limit <= $this->strlen($text.$value.' ')) break;
-                $text .= $value . ' ';
-            }
-            if($text==='') $text = $content;
-        }
-        
-        if($limit < $this->strlen($text)) $text = $this->substr($text, 0, $limit);
-        
-        return $text;
+        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_getsummary.php');
+    }
+    // Returns the specified field from the user record
+    // positive userid = manager, negative integer = webuser
+    function ModUser($userid,$field) {
+        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_moduser.php');
+    }
+     
+    // Returns true if the user id is in one the specified webgroups
+    function isMemberOfWebGroupByUserId($userid=0,$groupNames=array()) {
+        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_ismemberofwebgroupbyuserid.php');
     }
 }
+$this->filter= new PHx;
