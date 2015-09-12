@@ -555,6 +555,7 @@ class PHx {
             case 'abs':
                 return abs($value);
             case 'math':
+                $value = (int)$value;
                 $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
                 $filter = str_replace(array('?','%s'),$value,$filter);
                 return eval("return {$filter};");
