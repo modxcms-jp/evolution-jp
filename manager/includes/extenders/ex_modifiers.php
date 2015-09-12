@@ -557,8 +557,10 @@ class PHx {
             case 'math':
                 $value = (int)$value;
                 if(empty($value)) $value = '0';
-                $filter = preg_replace('@([a-rt-zA-Z\n\r\t\s])@','',$opt);
-                $filter = str_replace(array('?','%s'),$value,$filter);
+                $filter = str_replace(array('[+value+]','%s'),'?',$opt);
+                $filter = preg_replace('@([a-zA-Z\n\r\t\s])@','',$filter);
+                if(strpos($filter,'?')===false) $filter = "?{$filter}";
+                $filter = str_replace('?',$value,$filter);
                 return eval("return {$filter};");
             #####  Resource fields
             case 'id':
