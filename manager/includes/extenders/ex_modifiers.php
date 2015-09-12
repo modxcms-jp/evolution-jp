@@ -728,10 +728,6 @@ class PHx {
             case 'webuserinfo':
                 if(empty($opt)) $opt = 'username';
                 return $this->ModUser(-$value,$opt);
-            case 'inrole':
-                // deprecated
-                $grps = ($this->strlen($opt) > 0 ) ? explode(',', $opt) :array();
-                return intval($this->isMemberOfWebGroupByUserId($value,$grps));
             #####  Special functions 
             case 'ifempty':
             case '_default':
