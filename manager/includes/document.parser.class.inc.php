@@ -2415,12 +2415,18 @@ class DocumentParser {
         
         if(empty($docid)) return false;
         
+        $cacheKey = __FUNCTION__.md5("{$field}-{$docid}");
+        if(isset($this->functionCache[$cacheKey]))
+            return $this->functionCache[$cacheKey];
+        
         $doc = $this->getDocumentObject('id', $docid);
         if(is_array($doc[$field]))
         {
             $tvs= $this->getTemplateVarOutput($field, $docid,null);
+            $this->functionCache[$cacheKey] = $tvs[$field];
             return $tvs[$field];
         }
+        $this->functionCache[$cacheKey] = $doc[$field];
         return $doc[$field];
     }
     
