@@ -221,7 +221,7 @@ class TopicPath
 			$tpl = str_replace($k,$v,$tpl);
 		}
 		
-		$modx->loadExtension('PHx') or die('Could not load PHx class.');
+		$modx->loadExtension('PHx');
 		$modx->filter->setPlaceholders($ph);
         $i=0;
         $bt = '';

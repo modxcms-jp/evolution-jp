@@ -1968,7 +1968,7 @@ class SubParser {
             $value = $key;
             if($modifiers!==false)
             {
-                $modx->loadExtension('PHx') or die('Could not load PHx class.');
+                $modx->loadExtension('PHx');
                 $value = $modx->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;

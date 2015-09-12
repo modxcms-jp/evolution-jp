@@ -1378,7 +1378,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx') or die('Could not load PHx class.');
+                $this->loadExtension('PHx');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             elseif($convertDate)
@@ -1440,7 +1440,7 @@ class DocumentParser {
                 $value = $this->config[$key];
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx') or die('Could not load PHx class.');
+                    $this->loadExtension('PHx');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 
@@ -1477,7 +1477,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx') or die('Could not load PHx class.');
+                $this->loadExtension('PHx');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;
@@ -1513,7 +1513,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx') or die('Could not load PHx class.');
+                $this->loadExtension('PHx');
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
@@ -1756,7 +1756,7 @@ class DocumentParser {
                 else $value = '';
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx') or die('Could not load PHx class.');
+                    $this->loadExtension('PHx');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 $replace[$i] = $value;
@@ -1803,7 +1803,7 @@ class DocumentParser {
         $value = $this->evalSnippet($snippetObject['content'], $params);
         if($modifiers!==false)
         {
-            $this->loadExtension('PHx') or die('Could not load PHx class.');
+            $this->loadExtension('PHx');
             $value = $this->filter->phxFilter($snip_name,$value,$modifiers);
         }
         
@@ -2798,7 +2798,7 @@ class DocumentParser {
                 $value = $ph[$key];
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx') or die('Could not load PHx class.');
+                    $this->loadExtension('PHx');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 $replace[$i]= $value;
