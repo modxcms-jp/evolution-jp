@@ -3591,10 +3591,6 @@ class DocumentParser {
     {
         return $this->getIdFromAlias($str);
     }
-    function setFunctionCache($cacheKey,$value)
-    {
-        $this->functionCache[$cacheKey] = $value;
-    }
     
     function getIdFromAlias($alias)
     {
