@@ -1,4 +1,7 @@
 <?php
+
+$this->sub = new SubParser();
+
 class SubParser {
     function SubParser()
     {
