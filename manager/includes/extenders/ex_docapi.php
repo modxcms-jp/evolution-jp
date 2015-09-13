@@ -1,5 +1,7 @@
 <?php
 
+$this->doc= new DocAPI;
+
 class DocAPI {
 	
 	var $mode;
@@ -523,3 +525,4 @@ class DocAPI {
     	return $modx->hasPermission('edit_document');
     }
 }
+
