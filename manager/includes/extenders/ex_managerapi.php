@@ -1,4 +1,6 @@
 <?php
+$this->manager= new ManagerAPI;
+
 /*
  * MODx Manager API Class
  * Written by Raymond Irving 2005
