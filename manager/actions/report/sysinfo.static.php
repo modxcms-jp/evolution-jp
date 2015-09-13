@@ -4,6 +4,7 @@ if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
 }
+global $database_connection_method,$lastInstallTime;
 $dbase = trim($dbase,'`');
 ?>
 <h1><?php echo $_lang["view_sysinfo"]; ?></h1>
@@ -35,6 +36,7 @@ $dbase = trim($dbase,'`');
 		<table border="0" cellspacing="2" cellpadding="2">
 		<?php echo render_tr($_lang['modx_version'],$modx_version);?>
 		<?php echo render_tr($_lang['release_date'],$modx_release_date);?>
+		<?php echo render_tr('システム更新日時',$modx->toDateFormat($lastInstallTime));?>
 		<?php echo render_tr('phpInfo()','<a href="#" onclick="viewPHPInfo();return false;">' . $_lang['view'] . '</a>');?>
 		<?php echo render_tr($_lang['udperms_title'],($modx->config['use_udperms']==1 ? $_lang['enabled'] : $_lang['disabled']));?>
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
@@ -123,7 +125,7 @@ echo '<h4>MySQLの文字コード情報</h4>' . "\n" . "\n";
 echo '<table style="margin-bottom:20px;">';
 $res = $modx->db->query("SHOW VARIABLES LIKE 'collation_database';");
 $collation = $modx->db->getRow($res, 'num');
-global $database_connection_method;
+
 echo '<tr><td style="padding-right:30px;">接続メソッド</td><td>' . $database_connection_method . '</td></tr>' . "\n";
 echo '<tr><td style="padding-right:30px;">文字セット照合順序</td><td>' . $collation[1] . '</td></tr>' . "\n";
 $rs = $modx->db->query("SHOW VARIABLES LIKE 'char%';");
