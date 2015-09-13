@@ -310,3 +310,5 @@ class EXPORT_SITE
 		return $result;
     }
 }
+
+$this->export= new EXPORT_SITE;
