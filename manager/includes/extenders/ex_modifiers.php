@@ -1,13 +1,6 @@
 <?php
-/*####
-#
-#    Name: PHx class(Placeholders Xtended)
-#    Author: Armand "bS" Pondman (apondman@zerobarrier.nl)
-#    Modified by Nick to include external files
-#    Modified by yama yamamoto@kyms.jp
-#    Date: 2015/03/24
-#
-####*/
+
+$this->filter= new PHx;
 
 class PHx {
     
@@ -23,7 +16,6 @@ class PHx {
         global $modx;
         
         if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
-        $this->placeholders['phx'] = '';
     }
     
     function phxFilter($key,$value,$modifiers)
@@ -32,6 +24,9 @@ class PHx {
         $this->srcValue = $value;
         $modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
         $modifiers = $this->splitModifiers($modifiers);
+        $this->placeholders = array();
+        $this->placeholders['phx'] = '';
+        $this->condition = array();
         $this->vars = array();
         $this->vars['name']    = & $key;
         $value = $this->parsePhx($key,$value,$modifiers);
@@ -1048,4 +1043,3 @@ class PHx {
         return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_ismemberofwebgroupbyuserid.php');
     }
 }
-$this->filter= new PHx;

@@ -82,7 +82,7 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
-        include_once(MODX_MANAGER_PATH . 'includes/extenders/deprecated.functions.inc.php');
+        $this->loadExtension('DeprecatedAPI');
         if(method_exists($this->old,$method_name)) $error_type=1;
         else                                       $error_type=3;
         
@@ -163,32 +163,13 @@ class DocumentParser {
         
         switch ($extname)
         {
-            // Database API
-            case 'DBAPI' :
-                if(!isset($database_type)||empty($database_type)) $database_type = 'mysql';
-                if(include_once(MODX_CORE_PATH . "extenders/dbapi.{$database_type}.class.inc.php"))
-                {
-                    $this->db= new DBAPI;
-                    $this->dbConfig= & $this->db->config; // alias for backward compatibility
-                    return true;
-                }
-                else return false;
-                break;
-            // Manager API
-            case 'ManagerAPI' :
-                if(include_once(MODX_CORE_PATH . 'extenders/manager.api.class.inc.php'))
-                {
-                    $this->manager= new ManagerAPI;
-                    return true;
-                }
-                else return false;
-                break;
-            // PHPMailer
-            case 'MODxMailer' :
-                include_once(MODX_CORE_PATH . 'extenders/modxmailer.class.inc.php');
+            case 'DBAPI' : // Database API
+                return include_once(MODX_CORE_PATH . 'extenders/ex_dbapi.php');
+            case 'ManagerAPI' : // Manager API
+                return include_once(MODX_CORE_PATH . 'extenders/ex_managerapi.php');
+            case 'MODxMailer' : // PHPMailer
+                include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
-                if($this->mail) return true;
-                else            return false;
                 break;
             // Document API
             case 'DocumentAPI' :
@@ -196,61 +177,25 @@ class DocumentParser {
                   return false;
                 return true;
                 break;
-            // Resource API
-            case 'DocAPI' :
-                if(include_once(MODX_CORE_PATH . 'extenders/doc.api.class.inc.php'))
-                {
-                    $this->doc= new DocAPI;
-                    return true;
-                }
-                else return false;
-                break;
-            // PHx
-            case 'PHx' :
-                if(!class_exists('PHx') || !is_object($this->filter))
-                {
-                    $rs = include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
-                }
-                break;
+            case 'DocAPI' : // Resource API
+                return include_once(MODX_CORE_PATH . 'extenders/ex_docapi.php');
+            case 'PHx' : //Modfires
+                return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
             case 'MakeTable' :
-                if(include_once(MODX_CORE_PATH . 'extenders/maketable.class.php'))
-                {
-                    $this->table= new MakeTable;
-                    return true;
-                }
-                else return false;
+                include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
+                $this->table= new MakeTable;
                 break;
             case 'EXPORT_SITE' :
-                if(include_once(MODX_CORE_PATH . 'extenders/export.class.inc.php'))
-                {
-                    $this->export= new EXPORT_SITE;
-                    return true;
-                }
-                else return false;
-                break;
+                return include_once(MODX_CORE_PATH . 'extenders/ex_export_site.php');
             case 'SubParser':
-                include_once(MODX_CORE_PATH . 'extenders/sub.document.parser.class.inc.php');
-                $this->sub = new SubParser();
-                break;
+                return include_once(MODX_CORE_PATH . 'extenders/ex_subparser.php');
             case 'REVISION' :
-                if(include_once(MODX_CORE_PATH . 'extenders/revision.class.inc.php'))
-                {
-                    $this->revision = new REVISION;
-                    return true;
-                }
-                else return false;
-                break;
+                return include_once(MODX_CORE_PATH . 'extenders/ex_revision.php');
             case 'DeprecatedAPI':
-                if(include_once(MODX_CORE_PATH . 'extenders/deprecated.functions.inc.php'))
-                {
-                    return true;
-                }
-                else return false;
-                break;
+                return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
             case 'ConfigMediation':
-                include_once(MODX_CORE_PATH . 'extenders/config.mediation.class.php');
+                include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
-                break;
             default :
                 return false;
         }
