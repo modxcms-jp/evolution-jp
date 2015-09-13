@@ -1,4 +1,6 @@
 <?php
+$this->revision = new REVISION;
+
 class REVISION
 {
 	var $hasDraft;
