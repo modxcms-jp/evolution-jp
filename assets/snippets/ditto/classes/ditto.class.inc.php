@@ -330,7 +330,7 @@ class ditto {
 		unset($PHs);
 		if($modifier_mode==='normal')
 		{
-			$modx->loadExtension('PHx');
+			$modx->loadExtension('MODIFIERS');
 			$modx->filter->setPlaceholders($placeholders);
             $i=0;
             $bt = '';

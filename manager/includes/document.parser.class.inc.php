@@ -179,7 +179,7 @@ class DocumentParser {
                 break;
             case 'DocAPI' : // Resource API
                 return include_once(MODX_CORE_PATH . 'extenders/ex_docapi.php');
-            case 'PHx' : //Modfires
+            case 'MODIFIERS' : //Modfires
                 return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
             case 'MakeTable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
@@ -1296,7 +1296,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx');
+                $this->loadExtension('MODIFIERS');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             elseif($convertDate)
@@ -1358,7 +1358,7 @@ class DocumentParser {
                 $value = $this->config[$key];
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx');
+                    $this->loadExtension('MODIFIERS');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 
@@ -1395,7 +1395,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx');
+                $this->loadExtension('MODIFIERS');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;
@@ -1431,7 +1431,7 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('PHx');
+                $this->loadExtension('MODIFIERS');
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
@@ -1674,7 +1674,7 @@ class DocumentParser {
                 else $value = '';
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx');
+                    $this->loadExtension('MODIFIERS');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 $replace[$i] = $value;
@@ -1721,7 +1721,7 @@ class DocumentParser {
         $value = $this->evalSnippet($snippetObject['content'], $params);
         if($modifiers!==false)
         {
-            $this->loadExtension('PHx');
+            $this->loadExtension('MODIFIERS');
             $value = $this->filter->phxFilter($snip_name,$value,$modifiers);
         }
         
@@ -2722,7 +2722,7 @@ class DocumentParser {
                 $value = $ph[$key];
                 if($modifiers!==false)
                 {
-                    $this->loadExtension('PHx');
+                    $this->loadExtension('MODIFIERS');
                     $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
                 $replace[$i]= $value;

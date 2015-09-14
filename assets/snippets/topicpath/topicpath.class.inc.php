@@ -221,7 +221,7 @@ class TopicPath
 			$tpl = str_replace($k,$v,$tpl);
 		}
 		
-		$modx->loadExtension('PHx');
+		$modx->loadExtension('MODIFIERS');
 		$modx->filter->setPlaceholders($ph);
         $i=0;
         $bt = '';

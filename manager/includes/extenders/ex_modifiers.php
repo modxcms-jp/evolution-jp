@@ -1,8 +1,8 @@
 <?php
 
-$this->filter= new PHx;
+$this->filter= new MODIFIERS;
 
-class PHx {
+class MODIFIERS {
     
     var $placeholders = array();
     var $vars = array();
@@ -11,7 +11,7 @@ class PHx {
     var $srcValue;
     var $condition = array();
     
-    function PHx()
+    function MODIFIERS()
     {
         global $modx;
         
