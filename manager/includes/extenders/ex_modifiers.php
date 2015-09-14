@@ -26,6 +26,7 @@ class MODIFIERS {
         $modifiers = $this->splitModifiers($modifiers);
         $this->placeholders = array();
         $this->placeholders['phx'] = '';
+        $this->placeholders['dummy'] = '';
         $this->condition = array();
         $this->vars = array();
         $this->vars['name']    = & $key;
@@ -962,7 +963,7 @@ class MODIFIERS {
     
     // Sets a placeholder variable which can only be access by Modifiers
     function setModifiersVariable($key, $value) {
-        if ($key != 'phx') $this->placeholders[$key] = $value;
+        if ($key != 'phx' && $key != 'dummy') $this->placeholders[$key] = $value;
     }
     
     //mbstring
