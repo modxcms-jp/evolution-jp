@@ -50,7 +50,7 @@ class MODIFIERS {
             $char = $this->substr($modifiers,0,1);
             $modifiers = $this->substr($modifiers,1);
             
-            if($key===''&&$char==='=') exit('PHx parse error');
+            if($key===''&&$char==='=') exit('Modifiers parse error');
             
             if    ($char==='=')
             {
@@ -882,8 +882,8 @@ class MODIFIERS {
             if($c===65000)
             {
                 global $modx;
-                $modx->addLog('PHx _delimRoop debug',$debugbt);
-                exit('phx parse over');
+                $modx->addLog('modifiers _delimRoop debug',$debugbt);
+                exit('Modifiers parse over');
             }
             if($char===$delim && ($this->substr($_tmp,0,1)===':'))
                 break;
@@ -957,11 +957,11 @@ class MODIFIERS {
                 $this->setPlaceholders($subval, $subkey, $key);
             }
         }
-        else $this->setPHxVariable($key, $value);
+        else $this->setModifiersVariable($key, $value);
     }
     
-    // Sets a placeholder variable which can only be access by PHx
-    function setPHxVariable($key, $value) {
+    // Sets a placeholder variable which can only be access by Modifiers
+    function setModifiersVariable($key, $value) {
         if ($key != 'phx') $this->placeholders[$key] = $value;
     }
     
