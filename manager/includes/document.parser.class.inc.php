@@ -982,7 +982,7 @@ class DocumentParser {
     
     function getCache($id)
     {
-        if(isset($this->config['cache_type']) && $this->config['cache_type'] == 0) return ''; // jp-edition only
+        if($this->config['cache_type'] == 0) return ''; // jp-edition only
         switch($this->http_status_code)
         {
             case '404':
