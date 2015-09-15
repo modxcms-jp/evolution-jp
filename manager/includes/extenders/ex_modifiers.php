@@ -820,9 +820,9 @@ class MODIFIERS {
                 {
                     $php = @file_get_contents($modifiers_path);
                     $php = trim($php);
-                    $php = preg_replace('@^\s*<\?php@', '', $php);
-                    $php = preg_replace('@?>\s*$@', '', $php);
-                    $php = preg_replace('@^<\?@', '', $php);
+                    if(substr($php,0,5)==='<?php') $php = substr($php,6);
+                    if(substr($php,0,2)==='<?')    $php = substr($php,3);
+                    if(substr($php,-2)==='?>')     $php = substr($php,0,-2);
                     $modx->snippetCache[$this->elmName.'Props'] = '';
                 }
                 else
