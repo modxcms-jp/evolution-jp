@@ -1,6 +1,7 @@
 <?php
 $init = new MODX_INIT;
 
+$init->fix_favicon_req();
 $init->check_phpvar();
 $init->fix_request_time();
 $init->fix_document_root();
@@ -212,6 +213,14 @@ class MODX_INIT {
         {
             if($_SERVER['HTTPS']==1) $_SERVER['HTTPS'] = 'on';
             elseif($_SERVER['HTTPS']==='off') unset($_SERVER['HTTPS']);
+        }
+    }
+    function fix_favicon_req() {
+        // From WordPress wp_favicon_request() load.php
+        if($_SERVER['REQUEST_URI']==='/favicon.ico') {
+            header('Content-Type: image/vnd.microsoft.icon');
+            header('Content-Length: 0');
+            exit;
         }
     }
 }
