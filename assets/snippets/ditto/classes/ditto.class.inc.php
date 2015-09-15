@@ -1122,6 +1122,7 @@ class ditto {
 		if ($totalpages>1 || $paginateAlwaysShowLinks==1){
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);
 			$modx->setPlaceholder($dittoID."previous", $previousplaceholder);
+			$modx->setPlaceholder($dittoID."prev", $previousplaceholder);
 			$modx->setPlaceholder($dittoID."pages", $pages);
 		}
 		$modx->setPlaceholder($dittoID."splitter", $split);
@@ -1144,6 +1145,7 @@ class ditto {
 		if ($paginate && $set !== true) {
 			$modx->setPlaceholder($dittoID."next", "");
 			$modx->setPlaceholder($dittoID."previous", "");
+			$modx->setPlaceholder($dittoID."prev", "");
 			$modx->setPlaceholder($dittoID."splitter", "");
 			$modx->setPlaceholder($dittoID."start", 0);
 			$modx->setPlaceholder($dittoID."urlStart", "#start");
