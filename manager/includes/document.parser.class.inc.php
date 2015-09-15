@@ -161,38 +161,30 @@ class DocumentParser {
     {
         global $database_type;
         
+        $low_extname = strtolower($extname);
+        
         switch ($extname)
         {
-            case 'DBAPI' : // Database API
-                return include_once(MODX_CORE_PATH . 'extenders/ex_dbapi.php');
-            case 'ManagerAPI' : // Manager API
-                return include_once(MODX_CORE_PATH . 'extenders/ex_managerapi.php');
+            case 'DBAPI'       : // Database API
+            case 'ManagerAPI'  : // Manager API
+            case 'DocumentAPI' : // Document API
+            case 'DocAPI'      : // Resource API
+            case 'EXPORT_SITE' :
+            case 'SubParser'   :
+            case 'REVISION'    :
+                return include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
+            case 'MODIFIERS' : //Modfires
+                return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
+            case 'DeprecatedAPI':
+                return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
             case 'MODxMailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
                 break;
-            // Document API
-            case 'DocumentAPI' :
-                if( !include_once(MODX_CORE_PATH . 'extenders/ex_documentapi.php') )
-                  return false;
-                return true;
-                break;
-            case 'DocAPI' : // Resource API
-                return include_once(MODX_CORE_PATH . 'extenders/ex_docapi.php');
-            case 'MODIFIERS' : //Modfires
-                return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
             case 'MakeTable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
                 $this->table= new MakeTable;
                 break;
-            case 'EXPORT_SITE' :
-                return include_once(MODX_CORE_PATH . 'extenders/ex_export_site.php');
-            case 'SubParser':
-                return include_once(MODX_CORE_PATH . 'extenders/ex_subparser.php');
-            case 'REVISION' :
-                return include_once(MODX_CORE_PATH . 'extenders/ex_revision.php');
-            case 'DeprecatedAPI':
-                return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
             case 'ConfigMediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
