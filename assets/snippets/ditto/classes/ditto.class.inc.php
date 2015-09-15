@@ -1064,7 +1064,19 @@ class ditto {
 			$tplPaginatePrevious = str_replace('lang:previous','lang%previous',$tplPaginatePrevious);
 		$rNext =  $modx->parseText(array('url'=>$this->buildURL("start={$next}"),'lang%next'=>$ditto_lang['next']),$tplPaginateNext);
 		$previous = $start - $summarize;
-		$rPrevious =  $modx->parseText(array('url'=>$this->buildURL("start={$previous}"),'lang%previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
+		if($previous!=0) $prevUrl = $this->buildURL("start={$previous}");
+		else {
+			$args = $_GET;
+			if(isset($args['start'])) unset($args['start']);
+            if(is_array($args)) {
+                foreach($args as $k=>$v) {
+                    $args[$k] = "{$k}={$v}";
+                }
+                $args = join('&',$args);
+            }
+			$prevUrl = $modx->makeUrl($modx->documentIdentifier,'',$args);
+		}
+		$rPrevious =  $modx->parseText(array('url'=>$prevUrl,'lang%previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
 		$limten = $summarize + $start;
 		if ($paginateAlwaysShowLinks == 1) {
     		if(strpos($tplPaginatePreviousOff,'lang:previous')!==false)
