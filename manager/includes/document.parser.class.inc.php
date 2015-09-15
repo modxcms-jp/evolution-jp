@@ -2452,9 +2452,10 @@ class DocumentParser {
         return $referenceListing;
     }
     
-    function makeUrl($id, $alias= '', $args= '', $scheme= 'full')
+    function makeUrl($id='', $alias= '', $args= '', $scheme= 'full')
     {
         if($id==0) return $this->config['site_url'];
+        elseif($id=='') $id = $this->documentIdentifier;
         $makeurl= '';
         $f_url_prefix = $this->config['friendly_url_prefix'];
         $f_url_suffix = $this->config['friendly_url_suffix'];
