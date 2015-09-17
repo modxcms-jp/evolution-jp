@@ -1632,7 +1632,7 @@ class SubParser {
         $_[] = "sc.parent='{$parentid}'";
         $_[] = "sc.published={$published}";
         $_[] = "sc.deleted={$deleted}";
-        if($customWhere != '') $_[] = "AND {$customWhere}";
+        if($customWhere != '') $_[] = $customWhere;
         if($access!='')        $_[] = "({$access})";
         $where = join(' AND ', $_) . ' GROUP BY sc.id';
         
