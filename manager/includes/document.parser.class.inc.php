@@ -1142,6 +1142,8 @@ class DocumentParser {
     }
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
+        $key = __FUNCTION__ . md5("{$content}{$left}{$right}");
+        if(isset($this->functionCache[$key])) return $this->functionCache[$key];
         $_ = $this->_getTagsFromContent($content,$left,$right);
         if(empty($_)) return array();
         foreach($_ as $v)
@@ -1149,6 +1151,7 @@ class DocumentParser {
             $tags[0][] = "{$left}{$v}{$right}";
             $tags[1][] = $v;
         }
+        $this->functionCache[$key] = $tags;
         return $tags;
     }
     
@@ -2228,6 +2231,9 @@ class DocumentParser {
 
     function getChildIds($id, $depth= 10, $children= array ())
     {
+        $cacheKey = __FUNCTION__ . "[{$id}]";
+        if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
+        
         // Initialise a static array to index parents->children
         if(empty($this->childrenList))
             $childrenList = $this->set_childrenList();
@@ -2257,6 +2263,7 @@ class DocumentParser {
                 }
             }
         }
+        $this->functionCache[$cacheKey] = $children;
         return $children;
     }
 
@@ -2352,7 +2359,7 @@ class DocumentParser {
         
         if(empty($docid)) return false;
         
-        $cacheKey = __FUNCTION__.md5("{$field}-{$docid}");
+        $cacheKey = __FUNCTION__."[{$field}-{$docid}]";
         if(isset($this->functionCache[$cacheKey]))
             return $this->functionCache[$cacheKey];
         
@@ -2448,6 +2455,8 @@ class DocumentParser {
     {
         if($id==0) return $this->config['site_url'];
         elseif($id=='') $id = $this->documentIdentifier;
+        $cacheKey = __FUNCTION__."[{$id}-{$alias}-{$args}-{$scheme}]";
+        if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
         $makeurl= '';
         $f_url_prefix = $this->config['friendly_url_prefix'];
         $f_url_suffix = $this->config['friendly_url_suffix'];
@@ -2468,7 +2477,10 @@ class DocumentParser {
                 $orgId=$id;
                 $id = $this->referenceListing[$id];
             }
-            else return $this->referenceListing[$id];
+            else {
+                $this->functionCache[$cacheKey] = $this->referenceListing[$id];
+                return $this->referenceListing[$id];
+            }
         }
         
         if ($this->config['friendly_urls'] == 1)
@@ -2585,6 +2597,7 @@ class DocumentParser {
         if( $url != $params['url'] )
           $url = $params['url'];
         
+        $this->functionCache[$cacheKey] = $url;
         return $url;
     }
     
