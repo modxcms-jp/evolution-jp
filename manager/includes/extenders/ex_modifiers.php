@@ -820,7 +820,7 @@ class MODIFIERS {
             }
             elseif($total == 0)
             {
-                $modifiers_path = "{$modx->config['base_dir']}assets/plugins/phx/modifiers/{$cmd}.phx.php";
+                $modifiers_path = "{$modx->config['base_dir']}assets/modifiers/mdf_{$cmd}.php";
                 if(is_file($modifiers_path))
                 {
                     $php = @file_get_contents($modifiers_path);
