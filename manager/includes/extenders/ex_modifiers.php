@@ -507,8 +507,6 @@ class MODIFIERS {
                                        $opt = false;
                 else                   $opt = true;
                 return nl2br($value,$opt);
-            case 'addbreak':
-                return $this->addbreak($value);
             case 'ltrim':
             case 'rtrim':
             case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
@@ -820,9 +818,13 @@ class MODIFIERS {
             }
             elseif($total == 0)
             {
-                $modifiers_path = "{$modx->config['base_dir']}assets/modifiers/mdf_{$cmd}.php";
-                if(is_file($modifiers_path))
-                {
+                if(is_file(MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.php"))
+                    $modifiers_path = MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.php";
+                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.php"))
+                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.php";
+                else $modifiers_path = false;
+                
+                if($modifiers_path) {
                     $php = @file_get_contents($modifiers_path);
                     $php = trim($php);
                     if(substr($php,0,5)==='<?php') $php = substr($php,6);
@@ -831,9 +833,7 @@ class MODIFIERS {
                     $modx->snippetCache[$this->elmName.'Props'] = '';
                 }
                 else
-                {
                     $php = false;
-                }
             }
             else $php = false;
             $modx->snippetCache[$this->elmName]= $php;
@@ -1027,11 +1027,6 @@ class MODIFIERS {
     }
     function str_word_count($str) {
         return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
-    }
-    
-    function addbreak($text)
-    {
-        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_addbreak.php');
     }
     
     function getSummary($content='', $limit=100, $delim='')
