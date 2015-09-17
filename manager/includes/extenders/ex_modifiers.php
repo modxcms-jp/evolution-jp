@@ -618,6 +618,7 @@ class MODIFIERS {
             case 'childids':
                 if($value=='') $value = 0; // 値がない場合はルートと見なす
                 $published = 1;
+                if($opt=='') $opt = 'page';
                 $_ = explode(',',$opt);
                 $where = array();
                 foreach($_ as $opt) {
