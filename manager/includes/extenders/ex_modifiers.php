@@ -558,6 +558,10 @@ class MODIFIERS {
                 if(strpos($filter,'?')===false) $filter = "?{$filter}";
                 $filter = str_replace('?',$value,$filter);
                 return eval("return {$filter};");
+            case 'count':
+                if($value=='') return 0;
+                $value = explode(',',$value);
+                return count($value);
             #####  Resource fields
             case 'id':
                 if($opt) return $this->getDocumentObject($opt,$phxkey);
