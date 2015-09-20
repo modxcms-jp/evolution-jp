@@ -212,7 +212,7 @@ switch ($_POST['mode']) {
 			</div>
 			</div>
 		<?php
-			include_once 'footer.inc.php';
+			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		}
 		break;
 	case '88' : // edit user
@@ -378,7 +378,7 @@ switch ($_POST['mode']) {
 			</div>
 		<?php
 
-			include_once "footer.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id=$id" : "87";

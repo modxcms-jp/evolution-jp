@@ -585,11 +585,11 @@ switch ($modx->manager->action) {
                 <p>".$_lang['functionnotimpl_message']."</p>
             </div>
         ";
-        include_once "footer.inc.php";
+        include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
 if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,117,22,23,78,77,18,26,106,107,108,112,113,100,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
-    include_once 'footer.inc.php';
+    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 
 // log action, unless it's a frame request
 switch ($modx->manager->action) {

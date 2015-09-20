@@ -402,7 +402,7 @@ else
 </div>
 
 <?php
-	include_once "footer.inc.php"; // send footer
+	include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php'); // send footer
 
 
 

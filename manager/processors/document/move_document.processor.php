@@ -37,7 +37,7 @@ if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
 		<p><?php echo $_lang['access_permission_parent_denied']; ?></p>
 		</div>
 		<?php
-		include_once('footer.inc.php');
+		include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		exit;
 	}
 }

@@ -71,7 +71,7 @@ switch ($_POST['mode'])
 
 			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 			include(MODX_MANAGER_PATH . 'actions/mutate_snippet.dynamic.php');
-			include 'footer.inc.php';
+			include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 			
 			exit;
 		}

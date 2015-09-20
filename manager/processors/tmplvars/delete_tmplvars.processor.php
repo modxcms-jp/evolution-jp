@@ -51,7 +51,7 @@ if(!$modx->hasPermission('delete_template')) {
 			echo "</ul>";
 			echo '</div>';
 			echo '</div>';
-			include_once "footer.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 			exit;
 		}
 	}

@@ -32,7 +32,7 @@ $total = $modx->db->getRecordCount($rs);
 if($total<1){
 	echo "The request returned no roles!</div>";
 	exit;
-	include_once "footer.inc.php";
+	include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 ?>
 <ul>

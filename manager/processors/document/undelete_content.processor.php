@@ -83,6 +83,6 @@ function disp_access_permission_denied()
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>
 	<?php
-	include_once('footer.inc.php');
+	include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 	exit;
 }

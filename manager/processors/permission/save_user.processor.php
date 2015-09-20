@@ -230,7 +230,7 @@ switch ($mode) {
 			</div>
 		<?php
 
-			include_once "footer.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		}
 		break;
 
@@ -418,7 +418,7 @@ switch ($mode) {
 			</div>
 		<?php
 			
-			include_once "footer.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		} else {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$id}" : "11";

@@ -369,7 +369,7 @@ function checkPermissions($id) {
         $_[] = '</div>';
         $_[] = '</div>';
         echo join("\n",$_);
-		include(MODX_CORE_PATH . 'footer.inc.php');
+		include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		exit;
 	}
 }

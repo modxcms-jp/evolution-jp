@@ -129,7 +129,7 @@ function show_perm_error()
 </div></div>
 EOT;
 	echo $src;
-    include("footer.inc.php");
+    include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
 function get_parentid($id)

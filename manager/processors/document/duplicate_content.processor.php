@@ -16,7 +16,7 @@ if(!$modx->checkPermissions($id,true)) {
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>
 	<?php
-	include('footer.inc.php');
+	include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 	exit;
 }
 
