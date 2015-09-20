@@ -112,9 +112,6 @@ include_once($config_path);
 // start session
 startCMSSession();
 
-// set some runtime options
-set_include_path(get_include_path() . PATH_SEPARATOR . rtrim($core_path,'/'));
-
 // initiate the content manager class
 include_once "{$core_path}document.parser.class.inc.php";
 $modx = new DocumentParser;
