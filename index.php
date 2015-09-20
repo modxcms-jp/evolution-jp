@@ -111,12 +111,11 @@ if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
 // harden it
-$core_path = $base_path . 'manager/includes/';
-require_once("{$core_path}initialize.inc.php");
+require_once("{$base_path}manager/includes/initialize.inc.php");
 // get the required includes
 if (!isset($database_type))
 {
-	$conf_path = "{$core_path}config.inc.php";
+	$conf_path = MODX_CORE_PATH . 'config.inc.php';
 	if (is_file($conf_path)) include_once($conf_path);
 	
 	if ((!isset($lastInstallTime) || empty($lastInstallTime)))
@@ -142,10 +141,10 @@ if(isset($_COOKIE)&&!empty($_COOKIE))
 		if(strpos($v,']')!==false||strpos($v,'}}')!==false) $find = true;
 	}
 }
-if(!empty($_GET)||!empty($_POST)||$find) require_once("{$core_path}protect.inc.php");
+if(!empty($_GET)||!empty($_POST)||$find) require_once(MODX_CORE_PATH . 'protect.inc.php');
 
 // initiate a new document parser
-include_once("{$core_path}document.parser.class.inc.php");
+include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
 $modx = new DocumentParser;
 $etomite = &$modx; // for backward compatibility
 

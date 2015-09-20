@@ -70,7 +70,7 @@ class Qm {
 		}
 		
 		// Includes
-		include_once($this->modx->config['base_path'].'assets/plugins/qm/mcc.class.php');
+		include_once(MODX_BASE_PATH.'assets/plugins/qm/mcc.class.php');
 		
 		// Run plugin
 		$this->Run();

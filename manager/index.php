@@ -113,7 +113,7 @@ include_once($config_path);
 startCMSSession();
 
 // initiate the content manager class
-include_once "{$core_path}document.parser.class.inc.php";
+include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->safeMode = 0;
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
@@ -141,12 +141,12 @@ $modx->loadLexicon('manager');
 header("Content-Type: text/html; charset={$modx_manager_charset}");
 
 // include version info
-include_once("{$core_path}version.inc.php");
+include_once(MODX_CORE_PATH . 'version.inc.php');
 
 $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
-include_once("{$core_path}accesscontrol.inc.php");
+include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 
 // double check the session
 if (!isset($_SESSION['mgrValidated'])) {
@@ -186,11 +186,11 @@ if(is_file("{$theme_dir}style.php")) include_once("{$theme_dir}style.php");
 
 // check if user is allowed to access manager interface
 if (isset($allow_manager_access) && $allow_manager_access==0) {
-    include_once("{$core_path}manager.lockout.inc.php");
+    include_once(MODX_CORE_PATH . 'manager.lockout.inc.php');
 }
 
 // include_once the error handler
-include_once("{$core_path}error.class.inc.php");
+include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
 // Initialize System Alert Message Queque
@@ -202,7 +202,7 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 // first we check to see if this is a frameset request
 if (!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($_POST['updateMsgCount'])) {
     // this looks to be a top-level frameset request, so let's serve up a frameset
-    include_once("{$base_path}manager/frames/1.php");
+    include_once(MODX_MANAGER_PATH . 'frames/1.php');
     exit;
 }
 
@@ -242,7 +242,7 @@ switch ($modx->manager->action) {
     case 1 : //frame management - show the requested frame  
         // get the requested frame
         $frame = preg_replace('/[^a-z0-9]/i','',$_REQUEST['f']);
-        include_once "{$base_path}manager/frames/{$frame}.php";
+        include_once(MODX_MANAGER_PATH . "frames/{$frame}.php");
         break;
     case 2: // get the home page
         include_once(MODX_MANAGER_PATH . 'actions/main/welcome.static.php');
