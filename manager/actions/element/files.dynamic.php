@@ -603,7 +603,7 @@ function logFileChange($type, $filename)
 {
 	//global $_lang;
 
-	include_once('log.class.inc.php');
+	include_once(MODX_CORE_PATH . 'log.class.inc.php');
 	$log = new logHandler();
 
 	switch ($type)

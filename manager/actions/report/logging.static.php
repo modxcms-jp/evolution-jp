@@ -80,7 +80,7 @@ window.addEvent('domready', function() {
 				<option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
 		<?php
 			// get all available actions in the log
-			include_once($modx->config['core_path'] . 'actionlist.inc.php');
+			include_once(MODX_CORE_PATH . 'actionlist.inc.php');
 			$logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
 			foreach ($logs_actions as $row) {
 				$action = getAction($row['action']);
@@ -199,7 +199,7 @@ if(isset($form_v['log_submit'])) {
 	} else {
 		echo '<p>'.$_lang["mgrlog_sortinst"].'</p>';
 
-		include_once "paginate.inc.php";
+		include_once(MODX_CORE_PATH . 'paginate.inc.php');
 		// New instance of the Paging class, you can modify the color and the width of the html table
 		$p = new Paging( $total, $int_cur_position, $int_num_result, $extargv );
 

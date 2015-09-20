@@ -5,7 +5,7 @@
 
 Usage:
 
-include_once "log.class.inc.php"; // include_once the class
+include_once(MODX_CORE_PATH . 'log.class.inc.php'); // include_once the class
 $log = new logHandler;	// create the object
 $log->initAndWriteLog($msg); // write $msg to log, and populate all other fields as best as possible
 $log->initAndWriteLog($msg, $internalKey, $username, $action, $id, $itemname); // write $msg and other data to log

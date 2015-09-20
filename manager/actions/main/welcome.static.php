@@ -165,7 +165,7 @@ if (   ($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
     || ($modx->config['warning_visibility'] == 2 && $modx->hasPermission('save_role') == 1)
     ||  $modx->config['warning_visibility'] == 1)
 {
-    include_once "config_check.inc.php";
+    include_once(MODX_CORE_PATH . 'config_check.inc.php');
     $modx->setPlaceholder('settings_config',$_lang['warning']);
     $modx->setPlaceholder('configcheck_title',$_lang['configcheck_title']);
     if($config_check_results != $_lang['configcheck_ok']) {

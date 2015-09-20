@@ -126,7 +126,7 @@ $int_num_result = $number_of_messages;
 
 $extargv =  "&a=10"; // extra argv here (could be anything depending on your page)
 
-include_once "paginate.inc.php";
+include_once(MODX_CORE_PATH . 'paginate.inc.php');
 // New instance of the Paging class, you can modify the color and the width of the html table
 $p = new Paging( $num_rows, $int_cur_position, $int_num_result, $extargv );
 
