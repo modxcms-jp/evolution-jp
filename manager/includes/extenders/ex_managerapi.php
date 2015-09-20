@@ -824,7 +824,7 @@ class ManagerAPI {
 	function getTplModule()
 	{
         ob_start();
-        include_once(MODX_CORE_PATH . 'header.inc.php');
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         echo '[+content+]';
         include_once(MODX_CORE_PATH . 'footer.inc.php');
         return ob_get_clean();

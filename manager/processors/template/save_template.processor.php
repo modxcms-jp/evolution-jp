@@ -56,7 +56,7 @@ switch ($_POST['mode']) {
 			$_POST['locked'] = isset($_POST['locked']) && $_POST['locked'] == 'on' ? 1 : 0;
 			$_POST['category'] = $categoryid;
 			$_GET['stay'] = $_POST['stay'];
-			include 'header.inc.php';
+			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 			include(MODX_MANAGER_PATH.'actions/mutate_templates.dynamic.php');
 			include 'footer.inc.php';
 			exit;
@@ -111,7 +111,7 @@ switch ($_POST['mode']) {
 			$_POST['locked'] = isset($_POST['locked']) && $_POST['locked'] == 'on' ? 1 : 0;
 			$_POST['category'] = $categoryid;
 			$_GET['stay'] = $_POST['stay'];
-			include 'header.inc.php';
+			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 			include(MODX_MANAGER_PATH . 'actions/mutate_templates.dynamic.php');
 			include 'footer.inc.php';
 			exit;

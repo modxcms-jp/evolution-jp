@@ -29,7 +29,7 @@ if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
 {
 	if (!$modx->checkPermissions($new_parent))
 	{
-		include_once('header.inc.php');
+		include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 		?>
 		<script type="text/javascript">parent.tree.ca = '';</script>
 		<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>

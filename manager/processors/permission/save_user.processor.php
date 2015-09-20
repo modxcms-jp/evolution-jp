@@ -206,7 +206,7 @@ switch ($mode) {
 				$stayUrl = "index.php?r=3&a=75";
 			}
 			
-			include_once "header.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 ?>
 			<h1><?php echo $_lang['user_title']; ?></h1>
 
@@ -396,7 +396,7 @@ switch ($mode) {
 				$stayUrl = "index.php?a=75";
 			}
 			
-			include_once "header.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 ?>
 			<h1><?php echo $_lang['user_title']; ?></h1>
 

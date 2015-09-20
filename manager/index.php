@@ -239,7 +239,7 @@ $evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", $tmp);
 // Now we decide what to do according to the action request. This is a BIG list :)
 
 if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,22,23,78,77,18,26,106,107,108,113,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
-    include_once 'header.inc.php';
+    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 
 switch ($modx->manager->action) {
     case 1 : //frame management - show the requested frame  
@@ -575,7 +575,7 @@ switch ($modx->manager->action) {
         break;
     default : // default action: show not implemented message
         // say that what was requested doesn't do anything yet
-        include_once "header.inc.php";
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         echo "
             <div class='subTitle'>
                 <span class='right'>".$_lang['functionnotimpl']."</span>

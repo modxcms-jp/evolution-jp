@@ -70,7 +70,7 @@ switch ($_POST['mode']) {
 			$content['usrgroups'] = $_POST['usrgroups'];
 			
 
-			include 'header.inc.php';
+			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 			include(MODX_MANAGER_PATH . 'actions/mutate_module.dynamic.php');
 			include 'footer.inc.php';
 			

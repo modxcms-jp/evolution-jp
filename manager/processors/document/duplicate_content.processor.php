@@ -11,7 +11,7 @@ $children = array();
 
 // check permissions on the document
 if(!$modx->checkPermissions($id,true)) {
-	include('header.inc.php');
+	include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 	?><div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 	<div class="sectionBody">
 	<p><?php echo $_lang['access_permission_denied']; ?></p>

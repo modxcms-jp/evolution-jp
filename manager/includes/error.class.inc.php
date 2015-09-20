@@ -69,7 +69,7 @@ class errorHandler{
 		$ph['url']      = $previous_request_uri;
 		$scr = $modx->parseText($tpl,$ph);
 
-        include_once(MODX_CORE_PATH . 'header.inc.php');
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 		echo $scr;
 		include_once(MODX_CORE_PATH . 'footer.inc.php');
 		exit;

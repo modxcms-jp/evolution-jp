@@ -62,7 +62,7 @@ switch ($_POST['mode']) {
 			$content['moduleguid'] = $moduleguid;
 			$content['sysevents'] = $sysevents;
 
-				include('header.inc.php');
+				include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
 				include('footer.inc.php');
 			
@@ -129,7 +129,7 @@ switch ($_POST['mode']) {
 				$content['moduleguid'] = $moduleguid;
 				$content['sysevents'] = $sysevents;
 	
-				include('header.inc.php');
+				include(MODX_MANAGER_PATH . 'actions/header.inc.php');
 				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
 				include('footer.inc.php');
 				

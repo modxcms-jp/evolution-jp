@@ -100,7 +100,7 @@ elseif ($mode=='snapshot')
 }
 else
 {
-	include_once "header.inc.php";  // start normal header
+	include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
 }
 
 if(isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '')

@@ -22,7 +22,7 @@ if(!$modx->hasPermission('delete_template')) {
 		$count = $modx->db->getRecordCount($rs);
 		if($count>0)
 		{
-			include_once "header.inc.php";
+			include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 		?>
 			<script type="text/javascript">
 				function deletedocument() {
