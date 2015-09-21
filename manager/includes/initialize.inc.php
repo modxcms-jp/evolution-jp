@@ -67,7 +67,6 @@ if(!function_exists('startCMSSession'))
 function set_parser_mode()
 {
     if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == true) return;
-    define('IN_ETOMITE_PARSER', 'true'); // provides compatibility with etomite 0.6 and maybe later versions
     define('IN_PARSER_MODE', 'true');
     define('IN_MANAGER_MODE', 'false');
     

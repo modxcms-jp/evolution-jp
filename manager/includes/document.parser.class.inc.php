@@ -839,9 +839,6 @@ class DocumentParser {
         
         if($this->config['cache_type']!=='1') $this->setChunkCache();
         
-        // added for backwards compatibility - garry FS#104
-        $this->config['etomite_charset'] = & $this->config['modx_charset'];
-        
         // store base_url and base_path inside config array
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
@@ -1624,7 +1621,7 @@ class DocumentParser {
     // evalPlugin
     function evalPlugin($pluginCode, $params)
     {
-        $etomite= $modx= & $this;
+        $modx= & $this;
         $modx->event->params = $params; // store params inside event object
         if (is_array($params))
         {
@@ -1660,7 +1657,7 @@ class DocumentParser {
     
     function evalSnippet($phpcode, $params)
     {
-        $etomite= $modx= & $this;
+        $modx= & $this;
         if ($this->debug) $fstart = $this->getMicroTime();
         if(isset($params) && is_array($params))
         {
@@ -1705,8 +1702,6 @@ class DocumentParser {
     function evalSnippets($content,$nest=0)
     {
         if(strpos($content,'[[')===false) return $content;
-        
-        $etomite= & $this;
         
         if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');

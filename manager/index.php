@@ -96,8 +96,6 @@ if (@is_file("{$base_path}autoload.php")) {
 require_once("{$core_path}protect.inc.php");
 require_once("{$core_path}initialize.inc.php");
 
-define('IN_ETOMITE_SYSTEM', 'true'); // for backward compatibility with 0.6
-
 // include_once config file
 $config_path = "{$core_path}config.inc.php";
 if (!is_file($config_path)) {
@@ -122,7 +120,6 @@ if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 	else unset($_SESSION['safeMode']);
 }
 
-$etomite = &$modx; // for backward compatibility
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 $modx->db->connect();

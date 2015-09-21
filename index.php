@@ -146,7 +146,6 @@ if(!empty($_GET)||!empty($_POST)||$find) require_once(MODX_CORE_PATH . 'protect.
 // initiate a new document parser
 include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
 $modx = new DocumentParser;
-$etomite = &$modx; // for backward compatibility
 
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
