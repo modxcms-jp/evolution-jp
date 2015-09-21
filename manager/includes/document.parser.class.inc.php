@@ -2425,8 +2425,8 @@ class DocumentParser {
             $docid = $this->getIdFromAlias($identifier);
         
         if(empty($docid)) return false;
-        
-        $cacheKey = __FUNCTION__."[{$field}-{$docid}]";
+        $webInternalKey = isset($_SESSION['webInternalKey']) ? $_SESSION['webInternalKey'] : '0';
+        $cacheKey = __FUNCTION__."[{$field}-{$docid}-{$webInternalKey}]";
         if(isset($this->functionCache[$cacheKey]))
             return $this->functionCache[$cacheKey];
         
