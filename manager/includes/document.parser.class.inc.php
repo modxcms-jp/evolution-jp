@@ -82,6 +82,73 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
+        switch($method_name) {
+            case 'ParseCommand':
+            case 'ParseInputOptions':
+            case 'ProcessTVCommand':
+            case '_IIS_furl_fix':
+            case 'addEventListener':
+            case 'addLog':
+            case 'atBindFile':
+            case 'atBindUrl':
+            case 'changeWebUserPassword':
+            case 'checkPermissions':
+            case 'clearCache':
+            case 'decodeParamValue':
+            case 'genToken':
+            case 'getActiveChildren':
+            case 'getAllChildren':
+            case 'getDocumentChildren':
+            case 'getDocumentChildrenTVarOutput':
+            case 'getDocumentChildrenTVars':
+            case 'getExtention':
+            case 'getLoginUserName':
+            case 'getLoginUserType':
+            case 'getMimeType':
+            case 'getOption':
+            case 'getPreviewObject':
+            case 'getSnippetId':
+            case 'getSnippetName':
+            case 'getUnixtimeFromDateString':
+            case 'getUserInfo':
+            case 'getVersionData':
+            case 'getWebUserInfo':
+            case 'get_backtrace':
+            case 'isMemberOfWebGroup':
+            case 'isSelected':
+            case 'loadLexicon':
+            case 'logEvent':
+            case 'mergeInlineFilter':
+            case 'messageQuit':
+            case 'parseInput':
+            case 'recDebugInfo':
+            case 'regClientCSS':
+            case 'regClientHTMLBlock':
+            case 'regClientScript':
+            case 'regClientStartupHTMLBlock':
+            case 'regClientStartupScript':
+            case 'regOption':
+            case 'removeEventListener':
+            case 'renderFormElement':
+            case 'rotate_log':
+            case 'runSnippet':
+            case 'sendErrorPage':
+            case 'sendForward':
+            case 'sendRedirect':
+            case 'sendUnauthorizedPage':
+            case 'sendUnavailablePage':
+            case 'sendmail':
+            case 'setCacheRefreshTime':
+            case 'setOption':
+            case 'snapshot':
+            case 'splitOption':
+            case 'updateDraft':
+            case 'webAlertAndQuit':
+                $this->loadExtension('SubParser');
+                if(method_exists($this->sub,$method_name))
+                    return call_user_func_array(array($this->sub,$method_name),$arguments);
+        }
+        
         $this->loadExtension('DeprecatedAPI');
         if(method_exists($this->old,$method_name)) $error_type=1;
         else                                       $error_type=3;
@@ -3323,134 +3390,6 @@ class DocumentParser {
         return $o;
     }
     
-    function sendmail($params=array(), $msg='')
-        {$this->loadExtension('SubParser');return $this->sub->sendmail($params, $msg);}
-    function rotate_log($target='event_log',$limit=2000, $trim=100)
-        {$this->loadExtension('SubParser');$this->sub->rotate_log($target,$limit,$trim);}
-    function addLog($title='no title',$msg='',$type=1)
-        {$this->loadExtension('SubParser');$this->sub->addLog($title,$msg,$type);}
-    function logEvent($evtid, $type, $msg, $title= 'Parser')
-        {$this->loadExtension('SubParser');$this->sub->logEvent($evtid,$type,$msg,$title);}
-    function clearCache($params=array())
-        {$this->loadExtension('SubParser');return $this->sub->clearCache($params);}
-    function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='')
-        {$this->loadExtension('SubParser');$this->sub->messageQuit($msg,$query,$is_error,$nr,$file,$source,$text,$line,$output);}
-    function get_backtrace()
-        {$this->loadExtension('SubParser');return $this->sub->get_backtrace();}
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
-        {$this->loadExtension('SubParser');$this->sub->sendRedirect($url,$count_attempts,$type,$responseCode);}
-    function sendForward($id='', $responseCode= '')
-        {$this->loadExtension('SubParser');$this->sub->sendForward($id, $responseCode);}
-    function sendErrorPage()
-        {$this->loadExtension('SubParser');$this->sub->sendErrorPage();}
-    function sendUnauthorizedPage()
-        {$this->loadExtension('SubParser');$this->sub->sendUnauthorizedPage();}
-    function sendUnavailablePage()
-        {$this->loadExtension('SubParser');$this->sub->sendUnavailablePage();}
-    function setCacheRefreshTime($unixtime)
-        {$this->loadExtension('SubParser');$this->sub->setCacheRefreshTime($unixtime);}
-    function getSnippetId()
-        {$this->loadExtension('SubParser');return $this->sub->getSnippetId();}
-    function getSnippetName()
-        {$this->loadExtension('SubParser');return $this->sub->getSnippetName();}
-    function runSnippet($snippetName, $params= array ())
-        {$this->loadExtension('SubParser');return $this->sub->runSnippet($snippetName, $params);}
-    function changeWebUserPassword($oldPwd, $newPwd)
-        {$this->loadExtension('SubParser');return $this->sub->changeWebUserPassword($oldPwd, $newPwd);}
-    function addEventListener($evtName, $pluginName)
-        {$this->loadExtension('SubParser');return $this->sub->addEventListener($evtName, $pluginName);}
-    function removeEventListener($evtName, $pluginName='')
-        {$this->loadExtension('SubParser');return $this->sub->removeEventListener($evtName, $pluginName);}
-    function updateDraft()
-        {$this->loadExtension('SubParser');$this->sub->updateDraft();}
-    function regClientCSS($src, $media='')
-        {$this->loadExtension('SubParser');$this->sub->regClientCSS($src, $media);}
-    function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
-        {$this->loadExtension('SubParser');$this->sub->regClientScript($src, $options, $startup);}
-    function regClientStartupHTMLBlock($html)
-        {$this->loadExtension('SubParser');$this->sub->regClientStartupHTMLBlock($html);}
-    function regClientHTMLBlock($html)
-        {$this->loadExtension('SubParser');$this->sub->regClientHTMLBlock($html);}
-    function regClientStartupScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-        {$this->loadExtension('SubParser');$this->sub->regClientStartupScript($src, $options);}
-    function checkPermissions($docid=false,$duplicateDoc = false)
-        {$this->loadExtension('SubParser');return $this->sub->checkPermissions($docid,$duplicateDoc);}
-        
-    function ProcessTVCommand($value, $name = '', $docid = '', $src='docform')
-        {$this->loadExtension('SubParser');return $this->sub->ProcessTVCommand($value, $name, $docid, $src);}
-    function ParseCommand($binding_string)
-        {$this->loadExtension('SubParser');return $this->sub->ParseCommand($binding_string);}
-    function getExtention($str)
-        {$this->loadExtension('SubParser');return $this->sub->getExtention($str);}
-    function decodeParamValue($s)
-        {$this->loadExtension('SubParser');return $this->sub->decodeParamValue($s);}
-    function parseInput($src, $delim='||', $type='string', $columns=true)
-        {$this->loadExtension('SubParser');return $this->sub->parseInput($src, $delim, $type, $columns);}
-    function getUnixtimeFromDateString($value)
-        {$this->loadExtension('SubParser');return $this->sub->getUnixtimeFromDateString($value);}
-
-    function renderFormElement($f_type, $f_id, $default_text, $f_elements, $f_value, $f_style='', $row = array())
-        {$this->loadExtension('SubParser');
-        return $this->sub->renderFormElement($f_type,$f_id,$default_text,$f_elements,$f_value, $f_style,$row);}
-    function ParseInputOptions($v)
-        {$this->loadExtension('SubParser');return $this->sub->ParseInputOptions($v);}
-    function splitOption($value)
-        {$this->loadExtension('SubParser');return $this->sub->splitOption($value);}
-    function isSelected($label,$value,$item,$field_value)
-        {$this->loadExtension('SubParser');return $this->sub->isSelected($label,$value,$item,$field_value);}
-    function webAlertAndQuit($msg, $url= '')
-        {$this->loadExtension('SubParser');return $this->sub->webAlertAndQuit($msg, $url);}
-    function getMimeType($file_path='')
-        {$this->loadExtension('SubParser');return $this->sub->getMimeType($file_path);}
-    function getUserInfo($uid)
-        {$this->loadExtension('SubParser');return $this->sub->getUserInfo($uid);}
-    function getWebUserInfo($uid)
-        {$this->loadExtension('SubParser');return $this->sub->getWebUserInfo($uid);}
-    function isMemberOfWebGroup($groupNames= array ())
-        {$this->loadExtension('SubParser');return $this->sub->isMemberOfWebGroup($groupNames);}
-    function getLoginUserType()
-        {$this->loadExtension('SubParser');return $this->sub->getLoginUserType();}
-    function getLoginUserName($context= '')
-        {$this->loadExtension('SubParser');return $this->sub->getLoginUserName($context);}
-
-    function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
-        {$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVars($parentid, $tvidnames, $published, $docsort, $docsortdir, $tvfields, $tvsort, $tvsortdir);}
-    function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
-        {$this->loadExtension('SubParser');return $this->sub->getDocumentChildrenTVarOutput($parentid, $tvidnames, $published, $docsort, $docsortdir);}
-    function getPreviewObject($input)
-        {$this->loadExtension('SubParser');return $this->sub->getPreviewObject($input);}
-
-    function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
-        {$this->loadExtension('SubParser');return $this->sub->getAllChildren($id, $sort, $dir, $fields,$where);}
-    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
-        {$this->loadExtension('SubParser');return $this->sub->getActiveChildren($id, $sort, $dir, $fields);}
-    function getDocumentChildren($parentid= 0, $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
-        {$this->loadExtension('SubParser');return $this->sub->getDocumentChildren($parentid, $published, $deleted, $fields, $where, $sort, $dir, $limit);}
-    function loadLexicon($target='manager')
-        {$this->loadExtension('SubParser');return $this->sub->loadLexicon($target);}
-    function snapshot($filename='',$target='')
-        {$this->loadExtension('SubParser');return $this->sub->snapshot($filename,$target);}
-    function getVersionData($data=null)
-        {$this->loadExtension('SubParser');return $this->sub->getVersionData($data);}
-    function _IIS_furl_fix()
-        {$this->loadExtension('SubParser');return $this->sub->_IIS_furl_fix();}
-    function genToken()
-        {$this->loadExtension('SubParser');return $this->sub->genToken();}
-    function atBindFile($content='')
-        {$this->loadExtension('SubParser');return $this->sub->atBindFile($content);}
-    function atBindUrl($content='')
-        {$this->loadExtension('SubParser');return $this->sub->atBindUrl($content);}
-    function getOption($key, $default = null, $options = null, $skipEmpty = false)
-        {$this->loadExtension('SubParser');return $this->sub->getOption($key, $default, $options, $skipEmpty);}
-    function setOption($key, $value='')
-        {$this->loadExtension('SubParser');return $this->sub->setOption($key, $value);}
-    function regOption($key, $value='')
-        {$this->loadExtension('SubParser');return $this->sub->regOption($key, $value);}
-    function recDebugInfo()
-        {$this->loadExtension('SubParser');return $this->sub->recDebugInfo();}
-    function mergeInlineFilter($content)
-        {$this->loadExtension('SubParser');return $this->sub->mergeInlineFilter($content);}
-        
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
