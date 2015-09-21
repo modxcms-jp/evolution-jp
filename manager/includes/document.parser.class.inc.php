@@ -274,6 +274,19 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
         
+        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false)
+            die();
+        
+        foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
+            $_SERVER[$key] = isset ($_SERVER[$key]) ? htmlspecialchars($_SERVER[$key], ENT_QUOTES) : null;
+        }
+        $this->sanitize_gpc($_GET);
+        if($this->isBackend()) {
+            if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) $this->sanitize_gpc($_POST);
+        }
+        $this->sanitize_gpc($_COOKIE);
+        $this->sanitize_gpc($_REQUEST);
+        
         if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
             $this->uaType = $this->getUaType();
         else $this->uaType = 'pages';
@@ -718,6 +731,36 @@ class DocumentParser {
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
         // end post processing
+    }
+    
+    function sanitize_gpc(& $target, $count=0) {
+        $s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
+        foreach($s as $_)
+        {
+            $r[] = " {$_['0']} {$_['1']} ";
+        }
+        foreach ($target as $key => $value)
+        {
+            if (is_array($value))
+            {
+                $count++;
+                if(10 < $count)
+                {
+                    echo 'too many nested array';
+                    exit;
+                }
+                $this->sanitize_gpc($value, $count);
+            }
+            else
+            {
+                $value = str_replace($s,$r,$value);
+                $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
+                $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
+                $target[$key] = $value;
+            }
+            $count=0;
+        }
+        return $target;
     }
     
     function getUaType()

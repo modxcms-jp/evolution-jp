@@ -93,7 +93,6 @@ if (@is_file("{$base_path}autoload.php")) {
     include_once("{$base_path}autoload.php");
 }
 // harden it
-require_once("{$core_path}protect.inc.php");
 require_once("{$core_path}initialize.inc.php");
 
 // include_once config file

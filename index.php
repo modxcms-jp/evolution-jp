@@ -132,16 +132,6 @@ if (!isset($database_type))
 
 if(!defined('MODX_API_MODE')) set_parser_mode();
 if (session_id() === '') startCMSSession();
-$find = false;
-if(isset($_COOKIE)&&!empty($_COOKIE))
-{
-	foreach($_COOKIE as $v)
-	{
-		if(!is_string($v)) continue;
-		if(strpos($v,']')!==false||strpos($v,'}}')!==false) $find = true;
-	}
-}
-if(!empty($_GET)||!empty($_POST)||$find) require_once(MODX_CORE_PATH . 'protect.inc.php');
 
 // initiate a new document parser
 include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
