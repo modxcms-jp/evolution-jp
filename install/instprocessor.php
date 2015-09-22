@@ -594,7 +594,6 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
-include_once("{$base_path}index.php");
 
 $cache_path = "{$base_path}assets/cache/";
 
