@@ -592,7 +592,7 @@ if ($installmode == 0 && $installdata)
 // call back function
 if ($callBackFnc != '') $callBackFnc ($sqlParser);
 
-// Setup the MODx API -- needed for the cache processor
+// Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
 include_once("{$base_path}index.php");
 
