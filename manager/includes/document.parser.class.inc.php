@@ -65,6 +65,7 @@ class DocumentParser {
     var $uaType;
     var $functionLog = array();
     var $currentSnippetCall;
+    var $aliasCache = array();
 
     function __get($property_name)
     {
@@ -215,6 +216,11 @@ class DocumentParser {
             $this->mstart = memory_get_usage();
         }
         if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
+        $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
+        if(is_file($alias_cache_path)) {
+            $aliasCache = file_get_contents($alias_cache_path);
+            $this->aliasCache=unserialize($aliasCache);
+        }
     }
 
     /*
@@ -727,6 +733,9 @@ class DocumentParser {
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
+            $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
+            $aliasCache = serialize($this->aliasCache);
+            file_put_contents($alias_cache_path, $aliasCache, LOCK_EX);
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
@@ -3528,9 +3537,8 @@ class DocumentParser {
     
     function getIdFromAlias($alias)
     {
-        $cacheKey = __FUNCTION__.md5($alias);
-        if(isset($this->functionCache[$cacheKey]))
-            return $this->functionCache[$cacheKey];
+        if(isset($this->aliasCache[$alias]))
+            return $this->aliasCache[$alias];
         
         $children = array();
         
@@ -3566,7 +3574,7 @@ class DocumentParser {
             if($row) $id = $row['id'];
             else     $id = false;
         }
-        $this->functionCache[$cacheKey] = $id;
+        $this->aliasCache[$alias] = $id;
         return $id;
     }
     
