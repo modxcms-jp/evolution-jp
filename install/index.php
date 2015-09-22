@@ -63,7 +63,7 @@ $ph = array_merge($ph,$_lang);
 $ph['install_language'] = $install_language;
 
 ob_start();
-if (!@include ("{$installer_path}actions/{$action}.php"))
+if (!@include_once ("{$installer_path}actions/{$action}.php"))
 {
     die ('Invalid install action attempted. [action=' . $action . ']');
 }
