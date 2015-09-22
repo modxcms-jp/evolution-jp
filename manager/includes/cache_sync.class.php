@@ -71,8 +71,10 @@ class synccache {
 		return $path;
 	}
 
-	function emptyCache($modx = null)
+	function emptyCache()
 	{
+		global $modx;
+		
 		$instance_name = '';
 		if(is_object($modx))
 		{
@@ -88,7 +90,7 @@ class synccache {
 		if(strpos($this->target,'sitecache')!==false)
 		{
 			$this->purgeCacheFiles('siteCache');
-			$this->buildCache($modx);
+			$this->buildCache();
 		}
 		$this->publishBasicConfig();
 		if(isset($result) && $this->showReport==true) $this->showReport($result);
@@ -241,22 +243,22 @@ class synccache {
 	* @param  DocumentParser $modx
 	* @return boolean success
 	*/
-	function buildCache($modx)
+	function buildCache()
 	{
-		global $_lang;
+		global $modx,$_lang;
 		
 		$content = "<?php\n";
 		$content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
 		
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		
-		$this->_get_settings($modx); // get settings
-		$this->_get_aliases($modx);  // get aliases modx: support for alias path
-		$content .= $this->_get_content_types($modx); // get content types
-		$this->_get_chunks($modx);   // WRITE Chunks to cache file
-		$this->_get_snippets($modx); // WRITE snippets to cache file
-		$this->_get_plugins($modx);  // WRITE plugins to cache file
-		$content .= $this->_get_events($modx);   // WRITE system event triggers
+		$this->_get_settings(); // get settings
+		$this->_get_aliases();  // get aliases modx: support for alias path
+		$content .= $this->_get_content_types(); // get content types
+		$this->_get_chunks();   // WRITE Chunks to cache file
+		$this->_get_snippets(); // WRITE snippets to cache file
+		$this->_get_plugins();  // WRITE plugins to cache file
+		$content .= $this->_get_events();   // WRITE system event triggers
 		
 		// close and write the file
 		$content .= "\n";
@@ -319,8 +321,10 @@ class synccache {
 		}
 	}
 	
-	function _get_settings($modx)
+	function _get_settings()
 	{
+		global $modx;
+		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
 		$row = array();
 		while($row = $modx->db->getRow($rs))
@@ -331,8 +335,10 @@ class synccache {
 		}
 	}
 	
-	function _get_aliases($modx)
+	function _get_aliases()
 	{
+		global $modx;
+		
 	    $friendly_urls = $modx->db->getValue('setting_value','system_settings',"setting_name='friendly_urls'");
 		if($friendly_urls==1)
 		    $use_alias_path = $modx->db->getValue('setting_value','system_settings',"setting_name='use_alias_path'");
@@ -353,8 +359,10 @@ class synccache {
 		}
 	}
 	
-	function _get_content_types($modx)
+	function _get_content_types()
 	{
+		global $modx;
+		
 		$rs = $modx->db->select('id, contentType','[+prefix+]site_content',"contentType != 'text/html'");
 		$_[] = '$c = &$this->contentTypes;';
 		$row = array();
@@ -366,8 +374,10 @@ class synccache {
 		return join("\n", $_) . "\n";
 	}
 	
-	function _get_chunks($modx)
+	function _get_chunks()
 	{
+		global $modx;
+		
 		$rs = $modx->db->select('name,snippet','[+prefix+]site_htmlsnippets', "`published`='1'");
 		$row = array();
 		$modx->chunkCache = array();
@@ -378,8 +388,10 @@ class synccache {
 		}
 	}
 	
-	function _get_snippets($modx)
+	function _get_snippets()
 	{
+		global $modx;
+		
 		$fields = 'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`';
 		$from = "[+prefix+]site_snippets ss LEFT JOIN [+prefix+]site_modules sm on sm.guid=ss.moduleguid";
 		$rs = $modx->db->select($fields,$from);
@@ -397,8 +409,10 @@ class synccache {
 		}
 	}
 	
-	function _get_plugins($modx)
+	function _get_plugins()
 	{
+		global $modx;
+		
 		$fields = 'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`';
 		$from = "[+prefix+]site_plugins sp LEFT JOIN [+prefix+]site_modules sm on sm.guid=sp.moduleguid";
 		$rs = $modx->db->select($fields,$from,'sp.disabled=0');
@@ -416,8 +430,10 @@ class synccache {
 		}
 	}
 	
-	function _get_events($modx)
+	function _get_events()
 	{
+		global $modx;
+		
 		$fields  = 'sysevt.name as `evtname`, plugs.name';
 		$from[] = '[+prefix+]system_eventnames sysevt';
 		$from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
