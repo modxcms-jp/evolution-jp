@@ -1042,6 +1042,16 @@ class DocumentParser {
     
     function cleanDocumentIdentifier($qOrig)
     {
+        if(isset($this->aliasCache[__FUNCTION__]['vdir'][$qOrig]))
+            $this->virtualDir = $this->aliasCache[__FUNCTION__]['vdir'][$qOrig];
+        if(isset($this->aliasCache[__FUNCTION__]['id'][$qOrig])) {
+            $this->documentMethod = 'id';
+            return $this->aliasCache[__FUNCTION__]['id'][$qOrig];
+        }
+        elseif(isset($this->aliasCache[__FUNCTION__]['alias'][$qOrig])) {
+            return $this->aliasCache[__FUNCTION__]['alias'][$qOrig];
+        }
+        
         if(empty($qOrig)) $qOrig = $this->config['site_start'];
         $q = trim($qOrig,'/');
         /* Save path if any */
@@ -1093,6 +1103,8 @@ class DocumentParser {
                 else $rs = $q;
             }
         }
+        $this->aliasCache[__FUNCTION__]['vdir'][$qOrig] = $this->virtualDir;
+        $this->aliasCache[__FUNCTION__][$this->documentMethod][$qOrig] = $rs;
         return $rs;
     }
 
@@ -3522,8 +3534,8 @@ class DocumentParser {
     
     function getIdFromAlias($aliasPath)
     {
-        if(isset($this->aliasCache[$aliasPath]))
-            return $this->aliasCache[$aliasPath];
+        if(isset($this->aliasCache[__FUNCTION__][$aliasPath]))
+            return $this->aliasCache[__FUNCTION__][$aliasPath];
         
         $children = array();
         
@@ -3559,7 +3571,7 @@ class DocumentParser {
             if($row) $id = $row['id'];
             else     $id = false;
         }
-        $this->aliasCache[$aliasPath] = $id;
+        $this->aliasCache[__FUNCTION__][$aliasPath] = $id;
         return $id;
     }
     
