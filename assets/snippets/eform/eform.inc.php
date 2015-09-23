@@ -269,7 +269,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         }
 
         # sanitize the values with slashes stripped to avoid remote execution of Snippets
-        modx_sanitize_gpc($fields);
+        $modx->sanitize_gpc($fields);
 
         # validate fields
         foreach($fields as $name => $value) {
