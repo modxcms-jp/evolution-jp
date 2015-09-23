@@ -330,14 +330,12 @@ class ditto {
 		unset($PHs);
 		if($modifier_mode==='normal')
 		{
-			$modx->loadExtension('MODIFIERS');
-			$modx->filter->setPlaceholders($placeholders);
             $i=0;
             $bt = '';
             while($bt !== $template)
             {
                 $bt = $template;
-                $template = $modx->parseText($template,$modx->filter->placeholders,'[+','+]',false);
+                $template = $modx->parseText($template,$placeholders,'[+','+]',false);
                 if($bt===$template) break;
                 $i++;
                 if(1000<$i) $modx->messageQuit('Ditto parse over');
