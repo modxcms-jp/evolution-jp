@@ -1797,7 +1797,7 @@ class SubParser {
             }
         }
         $_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
-        $_REQUEST['q']= $_GET['q']= $qp['path'];
+        return $qp['path'];
     }
     
     function genToken() {
