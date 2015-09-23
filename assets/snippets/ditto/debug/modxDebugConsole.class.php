@@ -199,6 +199,8 @@ class modxDebugConsole{
 	 */
 	function array2table($array, $recursive = false, $return = false, $null = '&nbsp;')
 	{
+		global $modx;
+		
 	    // Sanity check
 	    if (empty($array) || !is_array($array)) {
 	        return false;
@@ -227,7 +229,7 @@ class modxDebugConsole{
 	            $table .= '<td>';
 
 	            // Cast objects
-	            if (is_object($cell)) { $cell = (array) $cell; }
+	            if ($modx->db->isResult($cell)) { $cell = (array) $cell; }
 
 	            if ($recursive === true && is_array($cell) && !empty($cell)) {
 	                // Recursive mode
