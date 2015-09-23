@@ -3520,17 +3520,17 @@ class DocumentParser {
         return $this->getIdFromAlias($str);
     }
     
-    function getIdFromAlias($alias)
+    function getIdFromAlias($aliasPath)
     {
-        if(isset($this->aliasCache[$alias]))
-            return $this->aliasCache[$alias];
+        if(isset($this->aliasCache[$aliasPath]))
+            return $this->aliasCache[$aliasPath];
         
         $children = array();
         
         if($this->config['use_alias_path']==1)
         {
-            if(strpos($alias,'/')!==false) $_a = explode('/', $alias);
-            else                           $_a[] = $alias;
+            if(strpos($aliasPath,'/')!==false) $_a = explode('/', $aliasPath);
+            else                               $_a[] = $aliasPath;
             $id= 0;
             
             foreach($_a as $alias)
@@ -3559,7 +3559,7 @@ class DocumentParser {
             if($row) $id = $row['id'];
             else     $id = false;
         }
-        $this->aliasCache[$alias] = $id;
+        $this->aliasCache[$aliasPath] = $id;
         return $id;
     }
     
