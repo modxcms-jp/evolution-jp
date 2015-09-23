@@ -302,10 +302,10 @@ class DocumentParser {
         if(strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
         elseif($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
         
-        if($this->directParse==0 && 0 < count($_POST)) $this->config['cache_type'] = 0;
-        
         if($this->directParse==0)
         {
+            if(0 < count($_POST)) $this->config['cache_type'] = 0;
+            
             $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
             if(!empty($this->documentOutput))
             {
