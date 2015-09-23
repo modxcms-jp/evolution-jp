@@ -6,7 +6,7 @@
 if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
 
 // set error reporting
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+error_reporting(E_ALL & ~E_NOTICE);
 
 $self = 'install/index.php';
 $base_path = str_replace($self,'',str_replace('\\','/', __FILE__));

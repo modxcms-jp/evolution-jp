@@ -28,7 +28,7 @@ if (defined('IN_MANAGER_MODE')) $init->init_mgr();
 
 if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
 
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+error_reporting(E_ALL & ~E_NOTICE);
 
 // start cms session
 if(!function_exists('startCMSSession'))
