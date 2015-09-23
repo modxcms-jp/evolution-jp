@@ -334,7 +334,7 @@ class DocumentParser {
             $this->updatePublishStatus();
             
             // find out which document we need to display
-            $this->documentMethod= $this->getDocumentMethod();
+            $this->documentMethod= isset($_REQUEST['id']) ? 'id' : 'alias';
             $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
         }
         
@@ -983,14 +983,6 @@ class DocumentParser {
             $this->config['modx_charset'] = 'utf-8';
         $this->invokeEvent('OnGetConfig');
         return $this->config;
-    }
-    
-    function getDocumentMethod()
-    {
-        // function to test the query and find the retrieval method
-        if(isset($_REQUEST['q']))       return 'alias';
-        elseif(isset($_REQUEST['id']))  return 'id';
-        else                            return 'none';
     }
     
     function getDocumentIdentifier($method)
