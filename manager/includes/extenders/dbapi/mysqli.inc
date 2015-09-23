@@ -43,6 +43,7 @@ class DBAPI {
     */
     function connect($host = '', $dbase = '', $uid = '', $pwd = '', $tmp = 0) {
         global $modx;
+        if($this->conn) return;
         if(!$host)  $host  = $this->hostname;
         if(substr(PHP_OS,0,3) === 'WIN' && $host==='localhost')
             $host = '127.0.0.1';
