@@ -2102,6 +2102,13 @@ class DocumentParser {
     */
     function getDocumentObject($method='id', $identifier='', $mode='direct')
     {
+        if($method === 'alias')
+        {
+            $identifier = $this->getIdFromAlias($identifier);
+            if($identifier===false) return false;
+            $method = 'id';
+        }
+        
         if(isset($_SESSION['mgrValidated'])
              && $mode==='prepareResponse'
              && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
