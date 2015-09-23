@@ -392,6 +392,20 @@ class DocumentParser {
         return $result;
     }
     
+    function setRequestQ($decoded_request_uri) {
+        if(isset($_REQUEST['id'])) $q = null;
+        else {
+            $q = substr($decoded_request_uri,strlen($this->config['base_url']));
+            if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
+            if($q=='index.php')        $q = '';
+        }
+        // IIS friendly url fix
+        if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
+            $q = $this->_IIS_furl_fix();
+        
+        return $q;
+    }
+    
     function sanitizeVars() {
         if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false)
             exit();
