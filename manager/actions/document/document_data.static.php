@@ -20,7 +20,7 @@ if (!$isAllowed)
 	$e->dumpError();
 }
 
-$modx->checkPublishStatus();
+$modx->updatePublishStatus();
 
 // Get access permissions
 if($_SESSION['mgrDocgroups']) $docgrp = implode(',',$_SESSION['mgrDocgroups']);

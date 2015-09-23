@@ -12,7 +12,7 @@ if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
 
 $modx->loadExtension('DocAPI');
 
-$modx->checkPublishStatus();
+$modx->updatePublishStatus();
 
 if($id!=0)
 {

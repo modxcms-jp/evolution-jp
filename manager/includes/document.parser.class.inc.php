@@ -331,7 +331,7 @@ class DocumentParser {
         else
         {
             // make sure the cache doesn't need updating
-            $this->checkPublishStatus();
+            $this->updatePublishStatus();
             
             // find out which document we need to display
             $this->documentMethod= $this->getDocumentMethod();
@@ -1222,7 +1222,7 @@ class DocumentParser {
         return $a['1']; // return document content
     }
     
-    function checkPublishStatus()
+    function updatePublishStatus()
     {
         $cache_path= "{$this->config['base_path']}assets/cache/basicConfig.php";
         if($this->cacheRefreshTime=='')
