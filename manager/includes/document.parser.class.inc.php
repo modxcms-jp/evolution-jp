@@ -2119,7 +2119,6 @@ class DocumentParser {
             }
             $previewObject = $this->getPreviewObject($_POST);
             $this->directParse = 1;
-            $method = 'id';
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
         }
@@ -2138,22 +2137,6 @@ class DocumentParser {
         }
         else $previewObject = false;
         
-        if(empty($identifier) && $method !== 'id' && $method !== 'alias')
-        {
-            $identifier = $method;
-            if(empty($identifier)) $identifier = $this->documentIdentifier;
-            if(preg_match('/^[0-9]+$/', $method)) $method = 'id';
-            else                                  $method = 'alias';
-        }
-        
-        // allow alias to be full path
-        if($method === 'alias' && $this->config['use_alias_path']==='1')
-        {
-            $identifier = $this->getIdFromAlias($identifier);
-            if($identifier!==false)
-            $method = 'id';
-            else return false;
-        }
         // get document groups for current user
         if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
         
@@ -2166,25 +2149,15 @@ class DocumentParser {
         $access = join(' OR ', $_);
         
         $from = "[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id";
-        $where ="sc.{$method}='{$identifier}' AND ($access)";
+        $where ="sc.id='{$identifier}' AND ($access)";
         $result= $this->db->select('sc.*',$from,$where,'',1);
         if ($this->db->getRecordCount($result) < 1)
         {
             if ($this->isBackend()||$mode==='direct') return false;
             
-            // method may still be alias, while identifier is not full path alias, e.g. id not found above
-            if ($method === 'alias') :
-                $field = 'dg.id';
-                $from = "[+prefix+]document_groups dg, [+prefix+]site_content sc";
-                $where =  "dg.document = sc.id AND sc.alias = '{$identifier}'";
-            else:
-                $field = 'id';
-                $from = '[+prefix+]document_groups';
-                $where =  "document = '{$identifier}'";
-            endif;
-            
             // check if file is not public
-            $total= $this->db->getRecordCount($this->db->select($field,$from,$where,'',1));
+            $rs = $this->db->select('id','[+prefix+]document_groups',"document='{$identifier}'",'',1);
+            $total= $this->db->getRecordCount($rs);
             if ($total > 0) $this->sendUnauthorizedPage();
             else            $this->sendErrorPage();
         }
