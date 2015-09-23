@@ -493,6 +493,10 @@ $s = '';
         return $this->getVersion();
     }
     
+    function host_info() {
+        return $this->conn->host_info;
+    }
+    
     /**
      * @name  getObject 
      * @desc  get row as object from table, like oop style 
