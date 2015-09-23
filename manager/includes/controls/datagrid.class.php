@@ -227,11 +227,10 @@ class DataGrid {
 			}
 			else
 			{
-				$tblc = mysql_num_fields($this->ds);
+				$tblc = $modx->db->numFields($this->ds);
 				for($i=0;$i<$tblc;$i++)
 				{
-					$cinfo = mysql_fetch_field($this->ds,$i);
-					$this->_fieldnames[$i] = $cinfo->name;
+					$this->_fieldnames[$i] = $modx->db->fieldName($this->ds,$i);
 				}
 			}
 		}
@@ -239,9 +238,9 @@ class DataGrid {
 		if(!$cssStyle && !$cssClass) $cssStyle = '';
 
 		if($this->_isDataset && !$this->columns) {
-			$cols = mysql_num_fields($this->ds);
+			$cols = $modx->db->numFields($this->ds);
 			for($i=0;$i<$cols;$i++)
-				$this->columns.= ($i ? ",":"").mysql_field_name($this->ds,$i);
+				$this->columns.= ($i ? ",":"").$modx->db->fieldName($this->ds,$i);
 		}
 		
 		// start grid
