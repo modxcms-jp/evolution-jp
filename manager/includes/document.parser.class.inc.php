@@ -862,42 +862,31 @@ class DocumentParser {
         $filepath = substr($filepath,strlen($this->config['base_url']));
         if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
         $filepath = $this->config['base_path'] . "temp/public_html/{$filepath}";
-        if(is_file($filepath)!==false)
+        if(is_file($filepath)===false) return false;
+        $ext = strtolower(substr($filepath,strrpos($filepath,'.')));
+        switch($ext)
         {
-            $ext = strtolower(substr($filepath,strrpos($filepath,'.')));
-            switch($ext)
-            {
-                case '.html':
-                case '.htm':
-                    $mime_type = 'text/html'; break;
-                case '.xml':
-                case '.rdf':
-                    $mime_type = 'text/xml'; break;
-                case '.css':
-                    $mime_type = 'text/css'; break;
-                case '.js':
-                    $mime_type = 'text/javascript'; break;
-                case '.txt':
-                    $mime_type = 'text/plain'; break;
-                case '.ico':
-                case '.jpg':
-                case '.jpeg':
-                case '.png':
-                case '.gif':
-                    if($ext==='.ico') $mime_type = 'image/x-icon';
-                    else              $mime_type = $this->getMimeType($filepath);
-                    if(!$mime_type) $this->sendErrorPage();
-                    header("Content-type: {$mime_type}");
-                    readfile($filepath);
-                    exit;
-                default:
-                    exit;
-            }
-            header("Content-type: {$mime_type}");
-            $src = file_get_contents($filepath);
+            case '.html': case '.htm':
+                $mime_type = 'text/html'; break;
+            case '.xml':
+            case '.rdf':
+                $mime_type = 'text/xml'; break;
+            case '.css':
+                $mime_type = 'text/css'; break;
+            case '.js':
+                $mime_type = 'text/javascript'; break;
+            case '.txt':
+                $mime_type = 'text/plain'; break;
+            case '.ico': case '.jpg': case '.jpeg': case '.png': case '.gif':
+                if($ext==='.ico') $mime_type = 'image/x-icon';
+                else              $mime_type = $this->getMimeType($filepath);
+                if(!$mime_type) $this->sendErrorPage();
+                header("Content-type: {$mime_type}");
+                //readfile($filepath);
+                $src = file_get_contents($filepath);
+            default:
+                exit;
         }
-        else $src = false;
-        
         return $src;
     }
     
