@@ -280,19 +280,7 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
         
-        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false)
-            die();
-        
-        foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
-            $_SERVER[$key] = isset ($_SERVER[$key]) ? htmlspecialchars($_SERVER[$key], ENT_QUOTES) : null;
-        }
-        $this->sanitize_gpc($_GET);
-        if($this->isBackend()) {
-            if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) $this->sanitize_gpc($_POST);
-        }
-        $this->sanitize_gpc($_COOKIE);
-        $this->sanitize_gpc($_REQUEST);
-        
+        $this->sanitizeVars();        
         if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
             $this->uaType = $this->getUaType();
         else $this->uaType = 'pages';
@@ -413,6 +401,21 @@ class DocumentParser {
         
         $result = $this->prepareResponse();
         return $result;
+    }
+    
+    function sanitizeVars() {
+        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false)
+            exit();
+        
+        foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
+            $_SERVER[$key] = isset ($_SERVER[$key]) ? htmlspecialchars($_SERVER[$key], ENT_QUOTES) : null;
+        }
+        $this->sanitize_gpc($_GET);
+        if($this->isBackend()) {
+            if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) $this->sanitize_gpc($_POST);
+        }
+        $this->sanitize_gpc($_COOKIE);
+        $this->sanitize_gpc($_REQUEST);
     }
     
     function prepareResponse()
@@ -743,6 +746,10 @@ class DocumentParser {
     }
     
     function sanitize_gpc(& $target, $count=0) {
+        if(empty($target)) return;
+        $_ = join('',$target);
+        if(strpos($_,'[')===false&&strpos($_,'<')===false&&strpos($_,'#')===false) return;
+        
         $s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
         foreach($s as $_)
         {
