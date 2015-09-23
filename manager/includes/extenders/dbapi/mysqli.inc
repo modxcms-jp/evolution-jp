@@ -148,7 +148,7 @@ $s = '';
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {
-            switch($this->conn->errno()) {
+            switch($this->conn->errno) {
                 case 1060:
                 case 1061:
                 case 1091:
