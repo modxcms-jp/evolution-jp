@@ -1,6 +1,7 @@
 <?php if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+$esc_request = $modx->db->escape($_REQUEST);
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?php echo ($modx_textdir==='rtl' ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
@@ -451,7 +452,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 <body onclick="hideMenu();" class="<?php echo $modx_textdir==='rtl' ? ' rtl':''?>">
 <?php
     // invoke OnTreePrerender event
-    $evtOut = $modx->invokeEvent('OnManagerTreeInit',$_REQUEST);
+    $evtOut = $modx->invokeEvent('OnManagerTreeInit',$esc_request);
     if (is_array($evtOut))
         echo implode("\n", $evtOut);
 ?>
@@ -527,14 +528,14 @@ else                                 $_SESSION['tree_sortdir'] = $fieldtype == '
 <div id="treeHolder">
 <?php
     // invoke OnTreeRender event
-    $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $modx->db->escape($_REQUEST));
+    $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $esc_request);
     if (is_array($evtOut))
         echo implode("\n", $evtOut);
 ?>
     <div><?php echo $_style['tree_showtree']; ?>&nbsp;<span class="rootNode" onclick="treeAction(0, '<?php echo addslashes($site_name); ?>');"><b><?php echo $site_name; ?></b></span><div id="treeRoot"></div></div>
 <?php
     // invoke OnTreeRender event
-    $evtOut = $modx->invokeEvent('OnManagerTreeRender', $modx->db->escape($_REQUEST));
+    $evtOut = $modx->invokeEvent('OnManagerTreeRender', $esc_request);
     if (is_array($evtOut))
         echo implode("\n", $evtOut);
 ?>
