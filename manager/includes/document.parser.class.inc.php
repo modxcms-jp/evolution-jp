@@ -317,12 +317,6 @@ class DocumentParser {
             }
         }
         
-        // IIS friendly url fix
-        if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
-        {
-            $this->_IIS_furl_fix();
-        }
-        
         if($this->directParse==1)
         {
             $this->documentMethod     = 'id';
