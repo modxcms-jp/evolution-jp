@@ -282,16 +282,7 @@ class DocumentParser {
         
         $this->sanitizeVars();        
         $this->uaType  = $this->setUaType();
-        
-        if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
-        {
-            $qs = $_GET;
-            if(isset($qs['id'])) unset($qs['id']);
-            if(0 < count($qs)) $this->qs_hash = '_' . md5(join('&',$qs));
-            else $this->qs_hash = '';
-            $userID = $this->getLoginUserID('web');
-            if($userID) $this->qs_hash = md5($this->qs_hash."^{$userID}^");
-        }
+        $this->qs_hash = $this->genQsHash();
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
@@ -421,6 +412,20 @@ class DocumentParser {
             $uaType = $this->getUaType();
         else $uaType = 'pages';
         return $uaType;
+    }
+    
+    function genQsHash() {
+        if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
+        {
+            $qs = $_GET;
+            if(isset($qs['id'])) unset($qs['id']);
+            if(0 < count($qs)) $qs_hash = '_' . md5(join('&',$qs));
+            else $qs_hash = '';
+            $userID = $this->getLoginUserID('web');
+            if($userID) $qs_hash = md5($qs_hash."^{$userID}^");
+        }
+        else $qs_hash = '';
+        return $qs_hash;
     }
     
     function prepareResponse()
