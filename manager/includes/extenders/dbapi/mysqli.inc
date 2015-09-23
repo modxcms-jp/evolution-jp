@@ -44,6 +44,8 @@ class DBAPI {
     function connect($host = '', $dbase = '', $uid = '', $pwd = '', $tmp = 0) {
         global $modx;
         if(!$host)  $host  = $this->hostname;
+        if(substr(PHP_OS,0,3) === 'WIN' && $host==='localhost')
+            $host = '127.0.0.1';
         if(!$dbase) $dbase = $this->dbname;
         $dbase   = trim($dbase, '`'); // remove the `` chars
         if(!$uid)   $uid   = $this->username;
