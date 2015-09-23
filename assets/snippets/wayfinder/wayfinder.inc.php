@@ -443,8 +443,7 @@ class Wayfinder {
 			if(!empty($access)) $access = 'AND (' . join(' AND ', $access) . ')';
 			else $access = '';
 			
-			 if(strpos($modx->db->getVersion(),'5.0.51')===false) $groupby = 'GROUP BY sc.id';
-			 else                                                 $groupby = '';
+			 $groupby = 'GROUP BY sc.id';
 			 
 			//run the query
 	        $joind_ids = implode(',',$ids);
