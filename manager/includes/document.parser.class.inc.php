@@ -279,7 +279,7 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
         
-        $this->sanitizeVars();        
+        $this->sanitizeVars();
         $this->uaType  = $this->setUaType();
         $this->qs_hash = $this->genQsHash();
         
