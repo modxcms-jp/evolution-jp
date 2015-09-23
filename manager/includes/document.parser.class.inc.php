@@ -1066,50 +1066,42 @@ class DocumentParser {
         $suffix = $this->config['friendly_url_suffix'];
         if(!empty($prefix) && strpos($q,$prefix)!==false) $q = preg_replace('@^' . $prefix . '@',  '', $q);
         if(!empty($suffix) && strpos($q,$suffix)!==false) $q = preg_replace('@'  . $suffix . '$@', '', $q);
-        if (preg_match('@^[1-9][0-9]*$@',$q)) :
-            /* we got an ID returned, check to make sure it's not an alias */
-            /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
-            if ($this->config['use_alias_path'] == 1) {
+        if (!preg_match('@^[1-9][0-9]*$@',$q))
+        {
+            if ($this->config['friendly_alias_urls'] == 0) $rs = $qOrig;
+            else                                           $rs = $q;
+        }
+        else
+        {
+            if ($this->config['use_alias_path'] == 1)
+            {
                 $vdir = $this->virtualDir;
-                if (
-                    (
-                        ($vdir != '' && !$this->getIdFromAlias("{$vdir}/{$q}"))
-                        ||
-                        ($vdir == '' && !$this->getIdFromAlias($q))
-                    )
-                    &&
-                    (
-                        ($vdir != '' && in_array($q, $this->getChildIds($this->getIdFromAlias($vdir), 1)))
-                        ||
-                        ($vdir == '' && in_array($q, $this->getChildIds(0, 1)))
-                    )) {
+                
+                $aliasPath = $vdir!='' ? "{$vdir}/{$q}" : $q;
+                $docid = $this->getIdFromAlias($aliasPath);
+                
+                $pid = $vdir!='' ? $this->getIdFromAlias($vdir) : 0;
+                $children = $this->getChildIds($pid, 1);
+                $wChild =in_array($q, $children);
+                
+                if (!$docid && $wChild)
+                {
                     $this->documentMethod = 'id';
-                    $result = $q;
-                } else {
-                    /* not a valid id in terms of virtualDir, treat as alias */
-                    $this->documentMethod = 'alias';
-                    $result = $q;
+                    $rs = $q;
                 }
-            } else {
+                else $rs = $q;
+            }
+            else
+            {
                 $id = $this->getIdFromAlias($q);
                 if($id!==false) {
                     $this->documentMethod = 'id';
-                    $result = $id;
-                } else {
-                    $this->documentMethod = 'alias';
-                    $result = $q;
+                    $rs = $id;
                 }
+                else $rs = $q;
             }
-        else:
-            /* we didn't get an ID back, so instead we assume it's an alias */
-            if ($this->config['friendly_alias_urls'] != 1) {
-                $q = $qOrig;
-            }
-            $this->documentMethod= 'alias';
-            $result = $q;
-        endif;
-        
-        return $result;
+        }
+        return $rs;
     }
 
     function checkCache($id)
