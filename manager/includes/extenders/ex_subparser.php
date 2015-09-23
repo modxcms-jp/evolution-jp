@@ -1041,7 +1041,7 @@ class SubParser {
         {
             // must be a recordset
             $rows = array();
-            $nc = mysql_num_fields($src);
+            $nc = $modx->db->numFields($src);
             while ($cols = $modx->db->getRow($src,'num'))
             {
                 $rows[] = ($columns)? $cols : implode(' ',$cols);
