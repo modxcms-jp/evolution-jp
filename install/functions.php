@@ -108,10 +108,9 @@ function compare_check($params) {
 	if(!$rs) echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
 	else     
 	{
-		$row = $rs->fetch_assoc();
-		$count = $mysqli->num_rows($rs);
-		if($count===1)
+		if($rs->num_rows==1)
 		{
+			$row = $rs->fetch_assoc();
 			$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
 			$new_desc    = $new_version_str . $params['description'];
 			$old_desc    = $row['description'];
@@ -357,7 +356,7 @@ function get_installmode()
 				$_SESSION['database_password'] = $database_password;
 				
 				$dbase = trim($dbase, '`');
-				$rs = @ $mysqli->select_db($dbase, $conn);
+				$rs = @ $mysqli->select_db($dbase);
 			}
 			else $rs = false;
 			
