@@ -203,7 +203,6 @@ class DocumentParser {
         $this->dumpSnippets = false; // feed the parser the execution start time
         $this->stopOnNotice = false;
         $this->safeMode     = false;
-        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
         // set track_errors ini variable
         @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         $this->error_reporting = 1;
@@ -286,6 +285,7 @@ class DocumentParser {
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
+        $this->decoded_request_uri = $this->setRequestUri($id);
         if($this->directParse==1)
         {
             $_REQUEST['id'] = $id;
@@ -426,6 +426,17 @@ class DocumentParser {
         }
         else $qs_hash = '';
         return $qs_hash;
+    }
+    
+    function setRequestUri($id=0) {
+        if($this->directParse==1)
+        {
+            $_REQUEST['id'] = $id;
+            $_GET['id']     = $id;
+            $rs = $this->config['base_url'] . "index.php?id={$id}";
+        }
+        else $rs = urldecode($_SERVER['REQUEST_URI']);
+        return $rs;
     }
     
     function prepareResponse()
