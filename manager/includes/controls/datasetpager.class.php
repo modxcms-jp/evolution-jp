@@ -153,7 +153,7 @@ class DataSetPager {
 
 		if (isset($fnc)) {
 			$i = 1;
-			$fncObject = is_object($fnc);
+			$fncObject = $modx->db->isResult($fnc);
 			$minitems = (($p-1)*$this->pageSize)+1;
 			$maxitems = (($p-1)*$this->pageSize)+$this->pageSize;
 			while ($i<=$maxitems && ($row = ($isDataset)? $modx->db->getRow($this->ds):$this->ds[$i-1])) {

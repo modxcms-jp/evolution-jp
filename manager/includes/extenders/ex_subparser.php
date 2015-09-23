@@ -1037,7 +1037,7 @@ class SubParser {
     { // type can be: string, array
         global $modx;
         
-        if (is_resource($src))
+        if ($modx->db->isResult($src))
         {
             // must be a recordset
             $rows = array();
@@ -1331,7 +1331,7 @@ class SubParser {
         global $modx;
         $a = array();
         if(is_array($v)) $a = $v;
-        elseif(is_resource($v))
+        elseif($modx->db->isResult($v))
         {
             while ($cols = $modx->db->getRow($v,'num'))
             {

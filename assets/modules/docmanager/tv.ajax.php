@@ -282,7 +282,7 @@ function ParseIntputOptions($v) {
 	
 	$a = array();
 	if(is_array($v)) return $v;
-	else if(is_resource($v)) {
+	else if($modx->db->isResult($v)) {
 		while ($cols = $modx->db->getRow($v,'num')) $a[] = $cols;
 	}
 	else

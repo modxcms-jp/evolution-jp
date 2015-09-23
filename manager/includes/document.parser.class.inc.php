@@ -3385,7 +3385,7 @@ class DocumentParser {
                 $o = include(MODX_CORE_PATH . "docvars/outputfilter/{$format}.inc.php");
                 break;
             default:
-                if(is_resource($value)) $value = $this->parseInput($value);
+                if($this->db->isResult($value)) $value = $this->parseInput($value);
                 if($tvtype=='checkbox'||$tvtype=='listbox-multiple')
                 {
                     // add separator

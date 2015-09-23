@@ -79,7 +79,7 @@ class DataGrid {
 	function setDataSource(){
 		global $modx;
 		
-		if(is_resource($this->ds)) return;
+		if($modx->db->isResult($this->ds)) return;
 		
 		$ds = trim($this->ds);
 		if((strpos($ds,"\n")===false) && is_file($ds))
@@ -214,7 +214,7 @@ class DataGrid {
 		$this->_alt = 0;
 		$this->_total = 0;
 		
-		$this->_isDataset = is_resource($this->ds); // if not dataset then treat as array
+		$this->_isDataset = $modx->db->isResult($this->ds); // if not dataset then treat as array
 		if($this->_isDataset)
 		{
 			if(isset($this->fields))
@@ -282,7 +282,7 @@ class DataGrid {
 		{
 			$this->_colcount = count($this->_colnames);
 		}
-		elseif(!is_resource($this->ds) && strpos($this->ds,$this->cdelim)!==false)
+		elseif(!$modx->db->isResult($this->ds) && strpos($this->ds,$this->cdelim)!==false)
 		{
 			if(strpos($this->ds,"\n")!==false)
 				$_ = substr($this->ds,0,strpos($this->ds,"\n"));
