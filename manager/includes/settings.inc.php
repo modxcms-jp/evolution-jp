@@ -7,8 +7,8 @@ if ($modx && count($modx->config)>0) $settings = $modx->config;
 else
 {
 	$sql = "SELECT setting_name, setting_value FROM {$dbase}.`{$table_prefix}system_settings`";
-	$rs = mysql_query($sql);
-	while ($row = mysql_fetch_assoc($rs))
+	$rs = mysqli_query($sql);
+	while ($row = mysqli_fetch_assoc($rs))
 	{
 		$settings[$row['setting_name']] = $row['setting_value'];
 	}
