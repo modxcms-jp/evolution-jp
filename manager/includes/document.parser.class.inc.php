@@ -306,7 +306,7 @@ class DocumentParser {
         
         if($this->directParse==0)
         {
-            $this->documentOutput = $this->get_static_pages();
+            $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
             if(!empty($this->documentOutput))
             {
                 $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
@@ -856,9 +856,8 @@ class DocumentParser {
         return ((float) $usec + (float) $sec);
     }
     
-    function get_static_pages()
+    function get_static_pages($filepath)
     {
-        $filepath = $this->decoded_request_uri;
         if(strpos($filepath,'?')!==false) $filepath = substr($filepath,0,strpos($filepath,'?'));
         $filepath = substr($filepath,strlen($this->config['base_url']));
         if(substr($filepath,-1)==='/' || empty($filepath)) $filepath .= 'index.html';
