@@ -282,9 +282,6 @@ class DocumentParser {
         
         $this->sanitizeVars();        
         $this->uaType  = $this->setUaType();
-        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
-            $this->uaType = $this->getUaType();
-        else $this->uaType = 'pages';
         
         if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
         {
