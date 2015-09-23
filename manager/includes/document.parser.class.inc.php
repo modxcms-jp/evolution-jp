@@ -999,18 +999,16 @@ class DocumentParser {
         switch ($method)
         {
             case 'alias' :
-                $docIdentifier= $this->db->escape($_REQUEST['q']);
-                break;
+                return $this->db->escape($_REQUEST['q']);
             case 'id' :
                 if (!preg_match('@^[0-9]+$@', $_REQUEST['id']))
                     $this->sendErrorPage();
                 else
-                    $docIdentifier= intval($_REQUEST['id']);
+                    return intval($_REQUEST['id']);
                 break;
             default:
-                $docIdentifier= $this->config['site_start'];
+                return $this->config['site_start'];
         }
-        return $docIdentifier;
     }
     
     // check for manager login session
