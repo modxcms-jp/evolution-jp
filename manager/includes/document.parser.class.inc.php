@@ -179,7 +179,7 @@ class DocumentParser {
             return call_user_func_array(array($this->old,$method_name),$arguments);
     }
     // constructor
-    function DocumentParser()
+    function __construct()
     {
         global $database_server;
         if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';

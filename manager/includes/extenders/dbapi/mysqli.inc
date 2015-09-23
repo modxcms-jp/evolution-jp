@@ -17,7 +17,7 @@ class DBAPI {
     * @name:  DBAPI
     *
     */
-    function DBAPI($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
+    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
         global $table_prefix;
         
         $this->config['host']    = $host    ? $host    : $GLOBALS['database_server'];
