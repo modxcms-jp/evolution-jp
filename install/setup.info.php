@@ -18,18 +18,19 @@ $table_prefix      = $_SESSION['table_prefix'];
 
 $installmode = $_SESSION['installmode'];
 
-$conn = mysql_connect($database_server, $database_user, $database_password);
-if(!$conn) exit($_lang['alert_database_test_connection_failed']);
+global $mysqli;
+$mysqli = new mysqli($database_server, $database_user, $database_password);
+if(!$mysqli) exit($_lang['alert_database_test_connection_failed']);
 
-mysql_select_db($dbase, $conn);
-mysql_query("SET CHARACTER SET 'utf8'", $conn);
-if (function_exists('mysql_set_charset'))
+$mysqli->select_db($dbase);
+$mysqli->query("SET CHARACTER SET 'utf8'");
+if (function_exists('mysqli_set_charset'))
 {
-	mysql_set_charset('utf8');
+	$mysqli->set_charset('utf8');
 }
 else
 {
-	mysql_query("SET NAMES 'utf8'");
+	$mysqli->query("SET NAMES 'utf8'");
 }
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category

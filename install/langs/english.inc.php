@@ -42,8 +42,8 @@ $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/ex
 $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/export</span> directory is writable: ';
 $_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories exists: ';
 $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories are writable: ';
-$_lang["checking_mysql_strict_mode"] = 'Checking MySQL for strict sql_mode: ';
-$_lang["checking_mysql_version"] = 'Checking MySQL version: ';
+$_lang["checking_mysqli_strict_mode"] = 'Checking MySQLi for strict sql_mode: ';
+$_lang["checking_mysqli_version"] = 'Checking MySQLi version: ';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
 $_lang["checking_registerglobals"] = 'Checking if Register_Globals is off: ';
 $_lang["checking_registerglobals_note"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your MODX install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install MODX, but consider yourself warned.'; //Look at changing this to provide a solution.
@@ -54,7 +54,7 @@ $_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create 
 $_lang["connection_screen_collation"] = 'Collation:';
 $_lang["connection_screen_connection_method"] = 'Connection method:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';
-$_lang["connection_screen_database_connection_note"] = 'Enter the database name to use or which you wish to create for this MODX install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQL user permissions.';
+$_lang["connection_screen_database_connection_note"] = 'Enter the database name to use or which you wish to create for this MODX install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQLi user permissions.';
 $_lang["connection_screen_database_host"] = 'Database host:';
 $_lang["connection_screen_database_info"] = 'Database Information';
 $_lang["connection_screen_database_login"] = 'Database login name:';
@@ -114,9 +114,7 @@ $_lang["modx_footer1"] = '&copy; 2005-2015 the <a href="http://www.modxcms.com/"
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; Install';
 $_lang["modx_requires_php"] = ', and MODX requires PHP 4.4.0 or later';
-$_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
-$_lang["mysql_5051_warning"] = 'There are known issues with MySQL 5.0.51. It is recommended that you upgrade before continuing.';
-$_lang["mysql_version_is"] = ' Your MySQL version is: ';
+$_lang["mysqli_version_is"] = ' Your MySQLi version is: ';
 $_lang["no"] = 'No';
 $_lang["none"] = 'None';
 $_lang["not_found"] = 'not found';
@@ -163,8 +161,8 @@ $_lang["status_failed_table_prefix_already_in_use"] = 'failed - table prefix alr
 $_lang["status_passed"] = 'passed - database selected';
 $_lang["status_passed_database_created"] = 'passed - database created';
 $_lang["status_passed_server"] = 'passed - collations now available';
-$_lang["strict_mode"] = ' MySQL server strict sql_mode is enabled!';
-$_lang["strict_mode_error"] = 'Certain features of MODX may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQL mode by editing the my.cnf file or contact your server administrator.';
+$_lang["strict_mode"] = ' MySQLi server strict sql_mode is enabled!';
+$_lang["strict_mode_error"] = 'Certain features of MODX may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQLi mode by editing the my.cnf file or contact your server administrator.';
 $_lang["summary_setup_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the setup.';
 $_lang["table_prefix_already_inuse"] = ' - Table prefix is already in use in this database!';
 $_lang["table_prefix_already_inuse_note"] = 'Setup couldn\'t install into the selected database, as it already contains tables with the prefix you specified. Please choose a new table prefix, and run Setup again.';

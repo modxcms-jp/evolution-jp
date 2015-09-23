@@ -36,10 +36,8 @@ if($installmode == 1)
 {
 	if(!empty($dbase) && !empty($database_server) && !empty($database_user))
 	{
-		$rs =  mysql_connect($database_server, $database_user, $database_password);
-		if($rs) $rs = mysql_select_db($dbase, $rs);
-		
-		if(!$rs) {
+		$mysqli = new mysqli($database_server, $database_user, $database_password, $dbase);
+		if(!$mysqli) {
 			$installmode = '2';
 			$_SESSION['installmode'] = '2';
 		}

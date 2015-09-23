@@ -51,18 +51,20 @@ function includeLang($language, $dir='langs/') {
 }
 
 function modx_escape($s) {
-	if (function_exists('mysql_set_charset')) {
-		$s = mysql_real_escape_string($s);
+	global $mysqli;
+	if (function_exists('mysqli_set_charset')) {
+		$s = $mysqli->real_escape_string($s);
 	}
 	else {
 		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
-		$s = mysql_real_escape_string($s);
+		$s = $mysqli->real_escape_string($s);
 		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
 	}
 	return $s;
 }
 
 function compare_check($params) {
+	global $mysqli;
 	
 	$table_prefix = $_SESSION['table_prefix'];
 	
@@ -102,12 +104,12 @@ function compare_check($params) {
 	}
 	$sql = "SELECT * FROM `{$table}` WHERE `{$name_field}`='{$name}'";
 	if($params['category']=='plugin') $sql .= " AND `disabled`='0'";
-	$rs = mysql_query($sql);
-	if(!$rs) echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
+	$rs = $mysqli->query($sql);
+	if(!$rs) echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
 	else     
 	{
-		$row = mysql_fetch_assoc($rs);
-		$count = mysql_num_rows($rs);
+		$row = $rs->fetch_assoc();
+		$count = $mysqli->num_rows($rs);
 		if($count===1)
 		{
 			$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
@@ -201,57 +203,59 @@ function parse_docblock($fullpath) {
 }
 
 function clean_up($sqlParser) {
+	global $mysqli;
+	
 	$ids = array();
 	$mysqlVerOk = -1;
 	
 	$table_prefix = $sqlParser->prefix;
 	
-	if(function_exists("mysql_get_server_info")) {
-		$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.20")>=0);
+	if(function_exists("mysqli_get_server_info")) {
+		$mysqlVerOk = (version_compare($mysqli->server_info,"4.0.20")>=0);
 	}	
 	
 	// secure web documents - privateweb 
-	mysql_query("UPDATE `{$table_prefix}site_content` SET privateweb = 0 WHERE privateweb = 1");
+	$mysqli->query("UPDATE `{$table_prefix}site_content` SET privateweb = 0 WHERE privateweb = 1");
 	$sql =  "SELECT DISTINCT sc.id 
 			 FROM `{$table_prefix}site_content` sc
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}webgroup_access` wga ON wga.documentgroup = dg.document_group
 			 WHERE wga.id>0";
-	$ds = mysql_query($sql);
+	$ds = $mysqli->query($sql);
 	if(!$ds)
 	{
-		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
 	}
 	else {
-		while($r = mysql_fetch_assoc($ds)) $ids[]=$r["id"];
+		while($r = $ds->fetch_assoc()) $ids[]=$r["id"];
 		if(count($ids)>0) {
-			mysql_query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
+			$mysqli->query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
 			unset($ids);
 		}
 	}
 	
 	// secure manager documents privatemgr
-	mysql_query("UPDATE `{$table_prefix}site_content` SET privatemgr = 0 WHERE privatemgr = 1");
+	$mysqli->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 0 WHERE privatemgr = 1");
 	$sql =  "SELECT DISTINCT sc.id 
 			 FROM `{$table_prefix}site_content` sc
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}membergroup_access` mga ON mga.documentgroup = dg.document_group
 			 WHERE mga.id>0";
-	$ds = mysql_query($sql);
+	$ds = $mysqli->query($sql);
 	if(!$ds)
 	{
-		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,mysql_error());
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
 	}
 	else
 	{
-		while($r = mysql_fetch_assoc($ds))
+		while($r = $ds->fetch_assoc())
 		{
 			$ids[] = $r['id'];
 		}
 		
 		if(count($ids)>0) {
 			$ids = join(', ',$ids);
-			mysql_query("UPDATE `{$table_prefix}site_content` SET privatemgr = 1 WHERE id IN ({$ids})");	
+			$mysqli->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 1 WHERE id IN ({$ids})");	
 			unset($ids);
 		}
 	}
@@ -340,20 +344,20 @@ function get_installmode()
 	else
 	{
 		include_once("{$base_path}manager/includes/config.inc.php");
-		error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+		error_reporting(E_ALL & ~E_NOTICE);
 		
 		if(!isset($dbase) || empty($dbase)) $installmode = 0;
 		else
 		{
-			$conn = @ mysql_connect($database_server, $database_user, $database_password);
-			if($conn)
+			$mysqli = @ new mysqli($database_server, $database_user, $database_password);
+			if($mysqli)
 			{
 				$_SESSION['database_server']   = $database_server;
 				$_SESSION['database_user']     = $database_user;
 				$_SESSION['database_password'] = $database_password;
 				
 				$dbase = trim($dbase, '`');
-				$rs = @ mysql_select_db($dbase, $conn);
+				$rs = @ $mysqli->select_db($dbase, $conn);
 			}
 			else $rs = false;
 			
@@ -365,10 +369,10 @@ function get_installmode()
 				$_SESSION['database_connection_method'] = 'SET CHARACTER SET';
 				
 				$tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
-				$rs = mysql_query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
+				$rs = $mysqli->query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
 				if($rs)
 				{
-					$row = mysql_fetch_assoc($rs);
+					$row = $rs->fetch_assoc();
 					$settings_version = $row['setting_value'];
 				}
 				else $settings_version = '';

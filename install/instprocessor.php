@@ -7,6 +7,7 @@ global $tplSnippets;
 global $tplPlugins;
 global $tplModules;
 global $tplTVs;
+global $mysqli;
 
 global $errors;
 
@@ -35,7 +36,7 @@ echo "<p>{$lang_setup_database}</p>\n";
 define('MODX_API_MODE', true);
 require_once("{$base_path}manager/includes/initialize.inc.php");
 startCMSSession();
-$database_type = 'mysql';
+$database_type = 'mysqli';
 include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx = new DocumentParser;
 $modx->db->hostname = $_SESSION['database_server'];
@@ -96,7 +97,7 @@ if ($sqlParser->installFailed == true)
 else printf('<span class="ok">%s</span></p>', $lang_ok);
 
 $configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
-$ph['database_type']               = 'mysql';
+$ph['database_type']               = 'mysqli';
 $ph['database_server']             = $_SESSION['database_server'];
 $ph['database_user']               = $modx->db->escape($_SESSION['database_user']);
 $ph['database_password']           = $modx->db->escape($_SESSION['database_password']);

@@ -13,7 +13,8 @@ includeLang($language);
 
 $output = $_lang['status_checking_database'];
 
-if(!$conn = @ mysql_connect($host, $uid, $pwd)) $output .= span_fail($_lang['status_failed']);
+global $mysqli;
+if(!$mysqli = @ new mysqli($host, $uid, $pwd)) $output .= span_fail($_lang['status_failed']);
 else
 {
 	$dbase                      = trim($_POST['dbase'],'`');
@@ -35,23 +36,23 @@ else
 	$tbl_site_content = "`{$dbase}`.`{$table_prefix}site_content`";
 	
 	$pass = false;
-	if (!@ mysql_select_db($dbase, $conn))
+	if (!@ $mysqli->select_db($dbase))
 	{
 		// create database
-		if (function_exists('mysql_set_charset'))
+		if (function_exists('mysqli_set_charset'))
 		{
-			mysql_set_charset('utf8');
+			$mysqli->set_charset('utf8');
 		}
 		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET 'utf8' COLLATE {$database_collation}";
 		
-		if(!@ mysql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
+		if(!@ $mysqli->query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
 		else
 		{
 			$output .= span_pass($_lang['status_passed_database_created']);
 			$pass = true;
 		}
 	}
-	elseif(@ mysql_query("SELECT COUNT(id) FROM {$tbl_site_content}"))
+	elseif(@ $mysqli->query("SELECT COUNT(id) FROM {$tbl_site_content}"))
 		$output .= span_fail($_lang['status_failed_table_prefix_already_in_use']);
 	else
 	{

@@ -185,8 +185,9 @@ if (!$isWriteable) {
 else  $_ = echo_ok();
 echo p($_ . $_lang['checking_if_config_exist_and_writable']);
 
-
-if (!@ $conn = mysql_connect($_SESSION['database_server'], $_SESSION['database_user'], $_SESSION['database_password'])) {
+global $mysqli;
+$mysqli = new mysqli($_SESSION['database_server'], $_SESSION['database_user'], $_SESSION['database_password']);
+if (!$mysqli) {
     $errors += 1;
     $_ = echo_failed($_lang['database_connection_failed']) . "<p>".$_lang['database_connection_failed_note'];
 } else {
@@ -195,24 +196,18 @@ if (!@ $conn = mysql_connect($_SESSION['database_server'], $_SESSION['database_u
 echo p($_ . $_lang['creating_database_connection']);
 
 // check mysql version
-if ($conn) {
-	if(strpos(mysql_get_server_info(), '5.0.51')!==false ) {
-		$_ = echo_failed($_lang['warning']) . '&nbsp;&nbsp;<strong>'. $_lang['mysql_5051'] . '</strong>';
-		echo p($_ . $_lang['checking_mysql_version']);
-		echo p(echo_failed($_lang['mysql_5051_warning']));
-	} else {
-		$_ = echo_ok() . ' <strong>' . $_lang['mysql_version_is'] . mysql_get_server_info() . ' </strong>';
-		echo p($_ . $_lang['checking_mysql_version']);
-	}
+if ($mysqli) {
+	$_ = echo_ok() . ' <strong>' . $_lang['mysqli_version_is'] . $mysqli->server_info . ' </strong>';
+	echo p($_ . $_lang['checking_mysqli_version']);
 	
 	// check for strict mode
-	$mysqlmode = @ mysql_query("SELECT @@global.sql_mode");
-	if (@mysql_num_rows($mysqlmode) > 0 && !is_webmatrix() && !is_iis()) {
-		$modes = mysql_fetch_array($mysqlmode, MYSQL_NUM);
+	$mysqlmode = @ $mysqli->query("SELECT @@global.sql_mode");
+	if ($mysqlmode->num_rows > 0 && !is_webmatrix() && !is_iis()) {
+		$modes = $mysqlmode->fetch_array(MYSQLI_NUM);
 		//$modes = array("STRICT_TRANS_TABLES"); // for testing
 		foreach ($modes as $mode) {
 			if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
-				echo p($_lang['checking_mysql_strict_mode']);
+				echo p($_lang['checking_mysqli_strict_mode']);
 				echo p(echo_failed($_lang['warning']) . '<strong>&nbsp;&nbsp;' . $_lang['strict_mode'] . '</strong>');
 				echo p(echo_failed($_lang['strict_mode_error']));
 			}

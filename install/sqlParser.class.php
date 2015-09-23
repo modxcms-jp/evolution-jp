@@ -23,11 +23,11 @@ class SqlParser {
 	}
 
 	function process($filename) {
-	    global $modx,$modx_version;
+	    global $modx,$modx_version,$mysqli;
 
 		$this->dbVersion = 3.23; // assume version 3.23
-		if(function_exists("mysql_get_server_info")) {
-			$ver = mysql_get_server_info();
+		if(function_exists("mysqli_get_server_info")) {
+			$ver = $mysqli->server_info;
 			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
 		}
 		
@@ -67,16 +67,16 @@ class SqlParser {
 		{
 			$sql_do = trim($sql_entry, "\r\n; ");
 			$num++;
-			if ($sql_do) mysql_query($sql_do);
-			if(mysql_error())
+			if ($sql_do) $mysqli->query($sql_do);
+			if($mysqli->error)
 			{
 				// Ignore duplicate and drop errors - Raymond
 				if ($this->ignoreDuplicateErrors)
 				{
-					if (mysql_errno() == 1060 || mysql_errno() == 1061 || mysql_errno() == 1091) continue;
+					if ($mysqli->errno == 1060 || $mysqli->errno == 1061 || $mysqli->errno == 1091) continue;
 				}
 				// End Ignore duplicate
-				$this->mysqlErrors[] = array("error" => mysql_error(), "sql" => $sql_do);
+				$this->mysqlErrors[] = array("error" => $mysqli->error, "sql" => $sql_do);
 				$this->installFailed = true;
 			}
 		}
