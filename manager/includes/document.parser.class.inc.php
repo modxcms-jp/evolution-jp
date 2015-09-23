@@ -286,21 +286,7 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = $this->setRequestUri($id);
-        if($this->directParse==1)
-        {
-            $_REQUEST['id'] = $id;
-            $_GET['id']     = $id;
-            $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
-        }
-        
-        if(!isset($_REQUEST['id']))
-        {
-            $_REQUEST['q'] = substr($this->decoded_request_uri,strlen($this->config['base_url']));
-            if(strpos($_REQUEST['q'],'?')) $_REQUEST['q'] = substr($_REQUEST['q'],0,strpos($_REQUEST['q'],'?'));
-        }
-        
-        if(strpos($_REQUEST['q'],'?')!==false && !isset($_GET['id'])) $_REQUEST['q'] = '';
-        elseif($_REQUEST['q']=='index.php') $_REQUEST['q'] = '';
+        $_REQUEST['q'] = $this->setRequestQ($this->decoded_request_uri);
         
         if($this->directParse==0)
         {
@@ -315,15 +301,6 @@ class DocumentParser {
                 $this->invokeEvent('OnWebPageComplete');
                 exit;
             }
-        }
-        
-        if($this->directParse==1)
-        {
-            $this->documentMethod     = 'id';
-            $this->documentIdentifier = $id;
-        }
-        else
-        {
             // make sure the cache doesn't need updating
             $this->updatePublishStatus();
             
@@ -331,11 +308,16 @@ class DocumentParser {
             $this->documentMethod= isset($_REQUEST['id']) ? 'id' : 'alias';
             $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
         }
+        else
+        {
+            $this->documentMethod     = 'id';
+            $this->documentIdentifier = $id;
+        }
         
         $path = $this->decoded_request_uri;
         $pos = strpos($path,'?');
         if($pos!==false) $path = substr($path,0,$pos);
-        if ($this->documentMethod == 'none' || ($path===$this->config['base_url']))
+        if ($path===$this->config['base_url'])
         {
             $this->documentMethod= 'id'; // now we know the site_start, change the none method to id
             $this->documentIdentifier = $this->config['site_start'];
@@ -366,18 +348,6 @@ class DocumentParser {
                 $this->documentIdentifier= $this->getIdFromAlias($this->documentIdentifier);
             }
             $this->documentMethod= 'id';
-        }
-        if($this->documentMethod==='id' && isset($alias))
-        {
-            switch($this->documentIdentifier)
-            {
-                case $this->config['site_start']:
-                case $this->config['site_unavailable_page']:
-                case $this->config['unauthorized_page']:
-                    break;
-                default:
-                    if($this->getIdFromAlias($alias)===false) $this->sendErrorPage();
-            }
         }
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
