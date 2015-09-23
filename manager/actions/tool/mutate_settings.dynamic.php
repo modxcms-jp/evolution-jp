@@ -26,7 +26,7 @@ if(!isset($default_config) || !is_array($default_config))
 
 $settings = array();
 $rs = $modx->db->select('setting_name, setting_value', '[+prefix+]system_settings');
-while($row = mysql_fetch_assoc($rs))
+while($row = $modx->db->getRow($rs))
 {
 	$settings[$row['setting_name']] = $row['setting_value'];
 }
