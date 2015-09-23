@@ -772,8 +772,10 @@ class DocumentParser {
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
             $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
-            $aliasCache = serialize($this->aliasCache);
-            file_put_contents($alias_cache_path, $aliasCache, LOCK_EX);
+            if(count($this->aliasCache)<7000) {
+                $aliasCache = serialize($this->aliasCache);
+                file_put_contents($alias_cache_path, $aliasCache, LOCK_EX);
+            }
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
