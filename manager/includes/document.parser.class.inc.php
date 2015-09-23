@@ -281,6 +281,7 @@ class DocumentParser {
         if(!isset($this->config)) $this->config = $this->getSettings();
         
         $this->sanitizeVars();        
+        $this->uaType  = $this->setUaType();
         if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
             $this->uaType = $this->getUaType();
         else $this->uaType = 'pages';
@@ -416,6 +417,13 @@ class DocumentParser {
         }
         $this->sanitize_gpc($_COOKIE);
         $this->sanitize_gpc($_REQUEST);
+    }
+    
+    function setUaType() {
+        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
+            $uaType = $this->getUaType();
+        else $uaType = 'pages';
+        return $uaType;
     }
     
     function prepareResponse()
