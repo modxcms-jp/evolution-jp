@@ -214,7 +214,6 @@ class DocumentParser {
             $this->tstart = $mtime['1'] + $mtime['0'];
             $this->mstart = memory_get_usage();
         }
-        if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
         $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
         if(is_file($alias_cache_path)) {
             $aliasCache = file_get_contents($alias_cache_path);
@@ -731,6 +730,7 @@ class DocumentParser {
                 $file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
                 if(1000 < $file_count) $this->clearCache();
             }
+            if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
