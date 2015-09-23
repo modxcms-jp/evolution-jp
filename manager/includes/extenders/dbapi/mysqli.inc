@@ -381,7 +381,7 @@ $s = '';
     *
     */
     function getRecordCount($ds) {
-        return (is_object($ds)) ? $ds->num_rows : 0;
+        return ($this->isResult($ds)) ? $ds->num_rows : 0;
     }
     
     /**
@@ -391,7 +391,7 @@ $s = '';
     *
     */
     function getRow($ds, $mode = 'assoc') {
-        if (is_object($ds)) {
+        if ($this->isResult($ds)) {
             switch($mode) {
                 case 'assoc' :return $ds->fetch_assoc();
                 case 'num'   :return $ds->fetch_row();
@@ -410,7 +410,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumn($name, $dsq) {
-        if (!is_object($dsq)) {
+        if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
@@ -429,7 +429,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumnNames($dsq) {
-        if (!is_object($dsq)) {
+        if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
@@ -453,10 +453,10 @@ $s = '';
             $rs = $this->getObject($from,$where);
             if(isset($rs->$dsq)) return $rs->$dsq;
         }
-        elseif (!is_object($dsq)) {
+        elseif (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        if (is_object($dsq)) {
+        if ($this->isResult($dsq)) {
             $r = $this->getRow($dsq, 'num');
             return $r[0];
         }
@@ -584,7 +584,7 @@ $s = '';
     * @desc:  returns an XML formay of the dataset $ds
     */
     function getXML($dsq) {
-        if (!is_object($dsq)) {
+        if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         $xmldata = "<xml>\r\n<recordset>\r\n";
@@ -679,7 +679,7 @@ $s = '';
     *
     */
     function getHTMLGrid($dsq, $params) {
-        if (!is_object($dsq)) {
+        if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
