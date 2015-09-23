@@ -489,6 +489,10 @@ $s = '';
         return $this->conn->server_info;
     }
     
+    function server_info() {
+        return $this->getVersion();
+    }
+    
     /**
      * @name  getObject 
      * @desc  get row as object from table, like oop style 

@@ -81,7 +81,7 @@ $info = array(
               'PHPのバージョン' => PHP_VERSION,
               'セーフモード'  => (ini_get('safe_mode') ==0) ? 'off' : 'on',
               'php_sapi_name'  => php_sapi_name(),
-              'MySQLのバージョン'=>$modx->db->getVersion(),
+              'MySQLのバージョン'=>$modx->db->server_info(),
               'MySQLホスト情報' => mysql_get_host_info(),
 //              'mysql_get_client_info' => mysql_get_client_info(),
               'MODXのバージョン' => $modx_version,
