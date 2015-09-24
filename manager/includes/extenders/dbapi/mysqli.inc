@@ -19,7 +19,10 @@ class DBAPI {
     */
     function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
         global $table_prefix;
-        
+        if(!isset($GLOBALS['database_server']))   $GLOBALS['database_server'] = '';
+        if(!isset($GLOBALS['dbase']))             $GLOBALS['dbase'] = '';
+        if(!isset($GLOBALS['database_user']))     $GLOBALS['database_user'] = '';
+        if(!isset($GLOBALS['database_password'])) $GLOBALS['database_password'] = '';
         $this->config['host']    = $host    ? $host    : $GLOBALS['database_server'];
         $this->config['dbase']   = $dbase   ? $dbase : $GLOBALS['dbase'];
         $this->config['user']    = $uid ? $uid : $GLOBALS['database_user'];
