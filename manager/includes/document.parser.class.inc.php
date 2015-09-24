@@ -3249,6 +3249,10 @@ class DocumentParser {
     
     function setPluginCache($pluginName)
     {
+        if(isset($this->pluginCache[$pluginName])) {
+            $this->pluginCache["{$pluginName}Props"] = '';
+            return;
+        }
         $result= $this->db->select('*','[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
         if ($this->db->getRecordCount($result) == 1)
         {
