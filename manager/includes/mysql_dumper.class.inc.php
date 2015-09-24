@@ -132,6 +132,7 @@ class Mysqldumper {
 				if($table_name==="{$table_prefix}system_settings") $row = $this->convertValues($row);
 				foreach($row as $value) {
 					$value = addslashes($value);
+					if(strpos($value,"\\'")!==false)  $value = str_replace("\\'","''",$value);
 					if(strpos($value,"\r\n")!==false) $value = str_replace("\r\n", "\n", $value);
 					if(strpos($value,"\r")!==false)   $value = str_replace("\r", "\n", $value);
 					$value = str_replace("\n", '\\n', $value);
