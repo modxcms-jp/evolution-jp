@@ -56,7 +56,7 @@ class DBAPI {
         $safe_count = 0;
         do {
             $this->conn = new mysqli($host, $uid, $pwd, $dbase);
-            if ($this->conn->connect_error) {
+            if (mysqli_connect_error()) {
                 $this->conn = null;
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
                     if($modx->config['send_errormail'] <= 2) {
@@ -151,7 +151,7 @@ $s = '';
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {
-            switch($this->conn->errno) {
+            switch(mysqli_connect_errno()) {
                 case 1060:
                 case 1061:
                 case 1091:

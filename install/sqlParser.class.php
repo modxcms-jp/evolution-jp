@@ -73,7 +73,8 @@ class SqlParser {
 				// Ignore duplicate and drop errors - Raymond
 				if ($this->ignoreDuplicateErrors)
 				{
-					if ($mysqli->errno == 1060 || $mysqli->errno == 1061 || $mysqli->errno == 1091) continue;
+					$errno = mysqli_connect_errno();
+					if ($errno == 1060 || $errno == 1061 || $errno == 1091) continue;
 				}
 				// End Ignore duplicate
 				$this->mysqlErrors[] = array("error" => $mysqli->error, "sql" => $sql_do);
