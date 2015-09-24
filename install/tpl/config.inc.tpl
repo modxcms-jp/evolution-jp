@@ -8,7 +8,7 @@ $database_user               = '[+database_user+]';
 $database_password           = '[+database_password+]';
 $database_connection_charset = 'utf8';
 $database_connection_method  = '[+database_connection_method+]';
-$dbase                       = '`[+dbase+]`';
+$dbase                       = '[+dbase+]';
 $table_prefix                = '[+table_prefix+]';
 
 $https_port                  = '[+https_port+]';
