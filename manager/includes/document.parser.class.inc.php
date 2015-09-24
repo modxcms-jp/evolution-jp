@@ -565,14 +565,14 @@ class DocumentParser {
             
             for ($i= 0; $i < $passes; $i++)
             {
-                if($i == ($passes -1)) $st= crc32($this->documentOutput);
+                if($i == ($passes -1)) $st= md5($this->documentOutput);
                 
                 $this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
                 $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
                 
                 if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
                 {
-                    $et = crc32($this->documentOutput);
+                    $et = md5($this->documentOutput);
                     if($st != $et) $passes++;
                 }
             }
@@ -2203,7 +2203,7 @@ class DocumentParser {
         for ($i= 0; $i < $passes; $i++)
         {
             // get source length if this is the final pass
-            if ($i == ($passes -1)) $bt= crc32($source);
+            if ($i == ($passes -1)) $bt= md5($source);
             if ($this->dumpSnippets)
             {
                 $this->snipCode .= '<fieldset><legend><b style="color: #821517;">PARSE PASS ' . ($i +1) . '</b></legend>The following snippets (if any) were parsed during this pass.<div style="width:100%;text-align:left;">';
@@ -2239,7 +2239,7 @@ class DocumentParser {
             if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
             {
                 // check if source length was changed
-                if ($bt != crc32($source))
+                if ($bt != md5($source))
                 {
                     $passes++; // if content change then increase passes because
                 }
@@ -2787,28 +2787,34 @@ class DocumentParser {
                 $ph[$k] = $v;
             }
         }
-        $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!$matches) return $content;
-        $replace= array ();
-        foreach($matches[1] as $i=>$key):
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
-            
-            if(isset($ph[$key]))
-            {
-                $value = $ph[$key];
-                if($modifiers!==false)
-                {
-                    $this->loadExtension('MODIFIERS');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
+        $c=0;
+        $bt='';
+        while($bt!==md5($content)) {
+            $matches = $this->getTagsFromContent($content,$left,$right);
+            if(!$matches) break;
+            $bt = md5($content);
+            $replace= array ();
+            foreach($matches[1] as $i=>$key) {
+                if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
+                else                         $modifiers = false;
+                
+                if(isset($ph[$key])) {
+                    $value = $ph[$key];
+                    if($modifiers!==false) {
+                        $this->loadExtension('MODIFIERS');
+                        $value = $this->filter->phxFilter($key,$value,$modifiers);
+                    }
+                    $replace[$i]= $value;
                 }
-                $replace[$i]= $value;
+                elseif($cleanup) $replace[$i] = '';
+                else             $replace[$i] = $matches[0][$i];
             }
-            elseif($cleanup) $replace[$i] = '';
-            else             $replace[$i] = $matches[0][$i];
-        endforeach;
-        $content= str_replace($matches[0], $replace, $content);
+            $content= str_replace($matches[0], $replace, $content);
+            if($bt===md5($content)) break;
+            $c++;
+            $cleanup = false;
+            if(1000<$c) $this->messageQuit('parseText parse over');
+        }
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
