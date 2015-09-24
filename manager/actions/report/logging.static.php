@@ -43,7 +43,7 @@ window.addEvent('domready', function() {
 		</script>
 		<table border="0" cellpadding="2" cellspacing="0">
 		 <tbody>
-		  <tr bgcolor="#ffffff">
+		  <tr style="background-color:#fff;">
 		    <td style="width:120px;"><b><?php echo $_lang["mgrlog_msg"]; ?></b></td>
 		    <td align="right">
 		      <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $form_v['message']; ?>" />
@@ -91,7 +91,7 @@ window.addEvent('domready', function() {
 		?>	</select>
 		    </td>
 		  </tr>
-		  <tr bgcolor="#ffffff">
+		  <tr style="background-color:#fff;">
 		    <td><b><?php echo $_lang["mgrlog_itemid"]; ?></b></td>
 		    <td align="right">
 			<select name="itemid" class="inputBox" style="width:240px">
@@ -128,7 +128,7 @@ window.addEvent('domready', function() {
 				  	<a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
 			  </td>
 		  </tr>
-		  <tr bgcolor="#ffffff">
+		  <tr style="background-color:#fff;">
 		    <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
 		    <td align="right">
 				  <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($form_v['dateto']) ? $form_v['dateto'] : "" ; ?>" />
