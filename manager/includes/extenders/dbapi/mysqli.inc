@@ -568,6 +568,11 @@ $s = '';
         return is_object($rs);
     }
 
+    function getFullTableName($table_name) {
+        $dbase = trim($this->dbname,'`');
+        return "`{$dbase}`.`{$this->table_prefix}{$table_name}`";
+    }
+    
     /**
      * @name replaceFullTableName
      * @desc  Get full table name. Append table name and table prefix.
