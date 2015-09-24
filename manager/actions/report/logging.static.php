@@ -67,8 +67,8 @@ window.addEvent('domready', function() {
 			// get all users currently in the log
 			$logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
 			foreach ($logs_user as $row) {
-				$selectedtext = $row['internalKey'] == $form_v['searchuser'] ? ' selected="selected"' : '';
-				echo "\t\t".'<option value="'.$row['internalKey'].'"'.$selectedtext.'>'.$row['username']."</option>\n";
+				$selectedtext = $row['internalKey'] == $form_v['searchuser'] ? 'selected="selected"' : '';
+				echo sprintf('<option value="%s" %s>%s</option>', $row['internalKey'],$selectedtext,$row['username'])."\n";
 			}
 		?>	</select>
 		    </td>
@@ -85,8 +85,8 @@ window.addEvent('domready', function() {
 			foreach ($logs_actions as $row) {
 				$action = getAction($row['action']);
 				if ($action == 'Idle') continue;
-				$selectedtext = $row['action'] == $form_v['action'] ? ' selected="selected"' : '';
-				echo "\t\t".'<option value="'.$row['action'].'"'.$selectedtext.'>'.$row['action'].' - '.$action."</option>\n";
+				$selectedtext = $row['action'] == $form_v['action'] ? 'selected="selected"' : '';
+				echo sprintf('<option value="%s" %s>%s - %s</option>', $row['action'],$selectedtext,$row['action'],$action)."\n";
 			}
 		?>	</select>
 		    </td>
@@ -101,7 +101,7 @@ window.addEvent('domready', function() {
 			$logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
 			foreach ($logs_items as $row) {
 				$selectedtext = $row['itemid'] == $form_v['itemid'] ? ' selected="selected"' : '';
-				echo "\t\t".'<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
+				echo '<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
 			}
 		?>	</select>
 		    </td>
@@ -116,7 +116,7 @@ window.addEvent('domready', function() {
 			$logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
 			foreach ($logs_names as $row) {
 				$selectedtext = $row['itemname'] == $form_v['itemname'] ? ' selected="selected"' : '';
-				echo "\t\t".'<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
+				echo '<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
 			}
 		?>	</select>
 		    </td>
@@ -209,9 +209,9 @@ if(isset($form_v['log_submit'])) {
 		$current_row = $int_cur_position/$int_num_result;
 
 		// Display the result as you like...
-		print "<p>". $_lang["paging_showing"]." ". $array_paging['lower'];
-		print " ". $_lang["paging_to"] . " ". $array_paging['upper'];
-		print " (". $array_paging['total'] . " " . $_lang["paging_total"] . ")<br />";
+		echo "<p>". $_lang["paging_showing"]." ". $array_paging['lower'];
+		echo " ". $_lang["paging_to"] . " ". $array_paging['upper'];
+		echo " (". $array_paging['total'] . " " . $_lang["paging_total"] . ")<br />";
 		$paging = $array_paging['first_link'] . $_lang["paging_first"] . (isset($array_paging['first_link']) ? "</a> " : " ");
 		$paging .= $array_paging['previous_link'] . $_lang["paging_prev"] . (isset($array_paging['previous_link']) ? "</a> " : " ");
 		$pagesfound = sizeof($array_row_paging);
