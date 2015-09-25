@@ -132,9 +132,9 @@ function changestate(element) {
 function changePasswordState(element) {
 	currval = eval(element).value;
 	if(currval==1) {
-		document.getElementById("passwordBlock").style.display="block";
+		jQuery('#passwordBlock').show(100);
 	} else {
-		document.getElementById("passwordBlock").style.display="none";
+		jQuery('#passwordBlock').hide(100);
 	}
 }
 
@@ -177,14 +177,6 @@ function deleteuser() {
 		document.location.href="index.php?id=" + document.userform.userid.value + "&a=33";
 	}
 <?php } ?>
-}
-
-// change name
-function changeName(){
-	var e1 = document.getElementById("showname");
-	var e2 = document.getElementById("editname");
-	e1.style.display = "none";
-	e2.style.display = "<?php echo $displayStyle; ?>";
 }
 
 function OpenServerBrowser(url, width, height ) {
@@ -280,7 +272,7 @@ if (is_array($evtOut))
 		  <?php if(!empty($userdata['id'])) { ?>
 		  <tr id="showname" style="display: <?php echo ($_GET['a']=='12' && (!isset($usernamedata['oldusername'])||$usernamedata['oldusername']==$usernamedata['username'])) ? $displayStyle : 'none';?> ">
 			<td colspan="2">
-				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
+				<img src="<?php echo $_style['icons_user'] ?>" alt="." />&nbsp;<b><?php echo !empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']; ?></b> - <span class="comment"><a href="#" onclick="jQuery('#showname').hide(100);jQuery('#editname').show(100);return false;"><?php echo $_lang["change_name"]; ?></a></span>
 				<input type="hidden" name="oldusername" value="<?php echo htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername']:$usernamedata['username']); ?>" />
 			</td>
 		  </tr>

@@ -131,7 +131,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		var elm = document.getElementById('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_loading_doc_tree']?>' />&nbsp;<?php echo $_lang['loading_doc_tree']?>";
-			elm.style.display = 'block';
+			jQuery(elm).show();
 		}
 		top.tree.saveFolderState(); // save folder state
 		setTimeout('top.tree.restoreTree()',100);
@@ -141,7 +141,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		var elm = document.getElementById('buildText');
 		if (elm) {
 			elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_working']?>' />&nbsp;<?php echo $_lang['loading_menu']?>";
-			elm.style.display = 'block';
+			jQuery(elm).show();
 		}
 		parent.mainMenu.location.reload();
 	}
