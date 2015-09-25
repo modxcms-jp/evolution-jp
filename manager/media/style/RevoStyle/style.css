@@ -547,6 +547,7 @@ ime-mode:disabled;
 	background:-webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#DDDDDD));
 	background:-o-linear-gradient(#f5f5f5, #DDDDDD);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD); zoom:1;
+	background:linear-gradient(#f5f5f5, #DDDDDD);
 	-moz-box-shadow:0px 1px 0px #fff inset;
 	-webkit-box-shadow:0px 1px 0px #fff inset;
 	box-shadow:0px 1px 0px #fff inset;
