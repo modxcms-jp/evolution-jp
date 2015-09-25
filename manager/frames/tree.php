@@ -130,51 +130,37 @@ $esc_request = $modx->db->escape($_REQUEST);
         var mnu = document.getElementById('mx_contextmenu');
         var permpub = <?php echo $modx->hasPermission('publish_document') ? 1:0; ?>;
         var permdel = <?php echo $modx->hasPermission('delete_document') ? 1:0; ?>;
-        if(draft==1)
-    	{
-        	document.getElementById('itemcreateDraft').style.display='none';
-        	document.getElementById('itemeditDraft').style.display  ='block';
+        if(draft==1) {
+        	jQuery('#itemcreateDraft').hide();
+        	jQuery('#itemeditDraft').show();
+        } else {
+        	jQuery('#itemcreateDraft').show();
+        	jQuery('#itemeditDraft').hide();
         }
-        else
-        {
-        	document.getElementById('itemcreateDraft').style.display='block';
-        	document.getElementById('itemeditDraft').style.display  ='none';
-        }
-        if(permpub==1)
-        {
-	        document.getElementById('item61').style.display='block';
-	        document.getElementById('item62').style.display='block';
-	        if(pub==1) document.getElementById('item61').style.display='none';
-	        else       document.getElementById('item62').style.display='none';
-        }
-        else
-        {
-        	if(document.getElementById('item51') != null)
-        		document.getElementById('item51').style.display='none';
+        if(permpub==1) {
+	        jQuery('#item61').show();
+	        jQuery('#item62').show();
+	        if(pub==1) jQuery('#item61').hide();
+	        else       jQuery('#item62').hide();
+        } else {
+        	if(jQuery('#item51') != null) jQuery('#item51').hide();
         	
-            if(draft==1)
-        		document.getElementById('item27').style.display='none';
-            else
-            	document.getElementById('item27').style.display='block';
+            if(draft==1) jQuery('#item27').hide();
+            else         jQuery('#item27').show();
         }
         
         if(permdel==1)
         {
-	        document.getElementById('item6').style.display='block';
-	        document.getElementById('item63').style.display='block';
-	        if(document.getElementById('item64') != null)
-	        	document.getElementById('item64').style.display='block';
-	        if(del==1)
-        	{
-	        	document.getElementById('item6').style.display='none';
-	        	document.getElementById('item61').style.display='none';
-	        	document.getElementById('item62').style.display='none';
-	        }
-	        else
-	        {
-	        	document.getElementById('item63').style.display='none';
-	        	if(document.getElementById('item64') != null)
-	        		document.getElementById('item64').style.display='none';
+	        jQuery('#item6').show();
+	        jQuery('#item63').show();
+	        if(jQuery('#item64') != null) jQuery('#item64').show();
+	        if(del==1) {
+	        	jQuery('#item6').hide();
+	        	jQuery('#item61').hide();
+	        	jQuery('#item62').hide();
+	        } else {
+	        	jQuery('#item63').hide();
+	        	if(document.getElementById('item64') != null) jQuery('#item64').hide();
 	        }
         }
         var bodyHeight = parseInt(document.body.offsetHeight);
