@@ -199,50 +199,37 @@ $esc_request = $modx->db->escape($_REQUEST);
 
     function toggleNode(node,indent,id,expandAll,privatenode) {
         privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
-        rpcNode = node.parentNode.lastChild;
-
+        rpcNode = document.getElementById('c'+id);
         var rpcNodeText;
-        var loadText = "<?php echo $_lang['loading_doc_tree'];?>";
 
         var signImg = document.getElementById('s'+id);
         var folderImg = document.getElementById('f'+id);
 
-        if (rpcNode.style.display != 'block') {
+        if (rpcNode.style.display == 'block') {
+            // collapse
+            signImg.src = '<?php echo $_style["tree_plusnode"]; ?>';
+            //rpcNode.innerHTML = '';
+            jQuery(rpcNode).hide(100);
+            openedArray[id] = 0 ;
+        }
+        else {
             // expand
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/plusnode.gif')>-1) {
-                signImg.src = '<?php echo $_style["tree_minusnode"]; ?>';
-                if(id!=<?php echo $modx->config["site_start"];?>)
-                    folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folderopen"]; ?>' :'<?php echo $_style["tree_folderopen_secure"]; ?>';
-            }
+        	signImg.src = '<?php echo $_style["tree_minusnode"]; ?>';
 
             rpcNodeText = rpcNode.innerHTML;
 
-            if (rpcNodeText=="" || rpcNodeText.indexOf(loadText)>0) {
-                var i, spacer='';
-                for(i=0;i<=indent+1;i++) spacer+='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                rpcNode.style.display = 'block';
+            if (rpcNodeText=='') {
                 //Jeroen set opened
                 openedArray[id] = 1 ;
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
-                rpcNode.innerHTML = "<span class='emptyNode' style='white-space:nowrap;'>"+spacer+"&nbsp;&nbsp;&nbsp;"+loadText+"...<\/span>";
                 jQuery.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':id,'expandAll':expandAll+folderState},rpcLoadData);
+                jQuery(rpcNode).show(100);
             } else {
-                rpcNode.style.display = 'block';
+                jQuery(rpcNode).show(100);
                 //Jeroen set opened
                 openedArray[id] = 1 ;
             }
-        }
-        else {
-            // collapse
-            if(signImg && signImg.src.indexOf('media/style/<?php echo $manager_theme; ?>/images/tree/minusnode.gif')>-1) {
-                signImg.src = '<?php echo $_style["tree_plusnode"]; ?>';
-                if(id!=<?php echo $modx->config["site_start"];?>)
-                    folderImg.src = (privatenode == '0') ? '<?php echo $_style["tree_folder"]; ?>' : '<?php echo $_style["tree_folder_secure"]; ?>';
-            }
-            //rpcNode.innerHTML = '';
-            rpcNode.style.display = 'none';
-            openedArray[id] = 0 ;
         }
     }
 
