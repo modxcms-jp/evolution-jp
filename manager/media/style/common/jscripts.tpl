@@ -62,8 +62,27 @@ jQuery(function(){
     	else if(docParent!=0)  document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
     	else                   document.location.href = 'index.php?a=2';
 	});
-	jQuery('#pub_date a').click(function(){
+	jQuery('#pub_date').keydown(function(){
+		jQuery('div#pub_datedp_container').hide();
+		documentDirty=true;
+	});
+	jQuery('#pub_date').click(function(){
+		jQuery('div#pub_datedp_container').show();
+	});
+	jQuery('#pub_date').next('a').click(function(){
 		jQuery('#pub_date').val('');
+		documentDirty=true;
+		return true;
+	});
+	jQuery('#unpub_date').keydown(function(){
+		jQuery('div#unpub_datedp_container').hide();
+		documentDirty=true;
+	});
+	jQuery('#unpub_date').click(function(){
+		jQuery('div#unpub_datedp_container').show();
+	});
+	jQuery('#unpub_date').next('a').click(function(){
+		jQuery('#unpub_date').val('');
 		documentDirty=true;
 		return true;
 	});
@@ -101,16 +120,6 @@ function changestate(element) {
 		eval(element).value=0;
 	} else {
 		eval(element).value=1;
-	}
-	documentDirty=true;
-}
-
-function resetpubdate() {
-	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
-		if (confirm("[+lang_mutate_content.dynamic.php1+]")==true) {
-			document.mutate.pub_date.value='';
-			document.mutate.unpub_date.value='';
-		}
 	}
 	documentDirty=true;
 }
