@@ -183,7 +183,6 @@ class DocumentParser {
     {
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
-        Document::$modx=$this;
         if($this->isBackend())
         {
             $this->loadExtension('ManagerAPI');
@@ -235,12 +234,15 @@ class DocumentParser {
         {
             case 'DBAPI'       : // Database API
             case 'ManagerAPI'  : // Manager API
-            case 'DocumentAPI' : // Document API
             case 'DocAPI'      : // Resource API
             case 'EXPORT_SITE' :
             case 'SubParser'   :
             case 'REVISION'    :
                 return include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
+            case 'DocumentAPI' : // Document API
+                include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
+                Document::$modx=$this;
+                return;
             case 'MODIFIERS' : //Modfires
                 return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
             case 'DeprecatedAPI':
