@@ -183,10 +183,8 @@ class DocumentParser {
     {
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
-        if($this->isBackend())
-        {
-            $this->loadExtension('ManagerAPI');
-        }
+        
+        if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
         // events
         $this->event= new SystemEvent();
@@ -250,11 +248,11 @@ class DocumentParser {
             case 'MODxMailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
-                break;
+                return;
             case 'MakeTable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
                 $this->table= new MakeTable;
-                break;
+                return;
             case 'ConfigMediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
