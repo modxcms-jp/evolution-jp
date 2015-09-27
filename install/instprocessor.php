@@ -372,7 +372,7 @@ if ($formvModules!==false && !empty($formvModules) || $installdata)
 		
 		$f = array();
 		$f['description'] = $tplInfo['description'];
-		$modulecode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
+		$modulecode = getLast(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
 		$f['modulecode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $modulecode, 1);
 		$f['properties']  = $tplInfo['properties'];
 		$f['enable_sharedparams'] = $tplInfo['shareparams'];
@@ -449,7 +449,7 @@ if ($formvPlugins!==false && !empty($formvPlugins) || $installdata)
 		$f = array();
 		$f['name']        = $name;
 		$f['description'] = $tplInfo['description'];
-		$plugincode = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
+		$plugincode = getLast(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
 		$f['plugincode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
 		$f['properties']  = propUpdate($tplInfo['properties'],$dbv_plugin->properties);
 		$f['disabled']    = '0';
@@ -527,7 +527,7 @@ if ($formvSnippets!==false && !empty($formvSnippets) || $installdata)
 		}
 		
 		$f = array();
-		$snippet = end(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path)));
+		$snippet = getLast(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path)));
 		$f['snippet']     = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $snippet, 1);
 		$f['description'] = $tplInfo['description'];
 		$f['properties']  = $tplInfo['properties'];

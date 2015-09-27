@@ -596,3 +596,8 @@ function get_database_collation() {
 
 	return $database_collation;
 }
+
+function getLast($array=array()) {
+	$array = (array) $array;
+    return end($array);
+}
