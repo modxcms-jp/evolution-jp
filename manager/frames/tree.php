@@ -347,7 +347,7 @@ $esc_request = $modx->db->escape($_REQUEST);
             <?php $action = (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>
             if(id==0) {
                 // do nothing?
-                parent.main.location.href="index.php?a=2";
+                parent.main.location.href="index.php?a=120";
             } else if(ca=="docinfo") {
                 parent.main.location.href="index.php?a=3&id=" + id;
             } else if(ca=="doclist") {
