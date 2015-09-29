@@ -47,13 +47,12 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 </style>
 <table class="settings" cellspacing="0" cellpadding="2">
 <?php
-	$generate_mode = $modx->config['export_generate_mode'];
+	$generate_mode = $modx->config['export_generate_mode'] ? $modx->config['export_generate_mode'] : 'crawl';
 ?>
   <tr>
     <td class="head"><?php echo $_lang['a83_mode_title']; ?></td>
     <td>
 		<label><input type="radio" name="generate_mode" value="crawl"  <?php echo $generate_mode==='crawl'?'checked':'';?>><?php echo $_lang['a83_mode_crawl'];?></label>
-		<label><input type="radio" name="generate_mode" value="crawl_furl"  <?php echo $generate_mode==='crawl_furl'?'checked':'';?>><?php echo $_lang['a83_mode_crawl'];?></label>
 	    <label><input type="radio" name="generate_mode" value="direct" <?php echo $generate_mode==='direct'?'checked':''; ?>><?php echo $_lang['a83_mode_direct'];?></label>
 	</td>
   </tr>
