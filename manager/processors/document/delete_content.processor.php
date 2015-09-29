@@ -38,14 +38,13 @@ $params['id']       = $id;
 $params['children'] = $children;
 $modx->invokeEvent("OnBeforeDocFormDelete",$params);
 
-$tbl_site_content = $modx->getFullTableName('site_content');
 $field = array();
 $field['deleted']   = '1';
 $field['deletedby'] = $modx->getLoginUserID();
 $field['deletedon'] = time();
 if(0 < count($children)) {
 	$docs_to_delete   = implode(' ,', $children);
-	$rs = $modx->db->update($field,$tbl_site_content,"id IN({$docs_to_delete})");
+	$rs = $modx->db->update($field,'[+prefix+]site_content',"id IN({$docs_to_delete})");
 	if(!$rs)
 	{
 		echo "Something went wrong while trying to set the document's children to deleted status...";
@@ -54,7 +53,7 @@ if(0 < count($children)) {
 }
 
 //ok, 'delete' the document.
-$rs = $modx->db->update($field,$tbl_site_content,"id='{$id}'");
+$rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs)
 {
 	echo "Something went wrong while trying to set the document to deleted status...";
@@ -69,7 +68,7 @@ else
 
 	// empty cache
 	$modx->clearCache();
-	$pid = $modx->db->getValue($modx->db->select('parent',$tbl_site_content,"id='{$id}'"));
+	$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
 	$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 	if($pid!=='0') $header="Location: index.php?r=1&a=120&id={$pid}";
 	else           $header="Location: index.php?a=2&r=1";
@@ -83,24 +82,20 @@ function getChildren($parent)
 	global $modx,$children;
 
 	$rs = $modx->db->select('id', '[+prefix+]site_content', "parent='{$parent}' AND deleted='0'");
-	if(0 < $modx->db->getRecordCount($rs))
+	if(!$modx->db->getRecordCount($rs)) return;
+	// the document has children documents, we'll need to delete those too
+	while($row=$modx->db->getRow($rs))
 	{
-		// the document has children documents, we'll need to delete those too
-		while($row=$modx->db->getRow($rs))
-		{
-			if($row['id']==$modx->config['site_start'])
-			{
-				echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.";
-				exit;
-			}
-			if($row['id']==$modx->config['site_unavailable_page'])
-			{
-				echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site unavailable page' document, and cannot be deleted. Please assign another document as your 'Site unavailable page' document and try again.";
-				exit;
-			}
-			$children[] = $row['id'];
-			getChildren($row['id']);
+		if($row['id']==$modx->config['site_start']) {
+			echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.";
+			exit;
 		}
+		if($row['id']==$modx->config['site_unavailable_page']) {
+			echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site unavailable page' document, and cannot be deleted. Please assign another document as your 'Site unavailable page' document and try again.";
+			exit;
+		}
+		$children[] = $row['id'];
+		getChildren($row['id']);
 	}
 }
 
@@ -109,14 +104,9 @@ function check_linked($id)
 	global $modx;
 	
 	$rs = $modx->db->select('id','[+prefix+]site_content',"content LIKE '%[~{$id}~]%' AND deleted='0'");
-	if(0 < $modx->db->getRecordCount($rs))
-	{
-		while($row = $modx->db->getRow($rs))
-		{
-			$result[] = $row['id'];
-		}
-		return $result;
+	if(!$modx->db->getRecordCount($rs)) return false;
+	while($row = $modx->db->getRow($rs)) {
+		$result[] = $row['id'];
 	}
-	return false;
+	return $result;
 }
-
