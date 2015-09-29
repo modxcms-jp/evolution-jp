@@ -60,9 +60,11 @@ if ($modx->manager->hasFormValues()) {
 
 // include the country list language file
 $_country_lang = array();
-include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
-if($manager_language!="english" && is_file(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php")){
-    include_once(MODX_CORE_PATH . 'lang/country/{$manager_language}_country.inc.php');
+$lcdir_path = MODX_CORE_PATH . 'lang/country/';
+include_once($lcdir_path . 'english_country.inc.php');
+$lang_path = sprintf($lcdir_path . '%s_country.inc.php', $modx->config['manager_language']);
+if($modx->config['manager_language']!="english" && is_file($lang_path)){
+    include_once($lang_path);
 }
 
 $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
