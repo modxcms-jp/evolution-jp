@@ -336,7 +336,7 @@ function checkDocPermission($id,$document_groups=array()) {
 
 
 function getInputValues($id=0,$mode='new') {
-	global $form_v;
+	global $modx,$form_v;
 	
 	$db_v_names = explode(',', 'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
 	if($id) $fields['id'] = $id;
@@ -344,6 +344,7 @@ function getInputValues($id=0,$mode='new') {
 		if(!isset($form_v[$key])) $form_v[$key] = '';
 		$fields[$key] = $form_v[$key];
 	}
+	$fields['editedby'] = $modx->getLoginUserID();
 	if($mode==='new') {
 		$fields['publishedon'] = checkPublishedon(0);
 	}
