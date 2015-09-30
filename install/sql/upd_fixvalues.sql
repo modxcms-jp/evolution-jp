@@ -241,4 +241,12 @@ ALTER TABLE `{PREFIX}web_user_attributes`
 ALTER TABLE `{PREFIX}site_tmplvar_contentvalues`
  MODIFY COLUMN `value` mediumtext;
 
+#xxx-1.0.15J
 
+ALTER TABLE `{PREFIX}site_revision`
+  CHANGE `target` `element` varchar(32) NOT NULL DEFAULT 'resource',
+  CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0',
+  CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0',
+  MODIFY COLUMN `content` mediumtext,
+  DROP INDEX `idx_revision`,
+  ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
