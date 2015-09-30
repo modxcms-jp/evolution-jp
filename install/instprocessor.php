@@ -62,7 +62,7 @@ $sqlParser->managerlanguage = $_SESSION['managerlanguage'];
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
-$sqlParser->ignoreDuplicateErrors = true;
+$sqlParser->ignoreSqlErrors = true;
 
 $rs = $modx->db->table_exists('[+prefix+]site_revision');
 if($rs)

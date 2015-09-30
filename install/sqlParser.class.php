@@ -8,7 +8,7 @@ class SqlParser {
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode;
 	var $dbVersion;
-    var $connection_charset, $connection_collation, $ignoreDuplicateErrors;
+    var $connection_charset, $connection_collation, $ignoreSqlErrors;
     var $base_path;
 
 	function SqlParser() {
@@ -18,7 +18,7 @@ class SqlParser {
 		$this->adminemail = 'example@example.com';
 		$this->connection_charset = 'utf8';
 		$this->connection_collation = 'utf8_general_ci';
-		$this->ignoreDuplicateErrors = false;
+		$this->ignoreSqlErrors = false;
 		$this->managerlanguage = 'english';
 	}
 
@@ -71,7 +71,7 @@ class SqlParser {
 			if($mysqli->error)
 			{
 				// Ignore duplicate and drop errors - Raymond
-				if ($this->ignoreDuplicateErrors)
+				if ($this->ignoreSqlErrors)
 				{
 					$errno = $mysqli->errno;
 					if ($errno == 1060 || $errno == 1061 || $errno == 1091) continue;
