@@ -75,8 +75,6 @@ class DocumentParser {
             return $this->makeDocumentListing();
         elseif($property_name==='chunkCache')
             $this->setChunkCache();
-        elseif($property_name==='aliasListing')
-            $this->setAliasListing();
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
@@ -430,6 +428,7 @@ class DocumentParser {
 
         if ($this->documentContent == '')
         {
+            $this->setAliasListing();
             // get document object
             $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
             
@@ -2044,31 +2043,6 @@ class DocumentParser {
         else return false;
     }
     
-    function set_aliases()
-    {
-        $path_aliases = MODX_BASE_PATH . 'assets/cache/aliases.siteCache.idx.php';
-        $aliases = array();
-        if(is_file($path_aliases))
-        {
-            $aliases = @include_once($path_aliases);
-            $this->aliases = $aliases;
-        }
-        if(empty($aliases))
-        {
-            if(!$this->aliasListing) $this->setAliasListing();
-            
-            $aliases= array ();
-            foreach ($this->aliasListing as $doc)
-            {
-                $aliases[$doc['id']]= (0<strlen($doc['path']) ? $doc['path'] . '/' : '') . $doc['alias'];
-            }
-            $cache = "<?php\n" . 'return ' . var_export($aliases, true) . ';';
-            file_put_contents($path_aliases, $cache, LOCK_EX);
-            $this->aliases = $aliases;
-        }
-        return $this->aliases;
-    }
-
     /**
     * name: getDocumentObject  - used by parser
     * desc: returns a document object - $method: alias, id
@@ -2260,8 +2234,6 @@ class DocumentParser {
         if($id==='') $id = $this->documentIdentifier;
         $parents= array ();
         
-        if(empty($this->aliasListing)) $this->setAliasListing();
-        
         while( $id && 0<$height)
         {
             $current_id = $id;
@@ -2316,8 +2288,6 @@ class DocumentParser {
         if (isset($childrenList[$id]))
         {
             $depth--;
-            
-            if(empty($this->aliasListing)) $this->setAliasListing();
             
             foreach ($childrenList[$id] as $childId)
             {
@@ -2560,7 +2530,6 @@ class DocumentParser {
             $alPath = '';
             if(empty($alias))
             {
-                if(!$this->aliasListing) $this->setAliasListing();
                 $al= $this->aliasListing[$id];
                 $alias = $id;
                 if ($this->config['friendly_alias_urls'] == 1)
@@ -2595,7 +2564,6 @@ class DocumentParser {
             $makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
         }
         else {
-            if(!$this->aliasListing)  $this->setAliasListing();
             if(isset($this->aliasListing[$id])) $makeurl= "index.php?id={$id}";
             else return false;
         }
