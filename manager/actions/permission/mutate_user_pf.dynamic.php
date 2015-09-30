@@ -10,24 +10,22 @@ $userid = $modx->getLoginUserID();
 
 // get user attribute
 $rs = $modx->db->select('*','[+prefix+]user_attributes',"internalKey='{$userid}'");
-$limit = $modx->db->getRecordCount($rs);
-if($limit > 1)     {echo 'More than one user returned!<p>';exit;}
-elseif($limit < 1) {echo 'No user returned!<p>';exit;}
+$total = $modx->db->getRecordCount($rs);
+if($total > 1)     exit('More than one user returned!<p>');
+elseif($total < 1) exit('No user returned!<p>');
+
 $userdata = $modx->db->getRow($rs);
 
 // get user settings
 $rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
 $usersettings = array ();
-while ($row = $modx->db->getRow($rs))
-{
+while ($row = $modx->db->getRow($rs)) {
 	$usersettings[$row['setting_name']] = $row['setting_value'];
 }
 
 // manually extract so that user display settings are not overwritten
-foreach ($usersettings as $k => $v)
-{
-	switch($k)
-	{
+foreach ($usersettings as $k => $v) {
+	switch($k) {
 		case 'manager_language':
 		case 'manager_theme':
 			break;
@@ -38,10 +36,12 @@ foreach ($usersettings as $k => $v)
 
 // get user name
 $rs = $modx->db->select('*','[+prefix+]manager_users',"id='{$userid}'");
-$limit = $modx->db->getRecordCount($rs);
-if($limit > 1)     {echo "More than one user returned while getting username!<p>"; exit;}
-elseif($limit < 1) {echo "No user returned while getting username!<p>"; exit;}
+$total = $modx->db->getRecordCount($rs);
+if($total > 1)     exit('More than one user returned while getting username!<p>');
+elseif($total < 1) exit('No user returned while getting username!<p>');
+
 $usernamedata = $modx->db->getRow($rs);
+
 $_SESSION['itemname'] = $usernamedata['username'];
 
 // restore saved form
@@ -363,10 +363,8 @@ foreach($files as $file)
 <?php
 	$activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
 	$dir = dir(MODX_CORE_PATH . 'lang');
-	while ($file = $dir->read())
-	{
-		if (strpos($file, '.inc.php') !== false)
-		{
+	while ($file = $dir->read()) {
+		if (strpos($file, '.inc.php') !== false) {
 			$endpos = strpos($file, ".");
 			$languagename = trim(substr($file, 0, $endpos));
 			$selectedtext = selected($activelang===$languagename);
@@ -390,21 +388,21 @@ foreach($files as $file)
 	$edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
 	// invoke OnRichTextEditorRegister event
 	$evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-	echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
-	if (is_array($evtOut))
-	for ($i = 0; $i < count($evtOut); $i++)
-	{
-		$editor = $evtOut[$i];
-		echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
+	echo '<option value="none"' . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
+	if (is_array($evtOut)) {
+    	for ($i = 0; $i < count($evtOut); $i++) {
+    		$selected = selected($edt == $evtOut[$i]);
+    		echo sprintf('<option value="%s">%s</option>', $selected, $evtOut[$i]);
+    	}
 	}
 ?>
 	</select>
 	<div><?php echo $_lang["which_editor_message"]?></div>
 	</td>
 </tr>
-<tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr id="editorRow14" class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["editor_css_path_title"]?></th>
-	<td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
+	<td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
 	<div><?php echo $_lang["editor_css_path_message"]?></div>
 	</td>
 	</tr>
