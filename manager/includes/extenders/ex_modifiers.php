@@ -152,7 +152,7 @@ class MODIFIERS {
         }
         
         if(!$modx->snippetCache)  $modx->setSnippetCache();
-        if(!$modx->setChunkCache) $modx->setChunkCache();
+        if(!$modx->chunkCache) $modx->setChunkCache();
         
         if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
         elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
