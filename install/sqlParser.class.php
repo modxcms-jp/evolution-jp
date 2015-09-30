@@ -69,7 +69,7 @@ class SqlParser {
 				if ($this->ignoreSqlErrors)
 				{
 					$errno = $mysqli->errno;
-					if ($errno == 1060 || $errno == 1061 || $errno == 1091) continue;
+					if ($errno == 1060 || $errno == 1061 || $errno == 1091 || $errno == 1054) continue;
 				}
 				// End Ignore duplicate
 				$this->mysqlErrors[] = array("error" => $mysqli->error, "sql" => $sql_do);
