@@ -496,6 +496,8 @@ class MODIFIERS {
             case 'br2nl':
                 return preg_replace('@<br[\s/]*>@i', "\n", $value);
             case 'nl2br':
+                if (version_compare(PHP_VERSION, '5.3.0', '<'))
+                    return nl2br($value);
                 if($opt!=='')
                 {
                     $opt = trim($opt);
