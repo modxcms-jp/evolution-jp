@@ -175,7 +175,7 @@ class MODIFIERS {
     {
         if($value!=='') return false;
         
-        $_ = explode(',', 'id,ifempty,input,if,equals,is,eq,notequals,isnot,isnt,ne,find,preg,or,and,show,this,then,else,select,switch,summary,smart_description,smart_desc,isinrole,ir,memberof,mo');
+        $_ = explode(',', 'id,ifempty,input,if,equals,is,eq,notequals,isnot,isnt,ne,find,preg,or,and,show,this,then,else,select,switch,summary,smart_description,smart_desc,isinrole,ir,memberof,mo,is_file,is_dir,file_exists,is_readable,is_writable');
         if(in_array($cmd,$_)) return false;
         else                  return true;
     }
