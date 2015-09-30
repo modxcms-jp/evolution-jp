@@ -1233,6 +1233,7 @@ class DocumentParser {
 
         unset($this->chunkCache);
         $this->setChunkCache();
+        $this->setAliasListing();
     }
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
