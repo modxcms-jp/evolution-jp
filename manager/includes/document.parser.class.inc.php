@@ -73,8 +73,6 @@ class DocumentParser {
             $this->setdocumentMap();
         elseif($property_name==='documentListing')
             return $this->makeDocumentListing();
-        elseif($property_name==='chunkCache')
-            $this->setChunkCache();
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
@@ -428,6 +426,7 @@ class DocumentParser {
 
         if ($this->documentContent == '')
         {
+            $this->setChunkCache();
             $this->setAliasListing();
             // get document object
             $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
@@ -881,8 +880,6 @@ class DocumentParser {
             $this->config = $this->getSiteCache();
         }
         
-        if($this->config['cache_type']!=='1') $this->setChunkCache();
-        
         // store base_url and base_path inside config array
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
@@ -941,6 +938,10 @@ class DocumentParser {
             $this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
         if(!isset($this->config['modx_charset'])||empty($this->config['modx_charset']))
             $this->config['modx_charset'] = 'utf-8';
+        if(defined('MODX_API_MODE')) {
+            $this->setChunkCache();
+            $this->setAliasListing();
+        }
         $this->invokeEvent('OnGetConfig');
         return $this->config;
     }
@@ -1702,7 +1703,6 @@ class DocumentParser {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        if(!isset($this->chunkCache)) $this->setChunkCache();
         $return= eval($phpcode);
         $echo= ob_get_contents();
         ob_end_clean();
@@ -2703,7 +2703,6 @@ class DocumentParser {
     function getChunk($key)
     {
         if($key==='') return false;
-        if(!$this->chunkCache) $this->setChunkCache();
         
         if(!isset($this->chunkCache[$key]))
         {
