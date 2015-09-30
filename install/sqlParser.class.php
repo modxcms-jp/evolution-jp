@@ -7,7 +7,6 @@ class SqlParser {
 	var $prefix, $mysqlErrors;
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode;
-	var $dbVersion;
     var $connection_charset, $connection_collation, $ignoreSqlErrors;
     var $base_path;
 
@@ -24,12 +23,6 @@ class SqlParser {
 
 	function process($filename) {
 	    global $modx,$modx_version,$mysqli;
-
-		$this->dbVersion = 3.23; // assume version 3.23
-		if(function_exists("mysqli_get_server_info")) {
-			$ver = $mysqli->server_info;
-			$this->dbVersion = (float) $ver; // Typecasting (float) instead of floatval() [PHP < 4.2]
-		}
 		
 		// check to make sure file exists
 		$path = "{$this->base_path}install/sql/{$filename}";
@@ -43,7 +36,9 @@ class SqlParser {
 		
 		$idata = str_replace("\r", '', $idata);
 		
-		if(version_compare($this->dbVersion,'4.1.0', '>='))
+		$dbVersion = $mysqli->server_info;
+		$dbVersion = (float) $mysqli->server_info; // Typecasting (float) instead of floatval() [PHP < 4.2]
+		if(version_compare($dbVersion,'4.1.0', '>='))
 		{
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
