@@ -235,7 +235,7 @@ $esc_request = $modx->db->escape($_REQUEST);
 
     function rpcLoadData(response) {
         if(rpcNode != null){
-            rpcNode.innerHTML = typeof response=='object' ? response.responseText : response ;
+            rpcNode.innerHTML = response ;
             rpcNode.style.display = 'block';
             rpcNode.loaded = true;
             var elm = top.mainMenu.document.getElementById('buildText');
