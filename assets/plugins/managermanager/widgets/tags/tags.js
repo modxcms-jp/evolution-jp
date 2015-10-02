@@ -3,8 +3,8 @@ var $j = jQuery.noConflict();
 	if 	(typeof(TagCompleter) != 'function') {
 		function TagCompleter(tagEntryField, tagIndicatorList, delimiter) {
 
-			var theEntry = $j('#'+tagEntryField);
-			var theList = $j('#'+tagIndicatorList);
+			var theEntry = jQuery('#'+tagEntryField);
+			var theList = jQuery('#'+tagIndicatorList);
 
 			// Make sure the elements that have been supplied exist
 			if (!theEntry.length) {
@@ -13,19 +13,19 @@ var $j = jQuery.noConflict();
 
 			// Attach events
 			// Add hilights every time the tag field changes
-			$j(theEntry).change(function(e) { addHilights(); });
+			jQuery(theEntry).change(function(e) { addHilights(); });
 
 			// Add tag every click on a tag in the list
-			$j('#'+tagIndicatorList + ' li').click( function(e) { addTag(e); } );
+			jQuery('#'+tagIndicatorList + ' li').click( function(e) { addTag(e); } );
 
 			// Get an array of the current tags in the field
 			var getTags = function() {
 				// Get the contents of the field
 				// Split is by commas
 				// Trim each item of whitespace at the beginning and end
-				var theTags = $j(theEntry).val().split(delimiter);
-				$j.each(theTags, function(i,v) {
-					theTags[i] = $j.trim(v);
+				var theTags = jQuery(theEntry).val().split(delimiter);
+				jQuery.each(theTags, function(i,v) {
+					theTags[i] = jQuery.trim(v);
 						if (theTags[i] == '') {theTags.splice(i, 1); } // Remove any empty values
 					});
 				return theTags;
@@ -33,22 +33,22 @@ var $j = jQuery.noConflict();
 
 			// Add the tag that has been clicked to the field
 				var addTag = function (e) {
-				var newTag = $j(e.target).text();
+				var newTag = jQuery(e.target).text();
 				newTag = newTag.replace(/\([0-9]+\)$/,'');
-				newTag = $j.trim(newTag);
+				newTag = jQuery.trim(newTag);
 				var oldTags = getTags();
 
 				// Mark the document as dirty for Modx by triggering a "change" event
-				$j(theEntry).trigger("change");
+				jQuery(theEntry).trigger("change");
 
 				// Is the tag already in the list? If so, remove it
-				var thePos = $j.inArray(newTag, oldTags);
+				var thePos = jQuery.inArray(newTag, oldTags);
 				if (thePos != -1) {
 					oldTags.splice(thePos, 1);
-					$j(theEntry).val(oldTags.join(delimiter));
+					jQuery(theEntry).val(oldTags.join(delimiter));
 				} else { // Not in the list, so add it
 					oldTags.push(newTag);
-					$j(theEntry).val(oldTags.join(delimiter));
+					jQuery(theEntry).val(oldTags.join(delimiter));
 				}
 				addHilights();
 			};
@@ -59,13 +59,13 @@ var $j = jQuery.noConflict();
 				var tagsInField = getTags();
 				var tag;
 
-				$j('#'+tagIndicatorList + ' li').each( function() {
-				tag = $j(this).text().replace(/\([0-9]+\)$/,'');
-				tag = $j.trim(tag);
-				if ($j.inArray(tag , tagsInField) != -1) {
-						$j(this).addClass('tagSelected');
+				jQuery('#'+tagIndicatorList + ' li').each( function() {
+				tag = jQuery(this).text().replace(/\([0-9]+\)$/,'');
+				tag = jQuery.trim(tag);
+				if (jQuery.inArray(tag , tagsInField) != -1) {
+						jQuery(this).addClass('tagSelected');
 					} else {
-						$j(this).removeClass('tagSelected');
+						jQuery(this).removeClass('tagSelected');
 					}
 				});
 
