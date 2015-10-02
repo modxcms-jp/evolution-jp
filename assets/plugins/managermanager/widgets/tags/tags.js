@@ -32,8 +32,10 @@ var $j = jQuery.noConflict();
 			};
 
 			// Add the tag that has been clicked to the field
-			var addTag = function (e) {
-				var newTag = $j.trim($j(e.target).text());
+				var addTag = function (e) {
+				var newTag = $j(e.target).text();
+				newTag = newTag.replace(/\([0-9]+\)$/,'');
+				newTag = $j.trim(newTag);
 				var oldTags = getTags();
 
 				// Mark the document as dirty for Modx by triggering a "change" event
@@ -55,9 +57,12 @@ var $j = jQuery.noConflict();
 			var addHilights = function() {
 
 				var tagsInField = getTags();
+				var tag;
 
 				$j('#'+tagIndicatorList + ' li').each( function() {
-					if ($j.inArray($j.trim($j(this).text()) , tagsInField) != -1) {
+				tag = $j(this).text().replace(/\([0-9]+\)$/,'');
+				tag = $j.trim(tag);
+				if ($j.inArray(tag , tagsInField) != -1) {
 						$j(this).addClass('tagSelected');
 					} else {
 						$j(this).removeClass('tagSelected');
