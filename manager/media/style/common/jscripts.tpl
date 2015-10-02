@@ -124,6 +124,16 @@ function changestate(element) {
 	documentDirty=true;
 }
 
+function resetpubdate() {
+	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
+		if (confirm("[+lang_mutate_content.dynamic.php1+]")==true) {
+			document.mutate.pub_date.value='';
+			document.mutate.unpub_date.value='';
+		}
+	}
+	documentDirty=true;
+}
+
 var allowParentSelection = false;
 var allowLinkSelection = false;
 
