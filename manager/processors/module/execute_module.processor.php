@@ -112,6 +112,9 @@ function evalModule($moduleCode,$params){
 		extract($params, EXTR_SKIP);
 	}
 	ob_start();
+	$moduleCode = trim($moduleCode);
+	if(substr($moduleCode,0,5)==='<?php') $moduleCode = substr($moduleCode,5);
+	if(substr($moduleCode,-2)==='?>') $moduleCode = substr($moduleCode,0,-2);
 	$mod = eval($moduleCode);
 	$msg = ob_get_contents();
 	ob_end_clean();
