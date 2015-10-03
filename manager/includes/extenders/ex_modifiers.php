@@ -542,15 +542,15 @@ class MODIFIERS {
             case 'tofloat':
                 return floatval($value);
             case 'round':
-            case 'floor':
-            case 'ceil':
                 if(!$opt) $opt = 0;
                 return $cmd($value,$opt);
             case 'max':
             case 'min':
                 return $cmd(explode(',',$value));
+            case 'floor':
+            case 'ceil':
             case 'abs':
-                return abs($value);
+                return $cmd($value);
             case 'math':
                 $value = (int)$value;
                 if(empty($value)) $value = '0';
