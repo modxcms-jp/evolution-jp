@@ -11,8 +11,15 @@
 if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
 {
 	$output = &$modx->documentOutput;
-	$output = preg_replace('~\[\*#(.*?)\*\]~', '<!-- '.$tvbclass.' $1 -->[*$1*]', $output);
-	$modx->documentOutput = $output;
+	if(strpos($output,'[*#')===false) $m = false;
+	else                              $m = $modx->getTagsFromContent($output,'[*#','*]');
+	if(!empty($m)) {
+    	foreach($m[1] as $i=>$v) {
+    		$s = $m[0][$i];
+    		if(strpos($v,':')!==false) $v = substr($v,0,strpos($v,':'));
+    		$output = str_replace($s,"<!-- {$tvbclass} {$v} -->{$s}", $output);
+    	}
+	}
 }
 
 if(class_exists('Qm')) return;
