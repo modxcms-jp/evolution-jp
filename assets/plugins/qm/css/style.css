@@ -11,10 +11,12 @@
     padding: 0 !important;  
 }
 
-.qm-edit a
+.qm-edit a,
+.qm-new a, .qm-tv a,
+.qm-new a:link, .qm-tv a:visited
 {
     display: block;
-    color: #3b454f;
+    color: #3b454f !important;
     text-decoration: none;
     border: none;
     line-height: 1em;
@@ -35,17 +37,6 @@
     padding: 0 !important;
 }
 
-.qm-new a, .qm-tv a,
-.qm-new a:link, .qm-tv a:visited
-{
-    display: block;
-    color: #3b454f;
-    text-decoration: none;
-    border: none;
-    padding: 6px 6px;
-}
-
-
 /* TV edit form */
 
 #qm-tv-body
@@ -54,52 +45,6 @@
 
 #qm-tv-tv
 {
-}
-
-.qm-save, .qm-cancel 
-{
-    display: block;
-    float: right;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    margin: 5px 0 5px 5px;
-    line-height: 1em;
-    padding: 0 !important;
-}
-
-.qm-save a, .qm-cancel a
-{
-    display: block;
-    color: #3b454f;
-    text-decoration: none;
-    border: none;
-    padding: 6px 6px;
-}
-
-.qm-cancel span
-{
-    background: transparent url(images/stop.png) no-repeat left center;
-    padding-left: 20px;
-}
-
-.qm-save
-{
-    margin-right: 5px;
-}
-
-.qm-cancel
-{
-    margin-right: 20px;
-}
-
-#qm-tv-actions
-{
-	position: fixed;
-	top: 10px;
-	right: 0;
-	z-index: 100;
-	margin: 0;
-	text-align: right;
 }
 
 #qm-tv-body h1 
@@ -199,7 +144,7 @@
 	border: 0;
 }
 
-#qmEditor .qmEdit span, .qm-edit span, .qm-save span, .qm-tv span
+#qmEditor .qmEdit span, .qm-edit span, .qm-tv span
 {
     background: transparent url(images/save.png) no-repeat left center;
     padding-left: 20px;
@@ -273,7 +218,7 @@
     list-style-image:none;
 }
 
-#qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv, .qm-save, .qm-cancel  
+#qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv
 {
 	color: #3b454f;
 	font-weight: bold;
@@ -285,9 +230,6 @@
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
-	-webkit-text-shadow: 1px 1px 0 #fff;
-	-moz-text-shadow: 1px 1px 0 #fff;
-	text-shadow: 1px 1px 0 #fff;
 	border: 1px solid #8ea4be;
 	outline: none;
 }
@@ -296,7 +238,7 @@ div#qmEditor span {
 	font-weight: bold;
 }
 
-#qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover, .qm-save:hover, .qm-cancel:hover  
+#qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover
 {
 	background-position: bottom left;
 	-webkit-box-shadow: 0 0 10px #b8c7d6;

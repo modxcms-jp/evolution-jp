@@ -287,9 +287,11 @@ EOT;
 <input type="hidden" name="tvid" value="'.$tv['id'].'" />
 <input id="save" type="hidden" name="save" value="1" />
 
-<div id="qm-tv-actions">
-	<div class="qm-cancel"><a href="#" onclick="parent.'.$jq_mode.'.fn.colorbox.close(); return false;"><span>'.$_lang['cancel'].'</span></a></div>
-	<div class="qm-save"><a href="#" onclick="document.forms[\'mutate\'].submit(); return false;"><span>'.$_lang['save'].'</span></a></div>
+<div id="actions">
+	<ul class="actionButtons">
+	<li><a href="#" onclick="document.forms[\'mutate\'].submit(); return false;" class="primary"><span>'.$_lang['save'].'</span></a></li>
+	<li><a href="#" onclick="parent.'.$jq_mode.'.fn.colorbox.close(); return false;"><span>'.$_lang['cancel'].'</span></a></li>
+	</ul>
 </div>
 
 <h1>'.$tv['caption'].'</h1>
