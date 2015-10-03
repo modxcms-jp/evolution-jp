@@ -31,7 +31,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
     <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-    <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script src="media/script/nanobar.min.js" type="text/javascript"></script>

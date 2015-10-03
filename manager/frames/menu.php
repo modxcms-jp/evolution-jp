@@ -14,7 +14,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	<link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme?>/style.css?<?php echo $modx_version;?>" />
 	<?php echo $modx->config['manager_inline_style']; ?>
 	<script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-	<script src="media/script/jquery/jquery-migrate.min.js"></script>
 	<script type="text/javascript">
 	// TREE FUNCTIONS - FRAME
 	// These functions affect the tree frame and any items that may be pointing to the tree.

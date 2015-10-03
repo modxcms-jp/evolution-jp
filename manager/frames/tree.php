@@ -11,7 +11,6 @@ $esc_request = $modx->db->escape($_REQUEST);
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $manager_theme; ?>/style.css?<?php echo $modx_version;?>" />
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-    <script src="media/script/jquery/jquery-migrate.min.js"></script>
     <script type="text/javascript">
     jQuery(function(){
         resizeTree();
