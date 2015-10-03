@@ -587,13 +587,13 @@ function getCookie(cookieName)
 						// Search and create edit buttons in to the content
 						if ($this->editbuttons == 'true' && $access)
 						{
-							$output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></span>', $output);
+							$output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$3</span></a></span>', $output);
 						}
 						
 						// Search and create new document buttons in to the content
 						if ($this->newbuttons == 'true' && $access)
 						{
-							$output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></span>', $output);
+							$output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
 						}
 						
 						// Search and create new document buttons in to the content
