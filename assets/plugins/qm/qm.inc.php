@@ -616,7 +616,7 @@ function getCookie(cookieName)
 				// If there is Qm call, add control buttons and modify to edit document page
 				if (isset($_REQUEST['quickmanager']) && intval($_REQUEST['quickmanager']) == 1)
 				{
-					global $content;
+					global $docObject;
 					
 					// Set template for new document, action = 4
 					if(intval($_GET['a']) == 4)
@@ -625,7 +625,7 @@ function getCookie(cookieName)
 						if (isset($_GET['customaddtplid']))
 						{
 							// Set template
-							$content['template'] = intval($_GET['customaddtplid']);
+							$docObject['template'] = intval($_GET['customaddtplid']);
 						}
 						else
 						{
@@ -635,22 +635,22 @@ function getCookie(cookieName)
 							{
 								case 'parent': // Template type is parent
 									// Get parent document id
-									$pid = $content['parent'] ? $content['parent'] : intval($_REQUEST['pid']);
+									$pid = $docObject['parent'] ? $docObject['parent'] : intval($_REQUEST['pid']);
 									
 									// Get parent document
 									$parent = $this->modx->getDocument($pid);
 									
 									// Set parent template
-									$content['template'] = $parent['template'];
+									$docObject['template'] = $parent['template'];
 									break;
 									
 								case 'id': // Template is specific id
-									$content['template'] = $this->tplid;
+									$docObject['template'] = $this->tplid;
 									break;
 								case 'selected': // Template is inherited by Inherit Selected Template plugin
 								case 'sibling':
 									// Get parent document id
-									$pid = $content['parent'] ? $content['parent'] : intval($_REQUEST['pid']);
+									$pid = $docObject['parent'] ? $docObject['parent'] : intval($_REQUEST['pid']);
 									
 									if ($this->modx->config['auto_template_logic'] === 'sibling') {
 										// Eoler: template_autologic in Evolution 1.0.5+
@@ -673,11 +673,11 @@ function getCookie(cookieName)
 
 									
 									// Set template to inherit
-									if ($tv['value'] != '') $content['template'] = $tv['value'];
-									else                    $content['template'] = $this->modx->config['default_template'];
+									if ($tv['value'] != '') $docObject['template'] = $tv['value'];
+									else                    $docObject['template'] = $this->modx->config['default_template'];
 									break;
 								case 'system':
-									$content['template'] = $this->modx->config['default_template'];
+									$docObject['template'] = $this->modx->config['default_template'];
 									break;
 							}
 						}
