@@ -974,8 +974,9 @@ function getCookie(cookieName)
 		$result = null;
 		$time = time();
 		$user = $_SESSION['mgrInternalKey'];
-		$tvId = isset($_POST['tvid']) ? intval($_POST['tvid']) : '';
-		$tvContent = isset($_POST['tv'.$tvName]) ? $_POST['tv'.$tvName] : '';
+		$tvId = isset($_POST['tvid'])&&preg_match('@^[1-9][0-9]*$@',$_POST['tvid']) ? $_POST['tvid'] : 0;
+		if($tvId) $tvContent = isset($_POST['tv'.$tvId])   ? $_POST['tv'.$tvId]   : '';
+		else      $tvContent = isset($_POST['tv'.$tvName]) ? $_POST['tv'.$tvName] : '';
 		$tvContentTemp = '';
 		
 		// Escape TV content
@@ -998,7 +999,7 @@ function getCookie(cookieName)
 		}
 	
 		// Save TV
-		if ($tvId != '')
+		if ($tvId)
 		{
 			$where = "`tmplvarid` = '{$tvId}' AND `contentid` = '{$pageId}'";
 			$result = $this->modx->db->select('id',$tbl_site_tmplvar_contentvalues,$where);
