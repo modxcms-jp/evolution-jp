@@ -600,7 +600,7 @@ function getCookie(cookieName)
 						// Search and create new document buttons in to the content
 						if ($this->newbuttons == 'true' && $access)
 						{
-							$output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
+							$output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
 						}
 						
 						// Search and create new document buttons in to the content
