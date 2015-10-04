@@ -2648,6 +2648,8 @@ class DocumentParser {
     {
         if(strpos($content,'[~')===false) return $content;
         
+        if(!$this->aliasListing) $this->setAliasListing();
+        
         if(!isset($this->referenceListing))
         {
             $this->referenceListing = $this->_getReferenceListing();
