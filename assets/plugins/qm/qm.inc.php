@@ -991,7 +991,7 @@ function getCookie(cookieName)
 		$tvContent = $this->modx->db->escape($tvContent);
 		
 		// Invoke OnBeforeDocFormSave event
-    $tmp = array('mode'=>'upd', 'id'=>$pageId);
+        $tmp = array('mode'=>'upd', 'id'=>$pageId);
 		$this->modx->invokeEvent('OnBeforeDocFormSave', $tmp);
 		
 		// Handle checkboxes and other arrays, TV to be saved must be e.g. value1||value2||value3
