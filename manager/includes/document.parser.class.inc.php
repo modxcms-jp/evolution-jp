@@ -498,6 +498,8 @@ class DocumentParser {
                                     $parent->content = $this->atBindUrl($parent->content);
                                 if(strpos($parent->content,'[*content*]')!==false)
                                     $template->content = str_replace('[*content*]', $template->content, $parent->content);
+                                elseif(strpos($parent->content,'[*#content*]')!==false)
+                                    $template->content = str_replace('[*#content*]', $template->content, $parent->content);
                                 elseif(strpos($parent->content,'[*content:')!==false)
                                 {
                                     $matches = $this->getTagsFromContent($parent->content,'[*content:','*]');
