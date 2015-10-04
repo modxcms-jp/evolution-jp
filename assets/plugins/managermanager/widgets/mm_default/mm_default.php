@@ -38,13 +38,9 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 		
 		switch ($field){
 			case 'pub_date':
-				$new_value = ($new_value=='') ? strftime($date_format . ' %H:%M:%S') : $new_value;
-				$output .= '$j("input[name=pub_date]").val("'.jsSafe($new_value).'"); '."\n";
-			break;
-			
 			case 'unpub_date':
-				$new_value = ($new_value=='') ? strftime($date_format . ' %H:%M:%S') : $new_value;
-				$output .= '$j("input[name=unpub_date]").val("'.jsSafe($new_value).'"); '."\n";
+				if($new_value=='') $new_value = strftime("{$date_format} %H:%M:%S");
+				$output .= sprintf('$j("input[name=%s]").val("%s"); '."\n", $field, jsSafe($new_value));
 			break;
 			
 			case 'published':
@@ -52,7 +48,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=published]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=publishedcheck]").attr("checked", "checked"); '."\n";
+					$output .= sprintf('$j("input[name=%scheck]").attr("checked", "checked"); '."\n", $field);
 				}else{
 					$output .= '$j("input[name=publishedcheck]").removeAttr("checked"); '."\n";
 				}
