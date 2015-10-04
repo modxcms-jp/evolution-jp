@@ -4,9 +4,6 @@ html, body, form, fieldset {
 	margin: 0;
 	padding: 0;
 }
-html {
-	font-size: 100.01%;
-}
 body {
 	font-family: Meiryo,"Hiragino Kaku Gothic Pro",Arial,"Helvetica Neue",Helvetica,sans-serif;
 	font-size: 75%;
