@@ -262,7 +262,6 @@ class Qm {
 <title></title>
 <link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}manager/media/style/{$theme}/style.css" />
 <link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}assets/plugins/qm/css/style.css" />
-<!--[if IE]><link rel="stylesheet" type="text/css" href="{$this->modx->config['site_url']}assets/plugins/qm/css/ie.css" /><![endif]-->
 <script src="{$this->modx->config['site_url']}{$this->jqpath}" type="text/javascript"></script>
 </head>
 EOT;
@@ -487,7 +486,6 @@ EOT;
 </div>';
 					$css = '
 <link rel="stylesheet" type="text/css" href="'.$this->modx->config['site_url'].'assets/plugins/qm/css/style.css" />
-<!--[if IE]><link rel="stylesheet" type="text/css" href="'.$this->modx->config['site_url'].'assets/plugins/qm/css/ie.css" /><![endif]-->
 ';
 			
 					// Autohide toolbar? Default: true
