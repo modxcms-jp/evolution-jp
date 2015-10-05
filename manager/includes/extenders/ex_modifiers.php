@@ -766,22 +766,7 @@ class MODIFIERS {
                 $i = $i % $c;
                 return $_[$i];
             case 'getimage':
-                $pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
-                preg_match_all($pattern , $value , $images);
-                $value = '';
-                if($opt==='')
-                {
-                    if($images[1][0])  return $images[1][0];
-                    else               return '';
-                }
-                else
-                {
-                    foreach($images[0] as $i=>$image)
-                    {
-                        if(strpos($image,$opt)!==false) return $images[1][$i];
-                    }
-                    break;
-                }
+                return $this->includeMdfFile('getimage');
             case 'nicesize':
                     return $modx->nicesize($value);
             case 'googlemap':
