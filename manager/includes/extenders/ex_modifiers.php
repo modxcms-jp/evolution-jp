@@ -11,6 +11,10 @@ class MODIFIERS {
     var $srcValue;
     var $condition = array();
     
+    var $phxkey;
+    var $value;
+    var $opt;
+    
     function MODIFIERS()
     {
         global $modx;
@@ -185,6 +189,10 @@ class MODIFIERS {
         global $modx;
         
         if($this->isEmpty($cmd,$value)) return;
+        
+        $this->phxkey = $phxkey;
+        $this->value  = $value;
+        $this->opt    = $opt;
         
         switch ($cmd)
         {
@@ -810,6 +818,13 @@ class MODIFIERS {
         return $value;
     }
 
+    function includeMdfFile($cmd) {
+        $phxkey = $this->phxkey;
+        $value  = $this->value;
+        $opt    = $this->opt;
+    	return include_once(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc");
+    }
+    
     function getValueFromElement($phxkey, $value, $cmd, $opt)
     {
         global $modx;
