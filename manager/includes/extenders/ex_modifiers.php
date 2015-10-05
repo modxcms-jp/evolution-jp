@@ -823,10 +823,10 @@ class MODIFIERS {
             }
             elseif($total == 0)
             {
-                if(is_file(MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.php"))
-                    $modifiers_path = MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.php";
-                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.php"))
-                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.php";
+                if(is_file(MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.inc"))
+                    $modifiers_path = MODX_BASE_PATH."assets/modifiers/mdf_{$cmd}.inc";
+                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc"))
+                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc";
                 else $modifiers_path = false;
                 
                 if($modifiers_path) {
