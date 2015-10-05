@@ -235,7 +235,9 @@ class MODIFIERS {
             case 'file_exists':
             case 'is_readable':
             case 'is_writable':
-                if(strpos($opt,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
+                if(!$opt) $path = $value;
+                else      $path = $opt;
+                if(strpos($path,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
                 if(!$opt) $path = $value;
                 else      $path = $opt;
                 $this->condition[] = intval($cmd($path)!==false);break;
