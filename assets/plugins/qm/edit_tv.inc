@@ -5,11 +5,6 @@ $access = FALSE;
 $save   = 0;
 $imagePreview = '';
 
-// Includes
-include_once(MODX_CORE_PATH . 'tmplvars.inc.php');
-include_once(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
-include_once(MODX_CORE_PATH . 'tmplvars.format.inc.php');
-
 // Get save status
 if (isset($_POST['save'])) $save = intval($_POST['save']);
 
@@ -56,8 +51,7 @@ if ($access)
 			}
 		}
 		// Render TV html
-		$tvHtml = renderFormElement($tv['type'], addslashes($field_name), $tv['default_text'], $tv['elements'], $tv['value']);
-		
+		$tvHtml = $this->modx->renderFormElement($tv['type'], addslashes($field_name), $tv['default_text'], $tv['elements'], $tv['value']);
 		// Get jQuery conflict mode
 		if ($this->noconflictjq == 'true') $jq_mode = '$j';
 		else                               $jq_mode = '$';
