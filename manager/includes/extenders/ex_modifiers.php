@@ -729,13 +729,15 @@ class MODIFIERS {
             case 'fax':
             case 'photo':
             case 'comment':
-                return $this->ModUser($value,$cmd);
+                $opt = $cmd;
+                return $this->ModUser($value,$opt);
             case 'userinfo':
                 if(empty($opt)) $opt = 'username';
                 return $this->ModUser($value,$opt);
             case 'webuserinfo':
                 if(empty($opt)) $opt = 'username';
-                return $this->ModUser(-$value,$opt);
+                $value = -$value;
+                return $this->ModUser($value,$opt);
             #####  Special functions 
             case 'ifempty':
             case '_default':
