@@ -26,7 +26,7 @@ switch ($tvName)
 	case 'pagetitle'   : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
 	case 'longtitle'   : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
 	case 'description' : $tv['type'] = 'textarea'; $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
-	case 'content'     : $tv['type'] = 'richtext'; $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
+	case 'content'     : $tv['type'] = getTvType();$tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
 	case 'menutitle'   : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
 	case 'introtext'   : $tv['type'] = 'textarea'; $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
 }
@@ -146,4 +146,12 @@ EOT;
 else
 {
 	$output = 'Error: Access denied.';
+}
+
+function getTvType() {
+	global $modx;
+	
+	if($modx->config['use_editor']==0 || $modx->documentObject['richtext']==0)
+		return 'textarea';
+	else return 'richtext';
 }
