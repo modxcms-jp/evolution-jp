@@ -240,8 +240,10 @@ class MODIFIERS {
                 else      $path = $opt;
                 $this->condition[] = intval($cmd($path)!==false);break;
             case 'is_image':
-                if(!is_file($value)) {$this->condition[]='0';break;}
-                $_ = getimagesize($value);
+                if(!$opt) $path = $value;
+                else      $path = $opt;
+                if(!is_file($path)) {$this->condition[]='0';break;}
+                $_ = getimagesize($path);
                 $this->condition[] = intval($_[0]);break;
             case 'regex':
             case 'preg':
