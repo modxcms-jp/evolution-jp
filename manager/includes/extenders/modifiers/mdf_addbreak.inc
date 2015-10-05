@@ -20,4 +20,5 @@ foreach($lines as $i=>$line)
     }
     $lines[$i] = "{$line}<br />";
 }
-return join("\n", $lines);
+$value = join("\n", $lines);
+return $value;

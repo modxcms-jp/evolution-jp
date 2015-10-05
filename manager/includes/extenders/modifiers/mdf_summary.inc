@@ -1,50 +1,45 @@
 <?php
+if(strpos($opt,',')) list($limit,$delim) = explode(',', $opt);
+elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
+else {$limit=100;$delim='';}
 
-    return getSummary($content,$limit,$delim);
+if($delim==='') $delim = $modx->config['manager_language']==='japanese-utf8' ? '。' : '.';
+$limit = intval($limit);
 
-    function getSummary($content='', $limit=100, $delim='')
-    {
-        global $modx;
-        if($delim==='') $delim = $modx->config['manager_language']==='japanese-utf8' ? '。' : '.';
-        $limit = intval($limit);
-        
-        if($content==='' && isset($modx->documentObject['content']))
-            $content = $modx->documentObject['content'];
-        
-        $content = $modx->filter->parseDocumentSource($content);
-        $content = strip_tags($content);
-        $content = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$content);
-        if(preg_match('/\s+/',$content))
-            $content = preg_replace('/\s+/',' ',$content);
-        $content = trim($content);
-        
-        $pos = $modx->filter->strpos($content, $delim);
-        
-        if($pos!==false && $pos<$limit)
-        {
-            $_ = explode($delim, $content);
-            $text = '';
-            foreach($_ as $value)
-            {
-                if($limit <= $modx->filter->strlen($text.$value.$delim)) break;
-                $text .= $value.$delim;
-            }
-        }
-        else $text = $content;
-        
-        if($limit<$modx->filter->strlen($text) && strpos($text,' ')!==false)
-        {
-            $_ = explode(' ', $text);
-            $text = '';
-            foreach($_ as $value)
-            {
-                if($limit <= $modx->filter->strlen($text.$value.' ')) break;
-                $text .= $value . ' ';
-            }
-            if($text==='') $text = $content;
-        }
-        
-        if($limit < $modx->filter->strlen($text)) $text = $modx->filter->substr($text, 0, $limit);
-        
-        return $text;
+if($value==='' && isset($modx->documentObject['content']))
+    $value = $modx->documentObject['content'];
+
+$value = $modx->filter->parseDocumentSource($value);
+
+$value = strip_tags($value);
+
+$value = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$value);
+if(preg_match('/\s+/',$value))
+    $value = preg_replace('/\s+/',' ',$value);
+$value = trim($value);
+
+$pos = $modx->filter->strpos($value, $delim);
+
+if($pos!==false && $pos<$limit) {
+    $_ = explode($delim, $value);
+    $text = '';
+    foreach($_ as $value) {
+        if($limit <= $modx->filter->strlen($text.$value.$delim)) break;
+        $text .= $value.$delim;
     }
+    $value = $text;
+}
+
+if($limit<$modx->filter->strlen($value) && strpos($value,' ')!==false) {
+    $_ = explode(' ', $value);
+    $text = '';
+    foreach($_ as $value) {
+        if($limit <= $modx->filter->strlen($text.$value.' ')) break;
+        $text .= $value . ' ';
+    }
+    if($text!=='') $value = $text;
+}
+
+if($limit < $modx->filter->strlen($value)) $value = $modx->filter->substr($value, 0, $limit);
+
+return $value;
