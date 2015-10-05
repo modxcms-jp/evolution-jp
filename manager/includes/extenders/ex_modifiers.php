@@ -264,10 +264,7 @@ class MODIFIERS {
             case 'memberof':
             case 'mo':
                 // Is Member Of  (same as inrole but this one can be stringed as a conditional)
-                $userID = $modx->getLoginUserID('web');
-                $grps = ($this->strlen($opt) > 0 ) ? explode(',',$opt) :array();
-                $this->condition[] = intval($this->isMemberOfWebGroupByUserId($userID,$grps));
-                $modx->qs_hash = md5($modx->qs_hash."^{$userID}^");
+                $this->condition[] = includeMdfFile('memberof');
                 break;
             case 'or':
                 $this->condition[] = '||';break;
@@ -461,10 +458,7 @@ class MODIFIERS {
             case 'summary':
             case 'smart_description':
             case 'smart_desc':
-                  if(strpos($opt,',')) list($limit,$delim) = explode(',', $opt);
-                elseif(preg_match('/^[1-9][0-9]*$/',$opt)) {$limit=$opt;$delim='';}
-                else {$limit=100;$delim='';}
-                return $this->getSummary($value, $limit, $delim);
+                return $this->includeMdfFile('summary');
             case 'replace':
             case 'str_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
@@ -1055,18 +1049,9 @@ class MODIFIERS {
         return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
     }
     
-    function getSummary($content='', $limit=100, $delim='')
-    {
-        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_getsummary.php');
-    }
     // Returns the specified field from the user record
     // positive userid = manager, negative integer = webuser
     function ModUser($userid,$field) {
-        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_moduser.php');
-    }
-     
-    // Returns true if the user id is in one the specified webgroups
-    function isMemberOfWebGroupByUserId($userid=0,$groupNames=array()) {
-        return include_once(MODX_CORE_PATH . 'extenders/modifiers/fn_ismemberofwebgroupbyuserid.php');
+        return include_once(MODX_CORE_PATH . 'extenders/modifiers/mdf_moduser.inc');
     }
 }
