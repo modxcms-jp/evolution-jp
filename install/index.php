@@ -3,35 +3,35 @@
  * MODX Installer
  */
 
-if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
-
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
-$self = 'install/index.php';
-$base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
-require_once("{$base_path}manager/includes/version.inc.php");
-$cmsName = "MODX";
-$cmsVersion = $modx_branch.' '.$modx_version;
-$moduleRelease = $modx_release_date;
-
-require_once("{$base_path}manager/includes/default.config.php");
-$installer_path = "{$base_path}install/";
-require_once("{$installer_path}functions.php");
-install_session_start();
-
-if(isset($_SESSION['prevAction'])) $prevAction = $_SESSION['prevAction'];
-
-$_SESSION['prevAction'] = '';
-if(isset($_REQUEST['action'])) $_SESSION['prevAction'] = $_REQUEST['action'];
-else                           $_SESSION['prevAction'] = 'mode';
+if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_runtime', 0);
     @ ini_set('magic_quotes_sybase', 0);
 }
+
 header("Content-Type: text/html; charset=utf-8");
+
+$base_path      = str_replace('\\','/', dirname(getcwd())).'/';
+$installer_path = "{$base_path}install/";
+
+require_once("{$base_path}manager/includes/version.inc.php");
+$cmsName = "MODX";
+$cmsVersion = $modx_branch.' '.$modx_version;
+$moduleRelease = $modx_release_date;
+
+require_once("{$base_path}manager/includes/default.config.php");
+require_once("{$installer_path}functions.php");
+install_session_start();
+
+if(isset($_SESSION['prevAction'])) $prevAction = $_SESSION['prevAction'];
+
+if(isset($_REQUEST['action'])) $_SESSION['prevAction'] = $_REQUEST['action'];
+else                           $_SESSION['prevAction'] = 'mode';
 
 $action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
 if($action==='mode') $installmode = get_installmode();
@@ -46,6 +46,7 @@ else {
 	$install_language = autoDetectLang();
 	$_SESSION['install_language'] = $install_language;
 }
+
 //echo $install_language;exit;
 includeLang($install_language);
 

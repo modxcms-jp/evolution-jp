@@ -5,24 +5,24 @@
 
 class SqlParser {
 	var $prefix, $mysqlErrors;
-	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
-	var $mode;
-    var $connection_charset, $connection_collation, $ignoreSqlErrors;
+	var $installFailed, $adminname, $adminemail, $adminpass, $managerlanguage;
+    var $connection_charset, $connection_collation, $showSqlErrors;
     var $base_path;
 
 	function SqlParser() {
+		$this->base_path = str_replace('\\','/', dirname(getcwd())).'/';
 		$this->prefix = 'modx_';
 		$this->adminname = 'admin';
 		$this->adminpass = 'password';
 		$this->adminemail = 'example@example.com';
 		$this->connection_charset = 'utf8';
 		$this->connection_collation = 'utf8_general_ci';
-		$this->ignoreSqlErrors = false;
+		$this->showSqlErrors = true;
 		$this->managerlanguage = 'english';
 	}
 
-	function process($filename) {
-	    global $modx,$modx_version,$mysqli;
+	function intoDB($filename) {
+	    global $mysqli;
 		
 		// check to make sure file exists
 		$path = "{$this->base_path}install/sql/{$filename}";
@@ -37,7 +37,7 @@ class SqlParser {
 		$idata = str_replace("\r", '', $idata);
 		
 		$dbVersion = $mysqli->server_info;
-		$dbVersion = (float) $mysqli->server_info; // Typecasting (float) instead of floatval() [PHP < 4.2]
+		$dbVersion = (float) $mysqli->server_info;
 		if(version_compare($dbVersion,'4.1.0', '>='))
 		{
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
@@ -66,7 +66,7 @@ class SqlParser {
 			if($mysqli->error)
 			{
 				// Ignore duplicate and drop errors - Raymond
-				if ($this->ignoreSqlErrors)
+				if (!$this->showSqlErrors)
 				{
 					$errno = $mysqli->errno;
 					if ($errno == 1060 || $errno == 1061 || $errno == 1091 || $errno == 1054) continue;
@@ -77,5 +77,4 @@ class SqlParser {
 			}
 		}
 	}
-
 }

@@ -1,6 +1,4 @@
 <?php
-global $cmsName;
-global $cmsVersion;
 global $tplChunks;
 global $tplTemplates;
 global $tplSnippets;
@@ -39,15 +37,24 @@ startCMSSession();
 $database_type = 'mysqli';
 include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx = new DocumentParser;
-$modx->db->hostname = $_SESSION['database_server'];
-$modx->db->dbname   = $_SESSION['dbase'];
-$modx->db->username = $_SESSION['database_user'];
-$modx->db->password = $_SESSION['database_password'];
+$modx->db->hostname     = $_SESSION['database_server'];
+$modx->db->dbname       = $_SESSION['dbase'];
+$modx->db->username     = $_SESSION['database_user'];
+$modx->db->password     = $_SESSION['database_password'];
 $modx->db->table_prefix = $_SESSION['table_prefix'];
 $modx->db->connect();
 
+$rs = $modx->db->table_exists('[+prefix+]site_revision');
+if($rs) {
+	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
+    if(!$rs) {
+    	$sql = 'DROP TABLE ' . $sqlParser->prefix . 'site_revision';
+    	$modx->db->query($sql);
+    }
+}
+
 // open db connection
-$setupPath = realpath(dirname(__FILE__));
+$setupPath = realpath(getcwd());
 include_once("{$setupPath}/setup.info.php");
 include_once("{$setupPath}/sqlParser.class.php");
 $sqlParser = new SqlParser();
@@ -62,24 +69,14 @@ $sqlParser->managerlanguage = $_SESSION['managerlanguage'];
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
-$sqlParser->ignoreSqlErrors = true;
-
-$rs = $modx->db->table_exists('[+prefix+]site_revision');
-if($rs)
-{
-	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
-    if(!$rs) {
-    	$sql = 'DROP TABLE ' . $sqlParser->prefix . 'site_revision';
-    	$modx->db->query($sql);
-    }
-}
+$sqlParser->showSqlErrors = false;
 
 // install/update database
 echo "<p>{$lang_setup_database_creating_tables}";
-$sqlParser->process('both_createtables.sql');
-if($installmode==0) $sqlParser->process('new_setvalues.sql');
-else                $sqlParser->process('upd_fixvalues.sql');
-$sqlParser->process('both_fixvalues.sql');
+$sqlParser->intoDB('both_createtables.sql');
+if($installmode==0) $sqlParser->intoDB('new_setvalues.sql');
+else                $sqlParser->intoDB('upd_fixvalues.sql');
+$sqlParser->intoDB('both_fixvalues.sql');
 // display database results
 if ($sqlParser->installFailed == true)
 {
@@ -562,14 +559,14 @@ if ($formvSnippets!==false && !empty($formvSnippets) || $installdata)
 
 if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 {
-	$sqlParser->process('new_override.sql');
+	$sqlParser->intoDB('new_override.sql');
 }
 
 // install data
 if ($installmode == 0 && $installdata)
 {
 	echo "<p>{$lang_installing_demo_site}";
-	$sqlParser->process('new_sample.sql');
+	$sqlParser->intoDB('new_sample.sql');
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;
