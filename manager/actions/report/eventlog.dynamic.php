@@ -36,20 +36,20 @@ echo $cm->render();
   	function searchResource(){
 		document.resource.op.value="srch";
 		document.resource.submit();
-	};
+	}
 
 	function resetSearch(){
 		document.resource.search.value = ''
 		document.resource.op.value="reset";
 		document.resource.submit();
-	};
+	}
 
 	function changeListMode(){
 		var m = parseInt(document.resource.listmode.value) ? 1:0;
 		if (m) document.resource.listmode.value=0;
 		else document.resource.listmode.value=1;
 		document.resource.submit();
-	};
+	}
 
 	var selectedItem;
 	var contextm = <?php echo $cm->getClientScriptObject()?>;
@@ -60,7 +60,7 @@ echo $cm->render();
 		contextm.style.visibility = "visible";
 		e.cancelBubble=true;
 		return false;
-	};
+	}
 
 	function menuAction(a) {
 		var id = selectedItem;
