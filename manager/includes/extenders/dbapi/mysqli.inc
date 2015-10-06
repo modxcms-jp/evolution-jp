@@ -784,9 +784,10 @@ $s = '';
     
     function field_exists($field_name,$table_name)
     {
+        $table_name = $this->replaceFullTableName($table_name);
+        
         if(!$this->table_exists($table_name)) return 0;
         
-        $table_name = $this->replaceFullTableName($table_name);
         $rs = $this->query("DESCRIBE {$table_name} {$field_name}");
         
         return $this->getRow($rs) ? 1 : 0;
