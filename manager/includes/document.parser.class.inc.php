@@ -874,13 +874,12 @@ class DocumentParser {
     
     function getSettings()
     {
-        $cache_path = MODX_BASE_PATH . 'assets/cache/siteCache.idx.php';
-        if(is_file($cache_path))
-            include_once($cache_path);
-        if(!isset($this->config) || !is_array($this->config) || empty ($this->config))
-        {
+        $cache_path = MODX_BASE_PATH . 'assets/cache/';
+        if(is_file($cache_path.'config.siteCache.idx.php')) $this->config = include($cache_path.'config.siteCache.idx.php');
+        if(!isset($this->config) || !is_array($this->config) || empty ($this->config)) {
             $this->config = $this->getSiteCache();
         }
+        if(is_file($cache_path.'siteCache.idx.php')) include_once($cache_path.'siteCache.idx.php');
         
         // store base_url and base_path inside config array
         $this->config['base_path']= MODX_BASE_PATH;
