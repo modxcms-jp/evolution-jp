@@ -181,7 +181,7 @@ class Qm {
 				// QM+ TV edit
 				if(isset($_GET['quickmanagertv'] ) && intval($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
 				{
-					include_once('edit_tv.inc');
+					$output = include_once('edit_tv.inc');
 				}
 			
 			// QM+ with toolbar
