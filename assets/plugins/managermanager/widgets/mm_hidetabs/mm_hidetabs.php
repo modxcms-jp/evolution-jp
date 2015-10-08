@@ -30,11 +30,11 @@ function mm_hideTabs($tabs, $roles = '', $templates = ''){
 					$output .= '$j("#tabGeneral").hide();';
 					break;
 				case 'settings':
-					$output .= '$j("#tabTvHeader").hide();';
+					$output .= '$j("#tabSettingsHeader").hide();';
 					$output .= '$j("#tabTv").hide();';
 					break;
 				case 'tv':
-					$output .= '$j("#tabAccessHeader").hide();';
+					$output .= '$j("#tabTvHeader").hide();';
 					$output .= '$j("#tabAccess").hide();';
 					break;
 				case 'access':
