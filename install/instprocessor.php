@@ -48,7 +48,7 @@ $rs = $modx->db->table_exists('[+prefix+]site_revision');
 if($rs) {
 	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
     if(!$rs) {
-    	$sql = 'DROP TABLE ' . $sqlParser->prefix . 'site_revision';
+    	$sql = 'DROP TABLE ' . $modx->db->table_prefix . 'site_revision';
     	$modx->db->query($sql);
     }
 }
