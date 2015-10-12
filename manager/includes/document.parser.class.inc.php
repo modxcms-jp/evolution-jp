@@ -494,7 +494,7 @@ class DocumentParser {
                             {
                                 if(substr($parent->content,0,5)==='@FILE')
                                     $parent->content = $this->atBindFile($parent->content);
-                                elseif(substr($template->content,0,4)==='@URL')
+                                elseif(substr($parent->content,0,4)==='@URL')
                                     $parent->content = $this->atBindUrl($parent->content);
                                 if(strpos($parent->content,'[*content*]')!==false)
                                     $template->content = str_replace('[*content*]', $template->content, $parent->content);
