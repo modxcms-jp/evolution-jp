@@ -28,10 +28,11 @@ if(!$modx->hasPermission('view_unpublished'))
 	}
 }
 
+$now = time();
 // update the document
 $field['published']   = 1;
-$field['pub_date']    = 0;
-$field['unpub_date']  = 0;
+if($now < $doc->pub_date)   $field['pub_date']   = 0;
+if($doc->unpub_date < $now) $field['unpub_date'] = 0;
 $field['publishedby'] = $modx->getLoginUserID();
 $field['publishedon'] = time();
 $field['editedby']    = $modx->getLoginUserID();
