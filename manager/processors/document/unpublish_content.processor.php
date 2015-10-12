@@ -18,10 +18,11 @@ if(!$modx->checkPermissions($id)) {
 	exit;
 }
 
+$doc = $modx->db->getObject('site_content',"id='{$id}'");
+
 // update the document
 $field['published']   = 0;
-$field['pub_date']    = 0;
-$field['unpub_date']  = 0;
+if($doc->pub_date < time()) $field['pub_date']  = 0;
 $field['publishedby'] = 0;
 $field['publishedon'] = 0;
 
