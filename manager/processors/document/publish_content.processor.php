@@ -35,7 +35,6 @@ if($now < $doc->pub_date)   $field['pub_date']   = 0;
 if($doc->unpub_date < $now) $field['unpub_date'] = 0;
 $field['publishedby'] = $modx->getLoginUserID();
 $field['publishedon'] = $now;
-$field['editedby']    = $modx->getLoginUserID();
 $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs)
 	exit("An error occured while attempting to publish the document.");
