@@ -18,11 +18,10 @@ if(!$modx->checkPermissions($id)) {
 	include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 	exit;
 }
-
+$doc = $modx->db->getObject('site_content',"id='{$id}'");
 if(!$modx->hasPermission('view_unpublished'))
 {
-	$uid = $modx->db->getValue($modx->db->select('publishedby','[+prefix+]site_content',"id='{$id}'"));
-	if($modx->getLoginUserID() != $uid)
+	if($modx->getLoginUserID() != $doc->publishedby)
 	{
 		$e->setError(3);
 		$e->dumpError();
