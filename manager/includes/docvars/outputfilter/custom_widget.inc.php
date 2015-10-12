@@ -45,7 +45,7 @@
 			$widget_output = $msg . $return;
 		}
 	}
-	elseif($value==='')
+	elseif($params['output']==='')
 		return;
 	else
 		$widget_output = $params['output'];
