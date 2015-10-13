@@ -1479,11 +1479,15 @@ class DocumentParser {
         
         $replace= array ();
         foreach($matches[1] as $i=>$key) {
+            $snip_call = $this->_split_snip_call($key);
+            $key = $snip_call['name'];
+            $ph = $this->_snipParamsToArray($snip_call['params']);
             if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
-            $value= $this->getChunk($key);
+            $value = $this->getChunk($key);
+            $value = $this->parseText($ph,$value,'[+','+]',false);
             
             if($modifiers!==false)
             {
@@ -2769,6 +2773,8 @@ class DocumentParser {
             foreach($matches[1] as $i=>$key) {
                 if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
                 else                         $modifiers = false;
+                
+                if(!$cleanup && !isset($ph[$key])) $ph[$key] = '';
                 
                 if(isset($ph[$key])) {
                     $value = $ph[$key];
