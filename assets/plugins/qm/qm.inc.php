@@ -556,7 +556,9 @@ function getCookie(cookieName)
 					$qm_theme = $this->modx->config['manager_theme'];
 					
 					// Get doc id
-					$doc_id = intval($_REQUEST['id']);
+					if    (isset($_REQUEST['id']))  $doc_id = (int)$_REQUEST['id'];
+					elseif(isset($_REQUEST['pid'])) $doc_id = (int)$_REQUEST['pid'];
+					else $doc_id = 0;
 					
 					// Add action buttons
 					$url = $this->modx->makeUrl($doc_id,'','','full');
