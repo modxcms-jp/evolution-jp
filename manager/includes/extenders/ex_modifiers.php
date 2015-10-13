@@ -264,7 +264,7 @@ class MODIFIERS {
             case 'memberof':
             case 'mo':
                 // Is Member Of  (same as inrole but this one can be stringed as a conditional)
-                $this->condition[] = includeMdfFile('memberof');
+                $this->condition[] = $this->includeMdfFile('memberof');
                 break;
             case 'or':
                 $this->condition[] = '||';break;
