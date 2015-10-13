@@ -6,40 +6,37 @@ else {$limit=100;$delim='';}
 if($delim==='') $delim = $modx->config['manager_language']==='japanese-utf8' ? '。' : '.';
 $limit = intval($limit);
 
-if($value==='' && isset($modx->documentObject['content']))
-    $value = $modx->documentObject['content'];
+$content = $modx->filter->parseDocumentSource($value);
 
-$value = $modx->filter->parseDocumentSource($value);
+$content = strip_tags($content);
 
-$value = strip_tags($value);
+$content = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$content);
+if(preg_match('/\s+/',$content))
+    $content = preg_replace('/\s+/',' ',$content);
+$content = trim($content);
 
-$value = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$value);
-if(preg_match('/\s+/',$value))
-    $value = preg_replace('/\s+/',' ',$value);
-$value = trim($value);
-
-$pos = $modx->filter->strpos($value, $delim);
+$pos = $modx->filter->strpos($content, $delim);
 
 if($pos!==false && $pos<$limit) {
-    $_ = explode($delim, $value);
+    $_ = explode($delim, $content);
     $text = '';
-    foreach($_ as $value) {
-        if($limit <= $modx->filter->strlen($text.$value.$delim)) break;
-        $text .= $value.$delim;
+    foreach($_ as $v) {
+        if($limit <= $modx->filter->strlen($text.$v.$delim)) break;
+        $text .= $v.$delim;
     }
-    $value = $text;
+    $content = $text;
 }
 
-if($limit<$modx->filter->strlen($value) && strpos($value,' ')!==false) {
-    $_ = explode(' ', $value);
+if($limit<$modx->filter->strlen($content) && strpos($content,' ')!==false) {
+    $_ = explode(' ', $content);
     $text = '';
-    foreach($_ as $value) {
-        if($limit <= $modx->filter->strlen($text.$value.' ')) break;
-        $text .= $value . ' ';
+    foreach($_ as $v) {
+        if($limit <= $modx->filter->strlen($text.$v.' ')) break;
+        $text .= $v . ' ';
     }
-    if($text!=='') $value = $text;
+    if($text!=='') $content = $text;
 }
 
-if($limit < $modx->filter->strlen($value)) $value = $modx->filter->substr($value, 0, $limit);
+if($limit < $modx->filter->strlen($content)) $content = $modx->filter->substr($content, 0, $limit);
 
-return $value;
+return $content;

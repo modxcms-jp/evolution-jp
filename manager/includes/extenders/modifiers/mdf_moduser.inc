@@ -1,6 +1,5 @@
 <?php
 $userid = $value;
-$field  = $opt;
 
 if (!isset($modx->filter->cache['ui']) || !array_key_exists($userid, $modx->filter->cache['ui'])) {
     if (intval($userid) < 0) {
@@ -14,6 +13,4 @@ if (!isset($modx->filter->cache['ui']) || !array_key_exists($userid, $modx->filt
 }
 $user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['fullname'];
 
-$value = $user[$field];
-
-return $value;
+return $user[$opt];
