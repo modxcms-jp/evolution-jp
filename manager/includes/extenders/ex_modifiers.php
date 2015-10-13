@@ -798,6 +798,7 @@ class MODIFIERS {
     }
 
     function includeMdfFile($cmd) {
+        global $modx;
         $phxkey = $this->phxkey;
         $value  = $this->value;
         $opt    = $this->opt;
