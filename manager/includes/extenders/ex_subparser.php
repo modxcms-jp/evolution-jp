@@ -1123,7 +1123,6 @@ class SubParser {
             case "richtext":     // handler for textarea boxes
             case "textareamini": // handler for textarea mini boxes
                 $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/textarea.inc.php');
-                $ph['class']  = "{$field_type} phptextarea";
                 $ph['id']     = "tv{$field_id}";
                 $ph['name']   = "tv{$field_id}";
                 $ph['value']  = htmlspecialchars($field_value);
