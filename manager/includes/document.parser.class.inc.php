@@ -1487,7 +1487,7 @@ class DocumentParser {
             else $modifiers = false;
             
             $value = $this->getChunk($key);
-            $value = $this->parseText($ph,$value,'[+','+]',false);
+            $value = $this->parseText($ph,$value,'[+','+]','chunk');
             
             if($modifiers!==false)
             {
@@ -2774,7 +2774,7 @@ class DocumentParser {
                 if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
                 else                         $modifiers = false;
                 
-                if(!$cleanup && !isset($ph[$key])) $ph[$key] = '';
+                if($cleanup=='chunk' && !isset($ph[$key])) $ph[$key] = '';
                 
                 if(isset($ph[$key])) {
                     $value = $ph[$key];
