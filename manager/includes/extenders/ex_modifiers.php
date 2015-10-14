@@ -839,13 +839,14 @@ class MODIFIERS {
                     if(substr($php,0,5)==='<?php') $php = substr($php,6);
                     if(substr($php,0,2)==='<?')    $php = substr($php,3);
                     if(substr($php,-2)==='?>')     $php = substr($php,0,-2);
-                    $modx->snippetCache[$this->elmName.'Props'] = '';
+                    if($this->elmName!=='')
+                        $modx->snippetCache[$this->elmName.'Props'] = '';
                 }
                 else
                     $php = false;
             }
             else $php = false;
-            $modx->snippetCache[$this->elmName]= $php;
+            if($this->elmName!=='') $modx->snippetCache[$this->elmName]= $php;
         }
         if($php==='') $php=false;
         
