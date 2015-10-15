@@ -3,7 +3,7 @@
  * ManagerManager plugin
  * @version 0.4 (2012-11-14)
  * 
- * @for MODx Evolution 1.0.x
+ * @for MODX Evolution 1.0.x
  * 
  * @author Nick Crossland - www.rckt.co.uk, DivanDesign studio - www.DivanDesign.biz
  * 
@@ -287,7 +287,7 @@ if ($handle = opendir($widget_dir)){
 		var mm_sync_field_count = 0;
 		var synch_field = new Array();
 		
-	$j(document).ready(function(){
+	$j(function(){
 			// Lets handle errors nicely...
 			
 		// Get the JS for the changes & display the status
@@ -304,7 +304,6 @@ if ($handle = opendir($widget_dir)){
 			if ($j("div.tmplvars :input").length == 0){
 					$j("div.tmplvars").hide();	// Still contains an empty table and some dividers
 					$j("div.tmplvars").prev("div").hide();	// Still contains an empty table and some dividers
-					//$j("#sectionTVsHeader").hide();
 				}
 				
 				// If template category is empty, hide the optgroup
