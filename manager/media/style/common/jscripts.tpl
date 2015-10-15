@@ -48,9 +48,9 @@ jQuery(function(){
         var pmode = [+preview_mode+];
     	if(pmode==1)
     	{
-        	jQuery('#mutate').attr({'action':'[+preview_url+]','target':'prevWin'});
+        	jQuery('#mutate').prop({'action':'[+preview_url+]','target':'prevWin'});
             jQuery('#mutate').submit();
-        	jQuery('#mutate').attr({'action':'index.php','target':'main'});
+        	jQuery('#mutate').prop({'action':'index.php','target':'main'});
     	}
     	return false;
 	});
