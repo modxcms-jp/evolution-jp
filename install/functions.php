@@ -333,16 +333,16 @@ function is_iis()
 	return (strpos($_SERVER['SERVER_SOFTWARE'],'IIS')) ? true : false;
 }
 
-function get_installmode()
+function isUpGrade()
 {
-	global $base_path,$database_server, $database_user, $database_password, $dbase, $table_prefix;
+	global $base_path;
 	
 	$conf_path = "{$base_path}manager/includes/config.inc.php";
 	if (!is_file($conf_path)) $installmode = 0;
 	elseif(isset($_POST['installmode'])) $installmode = $_POST['installmode'];
 	else
 	{
-		include_once("{$base_path}manager/includes/config.inc.php");
+		include_once($conf_path);
 		error_reporting(E_ALL & ~E_NOTICE);
 		
 		if(!isset($dbase) || empty($dbase)) $installmode = 0;
@@ -351,10 +351,6 @@ function get_installmode()
 			$mysqli = @ new mysqli($database_server, $database_user, $database_password);
 			if($mysqli)
 			{
-				$_SESSION['database_server']   = $database_server;
-				$_SESSION['database_user']     = $database_user;
-				$_SESSION['database_password'] = $database_password;
-				
 				$dbase = trim($dbase, '`');
 				$rs = @ $mysqli->select_db($dbase);
 			}
@@ -362,11 +358,6 @@ function get_installmode()
 			
 			if($rs)
 			{
-				$_SESSION['dbase']                      = $dbase;
-				$_SESSION['table_prefix']               = $table_prefix;
-				$_SESSION['database_collation']         = 'utf8_general_ci';
-				$_SESSION['database_connection_method'] = 'SET CHARACTER SET';
-				
 				$tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
 				$rs = $mysqli->query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
 				if($rs)
@@ -475,7 +466,7 @@ function ph()
 	global $_lang,$cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
 
 	if(isset($_SESSION['installmode'])) $installmode = $_SESSION['installmode'];
-	else                                $installmode = get_installmode();
+	else                                $installmode = isUpGrade();
 
 	$ph['pagetitle']     = $_lang['modx_install'];
 	$ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
@@ -600,4 +591,9 @@ function get_database_collation() {
 function getLast($array=array()) {
 	$array = (array) $array;
     return end($array);
+}
+
+function checkOldConfig($config_path) {
+	if(is_file($config_path)) include_once($config_path);
+	if(isset($lastInstallTime)) exit('test');
 }

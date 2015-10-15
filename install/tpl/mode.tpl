@@ -21,7 +21,7 @@
 <script type="text/javascript">
 	var installmode = [+installmode+];
 	jQuery('a.next').click(function(){
-		if(installmode==1) jQuery('form#install').attr({action:'index.php?action=options'});
+		if(installmode==1) jQuery('form#install').prop({action:'index.php?action=options'});
 		jQuery('#install').submit();
 	});
 </script>

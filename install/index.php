@@ -26,15 +26,27 @@ $moduleRelease = $modx_release_date;
 
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$installer_path}functions.php");
+
 install_session_start();
 
-if(isset($_SESSION['prevAction'])) $prevAction = $_SESSION['prevAction'];
+$action = isset($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
+$_SESSION['prevAction']    = isset($_SESSION['currentAction']) ? $_SESSION['currentAction'] : '';
+$_SESSION['currentAction'] = $action;
 
-if(isset($_REQUEST['action'])) $_SESSION['prevAction'] = $_REQUEST['action'];
-else                           $_SESSION['prevAction'] = 'mode';
-
-$action= isset ($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
-if($action==='mode') $installmode = get_installmode();
+if($action==='mode') {
+	$installmode = isUpGrade();
+	$_SESSION['installmode'] = $installmode;
+	if($installmode==1) {
+		include("{$base_path}manager/includes/config.inc.php");
+		$_SESSION['database_server']            = $database_server;
+		$_SESSION['database_user']              = $database_user;
+		$_SESSION['database_password']          = $database_password;
+		$_SESSION['dbase']                      = trim($dbase,'`');
+		$_SESSION['table_prefix']               = $table_prefix;
+		$_SESSION['database_collation']         = 'utf8_general_ci';
+		$_SESSION['database_connection_method'] = 'SET CHARACTER SET';
+	}
+}
 
 if(isset($_POST['install_language']) && !empty($_POST['install_language'])) {
 	$install_language = $_POST['install_language'];

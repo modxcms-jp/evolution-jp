@@ -1,5 +1,5 @@
 <?php
-if(($prevAction==='connection'||$prevAction==='mode') && !isset($_SESSION['installdata']))
+if(($_SESSION['prevAction']==='connection'||$_SESSION['prevAction']==='mode') && !isset($_SESSION['installdata']))
 	$selDefault = 'all';
 else $selDefault = false;
 
@@ -18,7 +18,6 @@ if(isset($_POST['adminemail']))        $_SESSION['adminemail']        = $_POST['
 if(isset($_POST['adminpass']))         $_SESSION['adminpass']         = $_POST['adminpass'];
 if(isset($_POST['adminpassconfirm']))  $_SESSION['adminpassconfirm']  = $_POST['adminpassconfirm'];
 
-if(isset($_POST['installmode'])) $_SESSION['installmode'] = $_POST['installmode'];
 $installmode = $_SESSION['installmode'];
 
 $_SESSION['managerlanguage'] = $_SESSION['install_language'];
@@ -26,7 +25,6 @@ include_once("{$installer_path}setup.info.php");
 
 $ph['installmode'] = $installmode;
 
-$ph['optional_items_new_note'] = $installmode==0 ? parse("<p>[+optional_items_new_note+]</p>\n",$ph) : '';
 $ph['install_sample_site']     = $installmode==0 ? block_install_sample_site($installdata,$ph) . "\n" : '';
 $ph['block_templates'] = block_templates($tplTemplates,$formTemplates,$ph);
 $ph['block_tvs']       = block_tvs(      $tplTVs,      $formTvs,      $ph);

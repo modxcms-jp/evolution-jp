@@ -10,7 +10,7 @@ session_destroy();
 if ($errors == 0) {
 	// check if install folder is removeable
     if ((is_writable('../install') || is_webmatrix()) && !is_iis()) { ?>
-<label style="float:left;line-height:18px;"><input type="checkbox" id="rminstaller" checked /><?php echo $_lang['remove_install_folder_auto'] ?></label>
+<label style="float:left;line-height:18px;"><input type="checkbox" id="rminstaller" value="1" checked /><?php echo $_lang['remove_install_folder_auto'] ?></label>
 <?php 
     } else {
 ?>
@@ -27,7 +27,7 @@ if ($errors == 0) {
 <script type="text/javascript">
 /* <![CDATA[ */
 jQuery('#closepage span').click(function(){
-	checked = jQuery('#rminstaller').attr('checked');
+	checked = jQuery('#rminstaller').prop('checked');
 	if(checked) {
 		// remove install folder and files
 		window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";

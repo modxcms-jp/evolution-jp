@@ -31,7 +31,11 @@
   <p class="labelHolder"><label for="table_prefix">[+connection_screen_table_prefix+]</label>
     <input id="table_prefix" value="[+table_prefix+]" name="table_prefix" />
   </p>
-[+set_block_connection_method+]
+  <p class="labelHolder">
+    <div id="connection_method" name="connection_method">
+        <input type="hidden" value="SET CHARACTER SET" id="database_connection_method" name="database_connection_method" />
+    </div>
+  </p>
   <div class="clickHere">
 	&rarr; <a id="databasetest" href="#footer">[+connection_screen_database_test_connection+]</a>
   </div>
@@ -48,7 +52,25 @@ jQuery('#databasetest').click(function(){
 	target.animate({ scrollTop: jQuery('#footer').offset().top }, 'slow');
 });
 </script>
-[+AUH+]
+    <div id="AUH" style="margin-top:1.5em;display:none;">
+    <div id="AUHMask">
+    <h2>[+connection_screen_defaults+]</h2>
+    <h3>[+connection_screen_default_admin_user+]</h3>
+    <p>[+connection_screen_default_admin_note+]</p>
+    <p class="labelHolder"><label for="adminname">[+connection_screen_default_admin_login+]</label>
+      <input id="adminname" value="[+adminname+]" name="adminname" />
+    </p>
+    <p class="labelHolder"><label for="adminemail">[+connection_screen_default_admin_email+]</label>
+      <input id="adminemail" value="[+adminemail+]" name="adminemail" style="width:300px;" />
+    </p>
+    <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
+      <input id="adminpass" type="password" name="adminpass" value="[+adminpass+]" />
+    </p>
+    <p class="labelHolder"><label for="adminpassconfirm">[+connection_screen_default_admin_password_confirm+]</label>
+      <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="[+adminpassconfirm+]" />
+    </p>
+    </div>
+    </div>
     <p class="buttonlinks">
         <a href="javascript:void(0);" class="prev" title="[+btnback_value+]"><span>[+btnback_value+]</span></a>
         <a href="javascript:void(0);" class="next" title="[+btnnext_value+]" style="display:none;"><span>[+btnnext_value+]</span></a>
@@ -62,7 +84,7 @@ jQuery('#databasetest').click(function(){
 	});
 	
 	jQuery('a.prev').click(function(){
-		jQuery('#install').attr({action:'index.php?action=mode'});
+		jQuery('#install').prop({action:'index.php?action=mode'});
 		jQuery('#install').submit();
 	});
 	jQuery('a.next').click(function(){

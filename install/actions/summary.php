@@ -2,8 +2,8 @@
 if(isset($_POST['chkagree'])) $chkagree = $_POST['chkagree'];
 elseif(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
 
-if($prevAction ==='options'){
-   $_SESSION['installdata'] = isset($_POST['installdata']) ? $_POST['installdata'] : array();
+if($_SESSION['prevAction'] ==='options'){
+   $_SESSION['installdata'] = isset($_POST['installdata']) ? $_POST['installdata'] : '';
    $_SESSION['template']    = isset($_POST['template'])    ? $_POST['template']    : array();
    $_SESSION['tv']          = isset($_POST['tv'])          ? $_POST['tv']          : array();
    $_SESSION['chunk']       = isset($_POST['chunk'])       ? $_POST['chunk']       : array();
@@ -269,7 +269,7 @@ $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagre
 </form>
 <script type="text/javascript">
 jQuery('a.prev').click(function(){
-	jQuery('#install').attr({action:'index.php?action=options'});
+	jQuery('#install').prop({action:'index.php?action=options'});
 	jQuery('#install').submit();
 });
 jQuery('a.next').click(function(){
