@@ -71,7 +71,7 @@ function mm_inherit($fields, $roles = '', $templates = ''){
 				case 'log':
 				case 'hide_menu':
 				case 'show_in_menu':
-					$output .=  '$j("input[name='.$fieldname.']").attr("checked", "'.($newvalue?'':'checked').'"); ';
+					$output .=  '$j("input[name='.$fieldname.']").prop("checked", '.($newvalue?'false':'true').'); ';
 				break;
 				
 				case 'is_folder':
@@ -79,7 +79,7 @@ function mm_inherit($fields, $roles = '', $templates = ''){
 				case 'searchable':
 				case 'cacheable':
 				case 'published':
-					$output .=  '$j("input[name='.$fieldname.']").attr("checked", "'.($newvalue?'checked':'').'"); ';
+					$output .=  '$j("input[name='.$fieldname.']").prop("checked", '.($newvalue?'true':'false').'); ';
 				break;
 				
 				case 'pub_date':

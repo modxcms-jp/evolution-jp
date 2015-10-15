@@ -48,7 +48,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=published]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= sprintf('$j("input[name=%scheck]").attr("checked", "checked"); '."\n", $field);
+					$output .= sprintf('$j("input[name=%scheck]").prop("checked", true); '."\n", $field);
 				}else{
 					$output .= '$j("input[name=publishedcheck]").removeAttr("checked"); '."\n";
 				}
@@ -59,7 +59,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=hidemenu]").val("'.$new_value.'"); '."\n";
 				
 				if (!$value){
-					$output .= '$j("input[name=hidemenucheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
 				}
@@ -70,7 +70,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=hidemenu]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=hidemenucheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
 				}
@@ -81,7 +81,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=searchable]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=searchablecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=searchablecheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=searchablecheck]").removeAttr("checked"); '."\n";
 				}
@@ -92,7 +92,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=cacheable]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=cacheablecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=cacheablecheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=cacheablecheck]").removeAttr("checked"); '."\n";
 				}
@@ -103,7 +103,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=syncsite]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=syncsitecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=syncsitecheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=syncsitecheck]").removeAttr("checked"); '."\n";
 				}
@@ -115,7 +115,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=isfolder]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=isfoldercheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=isfoldercheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=isfoldercheck]").removeAttr("checked"); '."\n";
 				}
@@ -128,7 +128,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=richtext]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=richtextcheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=richtextcheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '
 					$j("input[name=richtextcheck]").removeAttr("checked");
@@ -149,7 +149,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 				$output .= '$j("input[name=donthit]").val("'.$new_value.'"); '."\n";
 				
 				if ($value){
-					$output .= '$j("input[name=donthitcheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=donthitcheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=donthitcheck]").removeAttr("checked"); '."\n";
 				}

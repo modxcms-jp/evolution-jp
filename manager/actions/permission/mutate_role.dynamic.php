@@ -68,12 +68,12 @@ $j(function(){
 	$j('#allcheck').click(function(){
 		if(this.checked)
 		{
-			$j('input.click:enabled').attr('checked','checked');
+			$j('input.click:enabled').prop('checked',true);
 			$j('input.set').val('1');
 		}
 		else
 		{
-			$j('input.click:enabled').removeAttr('checked');
+			$j('input.click:enabled').prop('checked',false);
 			$j('input.set').val('0');
 		}
 	});
