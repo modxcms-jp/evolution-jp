@@ -156,7 +156,6 @@ var ddMultiple = {
 		});
 
 		//Записываем значение в оригинальное поле
-//		jQuery("#" + id).attr("value", ddMultiple.maskQuoutes(masRows.join(ddMultiple[id].splY)));
 		jQuery("#" + id).val(ddMultiple.maskQuoutes(masRows.join(ddMultiple[id].splY)));
 	},
 	//Инициализация
