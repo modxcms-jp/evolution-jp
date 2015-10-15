@@ -1452,10 +1452,10 @@ function getTplTabTV()
 {
 	$tpl = <<< EOT
 <!-- TVs -->
-<div class="tab-page" id="tabTv">
-	<h2 class="tab" id="tabTvHeader">[+_lang_tv+]</h2>
+<div class="tab-page" id="tabTVs">
+	<h2 class="tab" id="tabTVsHeader">[+_lang_tv+]</h2>
 	<script type="text/javascript">
-		tpSettings.addTabPage(document.getElementById('tabTv'));
+		tpSettings.addTabPage(document.getElementById('tabTVs'));
 	</script>
 	[+TVFields+]
 </div>
