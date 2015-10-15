@@ -50,7 +50,6 @@ function mm_hideFields($fields, $roles='', $templates=''){
 				break;
 				
 				case 'content':
-					$output .= '$j("#sectionContentHeader, #sectionContentBody").hide();'; // For 1.0.0
 					$output .= '$j("#ta").parent("div").parent("div").hide().prev("div").hide();'."\n"; // For 1.0.1
 				break;
 				
