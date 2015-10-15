@@ -35,7 +35,7 @@ function mm_changeFieldHelp($field, $helptext='', $roles='', $templates=''){
 				//Or document field
 			}else{
 				// Give the help button an ID, and modify the alt/title text
-						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img.tooltip").attr("id", "'.$fieldname.'-help").attr("title", "'.jsSafe($helptext).'").attr("alt", "'.jsSafe($helptext).'").data(\'powertip\', \'' . jsSafe($helptext) . '\'); ';
+						$output .= '$j("'.$fieldtype.'[name='.$fieldname.']").siblings("img.tooltip").prop("id", "'.$fieldname.'-help").prop("title", "'.jsSafe($helptext).'").prop("alt", "'.jsSafe($helptext).'").data(\'powertip\', \'' . jsSafe($helptext) . '\'); ';
 			}
 		}
 		

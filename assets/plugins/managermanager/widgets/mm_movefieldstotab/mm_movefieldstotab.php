@@ -89,7 +89,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
 						toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
 						var movedTV = toMove.appendTo("#tab'.$newtab.'>table:first"); // Move the table row
 						movedTV.after(ruleHtml); // Insert a rule after
-						movedTV.find("td[width]").attr("width","");  // Remove widths from label column
+						movedTV.find("td[width]").prop("width","");  // Remove widths from label column
 						$j("[name^=\"'.$fieldname.'\"]:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
 						';
 					}

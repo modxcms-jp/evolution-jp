@@ -58,7 +58,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак публикации
 			case 'published':
 				if ($value == '1'){
-					$output .= '$j("input[name=publishedcheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=publishedcheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=publishedcheck]").removeAttr("checked"); '."\n";
@@ -70,7 +70,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак отображения в меню
 			case 'show_in_menu':
 				if ($value == '1'){
-					$output .= '$j("input[name=hidemenucheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
@@ -82,7 +82,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак скрытия из меню (аналогично show_in_menu, только наоборот)
 			case 'hide_menu':
 				if ($value == '0'){
-					$output .= '$j("input[name=hidemenucheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '1';
 					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
@@ -94,7 +94,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак доступности для поиска
 			case 'searchable':
 				if ($value == '1'){
-					$output .= '$j("input[name=searchablecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=searchablecheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=searchablecheck]").removeAttr("checked"); '."\n";
@@ -106,7 +106,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак кэширования
 			case 'cacheable':
 				if ($value == '1'){
-					$output .= '$j("input[name=cacheablecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=cacheablecheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=cacheablecheck]").removeAttr("checked"); '."\n";
@@ -118,7 +118,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак очистки кэша
 			case 'clear_cache':
 				if ($value == '1'){
-					$output .= '$j("input[name=syncsitecheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=syncsitecheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=syncsitecheck]").removeAttr("checked"); '."\n";
@@ -130,7 +130,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 			//Признак папки
 			case 'is_folder':
 				if ($value == '1'){
-					$output .= '$j("input[name=isfoldercheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=isfoldercheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '$j("input[name=isfoldercheck]").removeAttr("checked"); '."\n";
@@ -142,7 +142,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 				$output .= 'var originalRichtextValue = $j("#which_editor:first").val(); '."\n";
 				
 				if ($value == '1'){
-					$output .= '$j("input[name=richtextcheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=richtextcheck]").prop("checked", true); '."\n";
 				}else{
 					$value = '0';
 					$output .= '
@@ -166,7 +166,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 				$value = ($value) ? '0' : '1';
 				
 				if ($value == '1'){
-					$output .= '$j("input[name=donthitcheck]").attr("checked", "checked"); '."\n";
+					$output .= '$j("input[name=donthitcheck]").prop("checked", true); '."\n";
 				}else{
 					$output .= '$j("input[name=donthitcheck]").removeAttr("checked"); '."\n";
 				}

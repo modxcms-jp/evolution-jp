@@ -360,7 +360,7 @@ var ddMultiple = {
 			//If field not empty
 			if (url != ""){
 				//Show preview
-				$this.siblings(".ddField_image").show().find("img").attr("src", url);
+				$this.siblings(".ddField_image").show().find("img").prop("src", url);
 			}else{
 				//Hide preview
 				$this.siblings(".ddField_image").hide();
@@ -445,7 +445,7 @@ jQuery(function(){
 //Attach new load event
 jQuery("#tv'.$tv['id'].'").on("load.ddEvents", function(event){
 	var $this = jQuery(this), //Оригинальное поле
-		id = $this.attr("id");//id оригинального поля
+		id = $this.prop("id");//id оригинального поля
 
 	//Проверим на существование (возникали какие-то непонятные варианты, при которых два раза вызов был)
 	if (!ddMultiple[id]){
@@ -472,7 +472,7 @@ jQuery("#tv'.$tv['id'].'").on("load.ddEvents", function(event){
 		//Назначаем обработчик события при изменении (необходимо для того, чтобы после загрузки фотки адрес вставлялся в нужное место)
 		$this.on("change.ddEvents", function(){
 			//Обновляем текущее мульти-поле
-			ddMultiple.updateField($this.attr("id"));
+			ddMultiple.updateField($this.prop("id"));
 		});
 		
 		//Если это файл или изображение, cкрываем оригинальную кнопку
