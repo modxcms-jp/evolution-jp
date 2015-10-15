@@ -731,15 +731,15 @@ class MODIFIERS {
             case 'fax':
             case 'photo':
             case 'comment':
-                $opt = $cmd;
-                return $this->ModUser($value,$opt);
+                $this->opt = $cmd;
+                return $this->includeMdfFile('moduser');
             case 'userinfo':
-                if(empty($opt)) $opt = 'username';
-                return $this->ModUser($value,$opt);
+                if(empty($opt)) $this->opt = 'username';
+                return $this->includeMdfFile('moduser');
             case 'webuserinfo':
-                if(empty($opt)) $opt = 'username';
-                $value = -$value;
-                return $this->ModUser($value,$opt);
+                if(empty($opt)) $this->opt = 'username';
+                $this->value = -$value;
+                return $this->includeMdfFile('moduser');
             #####  Special functions 
             case 'ifempty':
             case '_default':
@@ -802,7 +802,7 @@ class MODIFIERS {
         $phxkey = $this->phxkey;
         $value  = $this->value;
         $opt    = $this->opt;
-    	return include_once(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc");
+    	return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc");
     }
     
     function getValueFromElement($phxkey, $value, $cmd, $opt)
@@ -1037,11 +1037,5 @@ class MODIFIERS {
     }
     function str_word_count($str) {
         return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
-    }
-    
-    // Returns the specified field from the user record
-    // positive userid = manager, negative integer = webuser
-    function ModUser($userid,$field) {
-        return include_once(MODX_CORE_PATH . 'extenders/modifiers/mdf_moduser.inc');
     }
 }
