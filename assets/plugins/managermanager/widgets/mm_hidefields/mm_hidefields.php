@@ -26,14 +26,6 @@ function mm_hideFields($fields, $roles='', $templates=''){
 		foreach ($fields as $field){
 			switch ($field){
 				// Exceptions
-				case 'keywords':
-					$output .= '$j("select[name*=keywords]").parent("td").hide();';
-				break;
-				
-				case 'metatags':
-					$output .= '$j("select[name*=metatags]").parent("td").hide()';
-				break;
-				
 				case 'hidemenu':
 				case 'show_in_menu':
 					$output .= '$j("input[name=hidemenucheck]").parent("td").hide();';
