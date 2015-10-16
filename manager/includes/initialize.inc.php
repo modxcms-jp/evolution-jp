@@ -16,7 +16,7 @@ if(!isset($site_url))  $site_url  = $init->get_site_url($base_url);
 if(!isset($core_path)) $core_path = "{$base_path}manager/includes/";
 
 if (!defined('MODX_BASE_PATH'))    define('MODX_BASE_PATH', $base_path);
-if (!defined('MODX_CORE_PATH'))    define('MODX_CORE_PATH', "{$base_path}manager/includes/");
+if (!defined('MODX_CORE_PATH'))    define('MODX_CORE_PATH', str_replace('\\','/',dirname(__FILE__)).'/');
 if (!defined('MODX_BASE_URL'))     define('MODX_BASE_URL', $base_url);
 if (!defined('MODX_SITE_URL'))     define('MODX_SITE_URL', $site_url);
 if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', "{$base_path}manager/");
