@@ -289,6 +289,8 @@ if ($handle = opendir($widget_dir)){
 		
 	$j(function(){
 			// Lets handle errors nicely...
+		try {
+		');
 			
 		// Get the JS for the changes & display the status
 		$e->output($this->make_changes($config_chunk));
