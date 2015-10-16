@@ -5,6 +5,7 @@ class EXPORT_SITE
 	var $generate_mode;
 	var $total;
 	var $count;
+	var $allow_ids;
 	var $ignore_ids;
 	var $exportstart;
 	var $repl_before;
@@ -60,10 +61,21 @@ class EXPORT_SITE
 		}
 	}
 	
-	function getTotal($ignore_ids='', $noncache='0')
+	function getTotal($allow_ids='', $ignore_ids='', $noncache='0')
 	{
 		global $modx;
 		
+		if($allow_ids !== '')
+		{
+			$allow_ids = explode(',', $allow_ids);
+			foreach($allow_ids as $i=>$v)
+			{
+				$v = $modx->db->escape(trim($v));
+				$allow_ids[$i] = "'{$v}'";
+			}
+			$allow_ids = join(',', $allow_ids);
+			$allow_ids = "AND id IN ({$allow_ids})";
+		}
 		if($ignore_ids !== '')
 		{
 			$ignore_ids = explode(',', $ignore_ids);
@@ -76,10 +88,12 @@ class EXPORT_SITE
 			$ignore_ids = "AND NOT id IN ({$ignore_ids})";
 		}
 		
+		$ids = $allow_ids ? $allow_ids : $ignore_ids;
+		$this->allow_ids = $allow_ids;
 		$this->ignore_ids = $ignore_ids;
 		
 		$where_cacheable = $noncache==1 ? '' : 'AND cacheable=1';
-		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$where_cacheable} {$ignore_ids}";
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$where_cacheable} {$ids}";
 		$rs  = $modx->db->select('count(id) as total','[+prefix+]site_content',$where);
 		$row = $modx->db->getRow($rs);
 		$this->total = $row['total'];
@@ -92,7 +106,7 @@ class EXPORT_SITE
 		$directory = rtrim($directory,'/');
 		// if the path is not valid or is not a directory ...
 		if(empty($directory)) return false;
-		if(strpos($directory,MODX_BASE_PATH)===false) return FALSE;
+		if(strpos($directory,MODX_BASE_PATH)!==0) return FALSE;
 		
 		if(!is_dir($directory))          return FALSE;
 		elseif(!is_readable($directory)) return FALSE;
@@ -171,7 +185,7 @@ class EXPORT_SITE
 	{
 		global $_lang;
 		global $modx;
-		$ignore_ids = $this->ignore_ids;
+		$ids = $this->allow_ids ? $this->allow_ids : $this->ignore_ids;
 		$dirpath = $this->targetDir . '/';
 		
 		$prefix = $modx->config['friendly_url_prefix'];
@@ -179,7 +193,7 @@ class EXPORT_SITE
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
-		$where = "parent = '{$parent}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ignore_ids}";
+		$where = "parent = '{$parent}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		
 		$ph = array();

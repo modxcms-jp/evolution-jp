@@ -26,6 +26,7 @@ $modx->export->generate_mode = $_POST['generate_mode'];
 $modx->export->setExportDir($export_dir);
 $modx->export->removeDirectoryAll($export_dir);
 
+$allow_ids       = $modx->getOption('export_allow_ids');
 $ignore_ids      = $modx->getOption('export_ignore_ids');
 $repl_before     = $modx->getOption('export_repl_before');
 $repl_after      = $modx->getOption('export_repl_after');
@@ -33,7 +34,8 @@ $includenoncache = $modx->getOption('export_includenoncache');
 
 $info=array();
 $info['generate_mode'] = $_POST['generate_mode'];
-$info['ignore_ids']    = $_POST['ignore_ids'];
+$info['allow_ids']     = getIds('allow_ids');
+$info['ignore_ids']    = getIds('ignore_ids');
 $info['repl_after']    = $_POST['repl_before'];
 $info['repl_after']    = $_POST['repl_after'];
 $info['export_dir']    = $export_dir;
@@ -41,6 +43,7 @@ $info['export_dir']    = $export_dir;
 $evtOut = $modx->invokeEvent('OnExportPreExec',$info);
 if(is_array($evtOut)) echo implode("\n",$evtOut);
 
+$modx->regOption('export_allow_ids',$_POST['allow_ids']);
 $modx->regOption('export_ignore_ids',$_POST['ignore_ids']);
 $modx->regOption('export_generate_mode',$_POST['generate_mode']);
 $modx->regOption('export_includenoncache',$_POST['includenoncache']);
@@ -48,7 +51,8 @@ $modx->regOption('export_repl_before',$_POST['repl_before']);
 $modx->regOption('export_repl_after',$_POST['repl_after']);
 
 
-if($ignore_ids!==$_POST['ignore_ids']
+if($allow_ids!==getIds('allow_ids')
+ ||$ignore_ids!==getIds('ignore_ids')
  ||$generate_mode!==$_POST['generate_mode']
  ||$includenoncache!==$_POST['includenoncache']
  ||$repl_before!==$_POST['repl_before']
@@ -56,7 +60,7 @@ if($ignore_ids!==$_POST['ignore_ids']
 	$modx->clearCache();
 }
 
-$total = $modx->export->getTotal($_POST['ignore_ids'], $modx->config['export_includenoncache']);
+$total = $modx->export->getTotal(getIds('allow_ids'), getIds('ignore_ids'), $modx->config['export_includenoncache']);
 
 $output = sprintf($_lang['export_site_numberdocs'], $total);
 $modx->export->total = $total;
@@ -72,7 +76,8 @@ $output .= sprintf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3
 
 $info=array();
 $info['generate_mode'] = $_POST['generate_mode'];
-$info['ignore_ids']    = $_POST['ignore_ids'];
+$info['allow_ids']     = getIds('allow_ids');
+$info['ignore_ids']    = getIds('ignore_ids');
 $info['repl_after']    = $_POST['repl_before'];
 $info['repl_after']    = $_POST['repl_after'];
 $info['export_dir']    = $export_dir;
@@ -83,4 +88,9 @@ if(is_array($evtOut)) echo implode("\n",$evtOut);
 
 return $output;
 
-
+function getIds($target) {
+	if($_POST['target']==='all' || $_POST['target']!==$target)
+		return '';
+	else
+		return $_POST[$target];
+}

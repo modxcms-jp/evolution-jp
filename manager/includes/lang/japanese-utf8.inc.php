@@ -1199,9 +1199,8 @@ $_lang["enable_bindings_title"]  = '@Bindingsを有効にする';
 $_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings機能</a>を有効にします。この機能は、投稿画面上の入力フィールド(テンプレート変数)に任意のコマンドを記述し、実行するものです。PHP文の実行などが可能なため、複数メンバーでサイトを運用する場合、当機能の運用には注意が必要です。';
 
 $_lang["a83_mode_title"] = '動作モード';
-$_lang["a83_mode_direct"] = '直接生成(高速)';
+$_lang["a83_mode_direct"] = '直接生成(高速・要メモリ)';
 $_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
-$_lang["a83_ignore_ids_title"] = '無視するID(カンマ区切りで複数指定可)';
 
 $_lang["update"] = '更新';
 
