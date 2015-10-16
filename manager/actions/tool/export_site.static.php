@@ -73,11 +73,11 @@ table.settings td.head {white-space:nowrap;vertical-align:top;padding-right:20px
 	<label><input name="target" type="radio" value="allow_ids">一部のリソースを出力</label>
 	<label><input name="target" type="radio" value="ignore_ids">一部のリソースを除外</label>
 	<div id="allow_ids" style="display:none;">
-	    <input type="text" name="allow_ids" value="<?php echo $allow_ids;?>" style="width:300px;" /><br />
+	    <input type="text" name="allow_ids" value="<?php echo $allow_ids;?>" style="width:300px;background-color:#f2fff2;" /><br />
 	    出力するリソースのIDを指定(カンマ区切りで複数指定可)
 	</div>
 	<div id="ignore_ids" style="display:none;">
-	    <input type="text" name="ignore_ids" value="<?php echo $ignore_ids;?>" style="width:300px;" /><br />
+	    <input type="text" name="ignore_ids" value="<?php echo $ignore_ids;?>" style="width:300px;background-color:#fff2f2;" /><br />
 	    出力しないリソースのIDを指定(カンマ区切りで複数指定可)
 	</div>
     </td>
