@@ -120,7 +120,6 @@ $_lang["none"] = 'None';
 $_lang["not_found"] = 'not found';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Optional Items';
-$_lang["optional_items_new_note"] = 'This is new install. Optional Items';
 $_lang["optional_items_upd_note"] = 'This is update. Optional Items';
 $_lang["optional_items_note"] = 'Please choose your installation options and click Install:';
 $_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODX will work on your PHP version, usage of MODX on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is 4.3.8 or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';

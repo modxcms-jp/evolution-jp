@@ -12,17 +12,14 @@ if($_SESSION['prevAction']==='options') {
 }
 
 $installmode = $_SESSION['installmode'];
-
-$ph['adminname']        = isset($_SESSION['adminname'])        ? $_SESSION['adminname']       : 'admin';
-$ph['adminemail']       = isset($_SESSION['adminemail'])       ? $_SESSION['adminemail']       : '';
-$ph['adminpass']        = isset($_SESSION['adminpass'])        ? $_SESSION['adminpass']        : '';
-$ph['adminpassconfirm'] = isset($_SESSION['adminpassconfirm']) ? $_SESSION['adminpassconfirm'] : '';
-
-$ph['database_server']   = $_SESSION['database_server'];
-$ph['database_user']     = $_SESSION['database_user'];
-$ph['database_password'] = $_SESSION['database_password'];
-$ph['dbase']             = $_SESSION['dbase'];
-$ph['table_prefix']      = $_SESSION['table_prefix'];
+$_ = explode(',', 'adminname,adminemail,adminpass,adminpassconfirm,database_server,database_user,database_password,dbase,table_prefix');
+foreach($_ as $k) {
+	if(isset($_SESSION[$k]))       $ph[$k] = $_SESSION[$k];
+	elseif($k==='adminname')       $ph[$k] = 'admin';
+	elseif($k==='database_server') $ph[$k] = 'localhost';
+	elseif($k==='table_prefix')    $ph[$k] = 'modx_';
+	else                           $ph[$k] = '';
+}
 
 $src = file_get_contents("{$base_path}install/tpl/connection.tpl");
 echo  parse($src,$ph);
