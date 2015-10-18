@@ -197,7 +197,7 @@ class EXPORT_SITE
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		
 		$ph = array();
-		$ph['total']     = $this->total;
+		$ph['total'] = $this->total;
 		$folder_permission = octdec($modx->config['new_folder_permissions']);
 		
 		$msg_failed_no_write    = $this->makeMsg('failed_no_write'   ,'fail');
@@ -210,8 +210,7 @@ class EXPORT_SITE
 		while($row = $modx->db->getRow($rs))
 		{
 			$this->count++;
-			
-			$row['count']     = $this->count;
+			$row['count'] = $this->count;
 			
 			if (!$row['wasNull'])
 			{ // needs writing a document
@@ -249,9 +248,7 @@ class EXPORT_SITE
 					if (is_file($dir_path)) @unlink($dir_path);
 					mkdir($dir_path);
 					@chmod($dir_path, $folder_permission);
-					
 				}
-				
 				
 				if($modx->config['make_folders']==='1' && $row['published']==='1')
 				{
