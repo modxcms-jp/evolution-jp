@@ -186,7 +186,6 @@ class EXPORT_SITE
 		global $_lang;
 		global $modx;
 		$ids = $this->allow_ids ? $this->allow_ids : $this->ignore_ids;
-		$target_base_path = $this->targetDir . '/';
 		
 		$prefix = $modx->config['friendly_url_prefix'];
 		$suffix = $modx->config['friendly_url_suffix'];
@@ -248,18 +247,18 @@ class EXPORT_SITE
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder
 				$end_dir = ($row['alias']!=='') ? $row['alias'] : $row['id'];
-				$dir_path = $target_base_path . $end_dir;
-				if(strpos($dir_path,MODX_BASE_PATH)===false) return FALSE;
-				if (!is_dir($dir_path))
+				$folder_path = $target_base_path . $end_dir;
+				if(strpos($folder_path,MODX_BASE_PATH)===false) return FALSE;
+				if (!is_dir($folder_path))
 				{
-					if (is_file($dir_path)) @unlink($dir_path);
-					mkdir($dir_path);
-					@chmod($dir_path, $folder_permission);
+					if (is_file($folder_path)) @unlink($folder_path);
+					mkdir($folder_path);
+					@chmod($folder_path, $folder_permission);
 				}
 				
 				if($modx->config['make_folders']==='1' && $row['published']==='1')
 				{
-					if(is_file($filename)) rename($filename,$dir_path . '/index.html');
+					if(is_file($filename)) rename($filename,$folder_path . '/index.html');
 				}
 			}
 		}
