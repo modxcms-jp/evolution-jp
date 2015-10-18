@@ -542,9 +542,9 @@ class SubParser {
         {
             $modx->messageQuit("Internal Server Error id={$id}");
             header('HTTP/1.0 500 Internal Server Error');
-            die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
+            echo '<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>';
         }
-        exit();
+        exit;
     }
     
     function sendUnavailablePage()
