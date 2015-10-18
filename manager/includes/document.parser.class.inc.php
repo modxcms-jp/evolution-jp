@@ -2046,7 +2046,8 @@ class DocumentParser {
     
     function setAliasListing()
     {
-        $aliases = @include_once(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+        if($this->aliasListing) return;
+        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
         if($aliases) $this->aliasListing = $aliases;
         else return false;
     }
