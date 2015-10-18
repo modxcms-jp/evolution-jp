@@ -508,7 +508,10 @@ class SubParser {
             else $modx->messageQuit('No newline allowed in redirect url.');
         }
         
-        if($modx->directParse==1) return file_get_contents($url);
+        if($modx->directParse==1) {
+            if($_SERVER['HTTP_USER_AGENT']) ini_set('user_agent', $_SERVER['HTTP_USER_AGENT']);
+            return file_get_contents($url);
+        }
         
         if (!empty($responseCode)) {
             if    (strpos($responseCode, '301') !== false) $responseCode = 301;

@@ -278,6 +278,8 @@ class EXPORT_SITE
         if(defined('CURLOPT_AUTOREFERER'))
         	curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        if($_SERVER['HTTP_USER_AGENT'])
+            curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
         $result = curl_exec($ch);
         if(!$result)
     	{
