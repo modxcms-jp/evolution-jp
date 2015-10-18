@@ -149,7 +149,7 @@ class EXPORT_SITE
 		else
 		{
 			$url = $modx->makeUrl($docid,'','','full');
-			$src = $this->curl_get_contents($url);
+			$src = $this->get_contents($url);
 		}
 		
 		
@@ -261,7 +261,7 @@ class EXPORT_SITE
 		return join("\n", $this->output);
 	}
 	
-    function curl_get_contents($url, $timeout = 10 )
+    function get_contents($url, $timeout = 10 )
     {
     	if($this->count % 200 == 0) sleep(1);
     	
