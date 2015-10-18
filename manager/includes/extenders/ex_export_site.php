@@ -193,7 +193,7 @@ class EXPORT_SITE
 		
 		$fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
 		$noncache = $modx->config['export_includenoncache']==1 ? '' : 'AND cacheable=1';
-		$where = "parent = '{$parent}' AND deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
+		$where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content',$where);
 		
 		$ph = array();
@@ -209,6 +209,13 @@ class EXPORT_SITE
 		
 		while($row = $modx->db->getRow($rs))
 		{
+			$_ = $modx->aliasListing[$row['id']]['path'];
+			$dirpath = $_=='' ? $this->targetDir . '/' : $this->targetDir . '/' . $_ . '/';
+			if (!is_dir($dirpath))
+			{
+				if (is_file($dirpath)) @unlink($dirpath);
+				mkdir($dirpath,$folder_permission,true);
+			}
 			$this->count++;
 			$row['count'] = $this->count;
 			
@@ -254,8 +261,6 @@ class EXPORT_SITE
 				{
 					if(is_file($filename)) rename($filename,$dir_path . '/index.html');
 				}
-				$this->targetDir = $dir_path;
-				$this->run($row['id']);
 			}
 		}
 		return join("\n", $this->output);
