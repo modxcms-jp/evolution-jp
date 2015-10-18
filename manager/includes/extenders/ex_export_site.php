@@ -186,7 +186,7 @@ class EXPORT_SITE
 		global $_lang;
 		global $modx;
 		$ids = $this->allow_ids ? $this->allow_ids : $this->ignore_ids;
-		$dirpath = $this->targetDir . '/';
+		$target_base_path = $this->targetDir . '/';
 		
 		$prefix = $modx->config['friendly_url_prefix'];
 		$suffix = $modx->config['friendly_url_suffix'];
@@ -210,11 +210,11 @@ class EXPORT_SITE
 		while($row = $modx->db->getRow($rs))
 		{
 			$_ = $modx->aliasListing[$row['id']]['path'];
-			$dirpath = $_=='' ? $this->targetDir . '/' : $this->targetDir . '/' . $_ . '/';
-			if (!is_dir($dirpath))
+			$target_base_path = $_=='' ? $this->targetDir . '/' : $this->targetDir . '/' . $_ . '/';
+			if (!is_dir($target_base_path))
 			{
-				if (is_file($dirpath)) @unlink($dirpath);
-				mkdir($dirpath,$folder_permission,true);
+				if (is_file($target_base_path)) @unlink($target_base_path);
+				mkdir($target_base_path,$folder_permission,true);
 			}
 			$this->count++;
 			$row['count'] = $this->count;
@@ -222,7 +222,7 @@ class EXPORT_SITE
 			if (!$row['wasNull'])
 			{ // needs writing a document
 				$docname = $this->getFileName($row['id'], $row['alias'], $prefix, $suffix);
-				$filename = $dirpath.$docname;
+				$filename = $target_base_path.$docname;
 				if (!is_file($filename))
 				{
 					if($row['published']==='1')
@@ -248,7 +248,7 @@ class EXPORT_SITE
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder
 				$end_dir = ($row['alias']!=='') ? $row['alias'] : $row['id'];
-				$dir_path = $dirpath . $end_dir;
+				$dir_path = $target_base_path . $end_dir;
 				if(strpos($dir_path,MODX_BASE_PATH)===false) return FALSE;
 				if (!is_dir($dir_path))
 				{
