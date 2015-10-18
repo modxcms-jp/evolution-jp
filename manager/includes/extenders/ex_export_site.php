@@ -252,8 +252,7 @@ class EXPORT_SITE
 				if (!is_dir($folder_path))
 				{
 					if (is_file($folder_path)) @unlink($folder_path);
-					mkdir($folder_path);
-					@chmod($folder_path, $folder_permission);
+					mkdir($folder_path,$folder_permission);
 				}
 				
 				if($modx->config['make_folders']==='1' && $row['published']==='1')
