@@ -507,6 +507,9 @@ class SubParser {
             if (strpos($url, "\n") === false) $header= 'Location: ' . $url;
             else $modx->messageQuit('No newline allowed in redirect url.');
         }
+        
+        if($modx->directParse==1) return file_get_contents($url);
+        
         if (!empty($responseCode)) {
             if    (strpos($responseCode, '301') !== false) $responseCode = 301;
             elseif(strpos($responseCode, '302') !== false) $responseCode = 302;
