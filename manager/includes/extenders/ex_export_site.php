@@ -222,7 +222,7 @@ class EXPORT_SITE
 			{ // needs writing a document
 				$docname = $this->getFileName($row['id'], $row['alias'], $prefix, $suffix);
 				$filename = $target_base_path.$docname;
-				if (!is_file($filename))
+				if (!is_file($filename)||substr($filename,-10)==='index.html')
 				{
 					if($row['published']==='1')
 					{
