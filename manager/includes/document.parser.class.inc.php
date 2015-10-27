@@ -73,6 +73,8 @@ class DocumentParser {
             $this->setdocumentMap();
         elseif($property_name==='documentListing')
             return $this->makeDocumentListing();
+        elseif(isset($this->config[$property_name]))
+            return $this->config[$property_name];
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
