@@ -2505,7 +2505,7 @@ class DocumentParser {
     
     function makeUrl($id='', $alias= '', $args= '', $scheme= 'full')
     {
-        if($id==0) return $this->config['site_url'];
+        if($id==0) $id = $this->config['site_start']
         elseif($id=='') $id = $this->documentIdentifier;
         $cacheKey = __FUNCTION__."[{$id}-{$alias}-{$args}-{$scheme}]";
         if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
