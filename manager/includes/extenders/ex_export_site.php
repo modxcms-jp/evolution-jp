@@ -280,6 +280,7 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_FAILONERROR, true );
+        if(ini_get('open_basedir')=='' && ini_get('safe_mode')=='Off')
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS,3);
         if(defined('CURLOPT_AUTOREFERER'))
