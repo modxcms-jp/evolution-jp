@@ -1133,10 +1133,7 @@ class DocumentParser {
         
         $flContent = substr($flContent, 37); // remove php header
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
-        if(count($a) == 1)
-        {
-            return $a['0']; // return only document content
-        }
+        if(count($a) == 1) return $a[0];
         
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
