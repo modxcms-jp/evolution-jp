@@ -119,7 +119,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
 
         function hideLoader() {
-            jQuery('#preLoader').css('display','none');
+            jQuery('#preLoader').hide();
         }
 
         hideL = window.setTimeout("hideLoader()", 150);
