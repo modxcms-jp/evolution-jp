@@ -1131,9 +1131,11 @@ class DocumentParser {
         
         $this->documentGenerated = 0;
         
-        $flContent = substr($flContent, 37); // remove php header
+        if(substr($flContent,0,5)==='<?php') $flContent = substr($flContent, 37); // remove php header
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
         if(count($a) == 1) return $a[0];
+        elseif(substr($flContent,0,5)!=='<?php')
+            return $a[1];
         
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
