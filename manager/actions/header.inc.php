@@ -76,9 +76,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 				case 102:
 				case 300:
 				case 301:
-					$j('input').change(function() {documentDirty=true;});
-					$j('textarea').change(function() {documentDirty=true;});
-					$j('select:not(#template,#which_editor)').change(function() {documentDirty=true;});
+					jQuery('input,textarea,select:not(#template,#which_editor)').change(function() {documentDirty=true;});
 					gotosave=false;
 				break;
 			}
