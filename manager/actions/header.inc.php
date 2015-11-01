@@ -48,7 +48,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
         }
         
-		$j(function(){
+		jQuery(function(){
 			var action = <?php echo $action;?>;
 			switch(action)
 			{
@@ -81,10 +81,10 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 				break;
 			}
         	document_onload();
-			$j('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
+			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
-        $j.bind('beforeunload', document_onunload());
+        jQuery.bind('beforeunload', document_onunload());
         
         function doRefresh(r) {
             try
@@ -142,7 +142,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         }
 
         function hideLoader() {
-            $j('#preLoader').css('display','none');
+            jQuery('#preLoader').css('display','none');
         }
 
         hideL = window.setTimeout("hideLoader()", 150);
