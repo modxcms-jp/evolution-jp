@@ -333,7 +333,7 @@ function SetUrl(url, width, height, alt) {
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_module')):?>
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
@@ -376,7 +376,7 @@ function SetUrl(url, width, height, alt) {
 	<table>
 		<tr>
 			<td align="left"><?php echo $_lang['module_name']?>:</td>
-			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox"><span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox"></td>
 		</tr>
 		<tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
 			<span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td>
@@ -590,8 +590,6 @@ if ($modx->config['use_udperms'] == 1)
 ?>
 </div>
 </div>
-
-<input type="submit" name="save" style="display:none;">
 <?php
 // invoke OnModFormRender event
 $tmp = array('id' => $id);

@@ -189,7 +189,7 @@ if (is_array($evtOut))
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_chunk')):?>
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
@@ -230,7 +230,7 @@ if (is_array($evtOut))
 	<table>
 		<tr>
 			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
-			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">}}<span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left">{{<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">}}</td>
 		</tr>
 	</table>
 
@@ -339,8 +339,6 @@ if ($ds) {
 <?php } ?>
 </table>
 </div>
-
-<input type="submit" name="save" style="display:none;" />
 </div>
 </form>
 </div>

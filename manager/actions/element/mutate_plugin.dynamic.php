@@ -407,7 +407,7 @@ $j(function() {
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
+<form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
 <?php
 // invoke OnPluginFormPrerender event
 $tmp = array("id" => $id);
@@ -423,7 +423,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
           <ul class="actionButtons">
 <?php if($modx->hasPermission('save_plugin')):?>
               <li id="Button1">
-                <a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+                <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                   <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
                 </a>
                   <span class="and"> + </span>
@@ -464,7 +464,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     <table border="0" cellspacing="0" cellpadding="0">
       <tr>
 			<th align="left"><?php echo $_lang['plugin_name']; ?></th>
-        <td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($pluginObject->name);?>" class="inputBox" style="width:300px;"><span class="warning" id='savingMessage'>&nbsp;</span></td>
+        <td align="left"><input id="pluginName" name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($pluginObject->name);?>" class="inputBox" style="width:300px;"></td>
       </tr>
       <tr>
         <td align="left" valign="top" colspan="2"><label><input name="disabled" type="checkbox" <?php echo $pluginObject->disabled==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $pluginObject->disabled==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span></label>":$_lang['plugin_disabled']; ?></td>
@@ -653,7 +653,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <?php } ?>
 </table>
 </div>
-<input type="submit" name="save" style="display:none">
 </div>
 </div>
 <?php

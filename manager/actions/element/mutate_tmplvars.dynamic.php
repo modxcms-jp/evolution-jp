@@ -309,7 +309,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
+<form name="mutate" id="mutate" method="post" action="index.php" enctype="multipart/form-data">
 <?php
     // invoke OnTVFormPrerender event
     $tmp = array('id' => $id);
@@ -327,7 +327,7 @@ function decode(s){
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_template')):?>
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a><span class="and"> + </span>
     			<select id="stay" name="stay">
@@ -365,7 +365,7 @@ function decode(s){
 <table>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_name']; ?></th>
-    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;"><span style="font-family:'Courier New', Courier, mono">*]</span> <span class="warning" id="savingMessage">&nbsp;</span></td>
+    <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:300px;"><span style="font-family:'Courier New', Courier, mono">*]</span></td>
   </tr>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_caption']; ?></th>
@@ -648,6 +648,5 @@ function selected($target='')
 ?>
 </div>
 </div>
-<input type="submit" name="save" style="display:none">
 </form>
 <script type="text/javascript">setTimeout('showParameters()',10);</script>

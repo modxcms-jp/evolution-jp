@@ -257,10 +257,12 @@ input, select, textarea, option, optgroup, td {
 		text-align: right;
 	}
 textarea[readonly],
-textarea[readonly]:focus {
-	background-color:#eee;
-	cursor:default;
-	text-shadow:1px 1px #fff;
+textarea[readonly]:focus,
+input[type='text'][readonly],
+input[type='text'][readonly]:focus,
+.readonly {
+	background-color:#eee !important;
+	text-shadow:1px 1px #fff !important;
 }
 optgroup {
 	font-style:normal;

@@ -145,14 +145,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
   			}
         }
 
-        function saveWait(fName) {
-            document.getElementById('savingMessage').innerHTML = "<?php echo $_lang['saving']; ?>";
-            for(i = 0; i < document.forms[fName].elements.length; i++)
-            {
-                document.forms[fName].elements[i].disabled='disabled';
-            }
-        }
-
         function hideLoader() {
             $j('#preLoader').css('display','none');
         }

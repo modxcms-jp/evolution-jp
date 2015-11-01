@@ -260,7 +260,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
+<form name="mutate" id="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
 <?php
 	// invoke OnSnipFormPrerender event
   $tmp = array("id" => $id);
@@ -274,7 +274,7 @@ function decode(s){
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_snippet')):?>
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
@@ -317,7 +317,7 @@ function decode(s){
 		<table>
 		  <tr>
 			<th align="left"><?php echo $_lang['snippet_name']?></th>
-			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">]]<span class="warning" id="savingMessage">&nbsp;</span></td>
+			<td align="left">[[<input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:300px;">]]</td>
 		  </tr>
 		</table>
 		<!-- PHP text editor start -->
@@ -414,7 +414,6 @@ function decode(s){
 		</table>
 		  	</div>
 			</div>
-		<input type="submit" name="save" style="display:none">
 	</div>
 <?php
 // invoke OnSnipFormRender event

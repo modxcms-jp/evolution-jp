@@ -101,7 +101,7 @@ function deletedocument() {
 
 </script>
 
-<form name="mutate" method="POST" action="index.php" enctype="multipart/form-data">
+<form name="mutate" id="mutate" method="POST" action="index.php" enctype="multipart/form-data">
 <?php
 	// invoke OnTempFormPrerender event
   $tmp = array("id" => $id);
@@ -118,7 +118,7 @@ function deletedocument() {
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_template')):?>
     		  <li id="Button1">
-    			<a href="#" onclick="documentDirty=false; document.mutate.save.click();saveWait('mutate');">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
@@ -161,7 +161,6 @@ function deletedocument() {
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
 	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:200px;">
-	<span class="warning" id='savingMessage'></span>
 <?php
 	$where = $id ? "parent!='{$id}'" : '';
 	$rs = $modx->db->select('*','[+prefix+]site_templates',$where);
@@ -210,7 +209,6 @@ echo $_lang["template_parent"];
 	<?php if(isset($foot)) echo $foot;?>
 	</div>
 	<!-- HTML text editor end -->
-	<input type="submit" name="save" style="display:none">
 	</div>
 
 <div class="tab-page" id="tabProp">
