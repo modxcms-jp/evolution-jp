@@ -40,6 +40,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 		/* <![CDATA[ */
 		
 		var cookiepath = '<?php echo MODX_BASE_URL; ?>';
+		var documentDirty=false;
 		var $j = jQuery.noConflict();
 		
         function document_onload() {
@@ -83,8 +84,11 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
         	document_onload();
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
-		
-        jQuery(window).on('beforeunload', document_onunload());
+		var dontShowWorker = false;
+		jQuery(window).on('beforeunload', function(){
+			if(documentDirty) return 'test<?php echo $_lang['warning_not_saved'];?>';
+			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
+		});
         
         function doRefresh(r) {
             try
@@ -102,11 +106,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 	  		document.getElementById(elementName).value = document.getElementById('default_' + elementName).innerHTML;
 		}
 
-        var dontShowWorker = false;
-        function document_onunload() {
-            if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
-        }
-
         // set tree to default action.
         if (parent.tree) parent.tree.ca = "open";
 
@@ -123,40 +122,12 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
             }
         }
 
-        var documentDirty=false;
-        var gotosave = false;
-
-        function checkDirt(evt) {
-            if(documentDirty==true && gotosave==false)
-            {
-				var message = "<?php echo $_lang['warning_not_saved']; ?>";
-				
-				if (typeof evt == 'undefined') evt = window.event;
-				if (evt)                       evt.returnValue = message;
-				
-				return message;
-  			}
-        }
-
         function hideLoader() {
             jQuery('#preLoader').css('display','none');
         }
 
         hideL = window.setTimeout("hideLoader()", 150);
 
-        // add the 'unsaved changes' warning event handler
-        if( window.addEventListener )
-        {
-			window.addEventListener('beforeunload',checkDirt,false);
-		}
-		else if ( window.attachEvent )
-		{
-			window.attachEvent('onbeforeunload',checkDirt);
-		}
-		else
-		{
-			window.onbeforeunload = checkDirt;
-		}
 		/* ]]> */
     </script>
 </head>
