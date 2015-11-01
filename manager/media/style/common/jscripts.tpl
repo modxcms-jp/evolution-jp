@@ -12,6 +12,8 @@ jQuery(function(){
     	documentDirty=false;
     	gotosave = true;
     	jQuery('#mutate').submit();
+    	jQuery('#save').hide();
+    	jQuery('input,textarea,select').addClass('readonly');
 	});
 	jQuery('#createdraft').click(function(){
     	document.location.href='index.php?a=132&id=[+id+]';
