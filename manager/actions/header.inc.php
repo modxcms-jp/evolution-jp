@@ -116,12 +116,9 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 		}
 		
         function stopWorker() {
-            try
-            {
+            try {
                 parent.mainMenu.stopWork();
-            }
-            catch(oException)
-            {
+            } catch(oException) {
                 ww = window.setTimeout('stopWorker()',500);
             }
         }
