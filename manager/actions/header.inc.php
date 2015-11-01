@@ -84,7 +84,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
-        jQuery.bind('beforeunload', document_onunload());
+        jQuery(window).on('beforeunload', document_onunload());
         
         function doRefresh(r) {
             try
