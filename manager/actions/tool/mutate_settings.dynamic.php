@@ -1115,9 +1115,9 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 <th><?php echo $_lang["filemanager_path_title"]?></th>
 <td>
-<?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo '[(base_path)]'; ?></span> <?php echo "({$base_path})";?><br />
+<?php echo $_lang['default']; ?> <span id="default_filemanager_path">[(base_path)]</span> <?php echo "({$base_path})";?><br />
 <?php echo form_text('filemanager_path',255,'id="filemanager_path"');?>
-<input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
+<input type="button" onclick="jQuery('#filemanager_path').val('[(base_path)]');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br />
 <?php echo $_lang["filemanager_path_message"]?></td>
 </tr>
 <tr>
@@ -1211,12 +1211,11 @@ if(empty($upload_maxsize))
 <th><?php echo $_lang["rb_base_dir_title"]?></th>
 <td>
 <?php
-	if(is_dir("{$base_path}content")) $default_rb_base_dir = 'content/';
-	else                              $default_rb_base_dir = 'assets/';
+	$default_rb_base_dir = is_dir("{$base_path}content") ? 'content/' : 'assets/';
 ?>
 <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo "[(base_path)]{$default_rb_base_dir}";?></span> <?php echo "({$base_path}{$default_rb_base_dir})";?><br />
 <?php echo form_text('rb_base_dir',255,'id="rb_base_dir"');?>
-<input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
+<input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text());" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
 <tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">

@@ -102,10 +102,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
             }
         }
         
-		function reset_path(elementName) {
-	  		document.getElementById(elementName).value = document.getElementById('default_' + elementName).innerHTML;
-		}
-
         // set tree to default action.
         if (parent.tree) parent.tree.ca = "open";
 
