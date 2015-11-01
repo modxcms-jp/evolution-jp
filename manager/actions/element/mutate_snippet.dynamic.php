@@ -304,7 +304,6 @@ function decode(s){
 <h1><?php echo $_lang['snippet_title']?></h1>
 
 <div class="sectionBody">
-<?php echo $_lang['snippet_msg']?>
 <div class="tab-pane" id="snipetPane">
 	<script type="text/javascript">
 		tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
@@ -400,7 +399,7 @@ function decode(s){
 		  </tr>
 		  <tr>
 			<td>&nbsp;</td>
-			<td align="left" valign="top"><span class="comment" ><?php echo $_lang['import_params_msg']?></div></td>
+			<td align="left" valign="top"><span class="comment" ><?php echo $_lang['import_params_msg'];?></td>
 		  </tr>
 <?php } ?>
 		  <tr>
@@ -413,6 +412,11 @@ function decode(s){
 		  </tr>
 		</table>
 		  	</div>
+    <div class="tab-page" id="tabHelp">
+    <h2 class="tab">ヘルプ</h2>
+    <script type="text/javascript">tpSnippet.addTabPage( document.getElementById('tabHelp') );</script>
+    <?php echo $_lang['snippet_msg'];?>
+    </div>
 			</div>
 	</div>
 <?php

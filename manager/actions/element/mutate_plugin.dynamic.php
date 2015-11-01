@@ -451,7 +451,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     </div>
 
 <div class="sectionBody">
-<p><?php echo $_lang['plugin_msg']; ?></p>
 <div class="tab-pane" id="pluginPane">
     <script type="text/javascript">
         tp = new WebFXTabPane( document.getElementById( "pluginPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
@@ -652,6 +651,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
       </tr>
 <?php } ?>
 </table>
+</div>
+<div class="tab-page" id="tabHelp">
+<h2 class="tab">ヘルプ</h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById('tabHelp') );</script>
+<?php echo $_lang['plugin_msg'];?>
 </div>
 </div>
 </div>

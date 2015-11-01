@@ -226,7 +226,6 @@ if (is_array($evtOut))
 	<div class="tab-page" id="tabGeneral">
 	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
 	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabGeneral" ) );</script>
-	<p><?php echo $_lang['htmlsnippet_msg']?></p>
 	<table>
 		<tr>
 			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
@@ -338,6 +337,11 @@ if ($ds) {
 	</tr>
 <?php } ?>
 </table>
+</div>
+<div class="tab-page" id="tabHelp">
+<h2 class="tab">ヘルプ</h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById('tabHelp') );</script>
+<?php echo $_lang['htmlsnippet_msg'];?>
 </div>
 </div>
 </form>

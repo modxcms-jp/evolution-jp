@@ -361,7 +361,6 @@ function decode(s){
 	<div class="tab-page" id="tabGeneral">
 	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
 	<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabGeneral" ) );</script>
-<p><?php echo $_lang['tmplvars_msg']; ?></p>
 <table>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_name']; ?></th>
@@ -640,6 +639,11 @@ function selected($target='')
 <?php
 	}
 ?>
+<div class="tab-page" id="tabHelp">
+<h2 class="tab">ヘルプ</h2>
+<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById('tabHelp') );</script>
+<?php echo $_lang['tmplvars_msg'];?>
+</div>
 <?php
     // invoke OnTVFormRender event
     $tmp = array('id' => $id);

@@ -154,10 +154,6 @@ function deletedocument() {
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
-
-	<div style="margin-bottom:10px;">
-	<?php echo "\t" . $_lang['template_msg']; ?>
-	</div>
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
 	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:200px;">
@@ -304,7 +300,11 @@ if ($_REQUEST['a'] == '16')
 <?php
 }
 ?>
-
+<div class="tab-page" id="tabHelp">
+<h2 class="tab">ヘルプ</h2>
+<script type="text/javascript">tpResources.addTabPage( document.getElementById('tabHelp') );</script>
+<?php echo $_lang['template_msg'];?>
+</div>
 <?php
 // invoke OnTempFormRender event
 $tmp = array('id' => $id);
