@@ -47,8 +47,10 @@
 	}
 	elseif($params['output']==='')
 		return;
-	else
-		$widget_output = $params['output'];
+	else {
+		if($value!=='') $widget_output = $params['output'];
+		else            $widget_output = '';
+	}
 	
 	$modx->tvfilter->vars = array();
 	
