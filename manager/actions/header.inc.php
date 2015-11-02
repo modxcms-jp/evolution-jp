@@ -45,7 +45,7 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
 		
         function document_onload() {
             stopWorker();
-            hideLoader();
+            jQuery('#preLoader').hide();
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
         }
         
@@ -117,12 +117,6 @@ $onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) 
                 ww = window.setTimeout('stopWorker()',500);
             }
         }
-
-        function hideLoader() {
-            jQuery('#preLoader').hide();
-        }
-
-        hideL = window.setTimeout("hideLoader()", 150);
 
 		/* ]]> */
     </script>
