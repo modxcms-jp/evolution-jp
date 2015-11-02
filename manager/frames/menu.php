@@ -26,6 +26,20 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	var msgcheck = <?php echo $modx->hasPermission('messages') ? 1 : 0 ;?>;
 	
 	var $j = jQuery.noConflict();
+	jQuery(function(){
+		window.setInterval('keepMeAlive()', 1000 * 60);
+		if(msgcheck!=0) updateMail(true); // First run update
+		var mailinterval = <?php echo $modx->config['mail_check_timeperiod'];?>;
+		if(mailinterval!='' && mailinterval!=0)
+		{
+			if(msgcheck!=0) setInterval('updateMail(true)',mailinterval * 1000);
+		}
+		
+		if(top.__hideTree) {
+			// display toc icon
+			jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>");
+		}
+	});
 	
 	function keepMeAlive()
 	{
@@ -39,7 +53,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			if(resp.status != 'ok') window.location.href = 'index.php?a=8';
 	    });
 	}
-	window.setInterval('keepMeAlive()', 1000 * 60);
 	
 	function updateMail(now)
 	{
@@ -64,21 +77,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		var elm = document.getElementById('newMail');
 		if (elm) elm.style.display = counts[0] >0 ? 'inline' :  'none';
 	}
-
-	$j(function(){
-		if(msgcheck!=0) updateMail(true); // First run update
-		var mailinterval = <?php echo $modx->config['mail_check_timeperiod'];?>;
-		if(mailinterval!='' && mailinterval!=0)
-		{
-			if(msgcheck!=0) setInterval('updateMail(true)',mailinterval * 1000);
-		}
-		
-		if(top.__hideTree) {
-			// display toc icon
-			var elm = document.getElementById('tocText');
-			if(elm) elm.innerHTML = "<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>";
-		}
-	});
 
 	function hideTreeFrame() {
 		userDefinedFrameWidth = parent.document.getElementsByTagName("FRAMESET").item(1).cols;
@@ -156,7 +154,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		}
 		if(rFrame==9) {
 			y=window.setTimeout('reloadtree()',100);
-			x=window.setTimeout('reloadmenu()',500);
+			x=window.setTimeout('reloadmenu()',200);
 		}
 		if(rFrame==10) {
 			setInterval(function() {
