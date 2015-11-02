@@ -13,6 +13,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 $bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
 $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
+
+// invoke OnManagerRegClientStartupHTMLBlock event
+$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo  $mxla;?>" dir="<?php echo  $textdir;?>">
@@ -22,13 +25,8 @@ $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
     <link rel="stylesheet" type="text/css" href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx_version;?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
-<?php
-// invoke OnManagerRegClientStartupHTMLBlock event
-$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
-$onManagerMainFrameHeaderHTMLBlock = is_array($evtOut) ? implode("\n", $evtOut) : '';
-?>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
-    <?php echo $onManagerMainFrameHeaderHTMLBlock; ?>
+    <?php if(is_array($evtOut)) echo implode("\n", $evtOut); ?>
     <?php echo $modx->config['manager_inline_style']; ?>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
