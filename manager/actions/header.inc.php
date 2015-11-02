@@ -37,8 +37,8 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script type="text/javascript">
 		/* <![CDATA[ */
 		
-		var cookiepath = '<?php echo MODX_BASE_URL; ?>';
 		var documentDirty=false;
+		var baseurl = '<?php echo MODX_BASE_URL; ?>';
 		var $j = jQuery.noConflict();
 		
         function document_onload() {
