@@ -38,14 +38,15 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 		/* <![CDATA[ */
 		
 		var documentDirty=false;
+		var dontShowWorker = false;
 		var baseurl = '<?php echo MODX_BASE_URL; ?>';
 		var $j = jQuery.noConflict();
 		
-        function document_onload() {
-            stopWorker();
-            jQuery('#preLoader').hide();
-            <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
-        }
+        // set tree to default action.
+        if (parent.tree) parent.tree.ca = "open";
+
+		// call the updateMail function, updates mail notification in top navigation
+		if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
         
 		jQuery(function(){
 			var action = <?php echo $action;?>;
@@ -82,11 +83,17 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         	document_onload();
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
-		var dontShowWorker = false;
+		
 		jQuery(window).on('beforeunload', function(){
-			if(documentDirty) return 'test<?php echo $_lang['warning_not_saved'];?>';
+			if(documentDirty) return '<?php echo $_lang['warning_not_saved'];?>';
 			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
 		});
+        
+        function document_onload() {
+            stopWorker();
+            jQuery('#preLoader').hide();
+            <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
+        }
         
         function doRefresh(r) {
             try
@@ -96,23 +103,15 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             }
             catch(oException)
             {
-                vv = window.setTimeout('doRefresh()',500);
+                vv = window.setTimeout('doRefresh()',200);
             }
         }
         
-        // set tree to default action.
-        if (parent.tree) parent.tree.ca = "open";
-
-		// call the updateMail function, updates mail notification in top navigation
-		if (top.mainMenu) {
-			if(top.mainMenu.updateMail) top.mainMenu.updateMail(true);
-		}
-		
         function stopWorker() {
             try {
                 parent.mainMenu.stopWork();
             } catch(oException) {
-                ww = window.setTimeout('stopWorker()',500);
+                ww = window.setTimeout('stopWorker()',200);
             }
         }
 
