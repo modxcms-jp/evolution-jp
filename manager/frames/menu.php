@@ -84,8 +84,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		userDefinedFrameWidth = parent.document.getElementsByTagName("FRAMESET").item(1).cols;
 		currentFrameState = 'closed';
 		try {
-			var elm = document.getElementById('tocText');
-			if(elm) elm.innerHTML = "<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>";
+			jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>");
 			parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo ($modx_textdir==='ltr' ? '0,*' : '*,0')?>';
 			top.__hideTree = true;
 		} catch(oException) {
