@@ -1,18 +1,15 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-switch ((int) $_REQUEST['a'])
-{
+switch ((int) $_REQUEST['a']) {
 	case 78:
-		if (!$modx->hasPermission('edit_chunk'))
-		{
+		if (!$modx->hasPermission('edit_chunk')) {
 			$e->setError(3);
 			$e->dumpError();
 		}
 		break;
 	case 77:
-		if (!$modx->hasPermission('new_chunk'))
-		{
+		if (!$modx->hasPermission('new_chunk')) {
 			$e->setError(3);
 			$e->dumpError();
 		}
@@ -22,20 +19,15 @@ switch ((int) $_REQUEST['a'])
 		$e->dumpError();
 }
 
-if (isset($_REQUEST['id']))
-        $id = (int)$_REQUEST['id'];
-else    $id = 0;
+$id = preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
 // Get table names (alphabetical)
 
 // Check to see the snippet editor isn't locked
 $rs = $modx->db->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
-if ($modx->db->getRecordCount($rs) > 1)
-{
-	while ($row = $modx->db->getRow($rs))
-	{
-		if ($row['internalKey'] != $modx->getLoginUserID())
-		{
+if ($modx->db->getRecordCount($rs) > 1) {
+	while ($row = $modx->db->getRow($rs)) {
+		if ($row['internalKey'] != $modx->getLoginUserID()) {
 			$msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['chunk']);
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -44,68 +36,67 @@ if ($modx->db->getRecordCount($rs) > 1)
 }
 
 $content = array();
-if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id']))
-{
+if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
 	$rs = $modx->db->select('*','[+prefix+]site_htmlsnippets',"id='{$id}'");
 	$total = $modx->db->getRecordCount($rs);
-	if ($total > 1)
-	{
-		echo '<p>Error: Multiple Chunk sharing same unique ID.</p>';
-		exit;
+	if ($total > 1) {
+		exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
 	}
-	if ($total < 1)
-	{
-		echo '<p>Chunk doesn\'t exist.</p>';
-		exit;
+	if ($total < 1) {
+		exit('<p>Chunk doesn\'t exist.</p>');
 	}
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
 }
-else
-{
-	$_SESSION['itemname'] = 'New Chunk';
-}
+else $_SESSION['itemname'] = 'New Chunk';
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues())
-{
+if ($modx->manager->hasFormValues()) {
 	$form_v = $modx->manager->loadFormValues();
 	$formRestored = true;
-}else{
-	$form_v = $_POST;
 }
+else $form_v = $_POST;
 
-if ($formRestored == true || isset ($_REQUEST['changeMode']))
-{
+if ($formRestored == true || isset ($_REQUEST['changeMode'])) {
 	$content = array_merge($content, $form_v);
 	$content['content'] = $form_v['ta'];
-	if (empty ($content['pub_date'])) unset ($content['pub_date']);
-	else $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
-	if (empty ($content['unpub_date'])) unset ($content['unpub_date']);
-	else $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
+	if (empty ($content['pub_date']))   unset($content['pub_date']);
+	else                                $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+	if (empty ($content['unpub_date'])) unset($content['unpub_date']);
+	else                                $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
 }
 
 if (isset($form_v['which_editor']))
-        $which_editor = $form_v['which_editor'];
-elseif(!isset($content['editor_type']) || empty($content['editor_type'])) $which_editor = 'none';
+    $which_editor = $form_v['which_editor'];
+elseif(!isset($content['editor_type']) || empty($content['editor_type']))
+    $which_editor = 'none';
 
 
 // Print RTE Javascript function
 ?>
+<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script language="javascript" type="text/javascript">
-$j(function(){
-	$j('select[name="categoryid"]').change(function(){
-		if($j(this).val()=='-1')
-		{
-			$j('#newcategry').fadeIn();
-		}
-		else
-		{
-			$j('#newcategry').fadeOut();
-			$j('input[name="newcategory"]').val('');
+jQuery(function(){
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1') {
+			jQuery('#newcategry').fadeIn();
+		} else {
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
 		}
 	});
+	var dpOffset   = <?php echo $modx->config['datepicker_offset']; ?>;
+	var dpformat   = '<?php echo $modx->config['datetime_format']; ?>' + ' hh:mm:00';
+	var dayNames   = ['<?php echo join("','",explode(',',$_lang['day_names']));?>'];
+	var monthNames = ['<?php echo join("','",explode(',',$_lang['month_names']));?>'];
+	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	var stay = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	chunkPane = new WebFXTabPane( document.getElementById('chunkPane'), stay);
+	chunkPane.addTabPage(document.getElementById('tabGeneral'));
+	chunkPane.addTabPage(document.getElementById('tabInfo'));
+	chunkPane.addTabPage(document.getElementById('tabHelp'));
 });
 // Added for RTE selection
 function changeRTE() {
@@ -140,23 +131,6 @@ function deletedocument() {
 		document.location.href="index.php?id=" + document.mutate.id.value + "&a=80";
 	}
 }
-</script>
-<?php
-$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
-$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
-?>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
-<script type="text/javascript">
-/* <![CDATA[ */
-window.addEvent('domready', function(){
-	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
-	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
-	var dayNames = <?php echo $dayNames;?>;
-	var monthNames = <?php echo $monthNames;?>;
-	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-});
-
 function resetpubdate() {
 	if(document.mutate.pub_date.value!=''||document.mutate.unpub_date.value!='') {
 		if (confirm("<?php echo $_lang['mutate_htmlsnippet.dynamic.php1'];?>")==true) {
@@ -203,8 +177,7 @@ if (is_array($evtOut))
     		  </li>
 <?php endif; ?>
 <?php
-    if ($_REQUEST['a'] == '78')
-    {
+    if ($_REQUEST['a'] == '78') {
     	$params = array('onclick'=>'duplicaterecord();','icon'=>$_style['icons_resource_duplicate'],'label'=>$_lang['duplicate']);
     	if($modx->hasPermission('new_chunk'))
     		echo $modx->manager->ab($params);
@@ -220,12 +193,8 @@ if (is_array($evtOut))
 
 <div class="sectionBody">
 <div class="tab-pane" id="chunkPane">
-	<script type="text/javascript">
-		tp = new WebFXTabPane( document.getElementById( "chunkPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
 	<div class="tab-page" id="tabGeneral">
 	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
-	<script type="text/javascript">tp.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 	<table>
 		<tr>
 			<th align="left"><?php echo $_lang['htmlsnippet_name']?></th>
@@ -273,7 +242,6 @@ if (is_array($evtOut))
 
 <div class="tab-page" id="tabInfo">
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
 	<tr>
 		<th align="left"><?php echo $_lang['chunk_opt_published'];?></th>
@@ -340,7 +308,6 @@ if ($ds) {
 </div>
 <div class="tab-page" id="tabHelp">
 <h2 class="tab">ヘルプ</h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById('tabHelp') );</script>
 <?php echo $_lang['htmlsnippet_msg'];?>
 </div>
 </div>
