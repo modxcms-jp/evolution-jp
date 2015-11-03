@@ -72,6 +72,11 @@ $templateObject = (object) $templateObject;
 ?>
 <script type="text/javascript">
 jQuery(function(){
+    jQuery.get("index.php",
+        { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo $id;?>" },
+        function(data){
+            jQuery('div#use_resources').html(data);
+        });
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1')
 		{
@@ -292,7 +297,7 @@ if ($_REQUEST['a'] == '16')
 		</ul>
 		</div>
 		<div class="sectionHeader"><?php echo $_lang['a16_use_resources']; ?></div>
-		<div class="sectionBody"><?php echo get_resources($id,$modx,$_lang); ?></div>
+		<div class="sectionBody"><div id="use_resources"></div></div>
 	</div>
 <?php
 }
@@ -311,25 +316,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </div>
 
 <?php
-function get_resources($id,$modx,$_lang)
-{
-	$rs = $modx->db->select('id', $modx->getFullTableName('site_content'), "template='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
-	if(500 < $total)  $result = $_lang['a16_many_resources'];
-	elseif($total===0)$result = $_lang['a16_no_resource'];
-	else
-	{
-		$tpl = '<a href="index.php?a=27&id=[+id+]">[+id+]</a>';
-		$items = array();
-		while($row = $modx->db->getRow($rs))
-		{
-			$items[] = str_replace('[+id+]', $row['id'], $tpl);
-		}
-		$result = join(', ', $items);
-	}
-	return "<p>{$result}</p>";
-}
-
 function getParentValues($parent) {
 	global $modx;
 	
