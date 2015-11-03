@@ -6,6 +6,8 @@
  */
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+if($modx->getLoginUserType() !== 'manager') exit('Not Logged In!');
+
 // save folderstate
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
 if (isset($_GET['savestateonly'])) exit('savestateonly');
