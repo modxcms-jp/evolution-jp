@@ -83,19 +83,21 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
 
 ?>
 <script language="JavaScript">
-$j(function(){
-	$j('select[name="categoryid"]').change(function(){
-		if($j(this).val()=='-1')
+jQuery(function(){
+	tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
+	setTimeout('showParameters()',10);
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1')
 		{
-			$j('#newcategry').fadeIn();
+			jQuery('#newcategry').fadeIn();
 		}
 		else
 		{
-			$j('#newcategry').fadeOut();
-			$j('input[name="newcategory"]').val('');
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
 		}
 	});
-	var itype = $j('#type');
+	var itype = jQuery('#type');
 	itype.change(function(){
 		switch(itype.val())
 		{
@@ -112,21 +114,21 @@ $type = strtolower(str_replace("input:","",$row["name"]));
 echo "\t\t\tcase '".$type."':\n";
 }
 ?>
-				$j('#inputoption').fadeIn();
+				jQuery('#inputoption').fadeIn();
 				var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
 				if(itype.val()=='custom_tv')
 				{
-					$j('#inputoption th:first').css('visibility','hidden');
-					if($j('#inputoption textarea').val()=='') $j('#inputoption textarea').val(ctv);
+					jQuery('#inputoption th:first').css('visibility','hidden');
+					if(jQuery('#inputoption textarea').val()=='') jQuery('#inputoption textarea').val(ctv);
 				}
 				else
 				{
-					$j('#inputoption th:first').css('visibility','visible');
-					if($j('#inputoption textarea').val()==ctv) $j('#inputoption textarea').val('');
+					jQuery('#inputoption th:first').css('visibility','visible');
+					if(jQuery('#inputoption textarea').val()==ctv) jQuery('#inputoption textarea').val('');
 				}
 				break;
 			default:
-				$j('#inputoption').fadeOut();
+				jQuery('#inputoption').fadeOut();
 		}
 	});
 });
@@ -355,9 +357,6 @@ function decode(s){
 
 <div class="sectionBody">
 <div class="tab-pane" id="tmplvarsPane">
-	<script type="text/javascript">
-		tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
-	</script>
 	<div class="tab-page" id="tabGeneral">
 	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
 <table>
@@ -648,4 +647,3 @@ function selected($target='')
 </div>
 </div>
 </form>
-<script type="text/javascript">setTimeout('showParameters()',10);</script>
