@@ -19,24 +19,15 @@ switch ((int) $_REQUEST['a']) {
 		$e->dumpError();
 }
 
-if (isset($_REQUEST['id']))
-        $id = (int)$_REQUEST['id'];
-else    $id = 0;
-
-if ($manager_theme)
-        $manager_theme .= '/';
-else    $manager_theme  = '';
+$id = preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
 // Check to see the editor isn't locked
 $rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
-if ($limit > 1)
-{
-	for ($i = 0; $i < $limit; $i++)
-	{
+$total = $modx->db->getRecordCount($rs);
+if ($total > 1) {
+	for ($i = 0; $i < $total; $i++) {
 		$lock = $modx->db->getRow($rs);
-		if ($lock['internalKey'] != $modx->getLoginUserID())
-		{
+		if ($lock['internalKey'] != $modx->getLoginUserID()) {
 			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
 			$e->setError(5, $msg);
 			$e->dumpError();
@@ -46,25 +37,15 @@ if ($limit > 1)
 // end check for lock
 
 // make sure the id's a number
-if (!is_numeric($id)) {
-	echo 'Passed ID is NaN!';
-	exit;
-}
+if (!is_numeric($id)) exit('Passed ID is NaN!');
 
-if (isset($_GET['id']))
-{
+if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
 	$rs = $modx->db->select('*','[+prefix+]site_modules',"id='{$id}'");
-	$limit = $modx->db->getRecordCount($rs);
-	if ($limit > 1)
-	{
-		echo '<p>Multiple modules sharing same unique id. Not good.<p>';
-		exit;
-	}
-	if ($limit < 1)
-	{
-		echo '<p>No record found for id: '.$id.'.</p>';
-		exit;
-	}
+	$total = $modx->db->getRecordCount($rs);
+	if ($total > 1)
+		exit('<p>Multiple modules sharing same unique id. Not good.<p>');
+	if ($total < 1)
+		exit('<p>No record found for id: '.$id.'.</p>');
 	$content = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
 } else {
@@ -73,28 +54,28 @@ if (isset($_GET['id']))
 }
 
 ?>
+<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
-$j(function(){
-	$j('select[name="categoryid"]').change(function(){
-		if($j(this).val()=='-1')
-		{
-			$j('#newcategry').fadeIn();
-		}
-		else
-		{
-			$j('#newcategry').fadeOut();
-			$j('input[name="newcategory"]').val('');
+var docid = <?php echo $_REQUEST['id'];?>;
+jQuery(function(){
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), tpstatus );
+	if(document.getElementById('tabAccess'))
+		tpModule.addTabPage( document.getElementById('tabAccess') );
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1') {
+			jQuery('#newcategry').fadeIn();
+		} else {
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
 		}
 	});
-	$j('input[name="enable_sharedparams"]').change(function(){
-		var checked = $j('input[name="enable_sharedparams"]').is(':checked');
-		if(checked)
-		{
-			$j('.sharedparams').fadeIn();
-		}
-		else
-		{
-			$j('.sharedparams').fadeOut();
+	jQuery('input[name="enable_sharedparams"]').change(function(){
+		var checked = jQuery('input[name="enable_sharedparams"]').is(':checked');
+		if(checked) {
+			jQuery('.sharedparams').fadeIn();
+		} else {
+			jQuery('.sharedparams').fadeOut();
 		}
 	});
 });
@@ -105,12 +86,12 @@ function loadDependencies() {
 		}
 	}
 	documentDirty = false;
-	window.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=113";
+	window.location.href="index.php?id="+docid+"&a=113";
 };
 function duplicaterecord() {
 	if(confirm("<?php echo $_lang['confirm_duplicate_record']?>")==true) {
 		documentDirty=false;
-		document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=111";
+		document.location.href="index.php?id="+docid+"&a=111";
 	}
 }
 
@@ -364,15 +345,9 @@ function SetUrl(url, width, height, alt) {
 <p><img class="icon" src="<?php echo $_style['icons_modules'];?>" alt="." style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
 
 <div class="tab-pane" id="modulePane">
-	<script type="text/javascript">
-	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
-
 	<!-- General -->
 	<div class="tab-page" id="tabModule">
 	<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-	<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabModule" ) );</script>
-
 	<table>
 		<tr>
 			<td align="left"><?php echo $_lang['module_name']?>:</td>
@@ -402,8 +377,6 @@ function SetUrl(url, width, height, alt) {
 	<!-- Configuration -->
 	<div class="tab-page" id="tabConfig">
 		<h2 class="tab"><?php echo $_lang['settings_config']?></h2>
-		<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabConfig" ) );</script>
-
 		<table>
 		<tr>
 			<td align="left"><?php echo $_lang['existing_category']?>:</td>
@@ -460,7 +433,6 @@ elseif ($_REQUEST['a'] == '108') { ?>
 	<!-- Dependencies -->
 	<div class="tab-page" id="tabDepend">
 	<h2 class="tab"><?php echo $_lang['settings_dependencies']?></h2>
-	<script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabDepend" ) );</script>
 	<div class="sectionBody">
 <?php
 $display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
@@ -522,13 +494,12 @@ if ($modx->config['use_udperms'] == 1)
 <!-- Access permissions -->
 <div class="tab-page" id="tabAccess">
 <h2 class="tab"><?php echo $_lang['group_access_permissions']?></h2>
-<script type="text/javascript">tpModule.addTabPage( document.getElementById("tabAccess") );</script>
 <?php
 	// fetch user access permissions for the module
 	$groupsarray = array();
 	$rs = $modx->db->select('*','[+prefix+]site_module_access',"module='{$id}'");
-	$limit = $modx->db->getRecordCount($rs);
-	for ($i = 0; $i < $limit; $i++)
+	$total = $modx->db->getRecordCount($rs);
+	for ($i = 0; $i < $total; $i++)
 	{
 		$currentgroup = $modx->db->getRow($rs);
 		$groupsarray[$i] = $currentgroup['usergroup'];
@@ -562,8 +533,8 @@ if ($modx->config['use_udperms'] == 1)
 	}
 	$chk = '';
 	$rs = $modx->db->select('name, id','[+prefix+]membergroup_names');
-	$limit = $modx->db->getRecordCount($rs);
-	for ($i = 0; $i < $limit; $i++)
+	$total = $modx->db->getRecordCount($rs);
+	for ($i = 0; $i < $total; $i++)
 	{
 		$row = $modx->db->getRow($rs);
 		$groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
