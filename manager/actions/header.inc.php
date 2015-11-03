@@ -80,7 +80,9 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 					gotosave=false;
 				break;
 			}
-        	document_onload();
+            stopWorker();
+            jQuery('#preLoader').hide();
+            <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
@@ -88,12 +90,6 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 			if(documentDirty) return '<?php echo $_lang['warning_not_saved'];?>';
 			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
 		});
-        
-        function document_onload() {
-            stopWorker();
-            jQuery('#preLoader').hide();
-            <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
-        }
         
         function doRefresh(r) {
             try{
