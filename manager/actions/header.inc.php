@@ -76,7 +76,7 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 				case 102:
 				case 300:
 				case 301:
-					jQuery('input,textarea,select:not(#template,#which_editor)').change(function() {documentDirty=true;});
+					jQuery('input,textarea,select:not(#template,#which_editor,#stay)').change(function() {documentDirty=true;});
 					gotosave=false;
 				break;
 			}
