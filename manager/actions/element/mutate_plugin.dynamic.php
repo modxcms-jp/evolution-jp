@@ -51,16 +51,16 @@ else
 ?>
 <script language="JavaScript">
 
-$j(function(){
-    $j('select[name="categoryid"]').change(function(){
-        if($j(this).val()=='-1')
-        {
-            $j('#newcategry').fadeIn();
-        }
-        else
-        {
-            $j('#newcategry').fadeOut();
-            $j('input[name="newcategory"]').val('');
+jQuery(function(){
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
+	setTimeout('showParameters()',10);
+    jQuery('select[name="categoryid"]').change(function(){
+        if(jQuery(this).val()=='-1') {
+            jQuery('#newcategry').fadeIn();
+        } else {
+            jQuery('#newcategry').fadeOut();
+            jQuery('input[name="newcategory"]').val('');
         }
     });
 });
@@ -257,24 +257,24 @@ function decode(s){
 
 
 // Using Mootools
-$j(function() {
+jQuery(function() {
 
     // Try and populate config fields from the text that is pasted in the PHP box
-    $j('#phptextarea').bind('blur', function() {
+    jQuery('#phptextarea').bind('blur', function() {
         
         // Get the value of the php text field
-        var src = $j('#phptextarea').val();
+        var src = jQuery('#phptextarea').val();
         
         
         // Is  something in there?
         if (src == '') {
-            $j('input[name="sysevents[]"]').removeAttr('checked'); // Untick all sys events
-            $j('#pluginName').val('');
-            $j('#pluginDescription').val('');
-            $j('#propertiesBox').val('');
-            $j('#newcategory').val('');
-            $j('#categoryid option').removeAttr('selected')
-            showParameters($j('#propertiesBox'));
+            jQuery('input[name="sysevents[]"]').removeAttr('checked'); // Untick all sys events
+            jQuery('#pluginName').val('');
+            jQuery('#pluginDescription').val('');
+            jQuery('#propertiesBox').val('');
+            jQuery('#newcategory').val('');
+            jQuery('#categoryid option').removeAttr('selected')
+            showParameters(jQuery('#propertiesBox'));
             return;
         }
         
@@ -452,9 +452,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 
 <div class="sectionBody">
 <div class="tab-pane" id="pluginPane">
-    <script type="text/javascript">
-        tp = new WebFXTabPane( document.getElementById( "pluginPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-    </script>
 
 <!-- General -->
 <div class="tab-page" id="tabPlugin">
@@ -661,9 +658,6 @@ $evtOut = $modx->invokeEvent("OnPluginFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
-<script type="text/javascript">
-setTimeout('showParameters()',10);
-</script>
 <?php
 function selected($cond=false)
 {
