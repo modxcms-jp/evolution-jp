@@ -138,7 +138,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		parent.mainMenu.location.reload();
 	}
 
-	function startrefresh(rFrame){
+	function reloadPane(rFrame){
 		if(rFrame==1){
 			x=window.setTimeout('reloadtree()',100);
 		}

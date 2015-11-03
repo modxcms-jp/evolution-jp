@@ -94,7 +94,7 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         function doRefresh(r) {
             try{
                 rr = r;
-                top.mainMenu.startrefresh(rr);
+                top.mainMenu.reloadPane(rr);
             } catch(oException) {
                 vv = window.setTimeout('doRefresh(' + r + ')',200);
             }
