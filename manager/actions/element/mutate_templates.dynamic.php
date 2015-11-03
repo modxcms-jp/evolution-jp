@@ -71,16 +71,16 @@ $templateObject = (object) $templateObject;
 
 ?>
 <script type="text/javascript">
-$j(function(){
-	$j('select[name="categoryid"]').change(function(){
-		if($j(this).val()=='-1')
+jQuery(function(){
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1')
 		{
-			$j('#newcategry').fadeIn();
+			jQuery('#newcategry').fadeIn();
 		}
 		else
 		{
-			$j('#newcategry').fadeOut();
-			$j('input[name="newcategory"]').val('');
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
 		}
 	});
 });
