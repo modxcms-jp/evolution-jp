@@ -247,6 +247,8 @@ switch ($modx->manager->action) {
             if($frame!=='tree'&&$frame!=='menu'&&$frame!=='nodes') return;
             include_once(MODX_MANAGER_PATH . "frames/{$frame}.php");
         }
+        elseif(isset($_REQUEST['ajaxa']))
+            include(MODX_MANAGER_PATH . 'ajax.php'); // ajax-action
         break;
     case 2: // get the home page
         include_once($action_path.'main/welcome.static.php');break;
