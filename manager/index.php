@@ -223,6 +223,8 @@ $modx->manager->validate_referer($modx->config['validate_referer']);
 
 $modx->manager->setView($action);
 
+if(isset($_POST['stay'])&&$_POST['stay']!=='new') $_SESSION['saveAfter'] = $_POST['stay'];
+
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
