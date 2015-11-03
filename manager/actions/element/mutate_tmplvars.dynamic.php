@@ -190,7 +190,7 @@ function showParameters(ctrl) {
     }
 
     // setup parameters
-    tr = (document.getElementById) ? document.getElementById('displayparamrow'):document.all['displayparamrow'];
+    tr = document.getElementById('displayparamrow');
     dp = (widgetParams[df]) ? widgetParams[df].split("&"):"";
     if(!dp) tr.style.display='none';
     else {
@@ -236,7 +236,7 @@ function showParameters(ctrl) {
             };
         }
         t+='</table>';
-        td = (document.getElementById) ? document.getElementById('displayparams'):document.all['displayparams'];
+        td = document.getElementById('displayparams');
         td.innerHTML = t;
         tr.style.display='';
     }
