@@ -8,7 +8,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 // save folderstate
 if (isset($_GET['opened'])) $_SESSION['openedArray'] = $_GET['opened'];
-
+if (isset($_GET['savestateonly'])) exit('savestateonly');
 // setup sorting
 if(isset($_REQUEST['tree_sortby']))  $_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
 if(isset($_REQUEST['tree_sortdir'])) $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
