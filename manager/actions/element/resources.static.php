@@ -2,6 +2,10 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 ?>
 <script type="text/javascript">
+	jQuery(function(){
+		var tpstatus = <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?>;
+		tpElements = new WebFXTabPane( document.getElementById( "elementsPane" ), tpstatus );
+    });
 	function deleteCategory(catid) {
 		jConfirm("<?php echo $_lang['confirm_delete_category']; ?>", "<?php echo $_lang['delete_category'];?>",function(r){
 			if(r) document.location.href="index.php?a=501&catId="+catid;
@@ -19,10 +23,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 </div>
 
 <div class="sectionBody">
-<div class="tab-pane" id="resourcesPane">
-	<script type="text/javascript">
-		tpResources = new WebFXTabPane( document.getElementById( "resourcesPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
-	</script>
+<div class="tab-pane" id="elementsPane">
 
 <!-- Templates -->
 <?php 	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')) { ?>
