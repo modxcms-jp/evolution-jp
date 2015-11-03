@@ -41,15 +41,11 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		}
 	});
 	
-	function keepMeAlive()
-	{
-		var tok = document.getElementById('sessTokenInput').value;
+	function keepMeAlive() {
+		var tok = jQuery('#sessTokenInput').val();
 		var o = Math.random();
-		var url = 'session_keepalive.php';
-		
-		$j.getJSON(url, {"tok":tok,"o":o},
-		function(resp)
-		{
+		jQuery.getJSON('session_keepalive.php', {"tok":tok,"o":o},
+		function(resp) {
 			if(resp.status != 'ok') window.location.href = 'index.php?a=8';
 	    });
 	}
