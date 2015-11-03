@@ -2,7 +2,7 @@
 // Action 127
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if(isset($_GET['id']) && preg_match('@^[0-9]+$@',$_GET['id']))
+if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id']))
 	$id = $_GET['id'];
 else
 {

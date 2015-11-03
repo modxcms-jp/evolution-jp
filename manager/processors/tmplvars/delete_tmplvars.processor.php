@@ -4,7 +4,7 @@ if(!$modx->hasPermission('delete_template')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-	$id = isset($_GET['id'])? intval($_GET['id']):0;
+	$id = (isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) ? $_GET['id']:0;
 	$forced = isset($_GET['force'])? $_GET['force']:0;
 	
 	$tbl_site_content               = $modx->getFullTableName('site_content');

@@ -42,7 +42,7 @@ if($limit>1) {
 // end check for lock
 
 
-if(isset($_GET['id'])) {
+if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 	$rs = $modx->db->select('*','[+prefix+]site_snippets',"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {

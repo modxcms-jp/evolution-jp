@@ -38,7 +38,7 @@ if(!is_numeric($id))
 
 global $content;
 $content = array();
-if(isset($_GET['id']))
+if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id']))
 {
 	$rs = $modx->db->select('*','[+prefix+]site_tmplvars',"id={$id}");
 	$total = $modx->db->getRecordCount($rs);
