@@ -54,6 +54,20 @@ else
 jQuery(function(){
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
+	var readonly = <?php echo ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		if(jQuery('textarea,input[type=text]').prop('readonly'))
+			jQuery('textarea,input[type=text]').prop('readonly',false);
+		else
+			jQuery('textarea,input[type=text]').prop('readonly',true);
+	});
 	setTimeout('showParameters()',10);
     jQuery('select[name="categoryid"]').change(function(){
         if(jQuery(this).val()=='-1') {
@@ -471,12 +485,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 <span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
                 <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
         </div>
-<?php
-	if($pluginObject->locked === '1')
-		$readonly = 'readonly';
-	else $readonly = '';
-?>
-        <textarea dir="ltr" name="post" <?php echo $readonly;?> style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
+        <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
         </div>
         <!-- PHP text editor end -->
         </div>

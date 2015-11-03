@@ -78,6 +78,20 @@ elseif(!isset($content['editor_type']) || empty($content['editor_type']))
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script language="javascript" type="text/javascript">
 jQuery(function(){
+	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		if(jQuery('textarea,input[type=text]').prop('readonly'))
+			jQuery('textarea,input[type=text]').prop('readonly',false);
+		else
+			jQuery('textarea,input[type=text]').prop('readonly',true);
+	});
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1') {
 			jQuery('#newcategry').fadeIn();
@@ -203,12 +217,7 @@ if (is_array($evtOut))
 		<div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
 			<span style="font-weight:bold;"><?php echo $_lang['chunk_code']?></span>
 		</div>
-<?php
-	if($content['locked'] === '1' || $content['locked'] === 'on')
-		$readonly = 'readonly';
-	else $readonly = '';
-?>
-        <textarea dir="ltr" class="phptextarea" name="post" <?php echo $readonly;?> style="height:350px;width:100%"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
+        <textarea dir="ltr" class="phptextarea" name="post" style="height:350px;width:100%"><?php echo isset($content['post']) ? htmlspecialchars($content['post']) : htmlspecialchars($content['snippet'])?></textarea>
 	</div>
 
 	<span class="warning"><?php echo $_lang['which_editor_title']?></span>

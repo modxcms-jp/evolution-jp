@@ -72,6 +72,20 @@ $templateObject = (object) $templateObject;
 ?>
 <script type="text/javascript">
 jQuery(function(){
+	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == on) ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		if(jQuery('textarea,input[type=text]').prop('readonly'))
+			jQuery('textarea,input[type=text]').prop('readonly',false);
+		else
+			jQuery('textarea,input[type=text]').prop('readonly',true);
+	});
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
     jQuery.get("index.php",
@@ -198,12 +212,7 @@ echo $_lang["template_parent"];
 	    	<span style="float:left;font-weight:bold;"><?php echo $_lang['template_code']; ?></span>
 		</div>
 	<?php if(isset($head)) echo $head;?>
-	<?php
-		if($templateObject->locked==1)
-			$readonly = 'readonly';
-		else $readonly = '';
-	?>
-        <textarea dir="ltr" name="content" <?php echo $readonly;?> class="phptextarea" style="width:100%; height: 370px;"><?php echo htmlspecialchars($templateObject->content); ?></textarea>
+        <textarea dir="ltr" name="content" class="phptextarea" style="width:100%; height: 370px;"><?php echo htmlspecialchars($templateObject->content); ?></textarea>
 	<?php if(isset($foot)) echo $foot;?>
 	</div>
 	<!-- HTML text editor end -->

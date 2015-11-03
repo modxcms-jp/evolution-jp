@@ -61,7 +61,21 @@ if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 <script type="text/javascript">
 jQuery(function(){
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tstatus );
+	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tpstatus );
+	var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == on) ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		if(jQuery('textarea,input[type=text]').prop('readonly'))
+			jQuery('textarea,input[type=text]').prop('readonly',false);
+		else
+			jQuery('textarea,input[type=text]').prop('readonly',true);
+	});
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1') {
 			jQuery('#newcategry').fadeIn();
@@ -320,12 +334,7 @@ function decode(s){
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines'];?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
-<?php
-	if($content['locked'] === '1')
-		$readonly = 'readonly';
-	else $readonly = '';
-?>
-			<textarea class="phptextarea" dir="ltr" <?php echo $readonly;?> name="post" style="width:100%; height:370px;" wrap="soft"><?php echo trim(htmlspecialchars($content['snippet']));?></textarea>
+			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo trim(htmlspecialchars($content['snippet']));?></textarea>
 			</div>
 		<!-- PHP text editor end -->
 		  	</div>

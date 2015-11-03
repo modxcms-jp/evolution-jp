@@ -68,10 +68,6 @@ $tmp = array('forfrontend' => 1);
 $evtOut = $modx->invokeEvent('OnRichTextEditorRegister',$tmp);
 if(is_array($evtOut)) $RTEditors = implode(',',$evtOut);
 
-if($content['locked']==='1')
-	$readonly = 'readonly';
-else $readonly = '';
-
 $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . htmlspecialchars($content['elements']) . "</textarea>\n";
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
@@ -85,6 +81,20 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
 <script language="JavaScript">
 jQuery(function(){
 	tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
+	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		if(jQuery('textarea,input[type=text]').prop('readonly'))
+			jQuery('textarea,input[type=text]').prop('readonly',false);
+		else
+			jQuery('textarea,input[type=text]').prop('readonly',true);
+	});
 	setTimeout('showParameters()',10);
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1')
@@ -449,7 +459,7 @@ if($name1 == $content['type'] || $name2 == $content['type']) $display = '';
   </tr>
   <tr>
     <th align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?></th>
-    <td align="left" nowrap="nowrap"><textarea <?php echo $readonly;?> name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
+    <td align="left" nowrap="nowrap"><textarea <?php name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
   </tr>
   <tr>
 <?php
