@@ -298,19 +298,13 @@ class ManagerAPI {
 		$referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 		
 		if(empty($referer))
-		{
-			echo "A possible CSRF attempt was detected. No referer was provided by the server.";
-			exit();
-		}
+			exit("A possible CSRF attempt was detected. No referer was provided by the server.");
 		else
 		{
 			$referer  = str_replace(array('http://', 'https://'), '//', $referer);
 			$site_url = str_replace(array('http://', 'https://'), '//', MODX_SITE_URL);
 			if(stripos($referer, $site_url)!==0)
-			{
-				echo "A possible CSRF attempt was detected from referer: {$referer}.";
-				exit();
-			}
+				exit("A possible CSRF attempt was detected from referer: {$referer}.");
 		}
 	}
 	
