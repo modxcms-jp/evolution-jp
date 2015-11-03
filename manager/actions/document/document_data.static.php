@@ -74,6 +74,9 @@ foreach($content as $k=>$v)
 
 ?>
 	<script type="text/javascript">
+	jQuery(function(){
+		tpDocInfo = new WebFXTabPane( document.getElementById( "docInfo" ), false );
+    });
 	function duplicatedocument(){
 		if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
 			document.location.href="index.php?id=<?php echo $id;?>&a=94";
@@ -127,10 +130,7 @@ foreach($content as $k=>$v)
 </div>
 
 <div class="sectionBody">
-<div class="tab-pane" id="childPane">
-	<script type="text/javascript">
-	docInfo = new WebFXTabPane( document.getElementById( "childPane" ), false );
-	</script>
+<div class="tab-pane" id="docInfo">
 
 <style type="text/css">
 h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
