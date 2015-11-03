@@ -57,7 +57,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		// if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
 			if (now && msgcheck!=0)
 			{
-				$j.ajax({type:'POST',url:'index.php',data:{'updateMsgCount':'true'},success:function(request){showResponse(request);}});
+				jQuery.ajax({type:'POST',url:'index.php',data:{"updateMsgCount":"true"},success:function(request){showResponse(request);}});
 			}
 			return false;
 		} catch(oException) {
