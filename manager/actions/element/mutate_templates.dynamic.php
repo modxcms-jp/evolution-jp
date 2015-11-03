@@ -72,6 +72,8 @@ $templateObject = (object) $templateObject;
 ?>
 <script type="text/javascript">
 jQuery(function(){
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
     jQuery.get("index.php",
         { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo $id;?>" },
         function(data){
@@ -152,10 +154,6 @@ function deletedocument() {
 
 <div class="sectionBody">
 <div class="tab-pane" id="templatesPane">
-	<script type="text/javascript">
-		tpResources = new WebFXTabPane( document.getElementById( "templatesPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
-
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
 	<div style="margin-bottom:10px;">
