@@ -242,8 +242,12 @@ if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,
 switch ($modx->manager->action) {
     case 1 : //frame management - show the requested frame  
         // get the requested frame
-        $frame = preg_replace('/[^a-z0-9]/i','',$_REQUEST['f']);
-        include_once(MODX_MANAGER_PATH . "frames/{$frame}.php");break;
+        if(isset($_REQUEST['f'])) {
+            $frame = $_REQUEST['f'];
+            if($frame!=='tree'&&$frame!=='menu'&&$frame!=='nodes') return;
+            include_once(MODX_MANAGER_PATH . "frames/{$frame}.php");
+        }
+        break;
     case 2: // get the home page
         include_once($action_path.'main/welcome.static.php');break;
     case 3: // get the page to show document's data
