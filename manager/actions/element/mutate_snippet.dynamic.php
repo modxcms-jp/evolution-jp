@@ -59,16 +59,15 @@ if(isset($_GET['id'])) {
 }
 ?>
 <script type="text/javascript">
-$j(function(){
-	$j('select[name="categoryid"]').change(function(){
-		if($j(this).val()=='-1')
-		{
-			$j('#newcategry').fadeIn();
-		}
-		else
-		{
-			$j('#newcategry').fadeOut();
-			$j('input[name="newcategory"]').val('');
+jQuery(function(){
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tstatus );
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1') {
+			jQuery('#newcategry').fadeIn();
+		} else {
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
 		}
 	});
 });
@@ -305,10 +304,6 @@ function decode(s){
 
 <div class="sectionBody">
 <div class="tab-pane" id="snipetPane">
-	<script type="text/javascript">
-		tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
-
 	<!-- General -->
     <div class="tab-page" id="tabSnippet">
     	<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
