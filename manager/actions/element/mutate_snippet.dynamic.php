@@ -312,7 +312,6 @@ function decode(s){
 	<!-- General -->
     <div class="tab-page" id="tabSnippet">
     	<h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-    	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabSnippet" ) );</script>
 		<table>
 		  <tr>
 			<th align="left"><?php echo $_lang['snippet_name']?></th>
@@ -339,7 +338,6 @@ function decode(s){
 	<!-- Properties -->
     <div class="tab-page" id="tabProps">
     	<h2 class="tab"><?php echo $_lang['settings_properties']?></h2>
-    	<script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabProps" ) );</script>
 		<table>
           <tr>
 			<th align="left"><?php echo $_lang['existing_category']?>:</th>
@@ -414,7 +412,6 @@ function decode(s){
 		  	</div>
     <div class="tab-page" id="tabHelp">
     <h2 class="tab">ヘルプ</h2>
-    <script type="text/javascript">tpSnippet.addTabPage( document.getElementById('tabHelp') );</script>
     <?php echo $_lang['snippet_msg'];?>
     </div>
 			</div>

@@ -136,9 +136,8 @@ foreach($content as $k=>$v)
 h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 </style>
 	<!-- General -->
-	<div class="tab-page" id="tabdocInfo">
+	<div class="tab-page" id="tabDocInfo">
 		<h2 class="tab"><?php echo $_lang['information']?></h2>
-		<script type="text/javascript">docInfo.addTabPage( document.getElementById( "tabdocInfo" ) );</script>
 		<div class="sectionBody">
 		<table>
 			<tr><td width="200">ID: </td>
@@ -240,7 +239,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 	<!-- Page Source -->
 	<div class="tab-page" id="tabSource">
 		<h2 class="tab"><?php echo $_lang['page_data_source']?></h2>
-		<script type="text/javascript">docSettings.addTabPage( document.getElementById( "tabSource" ) );</script>
 		<?php echo $cache;?>
 	</div><!-- end tab-page -->
 <?php endif;?>

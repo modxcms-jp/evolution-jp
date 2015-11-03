@@ -28,7 +28,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php 	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')) { ?>
     <div class="tab-page" id="tabTemplates">
     	<h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
 		<div><?php echo $_lang['template_management_msg']; ?></div>
 		<ul class="actionButtons">
 			<li><a class="default" href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?></a></li>
@@ -41,7 +40,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php 	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')) { ?>
     <div class="tab-page" id="tabVariables">
     	<h2 class="tab"><?php echo $_lang["tmplvars"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabVariables" ) );</script>
 		<!--//
 			Modified By Raymond for Template Variables
 			Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
@@ -58,7 +56,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php 	if($modx->hasPermission('new_chunk') || $modx->hasPermission('edit_chunk')) { ?>
     <div class="tab-page" id="tabChunks">
     	<h2 class="tab"><?php echo $_lang["manage_htmlsnippets"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabChunks" ) );</script>
 		<div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
@@ -72,7 +69,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php 	if($modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet')) { ?>
     <div class="tab-page" id="tabSnippets">
     	<h2 class="tab"><?php echo $_lang["manage_snippets"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabSnippets" ) );</script>
 		<div><?php echo $_lang['snippet_management_msg']; ?></div>
 
 		<ul class="actionButtons">
@@ -86,7 +82,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <?php 	if($modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) { ?>
     <div class="tab-page" id="tabPlugins">
     	<h2 class="tab"><?php echo $_lang["manage_plugins"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabPlugins" ) );</script>
 		<div><?php echo $_lang['plugin_management_msg']; ?></div>
 
 		<ul class="actionButtons">
@@ -100,7 +95,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 <!-- category view -->
     <div class="tab-page" id="tabCategory">
     	<h2 class="tab"><?php echo $_lang["element_categories"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabCategory" ) );</script>
 		<div><?php echo $_lang['category_msg']; ?></div>
 		<br />
 		<ul>

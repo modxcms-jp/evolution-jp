@@ -94,9 +94,6 @@ jQuery(function(){
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	var stay = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	chunkPane = new WebFXTabPane( document.getElementById('chunkPane'), stay);
-	chunkPane.addTabPage(document.getElementById('tabGeneral'));
-	chunkPane.addTabPage(document.getElementById('tabInfo'));
-	chunkPane.addTabPage(document.getElementById('tabHelp'));
 });
 // Added for RTE selection
 function changeRTE() {

@@ -360,7 +360,6 @@ function decode(s){
 	</script>
 	<div class="tab-page" id="tabGeneral">
 	<h2 class="tab"><?php echo $_lang['settings_general'];?></h2>
-	<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 <table>
   <tr>
     <th align="left"><?php echo $_lang['tmplvars_name']; ?></th>
@@ -487,7 +486,6 @@ function selected($target='')
 <!-- Template Permission -->
 <div class="tab-page" id="tabPerm">
 <h2 class="tab"><?php echo $_lang['tmplvar_tmpl_access'];?></h2>
-<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabPerm" ) );</script>
 	<p><?php echo $_lang['tmplvar_tmpl_access_msg']; ?></p>
 	<style type="text/css">
 		label {display:block;}
@@ -526,7 +524,6 @@ function selected($target='')
 
 <div class="tab-page" id="tabInfo">
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
-<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabInfo" ) );</script>
       <table>
       <tr>
         <th align="left"><?php echo $_lang['existing_category']; ?></th>
@@ -581,7 +578,6 @@ function selected($target='')
 ?>
 <div class="tab-page" id="tabAccess">
 <h2 class="tab"><?php echo $_lang['access_permissions'];?></h2>
-<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById( "tabAccess" ) );</script>
 <script type="text/javascript">
     function makePublic(b){
         var notPublic=false;
@@ -641,7 +637,6 @@ function selected($target='')
 ?>
 <div class="tab-page" id="tabHelp">
 <h2 class="tab">ヘルプ</h2>
-<script type="text/javascript">tpTmplvars.addTabPage( document.getElementById('tabHelp') );</script>
 <?php echo $_lang['tmplvars_msg'];?>
 </div>
 <?php

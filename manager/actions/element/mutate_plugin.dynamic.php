@@ -459,7 +459,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- General -->
 <div class="tab-page" id="tabPlugin">
     <h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
-    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabPlugin" ) );</script>
     <table border="0" cellspacing="0" cellpadding="0">
       <tr>
 			<th align="left"><?php echo $_lang['plugin_name']; ?></th>
@@ -488,7 +487,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- Configuration/Properties -->
 <div class="tab-page" id="tabProps">
     <h2 class="tab"><?php echo $_lang["settings_config"] ?></h2>
-    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabProps" ) );</script>
 <?php
     $field = 'sm.id,sm.name,sm.guid';
     $from  = '[+prefix+]site_modules sm '.
@@ -542,7 +540,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- System Events -->
 <div class="tab-page" id="tabEvents">
     <h2 class="tab"><?php echo $_lang["settings_events"] ?></h2>
-    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabEvents" ) );</script>
     <p><?php echo $_lang['plugin_event_msg']; ?></p>
     <table>
 <?php
@@ -620,7 +617,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </div>
 <div class="tab-page" id="tabInfo">
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
 <table>
     <tr>
         <th align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</th>
@@ -654,7 +650,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </div>
 <div class="tab-page" id="tabHelp">
 <h2 class="tab">ヘルプ</h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById('tabHelp') );</script>
 <?php echo $_lang['plugin_msg'];?>
 </div>
 </div>

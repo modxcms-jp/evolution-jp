@@ -153,7 +153,6 @@ function deletedocument() {
 
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
-    	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplate" ) );</script>
 	<div style="margin-bottom:10px;">
 	<b><?php echo $_lang['template_name']; ?></b>
 	<input name="templatename" type="text" maxlength="100" value="<?php echo htmlspecialchars($templateObject->templatename);?>" class="inputBox" style="width:200px;">
@@ -209,7 +208,6 @@ echo $_lang["template_parent"];
 
 <div class="tab-page" id="tabProp">
 <h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
-<script type="text/javascript">tpResources.addTabPage( document.getElementById('tabProp') );</script>
 <table>
 	  <tr>
 		<th><?php echo $_lang['existing_category']; ?>:</th>
@@ -258,7 +256,6 @@ if ($_REQUEST['a'] == '16')
 	
 	<div class="tab-page" id="tabInfo">
 		<h2 class="tab"><?php echo $_lang["info"] ?></h2>
-		<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabInfo" ) );</script>
 		<?php echo "<p>{$_lang['template_tv_msg']}</p>"; ?>
 		<div class="sectionHeader">
 			<?php echo $_lang["template_assignedtv_tab"];?>
@@ -302,7 +299,6 @@ if ($_REQUEST['a'] == '16')
 ?>
 <div class="tab-page" id="tabHelp">
 <h2 class="tab">ヘルプ</h2>
-<script type="text/javascript">tpResources.addTabPage( document.getElementById('tabHelp') );</script>
 <?php echo $_lang['template_msg'];?>
 </div>
 <?php
