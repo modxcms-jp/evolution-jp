@@ -47,7 +47,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		var o = Math.random();
 		var url = 'session_keepalive.php';
 		
-		$j.getJSON(url, {'tok':tok,'o':o},
+		$j.getJSON(url, {"tok":tok,"o":o},
 		function(resp)
 		{
 			if(resp.status != 'ok') window.location.href = 'index.php?a=8';
