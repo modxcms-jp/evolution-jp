@@ -96,7 +96,6 @@ if($modx->doc->mode==='normal') {
 }
 
 $ph['actionButtons'] = getActionButtons($id);
-$ph['remember_last_tab'] = ($config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 $ph['token'] = $modx->genToken();
 $_SESSION['token'] = $ph['token'];
 

@@ -1,13 +1,17 @@
 <script type="text/javascript">
+/* <![CDATA[ */
+
 	var imanager_url = '[+imanager_url+]';
 	var fmanager_url = '[+fmanager_url+]';
-</script>
-<script type="text/javascript" src="media/browser/browser.js"></script>
-<script type="text/javascript">
-jQuery(function(){
 	var prevWin;
 	var docMode = '[+docMode+]';
 
+// save tree folder state
+if (parent.tree) parent.tree.saveFolderState();
+
+jQuery(function(){
+	
+	tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
 	jQuery('#save a').click(function(){
     	documentDirty=false;
     	gotosave = true;
@@ -48,8 +52,7 @@ jQuery(function(){
             }
         prevWin = window.open('[+preview_url+]','prevWin');
         var pmode = [+preview_mode+];
-    	if(pmode==1)
-    	{
+    	if(pmode==1) {
         	jQuery('#mutate').prop({'action':'[+preview_url+]','target':'prevWin'});
             jQuery('#mutate').submit();
         	jQuery('#mutate').prop({'action':'index.php','target':'main'});
@@ -88,7 +91,6 @@ jQuery(function(){
 		documentDirty=true;
 		return true;
 	});
-	var curTemplate = -1;
 	curTemplate = jQuery('#template').val();
 	jQuery('#template').change(function(){
 		newTemplate = jQuery('#template').val();
@@ -109,12 +111,6 @@ jQuery(function(){
     	jQuery('#mutate').submit();
 	});
 });
-</script>
-<script type="text/javascript">
-/* <![CDATA[ */
-
-// save tree folder state
-if (parent.tree) parent.tree.saveFolderState();
 
 function changestate(element) {
 	currval = eval(element).value;
@@ -219,5 +215,13 @@ function checkParentChildRelation(pId, pName) {
 	return true;
 }
 
+function change_url_suffix() {
+	var a = document.getElementById("field_alias");
+	var s = document.getElementById("url_suffix");
+	if(0 < a.value.indexOf('.')) s.innerHTML = '';
+	else s.innerHTML = '[+suffix+]';
+}
+
 /* ]]> */
 </script>
+<script type="text/javascript" src="media/browser/browser.js"></script>

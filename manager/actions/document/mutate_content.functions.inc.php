@@ -235,21 +235,6 @@ function get_alias_path($id)
 	return $path;
 }
 
-function get_scr_change_url_suffix($suffix)
-{
-	$scr = <<< EOT
-	<script type="text/javascript">
-	function change_url_suffix() {
-		var a = document.getElementById("field_alias");
-		var s = document.getElementById("url_suffix");
-		if(0 < a.value.indexOf('.')) s.innerHTML = '';
-		else s.innerHTML = '{$suffix}';
-	}
-	</script>
-EOT;
-	return $scr;
-}
-
 function renderTr($head, $body,$rowstyle='')
 {
 	global $modx;
@@ -530,6 +515,8 @@ function getJScripts($docid) {
 	$ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
 	$ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
 	$ph['action'] = $modx->manager->action;
+	$ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
+	$ph['suffix'] = $modx->config['friendly_url_suffix'];
 	
 	return $content . $modx->parseText($tpl,$ph);
 }
@@ -753,7 +740,6 @@ function fieldAlias($id) {
 	$onkeyup = '';
 	if($config['suffix_mode']==1)
 	{
-		$body = get_scr_change_url_suffix($config['friendly_url_suffix']);
 		$onkeyup = 'onkeyup="change_url_suffix();" ';
 	}
 	
@@ -1398,9 +1384,6 @@ function getTplHead()
 
 	<div class="sectionBody">
 	<div class="tab-pane" id="documentPane">
-		<script type="text/javascript">
-			tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
-		</script>
 EOT;
 	return $tpl;
 }
