@@ -222,7 +222,7 @@ $esc_request = $modx->db->escape($_REQUEST);
                 openedArray[id] = 1 ;
                 //Raymond:added getFolderState()
                 var folderState = getFolderState();
-                jQuery.get('index.php',{'a':'1','f':'nodes','indent':indent,'parent':id,'expandAll':expandAll+folderState},rpcLoadData);
+                jQuery.get('index.php',{"a":"1","f":"nodes","indent":indent,"parent":id,"expandAll":expandAll+folderState},rpcLoadData);
                 jQuery(rpcNode).show(100);
             } else {
                 jQuery(rpcNode).show(100);
@@ -261,18 +261,18 @@ $esc_request = $modx->db->escape($_REQUEST);
 
     function expandTree() {
         rpcNode = document.getElementById('treeRoot');
-        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'1'},rpcLoadData);
+        jQuery.get('index.php',{"a":"1","f":"nodes","indent":"1","parent":"0","expandAll":"1"},rpcLoadData);
     }
 
     function collapseTree() {
         rpcNode = document.getElementById('treeRoot');
-        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'0'},rpcLoadData);
+        jQuery.get('index.php',{"a":"1","f":"nodes","indent":"1","parent":"0","expandAll":"0"},rpcLoadData);
     }
 
     // new function used in body onload
     function restoreTree() {
         rpcNode = document.getElementById('treeRoot');
-        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2'},rpcLoadData);
+        jQuery.get('index.php',{"a":"1","f":"nodes","indent":"1","parent":"0","expandAll":"2"},rpcLoadData);
     }
 
     function setSelected(elSel) {
@@ -314,7 +314,7 @@ $esc_request = $modx->db->escape($_REQUEST);
         var t_sortby = document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
-        jQuery.get('index.php',{'a':'1','f':'nodes','indent':'1','parent':'0','expandAll':'2','dt':dt,'tree_sortby':t_sortby,'tree_sortdir':t_sortdir},rpcLoadData);
+        jQuery.get('index.php',{"a":"1","f":"nodes","indent":"1","parent":"0","expandAll":"2","dt":dt,"tree_sortby":t_sortby,"tree_sortdir":t_sortdir},rpcLoadData);
     }
 
     function emptyTrash() {
