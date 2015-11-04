@@ -1,10 +1,10 @@
 <script type="text/javascript">
 /* <![CDATA[ */
 
-	var imanager_url = '[+imanager_url+]';
-	var fmanager_url = '[+fmanager_url+]';
-	var prevWin;
-	var docMode = '[+docMode+]';
+var imanager_url = '[+imanager_url+]';
+var fmanager_url = '[+fmanager_url+]';
+var prevWin;
+var docMode = '[+docMode+]';
 
 // save tree folder state
 if (parent.tree) parent.tree.saveFolderState();
@@ -47,9 +47,9 @@ jQuery(function(){
 	});
 
 	jQuery('#preview').click(function(){
-            if( prevWin && !prevWin.closed ) {
-                prevWin.close();
-            }
+        if( prevWin && !prevWin.closed ) {
+            prevWin.close();
+        }
         prevWin = window.open('[+preview_url+]','prevWin');
         var pmode = [+preview_mode+];
     	if(pmode==1) {
