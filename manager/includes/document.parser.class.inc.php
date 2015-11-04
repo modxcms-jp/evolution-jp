@@ -701,7 +701,7 @@ class DocumentParser {
             switch($this->config['cache_type'])
             {
                 case '1':
-                    $cacheContent  = "<?php die('Unauthorized access.'); ?>\n";
+                    $cacheContent  = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
                     $cacheContent .= serialize($this->documentObject);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
                     $filename = "docid_{$docid}{$this->qs_hash}";
@@ -1113,7 +1113,7 @@ class DocumentParser {
             }
         }
         
-        if($this->config['cache_type'] == 2)
+        if($this->config['cache_type'] == 2 && $this->http_status_code != 404)
         {
             $this->documentGenerated = 1;
             return '';
@@ -1131,9 +1131,12 @@ class DocumentParser {
         
         $this->documentGenerated = 0;
         
-        if(substr($flContent,0,5)==='<?php') $flContent = substr($flContent, 37); // remove php header
+        if(substr($flContent,0,5)==='<?php') list($null,$flContent) = explode('?>', $flContent, 2); // remove php header
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
         if(count($a) == 1) return $a[0];
+        elseif($this->config['cache_type']!=0 && $this->http_status_code==404) {
+            return $a[1];
+        }
         
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
