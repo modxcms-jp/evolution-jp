@@ -1141,48 +1141,33 @@ class DocumentParser {
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
         if(!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1) 
-            && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])):
+            && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
             
             $pass = false;
             $usrGrps = $this->getUserDocGroups();
             $docGrps = explode(',',$docObj['__MODxDocGroups__']);
             // check is user has access to doc groups
-            if(is_array($usrGrps)&&!empty($usrGrps))
-            {
-                foreach ($usrGrps as $k => $v)
-                {
+            if(is_array($usrGrps)&&!empty($usrGrps)) {
+                foreach ($usrGrps as $k => $v) {
                     $v = trim($v);
-                    if(in_array($v, $docGrps))
-                    {
+                    if(in_array($v, $docGrps)) {
                         $pass = true;
                         break;
                     }
                 }
             }
             // diplay error pages if user has no access to cached doc
-            if(!$pass)
-            {
-                if($this->config['unauthorized_page'])
-                {
+            if(!$pass) {
+                if($this->config['unauthorized_page']) {
                     // check if file is not public
-                    $secrs = $this->db->select('id', '[+prefix+]document_groups', "document='{$id}'",'',1);
-                    if($secrs)
-                    {
-                        $seclimit = $this->db->getRecordCount($secrs);
-                    }
+                    $rs = $this->db->select('id', '[+prefix+]document_groups', "document='{$id}'",'',1);
+                    $total = $this->db->getRecordCount($rs);
                 }
-                if($seclimit > 0)
-                {
-                    // match found but not publicly accessible, send the visitor to the unauthorized_page
-                    $this->sendUnauthorizedPage();
-                }
-                else
-                {
-                    // no match found, send the visitor to the error_page
-                    $this->sendErrorPage();
-                }
+                
+                if(0 < $total) $this->sendUnauthorizedPage();
+                else           $this->sendErrorPage();
             }
-        endif;
+        }
         
         // Grab the Scripts
         if(isset($docObj['__MODxSJScripts__'])) $this->sjscripts = $docObj['__MODxSJScripts__'];
