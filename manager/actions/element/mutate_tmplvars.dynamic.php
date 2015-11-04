@@ -84,16 +84,15 @@ jQuery(function(){
 	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('select').addClass('readonly');
 		jQuery('#Button1').hide();
     	jQuery('input[name="locked"]').click(function(){
     		jQuery('#Button1').toggle();
     	});
 	}
 	jQuery('input[name="locked"]').click(function(){
-		if(jQuery('textarea,input[type=text]').prop('readonly'))
-			jQuery('textarea,input[type=text]').prop('readonly',false);
-		else
-			jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
+		jQuery('select').toggleClass('readonly');
 	});
 	setTimeout('showParameters()',10);
 	jQuery('select[name="categoryid"]').change(function(){
