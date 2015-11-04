@@ -30,7 +30,7 @@ if(1<count($active_user) && $active_user->internalKey!=$modx->getLoginUserID()) 
 }
 // end check for lock
 
-if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id']))
+if(isset($_GET['id'])&&preg_match('@^[1-9][0-9]*$@',$_GET['id']))
 {
     $pluginObject = $modx->db->getObject('site_plugins',"id='{$id}'");
     
