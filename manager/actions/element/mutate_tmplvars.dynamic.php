@@ -459,7 +459,7 @@ if($name1 == $content['type'] || $name2 == $content['type']) $display = '';
   </tr>
   <tr>
     <th align="left" valign="top"><?php echo $_lang['tmplvars_default']; ?></th>
-    <td align="left" nowrap="nowrap"><textarea <?php name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
+    <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
   </tr>
   <tr>
 <?php
