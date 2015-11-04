@@ -335,9 +335,9 @@ function decode(s){
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
 			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo trim(htmlspecialchars($content['snippet']));?></textarea>
-			</div>
+		</div>
 		<!-- PHP text editor end -->
-		  	</div>
+	</div>
 		
 	<!-- Properties -->
     <div class="tab-page" id="tabProps">
@@ -413,13 +413,13 @@ function decode(s){
 			<td align="left" id="displayparams">&nbsp;</td>
 		  </tr>
 		</table>
-		  	</div>
+	</div>
     <div class="tab-page" id="tabHelp">
     <h2 class="tab">ヘルプ</h2>
     <?php echo $_lang['snippet_msg'];?>
     </div>
-			</div>
 	</div>
+</div>
 <?php
 // invoke OnSnipFormRender event
 $tmp = array("id" => $id);

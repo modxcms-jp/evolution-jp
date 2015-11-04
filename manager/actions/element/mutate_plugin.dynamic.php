@@ -484,11 +484,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
             <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                 <span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
                 <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
-        </div>
+            </div>
         <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft" class="phptextarea" id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
         </div>
         <!-- PHP text editor end -->
-        </div>
+</div>
 
 <!-- Configuration/Properties -->
 <div class="tab-page" id="tabProps">
@@ -541,7 +541,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
             <td align="left" id="displayparams">&nbsp;</td>
           </tr>
         </table>
-        </div>
+</div>
 
 <!-- System Events -->
 <div class="tab-page" id="tabEvents">

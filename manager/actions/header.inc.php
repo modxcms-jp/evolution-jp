@@ -47,7 +47,7 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
 		// call the updateMail function, updates mail notification in top navigation
 		if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
-        
+		
 		jQuery(function(){
 			var action = <?php echo $action;?>;
 			switch(action)

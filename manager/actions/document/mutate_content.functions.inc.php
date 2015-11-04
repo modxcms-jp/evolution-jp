@@ -103,7 +103,7 @@ function ab_save()
 		&& $saveAfter=='new')    $selected['new']   = 'selected';
 	elseif($saveAfter=='stay')   $selected['stay']  = 'selected';
 	elseif($saveAfter=='close')  $selected['close'] = 'selected';
-	else                                $selected['close'] = 'selected';
+	else                         $selected['close'] = 'selected';
 	
 	if ($modx->doc->mode!='draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
 		$option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
