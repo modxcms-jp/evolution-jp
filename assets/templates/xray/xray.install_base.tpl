@@ -42,7 +42,7 @@
 	    [[Wayfinder?
               &outerTpl='@CODE:<ul class="subnavi">[+wf.wrapper+]</ul>'
               &level=1
-              &startId=index.html // index.html index INDEX など先頭がiで指定
+              &startId=parent // parent p PARENT など先頭がpで指定
             ]]
 	    [*content*]
 	</article>
