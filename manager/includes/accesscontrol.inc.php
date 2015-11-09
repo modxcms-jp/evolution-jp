@@ -1,6 +1,11 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
+if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+	header('HTTP/1.0 404 Not Found');
+	exit;
+}
+
 if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!=='manager')
 {
 	@session_destroy();

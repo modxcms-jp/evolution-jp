@@ -1,4 +1,8 @@
 <?php
+if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+	header('HTTP/1.0 404 Not Found');exit;
+}
+
 $self = 'manager/processors/login.processor.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 define('IN_MANAGER_MODE', 'true');
