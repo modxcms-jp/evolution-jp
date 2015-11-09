@@ -104,7 +104,7 @@ $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">�
 $_lang["installation_upgrade_advanced"] = 'カスタムアップデート<br /><small>(データベース設定をアップデートできます)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'データベースを変更した場合などにこのオプションを選択してconfig.inc.phpを更新してください。';
 $_lang["installation_upgrade_existing"] = 'アップデート';
-$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は今からでもphpMyAdminなどを利用してバックアップをとることをおすすめします。';
+$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は管理画面「バックアップ・リストア」でスナップショットを追加しておくことをおすすめします。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
