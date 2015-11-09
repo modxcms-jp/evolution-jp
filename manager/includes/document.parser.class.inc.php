@@ -2271,7 +2271,8 @@ class DocumentParser {
 
     function getChildIds($id, $depth= 10, $children= array ())
     {
-        $cacheKey = __FUNCTION__ . "[{$id}]";
+        $args = print_r(func_get_args(),true);
+        $cacheKey = __FUNCTION__ . md5($args);
         if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
         
         // Initialise a static array to index parents->children
