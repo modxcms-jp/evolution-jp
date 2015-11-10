@@ -1025,6 +1025,14 @@ echo $str;
 <?php echo $_lang["nologentries_message"]?></td>
 </tr>
 <tr>
+	<th><?php echo $_lang["automatic_optimize_table_title"] ?></th>
+	<td>
+		<?php echo wrap_label($_lang["yes"],form_radio('automatic_optimize','1',$automatic_optimize=='1'));?><br />
+		<?php echo wrap_label($_lang["no"], form_radio('automatic_optimize','0',$automatic_optimize=='0'));?><br />
+		<?php echo $_lang["automatic_optimize_table_message"] ?>
+	</td>
+</tr>
+<tr>
 <th><?php echo $_lang["mail_check_timeperiod_title"] ?></th>
 <td>
 	<?php echo form_text('mail_check_timeperiod',5);?><br />

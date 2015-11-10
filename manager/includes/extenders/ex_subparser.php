@@ -101,11 +101,13 @@ class SubParser {
             $trim = ($over + $trim);
             $modx->db->delete("[+prefix+]{$target}",'','',$trim);
         }
-        $result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($dbase,'`')));
-        while ($row = $modx->db->getRow($result))
-        {
-            $modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
-        }
+		if( isset($modx->config['automatic_optimize']) && $modx->config['automatic_optimize'] == 1 ){
+			$result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($dbase,'`')));
+			while ($row = $modx->db->getRow($result))
+			{
+				$modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
+			}
+		}
     }
     
     function addLog($title='no title',$msg='',$type=1)
