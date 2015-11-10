@@ -46,7 +46,7 @@
  */
 // get start time
 $mtime = explode(' ', microtime());
-$tstart = $mtime['1'] + $mtime['0'];
+$tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 
@@ -54,15 +54,14 @@ $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
-if(is_file($base_path . 'assets/cache/basicConfig.php'))
-{
+if(is_file($base_path . 'assets/cache/basicConfig.php')) {
 	include_once($base_path . 'assets/cache/basicConfig.php');
 	if(isset($conditional_get)&&$conditional_get==1)
 		include_once("{$base_path}/manager/includes/conditional_get.inc.php");
 }
 if (!defined('MODX_API_MODE')
     && $cache_type == 2
-    && $site_status!=='0'
+    && $site_status != 0
     && count($_POST) < 1
     && (time() < $cacheRefreshTime || $cacheRefreshTime==0)) {
     session_name($site_sessionname);

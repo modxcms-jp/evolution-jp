@@ -12,7 +12,6 @@ $modx->db->connect();
 $modx->getSettings();
 extract($modx->config);
 
-include_once(MODX_CORE_PATH . 'version.inc.php');
 include_once(MODX_CORE_PATH . 'log.class.inc.php');
 
 $decoded_uri = urldecode($_SERVER['REQUEST_URI']);
@@ -281,6 +280,7 @@ $info['userpassword'] = $formv_password;
 $info['rememberme']   = $formv_rememberme;
 $modx->invokeEvent('OnManagerLogin', $info);
 
+include_once(MODX_CORE_PATH . 'version.inc.php');
 if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
 {
 	include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
