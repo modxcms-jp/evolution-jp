@@ -232,22 +232,7 @@ echo '</table>' . "\n";
 			<td align="right"><?php echo $log_status['Rows']; ?></td>
 
 <?php
-	// enable record deletion for certain tables
-	// sottwell@sottwell.com
-	// 08-2005
-	if($modx->hasPermission('settings')
-	  && (   $log_status['Name'] == "`{$table_prefix}event_log`"
-	      || $log_status['Name'] == "`{$table_prefix}manager_log`"
-	     )
-	  )
-	  {
-		echo "<td dir='ltr' align='right'>";
-		echo "<a href='index.php?a=54&mode=$action&u=".$log_status['Name']."' title='".$_lang['truncate_table']."'>".$modx->nicesize($log_status['Data_length']+$log_status['Data_free'])."</a>";
-		echo "</td>";
-	}
-	else {
-		echo "<td dir='ltr' align='right'>".$modx->nicesize($log_status['Data_length']+$log_status['Data_free'])."</td>";
-	}
+	echo "<td dir='ltr' align='right'>".$modx->nicesize($log_status['Data_length']+$log_status['Data_free'])."</td>";
 
 	if($modx->hasPermission('settings')) {
 		echo  "<td align='right'>".($log_status['Data_free']>0 ? "<a href='index.php?a=54&mode=$action&t=".$log_status['Name']."' title='".$_lang['optimize_table']."' ><span dir='ltr'>".$modx->nicesize($log_status['Data_free'])."</span></a>" : "-")."</td>";
