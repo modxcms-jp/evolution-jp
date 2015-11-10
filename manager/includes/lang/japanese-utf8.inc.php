@@ -197,6 +197,7 @@ $_lang["database_table_indexsize"] = 'インデックス';
 $_lang["database_table_overhead"] = 'オーバーヘッド';
 $_lang["database_table_records"] = '件数';
 $_lang["database_table_tablename"] = 'テーブル名';
+$_lang["database_table_engine"] = 'エンジン';
 $_lang["database_table_totals"] = '総計';
 $_lang["database_table_totalsize"] = '合計サイズ';
 $_lang["database_tables"] = 'テーブル一覧';

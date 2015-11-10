@@ -195,6 +195,7 @@ $_lang["database_table_indexsize"] = 'Index size';
 $_lang["database_table_overhead"] = 'Overhead';
 $_lang["database_table_records"] = 'Records';
 $_lang["database_table_tablename"] = 'Table name';
+$_lang["database_table_engine"] = 'Engine';
 $_lang["database_table_totals"] = 'Totals';
 $_lang["database_table_totalsize"] = 'Total size';
 $_lang["database_tables"] = 'Database tables';

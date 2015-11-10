@@ -211,6 +211,7 @@ echo '</table>' . "\n";
 		 <thead>
 		 <tr>
 			<td width="160"><b><?php echo $_lang["database_table_tablename"]; ?></b></td>
+			<td width="50"><b><?php echo $_lang["database_table_engine"]; ?></b></td>
 			<td width="40" align="right"><b><?php echo $_lang["database_table_records"]; ?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang["database_table_datasize"]; ?></b></td>
 			<td width="120" align="right"><b><?php echo $_lang["database_table_overhead"]; ?></b></td>
@@ -229,10 +230,10 @@ echo '</table>' . "\n";
 ?>
 		  <tr bgcolor="<?php echo $bgcolor; ?>" title="<?php echo $log_status['Comment']; ?>" style="cursor:default">
 			<td><b style="color:#009933"><?php echo $log_status['Name']; ?></b></td>
+			<td><?php echo $log_status['Engine']; ?></td>
 			<td align="right"><?php echo $log_status['Rows']; ?></td>
-
+			<td dir="ltr" align="right"><?php echo $modx->nicesize($log_status['Data_length']+$log_status['Data_free']); ?></td>
 <?php
-	echo "<td dir='ltr' align='right'>".$modx->nicesize($log_status['Data_length']+$log_status['Data_free'])."</td>";
 
 	if($modx->hasPermission('settings')) {
 		echo  "<td align='right'>".($log_status['Data_free']>0 ? "<a href='index.php?a=54&mode=$action&t=".$log_status['Name']."' title='".$_lang['optimize_table']."' ><span dir='ltr'>".$modx->nicesize($log_status['Data_free'])."</span></a>" : "-")."</td>";
@@ -252,7 +253,7 @@ echo '</table>' . "\n";
 ?>
 		  <tr bgcolor="#e0e0e0">
 			<td valign="top"><b><?php echo $_lang['database_table_totals']; ?></b></td>
-			<td colspan="2">&nbsp;</td>
+			<td colspan="3">&nbsp;</td>
 			<td dir='ltr' align="right" valign="top"><?php echo $totaloverhead>0 ? "<b style='color:#990033'>".$modx->nicesize($totaloverhead)."</b><br />(".number_format($totaloverhead)." B)" : "-"; ?></td>
 			<td colspan="2">&nbsp;</td>
 			<td dir='ltr' align="right" valign="top"><?php echo "<b>".$modx->nicesize($total)."</b><br />(".number_format($total)." B)"; ?></td>
