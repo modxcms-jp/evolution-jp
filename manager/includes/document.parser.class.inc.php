@@ -970,13 +970,15 @@ class DocumentParser {
     }
     
     // check for manager login session
-    function checkSession()
+    function isLoggedin()
     {
         if(isset($_SESSION['mgrValidated']) && !empty($_SESSION['mgrValidated']))
-        {
             return true;
-        }
         else return false;
+    }
+
+    function checkSession() {
+        return $this->isLoggedin();
     }
 
     function checkPreview()
