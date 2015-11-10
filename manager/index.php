@@ -54,10 +54,10 @@ $mtime = explode(' ',microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 
-$self      = str_replace('\\','/',__FILE__);
-$self_dir  = str_replace('/index.php','',$self);
+$self_path      = str_replace('\\','/',__FILE__);
+$self_dir  = str_replace('/index.php','',$self_path);
 $mgr_dir   = substr($self_dir,strrpos($self_dir,'/')+1);
-$base_path = str_replace($mgr_dir . '/index.php','',$self);
+$base_path = str_replace($mgr_dir . '/index.php','',$self_path);
 if(!is_dir("{$base_path}assets/cache")) mkdir("{$base_path}assets/cache");
 $site_mgr_path = $base_path . 'assets/cache/siteManager.php';
 
@@ -66,10 +66,7 @@ if( !is_file($site_mgr_path) )
 	$src = "<?php\n";
 	$src .= "define('MGR_DIR', '{$mgr_dir}');\n";
 	$rs = file_put_contents($site_mgr_path,$src);
-	if(!$rs) {
-		echo 'siteManager.php write error';
-		exit;
-	}
+	if(!$rs) exit('siteManager.php write error');
 	define('MGR_DIR', $mgr_dir);
 }
 else include_once($site_mgr_path);
@@ -80,11 +77,7 @@ if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir)
 	exit;
 }
 
-define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through
-                                    // the manager instead of seperately.
-$self_path = str_replace('\\', '/', __FILE__);
-$trimpos = strlen('manager/index.php') * -1;
-$base_path = substr($self_path,0,$trimpos);
+define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through the manager instead of seperately.
 
 $core_path = "{$base_path}manager/includes/";
 $incPath = $core_path;
@@ -123,7 +116,7 @@ $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 $modx->db->connect();
 $modx->getSettings();
-//$modx->config['use_captcha'] = 0;
+
 extract($modx->config);
 
 if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
@@ -134,7 +127,7 @@ if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
 $modx->loadLexicon('manager');
 
 // send the charset header
-header("Content-Type: text/html; charset={$modx_manager_charset}");
+header(sprintf('Content-Type: text/html; charset=%s',$modx->config['modx_manager_charset']));
 
 // include version info
 include_once(MODX_CORE_PATH . 'version.inc.php');
@@ -145,10 +138,7 @@ $action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 
 // double check the session
-if (!isset($_SESSION['mgrValidated'])) {
-    echo "Not Logged In!";
-    exit;
-}
+if (!isset($_SESSION['mgrValidated'])) exit('Not Logged In!');
 
 switch ($action) {
     case 5:
@@ -190,9 +180,7 @@ include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
 // Initialize System Alert Message Queque
-if (!isset($_SESSION['SystemAlertMsgQueque'])) {
-    $_SESSION['SystemAlertMsgQueque'] = array();
-}
+if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // first we check to see if this is a frameset request
