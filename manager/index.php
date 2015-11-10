@@ -132,7 +132,7 @@ header(sprintf('Content-Type: text/html; charset=%s',$modx->config['modx_manager
 // include version info
 include_once(MODX_CORE_PATH . 'version.inc.php');
 
-$action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
+$modx->manager->action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
@@ -199,24 +199,21 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
     // so we dump the error, thereby stopping the script.
 
 } else {
-    if(isset($_REQUEST['a'])) $action= (int) $_REQUEST['a'];
-    else                      $action = '';
+    if(isset($_REQUEST['a'])) $modx->manager->action= (int) $_REQUEST['a'];
+    else                      $modx->manager->action = '';
 }
-
-// save page to manager object
-$modx->manager->action = $action;
 
 // attempt to foil some simple types of CSRF attacks
 $modx->manager->validate_referer($modx->config['validate_referer']);
 
-$modx->manager->setView($action);
+$modx->manager->setView($modx->manager->action);
 
 if(isset($_POST['stay'])&&$_POST['stay']!=='new') $_SESSION['saveAfter'] = $_POST['stay'];
 
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
-$tmp = array("action" => $action);
+$tmp = array("action" => $modx->manager->action);
 $evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", $tmp);
 
 $action_path = MODX_MANAGER_PATH . 'actions/';
