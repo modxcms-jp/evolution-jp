@@ -140,7 +140,7 @@ include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 // double check the session
 if (!isset($_SESSION['mgrValidated'])) exit('Not Logged In!');
 
-switch ($action) {
+switch ($modx->manager->action) {
     case 5:
     case 20:
     case 24:
