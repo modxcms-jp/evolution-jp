@@ -71,12 +71,6 @@ if( !is_file($site_mgr_path) )
 }
 else include_once($site_mgr_path);
 
-if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir)
-{
-	echo 'MGR_DIR not found or error.';
-	exit;
-}
-
 define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through the manager instead of seperately.
 
 $core_path = "{$base_path}manager/includes/";
@@ -85,26 +79,9 @@ $incPath = $core_path;
 if (@is_file("{$base_path}autoload.php")) {
     include_once("{$base_path}autoload.php");
 }
-// harden it
-require_once("{$core_path}initialize.inc.php");
-
-// include_once config file
-$config_path = "{$core_path}config.inc.php";
-if (!is_file($config_path)) {
-    echo "<h3>Unable to load configuration settings</h3>";
-    echo "Please run the MODX <a href='../install/'>install utility</a>";
-    exit;
-}
-
-// include the database configuration file
-include_once($config_path);
-
-// start session
-startCMSSession();
 
 // initiate the content manager class
-include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
-$modx = new DocumentParser;
+$modx = include_once('includes/document.parser.class.inc.php');
 $modx->safeMode = 0;
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 {
@@ -112,9 +89,6 @@ if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 	else unset($_SESSION['safeMode']);
 }
 
-$modx->tstart = $tstart;
-$modx->mstart = $mstart;
-$modx->db->connect();
 $modx->getSettings();
 
 extract($modx->config);
@@ -128,9 +102,6 @@ $modx->loadLexicon('manager');
 
 // send the charset header
 header(sprintf('Content-Type: text/html; charset=%s',$modx->config['modx_manager_charset']));
-
-// include version info
-include_once(MODX_CORE_PATH . 'version.inc.php');
 
 $modx->manager->action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 

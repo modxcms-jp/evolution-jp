@@ -49,6 +49,7 @@ $mtime = explode(' ', microtime());
 $tstart = $mtime[1] + $mtime[0];
 $mstart = memory_get_usage();
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
+define('MODX_BASE_PATH', $base_path);
 
 $cache_type = 1;
 $cacheRefreshTime = 0;
@@ -109,33 +110,8 @@ if (!defined('MODX_API_MODE')
 if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
-// harden it
-require_once("{$base_path}manager/includes/initialize.inc.php");
-// get the required includes
-if (!isset($database_type))
-{
-	$conf_path = MODX_CORE_PATH . 'config.inc.php';
-	if (is_file($conf_path)) include_once($conf_path);
-	
-	if ((!isset($lastInstallTime) || empty($lastInstallTime)))
-	{
-		if(is_file("{$base_path}install/index.php"))
-		{
-			header('Location: install/index.php?action=mode');
-		}
-		else echo 'Not installed.';
-		
-		exit;
-	}
-}
-
-if(!defined('MODX_API_MODE')) set_parser_mode();
-if (session_id() === '') startCMSSession();
-
 // initiate a new document parser
-include_once(MODX_CORE_PATH . 'document.parser.class.inc.php');
-$modx = new DocumentParser;
-
+$modx = include_once('manager/includes/document.parser.class.inc.php');
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 $modx->cacheRefreshTime = $cacheRefreshTime;
