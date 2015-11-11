@@ -38,14 +38,26 @@ echo $modx->parseText($tpl,$ph);
 
 
 
-function fieldDraftPub_date($docid=0) {
+function fieldDraftPub_date($docid) {
 	global $modx,$_lang,$_style;
+
+	$pub_date = 0;
+	if( !empty($docid) && ($docid = intval($docid)) != 0 ){
+		//statusはdraft/standbyでも気にしない
+        $rs = $modx->db->select('pub_date', '[+prefix+]site_revision', "element = 'resource' AND elmid='{$docid}'");
+		if( ($row = $modx->db->getRow($rs)) && !empty($row['pub_date']) ){
+			$pub_date = $modx->toDateFormat($row['pub_date']);
+		}
+	}
+	if( empty($pub_date) ){
+		$pub_date = $modx->toDateFormat(time());
+	}
 
 	$tpl[] = '<input type="text" id="pub_date" name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
 	$tpl[] = '<a style="cursor:pointer; cursor:hand;">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
 	$tpl = implode("\n",$tpl);
-	$ph['pub_date']         = $modx->toDateFormat(time());
+	$ph['pub_date']         = $pub_date;
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $modx->config['datetime_format'];
