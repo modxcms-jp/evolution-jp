@@ -252,6 +252,22 @@ class REVISION
     	$rs = $modx->db->delete('[+prefix+]site_revision', $where);
     	return $rs;
     }
+
+	/*
+	 *  公開予定から下書きに変更
+	 *  (複数公開/複数下書きの仕様は未考慮)
+	 */
+    function chStandbytoDraft($elmid,$type='resource')
+    {
+        global $modx;
+
+        if(empty($elmid) || ($elmid = intval($elmid)) == 0 ) return false;
+		$type = $modx->db->escape($type);
+
+		$f = array('status' => 'draft');
+		$rs = $modx->db->update($f,'[+prefix+]site_revision', "element='{$type}' AND elmid='{$elmid}'");
+		return $rs;
+    }
     
     function convertTvid2Tvname($input)
     {
