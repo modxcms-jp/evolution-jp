@@ -758,26 +758,41 @@ SQL_QUERY;
 	 *
 	 * @param $id リソースID
 	 * @param $force trueの場合、強制削除(削除フラグ無視)(デフォルト:false)
-	 * @param $recursive trueの場合、子リソースも削除(※未実装機能)
+	 * @param $recursive trueの場合、子リソースも削除(デフォルト:true)
 	 * @param $clearCache Clear cache
 	 * @return bool
 	 *
 	 */
-	public static function erase($id,$force=false,$recursive=false,$clearCache=true){
+	public static function erase($id,$force=false,$recursive=true,$clearCache=true){
 		if( self::documentExist($id) ){
-			if( $force == false ){
+			if( !$force ){
 				$rs  = self::$modx->db->select('id,deleted','[+prefix+]site_content',"id = $id");
 				if( ($row = self::$modx->db->getRow($rs)) && $row['deleted'] != 1 ){
 					return false;
 				}
 			}
 
-			//tvの削除 -> content削除
-			self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',"contentid = $id");
-			$rs = self::$modx->db->delete('[+prefix+]site_content',"id = $id");
+			if( !$recursive ){
+				$target = array($id);
+			}else{
+				$target = array();
+				$ids = array($id);
+				while( !empty($ids) ){
+					$tmp = self::$modx->db->escape(array_shift($ids));
+					$target[] = $tmp;
 
-			//子リソースの削除(※未実装)
-			//...
+					$rs = self::$modx->db->select('id','[+prefix+]site_content',"parent='$tmp'");
+					while( $row = self::$modx->db->getRow($rs) ){
+						array_push($ids,$row['id']);
+					}
+				}
+			}
+
+			$inList = '(' . implode(',',$target) . ')';
+
+			//tvの削除 -> content削除
+			self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',"contentid IN $inList");
+			$rs = self::$modx->db->delete('[+prefix+]site_content',"id IN $inList");
 
 			if( $rs !== false && $clearCache ){
 				self::$modx->clearCache();
