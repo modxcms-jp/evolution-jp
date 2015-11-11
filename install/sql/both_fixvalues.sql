@@ -136,6 +136,8 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('98','OnEmptyTrash','1','Documents'),
 ('99','OnManagerLoginFormPrerender','2',''),
 ('100','OnStripAlias','1','Documents'),
+('102','OnBeforeDocFormUnDelete','1','Documents'),
+('103','OnDocFormUnDelete','1','Documents'),
 ('200','OnCreateDocGroup','1','Documents'),
 ('201','OnManagerWelcomePrerender','2',''),
 ('202','OnManagerWelcomeHome','2',''),

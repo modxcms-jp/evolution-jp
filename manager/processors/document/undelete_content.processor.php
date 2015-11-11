@@ -22,6 +22,15 @@ else
 $children = array();
 getChildren($id);
 
+// invoke OnBeforeDocFormUnDelete event
+$params['id']       = $id;
+$params['children'] = $children;
+$params['enableProcess'] = true;
+$modx->invokeEvent("OnBeforeDocFormUnDelete",$params);
+if( $params['enableProcess'] == false ){
+	$modx->webAlertAndQuit("The undeletion process was interrupted by plugin.");
+}
+
 $field = array();
 $field['deleted']   = '0';
 $field['deletedby'] = '0';
@@ -46,6 +55,12 @@ if(!$rs)
 }
 else
 {
+
+	// invoke OnDocFormUnDelete event
+	$params['id']       = $id;
+	$params['children'] = $children;
+	$modx->invokeEvent("OnDocFormUnDelete",$params);
+
 	// empty cache
 	$modx->clearCache();
 	// finished emptying cache - redirect
