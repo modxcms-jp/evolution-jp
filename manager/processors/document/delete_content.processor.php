@@ -36,7 +36,11 @@ getChildren($id);
 // invoke OnBeforeDocFormDelete event
 $params['id']       = $id;
 $params['children'] = $children;
+$params['enableProcess'] = true;
 $modx->invokeEvent("OnBeforeDocFormDelete",$params);
+if( $params['enableProcess'] == false ){
+	$modx->webAlertAndQuit("The deletion process was interrupted by plugin.");
+}
 
 $field = array();
 $field['deleted']   = '1';
