@@ -102,7 +102,7 @@ if($total<1) {
 <div class="sectionBody" id="lyr2"><?php
 //$db->debug = true;
 $field = 'rv.*, sc.*, rv.pub_date AS pub_date';
-$where = '0<rv.pub_date';
+$where = '0<rv.pub_date AND rv.status=\'standby\' ';
 $orderby = 'rv.pub_date ASC';
 $rs = $modx->db->select($field,'[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',$where,$orderby);
 $total = $modx->db->getRecordCount($rs);
@@ -129,13 +129,26 @@ if($total<1) {
       <td><?php echo $row['elmid'] ;?></td>
       <td><a href="<?php echo $editLink;?>"><?php echo $row['pagetitle'] ;?></a></td>
       <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time) ;?></td>
-      <td><a href="<?php echo $prevLink;?>" target="_blank">プレビュー</a></td>
+      <td>
+        <a href="<?php echo $prevLink;?>" target="_blank">プレビュー</a>
+		/
+        <a href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist" class="unpub_draft">公開取り消し</a>
+      </td>
     </tr>
 <?php
 	}
 ?>
 	</tbody>
 </table>
+  <script type="text/javascript">
+	jQuery('.unpub_draft').on('click',function() {
+      if (!confirm('公開設定を取り消してもよろしいですか？')) {
+			return false;
+		}
+	});
+
+  </script>
+
 <?php
 }
 ?>

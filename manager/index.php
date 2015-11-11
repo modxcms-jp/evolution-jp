@@ -280,6 +280,8 @@ switch ($modx->manager->action) {
         include_once($prc_path.'document/unpublish_content.processor.php');break;
     case 133: // get the mutate page for changing draft content
         include_once($action_path.'document/publish_draft.dynamic.php');break;
+    case 134: // get the processor for unpublishing draft content
+        include_once($prc_path.'document/unpublish_draft_content.processor.php');break;
     case 7: // get the wait page (so the tree can reload)
         include_once($action_path.'wait.static.php');break;
     case 8: // get the logout processor
