@@ -54,6 +54,6 @@ function publishDraft($docid) {
     $draft = $modx->revision->getDraft($docid);
     $draft['published'] = $documentObject['published'];
     $modx->doc->update($draft,$docid);
-    $modx->db->delete('[+prefix+]site_revision', "status='draft' AND elmid='{$docid}'");
+    $modx->db->delete('[+prefix+]site_revision', "( status='draft' OR status='standby' ) AND elmid='{$docid}'");
     return 'publish_draft';
 }
