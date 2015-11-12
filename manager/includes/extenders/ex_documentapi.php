@@ -664,13 +664,13 @@ SQL_QUERY;
 	 *
 	 * @param $id リソースID
 	 * @param $onPub 1…公開/0…非公開(true/falseでも可)
+	 * @param $recursive trueの場合、子リソースも処理対象(デフォルト:false)
 	 * @param $clearCache キャッシュクリアの有無
 	 * @return 1/0/bool
 	 *
 	 */
-	public static function chPublish($id,$onPub=null,$clearCache=true){
-		if( !self::isInt($id,1) )
-			return false;
+	public static function chPublish($id,$onPub=null,$recursive=false,$clearCache=true){
+		if( !self::documentExist($id) ){ return false; }
 
 		if( is_null($onPub) ){
 			//値の参照
@@ -683,22 +683,27 @@ SQL_QUERY;
 
 		//値の更新
 		$onPub = self::bool2Int($onPub);
-		if( self::documentExist($id) ){
-			$p = array();
-			$p['published'] = $onPub;
-			if( $onPub == 1 ){
-				$p['publishedby'] = self::getLoginMgrUserID();
-				$p['publishedon'] = time();
-			}else{
-				$p['publishedby'] = 0;
-				$p['publishedon'] = 0;
-			}
+		$p = array();
+		$p['published'] = $onPub;
+		if( $onPub == 1 ){
+			$p['publishedby'] = self::getLoginMgrUserID();
+			$p['publishedon'] = time();
+		}else{
+			$p['publishedby'] = 0;
+			$p['publishedon'] = 0;
+		}
 
-			if( self::$modx->db->update( $p,'[+prefix+]site_content',"id = $id") ){
-				if( $clearCache )
-					self::$modx->clearCache();
-				return true;
-			}
+		$target = array();
+		if( $recursive ){
+			$target = self::getChildren($id);
+		}
+		$target[] = $id;
+		$inList = '(' . implode(',',$target) . ')';
+
+		if( self::$modx->db->update( $p,'[+prefix+]site_content',"id IN $inList") ){
+			if( $clearCache )
+				self::$modx->clearCache();
+			return true;
 		}
 		return false;
 	}
