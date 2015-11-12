@@ -181,7 +181,7 @@ $_dfnMaxlength = 6;
     $validFormId = (isset($_POST['formid']) && $formid==$_POST['formid'])?1:0;
 
     # check if postback mode
-    $efPostBack = ($validFormId && count($_POST)>0)? true:false; //retain old variable?
+    $efPostBack = ($validFormId && count($_POST)>0 && ( strpos($_SERVER["HTTP_REFERER"], $modx->config["site_url"]) !== FALSE ) )? true:false; //retain old variable?
 
 
     if($efPostBack){
