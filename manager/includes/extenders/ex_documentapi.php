@@ -711,13 +711,13 @@ SQL_QUERY;
 	 *
 	 * @param $id リソースID
 	 * @param $onDel 1…削除/0…削除復活(true/falseでも可)
+	 * @param $recursive trueの場合、子リソースも処理対象(デフォルト:true)
 	 * @param $clearCache キャッシュクリアの有無
 	 * @return 1/0/bool
 	 *
 	 */
-	public static function chDelete($id,$onDel=null,$clearCache=true){
-		if( !self::isInt($id,1) )
-			return false;
+	public static function chDelete($id,$onDel=null,$recursive=true,$clearCache=true){
+		if( !self::documentExist($id) ){ return false; }
 
 		if( is_null($onDel) ){
 			//値の参照
@@ -730,24 +730,35 @@ SQL_QUERY;
 
 		//値の更新
 		$onDel = self::bool2Int($onDel);
-		if( self::documentExist($id) ){
-			$p = array();
-			$p['deleted'] = $onDel;
-			if( $onDel == 1 ){
-				$p['deletedby'] = self::getLoginMgrUserID();
-				$p['deletedon'] = time();
-			}else{
-				$p['deletedby'] = 0;
-				$p['deletedon'] = 0;
-			}
-
-			if( self::$modx->db->update( $p,'[+prefix+]site_content',"id = $id") ){
-				if( $clearCache )
-					self::$modx->clearCache();
-				return true;
+		$p = array();
+		$p['deleted'] = $onDel;
+		$addWhere = ''; //削除復活の場合、削除日が同じ子リソースを復活させる
+		if( $onDel == 1 ){
+			$p['deletedby'] = self::getLoginMgrUserID();
+			$p['deletedon'] = time();
+			$addWhere = '';
+		}else{
+			$p['deletedby'] = 0;
+			$p['deletedon'] = 0;
+			$rs  = self::$modx->db->select('id,deletedon','[+prefix+]site_content',"id = $id");
+			if( $row = self::$modx->db->getRow($rs) ){
+				$addWhere = "deletedon = {$row['deletedon']}";
 			}
 		}
-		return false;
+
+		$target = array();
+		if( $recursive ){
+			$target = self::getChildren($id,$addWhere);
+		}
+		$target[] = $id;
+		$inList = '(' . implode(',',$target) . ')';
+
+		
+		if( self::$modx->db->update( $p,'[+prefix+]site_content',"id IN $inList") ){
+			if( $clearCache )
+				self::$modx->clearCache();
+			return true;
+		}
 	}
 
 	/*
@@ -772,22 +783,11 @@ SQL_QUERY;
 				}
 			}
 
-			if( !$recursive ){
-				$target = array($id);
-			}else{
-				$target = array();
-				$ids = array($id);
-				while( !empty($ids) ){
-					$tmp = self::$modx->db->escape(array_shift($ids));
-					$target[] = $tmp;
-
-					$rs = self::$modx->db->select('id','[+prefix+]site_content',"parent='$tmp'");
-					while( $row = self::$modx->db->getRow($rs) ){
-						array_push($ids,$row['id']);
-					}
-				}
+			$target = array();
+			if( $recursive ){
+				$target = self::getChildren($id);
 			}
-
+			$target[] = $id;
 			$inList = '(' . implode(',',$target) . ')';
 
 			//tvの削除 -> content削除
@@ -909,5 +909,32 @@ SQL_QUERY;
 			return 0;
 		}
 		return $u;
+	}
+
+	/*
+	 * 子リソース一式を取得
+	 *
+	 * 指定したリソースIDの子リソース一覧を取得。
+	 * 子の子(孫)も含めてすべて取得。
+	 *
+	 * @param $id リソースID
+	 * @param $addWhere 追加条件式(※escapeしないので注意)
+	 * @return リソースID郡
+	 *
+	 */
+	private static function getChildren($id,$addWhere=''){
+		$r = array();
+		if( !empty($addWhere) ){
+			$addWhere = "AND ( $addWhere )";
+		}
+		$ids = array($id);
+		while( !empty($ids) ){
+			$rs = self::$modx->db->select('id','[+prefix+]site_content',"parent='".array_shift($ids)."' $addWhere");
+			while( $row = self::$modx->db->getRow($rs) ){
+				array_push($ids,$row['id']);
+				$r[] = $row['id'];
+			}
+		}
+		return $r;
 	}
 }
