@@ -502,6 +502,7 @@ function getJScripts($docid) {
 	$ph['preview_url']  = $modx->makeUrl($docid,'','','full');
 	$ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
 	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
+	$ph['lang_confirm_delete_draft_resource'] = $_lang['confirm_delete_draft_resource'];
 	$ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
 	$ph['id'] = $docid;
 	$ph['docParent']   = $docObject['parent'];

@@ -154,6 +154,7 @@ $_lang["confirm_delete_htmlsnippet"] = 'Are you sure you want to delete this Chu
 $_lang["confirm_delete_module"] = 'Are you sure you want to delete this Module?';
 $_lang["confirm_delete_plugin"] = 'Are you sure you want to delete this Plugin?';
 $_lang["confirm_delete_record"] = 'Are you sure you want to delete the selected record(s)?';
+$_lang["confirm_delete_draft_resource"] = 'Are you sure you want to delete this draft resource?';
 $_lang["confirm_delete_resource"] = 'Are you sure you want to delete this Resource?\nAny children Resources will also be deleted.';
 $_lang["confirm_delete_role"] = 'Are you sure you want to delete this role?';
 $_lang["confirm_delete_snippet"] = 'Are you sure you want to delete this Snippet?';

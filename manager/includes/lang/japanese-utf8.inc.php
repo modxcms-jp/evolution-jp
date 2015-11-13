@@ -156,6 +156,7 @@ $_lang["confirm_delete_htmlsnippet"] = 'このチャンクを削除してもよ�
 $_lang["confirm_delete_module"] = 'このモジュールを削除してもよろしいですか?';
 $_lang["confirm_delete_plugin"] = 'このプラグインを削除してもよろしいですか?';
 $_lang["confirm_delete_record"] = 'このレコードを削除してもよろしいですか?';
+$_lang["confirm_delete_draft_resource"] = 'この下書きを削除してもよろしいですか?';
 $_lang["confirm_delete_resource"] = 'このリソースを削除してもよろしいですか?\n同時にサブリソースも全て削除されます。';
 $_lang["confirm_delete_role"] = 'このロールを削除してもよろしいですか?';
 $_lang["confirm_delete_snippet"] = 'このスニペットを削除してもよろしいですか?';

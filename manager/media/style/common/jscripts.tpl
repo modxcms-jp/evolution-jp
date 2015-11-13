@@ -34,9 +34,11 @@ jQuery(function(){
     		document.location.href="index.php?id=[+id+]&a=63";
 	});
 	jQuery('#deletedraft').click(function(){
-		documentDirty=false;
-		document.mutate.a.value=130;
-		jQuery('#mutate').submit();
+		if (confirm("[+lang_confirm_delete_draft_resource+]")==true){
+			documentDirty=false;
+			document.mutate.a.value=130;
+			jQuery('#mutate').submit();
+		}
 	});
 	jQuery('#move').click(function(){
     	document.location.href="index.php?id=[+id+]&a=51";
