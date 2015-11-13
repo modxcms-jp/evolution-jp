@@ -1064,6 +1064,36 @@ EOT;
 	return renderTr($_lang['page_data_publishdate'],$body);
 }
 
+/* 下書きの時に pub_date は別用途になる */
+function fieldPub_dateDraft($id=0) {
+	global $modx,$_lang,$_style,$config,$docObject;
+
+	$status = $modx->db->getValue($modx->db->select('status','[+prefix+]site_revision',"element = 'resource' AND elmid = '$id'"));
+	if( $status != 'standby' ){
+		return '';
+	}
+
+	$tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
+	$tpl[] = '<a style="cursor:pointer; cursor:hand;">';
+	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+	$tpl[] = tooltip('指定した時間に下書きが公開されます。');
+	$tpl[] = <<< EOT
+<tr>
+	<td></td>
+	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
+</tr>
+EOT;
+	$tpl = implode("\n",$tpl);
+	$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
+
+	$ph['pub_date'] = $modx->toDateFormat($modx->db->getValue($modx->db->select('pub_date','[+prefix+]site_revision',"element = 'resource' AND elmid = '$id'")));
+	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
+	$ph['remove_date']      = $_lang['remove_date'];
+	$ph['datetime_format']  = $config['datetime_format'];
+	$body = $modx->parseText($tpl,$ph);
+	return renderTr('下書き採用日',$body);
+}
+
 function fieldUnpub_date($id) {
 	global $modx,$_lang,$_style,$config,$docObject;
 	if(!$modx->hasPermission('publish_document')) return '';
@@ -1450,11 +1480,11 @@ function getTplTabSettings()
 			[+fieldPublished+]
 			[+fieldPub_date+]
 			[+fieldUnpub_date+]
-			[+renderSplit+]
+			[+renderSplit1+]
 			[+fieldType+]
 			[+fieldContentType+]
 			[+fieldContent_dispo+]
-			[+renderSplit+]
+			[+renderSplit2+]
 			[+fieldLink_attributes+]
 			[+fieldIsfolder+]
 			[+fieldRichtext+]

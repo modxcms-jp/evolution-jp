@@ -133,8 +133,18 @@ if($modx->doc->mode==='normal') {
 	$ph['fieldPublished'] =  fieldPublished();
 	$ph['fieldPub_date']  = fieldPub_date($id);
 	$ph['fieldUnpub_date'] = fieldUnpub_date($id);
-	$ph['renderSplit'] = renderSplit();
+}else{
+	// for draft
+	$ph['fieldPub_date'] = fieldPub_dateDraft($id);
 }
+
+//下書きでかつ採用日の指定がない場合はSplit1は表示しない
+if( empty($ph['fieldPub_date']) ){
+	$ph['renderSplit1'] = '';
+}else{
+	$ph['renderSplit1'] = renderSplit();
+}
+$ph['renderSplit2'] = renderSplit();
 
 $ph['fieldType'] = fieldType();
 if($docObject['type'] !== 'reference') {
