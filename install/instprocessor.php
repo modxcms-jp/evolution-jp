@@ -32,11 +32,8 @@ extract($_lang, EXTR_PREFIX_ALL, 'lang');
 echo "<p>{$lang_setup_database}</p>\n";
 // get base path and url
 define('MODX_API_MODE', true);
-require_once("{$base_path}manager/includes/initialize.inc.php");
-startCMSSession();
 $database_type = 'mysqli';
-include_once("{$base_path}manager/includes/document.parser.class.inc.php");
-$modx = new DocumentParser;
+$modx = include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx->db->hostname     = $_SESSION['database_server'];
 $modx->db->dbname       = $_SESSION['dbase'];
 $modx->db->username     = $_SESSION['database_user'];
