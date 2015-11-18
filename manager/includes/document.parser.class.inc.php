@@ -84,6 +84,8 @@ class DocumentParser {
     var $currentSnippetCall;
     var $aliasCache = array();
 
+	private $baseTime = ''; //タイムマシン(基本は現在時間)
+
     function __get($property_name)
     {
         if($property_name==='documentMap')
@@ -289,7 +291,8 @@ class DocumentParser {
         // get the settings
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
-        
+
+		$this->setBaseTime();
         $this->sanitizeVars();
         $this->uaType  = $this->setUaType();
         $this->qs_hash = $this->genQsHash();
@@ -2724,19 +2727,28 @@ class DocumentParser {
     function getChunk($key)
     {
         if($key==='') return false;
-        
+		$onCache = true;
+
         if(!isset($this->chunkCache[$key]))
         {
-            $where = sprintf("`name`='%s' AND `published`='1'",  $this->db->escape($key));
-            $rs    = $this->db->select('snippet','[+prefix+]site_htmlsnippets',$where);
+			$where = "`name`='%s' AND (`published`='1' OR 
+                                       (`pub_date` <> 0 AND `pub_date` < %d AND ( `unpub_date` = 0 OR `unpub_date` > %d) )
+                                      )";
+            $where = sprintf($where,  $this->db->escape($key), $this->baseTime,$this->baseTime);
+            $rs    = $this->db->select('snippet,published','[+prefix+]site_htmlsnippets',$where);
             if ($this->db->getRecordCount($rs)==1)
             {
                 $row= $this->db->getRow($rs);
                 $value = $row['snippet'];
+				if( $row['published'] == 0 ){ //publishedが0じゃないものはキャッシュしない
+					$onCache = false;
+				}
             }
             else $value = '';
-            
-            $this->chunkCache[$key] = $value;
+
+			if( $onCache )
+				$this->chunkCache[$key] = $value;
+			return $value;
         }
         return $this->chunkCache[$key];
     }
@@ -3534,7 +3546,76 @@ class DocumentParser {
         $this->aliasCache[__FUNCTION__][$aliasPath] = $id;
         return $id;
     }
-    
+
+	/*
+	 * 基準時間の設定
+	 *
+	 * 引数がない場合は現在の時間を設定。
+	 * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
+	 *
+	 * ・引数がない
+	 * ・ログイン状態
+	 * ・$_REQUEST['baseTime'] が存在する
+	 *
+	 * @param $t 時間(Unixtime or 日付フォーマット)
+	 * @return bool
+	 *
+	 */
+	function setBaseTime($t=''){
+		if( empty($t) ){
+			if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
+				$t=$_REQUEST['baseTime'];
+			}else{
+				$this->baseTime = time();
+				return true;
+			}
+		}
+		if( $this->isInt($t,1) ){
+			$this->baseTime = $t;
+		}else{
+			$tmp = $this->toTimeStamp($t);
+			if( empty($tmp) )
+				return false;
+			$this->baseTime = $tmp;
+		}
+		return true;
+	}
+	/*
+	 * 基準時間の取得
+	 *
+	 * @param none
+	 * @return int
+	 *
+	 */
+	function getBaseTime(){
+		return $this->baseTime;
+	}
+
+	//内部サポート用Class
+	//※APIとしては提供しない
+	//※量が増えたり使い勝手が悪かったら別Class等にするかも
+	/*
+	 * 数値確認
+	 *
+	 * @param $param 入力値
+	 * @param $min   最小値(default:null)
+	 * @param $max   最大値(default:null)
+	 * @return bool
+	 *
+	 */
+	private static function isInt($param,$min=null,$max=null){
+		if( !preg_match('/\A[0-9]+\z/', $param) ){
+			return false;
+		}
+		if( !is_null($min) && preg_match('/\A[0-9]+\z/', $min) && $param < $min ){
+			return false;
+		}
+		if( !is_null($max) && preg_match('/\A[0-9]+\z/', $max) && $param > $max ){
+			return false;
+		}
+		return true;
+	}
+
     // End of class.
 }
 
