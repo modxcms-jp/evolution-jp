@@ -1,7 +1,7 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 global $modx, $_lang, $_style, $modx_textdir, $modx_lang_attribute;
-global $action, $manager_theme, $modx_charset;
+global $manager_theme, $modx_charset;
 global $manager_language,$modx_version;
 
 if($modx->config['remember_last_tab']!=='2')
@@ -49,7 +49,7 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 		if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
 		
 		jQuery(function(){
-			var action = <?php echo $action;?>;
+			var action = <?php echo $modx->manager->action;?>;
 			switch(action)
 			{
 				case 27:
