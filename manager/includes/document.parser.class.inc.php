@@ -2966,6 +2966,11 @@ class DocumentParser {
                 $resource= $this->getDocument($docid, '*', $published);
                 if (!$resource) return false;
             endif;
+
+            $template = $resource['template'];
+            if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Load preview
+                $template = $this->previewObject['template'];
+
             // get user defined template variables
             $fields= ($fields == '') ? 'tv.*' : $this->join(',',explode(',',$fields),'tv.');
             $sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
@@ -2991,7 +2996,7 @@ class DocumentParser {
             $from    = '[+prefix+]site_tmplvars tv';
             $from   .= ' INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
             $from   .= " LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
-            $where  = "{$where} AND tvtpl.templateid={$resource['template']}";
+            $where  = "{$where} AND tvtpl.templateid={$template}";
             
             if ($sort)
                  $orderby = "{$sort} {$dir}";
@@ -3036,7 +3041,7 @@ class DocumentParser {
             {
                 foreach($result as $row)
                 {
-                    if( !empty($this->previewObject[$row['name']]) ) //Load preview
+                    if( !empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier ) //Load preview
                         $row['value'] = $this->previewObject[$row['name']];
 
                     if (!$row['id'])
