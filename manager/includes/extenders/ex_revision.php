@@ -30,11 +30,21 @@ class REVISION
         return $rev;
     }
     
-    function getRevisionObject($elmid,$elm='resource')
+    function getRevisionObject($elmid,$elm='resource',$addContent='')
     {
     	global $modx;
     	$rs = $this->_setStatus($elmid,$elm);
     	if(!$rs) return false;
+        if( !empty($addContent) && !is_array($addContent) ){
+            $addContent = explode(',',$addContent);
+        }
+        if( is_array($addContent) ){
+            $tmp = array();
+            foreach( $addContent as $val ){
+                $tmp[] = trim($val);
+            }
+            $addContent = $tmp;
+        }
     	
     	$rs = $modx->db->select('*','[+prefix+]site_revision',"elmid='{$elmid}' AND element='{$elm}'");
     	$obj = array();
@@ -43,8 +53,16 @@ class REVISION
     		$status = $row['status'];
 			foreach($row as $k=>$v)
 		    {
-		    	if($k==='content') continue;
-		    	$obj[$status][$k] = $v;
+                if($k==='content'){
+                    if( empty($addContent) ) continue;
+                    $tmp = unserialize($v);
+                    foreach( $addContent as $k2 ){
+                        if( isset($tmp[$k2]) ){
+                            $obj[$status][$k2] = $tmp[$k2];
+                        }
+                    }
+                }else
+                    $obj[$status][$k] = $v;
 			}
     	}
     	return $obj;
