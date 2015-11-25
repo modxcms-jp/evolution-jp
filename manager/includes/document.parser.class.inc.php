@@ -2150,7 +2150,12 @@ class DocumentParser {
         $from  = "[+prefix+]site_tmplvars tv ";
         $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id ";
         $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
-        $where = "tvtpl.templateid = '{$documentObject['template']}'";
+        if( isset($previewObject['template']) )
+            $tmp = $previewObject['template'];
+        else
+            $tmp = $documentObject['template'];
+        $where = "tvtpl.templateid = '{$tmp}'";
+
         $rs = $this->db->select($field,$from,$where);
         $rowCount= $this->db->getRecordCount($rs);
         if ($rowCount > 0)
