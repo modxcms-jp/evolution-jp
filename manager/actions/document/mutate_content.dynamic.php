@@ -26,7 +26,9 @@ else    $docObject = getInitialValues();
 
 if($id && $modx->config['enable_draft']) {
     $modx->loadExtension('REVISION');
-    $modx->revisionObject = $modx->revision->getRevisionObject($id);
+    $modx->revisionObject = $modx->revision->getRevisionObject($id,'resource','template');
+    if( $id && $modx->manager->action==131 && isset($modx->revisionObject['draft']['template']) ) //下書きのテンプレートに変更
+        $docObject['template'] = $modx->revisionObject['draft']['template'];
 }
 else $modx->revisionObject = array();
 
