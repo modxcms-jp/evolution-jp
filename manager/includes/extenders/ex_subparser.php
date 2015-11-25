@@ -1659,7 +1659,11 @@ class SubParser {
     
     function getPreviewObject($input=array()) {
         global $modx;
-        
+
+        if( !empty($modx->previewObject) ){
+            return $modx->previewObject;
+        }
+
         if(!isset($input['id'])||empty($input['id']))
             $input['id'] = $modx->config['site_start'];
 
@@ -1698,8 +1702,9 @@ class SubParser {
         if($input['pub_date']==='')    $input['pub_date']    = '0';
         if($input['unpub_date']==='')  $input['unpub_date']  = '0';
         if($input['publishedon']==='') $input['publishedon'] = '0';
-        
-        return $input;
+
+        $modx->previewObject = $input;
+        return $modx->previewObject;
     }
     
     function loadLexicon($target='manager') {

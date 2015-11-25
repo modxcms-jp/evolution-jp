@@ -83,6 +83,7 @@ class DocumentParser {
     var $functionLog = array();
     var $currentSnippetCall;
     var $aliasCache = array();
+    var $previewObject = ''; //プレビュー用のPOSTデータを保存
 
 	private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -3035,6 +3036,9 @@ class DocumentParser {
             {
                 foreach($result as $row)
                 {
+                    if( !empty($this->previewObject[$row['name']]) ) //Load preview
+                        $row['value'] = $this->previewObject[$row['name']];
+
                     if (!$row['id'])
                     {
                         $output[$row['name']] = $row['value'];
