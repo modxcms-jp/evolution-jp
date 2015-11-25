@@ -227,7 +227,7 @@ class REVISION
     	$revision_content = serialize($input);
     	$revision_content = $modx->db->escape($revision_content);
     	$checksum = md5($revision_content);
-    	if(empty($total) || $exists_version['checksum'] !== $checksum)
+    	if(empty($total) || $exists_version['checksum'] !== $checksum || $exists_version['status'] != $status )
     	{
     		$f = array();
     		$f['elmid']         = $elmid;
