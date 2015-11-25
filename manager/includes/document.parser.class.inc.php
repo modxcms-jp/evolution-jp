@@ -2099,9 +2099,24 @@ class DocumentParser {
                 header('location:'.MODX_MANAGER_URL);
                 exit;
             }
-            
+
             $this->loadExtension('REVISION');
-            $previewObject = $this->revision->getDraft($identifier);
+            if( empty($this->previewObject) ){
+                $previewObject = $this->revision->getDraft($identifier);
+                //tvのkeyをtv名に変更
+                $tmp=array();
+                foreach( $previewObject as $k => $v ){
+                    if( preg_match('/^tv([0-9]+)$/',$k,$mt) ){
+                        $row = $this->db->getRow($this->db->select('name', '[+prefix+]site_tmplvars', "id='{$mt[1]}'"));
+                        $k = $row['name'];
+                    }
+                    $tmp[$k] = $v;
+                }
+                $previewObject = $tmp;
+                $this->previewObject = $previewObject;
+            }else{
+                $previewObject = $this->previewObject;
+            }
             $this->config['cache_type'] = 0;
         }
         else $previewObject = false;
