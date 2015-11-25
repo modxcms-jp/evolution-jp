@@ -50,7 +50,6 @@ class REVISION
     	$obj = array();
     	while($row = $modx->db->getRow($rs))
     	{
-    		$status = $row['status'];
 			foreach($row as $k=>$v)
 		    {
                 if($k==='content'){
@@ -58,11 +57,11 @@ class REVISION
                     $tmp = unserialize($v);
                     foreach( $addContent as $k2 ){
                         if( isset($tmp[$k2]) ){
-                            $obj[$status][$k2] = $tmp[$k2];
+                            $obj[$k2] = $tmp[$k2];
                         }
                     }
                 }else
-                    $obj[$status][$k] = $v;
+                    $obj[$k] = $v;
 			}
     	}
     	return $obj;
