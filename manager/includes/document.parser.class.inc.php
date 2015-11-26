@@ -220,12 +220,14 @@ class DocumentParser {
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
         if($this->checkSession()===false && !defined('MODX_API_MODE')) @ini_set('display_errors','0');
-        if(!isset($this->tstart))
-        {
-            $mtime = explode(' ',microtime());
-            $this->tstart = $mtime['1'] + $mtime['0'];
-            $this->mstart = memory_get_usage();
+        
+        if(!isset($this->tstart)) {
+            $mtime = explode(' ',$_SERVER['REQUEST_TIME_FLOAT']);
+            $this->tstart = $mtime[1] + $mtime[0];
         }
+        if(!isset($this->mstart))
+            $this->mstart = memory_get_usage();
+        
         $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
         if(is_file($alias_cache_path)) {
             $aliasCache = file_get_contents($alias_cache_path);

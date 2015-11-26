@@ -50,8 +50,7 @@
  */
 
 // get start time
-$mtime = explode(' ',microtime());
-$tstart = $mtime[1] + $mtime[0];
+if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime();
 $mstart = memory_get_usage();
 
 $self_path      = str_replace('\\','/',__FILE__);
@@ -82,6 +81,7 @@ if (@is_file("{$base_path}autoload.php")) {
 
 // initiate the content manager class
 $modx = include_once('includes/document.parser.class.inc.php');
+$modx->mstart = $mstart;
 $modx->safeMode = 0;
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 {

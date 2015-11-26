@@ -44,9 +44,7 @@
  * Initialize Document Parsing
  * -----------------------------
  */
-// get start time
-$mtime = explode(' ', microtime());
-$tstart = $mtime[1] + $mtime[0];
+if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime();
 $mstart = memory_get_usage();
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 define('MODX_BASE_PATH', $base_path);
@@ -112,7 +110,6 @@ if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
 
 // initiate a new document parser
 $modx = include_once('manager/includes/document.parser.class.inc.php');
-$modx->tstart = $tstart;
 $modx->mstart = $mstart;
 $modx->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) $modx->error_reporting = $error_reporting;
