@@ -103,9 +103,9 @@ class REVISION
         $row = $modx->db->getRow($rs);
         $data = array();
         if(isset($row['content'])) $data = unserialize($row['content']);
-    	$resource = $this->getCurrentResource($elmid);
-    	if(empty($data)) return array();
-    	else $data = $data + $resource;
+        $resource = $this->getCurrentResource($elmid);
+        if(empty($data)) return array();
+        else $data = $data + $resource;
     	foreach($data as $k=>$v)
     	{
     		if(is_string($v)&&trim($v)==='')
@@ -170,10 +170,10 @@ class REVISION
 
     function convertData($resource=array())
     {
-    	global $modx;
-    	
-    	if(isset($resource['ta'])) $resource['content'] = $resource['ta'];
-    	
+        global $modx;
+        
+        if(isset($resource['ta'])) $resource['content'] = $resource['ta'];
+
         $input['content']         = $resource['content'];
         $input['pagetitle']       = $resource['pagetitle'];
         $input['longtitle']       = $resource['longtitle'];
