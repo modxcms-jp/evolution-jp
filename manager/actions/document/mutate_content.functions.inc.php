@@ -1536,30 +1536,19 @@ EOT;
 	return $tpl;
 }
 
-function mergeDraft($id,$content, $saveTarget)
+function mergeDraft($id,$content)
 {
 	global $modx;
-    if($saveTarget==='draft')
-    {
-        $revision_content = $modx->revision->getDraft($id);
-        if(!empty($revision_content))
-        {
-        	$rev = $modx->db->getObject('site_revision', "elmid='{$id}'");
-        	$content = array_merge($content, $revision_content);
-        	foreach($content as $k=>$v)
-        	{
-        		if(is_array($v) && isset($v['id']))
-        		{
-        			$id = $v['id'];
-        			if(isset($revision_content["tv{$id}"]))
-        			{
-        				$content[$k]['value'] = $revision_content["tv{$id}"];
-        				if(isset($content["tv{$id}"])) unset($content["tv{$id}"]);
-        			}
-        		}
-        	}
+    $revision_content = $modx->revision->getDraft($id);
+    foreach($content as $k=>$v) {
+        if(!is_array($v)) continue;
+        $tvid = 'tv'.$v['id'];
+        if(isset($revision_content[$tvid])) {
+            $content[$k]['value'] = $revision_content[$tvid];
+            unset($revision_content[$tvid]);
         }
     }
+    $content = array_merge($content, $revision_content);
     if(!$modx->hasPermission('publish_document')) $content['published'] = '0';
     return $content;
 }

@@ -106,11 +106,6 @@ class REVISION
         $resource = $this->getCurrentResource($elmid);
         if(empty($data)) return array();
         else $data = $data + $resource;
-    	foreach($data as $k=>$v)
-    	{
-    		if(is_string($v)&&trim($v)==='')
-    			unset($data[$k]);
-    	}
         return $data;
     }
     

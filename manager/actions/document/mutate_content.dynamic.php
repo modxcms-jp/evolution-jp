@@ -40,7 +40,7 @@ $docObject = $docObject + $tmplVars;
 
 if($id && $modx->manager->action==131)
 {
-    $docObject = mergeDraft($id, $docObject, 'draft');
+    $docObject = mergeDraft($id, $docObject);
     foreach($tmplVars as $k=>$v)
     {
         $tmplVars[$k] = $docObject[$k];
