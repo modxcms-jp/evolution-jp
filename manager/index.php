@@ -464,7 +464,6 @@ switch ($modx->manager->action) {
     include_once(MODX_CORE_PATH . 'log.class.inc.php');
     $log = new logHandler;
     $log->initAndWriteLog();
-    if($modx->manager->action==61||$modx->manager->action==62) $log->initAndWriteLog("", "", "", "27", "", "");
 }
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
