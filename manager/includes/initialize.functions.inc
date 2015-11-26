@@ -74,11 +74,8 @@ class MODX_INIT {
                 exit;
             }
         }
-        $pos = strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']);
-        $dir = substr($_SERVER['SCRIPT_FILENAME'],$pos);
-        $dir = str_replace('\\', '/', $dir);
+        $dir = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
         $dir = substr($dir,0,strrpos($dir,'/')) . '/';
-        $dir = preg_replace('@(.*?)/manager/.*$@', '$1', $dir);
         $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
         if(substr($_SERVER['REQUEST_URI'],0,2)==='/~') $dir = '/~' . substr($dir,1);
         $dir = rtrim($dir, '/') . '/';
