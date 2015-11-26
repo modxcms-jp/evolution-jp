@@ -25,6 +25,7 @@ $field['published']   = 0;
 if($doc->pub_date < time()) $field['pub_date']  = 0;
 $field['publishedby'] = 0;
 $field['publishedon'] = 0;
+$field['editedon'] = time();
 
 $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs)
