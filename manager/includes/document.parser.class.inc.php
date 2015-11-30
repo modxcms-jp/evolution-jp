@@ -2569,9 +2569,10 @@ class DocumentParser {
                 return $this->referenceListing[$id];
             }
         }
-        
+
         if ($this->config['friendly_urls'] == 1)
         {
+            if(!$this->aliasListing) $this->setAliasListing();
             $alPath = '';
             if(empty($alias))
             {
@@ -2612,7 +2613,7 @@ class DocumentParser {
             if(isset($this->aliasListing[$id])) $makeurl= "index.php?id={$id}";
             else return false;
         }
-        
+
         $site_url = $this->config['site_url'];
         $base_url = $this->config['base_url'];
         switch($scheme)
