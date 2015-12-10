@@ -2977,13 +2977,16 @@ class DocumentParser {
             $result= array ();
             
             // get document record
-            if ($docid == ''):
-                $docid = $this->documentIdentifier;
-                $resource= $this->documentObject;
-            else:
-                $resource= $this->getDocument($docid, '*', $published);
-                if (!$resource) return false;
-            endif;
+		if ($docid == ''){
+			$docid = $this->documentIdentifier;
+			$resource= $this->documentObject;
+		}else{
+			if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Ignore published when the preview.
+				$resource= $this->getDocument($docid, '*',null);
+			else
+				$resource= $this->getDocument($docid, '*', $published);
+			if (!$resource) return false;
+		};
 
             $template = $resource['template'];
             if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Load preview
