@@ -2753,15 +2753,17 @@ class DocumentParser {
         if($key==='') return false;
 		$onCache = true;
 
-        if(!isset($this->chunkCache[$key]))
-        {
+        if( isset($this->chunkCache[$key]) ){
+            $isCache = true;
+            $value = $this->chunkCache[$key];
+        }else{
+            $isCache = false;
 			$where = "`name`='%s' AND (`published`='1' OR 
                                        (`pub_date` <> 0 AND `pub_date` < %d AND ( `unpub_date` = 0 OR `unpub_date` > %d) )
                                       )";
             $where = sprintf($where,  $this->db->escape($key), $this->baseTime,$this->baseTime);
             $rs    = $this->db->select('snippet,published','[+prefix+]site_htmlsnippets',$where);
-            if ($this->db->getRecordCount($rs)==1)
-            {
+            if ($this->db->getRecordCount($rs)==1){
                 $row= $this->db->getRow($rs);
                 $value = $row['snippet'];
 				if( $row['published'] == 0 ){ //publishedが0じゃないものはキャッシュしない
@@ -2772,9 +2774,14 @@ class DocumentParser {
 
 			if( $onCache )
 				$this->chunkCache[$key] = $value;
-			return $value;
+
         }
-        return $this->chunkCache[$key];
+
+        $params = array('name' => $key ,'value' => $value , 'isCache' => $isCache);
+        $this->invokeEvent('OnCallChunk',$params);
+
+        return $params['value'];
+
     }
     
     function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
@@ -3244,7 +3251,7 @@ class DocumentParser {
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
             if (!empty($extParams)) $parameter= array_merge($parameter, $extParams);
-            
+
             // eval plugin
             $this->event->activePlugin= $pluginName;
             $output = $this->evalPlugin($pluginCode, $parameter);

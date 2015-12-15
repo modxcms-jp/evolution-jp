@@ -157,6 +157,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('301','OnExportPreExec','2',''),
 ('302','OnExportExec','2',''),
 ('303','OnGetConfig','1',''),
+('304','OnCallChunk','1','Chunks'),
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 
