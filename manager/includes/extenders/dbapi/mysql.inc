@@ -16,12 +16,14 @@ class DBAPI {
     var $username;
     var $password;
     var $table_prefix;
+    var $charset;
+    var $connection_method;
     
     /**
     * @name:  DBAPI
     *
     */
-    function DBAPI($host='',$dbase='', $uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
+    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
         global $database_server,$dbase,$database_user,$database_password,$table_prefix,$database_connection_charset,$database_connection_method;
         
         $this->config['host']    = $host    ? $host    : $database_server;
@@ -49,14 +51,16 @@ class DBAPI {
     function connect($host = '', $dbase = '', $uid = '', $pwd = '', $persist = 0) {
         global $modx;
         if(!$host)  $host  = $this->hostname;
+        if(substr(PHP_OS,0,3) === 'WIN' && $host==='localhost')
+            $host = '127.0.0.1';
         if(!$dbase) $dbase = $this->dbname;
+        $dbase   = trim($dbase, '`'); // remove the `` chars
         if(!$uid)   $uid   = $this->username;
         if(!$pwd)   $pwd   = $this->password;
         
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
-        while(!$this->conn && $safe_count<3)
-        {
+        do {
             if($persist!=0) $this->conn = mysql_pconnect($host, $uid, $pwd);
             else            $this->conn = mysql_connect($host, $uid, $pwd, true);
             
@@ -64,8 +68,7 @@ class DBAPI {
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
                     if($modx->config['send_errormail'] <= 2) {
                         $logtitle    = 'Failed to create the database connection!';
-                        $request_uri = $_SERVER['REQUEST_URI'];
-                        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+                        $request_uri = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
                         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
                         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
                         $ip          = $_SERVER['REMOTE_ADDR'];
@@ -80,7 +83,7 @@ class DBAPI {
                 sleep(1);
                 $safe_count++;
             }
-        }
+        } while (!$this->conn && $safe_count<3);
         if(!$this->conn) {
             $modx->messageQuit('Failed to create the database connection!');
             exit;
@@ -201,9 +204,10 @@ $s = '';
     *
     */
     function delete($from,$where='',$orderby='', $limit = '') {
-        if(!$from) return false;
-        else
-        {
+        global $modx;
+        if (!$from) {
+            $modx->messageQuit("Empty \$from parameters in DBAPI::delete().");
+        } else {
             $from = $this->replaceFullTableName($from);
             if($where != '') $where = "WHERE {$where}";
             if($orderby !== '') $orderby = "ORDER BY {$orderby}";
@@ -217,9 +221,10 @@ $s = '';
     *
     */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
-        if(!$from) return false;
-        else
-        {
+        global $modx;
+        if (!$from) {
+            $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
+        } else {
             $from = $this->replaceFullTableName($from);
             if($where !== '')   $where   = "WHERE {$where}";
             if($orderby !== '') $orderby = "ORDER BY {$orderby}";
@@ -233,9 +238,10 @@ $s = '';
     *
     */
     function update($fields, $table, $where = '', $orderby='', $limit='') {
-        if(!$table) return false;
-        else
-        {
+        global $modx;
+        if (!$table) {
+            $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
+        } else {
             $table = $this->replaceFullTableName($table);
             if (!is_array($fields)) $pairs = $fields;
             else {
@@ -276,9 +282,10 @@ $s = '';
     }
     
     private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-        if (!$intotable) $result = false;
-        else
-        {
+        global $modx;
+        if (!$intotable) {
+            $modx->messageQuit('Empty $intotable parameters in DBAPI::insert().');
+        } else {
             $intotable = $this->replaceFullTableName($intotable);
             $fromtable = $this->replaceFullTableName($fromtable);
             if (!is_array($fields))
@@ -487,6 +494,14 @@ $s = '';
         return mysql_get_server_info();
     }
     
+    function server_info() {
+        return $this->getVersion();
+    }
+    
+    function host_info() {
+        return mysql_get_host_info();
+    }
+    
     /**
      * @name  getObject 
      * @desc  get row as object from table, like oop style 
@@ -549,6 +564,15 @@ $s = '';
         }
         return $result;
 
+    }
+    
+    function isResult($rs) {
+        return is_resource($rs);
+    }
+
+    function getFullTableName($table_name) {
+        $dbase = trim($this->dbname,'`');
+        return "`{$dbase}`.`{$this->table_prefix}{$table_name}`";
     }
     
     /**
@@ -627,7 +651,9 @@ $s = '';
     * @desc:  returns an XML formay of the dataset $ds
     */
     function getXML($dsq) {
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) {
+            $dsq = $this->query($dsq);
+        }
         $xmldata = "<xml>\r\n<recordset>\r\n";
         while ($row = $this->getRow($dsq, 'both')) {
             $xmldata .= "<item>\r\n";
@@ -672,7 +698,7 @@ $s = '';
     */
     function prepareDate($timestamp, $fieldType = 'DATETIME') {
         $date = '';
-        if (!$timestamp !== false && $timestamp > 0) {
+        if ($timestamp !== false && $timestamp > 0) {
             switch ($fieldType) {
                 case 'DATE' :
                 $date = date('Y-m-d', $timestamp);
@@ -720,8 +746,9 @@ $s = '';
     *
     */
     function getHTMLGrid($dsq, $params) {
-        global $base_path;
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) {
+            $dsq = $this->query($dsq);
+        }
         if ($dsq) {
             include_once (MODX_CORE_PATH . 'controls/datagrid.class.php');
             $grd = new DataGrid('', $dsq);
@@ -772,6 +799,10 @@ $s = '';
         return $rs;
     }
     
+    function numFields($ds) {
+        return mysql_num_fields($ds);
+    }
+
     function importSql($source,$watchError=true)
     {
         global $modx;
@@ -801,9 +832,10 @@ $s = '';
     
     function field_exists($field_name,$table_name)
     {
+        $table_name = $this->replaceFullTableName($table_name);
+        
         if(!$this->table_exists($table_name)) return 0;
         
-        $table_name = $this->replaceFullTableName($table_name);
         $rs = $this->query("DESCRIBE {$table_name} {$field_name}");
         
         return $this->getRow($rs) ? 1 : 0;
