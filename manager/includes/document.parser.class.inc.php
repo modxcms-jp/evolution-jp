@@ -2414,8 +2414,9 @@ class DocumentParser {
             $where_published = "AND sc.published='{$published}'";
         else
             $where_published = '';
-        
-        $where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$_SESSION['mgrRole']}') GROUP BY sc.id";
+
+        $tmp = isset($_SESSION['mgrRole']) ? $_SESSION['mgrRole'] : '';
+        $where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$tmp}') GROUP BY sc.id";
         $orderby = ($sort) ? "{$sort} {$dir}" : '';
         $result= $this->db->select($fields,$from,$where,$orderby,$limit);
         $resourceArray= array ();
