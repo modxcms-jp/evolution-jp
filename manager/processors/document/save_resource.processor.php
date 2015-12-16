@@ -62,16 +62,17 @@ switch ($actionToTake) {
 
 		updateParentStatus();
 
-		// invoke OnDocFormSave event
-		$modx->event->vars = array('mode'=>'new','id'=>$newid);
-		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
-
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($newid);
 			$modx->manager->setMgrDocsAsPrivate($newid);
 		}
 		
 		if($form_v['syncsite'] == 1) $modx->clearCache();
+
+        // invoke OnDocFormSave event
+		$modx->event->vars = array('mode'=>'new','id'=>$newid);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
+
 		goNextAction($newid);
 		exit;
 		break;
@@ -123,10 +124,6 @@ switch ($actionToTake) {
 		// finished moving the document, now check to see if the old_parent should no longer be a folder
 		if($db_v['parent']!=='0') folder2doc($db_v['parent']);
 
-		// invoke OnDocFormSave event
-		$modx->event->vars = array('mode'=>'upd','id'=>$id);
-		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
-
 		if($modx->config['use_udperms']==='1') {
 			$modx->manager->setWebDocsAsPrivate($id);
 			$modx->manager->setMgrDocsAsPrivate($id);
@@ -139,6 +136,11 @@ switch ($actionToTake) {
 				$clearcache['target'] = 'pagecache,sitecache';
 			$modx->clearCache($clearcache);
 		}
+
+        // invoke OnDocFormSave event
+		$modx->event->vars = array('mode'=>'upd','id'=>$id);
+		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
+
 		goNextAction($id);
 		exit;
 		break;
