@@ -40,11 +40,11 @@ $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs)
 	exit("An error occured while attempting to publish the document.");
 
+$modx->clearCache();
+
 // invoke OnDocPublished  event
 $tmp = array('docid'=>$id);
 $modx->invokeEvent('OnDocPublished',$tmp);
-
-$modx->clearCache();
 
 $pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
