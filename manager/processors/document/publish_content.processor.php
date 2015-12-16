@@ -43,7 +43,7 @@ if(!$rs)
 $modx->clearCache();
 
 // invoke OnDocPublished  event
-$tmp = array('docid'=>$id);
+$tmp = array('docid'=>$id,'type'=>'manual');
 $modx->invokeEvent('OnDocPublished',$tmp);
 
 $pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));

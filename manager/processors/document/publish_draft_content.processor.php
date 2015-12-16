@@ -55,5 +55,10 @@ function publishDraft($docid) {
     $draft['published'] = $documentObject['published'];
     $modx->doc->update($draft,$docid);
     $modx->db->delete('[+prefix+]site_revision', "( status='draft' OR status='standby' ) AND elmid='{$docid}'");
+
+	$modx->clearCache();
+	$tmp = array('docid'=>$docid,'type'=>'draftManual');
+	$modx->invokeEvent('OnDocPublished',$tmp); // invoke OnDocPublished  event
+
     return 'publish_draft';
 }

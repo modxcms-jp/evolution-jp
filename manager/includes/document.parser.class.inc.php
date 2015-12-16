@@ -1218,20 +1218,38 @@ class DocumentParser {
         $timeNow= $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'];
         
         if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
-        
-        $rs = $this->db->select('*','[+prefix+]site_revision', "pub_date<{$timeNow}");
-        if(0<$this->db->getRecordCount($rs))
+
+        //下書き採用(今のところリソースのみ)
+        $draft_ids = array();
+        $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<{$timeNow} AND status = 'standby'");
+        while( $row = $this->db->getRow($rs) ){
+            if( $row['element'] == 'resource' ){
+                $draft_ids[] = $row['elmid'];
+            }
+        }
+        if( !empty($draft_ids) ){
             $this->updateDraft();
+        }
         
         // now, check for documents that need publishing
+        $pub_ids = array();
         $fields = "published='1', publishedon=pub_date";
         $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
-        $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        $rs = $this->db->select('id','[+prefix+]site_content',$where);
+        while( $row = $this->db->getRow($rs) ){ $pub_ids[] = $row['id']; }
+        if( !empty($pub_ids) ){
+            $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        }
         
         // now, check for documents that need un-publishing
+        $unpub_ids = array();
         $fields = "published='0', publishedon='0'";
         $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
-        $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        $rs = $this->db->select('id','[+prefix+]site_content',$where);
+        while( $row = $this->db->getRow($rs) ){ $unpub_ids[] = $row['id']; }
+        if( !empty($unpub_ids) ){
+            $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        }
     
         // now, check for chunks that need publishing
         $fields = "published='1'";
@@ -1249,6 +1267,20 @@ class DocumentParser {
         unset($this->chunkCache);
         $this->setChunkCache();
         $this->setAliasListing();
+
+        //invoke events
+        if( !empty($pub_ids) ){
+            $tmp = array('docid'=>$pub_ids,'type'=>'scheduled');
+            $this->invokeEvent('OnDocPublished',$tmp);
+        }
+        if( !empty($draft_ids) ){
+            $tmp = array('docid'=>$draft_ids,'type'=>'draftScheduled');
+            $this->invokeEvent('OnDocPublished',$tmp);
+        }
+        if( !empty($unpub_ids) ){
+            $tmp = array('docid'=>$unpub_ids,'type'=>'scheduled');
+            $this->invokeEvent('OnDocUnPublished',$tmp);
+        }
     }
     
     function getTagsFromContent($content,$left='[+',$right='+]') {

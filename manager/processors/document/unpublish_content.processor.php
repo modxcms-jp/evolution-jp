@@ -33,7 +33,7 @@ if(!$rs)
 	exit("An error occured while attempting to unpublish the document.");
 
 // invoke OnDocUnPublished  event
-$tmp = array('docid'=>$id);
+$tmp = array('docid'=>$id,'type'=>'manual');
 $modx->invokeEvent('OnDocUnPublished',$tmp);
 
 $modx->clearCache();
