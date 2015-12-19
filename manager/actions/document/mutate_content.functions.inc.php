@@ -425,18 +425,12 @@ function mergeReloadValues($docObject) {
 	if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
 		$docObject['pub_date'] = '';
 	else
-	{
 		$docObject['pub_date'] = $modx->toTimeStamp($docObject['pub_date']);
-		$docObject['pub_date'] = $modx->toDateFormat($docObject['pub_date']);
-	}
 	
 	if (!isset($docObject['unpub_date'])||empty($docObject['unpub_date']))
 		$docObject['unpub_date'] = '';
 	else
-	{
 		$docObject['unpub_date'] = $modx->toTimeStamp($docObject['unpub_date']);
-		$docObject['unpub_date'] = $modx->toDateFormat($docObject['unpub_date']);
-	}
 	
 	if(isset ($_POST['which_editor'])) $docObject['which_editor'] = $_POST['which_editor'];
 	
