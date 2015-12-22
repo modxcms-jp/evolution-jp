@@ -1789,13 +1789,11 @@ class DocumentParser {
         
         if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');
-        
         if(!$matches) return $content;
+        
         $replace= array ();
-        foreach($matches[1] as $i=>$value)
-        {
-            if(substr($value,0,2)==='$_')
-            {
+        foreach($matches[1] as $i=>$value) {
+            if(substr($value,0,2)==='$_') {
                 $key = $value;
                 if(strpos($key,':')!==false)
                     list($key,$modifiers) = explode(':', $key, 2);
@@ -1821,10 +1819,8 @@ class DocumentParser {
                 $replace[$i] = $value;
                 continue;
             }
-            foreach($matches[0] as $find=>$tag)
-            {
-                if(isset($replace[$find]) && strpos($value,$tag)!==false)
-                {
+            foreach($matches[0] as $find=>$tag) {
+                if(isset($replace[$find]) && strpos($value,$tag)!==false) {
                     $value = str_replace($tag,$replace[$find],$value);
                     break;
                 }
