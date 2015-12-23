@@ -1303,6 +1303,8 @@ class DocumentParser {
         if(strpos($content,']]>')!==false)  $content = str_replace(']]>', "]{$spacer}]>",$content);
         if(strpos($content,';}}')!==false)  $content = str_replace(';}}', ";}{$spacer}}",$content);
         if(strpos($content,'{{}}')!==false) $content = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$content);
+        if(strpos($content,']]]]')!==false) $content = str_replace(']]]]',"]]{$spacer}]]",$content);
+        if(strpos($content,']]]')!==false)  $content = str_replace(']]]',"]{$spacer}]]",$content);
         
         $lp = explode($left,$content);
         $piece = array();
