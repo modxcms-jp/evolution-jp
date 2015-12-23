@@ -109,8 +109,12 @@ function ab_save()
 		$option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
 	
 	$option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
-	if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document'))
-		$option[] = sprintf('<option id="stay4" value="publish_draft">%s</option>'     , '下書きを採用');
+	if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document')) {
+		if($modx->revision->hasStandby)
+			$option[] = sprintf('<option id="stay4" value="save_standby">%s</option>'     , '下書採用日時を再指定');
+		else
+			$option[] = sprintf('<option id="stay4" value="save_draft">%s</option>'     , '下書きを採用');
+	}
 	$option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], $_lang['close']);
 	
 	$ph['select'] = sprintf($ph['select'], join("\n", $option));
