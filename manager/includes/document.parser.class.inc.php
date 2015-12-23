@@ -1794,29 +1794,7 @@ class DocumentParser {
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
             if(substr($value,0,2)==='$_') {
-                $key = $value;
-                if(strpos($key,':')!==false)
-                    list($key,$modifiers) = explode(':', $key, 2);
-                else $modifiers = false;
-                $key = str_replace(array('(',')'),array("['","']"),$key);
-                if(strpos($key,'$_SESSION')!==false)
-                {
-                    $_ = $_SESSION;
-                    $key = str_replace('$_SESSION','$_',$key);
-                    if(isset($_['mgrFormValues'])) unset($_['mgrFormValues']);
-                    if(isset($_['token'])) unset($_['token']);
-                }
-                if(strpos($key,'[')!==false)
-                    $value = eval("return {$key};");
-                elseif(0<eval("return count({$key});"))
-                    $value = eval("return print_r({$key},true);");
-                else $value = '';
-                if($modifiers!==false)
-                {
-                    $this->loadExtension('MODIFIERS');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
-                }
-                $replace[$i] = $value;
+                $replace[$i] = $this->_getGValue($value);
                 continue;
             }
             foreach($matches[0] as $find=>$tag) {
@@ -1831,6 +1809,31 @@ class DocumentParser {
         return $content;
     }
     
+    function _getGValue($value) {
+        $key = $value;
+        if(strpos($key,':')!==false)
+            list($key,$modifiers) = explode(':', $key, 2);
+        else $modifiers = false;
+        $key = str_replace(array('(',')'),array("['","']"),$key);
+        if(strpos($key,'$_SESSION')!==false)
+        {
+            $_ = $_SESSION;
+            $key = str_replace('$_SESSION','$_',$key);
+            if(isset($_['mgrFormValues'])) unset($_['mgrFormValues']);
+            if(isset($_['token'])) unset($_['token']);
+        }
+        if(strpos($key,'[')!==false)
+            $value = eval("return {$key};");
+        elseif(0<eval("return count({$key});"))
+            $value = eval("return print_r({$key},true);");
+        else $value = '';
+        if($modifiers!==false)
+        {
+            $this->loadExtension('MODIFIERS');
+            $value = $this->filter->phxFilter($key,$value,$modifiers);
+        }
+        return $value;
+    }
     private function _get_snip_result($piece)
     {
         $snip_call = $this->_split_snip_call($piece);
