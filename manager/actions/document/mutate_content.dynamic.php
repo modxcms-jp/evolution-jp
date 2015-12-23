@@ -133,12 +133,10 @@ $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
 
 if($modx->doc->mode==='normal') {
 	$ph['fieldPublished'] =  fieldPublished();
-	$ph['fieldPub_date']  = fieldPub_date($id);
-	$ph['fieldUnpub_date'] = fieldUnpub_date($id);
-}else{
-	// for draft
-	$ph['fieldPub_date'] = fieldPub_dateDraft($id);
 }
+
+$ph['fieldPub_date']   = fieldPub_date($id);
+$ph['fieldUnpub_date'] = fieldUnpub_date($id);
 
 //下書きでかつ採用日の指定がない場合はSplit1は表示しない
 if( empty($ph['fieldPub_date']) ){

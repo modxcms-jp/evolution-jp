@@ -188,6 +188,8 @@ class REVISION
         $input['contentType']     = $resource['contentType'];
         $input['content_dispo']   = $resource['content_dispo'];
         $input['hidemenu']        = $resource['hidemenu'];
+        $input['pub_date']        = $resource['pub_date'];
+        $input['unpub_date']      = $resource['unpub_date'];
         foreach($resource as $k=>$v)
         {
             if(substr($k,0,2)==='tv'){
