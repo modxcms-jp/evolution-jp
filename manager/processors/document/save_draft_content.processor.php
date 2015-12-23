@@ -22,18 +22,7 @@ $modx->loadExtension('DocAPI');
 $fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $fields = $modx->doc->fixPubStatus($fields);
 
-$draftpub = '';
-if( !empty($_REQUEST['pub_date']) ){
-	$draftpub = $modx->toTimeStamp($_REQUEST['pub_date']);
-}
-
-if( empty($draftpub) ){
-	$rs = $modx->revision->save($docid,$fields,'draft');
-}else{
-	$rs = $modx->revision->save($docid,$fields,'standby');
-	$f = array('pub_date' => $draftpub);
-	$modx->db->update($f,'[+prefix+]site_revision',"element = 'resource' AND elmid='{$docid}'");
-}
+$rs = $modx->revision->save($docid,$fields,'draft');
 
 switch($_POST['stay'])
 {
