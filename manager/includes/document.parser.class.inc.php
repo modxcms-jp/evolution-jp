@@ -1790,6 +1790,7 @@ class DocumentParser {
         if(strpos($content,'[[')===false) return $content;
         
         if(!$this->snippetCache) $this->setSnippetCache();
+        if(!$this->aliasListing) $this->setAliasListing();
         $matches = $this->getTagsFromContent($content,'[[',']]');
         if(!$matches) return $content;
         
@@ -3266,6 +3267,7 @@ class DocumentParser {
         if(count($this->pluginEvent[$evtName])==0) return array();
         
         if(!$this->pluginCache) $this->getPluginCache();
+        if(!$this->aliasListing) $this->setAliasListing();
         
         $this->event->name= $evtName;
         $results= array ();
