@@ -52,14 +52,12 @@ jQuery(function(){
         if( prevWin && !prevWin.closed ) {
             prevWin.close();
         }
+        prevWin = window.open('[+preview_url+]','prevWin');
         var pmode = [+preview_mode+];
     	if(pmode==1) {
-            prevWin = window.open('about:blank','prevWin');
             jQuery('#mutate').prop({'action':'[+preview_url+]','target':'prevWin'});
             jQuery('#mutate').submit();
             jQuery('#mutate').prop({'action':'index.php','target':'main'});
-        }else{
-            prevWin = window.open('[+preview_url+]','prevWin');
         }
     	return false;
 	});
