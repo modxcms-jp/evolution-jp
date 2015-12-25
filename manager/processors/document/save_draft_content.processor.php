@@ -21,10 +21,10 @@ $modx->loadExtension('DocAPI');
 
 $fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $fields = $modx->doc->fixPubStatus($fields);
-if($_POST['stay']==='save_draft')
-	$rs = $modx->revision->save($docid,$fields,'draft');
-elseif($_POST['stay']==='save_standby')
+if($_POST['stay']==='save_standby')
 	$rs = $modx->revision->save($docid,$fields,'standby');
+else
+	$rs = $modx->revision->save($docid,$fields,'draft');
 
 switch($_POST['stay'])
 {
