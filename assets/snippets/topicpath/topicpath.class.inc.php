@@ -56,8 +56,8 @@ class TopicPath
 				$tpl['Separator']       = "\n";
 				break;
 			default:
-				$tpl['Outer']             = '[+topics+]';
-				$tpl['HomeTopic']        = '<a href="[+url+]" class="home" title="[+title+]">[+title+]</a>';
+				$tpl['Outer']            = '[+topics+]';
+				$tpl['HomeTopic']        = '<a href="[+url+]" class="home">[+title+]</a>';
 				$tpl['CurrentTopic']     = '[+title+]';
 				$tpl['ReferenceTopic']   = '[+title+]';
 				$tpl['OtherTopic']       = '<a href="[+url+]">[+title+]</a>';
