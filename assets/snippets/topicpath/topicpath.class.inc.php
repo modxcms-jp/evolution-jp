@@ -48,12 +48,12 @@ class TopicPath
 		{
 			case 'list':
 			case 'li':
-				$tpl['Outer']            = '<ul class="topicpath">[+topics+]</ul>';
+				$tpl['Outer']           = '<ul class="topicpath">[+topics+]</ul>';
 				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
 				$tpl['CurrentTopic']    = '<li class="current">[+title+]</li>';
 				$tpl['ReferenceTopic']  = '<li>[+title+]</li>';
 				$tpl['OtherTopic']      = '<li><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
-				$tpl['Separator']        = "\n";
+				$tpl['Separator']       = "\n";
 				break;
 			default:
 				$tpl['Outer']             = '[+topics+]';
