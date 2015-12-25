@@ -49,10 +49,10 @@ class TopicPath
 			case 'list':
 			case 'li':
 				$tpl['Outer']           = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]">[+title+]</a></li>';
 				$tpl['CurrentTopic']    = '<li class="current">[+title+]</li>';
 				$tpl['ReferenceTopic']  = '<li>[+title+]</li>';
-				$tpl['OtherTopic']      = '<li><a href="[+url+]" title="[+title+]">[+title+]</a></li>';
+				$tpl['OtherTopic']      = '<li><a href="[+url+]">[+title+]</a></li>';
 				$tpl['Separator']       = "\n";
 				break;
 			default:
@@ -60,7 +60,7 @@ class TopicPath
 				$tpl['HomeTopic']        = '<a href="[+url+]" class="home" title="[+title+]">[+title+]</a>';
 				$tpl['CurrentTopic']     = '[+title+]';
 				$tpl['ReferenceTopic']   = '[+title+]';
-				$tpl['OtherTopic']       = '<a href="[+url+]" title="[+title+]">[+title+]</a>';
+				$tpl['OtherTopic']       = '<a href="[+url+]">[+title+]</a>';
 				$tpl['Separator']         = ' &raquo; ';
 		}
 		$tpl = array_merge($tpl, $this->tpl);
