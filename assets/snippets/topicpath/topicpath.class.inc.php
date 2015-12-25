@@ -61,7 +61,7 @@ class TopicPath
 				$tpl['CurrentTopic']     = '[+title+]';
 				$tpl['ReferenceTopic']   = '[+title+]';
 				$tpl['OtherTopic']       = '<a href="[+url+]">[+title+]</a>';
-				$tpl['Separator']         = ' &raquo; ';
+				$tpl['Separator']        = ' &gt; ';
 		}
 		$tpl = array_merge($tpl, $this->tpl);
 		foreach($tpl as $i=>$v)
