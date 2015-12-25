@@ -233,6 +233,7 @@ class DocumentParser {
             $aliasCache = file_get_contents($alias_cache_path);
             $this->aliasCache=unserialize($aliasCache);
         }
+        $this->setAliasListing();
     }
 
     /*
@@ -452,7 +453,6 @@ class DocumentParser {
         if ($this->documentContent == '')
         {
             $this->setChunkCache();
-            $this->setAliasListing();
             // get document object
             $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
             
@@ -968,7 +968,6 @@ class DocumentParser {
             $this->config['modx_charset'] = 'utf-8';
         if(!defined('IN_PARSER_MODE')) {
             $this->setChunkCache();
-            $this->setAliasListing();
         }
         $this->invokeEvent('OnGetConfig');
         return $this->config;
@@ -1790,7 +1789,6 @@ class DocumentParser {
         if(strpos($content,'[[')===false) return $content;
         
         if(!$this->snippetCache) $this->setSnippetCache();
-        if(!$this->aliasListing) $this->setAliasListing();
         $matches = $this->getTagsFromContent($content,'[[',']]');
         if(!$matches) return $content;
         
@@ -2607,7 +2605,6 @@ class DocumentParser {
 
         if ($this->config['friendly_urls'] == 1)
         {
-            if(!$this->aliasListing) $this->setAliasListing();
             $alPath = '';
             if(empty($alias))
             {
@@ -2725,8 +2722,6 @@ class DocumentParser {
     function rewriteUrls($content)
     {
         if(strpos($content,'[~')===false) return $content;
-        
-        if(!$this->aliasListing) $this->setAliasListing();
         
         if(!isset($this->referenceListing))
         {
@@ -3267,7 +3262,6 @@ class DocumentParser {
         if(count($this->pluginEvent[$evtName])==0) return array();
         
         if(!$this->pluginCache) $this->getPluginCache();
-        if(!$this->aliasListing) $this->setAliasListing();
         
         $this->event->name= $evtName;
         $results= array ();

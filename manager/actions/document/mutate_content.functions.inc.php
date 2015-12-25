@@ -219,7 +219,6 @@ function get_alias_path($id)
 	global $modx;
 
 	$pid = intval($_REQUEST['pid']);
-	if(!$modx->aliasListing) $modx->setAliasListing();
 	
 	if($modx->config['use_alias_path']==='0') $path = '';
 	elseif($pid)
