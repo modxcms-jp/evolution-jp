@@ -298,7 +298,7 @@ class DocumentParser {
         if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
 
-		$this->setBaseTime();
+        $this->setBaseTime();
         $this->sanitizeVars();
         $this->uaType  = $this->setUaType();
         $this->qs_hash = $this->genQsHash();
@@ -669,11 +669,11 @@ class DocumentParser {
         
         if ($this->dumpSQL)
         {
-            $this->documentOutput = preg_replace("/(<\/body>)/i", $this->queryCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", $this->queryCode . "\n\\1", $this->documentOutput);
         }
         if ($this->dumpSnippets)
         {
-            $this->documentOutput = preg_replace("/(<\/body>)/i", $this->snipCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", $this->snipCode . "\n\\1", $this->documentOutput);
         }
         
         // invoke OnLogPageView event
