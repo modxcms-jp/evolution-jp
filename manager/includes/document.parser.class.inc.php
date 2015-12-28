@@ -84,6 +84,7 @@ class DocumentParser {
     var $currentSnippetCall;
     var $aliasCache = array();
     var $previewObject = ''; //プレビュー用のPOSTデータを保存
+    var $snipLapCount;
 
 	private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -213,6 +214,7 @@ class DocumentParser {
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
         $this->dumpSQL      = false;
         $this->dumpSnippets = false; // feed the parser the execution start time
+        $this->snipLapCount = 0;
         $this->stopOnNotice = false;
         $this->safeMode     = false;
         // set track_errors ini variable
@@ -1788,6 +1790,9 @@ class DocumentParser {
         if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');
         if(!$matches) return $content;
+        $this->snipLapCount++;
+        if ($this->dumpSnippets)
+            $this->snipCode .= '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
         
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
@@ -1803,6 +1808,9 @@ class DocumentParser {
             }
             $replace[$i] = $this->_get_snip_result($value);
         }
+        
+        if($this->dumpSnippets) $this->snipCode .= '</div></fieldset>';
+        
         $content = str_replace($matches[0], $replace, $content);
         return $content;
     }
@@ -1865,7 +1873,13 @@ class DocumentParser {
         
         if($this->dumpSnippets)
         {
-            $this->snipCode .= sprintf('<fieldset><legend><b>%s</b></legend><textarea style="width:60%%;height:200px">%s</textarea></fieldset>', $snippetObject['name'], htmlentities($value,ENT_NOQUOTES,$this->config['modx_charset']));
+            if($value) {
+                if(150<strlen($value)) $height = 200;
+                else                   $height = 50;
+                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, htmlspecialchars($value,ENT_NOQUOTES,$this->config['modx_charset']));
+            }
+            else $code = 'Empty';
+            $this->snipCode .= sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $snippetObject['name'], $code);
         }
         return $value;
     }
@@ -2251,10 +2265,6 @@ class DocumentParser {
         {
             // get source length if this is the final pass
             if ($i == ($passes -1)) $bt= md5($source);
-            if ($this->dumpSnippets)
-            {
-                $this->snipCode .= '<fieldset><legend><b style="color: #821517;">PARSE PASS ' . ($i +1) . '</b></legend>The following snippets (if any) were parsed during this pass.<div style="width:100%;text-align:left;">';
-            }
             
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
@@ -2279,10 +2289,6 @@ class DocumentParser {
             if(strpos($source,'[+')!==false
              &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
-            if ($this->dumpSnippets)
-            {
-                $this->snipCode .= '</div></fieldset>';
-            }
             if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
             {
                 // check if source length was changed
