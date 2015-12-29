@@ -63,7 +63,7 @@ switch ($_POST['mode']) {
 			$content['sysevents'] = $sysevents;
 
 				include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
+				include(MODX_MANAGER_PATH . 'actions/element/mutate_plugin.dynamic.php');
 				include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 			
 			exit;
@@ -130,7 +130,7 @@ switch ($_POST['mode']) {
 				$content['sysevents'] = $sysevents;
 	
 				include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-				include(MODX_MANAGER_PATH . 'actions/mutate_plugin.dynamic.php');
+				include(MODX_MANAGER_PATH . 'actions/element/mutate_plugin.dynamic.php');
 				include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 				
 				exit;

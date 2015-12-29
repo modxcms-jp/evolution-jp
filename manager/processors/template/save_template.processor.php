@@ -57,7 +57,7 @@ switch ($_POST['mode']) {
 			$_POST['category'] = $categoryid;
 			$_GET['stay'] = $_POST['stay'];
 			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-			include(MODX_MANAGER_PATH.'actions/mutate_templates.dynamic.php');
+			include(MODX_MANAGER_PATH.'actions/element/mutate_templates.dynamic.php');
 			include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 			exit;
 		}
@@ -112,7 +112,7 @@ switch ($_POST['mode']) {
 			$_POST['category'] = $categoryid;
 			$_GET['stay'] = $_POST['stay'];
 			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-			include(MODX_MANAGER_PATH . 'actions/mutate_templates.dynamic.php');
+			include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
 			include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 			exit;
 		}

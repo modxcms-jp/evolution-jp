@@ -549,7 +549,6 @@ function setDocPermissionsNew($document_groups,$newid) {
 		{
 			// first, split the pair (this is a new document, so ignore the second value
 			$group = intval(substr($value_pair,0,strpos($value_pair,',')));
-			// @see manager/actions/mutate_content.dynamic.php @ line 1138 (permissions list)
 			$new_groups[] = "({$group},{$newid})";
 		}
 		$saved = true;
@@ -617,7 +616,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 	$new_groups = array();
 	// process the new input
 	foreach ($document_groups as $value_pair)
-	{ // @see manager/actions/mutate_content.dynamic.php @ line 1138 (permissions list)
+	{
 		list($group, $link_id) = explode(',', $value_pair);
 		$new_groups[$group] = $link_id;
 	}
