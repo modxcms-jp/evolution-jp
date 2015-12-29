@@ -366,18 +366,23 @@ class SubParser {
         if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
 
         // Set 500 response header
-        if(2 < $error_level) header('HTTP/1.1 500 Internal Server Error');
+        if(2 < $error_level && $modx->event->name!=='OnWebPageComplete')
+            header('HTTP/1.1 500 Internal Server Error');
 
         // Display error
-        if (isset($_SESSION['mgrValidated']))
+        if ($modx->isLoggedin())
         {
-            echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html><head><title>MODX Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
-                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                 <link rel="stylesheet" type="text/css" href="' . $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/style.css" />
-                 <style type="text/css">body { padding:10px; } td {font:inherit;}</style>
-                 </head><body>
-                 ' . $str . '</body></html>';
-        
+            if($modx->event->name!=='OnWebPageComplete') {
+                echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+                echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
+                echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+                echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />', $modx->config['site_url'], $modx->config['manager_theme']);
+                echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
+                echo '</head><body>';
+            }
+            echo '<div style="text-align:left;">'.$str.'</div>';
+            if($modx->event->name!=='OnWebPageComplete')
+                echo '</body></html>';
         }
         else  echo 'Error';
         ob_end_flush();
