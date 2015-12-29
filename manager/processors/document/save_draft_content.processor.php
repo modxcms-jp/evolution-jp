@@ -21,6 +21,7 @@ $modx->loadExtension('DocAPI');
 
 $fields = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $fields = $modx->doc->fixPubStatus($fields);
+
 if($_POST['stay']==='save_standby')
 	$rs = $modx->revision->save($docid,$fields,'standby');
 else
