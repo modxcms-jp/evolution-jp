@@ -160,3 +160,20 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+.htaccess
+
+# MODX_Cache
+assets/cache
+
+# MODX_Modules
+assets/modules/revision
+
+# MODX_Content
+content
+
+# MODX_Config
+manager/includes/config.inc.php
+
+# MODX_Temp
+temp
