@@ -252,32 +252,33 @@ class DocumentParser {
         
         $low_extname = strtolower($extname);
         
-        switch ($extname)
+        switch ($low_extname)
         {
-            case 'DBAPI'       : // Database API
-            case 'ManagerAPI'  : // Manager API
-            case 'DocAPI'      : // Resource API
-            case 'EXPORT_SITE' :
-            case 'SubParser'   :
-            case 'REVISION'    :
+            case 'dbapi'       : // Database API
+            case 'managerapi'  : // Manager API
+            case 'docapi'      : // Resource API
+            case 'export_site' :
+            case 'subparser'   :
+            case 'revision'    :
                 return include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
-            case 'DocumentAPI' : // Document API
+            case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
                 Document::$modx=$this;
                 return;
-            case 'MODIFIERS' : //Modfires
+            case 'modifiers' : //Modfires
+            case 'phx' :
                 return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
-            case 'DeprecatedAPI':
+            case 'deprecatedapi':
                 return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
-            case 'MODxMailer' : // PHPMailer
+            case 'modxmailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
                 return;
-            case 'MakeTable' :
+            case 'maketable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
                 $this->table= new MakeTable;
                 return;
-            case 'ConfigMediation':
+            case 'configmediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
             default :

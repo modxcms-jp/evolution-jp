@@ -697,6 +697,8 @@ function itemEditDoc() {
 function itemCreateDraft() {
 	global $modx,$_style,$_lang;
 	
+	if(!$modx->config['enable_draft']) return;
+	
 	$tpl = tplMenuItem();
 	$ph['action'] = 'createDraft';
 	$ph['img']    = $_style['icons_new_document'];
@@ -706,6 +708,8 @@ function itemCreateDraft() {
 
 function itemEditDraft() {
 	global $modx,$_style,$_lang;
+	
+	if(!$modx->config['enable_draft']) return;
 	
 	$tpl = tplMenuItem();
 	$ph['action'] = 'editDraft';

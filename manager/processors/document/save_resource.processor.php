@@ -149,7 +149,7 @@ switch ($actionToTake) {
 		exit;
 }
 
-function get_tmplvars($id)
+function get_tmplvars($id=0)
 {
 	global $modx,$form_v;
 
