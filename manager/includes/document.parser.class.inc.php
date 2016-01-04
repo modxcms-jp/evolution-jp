@@ -265,6 +265,7 @@ class DocumentParser {
                 Document::$modx=$this;
                 return;
             case 'MODIFIERS' : //Modfires
+            case 'PHx' :
                 return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
             case 'DeprecatedAPI':
                 return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
