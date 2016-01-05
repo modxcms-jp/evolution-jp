@@ -10,7 +10,7 @@
         <script type="text/javascript" src="media/script/mootools/moodx.js"></script>
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">
-			var cookiepath = '[+cookiepath+]';
+			var baseurl = '[+baseurl+]';
 	        var $j = jQuery.noConflict();
             function loadTemplateVars(tplId) {
 			    $j('#tvloading').css('display','block');
