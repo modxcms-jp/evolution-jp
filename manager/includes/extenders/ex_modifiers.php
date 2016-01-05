@@ -997,7 +997,7 @@ class MODIFIERS {
     function strpos($haystack,$needle,$offset=0) {
         global $modx;
         if (function_exists('mb_strpos')) return mb_strpos($haystack,$needle,$offset,$modx->config['modx_charset']);
-        return $this->strlen($haystack,$needle,$offset);
+        return strpos($haystack,$needle,$offset);
     }
     function strlen($str) {
         global $modx;
