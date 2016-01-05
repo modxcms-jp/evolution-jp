@@ -672,6 +672,7 @@ class MODIFIERS {
                 switch($opt) {
                     case 'width' : return $info['width'];
                     case 'height': return $info['height'];
+                    case 'aspect': return $info['aspect'];
                     case 'type'  : return $info['type'];
                     case 'attrib': return $info['attrib'];
                     default      : return print_r($info,true);
