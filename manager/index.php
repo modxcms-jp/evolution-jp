@@ -438,12 +438,11 @@ switch ($modx->manager->action) {
         // say that what was requested doesn't do anything yet
         include_once($action_path.'header.inc.php');
         echo "
-            <div class='subTitle'>
-                <span class='right'>".$_lang['functionnotimpl']."</span>
-            </div>
+            <div class='section'>
             <div class='sectionHeader'>".$_lang['functionnotimpl']."</div>
             <div class='sectionBody'>
                 <p>".$_lang['functionnotimpl_message']."</p>
+            </div>
             </div>
         ";
         include_once($action_path.'footer.inc.php');
