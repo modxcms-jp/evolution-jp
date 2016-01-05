@@ -34,7 +34,7 @@ class DocManagerFrontend {
 		$grd->colWidths = "5%,5%,40%,50%";
 		$grd->fields = "template,id,templatename,description";
 		
-		$this->dm->ph['cookiepath'] = MODX_BASE_URL;
+		$this->dm->ph['baseurl'] = MODX_BASE_URL;
 		$this->dm->ph['templates.grid'] = $grd->render();
 		$this->dm->ph['view.templates'] = $this->dm->parseTemplate('templates.tpl', $this->dm->ph);
 	}   
