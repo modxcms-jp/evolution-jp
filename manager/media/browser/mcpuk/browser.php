@@ -26,7 +26,7 @@ class FBROWSER
 		else $editor_name = '';
 		if(!empty($editor_name))
 		{
-			$seturl_js_path = MODX_BASE_PATH . "assets/plugins/{$editor_name}/seturl_js_{$editor_name}.inc";
+			$seturl_js_path = MODX_BASE_PATH . "assets/plugins/{$editor_name}/seturl_js_{$editor_name}.inc.html";
 		}
 		else $seturl_js_path = '';
 		
