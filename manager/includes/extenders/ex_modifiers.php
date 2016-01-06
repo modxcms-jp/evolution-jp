@@ -803,7 +803,7 @@ class MODIFIERS {
         $phxkey = $this->phxkey;
         $value  = $this->value;
         $opt    = $this->opt;
-    	return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc");
+    	return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php");
     }
     
     function getValueFromElement($phxkey, $value, $cmd, $opt)
@@ -826,12 +826,12 @@ class MODIFIERS {
             elseif($total == 0)
             {
                 $assets_path = MODX_BASE_PATH.'assets/';
-                if(is_file($assets_path."modifiers/mdf_{$cmd}.inc"))
-                    $modifiers_path = $assets_path."modifiers/mdf_{$cmd}.inc";
+                if(is_file($assets_path."modifiers/mdf_{$cmd}.inc.php"))
+                    $modifiers_path = $assets_path."modifiers/mdf_{$cmd}.inc.php";
                 elseif(is_file($assets_path."plugins/phx/modifiers/{$cmd}.phx.php"))
                     $modifiers_path = $assets_path."plugins/phx/modifiers/{$cmd}.phx.php";
-                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc"))
-                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc";
+                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php"))
+                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php";
                 else $modifiers_path = false;
                 
                 if($modifiers_path) {
