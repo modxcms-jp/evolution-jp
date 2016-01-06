@@ -53,7 +53,7 @@ class FBROWSER
 	
 	function render_fbrowser($ph)
 	{
-		$browser_html = file_get_contents('browser.html.inc');
+		$browser_html = file_get_contents('browser.inc.html');
 		foreach($ph as $name => $value)
 		{
 			$name = '[+' . $name . '+]';
