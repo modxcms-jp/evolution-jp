@@ -146,12 +146,12 @@ else  // update site_id if missing
 	}
 }
 
-include_once('processors/prc_insTemplates.inc'); // Install Templates
-include_once('processors/prc_insTVs.inc');       // Install Template Variables
-include_once('processors/prc_insChunks.inc');    // Install Chunks
-include_once('processors/prc_insModules.inc');   // Install Modules
-include_once('processors/prc_insPlugins.inc');   // Install Plugins
-include_once('processors/prc_insSnippets.inc');  // Install Snippets
+include_once('processors/prc_insTemplates.inc.php'); // Install Templates
+include_once('processors/prc_insTVs.inc.php');       // Install Template Variables
+include_once('processors/prc_insChunks.inc.php');    // Install Chunks
+include_once('processors/prc_insModules.inc.php');   // Install Modules
+include_once('processors/prc_insPlugins.inc.php');   // Install Plugins
+include_once('processors/prc_insSnippets.inc.php');  // Install Snippets
 
 if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 {
