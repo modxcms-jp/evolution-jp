@@ -1846,6 +1846,7 @@ class DocumentParser {
         }
         return $value;
     }
+    
     private function _get_snip_result($piece)
     {
         $snip_call = $this->_split_snip_call($piece);
