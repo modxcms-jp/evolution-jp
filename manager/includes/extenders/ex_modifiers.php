@@ -494,7 +494,7 @@ class MODIFIERS {
                     return number_format($value,$opt);
             case 'money_format':
                     setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                    if($value!=='') return money_format($opt,$value);
+                    if($value!=='') return money_format($opt, (double)$value);
                     break;
             case 'tobool':
                 return boolval($value);
