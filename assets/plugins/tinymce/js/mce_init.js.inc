@@ -77,7 +77,7 @@ tinyMCE.init({
 	[+customparams+]
 });
 function myCustomOnChangeHandler() {
-if(!gotosave) documentDirty = true;
+if( typeof gotosave !== "undefined" && !gotosave) documentDirty = true;
 }
 </script>
 
