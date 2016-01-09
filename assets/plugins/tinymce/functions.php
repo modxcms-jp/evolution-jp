@@ -194,7 +194,7 @@ class TinyMCE
 			break;
 		}
 		
-		$gsettings = file_get_contents("{$mce_path}inc/gsettings.html.inc");
+		$gsettings = file_get_contents("{$mce_path}inc/gsettings.inc.html");
 		
 		foreach($ph as $name => $value)
 		{
@@ -432,7 +432,7 @@ class TinyMCE
 		
 		$ph['tpl_list']                = "{$mce_url}js/get_template.php";
 	
-		$mce_init = file_get_contents("{$mce_path}js/mce_init.js.inc");
+		$mce_init = file_get_contents("{$mce_path}js/mce_init.inc.js");
 		
 		foreach($ph as $name => $value)
 		{
@@ -450,7 +450,7 @@ class TinyMCE
 		$mce_url  = $params['mce_url'];
 		
 		$ph['cmsurl']  = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php?editor=tinymce';
-		$modx_fb = file_get_contents("{$mce_path}js/modx_fb.js.inc");
+		$modx_fb = file_get_contents("{$mce_path}js/modx_fb.inc.js");
 		
 		foreach($ph as $name => $value)
 		{

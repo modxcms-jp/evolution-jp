@@ -7,19 +7,23 @@
 
 require_once('initialize.inc.php');
 $conf_path = MODX_CORE_PATH . 'config.inc.php';
-if (is_file($conf_path)) include_once($conf_path);
+if(is_file($conf_path)) include_once($conf_path);
 
-if (!isset($lastInstallTime) || empty($lastInstallTime)) {
-    if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')===false) {
-        if(is_file(MODX_BASE_PATH . 'install/index.php')) {
+if(!isset($lastInstallTime) || empty($lastInstallTime))
+{
+    if(strpos($_SERVER['SCRIPT_NAME'], 'install/index.php') === false)
+    {
+        if(is_file(MODX_BASE_PATH . 'install/index.php'))
+        {
             header('Location: install/index.php?action=mode');
             exit();
-        }else exit('Not installed.');
+        }
+        else exit('Not installed.');
     }
 }
 
 if(!defined('MODX_API_MODE')) set_parser_mode();
-if (session_id() === '') startCMSSession();
+if(session_id() === '') startCMSSession();
 $modx = new DocumentParser;
 return $modx;
 
@@ -1842,6 +1846,7 @@ class DocumentParser {
         }
         return $value;
     }
+    
     private function _get_snip_result($piece)
     {
         $snip_call = $this->_split_snip_call($piece);
@@ -1953,6 +1958,7 @@ class DocumentParser {
                 break;
             }
         endwhile;
+        // スニペットコールのパラメータを配列にも対応
         foreach($temp_params as $p)
         {
             $k = key($p);

@@ -54,7 +54,7 @@ class MODX_INIT {
     }
     
     function get_base_path() {
-        $self = 'manager/includes/initialize.functions.inc';
+        $self = 'manager/includes/initialize.functions.inc.php';
         $base_path = str_replace($self,'',str_replace('\\', '/', __FILE__));
         return $base_path;
     }

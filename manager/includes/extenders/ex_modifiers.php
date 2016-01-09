@@ -494,7 +494,7 @@ class MODIFIERS {
                     return number_format($value,$opt);
             case 'money_format':
                     setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                    if($value!=='') return money_format($opt,$value);
+                    if($value!=='') return money_format($opt, (double)$value);
                     break;
             case 'tobool':
                 return boolval($value);
@@ -672,6 +672,7 @@ class MODIFIERS {
                 switch($opt) {
                     case 'width' : return $info['width'];
                     case 'height': return $info['height'];
+                    case 'aspect': return $info['aspect'];
                     case 'type'  : return $info['type'];
                     case 'attrib': return $info['attrib'];
                     default      : return print_r($info,true);
@@ -802,7 +803,7 @@ class MODIFIERS {
         $phxkey = $this->phxkey;
         $value  = $this->value;
         $opt    = $this->opt;
-    	return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc");
+    	return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php");
     }
     
     function getValueFromElement($phxkey, $value, $cmd, $opt)
@@ -825,12 +826,12 @@ class MODIFIERS {
             elseif($total == 0)
             {
                 $assets_path = MODX_BASE_PATH.'assets/';
-                if(is_file($assets_path."modifiers/mdf_{$cmd}.inc"))
-                    $modifiers_path = $assets_path."modifiers/mdf_{$cmd}.inc";
+                if(is_file($assets_path."modifiers/mdf_{$cmd}.inc.php"))
+                    $modifiers_path = $assets_path."modifiers/mdf_{$cmd}.inc.php";
                 elseif(is_file($assets_path."plugins/phx/modifiers/{$cmd}.phx.php"))
                     $modifiers_path = $assets_path."plugins/phx/modifiers/{$cmd}.phx.php";
-                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc"))
-                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc";
+                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php"))
+                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php";
                 else $modifiers_path = false;
                 
                 if($modifiers_path) {
@@ -996,7 +997,7 @@ class MODIFIERS {
     function strpos($haystack,$needle,$offset=0) {
         global $modx;
         if (function_exists('mb_strpos')) return mb_strpos($haystack,$needle,$offset,$modx->config['modx_charset']);
-        return $this->strlen($haystack,$needle,$offset);
+        return strpos($haystack,$needle,$offset);
     }
     function strlen($str) {
         global $modx;
