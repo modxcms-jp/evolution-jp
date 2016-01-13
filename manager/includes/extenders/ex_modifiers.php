@@ -494,7 +494,7 @@ class MODIFIERS {
                     return number_format($value,$opt);
             case 'money_format':
                     setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                    if($value!=='') return money_format($opt,$value);
+                    if($value!=='') return money_format($opt,(double)$value);
                     break;
             case 'tobool':
                 return boolval($value);
@@ -672,6 +672,7 @@ class MODIFIERS {
                 switch($opt) {
                     case 'width' : return $info['width'];
                     case 'height': return $info['height'];
+                    case 'aspect': return $info['aspect'];
                     case 'type'  : return $info['type'];
                     case 'attrib': return $info['attrib'];
                     default      : return print_r($info,true);
@@ -996,7 +997,7 @@ class MODIFIERS {
     function strpos($haystack,$needle,$offset=0) {
         global $modx;
         if (function_exists('mb_strpos')) return mb_strpos($haystack,$needle,$offset,$modx->config['modx_charset']);
-        return $this->strlen($haystack,$needle,$offset);
+        return strpos($haystack,$needle,$offset);
     }
     function strlen($str) {
         global $modx;
