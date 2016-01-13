@@ -1953,6 +1953,7 @@ class DocumentParser {
                 break;
             }
         endwhile;
+        // スニペットコールのパラメータを配列にも対応
         foreach($temp_params as $p)
         {
             $k = key($p);

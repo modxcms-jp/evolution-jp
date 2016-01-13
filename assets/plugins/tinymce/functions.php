@@ -194,7 +194,7 @@ class TinyMCE
 			break;
 		}
 		
-		$gsettings = file_get_contents("{$mce_path}inc/gsettings.html.inc");
+		$gsettings = file_get_contents("{$mce_path}inc/gsettings.inc.html");
 		
 		foreach($ph as $name => $value)
 		{
