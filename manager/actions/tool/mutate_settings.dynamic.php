@@ -1156,21 +1156,23 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <th><?php echo $_lang["upload_maxsize_title"]?></th>
 <td>
 <?php
-$limit_size = $modx->manager->getUploadMaxsize();
 if(empty($upload_maxsize))
 {
-	$limit_size_bytes = $limit_size;
-	$last = strtolower($limit_size_bytes[strlen($limit_size_bytes)-1]);
-	switch($last)
+	$uploadMaxsize = $modx->manager->getUploadMaxsize();
+	$last = substr($uploadMaxsize,-1);
+	$uploadMaxsize = substr($uploadMaxsize,0,-1);
+	switch(strtolower($last))
 	{
 		case 'g':
-			$limit_size_bytes *= 1024;
+			$uploadMaxsize *= 1024;
 		case 'm':
-			$limit_size_bytes *= 1024;
+			$uploadMaxsize *= 1024;
 		case 'k':
-			$limit_size_bytes *= 1024;
+			$uploadMaxsize *= 1024; break;
+		default:
+			$uploadMaxsize = 5000000;
 	}
-	$upload_maxsize = $limit_size_bytes;
+	$settings['upload_maxsize'] = $uploadMaxsize;
 }
 ?>
 <?php echo form_text('upload_maxsize');?><br />
