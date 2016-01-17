@@ -160,3 +160,11 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+
+#MODX-JP
+.htaccess
+assets/cache
+content
+config.inc.php
+temp
