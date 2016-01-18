@@ -123,26 +123,12 @@ $fckphp_config['auth']['Handler']['SharedKey']="->Shared_K3y-F0R*5enD1NG^auth3nt
 
 //File Area
 $fckphp_config['ResourceAreas']['files'] =array(
-	
-	//Files(identified by extension) that may be uploaded to this area
 	'AllowedExtensions'	=>	$upload_files,
-	
-	//Not implemented yet
 	'AllowedMIME'		=>	array(),
-	
-	//Set the maximum single upload to this area to 2MB (2048Kb)
 	'MaxSize'		=>	$upload_maxsize,
-	
-	//Set disk quota for this resource area to 20MB
 	'DiskQuota'		=>	-1,
-	
-	//By Default hide all folders starting with a . (Unix standard)
 	'HideFolders'		=>	array("^\."), 
-	
-	//By Default hide all files starting with a . (Unix standard)
 	'HideFiles'		=>	array("^\."), 
-	
-	//Do not allow images to be edited in this resource area
 	'AllowImageEditing'	=>	false
 	);
 
