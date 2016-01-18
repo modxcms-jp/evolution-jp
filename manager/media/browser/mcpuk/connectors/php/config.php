@@ -122,6 +122,7 @@ $fckphp_config['auth']['Handler']['SharedKey']="->Shared_K3y-F0R*5enD1NG^auth3nt
 //First area options are commented
 
 //File Area
+if(empty($upload_maxsize)) $upload_maxsize = 5000000;
 $fckphp_config['ResourceAreas']['files'] =array(
 	
 	//Files(identified by extension) that may be uploaded to this area
