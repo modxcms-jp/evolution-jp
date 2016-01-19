@@ -2577,7 +2577,7 @@ class DocumentParser {
         return $referenceListing;
     }
     
-    function makeUrl($id='', $alias= '', $args= '', $scheme= 'full')
+    function makeUrl($id='', $alias= '', $args= '', $scheme= 'full', $ignoreReference=false)
     {
         if($id==0) $id = $this->config['site_start'];
         elseif($id=='') $id = $this->documentIdentifier;
@@ -2595,7 +2595,7 @@ class DocumentParser {
 
         $type='document';
         $orgId=0;
-        if(isset($this->referenceListing[$id]))
+        if(isset($this->referenceListing[$id]) && !$ignoreReference)
         {
             $type='reference';
             if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
