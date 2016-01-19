@@ -120,7 +120,9 @@ class Mysqldumper {
 			$output .= "-- {$lf}{$lf}";
 			// Generate DROP TABLE statement when client wants it to.
 			if($this->isDroptables()) {
+				$output .= "SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;{$lf}";
 				$output .= "DROP TABLE IF EXISTS `{$table_name}`;{$lf}";
+				$output .= "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;{$lf}{$lf}";
 			}
 			$output .= "{$createtable[$table_name][0]};{$lf}";
 			$output .= $lf;
