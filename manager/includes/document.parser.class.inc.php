@@ -486,6 +486,9 @@ class DocumentParser {
                     $this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
                 }
                 $this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
+                if( !empty($this->previewObject) ){
+                    $this->directParse = 0;
+                }
                 $rs = $this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
                 if($this->directParse==1) return $rs;
             }
