@@ -1802,7 +1802,7 @@ class DocumentParser {
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
             if(substr($value,0,2)==='$_') {
-                $replace[$i] = $this->_getGValue($value);
+                $replace[$i] = $this->_getSGVar($value);
                 continue;
             }
             foreach($matches[0] as $find=>$tag) {
@@ -1820,7 +1820,7 @@ class DocumentParser {
         return $content;
     }
     
-    function _getGValue($value) {
+    function _getSGVar($value) { // Get super globals
         $key = $value;
         if(strpos($key,':')!==false)
             list($key,$modifiers) = explode(':', $key, 2);
