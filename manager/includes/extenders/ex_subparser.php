@@ -156,7 +156,7 @@ class SubParser {
                 $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
                 $body['Source'] = $fields['source'];
                 $body['IP'] = $_SERVER['REMOTE_ADDR'];
-                $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+                if(!empty($_SERVER['REMOTE_ADDR'])) $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
                 if(!empty($hostname))
                     $body['Host name'] = $hostname;
                 if(!empty($modx->event->activePlugin))
