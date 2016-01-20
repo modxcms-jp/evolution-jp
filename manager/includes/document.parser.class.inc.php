@@ -3271,7 +3271,8 @@ class DocumentParser {
         if(count($this->pluginEvent[$evtName])==0) return array();
         
         if(!$this->pluginCache) $this->getPluginCache();
-        
+
+        $preEventName = $this->event->name;
         $this->event->name= $evtName;
         $results= array ();
         foreach($this->pluginEvent[$evtName] as $pluginName)
@@ -3311,7 +3312,7 @@ class DocumentParser {
             $this->event->cm = $preCm;
             if ($this->event->_propagate != true) break;
         }
-        $this->event->name= '';
+        $this->event->name = $preEventName;
         return $results;
     }
     
