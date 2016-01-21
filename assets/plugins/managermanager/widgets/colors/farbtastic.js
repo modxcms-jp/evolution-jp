@@ -97,20 +97,6 @@ $._farbtastic = function (container, options) {
       .find('*').attr(dim).css(dim).end()
       .find('div>*').css('position', 'absolute');
 
-    // IE Fix: Recreate canvas elements with doc.createElement and excanvas.
-    $.browser.msie || false && $('canvas', container).each(function () {
-      // Fetch info.
-      var attr = { 'class': $(this).attr('class'), style: this.getAttribute('style') },
-          e = document.createElement('canvas');
-      // Replace element.
-      $(this).before($(e).attr(attr)).remove();
-      // Init with explorerCanvas.
-      G_vmlCanvasManager && G_vmlCanvasManager.initElement(e);
-      // Set explorerCanvas elements dimensions and absolute positioning.
-      $(e).attr(dim).css(dim).css('position', 'absolute')
-        .find('*').attr(dim).css(dim);
-    });
-
     // Determine layout
     fb.radius = (options.width - options.wheelWidth) / 2 - 1;
     fb.square = Math.floor((fb.radius - options.wheelWidth / 2) * 0.7) - 1;
@@ -166,26 +152,6 @@ $._farbtastic = function (container, options) {
           // New color
           color2 = fb.pack(fb.HSLToRGB([d2, 1, 0.5]));
       if (i > 0) {
-        if ($.browser.msie || false) {
-          // IE's gradient calculations mess up the colors. Correct along the diagonals.
-          var corr = (1 + Math.min(Math.abs(Math.tan(angle1)), Math.abs(Math.tan(Math.PI / 2 - angle1)))) / n;
-          color1 = fb.pack(fb.HSLToRGB([d1 - 0.15 * corr, 1, 0.5]));
-          color2 = fb.pack(fb.HSLToRGB([d2 + 0.15 * corr, 1, 0.5]));
-          // Create gradient fill between the endpoints.
-          var grad = m.createLinearGradient(x1, y1, x2, y2);
-          grad.addColorStop(0, color1);
-          grad.addColorStop(1, color2);
-          m.fillStyle = grad;
-          // Draw quadratic curve segment as a fill.
-          var r1 = (r + w / 2) / r, r2 = (r - w / 2) / r; // inner/outer radius.
-          m.beginPath();
-          m.moveTo(x1 * r1, y1 * r1);
-          m.quadraticCurveTo(xm * r1, ym * r1, x2 * r1, y2 * r1);
-          m.lineTo(x2 * r2, y2 * r2);
-          m.quadraticCurveTo(xm * r2, ym * r2, x1 * r2, y1 * r2);
-          m.fill();
-        }
-        else {
           // Create gradient fill between the endpoints.
           var grad = m.createLinearGradient(x1, y1, x2, y2);
           grad.addColorStop(0, color1);
@@ -196,7 +162,6 @@ $._farbtastic = function (container, options) {
           m.moveTo(x1, y1);
           m.quadraticCurveTo(xm, ym, x2, y2);
           m.stroke();
-        }
       }
       // Prevent seams where curves join.
       angle1 = angle2 - nudge; color1 = color2; d1 = d2;
@@ -246,16 +211,6 @@ $._farbtastic = function (container, options) {
       fb.ctxMask.drawImage(buffer, 0, 0, sz + 1, sz + 1, -sq, -sq, sq * 2, sq * 2);
     }
     // Method #2: drawing commands (old Canvas).
-    else if (!($.browser.msie || false)) {
-      // Render directly at half-resolution
-      var sz = Math.floor(size / 2);
-      calculateMask(sz, sz, function (x, y, c, a) {
-        c = Math.round(c * 255);
-        fb.ctxMask.fillStyle = 'rgba(' + c + ', ' + c + ', ' + c + ', ' + a +')';
-        fb.ctxMask.fillRect(x * 2 - sq - 1, y * 2 - sq - 1, 2, 2);
-      });
-    }
-    // Method #3: vertical DXImageTransform gradient strips (IE).
     else {
       var cache_last, cache, w = 6; // Each strip is 6 pixels wide.
       var sizex = Math.floor(size / w);
