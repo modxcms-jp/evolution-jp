@@ -30,10 +30,9 @@ class DBAPI {
         $this->config['dbase']   = $dbase;
         $this->config['user']    = $uid     ? $uid     : $database_user;
         $this->config['pass']    = $pwd     ? $pwd     : $database_password;
+        $this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
         $this->config['charset'] = $charset ? $charset : $database_connection_charset;
         $this->config['connection_method'] = (isset($database_connection_method) ? $database_connection_method : 'SET CHARACTER SET');
-        $this->_dbconnectionmethod = &$this->config['connection_method'];
-        $this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
         $this->initDataTypes();
         $this->hostname = $this->config['host'];
         $this->dbname   = $this->config['dbase'];
@@ -42,6 +41,7 @@ class DBAPI {
         $this->table_prefix = $this->config['table_prefix'];
         $this->charset           = $this->config['charset'];
         $this->connection_method = $this->config['connection_method'];
+        $this->_dbconnectionmethod = &$this->config['connection_method'];
     }
     
     /**
