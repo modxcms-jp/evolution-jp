@@ -245,7 +245,7 @@ function tabOnlineUser()
     	while ($row = $modx->db->getRow($rs))
     	{
     		$currentaction = getAction($row['action'], $row['id']);
-    		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.gif" alt="Web user" />':'';
+    		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />':'';
     		$tr[] = "<tr><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
     	}
     	if(!empty($tr)) $ph['userlist'] = join("\n",$tr);
