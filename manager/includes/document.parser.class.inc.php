@@ -486,6 +486,9 @@ class DocumentParser {
                     $this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
                 }
                 $this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
+                if( !empty($this->previewObject) ){
+                    $this->directParse = 0;
+                }
                 $rs = $this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
                 if($this->directParse==1) return $rs;
             }
@@ -1799,7 +1802,7 @@ class DocumentParser {
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
             if(substr($value,0,2)==='$_') {
-                $replace[$i] = $this->_getGValue($value);
+                $replace[$i] = $this->_getSGVar($value);
                 continue;
             }
             foreach($matches[0] as $find=>$tag) {
@@ -1817,7 +1820,7 @@ class DocumentParser {
         return $content;
     }
     
-    function _getGValue($value) {
+    function _getSGVar($value) { // Get super globals
         $key = $value;
         if(strpos($key,':')!==false)
             list($key,$modifiers) = explode(':', $key, 2);
@@ -2577,7 +2580,7 @@ class DocumentParser {
         return $referenceListing;
     }
     
-    function makeUrl($id='', $alias= '', $args= '', $scheme= 'full')
+    function makeUrl($id='', $alias= '', $args= '', $scheme= 'full', $ignoreReference=false)
     {
         if($id==0) $id = $this->config['site_start'];
         elseif($id=='') $id = $this->documentIdentifier;
@@ -2595,7 +2598,7 @@ class DocumentParser {
 
         $type='document';
         $orgId=0;
-        if(isset($this->referenceListing[$id]))
+        if(isset($this->referenceListing[$id]) && !$ignoreReference)
         {
             $type='reference';
             if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
@@ -3268,7 +3271,8 @@ class DocumentParser {
         if(count($this->pluginEvent[$evtName])==0) return array();
         
         if(!$this->pluginCache) $this->getPluginCache();
-        
+
+        $preEventName = $this->event->name;
         $this->event->name= $evtName;
         $results= array ();
         foreach($this->pluginEvent[$evtName] as $pluginName)
@@ -3308,7 +3312,7 @@ class DocumentParser {
             $this->event->cm = $preCm;
             if ($this->event->_propagate != true) break;
         }
-        $this->event->name= '';
+        $this->event->name = $preEventName;
         return $results;
     }
     

@@ -496,7 +496,7 @@ function getJScripts($docid) {
 	
 	$ph['imanager_url'] = $modx->config['imanager_url'];
 	$ph['fmanager_url'] = $modx->config['fmanager_url'];
-	$ph['preview_url']  = $modx->makeUrl($docid,'','','full');
+	$ph['preview_url']  = $modx->makeUrl($docid,'','','full',true);
 	$ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
 	$ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
 	$ph['lang_confirm_delete_draft_resource'] = $_lang['confirm_delete_draft_resource'];
