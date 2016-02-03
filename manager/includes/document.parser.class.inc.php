@@ -87,7 +87,7 @@ class DocumentParser {
     var $previewObject = ''; //プレビュー用のPOSTデータを保存
     var $snipLapCount;
 
-	private $baseTime = ''; //タイムマシン(基本は現在時間)
+    private $baseTime = ''; //タイムマシン(基本は現在時間)
 
     function __get($property_name)
     {
@@ -2790,14 +2790,14 @@ class DocumentParser {
     function getChunk($key)
     {
         if($key==='') return false;
-		$onCache = true;
+        $onCache = true;
 
         if( isset($this->chunkCache[$key]) ){
             $isCache = true;
             $value = $this->chunkCache[$key];
         }else{
             $isCache = false;
-			$where = "`name`='%s' AND (`published`='1' OR 
+            $where = "`name`='%s' AND (`published`='1' OR 
                                        (`pub_date` <> 0 AND `pub_date` < %d AND ( `unpub_date` = 0 OR `unpub_date` > %d) )
                                       )";
             $where = sprintf($where,  $this->db->escape($key), $this->baseTime,$this->baseTime);
@@ -2805,14 +2805,14 @@ class DocumentParser {
             if ($this->db->getRecordCount($rs)==1){
                 $row= $this->db->getRow($rs);
                 $value = $row['snippet'];
-				if( $row['published'] == 0 ){ //publishedが0じゃないものはキャッシュしない
-					$onCache = false;
-				}
+                if( $row['published'] == 0 ){ //publishedが0じゃないものはキャッシュしない
+                    $onCache = false;
+                }
             }
             else $value = '';
 
-			if( $onCache )
-				$this->chunkCache[$key] = $value;
+            if( $onCache )
+                $this->chunkCache[$key] = $value;
 
         }
 
@@ -3023,16 +3023,16 @@ class DocumentParser {
             $result= array ();
             
             // get document record
-		if ($docid == ''){
-			$docid = $this->documentIdentifier;
-			$resource= $this->documentObject;
-		}else{
-			if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Ignore published when the preview.
-				$resource= $this->getDocument($docid, '*',null);
-			else
-				$resource= $this->getDocument($docid, '*', $published);
-			if (!$resource) return false;
-		};
+        if ($docid == ''){
+            $docid = $this->documentIdentifier;
+            $resource= $this->documentObject;
+        }else{
+            if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Ignore published when the preview.
+                $resource= $this->getDocument($docid, '*',null);
+            else
+                $resource= $this->getDocument($docid, '*', $published);
+            if (!$resource) return false;
+        };
 
             $template = $resource['template'];
             if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Load preview
@@ -3629,74 +3629,74 @@ class DocumentParser {
         return $id;
     }
 
-	/*
-	 * 基準時間の設定
-	 *
-	 * 引数がない場合は現在の時間を設定。
-	 * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
-	 *
-	 * ・引数がない
-	 * ・ログイン状態
-	 * ・$_REQUEST['baseTime'] が存在する
-	 *
-	 * @param $t 時間(Unixtime or 日付フォーマット)
-	 * @return bool
-	 *
-	 */
-	function setBaseTime($t=''){
-		if( empty($t) ){
-			if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
-				$t=$_REQUEST['baseTime'];
-			}else{
-				$this->baseTime = time();
-				return true;
-			}
-		}
-		if( $this->isInt($t,1) ){
-			$this->baseTime = $t;
-		}else{
-			$tmp = $this->toTimeStamp($t);
-			if( empty($tmp) )
-				return false;
-			$this->baseTime = $tmp;
-		}
-		return true;
-	}
-	/*
-	 * 基準時間の取得
-	 *
-	 * @param none
-	 * @return int
-	 *
-	 */
-	function getBaseTime(){
-		return $this->baseTime;
-	}
+    /*
+     * 基準時間の設定
+     *
+     * 引数がない場合は現在の時間を設定。
+     * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
+     *
+     * ・引数がない
+     * ・ログイン状態
+     * ・$_REQUEST['baseTime'] が存在する
+     *
+     * @param $t 時間(Unixtime or 日付フォーマット)
+     * @return bool
+     *
+     */
+    function setBaseTime($t=''){
+        if( empty($t) ){
+            if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
+                $t=$_REQUEST['baseTime'];
+            }else{
+                $this->baseTime = time();
+                return true;
+            }
+        }
+        if( $this->isInt($t,1) ){
+            $this->baseTime = $t;
+        }else{
+            $tmp = $this->toTimeStamp($t);
+            if( empty($tmp) )
+                return false;
+            $this->baseTime = $tmp;
+        }
+        return true;
+    }
+    /*
+     * 基準時間の取得
+     *
+     * @param none
+     * @return int
+     *
+     */
+    function getBaseTime(){
+        return $this->baseTime;
+    }
 
-	//内部サポート用Class
-	//※APIとしては提供しない
-	//※量が増えたり使い勝手が悪かったら別Class等にするかも
-	/*
-	 * 数値確認
-	 *
-	 * @param $param 入力値
-	 * @param $min   最小値(default:null)
-	 * @param $max   最大値(default:null)
-	 * @return bool
-	 *
-	 */
-	private static function isInt($param,$min=null,$max=null){
-		if( !preg_match('/\A[0-9]+\z/', $param) ){
-			return false;
-		}
-		if( !is_null($min) && preg_match('/\A[0-9]+\z/', $min) && $param < $min ){
-			return false;
-		}
-		if( !is_null($max) && preg_match('/\A[0-9]+\z/', $max) && $param > $max ){
-			return false;
-		}
-		return true;
-	}
+    //内部サポート用Class
+    //※APIとしては提供しない
+    //※量が増えたり使い勝手が悪かったら別Class等にするかも
+    /*
+     * 数値確認
+     *
+     * @param $param 入力値
+     * @param $min   最小値(default:null)
+     * @param $max   最大値(default:null)
+     * @return bool
+     *
+     */
+    private static function isInt($param,$min=null,$max=null){
+        if( !preg_match('/\A[0-9]+\z/', $param) ){
+            return false;
+        }
+        if( !is_null($min) && preg_match('/\A[0-9]+\z/', $min) && $param < $min ){
+            return false;
+        }
+        if( !is_null($max) && preg_match('/\A[0-9]+\z/', $max) && $param > $max ){
+            return false;
+        }
+        return true;
+    }
 
     // End of class.
 }
