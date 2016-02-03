@@ -3177,8 +3177,8 @@ class DocumentParser {
     # Returns current user id
     function getLoginUserID($context= '')
     {
-        if ($context)
-            return (isset ($_SESSION["{$context}Validated"]));
+        if ($context && isset($_SESSION["{$context}Validated"]))
+            return $_SESSION["{$context}InternalKey"];
         
         if ($this->isFrontend() && isset ($_SESSION['webValidated']))
         {
