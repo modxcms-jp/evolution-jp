@@ -773,7 +773,6 @@ class MODIFIERS {
                 $idx = $value;
                 if(!is_numeric($idx)) return $value;
                 return $arr[$idx];
-                break;
             case 'getimage':
                 return $this->includeMdfFile('getimage');
             case 'nicesize':
