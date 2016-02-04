@@ -650,6 +650,8 @@ class MODIFIERS {
                     $result[] = $child['id'];
                 }
                 return join(',', $result);
+            case 'fullurl':
+                return $modx->makeUrl($value);
                 
             #####  File system
             case 'getimageinfo':
@@ -766,6 +768,11 @@ class MODIFIERS {
                 $i = $value + $c;
                 $i = $i % $c;
                 return $_[$i];
+            case 'takeval':
+                $arr = explode(",",$opt);
+                $idx = $value;
+                if(!is_numeric($idx)) return $value;
+                return $arr[$idx];
             case 'getimage':
                 return $this->includeMdfFile('getimage');
             case 'nicesize':
