@@ -651,6 +651,7 @@ class MODIFIERS {
                 }
                 return join(',', $result);
             case 'fullurl':
+                if(!is_numeric($value)) return $value;
                 return $modx->makeUrl($value);
                 
             #####  File system
