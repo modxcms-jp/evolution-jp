@@ -77,12 +77,13 @@ class MODX_INIT {
         $dir = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
         $dir = substr($dir,0,strrpos($dir,'/')) . '/';
         $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
-        if(substr($_SERVER['REQUEST_URI'],0,2)==='/~') $dir = '/~' . substr($dir,1);
+        if(isset($_SERVER['REQUEST_URI']) && substr($_SERVER['REQUEST_URI'],0,2)==='/~') $dir = '/~' . substr($dir,1);
         $dir = rtrim($dir, '/') . '/';
         return $dir;
     }
     
     function get_host_name() {
+        if(!isset($_SERVER['HTTP_HOST'])) return "";
         $host = $_SERVER['HTTP_HOST'];
         $pos = strpos($host,':');
         if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || $this->is_ssl())) {
@@ -101,6 +102,7 @@ class MODX_INIT {
     function is_ssl() {
         global $https_port;
         
+        if(!isset($_SERVER['SERVER_PORT'])) return false;
         if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port) {
             return true;
         }
@@ -109,7 +111,7 @@ class MODX_INIT {
     
     // set the document_root :|
     function fix_document_root() {
-        if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
+        if (isset($_SERVER['PATH_INFO']) && (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT']))) {
             $_SERVER['DOCUMENT_ROOT'] = str_replace($_SERVER['PATH_INFO'], '', str_replace('\\', '/', $_SERVER['PATH_TRANSLATED'])).'/';
         }
     }
@@ -153,6 +155,7 @@ class MODX_INIT {
     
     function fix_favicon_req() {
         // From WordPress wp_favicon_request() load.php
+        if(!isset($_SERVER['REQUEST_URI'])) return;
         if($_SERVER['REQUEST_URI']==='/favicon.ico') {
             header('Content-Type: image/vnd.microsoft.icon');
             header('Content-Length: 0');
