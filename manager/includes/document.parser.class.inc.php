@@ -1222,7 +1222,7 @@ class DocumentParser {
         
         if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
 
-        //下書き採用(今のところリソースのみ)
+        //下���き採用(今のところリソースのみ)
         $draft_ids = array();
         $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<{$timeNow} AND status = 'standby'");
         while( $row = $this->db->getRow($rs) ){
