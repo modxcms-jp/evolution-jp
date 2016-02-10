@@ -136,6 +136,6 @@ function get_parentid($id)
 {
 	global $modx;
 	if(strpos($id,',')) $id = substr($id,0,strpos($id,','));
-	$rs = $modx->db->select('parent', $modx->getFullTableName('site_content'), 'id='.$id);
+	$rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'");
 	return $modx->db->getValue($rs);
 }
