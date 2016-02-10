@@ -121,7 +121,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-&copy; 2005-2015 by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
+&copy; 2005-[[$_SERVER['REQUEST_TIME']:date(Y)]] by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
 </p>
 </body>
 </html>
