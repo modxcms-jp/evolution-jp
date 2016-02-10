@@ -44,7 +44,7 @@
  * Initialize Document Parsing
  * -----------------------------
  */
-if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime();
+if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 $mstart = memory_get_usage();
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 define('MODX_BASE_PATH', $base_path);
@@ -89,9 +89,7 @@ if (!defined('MODX_API_MODE')
                 $pos++;
             }
             $msize = round($msize, 2) . ' ' . $units[$pos];
-            list ($usec, $sec) = explode(' ', microtime());
-            $now = ((float) $usec + (float) $sec);
-            $totalTime = ($now - $tstart);
+            $totalTime = (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']);
             $totalTime = sprintf('%2.4f s', $totalTime);
             $incs = get_included_files();
             $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize,'[^f^]'=>count($incs));

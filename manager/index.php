@@ -50,7 +50,7 @@
  */
 
 // get start time
-if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime();
+if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 $mstart = memory_get_usage();
 
 $self_path      = str_replace('\\','/',__FILE__);
