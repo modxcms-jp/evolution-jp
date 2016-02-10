@@ -432,7 +432,7 @@ class TinyMCE
 		
 		$ph['tpl_list']                = "{$mce_url}js/get_template.php";
 	
-		$mce_init = file_get_contents("{$mce_path}js/mce_init.js.inc");
+		$mce_init = file_get_contents("{$mce_path}js/mce_init.inc.js");
 		
 		foreach($ph as $name => $value)
 		{
