@@ -16,6 +16,7 @@ $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
 
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
+if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_open_default'] = 1;
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo  $mxla;?>" dir="<?php echo  $textdir;?>">
@@ -36,6 +37,9 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
+		
+		var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
+		if(treeopen==0) top.mainMenu.hideTreeFrame();
 		
 		var documentDirty=false;
 		var dontShowWorker = false;

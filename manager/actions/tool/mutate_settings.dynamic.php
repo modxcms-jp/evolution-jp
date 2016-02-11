@@ -917,7 +917,14 @@ foreach($files as $file)
 		<?php echo $_lang["enable_draft_message"]?>
 	</td>
 </tr>
-
+<tr>
+	<th><?php echo $_lang["tree_pane_open_default_title"]?></th>
+	<td>
+    	<?php echo wrap_label($_lang["open"], form_radio('tree_pane_open_default', 1, $tree_pane_open_default==1));?><br />
+    	<?php echo wrap_label($_lang["close"],form_radio('tree_pane_open_default', 0, $tree_pane_open_default==0));?><br />
+		<?php echo $_lang["tree_pane_open_default_message"]?>
+	</td>
+</tr>
 <?php
 $tmenu_style = 'style="width:350px;"';
 checkConfig('topmenu_site');

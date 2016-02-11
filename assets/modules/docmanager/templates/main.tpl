@@ -11,6 +11,7 @@
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">
 			var baseurl = '[+baseurl+]';
+			top.mainMenu.defaultTreeFrame();
 	        var $j = jQuery.noConflict();
             function loadTemplateVars(tplId) {
 			    $j('#tvloading').css('display','block');
