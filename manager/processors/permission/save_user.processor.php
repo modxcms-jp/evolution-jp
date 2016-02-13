@@ -429,7 +429,6 @@ switch ($mode) {
 				$header = "Location: index.php?a=75&r=3";
 			}
 			header($header);
-			exit;
 		}
 		break;
 	default :

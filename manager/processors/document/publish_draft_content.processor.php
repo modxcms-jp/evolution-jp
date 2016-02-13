@@ -32,7 +32,6 @@ else publishDraft($docid);
 //$modx->clearCache();
 $header = sprintf('Location: index.php?a=3&id=%s&r=1', $docid);
 header($header);
-exit;
 
 
 

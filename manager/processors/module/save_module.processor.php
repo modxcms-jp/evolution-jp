@@ -155,7 +155,6 @@ switch ($_POST['mode']) {
     	// redirect to view modules
 		header('Location: index.php?a=106&r=2');
 }
-exit;
 
 // saves module user group access
 function saveUserGroupAccessPermissons(){

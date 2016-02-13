@@ -43,5 +43,3 @@ if(!empty($source))
 	$dumper->import_sql($source);
 }
 header('Location: index.php?r=9&a=93');
-exit;
-

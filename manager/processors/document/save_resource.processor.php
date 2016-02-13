@@ -74,7 +74,6 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		goNextAction($newid);
-		exit;
 		break;
 	case 'edit' :
 		$return_url = "index.php?a=27&id={$id}";
@@ -142,11 +141,9 @@ switch ($actionToTake) {
 		$modx->invokeEvent('OnDocFormSave', $modx->event->vars);
 
 		goNextAction($id);
-		exit;
 		break;
 	default :
 		header("Location: index.php?a=7");
-		exit;
 }
 
 function get_tmplvars($id=0)
@@ -604,7 +601,6 @@ function goNextAction($id) {
 			else		   $header = "Location: index.php?a=3&id={$id}&r=1";
 	}
 	header($header);
-	exit;
 }
 
 function setDocPermissionsEdit($document_groups,$id) {

@@ -10,4 +10,3 @@ $modx->revision->delete($docid, 'standby');
 
 $header = "Location: index.php?a=3&id={$docid}&r=1";
 header($header);
-exit;
