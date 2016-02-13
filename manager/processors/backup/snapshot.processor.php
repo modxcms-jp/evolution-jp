@@ -70,4 +70,3 @@ else
 	$e->setError(1, 'Unable to Backup Database');
 	$e->dumpError();
 }
-exit;
