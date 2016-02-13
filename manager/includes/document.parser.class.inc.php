@@ -1302,11 +1302,15 @@ class DocumentParser {
     function _getTagsFromContent($content, $left='[+',$right='+]') {
         if(strpos($content,$left)===false) return array();
         $spacer = md5('<<<MODX>>>');
-        if(strpos($content,']]>')!==false)  $content = str_replace(']]>', "]{$spacer}]>",$content);
         if(strpos($content,';}}')!==false)  $content = str_replace(';}}', ";}{$spacer}}",$content);
         if(strpos($content,'{{}}')!==false) $content = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$content);
         if(strpos($content,']]]]')!==false) $content = str_replace(']]]]',"]]{$spacer}]]",$content);
         if(strpos($content,']]]')!==false)  $content = str_replace(']]]',"]{$spacer}]]",$content);
+        
+        $pos['<![CDATA[']                 = strpos($content,'<![CDATA[');
+        if($pos['<![CDATA[']) $pos[']]>'] = strpos($content,']]>');
+        if($pos['<![CDATA[']!==false && $pos[']]>']!==false)
+            $content = substr($content,0,$pos['<![CDATA[']) . substr($content,$pos['<![CDATA[']+9,$pos[']]>']) . substr($content,$pos[']]>']+3);
         
         $lp = explode($left,$content);
         $piece = array();
