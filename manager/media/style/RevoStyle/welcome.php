@@ -214,7 +214,6 @@ TPL;
     $tpl = <<< TPL
 <div class="tab-page" id="tabYour">
 	<h2 class="tab">[+yourinfo_title+]</h2>
-	<script type="text/javascript">tpPane.addTabPage(document.getElementById("tabYour"));</script>
 	<div class="sectionHeader">[+activity_title+]</div>
 	<div class="sectionBody">[+RecentInfo+]</div>
 	<div class="sectionHeader">[+yourinfo_title+]</div>
@@ -274,7 +273,6 @@ TPL;
     $tpl = <<< TPL
 <div class="tab-page" id="tabOnline">
 	<h2 class="tab">[+online+]</h2>
-	<script type="text/javascript">tpPane.addTabPage(document.getElementById("tabOnline"));</script>
 	<div class="sectionHeader">[+onlineusers_title+]</div>
     <div class="sectionBody">[+OnlineInfo+]</div>
 </div>
