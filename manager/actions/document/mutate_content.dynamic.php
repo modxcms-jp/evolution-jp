@@ -100,6 +100,7 @@ if($modx->doc->mode==='normal') {
 $ph['actionButtons'] = getActionButtons($id);
 $ph['token'] = $modx->genToken();
 $_SESSION['token'] = $ph['token'];
+$ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 
 echo $modx->parseText($tpl['head'],$ph);
 
