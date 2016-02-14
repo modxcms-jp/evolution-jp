@@ -29,7 +29,6 @@ $dbase = trim($dbase,'`');
 </script>
 <div class="tab-page" id="tabServer">
 <h2 class="tab"><?php echo $_lang["view_sysinfo"];?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabServer" ) );</script>
 <!-- server -->
 <div class="sectionHeader"><?php echo $_lang["view_sysinfo"];?></div>
 <div class="sectionBody" id="lyr2">
@@ -67,7 +66,6 @@ $dbase = trim($dbase,'`');
 
 <div class="tab-page" id="sysinfoDesc">
 <h2 class="tab"><?php echo $_lang["click_to_view_details"]; ?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "sysinfoDesc" ) );</script>
 <div class="sectionHeader">サポートに必要な情報</div>
 <div class="sectionBody" style="padding:10px 20px;">
 <p>
@@ -144,7 +142,6 @@ echo '</table>' . "\n";
 <!-- recent documents -->
 <div class="tab-page" id="tabActivity">
 <h2 class="tab"><?php echo $_lang["activity_title"]; ?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabActivity" ) );</script>
 <div class="sectionHeader"><?php echo $_lang["activity_title"]; ?></div>
 <div class="sectionBody" id="lyr1">
 		<?php echo $_lang["sysinfo_activity_message"]; ?><p>
@@ -204,7 +201,6 @@ echo '</table>' . "\n";
 <!-- database -->
 <div class="tab-page" id="tabDatebase">
 <h2 class="tab"><?php echo $_lang["database_tables"]; ?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabDatebase" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['database_tables']; ?></div>
 <div class="sectionBody" id="lyr4">
 		<table class="grid">
@@ -270,7 +266,6 @@ echo '</table>' . "\n";
 <!-- online users -->
 <div class="tab-page" id="tabOnlineUsers">
 <h2 class="tab"><?php echo $_lang["onlineusers_title"]; ?></h2>
-<script type="text/javascript">tp.addTabPage( document.getElementById( "tabOnlineUsers" ) );</script>
 <div class="sectionHeader"><?php echo $_lang['onlineusers_title']; ?></div>
 <div class="sectionBody" id="lyr5">
 

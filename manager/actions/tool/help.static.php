@@ -51,7 +51,6 @@ foreach($help as $k=>$v) {
     $helpname = str_replace('_', ' ', $helpname);
     echo '<div class="tab-page" id="tab'.$v.'Help">';
     echo '<h2 class="tab">'.$helpname.'</h2>';
-    echo '<script type="text/javascript">tpHelp.addTabPage( document.getElementById( "tab'.$v.'Help" ) );</script>';
     include ($help_dir . '/' . $v);
     echo '</div>';
 }

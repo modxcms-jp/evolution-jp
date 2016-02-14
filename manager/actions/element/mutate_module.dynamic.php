@@ -60,8 +60,6 @@ var docid = <?php echo $_REQUEST['id'];?>;
 jQuery(function(){
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), tpstatus );
-	if(document.getElementById('tabAccess'))
-		tpModule.addTabPage( document.getElementById('tabAccess') );
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1') {
 			jQuery('#newcategry').fadeIn();

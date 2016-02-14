@@ -56,7 +56,6 @@ else
 
 <div class="tab-page" id="tabPage1">
 <h2 class="tab"><?php echo $_lang['web_access_permissions_user_groups'] ?></h2>
-<script type="text/javascript">tp1.addTabPage( document.getElementById( "tabPage1" ) );</script>
 <?php
 // User Groups
 
@@ -128,7 +127,6 @@ else
 
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo $_lang['access_permissions_resource_groups'] ?></h2>
-<script type="text/javascript">tp1.addTabPage( document.getElementById( "tabPage2" ) );</script>
 <?php
 // Document Groups
 
@@ -200,7 +198,6 @@ else
 
 <div class="tab-page" id="tabPage3">
 <h2 class="tab"><?php echo $_lang['access_permissions_links'] ?></h2>
-<script type="text/javascript">tp1.addTabPage( document.getElementById( "tabPage3" ) );</script>
 <?php
 // User/Document Group Links
 

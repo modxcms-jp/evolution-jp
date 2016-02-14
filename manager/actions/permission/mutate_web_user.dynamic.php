@@ -263,7 +263,6 @@ function SetUrl(url, width, height, alt){
 	</script>
     <div class="tab-page" id="tabGeneral">
     	<h2 class="tab"><?php echo $_lang["login_settings"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
 		  <tr>
 			<td>
@@ -321,7 +320,6 @@ function SetUrl(url, width, height, alt){
 <!-- Profile -->
 <div class="tab-page" id="tabProfile">
 <h2 class="tab"><?php echo $_lang["profile"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabProfile" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang['user_full_name']; ?>:</th>
@@ -416,7 +414,6 @@ function SetUrl(url, width, height, alt){
 	<!-- Settings -->
     <div class="tab-page" id="tabSettings">
     	<h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabSettings" ) );</script>
         <table class="settings">
           <tr>
             <td nowrap class="warning"><b><?php echo $_lang["login_homepage"] ?></b></td>
@@ -510,7 +507,6 @@ if($modx->config['use_udperms']==1)
 	<!-- Access -->
     <div class="tab-page" id="tabAccess">
     	<h2 class="tab"><?php echo $_lang["web_access_permissions"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
 		<div class="sectionHeader"><?php echo $_lang['web_access_permissions']; ?></div>
 		<div class="sectionBody">
 <?php

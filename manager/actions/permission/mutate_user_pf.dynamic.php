@@ -195,7 +195,6 @@ if (is_array($evtOut))
 <!-- Profile -->
 <div class="tab-page" id="tabProfile">
 <h2 class="tab"><?php echo $_lang["profile"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabProfile" ) );</script>
 <table class="settings">
 <tr>
 <th valign="top"><?php echo $_GET['a']=='11' ? $_lang['password'].":" : $_lang['change_password_new'].":" ; ?></th>
@@ -320,7 +319,6 @@ if (is_array($evtOut))
 <!-- Interface & editor settings -->
 <div class="tab-page" id="tabPage5">
 <h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPage5" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["manager_theme"]?></th>

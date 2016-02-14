@@ -258,7 +258,6 @@ if (is_array($evtOut))
     <div class="tab-page" id="tabGeneral">
 		<?php if($_GET['id']==$modx->getLoginUserID()) { ?><p><?php echo $_lang['user_edit_self_msg']; ?></p><?php } ?>
     	<h2 class="tab"><?php echo $_lang["login_settings"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table class="settings">
 <?php
 	if($userdata['blocked']==1 || ($userdata['blockeduntil']>time() && $userdata['blockeduntil']!=0) || $userdata['failedlogins']>3):
@@ -357,7 +356,6 @@ while ($row = $modx->db->getRow($rs))
 <!-- Profile -->
 <div class="tab-page" id="tabProfile">
 <h2 class="tab"><?php echo $_lang["profile"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabProfile" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang['user_full_name']; ?>:</th>
@@ -455,7 +453,6 @@ while ($row = $modx->db->getRow($rs))
 	<!-- Settings -->
     <div class="tab-page" id="tabSettings">
     	<h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
-    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabSettings" ) );</script>
         <table class="settings">
           <tr>
             <th><?php echo $_lang["allow_mgr_access"] ?></th>
@@ -538,7 +535,6 @@ while ($row = $modx->db->getRow($rs))
 <!-- Interface & editor settings -->
 <div class="tab-page" id="tabPage5">
 <h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPage5" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["manager_theme"]?></th>
@@ -640,7 +636,6 @@ while ($row = $modx->db->getRow($rs))
 <!-- Miscellaneous settings -->
 <div class="tab-page" id="tabPage7">
 <h2 class="tab"><?php echo $_lang["settings_misc"] ?></h2>
-<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabPage7" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["filemanager_path_title"]?></th>
@@ -709,7 +704,6 @@ if ($modx->config['use_udperms'] == 1)
 	<!-- Access -->
 	<div class="tab-page" id="tabAccess">
 		<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
-		<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
 		<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
 		<div class="sectionBody">
 <?php

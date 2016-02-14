@@ -198,7 +198,6 @@ function confirmLangChange(el, lkey, elupd)
 <!-- Site Settings -->
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo $_lang["settings_site"] ?></h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage2" ) );</script>
 <style type="text/css">
 	table.settings {border-collapse:collapse;width:100%;}
 	table.settings tr {border-bottom:1px dotted #ccc;}
@@ -504,7 +503,6 @@ function confirmLangChange(el, lkey, elupd)
 <!-- Friendly URL settings  -->
 <div class="tab-page" id="tabPage3">
 <h2 class="tab"><?php echo $_lang["settings_furls"] ?></h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage3" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["friendlyurls_title"] ?></th>
@@ -587,7 +585,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- User settings -->
 <div class="tab-page" id="tabPage4">
 <h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage4" ) );</script>
 <table class="settings">
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
@@ -870,7 +867,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- Interface & editor settings -->
 <div class="tab-page" id="tabPage5">
 <h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage5" ) );</script>
 <table class="settings">
 <tr>
 <th><?php echo $_lang["manager_theme"]?></th>
@@ -1125,7 +1121,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- Miscellaneous settings -->
 <div class="tab-page" id="tabPage7">
 <h2 class="tab"><?php echo $_lang["settings_misc"] ?></h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage7" ) );</script>
 <table class="settings">
 <tr>
 <th><?php echo $_lang["filemanager_path_title"]?></th>
