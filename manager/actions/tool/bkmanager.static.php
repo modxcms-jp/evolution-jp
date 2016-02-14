@@ -347,7 +347,7 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 	<tr><th><?php echo $_lang["bk.fileName"];?></th><td><input type="text" name="file_name" size="50" value="<?php echo $filename;?>" /></td></tr>
 	</table>
 	<div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-	<a href="#" class="primary" onclick="nanobar.go(30);document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
+	<a href="#" class="primary" onclick="document.snapshot.save.click();"><img alt="icons_save" src="<?php echo $_style["icons_add"]?>" /><?php echo $_lang["bkmgr_snapshot_submit"];?></a>
 	<input type="submit" name="save" style="display:none;" />
 	</form>
 	</div>
@@ -369,7 +369,7 @@ if(is_array($files) && 0 < $total)
 {
 	echo '<ul>';
 	arsort($files);
-	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="nanobar.go(30);document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
+	$tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
 	while ($file = array_shift($files))
 	{
 		$timestamp = filemtime($file);

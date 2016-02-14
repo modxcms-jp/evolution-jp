@@ -107,7 +107,7 @@ $repl_after  = $modx->getOption('export_repl_after',$modx->config['site_url']);
 </table>
 
 <ul class="actionButtons">
-	<li><a href="#" class="default" onclick="nanobar.go(20);document.exportFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["export_site_start"]; ?></a></li>
+	<li><a href="#" class="default" onclick="document.exportFrm.submit();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang["export_site_start"]; ?></a></li>
 </ul>
 </form>
 
