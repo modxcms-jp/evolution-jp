@@ -138,6 +138,8 @@ class MODX_INIT {
     function fix_server_addr() {
         if(!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR']))
             $_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
+        if(isset($_SERVER['HTTP_X_REMOTE_ADDR']))
+            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REMOTE_ADDR'];
         if($_SERVER['REMOTE_ADDR']==='::1')
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
     }
