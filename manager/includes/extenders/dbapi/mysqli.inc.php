@@ -47,9 +47,9 @@ class DBAPI {
     function connect($host = '', $dbase = '', $uid = '', $pwd = '', $tmp = 0) {
         global $modx;
         if($this->conn) return;
-        if(!$host)  $host  = $this->hostname;
-        if(substr(PHP_OS,0,3) === 'WIN' && $host==='localhost')
-            $host = '127.0.0.1';
+        if($host) $this->hostname = $host;
+        if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
+            $this->hostname = '127.0.0.1';
         if(!$dbase) $dbase = $this->dbname;
         $dbase   = trim($dbase, '`'); // remove the `` chars
         if(!$uid)   $uid   = $this->username;
@@ -58,7 +58,7 @@ class DBAPI {
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            $this->conn = new mysqli($host, $uid, $pwd, $dbase);
+            $this->conn = new mysqli($this->hostname, $uid, $pwd, $dbase);
             if ($this->conn->connect_error) {
                 $this->conn = null;
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
