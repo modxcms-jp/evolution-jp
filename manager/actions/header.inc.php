@@ -38,7 +38,7 @@ if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_ope
 		/* <![CDATA[ */
 		
 		var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
-		if(treeopen==0) top.mainMenu.hideTreeFrame();
+		if(treeopen==0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 		
 		var documentDirty=false;
 		var dontShowWorker = false;
