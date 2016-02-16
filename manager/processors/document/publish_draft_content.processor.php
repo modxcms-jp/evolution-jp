@@ -7,7 +7,6 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-//print_r($_GET);print_r($_POST);exit;
 if(isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id']))
 	$docid = $_POST['id'];
 elseif(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id']))

@@ -20,8 +20,7 @@ else {
 }
 
 if(!$rs) {
-	echo "Something went wrong while trying to delete the event log...";
-	exit;
+	exit('Something went wrong while trying to delete the event log...');
 } else {
 	header('Location: index.php?a=114');
 }

@@ -150,9 +150,7 @@ switch ($_POST['mode']) {
         }
         break;
     default:
-        ?>
-        Erm... You supposed to be here now?
-    <?php
+        echo 'Erm... You supposed to be here now?';
 }
 
 function saveTemplateAccess() {

@@ -85,7 +85,7 @@ switch ($_POST['mode']) {
 		             'guid','modulecode','properties','editedon','createdon');
 		$newid = $modx->db->insert($f,$tbl_site_modules);
 		if(!$newid){
-			echo "\$newid not set! New module not saved!";
+			echo '$newid not set! New module not saved!';
 			exit;
 		}
 		else
@@ -128,7 +128,7 @@ switch ($_POST['mode']) {
 		             'guid','modulecode','properties','editedon');
 		$rs = $modx->db->update($f,$tbl_site_modules,"id='{$id}'");
 		if(!$rs){
-			echo "\$rs not set! Edited module not saved!".$modx->db->getLastError();
+			echo '$rs not set! Edited module not saved!'.$modx->db->getLastError();
 			exit;
 		}
 		else {

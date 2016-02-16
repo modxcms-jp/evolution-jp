@@ -43,10 +43,8 @@ $modx->db->query($sql);
 
 //'undelete' the document.
 $rs = $modx->db->delete($tbl_site_content,'deleted=1');
-if(!$rs) {
-	echo "Something went wrong while trying to remove deleted documents!";
-	exit;
-} else {
+if(!$rs) exit("Something went wrong while trying to remove deleted documents!");
+else {
 	// invoke OnEmptyTrash event
 	$modx->invokeEvent('OnEmptyTrash',$modx->event->vars);
 	$modx->event->vars = array();

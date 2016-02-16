@@ -79,10 +79,7 @@ switch ($_POST['mode']) {
         $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
         $newid = $modx->db->insert($field, '[+prefix+]site_htmlsnippets');
         // get the id
-        if (!$newid) {
-            echo "Couldn't get last insert key!";
-            exit;
-        }
+        if(!$newid) exit("Couldn't get last insert key!");
 
         // invoke OnChunkFormSave event
         $tmp = array(

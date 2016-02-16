@@ -49,22 +49,16 @@ $field['deletedon'] = time();
 if(0 < count($children)) {
 	$docs_to_delete   = implode(' ,', $children);
 	$rs = $modx->db->update($field,'[+prefix+]site_content',"id IN({$docs_to_delete})");
-	if(!$rs)
-	{
-		echo "Something went wrong while trying to set the document's children to deleted status...";
-		exit;
+	if(!$rs) {
+		exit("Something went wrong while trying to set the document's children to deleted status...");
 	}
 }
 
 //ok, 'delete' the document.
 $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
-if(!$rs)
-{
-	echo "Something went wrong while trying to set the document to deleted status...";
-	exit;
-}
-else
-{
+if(!$rs) {
+	exit('Something went wrong while trying to set the document to deleted status...');
+} else {
 	// invoke OnDocFormDelete event
 	$params['id']       = $id;
 	$params['children'] = $children; //array()
@@ -91,12 +85,10 @@ function getChildren($parent)
 	while($row=$modx->db->getRow($rs))
 	{
 		if($row['id']==$modx->config['site_start']) {
-			echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.";
-			exit;
+			exit("The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.");
 		}
 		if($row['id']==$modx->config['site_unavailable_page']) {
-			echo "The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site unavailable page' document, and cannot be deleted. Please assign another document as your 'Site unavailable page' document and try again.";
-			exit;
+			exit("The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site unavailable page' document, and cannot be deleted. Please assign another document as your 'Site unavailable page' document and try again.");
 		}
 		$children[] = $row['id'];
 		getChildren($row['id']);

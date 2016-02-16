@@ -16,10 +16,8 @@ if(strpos($doc_id,','))
 else $doc_ids[] = $doc_id;
 
 $rs = $modx->db->select('parent',$tbl_site_content,"id='{$doc_id}'");
-if(!$rs)
-{
-	echo "An error occured while attempting to find the resource's current parent.";
-	exit;
+if(!$rs) {
+	exit("An error occured while attempting to find the resource's current parent.");
 }
 $current_parent = $modx->db->getValue($rs);
 $new_parent = intval($_REQUEST['new_parent']);
@@ -113,8 +111,7 @@ function allChildren($docid)
 	$rs = $modx->db->select('id',$tbl_site_content,"parent='{$docid}'");
 	if(!$rs)
 	{
-		echo "An error occured while attempting to find all of the resource's children.";
-		exit;
+		exit("An error occured while attempting to find all of the resource's children.");
 	}
 	else
 	{
@@ -156,7 +153,6 @@ function update_parentid($doc_id,$new_parent,$user_id,$menuindex)
 	$rs = $modx->db->update($field,$tbl_site_content,"id='{$doc_id}'");
 	if(!$rs)
 	{
-		echo "An error occured while attempting to move the resource to the new parent.";
-		exit;
+		exit("An error occured while attempting to move the resource to the new parent.");
 	}
 }

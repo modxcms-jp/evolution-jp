@@ -12,8 +12,7 @@ $id = intval($_REQUEST['id']);
 if(!$modx->checkPermissions($id)) disp_access_permission_denied();
 
 // get the timestamp on which the document was deleted.
-$where = "id='{$id}' AND deleted=1";
-$rs = $modx->db->select('deletedon','[+prefix+]site_content',$where);
+$rs = $modx->db->select('deletedon', '[+prefix+]site_content', "id='{$id}' AND deleted=1");
 if($modx->db->getRecordCount($rs)!=1)
 	exit("Couldn't find document to determine it's date of deletion!");
 else
@@ -40,22 +39,12 @@ if(0 < count($children))
 {
 	$docs_to_undelete = implode(' ,', $children);
 	$rs = $modx->db->update($field,'[+prefix+]site_content',"id IN({$docs_to_undelete})");
-	if(!$rs)
-	{
-		echo "Something went wrong while trying to set the document's children to undeleted status...";
-		exit;
-	}
+	if(!$rs) exit("Something went wrong while trying to set the document's children to undeleted status...");
 }
 //'undelete' the document.
 $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
-if(!$rs)
-{
-	echo "Something went wrong while trying to set the document to undeleted status...";
-	exit;
-}
-else
-{
-
+if(!$rs) exit("Something went wrong while trying to set the document to undeleted status...");
+else {
 	// invoke OnDocFormUnDelete event
 	$params['id']       = $id;
 	$params['children'] = $children;
