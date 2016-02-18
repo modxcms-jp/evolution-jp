@@ -839,7 +839,7 @@ class SubParser {
     }
     
     # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-    function regClientStartupScript($src, $options)
+    function regClientStartupScript($src, $options=array('name'=>'', 'version'=>'0', 'plaintext'=>false))
     {
         $this->regClientScript($src, $options, true);
     }
