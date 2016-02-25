@@ -68,9 +68,9 @@ if(!$rs) {
 	$modx->clearCache();
 	$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
 	$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
-	if($pid!=='0') $header="Location: index.php?r=1&a=120&id={$pid}";
-	else           $header="Location: index.php?a=2&r=1";
-	header($header);
+	if($pid!=='0') $url = "index.php?r=1&a=120&id={$pid}";
+	else           $url = 'index.php?a=2&r=1';
+	header("Location: {$url}");
 }
 
 

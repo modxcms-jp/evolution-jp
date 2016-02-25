@@ -79,11 +79,11 @@ switch ($_POST['mode']) {
         		case '1': $a = '300'             ;break;
         		case '2': $a = "301&id={$newid}" ;break;
         	}
-            $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+            $url = "index.php?a={$a}&stay={$_POST['stay']}";
         } else {
-            $header = "Location: index.php?a=76";
+            $url = "index.php?a=76";
         }
-        header($header);
+        header("Location: {$url}");
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
@@ -142,11 +142,11 @@ switch ($_POST['mode']) {
             		case '1': $a = '300'             ;break;
             		case '2': $a = "301&id={$id}" ;break;
             	}
-                $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+                $url = "index.php?a={$a}&stay={$_POST['stay']}";
             } else {
-                $header = 'Location: index.php?a=76';
+                $url = 'index.php?a=76';
             }
-            header($header);
+            header("Location: {$url}");
         }
         break;
     default:
