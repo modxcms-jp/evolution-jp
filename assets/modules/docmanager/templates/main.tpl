@@ -7,7 +7,6 @@
         <script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
         <script type="text/javascript" src="media/calendar/datepicker.js"></script>
-        <script type="text/javascript" src="media/script/mootools/moodx.js"></script>
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">
 			var baseurl = '[+baseurl+]';
