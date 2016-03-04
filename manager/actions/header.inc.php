@@ -17,6 +17,7 @@ $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_open_default'] = 1;
+if(!isset($modx->config['devmode_showhash'])) $modx->config['devmode_showhash'] = 0;
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo  $mxla;?>" dir="<?php echo  $textdir;?>">
@@ -53,6 +54,8 @@ if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_ope
 		
 		jQuery(function(){
 			var action = <?php echo $modx->manager->action;?>;
+			var show_hash = <?php echo $modx->config['devmode_showhash'];?>;
+			if(show_hash) parent.location.hash = location.search.substr(1);
 			switch(action)
 			{
 				case 27:
