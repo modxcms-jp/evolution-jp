@@ -747,6 +747,7 @@ class MODIFIERS {
             #####  Special functions 
             case 'ifempty':
             case '_default':
+            case 'default':
                 if (empty($value)) return $opt; break;
             case 'ifnotempty':
                 if (!empty($value)) return $opt; break;
