@@ -86,6 +86,7 @@ class DocumentParser {
     var $aliasCache = array();
     var $previewObject = ''; //プレビュー用のPOSTデータを保存
     var $snipLapCount;
+    var $chunkieCache;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
