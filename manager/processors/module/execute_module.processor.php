@@ -124,8 +124,8 @@ function evalModule($moduleCode,$params){
         switch($error_info['type'])
         {
         	case E_NOTICE :
-        		$error_level = 1;
         	case E_USER_NOTICE :
+        		$error_level = 1;
         		break;
         	case E_DEPRECATED :
         	case E_USER_DEPRECATED :

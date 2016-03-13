@@ -6,7 +6,8 @@
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
-if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
+if (!defined('E_DEPRECATED'))      define('E_DEPRECATED',       8192);
+if (!defined('E_USER_DEPRECATED')) define('E_USER_DEPRECATED', 16384);
 
 // do a little bit of environment cleanup if possible
 if (version_compare(phpversion(), "5.3") < 0) {

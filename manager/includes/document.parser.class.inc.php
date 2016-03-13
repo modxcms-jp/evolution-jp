@@ -3523,10 +3523,12 @@ class DocumentParser {
             switch($nr)
             {
                 case E_NOTICE:
+                case E_USER_NOTICE :
                     if($this->error_reporting <= 2) return true;
                     break;
                 case E_STRICT:
                 case E_DEPRECATED:
+                case E_USER_DEPRECATED:
                     if($this->error_reporting <= 1) return true;
                     break;
                 default:
