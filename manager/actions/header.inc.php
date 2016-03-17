@@ -93,7 +93,7 @@ if(!isset($modx->config['devmode_showhash'])) $modx->config['devmode_showhash'] 
 		});
 		
 		jQuery(window).on('beforeunload', function(){
-			if(documentDirty) return '<?php echo $_lang['warning_not_saved'];?>';
+			if(documentDirty) return '<?php echo addslashes($_lang['warning_not_saved']);?>';
 			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
 		});
         
