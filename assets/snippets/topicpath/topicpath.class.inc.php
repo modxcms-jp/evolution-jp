@@ -1,7 +1,7 @@
 <?php
 class TopicPath
 {
-	function TopicPath()
+	function __construct()
 	{
 		global $modx;
 		if($modx->event->params) extract($modx->event->params);

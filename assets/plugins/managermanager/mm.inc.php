@@ -23,7 +23,7 @@
 class MANAGERMANAGER
 {
 
-	function MANAGERMANAGER()
+	function __construct()
 	{
 	}
 	

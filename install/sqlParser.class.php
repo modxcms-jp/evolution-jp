@@ -9,7 +9,7 @@ class SqlParser {
     var $connection_charset, $connection_collation, $showSqlErrors;
     var $base_path;
 
-	function SqlParser() {
+	function __construct() {
 		$this->base_path = str_replace('\\','/', dirname(getcwd())).'/';
 		$this->prefix = 'modx_';
 		$this->adminname = 'admin';

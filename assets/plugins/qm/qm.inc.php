@@ -28,7 +28,7 @@ class Qm {
 	var $modx;
 
     //_______________________________________________________
-	function Qm(&$modx, $params=array())
+	function __construct(&$modx, $params=array())
 	{
 		if(isset($_GET['a']) && $_GET['a']==='83') return;
 		

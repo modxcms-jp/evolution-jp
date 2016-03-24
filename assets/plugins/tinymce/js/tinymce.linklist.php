@@ -183,7 +183,7 @@ echo $output;
 
 class LINKLIST
 {
-	function LINKLIST()
+	function __construct()
 	{
 	}
 	

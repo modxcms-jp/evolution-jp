@@ -49,7 +49,7 @@ $wfbc = new WFBC();
 
 class WFBC
 {
-	function WFBC()
+	function __construct()
 	{
 	}
 	

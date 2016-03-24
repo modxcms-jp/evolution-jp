@@ -2,7 +2,7 @@
 class ForgotManagerPassword {
 	var $fmp_path;
 	
-	function ForgotManagerPassword()
+	function __construct()
 	{
 		$this->fmp_path = str_replace('\\','/', dirname(__FILE__)) . '/';
 		$this->errors = array();
