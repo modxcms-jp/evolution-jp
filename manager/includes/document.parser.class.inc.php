@@ -1287,8 +1287,8 @@ class DocumentParser {
     }
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
-        $key = __FUNCTION__ . md5("{$content}{$left}{$right}");
-        if(isset($this->functionCache[$key])) return $this->functionCache[$key];
+        $key = md5("{$content}{$left}{$right}");
+        if(isset($this->functionCache['gettagsfromcontent'][$key])) return $this->functionCache['gettagsfromcontent'][$key];
         $_ = $this->_getTagsFromContent($content,$left,$right);
         if(empty($_)) return array();
         foreach($_ as $v)
@@ -1296,7 +1296,7 @@ class DocumentParser {
             $tags[0][] = "{$left}{$v}{$right}";
             $tags[1][] = $v;
         }
-        $this->functionCache[$key] = $tags;
+        $this->functionCache['gettagsfromcontent'][$key] = $tags;
         return $tags;
     }
     
@@ -2365,8 +2365,8 @@ class DocumentParser {
     function getChildIds($id, $depth= 10, $children= array ())
     {
         $args = print_r(func_get_args(),true);
-        $cacheKey = __FUNCTION__ . md5($args);
-        if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
+        $cacheKey = md5($args);
+        if(isset($this->functionCache['getchildids'][$cacheKey])) return $this->functionCache['getchildids'][$cacheKey];
         
         // Initialise a static array to index parents->children
         if(empty($this->childrenList))
@@ -2395,7 +2395,7 @@ class DocumentParser {
                 }
             }
         }
-        $this->functionCache[$cacheKey] = $children;
+        $this->functionCache['getchildids'][$cacheKey] = $children;
         return $children;
     }
 
@@ -2492,18 +2492,18 @@ class DocumentParser {
         
         if(empty($docid)) return false;
         $webInternalKey = isset($_SESSION['webInternalKey']) ? $_SESSION['webInternalKey'] : '0';
-        $cacheKey = __FUNCTION__."[{$field}-{$docid}-{$webInternalKey}]";
-        if(isset($this->functionCache[$cacheKey]))
-            return $this->functionCache[$cacheKey];
+        $cacheKey = "[{$field}-{$docid}-{$webInternalKey}]";
+        if(isset($this->functionCache['getfield'][$cacheKey]))
+            return $this->functionCache['getfield'][$cacheKey];
         
         $doc = $this->getDocumentObject('id', $docid);
         if(is_array($doc[$field]))
         {
             $tvs= $this->getTemplateVarOutput($field, $docid,null);
-            $this->functionCache[$cacheKey] = $tvs[$field];
+            $this->functionCache['getfield'][$cacheKey] = $tvs[$field];
             return $tvs[$field];
         }
-        $this->functionCache[$cacheKey] = $doc[$field];
+        $this->functionCache['getfield'][$cacheKey] = $doc[$field];
         return $doc[$field];
     }
     
@@ -2588,8 +2588,8 @@ class DocumentParser {
     {
         if($id==0) $id = $this->config['site_start'];
         elseif($id=='') $id = $this->documentIdentifier;
-        $cacheKey = __FUNCTION__."[{$id}-{$alias}-{$args}-{$scheme}]";
-        if(isset($this->functionCache[$cacheKey])) return $this->functionCache[$cacheKey];
+        $cacheKey = "[{$id}-{$alias}-{$args}-{$scheme}]";
+        if(isset($this->functionCache['makeurl'][$cacheKey])) return $this->functionCache['makeurl'][$cacheKey];
         $makeurl= '';
         $f_url_prefix = $this->config['friendly_url_prefix'];
         $f_url_suffix = $this->config['friendly_url_suffix'];
@@ -2611,7 +2611,7 @@ class DocumentParser {
                 $id = $this->referenceListing[$id];
             }
             else {
-                $this->functionCache[$cacheKey] = $this->referenceListing[$id];
+                $this->functionCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
                 return $this->referenceListing[$id];
             }
         }
@@ -2728,7 +2728,7 @@ class DocumentParser {
         if( $url != $params['url'] )
           $url = $params['url'];
         
-        $this->functionCache[$cacheKey] = $url;
+        $this->functionCache['makeurl'][$cacheKey] = $url;
         return $url;
     }
     
