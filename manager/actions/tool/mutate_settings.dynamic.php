@@ -70,17 +70,15 @@ $site_unavailable_message_view = isset($site_unavailable_message) ? $site_unavai
 ?>
 
 <script type="text/javascript">
-$j(function(){
-	$j('#furlRow1').change(function() {$j('.furlRow').fadeIn();});
-	$j('#furlRow0').change(function() {$j('.furlRow').fadeOut();});
-	$j('#udPerms1').change(function() {$j('.udPerms').fadeIn();});
-	$j('#udPerms0').change(function() {$j('.udPerms').fadeOut();});
-	$j('#udPerms1').change(function() {$j('.udPerms').fadeIn();});
-	$j('#udPerms0').change(function() {$j('.udPerms').fadeOut();});
-	$j('#editorRow1').change(function() {$j('.editorRow').fadeIn();});
-	$j('#editorRow0').change(function() {$j('.editorRow').fadeOut();});
-	$j('#rbRow1').change(function() {$j('.rbRow').fadeIn();});
-	$j('#rbRow0').change(function() {$j('.rbRow').fadeOut();});
+jQuery(function(){
+	jQuery('#furlRowOn').change(function()    {jQuery('.furlRow').fadeIn();});
+	jQuery('#furlRowOff').change(function()   {jQuery('.furlRow').fadeOut();});
+	jQuery('#udPermsOn').change(function()    {jQuery('.udPerms').slideDown();});
+	jQuery('#udPermsOff').change(function()   {jQuery('.udPerms').slideUp();});
+	jQuery('#editorRowOn').change(function()  {jQuery('.editorRow').slideDown();});
+	jQuery('#editorRowOff').change(function() {jQuery('.editorRow').slideUp();});
+	jQuery('#rbRowOn').change(function()      {jQuery('.rbRow').slideDown();});
+	jQuery('#rbRowOff').change(function()     {jQuery('.rbRow').slideUp();});
 });
 
 function addContentType()
@@ -507,45 +505,45 @@ function confirmLangChange(el, lkey, elupd)
 <tr>
 	<th><?php echo $_lang["friendlyurls_title"] ?></th>
 	<td>
-		<?php echo wrap_label($_lang["yes"],form_radio('friendly_urls','1', $friendly_urls=='1','id="furlRow1"'));?><br />
-		<?php echo wrap_label($_lang["no"],form_radio('friendly_urls','0', $friendly_urls=='0','id="furlRow0"'));?><br />
+		<?php echo wrap_label($_lang["yes"],form_radio('friendly_urls','1', $friendly_urls=='1','id="furlRowOn"'));?><br />
+		<?php echo wrap_label($_lang["no"],form_radio('friendly_urls','0', $friendly_urls=='0','id="furlRowOff"'));?><br />
 		<?php echo $_lang["friendlyurls_message"] ?>
 	</td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsprefix_title"] ?></th>
 	<td>
 		<?php echo form_text('friendly_url_prefix',50);?><br />
 		<?php echo $_lang["friendlyurlsprefix_message"] ?></td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang["friendlyurlsuffix_title"] ?></th>
 	<td>
 		<?php echo form_text('friendly_url_suffix',50);?><br />
 		<?php echo $_lang["friendlyurlsuffix_message"] ?></td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang['make_folders_title'] ?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('make_folders','1', $make_folders=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('make_folders','0', $make_folders=='0'));?><br />
 		<?php echo $_lang["make_folders_message"] ?></td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 	<th><?php echo $_lang['mutate_settings.dynamic.php4'];?></th>
 	<td>
 		<?php echo wrap_label($_lang["yes"],form_radio('suffix_mode','1', $suffix_mode=='1'));?><br />
 		<?php echo wrap_label($_lang["no"],form_radio('suffix_mode','0', $suffix_mode=='0'));?><br />
 		<?php echo $_lang['mutate_settings.dynamic.php5'];?></td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["friendly_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('friendly_alias_urls','1', $friendly_alias_urls=='1'));?><br />
 	<?php echo wrap_label($_lang["no"],form_radio('friendly_alias_urls','0', $friendly_alias_urls=='0'));?><br />
 	<?php echo $_lang["friendly_alias_message"] ?></td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["use_alias_path_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('use_alias_path','1', $use_alias_path=='1'));?><br />
@@ -553,7 +551,7 @@ function confirmLangChange(el, lkey, elupd)
 	<?php echo $_lang["use_alias_path_message"] ?>
 </td>
 </tr>
-<tr class='furlRow row2' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class='furlRow' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["duplicate_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('allow_duplicate_alias','1', $allow_duplicate_alias=='1'));?><br />
@@ -561,7 +559,7 @@ function confirmLangChange(el, lkey, elupd)
 	<?php echo $_lang["duplicate_alias_message"] ?>
 </td>
 </tr>
-<tr class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+<tr class="furlRow" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["automatic_alias_title"] ?></th>
 <td>
 	<?php echo wrap_label('pagetitle',form_radio('automatic_alias','1', $automatic_alias=='1'));?><br />
@@ -589,11 +587,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <tr>
 	<th><?php echo $_lang["udperms_title"] ?></th>
 	<td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $modx->config['use_udperms']=='1','id="udPerms1"'));?><br />
-	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $modx->config['use_udperms']=='0','id="udPerms0"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_udperms','1', $modx->config['use_udperms']=='1','id="udPermsOn"'));?><br />
+	<?php echo wrap_label($_lang["no"], form_radio('use_udperms','0', $modx->config['use_udperms']=='0','id="udPermsOff"'));?><br />
 <?php echo $_lang["udperms_message"] ?></td>
 </tr>
-<tr class="udPerms row2" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('udperms_allowroot','1', $udperms_allowroot=='1'));?><br />
@@ -601,7 +599,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo $_lang["udperms_allowroot_message"] ?>
 </td>
 </tr>
-<tr class="udPerms row1" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
+<tr class="udPerms" style="display: <?php echo $modx->config['use_udperms']==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["tree_show_protected"] ?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('tree_show_protected','1',$tree_show_protected=='1'));?><br />
@@ -1065,13 +1063,13 @@ echo $str;
 <tr>
 <th><?php echo $_lang["use_editor_title"]?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','id="editorRow1"'));?><br />
-	<?php echo wrap_label($_lang["no"] ,form_radio('use_editor','0',$use_editor=='0','id="editorRow0"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_editor','1',$use_editor=='1','id="editorRowOn"'));?><br />
+	<?php echo wrap_label($_lang["no"] ,form_radio('use_editor','0',$use_editor=='0','id="editorRowOff"'));?><br />
 	<?php echo $_lang["use_editor_message"]?>
 </td>
 </tr>
 
-<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["which_editor_title"]?></th>
 <td>
 <?php
@@ -1093,14 +1091,14 @@ echo $which_editor_sel;
 ?>
 <?php echo $_lang["which_editor_message"]?></td>
 </tr>
-<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["fe_editor_lang_title"]?></th>
 <td><select name="fe_editor_lang" size="1" class="inputBox">
 <?php echo get_lang_options(null, $fe_editor_lang);?>
 </select><br />
 <?php echo $_lang["fe_editor_lang_message"]?></td>
 </tr>
-<tr class="editorRow row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+<tr class="editorRow" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["editor_css_path_title"]?></th>
 <td>
 <?php echo form_text('editor_css_path','','style="width:400px;"');?><br />
@@ -1196,13 +1194,13 @@ if(empty($upload_maxsize))
 <tr>
 <th><?php echo $_lang["rb_title"]?></th>
 <td>
-	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','id="rbRow1"'));?><br />
-	<?php echo wrap_label($_lang["no"] ,form_radio('use_browser','0',$use_browser=='0','id="rbRow0"'));?><br />
+	<?php echo wrap_label($_lang["yes"],form_radio('use_browser','1',$use_browser=='1','id="rbRowOn"'));?><br />
+	<?php echo wrap_label($_lang["no"] ,form_radio('use_browser','0',$use_browser=='0','id="rbRowOff"'));?><br />
 	<?php echo $_lang["rb_message"]?>
 </td>
 </tr>
 
-<tr class="rbRow row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class="rbRow" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["settings_strip_image_paths_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('strip_image_paths','1',$strip_image_paths=='1'));?><br />
@@ -1211,7 +1209,7 @@ if(empty($upload_maxsize))
 </td>
 </tr>
 
-<tr class="rbRow row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class="rbRow" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_webuser_title"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('rb_webuser','1',$rb_webuser=='1'));?><br />
@@ -1219,7 +1217,7 @@ if(empty($upload_maxsize))
 	<?php echo $_lang["rb_webuser_message"]?>
 </td>
 </tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_dir_title"]?></th>
 <td>
 <?php
@@ -1230,13 +1228,13 @@ if(empty($upload_maxsize))
 <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text());" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir"><br />
 <?php echo $_lang["rb_base_dir_message"]?></td>
 </tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["rb_base_url_title"]?></th>
 <td>
 <?php echo $site_url . form_text('rb_base_url');?><br />
 <?php echo $_lang["rb_base_url_message"]?></td>
 </tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["clean_uploaded_filename"]?></th>
 <td>
 	<?php echo wrap_label($_lang["yes"],form_radio('clean_uploaded_filename','1',$clean_uploaded_filename=='1'));?><br />
@@ -1244,7 +1242,7 @@ if(empty($upload_maxsize))
 	<?php echo $_lang["clean_uploaded_filename_message"];?>
 </td>
 </tr>
-<tr class='rbRow row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+<tr class='rbRow' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
 <th><?php echo $_lang["a17_image_limit_width_title"]?></th>
 <td>
 <?php echo form_text('image_limit_width');?>px<br />
