@@ -31,7 +31,7 @@ class FileUpload {
 	var $fckphp_config;
 	var $type;
 	
-	function FileUpload($fckphp_config,$type,$cwd)
+	function __construct($fckphp_config,$type,$cwd)
 	{
 		global $modx;
 		

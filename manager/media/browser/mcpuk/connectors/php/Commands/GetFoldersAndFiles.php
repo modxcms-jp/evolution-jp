@@ -24,7 +24,7 @@ class GetFoldersAndFiles {
 	var $actual_cwd;
 	var $enable_imgedit;
 	
-	function GetFoldersAndFiles($fckphp_config,$type,$cwd) {
+	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
 		$this->raw_cwd=$cwd;

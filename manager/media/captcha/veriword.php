@@ -33,7 +33,7 @@ class VeriWord {
 	var $im_height;
 	var $words;
 
-	function VeriWord($w=200, $h=80)
+	function __construct($w=200, $h=80)
 	{
 		global $modx;
 		$vw_path = str_replace('\\','/',dirname(__FILE__)) . '/';

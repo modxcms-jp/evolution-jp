@@ -23,7 +23,7 @@ class GetUploadProgress {
 	var $actual_cwd;
 	var $uploadID;
 	
-	function GetUploadProgress($fckphp_config,$type,$cwd) {
+	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
 		$this->raw_cwd=$cwd;

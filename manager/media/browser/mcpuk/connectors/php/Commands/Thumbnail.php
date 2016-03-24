@@ -31,7 +31,7 @@ class Thumbnail {
 	var $actual_cwd;
 	var $filename;
 	
-	function Thumbnail($fckphp_config,$type,$cwd) {
+	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
 		$this->actual_cwd=str_replace('//','/',("/$type/".$cwd));
