@@ -98,8 +98,9 @@ class synccache {
 	
 	function purgeCacheFiles($target='pageCache')
 	{
+		if(strpos($this->cachePath,MODX_BASE_PATH)!==0) return;
+		
 		$filesincache = 0;
-		$deletedfilesincache = 0;
 		
 		if($target==='pageCache')
 			$pattern = realpath($this->cachePath) . '/*/*.pageCache.php';
@@ -110,20 +111,20 @@ class synccache {
 		$files = glob($pattern,GLOB_NOCHECK);
 		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
 		$deletedfiles = array();
-		if(is_array($files) && 0 < $filesincache)
+		if(0 < $filesincache)
 		{
-			$cachedir_len = strlen(MODX_BASE_PATH . 'assets/cache/');
+			$cachedir_len = strlen($this->cachePath);
 			while ($file_path = array_shift($files))
 			{
 				$name = substr($file_path,$cachedir_len);
 				if (!in_array($name, $deletedfiles))
 				{
-					$deletedfilesincache++;
 					$deletedfiles[] = $name;
 					if(is_file($file_path)) unlink($file_path);
 				}
 			}
 		}
+		$deletedfilesincache = count($deletedfiles);
 		return array($filesincache,$deletedfilesincache,$deletedfiles);
 	}
 
@@ -314,7 +315,8 @@ class synccache {
 			$msg = "{$cache_path} - ".$_lang['file_not_saved'];
 			if(defined('IN_MANAGER_MODE')) {
 				header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
-				echo '<link rel="stylesheet" type="text/css" href="' . $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/style.css" />';
+				$params = array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme']);
+				echo $modx->parseText('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
 				$msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
 			}
 			exit($msg);
@@ -434,7 +436,7 @@ class synccache {
 	{
 		global $modx;
 		
-		$fields  = 'sysevt.name as `evtname`, plugs.name';
+		$fields  = 'sysevt.name as `evtname`, plugs.name as plgname';
 		$from[] = '[+prefix+]system_eventnames sysevt';
 		$from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
 		$from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
@@ -447,16 +449,14 @@ class synccache {
 		$row = array();
 		while ($row = $modx->db->getRow($rs))
 		{
-			if(!$events[$row['evtname']])
-			{
-				$events[$row['evtname']] = array();
-			}
-			$events[$row['evtname']][] = $row['name'];
+			$evtname = $row['evtname'];
+			if(!isset($events[$evtname])) $events[$evtname] = array();
+			$events[$evtname][] = $row['plgname'];
 		}
 		foreach($events as $evtname => $pluginnames)
 		{
 			$pluginnames = implode("','",$this->escapeSingleQuotes($pluginnames));
-			$_[] = '$e' . "['{$evtname}'] = array('{$pluginnames}');";
+			$_[] = sprintf("\$e['%s'] = array('%s');", $evtname, $pluginnames);
 		}
 		return join("\n",$_) . "\n";
 	}
