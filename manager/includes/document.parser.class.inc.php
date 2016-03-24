@@ -3720,7 +3720,7 @@ class SystemEvent {
     var $vars = array();
     var $cm = null;
 
-    function SystemEvent($name= '') {
+    function __construct($name= '') {
         $this->_resetEventObject();
         $this->name= $name;
         $this->activePlugin = '';
