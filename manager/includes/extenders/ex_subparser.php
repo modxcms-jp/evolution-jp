@@ -3,7 +3,7 @@
 $this->sub = new SubParser();
 
 class SubParser {
-    function SubParser()
+    function __construct()
     {
     }
     function sendmail($params=array(), $msg='')

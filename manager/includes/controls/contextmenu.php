@@ -4,7 +4,7 @@ class ContextMenu {
 	
 	var $i;
 	
-	function ContextMenu($id='',$width=120,$visible=false) {
+	function __construct($id='',$width=120,$visible=false) {
 		global $ContextMenuCnt;
 		if(!$ContextMenuCnt) $ContextMenuCnt = 0;
 		$ContextMenuCnt++;

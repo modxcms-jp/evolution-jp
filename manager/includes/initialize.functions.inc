@@ -40,7 +40,7 @@ function set_parser_mode() {
 }
 
 class MODX_INIT {
-    function MODX_INIT() {
+    function __construct() {
     }
     
     function init_mgr() {

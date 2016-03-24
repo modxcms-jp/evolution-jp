@@ -14,7 +14,7 @@ class ManagerAPI {
 	
 	var $action; // action directive
 
-	function ManagerAPI(){
+	function __construct(){
 		global $action;
 		$this->action = $action; // set action directive
 	}

@@ -21,7 +21,7 @@ class Mysqldumper {
 	var $table_prefix;
 	var $contentsOnly;
 
-	function Mysqldumper() {
+	function __construct() {
 		global $modx;
 		// Don't drop tables by default.
 		$this->database_server = $modx->db->config['host']==='127.0.0.1' ? 'localhost' : $modx->db->config['host'];

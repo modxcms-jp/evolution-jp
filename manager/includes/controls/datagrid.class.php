@@ -53,7 +53,7 @@ class DataGrid {
 	var $src_encode;
 	var $detectHeader;
 
-	function DataGrid($id='',$ds='',$pageSize=20,$pageNumber=-1) {
+	function __construct($id='',$ds='',$pageSize=20,$pageNumber=-1) {
 		global $modx, $__DataGridCnt;
 		
 		// set id

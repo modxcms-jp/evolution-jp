@@ -6,7 +6,7 @@ class DocAPI {
 	
 	var $mode;
 	
-	function DocAPI()
+	function __construct()
 	{
 	}
 	

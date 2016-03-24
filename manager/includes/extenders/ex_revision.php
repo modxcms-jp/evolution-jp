@@ -5,7 +5,7 @@ class REVISION
 {
 	var $hasDraft;
 	
-	function REVISION()
+	function __construct()
 	{
 		if(!defined('MODX_BASE_PATH'))  return false;
 	}

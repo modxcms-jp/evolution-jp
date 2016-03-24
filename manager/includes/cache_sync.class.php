@@ -11,7 +11,7 @@ class synccache {
 	var $config = array();
 	var $cacheRefreshTime;
 
-	function synccache()
+	function __construct()
 	{
 		if(empty($this->target))      $this->target = 'pagecache,sitecache';
 		if(defined('MODX_BASE_PATH')) $this->cachePath = MODX_BASE_PATH . 'assets/cache/';

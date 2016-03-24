@@ -22,7 +22,7 @@ class MODxMailer extends PHPMailer
 	var $mb_language          = false;
 	var $encode_header_method = null;
 	
-	function MODxMailer()
+	function __construct()
 	{
 		global $modx;
 		

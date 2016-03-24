@@ -14,7 +14,7 @@ class EXPORT_SITE
 	var $maxtime;
 	var $lock_file_path;
 	
-	function EXPORT_SITE()
+	function __construct()
 	{
 		global $modx;
 		

@@ -32,7 +32,7 @@ class MakeTable {
 	var $selectedValues;
 	var $pageLimit;
 	
-	function MakeTable() {
+	function __construct() {
 		global $modx;
 		
 		$this->fieldHeaders         = array();

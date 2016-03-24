@@ -15,7 +15,7 @@ class MODIFIERS {
     var $value;
     var $opt;
     
-    function MODIFIERS()
+    function __construct()
     {
         global $modx;
         

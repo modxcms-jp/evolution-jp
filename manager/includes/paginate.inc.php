@@ -36,7 +36,7 @@ class Paging {
   var $int_cur_position;// Current position in recordset
   var $str_ext_argv;    // Extra argv of query string
   
-  function Paging( $int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = "" ){
+  function __construct( $int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = "" ){
     $this->script_name = $_SERVER['SCRIPT_NAME'];
     $this->int_nbr_row = $int_nbr_row;
     $this->int_num_result = $int_num_result;
