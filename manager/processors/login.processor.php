@@ -34,7 +34,9 @@ if(strpos($formv_username,':safemode')!==false)
 	$_SESSION['safeMode'] = 1;
 	$formv_username = str_replace(':safemode','',$formv_username);
 }
-elseif(strpos($formv_username,':roleid=')!==false)
+else $_SESSION['safeMode'] = 0;
+
+if(strpos($formv_username,':roleid=')!==false)
 {
 	list($formv_username,$forceRole) = explode(':roleid=',$formv_username,2);
 	if(!preg_match('@^[0-9]+$@',$forceRole)) $forceRole = 1;
