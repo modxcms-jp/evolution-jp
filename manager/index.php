@@ -85,8 +85,8 @@ $modx->mstart = $mstart;
 $modx->safeMode = 0;
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 {
-	if($_SESSION['mgrRole']==1) $modx->safeMode = 1;
-	else unset($_SESSION['safeMode']);
+    if($modx->hasPermission('save_role')) $modx->safeMode = 1;
+    else                                  $modx->safeMode = $_SESSION['safeMode'] = 0;
 }
 
 $modx->getSettings();
