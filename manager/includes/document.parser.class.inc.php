@@ -2487,7 +2487,7 @@ class DocumentParser {
         if(empty($docid) && isset($this->documentIdentifier))
             $docid = $this->documentIdentifier;
         elseif(!preg_match('@^[0-9]+$@',$docid))
-            $docid = $this->getIdFromAlias($identifier);
+            $docid = $this->getIdFromAlias($docid);
         
         if(empty($docid)) return false;
         $webInternalKey = isset($_SESSION['webInternalKey']) ? $_SESSION['webInternalKey'] : '0';
