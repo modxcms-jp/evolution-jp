@@ -1377,7 +1377,7 @@ class DocumentParser {
         return $id;
     }
     // mod by Raymond
-    function mergeDocumentContent($content,$convertDate=true)
+    function mergeDocumentContent($content,$convertValue=true)
     {
         if(!isset($this->documentIdentifier)) return $content;
         if(strpos($content,'[*')===false) return $content;
@@ -1448,7 +1448,7 @@ class DocumentParser {
                 $this->loadExtension('MODIFIERS');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
             }
-            elseif($convertDate)
+            elseif($convertValue)
             {
                 switch($key)
                 {
@@ -1503,7 +1503,6 @@ class DocumentParser {
             
             if(isset($this->config[$key]))
             {
-                
                 $value = $this->config[$key];
                 if($modifiers!==false)
                 {
