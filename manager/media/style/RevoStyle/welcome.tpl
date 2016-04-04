@@ -1,9 +1,9 @@
 <!-- welcome -->
 <div style="margin: 20px 12px;">
 	<div class="tab-pane" id="welcomePane" style="border:0">
-    <script type="text/javascript">
-        tpPane = new WebFXTabPane(document.getElementById( "welcomePane" ),false);
-    </script>
+        <script type="text/javascript">
+            tpPane = new WebFXTabPane(document.getElementById( "welcomePane" ),false);
+        </script>
 
 		<!-- home tab -->
 		<div class="tab-page" id="tabhome" style="padding-left:0; padding-right:0;">
