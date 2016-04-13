@@ -10,6 +10,8 @@ var docMode = '[+docMode+]';
 if (parent.tree) parent.tree.saveFolderState();
 
 jQuery(function(){
+	
+	tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
 	jQuery('#save a').click(function(){
     	documentDirty=false;
     	gotosave = true;
