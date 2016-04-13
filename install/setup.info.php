@@ -156,6 +156,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 			$p['guid']          = $params['guid'];
 			$p['category']      = $params['modx_category'];
 			$p['legacy_names']  = $params['legacy_names'];
+			$p['disabled']      = isset($params['disabled']) ? $params['disabled'] : '0';
 			$p['installset']    = array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false;
 			$tplPlugins[] = $p;
 		}

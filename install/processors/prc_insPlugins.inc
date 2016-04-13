@@ -44,7 +44,7 @@ foreach ($tplPlugins as $i=>$tplInfo) {
 	$plugincode = getLast(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
 	$f['plugincode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
 	$f['properties']  = propUpdate($tplInfo['properties'],$dbv_plugin->properties);
-	$f['disabled']    = '0';
+	$f['disabled']    = $tplInfo['disabled'];
 	$f['moduleguid']  = $modx->db->escape($tplInfo['guid']);
 	$f = $modx->db->escape($f);
 	
