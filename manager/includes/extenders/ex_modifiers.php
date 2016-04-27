@@ -179,7 +179,7 @@ class MODIFIERS {
     {
         if($value!=='') return false;
         
-        $_ = explode(',', 'id,ifempty,_default,default,input,if,equals,is,eq,notequals,isnot,isnt,ne,find,preg,or,and,show,this,then,else,select,switch,summary,smart_description,smart_desc,isinrole,ir,memberof,mo,is_file,is_dir,file_exists,is_readable,is_writable,in,wildcard_match,wcard_match,wildcard,wcard,fnmatch,is_image,regex,preg_match');
+        $_ = explode(',', 'is,eq,equals,ne,neq,notequals,isnot,isnt,gte,eg,gte,greaterthan,gt,isgreaterthan,isgt,lowerthan,lt,lte,islte,islowerthan,islt,el,find,in,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir,_default,default,if,input,or,and,show,this,select,switch,then,else,id,ifempty,smart_desc,smart_description,summary');
         if(in_array($cmd,$_)) return false;
         else                  return true;
     }
