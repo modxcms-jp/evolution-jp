@@ -213,9 +213,11 @@ class MODIFIERS {
                 $this->condition[] = intval($value != $opt);break;
             case 'gte':
             case 'eg':
+            case 'isgte':
                 $this->condition[] = intval($value >= $opt);break;
             case 'lte':
             case 'el':
+            case 'islte':
                 $this->condition[] = intval($value <= $opt);break;
             case 'gt':
             case 'greaterthan':
