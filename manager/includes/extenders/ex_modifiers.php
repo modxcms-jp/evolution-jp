@@ -212,20 +212,20 @@ class MODIFIERS {
             case 'isnt':
                 $this->condition[] = intval($value != $opt);break;
             case 'gte':
-            case 'isgreaterthan':
-            case 'isgt':
             case 'eg':
                 $this->condition[] = intval($value >= $opt);break;
             case 'lte':
-            case 'islowerthan':
-            case 'islt':
             case 'el':
                 $this->condition[] = intval($value <= $opt);break;
             case 'gt':
             case 'greaterthan':
+            case 'isgreaterthan':
+            case 'isgt':
                 $this->condition[] = intval($value > $opt);break;
             case 'lt':
             case 'lowerthan':
+            case 'islowerthan':
+            case 'islt':
                 $this->condition[] = intval($value < $opt);break;
             case 'find':
                 $this->condition[] = intval(strpos($value, $opt)!==false);break;
