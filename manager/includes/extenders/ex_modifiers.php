@@ -124,7 +124,7 @@ class MODIFIERS {
         {
             $lastKey = $m['cmd'];
         }
-        $_ = explode(',','is,equals,eq,notequals,isnot,isnt,ne,find,isgreaterthan,isgt,eg,islowerthan,islt,el,greaterthan,gt,lowerthan,lt,find,preg,preg_match,regex,is_file,is_dir,file_exists,is_readable,is_writable,in,wildcard_match,wcard_match,wildcard,wcard,fnmatch,is_image');
+        $_ = explode(',','is,eq,equals,ne,neq,notequals,isnot,isnt,gte,eg,gte,greaterthan,gt,isgreaterthan,isgt,lowerthan,lt,lte,islte,islowerthan,islt,el,find,in,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir');
         if(in_array($lastKey,$_))
         {
             $modifiers[] = array('cmd'=>'then','opt'=>'1');
