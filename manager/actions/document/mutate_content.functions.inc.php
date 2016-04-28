@@ -97,7 +97,7 @@ function ab_save()
 	$ph['label'] = $_lang['update'];
 	
 	$ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
-	$saveAfter = isset($_SESSION['saveAfter']) ? $_SESSION['saveAfter'] : $_REQUEST['stay'];
+	$saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
 	$selected = array('new'=>'', 'stay'=>'', 'close'=>'');
 	if ($modx->hasPermission('new_document')
 		&& $saveAfter=='new')    $selected['new']   = 'selected';
