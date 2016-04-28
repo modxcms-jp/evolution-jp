@@ -24,7 +24,7 @@ if($pos!==false && $pos<$limit) {
         if($limit <= $modx->filter->strlen($text.$v.$delim)) break;
         $text .= $v.$delim;
     }
-    $content = $text;
+    if($text) $content = $text;
 }
 
 if($limit<$modx->filter->strlen($content) && strpos($content,' ')!==false) {
