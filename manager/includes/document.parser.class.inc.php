@@ -875,14 +875,12 @@ class DocumentParser {
             case '.ico': case '.jpg': case '.jpeg': case '.png': case '.gif':
                 if($ext==='.ico') $mime_type = 'image/x-icon';
                 else              $mime_type = $this->getMimeType($filepath);
-                if(!$mime_type) $this->sendErrorPage();
-                header("Content-type: {$mime_type}");
-                //readfile($filepath);
-                $src = file_get_contents($filepath);
             default:
                 exit;
         }
-        return $src;
+        if(!$mime_type) $this->sendErrorPage();
+        header("Content-type: {$mime_type}");
+        return file_get_contents($filepath);
     }
     
     function getSiteCache()
