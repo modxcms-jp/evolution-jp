@@ -850,6 +850,14 @@ EOT;
 	return $modx->parseText($tpl,$ph);
 }
 
+function parseText($tpl,$ph) {
+	foreach($ph as $k=>$v) {
+		$k = "[+{$k}+]";
+		$tpl = str_replace($k,$v,$tpl);
+	}
+	return $tpl;
+}
+
 function getEditors($editors) {
 	global $modx,$_lang,$selected_editor;
 	if (!is_array($editors)) return '';
