@@ -22,7 +22,7 @@ function input_text($name,$value,$other='',$maxlength='255')
 	}
 	
 	$tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function input_checkbox($name,$checked,$other='')
@@ -43,7 +43,7 @@ function input_checkbox($name,$checked,$other='')
 		}
 	}
 	$tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function checked($cond=false)
@@ -64,7 +64,7 @@ function tooltip($msg)
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
 	$ph['msg'] = $msg;
 	$tpl = '&nbsp;&nbsp;<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />';
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function input_hidden($name,$cond=true)
@@ -74,7 +74,7 @@ function input_hidden($name,$cond=true)
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
 	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_preview($id=0)
@@ -84,7 +84,7 @@ function ab_preview($id=0)
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
 	$ph['label'] = $_lang['preview'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_save()
@@ -119,7 +119,7 @@ function ab_save()
 	
 	$ph['select'] = sprintf($ph['select'], join("\n", $option));
 	
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_open_draft($id)
@@ -130,7 +130,7 @@ function ab_open_draft($id)
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang["open_draft"];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_create_draft($id)
@@ -146,7 +146,7 @@ function ab_create_draft($id)
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['create_draft'];
 	
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_cancel($id)
@@ -157,7 +157,7 @@ function ab_cancel($id)
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_move()
@@ -167,7 +167,7 @@ function ab_move()
 	$tpl = '<li id="move"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_duplicate()
@@ -178,7 +178,7 @@ function ab_duplicate()
 	$ph['icon'] = $_style["icons_resource_duplicate"];
 	$ph['alt'] = 'icons_resource_duplicate';
 	$ph['label'] = $_lang['duplicate'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_delete()
@@ -189,7 +189,7 @@ function ab_delete()
 	$ph['icon'] = $_style["icons_delete_document"];
 	$ph['alt'] = 'icons_delete_document';
 	$ph['label'] = $_lang['delete'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_undelete()
@@ -200,7 +200,7 @@ function ab_undelete()
 	$ph['icon'] = $_style["icons_undelete_resource"];
 	$ph['alt'] = 'icons_undelete_document';
 	$ph['label'] = $_lang['undelete_resource'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function ab_delete_draft()
@@ -211,7 +211,7 @@ function ab_delete_draft()
 	$ph['icon'] = $_style["icons_delete_document"];
 	$ph['alt'] = 'icons_delete_document';
 	$ph['label'] = $_lang['delete_draft'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function get_alias_path($id)
@@ -269,7 +269,7 @@ function renderTr($head, $body,$rowstyle='')
 		</td>
 	</tr>
 EOT;
-	return $modx->parseText($tpl, $ph);
+	return parseText($tpl, $ph);
 }
 
 function getDefaultTemplate()
@@ -484,7 +484,7 @@ function getJScripts($docid) {
 	$ph['datetime_format'] = $modx->config['datetime_format'];
 	$ph['dayNames'] = $dayNames;
 	$ph['monthNames'] = $monthNames;
-	$content = $modx->parseText($tpl,$ph);
+	$content = parseText($tpl,$ph);
 	
 	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	$base_url = $modx->config['base_url'];
@@ -515,7 +515,7 @@ function getJScripts($docid) {
 	$ph['action'] = $modx->manager->action;
 	$ph['suffix'] = $modx->config['friendly_url_suffix'];
 	
-	return $content . $modx->parseText($tpl,$ph);
+	return $content . parseText($tpl,$ph);
 }
 
 function get_template_options() {
@@ -579,7 +579,7 @@ EOT;
 	$ph['hidemenu'] = input_checkbox('hidemenu',$cond);
 	$ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
 	$ph['resource_opt_show_menu_help'] = tooltip($_lang['resource_opt_show_menu_help']);
-	return $modx->parseText($tpl, $ph);
+	return parseText($tpl, $ph);
 }
 
 function renderSplit() {
@@ -635,7 +635,7 @@ EOT;
 	$ph['pname'] = $pname;
 	$ph['tooltip'] = tooltip($_lang['resource_parent_help']);
 	$ph['icon_tree_folder'] = $_style['tree_folder'];
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function getActionButtons($id) {
@@ -703,7 +703,7 @@ EOT;
 	
 	$ph['cancelButton']    = ab_cancel($id);
 	
-	$rs = $modx->parseText($tpl,$ph);
+	$rs = parseText($tpl,$ph);
 	
 	return preg_replace('@\[\+[^\]]+\+\]@','',$rs);
 }
@@ -847,7 +847,7 @@ EOT;
 	$ph['content'] = $htmlcontent;
 	$ph['_lang_which_editor_title'] = $_lang['which_editor_title'];
 	$ph['editorSelecter'] = getEditors($editors);
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function parseText($tpl,$ph) {
@@ -869,7 +869,7 @@ function getEditors($editors) {
 		$ph = array();
 		$ph['editor']   = $editor;
 		$ph['selected'] = ($selected_editor === $editor) ? 'selected' : '';
-		$options[] = $modx->parseText($tpl, $ph);
+		$options[] = parseText($tpl, $ph);
 	}
 	
 	if(!empty($options)) {
@@ -882,7 +882,7 @@ EOT;
 		$ph = array();
 		$ph['_lang_none'] = $_lang['none'];
 		$ph['options'] = implode("\n", $options);
-		$rs = $modx->parseText($tpl, $ph);
+		$rs = parseText($tpl, $ph);
 	}
 	return $rs;
 }
@@ -929,7 +929,7 @@ function sectionContent() {
 		$ph['body'] = $planetpl;
 	}
 	
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function getTplTVRow() {
@@ -953,7 +953,7 @@ function sectionTV() {
 	$ph = array();
 	$ph['header'] = $_lang['settings_templvars'];
 	$ph['body'] = fieldsTV();
-	return $modx->parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function fieldsTV() {
@@ -1009,7 +1009,7 @@ function fieldsTV() {
 			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
 			if($ph['FormElement']!=='')
 			{
-				$output[] = $modx->parseText($tpl,$ph);
+				$output[] = parseText($tpl,$ph);
 				if ($i < $total) $output[] = $splitLine;
 			}
 		}
@@ -1065,7 +1065,7 @@ EOT;
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $config['datetime_format'];
-	$body = $modx->parseText($tpl,$ph);
+	$body = parseText($tpl,$ph);
 	return renderTr($_lang['page_data_publishdate'],$body);
 }
 
@@ -1088,7 +1088,7 @@ EOT;
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $config['datetime_format'];
-	$body = $modx->parseText($tpl,$ph);
+	$body = parseText($tpl,$ph);
 	return renderTr($_lang['page_data_unpublishdate'],$body);
 }
 
@@ -1205,7 +1205,7 @@ EOT;
 	$ph['selected_doc'] = empty($ph['selected_ref']) ? 'selected' : '';
 	$ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
 	$ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
-	$body = $modx->parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
+	$body = parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
 	return renderTr($_lang['resource_type'],$body);
 }
 
@@ -1224,11 +1224,11 @@ EOT;
 	{
 		$ph['selected'] = $docObject['contentType'] === $value ? ' selected' : '';
 		$ph['value'] = $value;
-		$option[] = $modx->parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
+		$option[] = parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
 	}
 	$ph = array();
 	$ph['option'] = join("\n", $option);
-	$body = $modx->parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
+	$body = parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
 	return renderTr($_lang['page_data_contentType'],$body);
 }
 
@@ -1247,7 +1247,7 @@ EOT;
 	$ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
 	$ph['inline']     = $_lang['inline'];
 	$ph['attachment'] = $_lang['attachment'];
-	$body = $modx->parseText($tpl,$ph);
+	$body = parseText($tpl,$ph);
 	return renderTr($_lang['resource_opt_contentdispo'],$body);
 }
 
