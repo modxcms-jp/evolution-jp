@@ -506,6 +506,11 @@ class DocumentParser {
             {
                 $template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
                 
+                if(substr($template->content,0,5)==='@FILE')
+                    $template->content = $this->atBindFile($template->content);
+                elseif(substr($template->content,0,4)==='@URL')
+                    $template->content = $this->atBindUrl($template->content);
+                
                 if($template->id)
                 {
                     if(!empty($template->parent))
@@ -545,11 +550,6 @@ class DocumentParser {
                             else break;
                         }
                     }
-                    
-                    if(substr($template->content,0,5)==='@FILE')
-                        $template->content = $this->atBindFile($template->content);
-                    elseif(substr($template->content,0,4)==='@URL')
-                        $template->content = $this->atBindUrl($template->content);
                     
                     $this->documentContent = $template->content;
                 }
