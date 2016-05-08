@@ -274,7 +274,7 @@ optgroup option {
 	background-color:#fff;
 }
 #ta, .tmplvars textarea {
-	font-family: 'Courier New','Courier', monospace;
+	font-family: Consolas,'Courier New','Courier', monospace;
 }
 
 form select
@@ -1808,7 +1808,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .sysAlert {width: 500px;height: 330px;white-space: nowrap;overflow: auto;}
 
 .phptextarea {
-font-family: 'Courier New','Courier', monospace;
+font-family: Consolas,'Courier New','Courier', monospace;
 -webkit-box-sizing: border-box; /* Chrome, Safari */
 -moz-box-sizing: border-box;    /* Firefox */
 box-sizing: border-box;         /* IE8+, Opera */
