@@ -38,5 +38,6 @@ if($limit<$modx->filter->strlen($content) && strpos($content,' ')!==false) {
 }
 
 if($limit < $modx->filter->strlen($content)) $content = $modx->filter->substr($content, 0, $limit);
+if($modx->filter->substr($content,-1)==$delim) $content = rtrim($content,$delim) . $delim;
 
 return $content;
