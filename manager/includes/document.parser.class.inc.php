@@ -113,6 +113,7 @@ class DocumentParser {
             case 'addLog':
             case 'atBindFile':
             case 'atBindUrl':
+            case 'atBindInclude':
             case 'changeWebUserPassword':
             case 'checkPermissions':
             case 'clearCache':
@@ -510,6 +511,9 @@ class DocumentParser {
                     $template->content = $this->atBindFile($template->content);
                 elseif(substr($template->content,0,4)==='@URL')
                     $template->content = $this->atBindUrl($template->content);
+                elseif(substr($template->content,0,8)==='@INCLUDE')
+                    $template->content = $this->atBindInclude($template->content);
+
                 
                 if($template->id)
                 {
@@ -530,6 +534,9 @@ class DocumentParser {
                                     $parent->content = $this->atBindFile($parent->content);
                                 elseif(substr($parent->content,0,4)==='@URL')
                                     $parent->content = $this->atBindUrl($parent->content);
+                                elseif(substr($parent->content,0,8)==='@INCLUDE')
+                                    $parent->content = $this->atBindInclude($parent->content);
+                                
                                 if(strpos($parent->content,'[*content*]')!==false)
                                     $template->content = str_replace('[*content*]', $template->content, $parent->content);
                                 elseif(strpos($parent->content,'[*#content*]')!==false)

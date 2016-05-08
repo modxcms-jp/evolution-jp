@@ -1896,6 +1896,44 @@ class SubParser {
         return $content;
     }
     
+    function atBindInclude($str='')
+    {
+        global $modx;
+        
+        if(strpos($str,'@INCLUDE')!==0) return $str;
+        if(strpos($str,"\n")!==false)
+            $str = substr($str,0,strpos("\n",$str));
+        
+        $str = substr($str,9);
+        $str = trim($str);
+        $str = str_replace('\\','/',$str);
+        
+        if(substr($str,0,1)==='/')
+        {
+            if(is_file($str) && MODX_MANAGER_PATH===substr($str,0,strlen(MODX_MANAGER_PATH)))
+                $file_path = false;
+            elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
+                $file_path = $str;
+            elseif(MODX_BASE_PATH . trim($file_path,'/'))
+                $file_path = MODX_BASE_PATH . trim($file_path,'/');
+            else $file_path = false;
+        }
+        elseif(is_file(MODX_BASE_PATH . $str))
+            $file_path = MODX_BASE_PATH . $str;
+        elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
+            $file_path = MODX_BASE_PATH . "assets/templates/{$str}";
+        else
+            $file_path = false;
+        
+        if(!$file_path) return false;
+        
+        ob_start();
+        $result = include($file_path);
+        $content = ob_get_clean();
+        if(!$content && $result) $content = $result;
+        return $content;
+    }
+    
     function setOption($key, $value='')
     {
         $this->config[$key] = $value;
