@@ -1929,6 +1929,7 @@ class SubParser {
         
         ob_start();
         $result = include($file_path);
+        if($result===1) $result = '';
         $content = ob_get_clean();
         if(!$content && $result) $content = $result;
         return $content;
