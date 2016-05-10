@@ -1645,41 +1645,57 @@ class DocumentParser {
         
         if(strpos($content,'<!--@IF ')!==false) $content = str_replace('<!--@IF ',$left,$content);
         if(strpos($content,$left)===false) return $content;
-        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->','<@ELSE>',$content);
+        if(strpos($content,'<!--@ELSEIF')!==false)   $content = str_replace('<!--@ELSEIF',  '<@ELSEIF',  $content);
+        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', '<@ELSE>',   $content);
         if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->','<@ENDIF-->',$content);
-        $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!empty($matches))
-        {
-            foreach($matches[0] as $i=>$v)
-            {
-                $cmd = substr($v,8,strpos($v,'>')-8);
-                $cmd = trim($cmd);
-                if(substr($cmd,-2)==='--') $cmd = substr($cmd,0,-2);
-                $cond = substr($cmd,0,1)!=='!' ? true : false;
-                if($cond===false) $cmd = ltrim($cmd,'!');
-                if(strpos($cmd,'[!')!==false)
-                    $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
+        
+        $s = array('<!--@IF:',        '<@ELSE',            '<@ENDIF-->');
+        $r = array('<!--@CONDTAG@IF:','<!--@CONDTAG@ELSE', '<!--@CONDTAG@ENDIF-->');
+        $content = str_replace($s, $r, $content);
+        $splits = explode('<!--@CONDTAG@', $content);
+        foreach($splits as $i=>$split) {
+            if($i===0) {
+                $content = $split;
+                $excute = false;
+                continue;
+            }
+            if(substr($split,0,2)==='IF' || substr($split,0,6)==='ELSEIF') {
+                if($excute) continue;
+                list($cmd, $text) = explode('>', $split, 2);
+                $dlen = substr($split,0,2)==='IF' ? 2 : 6;
+                
+                $cmd = rtrim(substr($cmd,$dlen+1));
+                if(substr($cmd,-$dlen)==='--') $cmd = substr($cmd,0,-$dlen);
+                // echo ' -|||' . $cmd . '|||- ';
+                $flag = substr($cmd,0,1)!=='!' ? true : false;
+                if($flag===false) $cmd = ltrim($cmd,'!');
+                
+                if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
+                
                 $cmd = $this->parseDocumentSource($cmd);
-                $cmd = trim($cmd);
-                if(strpos($matches[1][$i],'<@ELSE>')!==false) {
-                    list($if_content,$else_content) = explode('<@ELSE>',$matches[1][$i]);
-                } else {
-                    $if_content = $matches[1][$i];
-                    $else_content = '';
+                $cmd = ltrim($cmd);
+                
+                if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!]*$@', $cmd))
+                    $cmd = (int) eval("return {$cmd};");
+                if($cmd < 0) $cmd = 0;
+                
+                if( ($flag===true && !empty($cmd)) || ($flag===false && empty($cmd)) ) {
+                    $content .= $text;
+                    $excute = true;
                 }
-                if(preg_match('@^[0-9<= \-\+\*/\(\)%!]*$@', $cmd)) $cmd = (int) eval("return {$cmd};");
-                if( ($cond===true && empty($cmd)) || ($cond===false && !empty($cmd)) )
-                    $matches[1][$i] = trim($else_content);
-                else
-                    $matches[1][$i] = substr($if_content,strpos($if_content,'>')+1);
+                else $excute = false;
             }
-            foreach($matches[0] as $i=>$v)
-            {
-                $addBreakMatches[$i] = $v."\n";
+            elseif(substr($split,0,4)==='ELSE') {
+                if($excute) continue;
+                list(, $text) = explode('>', $split, 2);
+                $content .= $text;
+                $excute = true;
             }
-            $content = str_replace($addBreakMatches,$matches[1],$content);
-            if(strpos($content,$left)!==false)
-                $content = str_replace($matches[0],$matches[1],$content);
+            else {
+                list(, $text) = explode('>', $split, 2);
+                $content .= $text;
+                $excute = false;
+            }
         }
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
