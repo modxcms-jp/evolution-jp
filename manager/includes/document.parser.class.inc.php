@@ -1400,50 +1400,7 @@ class DocumentParser {
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
             
-            if(strpos($key,'@')!==false)
-            {
-                //if(strpos($key,'/u')!==false)
-                if(preg_match('/@\d+\/u/',$key))
-                    $key = str_replace(array('@','/u'),array('@u(',')'),$key);
-                list($key,$str) = explode('@',$key,2);
-                $context = strtolower($str);
-                if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
-                    $context = 'alias';
-                elseif(substr($str,0,1)==='u' && strpos($str,'(')!==false)
-                    $context = 'uparent';
-                switch($context)
-                {
-                    case 'site_start':
-                        $docid = $this->config['site_start'];
-                        break;
-                    case 'parent':
-                    case 'p':
-                        $docid = $this->documentObject['parent'];
-                        if($docid==0) $docid = $this->config['site_start'];
-                        break;
-                    case 'ultimateparent':
-                    case 'uparent':
-                    case 'up':
-                    case 'u':
-                        if(strpos($str,'(')!==false) {
-                            $top = substr($str,strpos($str,'('));
-                            $top = trim($top,'()"\'');
-                        }
-                        else $top = 0;
-                        $docid = $this->getUltimateParentId($this->documentIdentifier,$top);
-                        break;
-                    case 'alias':
-                        $str = substr($str,strpos($str,'('));
-                        $str = trim($str,'()"\'');
-                        $docid = $this->getIdFromAlias($str);
-                        break;
-                    default:
-                        $docid = $str;
-                }
-                if(preg_match('@^[1-9][0-9]*$@',$docid))
-                    $value = $this->getField($key,$docid);
-                else $value = '';
-            }
+            if(strpos($key,'@')!==false) $value = $this->_contextValue($key);
             elseif(!isset($this->documentObject[$key])) $value = '';
             else $value= $this->documentObject[$key];
             
@@ -1482,6 +1439,49 @@ class DocumentParser {
             $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
         }
         return $content;
+    }
+    
+    function _contextValue($key) {
+        if(preg_match('/@\d+\/u/',$key))
+        $key = str_replace(array('@','/u'),array('@u(',')'),$key);
+        list($key,$str) = explode('@',$key,2);
+        $context = strtolower($str);
+        if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
+            $context = 'alias';
+        elseif(substr($str,0,1)==='u' && strpos($str,'(')!==false)
+            $context = 'uparent';
+        switch($context) {
+            case 'site_start':
+                $docid = $this->config['site_start'];
+                break;
+            case 'parent':
+            case 'p':
+                $docid = $this->documentObject['parent'];
+                if($docid==0) $docid = $this->config['site_start'];
+                break;
+            case 'ultimateparent':
+            case 'uparent':
+            case 'up':
+            case 'u':
+                if(strpos($str,'(')!==false) {
+                    $top = substr($str,strpos($str,'('));
+                    $top = trim($top,'()"\'');
+                }
+                else $top = 0;
+                $docid = $this->getUltimateParentId($this->documentIdentifier,$top);
+                break;
+            case 'alias':
+                $str = substr($str,strpos($str,'('));
+                $str = trim($str,'()"\'');
+                $docid = $this->getIdFromAlias($str);
+                break;
+            default:
+                $docid = $str;
+        }
+        if(preg_match('@^[1-9][0-9]*$@',$docid))
+            $value = $this->getField($key,$docid);
+        else $value = '';
+        return $value;
     }
     
     function addLogEntry($fname,$fstart)
