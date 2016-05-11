@@ -1164,7 +1164,7 @@ class DocumentParser {
         
         $this->documentGenerated = 0;
         
-        if(substr($flContent,0,5)==='<?php') list($null,$flContent) = explode('?>', $flContent, 2); // remove php header
+        if(substr($flContent,0,5)==='<?php') $flContent = substr($flContent, strpos($flContent,'?>')+2); // remove php header
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
         if(count($a) == 1) return $a[0];
         elseif($this->config['cache_type']!=0 && $this->http_status_code==404) {
@@ -3057,7 +3057,7 @@ class DocumentParser {
             else
                 $resource= $this->getDocument($docid, '*', $published);
             if (!$resource) return false;
-        };
+        }
 
             $template = $resource['template'];
             if( $docid == $this->documentIdentifier && !empty($this->previewObject['template']) ) //Load preview
