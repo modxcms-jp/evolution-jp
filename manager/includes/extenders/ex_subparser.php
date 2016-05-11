@@ -1898,8 +1898,6 @@ class SubParser {
     
     function atBindInclude($str='')
     {
-        global $modx;
-        
         if(strpos($str,'@INCLUDE')!==0) return $str;
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
@@ -1908,26 +1906,25 @@ class SubParser {
         $str = trim($str);
         $str = str_replace('\\','/',$str);
         
+        $tpl_dir = 'assets/templates/';
+        
         if(substr($str,0,1)==='/')
         {
-            if(is_file($str) && MODX_MANAGER_PATH===substr($str,0,strlen(MODX_MANAGER_PATH)))
-                $file_path = false;
-            elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
-                $file_path = $str;
-            elseif(MODX_BASE_PATH . trim($file_path,'/'))
-                $file_path = MODX_BASE_PATH . trim($file_path,'/');
-            else $file_path = false;
+            $vpath = MODX_BASE_PATH . ltrim($str,'/');
+            if(is_file($str) && strpos($str,MODX_MANAGER_PATH)===0)         $file_path = false;
+            elseif(is_file($vpath) && strpos($vpath,MODX_MANAGER_PATH)===0) $file_path = false;
+            elseif(is_file($str) && strpos($str,MODX_BASE_PATH)===0)        $file_path = $str;
+            elseif(is_file($vpath))                                         $file_path = $vpath;
+            else                                                            $file_path = false;
         }
-        elseif(is_file(MODX_BASE_PATH . $str))
-            $file_path = MODX_BASE_PATH . $str;
-        elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
-            $file_path = MODX_BASE_PATH . "assets/templates/{$str}";
-        else
-            $file_path = false;
+        elseif(is_file(MODX_BASE_PATH . $str))                              $file_path = MODX_BASE_PATH.$str;
+        elseif(is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}"))                $file_path = MODX_BASE_PATH.$tpl_dir.$str;
+        else                                                                $file_path = false;
         
-        if(!$file_path) return false;
+        if(!$file_path || !is_file($file_path)) return false;
         
         ob_start();
+        global $modx;
         $result = include($file_path);
         if($result===1) $result = '';
         $content = ob_get_clean();
