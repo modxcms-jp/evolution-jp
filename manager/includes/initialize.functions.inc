@@ -66,9 +66,17 @@ class MODX_INIT {
             elseif(strpos($_SERVER['REQUEST_URI'],'/assets/')!==false)
                 return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/assets/')) . '/';
         }
-        if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),$_SERVER['SCRIPT_NAME'])===false) {
+        $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+        if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),$SCRIPT_NAME)===false) {
             if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),'/install/index.php')!==false)
                 return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install/')) . '/';
+            elseif(substr($SCRIPT_NAME,0,2)==='/~' && substr($SCRIPT_NAME,-9)==='index.php') {
+                if(defined('IN_MANAGER_MODE')) $_ = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/',-2));
+                else                           $_ = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/'));
+                $pos = strrpos($_,'/',-1);
+                if($pos) $_ = substr($_,$pos);
+                return $_.'/';
+            }
             else {
                 echo 'Missing base_url';
                 exit;
