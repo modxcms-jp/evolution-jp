@@ -1404,9 +1404,12 @@ class DocumentParser {
             elseif(!isset($this->documentObject[$key])) $value = '';
             else $value= $this->documentObject[$key];
             
-            if (is_array($value)) $value= $this->tvProcessor($value);
+            if (is_array($value)) {
+                if($modifiers==='raw')     $value = $value['value'];
+                else                       $value= $this->tvProcessor($value);
+            }
             
-            if($modifiers!==false)
+            if($modifiers!==false && $modifiers!=='raw')
             {
                 $this->loadExtension('MODIFIERS');
                 $value = $this->filter->phxFilter($key,$value,$modifiers);
