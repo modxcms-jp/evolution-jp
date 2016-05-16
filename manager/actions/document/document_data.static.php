@@ -144,6 +144,10 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td><?php echo $content['id']?></td>
 				<td>[*id*]</td>
 			</tr>
+			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
+				<td><?php echo $templatename ?></td>
+				<td>[*template*]</td>
+			</tr>
 			<tr><td><?php echo $_lang['resource_title']?>: </td>
 				<td><?php echo $content['pagetitle']?></td>
 				<td>[*pagetitle*]</td>
