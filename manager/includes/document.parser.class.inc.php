@@ -1080,10 +1080,14 @@ class DocumentParser {
                 
                 $aliasPath = $vdir!='' ? "{$vdir}/{$q}" : $q;
                 $docid = $this->getIdFromAlias($aliasPath);
-                
+
                 $pid = $vdir!='' ? $this->getIdFromAlias($vdir) : 0;
-                $children = $this->getChildIds($pid, 1);
-                $wChild =in_array($q, $children);
+                if( $pid === false ){
+                    $wChild = false;
+                }else{
+                    $children = $this->getChildIds($pid, 1);
+                    $wChild =in_array($q, $children);
+                }
                 
                 if (!$docid && $wChild)
                 {
