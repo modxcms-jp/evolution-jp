@@ -193,7 +193,7 @@ class synccache {
 		if(isset($setting['conditional_get']) && !empty($setting['conditional_get']))
 			$content[] = sprintf('$conditional_get = "%s";', $setting['conditional_get']);
 		
-		$rs = @file_put_contents($cache_path, join("\n",$content), LOCK_EX);
+		$rs = $modx->saveToFile($cache_path, join("\n",$content));
 		
 		if (!$rs) exit("Cannot open file ({$cache_path})");
 	}
@@ -268,7 +268,7 @@ class synccache {
 		// invoke OnBeforeCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnBeforeCacheUpdate');
 		
-		if(!@file_put_contents($this->cachePath .'siteCache.idx.php', $content, LOCK_EX))
+		if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content))
 		{
 			exit('siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
@@ -282,7 +282,7 @@ class synccache {
 		
 		if(!is_file($this->cachePath . '.htaccess'))
 		{
-			file_put_contents($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
+			$modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
 		}
 		// invoke OnCacheUpdate event
 		if ($modx) $modx->invokeEvent('OnCacheUpdate');
