@@ -772,11 +772,11 @@ class DocumentParser {
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
-            file_put_contents($page_cache_path, $cacheContent, LOCK_EX);
+            $this->saveToFile($page_cache_path, $cacheContent);
             $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
             if(count($this->aliasCache)<7000) {
                 $aliasCache = serialize($this->aliasCache);
-                file_put_contents($alias_cache_path, $aliasCache, LOCK_EX);
+                $this->saveToFile($alias_cache_path, $aliasCache);
             }
         }
         // Useful for example to external page counters/stats packages
@@ -2384,7 +2384,7 @@ class DocumentParser {
                     $childrenList[$p][] = $c;
                 }
             }
-            file_put_contents($path_childrenListCache,serialize($childrenList), LOCK_EX);
+            $this->saveToFile($path_childrenListCache,serialize($childrenList));
             $this->childrenList = $childrenList;
         }
         return $this->childrenList;
