@@ -3665,6 +3665,32 @@ class DocumentParser {
     }
 
     /*
+     * ファイル作成
+     *
+     * 一時ファイルを作成後、リネームしてファイルを作成する。
+     * file_put_contentでファイル作成中に max_execution_time が経過するとファイルを破壊することがあるため。
+     * 入力はチェックしないため注意。APIとしての利用は非推奨。
+     *
+     * @param $filename 保存先のパスとファイル名
+     * @param $data     保存内容
+     * @return bool
+     *
+     */
+    function saveToFile($filename,$data){
+        if( empty($filename) ){ return false; }
+
+        $tmp = MODX_BASE_PATH . 'assets/cache/.tmp_'.uniqid(getmypid().'_');
+        if( is_file($tmp) && !is_writable($tmp)){
+            chmod($tmp, 0666);
+        }
+
+        if( @file_put_contents($tmp, $data, LOCK_EX) ){
+            return rename($tmp,$filename);
+        }
+        return false;
+    }
+
+    /*
      * 基準時間の設定
      *
      * 引数がない場合は現在の時間を設定。
