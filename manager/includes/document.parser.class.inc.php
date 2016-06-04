@@ -1552,6 +1552,7 @@ class DocumentParser {
             $snip_call = $this->_split_snip_call($key);
             $key = $snip_call['name'];
             $ph = $this->_snipParamsToArray($snip_call['params']);
+            if(substr($key,0,6)==='@FILE:') $key = '@FILE ' . substr($key,6);
             if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
@@ -2828,6 +2829,10 @@ class DocumentParser {
         if( isset($this->chunkCache[$key]) ){
             $isCache = true;
             $value = $this->chunkCache[$key];
+        }
+        elseif(substr($key,0,5)==='@FILE') {
+            $value = $this->atBindFile($key);
+            $this->chunkCache[$key] = $value;
         }else{
             $isCache = false;
             $where = "`name`='%s' AND (`published`='1' OR 
