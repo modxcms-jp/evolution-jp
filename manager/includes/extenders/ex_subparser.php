@@ -1851,7 +1851,7 @@ class SubParser {
         $str = substr($str,6);
         $str = trim($str);
         $str = str_replace('\\','/',$str);
-        if($modx->template_path) $template_path = $modx->template_path;
+        if($modx->template_path) $template_path = 'assets/templates/'.$modx->template_path;
         else                     $template_path = 'assets/templates/';
         
         if(substr($str,0,1)==='/')
@@ -1881,7 +1881,8 @@ class SubParser {
         global $recent_update;
         if($recent_update < filemtime($file_path))
             $modx->clearCache();
-        if(!$modx->template_path) $modx->template_path = substr(dirname($file_path),strlen(MODX_BASE_PATH)) . '/';
+        if(!$modx->template_path && strpos($file_path,MODX_BASE_PATH.'assets/templates/')===0)
+            $modx->template_path = substr(dirname($file_path),strlen(MODX_BASE_PATH.'assets/templates/')) . '/';
         
         return $content;
     }
