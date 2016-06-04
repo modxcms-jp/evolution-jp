@@ -1842,6 +1842,8 @@ class SubParser {
     
     function atBindFile($str='')
     {
+        global $modx;
+        
         if(strpos($str,'@FILE')!==0) return $str;
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
@@ -1849,6 +1851,8 @@ class SubParser {
         $str = substr($str,6);
         $str = trim($str);
         $str = str_replace('\\','/',$str);
+        if($modx->template_path) $template_path = $modx->template_path;
+        else                     $template_path = 'assets/templates/';
         
         if(substr($str,0,1)==='/')
         {
@@ -1862,23 +1866,24 @@ class SubParser {
         }
         elseif(is_file(MODX_BASE_PATH . $str))
             $file_path = MODX_BASE_PATH . $str;
-        elseif(is_file(MODX_BASE_PATH . "assets/templates/{$str}"))
-            $file_path = MODX_BASE_PATH . "assets/templates/{$str}";
+        elseif(is_file(MODX_BASE_PATH . "{$template_path}{$str}"))
+            $file_path = MODX_BASE_PATH . "{$template_path}{$str}";
         else
             $file_path = false;
         
-        if($file_path)
-        {
-            global $modx,$recent_update;
-            if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
-            $content = file_get_contents($file_path);
-            if($content)
-            {
-                if($recent_update < filemtime($file_path))
-                    $modx->clearCache();
-                return $content;
-            }
-        }
+        if(!$file_path) return false;
+        
+        if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
+        
+        $content = file_get_contents($file_path);
+        if(! $content)return '';
+        
+        global $recent_update;
+        if($recent_update < filemtime($file_path))
+            $modx->clearCache();
+        if(!$modx->template_path) $modx->template_path = substr(dirname($file_path),strlen(MODX_BASE_PATH)) . '/';
+        
+        return $content;
     }
     
     function atBindUrl($str='')
