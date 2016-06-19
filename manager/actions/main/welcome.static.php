@@ -137,7 +137,7 @@ if($modx->hasPermission('exec_module')) {
 		$tbl_site_modules       = $modx->getFullTableName('site_modules');
 		$tbl_site_module_access = $modx->getFullTableName('site_module_access');
 		$tbl_member_groups      = $modx->getFullTableName('member_groups');
-		$field = 'DISTINCT sm.id, sm.name, mg.member';
+		$field = 'sm.id, sm.name, mg.member';
 		$from  = "{$tbl_site_modules} AS sm";
 		$from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
 		$from .= " LEFT JOIN {$tbl_member_groups} AS mg ON sma.usergroup = mg.user_group";

@@ -199,20 +199,6 @@ echo p($_ . $_lang['creating_database_connection']);
 if ($mysqli) {
 	$_ = echo_ok() . ' <strong>' . $_lang['mysqli_version_is'] . $mysqli->server_info . ' </strong>';
 	echo p($_ . $_lang['checking_mysqli_version']);
-	
-	// check for strict mode
-	$mysqlmode = @ $mysqli->query("SELECT @@global.sql_mode");
-	if ($mysqlmode->num_rows > 0 && !is_webmatrix() && !is_iis()) {
-		$modes = $mysqlmode->fetch_array(MYSQLI_NUM);
-		//$modes = array("STRICT_TRANS_TABLES"); // for testing
-		foreach ($modes as $mode) {
-			if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
-				echo p($_lang['checking_mysqli_strict_mode']);
-				echo p(echo_failed($_lang['warning']) . '<strong>&nbsp;&nbsp;' . $_lang['strict_mode'] . '</strong>');
-				echo p(echo_failed($_lang['strict_mode_error']));
-			}
-		}
-	}
 }
 // Version and strict mode check end
 

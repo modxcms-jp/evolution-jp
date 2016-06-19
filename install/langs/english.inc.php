@@ -42,7 +42,6 @@ $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/ex
 $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/export</span> directory is writable: ';
 $_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories exists: ';
 $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories are writable: ';
-$_lang["checking_mysqli_strict_mode"] = 'Checking MySQLi for strict sql_mode: ';
 $_lang["checking_mysqli_version"] = 'Checking MySQLi version: ';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
 $_lang["checking_registerglobals"] = 'Checking if Register_Globals is off: ';
@@ -160,8 +159,6 @@ $_lang["status_failed_table_prefix_already_in_use"] = 'failed - table prefix alr
 $_lang["status_passed"] = 'passed - database selected';
 $_lang["status_passed_database_created"] = 'passed - database created';
 $_lang["status_passed_server"] = 'passed - collations now available';
-$_lang["strict_mode"] = ' MySQLi server strict sql_mode is enabled!';
-$_lang["strict_mode_error"] = 'Certain features of MODX may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQLi mode by editing the my.cnf file or contact your server administrator.';
 $_lang["summary_setup_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the setup.';
 $_lang["table_prefix_already_inuse"] = ' - Table prefix is already in use in this database!';
 $_lang["table_prefix_already_inuse_note"] = 'Setup couldn\'t install into the selected database, as it already contains tables with the prefix you specified. Please choose a new table prefix, and run Setup again.';

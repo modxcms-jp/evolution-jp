@@ -42,7 +42,6 @@ $_lang["checking_if_export_exists"] = '<span class="mono">/temp/export</span>デ
 $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>ディレクトリの書き込み属性: ';
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
-$_lang["checking_mysqli_strict_mode"] = 'Checking MySQLi for strict mode: ';
 $_lang["checking_mysqli_version"] = 'MySQLiのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
@@ -160,8 +159,6 @@ $_lang["status_failed_table_prefix_already_in_use"] = 'Tableプレフィック�
 $_lang["status_passed"] = '問題ありません';
 $_lang["status_passed_database_created"] = 'データベースを作成しました。';
 $_lang["status_passed_server"] = '接続できます';
-$_lang["strict_mode"] = ' MySQLiがストリクトモードになっています。';
-$_lang["strict_mode_error"] = 'ストリクトモードが無効である必要があります。my.cnfを編集することで、MySQLiのモードを変更することができます。あるいは、サーバー管理者へお尋ねください。';
 $_lang["summary_setup_check"] = '<strong>インストール実行前の最終チェックです。</strong>';
 $_lang["table_prefix_already_inuse"] = ' - このTableプレフィックスはすでに使われています。';
 $_lang["table_prefix_already_inuse_note"] = '異なるテーブルプレフィックスを指定するか、phpMyAdminなどを利用し関連テーブルを削除し、再びインストールを試してみてください。';

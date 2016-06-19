@@ -22,18 +22,5 @@ if (!$mysqli) {
     $_SESSION['database_server']   = $host;
     $_SESSION['database_user']     = $uid;
     $_SESSION['database_password'] = $pwd;
-
-    // Mode check
-    $rs = @ $mysqli->query("SELECT @@session.sql_mode");
-    if (@ $rs->num_rows > 0 && !is_webmatrix() && !is_iis()){
-        $modes = $rs->fetch_array(MYSQLI_NUM);
-        $strictMode = false;
-        foreach ($modes as $mode) {
-    		if (stristr($mode, "STRICT_TRANS_TABLES") !== false || stristr($mode, "STRICT_ALL_TABLES") !== false) {
-    			$strictMode = true;
-    		}
-        }
-        if ($strictMode) $output .= '<br /><span style="color:#FF0000;"> '.$_lang['strict_mode'].'</span>';
-    }
 }
 echo '<div style="background: #eee;">' . $_lang["status_connecting"] . $output . '</div>';
