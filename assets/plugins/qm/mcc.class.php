@@ -17,7 +17,7 @@ if(!class_exists('Mcc')) {
     var $noconflictjq;
 
         //_______________________________________________________
-        function Mcc() {
+        function __construct() {
             $this->tabs = array(
             'general'       => array('index'=>1,'id'=>'tabGeneral'),
             'settings'      => array('index'=>2,'id'=>'tabSettings'),
