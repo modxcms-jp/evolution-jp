@@ -60,34 +60,27 @@ class MODX_INIT {
     }
     
     function get_base_url($base_path) {
-        if(defined('IN_MANAGER_MODE')) {
-            if(strpos($_SERVER['REQUEST_URI'],'/manager/')!==false)
-                return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/manager/')) . '/';
-            elseif(strpos($_SERVER['REQUEST_URI'],'/assets/')!==false)
-                return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/assets/')) . '/';
-        }
         $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
-        if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),$SCRIPT_NAME)===false) {
-            if(strpos(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),'/install/index.php')!==false)
-                return substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install/')) . '/';
-            elseif(substr($SCRIPT_NAME,0,2)==='/~' && substr($SCRIPT_NAME,-9)==='index.php') {
-                if(defined('IN_MANAGER_MODE')) $_ = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/',-2));
-                else                           $_ = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/'));
-                $pos = strrpos($_,'/',-1);
-                if($pos) $_ = substr($_,$pos);
-                return $_.'/';
-            }
-            else {
-                echo 'Missing base_url';
-                exit;
-            }
+        if(defined('IN_MANAGER_MODE')) {
+            if(strpos($SCRIPT_NAME,'/manager/')!==false)
+                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/manager/')+1);
+            elseif(strpos($SCRIPT_NAME,'/assets/')!==false)
+                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/assets/')+1);
+            elseif(strpos($SCRIPT_NAME,'/install/')!==false)
+                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/install/')+1);
         }
-        $dir = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
-        $dir = substr($dir,0,strrpos($dir,'/')) . '/';
-        $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
-        if(isset($_SERVER['REQUEST_URI']) && substr($_SERVER['REQUEST_URI'],0,2)==='/~') $dir = '/~' . substr($dir,1);
-        $dir = rtrim($dir, '/') . '/';
-        return $dir;
+        if(substr($SCRIPT_NAME,0,2)==='/~' && substr($SCRIPT_NAME,-9)==='index.php') {
+            $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/'));
+            $pos = strrpos($dir,'/',-1);
+            if($pos) $dir = substr($dir,$pos);
+            return $dir.'/';
+        } else {
+            $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/')+1);
+            $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
+            if(substr($SCRIPT_NAME,0,2)==='/~') $dir = '/~' . substr($dir,1);
+            $dir = rtrim($dir, '/') . '/';
+            return $dir;
+        }
     }
     
     function get_host_name() {

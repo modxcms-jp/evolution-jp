@@ -17,6 +17,7 @@ if (version_compare(phpversion(), "5.3") < 0) {
 
 header("Content-Type: text/html; charset=utf-8");
 
+define('IN_MANAGER_MODE', 'true');
 $base_path      = str_replace('\\','/', dirname(getcwd())).'/';
 $installer_path = "{$base_path}install/";
 
