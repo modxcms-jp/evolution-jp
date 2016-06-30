@@ -102,7 +102,7 @@ $ph['token'] = $modx->genToken();
 $_SESSION['token'] = $ph['token'];
 $ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 
-echo $modx->parseText($tpl['head'],$ph);
+echo parseText($tpl['head'],$ph);
 
 $ph = array();
 $ph['_lang_settings_general'] = $_lang['settings_general'];
@@ -121,13 +121,13 @@ $ph['fieldParent']      = fieldParent();
 $ph['sectionContent'] =  sectionContent();
 $ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
 
-echo $modx->parseText($tpl['tab-page']['general'],$ph);
+echo parseText($tpl['tab-page']['general'],$ph);
 
 
 if($modx->config['tvs_below_content']==0&&0<count($tmplVars)) {
 	$ph['TVFields'] = fieldsTV();
 	$ph['_lang_tv'] = $_lang['tmplvars'];
-	echo $modx->parseText($tpl['tab-page']['tv'],$ph);
+	echo parseText($tpl['tab-page']['tv'],$ph);
 }
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
@@ -162,7 +162,7 @@ $ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() 
 $ph['fieldSearchable'] = fieldSearchable();
 $ph['fieldCacheable']  = $docObject['type'] === 'document' ? fieldCacheable() : '';
 $ph['fieldSyncsite']   = fieldSyncsite();
-echo $modx->parseText($tpl['tab-page']['settings'],$ph);
+echo parseText($tpl['tab-page']['settings'],$ph);
 
 
 
@@ -179,7 +179,7 @@ if ($modx->config['use_udperms'] == 1)
 		$ph['_lang_access_permissions'] = $_lang['access_permissions'];
 		$ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
 		$ph['UDGroups'] = implode("\n", $permissions);
-		echo $modx->parseText($tpl['tab-page']['access'],$ph);
+		echo parseText($tpl['tab-page']['access'],$ph);
 	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)
            && ($_SESSION['mgrPermissions']['access_permissions'] == 1
            || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)):
@@ -207,5 +207,5 @@ if($modx->config['use_editor'] === '1') {
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
-echo $modx->parseText($tpl['foot'],$ph);
+echo parseText($tpl['foot'],$ph);
 
