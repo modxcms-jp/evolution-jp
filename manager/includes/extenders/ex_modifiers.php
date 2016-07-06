@@ -928,32 +928,13 @@ class MODIFIERS {
     {
         $debugbt = $_tmp;
         $_tmp = $this->substr($_tmp,1);
-        $value = '';
-        $c = 0;
-        while($c < 65000)
-        {
-            $bt = $_tmp;
-            $char = $this->substr($_tmp,0,1);
-            $_tmp = $this->substr($_tmp,1);
-            $c++;
-            if($c===65000)
-            {
-                global $modx;
-                $modx->addLog('modifiers _delimRoop debug',$debugbt);
-                exit('Modifiers parse over');
-            }
-            if($char===$delim && ($this->substr($_tmp,0,1)===':'))
-                break;
-            else
-                $value .= $char;
-            
-            if($delim===$_tmp)    {$_tmp='';break;}
-            elseif($bt === $_tmp) break;
-            elseif($_tmp==='')    break;
+        $pos = strpos($_tmp,$delim);
+        $value = $this->substr($_tmp,0,$pos);
+        $_tmp  = $this->substr($_tmp,$pos+1);
+        if(!empty($value)) {
+            if(strpos($value,'[')!==false || strpos($value,'{')!==false)
+                $value = $this->parseDocumentSource($value);
         }
-        if($value===$delim) $value = '';
-        if(!empty($value))
-            $value = $this->parseDocumentSource($value);
         
         return array($value,$_tmp);
     }
