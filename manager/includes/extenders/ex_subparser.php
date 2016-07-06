@@ -900,10 +900,10 @@ class SubParser {
         if(substr($input,0,1)==='@' && $modx->config['enable_bindings']!=1 && $src==='docform')
             return '@Bindings is disabled.';
 
-        list ($cmd, $param) = $this->ParseCommand($input);
-        $cmd = '@'.trim($cmd);
+        list ($CMD, $param) = $this->splitTVCommand($input);
+        $CMD = '@'.trim($CMD);
         $param = trim($param);
-        switch ($cmd) {
+        switch ($CMD) {
             case '@PARSE' :
             case '@MODX' :
                 if(strpos($param,'[!')!==false)
@@ -1011,8 +1011,7 @@ class SubParser {
         );
         $binding_array = array();
         
-        if(strpos($binding_string,'@@EVAL')===0)
-            $binding_string = substr($binding_string,1);
+        if(strpos($binding_string,'@@EVAL')===0) $binding_string = substr($binding_string,1);
         
         foreach($BINDINGS as $cmd) {
             if(strpos($binding_string,'@'.$cmd)===0)
@@ -1105,7 +1104,7 @@ class SubParser {
         if(substr($field_value, 0, 5) === '<?php')     $field_value    = "@@EVAL:\n".substr($field_value,6);
         
         if(substr($default_text, 0, 6) === '@@EVAL' && $field_value===$default_text) {
-             $eval_str = trim(substr($default_text, 7));
+            $eval_str = trim(substr($default_text, 7));
             $default_text = eval($eval_str);
             $field_value = $default_text;
         }
