@@ -546,6 +546,8 @@ class MODIFIERS {
                 if(empty($opt)) $opt = '%H:%M';
                 if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
                 return $modx->mb_strftime($opt,0+$value);
+            case 'strtotime':
+                return strtotime($value);
             #####  mathematical function
             case 'toint':
                 return intval($value);
