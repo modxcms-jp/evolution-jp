@@ -86,7 +86,7 @@ ul.breadcrumb {}
 <@ELSE>
 <div class="container">
   <div class="page-header">
-    [[TopicPath?theme=list&tplOuter='<ul class="breadcrumb">[+topics+]</ul>']]
+    [[TopicPath?theme=bootstrap]]
     <h1>[*longtitle:ifempty('[*pagetitle*]')*]</h1>
   </div>
 </div>
