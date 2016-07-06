@@ -822,6 +822,9 @@ class MODIFIERS {
             case 'jstohead':
                 $modx->regClientStartupScript($value);
                 return '';
+            case 'jstobottom':
+                $modx->regClientScript($value);
+                return '';
             case 'dummy':
                     return $value;
                 
