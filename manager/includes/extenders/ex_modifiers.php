@@ -562,6 +562,7 @@ class MODIFIERS {
             case 'abs':
                 return $cmd($value);
             case 'math':
+            case 'calc':
                 $value = (int)$value;
                 if(empty($value)) $value = '0';
                 $filter = str_replace(array('[+value+]','%s'),'?',$opt);
