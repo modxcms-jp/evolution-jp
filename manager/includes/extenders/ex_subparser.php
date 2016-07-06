@@ -991,7 +991,7 @@ class SubParser {
     }
 
     // separate @ cmd from params
-    function ParseCommand($binding_string)
+    function splitTVCommand($binding_string)
     {
         // Array of supported bindings. must be upper case
         $BINDINGS = array (

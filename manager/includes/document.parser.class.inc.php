@@ -106,7 +106,7 @@ class DocumentParser {
     function __call($method_name, $arguments)
     {
         switch($method_name) {
-            case 'ParseCommand':
+            case 'splitTVCommand':
             case 'ParseInputOptions':
             case 'ProcessTVCommand':
             case '_IIS_furl_fix':
