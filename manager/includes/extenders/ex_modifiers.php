@@ -960,6 +960,8 @@ class MODIFIERS {
     {
         global $modx;
         
+        if(strpos($content,'[')===false && strpos($content,'{')===false) return $content;
+        
         $c=0;
         while($c < 20)
         {
