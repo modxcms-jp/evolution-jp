@@ -47,22 +47,22 @@ class MODIFIERS {
             return array(array('cmd'=>$modifiers,'opt'=>''));
         
         $result = array();
-        $key   = '';
-        $value = null;
+        $cmd   = '';
+        $opt = null;
         while($modifiers!=='')
         {
             $bt = $modifiers;
             $char = $this->substr($modifiers,0,1);
             $modifiers = $this->substr($modifiers,1);
             
-            if($key===''&&$char==='=') exit('Modifiers parse error');
+            if($cmd===''&&$char==='=') exit('Modifiers parse error');
             
             if    ($char==='=')
             {
                 $nextchar = $this->substr($modifiers,0,1);
-                if(in_array($nextchar, array('"', "'", '`'))) list($value,$modifiers) = $this->_delimRoop($modifiers,$nextchar);
-                elseif(strpos($modifiers,':')!==false)        list($value,$modifiers) = explode(':', $modifiers, 2);
-                else                                          list($value,$modifiers) = array($modifiers,'');
+                if(in_array($nextchar, array('"', "'", '`'))) list($opt,$modifiers) = $this->_delimSplit($modifiers,$nextchar);
+                elseif(strpos($modifiers,':')!==false)        list($opt,$modifiers) = explode(':', $modifiers, 2);
+                else                                          list($opt,$modifiers) = array($modifiers,'');
             }
             elseif($char==='(' && strpos($modifiers,')')!==false)
             {
@@ -74,32 +74,32 @@ class MODIFIERS {
                     case '`':
                         if(strpos($modifiers,"{$delim})")!==false)
                         {
-                            list($value,$modifiers) = explode("{$delim})", $modifiers, 2);
-                            $value = substr($value,1);
+                            list($opt,$modifiers) = explode("{$delim})", $modifiers, 2);
+                            $opt = substr($opt,1);
                         }
                         break;
                     default:
-                        list($value,$modifiers) = explode(')', $modifiers, 2);
+                        list($opt,$modifiers) = explode(')', $modifiers, 2);
                 }
             }
-            elseif($char===':') $value = '';
-            else                $key .= $char;
+            elseif($char===':') $opt = '';
+            else                $cmd .= $char;
             
-            if(!is_null($value))
+            if(!is_null($opt))
             {
-                $key=trim($key);
-                if($key!=='') $result[]=array('cmd'=>$key,'opt'=>$value);
+                $cmd=trim($cmd);
+                if($cmd!=='') $result[]=array('cmd'=>$cmd,'opt'=>$opt);
                 
-                $key   = '';
-                $value = null;
+                $cmd   = '';
+                $opt = null;
             }
-            elseif($key!==''&&$modifiers==='')
-                $result[]=array('cmd'=>$key,'opt'=>'');
+            elseif($cmd!==''&&$modifiers==='')
+                $result[]=array('cmd'=>$cmd,'opt'=>'');
             
             if($modifiers===$bt)
             {
-                $key = trim($key);
-                if($key!=='') $result[] = array('cmd'=>$key,'opt'=>'');
+                $cmd = trim($cmd);
+                if($cmd!=='') $result[] = array('cmd'=>$cmd,'opt'=>'');
                 break;
             }
         }
@@ -922,7 +922,7 @@ class MODIFIERS {
         }
         return $value;
     }
-    function _delimRoop($_tmp,$delim)
+    function _delimSplit($_tmp,$delim)
     {
         $debugbt = $_tmp;
         $_tmp = $this->substr($_tmp,1);
