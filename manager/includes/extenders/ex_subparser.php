@@ -830,18 +830,23 @@ class SubParser {
     
     function regClientStartupHTMLBlock($html) // Registers Client-side Startup HTML block
     {
-        $this->regClientScript($html, true, true);
+        $options = array('plaintext'=>true);
+        $startup = true;
+        $this->regClientScript($html, $options, $startup);
     }
     
     function regClientHTMLBlock($html) // Registers Client-side HTML block
     {
-        $this->regClientScript($html, true);
+        $options = array('plaintext'=>true);
+        $startup = false;
+        $this->regClientScript($html, $options, $startup);
     }
     
     # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
     function regClientStartupScript($src, $options=array('name'=>'', 'version'=>'0', 'plaintext'=>false))
     {
-        $this->regClientScript($src, $options, true);
+        $startup = true;
+        $this->regClientScript($src, $options, $startup);
     }
     
     function checkPermissions($docid=false,$duplicateDoc = false) {
