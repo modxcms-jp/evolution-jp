@@ -249,3 +249,6 @@ ALTER TABLE `{PREFIX}site_revision`
   MODIFY COLUMN `content` mediumtext,
   DROP INDEX `idx_revision`,
   ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
+
+ALTER TABLE `{PREFIX}site_content` ADD COLUMN `alias_visible` INT(2) NOT NULL DEFAULT '1' COMMENT 'Hide document from alias path';
+

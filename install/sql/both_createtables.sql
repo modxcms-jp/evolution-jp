@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `privatemgr` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Private manager document',
   `content_dispo` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-inline, 1-attachment',
   `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu',
+  `alias_visible` INT(2) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `id` (`id`),
   KEY `parent` (`parent`),
