@@ -813,6 +813,9 @@ class MODIFIERS {
             case 'csstohead':
                 $modx->regClientCSS($value);
                 return '';
+            case 'htmltohead':
+                $modx->regClientStartupHTMLBlock($value);
+                return;
             case 'dummy':
                     return $value;
                 
