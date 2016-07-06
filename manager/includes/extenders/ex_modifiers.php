@@ -810,6 +810,9 @@ class MODIFIERS {
             case 'setvar':
                 $modx->placeholders[$opt] = $value;
                 return;
+            case 'csstohead':
+                $modx->regClientCSS($value);
+                return '';
             case 'dummy':
                     return $value;
                 
