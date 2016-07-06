@@ -59,6 +59,7 @@ class MODIFIERS {
             
             if    ($char==='=')
             {
+                $modifiers = trim($modifiers);
                 $nextchar = $this->substr($modifiers,0,1);
                 if(in_array($nextchar, array('"', "'", '`'))) list($opt,$modifiers) = $this->_delimSplit($modifiers,$nextchar);
                 elseif(strpos($modifiers,':')!==false)        list($opt,$modifiers) = explode(':', $modifiers, 2);
@@ -85,6 +86,7 @@ class MODIFIERS {
             elseif($char===':') $opt = '';
             else                $cmd .= $char;
             
+            $cmd=trim($cmd);
             if(!is_null($opt))
             {
                 $cmd=trim($cmd);
