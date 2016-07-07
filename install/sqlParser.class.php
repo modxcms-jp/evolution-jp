@@ -21,9 +21,7 @@ class SqlParser {
 		$this->managerlanguage      = 'english';
 	}
 	
-	function intoDB($filename) {
-	    global $mysqli;
-		
+	function file_get_sql_contents($filename) {
 		// check to make sure file exists
 		$path = "{$this->base_path}install/sql/{$filename}";
 		if (!is_file($path)) {
@@ -31,10 +29,14 @@ class SqlParser {
 			$this->installFailed = true ;
 			return false;
 		}
+		return file_get_contents($path);
+	}
+	
+	function intoDB($filename) {
+	    global $mysqli;
 		
-		$idata = file_get_contents($path);
-		
-		$idata = str_replace("\r", '', $idata);
+		$idata = $this->file_get_sql_contents($filename);
+		if(!$idata) return false;
 		
 		$dbVersion = (float) $mysqli->server_info;
 		
