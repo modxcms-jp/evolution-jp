@@ -757,18 +757,22 @@ $s = '';
 
     function importSql($source,$watchError=true)
     {
-        global $modx;
-        
         if(is_file($source)) $source = file_get_contents($source);
         
         if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\r"),"\n",$source);
+        $_ = explode("\n",$source);
+        $source = '';
+        foreach($_ as $v) {
+            if(substr($v,0,1)=='#') continue;
+            $source .= $v . "\n";
+        }
         $source = str_replace('{PREFIX}',$this->table_prefix,$source);
         $sql_array = preg_split('@;[ \t]*\n@', $source);
-        foreach($sql_array as $sql_entry)
+        foreach($sql_array as $sql)
         {
-            $sql_entry = trim($sql_entry);
-            if(empty($sql_entry)) continue;
-            $rs = $modx->db->query($sql_entry,$watchError);
+            $sql = trim($sql);
+            if(empty($sql)) continue;
+            $this->query($sql,$watchError);
         }
     }
     
