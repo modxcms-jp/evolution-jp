@@ -282,12 +282,6 @@ $info['userpassword'] = $formv_password;
 $info['rememberme']   = $formv_rememberme;
 $modx->invokeEvent('OnManagerLogin', $info);
 
-include_once(MODX_CORE_PATH . 'version.inc.php');
-if(isset($settings_version) && !empty($settings_version) && $settings_version!=$modx_version)
-{
-	include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
-}
-
 // check if we should redirect user to a web page
 if(isset($user_settings['manager_login_startup']) && $user_settings['manager_login_startup']>0) {
     $header = 'Location: '.$modx->makeUrl($id,'','','full');

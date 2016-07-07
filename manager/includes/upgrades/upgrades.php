@@ -2,6 +2,9 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 global $default_config, $settings_version;
+
+$modx->db->importSql(MODX_CORE_PATH.'upgrades/upd_db_structure.sql',false);
+
 $default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 
 run_update($settings_version);

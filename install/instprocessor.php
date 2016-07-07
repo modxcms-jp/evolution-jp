@@ -72,7 +72,7 @@ $sqlParser->showSqlErrors = false;
 echo "<p>{$lang_setup_database_creating_tables}";
 $sqlParser->intoDB('both_createtables.sql');
 if($installmode==0) $sqlParser->intoDB('new_setvalues.sql');
-else                $sqlParser->intoDB('upd_fixvalues.sql');
+
 $sqlParser->intoDB('both_fixvalues.sql');
 // display database results
 if ($sqlParser->installFailed == true)

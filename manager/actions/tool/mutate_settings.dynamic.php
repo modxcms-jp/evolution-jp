@@ -19,6 +19,11 @@ if(1<$modx->db->getRecordCount($rs)) {
 	}
 }
 
+if(!isset($settings_version) || $settings_version!=$modx_version)
+{
+	include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
+}
+
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 if(!isset($default_config) || !is_array($default_config))
