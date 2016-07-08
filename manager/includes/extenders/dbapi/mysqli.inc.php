@@ -383,6 +383,11 @@ $s = '';
         return $conn->error;
     }
     
+    function getLastErrorNo($conn=NULL) {
+        if (!is_object($conn)) $conn =& $this->conn;
+        return $conn->connect_errno;
+    }
+    
     /**
     * @name:  getRecordCount
     *

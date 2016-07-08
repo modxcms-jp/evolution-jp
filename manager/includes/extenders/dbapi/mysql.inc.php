@@ -386,7 +386,11 @@ $s = '';
         if (!is_resource($conn)) $conn =& $this->conn;
         return mysql_error($conn);
     }
-    
+
+    function getLastErrorNo($conn=NULL) {
+        if (!is_resource($conn)) $conn =& $this->conn;
+        return mysql_errno();
+    }
     /**
     * @name:  getRecordCount
     *
