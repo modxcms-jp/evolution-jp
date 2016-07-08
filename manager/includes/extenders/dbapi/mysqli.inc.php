@@ -44,7 +44,7 @@ class DBAPI {
     * @name:  connect
     *
     */
-    function connect($host = '', $dbase = '', $uid = '', $pwd = '', $tmp = 0) {
+    function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
         global $modx;
         if($this->conn) return;
         if($host) $this->hostname = $host;
