@@ -8,7 +8,7 @@ INSERT INTO `{PREFIX}site_templates`
 
 # Default Site Documents
 
-INSERT INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODX CMS Install Success','Welcome to the MODX Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODX.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODX Community</a> provides a great starting point to learn all things MODX, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0);
+INSERT INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODX CMS Install Success','Welcome to the MODX Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODX.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODX Community</a> provides a great starting point to learn all things MODX, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0,1);
 
 INSERT INTO `{PREFIX}manager_users` (id, username, password) VALUES (1, '{ADMINNAME}', '{ADMINPASS}');
 
