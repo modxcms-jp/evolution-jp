@@ -63,6 +63,15 @@ class TopicPath
 				$tpl['OtherTopic']      = '<li><a href="[+url+]">[+title+]</a></li>';
 				$tpl['Separator']       = "\n";
 				break;
+			case 'microdata':
+				$_ = '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="[+url+]"><span itemprop="name">[+title+]</span></a></li>';
+				$tpl['Outer']           = '<ul itemscope itemtype="http://schema.org/BreadcrumbList">[+topics+]</ul>';
+				$tpl['HomeTopic']       = $_;
+				$tpl['CurrentTopic']    = '<li>[+title+]</li>';
+				$tpl['ReferenceTopic']  = $_;
+				$tpl['OtherTopic']      = $_;
+				$tpl['Separator']       = "\n";
+				break;
 			default:
 				$tpl['Outer']            = '[+topics+]';
 				$tpl['HomeTopic']        = '<a href="[+url+]" class="home">[+title+]</a>';
