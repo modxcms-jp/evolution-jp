@@ -10,7 +10,7 @@ $conf_path = MODX_CORE_PATH . 'config.inc.php';
 if (is_file($conf_path)) include_once($conf_path);
 
 if (!isset($lastInstallTime) || empty($lastInstallTime)) {
-    if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')===false) {
+    if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false) {
         if(is_file(MODX_BASE_PATH . 'install/index.php')) {
             header('Location: install/index.php?action=mode');
             exit();
