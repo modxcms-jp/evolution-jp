@@ -250,7 +250,7 @@ function clickAll() {
 	}
 	toggled = (toggled?0:1);
 }
-</script>';
+</script>'
 EOT;
 	}
 	
