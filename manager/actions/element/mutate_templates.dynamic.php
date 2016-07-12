@@ -325,9 +325,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 function getParentValues($parent) {
 	global $modx;
 	
-	$parent = $modx->db->getObject('site_templates',"id='{$parent}'");
-	if(count($parent)==1 && strpos($parent->content,'[*content*]')!==false) {
-		$content = explode('[*content*]',$parent->content,2);
+	$p = $modx->db->getObject('site_templates',"id='{$parent}'");
+	if(count($p)==1) {
+    	if(strpos($p->content,'[*#content*]')!==false) $p->content = str_replace('[*#content*]','[*content*]',$p->content);
+	}
+	if(count($p)==1 && strpos($p->content,'[*content*]')!==false) {
+		$content = explode('[*content*]',$p->content,2);
 		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;";
 		$prestyle = "white-space: pre-wrap;display:block;width:auto; font-family: 'Courier New','Courier', monospace;";
 		$head = convert($content[0]);
