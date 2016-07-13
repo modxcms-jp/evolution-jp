@@ -1937,6 +1937,7 @@ class DocumentParser {
         $_tmp = $string;
         $_tmp = ltrim($_tmp, '?&');
         $temp_params = array();
+        $key = '';
         while($_tmp!==''):
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
@@ -1966,8 +1967,12 @@ class DocumentParser {
                 if(trim($key)!=='') $value = '';
                 else continue;
             }
-            else
-                if($key!==''||trim($char)!=='') $key .= $char;
+            elseif($_tmp==='')
+            {
+                $key .= $char;
+                $value = '';
+            }
+            elseif($key!==''||trim($char)!=='') $key .= $char;
             
             if(!is_null($value))
             {
