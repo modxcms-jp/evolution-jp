@@ -1899,7 +1899,7 @@ class DocumentParser {
         else $modifiers = false;
         
         $snippetObject = $this->_getSnippetObject($key);
-        $this->currentSnippet = $snippetObject['name'];
+        $this->currentSnippet = $key;
         
         // current params
         $params = $this->_snipParamsToArray($snip_call['params']);
@@ -1945,10 +1945,10 @@ class DocumentParser {
             if($char==='=')
             {
                 $_tmp = trim($_tmp);
-                $nextchar = substr($_tmp,0,1);
-                if(in_array($nextchar, array('"', "'", '`')))
+                $delim = substr($_tmp,0,1);
+                if(in_array($delim, array('"', "'", '`')))
                 {
-                    list($null, $value, $_tmp) = explode($nextchar, $_tmp, 3);
+                    list($null, $value, $_tmp) = explode($delim, $_tmp, 3);
                 }
                 elseif(strpos($_tmp,'&')!==false)
                 {
