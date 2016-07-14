@@ -5,6 +5,7 @@
 	if(!isset($startId))      $startId      = 0;
 	
 ////////////////// template
+include_once('breadcrumb.class.inc.php');
 $wfbc = new WFBC();
 	if(!isset($outerTpl)) $outerTpl = '<div id="breadcrumbnav">[+home+][+wf.wrapper+]</div>';
 	else                  $outerTpl = $wfbc->fetch($outerTpl);
@@ -46,33 +47,3 @@ $wfbc = new WFBC();
 	$hereTpl  = '@CODE:' . $hereTpl;
 	$activeParentRowTpl = '@CODE:' . $activeParentRowTpl;
 
-
-class WFBC
-{
-	function __construct()
-	{
-	}
-	
-	function fetch($tpl)
-	{
-		global $modx;
-		$template = '';
-		if(substr($tpl, 0, 5) == "@FILE")
-		{
-			$template = file_get_contents(ltrim(substr($tpl, 6)));
-		}
-		elseif(substr($tpl, 0, 5) == "@CODE")
-		{
-			$template = substr($tpl, 6);
-		}
-		elseif ($modx->getChunk($tpl) != "")
-		{
-			$template = $modx->getChunk($tpl);
-		}
-		else
-		{
-			$template = $tpl;
-		}
-		return $template;
-	}
-}
