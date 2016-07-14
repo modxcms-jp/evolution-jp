@@ -729,7 +729,7 @@ class SubParser {
         return false;
     }
 
-    function regClientCSS($src, $media)
+    function regClientCSS($src, $media='')
     {
         global $modx;
         
