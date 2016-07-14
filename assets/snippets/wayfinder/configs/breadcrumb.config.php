@@ -34,13 +34,9 @@ $wfbc = new WFBC();
 	}
 	
 	if ($modx->config['site_start'] !== $modx->documentIdentifier)
-	{
 		$outerTpl = '@CODE:' . str_replace('[+home+]',$homeLink,$outerTpl);
-	}
 	else
-	{
 		$outerTpl = '@CODE: ';
-	}
 	
 	$innerTpl = '@CODE:' . $innerTpl;
 	$rowTpl   = '@CODE:' . $rowTpl;
