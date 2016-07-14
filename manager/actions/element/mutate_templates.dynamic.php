@@ -86,12 +86,11 @@ jQuery(function(){
 		jQuery('select').toggleClass('readonly');
 	});
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
     jQuery.get("index.php",
         { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo $id;?>" },
         function(data){
             jQuery('div#use_resources').html(data);
-        });
+    });
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1')
 		{
@@ -167,6 +166,7 @@ function deletedocument() {
 
 <div class="sectionBody">
 <div class="tab-pane" id="templatesPane">
+	<script>tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );</script>
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
 	<div style="margin-bottom:10px;">
