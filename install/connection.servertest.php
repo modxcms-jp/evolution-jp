@@ -2,25 +2,23 @@
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
 install_session_start();
-$language = getOption('install_language');
+$language = $_SESSION['install_language'] ? $_SESSION['install_language'] : 'english';
 includeLang($language);
 
 if(isset($_POST['host'])) $host = $_POST['host'];
 if(isset($_POST['uid']))  $uid  = $_POST['uid'];
 $pwd  = (isset($_POST['pwd'])) ? $_POST['pwd'] : '';
 
-if(!isset($host) || !isset($uid))
-{
-	$mysqli = false;
-}
-else $mysqli = @ new mysqli($host, $uid, $pwd);
+if(!isset($host) || !isset($uid))         $db = false;
+$db = sql_connect($host, $uid, $pwd);
 
-if (!$mysqli) {
-    $output = '<span id="server_fail" style="color:#FF0000;"> '.$_lang['status_failed'].'</span>';
-} else {
-    $output = '<span id="server_pass" style="color:#388000;"> '.$_lang['status_passed_server'].'</span>';
+if (!$db) $output = sprintf('<span id="server_fail" style="color:#FF0000;">%s</span>',$_lang['status_failed']);
+    
+else {
+    $output = sprintf('<span id="server_pass" style="color:#388000;">%s</span>',$_lang['status_passed_server']);
     $_SESSION['database_server']   = $host;
     $_SESSION['database_user']     = $uid;
     $_SESSION['database_password'] = $pwd;
 }
-echo '<div style="background: #eee;">' . $_lang["status_connecting"] . $output . '</div>';
+
+echo sprintf('<div style="background: #eee;">%s</div>', $_lang["status_connecting"] . $output);

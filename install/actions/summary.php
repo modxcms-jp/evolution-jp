@@ -12,6 +12,8 @@ if($_SESSION['prevAction'] ==='options'){
    $_SESSION['module']      = isset($_POST['module'])      ? $_POST['module']      : array();
 }
 
+$modx = include_once('../manager/includes/document.parser.class.inc.php');
+
 echo '<h2>' . $_lang['preinstall_validation'] . '</h2>';
 echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
 $errors = 0;
@@ -185,21 +187,11 @@ if (!$isWriteable) {
 else  $_ = echo_ok();
 echo p($_ . $_lang['checking_if_config_exist_and_writable']);
 
-global $mysqli;
-$mysqli = new mysqli($_SESSION['database_server'], $_SESSION['database_user'], $_SESSION['database_password']);
-if (!$mysqli) {
-    $errors += 1;
-    $_ = echo_failed($_lang['database_connection_failed']) . "<p>".$_lang['database_connection_failed_note'];
-} else {
-    $_ = echo_ok();
-}
-echo p($_ . $_lang['creating_database_connection']);
-
 // check mysql version
-if ($mysqli) {
-	$_ = echo_ok() . ' <strong>' . $_lang['mysqli_version_is'] . $mysqli->server_info . ' </strong>';
-	echo p($_ . $_lang['checking_mysqli_version']);
-}
+$modx->db->connect($_SESSION['database_server'],$_SESSION['database_user'],$_SESSION['database_password']);
+$modx->db->getVersion();
+echo sprintf('<p>%s %s <strong>%s%s </strong></p>', echo_ok(), $_lang['checking_sql_version'], $_lang['sql_version_is'], $modx->db->getVersion());
+
 // Version and strict mode check end
 
 // andrazk 20070416 - add install flag and disable manager login

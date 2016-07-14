@@ -2,9 +2,9 @@
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 if(preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
-	return get_resources($_REQUEST['id']);
+	return get_resources_byajax($_REQUEST['id']);
 
-function get_resources($id) {
+function get_resources_byajax($id) {
 	global $modx,$_lang;
 	
 	$rs = $modx->db->select('pagetitle,id', $modx->getFullTableName('site_content'), "template='{$id}'");

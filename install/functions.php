@@ -50,67 +50,51 @@ function includeLang($language, $dir='langs/') {
 	else require_once("{$dir}english.inc.php");
 }
 
-function modx_escape($s) {
-	global $mysqli;
-	if (function_exists('mysqli_set_charset')) {
-		$s = $mysqli->real_escape_string($s);
-	}
-	else {
-		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
-		$s = $mysqli->real_escape_string($s);
-		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
-	}
-	return $s;
-}
-
 function compare_check($params) {
-	global $mysqli;
+	global $modx;
 	
-	$table_prefix = $_SESSION['table_prefix'];
-	
-	$name_field  = 'name';
 	$name        = $params['name'];
+	$name_field  = 'name';
 	$mode        = 'version_compare';
-	if($params['version']) {
-		$new_version = $params['version'];
-	}
+	
+	if($params['version']) $new_version = $params['version'];
 	
 	switch($params['category']) {
 		case 'template':
-			$table = "{$table_prefix}site_templates";
+			$tableName  = 'site_templates';
 			$name_field = 'templatename';
 			$mode       = 'desc_compare';
 			break;
 		case 'tv':
-			$table = "{$table_prefix}site_tmplvars";
-			$mode  = 'desc_compare';
+			$tableName = 'site_tmplvars';
+			$mode      = 'desc_compare';
 			break;
 		case 'chunk':
-			$table = "{$table_prefix}site_htmlsnippets";
-			$mode  = 'name_compare';
+			$tableName = 'site_htmlsnippets';
+			$mode      = 'name_compare';
 			break;
 		case 'snippet':
-			$table = "{$table_prefix}site_snippets";
-			$mode  = 'version_compare';
+			$tableName = 'site_snippets';
 			break;
 		case 'plugin':
-			$table = "{$table_prefix}site_plugins";
-			$mode  = 'version_compare';
+			$tableName = 'site_plugins';
 			break;
 		case 'module':
-			$table = "{$table_prefix}site_modules";
-			$mode  = 'version_compare';
+			$tableName = 'site_modules';
 			break;
 	}
-	$sql = "SELECT * FROM `{$table}` WHERE `{$name_field}`='{$name}'";
-	if($params['category']=='plugin') $sql .= " AND `disabled`='0'";
-	$rs = $mysqli->query($sql);
-	if(!$rs) echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
-	else     
+	
+	$where = "`{$name_field}`='{$name}'";
+	if($params['category']=='plugin') $where .= " AND `disabled`='0'";
+	
+	$rs = $modx->db->select('*', "[+prefix+]{$tableName}", $where);
+	if(!$rs)
+		return sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
+	else
 	{
-		if($rs->num_rows==1)
+		if($modx->db->getRecordCount($rs)==1)
 		{
-			$row = $rs->fetch_assoc();
+			$row = $modx->db->getRow($rs);
 			$new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
 			$new_desc    = $new_version_str . $params['description'];
 			$old_desc    = $row['description'];
@@ -202,48 +186,46 @@ function parse_docblock($fullpath) {
 }
 
 function clean_up($sqlParser) {
-	global $mysqli;
+	global $modx;
 	
 	$ids = array();
 	$mysqlVerOk = -1;
 	
 	$table_prefix = $sqlParser->prefix;
 	
-	if(function_exists("mysqli_get_server_info")) {
-		$mysqlVerOk = (version_compare($mysqli->server_info,"4.0.20")>=0);
-	}	
+	$mysqlVerOk = (version_compare($modx->db->getVersion(),"5.0.0")>=0);
 	
 	// secure web documents - privateweb 
-	$mysqli->query("UPDATE `{$table_prefix}site_content` SET privateweb = 0 WHERE privateweb = 1");
+	$modx->db->query("UPDATE `{$table_prefix}site_content` SET privateweb = 0 WHERE privateweb = 1");
 	$sql =  "SELECT DISTINCT sc.id 
 			 FROM `{$table_prefix}site_content` sc
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}webgroup_access` wga ON wga.documentgroup = dg.document_group
 			 WHERE wga.id>0";
-	$ds = $mysqli->query($sql);
+	$ds = $modx->db->query($sql);
 	if(!$ds)
 	{
-		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
 	}
 	else {
 		while($r = $ds->fetch_assoc()) $ids[]=$r["id"];
 		if(count($ids)>0) {
-			$mysqli->query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
+			$modx->db->query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
 			unset($ids);
 		}
 	}
 	
 	// secure manager documents privatemgr
-	$mysqli->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 0 WHERE privatemgr = 1");
+	$modx->db->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 0 WHERE privatemgr = 1");
 	$sql =  "SELECT DISTINCT sc.id 
 			 FROM `{$table_prefix}site_content` sc
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}membergroup_access` mga ON mga.documentgroup = dg.document_group
 			 WHERE mga.id>0";
-	$ds = $mysqli->query($sql);
+	$ds = $modx->db->query($sql);
 	if(!$ds)
 	{
-		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$mysqli->error);
+		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
 	}
 	else
 	{
@@ -254,7 +236,7 @@ function clean_up($sqlParser) {
 		
 		if(count($ids)>0) {
 			$ids = join(', ',$ids);
-			$mysqli->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 1 WHERE id IN ({$ids})");	
+			$modx->db->query("UPDATE `{$table_prefix}site_content` SET privatemgr = 1 WHERE id IN ({$ids})");	
 			unset($ids);
 		}
 	}
@@ -293,7 +275,7 @@ function propUpdate($new,$old)
 	{
 		$return .= "&{$k}={$v} ";
 	}
-	return modx_escape($return);
+	return sql_real_escape_string($return);
 }
 
 function getCreateDbCategory($category) {
@@ -348,18 +330,19 @@ function isUpGrade()
 		if(!isset($dbase) || empty($dbase)) $installmode = 0;
 		else
 		{
-			$mysqli = @ new mysqli($database_server, $database_user, $database_password);
-			if($mysqli)
+			global $db;
+			$db = sql_connect($database_server, $database_user, $database_password);
+			if($db)
 			{
 				$dbase = trim($dbase, '`');
-				$rs = @ $mysqli->select_db($dbase);
+				$rs = sql_select_db($dbase);
 			}
 			else $rs = false;
 			
 			if($rs)
 			{
 				$tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
-				$rs = $mysqli->query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
+				$rs = sql_query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
 				if($rs)
 				{
 					$row = $rs->fetch_assoc();
@@ -596,4 +579,45 @@ function getLast($array=array()) {
 function checkOldConfig($config_path) {
 	if(is_file($config_path)) include_once($config_path);
 	if(isset($lastInstallTime)) exit('test');
+}
+
+function sql_connect($host, $uid, $pwd) {
+    if(function_exists('mysqli_connect')) $db = @ mysqli_connect($host, $uid, $pwd);
+    else                                  $db = @ mysql_connect($host, $uid, $pwd);
+    return $db;
+}
+
+function sql_select_db($dbase) {
+    global $db;
+    if(function_exists('mysqli_select_db')) return mysqli_select_db($db,$dbase);
+    else                                    return mysql_select_db($dbase);
+}
+
+function sql_set_charset($encode='utf8') {
+    global $db;
+	if(function_exists('mysqli_set_charset'))    mysqli_set_charset($db,$encode);
+	elseif(function_exists('mysql_set_charset')) mysql_set_charset($encode);
+	else                                         sql_query("SET NAMES '{$encode}'");;
+}
+
+function sql_query($query) {
+	global $db;
+	if(function_exists('mysqli_query')) return mysqli_query($db,$query);
+	else                                return mysql_query($query);
+}
+
+function sql_real_escape_string($s) {
+	if (function_exists('mysqli_real_escape_string')) {
+		global $db;
+		$s = mysqli_real_escape_string($db,$s);
+	}
+	elseif (function_exists('mysql_real_escape_string')) {
+		$s = mysql_real_escape_string($s);
+	}
+	else {
+		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
+		$s = mysql_escape_string($s);
+		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
+	}
+	return $s;
 }

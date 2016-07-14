@@ -9,28 +9,19 @@ $modulePath   = "{$base_path}assets/modules/";
 $templatePath = "{$base_path}assets/templates/";
 $tvPath       = "{$base_path}assets/tvs/";
 
-global $_lang,$dbase,$database_server,$database_user,$database_password,$table_prefix;
-$database_server   = $_SESSION['database_server'];
-$database_user     = $_SESSION['database_user'];
-$database_password = $_SESSION['database_password'];
-$dbase             = trim($_SESSION['dbase'],'`');
-$table_prefix      = $_SESSION['table_prefix'];
+global $_lang;
 
 $installmode = $_SESSION['installmode'];
+define('MODX_API_MODE', true);
 
-global $mysqli;
-$mysqli = new mysqli($database_server, $database_user, $database_password);
-if(!$mysqli) exit($_lang['alert_database_test_connection_failed']);
-
-$mysqli->select_db($dbase);
-$mysqli->query("SET CHARACTER SET 'utf8'");
-if (function_exists('mysqli_set_charset'))
-{
-	$mysqli->set_charset('utf8');
-}
-else
-{
-	$mysqli->query("SET NAMES 'utf8'");
+if(!$modx) {
+    $modx = include_once("{$base_path}manager/includes/document.parser.class.inc.php");
+    $modx->db->hostname     = $_SESSION['database_server'];
+    $modx->db->username     = $_SESSION['database_user'];
+    $modx->db->password     = $_SESSION['database_password'];
+    $modx->db->dbname       = $_SESSION['dbase'];
+    $modx->db->table_prefix = $_SESSION['table_prefix'];
+    $modx->db->connect();
 }
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category

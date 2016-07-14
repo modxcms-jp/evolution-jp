@@ -42,7 +42,7 @@ $_lang["checking_if_export_exists"] = '<span class="mono">/temp/export</span>デ
 $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>ディレクトリの書き込み属性: ';
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
-$_lang["checking_mysqli_version"] = 'MySQLiのバージョン: ';
+$_lang["checking_sql_version"] = 'SQLのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
 $_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされるため非常に危険です。特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。';
@@ -113,7 +113,7 @@ $_lang["modx_footer1"] = '&copy; 2005-2016 the <a href="http://modx.com/" target
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; インストール';
 $_lang["modx_requires_php"] = ', PHP 5.0.0以上が必要です。';
-$_lang["mysqli_version_is"] = ' Version ';
+$_lang["sql_version_is"] = ' Version ';
 $_lang["no"] = 'いいえ';
 $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = '見つかりません';

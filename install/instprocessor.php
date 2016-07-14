@@ -5,7 +5,6 @@ global $tplSnippets;
 global $tplPlugins;
 global $tplModules;
 global $tplTVs;
-global $mysqli;
 
 global $errors;
 
@@ -32,12 +31,12 @@ extract($_lang, EXTR_PREFIX_ALL, 'lang');
 echo "<p>{$lang_setup_database}</p>\n";
 // get base path and url
 define('MODX_API_MODE', true);
-$database_type = 'mysqli';
+$database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 $modx = include_once("{$base_path}manager/includes/document.parser.class.inc.php");
 $modx->db->hostname     = $_SESSION['database_server'];
-$modx->db->dbname       = $_SESSION['dbase'];
 $modx->db->username     = $_SESSION['database_user'];
 $modx->db->password     = $_SESSION['database_password'];
+$modx->db->dbname       = $_SESSION['dbase'];
 $modx->db->table_prefix = $_SESSION['table_prefix'];
 $modx->db->connect();
 
@@ -91,7 +90,7 @@ if ($sqlParser->installFailed == true)
 else printf('<span class="ok">%s</span></p>', $lang_ok);
 
 $configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
-$ph['database_type']               = 'mysqli';
+$ph['database_type']               = $database_type;
 $ph['database_server']             = $_SESSION['database_server'];
 $ph['database_user']               = $modx->db->escape($_SESSION['database_user']);
 $ph['database_password']           = $modx->db->escape($_SESSION['database_password']);

@@ -33,12 +33,12 @@ class SqlParser {
 	}
 	
 	function intoDB($filename) {
-	    global $mysqli;
+	    global $modx;
 		
 		$idata = $this->file_get_sql_contents($filename);
 		if(!$idata) return false;
 		
-		$dbVersion = (float) $mysqli->server_info;
+		$dbVersion = (float) $modx->db->getVersion();
 		
 		if(version_compare($dbVersion,'4.1.0', '>='))
 		{
@@ -62,17 +62,17 @@ class SqlParser {
 		foreach($sql_array as $sql)
 		{
 			$sql = trim($sql, "\r\n; ");
-			if ($sql) $mysqli->query($sql);
-			if($mysqli->error)
+			if ($sql) $modx->db->query($sql,false);
+			if($modx->db->getLastError())
 			{
 				// Ignore duplicate and drop errors - Raymond
 				if (!$this->showSqlErrors)
 				{
-					$errno = $mysqli->errno;
+					$errno = $modx->db->getLastErrorNo();
 					if ($errno == 1060 || $errno == 1061 || $errno == 1091 || $errno == 1054) continue;
 				}
 				// End Ignore duplicate
-				$this->mysqlErrors[] = array("error" => $mysqli->error, "sql" => $sql);
+				$this->mysqlErrors[] = array("error" => $modx->db->getLastError(), "sql" => $sql);
 				$this->installFailed = true;
 			}
 		}
