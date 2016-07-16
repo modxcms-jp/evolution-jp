@@ -1073,7 +1073,7 @@ function fieldUnpub_date($id) {
 	global $modx,$_lang,$_style,$config,$docObject;
 	if(!$modx->hasPermission('publish_document')) return '';
 	$tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
-	$tpl[] = '<a onclick="document.mutate.unpub_date.value=\'\'; documentDirty=true; return true;" style="cursor:pointer; cursor:hand">';
+	$tpl[] = '<a style="cursor:pointer; cursor:hand">';
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
 	$tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
 	$tpl[] = <<< EOT
