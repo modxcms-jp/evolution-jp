@@ -266,8 +266,6 @@ function decode(s){
     return s;
 }
 
-
-// Using Mootools
 jQuery(function() {
 
     // Try and populate config fields from the text that is pasted in the PHP box
@@ -275,7 +273,6 @@ jQuery(function() {
         
         // Get the value of the php text field
         var src = jQuery('#phptextarea').val();
-        
         
         // Is  something in there?
         if (src == '') {
@@ -296,8 +293,6 @@ jQuery(function() {
         } else {
             src = theBlock[1];
         }
-        
-        
         
         var theParams = {};
         
@@ -554,19 +549,15 @@ tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
     if(is_numeric($id) && $id > 0) {
         $evts = array();
         $rs = $modx->db->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
            $evts[] = $row['evtid'];
         }
     }
     else
     {
-        if(isset($pluginObject->sysevents) && is_array($pluginObject->sysevents))
-        {
+        if(isset($pluginObject->sysevents) && is_array($pluginObject->sysevents)) {
             $evts = $pluginObject->sysevents;
-        }
-        else
-        {
+        } else {
             $evts = array();
         }
     }
@@ -583,15 +574,12 @@ tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
     );
     $rs = $modx->db->select('*','[+prefix+]system_eventnames','','service DESC, groupname, name');
     if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
-    else
-    {
+    else {
         $g = 0;
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
             // display records
             $s = $row['service'];
-            if($srv!=$row['service'])
-            {
+            if($srv!=$row['service']) {
                 $g++;
                 $srv=$row['service'];
                 if(count($evtnames)>0) echoEventRows($evtnames);
@@ -599,8 +587,7 @@ tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
                 echo '<tr><td colspan="2"><b>'."[{$g}] " . $services[$srv-1].'</b></td></tr>';
             }
             // display group name
-            if($grp!=$row['groupname'])
-            {
+            if($grp!=$row['groupname']) {
                 $g++;
                 $grp=$row['groupname'];
                 if(count($evtnames)>0) echoEventRows($evtnames);
