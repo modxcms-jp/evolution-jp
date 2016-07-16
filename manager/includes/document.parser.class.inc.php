@@ -2024,21 +2024,27 @@ class DocumentParser {
     }
     
     function _getSplitPosition($str) {
-        $str = str_split($str);
+        $chars = str_split($str);
         $pass = false;
         $i = -1;
         $pos = false;
         $inFilter = false;
-        foreach($str as $c) {
+        foreach($chars as $c) {
             $i++;
             if($inFilter)    {
-                if($c===')')     { $pass = false; continue; }
+                if    ($c===')') { $pass = false; continue; }
                 elseif($pass)    { continue; }
                 elseif($c==='(') { $pass=true; continue; }
                 elseif($c==='?') { $pos=$i; break; }
+                elseif($c===' ') { 
+                    if(strpos($str,'?')===false) {$pos = $i; break;}
+                }
             }
             elseif($c===':')     { $inFilter=true; }
             elseif($c==='?')     { $pos = $i; break; }
+            elseif($c===' ')     { 
+                if(strpos($str,'?')===false) {$pos = $i; break;}
+            }
         }
         return $pos;
     }
