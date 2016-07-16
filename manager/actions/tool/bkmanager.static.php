@@ -68,8 +68,8 @@ elseif ($mode=='snapshot')
 	$today = str_replace(array('/',' '), '-', $today);
 	$today = str_replace(':', '', $today);
 	$today = strtolower($today);
-	global $path,$modx_version;
-	$filename = "{$today}-{$modx_version}.sql";
+	global $path,$settings_version;
+	$filename = "{$today}-{$settings_version}.sql";
 	
 	@set_time_limit(120); // set timeout limit to 2 minutes
 	$dumper->mode = 'snapshot';
@@ -332,8 +332,8 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
     $today = str_replace(array('/',' '), '-', $today);
     $today = str_replace(':', '', $today);
     $today = strtolower($today);
-    global $modx_version;
-    $filename = "{$today}-{$modx_version}.sql";
+    global $settings_version;
+    $filename = "{$today}-{$settings_version}.sql";
 ?>
 <div class="tab-page" id="tabSnapshot">
 	<h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"];?></h2>

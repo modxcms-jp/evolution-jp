@@ -35,8 +35,8 @@ if(!$_POST['file_name'])
     $today = str_replace(array('/',' '), '-', $today);
     $today = str_replace(':', '', $today);
     $today = strtolower($today);
-    global $path,$modx_version;
-    $filename = "{$today}-{$modx_version}.sql";
+    global $path,$settings_version;
+    $filename = "{$today}-{$settings_version}.sql";
 }
 else $filename = $_POST['file_name'];
 

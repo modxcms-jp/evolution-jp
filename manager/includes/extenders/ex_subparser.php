@@ -1726,7 +1726,7 @@ class SubParser {
     }
     
     function snapshot($filename='', $target='') {
-        global $modx, $modx_version;
+        global $modx, $settings_version;
         
         if(is_array($filename)) {
             if(!isset($filename['filename'])) $filename = '';
@@ -1750,7 +1750,7 @@ class SubParser {
             $today = str_replace(array('/',' '), '-', $today);
             $today = str_replace(':', '', $today);
             $today = strtolower($today);
-            $filename = "{$today}-{$modx_version}.sql";
+            $filename = "{$today}-{$settings_version}.sql";
         }
         
         include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');

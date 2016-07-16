@@ -203,7 +203,7 @@ class Mysqldumper {
 	}
 	
     function dumpSql(&$dumpstring) {
-    	global $modx,$modx_version;
+    	global $modx,$settings_version;
     	$today = $modx->toDateFormat(time(),'dateOnly');
     	$today = str_replace('/', '-', $today);
     	$today = strtolower($today);
@@ -214,7 +214,7 @@ class Mysqldumper {
             header('Pragma: cache');
     		header('Content-type: application/download');
     		header("Content-Length: {$size}");
-    		header("Content-Disposition: attachment; filename={$today}-{$modx_version}_database_backup.sql");
+    		header("Content-Disposition: attachment; filename={$today}-{$settings_version}_database_backup.sql");
     	}
     	echo $dumpstring;
     	return true;

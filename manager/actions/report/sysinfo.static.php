@@ -33,7 +33,7 @@ $dbase = trim($dbase,'`');
 <div class="sectionHeader"><?php echo $_lang["view_sysinfo"];?></div>
 <div class="sectionBody" id="lyr2">
 		<table border="0" cellspacing="2" cellpadding="2">
-		<?php echo render_tr($_lang['modx_version'],$modx_version);?>
+		<?php echo render_tr($_lang['modx_version'],$settings_version);?>
 		<?php echo render_tr($_lang['release_date'],$modx_release_date);?>
 		<?php echo render_tr('システム更新日時',$modx->toDateFormat($lastInstallTime));?>
 		<?php echo render_tr('phpInfo()','<a href="#" onclick="viewPHPInfo();return false;">' . $_lang['view'] . '</a>');?>
@@ -81,7 +81,7 @@ $info = array(
               'php_sapi_name'  => php_sapi_name(),
               'MySQLのバージョン'=>$modx->db->server_info(),
               'MySQLホスト情報' => $modx->db->host_info(),
-              'MODXのバージョン' => $modx_version,
+              'MODXのバージョン' => $settings_version,
               'サイトのURL'  => $modx->config['site_url'],
               'ホスト名' => gethostbyaddr($_SERVER['SERVER_ADDR']),
               'MODX_BASE_URL' => MODX_BASE_URL,
