@@ -28,7 +28,7 @@ class MODIFIERS {
         global $modx;
         $this->srcValue = $value;
         $modifiers = str_replace(array("\r\n","\r"), "\n", $modifiers);
-        $modifiers = $this->splitModifiers($modifiers);
+        $modifiers = $this->splitEachModifiers($modifiers);
         $this->placeholders = array();
         $this->placeholders['phx'] = '';
         $this->placeholders['dummy'] = '';
@@ -40,7 +40,7 @@ class MODIFIERS {
         return $value;
     }
     
-    function splitModifiers($modifiers)
+    function splitEachModifiers($modifiers)
     {
         global $modx;
         
