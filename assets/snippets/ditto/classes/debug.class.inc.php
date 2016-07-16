@@ -92,11 +92,12 @@ class debug extends modxDebugConsole {
 	// Create the output for the Document Info tab
 	// ---------------------------------------------------
 	function prepareDocumentInfo($resource) {
-		global $ditto_lang;
+		global $modx,$ditto_lang;
 		$output = "";
 		if (count($resource) > 0) {
 			foreach ($resource as $item) {
 				$header = str_replace(array('[+pagetitle+]','[+id+]'),array($item['pagetitle'],$item['id']),$this->templates["item"]);
+				$item['createdon']=sprintf('%s(%s)',$item['createdon'],$modx->toDateFormat($item['createdon']));
 				$output .=  $this->makeParamTable($item,$header,true,true,true,"resource");
 			}
 		}
