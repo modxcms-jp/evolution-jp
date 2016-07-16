@@ -52,8 +52,6 @@ else
 <script language="JavaScript">
 
 jQuery(function(){
-	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
 	var readonly = <?php echo ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1': '0'; ?>;
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
@@ -462,7 +460,10 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
           </ul>
     </div>
-
+<script>
+var tpstatus = <?php echo (($modx->config['remember_last_tab']==2)||($_GET['stay']==2)) ? 'true':'false';?>;
+tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
+</script>
 <div class="sectionBody">
 <div class="tab-pane" id="pluginPane">
 
