@@ -164,7 +164,8 @@ class MODIFIERS {
         if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
         elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
         elseif(isset($modx->chunkCache["phx:{$cmd}"])) $this->elmName = "phx:{$cmd}";
-        elseif(isset($modx->chunkCache[$cmd]))         $this->elmName = $cmd;
+        elseif(isset($modx->chunkCache[$cmd])&&strpos($modx->chunkCache[$cmd],'[+value+]')!==false)
+                                                       $this->elmName = $cmd;
         else                                           $this->elmName = '';
         
         $cmd = strtolower($cmd);
