@@ -99,6 +99,10 @@ jQuery(function(){
 			jQuery('input[name="newcategory"]').val('');
 		}
 	});
+	jQuery('#save a').click(function(){
+    	documentDirty=false;
+    	jQuery('#mutate').submit();
+	});
 	var dpOffset   = <?php echo $modx->config['datepicker_offset']; ?>;
 	var dpformat   = '<?php echo $modx->config['datetime_format']; ?>' + ' hh:mm:00';
 	var dayNames   = ['<?php echo join("','",explode(',',$_lang['day_names']));?>'];
@@ -173,7 +177,7 @@ if (is_array($evtOut))
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_chunk')):?>
     		  <li id="save" class="primary mutate">
-    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+    			<a href="#">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
