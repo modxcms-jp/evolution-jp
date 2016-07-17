@@ -90,6 +90,11 @@ if(!isset($modx->config['devmode_showhash'])) $modx->config['devmode_showhash'] 
             jQuery('#preLoader').hide();
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
+            
+        	jQuery('.actionButtons .mutate a').click(function(){
+            	jQuery('#actions').fadeOut(100);
+            	jQuery('input,textarea,select').addClass('readonly');
+        	});
 		});
 		
 		jQuery(window).on('beforeunload', function(){
