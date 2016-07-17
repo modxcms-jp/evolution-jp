@@ -40,7 +40,7 @@ function tpl()
 <h1>[+title+]</h1>
 <div id="actions">
 <ul class="actionButtons">
-    <li>
+    <li class="mutate">
     <a href="javascript:void(0)" onclick="document.location.href='index.php?a=2'">
     <img src="[+style_icons_cancel+]" /> [+lang_cancel+]
     </a>

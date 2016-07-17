@@ -41,7 +41,7 @@ function get_src_content($id,$parent)
 <div id="actions">
 	<ul class="actionButtons">
 	  <li><a href="#" onclick="document.newdocumentparent.submit();" class="primary"><img src="{$_style["icons_save"]}" /> {$_lang['save']}</a></li>
-	  <li><a href="#" onclick="documentDirty=false;document.location.href='{$redirect}'"><img src="{$_style["icons_cancel"]}" /> {$_lang['cancel']}</a></li>
+	  <li class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='{$redirect}'"><img src="{$_style["icons_cancel"]}" /> {$_lang['cancel']}</a></li>
 	</ul>
 </div>
 

@@ -170,12 +170,12 @@ function confirmLangChange(el, lkey, elupd)
 	<h1><?php echo $_lang['settings_title']; ?></h1>
 	<div id="actions">
 		<ul class="actionButtons">
-			<li id="Button1">
+			<li id="Button1" class="mutate">
 				<a href="#" onclick="documentDirty=false; document.settings.submit();">
 					<img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']; ?>
 				</a>
 			</li>
-			<li id="Button5">
+			<li id="Button5" class="mutate">
 				<a href="#" onclick="document.location.href='index.php?a=2';">
 					<img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?>
 				</a>

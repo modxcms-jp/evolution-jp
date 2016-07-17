@@ -16,7 +16,7 @@ else $onetime_msg = '';
 <h1><?php echo $_lang['change_password']?></h1>
 <div id="actions">
 	<ul class="actionButtons">
-	  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+	  <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 	</ul>
 </div>
 <div class="section">

@@ -197,7 +197,7 @@ switch ($_POST['mode']) {
 			
 			<div id="actions">
 			<ul class="actionButtons">
-				<li><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style['icons_save'] ?>" /> <?php echo $_lang['close']; ?></a></li>
+				<li class="mutate"><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style['icons_save'] ?>" /> <?php echo $_lang['close']; ?></a></li>
 			</ul>
 			</div>
 			
@@ -364,7 +364,7 @@ switch ($_POST['mode']) {
 			
 			<div id="actions">
 			<ul class="actionButtons">
-				<li><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
+				<li class="mutate"><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
 			</ul>
 			</div>
 			

@@ -251,7 +251,7 @@ else
 	<div id="actions">
 	  <ul class="actionButtons">
 <?php
-	$tpl = '<li id="%s"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
+	$tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
 	if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
 	if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
@@ -277,8 +277,8 @@ else
 <?php if ($modx->hasPermission('new_document')) { ?>
 	
 			<ul class="actionButtons">
-				<li><a href="index.php?a=4&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
-				<li><a href="index.php?a=72&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
+				<li class="mutate"><a href="index.php?a=4&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
+				<li class="mutate"><a href="index.php?a=72&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
 			</ul>
 <?php }
 	if ($numRecords > 0)

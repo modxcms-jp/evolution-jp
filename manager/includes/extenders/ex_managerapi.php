@@ -450,10 +450,11 @@ class ManagerAPI {
     
     function ab($ph)
     {
-    	global $modx;
+    	global $modx, $_lang;
     	
-    	$tpl = '<li><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    	$tpl = '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
+    	$ph['class'] = $ph['label']==$_lang['cancel'] ? 'class="mutate"' : '';
     	return $modx->parseText($tpl,$ph);
     }
     

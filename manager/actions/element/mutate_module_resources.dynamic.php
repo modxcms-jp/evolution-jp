@@ -197,7 +197,7 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 
 <div id="actions">
 	<ul class="actionButtons">
-		<li><a href="index.php?a=106"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?></a>
+		<li class="mutate"><a href="index.php?a=106"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']; ?></a>
 	</ul>
 </div>
 

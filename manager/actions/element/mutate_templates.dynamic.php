@@ -136,7 +136,7 @@ function deletedocument() {
     <div id="actions">
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_template')):?>
-    		  <li id="Button1">
+    		  <li id="Button1" class="mutate">
     			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>

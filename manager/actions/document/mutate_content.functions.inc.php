@@ -91,7 +91,7 @@ function ab_save()
 {
 	global $modx, $_style, $_lang;
 	
-	$tpl = '<li id="save" class="primary"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
+	$tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_save';
 	$ph['label'] = $_lang['update'];
@@ -126,7 +126,7 @@ function ab_open_draft($id)
 {
 	global $modx, $_style, $_lang, $docObject,$saveTarget;
 	
-	$tpl = '<li id="opendraft" class="opendraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang["open_draft"];
@@ -141,7 +141,7 @@ function ab_create_draft($id)
 	
 	if(!$modx->hasPermission('edit_document')) return;
 	
-	$tpl = '<li id="createdraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="createdraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['create_draft'];
@@ -153,7 +153,7 @@ function ab_cancel($id)
 {
 	global $modx, $_style, $_lang, $docObject;
 	
-	$tpl = '<li id="cancel"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
 	$ph['alt'] = 'icons_cancel';
 	$ph['label'] = $_lang['cancel'];
@@ -164,7 +164,7 @@ function ab_move()
 {
 	global $modx, $_style, $_lang;
 	
-	$tpl = '<li id="move"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
+	$tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
 	$ph['label'] = $_lang['move'];
 	return parseText($tpl,$ph);

@@ -136,8 +136,8 @@ foreach ($sortables as $list)
 
 <div id="actions">
    <ul class="actionButtons">
-       	<li><a href="#" onclick="save();"><img src="'.$_style["icons_save"].'" /> '.$_lang['update'].'</a></li>
-		<li><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="'.$_style["icons_cancel"].'" /> '.$_lang['cancel'].'</a></li>
+       	<li class="mutate"><a href="#" onclick="save();"><img src="'.$_style["icons_save"].'" /> '.$_lang['update'].'</a></li>
+		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="'.$_style["icons_cancel"].'" /> '.$_lang['cancel'].'</a></li>
 	</ul>
 </div>
 

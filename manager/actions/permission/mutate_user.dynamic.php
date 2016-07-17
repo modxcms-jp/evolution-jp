@@ -219,7 +219,7 @@ if (is_array($evtOut))
     <div id="actions">
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_user')):?>
-    		  <li id="Button1">
+    		  <li id="Button1" class="mutate">
     			<a href="#" onclick="documentDirty=false; document.userform.save.click();">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>

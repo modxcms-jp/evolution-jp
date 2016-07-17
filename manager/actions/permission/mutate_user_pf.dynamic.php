@@ -162,7 +162,7 @@ if (is_array($evtOut))
 <h1><?php echo $_lang['profile']; ?></h1>
     <div id="actions">
     	  <ul class="actionButtons">
-    		  <li id="Button1">
+    		  <li id="Button1" class="mutate">
     			<a href="#" onclick="documentDirty=false; document.userform.save.click();">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
@@ -177,7 +177,7 @@ if (is_array($evtOut))
     			if ($_REQUEST['a'] == '74') { ?>
     		  <li id="Button3"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete_document"]?>" /> <?php echo $_lang['delete']?></a></li>
     		  <?php } ?>
-    		  <li id="Button5"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
+    		  <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"]?>" /> <?php echo $_lang['cancel']?></a></li>
     	  </ul>
     </div>
 <!-- Tab Start -->

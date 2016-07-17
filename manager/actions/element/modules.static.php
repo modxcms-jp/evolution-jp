@@ -84,8 +84,8 @@ echo $cm->render();
 
 	<div id="actions">
 		<ul class="actionButtons">
-			<?php if(($modx->hasPermission('new_module'))){ echo '<li id="newModule"><a href="index.php?a=107"><img src="'. $_style["icons_save"]. '" />'. $_lang["new_module"].'</a></li>'; } ?>
-			<li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+			<?php if(($modx->hasPermission('new_module'))){ echo '<li id="newModule" class="mutate"><a href="index.php?a=107"><img src="'. $_style["icons_save"]. '" />'. $_lang["new_module"].'</a></li>'; } ?>
+			<li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 		</ul>
 	</div>
 
