@@ -18,6 +18,8 @@ $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_open_default'] = 1;
 if(!isset($modx->config['devmode_showhash'])) $modx->config['devmode_showhash'] = 0;
+if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_picker_path']   = 'media/calendar/datepicker.inc.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo  $mxla;?>" dir="<?php echo  $textdir;?>">

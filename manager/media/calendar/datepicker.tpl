@@ -7,5 +7,20 @@ jQuery(function(){
 	var monthNames = [+monthNames+];
 	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
+	
+	jQuery('#pub_date').keydown(function(){
+		jQuery('div#pub_datedp_container').hide();
+		documentDirty=true;
+	});
+	jQuery('#pub_date').click(function(){
+		jQuery('div#pub_datedp_container').show();
+	});
+	jQuery('#unpub_date').keydown(function(){
+		jQuery('div#unpub_datedp_container').hide();
+		documentDirty=true;
+	});
+	jQuery('#unpub_date').click(function(){
+		jQuery('div#unpub_datedp_container').show();
+	});
 });
 </script>

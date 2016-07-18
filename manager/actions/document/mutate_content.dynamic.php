@@ -207,5 +207,6 @@ if($modx->config['use_editor'] === '1') {
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
+$ph['OnDatePickerInit'] = loadDatePicker($modx->config['mgr_date_picker_path']);
 echo parseText($tpl['foot'],$ph);
 

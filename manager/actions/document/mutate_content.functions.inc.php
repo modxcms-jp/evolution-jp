@@ -477,16 +477,7 @@ function getAliasAtNew() {
 
 function getJScripts($docid) {
 	global $modx,$_lang,$_style,$action, $docObject;
-	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/calendar/datepicker.tpl');
-	$dayNames   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
-	$monthNames = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
-	$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
-	$ph['datetime_format'] = $modx->config['datetime_format'];
-	$ph['dayNames'] = $dayNames;
-	$ph['monthNames'] = $monthNames;
-	$content = parseText($tpl,$ph);
 	
-	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	$base_url = $modx->config['base_url'];
 	if(!isset($modx->config['imanager_url']))
 		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
@@ -515,7 +506,9 @@ function getJScripts($docid) {
 	$ph['action'] = $modx->manager->action;
 	$ph['suffix'] = $modx->config['friendly_url_suffix'];
 	
-	return $content . parseText($tpl,$ph);
+	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
+	
+	return $date_picker . parseText($tpl,$ph);
 }
 
 function get_template_options() {
@@ -1403,8 +1396,16 @@ function getTplFoot()
 	</fieldset>
 </form>
 [+OnRichTextEditorInit+]
+[+OnDatePickerInit+]
 EOT;
     return $tpl;
+}
+
+function loadDatePicker($path) {
+    global $modx;
+    include_once($path);
+    $dp = new DATEPICKER();
+    return $modx->mergeSettingsContent($dp->getDP());
 }
 
 function getTplTabGeneral()
