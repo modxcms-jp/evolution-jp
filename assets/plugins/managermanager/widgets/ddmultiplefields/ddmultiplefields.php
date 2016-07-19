@@ -371,11 +371,6 @@ var ddMultiple = {
 		//name нужен для DatePicker`а
 		var $field = jQuery("<input type=\"text\" title=\"" + title + "\" class=\"ddField DatePicker\" name=\"ddMultipleDate\" />").val(value).appendTo($fieldCol);
 
-		new DatePicker($field.get(0), {
-			"yearOffset": ' . $modx->config['datepicker_offset'].',
-			"format": "' . $modx->config["datetime_format"] . '" + " hh:mm:00"
-		});
-		
 		return $field;
 	},
 	//Make textarea field
