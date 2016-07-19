@@ -214,11 +214,13 @@ hr {
 		left: 0;
 	}
 #supplementalNav {
-	float: right;
-	background: transparent;
-	padding: 0;
-	margin-top: 8px;
-	color: #89939E;
+    background: transparent none repeat scroll 0 0;
+    color: #89939e;
+    margin: 0;
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    z-index: 111;
 }
 	.rtl #supplementalNav {
 		float: left;
