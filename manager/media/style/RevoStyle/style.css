@@ -207,7 +207,8 @@ hr {
 #statusbar {
 	position: absolute;
 	right: 0;
-	top: 27px;
+    top: 36px;
+    z-index: 1000;
 }
 	.rtl #statusbar {
 		left: 0;
@@ -215,8 +216,8 @@ hr {
 #supplementalNav {
 	float: right;
 	background: transparent;
-	padding: 0 0 30px;
-	margin: 0;
+	padding: 0;
+	margin-top: 8px;
 	color: #89939E;
 }
 	.rtl #supplementalNav {
@@ -877,7 +878,7 @@ a.hometblink:hover {
 	height: 25px;
 	width: 100%;
 	position: absolute;
-	top: 18px;
+	top: 6px;
 	overflow: visible !important;
 }
 	.rtl #nav {
@@ -959,7 +960,7 @@ a.hometblink:hover {
 	position: fixed;
 	bottom:0;
 	width: 200%;
-	top:43px;
+	top:31px;
 	left: 0;
 	border-top: 1px solid #888;
 	border-bottom: 1px solid #eee;
