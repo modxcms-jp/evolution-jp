@@ -32,6 +32,7 @@ jQuery('.DatePicker').each(function(i, elm){
 	if(v) {
 		jQuery(elm).data('datepicker').selectDate(new Date(v));
 	}
+	documentDirty = false;
 });
 
 </script>
