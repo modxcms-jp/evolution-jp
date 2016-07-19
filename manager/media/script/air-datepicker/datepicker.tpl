@@ -16,6 +16,8 @@ var options = {
     autoClose     : true,
     toggleSelected: false,
     clearButton   : true,
+    minutesStep   : 5,
+    dateFormat    : '[(datetime_format:strtolower)]',
     onSelect      : function (fd, d, picker) {
         documentDirty = true;
     },
