@@ -8,7 +8,7 @@ start.setHours(0);
 start.setMinutes(0);
 
 var options = {
-    language      : 'ja',
+    language      : '[(lang_code)]',
     timepicker    : true,
     todayButton   : new Date(),
     keyboardNav   : false,
