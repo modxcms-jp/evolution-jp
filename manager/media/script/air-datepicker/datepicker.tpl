@@ -31,6 +31,8 @@ var unpub_date = jQuery('#unpub_date');
 var dob        = jQuery('#dob');
 var datefrom   = jQuery('#datefrom');
 var dateto     = jQuery('#dateto');
+var blockedafter = jQuery('#blockedafter');
+var blockeduntil = jQuery('#blockeduntil');
 
 if(pub_date) pub_date.datepicker(options);
 if(pub_date.val())
@@ -51,5 +53,13 @@ if(datefrom.val())
 if(dateto) dateto.datepicker(options);
 if(dateto.val())
     dateto.data('datepicker').selectDate(new Date(dateto.val()));
+
+if(blockedafter) blockedafter.datepicker(options);
+if(blockedafter.val())
+    blockedafter.data('datepicker').selectDate(new Date(blockedafter.val()));
+
+if(blockeduntil) blockeduntil.datepicker(options);
+if(blockeduntil.val())
+    blockeduntil.data('datepicker').selectDate(new Date(blockeduntil.val()));
 
 </script>
