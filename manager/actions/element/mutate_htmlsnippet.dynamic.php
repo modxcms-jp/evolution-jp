@@ -75,7 +75,6 @@ elseif(!isset($content['editor_type']) || empty($content['editor_type']))
 
 // Print RTE Javascript function
 ?>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script language="javascript" type="text/javascript">
 jQuery(function(){
 	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
@@ -103,12 +102,6 @@ jQuery(function(){
     	documentDirty=false;
     	jQuery('#mutate').submit();
 	});
-	var dpOffset   = <?php echo $modx->config['datepicker_offset']; ?>;
-	var dpformat   = '<?php echo $modx->config['datetime_format']; ?>' + ' hh:mm:00';
-	var dayNames   = ['<?php echo join("','",explode(',',$_lang['day_names']));?>'];
-	var monthNames = ['<?php echo join("','",explode(',',$_lang['month_names']));?>'];
-	new DatePicker($('pub_date'),   {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
-	new DatePicker($('unpub_date'), {'yearOffset': dpOffset,'format':dpformat,'dayNames':dayNames,'monthNames':monthNames});
 	var stay = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	chunkPane = new WebFXTabPane( document.getElementById('chunkPane'), stay);
 });
@@ -334,3 +327,4 @@ if ($use_editor == 1) {
 	if (is_array($evtOut))
 		echo implode('', $evtOut);
 }
+echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);

@@ -107,17 +107,7 @@ if($manager_language!="english" && is_file(MODX_CORE_PATH . "lang/country/{$mana
 
 $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
 ?>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
-window.addEvent('domready', function() {
-	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
-	var dpformat = "<?php echo $modx->config['datetime_format']; ?>";
-	new DatePicker($('dob'), {'yearOffset': -90,'yearRange':1,'format':dpformat});
-	if ($('blockeduntil')) {
-		new DatePicker($('blockeduntil'), {'yearOffset': dpOffset,'format':dpformat + ' hh:mm:00'});
-		new DatePicker($('blockedafter'), {'yearOffset': dpOffset,'format':dpformat + ' hh:mm:00'});
-	}
-});
 
 function changestate(element) {
 	documentDirty=true;
@@ -768,6 +758,9 @@ if (is_array($evtOut))
 <input type="submit" name="save" style="display:none">
 </form>
 <?php
+
+echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
+
 function selected($cond=false)
 {
 	if($cond) return ' selected="selected"';

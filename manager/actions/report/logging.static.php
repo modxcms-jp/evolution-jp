@@ -13,14 +13,7 @@ while ($row = $modx->db->getRow($rs))
 }
 $form_v = $_REQUEST;
 ?>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
-window.addEvent('domready', function() {
-	var dpOffset = <?php echo $modx->config['datepicker_offset']; ?>;
-	var dpformat = "<?php echo $modx->config['datetime_format']; ?>" + ' hh:mm:00';
-	new DatePicker($('datefrom'), {'yearOffset': dpOffset,'format':dpformat});
-	new DatePicker($('dateto'), {'yearOffset': dpOffset,'format':dpformat});
-});
 </script>
 <h1><?php echo $_lang["mgrlog_view"]?></h1>
 
@@ -139,8 +132,8 @@ window.addEvent('domready', function() {
 		</table>
 	</div>
 	<ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
-		<li><a href="#" class="default" onclick="document.logging.log_submit.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search']; ?></a></li>
-		<li><a href="index.php?a=2"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
+		<li><a href="#" class="default" onclick="documentDirty=false;document.logging.log_submit.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search']; ?></a></li>
+		<li><a href="index.php?a=2" onclick="documentDirty=false;"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
 	</ul>
       <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none;" />
 </div>
@@ -274,7 +267,7 @@ EOT;
 }
 endif;
 
-
+echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
 
 function array_unique_multi($array, $checkKey) {
 	// Use the builtin if we're not a multi-dimensional array

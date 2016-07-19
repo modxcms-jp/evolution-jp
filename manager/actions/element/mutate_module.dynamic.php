@@ -54,7 +54,6 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
 }
 
 ?>
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
 var docid = <?php echo $_REQUEST['id'];?>;
 jQuery(function(){

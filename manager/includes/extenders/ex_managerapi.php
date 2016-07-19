@@ -823,5 +823,12 @@ class ManagerAPI {
         echo '[+content+]';
         include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         return ob_get_clean();
-	}
+    }
+    
+    function loadDatePicker($path) {
+        global $modx;
+        include_once($path);
+        $dp = new DATEPICKER();
+        return $modx->mergeSettingsContent($dp->getDP());
+    }
 }

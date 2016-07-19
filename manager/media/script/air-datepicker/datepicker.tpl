@@ -28,13 +28,28 @@ var options = {
 
 var pub_date   = jQuery('#pub_date');
 var unpub_date = jQuery('#unpub_date');
+var dob        = jQuery('#dob');
+var datefrom   = jQuery('#datefrom');
+var dateto     = jQuery('#dateto');
 
-pub_date.datepicker(options);
+if(pub_date) pub_date.datepicker(options);
 if(pub_date.val())
     pub_date.data('datepicker').selectDate(new Date(pub_date.val()));
 
-unpub_date.datepicker(options);
+if(unpub_date) unpub_date.datepicker(options);
 if(unpub_date.val())
     unpub_date.data('datepicker').selectDate(new Date(unpub_date.val()));
+
+if(dob) dob.datepicker(options);
+if(dob.val())
+    dob.data('datepicker').selectDate(new Date(dob.val()));
+
+if(datefrom) datefrom.datepicker(options);
+if(datefrom.val())
+    datefrom.data('datepicker').selectDate(new Date(datefrom.val()));
+
+if(dateto) dateto.datepicker(options);
+if(dateto.val())
+    dateto.data('datepicker').selectDate(new Date(dateto.val()));
 
 </script>

@@ -1401,13 +1401,6 @@ EOT;
     return $tpl;
 }
 
-function loadDatePicker($path) {
-    global $modx;
-    include_once($path);
-    $dp = new DATEPICKER();
-    return $modx->mergeSettingsContent($dp->getDP());
-}
-
 function getTplTabGeneral()
 {
 	$tpl = <<< EOT
