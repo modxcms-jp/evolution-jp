@@ -7,13 +7,25 @@ var start = new Date();
 start.setHours(0);
 start.setMinutes(0);
 
+var options = {
+    language      : 'ja',
+    timepicker    : true,
+    todayButton   : new Date(),
+    keyboardNav   : false,
+    startDate     : start,
+    autoClose     : true,
+    toggleSelected: false,
+    clearButton   : true,
+    onSelect      : function (fd, d, picker) {
+        documentDirty = true;
+    },
+    navTitles: {
+       days: 'yyyy/mm'
+    }
+};
+
 var pub_date   = jQuery('#pub_date');
 var unpub_date = jQuery('#unpub_date');
-var options = {language: 'ja', timepicker: true, todayButton: new Date(),keyboardNav: false,startDate:start,autoClose:true,toggleSelected:false,clearButton:true,
-	onSelect: function onSelect(fd, d, picker) {
-		documentDirty = true;
-	}
-};
 
 pub_date.datepicker(options);
 if(pub_date.val())
