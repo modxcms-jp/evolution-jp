@@ -1396,7 +1396,6 @@ function getTplFoot()
 	</fieldset>
 </form>
 [+OnRichTextEditorInit+]
-[+OnDatePickerInit+]
 EOT;
     return $tpl;
 }

@@ -267,8 +267,6 @@ EOT;
 }
 endif;
 
-echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
-
 function array_unique_multi($array, $checkKey) {
 	// Use the builtin if we're not a multi-dimensional array
 	if (!is_array(current($array)) || empty($checkKey)) return array_unique($array);

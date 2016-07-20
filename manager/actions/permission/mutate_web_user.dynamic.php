@@ -531,8 +531,6 @@ if($modx->config['use_udperms']==1)
 </form>
 <?php
 
-echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
-
 // converts date format dd-mm-yyyy to php date
 function ConvertDate($date) {
 	global $modx;

@@ -419,8 +419,6 @@ if (is_array($evtOut))
 </form>
 <?php
 
-echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
-
 function selected($cond=false)
 {
 	if($cond) return ' selected="selected"';
