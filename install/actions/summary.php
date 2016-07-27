@@ -230,8 +230,9 @@ $nextButton= $errors > 0 ? $_lang['retry'] : $_lang['install'];
 $nextVisibility= $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagree\').checked){document.getElementById(\'nextbutton\').style.visibility=\'visible\';}else{document.getElementById(\'nextbutton\').style.visibility=\'hidden\';}"';
 ?>
-<form id="install" action="index.php?action=<?php echo $nextAction;?>" method="POST">
+<form id="install" action="index.php" method="POST">
   <div>
+    <input type="hidden" value="<?php echo $nextAction;?>" name="action" />
     <input type="hidden" value="1" name="options_selected" />
     <input type="hidden" name="prev_action" value="summary" />
 </div>
@@ -247,7 +248,7 @@ $agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagre
 </form>
 <script type="text/javascript">
 jQuery('a.prev').click(function(){
-	jQuery('#install').prop({action:'index.php?action=options'});
+	jQuery('#install input[name=action]').val('options');
 	jQuery('#install').submit();
 });
 jQuery('a.next').click(function(){

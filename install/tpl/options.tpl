@@ -1,4 +1,5 @@
-<form id="install" action="index.php?action=summary" method="POST">
+<form id="install" action="index.php" method="POST">
+<input type="hidden" name="action" value="summary" />
 <input type="hidden" name="prev_action" value="options" />
 <h2>[+optional_items+]</h2>
 
@@ -17,7 +18,7 @@
 	var installmode = [+installmode+];
 	jQuery('a.prev').click(function(){
 		var target = (installmode==1) ? 'mode' : 'connection';
-		jQuery('#install').prop({action:'index.php?action='+target});
+		jQuery('#install input[name=action]').val(target);
 		jQuery('#install').submit();
 	});
 	jQuery('a.next').click(function(){

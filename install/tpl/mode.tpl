@@ -1,4 +1,5 @@
-<form id="install" action="index.php?action=connection" method="POST">
+<form id="install" action="index.php" method="POST">
+<input type="hidden" name="action" value="connection" />
 <input type="hidden" name="prev_action" value="mode" />
 <input type="hidden" name="installmode" value="[+installmode+]" />
 <h2>[+welcome_title+]</h2>
@@ -21,7 +22,7 @@
 <script type="text/javascript">
 	var installmode = [+installmode+];
 	jQuery('a.next').click(function(){
-		if(installmode==1) jQuery('form#install').prop({action:'index.php?action=options'});
+		if(installmode==1) jQuery('#install input[name=action]').val('options');
 		jQuery('#install').submit();
 	});
 </script>

@@ -1,4 +1,5 @@
-<form id="install" action="index.php?action=options" method="POST">
+<form id="install" action="index.php" method="POST">
+<input type="hidden" name="action" value="options" />
 <input type="hidden" name="prev_action" value="connection" />
   <h2>[+connection_screen_database_info+]</h2>
   <h3>[+connection_screen_server_connection_information+]</h3>
@@ -84,7 +85,7 @@ jQuery('#databasetest').click(function(){
 	});
 	
 	jQuery('a.prev').click(function(){
-		jQuery('#install').prop({action:'index.php?action=mode'});
+		jQuery('#install input[name=action]').val('mode');
 		jQuery('#install').submit();
 	});
 	jQuery('a.next').click(function(){
