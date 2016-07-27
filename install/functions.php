@@ -202,13 +202,13 @@ function clean_up($sqlParser) {
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}webgroup_access` wga ON wga.documentgroup = dg.document_group
 			 WHERE wga.id>0";
-	$ds = $modx->db->query($sql);
-	if(!$ds)
+	$rs = $modx->db->query($sql);
+	if(!$rs)
 	{
 		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
 	}
 	else {
-		while($r = $ds->fetch_assoc()) $ids[]=$r["id"];
+		while($row = $modx->db->getRow($rs)) $ids[]=$row["id"];
 		if(count($ids)>0) {
 			$modx->db->query("UPDATE `{$table_prefix}site_content` SET privateweb = 1 WHERE id IN (".implode(", ",$ids).")");	
 			unset($ids);
@@ -222,16 +222,16 @@ function clean_up($sqlParser) {
 			 LEFT JOIN `{$table_prefix}document_groups` dg ON dg.document = sc.id
 			 LEFT JOIN `{$table_prefix}membergroup_access` mga ON mga.documentgroup = dg.document_group
 			 WHERE mga.id>0";
-	$ds = $modx->db->query($sql);
-	if(!$ds)
+	$rs = $modx->db->query($sql);
+	if(!$rs)
 	{
 		echo sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
 	}
 	else
 	{
-		while($r = $ds->fetch_assoc())
+		while($row = $modx->db->getRow($rs))
 		{
-			$ids[] = $r['id'];
+			$ids[] = $row['id'];
 		}
 		
 		if(count($ids)>0) {
