@@ -89,11 +89,16 @@ class DBAPI {
             exit;
         } else {
             $dbase = str_replace('`', '', $dbase); // remove the `` chars
-            if (!@ mysql_select_db($dbase, $this->conn)) {
-                $modx->messageQuit("Failed to select the database '{$dbase}'!");
-                exit;
+            if($dbase) {
+                $rs = @ mysql_select_db($dbase, $this->conn);
+                if (!$rs) {
+                    $modx->messageQuit("Failed to select the database '{$dbase}'!");
+                    exit;
+                }
+                else
+                    @mysql_query("{$this->connection_method} {$this->charset}", $this->conn);
             }
-            @mysql_query("{$this->connection_method} {$this->charset}", $this->conn);
+            
             $tend = $modx->getMicroTime();
             $totaltime = $tend - $tstart;
             if ($modx->dumpSQL) {
