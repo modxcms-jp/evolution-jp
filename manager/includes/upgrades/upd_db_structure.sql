@@ -44,12 +44,6 @@ ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `street` varchar(255) NOT NULL 
 
 ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;
 
-ALTER TABLE `{PREFIX}site_revision` CHANGE `target` `element` varchar(32) NOT NULL DEFAULT 'resource';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0';
-
 ALTER TABLE `{PREFIX}site_content`  ADD COLUMN `publishedon` int(20) NOT NULL DEFAULT '0' COMMENT 'Date the document was published' AFTER `deletedby`;
 
 ALTER TABLE `{PREFIX}site_content`  ADD COLUMN `publishedby` int(10) NOT NULL DEFAULT '0' COMMENT 'ID of user who published the document' AFTER `publishedon`;
@@ -222,4 +216,10 @@ UPDATE {PREFIX}documentgroup_names AS dgn
       dgn.private_webgroup = (wga.webgroup IS NOT NULL);
 
 UPDATE `{PREFIX}site_plugins` SET disabled='1' WHERE `name`='ダッシュボード・あなたの情報' OR `name`='ダッシュボード・オンライン情報';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `target` `element` varchar(32) NOT NULL DEFAULT 'resource';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0';
 
