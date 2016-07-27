@@ -13,6 +13,7 @@ if($_SESSION['prevAction']==='options') {
 
 $installmode = $_SESSION['installmode'];
 $_ = explode(',', 'adminname,adminemail,adminpass,adminpassconfirm,database_server,database_user,database_password,dbase,table_prefix');
+$ph['installmode'] = $installmode;
 foreach($_ as $k) {
 	if(isset($_SESSION[$k]))       $ph[$k] = $_SESSION[$k];
 	elseif($k==='adminname')       $ph[$k] = 'admin';
