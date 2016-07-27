@@ -19,7 +19,7 @@ if(1<$modx->db->getRecordCount($rs)) {
 	}
 }
 
-if(!isset($settings_version) || $settings_version!=$modx_version)
+if(!empty($settings_version) && $settings_version!=$modx_version)
 {
 	include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
 }
