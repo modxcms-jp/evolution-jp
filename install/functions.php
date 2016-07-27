@@ -345,7 +345,7 @@ function isUpGrade()
 				$rs = sql_query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
 				if($rs)
 				{
-					$row = $rs->fetch_assoc();
+					$row = sql_fetch_assoc($rs);
 					$settings_version = $row['setting_value'];
 				}
 				else $settings_version = '';
@@ -620,4 +620,9 @@ function sql_real_escape_string($s) {
 		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
 	}
 	return $s;
+}
+
+function sql_fetch_assoc($rs) {
+	if(function_exists('mysqli_fetch_assoc')) return mysqli_fetch_assoc($rs);
+	else                                      return mysql_fetch_assoc($rs);
 }
