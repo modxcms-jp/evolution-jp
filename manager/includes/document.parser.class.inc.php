@@ -1652,18 +1652,20 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeConditionalTagsContent($content, $left='<!--@IF:', $right='<@ENDIF-->')
+    function mergeConditionalTagsContent($content, $iftag='<@IF:', $elseiftag='<@ELSEIF', $elsetag='<@ELSE>', $endiftag='<@ENDIF>')
     {
         if ($this->debug) $fstart = $this->getMicroTime();
         
-        if(strpos($content,'<!--@IF ')!==false) $content = str_replace('<!--@IF ',$left,$content);
-        if(strpos($content,$left)===false) return $content;
-        if(strpos($content,'<!--@ELSEIF')!==false)   $content = str_replace('<!--@ELSEIF',  '<@ELSEIF',  $content);
-        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', '<@ELSE>',   $content);
-        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->','<@ENDIF-->',$content);
+        if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content);
+        if(strpos($content,'<!--@IF:')!==false)       $content = str_replace('<!--@IF:',$iftag,$content);
+        if(strpos($content,$iftag)===false)          return $content;
+        if(strpos($content,'<!--@ELSEIF')!==false)   $content = str_replace('<!--@ELSEIF',  $elseiftag,  $content);
+        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);
+        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);
+        if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);
         
-        $s = array('<!--@IF:',        '<@ELSE',            '<@ENDIF-->');
-        $r = array('<!--@CONDTAG@IF:','<!--@CONDTAG@ELSE', '<!--@CONDTAG@ENDIF-->');
+        $s = array($iftag,        '<@ELSE',            $endiftag);
+        $r = array('<!--@CONDTAG@IF:','<!--@CONDTAG@ELSE', '<!--@CONDTAG@ENDIF>');
         $content = str_replace($s, $r, $content);
         $splits = explode('<!--@CONDTAG@', $content);
         foreach($splits as $i=>$split) {
@@ -1684,7 +1686,6 @@ class DocumentParser {
                 if($flag===false) $cmd = ltrim($cmd,'!');
                 
                 if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
-                
                 $cmd = $this->parseDocumentSource($cmd);
                 $cmd = ltrim($cmd);
                 
