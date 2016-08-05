@@ -2914,37 +2914,29 @@ class DocumentParser {
                 $ph[$k] = $v;
             }
         }
-        $c=0;
-        $bt='';
-        while($bt!==md5($content)) {
-            $matches = $this->getTagsFromContent($content,$left,$right);
-            if(!$matches) break;
-            $bt = md5($content);
-            $replace= array ();
-            foreach($matches[1] as $i=>$key) {
-                if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
-                else                         $modifiers = false;
-                
-                $key = trim($key);
-                if($cleanup=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
-                
-                if(isset($ph[$key])) {
-                    $value = $ph[$key];
-                    if($modifiers!==false) {
-                        $this->loadExtension('MODIFIERS');
-                        $value = $this->filter->phxFilter($key,$value,$modifiers);
-                    }
-                    $replace[$i]= $value;
+        $matches = $this->getTagsFromContent($content,$left,$right);
+        if(!$matches) return $content;
+        $replace= array ();
+        foreach($matches[1] as $i=>$key) {
+            if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
+            else                         $modifiers = false;
+            
+            $key = trim($key);
+            if($cleanup=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
+            
+            if(isset($ph[$key])) {
+                $value = $ph[$key];
+                if($modifiers!==false) {
+                    $this->loadExtension('MODIFIERS');
+                    $value = $this->filter->phxFilter($key,$value,$modifiers);
                 }
-                elseif($cleanup) $replace[$i] = '';
-                else             $replace[$i] = $matches[0][$i];
+                $replace[$i]= $value;
             }
-            $content= str_replace($matches[0], $replace, $content);
-            if($bt===md5($content)) break;
-            $c++;
-            $cleanup = false;
-            if(1000<$c) $this->messageQuit('parseText parse over');
+            elseif($cleanup) $replace[$i] = '';
+            else             $replace[$i] = $matches[0][$i];
         }
+        $content= str_replace($matches[0], $replace, $content);
+        
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
