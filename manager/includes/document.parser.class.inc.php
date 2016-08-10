@@ -1635,14 +1635,12 @@ class DocumentParser {
         return $content;
     }
     
-    function ignoreCommentedTagsContent($content, $left='<!--@IGNORE:BEGIN-->', $right='<!--@IGNORE:END-->')
-    {
+    function ignoreCommentedTagsContent($content, $left='<!--@IGNORE:BEGIN-->', $right='<!--@IGNORE:END-->') {
         if(strpos($content,$left)===false) return $content;
+
         $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!empty($matches))
-        {
-            foreach($matches[0] as $i=>$v)
-            {
+        if(!empty($matches)) {
+            foreach($matches[0] as $i=>$v) {
                 $addBreakMatches[$i] = $v."\n";
             }
             $content = str_replace($addBreakMatches,'',$content);
@@ -3317,7 +3315,6 @@ class DocumentParser {
         if (!empty($this->safeMode))               return false;
         if (!$evtName)                             return false;
         if (!isset ($this->pluginEvent[$evtName])) return false;
-        
         if(count($this->pluginEvent[$evtName])==0) return array();
         
         if(!$this->pluginCache) $this->getPluginCache();
