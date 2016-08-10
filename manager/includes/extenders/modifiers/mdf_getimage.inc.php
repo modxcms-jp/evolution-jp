@@ -1,5 +1,5 @@
 <?php
-$pattern = '/<img[\s\n]+src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
+$pattern = '/<img[\s\n]+.*src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]+>/i';
 preg_match_all($pattern , $value , $images);
 if($opt==='')
 {
