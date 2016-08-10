@@ -76,8 +76,8 @@ class DocManager {
     	$this->fileGetContents('main.tpl');
     }
     
-    function parseTemplate($tpl, $values = array()) {
-    	$tpl = array_key_exists($tpl, $this->fileRegister) ? $this->fileRegister[$tpl] : $this->getFileContents($tpl);
+    function parseTemplate($tpl, $ph = array()) {
+    	$tpl = isset($this->fileRegister[$tpl]) ? $this->fileRegister[$tpl] : $this->getFileContents($tpl);
     	if($tpl) {
     		if(strpos($tpl,'</body>')!==false) {
     			if(!isset($this->modx->config['mgr_date_picker_path']))   $this->modx->config['mgr_date_picker_path']   = 'media/script/air-datepicker/datepicker.inc.php';
@@ -85,7 +85,7 @@ class DocManager {
     			$tpl = str_replace('</body>',$dp.'</body>',$tpl);
     		}
     		$tpl = $this->modx->mergeSettingsContent($tpl);
-    		foreach ($values as $key => $value) {
+    		foreach ($ph as $key => $value) {
     			$tpl = str_replace('[+'.$key.'+]', $value, $tpl); 
     		}
     		$tpl = preg_replace('/(\[\+.*?\+\])/' ,'', $tpl);
