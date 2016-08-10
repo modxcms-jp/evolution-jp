@@ -4,7 +4,7 @@
         <title>[+lang.DM_module_title+]</title>
         <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css" /> 
         <script type="text/javascript" src="media/script/tabpane.js"></script>
-        <script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="media/script/jquery/jquery.min.js?[+settings_version+]"></script>
         <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">

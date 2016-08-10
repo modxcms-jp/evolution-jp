@@ -77,7 +77,9 @@ class DocManager {
     }
     
     function parseTemplate($tpl, $ph = array()) {
+    	global $modx;
     	$tpl = isset($this->fileRegister[$tpl]) ? $this->fileRegister[$tpl] : $this->getFileContents($tpl);
+    	$ph['settings_version'] = $modx->config['settings_version'];
     	if($tpl) {
     		if(strpos($tpl,'</body>')!==false) {
     			if(!isset($this->modx->config['mgr_date_picker_path']))   $this->modx->config['mgr_date_picker_path']   = 'media/script/air-datepicker/datepicker.inc.php';
