@@ -828,7 +828,6 @@ class ditto {
     	$tblsc= $modx->getFullTableName("site_content");
     	$tbldg= $modx->getFullTableName("document_groups");
     	// modify field names to use sc. table reference
-    	if(!in_array('type',$fields)) $fields[]='type';
     	$fields= "sc.".implode(",sc.",$fields);
     	
     	if($where!=='') {
@@ -864,7 +863,6 @@ class ditto {
     	$TVIDs = array();
     	
     	while($row = $modx->db->getRow($rs)) {
-    		if($row['type']==='reference') $row = $this->getDocFromRef($row,$fields);
     		$docid = $row['id'];
     		if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
     			$dateValue = (is_int($row[$dateSource]) !== true) ? $row[$dateSource] : strtotime($row[$dateSource]);
@@ -897,22 +895,6 @@ class ditto {
 		}
 
 		return $resourceArray;
-	}
-	
-	function getDocFromRef($row,$fields) {
-		global $modx;
-		
-		$docid= $row['id'];
-		if(isset($row['content'])) {$content = $row['content'];}
-		else {
-			$obj=$modx->db->getObject('site_content',sprintf("id='%s'",$row['id']));
-			$content = $obj->content;
-		}
-		$content = trim($content,'[~]');
-		if(preg_match('@^[1-9][0-9]*$@',$content)) {
-			return $modx->db->getRow($modx->db->select($fields,'[+prefix+]site_content sc',"id='{$content}'"));
-		}
-		else return $row;
 	}
 	
 	// ---------------------------------------------------
