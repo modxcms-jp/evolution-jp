@@ -310,7 +310,7 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = $this->setRequestUri($id);
-        $_REQUEST['q'] = $this->setRequestQ($this->decoded_request_uri);
+        $_REQUEST['q'] = $_GET['q'] = $this->setRequestQ($this->decoded_request_uri);
         
         if($this->directParse==0)
         {
