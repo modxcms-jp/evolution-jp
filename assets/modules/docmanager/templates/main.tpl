@@ -104,6 +104,5 @@
 	    </div>
 	</div>
 	[+view.documents+]
-    </script>
     </body>
 </html>
