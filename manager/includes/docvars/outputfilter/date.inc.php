@@ -5,7 +5,8 @@
 	{
 		$timestamp = $this->getUnixtimeFromDateString($value);
 		$p = $params['dateformat'] ? $params['dateformat'] : $this->toDateFormat(null, 'formatOnly');
-		$o = strftime($p,$timestamp);
+		if(strpos($p,'%')!==false) $o = strftime($p,$timestamp);
+		else                       $o = date($p,$timestamp);
 	}
 	else $o = '';
 
