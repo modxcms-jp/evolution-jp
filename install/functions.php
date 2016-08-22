@@ -275,7 +275,9 @@ function propUpdate($new,$old)
 	{
 		$return .= "&{$k}={$v} ";
 	}
-	return sql_real_escape_string($return);
+	global $modx;
+	if($modx->db) return $modx->db->escape($return);
+	else          return sql_real_escape_string($return);
 }
 
 function getCreateDbCategory($category) {
