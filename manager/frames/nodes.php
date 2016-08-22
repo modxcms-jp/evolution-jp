@@ -130,7 +130,6 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		$ph['published'] = $published;
 		$ph['deleted']   = $deleted;
 		$ph['nodetitleDisplay'] = '<span class="' . $class . '">' . $nodetitle . '</span>';
-		$ph['weblinkDisplay']   = $type==='reference' ? '&nbsp;<img src="'.$_style["tree_linkgo"].'">' : '' ;
 		$ph['pageIdDisplay']    = '<span>('.($modx_textdir==='rtl' ? '&rlm;':'').$id.')</span>';
 		$ph['draftDisplay']   = $draftDisplay;
 		$ph['_lang_click_to_context'] = $_lang['click_to_context'];
@@ -140,6 +139,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			$ph['pid']       = "'p{$id}'";
 			$ph['pad']       = $pad;
 			$ph['icon']      = getIcon($id,$contenttype,$isfolder);
+			if($type==='reference') $ph['icon'] = $_style["tree_linkgo"];
 			switch($modx->config['tree_page_click'])
 			{
 				case '27': $ph['ca'] = 'open';   break;
@@ -168,6 +168,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			}
 			
 			$ph['icon'] = getIcon($id,$contenttype,$isfolder);
+			if($type==='reference') $ph['icon'] = $_style["tree_linkgo"];
 			$ph['private_status']         = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 			
 			// expandAll: two type for partial expansion
@@ -249,7 +250,7 @@ function tplPageNode()
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
-	title="[+alt+]">[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</div></div>
+	title="[+alt+]">[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div></div>
 
 EOT;
 		return $src;
@@ -284,7 +285,7 @@ EOT;
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:block;">
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:block;">
 
 EOT;
 	return $src;
@@ -319,7 +320,7 @@ function tplFcloseNode()
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:none;"></div></div>
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:none;"></div></div>
 
 EOT;
 	return $src;
