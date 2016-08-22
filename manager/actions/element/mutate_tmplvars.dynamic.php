@@ -94,7 +94,6 @@ jQuery(function(){
 		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
 		jQuery('select').toggleClass('readonly');
 	});
-	setTimeout('showParameters()',10);
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1')
 		{
@@ -317,6 +316,8 @@ function decode(s){
     
     return s;
 }
+
+setTimeout('showParameters()',10);
 
 </script>
 
