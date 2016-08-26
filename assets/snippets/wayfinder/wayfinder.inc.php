@@ -162,7 +162,31 @@ class Wayfinder {
     //render each rows output
     function renderRow(&$resource,$numChildren,$curNum) {
         global $modx;
-        $output = '';
+        $refid = $resource['id'];
+
+        // Determine fields for use from referenced resource
+        if ($this->_config['useReferenced'] && $resource['type'] == 'reference' && preg_match('@^[1-9][0-9]*$@',$resource['content'])) {
+            if ($this->_config['useReferenced'] == 'id') {
+                // if id only, do not need get referenced data
+                $resource['id'] = $resource['content'];
+            } elseif ($referenced = $modx->getDocument($resource['content'])) {
+                if (in_array($this->_config['useReferenced'], explode(',', '1,*'))) {
+                    $this->_config['useReferenced'] = array_keys($resource);
+                }
+                if (!is_array($this->_config['useReferenced'])) {
+                    $this->_config['useReferenced'] = preg_split("/[\s,]+/", $this->_config['useReferenced']);
+                }
+                $this->_config['useReferenced'] = array_diff($this->_config['useReferenced'], explode(',', 'content,parent,isfolder'));
+                
+                foreach ($this->_config['useReferenced'] as $field) {
+                    if (isset($referenced[$field])) $resource[$field] = $referenced[$field];
+                    $linkTextField = empty($resource[$this->_config['textOfLinks']]) ? 'pagetitle' : $this->_config['textOfLinks'];
+                    if (in_array($field,array('linktext',$linkTextField))) $resource['linktext'] = $referenced[$linkTextField];
+                    if (in_array($field,array('title',$this->_config['titleOfLinks']))) $resource['title'] = $referenced[$this->_config['titleOfLinks']];
+                }
+            }
+        }
+        
         //Determine which template to use
         if ($this->_config['displayStart'] && $resource['level'] == 0) {
             $usedTemplate = 'startItemTpl';
@@ -179,7 +203,8 @@ class Wayfinder {
         } elseif ($resource['isfolder']
             && $this->_templates['activeParentRowTpl']
             && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)
-            && $this->isHere($resource['id'])) {
+            && $this->isHere($resource['id'])
+            && $numChildren) {
             $usedTemplate = 'activeParentRowTpl';
         } elseif ($resource['isfolder']
             && ($resource['template']=='0' || is_numeric(strpos($resource['link_attributes'],'rel="category"')))
@@ -203,8 +228,8 @@ class Wayfinder {
         //Get the template
         $useChunk = $this->_templates[$usedTemplate];
         //Setup the new wrapper name and get the class names
-        $useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$resource['id']}+]" : "";
-        $classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['isfolder'],$resource['type']);
+        $useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$refid}+]" : '';
+        $classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['hasChildren'],$resource['type']);
         $useClass = ($classNames) ? $useClass = sprintf(' class="%s"',$classNames) : '';
         
         //Setup the row id if a prefix is specified
@@ -364,74 +389,65 @@ class Wayfinder {
         }
         if (!empty($ids)) {
             //Setup the fields for the query
-            $fields = "DISTINCT sc.id, sc.menutitle, sc.pagetitle, sc.introtext, sc.menuindex, sc.published, sc.hidemenu, sc.parent, sc.isfolder, sc.description, IF(sc.alias='', sc.id, sc.alias) AS alias, sc.longtitle, sc.type,if(sc.type='reference',sc.content,'') as content, sc.template, sc.link_attributes";
-            //Get the table names
-            $tbl_site_content = $modx->getFullTableName('site_content');
-            $tbl_document_groups = $modx->getFullTableName('document_groups');
-            //Add the ignore hidden option to the where clause
-            if ($this->_config['ignoreHidden']) {
-                $menuWhere = '';
-            } else {
-                $menuWhere = ' AND sc.hidemenu=0';
+            $fields = explode(',','id,menutitle,pagetitle,introtext,menuindex,published,hidemenu,parent,isfolder,description,alias,longtitle,type,content,template,link_attributes');
+            foreach($fields as $i=>$v) {
+                if    ($v=='alias')   $fields[$i] = "IF(sc.alias='', sc.id, sc.alias) AS alias";
+                elseif($v=='content') $fields[$i] = "IF(sc.type='reference',sc.content,'') AS content";
+                else                  $fields[$i] = 'sc.'.$v;
             }
-            //add the include docs to the where clause
-            if ($this->_config['includeDocs']) {
-                $menuWhere .= " AND sc.id IN ({$this->_config['includeDocs']})";
-            }
-            //add the exclude docs to the where clause
-            if ($this->_config['excludeDocs']) {
-                $menuWhere .= " AND (sc.id NOT IN ({$this->_config['excludeDocs']}))";
-            }
-            //add custom where conditions
-            if (!empty($this->_config['where'])) {
-                $menuWhere .= " AND ({$this->_config['where']})";
-            }
-            //add the limit to the query
-            if ($this->_config['limit']) {
-                $sqlLimit = "0, {$this->_config['limit']}";
-            } else {
-                $sqlLimit = '';
-            }
+            $fields = join(',', $fields);
+            
             //Determine sorting
-            if (strtolower($this->_config['sortBy']) == 'random') {
+            if (strtolower($this->_config['sortBy'])=='random')
                 $sort = 'rand()';
-                $dir = '';
-            } else {
+            else {
                 // modify field names to use sc. table reference
-                $sort = 'sc.'.implode(',sc.',array_filter(array_map('trim', explode(',', $this->_config['sortBy']))));
+                $_ = explode(',', $this->_config['sortBy']);
+                foreach($_ as $i=>$v) {
+                    $_[$i] = 'sc.' . trim($v);
+                }
+                $sort = implode(',', $_);
             }
 
             // get document groups for current user
-            if($docgrp = $modx->getUserDocGroups()) $docgrp = implode(",",$docgrp);
+            if($docgrp = $modx->getUserDocGroups()) $docgrp = implode(',',$docgrp);
             // build query
-            $access_privateweb = '';
             if($modx->isFrontend()) {
                 if(!$this->_config['showPrivate']) {
-                    $access_privateweb = "sc.privateweb=0";
+                    $access = "sc.privateweb=0";
                 }
-            } else {
-                $access_privateweb = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
             }
-            
-            $access = array();
-            if($access_privateweb && $docgrp) {
-                $access[] = "({$access_privateweb} OR dg.document_group IN ({$docgrp}))";
-            } elseif($access_privateweb) {
-                $access[] = $access_privateweb;
-            } elseif($docgrp) {
-                $access[] = "(sc.privateweb=0 OR dg.document_group IN ({$docgrp}))";
+            else {
+                $access = sprintf("1='%s' OR sc.privatemgr=0", $_SESSION['mgrRole']);
+                if($docgrp) $access .= sprintf(' OR dg.document_group IN (%s)', $docgrp);
             }
-            if(!empty($access)) $access = 'AND (' . join(' AND ', $access) . ')';
-            else $access = '';
+            if($access) $access = "AND({$access})";
             
-             $groupby = 'GROUP BY sc.id';
-             
+            //Add the ignore hidden option to the where clause
+            if ($this->_config['ignoreHidden'])  $menuWhere = '';
+            else                                 $menuWhere = ' AND sc.hidemenu=0';
+            
+            //add the include docs to the where clause
+            if ($this->_config['includeDocs'])   $menuWhere .= sprintf(' AND sc.id IN (%s)', $this->_config['includeDocs']);
+            
+            //add the exclude docs to the where clause
+            if ($this->_config['excludeDocs'])   $menuWhere .= sprintf(' AND (sc.id NOT IN (%s))', $this->_config['excludeDocs']);
+            
+            //add custom where conditions
+            if (!empty($this->_config['where'])) $menuWhere .= sprintf(' AND (%s)', $this->_config['where']);
+            
+            //add the limit to the query
+            if ($this->_config['limit']) $limit = sprintf('0, %s', $this->_config['limit']);
+            else                         $limit = '';
+            
+            $fields = "DISTINCT {$fields}";
+            $from   = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id';
+            $where  = sprintf('sc.published=1 AND sc.deleted=0 %s %s AND sc.id IN (%s) GROUP BY sc.id', $access, $menuWhere, implode(',',$ids));
+            $sort   = "{$sort} {$this->_config['sortOrder']}";
+            
             //run the query
-            $joind_ids = implode(',',$ids);
-            $from = "{$tbl_site_content} sc LEFT JOIN {$tbl_document_groups} dg ON dg.document = sc.id";
-            $where = "sc.published=1 AND sc.deleted=0 {$access} {$menuWhere} AND sc.id IN ({$joind_ids}) {$groupby}";
-            $orderby = "{$sort} {$this->_config['sortOrder']}";
-            $result = $modx->db->select($fields,$from,$where,$orderby,$sqlLimit);
+            $result = $modx->db->select($fields,$from,$where,$sort,$limit);
+            
             $resourceArray = array();
             $level = 1;
             $prevParent = -1;
@@ -723,7 +739,6 @@ class Wayfinder {
         $value = str_replace($s, $r, $value);
         return $value;
     }
-    
     function hsc($string) {
         global $modx;
         return htmlspecialchars($string, ENT_COMPAT, $modx->config['modx_charset']);
