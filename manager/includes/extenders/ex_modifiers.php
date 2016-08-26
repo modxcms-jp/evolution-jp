@@ -423,9 +423,9 @@ class MODIFIERS {
                 $width = preg_match('/^[1-9][0-9]*$/',$opt) ? $opt : 70;
                 if($modx->config['manager_language']==='japanese-utf8') {
                     $chunk = array();
-                    $c=0;
-                    while($c<10000) {
-                        $c++;
+                    $bt='';
+                    while($bt!=$value) {
+                        $bt = $value;
                         if($this->strlen($value)<$width) {
                             $chunk[] = $value;
                             break;
