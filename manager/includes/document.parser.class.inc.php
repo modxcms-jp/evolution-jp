@@ -2329,6 +2329,7 @@ class DocumentParser {
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
             $source= $this->documentOutput;
             
+            if(strpos($source,'<@IF')!==false)                 $source= $this->mergeConditionalTagsContent($source);
             if(strpos($source,'<!--@IF')!==false)              $source= $this->mergeConditionalTagsContent($source);
             if(strpos($source,'<!--@IGNORE:BEGIN-->')!==false) $source= $this->ignoreCommentedTagsContent($source);
             if(strpos($source,'<!--@IGNORE-->')!==false)       $source= $this->ignoreCommentedTagsContent($source,'<!--@IGNORE-->','<!--@ENDIGNORE-->');
