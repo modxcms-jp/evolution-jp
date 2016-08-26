@@ -1656,7 +1656,7 @@ class DocumentParser {
         if ($this->debug) $fstart = $this->getMicroTime();
         
         if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content);
-        if(strpos($content,'<!--@IF:')!==false)       $content = str_replace('<!--@IF:',$iftag,$content);
+        if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
         if(strpos($content,$iftag)===false)          return $content;
         if(strpos($content,'<!--@ELSEIF')!==false)   $content = str_replace('<!--@ELSEIF',  $elseiftag,  $content);
         if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);
