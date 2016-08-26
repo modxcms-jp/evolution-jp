@@ -391,6 +391,7 @@ class DocumentParser {
         if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
             $q = $this->_IIS_furl_fix();
         
+        $_REQUEST['q'] = $_GET['q'] = $q;
         return $q;
     }
     
