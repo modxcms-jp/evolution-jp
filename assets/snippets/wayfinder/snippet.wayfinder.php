@@ -102,7 +102,7 @@ $wf->_templates = array(
 //Process Wayfinder
 $output = $wf->run();
 
-if ($wf->_config['debug']) {
+if ($wf->_config['debug'] && $modx->isLoggedin()) {
 	$modx->regClientHTMLBlock($wf->renderDebugOutput());
 }
 
