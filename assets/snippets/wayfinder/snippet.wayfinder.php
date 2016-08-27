@@ -99,6 +99,7 @@ $wf->_templates = array(
 	'activeParentRowTpl' => isset($activeParentRowTpl) ? $activeParentRowTpl : '',
 	'categoryFoldersTpl' => isset($categoryFoldersTpl) ? $categoryFoldersTpl : '',
 	'startItemTpl' => isset($startItemTpl) ? $startItemTpl : '',
+	'lastRowTpl' => isset($lastRowTpl) ? $lastRowTpl : '',
 	'rowTplLast' => isset($rowTplLast) ? $rowTplLast : '',
 );
 
