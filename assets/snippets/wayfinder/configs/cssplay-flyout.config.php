@@ -20,4 +20,4 @@
 	    [+wf.wrapper+]
 	</ul>';
 	
-	$cssTpl = '@CODE:<link rel="stylesheet" media="all" type="text/css" href="assets/snippets/wayfinder/examples/cssplay/flyout.css" />
+	$cssTpl = '@CODE:<link rel="stylesheet" media="all" type="text/css" href="assets/snippets/wayfinder/examples/cssplay/flyout.css" />';

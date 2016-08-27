@@ -16,4 +16,4 @@
 	    [+wf.wrapper+]
 	</li>';
 	
-	$cssTpl = '@CODE:<link rel="stylesheet" media="all" type="text/css" href="assets/snippets/wayfinder/examples/cssplay/dropdown.css" />
+	$cssTpl = '@CODE:<link rel="stylesheet" media="all" type="text/css" href="assets/snippets/wayfinder/examples/cssplay/dropdown.css" />';
