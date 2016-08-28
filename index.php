@@ -45,7 +45,7 @@
  * -----------------------------
  */
 if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
-$mstart = memory_get_usage();
+$mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 define('MODX_BASE_PATH', $base_path);
 

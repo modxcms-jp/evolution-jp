@@ -232,7 +232,7 @@ class DocumentParser {
             $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
         }
         if(!isset($this->mstart))
-            $this->mstart = memory_get_usage();
+            $this->mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
         
         $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
         if(is_file($alias_cache_path)) {
