@@ -2321,11 +2321,12 @@ class DocumentParser {
     function parseDocumentSource($source)
     {
         $passes= $this->minParserPasses;
-        for ($i= 0; $i < $passes; $i++)
+        if(!$this->maxParserPasses) $this->maxParserPasses = 20;
+        $bt = '';
+        $i = 0;
+        while ($bt!=md5($source))
         {
-            // get source length if this is the final pass
-            if ($i == ($passes -1)) $bt= md5($source);
-            
+            $bt = md5($source);
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
@@ -2350,17 +2351,11 @@ class DocumentParser {
             if(strpos($source,'[+')!==false
              &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
-            if ($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
-            {
-                // check if source length was changed
-                if ($bt != md5($source))
-                {
-                    $passes++; // if content change then increase passes because
-                }
-            } // we have not yet reached maxParserPasses
-            
             if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false)
                                                                $source = $this->rewriteUrls($source);
+            if($bt == md5($source))         break;
+            if($this->maxParserPasses < $i) break;
+            $i++;
         }
         return $source;
     }
