@@ -1824,6 +1824,7 @@ class DocumentParser {
         }
         unset ($modx->event->params);
         if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
+        $this->currentSnippetCall = '';
         $this->currentSnippet = '';
         return $echo . $return;
     }
@@ -1851,6 +1852,7 @@ class DocumentParser {
                     break;
                 }
             }
+            $this->currentSnippetCall = $matches[0][$i];
             $replace[$i] = $this->_get_snip_result($value);
         }
         
