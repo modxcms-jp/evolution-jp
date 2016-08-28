@@ -346,6 +346,7 @@ class synccache {
 		$rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
 		$row = array();
 		$path = '';
+		$modx->aliasListing = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			if($use_alias_path==='1')     $path = $this->getParents($row['parent']);
