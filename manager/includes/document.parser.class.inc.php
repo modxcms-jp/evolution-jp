@@ -1392,7 +1392,7 @@ class DocumentParser {
     function mergeDocumentContent($content,$convertValue=true)
     {
         if(!isset($this->documentIdentifier)) return $content;
-        if(strpos($content,'[*')===false) return $content;
+        if(strpos($content,'[*')===false)     return $content;
         if(!isset($this->documentObject) || empty($this->documentObject)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
