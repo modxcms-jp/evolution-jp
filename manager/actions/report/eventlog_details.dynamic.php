@@ -72,7 +72,7 @@ switch($content['type'])
 }
 
 if(empty($content["username"])) $content["username"] = '';
-$description = urldecode($content['description']);
+$description = $content['description'];
 $description = str_replace('&amp;amp;','&amp;',$description);
 echo <<<HTML
 	<div class="warning"><img src="media/style/{$manager_theme}/images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
