@@ -3311,10 +3311,16 @@ class DocumentParser {
     # invoke an event. $extParams - hash array: name=>value
     function invokeEvent($evtName, &$extParams= array ())
     {
-        if (!empty($this->safeMode))               return false;
-        if (!$evtName)                             return false;
-        if (!isset ($this->pluginEvent[$evtName])) return false;
-        if(count($this->pluginEvent[$evtName])==0) return array();
+        if($this->debug)     $fstart = $this->getMicroTime();
+        $return = true;
+        if ($this->safeMode)                       $return = false;
+        if (!$evtName)                             $return = false;
+        if (!isset($this->pluginEvent[$evtName]))  $return = false;
+        if(count($this->pluginEvent[$evtName])==0) $return = array();
+        if(empty($return)) {
+            if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName})", $fstart);
+            return $return;
+        }
         
         if(!$this->pluginCache) $this->getPluginCache();
 
@@ -3323,6 +3329,7 @@ class DocumentParser {
         $results= array ();
         foreach($this->pluginEvent[$evtName] as $pluginName)
         {
+            if($this->debug) $fstart = $this->getMicroTime();
             $pluginName = stripslashes($pluginName);
             
             // reset event object
@@ -3343,6 +3350,7 @@ class DocumentParser {
             $output = $this->evalPlugin($pluginCode, $parameter);
             if($output) $this->event->cm->addOutput($output);
             $this->event->activePlugin= '';
+            if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName},{$pluginName})",$fstart);
             
             $this->event->setAllGlobalVariables();
             if ($this->event->_output != '') $results[]=$this->event->_output; /* deprecation */
