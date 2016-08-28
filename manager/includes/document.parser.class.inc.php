@@ -2937,7 +2937,7 @@ class DocumentParser {
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
-            $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
+            $this->addLogEntry('$modx->'.__FUNCTION__ . "({$_})",$fstart);
         }
         return $content;
     }
