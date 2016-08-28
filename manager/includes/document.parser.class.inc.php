@@ -216,6 +216,7 @@ class DocumentParser {
         
         $this->minParserPasses = 1; // min number of parser recursive loops or passes
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
+        $this->debug        = false;
         $this->dumpSQL      = false;
         $this->dumpSnippets = false; // feed the parser the execution start time
         $this->snipLapCount = 0;
