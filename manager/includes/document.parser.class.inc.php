@@ -1499,7 +1499,8 @@ class DocumentParser {
     {
         $tend = $this->getMicroTime();
         $totaltime = $tend - $fstart;
-        $msg = sprintf('%s %2.4f s',$fname,$totaltime);
+        $fname = htmlspecialchars($fname, ENT_QUOTES, $this->config['modx_charset']);
+        $msg = sprintf('%2.4fs, %s',$totaltime,$fname);
         $this->functionLog[] = $msg;
     }
     
