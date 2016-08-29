@@ -311,7 +311,7 @@ $esc_request = $modx->db->escape($_REQUEST);
     function updateTree() {
         rpcNode = document.getElementById('treeRoot');
         var dt = document.sortFrm.dt.value;
-        var t_sortby = document.sortFrm.sortby.value;
+        var t_sortby = 'sc.' + document.sortFrm.sortby.value;
         var t_sortdir = document.sortFrm.sortdir.value;
         
         jQuery.get('index.php',{"a":"1","f":"nodes","indent":"1","parent":"0","expandAll":"2","dt":dt,"tree_sortby":t_sortby,"tree_sortdir":t_sortdir},rpcLoadData);
