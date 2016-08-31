@@ -33,6 +33,7 @@ class DocumentParser {
     var $sql;
     var $table_prefix;
     var $debug;
+    var $q;
     var $documentIdentifier;
     var $documentMethod;
     var $documentGenerated;
@@ -311,7 +312,7 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = $this->setRequestUri($id);
-        $_REQUEST['q'] = $_GET['q'] = $this->setRequestQ($this->decoded_request_uri);
+        $this->q = $this->setRequestQ($this->decoded_request_uri);
         
         if($this->directParse==0)
         {
@@ -392,7 +393,6 @@ class DocumentParser {
         if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
             $q = $this->_IIS_furl_fix();
         
-        $_REQUEST['q'] = $_GET['q'] = $q;
         return $q;
     }
     
@@ -991,7 +991,7 @@ class DocumentParser {
         switch ($method)
         {
             case 'alias' :
-                return $this->db->escape($_REQUEST['q']);
+                return $this->db->escape($this->q);
             case 'id' :
                 if (!preg_match('@^[0-9]+$@', $_REQUEST['id']))
                     $this->sendErrorPage();
