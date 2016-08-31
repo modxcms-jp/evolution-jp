@@ -416,6 +416,7 @@ class ditto {
 				$fields = explode(",",$source);
 				foreach ($fields as $field) {
 					if (!empty($field)) {
+						$field = trim($field);
 						$this->addField($field,"display");
 						$this->customPlaceholdersMap[$name] = $field;
 					}
