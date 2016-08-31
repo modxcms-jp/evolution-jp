@@ -1,2 +1,4 @@
 # Disable LF normalization for all files
 * -text
+.gitattributes export-ignore
+.gitignore export-ignore
