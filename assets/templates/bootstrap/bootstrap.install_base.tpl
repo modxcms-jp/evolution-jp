@@ -75,7 +75,7 @@ ul.breadcrumb {}
       </div>
     </div>
 </nav>
-<!--@IF:[*id:is('[(site_start)]')*]>
+<@IF:[*id:is('[(site_start)]')*]>
 <div class="jumbotron">
   <div class="container">
     <h1>[(site_name)]</h1>
@@ -90,11 +90,11 @@ ul.breadcrumb {}
     <h1>[*longtitle:ifempty('[*pagetitle*]')*]</h1>
   </div>
 </div>
-<@ENDIF-->
+<@ENDIF>
 
 <div class="container" style="padding-bottom:3em;">
     <div class="row">
-    <!--@IF:[[Wayfinder?level=1&startId=parent]]>
+    <@IF:[[Wayfinder?level=1&startId=parent]]>
         <div class="col-sm-9">
         [*description:tpl('<p class="lead">[+value+]</p>')*]
         [*content*]
@@ -105,7 +105,7 @@ ul.breadcrumb {}
         [*description:tpl('<p class="lead">[+value+]</p>')*]
         [*content*]
         </div>
-    <@ENDIF-->
+    <@ENDIF>
     </div>
 </div>
 <div class="footer">
