@@ -993,7 +993,7 @@ class DocumentParser {
             case 'alias' :
                 return $this->db->escape($this->q);
             case 'id' :
-                if (!preg_match('@^[0-9]+$@', $_GET['id']))
+                if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
                     $this->sendErrorPage();
                 else
                     return intval($_GET['id']);
