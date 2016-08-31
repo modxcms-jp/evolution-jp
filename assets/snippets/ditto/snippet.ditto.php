@@ -1150,9 +1150,9 @@ if ($debug == 1) {
         $output = $ditto->debug->render_link($dittoID,$ditto_base).$output;
     }
 }
-//outerTpl by Dmi3yy
+// outerTpl by Dmi3yy & Jako
 if(isset($tplOuter)) $outerTpl = $tplOuter;
-if ($outerTpl) { 
+if(isset($outerTpl) && !empty($outerTpl)) { 
   if(!$resource) $output = '';
   elseif(substr($outerTpl, 0, 5) == '@CODE')
     $outerTpl = trim(substr($outerTpl, 6));
