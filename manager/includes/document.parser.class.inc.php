@@ -331,7 +331,7 @@ class DocumentParser {
             $this->updatePublishStatus();
             
             // find out which document we need to display
-            $this->documentMethod= isset($_REQUEST['id']) ? 'id' : 'alias';
+            $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
             $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
         }
         else
@@ -383,7 +383,7 @@ class DocumentParser {
     }
     
     function setRequestQ($decoded_request_uri) {
-        if(isset($_REQUEST['id'])) $q = null;
+        if(isset($_GET['id'])) $q = null;
         else {
             $q = substr($decoded_request_uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
@@ -993,10 +993,10 @@ class DocumentParser {
             case 'alias' :
                 return $this->db->escape($this->q);
             case 'id' :
-                if (!preg_match('@^[0-9]+$@', $_REQUEST['id']))
+                if (!preg_match('@^[0-9]+$@', $_GET['id']))
                     $this->sendErrorPage();
                 else
-                    return intval($_REQUEST['id']);
+                    return intval($_GET['id']);
                 break;
             default:
                 return $this->config['site_start'];
