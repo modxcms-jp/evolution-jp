@@ -37,7 +37,7 @@ $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config[
 	Any valid charset identifier
 
 	Default:
-	MODx default charset
+	MODX default charset
 */
 
 $atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', $modx->documentObject["editedon"]);
@@ -89,7 +89,7 @@ $atom_header = <<<TPL
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
 	<author><name>[(site_name)]</name></author>
 	<updated>[+atom_lastmodified+]</updated>
-	<generator>Ditto 2.0 running on MODx</generator>
+	<generator>Ditto 2.0 running on MODX</generator>
 TPL;
 
 $atom_tpl = <<<TPL
