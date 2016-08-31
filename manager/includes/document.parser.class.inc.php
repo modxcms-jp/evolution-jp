@@ -2893,13 +2893,13 @@ class DocumentParser {
         return $src;
     }
 
-    function parseText($content='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
+    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$cleanup=false)
     {
-        if(is_array($content)&&is_string($ph)) {list($ph,$content) = array($content,$ph);}
+        if(is_array($tpl)&&is_string($ph)) {list($ph,$tpl) = array($tpl,$ph);}
         
-        if(!$ph) return $content;
+        if(!$ph) return $tpl;
         if ($this->debug) $fstart = $this->getMicroTime();
-        if(strpos($content,$left)===false) return $content;
+        if(strpos($tpl,$left)===false) return $tpl;
         elseif(is_string($ph) && strpos($ph,'='))
         {
             if(strpos($ph,',')) $pairs   = explode(',',$ph);
@@ -2913,35 +2913,45 @@ class DocumentParser {
                 $ph[$k] = $v;
             }
         }
-        $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!$matches) return $content;
-        $replace= array ();
-        foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
-            else                         $modifiers = false;
-            
-            $key = trim($key);
-            if($cleanup=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
-            
-            if(isset($ph[$key])) {
-                $value = $ph[$key];
-                if($modifiers!==false) {
-                    $this->loadExtension('MODIFIERS');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
+        $c=0;
+        $bt='';
+        while($bt!==md5($tpl)) {
+            $matches = $this->getTagsFromContent($tpl,$left,$right);
+            if(!$matches) break;
+            $bt = md5($tpl);
+            $replace= array ();
+            foreach($matches[1] as $i=>$key) {
+                if(strpos($key,':')!==false)
+                    list($key,$modifiers) = explode(':', $key, 2);
+                else
+                    $modifiers = false;
+                
+                $key = trim($key);
+                if($cleanup=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
+                
+                if(isset($ph[$key])) {
+                    $value = $ph[$key];
+                    if($modifiers!==false) {
+                        $this->loadExtension('MODIFIERS');
+                        $value = $this->filter->phxFilter($key,$value,$modifiers);
+                    }
+                    $replace[$i]= $value;
                 }
-                $replace[$i]= $value;
+                elseif($cleanup) $replace[$i] = '';
+                else             $replace[$i] = $matches[0][$i];
             }
-            elseif($cleanup) $replace[$i] = '';
-            else             $replace[$i] = $matches[0][$i];
+            $tpl= str_replace($matches[0], $replace, $tpl);
+            if($bt===md5($tpl)) break;
+            $c++;
+            $cleanup = false;
+            if(1000<$c) $this->messageQuit('parseText parse over');
         }
-        $content= str_replace($matches[0], $replace, $content);
-        
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
             $this->addLogEntry('$modx->'.__FUNCTION__ . "({$_})",$fstart);
         }
-        return $content;
+        return $tpl;
     }
     
     function toDateFormat($timestamp = 0, $mode = '')
