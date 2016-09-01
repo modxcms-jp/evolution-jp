@@ -187,7 +187,7 @@ class LINKLIST
 	{
 	}
 	
-	function getAllPages($limit=0,$recent=0,$id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published')
+	function getAllPages($limit=0,$recent=0,$id=0, $sort='parent', $dir='ASC', $fields='pagetitle, id, menutitle, parent, template, menuindex, published, editedon')
 	{
 		global $modx;
 		
@@ -201,7 +201,6 @@ class LINKLIST
 		{
 			$where_recent = time() - ($recent * 3600 * 24);
 			$where_recent = "AND {$where_recent} < sc.editedon";
-			$fields .= ',sc.editedon';
 		}
 		else $where_recent = '';
 		
