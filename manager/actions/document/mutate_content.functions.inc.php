@@ -809,7 +809,7 @@ function getTmplvars($id,$template,$docgrp) {
 	
 	if(empty($template)) return array();
 	
-	$fields = "DISTINCT tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+	$fields = "DISTINCT tv.*, tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text) as value";
 	$from = "
 		[+prefix+]site_tmplvars                         AS tv 
 		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 

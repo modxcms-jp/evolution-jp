@@ -65,7 +65,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 	$from   = '[+prefix+]site_content AS sc';
 	$from   .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 	$from   .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
-	$where  = "parent='{$parent}' {$access} GROUP BY sc.id";
+	$where  = "parent='{$parent}' {$access} GROUP BY sc.id,rev.status";
 	$result = $modx->db->select($field,$from,$where,$tree_orderby);
 	$hasChild = $modx->db->getRecordCount($result);
 	
@@ -162,7 +162,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 			
 			if($container_status === 'container_only' && $isfolder==1)
 			{
-				$where  = "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id";
+				$where  = "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id,rev.status";
 				$result = $modx->db->select($field,$from,$where,$tree_orderby);
 				$hasChild = $modx->db->getRecordCount($result);
 			}

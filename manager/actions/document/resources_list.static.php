@@ -55,7 +55,7 @@ if ($numRecords > 0)
 	$from[] = 'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id';
 	$from[] = "LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource' ";
 	$from = join(' ',$from);
-	$where = "sc.parent='{$id}' {$access} GROUP BY sc.id";
+	$where = "sc.parent='{$id}' {$access} GROUP BY sc.id,rev.status";
 	$orderby ='sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
 	if(isset($_GET['page']) && preg_match('@^[1-9][0-9]*$@',$_GET['page']))
 		$offset =  $_GET['page'] - 1;
