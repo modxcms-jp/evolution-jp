@@ -697,7 +697,7 @@ function itemEditDoc() {
 function itemCreateDraft() {
 	global $modx,$_style,$_lang;
 	
-	if(!$modx->config['enable_draft']) return;
+	if(!$modx->config['enable_draft']) return '';
 	
 	$tpl = tplMenuItem();
 	$ph['action'] = 'createDraft';
@@ -709,7 +709,7 @@ function itemCreateDraft() {
 function itemEditDraft() {
 	global $modx,$_style,$_lang;
 	
-	if(!$modx->config['enable_draft']) return;
+	if(!$modx->config['enable_draft']) return '';
 	
 	$tpl = tplMenuItem();
 	$ph['action'] = 'editDraft';
