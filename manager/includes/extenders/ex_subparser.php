@@ -239,8 +239,6 @@ class SubParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
         $release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $request_uri = $modx->decoded_request_uri;
-        $request_uri = htmlspecialchars($request_uri, ENT_QUOTES, $modx->config['modx_charset']);
         $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $modx->config['modx_charset']);
         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES, $modx->config['modx_charset']);
         if ($is_error) {
@@ -295,7 +293,7 @@ class SubParser {
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
         $str .= '<tr><td valign="top" style="white-space:nowrap;">REQUEST_URI : </td>';
-        $str .= "<td>{$request_uri}</td>";
+        $str .= sprintf('<td>%s</td>', htmlspecialchars(urldecode($_SERVER['REQUEST_URI']), ENT_QUOTES, $modx->config['modx_charset']));
         $str .= '</tr>';
         
         if(isset($_GET['a']))      $action = $_GET['a'];
