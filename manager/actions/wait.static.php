@@ -11,7 +11,7 @@ else
 	$ph['reload'] = 'document.location.href="index.php?a=2"';
 
 $tpl = get_tpl();
-echo $modx->parseText($tpl,$ph);
+echo $modx->parseTextSimple($tpl,$ph);
 
 function get_tpl()
 {

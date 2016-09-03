@@ -342,19 +342,19 @@ $usermenu     = buildMenu('user',$item);
 $tpl = '<li id="limenu[+id+]"><a href="#menu[+id+]" onclick="new NavToggle(this); return false;">[+name+]</a><ul class="subnav" id="menu[+id+]">[+menuitem+]</ul></li>'."\n";
 $tplActive = str_replace(']"><a',']" class="active"><a',$tpl);
 if (!empty($sitemenu))
-	echo $modx->parseText($tplActive,array('id'=>'1','name'=>$_lang['site'],'menuitem'=>join("\n",$sitemenu)));
+	echo $modx->parseTextSimple($tplActive,array('id'=>'1','name'=>$_lang['site'],'menuitem'=>join("\n",$sitemenu)));
 if (!empty($elementmenu))
-	echo $modx->parseText($tpl,array('id'=>'2','name'=>$_lang['elements'],'menuitem'=>join("\n",$elementmenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'2','name'=>$_lang['elements'],'menuitem'=>join("\n",$elementmenu)));
 if (!empty($modulemenu))
-	echo $modx->parseText($tpl,array('id'=>'3','name'=>$_lang['modules'],'menuitem'=>join("\n",$modulemenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'3','name'=>$_lang['modules'],'menuitem'=>join("\n",$modulemenu)));
 if (!empty($securitymenu))
-	echo $modx->parseText($tpl,array('id'=>'4','name'=>$_lang['users'],'menuitem'=>join("\n",$securitymenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'4','name'=>$_lang['users'],'menuitem'=>join("\n",$securitymenu)));
 if (!empty($usermenu))
-	echo $modx->parseText($tpl,array('id'=>'7','name'=>$_lang['user'],'menuitem'=>join("\n",$usermenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'7','name'=>$_lang['user'],'menuitem'=>join("\n",$usermenu)));
 if (!empty($toolsmenu))
-	echo $modx->parseText($tpl,array('id'=>'5','name'=>$_lang['tools'],'menuitem'=>join("\n",$toolsmenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'5','name'=>$_lang['tools'],'menuitem'=>join("\n",$toolsmenu)));
 if (!empty($reportsmenu))
-	echo $modx->parseText($tpl,array('id'=>'6','name'=>$_lang['reports'],'menuitem'=>join("\n",$reportsmenu)));
+	echo $modx->parseTextSimple($tpl,array('id'=>'6','name'=>$_lang['reports'],'menuitem'=>join("\n",$reportsmenu)));
 ?>
 	</ul>
 </div>

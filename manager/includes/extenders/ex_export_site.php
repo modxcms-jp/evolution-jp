@@ -136,7 +136,7 @@ class EXPORT_SITE
 		$pastTime = $this->getPastTime();
 		if(!empty($this->maxtime) && $this->maxtime < $pastTime)
 		{
-			$msg = $modx->parseText($_lang['export_site_exit_maxtime'], array('count'=>$this->count, 'total'=>$this->total, 'maxtime'=>$this->maxtime));
+			$msg = $modx->parseTextSimple($_lang['export_site_exit_maxtime'], array('count'=>$this->count, 'total'=>$this->total, 'maxtime'=>$this->maxtime));
 			exit($msg);
 		}
 		
@@ -243,12 +243,12 @@ class EXPORT_SITE
 					else $row['status'] = $msg_failed_no_retrieve;
 				}
 				else     $row['status'] = $msg_success_skip_doc;
-				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseTextSimple($_lang['export_site_exporting_document'], $row);
 			}
 			else
 			{
 				$row['status']  = $msg_success_skip_dir;
-				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseTextSimple($_lang['export_site_exporting_document'], $row);
 			}
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder
@@ -328,7 +328,7 @@ class EXPORT_SITE
 		else
 			$ph['msg2'] = '';
 		
-		$result = $modx->parseText($tpl,$ph);
+		$result = $modx->parseTextSimple($tpl,$ph);
 		return $result;
     }
 }

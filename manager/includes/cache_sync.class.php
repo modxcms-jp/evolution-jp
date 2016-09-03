@@ -313,7 +313,7 @@ class synccache {
 			if(defined('IN_MANAGER_MODE')) {
 				header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
 				$params = array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme']);
-				echo $modx->parseText('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
+				echo $modx->parseTextSimple('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
 				$msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
 			}
 			exit($msg);

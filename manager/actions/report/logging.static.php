@@ -243,12 +243,12 @@ EOT;
 			if(!preg_match('/^[0-9]+$/', $row['itemid']))
 				$row['title'] = '<div style="text-align:center;">-</div>';
 			elseif($row['action']==3||$row['action']==27||$row['action']==5)
-				$row['title'] = $modx->parseText('<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]][+itemname+]</a>',$row);
+				$row['title'] = $modx->parseTextSimple('<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]][+itemname+]</a>',$row);
 			else
-				$row['title'] = $modx->parseText('[[+itemid+]] [+itemname+]',$row);
+				$row['title'] = $modx->parseTextSimple('[[+itemid+]] [+itemname+]',$row);
 			$row['class'] = $i % 2 ? 'even' : '';
 			$row['datetime'] = $modx->toDateFormat($row['timestamp']+$server_offset_time);
-			echo $modx->parseText($tpl,$row);
+			echo $modx->parseTextSimple($tpl,$row);
 		$i++;
 		endwhile;
 		?>

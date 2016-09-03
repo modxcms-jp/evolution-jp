@@ -112,20 +112,20 @@ if (is_writable($startpath))
 		$tpl = '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>';
 		$ph['icons_save'] = $_style["icons_save"];
 		$ph['lang_save']  = $_lang['save'];
-		$_ = $modx->parseText($tpl,$ph) . "\n";
+		$_ = $modx->parseTextSimple($tpl,$ph) . "\n";
 	}
 	$ph['style_path'] = $style_path;
 	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>';
 	$ph['image']   = $_style['tree_folder'];
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
-	$_ .= $modx->parseText($tpl,$ph);
+	$_ .= $modx->parseTextSimple($tpl,$ph);
 	
 	$tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
 	$ph['image']   = $_style['tree_page'];
 	$ph['href'] = 'index.php?a=31&mode=newfile&path='.urlencode($startpath).'&name=';
 	$ph['lang_newfile']   = $_lang['files.dynamic.php1'];
-	$_ .=  $modx->parseText($tpl,$ph);
+	$_ .=  $modx->parseTextSimple($tpl,$ph);
 	echo $_;
 }
 ?>
@@ -226,7 +226,7 @@ else
 	$ph['image']   = $_style['tree_folder'];
 	$ph['subject'] = '<a href="index.php?a=31&mode=drill&path=' . $filemanager_path . '">Top</b></a> / ';
 }
-echo $modx->parseText($tpl,$ph);
+echo $modx->parseTextSimple($tpl,$ph);
 
 $len = strlen($filemanager_path);
 if(substr($startpath, $len, strlen($startpath))=='')

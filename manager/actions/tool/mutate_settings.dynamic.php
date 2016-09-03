@@ -235,14 +235,14 @@ function confirmLangChange(el, lkey, elupd)
 	<th><?php echo $_lang["site_url_title"] ?></th>
 	<td>
 		<?php echo form_text('site_url');?><br />
-		<?php echo $modx->parseText($_lang["site_url_message"],array('MODX_SITE_URL'=>MODX_SITE_URL)) ?>
+		<?php echo $modx->parseTextSimple($_lang["site_url_message"],array('MODX_SITE_URL'=>MODX_SITE_URL)) ?>
 	</td>
 </tr>
 <tr>
 	<th><?php echo $_lang["base_url_title"] ?></th>
 	<td>
 		<?php echo form_text('base_url');?><br />
-		<?php echo $modx->parseText($_lang["base_url_message"],array('MODX_BASE_URL'=>MODX_BASE_URL)) ?>
+		<?php echo $modx->parseTextSimple($_lang["base_url_message"],array('MODX_BASE_URL'=>MODX_BASE_URL)) ?>
 	</td>
 </tr>
 <tr>
@@ -670,7 +670,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
 	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
 	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
-<?php echo $modx->parseText($_lang['mutate_settings.dynamic.php8'],'emailsender=' . $modx->config['emailsender']);?></td>
+<?php echo $modx->parseTextSimple($_lang['mutate_settings.dynamic.php8'],'emailsender=' . $modx->config['emailsender']);?></td>
 </tr>
 <?php
 // Check for GD before allowing captcha to be enabled
@@ -1384,7 +1384,7 @@ function get_role_list()
 	while($ph=$modx->db->getRow($rs))
 	{
 		$ph['selected'] = ($default_role == $ph['id']) ? ' selected' : '';
-		$options .= $modx->parseText($tpl,$ph);
+		$options .= $modx->parseTextSimple($tpl,$ph);
 	}
 	return $options;
 }

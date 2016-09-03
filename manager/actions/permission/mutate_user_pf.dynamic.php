@@ -439,7 +439,7 @@ function checkbox($name,$value,$label,$cond)
 	$ph['value'] = $value;
 	$ph['label'] = $label;
 	$ph['checked'] = checked($cond);
-	return $modx->parseText($tpl,$ph);
+	return $modx->parseTextSimple($tpl,$ph);
 }
 
 function checked($cond=false)

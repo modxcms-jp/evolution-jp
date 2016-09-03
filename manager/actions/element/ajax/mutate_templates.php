@@ -17,7 +17,7 @@ function get_resources_byajax($id) {
 		$tpl = '<a href="index.php?a=27&id=[+id+]">[+pagetitle+]([+id+])</a>';
 		$items = array();
 		while($ph = $modx->db->getRow($rs)) {
-			$items[] = $modx->parseText($tpl,$ph);
+			$items[] = $modx->parseTextSimple($tpl,$ph);
 		}
 		$result = join(', ', $items);
 	}

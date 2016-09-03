@@ -186,7 +186,7 @@ function deletedocument() {
 	foreach($parent as $ph)
 	{
 		$ph['selected'] = $templateObject->parent==$ph['id'] ? 'selected' : '';
-		$option[] = $modx->parseText($tpl, $ph);
+		$option[] = $modx->parseTextSimple($tpl, $ph);
 	}
 echo $_lang["template_parent"];
 ?>

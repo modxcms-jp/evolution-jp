@@ -93,7 +93,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 		
 		$tpl = tplEmptyFolder();
 		$param = array('spacer'=>$spacer.$pad,'icon_deletedpage'=>$_style['tree_deletedpage'],'msg'=>$msg);
-		if($msg) $output .= $modx->parseText($tpl,$param);
+		if($msg) $output .= $modx->parseTextSimple($tpl,$param);
 	}
 	
 	
@@ -202,7 +202,7 @@ function getNodes($indent,$parent=0,$expandAll,$output='')
 				{
 					$tpl = tplEmptyFolder();
 					$param = array('spacer'=>$spacer.$pad,'icon_deletedpage'=>$_style['tree_deletedpage'],'msg'=>$_lang['too_many_resources']);
-					$output .= $modx->parseText($tpl,$param);
+					$output .= $modx->parseTextSimple($tpl,$param);
 				}
 				array_push($closed2, $id);
 			}
@@ -499,7 +499,7 @@ function parseNode($tpl,$param,$id) {
     if (is_array($evtOut)) $evtOut = implode("\n", $evtOut);
     else $evtOut = '';
     
-	$node = $modx->parseText($tpl,$param);
+	$node = $modx->parseTextSimple($tpl,$param);
     $node = "{$evtOut}{$node}";
 	
     $param['node'] = $node;
