@@ -2954,6 +2954,18 @@ class DocumentParser {
         return $tpl;
     }
     
+    function parseTextSimple($tpl='', $ph=array(), $left= '[+', $right= '+]')
+    {
+        if(!$ph)  return $tpl;
+        if(!$tpl) return $tpl;
+        
+        foreach($ph as $k=>$v) {
+            $k = "{$left}{$k}{$right}";
+            if(strpos($tpl,$k)!==false) $tpl = str_replace($k,$v,$tpl);
+        }
+        return $tpl;
+    }
+    
     function toDateFormat($timestamp = 0, $mode = '')
     {
         if($timestamp==0&&$mode==='') return '';
