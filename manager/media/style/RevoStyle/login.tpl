@@ -10,21 +10,17 @@
     ---------------------------------------------------------------- */
     html, body, form, fieldset {margin: 0;padding: 0;}
     html {
-	font-size: 100.01%; /* avoids obscure font-size bug */
-	line-height: 1.5; /* http://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/ */
-	font-family: Arial,"Helvetica Neue",Helvetica,Meiryo,"Hiragino Kaku Gothic Pro","MS PGothic",sans-serif;
-	height: 100.01%;color: #333;}
+    font-size: 100.01%; /* avoids obscure font-size bug */
+    line-height: 1.5; /* http://meyerweb.com/eric/thoughts/2006/02/08/unitless-line-heights/ */
+    font-family: Meiryo,"Hiragino Kaku Gothic Pro",Arial,"Helvetica Neue",Helvetica,sans-serif;
+    height: 100.01%;color: #333;}
     body {height:auto;font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("media/style/RevoStyle/images/misc/subnav.png") repeat scroll 0 0 #EEEEEE;}
     img, a img {border: 0 !important;text-decoration: none;padding: 0;margin: 0;}
     input {font:inherit;}
-    h1, h2, h3, h4, h5, h6, p, pre,
-    blockquote, ul, ol, dl, address {margin: 0 0 .5em; /* Reset vertical margins on selected elements */padding: 0;}
-    li, dd, blockquote {margin-left: 1em; /* Left margin only where needed */}
+    p {margin: 0 0 .5em; /* Reset vertical margins on selected elements */padding: 0;}
 
     /* Headers and Paragraphs:
     ---------------------------------------------------------------- */
-    h1, h2, h3, h4, h5, h6 {font-weight: normal;}
-    h1 { font-size: 218%; }
     .warning{color: #821517;font-weight: bold;}
     .success{color: #090;font-weight: bold;}
     a, a:active, a:visited, a:link {color: #333;text-decoration: underline;}
@@ -35,11 +31,7 @@
     .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;}
     .body {padding: 20px 20px 20px;display: block;background: #fff;
     box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);}
-    #mx_loginbox {width: 460px;margin: 30px auto 0;
-                                 box-shadow: 0 0 10px #aaa;
-                             -moz-box-shadow: 0 0 10px #aaa;
-                             -webkit-box-shadow: 0 0 15px #ccc;
-}
+    #mx_loginbox {width: 460px;margin: 30px auto 0;box-shadow: 0 0 10px #aaa;}
     img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;}
     label {display: block;font-weight: bold;}
     input {margin: 0 0 10px 0;}
@@ -49,9 +41,9 @@
     .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;}
     .loginLicense a {color: #B2B2B2;}
     .notice {width: 100%;padding: 5px;border: 1px solid #eee;background-color: #F4F4F4;color: #707070;}
-	.loginMessage {font-size:12px;color: #999;padding-top: 10px;}
-	input#FMP-email {width:300px;}
-	label#FMP-email_label {padding-left:0;}
+    .loginMessage {font-size:12px;color: #999;padding-top: 10px;}
+    input#FMP-email {width:300px;}
+    label#FMP-email_label {padding-left:0;}
     </style>
 
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
@@ -64,33 +56,6 @@
             top.location=self.document.location;
         }
         
-        $(function() {
-            $('#submitButton').click(function(e) {
-				var $form = $('#loginfrm');
-				var username = $('#username').val();
-				var password = $('#password').val();
-				var rememberme = $('#rememberme').val();
-				var captcha_code = $('input[name="captcha_code"]').val();
-				params = {'username':username,'password':password,'rememberme':rememberme,'ajax':'1','captcha_code':captcha_code};
-				$.post('processors/login.processor.php',params,function(response){
-					var header = response.substr(0,9);
-					if (header.toLowerCase()=='location:') top.location = response.substr(10);
-					else {
-					var cimg = document.getElementById('captcha_image');
-					if (cimg) {
-					cimg.src = '../captcha.php';
-					}
-					jAlert(response);
-					}
-				
-				});
-            });  
-			
-			// Initial focus
-			if ($('#username').val() != '') $('#password').focus();
-			else                            $('#username').focus();
-			
-        });
     /* ]]> */
     </script>
 </head>
@@ -101,7 +66,7 @@
     [+OnManagerLoginFormPrerender+]
         <div class="header"><a href="../">[+site_name+]</a></div>
         <div class="body">
-			<img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo" />
+            <img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo" />
             <p class="loginMessage">[+login_message+]</p>
             <label for="username">[+username+] </label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" />
@@ -123,5 +88,26 @@
 <p class="loginLicense">
 &copy; 2005-[[$_SERVER['REQUEST_TIME']:date(Y)]] by the <a href="http://modx.com/" target="_blank">MODX</a>. <strong>MODX</strong>&trade; is licensed under the GPL.
 </p>
+<script>
+    $('#submitButton').click(function(e) {
+        var $form = $('#loginfrm');
+        var username     = $('#username').val();
+        var password     = $('#password').val();
+        var rememberme   = $('#rememberme').val();
+        var captcha_code = $('input[name="captcha_code"]').val();
+        params = {'username':username,'password':password,'rememberme':rememberme,'ajax':'1','captcha_code':captcha_code};
+        $.post('processors/login.processor.php',params,function(response){
+            var header = response.substr(0,9);
+            if (header.toLowerCase()=='location:') top.location = response.substr(10);
+            else {
+                var cimg = document.getElementById('captcha_image');
+                if (cimg) cimg.src = '../captcha.php';
+                jAlert(response);
+            }
+        });
+    });  
+    if ($('#username').val() != '') $('#password').focus();
+    else                            $('#username').focus();
+</script>
 </body>
 </html>

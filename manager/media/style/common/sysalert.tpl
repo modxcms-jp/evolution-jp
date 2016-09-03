@@ -1,6 +1,6 @@
 <script type="text/javascript">
 // <![CDATA[
-$j(function() {
+jQuery(function() {
 	jAlert('[+alerts+]','[+title+]');
 });
 // ]]>
