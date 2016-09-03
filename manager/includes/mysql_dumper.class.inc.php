@@ -133,12 +133,16 @@ class Mysqldumper {
 				$insertdump .= "INSERT INTO `{$table_name}` VALUES (";
 				if($table_name==="{$table_prefix}system_settings") $row = $this->convertValues($row);
 				foreach($row as $value) {
-					$value = addslashes($value);
-					if(strpos($value,"\\'")!==false)  $value = str_replace("\\'","''",$value);
-					if(strpos($value,"\r\n")!==false) $value = str_replace("\r\n", "\n", $value);
-					if(strpos($value,"\r")!==false)   $value = str_replace("\r", "\n", $value);
-					$value = str_replace("\n", '\\n', $value);
-					$insertdump .= "'{$value}',";
+					if(is_null($value)) $value = 'NULL';
+					else {
+    					$value = addslashes($value);
+    					if(strpos($value,"\\'")!==false)  $value = str_replace("\\'","''",$value);
+    					if(strpos($value,"\r\n")!==false) $value = str_replace("\r\n", "\n", $value);
+    					if(strpos($value,"\r")!==false)   $value = str_replace("\r", "\n", $value);
+    					$value = str_replace("\n", '\\n', $value);
+    					$value = "'{$value}'";
+					}
+					$insertdump .= $value.',';
 				}
 				$output .= rtrim($insertdump,',') . ");";
 				if(1048576 < strlen($output))
