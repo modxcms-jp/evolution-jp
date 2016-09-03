@@ -141,7 +141,7 @@ function ab_create_draft($id)
 	
 	if(!$modx->hasPermission('edit_document')) return;
 	
-	$tpl = '<li id="createdraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+	$tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
 	$ph['alt'] = 'icons_draft';
 	$ph['label'] = $_lang['create_draft'];
