@@ -167,12 +167,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		else w=window.setTimeout('work()', 50);
 	}
 
-	function stopWork() {
-		var elm = document.getElementById('workText');
-		if (elm) elm.innerHTML = "";
-		else  ww=window.setTimeout('stopWork()', 50);
-	}
-
 	// GENERAL FUNCTIONS - Remove locks
 	// This function removes locks on documents, templates, parsers, and snippets
 	function removeLocks() {
@@ -183,10 +177,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	function showWin() {
 		window.open('../');
-	}
-
-	function stopIt() {
-		top.mainMenu.stopWork();
 	}
 
 	function NavToggle(element) {

@@ -39,7 +39,7 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
-		
+		jQuery('#workText',parent.mainMenu.document).html('');
 		var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
 		if(treeopen==0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 		
@@ -88,7 +88,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 					gotosave=false;
 				break;
 			}
-            stopWorker();
             jQuery('#preLoader').hide();
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
@@ -113,14 +112,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
             }
         }
         
-        function stopWorker() {
-            try {
-                parent.mainMenu.stopWork();
-            } catch(oException) {
-                ww = window.setTimeout('stopWorker()',200);
-            }
-        }
-
 		/* ]]> */
     </script>
 </head>
