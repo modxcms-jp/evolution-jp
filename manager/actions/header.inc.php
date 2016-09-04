@@ -88,7 +88,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 					gotosave=false;
 				break;
 			}
-            jQuery('#preLoader').hide();
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
             
