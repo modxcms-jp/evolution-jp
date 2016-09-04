@@ -321,6 +321,8 @@ class DocumentParser {
         }
         else
         {
+            $this->updatePublishStatus();
+            
             if(0 < count($_POST)) $this->config['cache_type'] = 0;
             
             $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
@@ -332,8 +334,6 @@ class DocumentParser {
                 $this->invokeEvent('OnWebPageComplete');
                 exit;
             }
-            // make sure the cache doesn't need updating
-            $this->updatePublishStatus();
             
             // find out which document we need to display
             $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
