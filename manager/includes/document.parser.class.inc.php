@@ -314,7 +314,12 @@ class DocumentParser {
         $this->decoded_request_uri = $this->setRequestUri($id);
         $this->q = $this->setRequestQ($this->decoded_request_uri);
         
-        if($this->directParse==0)
+        if($this->directParse)
+        {
+            $this->documentMethod     = 'id';
+            $this->documentIdentifier = $id;
+        }
+        else
         {
             if(0 < count($_POST)) $this->config['cache_type'] = 0;
             
@@ -333,11 +338,6 @@ class DocumentParser {
             // find out which document we need to display
             $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
             $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
-        }
-        else
-        {
-            $this->documentMethod     = 'id';
-            $this->documentIdentifier = $id;
         }
         
         $path = $this->decoded_request_uri;
