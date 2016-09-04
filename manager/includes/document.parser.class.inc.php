@@ -35,13 +35,11 @@ class DocumentParser {
     var $debug;
     var $q;
     var $documentIdentifier;
-    var $documentMethod;
     var $documentGenerated;
     var $documentContent;
     var $documentOutput;
     var $tstart;
     var $mstart;
-    var $minParserPasses;
     var $maxParserPasses;
     var $documentObject;
     var $templateObject;
@@ -59,7 +57,6 @@ class DocumentParser {
     var $contentTypes;
     var $dumpSQL;
     var $queryCode;
-    var $virtualDir;
     var $ph;
     var $placeholders;
     var $sjscripts = array();
@@ -215,7 +212,6 @@ class DocumentParser {
         $this->Event= & $this->event; //alias for backward compatibility
         $this->ph = & $this->placeholders;
         
-        $this->minParserPasses = 1; // min number of parser recursive loops or passes
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
         $this->debug        = false;
         $this->dumpSQL      = false;
@@ -290,7 +286,7 @@ class DocumentParser {
         }
     }
     
-    function executeParser($id='')
+    function executeParser()
     {
         ob_start();
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
@@ -317,59 +313,13 @@ class DocumentParser {
         
         if(0 < count($_POST)) $this->config['cache_type'] = 0;
         
-        $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
-        if(!empty($this->documentOutput))
-        {
-            $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
-            $this->invokeEvent('OnWebPagePrerender');
-            echo $this->documentOutput;
-            $this->invokeEvent('OnWebPageComplete');
-            exit;
-        }
+        $rs = $this->get_static_pages($this->decoded_request_uri);
+        if($rs=='complete') exit;
         
-        if(isset($_GET['id'])) {
-            if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
-                $this->sendErrorPage();
-            else
-                $this->documentIdentifier = intval($_GET['id']);
-        }
-        else 
-            $this->documentIdentifier = $this->db->escape($this->q);
+        $this->documentIdentifier = $this->getDocumentIdentifier($this->decoded_request_uri);
         
-        $pos = strpos($this->decoded_request_uri,'?');
-        if ($pos!==false && $this->config['base_url']==substr($this->decoded_request_uri,0,$pos))
-        {
-            $this->documentMethod= 'id'; // now we know the site_start, change the none method to id
-            $this->documentIdentifier = $this->config['site_start'];
-        }
-        elseif (!isset($_GET['id']))
-        {
-            $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
-            $this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
-        }
+        if(!$this->documentIdentifier) $this->sendErrorPage();
         
-        if ($this->documentMethod === 'alias')
-        {
-            // Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
-            if ($this->config['use_alias_path'] === '1')
-            {
-                $alias = $this->documentIdentifier;
-                if(strlen($this->virtualDir) > 0) $alias = $this->virtualDir . '/' . $alias;
-                
-                $this->documentIdentifier= $this->getIdFromAlias($alias);
-                if($this->documentIdentifier===false)
-                {
-                    $this->documentIdentifier = $this->getIdFromAlias($alias . $this->config['friendly_url_suffix']);
-                    if ($this->documentIdentifier===false)
-                        $this->sendErrorPage();
-                }
-            }
-            else
-            {
-                $this->documentIdentifier= $this->getIdFromAlias($this->documentIdentifier);
-            }
-            $this->documentMethod= 'id';
-        }
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
         
@@ -403,7 +353,6 @@ class DocumentParser {
         
         $this->q = false;
         
-        $this->documentMethod     = 'id';
         $this->documentIdentifier = $id;
         
         // invoke OnWebPageInit event
@@ -411,6 +360,27 @@ class DocumentParser {
         
         $result = $this->prepareResponse();
         return $result;
+    }
+    
+    function getDocumentIdentifier($request_uri) {
+        
+        $pos = strpos($request_uri,'?');
+        if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
+            $docid = intval($_GET['id']);
+        }
+        elseif ($pos!==false && $this->config['base_url']==substr($request_uri,0,$pos)) {
+            $docid = $this->config['site_start'];
+        }
+        elseif ($this->q!==false) {
+            $suffix = $this->config['friendly_url_suffix'];
+            $suffix_len = strlen($suffix);
+            if($suffix && preg_match('@'.$suffix.'$@',$this->q)) $q = substr($this->q,0,-$suffix_len);
+            else                                                 $q = $this->q;
+            $docid = $this->getIdFromAlias($q);
+        }
+        else $docid = false;
+        
+        return $docid;
     }
     
     function setRequestQ($decoded_request_uri) {
@@ -467,20 +437,20 @@ class DocumentParser {
         $this->documentContent= $this->getCache($this->documentIdentifier);
         if ($this->documentContent != '')
         {
-          $params = array('useCache' => true);
-          $this->invokeEvent('OnLoadWebPageCache',$params); // invoke OnLoadWebPageCache  event
-          if( $params['useCache'] != true ) //no use cache
-          {
-            $this->config['cache_type'] = 0;
-            $this->documentContent = '';
-          }
+            $params = array('useCache' => true);
+            $this->invokeEvent('OnLoadWebPageCache',$params); // invoke OnLoadWebPageCache  event
+            if( $params['useCache'] != true ) //no use cache
+            {
+                $this->config['cache_type'] = 0;
+                $this->documentContent = '';
+            }
         }
 
         if ($this->documentContent == '')
         {
             $this->setChunkCache();
             // get document object
-            $this->documentObject= $this->getDocumentObject($this->documentMethod, $this->documentIdentifier, 'prepareResponse');
+            $this->documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
             
             // validation routines
             if($this->checkSiteStatus()===false)
@@ -515,15 +485,10 @@ class DocumentParser {
                 if($this->directParse==1) return $rs;
             }
             // check if we should not hit this document
-            if($this->documentObject['donthit'] == 1)
-            {
-                $this->config['track_visitors']= 0;
-            }
+            if($this->documentObject['donthit'] == 1) $this->config['track_visitors']= 0;
+            
             // get the template and start parsing!
-            if(!$this->documentObject['template'])
-            {
-                $this->documentContent= '[*content*]'; // use blank template
-            }
+            if(!$this->documentObject['template']) $this->documentContent= '[*content*]'; // use blank template
             else
             {
                 $template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
@@ -534,7 +499,6 @@ class DocumentParser {
                     $template->content = $this->atBindUrl($template->content);
                 elseif(substr($template->content,0,8)==='@INCLUDE')
                     $template->content = $this->atBindInclude($template->content);
-
                 
                 if($template->id)
                 {
@@ -623,20 +587,19 @@ class DocumentParser {
             if($this->config['cache_type']==2) $this->config['cache_type'] = 1;
             
             // Parse document source
-            $passes = $this->minParserPasses;
-            
-            for ($i= 0; $i < $passes; $i++)
+            $bt = '';
+            $i=0;
+            while($bt!=md5($this->documentOutput))
             {
-                if($i == ($passes -1)) $st= md5($this->documentOutput);
+                if($this->maxParserPasses < $i) break;
                 
+                $bt = md5($this->documentOutput);
                 $this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
                 $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
                 
-                if($i == ($passes -1) && $i < ($this->maxParserPasses - 1))
-                {
-                    $et = md5($this->documentOutput);
-                    if($st != $et) $passes++;
-                }
+                if($bt==md5($this->documentOutput)) break;
+                
+                $i++;
             }
         }
         
@@ -909,9 +872,19 @@ class DocumentParser {
             default:
                 exit;
         }
+        
         if(!$mime_type) $this->sendErrorPage();
-        header("Content-type: {$mime_type}");
-        return file_get_contents($filepath);
+        
+        $content = file_get_contents($filepath);
+        if($content) {
+            $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+            $this->invokeEvent('OnWebPagePrerender');
+            header("Content-type: {$mime_type}");
+            echo $this->documentOutput;
+            $this->invokeEvent('OnWebPageComplete');
+            return 'complete';
+        }
+        else false;
     }
     
     function getSiteCache()
@@ -1045,78 +1018,6 @@ class DocumentParser {
         else                                  return false; // site is offline
     }
     
-    function cleanDocumentIdentifier($qOrig)
-    {
-        if(isset($this->aliasCache[__FUNCTION__]['vdir'][$qOrig]))
-            $this->virtualDir = $this->aliasCache[__FUNCTION__]['vdir'][$qOrig];
-        if(isset($this->aliasCache[__FUNCTION__]['id'][$qOrig])) {
-            $this->documentMethod = 'id';
-            return $this->aliasCache[__FUNCTION__]['id'][$qOrig];
-        }
-        elseif(isset($this->aliasCache[__FUNCTION__]['alias'][$qOrig])) {
-            return $this->aliasCache[__FUNCTION__]['alias'][$qOrig];
-        }
-        
-        if(empty($qOrig)) $qOrig = $this->config['site_start'];
-        $q = trim($qOrig,'/');
-        /* Save path if any */
-        /* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
-        if ($this->config['use_alias_path'] == 1) {
-            $this->virtualDir = dirname($q);
-            $this->virtualDir = ($this->virtualDir === '.') ? '' : $this->virtualDir;
-            $q = explode('/', $q);
-            $q = end($q);
-        } else {
-            $this->virtualDir= '';
-        }
-        $prefix = $this->config['friendly_url_prefix'];
-        $suffix = $this->config['friendly_url_suffix'];
-        if(!empty($prefix) && strpos($q,$prefix)!==false) $q = preg_replace('@^' . $prefix . '@',  '', $q);
-        if(!empty($suffix) && strpos($q,$suffix)!==false) $q = preg_replace('@'  . $suffix . '$@', '', $q);
-        if (!preg_match('@^[1-9][0-9]*$@',$q))
-        {
-            if ($this->config['friendly_alias_urls'] == 0) $rs = $qOrig;
-            else                                           $rs = $q;
-        }
-        else
-        {
-            if ($this->config['use_alias_path'] == 1)
-            {
-                $vdir = $this->virtualDir;
-                
-                $aliasPath = $vdir!='' ? "{$vdir}/{$q}" : $q;
-                $docid = $this->getIdFromAlias($aliasPath);
-
-                $pid = $vdir!='' ? $this->getIdFromAlias($vdir) : 0;
-                if( $pid === false ){
-                    $wChild = false;
-                }else{
-                    $children = $this->getChildIds($pid, 1);
-                    $wChild =in_array($q, $children);
-                }
-                
-                if (!$docid && $wChild)
-                {
-                    $this->documentMethod = 'id';
-                    $rs = $q;
-                }
-                else $rs = $q;
-            }
-            else
-            {
-                $id = $this->getIdFromAlias($q);
-                if($id!==false) {
-                    $this->documentMethod = 'id';
-                    $rs = $id;
-                }
-                else $rs = $q;
-            }
-        }
-        $this->aliasCache[__FUNCTION__]['vdir'][$qOrig] = $this->virtualDir;
-        $this->aliasCache[__FUNCTION__][$this->documentMethod][$qOrig] = $rs;
-        return $rs;
-    }
-
     function checkCache($id)
     {
         return $this->getCache($id);
@@ -2190,7 +2091,7 @@ class DocumentParser {
         
         if(isset($_SESSION['mgrValidated'])
              && $mode==='prepareResponse'
-             && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
+             && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
             )
         {
             if(!isset($_POST['token']) || !isset($_SESSION['token']) || $_POST['token']!==$_SESSION['token']) {
@@ -2325,12 +2226,13 @@ class DocumentParser {
     */
     function parseDocumentSource($source)
     {
-        $passes= $this->minParserPasses;
         if(!$this->maxParserPasses) $this->maxParserPasses = 20;
         $bt = '';
         $i = 0;
         while ($bt!=md5($source))
         {
+            if($this->maxParserPasses < $i) break;
+            
             $bt = md5($source);
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
@@ -2358,8 +2260,9 @@ class DocumentParser {
             
             if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false)
                                                                $source = $this->rewriteUrls($source);
+            
             if($bt == md5($source))         break;
-            if($this->maxParserPasses < $i) break;
+            
             $i++;
         }
         return $source;
@@ -3674,6 +3577,10 @@ class DocumentParser {
         if(isset($this->aliasCache[__FUNCTION__][$aliasPath]))
             return $this->aliasCache[__FUNCTION__][$aliasPath];
         
+        $aliasPath = trim($aliasPath,'/');
+        
+        if(empty($aliasPath)) return $this->config['site_start'];
+        
         $children = array();
         
         if($this->config['use_alias_path']==1)
@@ -3688,7 +3595,8 @@ class DocumentParser {
                 if( empty($alias) ){ continue; }
                 $alias = $this->db->escape($alias);
                 $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and alias='{$alias}'");
-                if($this->db->getRecordCount($rs)==0) $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and id='{$alias}'");
+                if($this->db->getRecordCount($rs)==0)
+                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and id='{$alias}'");
                 $row = $this->db->getRow($rs);
                 
                 if($row) $id = $row['id'];

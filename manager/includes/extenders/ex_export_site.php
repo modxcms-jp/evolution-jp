@@ -144,7 +144,7 @@ class EXPORT_SITE
 		if($this->generate_mode==='direct')
 		{
 			$back_lang = $_lang;
-			$src = $modx->executeParser($docid);
+			$src = $modx->executeParserDirect($docid);
 			
 			$_lang = $back_lang;
 		}

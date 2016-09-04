@@ -542,7 +542,6 @@ class SubParser {
         {
             $modx->forwards--;
             $modx->documentIdentifier= $id;
-            $modx->documentMethod= 'id';
             if($responseCode) header($responseCode);
             echo $modx->prepareResponse();
         }
