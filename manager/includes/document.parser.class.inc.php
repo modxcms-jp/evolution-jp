@@ -297,8 +297,7 @@ class DocumentParser {
         
         $this->http_status_code = '200';
 
-        if(preg_match('@^[0-9]+$@',$id)) $this->directParse = 1;
-        else                             $this->directParse = 0;
+        $this->directParse = 0;
         
         // get the settings
         if(!$this->db->conn)      $this->db->connect();
@@ -311,52 +310,41 @@ class DocumentParser {
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
-        $this->decoded_request_uri = $this->setRequestUri($id);
-        $this->q = $this->setRequestQ($this->decoded_request_uri);
+        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
+        $this->q = (!isset($_GET['id'])) ? $this->setRequestQ($this->decoded_request_uri) : false;
         
-        if($this->directParse)
+        $this->updatePublishStatus();
+        
+        if(0 < count($_POST)) $this->config['cache_type'] = 0;
+        
+        $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
+        if(!empty($this->documentOutput))
         {
-            $this->documentMethod     = 'id';
-            $this->documentIdentifier = $id;
-        }
-        else
-        {
-            $this->updatePublishStatus();
-            
-            if(0 < count($_POST)) $this->config['cache_type'] = 0;
-            
-            $this->documentOutput = $this->get_static_pages($this->decoded_request_uri);
-            if(!empty($this->documentOutput))
-            {
-                $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
-                $this->invokeEvent('OnWebPagePrerender');
-                echo $this->documentOutput;
-                $this->invokeEvent('OnWebPageComplete');
-                exit;
-            }
-            
-            // find out which document we need to display
-            $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
-            if($this->documentMethod=='id') {
-                if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
-                    $this->sendErrorPage();
-                else
-                    $this->documentIdentifier = intval($_GET['id']);
-            }
-            else 
-                $this->documentIdentifier = $this->db->escape($this->q);
+            $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+            $this->invokeEvent('OnWebPagePrerender');
+            echo $this->documentOutput;
+            $this->invokeEvent('OnWebPageComplete');
+            exit;
         }
         
-        $path = $this->decoded_request_uri;
-        $pos = strpos($path,'?');
-        if($pos!==false) $path = substr($path,0,$pos);
-        if ($path===$this->config['base_url'])
+        if(isset($_GET['id'])) {
+            if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
+                $this->sendErrorPage();
+            else
+                $this->documentIdentifier = intval($_GET['id']);
+        }
+        else 
+            $this->documentIdentifier = $this->db->escape($this->q);
+        
+        $pos = strpos($this->decoded_request_uri,'?');
+        if ($pos!==false && $this->config['base_url']==substr($this->decoded_request_uri,0,$pos))
         {
             $this->documentMethod= 'id'; // now we know the site_start, change the none method to id
             $this->documentIdentifier = $this->config['site_start'];
         }
-        elseif ($this->documentMethod == 'alias')
+        elseif (!isset($_GET['id']))
         {
+            $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
             $this->documentIdentifier= $this->cleanDocumentIdentifier($this->documentIdentifier);
         }
         
@@ -389,16 +377,50 @@ class DocumentParser {
         return $result;
     }
     
+    function executeParserDirect($id='')
+    {
+        ob_start();
+        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
+        
+        $this->http_status_code = '200';
+
+        $this->directParse = 1;
+        
+        // get the settings
+        if(!$this->db->conn)      $this->db->connect();
+        if(!isset($this->config)) $this->config = $this->getSettings();
+
+        $this->setBaseTime();
+        $this->sanitizeVars();
+        $this->uaType  = $this->setUaType();
+        $this->qs_hash = '';
+        
+        if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
+        
+        $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
+        $_REQUEST['id'] = $id;
+        $_GET['id']     = $id;
+        
+        $this->q = false;
+        
+        $this->documentMethod     = 'id';
+        $this->documentIdentifier = $id;
+        
+        // invoke OnWebPageInit event
+        $this->invokeEvent('OnWebPageInit');
+        
+        $result = $this->prepareResponse();
+        return $result;
+    }
+    
     function setRequestQ($decoded_request_uri) {
-        if(isset($_GET['id'])) $q = null;
+        if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) // IIS friendly url fix
+            $q = $this->_IIS_furl_fix();
         else {
             $q = substr($decoded_request_uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
             if($q=='index.php')        $q = '';
         }
-        // IIS friendly url fix
-        if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false)
-            $q = $this->_IIS_furl_fix();
         
         return $q;
     }
@@ -426,7 +448,7 @@ class DocumentParser {
     }
     
     function genQsHash() {
-        if($this->directParse==0 && !empty($_SERVER['QUERY_STRING']))
+        if(!empty($_SERVER['QUERY_STRING']))
         {
             $qs = $_GET;
             if(isset($qs['id'])) unset($qs['id']);
@@ -437,17 +459,6 @@ class DocumentParser {
         }
         else $qs_hash = '';
         return $qs_hash;
-    }
-    
-    function setRequestUri($id=0) {
-        if($this->directParse==1)
-        {
-            $_REQUEST['id'] = $id;
-            $_GET['id']     = $id;
-            $rs = $this->config['base_url'] . "index.php?id={$id}";
-        }
-        else $rs = urldecode($_SERVER['REQUEST_URI']);
-        return $rs;
     }
     
     function prepareResponse()
@@ -830,6 +841,9 @@ class DocumentParser {
     
     function getUaType()
     {
+        if(!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT']))
+            $_SERVER['HTTP_USER_AGENT'] = 'pc';
+        
         $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
         
         if(strpos($ua, 'ipad')!==false)          $type = 'tablet';
