@@ -337,7 +337,14 @@ class DocumentParser {
             
             // find out which document we need to display
             $this->documentMethod= isset($_GET['id']) ? 'id' : 'alias';
-            $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
+            if($this->documentMethod=='id') {
+                if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
+                    $this->sendErrorPage();
+                else
+                    $this->documentIdentifier = intval($_GET['id']);
+            }
+            else 
+                $this->documentIdentifier = $this->db->escape($this->q);
         }
         
         $path = $this->decoded_request_uri;
@@ -983,24 +990,6 @@ class DocumentParser {
         
         $this->invokeEvent('OnGetConfig');
         return $this->config;
-    }
-    
-    function getDocumentIdentifier($method)
-    {
-        // function to test the query and find the retrieval method
-        switch ($method)
-        {
-            case 'alias' :
-                return $this->db->escape($this->q);
-            case 'id' :
-                if (!preg_match('@^[1-9][0-9]*$@', $_GET['id']))
-                    $this->sendErrorPage();
-                else
-                    return intval($_GET['id']);
-                break;
-            default:
-                return $this->config['site_start'];
-        }
     }
     
     // check for manager login session
