@@ -1966,9 +1966,7 @@ class DocumentParser {
             }
             elseif($c===':')     { $inFilter=true; }
             elseif($c==='?')     { $pos = $i; break; }
-            elseif($c===' ')     { 
-                if(strpos($str,'?')===false) {$pos = $i; break;}
-            }
+            else                 $pos = false;
         }
         return $pos;
     }
