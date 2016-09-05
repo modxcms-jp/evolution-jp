@@ -372,15 +372,31 @@ class DocumentParser {
             $docid = $this->config['site_start'];
         }
         elseif ($this->q!==false) {
-            $suffix = $this->config['friendly_url_suffix'];
-            $suffix_len = strlen($suffix);
-            if($suffix && preg_match('@'.$suffix.'$@',$this->q)) $q = substr($this->q,0,-$suffix_len);
-            else                                                 $q = $this->q;
-            $docid = $this->getIdFromAlias($q);
+            $docid = $this->getIdFromAlias($this->_treatAliasPath($this->q));
         }
         else $docid = false;
         
         return $docid;
+    }
+    
+    function _treatAliasPath($q) {
+        $pos = strrpos($q,'/');
+        if($pos) {
+            $path      = substr($q,0,$pos);
+            $alias = substr($q,$pos+1);
+        }
+        else {
+            $path      = '';
+            $alias = $q;
+        }
+        
+        $prefix = $this->config['friendly_url_prefix'];
+        $suffix = $this->config['friendly_url_suffix'];
+        if(!empty($prefix) && strpos($q,$prefix)!==false) $alias = preg_replace("@^{$prefix}@",  '', $alias);
+        if(!empty($suffix) && strpos($q,$suffix)!==false) $alias = preg_replace("@{$suffix}".'$@', '', $alias);
+        
+        if($pos) return "{$path}/{$alias}";
+        else     return $alias;
     }
     
     function setRequestQ($decoded_request_uri) {
