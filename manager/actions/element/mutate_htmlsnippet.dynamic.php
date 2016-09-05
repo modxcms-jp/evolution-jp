@@ -81,9 +81,9 @@ jQuery(function(){
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
 		jQuery('select').addClass('readonly');
-		jQuery('#Button1').hide();
+		jQuery('#save').hide();
     	jQuery('input[name="locked"]').click(function(){
-    		jQuery('#Button1').toggle();
+    		jQuery('#save').toggle();
     	});
 	}
 	jQuery('input[name="locked"]').click(function(){
@@ -170,7 +170,7 @@ if (is_array($evtOut))
     	  <ul class="actionButtons">
 <?php if($modx->hasPermission('save_chunk')):?>
     		  <li id="save" class="primary mutate">
-    			<a href="#">
+    			<a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();">
     			  <img src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['update']?>
     			</a>
     			  <span class="and"> + </span>
