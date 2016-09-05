@@ -62,6 +62,8 @@ if(!function_exists("json_parameters")) {
 		$jsonArr = array();
 		foreach ($placeholders as $name=>$value) {
 			$value = addslashes(htmlspecialchars($value,ENT_QUOTES, $modx->config['modx_charset']));
+			if($name=='date' && !preg_match('@^[0-9]+$@',$value))
+				$value = $modx->getUnixtimeFromDateString($value);
 			$jsonArr["json_{$name}"] = str_replace(array("\r\n","\n", "\r"), '\n', $value);
 		}
 		$placeholders = array_merge($jsonArr,$placeholders);
@@ -88,7 +90,7 @@ $json_tpl = <<<TPL
 	{
 	 "title":"[+json_pagetitle+]",
 	 "link":"[(site_url)][~[+id+]~]",
-	 "date":"[+json_createdon+]",
+	 "date":"[+json_date+]",
 	 "guid":"[(site_url)][~[+id+]~]",
 	 "author":"[+json_author+]",
 	 "description":"[+json_description+]",
@@ -101,7 +103,7 @@ $json_tpl_last = <<<TPL
 	{
 	 "title":"[+json_pagetitle+]",
 	 "link":"[(site_url)][~[+id+]~]",
-	 "date":"[+json_createdon+]",
+	 "date":"[+json_date+]",
 	 "guid":"[(site_url)][~[+id+]~]",
 	 "author":"[+json_author+]",
 	 "description":"[+json_description+]",
