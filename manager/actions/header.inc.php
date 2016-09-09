@@ -90,15 +90,12 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 			}
             <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
-            
-        	jQuery(window).on('beforeunload',function(){
-            	jQuery('#actions').fadeOut(100);
-            	jQuery('input,textarea,select').addClass('readonly');
-        	});
 		});
 		
 		jQuery(window).on('beforeunload', function(){
 			if(documentDirty) return '<?php echo addslashes($_lang['warning_not_saved']);?>';
+            	jQuery('#actions').fadeOut(100);
+            	jQuery('input,textarea,select').addClass('readonly');
 			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
 		});
         
