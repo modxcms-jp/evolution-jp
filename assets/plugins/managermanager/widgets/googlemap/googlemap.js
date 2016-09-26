@@ -2,7 +2,6 @@ var $j = jQuery.noConflict();
 var map = new Object();
 var marker = new Object();
 var addressField = new Object();
-var marker;
 
 function googlemap(id,defaultGeoLoc) {
 	mapContainerId = "map_canvas_"+id;
