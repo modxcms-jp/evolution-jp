@@ -30,10 +30,16 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 			$callBack .= "googlemap('$tv_id','$default');";
 		}
 
+  $params='';
+  if(!empty($googleApiKey))
+  {
+    $params = 'key=' . trim($googleApiKey);
+  }
+
 		$output .="
 		jQuery.getScript('https://www.google.com/jsapi', function()
 		{
-			google.load('maps', '3', { other_params: 'sensor=false', callback: function()
+			google.load('maps', '3', { other_params: '".$params."', callback: function()
 			{
 		" .
 		$callBack
