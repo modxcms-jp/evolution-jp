@@ -1639,8 +1639,9 @@ class DocumentParser {
                  &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
                 $this->condScope = false;
                 $cmd = ltrim($cmd);
+                $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
                 
-                if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!]*$@', $cmd))
+                if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
                     $cmd = (int) eval("return {$cmd};");
                 if($cmd < 0) $cmd = 0;
                 
