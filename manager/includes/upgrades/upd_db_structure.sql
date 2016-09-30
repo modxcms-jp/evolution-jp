@@ -169,16 +169,14 @@ ALTER TABLE `{PREFIX}user_attributes`
  MODIFY COLUMN `zip` varchar(25) NOT NULL DEFAULT '',
  MODIFY COLUMN `fax` varchar(100) NOT NULL DEFAULT '',
  MODIFY COLUMN `photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'link to photo',
- MODIFY COLUMN `comment` varchar(255) NOT NULL DEFAULT '' COMMENT 'short comment',
  MODIFY COLUMN `comment` text;
 
 ALTER TABLE `{PREFIX}web_user_attributes`
  MODIFY COLUMN `country` varchar(25) NOT NULL DEFAULT '',
+ MODIFY COLUMN `state` varchar(25) NOT NULL DEFAULT '',
  MODIFY COLUMN `zip` varchar(25) NOT NULL DEFAULT '',
  MODIFY COLUMN `fax` varchar(100) NOT NULL DEFAULT '',
  MODIFY COLUMN `photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'link to photo',
- MODIFY COLUMN `state` varchar(25) NOT NULL DEFAULT '',
- MODIFY COLUMN `zip` varchar(25) NOT NULL DEFAULT '',
  MODIFY COLUMN `comment` text;
 
 ALTER TABLE `{PREFIX}site_tmplvar_contentvalues`
