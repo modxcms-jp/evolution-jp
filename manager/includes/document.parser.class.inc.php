@@ -366,10 +366,12 @@ class DocumentParser {
     function getDocumentIdentifier($request_uri) {
         
         $pos = strpos($request_uri,'?');
+        if($pos!==false) $request_uri = substr($request_uri,0,$pos);
+        
         if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
             $docid = intval($_GET['id']);
         }
-        elseif ($pos!==false && $this->config['base_url']==substr($request_uri,0,$pos)) {
+        elseif ($this->config['base_url']==$request_uri) {
             $docid = $this->config['site_start'];
         }
         elseif ($this->q!==false) {
