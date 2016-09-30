@@ -171,11 +171,13 @@ $s = '';
         $this->lastQuery = $sql;
         $result = @ mysql_query($sql, $this->conn);
         if (!$result) {
+            if(!$watchError) return;
             switch(mysql_errno()) {
+                case 1054:
                 case 1060:
                 case 1061:
                 case 1091:
-                    if(!$watchError) break;
+                    break;
                 default:
                     $modx->messageQuit('Execution of a query to the database failed - ' . $this->getLastError(), $sql);
             }

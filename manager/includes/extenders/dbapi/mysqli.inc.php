@@ -156,6 +156,7 @@ $s = '';
         if (!$result) {
             if(!$watchError) return;
             switch($this->conn->connect_errno) {
+                case 1054:
                 case 1060:
                 case 1061:
                 case 1091:
