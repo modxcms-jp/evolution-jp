@@ -62,26 +62,15 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 
 		$tvsMas = array();
 		// Does this page's template use any image or file or text TVs?
-		$tvsTemp = tplUseTvs($page_template, $tvs, 'image');
-		if ($tvsTemp){
-			foreach($tvsTemp as $v){
-				$v['type'] = 'image';
-				array_push($tvsMas,$v);
-			}
-		}
-		$tvsTemp = tplUseTvs($page_template, $tvs, 'file');
-		if ($tvsTemp){
-			foreach($tvsTemp as $v){
-				$v['type'] = 'file';
-				array_push($tvsMas,$v);
-			}
-		}
-		$tvsTemp = tplUseTvs($page_template, $tvs, 'text');
-		if ($tvsTemp){
-			foreach($tvsTemp as $v){
-				$v['type'] = 'text';
-				array_push($tvsMas,$v);
-			}
+		$types = explode(',', 'image,file,text,textarea');
+		foreach($types as $type) {
+    		$tvsTemp = tplUseTvs($page_template, $tvs, $type);
+    		if ($tvsTemp){
+    			foreach($tvsTemp as $v){
+    				$v['type'] = $type;
+    				array_push($tvsMas,$v);
+    			}
+    		}
 		}
 
 		if (count($tvsMas) == 0){
