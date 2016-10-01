@@ -66,41 +66,36 @@
 	    <div class="sectionHeader">[+lang.DM_action_title+]</div>
 	    <div class="sectionBody"> 
 	        <div class="tab-pane" id="docManagerPane"> 
-	        <script type="text/javascript"> 
-	            tpDM = new WebFXTabPane(document.getElementById('docManagerPane')); 
-	        </script>
 	        
 	        <div class="tab-page" id="tabTemplates">  
 	            <h2 class="tab">[+lang.DM_change_template+]</h2>  
-	            <script type="text/javascript">tpDM.addTabPage(document.getElementById('tabTemplates'));</script>
 	           [+view.templates+]
 	        </div>
 	   
 	        <div class="tab-page" id="tabTemplateVariables">  
 	            <h2 class="tab">[+lang.DM_template_variables+]</h2>  
-	            <script type="text/javascript">tpDM.addTabPage(document.getElementById("tabTemplateVariables" ));</script> 
 	           [+view.templatevars+]
 	        </div>
 	    
 	        <div class="tab-page" id="tabDocPermissions">  
 	            <h2 class="tab">[+lang.DM_doc_permissions+]</h2>  
-	            <script type="text/javascript">tpDM.addTabPage(document.getElementById("tabDocPermissions"));</script> 
 	           [+view.documentgroups+]
 	        </div>
 	      
 	        <div class="tab-page" id="tabSortMenu">  
 	            <h2 class="tab">[+lang.DM_sort_menu+] </h2>  
-	            <script type="text/javascript">tpDM.addTabPage(document.getElementById("tabSortMenu"));</script> 
 	           [+view.sort+]
 	        </div>
 	
 	        <div class="tab-page" id="tabOther">  
 	           <h2 class="tab">[+lang.DM_other+]</h2>  
-	           <script type="text/javascript">tpDM.addTabPage(document.getElementById("tabOther"));</script>
 	           [+view.misc+]
 	           [+view.changeauthors+]
 	        </div>
-	    </div>
+	        </div>
+	        <script type="text/javascript">
+	            tpDM = new WebFXTabPane(document.getElementById('docManagerPane'));
+	        </script>
 	    </div>
 	</div>
 	[+view.documents+]

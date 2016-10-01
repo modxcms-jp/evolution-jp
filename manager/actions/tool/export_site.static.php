@@ -17,10 +17,6 @@ if(!$modx->hasPermission('export_static'))
   </ul>
 </div>
 
-<script type="text/javascript">
-tpExport = new WebFXTabPane(document.getElementById("exportPane"));
-</script>
-
 <div class="sectionBody">
 <div class="tab-pane" id="exportPane">
 <div class="tab-page" id="tabMain">
@@ -127,11 +123,12 @@ $repl_after  = $modx->getOption('export_repl_after',$modx->config['site_url']);
 </div>
 
 <script>
-jQuery('input[name="target"]:radio').change(function(){
-	switch(jQuery('input[name="target"]:checked').val()) {
-		case 'all'       :jQuery('#ignore_ids').fadeOut('fast');jQuery('#allow_ids').fadeOut('fast');break;
-		case 'allow_ids' :jQuery('#ignore_ids').hide();jQuery('#allow_ids').fadeIn('normal');break;
-		case 'ignore_ids':jQuery('#allow_ids').hide();jQuery('#ignore_ids').fadeIn('normal');break;
-	}
-});
+    tpExport = new WebFXTabPane(document.getElementById("exportPane"));
+    jQuery('input[name="target"]:radio').change(function(){
+    	switch(jQuery('input[name="target"]:checked').val()) {
+    		case 'all'       :jQuery('#ignore_ids').fadeOut('fast');jQuery('#allow_ids').fadeOut('fast');break;
+    		case 'allow_ids' :jQuery('#ignore_ids').hide();jQuery('#allow_ids').fadeIn('normal');break;
+    		case 'ignore_ids':jQuery('#allow_ids').hide();jQuery('#ignore_ids').fadeIn('normal');break;
+    	}
+    });
 </script>

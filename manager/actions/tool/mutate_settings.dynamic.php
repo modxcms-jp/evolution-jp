@@ -75,16 +75,6 @@ $site_unavailable_message_view = isset($site_unavailable_message) ? $site_unavai
 ?>
 
 <script type="text/javascript">
-jQuery(function(){
-	jQuery('#furlRowOn').change(function()    {jQuery('.furlRow').fadeIn();});
-	jQuery('#furlRowOff').change(function()   {jQuery('.furlRow').fadeOut();});
-	jQuery('#udPermsOn').change(function()    {jQuery('.udPerms').slideDown();});
-	jQuery('#udPermsOff').change(function()   {jQuery('.udPerms').slideUp();});
-	jQuery('#editorRowOn').change(function()  {jQuery('.editorRow').slideDown();});
-	jQuery('#editorRowOff').change(function() {jQuery('.editorRow').slideUp();});
-	jQuery('#rbRowOn').change(function()      {jQuery('.rbRow').slideDown();});
-	jQuery('#rbRowOff').change(function()     {jQuery('.rbRow').slideUp();});
-});
 
 function addContentType()
 {
@@ -195,9 +185,6 @@ function confirmLangChange(el, lkey, elupd)
 	}
 ?>
 	<div class="tab-pane" id="settingsPane">
-	<script type="text/javascript">
-		tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
-	</script>
 <!-- Site Settings -->
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo $_lang["settings_site"] ?></h2>
@@ -1272,6 +1259,17 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </div>
 </div>
 </form>
+<script type="text/javascript">
+	tpSettings = new WebFXTabPane( document.getElementById( "settingsPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
+	jQuery('#furlRowOn').change(function()    {jQuery('.furlRow').fadeIn();});
+	jQuery('#furlRowOff').change(function()   {jQuery('.furlRow').fadeOut();});
+	jQuery('#udPermsOn').change(function()    {jQuery('.udPerms').slideDown();});
+	jQuery('#udPermsOff').change(function()   {jQuery('.udPerms').slideUp();});
+	jQuery('#editorRowOn').change(function()  {jQuery('.editorRow').slideDown();});
+	jQuery('#editorRowOff').change(function() {jQuery('.editorRow').slideUp();});
+	jQuery('#rbRowOn').change(function()      {jQuery('.rbRow').slideDown();});
+	jQuery('#rbRowOff').change(function()     {jQuery('.rbRow').slideUp();});
+</script>
 <?php
 /**
 * get_lang_keys

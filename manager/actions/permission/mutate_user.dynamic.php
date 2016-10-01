@@ -242,9 +242,6 @@ if (is_array($evtOut))
 	table.settings th,table.settings td {padding:5px;}
 </style>
 <div class="tab-pane" id="userPane">
-	<script type="text/javascript">
-		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
     <div class="tab-page" id="tabGeneral">
 		<?php if($_GET['id']==$modx->getLoginUserID()) { ?><p><?php echo $_lang['user_edit_self_msg']; ?></p><?php } ?>
     	<h2 class="tab"><?php echo $_lang["login_settings"] ?></h2>
@@ -757,6 +754,9 @@ if (is_array($evtOut))
 </div>
 <input type="submit" name="save" style="display:none">
 </form>
+<script type="text/javascript">
+	tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
+</script>
 <?php
 
 function selected($cond=false)

@@ -102,8 +102,6 @@ jQuery(function(){
     	documentDirty=false;
     	jQuery('#mutate').submit();
 	});
-	var stay = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	chunkPane = new WebFXTabPane( document.getElementById('chunkPane'), stay);
 });
 // Added for RTE selection
 function changeRTE() {
@@ -313,6 +311,10 @@ if ($ds) {
 <?php echo $_lang['htmlsnippet_msg'];?>
 </div>
 </div>
+<script>
+	var stay = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	chunkPane = new WebFXTabPane( document.getElementById('chunkPane'), stay);
+</script>
 </form>
 </div>
 <?php

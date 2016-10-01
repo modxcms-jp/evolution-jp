@@ -71,38 +71,6 @@ $templateObject = (object) $templateObject;
 
 ?>
 <script type="text/javascript">
-jQuery(function(){
-	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == on) ? '1': '0'; ?>;
-	if(readonly==1) {
-		jQuery('textarea,input[type=text]').prop('readonly',true);
-		jQuery('select').addClass('readonly');
-		jQuery('#Button1').hide();
-    	jQuery('input[name="locked"]').click(function(){
-    		jQuery('#Button1').toggle();
-    	});
-	}
-	jQuery('input[name="locked"]').click(function(){
-		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
-		jQuery('select').toggleClass('readonly');
-	});
-	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-    jQuery.get("index.php",
-        { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo $id;?>" },
-        function(data){
-            jQuery('div#use_resources').html(data);
-    });
-	jQuery('select[name="categoryid"]').change(function(){
-		if(jQuery(this).val()=='-1')
-		{
-			jQuery('#newcategry').fadeIn();
-		}
-		else
-		{
-			jQuery('#newcategry').fadeOut();
-			jQuery('input[name="newcategory"]').val('');
-		}
-	});
-});
 
 function duplicaterecord(){
 	if(confirm("<?php echo $_lang['confirm_duplicate_record'] ?>")==true) {
@@ -166,7 +134,6 @@ function deletedocument() {
 
 <div class="sectionBody">
 <div class="tab-pane" id="templatesPane">
-	<script>tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );</script>
 	<div class="tab-page" id="tabTemplate">
     	<h2 class="tab"><?php echo $_lang["template_edit_tab"] ?></h2>
 	<div style="margin-bottom:10px;">
@@ -319,6 +286,40 @@ $evtOut = $modx->invokeEvent("OnTempFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
+<script>
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
+	
+	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == on) ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('select').addClass('readonly');
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
+		jQuery('select').toggleClass('readonly');
+	});
+    jQuery.get("index.php",
+        { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo $id;?>" },
+        function(data){
+            jQuery('div#use_resources').html(data);
+    });
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1')
+		{
+			jQuery('#newcategry').fadeIn();
+		}
+		else
+		{
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
+		}
+	});
+</script>
 </div>
 
 <?php

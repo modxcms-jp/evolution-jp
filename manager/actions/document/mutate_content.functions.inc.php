@@ -1382,7 +1382,6 @@ function getTplHead()
 
 	<div class="sectionBody">
 	<div class="tab-pane" id="documentPane">
-	<script>tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );</script>
 EOT;
 	return $tpl;
 }
@@ -1394,6 +1393,9 @@ function getTplFoot()
 	</div><!--div class="tab-pane" id="documentPane"-->
 	</div><!--div class="sectionBody"-->
 	</fieldset>
+	<script>
+		tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
+	</script>
 </form>
 [+OnRichTextEditorInit+]
 EOT;
@@ -1407,7 +1409,6 @@ function getTplTabGeneral()
 	<!-- General -->
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab" id="tabGeneralHeader">[+_lang_settings_general+]</h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabGeneral" ) );</script>
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 			[+fieldPagetitle+]
 			[+fieldLongtitle+]
@@ -1434,7 +1435,6 @@ function getTplTabTV()
 <!-- TVs -->
 <div class="tab-page" id="tabTVs">
 	<h2 class="tab" id="tabTVsHeader">[+_lang_tv+]</h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabTVs" ) );</script>
 	[+TVFields+]
 </div>
 EOT;
@@ -1447,7 +1447,6 @@ function getTplTabSettings()
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
 		<h2 class="tab" id="tabSettingsHeader">[+_lang_settings_page_settings+]</h2>
-	<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabSettings" ) );</script>
 		<table width="99%" border="0" cellspacing="5" cellpadding="0">
 			[+fieldPublished+]
 			[+fieldPub_date+]
@@ -1476,7 +1475,6 @@ function getTplTabAccess()
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
 	<h2 class="tab" id="tabAccessHeader">[+_lang_access_permissions+]</h2>
-<script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabAccess" ) );</script>
 	<script type="text/javascript">
 		/* <![CDATA[ */
 		function makePublic(b) {

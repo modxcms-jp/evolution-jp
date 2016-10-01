@@ -26,9 +26,6 @@ $form_v = $_REQUEST;
 <div class="sectionBody">
 <form action="index.php?a=13" name="logging" class="mutate" method="POST">
 <div class="tab-pane" id="logPane">
-	<script type="text/javascript">
-		tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
-	</script>
 	<div class="tab-page" id="tabGeneral">
 		<h2 class="tab"><?php echo $_lang['general'];?></h2>
 		<table border="0" cellpadding="2" cellspacing="0">
@@ -138,7 +135,9 @@ $form_v = $_REQUEST;
       <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none;" />
 </div>
 </div>
-
+<script>
+	tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
+</script>
 </form>
 
 <?php if(isset($_POST['log_submit'])||isset($_GET['log_submit'])) :?>

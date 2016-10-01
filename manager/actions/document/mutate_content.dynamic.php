@@ -100,7 +100,6 @@ if($modx->doc->mode==='normal') {
 $ph['actionButtons'] = getActionButtons($id);
 $ph['token'] = $modx->genToken();
 $_SESSION['token'] = $ph['token'];
-$ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 
 echo parseText($tpl['head'],$ph);
 
@@ -207,5 +206,5 @@ if($modx->config['use_editor'] === '1') {
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
+$ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
 echo parseText($tpl['foot'],$ph);
-

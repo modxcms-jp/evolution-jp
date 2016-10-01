@@ -59,31 +59,6 @@ if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 }
 ?>
 <script type="text/javascript">
-jQuery(function(){
-	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tpstatus );
-	var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == on) ? '1': '0'; ?>;
-	if(readonly==1) {
-		jQuery('textarea,input[type=text]').prop('readonly',true);
-		jQuery('select').addClass('readonly');
-		jQuery('#Button1').hide();
-    	jQuery('input[name="locked"]').click(function(){
-    		jQuery('#Button1').toggle();
-    	});
-	}
-	jQuery('input[name="locked"]').click(function(){
-		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
-		jQuery('select').toggleClass('readonly');
-	});
-	jQuery('select[name="categoryid"]').change(function(){
-		if(jQuery(this).val()=='-1') {
-			jQuery('#newcategry').fadeIn();
-		} else {
-			jQuery('#newcategry').fadeOut();
-			jQuery('input[name="newcategory"]').val('');
-		}
-	});
-});
 function duplicaterecord(){
 	if(confirm("<?php echo $_lang['confirm_duplicate_record']?>")==true) {
 		documentDirty=false;
@@ -428,5 +403,28 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 </form>
 
 <script type="text/javascript">
-setTimeout('showParameters();',10);
+    setTimeout('showParameters();',10);
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tpstatus );
+	var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == on) ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('select').addClass('readonly');
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
+		jQuery('select').toggleClass('readonly');
+	});
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1') {
+			jQuery('#newcategry').fadeIn();
+		} else {
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
+		}
+	});
 </script>

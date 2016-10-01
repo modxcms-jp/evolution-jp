@@ -179,9 +179,6 @@ if (is_array($evtOut))
 	table.settings th,table.settings td {padding:5px;}
 </style>
 <div class="tab-pane" id="userPane">
-	<script type="text/javascript">
-		tpUser = new WebFXTabPane(document.getElementById( "userPane" ), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?> );
-	</script>
 <!-- Profile -->
 <div class="tab-page" id="tabProfile">
 <h2 class="tab"><?php echo $_lang["profile"] ?></h2>
@@ -417,6 +414,10 @@ if (is_array($evtOut))
 	echo implode("", $evtOut);
 ?>
 </form>
+<script type="text/javascript">
+	var remember = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpUser = new WebFXTabPane(document.getElementById( "userPane" ), remember);
+</script>
 <?php
 
 function selected($cond=false)

@@ -11,9 +11,6 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
 <div class="sectionBody">
     <div class="tab-pane" id="helpPane">
-        <script type="text/javascript">
-            tpHelp = new WebFXTabPane( document.getElementById( "helpPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
-        </script>
 <?php
 $help_dir = MODX_BASE_PATH . 'assets/templates/help';
 if(is_dir($help_dir)==false)
@@ -57,3 +54,6 @@ foreach($help as $k=>$v) {
 ?>
     </div>
 </div>
+<script type="text/javascript">
+    tpHelp = new WebFXTabPane( document.getElementById( "helpPane" ), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
+</script>

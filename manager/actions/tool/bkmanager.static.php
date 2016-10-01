@@ -147,9 +147,6 @@ else $ph['result_msg'] = '';
 
 <div class="sectionBody">
 	<div class="tab-pane" id="dbmPane">
-	<script type="text/javascript">
-	    tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
-	</script>
 	<div class="tab-page" id="tabBackup">
 	    <h2 class="tab"><?php echo $_lang['backup']?></h2>
 	<form name="frmdb" method="post">
@@ -397,6 +394,9 @@ else
 </div>
 
 </div>
+<script type="text/javascript">
+    tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
+</script>
 
 <?php
 	include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php'); // send footer

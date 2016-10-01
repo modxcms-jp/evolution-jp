@@ -57,8 +57,6 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
 <script type="text/javascript">
 var docid = <?php echo $_REQUEST['id'];?>;
 jQuery(function(){
-	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
-	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), tpstatus );
 	jQuery('select[name="categoryid"]').change(function(){
 		if(jQuery(this).val()=='-1') {
 			jQuery('#newcategry').fadeIn();
@@ -565,7 +563,11 @@ $evtOut = $modx->invokeEvent('OnModFormRender', $tmp);
 if(is_array($evtOut)) echo implode('',$evtOut);
 ?>
 </form>
-<script type="text/javascript">setTimeout('showParameters();',10);</script>
+<script type="text/javascript">
+	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
+	tpModule = new WebFXTabPane( document.getElementById( "modulePane"), tpstatus );
+	setTimeout('showParameters();',10);
+</script>
 
 <?php
 // create globally unique identifiers (guid)

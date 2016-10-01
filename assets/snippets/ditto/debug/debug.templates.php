@@ -15,13 +15,13 @@ $dbg_templates["main"] = <<<TPL
 		<div class="sectionHeader">&nbsp;[+title+]</div>
 				   <div class="sectionBody"> 
 			       <div class="tab-pane" id="dittoDebug"> 
-			       <script type="text/javascript"> 
-						tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
-		</script>
 		[+content+]
 		</div>
 		</div>
 		</div>
+		<script type="text/javascript">
+			tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
+		</script>
 		</body>
 </html>
 TPL;

@@ -79,68 +79,6 @@ $tooltip_input_option = $modx->parseTextSimple($tooltip_tpl,$ph);
 
 ?>
 <script language="JavaScript">
-jQuery(function(){
-	tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
-	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
-	if(readonly==1) {
-		jQuery('textarea,input[type=text]').prop('readonly',true);
-		jQuery('select').addClass('readonly');
-		jQuery('#Button1').hide();
-    	jQuery('input[name="locked"]').click(function(){
-    		jQuery('#Button1').toggle();
-    	});
-	}
-	jQuery('input[name="locked"]').click(function(){
-		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
-		jQuery('select').toggleClass('readonly');
-	});
-	jQuery('select[name="categoryid"]').change(function(){
-		if(jQuery(this).val()=='-1')
-		{
-			jQuery('#newcategry').fadeIn();
-		}
-		else
-		{
-			jQuery('#newcategry').fadeOut();
-			jQuery('input[name="newcategory"]').val('');
-		}
-	});
-	var itype = jQuery('#type');
-	itype.change(function(){
-		switch(itype.val())
-		{
-			case 'dropdown':
-			case 'listbox':
-			case 'listbox-multiple':
-			case 'checkbox':
-			case 'option':
-			case 'custom_tv':
-<?php
-$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
-while($row = $modx->db->getRow($result)){
-$type = strtolower(str_replace("input:","",$row["name"]));
-echo "\t\t\tcase '".$type."':\n";
-}
-?>
-				jQuery('#inputoption').fadeIn();
-				var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
-				if(itype.val()=='custom_tv')
-				{
-					jQuery('#inputoption th:first').css('visibility','hidden');
-					if(jQuery('#inputoption textarea').val()=='') jQuery('#inputoption textarea').val(ctv);
-				}
-				else
-				{
-					jQuery('#inputoption th:first').css('visibility','visible');
-					if(jQuery('#inputoption textarea').val()==ctv) jQuery('#inputoption textarea').val('');
-				}
-				break;
-			default:
-				jQuery('#inputoption').fadeOut();
-		}
-	});
-});
-
 function duplicaterecord(){
     if(confirm("<?php echo $_lang['confirm_duplicate_record'] ?>")==true) {
         documentDirty=false;
@@ -657,3 +595,64 @@ function selected($target='')
 </div>
 </div>
 </form>
+<script>
+	tpTmplvars = new WebFXTabPane( document.getElementById( "tmplvarsPane" ), false );
+	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('select').addClass('readonly');
+		jQuery('#Button1').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#Button1').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
+		jQuery('select').toggleClass('readonly');
+	});
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1')
+		{
+			jQuery('#newcategry').fadeIn();
+		}
+		else
+		{
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
+		}
+	});
+	var itype = jQuery('#type');
+	itype.change(function(){
+		switch(itype.val())
+		{
+			case 'dropdown':
+			case 'listbox':
+			case 'listbox-multiple':
+			case 'checkbox':
+			case 'option':
+			case 'custom_tv':
+<?php
+$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+while($row = $modx->db->getRow($result)){
+$type = strtolower(str_replace("input:","",$row["name"]));
+echo "\t\t\tcase '".$type."':\n";
+}
+?>
+				jQuery('#inputoption').fadeIn();
+				var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
+				if(itype.val()=='custom_tv')
+				{
+					jQuery('#inputoption th:first').css('visibility','hidden');
+					if(jQuery('#inputoption textarea').val()=='') jQuery('#inputoption textarea').val(ctv);
+				}
+				else
+				{
+					jQuery('#inputoption th:first').css('visibility','visible');
+					if(jQuery('#inputoption textarea').val()==ctv) jQuery('#inputoption textarea').val('');
+				}
+				break;
+			default:
+				jQuery('#inputoption').fadeOut();
+		}
+	});
+</script>

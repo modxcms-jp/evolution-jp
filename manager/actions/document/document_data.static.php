@@ -74,9 +74,6 @@ foreach($content as $k=>$v)
 
 ?>
 	<script type="text/javascript">
-	jQuery(function(){
-		tpDocInfo = new WebFXTabPane( document.getElementById( "docInfo" ), false );
-    });
 	function duplicatedocument(){
 		if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
 			document.location.href="index.php?id=<?php echo $id;?>&a=94";
@@ -247,4 +244,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 	</div><!-- end tab-page -->
 <?php endif;?>
 </div><!-- end documentPane -->
+<script>
+	tpDocInfo = new WebFXTabPane( document.getElementById( "docInfo" ), false );
+</script>
 </div><!-- end sectionBody -->

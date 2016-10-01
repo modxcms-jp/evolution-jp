@@ -455,10 +455,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
           </ul>
     </div>
-<script>
-var tpstatus = <?php echo (($modx->config['remember_last_tab']==2)||($_GET['stay']==2)) ? 'true':'false';?>;
-tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
-</script>
 <div class="sectionBody">
 <div class="tab-pane" id="pluginPane">
 
@@ -647,6 +643,10 @@ tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
 </div>
 </div>
 </div>
+<script>
+    var tpstatus = <?php echo (($modx->config['remember_last_tab']==2)||($_GET['stay']==2)) ? 'true':'false';?>;
+    tp = new WebFXTabPane( document.getElementById( "pluginPane"), tpstatus );
+</script>
 <?php
 // invoke OnPluginFormRender event
 $tmp = array("id" => $id);

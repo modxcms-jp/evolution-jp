@@ -51,9 +51,6 @@ else
 <p><?php echo $_lang['access_permissions_introtext'];?></p><?php echo $modx->config['use_udperms']!=1 ? '<p>'.$_lang['access_permissions_off'].'</p>' : '' ;?>
 
 <div class="tab-pane" id="tabPane1">
-<script type="text/javascript">tp1 = new WebFXTabPane( document.getElementById( "tabPane1" ), true );</script>
-
-
 <div class="tab-page" id="tabPage1">
 <h2 class="tab"><?php echo $_lang['web_access_permissions_user_groups'] ?></h2>
 <?php
@@ -267,3 +264,4 @@ else
 
 </div>
 </div>
+<script type="text/javascript">tp1 = new WebFXTabPane( document.getElementById( "tabPane1" ), true );</script>

@@ -24,9 +24,6 @@ $dbase = trim($dbase,'`');
 
 <div class="sectionBody">
 <div class="tab-pane" id="sysinfoPane">
-<script type="text/javascript">
-	tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);
-</script>
 <div class="tab-page" id="tabServer">
 <h2 class="tab"><?php echo $_lang["view_sysinfo"];?></h2>
 <!-- server -->
@@ -310,6 +307,10 @@ echo '</table>' . "\n";
 </div>
 </div>
 </div>
+<script type="text/javascript">
+	tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);
+</script>
+
 <?php
 function render_tr($label,$content)
 {
