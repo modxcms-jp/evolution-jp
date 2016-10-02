@@ -5,9 +5,9 @@
 <h2>[+welcome_title+]</h2>
 <p style="margin-bottom:3em;">[+welcome_text+]</p>
 <div>
-	<div class="installImg"><img src="img/[+installImg+]" alt="new install" /></div>
 	<div class="installDetails">
 		<h3>[+installTitle+]</h3>
+    	<div class="installImg"><img src="img/[+installImg+]" alt="new install" /></div>
 		<p>[+installNote+]</p>
 		<select name="install_language" style="margin-top:20px;">
 		[+lang_options+]

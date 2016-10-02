@@ -61,10 +61,15 @@ line-height:0.9;
 margin:0.6em 0 0.3em;
 }
 h3 {
-font-size:141.667%;
-line-height:0.823529;
-margin:0.54902em 0 0.27451em;
+font-size:1.4em;
+line-height:1;
 font-weight: bold;
+background-color: #eee;
+border-radius: 5px;
+font-weight: bold;
+line-height: 0.823529;
+margin: .2em 0 .7em;
+padding: 8px;
 }
 h4 {
 font-size:116.667%;
@@ -107,7 +112,7 @@ margin-left:30px;
 dl, hr, ol, ul, dl pre, table, address, fieldset {
 margin-bottom:1.5em;
 }
-p {margin-bottom:.5em;}
+p {margin:0 0 .5em .5em;}
 .container_10 {
 margin-left:auto;
 margin-right:auto;
