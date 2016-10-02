@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups` (
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(245) NOT NULL DEFAULT '',
   `private_memgroup` tinyint(4) DEFAULT '0' COMMENT 'determine whether the document group is private to manager users',
   `private_webgroup` tinyint(4) DEFAULT '0' COMMENT 'determines whether the document is private to web users',
   PRIMARY KEY (`id`),
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_access` (
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_names` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(245) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM COMMENT='Contains data used for access permissions.';
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `pagetitle` varchar(255) NOT NULL DEFAULT '',
   `longtitle` varchar(255) NOT NULL DEFAULT '',
   `description` varchar(255) NOT NULL DEFAULT '',
-  `alias` varchar(255) DEFAULT '',
+  `alias` varchar(245) DEFAULT '',
   `link_attributes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link attriubtes',
   `published` int(1) NOT NULL DEFAULT '0',
   `pub_date` int(20) NOT NULL DEFAULT '0',
@@ -130,7 +130,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_content` (
   `hidemenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Hide document from menu',
   `alias_visible` INT(2) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `id` (`id`),
   KEY `parent` (`parent`),
   KEY `aliasidx` (`alias`),
   KEY `typeidx` (`type`),
@@ -440,7 +439,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_access` (
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_names` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(245) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM COMMENT='Contains data used for web access permissions.';

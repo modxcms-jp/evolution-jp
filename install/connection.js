@@ -33,7 +33,7 @@ jQuery(function(){
 			'pwd': jQuery('#database_password').val(),
 			'dbase': jQuery('#dbase').val(),
 			'table_prefix': jQuery('#table_prefix').val(),
-			'database_collation': 'utf8_general_ci',
+			'database_collation': jQuery('#collation').val(),
 			'database_connection_method': 'SET CHARACTER SET',
 			'language': language,
 			'installMode': installMode

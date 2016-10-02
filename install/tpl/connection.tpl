@@ -29,6 +29,10 @@
   <p class="labelHolder"><label for="dbase">[+connection_screen_database_name+]</label>
     <input id="dbase" value="[+dbase+]" name="dbase" />
   </p>
+  <p class="labelHolder"><label for="dbase">[+connection_screen_collation+]</label>
+    <select id="collation" value="[+dbase+]" name="database_collation" />
+    </select>
+  </p>
   <p class="labelHolder"><label for="table_prefix">[+connection_screen_table_prefix+]</label>
     <input id="table_prefix" value="[+table_prefix+]" name="table_prefix" />
   </p>

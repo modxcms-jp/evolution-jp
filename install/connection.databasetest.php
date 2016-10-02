@@ -21,7 +21,7 @@ else
 	$dbase                      = trim($_POST['dbase'],'`');
 	$table_prefix               = trim($_POST['table_prefix']);
 	$table_prefix = trim($table_prefix,'_').'_';
-	$database_collation         = getOption('database_collation');
+	$database_collation         = $_POST['database_collation'];
 	$database_connection_method = $_POST['database_connection_method'];
 	
 	if(get_magic_quotes_gpc())
@@ -41,8 +41,8 @@ else
 	if (!@ sql_select_db($dbase,$db))
 	{
 		sql_set_charset('utf8');
-		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET 'utf8' COLLATE {$database_collation}";
-		
+		$charset = substr($database_collation,0,strpos($database_collation,'_'));
+		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET '{$charset}' COLLATE {$database_collation}";
 		if(!@ sql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
 		else
 		{
