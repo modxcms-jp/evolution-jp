@@ -19,7 +19,8 @@ if(!$db) $output .= span_fail($_lang['status_failed']);
 else
 {
 	$dbase                      = trim($_POST['dbase'],'`');
-	$table_prefix               = $_POST['table_prefix'];
+	$table_prefix               = trim($_POST['table_prefix']);
+	$table_prefix = trim($table_prefix,'_').'_';
 	$database_collation         = getOption('database_collation');
 	$database_connection_method = $_POST['database_connection_method'];
 	
