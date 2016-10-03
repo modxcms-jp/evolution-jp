@@ -207,7 +207,7 @@ class template{
 			$template = $modx->getChunk(substr($tpl, 7));
 		} elseif(substr($tpl, 0, 5) == '@FILE') {
 			$path = trim(substr($tpl, 6));
-			if(strpos($path, $modx->config['base_url'].'manager/inludes/config.inc.php')===false)
+			if(strpos($path, $modx->config['base_url'].'manager/includes/config.inc.php')===false)
 				$template = file_get_contents($path);
 		} elseif(substr($tpl, 0, 5) == '@CODE') {
 			$template = substr($tpl, 6);
