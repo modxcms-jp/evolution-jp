@@ -1115,7 +1115,7 @@ class SubParser {
                 $ph['value']  = htmlspecialchars($field_value);
                 $ph['style']  = $field_style;
                 $ph['tvtype'] = $field_type;
-                $field_html =  $modx->parseTextSimple($tpl,$ph,'[+','+]');
+                $field_html =  $modx->parseTextSimple($tpl,$ph);
                 break;
             case "textarea":     // handler for textarea boxes
             case "rawtextarea":  // non-htmlentity convertex textarea boxes
@@ -1129,7 +1129,7 @@ class SubParser {
                 $ph['style']  = $field_style;
                 $ph['tvtype'] = $field_type;
                 $ph['rows']   = $field_type==='textareamini' ? '5' : '15';
-                $field_html =  $modx->parseTextSimple($tpl,$ph,'[+','+]');
+                $field_html =  $modx->parseTextSimple($tpl,$ph);
                 break;
             case "date":
             case "dateonly":
@@ -1143,7 +1143,7 @@ class SubParser {
                 $ph['cal_nodate']      = $_style['icons_cal_nodate'];
                 $ph['yearOffset']      = $modx->config['datepicker_offset'];
                 $ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
-                $field_html =  $modx->parseTextSimple($tpl,$ph,'[+','+]');
+                $field_html =  $modx->parseTextSimple($tpl,$ph);
                 break;
             case "dropdown": // handler for select boxes
             case "listbox":  // handler for select boxes
@@ -1170,7 +1170,7 @@ class SubParser {
                 $ph['extra'] = '';
                 if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
                 elseif($field_type==='dropdown')     $ph['size']   = '1';
-                $field_html =  $modx->parseTextSimple($tpl,$ph,'[+','+]');
+                $field_html =  $modx->parseTextSimple($tpl,$ph);
                 break;
             case "url": // handles url input fields
                 $field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
@@ -1213,7 +1213,7 @@ class SubParser {
                     $ph['tvtype']  = $field_type;
                     $ph['label']   = $label;
                     $ph['checked'] = $checked;
-                    $field_html .=  $modx->parseTextSimple($tpl,$ph,'[+','+]');
+                    $field_html .=  $modx->parseTextSimple($tpl,$ph);
                     $i++;
                 }
                 break;
