@@ -34,8 +34,8 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
-    <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
+    <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
 		jQuery('#workText',parent.mainMenu.document).html('');
