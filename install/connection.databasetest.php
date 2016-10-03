@@ -23,6 +23,7 @@ else
 	$table_prefix = trim($table_prefix,'_').'_';
 	$database_collation         = $_POST['database_collation'];
 	$database_connection_method = $_POST['database_connection_method'];
+	$database_charset = substr($database_collation,0,strpos($database_collation,'_'));
 	
 	if(get_magic_quotes_gpc())
 	{
@@ -30,19 +31,20 @@ else
 		$table_prefix               = stripslashes($table_prefix);
 		$database_collation         = stripslashes($database_collation);
 		$database_connection_method = stripslashes($database_connection_method);
+		$database_charset           = stripslashes($database_charset);
 	}
 	$dbase                      = sql_real_escape_string($dbase);
 	$table_prefix               = sql_real_escape_string($table_prefix);
 	$database_collation         = sql_real_escape_string($database_collation);
 	$database_connection_method = sql_real_escape_string($database_connection_method);
+	$database_charset           = sql_real_escape_string($database_charset);
 	$tbl_site_content = "`{$dbase}`.`{$table_prefix}site_content`";
 	
 	$pass = false;
 	if (!@ sql_select_db($dbase,$db))
 	{
-		sql_set_charset('utf8');
-		$charset = substr($database_collation,0,strpos($database_collation,'_'));
-		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET '{$charset}' COLLATE {$database_collation}";
+		sql_set_charset($database_charset);
+		$query = "CREATE DATABASE `{$dbase}` CHARACTER SET '{$database_charset}' COLLATE {$database_collation}";
 		if(!@ sql_query($query)) $output .= span_fail($query.$_lang['status_failed_could_not_create_database']);
 		else
 		{
@@ -63,6 +65,7 @@ else
 		$_SESSION['table_prefix']               = $table_prefix;
 		$_SESSION['database_collation']         = $database_collation;
 		$_SESSION['database_connection_method'] = $database_connection_method;
+		$_SESSION['database_charset']           = $database_charset;
 	}
 }
 

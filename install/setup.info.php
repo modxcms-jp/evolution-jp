@@ -20,6 +20,7 @@ if(!$modx) {
     $modx->db->username     = $_SESSION['database_user'];
     $modx->db->password     = $_SESSION['database_password'];
     $modx->db->dbname       = $_SESSION['dbase'];
+    $modx->db->charset      = $_SESSION['database_charset'];
     $modx->db->table_prefix = $_SESSION['table_prefix'];
     $modx->db->connect();
 }

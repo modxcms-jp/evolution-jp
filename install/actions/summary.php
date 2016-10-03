@@ -188,7 +188,13 @@ else  $_ = echo_ok();
 echo p($_ . $_lang['checking_if_config_exist_and_writable']);
 
 // check mysql version
-$modx->db->connect($_SESSION['database_server'],$_SESSION['database_user'],$_SESSION['database_password']);
+$modx->db->hostname          = $_SESSION['database_server'];
+$modx->db->username          = $_SESSION['database_user'];
+$modx->db->password          = $_SESSION['database_password'];
+$modx->db->dbname            = $_SESSION['dbase'];
+$modx->db->charset           = $_SESSION['database_charset'];
+$modx->db->connection_method = $_SESSION['database_connection_method'];
+$modx->db->connect();
 $modx->db->getVersion();
 echo sprintf('<p>%s %s <strong>%s%s </strong></p>', echo_ok(), $_lang['checking_sql_version'], $_lang['sql_version_is'], $modx->db->getVersion());
 

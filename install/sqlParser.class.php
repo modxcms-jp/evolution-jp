@@ -42,8 +42,7 @@ class SqlParser {
 		
 		if(version_compare($dbVersion,'4.1.0', '>='))
 		{
-			$charset = substr($this->connection_collation,0,strpos($this->connection_collation,'_'));
-			$char_collate = "DEFAULT CHARSET={$charset} COLLATE {$this->connection_collation}";
+			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
 		}
 		

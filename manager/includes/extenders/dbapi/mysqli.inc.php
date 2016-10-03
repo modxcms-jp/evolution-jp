@@ -17,7 +17,7 @@ class DBAPI {
     * @name:  DBAPI
     *
     */
-    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
+    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='',$connection_method='SET CHARACTER SET') {
         global $table_prefix;
         if(!isset($GLOBALS['database_server']))   $GLOBALS['database_server'] = '';
         if(!isset($GLOBALS['dbase']))             $GLOBALS['dbase'] = '';
@@ -30,13 +30,13 @@ class DBAPI {
         $this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $GLOBALS['table_prefix'];
         $this->config['charset'] = $charset ? $charset : $GLOBALS['database_connection_charset'];
         $this->config['connection_method'] = isset($GLOBALS['database_connection_method']) ? $GLOBALS['database_connection_method'] : $connection_method;
-        $this->hostname          = &$this->config['host'];
-        $this->dbname            = &$this->config['dbase'];
-        $this->username          = &$this->config['user'];
-        $this->password          = &$this->config['pass'];
-        $this->table_prefix      = &$this->config['table_prefix'];
-        $this->charset           = &$this->config['charset'];
-        $this->connection_method = &$this->config['connection_method'];
+        $this->hostname           = &$this->config['host'];
+        $this->dbname             = &$this->config['dbase'];
+        $this->username           = &$this->config['user'];
+        $this->password           = &$this->config['pass'];
+        $this->table_prefix       = &$this->config['table_prefix'];
+        $this->charset            = &$this->config['charset'];
+        $this->connection_method  = &$this->config['connection_method'];
         $this->dbconnectionmethod = &$this->config['connection_method'];
     }
     

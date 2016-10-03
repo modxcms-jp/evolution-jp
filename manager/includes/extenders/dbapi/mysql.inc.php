@@ -23,7 +23,7 @@ class DBAPI {
     * @name:  DBAPI
     *
     */
-    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='utf8',$connection_method='SET CHARACTER SET') {
+    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='',$connection_method='SET CHARACTER SET') {
         global $database_server,$dbase,$database_user,$database_password,$table_prefix,$database_connection_charset,$database_connection_method;
         
         $this->config['host']    = $host    ? $host    : $database_server;
@@ -39,9 +39,9 @@ class DBAPI {
         $this->username = $this->config['user'];
         $this->password = $this->config['pass'];
         $this->table_prefix = $this->config['table_prefix'];
-        $this->charset           = $this->config['charset'];
-        $this->connection_method = $this->config['connection_method'];
-        $this->_dbconnectionmethod = &$this->config['connection_method'];
+        $this->charset             = & $this->config['charset'];
+        $this->connection_method   = & $this->config['connection_method'];
+        $this->_dbconnectionmethod = & $this->config['connection_method'];
     }
     
     /**
