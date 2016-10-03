@@ -7,7 +7,6 @@ $dbg_templates["main"] = <<<TPL
         <title>[+title+]</title> 
 		<meta http-equiv="Content-Type" content="text/html; charset=[+charset+]" />
 		<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/style.css" /> 
-		<script type="text/javascript" src="[+base_url+]media/script/tabpane.js"></script>
 		<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]debug/debug.template.css" />
         </head>
         <body>
@@ -19,7 +18,7 @@ $dbg_templates["main"] = <<<TPL
 		</div>
 		</div>
 		</div>
-		<script type="text/javascript">
+		<script type="text/javascript" src="[+base_url+]media/script/tabpane.js">
 			tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
 		</script>
 		</body>
@@ -36,9 +35,8 @@ $dbg_templates["item"] = <<<TPL
 TPL;
 
 $dbg_templates["tab"] = <<<TPL
-		<div class="tab-page" id="tab_[+title+]">  
-				    <h2 class="tab">[+title+]</h2>  
-				    <script type="text/javascript">tpDittoDebug.addTabPage( document.getElementById( "tab_[+title+]" ) );</script> 
+		<div class="tab-page" id="tab_[+title+]">
+				    <h2 class="tab">[+title+]</h2>
 					[+tab_content+]
 		</div>
 TPL;
